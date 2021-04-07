@@ -1,0 +1,18 @@
+double spline ( void (*r8)(double,int&,int&,double&,double&) , void (*y)(double&,double&,int,int) ,double tval, int &pos);
+double splinepos ( void (*r8)(double&,double&,int,int), void (*y)(double&,double&,int,int) ,double tval, int pos);
+void y_p( double &y1, double &y2,int left,int right);
+void y_plow( double &y1, double &y2,int left,int right);
+void y_T( double &y1, double &y2,int left,int right);
+void y_Tlow( double &y1, double &y2,int left,int right);
+void y_e( double &y1, double &y2,int left,int right);
+void y_elow( double &y1, double &y2,int left,int right);
+void y_s( double &y1, double &y2,int left,int right);
+void y_slow( double &y1, double &y2,int left,int right);
+void y_dtds( double &y1, double &y2,int left,int right);
+void y_dtdslow( double &y1, double &y2,int left,int right);
+void r8_s (  double xval, int &left, int &right,double &x1, double&x2 );
+void r8_T (  double xval, int &left, int &right,double &x1, double&x2 );
+void r8_slow (  double xval, int &left, int &right,double &x1, double&x2 );
+void r8_e (  double xval, int &left, int &right,double &x1, double&x2 );
+void r8_Tlow (  double xval, int &left, int &right,double &x1, double&x2 );
+void r8_elow (  double xval, int &left, int &right,double &x1, double&x2 );

@@ -1,0 +1,5 @@
+visc:  shear+bulk
+folder:  trento/5TeV/shear/pPb155
+hadrontype(s):  pi+
+bulkcorrection:  1
+ptsize:  15

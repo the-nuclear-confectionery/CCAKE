@@ -1,0 +1,6 @@
+initial conditions-> random sampling of B and S
+enteric -> infrastructure for BSQ
+interpolation function in 3D, 4D + relax e+p=sT assumption
+run EOS HRG no constraints
+freeze-out (rederive),
+cooper-frye
