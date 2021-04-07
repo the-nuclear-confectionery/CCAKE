@@ -1,0 +1,1467 @@
+34c34
+< 
+---
+> 	
+40c40
+< 
+---
+>   	
+47,50c47,50
+<   	getline (cin,filen);
+< 
+<   	readEOS_T(filen);
+< 
+---
+>   	getline (cin,filen);  
+>   	
+>   	readEOS_T(filen); 
+>   	
+56,57c56,57
+<   	getline (cin,filen2);
+< 
+---
+>   	getline (cin,filen2);  
+>   	
+59c59
+< 
+---
+>   	
+75c75
+< 
+---
+> 	
+77,78c77,78
+< 
+< 
+---
+>         
+>         
+81c81
+< 
+---
+>            
+86,87c86,87
+< 
+<                    ETH[i].T/=197.3;
+---
+>                    
+>                    ETH[i].T/=197.3;                 
+95,98c95,98
+< 
+< 		exit(1);
+<   	}
+< 
+---
+> 		
+> 		exit(1);	
+>   	}	
+>   		
+105c105
+< 
+---
+> 	 
+109c109
+<         FILE * myfile = fopen (filename.c_str(),"r");
+---
+>         FILE * myfile = fopen (filename.c_str(),"r");	
+124,126c124,126
+< 
+< 		exit(1);
+<   	}
+---
+> 		
+> 		exit(1);	
+>   	}	
+132c132
+< 
+---
+> 	
+137c137
+< 
+---
+>         
+152c152
+< 
+---
+> 		
+154,155c154,155
+<   	}
+< 
+---
+>   	}	
+>   		
+166c166
+< 
+---
+> 	
+169c169
+<         FILE * myfile = fopen (filename.c_str(),"r");
+---
+>         FILE * myfile = fopen (filename.c_str(),"r");	
+174c174
+< 
+---
+>            
+178c178
+<         	   _p[i].u.x[1]=0;
+---
+>         	   _p[i].u.x[1]=0;        
+181c181
+< 
+---
+>                    
+191c191
+< 
+---
+>                    
+194,195c194,195
+< 
+< 
+---
+>            
+>           
+201,203c201,203
+< 
+< 		exit(1);
+<   	}
+---
+> 		
+> 		exit(1); 	
+>   	}	
+212c212
+< 
+---
+> 	
+215,216c215,216
+<         FILE * myfile = fopen (filename.c_str(),"r");
+< 
+---
+>         FILE * myfile = fopen (filename.c_str(),"r");	
+>        
+221c221
+< 
+---
+>             
+225c225
+<         	   _p[i].u.x[1]=0;
+---
+>         	   _p[i].u.x[1]=0;        
+230c230
+< 
+---
+>                    
+232,233c232,233
+< 
+< 
+---
+>           
+>           
+239,241c239,241
+< 
+< 		exit(1);
+<   	}
+---
+> 		
+> 		exit(1);	
+>   	}	
+247c247
+< 
+---
+> 	
+251,252c251,252
+<         FILE *  myfile = fopen (filename.c_str(),"r");
+< 
+---
+>         FILE *  myfile = fopen (filename.c_str(),"r");	
+>         
+254c254
+< 
+---
+>         
+260,261c260,261
+< 
+< 
+---
+>            
+>            
+263,265c263,265
+< 
+< 
+< 
+---
+>            
+>            
+>            
+269,270c269,270
+< 
+< 
+---
+>            
+>           
+273,278c273,278
+< 
+< 
+<                   esub[i]/=0.1973;
+<                    // if (esub[i]>0.15) ++i;
+<                    ++i;
+< 
+---
+>                    
+>                    
+>                   esub[i]/=0.1973;                  
+>                    // if (esub[i]>0.15) ++i; 
+>                    ++i; 
+>                   
+280,281c280,281
+< 
+< 
+---
+>          
+>          
+284c284
+< 
+---
+>           
+286,287c286,287
+< 
+< 
+---
+>           
+>           
+290,291c290,291
+< 
+< 
+---
+>           
+>         
+297c297
+<         	   _p[j].u.x[1]=0;
+---
+>         	   _p[j].u.x[1]=0;        
+301,302c301,302
+< 
+< 
+---
+>                  
+> 		 
+313c313
+<                    }
+---
+>                    }    
+315c315
+< 
+---
+>           
+317c317
+< 
+---
+>           
+321,324c321,324
+< 
+< 
+< 
+< 
+---
+>           
+>           
+>   	
+>           
+329c329
+< 
+---
+> 		
+331,332c331,332
+<   	}
+< 
+---
+>   	}	
+>   	
+339c339
+< 
+---
+>   
+352c352
+< 
+---
+> 	
+355c355
+< 
+---
+> 	
+360,361c360,361
+< 
+< 
+---
+> 	
+> 	
+365c365
+< 
+---
+> 	
+367,368c367,368
+< 
+< 
+---
+> 	
+> 	
+371c371
+< 
+---
+> 	
+373,374c373,374
+< 
+< 
+---
+> 	
+> 	
+381,382c381,382
+< 
+< 	if ((factor*y[2])>0.001){
+---
+> 	
+> 	if (y[2]>0.01){
+387c387
+< 
+---
+> 	
+390,391c390,391
+< 
+< 
+---
+>          
+>     
+394c394
+< 
+---
+>           
+396,397c396,397
+< 
+< 
+---
+>           
+>           
+400,402c400,402
+< 
+< 
+< 
+---
+>           
+>     
+>         
+409c409
+<       _p[j].u.x[1]=0;
+---
+>       _p[j].u.x[1]=0;        
+413,414c413,414
+< 
+< 
+---
+>                  
+>        
+425c425
+< 	}
+---
+> 	}    
+427c427
+< 
+---
+>           
+429,431c429,430
+< 
+< 
+< 
+---
+>         
+>   
+434,647d432
+< //iccing
+< void readICs_iccing(string &firstry,  int &_Ntable3,Particle<2> *&_p,double factor,double const& sfcheck, int & numpart, eos EOS)
+< {
+< 
+<   string filename;
+<   filename = ifolder+firstry;
+<   //nameenter:
+<   ifstream input(filename.c_str());
+< 	if (!input.is_open())
+<  	{
+<  	cout << "Can't open " << filename << endl;
+<  	exit(1);
+<  	}
+< 
+< 	string line;
+< 	vector<double> xsub,ysub,esub,rBsub,rSsub,rQsub;
+< 
+< 	getline(input,line);
+< 	std::vector<std::string> gx = split(line, ' ');
+< 
+< 	double stepx,stepy;
+< 	stringstream s;
+< 	s << gx[1];
+< 	s >> stepx;
+< 
+< 
+< 	stringstream s1;
+< 	s1 << gx[2];
+< 	s1 >> stepy;
+< 
+< 	cout << "dx=dy=" << stepx << " " << stepy << endl;
+< 
+< 
+< 	while (getline(input,line)) {
+< 	std::vector<double> y (3,0) ;
+< 
+< 	std::vector<std::string> x = split(line, ' ');
+< 
+< 
+< 	for(int j=0;j<6;j++)
+< 	{
+< 	stringstream ss;
+< 	ss << x[j];
+< 	ss >> y[j];
+< 	}
+< 
+< 	//if ((factor*y[2])>0.01){
+< 		xsub.push_back(y[0]);
+< 		ysub.push_back(y[1]);
+< 		esub.push_back(y[2]);
+< 		rBsub.push_back(y[3]);
+< 		rSsub.push_back(y[4]);
+< 		rQsub.push_back(y[5]);
+< 	//}
+< 
+< 	}
+< 	input.close();
+< 
+< 
+<     _Ntable3=xsub.size();
+<     _p= new Particle<2>[_Ntable3];
+< 
+<     cout << "After e-cutoff=" << _Ntable3 << endl;
+< 
+< 
+<     int kk=_Ntable3;
+<     numpart=0;
+< 
+< 
+< 
+<     for(int j=0;j<_Ntable3;j++){
+<       _p[j].r.x[0]=xsub[j];
+<       _p[j].r.x[1]=ysub[j];
+<       // _p[j].e_sub=EOS.e_out(factor*esub[j]);
+<       _p[j].s_an=factor*esub[j];
+<       _p[j].u.x[0]=0;
+<       _p[j].u.x[1]=0;
+<       _p[j].eta_sigma  = 1;
+<       _p[j].sigmaweight=stepx*stepy;
+<       _p[j].Bulk = 0;
+< 			_p[j].rhoB=rBsub[j];
+< 			_p[j].rhoS=rSsub[j];
+< 			_p[j].rhoQ=rQsub[j];
+< 
+< 
+< 
+<       if (_p[j].s_an>sfcheck)
+< 	{
+< 	  _p[j].Freeze=0;
+< 	}
+<       else
+< 	{
+< 	  _p[j].Freeze=4;
+< 	  --kk;
+< 	  ++numpart;
+< 	}
+<     }
+< 
+<     cout << "After freezeout=" << _Ntable3-numpart << endl;
+< 
+< 
+< 
+< }
+< 
+< 
+< //iccing
+< void readICs_iccing(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,double const& sfcheck, int & numpart, eos EOS)
+< {
+< 
+< // added this function to get compilation!
+< if (true){std::cerr << "Fix this! " <<__FILE__ << ":" << __LINE__ << std::endl;  exit(8);}
+< 
+< 
+<   string filename;
+<   filename = ifolder+firstry;
+<   //nameenter:
+<   ifstream input(filename.c_str());
+<         if (!input.is_open())
+<         {
+<         cout << "Can't open " << filename << endl;
+<         exit(1);
+<         }
+< 
+<         string line;
+<         vector<double> xsub,ysub,esub,rBsub,rSsub,rQsub;
+< 
+<         getline(input,line);
+<         std::vector<std::string> gx = split(line, ' ');
+< 
+<         double stepx,stepy;
+<         stringstream s;
+<         s << gx[1];
+<         s >> stepx;
+< 
+< 
+<         stringstream s1;
+<         s1 << gx[2];
+<         s1 >> stepy;
+< 
+<         cout << "dx=dy=" << stepx << " " << stepy << endl;
+< 
+< 
+<         while (getline(input,line)) {
+<         std::vector<double> y (3,0) ;
+< 
+<         std::vector<std::string> x = split(line, ' ');
+< 
+< 
+<         for(int j=0;j<6;j++)
+<         {
+<         stringstream ss;
+<         ss << x[j];
+<         ss >> y[j];
+<         }
+< 
+<         //if ((factor*y[2])>0.01){
+<                 xsub.push_back(y[0]);
+<                 ysub.push_back(y[1]);
+<                 esub.push_back(y[2]);
+<                 rBsub.push_back(y[3]);
+<                 rSsub.push_back(y[4]);
+<                 rQsub.push_back(y[5]);
+<         //}
+< 
+<         }
+<         input.close();
+< 
+< 
+<     _Ntable3=xsub.size();
+<     _p= new Particle<3>[_Ntable3];
+< 
+<     cout << "After e-cutoff=" << _Ntable3 << endl;
+< 
+< 
+<     int kk=_Ntable3;
+<     numpart=0;
+< 
+< 
+< 
+<     for(int j=0;j<_Ntable3;j++){
+<       _p[j].r.x[0]=xsub[j];
+<       _p[j].r.x[1]=ysub[j];
+<       // _p[j].e_sub=EOS.e_out(factor*esub[j]);
+<       _p[j].s_an=factor*esub[j];
+<       _p[j].u.x[0]=0;
+<       _p[j].u.x[1]=0;
+<       _p[j].eta_sigma  = 1;
+<       _p[j].sigmaweight=stepx*stepy;
+<       _p[j].Bulk = 0;
+<                         _p[j].rhoB=rBsub[j];
+<                         _p[j].rhoS=rSsub[j];
+<                         _p[j].rhoQ=rQsub[j];
+< 
+< 
+< 
+<       if (_p[j].s_an>sfcheck)
+<         {
+<           _p[j].Freeze=0;
+<         }
+<       else
+<         {
+<           _p[j].Freeze=4;
+<           --kk;
+<           ++numpart;
+<         }
+<     }
+< 
+<     cout << "After freezeout=" << _Ntable3-numpart << endl;
+< 
+< 
+< 
+< }
+< 
+< 
+653c438
+< 
+---
+> 	
+657,658c442,443
+<         ifstream input(filename.c_str());
+< 
+---
+>         FILE *  myfile = fopen (filename.c_str(),"r");	
+>         
+659a445,459
+>         _Ntable3=55000;
+>         double *xsub,*ysub,*esub;
+>   	if ((!firstry.empty())&&(myfile!= NULL)){
+>            
+>            
+>            int i=0;
+>            
+>            
+>            
+>            xsub=new double[_Ntable3];
+>            ysub=new double[_Ntable3];
+>            esub=new double[_Ntable3];
+> //           vxsub=new double[_Ntable3];
+> //           vysub=new double[_Ntable3];
+> //           vzsub=new double[_Ntable3];
+662,672d461
+<   	if (!input.is_open())
+<  	{
+<  	cout << "Can't open " << filename << endl;
+<  	exit(1);
+<  	}
+< 
+< 
+< 
+< 	string line;
+< 	vector<double> xsub,ysub,esub;
+< 
+675,681c464,470
+< 	if (hcor==1) {
+< 		getline(input,line);
+< 		cout << "here" << endl;
+< 		gd2=0.06*0.06;
+< 	}
+< 	else {
+< 		gd2=0.08*0.08;
+---
+> 	if (hcor==1) {fscanf(myfile,"%*f  \n");
+> 	gd2=0.06*0.06;
+> 		//while (fscanf(myfile,"%lf    %lf  %lf %*f %*f      \n",&xsub[i],&ysub[i],&esub[i])!=EOF){
+> 		while (fscanf(myfile,"%lf    %lf  %lf     \n",&xsub[i],&ysub[i],&esub[i])!=EOF){
+> 		   if (factor*esub[i]>0.01) ++i; 
+>                  }
+> 	
+683,739c472,478
+< 
+< 
+< 	while (getline(input,line)) {
+< 	std::vector<double> y (3,0) ;
+< 
+< 	std::vector<std::string> x = split(line, ' ');
+< 
+< 
+< 	for(int j=0;j<3;j++)
+< 	{
+< 	stringstream ss;
+< 	ss << x[j];
+< 	ss >> y[j];
+< 	}
+< 
+< 	if (y[2]>0.01){
+< 		xsub.push_back(y[0]);
+< 		ysub.push_back(y[1]);
+< 		esub.push_back(y[2]);
+< 	}
+< 
+< 	}
+< 	input.close();
+< 
+< 
+<     _Ntable3=xsub.size();
+<     _p= new Particle<2>[_Ntable3];
+< 
+<     cout << "After e-cutoff=" << _Ntable3 << endl;
+< 
+< 
+<     int kk=_Ntable3;
+<     numpart=0;
+< 
+< 
+< 
+<     for(int j=0;j<_Ntable3;j++){
+<       _p[j].r.x[0]=xsub[j];
+<       _p[j].r.x[1]=ysub[j];
+<       _p[j].e_sub=esub[j];
+<       _p[j].u.x[0]=0;
+<       _p[j].u.x[1]=0;
+<       _p[j].eta_sigma  = 1;
+<       _p[j].sigmaweight=gd2;
+<       _p[j].Bulk = 0;
+< 
+< 
+< 
+<       if (_p[j].e_sub>efcheck)
+< 	{
+< 	  _p[j].Freeze=0;
+< 	}
+<       else
+< 	{
+< 	  _p[j].Freeze=4;
+< 	  --kk;
+< 	  ++numpart;
+---
+> 	else {gd2=0.08*0.08;
+> 	
+> 	 	while (fscanf(myfile,"%lf    %lf  %lf %*f    %*f  %*f  \n",&xsub[i],&ysub[i],&esub[i])!=EOF){
+>                   esub[i]/=0.1973;
+>                   if (factor*esub[i]>0.01) ++i; 
+>                 }
+> 	
+741,743c480,504
+<     }
+< 
+<     cout << "After freezeout=" << _Ntable3-numpart << endl;
+---
+>           
+>           
+>          
+>          
+>          
+>          
+>          _Ntable3=i;
+>           _p= new Particle<2>[_Ntable3];
+>           
+>           cout << "After e-cutoff=" << _Ntable3 << endl;     
+>           
+>           int kk=_Ntable3;
+>           numpart=0;
+>           
+>           for(int j=0;j<_Ntable3;j++){
+>           	   _p[j].r.x[0]=xsub[j];
+>         	   _p[j].r.x[1]=ysub[j];
+>         	   _p[j].e_sub=factor*esub[j];
+>                    _p[j].u.x[0]=0;
+>         	   _p[j].u.x[1]=0;        
+>                    _p[j].eta_sigma  = 1;
+>                    _p[j].sigmaweight=gd2;
+>                    _p[j].Bulk = 0;
+>                  
+> 		 
+744a506,529
+>               	   if (_p[j].e_sub>efcheck)
+>                    {
+>                    	_p[j].Freeze=0;
+>                    }
+>                    else
+>                    {
+>                    	_p[j].Freeze=4;
+>                    	--kk;
+>                    	++numpart;
+>                    }    
+>           }
+>           cout << "After freezeout=" << _Ntable3-numpart << endl;
+>           
+>           delete [] xsub;
+>           delete [] ysub;
+>           delete [] esub;
+>         
+>   	  fclose(myfile);
+>   	}
+>   	else {
+>   		cout << "Error: " << firstry.c_str() << " does not exist.  Please enter new file name\n";
+> 		
+> 		exit(1);
+>   	}	
+755c540
+< 
+---
+> 	
+759,760c544,545
+<         FILE *  myfile = fopen (filename.c_str(),"r");
+< 
+---
+>         FILE *  myfile = fopen (filename.c_str(),"r");	
+>         
+765,766c550,551
+< 
+< 
+---
+>            
+>            
+768,770c553,555
+< 
+< 
+< 
+---
+>            
+>            
+>            
+777,778c562,563
+< 
+< 
+---
+>            
+>           
+780,781c565,566
+< 
+< 
+---
+>                    
+>                    
+783c568
+<                    if (factor*esub[i]>0.01) ++i;
+---
+>                    if (factor*esub[i]>0.01) ++i; 
+785,787c570,572
+< 
+< 
+< 
+---
+>          
+>          
+>          
+790,792c575,577
+< 
+<          // cout << "After e-cutoff=" << _Ntable3 << endl;
+< 
+---
+>           
+>          // cout << "After e-cutoff=" << _Ntable3 << endl;     
+>           
+795c580
+< 
+---
+>           
+801c586
+<         	   _p[j].v.x[1]=vysub[j];
+---
+>         	   _p[j].v.x[1]=vysub[j];   
+804,805c589,590
+<         	   _p[j].u.x[1]=_p[j].gamma*vysub[j];
+< 
+---
+>         	   _p[j].u.x[1]=_p[j].gamma*vysub[j]; 
+>         	      
+809,810c594,595
+< 
+< 
+---
+>                  
+> 		 
+821c606
+<                    }
+---
+>                    }    
+824c609
+< 
+---
+>           
+828c613
+< 
+---
+>           
+833c618
+< 
+---
+> 		
+835c620
+<   	}
+---
+>   	}	
+841c626
+< 
+---
+> 	
+845c630
+< 
+---
+>         
+847c632
+< 
+---
+>         
+851c636
+< 
+---
+>         
+857,860c642,645
+< 
+< 
+< 
+< 
+---
+>           
+>          
+>           
+>            
+865c650
+< 
+---
+>            
+869c654
+< 
+---
+> 	   
+872c657
+< 
+---
+> 	   
+874c659
+< 
+---
+> 	   
+881c666
+< 
+---
+> 	
+890c675
+< 
+---
+> 	  
+892,893c677,678
+< 
+< 
+---
+> 	   
+> 	   
+895,896c680,681
+< 
+< 
+---
+> 	  
+> 	   
+899c684
+< 
+---
+>            
+904c689
+< 
+---
+> 	   
+907c692
+< 
+---
+> 	   
+917c702
+< 
+---
+> 	   
+919,920c704,705
+< 
+< 
+---
+> 	   
+> 	   
+922c707
+< 
+---
+> 	   
+932c717
+< 
+---
+> 	
+941c726
+< 
+---
+> 	  
+943,944c728,729
+< 
+< 
+---
+> 	   
+> 	   
+947,949c732,734
+< 
+< 
+< 
+---
+>            
+>            
+>            
+951c736
+< 
+---
+>            
+954,955c739,740
+< 
+< 
+---
+>            
+>            
+957,958c742,743
+< 
+< 
+---
+> 	   
+> 	   
+961c746
+< 
+---
+> 	   
+963c748
+< 
+---
+> 	   
+970,971c755,756
+< 
+< 
+---
+> 		
+> 	   
+975,977c760,762
+< 
+< 
+< 
+---
+> 	   
+> 	   
+> 	    
+984c769
+< 
+---
+>            
+987c772
+< 
+---
+>          
+989,991c774,776
+< 
+< 
+< 
+---
+>          
+>          
+>          
+994,995c779,780
+< 
+< 
+---
+>              
+>           
+998c783
+< 
+---
+>           
+1002c787
+<         	   _p[j].e_sub=e[j];
+---
+>         	   _p[j].e_sub=e[j];   
+1004,1005c789,790
+<         	   _p[j].u.x[1]=uy[j];
+< 
+---
+>         	   _p[j].u.x[1]=uy[j]; 
+>         	      
+1009,1010c794,795
+< 
+< 
+---
+>                  
+> 		 
+1021c806
+<                    }
+---
+>                    }    
+1024,1026c809,811
+< 
+< 
+< 
+---
+>           
+>           
+>           
+1028c813
+< 
+---
+>   		
+1034c819
+< 
+---
+> 	
+1038c823
+< 
+---
+>         
+1040c825
+< 
+---
+>         
+1044c829
+< 
+---
+>         
+1050,1053c835,838
+< 
+< 
+< 
+< 
+---
+>           
+>            
+>           
+>            
+1058c843
+< 
+---
+>            
+1062c847
+< 
+---
+> 	   
+1065c850
+< 
+---
+> 	   
+1067c852
+< 
+---
+> 	   
+1074c859
+< 
+---
+> 	
+1081c866
+< 
+---
+> 	  
+1083,1084c868,869
+< 
+< 
+---
+> 	   
+> 	   
+1086,1087c871,872
+< 
+< 
+---
+> 	  
+> 	   
+1090c875
+< 
+---
+>            
+1095c880
+< 
+---
+> 	   
+1098c883
+< 
+---
+> 	   
+1108c893
+< 
+---
+> 	   
+1110,1111c895,896
+< 
+< 
+---
+> 	   
+> 	   
+1113c898
+< 
+---
+> 	   
+1123c908
+< 
+---
+> 	
+1130c915
+< 
+---
+> 	  
+1132,1133c917,918
+< 
+< 
+---
+> 	   
+> 	   
+1136,1138c921,923
+< 
+< 
+< 
+---
+>            
+>            
+>            
+1141c926
+< 
+---
+>            
+1144c929
+< 
+---
+> 	   
+1147c932
+< 
+---
+> 	   
+1149c934
+< 
+---
+> 	   
+1156c941
+< 
+---
+> 	
+1160c945
+< 
+---
+> 	    
+1165c950
+< 
+---
+>            
+1168c953
+< 
+---
+>          
+1170,1172c955,957
+< 
+< 
+< 
+---
+>          
+>          
+>          
+1175,1176c960,961
+< 
+< 
+---
+>              
+>           
+1179c964
+< 
+---
+>           
+1183c968
+<         	   _p[j].e_sub=e[j];
+---
+>         	   _p[j].e_sub=e[j];   
+1185,1186c970,971
+<         	   _p[j].u.x[1]=0;
+< 
+---
+>         	   _p[j].u.x[1]=0; 
+>         	      
+1190,1191c975,976
+< 
+< 
+---
+>                  
+> 		 
+1202c987
+<                    }
+---
+>                    }    
+1232c1017
+< 
+---
+> 	
+1235c1020
+<         myfile = fopen (filename.c_str(),"r");
+---
+>         myfile = fopen (filename.c_str(),"r");	
+1240c1025
+< 
+---
+>            
+1242c1027
+<                    fscanf(myfile,"%lf    %lf    %lf  %lf    %lf\n",&_p[i].r.x[0],&_p[i].r.x[1],&_p[i].sigmaweight,&_p[i].u.x[0],&_p[i].u.x[1]);
+---
+>                    fscanf(myfile,"%lf    %lf    %lf  %lf    %lf\n",&_p[i].r.x[0],&_p[i].r.x[1],&_p[i].sigmaweight,&_p[i].u.x[0],&_p[i].u.x[1]);    
+1245c1030
+< 
+---
+>              
+1255c1040
+< 
+---
+>              
+1263,1265c1048,1050
+< 
+< 		exit(1);
+<   	}
+---
+> 		
+> 		exit(1);	
+>   	}	
+1276c1061
+< 
+---
+> 	
+1279c1064
+<         myfile = fopen (filename.c_str(),"r");
+---
+>         myfile = fopen (filename.c_str(),"r");	
+1285c1070
+<                    fscanf(myfile,"%lf    %lf    %lf   %lf\n",&_p[i].r.x[0],&_p[i].r.x[1],&_p[i].r.x[2],&_p[i].sigmaweight);
+---
+>                    fscanf(myfile,"%lf    %lf    %lf   %lf\n",&_p[i].r.x[0],&_p[i].r.x[1],&_p[i].r.x[2],&_p[i].sigmaweight);      
+1290c1075
+< 
+---
+>           
+1296,1301c1081,1086
+< 
+< 		exit(1);
+<   	}
+< 
+< 
+< 
+---
+> 		
+> 		exit(1); 	
+>   	}	
+>   	
+>   	
+>   	
+1304c1089
+<         myfile2 = fopen (filename2.c_str(),"r");
+---
+>         myfile2 = fopen (filename2.c_str(),"r");	
+1306c1091
+< 
+---
+>   	   
+1314c1099
+< 
+---
+>           
+1320,1321c1105,1106
+< 
+< 		exit(1);
+---
+> 		
+> 		exit(1); 	
+1330,1331c1115,1116
+< 
+< 
+---
+> 	
+> 	
+1334c1119
+<         myfile = fopen (filename.c_str(),"r");
+---
+>         myfile = fopen (filename.c_str(),"r");	
+1340c1125
+<                    fscanf(myfile,"%lf    %lf    %lf   %lf\n",&_p[i].r.x[0],&_p[i].r.x[1],&_p[i].r.x[2],&_p[i].sigmaweight);
+---
+>                    fscanf(myfile,"%lf    %lf    %lf   %lf\n",&_p[i].r.x[0],&_p[i].r.x[1],&_p[i].r.x[2],&_p[i].sigmaweight);      
+1343,1344c1128,1129
+<         	   _p[i].u.x[1]=0;
+<         	   _p[i].u.x[2]=0;
+---
+>         	   _p[i].u.x[1]=0; 
+>         	   _p[i].u.x[2]=0; 
+1348c1133
+< 
+---
+>           
+1354c1139
+< 
+---
+> 		
+1356,1359c1141,1144
+<   	}
+< 
+< 
+< 
+---
+>   	}	
+>   	
+>   	
+>   	
+1368,1369c1153,1154
+< 
+< 
+---
+> 	
+> 	
+1372c1157
+<         myfile = fopen (filename.c_str(),"r");
+---
+>         myfile = fopen (filename.c_str(),"r");	
+1377c1162
+< 
+---
+>            
+1379c1164
+<                    fscanf(myfile,"%lf    %lf    %lf  %lf    %lf %lf    %lf\n",&_p[i].r.x[0],&_p[i].r.x[1],&_p[i].r.x[2],&_p[i].sigmaweight,&_p[i].u.x[0],&_p[i].u.x[1],&_p[i].u.x[2]);
+---
+>                    fscanf(myfile,"%lf    %lf    %lf  %lf    %lf %lf    %lf\n",&_p[i].r.x[0],&_p[i].r.x[1],&_p[i].r.x[2],&_p[i].sigmaweight,&_p[i].u.x[0],&_p[i].u.x[1],&_p[i].u.x[2]);    
+1382,1383c1167,1168
+< 
+< 
+---
+>              
+>              
+1391,1393c1176,1178
+< 
+< 		exit(1);
+<   	}
+---
+> 		
+> 		exit(1);	
+>   	}	
+1424,1425c1209,1210
+< 
+< 
+---
+>     
+>     	
+1428c1213
+< 
+---
+>     
+1436c1221
+< 
+---
+>     	
+1452c1237
+< 
+---
+>     
+1462,1463c1247,1248
+< 
+< 
+---
+> 	
+> 	
+1466c1251
+<         myfile = fopen (filename.c_str(),"r");
+---
+>         myfile = fopen (filename.c_str(),"r");	
+1471,1472c1256,1257
+< 
+< 
+---
+>            
+>            
+1476,1478c1261,1263
+<         	   _p[i].u.x[1]=0.;
+<         	   _p[i].u.x[2]=0.;
+<         	   _p[i].e_sub/=0.1973;
+---
+>         	   _p[i].u.x[1]=0.;   
+>         	   _p[i].u.x[2]=0.;       
+>         	   _p[i].e_sub/=0.1973;  
+1482c1267
+< 
+---
+>              
+1485,1489c1270,1274
+< 
+< 
+< 
+< 
+< 
+---
+>           
+>           
+>        
+>           
+>           
+1495,1497c1280,1282
+< 
+< 		exit(1);
+<   	}
+---
+> 		
+> 		exit(1);	
+>   	}	
+1511c1296
+<     while (std::getline(ss, item, delim)) {
+---
+>     while (std::getline(ss, item, delim)) {    	

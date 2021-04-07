@@ -1,0 +1,172 @@
+42d41
+<         void bsqsveprofile(LinkList<D> &linklist);
+51d49
+<         void bsqsvFOprint(LinkList<D> &linklist);
+58a57
+> //bool flatStorage = true;
+61c60
+<    	cfolder=ofolder+linklist.ebe_folder+("/");
+---
+>    	cfolder=/*(flatStorage) ? "results/" :*/ ofolder+linklist.ebe_folder+("/");
+73c72
+<    	cfolder=ofolder+linklist.ebe_folder+("/");
+---
+>    	cfolder=/*(flatStorage) ? "results/" :*/ ofolder+linklist.ebe_folder+("/");
+389c388
+<     		EPN << linklist._p[i].r   << " " << linklist._p[i].EOS.e() << " " << linklist._p[i].EOS.T()*197.3 <<  endl;	
+---
+>     		EPN << linklist._p[i].r   << " " << linklist._p[i].EOS.e() <<  endl;	
+449c448
+< 		EPN << linklist.t << endl;
+---
+> 		EPN << linklist.t << " " << linklist.S <<  endl;
+474,476c473
+< 		//EPN << linklist._p[i].EOS.e()<< " " << linklist._p[i].EOS.e() << " " << linklist._p[i].EOS.T()*197.3 << " " << linklist._p[i].v  << " " << linklist._p[i].sigmaweight   <<endl;	
+< 
+<                 EPN << linklist._p[i].r   << " " << linklist._p[i].EOS.e() << " " << linklist._p[i].EOS.p() << " " << linklist._p[i].EOS.T()*197.3 << " " << linklist._p[i].stauRelax << " " <<  linklist._p[i].sigmaweight << " " << linklist._p[i].bigtheta   << " " <<  sqrt(linklist._p[i].shv.x[0][0]*linklist._p[i].shv.x[0][0]-2*linklist._p[i].shv.x[0][1]*linklist._p[i].shv.x[0][1] -2*linklist._p[i].shv.x[0][2]*linklist._p[i].shv.x[0][2]    + linklist._p[i].shv.x[1][1]*linklist._p[i].shv.x[1][1]+ linklist._p[i].shv.x[2][2]*linklist._p[i].shv.x[2][2] +2* linklist._p[i].shv.x[1][2]*linklist._p[i].shv.x[1][2]+pow(linklist.t,4)*linklist._p[i].shv33*linklist._p[i].shv33) << " " << linklist._p[i].stauRelax/linklist.t * linklist._p[i].bigtheta << " " << linklist._p[i].u.x[0]/linklist._p[i].gamma << " " << linklist._p[i].u.x[1]/linklist._p[i].gamma << " " << linklist._p[i].gamma <<endl;
+---
+> 		EPN << linklist._p[i].r   << " " << linklist._p[i].EOS.e() << " " << linklist._p[i].EOS.T()*0.1973 << " " << linklist._p[i].v    <<endl;	
+492,535d488
+< template <int D>
+< void Output<D>::bsqsveprofile(LinkList<D> &linklist)
+< {
+< 	ofstream EPN;
+< 	
+<    	countEP+=1;
+<    	string epin ("bsqsveprofile");
+<    	string dat (".dat");
+<    	string sCEP;
+<    	sCEP=convertInt(countEP);
+<    	string epname;
+<    	
+<    	if (linklist.average==1)
+<    	 {
+<    	 	epname=cfolder+"average_eprof"+ sCEP + ".dat";
+<    	 }   
+<    	else if (linklist.fcount==0&&linklist.average!=1)
+<    	{
+<    	 	epname=ofolder+epin+sCEP+dat;
+<    	 }
+<    	 else
+<    	 {
+<    	 	string under ("_ev");
+<    	 	string even;
+<    	 	even=convertInt(linklist.fnum);
+<    	 	epname=cfolder+epin+sCEP+under+even+dat;
+<    	 }
+<    	
+<    	//cout << epname << endl;
+<   	EPN.open(epname.c_str());
+<   	if (!EPN.is_open())
+< 	{
+< 		
+< 		cout << "Error: cannot open eprofile" << sCEP <<".dat file!" << endl;
+< 		exit(1);
+< 	}
+< 	else 
+< 	{
+< 		EPN << linklist.t << endl;
+< 		
+< 		
+< 		
+< 		for (int i=0;i<linklist.n();i++)
+< 		{	
+537,546d489
+<                 EPN << linklist._p[i].r   << " " << linklist._p[i].EOS.e() << " " << linklist._p[i].EOS.p() << " " << linklist._p[i].EOS.T()*197.3 << " " << linklist._p[i].stauRelax << " " <<  linklist._p[i].sigmaweight << " " << linklist._p[i].bigtheta   << " " <<  sqrt(linklist._p[i].shv.x[0][0]*linklist._p[i].shv.x[0][0]-2*linklist._p[i].shv.x[0][1]*linklist._p[i].shv.x[0][1] -2*linklist._p[i].shv.x[0][2]*linklist._p[i].shv.x[0][2]    + linklist._p[i].shv.x[1][1]*linklist._p[i].shv.x[1][1]+ linklist._p[i].shv.x[2][2]*linklist._p[i].shv.x[2][2] +2* linklist._p[i].shv.x[1][2]*linklist._p[i].shv.x[1][2]+pow(linklist.t,4)*linklist._p[i].shv33*linklist._p[i].shv33) << " " << linklist._p[i].stauRelax/linklist.t * linklist._p[i].bigtheta << " " << linklist._p[i].u.x[0]/linklist._p[i].gamma << " " << linklist._p[i].u.x[1]/linklist._p[i].gamma << " " << linklist._p[i].gamma <<endl;
+<    	
+< 		}
+< 	}
+< 	
+< 
+< 	
+<   	EPN.close();
+<    	
+< }
+556c499
+<   sCEP=convertInt(linklist.fnum);
+---
+>   sCEP=convertInt(countEP);
+604d546
+<    
+608d549
+<     
+618d558
+<     
+628d567
+<     
+635c574
+<   for (int s=0;s<max;s++) ec+=linklist._p[s].EOS.e()*pow(r2[s],m/2.)*cos(n*(phi[s]-psi)); 
+---
+>   for (int s=0;s<max;s++) ec+=linklist._p[s].EOS.e()*pow(r2[s],m/2.)*cos(n*(phi[s]-psi));
+702c641
+< 	FO <<  linklist.divTtemp[i] << " " << linklist.divT[i] << " " << linklist.gsub[i] << " " << linklist.uout[i] << " " << linklist.swsub[i] << " " <<   linklist.tlist[i] <<  " " << linklist.rsub[i] << " " << linklist.sFO[i] <<  " " << linklist.Tfluc[i] <<  endl;
+---
+> 	FO <<  linklist.divTtemp[i] << " " << linklist.divT[i] << " " << linklist.gsub[i] << " " << linklist.uout[i] << " " << linklist.swsub[i] << " " <<   linklist.tlist[i] <<  " " << linklist.rsub[i] << " " << linklist.sFO[i] <<  endl;
+730c669
+<   	FO <<  linklist.divTtemp[i] << " " << linklist.divT[i] << " " << linklist.gsub[i] << " " << linklist.uout[i] << " " << linklist.swsub[i] <<   " " << linklist.bulksub[i]  << " " <<   linklist.tlist[i] <<  " " << linklist.rsub[i] <<  " " << linklist.sFO[i] <<  " " << linklist.Tfluc[i] << endl;
+---
+>   	FO <<  linklist.divTtemp[i] << " " << linklist.divT[i] << " " << linklist.gsub[i] << " " << linklist.uout[i] << " " << linklist.swsub[i] <<   " " << linklist.bulksub[i]  << " " <<   linklist.tlist[i] <<  " " << linklist.rsub[i] <<  " " << linklist.sFO[i] << endl;
+750a690,712
+> //template <int D>
+> //void Output<D>::SCprint(LinkList<D> &linklist)
+> //{ 	
+> //	
+> //  	SC.open(Scons.c_str(), ios::out | ios::app );
+> //  	for (int i=0;i< linklist.cf;i++)
+> //  	{
+> //	
+> //  	SC <<  linklist._p[linklist.list[i]].saves << " " << linklist.sFO*linklist.swsub[i] << endl;
+> //	}
+> //  	SC.close();
+> //  	
+> //  	
+> //  	if (SC.is_open())
+> //  	{
+> //  		cout << "error: still open" << endl;
+> // 		exit(1);
+> //  	}
+> //	
+> //  	delete [] linklist.swsub;
+> //  	
+> //  	
+> //}
+759,790c721,722
+<   	FO <<  linklist.divTtemp[i] << " " << linklist.divT[i] << " " << linklist.gsub[i] << " " << linklist.uout[i] << " " << linklist.swsub[i] << " " <<  linklist.bulksub[i] << " "  <<  linklist.shearsub[i].x[0][0] << " "  <<  linklist.shearsub[i].x[1][1] << " "  <<  linklist.shearsub[i].x[2][2] <<" " <<linklist.shear33sub[i] << " "  <<  linklist.shearsub[i].x[1][2] <<  " "  <<  linklist.tlist[i] <<  " " << linklist.rsub[i] <<  " " << linklist.sFO[i] <<   " " << linklist.Tfluc[i] <<endl; // removed entropy, added in tau
+< 	}
+<   	FO.close();
+<   	
+<   	delete [] linklist.divTtemp;
+<   	delete [] linklist.divT;
+<   	delete [] linklist.gsub;
+<   	delete [] linklist.uout;
+<   	delete [] linklist.swsub;
+<   	delete [] linklist.bulksub;
+<   	delete [] linklist.shearsub;
+<   	delete [] linklist.rsub;
+<   	delete [] linklist.tlist;
+<   	delete [] linklist.shear33sub;
+<   	
+<   	if (FO.is_open())
+<   	{
+<   		cout << "error: still open" << endl;
+<  		exit(1);
+<   	}
+<   	
+<   	
+< }
+< 
+< template <int D>
+< void Output<D>::bsqsvFOprint(LinkList<D> &linklist)
+< { 	
+< 
+<   	FO.open(FOname.c_str(), ios::out | ios::app );
+<   	for (int i=0;i< linklist.cf;i++)
+<   	{
+<   	FO <<  linklist.divTtemp[i] << " " << linklist.divT[i] << " " << linklist.gsub[i] << " " << linklist.uout[i] << " " << linklist.swsub[i] << " " <<  linklist.bulksub[i] << " "  <<  linklist.shearsub[i].x[0][0] << " "  <<  linklist.shearsub[i].x[1][1] << " "  <<  linklist.shearsub[i].x[2][2] <<" " <<linklist.shear33sub[i] << " "  <<  linklist.shearsub[i].x[1][2] <<  " "  <<  linklist.tlist[i] <<  " " << linklist.rsub[i] <<  " " << linklist.sFO[i] <<   " " << linklist.Tfluc[i] <<endl; // removed entropy, added in tau
+---
+> 	//cout << "rsub dimension = " << linklist.rsub[i].dim() << endl;
+>   	FO <<  linklist.divTtemp[i] << " " << linklist.divT[i] << " " << linklist.gsub[i] << " " << linklist.uout[i] << " " << linklist.swsub[i] << " " <<  linklist.bulksub[i] << " "  <<  linklist.shearsub[i].x[0][0] << " "  <<  linklist.shearsub[i].x[1][1] << " "  <<  linklist.shearsub[i].x[2][2] <<" " <<linklist.shear33sub[i] << " "  <<  linklist.shearsub[i].x[1][2] <<  " "  <<  linklist.tlist[i] <<  " " << linklist.rsub[i] <<  " " << linklist.sFO[i] << endl; // removed entropy, added in tau
+892c824
+< 	cout << "Directory path doesn't exist" << endl;
+---
+> 	cout << "Directory path = " << path << " doesn't exist" << endl;

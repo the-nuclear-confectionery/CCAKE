@@ -1,0 +1,10 @@
+49,55d48
+<    sphpar=$(cat outputfiles/"$t"/"$dec""$4"/"$5"/temp_ic"$m".dat)
+<    sphout=$(wc -l < outputfiles/"$t"/"$dec""$4"/"$5"/"$v"freezeout_ev"$m".dat)
+<    if [ "$sphpar"-100 > "$sphout" ] ; then
+<    	echo "$sphpar"  "$sphout"
+<    	rm outputfiles/"$t"/"$dec""$4"/"$5"/"$v"freezeout_ev"$m".dat
+<    	continue
+<    fi
+59a53
+>    echo decays done
