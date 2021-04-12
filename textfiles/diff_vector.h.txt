@@ -1,2 +1,0 @@
-19a20
-> 	inline int dim(){ return ( D ); }
