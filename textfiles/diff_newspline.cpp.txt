@@ -6,3 +6,11 @@
 <   for ( int j= lnew; j <=rnew; j++ ) 
 ---
 >   for ( int j= left; j <=right; j++ ) 
+123,124d122
+<   //cout << xval << " " << left << " " << right << " " << x1 << " " << x2 << endl;
+< 
+136,137c134
+<   int lnew=left,rnew=right;
+<   for ( int j= lnew; j <=rnew; j++ ) 
+---
+>   for ( int j= left; j <=right; j++ ) 

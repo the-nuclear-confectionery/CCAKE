@@ -788,3 +788,802 @@
 < 
 ---
 > 	
+1c1
+< #ifndef ENTERIC_H_
+---
+> #ifndef ENTERIC_H_ 
+5c5
+< #include <iomanip>
+---
+> #include <iomanip> 
+10c10
+< 
+---
+>  
+24,26d23
+< void readBSQEOStable();// this should be followed with an if option
+< 
+< 
+53,54d49
+< void readICs_iccing(string &firstry,  int &_Ntable3,Particle<2> *&_p,double factor,double const& sfcheck, int & numpart, eos EOS);//iccing (energy density+ conserved charges)
+< 
+68,69d62
+< void readICs_iccing(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,double const& sfcheck, int & numpart, eos EOS);
+< 
+75,77c68,70
+< 
+< 
+< 
+---
+>   
+>    
+>    
+81c74
+<    FILE * openmanf = fopen (manf.c_str(),"r");
+---
+>    FILE * openmanf = fopen (manf.c_str(),"r");	
+84c77
+<    int start,end;
+---
+>    int start,end; 
+103,104d95
+<    string iccing ("iccing");
+< 
+109,110c100,101
+<   	   fscanf(openmanf,"%*s %s %*s  %s \n",charin2,charin);
+<   	   fvisc=charin2;
+---
+>   	   fscanf(openmanf,"%*s %s %*s  %s \n",charin2,charin);  
+>   	   fvisc=charin2;   
+114c105
+<   	   	fscanf(openmanf,"%s \n",charin);
+---
+>   	   	fscanf(openmanf,"%s \n",charin);  	   
+116c107
+<   	   	fscanf(openmanf,"%s \n",charin);
+---
+>   	   	fscanf(openmanf,"%s \n",charin);  	   
+119c110
+<   	   	fscanf(openmanf,"%*s %s\n",charin3);
+---
+>   	   	fscanf(openmanf,"%*s %s\n",charin3);  	   
+124,131c115,122
+<   	   if (linklist.etaconst>1&&linklist.etaconst<6) fscanf(openmanf,"%*s %lf  %lf  %lf \n",&linklist.zwidth,&linklist.sTc,&linklist.zTc); // guassian width zeta/s, eta/s T_c, zeta/s T_c
+< 	   fscanf(openmanf,"%*s %lf %lf \n",&linklist.bvf,&linklist.svf);
+< 	    } // constant multiplying factor for zeta/s
+< 	   fscanf(openmanf,"%*s %lf \n",&it0);
+< 	   fscanf(openmanf,"%*s %lf \n",&freezeoutT);
+< 	   freezeoutT/=197.3;
+< 
+<   	   fscanf(openmanf,"%s \n",charin);
+---
+>   	   if (linklist.etaconst!=1) fscanf(openmanf,"%*s %lf  %lf  %lf \n",&linklist.zwidth,&linklist.sTc,&linklist.zTc); // guassian width zeta/s, eta/s T_c, zeta/s T_c
+> 	   fscanf(openmanf,"%*s %lf %lf \n",&linklist.bvf,&linklist.svf);  } // constant multiplying factor for zeta/s
+> 	   //	   cout << linklist.bvf << " " << linklist.svf <<endl;
+> 	   fscanf(openmanf,"%*s %lf \n",&it0);  
+> 	   fscanf(openmanf,"%*s %lf \n",&freezeoutT); 		    
+> 	   freezeoutT/=197.3; 
+> 	   
+>   	   fscanf(openmanf,"%s \n",charin);  	   
+133,134c124,125
+< 
+< 
+---
+>   	   
+>   	   
+146,149c137,140
+< 
+< 
+< 
+< 
+---
+>   	   
+>   	
+>   	  
+>   	   
+152c143
+<   	   if (ictype==average||ictype==eventbyevent||ictype==trento||ictype==giorgio||ictype==nexus||ictype==smooth||ictype==glasma||ictype==glasmanoflow||ictype==iccing)
+---
+>   	   if (ictype==average||ictype==eventbyevent||ictype==trento||ictype==giorgio||ictype==nexus||ictype==smooth||ictype==glasma||ictype==glasmanoflow)
+154c145
+<   	   	fscanf(openmanf,"%lf \n",&factor);
+---
+>   	   	fscanf(openmanf,"%lf \n",&factor);  
+156c147
+< 
+---
+>   	   	
+158,161c149,152
+< 
+< 
+< 
+<   	   fscanf(openmanf,"%*s %s \n",charin);
+---
+>   	   
+>   	  
+>   	   
+>   	   fscanf(openmanf,"%*s %s \n",charin);  	   
+164,167c155,158
+<   	   fscanf(openmanf,"%*s %i \n",&qmin);
+<   	   linklist.qmf=qmin;
+< 
+<   	   fscanf(openmanf,"%*s %s \n",charin);
+---
+>   	   fscanf(openmanf,"%*s %i \n",&qmin);  
+>   	   linklist.qmf=qmin;  
+>   	   
+>   	   fscanf(openmanf,"%*s %s \n",charin);  	   
+169,170c160,161
+< 
+<   	   if (ictype==eventbyevent||ictype==trento||ictype==giorgio||ictype==nexus||ictype==glasma||ictype==glasmanoflow||ictype==iccing)
+---
+>   	   
+>   	   if (ictype==eventbyevent||ictype==trento||ictype==giorgio||ictype==nexus||ictype==glasma||ictype==glasmanoflow)
+172,175c163,166
+<   	   	fscanf(openmanf,"%d \n",&start);
+<   	   	fscanf(openmanf,"%d \n",&end);
+< 
+< 
+---
+>   	   	fscanf(openmanf,"%d \n",&start);  
+>   	   	fscanf(openmanf,"%d \n",&end); 
+>   	   	
+>   	   	
+177c168
+<   	   	linklist.start=start;
+---
+>   	   	linklist.start=start; 
+181c172
+<   	   	linklist.start=ics.start;
+---
+>   	   	linklist.start=ics.start; 
+186,188c177,179
+< 
+< 
+< 
+---
+>            
+> 	   //           cout << "Event # " << linklist.start << " with fac="<< factor << endl;           
+>   	   
+191c182
+<   	   	fscanf(openmanf,"%s \n",charin);
+---
+>   	   	fscanf(openmanf,"%s \n",charin);  	   
+195c186
+<            fscanf(openmanf,"%*s %i \n",&df);
+---
+>            fscanf(openmanf,"%*s %i \n",&df);  
+200,202c191,193
+<   	   	if (df==1) dfpre="df/input/";
+<   	   	else if (df==2) dfpre="sampling/input/";
+<   	   	else cout << "Error: undefined df calcualtion type" << endl;
+---
+>   	   	if (df==1) dfpre="df/input/";  
+>   	   	else if (df==2) dfpre="sampling/input/"; 
+>   	   	else cout << "Error: undefined df calcualtion type " << df <<  endl;
+204,206c195,197
+< 
+< 
+< 
+---
+>   	   	
+>   	   	
+>   	   	
+212c203
+< 
+---
+> 		
+219,221c210,212
+< 
+< 
+< 
+---
+>   	   	
+>   	   	
+>   	   	
+224c215
+< //
+---
+> //  	   	 	   
+228c219
+< 
+---
+>   	   	
+230c221
+< 
+---
+>   	   	
+232,233c223,224
+< 
+< 
+---
+>   	   	
+>   	   	
+254c245
+< //
+---
+> //  	   	
+273c264
+< //  	   	RUN << "done" << endl;
+---
+> //  	   	RUN << "done" << endl;	
+277,278c268,269
+< 
+< 
+---
+>   	   	
+>   	   	
+280,282c271,273
+< 
+< 
+< 
+---
+>           
+>          
+>         
+287,288c278,279
+< 
+< 
+---
+>   		
+>   	
+290,291c281,282
+< 
+< 		exit(1);
+---
+> 		
+> 		exit(1); 	
+295,297c286,288
+< 
+< 
+< 
+---
+> 	
+> 	
+>   	
+303c294
+< 
+---
+>     
+307c298
+< 
+---
+>     	
+309,311c300,302
+<     	string on ("on");
+< 
+<     	readEOS_T(eos_s);
+---
+>     	string on ("on");   	
+> 		
+>     	readEOS_T(eos_s);  
+313c304
+< 
+---
+>     	
+316c307
+< 
+---
+>     		
+328,329c319,320
+< 
+< 
+---
+>    
+>    
+331c322
+<     EOS.eosin(eostype);
+---
+>     EOS.eosin(eostype);   
+334,337c325,328
+< 
+<     linklist.efcheck=efcheck;
+<     linklist.sfcheck=sfcheck;
+<     linklist.fcount=0;
+---
+>   
+>     linklist.efcheck=efcheck;    
+>     linklist.sfcheck=sfcheck; 
+>     linklist.fcount=0;    
+339c330
+<     //       Start reading ICs          //
+---
+>     //       Start reading ICs          //    
+342c333
+< 
+---
+>     
+344,345c335,336
+< 
+< 
+---
+>        
+>     
+349,351c340,342
+< 
+<     	readICs_gen(ic,  _Ntable3, _p,efcheck,numpart);
+< 
+---
+>     	
+>     	readICs_gen(ic,  _Ntable3, _p,efcheck,numpart);  
+>     	
+353c344
+< 
+---
+>     	
+355,356c346,347
+< 
+< 
+---
+>     	
+>     	
+358c349
+< 
+---
+>     	
+367c358
+<    	if ((fvisc=="shear")||(fvisc=="shear+bulk")||(fvisc=="bulk+shear")||(fvisc=="BSQ"))
+---
+>    	if ((fvisc=="shear")||(fvisc=="shear+bulk")||(fvisc=="bulk+shear"))
+371c362
+< 
+---
+>    	
+380c371
+< 
+---
+>    	
+385c376
+< 
+---
+>    	
+395,396c386,387
+< 
+< 
+---
+>    
+>    	
+398c389
+< 
+---
+>    	
+402c393
+< 
+---
+>     	
+404,405c395,396
+< 
+< 
+---
+>     	
+>     	
+409c400
+< 
+---
+>        
+414c405
+< 
+---
+>        
+424,425c415,416
+< 
+< 
+---
+>    
+>        
+427c418
+< 
+---
+>        
+431c422
+< 
+---
+>        
+434,470c425
+< 
+< 
+< 
+< 
+<      }
+< 
+< else if (ictype==iccing)
+<      {
+< 
+<        int count=linklist.end-linklist.start+1;
+<        linklist.ebe_folder=outf;
+<        string *filelist;
+<        filelist=new string[count];
+< 
+<        int j=0;
+<        for (int i=linklist.start;i<=linklist.end;i++)
+< 	 {
+< 	   filelist[j]= ic+"/ic"+convertInt(i)+".dat";
+< 	   j++;
+< 	 }
+<        linklist.filenames=filelist;
+<        linklist.fcount=count;
+<        linklist.fnum=linklist.start;
+< 
+< 
+<        readICs_tnt(linklist.filenames[0],  _Ntable3, _p,factor,sfcheck,  numpart, EOS);
+< 
+<        _p[0].start(eostype);
+<        linklist.setup(it0,_Ntable3,h,_p,ics.dt,numpart);
+<        /// compare linklist.gubser
+< 
+<        cout << "number of sph particles=" << _Ntable3 << endl;
+<        linklist.gtyp=6;
+< 
+< 
+< 
+< 
+---
+>        
+474,475c429,430
+< 
+< 
+---
+>    	
+>    	
+480c435
+< 
+---
+>    	
+490,493c445,448
+< 
+< 
+<    	readICs_gebe(linklist.filenames[0],  _Ntable3, _p,factor,efcheck,  numpart);
+< 
+---
+>    
+>    	
+>    	readICs_gebe(linklist.filenames[0],  _Ntable3, _p,factor,efcheck,  numpart);   	
+>    	
+495c450
+< 
+---
+>     	
+497c452
+< 
+---
+>     	
+500,501c455,456
+< 
+< 
+---
+>     	
+>     	
+505,506c460,461
+< 
+< 
+---
+>    	
+>    	
+511c466
+< 
+---
+>    	
+521,524c476,479
+< 
+< 
+<    	readICs_nebe(linklist.filenames[0],  _Ntable3, _p,factor,efcheck,  numpart);
+< 
+---
+>    
+>    	
+>    	readICs_nebe(linklist.filenames[0],  _Ntable3, _p,factor,efcheck,  numpart);   	
+>    	
+526c481
+< 
+---
+>     	
+528c483
+< 
+---
+>     	
+531,532c486,487
+< 
+< 
+---
+>     	
+>     	
+536,537c491,492
+< 
+< 
+---
+>    	
+>    	
+542c497
+< 
+---
+>    	
+552,555c507,510
+< 
+< 
+<    	linklist.gd2=readICs_gl(linklist.filenames[0],  _Ntable3, _p,factor,efcheck,  numpart);
+< 
+---
+>    
+>    	
+>    	linklist.gd2=readICs_gl(linklist.filenames[0],  _Ntable3, _p,factor,efcheck,  numpart);   	
+>    	
+557c512
+< 
+---
+>     	
+559c514
+< 
+---
+>     	
+562,563c517,518
+< 
+< 
+---
+>     	
+>     	
+567,568c522,523
+< 
+< 
+---
+>    	
+>    	
+573c528
+< 
+---
+>    	
+583,586c538,541
+< 
+< 
+<    	readICs_glno(linklist.filenames[0],  _Ntable3, _p,factor,efcheck,  numpart);
+< 
+---
+>    
+>    	
+>    	readICs_glno(linklist.filenames[0],  _Ntable3, _p,factor,efcheck,  numpart);   	
+>    	
+588c543
+< 
+---
+>     	
+590c545
+< 
+---
+>     	
+596c551
+< 
+---
+>    	   	
+603,604c558,559
+< 
+< 
+---
+>    
+>    	
+607c562
+< 
+---
+>     	
+610,611c565,566
+< 
+< 
+---
+>     	
+>     	
+615c570
+< 
+---
+>    	   	
+621,622c576,577
+< 
+< 
+---
+>    
+>    	
+625c580
+< 
+---
+>     	
+628c583
+< 
+---
+>     	
+631,643c586,596
+<    string name3=ofolder+linklist.ebe_folder+"/temp_ic"+convertInt(linklist.start)+".dat";
+< 	ofstream PRINT(name3.c_str());
+< 	if (!PRINT.is_open())
+<  	{
+<  	cout << "Can't open " << name3 << endl;
+<  	exit(1);
+<  	}
+< 
+<  	PRINT << _Ntable3-numpart << endl;
+< 
+< 	PRINT.close();
+< 
+<  cout << "Setting up EOS" << endl;
+---
+>     string name3=ofolder+linklist.ebe_folder+"/temp_ic"+convertInt(linklist.start)+".dat";
+>     ofstream PRINT(name3.c_str());
+>     if (!PRINT.is_open())
+>       {
+> 	cout << "Can't open " << name3 << endl;
+> 	exit(1);
+>       }
+>     
+>     PRINT << _Ntable3-numpart << endl;
+>     
+>     PRINT.close();
+644a598,600
+>    
+>  // cout << "Setting up EOS" << endl;
+>     
+647c603
+< 	{
+---
+> 	{	
+650c606
+< 
+---
+> 	
+666c622
+< 
+---
+> 		
+668c624
+< 
+---
+> 		
+671,675c627,631
+< 
+< 			//linklist._p[i].u.x[0]=0.5*_p[i].r.x[0]/linklist.t0;
+< 			//linklist._p[i].u.x[1]=_p[i].r.x[1]/linklist.t0;
+< 			linklist._p[i].u.x[0]=0;
+< 			linklist._p[i].u.x[1]=0;
+---
+> 		
+> 			//linklist._p[i].u.x[0]=0.5*_p[i].r.x[0]/linklist.t0;  
+> 			//linklist._p[i].u.x[1]=_p[i].r.x[1]/linklist.t0; 
+> 			linklist._p[i].u.x[0]=0;  
+> 			linklist._p[i].u.x[1]=0; 
+679c635
+< 
+---
+> 			
+680a637,638
+> 			
+> 			linklist._p[i].EOS.update_s(linklist._p[i].sigma/linklist._p[i].gamma/linklist.t0);
+682,690c640,641
+< 			linklist._p[i].EOS.update_s(linklist._p[i].sigma/linklist._p[i].gamma/linklist.t0, 0.0, 0.0, 0.0);
+< 			if (true)
+< 			{
+< 				std::cerr << "Fix this! need to set B,Q,S values correctly!" << std::endl;
+< 				exit(8);
+< 			}
+< 
+< 			linklist._p[i].shv.x[1][1]= 0 ;
+< 			linklist._p[i].shv.x[2][2]=0 ;
+---
+> 			linklist._p[i].shv.x[1][1]= 0 ; 
+> 			linklist._p[i].shv.x[2][2]=0 ; 
+693,696c644,647
+< 		//	linklist._p[i].shv.x[1][2]=0.1*svf*0.08*linklist._p[i].EOS.s()/(3*linklist.t0);
+< 			//linklist._p[i].shv.x[2][1]=0.1*svf*0.08*linklist._p[i].EOS.s()/(3*linklist.t0);
+< 
+< 
+---
+> 		//	linklist._p[i].shv.x[1][2]=0.1*svf*0.08*linklist._p[i].EOS.s()/(3*linklist.t0); 
+> 			//linklist._p[i].shv.x[2][1]=0.1*svf*0.08*linklist._p[i].EOS.s()/(3*linklist.t0);  
+> 				
+> 				
+703c654
+< 
+---
+> 			
+705c656
+< 			if (linklist._p[i].EOS.T()>freezeoutT)
+---
+> 			if (linklist._p[i].EOS.T()>freezeoutT)	
+709c660
+< 			else
+---
+> 			else 
+715c666
+< 
+---
+> 			
+717,718c668,669
+< 
+< 
+---
+> 		
+> 		
+723c674
+< 
+---
+> 		
+725,726c676,677
+< 
+< 
+---
+>     
+>    
+729c680
+< 
+---
+>    	
+731,742c682
+<        cout << "optimization done" << endl;
+<        linklist.freezeset();
+<    }
+< 
+< 
+< 
+<        else if ((ictype==iccing))
+< {
+< 
+<    	linklist.bsqupdateIC();
+<        cout << "bsq optimization done" << endl;
+<        linklist.bsqsvfreezeset();
+---
+> //cout << "optimization done" << endl;
+745a686
+>    linklist.freezeset();
+747c688
+< 
+---
+>    
+752c693
+<    else if ((fvisc=="bulk+shear")||(fvisc=="shear+bulk"))
+---
+>    else if ((fvisc=="bulk+shear")||(fvisc=="shear+bulk"))  
+757,762c698
+<    else if (fvisc=="BSQ")
+<    {
+< 	   if (ictype!=bjorken) linklist.bsqsv_set();
+< 	   else linklist.bsqsv_setb();
+<    }
+< 
+---
+>     
+763a700
+>     
+765,766c702
+< 
+< 
+---
+>     
+776,777c712,713
+< 
+< 
+---
+> 	
+>    	
+787d722
+<         else if (linklist.gtyp==6) readICs_iccing(linklist.filenames[i],  _Ntable3, _p,linklist.factor,linklist.sfcheck,numpart,linklist._p[0].EOS);
+789,790c724,725
+< 
+< 
+---
+>     	
+>     		
+795,796c730,731
+< 
+<         if ((linklist.gtyp==0)||(linklist.gtyp==1)||(linklist.gtyp==2)||(linklist.gtyp==3)||(linklist.gtyp==4)||(linklist.gtyp==5))
+---
+> 	
+>     
+798,799c733
+<         else if ((linklist.gtyp==6))
+<         linklist.bsqupdateIC();
+---
+> 	
+802,803c736,737
+< 
+< 
+---
+>   	 
+>   	 
+806c740
+< 
+---
+> 	
