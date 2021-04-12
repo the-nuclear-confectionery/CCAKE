@@ -211,3 +211,216 @@
 > 	
 241a220
 >   
+28,30d27
+<   double freezeoutB;
+<   double freezeoutS;
+<   double freezeoutQ;
+37c34
+< 
+---
+>   
+47,48c44,45
+< 
+< 
+---
+>   
+>   
+50c47
+< 
+---
+>   
+55c52
+< // initialize variables, reads in positions and velocities
+---
+> // initialize variables, reads in positions and velocities  
+58c55
+< 
+---
+> 	
+62c59
+< 
+---
+> 	
+66,68c63,65
+< 
+< 
+< 
+---
+> 	
+> 	
+> 		
+70c67
+< 	{
+---
+> 	{	
+74c71
+< 
+---
+> 	
+77c74
+< 
+---
+> 	
+86c83
+< 
+---
+> 	
+88c85
+< 
+---
+> 	
+92c89
+< 	else {
+---
+> 	else {	
+96c93
+< 
+---
+> 	
+100c97
+< 	ics.man="manual2.dat";
+---
+> 	ics.man="manualfile2.dat";
+103,104c100,101
+< 
+< 
+---
+> 	
+>   
+108,112c105,109
+< 
+< 
+< 
+< 
+< 
+---
+>   
+>   
+>   
+>   
+>  
+116,117c113,114
+< 
+< //      Include file that has h,timestep,dimensions and files for EOS/IC's
+---
+>   
+> //      Include file that has h,timestep,dimensions and files for EOS/IC's 
+119c116
+< 
+---
+> 	
+121c118
+< 
+---
+> 	
+125c122
+< 		manualenter<2>(ics,linklist);
+---
+> 		manualenter<2>(ics,linklist);		
+128c125
+< 			Simulation(ics.dt,linklist);
+---
+> 			Simulation(ics.dt,linklist);	
+131c128
+< 
+---
+> 			
+134,135c131,132
+< 
+< 				linklist.cevent=i;
+---
+> 				
+> 				linklist.cevent=i;				
+140c137
+< 
+---
+> 		
+146c143
+< 
+---
+> 			
+150c147
+< 
+---
+> 			
+153c150
+< 
+---
+> 				
+160c157
+< 
+---
+> 		
+163c160
+< 		else if (linklist.visc==3)  // shear+bulk
+---
+> 		else if (linklist.visc==3)  // shear+bulk 
+168c165
+< 
+---
+> 			
+171c168
+< 
+---
+> 				
+177,195c174
+< 
+< 			delete [] linklist.filenames;
+< 			}
+< 		}
+<     else if (linklist.visc==4)  // shear+bulk+BSQ
+< 		{
+< 			BSQSimulation(ics.dt,linklist);
+< 			if (linklist.fcount!=0)
+< 			{
+< 
+< 			for (int i=1;i<linklist.fcount;i++)  // runs over other events
+< 			{
+< 
+< 				linklist.cevent=i;
+< 				nextevent<2>(i, linklist);
+< 				cout << "Event " << linklist.fnum << endl;
+< 				BSQSimulation(ics.dt,linklist);
+< 			}
+< 
+---
+> 		
+209,210c188,189
+< 
+< 	}
+---
+> 		
+> 	}	
+214,216c193,195
+< 		manualenter<3>(ics,linklist);
+< 		Simulation(ics.dt,linklist);
+< 
+---
+> 		manualenter<3>(ics,linklist);	
+> 		Simulation(ics.dt,linklist);	
+> 		
+219c198
+< 
+---
+> 			
+222c201
+< 
+---
+> 				
+229c208
+< 
+---
+> 			
+231c210
+< 
+---
+> 		
+238,240c217,218
+< 	}
+< 
+< 
+---
+> 	}	
+> 	
+241a220
+>   

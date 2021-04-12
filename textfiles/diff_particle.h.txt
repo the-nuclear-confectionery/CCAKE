@@ -673,3 +673,685 @@
 ---
 > void Particle<D>::setvar() 
 > { 
+1c1
+< #ifndef PARTICLE_H_
+---
+> #ifndef PARTICLE_H_ 
+12c12
+< class Particle
+---
+> class Particle 
+14a15
+> 	
+16,18c17,18
+< 
+< public:
+< ////////////////////////////////////////////////////////////////////////////////
+---
+> public:    
+> ////////////////////////////////////////////////////////////////////////////////        
+23,26d22
+< 	// added by Christopher Plumberg to get compilation
+< 	double B_sub, S_sub, Q_sub;
+< 	double B_an, S_an, Q_an;
+< 
+30,35c26,30
+<     double sigmaweight;        // specific volume per particle
+< 	Vector<double,D> r;	               // position
+< 	Vector<double,D> v;	               // velocity
+< 	Vector<double,D> u;	               // relativistic velocity
+<   Vector<double,D> qmom;
+< 	Vector<double,D> du_dt,gradsig;	           // relativistic velocity derivative
+---
+>     double sigmaweight;        // specific volume per particle  		
+> 	Vector<double,D> r;	               // position	
+> 	Vector<double,D> v;	               // velocity	
+> 	Vector<double,D> u;	               // relativistic velocity	
+> 	Vector<double,D> du_dt,gradsig;	           // relativistic velocity derivative 	
+43,44c38
+< //	double vmag,vang;
+< 
+---
+> 		
+51c45
+< 
+---
+> 	
+53c47
+< 
+---
+> 	
+55,56c49,50
+<     double div_u;              // four-divergence of relativistic velocity
+< 	double gamma;	           // Lorentz factor
+---
+>     double div_u;              // four-divergence of relativistic velocity         
+> 	double gamma;	           // Lorentz factor    
+58d51
+<     double gamcalcbsq();
+60,63c53,56
+<     double eta_sigma;          // Ratio entropy/especific volume
+<     double detasigma_dt;
+<     double Bulk;               // Bulk Viscosity weight
+<     double bigPI;		// total bulk viscosity
+---
+>     double eta_sigma;          // Ratio entropy/especific volume    
+>     double detasigma_dt;    
+>     double Bulk;               // Bulk Viscosity weight         
+>     double bigPI;		// total bulk viscosity 
+65,68c58,61
+<     double tauRelax;           // Bulk Relaxation time
+<     double stauRelax;		// Shear Relxation time;
+<     double dBulk_dt;           // derivative Bulk Viscosity
+<     double zeta;               // bulk coefficient
+---
+>     double tauRelax;           // Bulk Relaxation time    
+>     double stauRelax;		// Shear Relxation time;	
+>     double dBulk_dt;           // derivative Bulk Viscosity   
+>     double zeta;               // bulk coefficient   
+71c64
+<     int Freeze;
+---
+>     int Freeze; 
+76c69
+< 
+---
+>     
+82,87c75,80
+< 	//double sigmastar;
+< 	double sigma;              // especific volume
+< 	double dsigma_dt;          // derivative of especific volume
+< 	//double div_J;              // divergence of the flux
+<     	//Vector<double,D> flux;               // flux = sigma * velocity
+< 	Vector<double,D> gradP;              // Gradient of Pressure
+---
+> 	//double sigmastar;  
+> 	double sigma;              // especific volume 	
+> 	double dsigma_dt;          // derivative of especific volume	
+> 	//double div_J;              // divergence of the flux    
+>     	//Vector<double,D> flux;               // flux = sigma * velocity 	        					
+> 	Vector<double,D> gradP;              // Gradient of Pressure	
+89,92c82,85
+< 
+< 	Vector<double,D> gradBulk,gradrhoB,gradrhoS,gradrhoQ;           // Gradient of Bulk Viscosity
+<     	Vector<double,D> gradsigma;          // Gradient of especific volume
+< 
+---
+> 	
+> 	Vector<double,D> gradBulk;           // Gradient of Bulk Viscosity    
+>     	Vector<double,D> gradsigma;          // Gradient of especific volume    
+>     	
+94,100c87,90
+<     	double eta;	               // entropy density
+<         double rhoB;	               // Baryon density
+<         double rhoS;	               // strange density
+<         double rhoQ;	               // electric charge density
+< //	double P;	               // pressure
+< //	double epsilon;	           // energy density
+< //	double s;	               // entropy density
+---
+>     	double eta;	               // entropy density	
+> //	double P;	               // pressure       
+> //	double epsilon;	           // energy density	
+> //	double s;	               // entropy density	
+103c93
+< 
+---
+> 	
+105,107c95
+< 
+< 	double drhoB_dt,drhoS_dt,drhoQ_dt;
+< 
+---
+> 	
+111d98
+<         void calcbsq(double tin);
+115d101
+<         void bsqsvsigset(double tin, int i);
+118d103
+<         void return_bsqsv_A(int i = 0); //optional value added by C. Plumberg
+138c123
+< Particle<D>::Particle() {
+---
+> Particle<D>::Particle() { 
+147,148c132,133
+< void Particle<D>::start(string enter)
+< {
+---
+> void Particle<D>::start(string enter) 
+> { 
+157c142
+< 
+---
+> 	
+162,168d146
+< double Particle<D>::gamcalcbsq()
+< {
+< 	return sqrt( Norm2(u) + 1 );
+< 
+< }
+< 
+< template <int D>
+173c151
+<     		if (EOS.T()<=freezeoutT)
+---
+>     		if (EOS.T()<=freezeoutT) 
+177c155
+< 
+---
+>     			
+182,183c160,161
+< 
+< 
+---
+>     	        
+>     	
+191,192c169,170
+<     		frz2.t=tin;
+<     		}
+---
+>     		frz2.t=tin;    	
+>     		}    		
+194c172
+<     		{
+---
+>     		{  		    		
+203,205c181,183
+<     	}
+< 
+< 
+---
+>     	}   	
+>     	
+> 	
+212,235c190,193
+< void Particle<D>::calc(double tin)
+< {
+< 
+< 	      gamma=gamcalc();
+<         v =(1/gamma)*u;
+<         double s_in2= eta/gamma/tin;
+<         qmom=((EOS.e()+ EOS.p())*gamma/sigma)*u;
+<         EOS.update_s(s_in2, 0.0, 0.0, 0.0);
+< 	if (true)
+< 	{
+< 		std::cerr << "Fix this!  Set muB=muQ=muS=0 just to make code compile!" << std::endl;
+< 		exit(8);
+< 	}
+< 
+< 
+< 
+< }
+< 
+< //  Computes gamma and velocity
+< template <int D>
+< void Particle<D>::calcbsq(double tin)
+< {
+< 
+< 	      gamma=gamcalcbsq();
+---
+> void Particle<D>::calc(double tin) 
+> { 
+> 	
+> 	gamma=gamcalc();
+238,244c196
+<         double B_in2= rhoB/gamma/tin;
+<         double S_in2= rhoS/gamma/tin;
+<         double Q_in2= rhoQ/gamma/tin;
+<         qmom=((EOS.e()+ EOS.p())*gamma/sigma)*u;
+<         EOS.update_s(s_in2, B_in2, S_in2, Q_in2);
+< 
+< 
+---
+>         EOS.update_s(s_in2);
+245a198,199
+>        
+>         
+249,250c203,204
+< void Particle<D>::returnA()
+< {
+---
+> void Particle<D>::returnA() 
+> { 
+255,256c209,210
+< void Particle<D>::returnv_A()
+< {
+---
+> void Particle<D>::returnv_A() 
+> { 
+262,309c216,217
+< void Particle<D>::return_sv_A(int i)
+< {
+< 	eta_o_tau=setas/stauRelax;
+< 
+< 	Agam=EOS.w()-EOS.dwds()*(EOS.s()+ bigPI/EOS.T() )- zeta/tauRelax ;
+< 
+< 	Agam2=(Agam-eta_o_tau*(0.5-1/3.) -dwdsT1*shv.x[0][0])/gamma;
+< 	Ctot=C+eta_o_tau*(1/g2-1)/2.;
+< 
+< }
+< 
+< template <int D>
+< void Particle<D>::return_bsqsv_A(int i /*= 0*/)//optional value added by C. Plumberg
+< {
+< if (true){std::cerr << "Fix this! " <<__FILE__ << ":" << __LINE__ << std::endl;  exit(8);}
+< 
+< 	eta_o_tau=setas/stauRelax;
+< 
+< 	Agam=EOS.w()-EOS.dwds()*(EOS.s()+ bigPI/EOS.T() )- zeta/tauRelax ;//here goes a purple tag
+< 
+< 	Agam2=(Agam-eta_o_tau*(0.5-1/3.) -dwdsT1*shv.x[0][0])/gamma;
+< 	Ctot=C+eta_o_tau*(1/g2-1)/2.;
+< 
+< }
+< 
+< template <int D>
+< void Particle<D>::sigset(double tin)
+< {
+<         Agam2=Agam*gamma*gamma*(dsigma_dt/sigma -1/tin);
+< 
+< }
+< 
+< template <int D>
+< void Particle<D>::vsigset(double tin)
+< {
+< 
+<         bigPI = Bulk*sigma/gamma/tin ;
+< 
+<         C=EOS.w()+bigPI;
+< 
+<         returnv_A();
+<         Agam2=Agam*gamma*gamma*(dsigma_dt/sigma -1./tin)+ bigPI/tauRelax;
+< 
+< }
+< 
+< template <int D>
+< void Particle<D>::svsigset(double tin,int i)
+< {
+---
+> void Particle<D>::svsigset(double tin,int i) 
+> { 
+316c224
+< 
+---
+> 	
+319c227
+< 
+---
+>         
+321c229
+< 
+---
+>         
+323,324c231,232
+< 
+< 
+---
+>         
+>         
+326,328c234,236
+< 
+< 
+< 
+---
+>         
+>         
+>         
+330,332c238,240
+< 
+< 
+< 
+---
+>         
+>    
+>      
+337,338c245,254
+< double Particle<D>::Bsub()
+< {
+---
+> void Particle<D>::return_sv_A(int i)  
+> { 
+> 	eta_o_tau=setas/stauRelax;
+> 
+> 	Agam=EOS.w()-EOS.dwds()*(EOS.s()+ bigPI/EOS.T() )- zeta/tauRelax ;
+> 	
+> 	Agam2=(Agam-eta_o_tau*(0.5-1/3.) -dwdsT1*shv.x[0][0])/gamma;
+> 	Ctot=C+eta_o_tau*(1/g2-1)/2.; 
+> 	
+> }
+339a256,259
+> template <int D>
+> double Particle<D>::Bsub()  
+> { 
+> 	
+347,348c267,268
+< 
+< 
+---
+> 	
+> 	
+353c273
+< 
+---
+> 	
+356c276
+< 
+---
+> 	
+361,364c281,284
+< Matrix<double, D,D> Particle<D>::Msub(int i)
+< {
+< 
+< 
+---
+> Matrix<double, D,D> Particle<D>::Msub(int i)  
+> { 
+> 	
+> 	
+366c286
+< 
+---
+> 	
+371c291
+< 
+---
+> 	
+376,379c296,299
+< Matrix<double, D,D> Particle<D>::dpidtsub()
+< {
+< 
+< 
+---
+> Matrix<double, D,D> Particle<D>::dpidtsub()  
+> { 
+> 	
+> 	
+382c302
+< 
+---
+> 	
+386c306
+< 	vsub.x[i][j]+=(u.x[i]*pimin.x[j][k]+u.x[j]*pimin.x[i][k])*du_dt.x[k];
+---
+> 	vsub.x[i][j]+=(u.x[i]*pimin.x[j][k]+u.x[j]*pimin.x[i][k])*du_dt.x[k];	
+388c308
+< 
+---
+> 	
+391c311
+< 
+---
+> 	
+396,397c316,320
+< void Particle<D>::bsqsvsigset(double tin,int i)
+< {
+---
+> void Particle<D>::sigset(double tin) 
+> { 
+>         Agam2=Agam*gamma*gamma*(dsigma_dt/sigma -1/tin); 
+>         
+> }
+398a322,325
+> template <int D>
+> void Particle<D>::vsigset(double tin) 
+> { 
+>         
+400c327
+< 
+---
+>         
+402,403c329,330
+< 
+<         return_bsqsv_A();
+---
+>         
+>         returnv_A();
+405c332
+< 
+---
+>         
+407a335,336
+> 
+> 
+415,416c344,345
+< 
+< 
+---
+> 		
+> 		
+420c349
+< 
+---
+> 		
+422c351
+< 
+---
+> 		
+425c354
+< 
+---
+> 		
+438c367
+< 
+---
+> 		
+444c373
+< 
+---
+> 	
+447,464c376,378
+< 
+< 		if (true)
+< 		{
+< 			std::cerr << "Added missing curly bracket here to make code compile!  Double check that this is correct (and nothing else was inadvertently deleted from this section!" << std::endl;
+< 			exit(8);
+< 		}
+< 	}//this is the missing curly bracket
+< 
+< 		//	for TECHQM/Gubser set svf=0.08
+< 	}
+<         else if (type==4) // BSQ+shear+bulk viscosity
+< 	{
+< 
+< 		if ((etaconst==1)||(etaconst==3)||(etaconst==4)) {// const eta/s
+< 			setas=2*EOS.s()*svf;  // svf defines eta/s const (the two is needed for the definition in the code, don't remove!
+< 
+< 
+< 
+---
+> 			
+> 			
+> 		
+468,470c382,384
+< 
+< 
+< 
+---
+> 	
+> 			
+> 		
+476c390
+< //        	}
+---
+> //        	}	
+496,504d409
+< 		if (etaconst==6){
+< 			double TC=155; // 173.9/197.3
+< 			double temp=EOS.T()*197.3/TC;
+< 			double z=pow(0.66*temp,2);
+< 			double alpha=33./(12.*PI)*(z-1)/(z*log(z));
+< 
+< 		    	setas = EOS.s()*(0.0416762/pow(alpha,1.6)+ 0.0388977/pow(temp,5.1) );
+< 
+< 		}
+514a420,425
+> 		
+> 		
+> 		
+> 		
+> 		
+> 		
+516,522c427
+< 
+< 
+< 
+< 
+< 
+< 
+< 
+---
+> 		
+525,526c430,431
+< 		if (stauRelax <0.005) stauRelax=0.005 ;
+< 
+---
+> 		if (stauRelax <0.1) stauRelax=0.1 ;
+> 		
+528,529c433,434
+< 
+< 		if (bvf==0)
+---
+> 		
+> 		if (bvf==0) 
+536c441
+< 
+---
+> 		
+538c443
+< 
+---
+> 		
+540c445
+< 
+---
+> 		
+544,556c449,457
+< 		double min1=t2-1;
+< 		if (t2>1.05) zeta=0.9*exp(-min1/0.025)+0.25*exp(-min1/0.13)+0.001;
+< 		else if (t2<0.995) zeta=0.9*exp(min1/0.0025)+0.22*exp(min1/0.022)+0.03;
+< 		else zeta=-13.77*t2*t2+27.55*t2-13.45;
+< 
+< 
+< 		tauRelax =5.*zeta/(pow((1-EOS.cs2out(EOS.T(), 0.0, 0.0, 0.0)),2)*(EOS.e()+EOS.p()));
+<         if (true)
+<         {
+<                 std::cerr << "Fix this!  Set muB=muQ=muS=0 just to make code compile!" << std::endl;
+<                 exit(8);
+<         }
+< 
+---
+> //		double min1=t2-1;
+> //		if (t2>1.05) zeta=0.9*exp(-min1/0.025)+0.25*exp(-min1/0.13)+0.001;
+> //		else if (t2<0.995) zeta=0.9*exp(min1/0.0025)+0.22*exp(min1/0.022)+0.03;
+> //		else zeta=-13.77*t2*t2+27.55*t2-13.45;
+> 
+> 		zeta=bvf*(1./3-EOS.cs2out(EOS.T()));
+> 		
+> 		tauRelax =zeta/(15.*pow((1-EOS.cs2out(EOS.T())),2)*(EOS.e()+EOS.p()));
+> 		
+562c463
+< 
+---
+> 		
+567c468
+< 
+---
+> 		
+569c470
+< //
+---
+> //		
+580d480
+< 		tauRelax =5.*zeta/(pow((1-EOS.cs2out(EOS.T(), 0.0, 0.0, 0.0)),2)*(EOS.e()+EOS.p()));
+582,587c482,484
+<         if (true)
+<         {
+<                 std::cerr << "Fix this!  Set muB=muQ=muS=0 just to make code compile!" << std::endl;
+<                 exit(8);
+<         }
+< 		}
+---
+>                 double zT0=176; //Tmax of zeta/s in MeV
+> 		double zwidth=33; // width of zeta/s in MeV
+>                 zeta=bvf/(1+pow((temp-zT0)/zwidth,2)); 
+590a488,492
+> 		tauRelax =5.*zeta/(pow((1-EOS.cs2out(EOS.T())),2)*(EOS.e()+EOS.p()));
+> 		}
+> 		
+> 		
+> 		
+596,597c498,499
+< 
+< 
+---
+> 		
+> 		
+599a502,545
+> 	
+> 	
+> 	
+> 
+> 		//stauRelax=1.5*setas/(EOS.e()+EOS.p()); // For TECHQM
+> 		//stauRelax=2.5*setas/(EOS.e()+EOS.p()); // for gubser
+> 	
+> 	
+> 	
+> 		// definitions for zeta/s, tau_R bulk, eta/s, and tau_R shear
+> 		// Boltzmann
+> 		
+>         //  Low Bulk viscosity with constant eta/s
+> 	// AdS
+> //              double cscheck=EOS.cs2out(EOS.T());
+>               //zeta = 2*zconst*(1/3.-cscheck);
+> //              double TC=200/197.3;	
+> //		double temp=EOS.T()/TC;
+> //	       	if( temp>TC){
+> //            	setas = EOS.s()*(-0.289 + 0.288*temp + 0.0818*temp*temp);
+> //        	}
+> //        	else {
+> //            	setas = EOS.s()*(0.681 - 0.0594*temp - 0.544 *temp*temp);
+> //        	}
+> //		//zeta= EOS.s()* 15*setas*pow((1/3.-cscheck),2);
+> //		tauRelax = 9.*zeta/(EOS.e()-3*EOS.p());		
+> //		stauRelax=5*setas/EOS.w();
+>             
+> //             setas = EOS.s()/4./PI;
+> //        	stauRelax=5*setas/EOS.w();
+>           //  tauRelax = 5.*zeta/EOS.w();
+> //               zeta = 0.000;
+>             //  zeta*=EOS.s();
+> //              tauRelax =1.;
+> //              setas =2.*0.08;
+>  		//setas =0.0;
+> //              setas*=EOS.s();
+> //              stauRelax=0.75*setas/2./EOS.p();
+>      // stauRelax=1;
+> 
+>         
+>         
+>        
+>         
+603,604c549,550
+< void Particle<D>::sets(double tin2)
+< {
+---
+> void Particle<D>::sets(double tin2) 
+> { 
+616,618c562,564
+< 
+< 
+< 
+---
+>       
+>        
+>         
+620c566
+< 
+---
+>           
+622,623c568,569
+< void Particle<D>::setvar()
+< {
+---
+> void Particle<D>::setvar() 
+> { 
