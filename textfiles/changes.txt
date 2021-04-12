@@ -4,7 +4,6 @@ enteric.h
 eos.cpp
 eos.h
 hydrosim.cpp
-hydrosim.h
 LinkList.h
 main.cpp
 Makefile
@@ -14,4 +13,3 @@ output.h
 particle.h
 rungekutta4.h
 vector.h
-vusphydro
