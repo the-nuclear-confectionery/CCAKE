@@ -2,3 +2,7 @@
 < //#define cube(x) ((x)*(x)*(x))
 ---
 > #define cube(x) ((x)*(x)*(x))
+8c8
+< //#define cube(x) ((x)*(x)*(x))
+---
+> #define cube(x) ((x)*(x)*(x))

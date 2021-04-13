@@ -456,3 +456,232 @@ Only in ../v-USPhydro2/: writeSLRM.sh~
 Only in ../v-USPhydro2/: writeXE.sh
 Only in ../v-USPhydro2/: writeXEdef.sh
 Only in ../v-USPhydro2/: writeXEdef.sh~
+Only in ../v-USPhydro2/: #core.21631#
+Only in ../v-USPhydro2/: 1
+Only in ../BSQ/Hydro-master/: BSQ.txt
+Files ../BSQ/Hydro-master/LinkList.h and ../v-USPhydro2/LinkList.h differ
+Only in ../v-USPhydro2/: LinkList.h.diff
+Only in ../v-USPhydro2/: LinkList.h~
+Files ../BSQ/Hydro-master/Makefile and ../v-USPhydro2/Makefile differ
+Only in ../BSQ/Hydro-master/: Makefile-old
+Only in ../v-USPhydro2/: Makefile~
+Only in ../v-USPhydro2/: PBS_vUSP2.sh
+Only in ../v-USPhydro2/: PBS_vUSP2.sh~
+Only in ../BSQ/Hydro-master/: README.md
+Only in ../v-USPhydro2/: SLURM_scripts
+Only in ../v-USPhydro2/: across.sh
+Only in ../v-USPhydro2/: across.sh~
+Only in ../v-USPhydro2/: allwrite.sh
+Only in ../v-USPhydro2/: allwrite.sh~
+Only in ../BSQ/Hydro-master/: bbmg.h
+Files ../BSQ/Hydro-master/charm.sh and ../v-USPhydro2/charm.sh differ
+Only in ../v-USPhydro2/: charm.sh~
+Only in ../BSQ/Hydro-master/: cleancompile.sh
+Common subdirectories: ../BSQ/Hydro-master/df and ../v-USPhydro2/df
+Files ../BSQ/Hydro-master/enteric.cpp and ../v-USPhydro2/enteric.cpp differ
+Only in ../v-USPhydro2/: enteric.cpp.diff
+Only in ../v-USPhydro2/: enteric.cpp~
+Files ../BSQ/Hydro-master/enteric.h and ../v-USPhydro2/enteric.h differ
+Only in ../v-USPhydro2/: enteric.h.diff
+Only in ../v-USPhydro2/: enteric.h~
+Files ../BSQ/Hydro-master/enteric.o and ../v-USPhydro2/enteric.o differ
+Files ../BSQ/Hydro-master/eos.cpp and ../v-USPhydro2/eos.cpp differ
+Files ../BSQ/Hydro-master/eos.h and ../v-USPhydro2/eos.h differ
+Only in ../v-USPhydro2/: eos.h.diff
+Only in ../v-USPhydro2/: eos.h~
+Files ../BSQ/Hydro-master/eos.o and ../v-USPhydro2/eos.o differ
+Files ../BSQ/Hydro-master/hydrosim.cpp and ../v-USPhydro2/hydrosim.cpp differ
+Only in ../v-USPhydro2/: hydrosim.cpp.diff
+Only in ../v-USPhydro2/: hydrosim.cpp~
+Files ../BSQ/Hydro-master/hydrosim.h and ../v-USPhydro2/hydrosim.h differ
+Files ../BSQ/Hydro-master/hydrosim.o and ../v-USPhydro2/hydrosim.o differ
+Common subdirectories: ../BSQ/Hydro-master/inputfiles and ../v-USPhydro2/inputfiles
+Only in ../BSQ/Hydro-master/: inputiccing2_test_0.dat
+Only in ../v-USPhydro2/: logs
+Files ../BSQ/Hydro-master/main.cpp and ../v-USPhydro2/main.cpp differ
+Files ../BSQ/Hydro-master/main.o and ../v-USPhydro2/main.o differ
+Only in ../BSQ/Hydro-master/: manual
+Files ../BSQ/Hydro-master/mathdef.h and ../v-USPhydro2/mathdef.h differ
+Files ../BSQ/Hydro-master/matrix.o and ../v-USPhydro2/matrix.o differ
+Only in ../v-USPhydro2/: ncharm.sh
+Files ../BSQ/Hydro-master/newspline.cpp and ../v-USPhydro2/newspline.cpp differ
+Files ../BSQ/Hydro-master/newspline.o and ../v-USPhydro2/newspline.o differ
+Files ../BSQ/Hydro-master/output.h and ../v-USPhydro2/output.h differ
+Only in ../v-USPhydro2/: output.h.diff
+Only in ../v-USPhydro2/: output.h~
+Common subdirectories: ../BSQ/Hydro-master/outputfiles and ../v-USPhydro2/outputfiles
+Files ../BSQ/Hydro-master/particle.h and ../v-USPhydro2/particle.h differ
+Only in ../v-USPhydro2/: particle.h.diff
+Only in ../v-USPhydro2/: particle.h~
+Only in ../BSQ/Hydro-master/: pis.sh
+Files ../BSQ/Hydro-master/random.o and ../v-USPhydro2/random.o differ
+Only in ../BSQ/Hydro-master/: readme.txt
+Only in ../BSQ/Hydro-master/: readme2.txt
+Only in ../BSQ/Hydro-master/: readmeEoS.txt
+Only in ../v-USPhydro2/: runAr.sh
+Only in ../v-USPhydro2/: runAr.sh~
+Only in ../v-USPhydro2/: runArAr_EOS21_165.sh
+Only in ../v-USPhydro2/: runAu.sh
+Only in ../v-USPhydro2/: runAu.sh~
+Only in ../v-USPhydro2/: runETAPb2_0.04.sh
+Only in ../v-USPhydro2/: runETAPb2_0.04.sh~
+Only in ../v-USPhydro2/: runETAPb2_0.2.sh
+Only in ../v-USPhydro2/: runETAPb2_0.2.sh~
+Only in ../v-USPhydro2/: runGENERIC.sh
+Only in ../v-USPhydro2/: runGENERIC.sh~
+Only in ../v-USPhydro2/: runGENERTIC.sh~
+Only in ../v-USPhydro2/: runGENPBS.sh
+Only in ../v-USPhydro2/: runGENPBS.sh~
+Only in ../v-USPhydro2/: runHeAu_EOS21.sh
+Only in ../v-USPhydro2/: runHeAu_EOS21_0_0_1.sh
+Only in ../v-USPhydro2/: runHeAu_EOS21_0_0_999.sh
+Only in ../v-USPhydro2/: runHeAu_EOS21_0_222.sh.e11832747
+Only in ../v-USPhydro2/: runHeAu_EOS21_0_222.sh.o11832747
+Only in ../v-USPhydro2/: runHeAu_EOS21_0_223.sh.e11832748
+Only in ../v-USPhydro2/: runHeAu_EOS21_0_223.sh.o11832748
+Only in ../v-USPhydro2/: runHeAu_EOS21_0_2_999.sh
+Only in ../v-USPhydro2/: runHeAu_EOS21_BINN.sh
+Only in ../v-USPhydro2/: runHeAu_EOS21bulk_0_0_999.sh
+Only in ../v-USPhydro2/: runHeAu_EOS21bulk_BINN.sh
+Only in ../v-USPhydro2/: runHeAusix_EOS21.sh
+Only in ../v-USPhydro2/: runO.sh
+Only in ../v-USPhydro2/: runO.sh~
+Only in ../v-USPhydro2/: runOO_EOS21_165.sh
+Only in ../v-USPhydro2/: runOOconf_EOS21.sh
+Only in ../v-USPhydro2/: runOOconf_bulk.sh
+Only in ../v-USPhydro2/: runOOconf_bulk.sh~
+Only in ../v-USPhydro2/: runOOconf_h01.sh
+Only in ../v-USPhydro2/: runOOconf_h01.sh~
+Only in ../v-USPhydro2/: runPb2.sh
+Only in ../v-USPhydro2/: runPb2.sh~
+Only in ../v-USPhydro2/: runPbPb2_ecc.sh
+Only in ../v-USPhydro2/: runPbPb2_ecc.sh~
+Only in ../v-USPhydro2/: runPbPb_EOS21.sh
+Only in ../v-USPhydro2/: runPbPb_EOS21.sh~
+Only in ../v-USPhydro2/: runPbPb_EOS21_165.sh
+Only in ../v-USPhydro2/: runRuRuA_EOS21.sh
+Only in ../v-USPhydro2/: runRuRuA_EOS21.sh~
+Only in ../v-USPhydro2/: runRuRuA_EOS21_0.sh
+Only in ../v-USPhydro2/: runRuRuA_EOS21_0_0_999.sh
+Only in ../v-USPhydro2/: runRuRuA_EOS21_0_0_999.sh~
+Only in ../v-USPhydro2/: runRuRuB_EOS21.sh
+Only in ../v-USPhydro2/: runRuRuB_EOS21.sh~
+Only in ../v-USPhydro2/: runRuRuC_EOS21.sh
+Only in ../v-USPhydro2/: runRuRuC_EOS21.sh~
+Only in ../v-USPhydro2/: runUUA_EOS21.sh
+Only in ../v-USPhydro2/: runUUAp_EOS21.sh
+Only in ../v-USPhydro2/: runUUB_EOS21.sh
+Only in ../v-USPhydro2/: runUUBp_EOS21.sh
+Only in ../v-USPhydro2/: runUUC_EOS21.sh
+Only in ../v-USPhydro2/: runUUCp_EOS21.sh
+Only in ../v-USPhydro2/: runUUD_EOS21.sh
+Only in ../v-USPhydro2/: runUUD_EOS21.sh~
+Only in ../v-USPhydro2/: runUUE_EOS21.sh
+Only in ../v-USPhydro2/: runUUE_EOS21.sh~
+Only in ../v-USPhydro2/: runUUF_EOS21.sh
+Only in ../v-USPhydro2/: runUUG_EOS21.sh
+Only in ../v-USPhydro2/: runUUH_EOS21.sh
+Only in ../v-USPhydro2/: runUUH_EOS21.sh~
+Only in ../v-USPhydro2/: runUUH_c51.sh
+Only in ../v-USPhydro2/: runUUH_c52.sh
+Only in ../v-USPhydro2/: runUUmus_EOS21.sh
+Only in ../v-USPhydro2/: runUUmus_EOS21.sh~
+Only in ../v-USPhydro2/: runUUmus_c52.sh
+Only in ../v-USPhydro2/: runUUmus_c55.sh
+Only in ../v-USPhydro2/: runUUmusk_c52.sh
+Only in ../v-USPhydro2/: runXeXedef_EOS21.sh
+Only in ../v-USPhydro2/: runXeXedef_EOS21_165.sh
+Only in ../v-USPhydro2/: runXeXedef_EOS21_s0.sh
+Only in ../v-USPhydro2/: runXeXehalfdef_EOS21.sh
+Only in ../v-USPhydro2/: runXedef.sh
+Only in ../v-USPhydro2/: runXedef.sh~
+Only in ../v-USPhydro2/: runXeflucA_EOS21.sh
+Only in ../v-USPhydro2/: runXeflucB_EOS21.sh
+Only in ../v-USPhydro2/: runXeflucC_EOS21.sh
+Only in ../v-USPhydro2/: runXeflucD_EOS21.sh
+Only in ../v-USPhydro2/: runXeflucE_EOS21.sh
+Only in ../v-USPhydro2/: runZrZrA_EOS21.sh
+Only in ../v-USPhydro2/: runZrZrA_EOS21.sh~
+Only in ../v-USPhydro2/: runZrZrB_EOS21.sh
+Only in ../v-USPhydro2/: runZrZrB_EOS21.sh~
+Only in ../v-USPhydro2/: runZrZrC_EOS21.sh
+Only in ../v-USPhydro2/: runZrZrC_EOS21.sh~
+Only in ../v-USPhydro2/: run_EOS21.sh
+Only in ../v-USPhydro2/: runall.sh
+Only in ../v-USPhydro2/: runall.sh~
+Only in ../v-USPhydro2/: rundAu_EOS21.sh
+Only in ../v-USPhydro2/: rundAu_EOS21_0_0_999.sh
+Only in ../v-USPhydro2/: rundAu_EOS21_10_0_999.sh
+Only in ../v-USPhydro2/: rundAu_EOS21_11_0_999.sh
+Only in ../v-USPhydro2/: rundAu_EOS21_12_0_999.sh
+Only in ../v-USPhydro2/: rundAu_EOS21_5_0_1.sh
+Only in ../v-USPhydro2/: rundAu_EOS21_5_2_999.sh
+Only in ../v-USPhydro2/: rundAu_EOS21_6_0_999.sh
+Only in ../v-USPhydro2/: rundAu_EOS21_6_97_999.sh
+Only in ../v-USPhydro2/: rundAu_EOS21_7_0_999.sh
+Only in ../v-USPhydro2/: rundAu_EOS21_8_0_999.sh
+Only in ../v-USPhydro2/: rundAu_EOS21_9_0_999.sh
+Only in ../v-USPhydro2/: rundAu_EOS21_BINN.sh
+Only in ../v-USPhydro2/: rundAu_EOS21bulk.sh
+Only in ../v-USPhydro2/: rundAu_EOS21bulk_0_0_999.sh
+Only in ../v-USPhydro2/: rundAu_EOS21bulk_BINN.sh
+Only in ../v-USPhydro2/: rundAu_b026.sh
+Only in ../v-USPhydro2/: rundAu_b026.sh~
+Only in ../v-USPhydro2/: rundAu_dt05.sh
+Only in ../v-USPhydro2/: rundAusix_EOS21.sh
+Only in ../v-USPhydro2/: rundAustre_EOS21.sh
+Files ../BSQ/Hydro-master/rungekutta4.h and ../v-USPhydro2/rungekutta4.h differ
+Only in ../v-USPhydro2/: runs
+Only in ../v-USPhydro2/: runtemp.sh
+Only in ../v-USPhydro2/: runtemp.sh~
+Only in ../v-USPhydro2/: runtemp0.sh
+Only in ../v-USPhydro2/: runtemp1.sh
+Only in ../v-USPhydro2/: runtemp10.sh
+Only in ../v-USPhydro2/: runtemp11.sh
+Only in ../v-USPhydro2/: runtemp12.sh
+Only in ../v-USPhydro2/: runtemp13.sh
+Only in ../v-USPhydro2/: runtemp14.sh
+Only in ../v-USPhydro2/: runtemp15.sh
+Only in ../v-USPhydro2/: runtemp16.sh
+Only in ../v-USPhydro2/: runtemp17.sh
+Only in ../v-USPhydro2/: runtemp18.sh
+Only in ../v-USPhydro2/: runtemp2.sh
+Only in ../v-USPhydro2/: runtemp3.sh
+Only in ../v-USPhydro2/: runtemp4.sh
+Only in ../v-USPhydro2/: runtemp5.sh
+Only in ../v-USPhydro2/: runtemp6.sh
+Only in ../v-USPhydro2/: runtemp7.sh
+Only in ../v-USPhydro2/: runtemp8.sh
+Only in ../v-USPhydro2/: runtemp9.sh
+Only in ../v-USPhydro2/: sb
+Only in ../v-USPhydro2/: setBINN.sh
+Only in ../v-USPhydro2/: setBINN.sh~
+Only in ../v-USPhydro2/: setbash.cpp
+Only in ../v-USPhydro2/: setbash.cpp.diff
+Only in ../v-USPhydro2/: setbash.cpp~
+Only in ../BSQ/Hydro-master/: splinter
+Only in ../v-USPhydro2/: tan
+Only in ../v-USPhydro2/: tan.cpp.diff
+Only in ../v-USPhydro2/: tan.cpp~
+Only in ../v-USPhydro2/: temps
+Only in ../v-USPhydro2/: test.sh
+Files ../BSQ/Hydro-master/vector.o and ../v-USPhydro2/vector.o differ
+Files ../BSQ/Hydro-master/vusphydro and ../v-USPhydro2/vusphydro differ
+Only in ../v-USPhydro2/: writeAr.sh
+Only in ../v-USPhydro2/: writeAr.sh~
+Only in ../v-USPhydro2/: writeAu.sh
+Only in ../v-USPhydro2/: writeAu.sh~
+Only in ../v-USPhydro2/: writeAu3.sh
+Only in ../v-USPhydro2/: writeAu3.sh~
+Only in ../v-USPhydro2/: writeGEN.sh
+Only in ../v-USPhydro2/: writeGEN.sh~
+Only in ../v-USPhydro2/: writeGENERIC.sh
+Only in ../v-USPhydro2/: writeGENERIC.sh~
+Only in ../v-USPhydro2/: writeO.sh
+Only in ../v-USPhydro2/: writeO.sh~
+Only in ../v-USPhydro2/: writePb2.sh
+Only in ../v-USPhydro2/: writeSLRM.sh
+Only in ../v-USPhydro2/: writeSLRM.sh~
+Only in ../v-USPhydro2/: writeXE.sh
+Only in ../v-USPhydro2/: writeXEdef.sh
+Only in ../v-USPhydro2/: writeXEdef.sh~
