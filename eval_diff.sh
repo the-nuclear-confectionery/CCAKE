@@ -15,13 +15,16 @@ changes_file="../BSQ/textfiles/changes.txt"
 # 6) text files with diff inside OUT_dir
 
 # diff between whole directories
+rm $OUT_dir"full_diff_vUSPhydro2_BSQ-Hydro-master.txt"
 diff -q $BSQ_dir $EBE_dir >> $OUT_dir"full_diff_vUSPhydro2_BSQ-Hydro-master.txt"
 
 # list files that differ
+rm $OUT_dir"changed_files_vUSPhydro2_BSQ-Hydro-master.txt"
 diff -q $BSQ_dir $EBE_dir | grep "differ" >> $OUT_dir"changed_files_vUSPhydro2_BSQ-Hydro-master.txt"
 
 # save the differences into files
 while read p; 
 do echo "$p" ; 
+rm $OUT_dir"diff_"$p.txt
 diff -b $BSQ_dir$p $EBE_dir$p >> $OUT_dir"diff_"$p.txt
 done < $changes_file

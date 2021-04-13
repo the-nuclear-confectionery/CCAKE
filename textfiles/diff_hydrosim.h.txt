@@ -1,0 +1,5 @@
+13d12
+< void BSQSimulation(double dt,LinkList<2> &linklist);
+26,27d24
+< template <int D>
+< void BSQshear(LinkList<D>  &linklist);
