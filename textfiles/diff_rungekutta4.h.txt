@@ -986,3 +986,94 @@
 < 	delete [] rhoB0;
 < 	delete [] rhoS0;
 < 	delete [] rhoQ0;
+922,1011d921
+< 	delete [] shv0;
+< }
+< 
+< template <int D>
+< void bsqrungeKutta2(double dx,void (*derivatives)( LinkList<D> &linklist), LinkList<D> &linklist )
+< {
+< 	// creating arrays of vectors of the derivatives at each step
+< 	int N=linklist.n();
+< 	Vector<double,D> *u0,*r0;
+< 	double *etasigma0,*Bulk0,*rhoB0,*rhoS0,*rhoQ0;
+< 	u0=new Vector<double,D> [N];
+< 	r0=new Vector<double,D> [N];
+< 	etasigma0=new double [N];
+< 	Bulk0=new double [N];
+< 	rhoB0=new double [N];
+< 	rhoS0=new double [N];
+< 	rhoQ0=new double [N];
+< 
+< 	Matrix <double,D,D> *shv0;
+< 	shv0=new Matrix <double,D,D> [N];
+< 	double E0,t0;
+< 
+< 
+< 
+< 
+< 	linklist.rk2=1;
+< 	t0=linklist.t;
+< 
+< 
+< 
+< 	for (int i=0; i<N; ++i) {
+< 		u0[i]=linklist._p[i].u;
+< 		r0[i]=linklist._p[i].r;
+< 		etasigma0[i]=linklist._p[i].eta_sigma;
+< 		Bulk0[i]=linklist._p[i].Bulk;
+< 		rhoB0[i]=linklist._p[i].rhoB;
+< 		rhoS0[i]=linklist._p[i].rhoS;
+< 		rhoQ0[i]=linklist._p[i].rhoQ;
+< 		mini(shv0[i],linklist._p[i].shv);
+< 	}
+< 
+< 	E0=linklist.Ez;
+< 
+< 
+< 	//	first step
+< 	(*derivatives)(linklist);
+< 	for (int i=0; i<N; ++i) {
+< 		linklist._p[i].u=u0[i]+0.5*dx*linklist._p[i].du_dt;
+< 		linklist._p[i].r=r0[i]+0.5*dx*linklist._p[i].v;
+< 		linklist._p[i].eta_sigma=etasigma0[i]+0.5*dx*linklist._p[i].detasigma_dt;
+< 		linklist._p[i].Bulk=Bulk0[i]+0.5*dx*linklist._p[i].dBulk_dt;
+< 		linklist._p[i].rhoB=rhoB0[i]+0.5*dx*linklist._p[i].drhoB_dt;
+< 		linklist._p[i].rhoS=rhoB0[i]+0.5*dx*linklist._p[i].drhoS_dt;
+< 		linklist._p[i].rhoQ=rhoB0[i]+0.5*dx*linklist._p[i].drhoQ_dt;
+< 		tmini(linklist._p[i].shv,shv0[i]+0.5*dx*linklist._p[i].dshv_dt);
+< 
+< 
+< 		//if (i==14335) cout <<linklist._p[i].shv << " " << shv0[i]+0.5*dx*linklist._p[i].dshv_dt << endl;
+< 
+< 
+< 		//if (linklist._p[i].eta_sigma<0) linklist._p[i].eta_sigma=0;
+< 	}
+< 	linklist.Ez=E0+0.5*dx*linklist.dEz;
+< 	linklist.t=t0+0.5*dx;
+< 
+< 	//	second step
+< 	(*derivatives)(linklist);
+< 	for (int i=0; i<N; ++i) {
+< 		linklist._p[i].u=u0[i]+	dx*linklist._p[i].du_dt;
+< 		linklist._p[i].r=r0[i]+dx*linklist._p[i].v;
+< 		linklist._p[i].eta_sigma=etasigma0[i]+dx*linklist._p[i].detasigma_dt;
+< 		linklist._p[i].Bulk=Bulk0[i]+dx*linklist._p[i].dBulk_dt;
+< 		linklist._p[i].rhoB=rhoB0[i]+dx*linklist._p[i].drhoB_dt;
+< 		linklist._p[i].rhoS=rhoB0[i]+dx*linklist._p[i].drhoS_dt;
+< 		linklist._p[i].rhoQ=rhoB0[i]+dx*linklist._p[i].drhoQ_dt;
+< 		tmini(linklist._p[i].shv,shv0[i]+dx*linklist._p[i].dshv_dt);
+< 		//if (linklist._p[i].eta_sigma<0) linklist._p[i].eta_sigma=0;
+< 
+< 		//if (i==14335) cout <<linklist._p[i].eta_sigma << " " << linklist._p[i].u << " " <<  linklist._p[i].Bulk << endl;
+< 	}
+< 	linklist.Ez=E0+dx*linklist.dEz;
+< 	linklist.t=t0+dx;
+< 
+< 	delete [] u0;
+< 	delete [] r0;
+< 	delete [] etasigma0;
+< 	delete [] Bulk0;
+< 	delete [] rhoB0;
+< 	delete [] rhoS0;
+< 	delete [] rhoQ0;

@@ -24,3 +24,14 @@
 >    echo hydro done
 59a62
 >    echo decays done
+51,52c51,53
+<    if [ "$sphpar"-100 > "$sphout" ] ; then
+<    	echo "$sphpar"  "$sphout"
+---
+>    let small=("$sphpar"-100) 
+>    if [ "$small" -gt "$sphout" ] ; then
+>        echo event glitch:  "$small"  "$sphout"
+55a57
+>    echo hydro done
+59a62
+>    echo decays done

@@ -3270,3 +3270,914 @@
 <    	{
 <    		visc=4;
 <    	}
+19c19
+< 
+---
+> 	int _n;
+31c31
+< 
+---
+> 	double _h;
+39,52c39
+< 	double gradPressure_weight(int a, int b) {
+< 
+< 		double _alpha_q = 1.;
+<     double _v_signal_q = sqrt(1./3.);
+< 
+< 		double innerp = inner(_p[a].r -_p[b].r,_p[a].qmom -_p[b].qmom);
+<     double innerr = inner(_p[a].r -_p[b].r,_p[a].r-_p[b].r);
+<     innerp=2.*_alpha_q*_v_signal_q/(_p[a].sigma/_p[a].gamma+_p[b].sigma/_p[b].gamma)/sqrt(innerr)*innerp;
+< 
+<     if(innerp>0. || a==b) innerp=0.;
+< 
+< 
+< 		return _p[b].sigmaweight*_p[a].sigma*( _p[b].EOS.p()/(_p[b].sigma*_p[b].sigma) + _p[a].EOS.p()/(_p[a].sigma*_p[a].sigma) -innerp);
+< 	}
+---
+> 	double gradPressure_weight(int a, int b) {return _p[b].sigmaweight*_p[a].sigma*( _p[b].EOS.p()/(_p[b].sigma*_p[b].sigma) + _p[a].EOS.p()/(_p[a].sigma*_p[a].sigma) );}
+63,64d49
+< 	double _h;
+< 	int _n;
+125d109
+<         void bsqsvfreezeout(int curfrz);
+150,151c134
+<         void bsqsvoptimization(int a);
+< 	void bsqsvoptimization2(int a,double tin,int & count);
+---
+> 	
+153d135
+<         void bsqconservation_entropy();
+157a140
+> 	void svconservation();
+160d142
+< 	void svconservation();
+163,165d144
+<         void bsqsvconservation();
+<         void bsqsvconservation_E();
+< 	void bsqsvconservation_Ez();
+168,170d146
+<         //void vfreezeout(int curfrz);
+<         //void svfreezeout(int curfrz);
+<         //void bsqsvfreezeout(int curfrz);
+174d149
+<         void bsqsvinterpolate(int curfrz);
+177d151
+<         void bsqsvfreezeset();
+184d157
+<         void gubsershearbsq( double h);
+190d162
+<         void bsqupdateIC();
+200,201d171
+<         void bsqsv_set();
+< 	void bsqsv_setb();
+234c204
+< 	kgrad=10/7./PI/pow(_h,3)*3/4.;
+---
+> 	kgrad=-10/7./PI/pow(_h,3)*3/4.;
+480,481c450,451
+< 		if(isnan(divTtemp[j]))
+< 		{
+---
+> 		//	if(isnan(divTtemp[j])) 	
+> 		//{
+483,485c453,455
+< 			cout << "divtemp" << endl;
+< 			cout << divTtemp[j] << " " << divT[j] << " " << norm << endl;
+< 			cout << gradPsub << " " << thetasub << endl;
+---
+> 		//	cout << "divtemp" << endl;
+> 		//	cout << divTtemp[j] << " " << divT[j] << " " << norm << endl;
+> 		//	cout << gradPsub << " " << thetasub << endl;
+488c458
+< 		}
+---
+> 		//}
+656,657c626,627
+< 		if(isnan(divTtemp[j]))
+< 		{
+---
+> 		//		if(isnan(divTtemp[j])) 	
+> 		//{
+659,665c629,635
+< 			cout << "divtemp" << endl;
+< 			cout << divTtemp[j] << " " << divT[j] << " " << norm << endl;
+< 			cout << gradPsub << " " << thetasub << endl;
+< 			cout << bulksub[j] <<endl;
+< 			cout << gsub[j] << endl;
+< 			cout << tlist[j]<< endl;
+< 			cout << _p[i].frz1.T<< " " << _p[i].frz2.T<< " " << taup<< " " << taupp << endl;
+---
+> 		//	cout << "divtemp" << endl;
+> 		//	cout << divTtemp[j] << " " << divT[j] << " " << norm << endl;
+> 		//	cout << gradPsub << " " << thetasub << endl;
+> 		//	cout << bulksub[j] <<endl;
+> 		//	cout << gsub[j] << endl;
+> 		//	cout << tlist[j]<< endl;
+> 		//	cout << _p[i].frz1.T<< " " << _p[i].frz2.T<< " " << taup<< " " << taupp << endl;
+668c638
+< 		}
+---
+> 		//}
+908,1159c878,879
+< 		if (divTtemp[j]==1) {
+< 		        cout << "track sph=" << _p[i].btrack << " " << i <<  endl;
+< 			cout << divTtemp[j] << " " << divT[j] << " " << norm << endl;
+< 			cout << gradPsub << " " << thetasub << endl;
+< 			cout << tlist[j] << " " << _p[i].r << endl;
+< 			cout << _p[i].frz1.gradP<< " " << _p[i].frz2.gradP <<  endl;
+< 			cout << _p[i].frz1.T*197.3<< " " << _p[i].frz2.T*197.3 <<  endl;
+< 			getchar();
+< 
+< 		}
+< 
+< 		avgetasig+=sFO[j]/sigsub;
+< 
+< 		if(isnan(divTtemp[j]))
+< 		{
+< 
+< 			cout << "divtemp" << endl;
+< 			cout << divTtemp[j] << " " << divT[j] << " " << norm << endl;
+< 			cout << gradPsub << " " << thetasub << endl;
+< 			cout << bulksub[j] <<endl;
+< 			cout << gsub[j] << endl;
+< 			cout << tlist[j] << " " << _p[i].r << endl;
+< 			cout << _p[i].frz1.T*0.1973<< " " << _p[i].frz2.T*0.1973<<  endl;
+< 
+< 		}
+< 
+< 		sFO[j]*=pow(Tfluc[j]*0.1973,3);
+< 		Tfluc[j]*=0.1973;
+< 
+< 	}
+< 	cf=curfrz;
+< }
+< 
+< template <int D>
+< void LinkList<D>::bsqsvfreezeout(int curfrz)
+< {
+< 
+< 
+< 
+<     if (frzc==0)
+<     {
+<     	taupp=t;
+<     	frzc=1;
+<     	for (int i=0; i<_n; i++) {
+< 
+< 
+<     	_p[i].frz2.r=_p[i].r;
+<     	_p[i].frz2.u=_p[i].u;
+<     	_p[i].frz2.sigma=_p[i].sigma;
+<     	_p[i].frz2.T=_p[i].EOS.T();
+<     	_p[i].frz2.bulk=_p[i].bigPI ;
+<     	_p[i].frz2.theta=_p[i].div_u+_p[i].gamma/t;
+<     	_p[i].frz2.gradP=_p[i].gradP;
+<     	_p[i].frz2.shear=_p[i].shv;
+<     	_p[i].frz2.shear33=_p[i].shv33;
+<     	_p[i].frz2.inside=_p[i].inside;
+<     	}
+< 
+<     }
+<     else if (frzc==1)
+<     {
+<    	taup=t;
+<     	frzc=2;
+<     	for (int i=0; i<_n; i++) {
+< 
+<     	_p[i].frz1.r=_p[i].r;
+<     	_p[i].frz1.u=_p[i].u;
+<     	_p[i].frz1.sigma=_p[i].sigma;
+<     	_p[i].frz1.T=_p[i].EOS.T();
+<     	_p[i].frz1.bulk=_p[i].bigPI ;
+<     	_p[i].frz1.theta=_p[i].div_u+_p[i].gamma/t;
+<     	_p[i].frz1.gradP=_p[i].gradP;
+<     	_p[i].frz1.shear=_p[i].shv;
+<     	_p[i].frz1.shear33=_p[i].shv33;
+<     	_p[i].frz1.inside=_p[i].inside;
+<     	}
+< 
+< 	divTtemp=new double [curfrz];
+<     	divT=new Vector<double,D> [curfrz];
+<     	gsub=new double [curfrz];
+<     	uout=new Vector<double,D> [curfrz];
+<     	swsub=new double [curfrz];
+<     	bulksub=new double [curfrz];
+<     	shearsub=new Matrix<double,D+1,D+1> [curfrz];
+<     	shear33sub=new double [curfrz];
+<     	tlist=new double [curfrz];
+<     	rsub=new Vector<double,D> [curfrz];
+< 
+< 	if (curfrz>0)
+<     		bsqsvinterpolate(curfrz);
+<     	else
+<     		cf=0;
+< 
+<     }
+<     else
+<     {
+< 
+<     	for (int i=0; i<_n; i++) {
+<     	       if (_p[i].Freeze<4){
+< 	    	if ((_p[i].btrack<=3)&&(_p[i].btrack>0)){
+< 	    		_p[i].fback4=_p[i].fback2;
+< 	    		_p[i].fback3=_p[i].fback;
+< 	    		_p[i].fback2=_p[i].frz2;
+< 	    		_p[i].fback=_p[i].frz1;
+< 	    	}
+< 	    	else if (_p[i].btrack==0){
+< 	    		if (_p[i].fback.gradP.x[0]!=0){
+< 		    		_p[i].frz2=_p[i].fback2;
+< 		    		_p[i].frz1=_p[i].fback;
+< 	    		}
+< 	    		else{
+< 	    			_p[i].frz2=_p[i].fback4;
+< 		    		_p[i].frz1=_p[i].fback3;
+< 		    		cout << "back second"  << endl;
+< 	    		}
+< 
+< 
+< 	    		curfrz++;
+< 	    		list.push_back(i);
+< 	    		_p[i].Freeze=4;
+< 	    		_p[i].btrack=-1;
+< 	    	}
+< 	    	}
+<     	}
+< 
+<     	tau=t;
+< 
+<     	divTtemp=new double [curfrz];
+<     	divT=new Vector<double,D> [curfrz];
+<     	gsub=new double [curfrz];
+<     	uout=new Vector<double,D> [curfrz];
+<     	swsub=new double [curfrz];
+<     	bulksub=new double [curfrz];
+<     	shearsub=new Matrix<double,D+1,D+1> [curfrz];
+<     	shear33sub=new double [curfrz];
+<     	tlist=new double [curfrz];
+<     	rsub=new Vector<double,D> [curfrz];
+< 
+< 
+< 
+<     	if (curfrz>0)
+<     		bsqsvinterpolate(curfrz);
+<     	else
+<     		cf=0;
+< 
+< 
+<     	//sets up the variables for the next time step
+<     	for (int i=0; i<_n; i++) {
+<     	_p[i].frz2=_p[i].frz1;
+< 
+< 
+<     	_p[i].frz1.r=_p[i].r;
+<     	_p[i].frz1.u=_p[i].u;
+<     	_p[i].frz1.sigma=_p[i].sigma;
+<     	_p[i].frz1.T=_p[i].EOS.T();
+<     	_p[i].frz1.bulk=_p[i].bigPI ;
+<     	_p[i].frz1.theta=_p[i].div_u+_p[i].gamma/t;
+<     	_p[i].frz1.gradP=_p[i].gradP;
+<     	_p[i].frz1.shear=_p[i].shv;
+<     	_p[i].frz1.shear33=_p[i].shv33;
+<     	_p[i].frz1.inside=_p[i].inside;
+<     	}
+<     	taupp=taup;
+<     	taup=tau;
+<     }
+<     cfon=0;
+< }
+< 
+< 
+< 
+< 
+< template <int D>
+< void LinkList<D>::bsqsvinterpolate(int curfrz)
+< {
+< 
+< 	sFO.resize(curfrz,0);
+< 	Tfluc.resize(curfrz,0);
+< 	for (int j=0;j<curfrz;j++)
+< 	{
+< 
+< 
+< 		int i=list[j];
+< 
+< 
+< 		int swit=0;
+< 		if (abs(_p[i].frz1.T-freezeoutT)<abs(_p[i].frz2.T-freezeoutT)) swit=1;
+< 		else swit=2;
+< 
+< //		if(_p[i].btrack==-1){
+< //			if (_p[i].frz1.T<_p[i].frz2.T) swit=1;
+< //			else swit=2;
+< //		}
+< 
+< 		double sigsub,thetasub,inside;
+< 		Vector<double,D> gradPsub;
+< 		if (swit==1){
+< 			if (_p[i].btrack!=-1) tlist[j]=taup;
+< 			else tlist[j]=taup-dt;
+< 			rsub[j]=_p[i].frz1.r;
+< 			uout[j]=_p[i].frz1.u;
+< 			bulksub[j]=_p[i].frz1.bulk;
+< 			shearsub[j]=_p[i].frz1.shear;
+< 			shear33sub[j]=_p[i].frz1.shear33;
+< 
+< 			gradPsub=_p[i].frz1.gradP;
+< 			inside=_p[i].frz1.inside;
+< 			sigsub=_p[i].frz1.sigma;
+< 			thetasub=_p[i].frz1.theta;
+< 			Tfluc[j]=_p[i].frz1.T;
+< 		}
+< 		else if (swit==2){
+< 			if (_p[i].btrack!=-1) tlist[j]=taupp;
+< 			else tlist[j]=taupp-dt;
+< 			rsub[j]=_p[i].frz2.r;
+< 			uout[j]=_p[i].frz2.u;
+< 			bulksub[j]=_p[i].frz2.bulk;
+< 			shearsub[j]=_p[i].frz2.shear;
+< 			shear33sub[j]=_p[i].frz2.shear33;
+< 
+< 			gradPsub=_p[i].frz2.gradP;
+< 			inside=_p[i].frz2.inside;
+< 			sigsub=_p[i].frz2.sigma;
+< 			thetasub=_p[i].frz2.theta;
+< 			Tfluc[j]=_p[i].frz2.T;
+< 		}
+< 		else {
+< 		cout << "LinkList.h: Not at freeze-out temperature" << endl;
+< 
+< 		}
+< 
+< 
+< 
+< 		sFO[j]=_p[0].EOS.s_terms_T(Tfluc[j]);
+< 
+< 		gsub[j]=sqrt( Norm2(uout[j]) + 1 );
+< 
+< 
+< 		sigsub/=gsub[j]*tlist[j];
+< 		swsub[j]=_p[i].sigmaweight/sigsub;
+< 
+<     		divT[j]=(1/sFO[j])*gradPsub;
+<     		divTtemp[j]=-(1/(gsub[j]*sFO[j]))*(cs2*(wfz+bulksub[j])*thetasub-cs2*inside+inner(uout[j],gradPsub));
+< 
+< 
+< 		double insub=divTtemp[j]*divTtemp[j]-Norm2(divT[j]);
+< 		double norm=-sqrt(abs(insub));
+< 		divTtemp[j]/=norm;
+< 		divT[j]=(1/norm)*divT[j];
+< 
+< 
+< //		if(_p[i].btrack==-1){
+< //		        cout << "btracked =" << _p[i].btrack << endl;
+---
+> //		if (divTtemp[j]==1) {
+> //		        cout << "track sph=" << _p[i].btrack << " " << i <<  endl;
+1162,1163d881
+< //			cout << bulksub[j] <<endl;
+< //			cout << gsub[j] << endl;
+1168,1170d885
+< //
+< //		}
+< 
+1172,1181c887
+< 		if (divTtemp[j]==1) {
+< 		        cout << "track sph=" << _p[i].btrack << " " << i <<  endl;
+< 			cout << divTtemp[j] << " " << divT[j] << " " << norm << endl;
+< 			cout << gradPsub << " " << thetasub << endl;
+< 			cout << tlist[j] << " " << _p[i].r << endl;
+< 			cout << _p[i].frz1.gradP<< " " << _p[i].frz2.gradP <<  endl;
+< 			cout << _p[i].frz1.T*197.3<< " " << _p[i].frz2.T*197.3 <<  endl;
+< 			getchar();
+< 
+< 		}
+---
+> //		}
+1185,1186c891,892
+< 		if(isnan(divTtemp[j]))
+< 		{
+---
+> 		//		if(isnan(divTtemp[j])) 	
+> 		//		{
+1188,1194c894,900
+< 			cout << "divtemp" << endl;
+< 			cout << divTtemp[j] << " " << divT[j] << " " << norm << endl;
+< 			cout << gradPsub << " " << thetasub << endl;
+< 			cout << bulksub[j] <<endl;
+< 			cout << gsub[j] << endl;
+< 			cout << tlist[j] << " " << _p[i].r << endl;
+< 			cout << _p[i].frz1.T*0.1973<< " " << _p[i].frz2.T*0.1973<<  endl;
+---
+> 		//	cout << "divtemp" << endl;
+> 		//	cout << divTtemp[j] << " " << divT[j] << " " << norm << endl;
+> 			//	cout << gradPsub << " " << thetasub << endl;
+> 		//	cout << bulksub[j] <<endl;
+> 		//	cout << gsub[j] << endl;
+> 		//	cout << tlist[j] << " " << _p[i].r << endl;
+> 		//	cout << _p[i].frz1.T*0.1973<< " " << _p[i].frz2.T*0.1973<<  endl;			
+1196c902
+< 		}
+---
+> 		//}
+1204a911
+> 
+1280,1292d986
+< void LinkList<D>::bsqsvconservation()
+< {
+< 
+< //    conservation_entropy();
+<     bsqsvconservation_E();
+<     Etot=E+Ez;
+<    Eloss= (E0-Etot)/E0*100;
+<    rk2=0;
+<  //   cout << Eloss << "% of Energy loss at time t=" << t << endl;
+< //    cout << (S0-S)/S0 << "% of Entropy loss at time t=" << t << endl;
+< 
+< }
+< template <int D>
+1331,1387d1024
+< void LinkList<D>::vconservation_E()
+< {
+< 
+<     E=0.;
+<     for (int i=0; i<_n; i++) {
+<     E+= (_p[i].C* _p[i].gamma* _p[i].gamma-_p[i].EOS.p()-_p[i].bigPI)/_p[i].sigma*_p[i].sigmaweight*t;
+<     }
+< 
+<     if (first==1)
+<     {
+< 
+<     	first=0;
+<     	E0=E;
+<     }
+< 
+< 
+< }
+< 
+< template <int D>
+< void LinkList<D>::svconservation_E()
+< {
+< 
+<     E=0.;
+<     for (int i=0; i<_n; i++) {
+<     E+= (_p[i].C* _p[i].g2-_p[i].EOS.p()-_p[i].bigPI+_p[i].shv.x[0][0])/_p[i].sigma*_p[i].sigmaweight*t;
+<     }
+< 
+<     if (first==1)
+<     {
+< 
+<     	first=0;
+<     	E0=E;
+<     }
+< 
+< 
+< }
+< 
+< template <int D>
+< void LinkList<D>::bsqsvconservation_E()
+< {
+< 
+<     E=0.;
+<     for (int i=0; i<_n; i++) {
+<     E+= (_p[i].C* _p[i].g2-_p[i].EOS.p()-_p[i].bigPI+_p[i].shv.x[0][0])/_p[i].sigma*_p[i].sigmaweight*t;
+<     }
+< 
+<     if (first==1)
+<     {
+< 
+<     	first=0;
+<     	E0=E;
+<     }
+< 
+< 
+< }
+< 
+< template <int D>
+1390,1392c1027,1028
+< 	cs2=_p[0].EOS.cs2out(freezeoutT,0.0,0.0,0.0);
+< 	wfz=_p[0].EOS.wfz(freezeoutT,0.0,0.0,0.0);
+<                 if (true){std::cerr << "Fix this!" << std::endl;  exit(8);}
+---
+> 	cs2=_p[0].EOS.cs2out(freezeoutT);
+> 	wfz=_p[0].EOS.wfz(freezeoutT);
+1396,1407d1031
+< void LinkList<D>::bsqsvfreezeset()
+< {
+< 	double freezeoutB=0.0,freezeoutS=0.0,freezeoutQ=0.0;
+< 	if (true)
+< 	{
+< 		std::cerr << "Fix this!  set freezeout B,Q,S values explicitly!" << std::endl;
+< 		exit(8);
+< 	}
+< 	cs2=_p[0].EOS.cs2out(freezeoutT,freezeoutB,freezeoutS,freezeoutQ);
+< 	wfz=_p[0].EOS.wfz(freezeoutT,freezeoutB,freezeoutS,freezeoutQ);
+< } 
+< template <int D>
+1443c1067
+< void LinkList<D>::bsqsv_set()
+---
+> void LinkList<D>::vconservation_E()
+1445a1070
+>     E=0.;
+1447,1449c1072
+< 	double gg=_p[i].gamcalc();
+< 	_p[i].g2=gg*gg;
+<     	_p[i].shv33=0;
+---
+>     E+= (_p[i].C* _p[i].gamma* _p[i].gamma-_p[i].EOS.p()-_p[i].bigPI)/_p[i].sigma*_p[i].sigmaweight*t;
+1451a1075,1082
+>     if (first==1)
+>     {
+>     	
+>     	first=0;
+>     	E0=E;
+>     }
+>     
+> 
+1455c1086
+< void LinkList<D>::bsqsv_setb()
+---
+> void LinkList<D>::svconservation_E()
+1457a1089
+>     E=0.;
+1459,1460c1091,1098
+< 	double gg=_p[i].gamcalc();
+< 	_p[i].g2=gg*gg;
+---
+>     E+= (_p[i].C* _p[i].g2-_p[i].EOS.p()-_p[i].bigPI+_p[i].shv.x[0][0])/_p[i].sigma*_p[i].sigmaweight*t;
+>     }
+>     
+>     if (first==1)
+>     {
+>     	
+>     	first=0;
+>     	E0=E;
+1462a1101
+> 
+1464a1104
+> 
+1505,1517d1144
+< void LinkList<D>::bsqsvconservation_Ez()
+< {
+< 
+<     dEz=0.;
+< 
+<     double t2=t*t;
+<     for (int i=0; i<_n; i++) {
+<     dEz+=( _p[i].EOS.p()+_p[i].bigPI+_p[i].shv33*t2)/_p[i].sigma*_p[i].sigmaweight;
+<     }
+< 
+< }
+< 
+< template <int D>
+1659,1661d1285
+< 	  double pre=_p[a].eta;
+<     _p[a].sigma = 0;
+< 
+1662a1287
+>     _p[a].sigma = 0;
+1664d1288
+< 			int fini=0;
+1681c1305
+< 										fini++;
+---
+> 			
+1690,1692d1313
+< 
+< 
+< 
+1694,1697d1314
+<  if (_p[a].eta<0) {
+< 	 _p[a].eta=pre;
+<   cout << "reset "  << _p[a].r << endl;
+<  }
+1813,1831c1430,1448
+< 			if(isnan(_p[a].gradP.x[0])) {
+< 				cout << "grad P not working" << endl;
+< 				cout << t <<" "  << _p[a].gradP <<  " " << a << " " << b << endl;
+< 				cout << _p[b].sigmaweight << " " << 	_p[a].sigma << " " <<  _p[b].EOS.p() << " " << endl;
+< 				cout <<   Size << " " <<  _p[b].EOS.s() << " " << _p[a].EOS.s() <<endl;
+< 
+< 				cout << _p[a].r << endl;
+< 				cout << _p[b].r << endl;
+< 				cout << kernel(_p[a].r-_p[b].r) << endl;
+< 
+< 			}
+< 			else if (isnan(_p[a].gradP.x[1])) {
+< 				cout << "1 " << gradPressure_weight(a,b) <<  " " << a << " " << b << endl;
+< 
+< 			}
+< 			else if (isnan(_p[a].gradP.x[2])) {
+< 				cout << "2 " << gradPressure_weight(a,b) <<  " " << a << " " << b << endl;
+< 
+< 			}
+---
+> 		    //			if(isnan(_p[a].gradP.x[0])) {
+> 		    //		cout << "grad P not working" << endl;
+> 		    //		cout << t <<" "  << _p[a].gradP <<  " " << a << " " << b << endl;
+> 		    //		cout << _p[b].sigmaweight << " " << 	_p[a].sigma << " " <<  _p[b].EOS.p() << " " << endl;
+> 		    //		cout <<   Size << " " <<  _p[b].EOS.s() << " " << _p[a].EOS.s() <<endl;
+> 		    //
+> 		    //		cout << _p[a].r << endl;
+> 		    //		cout << _p[b].r << endl;
+> 		    //		cout << kernel(_p[a].r-_p[b].r) << endl;
+> 		    //		
+> 		    //	}
+> 		    //	else if (isnan(_p[a].gradP.x[1])) {
+> 		    //		cout << "1 " << gradPressure_weight(a,b) <<  " " << a << " " << b << endl;
+> 		    //		
+> 		    //	}
+> 		    //	else if (isnan(_p[a].gradP.x[2])) {
+> 		    //		cout << "2 " << gradPressure_weight(a,b) <<  " " << a << " " << b << endl;
+> 		    //
+> 		    //	}
+1873,1903d1489
+< template <int D>//if we include the SPH over rhoB, rhoS, rhoQ
+< void LinkList<D>::bsqsvoptimization(int a)
+< {
+< 
+<     _p[a].sigma = 0;
+<     _p[a].eta = 0;
+<     Vector<int,D> i;
+< 	for(i.x[0]=-2; i.x[0]<=2; i.x[0]++)
+<         {
+<         for(i.x[1]=-2; i.x[1]<=2; i.x[1]++)
+<         {
+< 
+<                  int b=lead[triToSum(dael[a]+i, size)];
+<                  while(b!=-1 )
+<                  {
+<                  	double kern=kernel(_p[a].r-_p[b].r);
+<                     	_p[a].sigma +=_p[b].sigmaweight*kern;
+<                     	_p[a].eta +=  _p[b].sigmaweight*_p[b].eta_sigma*kern;
+< 											_p[a].rhoB +=  _p[b].sigmaweight*_p[b].rhoB_sigma*kern;
+< 											_p[a].rhoS +=  _p[b].sigmaweight*_p[b].rhoS_sigma*kern;
+< 											_p[a].rhoQ +=  _p[b].sigmaweight*_p[b].rhoQ_sigma*kern;
+< 
+< 
+< 
+<                    	b=link[b];
+<                  }
+<         }
+< 	}
+< 
+< }
+< 
+1942,1960c1528,1546
+< 			if(isnan(_p[a].gradP.x[0])) {
+< 				cout << "gradP stopped working" << endl;
+< 				cout << t <<" "  << _p[a].gradP <<  " " << a << " " << b << endl;
+< 				cout << _p[b].sigmaweight << " " << 	_p[a].sigma << " " <<  _p[b].EOS.p() << " " << endl;
+< 				cout <<   Size << " " <<  _p[b].EOS.s() << " " << _p[a].EOS.s() <<endl;
+< 
+< 				cout << _p[a].r << endl;
+< 				cout << _p[b].r << endl;
+< 				cout << kernel(_p[a].r-_p[b].r) << endl;
+< 
+< 			}
+< 			else if (isnan(_p[a].gradP.x[1])) {
+< 				cout << "1 " << gradPressure_weight(a,b) <<  " " << a << " " << b << endl;
+< 
+< 			}
+< 			else if (isnan(_p[a].gradP.x[2])) {
+< 				cout << "2 " << gradPressure_weight(a,b) <<  " " << a << " " << b << endl;
+< 
+< 			}
+---
+> 		     //			if(isnan(_p[a].gradP.x[0])) {
+> 		     //		cout << "gradP stopped working" << endl;
+> 		     //		cout << t <<" "  << _p[a].gradP <<  " " << a << " " << b << endl;
+> 		     //		cout << _p[b].sigmaweight << " " << 	_p[a].sigma << " " <<  _p[b].EOS.p() << " " << endl;
+> 		     //		cout <<   Size << " " <<  _p[b].EOS.s() << " " << _p[a].EOS.s() <<endl;
+> 		     //
+> 		     //		cout << _p[a].r << endl;
+> 		     //		cout << _p[b].r << endl;
+> 		     //		cout << kernel(_p[a].r-_p[b].r) << endl;
+> 		     //		
+> 		     //	}
+> 		     //	else if (isnan(_p[a].gradP.x[1])) {
+> 		     //		cout << "1 " << gradPressure_weight(a,b) <<  " " << a << " " << b << endl;
+> 		     //		
+> 		     //	}
+> 		     //	else if (isnan(_p[a].gradP.x[2])) {
+> 		     //		cout << "2 " << gradPressure_weight(a,b) <<  " " << a << " " << b << endl;
+> 		     //
+> 		     //	}
+2032,2152c1618,1636
+< 			if(isnan(_p[a].gradP.x[0])) {
+< 				cout << "gradP stopped working" << endl;
+< 				cout << t <<" "  << _p[a].gradP <<  " " << a << " " << b << endl;
+< 				cout << _p[b].sigmaweight << " " << 	_p[a].sigma << " " <<  _p[b].EOS.p() << " " << endl;
+< 				cout <<   Size << " " <<  _p[b].EOS.s() << " " << _p[a].EOS.s() <<endl;
+< 
+< 				cout << _p[a].r << endl;
+< 				cout << _p[b].r << endl;
+< 				cout << kernel(_p[a].r-_p[b].r) << endl;
+< 
+< 			}
+< 			else if (isnan(_p[a].gradP.x[1])) {
+< 				cout << "1 " << gradPressure_weight(a,b) <<  " " << a << " " << b << endl;
+< 
+< 			}
+< 			else if (isnan(_p[a].gradP.x[2])) {
+< 				cout << "2 " << gradPressure_weight(a,b) <<  " " << a << " " << b << endl;
+< 
+< 			}
+< 
+< 
+< 
+<                     b=link[b];
+<                     }
+<         }
+< 	}
+< 
+< 	if ((_p[a].btrack==1)&&((_p[a].EOS.T()*197.3)>=150)) {
+<     		_p[a].frz2.t=tin;
+<     	}
+<     	else if ((_p[a].btrack==0)&&((_p[a].EOS.T()*197.3)>=150)&&(_p[a].Freeze<4)){
+<     	cout <<"Missed " << a << " "<< tin << "  " << _p[a].EOS.T()*197.3 << " " << rdis << " " << cfon <<  endl;
+<     	}
+< 
+< 
+< }
+< 
+< 
+< template <int D>
+< void LinkList<D>::bsqsvoptimization2(int a,double tin,int & count)
+< {
+< 
+<     _p[a].gradP=0.;
+<     _p[a].gradBulk = 0.;
+<     _p[a].gradrhoB = 0.;
+<     _p[a].gradrhoS = 0.;
+<     _p[a].gradrhoQ = 0.;
+<     _p[a].gradV = 0.;
+<     _p[a].gradshear=0.;
+<     _p[a].divshear=0.;
+< 
+<     Vector<int,D> i;
+< 
+< 	if (_p[a].btrack!=-1) _p[a].btrack=0;
+< 
+< 	double rdis=0;
+< 
+< 	for(i.x[0]=-2; i.x[0]<=2; i.x[0]++)
+<         {
+<         for(i.x[1]=-2; i.x[1]<=2; i.x[1]++)
+<         {
+< 
+<                  int b=lead[triToSum(dael[a]+i, size)];
+< 
+< 
+< 
+< 
+< 
+<                     while(b!=-1 )
+<                     {
+< 
+< 
+<                     Vector<double,D> gradK=gradKernel(_p[a].r-_p[b].r);
+<                     Vector<double,D> va=rowp1(0,_p[a].shv);
+<                     Vector<double,D> vb=rowp1(0,_p[b].shv);
+<                     Matrix<double,D,D> vminia,vminib;
+<                     mini(vminia,_p[a].shv);
+<                     mini(vminib,_p[b].shv);
+<                     double sigsqra=1/(_p[a].sigma*_p[a].sigma);
+<                     double sigsqrb=1/(_p[b].sigma*_p[b].sigma);
+<                     Vector<double,D> sigsigK=_p[b].sigmaweight*_p[a].sigma*gradK;
+< 
+<                     _p[a].gradP +=( sigsqrb*_p[b].EOS.p()+ sigsqra*_p[a].EOS.p() )*sigsigK;
+< 
+<                     if (((Norm(_p[a].r-_p[b].r)/_h)<=2)&&(a!=b)) {
+<                      	if (_p[a].btrack!=-1) _p[a].btrack++;
+<                      	if (_p[a].btrack==1) rdis=Norm(_p[a].r-_p[b].r)/_h;
+<                      }
+< 
+<                     _p[a].gradBulk += ( _p[b].Bulk/_p[b].sigma/_p[b].gamma + _p[a].Bulk/_p[a].sigma/_p[a].gamma)/tin*sigsigK;
+< 		    _p[a].gradrhoB += ( _p[b].rhoB/_p[b].sigma/_p[b].gamma + _p[a].rhoB/_p[a].sigma/_p[a].gamma)/tin*sigsigK;
+< 		    _p[a].gradrhoS += ( _p[b].rhoS/_p[b].sigma/_p[b].gamma + _p[a].rhoS/_p[a].sigma/_p[a].gamma)/tin*sigsigK;
+< 		    _p[a].gradrhoQ += ( _p[b].rhoQ/_p[b].sigma/_p[b].gamma + _p[a].rhoQ/_p[a].sigma/_p[a].gamma)/tin*sigsigK;
+<                     _p[a].gradV+=(_p[b].sigmaweight/_p[a].sigma*( _p[b].v -  _p[a].v ))*gradK;
+< 
+< 
+< 
+<                     _p[a].gradshear+=(inner(sigsigK,_p[a].v))*(sigsqrb*vb+sigsqra*va);
+<                     _p[a].divshear+=(sigsqrb*(sigsigK*transpose(vminib))+sigsqra*(sigsigK*transpose(vminia)));
+< 
+< 
+< 
+< 			if(isnan(_p[a].gradP.x[0])) {
+< 				cout << "gradP stopped working" << endl;
+< 				cout << t <<" "  << _p[a].gradP <<  " " << a << " " << b << endl;
+< 				cout << _p[b].sigmaweight << " " << 	_p[a].sigma << " " <<  _p[b].EOS.p() << " " << endl;
+< 				cout <<   Size << " " <<  _p[b].EOS.s() << " " << _p[a].EOS.s() <<endl;
+< 
+< 				cout << _p[a].r << endl;
+< 				cout << _p[b].r << endl;
+< 				cout << kernel(_p[a].r-_p[b].r) << endl;
+< 
+< 			}
+< 			else if (isnan(_p[a].gradP.x[1])) {
+< 				cout << "1 " << gradPressure_weight(a,b) <<  " " << a << " " << b << endl;
+< 
+< 			}
+< 			else if (isnan(_p[a].gradP.x[2])) {
+< 				cout << "2 " << gradPressure_weight(a,b) <<  " " << a << " " << b << endl;
+< 
+< 			}
+---
+> 		    //if(isnan(_p[a].gradP.x[0])) {
+> 			  //				cout << "gradP stopped working" << endl;
+> 		    //		cout << t <<" "  << _p[a].gradP <<  " " << a << " " << b << endl;
+> 		    //		cout << _p[b].sigmaweight << " " << 	_p[a].sigma << " " <<  _p[b].EOS.p() << " " << endl;
+> 		    //		cout <<   Size << " " <<  _p[b].EOS.s() << " " << _p[a].EOS.s() <<endl;
+> 		    //
+> 		    //		cout << _p[a].r << endl;
+> 		    //		cout << _p[b].r << endl;
+> 		    //		cout << kernel(_p[a].r-_p[b].r) << endl;
+> 		    //		
+> 		    //	}
+> 		    //	else if (isnan(_p[a].gradP.x[1])) {
+> 		    //		cout << "1 " << gradPressure_weight(a,b) <<  " " << a << " " << b << endl;
+> 		    //		
+> 		    //	}
+> 		    //	else if (isnan(_p[a].gradP.x[2])) {
+> 		    //		cout << "2 " << gradPressure_weight(a,b) <<  " " << a << " " << b << endl;
+> 		    //
+> 		    //	}
+2340,2345c1824
+< 	        if (gtyp!=5) _p[i].s_an=_p[i].EOS.s_out(_p[i].e_sub,0.0,0.0,0.0);
+<                  _p[i].EOS.update_s(_p[i].s_an,0.0,0.0,0.0);
+<                 if (true){std::cerr << "Fix this!" << std::endl;  exit(8);}
+< 		if (gtyp==5) _p[i].e_sub=_p[i].EOS.e();
+<                 _p[i].gamma=_p[i].gamcalc();
+< 		_p[i].sigmaweight  *= _p[i].s_an*_p[i].gamma*t0;
+---
+> 	        if (gtyp!=5) _p[i].s_an=_p[i].EOS.s_out(_p[i].e_sub);
+2347,2350d1825
+< 	}
+< 	if (gtyp!=3) guess();
+< 	else guess2();
+< }
+2352,2360c1827
+< template <int D>
+< void LinkList<D>::bsqupdateIC()
+< {
+< 
+< 
+< 	for (int i=0;i<_n;i++)
+< 	{
+< 	        if (gtyp!=5) _p[i].s_an=_p[i].EOS.s_out(_p[i].e_sub, _p[i].B_sub, _p[i].S_sub, _p[i].Q_sub);
+<                  _p[i].EOS.update_s(_p[i].s_an, _p[i].B_an, _p[i].S_an, _p[i].Q_an);
+---
+> 		_p[i].EOS.update_s(_p[i].s_an);
+2362,2364d1828
+<                              _p[i].B_sub=_p[i].EOS.B();
+<                              _p[i].S_sub=_p[i].EOS.S();
+<                              _p[i].Q_sub=_p[i].EOS.Q();
+2368a1833,1834
+> 	
+> 	//guess();
+2370a1837
+> 	
+2409,2410c1876
+< 		_p[i].EOS.update_s(_p[i].s_sub,0.0,0.0,0.0);
+<                 if (true){std::cerr << "Fix this!" << std::endl;  exit(8);}
+---
+> 		_p[i].EOS.update_s(_p[i].s_sub);
+2501,2502c1967
+<                  _p[i].EOS.update_s(_p[i].s_sub,0.0,0.0,0.0);
+<                 if (true){std::cerr << "Fix this!" << std::endl;  exit(8);}
+---
+>                  _p[i].EOS.update_s(_p[i].s_sub);
+2531a1997,2013
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+2577,2578c2059
+< 		_p[i].EOS.update_s(_p[i].s_sub,0.0,0.0,0.0);
+<                 if (true){std::cerr << "Fix this!" << std::endl;  exit(8);}
+---
+> 		_p[i].EOS.update_s(_p[i].s_sub);
+2699d2179
+< 	string bsq ("BSQ");
+2719,2722d2198
+< 		else if (vtype==bsq)
+<    	{
+<    		visc=4;
+<    	}

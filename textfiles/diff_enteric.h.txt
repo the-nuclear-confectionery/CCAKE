@@ -923,3 +923,129 @@
 <         linklist.bsqupdateIC();
 ---
 > 	
+24,26d23
+< void readBSQEOStable();// this should be followed with an if option
+< 
+< 
+53,54d49
+< void readICs_iccing(string &firstry,  int &_Ntable3,Particle<2> *&_p,double factor,double const& sfcheck, int & numpart, eos EOS);//iccing (energy density+ conserved charges)
+< 
+68,69d62
+< void readICs_iccing(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,double const& sfcheck, int & numpart, eos EOS);
+< 
+103,104d95
+<    string iccing ("iccing");
+< 
+124,126c115,117
+<   	   if (linklist.etaconst>1&&linklist.etaconst<6) fscanf(openmanf,"%*s %lf  %lf  %lf \n",&linklist.zwidth,&linklist.sTc,&linklist.zTc); // guassian width zeta/s, eta/s T_c, zeta/s T_c
+< 	   fscanf(openmanf,"%*s %lf %lf \n",&linklist.bvf,&linklist.svf);
+< 	    } // constant multiplying factor for zeta/s
+---
+>   	   if (linklist.etaconst!=1) fscanf(openmanf,"%*s %lf  %lf  %lf \n",&linklist.zwidth,&linklist.sTc,&linklist.zTc); // guassian width zeta/s, eta/s T_c, zeta/s T_c
+> 	   fscanf(openmanf,"%*s %lf %lf \n",&linklist.bvf,&linklist.svf);  } // constant multiplying factor for zeta/s
+> 	   //	   cout << linklist.bvf << " " << linklist.svf <<endl;
+152c143
+<   	   if (ictype==average||ictype==eventbyevent||ictype==trento||ictype==giorgio||ictype==nexus||ictype==smooth||ictype==glasma||ictype==glasmanoflow||ictype==iccing)
+---
+>   	   if (ictype==average||ictype==eventbyevent||ictype==trento||ictype==giorgio||ictype==nexus||ictype==smooth||ictype==glasma||ictype==glasmanoflow)
+170c161
+<   	   if (ictype==eventbyevent||ictype==trento||ictype==giorgio||ictype==nexus||ictype==glasma||ictype==glasmanoflow||ictype==iccing)
+---
+>   	   if (ictype==eventbyevent||ictype==trento||ictype==giorgio||ictype==nexus||ictype==glasma||ictype==glasmanoflow)
+187c178
+< 
+---
+> 	   //           cout << "Event # " << linklist.start << " with fac="<< factor << endl;           
+202c193
+<   	   	else cout << "Error: undefined df calcualtion type" << endl;
+---
+>   	   	else cout << "Error: undefined df calcualtion type " << df <<  endl;
+367c358
+<    	if ((fvisc=="shear")||(fvisc=="shear+bulk")||(fvisc=="bulk+shear")||(fvisc=="BSQ"))
+---
+>    	if ((fvisc=="shear")||(fvisc=="shear+bulk")||(fvisc=="bulk+shear"))
+435,470d425
+< 
+< 
+< 
+<      }
+< 
+< else if (ictype==iccing)
+<      {
+< 
+<        int count=linklist.end-linklist.start+1;
+<        linklist.ebe_folder=outf;
+<        string *filelist;
+<        filelist=new string[count];
+< 
+<        int j=0;
+<        for (int i=linklist.start;i<=linklist.end;i++)
+< 	 {
+< 	   filelist[j]= ic+"/ic"+convertInt(i)+".dat";
+< 	   j++;
+< 	 }
+<        linklist.filenames=filelist;
+<        linklist.fcount=count;
+<        linklist.fnum=linklist.start;
+< 
+< 
+<        readICs_tnt(linklist.filenames[0],  _Ntable3, _p,factor,sfcheck,  numpart, EOS);
+< 
+<        _p[0].start(eostype);
+<        linklist.setup(it0,_Ntable3,h,_p,ics.dt,numpart);
+<        /// compare linklist.gubser
+< 
+<        cout << "number of sph particles=" << _Ntable3 << endl;
+<        linklist.gtyp=6;
+< 
+< 
+< 
+< 
+643c598,599
+<  cout << "Setting up EOS" << endl;
+---
+>    
+>  // cout << "Setting up EOS" << endl;
+682,687c638
+< 			linklist._p[i].EOS.update_s(linklist._p[i].sigma/linklist._p[i].gamma/linklist.t0, 0.0, 0.0, 0.0);
+< 			if (true)
+< 			{
+< 				std::cerr << "Fix this! need to set B,Q,S values correctly!" << std::endl;
+< 				exit(8);
+< 			}
+---
+> 			linklist._p[i].EOS.update_s(linklist._p[i].sigma/linklist._p[i].gamma/linklist.t0);
+731,742c682
+<        cout << "optimization done" << endl;
+<        linklist.freezeset();
+<    }
+< 
+< 
+< 
+<        else if ((ictype==iccing))
+< {
+< 
+<    	linklist.bsqupdateIC();
+<        cout << "bsq optimization done" << endl;
+<        linklist.bsqsvfreezeset();
+---
+> //cout << "optimization done" << endl;
+745a686
+>    linklist.freezeset();
+757,761d697
+<    else if (fvisc=="BSQ")
+<    {
+< 	   if (ictype!=bjorken) linklist.bsqsv_set();
+< 	   else linklist.bsqsv_setb();
+<    }
+787d722
+<         else if (linklist.gtyp==6) readICs_iccing(linklist.filenames[i],  _Ntable3, _p,linklist.factor,linklist.sfcheck,numpart,linklist._p[0].EOS);
+796c731
+<         if ((linklist.gtyp==0)||(linklist.gtyp==1)||(linklist.gtyp==2)||(linklist.gtyp==3)||(linklist.gtyp==4)||(linklist.gtyp==5))
+---
+>     
+798,799c733
+<         else if ((linklist.gtyp==6))
+<         linklist.bsqupdateIC();
+---
+> 	

@@ -238,3 +238,30 @@
 < 			delete [] linklist.filenames;
 < 			}
 < 		}
+28,30d27
+<   double freezeoutB;
+<   double freezeoutS;
+<   double freezeoutQ;
+100c97
+< 	ics.man="manual2.dat";
+---
+> 	ics.man="manualfile2.dat";
+181,198d177
+<     else if (linklist.visc==4)  // shear+bulk+BSQ
+< 		{
+< 			BSQSimulation(ics.dt,linklist);
+< 			if (linklist.fcount!=0)
+< 			{
+< 
+< 			for (int i=1;i<linklist.fcount;i++)  // runs over other events
+< 			{
+< 
+< 				linklist.cevent=i;
+< 				nextevent<2>(i, linklist);
+< 				cout << "Event " << linklist.fnum << endl;
+< 				BSQSimulation(ics.dt,linklist);
+< 			}
+< 
+< 			delete [] linklist.filenames;
+< 			}
+< 		}
