@@ -37,8 +37,8 @@ enteric.o:  vector.h particle.h eos.h tables.h enteric.h LinkList.h matrix.h eos
 
 
 # deletes all .o files in case of error in makefile.  This should not be something needed regularly, only if you are updating the code and run into an error.
-#clean:
-#	\rm *.o *~ vusphydro
+distclean:
+	-rm *.o vusphydro
 
 # puts all the files in a vusphydro.tar file
 #tar:
