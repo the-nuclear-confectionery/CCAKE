@@ -1,0 +1,53 @@
+g++ -Wall -c -I/projects/jnorhos/BSQ/eigen -I/projects/jnorhos/BSQ/splinter/include -g -std=c++11  main.cpp
+In file included from enteric.h:15:0,
+                 from main.cpp:17:
+LinkList.h: In member function 'void LinkList<D>::bsqupdateIC()':
+LinkList.h:2361:3: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+   if (gtyp==5) _p[i].e_sub=_p[i].EOS.e();
+   ^~
+LinkList.h:2362:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+                              _p[i].B_sub=_p[i].EOS.B();
+                              ^~
+In file included from main.cpp:17:0:
+enteric.h: In function 'void manualenter(_inputIC&, LinkList<D>&) [with int D = 2]':
+enteric.h:721:83: warning: 'imax' may be used uninitialized in this function [-Wmaybe-uninitialized]
+   cout << tmax*197.3 << " " << std::setprecision(20) << rmax << " " << linklist._p[imax].EOS.e() << endl;
+                                                                        ~~~~~~~~~~~^
+enteric.h: In function 'void manualenter(_inputIC&, LinkList<D>&) [with int D = 3]':
+enteric.h:721:83: warning: 'imax' may be used uninitialized in this function [-Wmaybe-uninitialized]
+   cout << tmax*197.3 << " " << std::setprecision(20) << rmax << " " << linklist._p[imax].EOS.e() << endl;
+                                                                        ~~~~~~~~~~~^
+g++ -Wall -c -I/projects/jnorhos/BSQ/eigen -I/projects/jnorhos/BSQ/splinter/include -g -std=c++11  vector.cpp
+g++ -Wall -c -I/projects/jnorhos/BSQ/eigen -I/projects/jnorhos/BSQ/splinter/include -g -std=c++11  hydrosim.cpp
+In file included from rungekutta4.h:7:0,
+                 from hydrosim.cpp:16:
+LinkList.h: In member function 'void LinkList<D>::bsqupdateIC()':
+LinkList.h:2361:3: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+   if (gtyp==5) _p[i].e_sub=_p[i].EOS.e();
+   ^~
+LinkList.h:2362:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+                              _p[i].B_sub=_p[i].EOS.B();
+                              ^~
+hydrosim.cpp: In function 'void svSimulation(double, LinkList<2>&)':
+hydrosim.cpp:174:7: warning: unused variable 'cc' [-Wunused-variable]
+   int cc=0;
+       ^~
+hydrosim.cpp: In function 'void BSQSimulation(double, LinkList<2>&)':
+hydrosim.cpp:282:7: warning: unused variable 'cc' [-Wunused-variable]
+   int cc=0;
+       ^~
+g++ -Wall -c -I/projects/jnorhos/BSQ/eigen -I/projects/jnorhos/BSQ/splinter/include -g -std=c++11  newspline.cpp
+g++ -Wall -c -I/projects/jnorhos/BSQ/eigen -I/projects/jnorhos/BSQ/splinter/include -g -std=c++11  random.cpp
+g++ -Wall -c -I/projects/jnorhos/BSQ/eigen -I/projects/jnorhos/BSQ/splinter/include -g -std=c++11  eos.cpp
+g++ -Wall -c -I/projects/jnorhos/BSQ/eigen -I/projects/jnorhos/BSQ/splinter/include -g -std=c++11  matrix.cpp
+g++ -Wall -c -I/projects/jnorhos/BSQ/eigen -I/projects/jnorhos/BSQ/splinter/include -g -std=c++11  enteric.cpp
+In file included from enteric.h:15:0,
+                 from enteric.cpp:15:
+LinkList.h: In member function 'void LinkList<D>::bsqupdateIC()':
+LinkList.h:2361:3: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+   if (gtyp==5) _p[i].e_sub=_p[i].EOS.e();
+   ^~
+LinkList.h:2362:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+                              _p[i].B_sub=_p[i].EOS.B();
+                              ^~
+g++ -g main.o vector.o hydrosim.o newspline.o random.o eos.o matrix.o enteric.o -o vusphydro -lm -O3 -lgsl -lblas -lm -lstdc++ -L/projects/jnorhos/BSQ/splinter/build -lsplinter-3-0 -g -std=c++11 

@@ -171,7 +171,7 @@ void svSimulation(double dt,LinkList<2> &linklist)
 
 
 
-	 int cc=0;
+//	 int cc=0;    //unused variable
 	 linklist.frzc=0;
 	 linklist.cf=0;
 
@@ -279,7 +279,7 @@ void BSQSimulation(double dt,LinkList<2> &linklist)
 
 
 
-	 int cc=0;
+//	 int cc=0;  ///unneded variable
 	 linklist.frzc=0;
 	 linklist.cf=0;
 
