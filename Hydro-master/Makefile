@@ -1,11 +1,15 @@
 OBJS = main.o vector.o hydrosim.o newspline.o random.o eos.o matrix.o enteric.o
 CC = g++
-DEBUG = -g -std=c++11 
+DEBUG = -g -std=c++11
+WARNINGS= -Wall -Wextra -pedantic -Wconversion -Wcast-align -Wunused -Wshadow -Wpointer-arith -Wno-missing-braces 
+OPTIMIZATION= -O0
+#OPTIMIZATION= -OFast -funroll-loops -fvectorize -finline-functions -s -DNDEBUG -march=native -mtune=native
+# change to -O3 or -OFast for production
 EIGENPATH=$(realpath ../eigen)
 SPLINTERPATH=$(realpath ../splinter/include)
 SPLINTERBUILDPATH=$(realpath ../splinter/build)
-CFLAGS = -Wall -c -I$(EIGENPATH) -I$(SPLINTERPATH) $(DEBUG)
-LDFLAGS = -lm -O3 -lgsl -lblas -lm -lstdc++ -L$(SPLINTERBUILDPATH) -lsplinter-3-0 $(DEBUG)
+CFLAGS = $(WARNINGS) $(OPTIMIZATION) -c -I$(EIGENPATH) -I$(SPLINTERPATH) $(DEBUG)
+LDFLAGS = -lm -lgsl -lblas -lm -lstdc++ -L$(SPLINTERBUILDPATH) -lsplinter-3-0 $(DEBUG)
 
 vusphydro : $(OBJS)
 	$(CC) -g $(OBJS) -o vusphydro $(LDFLAGS)
@@ -37,7 +41,7 @@ enteric.o:  vector.h particle.h eos.h tables.h enteric.h LinkList.h matrix.h eos
 
 
 # deletes all .o files in case of error in makefile.  This should not be something needed regularly, only if you are updating the code and run into an error.
-distclean:
+clean:
 	-rm *.o vusphydro
 
 # puts all the files in a vusphydro.tar file

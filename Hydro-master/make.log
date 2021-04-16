@@ -51,3 +51,1107 @@ LinkList.h:2362:30: note: ...this statement, but the latter is misleadingly inde
                               _p[i].B_sub=_p[i].EOS.B();
                               ^~
 g++ -g main.o vector.o hydrosim.o newspline.o random.o eos.o matrix.o enteric.o -o vusphydro -lm -O3 -lgsl -lblas -lm -lstdc++ -L/projects/jnorhos/BSQ/splinter/build -lsplinter-3-0 -g -std=c++11 
+g++ -Wall -Wextra -pedantic -Wconversion -Wcast-align -Wunused -Wshadow -Wpointer-arith -Wno-missing-braces  -O0 -c -I/projects/jnorhos/BSQ/eigen -I/projects/jnorhos/BSQ/splinter/include -g -std=c++11 main.cpp
+In file included from /projects/jnorhos/BSQ/eigen/Eigen/Core:165:0,
+                 from /projects/jnorhos/BSQ/eigen/Eigen/Dense:1,
+                 from /projects/jnorhos/BSQ/splinter/include/../../splinter/include/definitions.h:35,
+                 from /projects/jnorhos/BSQ/splinter/include/../../splinter/include/function.h:13,
+                 from /projects/jnorhos/BSQ/splinter/include/../../splinter/include/bspline.h:13,
+                 from eos.h:3,
+                 from particle.h:6,
+                 from main.cpp:16:
+/projects/jnorhos/BSQ/eigen/Eigen/src/Core/util/XprHelper.h:256:55: warning: conversion to 'int' from 'long unsigned int' may alter its value [-Wconversion]
+   enum { value = compute_default_alignment_helper<Size*sizeof(T),EIGEN_MAX_STATIC_ALIGN_BYTES>::value };
+                                                   ~~~~^~~~~~~~
+In file included from /projects/jnorhos/BSQ/eigen/Eigen/Geometry:47:0,
+                 from /projects/jnorhos/BSQ/eigen/Eigen/Dense:6,
+                 from /projects/jnorhos/BSQ/splinter/include/../../splinter/include/definitions.h:35,
+                 from /projects/jnorhos/BSQ/splinter/include/../../splinter/include/function.h:13,
+                 from /projects/jnorhos/BSQ/splinter/include/../../splinter/include/bspline.h:13,
+                 from eos.h:3,
+                 from particle.h:6,
+                 from main.cpp:16:
+/projects/jnorhos/BSQ/eigen/Eigen/src/Geometry/Hyperplane.h:48:69: warning: conversion to 'int' from 'Eigen::Hyperplane<_Scalar, _AmbientDim, Options>::Index {aka long int}' may alter its value [-Wconversion]
+                         : Index(AmbientDimAtCompileTime)+1,1,Options> Coefficients;
+                                                                     ^
+In file included from /projects/jnorhos/BSQ/eigen/Eigen/SparseCore:46:0,
+                 from /projects/jnorhos/BSQ/eigen/Eigen/Sparse:26,
+                 from /projects/jnorhos/BSQ/splinter/include/../../splinter/include/definitions.h:36,
+                 from /projects/jnorhos/BSQ/splinter/include/../../splinter/include/function.h:13,
+                 from /projects/jnorhos/BSQ/splinter/include/../../splinter/include/bspline.h:13,
+                 from eos.h:3,
+                 from particle.h:6,
+                 from main.cpp:16:
+/projects/jnorhos/BSQ/eigen/Eigen/src/SparseCore/SparseRef.h:237:46: warning: conversion to 'unsigned int' from 'long unsigned int' may alter its value [-Wconversion]
+     typename internal::aligned_storage<sizeof(TPlainObjectType), EIGEN_ALIGNOF(TPlainObjectType)>::type m_storage;
+                                              ^
+/projects/jnorhos/BSQ/eigen/Eigen/src/SparseCore/SparseRef.h:237:97: warning: conversion to 'unsigned int' from 'long unsigned int' may alter its value [-Wconversion]
+     typename internal::aligned_storage<sizeof(TPlainObjectType), EIGEN_ALIGNOF(TPlainObjectType)>::type m_storage;
+                                                                                                 ^
+/projects/jnorhos/BSQ/eigen/Eigen/src/SparseCore/SparseRef.h:345:46: warning: conversion to 'unsigned int' from 'long unsigned int' may alter its value [-Wconversion]
+     typename internal::aligned_storage<sizeof(TPlainObjectType), EIGEN_ALIGNOF(TPlainObjectType)>::type m_storage;
+                                              ^
+/projects/jnorhos/BSQ/eigen/Eigen/src/SparseCore/SparseRef.h:345:97: warning: conversion to 'unsigned int' from 'long unsigned int' may alter its value [-Wconversion]
+     typename internal::aligned_storage<sizeof(TPlainObjectType), EIGEN_ALIGNOF(TPlainObjectType)>::type m_storage;
+                                                                                                 ^
+In file included from /projects/jnorhos/BSQ/splinter/include/../../splinter/include/bspline.h:13:0,
+                 from eos.h:3,
+                 from particle.h:6,
+                 from main.cpp:16:
+/projects/jnorhos/BSQ/splinter/include/../../splinter/include/function.h: In constructor 'SPLINTER::Function::Function(unsigned int)':
+/projects/jnorhos/BSQ/splinter/include/../../splinter/include/function.h:32:9: warning: declaration of 'numVariables' shadows a member of 'SPLINTER::Function' [-Wshadow]
+         : numVariables(numVariables) {}
+         ^
+/projects/jnorhos/BSQ/splinter/include/../../splinter/include/function.h:101:18: note: shadowed declaration is here
+     unsigned int numVariables; // Dimension of domain (size of x)
+                  ^~~~~~~~~~~~
+In file included from eos.h:3:0,
+                 from particle.h:6,
+                 from main.cpp:16:
+/projects/jnorhos/BSQ/splinter/include/../../splinter/include/bspline.h: In member function 'unsigned int SPLINTER::BSpline::getNumCoefficients() const':
+/projects/jnorhos/BSQ/splinter/include/../../splinter/include/bspline.h:78:33: warning: conversion to 'unsigned int' from 'Eigen::EigenBase<Eigen::Matrix<double, -1, 1> >::Index {aka long int}' may alter its value [-Wconversion]
+         return coefficients.size();
+                ~~~~~~~~~~~~~~~~~^~
+/projects/jnorhos/BSQ/splinter/include/../../splinter/include/bspline.h: In member function 'unsigned int SPLINTER::BSpline::getNumControlPoints() const':
+/projects/jnorhos/BSQ/splinter/include/../../splinter/include/bspline.h:83:33: warning: conversion to 'unsigned int' from 'Eigen::EigenBase<Eigen::Matrix<double, -1, 1> >::Index {aka long int}' may alter its value [-Wconversion]
+         return coefficients.size();
+                ~~~~~~~~~~~~~~~~~^~
+In file included from main.cpp:16:0:
+particle.h: In member function 'void Particle<D>::frzcheck(double, int&, int)':
+particle.h:169:56: warning: declaration of 'count' shadows a member of 'Particle<D>' [-Wshadow]
+ void Particle<D>::frzcheck(double tin,int &count, int N)
+                                                        ^
+particle.h:70:9: note: shadowed declaration is here
+     int count;
+         ^~~~~
+In file included from enteric.h:15:0,
+                 from main.cpp:17:
+LinkList.h: In member function 'int LinkList<D>::triToSum(Vector<int, D>, Vector<int, D>)':
+LinkList.h:304:67: warning: declaration of 'size' shadows a member of 'LinkList<D>' [-Wshadow]
+ int LinkList<D>::triToSum(Vector<int,D>  dael, Vector<int,D>  size)
+                                                                   ^
+LinkList.h:106:16: note: shadowed declaration is here
+  Vector<int,D> size;
+                ^~~~
+LinkList.h:304:67: warning: declaration of 'dael' shadows a member of 'LinkList<D>' [-Wshadow]
+ int LinkList<D>::triToSum(Vector<int,D>  dael, Vector<int,D>  size)
+                                                                   ^
+LinkList.h:108:17: note: shadowed declaration is here
+  Vector<int,D> *dael;
+                 ^~~~
+In file included from enteric.h:15:0,
+                 from main.cpp:17:
+LinkList.h: In member function 'double LinkList<D>::eanal2(double, double, double)':
+LinkList.h:2173:56: warning: declaration of 't' shadows a member of 'LinkList<D>' [-Wshadow]
+ double LinkList<D>::eanal2(double t, double x, double y)
+                                                        ^
+In file included from enteric.h:15:0,
+                 from main.cpp:17:
+LinkList.h:75:9: note: shadowed declaration is here
+  double t,dt;
+         ^
+In file included from enteric.h:15:0,
+                 from main.cpp:17:
+LinkList.h: In member function 'double LinkList<D>::g(double, double, double)':
+LinkList.h:2182:51: warning: declaration of 't' shadows a member of 'LinkList<D>' [-Wshadow]
+ double LinkList<D>::g(double t, double x, double y)
+                                                   ^
+In file included from enteric.h:15:0,
+                 from main.cpp:17:
+LinkList.h:75:9: note: shadowed declaration is here
+  double t,dt;
+         ^
+In file included from enteric.h:15:0,
+                 from main.cpp:17:
+LinkList.h: In member function 'double LinkList<D>::ux(double, double, double)':
+LinkList.h:2190:52: warning: declaration of 't' shadows a member of 'LinkList<D>' [-Wshadow]
+ double LinkList<D>::ux(double t, double x, double y)
+                                                    ^
+In file included from enteric.h:15:0,
+                 from main.cpp:17:
+LinkList.h:75:9: note: shadowed declaration is here
+  double t,dt;
+         ^
+In file included from enteric.h:15:0,
+                 from main.cpp:17:
+LinkList.h: In member function 'double LinkList<D>::uy(double, double, double)':
+LinkList.h:2196:52: warning: declaration of 't' shadows a member of 'LinkList<D>' [-Wshadow]
+ double LinkList<D>::uy(double t, double x, double y)
+                                                    ^
+In file included from enteric.h:15:0,
+                 from main.cpp:17:
+LinkList.h:75:9: note: shadowed declaration is here
+  double t,dt;
+         ^
+In file included from enteric.h:15:0,
+                 from main.cpp:17:
+LinkList.h: In member function 'void LinkList<D>::bsqupdateIC()':
+LinkList.h:2361:3: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+   if (gtyp==5) _p[i].e_sub=_p[i].EOS.e();
+   ^~
+LinkList.h:2362:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+                              _p[i].B_sub=_p[i].EOS.B();
+                              ^~
+LinkList.h: In member function 'void LinkList<D>::qmflow()':
+LinkList.h:2540:10: warning: declaration of 'E' shadows a member of 'LinkList<D>' [-Wshadow]
+   double E=_p[i].EOS.e()/_p[i].sigma*_p[i].gamma*t0;
+          ^
+In file included from enteric.h:15:0,
+                 from main.cpp:17:
+LinkList.h:112:13: note: shadowed declaration is here
+  double dEz,E,Ez,E0,Etot,S,S0,Eloss,Esubb;
+             ^
+In file included from main.cpp:17:0:
+enteric.h: In function 'void nextevent(int, LinkList<D>&)':
+enteric.h:791:11: warning: declaration of 'int i' shadows a parameter [-Wshadow]
+  for (int i=0;i<linklist.n();i++)
+           ^
+enteric.h:773:20: note: shadowed declaration is here
+ void nextevent(int i, LinkList<D> &linklist)
+                    ^
+main.cpp: In function 'int main(int, char**)':
+main.cpp:53:15: warning: unused parameter 'argc' [-Wunused-parameter]
+ int main (int argc, char *argv[])
+               ^~~~
+In file included from main.cpp:17:0:
+enteric.h: In instantiation of 'void nextevent(int, LinkList<D>&) [with int D = 2]':
+main.cpp:136:29:   required from here
+enteric.h:791:11: warning: declaration of 'int i' shadows a parameter [-Wshadow]
+  for (int i=0;i<linklist.n();i++)
+           ^
+enteric.h:773:20: note: shadowed declaration is here
+ void nextevent(int i, LinkList<D> &linklist)
+                    ^
+enteric.h: In instantiation of 'void nextevent(int, LinkList<D>&) [with int D = 3]':
+main.cpp:224:29:   required from here
+enteric.h:791:11: warning: declaration of 'int i' shadows a parameter [-Wshadow]
+  for (int i=0;i<linklist.n();i++)
+           ^
+enteric.h:773:20: note: shadowed declaration is here
+ void nextevent(int i, LinkList<D> &linklist)
+                    ^
+In file included from enteric.h:15:0,
+                 from main.cpp:17:
+LinkList.h: In instantiation of 'void LinkList<D>::setup(double, int, double, Particle<D>*, double, int&) [with int D = 2]':
+enteric.h:354:6:   required from 'void manualenter(_inputIC&, LinkList<D>&) [with int D = 2]'
+main.cpp:125:30:   required from here
+LinkList.h:238:11: warning: conversion to 'int' from 'double' may alter its value [-Wfloat-conversion]
+  steps=100*(floor(tend-t0)+1);
+        ~~~^~~~~~~~~~~~~~~~~~~
+In file included from enteric.h:15:0,
+                 from main.cpp:17:
+LinkList.h: In instantiation of 'void LinkList<D>::gubser(double) [with int D = 2]':
+enteric.h:370:6:   required from 'void manualenter(_inputIC&, LinkList<D>&) [with int D = 2]'
+main.cpp:125:30:   required from here
+LinkList.h:2291:25: warning: conversion to 'int' from 'double' may alter its value [-Wfloat-conversion]
+     lsize=(-2*x0/step+1)*(-2*y0/step+1);
+           ~~~~~~~~~~~~~~^~~~~~~~~~~~~~~
+In file included from enteric.h:15:0,
+                 from main.cpp:17:
+LinkList.h: In instantiation of 'void LinkList<D>::setup(double, int, double, Particle<D>*, double, int&) [with int D = 3]':
+enteric.h:354:6:   required from 'void manualenter(_inputIC&, LinkList<D>&) [with int D = 3]'
+main.cpp:214:30:   required from here
+LinkList.h:238:11: warning: conversion to 'int' from 'double' may alter its value [-Wfloat-conversion]
+  steps=100*(floor(tend-t0)+1);
+        ~~~^~~~~~~~~~~~~~~~~~~
+In file included from enteric.h:15:0,
+                 from main.cpp:17:
+LinkList.h: In instantiation of 'void LinkList<D>::gubser(double) [with int D = 3]':
+enteric.h:370:6:   required from 'void manualenter(_inputIC&, LinkList<D>&) [with int D = 3]'
+main.cpp:214:30:   required from here
+LinkList.h:2291:25: warning: conversion to 'int' from 'double' may alter its value [-Wfloat-conversion]
+     lsize=(-2*x0/step+1)*(-2*y0/step+1);
+           ~~~~~~~~~~~~~~^~~~~~~~~~~~~~~
+LinkList.h: In instantiation of 'double LinkList<D>::eanal2(double, double, double) [with int D = 2]':
+LinkList.h:2306:29:   required from 'void LinkList<D>::gubser(double) [with int D = 2]'
+enteric.h:370:6:   required from 'void manualenter(_inputIC&, LinkList<D>&) [with int D = 2]'
+main.cpp:125:30:   required from here
+LinkList.h:2173:8: warning: declaration of 't' shadows a member of 'LinkList<2>' [-Wshadow]
+ double LinkList<D>::eanal2(double t, double x, double y)
+        ^~~~~~~~~~~
+In file included from enteric.h:15:0,
+                 from main.cpp:17:
+LinkList.h:75:9: note: shadowed declaration is here
+  double t,dt;
+         ^
+In file included from enteric.h:15:0,
+                 from main.cpp:17:
+LinkList.h: In instantiation of 'double LinkList<D>::ux(double, double, double) [with int D = 2]':
+LinkList.h:2308:27:   required from 'void LinkList<D>::gubser(double) [with int D = 2]'
+enteric.h:370:6:   required from 'void manualenter(_inputIC&, LinkList<D>&) [with int D = 2]'
+main.cpp:125:30:   required from here
+LinkList.h:2190:8: warning: declaration of 't' shadows a member of 'LinkList<2>' [-Wshadow]
+ double LinkList<D>::ux(double t, double x, double y)
+        ^~~~~~~~~~~
+In file included from enteric.h:15:0,
+                 from main.cpp:17:
+LinkList.h:75:9: note: shadowed declaration is here
+  double t,dt;
+         ^
+In file included from enteric.h:15:0,
+                 from main.cpp:17:
+LinkList.h: In instantiation of 'double LinkList<D>::uy(double, double, double) [with int D = 2]':
+LinkList.h:2309:27:   required from 'void LinkList<D>::gubser(double) [with int D = 2]'
+enteric.h:370:6:   required from 'void manualenter(_inputIC&, LinkList<D>&) [with int D = 2]'
+main.cpp:125:30:   required from here
+LinkList.h:2196:8: warning: declaration of 't' shadows a member of 'LinkList<2>' [-Wshadow]
+ double LinkList<D>::uy(double t, double x, double y)
+        ^~~~~~~~~~~
+In file included from enteric.h:15:0,
+                 from main.cpp:17:
+LinkList.h:75:9: note: shadowed declaration is here
+  double t,dt;
+         ^
+LinkList.h: In instantiation of 'int LinkList<D>::triToSum(Vector<int, D>, Vector<int, D>) [with int D = 2]':
+LinkList.h:1642:19:   required from 'void LinkList<D>::initiate() [with int D = 2]'
+enteric.h:654:6:   required from 'void manualenter(_inputIC&, LinkList<D>&) [with int D = 2]'
+main.cpp:125:30:   required from here
+LinkList.h:304:5: warning: declaration of 'size' shadows a member of 'LinkList<2>' [-Wshadow]
+ int LinkList<D>::triToSum(Vector<int,D>  dael, Vector<int,D>  size)
+     ^~~~~~~~~~~
+LinkList.h:106:16: note: shadowed declaration is here
+  Vector<int,D> size;
+                ^~~~
+LinkList.h:304:5: warning: declaration of 'dael' shadows a member of 'LinkList<2>' [-Wshadow]
+ int LinkList<D>::triToSum(Vector<int,D>  dael, Vector<int,D>  size)
+     ^~~~~~~~~~~
+LinkList.h:108:17: note: shadowed declaration is here
+  Vector<int,D> *dael;
+                 ^~~~
+In file included from enteric.h:15:0,
+                 from main.cpp:17:
+LinkList.h: In instantiation of 'double LinkList<D>::eanal2(double, double, double) [with int D = 3]':
+LinkList.h:2306:29:   required from 'void LinkList<D>::gubser(double) [with int D = 3]'
+enteric.h:370:6:   required from 'void manualenter(_inputIC&, LinkList<D>&) [with int D = 3]'
+main.cpp:214:30:   required from here
+LinkList.h:2173:8: warning: declaration of 't' shadows a member of 'LinkList<3>' [-Wshadow]
+ double LinkList<D>::eanal2(double t, double x, double y)
+        ^~~~~~~~~~~
+In file included from enteric.h:15:0,
+                 from main.cpp:17:
+LinkList.h:75:9: note: shadowed declaration is here
+  double t,dt;
+         ^
+In file included from enteric.h:15:0,
+                 from main.cpp:17:
+LinkList.h: In instantiation of 'double LinkList<D>::ux(double, double, double) [with int D = 3]':
+LinkList.h:2308:27:   required from 'void LinkList<D>::gubser(double) [with int D = 3]'
+enteric.h:370:6:   required from 'void manualenter(_inputIC&, LinkList<D>&) [with int D = 3]'
+main.cpp:214:30:   required from here
+LinkList.h:2190:8: warning: declaration of 't' shadows a member of 'LinkList<3>' [-Wshadow]
+ double LinkList<D>::ux(double t, double x, double y)
+        ^~~~~~~~~~~
+In file included from enteric.h:15:0,
+                 from main.cpp:17:
+LinkList.h:75:9: note: shadowed declaration is here
+  double t,dt;
+         ^
+In file included from enteric.h:15:0,
+                 from main.cpp:17:
+LinkList.h: In instantiation of 'double LinkList<D>::uy(double, double, double) [with int D = 3]':
+LinkList.h:2309:27:   required from 'void LinkList<D>::gubser(double) [with int D = 3]'
+enteric.h:370:6:   required from 'void manualenter(_inputIC&, LinkList<D>&) [with int D = 3]'
+main.cpp:214:30:   required from here
+LinkList.h:2196:8: warning: declaration of 't' shadows a member of 'LinkList<3>' [-Wshadow]
+ double LinkList<D>::uy(double t, double x, double y)
+        ^~~~~~~~~~~
+In file included from enteric.h:15:0,
+                 from main.cpp:17:
+LinkList.h:75:9: note: shadowed declaration is here
+  double t,dt;
+         ^
+LinkList.h: In instantiation of 'int LinkList<D>::triToSum(Vector<int, D>, Vector<int, D>) [with int D = 3]':
+LinkList.h:1642:19:   required from 'void LinkList<D>::initiate() [with int D = 3]'
+enteric.h:654:6:   required from 'void manualenter(_inputIC&, LinkList<D>&) [with int D = 3]'
+main.cpp:214:30:   required from here
+LinkList.h:304:5: warning: declaration of 'size' shadows a member of 'LinkList<3>' [-Wshadow]
+ int LinkList<D>::triToSum(Vector<int,D>  dael, Vector<int,D>  size)
+     ^~~~~~~~~~~
+LinkList.h:106:16: note: shadowed declaration is here
+  Vector<int,D> size;
+                ^~~~
+LinkList.h:304:5: warning: declaration of 'dael' shadows a member of 'LinkList<3>' [-Wshadow]
+ int LinkList<D>::triToSum(Vector<int,D>  dael, Vector<int,D>  size)
+     ^~~~~~~~~~~
+LinkList.h:108:17: note: shadowed declaration is here
+  Vector<int,D> *dael;
+                 ^~~~
+In file included from enteric.h:15:0,
+                 from main.cpp:17:
+LinkList.h: In instantiation of 'double LinkList<D>::g(double, double, double) [with int D = 2]':
+LinkList.h:2192:15:   required from 'double LinkList<D>::ux(double, double, double) [with int D = 2]'
+LinkList.h:2308:27:   required from 'void LinkList<D>::gubser(double) [with int D = 2]'
+enteric.h:370:6:   required from 'void manualenter(_inputIC&, LinkList<D>&) [with int D = 2]'
+main.cpp:125:30:   required from here
+LinkList.h:2182:8: warning: declaration of 't' shadows a member of 'LinkList<2>' [-Wshadow]
+ double LinkList<D>::g(double t, double x, double y)
+        ^~~~~~~~~~~
+In file included from enteric.h:15:0,
+                 from main.cpp:17:
+LinkList.h:75:9: note: shadowed declaration is here
+  double t,dt;
+         ^
+In file included from main.cpp:16:0:
+particle.h: In instantiation of 'void Particle<D>::frzcheck(double, int&, int) [with int D = 2]':
+LinkList.h:2519:10:   required from 'void LinkList<D>::guess() [with int D = 2]'
+LinkList.h:2348:20:   required from 'void LinkList<D>::updateIC() [with int D = 2]'
+enteric.h:730:5:   required from 'void manualenter(_inputIC&, LinkList<D>&) [with int D = 2]'
+main.cpp:125:30:   required from here
+particle.h:169:6: warning: declaration of 'count' shadows a member of 'Particle<2>' [-Wshadow]
+ void Particle<D>::frzcheck(double tin,int &count, int N)
+      ^~~~~~~~~~~
+particle.h:70:9: note: shadowed declaration is here
+     int count;
+         ^~~~~
+particle.h:169:55: warning: unused parameter 'N' [-Wunused-parameter]
+ void Particle<D>::frzcheck(double tin,int &count, int N)
+                                                       ^
+In file included from enteric.h:15:0,
+                 from main.cpp:17:
+LinkList.h: In instantiation of 'void LinkList<D>::qmflow() [with int D = 2]':
+LinkList.h:2529:27:   required from 'void LinkList<D>::guess() [with int D = 2]'
+LinkList.h:2348:20:   required from 'void LinkList<D>::updateIC() [with int D = 2]'
+enteric.h:730:5:   required from 'void manualenter(_inputIC&, LinkList<D>&) [with int D = 2]'
+main.cpp:125:30:   required from here
+LinkList.h:2540:10: warning: declaration of 'E' shadows a member of 'LinkList<2>' [-Wshadow]
+   double E=_p[i].EOS.e()/_p[i].sigma*_p[i].gamma*t0;
+          ^
+In file included from enteric.h:15:0,
+                 from main.cpp:17:
+LinkList.h:112:13: note: shadowed declaration is here
+  double dEz,E,Ez,E0,Etot,S,S0,Eloss,Esubb;
+             ^
+In file included from enteric.h:15:0,
+                 from main.cpp:17:
+LinkList.h: In instantiation of 'double LinkList<D>::g(double, double, double) [with int D = 3]':
+LinkList.h:2192:15:   required from 'double LinkList<D>::ux(double, double, double) [with int D = 3]'
+LinkList.h:2308:27:   required from 'void LinkList<D>::gubser(double) [with int D = 3]'
+enteric.h:370:6:   required from 'void manualenter(_inputIC&, LinkList<D>&) [with int D = 3]'
+main.cpp:214:30:   required from here
+LinkList.h:2182:8: warning: declaration of 't' shadows a member of 'LinkList<3>' [-Wshadow]
+ double LinkList<D>::g(double t, double x, double y)
+        ^~~~~~~~~~~
+In file included from enteric.h:15:0,
+                 from main.cpp:17:
+LinkList.h:75:9: note: shadowed declaration is here
+  double t,dt;
+         ^
+In file included from main.cpp:16:0:
+particle.h: In instantiation of 'void Particle<D>::frzcheck(double, int&, int) [with int D = 3]':
+LinkList.h:2519:10:   required from 'void LinkList<D>::guess() [with int D = 3]'
+LinkList.h:2348:20:   required from 'void LinkList<D>::updateIC() [with int D = 3]'
+enteric.h:730:5:   required from 'void manualenter(_inputIC&, LinkList<D>&) [with int D = 3]'
+main.cpp:214:30:   required from here
+particle.h:169:6: warning: declaration of 'count' shadows a member of 'Particle<3>' [-Wshadow]
+ void Particle<D>::frzcheck(double tin,int &count, int N)
+      ^~~~~~~~~~~
+particle.h:70:9: note: shadowed declaration is here
+     int count;
+         ^~~~~
+particle.h:169:55: warning: unused parameter 'N' [-Wunused-parameter]
+ void Particle<D>::frzcheck(double tin,int &count, int N)
+                                                       ^
+In file included from enteric.h:15:0,
+                 from main.cpp:17:
+LinkList.h: In instantiation of 'void LinkList<D>::qmflow() [with int D = 3]':
+LinkList.h:2529:27:   required from 'void LinkList<D>::guess() [with int D = 3]'
+LinkList.h:2348:20:   required from 'void LinkList<D>::updateIC() [with int D = 3]'
+enteric.h:730:5:   required from 'void manualenter(_inputIC&, LinkList<D>&) [with int D = 3]'
+main.cpp:214:30:   required from here
+LinkList.h:2540:10: warning: declaration of 'E' shadows a member of 'LinkList<3>' [-Wshadow]
+   double E=_p[i].EOS.e()/_p[i].sigma*_p[i].gamma*t0;
+          ^
+In file included from enteric.h:15:0,
+                 from main.cpp:17:
+LinkList.h:112:13: note: shadowed declaration is here
+  double dEz,E,Ez,E0,Etot,S,S0,Eloss,Esubb;
+             ^
+In file included from main.cpp:17:0:
+enteric.h: In function 'void manualenter(_inputIC&, LinkList<D>&) [with int D = 2]':
+enteric.h:721:83: warning: 'imax' may be used uninitialized in this function [-Wmaybe-uninitialized]
+   cout << tmax*197.3 << " " << std::setprecision(20) << rmax << " " << linklist._p[imax].EOS.e() << endl;
+                                                                        ~~~~~~~~~~~^
+enteric.h: In function 'void manualenter(_inputIC&, LinkList<D>&) [with int D = 3]':
+enteric.h:721:83: warning: 'imax' may be used uninitialized in this function [-Wmaybe-uninitialized]
+   cout << tmax*197.3 << " " << std::setprecision(20) << rmax << " " << linklist._p[imax].EOS.e() << endl;
+                                                                        ~~~~~~~~~~~^
+g++ -Wall -Wextra -pedantic -Wconversion -Wcast-align -Wunused -Wshadow -Wpointer-arith -Wno-missing-braces  -O0 -c -I/projects/jnorhos/BSQ/eigen -I/projects/jnorhos/BSQ/splinter/include -g -std=c++11 vector.cpp
+g++ -Wall -Wextra -pedantic -Wconversion -Wcast-align -Wunused -Wshadow -Wpointer-arith -Wno-missing-braces  -O0 -c -I/projects/jnorhos/BSQ/eigen -I/projects/jnorhos/BSQ/splinter/include -g -std=c++11 hydrosim.cpp
+In file included from /projects/jnorhos/BSQ/eigen/Eigen/Core:165:0,
+                 from /projects/jnorhos/BSQ/eigen/Eigen/Dense:1,
+                 from /projects/jnorhos/BSQ/splinter/include/../../splinter/include/definitions.h:35,
+                 from /projects/jnorhos/BSQ/splinter/include/../../splinter/include/function.h:13,
+                 from /projects/jnorhos/BSQ/splinter/include/../../splinter/include/bspline.h:13,
+                 from eos.h:3,
+                 from particle.h:6,
+                 from hydrosim.cpp:15:
+/projects/jnorhos/BSQ/eigen/Eigen/src/Core/util/XprHelper.h:256:55: warning: conversion to 'int' from 'long unsigned int' may alter its value [-Wconversion]
+   enum { value = compute_default_alignment_helper<Size*sizeof(T),EIGEN_MAX_STATIC_ALIGN_BYTES>::value };
+                                                   ~~~~^~~~~~~~
+In file included from /projects/jnorhos/BSQ/eigen/Eigen/Geometry:47:0,
+                 from /projects/jnorhos/BSQ/eigen/Eigen/Dense:6,
+                 from /projects/jnorhos/BSQ/splinter/include/../../splinter/include/definitions.h:35,
+                 from /projects/jnorhos/BSQ/splinter/include/../../splinter/include/function.h:13,
+                 from /projects/jnorhos/BSQ/splinter/include/../../splinter/include/bspline.h:13,
+                 from eos.h:3,
+                 from particle.h:6,
+                 from hydrosim.cpp:15:
+/projects/jnorhos/BSQ/eigen/Eigen/src/Geometry/Hyperplane.h:48:69: warning: conversion to 'int' from 'Eigen::Hyperplane<_Scalar, _AmbientDim, Options>::Index {aka long int}' may alter its value [-Wconversion]
+                         : Index(AmbientDimAtCompileTime)+1,1,Options> Coefficients;
+                                                                     ^
+In file included from /projects/jnorhos/BSQ/eigen/Eigen/SparseCore:46:0,
+                 from /projects/jnorhos/BSQ/eigen/Eigen/Sparse:26,
+                 from /projects/jnorhos/BSQ/splinter/include/../../splinter/include/definitions.h:36,
+                 from /projects/jnorhos/BSQ/splinter/include/../../splinter/include/function.h:13,
+                 from /projects/jnorhos/BSQ/splinter/include/../../splinter/include/bspline.h:13,
+                 from eos.h:3,
+                 from particle.h:6,
+                 from hydrosim.cpp:15:
+/projects/jnorhos/BSQ/eigen/Eigen/src/SparseCore/SparseRef.h:237:46: warning: conversion to 'unsigned int' from 'long unsigned int' may alter its value [-Wconversion]
+     typename internal::aligned_storage<sizeof(TPlainObjectType), EIGEN_ALIGNOF(TPlainObjectType)>::type m_storage;
+                                              ^
+/projects/jnorhos/BSQ/eigen/Eigen/src/SparseCore/SparseRef.h:237:97: warning: conversion to 'unsigned int' from 'long unsigned int' may alter its value [-Wconversion]
+     typename internal::aligned_storage<sizeof(TPlainObjectType), EIGEN_ALIGNOF(TPlainObjectType)>::type m_storage;
+                                                                                                 ^
+/projects/jnorhos/BSQ/eigen/Eigen/src/SparseCore/SparseRef.h:345:46: warning: conversion to 'unsigned int' from 'long unsigned int' may alter its value [-Wconversion]
+     typename internal::aligned_storage<sizeof(TPlainObjectType), EIGEN_ALIGNOF(TPlainObjectType)>::type m_storage;
+                                              ^
+/projects/jnorhos/BSQ/eigen/Eigen/src/SparseCore/SparseRef.h:345:97: warning: conversion to 'unsigned int' from 'long unsigned int' may alter its value [-Wconversion]
+     typename internal::aligned_storage<sizeof(TPlainObjectType), EIGEN_ALIGNOF(TPlainObjectType)>::type m_storage;
+                                                                                                 ^
+In file included from /projects/jnorhos/BSQ/splinter/include/../../splinter/include/bspline.h:13:0,
+                 from eos.h:3,
+                 from particle.h:6,
+                 from hydrosim.cpp:15:
+/projects/jnorhos/BSQ/splinter/include/../../splinter/include/function.h: In constructor 'SPLINTER::Function::Function(unsigned int)':
+/projects/jnorhos/BSQ/splinter/include/../../splinter/include/function.h:32:9: warning: declaration of 'numVariables' shadows a member of 'SPLINTER::Function' [-Wshadow]
+         : numVariables(numVariables) {}
+         ^
+/projects/jnorhos/BSQ/splinter/include/../../splinter/include/function.h:101:18: note: shadowed declaration is here
+     unsigned int numVariables; // Dimension of domain (size of x)
+                  ^~~~~~~~~~~~
+In file included from eos.h:3:0,
+                 from particle.h:6,
+                 from hydrosim.cpp:15:
+/projects/jnorhos/BSQ/splinter/include/../../splinter/include/bspline.h: In member function 'unsigned int SPLINTER::BSpline::getNumCoefficients() const':
+/projects/jnorhos/BSQ/splinter/include/../../splinter/include/bspline.h:78:33: warning: conversion to 'unsigned int' from 'Eigen::EigenBase<Eigen::Matrix<double, -1, 1> >::Index {aka long int}' may alter its value [-Wconversion]
+         return coefficients.size();
+                ~~~~~~~~~~~~~~~~~^~
+/projects/jnorhos/BSQ/splinter/include/../../splinter/include/bspline.h: In member function 'unsigned int SPLINTER::BSpline::getNumControlPoints() const':
+/projects/jnorhos/BSQ/splinter/include/../../splinter/include/bspline.h:83:33: warning: conversion to 'unsigned int' from 'Eigen::EigenBase<Eigen::Matrix<double, -1, 1> >::Index {aka long int}' may alter its value [-Wconversion]
+         return coefficients.size();
+                ~~~~~~~~~~~~~~~~~^~
+In file included from hydrosim.cpp:15:0:
+particle.h: In member function 'void Particle<D>::frzcheck(double, int&, int)':
+particle.h:169:56: warning: declaration of 'count' shadows a member of 'Particle<D>' [-Wshadow]
+ void Particle<D>::frzcheck(double tin,int &count, int N)
+                                                        ^
+particle.h:70:9: note: shadowed declaration is here
+     int count;
+         ^~~~~
+In file included from rungekutta4.h:7:0,
+                 from hydrosim.cpp:16:
+LinkList.h: In member function 'int LinkList<D>::triToSum(Vector<int, D>, Vector<int, D>)':
+LinkList.h:304:67: warning: declaration of 'size' shadows a member of 'LinkList<D>' [-Wshadow]
+ int LinkList<D>::triToSum(Vector<int,D>  dael, Vector<int,D>  size)
+                                                                   ^
+LinkList.h:106:16: note: shadowed declaration is here
+  Vector<int,D> size;
+                ^~~~
+LinkList.h:304:67: warning: declaration of 'dael' shadows a member of 'LinkList<D>' [-Wshadow]
+ int LinkList<D>::triToSum(Vector<int,D>  dael, Vector<int,D>  size)
+                                                                   ^
+LinkList.h:108:17: note: shadowed declaration is here
+  Vector<int,D> *dael;
+                 ^~~~
+LinkList.h: In member function 'double LinkList<D>::eanal2(double, double, double)':
+LinkList.h:2173:56: warning: declaration of 't' shadows a member of 'LinkList<D>' [-Wshadow]
+ double LinkList<D>::eanal2(double t, double x, double y)
+                                                        ^
+LinkList.h:75:9: note: shadowed declaration is here
+  double t,dt;
+         ^
+LinkList.h: In member function 'double LinkList<D>::g(double, double, double)':
+LinkList.h:2182:51: warning: declaration of 't' shadows a member of 'LinkList<D>' [-Wshadow]
+ double LinkList<D>::g(double t, double x, double y)
+                                                   ^
+LinkList.h:75:9: note: shadowed declaration is here
+  double t,dt;
+         ^
+LinkList.h: In member function 'double LinkList<D>::ux(double, double, double)':
+LinkList.h:2190:52: warning: declaration of 't' shadows a member of 'LinkList<D>' [-Wshadow]
+ double LinkList<D>::ux(double t, double x, double y)
+                                                    ^
+LinkList.h:75:9: note: shadowed declaration is here
+  double t,dt;
+         ^
+LinkList.h: In member function 'double LinkList<D>::uy(double, double, double)':
+LinkList.h:2196:52: warning: declaration of 't' shadows a member of 'LinkList<D>' [-Wshadow]
+ double LinkList<D>::uy(double t, double x, double y)
+                                                    ^
+LinkList.h:75:9: note: shadowed declaration is here
+  double t,dt;
+         ^
+LinkList.h: In member function 'void LinkList<D>::bsqupdateIC()':
+LinkList.h:2361:3: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+   if (gtyp==5) _p[i].e_sub=_p[i].EOS.e();
+   ^~
+LinkList.h:2362:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+                              _p[i].B_sub=_p[i].EOS.B();
+                              ^~
+LinkList.h: In member function 'void LinkList<D>::qmflow()':
+LinkList.h:2540:10: warning: declaration of 'E' shadows a member of 'LinkList<D>' [-Wshadow]
+   double E=_p[i].EOS.e()/_p[i].sigma*_p[i].gamma*t0;
+          ^
+LinkList.h:112:13: note: shadowed declaration is here
+  double dEz,E,Ez,E0,Etot,S,S0,Eloss,Esubb;
+             ^
+In file included from hydrosim.cpp:20:0:
+bbmg.h: In instantiation of 'BBMG<D>::BBMG(LinkList<D>&) [with int D = 2]':
+hydrosim.cpp:181:23:   required from here
+bbmg.h:65:14: warning: conversion to 'unsigned int' from 'time_t {aka long int}' may alter its value [-Wconversion]
+   srand( time( NULL ) );
+          ~~~~^~~~~~~~
+bbmg.h:84:14: warning: conversion to 'float' from 'int' may alter its value [-Wconversion]
+      phi[i]=i*PI/7;
+In file included from hydrosim.cpp:19:0:
+output.h: In instantiation of 'void Output<D>::do_mkdir(const char*, int) [with int D = 2]':
+output.h:64:39:   required from 'Output<D>::Output(LinkList<D>&) [with int D = 2]'
+hydrosim.cpp:42:24:   required from here
+output.h:881:48: warning: unused parameter 'mode' [-Wunused-parameter]
+ void Output<D>::do_mkdir(const char *path, int mode)
+                                                ^~~~
+In file included from hydrosim.cpp:15:0:
+particle.h: In instantiation of 'void Particle<D>::frzcheck(double, int&, int) [with int D = 2]':
+hydrosim.cpp:442:32:   required from 'void idealhydro3(LinkList<D>&) [with int D = 2]'
+hydrosim.cpp:68:49:   required from here
+particle.h:169:6: warning: declaration of 'count' shadows a member of 'Particle<2>' [-Wshadow]
+ void Particle<D>::frzcheck(double tin,int &count, int N)
+      ^~~~~~~~~~~
+particle.h:70:9: note: shadowed declaration is here
+     int count;
+         ^~~~~
+particle.h:169:55: warning: unused parameter 'N' [-Wunused-parameter]
+ void Particle<D>::frzcheck(double tin,int &count, int N)
+                                                       ^
+In file included from rungekutta4.h:7:0,
+                 from hydrosim.cpp:16:
+LinkList.h: In instantiation of 'int LinkList<D>::triToSum(Vector<int, D>, Vector<int, D>) [with int D = 2]':
+hydrosim.cpp:541:34:   required from 'void vischydro3(LinkList<D>&) [with int D = 2]'
+hydrosim.cpp:140:46:   required from here
+LinkList.h:304:5: warning: declaration of 'size' shadows a member of 'LinkList<2>' [-Wshadow]
+ int LinkList<D>::triToSum(Vector<int,D>  dael, Vector<int,D>  size)
+     ^~~~~~~~~~~
+LinkList.h:106:16: note: shadowed declaration is here
+  Vector<int,D> size;
+                ^~~~
+LinkList.h:304:5: warning: declaration of 'dael' shadows a member of 'LinkList<2>' [-Wshadow]
+ int LinkList<D>::triToSum(Vector<int,D>  dael, Vector<int,D>  size)
+     ^~~~~~~~~~~
+LinkList.h:108:17: note: shadowed declaration is here
+  Vector<int,D> *dael;
+                 ^~~~
+LinkList.h: In instantiation of 'void LinkList<D>::svoptimization2(int, double, int&) [with int D = 2]':
+hydrosim.cpp:710:3:   required from 'void shear(LinkList<D>&) [with int D = 2]'
+hydrosim.cpp:207:42:   required from here
+LinkList.h:1975:58: warning: unused parameter 'count' [-Wunused-parameter]
+ void LinkList<D>::svoptimization2(int a,double tin,int & count)
+                                                          ^~~~~
+In file included from hydrosim.cpp:15:0:
+particle.h: In instantiation of 'void Particle<D>::svsigset(double, int) [with int D = 2]':
+hydrosim.cpp:713:3:   required from 'void shear(LinkList<D>&) [with int D = 2]'
+hydrosim.cpp:207:42:   required from here
+particle.h:305:43: warning: unused parameter 'i' [-Wunused-parameter]
+ void Particle<D>::svsigset(double tin,int i)
+                                           ^
+particle.h: In instantiation of 'Matrix<double, D, D> Particle<D>::Msub(int) [with int D = 2]':
+hydrosim.cpp:739:23:   required from 'void shear(LinkList<D>&) [with int D = 2]'
+hydrosim.cpp:207:42:   required from here
+particle.h:358:43: warning: unused parameter 'i' [-Wunused-parameter]
+ Matrix<double, D,D> Particle<D>::Msub(int i)
+                                           ^
+In file included from rungekutta4.h:7:0,
+                 from hydrosim.cpp:16:
+LinkList.h: In instantiation of 'void LinkList<D>::bsqsvoptimization2(int, double, int&) [with int D = 2]':
+hydrosim.cpp:809:3:   required from 'void BSQshear(LinkList<D>&) [with int D = 2]'
+hydrosim.cpp:315:46:   required from here
+LinkList.h:2071:61: warning: unused parameter 'count' [-Wunused-parameter]
+ void LinkList<D>::bsqsvoptimization2(int a,double tin,int & count)
+                                                             ^~~~~
+In file included from hydrosim.cpp:15:0:
+particle.h: In instantiation of 'void Particle<D>::bsqsvsigset(double, int) [with int D = 2]':
+hydrosim.cpp:872:3:   required from 'void BSQshear(LinkList<D>&) [with int D = 2]'
+hydrosim.cpp:315:46:   required from here
+particle.h:393:46: warning: unused parameter 'i' [-Wunused-parameter]
+ void Particle<D>::bsqsvsigset(double tin,int i)
+                                              ^
+In file included from hydrosim.cpp:19:0:
+output.h: In instantiation of 'void Output<D>::do_mkdir(const char*, int) [with int D = 3]':
+output.h:64:39:   required from 'Output<D>::Output(LinkList<D>&) [with int D = 3]'
+hydrosim.cpp:389:24:   required from here
+output.h:881:48: warning: unused parameter 'mode' [-Wunused-parameter]
+ void Output<D>::do_mkdir(const char *path, int mode)
+                                                ^~~~
+In file included from hydrosim.cpp:15:0:
+particle.h: In instantiation of 'void Particle<D>::frzcheck(double, int&, int) [with int D = 3]':
+hydrosim.cpp:442:32:   required from 'void idealhydro3(LinkList<D>&) [with int D = 3]'
+hydrosim.cpp:393:25:   required from here
+particle.h:169:6: warning: declaration of 'count' shadows a member of 'Particle<3>' [-Wshadow]
+ void Particle<D>::frzcheck(double tin,int &count, int N)
+      ^~~~~~~~~~~
+particle.h:70:9: note: shadowed declaration is here
+     int count;
+         ^~~~~
+particle.h:169:55: warning: unused parameter 'N' [-Wunused-parameter]
+ void Particle<D>::frzcheck(double tin,int &count, int N)
+                                                       ^
+In file included from rungekutta4.h:7:0,
+                 from hydrosim.cpp:16:
+LinkList.h: In instantiation of 'int LinkList<D>::triToSum(Vector<int, D>, Vector<int, D>) [with int D = 3]':
+LinkList.h:1642:19:   required from 'void LinkList<D>::initiate() [with int D = 3]'
+hydrosim.cpp:425:6:   required from 'void idealhydro3(LinkList<D>&) [with int D = 3]'
+hydrosim.cpp:393:25:   required from here
+LinkList.h:304:5: warning: declaration of 'size' shadows a member of 'LinkList<3>' [-Wshadow]
+ int LinkList<D>::triToSum(Vector<int,D>  dael, Vector<int,D>  size)
+     ^~~~~~~~~~~
+LinkList.h:106:16: note: shadowed declaration is here
+  Vector<int,D> size;
+                ^~~~
+LinkList.h:304:5: warning: declaration of 'dael' shadows a member of 'LinkList<3>' [-Wshadow]
+ int LinkList<D>::triToSum(Vector<int,D>  dael, Vector<int,D>  size)
+     ^~~~~~~~~~~
+LinkList.h:108:17: note: shadowed declaration is here
+  Vector<int,D> *dael;
+                 ^~~~
+g++ -Wall -Wextra -pedantic -Wconversion -Wcast-align -Wunused -Wshadow -Wpointer-arith -Wno-missing-braces  -O0 -c -I/projects/jnorhos/BSQ/eigen -I/projects/jnorhos/BSQ/splinter/include -g -std=c++11 newspline.cpp
+g++ -Wall -Wextra -pedantic -Wconversion -Wcast-align -Wunused -Wshadow -Wpointer-arith -Wno-missing-braces  -O0 -c -I/projects/jnorhos/BSQ/eigen -I/projects/jnorhos/BSQ/splinter/include -g -std=c++11 random.cpp
+random.cpp: In function 'double randall(double, double, int&)':
+random.cpp:23:21: warning: conversion to 'unsigned int' from 'time_t {aka long int}' may alter its value [-Wconversion]
+ srand( time( NULL ) +r);
+        ~~~~~~~~~~~~~^~
+random.cpp: In function 'double rand0(double, int&)':
+random.cpp:36:20: warning: conversion to 'unsigned int' from 'time_t {aka long int}' may alter its value [-Wconversion]
+ srand( time( NULL )+r );
+        ~~~~~~~~~~~~^~
+random.cpp: In function 'double rand01(int&)':
+random.cpp:47:20: warning: conversion to 'unsigned int' from 'time_t {aka long int}' may alter its value [-Wconversion]
+ srand( time( NULL )+r );
+        ~~~~~~~~~~~~^~
+random.cpp: In function 'int randint(int, int&)':
+random.cpp:59:21: warning: conversion to 'unsigned int' from 'time_t {aka long int}' may alter its value [-Wconversion]
+  srand( time( NULL )+r );
+         ~~~~~~~~~~~~^~
+g++ -Wall -Wextra -pedantic -Wconversion -Wcast-align -Wunused -Wshadow -Wpointer-arith -Wno-missing-braces  -O0 -c -I/projects/jnorhos/BSQ/eigen -I/projects/jnorhos/BSQ/splinter/include -g -std=c++11 eos.cpp
+In file included from /projects/jnorhos/BSQ/eigen/Eigen/Core:165:0,
+                 from /projects/jnorhos/BSQ/eigen/Eigen/Dense:1,
+                 from /projects/jnorhos/BSQ/splinter/include/../../splinter/include/definitions.h:35,
+                 from /projects/jnorhos/BSQ/splinter/include/../../splinter/include/function.h:13,
+                 from /projects/jnorhos/BSQ/splinter/include/../../splinter/include/bspline.h:13,
+                 from eos.h:3,
+                 from eos.cpp:1:
+/projects/jnorhos/BSQ/eigen/Eigen/src/Core/util/XprHelper.h:256:55: warning: conversion to 'int' from 'long unsigned int' may alter its value [-Wconversion]
+   enum { value = compute_default_alignment_helper<Size*sizeof(T),EIGEN_MAX_STATIC_ALIGN_BYTES>::value };
+                                                   ~~~~^~~~~~~~
+In file included from /projects/jnorhos/BSQ/eigen/Eigen/Geometry:47:0,
+                 from /projects/jnorhos/BSQ/eigen/Eigen/Dense:6,
+                 from /projects/jnorhos/BSQ/splinter/include/../../splinter/include/definitions.h:35,
+                 from /projects/jnorhos/BSQ/splinter/include/../../splinter/include/function.h:13,
+                 from /projects/jnorhos/BSQ/splinter/include/../../splinter/include/bspline.h:13,
+                 from eos.h:3,
+                 from eos.cpp:1:
+/projects/jnorhos/BSQ/eigen/Eigen/src/Geometry/Hyperplane.h:48:69: warning: conversion to 'int' from 'Eigen::Hyperplane<_Scalar, _AmbientDim, Options>::Index {aka long int}' may alter its value [-Wconversion]
+                         : Index(AmbientDimAtCompileTime)+1,1,Options> Coefficients;
+                                                                     ^
+In file included from /projects/jnorhos/BSQ/eigen/Eigen/SparseCore:46:0,
+                 from /projects/jnorhos/BSQ/eigen/Eigen/Sparse:26,
+                 from /projects/jnorhos/BSQ/splinter/include/../../splinter/include/definitions.h:36,
+                 from /projects/jnorhos/BSQ/splinter/include/../../splinter/include/function.h:13,
+                 from /projects/jnorhos/BSQ/splinter/include/../../splinter/include/bspline.h:13,
+                 from eos.h:3,
+                 from eos.cpp:1:
+/projects/jnorhos/BSQ/eigen/Eigen/src/SparseCore/SparseRef.h:237:46: warning: conversion to 'unsigned int' from 'long unsigned int' may alter its value [-Wconversion]
+     typename internal::aligned_storage<sizeof(TPlainObjectType), EIGEN_ALIGNOF(TPlainObjectType)>::type m_storage;
+                                              ^
+/projects/jnorhos/BSQ/eigen/Eigen/src/SparseCore/SparseRef.h:237:97: warning: conversion to 'unsigned int' from 'long unsigned int' may alter its value [-Wconversion]
+     typename internal::aligned_storage<sizeof(TPlainObjectType), EIGEN_ALIGNOF(TPlainObjectType)>::type m_storage;
+                                                                                                 ^
+/projects/jnorhos/BSQ/eigen/Eigen/src/SparseCore/SparseRef.h:345:46: warning: conversion to 'unsigned int' from 'long unsigned int' may alter its value [-Wconversion]
+     typename internal::aligned_storage<sizeof(TPlainObjectType), EIGEN_ALIGNOF(TPlainObjectType)>::type m_storage;
+                                              ^
+/projects/jnorhos/BSQ/eigen/Eigen/src/SparseCore/SparseRef.h:345:97: warning: conversion to 'unsigned int' from 'long unsigned int' may alter its value [-Wconversion]
+     typename internal::aligned_storage<sizeof(TPlainObjectType), EIGEN_ALIGNOF(TPlainObjectType)>::type m_storage;
+                                                                                                 ^
+In file included from /projects/jnorhos/BSQ/splinter/include/../../splinter/include/bspline.h:13:0,
+                 from eos.h:3,
+                 from eos.cpp:1:
+/projects/jnorhos/BSQ/splinter/include/../../splinter/include/function.h: In constructor 'SPLINTER::Function::Function(unsigned int)':
+/projects/jnorhos/BSQ/splinter/include/../../splinter/include/function.h:32:9: warning: declaration of 'numVariables' shadows a member of 'SPLINTER::Function' [-Wshadow]
+         : numVariables(numVariables) {}
+         ^
+/projects/jnorhos/BSQ/splinter/include/../../splinter/include/function.h:101:18: note: shadowed declaration is here
+     unsigned int numVariables; // Dimension of domain (size of x)
+                  ^~~~~~~~~~~~
+In file included from eos.h:3:0,
+                 from eos.cpp:1:
+/projects/jnorhos/BSQ/splinter/include/../../splinter/include/bspline.h: In member function 'unsigned int SPLINTER::BSpline::getNumCoefficients() const':
+/projects/jnorhos/BSQ/splinter/include/../../splinter/include/bspline.h:78:33: warning: conversion to 'unsigned int' from 'Eigen::EigenBase<Eigen::Matrix<double, -1, 1> >::Index {aka long int}' may alter its value [-Wconversion]
+         return coefficients.size();
+                ~~~~~~~~~~~~~~~~~^~
+/projects/jnorhos/BSQ/splinter/include/../../splinter/include/bspline.h: In member function 'unsigned int SPLINTER::BSpline::getNumControlPoints() const':
+/projects/jnorhos/BSQ/splinter/include/../../splinter/include/bspline.h:83:33: warning: conversion to 'unsigned int' from 'Eigen::EigenBase<Eigen::Matrix<double, -1, 1> >::Index {aka long int}' may alter its value [-Wconversion]
+         return coefficients.size();
+                ~~~~~~~~~~~~~~~~~^~
+In file included from ../splinter/include/datatable.h:14:0,
+                 from eos.cpp:3:
+../splinter/include/datapoint.h: In member function 'unsigned int SPLINTER::DataPoint::getDimX() const':
+../splinter/include/datapoint.h:34:49: warning: conversion to 'unsigned int' from 'std::vector<double>::size_type {aka long unsigned int}' may alter its value [-Wconversion]
+     unsigned int getDimX() const { return x.size(); }
+                                           ~~~~~~^~
+In file included from eos.cpp:3:0:
+../splinter/include/datatable.h: In member function 'unsigned int SPLINTER::DataTable::getNumSamples() const':
+../splinter/include/datatable.h:50:60: warning: conversion to 'unsigned int' from 'std::multiset<SPLINTER::DataPoint>::size_type {aka long unsigned int}' may alter its value [-Wconversion]
+     unsigned int getNumSamples() const {return samples.size();}
+                                                ~~~~~~~~~~~~^~
+eos.cpp: At global scope:
+eos.cpp:736:2: warning: extra ';' [-Wpedantic]
+ };
+  ^
+eos.cpp: In member function 'void eos::eosin(std::__cxx11::string)':
+eos.cpp:950:29: warning: unused parameter 'type' [-Wunused-parameter]
+ void eos::eosin(std::string type) {}
+                             ^~~~
+g++ -Wall -Wextra -pedantic -Wconversion -Wcast-align -Wunused -Wshadow -Wpointer-arith -Wno-missing-braces  -O0 -c -I/projects/jnorhos/BSQ/eigen -I/projects/jnorhos/BSQ/splinter/include -g -std=c++11 matrix.cpp
+g++ -Wall -Wextra -pedantic -Wconversion -Wcast-align -Wunused -Wshadow -Wpointer-arith -Wno-missing-braces  -O0 -c -I/projects/jnorhos/BSQ/eigen -I/projects/jnorhos/BSQ/splinter/include -g -std=c++11 enteric.cpp
+In file included from /projects/jnorhos/BSQ/eigen/Eigen/Core:165:0,
+                 from /projects/jnorhos/BSQ/eigen/Eigen/Dense:1,
+                 from /projects/jnorhos/BSQ/splinter/include/../../splinter/include/definitions.h:35,
+                 from /projects/jnorhos/BSQ/splinter/include/../../splinter/include/function.h:13,
+                 from /projects/jnorhos/BSQ/splinter/include/../../splinter/include/bspline.h:13,
+                 from eos.h:3,
+                 from particle.h:6,
+                 from enteric.cpp:14:
+/projects/jnorhos/BSQ/eigen/Eigen/src/Core/util/XprHelper.h:256:55: warning: conversion to 'int' from 'long unsigned int' may alter its value [-Wconversion]
+   enum { value = compute_default_alignment_helper<Size*sizeof(T),EIGEN_MAX_STATIC_ALIGN_BYTES>::value };
+                                                   ~~~~^~~~~~~~
+In file included from /projects/jnorhos/BSQ/eigen/Eigen/Geometry:47:0,
+                 from /projects/jnorhos/BSQ/eigen/Eigen/Dense:6,
+                 from /projects/jnorhos/BSQ/splinter/include/../../splinter/include/definitions.h:35,
+                 from /projects/jnorhos/BSQ/splinter/include/../../splinter/include/function.h:13,
+                 from /projects/jnorhos/BSQ/splinter/include/../../splinter/include/bspline.h:13,
+                 from eos.h:3,
+                 from particle.h:6,
+                 from enteric.cpp:14:
+/projects/jnorhos/BSQ/eigen/Eigen/src/Geometry/Hyperplane.h:48:69: warning: conversion to 'int' from 'Eigen::Hyperplane<_Scalar, _AmbientDim, Options>::Index {aka long int}' may alter its value [-Wconversion]
+                         : Index(AmbientDimAtCompileTime)+1,1,Options> Coefficients;
+                                                                     ^
+In file included from /projects/jnorhos/BSQ/eigen/Eigen/SparseCore:46:0,
+                 from /projects/jnorhos/BSQ/eigen/Eigen/Sparse:26,
+                 from /projects/jnorhos/BSQ/splinter/include/../../splinter/include/definitions.h:36,
+                 from /projects/jnorhos/BSQ/splinter/include/../../splinter/include/function.h:13,
+                 from /projects/jnorhos/BSQ/splinter/include/../../splinter/include/bspline.h:13,
+                 from eos.h:3,
+                 from particle.h:6,
+                 from enteric.cpp:14:
+/projects/jnorhos/BSQ/eigen/Eigen/src/SparseCore/SparseRef.h:237:46: warning: conversion to 'unsigned int' from 'long unsigned int' may alter its value [-Wconversion]
+     typename internal::aligned_storage<sizeof(TPlainObjectType), EIGEN_ALIGNOF(TPlainObjectType)>::type m_storage;
+                                              ^
+/projects/jnorhos/BSQ/eigen/Eigen/src/SparseCore/SparseRef.h:237:97: warning: conversion to 'unsigned int' from 'long unsigned int' may alter its value [-Wconversion]
+     typename internal::aligned_storage<sizeof(TPlainObjectType), EIGEN_ALIGNOF(TPlainObjectType)>::type m_storage;
+                                                                                                 ^
+/projects/jnorhos/BSQ/eigen/Eigen/src/SparseCore/SparseRef.h:345:46: warning: conversion to 'unsigned int' from 'long unsigned int' may alter its value [-Wconversion]
+     typename internal::aligned_storage<sizeof(TPlainObjectType), EIGEN_ALIGNOF(TPlainObjectType)>::type m_storage;
+                                              ^
+/projects/jnorhos/BSQ/eigen/Eigen/src/SparseCore/SparseRef.h:345:97: warning: conversion to 'unsigned int' from 'long unsigned int' may alter its value [-Wconversion]
+     typename internal::aligned_storage<sizeof(TPlainObjectType), EIGEN_ALIGNOF(TPlainObjectType)>::type m_storage;
+                                                                                                 ^
+In file included from /projects/jnorhos/BSQ/splinter/include/../../splinter/include/bspline.h:13:0,
+                 from eos.h:3,
+                 from particle.h:6,
+                 from enteric.cpp:14:
+/projects/jnorhos/BSQ/splinter/include/../../splinter/include/function.h: In constructor 'SPLINTER::Function::Function(unsigned int)':
+/projects/jnorhos/BSQ/splinter/include/../../splinter/include/function.h:32:9: warning: declaration of 'numVariables' shadows a member of 'SPLINTER::Function' [-Wshadow]
+         : numVariables(numVariables) {}
+         ^
+/projects/jnorhos/BSQ/splinter/include/../../splinter/include/function.h:101:18: note: shadowed declaration is here
+     unsigned int numVariables; // Dimension of domain (size of x)
+                  ^~~~~~~~~~~~
+In file included from eos.h:3:0,
+                 from particle.h:6,
+                 from enteric.cpp:14:
+/projects/jnorhos/BSQ/splinter/include/../../splinter/include/bspline.h: In member function 'unsigned int SPLINTER::BSpline::getNumCoefficients() const':
+/projects/jnorhos/BSQ/splinter/include/../../splinter/include/bspline.h:78:33: warning: conversion to 'unsigned int' from 'Eigen::EigenBase<Eigen::Matrix<double, -1, 1> >::Index {aka long int}' may alter its value [-Wconversion]
+         return coefficients.size();
+                ~~~~~~~~~~~~~~~~~^~
+/projects/jnorhos/BSQ/splinter/include/../../splinter/include/bspline.h: In member function 'unsigned int SPLINTER::BSpline::getNumControlPoints() const':
+/projects/jnorhos/BSQ/splinter/include/../../splinter/include/bspline.h:83:33: warning: conversion to 'unsigned int' from 'Eigen::EigenBase<Eigen::Matrix<double, -1, 1> >::Index {aka long int}' may alter its value [-Wconversion]
+         return coefficients.size();
+                ~~~~~~~~~~~~~~~~~^~
+In file included from enteric.cpp:14:0:
+particle.h: In member function 'void Particle<D>::frzcheck(double, int&, int)':
+particle.h:169:56: warning: declaration of 'count' shadows a member of 'Particle<D>' [-Wshadow]
+ void Particle<D>::frzcheck(double tin,int &count, int N)
+                                                        ^
+particle.h:70:9: note: shadowed declaration is here
+     int count;
+         ^~~~~
+In file included from enteric.h:15:0,
+                 from enteric.cpp:15:
+LinkList.h: In member function 'int LinkList<D>::triToSum(Vector<int, D>, Vector<int, D>)':
+LinkList.h:304:67: warning: declaration of 'size' shadows a member of 'LinkList<D>' [-Wshadow]
+ int LinkList<D>::triToSum(Vector<int,D>  dael, Vector<int,D>  size)
+                                                                   ^
+LinkList.h:106:16: note: shadowed declaration is here
+  Vector<int,D> size;
+                ^~~~
+LinkList.h:304:67: warning: declaration of 'dael' shadows a member of 'LinkList<D>' [-Wshadow]
+ int LinkList<D>::triToSum(Vector<int,D>  dael, Vector<int,D>  size)
+                                                                   ^
+LinkList.h:108:17: note: shadowed declaration is here
+  Vector<int,D> *dael;
+                 ^~~~
+LinkList.h: In member function 'double LinkList<D>::eanal2(double, double, double)':
+LinkList.h:2173:56: warning: declaration of 't' shadows a member of 'LinkList<D>' [-Wshadow]
+ double LinkList<D>::eanal2(double t, double x, double y)
+                                                        ^
+LinkList.h:75:9: note: shadowed declaration is here
+  double t,dt;
+         ^
+LinkList.h: In member function 'double LinkList<D>::g(double, double, double)':
+LinkList.h:2182:51: warning: declaration of 't' shadows a member of 'LinkList<D>' [-Wshadow]
+ double LinkList<D>::g(double t, double x, double y)
+                                                   ^
+LinkList.h:75:9: note: shadowed declaration is here
+  double t,dt;
+         ^
+LinkList.h: In member function 'double LinkList<D>::ux(double, double, double)':
+LinkList.h:2190:52: warning: declaration of 't' shadows a member of 'LinkList<D>' [-Wshadow]
+ double LinkList<D>::ux(double t, double x, double y)
+                                                    ^
+LinkList.h:75:9: note: shadowed declaration is here
+  double t,dt;
+         ^
+LinkList.h: In member function 'double LinkList<D>::uy(double, double, double)':
+LinkList.h:2196:52: warning: declaration of 't' shadows a member of 'LinkList<D>' [-Wshadow]
+ double LinkList<D>::uy(double t, double x, double y)
+                                                    ^
+LinkList.h:75:9: note: shadowed declaration is here
+  double t,dt;
+         ^
+LinkList.h: In member function 'void LinkList<D>::bsqupdateIC()':
+LinkList.h:2361:3: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
+   if (gtyp==5) _p[i].e_sub=_p[i].EOS.e();
+   ^~
+LinkList.h:2362:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
+                              _p[i].B_sub=_p[i].EOS.B();
+                              ^~
+LinkList.h: In member function 'void LinkList<D>::qmflow()':
+LinkList.h:2540:10: warning: declaration of 'E' shadows a member of 'LinkList<D>' [-Wshadow]
+   double E=_p[i].EOS.e()/_p[i].sigma*_p[i].gamma*t0;
+          ^
+LinkList.h:112:13: note: shadowed declaration is here
+  double dEz,E,Ez,E0,Etot,S,S0,Eloss,Esubb;
+             ^
+In file included from enteric.cpp:15:0:
+enteric.h: In function 'void nextevent(int, LinkList<D>&)':
+enteric.h:791:11: warning: declaration of 'int i' shadows a parameter [-Wshadow]
+  for (int i=0;i<linklist.n();i++)
+           ^
+enteric.h:773:20: note: shadowed declaration is here
+ void nextevent(int i, LinkList<D> &linklist)
+                    ^
+enteric.cpp: In function 'void readICs_gen(std::__cxx11::string&, std::__cxx11::string&, int&, Particle<2>*&, const double&, int&)':
+enteric.cpp:163:43: warning: unused parameter 'firstry2' [-Wunused-parameter]
+ void readICs_gen(string &firstry, string &firstry2, int &_Ntable3,Particle<2> *&_p,double const& efcheck, int & numpart)
+                                           ^~~~~~~~
+enteric.cpp: In function 'void readICs_gen(std::__cxx11::string&, int&, Particle<2>*&, const double&, int&)':
+enteric.cpp:209:81: warning: unused parameter 'efcheck' [-Wunused-parameter]
+ void readICs_gen(string &firstry,  int &_Ntable3,Particle<2> *&_p,double const& efcheck, int & numpart)
+                                                                                 ^~~~~~~
+enteric.cpp:209:96: warning: unused parameter 'numpart' [-Wunused-parameter]
+ void readICs_gen(string &firstry,  int &_Ntable3,Particle<2> *&_p,double const& efcheck, int & numpart)
+                                                                                                ^~~~~~~
+enteric.cpp: In function 'void readICs_tnt(std::__cxx11::string&, int&, Particle<2>*&, double, const double&, int&, eos)':
+enteric.cpp:392:23: warning: conversion to 'int' from 'std::vector<double>::size_type {aka long unsigned int}' may alter its value [-Wconversion]
+     _Ntable3=xsub.size();
+              ~~~~~~~~~^~
+enteric.cpp:337:123: warning: unused parameter 'EOS' [-Wunused-parameter]
+ void readICs_tnt(string &firstry,  int &_Ntable3,Particle<2> *&_p,double factor,double const& sfcheck, int & numpart, eos EOS)
+                                                                                                                           ^~~
+enteric.cpp: In function 'void readICs_iccing(std::__cxx11::string&, int&, Particle<2>*&, double, const double&, int&, eos)':
+enteric.cpp:493:23: warning: conversion to 'int' from 'std::vector<double>::size_type {aka long unsigned int}' may alter its value [-Wconversion]
+     _Ntable3=xsub.size();
+              ~~~~~~~~~^~
+enteric.cpp:435:126: warning: unused parameter 'EOS' [-Wunused-parameter]
+ void readICs_iccing(string &firstry,  int &_Ntable3,Particle<2> *&_p,double factor,double const& sfcheck, int & numpart, eos EOS)
+                                                                                                                              ^~~
+enteric.cpp: In function 'void readICs_iccing(std::__cxx11::string&, int&, Particle<3>*&, double, const double&, int&, eos)':
+enteric.cpp:539:30: warning: unused parameter 'firstry' [-Wunused-parameter]
+ void readICs_iccing( string &firstry, int &_Ntable3, Particle<3> *&_p,
+                              ^~~~~~~
+enteric.cpp:539:44: warning: unused parameter '_Ntable3' [-Wunused-parameter]
+ void readICs_iccing( string &firstry, int &_Ntable3, Particle<3> *&_p,
+                                            ^~~~~~~~
+enteric.cpp:539:68: warning: unused parameter '_p' [-Wunused-parameter]
+ void readICs_iccing( string &firstry, int &_Ntable3, Particle<3> *&_p,
+                                                                    ^~
+enteric.cpp:540:14: warning: unused parameter 'factor' [-Wunused-parameter]
+       double factor, double const & efcheck, int & numpart, eos EOS)
+              ^~~~~~
+enteric.cpp:540:37: warning: unused parameter 'efcheck' [-Wunused-parameter]
+       double factor, double const & efcheck, int & numpart, eos EOS)
+                                     ^~~~~~~
+enteric.cpp:540:52: warning: unused parameter 'numpart' [-Wunused-parameter]
+       double factor, double const & efcheck, int & numpart, eos EOS)
+                                                    ^~~~~~~
+enteric.cpp:540:65: warning: unused parameter 'EOS' [-Wunused-parameter]
+       double factor, double const & efcheck, int & numpart, eos EOS)
+                                                                 ^~~
+enteric.cpp: In function 'void readICs_gebe(std::__cxx11::string&, int&, Particle<2>*&, double, const double&, int&)':
+enteric.cpp:603:23: warning: conversion to 'int' from 'std::vector<double>::size_type {aka long unsigned int}' may alter its value [-Wconversion]
+     _Ntable3=xsub.size();
+              ~~~~~~~~~^~
+enteric.cpp:546:75: warning: unused parameter 'factor' [-Wunused-parameter]
+ void readICs_gebe(string &firstry,  int &_Ntable3,Particle<2> *&_p,double factor,double const& efcheck, int & numpart)
+                                                                           ^~~~~~
+enteric.cpp: In function 'double readICs_gl(std::__cxx11::string&, int&, Particle<2>*&, double, const double&, int&)':
+enteric.cpp:885:25: warning: conversion to 'int' from 'std::vector<double>::size_type {aka long unsigned int}' may alter its value [-Wconversion]
+          _Ntable3=e.size();
+                   ~~~~~~^~
+enteric.cpp: In function 'void readICs_glno(std::__cxx11::string&, int&, Particle<2>*&, double, const double&, int&)':
+enteric.cpp:1066:25: warning: conversion to 'int' from 'std::vector<double>::size_type {aka long unsigned int}' may alter its value [-Wconversion]
+          _Ntable3=e.size();
+                   ~~~~~~^~
+enteric.cpp: In function 'double readICs_gl(std::__cxx11::string&, int&, Particle<3>*&, double, const double&, int&)':
+enteric.cpp:1100:27: warning: unused parameter 'firstry' [-Wunused-parameter]
+ double readICs_gl(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,double const& efcheck, int & numpart){
+                           ^~~~~~~
+enteric.cpp:1100:42: warning: unused parameter '_Ntable3' [-Wunused-parameter]
+ double readICs_gl(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,double const& efcheck, int & numpart){
+                                          ^~~~~~~~
+enteric.cpp:1100:65: warning: unused parameter '_p' [-Wunused-parameter]
+ double readICs_gl(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,double const& efcheck, int & numpart){
+                                                                 ^~
+enteric.cpp:1100:96: warning: unused parameter 'efcheck' [-Wunused-parameter]
+ double readICs_gl(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,double const& efcheck, int & numpart){
+                                                                                                ^~~~~~~
+enteric.cpp:1100:111: warning: unused parameter 'numpart' [-Wunused-parameter]
+ double readICs_gl(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,double const& efcheck, int & numpart){
+                                                                                                               ^~~~~~~
+enteric.cpp: In function 'void readICs_glno(std::__cxx11::string&, int&, Particle<3>*&, double, const double&, int&)':
+enteric.cpp:1105:27: warning: unused parameter 'firstry' [-Wunused-parameter]
+ void readICs_glno(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,double const& efcheck, int & numpart){
+                           ^~~~~~~
+enteric.cpp:1105:42: warning: unused parameter '_Ntable3' [-Wunused-parameter]
+ void readICs_glno(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,double const& efcheck, int & numpart){
+                                          ^~~~~~~~
+enteric.cpp:1105:65: warning: unused parameter '_p' [-Wunused-parameter]
+ void readICs_glno(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,double const& efcheck, int & numpart){
+                                                                 ^~
+enteric.cpp:1105:75: warning: unused parameter 'factor' [-Wunused-parameter]
+ void readICs_glno(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,double const& efcheck, int & numpart){
+                                                                           ^~~~~~
+enteric.cpp:1105:96: warning: unused parameter 'efcheck' [-Wunused-parameter]
+ void readICs_glno(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,double const& efcheck, int & numpart){
+                                                                                                ^~~~~~~
+enteric.cpp:1105:111: warning: unused parameter 'numpart' [-Wunused-parameter]
+ void readICs_glno(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,double const& efcheck, int & numpart){
+                                                                                                               ^~~~~~~
+enteric.cpp: In function 'void readICs_gebe(std::__cxx11::string&, int&, Particle<3>*&, double, const double&, int&)':
+enteric.cpp:1108:27: warning: unused parameter 'firstry' [-Wunused-parameter]
+ void readICs_gebe(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,double const& efcheck, int & numpart)
+                           ^~~~~~~
+enteric.cpp:1108:42: warning: unused parameter '_Ntable3' [-Wunused-parameter]
+ void readICs_gebe(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,double const& efcheck, int & numpart)
+                                          ^~~~~~~~
+enteric.cpp:1108:65: warning: unused parameter '_p' [-Wunused-parameter]
+ void readICs_gebe(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,double const& efcheck, int & numpart)
+                                                                 ^~
+enteric.cpp:1108:75: warning: unused parameter 'factor' [-Wunused-parameter]
+ void readICs_gebe(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,double const& efcheck, int & numpart)
+                                                                           ^~~~~~
+enteric.cpp:1108:96: warning: unused parameter 'efcheck' [-Wunused-parameter]
+ void readICs_gebe(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,double const& efcheck, int & numpart)
+                                                                                                ^~~~~~~
+enteric.cpp:1108:111: warning: unused parameter 'numpart' [-Wunused-parameter]
+ void readICs_gebe(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,double const& efcheck, int & numpart)
+                                                                                                               ^~~~~~~
+enteric.cpp: In function 'void readICs_nebe(std::__cxx11::string&, int&, Particle<3>*&, double, const double&, int&)':
+enteric.cpp:1112:27: warning: unused parameter 'firstry' [-Wunused-parameter]
+ void readICs_nebe(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,double const& efcheck, int & numpart)
+                           ^~~~~~~
+enteric.cpp:1112:42: warning: unused parameter '_Ntable3' [-Wunused-parameter]
+ void readICs_nebe(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,double const& efcheck, int & numpart)
+                                          ^~~~~~~~
+enteric.cpp:1112:65: warning: unused parameter '_p' [-Wunused-parameter]
+ void readICs_nebe(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,double const& efcheck, int & numpart)
+                                                                 ^~
+enteric.cpp:1112:75: warning: unused parameter 'factor' [-Wunused-parameter]
+ void readICs_nebe(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,double const& efcheck, int & numpart)
+                                                                           ^~~~~~
+enteric.cpp:1112:96: warning: unused parameter 'efcheck' [-Wunused-parameter]
+ void readICs_nebe(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,double const& efcheck, int & numpart)
+                                                                                                ^~~~~~~
+enteric.cpp:1112:111: warning: unused parameter 'numpart' [-Wunused-parameter]
+ void readICs_nebe(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,double const& efcheck, int & numpart)
+                                                                                                               ^~~~~~~
+enteric.cpp: In function 'void readICs_tnt(std::__cxx11::string&, int&, Particle<3>*&, double, const double&, int&, eos)':
+enteric.cpp:1116:26: warning: unused parameter 'firstry' [-Wunused-parameter]
+ void readICs_tnt(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,double const& efcheck, int & numpart, eos EOS){
+                          ^~~~~~~
+enteric.cpp:1116:41: warning: unused parameter '_Ntable3' [-Wunused-parameter]
+ void readICs_tnt(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,double const& efcheck, int & numpart, eos EOS){
+                                         ^~~~~~~~
+enteric.cpp:1116:64: warning: unused parameter '_p' [-Wunused-parameter]
+ void readICs_tnt(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,double const& efcheck, int & numpart, eos EOS){
+                                                                ^~
+enteric.cpp:1116:74: warning: unused parameter 'factor' [-Wunused-parameter]
+ void readICs_tnt(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,double const& efcheck, int & numpart, eos EOS){
+                                                                          ^~~~~~
+enteric.cpp:1116:95: warning: unused parameter 'efcheck' [-Wunused-parameter]
+ void readICs_tnt(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,double const& efcheck, int & numpart, eos EOS){
+                                                                                               ^~~~~~~
+enteric.cpp:1116:110: warning: unused parameter 'numpart' [-Wunused-parameter]
+ void readICs_tnt(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,double const& efcheck, int & numpart, eos EOS){
+                                                                                                              ^~~~~~~
+enteric.cpp:1116:123: warning: unused parameter 'EOS' [-Wunused-parameter]
+ void readICs_tnt(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,double const& efcheck, int & numpart, eos EOS){
+                                                                                                                           ^~~
+enteric.cpp: In function 'void readICs_gen(std::__cxx11::string&, std::__cxx11::string&, int&, Particle<3>*&, const double&, int&)':
+enteric.cpp:1163:102: warning: unused parameter 'efcheck' [-Wunused-parameter]
+ void readICs_gen(string &firstry,  string &firstry2, int &_Ntable3, Particle< 3 > *&_p,double const& efcheck, int & numpart)
+                                                                                                      ^~~~~~~
+enteric.cpp:1163:117: warning: unused parameter 'numpart' [-Wunused-parameter]
+ void readICs_gen(string &firstry,  string &firstry2, int &_Ntable3, Particle< 3 > *&_p,double const& efcheck, int & numpart)
+                                                                                                                     ^~~~~~~
+enteric.cpp: In function 'void readICs_gen(std::__cxx11::string&, int&, Particle<3>*&, const double&, int&)':
+enteric.cpp:1218:82: warning: unused parameter 'efcheck' [-Wunused-parameter]
+ void readICs_gen(string &firstry,  int &_Ntable3, Particle<3> *&_p,double const& efcheck, int & numpart)
+                                                                                  ^~~~~~~
+enteric.cpp:1218:97: warning: unused parameter 'numpart' [-Wunused-parameter]
+ void readICs_gen(string &firstry,  int &_Ntable3, Particle<3> *&_p,double const& efcheck, int & numpart)
+                                                                                                 ^~~~~~~
+enteric.cpp: In function 'void readICs_genUU(std::__cxx11::string&, int&, Particle<3>*&, const double&, int&)':
+enteric.cpp:1256:83: warning: unused parameter 'efcheck' [-Wunused-parameter]
+ void readICs_genUU(string &firstry,  int &_Ntable3,Particle<3> *&_p,double const& efcheck, int & numpart)
+                                                                                   ^~~~~~~
+enteric.cpp:1256:98: warning: unused parameter 'numpart' [-Wunused-parameter]
+ void readICs_genUU(string &firstry,  int &_Ntable3,Particle<3> *&_p,double const& efcheck, int & numpart)
+                                                                                                  ^~~~~~~
+enteric.cpp: In function 'void open_dir(std::__cxx11::string, std::__cxx11::string*&, int&)':
+enteric.cpp:1311:28: warning: conversion to 'int' from 'std::__cxx11::basic_string<char>::size_type {aka long unsigned int}' may alter its value [-Wconversion]
+      int j=file_open.length();
+            ~~~~~~~~~~~~~~~~^~
+enteric.cpp:1328:28: warning: conversion to 'int' from 'std::__cxx11::basic_string<char>::size_type {aka long unsigned int}' may alter its value [-Wconversion]
+      int j=file_open.length();
+            ~~~~~~~~~~~~~~~~^~
+enteric.cpp: In function 'void readICs_ebe(std::__cxx11::string&, int&, Particle<3>*&, double, const double&, int&)':
+enteric.cpp:1349:74: warning: unused parameter 'factor' [-Wunused-parameter]
+ void readICs_ebe(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor, double const& efcheck, int & numpart)
+                                                                          ^~~~~~
+enteric.cpp:1349:96: warning: unused parameter 'efcheck' [-Wunused-parameter]
+ void readICs_ebe(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor, double const& efcheck, int & numpart)
+                                                                                                ^~~~~~~
+enteric.cpp:1349:111: warning: unused parameter 'numpart' [-Wunused-parameter]
+ void readICs_ebe(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor, double const& efcheck, int & numpart)
+                                                                                                               ^~~~~~~
+g++ -g main.o vector.o hydrosim.o newspline.o random.o eos.o matrix.o enteric.o -o vusphydro -lm -lgsl -lblas -lm -lstdc++ -L/projects/jnorhos/BSQ/splinter/build -lsplinter-3-0 -g -std=c++11
