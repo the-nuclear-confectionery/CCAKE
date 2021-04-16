@@ -114,7 +114,7 @@ public:
 	void svsigset(double tin, int i);
         void bsqsvsigset(double tin, int i);
 	void returnv_A();
-	void return_sv_A(int i);
+	void return_sv_A();
         void return_bsqsv_A(int i = 0); //optional value added by C. Plumberg
 	void returnA() ;
 	void setvisc(int etaconst,double bvf, double svf, double zTc, double sTc, double sig, int type);
@@ -259,7 +259,7 @@ void Particle<D>::returnv_A()
 }
 
 template <int D>
-void Particle<D>::return_sv_A(int i)
+void Particle<D>::return_sv_A()
 {
 	eta_o_tau=setas/stauRelax;
 
@@ -322,7 +322,7 @@ void Particle<D>::svsigset(double tin,int i)
         C=EOS.w()+ bigPI;
 
 
-        return_sv_A(i);
+        return_sv_A();
 
 
 
