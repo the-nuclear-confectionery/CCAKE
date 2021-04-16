@@ -115,7 +115,7 @@ public:
         void bsqsvsigset(double tin, int i);
 	void returnv_A();
 	void return_sv_A();
-        void return_bsqsv_A(int i = 0); //optional value added by C. Plumberg
+    void return_bsqsv_A();
 	void returnA() ;
 	void setvisc(int etaconst,double bvf, double svf, double zTc, double sTc, double sig, int type);
 	void frzcheck(double tin,int &count, int N);
@@ -271,17 +271,14 @@ void Particle<D>::return_sv_A()
 }
 
 template <int D>
-void Particle<D>::return_bsqsv_A(int i /*= 0*/)//optional value added by C. Plumberg
+void Particle<D>::return_bsqsv_A()
 {
-if (true){std::cerr << "Fix this! " <<__FILE__ << ":" << __LINE__ << std::endl;  exit(8);}
-
 	eta_o_tau=setas/stauRelax;
 
 	Agam=EOS.w()-EOS.dwds()*(EOS.s()+ bigPI/EOS.T() )- zeta/tauRelax ;//here goes a purple tag
 
 	Agam2=(Agam-eta_o_tau*(0.5-1/3.) -dwdsT1*shv.x[0][0])/gamma;
 	Ctot=C+eta_o_tau*(1/g2-1)/2.;
-
 }
 
 template <int D>
