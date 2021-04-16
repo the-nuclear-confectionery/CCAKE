@@ -439,19 +439,14 @@ void Particle<D>::setvisc(int etaconst,double bvf, double svf, double zTc, doubl
 	else if (type==3) // shear+bulk viscosity
 	{
 
-		if ((etaconst==1)||(etaconst==3)||(etaconst==4)) {// const eta/s
+		if ((etaconst==1)||(etaconst==3)||(etaconst==4))
+		{// const eta/s
 			setas=2*EOS.s()*svf;  // svf defines eta/s const (the two is needed for the definition in the code, don't remove!
-
-		if (true)
-		{
-			std::cerr << "Added missing curly bracket here to make code compile!  Double check that this is correct (and nothing else was inadvertently deleted from this section!" << std::endl;
-			exit(8);
 		}
-	}//this is the missing curly bracket
 
 		//	for TECHQM/Gubser set svf=0.08
 	}
-        else if (type==4) // BSQ+shear+bulk viscosity
+    else if (type==4) // BSQ+shear+bulk viscosity
 	{
 
 		if ((etaconst==1)||(etaconst==3)||(etaconst==4)) {// const eta/s
