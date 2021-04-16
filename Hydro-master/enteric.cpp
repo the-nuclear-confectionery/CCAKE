@@ -536,115 +536,10 @@ void readICs_iccing(string &firstry,  int &_Ntable3,Particle<2> *&_p,double fact
 }
 
 
-//iccing
-void readICs_iccing(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,double const& sfcheck, int & numpart, eos EOS)
+void readICs_iccing( string &firstry, int &_Ntable3, Particle<3> *&_p,
+					 double factor, double const & efcheck, int & numpart, eos EOS)
 {
-
-// added this function to get compilation!
-if (true){std::cerr << "Fix this! " <<__FILE__ << ":" << __LINE__ << std::endl;  exit(8);}
-
-
-  string filename;
-  filename = ifolder+firstry;
-  //nameenter:
-  ifstream input(filename.c_str());
-        if (!input.is_open())
-        {
-        cout << "Can't open " << filename << endl;
-        exit(1);
-        }
-
-        string line;
-        vector<double> xsub,ysub,esub,rBsub,rSsub,rQsub;
-
-        getline(input,line);
-        std::vector<std::string> gx = split(line, ' ');
-
-        double stepx,stepy;
-        stringstream s;
-        s << gx[1];
-        s >> stepx;
-
-
-        stringstream s1;
-        s1 << gx[2];
-        s1 >> stepy;
-
-        cout << "dx=dy=" << stepx << " " << stepy << endl;
-
-
-        while (getline(input,line)) {
-        std::vector<double> y (3,0) ;
-
-        std::vector<std::string> x = split(line, ' ');
-
-
-        for(int j=0;j<6;j++)
-        {
-        stringstream ss;
-        ss << x[j];
-        ss >> y[j];
-        }
-
-        //if ((factor*y[2])>0.01){
-                xsub.push_back(y[0]);
-                ysub.push_back(y[1]);
-                esub.push_back(y[2]);
-                rBsub.push_back(y[3]);
-                rSsub.push_back(y[4]);
-                rQsub.push_back(y[5]);
-        //}
-
-        }
-        input.close();
-
-
-    _Ntable3=xsub.size();
-    _p= new Particle<3>[_Ntable3];
-
-    cout << "After e-cutoff=" << _Ntable3 << endl;
-
-
-    int kk=_Ntable3;
-    numpart=0;
-
-
-
-    for(int j=0;j<_Ntable3;j++){
-      _p[j].r.x[0]=xsub[j];
-      _p[j].r.x[1]=ysub[j];
-      // _p[j].e_sub=EOS.e_out(factor*esub[j]);
-      _p[j].s_an=factor*esub[j];
-      _p[j].u.x[0]=0;
-      _p[j].u.x[1]=0;
-      _p[j].eta_sigma  = 1;
-      _p[j].sigmaweight=stepx*stepy;
-      _p[j].Bulk = 0;
-                        _p[j].rhoB=rBsub[j];
-                        _p[j].rhoS=rSsub[j];
-                        _p[j].rhoQ=rQsub[j];
-
-
-
-      if (_p[j].s_an>sfcheck)
-        {
-          _p[j].Freeze=0;
-        }
-      else
-        {
-          _p[j].Freeze=4;
-          --kk;
-          ++numpart;
-        }
-    }
-
-    cout << "After freezeout=" << _Ntable3-numpart << endl;
-
-
-
 }
-
-
 
 
 //event by event for giorgio
@@ -743,8 +638,6 @@ void readICs_gebe(string &firstry,  int &_Ntable3,Particle<2> *&_p,double factor
     cout << "After freezeout=" << _Ntable3-numpart << endl;
 
 }
-
-
 
 
 
