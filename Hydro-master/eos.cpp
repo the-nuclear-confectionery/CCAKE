@@ -840,14 +840,10 @@ bool eos::update_s(double sin, double Bin, double Sin, double Qin) { //update th
     return false;
 }  
 
-//double eos::s_out(double ein, double Bin, double Sin, double Qin) {   //update the t and mu position based on input. Returns entropy if found, returns -1 if failed
-
-// first argument changed ein --> sin by C. Plumberg
-double eos::s_out(double sin, double Bin, double Sin, double Qin) {   //update the t and mu position based on input. Returns entropy if found, returns -1 if failed
-    if (rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+double eos::s_out(double ein, double Bin, double Sin, double Qin) {   //update the t and mu position based on input. Returns entropy if found, returns -1 if failed
+    if (rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
         return entrVal;
     }
-if (true){std::cerr << "Fix this! " <<__FILE__ << ":" << __LINE__ << std::endl;  exit(8);}
 
     double t0 = tbqsPosition(0);
     double mub0 = tbqsPosition(1);
@@ -864,7 +860,7 @@ if (true){std::cerr << "Fix this! " <<__FILE__ << ":" << __LINE__ << std::endl; 
     } else {
         tbqs(t0 + t10, mub0, muq0, mus0);
     }
-    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
         return entrVal;
     }
     if(t0 - t10 < minT) {
@@ -872,7 +868,7 @@ if (true){std::cerr << "Fix this! " <<__FILE__ << ":" << __LINE__ << std::endl; 
     } else {
         tbqs(t0 - t10, mub0, muq0, mus0);
     }
-    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
         return entrVal;
     }
 
@@ -882,7 +878,7 @@ if (true){std::cerr << "Fix this! " <<__FILE__ << ":" << __LINE__ << std::endl; 
     } else {
         tbqs(t0, mub0 + muB10, muq0, mus0);
     }
-    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
         return entrVal;
     }
     if(mub0 - muB10 < minMuB) {
@@ -890,7 +886,7 @@ if (true){std::cerr << "Fix this! " <<__FILE__ << ":" << __LINE__ << std::endl; 
     } else {
         tbqs(t0, mub0 - muB10, muq0, mus0);
     }
-    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
         return entrVal;
     }
 
@@ -900,7 +896,7 @@ if (true){std::cerr << "Fix this! " <<__FILE__ << ":" << __LINE__ << std::endl; 
     } else {
         tbqs(t0, mub0, muq0 + muQ10, mus0);
     }
-    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
         return entrVal;
     }
     if(muq0 - muQ10 < minMuQ) {
@@ -908,7 +904,7 @@ if (true){std::cerr << "Fix this! " <<__FILE__ << ":" << __LINE__ << std::endl; 
     } else {
         tbqs(t0, mub0, muq0 - muQ10, mus0);
     }
-    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
         return entrVal;
     }
 
@@ -918,7 +914,7 @@ if (true){std::cerr << "Fix this! " <<__FILE__ << ":" << __LINE__ << std::endl; 
     } else {
         tbqs(t0, mub0, muq0, mus0 + muS10);
     }
-    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
         return entrVal;
     }
     if(mus0 - muS10 < maxMuS) {
@@ -926,13 +922,13 @@ if (true){std::cerr << "Fix this! " <<__FILE__ << ":" << __LINE__ << std::endl; 
     } else {
         tbqs(t0, mub0, muq0, mus0 - muS10);
     }
-    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
         return entrVal;
     }
 
     //check mu = 0
     tbqs(t0, 0, 0, 0);
-    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
         return entrVal;
     }
     
@@ -1061,7 +1057,7 @@ int rootfinder_febqs(const gsl_vector *x, void *params, gsl_vector *f) {
 
 
 
-bool eos::rootfinder4D(double entrGiven, double eGiven, double rhoBGiven, double rhoSGiven, double rhoQGiven, double error, size_t steps) {
+bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, double rhoSGiven, double rhoQGiven, double error, size_t steps) {
 
     //declare x = (T, muB, muS)
     gsl_vector *x = gsl_vector_alloc(4);
@@ -1072,14 +1068,14 @@ bool eos::rootfinder4D(double entrGiven, double eGiven, double rhoBGiven, double
 
     //initialize the rootfinder equation to the correct variable quantities
     bool isEntropy = false;
-    if(eGiven == 0) {
+    if(e_or_s_mode == 0) {
         isEntropy = true;
     }
     rootfinder_parameters p;
     if(isEntropy) {
-        p.set(entrGiven, rhoBGiven, rhoQGiven, rhoSGiven, entrSpline, bSpline, qSpline, sSpline);
+        p.set(e_or_s_Given, rhoBGiven, rhoQGiven, rhoSGiven, entrSpline, bSpline, qSpline, sSpline);
         } else {
-        p.set(eGiven, rhoBGiven, rhoQGiven, rhoSGiven, eSpline, bSpline, qSpline, sSpline);
+        p.set(e_or_s_Given, rhoBGiven, rhoQGiven, rhoSGiven, eSpline, bSpline, qSpline, sSpline);
         }
 
     //initialize multiroot solver
