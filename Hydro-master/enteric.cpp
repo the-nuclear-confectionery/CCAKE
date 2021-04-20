@@ -477,14 +477,14 @@ void readICs_iccing(string &firstry,  int &_Ntable3,Particle<2> *&_p,double fact
 	ss >> y[j];
 	}
 
-	//if ((factor*y[2])>0.01){
+	if ((factor*y[2])>0.01){
 		xsub.push_back(y[0]);
 		ysub.push_back(y[1]);
 		esub.push_back(y[2]);
 		rBsub.push_back(y[3]);
 		rSsub.push_back(y[4]);
 		rQsub.push_back(y[5]);
-	//}
+	}
 
 	}
 	input.close();
@@ -505,7 +505,7 @@ void readICs_iccing(string &firstry,  int &_Ntable3,Particle<2> *&_p,double fact
       _p[j].r.x[0]=xsub[j];
       _p[j].r.x[1]=ysub[j];
       // _p[j].e_sub=EOS.e_out(factor*esub[j]);
-      _p[j].s_an=factor*esub[j];
+      _p[j].e_sub=factor*esub[j];
       _p[j].u.x[0]=0;
       _p[j].u.x[1]=0;
       _p[j].eta_sigma  = 1;
