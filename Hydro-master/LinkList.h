@@ -1387,20 +1387,21 @@ void LinkList<D>::bsqsvconservation_E()
 template <int D>
 void LinkList<D>::freezeset()
 {
-	cs2=_p[0].EOS.cs2out(freezeoutT,0.0,0.0,0.0);
-	wfz=_p[0].EOS.wfz(freezeoutT,0.0,0.0,0.0);
-                if (true){std::cerr << "Fix this!" << std::endl;  exit(8);}
+	//
+	cs2=_p[0].EOS.cs2out(freezeoutT);
+	wfz=_p[0].EOS.wfz(freezeoutT);
+    //            if (true){std::cerr << "Fix this!" << std::endl;  exit(8);}
 }
 
 template <int D>
 void LinkList<D>::bsqsvfreezeset()
 {
 	double freezeoutB=0.0,freezeoutS=0.0,freezeoutQ=0.0;
-	if (true)
+	/*if (true)
 	{
 		std::cerr << "Fix this!  set freezeout B,Q,S values explicitly!" << std::endl;
 		exit(8);
-	}
+	}*/
 	cs2=_p[0].EOS.cs2out(freezeoutT,freezeoutB,freezeoutS,freezeoutQ);
 	wfz=_p[0].EOS.wfz(freezeoutT,freezeoutB,freezeoutS,freezeoutQ);
 } 

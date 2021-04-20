@@ -806,7 +806,7 @@ void BSQshear(LinkList<D>  &linklist)  // shear+bulk Equations of motion, only s
      	for(int i=0; i<linklist.n();i++)
 	{
 		int curfrz=0;//added by Christopher Plumberg to get compilation
-		linklist.bsqsvoptimization2(i,linklist.t,curfrz);
+		linklist.bsqsvoptimization(i,linklist.t,curfrz);	// NOT bsqsvoptimization2!!!
 		if (true){std::cerr << "Fix this! " <<__FILE__ << ":" << __LINE__ << std::endl;  exit(8);}
 
 
