@@ -187,7 +187,6 @@ public:
 	double ux(double t, double x, double y);
 	double uy(double t, double x, double y);
 	void updateIC();
-        void bsqupdateIC();
 //	void p_anis(int &in);
 //	void vp_anis(int &in);
 //	void s_anis(int in);

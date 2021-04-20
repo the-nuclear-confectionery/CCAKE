@@ -661,7 +661,7 @@ else if (ictype==iccing)
        else if ((ictype==iccing))
 {
 
-   	linklist.bsqupdateIC();
+   	linklist.updateIC();
        cout << "bsq optimization done" << endl;
        linklist.bsqsvfreezeset();
    }
@@ -720,7 +720,7 @@ void nextevent(int i, LinkList<D> &linklist)
         if ((linklist.gtyp==0)||(linklist.gtyp==1)||(linklist.gtyp==2)||(linklist.gtyp==3)||(linklist.gtyp==4)||(linklist.gtyp==5))
 	linklist.updateIC();
         else if ((linklist.gtyp==6))
-        linklist.bsqupdateIC();
+        linklist.updateIC();
 
   	 if (linklist.visc==1) linklist.etas_set();
 
