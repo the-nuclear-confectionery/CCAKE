@@ -735,10 +735,20 @@ double eos::Atable()
 	return Aout;
 };
 
+double eos::cs2out(double Tt) {  //return cs2 given t and mu's=0
+    tbqs(Tt, 0.0, 0.0, 0.0);
+    return cs2Val;
+} 
+
 double eos::cs2out(double Tt, double muBin, double muQin, double muSin) {  //return cs2 given t and mu's
     tbqs(Tt, muBin, muQin, muSin);
     return cs2Val;
 } 
+
+double eos::wfz(double Tt) {   // return e + p for tbqs
+    tbqs(Tt, 0.0, 0.0, 0.0);
+    return eVal + pVal;
+}
 
 double eos::wfz(double Tt, double muBin, double muQin, double muSin) {   // return e + p for tbqs
     tbqs(Tt, muBin, muQin, muSin);
