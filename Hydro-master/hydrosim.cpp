@@ -806,9 +806,7 @@ void BSQshear(LinkList<D>  &linklist)  // shear+bulk Equations of motion, only s
      	for(int i=0; i<linklist.n();i++)
 	{
 		int curfrz=0;//added by Christopher Plumberg to get compilation
-		linklist.bsqsvoptimization(i,linklist.t,curfrz);	// NOT bsqsvoptimization2!!!
-		if (true){std::cerr << "Fix this! " <<__FILE__ << ":" << __LINE__ << std::endl;  exit(8);}
-
+		linklist.bsqsvoptimization(i);	// NOT bsqsvoptimization2!!! fix arguments accordingly!!!
 
 		if ((linklist._p[i].eta<0)||isnan(linklist._p[i].eta))
 		{
@@ -864,9 +862,8 @@ void BSQshear(LinkList<D>  &linklist)  // shear+bulk Equations of motion, only s
 	for(int i=0; i<linklist.n();i++)
 	{
 		//      Computes gradients to obtain dsigma/dt
-		//linklist.bsqoptimization2(i,linklist.t,curfrz);
-                linklist.bsqsvoptimization2(i,linklist.t,curfrz); //added by C. Plumberg
-                if (true){std::cerr << "Fix this! " <<__FILE__ << ":" << __LINE__ << std::endl;  exit(8);}
+        linklist.bsqsvoptimization2(i,linklist.t,curfrz);
+
 		linklist._p[i].dsigma_dt = -linklist._p[i].sigma*(linklist._p[i].gradV.x[0][0]+linklist._p[i].gradV.x[1][1]) ;
 
 		linklist._p[i].bsqsvsigset(linklist.t,i);

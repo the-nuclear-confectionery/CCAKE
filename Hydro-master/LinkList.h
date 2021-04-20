@@ -1869,29 +1869,27 @@ void LinkList<D>::voptimization(int a)
 template <int D>//if we include the SPH over rhoB, rhoS, rhoQ
 void LinkList<D>::bsqsvoptimization(int a)
 {
-
     _p[a].sigma = 0;
     _p[a].eta = 0;
     Vector<int,D> i;
 	for(i.x[0]=-2; i.x[0]<=2; i.x[0]++)
-        {
-        for(i.x[1]=-2; i.x[1]<=2; i.x[1]++)
-        {
-			int b=lead[triToSum(dael[a]+i, size)];
-			while(b!=-1 )
-			{
-				double kern=kernel(_p[a].r-_p[b].r);
-				_p[a].sigma +=_p[b].sigmaweight*kern;
-				_p[a].eta   += _p[b].sigmaweight*_p[b].eta_sigma*kern;
-				_p[a].rhoB  += _p[b].sigmaweight*_p[b].rhoB_sigma*kern;
-				_p[a].rhoS  += _p[b].sigmaweight*_p[b].rhoS_sigma*kern;
-				_p[a].rhoQ  += _p[b].sigmaweight*_p[b].rhoQ_sigma*kern;
-				
-				b=link[b];
-			}
-        }
-	}
+    for(i.x[1]=-2; i.x[1]<=2; i.x[1]++)
+    {
+		int b = lead[triToSum(dael[a]+i, size)];
+		while( b!=-1 )
+		{
+			double kern  = kernel(_p[a].r-_p[b].r);
+			_p[a].sigma += _p[b].sigmaweight*kern;
+			_p[a].eta   += _p[b].sigmaweight*_p[b].eta_sigma*kern;
+			_p[a].rhoB  += _p[b].sigmaweight*_p[b].rhoB_sigma*kern;
+			_p[a].rhoS  += _p[b].sigmaweight*_p[b].rhoS_sigma*kern;
+			_p[a].rhoQ  += _p[b].sigmaweight*_p[b].rhoQ_sigma*kern;
+			
+			b=link[b];
+		}
+    }
 
+	return;
 }
 
 template <int D>
