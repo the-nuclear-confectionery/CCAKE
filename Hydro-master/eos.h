@@ -65,6 +65,8 @@ class eos {
         //If any of the perturbed solutions succeed, the update_s will return 1, otherwise returns 0
         //If rootfinder fails, the tbqs position defaults to the previous value
         bool update_s(double sin, double Bin, double Sin, double Qin);
+		// for backwards compatibility
+        bool update_s(double sin);
 
         //finds and initializes position in T and mu's with given e,BSQ - rootfinder
         //Updates the t and mu position and returns entropy if found, returns -1 if failed
@@ -73,7 +75,8 @@ class eos {
         //If any of the perturbed solutions succeed, the s_out will return the entropy, otherwise returns -1
         //If rootfinder fails, the tbqs position defaults to the previous value
         double s_out(double ein, double Bin, double Sin, double Qin);
-        
+        // for backwards compatibility
+        double s_out(double ein);
         
         
 

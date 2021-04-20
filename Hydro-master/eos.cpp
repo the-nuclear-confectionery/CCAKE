@@ -745,6 +745,10 @@ double eos::wfz(double Tt, double muBin, double muQin, double muSin) {   // retu
     return eVal + pVal;
 }
 
+bool eos::update_s(double sin) { //update the t position (mu=0) based on input. Returns 1 if found, returns 0 if failed
+	return update_s(sin, 0.0, 0.0, 0.0);
+}
+
 bool eos::update_s(double sin, double Bin, double Sin, double Qin) { //update the t and mu position based on input. Returns 1 if found, returns 0 if failed
     if (rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
         return true;
@@ -839,6 +843,10 @@ bool eos::update_s(double sin, double Bin, double Sin, double Qin) { //update th
     tbqs(t0, mub0, muq0, mus0);
     return false;
 }  
+
+double eos::s_out(double ein) {   //update the t position (mu=0) based on input. Returns entropy if found, returns -1 if failed
+	return s_out(ein, 0.0, 0.0, 0.0);
+}
 
 double eos::s_out(double ein, double Bin, double Sin, double Qin) {   //update the t and mu position based on input. Returns entropy if found, returns -1 if failed
     if (rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
