@@ -2328,37 +2328,17 @@ void LinkList<D>::updateIC()
 
 	for (int i=0;i<_n;i++)
 	{
-		if (gtyp!=5)
-			_p[i].s_an = _p[i].EOS.s_out(_p[i].e_sub,0.0,0.0,0.0);
-                 _p[i].EOS.update_s(_p[i].s_an,0.0,0.0,0.0);
-                if (true){std::cerr << "Fix this!" << std::endl;  exit(8);}
-		if (gtyp==5) _p[i].e_sub=_p[i].EOS.e();
-                _p[i].gamma=_p[i].gamcalc();
-		_p[i].sigmaweight  *= _p[i].s_an*_p[i].gamma*t0;
-
-	}
-	if (gtyp!=3) guess();
-	else guess2();
-}
-
-template <int D>
-void LinkList<D>::bsqupdateIC()
-{
-
-
-	for (int i=0;i<_n;i++)
-	{
-	    if (gtyp!=5) _p[i].s_an=_p[i].EOS.s_out(_p[i].e_sub, _p[i].B_sub, _p[i].S_sub, _p[i].Q_sub);
+	    if (gtyp!=5) _p[i].s_an=_p[i].EOS.s_out(_p[i].e_sub, _p[i].rhoB, _p[i].rhoS, _p[i].rhoQ);
 
 
         _p[i].EOS.update_s(_p[i].s_an, _p[i].B_an, _p[i].S_an, _p[i].Q_an);
-		if (gtyp==5) _p[i].e_sub=_p[i].EOS.e();
-                             _p[i].B_sub=_p[i].EOS.B();
-                             _p[i].S_sub=_p[i].EOS.S();
-                             _p[i].Q_sub=_p[i].EOS.Q();
-                             _p[i].gamma=_p[i].gamcalc();
-		             _p[i].sigmaweight  *= _p[i].s_an*_p[i].gamma*t0;
-
+		if (gtyp==5)
+			_p[i].e_sub=_p[i].EOS.e();
+		_p[i].gamma=_p[i].gamcalc();
+		_p[i].sigmaweight *= _p[i].s_an*_p[i].gamma*t0;
+		_p[i].rhoB *= _p[i].B_an*_p[i].gamma*t0;	// confirm with Jaki
+		_p[i].rhoS *= _p[i].S_an*_p[i].gamma*t0;	// confirm with Jaki
+		_p[i].rhoQ *= _p[i].Q_an*_p[i].gamma*t0;	// confirm with Jaki
 	}
 	if (gtyp!=3) guess();
 	else guess2();
@@ -2400,8 +2380,7 @@ void LinkList<D>::guess2()
 		double div2=_p[i].gamma*t0;
 		_p[i].s_sub=_p[i].sigma/div2;
 
-		_p[i].EOS.update_s(_p[i].s_sub,0.0,0.0,0.0);
-                if (true){std::cerr << "Fix this!" << std::endl;  exit(8);}
+		_p[i].EOS.update_s(_p[i].s_sub);	//single argument version
 
 //		T00[i]/=div2;
 //		Tx0[i]/=div2;
@@ -2492,8 +2471,7 @@ void LinkList<D>::guess()
 
                 _p[i].s_sub=_p[i].sigma/_p[i].gamma/t0;
 
-                 _p[i].EOS.update_s(_p[i].s_sub,0.0,0.0,0.0);
-                if (true){std::cerr << "Fix this!" << std::endl;  exit(8);}
+                 _p[i].EOS.update_s(_p[i].s_sub);	//single-argument version
 
 	        //if (abs(_p[i].r.x[1])<0.05)cout << _p[i].r << " " << 0.1973*_p[i].EOS.T()<< endl;
 
@@ -2568,8 +2546,7 @@ void LinkList<D>::qmflow()
 
 		_p[i].s_sub=_p[i].sigma/_p[i].gamma/t0;
 
-		_p[i].EOS.update_s(_p[i].s_sub,0.0,0.0,0.0);
-                if (true){std::cerr << "Fix this!" << std::endl;  exit(8);}
+		_p[i].EOS.update_s(_p[i].s_sub);	//single-argument version
 	}
 
 
