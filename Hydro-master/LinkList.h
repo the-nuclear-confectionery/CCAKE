@@ -1388,23 +1388,18 @@ template <int D>
 void LinkList<D>::freezeset()
 {
 	//
-	cs2=_p[0].EOS.cs2out(freezeoutT);
-	wfz=_p[0].EOS.wfz(freezeoutT);
-    //            if (true){std::cerr << "Fix this!" << std::endl;  exit(8);}
+	cs2=_p[0].EOS.cs2out(freezeoutT);	// single arguments for backward compatibility
+	wfz=_p[0].EOS.wfz(freezeoutT);		// single arguments for backward compatibility
 }
 
 template <int D>
 void LinkList<D>::bsqsvfreezeset()
 {
-	double freezeoutB=0.0,freezeoutS=0.0,freezeoutQ=0.0;
-	/*if (true)
-	{
-		std::cerr << "Fix this!  set freezeout B,Q,S values explicitly!" << std::endl;
-		exit(8);
-	}*/
-	cs2=_p[0].EOS.cs2out(freezeoutT,freezeoutB,freezeoutS,freezeoutQ);
-	wfz=_p[0].EOS.wfz(freezeoutT,freezeoutB,freezeoutS,freezeoutQ);
-} 
+	double freezeoutB=0.0, freezeoutS=0.0, freezeoutQ=0.0;	// eventually set with parametrization of freeze-out hypersurface in phase diagram, read in from file, etc.
+	cs2 = _p[0].EOS.cs2out( freezeoutT, freezeoutB, freezeoutS, freezeoutQ );
+	wfz = _p[0].EOS.wfz(    freezeoutT, freezeoutB, freezeoutS, freezeoutQ );
+}
+
 template <int D>
 void LinkList<D>::etas_set()
 {
@@ -1882,21 +1877,18 @@ void LinkList<D>::bsqsvoptimization(int a)
         {
         for(i.x[1]=-2; i.x[1]<=2; i.x[1]++)
         {
-
-                 int b=lead[triToSum(dael[a]+i, size)];
-                 while(b!=-1 )
-                 {
-                 	double kern=kernel(_p[a].r-_p[b].r);
-                    	_p[a].sigma +=_p[b].sigmaweight*kern;
-                    	_p[a].eta +=  _p[b].sigmaweight*_p[b].eta_sigma*kern;
-											_p[a].rhoB +=  _p[b].sigmaweight*_p[b].rhoB_sigma*kern;
-											_p[a].rhoS +=  _p[b].sigmaweight*_p[b].rhoS_sigma*kern;
-											_p[a].rhoQ +=  _p[b].sigmaweight*_p[b].rhoQ_sigma*kern;
-
-
-
-                   	b=link[b];
-                 }
+			int b=lead[triToSum(dael[a]+i, size)];
+			while(b!=-1 )
+			{
+				double kern=kernel(_p[a].r-_p[b].r);
+				_p[a].sigma +=_p[b].sigmaweight*kern;
+				_p[a].eta   += _p[b].sigmaweight*_p[b].eta_sigma*kern;
+				_p[a].rhoB  += _p[b].sigmaweight*_p[b].rhoB_sigma*kern;
+				_p[a].rhoS  += _p[b].sigmaweight*_p[b].rhoS_sigma*kern;
+				_p[a].rhoQ  += _p[b].sigmaweight*_p[b].rhoQ_sigma*kern;
+				
+				b=link[b];
+			}
         }
 	}
 
@@ -2338,7 +2330,8 @@ void LinkList<D>::updateIC()
 
 	for (int i=0;i<_n;i++)
 	{
-	        if (gtyp!=5) _p[i].s_an=_p[i].EOS.s_out(_p[i].e_sub,0.0,0.0,0.0);
+		if (gtyp!=5)
+			_p[i].s_an = _p[i].EOS.s_out(_p[i].e_sub,0.0,0.0,0.0);
                  _p[i].EOS.update_s(_p[i].s_an,0.0,0.0,0.0);
                 if (true){std::cerr << "Fix this!" << std::endl;  exit(8);}
 		if (gtyp==5) _p[i].e_sub=_p[i].EOS.e();
@@ -2357,8 +2350,10 @@ void LinkList<D>::bsqupdateIC()
 
 	for (int i=0;i<_n;i++)
 	{
-	        if (gtyp!=5) _p[i].s_an=_p[i].EOS.s_out(_p[i].e_sub, _p[i].B_sub, _p[i].S_sub, _p[i].Q_sub);
-                 _p[i].EOS.update_s(_p[i].s_an, _p[i].B_an, _p[i].S_an, _p[i].Q_an);
+	    if (gtyp!=5) _p[i].s_an=_p[i].EOS.s_out(_p[i].e_sub, _p[i].B_sub, _p[i].S_sub, _p[i].Q_sub);
+
+
+        _p[i].EOS.update_s(_p[i].s_an, _p[i].B_an, _p[i].S_an, _p[i].Q_an);
 		if (gtyp==5) _p[i].e_sub=_p[i].EOS.e();
                              _p[i].B_sub=_p[i].EOS.B();
                              _p[i].S_sub=_p[i].EOS.S();

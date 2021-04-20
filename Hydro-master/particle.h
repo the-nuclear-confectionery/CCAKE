@@ -216,15 +216,7 @@ void Particle<D>::calc(double tin)
         v =(1/gamma)*u;
         double s_in2= eta/gamma/tin;
         qmom=((EOS.e()+ EOS.p())*gamma/sigma)*u;
-        EOS.update_s(s_in2, 0.0, 0.0, 0.0);
-	if (true)
-	{
-		std::cerr << "Fix this!  Set muB=muQ=muS=0 just to make code compile!" << std::endl;
-		exit(8);
-	}
-
-
-
+        EOS.update_s(s_in2);	// single-argument version
 }
 
 //  Computes gamma and velocity
@@ -539,12 +531,7 @@ void Particle<D>::setvisc(int etaconst,double bvf, double svf, double zTc, doubl
 		else zeta=-13.77*t2*t2+27.55*t2-13.45;
 
 
-		tauRelax =5.*zeta/(pow((1-EOS.cs2out(EOS.T(), 0.0, 0.0, 0.0)),2)*(EOS.e()+EOS.p()));
-        if (true)
-        {
-                std::cerr << "Fix this!  Set muB=muQ=muS=0 just to make code compile!" << std::endl;
-                exit(8);
-        }
+		tauRelax =5.*zeta/(pow((1-EOS.cs2out(EOS.T())),2)*(EOS.e()+EOS.p()));	// single-argument version of cs2out
 
 		}
 		else if (etaconst==4) {
@@ -569,13 +556,8 @@ void Particle<D>::setvisc(int etaconst,double bvf, double svf, double zTc, doubl
 		else if (t2<0.995) zeta=0.9*exp(min1/0.0025)+0.22*exp(min1/0.022)+0.03;
 		else zeta=-13.77*t2*t2+27.55*t2-13.45;
 
-		tauRelax =5.*zeta/(pow((1-EOS.cs2out(EOS.T(), 0.0, 0.0, 0.0)),2)*(EOS.e()+EOS.p()));
+		tauRelax =5.*zeta/(pow((1-EOS.cs2out(EOS.T())),2)*(EOS.e()+EOS.p()));	// single-argument version of cs2out
 
-        if (true)
-        {
-                std::cerr << "Fix this!  Set muB=muQ=muS=0 just to make code compile!" << std::endl;
-                exit(8);
-        }
 		}
 
 
