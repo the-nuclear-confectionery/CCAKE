@@ -138,7 +138,7 @@ class eos {
 
         //finds t,mu for a given e and BSQ or s and BSQ
         //returns 1 if the point was found. Returns 0 if failed
-        bool rootfinder4D(double entrGiven, double eGiven, double rhoBGiven, double rhoSGiven, double rhoQgiven, double error, size_t steps);
+        bool rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, double rhoSGiven, double rhoQgiven, double error, size_t steps);
         //finds lines of constant e, p, entropy, or gibbs in the eos space
         //returns 1 if the point was found. Returns 0 if failed
         //quant type can be "e","p","entr","gibbs"
