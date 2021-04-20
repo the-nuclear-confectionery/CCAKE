@@ -1,15 +1,16 @@
 OBJS = main.o vector.o hydrosim.o newspline.o random.o eos.o matrix.o enteric.o
 CC = g++
-DEBUG = -g -std=c++11
-WARNINGS= -Wall -Wextra -pedantic -Wconversion -Wcast-align -Wunused -Wshadow -Wpointer-arith -Wno-missing-braces 
-OPTIMIZATION= -O0
-#OPTIMIZATION= -OFast -funroll-loops -fvectorize -finline-functions -s -DNDEBUG -march=native -mtune=native
-# change to -O3 or -OFast for production
+DEBUG = -g
+STANDARD= -std=c++11
+WARNINGS= -Wall -Wextra -pedantic -Wconversion -Wcast-align -Wunused -Wshadow -Wpointer-arith
+OPTIMIZATION= -Og
+#OPTIMIZATION= -Ofast -funroll-loops -fvectorize -finline-functions -s -DNDEBUG -march=native -mtune=native
+# change to -O3 or -Ofast for production
 EIGENPATH=$(realpath ../eigen)
 SPLINTERPATH=$(realpath ../splinter/include)
 SPLINTERBUILDPATH=$(realpath ../splinter/build)
-CFLAGS = $(WARNINGS) $(OPTIMIZATION) -c -I$(EIGENPATH) -I$(SPLINTERPATH) $(DEBUG)
-LDFLAGS = -lm -lgsl -lblas -lm -lstdc++ -L$(SPLINTERBUILDPATH) -lsplinter-3-0 $(DEBUG)
+CFLAGS = $(WARNINGS) $(OPTIMIZATION) -c -I$(EIGENPATH) -I$(SPLINTERPATH) $(DEBUG) $(STANDARD)
+LDFLAGS = -lm -lgsl -lblas -lm -lstdc++ -L$(SPLINTERBUILDPATH) -lsplinter-3-0 $(DEBUG) $(STANDARD)
 
 vusphydro : $(OBJS)
 	$(CC) -g $(OBJS) -o vusphydro $(LDFLAGS)

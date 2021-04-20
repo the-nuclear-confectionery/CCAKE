@@ -1,57 +1,4 @@
-g++ -Wall -c -I/projects/jnorhos/BSQ/eigen -I/projects/jnorhos/BSQ/splinter/include -g -std=c++11  main.cpp
-In file included from enteric.h:15:0,
-                 from main.cpp:17:
-LinkList.h: In member function 'void LinkList<D>::bsqupdateIC()':
-LinkList.h:2361:3: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
-   if (gtyp==5) _p[i].e_sub=_p[i].EOS.e();
-   ^~
-LinkList.h:2362:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
-                              _p[i].B_sub=_p[i].EOS.B();
-                              ^~
-In file included from main.cpp:17:0:
-enteric.h: In function 'void manualenter(_inputIC&, LinkList<D>&) [with int D = 2]':
-enteric.h:721:83: warning: 'imax' may be used uninitialized in this function [-Wmaybe-uninitialized]
-   cout << tmax*197.3 << " " << std::setprecision(20) << rmax << " " << linklist._p[imax].EOS.e() << endl;
-                                                                        ~~~~~~~~~~~^
-enteric.h: In function 'void manualenter(_inputIC&, LinkList<D>&) [with int D = 3]':
-enteric.h:721:83: warning: 'imax' may be used uninitialized in this function [-Wmaybe-uninitialized]
-   cout << tmax*197.3 << " " << std::setprecision(20) << rmax << " " << linklist._p[imax].EOS.e() << endl;
-                                                                        ~~~~~~~~~~~^
-g++ -Wall -c -I/projects/jnorhos/BSQ/eigen -I/projects/jnorhos/BSQ/splinter/include -g -std=c++11  vector.cpp
-g++ -Wall -c -I/projects/jnorhos/BSQ/eigen -I/projects/jnorhos/BSQ/splinter/include -g -std=c++11  hydrosim.cpp
-In file included from rungekutta4.h:7:0,
-                 from hydrosim.cpp:16:
-LinkList.h: In member function 'void LinkList<D>::bsqupdateIC()':
-LinkList.h:2361:3: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
-   if (gtyp==5) _p[i].e_sub=_p[i].EOS.e();
-   ^~
-LinkList.h:2362:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
-                              _p[i].B_sub=_p[i].EOS.B();
-                              ^~
-hydrosim.cpp: In function 'void svSimulation(double, LinkList<2>&)':
-hydrosim.cpp:174:7: warning: unused variable 'cc' [-Wunused-variable]
-   int cc=0;
-       ^~
-hydrosim.cpp: In function 'void BSQSimulation(double, LinkList<2>&)':
-hydrosim.cpp:282:7: warning: unused variable 'cc' [-Wunused-variable]
-   int cc=0;
-       ^~
-g++ -Wall -c -I/projects/jnorhos/BSQ/eigen -I/projects/jnorhos/BSQ/splinter/include -g -std=c++11  newspline.cpp
-g++ -Wall -c -I/projects/jnorhos/BSQ/eigen -I/projects/jnorhos/BSQ/splinter/include -g -std=c++11  random.cpp
-g++ -Wall -c -I/projects/jnorhos/BSQ/eigen -I/projects/jnorhos/BSQ/splinter/include -g -std=c++11  eos.cpp
-g++ -Wall -c -I/projects/jnorhos/BSQ/eigen -I/projects/jnorhos/BSQ/splinter/include -g -std=c++11  matrix.cpp
-g++ -Wall -c -I/projects/jnorhos/BSQ/eigen -I/projects/jnorhos/BSQ/splinter/include -g -std=c++11  enteric.cpp
-In file included from enteric.h:15:0,
-                 from enteric.cpp:15:
-LinkList.h: In member function 'void LinkList<D>::bsqupdateIC()':
-LinkList.h:2361:3: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
-   if (gtyp==5) _p[i].e_sub=_p[i].EOS.e();
-   ^~
-LinkList.h:2362:30: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'
-                              _p[i].B_sub=_p[i].EOS.B();
-                              ^~
-g++ -g main.o vector.o hydrosim.o newspline.o random.o eos.o matrix.o enteric.o -o vusphydro -lm -O3 -lgsl -lblas -lm -lstdc++ -L/projects/jnorhos/BSQ/splinter/build -lsplinter-3-0 -g -std=c++11 
-g++ -Wall -Wextra -pedantic -Wconversion -Wcast-align -Wunused -Wshadow -Wpointer-arith -Wno-missing-braces  -O0 -c -I/projects/jnorhos/BSQ/eigen -I/projects/jnorhos/BSQ/splinter/include -g -std=c++11 main.cpp
+g++ -Wall -Wextra -pedantic -Wconversion -Wcast-align -Wunused -Wshadow -Wpointer-arith -Og -c -I/projects/jnorhos/BSQ/eigen -I/projects/jnorhos/BSQ/splinter/include -g -std=c++11 main.cpp
 In file included from /projects/jnorhos/BSQ/eigen/Eigen/Core:165:0,
                  from /projects/jnorhos/BSQ/eigen/Eigen/Dense:1,
                  from /projects/jnorhos/BSQ/splinter/include/../../splinter/include/definitions.h:35,
@@ -471,12 +418,8 @@ enteric.h: In function 'void manualenter(_inputIC&, LinkList<D>&) [with int D = 
 enteric.h:721:83: warning: 'imax' may be used uninitialized in this function [-Wmaybe-uninitialized]
    cout << tmax*197.3 << " " << std::setprecision(20) << rmax << " " << linklist._p[imax].EOS.e() << endl;
                                                                         ~~~~~~~~~~~^
-enteric.h: In function 'void manualenter(_inputIC&, LinkList<D>&) [with int D = 3]':
-enteric.h:721:83: warning: 'imax' may be used uninitialized in this function [-Wmaybe-uninitialized]
-   cout << tmax*197.3 << " " << std::setprecision(20) << rmax << " " << linklist._p[imax].EOS.e() << endl;
-                                                                        ~~~~~~~~~~~^
-g++ -Wall -Wextra -pedantic -Wconversion -Wcast-align -Wunused -Wshadow -Wpointer-arith -Wno-missing-braces  -O0 -c -I/projects/jnorhos/BSQ/eigen -I/projects/jnorhos/BSQ/splinter/include -g -std=c++11 vector.cpp
-g++ -Wall -Wextra -pedantic -Wconversion -Wcast-align -Wunused -Wshadow -Wpointer-arith -Wno-missing-braces  -O0 -c -I/projects/jnorhos/BSQ/eigen -I/projects/jnorhos/BSQ/splinter/include -g -std=c++11 hydrosim.cpp
+g++ -Wall -Wextra -pedantic -Wconversion -Wcast-align -Wunused -Wshadow -Wpointer-arith -Og -c -I/projects/jnorhos/BSQ/eigen -I/projects/jnorhos/BSQ/splinter/include -g -std=c++11 vector.cpp
+g++ -Wall -Wextra -pedantic -Wconversion -Wcast-align -Wunused -Wshadow -Wpointer-arith -Og -c -I/projects/jnorhos/BSQ/eigen -I/projects/jnorhos/BSQ/splinter/include -g -std=c++11 hydrosim.cpp
 In file included from /projects/jnorhos/BSQ/eigen/Eigen/Core:165:0,
                  from /projects/jnorhos/BSQ/eigen/Eigen/Dense:1,
                  from /projects/jnorhos/BSQ/splinter/include/../../splinter/include/definitions.h:35,
@@ -564,34 +507,52 @@ LinkList.h:304:67: warning: declaration of 'dael' shadows a member of 'LinkList<
 LinkList.h:108:17: note: shadowed declaration is here
   Vector<int,D> *dael;
                  ^~~~
+In file included from rungekutta4.h:7:0,
+                 from hydrosim.cpp:16:
 LinkList.h: In member function 'double LinkList<D>::eanal2(double, double, double)':
 LinkList.h:2173:56: warning: declaration of 't' shadows a member of 'LinkList<D>' [-Wshadow]
  double LinkList<D>::eanal2(double t, double x, double y)
                                                         ^
+In file included from rungekutta4.h:7:0,
+                 from hydrosim.cpp:16:
 LinkList.h:75:9: note: shadowed declaration is here
   double t,dt;
          ^
+In file included from rungekutta4.h:7:0,
+                 from hydrosim.cpp:16:
 LinkList.h: In member function 'double LinkList<D>::g(double, double, double)':
 LinkList.h:2182:51: warning: declaration of 't' shadows a member of 'LinkList<D>' [-Wshadow]
  double LinkList<D>::g(double t, double x, double y)
                                                    ^
+In file included from rungekutta4.h:7:0,
+                 from hydrosim.cpp:16:
 LinkList.h:75:9: note: shadowed declaration is here
   double t,dt;
          ^
+In file included from rungekutta4.h:7:0,
+                 from hydrosim.cpp:16:
 LinkList.h: In member function 'double LinkList<D>::ux(double, double, double)':
 LinkList.h:2190:52: warning: declaration of 't' shadows a member of 'LinkList<D>' [-Wshadow]
  double LinkList<D>::ux(double t, double x, double y)
                                                     ^
+In file included from rungekutta4.h:7:0,
+                 from hydrosim.cpp:16:
 LinkList.h:75:9: note: shadowed declaration is here
   double t,dt;
          ^
+In file included from rungekutta4.h:7:0,
+                 from hydrosim.cpp:16:
 LinkList.h: In member function 'double LinkList<D>::uy(double, double, double)':
 LinkList.h:2196:52: warning: declaration of 't' shadows a member of 'LinkList<D>' [-Wshadow]
  double LinkList<D>::uy(double t, double x, double y)
                                                     ^
+In file included from rungekutta4.h:7:0,
+                 from hydrosim.cpp:16:
 LinkList.h:75:9: note: shadowed declaration is here
   double t,dt;
          ^
+In file included from rungekutta4.h:7:0,
+                 from hydrosim.cpp:16:
 LinkList.h: In member function 'void LinkList<D>::bsqupdateIC()':
 LinkList.h:2361:3: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
    if (gtyp==5) _p[i].e_sub=_p[i].EOS.e();
@@ -603,6 +564,8 @@ LinkList.h: In member function 'void LinkList<D>::qmflow()':
 LinkList.h:2540:10: warning: declaration of 'E' shadows a member of 'LinkList<D>' [-Wshadow]
    double E=_p[i].EOS.e()/_p[i].sigma*_p[i].gamma*t0;
           ^
+In file included from rungekutta4.h:7:0,
+                 from hydrosim.cpp:16:
 LinkList.h:112:13: note: shadowed declaration is here
   double dEz,E,Ez,E0,Etot,S,S0,Eloss,Esubb;
              ^
@@ -723,8 +686,42 @@ LinkList.h:304:5: warning: declaration of 'dael' shadows a member of 'LinkList<3
 LinkList.h:108:17: note: shadowed declaration is here
   Vector<int,D> *dael;
                  ^~~~
-g++ -Wall -Wextra -pedantic -Wconversion -Wcast-align -Wunused -Wshadow -Wpointer-arith -Wno-missing-braces  -O0 -c -I/projects/jnorhos/BSQ/eigen -I/projects/jnorhos/BSQ/splinter/include -g -std=c++11 newspline.cpp
-g++ -Wall -Wextra -pedantic -Wconversion -Wcast-align -Wunused -Wshadow -Wpointer-arith -Wno-missing-braces  -O0 -c -I/projects/jnorhos/BSQ/eigen -I/projects/jnorhos/BSQ/splinter/include -g -std=c++11 random.cpp
+LinkList.h: In member function 'void LinkList<D>::interpolate(int) [with int D = 2]':
+LinkList.h:468:49: warning: 'thetasub' may be used uninitialized in this function [-Wmaybe-uninitialized]
+       divTtemp[j]=-(1/(gsub[j]*sFO[j]))*(cs2*wfz*thetasub+inner(uout[j],gradPsub));
+                                          ~~~~~~~^~~~~~~~~
+LinkList.h:461:3: warning: 'sigsub' may be used uninitialized in this function [-Wmaybe-uninitialized]
+   sigsub/=gsub[j]*tlist[j];
+   ^~~~~~
+LinkList.h: In member function 'void LinkList<D>::interpolate(int) [with int D = 3]':
+LinkList.h:468:49: warning: 'thetasub' may be used uninitialized in this function [-Wmaybe-uninitialized]
+       divTtemp[j]=-(1/(gsub[j]*sFO[j]))*(cs2*wfz*thetasub+inner(uout[j],gradPsub));
+                                          ~~~~~~~^~~~~~~~~
+LinkList.h:461:3: warning: 'sigsub' may be used uninitialized in this function [-Wmaybe-uninitialized]
+   sigsub/=gsub[j]*tlist[j];
+   ^~~~~~
+LinkList.h: In member function 'void LinkList<D>::bsqsvinterpolate(int) [with int D = 2]':
+LinkList.h:1149:75: warning: 'inside' may be used uninitialized in this function [-Wmaybe-uninitialized]
+       divTtemp[j]=-(1/(gsub[j]*sFO[j]))*(cs2*(wfz+bulksub[j])*thetasub-cs2*inside+inner(uout[j],gradPsub));
+                                                                        ~~~^~~~~~~
+LinkList.h:1149:62: warning: 'thetasub' may be used uninitialized in this function [-Wmaybe-uninitialized]
+       divTtemp[j]=-(1/(gsub[j]*sFO[j]))*(cs2*(wfz+bulksub[j])*thetasub-cs2*inside+inner(uout[j],gradPsub));
+                                          ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~
+LinkList.h:1145:3: warning: 'sigsub' may be used uninitialized in this function [-Wmaybe-uninitialized]
+   sigsub/=gsub[j]*tlist[j];
+   ^~~~~~
+LinkList.h: In member function 'void LinkList<D>::svinterpolate(int) [with int D = 2]':
+LinkList.h:885:75: warning: 'inside' may be used uninitialized in this function [-Wmaybe-uninitialized]
+       divTtemp[j]=-(1/(gsub[j]*sFO[j]))*(cs2*(wfz+bulksub[j])*thetasub-cs2*inside+inner(uout[j],gradPsub));
+                                                                        ~~~^~~~~~~
+LinkList.h:885:62: warning: 'thetasub' may be used uninitialized in this function [-Wmaybe-uninitialized]
+       divTtemp[j]=-(1/(gsub[j]*sFO[j]))*(cs2*(wfz+bulksub[j])*thetasub-cs2*inside+inner(uout[j],gradPsub));
+                                          ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~
+LinkList.h:881:3: warning: 'sigsub' may be used uninitialized in this function [-Wmaybe-uninitialized]
+   sigsub/=gsub[j]*tlist[j];
+   ^~~~~~
+g++ -Wall -Wextra -pedantic -Wconversion -Wcast-align -Wunused -Wshadow -Wpointer-arith -Og -c -I/projects/jnorhos/BSQ/eigen -I/projects/jnorhos/BSQ/splinter/include -g -std=c++11 newspline.cpp
+g++ -Wall -Wextra -pedantic -Wconversion -Wcast-align -Wunused -Wshadow -Wpointer-arith -Og -c -I/projects/jnorhos/BSQ/eigen -I/projects/jnorhos/BSQ/splinter/include -g -std=c++11 random.cpp
 random.cpp: In function 'double randall(double, double, int&)':
 random.cpp:23:21: warning: conversion to 'unsigned int' from 'time_t {aka long int}' may alter its value [-Wconversion]
  srand( time( NULL ) +r);
@@ -741,7 +738,7 @@ random.cpp: In function 'int randint(int, int&)':
 random.cpp:59:21: warning: conversion to 'unsigned int' from 'time_t {aka long int}' may alter its value [-Wconversion]
   srand( time( NULL )+r );
          ~~~~~~~~~~~~^~
-g++ -Wall -Wextra -pedantic -Wconversion -Wcast-align -Wunused -Wshadow -Wpointer-arith -Wno-missing-braces  -O0 -c -I/projects/jnorhos/BSQ/eigen -I/projects/jnorhos/BSQ/splinter/include -g -std=c++11 eos.cpp
+g++ -Wall -Wextra -pedantic -Wconversion -Wcast-align -Wunused -Wshadow -Wpointer-arith -Og -c -I/projects/jnorhos/BSQ/eigen -I/projects/jnorhos/BSQ/splinter/include -g -std=c++11 eos.cpp
 In file included from /projects/jnorhos/BSQ/eigen/Eigen/Core:165:0,
                  from /projects/jnorhos/BSQ/eigen/Eigen/Dense:1,
                  from /projects/jnorhos/BSQ/splinter/include/../../splinter/include/definitions.h:35,
@@ -820,8 +817,13 @@ eos.cpp: In member function 'void eos::eosin(std::__cxx11::string)':
 eos.cpp:950:29: warning: unused parameter 'type' [-Wunused-parameter]
  void eos::eosin(std::string type) {}
                              ^~~~
-g++ -Wall -Wextra -pedantic -Wconversion -Wcast-align -Wunused -Wshadow -Wpointer-arith -Wno-missing-braces  -O0 -c -I/projects/jnorhos/BSQ/eigen -I/projects/jnorhos/BSQ/splinter/include -g -std=c++11 matrix.cpp
-g++ -Wall -Wextra -pedantic -Wconversion -Wcast-align -Wunused -Wshadow -Wpointer-arith -Wno-missing-braces  -O0 -c -I/projects/jnorhos/BSQ/eigen -I/projects/jnorhos/BSQ/splinter/include -g -std=c++11 enteric.cpp
+eos.cpp: In function 'int quant_rootfinder_f(const gsl_vector*, void*, gsl_vector*)':
+eos.cpp:1247:19: warning: 'quant' may be used uninitialized in this function [-Wmaybe-uninitialized]
+     gsl_vector_set(f, 0, (quant - quantGiven));
+     ~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+eos.cpp:1247:19: warning: 'quantGiven' may be used uninitialized in this function [-Wmaybe-uninitialized]
+g++ -Wall -Wextra -pedantic -Wconversion -Wcast-align -Wunused -Wshadow -Wpointer-arith -Og -c -I/projects/jnorhos/BSQ/eigen -I/projects/jnorhos/BSQ/splinter/include -g -std=c++11 matrix.cpp
+g++ -Wall -Wextra -pedantic -Wconversion -Wcast-align -Wunused -Wshadow -Wpointer-arith -Og -c -I/projects/jnorhos/BSQ/eigen -I/projects/jnorhos/BSQ/splinter/include -g -std=c++11 enteric.cpp
 In file included from /projects/jnorhos/BSQ/eigen/Eigen/Core:165:0,
                  from /projects/jnorhos/BSQ/eigen/Eigen/Dense:1,
                  from /projects/jnorhos/BSQ/splinter/include/../../splinter/include/definitions.h:35,
@@ -937,6 +939,8 @@ LinkList.h:2196:52: warning: declaration of 't' shadows a member of 'LinkList<D>
 LinkList.h:75:9: note: shadowed declaration is here
   double t,dt;
          ^
+In file included from enteric.h:15:0,
+                 from enteric.cpp:15:
 LinkList.h: In member function 'void LinkList<D>::bsqupdateIC()':
 LinkList.h:2361:3: warning: this 'if' clause does not guard... [-Wmisleading-indentation]
    if (gtyp==5) _p[i].e_sub=_p[i].EOS.e();
@@ -948,6 +952,8 @@ LinkList.h: In member function 'void LinkList<D>::qmflow()':
 LinkList.h:2540:10: warning: declaration of 'E' shadows a member of 'LinkList<D>' [-Wshadow]
    double E=_p[i].EOS.e()/_p[i].sigma*_p[i].gamma*t0;
           ^
+In file included from enteric.h:15:0,
+                 from enteric.cpp:15:
 LinkList.h:112:13: note: shadowed declaration is here
   double dEz,E,Ez,E0,Etot,S,S0,Eloss,Esubb;
              ^
