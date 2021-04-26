@@ -1,4 +1,4 @@
-#ifndef VECTOR_H_ 
+#ifndef VECTOR_H_
 #define VECTOR_H_
 
 #include <iostream>
@@ -10,21 +10,21 @@ using namespace std;
 template <class T, int D>
 class Vector {
 public:
-	T x[D];
-	Vector<T,D>();
-	template <class U> Vector<T,D>& operator=(Vector<U,D>);
-	Vector<T,D>& operator=(double);
-	Vector<T,D>& operator+=(Vector<T,D>);
-	Vector<T,D>& operator-=(Vector<T,D>);
-	Vector<T,D>& operator*=(T);	
+    T x[D];
+    Vector<T,D>();
+    template <class U> Vector<T,D>& operator=(Vector<U,D>);
+    Vector<T,D>& operator=(double);
+    Vector<T,D>& operator+=(Vector<T,D>);
+    Vector<T,D>& operator-=(Vector<T,D>);
+    Vector<T,D>& operator*=(T);
 };
 
 template <class T, int D>
-class VectorConsts{
+class VectorConsts {
 public:
-	Vector<T,D> uni[D];
-	Vector<T,D> Uni;
-	VectorConsts<T,D>();
+    Vector<T,D> uni[D];
+    Vector<T,D> Uni;
+    VectorConsts<T,D>();
 };
 
 typedef Vector<double,1> vec1;

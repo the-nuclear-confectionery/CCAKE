@@ -1,5 +1,5 @@
-double spline ( void (*r8)(double,int&,int&,double&,double&) , void (*y)(double&,double&,int,int) ,double tval, int &pos);
-double splinepos ( void (*r8)(double&,double&,int,int), void (*y)(double&,double&,int,int) ,double tval, int pos);
+double spline ( void (*r8)(double,int&,int&,double&,double&), void (*y)(double&,double&,int,int),double tval, int &pos);
+double splinepos ( void (*r8)(double&,double&,int,int), void (*y)(double&,double&,int,int),double tval, int pos);
 void y_p( double &y1, double &y2,int left,int right);
 void y_plow( double &y1, double &y2,int left,int right);
 void y_T( double &y1, double &y2,int left,int right);

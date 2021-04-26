@@ -18,44 +18,32 @@
 #include <algorithm>
 #include <cmath>
 
-
-
-
-
-
 using namespace std;
-
-
-
 
 
 void readEOStable()
 {
-
-
-
     /////////////////////////////////////////////////////
     ////       Start reading EoS table           /////
     /////////////////////////////////////////////////////
 
+    cout << "The EOS should be contained in two files (either .txt or .dat files).  The first contains the Temperature (in MeV's) and the first line should include the number of steps.\n";
+    cout << "Enter file name of the first file:\n";
+    cin.clear();
+    cin.ignore (cin.rdbuf( )->in_avail( ));
+    string filen;
+    getline (cin,filen);
 
-  	cout << "The EOS should be contained in two files (either .txt or .dat files).  The first contains the Temperature (in MeV's) and the first line should include the number of steps.\n";
-  	cout << "Enter file name of the first file:\n";
-	cin.clear();
-	cin.ignore (cin.rdbuf( )->in_avail( ));
-	string filen;
-  	getline (cin,filen);
+    readEOS_T(filen);
 
-  	readEOS_T(filen);
+    cout << "The second EOS (either .txt or .dat files) contains the  Energy Density, Pressure, Entropy,   and c_s^2 (in MeV's) and the first line should include the number of steps.\n";
+    cout << "Enter file name of the first file:\n";
+    cin.clear();
+    cin.ignore (cin.rdbuf( )->in_avail( ));
+    string filen2;
+    getline (cin,filen2);
 
-  	cout << "The second EOS (either .txt or .dat files) contains the  Energy Density, Pressure, Entropy,   and c_s^2 (in MeV's) and the first line should include the number of steps.\n";
-  	cout << "Enter file name of the first file:\n";
-	cin.clear();
-        cin.ignore (cin.rdbuf( )->in_avail( ));
-        string filen2;
-  	getline (cin,filen2);
-
-  	readEOS_p(filen2);
+    readEOS_p(filen2);
 
     /////////////////////////////////////////////////////
     ////       Finished reading EoS table           /////
@@ -63,38 +51,33 @@ void readEOStable()
 }
 
 
-
-
-
-
 void readEOS_T(string &firstry)
 {
-	string filename;
-	filename = ifolder+firstry;
-	//nameenter:
+    string filename;
+    filename = ifolder+firstry;
+    //nameenter:
 
-        FILE * myfile = fopen (filename.c_str(),"r");
+    FILE * myfile = fopen (filename.c_str(),"r");
 
+    if ((!firstry.empty())&&(myfile!= NULL)) {
+        fscanf(myfile,"%i \n",&nETH);
 
-        if ((!firstry.empty())&&(myfile!= NULL)){
-  	   fscanf(myfile,"%i \n",&nETH);
+        ETH=new eostableshigh[nETH];
+        int i=0;
+        while (i<nETH ) {
+            fscanf(myfile,"%lf     %*f  %*f \n",&ETH[i].T); //assumes T is in the formate MeV
 
-           ETH=new eostableshigh[nETH];
-           int i=0;
-          while (i<nETH ){
-                   fscanf(myfile,"%lf     %*f  %*f \n",&ETH[i].T); //assumes T is in the formate MeV
+            ETH[i].T/=197.3;
+            ++i;
+        }
+        fclose(myfile);
+        // cout << filename.c_str() << ": Input sucessful!\n";
+    }
+    else {
+        cout << "Error: " << firstry.c_str() << " does not exist.  Please enter new file name\n";
 
-                   ETH[i].T/=197.3;
-                   ++i;
-               }
-  	  fclose(myfile);
-	 // cout << filename.c_str() << ": Input sucessful!\n";
-  	}
-  	else {
-  		cout << "Error: " << firstry.c_str() << " does not exist.  Please enter new file name\n";
-
-		exit(1);
-  	}
+        exit(1);
+    }
 
 
 }
@@ -103,55 +86,55 @@ void readEOS_T(string &firstry)
 void readEOS_p(string &firstry)
 {
 
-	string filename;
-	filename = ifolder+firstry;
-	//nameenter:
-        FILE * myfile = fopen (filename.c_str(),"r");
-  	if ((!firstry.empty())&&(myfile!= NULL)){
-  	   fscanf(myfile,"%*i \n");
-           int i=0;
-          while (i<nETH ){
-                   fscanf(myfile,"%lf     %lf    %lf    %lf \n",&ETH[i].e,&ETH[i].p,&ETH[i].s,&ETH[i].dtds); //assumes that e,p is in the format GeV/fm^3 and s in 1/fm^3
-                   ETH[i].e/=0.1973;
-                   ETH[i].p/=0.1973;
-                   ++i;
-               }
-  	  fclose(myfile);
-	 // cout << filename.c_str() << ": Input sucessful!\n";
-  	}
-  	else {
-  		cout << "Error: " << firstry.c_str() << " does not exist.  Please enter new file name\n";
+    string filename;
+    filename = ifolder+firstry;
+    //nameenter:
+    FILE * myfile = fopen (filename.c_str(),"r");
+    if ((!firstry.empty())&&(myfile!= NULL)) {
+        fscanf(myfile,"%*i \n");
+        int i=0;
+        while (i<nETH ) {
+            fscanf(myfile,"%lf     %lf    %lf    %lf \n",&ETH[i].e,&ETH[i].p,&ETH[i].s,&ETH[i].dtds); //assumes that e,p is in the format GeV/fm^3 and s in 1/fm^3
+            ETH[i].e/=0.1973;
+            ETH[i].p/=0.1973;
+            ++i;
+        }
+        fclose(myfile);
+        // cout << filename.c_str() << ": Input sucessful!\n";
+    }
+    else {
+        cout << "Error: " << firstry.c_str() << " does not exist.  Please enter new file name\n";
 
-		exit(1);
-  	}
+        exit(1);
+    }
 }
 
 void readEOS_lowS(string &firstry)
 {
 
 
-	string filename;
-	filename = ifolder+firstry;
-	//nameenter:
-        FILE * myfile = fopen (filename.c_str(),"r");
+    string filename;
+    filename = ifolder+firstry;
+    //nameenter:
+    FILE * myfile = fopen (filename.c_str(),"r");
 
-        if ((!firstry.empty())&&(myfile!= NULL)){
-  	   fscanf(myfile,"%i \n",&nETL);
-           ETL = new eostableslow[nETL];
-           int i=0;
-          while (i<nETL ){
-                   fscanf(myfile,"%lf     %lf  %lf    %lf   %lf\n",&ETL[i].T,&ETL[i].e,&ETL[i].p,&ETL[i].s,&ETL[i].dtds); //assumes T is in the formate MeV
-                   ETL[i].T/=197.3;
-                   i++;
-               }
-  	  fclose(myfile);
-	//  cout << filename.c_str() << ": Input sucessful!\n";
-  	}
-  	else {
-  		cout << "Error: " << firstry.c_str() << " does not exist.  Please enter new file name\n";
+    if ((!firstry.empty())&&(myfile!= NULL)) {
+        fscanf(myfile,"%i \n",&nETL);
+        ETL = new eostableslow[nETL];
+        int i=0;
+        while (i<nETL ) {
+            fscanf(myfile,"%lf     %lf  %lf    %lf   %lf\n",&ETL[i].T,&ETL[i].e,&ETL[i].p,&ETL[i].s,&ETL[i].dtds); //assumes T is in the formate MeV
+            ETL[i].T/=197.3;
+            i++;
+        }
+        fclose(myfile);
+        //  cout << filename.c_str() << ": Input sucessful!\n";
+    }
+    else {
+        cout << "Error: " << firstry.c_str() << " does not exist.  Please enter new file name\n";
 
-		exit(1);
-  	}
+        exit(1);
+    }
 
 
 }
@@ -162,45 +145,45 @@ void readEOS_lowS(string &firstry)
 // rone's version
 void readICs_gen(string &firstry, string &firstry2, int &_Ntable3,Particle<2> *&_p,double const& efcheck, int & numpart)
 {
-	string filename;
+    string filename;
 
-	filename = ifolder+firstry;
-	//nameenter:
-        FILE * myfile = fopen (filename.c_str(),"r");
-  	if ((!firstry.empty())&&(myfile!= NULL)){
-  	   fscanf(myfile,"%i \n",&_Ntable3);
-           _p= new Particle<2>[_Ntable3];
-           int i=0;
+    filename = ifolder+firstry;
+    //nameenter:
+    FILE * myfile = fopen (filename.c_str(),"r");
+    if ((!firstry.empty())&&(myfile!= NULL)) {
+        fscanf(myfile,"%i \n",&_Ntable3);
+        _p= new Particle<2>[_Ntable3];
+        int i=0;
 
-           while (i<=_Ntable3 ){
-                   fscanf(myfile,"%lf    %lf    %lf\n",&_p[i].r.x[0],&_p[i].r.x[1],&_p[i].sigmaweight);
-                   _p[i].u.x[0]=0;
-        	   _p[i].u.x[1]=0;
-                   _p[i].eta_sigma  = 1.;
-                   _p[i].Bulk = 0.;
+        while (i<=_Ntable3 ) {
+            fscanf(myfile,"%lf    %lf    %lf\n",&_p[i].r.x[0],&_p[i].r.x[1],&_p[i].sigmaweight);
+            _p[i].u.x[0]=0;
+            _p[i].u.x[1]=0;
+            _p[i].eta_sigma  = 1.;
+            _p[i].Bulk = 0.;
 
-                   if (_p[i].e_sub>efcheck)
-                   {
-                   	_p[i].Freeze=0;
-                   }
-                   else
-                   {
-                   	_p[i].Freeze=4;
-                   	++numpart;
-                   }
+            if (_p[i].e_sub>efcheck)
+            {
+                _p[i].Freeze=0;
+            }
+            else
+            {
+                _p[i].Freeze=4;
+                ++numpart;
+            }
 
-                   ++i;
-          }
+            ++i;
+        }
 
 
-  	  fclose(myfile);
-	  cout << filename.c_str() << ": Input sucessful!\n";
-  	}
-  	else {
-  		cout << "Error: " << firstry.c_str() << " does not exist.  Please enter new file name\n";
+        fclose(myfile);
+        cout << filename.c_str() << ": Input sucessful!\n";
+    }
+    else {
+        cout << "Error: " << firstry.c_str() << " does not exist.  Please enter new file name\n";
 
-		exit(1);
-  	}
+        exit(1);
+    }
 }
 
 
@@ -208,127 +191,127 @@ void readICs_gen(string &firstry, string &firstry2, int &_Ntable3,Particle<2> *&
 //gabriel's version
 void readICs_gen(string &firstry,  int &_Ntable3,Particle<2> *&_p,double const& efcheck, int & numpart)
 {
-	string filename;
+    string filename;
 
-	filename = ifolder+firstry;
-	//nameenter:
-        FILE * myfile = fopen (filename.c_str(),"r");
+    filename = ifolder+firstry;
+    //nameenter:
+    FILE * myfile = fopen (filename.c_str(),"r");
 
-  	if ((!firstry.empty())&&(myfile!= NULL)){
-  	   fscanf(myfile,"%i \n",&_Ntable3);
-           _p= new Particle<2>[_Ntable3];
-           int i=0;
+    if ((!firstry.empty())&&(myfile!= NULL)) {
+        fscanf(myfile,"%i \n",&_Ntable3);
+        _p= new Particle<2>[_Ntable3];
+        int i=0;
 
-           while (i<_Ntable3 ){
-                   fscanf(myfile,"%lf    %lf    %lf\n",&_p[i].r.x[0],&_p[i].r.x[1],&_p[i].sigmaweight);
-                   _p[i].u.x[0]=0;
-        	   _p[i].u.x[1]=0;
-                   _p[i].eta_sigma  = 1;
-                   _p[i].Bulk = 0;
-		   _p[i].Freeze=0;
-                   ++i;
+        while (i<_Ntable3 ) {
+            fscanf(myfile,"%lf    %lf    %lf\n",&_p[i].r.x[0],&_p[i].r.x[1],&_p[i].sigmaweight);
+            _p[i].u.x[0]=0;
+            _p[i].u.x[1]=0;
+            _p[i].eta_sigma  = 1;
+            _p[i].Bulk = 0;
+            _p[i].Freeze=0;
+            ++i;
 
-          }
+        }
 
 
-  	  fclose(myfile);
-	  cout << filename.c_str() << ": Input sucessful!\n";
-  	}
-  	else {
-  		cout << "Error: " << firstry.c_str() << " does not exist.  Please enter new file name\n";
+        fclose(myfile);
+        cout << filename.c_str() << ": Input sucessful!\n";
+    }
+    else {
+        cout << "Error: " << firstry.c_str() << " does not exist.  Please enter new file name\n";
 
-		exit(1);
-  	}
+        exit(1);
+    }
 }
 
 //event by event
 void readICs_ebe(string &firstry,  int &_Ntable3,Particle<2> *&_p,double factor,double const& efcheck, int & numpart)
 {
 
-	string filename;
-	filename = ifolder+firstry;
-	//nameenter:
-        FILE *  myfile = fopen (filename.c_str(),"r");
+    string filename;
+    filename = ifolder+firstry;
+    //nameenter:
+    FILE *  myfile = fopen (filename.c_str(),"r");
 
-        cout << "input from: " << filename.c_str() << endl;
+    cout << "input from: " << filename.c_str() << endl;
 
-        double *xsub,*ysub,*esub;
-  	if ((!firstry.empty())&&(myfile!= NULL)){
-  	   double stepx,stepy;
-  	   fscanf(myfile,"%i   %lf    %lf %*f %*i %*i\n",&_Ntable3,&stepx,&stepy);
-          // cout << "Initial Grid Size=" << _Ntable3 << endl;
-
-
-           int i=0;
+    double *xsub,*ysub,*esub;
+    if ((!firstry.empty())&&(myfile!= NULL)) {
+        double stepx,stepy;
+        fscanf(myfile,"%i   %lf    %lf %*f %*i %*i\n",&_Ntable3,&stepx,&stepy);
+        // cout << "Initial Grid Size=" << _Ntable3 << endl;
 
 
-
-           xsub=new double[_Ntable3];
-           ysub=new double[_Ntable3];
-           esub=new double[_Ntable3];
+        int i=0;
 
 
-           for(int j=0;j<_Ntable3;j++){
-                   fscanf(myfile,"%lf    %lf    %lf \n",&xsub[i],&ysub[i],&esub[i]);
+
+        xsub=new double[_Ntable3];
+        ysub=new double[_Ntable3];
+        esub=new double[_Ntable3];
 
 
-                  esub[i]/=0.1973;
-                   // if (esub[i]>0.15) ++i;
-                   ++i;
-
-          }
+        for(int j=0; j<_Ntable3; j++) {
+            fscanf(myfile,"%lf    %lf    %lf \n",&xsub[i],&ysub[i],&esub[i]);
 
 
-         _Ntable3=i;
-          _p= new Particle<2>[_Ntable3];
+            esub[i]/=0.1973;
+            // if (esub[i]>0.15) ++i;
+            ++i;
+
+        }
+
+
+        _Ntable3=i;
+        _p= new Particle<2>[_Ntable3];
 
         //  cout << "After e-cutoff=" << _Ntable3 << endl;
 
 
-          int kk=_Ntable3;
-          numpart=0;
+        int kk=_Ntable3;
+        numpart=0;
 
 
-          for(int j=0;j<_Ntable3;j++){
-          	   _p[j].r.x[0]=xsub[j];
-        	   _p[j].r.x[1]=ysub[j];
-        	   _p[j].e_sub=factor*esub[j];
-                   _p[j].u.x[0]=0;
-        	   _p[j].u.x[1]=0;
-                   _p[j].eta_sigma  = 1;
-                   _p[j].sigmaweight=stepx*stepy;
-                   _p[j].Bulk = 0;
-
-
-
-              	   if (_p[j].e_sub>efcheck)
-                   {
-                   	_p[j].Freeze=0;
-                   }
-                   else
-                   {
-                   	_p[j].Freeze=4;
-                   	--kk;
-                   	++numpart;
-                   }
-          }
-
-          cout << "After freezeout=" << _Ntable3-numpart << endl;
-
-          delete [] xsub;
-          delete [] ysub;
-          delete [] esub;
+        for(int j=0; j<_Ntable3; j++) {
+            _p[j].r.x[0]=xsub[j];
+            _p[j].r.x[1]=ysub[j];
+            _p[j].e_sub=factor*esub[j];
+            _p[j].u.x[0]=0;
+            _p[j].u.x[1]=0;
+            _p[j].eta_sigma  = 1;
+            _p[j].sigmaweight=stepx*stepy;
+            _p[j].Bulk = 0;
 
 
 
+            if (_p[j].e_sub>efcheck)
+            {
+                _p[j].Freeze=0;
+            }
+            else
+            {
+                _p[j].Freeze=4;
+                --kk;
+                ++numpart;
+            }
+        }
 
-  	  fclose(myfile);
-  	}
-  	else {
-  		cout << "Error: " << firstry.c_str() << " does not exist.  Please enter new file name\n";
+        cout << "After freezeout=" << _Ntable3-numpart << endl;
 
-		exit(1);
-  	}
+        delete [] xsub;
+        delete [] ysub;
+        delete [] esub;
+
+
+
+
+        fclose(myfile);
+    }
+    else {
+        cout << "Error: " << firstry.c_str() << " does not exist.  Please enter new file name\n";
+
+        exit(1);
+    }
 
 }
 
@@ -337,56 +320,56 @@ void readICs_ebe(string &firstry,  int &_Ntable3,Particle<2> *&_p,double factor,
 void readICs_tnt(string &firstry,  int &_Ntable3,Particle<2> *&_p,double factor,double const& sfcheck, int & numpart, eos EOS)
 {
 
-  string filename;
-  filename = ifolder+firstry;
-  //nameenter:
-  ifstream input(filename.c_str());
-	if (!input.is_open())
- 	{
- 	cout << "Can't open " << filename << endl;
- 	exit(1);
- 	}
+    string filename;
+    filename = ifolder+firstry;
+    //nameenter:
+    ifstream input(filename.c_str());
+    if (!input.is_open())
+    {
+        cout << "Can't open " << filename << endl;
+        exit(1);
+    }
 
-	string line;
-	vector<double> xsub,ysub,esub;
+    string line;
+    vector<double> xsub,ysub,esub;
 
-	getline(input,line);
-	std::vector<std::string> gx = split(line, ' ');
+    getline(input,line);
+    std::vector<std::string> gx = split(line, ' ');
 
-	double stepx,stepy;
-	stringstream s;
-	s << gx[1];
-	s >> stepx;
-
-
-	stringstream s1;
-	s1 << gx[2];
-	s1 >> stepy;
-
-	cout << "dx=dy=" << stepx << " " << stepy << endl;
+    double stepx,stepy;
+    stringstream s;
+    s << gx[1];
+    s >> stepx;
 
 
-	while (getline(input,line)) {
-	std::vector<double> y (3,0) ;
+    stringstream s1;
+    s1 << gx[2];
+    s1 >> stepy;
 
-	std::vector<std::string> x = split(line, ' ');
+    cout << "dx=dy=" << stepx << " " << stepy << endl;
 
 
-	for(int j=0;j<3;j++)
-	{
-	stringstream ss;
-	ss << x[j];
-	ss >> y[j];
-	}
+    while (getline(input,line)) {
+        std::vector<double> y (3,0) ;
 
-	if ((factor*y[2])>0.001){
-		xsub.push_back(y[0]);
-		ysub.push_back(y[1]);
-		esub.push_back(y[2]);
-	}
+        std::vector<std::string> x = split(line, ' ');
 
-	}
-	input.close();
+
+        for(int j=0; j<3; j++)
+        {
+            stringstream ss;
+            ss << x[j];
+            ss >> y[j];
+        }
+
+        if ((factor*y[2])>0.001) {
+            xsub.push_back(y[0]);
+            ysub.push_back(y[1]);
+            esub.push_back(y[2]);
+        }
+
+    }
+    input.close();
 
 
     _Ntable3=xsub.size();
@@ -400,29 +383,29 @@ void readICs_tnt(string &firstry,  int &_Ntable3,Particle<2> *&_p,double factor,
 
 
 
-    for(int j=0;j<_Ntable3;j++){
-      _p[j].r.x[0]=xsub[j];
-      _p[j].r.x[1]=ysub[j];
-      // _p[j].e_sub=EOS.e_out(factor*esub[j]);
-      _p[j].s_an=factor*esub[j];
-      _p[j].u.x[0]=0;
-      _p[j].u.x[1]=0;
-      _p[j].eta_sigma  = 1;
-      _p[j].sigmaweight=stepx*stepy;
-      _p[j].Bulk = 0;
+    for(int j=0; j<_Ntable3; j++) {
+        _p[j].r.x[0]=xsub[j];
+        _p[j].r.x[1]=ysub[j];
+        // _p[j].e_sub=EOS.e_out(factor*esub[j]);
+        _p[j].s_an=factor*esub[j];
+        _p[j].u.x[0]=0;
+        _p[j].u.x[1]=0;
+        _p[j].eta_sigma  = 1;
+        _p[j].sigmaweight=stepx*stepy;
+        _p[j].Bulk = 0;
 
 
 
-      if (_p[j].s_an>sfcheck)
-	{
-	  _p[j].Freeze=0;
-	}
-      else
-	{
-	  _p[j].Freeze=4;
-	  --kk;
-	  ++numpart;
-	}
+        if (_p[j].s_an>sfcheck)
+        {
+            _p[j].Freeze=0;
+        }
+        else
+        {
+            _p[j].Freeze=4;
+            --kk;
+            ++numpart;
+        }
     }
 
     cout << "After freezeout=" << _Ntable3-numpart << endl;
@@ -435,59 +418,59 @@ void readICs_tnt(string &firstry,  int &_Ntable3,Particle<2> *&_p,double factor,
 void readICs_iccing(string &firstry,  int &_Ntable3,Particle<2> *&_p,double factor,double const& sfcheck, int & numpart, eos EOS)
 {
 
-  string filename;
-  filename = ifolder+firstry;
-  //nameenter:
-  ifstream input(filename.c_str());
-	if (!input.is_open())
- 	{
- 	cout << "Can't open " << filename << endl;
- 	exit(1);
- 	}
+    string filename;
+    filename = ifolder+firstry;
+    //nameenter:
+    ifstream input(filename.c_str());
+    if (!input.is_open())
+    {
+        cout << "Can't open " << filename << endl;
+        exit(1);
+    }
 
-	string line;
-	vector<double> xsub,ysub,esub,rBsub,rSsub,rQsub;
+    string line;
+    vector<double> xsub,ysub,esub,rBsub,rSsub,rQsub;
 
-	getline(input,line);
-	std::vector<std::string> gx = split(line, ' ');
+    getline(input,line);
+    std::vector<std::string> gx = split(line, ' ');
 
-	double stepx,stepy;
-	stringstream s;
-	s << gx[1];
-	s >> stepx;
-
-
-	stringstream s1;
-	s1 << gx[2];
-	s1 >> stepy;
-
-	cout << "dx=dy=" << stepx << " " << stepy << endl;
+    double stepx,stepy;
+    stringstream s;
+    s << gx[1];
+    s >> stepx;
 
 
-	while (getline(input,line)) {
-	std::vector<double> y (3,0) ;
+    stringstream s1;
+    s1 << gx[2];
+    s1 >> stepy;
 
-	std::vector<std::string> x = split(line, ' ');
+    cout << "dx=dy=" << stepx << " " << stepy << endl;
 
 
-	for(int j=0;j<6;j++)
-	{
-	stringstream ss;
-	ss << x[j];
-	ss >> y[j];
-	}
+    while (getline(input,line)) {
+        std::vector<double> y (3,0) ;
 
-	if ((factor*y[2])>0.01){
-		xsub.push_back(y[0]);
-		ysub.push_back(y[1]);
-		esub.push_back(y[2]);
-		rBsub.push_back(y[3]);
-		rSsub.push_back(y[4]);
-		rQsub.push_back(y[5]);
-	}
+        std::vector<std::string> x = split(line, ' ');
 
-	}
-	input.close();
+
+        for(int j=0; j<6; j++)
+        {
+            stringstream ss;
+            ss << x[j];
+            ss >> y[j];
+        }
+
+        if ((factor*y[2])>0.01) {
+            xsub.push_back(y[0]);
+            ysub.push_back(y[1]);
+            esub.push_back(y[2]);
+            rBsub.push_back(y[3]);
+            rSsub.push_back(y[4]);
+            rQsub.push_back(y[5]);
+        }
+
+    }
+    input.close();
 
 
     _Ntable3=xsub.size();
@@ -501,32 +484,32 @@ void readICs_iccing(string &firstry,  int &_Ntable3,Particle<2> *&_p,double fact
 
 
 
-    for(int j=0;j<_Ntable3;j++){
-      _p[j].r.x[0]=xsub[j];
-      _p[j].r.x[1]=ysub[j];
-      // _p[j].e_sub=EOS.e_out(factor*esub[j]);
-      _p[j].e_sub=factor*esub[j];		// not s_an!!
-      _p[j].u.x[0]=0;
-      _p[j].u.x[1]=0;
-      _p[j].eta_sigma  = 1;
-      _p[j].sigmaweight=stepx*stepy;
-      _p[j].Bulk = 0;
-			_p[j].rhoB=rBsub[j];
-			_p[j].rhoS=rSsub[j];
-			_p[j].rhoQ=rQsub[j];
+    for(int j=0; j<_Ntable3; j++) {
+        _p[j].r.x[0]=xsub[j];
+        _p[j].r.x[1]=ysub[j];
+        // _p[j].e_sub=EOS.e_out(factor*esub[j]);
+        _p[j].e_sub=factor*esub[j];        // not s_an!!
+        _p[j].u.x[0]=0;
+        _p[j].u.x[1]=0;
+        _p[j].eta_sigma  = 1;
+        _p[j].sigmaweight=stepx*stepy;
+        _p[j].Bulk = 0;
+        _p[j].rhoB=rBsub[j];
+        _p[j].rhoS=rSsub[j];
+        _p[j].rhoQ=rQsub[j];
 
 
 
-      if (_p[j].s_an>sfcheck)
-	{
-	  _p[j].Freeze=0;
-	}
-      else
-	{
-	  _p[j].Freeze=4;
-	  --kk;
-	  ++numpart;
-	}
+        if (_p[j].s_an>sfcheck)
+        {
+            _p[j].Freeze=0;
+        }
+        else
+        {
+            _p[j].Freeze=4;
+            --kk;
+            ++numpart;
+        }
     }
 
     cout << "After freezeout=" << _Ntable3-numpart << endl;
@@ -537,7 +520,7 @@ void readICs_iccing(string &firstry,  int &_Ntable3,Particle<2> *&_p,double fact
 
 
 void readICs_iccing( string &firstry, int &_Ntable3, Particle<3> *&_p,
-					 double factor, double const & efcheck, int & numpart, eos EOS)
+                     double factor, double const & efcheck, int & numpart, eos EOS)
 {
 }
 
@@ -546,58 +529,58 @@ void readICs_iccing( string &firstry, int &_Ntable3, Particle<3> *&_p,
 void readICs_gebe(string &firstry,  int &_Ntable3,Particle<2> *&_p,double factor,double const& efcheck, int & numpart)
 {
 
-	string filename;
-	filename = ifolder+firstry;
-	//nameenter:
-        ifstream input(filename.c_str());
+    string filename;
+    filename = ifolder+firstry;
+    //nameenter:
+    ifstream input(filename.c_str());
 
-        cout << "input from: " << filename.c_str() << endl;
-
-
-  	if (!input.is_open())
- 	{
- 	cout << "Can't open " << filename << endl;
- 	exit(1);
- 	}
+    cout << "input from: " << filename.c_str() << endl;
 
 
-
-	string line;
-	vector<double> xsub,ysub,esub;
-
-	double gd2;
-	cout << "hcor=" <<  hcor << endl;
-	if (hcor==1) {
-		getline(input,line);
-		cout << "here" << endl;
-		gd2=0.06*0.06;
-	}
-	else {
-		gd2=0.08*0.08;
-	}
+    if (!input.is_open())
+    {
+        cout << "Can't open " << filename << endl;
+        exit(1);
+    }
 
 
-	while (getline(input,line)) {
-	std::vector<double> y (3,0) ;
 
-	std::vector<std::string> x = split(line, ' ');
+    string line;
+    vector<double> xsub,ysub,esub;
+
+    double gd2;
+    cout << "hcor=" <<  hcor << endl;
+    if (hcor==1) {
+        getline(input,line);
+        cout << "here" << endl;
+        gd2=0.06*0.06;
+    }
+    else {
+        gd2=0.08*0.08;
+    }
 
 
-	for(int j=0;j<3;j++)
-	{
-	stringstream ss;
-	ss << x[j];
-	ss >> y[j];
-	}
+    while (getline(input,line)) {
+        std::vector<double> y (3,0) ;
 
-	if (y[2]>0.01){
-		xsub.push_back(y[0]);
-		ysub.push_back(y[1]);
-		esub.push_back(y[2]);
-	}
+        std::vector<std::string> x = split(line, ' ');
 
-	}
-	input.close();
+
+        for(int j=0; j<3; j++)
+        {
+            stringstream ss;
+            ss << x[j];
+            ss >> y[j];
+        }
+
+        if (y[2]>0.01) {
+            xsub.push_back(y[0]);
+            ysub.push_back(y[1]);
+            esub.push_back(y[2]);
+        }
+
+    }
+    input.close();
 
 
     _Ntable3=xsub.size();
@@ -611,28 +594,28 @@ void readICs_gebe(string &firstry,  int &_Ntable3,Particle<2> *&_p,double factor
 
 
 
-    for(int j=0;j<_Ntable3;j++){
-      _p[j].r.x[0]=xsub[j];
-      _p[j].r.x[1]=ysub[j];
-      _p[j].e_sub=esub[j];
-      _p[j].u.x[0]=0;
-      _p[j].u.x[1]=0;
-      _p[j].eta_sigma  = 1;
-      _p[j].sigmaweight=gd2;
-      _p[j].Bulk = 0;
+    for(int j=0; j<_Ntable3; j++) {
+        _p[j].r.x[0]=xsub[j];
+        _p[j].r.x[1]=ysub[j];
+        _p[j].e_sub=esub[j];
+        _p[j].u.x[0]=0;
+        _p[j].u.x[1]=0;
+        _p[j].eta_sigma  = 1;
+        _p[j].sigmaweight=gd2;
+        _p[j].Bulk = 0;
 
 
 
-      if (_p[j].e_sub>efcheck)
-	{
-	  _p[j].Freeze=0;
-	}
-      else
-	{
-	  _p[j].Freeze=4;
-	  --kk;
-	  ++numpart;
-	}
+        if (_p[j].e_sub>efcheck)
+        {
+            _p[j].Freeze=0;
+        }
+        else
+        {
+            _p[j].Freeze=4;
+            --kk;
+            ++numpart;
+        }
     }
 
     cout << "After freezeout=" << _Ntable3-numpart << endl;
@@ -646,278 +629,284 @@ void readICs_gebe(string &firstry,  int &_Ntable3,Particle<2> *&_p,double factor
 void readICs_nebe(string &firstry,  int &_Ntable3,Particle<2> *&_p,double factor,double const& efcheck, int & numpart)
 {
 
-	string filename;
-	filename = ifolder+firstry;
-	//nameenter:
-        FILE *  myfile = fopen (filename.c_str(),"r");
+    string filename;
+    filename = ifolder+firstry;
+    //nameenter:
+    FILE *  myfile = fopen (filename.c_str(),"r");
 
-        cout << "input from: " << filename.c_str() << endl;
-        _Ntable3=50000;
-        double *xsub,*ysub,*esub,*vxsub,*vysub,*vzsub;
-  	if ((!firstry.empty())&&(myfile!= NULL)){
-
-
-           int i=0;
+    cout << "input from: " << filename.c_str() << endl;
+    _Ntable3=50000;
+    double *xsub,*ysub,*esub,*vxsub,*vysub,*vzsub;
+    if ((!firstry.empty())&&(myfile!= NULL)) {
 
 
-
-           xsub=new double[_Ntable3];
-           ysub=new double[_Ntable3];
-           esub=new double[_Ntable3];
-           vxsub=new double[_Ntable3];
-           vysub=new double[_Ntable3];
-           vzsub=new double[_Ntable3];
-
-
-          while (fscanf(myfile,"%lf    %lf  %lf %lf    %lf  %lf  \n",&xsub[i],&ysub[i],&esub[i],&vxsub[i],&vysub[i],&vzsub[i])!=EOF){
-
-
-                   esub[i]/=0.1973;
-                   if (factor*esub[i]>0.01) ++i;
-          }
+        int i=0;
 
 
 
-         _Ntable3=i;
-          _p= new Particle<2>[_Ntable3];
+        xsub=new double[_Ntable3];
+        ysub=new double[_Ntable3];
+        esub=new double[_Ntable3];
+        vxsub=new double[_Ntable3];
+        vysub=new double[_Ntable3];
+        vzsub=new double[_Ntable3];
 
-         // cout << "After e-cutoff=" << _Ntable3 << endl;
 
-          int kk=_Ntable3;
-          numpart=0;
+        while (fscanf(myfile,"%lf    %lf  %lf %lf    %lf  %lf  \n",&xsub[i],&ysub[i],&esub[i],&vxsub[i],&vysub[i],&vzsub[i])!=EOF) {
 
-          for(int j=0;j<_Ntable3;j++){
-          	   _p[j].r.x[0]=xsub[j];
-        	   _p[j].r.x[1]=ysub[j];
-        	   _p[j].e_sub=factor*esub[j];
-                   _p[j].v.x[0]=vxsub[j];
-        	   _p[j].v.x[1]=vysub[j];
-        	   _p[j].gamma=1/sqrt(1-Norm2(_p[j].v));
-        	   _p[j].u.x[0]=_p[j].gamma*vxsub[j];
-        	   _p[j].u.x[1]=_p[j].gamma*vysub[j];
 
-                   _p[j].eta_sigma  = 1;
-                   _p[j].sigmaweight=0.08*0.08;
-                   _p[j].Bulk = 0;
+            esub[i]/=0.1973;
+            if (factor*esub[i]>0.01) ++i;
+        }
 
 
 
-              	   if (_p[j].e_sub>efcheck)
-                   {
-                   	_p[j].Freeze=0;
-                   }
-                   else
-                   {
-                   	_p[j].Freeze=4;
-                   	--kk;
-                   	++numpart;
-                   }
-          }
-          cout << "After freezeout=" << _Ntable3-numpart << endl;
+        _Ntable3=i;
+        _p= new Particle<2>[_Ntable3];
 
-          delete [] xsub;
-          delete [] ysub;
-          delete [] esub;
+        // cout << "After e-cutoff=" << _Ntable3 << endl;
 
-  	  fclose(myfile);
-  	}
-  	else {
-  		cout << "Error: " << firstry.c_str() << " does not exist.  Please enter new file name\n";
+        int kk=_Ntable3;
+        numpart=0;
 
-		exit(1);
-  	}
+        for(int j=0; j<_Ntable3; j++) {
+            _p[j].r.x[0]=xsub[j];
+            _p[j].r.x[1]=ysub[j];
+            _p[j].e_sub=factor*esub[j];
+            _p[j].v.x[0]=vxsub[j];
+            _p[j].v.x[1]=vysub[j];
+            _p[j].gamma=1/sqrt(1-Norm2(_p[j].v));
+            _p[j].u.x[0]=_p[j].gamma*vxsub[j];
+            _p[j].u.x[1]=_p[j].gamma*vysub[j];
+
+            _p[j].eta_sigma  = 1;
+            _p[j].sigmaweight=0.08*0.08;
+            _p[j].Bulk = 0;
+
+
+
+            if (_p[j].e_sub>efcheck)
+            {
+                _p[j].Freeze=0;
+            }
+            else
+            {
+                _p[j].Freeze=4;
+                --kk;
+                ++numpart;
+            }
+        }
+        cout << "After freezeout=" << _Ntable3-numpart << endl;
+
+        delete [] xsub;
+        delete [] ysub;
+        delete [] esub;
+
+        fclose(myfile);
+    }
+    else {
+        cout << "Error: " << firstry.c_str() << " does not exist.  Please enter new file name\n";
+
+        exit(1);
+    }
 }
 
 //event by event for ipglasma with flow
 double readICs_gl(string &firstry,  int &_Ntable3,Particle<2> *&_p,double factor,double const& efcheck, int & numpart)
 {
 
-	string filename;
-	filename = ifolder+firstry;
+    string filename;
+    filename = ifolder+firstry;
 
 
-        ifstream input(filename.c_str());
+    ifstream input(filename.c_str());
 
-        cout << "input from: " << filename.c_str() << endl;
+    cout << "input from: " << filename.c_str() << endl;
 
-        vector< double > rx,ry,e,ux,uy;
+    vector< double > rx,ry,e,ux,uy;
 
-  	if (!input.is_open())
- 	{
- 	cout << "Can't open " << filename << endl;
- 	exit(1);
- 	}
-
-
-
-
-           double gd2;
-           if (hcor==2) gd2=0.17*0.17/4.;
-           else if (hcor==4) gd2=0.17*0.17/16.;
-           else if (hcor==6) {gd2=0.0283333*0.0283333;
-
-           string line;
-	   getline(input,line);
-	   while (getline(input,line)){
-
-	   std::vector<double> y (7,0) ;
-	   std::vector<std::string> x = split(line, ' ');
-
-	   if (x.size()<7) break;
-
-	   for(int j=0;j<7;j++)
-	   {
-	   stringstream s;
-	   s << x[j];
-	   s >> y[j];
-	   }
-
-	   double esub= factor*y[3];
-	   if (esub>0.05)
-	   {
-	   e.push_back(esub);
-	   rx.push_back(y[1]);
-	   ry.push_back(y[2]);
-	   ux.push_back(y[4]*y[5]);
-	   uy.push_back(y[4]*y[6]);
-
-	   }
-
-
-	   }
-
-
-	   }
-	   else if (hcor==7) {gd2=0.0283333*0.0283333*4;
-
-           string line;
-	   getline(input,line);
-	   int skip=0,run=0;
-	   while (getline(input,line)){
-
-	   std::vector<double> y (7,0) ;
-	   std::vector<std::string> x = split(line, ' ');
-
-	   run++;
-	   if (run==1200) skip=0;
-	   if (run==2401) {skip=0;
-	   run=1;}
-	   if (skip==1){
-	   skip=0;
-	   continue;
-	   }
-	   else skip=1;
-
-	   if (run>1200) continue;
-
-
-	   if (x.size()<7) break;
-
-	   for(int j=0;j<7;j++)
-	   {
-	   stringstream s;
-	   s << x[j];
-	   s >> y[j];
-	   }
-//	   cout << run << " " << skip << " " <<  x[1] << " " << x[2] << endl;
-//	   if (run==4) getchar();
-//	   if (run==5) getchar();
-
-	   double esub= factor*y[3];
-	   if (esub>0.05)
-	   {
-	   e.push_back(esub);
-	   rx.push_back(y[1]);
-	   ry.push_back(y[2]);
-	   ux.push_back(y[4]*y[5]);
-	   uy.push_back(y[4]*y[6]);
-
-	   }
-
-
-	   }}
-	   else  gd2=0.17*0.17;
+    if (!input.is_open())
+    {
+        cout << "Can't open " << filename << endl;
+        exit(1);
+    }
 
 
 
-           if (hcor<6){
 
-           string line;
-           getline(input,line);
+    double gd2;
+    if (hcor==2) gd2=0.17*0.17/4.;
+    else if (hcor==4) gd2=0.17*0.17/16.;
+    else if (hcor==6) {
+        gd2=0.0283333*0.0283333;
 
+        string line;
+        getline(input,line);
+        while (getline(input,line)) {
 
-	   while (getline(input,line)){
+            std::vector<double> y (7,0) ;
+            std::vector<std::string> x = split(line, ' ');
 
+            if (x.size()<7) break;
 
-	   std::vector<double> y (6,0) ;
-	   std::vector<std::string> x = split(line, ' ');
+            for(int j=0; j<7; j++)
+            {
+                stringstream s;
+                s << x[j];
+                s >> y[j];
+            }
 
-	   if (x.size()<5) break;
+            double esub= factor*y[3];
+            if (esub>0.05)
+            {
+                e.push_back(esub);
+                rx.push_back(y[1]);
+                ry.push_back(y[2]);
+                ux.push_back(y[4]*y[5]);
+                uy.push_back(y[4]*y[6]);
 
-	   for(int j=0;j<5;j++)
-	   {
-	   stringstream s;
-	   s << x[j];
-	   s >> y[j];
-	   }
-
-
-	   double esub= factor*y[2]/0.1973;
-//	   if (esub>0.1)
-//	   {
-
-
-
-	   e.push_back(esub);
-	   rx.push_back(y[0]);
-	   ry.push_back(y[1]);
-	   ux.push_back(y[3]);
-	   uy.push_back(y[4]);
-//	   }
-
-           }}
+            }
 
 
-         input.close();
+        }
+
+
+    }
+    else if (hcor==7) {
+        gd2=0.0283333*0.0283333*4;
+
+        string line;
+        getline(input,line);
+        int skip=0,run=0;
+        while (getline(input,line)) {
+
+            std::vector<double> y (7,0) ;
+            std::vector<std::string> x = split(line, ' ');
+
+            run++;
+            if (run==1200) skip=0;
+            if (run==2401) {
+                skip=0;
+                run=1;
+            }
+            if (skip==1) {
+                skip=0;
+                continue;
+            }
+            else skip=1;
+
+            if (run>1200) continue;
+
+
+            if (x.size()<7) break;
+
+            for(int j=0; j<7; j++)
+            {
+                stringstream s;
+                s << x[j];
+                s >> y[j];
+            }
+//       cout << run << " " << skip << " " <<  x[1] << " " << x[2] << endl;
+//       if (run==4) getchar();
+//       if (run==5) getchar();
+
+            double esub= factor*y[3];
+            if (esub>0.05)
+            {
+                e.push_back(esub);
+                rx.push_back(y[1]);
+                ry.push_back(y[2]);
+                ux.push_back(y[4]*y[5]);
+                uy.push_back(y[4]*y[6]);
+
+            }
+
+
+        }
+    }
+    else  gd2=0.17*0.17;
 
 
 
-         _Ntable3=e.size();
-          _p= new Particle<2>[_Ntable3];
+    if (hcor<6) {
+
+        string line;
+        getline(input,line);
 
 
-          int kk=_Ntable3;
-          numpart=0;
-
-          for(int j=0;j<_Ntable3;j++){
-          	   _p[j].r.x[0]=rx[j];
-        	   _p[j].r.x[1]=ry[j];
-        	   _p[j].e_sub=e[j];
-        	   _p[j].u.x[0]=ux[j];  //these are actually already u not v
-        	   _p[j].u.x[1]=uy[j];
-
-                   _p[j].eta_sigma  = 1;
-                   _p[j].sigmaweight=gd2;
-                   _p[j].Bulk = 0;
+        while (getline(input,line)) {
 
 
+            std::vector<double> y (6,0) ;
+            std::vector<std::string> x = split(line, ' ');
 
-              	   if (_p[j].e_sub>efcheck)
-                   {
-                   	_p[j].Freeze=0;
-                   }
-                   else
-                   {
-                   	_p[j].Freeze=4;
-                   	--kk;
-                   	++numpart;
-                   }
-          }
-          cout << "After freezeout=" << _Ntable3-numpart << endl;
+            if (x.size()<5) break;
+
+            for(int j=0; j<5; j++)
+            {
+                stringstream s;
+                s << x[j];
+                s >> y[j];
+            }
+
+
+            double esub= factor*y[2]/0.1973;
+//       if (esub>0.1)
+//       {
 
 
 
-	return gd2;
+            e.push_back(esub);
+            rx.push_back(y[0]);
+            ry.push_back(y[1]);
+            ux.push_back(y[3]);
+            uy.push_back(y[4]);
+//       }
+
+        }
+    }
+
+
+    input.close();
+
+
+
+    _Ntable3=e.size();
+    _p= new Particle<2>[_Ntable3];
+
+
+    int kk=_Ntable3;
+    numpart=0;
+
+    for(int j=0; j<_Ntable3; j++) {
+        _p[j].r.x[0]=rx[j];
+        _p[j].r.x[1]=ry[j];
+        _p[j].e_sub=e[j];
+        _p[j].u.x[0]=ux[j];  //these are actually already u not v
+        _p[j].u.x[1]=uy[j];
+
+        _p[j].eta_sigma  = 1;
+        _p[j].sigmaweight=gd2;
+        _p[j].Bulk = 0;
+
+
+
+        if (_p[j].e_sub>efcheck)
+        {
+            _p[j].Freeze=0;
+        }
+        else
+        {
+            _p[j].Freeze=4;
+            --kk;
+            ++numpart;
+        }
+    }
+    cout << "After freezeout=" << _Ntable3-numpart << endl;
+
+
+
+    return gd2;
 
 }
 
@@ -925,184 +914,190 @@ double readICs_gl(string &firstry,  int &_Ntable3,Particle<2> *&_p,double factor
 void readICs_glno(string &firstry,  int &_Ntable3,Particle<2> *&_p,double factor,double const& efcheck, int & numpart)
 {
 
-	string filename;
-	filename = ifolder+firstry;
+    string filename;
+    filename = ifolder+firstry;
 
 
-        ifstream input(filename.c_str());
+    ifstream input(filename.c_str());
 
-        cout << "input from: " << filename.c_str() << endl;
+    cout << "input from: " << filename.c_str() << endl;
 
-        vector< double > rx,ry,e;
+    vector< double > rx,ry,e;
 
-  	if (!input.is_open())
- 	{
- 	cout << "Can't open " << filename << endl;
- 	exit(1);
- 	}
-
-
-
-
-           double gd2;
-           if (hcor==2) gd2=0.17*0.17/4.;
-           else if (hcor==4) gd2=0.17*0.17/16.;
-           else if (hcor==6) {gd2=0.0283333*0.0283333;
-
-           string line;
-	   getline(input,line);
-	   while (getline(input,line)){
-
-	   std::vector<double> y (7,0) ;
-	   std::vector<std::string> x = split(line, ' ');
-
-	   if (x.size()<7) break;
-
-	   for(int j=0;j<7;j++)
-	   {
-	   stringstream s;
-	   s << x[j];
-	   s >> y[j];
-	   }
-
-	   double esub= factor*y[3];
-	   if (esub>0.05)
-	   {
-	   e.push_back(esub);
-	   rx.push_back(y[1]);
-	   ry.push_back(y[2]);
-
-	   }
-
-
-	   }
-
-
-	   }
-	   else if (hcor==7) {gd2=0.0283333*0.0283333*4;
-
-           string line;
-	   getline(input,line);
-	   int skip=0,run=0;
-	   while (getline(input,line)){
-
-	   std::vector<double> y (7,0) ;
-	   std::vector<std::string> x = split(line, ' ');
-
-	   run++;
-	   if (run==1200) skip=0;
-	   if (run==2401) {skip=0;
-	   run=1;}
-	   if (skip==1){
-	   skip=0;
-	   continue;
-	   }
-	   else skip=1;
-
-	   if (run>1200) continue;
-
-
-	   if (x.size()<7) break;
-
-	   for(int j=0;j<7;j++)
-	   {
-	   stringstream s;
-	   s << x[j];
-	   s >> y[j];
-	   }
-//	   cout << run << " " << skip << " " <<  x[1] << " " << x[2] << endl;
-//	   if (run==4) getchar();
-//	   if (run==5) getchar();
-
-	   double esub= factor*y[3];
-	   if (esub>0.05)
-	   {
-	   e.push_back(esub);
-	   rx.push_back(y[1]);
-	   ry.push_back(y[2]);
-
-	   }
-
-
-	   }}
-	   else  gd2=0.17*0.17;
+    if (!input.is_open())
+    {
+        cout << "Can't open " << filename << endl;
+        exit(1);
+    }
 
 
 
-           if (hcor!=6){
-           string line;
 
-           getline(input,line);
-	   while (getline(input,line)){
+    double gd2;
+    if (hcor==2) gd2=0.17*0.17/4.;
+    else if (hcor==4) gd2=0.17*0.17/16.;
+    else if (hcor==6) {
+        gd2=0.0283333*0.0283333;
 
-	   std::vector<double> y (5,0) ;
-	   std::vector<std::string> x = split(line, ' ');
+        string line;
+        getline(input,line);
+        while (getline(input,line)) {
 
-	   if (x.size()<5) break;
+            std::vector<double> y (7,0) ;
+            std::vector<std::string> x = split(line, ' ');
 
-	   for(int j=0;j<5;j++)
-	   {
-	   stringstream s;
-	   s << x[j];
-	   s >> y[j];
-	   }
+            if (x.size()<7) break;
 
-	   double esub= factor*y[2]/0.1973;
-	   if (esub>0.1)
-	   {
+            for(int j=0; j<7; j++)
+            {
+                stringstream s;
+                s << x[j];
+                s >> y[j];
+            }
 
-	   e.push_back(esub);
-	   rx.push_back(y[0]);
-	   ry.push_back(y[1]);
-	   }
+            double esub= factor*y[3];
+            if (esub>0.05)
+            {
+                e.push_back(esub);
+                rx.push_back(y[1]);
+                ry.push_back(y[2]);
 
-           }}
-
-
-         input.close();
-
-
-
-         _Ntable3=e.size();
-          _p= new Particle<2>[_Ntable3];
+            }
 
 
-          int kk=_Ntable3;
-          numpart=0;
-
-          for(int j=0;j<_Ntable3;j++){
-          	   _p[j].r.x[0]=rx[j];
-        	   _p[j].r.x[1]=ry[j];
-        	   _p[j].e_sub=e[j];
-        	   _p[j].u.x[0]=0;  //these are actually already u not v
-        	   _p[j].u.x[1]=0;
-
-                   _p[j].eta_sigma  = 1;
-                   _p[j].sigmaweight=gd2;
-                   _p[j].Bulk = 0;
+        }
 
 
+    }
+    else if (hcor==7) {
+        gd2=0.0283333*0.0283333*4;
 
-              	   if (_p[j].e_sub>efcheck)
-                   {
-                   	_p[j].Freeze=0;
-                   }
-                   else
-                   {
-                   	_p[j].Freeze=4;
-                   	--kk;
-                   	++numpart;
-                   }
-          }
-          cout << "After freezeout=" << _Ntable3-numpart << endl;
+        string line;
+        getline(input,line);
+        int skip=0,run=0;
+        while (getline(input,line)) {
+
+            std::vector<double> y (7,0) ;
+            std::vector<std::string> x = split(line, ' ');
+
+            run++;
+            if (run==1200) skip=0;
+            if (run==2401) {
+                skip=0;
+                run=1;
+            }
+            if (skip==1) {
+                skip=0;
+                continue;
+            }
+            else skip=1;
+
+            if (run>1200) continue;
+
+
+            if (x.size()<7) break;
+
+            for(int j=0; j<7; j++)
+            {
+                stringstream s;
+                s << x[j];
+                s >> y[j];
+            }
+//       cout << run << " " << skip << " " <<  x[1] << " " << x[2] << endl;
+//       if (run==4) getchar();
+//       if (run==5) getchar();
+
+            double esub= factor*y[3];
+            if (esub>0.05)
+            {
+                e.push_back(esub);
+                rx.push_back(y[1]);
+                ry.push_back(y[2]);
+
+            }
+
+
+        }
+    }
+    else  gd2=0.17*0.17;
+
+
+
+    if (hcor!=6) {
+        string line;
+
+        getline(input,line);
+        while (getline(input,line)) {
+
+            std::vector<double> y (5,0) ;
+            std::vector<std::string> x = split(line, ' ');
+
+            if (x.size()<5) break;
+
+            for(int j=0; j<5; j++)
+            {
+                stringstream s;
+                s << x[j];
+                s >> y[j];
+            }
+
+            double esub= factor*y[2]/0.1973;
+            if (esub>0.1)
+            {
+
+                e.push_back(esub);
+                rx.push_back(y[0]);
+                ry.push_back(y[1]);
+            }
+
+        }
+    }
+
+
+    input.close();
+
+
+
+    _Ntable3=e.size();
+    _p= new Particle<2>[_Ntable3];
+
+
+    int kk=_Ntable3;
+    numpart=0;
+
+    for(int j=0; j<_Ntable3; j++) {
+        _p[j].r.x[0]=rx[j];
+        _p[j].r.x[1]=ry[j];
+        _p[j].e_sub=e[j];
+        _p[j].u.x[0]=0;  //these are actually already u not v
+        _p[j].u.x[1]=0;
+
+        _p[j].eta_sigma  = 1;
+        _p[j].sigmaweight=gd2;
+        _p[j].Bulk = 0;
+
+
+
+        if (_p[j].e_sub>efcheck)
+        {
+            _p[j].Freeze=0;
+        }
+        else
+        {
+            _p[j].Freeze=4;
+            --kk;
+            ++numpart;
+        }
+    }
+    cout << "After freezeout=" << _Ntable3-numpart << endl;
 }
 
-double readICs_gl(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,double const& efcheck, int & numpart){
+double readICs_gl(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,double const& efcheck, int & numpart) {
 
- return factor;
+    return factor;
 }
 
-void readICs_glno(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,double const& efcheck, int & numpart){
+void readICs_glno(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,double const& efcheck, int & numpart) {
 }
 
 void readICs_gebe(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,double const& efcheck, int & numpart)
@@ -1113,140 +1108,140 @@ void readICs_nebe(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor
 {
 }
 
-void readICs_tnt(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,double const& efcheck, int & numpart, eos EOS){
+void readICs_tnt(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor,double const& efcheck, int & numpart, eos EOS) {
 }
 
 //with initial flow
 void readICs_genUU(string &firstry,  int &_Ntable3,Particle<2> *&_p,double const& efcheck, int & numpart)
 {
-	FILE * myfile;
-	string filename;
-	int i;
+    FILE * myfile;
+    string filename;
+    int i;
 
-	filename = ifolder+firstry;
-	//nameenter:
-        myfile = fopen (filename.c_str(),"r");
-  	if ((!firstry.empty())&&(myfile!= NULL)){
-  	   fscanf(myfile,"%i \n",&_Ntable3);
-           _p= new Particle<2>[_Ntable3];
-           i=0;
+    filename = ifolder+firstry;
+    //nameenter:
+    myfile = fopen (filename.c_str(),"r");
+    if ((!firstry.empty())&&(myfile!= NULL)) {
+        fscanf(myfile,"%i \n",&_Ntable3);
+        _p= new Particle<2>[_Ntable3];
+        i=0;
 
-           while (i<_Ntable3 ){
-                   fscanf(myfile,"%lf    %lf    %lf  %lf    %lf\n",&_p[i].r.x[0],&_p[i].r.x[1],&_p[i].sigmaweight,&_p[i].u.x[0],&_p[i].u.x[1]);
-                   _p[i].eta_sigma  = 1.;
-                   _p[i].Bulk = 0.;
+        while (i<_Ntable3 ) {
+            fscanf(myfile,"%lf    %lf    %lf  %lf    %lf\n",&_p[i].r.x[0],&_p[i].r.x[1],&_p[i].sigmaweight,&_p[i].u.x[0],&_p[i].u.x[1]);
+            _p[i].eta_sigma  = 1.;
+            _p[i].Bulk = 0.;
 
-             	   if (_p[i].e_sub>efcheck)
-                   {
-                   	_p[i].Freeze=0;
-                   }
-                   else
-                   {
-                   	_p[i].Freeze=4;
-                   	numpart++;
-                   }
+            if (_p[i].e_sub>efcheck)
+            {
+                _p[i].Freeze=0;
+            }
+            else
+            {
+                _p[i].Freeze=4;
+                numpart++;
+            }
 
-                   i++;
-          }
-  	  fclose(myfile);
-	  cout << filename.c_str() << ": Input sucessful!\n";
-  	}
-  	else {
-  		cout << "Error: " << firstry.c_str() << " does not exist.  Please enter new file name\n";
+            i++;
+        }
+        fclose(myfile);
+        cout << filename.c_str() << ": Input sucessful!\n";
+    }
+    else {
+        cout << "Error: " << firstry.c_str() << " does not exist.  Please enter new file name\n";
 
-		exit(1);
-  	}
+        exit(1);
+    }
 }
 
 //3 dimensions
 
 void readICs_gen(string &firstry,  string &firstry2, int &_Ntable3, Particle< 3 > *&_p,double const& efcheck, int & numpart)
 {
-	FILE * myfile;
-	FILE * myfile2;
-	string filename, filename2;
-	int i;
+    FILE * myfile;
+    FILE * myfile2;
+    string filename, filename2;
+    int i;
 
-	filename = ifolder+firstry;
-	//nameenter:
-        myfile = fopen (filename.c_str(),"r");
-  	if ((!firstry.empty())&&(myfile!= NULL)){
-  	   fscanf(myfile,"%i \n",&_Ntable3);
-           _p= new Particle<3>[_Ntable3];
-           i=0;
-           while (i<_Ntable3 ){
-                   fscanf(myfile,"%lf    %lf    %lf   %lf\n",&_p[i].r.x[0],&_p[i].r.x[1],&_p[i].r.x[2],&_p[i].sigmaweight);
-                   _p[i].eta_sigma  = 1.;
-                   _p[i].Bulk = 0.;
-                   i++;
-           }
+    filename = ifolder+firstry;
+    //nameenter:
+    myfile = fopen (filename.c_str(),"r");
+    if ((!firstry.empty())&&(myfile!= NULL)) {
+        fscanf(myfile,"%i \n",&_Ntable3);
+        _p= new Particle<3>[_Ntable3];
+        i=0;
+        while (i<_Ntable3 ) {
+            fscanf(myfile,"%lf    %lf    %lf   %lf\n",&_p[i].r.x[0],&_p[i].r.x[1],&_p[i].r.x[2],&_p[i].sigmaweight);
+            _p[i].eta_sigma  = 1.;
+            _p[i].Bulk = 0.;
+            i++;
+        }
 
-  	  fclose(myfile);
-	  cout << filename.c_str() << ": Input sucessful!\n";
-  	}
-  	else {
-  		cout << "Error: " << firstry.c_str() << " does not exist.  Please enter new file name\n";
+        fclose(myfile);
+        cout << filename.c_str() << ": Input sucessful!\n";
+    }
+    else {
+        cout << "Error: " << firstry.c_str() << " does not exist.  Please enter new file name\n";
 
-		exit(1);
-  	}
+        exit(1);
+    }
 
 
 
-	filename2 = ifolder+firstry2;
-	//nameenter2:
-        myfile2 = fopen (filename2.c_str(),"r");
-  	if ((!firstry2.empty())&&(myfile2!= NULL)){
+    filename2 = ifolder+firstry2;
+    //nameenter2:
+    myfile2 = fopen (filename2.c_str(),"r");
+    if ((!firstry2.empty())&&(myfile2!= NULL)) {
 
-           i=0;
-           while (i<_Ntable3 ){
-                   fscanf(myfile2,"%*f  %*f  %*f    %lf    %lf   %lf\n",&_p[i].v.x[0],&_p[i].v.x[1],&_p[i].v.x[2]);
+        i=0;
+        while (i<_Ntable3 ) {
+            fscanf(myfile2,"%*f  %*f  %*f    %lf    %lf   %lf\n",&_p[i].v.x[0],&_p[i].v.x[1],&_p[i].v.x[2]);
 //                   _p[i].gammacalc();
 //                   _p[i].ucalc();
-                   i++;
-           }
+            i++;
+        }
 
-  	  fclose(myfile2);
-	  cout << filename2.c_str() << ": Input sucessful!\n";
-  	}
-  	else {
-  		cout << "Error: " << firstry2.c_str() << " does not exist.  Please enter new file name\n";
+        fclose(myfile2);
+        cout << filename2.c_str() << ": Input sucessful!\n";
+    }
+    else {
+        cout << "Error: " << firstry2.c_str() << " does not exist.  Please enter new file name\n";
 
-		exit(1);
-  	}
+        exit(1);
+    }
 }
 
 void readICs_gen(string &firstry,  int &_Ntable3, Particle<3> *&_p,double const& efcheck, int & numpart)
 {
-	FILE * myfile;
-	string filename;
-	int i;
+    FILE * myfile;
+    string filename;
+    int i;
 
 
-	filename = ifolder+firstry;
-	//nameenter:
-        myfile = fopen (filename.c_str(),"r");
-  	if ((!firstry.empty())&&(myfile!= NULL)){
-  	   fscanf(myfile,"%i \n",&_Ntable3);
-           _p= new Particle<3>[_Ntable3];
-           i=0;
-           while (i<_Ntable3 ){
-                   fscanf(myfile,"%lf    %lf    %lf   %lf\n",&_p[i].r.x[0],&_p[i].r.x[1],&_p[i].r.x[2],&_p[i].sigmaweight);
-                   _p[i].eta_sigma  = 1.;
-                   _p[i].u.x[0]=0;
-        	   _p[i].u.x[1]=0;
-        	   _p[i].u.x[2]=0;
-                   _p[i].Bulk = 0.;
-                   i++;
-           }
+    filename = ifolder+firstry;
+    //nameenter:
+    myfile = fopen (filename.c_str(),"r");
+    if ((!firstry.empty())&&(myfile!= NULL)) {
+        fscanf(myfile,"%i \n",&_Ntable3);
+        _p= new Particle<3>[_Ntable3];
+        i=0;
+        while (i<_Ntable3 ) {
+            fscanf(myfile,"%lf    %lf    %lf   %lf\n",&_p[i].r.x[0],&_p[i].r.x[1],&_p[i].r.x[2],&_p[i].sigmaweight);
+            _p[i].eta_sigma  = 1.;
+            _p[i].u.x[0]=0;
+            _p[i].u.x[1]=0;
+            _p[i].u.x[2]=0;
+            _p[i].Bulk = 0.;
+            i++;
+        }
 
-  	  fclose(myfile);
-	  cout << filename.c_str() << ": Input sucessful!\n";
-  	}
-  	else {
-  		cout << "Error: " << firstry.c_str() << " does not exist.  Please enter new file name\n";
+        fclose(myfile);
+        cout << filename.c_str() << ": Input sucessful!\n";
+    }
+    else {
+        cout << "Error: " << firstry.c_str() << " does not exist.  Please enter new file name\n";
 
-		exit(1);
-  	}
+        exit(1);
+    }
 
 
 
@@ -1255,35 +1250,35 @@ void readICs_gen(string &firstry,  int &_Ntable3, Particle<3> *&_p,double const&
 //with initial flow
 void readICs_genUU(string &firstry,  int &_Ntable3,Particle<3> *&_p,double const& efcheck, int & numpart)
 {
-	FILE * myfile;
-	string filename;
-	int i;
+    FILE * myfile;
+    string filename;
+    int i;
 
 
-	filename = ifolder+firstry;
-	//nameenter:
-        myfile = fopen (filename.c_str(),"r");
-  	if ((!firstry.empty())&&(myfile!= NULL)){
-  	   fscanf(myfile,"%i \n",&_Ntable3);
-           _p= new Particle<3>[_Ntable3];
-           i=0;
+    filename = ifolder+firstry;
+    //nameenter:
+    myfile = fopen (filename.c_str(),"r");
+    if ((!firstry.empty())&&(myfile!= NULL)) {
+        fscanf(myfile,"%i \n",&_Ntable3);
+        _p= new Particle<3>[_Ntable3];
+        i=0;
 
-           while (i<_Ntable3 ){
-                   fscanf(myfile,"%lf    %lf    %lf  %lf    %lf %lf    %lf\n",&_p[i].r.x[0],&_p[i].r.x[1],&_p[i].r.x[2],&_p[i].sigmaweight,&_p[i].u.x[0],&_p[i].u.x[1],&_p[i].u.x[2]);
-                   _p[i].eta_sigma  = 1.;
-                   _p[i].Bulk = 0.;
+        while (i<_Ntable3 ) {
+            fscanf(myfile,"%lf    %lf    %lf  %lf    %lf %lf    %lf\n",&_p[i].r.x[0],&_p[i].r.x[1],&_p[i].r.x[2],&_p[i].sigmaweight,&_p[i].u.x[0],&_p[i].u.x[1],&_p[i].u.x[2]);
+            _p[i].eta_sigma  = 1.;
+            _p[i].Bulk = 0.;
 
 
-                   i++;
-          }
-  	  fclose(myfile);
-	  cout << filename.c_str() << ": Input sucessful!\n";
-  	}
-  	else {
-  		cout << "Error: " << firstry.c_str() << " does not exist.  Please enter new file name\n";
+            i++;
+        }
+        fclose(myfile);
+        cout << filename.c_str() << ": Input sucessful!\n";
+    }
+    else {
+        cout << "Error: " << firstry.c_str() << " does not exist.  Please enter new file name\n";
 
-		exit(1);
-  	}
+        exit(1);
+    }
 }
 
 
@@ -1302,18 +1297,18 @@ void open_dir(string eventfolder, string *&filelist, int &count)
     pdir=opendir(dir_in.c_str());
     if (!pdir)
     {
-    	cout<<"Directory doesnot exist";
+        cout<<"Directory doesnot exist";
     }
     int errno4=0; //errno.h
     while ((pent=readdir(pdir)))
     {
-    	string file_open=pent->d_name;
-    	int j=file_open.length();
-    	if (j>4)
-    	{
-    	string datcheck=file_open.substr((j-3),3);
-    	if (dat==datcheck&&file_open!=d1&&file_open!=d2) count++;
-    	}
+        string file_open=pent->d_name;
+        int j=file_open.length();
+        if (j>4)
+        {
+            string datcheck=file_open.substr((j-3),3);
+            if (dat==datcheck&&file_open!=d1&&file_open!=d2) count++;
+        }
 
 
     }
@@ -1324,22 +1319,22 @@ void open_dir(string eventfolder, string *&filelist, int &count)
     int i=0;
     while ((pent=readdir(pdir)))
     {
-    	string file_open=pent->d_name;
-    	int j=file_open.length();
+        string file_open=pent->d_name;
+        int j=file_open.length();
 
-    	if (j>4)
-    	{
-    	string datcheck=file_open.substr((j-3),3);
-    	if (dat==datcheck&&file_open!=d1&&file_open!=d2)
-    	{
-    	filelist[i]= eventfolder+dash+file_open;
-    	i++;
-    	}
-    	}
+        if (j>4)
+        {
+            string datcheck=file_open.substr((j-3),3);
+            if (dat==datcheck&&file_open!=d1&&file_open!=d2)
+            {
+                filelist[i]= eventfolder+dash+file_open;
+                i++;
+            }
+        }
     }
     if (errno4)
     {
-    	cout<<"Error while accessing directory";
+        cout<<"Error while accessing directory";
     }
     closedir(pdir);
 
@@ -1348,54 +1343,54 @@ void open_dir(string eventfolder, string *&filelist, int &count)
 ////event by event
 void readICs_ebe(string &firstry,  int &_Ntable3,Particle<3> *&_p,double factor, double const& efcheck, int & numpart)
 {
-	FILE * myfile;
-	string filename;
-	int i;
-	double stepx,stepy,stepeta;
+    FILE * myfile;
+    string filename;
+    int i;
+    double stepx,stepy,stepeta;
 
 
-	filename = ifolder+firstry;
-	//nameenter:
-        myfile = fopen (filename.c_str(),"r");
-  	if ((!firstry.empty())&&(myfile!= NULL)){
-  	   fscanf(myfile,"%i %lf    %lf   %lf\n",&_Ntable3,&stepx,&stepy,&stepeta);
-           _p= new Particle<3>[_Ntable3];
-           i=0;
+    filename = ifolder+firstry;
+    //nameenter:
+    myfile = fopen (filename.c_str(),"r");
+    if ((!firstry.empty())&&(myfile!= NULL)) {
+        fscanf(myfile,"%i %lf    %lf   %lf\n",&_Ntable3,&stepx,&stepy,&stepeta);
+        _p= new Particle<3>[_Ntable3];
+        i=0;
 
 
-           while (i<_Ntable3 ){
-                   fscanf(myfile,"%lf    %lf    %lf   %lf\n",&_p[i].r.x[0],&_p[i].r.x[1],&_p[i].r.x[2],&_p[i].e_sub);
-                   _p[i].u.x[0]=0.;
-        	   _p[i].u.x[1]=0.;
-        	   _p[i].u.x[2]=0.;
-        	   _p[i].e_sub/=0.1973;
-                   _p[i].eta_sigma  = 1.;
-                   _p[i].sigmaweight  =stepx*stepy*stepeta;
-                   _p[i].Bulk = 0.;
+        while (i<_Ntable3 ) {
+            fscanf(myfile,"%lf    %lf    %lf   %lf\n",&_p[i].r.x[0],&_p[i].r.x[1],&_p[i].r.x[2],&_p[i].e_sub);
+            _p[i].u.x[0]=0.;
+            _p[i].u.x[1]=0.;
+            _p[i].u.x[2]=0.;
+            _p[i].e_sub/=0.1973;
+            _p[i].eta_sigma  = 1.;
+            _p[i].sigmaweight  =stepx*stepy*stepeta;
+            _p[i].Bulk = 0.;
 
-                   i++;
-          }
-
-
+            i++;
+        }
 
 
 
-  	  fclose(myfile);
-	  cout << filename.c_str() << ": Input sucessful!\n";
-  	}
-  	else {
-  		cout << "Error: " << firstry.c_str() << " does not exist.  Please enter new file name\n";
 
-		exit(1);
-  	}
+
+        fclose(myfile);
+        cout << filename.c_str() << ": Input sucessful!\n";
+    }
+    else {
+        cout << "Error: " << firstry.c_str() << " does not exist.  Please enter new file name\n";
+
+        exit(1);
+    }
 }
 
 
 string convertInt(int number)
 {
-   stringstream ss;//create a stringstream
-   ss << number;//add number to the stream
-   return ss.str();//return a string with the contents of the stream
+    stringstream ss;//create a stringstream
+    ss << number;//add number to the stream
+    return ss.str();//return a string with the contents of the stream
 }
 
 std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems) {

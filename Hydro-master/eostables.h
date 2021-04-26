@@ -1,18 +1,18 @@
-#ifndef EOSTABLES_H_ 
+#ifndef EOSTABLES_H_
 #define EOSTABLES_H_
 
 
 
 typedef struct _eostableshigh {
-     
-	double T,s,p,e,dtds;               // temperature - used for entropy table	
-	int low;
+
+    double T,s,p,e,dtds;               // temperature - used for entropy table
+    int low;
 } eostableshigh;
 
 typedef struct _eostableslow {
-     
-	double T,s,p,e,dtds;	
-    
+
+    double T,s,p,e,dtds;
+
 } eostableslow;
 
 

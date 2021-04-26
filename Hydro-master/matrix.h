@@ -1,4 +1,4 @@
-#ifndef MATRIX_H_ 
+#ifndef MATRIX_H_
 #define MATRIX_H_
 
 #include <iostream>
@@ -10,16 +10,16 @@ using namespace std;
 template <class T, int D1, int D2>
 class Matrix {
 public:
-	T x[D1][D2];
-	Matrix<T,D1,D2>();
-	template <class U> Matrix<T,D1,D2>& operator=(Matrix<U,D1,D2> a);
-	Matrix<T,D1,D2>& operator=(double);
-	Matrix<T,D1,D2>& operator+=(Matrix<T,D1,D2>);
-	Matrix<T,D1,D2>& operator-=(Matrix<T,D1,D2>);
-	Matrix<T,D1,D2>& operator*=(Matrix<T,D2,D1> b);
-	Matrix<T,D1,D2>& operator*=(T);	
-	Matrix<T,D1,D2>& identity();
-	
+    T x[D1][D2];
+    Matrix<T,D1,D2>();
+    template <class U> Matrix<T,D1,D2>& operator=(Matrix<U,D1,D2> a);
+    Matrix<T,D1,D2>& operator=(double);
+    Matrix<T,D1,D2>& operator+=(Matrix<T,D1,D2>);
+    Matrix<T,D1,D2>& operator-=(Matrix<T,D1,D2>);
+    Matrix<T,D1,D2>& operator*=(Matrix<T,D2,D1> b);
+    Matrix<T,D1,D2>& operator*=(T);
+    Matrix<T,D1,D2>& identity();
+
 };
 
 
@@ -29,7 +29,7 @@ template <class T, int D1, int D2> Matrix<T,D1,D2> operator- (Matrix<T,D1,D2>);
 template <class T, int D1, int D2> Matrix<T,D1,D2> operator- (Matrix<T,D1,D2>, Matrix<T,D1,D2>);
 template <class T, int D1, int D2> Matrix<T,D1,D2> operator* (T, Matrix<T,D1,D2>);
 template <class T, int D1, int D2> ostream& operator<<(ostream& os, Matrix<T,  D1, D2> a);
-template <class T, int D1, int D2> Matrix<T, D2 , D1> transpose(Matrix<T, D1, D2> a) ;
+template <class T, int D1, int D2> Matrix<T, D2, D1> transpose(Matrix<T, D1, D2> a) ;
 template <class T, int D1, int D2, int Da2, int Db1> Matrix<T,D1,D2> operator* (Matrix<T, D1,Da2> a, Matrix< T,Db1, D2> b);
 template <class T, int D1, int D2> Vector<T,D2> column(Matrix<T, D1, D2> a) ;
 template <class T, int D1, int D2> Vector<T,D1> row(Matrix<T, D1, D2> a) ;

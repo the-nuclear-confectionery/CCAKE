@@ -3,8 +3,8 @@
 
 #include <stdio.h>      /* printf, scanf, puts, NULL */
 #include <stdlib.h>     /* srand, rand */
-#include <time.h>  
-#include "random.h" 
+#include <time.h>
+#include "random.h"
 
 #include <iostream>
 #include <fstream>
@@ -18,53 +18,53 @@ using namespace std;
 
 
 
-double randall(double min, double max, int & r){
+double randall(double min, double max, int & r) {
 
-srand( time( NULL ) +r);
+    srand( time( NULL ) +r);
 
 
- double out=min+ rand()* (max-min) / double(RAND_MAX+1.);
+    double out=min+ rand()* (max-min) / double(RAND_MAX+1.);
 
-r=r+rand();
+    r=r+rand();
 
-	return out;
+    return out;
 
 } // random for any min/max, doubles only
 
-double rand0(double max,int & r){
+double rand0(double max,int & r) {
 
-srand( time( NULL )+r );
+    srand( time( NULL )+r );
 
- double out=rand()*( max) / double(RAND_MAX+1.);
+    double out=rand()*( max) / double(RAND_MAX+1.);
 
-r=r+rand();
-	return out;
+    r=r+rand();
+    return out;
 
 } // random for min=0, doubles only
 
-double rand01(int & r){
+double rand01(int & r) {
 
-srand( time( NULL )+r );
+    srand( time( NULL )+r );
 
- double out=rand() / double(RAND_MAX+1.);
+    double out=rand() / double(RAND_MAX+1.);
 
-r=r+rand();
-	return out;
+    r=r+rand();
+    return out;
 
 } // random for min=0, max=1, doubles only
 
 
-int randint(int max,int & r ){
-	
-	srand( time( NULL )+r );
-	
-	
-	int out= (rand() % max);
-	
-	
-	r=r+rand();
-	
-	return out;
+int randint(int max,int & r ) {
+
+    srand( time( NULL )+r );
+
+
+    int out= (rand() % max);
+
+
+    r=r+rand();
+
+    return out;
 }
 
 

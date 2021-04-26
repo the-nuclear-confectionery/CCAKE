@@ -3,7 +3,6 @@
 #include "../splinter/include/datatable.h"
 #include "../splinter/include/bspline.h"
 #include "../splinter/include/bsplinebuilder.h"
-
 #include <gsl/gsl_multiroots.h>
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_matrix.h>
@@ -119,7 +118,7 @@ void eos::init(string quantityFile, string derivFile, int degree) {
 
     dataFile.close();
     derFile.close();
-    
+
     pSpline = BSpline::Builder(psamples).degree(degree).build();
     entrSpline = BSpline::Builder(entrsamples).degree(degree).build();
     bSpline = BSpline::Builder(bsamples).degree(degree).build();
@@ -162,7 +161,7 @@ void eos::tbqs(double setT, double setmuB, double setmuQ, double setmuS) {
     tbqsPosition(1) = setmuB;
     tbqsPosition(2) = setmuQ;
     tbqsPosition(3) = setmuS;
-    
+
     pVal = pSpline.eval(tbqsPosition);
     BVal = bSpline.eval(tbqsPosition);
     SVal = sSpline.eval(tbqsPosition);
@@ -355,7 +354,7 @@ double eos::calc_term_2(string i_char) {
         gsl_vector_set(b,0,db2);
         gsl_vector_set(b,1,dbds);
         gsl_vector_set(b,2,dbdq);
-        
+
         gsl_matrix_set(m,0,0,dtdb);
         gsl_matrix_set(m,0,1,dbds);
         gsl_matrix_set(m,0,2,dbdq);
@@ -375,7 +374,7 @@ double eos::calc_term_2(string i_char) {
         gsl_vector_set(b,0,dbds);
         gsl_vector_set(b,1,ds2);
         gsl_vector_set(b,2,dsdq);
-        
+
         gsl_matrix_set(m,0,0,dtdb);
         gsl_matrix_set(m,0,1,db2);
         gsl_matrix_set(m,0,2,dbdq);
@@ -395,7 +394,7 @@ double eos::calc_term_2(string i_char) {
         gsl_vector_set(b,0,dbdq);
         gsl_vector_set(b,1,dsdq);
         gsl_vector_set(b,2,dq2);
-        
+
         gsl_matrix_set(m,0,0,dtdb);
         gsl_matrix_set(m,0,1,db2);
         gsl_matrix_set(m,0,2,dbdq);
@@ -431,7 +430,7 @@ double eos::calc_term_3(string i_char) {
         gsl_vector_set(b,0,dt2);
         gsl_vector_set(b,1,dtds);
         gsl_vector_set(b,2,dtdq);
-        
+
         gsl_matrix_set(m,0,0,dtdb);
         gsl_matrix_set(m,0,1,dtds);
         gsl_matrix_set(m,0,2,dtdq);
@@ -451,7 +450,7 @@ double eos::calc_term_3(string i_char) {
         gsl_vector_set(b,0,dt2);
         gsl_vector_set(b,1,dtdb);
         gsl_vector_set(b,2,dtdq);
-        
+
         gsl_matrix_set(m,0,0,dtdb);
         gsl_matrix_set(m,0,1,dtds);
         gsl_matrix_set(m,0,2,dtdq);
@@ -471,7 +470,7 @@ double eos::calc_term_3(string i_char) {
         gsl_vector_set(b,0,dt2);
         gsl_vector_set(b,1,dtdb);
         gsl_vector_set(b,2,dtds);
-        
+
         gsl_matrix_set(m,0,0,dtdb);
         gsl_matrix_set(m,0,1,dtds);
         gsl_matrix_set(m,0,2,dtdq);
@@ -508,7 +507,7 @@ double eos::calc_term_4(string j_char, string i_char) {
             gsl_vector_set(b,0,dtdb);
             gsl_vector_set(b,1,dbds);
             gsl_vector_set(b,2,dbdq);
-            
+
             gsl_matrix_set(m,0,0,dt2);
             gsl_matrix_set(m,0,1,dtds);
             gsl_matrix_set(m,0,2,dtdq);
@@ -528,7 +527,7 @@ double eos::calc_term_4(string j_char, string i_char) {
             gsl_vector_set(b,0,dtdb);
             gsl_vector_set(b,1,db2);
             gsl_vector_set(b,2,dbdq);
-            
+
             gsl_matrix_set(m,0,0,dt2);
             gsl_matrix_set(m,0,1,dtds);
             gsl_matrix_set(m,0,2,dtdq);
@@ -548,7 +547,7 @@ double eos::calc_term_4(string j_char, string i_char) {
             gsl_vector_set(b,0,dtdb);
             gsl_vector_set(b,1,db2);
             gsl_vector_set(b,2,dbds);
-            
+
             gsl_matrix_set(m,0,0,dt2);
             gsl_matrix_set(m,0,1,dtds);
             gsl_matrix_set(m,0,2,dtdq);
@@ -572,7 +571,7 @@ double eos::calc_term_4(string j_char, string i_char) {
             gsl_vector_set(b,0,dtds);
             gsl_vector_set(b,1,ds2);
             gsl_vector_set(b,2,dsdq);
-            
+
             gsl_matrix_set(m,0,0,dt2);
             gsl_matrix_set(m,0,1,dtdb);
             gsl_matrix_set(m,0,2,dtdq);
@@ -592,7 +591,7 @@ double eos::calc_term_4(string j_char, string i_char) {
             gsl_vector_set(b,0,dtds);
             gsl_vector_set(b,1,dbds);
             gsl_vector_set(b,2,dsdq);
-            
+
             gsl_matrix_set(m,0,0,dt2);
             gsl_matrix_set(m,0,1,dtdb);
             gsl_matrix_set(m,0,2,dtdq);
@@ -612,7 +611,7 @@ double eos::calc_term_4(string j_char, string i_char) {
             gsl_vector_set(b,0,dtds);
             gsl_vector_set(b,1,dbds);
             gsl_vector_set(b,2,ds2);
-            
+
             gsl_matrix_set(m,0,0,dt2);
             gsl_matrix_set(m,0,1,dtdb);
             gsl_matrix_set(m,0,2,dtdq);
@@ -636,7 +635,7 @@ double eos::calc_term_4(string j_char, string i_char) {
             gsl_vector_set(b,0,dtdq);
             gsl_vector_set(b,1,dsdq);
             gsl_vector_set(b,2,dq2);
-            
+
             gsl_matrix_set(m,0,0,dt2);
             gsl_matrix_set(m,0,1,dtdb);
             gsl_matrix_set(m,0,2,dtds);
@@ -656,7 +655,7 @@ double eos::calc_term_4(string j_char, string i_char) {
             gsl_vector_set(b,0,dtdq);
             gsl_vector_set(b,1,dbdq);
             gsl_vector_set(b,2,dq2);
-            
+
             gsl_matrix_set(m,0,0,dt2);
             gsl_matrix_set(m,0,1,dtdb);
             gsl_matrix_set(m,0,2,dtds);
@@ -676,7 +675,7 @@ double eos::calc_term_4(string j_char, string i_char) {
             gsl_vector_set(b,0,dtdq);
             gsl_vector_set(b,1,dbdq);
             gsl_vector_set(b,2,dsdq);
-            
+
             gsl_matrix_set(m,0,0,dt2);
             gsl_matrix_set(m,0,1,dtdb);
             gsl_matrix_set(m,0,2,dtds);
@@ -730,20 +729,20 @@ double eos::deriv_mult_aTm_1b(gsl_vector* a, gsl_matrix* m, gsl_vector* b) {
 
 double eos::Atable()
 {
-	Aout=w()-entrVal*dwds();
+    Aout=w()-entrVal*dwds();
 
-	return Aout;
+    return Aout;
 };
 
 double eos::cs2out(double Tt) {  //return cs2 given t and mu's=0
     tbqs(Tt, 0.0, 0.0, 0.0);
     return cs2Val;
-} 
+}
 
 double eos::cs2out(double Tt, double muBin, double muQin, double muSin) {  //return cs2 given t and mu's
     tbqs(Tt, muBin, muQin, muSin);
     return cs2Val;
-} 
+}
 
 double eos::wfz(double Tt) {   // return e + p for tbqs
     tbqs(Tt, 0.0, 0.0, 0.0);
@@ -756,7 +755,7 @@ double eos::wfz(double Tt, double muBin, double muQin, double muSin) {   // retu
 }
 
 bool eos::update_s(double sin) { //update the t position (mu=0) based on input. Returns 1 if found, returns 0 if failed
-	return update_s(sin, 0.0, 0.0, 0.0);
+    return update_s(sin, 0.0, 0.0, 0.0);
 }
 
 bool eos::update_s(double sin, double Bin, double Sin, double Qin) { //update the t and mu position based on input. Returns 1 if found, returns 0 if failed
@@ -849,13 +848,13 @@ bool eos::update_s(double sin, double Bin, double Sin, double Qin) { //update th
     if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
         return true;
     }
-    
+
     tbqs(t0, mub0, muq0, mus0);
     return false;
-}  
+}
 
 double eos::s_out(double ein) {   //update the t position (mu=0) based on input. Returns entropy if found, returns -1 if failed
-	return s_out(ein, 0.0, 0.0, 0.0);
+    return s_out(ein, 0.0, 0.0, 0.0);
 }
 
 double eos::s_out(double ein, double Bin, double Sin, double Qin) {   //update the t and mu position based on input. Returns entropy if found, returns -1 if failed
@@ -949,7 +948,7 @@ double eos::s_out(double ein, double Bin, double Sin, double Qin) {   //update t
     if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
         return entrVal;
     }
-    
+
     tbqs(t0, mub0, muq0, mus0);
     return -1;
 }
@@ -957,17 +956,23 @@ double eos::s_out(double ein, double Bin, double Sin, double Qin) {   //update t
 double eos::s_terms_T(double Tt) { //return entropy at a given temperature for muB = muS = muQ = 0
     tbqs(Tt, 0, 0, 0);
     return entrVal;
-} 
+}
 
 
 // UNCOMMENTED BY C. PLUMBERG
 void eos::eosin(std::string type) {}
-double eos::A() {return 0;}
+double eos::A() {
+    return 0;
+}
 
 
 
-double eos::efreeze() {return 0;}
-double eos::sfreeze() {return 0;}
+double eos::efreeze() {
+    return 0;
+}
+double eos::sfreeze() {
+    return 0;
+}
 
 
 
@@ -984,8 +989,8 @@ struct rootfinder_parameters {
     BSpline rhoSSpline;
     rootfinder_parameters();
     rootfinder_parameters(double seteorEntGiven, double setRhoBGiven, double setRhoQGiven, double setRhoSGiven, BSpline setEntrSpline, BSpline setRhoBSPLine, BSpline setRhoQSpline, BSpline setRhoSSpline);
-    public:
-        void set(double setEorEntGiven, double setRhoBGiven, double setRhoQGiven, double setRhoSGiven, BSpline setEntrSpline, BSpline setRhoBSpline, BSpline setRhoQSpline, BSpline setRhoSSpline);
+public:
+    void set(double setEorEntGiven, double setRhoBGiven, double setRhoQGiven, double setRhoSGiven, BSpline setEntrSpline, BSpline setRhoBSpline, BSpline setRhoQSpline, BSpline setRhoSSpline);
 };
 //Default constructor to make the compiler happy. Should never be called
 rootfinder_parameters::rootfinder_parameters() : eorEntSpline(4), rhoBSpline(4), rhoQSpline(4), rhoSSpline(4) {}
@@ -1092,9 +1097,9 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
     rootfinder_parameters p;
     if(isEntropy) {
         p.set(e_or_s_Given, rhoBGiven, rhoQGiven, rhoSGiven, entrSpline, bSpline, qSpline, sSpline);
-        } else {
+    } else {
         p.set(e_or_s_Given, rhoBGiven, rhoQGiven, rhoSGiven, eSpline, bSpline, qSpline, sSpline);
-        }
+    }
 
     //initialize multiroot solver
     gsl_multiroot_fsolver *solver;
@@ -1139,7 +1144,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
         }
 
         status = gsl_multiroot_test_residual(solver->f, error);
-    
+
     } while (status == GSL_CONTINUE && iter < steps);
 
 
@@ -1148,7 +1153,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
         found = false;
     }
 
-    
+
     if(found) {
         tbqs(gsl_vector_get(solver->x, 0), gsl_vector_get(solver->x, 1), gsl_vector_get(solver->x, 2), gsl_vector_get(solver->x, 3));    //set T, muB, muQ, muS
     }
@@ -1179,8 +1184,8 @@ struct quant_rootfinder_parameters {
     string quantity;
     quant_rootfinder_parameters();
     quant_rootfinder_parameters(string setQuantity, int setWhichIndep, double setQuantGiven, double setT, double setmuB, double setmuQ, double setmuS, BSpline setPSpline, BSpline setEntrSpline, BSpline setESpline);
-    public:
-        void set(string setQuantity, int setWhichIndep, double setQuantGiven, double setT, double setmuB, double setmuQ, double setmuS, BSpline setPSpline, BSpline setEntrSpline, BSpline setESpline);
+public:
+    void set(string setQuantity, int setWhichIndep, double setQuantGiven, double setT, double setmuB, double setmuQ, double setmuS, BSpline setPSpline, BSpline setEntrSpline, BSpline setESpline);
 };
 //Default constructor
 quant_rootfinder_parameters::quant_rootfinder_parameters() : pSpline(4), entrSpline(4), eSpline(4) {}
@@ -1238,8 +1243,8 @@ int quant_rootfinder_f(const gsl_vector *x, void *params, gsl_vector *f) {
         tbqsToEval(2) = ((quant_rootfinder_parameters*)params)->muQGiven;
         tbqsToEval(3) = gsl_vector_get(x,0);
     }
-    
-    
+
+
 
     double quantGiven, quant;
     if(((quant_rootfinder_parameters*)params)->quantity == "e") {
@@ -1334,10 +1339,10 @@ bool eos::quant_rootfinder4D(double quantGiven, string quantType, int whichIndep
                 return 0;
             }
         }
-        
+
 
         status = gsl_multiroot_test_residual(solver->f, error);
-    
+
     } while (status == GSL_CONTINUE && iter < steps);
 
 
@@ -1346,7 +1351,7 @@ bool eos::quant_rootfinder4D(double quantGiven, string quantType, int whichIndep
         found = false;
     }
 
-    
+
     if(found) {
         tbqs(gsl_vector_get(solver->x, 0), muB(), muQ(), muS());    //set T, muB, muQ, muS
     }

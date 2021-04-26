@@ -12,35 +12,35 @@
     rhic/lhc (if relevant) $7
 COMMENT1
 if [ "$6"=="glb" ] ; then
-	t="glauber"
+    t="glauber"
 elif [ "$6"=="cgc" ] ; then
-	t="cgc"
+    t="cgc"
 elif [ "$6"=="nex" ] ; then
-	t="nexus"
+    t="nexus"
 elif [ "$6"=="gla" ] ; then
-	t="glasma"
+    t="glasma"
 elif [ "$6"=="trento" ] ; then
-	t="trento"
+    t="trento"
 elif [ "$6"=="iccing" ] ; then
-	t="iccing"
+    t="iccing"
 fi
 if [ "$7"!="" ] ; then
-	dec="$7"/
+    dec="$7"/
 else 
-	dec=""
+    dec=""
 fi
 if [ "$4"=="ideal" ] ; then
-	v=""
-	vv="i"
+    v=""
+    vv="i"
 elif [ "$4"=="bulk" ] ; then
-	v="bv"
-	vv="bvc"
+    v="bv"
+    vv="bvc"
 elif [  "$4"=="shearbulk" ] && [  "$4"=="shear" ]; then
-	v="sbv"
-	vv="sbvc"
+    v="sbv"
+    vv="sbvc"
 elif [  "$4"=="bsq" ] && [  "$4"=="bsq" ]; then
-	v="bsqsbv"
-	vv="bsqsbvc"
+    v="bsqsbv"
+    vv="bsqsbvc"
 fi
 
 
