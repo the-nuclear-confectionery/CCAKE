@@ -10,6 +10,14 @@ In file included from /projects/jnorhos/BSQ/splinter/include/../../splinter/incl
 /projects/jnorhos/BSQ/splinter/include/../../splinter/include/function.h:101:18: note: shadowed declaration is here
      unsigned int numVariables; // Dimension of domain (size of x)
                   ^~~~~~~~~~~~
+In file included from main.cpp:16:0:
+particle.h: In member function 'void Particle<D>::frzcheck(double, int&, int)':
+particle.h:169:56: warning: declaration of 'count' shadows a member of 'Particle<D>' [-Wshadow]
+ void Particle<D>::frzcheck(double tin,int &count, int N)
+                                                        ^
+particle.h:70:9: note: shadowed declaration is here
+     int count;
+         ^~~~~
 In file included from enteric.h:15:0,
                  from main.cpp:17:
 LinkList.h: In member function 'int LinkList<D>::triToSum(Vector<int, D>, Vector<int, D>)':
@@ -231,6 +239,12 @@ LinkList.h:2492:9:   required from 'void LinkList<D>::guess() [with int D = 2]'
 LinkList.h:2344:23:   required from 'void LinkList<D>::updateIC() [with int D = 2]'
 enteric.h:658:9:   required from 'void manualenter(_inputIC&, LinkList<D>&) [with int D = 2]'
 main.cpp:125:36:   required from here
+particle.h:169:6: warning: declaration of 'count' shadows a member of 'Particle<2>' [-Wshadow]
+ void Particle<D>::frzcheck(double tin,int &count, int N)
+      ^~~~~~~~~~~
+particle.h:70:9: note: shadowed declaration is here
+     int count;
+         ^~~~~
 particle.h:169:55: warning: unused parameter 'N' [-Wunused-parameter]
  void Particle<D>::frzcheck(double tin,int &count, int N)
                                                        ^
@@ -287,6 +301,12 @@ LinkList.h:2492:9:   required from 'void LinkList<D>::guess() [with int D = 3]'
 LinkList.h:2344:23:   required from 'void LinkList<D>::updateIC() [with int D = 3]'
 enteric.h:658:9:   required from 'void manualenter(_inputIC&, LinkList<D>&) [with int D = 3]'
 main.cpp:214:36:   required from here
+particle.h:169:6: warning: declaration of 'count' shadows a member of 'Particle<3>' [-Wshadow]
+ void Particle<D>::frzcheck(double tin,int &count, int N)
+      ^~~~~~~~~~~
+particle.h:70:9: note: shadowed declaration is here
+     int count;
+         ^~~~~
 particle.h:169:55: warning: unused parameter 'N' [-Wunused-parameter]
  void Particle<D>::frzcheck(double tin,int &count, int N)
                                                        ^
@@ -318,6 +338,14 @@ In file included from /projects/jnorhos/BSQ/splinter/include/../../splinter/incl
 /projects/jnorhos/BSQ/splinter/include/../../splinter/include/function.h:101:18: note: shadowed declaration is here
      unsigned int numVariables; // Dimension of domain (size of x)
                   ^~~~~~~~~~~~
+In file included from hydrosim.cpp:15:0:
+particle.h: In member function 'void Particle<D>::frzcheck(double, int&, int)':
+particle.h:169:56: warning: declaration of 'count' shadows a member of 'Particle<D>' [-Wshadow]
+ void Particle<D>::frzcheck(double tin,int &count, int N)
+                                                        ^
+particle.h:70:9: note: shadowed declaration is here
+     int count;
+         ^~~~~
 In file included from rungekutta4.h:7:0,
                  from hydrosim.cpp:16:
 LinkList.h: In member function 'int LinkList<D>::triToSum(Vector<int, D>, Vector<int, D>)':
@@ -404,6 +432,12 @@ In file included from hydrosim.cpp:15:0:
 particle.h: In instantiation of 'void Particle<D>::frzcheck(double, int&, int) [with int D = 2]':
 hydrosim.cpp:443:31:   required from 'void idealhydro3(LinkList<D>&) [with int D = 2]'
 hydrosim.cpp:68:51:   required from here
+particle.h:169:6: warning: declaration of 'count' shadows a member of 'Particle<2>' [-Wshadow]
+ void Particle<D>::frzcheck(double tin,int &count, int N)
+      ^~~~~~~~~~~
+particle.h:70:9: note: shadowed declaration is here
+     int count;
+         ^~~~~
 particle.h:169:55: warning: unused parameter 'N' [-Wunused-parameter]
  void Particle<D>::frzcheck(double tin,int &count, int N)
                                                        ^
@@ -469,6 +503,12 @@ In file included from hydrosim.cpp:15:0:
 particle.h: In instantiation of 'void Particle<D>::frzcheck(double, int&, int) [with int D = 3]':
 hydrosim.cpp:443:31:   required from 'void idealhydro3(LinkList<D>&) [with int D = 3]'
 hydrosim.cpp:394:28:   required from here
+particle.h:169:6: warning: declaration of 'count' shadows a member of 'Particle<3>' [-Wshadow]
+ void Particle<D>::frzcheck(double tin,int &count, int N)
+      ^~~~~~~~~~~
+particle.h:70:9: note: shadowed declaration is here
+     int count;
+         ^~~~~
 particle.h:169:55: warning: unused parameter 'N' [-Wunused-parameter]
  void Particle<D>::frzcheck(double tin,int &count, int N)
                                                        ^
@@ -563,6 +603,14 @@ In file included from /projects/jnorhos/BSQ/splinter/include/../../splinter/incl
 /projects/jnorhos/BSQ/splinter/include/../../splinter/include/function.h:101:18: note: shadowed declaration is here
      unsigned int numVariables; // Dimension of domain (size of x)
                   ^~~~~~~~~~~~
+In file included from enteric.cpp:14:0:
+particle.h: In member function 'void Particle<D>::frzcheck(double, int&, int)':
+particle.h:169:56: warning: declaration of 'count' shadows a member of 'Particle<D>' [-Wshadow]
+ void Particle<D>::frzcheck(double tin,int &count, int N)
+                                                        ^
+particle.h:70:9: note: shadowed declaration is here
+     int count;
+         ^~~~~
 In file included from enteric.h:15:0,
                  from enteric.cpp:15:
 LinkList.h: In member function 'int LinkList<D>::triToSum(Vector<int, D>, Vector<int, D>)':
