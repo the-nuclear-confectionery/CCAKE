@@ -971,8 +971,8 @@ void bsqrungeKutta2(double dx,void (*derivatives)( LinkList<D> &linklist), LinkL
         linklist._p[i].eta_sigma=etasigma0[i]+0.5*dx*linklist._p[i].detasigma_dt;
         linklist._p[i].Bulk=Bulk0[i]+0.5*dx*linklist._p[i].dBulk_dt;
         linklist._p[i].rhoB=rhoB0[i]+0.5*dx*linklist._p[i].drhoB_dt;
-        linklist._p[i].rhoS=rhoB0[i]+0.5*dx*linklist._p[i].drhoS_dt;
-        linklist._p[i].rhoQ=rhoB0[i]+0.5*dx*linklist._p[i].drhoQ_dt;
+        linklist._p[i].rhoS=rhoS0[i]+0.5*dx*linklist._p[i].drhoS_dt;
+        linklist._p[i].rhoQ=rhoQ0[i]+0.5*dx*linklist._p[i].drhoQ_dt;
         tmini(linklist._p[i].shv,shv0[i]+0.5*dx*linklist._p[i].dshv_dt);
 
 
@@ -992,8 +992,8 @@ void bsqrungeKutta2(double dx,void (*derivatives)( LinkList<D> &linklist), LinkL
         linklist._p[i].eta_sigma=etasigma0[i]+dx*linklist._p[i].detasigma_dt;
         linklist._p[i].Bulk=Bulk0[i]+dx*linklist._p[i].dBulk_dt;
         linklist._p[i].rhoB=rhoB0[i]+dx*linklist._p[i].drhoB_dt;
-        linklist._p[i].rhoS=rhoB0[i]+dx*linklist._p[i].drhoS_dt;
-        linklist._p[i].rhoQ=rhoB0[i]+dx*linklist._p[i].drhoQ_dt;
+        linklist._p[i].rhoS=rhoS0[i]+dx*linklist._p[i].drhoS_dt;
+        linklist._p[i].rhoQ=rhoQ0[i]+dx*linklist._p[i].drhoQ_dt;
         tmini(linklist._p[i].shv,shv0[i]+dx*linklist._p[i].dshv_dt);
         //if (linklist._p[i].eta_sigma<0) linklist._p[i].eta_sigma=0;
 
