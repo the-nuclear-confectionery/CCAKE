@@ -494,13 +494,13 @@ void readICs_iccing(string &firstry,  int &_Ntable3,Particle<2> *&_p,double fact
         _p[j].eta_sigma  = 1;
         _p[j].sigmaweight=stepx*stepy;
         _p[j].Bulk = 0;
-        _p[j].rhoB=rBsub[j];
-        _p[j].rhoS=rSsub[j];
-        _p[j].rhoQ=rQsub[j];
+        _p[j].B=factor*rBsub[j]*stepx*stepy;		// confirm with Jaki
+        _p[j].S=factor*rSsub[j]*stepx*stepy;		// confirm with Jaki
+        _p[j].Q=factor*rQsub[j]*stepx*stepy;		// confirm with Jaki
 
 
 
-        if (_p[j].s_an>sfcheck)
+        if (_p[j].e_sub>efcheck)	// impose freeze-out check for e, not s
         {
             _p[j].Freeze=0;
         }

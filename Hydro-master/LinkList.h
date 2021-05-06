@@ -110,6 +110,8 @@ public:
     Particle<D> *_p;
 
     double dEz,E,Ez,E0,Etot,S,S0,Eloss,Esubb;
+	double Btotal, Stotal, Qtotal;
+	double Btotal0, Stotal0, Qtotal0;
 
     double E1,E2;
 
@@ -163,6 +165,7 @@ public:
     void bsqsvconservation();
     void bsqsvconservation_E();
     void bsqsvconservation_Ez();
+	void conservation_BSQ();	// function to check conservation of B, S, and Q
     int n() {
         return _n;
     }
@@ -1290,6 +1293,7 @@ void LinkList<D>::bsqsvconservation()
 //    cout << (S0-S)/S0 << "% of Entropy loss at time t=" << t << endl;
 
 }
+
 template <int D>
 void LinkList<D>::conservation_entropy()
 {
@@ -1305,6 +1309,32 @@ void LinkList<D>::conservation_entropy()
 
         S0=S;
     }
+}
+
+
+// =============================================
+// function to check conservation of B, S, and Q
+template <int D>
+void LinkList<D>::conservation_BSQ()
+{
+    Btotal = 0.0;
+    Stotal = 0.0;
+    Qtotal = 0.0;
+
+    for (int i=0; i<_n; i++)
+	{
+        Btotal += _p[i].B;
+        Stotal += _p[i].S;
+        Qtotal += _p[i].Q;
+    }
+
+    if (first==1)
+    {
+        Btotal0 = Btotal;
+        Stotal0 = Stotal;
+        Qtotal0 = Qtotal;
+    }
+	return;
 }
 
 template <int D>
@@ -1882,9 +1912,9 @@ void LinkList<D>::bsqsvoptimization(int a)
                 double kern  = kernel(_p[a].r-_p[b].r);
                 _p[a].sigma += _p[b].sigmaweight*kern;
                 _p[a].eta   += _p[b].sigmaweight*_p[b].eta_sigma*kern;
-                _p[a].rhoB  += _p[b].rhoB*kern;    //confirm with Jaki
-                _p[a].rhoS  += _p[b].rhoS*kern;    //confirm with Jaki
-                _p[a].rhoQ  += _p[b].rhoQ*kern;    //confirm with Jaki
+                //_p[a].rhoB  += _p[b].rhoB*kern;    //confirm with Jaki
+                //_p[a].rhoS  += _p[b].rhoS*kern;    //confirm with Jaki
+                //_p[a].rhoQ  += _p[b].rhoQ*kern;    //confirm with Jaki
 
                 b=link[b];
             }
@@ -2325,21 +2355,26 @@ void LinkList<D>::gubser(double h)
 template <int D>
 void LinkList<D>::updateIC()
 {
-
-
     for (int i=0; i<_n; i++)
     {
-        if (gtyp!=5) _p[i].s_an=_p[i].EOS.s_out(_p[i].e_sub, _p[i].rhoB, _p[i].rhoS, _p[i].rhoQ);
+        if (gtyp!=5)
+		{
+			_p[i].s_an = _p[i].EOS.s_out( _p[i].e_sub,
+							_p[i].B/_p[i].sigmaweight,
+							_p[i].S/_p[i].sigmaweight,
+							_p[i].Q/_p[i].sigmaweight );
+		}
 
-
-        _p[i].EOS.update_s(_p[i].s_an, _p[i].B_an, _p[i].S_an, _p[i].Q_an);
+        _p[i].EOS.update_s( _p[i].s_an, _p[i].B/_p[i].sigmaweight,
+							_p[i].S/_p[i].sigmaweight,
+							_p[i].Q/_p[i].sigmaweight );
         if (gtyp==5)
             _p[i].e_sub=_p[i].EOS.e();
         _p[i].gamma=_p[i].gamcalc();
         _p[i].sigmaweight *= _p[i].s_an*_p[i].gamma*t0;
-        _p[i].rhoB *= _p[i].B_an*_p[i].gamma*t0;    // confirm with Jaki
-        _p[i].rhoS *= _p[i].S_an*_p[i].gamma*t0;    // confirm with Jaki
-        _p[i].rhoQ *= _p[i].Q_an*_p[i].gamma*t0;    // confirm with Jaki
+        //_p[i].rhoB *= _p[i].B_an*_p[i].gamma*t0;    // confirm with Jaki
+        //_p[i].rhoS *= _p[i].S_an*_p[i].gamma*t0;    // confirm with Jaki
+        //_p[i].rhoQ *= _p[i].Q_an*_p[i].gamma*t0;    // confirm with Jaki
     }
     if (gtyp!=3) guess();
     else guess2();

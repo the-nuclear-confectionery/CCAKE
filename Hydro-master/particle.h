@@ -21,8 +21,8 @@ public:
 
 
     // added by Christopher Plumberg to get compilation
-    double B_sub, S_sub, Q_sub;
-    double B_an, S_an, Q_an;
+	double B, S, Q;
+	double rhoB, rhoS, rhoQ;
 
     int btrack;
     eos EOS;
