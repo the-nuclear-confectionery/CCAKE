@@ -2095,9 +2095,9 @@ void LinkList<D>::bsqsvoptimization2(int a,double tin,int & count)
 
     _p[a].gradP=0.;
     _p[a].gradBulk = 0.;
-    _p[a].gradrhoB = 0.;
-    _p[a].gradrhoS = 0.;
-    _p[a].gradrhoQ = 0.;
+    //_p[a].gradrhoB = 0.;
+    //_p[a].gradrhoS = 0.;
+    //_p[a].gradrhoQ = 0.;
     _p[a].gradV = 0.;
     _p[a].gradshear=0.;
     _p[a].divshear=0.;
@@ -2141,9 +2141,9 @@ void LinkList<D>::bsqsvoptimization2(int a,double tin,int & count)
                 }
 
                 _p[a].gradBulk += ( _p[b].Bulk/_p[b].sigma/_p[b].gamma + _p[a].Bulk/_p[a].sigma/_p[a].gamma)/tin*sigsigK;
-                _p[a].gradrhoB += ( _p[b].rhoB/_p[b].sigma/_p[b].gamma + _p[a].rhoB/_p[a].sigma/_p[a].gamma)/tin*sigsigK;
-                _p[a].gradrhoS += ( _p[b].rhoS/_p[b].sigma/_p[b].gamma + _p[a].rhoS/_p[a].sigma/_p[a].gamma)/tin*sigsigK;
-                _p[a].gradrhoQ += ( _p[b].rhoQ/_p[b].sigma/_p[b].gamma + _p[a].rhoQ/_p[a].sigma/_p[a].gamma)/tin*sigsigK;
+                //_p[a].gradrhoB += ( _p[b].rhoB/_p[b].sigma/_p[b].gamma + _p[a].rhoB/_p[a].sigma/_p[a].gamma)/tin*sigsigK;
+                //_p[a].gradrhoS += ( _p[b].rhoS/_p[b].sigma/_p[b].gamma + _p[a].rhoS/_p[a].sigma/_p[a].gamma)/tin*sigsigK;
+                //_p[a].gradrhoQ += ( _p[b].rhoQ/_p[b].sigma/_p[b].gamma + _p[a].rhoQ/_p[a].sigma/_p[a].gamma)/tin*sigsigK;
                 _p[a].gradV+=(_p[b].sigmaweight/_p[a].sigma*( _p[b].v -  _p[a].v ))*gradK;
 
 
@@ -2359,22 +2359,17 @@ void LinkList<D>::updateIC()
     {
         if (gtyp!=5)
 		{
-			_p[i].s_an = _p[i].EOS.s_out( _p[i].e_sub,
-							_p[i].B/_p[i].sigmaweight,
-							_p[i].S/_p[i].sigmaweight,
-							_p[i].Q/_p[i].sigmaweight );
+			_p[i].s_an = _p[i].EOS.s_out( _p[i].e_sub, _p[i].rhoB, _p[i].rhoS, _p[i].rhoQ );
 		}
 
-        _p[i].EOS.update_s( _p[i].s_an, _p[i].B/_p[i].sigmaweight,
-							_p[i].S/_p[i].sigmaweight,
-							_p[i].Q/_p[i].sigmaweight );
+        _p[i].EOS.update_s( _p[i].s_an, _p[i].rhoB, _p[i].rhoS, _p[i].rhoQ );
         if (gtyp==5)
             _p[i].e_sub=_p[i].EOS.e();
         _p[i].gamma=_p[i].gamcalc();
-        _p[i].sigmaweight *= _p[i].s_an*_p[i].gamma*t0;
-        //_p[i].rhoB *= _p[i].B_an*_p[i].gamma*t0;    // confirm with Jaki
-        //_p[i].rhoS *= _p[i].S_an*_p[i].gamma*t0;    // confirm with Jaki
-        //_p[i].rhoQ *= _p[i].Q_an*_p[i].gamma*t0;    // confirm with Jaki
+        _p[i].sigmaweight *= _p[i].s_an*_p[i].gamma*t0;	// sigmaweight is constant after this
+		_p[i].B *= _p[i].gamma*t0;	// B does not evolve in ideal case (confirm with Jaki)
+		_p[i].S *= _p[i].gamma*t0;	// S does not evolve in ideal case (confirm with Jaki)
+		_p[i].Q *= _p[i].gamma*t0;	// Q does not evolve in ideal case (confirm with Jaki)
     }
     if (gtyp!=3) guess();
     else guess2();

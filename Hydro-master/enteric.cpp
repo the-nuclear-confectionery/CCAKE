@@ -484,21 +484,23 @@ void readICs_iccing(string &firstry,  int &_Ntable3,Particle<2> *&_p,double fact
 
 
 
-    for(int j=0; j<_Ntable3; j++) {
+    for(int j=0; j<_Ntable3; j++)
+	{
         _p[j].r.x[0]=xsub[j];
         _p[j].r.x[1]=ysub[j];
         // _p[j].e_sub=EOS.e_out(factor*esub[j]);
         _p[j].e_sub=factor*esub[j];        // not s_an!!
         _p[j].u.x[0]=0;
         _p[j].u.x[1]=0;
-        _p[j].eta_sigma  = 1;
+        _p[j].eta_sigma = 1;
         _p[j].sigmaweight=stepx*stepy;
         _p[j].Bulk = 0;
         _p[j].B=factor*rBsub[j]*stepx*stepy;		// confirm with Jaki
         _p[j].S=factor*rSsub[j]*stepx*stepy;		// confirm with Jaki
         _p[j].Q=factor*rQsub[j]*stepx*stepy;		// confirm with Jaki
-
-
+        _p[j].rhoB=factor*rBsub[j];					// (unused for now) confirm with Jaki
+        _p[j].rhoS=factor*rSsub[j];					// (unused for now) confirm with Jaki
+        _p[j].rhoQ=factor*rQsub[j];					// (unused for now) confirm with Jaki
 
         if (_p[j].e_sub>efcheck)	// impose freeze-out check for e, not s
         {

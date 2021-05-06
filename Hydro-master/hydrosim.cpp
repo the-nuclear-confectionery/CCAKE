@@ -937,9 +937,9 @@ void BSQshear(LinkList<D>  &linklist)  // shear+bulk Equations of motion, only s
 
         linklist._p[i].dshv_dt= -gamt*(linklist._p[i].pimin+linklist._p[i].setas*0.5*partU)-0.5*linklist._p[i].eta_o_tau*(ududt+transpose(ududt))+linklist._p[i].dpidtsub()-vduk*(ulpi+transpose(ulpi)+(1/linklist._p[i].gamma)*Ipi)+linklist._p[i].sigl*Ipi;
 
-        linklist._p[i].drhoB_dt=-linklist._p[i].rhoB*linklist._p[i].sigma*linklist._p[i].bigtheta;
-        linklist._p[i].drhoS_dt=-linklist._p[i].rhoS*linklist._p[i].sigma*linklist._p[i].bigtheta;
-        linklist._p[i].drhoQ_dt=-linklist._p[i].rhoQ*linklist._p[i].sigma*linklist._p[i].bigtheta;
+        //linklist._p[i].drhoB_dt=-linklist._p[i].rhoB*linklist._p[i].sigma*linklist._p[i].bigtheta;
+        //linklist._p[i].drhoS_dt=-linklist._p[i].rhoS*linklist._p[i].sigma*linklist._p[i].bigtheta;
+        //linklist._p[i].drhoQ_dt=-linklist._p[i].rhoQ*linklist._p[i].sigma*linklist._p[i].bigtheta;
 
     }
 

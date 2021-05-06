@@ -20,10 +20,6 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 
 
-    // added by Christopher Plumberg to get compilation
-	double B, S, Q;
-	double rhoB, rhoS, rhoQ;
-
     int btrack;
     eos EOS;
     double Agam, Agam2;
@@ -55,7 +51,7 @@ public:
     double div_u;              // four-divergence of relativistic velocity
     double gamma;               // Lorentz factor
     double gamcalc();
-    double gamcalcbsq();
+    //double gamcalcbsq();
     double s_sub,e_sub,s_an,s_rat,sigsub;
     double eta_sigma;          // Ratio entropy/especific volume
     double detasigma_dt;
@@ -103,6 +99,7 @@ public:
 
     double bigtheta;
 
+	double B, S, Q;						// baryon, strange, electric charge
     double drhoB_dt,drhoS_dt,drhoQ_dt;
 
     Particle();
@@ -158,12 +155,12 @@ double Particle<D>::gamcalc()
 }
 
 
-template <int D>
+/*template <int D>
 double Particle<D>::gamcalcbsq()
 {
     return sqrt( Norm2(u) + 1 );
 
-}
+}*/
 
 template <int D>
 void Particle<D>::frzcheck(double tin,int &count, int N)
@@ -224,16 +221,18 @@ template <int D>
 void Particle<D>::calcbsq(double tin)
 {
 
-    gamma=gamcalcbsq();
+    //gamma=gamcalcbsq();	//this is the same function as gamcalc
+    gamma=gamcalc();
     v =(1/gamma)*u;
     double s_in2= eta/gamma/tin;
-    double B_in2= rhoB/gamma/tin;
-    double S_in2= rhoS/gamma/tin;
-    double Q_in2= rhoQ/gamma/tin;
+    //double B_in2= rhoB/gamma/tin;
+    //double S_in2= rhoS/gamma/tin;
+    //double Q_in2= rhoQ/gamma/tin;
     qmom=((EOS.e()+ EOS.p())*gamma/sigma)*u;
-    EOS.update_s(s_in2, B_in2, S_in2, Q_in2);
-
-
+	double rhoB_in2 = B*sigma/sigmaweight;		//  is this correct?  (confirm with Jaki)
+	double rhoS_in2 = S*sigma/sigmaweight;		//  is this correct?  (confirm with Jaki)
+	double rhoQ_in2 = Q*sigma/sigmaweight;		//  is this correct?  (confirm with Jaki)
+    EOS.update_s(s_in2, rhoB_in2, rhoS_in2, rhoQ_in2);	//  is this correct?  (confirm with Jaki)
 
 }
 
