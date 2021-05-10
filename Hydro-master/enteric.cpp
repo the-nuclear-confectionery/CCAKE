@@ -360,7 +360,7 @@ void readICs_tnt(string &firstry,  int &_Ntable3,Particle<2> *&_p,double factor,
             stringstream ss;
             ss << x[j];
             ss >> y[j];
-cout << "CHECK(" << __LINE__ << "): " << j << "   " << x[j] << "   " << y[j] << endl;
+//cout << "CHECK(" << __LINE__ << "): " << j << "   " << x[j] << "   " << y[j] << endl;
         }
 
         if ((factor*y[2])>0.001) {
@@ -459,7 +459,7 @@ void readICs_iccing(string &firstry,  int &_Ntable3,Particle<2> *&_p,double fact
             stringstream ss;
             ss << x[j];
             ss >> y[j];
-cout << "CHECK(" << __LINE__ << "): " << j << "   " << x[j] << "   " << y[j] << endl;
+//cout << "CHECK(" << __LINE__ << "): " << j << "   " << x[j] << "   " << y[j] << endl;
         }
 
         if ((factor*y[2])>0.01) {
