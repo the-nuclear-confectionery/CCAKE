@@ -58,7 +58,7 @@ void eos::init(string quantityFile, string derivFile, int degree) {
             minMuS = muSit;
             maxMuS = muSit;
         }
-		//std::cout << "Read in line# " << count << std::endl;
+		std::cout << "Read in line# " << count << std::endl;
         if(maxT < tit) {
             maxT = tit;
         }
