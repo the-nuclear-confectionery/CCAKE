@@ -59,6 +59,7 @@ void eos::init(string quantityFile, string derivFile, int degree) {
             maxMuS = muSit;
             ++count;
         }
+		std::cout << "Read in line# " << count << std::endl;
         if(maxT < tit) {
             maxT = tit;
         }
@@ -119,27 +120,48 @@ void eos::init(string quantityFile, string derivFile, int degree) {
     dataFile.close();
     derFile.close();
 
+	std::cout << "Finished reading in thermodynamic data files!" << std::endl;
+
+	std::cout << "Building pspline..." << std::endl;
     pSpline = BSpline::Builder(psamples).degree(degree).build();
+	std::cout << "Building entrSpline..." << std::endl;
     entrSpline = BSpline::Builder(entrsamples).degree(degree).build();
+	std::cout << "Building bSpline..." << std::endl;
     bSpline = BSpline::Builder(bsamples).degree(degree).build();
+	std::cout << "Building sSpline..." << std::endl;
     sSpline = BSpline::Builder(ssamples).degree(degree).build();
+	std::cout << "Building qSpline..." << std::endl;
     qSpline = BSpline::Builder(qsamples).degree(degree).build();
+	std::cout << "Building eSpline..." << std::endl;
     eSpline = BSpline::Builder(esamples).degree(degree).build();
+	std::cout << "Building cs2Spline..." << std::endl;
     cs2Spline = BSpline::Builder(cs2samples).degree(degree).build();
+	std::cout << "Building db2Spline..." << std::endl;
     db2Spline = BSpline::Builder(db2samples).degree(degree).build();
+	std::cout << "Building dq2Spline..." << std::endl;
     dq2Spline = BSpline::Builder(dq2samples).degree(degree).build();
+ 	std::cout << "Building ds2Spline..." << std::endl;
     ds2Spline = BSpline::Builder(ds2samples).degree(degree).build();        //make splines from table
+	std::cout << "Building dbdqSpline..." << std::endl;
     dbdqSpline = BSpline::Builder(dbdqsamples).degree(degree).build();
+	std::cout << "Building dbdsSpline..." << std::endl;
     dbdsSpline = BSpline::Builder(dbdssamples).degree(degree).build();
+	std::cout << "Building dqdsSpline..." << std::endl;
     dqdsSpline = BSpline::Builder(dqdssamples).degree(degree).build();
+	std::cout << "Building dtdbSpline..." << std::endl;
     dtdbSpline = BSpline::Builder(dtdbsamples).degree(degree).build();
+	std::cout << "Building dtdqSpline..." << std::endl;
     dtdqSpline = BSpline::Builder(dtdqsamples).degree(degree).build();
+	std::cout << "Building dtdsSpline..." << std::endl;
     dtdsSpline = BSpline::Builder(dtdssamples).degree(degree).build();
+	std::cout << "Building dt2Spline..." << std::endl;
     dt2Spline = BSpline::Builder(dt2samples).degree(degree).build();
 
 	// initialize tbqsPosition to something...
 	std::cout << "Initializing tbqsPosition...\n";
 	for (int iTBQS = 0; iTBQS < 4; iTBQS++) tbqsPosition(iTBQS) = iTBQS;
+
+	std::cout << "All initializations finished!" << std::endl;
 
     return;
 }
