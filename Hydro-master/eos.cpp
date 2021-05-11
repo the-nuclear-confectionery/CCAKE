@@ -1112,6 +1112,12 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
     f.n = 4;
     f.params = &p;
 
+	std::cout << "Calling rootfinder4D at x = 
+		<< gsl_vector_get(x, 0) << "   "
+		<< gsl_vector_get(x, 1) << "   "
+		<< gsl_vector_get(x, 2) << "   "
+		<< gsl_vector_get(x, 3) << std::endl;
+
     solver = gsl_multiroot_fsolver_alloc(TYPE, 4);
     gsl_multiroot_fsolver_set(solver, &f, x);
 
