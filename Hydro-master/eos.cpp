@@ -48,18 +48,17 @@ void eos::init(string quantityFile, string derivFile, int degree) {
     double hbarc = 197.327;
     while (dataFile >> tit >> muBit >> muQit >> muSit >> pit >> entrit >> bit >> sit >> qit >> eit >> cs2it) {
         derFile >> tit >> muBit >> muQit >> muSit >> db2it >> dq2it >> ds2it >> dbdqit >> dbdsit >> dqdsit >> dtdbit >> dtdqit >> dtdsit >> dt2it;  //read data from files
-        if(count == 0) {
+        if(count++ == 0) {
             minT = tit;
             maxT = tit;
             minMuB = muBit;
-            maxMuB = muBit;     //initilaize eos range variables
+            maxMuB = muBit;     //initialize eos range variables
             minMuQ = muQit;
             maxMuQ = muQit;
             minMuS = muSit;
             maxMuS = muSit;
-            ++count;
         }
-		std::cout << "Read in line# " << count << std::endl;
+		//std::cout << "Read in line# " << count << std::endl;
         if(maxT < tit) {
             maxT = tit;
         }
