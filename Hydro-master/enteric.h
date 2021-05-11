@@ -315,7 +315,7 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
         std::cout << "Using BSQ Equation of State table from: "
 				<< quantityFile << " and " << derivativeFile << "\n";
 
-		EOS.init( quantityFile, derivativeFile );
+		EOS.init( quantityFile, derivativeFile, 1 );
 	    EOS.eosin(eostype);			// does nothing!
 	    efcheck = EOS.efreeze();	// does nothing!
 	    sfcheck = EOS.sfreeze();	// does nothing!
