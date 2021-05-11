@@ -21,7 +21,7 @@
 using namespace std;
 
 void readEOStable();
-void readBSQEOStable();// this should be followed with an if option
+//void readBSQEOStable();// this should be followed with an if option
 
 
 void readEOS_lowS(string &firstry);
@@ -305,36 +305,57 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
 //    cout << "h=" << h << " timestep=" << timestep << " dimensions=" << D << " dt=" << dt << " Number of Loops=" << Nloop << " Output loops=" << Outnum << "\n";
     cout << fvisc << " hydro, h=" << h <<  " dimensions=" << D << " dt=" << ics.dt << " QM fluc:  " <<  linklist.qmf << "\n";
 
-    if (eostype==table)
-    {
-        cout << "Using Equation of State table from: " << eos_s << " and " << eos_p << "\n";
-
-        //       Start reading EoS table           //
-        string on ("on");
-
-        readEOS_T(eos_s);
-        readEOS_p(eos_p);
-
-        if (low_switch==on)
-        {
-
-            linklist.lowT=1;
-            string lowsT ("lowsT.dat");
-            readEOS_lowS(lowsT);
-        }
-        else
-            linklist.lowT=0;
-    }
-    else
-    {
-        cout << "Using " << eostype << " Equation of State." << endl;
-    }
-
-
+	// rewrite by C. Plumberg: allow for different EOS format if using BSQ
+	double efcheck = 0.0, sfcheck = 0.0;
     eos EOS;
-    EOS.eosin(eostype);
-    double efcheck=EOS.efreeze();
-    double sfcheck=EOS.sfreeze();
+	if ( linklist.visc == 4 )	//if we're running BSQ (table is only option)
+	{
+		string quantityFile = ifolder + "quantityFile.dat";
+		string derivativeFile = ifolder + "derivFile.dat";
+        std::cout << "Using BSQ Equation of State table from: "
+				<< quantityFile << " and " << derivativeFile << "\n";
+
+		EOS.init( quantityFile, derivativeFile );
+	    EOS.eosin(eostype);			// does nothing!
+	    efcheck = EOS.efreeze();	// does nothing!
+	    sfcheck = EOS.sfreeze();	// does nothing!
+
+		std::cout << "efcheck = " << efcheck << "\n";
+		std::cout << "sfcheck = " << sfcheck << "\n";
+	}
+	else
+	{
+	    if ( eostype == table )
+	    {
+	        cout << "Using Equation of State table from: "
+					<< eos_s << " and " << eos_p << "\n";
+	
+	        //       Start reading EoS table           //
+	        string on ("on");
+	
+	        readEOS_T(eos_s);
+	        readEOS_p(eos_p);
+	
+	        if (low_switch==on)
+	        {
+	
+	            linklist.lowT=1;
+	            string lowsT ("lowsT.dat");
+	            readEOS_lowS(lowsT);
+	        }
+	        else
+	            linklist.lowT=0;
+	    }
+	    else
+	    {
+	        cout << "Using " << eostype << " Equation of State." << endl;
+	    }
+
+
+	    EOS.eosin(eostype);
+	    efcheck=EOS.efreeze();
+	    sfcheck=EOS.sfreeze();
+	}
 
     linklist.efcheck=efcheck;
     linklist.sfcheck=sfcheck;
