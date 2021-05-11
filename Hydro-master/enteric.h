@@ -310,8 +310,8 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
     eos EOS;
 	if ( linklist.visc == 4 )	//if we're running BSQ (table is only option)
 	{
-		string quantityFile = ifolder + "quantityFile.dat";
-		string derivativeFile = ifolder + "derivFile.dat";
+		string quantityFile = ifolder + std::string("quantityFile.dat");
+		string derivativeFile = ifolder + std::string("derivFile.dat");
         std::cout << "Using BSQ Equation of State table from: "
 				<< quantityFile << " and " << derivativeFile << "\n";
 
