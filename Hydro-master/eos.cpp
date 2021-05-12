@@ -165,6 +165,10 @@ void eos::init(string quantityFile, string derivFile, int degree) {
 	for (int iTBQS = 0; iTBQS < 4; iTBQS++) std::cout << tbqsPosition(iTBQS) << "   ";	
 	std::cout << std::endl;
 
+	std::cout << "Check alternate: "
+				<< T() << "   " << muB() << "   "
+				<< muQ() << "   " << muS() << std::endl;
+
 	std::cout << "All initializations finished!" << std::endl;
 
     return;
