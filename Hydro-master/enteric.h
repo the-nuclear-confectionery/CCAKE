@@ -369,6 +369,7 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
 
     //  cout << "setting up SPH" << endl;
 
+	cout << "Initial conditions type: " << ictype << endl;
 
     linklist.gtyp=0;
     if (ictype==weight)
