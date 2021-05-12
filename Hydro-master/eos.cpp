@@ -58,7 +58,7 @@ void eos::init(string quantityFile, string derivFile, int degree) {
             minMuS = muSit;
             maxMuS = muSit;
         }
-		std::cout << "Read in line# " << count << std::endl;
+		if (count%100000==0) std::cout << "Read in line# " << count << std::endl;
         if(maxT < tit) {
             maxT = tit;
         }
@@ -159,6 +159,10 @@ void eos::init(string quantityFile, string derivFile, int degree) {
 	// initialize tbqsPosition to something...
 	std::cout << "Initializing tbqsPosition...\n";
 	for (int iTBQS = 0; iTBQS < 4; iTBQS++) tbqsPosition(iTBQS) = iTBQS;
+
+	std::cout << "Check TBQS: ";
+	for (int iTBQS = 0; iTBQS < 4; iTBQS++) std::cout << tbqsPosition(iTBQS) << "   ";	
+	std::cout << std::endl;
 
 	std::cout << "All initializations finished!" << std::endl;
 
@@ -1142,6 +1146,13 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
 		<< gsl_vector_get(x, 1) << "   "
 		<< gsl_vector_get(x, 2) << "   "
 		<< gsl_vector_get(x, 3) << std::endl;
+
+	std::cout << "Input: "
+		<< e_or_s_Given << "   "
+		<< e_or_s_mode << "   "
+		<< rhoBGiven << "   "
+		<< rhoSGiven << "   "
+		<< rhoQGiven << std::endl;
 
     solver = gsl_multiroot_fsolver_alloc(TYPE, 4);
     gsl_multiroot_fsolver_set(solver, &f, x);
