@@ -21,7 +21,7 @@ public:
 
 
     int btrack;
-    eos EOS;
+    //eos EOS;
     double Agam, Agam2;
     double sigmaweight;        // specific volume per particle
     Vector<double,D> r;                   // position
