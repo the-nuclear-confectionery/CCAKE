@@ -157,8 +157,8 @@ void eos::init(string quantityFile, string derivFile, int degree) {
     dt2Spline = BSpline::Builder(dt2samples).degree(degree).build();
 
 	// initialize tbqsPosition to something...
-	//std::cout << "Initializing tbqsPosition...\n";
-	//for (int iTBQS = 0; iTBQS < 4; iTBQS++) tbqsPosition(iTBQS) = iTBQS;
+	std::cout << "Initializing tbqsPosition...\n";
+	for (int iTBQS = 0; iTBQS < 4; iTBQS++) tbqsPosition(iTBQS) = iTBQS;
 
 	std::cout << "All initializations finished!" << std::endl;
 
