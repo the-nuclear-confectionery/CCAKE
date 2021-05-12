@@ -319,8 +319,8 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
 	    EOS.eosin(eostype);			// does nothing!
 	    efcheck = EOS.efreeze();	// does nothing!
 	    sfcheck = EOS.sfreeze();	// does nothing!
-		efcheck = 0.18;	//just for now
-		sfcheck = 1.0;	//just for now?
+		//efcheck = 0.18;	//just for now
+		//sfcheck = 1.0;	//just for now?
 
 		std::cout << "efcheck = " << efcheck << "\n";
 		std::cout << "sfcheck = " << sfcheck << "\n";
