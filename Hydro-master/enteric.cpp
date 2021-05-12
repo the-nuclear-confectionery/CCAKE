@@ -419,8 +419,13 @@ void readICs_tnt(string &firstry,  int &_Ntable3,Particle<2> *&_p,double factor,
 void readICs_iccing(string &firstry,  int &_Ntable3,Particle<2> *&_p,double factor,double const& efcheck, int & numpart, eos EOS)
 {
 
+	cout << "Reading in ICCING initial conditions!" << endl;
+
     string filename;
     filename = ifolder+firstry;
+
+	cout << "Initial conditions file: " << filename << endl;
+
     //nameenter:
     ifstream input(filename.c_str());
     if (!input.is_open())
