@@ -2357,6 +2357,9 @@ void LinkList<D>::updateIC()
 {
     for (int i=0; i<_n; i++)
     {
+		cout << "updateIC(): " << i << "   " << _p[i].e_sub << "   "
+			<< _p[i].rhoB << "   " << _p[i].rhoS << "   " << _p[i].rhoQ << endl;
+
         if (gtyp!=5)
 		{
 			_p[i].s_an = _p[i].EOS.s_out( _p[i].e_sub, _p[i].rhoB, _p[i].rhoS, _p[i].rhoQ );
