@@ -165,9 +165,9 @@ void eos::init(string quantityFile, string derivFile, int degree) {
 	for (int iTBQS = 0; iTBQS < 4; iTBQS++) std::cout << tbqsPosition(iTBQS) << "   ";	
 	std::cout << std::endl;
 
-	std::cout << "Check alternate: "
-				<< T() << "   " << muB() << "   "
-				<< muQ() << "   " << muS() << std::endl;
+	//std::cout << "Check alternate: "
+	//			<< T() << "   " << muB() << "   "
+	//			<< muQ() << "   " << muS() << std::endl;
 
 	std::cout << "All initializations finished!" << std::endl;
 
@@ -261,22 +261,22 @@ double eos::w() {
 
 
 double eos::T() {
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	std::cout << "Now in " << __PRETTY_FUNCTION__ << ": " << tbqsPosition(0) << std::endl;
     return tbqsPosition(0);
 }
 
 double eos::muB() {
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	std::cout << "Now in " << __PRETTY_FUNCTION__ << ": " << tbqsPosition(1) << std::endl;
     return tbqsPosition(1);
 }
 
 double eos::muQ() {
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	std::cout << "Now in " << __PRETTY_FUNCTION__ << ": " << tbqsPosition(2) << std::endl;
     return tbqsPosition(2);
 }
 
 double eos::muS() {
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	std::cout << "Now in " << __PRETTY_FUNCTION__ << ": " << tbqsPosition(3) << std::endl;
     return tbqsPosition(3);
 }
 
