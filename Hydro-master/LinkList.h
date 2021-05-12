@@ -2357,32 +2357,32 @@ void LinkList<D>::updateIC()
 {
     for (int i=0; i<_n; i++)
     {
-		cout << "updateIC(" << __LINE__ << "): " << i << "   " << _p[i].s_an << "   "
+		cout << "updateIC(" << __LINE__ << "): " << i << "   " /*<< _p[i].s_an << "   "*/
 			<< _p[i].e_sub << "   " << _p[i].rhoB << "   "
 			<< _p[i].rhoS << "   " << _p[i].rhoQ << endl;
 
         if (gtyp!=5)
 		{
 
-			cout << "updateIC(" << __LINE__ << "): " << i << "   " << _p[i].s_an << "   "
+			cout << "updateIC(" << __LINE__ << "): " << i << "   " /*<< _p[i].s_an << "   "*/
 				<< _p[i].e_sub << "   " << _p[i].rhoB << "   "
 				<< _p[i].rhoS << "   " << _p[i].rhoQ << endl;
 
 			_p[i].s_an = _p[i].EOS.s_out( _p[i].e_sub, _p[i].rhoB, _p[i].rhoS, _p[i].rhoQ );
 
-			cout << "updateIC(" << __LINE__ << "): " << i << "   " << _p[i].s_an << "   "
+			cout << "updateIC(" << __LINE__ << "): " << i << "   " /*<< _p[i].s_an << "   "*/
 				<< _p[i].e_sub << "   " << _p[i].rhoB << "   "
 				<< _p[i].rhoS << "   " << _p[i].rhoQ << endl;
 
 		}
 
- 		cout << "updateIC(" << __LINE__ << "): " << i << "   " << _p[i].s_an << "   "
+ 		cout << "updateIC(" << __LINE__ << "): " << i << "   " /*<< _p[i].s_an << "   "*/
 			<< _p[i].e_sub << "   " << _p[i].rhoB << "   "
 			<< _p[i].rhoS << "   " << _p[i].rhoQ << endl;
 
        _p[i].EOS.update_s( _p[i].s_an, _p[i].rhoB, _p[i].rhoS, _p[i].rhoQ );
 
-		cout << "updateIC(" << __LINE__ << "): " << i << "   " << _p[i].s_an << "   "
+		cout << "updateIC(" << __LINE__ << "): " << i << "   " /*<< _p[i].s_an << "   "*/
 			<< _p[i].e_sub << "   " << _p[i].rhoB << "   "
 			<< _p[i].rhoS << "   " << _p[i].rhoQ << endl;
 
