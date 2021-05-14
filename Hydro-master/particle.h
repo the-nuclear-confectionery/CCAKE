@@ -142,8 +142,10 @@ public:
 	double EOSs_terms_T(double Tin);
 	double EOScs2out();
 	double EOSwfz();
-	double EOSs_out();
-	void EOSupdate_s();
+	double EOScs2out();
+	double EOSwfz();
+	double EOSs_out(double e_In, double rhoB_In, double rhoS_In, double rhoQ_In);
+	void EOSupdate_s(double s_In, double rhoB_In, double rhoS_In, double rhoQ_In);
 
 	double particle_T, particle_muB, particle_muS, particle_muQ;
 

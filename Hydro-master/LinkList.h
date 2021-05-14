@@ -1427,8 +1427,8 @@ template <int D>
 void LinkList<D>::bsqsvfreezeset()
 {
     double freezeoutB=0.0, freezeoutS=0.0, freezeoutQ=0.0;    // eventually set with parametrization of freeze-out hypersurface in phase diagram, read in from file, etc.
-    cs2 = _p[0].EOScs2out( freezeoutT, freezeoutB, freezeoutS, freezeoutQ );
-    wfz = _p[0].EOSwfz(    freezeoutT, freezeoutB, freezeoutS, freezeoutQ );
+    cs2 = _p[0].EOS.cs2out( freezeoutT, freezeoutB, freezeoutS, freezeoutQ );
+    wfz = _p[0].EOS.wfz(    freezeoutT, freezeoutB, freezeoutS, freezeoutQ );
 }
 
 template <int D>

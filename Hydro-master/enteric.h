@@ -451,7 +451,7 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
         linklist.fnum=linklist.start;
 
 
-        readICs_tnt(linklist.filenames[0],  _Ntable3, _p,factor,sfcheck,  numpart, EOS);
+        readICs_tnt(linklist.filenames[0],  _Ntable3, _p,factor,sfcheck,  numpart, EOS0);
 
         _p[0].start(eostype, EOS0);
         linklist.setup(it0,_Ntable3,h,_p,ics.dt,numpart);
@@ -484,8 +484,8 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
         linklist.fnum=linklist.start;
 
 
-        //readICs_tnt(linklist.filenames[0],  _Ntable3, _p,factor,sfcheck,  numpart, EOS);
-        readICs_iccing(linklist.filenames[0],  _Ntable3, _p,factor,efcheck,  numpart, EOS);
+        //readICs_tnt(linklist.filenames[0],  _Ntable3, _p,factor,sfcheck,  numpart, EOS0);
+        readICs_iccing(linklist.filenames[0],  _Ntable3, _p,factor,efcheck,  numpart, EOS0);
 
         _p[0].start(eostype, EOS0);
         linklist.setup(it0,_Ntable3,h,_p,ics.dt,numpart);
@@ -736,8 +736,8 @@ void nextevent(int i, LinkList<D> &linklist)
     else if (linklist.gtyp==2) readICs_nebe(linklist.filenames[i],  _Ntable3, _p,linklist.factor,linklist.efcheck,numpart);
     else if (linklist.gtyp==3) linklist.gd2=readICs_gl(linklist.filenames[i],  _Ntable3, _p,linklist.factor,linklist.efcheck,numpart);
     else if (linklist.gtyp==4) readICs_glno(linklist.filenames[i],  _Ntable3, _p,linklist.factor,linklist.efcheck,numpart);
-    else if (linklist.gtyp==5) readICs_tnt(linklist.filenames[i],  _Ntable3, _p,linklist.factor,linklist.sfcheck,numpart,linklist._p[0].EOS);
-    else if (linklist.gtyp==6) readICs_iccing(linklist.filenames[i],  _Ntable3, _p,linklist.factor,linklist.efcheck,numpart,linklist._p[0].EOS);
+    else if (linklist.gtyp==5) readICs_tnt(linklist.filenames[i],  _Ntable3, _p,linklist.factor,linklist.sfcheck,numpart,linklist._p[0].EOS0);
+    else if (linklist.gtyp==6) readICs_iccing(linklist.filenames[i],  _Ntable3, _p,linklist.factor,linklist.efcheck,numpart,linklist._p[0].EOS0);
     linklist.setupnext(_Ntable3,_p,numpart);
 
 
