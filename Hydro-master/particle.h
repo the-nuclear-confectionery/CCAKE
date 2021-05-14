@@ -555,7 +555,7 @@ void Particle<D>::setvisc(int etaconst,double bvf, double svf, double zTc, doubl
                 else zeta=-13.77*t2*t2+27.55*t2-13.45;
 
 
-                tauRelax =5.*zeta/(pow((1-EOScs2out(EOST())),2)*(EOSe()+EOSp()));    // single-argument version of cs2out
+                tauRelax =5.*zeta/(pow((1-EOS.cs2out(EOST())),2)*(EOSe()+EOSp()));    // single-argument version of cs2out
 
             }
             else if (etaconst==4) {
@@ -580,7 +580,7 @@ void Particle<D>::setvisc(int etaconst,double bvf, double svf, double zTc, doubl
                 else if (t2<0.995) zeta=0.9*exp(min1/0.0025)+0.22*exp(min1/0.022)+0.03;
                 else zeta=-13.77*t2*t2+27.55*t2-13.45;
 
-                tauRelax =5.*zeta/(pow((1-EOScs2out(EOST())),2)*(EOSe()+EOSp()));    // single-argument version of cs2out
+                tauRelax =5.*zeta/(pow((1-EOS.cs2out(EOST())),2)*(EOSe()+EOSp()));    // single-argument version of cs2out
 
             }
 
