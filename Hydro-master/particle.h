@@ -140,10 +140,12 @@ public:
 	double EOSe();
 	double EOSw();
 	double EOSs_terms_T(double Tin);
-	double EOScs2out();
-	double EOSwfz();
-	double EOScs2out();
-	double EOSwfz();
+	//double EOScs2out();
+	//double EOSwfz();
+	//double EOScs2out();
+	//double EOSwfz();
+	double EOSA();
+	double EOSdwds();
 	double EOSs_out(double e_In, double rhoB_In, double rhoS_In, double rhoQ_In);
 	void EOSupdate_s(double s_In, double rhoB_In, double rhoS_In, double rhoQ_In);
 
@@ -689,6 +691,24 @@ double Particle<D>::EOSwfz()
 {
 	EOS.tbqs( particle_T, particle_muB, particle_muQ, particle_muS );
 	return EOS.wfz();
+}
+
+
+
+template <int D>
+double Particle<D>::EOSA()
+{
+	EOS.tbqs( particle_T, particle_muB, particle_muQ, particle_muS );
+	return EOS.A();
+}
+
+
+
+template <int D>
+double Particle<D>::EOSdwds()
+{
+	EOS.tbqs( particle_T, particle_muB, particle_muQ, particle_muS );
+	return EOS.dwds();
 }
 
 
