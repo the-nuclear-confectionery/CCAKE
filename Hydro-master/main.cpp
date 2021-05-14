@@ -35,7 +35,8 @@ int nETH,nETL;
 Matrix <double,2,2> Imat;
 int hcor;
 
-eos Particle::EOS;
+template <int D>
+eos Particle<D>::EOS;
 
 // This is the main file of v-USPhydro.  The files are organized as follows:
 // EOS- eos.cpp/eos.h but tables to read them in are in tables.h and files to read them in happen within enetric.h/enetric.cpp
