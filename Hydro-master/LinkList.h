@@ -1419,8 +1419,8 @@ template <int D>
 void LinkList<D>::freezeset()
 {
     //
-    cs2=_p[0].EOScs2out(freezeoutT);    // single arguments for backward compatibility
-    wfz=_p[0].EOSwfz(freezeoutT);        // single arguments for backward compatibility
+    cs2=_p[0].EOS.cs2out(freezeoutT);    // single arguments for backward compatibility
+    wfz=_p[0].EOS.wfz(freezeoutT);        // single arguments for backward compatibility
 }
 
 template <int D>
