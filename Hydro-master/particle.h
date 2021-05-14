@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include <math.h>
 
+extern double freezeoutT;
+
 // need to switch to dimension instead!
 template <int D>
 class Particle

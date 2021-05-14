@@ -21,7 +21,7 @@ main.o: vector.h mathdef.h particle.h eos.h enteric.h LinkList.h random.h matrix
 vector.o: vector.h mathdef.h vector.cpp
 	$(CC) $(CFLAGS) vector.cpp
 
-particle.o: particle.h eos.h vector.cpp matrix.h
+particle.o: particle.h eos.h vector.cpp matrix.h particle.cpp
 	$(CC) $(CFLAGS) particle.cpp
 
 matrix.o: matrix.cpp matrix.h vector.h mathdef.h
