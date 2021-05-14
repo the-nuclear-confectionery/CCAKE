@@ -21,7 +21,7 @@ public:
 
 
     int btrack;
-    //eos EOS;
+    static eos EOS;	//use one copy of EOS for all particles
     double Agam, Agam2;
     double sigmaweight;        // specific volume per particle
     Vector<double,D> r;                   // position
@@ -129,6 +129,24 @@ public:
     void setvar();
     double saves;
     double inside;
+
+	double EOST();
+	double EOSmuB();
+	double EOSmuS();
+	double EOSmuQ();
+
+	double EOSp();
+	double EOSs();
+	double EOSe();
+	double EOSw();
+	double EOSs_terms_T(double Tin);
+	double EOScs2out();
+	double EOSwfz();
+	double EOSs_out();
+	void EOSupdate_s();
+
+	double particle_T, particle_muB, particle_muS, particle_muQ;
+
 };
 
 template <int D>
@@ -141,8 +159,9 @@ Particle<D>::Particle() {
 }
 
 template <int D>
-void Particle<D>::start(string enter)
+void Particle<D>::start(string enter, eos & EOS_in)
 {
+	EOS = EOS_in;
     EOS.eosin(enter);
     Imat.identity();
 }
@@ -167,7 +186,7 @@ void Particle<D>::frzcheck(double tin,int &count, int N)
 {
     if( Freeze==0)
     {
-        if (EOS.T()<=freezeoutT)
+        if (EOST()<=freezeoutT)
         {
             Freeze=1;
             frz2.t=tin;
@@ -183,11 +202,11 @@ void Particle<D>::frzcheck(double tin,int &count, int N)
             Freeze=3;
             frz1.t=tin;
         }
-        else if (EOS.T()>frz1.T) {
+        else if (EOST()>frz1.T) {
             Freeze=1;
             frz2.t=tin;
         }
-        else if(EOS.T()<=freezeoutT)
+        else if(EOST()<=freezeoutT)
         {
             count +=1;
             Freeze=3;
@@ -212,8 +231,8 @@ void Particle<D>::calc(double tin)
     gamma=gamcalc();
     v =(1/gamma)*u;
     double s_in2= eta/gamma/tin;
-    qmom=((EOS.e()+ EOS.p())*gamma/sigma)*u;
-    EOS.update_s(s_in2);    // single-argument version
+    qmom=((EOSe()+ EOSp())*gamma/sigma)*u;
+    EOSupdate_s(s_in2);    // single-argument version
 }
 
 //  Computes gamma and velocity
@@ -228,24 +247,24 @@ void Particle<D>::calcbsq(double tin)
     //double B_in2= rhoB/gamma/tin;
     //double S_in2= rhoS/gamma/tin;
     //double Q_in2= rhoQ/gamma/tin;
-    qmom=((EOS.e()+ EOS.p())*gamma/sigma)*u;
+    qmom=((EOSe()+ EOSp())*gamma/sigma)*u;
 	double rhoB_in2 = B*sigma/sigmaweight;		//  is this correct?  (confirm with Jaki)
 	double rhoS_in2 = S*sigma/sigmaweight;		//  is this correct?  (confirm with Jaki)
 	double rhoQ_in2 = Q*sigma/sigmaweight;		//  is this correct?  (confirm with Jaki)
-    EOS.update_s(s_in2, rhoB_in2, rhoS_in2, rhoQ_in2);	//  is this correct?  (confirm with Jaki)
+    EOSupdate_s(s_in2, rhoB_in2, rhoS_in2, rhoQ_in2);	//  is this correct?  (confirm with Jaki)
 
 }
 
 template <int D>
 void Particle<D>::returnA()
 {
-    Agam=EOS.A()/gamma;
+    Agam=EOSA()/gamma;
 }
 
 template <int D>
 void Particle<D>::returnv_A()
 {
-    Agam=EOS.w()-EOS.dwds()*(EOS.s()+ bigPI/EOS.T() )- zeta/tauRelax ;
+    Agam=EOS.w()-EOSdwds()*(EOSs()+ bigPI/EOST() )- zeta/tauRelax ;
     Agam/=gamma;
 }
 
@@ -254,7 +273,7 @@ void Particle<D>::return_sv_A()
 {
     eta_o_tau=setas/stauRelax;
 
-    Agam=EOS.w()-EOS.dwds()*(EOS.s()+ bigPI/EOS.T() )- zeta/tauRelax ;
+    Agam=EOSw()-EOSdwds()*(EOSs()+ bigPI/EOST() )- zeta/tauRelax ;
 
     Agam2=(Agam-eta_o_tau*(0.5-1/3.) -dwdsT1*shv.x[0][0])/gamma;
     Ctot=C+eta_o_tau*(1/g2-1)/2.;
@@ -266,7 +285,7 @@ void Particle<D>::return_bsqsv_A()
 {
     eta_o_tau=setas/stauRelax;
 
-    Agam=EOS.w()-EOS.dwds()*(EOS.s()+ bigPI/EOS.T() )- zeta/tauRelax ;//here goes a purple tag
+    Agam=EOSw()-EOSdwds()*(EOSs()+ bigPI/EOST() )- zeta/tauRelax ;//here goes a purple tag
 
     Agam2=(Agam-eta_o_tau*(0.5-1/3.) -dwdsT1*shv.x[0][0])/gamma;
     Ctot=C+eta_o_tau*(1/g2-1)/2.;
@@ -285,7 +304,7 @@ void Particle<D>::vsigset(double tin)
 
     bigPI = Bulk*sigma/gamma/tin ;
 
-    C=EOS.w()+bigPI;
+    C=EOSw()+bigPI;
 
     returnv_A();
     Agam2=Agam*gamma*gamma*(dsigma_dt/sigma -1./tin)+ bigPI/tauRelax;
@@ -298,8 +317,8 @@ void Particle<D>::svsigset(double tin,int i)
     g2=gamma*gamma;
     g3=gamma*g2;
     gt=gamma*tin;
-    double dwdsT=EOS.dwds()/EOS.T();
-    dwdsT1=1- EOS.dwds()/EOS.T();
+    double dwdsT=EOSdwds()/EOST();
+    dwdsT1=1- EOSdwds()/EOST();
     sigl=dsigma_dt/sigma -1/tin;
 
 
@@ -307,7 +326,7 @@ void Particle<D>::svsigset(double tin,int i)
 
     bigPI= Bulk*sigma/gt ;
 
-    C=EOS.w()+ bigPI;
+    C=EOSw()+ bigPI;
 
 
     return_sv_A();
@@ -386,7 +405,7 @@ void Particle<D>::bsqsvsigset(double tin,int i)
 
     bigPI = Bulk*sigma/gamma/tin ;
 
-    C=EOS.w()+bigPI;
+    C=EOSw()+bigPI;
 
     return_bsqsv_A();
     Agam2=Agam*gamma*gamma*(dsigma_dt/sigma -1./tin)+ bigPI/tauRelax;
@@ -402,20 +421,20 @@ void Particle<D>::setvisc(int etaconst,double bvf, double svf, double zTc, doubl
     {
 
 
-        //double cscheck=EOS.cs2out(EOS.T());
+        //double cscheck=EOScs2out(EOST());
         //zeta = bvf*0.5*zconst*(1/3.-cscheck);
         //zeta=-0.0295874+4.22749/sqrt(522.496+pow(-182.807+temp,2.))+5.09207833442629*pow(10,-7)*temp*temp;
 
-        //double cscheck=EOS.cs2out(EOS.T());
+        //double cscheck=EOScs2out(EOST());
 
         //double sig=5;
         //double mf=2.0768;
 
-        double temp=EOS.T()*197.3;
+        double temp=EOST()*197.3;
         zeta =bvf/(sig*sqrt(2*PI))*exp(-pow(temp-zTc,2)/(2.*sig*sig));
-        zeta*=EOS.s();
+        zeta*=EOSs();
         if (zeta<0.001) zeta=0.001;
-        tauRelax = 9*zeta/(EOS.e()-3*EOS.p());
+        tauRelax = 9*zeta/(EOSe()-3*EOSp());
         if (tauRelax <0.1) tauRelax=0.1 ;
 
     }
@@ -424,7 +443,7 @@ void Particle<D>::setvisc(int etaconst,double bvf, double svf, double zTc, doubl
 
         setas =svf*0.08;
 
-        stauRelax=5*setas/EOS.w();
+        stauRelax=5*setas/EOSw();
 
     }
     else if (type==3) // shear+bulk viscosity
@@ -432,7 +451,7 @@ void Particle<D>::setvisc(int etaconst,double bvf, double svf, double zTc, doubl
 
         if ((etaconst==1)||(etaconst==3)||(etaconst==4))
         {   // const eta/s
-            setas=2*EOS.s()*svf;  // svf defines eta/s const (the two is needed for the definition in the code, don't remove!
+            setas=2*EOSs()*svf;  // svf defines eta/s const (the two is needed for the definition in the code, don't remove!
         }
 
         //    for TECHQM/Gubser set svf=0.08
@@ -441,7 +460,7 @@ void Particle<D>::setvisc(int etaconst,double bvf, double svf, double zTc, doubl
     {
 
         if ((etaconst==1)||(etaconst==3)||(etaconst==4)) {// const eta/s
-            setas=2*EOS.s()*svf;  // svf defines eta/s const (the two is needed for the definition in the code, don't remove!
+            setas=2*EOSs()*svf;  // svf defines eta/s const (the two is needed for the definition in the code, don't remove!
 
 
 
@@ -452,47 +471,47 @@ void Particle<D>::setvisc(int etaconst,double bvf, double svf, double zTc, doubl
 
 
 //               if( temp>TC){
-//                setas = svf*EOS.s()*(-0.289 + 0.288*temp + 0.0818*temp*temp);
+//                setas = svf*EOSs()*(-0.289 + 0.288*temp + 0.0818*temp*temp);
 //            }
 //            else {
-//                setas = svf*EOS.s()*(0.681 - 0.0594*temp - 0.544 *temp*temp);
+//                setas = svf*EOSs()*(0.681 - 0.0594*temp - 0.544 *temp*temp);
 //            }
 //        if (setas<0.01) setas=0.001;
 
 
             if (etaconst==5) {
                 double TC=173.9; // 173.9/197.3
-                double temp=EOS.T()*197.3/TC;
+                double temp=EOST()*197.3/TC;
                 double TC0=149.4/TC; // 149.4/197.3
                 if( temp<TC0) {
-                    setas = EOS.s()*(8.0191 - 16.4659* temp  +  8.60918* temp *temp  );
+                    setas = EOSs()*(8.0191 - 16.4659* temp  +  8.60918* temp *temp  );
                 }
                 else if( temp>1) {
-                    //setas = EOS.s()*(0.48 - 0.36*temp );
-                    setas = EOS.s()*(0.007407515123054544 +  0.06314680923610914* temp + 0.08624567564083624* temp *temp  );
+                    //setas = EOSs()*(0.48 - 0.36*temp );
+                    setas = EOSs()*(0.007407515123054544 +  0.06314680923610914* temp + 0.08624567564083624* temp *temp  );
                 }
                 else {
-                    //setas = EOS.s()*(-0.107143 + 0.227143*temp);
-                    setas = EOS.s()*(0.397807 + 0.0776319* temp - 0.321513* temp *temp  );
+                    //setas = EOSs()*(-0.107143 + 0.227143*temp);
+                    setas = EOSs()*(0.397807 + 0.0776319* temp - 0.321513* temp *temp  );
                 }
             }
             if (etaconst==6) {
                 double TC=155; // 173.9/197.3
-                double temp=EOS.T()*197.3/TC;
+                double temp=EOST()*197.3/TC;
                 double z=pow(0.66*temp,2);
                 double alpha=33./(12.*PI)*(z-1)/(z*log(z));
 
-                setas = EOS.s()*(0.0416762/pow(alpha,1.6)+ 0.0388977/pow(temp,5.1) );
+                setas = EOSs()*(0.0416762/pow(alpha,1.6)+ 0.0388977/pow(temp,5.1) );
 
             }
             else {
                 double TC=sTc/197.3;
-                double temp=EOS.T()/TC;
+                double temp=EOST()/TC;
                 if( temp>TC) {
-                    setas = EOS.s()*(0.3153036437246963 + 0.051740890688259315* temp  -  0.24704453441295576* temp *temp  );
+                    setas = EOSs()*(0.3153036437246963 + 0.051740890688259315* temp  -  0.24704453441295576* temp *temp  );
                 }
                 else {
-                    setas = EOS.s()*(0.0054395278010882795 + 0.08078575671572835*temp + 0.033774715483183566* temp *temp );
+                    setas = EOSs()*(0.0054395278010882795 + 0.08078575671572835*temp + 0.033774715483183566* temp *temp );
                 }
             }
 
@@ -504,7 +523,7 @@ void Particle<D>::setvisc(int etaconst,double bvf, double svf, double zTc, doubl
 
 
         }
-        stauRelax=5*setas/EOS.w();
+        stauRelax=5*setas/EOSw();
         if (stauRelax <0.005) stauRelax=0.005 ;
 
         /// defining bulk viscosity
@@ -517,7 +536,7 @@ void Particle<D>::setvisc(int etaconst,double bvf, double svf, double zTc, doubl
         else
         {
 
-            double temp=EOS.T()*197.3;
+            double temp=EOST()*197.3;
 
             if ((etaconst==2)||(etaconst==3)) {
 
@@ -530,7 +549,7 @@ void Particle<D>::setvisc(int etaconst,double bvf, double svf, double zTc, doubl
                 else zeta=-13.77*t2*t2+27.55*t2-13.45;
 
 
-                tauRelax =5.*zeta/(pow((1-EOS.cs2out(EOS.T())),2)*(EOS.e()+EOS.p()));    // single-argument version of cs2out
+                tauRelax =5.*zeta/(pow((1-EOScs2out(EOST())),2)*(EOSe()+EOSp()));    // single-argument version of cs2out
 
             }
             else if (etaconst==4) {
@@ -545,7 +564,7 @@ void Particle<D>::setvisc(int etaconst,double bvf, double svf, double zTc, doubl
 
 //        zeta =bvf/(sig*sqrt(2*PI))*exp(-pow(temp-zTc,2)/(2.*sig*sig));
 //
-//        tauRelax =9*zeta/(EOS.e()-3*EOS.p());
+//        tauRelax =9*zeta/(EOSe()-3*EOSp());
 
                 double t2=temp/zTc;
 //        zeta=0.01162/sqrt(pow((t2-1.104),2)+ 0.0569777  )+  -0.1081/(t2*t2+23.7169);
@@ -555,13 +574,13 @@ void Particle<D>::setvisc(int etaconst,double bvf, double svf, double zTc, doubl
                 else if (t2<0.995) zeta=0.9*exp(min1/0.0025)+0.22*exp(min1/0.022)+0.03;
                 else zeta=-13.77*t2*t2+27.55*t2-13.45;
 
-                tauRelax =5.*zeta/(pow((1-EOS.cs2out(EOS.T())),2)*(EOS.e()+EOS.p()));    // single-argument version of cs2out
+                tauRelax =5.*zeta/(pow((1-EOScs2out(EOST())),2)*(EOSe()+EOSp()));    // single-argument version of cs2out
 
             }
 
 
 
-            zeta*=EOS.s();
+            zeta*=EOSs();
             if (zeta<0.001) zeta=0.001;
             if (tauRelax <0.2) tauRelax=0.2 ;
         }
@@ -596,6 +615,114 @@ void Particle<D>::setvar()
 {
     mini(pimin,shv);
     uu=u*u;
+}
+
+
+
+
+
+
+// Functions added by Christopher Plumberg
+template <int D>
+double Particle<D>::EOST() { return particle_T; }
+
+template <int D>
+double Particle<D>::EOSmuB() { return particle_muB; }
+
+template <int D>
+double Particle<D>::EOSmuS() { return particle_muS; }
+
+template <int D>
+double Particle<D>::EOSmuQ() { return particle_muQ; }
+
+
+
+template <int D>
+double Particle<D>::EOSp()
+{
+	EOS.tbqs( particle_T, particle_muB, particle_muQ, particle_muS );
+	return EOS.p();
+}
+
+
+// Functions added by Christopher Plumberg
+template <int D>
+double Particle<D>::EOSs()
+{
+	EOS.tbqs( particle_T, particle_muB, particle_muQ, particle_muS );
+	return EOS.s();
+}
+
+
+
+template <int D>
+double Particle<D>::EOSe()
+{
+	EOS.tbqs( particle_T, particle_muB, particle_muQ, particle_muS );
+	return EOS.e();
+}
+
+
+
+template <int D>
+double Particle<D>::EOSw()
+{
+	EOS.tbqs( particle_T, particle_muB, particle_muQ, particle_muS );
+	return EOS.w();
+}
+
+
+
+template <int D>
+double Particle<D>::EOScs2out()
+{
+	EOS.tbqs( particle_T, particle_muB, particle_muQ, particle_muS );
+	return EOS.cs2out();
+}
+
+
+
+template <int D>
+double Particle<D>::EOSwfz()
+{
+	EOS.tbqs( particle_T, particle_muB, particle_muQ, particle_muS );
+	return EOS.wfz();
+}
+
+
+
+template <int D>
+double Particle<D>::EOSs_terms_T(double Tin)
+{
+	EOS.tbqs( particle_T, particle_muB, particle_muQ, particle_muS );
+	return EOS.s_terms_T(Tin);
+}
+
+
+
+template <int D>
+double Particle<D>::EOSs_out(double e_In, double rhoB_In, double rhoS_In, double rhoQ_In)
+{
+	double sVal = EOS.s_out( e_In, rhoB_In, rhoS_In, rhoQ_In );
+	particle_T = EOS.T();
+	particle_muB = EOS.muB();
+	particle_muS = EOS.muS();
+	particle_muQ = EOS.muQ();
+
+	return sVal;
+}
+
+
+template <int D>
+void Particle<D>::EOSupdate_s(double s_In, double rhoB_In, double rhoS_In, double rhoQ_In)
+{
+	EOS.update_s( s_In, rhoB_In, rhoS_In, rhoQ_In );
+	particle_T = EOS.T();
+	particle_muB = EOS.muB();
+	particle_muS = EOS.muS();
+	particle_muQ = EOS.muQ();
+
+	return;
 }
 
 

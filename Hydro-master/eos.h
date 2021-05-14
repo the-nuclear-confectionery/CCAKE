@@ -32,7 +32,15 @@ public:
     //Once called, the splines will stay initialized at this point until the function is called again
     void tbqs(double setT, double setmuB, double setmuQ, double setmuS);
 
+    //initializes the position in the grid to (setT,setmuB,setmuQ,setmuS) only
+    //void set_tbqs(double setT, double setmuB, double setmuQ, double setmuS);
+
     //getter functions for the quantities of interest at the current tbs/tbqs
+    double T();     //temperature
+    double muB();   //baryon chemical potential
+    double muQ();   //charge chemical potential
+    double muS();   //strangeness chemical potential
+
     double p();     //pressure density
     double s();     //entropy density
     double B();     //baryon density
@@ -41,15 +49,24 @@ public:
     double e();     //energy density
     double cs2();   //speed of sound
     double w();     //enthalpy
-    double T();     //temperature
-    double muB();   //baryon chemical potential
-    double muQ();   //charge chemical potential
-    double muS();   //strangeness chemical potential
+    /*double p(double Tin, double muBin, double muQin, double muSin);     //pressure density
+    double s(double Tin, double muBin, double muQin, double muSin);     //entropy density
+    double B(double Tin, double muBin, double muQin, double muSin);     //baryon density
+    double S(double Tin, double muBin, double muQin, double muSin);     //strangeness density
+    double Q(double Tin, double muBin, double muQin, double muSin);     //charge density
+    double e(double Tin, double muBin, double muQin, double muSin);     //energy density
+    double cs2(double Tin, double muBin, double muQin, double muSin);   //speed of sound
+    double w(double Tin, double muBin, double muQin, double muSin);     //enthalpy
+	*/
 
     double dwds();
     double dwdB();  //enthalpy derivatives **These still have not been checked**
     double dwdS();
     double dwdQ();
+    /*double dwds(double Tin, double muBin, double muQin, double muSin);
+    double dwdB(double Tin, double muBin, double muQin, double muSin);
+    double dwdS(double Tin, double muBin, double muQin, double muSin);
+    double dwdQ(double Tin, double muBin, double muQin, double muSin);*/
 
     double cs2out(double Tt, double muBin, double muQin, double muSin); //return cs2 given T and mu's - identical to calling cs2() after initializing position using tbqs()
     double cs2out(double Tt); //return cs2 given T and mu's = 0 - identical to calling cs2() after initializing position using tbqs()

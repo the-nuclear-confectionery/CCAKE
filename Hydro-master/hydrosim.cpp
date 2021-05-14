@@ -439,7 +439,7 @@ void idealhydro3(LinkList<D>  &linklist) // ideal Equations of motion, only set 
         linklist._p[i].calc(linklist.t); // calculates gamma, flow vectors, and updates EOS
 
         linklist._p[i].returnA(); // returns A form EOM
-//            if(linklist._p[i].EOS.s() < 0)
+//            if(linklist._p[i].EOSs() < 0)
         if (linklist.cfon==1) linklist._p[i].frzcheck(linklist.t,curfrz,linklist.n()); // checks if SPH particles have frozen out
 
 
@@ -484,8 +484,8 @@ void idealhydro3(LinkList<D>  &linklist) // ideal Equations of motion, only set 
         double *M,*F;
         M=new double[D*D];
         F=new double[D];
-        M[0]=linklist._p[i].Agam*linklist._p[i].u.x[0]*linklist._p[i].u.x[0]+linklist._p[i].EOS.w()*linklist._p[i].gamma;
-        M[3]=linklist._p[i].Agam*linklist._p[i].u.x[1]*linklist._p[i].u.x[1]+linklist._p[i].EOS.w()*linklist._p[i].gamma;
+        M[0]=linklist._p[i].Agam*linklist._p[i].u.x[0]*linklist._p[i].u.x[0]+linklist._p[i].EOSw()*linklist._p[i].gamma;
+        M[3]=linklist._p[i].Agam*linklist._p[i].u.x[1]*linklist._p[i].u.x[1]+linklist._p[i].EOSw()*linklist._p[i].gamma;
         M[1]=linklist._p[i].Agam*linklist._p[i].u.x[0]*linklist._p[i].u.x[1];
 
         F[0]=linklist._p[i].Agam2*linklist._p[i].u.x[0]-linklist._p[i].gradP.x[0];
@@ -528,7 +528,7 @@ void vischydro3(LinkList<D>  &linklist)  // bulk Equations of motion, only set u
         linklist.voptimization(i);
         if ((linklist._p[i].eta<0)||isnan(linklist._p[i].eta))
         {
-            cout << "neg entropy " <<  linklist._p[i].EOS.T()*197.3   << " " << linklist._p[i].eta << endl;
+            cout << "neg entropy " <<  linklist._p[i].EOST()*197.3   << " " << linklist._p[i].eta << endl;
 
 
             //double seta = 0;
@@ -544,7 +544,7 @@ void vischydro3(LinkList<D>  &linklist)  // bulk Equations of motion, only set u
                     {
                         if (linklist._p[b].eta_sigma<0)
                         {
-                            cout << b << " "   <<linklist._p[b].eta_sigma<< " "  <<  linklist._p[i].EOS.T()*197.3  << " " << linklist._p[i].Bulk << endl;
+                            cout << b << " "   <<linklist._p[b].eta_sigma<< " "  <<  linklist._p[i].EOST()*197.3  << " " << linklist._p[i].Bulk << endl;
                             cout << linklist._p[b].tauRelax << " "  <<  linklist._p[i].zeta << endl;
                         }
                         b=linklist.link[b];
@@ -621,7 +621,7 @@ void vischydro3(LinkList<D>  &linklist)  // bulk Equations of motion, only set u
 
         linklist._p[i].bigtheta=linklist._p[i].div_u*linklist.t+linklist._p[i].gamma;
 
-        linklist._p[i].detasigma_dt = -linklist._p[i].bigPI/linklist._p[i].EOS.T()*linklist._p[i].bigtheta/linklist._p[i].sigma;
+        linklist._p[i].detasigma_dt = -linklist._p[i].bigPI/linklist._p[i].EOST()*linklist._p[i].bigtheta/linklist._p[i].sigma;
 
         linklist._p[i].dBulk_dt = (-linklist._p[i].zeta/linklist._p[i].sigma*linklist._p[i].bigtheta - linklist._p[i].Bulk/linklist._p[i].gamma )/linklist._p[i].tauRelax;
 
@@ -656,7 +656,7 @@ void shear(LinkList<D>  &linklist)  // shear+bulk Equations of motion, only set 
 
         if ((linklist._p[i].eta<0)||isnan(linklist._p[i].eta))
         {
-            cout << i <<  " neg entropy " <<  linklist._p[i].EOS.T()*197.3   << " " << linklist._p[i].eta << endl;
+            cout << i <<  " neg entropy " <<  linklist._p[i].EOST()*197.3   << " " << linklist._p[i].eta << endl;
 
             linklist._p[i].eta=0;
 
@@ -769,7 +769,7 @@ void shear(LinkList<D>  &linklist)  // shear+bulk Equations of motion, only set 
 
 
         linklist._p[i].inside=linklist.t*(inner((-minshv+linklist._p[i].shv.x[0][0]*linklist._p[i].v),linklist._p[i].du_dt)- con2(sub,linklist._p[i].gradU)    -linklist._p[i].gamma*linklist.t*linklist._p[i].shv33);
-        linklist._p[i].detasigma_dt =1./linklist._p[i].sigma/linklist._p[i].EOS.T()*( -linklist._p[i].bigPI*linklist._p[i].bigtheta+linklist._p[i].inside);
+        linklist._p[i].detasigma_dt =1./linklist._p[i].sigma/linklist._p[i].EOST()*( -linklist._p[i].bigPI*linklist._p[i].bigtheta+linklist._p[i].inside);
 
 
 
@@ -811,7 +811,7 @@ void BSQshear(LinkList<D>  &linklist)  // shear+bulk Equations of motion, only s
 
         if ((linklist._p[i].eta<0)||isnan(linklist._p[i].eta))
         {
-            cout << i <<  " neg entropy " <<  linklist._p[i].EOS.T()*197.3   << " " << linklist._p[i].eta << endl;
+            cout << i <<  " neg entropy " <<  linklist._p[i].EOST()*197.3   << " " << linklist._p[i].eta << endl;
 
             linklist._p[i].eta=0;
 
@@ -925,7 +925,7 @@ void BSQshear(LinkList<D>  &linklist)  // shear+bulk Equations of motion, only s
 
 
         linklist._p[i].inside=linklist.t*(inner((-minshv+linklist._p[i].shv.x[0][0]*linklist._p[i].v),linklist._p[i].du_dt)- con2(sub,linklist._p[i].gradU)    -      linklist._p[i].gamma*linklist.t*linklist._p[i].shv33);
-        linklist._p[i].detasigma_dt =1./linklist._p[i].sigma/linklist._p[i].EOS.T()*( -linklist._p[i].bigPI*linklist._p[i].bigtheta+linklist._p[i].inside);
+        linklist._p[i].detasigma_dt =1./linklist._p[i].sigma/linklist._p[i].EOST()*( -linklist._p[i].bigPI*linklist._p[i].bigtheta+linklist._p[i].inside);
 
 
 

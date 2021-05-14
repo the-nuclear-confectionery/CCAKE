@@ -108,10 +108,10 @@ void BBMG<D>::initial(LinkList<D> &linklist)
     rho0tot=0;
     for (int i=0; i<linklist._n; i++)
     {
-        double rsub=linklist._p[i].EOS.p()/linklist._p[i].EOS.T();
+        double rsub=linklist._p[i].EOSp()/linklist._p[i].EOST();
         rho0tot+=rsub;
 
-        if (linklist._p[i].EOS.T()*197.3>TD)
+        if (linklist._p[i].EOST()*197.3>TD)
         {
             field sub;
             sub.r[0]=linklist._p[i].r.x[0];
@@ -218,7 +218,7 @@ void BBMG<D>::propogate(LinkList<D> &linklist)
 //
 //          rr[i]=sqrt(linklist._p[i].r.x[0]*linklist._p[i].r.x[0]+linklist._p[i].r.x[1]*linklist._p[i].r.x[1]);
 //
-//          if (linklist._p[i].EOS.T()*197.3>TD){
+//          if (linklist._p[i].EOST()*197.3>TD){
 //              if(linklist._p[i].r.x[0]>maxx) maxx=linklist._p[i].r.x[0];
 //              if(linklist._p[i].r.x[0]<minx) minx=linklist._p[i].r.x[0];
 //              if(linklist._p[i].r.x[1]>maxy) maxy=linklist._p[i].r.x[1];
@@ -250,12 +250,12 @@ void BBMG<D>::inter(LinkList<D> &linklist,field &f)
             den++;
             den2+=linklist._p[i].sigmaweight;
             double kk=kern(rdiff);
-            f.T+=linklist._p[i].EOS.T()*0.06*0.06*kk;
-            f.rho+=(linklist._p[i].EOS.p()/linklist._p[i].EOS.T())*kk;
+            f.T+=linklist._p[i].EOST()*0.06*0.06*kk;
+            f.rho+=(linklist._p[i].EOSp()/linklist._p[i].EOST())*kk;
             f.v[0]+=linklist._p[i].v.x[0]*kk;
             f.v[1]+=linklist._p[i].v.x[1]*kk;
 
-            cout << dx << " " << dy << " " << linklist._p[i].EOS.T()*197.3 << " " << linklist._p[i].v <<  endl;
+            cout << dx << " " << dy << " " << linklist._p[i].EOST()*197.3 << " " << linklist._p[i].v <<  endl;
         }
     }
 

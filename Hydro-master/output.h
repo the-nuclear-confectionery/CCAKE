@@ -382,14 +382,14 @@ void Output<D>::eprofile(LinkList<D> &linklist)
 //                 EPN << linklist._p[i].r.x[j] << " ";
 //             }
 
-//    EPN << linklist._p[i].r   << " " << linklist._p[i].EOS.e()/linklist.eanal2(linklist.t,linklist._p[i].r.x[0],linklist._p[i].r.x[1]) <<  endl;
+//    EPN << linklist._p[i].r   << " " << linklist._p[i].EOSe()/linklist.eanal2(linklist.t,linklist._p[i].r.x[0],linklist._p[i].r.x[1]) <<  endl;
 //    if (abs(Norm(linklist._p[i].r ))<4.)
 //        {
 
-            EPN << linklist._p[i].r   << " " << linklist._p[i].EOS.e() << " " << linklist._p[i].EOS.T()*197.3 <<  endl;
-//        EPN << linklist.t   << " "  << linklist._p[i].r   << " " << linklist._p[i].EOS.T()*0.1973 << " " <<  linklist._p[i].EOS.p()   << " " <<  linklist._p[i].EOS.e()   << " " <<  linklist._p[i].EOS.s()   << " " <<  linklist._p[i].u   <<endl;
+            EPN << linklist._p[i].r   << " " << linklist._p[i].EOSe() << " " << linklist._p[i].EOST()*197.3 <<  endl;
+//        EPN << linklist.t   << " "  << linklist._p[i].r   << " " << linklist._p[i].EOST()*0.1973 << " " <<  linklist._p[i].EOSp()   << " " <<  linklist._p[i].EOSe()   << " " <<  linklist._p[i].EOSs()   << " " <<  linklist._p[i].u   <<endl;
             //}
-            //cout << linklist._p[i].EOS.s() << " " << linklist._p[i].sigma << endl;
+            //cout << linklist._p[i].EOSs() << " " << linklist._p[i].sigma << endl;
             //getchar();
 
         }
@@ -458,7 +458,7 @@ void Output<D>::sveprofile(LinkList<D> &linklist)
 //                 EPN << linklist._p[i].r.x[j] << " ";
 //             }
 
-//    EPN << linklist._p[i].r   << " " << linklist._p[i].EOS.e()/linklist.eanal2(linklist.t,linklist._p[i].r.x[0],linklist._p[i].r.x[1]) <<  endl;
+//    EPN << linklist._p[i].r   << " " << linklist._p[i].EOSe()/linklist.eanal2(linklist.t,linklist._p[i].r.x[0],linklist._p[i].r.x[1]) <<  endl;
             //if (abs(Norm(linklist._p[i].r ))<4.)
             //{
 
@@ -467,18 +467,18 @@ void Output<D>::sveprofile(LinkList<D> &linklist)
 
 
 
-//        EPN << linklist._p[i].r   << " " << linklist._p[i].v  << " " <<  linklist._p[i].shv.x[0][0]*0.1973  << " " << linklist._p[i].shv.x[1][1]*0.1973  << " " << linklist._p[i].shv.x[1][2]*0.1973  << " " << linklist._p[i].shv.x[2][2]*0.1973  << " " << linklist.t*linklist.t*linklist._p[i].shv33*0.1973  << " " << linklist._p[i].EOS.p()*0.1973  <<  " " <<linklist._p[i].EOS.e()*0.1973 <<   " " << linklist._p[i].EOS.T()*0.1973 << endl;
+//        EPN << linklist._p[i].r   << " " << linklist._p[i].v  << " " <<  linklist._p[i].shv.x[0][0]*0.1973  << " " << linklist._p[i].shv.x[1][1]*0.1973  << " " << linklist._p[i].shv.x[1][2]*0.1973  << " " << linklist._p[i].shv.x[2][2]*0.1973  << " " << linklist.t*linklist.t*linklist._p[i].shv33*0.1973  << " " << linklist._p[i].EOSp()*0.1973  <<  " " <<linklist._p[i].EOSe()*0.1973 <<   " " << linklist._p[i].EOST()*0.1973 << endl;
 
 
 
-            //EPN << linklist._p[i].EOS.e()<< " " << linklist._p[i].EOS.e() << " " << linklist._p[i].EOS.T()*197.3 << " " << linklist._p[i].v  << " " << linklist._p[i].sigmaweight   <<endl;
+            //EPN << linklist._p[i].EOSe()<< " " << linklist._p[i].EOSe() << " " << linklist._p[i].EOST()*197.3 << " " << linklist._p[i].v  << " " << linklist._p[i].sigmaweight   <<endl;
 
-            EPN << linklist._p[i].r   << " " << linklist._p[i].EOS.e() << " " << linklist._p[i].EOS.p() << " " << linklist._p[i].EOS.T()*197.3 << " " << linklist._p[i].stauRelax << " " <<  linklist._p[i].sigmaweight << " " << linklist._p[i].bigtheta   << " " <<  sqrt(linklist._p[i].shv.x[0][0]*linklist._p[i].shv.x[0][0]-2*linklist._p[i].shv.x[0][1]*linklist._p[i].shv.x[0][1] -2*linklist._p[i].shv.x[0][2]*linklist._p[i].shv.x[0][2]    + linklist._p[i].shv.x[1][1]*linklist._p[i].shv.x[1][1]+ linklist._p[i].shv.x[2][2]*linklist._p[i].shv.x[2][2] +2* linklist._p[i].shv.x[1][2]*linklist._p[i].shv.x[1][2]+pow(linklist.t,4)*linklist._p[i].shv33*linklist._p[i].shv33) << " " << linklist._p[i].stauRelax/linklist.t * linklist._p[i].bigtheta << " " << linklist._p[i].u.x[0]/linklist._p[i].gamma << " " << linklist._p[i].u.x[1]/linklist._p[i].gamma << " " << linklist._p[i].gamma <<endl;
+            EPN << linklist._p[i].r   << " " << linklist._p[i].EOSe() << " " << linklist._p[i].EOSp() << " " << linklist._p[i].EOST()*197.3 << " " << linklist._p[i].stauRelax << " " <<  linklist._p[i].sigmaweight << " " << linklist._p[i].bigtheta   << " " <<  sqrt(linklist._p[i].shv.x[0][0]*linklist._p[i].shv.x[0][0]-2*linklist._p[i].shv.x[0][1]*linklist._p[i].shv.x[0][1] -2*linklist._p[i].shv.x[0][2]*linklist._p[i].shv.x[0][2]    + linklist._p[i].shv.x[1][1]*linklist._p[i].shv.x[1][1]+ linklist._p[i].shv.x[2][2]*linklist._p[i].shv.x[2][2] +2* linklist._p[i].shv.x[1][2]*linklist._p[i].shv.x[1][2]+pow(linklist.t,4)*linklist._p[i].shv33*linklist._p[i].shv33) << " " << linklist._p[i].stauRelax/linklist.t * linklist._p[i].bigtheta << " " << linklist._p[i].u.x[0]/linklist._p[i].gamma << " " << linklist._p[i].u.x[1]/linklist._p[i].gamma << " " << linklist._p[i].gamma <<endl;
 
-//        EPN << linklist._p[i].r   << " " << linklist._p[i].stauRelax/linklist.t * linklist._p[i].bigtheta  << " " <<  sqrt(linklist._p[i].shv.x[0][0]*linklist._p[i].shv.x[0][0]-2*linklist._p[i].shv.x[0][1]*linklist._p[i].shv.x[0][1] -2*linklist._p[i].shv.x[0][2]*linklist._p[i].shv.x[0][2]    + linklist._p[i].shv.x[1][1]*linklist._p[i].shv.x[1][1]+ linklist._p[i].shv.x[2][2]*linklist._p[i].shv.x[2][2] +2* linklist._p[i].shv.x[1][2]*linklist._p[i].shv.x[1][2]+pow(linklist.t,4)*linklist._p[i].shv33*linklist._p[i].shv33)/linklist._p[i].EOS.p() << " " << linklist._p[i].EOS.T()*0.1973 << "  " <<  linklist._p[i].EOS.e() << " " << linklist._p[i].u.x[0]/linklist._p[i].gamma << " " << linklist._p[i].u.x[1]/linklist._p[i].gamma <<  endl;
+//        EPN << linklist._p[i].r   << " " << linklist._p[i].stauRelax/linklist.t * linklist._p[i].bigtheta  << " " <<  sqrt(linklist._p[i].shv.x[0][0]*linklist._p[i].shv.x[0][0]-2*linklist._p[i].shv.x[0][1]*linklist._p[i].shv.x[0][1] -2*linklist._p[i].shv.x[0][2]*linklist._p[i].shv.x[0][2]    + linklist._p[i].shv.x[1][1]*linklist._p[i].shv.x[1][1]+ linklist._p[i].shv.x[2][2]*linklist._p[i].shv.x[2][2] +2* linklist._p[i].shv.x[1][2]*linklist._p[i].shv.x[1][2]+pow(linklist.t,4)*linklist._p[i].shv33*linklist._p[i].shv33)/linklist._p[i].EOSp() << " " << linklist._p[i].EOST()*0.1973 << "  " <<  linklist._p[i].EOSe() << " " << linklist._p[i].u.x[0]/linklist._p[i].gamma << " " << linklist._p[i].u.x[1]/linklist._p[i].gamma <<  endl;
 
 
-            //cout << linklist._p[i].EOS.s() << " " << linklist._p[i].sigma << endl;
+            //cout << linklist._p[i].EOSs() << " " << linklist._p[i].sigma << endl;
             //getchar();
 
         }
@@ -534,7 +534,7 @@ void Output<D>::bsqsveprofile(LinkList<D> &linklist)
         for (int i=0; i<linklist.n(); i++)
         {
 
-            EPN << linklist._p[i].r   << " " << linklist._p[i].EOS.e() << " " << linklist._p[i].EOS.p() << " " << linklist._p[i].EOS.T()*197.3 << " " << linklist._p[i].stauRelax << " " <<  linklist._p[i].sigmaweight << " " << linklist._p[i].bigtheta   << " " <<  sqrt(linklist._p[i].shv.x[0][0]*linklist._p[i].shv.x[0][0]-2*linklist._p[i].shv.x[0][1]*linklist._p[i].shv.x[0][1] -2*linklist._p[i].shv.x[0][2]*linklist._p[i].shv.x[0][2]    + linklist._p[i].shv.x[1][1]*linklist._p[i].shv.x[1][1]+ linklist._p[i].shv.x[2][2]*linklist._p[i].shv.x[2][2] +2* linklist._p[i].shv.x[1][2]*linklist._p[i].shv.x[1][2]+pow(linklist.t,4)*linklist._p[i].shv33*linklist._p[i].shv33) << " " << linklist._p[i].stauRelax/linklist.t * linklist._p[i].bigtheta << " " << linklist._p[i].u.x[0]/linklist._p[i].gamma << " " << linklist._p[i].u.x[1]/linklist._p[i].gamma << " " << linklist._p[i].gamma <<endl;
+            EPN << linklist._p[i].r   << " " << linklist._p[i].EOSe() << " " << linklist._p[i].EOSp() << " " << linklist._p[i].EOST()*197.3 << " " << linklist._p[i].stauRelax << " " <<  linklist._p[i].sigmaweight << " " << linklist._p[i].bigtheta   << " " <<  sqrt(linklist._p[i].shv.x[0][0]*linklist._p[i].shv.x[0][0]-2*linklist._p[i].shv.x[0][1]*linklist._p[i].shv.x[0][1] -2*linklist._p[i].shv.x[0][2]*linklist._p[i].shv.x[0][2]    + linklist._p[i].shv.x[1][1]*linklist._p[i].shv.x[1][1]+ linklist._p[i].shv.x[2][2]*linklist._p[i].shv.x[2][2] +2* linklist._p[i].shv.x[1][2]*linklist._p[i].shv.x[1][2]+pow(linklist.t,4)*linklist._p[i].shv33*linklist._p[i].shv33) << " " << linklist._p[i].stauRelax/linklist.t * linklist._p[i].bigtheta << " " << linklist._p[i].u.x[0]/linklist._p[i].gamma << " " << linklist._p[i].u.x[1]/linklist._p[i].gamma << " " << linklist._p[i].gamma <<endl;
 
         }
     }
@@ -602,9 +602,9 @@ double Output<D>::ecc(LinkList<D> &linklist, double  & psi,double & rout, int m,
     double xcm=0,ycm=0,etot=0;
     for (int i=0; i<max; i++) {
 
-        xcm+=linklist._p[i].r.x[0]*linklist._p[i].EOS.e();
-        ycm+=linklist._p[i].r.x[1]*linklist._p[i].EOS.e();
-        etot+=linklist._p[i].EOS.e();
+        xcm+=linklist._p[i].r.x[0]*linklist._p[i].EOSe();
+        ycm+=linklist._p[i].r.x[1]*linklist._p[i].EOSe();
+        etot+=linklist._p[i].EOSe();
 
     }
     xcm/=etot;
@@ -620,7 +620,7 @@ double Output<D>::ecc(LinkList<D> &linklist, double  & psi,double & rout, int m,
         double ysub=(linklist._p[s].r.x[1]-ycm);
         r2[s]=xsub*xsub+ysub*ysub;
         phi[s]=atan2(ysub,xsub);
-        double rv=linklist._p[s].EOS.e()*pow(r2[s],(m/2.));
+        double rv=linklist._p[s].EOSe()*pow(r2[s],(m/2.));
         psit+=rv*sin(1.0*n*phi[s]);
         psib+=rv*cos(1.0*n*phi[s]);
 
@@ -632,7 +632,7 @@ double Output<D>::ecc(LinkList<D> &linklist, double  & psi,double & rout, int m,
 
     psi=1./(1.0*n)*atan2(psit,psib);
     double ec=0;
-    for (int s=0; s<max; s++) ec+=linklist._p[s].EOS.e()*pow(r2[s],m/2.)*cos(n*(phi[s]-psi));
+    for (int s=0; s<max; s++) ec+=linklist._p[s].EOSe()*pow(r2[s],m/2.)*cos(n*(phi[s]-psi));
 
     ec/=rb;
     rout=rb/etot;

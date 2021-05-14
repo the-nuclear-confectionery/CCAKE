@@ -307,7 +307,7 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
 
 	// rewrite by C. Plumberg: allow for different EOS format if using BSQ
 	double efcheck = 0.0, sfcheck = 0.0;
-    eos EOS;
+    eos EOS0;	// now declared globally
 	if ( linklist.visc == 4 )	//if we're running BSQ (table is only option)
 	{
 		string quantityFile = ifolder + std::string("quantityFile.dat");
@@ -315,10 +315,10 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
         std::cout << "Using BSQ Equation of State table from: "
 				<< quantityFile << " and " << derivativeFile << "\n";
 
-		EOS.init( quantityFile, derivativeFile, 1 );
-	    EOS.eosin(eostype);			// does nothing!
-	    efcheck = EOS.efreeze();	// does nothing!
-	    sfcheck = EOS.sfreeze();	// does nothing!
+		EOS0.init( quantityFile, derivativeFile, 1 );
+	    EOS0.eosin(eostype);			// does nothing!
+	    efcheck = EOS0.efreeze();	// does nothing!
+	    sfcheck = EOS0.sfreeze();	// does nothing!
 		//efcheck = 0.18;	//just for now
 		//sfcheck = 1.0;	//just for now?
 
@@ -354,9 +354,9 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
 	    }
 
 
-	    EOS.eosin(eostype);
-	    efcheck=EOS.efreeze();
-	    sfcheck=EOS.sfreeze();
+	    EOS0.eosin(eostype);
+	    efcheck=EOS0.efreeze();
+	    sfcheck=EOS0.sfreeze();
 	}
 
     linklist.efcheck=efcheck;
@@ -377,7 +377,7 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
 
         readICs_gen(ic,  _Ntable3, _p,efcheck,numpart);
 
-        _p[0].start(eostype);
+        _p[0].start(eostype, EOS0);
 
         linklist.setup(it0,_Ntable3,h,_p,ics.dt,numpart);
 
@@ -424,7 +424,7 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
 
         readICs_ebe(linklist.filenames[0],  _Ntable3, _p,factor,efcheck,  numpart);
 
-        _p[0].start(eostype);
+        _p[0].start(eostype, EOS0);
         linklist.setup(it0,_Ntable3,h,_p,ics.dt,numpart);
         /// compare linklist.gubser
 
@@ -453,7 +453,7 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
 
         readICs_tnt(linklist.filenames[0],  _Ntable3, _p,factor,sfcheck,  numpart, EOS);
 
-        _p[0].start(eostype);
+        _p[0].start(eostype, EOS0);
         linklist.setup(it0,_Ntable3,h,_p,ics.dt,numpart);
         /// compare linklist.gubser
 
@@ -487,7 +487,7 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
         //readICs_tnt(linklist.filenames[0],  _Ntable3, _p,factor,sfcheck,  numpart, EOS);
         readICs_iccing(linklist.filenames[0],  _Ntable3, _p,factor,efcheck,  numpart, EOS);
 
-        _p[0].start(eostype);
+        _p[0].start(eostype, EOS0);
         linklist.setup(it0,_Ntable3,h,_p,ics.dt,numpart);
         /// compare linklist.gubser
 
@@ -674,7 +674,7 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
     // sets up EOS
     for (int i=0; i<linklist.n(); i++)
     {
-        linklist._p[i].start(eostype);
+        linklist._p[i].start(eostype, EOS0);
     }
 
     if ((ictype==bjorken)||(ictype==eventbyevent)||(ictype==trento)||(ictype==average)||(ictype==smooth)||(ictype==giorgio)||(ictype==nexus)||(ictype==glasma)||(ictype==glasmanoflow))
@@ -743,7 +743,7 @@ void nextevent(int i, LinkList<D> &linklist)
 
     for (int i=0; i<linklist.n(); i++)
     {
-        linklist._p[i].start(linklist.eost);
+        linklist._p[i].start(linklist.eost, EOS0);
     }
 
     if ((linklist.gtyp==0)||(linklist.gtyp==1)||(linklist.gtyp==2)||(linklist.gtyp==3)||(linklist.gtyp==4)||(linklist.gtyp==5))

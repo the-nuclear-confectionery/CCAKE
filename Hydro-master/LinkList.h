@@ -48,7 +48,7 @@ private:
         if(innerp>0. || a==b) innerp=0.;
 
 
-        return _p[b].sigmaweight*_p[a].sigma*( _p[b].EOS.p()/(_p[b].sigma*_p[b].sigma) + _p[a].EOS.p()/(_p[a].sigma*_p[a].sigma) -innerp);
+        return _p[b].sigmaweight*_p[a].sigma*( _p[b].EOSp()/(_p[b].sigma*_p[b].sigma) + _p[a].EOSp()/(_p[a].sigma*_p[a].sigma) -innerp);
     }
 //    double gradBulk_weight(int a, int b) {    return _p[b].sigmaweight*_p[a].sigma*( (_p[b].Bulk_N+_p[b].Bulk)/_p[b].sigma/_p[b].gamma/t + (_p[a].Bulk_N+_p[a].Bulk)/_p[a].sigma/_p[a].gamma/t );}
 
@@ -258,7 +258,7 @@ void LinkList<D>::setup(double it0, int ntot,double h, Particle<D> *_pin,double 
 
     number_part=numpart;
     avgetasig=0.;
-    //sFO=_p[0].EOS.s_terms_T(freezeoutT);
+    //sFO=_p[0].EOSs_terms_T(freezeoutT);
 
 }
 
@@ -279,7 +279,7 @@ template <int D>
 void LinkList<D>::prints( )
 {
     for (int i=0; i<_n; i++) {
-        _p[i].saves=_p[i].EOS.s()*_p[i].sigmaweight/_p[i].sigma/_p[i].gamma/t0;
+        _p[i].saves=_p[i].EOSs()*_p[i].sigmaweight/_p[i].sigma/_p[i].gamma/t0;
     }
 }
 
@@ -345,7 +345,7 @@ void LinkList<D>::freezeout(int curfrz)
             _p[i].frz2.r=_p[i].r;
             _p[i].frz2.u=_p[i].u;
             _p[i].frz2.sigma=_p[i].sigma;
-            _p[i].frz2.T=_p[i].EOS.T();
+            _p[i].frz2.T=_p[i].EOST();
             _p[i].frz2.theta=_p[i].div_u+_p[i].gamma/t;
             _p[i].frz2.gradP=_p[i].gradP;
         }
@@ -361,7 +361,7 @@ void LinkList<D>::freezeout(int curfrz)
             _p[i].frz1.r=_p[i].r;
             _p[i].frz1.u=_p[i].u;
             _p[i].frz1.sigma=_p[i].sigma;
-            _p[i].frz1.T=_p[i].EOS.T();
+            _p[i].frz1.T=_p[i].EOST();
             _p[i].frz1.theta=_p[i].div_u+_p[i].gamma/t;
             _p[i].frz1.gradP=_p[i].gradP;
         }
@@ -408,7 +408,7 @@ void LinkList<D>::freezeout(int curfrz)
             _p[i].frz1.r=_p[i].r;
             _p[i].frz1.u=_p[i].u;
             _p[i].frz1.sigma=_p[i].sigma;
-            _p[i].frz1.T=_p[i].EOS.T();
+            _p[i].frz1.T=_p[i].EOST();
             _p[i].frz1.theta=_p[i].div_u+_p[i].gamma/t;
             _p[i].frz1.gradP=_p[i].gradP;
         }
@@ -467,7 +467,7 @@ void LinkList<D>::interpolate(int curfrz)
         swsub[j]=_p[i].sigmaweight/sigsub;
 
 
-        sFO[j]=_p[0].EOS.s_terms_T(Tfluc[j]);
+        sFO[j]=_p[0].EOSs_terms_T(Tfluc[j]);
         divT[j]=(1/sFO[j])*gradPsub;
         divTtemp[j]=-(1/(gsub[j]*sFO[j]))*(cs2*wfz*thetasub+inner(uout[j],gradPsub));
 
@@ -516,7 +516,7 @@ void LinkList<D>::vfreezeout(int curfrz)
             _p[i].frz2.r=_p[i].r;
             _p[i].frz2.u=_p[i].u;
             _p[i].frz2.sigma=_p[i].sigma;
-            _p[i].frz2.T=_p[i].EOS.T();
+            _p[i].frz2.T=_p[i].EOST();
             _p[i].frz2.bulk=_p[i].bigPI ;
             _p[i].frz2.theta=_p[i].div_u+_p[i].gamma/t;
             _p[i].frz2.gradP=_p[i].gradP;
@@ -532,7 +532,7 @@ void LinkList<D>::vfreezeout(int curfrz)
             _p[i].frz1.r=_p[i].r;
             _p[i].frz1.u=_p[i].u;
             _p[i].frz1.sigma=_p[i].sigma;
-            _p[i].frz1.T=_p[i].EOS.T();
+            _p[i].frz1.T=_p[i].EOST();
             _p[i].frz1.bulk=_p[i].bigPI ;
             _p[i].frz1.theta=_p[i].div_u+_p[i].gamma/t;
             _p[i].frz1.gradP=_p[i].gradP;
@@ -583,7 +583,7 @@ void LinkList<D>::vfreezeout(int curfrz)
             _p[i].frz1.r=_p[i].r;
             _p[i].frz1.u=_p[i].u;
             _p[i].frz1.sigma=_p[i].sigma;
-            _p[i].frz1.T=_p[i].EOS.T();
+            _p[i].frz1.T=_p[i].EOST();
             _p[i].frz1.bulk=_p[i].bigPI ;
             _p[i].frz1.theta=_p[i].div_u+_p[i].gamma/t;
             _p[i].frz1.gradP=_p[i].gradP;
@@ -644,7 +644,7 @@ void LinkList<D>::vinterpolate(int curfrz)
         gsub[j]=sqrt( Norm2(uout[j]) + 1. );
         sigsub/=gsub[j]*tlist[j];
         swsub[j]=_p[i].sigmaweight/sigsub;
-        sFO[j]=_p[0].EOS.s_terms_T(Tfluc[j]);
+        sFO[j]=_p[0].EOSs_terms_T(Tfluc[j]);
 
         divT[j]=(1/sFO[j])*gradPsub;
         divTtemp[j]=-(1/(gsub[j]*sFO[j]))*(cs2*(wfz+bulksub[j])*thetasub+inner(uout[j],gradPsub));
@@ -694,7 +694,7 @@ void LinkList<D>::svfreezeout(int curfrz)
             _p[i].frz2.r=_p[i].r;
             _p[i].frz2.u=_p[i].u;
             _p[i].frz2.sigma=_p[i].sigma;
-            _p[i].frz2.T=_p[i].EOS.T();
+            _p[i].frz2.T=_p[i].EOST();
             _p[i].frz2.bulk=_p[i].bigPI ;
             _p[i].frz2.theta=_p[i].div_u+_p[i].gamma/t;
             _p[i].frz2.gradP=_p[i].gradP;
@@ -713,7 +713,7 @@ void LinkList<D>::svfreezeout(int curfrz)
             _p[i].frz1.r=_p[i].r;
             _p[i].frz1.u=_p[i].u;
             _p[i].frz1.sigma=_p[i].sigma;
-            _p[i].frz1.T=_p[i].EOS.T();
+            _p[i].frz1.T=_p[i].EOST();
             _p[i].frz1.bulk=_p[i].bigPI ;
             _p[i].frz1.theta=_p[i].div_u+_p[i].gamma/t;
             _p[i].frz1.gradP=_p[i].gradP;
@@ -799,7 +799,7 @@ void LinkList<D>::svfreezeout(int curfrz)
             _p[i].frz1.r=_p[i].r;
             _p[i].frz1.u=_p[i].u;
             _p[i].frz1.sigma=_p[i].sigma;
-            _p[i].frz1.T=_p[i].EOS.T();
+            _p[i].frz1.T=_p[i].EOST();
             _p[i].frz1.bulk=_p[i].bigPI ;
             _p[i].frz1.theta=_p[i].div_u+_p[i].gamma/t;
             _p[i].frz1.gradP=_p[i].gradP;
@@ -877,7 +877,7 @@ void LinkList<D>::svinterpolate(int curfrz)
 
 
 
-        sFO[j]=_p[0].EOS.s_terms_T(Tfluc[j]);
+        sFO[j]=_p[0].EOSs_terms_T(Tfluc[j]);
 
         gsub[j]=sqrt( Norm2(uout[j]) + 1 );
 
@@ -958,7 +958,7 @@ void LinkList<D>::bsqsvfreezeout(int curfrz)
             _p[i].frz2.r=_p[i].r;
             _p[i].frz2.u=_p[i].u;
             _p[i].frz2.sigma=_p[i].sigma;
-            _p[i].frz2.T=_p[i].EOS.T();
+            _p[i].frz2.T=_p[i].EOST();
             _p[i].frz2.bulk=_p[i].bigPI ;
             _p[i].frz2.theta=_p[i].div_u+_p[i].gamma/t;
             _p[i].frz2.gradP=_p[i].gradP;
@@ -977,7 +977,7 @@ void LinkList<D>::bsqsvfreezeout(int curfrz)
             _p[i].frz1.r=_p[i].r;
             _p[i].frz1.u=_p[i].u;
             _p[i].frz1.sigma=_p[i].sigma;
-            _p[i].frz1.T=_p[i].EOS.T();
+            _p[i].frz1.T=_p[i].EOST();
             _p[i].frz1.bulk=_p[i].bigPI ;
             _p[i].frz1.theta=_p[i].div_u+_p[i].gamma/t;
             _p[i].frz1.gradP=_p[i].gradP;
@@ -1063,7 +1063,7 @@ void LinkList<D>::bsqsvfreezeout(int curfrz)
             _p[i].frz1.r=_p[i].r;
             _p[i].frz1.u=_p[i].u;
             _p[i].frz1.sigma=_p[i].sigma;
-            _p[i].frz1.T=_p[i].EOS.T();
+            _p[i].frz1.T=_p[i].EOST();
             _p[i].frz1.bulk=_p[i].bigPI ;
             _p[i].frz1.theta=_p[i].div_u+_p[i].gamma/t;
             _p[i].frz1.gradP=_p[i].gradP;
@@ -1141,7 +1141,7 @@ void LinkList<D>::bsqsvinterpolate(int curfrz)
 
 
 
-        sFO[j]=_p[0].EOS.s_terms_T(Tfluc[j]);
+        sFO[j]=_p[0].EOSs_terms_T(Tfluc[j]);
 
         gsub[j]=sqrt( Norm2(uout[j]) + 1 );
 
@@ -1344,7 +1344,7 @@ void LinkList<D>::conservation_E()
     E=0.;
 
     for (int i=0; i<_n; i++) {
-        E+= (_p[i].EOS.w()* _p[i].gamma* _p[i].gamma-_p[i].EOS.p())/_p[i].sigma*_p[i].sigmaweight*t;
+        E+= (_p[i].EOSw()* _p[i].gamma* _p[i].gamma-_p[i].EOSp())/_p[i].sigma*_p[i].sigmaweight*t;
     }
 
 
@@ -1364,7 +1364,7 @@ void LinkList<D>::vconservation_E()
 
     E=0.;
     for (int i=0; i<_n; i++) {
-        E+= (_p[i].C* _p[i].gamma* _p[i].gamma-_p[i].EOS.p()-_p[i].bigPI)/_p[i].sigma*_p[i].sigmaweight*t;
+        E+= (_p[i].C* _p[i].gamma* _p[i].gamma-_p[i].EOSp()-_p[i].bigPI)/_p[i].sigma*_p[i].sigmaweight*t;
     }
 
     if (first==1)
@@ -1383,7 +1383,7 @@ void LinkList<D>::svconservation_E()
 
     E=0.;
     for (int i=0; i<_n; i++) {
-        E+= (_p[i].C* _p[i].g2-_p[i].EOS.p()-_p[i].bigPI+_p[i].shv.x[0][0])/_p[i].sigma*_p[i].sigmaweight*t;
+        E+= (_p[i].C* _p[i].g2-_p[i].EOSp()-_p[i].bigPI+_p[i].shv.x[0][0])/_p[i].sigma*_p[i].sigmaweight*t;
     }
 
     if (first==1)
@@ -1402,7 +1402,7 @@ void LinkList<D>::bsqsvconservation_E()
 
     E=0.;
     for (int i=0; i<_n; i++) {
-        E+= (_p[i].C* _p[i].g2-_p[i].EOS.p()-_p[i].bigPI+_p[i].shv.x[0][0])/_p[i].sigma*_p[i].sigmaweight*t;
+        E+= (_p[i].C* _p[i].g2-_p[i].EOSp()-_p[i].bigPI+_p[i].shv.x[0][0])/_p[i].sigma*_p[i].sigmaweight*t;
     }
 
     if (first==1)
@@ -1419,16 +1419,16 @@ template <int D>
 void LinkList<D>::freezeset()
 {
     //
-    cs2=_p[0].EOS.cs2out(freezeoutT);    // single arguments for backward compatibility
-    wfz=_p[0].EOS.wfz(freezeoutT);        // single arguments for backward compatibility
+    cs2=_p[0].EOScs2out(freezeoutT);    // single arguments for backward compatibility
+    wfz=_p[0].EOSwfz(freezeoutT);        // single arguments for backward compatibility
 }
 
 template <int D>
 void LinkList<D>::bsqsvfreezeset()
 {
     double freezeoutB=0.0, freezeoutS=0.0, freezeoutQ=0.0;    // eventually set with parametrization of freeze-out hypersurface in phase diagram, read in from file, etc.
-    cs2 = _p[0].EOS.cs2out( freezeoutT, freezeoutB, freezeoutS, freezeoutQ );
-    wfz = _p[0].EOS.wfz(    freezeoutT, freezeoutB, freezeoutS, freezeoutQ );
+    cs2 = _p[0].EOScs2out( freezeoutT, freezeoutB, freezeoutS, freezeoutQ );
+    wfz = _p[0].EOSwfz(    freezeoutT, freezeoutB, freezeoutS, freezeoutQ );
 }
 
 template <int D>
@@ -1497,7 +1497,7 @@ void LinkList<D>::conservation_Ez()
 
 
     for (int i=0; i<_n; i++) {
-        dEz+= _p[i].EOS.p()/_p[i].sigma*_p[i].sigmaweight;
+        dEz+= _p[i].EOSp()/_p[i].sigma*_p[i].sigmaweight;
     }
 
 }
@@ -1510,7 +1510,7 @@ void LinkList<D>::vconservation_Ez()
 
 
     for (int i=0; i<_n; i++) {
-        dEz+=( _p[i].EOS.p()+_p[i].bigPI)/_p[i].sigma*_p[i].sigmaweight;
+        dEz+=( _p[i].EOSp()+_p[i].bigPI)/_p[i].sigma*_p[i].sigmaweight;
     }
 
 }
@@ -1523,7 +1523,7 @@ void LinkList<D>::svconservation_Ez()
 
     double t2=t*t;
     for (int i=0; i<_n; i++) {
-        dEz+=( _p[i].EOS.p()+_p[i].bigPI+_p[i].shv33*t2)/_p[i].sigma*_p[i].sigmaweight;
+        dEz+=( _p[i].EOSp()+_p[i].bigPI+_p[i].shv33*t2)/_p[i].sigma*_p[i].sigmaweight;
     }
 
 }
@@ -1536,7 +1536,7 @@ void LinkList<D>::bsqsvconservation_Ez()
 
     double t2=t*t;
     for (int i=0; i<_n; i++) {
-        dEz+=( _p[i].EOS.p()+_p[i].bigPI+_p[i].shv33*t2)/_p[i].sigma*_p[i].sigmaweight;
+        dEz+=( _p[i].EOSp()+_p[i].bigPI+_p[i].shv33*t2)/_p[i].sigma*_p[i].sigmaweight;
     }
 
 }
@@ -1830,7 +1830,7 @@ void LinkList<D>::optimization2(int a)
 
 
                 _p[a].dsigma_dt+= inner(siggradK,_p[a].v-_p[b].v);
-                _p[a].gradP += _p[a].sigma*( _p[b].EOS.p()/(_p[b].sigma*_p[b].sigma) + _p[a].EOS.p()/(_p[a].sigma*_p[a].sigma) )*siggradK;
+                _p[a].gradP += _p[a].sigma*( _p[b].EOSp()/(_p[b].sigma*_p[b].sigma) + _p[a].EOSp()/(_p[a].sigma*_p[a].sigma) )*siggradK;
                 _p[a].gradsig +=siggradK;
 
 
@@ -1840,8 +1840,8 @@ void LinkList<D>::optimization2(int a)
                 if(isnan(_p[a].gradP.x[0])) {
                     cout << "grad P not working" << endl;
                     cout << t <<" "  << _p[a].gradP <<  " " << a << " " << b << endl;
-                    cout << _p[b].sigmaweight << " " <<     _p[a].sigma << " " <<  _p[b].EOS.p() << " " << endl;
-                    cout <<   Size << " " <<  _p[b].EOS.s() << " " << _p[a].EOS.s() <<endl;
+                    cout << _p[b].sigmaweight << " " <<     _p[a].sigma << " " <<  _p[b].EOSp() << " " << endl;
+                    cout <<   Size << " " <<  _p[b].EOSs() << " " << _p[a].EOSs() <<endl;
 
                     cout << _p[a].r << endl;
                     cout << _p[b].r << endl;
@@ -1954,7 +1954,7 @@ void LinkList<D>::voptimization2(int a,double tin)
 
 
                 _p[a].dsigma_dt += inner(siggradK,_p[a].v-_p[b].v);
-                _p[a].gradP += ( _p[b].EOS.p()/(_p[b].sigma*_p[b].sigma) + _p[a].EOS.p()/(_p[a].sigma*_p[a].sigma) )*sigsigK;
+                _p[a].gradP += ( _p[b].EOSp()/(_p[b].sigma*_p[b].sigma) + _p[a].EOSp()/(_p[a].sigma*_p[a].sigma) )*sigsigK;
                 _p[a].gradBulk += ( _p[b].Bulk/_p[b].sigma/_p[b].gamma/tin + _p[a].Bulk/_p[a].sigma/_p[a].gamma/tin )*sigsigK;
                 _p[a].gradsig+=siggradK;
 
@@ -1964,8 +1964,8 @@ void LinkList<D>::voptimization2(int a,double tin)
                 if(isnan(_p[a].gradP.x[0])) {
                     cout << "gradP stopped working" << endl;
                     cout << t <<" "  << _p[a].gradP <<  " " << a << " " << b << endl;
-                    cout << _p[b].sigmaweight << " " <<     _p[a].sigma << " " <<  _p[b].EOS.p() << " " << endl;
-                    cout <<   Size << " " <<  _p[b].EOS.s() << " " << _p[a].EOS.s() <<endl;
+                    cout << _p[b].sigmaweight << " " <<     _p[a].sigma << " " <<  _p[b].EOSp() << " " << endl;
+                    cout <<   Size << " " <<  _p[b].EOSs() << " " << _p[a].EOSs() <<endl;
 
                     cout << _p[a].r << endl;
                     cout << _p[b].r << endl;
@@ -2034,7 +2034,7 @@ void LinkList<D>::svoptimization2(int a,double tin,int & count)
                 double sigsqrb=1/(_p[b].sigma*_p[b].sigma);
                 Vector<double,D> sigsigK=_p[b].sigmaweight*_p[a].sigma*gradK;
 
-                _p[a].gradP +=( sigsqrb*_p[b].EOS.p()+ sigsqra*_p[a].EOS.p() )*sigsigK;
+                _p[a].gradP +=( sigsqrb*_p[b].EOSp()+ sigsqra*_p[a].EOSp() )*sigsigK;
 
                 if (((Norm(_p[a].r-_p[b].r)/_h)<=2)&&(a!=b)) {
                     if (_p[a].btrack!=-1) _p[a].btrack++;
@@ -2054,8 +2054,8 @@ void LinkList<D>::svoptimization2(int a,double tin,int & count)
                 if(isnan(_p[a].gradP.x[0])) {
                     cout << "gradP stopped working" << endl;
                     cout << t <<" "  << _p[a].gradP <<  " " << a << " " << b << endl;
-                    cout << _p[b].sigmaweight << " " <<     _p[a].sigma << " " <<  _p[b].EOS.p() << " " << endl;
-                    cout <<   Size << " " <<  _p[b].EOS.s() << " " << _p[a].EOS.s() <<endl;
+                    cout << _p[b].sigmaweight << " " <<     _p[a].sigma << " " <<  _p[b].EOSp() << " " << endl;
+                    cout <<   Size << " " <<  _p[b].EOSs() << " " << _p[a].EOSs() <<endl;
 
                     cout << _p[a].r << endl;
                     cout << _p[b].r << endl;
@@ -2078,11 +2078,11 @@ void LinkList<D>::svoptimization2(int a,double tin,int & count)
         }
     }
 
-    if ((_p[a].btrack==1)&&((_p[a].EOS.T()*197.3)>=150)) {
+    if ((_p[a].btrack==1)&&((_p[a].EOST()*197.3)>=150)) {
         _p[a].frz2.t=tin;
     }
-    else if ((_p[a].btrack==0)&&((_p[a].EOS.T()*197.3)>=150)&&(_p[a].Freeze<4)) {
-        cout <<"Missed " << a << " "<< tin << "  " << _p[a].EOS.T()*197.3 << " " << rdis << " " << cfon <<  endl;
+    else if ((_p[a].btrack==0)&&((_p[a].EOST()*197.3)>=150)&&(_p[a].Freeze<4)) {
+        cout <<"Missed " << a << " "<< tin << "  " << _p[a].EOST()*197.3 << " " << rdis << " " << cfon <<  endl;
     }
 
 
@@ -2133,7 +2133,7 @@ void LinkList<D>::bsqsvoptimization2(int a,double tin,int & count)
                 double sigsqrb=1/(_p[b].sigma*_p[b].sigma);
                 Vector<double,D> sigsigK=_p[b].sigmaweight*_p[a].sigma*gradK;
 
-                _p[a].gradP +=( sigsqrb*_p[b].EOS.p()+ sigsqra*_p[a].EOS.p() )*sigsigK;
+                _p[a].gradP +=( sigsqrb*_p[b].EOSp()+ sigsqra*_p[a].EOSp() )*sigsigK;
 
                 if (((Norm(_p[a].r-_p[b].r)/_h)<=2)&&(a!=b)) {
                     if (_p[a].btrack!=-1) _p[a].btrack++;
@@ -2156,8 +2156,8 @@ void LinkList<D>::bsqsvoptimization2(int a,double tin,int & count)
                 if(isnan(_p[a].gradP.x[0])) {
                     cout << "gradP stopped working" << endl;
                     cout << t <<" "  << _p[a].gradP <<  " " << a << " " << b << endl;
-                    cout << _p[b].sigmaweight << " " <<     _p[a].sigma << " " <<  _p[b].EOS.p() << " " << endl;
-                    cout <<   Size << " " <<  _p[b].EOS.s() << " " << _p[a].EOS.s() <<endl;
+                    cout << _p[b].sigmaweight << " " <<     _p[a].sigma << " " <<  _p[b].EOSp() << " " << endl;
+                    cout <<   Size << " " <<  _p[b].EOSs() << " " << _p[a].EOSs() <<endl;
 
                     cout << _p[a].r << endl;
                     cout << _p[b].r << endl;
@@ -2180,11 +2180,11 @@ void LinkList<D>::bsqsvoptimization2(int a,double tin,int & count)
         }
     }
 
-    if ((_p[a].btrack==1)&&((_p[a].EOS.T()*197.3)>=150)) {
+    if ((_p[a].btrack==1)&&((_p[a].EOST()*197.3)>=150)) {
         _p[a].frz2.t=tin;
     }
-    else if ((_p[a].btrack==0)&&((_p[a].EOS.T()*197.3)>=150)&&(_p[a].Freeze<4)) {
-        cout <<"Missed " << a << " "<< tin << "  " << _p[a].EOS.T()*197.3 << " " << rdis << " " << cfon <<  endl;
+    else if ((_p[a].btrack==0)&&((_p[a].EOST()*197.3)>=150)&&(_p[a].Freeze<4)) {
+        cout <<"Missed " << a << " "<< tin << "  " << _p[a].EOST()*197.3 << " " << rdis << " " << cfon <<  endl;
     }
 
 
@@ -2368,7 +2368,7 @@ void LinkList<D>::updateIC()
 				<< _p[i].e_sub << "   " << _p[i].rhoB << "   "
 				<< _p[i].rhoS << "   " << _p[i].rhoQ << endl;
 
-			_p[i].s_an = _p[i].EOS.s_out( _p[i].e_sub, _p[i].rhoB, _p[i].rhoS, _p[i].rhoQ );
+			_p[i].s_an = _p[i].EOSs_out( _p[i].e_sub, _p[i].rhoB, _p[i].rhoS, _p[i].rhoQ );
 
 			cout << "updateIC(" << __LINE__ << "): " << i << "   " /*<< _p[i].s_an << "   "*/
 				<< _p[i].e_sub << "   " << _p[i].rhoB << "   "
@@ -2380,14 +2380,14 @@ void LinkList<D>::updateIC()
 			<< _p[i].e_sub << "   " << _p[i].rhoB << "   "
 			<< _p[i].rhoS << "   " << _p[i].rhoQ << endl;
 
-       _p[i].EOS.update_s( _p[i].s_an, _p[i].rhoB, _p[i].rhoS, _p[i].rhoQ );
+       _p[i].EOSupdate_s( _p[i].s_an, _p[i].rhoB, _p[i].rhoS, _p[i].rhoQ );
 
 		cout << "updateIC(" << __LINE__ << "): " << i << "   " /*<< _p[i].s_an << "   "*/
 			<< _p[i].e_sub << "   " << _p[i].rhoB << "   "
 			<< _p[i].rhoS << "   " << _p[i].rhoQ << endl;
 
         if (gtyp==5)
-            _p[i].e_sub=_p[i].EOS.e();
+            _p[i].e_sub=_p[i].EOSe();
         _p[i].gamma=_p[i].gamcalc();
         _p[i].sigmaweight *= _p[i].s_an*_p[i].gamma*t0;	// sigmaweight is constant after this
 		_p[i].B *= _p[i].gamma*t0;	// B does not evolve in ideal case (confirm with Jaki)
@@ -2434,7 +2434,7 @@ void LinkList<D>::guess2()
         double div2=_p[i].gamma*t0;
         _p[i].s_sub=_p[i].sigma/div2;
 
-        _p[i].EOS.update_s(_p[i].s_sub);    //single argument version
+        _p[i].EOSupdate_s(_p[i].s_sub);    //single argument version
 
 //        T00[i]/=div2;
 //        Tx0[i]/=div2;
@@ -2458,14 +2458,14 @@ void LinkList<D>::guess2()
 //
 //        getchar();}
 
-        //if (abs(_p[i].r.x[1])<0.05)cout << _p[i].r << " " << 0.1973*_p[i].EOS.T()<< endl;
+        //if (abs(_p[i].r.x[1])<0.05)cout << _p[i].r << " " << 0.1973*_p[i].EOST()<< endl;
 
         _p[i].sigsub=0;
 
-        if (_p[i].EOS.T()>tmax)
+        if (_p[i].EOST()>tmax)
         {
 
-            tmax=_p[i].EOS.T();
+            tmax=_p[i].EOST();
 
             rmax=_p[i].r;
 
@@ -2525,17 +2525,17 @@ void LinkList<D>::guess()
 
         _p[i].s_sub=_p[i].sigma/_p[i].gamma/t0;
 
-        _p[i].EOS.update_s(_p[i].s_sub);    //single-argument version
+        _p[i].EOSupdate_s(_p[i].s_sub);    //single-argument version
 
-        //if (abs(_p[i].r.x[1])<0.05)cout << _p[i].r << " " << 0.1973*_p[i].EOS.T()<< endl;
+        //if (abs(_p[i].r.x[1])<0.05)cout << _p[i].r << " " << 0.1973*_p[i].EOST()<< endl;
 
 
         _p[i].sigsub=0;
 
-        if (_p[i].EOS.T()>tmax)
+        if (_p[i].EOST()>tmax)
         {
 
-            tmax=_p[i].EOS.T();
+            tmax=_p[i].EOST();
 
             rmax=_p[i].r;
 
@@ -2563,7 +2563,7 @@ void LinkList<D>::qmflow()
     int run=0;
     for (int i=0; i<_n; i++)
     {
-        double E=_p[i].EOS.e()/_p[i].sigma*_p[i].gamma*t0;
+        double E=_p[i].EOSe()/_p[i].sigma*_p[i].gamma*t0;
         double sub=-1./(2.*pow((E*_h),2));
 
         int on=0;
@@ -2600,7 +2600,7 @@ void LinkList<D>::qmflow()
 
         _p[i].s_sub=_p[i].sigma/_p[i].gamma/t0;
 
-        _p[i].EOS.update_s(_p[i].s_sub);    //single-argument version
+        _p[i].EOSupdate_s(_p[i].s_sub);    //single-argument version
     }
 
 
@@ -2614,8 +2614,8 @@ void LinkList<D>::qmflow()
 
 //    for (int i=0; i<_n; i++) {
 //    double sigsig=_p[i].sigmaweight/_p[i].sigma;
-//    ep1[in]+=(_p[i].EOS.w()*Norm2(_p[i].u)+2*_p[i].EOS.p() )*sigsig;
-//    ep2[in]+=_p[i].EOS.w()*(_p[i].u.x[0]*_p[i].u.x[0]-_p[i].u.x[1]*_p[i].u.x[1]) *sigsig;
+//    ep1[in]+=(_p[i].EOSw()*Norm2(_p[i].u)+2*_p[i].EOSp() )*sigsig;
+//    ep2[in]+=_p[i].EOSw()*(_p[i].u.x[0]*_p[i].u.x[0]-_p[i].u.x[1]*_p[i].u.x[1]) *sigsig;
 //
 //    }
 //    tsave[in]=t;
@@ -2632,9 +2632,9 @@ void LinkList<D>::qmflow()
 //    ep1[in]=0;
 
 //    for (int i=0; i<_n; i++) {
-//    double w_v=_p[i].EOS.w()+_p[i].bigPI;
+//    double w_v=_p[i].EOSw()+_p[i].bigPI;
 //    double sigsig=_p[i].sigmaweight/_p[i].sigma;
-//    ep1[in]+=(w_v*Norm2(_p[i].u)+2*_p[i].EOS.p() )*sigsig;
+//    ep1[in]+=(w_v*Norm2(_p[i].u)+2*_p[i].EOSp() )*sigsig;
 //    ep2[in]+=w_v*(_p[i].u.x[0]*_p[i].u.x[0]-_p[i].u.x[1]*_p[i].u.x[1]) *sigsig;
 //
 //    }
@@ -2653,7 +2653,7 @@ void LinkList<D>::qmflow()
 //    ec1[ins]=0;
 //    ec1[ins]=0;
 //    for (int i=0; i<_n; i++) {
-//    double sigsig=_p[i].EOS.e()*_p[i].sigmaweight/_p[i].sigma;
+//    double sigsig=_p[i].EOSe()*_p[i].sigmaweight/_p[i].sigma;
 //    ec1[ins]+=Norm2(_p[i].r)*sigsig;
 //    ec2[ins]+=( _p[i].r.x[1]*_p[i].r.x[1]-_p[i].r.x[0]*_p[i].r.x[0])*sigsig;
 //
@@ -2673,10 +2673,10 @@ void LinkList<D>::qmflow()
 //    avgT=0;
 //    avgvt=0;
 //    for (int i=0; i<_n; i++) {
-//    double sigsig=_p[i].EOS.e()*_p[i].sigmaweight/_p[i].sigma;
+//    double sigsig=_p[i].EOSe()*_p[i].sigmaweight/_p[i].sigma;
 //    bot+=( _p[i].v.x[0]+_p[i].v.x[1])*sigsig;
 //    top+=( _p[i].v.x[0]-_p[i].v.x[1])*sigsig;
-//    avgT+=_p[i].EOS.T();
+//    avgT+=_p[i].EOST();
 //    avgvt+=Norm2(_p[i].v)*sigsig;
 //    sigsub+=sigsig;
 //
