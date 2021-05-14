@@ -103,8 +103,8 @@ public:
     double drhoB_dt,drhoS_dt,drhoQ_dt;
 
     Particle();
-    void start(string enter)  ;
-    void calc( double tin) ;
+    void start(string enter, eos & EOS_in);
+    void calc( double tin );
     void calcbsq(double tin);
     void sigset(double tin);
     void vsigset(double tin);
