@@ -727,7 +727,7 @@ void nextevent(int i, LinkList<D> &linklist)
 {
 
 
-
+/*
 
     int numpart, _Ntable3;
     Particle<D> *_p;
@@ -736,14 +736,14 @@ void nextevent(int i, LinkList<D> &linklist)
     else if (linklist.gtyp==2) readICs_nebe(linklist.filenames[i],  _Ntable3, _p,linklist.factor,linklist.efcheck,numpart);
     else if (linklist.gtyp==3) linklist.gd2=readICs_gl(linklist.filenames[i],  _Ntable3, _p,linklist.factor,linklist.efcheck,numpart);
     else if (linklist.gtyp==4) readICs_glno(linklist.filenames[i],  _Ntable3, _p,linklist.factor,linklist.efcheck,numpart);
-    else if (linklist.gtyp==5) readICs_tnt(linklist.filenames[i],  _Ntable3, _p,linklist.factor,linklist.sfcheck,numpart,linklist._p[0].EOS0);
-    else if (linklist.gtyp==6) readICs_iccing(linklist.filenames[i],  _Ntable3, _p,linklist.factor,linklist.efcheck,numpart,linklist._p[0].EOS0);
+    else if (linklist.gtyp==5) readICs_tnt(linklist.filenames[i],  _Ntable3, _p,linklist.factor,linklist.sfcheck,numpart,linklist._p[0].EOS);
+    else if (linklist.gtyp==6) readICs_iccing(linklist.filenames[i],  _Ntable3, _p,linklist.factor,linklist.efcheck,numpart,linklist._p[0].EOS);
     linklist.setupnext(_Ntable3,_p,numpart);
 
 
     for (int i=0; i<linklist.n(); i++)
     {
-        linklist._p[i].start(linklist.eost, EOS0);
+        linklist._p[i].start(linklist.eost, EOS);
     }
 
     if ((linklist.gtyp==0)||(linklist.gtyp==1)||(linklist.gtyp==2)||(linklist.gtyp==3)||(linklist.gtyp==4)||(linklist.gtyp==5))
@@ -756,6 +756,8 @@ void nextevent(int i, LinkList<D> &linklist)
 
     linklist.first=1;
     linklist.fnum+=1;
+
+*/
 
 }
 

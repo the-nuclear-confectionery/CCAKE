@@ -146,7 +146,9 @@ public:
 	//double EOSwfz();
 	double EOSA();
 	double EOSdwds();
+	double EOSs_out(double e_In);
 	double EOSs_out(double e_In, double rhoB_In, double rhoS_In, double rhoQ_In);
+	void EOSupdate_s(double s_In);
 	void EOSupdate_s(double s_In, double rhoB_In, double rhoS_In, double rhoQ_In);
 
 	double particle_T, particle_muB, particle_muS, particle_muQ;
@@ -678,24 +680,6 @@ double Particle<D>::EOSw()
 
 
 template <int D>
-double Particle<D>::EOScs2out()
-{
-	EOS.tbqs( particle_T, particle_muB, particle_muQ, particle_muS );
-	return EOS.cs2out();
-}
-
-
-
-template <int D>
-double Particle<D>::EOSwfz()
-{
-	EOS.tbqs( particle_T, particle_muB, particle_muQ, particle_muS );
-	return EOS.wfz();
-}
-
-
-
-template <int D>
 double Particle<D>::EOSA()
 {
 	EOS.tbqs( particle_T, particle_muB, particle_muQ, particle_muS );
@@ -736,9 +720,35 @@ double Particle<D>::EOSs_out(double e_In, double rhoB_In, double rhoS_In, double
 
 
 template <int D>
+double Particle<D>::EOSs_out(double e_In)
+{
+	double sVal = EOS.s_out( e_In, 0.0, 0.0, 0.0 );
+	particle_T = EOS.T();
+	particle_muB = EOS.muB();
+	particle_muS = EOS.muS();
+	particle_muQ = EOS.muQ();
+
+	return sVal;
+}
+
+
+template <int D>
 void Particle<D>::EOSupdate_s(double s_In, double rhoB_In, double rhoS_In, double rhoQ_In)
 {
 	EOS.update_s( s_In, rhoB_In, rhoS_In, rhoQ_In );
+	particle_T = EOS.T();
+	particle_muB = EOS.muB();
+	particle_muS = EOS.muS();
+	particle_muQ = EOS.muQ();
+
+	return;
+}
+
+
+template <int D>
+void Particle<D>::EOSupdate_s(double s_In)
+{
+	EOS.update_s( s_In, 0.0, 0.0, 0.0 );
 	particle_T = EOS.T();
 	particle_muB = EOS.muB();
 	particle_muS = EOS.muS();
