@@ -2,7 +2,7 @@ OBJS = main.o vector.o hydrosim.o newspline.o random.o eos.o matrix.o enteric.o 
 CC = g++
 DEBUG = -g
 STANDARD= -std=c++11
-WARNINGS= -Wall -Wextra -pedantic -Wno-conversion -Wcast-align -Wunused -Wshadow -Wpointer-arith
+WARNINGS= -w -Wall -Wextra -pedantic -Wno-conversion -Wcast-align -Wunused -Wshadow -Wpointer-arith
 OPTIMIZATION= -Og
 #OPTIMIZATION= -Ofast -funroll-loops -fvectorize -finline-functions -s -DNDEBUG -march=native -mtune=native
 # change to -O3 or -Ofast for production
