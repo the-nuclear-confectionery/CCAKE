@@ -158,4 +158,8 @@ public:
 };
 
 
+template <int D>
+eos Particle<D>::EOS;
+
+
 #endif

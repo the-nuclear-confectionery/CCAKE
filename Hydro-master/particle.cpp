@@ -5,19 +5,6 @@
 #include <stdio.h>
 #include <math.h>
 
-template <int D>
-eos Particle<D>::EOS;
-
-
-
-
-
-
-
-
-
-
-
 
 
 
