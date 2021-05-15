@@ -13,6 +13,8 @@
 #include <cmath>
 #include <vector>
 
+extern char ifolder [];
+
 template <int D>
 class LinkList {
 private:
