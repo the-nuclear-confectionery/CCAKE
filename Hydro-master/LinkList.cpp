@@ -10,6 +10,8 @@
 #include <vector>
 
 
+#include "LinkList.h"
+
 template <int D>
 LinkList<D>::LinkList()
 {
