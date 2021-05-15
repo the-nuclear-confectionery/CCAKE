@@ -1,4 +1,4 @@
-OBJS = main.o vector.o hydrosim.o newspline.o random.o eos.o matrix.o enteric.o particle.o
+OBJS = main.o vector.o hydrosim.o newspline.o random.o eos.o matrix.o enteric.o particle.o LinkList.o
 CC = g++
 DEBUG = -g
 STANDARD= -std=c++11
