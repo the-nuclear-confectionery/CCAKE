@@ -49,9 +49,17 @@ void eos::init(string quantityFile, string derivFile, int degree) {
     double hbarc = 197.327;
     while (dataFile >> tit >> muBit >> muQit >> muSit >> pit >> entrit >> bit >> sit >> qit >> eit >> cs2it) {
         derFile >> tit >> muBit >> muQit >> muSit >> db2it >> dq2it >> ds2it >> dbdqit >> dbdsit >> dqdsit >> dtdbit >> dtdqit >> dtdsit >> dt2it;  //read data from files
+
+		// Christopher Plumberg:
+		// put T and mu_i in units of 1/fm
+		tit   /= hbarc;
+		muBit /= hbarc;
+		muSit /= hbarc;
+		muQit /= hbarc;
+
         if(count++ == 0) {
-            minT = tit;
-            maxT = tit;
+            minT   = tit;
+            maxT   = tit;
             minMuB = muBit;
             maxMuB = muBit;     //initialize eos range variables
             minMuQ = muQit;
@@ -90,12 +98,14 @@ void eos::init(string quantityFile, string derivFile, int degree) {
         toAdd.push_back(muQit);
         toAdd.push_back(muSit);
 
-        pit = pit*(tit*tit*tit*tit)/(hbarc*hbarc*hbarc);
+        //pit = pit*(tit*tit*tit*tit)/(hbarc*hbarc*hbarc);
+        pit = pit*(tit*tit*tit*tit)/(hbarc*hbarc*hbarc*hbarc);
         entrit = entrit*(tit*tit*tit)/(hbarc*hbarc*hbarc);
         bit = bit*(tit*tit*tit)/(hbarc*hbarc*hbarc);
-        sit = sit*(tit*tit*tit)/(hbarc*hbarc*hbarc);        //convert to MeV and fm units
-        qit = qit*(tit*tit*tit)/(hbarc*hbarc*hbarc);
-        eit = eit*(tit*tit*tit*tit)/(hbarc*hbarc*hbarc);
+        sit = sit*(tit*tit*tit)/(hbarc*hbarc*hbarc);        //!!!!!convert to MeV and fm units
+        qit = qit*(tit*tit*tit)/(hbarc*hbarc*hbarc);		//!!!!! --> NOW fm only for use in hydro!
+        //eit = eit*(tit*tit*tit*tit)/(hbarc*hbarc*hbarc);
+        eit = eit*(tit*tit*tit*tit)/(hbarc*hbarc*hbarc*hbarc);
 
         psamples.addSample(toAdd, pit);
         entrsamples.addSample(toAdd, entrit);
@@ -1271,7 +1281,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
         if(gsl_vector_get(solver->x, 0) < minT) {
 
 	if ( e_or_s_mode == 1 )
-		std::cout << "Output failed: calling rootfinder4D at x = "
+		std::cout << "Out-of-range: calling rootfinder4D at x = "
 			<< gsl_vector_get(solver->x, 0) << "   "
 			<< gsl_vector_get(solver->x, 1) << "   "
 			<< gsl_vector_get(solver->x, 2) << "   "
@@ -1281,7 +1291,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
         } else if(gsl_vector_get(solver->x, 0) > maxT) {
 
 	if ( e_or_s_mode == 1 )
-		std::cout << "Output failed: calling rootfinder4D at x = "
+		std::cout << "Out-of-range: calling rootfinder4D at x = "
 			<< gsl_vector_get(solver->x, 0) << "   "
 			<< gsl_vector_get(solver->x, 1) << "   "
 			<< gsl_vector_get(solver->x, 2) << "   "
@@ -1291,7 +1301,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
         } else if (gsl_vector_get(solver->x, 1) < minMuB) {
 
 	if ( e_or_s_mode == 1 )
-		std::cout << "Output failed: calling rootfinder4D at x = "
+		std::cout << "Out-of-range: calling rootfinder4D at x = "
 			<< gsl_vector_get(solver->x, 0) << "   "
 			<< gsl_vector_get(solver->x, 1) << "   "
 			<< gsl_vector_get(solver->x, 2) << "   "
@@ -1301,7 +1311,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
         } else if (gsl_vector_get(solver->x, 1) > maxMuB) {
 
 	if ( e_or_s_mode == 1 )
-		std::cout << "Output failed: calling rootfinder4D at x = "
+		std::cout << "Out-of-range: calling rootfinder4D at x = "
 			<< gsl_vector_get(solver->x, 0) << "   "
 			<< gsl_vector_get(solver->x, 1) << "   "
 			<< gsl_vector_get(solver->x, 2) << "   "
@@ -1311,7 +1321,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
         } else if (gsl_vector_get(solver->x, 2) < minMuQ) {     //break if the rootfinder goes out of bounds
 
 	if ( e_or_s_mode == 1 )
-		std::cout << "Output failed: calling rootfinder4D at x = "
+		std::cout << "Out-of-range: calling rootfinder4D at x = "
 			<< gsl_vector_get(solver->x, 0) << "   "
 			<< gsl_vector_get(solver->x, 1) << "   "
 			<< gsl_vector_get(solver->x, 2) << "   "
@@ -1321,7 +1331,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
         } else if (gsl_vector_get(solver->x, 2) > maxMuQ) {
 
 	if ( e_or_s_mode == 1 )
-		std::cout << "Output failed: calling rootfinder4D at x = "
+		std::cout << "Out-of-range: calling rootfinder4D at x = "
 			<< gsl_vector_get(solver->x, 0) << "   "
 			<< gsl_vector_get(solver->x, 1) << "   "
 			<< gsl_vector_get(solver->x, 2) << "   "
@@ -1331,7 +1341,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
         } else if (gsl_vector_get(solver->x, 3) < minMuS) {
 
 	if ( e_or_s_mode == 1 )
-		std::cout << "Output failed: calling rootfinder4D at x = "
+		std::cout << "Out-of-range: calling rootfinder4D at x = "
 			<< gsl_vector_get(solver->x, 0) << "   "
 			<< gsl_vector_get(solver->x, 1) << "   "
 			<< gsl_vector_get(solver->x, 2) << "   "
@@ -1341,7 +1351,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
         } else if (gsl_vector_get(solver->x, 3) > maxMuS) {
 
 	if ( e_or_s_mode == 1 )
-		std::cout << "Output failed: calling rootfinder4D at x = "
+		std::cout << "Out-of-range: calling rootfinder4D at x = "
 			<< gsl_vector_get(solver->x, 0) << "   "
 			<< gsl_vector_get(solver->x, 1) << "   "
 			<< gsl_vector_get(solver->x, 2) << "   "

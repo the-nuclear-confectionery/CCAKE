@@ -489,14 +489,14 @@ void readICs_iccing(string &firstry,  int &_Ntable3,Particle<2> *&_p,double fact
     int kk=_Ntable3;
     numpart=0;
 
-
+	const double hbarC = 0.19733;
 
     for(int j=0; j<_Ntable3; j++)
 	{
         _p[j].r.x[0]=xsub[j];
         _p[j].r.x[1]=ysub[j];
         // _p[j].e_sub=EOS.e_out(factor*esub[j]);
-        _p[j].e_sub=factor*esub[j];        // not s_an!!
+        _p[j].e_sub=factor*esub[j]/hbarC;        // not s_an!!
         _p[j].u.x[0]=0;
         _p[j].u.x[1]=0;
         _p[j].eta_sigma = 1;
