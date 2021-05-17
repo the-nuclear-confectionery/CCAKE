@@ -240,6 +240,30 @@ void eos::tbqs(double setT, double setmuB, double setmuQ, double setmuS) {
     tbqsPosition(3) = setmuS;
 }*/
 
+
+double eos::T() {
+	std::cout << "Now in " << __PRETTY_FUNCTION__ << ": " << tbqsPosition(0) << std::endl;
+    return tbqsPosition(0);
+}
+
+double eos::muB() {
+	std::cout << "Now in " << __PRETTY_FUNCTION__ << ": " << tbqsPosition(1) << std::endl;
+    return tbqsPosition(1);
+}
+
+double eos::muQ() {
+	std::cout << "Now in " << __PRETTY_FUNCTION__ << ": " << tbqsPosition(2) << std::endl;
+    return tbqsPosition(2);
+}
+
+double eos::muS() {
+	std::cout << "Now in " << __PRETTY_FUNCTION__ << ": " << tbqsPosition(3) << std::endl;
+    return tbqsPosition(3);
+}
+
+
+
+
 double eos::p() {
     return pVal;
 }
