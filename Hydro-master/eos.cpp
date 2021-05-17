@@ -1236,7 +1236,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
     f.n = 4;
     f.params = &p;
 
-	std::cout << endl
+	std::cout << std::endl
 		<< "==============================================" << std::endl;
 
 	std::cout << "Calling rootfinder4D at x = "
