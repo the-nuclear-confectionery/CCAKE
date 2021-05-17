@@ -242,22 +242,22 @@ void eos::tbqs(double setT, double setmuB, double setmuQ, double setmuS) {
 
 
 double eos::T() {
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << ": " << tbqsPosition(0) << std::endl;
+	//std::cout << "Now in " << __PRETTY_FUNCTION__ << ": " << tbqsPosition(0) << std::endl;
     return tbqsPosition(0);
 }
 
 double eos::muB() {
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << ": " << tbqsPosition(1) << std::endl;
+	//std::cout << "Now in " << __PRETTY_FUNCTION__ << ": " << tbqsPosition(1) << std::endl;
     return tbqsPosition(1);
 }
 
 double eos::muQ() {
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << ": " << tbqsPosition(2) << std::endl;
+	//std::cout << "Now in " << __PRETTY_FUNCTION__ << ": " << tbqsPosition(2) << std::endl;
     return tbqsPosition(2);
 }
 
 double eos::muS() {
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << ": " << tbqsPosition(3) << std::endl;
+	//std::cout << "Now in " << __PRETTY_FUNCTION__ << ": " << tbqsPosition(3) << std::endl;
     return tbqsPosition(3);
 }
 
@@ -1236,6 +1236,9 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
     f.n = 4;
     f.params = &p;
 
+	std::cout << endl
+		<< "==============================================" << std::endl;
+
 	std::cout << "Calling rootfinder4D at x = "
 		<< gsl_vector_get(x, 0) << "   "
 		<< gsl_vector_get(x, 1) << "   "
@@ -1247,7 +1250,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
 		<< e_or_s_mode << "   "
 		<< rhoBGiven << "   "
 		<< rhoSGiven << "   "
-		<< rhoQGiven << std::endl;
+		<< rhoQGiven << std::endl << std::endl;
 
     solver = gsl_multiroot_fsolver_alloc(TYPE, 4);
     gsl_multiroot_fsolver_set(solver, &f, x);
