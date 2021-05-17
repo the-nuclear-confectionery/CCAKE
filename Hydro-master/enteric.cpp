@@ -509,8 +509,10 @@ void readICs_iccing(string &firstry,  int &_Ntable3,Particle<2> *&_p,double fact
         _p[j].rhoS=factor*rSsub[j];					// (unused for now) confirm with Jaki
         _p[j].rhoQ=factor*rQsub[j];					// (unused for now) confirm with Jaki
 
-		if (j==0)
-		cout << "readICs_iccing(" << __LINE__ << "): " << j << "   " << factor << "   "
+		//if (j==0)
+		//cout << "readICs_iccing(" << __LINE__ << "): "
+		cout << "SPH particles: "
+			<< j << "   " << factor << "   "
 			<< _p[j].e_sub << "   " << _p[j].rhoB << "   "
 			<< _p[j].rhoS << "   " << _p[j].rhoQ << endl;
 
