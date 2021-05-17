@@ -6,6 +6,8 @@
 #include <math.h>
 
 
+template <int D>
+eos Particle<D>::EOS = eos();
 
 
 template <int D>

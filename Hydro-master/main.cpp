@@ -35,6 +35,9 @@ int nETH,nETL;
 Matrix <double,2,2> Imat;
 int hcor;
 
+template <int D>
+eos Particle<D>::EOS = eos();
+
 // This is the main file of v-USPhydro.  The files are organized as follows:
 // EOS- eos.cpp/eos.h but tables to read them in are in tables.h and files to read them in happen within enetric.h/enetric.cpp
 // Hydro evolution equations- primarily hydrosim.cpp/hydrosim.h but parts are found withint subroutines of Linklist.h and particle.h
