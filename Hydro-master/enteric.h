@@ -671,11 +671,12 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
 
     cout << "Setting up EOS" << endl;
 
-    // sets up EOS
-    for (int i=0; i<linklist.n(); i++)
+    // sets up EOS (EOS object now shared, so only set this up once)
+    /*for (int i=0; i<linklist.n(); i++)
     {
         linklist._p[i].start(eostype, EOS0);
-    }
+    }*/
+	linklist._p[0].start(eostype, EOS0);
 
     if ((ictype==bjorken)||(ictype==eventbyevent)||(ictype==trento)||(ictype==average)||(ictype==smooth)||(ictype==giorgio)||(ictype==nexus)||(ictype==glasma)||(ictype==glasmanoflow))
     {
@@ -741,10 +742,11 @@ void nextevent(int i, LinkList<D> &linklist)
     linklist.setupnext(_Ntable3,_p,numpart);
 
 
-    for (int i=0; i<linklist.n(); i++)
-    {
-        linklist._p[i].start(linklist.eost, EOS);
-    }
+    //for (int i=0; i<linklist.n(); i++)
+    //{
+    //    linklist._p[i].start(linklist.eost, EOS);
+    //}
+	linklist._p[0].start(linklist.eost, EOS);
 
     if ((linklist.gtyp==0)||(linklist.gtyp==1)||(linklist.gtyp==2)||(linklist.gtyp==3)||(linklist.gtyp==4)||(linklist.gtyp==5))
         linklist.updateIC();
