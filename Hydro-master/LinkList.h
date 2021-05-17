@@ -2363,36 +2363,36 @@ void LinkList<D>::updateIC()
 {
     for (int i=0; i<_n; i++)
     {
-		cout << "========================================" << endl;
-		cout << "updateIC(" << __LINE__ << "): " << i << "   " /*<< _p[i].s_an << "   "*/
-			<< _p[i].e_sub << "   " << _p[i].rhoB << "   "
-			<< _p[i].rhoS << "   " << _p[i].rhoQ << endl;
+		//cout << "========================================" << endl;
+		//cout << "updateIC(" << __LINE__ << "): " << i << "   " /*<< _p[i].s_an << "   "*/
+		//	<< _p[i].e_sub << "   " << _p[i].rhoB << "   "
+		//	<< _p[i].rhoS << "   " << _p[i].rhoQ << endl;
 
         if (gtyp!=5)
 		{
 
-			cout << "updateIC(" << __LINE__ << "): " << i << "   " /*<< _p[i].s_an << "   "*/
-				<< _p[i].e_sub << "   " << _p[i].rhoB << "   "
-				<< _p[i].rhoS << "   " << _p[i].rhoQ << endl;
+			//cout << "updateIC(" << __LINE__ << "): " << i << "   " /*<< _p[i].s_an << "   "*/
+			//	<< _p[i].e_sub << "   " << _p[i].rhoB << "   "
+			//	<< _p[i].rhoS << "   " << _p[i].rhoQ << endl;
 
 			_p[i].s_an = _p[i].EOSs_out( _p[i].e_sub, _p[i].rhoB, _p[i].rhoS, _p[i].rhoQ );
 
-			cout << "updateIC(" << __LINE__ << "): " << i << "   " /*<< _p[i].s_an << "   "*/
-				<< _p[i].e_sub << "   " << _p[i].rhoB << "   "
-				<< _p[i].rhoS << "   " << _p[i].rhoQ << endl;
+			//cout << "updateIC(" << __LINE__ << "): " << i << "   " /*<< _p[i].s_an << "   "*/
+			//	<< _p[i].e_sub << "   " << _p[i].rhoB << "   "
+			//	<< _p[i].rhoS << "   " << _p[i].rhoQ << endl;
 
 		}
 
- 		cout << "updateIC(" << __LINE__ << "): " << i << "   " /*<< _p[i].s_an << "   "*/
-			<< _p[i].e_sub << "   " << _p[i].rhoB << "   "
-			<< _p[i].rhoS << "   " << _p[i].rhoQ << endl;
+ 		//cout << "updateIC(" << __LINE__ << "): " << i << "   " /*<< _p[i].s_an << "   "*/
+		//	<< _p[i].e_sub << "   " << _p[i].rhoB << "   "
+		//	<< _p[i].rhoS << "   " << _p[i].rhoQ << endl;
 
        _p[i].EOSupdate_s( _p[i].s_an, _p[i].rhoB, _p[i].rhoS, _p[i].rhoQ );
 
-		cout << "updateIC(" << __LINE__ << "): " << i << "   " /*<< _p[i].s_an << "   "*/
-			<< _p[i].e_sub << "   " << _p[i].rhoB << "   "
-			<< _p[i].rhoS << "   " << _p[i].rhoQ << endl;
-		cout << "========================================" << endl << endl << endl;
+		//cout << "updateIC(" << __LINE__ << "): " << i << "   " /*<< _p[i].s_an << "   "*/
+		//	<< _p[i].e_sub << "   " << _p[i].rhoB << "   "
+		//	<< _p[i].rhoS << "   " << _p[i].rhoQ << endl;
+		//cout << "========================================" << endl << endl << endl;
 
         if (gtyp==5)
             _p[i].e_sub=_p[i].EOSe();

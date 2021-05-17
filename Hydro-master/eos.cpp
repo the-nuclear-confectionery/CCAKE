@@ -1239,18 +1239,12 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
 	std::cout << std::endl
 		<< "==============================================" << std::endl;
 
-	std::cout << "Calling rootfinder4D at x = "
-		<< gsl_vector_get(x, 0) << "   "
-		<< gsl_vector_get(x, 1) << "   "
-		<< gsl_vector_get(x, 2) << "   "
-		<< gsl_vector_get(x, 3) << std::endl;
-
-	std::cout << "Input: "
-		<< e_or_s_Given << "   "
-		<< e_or_s_mode << "   "
-		<< rhoBGiven << "   "
-		<< rhoSGiven << "   "
-		<< rhoQGiven << std::endl << std::endl;
+	if ( e_or_s_mode == 1 )
+		std::cout << "Input: "
+			<< e_or_s_Given << "   "
+			<< rhoBGiven << "   "
+			<< rhoSGiven << "   "
+			<< rhoQGiven << std::endl;
 
     solver = gsl_multiroot_fsolver_alloc(TYPE, 4);
     gsl_multiroot_fsolver_set(solver, &f, x);
@@ -1297,6 +1291,14 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
     if(found) {
         tbqs(gsl_vector_get(solver->x, 0), gsl_vector_get(solver->x, 1), gsl_vector_get(solver->x, 2), gsl_vector_get(solver->x, 3));    //set T, muB, muQ, muS
     }
+
+	if ( e_or_s_mode == 1 )
+		std::cout << "Output: calling rootfinder4D at x = "
+			<< gsl_vector_get(solver->x, 0) << "   "
+			<< gsl_vector_get(solver->x, 1) << "   "
+			<< gsl_vector_get(solver->x, 2) << "   "
+			<< gsl_vector_get(solver->x, 3) << std::endl << std::endl;
+
 
     //memory deallocation
     gsl_multiroot_fsolver_free(solver);
