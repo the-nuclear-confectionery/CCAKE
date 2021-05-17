@@ -1257,23 +1257,96 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
         status = gsl_multiroot_fsolver_iterate(solver);
 
         if(status) {
+
+	if ( e_or_s_mode == 1 )
+		std::cout << "Output failed: calling rootfinder4D at x = "
+			<< gsl_vector_get(solver->x, 0) << "   "
+			<< gsl_vector_get(solver->x, 1) << "   "
+			<< gsl_vector_get(solver->x, 2) << "   "
+			<< gsl_vector_get(solver->x, 3) << std::endl << std::endl;
+
+
             return 0;      //break if the rootfinder gets stuck
         }
         if(gsl_vector_get(solver->x, 0) < minT) {
+
+	if ( e_or_s_mode == 1 )
+		std::cout << "Output failed: calling rootfinder4D at x = "
+			<< gsl_vector_get(solver->x, 0) << "   "
+			<< gsl_vector_get(solver->x, 1) << "   "
+			<< gsl_vector_get(solver->x, 2) << "   "
+			<< gsl_vector_get(solver->x, 3) << std::endl << std::endl;
+
             return 0;
         } else if(gsl_vector_get(solver->x, 0) > maxT) {
+
+	if ( e_or_s_mode == 1 )
+		std::cout << "Output failed: calling rootfinder4D at x = "
+			<< gsl_vector_get(solver->x, 0) << "   "
+			<< gsl_vector_get(solver->x, 1) << "   "
+			<< gsl_vector_get(solver->x, 2) << "   "
+			<< gsl_vector_get(solver->x, 3) << std::endl << std::endl;
+
             return 0;
         } else if (gsl_vector_get(solver->x, 1) < minMuB) {
+
+	if ( e_or_s_mode == 1 )
+		std::cout << "Output failed: calling rootfinder4D at x = "
+			<< gsl_vector_get(solver->x, 0) << "   "
+			<< gsl_vector_get(solver->x, 1) << "   "
+			<< gsl_vector_get(solver->x, 2) << "   "
+			<< gsl_vector_get(solver->x, 3) << std::endl << std::endl;
+
             return 0;
         } else if (gsl_vector_get(solver->x, 1) > maxMuB) {
+
+	if ( e_or_s_mode == 1 )
+		std::cout << "Output failed: calling rootfinder4D at x = "
+			<< gsl_vector_get(solver->x, 0) << "   "
+			<< gsl_vector_get(solver->x, 1) << "   "
+			<< gsl_vector_get(solver->x, 2) << "   "
+			<< gsl_vector_get(solver->x, 3) << std::endl << std::endl;
+
             return 0;
         } else if (gsl_vector_get(solver->x, 2) < minMuQ) {     //break if the rootfinder goes out of bounds
+
+	if ( e_or_s_mode == 1 )
+		std::cout << "Output failed: calling rootfinder4D at x = "
+			<< gsl_vector_get(solver->x, 0) << "   "
+			<< gsl_vector_get(solver->x, 1) << "   "
+			<< gsl_vector_get(solver->x, 2) << "   "
+			<< gsl_vector_get(solver->x, 3) << std::endl << std::endl;
+
             return 0;
         } else if (gsl_vector_get(solver->x, 2) > maxMuQ) {
+
+	if ( e_or_s_mode == 1 )
+		std::cout << "Output failed: calling rootfinder4D at x = "
+			<< gsl_vector_get(solver->x, 0) << "   "
+			<< gsl_vector_get(solver->x, 1) << "   "
+			<< gsl_vector_get(solver->x, 2) << "   "
+			<< gsl_vector_get(solver->x, 3) << std::endl << std::endl;
+
             return 0;
         } else if (gsl_vector_get(solver->x, 3) < minMuS) {
+
+	if ( e_or_s_mode == 1 )
+		std::cout << "Output failed: calling rootfinder4D at x = "
+			<< gsl_vector_get(solver->x, 0) << "   "
+			<< gsl_vector_get(solver->x, 1) << "   "
+			<< gsl_vector_get(solver->x, 2) << "   "
+			<< gsl_vector_get(solver->x, 3) << std::endl << std::endl;
+
             return 0;
         } else if (gsl_vector_get(solver->x, 3) > maxMuS) {
+
+	if ( e_or_s_mode == 1 )
+		std::cout << "Output failed: calling rootfinder4D at x = "
+			<< gsl_vector_get(solver->x, 0) << "   "
+			<< gsl_vector_get(solver->x, 1) << "   "
+			<< gsl_vector_get(solver->x, 2) << "   "
+			<< gsl_vector_get(solver->x, 3) << std::endl << std::endl;
+
             return 0;
         }
 
