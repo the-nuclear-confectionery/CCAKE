@@ -98,14 +98,23 @@ void eos::init(string quantityFile, string derivFile, int degree) {
         toAdd.push_back(muQit);
         toAdd.push_back(muSit);
 
-        //pit = pit*(tit*tit*tit*tit)/(hbarc*hbarc*hbarc);
-        pit = pit*(tit*tit*tit*tit)/(hbarc*hbarc*hbarc*hbarc);
+		/*
+        pit = pit*(tit*tit*tit*tit)/(hbarc*hbarc*hbarc);
         entrit = entrit*(tit*tit*tit)/(hbarc*hbarc*hbarc);
         bit = bit*(tit*tit*tit)/(hbarc*hbarc*hbarc);
         sit = sit*(tit*tit*tit)/(hbarc*hbarc*hbarc);        //!!!!!convert to MeV and fm units
         qit = qit*(tit*tit*tit)/(hbarc*hbarc*hbarc);		//!!!!! --> NOW fm only for use in hydro!
-        //eit = eit*(tit*tit*tit*tit)/(hbarc*hbarc*hbarc);
-        eit = eit*(tit*tit*tit*tit)/(hbarc*hbarc*hbarc*hbarc);
+        eit = eit*(tit*tit*tit*tit)/(hbarc*hbarc*hbarc);
+		*/
+
+		// USE FM IN HYDRO
+        pit = pit*(tit*tit*tit*tit);
+        entrit = entrit*(tit*tit*tit);
+        bit = bit*(tit*tit*tit);
+        sit = sit*(tit*tit*tit);
+        qit = qit*(tit*tit*tit);
+        eit = eit*(tit*tit*tit*tit);
+		
 
         psamples.addSample(toAdd, pit);
         entrsamples.addSample(toAdd, entrit);
