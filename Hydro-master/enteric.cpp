@@ -467,7 +467,10 @@ void readICs_iccing(string &firstry,  int &_Ntable3,Particle<2> *&_p,double fact
 //cout << "CHECK(" << __LINE__ << "): " << j << "   " << x[j] << "   " << y[j] << endl;
         }
 
-        if ((factor*y[2])>0.01) {
+		// do not scale by factor!!!
+        //if ((factor*y[2])>0.01)
+        if (y[2]>0.01)
+		{
             xsub.push_back(y[0]);
             ysub.push_back(y[1]);
             esub.push_back(y[2]);
@@ -496,23 +499,23 @@ void readICs_iccing(string &firstry,  int &_Ntable3,Particle<2> *&_p,double fact
         _p[j].r.x[0]=xsub[j];
         _p[j].r.x[1]=ysub[j];
         // _p[j].e_sub=EOS.e_out(factor*esub[j]);
-        _p[j].e_sub=factor*esub[j]/hbarC;        // not s_an!!
+        _p[j].e_sub=esub[j]/hbarC;        // not s_an!!  convert to 1/fm^4 and do not rescale by factor!
         _p[j].u.x[0]=0;
         _p[j].u.x[1]=0;
         _p[j].eta_sigma = 1;
         _p[j].sigmaweight=stepx*stepy;
         _p[j].Bulk = 0;
-        _p[j].B=factor*rBsub[j]*stepx*stepy;		// confirm with Jaki
-        _p[j].S=factor*rSsub[j]*stepx*stepy;		// confirm with Jaki
-        _p[j].Q=factor*rQsub[j]*stepx*stepy;		// confirm with Jaki
-        _p[j].rhoB=factor*rBsub[j];					// (unused for now) confirm with Jaki
-        _p[j].rhoS=factor*rSsub[j];					// (unused for now) confirm with Jaki
-        _p[j].rhoQ=factor*rQsub[j];					// (unused for now) confirm with Jaki
+        _p[j].B=rBsub[j]*stepx*stepy;			// confirm with Jaki
+        _p[j].S=rSsub[j]*stepx*stepy;			// confirm with Jaki
+        _p[j].Q=rQsub[j]*stepx*stepy;			// confirm with Jaki
+        _p[j].rhoB=rBsub[j];					// (unused for now) confirm with Jaki
+        _p[j].rhoS=rSsub[j];					// (unused for now) confirm with Jaki
+        _p[j].rhoQ=rQsub[j];					// (unused for now) confirm with Jaki
 
 		//if (j==0)
 		//cout << "readICs_iccing(" << __LINE__ << "): "
 		cout << "SPH particles: "
-			<< j << "   " << factor << "   "
+			<< j << "   "
 			<< _p[j].e_sub << "   " << _p[j].rhoB << "   "
 			<< _p[j].rhoS << "   " << _p[j].rhoQ << endl;
 
