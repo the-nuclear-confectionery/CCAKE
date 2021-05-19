@@ -1212,6 +1212,7 @@ int rootfinder_febqs(const gsl_vector *x, void *params, gsl_vector *f) {
     rhoQ = (((rootfinder_parameters*)params)->rhoQSpline).eval(tbqsToEval);
     rhoS = (((rootfinder_parameters*)params)->rhoSSpline).eval(tbqsToEval);
 
+
     gsl_vector_set(f, 0, (e - eGiven)); //f[0] contains (e(T,muB,muQ,muS) - eGiven)
     gsl_vector_set(f, 1, (rhoB - rhoBGiven)); //f[1] contains the (rhoB(T,muB,muQ,muS) - rhoBGiven)
     gsl_vector_set(f, 2, (rhoQ - rhoQGiven)); //f[2] contains the (rhoQ(T,muB,muQ,muS) - rhoQGiven)
@@ -1274,6 +1275,15 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
     do {
         ++iter;
         status = gsl_multiroot_fsolver_iterate(solver);
+
+
+		std::cout << "Output check: solver at x = "
+			<< gsl_vector_get(solver->x, 0) << "   "
+			<< gsl_vector_get(solver->x, 1) << "   "
+			<< gsl_vector_get(solver->x, 2) << "   "
+			<< gsl_vector_get(solver->x, 3) << std::endl;
+
+
 
         if(status) {
 
@@ -1391,6 +1401,8 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
 			<< gsl_vector_get(solver->x, 2) << "   "
 			<< gsl_vector_get(solver->x, 3) << std::endl << std::endl;
 
+
+if (true) exit(8);
 
     //memory deallocation
     gsl_multiroot_fsolver_free(solver);
