@@ -1408,7 +1408,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
 			<< gsl_vector_get(solver->x, 3) << std::endl << std::endl;
 
 
-if (true) exit(8);
+//if (true) exit(8);
 
     //memory deallocation
     gsl_multiroot_fsolver_free(solver);
