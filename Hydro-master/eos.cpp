@@ -1218,6 +1218,12 @@ int rootfinder_febqs(const gsl_vector *x, void *params, gsl_vector *f) {
     gsl_vector_set(f, 2, (rhoQ - rhoQGiven)); //f[2] contains the (rhoQ(T,muB,muQ,muS) - rhoQGiven)
     gsl_vector_set(f, 3, (rhoS - rhoSGiven)); //f[2] contains the (rho2(T,muB,muQ,muS) - rhoSGiven)
 
+	std::cout << "Internal check: "
+		<< gsl_vector_get(x,0) << "   " << gsl_vector_get(x,1) << "   "
+		<< gsl_vector_get(x,2) << "   " << gsl_vector_get(x,3) << "   "
+		<< e << "   " << rhoB << "   " << rhoQ << "   " << rhoS << "   "
+		<< eGiven << "   " << rhoBGiven << "   " << rhoQGiven << "   " << rhoSGiven << std::endl;
+
     return GSL_SUCCESS;
 }
 
