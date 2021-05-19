@@ -1218,10 +1218,12 @@ int rootfinder_febqs(const gsl_vector *x, void *params, gsl_vector *f) {
     gsl_vector_set(f, 2, (rhoQ - rhoQGiven)); //f[2] contains the (rhoQ(T,muB,muQ,muS) - rhoQGiven)
     gsl_vector_set(f, 3, (rhoS - rhoSGiven)); //f[2] contains the (rho2(T,muB,muQ,muS) - rhoSGiven)
 
-	std::cout << "Internal check: "
+	std::cout << "Internal check(1): "
 		<< gsl_vector_get(x,0) << "   " << gsl_vector_get(x,1) << "   "
-		<< gsl_vector_get(x,2) << "   " << gsl_vector_get(x,3) << "   "
-		<< e << "   " << rhoB << "   " << rhoQ << "   " << rhoS << "   "
+		<< gsl_vector_get(x,2) << "   " << gsl_vector_get(x,3) << std::endl;
+	std::cout << "Internal check(2): "
+		<< e << "   " << rhoB << "   " << rhoQ << "   " << rhoS << std::endl;
+	std::cout << "Internal check(3): "
 		<< eGiven << "   " << rhoBGiven << "   " << rhoQGiven << "   " << rhoSGiven << std::endl;
 
     return GSL_SUCCESS;
@@ -1400,8 +1402,10 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
         tbqs(gsl_vector_get(solver->x, 0), gsl_vector_get(solver->x, 1), gsl_vector_get(solver->x, 2), gsl_vector_get(solver->x, 3));    //set T, muB, muQ, muS
     }
 
+	string output_status = ( found ) ? "FOUND" : "NOT FOUND";
+
 	if ( e_or_s_mode == 1 )
-		std::cout << "Output: calling rootfinder4D at x = "
+		std::cout << "Output (" << output_status << "): calling rootfinder4D at x = "
 			<< gsl_vector_get(solver->x, 0) << "   "
 			<< gsl_vector_get(solver->x, 1) << "   "
 			<< gsl_vector_get(solver->x, 2) << "   "
