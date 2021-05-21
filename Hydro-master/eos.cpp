@@ -178,7 +178,7 @@ void eos::init(string quantityFile, string derivFile, int degree) {
 
 	// initialize tbqsPosition to something...
 	std::cout << "Initializing tbqsPosition...\n";
-	for (int iTBQS = 0; iTBQS < 4; iTBQS++) tbqsPosition(iTBQS) = 0.0;
+	for (int iTBQS = 0; iTBQS < 4; iTBQS++) tbqsPosition(iTBQS) = 1.0;
 
 	std::cout << "Check TBQS: ";
 	for (int iTBQS = 0; iTBQS < 4; iTBQS++) std::cout << tbqsPosition(iTBQS) << "   ";	
@@ -1213,18 +1213,19 @@ int rootfinder_febqs(const gsl_vector *x, void *params, gsl_vector *f) {
     rhoS = (((rootfinder_parameters*)params)->rhoSSpline).eval(tbqsToEval);
 
 
+
     gsl_vector_set(f, 0, (e - eGiven)); //f[0] contains (e(T,muB,muQ,muS) - eGiven)
     gsl_vector_set(f, 1, (rhoB - rhoBGiven)); //f[1] contains the (rhoB(T,muB,muQ,muS) - rhoBGiven)
     gsl_vector_set(f, 2, (rhoQ - rhoQGiven)); //f[2] contains the (rhoQ(T,muB,muQ,muS) - rhoQGiven)
     gsl_vector_set(f, 3, (rhoS - rhoSGiven)); //f[2] contains the (rho2(T,muB,muQ,muS) - rhoSGiven)
 
-	std::cout << "Internal check(1): "
+	/*std::cout << "Internal check(1): "
 		<< gsl_vector_get(x,0) << "   " << gsl_vector_get(x,1) << "   "
-		<< gsl_vector_get(x,2) << "   " << gsl_vector_get(x,3) << std::endl;
+		<< gsl_vector_get(x,3) << "   " << gsl_vector_get(x,2) << std::endl;
 	std::cout << "Internal check(2): "
-		<< e << "   " << rhoB << "   " << rhoQ << "   " << rhoS << std::endl;
+		<< e << "   " << rhoB << "   " << rhoS << "   " << rhoQ << std::endl;
 	std::cout << "Internal check(3): "
-		<< eGiven << "   " << rhoBGiven << "   " << rhoQGiven << "   " << rhoSGiven << std::endl;
+		<< eGiven << "   " << rhoBGiven << "   " << rhoSGiven << "   " << rhoQGiven << std::endl;*/
 
     return GSL_SUCCESS;
 }
@@ -1269,7 +1270,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
 
 	if ( e_or_s_mode == 1 )
 		std::cout << "Input: "
-			<< e_or_s_Given << "   "
+			<< e_or_s_Given*0.19733 << "   "
 			<< rhoBGiven << "   "
 			<< rhoSGiven << "   "
 			<< rhoQGiven << std::endl;
@@ -1285,104 +1286,109 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
         status = gsl_multiroot_fsolver_iterate(solver);
 
 
-		std::cout << "Output check: solver at x = "
+		/*std::cout << "Output check: solver at x = "
 			<< gsl_vector_get(solver->x, 0) << "   "
 			<< gsl_vector_get(solver->x, 1) << "   "
-			<< gsl_vector_get(solver->x, 2) << "   "
-			<< gsl_vector_get(solver->x, 3) << std::endl;
+			<< gsl_vector_get(solver->x, 3) << "   "
+			<< gsl_vector_get(solver->x, 2) << std::endl;*/
 
 
 
         if(status) {
 
-	if ( e_or_s_mode == 1 )
+	if ( status == GSL_EBADFUNC )
+		std::cout << "Error: something went to +/-Inf or NaN!" << std::endl;
+	else if ( status == GSL_ENOPROG )
+		std::cout << "Error: not making enough progress!" << std::endl;
+
+	/*if ( e_or_s_mode == 1 )
 		std::cout << "Output failed: calling rootfinder4D at x = "
 			<< gsl_vector_get(solver->x, 0) << "   "
 			<< gsl_vector_get(solver->x, 1) << "   "
-			<< gsl_vector_get(solver->x, 2) << "   "
-			<< gsl_vector_get(solver->x, 3) << std::endl << std::endl;
+			<< gsl_vector_get(solver->x, 3) << "   "
+			<< gsl_vector_get(solver->x, 2) << std::endl << std::endl;*/
 
 
             return 0;      //break if the rootfinder gets stuck
         }
         if(gsl_vector_get(solver->x, 0) < minT) {
 
-	if ( e_or_s_mode == 1 )
+	/*if ( e_or_s_mode == 1 )
 		std::cout << "Out-of-range: calling rootfinder4D at x = "
 			<< gsl_vector_get(solver->x, 0) << "   "
 			<< gsl_vector_get(solver->x, 1) << "   "
-			<< gsl_vector_get(solver->x, 2) << "   "
-			<< gsl_vector_get(solver->x, 3) << std::endl << std::endl;
+			<< gsl_vector_get(solver->x, 3) << "   "
+			<< gsl_vector_get(solver->x, 2) << std::endl << std::endl;*/
 
             return 0;
         } else if(gsl_vector_get(solver->x, 0) > maxT) {
 
-	if ( e_or_s_mode == 1 )
+	/*if ( e_or_s_mode == 1 )
 		std::cout << "Out-of-range: calling rootfinder4D at x = "
 			<< gsl_vector_get(solver->x, 0) << "   "
 			<< gsl_vector_get(solver->x, 1) << "   "
-			<< gsl_vector_get(solver->x, 2) << "   "
-			<< gsl_vector_get(solver->x, 3) << std::endl << std::endl;
+			<< gsl_vector_get(solver->x, 3) << "   "
+			<< gsl_vector_get(solver->x, 2) << std::endl << std::endl;*/
 
             return 0;
         } else if (gsl_vector_get(solver->x, 1) < minMuB) {
 
-	if ( e_or_s_mode == 1 )
+	/*if ( e_or_s_mode == 1 )
 		std::cout << "Out-of-range: calling rootfinder4D at x = "
 			<< gsl_vector_get(solver->x, 0) << "   "
 			<< gsl_vector_get(solver->x, 1) << "   "
-			<< gsl_vector_get(solver->x, 2) << "   "
-			<< gsl_vector_get(solver->x, 3) << std::endl << std::endl;
+			<< gsl_vector_get(solver->x, 3) << "   "
+			<< gsl_vector_get(solver->x, 2) << std::endl << std::endl;*/
 
             return 0;
         } else if (gsl_vector_get(solver->x, 1) > maxMuB) {
 
-	if ( e_or_s_mode == 1 )
+	/*if ( e_or_s_mode == 1 )
 		std::cout << "Out-of-range: calling rootfinder4D at x = "
 			<< gsl_vector_get(solver->x, 0) << "   "
 			<< gsl_vector_get(solver->x, 1) << "   "
-			<< gsl_vector_get(solver->x, 2) << "   "
-			<< gsl_vector_get(solver->x, 3) << std::endl << std::endl;
+			<< gsl_vector_get(solver->x, 3) << "   "
+			<< gsl_vector_get(solver->x, 2) << std::endl << std::endl;*/
 
             return 0;
         } else if (gsl_vector_get(solver->x, 2) < minMuQ) {     //break if the rootfinder goes out of bounds
 
-	if ( e_or_s_mode == 1 )
+	/*if ( e_or_s_mode == 1 )
 		std::cout << "Out-of-range: calling rootfinder4D at x = "
 			<< gsl_vector_get(solver->x, 0) << "   "
 			<< gsl_vector_get(solver->x, 1) << "   "
-			<< gsl_vector_get(solver->x, 2) << "   "
-			<< gsl_vector_get(solver->x, 3) << std::endl << std::endl;
+			<< gsl_vector_get(solver->x, 3) << "   "
+			<< gsl_vector_get(solver->x, 2) << std::endl << std::endl;*/
 
             return 0;
         } else if (gsl_vector_get(solver->x, 2) > maxMuQ) {
 
-	if ( e_or_s_mode == 1 )
+	/*if ( e_or_s_mode == 1 )
 		std::cout << "Out-of-range: calling rootfinder4D at x = "
 			<< gsl_vector_get(solver->x, 0) << "   "
 			<< gsl_vector_get(solver->x, 1) << "   "
-			<< gsl_vector_get(solver->x, 2) << "   "
-			<< gsl_vector_get(solver->x, 3) << std::endl << std::endl;
+			<< gsl_vector_get(solver->x, 3) << "   "
+			<< gsl_vector_get(solver->x, 2) << std::endl << std::endl;*/
 
             return 0;
         } else if (gsl_vector_get(solver->x, 3) < minMuS) {
 
-	if ( e_or_s_mode == 1 )
+	/*if ( e_or_s_mode == 1 )
 		std::cout << "Out-of-range: calling rootfinder4D at x = "
 			<< gsl_vector_get(solver->x, 0) << "   "
 			<< gsl_vector_get(solver->x, 1) << "   "
-			<< gsl_vector_get(solver->x, 2) << "   "
-			<< gsl_vector_get(solver->x, 3) << std::endl << std::endl;
+			<< gsl_vector_get(solver->x, 3) << "   "
+			<< gsl_vector_get(solver->x, 2) << std::endl << std::endl;*/
 
             return 0;
         } else if (gsl_vector_get(solver->x, 3) > maxMuS) {
 
-	if ( e_or_s_mode == 1 )
+	/*if ( e_or_s_mode == 1 )
 		std::cout << "Out-of-range: calling rootfinder4D at x = "
 			<< gsl_vector_get(solver->x, 0) << "   "
 			<< gsl_vector_get(solver->x, 1) << "   "
-			<< gsl_vector_get(solver->x, 2) << "   "
-			<< gsl_vector_get(solver->x, 3) << std::endl << std::endl;
+			<< gsl_vector_get(solver->x, 3) << "   "
+			<< gsl_vector_get(solver->x, 2) << std::endl << std::endl;*/
 
             return 0;
         }
@@ -1405,11 +1411,11 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
 	string output_status = ( found ) ? "FOUND" : "NOT FOUND";
 
 	if ( e_or_s_mode == 1 )
-		std::cout << "Output (" << output_status << "): calling rootfinder4D at x = "
-			<< gsl_vector_get(solver->x, 0) << "   "
-			<< gsl_vector_get(solver->x, 1) << "   "
-			<< gsl_vector_get(solver->x, 2) << "   "
-			<< gsl_vector_get(solver->x, 3) << std::endl << std::endl;
+		std::cout << "Output (" << output_status << "): rootfinder4D at x = "
+			<< 197.33*gsl_vector_get(solver->x, 0) << "   "
+			<< 197.33*gsl_vector_get(solver->x, 1) << "   "
+			<< 197.33*gsl_vector_get(solver->x, 3) << "   "
+			<< 197.33*gsl_vector_get(solver->x, 2) << std::endl << std::endl;
 
 
 //if (true) exit(8);
