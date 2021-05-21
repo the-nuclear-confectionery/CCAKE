@@ -346,6 +346,7 @@ void LinkList<D>::freezeout(int curfrz)
         taupp=t;
         frzc=1;
 
+
         for (int i=0; i<_n; i++) {
 
 
@@ -2378,7 +2379,7 @@ void LinkList<D>::updateIC()
 
 			_p[i].s_an = _p[i].EOSs_out( _p[i].e_sub, _p[i].rhoB, _p[i].rhoS, _p[i].rhoQ );
 
-if ( _p[i].rhoB!=0 || _p[i].rhoS!=0 || _p[i].rhoQ!=0 ) exit(8);
+//if ( _p[i].rhoB!=0 || _p[i].rhoS!=0 || _p[i].rhoQ!=0 ) exit(8);
 
 			//cout << "updateIC(" << __LINE__ << "): " << i << "   " /*<< _p[i].s_an << "   "*/
 			//	<< _p[i].e_sub << "   " << _p[i].rhoB << "   "

@@ -1269,11 +1269,11 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
 		<< "==============================================" << std::endl;
 
 	if ( e_or_s_mode == 1 )
-		std::cout << "Input: "
+		std::cout << "Input (e,B,Q,S): "
 			<< e_or_s_Given*0.19733 << "   "
 			<< rhoBGiven << "   "
-			<< rhoSGiven << "   "
-			<< rhoQGiven << std::endl;
+			<< rhoQGiven << "   "
+			<< rhoSGiven << std::endl;
 
     solver = gsl_multiroot_fsolver_alloc(TYPE, 4);
     gsl_multiroot_fsolver_set(solver, &f, x);
@@ -1414,8 +1414,8 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
 		std::cout << "Output (" << output_status << "): rootfinder4D at x = "
 			<< 197.33*gsl_vector_get(solver->x, 0) << "   "
 			<< 197.33*gsl_vector_get(solver->x, 1) << "   "
-			<< 197.33*gsl_vector_get(solver->x, 3) << "   "
-			<< 197.33*gsl_vector_get(solver->x, 2) << std::endl << std::endl;
+			<< 197.33*gsl_vector_get(solver->x, 2) << "   "
+			<< 197.33*gsl_vector_get(solver->x, 3) << std::endl << std::endl;
 
 
 //if (true) exit(8);
