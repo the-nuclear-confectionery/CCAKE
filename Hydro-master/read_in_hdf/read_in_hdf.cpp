@@ -10,7 +10,7 @@ int main (int argc, char ** argv)
 {
 	if ( argc != 2 ) exit(8);
 
-    vector<vector<double> > data;
+    std::vector<std::vector<double> > data;
     
 	string filename = argv[1];
 
