@@ -56,7 +56,10 @@ void output_to_HDF( const vector<vector<double> > & v, string outfilename )
 	double data[NX][NY];
 	for (long long ix = 0; ix < NX; ix++)
 	for (long long iy = 0; iy < NY; iy++)
+	{
+		std::cout << "Check: " << ix << "   " << NX << "   " << iy << "   " << NY << std::endl;
 		data[ix][iy] = v[ix][iy];
+	}
 
     try
     {
