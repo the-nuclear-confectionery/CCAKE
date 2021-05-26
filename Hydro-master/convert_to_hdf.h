@@ -1,6 +1,7 @@
 #ifndef CONVERT_TO_HDF_H
 #define CONVERT_TO_HDF_H
 
+#include <fstream>
 #include <sstream>
 #include <vector>
 
@@ -31,7 +32,7 @@ void read_in_data(vector<vector<double> > & data, string filename, int nHeaderLi
 			double tmp;
 			while ( iss >> tmp ) datum.push_back( tmp );
 			
-			data.push_back( point );
+			data.push_back( datum );
 		}
 	}
 
