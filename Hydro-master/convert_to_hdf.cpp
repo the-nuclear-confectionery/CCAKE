@@ -2,6 +2,8 @@
 #include <string>
 #include <vector>
 
+#include "convert_to_hdf.h"
+
 using namespace std;
 
 int main (int argc, char ** argv)
