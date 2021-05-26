@@ -40,21 +40,21 @@ void read_in_hdf(vector<vector<double> > & v, string filename)
     catch(FileIException error)
     {
         error.printError();
-        return -1;
+        return;
     }
 
     // catch failure caused by the DataSet operations
     catch(DataSetIException error)
     {
         error.printError();
-        return -1;
+        return;
     }
 
 	for (long long ix = 0; ix < DIM0; ix++)
 	for (long long iy = 0; iy < DIM1; iy++)
 		v[ix][iy] = data[ix][iy];
 
-    return 0;  // successfully terminated
+    return;  // successfully terminated
 }
 
 #endif
