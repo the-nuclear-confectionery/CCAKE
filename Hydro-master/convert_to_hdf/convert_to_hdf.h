@@ -13,7 +13,9 @@
 
 using namespace std;
 
-void read_in_data(vector<vector<double> > & data, string filename, int nHeaderLines = 0)
+void read_in_data(vector<vector<double> > & data, string filename,
+					int nHeaderLines = 0,
+					const int print_every_n_lines = 100000)
 {
 	std::cout << "Reading in dataset..." << std::endl;
 	data.clear();
@@ -34,6 +36,8 @@ void read_in_data(vector<vector<double> > & data, string filename, int nHeaderLi
 			while ( iss >> tmp ) datum.push_back( tmp );
 			
 			data.push_back( datum );
+
+			if (count % print_every_n_lines == 0) std::cout << "  -- read in " << count << " lines" << std::endl;
 		}
 	}
 
@@ -60,6 +64,8 @@ void output_to_HDF( const vector<vector<double> > & v, string outfilename )
 	for (long long ix = 0; ix < NX; ix++)
 	for (long long iy = 0; iy < NY; iy++)
 		data[ix][iy] = v[ix][iy];
+
+	std::cout << "Finished defining dataset for exporting..." << std::endl;
 
     try
     {
