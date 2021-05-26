@@ -15,6 +15,7 @@ using namespace std;
 
 void read_in_data(vector<vector<double> > & data, string filename, int nHeaderLines = 0)
 {
+	std::cout << "Reading in dataset..." << std::endl;
 	data.clear();
 
 	ifstream infile(filename.c_str());
@@ -90,6 +91,8 @@ void output_to_HDF( const vector<vector<double> > & v, string outfilename )
 		error.printError();
 		return;
     }
+
+	std::cout << "Finished!" << std::endl;
 }
 
 #endif
