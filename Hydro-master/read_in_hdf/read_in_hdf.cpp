@@ -1,7 +1,9 @@
 #include <iostream>
 #include <string>
 
-using namepsace std;
+#include "read_in_hdf.h"
+
+using namespace std;
 
 int main (int argc, char ** argv)
 {
