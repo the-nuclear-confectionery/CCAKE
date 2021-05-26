@@ -37,11 +37,6 @@ void read_in_hdf(vector<vector<double> > & v, string filename)
 
     }
 
-	for (long long ix = 0; ix < DIM0; ix++)
-	for (long long iy = 0; iy < DIM1; iy++)
-		v[ix][iy] = data[ix][iy];
-
-
     catch(FileIException error)
     {
         error.printError();
@@ -54,6 +49,10 @@ void read_in_hdf(vector<vector<double> > & v, string filename)
         error.printError();
         return -1;
     }
+
+	for (long long ix = 0; ix < DIM0; ix++)
+	for (long long iy = 0; iy < DIM1; iy++)
+		v[ix][iy] = data[ix][iy];
 
     return 0;  // successfully terminated
 }
