@@ -49,10 +49,13 @@ void output_to_HDF( const vector<vector<double> > & v, string outfilename )
 
 	const H5std_string	FILE_NAME(outfilename.c_str());
 	const H5std_string	DATASET_NAME("EOS");
+	std::cout << "Define NX..." << std::endl;
 	const long long	 	NX = v.size();
+	std::cout << "Define NY..." << std::endl;
 	const long long	 	NY = (v[0]).size();
 	const long long	 	RANK = 2;
 
+	std::cout << "Check: " << NX << "   " << NY << std::endl;
 	double data[NX][NY];
 	for (long long ix = 0; ix < NX; ix++)
 	for (long long iy = 0; iy < NY; iy++)
