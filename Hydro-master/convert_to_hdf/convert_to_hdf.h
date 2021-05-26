@@ -36,21 +36,25 @@ void read_in_data(vector<vector<double> > & data, string filename, int nHeaderLi
 		}
 	}
 
+	std::cout << "Finished reading in dataset of size = " << data.size() << std::endl;
+
 	infile.close();
 	return;
 }
 
 void output_to_HDF( const vector<vector<double> > & v, string outfilename )
 {
+	std::cout << "Writing dataset out to " << outfilename << std::endl;
+
 	const H5std_string	FILE_NAME(outfilename.c_str());
 	const H5std_string	DATASET_NAME("EOS");
-	const int	 NX = v.size();
-	const int	 NY = (v[0]).size();
-	const int	 RANK = 2;
+	const long long	 	NX = v.size();
+	const long long	 	NY = (v[0]).size();
+	const long long	 	RANK = 2;
 
 	double data[NX][NY];
-	for (int ix = 0; ix < NX; ix++)
-	for (int iy = 0; iy < NY; iy++)
+	for (long long ix = 0; ix < NX; ix++)
+	for (long long iy = 0; iy < NY; iy++)
 		data[ix][iy] = v[ix][iy];
 
     try
