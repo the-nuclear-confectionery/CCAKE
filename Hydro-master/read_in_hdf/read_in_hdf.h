@@ -37,8 +37,8 @@ void read_in_hdf(vector<vector<double> > & v, string filename)
 
     }
 
-	for (long long ix = 0; ix < NX; ix++)
-	for (long long iy = 0; iy < NY; iy++)
+	for (long long ix = 0; ix < DIM0; ix++)
+	for (long long iy = 0; iy < DIM1; iy++)
 		v[ix][iy] = data[ix][iy];
 
 
