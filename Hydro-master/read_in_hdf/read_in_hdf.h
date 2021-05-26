@@ -11,7 +11,9 @@
     using namespace H5;
 #endif
 
-void read_in_hdf(std::vector<std::vector<double> > & v, string filename)
+using namespace std;
+
+void read_in_hdf(vector<vector<double> > & v, string filename)
 {
     const H5std_string	FILE_NAME(filename.c_str());
 	const H5std_string	DATASET_NAME("EOS");
@@ -22,7 +24,7 @@ void read_in_hdf(std::vector<std::vector<double> > & v, string filename)
     double data[DIM0][DIM1];
 
 	v.clear();
-	v = std::vector<std::vector<double> >( DIM0, std::vector<double>( DIM1, 0.0 ) );
+	v = vector<vector<double> >( DIM0, vector<double>( DIM1, 0.0 ) );
 
     try
     {
