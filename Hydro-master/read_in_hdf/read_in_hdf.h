@@ -22,11 +22,15 @@ void read_in_hdf(vector<vector<double> > & v, string filename)
     {
         Exception::dontPrint();
 
-        H5File file(FILE_NAME, H5F_ACC_RDWR);
+		hid_t fileID, dset;
+		fileID = H5Fopen (FILE_NAME, H5F_ACC_RDONLY, H5P_DEFAULT);
+		dset = H5Dopen (fileID, DATASET_NAME, H5P_DEFAULT);
+
+        H5File file(FILE_NAME, H5F_ACC_RDONLY);
         DataSet dataset = file.openDataSet(DATASET_NAME);
 
 		// find dimensions
-		hid_t dspace = H5Dget_space(dataset);
+		hid_t dspace = H5Dget_space(dset);
 		const int ndims = H5Sget_simple_extent_ndims(dspace);
 
 		hsize_t dims[ndims];
