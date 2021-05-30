@@ -23,8 +23,8 @@ void read_in_hdf(vector<vector<double> > & v, string filename)
         Exception::dontPrint();
 
 		hid_t fileID, dset;
-		fileID = H5Fopen (FILE_NAME, H5F_ACC_RDONLY, H5P_DEFAULT);
-		dset = H5Dopen (fileID, DATASET_NAME, H5P_DEFAULT);
+		fileID = H5Fopen (filename.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
+		dset = H5Dopen (fileID, "EOS", H5P_DEFAULT);
 
         H5File file(FILE_NAME, H5F_ACC_RDONLY);
         DataSet dataset = file.openDataSet(DATASET_NAME);
