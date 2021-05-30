@@ -3,6 +3,7 @@
 #include "../splinter/include/datatable.h"
 #include "../splinter/include/bspline.h"
 #include "../splinter/include/bsplinebuilder.h"
+#include "read_in_hdf/read_in_hdf.h"
 #include <gsl/gsl_multiroots.h>
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_matrix.h>
@@ -23,16 +24,39 @@ using namespace SPLINTER;
 
 
 //EoS constructor. Builds the splines of degree "degree" for each quantitiy and initializes the position at (30,0,0,0)
-eos::eos(string quantityFile, string derivFile, int degree) : pSpline(4), entrSpline(4), bSpline(4), sSpline(4), qSpline(4), eSpline(4), cs2Spline(4), db2Spline(4), dq2Spline(4), ds2Spline(4), dt2Spline(4), dbdqSpline(4), dbdsSpline(4), dtdbSpline(4), dqdsSpline(4), dtdqSpline(4), dtdsSpline(4), tbqsPosition(4) {
-    init(quantityFile, derivFile, degree);
+eos::eos(string quantityFile, string derivFile, int degree, bool using_HDF) : pSpline(4), entrSpline(4), bSpline(4), sSpline(4), qSpline(4), eSpline(4), cs2Spline(4), db2Spline(4), dq2Spline(4), ds2Spline(4), dt2Spline(4), dbdqSpline(4), dbdsSpline(4), dtdbSpline(4), dqdsSpline(4), dtdqSpline(4), dtdsSpline(4), tbqsPosition(4) {
+    init(quantityFile, derivFile, degree, bool using_HDF);
 }
 
 //EoS default constructor. This function exists to satisfy the compiler
 //This function should never be called unless init is called directly afterward
 eos::eos() : pSpline(4), entrSpline(4), bSpline(4), sSpline(4), qSpline(4), eSpline(4), cs2Spline(4), db2Spline(4), dq2Spline(4), ds2Spline(4), dt2Spline(4), dbdqSpline(4), dbdsSpline(4), dtdbSpline(4), dqdsSpline(4), dtdqSpline(4), dtdsSpline(4), tbqsPosition(4) {}
 
-void eos::init(string quantityFile, string derivFile, int degree) {
-//	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+void eos::init(string quantityFile, string derivFile, int degree, bool using_HDF)
+{
+	if ( using_HDF )
+		init_with_hdf(quantityFile, derivFile, degree);
+	else
+		init_with_txt(quantityFile, derivFile, degree);
+
+	return;
+}
+
+
+void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
+{
+    vector<vector<double> > quantityData, derivData;
+	read_in_hdf(quantityData, quantityFile);
+	read_in_hdf(derivData, derivFile);
+
+	std::cout << "Check dimensions: " << quantityData.size() << std::endl;
+	std::cout << "Check dimensions: " << derivData.size() << std::endl;
+	if (true) exit(8);
+}
+
+
+void eos::init_with_txt(string quantityFile, string derivFile, int degree)
+{
     std::ifstream dataFile;
     std::ifstream derFile;
     dataFile.open(quantityFile);
@@ -1211,6 +1235,7 @@ int rootfinder_febqs(const gsl_vector *x, void *params, gsl_vector *f) {
     rhoB = (((rootfinder_parameters*)params)->rhoBSpline).eval(tbqsToEval);
     rhoQ = (((rootfinder_parameters*)params)->rhoQSpline).eval(tbqsToEval);
     rhoS = (((rootfinder_parameters*)params)->rhoSSpline).eval(tbqsToEval);
+
 
 
 

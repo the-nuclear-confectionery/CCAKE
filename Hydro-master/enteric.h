@@ -310,12 +310,25 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
     eos EOS0;	// now declared globally
 	if ( linklist.visc == 4 )	//if we're running BSQ (table is only option)
 	{
-		string quantityFile = ifolder + std::string("quantityFile.dat");
-		string derivativeFile = ifolder + std::string("derivFile.dat");
-        std::cout << "Using BSQ Equation of State table from: "
-				<< quantityFile << " and " << derivativeFile << "\n";
+		bool using_HDF = true;
+		if (using_HDF)
+		{
+			string quantityFile = ifolder + std::string("quantityFile.h5");
+			string derivativeFile = ifolder + std::string("derivFile.h5");
+		    std::cout << "Using BSQ Equation of State table from: "
+					<< quantityFile << " and " << derivativeFile << "\n";
 
-		EOS0.init( quantityFile, derivativeFile, 1 );
+			EOS0.init( quantityFile, derivativeFile, 1, using_HDF );
+		}
+		else
+		{
+			string quantityFile = ifolder + std::string("quantityFile.dat");
+			string derivativeFile = ifolder + std::string("derivFile.dat");
+		    std::cout << "Using BSQ Equation of State table from: "
+					<< quantityFile << " and " << derivativeFile << "\n";
+
+			EOS0.init( quantityFile, derivativeFile, 1, using_HDF );
+		}
 	    EOS0.eosin(eostype);			// does nothing!
 	    efcheck = EOS0.efreeze();	// does nothing!
 	    sfcheck = EOS0.sfreeze();	// does nothing!

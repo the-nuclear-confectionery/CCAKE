@@ -17,14 +17,6 @@ void read_in_hdf(vector<vector<double> > & v, string filename)
 {
     const H5std_string	FILE_NAME(filename.c_str());
 	const H5std_string	DATASET_NAME("EOS");
-	const long long		DIM0 = 274591955;
-	const long long		DIM1 = 11;
-
-    long long i, j;
-    double data[DIM0][DIM1];
-
-	v.clear();
-	v = vector<vector<double> >( DIM0, vector<double>( DIM1, 0.0 ) );
 
     try
     {
@@ -33,7 +25,29 @@ void read_in_hdf(vector<vector<double> > & v, string filename)
         H5File file(FILE_NAME, H5F_ACC_RDWR);
         DataSet dataset = file.openDataSet(DATASET_NAME);
 
+		// find dimensions
+		hid_t dspace = H5Dget_space(dataset);
+		const int ndims = H5Sget_simple_extent_ndims(dspace);
+
+		hsize_t dims[ndims];
+		H5Sget_simple_extent_dims(dspace, dims, NULL);
+
+		//const long long		DIM0 = 274591955;
+		//const long long		DIM1 = 11;
+		const long long DIM0 = dims[0];
+		const long long DIM1 = dims[1];
+
+		double data[DIM0][DIM1];
+
         dataset.read(data, PredType::NATIVE_DOUBLE);
+
+		// transfer to vector
+		v.clear();
+		v = vector<vector<double> >( DIM0, vector<double>( DIM1, 0.0 ) );
+
+		for (long long ix = 0; ix < DIM0; ix++)
+		for (long long iy = 0; iy < DIM1; iy++)
+			v[ix][iy] = data[ix][iy];
 
     }
 
@@ -43,16 +57,11 @@ void read_in_hdf(vector<vector<double> > & v, string filename)
         return;
     }
 
-    // catch failure caused by the DataSet operations
     catch(DataSetIException error)
     {
         error.printError();
         return;
     }
-
-	for (long long ix = 0; ix < DIM0; ix++)
-	for (long long iy = 0; iy < DIM1; iy++)
-		v[ix][iy] = data[ix][iy];
 
     return;  // successfully terminated
 }
