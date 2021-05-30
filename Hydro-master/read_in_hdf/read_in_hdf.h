@@ -13,7 +13,7 @@
 
 using namespace std;
 
-void read_in_hdf(vector<vector<double> > & v, string filename)
+inline void read_in_hdf(vector<vector<double> > & v, string filename)
 {
     const H5std_string	FILE_NAME(filename.c_str());
 	const H5std_string	DATASET_NAME("EOS");
