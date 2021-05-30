@@ -25,7 +25,7 @@ using namespace SPLINTER;
 
 //EoS constructor. Builds the splines of degree "degree" for each quantitiy and initializes the position at (30,0,0,0)
 eos::eos(string quantityFile, string derivFile, int degree, bool using_HDF) : pSpline(4), entrSpline(4), bSpline(4), sSpline(4), qSpline(4), eSpline(4), cs2Spline(4), db2Spline(4), dq2Spline(4), ds2Spline(4), dt2Spline(4), dbdqSpline(4), dbdsSpline(4), dtdbSpline(4), dqdsSpline(4), dtdqSpline(4), dtdsSpline(4), tbqsPosition(4) {
-    init(quantityFile, derivFile, degree, bool using_HDF);
+    init(quantityFile, derivFile, degree, using_HDF);
 }
 
 //EoS default constructor. This function exists to satisfy the compiler
