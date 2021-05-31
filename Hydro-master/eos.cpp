@@ -4,6 +4,7 @@
 #include "../splinter/include/bspline.h"
 #include "../splinter/include/bsplinebuilder.h"
 #include "read_in_hdf/read_in_hdf.h"
+#include "Stopwatch.h"
 #include <gsl/gsl_multiroots.h>
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_matrix.h>
@@ -71,11 +72,15 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
     double db2it, dq2it, ds2it, dt2it, dbdqit, dbdsit, dqdsit, dtdbit, dtdsit, dtdqit;
     vector<double> toAdd;
 
+	Stopwatch sw_allocations, sw_addSample, sw_Total;
+
     long long count = 0;
     double hbarc = 197.327;
 	const long long nRows = quantityData.size();
 	for ( long long iRow = 0; iRow < nRows; iRow++ )
 	{
+		sw_Total.Start();
+		sw_allocations.Start();
 		vector<double> & quantityRow = quantityData[iRow];
 		vector<double> & derivRow = derivData[iRow];
 
@@ -101,6 +106,7 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
 		dtdqit = derivRow[11];
 		dtdsit = derivRow[12];
 		dt2it  = derivRow[13];
+		sw_allocations.Stop();
 		
 
 		// Christopher Plumberg:
@@ -145,12 +151,6 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
         if(minMuS > muSit) {
             minMuS = muSit;
         }
-		if ( count > 1000000 ) exit(8);
-
-        toAdd.push_back(tit);
-        toAdd.push_back(muBit);
-        toAdd.push_back(muQit);
-        toAdd.push_back(muSit);
 
 		// USE FM IN HYDRO
         pit = pit*(tit*tit*tit*tit);
@@ -160,6 +160,13 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
         qit = qit*(tit*tit*tit);
         eit = eit*(tit*tit*tit*tit);
 		
+
+		sw_addSample.Start();
+
+        toAdd.push_back(tit);
+        toAdd.push_back(muBit);
+        toAdd.push_back(muQit);
+        toAdd.push_back(muSit);
 
         psamples.addSample(toAdd, pit);
         entrsamples.addSample(toAdd, entrit);
@@ -179,6 +186,19 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
         dtdssamples.addSample(toAdd, dtdsit);
         dt2samples.addSample(toAdd, dt2it);
         toAdd.clear();
+		sw_addSample.Stop();
+
+		sw_Total.Stop();
+		if ( count > 1000000 ) exit(8);
+		else if (count%100000==0)
+		{
+			std::cout << "Spent " << sw_allocations.printTime()
+						<< " seconds on allocations of total "
+						<< sw_Total.printTime() << " seconds." << std::endl;
+			std::cout << "Spent " << sw_addSample.printTime()
+						<< " seconds on addSample of total "
+						<< sw_Total.printTime() << " seconds." << std::endl;
+		}
     }
 
 if (true) exit(8);
