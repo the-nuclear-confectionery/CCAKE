@@ -120,7 +120,7 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
             minMuS = muSit;
             maxMuS = muSit;
         }*/
-		if (count%100000==0) std::cout << "Read in line# " << count << std::endl;
+		if (count++%100000==0) std::cout << "Read in line# " << count << std::endl;
         /*if(maxT < tit) {
             maxT = tit;
         }
