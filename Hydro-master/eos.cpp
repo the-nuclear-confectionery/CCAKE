@@ -161,12 +161,12 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
         eit = eit*(tit*tit*tit*tit);
 		
 
-		sw_addSample.Start();
-
         toAdd.push_back(tit);
         toAdd.push_back(muBit);
         toAdd.push_back(muQit);
         toAdd.push_back(muSit);
+
+		sw_addSample.Start();
 
         psamples.addSample(toAdd, pit);
         entrsamples.addSample(toAdd, entrit);
@@ -185,8 +185,9 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
         dtdqsamples.addSample(toAdd, dtdqit);
         dtdssamples.addSample(toAdd, dtdsit);
         dt2samples.addSample(toAdd, dt2it);
-        toAdd.clear();
 		sw_addSample.Stop();
+
+        toAdd.clear();
 
 		sw_Total.Stop();
 		if ( count > 1000000 ) exit(8);
