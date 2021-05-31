@@ -62,7 +62,7 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
 
 
 
-	bool load_saved_files = false;
+	bool load_saved_files = true;
 
 
     DataTable psamples, entrsamples, bsamples, ssamples, qsamples, esamples, cs2samples;
@@ -266,8 +266,6 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
 	}
 
 
-if (true) exit(8);
-
 	std::cout << "Finished reading in thermodynamic data files!" << std::endl;
 
 	std::cout << "Building pspline..." << std::endl;
@@ -314,6 +312,9 @@ if (true) exit(8);
 	std::cout << std::endl;
 
 	std::cout << "All initializations finished!" << std::endl;
+
+
+if (true) exit(8);
 
     return;
 
