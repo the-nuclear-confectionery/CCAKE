@@ -110,7 +110,7 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
 		muSit /= hbarc;
 		muQit /= hbarc;
 
-        /*if(count++ == 0) {
+        if(count++ == 0) {
             minT   = tit;
             maxT   = tit;
             minMuB = muBit;
@@ -119,9 +119,9 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
             maxMuQ = muQit;
             minMuS = muSit;
             maxMuS = muSit;
-        }*/
-		if (count++%100000==0) std::cout << "Read in line# " << count << std::endl;
-        /*if(maxT < tit) {
+        }
+		if (count%100000==0) std::cout << "Read in line# " << count << std::endl;
+        if(maxT < tit) {
             maxT = tit;
         }
         if(minT > tit) {
@@ -144,7 +144,8 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
         }
         if(minMuS > muSit) {
             minMuS = muSit;
-        }*/
+        }
+		if ( count > 1000000 ) exit(8);
 
         toAdd.push_back(tit);
         toAdd.push_back(muBit);
