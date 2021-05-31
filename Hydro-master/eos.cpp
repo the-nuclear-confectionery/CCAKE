@@ -62,145 +62,209 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
 
 
 
-
+	bool load_saved_files = false;
 
 
     DataTable psamples, entrsamples, bsamples, ssamples, qsamples, esamples, cs2samples;
     DataTable db2samples, ds2samples, dq2samples, dt2samples, dbdssamples, dbdqsamples, dqdssamples, dtdssamples, dtdqsamples, dtdbsamples;
 
-    double tit, muBit, muQit, muSit, pit, entrit, bit, sit, qit, eit, cs2it;
-    double db2it, dq2it, ds2it, dt2it, dbdqit, dbdsit, dqdsit, dtdbit, dtdsit, dtdqit;
-    vector<double> toAdd;
-
-	Stopwatch sw_allocations, sw_addSample, sw_Total;
-
-    long long count = 0;
-    double hbarc = 197.327;
-	const long long nRows = quantityData.size();
-	for ( long long iRow = 0; iRow < nRows; iRow++ )
+	if ( load_saved_files )
 	{
-		sw_Total.Start();
-		sw_allocations.Start();
-		vector<double> & quantityRow = quantityData[iRow];
-		vector<double> & derivRow = derivData[iRow];
-
-		tit    = quantityRow[0];
-		muBit  = quantityRow[1];
-		muQit  = quantityRow[2];
-		muSit  = quantityRow[3];
-		pit    = quantityRow[4];
-		entrit = quantityRow[5];
-		bit    = quantityRow[6];
-		sit    = quantityRow[7];
-		qit    = quantityRow[8];
-		eit    = quantityRow[9];
-		cs2it  = quantityRow[10];
+		psamples = DataTable(false, true);
+		entrsamples = DataTable(false, true);
+		bsamples = DataTable(false, true);
+		ssamples = DataTable(false, true);
+		qsamples = DataTable(false, true);
+		esamples = DataTable(false, true);
+		cs2samples = DataTable(false, true);
 		
-		db2it  = derivRow[4];
-		dq2it  = derivRow[5];
-		ds2it  = derivRow[6];
-		dbdqit = derivRow[7];
-		dbdsit = derivRow[8];
-		dqdsit = derivRow[9];
-		dtdbit = derivRow[10];
-		dtdqit = derivRow[11];
-		dtdsit = derivRow[12];
-		dt2it  = derivRow[13];
-		sw_allocations.Stop();
+		db2samples = DataTable(false, true);
+		ds2samples = DataTable(false, true);
+		dq2samples = DataTable(false, true);
+		dt2samples = DataTable(false, true);
+		dbdssamples = DataTable(false, true);
+		dbdqsamples = DataTable(false, true);
+		dqdssamples = DataTable(false, true);
+		dtdssamples = DataTable(false, true);
+		dtdqsamples = DataTable(false, true);
+		dtdbsamples = DataTable(false, true);
+	}
+	else
+	{
+		psamples = DataTable("inputFiles/p.save");
+		entrsamples = DataTable("inputFiles/entr.save");
+		bsamples = DataTable("inputFiles/b.save");
+		ssamples = DataTable("inputFiles/s.save");
+		qsamples = DataTable("inputFiles/q.save");
+		esamples = DataTable("inputFiles/e.save");
+		cs2samples = DataTable("inputFiles/cs2.save");
 		
+		db2samples = DataTable("inputFiles/db2.save");
+		ds2samples = DataTable("inputFiles/ds2.save");
+		dq2samples = DataTable("inputFiles/dq2.save");
+		dt2samples = DataTable("inputFiles/dt2.save");
+		dbdssamples = DataTable("inputFiles/dbds.save");
+		dbdqsamples = DataTable("inputFiles/dbdq.save");
+		dqdssamples = DataTable("inputFiles/dqds.save");
+		dtdssamples = DataTable("inputFiles/dtds.save");
+		dtdqsamples = DataTable("inputFiles/dtdq.save");
+		dtdbsamples = DataTable("inputFiles/dtdb.save");
 
-		// Christopher Plumberg:
-		// put T and mu_i in units of 1/fm
-		tit   /= hbarc;
-		muBit /= hbarc;
-		muSit /= hbarc;
-		muQit /= hbarc;
+		double tit, muBit, muQit, muSit, pit, entrit, bit, sit, qit, eit, cs2it;
+		double db2it, dq2it, ds2it, dt2it, dbdqit, dbdsit, dqdsit, dtdbit, dtdsit, dtdqit;
+		vector<double> toAdd;
 
-        if(count++ == 0) {
-            minT   = tit;
-            maxT   = tit;
-            minMuB = muBit;
-            maxMuB = muBit;     //initialize eos range variables
-            minMuQ = muQit;
-            maxMuQ = muQit;
-            minMuS = muSit;
-            maxMuS = muSit;
-        }
-		if (count%100000==0) std::cout << "Read in line# " << count << std::endl;
-        if(maxT < tit) {
-            maxT = tit;
-        }
-        if(minT > tit) {
-            minT = tit;
-        }
-        if(maxMuB < muBit) {
-            maxMuB = muBit;
-        }
-        if(minMuB > muBit) {
-            minMuB = muBit;
-        }
-        if(maxMuQ < muQit) {
-            maxMuQ = muQit;
-        }
-        if(minMuQ > muQit) {
-            minMuQ = muQit;
-        }
-        if(maxMuS < muSit) {
-            maxMuS = muSit;
-        }
-        if(minMuS > muSit) {
-            minMuS = muSit;
-        }
+		Stopwatch sw_allocations, sw_addSample, sw_Total;
 
-		// USE FM IN HYDRO
-        pit = pit*(tit*tit*tit*tit);
-        entrit = entrit*(tit*tit*tit);
-        bit = bit*(tit*tit*tit);
-        sit = sit*(tit*tit*tit);
-        qit = qit*(tit*tit*tit);
-        eit = eit*(tit*tit*tit*tit);
-		
-
-        toAdd.push_back(tit);
-        toAdd.push_back(muBit);
-        toAdd.push_back(muQit);
-        toAdd.push_back(muSit);
-
-		sw_addSample.Start();
-
-        psamples.addSample(toAdd, pit);
-        entrsamples.addSample(toAdd, entrit);
-        bsamples.addSample(toAdd, bit);
-        ssamples.addSample(toAdd, sit);
-        qsamples.addSample(toAdd, qit);
-        esamples.addSample(toAdd, eit);
-        cs2samples.addSample(toAdd, cs2it);
-        db2samples.addSample(toAdd, db2it);
-        dq2samples.addSample(toAdd, dq2it);     //add datapoint to table for spline builder
-        ds2samples.addSample(toAdd, ds2it);
-        dbdqsamples.addSample(toAdd, dbdqit);
-        dbdssamples.addSample(toAdd, dbdsit);
-        dqdssamples.addSample(toAdd, dqdsit);
-        dtdbsamples.addSample(toAdd, dtdbit);
-        dtdqsamples.addSample(toAdd, dtdqit);
-        dtdssamples.addSample(toAdd, dtdsit);
-        dt2samples.addSample(toAdd, dt2it);
-		sw_addSample.Stop();
-
-        toAdd.clear();
-
-		sw_Total.Stop();
-		if ( count > 1000000 ) exit(8);
-		else if (count%100000==0)
+		long long count = 0;
+		double hbarc = 197.327;
+		const long long nRows = quantityData.size();
+		for ( long long iRow = 0; iRow < nRows; iRow++ )
 		{
-			std::cout << "Spent " << sw_allocations.printTime()
-						<< " seconds on allocations of total "
-						<< sw_Total.printTime() << " seconds." << std::endl;
-			std::cout << "Spent " << sw_addSample.printTime()
-						<< " seconds on addSample of total "
-						<< sw_Total.printTime() << " seconds." << std::endl;
+			sw_Total.Start();
+			sw_allocations.Start();
+			vector<double> & quantityRow = quantityData[iRow];
+			vector<double> & derivRow = derivData[iRow];
+
+			tit    = quantityRow[0];
+			muBit  = quantityRow[1];
+			muQit  = quantityRow[2];
+			muSit  = quantityRow[3];
+			pit    = quantityRow[4];
+			entrit = quantityRow[5];
+			bit    = quantityRow[6];
+			sit    = quantityRow[7];
+			qit    = quantityRow[8];
+			eit    = quantityRow[9];
+			cs2it  = quantityRow[10];
+		
+			db2it  = derivRow[4];
+			dq2it  = derivRow[5];
+			ds2it  = derivRow[6];
+			dbdqit = derivRow[7];
+			dbdsit = derivRow[8];
+			dqdsit = derivRow[9];
+			dtdbit = derivRow[10];
+			dtdqit = derivRow[11];
+			dtdsit = derivRow[12];
+			dt2it  = derivRow[13];
+			sw_allocations.Stop();
+		
+
+			// Christopher Plumberg:
+			// put T and mu_i in units of 1/fm
+			tit   /= hbarc;
+			muBit /= hbarc;
+			muSit /= hbarc;
+			muQit /= hbarc;
+
+		    if(count++ == 0) {
+		        minT   = tit;
+		        maxT   = tit;
+		        minMuB = muBit;
+		        maxMuB = muBit;     //initialize eos range variables
+		        minMuQ = muQit;
+		        maxMuQ = muQit;
+		        minMuS = muSit;
+		        maxMuS = muSit;
+		    }
+			if (count%100000==0) std::cout << "Read in line# " << count << std::endl;
+		    if(maxT < tit) {
+		        maxT = tit;
+		    }
+		    if(minT > tit) {
+		        minT = tit;
+		    }
+		    if(maxMuB < muBit) {
+		        maxMuB = muBit;
+		    }
+		    if(minMuB > muBit) {
+		        minMuB = muBit;
+		    }
+		    if(maxMuQ < muQit) {
+		        maxMuQ = muQit;
+		    }
+		    if(minMuQ > muQit) {
+		        minMuQ = muQit;
+		    }
+		    if(maxMuS < muSit) {
+		        maxMuS = muSit;
+		    }
+		    if(minMuS > muSit) {
+		        minMuS = muSit;
+		    }
+
+			// USE FM IN HYDRO
+		    pit = pit*(tit*tit*tit*tit);
+		    entrit = entrit*(tit*tit*tit);
+		    bit = bit*(tit*tit*tit);
+		    sit = sit*(tit*tit*tit);
+		    qit = qit*(tit*tit*tit);
+		    eit = eit*(tit*tit*tit*tit);
+		
+
+		    toAdd.push_back(tit);
+		    toAdd.push_back(muBit);
+		    toAdd.push_back(muQit);
+		    toAdd.push_back(muSit);
+
+			sw_addSample.Start();
+
+		    psamples.addSample(toAdd, pit);
+		    entrsamples.addSample(toAdd, entrit);
+		    bsamples.addSample(toAdd, bit);
+		    ssamples.addSample(toAdd, sit);
+		    qsamples.addSample(toAdd, qit);
+		    esamples.addSample(toAdd, eit);
+		    cs2samples.addSample(toAdd, cs2it);
+		    db2samples.addSample(toAdd, db2it);
+		    dq2samples.addSample(toAdd, dq2it);     //add datapoint to table for spline builder
+		    ds2samples.addSample(toAdd, ds2it);
+		    dbdqsamples.addSample(toAdd, dbdqit);
+		    dbdssamples.addSample(toAdd, dbdsit);
+		    dqdssamples.addSample(toAdd, dqdsit);
+		    dtdbsamples.addSample(toAdd, dtdbit);
+		    dtdqsamples.addSample(toAdd, dtdqit);
+		    dtdssamples.addSample(toAdd, dtdsit);
+		    dt2samples.addSample(toAdd, dt2it);
+			sw_addSample.Stop();
+
+		    toAdd.clear();
+
+			sw_Total.Stop();
+			if ( count > 1000000 ) break;
+			else if (count%100000==0)
+			{
+				std::cout << "Spent " << sw_allocations.printTime()
+							<< " seconds on allocations of total "
+							<< sw_Total.printTime() << " seconds." << std::endl;
+				std::cout << "Spent " << sw_addSample.printTime()
+							<< " seconds on addSample of total "
+							<< sw_Total.printTime() << " seconds." << std::endl;
+			}
 		}
-    }
+
+
+		// try saving generated DataTables to files
+		psamples.save("inputFiles/p.save");
+		entrsamples.save("inputFiles/entr.save");
+		bsamples.save("inputFiles/b.save");
+		ssamples.save("inputFiles/s.save");
+		qsamples.save("inputFiles/q.save");
+		esamples.save("inputFiles/e.save");
+		cs2samples.save("inputFiles/cs2.save");
+		db2samples.save("inputFiles/db2.save");
+		dq2samples.save("inputFiles/dq2.save");
+		ds2samples.save("inputFiles/ds2.save");
+		dbdqsamples.save("inputFiles/dbdq.save");
+		dbdssamples.save("inputFiles/dbds.save");
+		dqdssamples.save("inputFiles/dqds.save");
+		dtdbsamples.save("inputFiles/dtdb.save");
+		dtdqsamples.save("inputFiles/dtdq.save");
+		dtdssamples.save("inputFiles/dtds.save");
+		dt2samples.save("inputFiles/dt2.save");
+	}
+
 
 if (true) exit(8);
 
