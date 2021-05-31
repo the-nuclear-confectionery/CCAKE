@@ -70,24 +70,24 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
 
 	if ( load_saved_files )
 	{
-		psamples = DataTable("inputFiles/p.save");
-		entrsamples = DataTable("inputFiles/entr.save");
-		bsamples = DataTable("inputFiles/b.save");
-		ssamples = DataTable("inputFiles/s.save");
-		qsamples = DataTable("inputFiles/q.save");
-		esamples = DataTable("inputFiles/e.save");
-		cs2samples = DataTable("inputFiles/cs2.save");
+		psamples = DataTable("inputfiles/p.save");
+		entrsamples = DataTable("inputfiles/entr.save");
+		bsamples = DataTable("inputfiles/b.save");
+		ssamples = DataTable("inputfiles/s.save");
+		qsamples = DataTable("inputfiles/q.save");
+		esamples = DataTable("inputfiles/e.save");
+		cs2samples = DataTable("inputfiles/cs2.save");
 		
-		db2samples = DataTable("inputFiles/db2.save");
-		ds2samples = DataTable("inputFiles/ds2.save");
-		dq2samples = DataTable("inputFiles/dq2.save");
-		dt2samples = DataTable("inputFiles/dt2.save");
-		dbdssamples = DataTable("inputFiles/dbds.save");
-		dbdqsamples = DataTable("inputFiles/dbdq.save");
-		dqdssamples = DataTable("inputFiles/dqds.save");
-		dtdssamples = DataTable("inputFiles/dtds.save");
-		dtdqsamples = DataTable("inputFiles/dtdq.save");
-		dtdbsamples = DataTable("inputFiles/dtdb.save");
+		db2samples = DataTable("inputfiles/db2.save");
+		ds2samples = DataTable("inputfiles/ds2.save");
+		dq2samples = DataTable("inputfiles/dq2.save");
+		dt2samples = DataTable("inputfiles/dt2.save");
+		dbdssamples = DataTable("inputfiles/dbds.save");
+		dbdqsamples = DataTable("inputfiles/dbdq.save");
+		dqdssamples = DataTable("inputfiles/dqds.save");
+		dtdssamples = DataTable("inputfiles/dtds.save");
+		dtdqsamples = DataTable("inputfiles/dtdq.save");
+		dtdbsamples = DataTable("inputfiles/dtdb.save");
 	}
 	else
 	{
@@ -246,23 +246,23 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
 
 
 		// try saving generated DataTables to files
-		psamples.save("inputFiles/p.save");
-		entrsamples.save("inputFiles/entr.save");
-		bsamples.save("inputFiles/b.save");
-		ssamples.save("inputFiles/s.save");
-		qsamples.save("inputFiles/q.save");
-		esamples.save("inputFiles/e.save");
-		cs2samples.save("inputFiles/cs2.save");
-		db2samples.save("inputFiles/db2.save");
-		dq2samples.save("inputFiles/dq2.save");
-		ds2samples.save("inputFiles/ds2.save");
-		dbdqsamples.save("inputFiles/dbdq.save");
-		dbdssamples.save("inputFiles/dbds.save");
-		dqdssamples.save("inputFiles/dqds.save");
-		dtdbsamples.save("inputFiles/dtdb.save");
-		dtdqsamples.save("inputFiles/dtdq.save");
-		dtdssamples.save("inputFiles/dtds.save");
-		dt2samples.save("inputFiles/dt2.save");
+		psamples.save("inputfiles/p.save");
+		entrsamples.save("inputfiles/entr.save");
+		bsamples.save("inputfiles/b.save");
+		ssamples.save("inputfiles/s.save");
+		qsamples.save("inputfiles/q.save");
+		esamples.save("inputfiles/e.save");
+		cs2samples.save("inputfiles/cs2.save");
+		db2samples.save("inputfiles/db2.save");
+		dq2samples.save("inputfiles/dq2.save");
+		ds2samples.save("inputfiles/ds2.save");
+		dbdqsamples.save("inputfiles/dbdq.save");
+		dbdssamples.save("inputfiles/dbds.save");
+		dqdssamples.save("inputfiles/dqds.save");
+		dtdbsamples.save("inputfiles/dtdb.save");
+		dtdqsamples.save("inputfiles/dtdq.save");
+		dtdssamples.save("inputfiles/dtds.save");
+		dt2samples.save("inputfiles/dt2.save");
 	}
 
 
