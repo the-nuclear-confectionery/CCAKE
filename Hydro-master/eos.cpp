@@ -62,7 +62,7 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
 
 
 
-	bool load_saved_files = true;
+	bool load_saved_files = false;
 
 
     DataTable psamples, entrsamples, bsamples, ssamples, qsamples, esamples, cs2samples;
@@ -91,7 +91,7 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
 	}
 	else
 	{
-		psamples = DataTable(false, true);
+		/*psamples = DataTable(false, true);
 		entrsamples = DataTable(false, true);
 		bsamples = DataTable(false, true);
 		ssamples = DataTable(false, true);
@@ -108,7 +108,7 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
 		dqdssamples = DataTable(false, true);
 		dtdssamples = DataTable(false, true);
 		dtdqsamples = DataTable(false, true);
-		dtdbsamples = DataTable(false, true);
+		dtdbsamples = DataTable(false, true);*/
 
 		double tit, muBit, muQit, muSit, pit, entrit, bit, sit, qit, eit, cs2it;
 		double db2it, dq2it, ds2it, dt2it, dbdqit, dbdsit, dqdsit, dtdbit, dtdsit, dtdqit;
@@ -232,8 +232,8 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
 		    toAdd.clear();
 
 			sw_Total.Stop();
-			if ( count > 1000000 ) break;
-			else if (count%100000==0)
+			/*if ( count > 1000000 ) break;
+			else */if (count%100000==0)
 			{
 				std::cout << "Spent " << sw_allocations.printTime()
 							<< " seconds on allocations of total "
