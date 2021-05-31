@@ -183,9 +183,6 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
         toAdd.clear();
     }
 
-    dataFile.close();
-    derFile.close();
-
 	std::cout << "Finished reading in thermodynamic data files!" << std::endl;
 
 	std::cout << "Building pspline..." << std::endl;
