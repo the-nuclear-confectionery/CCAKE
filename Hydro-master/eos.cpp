@@ -51,7 +51,197 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
 
 	std::cout << "Check dimensions: " << quantityData.size() << std::endl;
 	std::cout << "Check dimensions: " << derivData.size() << std::endl;
-	if (true) exit(8);
+	//if (true) exit(8);
+
+
+
+
+
+
+
+
+
+
+
+
+    DataTable psamples, entrsamples, bsamples, ssamples, qsamples, esamples, cs2samples;
+    DataTable db2samples, ds2samples, dq2samples, dt2samples, dbdssamples, dbdqsamples, dqdssamples, dtdssamples, dtdqsamples, dtdbsamples;
+
+    double tit, muBit, muQit, muSit, pit, entrit, bit, sit, qit, eit, cs2it;
+    double db2it, dq2it, ds2it, dt2it, dbdqit, dbdsit, dqdsit, dtdbit, dtdsit, dtdqit;
+    vector<double> toAdd;
+
+    int count = 0;
+    double hbarc = 197.327;
+    //while (dataFile >> tit >> muBit >> muQit >> muSit >> pit >> entrit >> bit >> sit >> qit >> eit >> cs2it) {
+    //    derFile >> tit >> muBit >> muQit >> muSit >> db2it >> dq2it >> ds2it >> dbdqit >> dbdsit >> dqdsit >> dtdbit >> dtdqit >> dtdsit >> dt2it;  //read data from files
+
+	const long long nRows = quantityData.size();
+	for ( long long iRow = 0; iRow < nRows; iRow++ )
+	{
+		vector<double> quantityRow = quantityData[iRow];
+		vector<double> derivRow = derivData[iRow];
+
+		tit    = quantityRow[0];
+		muBit  = quantityRow[1];
+		muQit  = quantityRow[2];
+		muSit  = quantityRow[3];
+		pit    = quantityRow[4];
+		entrit = quantityRow[5];
+		bit    = quantityRow[6];
+		sit    = quantityRow[7];
+		qit    = quantityRow[8];
+		eit    = quantityRow[9];
+		cs2it  = quantityRow[10];
+		
+		db2it  = derivRow[4];
+		dq2it  = derivRow[5];
+		ds2it  = derivRow[6];
+		dbdqit = derivRow[7];
+		dbdsit = derivRow[8];
+		dqdsit = derivRow[9];
+		dtdbit = derivRow[10];
+		dtdqit = derivRow[11];
+		dtdsit = derivRow[12];
+		dt2it  = derivRow[13];
+		
+
+		// Christopher Plumberg:
+		// put T and mu_i in units of 1/fm
+		tit   /= hbarc;
+		muBit /= hbarc;
+		muSit /= hbarc;
+		muQit /= hbarc;
+
+        if(count++ == 0) {
+            minT   = tit;
+            maxT   = tit;
+            minMuB = muBit;
+            maxMuB = muBit;     //initialize eos range variables
+            minMuQ = muQit;
+            maxMuQ = muQit;
+            minMuS = muSit;
+            maxMuS = muSit;
+        }
+		if (count%100000==0) std::cout << "Read in line# " << count << std::endl;
+        if(maxT < tit) {
+            maxT = tit;
+        }
+        if(minT > tit) {
+            minT = tit;
+        }
+        if(maxMuB < muBit) {
+            maxMuB = muBit;
+        }
+        if(minMuB > muBit) {
+            minMuB = muBit;
+        }
+        if(maxMuQ < muQit) {
+            maxMuQ = muQit;
+        }
+        if(minMuQ > muQit) {
+            minMuQ = muQit;
+        }
+        if(maxMuS < muSit) {
+            maxMuS = muSit;
+        }
+        if(minMuS > muSit) {
+            minMuS = muSit;
+        }
+
+        toAdd.push_back(tit);
+        toAdd.push_back(muBit);
+        toAdd.push_back(muQit);
+        toAdd.push_back(muSit);
+
+		// USE FM IN HYDRO
+        pit = pit*(tit*tit*tit*tit);
+        entrit = entrit*(tit*tit*tit);
+        bit = bit*(tit*tit*tit);
+        sit = sit*(tit*tit*tit);
+        qit = qit*(tit*tit*tit);
+        eit = eit*(tit*tit*tit*tit);
+		
+
+        psamples.addSample(toAdd, pit);
+        entrsamples.addSample(toAdd, entrit);
+        bsamples.addSample(toAdd, bit);
+        ssamples.addSample(toAdd, sit);
+        qsamples.addSample(toAdd, qit);
+        esamples.addSample(toAdd, eit);
+        cs2samples.addSample(toAdd, cs2it);
+        db2samples.addSample(toAdd, db2it);
+        dq2samples.addSample(toAdd, dq2it);     //add datapoint to table for spline builder
+        ds2samples.addSample(toAdd, ds2it);
+        dbdqsamples.addSample(toAdd, dbdqit);
+        dbdssamples.addSample(toAdd, dbdsit);
+        dqdssamples.addSample(toAdd, dqdsit);
+        dtdbsamples.addSample(toAdd, dtdbit);
+        dtdqsamples.addSample(toAdd, dtdqit);
+        dtdssamples.addSample(toAdd, dtdsit);
+        dt2samples.addSample(toAdd, dt2it);
+        toAdd.clear();
+    }
+
+    dataFile.close();
+    derFile.close();
+
+	std::cout << "Finished reading in thermodynamic data files!" << std::endl;
+
+	std::cout << "Building pspline..." << std::endl;
+    pSpline = BSpline::Builder(psamples).degree(degree).build();
+	std::cout << "Building entrSpline..." << std::endl;
+    entrSpline = BSpline::Builder(entrsamples).degree(degree).build();
+	std::cout << "Building bSpline..." << std::endl;
+    bSpline = BSpline::Builder(bsamples).degree(degree).build();
+	std::cout << "Building sSpline..." << std::endl;
+    sSpline = BSpline::Builder(ssamples).degree(degree).build();
+	std::cout << "Building qSpline..." << std::endl;
+    qSpline = BSpline::Builder(qsamples).degree(degree).build();
+	std::cout << "Building eSpline..." << std::endl;
+    eSpline = BSpline::Builder(esamples).degree(degree).build();
+	std::cout << "Building cs2Spline..." << std::endl;
+    cs2Spline = BSpline::Builder(cs2samples).degree(degree).build();
+	std::cout << "Building db2Spline..." << std::endl;
+    db2Spline = BSpline::Builder(db2samples).degree(degree).build();
+	std::cout << "Building dq2Spline..." << std::endl;
+    dq2Spline = BSpline::Builder(dq2samples).degree(degree).build();
+ 	std::cout << "Building ds2Spline..." << std::endl;
+    ds2Spline = BSpline::Builder(ds2samples).degree(degree).build();        //make splines from table
+	std::cout << "Building dbdqSpline..." << std::endl;
+    dbdqSpline = BSpline::Builder(dbdqsamples).degree(degree).build();
+	std::cout << "Building dbdsSpline..." << std::endl;
+    dbdsSpline = BSpline::Builder(dbdssamples).degree(degree).build();
+	std::cout << "Building dqdsSpline..." << std::endl;
+    dqdsSpline = BSpline::Builder(dqdssamples).degree(degree).build();
+	std::cout << "Building dtdbSpline..." << std::endl;
+    dtdbSpline = BSpline::Builder(dtdbsamples).degree(degree).build();
+	std::cout << "Building dtdqSpline..." << std::endl;
+    dtdqSpline = BSpline::Builder(dtdqsamples).degree(degree).build();
+	std::cout << "Building dtdsSpline..." << std::endl;
+    dtdsSpline = BSpline::Builder(dtdssamples).degree(degree).build();
+	std::cout << "Building dt2Spline..." << std::endl;
+    dt2Spline = BSpline::Builder(dt2samples).degree(degree).build();
+
+	// initialize tbqsPosition to something...
+	std::cout << "Initializing tbqsPosition...\n";
+	for (int iTBQS = 0; iTBQS < 4; iTBQS++) tbqsPosition(iTBQS) = 1.0;
+
+	std::cout << "Check TBQS: ";
+	for (int iTBQS = 0; iTBQS < 4; iTBQS++) std::cout << tbqsPosition(iTBQS) << "   ";	
+	std::cout << std::endl;
+
+	std::cout << "All initializations finished!" << std::endl;
+
+    return;
+
+
+
+
+
+
+
+
 }
 
 
