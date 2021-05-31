@@ -70,27 +70,6 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
 
 	if ( load_saved_files )
 	{
-		psamples = DataTable(false, true);
-		entrsamples = DataTable(false, true);
-		bsamples = DataTable(false, true);
-		ssamples = DataTable(false, true);
-		qsamples = DataTable(false, true);
-		esamples = DataTable(false, true);
-		cs2samples = DataTable(false, true);
-		
-		db2samples = DataTable(false, true);
-		ds2samples = DataTable(false, true);
-		dq2samples = DataTable(false, true);
-		dt2samples = DataTable(false, true);
-		dbdssamples = DataTable(false, true);
-		dbdqsamples = DataTable(false, true);
-		dqdssamples = DataTable(false, true);
-		dtdssamples = DataTable(false, true);
-		dtdqsamples = DataTable(false, true);
-		dtdbsamples = DataTable(false, true);
-	}
-	else
-	{
 		psamples = DataTable("inputFiles/p.save");
 		entrsamples = DataTable("inputFiles/entr.save");
 		bsamples = DataTable("inputFiles/b.save");
@@ -109,6 +88,27 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
 		dtdssamples = DataTable("inputFiles/dtds.save");
 		dtdqsamples = DataTable("inputFiles/dtdq.save");
 		dtdbsamples = DataTable("inputFiles/dtdb.save");
+	}
+	else
+	{
+		psamples = DataTable(false, true);
+		entrsamples = DataTable(false, true);
+		bsamples = DataTable(false, true);
+		ssamples = DataTable(false, true);
+		qsamples = DataTable(false, true);
+		esamples = DataTable(false, true);
+		cs2samples = DataTable(false, true);
+		
+		db2samples = DataTable(false, true);
+		ds2samples = DataTable(false, true);
+		dq2samples = DataTable(false, true);
+		dt2samples = DataTable(false, true);
+		dbdssamples = DataTable(false, true);
+		dbdqsamples = DataTable(false, true);
+		dqdssamples = DataTable(false, true);
+		dtdssamples = DataTable(false, true);
+		dtdqsamples = DataTable(false, true);
+		dtdbsamples = DataTable(false, true);
 
 		double tit, muBit, muQit, muSit, pit, entrit, bit, sit, qit, eit, cs2it;
 		double db2it, dq2it, ds2it, dt2it, dbdqit, dbdsit, dqdsit, dtdbit, dtdsit, dtdqit;
