@@ -73,14 +73,11 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
 
     long long count = 0;
     double hbarc = 197.327;
-    //while (dataFile >> tit >> muBit >> muQit >> muSit >> pit >> entrit >> bit >> sit >> qit >> eit >> cs2it) {
-    //    derFile >> tit >> muBit >> muQit >> muSit >> db2it >> dq2it >> ds2it >> dbdqit >> dbdsit >> dqdsit >> dtdbit >> dtdqit >> dtdsit >> dt2it;  //read data from files
-
 	const long long nRows = quantityData.size();
 	for ( long long iRow = 0; iRow < nRows; iRow++ )
 	{
-		vector<double> quantityRow = quantityData[iRow];
-		vector<double> derivRow = derivData[iRow];
+		vector<double> & quantityRow = quantityData[iRow];
+		vector<double> & derivRow = derivData[iRow];
 
 		tit    = quantityRow[0];
 		muBit  = quantityRow[1];
