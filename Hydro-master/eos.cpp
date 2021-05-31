@@ -71,7 +71,7 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
     double db2it, dq2it, ds2it, dt2it, dbdqit, dbdsit, dqdsit, dtdbit, dtdsit, dtdqit;
     vector<double> toAdd;
 
-    int count = 0;
+    long long count = 0;
     double hbarc = 197.327;
     //while (dataFile >> tit >> muBit >> muQit >> muSit >> pit >> entrit >> bit >> sit >> qit >> eit >> cs2it) {
     //    derFile >> tit >> muBit >> muQit >> muSit >> db2it >> dq2it >> ds2it >> dbdqit >> dbdsit >> dqdsit >> dtdbit >> dtdqit >> dtdsit >> dt2it;  //read data from files
