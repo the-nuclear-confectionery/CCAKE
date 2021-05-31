@@ -41,6 +41,9 @@ inline void read_in_hdf(vector<vector<double> > & v, string filename)
 		const long long DIM0 = dims[0];
 		const long long DIM1 = dims[1];
 
+std::cout << "DIM0 = " << DIM0 << std::endl;
+std::cout << "DIM1 = " << DIM1 << std::endl;
+
 		double data[DIM0][DIM1];
 
         dataset.read(data, PredType::NATIVE_DOUBLE);

@@ -889,7 +889,7 @@ double eos::Atable()
     Aout=w()-entrVal*dwds();
 
     return Aout;
-};
+}
 
 double eos::cs2out(double Tt) {  //return cs2 given t and mu's=0
 //	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
