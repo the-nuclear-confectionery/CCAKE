@@ -47,12 +47,12 @@ TARGET		=	$(MAIN)
 
 # --------------- Pattern rules -------------------
 
-./%.o: ./%.cpp
+%.o: %.cpp
 	$(CC) $(CFLAGS) -c $< -o $@
 
 
-$(TARGET):
-	$(CC) $(MAINSRC) -o $(TARGET) $(CFLAGS) $(INCFLAGS) $(LDFLAGS)
+$(TARGET):	$(OBJECTS)	
+	$(CC) $(OBJECTS) -o $(TARGET) $(CFLAGS) $(INCFLAGS) $(LDFLAGS)
 
 # -------------------------------------------------
 
