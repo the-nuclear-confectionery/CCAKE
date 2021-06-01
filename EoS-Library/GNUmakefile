@@ -1,71 +1,24 @@
-# ==============================================================================
-#  Purpose: Makefile for hydrodynamic interpolation and HDF converter
-#  Author:  Christopher Plumberg
-#  Date:    June 1, 2021
-# ==============================================================================
-##
-##  Environments :	MAIN	= 	main sourcefile	
-##
-##  Usage : 	(g)make	[all]		compile the whole project		
-##			distclean	remove all binaries
-##  
-
-# HDF5 flags
-export HDF5_CXX=$(which g++)
-export HDF5_CXXLINKER=$(which g++)
-export HDF5_CLINKER=$(which g++)
-
-# Set compiler and flags
-CC := h5c++
-CFLAGS= -g -std=c++14 -lgsl -lgslcblas -lm
+OBJS = test.o eos.o
+CC = g++
+DEBUG = -g
+STANDARD= -std=c++11
+WARNINGS= -w -Wall -Wextra -pedantic -Wno-conversion -Wcast-align -Wunused -Wshadow -Wpointer-arith
+OPTIMIZATION= -Og
 EIGENPATH=$(realpath ../eigen)
 SPLINTERPATH=$(realpath ../splinter/include)
 SPLINTERBUILDPATH=$(realpath ../splinter/build)
-LDFLAGS+= -lm -lgsl -lblas -lm -lstdc++ -L$(SPLINTERBUILDPATH) -lsplinter-3-0
+CFLAGS = $(WARNINGS) $(OPTIMIZATION) -c -I$(EIGENPATH) -I$(SPLINTERPATH) $(DEBUG) $(STANDARD)
+LDFLAGS = -lm -lgsl -lblas -lm -lstdc++ -L$(SPLINTERBUILDPATH) -lsplinter-3-0 $(DEBUG) $(STANDARD)
 
+test_EoS : $(OBJS)
+	$(CC) -g $(OBJS) -o test_EoS $(LDFLAGS)
 
-# Various directories and definitions
-RM          =   rm -f
-O           =   .o
-LDFLAGS     =   
-INCFLAGS    =   -I$(EIGENPATH) -I$(SPLINTERPATH)
-SYSTEMFILES =   $(SRCGNU)
+test.o: eos.h test.cpp eos.cpp
+	$(CC) $(CFLAGS) test.cpp
 
-# --------------- Files involved ------------------
+eos.o: eos.h eos.cpp $(SPLINTERPATH)/datatable.h $(SPLINTERPATH)/bspline.h $(SPLINTERPATH)/bsplinebuilder.h
+	$(CC) $(CFLAGS) eos.cpp
 
-MAIN		 =	test_EoS
+clean:
+	-rm *.o test_EoS
 
-MAINSRC      =  test.cpp
-
-INC			 = 	eos.h
-SRC			 =	eos.cpp
-OBJECTS		 =	eos.o
-
-# -------------------------------------------------
-
-TARGET		=	$(MAIN)
-
-# --------------- Pattern rules -------------------
-
-%.o: %.cpp
-	$(CC) $(CFLAGS) $(INCFLAGS) -c $< -o $@
-
-
-$(TARGET):	$(OBJECTS)	
-	$(CC) $(OBJECTS) -o $(TARGET) $(CFLAGS) $(INCFLAGS) $(LDFLAGS)
-
-# -------------------------------------------------
-
-.PHONY:		all help distclean
-
-all:		$(TARGET)
-
-help:
-		@grep '^##' GNUmakefile
-
-distclean:	
-		-rm $(TARGET)
-
-# --------------- Dependencies -------------------
-eos.cpp:			  eos.h
-test.cpp:             eos.h eos.cpp
