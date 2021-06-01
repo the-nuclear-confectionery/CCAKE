@@ -21,7 +21,6 @@ CFLAGS= -g -std=c++14 -lgsl -lgslcblas -lm
 EIGENPATH=$(realpath ../eigen)
 SPLINTERPATH=$(realpath ../splinter/include)
 SPLINTERBUILDPATH=$(realpath ../splinter/build)
-CFLAGS+= -c -I$(EIGENPATH) -I$(SPLINTERPATH)
 LDFLAGS+= -lm -lgsl -lblas -lm -lstdc++ -L$(SPLINTERBUILDPATH) -lsplinter-3-0
 
 
@@ -29,7 +28,7 @@ LDFLAGS+= -lm -lgsl -lblas -lm -lstdc++ -L$(SPLINTERBUILDPATH) -lsplinter-3-0
 RM          =   rm -f
 O           =   .o
 LDFLAGS     =   
-INCFLAGS    =   
+INCFLAGS    =   -I$(EIGENPATH) -I$(SPLINTERPATH)
 SYSTEMFILES =   $(SRCGNU)
 
 # --------------- Files involved ------------------
