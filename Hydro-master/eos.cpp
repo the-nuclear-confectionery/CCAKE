@@ -71,7 +71,7 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
 	if ( load_saved_files )
 	{
 		psamples = DataTable("inputfiles/p.save");
-		entrsamples = DataTable("inputfiles/entr.save");
+		/*entrsamples = DataTable("inputfiles/entr.save");
 		bsamples = DataTable("inputfiles/b.save");
 		ssamples = DataTable("inputfiles/s.save");
 		qsamples = DataTable("inputfiles/q.save");
@@ -87,7 +87,7 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
 		dqdssamples = DataTable("inputfiles/dqds.save");
 		dtdssamples = DataTable("inputfiles/dtds.save");
 		dtdqsamples = DataTable("inputfiles/dtdq.save");
-		dtdbsamples = DataTable("inputfiles/dtdb.save");
+		dtdbsamples = DataTable("inputfiles/dtdb.save");*/
 	}
 	else
 	{
@@ -211,7 +211,7 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
 			sw_addSample.Start();
 
 		    psamples.addSample(toAdd, pit);
-		    entrsamples.addSample(toAdd, entrit);
+		    /*entrsamples.addSample(toAdd, entrit);
 		    bsamples.addSample(toAdd, bit);
 		    ssamples.addSample(toAdd, sit);
 		    qsamples.addSample(toAdd, qit);
@@ -226,7 +226,7 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
 		    dtdbsamples.addSample(toAdd, dtdbit);
 		    dtdqsamples.addSample(toAdd, dtdqit);
 		    dtdssamples.addSample(toAdd, dtdsit);
-		    dt2samples.addSample(toAdd, dt2it);
+		    dt2samples.addSample(toAdd, dt2it);*/
 			sw_addSample.Stop();
 
 		    toAdd.clear();
@@ -247,7 +247,7 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
 
 		// try saving generated DataTables to files
 		psamples.save("inputfiles/p.save");
-		entrsamples.save("inputfiles/entr.save");
+		/*entrsamples.save("inputfiles/entr.save");
 		bsamples.save("inputfiles/b.save");
 		ssamples.save("inputfiles/s.save");
 		qsamples.save("inputfiles/q.save");
@@ -262,7 +262,7 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
 		dtdbsamples.save("inputfiles/dtdb.save");
 		dtdqsamples.save("inputfiles/dtdq.save");
 		dtdssamples.save("inputfiles/dtds.save");
-		dt2samples.save("inputfiles/dt2.save");
+		dt2samples.save("inputfiles/dt2.save");*/
 	}
 
 
@@ -270,7 +270,7 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
 
 	std::cout << "Building pspline..." << std::endl;
     pSpline = BSpline::Builder(psamples).degree(degree).build();
-	std::cout << "Building entrSpline..." << std::endl;
+	/*std::cout << "Building entrSpline..." << std::endl;
     entrSpline = BSpline::Builder(entrsamples).degree(degree).build();
 	std::cout << "Building bSpline..." << std::endl;
     bSpline = BSpline::Builder(bsamples).degree(degree).build();
@@ -301,7 +301,13 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
 	std::cout << "Building dtdsSpline..." << std::endl;
     dtdsSpline = BSpline::Builder(dtdssamples).degree(degree).build();
 	std::cout << "Building dt2Spline..." << std::endl;
-    dt2Spline = BSpline::Builder(dt2samples).degree(degree).build();
+    dt2Spline = BSpline::Builder(dt2samples).degree(degree).build();*/
+
+
+
+	// save pSpline here to test how big it is on disk...
+	pSpline.save("inputfiles/pSpline.save");
+
 
 	// initialize tbqsPosition to something...
 	std::cout << "Initializing tbqsPosition...\n";
