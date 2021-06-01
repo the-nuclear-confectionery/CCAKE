@@ -1,5 +1,6 @@
 OBJS = main.o vector.o hydrosim.o newspline.o random.o eos.o matrix.o enteric.o
-CC = g++
+#CC = g++
+CC = h5c++
 DEBUG = -g
 STANDARD= -std=c++11
 WARNINGS= -w -Wall -Wextra -pedantic -Wno-conversion -Wcast-align -Wunused -Wshadow -Wpointer-arith
@@ -12,10 +13,20 @@ SPLINTERBUILDPATH=$(realpath ../splinter/build)
 CFLAGS = $(WARNINGS) $(OPTIMIZATION) -c -I$(EIGENPATH) -I$(SPLINTERPATH) $(DEBUG) $(STANDARD)
 LDFLAGS = -lm -lgsl -lblas -lm -lstdc++ -L$(SPLINTERBUILDPATH) -lsplinter-3-0 $(DEBUG) $(STANDARD)
 
+export HDF5_LDFLAGS+=$(LDFLAGS)
+export HDF5_LIBS+=-L$(SPLINTERBUILDPATH) -lsplinter-3-0
+#export HDF5_CXXFLAGS=-I$(SPLINTERPATH)
+
+
 vusphydro : $(OBJS)
+	$(info [${LD_RUN_PATH}])
+	$(info [${LD_LIBRARY_PATH}])
+	$(info [${HDF5_LDFLAGS}])
+	$(info [${HDF5_LIBS}])
+	$(info [${HDF5_CXXFLAGS}])
 	$(CC) -g $(OBJS) -o vusphydro $(LDFLAGS)
 
-main.o: vector.h mathdef.h particle.h eos.h enteric.h LinkList.h random.h matrix.h hydrosim.h eostables.h main.cpp
+main.o: vector.h mathdef.h particle.h eos.h enteric.h LinkList.h random.h matrix.h hydrosim.h eostables.h read_in_hdf/read_in_hdf.h main.cpp
 	$(CC) $(CFLAGS) main.cpp
 
 vector.o: vector.h mathdef.h vector.cpp
@@ -30,7 +41,7 @@ hydrosim.o: vector.h mathdef.h particle.h hydrosim.h LinkList.h rungekutta4.h eo
 newspline.o: newspline.cpp newspline.hpp
 	$(CC) $(CFLAGS) newspline.cpp
 
-eos.o: tables.h eos.h eostables.h eos.cpp $(SPLINTERPATH)/datatable.h $(SPLINTERPATH)/bspline.h $(SPLINTERPATH)/bsplinebuilder.h
+eos.o: tables.h eos.h eostables.h eos.cpp $(SPLINTERPATH)/datatable.h $(SPLINTERPATH)/bspline.h $(SPLINTERPATH)/bsplinebuilder.h read_in_hdf/read_in_hdf.h
 	$(CC) $(CFLAGS) eos.cpp
 
 random.o: random.cpp random.h
