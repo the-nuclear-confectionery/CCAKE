@@ -36,16 +36,20 @@ SYSTEMFILES =   $(SRCGNU)
 
 MAIN		 =	test_EoS
 
-MAINSRC      =  test.cpp \
-				eos.cpp
+MAINSRC      =  test.cpp
 
 INC			 = 	eos.h
+SRC			 =	eos.cpp
 
 # -------------------------------------------------
 
 TARGET		=	$(MAIN)
 
 # --------------- Pattern rules -------------------
+
+./%.o: ./%.cpp
+	$(CC) $(CFLAGS) -c $< -o $@
+
 
 $(TARGET):
 	$(CC) $(MAINSRC) -o $(TARGET) $(CFLAGS) $(INCFLAGS) $(LDFLAGS)
