@@ -67,4 +67,5 @@ distclean:
 		-rm $(TARGET)
 
 # --------------- Dependencies -------------------
+eos.cpp:			  eos.h
 test.cpp:             eos.h eos.cpp
