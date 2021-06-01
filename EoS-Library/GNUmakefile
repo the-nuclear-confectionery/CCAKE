@@ -40,6 +40,7 @@ MAINSRC      =  test.cpp
 
 INC			 = 	eos.h
 SRC			 =	eos.cpp
+OBJECTS		 =	eos.o
 
 # -------------------------------------------------
 
