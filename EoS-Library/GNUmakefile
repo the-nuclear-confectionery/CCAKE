@@ -18,6 +18,12 @@ export HDF5_CLINKER=$(which g++)
 # Set compiler and flags
 CC := h5c++
 CFLAGS= -g -std=c++14 -lgsl -lgslcblas -lm
+EIGENPATH=$(realpath ../eigen)
+SPLINTERPATH=$(realpath ../splinter/include)
+SPLINTERBUILDPATH=$(realpath ../splinter/build)
+CFLAGS+= -c -I$(EIGENPATH) -I$(SPLINTERPATH)
+LDFLAGS+= -lm -lgsl -lblas -lm -lstdc++ -L$(SPLINTERBUILDPATH) -lsplinter-3-0
+
 
 # Various directories and definitions
 RM          =   rm -f
