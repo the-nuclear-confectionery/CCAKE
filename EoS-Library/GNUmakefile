@@ -1,5 +1,5 @@
 OBJS = test.o eos.o
-CC = g++
+CC = h5c++
 DEBUG = -g
 STANDARD= -std=c++11
 WARNINGS= -w -Wall -Wextra -pedantic -Wno-conversion -Wcast-align -Wunused -Wshadow -Wpointer-arith
@@ -9,6 +9,9 @@ SPLINTERPATH=$(realpath ../splinter/include)
 SPLINTERBUILDPATH=$(realpath ../splinter/build)
 CFLAGS = $(WARNINGS) $(OPTIMIZATION) -c -I$(EIGENPATH) -I$(SPLINTERPATH) $(DEBUG) $(STANDARD)
 LDFLAGS = -lm -lgsl -lblas -lm -lstdc++ -L$(SPLINTERBUILDPATH) -lsplinter-3-0 $(DEBUG) $(STANDARD)
+
+export HDF5_LDFLAGS+=$(LDFLAGS)
+export HDF5_LIBS+=-L$(SPLINTERBUILDPATH) -lsplinter-3-0
 
 test_EoS : $(OBJS)
 	$(CC) -g $(OBJS) -o test_EoS $(LDFLAGS)
