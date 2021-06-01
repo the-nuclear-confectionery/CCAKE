@@ -48,7 +48,7 @@ TARGET		=	$(MAIN)
 # --------------- Pattern rules -------------------
 
 %.o: %.cpp
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(INCFLAGS) -c $< -o $@
 
 
 $(TARGET):	$(OBJECTS)	
