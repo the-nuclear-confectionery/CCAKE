@@ -318,7 +318,7 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
 		    std::cout << "Using BSQ Equation of State table from: "
 					<< quantityFile << " and " << derivativeFile << "\n";
 
-			EOS0.init( quantityFile, derivativeFile, 1, using_HDF );
+			EOS0.init( quantityFile, derivativeFile, 4, using_HDF );
 		}
 		else
 		{
