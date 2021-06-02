@@ -23,12 +23,12 @@ public:
 
     //quantityFile must be in dimensionless quantities and must be formatted "T  muB  muQ  muS  p  s  B  S  Q  e  cs2"
     //derivFile should be formatted "T  muB  muQ  muS  d2p/dB2  d2p/dQ2  d2p/dS2  d2p/dBdQ  d2p/dBdS d2p/dQdS  d2p/dTdB  d2p/dTdQ  d2p/dTdS  d2p/dT2"
-    eos(string quantityFile, string derivFile, int degree = 4, bool using_HDF = false);
+    eos(string quantityFile, string derivFile, int degree = 1, bool using_HDF = false);
 
     eos();
-    void init(string quantityFile, string derivFile, int degree = 4, bool using_HDF = false);
-    void init_with_txt(string quantityFile, string derivFile, int degree = 4);
-    void init_with_hdf(string quantityFile, string derivFile, int degree = 4);
+    void init(string quantityFile, string derivFile, int degree = 1, bool using_HDF = false);
+    void init_with_txt(string quantityFile, string derivFile, int degree = 1);
+    void init_with_hdf(string quantityFile, string derivFile, int degree = 1);
 
     //initializes the position in the grid to (setT,setmuB,setmuQ,setmuS)
     //Once called, the splines will stay initialized at this point until the function is called again
