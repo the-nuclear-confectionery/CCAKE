@@ -55,13 +55,6 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
 	//if (true) exit(8);
 
 
-
-
-
-
-
-
-
 	bool load_saved_files = false;
 
 
@@ -71,7 +64,7 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
 	if ( load_saved_files )
 	{
 		psamples = DataTable("inputfiles/p.save");
-		/*entrsamples = DataTable("inputfiles/entr.save");
+		entrsamples = DataTable("inputfiles/entr.save");
 		bsamples = DataTable("inputfiles/b.save");
 		ssamples = DataTable("inputfiles/s.save");
 		qsamples = DataTable("inputfiles/q.save");
@@ -87,29 +80,10 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
 		dqdssamples = DataTable("inputfiles/dqds.save");
 		dtdssamples = DataTable("inputfiles/dtds.save");
 		dtdqsamples = DataTable("inputfiles/dtdq.save");
-		dtdbsamples = DataTable("inputfiles/dtdb.save");*/
+		dtdbsamples = DataTable("inputfiles/dtdb.save");
 	}
 	else
 	{
-		/*psamples = DataTable(false, true);
-		entrsamples = DataTable(false, true);
-		bsamples = DataTable(false, true);
-		ssamples = DataTable(false, true);
-		qsamples = DataTable(false, true);
-		esamples = DataTable(false, true);
-		cs2samples = DataTable(false, true);
-		
-		db2samples = DataTable(false, true);
-		ds2samples = DataTable(false, true);
-		dq2samples = DataTable(false, true);
-		dt2samples = DataTable(false, true);
-		dbdssamples = DataTable(false, true);
-		dbdqsamples = DataTable(false, true);
-		dqdssamples = DataTable(false, true);
-		dtdssamples = DataTable(false, true);
-		dtdqsamples = DataTable(false, true);
-		dtdbsamples = DataTable(false, true);*/
-
 		double tit, muBit, muQit, muSit, pit, entrit, bit, sit, qit, eit, cs2it;
 		double db2it, dq2it, ds2it, dt2it, dbdqit, dbdsit, dqdsit, dtdbit, dtdsit, dtdqit;
 		vector<double> toAdd;
@@ -211,7 +185,7 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
 			sw_addSample.Start();
 
 		    psamples.addSample(toAdd, pit);
-		    /*entrsamples.addSample(toAdd, entrit);
+		    entrsamples.addSample(toAdd, entrit);
 		    bsamples.addSample(toAdd, bit);
 		    ssamples.addSample(toAdd, sit);
 		    qsamples.addSample(toAdd, qit);
@@ -226,14 +200,13 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
 		    dtdbsamples.addSample(toAdd, dtdbit);
 		    dtdqsamples.addSample(toAdd, dtdqit);
 		    dtdssamples.addSample(toAdd, dtdsit);
-		    dt2samples.addSample(toAdd, dt2it);*/
+		    dt2samples.addSample(toAdd, dt2it);
 			sw_addSample.Stop();
 
 		    toAdd.clear();
 
 			sw_Total.Stop();
-			/*if ( count > 1000000 ) break;
-			else */if (count%100000==0)
+			if (count%100000==0)
 			{
 				std::cout << "Spent " << sw_allocations.printTime()
 							<< " seconds on allocations of total "
@@ -247,7 +220,7 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
 
 		// try saving generated DataTables to files
 		psamples.save("inputfiles/p.save");
-		/*entrsamples.save("inputfiles/entr.save");
+		entrsamples.save("inputfiles/entr.save");
 		bsamples.save("inputfiles/b.save");
 		ssamples.save("inputfiles/s.save");
 		qsamples.save("inputfiles/q.save");
@@ -262,7 +235,7 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
 		dtdbsamples.save("inputfiles/dtdb.save");
 		dtdqsamples.save("inputfiles/dtdq.save");
 		dtdssamples.save("inputfiles/dtds.save");
-		dt2samples.save("inputfiles/dt2.save");*/
+		dt2samples.save("inputfiles/dt2.save");
 	}
 
 
@@ -270,7 +243,7 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
 
 	std::cout << "Building pspline..." << std::endl;
     pSpline = BSpline::Builder(psamples).degree(degree).build();
-	/*std::cout << "Building entrSpline..." << std::endl;
+	std::cout << "Building entrSpline..." << std::endl;
     entrSpline = BSpline::Builder(entrsamples).degree(degree).build();
 	std::cout << "Building bSpline..." << std::endl;
     bSpline = BSpline::Builder(bsamples).degree(degree).build();
@@ -301,7 +274,7 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
 	std::cout << "Building dtdsSpline..." << std::endl;
     dtdsSpline = BSpline::Builder(dtdssamples).degree(degree).build();
 	std::cout << "Building dt2Spline..." << std::endl;
-    dt2Spline = BSpline::Builder(dt2samples).degree(degree).build();*/
+    dt2Spline = BSpline::Builder(dt2samples).degree(degree).build();
 
 
 
@@ -1569,11 +1542,10 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
     f.n = 4;
     f.params = &p;
 
-	std::cout << std::endl
-		<< "==============================================" << std::endl;
-
 	if ( e_or_s_mode == 1 )
-		std::cout << "Input (e,B,Q,S): "
+		std::cout << std::endl
+			<< "=============================================="
+			<< std::endl << "Input (e,B,Q,S): "
 			<< e_or_s_Given*0.19733 << "   "
 			<< rhoBGiven << "   "
 			<< rhoQGiven << "   "
@@ -1590,110 +1562,37 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
         status = gsl_multiroot_fsolver_iterate(solver);
 
 
-		/*std::cout << "Output check: solver at x = "
-			<< gsl_vector_get(solver->x, 0) << "   "
-			<< gsl_vector_get(solver->x, 1) << "   "
-			<< gsl_vector_get(solver->x, 3) << "   "
-			<< gsl_vector_get(solver->x, 2) << std::endl;*/
-
-
-
         if(status) {
 
 	if ( status == GSL_EBADFUNC )
 		std::cout << "Error: something went to +/-Inf or NaN!" << std::endl;
 	else if ( status == GSL_ENOPROG )
 		std::cout << "Error: not making enough progress!" << std::endl;
-
-	/*if ( e_or_s_mode == 1 )
-		std::cout << "Output failed: calling rootfinder4D at x = "
-			<< gsl_vector_get(solver->x, 0) << "   "
-			<< gsl_vector_get(solver->x, 1) << "   "
-			<< gsl_vector_get(solver->x, 3) << "   "
-			<< gsl_vector_get(solver->x, 2) << std::endl << std::endl;*/
-
-
             return 0;      //break if the rootfinder gets stuck
         }
         if(gsl_vector_get(solver->x, 0) < minT) {
-
-	/*if ( e_or_s_mode == 1 )
-		std::cout << "Out-of-range: calling rootfinder4D at x = "
-			<< gsl_vector_get(solver->x, 0) << "   "
-			<< gsl_vector_get(solver->x, 1) << "   "
-			<< gsl_vector_get(solver->x, 3) << "   "
-			<< gsl_vector_get(solver->x, 2) << std::endl << std::endl;*/
-
+		std::cout << "Error: out-of-bounds (T < minT)!" << std::endl;
             return 0;
         } else if(gsl_vector_get(solver->x, 0) > maxT) {
-
-	/*if ( e_or_s_mode == 1 )
-		std::cout << "Out-of-range: calling rootfinder4D at x = "
-			<< gsl_vector_get(solver->x, 0) << "   "
-			<< gsl_vector_get(solver->x, 1) << "   "
-			<< gsl_vector_get(solver->x, 3) << "   "
-			<< gsl_vector_get(solver->x, 2) << std::endl << std::endl;*/
-
+		std::cout << "Error: out-of-bounds (T > maxT)!" << std::endl;
             return 0;
         } else if (gsl_vector_get(solver->x, 1) < minMuB) {
-
-	/*if ( e_or_s_mode == 1 )
-		std::cout << "Out-of-range: calling rootfinder4D at x = "
-			<< gsl_vector_get(solver->x, 0) << "   "
-			<< gsl_vector_get(solver->x, 1) << "   "
-			<< gsl_vector_get(solver->x, 3) << "   "
-			<< gsl_vector_get(solver->x, 2) << std::endl << std::endl;*/
-
+		std::cout << "Error: out-of-bounds (MuB < minMuB)!" << std::endl;
             return 0;
         } else if (gsl_vector_get(solver->x, 1) > maxMuB) {
-
-	/*if ( e_or_s_mode == 1 )
-		std::cout << "Out-of-range: calling rootfinder4D at x = "
-			<< gsl_vector_get(solver->x, 0) << "   "
-			<< gsl_vector_get(solver->x, 1) << "   "
-			<< gsl_vector_get(solver->x, 3) << "   "
-			<< gsl_vector_get(solver->x, 2) << std::endl << std::endl;*/
-
+		std::cout << "Error: out-of-bounds (MuB > maxMuB)!" << std::endl;
             return 0;
         } else if (gsl_vector_get(solver->x, 2) < minMuQ) {     //break if the rootfinder goes out of bounds
-
-	/*if ( e_or_s_mode == 1 )
-		std::cout << "Out-of-range: calling rootfinder4D at x = "
-			<< gsl_vector_get(solver->x, 0) << "   "
-			<< gsl_vector_get(solver->x, 1) << "   "
-			<< gsl_vector_get(solver->x, 3) << "   "
-			<< gsl_vector_get(solver->x, 2) << std::endl << std::endl;*/
-
+		std::cout << "Error: out-of-bounds (MuQ < minMuQ)!" << std::endl;
             return 0;
         } else if (gsl_vector_get(solver->x, 2) > maxMuQ) {
-
-	/*if ( e_or_s_mode == 1 )
-		std::cout << "Out-of-range: calling rootfinder4D at x = "
-			<< gsl_vector_get(solver->x, 0) << "   "
-			<< gsl_vector_get(solver->x, 1) << "   "
-			<< gsl_vector_get(solver->x, 3) << "   "
-			<< gsl_vector_get(solver->x, 2) << std::endl << std::endl;*/
-
+		std::cout << "Error: out-of-bounds (MuQ > maxMuQ)!" << std::endl;
             return 0;
         } else if (gsl_vector_get(solver->x, 3) < minMuS) {
-
-	/*if ( e_or_s_mode == 1 )
-		std::cout << "Out-of-range: calling rootfinder4D at x = "
-			<< gsl_vector_get(solver->x, 0) << "   "
-			<< gsl_vector_get(solver->x, 1) << "   "
-			<< gsl_vector_get(solver->x, 3) << "   "
-			<< gsl_vector_get(solver->x, 2) << std::endl << std::endl;*/
-
+		std::cout << "Error: out-of-bounds (MuS < minMuS)!" << std::endl;
             return 0;
         } else if (gsl_vector_get(solver->x, 3) > maxMuS) {
-
-	/*if ( e_or_s_mode == 1 )
-		std::cout << "Out-of-range: calling rootfinder4D at x = "
-			<< gsl_vector_get(solver->x, 0) << "   "
-			<< gsl_vector_get(solver->x, 1) << "   "
-			<< gsl_vector_get(solver->x, 3) << "   "
-			<< gsl_vector_get(solver->x, 2) << std::endl << std::endl;*/
-
+		std::cout << "Error: out-of-bounds (MuS > maxMuS)!" << std::endl;
             return 0;
         }
 
@@ -1720,9 +1619,6 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
 			<< 197.33*gsl_vector_get(solver->x, 1) << "   "
 			<< 197.33*gsl_vector_get(solver->x, 2) << "   "
 			<< 197.33*gsl_vector_get(solver->x, 3) << std::endl << std::endl;
-
-
-//if (true) exit(8);
 
     //memory deallocation
     gsl_multiroot_fsolver_free(solver);
