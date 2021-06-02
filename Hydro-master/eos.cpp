@@ -1564,34 +1564,42 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
 
         if(status) {
 
-	if ( status == GSL_EBADFUNC )
+	if ( status == GSL_EBADFUNC && e_or_s_mode == 1 )
 		std::cout << "Error: something went to +/-Inf or NaN!" << std::endl;
-	else if ( status == GSL_ENOPROG )
+	else if ( status == GSL_ENOPROG && e_or_s_mode == 1 )
 		std::cout << "Error: not making enough progress!" << std::endl;
             return 0;      //break if the rootfinder gets stuck
         }
         if(gsl_vector_get(solver->x, 0) < minT) {
+	if ( e_or_s_mode == 1 )
 		std::cout << "Error: out-of-bounds (T < minT)!" << std::endl;
             return 0;
         } else if(gsl_vector_get(solver->x, 0) > maxT) {
+	if ( e_or_s_mode == 1 )
 		std::cout << "Error: out-of-bounds (T > maxT)!" << std::endl;
             return 0;
         } else if (gsl_vector_get(solver->x, 1) < minMuB) {
+	if ( e_or_s_mode == 1 )
 		std::cout << "Error: out-of-bounds (MuB < minMuB)!" << std::endl;
             return 0;
         } else if (gsl_vector_get(solver->x, 1) > maxMuB) {
+	if ( e_or_s_mode == 1 )
 		std::cout << "Error: out-of-bounds (MuB > maxMuB)!" << std::endl;
             return 0;
         } else if (gsl_vector_get(solver->x, 2) < minMuQ) {     //break if the rootfinder goes out of bounds
+	if ( e_or_s_mode == 1 )
 		std::cout << "Error: out-of-bounds (MuQ < minMuQ)!" << std::endl;
             return 0;
         } else if (gsl_vector_get(solver->x, 2) > maxMuQ) {
+	if ( e_or_s_mode == 1 )
 		std::cout << "Error: out-of-bounds (MuQ > maxMuQ)!" << std::endl;
             return 0;
         } else if (gsl_vector_get(solver->x, 3) < minMuS) {
+	if ( e_or_s_mode == 1 )
 		std::cout << "Error: out-of-bounds (MuS < minMuS)!" << std::endl;
             return 0;
         } else if (gsl_vector_get(solver->x, 3) > maxMuS) {
+	if ( e_or_s_mode == 1 )
 		std::cout << "Error: out-of-bounds (MuS > maxMuS)!" << std::endl;
             return 0;
         }
