@@ -347,6 +347,7 @@ void LinkList<D>::freezeout(int curfrz)
         frzc=1;
 
 
+
         for (int i=0; i<_n; i++) {
 
 
@@ -2390,6 +2391,16 @@ void LinkList<D>::updateIC()
  		//cout << "updateIC(" << __LINE__ << "): " << i << "   " /*<< _p[i].s_an << "   "*/
 		//	<< _p[i].e_sub << "   " << _p[i].rhoB << "   "
 		//	<< _p[i].rhoS << "   " << _p[i].rhoQ << endl;
+
+		////////////////////////////////////////////////////////////////
+		// for now, if we failed to find a real entropy density for this
+		// point, just freeze it out and continue without setting
+		// anything else
+		if (_p[i].s_an < 0.0)
+		{
+			_p[i].Freeze = 4;
+			continue;
+		}
 
        _p[i].EOSupdate_s( _p[i].s_an, _p[i].rhoB, _p[i].rhoS, _p[i].rhoQ );
 
