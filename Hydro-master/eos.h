@@ -105,8 +105,8 @@ public:
     void eosin(std::string type);
     double A();
 
-    double efreeze();
-    double sfreeze();
+    double efreeze(double TFO);
+    double sfreeze(double TFO);
 
 private:
 

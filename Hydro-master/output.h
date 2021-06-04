@@ -534,7 +534,24 @@ void Output<D>::bsqsveprofile(LinkList<D> &linklist)
         for (int i=0; i<linklist.n(); i++)
         {
 
-            EPN << linklist._p[i].r   << " " << linklist._p[i].EOSe() << " " << linklist._p[i].EOSp() << " " << linklist._p[i].EOST()*197.3 << " " << linklist._p[i].stauRelax << " " <<  linklist._p[i].sigmaweight << " " << linklist._p[i].bigtheta   << " " <<  sqrt(linklist._p[i].shv.x[0][0]*linklist._p[i].shv.x[0][0]-2*linklist._p[i].shv.x[0][1]*linklist._p[i].shv.x[0][1] -2*linklist._p[i].shv.x[0][2]*linklist._p[i].shv.x[0][2]    + linklist._p[i].shv.x[1][1]*linklist._p[i].shv.x[1][1]+ linklist._p[i].shv.x[2][2]*linklist._p[i].shv.x[2][2] +2* linklist._p[i].shv.x[1][2]*linklist._p[i].shv.x[1][2]+pow(linklist.t,4)*linklist._p[i].shv33*linklist._p[i].shv33) << " " << linklist._p[i].stauRelax/linklist.t * linklist._p[i].bigtheta << " " << linklist._p[i].u.x[0]/linklist._p[i].gamma << " " << linklist._p[i].u.x[1]/linklist._p[i].gamma << " " << linklist._p[i].gamma <<endl;
+            EPN << linklist._p[i].r   << " " << linklist._p[i].EOSe() << " "
+				<< linklist._p[i].EOSp() << " " << linklist._p[i].EOST()*197.3 << " "
+				<< linklist._p[i].EOSmuB()*197.3 << " "
+				<< linklist._p[i].EOSmuS()*197.3 << " "
+				<< linklist._p[i].EOSmuQ()*197.3 << " "
+				<< linklist._p[i].stauRelax << " " <<  linklist._p[i].sigmaweight << " "
+				<< linklist._p[i].bigtheta   << " "
+				<<  sqrt( linklist._p[i].shv.x[0][0]*linklist._p[i].shv.x[0][0]
+						-2*linklist._p[i].shv.x[0][1]*linklist._p[i].shv.x[0][1]
+						-2*linklist._p[i].shv.x[0][2]*linklist._p[i].shv.x[0][2]
+						+ linklist._p[i].shv.x[1][1]*linklist._p[i].shv.x[1][1]
+						+ linklist._p[i].shv.x[2][2]*linklist._p[i].shv.x[2][2]
+						+2* linklist._p[i].shv.x[1][2]*linklist._p[i].shv.x[1][2
+						+pow(linklist.t,4)*linklist._p[i].shv33*linklist._p[i].shv33 ) << " "
+				<< linklist._p[i].stauRelax/linklist.t * linklist._p[i].bigtheta << " "
+				<< linklist._p[i].u.x[0]/linklist._p[i].gamma << " "
+				<< linklist._p[i].u.x[1]/linklist._p[i].gamma << " "
+				<< linklist._p[i].gamma <<endl;
 
         }
     }

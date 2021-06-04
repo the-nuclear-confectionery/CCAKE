@@ -1384,12 +1384,13 @@ double eos::A() {
 }
 
 
-
-double eos::efreeze() {
-    return 0;
+// confirm with Jaki
+double eos::efreeze(double T_freeze_out_at_mu_eq_0) {
+    tbqs(T_freeze_out_at_mu_eq_0, 0, 0, 0);
+    return eVal;
 }
-double eos::sfreeze() {
-    return 0;
+double eos::sfreeze(double T_freeze_out_at_mu_eq_0) {
+    return s_terms_T(T_freeze_out_at_mu_eq_0);
 }
 
 

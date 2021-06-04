@@ -2366,48 +2366,24 @@ void LinkList<D>::updateIC()
 {
     for (int i=0; i<_n; i++)
     {
-		//cout << "========================================" << endl;
-		//cout << "updateIC(" << __LINE__ << "): " << i << "   " /*<< _p[i].s_an << "   "*/
-		//	<< _p[i].e_sub << "   " << _p[i].rhoB << "   "
-		//	<< _p[i].rhoS << "   " << _p[i].rhoQ << endl;
-
         if (gtyp!=5)
 		{
-
-			//cout << "updateIC(" << __LINE__ << "): " << i << "   " /*<< _p[i].s_an << "   "*/
-			//	<< _p[i].e_sub << "   " << _p[i].rhoB << "   "
-			//	<< _p[i].rhoS << "   " << _p[i].rhoQ << endl;
-
 			_p[i].s_an = _p[i].EOSs_out( _p[i].e_sub, _p[i].rhoB, _p[i].rhoS, _p[i].rhoQ );
-
-//if ( _p[i].rhoB!=0 || _p[i].rhoS!=0 || _p[i].rhoQ!=0 ) exit(8);
-
-			//cout << "updateIC(" << __LINE__ << "): " << i << "   " /*<< _p[i].s_an << "   "*/
-			//	<< _p[i].e_sub << "   " << _p[i].rhoB << "   "
-			//	<< _p[i].rhoS << "   " << _p[i].rhoQ << endl;
-
 		}
 
- 		//cout << "updateIC(" << __LINE__ << "): " << i << "   " /*<< _p[i].s_an << "   "*/
-		//	<< _p[i].e_sub << "   " << _p[i].rhoB << "   "
-		//	<< _p[i].rhoS << "   " << _p[i].rhoQ << endl;
-
-		////////////////////////////////////////////////////////////////
+		////////////////////////////////////////////////////////////////////////
 		// for now, if we failed to find a real entropy density for this
-		// point, just freeze it out and continue without setting
-		// anything else
+		// point, just freeze it out, set its entropy to the freeze-out value,
+		// and continue without setting anything else
 		if (_p[i].s_an < 0.0)
 		{
+			_p[i].s_an = sfcheck;
 			_p[i].Freeze = 4;
+			number_part++;
 			continue;
 		}
 
        _p[i].EOSupdate_s( _p[i].s_an, _p[i].rhoB, _p[i].rhoS, _p[i].rhoQ );
-
-		//cout << "updateIC(" << __LINE__ << "): " << i << "   " /*<< _p[i].s_an << "   "*/
-		//	<< _p[i].e_sub << "   " << _p[i].rhoB << "   "
-		//	<< _p[i].rhoS << "   " << _p[i].rhoQ << endl;
-		//cout << "========================================" << endl << endl << endl;
 
         if (gtyp==5)
             _p[i].e_sub=_p[i].EOSe();
@@ -2417,6 +2393,7 @@ void LinkList<D>::updateIC()
 		_p[i].S *= _p[i].gamma*t0;	// S does not evolve in ideal case (confirm with Jaki)
 		_p[i].Q *= _p[i].gamma*t0;	// Q does not evolve in ideal case (confirm with Jaki)
     }
+
     if (gtyp!=3) guess();
     else guess2();
 }

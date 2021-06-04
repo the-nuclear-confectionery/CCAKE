@@ -416,7 +416,9 @@ void readICs_tnt(string &firstry,  int &_Ntable3,Particle<2> *&_p,double factor,
 }
 
 //iccing
-void readICs_iccing(string &firstry,  int &_Ntable3,Particle<2> *&_p,double factor,double const& efcheck, int & numpart, eos EOS)
+void readICs_iccing( string &firstry, int &_Ntable3, Particle<2> *&_p,
+					 double factor, double const & efcheck,
+					 int & numpart, eos EOS)
 {
 
 	cout << "Reading in ICCING initial conditions!" << endl;
@@ -490,7 +492,7 @@ void readICs_iccing(string &firstry,  int &_Ntable3,Particle<2> *&_p,double fact
 
 
     int kk=_Ntable3;
-    numpart=0;
+    numpart=0;	//number of frozen out particles
 
 	const double hbarC = 0.19733;
 

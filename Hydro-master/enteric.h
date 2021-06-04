@@ -332,8 +332,9 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
 			EOS0.init( quantityFile, derivativeFile, 1, using_HDF );
 		}
 	    EOS0.eosin(eostype);			// does nothing!
-	    efcheck = EOS0.efreeze();	// does nothing!
-	    sfcheck = EOS0.sfreeze();	// does nothing!
+		const double freeze_out_T_at_mu_eq_0 = 0.15;	//GeV
+	    efcheck = EOS0.efreeze(freeze_out_T_at_mu_eq_0);	// does nothing!
+	    sfcheck = EOS0.sfreeze(freeze_out_T_at_mu_eq_0);	// does nothing!
 		//efcheck = 0.18;	//just for now
 		//sfcheck = 1.0;	//just for now?
 
@@ -370,8 +371,9 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
 
 
 	    EOS0.eosin(eostype);
-	    efcheck=EOS0.efreeze();
-	    sfcheck=EOS0.sfreeze();
+		const double freeze_out_T_at_mu_eq_0 = 0.15;	//GeV
+	    efcheck=EOS0.efreeze(freeze_out_T_at_mu_eq_0);
+	    sfcheck=EOS0.sfreeze(freeze_out_T_at_mu_eq_0);
 	}
 
     linklist.efcheck=efcheck;
@@ -380,7 +382,7 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
     linklist.average=0;
     //       Start reading ICs          //
     Particle<D> *_p;
-    int numpart,_Ntable3;
+    int numpart, _Ntable3;
 
     //  cout << "setting up SPH" << endl;
 
@@ -466,10 +468,10 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
         linklist.fnum=linklist.start;
 
 
-        readICs_tnt(linklist.filenames[0],  _Ntable3, _p,factor,sfcheck,  numpart, EOS0);
+        readICs_tnt(linklist.filenames[0], _Ntable3, _p, factor, sfcheck, numpart, EOS0);
 
         _p[0].start(eostype, EOS0);
-        linklist.setup(it0,_Ntable3,h,_p,ics.dt,numpart);
+        linklist.setup(it0, _Ntable3, h, _p, ics.dt, numpart);
         /// compare linklist.gubser
 
         cout << "number of sph particles=" << _Ntable3 << endl;
@@ -498,9 +500,7 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
         linklist.fcount=count;
         linklist.fnum=linklist.start;
 
-
-        //readICs_tnt(linklist.filenames[0],  _Ntable3, _p,factor,sfcheck,  numpart, EOS0);
-        readICs_iccing(linklist.filenames[0],  _Ntable3, _p,factor,efcheck,  numpart, EOS0);
+        readICs_iccing(linklist.filenames[0], _Ntable3, _p, factor, efcheck, numpart, EOS0);
 
         _p[0].start(eostype, EOS0);
         linklist.setup(it0,_Ntable3,h,_p,ics.dt,numpart);
