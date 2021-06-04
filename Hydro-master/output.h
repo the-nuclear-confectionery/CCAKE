@@ -546,7 +546,7 @@ void Output<D>::bsqsveprofile(LinkList<D> &linklist)
 						-2*linklist._p[i].shv.x[0][2]*linklist._p[i].shv.x[0][2]
 						+ linklist._p[i].shv.x[1][1]*linklist._p[i].shv.x[1][1]
 						+ linklist._p[i].shv.x[2][2]*linklist._p[i].shv.x[2][2]
-						+2* linklist._p[i].shv.x[1][2]*linklist._p[i].shv.x[1][2
+						+2*linklist._p[i].shv.x[1][2]*linklist._p[i].shv.x[1][2]
 						+pow(linklist.t,4)*linklist._p[i].shv33*linklist._p[i].shv33 ) << " "
 				<< linklist._p[i].stauRelax/linklist.t * linklist._p[i].bigtheta << " "
 				<< linklist._p[i].u.x[0]/linklist._p[i].gamma << " "
