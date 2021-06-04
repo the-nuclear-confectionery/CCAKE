@@ -310,7 +310,7 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
     eos EOS0;	// now declared globally
 	if ( linklist.visc == 4 )	//if we're running BSQ (table is only option)
 	{
-		bool using_HDF = false;
+		bool using_HDF = true;
 		if (using_HDF)
 		{
 			string quantityFile = ifolder + std::string("quantityFile.h5");
