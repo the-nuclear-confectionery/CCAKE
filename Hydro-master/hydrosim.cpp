@@ -925,7 +925,15 @@ void BSQshear(LinkList<D>  &linklist)  // shear+bulk Equations of motion, only s
 
 
         linklist._p[i].inside=linklist.t*(inner((-minshv+linklist._p[i].shv.x[0][0]*linklist._p[i].v),linklist._p[i].du_dt)- con2(sub,linklist._p[i].gradU)    -      linklist._p[i].gamma*linklist.t*linklist._p[i].shv33);
-        linklist._p[i].detasigma_dt =1./linklist._p[i].sigma/linklist._p[i].EOST()*( -linklist._p[i].bigPI*linklist._p[i].bigtheta+linklist._p[i].inside);
+        linklist._p[i].detasigma_dt =1./linklist._p[i].sigma/linklist._p[i].EOST()
+										*( -linklist._p[i].bigPI*linklist._p[i].bigtheta
+											+linklist._p[i].inside);
+std::cout << "Check detasigma_dt: " << i << "   "
+			<< linklist._p[i].sigma << "   "
+			<< linklist._p[i].EOST() << "   "
+			<< linklist._p[i].bigPI << "   "
+			<< linklist._p[i].bigtheta << "   "
+			<< linklist._p[i].inside << std::endl;
 
 
 
