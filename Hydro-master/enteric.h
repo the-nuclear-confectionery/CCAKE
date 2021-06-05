@@ -332,11 +332,9 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
 			EOS0.init( quantityFile, derivativeFile, 1, using_HDF );
 		}
 	    EOS0.eosin(eostype);			// does nothing!
-		const double freeze_out_T_at_mu_eq_0 = 0.15;	//GeV
-	    efcheck = EOS0.efreeze(freeze_out_T_at_mu_eq_0);	// does nothing!
-	    sfcheck = EOS0.sfreeze(freeze_out_T_at_mu_eq_0);	// does nothing!
-		//efcheck = 0.18;	//just for now
-		//sfcheck = 1.0;	//just for now?
+		const double freeze_out_T_at_mu_eq_0 = 0.15/0.197327;	//1/fm
+	    efcheck = EOS0.efreeze(freeze_out_T_at_mu_eq_0);
+	    sfcheck = EOS0.sfreeze(freeze_out_T_at_mu_eq_0);
 
 		std::cout << "efcheck = " << efcheck << "\n";
 		std::cout << "sfcheck = " << sfcheck << "\n";
@@ -371,7 +369,7 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
 
 
 	    EOS0.eosin(eostype);
-		const double freeze_out_T_at_mu_eq_0 = 0.15;	//GeV
+		const double freeze_out_T_at_mu_eq_0 = 0.15/0.197327;	//1/fm
 	    efcheck=EOS0.efreeze(freeze_out_T_at_mu_eq_0);
 	    sfcheck=EOS0.sfreeze(freeze_out_T_at_mu_eq_0);
 	}
