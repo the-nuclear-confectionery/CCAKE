@@ -66,6 +66,8 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
 
 	if ( load_saved_files )
 	{
+		double tit, muBit, muQit, muSit;
+
 		sw.Reset();
 		sw.Start();
 		std::cout << "Setting grid ranges...";
