@@ -55,7 +55,7 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
 	//if (true) exit(8);
 
 
-	bool load_saved_files = false;
+	bool load_saved_files = true;
 
 
     DataTable psamples, entrsamples, bsamples, ssamples, qsamples, esamples, cs2samples;
@@ -277,9 +277,24 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
     dt2Spline = BSpline::Builder(dt2samples).degree(degree).build();
 
 
-
-	// save pSpline here to test how big it is on disk...
+	// save splines also
 	pSpline.save("inputfiles/pSpline.save");
+	entrSpline.save("inputfiles/entrSpline.save");
+	bSpline.save("inputfiles/bSpline.save");
+	sSpline.save("inputfiles/sSpline.save");
+	qSpline.save("inputfiles/qSpline.save");
+	eSpline.save("inputfiles/eSpline.save");
+	cs2Spline.save("inputfiles/cs2Spline.save");
+	db2Spline.save("inputfiles/db2Spline.save");
+	dq2Spline.save("inputfiles/dq2Spline.save");
+	ds2Spline.save("inputfiles/ds2Spline.save");
+	dt2Spline.save("inputfiles/dt2Spline.save");
+	dbdqSpline.save("inputfiles/dbdqSpline.save");
+	dbdsSpline.save("inputfiles/dbdsSpline.save");
+	dtdbSpline.save("inputfiles/dtdbSpline.save");
+	dqdsSpline.save("inputfiles/dqdsSpline.save");
+	dtdqSpline.save("inputfiles/dtdqSpline.save");
+	dtdsSpline.save("inputfiles/dtdsSpline.save");
 
 
 	// initialize tbqsPosition to something...
@@ -293,17 +308,9 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
 	std::cout << "All initializations finished!" << std::endl;
 
 
-if (true) exit(8);
+//if (true) exit(8);
 
     return;
-
-
-
-
-
-
-
-
 }
 
 
