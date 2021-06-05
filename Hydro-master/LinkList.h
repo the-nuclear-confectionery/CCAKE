@@ -1921,6 +1921,14 @@ void LinkList<D>::bsqsvoptimization(int a)
                 double kern  = kernel(_p[a].r-_p[b].r);
                 _p[a].sigma += _p[b].sigmaweight*kern;
                 _p[a].eta   += _p[b].sigmaweight*_p[b].eta_sigma*kern;
+std::cout << "bsqsvoptimization(SPH particle == " << a << "): "
+			<< b << "   " << _p[a].r
+			<< "   " << _p[a].sigma
+			<< "   " << _p[a].eta
+			<< "   " << _p[b].r
+			<< "   " << _p[b].sigmaweight
+			<< "   " << _p[b].eta_sigma
+			<< "   " << kern << std::endl;
                 //_p[a].rhoB  += _p[b].rhoB*kern;    //confirm with Jaki
                 //_p[a].rhoS  += _p[b].rhoS*kern;    //confirm with Jaki
                 //_p[a].rhoQ  += _p[b].rhoQ*kern;    //confirm with Jaki
