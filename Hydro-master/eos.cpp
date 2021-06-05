@@ -55,7 +55,7 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
 	//if (true) exit(8);
 
 
-	bool load_saved_files = true;
+	bool load_saved_files = false;
 
 
     DataTable psamples, entrsamples, bsamples, ssamples, qsamples, esamples, cs2samples;
@@ -63,24 +63,43 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
 
 	if ( load_saved_files )
 	{
+		std::cout << "Loading all saved files:" << std::endl;
+		std::cout << "Loading inputfiles/p.save..." << std::endl;
 		psamples = DataTable("inputfiles/p.save");
+		std::cout << "Loading inputfiles/entr.save..." << std::endl;
 		entrsamples = DataTable("inputfiles/entr.save");
+		std::cout << "Loading inputfiles/b.save..." << std::endl;
 		bsamples = DataTable("inputfiles/b.save");
+		std::cout << "Loading inputfiles/s.save..." << std::endl;
 		ssamples = DataTable("inputfiles/s.save");
+		std::cout << "Loading inputfiles/q.save..." << std::endl;
 		qsamples = DataTable("inputfiles/q.save");
+		std::cout << "Loading inputfiles/e.save..." << std::endl;
 		esamples = DataTable("inputfiles/e.save");
+		std::cout << "Loading inputfiles/cs2.save..." << std::endl;
 		cs2samples = DataTable("inputfiles/cs2.save");
 		
+		std::cout << "Loading inputfiles/db2.save..." << std::endl;
 		db2samples = DataTable("inputfiles/db2.save");
+		std::cout << "Loading inputfiles/ds2.save..." << std::endl;
 		ds2samples = DataTable("inputfiles/ds2.save");
+		std::cout << "Loading inputfiles/dq2.save..." << std::endl;
 		dq2samples = DataTable("inputfiles/dq2.save");
+		std::cout << "Loading inputfiles/dt2.save..." << std::endl;
 		dt2samples = DataTable("inputfiles/dt2.save");
+		std::cout << "Loading inputfiles/dbds.save..." << std::endl;
 		dbdssamples = DataTable("inputfiles/dbds.save");
+		std::cout << "Loading inputfiles/dbdq.save..." << std::endl;
 		dbdqsamples = DataTable("inputfiles/dbdq.save");
+		std::cout << "Loading inputfiles/dqds.save..." << std::endl;
 		dqdssamples = DataTable("inputfiles/dqds.save");
+		std::cout << "Loading inputfiles/dtds.save..." << std::endl;
 		dtdssamples = DataTable("inputfiles/dtds.save");
+		std::cout << "Loading inputfiles/dtdq.save..." << std::endl;
 		dtdqsamples = DataTable("inputfiles/dtdq.save");
+		std::cout << "Loading inputfiles/dtdb.save..." << std::endl;
 		dtdbsamples = DataTable("inputfiles/dtdb.save");
+		std::cout << "Loaded all saved files!" << std::endl;
 	}
 	else
 	{
