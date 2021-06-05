@@ -161,40 +161,40 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
 
 
 		std::cout << "Loading inputfiles/pSpline.save..." << std::endl;
-		pSpline = DataTable("inputfiles/pSpline.save");
+		pSpline = BSpline("inputfiles/pSpline.save");
 		std::cout << "Loading inputfiles/entrSpline.save..." << std::endl;
-		entrSpline = DataTable("inputfiles/entrSpline.save");
+		entrSpline = BSpline("inputfiles/entrSpline.save");
 		std::cout << "Loading inputfiles/bSpline.save..." << std::endl;
-		bSpline = DataTable("inputfiles/bSpline.save");
+		bSpline = BSpline("inputfiles/bSpline.save");
 		std::cout << "Loading inputfiles/sSpline.save..." << std::endl;
-		sSpline = DataTable("inputfiles/sSpline.save");
+		sSpline = BSpline("inputfiles/sSpline.save");
 		std::cout << "Loading inputfiles/qSpline.save..." << std::endl;
-		qSpline = DataTable("inputfiles/qSpline.save");
+		qSpline = BSpline("inputfiles/qSpline.save");
 		std::cout << "Loading inputfiles/eSpline.save..." << std::endl;
-		eSpline = DataTable("inputfiles/eSpline.save");
+		eSpline = BSpline("inputfiles/eSpline.save");
 		std::cout << "Loading inputfiles/cs2Spline.save..." << std::endl;
-		cs2Spline = DataTable("inputfiles/cs2Spline.save");
+		cs2Spline = BSpline("inputfiles/cs2Spline.save");
 		
 		std::cout << "Loading inputfiles/db2Spline.save..." << std::endl;
-		db2Spline = DataTable("inputfiles/db2Spline.save");
+		db2Spline = BSpline("inputfiles/db2Spline.save");
 		std::cout << "Loading inputfiles/ds2Spline.save..." << std::endl;
-		ds2Spline = DataTable("inputfiles/ds2Spline.save");
+		ds2Spline = BSpline("inputfiles/ds2Spline.save");
 		std::cout << "Loading inputfiles/dq2Spline.save..." << std::endl;
-		dq2Spline = DataTable("inputfiles/dq2Spline.save");
+		dq2Spline = BSpline("inputfiles/dq2Spline.save");
 		std::cout << "Loading inputfiles/dt2Spline.save..." << std::endl;
-		dt2Spline = DataTable("inputfiles/dt2Spline.save");
+		dt2Spline = BSpline("inputfiles/dt2Spline.save");
 		std::cout << "Loading inputfiles/dbdsSpline.save..." << std::endl;
-		dbdsSpline = DataTable("inputfiles/dbdsSpline.save");
+		dbdsSpline = BSpline("inputfiles/dbdsSpline.save");
 		std::cout << "Loading inputfiles/dbdqSpline.save..." << std::endl;
-		dbdqSpline = DataTable("inputfiles/dbdqSpline.save");
+		dbdqSpline = BSpline("inputfiles/dbdqSpline.save");
 		std::cout << "Loading inputfiles/dqdsSpline.save..." << std::endl;
-		dqdsSpline = DataTable("inputfiles/dqdsSpline.save");
+		dqdsSpline = BSpline("inputfiles/dqdsSpline.save");
 		std::cout << "Loading inputfiles/dtdsSpline.save..." << std::endl;
-		dtdsSpline = DataTable("inputfiles/dtdsSpline.save");
+		dtdsSpline = BSpline("inputfiles/dtdsSpline.save");
 		std::cout << "Loading inputfiles/dtdqSpline.save..." << std::endl;
-		dtdqSpline = DataTable("inputfiles/dtdqSpline.save");
+		dtdqSpline = BSpline("inputfiles/dtdqSpline.save");
 		std::cout << "Loading inputfiles/dtdbSpline.save..." << std::endl;
-		dtdbSpline = DataTable("inputfiles/dtdbSpline.save");
+		dtdbSpline = BSpline("inputfiles/dtdbSpline.save");
 
 		sw.Stop();
 		std::cout << "Finished loading all saved files in "
