@@ -46,25 +46,84 @@ void eos::init(string quantityFile, string derivFile, int degree, bool using_HDF
 
 void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
 {
+	const double hbarc = 197.327;
+
+	Stopwatch sw;
+	std::cout << "Loading HDF files...";
+	sw.Start();
     vector<vector<double> > quantityData, derivData;
 	read_in_hdf(quantityData, quantityFile);
 	read_in_hdf(derivData, derivFile);
+	sw.Stop();
+	std::cout << "finished in " << sw.printTime() << " seconds!" << std::endl;
 
 	std::cout << "Check dimensions: " << quantityData.size() << std::endl;
 	std::cout << "Check dimensions: " << derivData.size() << std::endl;
 	//if (true) exit(8);
 
 
-	bool load_saved_files = false;
-
-
-    DataTable psamples, entrsamples, bsamples, ssamples, qsamples, esamples, cs2samples;
-    DataTable db2samples, ds2samples, dq2samples, dt2samples, dbdssamples, dbdqsamples, dqdssamples, dtdssamples, dtdqsamples, dtdbsamples;
+	bool load_saved_files = true;
 
 	if ( load_saved_files )
 	{
+		sw.Reset();
+		sw.Start();
+		std::cout << "Setting grid ranges...";
+		bool initialize_ranges = true;
+		for ( const auto & quantityRow : quantityData )
+		{
+			// put T and mu_i in units of 1/fm
+			tit    = quantityRow[0]/hbarc;
+			muBit  = quantityRow[1]/hbarc;
+			muQit  = quantityRow[2]/hbarc;
+			muSit  = quantityRow[3]/hbarc;		
+
+		    if( initialize_ranges )
+			{
+		        minT   = tit;
+		        maxT   = tit;
+		        minMuB = muBit;
+		        maxMuB = muBit;     //initialize eos range variables
+		        minMuQ = muQit;
+		        maxMuQ = muQit;
+		        minMuS = muSit;
+		        maxMuS = muSit;
+				initialize_ranges = false;
+		    }
+			//if (count%100000==0) std::cout << "Read in line# " << count << std::endl;
+		    if(maxT < tit) {
+		        maxT = tit;
+		    }
+		    if(minT > tit) {
+		        minT = tit;
+		    }
+		    if(maxMuB < muBit) {
+		        maxMuB = muBit;
+		    }
+		    if(minMuB > muBit) {
+		        minMuB = muBit;
+		    }
+		    if(maxMuQ < muQit) {
+		        maxMuQ = muQit;
+		    }
+		    if(minMuQ > muQit) {
+		        minMuQ = muQit;
+		    }
+		    if(maxMuS < muSit) {
+		        maxMuS = muSit;
+		    }
+		    if(minMuS > muSit) {
+		        minMuS = muSit;
+		    }
+		}
+		sw.Stop();
+		std::cout << "finished in " << sw.printTime() << " seconds!" << std::endl;
+
+
+		sw.Reset();
+		sw.Start();
 		std::cout << "Loading all saved files:" << std::endl;
-		std::cout << "Loading inputfiles/p.save..." << std::endl;
+		/*std::cout << "Loading inputfiles/p.save..." << std::endl;
 		psamples = DataTable("inputfiles/p.save");
 		std::cout << "Loading inputfiles/entr.save..." << std::endl;
 		entrsamples = DataTable("inputfiles/entr.save");
@@ -98,11 +157,54 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
 		std::cout << "Loading inputfiles/dtdq.save..." << std::endl;
 		dtdqsamples = DataTable("inputfiles/dtdq.save");
 		std::cout << "Loading inputfiles/dtdb.save..." << std::endl;
-		dtdbsamples = DataTable("inputfiles/dtdb.save");
-		std::cout << "Loaded all saved files!" << std::endl;
+		dtdbsamples = DataTable("inputfiles/dtdb.save");*/
+
+
+		std::cout << "Loading inputfiles/pSpline.save..." << std::endl;
+		pSpline = DataTable("inputfiles/pSpline.save");
+		std::cout << "Loading inputfiles/entrSpline.save..." << std::endl;
+		entrSpline = DataTable("inputfiles/entrSpline.save");
+		std::cout << "Loading inputfiles/bSpline.save..." << std::endl;
+		bSpline = DataTable("inputfiles/bSpline.save");
+		std::cout << "Loading inputfiles/sSpline.save..." << std::endl;
+		sSpline = DataTable("inputfiles/sSpline.save");
+		std::cout << "Loading inputfiles/qSpline.save..." << std::endl;
+		qSpline = DataTable("inputfiles/qSpline.save");
+		std::cout << "Loading inputfiles/eSpline.save..." << std::endl;
+		eSpline = DataTable("inputfiles/eSpline.save");
+		std::cout << "Loading inputfiles/cs2Spline.save..." << std::endl;
+		cs2Spline = DataTable("inputfiles/cs2Spline.save");
+		
+		std::cout << "Loading inputfiles/db2Spline.save..." << std::endl;
+		db2Spline = DataTable("inputfiles/db2Spline.save");
+		std::cout << "Loading inputfiles/ds2Spline.save..." << std::endl;
+		ds2Spline = DataTable("inputfiles/ds2Spline.save");
+		std::cout << "Loading inputfiles/dq2Spline.save..." << std::endl;
+		dq2Spline = DataTable("inputfiles/dq2Spline.save");
+		std::cout << "Loading inputfiles/dt2Spline.save..." << std::endl;
+		dt2Spline = DataTable("inputfiles/dt2Spline.save");
+		std::cout << "Loading inputfiles/dbdsSpline.save..." << std::endl;
+		dbdsSpline = DataTable("inputfiles/dbdsSpline.save");
+		std::cout << "Loading inputfiles/dbdqSpline.save..." << std::endl;
+		dbdqSpline = DataTable("inputfiles/dbdqSpline.save");
+		std::cout << "Loading inputfiles/dqdsSpline.save..." << std::endl;
+		dqdsSpline = DataTable("inputfiles/dqdsSpline.save");
+		std::cout << "Loading inputfiles/dtdsSpline.save..." << std::endl;
+		dtdsSpline = DataTable("inputfiles/dtdsSpline.save");
+		std::cout << "Loading inputfiles/dtdqSpline.save..." << std::endl;
+		dtdqSpline = DataTable("inputfiles/dtdqSpline.save");
+		std::cout << "Loading inputfiles/dtdbSpline.save..." << std::endl;
+		dtdbSpline = DataTable("inputfiles/dtdbSpline.save");
+
+		sw.Stop();
+		std::cout << "Finished loading all saved files in "
+					<< sw.printTime() << " seconds!" << std::endl;
 	}
 	else
 	{
+	    DataTable psamples, entrsamples, bsamples, ssamples, qsamples, esamples, cs2samples;
+	    DataTable db2samples, ds2samples, dq2samples, dt2samples, dbdssamples, dbdqsamples, dqdssamples, dtdssamples, dtdqsamples, dtdbsamples;
+
 		double tit, muBit, muQit, muSit, pit, entrit, bit, sit, qit, eit, cs2it;
 		double db2it, dq2it, ds2it, dt2it, dbdqit, dbdsit, dqdsit, dtdbit, dtdsit, dtdqit;
 		vector<double> toAdd;
@@ -110,7 +212,6 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
 		Stopwatch sw_allocations, sw_addSample, sw_Total;
 
 		long long count = 0;
-		double hbarc = 197.327;
 		const long long nRows = quantityData.size();
 		for ( long long iRow = 0; iRow < nRows; iRow++ )
 		{
@@ -255,65 +356,64 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
 		dtdqsamples.save("inputfiles/dtdq.save");
 		dtdssamples.save("inputfiles/dtds.save");
 		dt2samples.save("inputfiles/dt2.save");
+
+		std::cout << "Finished reading in thermodynamic data files!" << std::endl;
+	
+		std::cout << "Building pspline..." << std::endl;
+	    pSpline = BSpline::Builder(psamples).degree(degree).build();
+		std::cout << "Building entrSpline..." << std::endl;
+	    entrSpline = BSpline::Builder(entrsamples).degree(degree).build();
+		std::cout << "Building bSpline..." << std::endl;
+	    bSpline = BSpline::Builder(bsamples).degree(degree).build();
+		std::cout << "Building sSpline..." << std::endl;
+	    sSpline = BSpline::Builder(ssamples).degree(degree).build();
+		std::cout << "Building qSpline..." << std::endl;
+	    qSpline = BSpline::Builder(qsamples).degree(degree).build();
+		std::cout << "Building eSpline..." << std::endl;
+	    eSpline = BSpline::Builder(esamples).degree(degree).build();
+		std::cout << "Building cs2Spline..." << std::endl;
+	    cs2Spline = BSpline::Builder(cs2samples).degree(degree).build();
+		std::cout << "Building db2Spline..." << std::endl;
+	    db2Spline = BSpline::Builder(db2samples).degree(degree).build();
+		std::cout << "Building dq2Spline..." << std::endl;
+	    dq2Spline = BSpline::Builder(dq2samples).degree(degree).build();
+	 	std::cout << "Building ds2Spline..." << std::endl;
+	    ds2Spline = BSpline::Builder(ds2samples).degree(degree).build();        //make splines from table
+		std::cout << "Building dbdqSpline..." << std::endl;
+	    dbdqSpline = BSpline::Builder(dbdqsamples).degree(degree).build();
+		std::cout << "Building dbdsSpline..." << std::endl;
+	    dbdsSpline = BSpline::Builder(dbdssamples).degree(degree).build();
+		std::cout << "Building dqdsSpline..." << std::endl;
+	    dqdsSpline = BSpline::Builder(dqdssamples).degree(degree).build();
+		std::cout << "Building dtdbSpline..." << std::endl;
+	    dtdbSpline = BSpline::Builder(dtdbsamples).degree(degree).build();
+		std::cout << "Building dtdqSpline..." << std::endl;
+	    dtdqSpline = BSpline::Builder(dtdqsamples).degree(degree).build();
+		std::cout << "Building dtdsSpline..." << std::endl;
+	    dtdsSpline = BSpline::Builder(dtdssamples).degree(degree).build();
+		std::cout << "Building dt2Spline..." << std::endl;
+	    dt2Spline = BSpline::Builder(dt2samples).degree(degree).build();
+	
+	
+		// save splines also
+		pSpline.save("inputfiles/pSpline.save");
+		entrSpline.save("inputfiles/entrSpline.save");
+		bSpline.save("inputfiles/bSpline.save");
+		sSpline.save("inputfiles/sSpline.save");
+		qSpline.save("inputfiles/qSpline.save");
+		eSpline.save("inputfiles/eSpline.save");
+		cs2Spline.save("inputfiles/cs2Spline.save");
+		db2Spline.save("inputfiles/db2Spline.save");
+		dq2Spline.save("inputfiles/dq2Spline.save");
+		ds2Spline.save("inputfiles/ds2Spline.save");
+		dt2Spline.save("inputfiles/dt2Spline.save");
+		dbdqSpline.save("inputfiles/dbdqSpline.save");
+		dbdsSpline.save("inputfiles/dbdsSpline.save");
+		dtdbSpline.save("inputfiles/dtdbSpline.save");
+		dqdsSpline.save("inputfiles/dqdsSpline.save");
+		dtdqSpline.save("inputfiles/dtdqSpline.save");
+		dtdsSpline.save("inputfiles/dtdsSpline.save");
 	}
-
-
-	std::cout << "Finished reading in thermodynamic data files!" << std::endl;
-
-	std::cout << "Building pspline..." << std::endl;
-    pSpline = BSpline::Builder(psamples).degree(degree).build();
-	std::cout << "Building entrSpline..." << std::endl;
-    entrSpline = BSpline::Builder(entrsamples).degree(degree).build();
-	std::cout << "Building bSpline..." << std::endl;
-    bSpline = BSpline::Builder(bsamples).degree(degree).build();
-	std::cout << "Building sSpline..." << std::endl;
-    sSpline = BSpline::Builder(ssamples).degree(degree).build();
-	std::cout << "Building qSpline..." << std::endl;
-    qSpline = BSpline::Builder(qsamples).degree(degree).build();
-	std::cout << "Building eSpline..." << std::endl;
-    eSpline = BSpline::Builder(esamples).degree(degree).build();
-	std::cout << "Building cs2Spline..." << std::endl;
-    cs2Spline = BSpline::Builder(cs2samples).degree(degree).build();
-	std::cout << "Building db2Spline..." << std::endl;
-    db2Spline = BSpline::Builder(db2samples).degree(degree).build();
-	std::cout << "Building dq2Spline..." << std::endl;
-    dq2Spline = BSpline::Builder(dq2samples).degree(degree).build();
- 	std::cout << "Building ds2Spline..." << std::endl;
-    ds2Spline = BSpline::Builder(ds2samples).degree(degree).build();        //make splines from table
-	std::cout << "Building dbdqSpline..." << std::endl;
-    dbdqSpline = BSpline::Builder(dbdqsamples).degree(degree).build();
-	std::cout << "Building dbdsSpline..." << std::endl;
-    dbdsSpline = BSpline::Builder(dbdssamples).degree(degree).build();
-	std::cout << "Building dqdsSpline..." << std::endl;
-    dqdsSpline = BSpline::Builder(dqdssamples).degree(degree).build();
-	std::cout << "Building dtdbSpline..." << std::endl;
-    dtdbSpline = BSpline::Builder(dtdbsamples).degree(degree).build();
-	std::cout << "Building dtdqSpline..." << std::endl;
-    dtdqSpline = BSpline::Builder(dtdqsamples).degree(degree).build();
-	std::cout << "Building dtdsSpline..." << std::endl;
-    dtdsSpline = BSpline::Builder(dtdssamples).degree(degree).build();
-	std::cout << "Building dt2Spline..." << std::endl;
-    dt2Spline = BSpline::Builder(dt2samples).degree(degree).build();
-
-
-	// save splines also
-	pSpline.save("inputfiles/pSpline.save");
-	entrSpline.save("inputfiles/entrSpline.save");
-	bSpline.save("inputfiles/bSpline.save");
-	sSpline.save("inputfiles/sSpline.save");
-	qSpline.save("inputfiles/qSpline.save");
-	eSpline.save("inputfiles/eSpline.save");
-	cs2Spline.save("inputfiles/cs2Spline.save");
-	db2Spline.save("inputfiles/db2Spline.save");
-	dq2Spline.save("inputfiles/dq2Spline.save");
-	ds2Spline.save("inputfiles/ds2Spline.save");
-	dt2Spline.save("inputfiles/dt2Spline.save");
-	dbdqSpline.save("inputfiles/dbdqSpline.save");
-	dbdsSpline.save("inputfiles/dbdsSpline.save");
-	dtdbSpline.save("inputfiles/dtdbSpline.save");
-	dqdsSpline.save("inputfiles/dqdsSpline.save");
-	dtdqSpline.save("inputfiles/dtdqSpline.save");
-	dtdsSpline.save("inputfiles/dtdsSpline.save");
 
 
 	// initialize tbqsPosition to something...

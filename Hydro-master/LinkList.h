@@ -2380,7 +2380,7 @@ void LinkList<D>::updateIC()
 			_p[i].s_an = sfcheck;
 			_p[i].Freeze = 4;
 			number_part++;
-			continue;
+			//continue;
 		}
 
        _p[i].EOSupdate_s( _p[i].s_an, _p[i].rhoB, _p[i].rhoS, _p[i].rhoQ );
