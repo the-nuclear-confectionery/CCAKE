@@ -141,6 +141,7 @@ public:
 
     void guess();
     void guess2();
+	void BSQguess();
 
     int triToSum(Vector<int,D> dael, Vector<int,D> size);
 
