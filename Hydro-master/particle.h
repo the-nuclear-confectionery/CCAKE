@@ -90,9 +90,9 @@ public:
 
     double dw_ds;              // derivative of the enthalpy on entropy
     double eta;                   // entropy density
-    double rhoB;                   // Baryon density
-    double rhoS;                   // strange density
-    double rhoQ;                   // electric charge density
+    double rhoB_an, rhoB_sub;                   // Baryon density
+    double rhoS_an, rhoS_sub;                   // strange density
+    double rhoQ_an, rhoQ_sub;                   // electric charge density
 //    double P;                   // pressure
 //    double epsilon;               // energy density
 //    double s;                   // entropy density

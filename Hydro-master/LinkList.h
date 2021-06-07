@@ -1603,19 +1603,12 @@ void LinkList<D>::setshear()
 }
 
 template <int D>
-void LinkList<D>::initiate() {
-
-
-
+void LinkList<D>::initiate()
+{
 // check what happens with particle separates by itself?  Where in fortran code?
-
-
     //find system boundaries
 
     max=min=_p[0].r;
-
-
-
 
     for(int i=1; i<_n; i++)
     {
@@ -1628,9 +1621,6 @@ void LinkList<D>::initiate() {
         }
     }
 
-
-
-
     //evaluate system size
 
     //2*range puts extra boxes on sides of grid
@@ -1638,12 +1628,8 @@ void LinkList<D>::initiate() {
 
     size=sub*(max-min)+(2.*range+1.)*uni;
 
-
     //Size is the volume
     Size=1;
-
-
-
 
     Vector<double,D> dsub;
 
@@ -1654,43 +1640,29 @@ void LinkList<D>::initiate() {
     //dael: relates every particle with its linklist cube
     // also convert particle position to an integer
 
-    for(int j=0; j<_n; j++) {
-
-
-
-        dael[j]=sub*(_p[j].r-min)+(1.*range)*uni;
-
-
-    }
+    for(int j=0; j<_n; j++) dael[j]=sub*(_p[j].r-min)+(1.*range)*uni;
 
     //lead: relates every linklist cube with one of the particles (leader) in it
     //link: links the leader particle of one cube with the others of the same cube
     // if only one particle in cube then it is the lead
-
-
 
     lead = new int[Size];
 
     for(int j=0; j<Size; j++) lead[j]=-1;
 
 
-    for(int k=_n-1; k>=0; k--) {
-
-
+    for(int k=_n-1; k>=0; k--)
+	{
         int tt=triToSum(dael[k],size); // need to understand still... seems like it needs another coordinate
-
         link[k]=lead[tt];
-
         lead[tt]=k;
-
-
-
-
     }
 
     return;
 }
 
+
+//======================================================================
 template <int D>
 void LinkList<D>::optimization(int a)
 {
@@ -1705,40 +1677,30 @@ void LinkList<D>::optimization(int a)
         for(i.x[1]=-2; i.x[1]<=2; i.x[1]++)
         {
 
-
-
             int b=lead[triToSum(dael[a]+i, size)];
             while(b!=-1 )
             {
                 double kern=kernel(_p[a].r-_p[b].r);
                 _p[a].sigma += _p[b].sigmaweight*kern;
 
-
                 b=link[b];
 
                 fini++;
-
-
-
             }
         }
     }
-
-
-
-
 
     _p[a].eta =  _p[a].sigma*_p[a].eta_sigma;
     if (_p[a].eta<0) {
         _p[a].eta=pre;
         cout << "reset "  << _p[a].r << endl;
     }
-
-
+	return;
 }
 
 
 
+//======================================================================
 template <int D>
 void LinkList<D>::optint(int a, double & ux0,  double & uy0)
 {
@@ -1931,9 +1893,9 @@ void LinkList<D>::bsqsvoptimization(int a)
 			<< "   " << _p[b].sigmaweight
 			<< "   " << _p[b].eta_sigma
 			<< "   " << kern << std::endl;*/
-                //_p[a].rhoB  += _p[b].rhoB*kern;    //confirm with Jaki
-                //_p[a].rhoS  += _p[b].rhoS*kern;    //confirm with Jaki
-                //_p[a].rhoQ  += _p[b].rhoQ*kern;    //confirm with Jaki
+                _p[a].rhoB_sub  += _p[b].rhoB_an*kern;    //confirm with Jaki
+                _p[a].rhoS_sub  += _p[b].rhoS_an*kern;    //confirm with Jaki
+                _p[a].rhoQ_sub  += _p[b].rhoQ_an*kern;    //confirm with Jaki
 
                 b=link[b];
             }
@@ -2378,7 +2340,7 @@ void LinkList<D>::updateIC()
     {
         if (gtyp!=5)
 		{
-			_p[i].s_an = _p[i].EOSs_out( _p[i].e_sub, _p[i].rhoB, _p[i].rhoS, _p[i].rhoQ );
+			_p[i].s_an = _p[i].EOSs_out( _p[i].e_sub, _p[i].rhoB_an, _p[i].rhoS_an, _p[i].rhoQ_an );
 		}
 
 		////////////////////////////////////////////////////////////////////////
@@ -2393,10 +2355,10 @@ void LinkList<D>::updateIC()
 			//continue;
 		}
 
-       _p[i].EOSupdate_s( _p[i].s_an, _p[i].rhoB, _p[i].rhoS, _p[i].rhoQ );
+       _p[i].EOSupdate_s( _p[i].s_an, _p[i].rhoB_an, _p[i].rhoS_an, _p[i].rhoQ_an );
 
-        if (gtyp==5)
-            _p[i].e_sub=_p[i].EOSe();
+        if (gtyp==5) _p[i].e_sub=_p[i].EOSe();
+
         _p[i].gamma=_p[i].gamcalc();
         _p[i].sigmaweight *= _p[i].s_an*_p[i].gamma*t0;	// sigmaweight is constant after this
 		_p[i].B *= _p[i].gamma*t0;	// B does not evolve in ideal case (confirm with Jaki)
@@ -2404,7 +2366,8 @@ void LinkList<D>::updateIC()
 		_p[i].Q *= _p[i].gamma*t0;	// Q does not evolve in ideal case (confirm with Jaki)
     }
 
-    if (gtyp!=3) guess();
+	if (gtyp==6) BSQguess();
+    else if (gtyp!=3) guess();
     else guess2();
 }
 
@@ -2505,19 +2468,10 @@ template <int D>
 void LinkList<D>::guess()
 {
 
-    //Vector<int,D> i;
-    //double Ss;
-
     initiate();
 
-
-    for (int i=0; i<_n; i++)
-    {
-
-        optimization(i);
-    }
-
-
+	for (int i=0; i<_n; i++)
+		optimization(i);
 
     double tmax=0;
     Vector<double,D> rmax;
@@ -2565,6 +2519,33 @@ void LinkList<D>::guess()
     if (qmf==1) qmflow();
 }
 
+
+//======================================================================
+template <int D>
+void LinkList<D>::BSQguess()
+{
+	setshear();
+    initiate();
+
+	for (int i=0; i<_n; i++) bsqsvoptimization(i);
+
+	int count1=0;
+	for (int i=0; i<_n; i++)
+	{
+		_p[i].s_sub = _p[i].sigma/_p[i].gamma/t0;
+		//_p[i].rhoB_sub = ....  // <<-- this part done in bsqsvoptimization(i)
+		//_p[i].rhoS_sub = ....  // <<-- this part done in bsqsvoptimization(i)
+		//_p[i].rhoQ_sub = ....  // <<-- this part done in bsqsvoptimization(i)
+		_p[i].EOSupdate_s(_p[i].s_sub, _p[i].rhoB_sub, _p[i].rhoS_sub, _p[i].rhoQ_sub);
+		_p[i].sigsub = 0;
+		_p[i].frzcheck(t0, count1, _n);
+	}
+	return;
+}
+
+
+
+//======================================================================
 template <int D>
 void LinkList<D>::qmflow()
 {

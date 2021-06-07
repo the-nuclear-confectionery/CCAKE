@@ -521,16 +521,16 @@ void readICs_iccing( string &firstry, int &_Ntable3, Particle<2> *&_p,
         _p[j].B=rBsub[j]*stepx*stepy;			// confirm with Jaki
         _p[j].S=rSsub[j]*stepx*stepy;			// confirm with Jaki
         _p[j].Q=rQsub[j]*stepx*stepy;			// confirm with Jaki
-        _p[j].rhoB=rBsub[j];					// (unused for now) confirm with Jaki
-        _p[j].rhoS=rSsub[j];					// (unused for now) confirm with Jaki
-        _p[j].rhoQ=rQsub[j];					// (unused for now) confirm with Jaki
+        _p[j].rhoB_an=rBsub[j];					// (unused for now) confirm with Jaki
+        _p[j].rhoS_an=rSsub[j];					// (unused for now) confirm with Jaki
+        _p[j].rhoQ_an=rQsub[j];					// (unused for now) confirm with Jaki
 
 		//if (j==0)
 		//cout << "readICs_iccing(" << __LINE__ << "): "
 		cout << "SPH particles: "
 			<< j << "   "
-			<< _p[j].e_sub << "   " << _p[j].rhoB << "   "
-			<< _p[j].rhoS << "   " << _p[j].rhoQ << endl;
+			<< _p[j].e_sub << "   " << _p[j].rhoB_an << "   "
+			<< _p[j].rhoS_an << "   " << _p[j].rhoQ_an << endl;
 
 		// should now be redundant after above checks
         if (_p[j].e_sub>efcheck)	// impose freeze-out check for e, not s
