@@ -415,12 +415,19 @@ void readICs_tnt(string &firstry,  int &_Ntable3,Particle<2> *&_p,double factor,
 
 }
 
+
+
+
+
+
+//======================================================================
 //iccing
 void readICs_iccing( string &firstry, int &_Ntable3, Particle<2> *&_p,
 					 double factor, double const & efcheck,
 					 int & numpart, eos EOS)
 {
 
+	const double hbarC = 0.19733;
 	cout << "Reading in ICCING initial conditions!" << endl;
 
     string filename;
@@ -469,9 +476,15 @@ void readICs_iccing( string &firstry, int &_Ntable3, Particle<2> *&_p,
 //cout << "CHECK(" << __LINE__ << "): " << j << "   " << x[j] << "   " << y[j] << endl;
         }
 
+
+		//==============================================================
+		// Add new check here to enforce freeze-out criterion before
+		// setting particle list size!!!
+
 		// do not scale by factor!!!
         //if ((factor*y[2])>0.01)
-        if (y[2]>0.01)
+        //if (y[2]>0.01)
+        if (y[2]>max(0.01,efcheck*hbarC))
 		{
             xsub.push_back(y[0]);
             ysub.push_back(y[1]);
@@ -482,19 +495,17 @@ void readICs_iccing( string &firstry, int &_Ntable3, Particle<2> *&_p,
         }
 
     }
-    input.close();
 
+    input.close();
 
     _Ntable3=xsub.size();
     _p= new Particle<2>[_Ntable3];
 
-    cout << "After e-cutoff=" << _Ntable3 << endl;
+    cout << "After e-cutoff and freeze-out: size = " << _Ntable3 << endl;
 
 
     int kk=_Ntable3;
     numpart=0;	//number of frozen out particles
-
-	const double hbarC = 0.19733;
 
     for(int j=0; j<_Ntable3; j++)
 	{
@@ -521,6 +532,7 @@ void readICs_iccing( string &firstry, int &_Ntable3, Particle<2> *&_p,
 			<< _p[j].e_sub << "   " << _p[j].rhoB << "   "
 			<< _p[j].rhoS << "   " << _p[j].rhoQ << endl;
 
+		// should now be redundant after above checks
         if (_p[j].e_sub>efcheck)	// impose freeze-out check for e, not s
         {
             _p[j].Freeze=0;
@@ -533,7 +545,7 @@ void readICs_iccing( string &firstry, int &_Ntable3, Particle<2> *&_p,
         }
     }
 
-    cout << "After freezeout=" << _Ntable3-numpart << endl;
+    cout << "After freezeout (redundant): size = " << _Ntable3-numpart << endl;
 
 
 
