@@ -722,6 +722,7 @@ double Particle<D>::EOSs_terms_T(double Tin)
 template <int D>
 double Particle<D>::EOSs_out(double e_In, double rhoB_In, double rhoS_In, double rhoQ_In)
 {
+	EOS.tbqs( particle_T, particle_muB, particle_muQ, particle_muS );
 	double sVal = EOS.s_out( e_In, rhoB_In, rhoS_In, rhoQ_In );
 	particle_T = EOS.T();
 	particle_muB = EOS.muB();
@@ -735,6 +736,7 @@ double Particle<D>::EOSs_out(double e_In, double rhoB_In, double rhoS_In, double
 template <int D>
 double Particle<D>::EOSs_out(double e_In)
 {
+	EOS.tbqs( particle_T, particle_muB, particle_muQ, particle_muS );
 	double sVal = EOS.s_out( e_In, 0.0, 0.0, 0.0 );
 	particle_T = EOS.T();
 	particle_muB = EOS.muB();
@@ -748,6 +750,7 @@ double Particle<D>::EOSs_out(double e_In)
 template <int D>
 void Particle<D>::EOSupdate_s(double s_In, double rhoB_In, double rhoS_In, double rhoQ_In)
 {
+	EOS.tbqs( particle_T, particle_muB, particle_muQ, particle_muS );
 	EOS.update_s( s_In, rhoB_In, rhoS_In, rhoQ_In );
 	particle_T = EOS.T();
 	particle_muB = EOS.muB();
@@ -761,6 +764,7 @@ void Particle<D>::EOSupdate_s(double s_In, double rhoB_In, double rhoS_In, doubl
 template <int D>
 void Particle<D>::EOSupdate_s(double s_In)
 {
+	EOS.tbqs( particle_T, particle_muB, particle_muQ, particle_muS );
 	EOS.update_s( s_In, 0.0, 0.0, 0.0 );
 	particle_T = EOS.T();
 	particle_muB = EOS.muB();
@@ -769,8 +773,6 @@ void Particle<D>::EOSupdate_s(double s_In)
 
 	return;
 }
-
-
 
 
 

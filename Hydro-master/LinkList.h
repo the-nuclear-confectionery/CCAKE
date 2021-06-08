@@ -2560,8 +2560,9 @@ void LinkList<D>::BSQguess()
 		//_p[i].rhoS_sub = ....  // <<-- this part done in bsqsvoptimization(i)
 		//_p[i].rhoQ_sub = ....  // <<-- this part done in bsqsvoptimization(i)
 		_p[i].EOSupdate_s(_p[i].s_sub, _p[i].rhoB_sub, _p[i].rhoS_sub, _p[i].rhoQ_sub);
-cout << "Error(2): " << _p[i].s_sub << "   "
-		<< _p[i].rhoB_sub << "   " << _p[i].rhoS_sub << "   " << _p[i].rhoQ_sub << endl;
+if ( _p[i].s_sub < 0.0 )
+	cout << "Error(2): " << _p[i].s_sub << "   "
+			<< _p[i].rhoB_sub << "   " << _p[i].rhoS_sub << "   " << _p[i].rhoQ_sub << endl;
 
 		_p[i].sigsub = 0;
 		_p[i].frzcheck(t0, count1, _n);

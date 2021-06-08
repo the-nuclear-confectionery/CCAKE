@@ -533,6 +533,13 @@ void readICs_iccing( string &firstry, int &_Ntable3, Particle<2> *&_p,
 			<< _p[j].rhoS_an << "   " << _p[j].rhoQ_an << "   "
 			<< _p[j].sigmaweight << endl;
 
+		// make educated initial guess here for this particle's (T, mu_i) coordinates
+		// (improve this in the future)
+		_p[j].particle_T   = 197.33/197.33;
+		_p[j].particle_muB = 0.0;
+		_p[j].particle_muS = 0.0;
+		_p[j].particle_muQ = 0.0;
+
 		// should now be redundant after above checks
         if (_p[j].e_sub>efcheck)	// impose freeze-out check for e, not s
         {
