@@ -901,6 +901,13 @@ cout << "CHECK dsigma_dt: " << i << "   " << linklist._p[i].dsigma_dt
         //p2=linklist._p[i].setas*gamt;
         Matrix <double,D,D> partU=linklist._p[i].gradU+transpose(linklist._p[i].gradU);
 
+cout << "CHECK misc1: " << i << "   " << gamt << "   " << linklist._p[i].sigma
+		<< "   " << linklist._p[i].dsigma_dt << "   " << linklist.t << endl;
+
+cout << "CHECK minshv: " << minshv << endl;
+
+cout << "CHECK partU: " << partU << endl;
+
         // set the Mass and the Force
         Matrix <double,D,D> M=linklist._p[i].Msub(i);
         Vector<double,D> F=linklist._p[i].Btot*linklist._p[i].u+ linklist._p[i].gradshear -(linklist._p[i].gradP+linklist._p[i].gradBulk+ linklist._p[i].divshear);
@@ -909,6 +916,8 @@ cout << "CHECK dsigma_dt: " << i << "   " << linklist._p[i].dsigma_dt
 
 
         double det=deter(M);
+cout << "CHECK det: " << i << "   " << M.x[0][0] << "   " << M.x[0][1] << "   "
+		<< M.x[1][0] << "   " << M.x[1][1] << "   " << det << endl;
         Matrix <double,D,D> MI;
         MI.x[0][0]=M.x[1][1]/det;
         MI.x[0][1]=-M.x[0][1]/det;
