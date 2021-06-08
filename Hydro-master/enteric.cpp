@@ -530,7 +530,8 @@ void readICs_iccing( string &firstry, int &_Ntable3, Particle<2> *&_p,
 		cout << "SPH particles: "
 			<< j << "   "
 			<< _p[j].e_sub << "   " << _p[j].rhoB_an << "   "
-			<< _p[j].rhoS_an << "   " << _p[j].rhoQ_an << endl;
+			<< _p[j].rhoS_an << "   " << _p[j].rhoQ_an << "   "
+			<< _p[j].sigmaweight << endl;
 
 		// should now be redundant after above checks
         if (_p[j].e_sub>efcheck)	// impose freeze-out check for e, not s
