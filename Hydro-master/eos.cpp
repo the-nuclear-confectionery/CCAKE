@@ -1643,7 +1643,17 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
 
     //declare x = (T, muB, muS)
     gsl_vector *x = gsl_vector_alloc(4);
-    gsl_vector_set(x, 0, T());
+
+	// make educated guess for T solution
+    //gsl_vector_set(x, 0, T());
+if ( e_or_s_mode == 1 )						// if using energy density
+	gsl_vector_set(x, 0,
+		pow(e_or_s_Given/11.833, 0.25));	// then use this T starting point instead
+else										// otherwise, if using entropy density
+	gsl_vector_set(x, 0,
+		pow(e_or_s_Given/16.0, 1.0/3.0));	// then use this T starting point instead
+
+	// recycle previous mu solution for mu estimates
     gsl_vector_set(x, 1, muB());
     gsl_vector_set(x, 2, muQ());
     gsl_vector_set(x, 3, muS());
