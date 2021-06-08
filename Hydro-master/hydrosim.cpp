@@ -911,8 +911,14 @@ cout << "CHECK partU: " << partU << endl;
         // set the Mass and the Force
         Matrix <double,D,D> M=linklist._p[i].Msub(i);
         Vector<double,D> F=linklist._p[i].Btot*linklist._p[i].u+ linklist._p[i].gradshear -(linklist._p[i].gradP+linklist._p[i].gradBulk+ linklist._p[i].divshear);
+
+cout << "CHECK M: " << M << endl;
+cout << "CHECK F: " << F << endl;
+
         // shear contribution
         F+=pre*linklist._p[i].v*partU+p1*minshv;
+
+cout << "CHECK F again: " << F << endl;
 
 
         double det=deter(M);
@@ -923,6 +929,7 @@ cout << "CHECK det: " << i << "   " << M.x[0][0] << "   " << M.x[0][1] << "   "
         MI.x[0][1]=-M.x[0][1]/det;
         MI.x[1][0]=-M.x[1][0]/det;
         MI.x[1][1]=M.x[0][0]/det;
+cout << "CHECK MI: " << MI << endl;
         linklist._p[i].du_dt.x[0]=F.x[0]*MI.x[0][0]+F.x[1]*MI.x[0][1];
         linklist._p[i].du_dt.x[1]=F.x[0]*MI.x[1][0]+F.x[1]*MI.x[1][1];
 
