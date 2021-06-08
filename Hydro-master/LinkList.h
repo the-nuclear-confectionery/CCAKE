@@ -2350,6 +2350,10 @@ void LinkList<D>::updateIC()
 		// and continue without setting anything else
 		if (_p[i].s_an < 0.0)
 		{
+
+cout << "Error(1): " << _p[i].s_an << "   " << _p[i].e_sub << "   "
+		<< _p[i].rhoB_an << "   " << _p[i].rhoS_an << "   " << _p[i].rhoQ_an << endl;
+
 			_p[i].s_an = sfcheck;
 			_p[i].Freeze = 4;
 			number_part++;
@@ -2525,10 +2529,14 @@ void LinkList<D>::guess()
 template <int D>
 void LinkList<D>::BSQguess()
 {
+	cout << "setshear..." << endl;
 	setshear();
+	cout << "initiate..." << endl;
     initiate();
 
+	cout << "bsqsvoptimization..." << endl;
 	for (int i=0; i<_n; i++) bsqsvoptimization(i);
+	cout << "One more loop!" << endl;
 
 	int count1=0;
 	for (int i=0; i<_n; i++)
@@ -2538,6 +2546,9 @@ void LinkList<D>::BSQguess()
 		//_p[i].rhoS_sub = ....  // <<-- this part done in bsqsvoptimization(i)
 		//_p[i].rhoQ_sub = ....  // <<-- this part done in bsqsvoptimization(i)
 		_p[i].EOSupdate_s(_p[i].s_sub, _p[i].rhoB_sub, _p[i].rhoS_sub, _p[i].rhoQ_sub);
+cout << "Error(2): " << _p[i].s_sub << "   "
+		<< _p[i].rhoB_sub << "   " << _p[i].rhoS_sub << "   " << _p[i].rhoQ_sub << endl;
+
 		_p[i].sigsub = 0;
 		_p[i].frzcheck(t0, count1, _n);
 	}
