@@ -2365,7 +2365,21 @@ cout << "Error(1): " << _p[i].s_an << "   " << _p[i].e_sub << "   "
         if (gtyp==5) _p[i].e_sub=_p[i].EOSe();
 
         _p[i].gamma=_p[i].gamcalc();
+
+cout << "Check sigmaweight(1): " << i << "   "
+		<< _p[i].sigmaweight << "   "
+		<< _p[i].s_an << "   "
+		<< _p[i].gamma << "   "
+		<< t0 << endl;
+
         _p[i].sigmaweight *= _p[i].s_an*_p[i].gamma*t0;	// sigmaweight is constant after this
+
+cout << "Check sigmaweight(2): " << i << "   "
+		<< _p[i].sigmaweight << "   "
+		<< _p[i].s_an << "   "
+		<< _p[i].gamma << "   "
+		<< t0 << endl;
+
 		_p[i].B *= _p[i].gamma*t0;	// B does not evolve in ideal case (confirm with Jaki)
 		_p[i].S *= _p[i].gamma*t0;	// S does not evolve in ideal case (confirm with Jaki)
 		_p[i].Q *= _p[i].gamma*t0;	// Q does not evolve in ideal case (confirm with Jaki)
