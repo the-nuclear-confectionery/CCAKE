@@ -869,7 +869,12 @@ void BSQshear(LinkList<D>  &linklist)  // shear+bulk Equations of motion, only s
         //      Computes gradients to obtain dsigma/dt
         linklist.bsqsvoptimization2(i,linklist.t,curfrz);
 
-        linklist._p[i].dsigma_dt = -linklist._p[i].sigma*(linklist._p[i].gradV.x[0][0]+linklist._p[i].gradV.x[1][1]) ;
+        linklist._p[i].dsigma_dt = -linklist._p[i].sigma
+									*( linklist._p[i].gradV.x[0][0]
+										+ linklist._p[i].gradV.x[1][1]) ;
+cout << "CHECK dsigma_dt: " << i << "   " << linklist._p[i].dsigma_dt
+		<< "   " << linklist._p[i].sigma << "   " << linklist._p[i].gradV.x[0][0]
+		<< "   " << linklist._p[i].gradV.x[1][1] << endl;
 
         linklist._p[i].bsqsvsigset(linklist.t,i);
         if ((linklist._p[i].Freeze==3)&&(linklist.cfon==1))
@@ -921,9 +926,20 @@ void BSQshear(LinkList<D>  &linklist)  // shear+bulk Equations of motion, only s
 
         Matrix <double,D,D> Ipi=-linklist._p[i].eta_o_tau/3.*(linklist._p[i].Imat+linklist._p[i].uu)+4./3.*linklist._p[i].pimin;
 
-        linklist._p[i].div_u = (1./ linklist._p[i].gamma)*inner( linklist._p[i].u, linklist._p[i].du_dt) - ( linklist._p[i].gamma/ linklist._p[i].sigma)* linklist._p[i].dsigma_dt ;
+        linklist._p[i].div_u = (1./ linklist._p[i].gamma)*inner( linklist._p[i].u, linklist._p[i].du_dt)
+								- ( linklist._p[i].gamma/ linklist._p[i].sigma)
+									* linklist._p[i].dsigma_dt ;
         linklist._p[i].bigtheta=linklist._p[i].div_u*linklist.t+linklist._p[i].gamma;
 
+cout << "CHECK div_u: " << i << "   " << linklist._p[i].div_u
+		<< "   " << linklist._p[i].gamma
+		<< "   " << linklist._p[i].u
+		<< "   " << linklist._p[i].du_dt
+		<< "   " << inner( linklist._p[i].u, linklist._p[i].du_dt)
+		<< "   " << linklist._p[i].sigma << endl;
+cout << "CHECK bigtheta: " << i << "   " << linklist._p[i].bigtheta
+		<< "   " << linklist._p[i].t
+		<< "   " << linklist._p[i].gamma << endl;
 
         Matrix <double,D,D> sub=linklist._p[i].pimin+linklist._p[i].shv.x[0][0]/linklist._p[i].g2*linklist._p[i].uu-1./linklist._p[i].gamma*linklist._p[i].piutot;
 
