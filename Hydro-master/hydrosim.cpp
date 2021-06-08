@@ -809,6 +809,7 @@ void BSQshear(LinkList<D>  &linklist)  // shear+bulk Equations of motion, only s
 
     for(int i=0; i<linklist.n(); i++)
     {
+		cout << "Entering this loop: i = " << i << endl;
         int curfrz=0;//added by Christopher Plumberg to get compilation
         linklist.bsqsvoptimization(i);    // NOT bsqsvoptimization2!!! fix arguments accordingly!!!
 
@@ -931,12 +932,12 @@ void BSQshear(LinkList<D>  &linklist)  // shear+bulk Equations of motion, only s
         linklist._p[i].detasigma_dt =1./linklist._p[i].sigma/linklist._p[i].EOST()
 										*( -linklist._p[i].bigPI*linklist._p[i].bigtheta
 											+linklist._p[i].inside);
-/*std::cout << "Check detasigma_dt: " << i << "   "
+std::cout << "Check detasigma_dt: " << i << "   "
 			<< linklist._p[i].sigma << "   "
 			<< linklist._p[i].EOST() << "   "
 			<< linklist._p[i].bigPI << "   "
 			<< linklist._p[i].bigtheta << "   "
-			<< linklist._p[i].inside << std::endl;*/
+			<< linklist._p[i].inside << std::endl;
 
 
 
