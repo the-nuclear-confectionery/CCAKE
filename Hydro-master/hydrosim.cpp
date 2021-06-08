@@ -910,7 +910,10 @@ cout << "CHECK partU: " << partU << endl;
 
         // set the Mass and the Force
         Matrix <double,D,D> M=linklist._p[i].Msub(i);
-        Vector<double,D> F=linklist._p[i].Btot*linklist._p[i].u+ linklist._p[i].gradshear -(linklist._p[i].gradP+linklist._p[i].gradBulk+ linklist._p[i].divshear);
+        Vector<double,D> F=linklist._p[i].Btot*linklist._p[i].u
+							+ linklist._p[i].gradshear
+							- ( linklist._p[i].gradP + linklist._p[i].gradBulk
+								+ linklist._p[i].divshear );
 
 cout << "CHECK M: " << M << endl;
 cout << "CHECK F: " << F << endl;
