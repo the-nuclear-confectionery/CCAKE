@@ -307,12 +307,15 @@ void BSQSimulation(double dt,LinkList<2> &linklist)
         exit(0);
     }
 
+
+	cout << "Now let's do the main evolution!" << endl;
     //out.sveprofile(linklist);
     linklist.Ez=0;
     while ((linklist.t<linklist.tend)&&(linklist.number_part<linklist.n())) {
         linklist.cfon=1;
 
 
+	cout << "Entering here:" << endl;
         bsqrungeKutta2<2>(dt,&BSQshear<2>,linklist);
         linklist.conservation_entropy();
         cout << "t=" << linklist.t << " " <<  linklist.Eloss << " " << linklist.S <<  endl;

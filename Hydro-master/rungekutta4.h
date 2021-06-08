@@ -925,6 +925,8 @@ void svrungeKutta4(double dx,void (*derivatives)( LinkList<D> &linklist), LinkLi
 template <int D>
 void bsqrungeKutta2(double dx,void (*derivatives)( LinkList<D> &linklist), LinkList<D> &linklist )
 {
+cout << "Made it to " << __PRETTY_FUNCTION__ << "::" << __LINE__ << "!" << endl;
+
     // creating arrays of vectors of the derivatives at each step
     int N=linklist.n();
     Vector<double,D> *u0,*r0;
