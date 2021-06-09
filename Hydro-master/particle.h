@@ -105,7 +105,7 @@ public:
     double drhoB_dt,drhoS_dt,drhoQ_dt;
 
     Particle();
-    void start(string enter, eos & EOS_in);
+    void start(string enter, eos & EOS_in, bool setup_EOS = true);
     void calc( double tin );
     void calcbsq(double tin);
     void sigset(double tin);
