@@ -132,7 +132,8 @@ struct density_data
 
 
 void fit( vector<double> & muBvec, vector<double> & muSvec, vector<double> & muQvec,
-		  vector<double> & fvec, const size_t nmuB, const size_t nmuS, const size_t nmuQ )
+		  vector<double> & fvec, const size_t nmuB, const size_t nmuS, const size_t nmuQ,
+		  bool e_or_charge )
 {
 	const size_t data_length = nmuB*nmuS*nmuQ;  // # of points
 	const size_t n_para = 4;  // # of parameters
@@ -147,6 +148,7 @@ void fit( vector<double> & muBvec, vector<double> & muSvec, vector<double> & muQ
 
 	//set up test data
 	struct density_data f_data;
+	f_data.e_or_charge = e_or_charge;
 	f_data.data_length = data_length;
 	f_data.muB.resize(data_length);
 	f_data.muS.resize(data_length);

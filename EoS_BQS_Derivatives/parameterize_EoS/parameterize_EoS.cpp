@@ -55,9 +55,6 @@ int main(int argc, char *argv[])
 		infile.close();
 
 		// just look at a slice for testing purposes
-		vector<double> muBslice, muQslice, muSslice;
-		vector<double> bslice, sslice, qslice, eslice;
-
 		vector<double> muBslice( muBvec.begin(), muBvec.begin() + nmuBpts*nmuSpts*nmuQpts );
 		vector<double> muSslice( muSvec.begin(), muSvec.begin() + nmuBpts*nmuSpts*nmuQpts );
 		vector<double> muQslice( muQvec.begin(), muQvec.begin() + nmuBpts*nmuSpts*nmuQpts );
