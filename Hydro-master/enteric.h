@@ -686,12 +686,12 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
 
     cout << "Setting up EOS" << endl;
 
-    // sets up EOS (EOS object now shared, so only set this up once)
-    /*for (int i=0; i<linklist.n(); i++)
+    // EOS object now shared and initialized previously,
+	// but still initialize Imat for every particle
+    for (int i=0; i<linklist.n(); i++)
     {
-        linklist._p[i].start(eostype, EOS0);
-    }*/
-	linklist._p[0].start(eostype, EOS0);
+        linklist._p[i].start(eostype, EOS0, false);
+    }
 
     if ((ictype==bjorken)||(ictype==eventbyevent)||(ictype==trento)||(ictype==average)||(ictype==smooth)||(ictype==giorgio)||(ictype==nexus)||(ictype==glasma)||(ictype==glasmanoflow))
     {

@@ -170,11 +170,15 @@ Particle<D>::Particle() {
 }
 
 template <int D>
-void Particle<D>::start(string enter, eos & EOS_in)
+void Particle<D>::start(string enter, eos & EOS_in, bool setup_EOS = true)
 {
-	EOS = EOS_in;
-    EOS.eosin(enter);
+	if (setup_EOS)
+	{
+		EOS = EOS_in;
+	    EOS.eosin(enter);
+	}
     Imat.identity();
+	return;
 }
 
 template <int D>
