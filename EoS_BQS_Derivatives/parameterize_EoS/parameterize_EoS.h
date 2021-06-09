@@ -42,6 +42,7 @@ struct density_data
 		vector<double> & muS = ((struct density_data *) params_ptr)->muS;
 		vector<double> & muQ = ((struct density_data *) params_ptr)->muQ;
 		vector<double> sigma = ((struct density_data *) params_ptr)->sigma;
+		vector<double> y = ((struct density_data *) params_ptr)->y;
 	
 		//fit parameters
 		double d0 = gsl_vector_get (xvec_ptr, 0);
@@ -77,6 +78,7 @@ struct density_data
 		vector<double> & muS = ((struct density_data *) params_ptr)->muS;
 		vector<double> & muQ = ((struct density_data *) params_ptr)->muQ;
 		vector<double> sigma = ((struct density_data *) params_ptr)->sigma;
+		vector<double> y = ((struct density_data *) params_ptr)->y;
 	
 		//fit parameters
 		double d0 = gsl_vector_get (xvec_ptr, 0);
@@ -135,6 +137,7 @@ void fit( vector<double> & muBvec, vector<double> & muSvec, vector<double> & muQ
 		  vector<double> & fvec, const size_t nmuB, const size_t nmuS, const size_t nmuQ,
 		  bool e_or_charge )
 {
+	const int VERBOSE = 10;
 	const size_t data_length = nmuB*nmuS*nmuQ;  // # of points
 	const size_t n_para = 4;  // # of parameters
 
