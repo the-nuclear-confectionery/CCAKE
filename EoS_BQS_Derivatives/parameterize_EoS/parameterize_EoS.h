@@ -200,8 +200,8 @@ const size_t p = n_para;
 gsl_vector *f;
   gsl_matrix *J;
   gsl_matrix *covar = gsl_matrix_alloc (p, p);
-  double t[N], y[N], weights[N];
-  struct data d = { n, t, y };
+  double t[data_length], y[data_length], weights[data_length];
+  //struct data d = { n, t, y };
   double x_init[4] = { 1.0, 1.0, 1.0, 1.0 }; /* starting values */
   gsl_vector_view x = gsl_vector_view_array (x_init, p);
   gsl_vector_view wts = gsl_vector_view_array(weights, n);
@@ -305,6 +305,9 @@ gsl_vector *f;
   /* compute final cost */
   gsl_blas_ddot(f, f, &chisq);
 
+#define FIT(i) gsl_vector_get(w->x, i)
+#define ERR(i) sqrt(gsl_matrix_get(covar,i,i))
+
   fprintf(stderr, "summary from method '%s/%s'\n",
           gsl_multifit_nlinear_name(w),
           gsl_multifit_nlinear_trs_name(w));
@@ -318,8 +321,25 @@ gsl_vector *f;
   fprintf(stderr, "final   |f(x)| = %f\n", sqrt(chisq));
 
 
+{
+    double dof = n - p;
+    double c = GSL_MAX_DBL(1, sqrt(chisq / dof));
+
+    fprintf(stderr, "chisq/dof = %g\n", chisq / dof);
+
+    fprintf (stderr, "d0      = %.5f +/- %.5f\n", FIT(0), c*ERR(0));
+    fprintf (stderr, "a = %.5f +/- %.5f\n", FIT(1), c*ERR(1));
+    fprintf (stderr, "b      = %.5f +/- %.5f\n", FIT(2), c*ERR(2));
+    fprintf (stderr, "c      = %.5f +/- %.5f\n", FIT(3), c*ERR(3));
+  }
+
+  fprintf (stderr, "status = %s\n", gsl_strerror (status));
+
+  gsl_multifit_nlinear_free (w);
+  gsl_matrix_free (covar);
 
 
+/*
 	cout.setf (ios::fixed, ios::floatfield);	// output in fixed format
 	cout.precision (5);		                // # of digits in doubles
 
@@ -339,6 +359,7 @@ gsl_vector *f;
 	gsl_rng_free (rng_ptr);
 
 	gsl_multifit_fdfsolver_free (solver_ptr);  // free up the solver
+*/
 	
 	return;
 }
