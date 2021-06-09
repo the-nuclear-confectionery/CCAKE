@@ -30,107 +30,118 @@ struct density_data
 	vector<double> sigma;
 };
 
-	//*********************************************************************
-	//  Function returning the residuals for each point; that is, the 
-	//  difference of the fit function using the current parameters
-	//  and the data to be fit.
-	int Fittarget_density_f (const gsl_vector *xvec_ptr, void *params_ptr, gsl_vector *f_ptr)
-	{
-		bool e_or_charge = ((struct density_data *) params_ptr)->e_or_charge;
-		size_t n = ((struct density_data *) params_ptr)->data_length;
-		vector<double> & muB = ((struct density_data *) params_ptr)->muB;
-		vector<double> & muS = ((struct density_data *) params_ptr)->muS;
-		vector<double> & muQ = ((struct density_data *) params_ptr)->muQ;
-		vector<double> sigma = ((struct density_data *) params_ptr)->sigma;
-		vector<double> y = ((struct density_data *) params_ptr)->y;
-	
-		//fit parameters
-		double d0 = gsl_vector_get (xvec_ptr, 0);
-		double a = gsl_vector_get (xvec_ptr, 1);
-		double b = gsl_vector_get (xvec_ptr, 2);
-		double c = gsl_vector_get (xvec_ptr, 3);
-	
-		size_t i;
-	
-		if ( e_or_charge )
-			for (i = 0; i < n; i++)
-			{
-				double Yi = d0*cosh(a*muB[i]+b*muS[i]+c*muQ[i]);
-				gsl_vector_set (f_ptr, i, (Yi - y[i]) / sigma[i]);
-			}
-		else
-			for (i = 0; i < n; i++)
-			{
-				double Yi = d0*sinh(a*muB[i]+b*muS[i]+c*muQ[i]);
-				gsl_vector_set (f_ptr, i, (Yi - y[i]) / sigma[i]);
-			}
-	
-		return GSL_SUCCESS;
-	}
-	
-	//*********************************************************************
-	//  Function returning the Jacobian of the residual function
-	int Fittarget_density_df (const gsl_vector *xvec_ptr, void *params_ptr,  gsl_matrix *Jacobian_ptr)
-	{
-		bool e_or_charge = ((struct density_data *) params_ptr)->e_or_charge;
-		size_t n = ((struct density_data *) params_ptr)->data_length;
-		vector<double> & muB = ((struct density_data *) params_ptr)->muB;
-		vector<double> & muS = ((struct density_data *) params_ptr)->muS;
-		vector<double> & muQ = ((struct density_data *) params_ptr)->muQ;
-		vector<double> sigma = ((struct density_data *) params_ptr)->sigma;
-		vector<double> y = ((struct density_data *) params_ptr)->y;
-	
-		//fit parameters
-		double d0 = gsl_vector_get (xvec_ptr, 0);
-		double a = gsl_vector_get (xvec_ptr, 1);
-		double b = gsl_vector_get (xvec_ptr, 2);
-		double c = gsl_vector_get (xvec_ptr, 3);
-	
-		size_t i;
-	
-		if ( e_or_charge )
-			for (i = 0; i < n; i++)
-			{
-				double sig = sigma[i];
-		
-				// derivatives
-				double sinh_arg = sinh(a*muB[i]+b*muS[i]+c*muQ[i]);
-				double cosh_arg = cosh(a*muB[i]+b*muS[i]+c*muQ[i]);
-		      
-				gsl_matrix_set (Jacobian_ptr, i, 0, cosh_arg/sig);
-				gsl_matrix_set (Jacobian_ptr, i, 1, d0*muB[i]*sinh_arg/sig);
-				gsl_matrix_set (Jacobian_ptr, i, 2, d0*muS[i]*sinh_arg/sig);
-				gsl_matrix_set (Jacobian_ptr, i, 3, d0*muQ[i]*sinh_arg/sig);
-			}
-		else
-			for (i = 0; i < n; i++)
-			{
-				double sig = sigma[i];
-		
-				// derivatives
-				double sinh_arg = sinh(a*muB[i]+b*muS[i]+c*muQ[i]);
-				double cosh_arg = cosh(a*muB[i]+b*muS[i]+c*muQ[i]);
-		      
-				gsl_matrix_set (Jacobian_ptr, i, 0, sinh_arg/sig);
-				gsl_matrix_set (Jacobian_ptr, i, 1, d0*muB[i]*cosh_arg/sig);
-				gsl_matrix_set (Jacobian_ptr, i, 2, d0*muS[i]*cosh_arg/sig);
-				gsl_matrix_set (Jacobian_ptr, i, 3, d0*muQ[i]*cosh_arg/sig);
-			}
+inline double get_fit_results(int i, gsl_multifit_fdfsolver * solver_ptr)
+{
+	return gsl_vector_get (solver_ptr->x, i);
+}
 
+inline double get_fit_err (int i, gsl_matrix * covariance_ptr)
+{
+	return sqrt (gsl_matrix_get (covariance_ptr, i, i));
+}
+
+
+//*********************************************************************
+//  Function returning the residuals for each point; that is, the 
+//  difference of the fit function using the current parameters
+//  and the data to be fit.
+int Fittarget_density_f (const gsl_vector *xvec_ptr, void *params_ptr, gsl_vector *f_ptr)
+{
+	bool e_or_charge = ((struct density_data *) params_ptr)->e_or_charge;
+	size_t n = ((struct density_data *) params_ptr)->data_length;
+	vector<double> & muB = ((struct density_data *) params_ptr)->muB;
+	vector<double> & muS = ((struct density_data *) params_ptr)->muS;
+	vector<double> & muQ = ((struct density_data *) params_ptr)->muQ;
+	vector<double> sigma = ((struct density_data *) params_ptr)->sigma;
+	vector<double> y = ((struct density_data *) params_ptr)->y;
+
+	//fit parameters
+	double d0 = gsl_vector_get (xvec_ptr, 0);
+	double a = gsl_vector_get (xvec_ptr, 1);
+	double b = gsl_vector_get (xvec_ptr, 2);
+	double c = gsl_vector_get (xvec_ptr, 3);
+
+	size_t i;
+
+	if ( e_or_charge )
+		for (i = 0; i < n; i++)
+		{
+			double Yi = d0*cosh(a*muB[i]+b*muS[i]+c*muQ[i]);
+			gsl_vector_set (f_ptr, i, (Yi - y[i]) / sigma[i]);
+		}
+	else
+		for (i = 0; i < n; i++)
+		{
+			double Yi = d0*sinh(a*muB[i]+b*muS[i]+c*muQ[i]);
+			gsl_vector_set (f_ptr, i, (Yi - y[i]) / sigma[i]);
+		}
+
+	return GSL_SUCCESS;
+}
+
+//*********************************************************************
+//  Function returning the Jacobian of the residual function
+int Fittarget_density_df (const gsl_vector *xvec_ptr, void *params_ptr,  gsl_matrix *Jacobian_ptr)
+{
+	bool e_or_charge = ((struct density_data *) params_ptr)->e_or_charge;
+	size_t n = ((struct density_data *) params_ptr)->data_length;
+	vector<double> & muB = ((struct density_data *) params_ptr)->muB;
+	vector<double> & muS = ((struct density_data *) params_ptr)->muS;
+	vector<double> & muQ = ((struct density_data *) params_ptr)->muQ;
+	vector<double> sigma = ((struct density_data *) params_ptr)->sigma;
+	vector<double> y = ((struct density_data *) params_ptr)->y;
+
+	//fit parameters
+	double d0 = gsl_vector_get (xvec_ptr, 0);
+	double a = gsl_vector_get (xvec_ptr, 1);
+	double b = gsl_vector_get (xvec_ptr, 2);
+	double c = gsl_vector_get (xvec_ptr, 3);
+
+	size_t i;
+
+	if ( e_or_charge )
+		for (i = 0; i < n; i++)
+		{
+			double sig = sigma[i];
 	
-		return GSL_SUCCESS;
-	}
+			// derivatives
+			double sinh_arg = sinh(a*muB[i]+b*muS[i]+c*muQ[i]);
+			double cosh_arg = cosh(a*muB[i]+b*muS[i]+c*muQ[i]);
+	      
+			gsl_matrix_set (Jacobian_ptr, i, 0, cosh_arg/sig);
+			gsl_matrix_set (Jacobian_ptr, i, 1, d0*muB[i]*sinh_arg/sig);
+			gsl_matrix_set (Jacobian_ptr, i, 2, d0*muS[i]*sinh_arg/sig);
+			gsl_matrix_set (Jacobian_ptr, i, 3, d0*muQ[i]*sinh_arg/sig);
+		}
+	else
+		for (i = 0; i < n; i++)
+		{
+			double sig = sigma[i];
 	
-	
-	//*********************************************************************
-	//  Function combining the residual function and its Jacobian
-	int Fittarget_density_fdf (const gsl_vector* xvec_ptr, void *params_ptr, gsl_vector* f_ptr, gsl_matrix* Jacobian_ptr)
-	{
-		Fittarget_density_f(xvec_ptr, params_ptr, f_ptr);
-		Fittarget_density_df(xvec_ptr, params_ptr, Jacobian_ptr);
-	
-		return GSL_SUCCESS;
-	}
+			// derivatives
+			double sinh_arg = sinh(a*muB[i]+b*muS[i]+c*muQ[i]);
+			double cosh_arg = cosh(a*muB[i]+b*muS[i]+c*muQ[i]);
+	      
+			gsl_matrix_set (Jacobian_ptr, i, 0, sinh_arg/sig);
+			gsl_matrix_set (Jacobian_ptr, i, 1, d0*muB[i]*cosh_arg/sig);
+			gsl_matrix_set (Jacobian_ptr, i, 2, d0*muS[i]*cosh_arg/sig);
+			gsl_matrix_set (Jacobian_ptr, i, 3, d0*muQ[i]*cosh_arg/sig);
+		}
+
+
+	return GSL_SUCCESS;
+}
+
+
+//*********************************************************************
+//  Function combining the residual function and its Jacobian
+int Fittarget_density_fdf (const gsl_vector* xvec_ptr, void *params_ptr, gsl_vector* f_ptr, gsl_matrix* Jacobian_ptr)
+{
+	Fittarget_density_f(xvec_ptr, params_ptr, f_ptr);
+	Fittarget_density_df(xvec_ptr, params_ptr, Jacobian_ptr);
+
+	return GSL_SUCCESS;
+}
 
 
 void fit( vector<double> & muBvec, vector<double> & muSvec, vector<double> & muQvec,
@@ -185,7 +196,7 @@ void fit( vector<double> & muBvec, vector<double> & muSvec, vector<double> & muQ
 	target_func.fdf = &Fittarget_density_fdf;    // combined function and gradient
 	target_func.n = data_length;              // number of points in the data set
 	target_func.p = n_para;              // number of parameters in the fit function
-	target_func.params = &density_data;  // structure with the data and error bars
+	target_func.params = &f_data;  // structure with the data and error bars
 
 	const gsl_multifit_fdfsolver_type *type_ptr = gsl_multifit_fdfsolver_lmsder;
 	gsl_multifit_fdfsolver *solver_ptr = gsl_multifit_fdfsolver_alloc (type_ptr, data_length, n_para);
