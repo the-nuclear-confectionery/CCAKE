@@ -144,6 +144,12 @@ int Fittarget_density_fdf (const gsl_vector* xvec_ptr, void *params_ptr, gsl_vec
 	return GSL_SUCCESS;
 }
 
+void
+callback(const size_t iter, void *params,
+         const gsl_multifit_nlinear_workspace *w)
+{
+	return;
+}
 
 void fit( vector<double> & muBvec, vector<double> & muSvec, vector<double> & muQvec,
 		  vector<double> & fvec, const size_t nmuB, const size_t nmuS, const size_t nmuQ,
@@ -158,10 +164,6 @@ void fit( vector<double> & muBvec, vector<double> & muSvec, vector<double> & muQ
 	// allocate space for a covariance matrix of size p by p
 	gsl_matrix *covariance_ptr = gsl_matrix_alloc (n_para, n_para);
 
-	// allocate and setup for generating gaussian distibuted random numbers
-	gsl_rng_env_setup ();
-	const gsl_rng_type *type = gsl_rng_default;
-	gsl_rng *rng_ptr = gsl_rng_alloc (type);
 
 	//set up test data
 	struct density_data f_data;
@@ -186,9 +188,36 @@ void fit( vector<double> & muBvec, vector<double> & muSvec, vector<double> & muQ
 		idx++;
 	}
 
-	double para_init[n_para] = { 1.0, 1.0, 1.0, 1.0 };  // initial guesses of parameters
+	//double para_init[n_para] = { 1.0, 1.0, 1.0, 1.0 };  // initial guesses of parameters
 
-	gsl_vector_view xvec_ptr = gsl_vector_view_array (para_init, n_para);
+	//gsl_vector_view xvec_ptr = gsl_vector_view_array (para_init, n_para);
+
+
+const size_t n = data_length;
+const size_t p = n_para;
+
+
+gsl_vector *f;
+  gsl_matrix *J;
+  gsl_matrix *covar = gsl_matrix_alloc (p, p);
+  double t[N], y[N], weights[N];
+  struct data d = { n, t, y };
+  double x_init[4] = { 1.0, 1.0, 1.0, 1.0 }; /* starting values */
+  gsl_vector_view x = gsl_vector_view_array (x_init, p);
+  gsl_vector_view wts = gsl_vector_view_array(weights, n);
+  double chisq, chisq0;
+  int status, info;
+  size_t i;
+
+  const double xtol = 1e-8;
+  const double gtol = 1e-8;
+  const double ftol = 0.0;
+
+
+
+
+
+
   
 	// set up the function to be fit 
 	/*gsl_multifit_function_fdf target_func;
