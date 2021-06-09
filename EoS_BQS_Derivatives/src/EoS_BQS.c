@@ -180,10 +180,10 @@ int main(int argc, char *argv[])
 	long long gridEntry  = 0;
 
 	// set T and mu_i ranges
-        const int Tmin = 30, Tmax = 1000, DeltaT = 5;
-        const int muBmin = -1200, muBmax = 1200, DeltamuB = 50;
-        const int muQmin = -1200, muQmax = 1200, DeltamuQ = 50;
-        const int muSmin = -1200, muSmax = 1200, DeltamuS = 50;
+	const int Tmin = 30, Tmax = 1000, DeltaT = 5;
+	const int muBmin = -1200, muBmax = 1200, DeltamuB = 50;
+	const int muQmin = -1200, muQmax = 1200, DeltamuQ = 50;
+	const int muSmin = -1200, muSmax = 1200, DeltamuS = 50;
 
 	//const int Tmin = 30, Tmax = 200, DeltaT = 2;
 	//const int muBmin = -1000, muBmax = -200, DeltamuB = 20;
@@ -192,9 +192,9 @@ int main(int argc, char *argv[])
 
 	// set HDF array lengths
 	for(i=Tmin;i<=Tmax;i+=DeltaT)
-        for(j=muBmin;j<=muBmax;j+=DeltamuB)
-        for(k=muQmin;k<=muQmax;k+=DeltamuQ)
-        for(l=muSmin;l<=muSmax;l+=DeltamuS)
+	for(j=muBmin;j<=muBmax;j+=DeltamuB)
+	for(k=muQmin;k<=muQmax;k+=DeltamuQ)
+	for(l=muSmin;l<=muSmax;l+=DeltamuS)
 		gridLength++;
 
 	printf("Total gridLength = %ld\n",gridLength);
@@ -202,14 +202,13 @@ int main(int argc, char *argv[])
 
 	double **quantityArray, **derivativeArray;
 
-	quantityArray = malloc(gridLength * sizeof *quantityArray);
-        derivativeArray = malloc(gridLength * sizeof *derivativeArray);
+	quantityArray   = malloc(gridLength * sizeof *quantityArray);
+    derivativeArray = malloc(gridLength * sizeof *derivativeArray);
 	for (long long i=0; i<gridLength; i++)
 	{
 		quantityArray[i]   = malloc(gridWidth * sizeof *quantityArray[i]);
-                derivativeArray[i] = malloc(gridWidthD * sizeof *derivativeArray[i]);
+        derivativeArray[i] = malloc(gridWidthD * sizeof *derivativeArray[i]);
 	}
-
 
 //	double quantityArray[gridLength][gridWidth];
 //	double derivativeArray[gridLength][gridWidthD];
@@ -217,71 +216,71 @@ int main(int argc, char *argv[])
 	/* (Unconstrained) thermodynamics for all T, muB, muS, muQ. */  	
   	FILE *All_Therm_Taylor = fopen("EoS_Taylor_AllMu.dat","w");
 	FILE *All_Therm_Der = fopen("EoS_Taylor_AllMu_Derivatives.dat","w");
-        for(i=Tmin;i<=Tmax;i+=DeltaT){
-        for(j=muBmin;j<=muBmax;j+=DeltamuB){
-        for(k=muQmin;k<=muQmax;k+=DeltamuQ){
-        for(l=muSmin;l<=muSmax;l+=DeltamuS){
-		Tval = i; muBval = j;  muQval = k; muSval = l;
+    for(i=Tmin;i<=Tmax;i+=DeltaT){
+    for(j=muBmin;j<=muBmax;j+=DeltamuB){
+    for(k=muQmin;k<=muQmax;k+=DeltamuQ){
+    for(l=muSmin;l<=muSmax;l+=DeltamuS){
+					Tval = i; muBval = j;  muQval = k; muSval = l;
+					
+					//Thermodynamics
+					PressVal = PressTaylor(i,j,k,l);
+					EntrVal = EntrTaylor(i,j,k,l);
+					BarDensVal = BarDensTaylor(i,j,k,l);
+					StrDensVal = StrDensTaylor(i,j,k,l);
+					ChDensVal = ChDensTaylor(i,j,k,l);
+					EnerDensVal = EntrVal - PressVal 
+							+ muBval/Tval*BarDensVal 
+							+ muQval/Tval*ChDensVal 
+							+ muSval/Tval*StrDensVal;
+					SpSoundVal = SpSound(Tval,muBval,muQval,muSval);
+					            
+					//Second Order Derivatives
+					D2PB2 = P2B2(i,j,k,l);
+					D2PQ2 = P2Q2(i,j,k,l);
+					D2PS2 = P2S2(i,j,k,l);
+					
+					D2PBQ = P2BQ(i,j,k,l);
+					D2PBS = P2BS(i,j,k,l);
+					D2PQS = P2QS(i,j,k,l);
+					
+					D2PTB = P2TB(i,j,k,l);
+					D2PTQ = P2TQ(i,j,k,l);
+					D2PTS = P2TS(i,j,k,l);
+					D2PT2 = P2T2(i,j,k,l);
+					
+					fprintf(All_Therm_Taylor,"%lf  %lf  %lf  %lf  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f\n", Tval, muBval, muQval, muSval, PressVal, EntrVal, 
+					        BarDensVal, StrDensVal, ChDensVal, EnerDensVal, SpSoundVal);
+					fprintf(All_Therm_Der,"%lf  %lf  %lf  %lf  %3.12f  %3.12f %3.12f  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f%  3.12f\n", Tval, muBval, muQval, muSval, D2PB2, D2PQ2, D2PS2, D2PBQ, D2PBS, D2PQS,
+							D2PTB, D2PTQ, D2PTS, D2PT2);
 
-		//Thermodynamics
-		PressVal = PressTaylor(i,j,k,l);
-		EntrVal = EntrTaylor(i,j,k,l);
-		BarDensVal = BarDensTaylor(i,j,k,l);
-		StrDensVal = StrDensTaylor(i,j,k,l);
-		ChDensVal = ChDensTaylor(i,j,k,l);
-		EnerDensVal = EntrVal - PressVal 
-				+ muBval/Tval*BarDensVal 
-				+ muQval/Tval*ChDensVal 
-				+ muSval/Tval*StrDensVal;
-		SpSoundVal = SpSound(Tval,muBval,muQval,muSval);
-                    
-                    //Second Order Derivatives
-                    D2PB2 = P2B2(i,j,k,l);
-                    D2PQ2 = P2Q2(i,j,k,l);
-                    D2PS2 = P2S2(i,j,k,l);
-                    
-                    D2PBQ = P2BQ(i,j,k,l);
-                    D2PBS = P2BS(i,j,k,l);
-                    D2PQS = P2QS(i,j,k,l);
-                
-                    D2PTB = P2TB(i,j,k,l);
-                    D2PTQ = P2TQ(i,j,k,l);
-                    D2PTS = P2TS(i,j,k,l);
-                    D2PT2 = P2T2(i,j,k,l);
-
-	                
-	                fprintf(All_Therm_Taylor,"%lf  %lf  %lf  %lf  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f\n", Tval, muBval, muQval, muSval, PressVal, EntrVal, 
-	                        BarDensVal, StrDensVal, ChDensVal, EnerDensVal, SpSoundVal);
-                    fprintf(All_Therm_Der,"%lf  %lf  %lf  %lf  %3.12f  %3.12f %3.12f  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f%  3.12f\n", Tval, muBval, muQval, muSval, D2PB2, D2PQ2, D2PS2, D2PBQ, D2PBS, D2PQS,
-                    D2PTB, D2PTQ, D2PTS, D2PT2);
-		quantityArray[gridEntry][0]  = Tval;
-		quantityArray[gridEntry][1]  = muBval;
-		quantityArray[gridEntry][2]  = muQval;
-                quantityArray[gridEntry][3]  = muSval;
-                quantityArray[gridEntry][4]  = PressVal;
-                quantityArray[gridEntry][5]  = EntrVal;
-                quantityArray[gridEntry][6]  = BarDensVal;
-                quantityArray[gridEntry][7]  = StrDensVal;
-                quantityArray[gridEntry][8]  = ChDensVal;
-                quantityArray[gridEntry][9]  = EnerDensVal;
-                quantityArray[gridEntry][10] = SpSoundVal;
-
-		derivativeArray[gridEntry][0]  = Tval;
-                derivativeArray[gridEntry][1]  = muBval;
-                derivativeArray[gridEntry][2]  = muQval;
-                derivativeArray[gridEntry][3]  = muSval;
-                derivativeArray[gridEntry][4]  = D2PB2;
-                derivativeArray[gridEntry][5]  = D2PQ2;
-                derivativeArray[gridEntry][6]  = D2PS2;
-                derivativeArray[gridEntry][7]  = D2PBQ;
-                derivativeArray[gridEntry][8]  = D2PBS;
-                derivativeArray[gridEntry][9]  = D2PQS;
-                derivativeArray[gridEntry][10] = D2PTB;
-                derivativeArray[gridEntry][11] = D2PTQ;
-                derivativeArray[gridEntry][12] = D2PTS;
-                derivativeArray[gridEntry][13] = D2PT2;
-
-		gridEntry = gridEntry + 1;
+					quantityArray[gridEntry][0]  = Tval;
+					quantityArray[gridEntry][1]  = muBval;
+					quantityArray[gridEntry][2]  = muQval;
+					quantityArray[gridEntry][3]  = muSval;
+					quantityArray[gridEntry][4]  = PressVal;
+					quantityArray[gridEntry][5]  = EntrVal;
+					quantityArray[gridEntry][6]  = BarDensVal;
+					quantityArray[gridEntry][7]  = StrDensVal;
+					quantityArray[gridEntry][8]  = ChDensVal;
+					quantityArray[gridEntry][9]  = EnerDensVal;
+					quantityArray[gridEntry][10] = SpSoundVal;
+					
+					derivativeArray[gridEntry][0]  = Tval;
+					derivativeArray[gridEntry][1]  = muBval;
+					derivativeArray[gridEntry][2]  = muQval;
+					derivativeArray[gridEntry][3]  = muSval;
+					derivativeArray[gridEntry][4]  = D2PB2;
+					derivativeArray[gridEntry][5]  = D2PQ2;
+					derivativeArray[gridEntry][6]  = D2PS2;
+					derivativeArray[gridEntry][7]  = D2PBQ;
+					derivativeArray[gridEntry][8]  = D2PBS;
+					derivativeArray[gridEntry][9]  = D2PQS;
+					derivativeArray[gridEntry][10] = D2PTB;
+					derivativeArray[gridEntry][11] = D2PTQ;
+					derivativeArray[gridEntry][12] = D2PTS;
+					derivativeArray[gridEntry][13] = D2PT2;
+					
+					gridEntry = gridEntry + 1;
            	    }
             }	    
 	    }
