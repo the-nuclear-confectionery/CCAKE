@@ -170,7 +170,7 @@ Particle<D>::Particle() {
 }
 
 template <int D>
-void Particle<D>::start(string enter, eos & EOS_in, bool setup_EOS = true)
+void Particle<D>::start(string enter, eos & EOS_in, bool setup_EOS)
 {
 	if (setup_EOS)
 	{
