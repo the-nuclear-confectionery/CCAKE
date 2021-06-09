@@ -209,7 +209,7 @@ gsl_vector *f;
   gsl_matrix *covar = gsl_matrix_alloc (p, p);
   double t[data_length], y[data_length], weights[data_length];
   //struct data d = { n, t, y };
-  double x_init[4] = { 1.0, 1.0, 1.0, 1.0 }; /* starting values */
+  double x_init[4] = { 1.0, 0.01, 0.01, 0.01 }; /* starting values */
   gsl_vector_view x = gsl_vector_view_array (x_init, p);
   gsl_vector_view wts = gsl_vector_view_array(weights, n);
   double chisq, chisq0;

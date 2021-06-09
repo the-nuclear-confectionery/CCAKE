@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
 		ifstream infile(path_to_file.c_str());
 		if (infile.is_open())
 		{
-			int count = 0;
+			size_t count = 0;
 			string line;
 			double dummy, Tin, muBin, muSin, muQin, bin, sin, qin, ein; 
 			while ( getline (infile, line) )
@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
 				qvec.push_back( qin );
 				evec.push_back( ein );
 
-				if (++count % 100000 == 0) cout << "Read in " << count << " lines." << endl;
+				if (++count % 1000000 == 0) cout << "Read in " << count << " lines." << endl;
 			}
 		}
 	
