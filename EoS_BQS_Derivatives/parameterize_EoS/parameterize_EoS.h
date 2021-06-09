@@ -175,6 +175,8 @@ void fit( vector<double> & muBvec, vector<double> & muSvec, vector<double> & muQ
 	f_data.y.resize(data_length);
 	f_data.sigma.resize(data_length);
 
+	cout << "Attempting to fit the following data: " << endl;
+
 	int idx = 0;
 	for (int i = 0; i < nmuB; i++)
 	for (int j = 0; j < nmuS; j++)
@@ -185,6 +187,11 @@ void fit( vector<double> & muBvec, vector<double> & muSvec, vector<double> & muQ
 		f_data.muQ[idx] = muQvec[idx];
 		f_data.y[idx] = fvec[idx];
 		f_data.sigma[idx] = 1e-1;
+		cout << "   " << idx
+			<< "   " << muBvec[idx]
+			<< "   " << muSvec[idx]
+			<< "   " << muQvec[idx]
+			<< "   " << fvec[idx] << endl;
 		idx++;
 	}
 
