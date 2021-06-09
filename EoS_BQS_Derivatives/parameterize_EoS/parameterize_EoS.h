@@ -138,6 +138,7 @@ void fit( vector<double> & muBvec, vector<double> & muSvec, vector<double> & muQ
 		  bool e_or_charge )
 {
 	const int VERBOSE = 10;
+	const int fit_max_iterations = 1000;
 	const size_t data_length = nmuB*nmuS*nmuQ;  // # of points
 	const size_t n_para = 4;  // # of parameters
 
