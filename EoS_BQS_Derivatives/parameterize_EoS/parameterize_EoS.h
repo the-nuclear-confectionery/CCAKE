@@ -15,6 +15,7 @@
 #include <gsl/gsl_blas.h>	    // gsl linear algebra stuff
 #include <gsl/gsl_multifit_nlin.h>  // gsl multidimensional fitting
 #include <gsl/gsl_multifit.h>
+#include <gsl/gsl_multifit_nlinear.h>
 #include <gsl/gsl_linalg.h>
 
 using namespace std;
@@ -190,7 +191,7 @@ void fit( vector<double> & muBvec, vector<double> & muSvec, vector<double> & muQ
 	gsl_vector_view xvec_ptr = gsl_vector_view_array (para_init, n_para);
   
 	// set up the function to be fit 
-	gsl_multifit_function_fdf target_func;
+	/*gsl_multifit_function_fdf target_func;
 	target_func.f = &Fittarget_density_f;        // the function of residuals
 	target_func.df = &Fittarget_density_df;      // the gradient of this function
 	target_func.fdf = &Fittarget_density_fdf;    // combined function and gradient
@@ -200,8 +201,25 @@ void fit( vector<double> & muBvec, vector<double> & muSvec, vector<double> & muQ
 
 	const gsl_multifit_fdfsolver_type *type_ptr = gsl_multifit_fdfsolver_lmsder;
 	gsl_multifit_fdfsolver *solver_ptr = gsl_multifit_fdfsolver_alloc (type_ptr, data_length, n_para);
-	gsl_multifit_fdfsolver_set (solver_ptr, &target_func, &xvec_ptr.vector);
+	gsl_multifit_fdfsolver_set (solver_ptr, &target_func, &xvec_ptr.vector);*/
 
+	const gsl_multifit_nlinear_type *T = gsl_multifit_nlinear_trust;
+	gsl_multifit_nlinear_workspace *w;
+	gsl_multifit_nlinear_fdf fdf;
+	gsl_multifit_nlinear_parameters fdf_params =
+	gsl_multifit_nlinear_default_parameters();
+
+
+/* define the function to be minimized */
+  fdf.f = Fittarget_density_f;
+  fdf.df = Fittarget_density_df;   /* set to NULL for finite-difference Jacobian */
+  fdf.fvv = NULL;     /* not using geodesic acceleration */
+  fdf.n = data_length;
+  fdf.p = n_para;
+  fdf.params = &f_data;
+
+
+	/*
 	size_t iteration = 0;         // initialize iteration counter
 	//if (VERBOSE > 2) print_fit_state_3D (iteration, solver_ptr);
 	int status;  		// return value from gsl function calls (e.g., error)
@@ -233,7 +251,45 @@ void fit( vector<double> & muBvec, vector<double> & muSvec, vector<double> & muQ
 
 	// print out the covariance matrix using the gsl function (not elegant!)
 	if (VERBOSE > 2) cout << endl << "Covariance matrix: " << endl;
-	if (VERBOSE > 2) gsl_matrix_fprintf (stdout, covariance_ptr, "%g");
+	if (VERBOSE > 2) gsl_matrix_fprintf (stdout, covariance_ptr, "%g");*/
+
+
+
+/* allocate workspace with default parameters */
+  w = gsl_multifit_nlinear_alloc (T, &fdf_params, n, p);
+
+  /* initialize solver with starting point and weights */
+  gsl_multifit_nlinear_winit (&x.vector, &wts.vector, &fdf, w);
+
+  /* compute initial cost function */
+  f = gsl_multifit_nlinear_residual(w);
+  gsl_blas_ddot(f, f, &chisq0);
+
+  /* solve the system with a maximum of 100 iterations */
+  status = gsl_multifit_nlinear_driver(100, xtol, gtol, ftol,
+                                       callback, NULL, &info, w);
+
+  /* compute covariance of best fit parameters */
+  J = gsl_multifit_nlinear_jac(w);
+  gsl_multifit_nlinear_covar (J, 0.0, covar);
+
+  /* compute final cost */
+  gsl_blas_ddot(f, f, &chisq);
+
+  fprintf(stderr, "summary from method '%s/%s'\n",
+          gsl_multifit_nlinear_name(w),
+          gsl_multifit_nlinear_trs_name(w));
+  fprintf(stderr, "number of iterations: %zu\n",
+          gsl_multifit_nlinear_niter(w));
+  fprintf(stderr, "function evaluations: %zu\n", fdf.nevalf);
+  fprintf(stderr, "Jacobian evaluations: %zu\n", fdf.nevaldf);
+  fprintf(stderr, "reason for stopping: %s\n",
+          (info == 1) ? "small step size" : "small gradient");
+  fprintf(stderr, "initial |f(x)| = %f\n", sqrt(chisq0));
+  fprintf(stderr, "final   |f(x)| = %f\n", sqrt(chisq));
+
+
+
 
 	cout.setf (ios::fixed, ios::floatfield);	// output in fixed format
 	cout.precision (5);		                // # of digits in doubles
