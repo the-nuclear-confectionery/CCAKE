@@ -34,7 +34,8 @@ int main(int argc, char *argv[])
 		string line;
 		double dummy, Tin, muBin, muSin, muQin, bin, sin, qin, ein; 
 		while ( getline (infile, line)
-				and count < nTpts /*second condition just during debugging*/ )
+				and count < nmuBpts*nmuQpts*nmuSpts
+				/*second condition just during debugging*/ )
 		{
 			istringstream iss(line);
 			iss >> Tin >> muBin >> muQin >> muSin >> dummy >> dummy
@@ -54,8 +55,6 @@ int main(int argc, char *argv[])
 	}
 
 	infile.close();
-
-cout << Tvec.size() << endl;
 
 	// loop over each T value to get 
 	for ( size_t iT = 0; iT < nTpts; iT++ )
