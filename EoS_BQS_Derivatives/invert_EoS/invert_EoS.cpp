@@ -55,6 +55,8 @@ int main(int argc, char *argv[])
 
 	infile.close();
 
+cout << Tvec.size() << endl;
+
 	// loop over each T value to get 
 	for ( size_t iT = 0; iT < nTpts; iT++ )
 	{
