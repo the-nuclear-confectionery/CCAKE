@@ -20,8 +20,8 @@ int main(int argc, char *argv[])
 		string path_to_file = string(argv[1]);
 		const int nTpts = stoi(argv[2]);
 		const int nmuBpts = stoi(argv[3]);
-		const int nmuSpts = stoi(argv[4]);
-		const int nmuQpts = stoi(argv[5]);
+		const int nmuQpts = stoi(argv[4]);
+		const int nmuSpts = stoi(argv[5]);
 
 		vector<double> Tvec, muBvec, muSvec, muQvec;
 		vector<double> evec, bvec, svec, qvec;
@@ -37,16 +37,16 @@ int main(int argc, char *argv[])
 			{
 				istringstream iss(line);
 				iss >> Tin >> muBin >> muQin >> muSin >> dummy >> dummy
-					>> bin >> sin >> qin >> ein;
+					>> bin >> sin >> qin >> ein >> dummy;
 	
 				Tvec.push_back( Tin );
 				muBvec.push_back( muBin );
 				muSvec.push_back( muSin );
 				muQvec.push_back( muQin );
-				bvec.push_back( bin );
-				svec.push_back( sin );
-				qvec.push_back( qin );
-				evec.push_back( ein );
+				bvec.push_back( bin*Tin*Tin*Tin/(hbarc*hbarc*hbarc) );
+				svec.push_back( sin*Tin*Tin*Tin/(hbarc*hbarc*hbarc) );
+				qvec.push_back( qin*Tin*Tin*Tin/(hbarc*hbarc*hbarc) );
+				evec.push_back( 0.001*ein*Tin*Tin*Tin*Tin/(hbarc*hbarc*hbarc) );
 
 				if (++count % 1000000 == 0) cout << "Read in " << count << " lines." << endl;
 			}
@@ -65,9 +65,9 @@ int main(int argc, char *argv[])
 		vector<double> qslice(   qvec.begin(),   qvec.begin()   + nmuBpts*nmuSpts*nmuQpts );
 		*/
 
-		double q_min_max = get_min_max(qvec, nTpts, nmuBpts, nmuSpts, nmuQpts);
+		double s_min_max = get_min_max(svec, nTpts, nmuBpts, nmuQpts, nmuSpts);
 
-		cout << "q_min_max = " << q_min_max << endl;
+		cout << "s_min_max = " << s_min_max << endl;
 	}
 
 	return 0;
