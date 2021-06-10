@@ -141,8 +141,8 @@ public:
 	double EOSs();
 	double EOSe();
 	double EOSB();
-	double EOSrhoS();
-	double EOSrhoQ();
+	double EOSS();
+	double EOSQ();
 	double EOSw();
 	double EOSs_terms_T(double Tin);
 	//double EOScs2out();
