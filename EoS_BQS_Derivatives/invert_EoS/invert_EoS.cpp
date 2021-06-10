@@ -13,9 +13,6 @@ const double hbarc = 197.327;
 
 int main(int argc, char *argv[])
 {
-	// turn off errors for now...
-	gsl_set_error_handler_off();
-
 	// check input first
 	if (argc >= 6)
 	{
