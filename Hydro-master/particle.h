@@ -140,6 +140,9 @@ public:
 	double EOSp();
 	double EOSs();
 	double EOSe();
+	double EOSB();
+	double EOSrhoS();
+	double EOSrhoQ();
 	double EOSw();
 	double EOSs_terms_T(double Tin);
 	//double EOScs2out();
@@ -694,6 +697,30 @@ double Particle<D>::EOSe()
 {
 	EOS.tbqs( particle_T, particle_muB, particle_muQ, particle_muS );
 	return EOS.e();
+}
+
+
+template <int D>
+double Particle<D>::EOSB()
+{
+	EOS.tbqs( particle_T, particle_muB, particle_muQ, particle_muS );
+	return EOS.B();
+}
+
+
+template <int D>
+double Particle<D>::EOSS()
+{
+	EOS.tbqs( particle_T, particle_muB, particle_muQ, particle_muS );
+	return EOS.S();
+}
+
+
+template <int D>
+double Particle<D>::EOSQ()
+{
+	EOS.tbqs( particle_T, particle_muB, particle_muQ, particle_muS );
+	return EOS.Q();
 }
 
 
