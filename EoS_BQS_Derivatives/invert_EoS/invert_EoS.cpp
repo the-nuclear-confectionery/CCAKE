@@ -68,6 +68,14 @@ int main(int argc, char *argv[])
 		double s_min_max = get_min_max(svec, nTpts, nmuBpts, nmuQpts, nmuSpts);
 
 		cout << "s_min_max = " << s_min_max << endl;
+		
+		for (size_t i = 0; i < svec.size(); i++)
+			if ( abs( s_min_max - abs(svec[i]) ) < 1e-10 )
+				cout << i << "   " << Tvec[i] << "   " << muBvec[i] << "   "
+					<< muSvec[i] << "   " << muQvec[i] << "   "
+					<< evec[i] << "   " << bvec[i] << "   "
+					<< svec[i] << "   " << qvec[i] << endl;
+
 	}
 
 	return 0;
