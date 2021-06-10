@@ -17,12 +17,12 @@ double get_min_max( vector<double> & v, const size_t nTpts, const size_t nmuBpts
 	for ( size_t imuB = 0; imuB < nmuBpts; imuB++ )
 	for ( size_t imuS = 0; imuS < nmuSpts; imuS++ )
 	{
-		maxima.push_back(
+		maxima.push_back( abs(
 			*std::max_element( v.begin() + count*nmuQpts,
 							   v.begin() + (count+1)*nmuQpts,
 								[](const double & a, const double & b)
 								{ return abs(a) < abs(b); }
-							)
+							) )
 						);
 		count++;
 	}
