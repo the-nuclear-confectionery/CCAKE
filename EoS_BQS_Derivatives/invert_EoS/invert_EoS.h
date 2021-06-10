@@ -27,7 +27,7 @@ double get_e_min_max( vector<double> & v, const size_t nTpts, const size_t nmuBp
 	{
 		vector<double> slice;
 		for ( size_t iT = 0; iT < nTpts; iT++ )
-			slice.push_back( indexer( iT, imuB, imuQ, imuS, nTpts, nmuBpts, nmuQpts, nmuSpts ) );
+			slice.push_back( v[indexer( iT, imuB, imuQ, imuS, nTpts, nmuBpts, nmuQpts, nmuSpts )] );
 		maxima.push_back( abs(
 			*std::max_element( slice.begin(), slice.end(),
 								[](const double & a, const double & b)
@@ -54,7 +54,7 @@ double get_b_min_max( vector<double> & v, const size_t nTpts, const size_t nmuBp
 	{
 		vector<double> slice;
 		for ( size_t imuB = 0; imuB < nmuBpts; imuB++ )
-			slice.push_back( indexer( iT, imuB, imuQ, imuS, nTpts, nmuBpts, nmuQpts, nmuSpts ) );
+			slice.push_back( v[indexer( iT, imuB, imuQ, imuS, nTpts, nmuBpts, nmuQpts, nmuSpts )] );
 		maxima.push_back( abs(
 			*std::max_element( slice.begin(), slice.end(),
 								[](const double & a, const double & b)
@@ -79,7 +79,7 @@ double get_q_min_max( vector<double> & v, const size_t nTpts, const size_t nmuBp
 	{
 		vector<double> slice;
 		for ( size_t imuQ = 0; imuQ < nmuQpts; imuQ++ )
-			slice.push_back( indexer( iT, imuB, imuQ, imuS, nTpts, nmuBpts, nmuQpts, nmuSpts ) );
+			slice.push_back( v[indexer( iT, imuB, imuQ, imuS, nTpts, nmuBpts, nmuQpts, nmuSpts )] );
 		maxima.push_back( abs(
 			*std::max_element( slice.begin(), slice.end(),
 								[](const double & a, const double & b)

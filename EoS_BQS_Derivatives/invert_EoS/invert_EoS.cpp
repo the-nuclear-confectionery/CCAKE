@@ -43,10 +43,10 @@ int main(int argc, char *argv[])
 				muBvec.push_back( muBin );
 				muSvec.push_back( muSin );
 				muQvec.push_back( muQin );
-				bvec.push_back( bin*Tin*Tin*Tin/(hbarc*hbarc*hbarc) );
-				svec.push_back( sin*Tin*Tin*Tin/(hbarc*hbarc*hbarc) );
-				qvec.push_back( qin*Tin*Tin*Tin/(hbarc*hbarc*hbarc) );
-				evec.push_back( 0.001*ein*Tin*Tin*Tin*Tin/(hbarc*hbarc*hbarc) );
+				bvec.push_back( bin*Tin*Tin*Tin/(hbarc*hbarc*hbarc) );				// 1/fm^3
+				svec.push_back( sin*Tin*Tin*Tin/(hbarc*hbarc*hbarc) );				// 1/fm^3
+				qvec.push_back( qin*Tin*Tin*Tin/(hbarc*hbarc*hbarc) );				// 1/fm^3
+				evec.push_back( 0.001*ein*Tin*Tin*Tin*Tin/(hbarc*hbarc*hbarc) );	// GeV/fm^3
 
 				if (++count % 1000000 == 0) cout << "Read in " << count << " lines." << endl;
 			}
