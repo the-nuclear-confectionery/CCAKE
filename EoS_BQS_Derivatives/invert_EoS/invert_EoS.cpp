@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
 	infile.close();
 
 	// loop over each T value to get 
-	for ( size_t iT = 0; iT < Tvec.size(); iT+=nmuBpts*nmuQpts*nmuSpts )
+	for ( size_t iT = 0; iT < nTpts; iT++ )
 	{
 		// during debugging only
 		if ( iT > 0 ) break;
@@ -67,7 +67,8 @@ int main(int argc, char *argv[])
 		//============================
 		double b_min_max = get_b_min_max(bvec, iT, nTpts, nmuBpts, nmuQpts, nmuSpts);
 	
-		cout << "b_min_max = " << Tvec[iT] << "   " << b_min_max << endl;
+		cout << "b_min_max = " << Tvec[indexer( iT, 0, 0, 0, nTpts, nmuBpts, nmuQpts, nmuSpts )]
+				<< "   " << b_min_max << endl;
 		
 		for (size_t i = 0; i < bvec.size(); i++)
 			if ( abs( b_min_max - abs(bvec[i]) ) < 1e-10 )
@@ -79,7 +80,8 @@ int main(int argc, char *argv[])
 		//============================
 		double s_min_max = get_s_min_max(svec, iT, nTpts, nmuBpts, nmuQpts, nmuSpts);
 	
-		cout << "s_min_max = " << Tvec[iT] << "   " << s_min_max << endl;
+		cout << "s_min_max = " << Tvec[indexer( iT, 0, 0, 0, nTpts, nmuBpts, nmuQpts, nmuSpts )]
+				<< "   " << s_min_max << endl;
 		
 		for (size_t i = 0; i < svec.size(); i++)
 			if ( abs( s_min_max - abs(svec[i]) ) < 1e-10 )
@@ -91,7 +93,8 @@ int main(int argc, char *argv[])
 		//============================
 		double q_min_max = get_q_min_max(qvec, iT, nTpts, nmuBpts, nmuQpts, nmuSpts);
 	
-		cout << "q_min_max = " << Tvec[iT] << "   " << q_min_max << endl;
+		cout << "q_min_max = " << Tvec[indexer( iT, 0, 0, 0, nTpts, nmuBpts, nmuQpts, nmuSpts )]
+				<< "   " << q_min_max << endl;
 		
 		for (size_t i = 0; i < qvec.size(); i++)
 			if ( abs( q_min_max - abs(qvec[i]) ) < 1e-10 )
