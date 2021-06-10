@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
 	infile.close();
 
 	// loop over each T value to get 
-	for ( size_t iT = 0; iT < nTpts; iT+=nmuBpts*nmuQpts*nmuSpts )
+	for ( size_t iT = 0; iT < Tvec.size(); iT+=nmuBpts*nmuQpts*nmuSpts )
 	{
 		// during debugging only
 		if ( iT > 0 ) break;
