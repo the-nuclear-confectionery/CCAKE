@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
 		*/
 
 		//============================
-		double e_min_max = get_e_min_max(evec, nTpts, nmuBpts, nmuQpts, nmuSpts);
+		/*double e_min_max = get_e_min_max(evec, nTpts, nmuBpts, nmuQpts, nmuSpts);
 
 		cout << "e_min_max = " << Tvec[0] << "   " << e_min_max << endl;
 		
@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
 					<< muSvec[i] << "   " << muQvec[i] << "   "
 					<< evec[i] << "   " << bvec[i] << "   "
 					<< svec[i] << "   " << qvec[i] << endl;
-
+		*/
 
 		//============================
 		double b_min_max = get_b_min_max(bvec, nTpts, nmuBpts, nmuQpts, nmuSpts);
