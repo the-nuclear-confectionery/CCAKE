@@ -65,17 +65,54 @@ int main(int argc, char *argv[])
 		vector<double> qslice(   qvec.begin(),   qvec.begin()   + nmuBpts*nmuSpts*nmuQpts );
 		*/
 
-		double s_min_max = get_min_max(svec, nTpts, nmuBpts, nmuQpts, nmuSpts);
+		//============================
+		double e_min_max = get_e_min_max(evec, nTpts, nmuBpts, nmuQpts, nmuSpts);
 
-		cout << "s_min_max = " << s_min_max << endl;
+		cout << "e_min_max = " << Tvec[0] << "   " << e_min_max << endl;
 		
-		for (size_t i = 0; i < svec.size(); i++)
-			if ( abs( s_min_max - abs(svec[i]) ) < 1e-10 )
-				cout << i << "   " << Tvec[i] << "   " << muBvec[i] << "   "
+		for (size_t i = 0; i < evec.size(); i++)
+			if ( abs( e_min_max - abs(evec[i]) ) < 1e-10 )
+				cout << "e range:" << i << "   " << Tvec[i] << "   " << muBvec[i] << "   "
 					<< muSvec[i] << "   " << muQvec[i] << "   "
 					<< evec[i] << "   " << bvec[i] << "   "
 					<< svec[i] << "   " << qvec[i] << endl;
 
+
+		//============================
+		double b_min_max = get_b_min_max(bvec, nTpts, nmuBpts, nmuQpts, nmuSpts);
+
+		cout << "b_min_max = " << Tvec[0] << "   " << b_min_max << endl;
+		
+		for (size_t i = 0; i < bvec.size(); i++)
+			if ( abs( b_min_max - abs(bvec[i]) ) < 1e-10 )
+				cout << "b range:" << i << "   " << Tvec[i] << "   " << muBvec[i] << "   "
+					<< muSvec[i] << "   " << muQvec[i] << "   "
+					<< evec[i] << "   " << bvec[i] << "   "
+					<< svec[i] << "   " << qvec[i] << endl;
+
+		//============================
+		double s_min_max = get_s_min_max(svec, nTpts, nmuBpts, nmuQpts, nmuSpts);
+
+		cout << "s_min_max = " << Tvec[0] << "   " << s_min_max << endl;
+		
+		for (size_t i = 0; i < svec.size(); i++)
+			if ( abs( s_min_max - abs(svec[i]) ) < 1e-10 )
+				cout << "s range:" << i << "   " << Tvec[i] << "   " << muBvec[i] << "   "
+					<< muSvec[i] << "   " << muQvec[i] << "   "
+					<< evec[i] << "   " << bvec[i] << "   "
+					<< svec[i] << "   " << qvec[i] << endl;
+
+		//============================
+		double q_min_max = get_q_min_max(qvec, nTpts, nmuBpts, nmuQpts, nmuSpts);
+
+		cout << "q_min_max = " << Tvec[0] << "   " << q_min_max << endl;
+		
+		for (size_t i = 0; i < qvec.size(); i++)
+			if ( abs( q_min_max - abs(qvec[i]) ) < 1e-10 )
+				cout << "q range:" << i << "   " << Tvec[i] << "   " << muBvec[i] << "   "
+					<< muSvec[i] << "   " << muQvec[i] << "   "
+					<< evec[i] << "   " << bvec[i] << "   "
+					<< svec[i] << "   " << qvec[i] << endl;
 	}
 
 	return 0;
