@@ -540,7 +540,7 @@ void Output<D>::bsqsveprofile(LinkList<D> &linklist)
 				<< linklist._p[i].EOSmuB()*197.3 << " "
 				<< linklist._p[i].EOSmuS()*197.3 << " "
 				<< linklist._p[i].EOSmuQ()*197.3 << " "
-				<< linklist._p[i].EOSe() << " "
+				<< linklist._p[i].EOSe()*197.3 << " "
 				<< linklist._p[i].EOSB() << " "
 				<< linklist._p[i].EOSS() << " "
 				<< linklist._p[i].EOSQ() << " "
