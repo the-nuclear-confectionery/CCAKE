@@ -12,6 +12,7 @@
 #include <math.h>
 #include <cmath>
 #include <vector>
+#include "Stopwatch.h"
 
 //extern char ifolder [];
 
@@ -2337,11 +2338,17 @@ void LinkList<D>::gubser(double h)
 template <int D>
 void LinkList<D>::updateIC()
 {
+	Stopwatch sw;
     for (int i=0; i<_n; i++)
     {
         if (gtyp!=5)
 		{
+			sw.Start();
 			_p[i].s_an = _p[i].EOSs_out( _p[i].e_sub, _p[i].rhoB_an, _p[i].rhoS_an, _p[i].rhoQ_an );
+			sw.Stop();
+			cout << "SPH particle " << i << ", EOSs_out: completed in "
+					<< sw.printTime() << "s." << endl;
+			sw.Reset();
 		}
 
 		////////////////////////////////////////////////////////////////////////
@@ -2360,7 +2367,12 @@ cout << "Error(1): " << _p[i].s_an << "   " << _p[i].e_sub << "   "
 			//continue;
 		}
 
+		sw.Start();
        _p[i].EOSupdate_s( _p[i].s_an, _p[i].rhoB_an, _p[i].rhoS_an, _p[i].rhoQ_an );
+		sw.Stop();
+		cout << "SPH particle " << i << ", EOSupdate_s: completed in "
+				<< sw.printTime() << "s." << endl;
+		sw.Reset();
 
         if (gtyp==5) _p[i].e_sub=_p[i].EOSe();
 
