@@ -2387,8 +2387,8 @@ cout << "Check sigmaweight(2): " << i << "   "
 
 if (true)
 {
-	cout << "Exiting prematurely from " << __PRETTY_FUNCTION__ << "::" << __LINE__ << !" << endl;
-	cerr << "Exiting prematurely from " << __PRETTY_FUNCTION__ << "::" << __LINE__ << !" << endl;
+	cout << "Exiting prematurely from " << __PRETTY_FUNCTION__ << "::" << __LINE__ << "!" << endl;
+	cerr << "Exiting prematurely from " << __PRETTY_FUNCTION__ << "::" << __LINE__ << "!" << endl;
 	exit(8);
 }
 
