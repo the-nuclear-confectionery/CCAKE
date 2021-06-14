@@ -88,6 +88,20 @@ plt.show()
 newdata = data[np.unique(np.concatenate((hull.vertices,np.random.choice(len(data),50000))))]
 tri = Delaunay(newdata)
 
+volumes = np.array([ConvexHull(data[simplex]).volume for simplex in tri.simplices])
 
+print('Total volume (sum of simplex volumes) =', np.sum(volumes))
+print('Total volume (original convex hull volume) =', hull.volume)
+print('Average simplex volume =', np.mean(volumes))
+print('Standard deviation simplex volume =', np.std(volumes))
+
+
+import time
+t0 = time.time()
+newdata=data[np.unique(np.concatenate((hull.vertices,np.random.choice(len(data),50000))))]
+print(len(newdata))
+tri = Delaunay(newdata)
+t1 = time.time()
+print(t1-t0,'s')
 
 

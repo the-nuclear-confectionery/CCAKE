@@ -271,6 +271,13 @@ void Particle<D>::calcbsq(double tin)
 	double rhoQ_in2 = Q*sigma/sigmaweight;		//  is this correct?  (confirm with Jaki)
     EOSupdate_s(s_in2, rhoB_in2, rhoS_in2, rhoQ_in2);	//  is this correct?  (confirm with Jaki)
 
+cout << "CHECK " << __PRETTY_FUNCTION__ << "::" << __LINE__ << ": "
+		<< tin << "   " << r << "   "
+		<< rhoB_In2 << "   " << rhoS_In2 << "   " << rhoQ_In2 << "   "
+		<< B << "   " << S << "   " << Q << "   "
+		<< sigma << "   " << sigmaweight << endl;
+
+
 }
 
 template <int D>
@@ -794,6 +801,9 @@ void Particle<D>::EOSupdate_s(double s_In, double rhoB_In, double rhoS_In, doubl
 {
 	EOS.tbqs( particle_T, particle_muB, particle_muQ, particle_muS );
 	EOS.update_s( s_In, rhoB_In, rhoS_In, rhoQ_In );
+cout << "CHECK EOS(2): " << rhoB_In << "   " << _p[i].EOSB()
+		<< "   " << rhoS_In << "   " << _p[i].EOSS()
+		<< "   " << rhoQ_In << "   " << _p[i].EOSQ() << endl;
 	particle_T = EOS.T();
 	particle_muB = EOS.muB();
 	particle_muS = EOS.muS();
