@@ -2345,9 +2345,9 @@ void LinkList<D>::updateIC()
 		{
 			sw.Start();
 			_p[i].s_an = _p[i].EOSs_out( _p[i].e_sub, _p[i].rhoB_an, _p[i].rhoS_an, _p[i].rhoQ_an );
-cout << "CHECK EOS(1): " << rhoB_In << "   " << _p[i].EOSB()
-		<< "   " << rhoS_In << "   " << _p[i].EOSS()
-		<< "   " << rhoQ_In << "   " << _p[i].EOSQ() << endl;
+cout << "CHECK EOS(1): " << rhoB_an << "   " << _p[i].EOSB()
+		<< "   " << rhoS_an << "   " << _p[i].EOSS()
+		<< "   " << rhoQ_an << "   " << _p[i].EOSQ() << endl;
 			sw.Stop();
 			cout << "SPH particle " << i << ", EOSs_out: completed in "
 					<< sw.printTime() << "s." << endl;

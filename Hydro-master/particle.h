@@ -273,7 +273,7 @@ void Particle<D>::calcbsq(double tin)
 
 cout << "CHECK " << __PRETTY_FUNCTION__ << "::" << __LINE__ << ": "
 		<< tin << "   " << r << "   "
-		<< rhoB_In2 << "   " << rhoS_In2 << "   " << rhoQ_In2 << "   "
+		<< rhoB_in2 << "   " << rhoS_in2 << "   " << rhoQ_in2 << "   "
 		<< B << "   " << S << "   " << Q << "   "
 		<< sigma << "   " << sigmaweight << endl;
 
