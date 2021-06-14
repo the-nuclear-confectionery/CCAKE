@@ -801,9 +801,9 @@ void Particle<D>::EOSupdate_s(double s_In, double rhoB_In, double rhoS_In, doubl
 {
 	EOS.tbqs( particle_T, particle_muB, particle_muQ, particle_muS );
 	EOS.update_s( s_In, rhoB_In, rhoS_In, rhoQ_In );
-cout << "CHECK EOS(2): " << rhoB_In << "   " << _p[i].EOSB()
-		<< "   " << rhoS_In << "   " << _p[i].EOSS()
-		<< "   " << rhoQ_In << "   " << _p[i].EOSQ() << endl;
+cout << "CHECK EOS(2): " << rhoB_In << "   " << EOS.B()
+		<< "   " << rhoS_In << "   " << EOS.S()
+		<< "   " << rhoQ_In << "   " << EOS.Q() << endl;
 	particle_T = EOS.T();
 	particle_muB = EOS.muB();
 	particle_muS = EOS.muS();
