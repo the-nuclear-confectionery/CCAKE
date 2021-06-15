@@ -419,8 +419,8 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
 
 
 	// initialize tbqsPosition to something...
-	std::cout << "Initializing tbqsPosition...\n";
-	for (int iTBQS = 0; iTBQS < 4; iTBQS++) tbqsPosition(iTBQS) = 1.0;
+	//std::cout << "Initializing tbqsPosition...\n";
+	//for (int iTBQS = 0; iTBQS < 4; iTBQS++) tbqsPosition(iTBQS) = 1.0;
 
 	std::cout << "Check TBQS: ";
 	for (int iTBQS = 0; iTBQS < 4; iTBQS++) std::cout << tbqsPosition(iTBQS) << "   ";	
@@ -581,8 +581,8 @@ void eos::init_with_txt(string quantityFile, string derivFile, int degree)
     dt2Spline = BSpline::Builder(dt2samples).degree(degree).build();
 
 	// initialize tbqsPosition to something...
-	std::cout << "Initializing tbqsPosition...\n";
-	for (int iTBQS = 0; iTBQS < 4; iTBQS++) tbqsPosition(iTBQS) = 1.0;
+	//std::cout << "Initializing tbqsPosition...\n";
+	//for (int iTBQS = 0; iTBQS < 4; iTBQS++) tbqsPosition(iTBQS) = 1.0;
 
 	std::cout << "Check TBQS: ";
 	for (int iTBQS = 0; iTBQS < 4; iTBQS++) std::cout << tbqsPosition(iTBQS) << "   ";	
