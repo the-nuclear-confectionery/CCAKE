@@ -310,7 +310,7 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
     eos EOS0;	// now declared globally
 	if ( linklist.visc == 4 )	//if we're running BSQ (table is only option)
 	{
-		bool using_HDF = false;
+		bool using_HDF = true;
 		if (using_HDF)
 		{
 			string quantityFile = ifolder + std::string("quantityFile.h5");
@@ -324,10 +324,10 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
 		{
 			//string quantityFile = ifolder + std::string("quantityFile.dat");
 			//string derivativeFile = ifolder + std::string("derivFile.dat");
-			//string quantityFile = ifolder + std::string("EoS_Taylor_AllMu.dat");
-			//string derivativeFile = ifolder + std::string("EoS_Taylor_AllMu_Derivatives.dat");
-			string quantityFile = ifolder + std::string("EoS_Taylor_AllMu_T_muB.dat");
-			string derivativeFile = ifolder + std::string("EoS_Taylor_AllMu_Derivatives_T_muB.dat");
+			string quantityFile = ifolder + std::string("EoS_Taylor_AllMu.dat");
+			string derivativeFile = ifolder + std::string("EoS_Taylor_AllMu_Derivatives.dat");
+			//string quantityFile = ifolder + std::string("EoS_Taylor_AllMu_T_muB.dat");
+			//string derivativeFile = ifolder + std::string("EoS_Taylor_AllMu_Derivatives_T_muB.dat");
 		    std::cout << "Using BSQ Equation of State table from: "
 					<< quantityFile << " and " << derivativeFile << "\n";
 
