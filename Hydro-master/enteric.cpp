@@ -529,6 +529,7 @@ void readICs_iccing( string &firstry, int &_Ntable3, Particle<2> *&_p,
 		//cout << "readICs_iccing(" << __LINE__ << "): "
 		cout << "SPH particles: "
 			<< j << "   "
+			<< _p[j].r.x[0] << "   " << _p[j].r.x[1] << "   "
 			<< _p[j].e_sub << "   " << _p[j].rhoB_an << "   "
 			<< _p[j].rhoS_an << "   " << _p[j].rhoQ_an << "   "
 			<< _p[j].sigmaweight << endl;
