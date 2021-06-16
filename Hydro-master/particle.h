@@ -269,6 +269,9 @@ void Particle<D>::calcbsq(double tin)
 	double rhoB_in2 = B*sigma/sigmaweight;		//  is this correct?  (confirm with Jaki)
 	double rhoS_in2 = S*sigma/sigmaweight;		//  is this correct?  (confirm with Jaki)
 	double rhoQ_in2 = Q*sigma/sigmaweight;		//  is this correct?  (confirm with Jaki)
+	rhoB_an = rhoB_in2;
+	rhoS_an = rhoS_in2;
+	rhoQ_an = rhoQ_in2;
     EOSupdate_s(s_in2, rhoB_in2, rhoS_in2, rhoQ_in2);	//  is this correct?  (confirm with Jaki)
 
 cout << "CHECK " << __PRETTY_FUNCTION__ << "::" << __LINE__ << ": "

@@ -521,9 +521,9 @@ void readICs_iccing( string &firstry, int &_Ntable3, Particle<2> *&_p,
         _p[j].B=rBsub[j]*stepx*stepy;			// confirm with Jaki
         _p[j].S=rSsub[j]*stepx*stepy;			// confirm with Jaki
         _p[j].Q=rQsub[j]*stepx*stepy;			// confirm with Jaki
-        _p[j].rhoB_an=rBsub[j];					// (unused for now) confirm with Jaki
-        _p[j].rhoS_an=rSsub[j];					// (unused for now) confirm with Jaki
-        _p[j].rhoQ_an=rQsub[j];					// (unused for now) confirm with Jaki
+        _p[j].rhoB_an=rBsub[j];					// confirm with Jaki
+        _p[j].rhoS_an=rSsub[j];					// confirm with Jaki
+        _p[j].rhoQ_an=rQsub[j];					// confirm with Jaki
 
 		//if (j==0)
 		//cout << "readICs_iccing(" << __LINE__ << "): "
