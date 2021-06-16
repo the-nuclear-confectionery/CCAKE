@@ -272,7 +272,7 @@ void Particle<D>::calcbsq(double tin)
     EOSupdate_s(s_in2, rhoB_in2, rhoS_in2, rhoQ_in2);	//  is this correct?  (confirm with Jaki)
 
 cout << "CHECK " << __PRETTY_FUNCTION__ << "::" << __LINE__ << ": "
-		<< tin << "   " << r << "   "
+		<< tin << "   " << r << "   " << s_in2 << "   "
 		<< rhoB_in2 << "   " << rhoS_in2 << "   " << rhoQ_in2 << "   "
 		<< B << "   " << S << "   " << Q << "   "
 		<< sigma << "   " << sigmaweight << endl;
@@ -800,8 +800,9 @@ template <int D>
 void Particle<D>::EOSupdate_s(double s_In, double rhoB_In, double rhoS_In, double rhoQ_In)
 {
 	EOS.tbqs( particle_T, particle_muB, particle_muQ, particle_muS );
-	EOS.update_s( s_In, rhoB_In, rhoS_In, rhoQ_In );
-cout << "CHECK EOS(2): " << rhoB_In << "   " << EOS.B()
+	bool update_s_success = EOS.update_s( s_In, rhoB_In, rhoS_In, rhoQ_In );
+	string SUCCESS_STRING = ( update_s_success ) ? "PASS" : "FAIL";
+cout << "CHECK EOS(2; " << SUCCESS_STRING << "): " << rhoB_In << "   " << EOS.B()
 		<< "   " << rhoS_In << "   " << EOS.S()
 		<< "   " << rhoQ_In << "   " << EOS.Q() << endl;
 	particle_T = EOS.T();
