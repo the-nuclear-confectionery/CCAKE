@@ -517,6 +517,7 @@ void readICs_iccing( string &firstry, int &_Ntable3, Particle<2> *&_p,
         _p[j].u.x[1]=0;
         _p[j].eta_sigma = 1;
         _p[j].sigmaweight=stepx*stepy;
+		_p[j].rho_weight = stepx*stepy;
         _p[j].Bulk = 0;
         _p[j].B=rBsub[j]*stepx*stepy;			// confirm with Jaki
         _p[j].S=rSsub[j]*stepx*stepy;			// confirm with Jaki

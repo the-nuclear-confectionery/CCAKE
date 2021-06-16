@@ -25,7 +25,8 @@ public:
     int btrack;
     static eos EOS;	//use one copy of EOS for all particles
     double Agam, Agam2;
-    double sigmaweight;        // specific volume per particle
+    double sigmaweight;        // specific volume per particle (times s_an)
+	double rho_weight;		   // specific volume per particle (without s_an)
     Vector<double,D> r;                   // position
     Vector<double,D> v;                   // velocity
     Vector<double,D> u;                   // relativistic velocity

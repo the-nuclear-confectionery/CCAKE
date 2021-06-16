@@ -1890,9 +1890,9 @@ void LinkList<D>::bsqsvoptimization(int a)
                 double kern  = kernel(_p[a].r-_p[b].r);
                 _p[a].sigma += _p[b].sigmaweight*kern;
                 _p[a].eta   += _p[b].sigmaweight*_p[b].eta_sigma*kern;
-                _p[a].rhoB_sub  += _p[b].rhoB_an*kern;    //confirm with Jaki
-                _p[a].rhoS_sub  += _p[b].rhoS_an*kern;    //confirm with Jaki
-                _p[a].rhoQ_sub  += _p[b].rhoQ_an*kern;    //confirm with Jaki
+                _p[a].rhoB_sub  += _p[b].rho_weight*_p[b].rhoB_an*kern;    //confirm with Jaki
+                _p[a].rhoS_sub  += _p[b].rho_weight*_p[b].rhoS_an*kern;    //confirm with Jaki
+                _p[a].rhoQ_sub  += _p[b].rho_weight*_p[b].rhoQ_an*kern;    //confirm with Jaki
 
 std::cout << "bsqsvoptimization(SPH particle == " << a << " ): "
 			<< b << "   " << _p[a].r
@@ -2398,6 +2398,7 @@ cout << "Check sigmaweight(1): " << i << "   "
 		<< t0 << endl;
 
         _p[i].sigmaweight *= _p[i].s_an*_p[i].gamma*t0;	// sigmaweight is constant after this
+        _p[i].rho_weight *= _p[i].gamma*t0;				// rho_weight is constant after this
 
 cout << "Check sigmaweight(2): " << i << "   "
 		<< _p[i].sigmaweight << "   "
