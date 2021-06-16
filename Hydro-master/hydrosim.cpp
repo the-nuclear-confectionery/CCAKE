@@ -927,14 +927,14 @@ void BSQshear(LinkList<D>  &linklist)  // shear+bulk Equations of motion, only s
         double det=deter(M);
 //cout << "CHECK det: " << i << "   " << M.x[0][0] << "   " << M.x[0][1] << "   "
 //		<< M.x[1][0] << "   " << M.x[1][1] << "   " << det << endl;
-//        Matrix <double,D,D> MI;
-//        MI.x[0][0]=M.x[1][1]/det;
-//        MI.x[0][1]=-M.x[0][1]/det;
-//        MI.x[1][0]=-M.x[1][0]/det;
-//        MI.x[1][1]=M.x[0][0]/det;
+        Matrix <double,D,D> MI;
+        MI.x[0][0]=M.x[1][1]/det;
+        MI.x[0][1]=-M.x[0][1]/det;
+        MI.x[1][0]=-M.x[1][0]/det;
+        MI.x[1][1]=M.x[0][0]/det;
 //cout << "CHECK MI: " << MI << endl;
-//        linklist._p[i].du_dt.x[0]=F.x[0]*MI.x[0][0]+F.x[1]*MI.x[0][1];
-//        linklist._p[i].du_dt.x[1]=F.x[0]*MI.x[1][0]+F.x[1]*MI.x[1][1];
+        linklist._p[i].du_dt.x[0]=F.x[0]*MI.x[0][0]+F.x[1]*MI.x[0][1];
+        linklist._p[i].du_dt.x[1]=F.x[0]*MI.x[1][0]+F.x[1]*MI.x[1][1];
 
 
 

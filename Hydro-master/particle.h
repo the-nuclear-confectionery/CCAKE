@@ -272,7 +272,7 @@ void Particle<D>::calcbsq(double tin)
     EOSupdate_s(s_in2, rhoB_in2, rhoS_in2, rhoQ_in2);	//  is this correct?  (confirm with Jaki)
 
 cout << "CHECK " << __PRETTY_FUNCTION__ << "::" << __LINE__ << ": "
-		<< tin << "   " << r << "   " << s_in2 << "   "
+		<< tin << "   " << r << "   " << v << "   " << s_in2 << "   "
 		<< rhoB_in2 << "   " << rhoS_in2 << "   " << rhoQ_in2 << "   "
 		<< B << "   " << S << "   " << Q << "   "
 		<< sigma << "   " << sigmaweight << endl;
