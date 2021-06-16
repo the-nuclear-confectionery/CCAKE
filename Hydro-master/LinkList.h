@@ -1891,7 +1891,7 @@ void LinkList<D>::bsqsvoptimization(int a)
                 _p[a].rhoS_sub  += _p[b].rhoS_an*kern;    //confirm with Jaki
                 _p[a].rhoQ_sub  += _p[b].rhoQ_an*kern;    //confirm with Jaki
 
-std::cout << "bsqsvoptimization(SPH particle == " << a << "): "
+std::cout << "bsqsvoptimization(SPH particle == " << a << " ): "
 			<< b << "   " << _p[a].r
 			<< "   " << _p[a].sigma
 			<< "   " << _p[a].eta
@@ -1899,11 +1899,11 @@ std::cout << "bsqsvoptimization(SPH particle == " << a << "): "
 			<< "   " << _p[b].sigmaweight
 			<< "   " << _p[b].eta_sigma
 			<< "   " << _p[b].rhoB_an
-			<< "   " << _p[b].rhoB_sub
+			<< "   " << _p[a].rhoB_sub
 			<< "   " << _p[b].rhoS_an
-			<< "   " << _p[b].rhoS_sub
+			<< "   " << _p[a].rhoS_sub
 			<< "   " << _p[b].rhoQ_an
-			<< "   " << _p[b].rhoQ_sub
+			<< "   " << _p[a].rhoQ_sub
 			<< "   " << kern << std::endl;
 
                 b=link[b];
@@ -2584,9 +2584,9 @@ void LinkList<D>::BSQguess()
 	int count1=0;
 	for (int i=0; i<_n; i++)
 	{
+		_p[i].s_sub = _p[i].sigma/_p[i].gamma/t0;
 	cout << "SPH checkpoint(1): " << i << "   " << _p[i].sigmaweight << "   " << _p[i].s_sub << "   "
 			<< _p[i].rhoB_sub << "   " << _p[i].rhoS_sub << "   " << _p[i].rhoQ_sub << endl;
-		_p[i].s_sub = _p[i].sigma/_p[i].gamma/t0;
 		//_p[i].rhoB_sub = ....  // <<-- this part done in bsqsvoptimization(i)
 		//_p[i].rhoS_sub = ....  // <<-- this part done in bsqsvoptimization(i)
 		//_p[i].rhoQ_sub = ....  // <<-- this part done in bsqsvoptimization(i)
