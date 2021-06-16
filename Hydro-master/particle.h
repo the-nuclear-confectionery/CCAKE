@@ -27,6 +27,7 @@ public:
     double Agam, Agam2;
     double sigmaweight;        // specific volume per particle (times s_an)
 	double rho_weight;		   // specific volume per particle (without s_an)
+	double transverse_area;	   // dx * dy
     Vector<double,D> r;                   // position
     Vector<double,D> v;                   // velocity
     Vector<double,D> u;                   // relativistic velocity
@@ -267,9 +268,12 @@ void Particle<D>::calcbsq(double tin)
     //double S_in2= rhoS/gamma/tin;
     //double Q_in2= rhoQ/gamma/tin;
     qmom=((EOSe()+ EOSp())*gamma/sigma)*u;
-	double rhoB_in2 = B*sigma/sigmaweight;		//  is this correct?  (confirm with Jaki)
-	double rhoS_in2 = S*sigma/sigmaweight;		//  is this correct?  (confirm with Jaki)
-	double rhoQ_in2 = Q*sigma/sigmaweight;		//  is this correct?  (confirm with Jaki)
+	//double rhoB_in2 = B*sigmaweight/sigma;		//  is this correct?  (confirm with Jaki)
+	//double rhoS_in2 = S*sigmaweight/sigma;		//  is this correct?  (confirm with Jaki)
+	//double rhoQ_in2 = Q*sigmaweight/sigma;		//  is this correct?  (confirm with Jaki)
+	double rhoB_in2 = B / (transverse_area*gamma*tin);
+	double rhoS_in2 = S / (transverse_area*gamma*tin);
+	double rhoQ_in2 = Q / (transverse_area*gamma*tin);
 	rhoB_an = rhoB_in2;
 	rhoS_an = rhoS_in2;
 	rhoQ_an = rhoQ_in2;
