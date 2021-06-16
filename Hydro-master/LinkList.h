@@ -1877,6 +1877,9 @@ void LinkList<D>::bsqsvoptimization(int a)
 {
     _p[a].sigma = 0;
     _p[a].eta = 0;
+    _p[a].rhoB_sub = 0.0;
+    _p[a].rhoS_sub = 0.0;
+    _p[a].rhoQ_sub = 0.0;
     Vector<int,D> i;
     for(i.x[0]=-2; i.x[0]<=2; i.x[0]++)
         for(i.x[1]=-2; i.x[1]<=2; i.x[1]++)
