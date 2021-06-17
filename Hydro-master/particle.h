@@ -604,6 +604,7 @@ void Particle<D>::setvisc(int etaconst,double bvf, double svf, double zTc, doubl
                 zeta=0.01162/sqrt(pow((t2-1.104),2)+ 0.0569777  )+  -0.1081/(t2*t2+23.7169);
                 tauRelax =5*(-0.0506*sTc/(temp*temp) + 10.453/(temp*sqrt(0.156658+pow((temp/sTc-1.131),2) )) );
 
+
             }
             else
             {
