@@ -1481,6 +1481,7 @@ double eos::s_out(double ein, double Bin, double Sin, double Qin) {   //update t
     }
     if(mus0 - muS10 < maxMuS) {
 
+
         tbqs(t0, mub0, muq0, minMuS + 1);
     } else {
         tbqs(t0, mub0, muq0, mus0 - muS10);
@@ -1650,9 +1651,9 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
     //gsl_vector_set(x, 2, muQ());
     //gsl_vector_set(x, 3, muS());
     gsl_vector_set(x, 0, 500.0/197.327);
-    gsl_vector_set(x, 1, 50.0/197.327);
-    gsl_vector_set(x, 2, 0.0);
-    gsl_vector_set(x, 3, 0.0);
+    gsl_vector_set(x, 1, 0.0/197.327);
+    gsl_vector_set(x, 2, 0.0/197.327);
+    gsl_vector_set(x, 3, 0.0/197.327);
 
     //initialize the rootfinder equation to the correct variable quantities
     bool isEntropy = false;
