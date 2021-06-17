@@ -1641,7 +1641,7 @@ int rootfinder_febqs(const gsl_vector *x, void *params, gsl_vector *f) {
 
 
 bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, double rhoSGiven, double rhoQGiven, double error, size_t steps) {
-//	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+std::cout << __PRETTY_FUNCTION__ << e_or_s_Given << "   " << e_or_s_mode << "   " << rhoBGiven << "   " << rhoSGiven << "   " << rhoQGiven << "   " << error << "   " << steps << std::endl;
 
     //declare x = (T, muB, muS)
     gsl_vector *x = gsl_vector_alloc(4);
