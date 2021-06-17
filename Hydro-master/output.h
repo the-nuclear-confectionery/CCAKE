@@ -554,7 +554,7 @@ void Output<D>::bsqsveprofile(LinkList<D> &linklist)
 				<< linklist._p[i].stauRelax/linklist.t * linklist._p[i].bigtheta << " "
 				<< linklist._p[i].u.x[0]/linklist._p[i].gamma << " "
 				<< linklist._p[i].u.x[1]/linklist._p[i].gamma << " "
-				<< linklist._p[i].gamma << " " << linklist._p[i].sigma << endl;
+				<< linklist._p[i].gamma << " " << linklist._p[i].sigma << " " << i << endl;
 
         }
     }
