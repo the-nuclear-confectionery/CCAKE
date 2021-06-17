@@ -166,11 +166,47 @@ public:
 
 
 template <int D>
-Particle<D>::Particle() {
+Particle<D>::Particle()
+{
+    div_u = 0.0;
+    gamma = 0.0;
+    s_sub = 0.0;
+    e_sub = 0.0;
+    s_an = 0.0;
+    s_rat = 0.0;
+    sigsub = 0.0;
+    eta_sigma = 0.0;
+    detasigma_dt = 0.0;
+    Bulk = 0.0;
+    bigPI = 0.0;
+    tauRelax = 0.0;
+    stauRelax = 0.0;
+    dBulk_dt = 0.0;
+    zeta = 0.0;
+    setas = 0.0;
+    sv_eta = 0.0;
+    taupi = 0.0;
 
+    sigma = 0.0; 
+    dsigma_dt = 0.0;
 
+    dw_ds = 0.0; 
+    eta = 0.0;
+    rhoB_an = 0.0;
+    rhoB_sub = 0.0;
+    rhoS_an = 0.0;
+    rhoS_sub = 0.0;
+    rhoQ_an = 0.0;
+    rhoQ_sub = 0.0;
 
-// need to read in type
+    bigtheta = 0.0;
+
+	B = 0.0;
+    S = 0.0;
+    Q = 0.0;
+    drhoB_dt = 0.0;
+    drhoS_dt = 0.0;
+    drhoQ_dt = 0.0;
 
 }
 
