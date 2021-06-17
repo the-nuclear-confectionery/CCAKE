@@ -872,9 +872,9 @@ void BSQshear(LinkList<D>  &linklist)  // shear+bulk Equations of motion, only s
         linklist._p[i].dsigma_dt = -linklist._p[i].sigma
 									*( linklist._p[i].gradV.x[0][0]
 										+ linklist._p[i].gradV.x[1][1]) ;
-//cout << "CHECK dsigma_dt: " << i << "   " << linklist._p[i].dsigma_dt
-//		<< "   " << linklist._p[i].sigma << "   " << linklist._p[i].gradV.x[0][0]
-//		<< "   " << linklist._p[i].gradV.x[1][1] << endl;
+cout << "CHECK dsigma_dt: " << i << "   " << linklist._p[i].dsigma_dt
+		<< "   " << linklist._p[i].sigma << "   " << linklist._p[i].gradV.x[0][0]
+		<< "   " << linklist._p[i].gradV.x[1][1] << endl;
 
         linklist._p[i].bsqsvsigset(linklist.t,i);
         if ((linklist._p[i].Freeze==3)&&(linklist.cfon==1))
@@ -964,6 +964,18 @@ cout << "CHECK bigtheta: " << i << "   " << linklist._p[i].bigtheta
 
 
         linklist._p[i].inside=linklist.t*(inner((-minshv+linklist._p[i].shv.x[0][0]*linklist._p[i].v),linklist._p[i].du_dt)- con2(sub,linklist._p[i].gradU)    -      linklist._p[i].gamma*linklist.t*linklist._p[i].shv33);
+
+std::cout << "Check inside: " << i << "   "
+			<< linklist._p[i].inside << "   "
+			<< minshv << "   "
+			<< linklist._p[i].shv.x[0][0]*linklist._p[i].v << "   "
+			<< linklist._p[i].du_dt << "   "
+			<< sub << "   "
+			<< linklist._p[i].gradU << "   "
+			<< linklist._p[i].gamma*linklist.t*linklist._p[i].shv33 << std::endl;
+
+
+
         linklist._p[i].detasigma_dt =1./linklist._p[i].sigma/linklist._p[i].EOST()
 										*( -linklist._p[i].bigPI*linklist._p[i].bigtheta
 											+linklist._p[i].inside);
