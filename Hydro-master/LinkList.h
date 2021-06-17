@@ -1314,7 +1314,7 @@ void LinkList<D>::conservation_entropy()
     S=0.;
 
     for (int i=0; i<_n; i++) {
-        S+= _p[i].eta_sigma*_p[i].sigmaweight ;
+        S+= _p[i].eta_sigma*_p[i].sigmaweight;
     }
 
     if (first==1)
