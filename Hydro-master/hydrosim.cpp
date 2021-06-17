@@ -950,15 +950,15 @@ void BSQshear(LinkList<D>  &linklist)  // shear+bulk Equations of motion, only s
 									* linklist._p[i].dsigma_dt ;
         linklist._p[i].bigtheta=linklist._p[i].div_u*linklist.t+linklist._p[i].gamma;
 
-//cout << "CHECK div_u: " << i << "   " << linklist._p[i].div_u
-//		<< "   " << linklist._p[i].gamma
-//		<< "   " << linklist._p[i].u
-//		<< "   " << linklist._p[i].du_dt
-//		<< "   " << inner( linklist._p[i].u, linklist._p[i].du_dt)
-//		<< "   " << linklist._p[i].sigma << endl;
-//cout << "CHECK bigtheta: " << i << "   " << linklist._p[i].bigtheta
-//		<< "   " << linklist.t
-//		<< "   " << linklist._p[i].gamma << endl;
+cout << "CHECK div_u: " << i << "   " << linklist._p[i].div_u
+		<< "   " << linklist._p[i].gamma
+		<< "   " << linklist._p[i].u
+		<< "   " << linklist._p[i].du_dt
+		<< "   " << inner( linklist._p[i].u, linklist._p[i].du_dt)
+		<< "   " << linklist._p[i].sigma << endl;
+cout << "CHECK bigtheta: " << i << "   " << linklist._p[i].bigtheta
+		<< "   " << linklist.t
+		<< "   " << linklist._p[i].gamma << endl;
 
         Matrix <double,D,D> sub=linklist._p[i].pimin+linklist._p[i].shv.x[0][0]/linklist._p[i].g2*linklist._p[i].uu-1./linklist._p[i].gamma*linklist._p[i].piutot;
 
