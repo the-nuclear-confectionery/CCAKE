@@ -285,7 +285,7 @@ cout << "CHECK " << __PRETTY_FUNCTION__ << "::" << __LINE__ << ": "
 		<< B << "   " << S << "   " << Q << "   "
 		<< sigma << "   " << sigmaweight << endl;
 cout << "CHECK DENSITIES: " << tin << "   " << r << "   " << gamma << "   " << transverse_area
-		<< "   " << B << "   " << S << "   " << Q << "   " << 
+		<< "   " << B << "   " << S << "   " << Q << "   "
 		<< rhoB_in2 << "   " << rhoS_in2 << "   " << rhoQ_in2 << endl;
 
 
