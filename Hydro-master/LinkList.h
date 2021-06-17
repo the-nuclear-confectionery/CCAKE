@@ -153,7 +153,7 @@ public:
     void voptimization(int a);
     void voptimization2(int a,double tin);
     void svoptimization2(int a,double tin,int & count);
-    void bsqsvoptimization(int a);
+    void bsqsvoptimization(int a, bool init_mode = false);
     void bsqsvoptimization2(int a,double tin,int & count);
     void conservation_entropy();
     void bsqconservation_entropy();
@@ -1873,7 +1873,7 @@ void LinkList<D>::voptimization(int a)
 }
 
 template <int D>//if we include the SPH over rhoB, rhoS, rhoQ
-void LinkList<D>::bsqsvoptimization(int a)
+void LinkList<D>::bsqsvoptimization(int a, bool init_mode /*== false*/)
 {
     _p[a].sigma = 0;
     _p[a].eta = 0;
@@ -1912,6 +1912,17 @@ std::cout << "bsqsvoptimization(SPH particle == " << a << " ): "
                 b=link[b];
             }
         }
+
+	// reset total B, S, and Q charge of each SPH particle to reflect
+	// smoothing from kernel function (ONLY ON FIRST TIME STEP)
+	if ( init_mode )
+	{
+		cout << "BEFORE: " << a << "   " << _p[a].B << "   " << _p[a].S << "   " << _p[a].Q << endl;
+		_p[a].B = _p[a].rhoB_sub * _p[a].rho_weight;
+		_p[a].S = _p[a].rhoS_sub * _p[a].rho_weight;
+		_p[a].Q = _p[a].rhoQ_sub * _p[a].rho_weight;
+		cout << "AFTER: " << a << "   " << _p[a].B << "   " << _p[a].S << "   " << _p[a].Q << endl;
+	}
 
     return;
 }
@@ -2582,7 +2593,8 @@ void LinkList<D>::BSQguess()
     initiate();
 
 	cout << "bsqsvoptimization..." << endl;
-	for (int i=0; i<_n; i++) bsqsvoptimization(i);
+	bool initialization_mode = true;
+	for (int i=0; i<_n; i++) bsqsvoptimization(i, initialization_mode);
 	cout << "One more loop!" << endl;
 
 	int count1=0;
