@@ -1276,9 +1276,27 @@ double eos::deriv_mult_aTm_1b(gsl_vector* a, gsl_matrix* m, gsl_vector* b) {
     // Compute the LU decomposition of this matrix
     gsl_linalg_LU_decomp(m, p, &s);
 
+	cout << "Inverting: " << endl;
+	for (int ii = 0; ii < 3; ii++)
+	{
+		for (int jj = 0; jj < 3; jj++)
+			cout << gsl_matrix_get(m, i, j) << "   ";
+		cout << endl;
+	}
+	cout << endl;
+
     // Compute the  inverse of the LU decomposition
     gsl_matrix *minv = gsl_matrix_alloc(3, 3);
     gsl_linalg_LU_invert(m, p, minv);
+
+	cout << "Success!" << endl;
+	for (int ii = 0; ii < 3; ii++)
+	{
+		for (int jj = 0; jj < 3; jj++)
+			cout << gsl_matrix_get(minv, i, j) << "   ";
+		cout << endl;
+	}
+	cout << endl;
 
     gsl_vector *y = gsl_vector_alloc(3);
 
