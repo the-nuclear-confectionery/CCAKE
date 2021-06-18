@@ -532,7 +532,8 @@ void Output<D>::bsqsveprofile(LinkList<D> &linklist)
         for (int i=0; i<linklist.n(); i++)
         {
 
-            EPN << linklist._p[i].r   << " "
+            EPN << linklist.t   << " "
+				<< linklist._p[i].r   << " "
 				<< linklist._p[i].EOSp() << " "
 				<< linklist._p[i].EOST()*197.3 << " "
 				<< linklist._p[i].EOSmuB()*197.3 << " "
@@ -542,6 +543,8 @@ void Output<D>::bsqsveprofile(LinkList<D> &linklist)
 				<< linklist._p[i].EOSB() << " "
 				<< linklist._p[i].EOSS() << " "
 				<< linklist._p[i].EOSQ() << " "
+				<< linklist._p[i].EOSs() << " "
+				<< linklist._p[i].eta/(linklist._p[i].gamma*linklist.t) << " "
 				<< linklist._p[i].stauRelax << " " <<  linklist._p[i].sigmaweight << " "
 				<< linklist._p[i].bigtheta   << " "
 				<<  sqrt( linklist._p[i].shv.x[0][0]*linklist._p[i].shv.x[0][0]
@@ -598,6 +601,7 @@ void Output<D>::eccout(LinkList<D> &linklist)
     string epin ("eccCM");
     string dat (".dat");
     string sCEP;
+
     sCEP=convertInt(linklist.fnum);
     string epname;
 
