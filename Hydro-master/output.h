@@ -545,7 +545,10 @@ void Output<D>::bsqsveprofile(LinkList<D> &linklist)
 				<< linklist._p[i].EOSQ() << " "
 				<< linklist._p[i].EOSs() << " "
 				<< linklist._p[i].eta/(linklist._p[i].gamma*linklist.t) << " "
-				<< linklist._p[i].stauRelax << " " <<  linklist._p[i].sigmaweight << " "
+				<< linklist._p[i].eta_sigma << " "
+				<< linklist._p[i].sigma << " " 
+				<< linklist._p[i].sigmaweight << " "
+				<< linklist._p[i].stauRelax << " " 
 				<< linklist._p[i].bigtheta   << " "
 				<<  sqrt( linklist._p[i].shv.x[0][0]*linklist._p[i].shv.x[0][0]
 						-2*linklist._p[i].shv.x[0][1]*linklist._p[i].shv.x[0][1]
@@ -557,7 +560,7 @@ void Output<D>::bsqsveprofile(LinkList<D> &linklist)
 				<< linklist._p[i].stauRelax/linklist.t * linklist._p[i].bigtheta << " "
 				<< linklist._p[i].u.x[0]/linklist._p[i].gamma << " "
 				<< linklist._p[i].u.x[1]/linklist._p[i].gamma << " "
-				<< linklist._p[i].gamma << " " << linklist._p[i].sigma << " " << i << endl;
+				<< linklist._p[i].gamma << " " << i << endl;
 
 if ( i == 23 )
 {
