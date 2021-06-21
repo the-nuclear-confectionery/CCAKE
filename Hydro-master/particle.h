@@ -157,6 +157,7 @@ public:
 	double EOSs_out(double e_In, double rhoB_In, double rhoS_In, double rhoQ_In);
 	void EOSupdate_s(double s_In);
 	void EOSupdate_s(double s_In, double rhoB_In, double rhoS_In, double rhoQ_In);
+	bool EOSupdate_s(double s_In, double rhoB_In, double rhoS_In, double rhoQ_In);
 
 	double particle_T, particle_muB, particle_muS, particle_muQ;
 
