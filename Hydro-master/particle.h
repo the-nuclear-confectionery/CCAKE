@@ -313,7 +313,13 @@ void Particle<D>::calcbsq(double tin)
 	rhoB_an = rhoB_in2;
 	rhoS_an = rhoS_in2;
 	rhoQ_an = rhoQ_in2;
-    EOSupdate_s(s_in2, rhoB_in2, rhoS_in2, rhoQ_in2);	//  is this correct?  (confirm with Jaki)
+    string SUCCESSstring = 
+			( EOSupdate_s(s_in2, rhoB_in2, rhoS_in2, rhoQ_in2) ) ?
+			"Succeeded!" : "Failed!";
+
+	cout << "CHECK EOSupdate_s: " << SUCCESSstring << "   " << tin << "   "
+		<< s_in2 << "   " << rhoB_in2 << "   " << rhoS_in2 << "   " << rhoQ_in2 << "   "
+		<< EOS.s() << "   " << EOS.B() << "   " << EOS.S() << "   " << EOS.Q() << endl
 
 cout << "CHECK " << __PRETTY_FUNCTION__ << "::" << __LINE__ << ": "
 		<< tin << "   " << r << "   " << v << "   " << s_in2 << "   "
@@ -357,7 +363,10 @@ void Particle<D>::return_bsqsv_A()
 {
     eta_o_tau=setas/stauRelax;
 
-    Agam=EOSw()-EOSdwds()*(EOSs()+ bigPI/EOST() )- zeta/tauRelax ;//here goes a purple tag
+    Agam=EOSw()-EOSdwds()*(EOSs()+ bigPI/EOST() )- zeta/tauRelax
+			- EOS.dwdB() * rhoB_an
+			- EOS.dwdS() * rhoS_an
+			- EOS.dwdQ() * rhoQ_an;
 
     Agam2=(Agam-eta_o_tau*(0.5-1/3.) -dwdsT1*shv.x[0][0])/gamma;
     Ctot=C+eta_o_tau*(1/g2-1)/2.;
