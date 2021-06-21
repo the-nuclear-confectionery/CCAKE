@@ -319,7 +319,7 @@ void Particle<D>::calcbsq(double tin)
 
 	cout << "CHECK EOSupdate_s: " << SUCCESSstring << "   " << tin << "   "
 		<< s_in2 << "   " << rhoB_in2 << "   " << rhoS_in2 << "   " << rhoQ_in2 << "   "
-		<< EOS.s() << "   " << EOS.B() << "   " << EOS.S() << "   " << EOS.Q() << endl
+		<< EOS.s() << "   " << EOS.B() << "   " << EOS.S() << "   " << EOS.Q() << endl;
 
 cout << "CHECK " << __PRETTY_FUNCTION__ << "::" << __LINE__ << ": "
 		<< tin << "   " << r << "   " << v << "   " << s_in2 << "   "
