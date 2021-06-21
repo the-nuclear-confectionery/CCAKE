@@ -873,7 +873,7 @@ void BSQshear(LinkList<D>  &linklist)  // shear+bulk Equations of motion, only s
 									*( linklist._p[i].gradV.x[0][0]
 									 + linklist._p[i].gradV.x[1][1] );
 
-cout << "CHECK dsigma_dt: " << i << "   " << linklist._p[i].dsigma_dt
+cout << "CHECK dsigma_dt: " << i << "   " << linklist.t << "   " << linklist._p[i].dsigma_dt
 		<< "   " << linklist._p[i].sigma << "   " << linklist._p[i].gradV.x[0][0]
 		<< "   " << linklist._p[i].gradV.x[1][1] << endl;
 
@@ -902,12 +902,12 @@ cout << "CHECK dsigma_dt: " << i << "   " << linklist._p[i].dsigma_dt
         //p2=linklist._p[i].setas*gamt;
         Matrix <double,D,D> partU=linklist._p[i].gradU+transpose(linklist._p[i].gradU);
 
-//cout << "CHECK misc1: " << i << "   " << gamt << "   " << linklist._p[i].sigma
-//		<< "   " << linklist._p[i].dsigma_dt << "   " << linklist.t << endl;
+cout << "CHECK misc1: " << i << "   " << linklist.t << "   " << gamt << "   " << linklist._p[i].sigma
+		<< "   " << linklist._p[i].dsigma_dt << "   " << linklist.t << endl;
 
-//cout << "CHECK minshv: " << minshv << endl;
+cout << "CHECK minshv: " << i << "   " << linklist.t << "   " << minshv << endl;
 
-//cout << "CHECK partU: " << partU << endl;
+cout << "CHECK partU: " << i << "   " << linklist.t << "   " << partU << endl;
 
         // set the Mass and the Force
         Matrix <double,D,D> M=linklist._p[i].Msub(i);
@@ -916,24 +916,23 @@ cout << "CHECK dsigma_dt: " << i << "   " << linklist._p[i].dsigma_dt
 							- ( linklist._p[i].gradP + linklist._p[i].gradBulk
 								+ linklist._p[i].divshear );
 
-//cout << "CHECK M: " << M << endl;
-//cout << "CHECK F: " << F << endl;
+cout << "CHECK M: " << i << "   " << linklist.t << "   " << M << endl;
+cout << "CHECK F: " << i << "   " << linklist.t << "   " << F << endl;
 
         // shear contribution
         F+=pre*linklist._p[i].v*partU+p1*minshv;
 
-//cout << "CHECK F again: " << F << endl;
+cout << "CHECK F(again): " << i << "   " << linklist.t << "   " << F << endl;
 
 
         double det=deter(M);
-//cout << "CHECK det: " << i << "   " << M.x[0][0] << "   " << M.x[0][1] << "   "
-//		<< M.x[1][0] << "   " << M.x[1][1] << "   " << det << endl;
+cout << "CHECK det: " << i << "   " << linklist.t << "   " << M << "   " << det << endl;
         Matrix <double,D,D> MI;
         MI.x[0][0]=M.x[1][1]/det;
         MI.x[0][1]=-M.x[0][1]/det;
         MI.x[1][0]=-M.x[1][0]/det;
         MI.x[1][1]=M.x[0][0]/det;
-//cout << "CHECK MI: " << MI << endl;
+cout << "CHECK MI: " << i << "   " << linklist.t << "   " << MI << endl;
         linklist._p[i].du_dt.x[0]=F.x[0]*MI.x[0][0]+F.x[1]*MI.x[0][1];
         linklist._p[i].du_dt.x[1]=F.x[0]*MI.x[1][0]+F.x[1]*MI.x[1][1];
 
@@ -952,6 +951,7 @@ cout << "CHECK dsigma_dt: " << i << "   " << linklist._p[i].dsigma_dt
         linklist._p[i].bigtheta=linklist._p[i].div_u*linklist.t+linklist._p[i].gamma;
 
 cout << "CHECK div_u: " << i << "   " << linklist._p[i].div_u
+		<< "   " << linklist.t
 		<< "   " << linklist._p[i].gamma
 		<< "   " << linklist._p[i].u
 		<< "   " << linklist._p[i].du_dt
@@ -967,6 +967,7 @@ cout << "CHECK bigtheta: " << i << "   " << linklist._p[i].bigtheta
         linklist._p[i].inside=linklist.t*(inner((-minshv+linklist._p[i].shv.x[0][0]*linklist._p[i].v),linklist._p[i].du_dt)- con2(sub,linklist._p[i].gradU)    -      linklist._p[i].gamma*linklist.t*linklist._p[i].shv33);
 
 std::cout << "Check inside: " << i << "   "
+			<< linklist.t << "   "
 			<< linklist._p[i].inside << "   "
 			<< minshv << ";   "
 			<< linklist._p[i].shv.x[0][0]*linklist._p[i].v << ";   "
@@ -981,6 +982,7 @@ std::cout << "Check inside: " << i << "   "
 										*( -linklist._p[i].bigPI*linklist._p[i].bigtheta
 											+linklist._p[i].inside);
 std::cout << "Check detasigma_dt: " << i << "   "
+			<< linklist.t << "   "
 			<< linklist._p[i].detasigma_dt << "   "
 			<< linklist._p[i].sigma << "   "
 			<< linklist._p[i].EOST()*197.327 << "   "

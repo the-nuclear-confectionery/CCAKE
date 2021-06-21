@@ -532,7 +532,7 @@ void Output<D>::bsqsveprofile(LinkList<D> &linklist)
         for (int i=0; i<linklist.n(); i++)
         {
 
-            EPN << linklist.t   << " "
+            EPN << i << " " << linklist.t << " "
 				<< linklist._p[i].r   << " "
 				<< linklist._p[i].EOSp() << " "
 				<< linklist._p[i].EOST()*197.3 << " "
@@ -560,7 +560,7 @@ void Output<D>::bsqsveprofile(LinkList<D> &linklist)
 				<< linklist._p[i].stauRelax/linklist.t * linklist._p[i].bigtheta << " "
 				<< linklist._p[i].u.x[0]/linklist._p[i].gamma << " "
 				<< linklist._p[i].u.x[1]/linklist._p[i].gamma << " "
-				<< linklist._p[i].gamma << " " << i << endl;
+				<< linklist._p[i].gamma << endl;
 
 if ( i == 23 )
 {
