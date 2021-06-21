@@ -885,6 +885,20 @@ cout << "CHECK EOS(2; " << SUCCESS_STRING << "): " << rhoB_In << "   " << EOS.B(
 }
 
 
+
+template <int D>
+bool Particle<D>::EOSupdate_s(double s_In, double rhoB_In, double rhoS_In, double rhoQ_In)
+{
+	EOS.tbqs( particle_T, particle_muB, particle_muQ, particle_muS );
+	bool update_s_success = EOS.update_s( s_In, rhoB_In, rhoS_In, rhoQ_In );
+	particle_T = EOS.T();
+	particle_muB = EOS.muB();
+	particle_muS = EOS.muS();
+	particle_muQ = EOS.muQ();
+
+	return ( update_s_success );
+}
+
 template <int D>
 void Particle<D>::EOSupdate_s(double s_In)
 {
