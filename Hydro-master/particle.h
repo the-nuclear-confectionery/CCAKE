@@ -485,13 +485,27 @@ Matrix<double, D,D> Particle<D>::dpidtsub()
 template <int D>
 void Particle<D>::bsqsvsigset(double tin,int i)
 {
+	// from svsigset
+    g2=gamma*gamma;
+    g3=gamma*g2;
+    gt=gamma*tin;
+    double dwdsT=EOSdwds()/EOST();
+    dwdsT1=1- EOSdwds()/EOST();
+    sigl=dsigma_dt/sigma -1/tin;
+    gradU=gamma*gradV+g3*(v*(v*gradV));
+    bigPI= Bulk*sigma/gt ;
+    C=EOSw()+ bigPI;
+    return_sv_A();
+    Btot=(Agam*gamma+eta_o_tau/3*gamma)*sigl+ bigPI/tauRelax + dwdsT* (gt*shv33+  Bsub());
+    check=sigl;
 
+/*	// from vsigset
     bigPI = Bulk*sigma/gamma/tin ;
 
     C=EOSw()+bigPI;
 
     return_bsqsv_A();
-    Agam2=Agam*gamma*gamma*(dsigma_dt/sigma -1./tin)+ bigPI/tauRelax;
+    Agam2=Agam*gamma*gamma*(dsigma_dt/sigma -1./tin)+ bigPI/tauRelax;*/
 
 }
 
