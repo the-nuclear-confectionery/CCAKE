@@ -157,7 +157,6 @@ public:
 	double EOSs_out(double e_In, double rhoB_In, double rhoS_In, double rhoQ_In);
 	void EOSupdate_s(double s_In);
 	void EOSupdate_s(double s_In, double rhoB_In, double rhoS_In, double rhoQ_In);
-	bool EOSupdate_s(double s_In, double rhoB_In, double rhoS_In, double rhoQ_In);
 
 	double particle_T, particle_muB, particle_muS, particle_muQ;
 
@@ -314,13 +313,14 @@ void Particle<D>::calcbsq(double tin)
 	rhoB_an = rhoB_in2;
 	rhoS_an = rhoS_in2;
 	rhoQ_an = rhoQ_in2;
-    string SUCCESSstring = 
+    /*string SUCCESSstring = 
 			( EOSupdate_s(s_in2, rhoB_in2, rhoS_in2, rhoQ_in2) ) ?
 			"Succeeded!" : "Failed!";
 
 	cout << "CHECK EOSupdate_s: " << SUCCESSstring << "   " << tin << "   "
 		<< s_in2 << "   " << rhoB_in2 << "   " << rhoS_in2 << "   " << rhoQ_in2 << "   "
-		<< EOS.s() << "   " << EOS.B() << "   " << EOS.S() << "   " << EOS.Q() << endl;
+		<< EOS.s() << "   " << EOS.B() << "   " << EOS.S() << "   " << EOS.Q() << endl;*/
+	EOSupdate_s(s_in2, rhoB_in2, rhoS_in2, rhoQ_in2);
 
 cout << "CHECK " << __PRETTY_FUNCTION__ << "::" << __LINE__ << ": "
 		<< tin << "   " << r << "   " << v << "   " << s_in2 << "   "
@@ -874,7 +874,9 @@ void Particle<D>::EOSupdate_s(double s_In, double rhoB_In, double rhoS_In, doubl
 	EOS.tbqs( particle_T, particle_muB, particle_muQ, particle_muS );
 	bool update_s_success = EOS.update_s( s_In, rhoB_In, rhoS_In, rhoQ_In );
 	string SUCCESS_STRING = ( update_s_success ) ? "PASS" : "FAIL";
-cout << "CHECK EOS(2; " << SUCCESS_STRING << "): " << rhoB_In << "   " << EOS.B()
+cout << "CHECK EOSupdate_s: " << SUCCESS_STRING << ": "
+		<< "   " << s_In << "   " << EOS.s()
+		<< "   " << rhoB_In << "   " << EOS.B()
 		<< "   " << rhoS_In << "   " << EOS.S()
 		<< "   " << rhoQ_In << "   " << EOS.Q() << endl;
 	particle_T = EOS.T();
@@ -887,18 +889,6 @@ cout << "CHECK EOS(2; " << SUCCESS_STRING << "): " << rhoB_In << "   " << EOS.B(
 
 
 
-template <int D>
-bool Particle<D>::EOSupdate_s(double s_In, double rhoB_In, double rhoS_In, double rhoQ_In)
-{
-	EOS.tbqs( particle_T, particle_muB, particle_muQ, particle_muS );
-	bool update_s_success = EOS.update_s( s_In, rhoB_In, rhoS_In, rhoQ_In );
-	particle_T = EOS.T();
-	particle_muB = EOS.muB();
-	particle_muS = EOS.muS();
-	particle_muQ = EOS.muQ();
-
-	return ( update_s_success );
-}
 
 template <int D>
 void Particle<D>::EOSupdate_s(double s_In)
