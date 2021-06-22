@@ -1702,6 +1702,7 @@ void LinkList<D>::optimization(int a)
 
 
 
+
 //======================================================================
 template <int D>
 void LinkList<D>::optint(int a, double & ux0,  double & uy0)
@@ -2366,14 +2367,23 @@ void LinkList<D>::updateIC()
 		{
 			sw.Start();
 			_p[i].s_an = _p[i].EOSs_out( _p[i].e_sub, _p[i].rhoB_an, _p[i].rhoS_an, _p[i].rhoQ_an );
-cout << "CHECK EOS(1): " << _p[i].rhoB_an << "   " << _p[i].EOSB()
-		<< "   " << _p[i].rhoS_an << "   " << _p[i].EOSS()
-		<< "   " << _p[i].rhoQ_an << "   " << _p[i].EOSQ() << endl;
+//cout << "CHECK EOS(1): " << _p[i].rhoB_an << "   " << _p[i].EOSB()
+//		<< "   " << _p[i].rhoS_an << "   " << _p[i].EOSS()
+//		<< "   " << _p[i].rhoQ_an << "   " << _p[i].EOSQ() << endl;
 			sw.Stop();
-			cout << "SPH particle " << i << ", EOSs_out: completed in "
-					<< sw.printTime() << "s." << endl;
+			//cout << "SPH particle " << i << ", EOSs_out: completed in "
+			//		<< sw.printTime() << "s." << endl;
 			sw.Reset();
 		}
+
+		cout << "SPH particles(2): "
+			<< i << "   "
+			<< _p[i].r.x[0] << "   " << _p[i].r.x[1] << "   "
+			<< _p[i].s_an << "   " << sfcheck << "   "
+			<< _p[i].e_sub << "   " << efcheck << "   " << _p[i].rhoB_an << "   "
+			<< _p[i].rhoS_an << "   " << _p[i].rhoQ_an << "   "
+			<< _p[i].sigmaweight << endl;
+
 
 		////////////////////////////////////////////////////////////////////////
 		// for now, if we failed to find a real entropy density for this
@@ -2394,28 +2404,28 @@ cout << "CHECK EOS(1): " << _p[i].rhoB_an << "   " << _p[i].EOSB()
 		sw.Start();
        _p[i].EOSupdate_s( _p[i].s_an, _p[i].rhoB_an, _p[i].rhoS_an, _p[i].rhoQ_an );
 		sw.Stop();
-		cout << "SPH particle " << i << ", EOSupdate_s: completed in "
-				<< sw.printTime() << "s." << endl;
+		//cout << "SPH particle " << i << ", EOSupdate_s: completed in "
+		//		<< sw.printTime() << "s." << endl;
 		sw.Reset();
 
         if (gtyp==5) _p[i].e_sub=_p[i].EOSe();
 
         _p[i].gamma=_p[i].gamcalc();
 
-cout << "Check sigmaweight(1): " << i << "   "
+/*cout << "Check sigmaweight(1): " << i << "   "
 		<< _p[i].sigmaweight << "   "
 		<< _p[i].s_an << "   "
 		<< _p[i].gamma << "   "
-		<< t0 << endl;
+		<< t0 << endl;*/
 
         _p[i].sigmaweight *= _p[i].s_an*_p[i].gamma*t0;	// sigmaweight is constant after this
         _p[i].rho_weight *= _p[i].gamma*t0;				// rho_weight is constant after this
 
-cout << "Check sigmaweight(2): " << i << "   "
+/*cout << "Check sigmaweight(2): " << i << "   "
 		<< _p[i].sigmaweight << "   "
 		<< _p[i].s_an << "   "
 		<< _p[i].gamma << "   "
-		<< t0 << endl;
+		<< t0 << endl;*/
 
 		_p[i].B *= _p[i].gamma*t0;	// B does not evolve in ideal case (confirm with Jaki)
 		_p[i].S *= _p[i].gamma*t0;	// S does not evolve in ideal case (confirm with Jaki)

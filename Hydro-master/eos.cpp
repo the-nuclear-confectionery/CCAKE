@@ -35,6 +35,8 @@ eos::eos() : pSpline(4), entrSpline(4), bSpline(4), sSpline(4), qSpline(4), eSpl
 
 void eos::init(string quantityFile, string derivFile, int degree, bool using_HDF)
 {
+	VERBOSE = 5;
+
 	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
 	if ( using_HDF )
 		init_with_hdf(quantityFile, derivFile, degree);
@@ -439,7 +441,7 @@ void eos::init_with_hdf(string quantityFile, string derivFile, int degree)
 
 void eos::init_with_txt(string quantityFile, string derivFile, int degree)
 {
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     std::ifstream dataFile;
     std::ifstream derFile;
     dataFile.open(quantityFile);
@@ -601,7 +603,7 @@ void eos::init_with_txt(string quantityFile, string derivFile, int degree)
 }
 
 void eos::tbqs(double setT, double setmuB, double setmuQ, double setmuS) {
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
 
     if(setT < minT || setT > maxT) {
         std::cout << "T = " << setT << " is out of range. Valid values are between [" << minT << "," << maxT << "]" << std::endl;
@@ -780,107 +782,107 @@ double eos::w(double Tin, double muBin, double muQin, double muSin) {
 
 
 double eos::dwds() {
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return T() + entrVal/dentr_dt() + BVal/dentr_dmub() + QVal/dentr_dmuq() + SVal/dentr_dmus();
 }
 
 double eos::dwdB() {
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return muB() + entrVal/db_dt() + BVal/db_dmub() + QVal/db_dmuq() + SVal/db_dmus();
 }
 
 double eos::dwdS() {
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return muS() + entrVal/ds_dt() + BVal/ds_dmub() + QVal/ds_dmuq() + SVal/ds_dmus();
 }
 
 double eos::dwdQ() {
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return muQ() + entrVal/dq_dt() + BVal/dq_dmub() + QVal/dq_dmuq() + SVal/dq_dmus();
 }
 
 double eos::dentr_dt() {
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_1();
 }
 
 double eos::dentr_dmub() {
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_2("b");
 }
 
 double eos::dentr_dmuq() {
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_2("q");
 }
 
 double eos::dentr_dmus() {
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_2("s");
 }
 
 double eos::db_dt() {
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_3("b");
 }
 
 double eos::db_dmub() {
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_4("b","b");
 }
 
 double eos::db_dmuq() {
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_4("b","q");
 }
 
 double eos::db_dmus() {
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_4("b","s");
 }
 
 double eos::ds_dt() {
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_3("s");
 }
 
 double eos::ds_dmub() {
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_4("s","b");
 }
 
 double eos::ds_dmuq() {
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_4("s","q");
 }
 
 double eos::ds_dmus() {
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_4("s","s");
 }
 
 double eos::dq_dt() {
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_3("q");
 }
 
 double eos::dq_dmub() {
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_4("q","b");
 }
 
 double eos::dq_dmuq() {
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_4("q","q");
 }
 
 double eos::dq_dmus() {
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_4("q","s");
 }
 
 double eos::calc_term_1() {
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     gsl_vector *v = gsl_vector_alloc(3);
     gsl_matrix *m = gsl_matrix_alloc(3,3);
 
@@ -906,7 +908,7 @@ double eos::calc_term_1() {
 }
 
 double eos::calc_term_2(string i_char) {
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     gsl_vector *a = gsl_vector_alloc(3);
     gsl_matrix *m = gsl_matrix_alloc(3,3);
     gsl_vector *b = gsl_vector_alloc(3);
@@ -983,7 +985,7 @@ double eos::calc_term_2(string i_char) {
 }
 
 double eos::calc_term_3(string i_char) {
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     gsl_vector *a = gsl_vector_alloc(3);
     gsl_matrix *m = gsl_matrix_alloc(3,3);
     gsl_vector *b = gsl_vector_alloc(3);
@@ -1060,7 +1062,7 @@ double eos::calc_term_3(string i_char) {
 }
 
 double eos::calc_term_4(string j_char, string i_char) {
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     gsl_vector *a = gsl_vector_alloc(3);
     gsl_matrix *m = gsl_matrix_alloc(3,3);
     gsl_vector *b = gsl_vector_alloc(3);
@@ -1269,7 +1271,7 @@ double eos::calc_term_4(string j_char, string i_char) {
 }
 
 double eos::deriv_mult_aTm_1b(gsl_vector* a, gsl_matrix* m, gsl_vector* b) {
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     gsl_permutation *p = gsl_permutation_alloc(3);
     int s;
 
@@ -1316,43 +1318,43 @@ double eos::deriv_mult_aTm_1b(gsl_vector* a, gsl_matrix* m, gsl_vector* b) {
 
 double eos::Atable()
 {
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     Aout=w()-entrVal*dwds();
 
     return Aout;
 }
 
 double eos::cs2out(double Tt) {  //return cs2 given t and mu's=0
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     tbqs(Tt, 0.0, 0.0, 0.0);
     return cs2Val;
 }
 
 double eos::cs2out(double Tt, double muBin, double muQin, double muSin) {  //return cs2 given t and mu's
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     tbqs(Tt, muBin, muQin, muSin);
     return cs2Val;
 }
 
 double eos::wfz(double Tt) {   // return e + p for tbqs
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     tbqs(Tt, 0.0, 0.0, 0.0);
     return eVal + pVal;
 }
 
 double eos::wfz(double Tt, double muBin, double muQin, double muSin) {   // return e + p for tbqs
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     tbqs(Tt, muBin, muQin, muSin);
     return eVal + pVal;
 }
 
 bool eos::update_s(double sin) { //update the t position (mu=0) based on input. Returns 1 if found, returns 0 if failed
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return update_s(sin, 0.0, 0.0, 0.0);
 }
 
 bool eos::update_s(double sin, double Bin, double Sin, double Qin) { //update the t and mu position based on input. Returns 1 if found, returns 0 if failed
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     if (rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
         return true;
     }
@@ -1448,12 +1450,12 @@ bool eos::update_s(double sin, double Bin, double Sin, double Qin) { //update th
 }
 
 double eos::s_out(double ein) {   //update the t position (mu=0) based on input. Returns entropy if found, returns -1 if failed
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return s_out(ein, 0.0, 0.0, 0.0);
 }
 
 double eos::s_out(double ein, double Bin, double Sin, double Qin) {   //update the t and mu position based on input. Returns entropy if found, returns -1 if failed
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     if (rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
         return entrVal;
     }
@@ -1552,7 +1554,7 @@ double eos::s_out(double ein, double Bin, double Sin, double Qin) {   //update t
 }
 
 double eos::s_terms_T(double Tt) { //return entropy at a given temperature for muB = muS = muQ = 0
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     tbqs(Tt, 0, 0, 0);
     return entrVal;
 }
@@ -1560,22 +1562,22 @@ double eos::s_terms_T(double Tt) { //return entropy at a given temperature for m
 
 // UNCOMMENTED BY C. PLUMBERG
 void eos::eosin(std::string type) {
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
 }
 double eos::A() {
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return 0;
 }
 
 
 // confirm with Jaki
 double eos::efreeze(double T_freeze_out_at_mu_eq_0) {
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     tbqs(T_freeze_out_at_mu_eq_0, 0, 0, 0);
     return eVal;
 }
 double eos::sfreeze(double T_freeze_out_at_mu_eq_0) {
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return s_terms_T(T_freeze_out_at_mu_eq_0);
 }
 
@@ -1697,7 +1699,7 @@ int rootfinder_febqs(const gsl_vector *x, void *params, gsl_vector *f) {
 
 
 bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, double rhoSGiven, double rhoQGiven, double error, size_t steps) {
-std::cout << __PRETTY_FUNCTION__ << e_or_s_Given << "   " << e_or_s_mode << "   " << rhoBGiven << "   " << rhoSGiven << "   " << rhoQGiven << "   " << error << "   " << steps << std::endl;
+if ( VERBOSE > 5 ) std::cout << __PRETTY_FUNCTION__ << e_or_s_Given << "   " << e_or_s_mode << "   " << rhoBGiven << "   " << rhoSGiven << "   " << rhoQGiven << "   " << error << "   " << steps << std::endl;
 
     //declare x = (T, muB, muS)
     gsl_vector *x = gsl_vector_alloc(4);
@@ -1734,7 +1736,7 @@ std::cout << __PRETTY_FUNCTION__ << e_or_s_Given << "   " << e_or_s_mode << "   
     f.n = 4;
     f.params = &p;
 
-	if ( e_or_s_mode == 1 )
+	if ( e_or_s_mode == 1 and VERBOSE > 5 )
 		std::cout << std::endl
 			<< "=============================================="
 			<< std::endl << "Input (e,B,Q,S): "
@@ -1756,42 +1758,42 @@ std::cout << __PRETTY_FUNCTION__ << e_or_s_Given << "   " << e_or_s_mode << "   
 
         if(status) {
 
-	if ( status == GSL_EBADFUNC && e_or_s_mode == 1 )
+	if ( status == GSL_EBADFUNC && e_or_s_mode == 1 && VERBOSE > 5 )
 		std::cout << "Error: something went to +/-Inf or NaN!" << std::endl;
-	else if ( status == GSL_ENOPROG && e_or_s_mode == 1 )
+	else if ( status == GSL_ENOPROG && e_or_s_mode == 1 && VERBOSE > 5 )
 		std::cout << "Error: not making enough progress!" << std::endl;
             return 0;      //break if the rootfinder gets stuck
         }
         if(gsl_vector_get(solver->x, 0) < minT) {
-	if ( e_or_s_mode == 1 )
+	if ( e_or_s_mode == 1 && VERBOSE > 5 )
 		std::cout << "Error: out-of-bounds (T < minT)!" << std::endl;
             return 0;
         } else if(gsl_vector_get(solver->x, 0) > maxT) {
-	if ( e_or_s_mode == 1 )
+	if ( e_or_s_mode == 1 && VERBOSE > 5 )
 		std::cout << "Error: out-of-bounds (T > maxT)!" << std::endl;
             return 0;
         } else if (gsl_vector_get(solver->x, 1) < minMuB) {
-	if ( e_or_s_mode == 1 )
+	if ( e_or_s_mode == 1 && VERBOSE > 5 )
 		std::cout << "Error: out-of-bounds (MuB < minMuB)!" << std::endl;
             return 0;
         } else if (gsl_vector_get(solver->x, 1) > maxMuB) {
-	if ( e_or_s_mode == 1 )
+	if ( e_or_s_mode == 1 && VERBOSE > 5 )
 		std::cout << "Error: out-of-bounds (MuB > maxMuB)!" << std::endl;
             return 0;
         } else if (gsl_vector_get(solver->x, 2) < minMuQ) {     //break if the rootfinder goes out of bounds
-	if ( e_or_s_mode == 1 )
+	if ( e_or_s_mode == 1 && VERBOSE > 5 )
 		std::cout << "Error: out-of-bounds (MuQ < minMuQ)!" << std::endl;
             return 0;
         } else if (gsl_vector_get(solver->x, 2) > maxMuQ) {
-	if ( e_or_s_mode == 1 )
+	if ( e_or_s_mode == 1 && VERBOSE > 5 )
 		std::cout << "Error: out-of-bounds (MuQ > maxMuQ)!" << std::endl;
             return 0;
         } else if (gsl_vector_get(solver->x, 3) < minMuS) {
-	if ( e_or_s_mode == 1 )
+	if ( e_or_s_mode == 1 && VERBOSE > 5 )
 		std::cout << "Error: out-of-bounds (MuS < minMuS)!" << std::endl;
             return 0;
         } else if (gsl_vector_get(solver->x, 3) > maxMuS) {
-	if ( e_or_s_mode == 1 )
+	if ( e_or_s_mode == 1 && VERBOSE > 5 )
 		std::cout << "Error: out-of-bounds (MuS > maxMuS)!" << std::endl;
             return 0;
         }
@@ -1813,7 +1815,7 @@ std::cout << __PRETTY_FUNCTION__ << e_or_s_Given << "   " << e_or_s_mode << "   
 
 	string output_status = ( found ) ? "FOUND" : "NOT FOUND";
 
-	if ( e_or_s_mode == 1 )
+	if ( e_or_s_mode == 1 && VERBOSE > 5 )
 		std::cout << "Output (" << output_status << "): rootfinder4D at x = "
 			<< 197.33*gsl_vector_get(solver->x, 0) << "   "
 			<< 197.33*gsl_vector_get(solver->x, 1) << "   "
@@ -1931,7 +1933,7 @@ int quant_rootfinder_f(const gsl_vector *x, void *params, gsl_vector *f) {
 }
 
 bool eos::quant_rootfinder4D(double quantGiven, string quantType, int whichIndep, double error, size_t steps) {
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
 
     //declare x = T
     gsl_vector *x = gsl_vector_alloc(1);

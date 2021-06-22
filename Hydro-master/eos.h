@@ -110,6 +110,8 @@ public:
 
 private:
 
+	int VERBOSE;
+
     //see READMEeos file for more info on the following parameters
     //tolerance for rootfinder function used in update_s() and s_out() **THIS CAN BE CHANGED DEPENDING ON EOS
     double TOLERANCE = 1e-10;
