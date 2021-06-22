@@ -548,7 +548,7 @@ void readICs_iccing( string &firstry, int &_Ntable3, Particle<2> *&_p,
 
 		// make educated initial guess here for this particle's (T, mu_i) coordinates
 		// (improve this in the future)
-		_p[j].particle_T   = 197.33/197.33;
+		_p[j].particle_T   = 500.0/197.33;
 		_p[j].particle_muB = 0.0;
 		_p[j].particle_muS = 0.0;
 		_p[j].particle_muQ = 0.0;

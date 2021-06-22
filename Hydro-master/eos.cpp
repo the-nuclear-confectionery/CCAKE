@@ -1704,14 +1704,14 @@ if ( VERBOSE > 5 ) std::cout << __PRETTY_FUNCTION__ << e_or_s_Given << "   " << 
     //declare x = (T, muB, muS)
     gsl_vector *x = gsl_vector_alloc(4);
 
-    //gsl_vector_set(x, 0, T());
-    //gsl_vector_set(x, 1, muB());
-    //gsl_vector_set(x, 2, muQ());
-    //gsl_vector_set(x, 3, muS());
-    gsl_vector_set(x, 0, 500.0/197.327);
+    gsl_vector_set(x, 0, T());
+    gsl_vector_set(x, 1, muB());
+    gsl_vector_set(x, 2, muQ());
+    gsl_vector_set(x, 3, muS());
+    /*gsl_vector_set(x, 0, 500.0/197.327);
     gsl_vector_set(x, 1, 0.0/197.327);
     gsl_vector_set(x, 2, 0.0/197.327);
-    gsl_vector_set(x, 3, 0.0/197.327);
+    gsl_vector_set(x, 3, 0.0/197.327);*/
 
     //initialize the rootfinder equation to the correct variable quantities
     bool isEntropy = false;
