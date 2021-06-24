@@ -1703,6 +1703,8 @@ void LinkList<D>::optimization(int a)
 
 
 
+
+
 //======================================================================
 template <int D>
 void LinkList<D>::optint(int a, double & ux0,  double & uy0)
@@ -2391,6 +2393,15 @@ void LinkList<D>::updateIC()
 		// and continue without setting anything else
 		if (_p[i].s_an < 0.0)
 		{
+
+
+			// N.B. - STILL NEED TO FIX HOW THIS IS HANDLED
+			// THIS VERSION ADDS ARTIFICIAL ENTROPY DENSITY
+			if ( false )
+			{
+				cerr << "EXITING: THIS SHOULDN'T BE A PROBLEM AFTER FIXING EOS!!!" << endl;
+				exit(-1);
+			}
 
 //cout << "Error(1): " << _p[i].s_an << "   " << _p[i].e_sub << "   "
 //		<< _p[i].rhoB_an << "   " << _p[i].rhoS_an << "   " << _p[i].rhoQ_an << endl;

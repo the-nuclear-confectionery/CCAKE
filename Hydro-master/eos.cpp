@@ -671,22 +671,22 @@ void eos::tbqs(double setT, double setmuB, double setmuQ, double setmuS) {
 
 
 double eos::T() {
-//	std::cout << "Now in " << __PRETTY_FUNCTION__ << ": " << tbqsPosition(0) << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << ": " << tbqsPosition(0) << std::endl;
     return tbqsPosition(0);
 }
 
 double eos::muB() {
-//	std::cout << "Now in " << __PRETTY_FUNCTION__ << ": " << tbqsPosition(1) << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << ": " << tbqsPosition(1) << std::endl;
     return tbqsPosition(1);
 }
 
 double eos::muQ() {
-//	std::cout << "Now in " << __PRETTY_FUNCTION__ << ": " << tbqsPosition(2) << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << ": " << tbqsPosition(2) << std::endl;
     return tbqsPosition(2);
 }
 
 double eos::muS() {
-//	std::cout << "Now in " << __PRETTY_FUNCTION__ << ": " << tbqsPosition(3) << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << ": " << tbqsPosition(3) << std::endl;
     return tbqsPosition(3);
 }
 
@@ -694,43 +694,43 @@ double eos::muS() {
 
 
 double eos::p() {
-//	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return pVal;
 }
 
 double eos::s() {
-//	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return entrVal;
 }
 
 double eos::B() {
-//	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return BVal;
 }
 
 double eos::S() {
-//	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return SVal;
 }
 
 double eos::Q() {
-//	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return QVal;
 }
 
 double eos::e() {
-//	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return eVal;
 }
 
 double eos::cs2() {
-//	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return cs2Val;
 }
 
 
 double eos::w() {
-//	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return eVal + pVal;
 }
 

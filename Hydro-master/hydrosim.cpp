@@ -853,7 +853,7 @@ void BSQshear(LinkList<D>  &linklist)  // shear+bulk Equations of motion, only s
         //  Computes gamma and velocity
 
         linklist._p[i].calcbsq(linklist.t); //resets EOS!!
-        linklist._p[i].setvisc(linklist.etaconst,linklist.bvf,linklist.svf,linklist.zTc,linklist.sTc,linklist.zwidth,linklist.visc);
+        /*N.B. - eventually extend to read in viscosities from table, etc.*/linklist._p[i].setvisc(linklist.etaconst,linklist.bvf,linklist.svf,linklist.zTc,linklist.sTc,linklist.zwidth,linklist.visc);
         if (linklist.cfon==1) linklist._p[i].frzcheck(linklist.t,curfrz,linklist.n());
 
     }
@@ -994,12 +994,12 @@ std::cout << "Check detasigma_dt: " << i << "   "
 
 
 
-
+		// N.B. - ADD EXTRA TERMS FOR BULK EQUATION
         linklist._p[i].dBulk_dt = (-linklist._p[i].zeta/linklist._p[i].sigma*linklist._p[i].bigtheta - linklist._p[i].Bulk/linklist._p[i].gamma )/linklist._p[i].tauRelax;
 
         Matrix <double,D,D> ududt=linklist._p[i].u*linklist._p[i].du_dt;
 
-
+		// N.B. - ADD READABLE TERM NAMES
         linklist._p[i].dshv_dt= -gamt*(linklist._p[i].pimin+linklist._p[i].setas*0.5*partU)-0.5*linklist._p[i].eta_o_tau*(ududt+transpose(ududt))+linklist._p[i].dpidtsub()-vduk*(ulpi+transpose(ulpi)+(1/linklist._p[i].gamma)*Ipi)+linklist._p[i].sigl*Ipi;
 
         //linklist._p[i].drhoB_dt=-linklist._p[i].rhoB*linklist._p[i].sigma*linklist._p[i].bigtheta;

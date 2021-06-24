@@ -484,7 +484,7 @@ void readICs_iccing( string &firstry, int &_Ntable3, Particle<2> *&_p,
 		// do not scale by factor!!!
         //if ((factor*y[2])>0.01)
         //if (y[2]>0.01)
-        if (y[2]>max(0.01,efcheck*hbarC))
+        if (y[2]>max(0.01,0.5*efcheck*hbarC)) //N.B. leave wiggle room around FO temp
 		{
 			// check if this file has finite energy density and zero charge densities
 			// (seems to cause problems in EOS)
@@ -548,12 +548,11 @@ void readICs_iccing( string &firstry, int &_Ntable3, Particle<2> *&_p,
 
 		// make educated initial guess here for this particle's (T, mu_i) coordinates
 		// (improve this in the future)
-		_p[j].particle_T   = 500.0/197.33;
+		_p[j].particle_T   = 500.0/197.33;	// rootfinder seems to work better going downhill than "uphill"
 		_p[j].particle_muB = 0.0;
 		_p[j].particle_muS = 0.0;
 		_p[j].particle_muQ = 0.0;
 
-		// should now be redundant after above checks
         if (_p[j].e_sub>efcheck)	// impose freeze-out check for e, not s
         {
             _p[j].Freeze=0;

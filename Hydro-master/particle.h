@@ -307,7 +307,7 @@ void Particle<D>::calcbsq(double tin)
 	//double rhoB_in2 = B*sigmaweight/sigma;		//  is this correct?  (confirm with Jaki)
 	//double rhoS_in2 = S*sigmaweight/sigma;		//  is this correct?  (confirm with Jaki)
 	//double rhoQ_in2 = Q*sigmaweight/sigma;		//  is this correct?  (confirm with Jaki)
-	double rhoB_in2 = B / (transverse_area*gamma*tin);
+	double rhoB_in2 = B / (transverse_area*gamma*tin);	//N.B. - dx*dy constant for SPH!!!
 	double rhoS_in2 = S / (transverse_area*gamma*tin);
 	double rhoQ_in2 = Q / (transverse_area*gamma*tin);
 	rhoB_an = rhoB_in2;
@@ -505,17 +505,9 @@ void Particle<D>::bsqsvsigset(double tin,int i)
     gradU=gamma*gradV+g3*(v*(v*gradV));
     bigPI= Bulk*sigma/gt ;
     C=EOSw()+ bigPI;
-    return_sv_A();
+    return_bsqsv_A();
     Btot=(Agam*gamma+eta_o_tau/3*gamma)*sigl+ bigPI/tauRelax + dwdsT* (gt*shv33+  Bsub());
     check=sigl;
-
-/*	// from vsigset
-    bigPI = Bulk*sigma/gamma/tin ;
-
-    C=EOSw()+bigPI;
-
-    return_bsqsv_A();
-    Agam2=Agam*gamma*gamma*(dsigma_dt/sigma -1./tin)+ bigPI/tauRelax;*/
 
 }
 
