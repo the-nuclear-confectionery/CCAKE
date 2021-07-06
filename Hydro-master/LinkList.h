@@ -2397,7 +2397,7 @@ void LinkList<D>::updateIC()
 
 			// N.B. - STILL NEED TO FIX HOW THIS IS HANDLED
 			// THIS VERSION ADDS ARTIFICIAL ENTROPY DENSITY
-			if ( false )
+			if ( true )
 			{
 				cerr << "EXITING: THIS SHOULDN'T BE A PROBLEM AFTER FIXING EOS!!!" << endl;
 				exit(-1);
