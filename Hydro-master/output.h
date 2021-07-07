@@ -543,7 +543,7 @@ void Output<D>::bsqsveprofile(LinkList<D> &linklist)
 				<< linklist._p[i].EOSB() << " "
 				<< linklist._p[i].EOSS() << " "
 				<< linklist._p[i].EOSQ() << " "
-				<< linklist._p[i].EOSs() << " "
+				<< linklist._p[i].EOSs() << " "	//column 14
 				<< linklist._p[i].eta/(linklist._p[i].gamma*linklist.t) << " "
 				<< linklist._p[i].eta_sigma << " "
 				<< linklist._p[i].sigma << " " 

@@ -917,13 +917,19 @@ cout << "CHECK partU: " << i << "   " << linklist.t << "   " << partU << endl;
 								+ linklist._p[i].divshear );
 
 cout << "CHECK M: " << i << "   " << linklist.t << "   " << M << endl;
-cout << "CHECK F: " << i << "   " << linklist.t << "   " << F << endl;
+cout << "CHECK F: " << i << "   " << linklist.t << "   " << F << "   "
+		<< linklist._p[i].Btot << "   " << linklist._p[i].u << "   "
+		<< linklist._p[i].gradshear << "   " << linklist._p[i].gradP << "   "
+		<< linklist._p[i].gradBulk << "   " << linklist._p[i].divshear << endl;
 
         // shear contribution
         F+=pre*linklist._p[i].v*partU+p1*minshv;
 
-cout << "CHECK F(again): " << i << "   " << linklist.t << "   " << F << endl;
+cout << "CHECK F(again): " << i << "   " << linklist.t << "   " << F << "   "
+		<< pre << "   " << linklist._p[i].v << "   " << partU << "   "
+		<< p1 << "   " << minshv << endl;
 
+if (linklist.t > 1.8) exit(8);
 
         double det=deter(M);
 cout << "CHECK det: " << i << "   " << linklist.t << "   " << M << "   " << det << endl;
