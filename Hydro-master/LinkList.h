@@ -1705,6 +1705,7 @@ void LinkList<D>::optimization(int a)
 
 
 
+
 //======================================================================
 template <int D>
 void LinkList<D>::optint(int a, double & ux0,  double & uy0)
@@ -2123,12 +2124,8 @@ void LinkList<D>::bsqsvoptimization2(int a,double tin,int & count)
             int b=lead[triToSum(dael[a]+i, size)];
 
 
-
-
-
             while(b!=-1 )
             {
-
 
                 Vector<double,D> gradK=gradKernel(_p[a].r-_p[b].r);
                 Vector<double,D> va=rowp1(0,_p[a].shv);
@@ -2139,6 +2136,11 @@ void LinkList<D>::bsqsvoptimization2(int a,double tin,int & count)
                 double sigsqra=1/(_p[a].sigma*_p[a].sigma);
                 double sigsqrb=1/(_p[b].sigma*_p[b].sigma);
                 Vector<double,D> sigsigK=_p[b].sigmaweight*_p[a].sigma*gradK;
+
+if (a == 3 && (t==1.7 || t==1.75) )
+	cout << "CHECK PARTICLE: " << b << "   " << t << "   "
+		<< sigsqrb << "   " << _p[b].EOSp() << "   "
+		<< sigsqra << "   " << _p[a].EOSp() ) << "   " << sigsigK << endl;
 
                 _p[a].gradP +=( sigsqrb*_p[b].EOSp()+ sigsqra*_p[a].EOSp() )*sigsigK;
 
