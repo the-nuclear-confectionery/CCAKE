@@ -2137,8 +2137,8 @@ void LinkList<D>::bsqsvoptimization2(int a,double tin,int & count)
                 double sigsqrb=1/(_p[b].sigma*_p[b].sigma);
                 Vector<double,D> sigsigK=_p[b].sigmaweight*_p[a].sigma*gradK;
 
-if (a == 30 && (t==1.7 || t==1.75) )
-	cout << "CHECK PARTICLE: " << b << "   " << t << "   "
+//if (a == 30 && (t==1.7 || t==1.75) )
+	cout << "CHECK PARTICLE: " << a << "   " << b << "   " << t << "   "
 		<< sigsqrb << "   " << _p[b].EOSp() << "   "
 		<< sigsqra << "   " << _p[a].EOSp() << "   " << sigsigK << endl;
 

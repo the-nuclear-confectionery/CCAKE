@@ -873,9 +873,9 @@ void BSQshear(LinkList<D>  &linklist)  // shear+bulk Equations of motion, only s
 									*( linklist._p[i].gradV.x[0][0]
 									 + linklist._p[i].gradV.x[1][1] );
 
-//cout << "CHECK dsigma_dt: " << i << "   " << linklist.t << "   " << linklist._p[i].dsigma_dt
-//		<< "   " << linklist._p[i].sigma << "   " << linklist._p[i].gradV.x[0][0]
-//		<< "   " << linklist._p[i].gradV.x[1][1] << endl;
+cout << "CHECK dsigma_dt: " << i << "   " << linklist.t << "   " << linklist._p[i].dsigma_dt
+		<< "   " << linklist._p[i].sigma << "   " << linklist._p[i].gradV.x[0][0]
+		<< "   " << linklist._p[i].gradV.x[1][1] << endl;
 
         linklist._p[i].bsqsvsigset(linklist.t,i);
         if ((linklist._p[i].Freeze==3)&&(linklist.cfon==1))
