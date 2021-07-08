@@ -243,7 +243,7 @@ void LinkList<D>::setup(double it0, int ntot,double h, Particle<D> *_pin,double 
     _p=_pin;
     knorm=10/7./PI/(_h*_h);
     knorm2=knorm*0.25;
-    kgrad=10/7./PI/pow(_h,3)*3/4.;
+    kgrad=-10/7./PI/pow(_h,3)*3/4.;	//FIX MISSING MINUS SIGN!!!!!!  CONFIRM WITH JAKI
     kgrad2=10/7./PI/pow(_h,3)/_h;
     link=new int[_n];
     dael=new Vector<int,D>[_n];
