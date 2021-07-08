@@ -929,7 +929,7 @@ cout << "CHECK F(again): " << i << "   " << linklist.t << "   " << F << "   "
 		<< pre << "   " << linklist._p[i].v << "   " << partU << "   "
 		<< p1 << "   " << minshv << endl;
 
-if (linklist.t > 1.8) exit(8);
+//if (linklist.t > 1.8) exit(8);
 
         double det=deter(M);
 cout << "CHECK det: " << i << "   " << linklist.t << "   " << M << "   " << det << endl;
