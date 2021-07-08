@@ -181,9 +181,9 @@ int main(int argc, char *argv[])
 
 	// set T and mu_i ranges
 	const int Tmin = 30, Tmax = 40, DeltaT = 1;
-	const int muBmin = -450, muBmax = 450, DeltamuB = 20;
-	const int muQmin = -450, muQmax = 450, DeltamuQ = 20;
-	const int muSmin = -450, muSmax = 450, DeltamuS = 20;
+	const int muBmin = -450, muBmax = 450, DeltamuB = 10;
+	const int muQmin = -450, muQmax = 450, DeltamuQ = 10;
+	const int muSmin = -450, muSmax = 450, DeltamuS = 10;
 
 	//const int Tmin = 30, Tmax = 200, DeltaT = 2;
 	//const int muBmin = -1000, muBmax = -200, DeltamuB = 20;

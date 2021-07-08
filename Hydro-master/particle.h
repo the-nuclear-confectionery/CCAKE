@@ -304,12 +304,12 @@ void Particle<D>::calcbsq(double tin)
     //double S_in2= rhoS/gamma/tin;
     //double Q_in2= rhoQ/gamma/tin;
     qmom=((EOSe()+ EOSp())*gamma/sigma)*u;
-	//double rhoB_in2 = B*sigmaweight/sigma;		//  is this correct?  (confirm with Jaki)
-	//double rhoS_in2 = S*sigmaweight/sigma;		//  is this correct?  (confirm with Jaki)
-	//double rhoQ_in2 = Q*sigmaweight/sigma;		//  is this correct?  (confirm with Jaki)
-	double rhoB_in2 = B / (transverse_area*gamma*tin);	//N.B. - dx*dy constant for SPH!!!
-	double rhoS_in2 = S / (transverse_area*gamma*tin);
-	double rhoQ_in2 = Q / (transverse_area*gamma*tin);
+	double rhoB_in2 = B*sigmaweight/sigma;		//  is this correct?  (confirm with Jaki)
+	double rhoS_in2 = S*sigmaweight/sigma;		//  is this correct?  (confirm with Jaki)
+	double rhoQ_in2 = Q*sigmaweight/sigma;		//  is this correct?  (confirm with Jaki)
+	//double rhoB_in2 = B / (transverse_area*gamma*tin);	//N.B. - dx*dy constant for SPH!!!
+	//double rhoS_in2 = S / (transverse_area*gamma*tin);
+	//double rhoQ_in2 = Q / (transverse_area*gamma*tin);
 	rhoB_an = rhoB_in2;
 	rhoS_an = rhoS_in2;
 	rhoQ_an = rhoQ_in2;
@@ -322,14 +322,14 @@ void Particle<D>::calcbsq(double tin)
 		<< EOS.s() << "   " << EOS.B() << "   " << EOS.S() << "   " << EOS.Q() << endl;*/
 	EOSupdate_s(s_in2, rhoB_in2, rhoS_in2, rhoQ_in2);
 
-cout << "CHECK " << __PRETTY_FUNCTION__ << "::" << __LINE__ << ": "
+/*cout << "CHECK " << __PRETTY_FUNCTION__ << "::" << __LINE__ << ": "
 		<< tin << "   " << r << "   " << v << "   " << s_in2 << "   "
 		<< rhoB_in2 << "   " << rhoS_in2 << "   " << rhoQ_in2 << "   "
 		<< B << "   " << S << "   " << Q << "   "
 		<< sigma << "   " << sigmaweight << endl;
 cout << "CHECK DENSITIES: " << tin << "   " << r << "   " << gamma << "   " << transverse_area
 		<< "   " << B << "   " << S << "   " << Q << "   "
-		<< rhoB_in2 << "   " << rhoS_in2 << "   " << rhoQ_in2 << endl;
+		<< rhoB_in2 << "   " << rhoS_in2 << "   " << rhoQ_in2 << endl;*/
 
 
 }
