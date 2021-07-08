@@ -55,7 +55,7 @@ private:
     }
 //    double gradBulk_weight(int a, int b) {    return _p[b].sigmaweight*_p[a].sigma*( (_p[b].Bulk_N+_p[b].Bulk)/_p[b].sigma/_p[b].gamma/t + (_p[a].Bulk_N+_p[a].Bulk)/_p[a].sigma/_p[a].gamma/t );}
 
-    Vector<double,D> gradKernel (Vector<double,D> a);
+    Vector<double,D> gradKernel (Vector<double,D> a, bool verbose = false);
 
     double linint(double x, double x1, double x2, double y1, double y2);
     Vector<double,D> linint(double x, double x1, double x2, Vector<double,D> y1, Vector<double,D> y2);
@@ -1570,7 +1570,7 @@ double LinkList<D>::kernel (Vector<double,D> a)
 }
 
 template <int D>
-Vector<double,D> LinkList<D>::gradKernel (Vector<double,D> a, bool verbose = false)
+Vector<double,D> LinkList<D>::gradKernel (Vector<double,D> a, bool verbose /*= false*/)
 {
     Vector<double,D> tsubb;
 
