@@ -1706,6 +1706,7 @@ void LinkList<D>::optimization(int a)
 
 
 
+
 //======================================================================
 template <int D>
 void LinkList<D>::optint(int a, double & ux0,  double & uy0)
@@ -2139,7 +2140,9 @@ void LinkList<D>::bsqsvoptimization2(int a,double tin,int & count)
 
 //if (a == 30 && (t==1.7 || t==1.75) )
 	cout << "CHECK PARTICLE: " << a << "   " << b << "   " << t << "   "
-		<< _p[a].r << "   " << _p[b].r << "   " << _p[b].sigmaweight << "   " << _p[a].sigma << "   " << sigsigK << endl;
+		<< _p[a].r << "   " << _p[b].r << "   "
+		<< _p[b].sigmaweight << "   " << _p[a].sigma << "   "
+		<< gradK << "   " << sigsigK << endl;
 
                 _p[a].gradP +=( sigsqrb*_p[b].EOSp()+ sigsqra*_p[a].EOSp() )*sigsigK;
 
