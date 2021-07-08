@@ -2140,7 +2140,7 @@ void LinkList<D>::bsqsvoptimization2(int a,double tin,int & count)
 if (a == 3 && (t==1.7 || t==1.75) )
 	cout << "CHECK PARTICLE: " << b << "   " << t << "   "
 		<< sigsqrb << "   " << _p[b].EOSp() << "   "
-		<< sigsqra << "   " << _p[a].EOSp() ) << "   " << sigsigK << endl;
+		<< sigsqra << "   " << _p[a].EOSp() << "   " << sigsigK << endl;
 
                 _p[a].gradP +=( sigsqrb*_p[b].EOSp()+ sigsqra*_p[a].EOSp() )*sigsigK;
 
