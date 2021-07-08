@@ -1570,7 +1570,7 @@ double LinkList<D>::kernel (Vector<double,D> a)
 }
 
 template <int D>
-Vector<double,D> LinkList<D>::gradKernel (Vector<double,D> a)
+Vector<double,D> LinkList<D>::gradKernel (Vector<double,D> a, bool verbose = false)
 {
     Vector<double,D> tsubb;
 
@@ -1578,7 +1578,9 @@ Vector<double,D> LinkList<D>::gradKernel (Vector<double,D> a)
     double r=Norm(a);
     double q=r/_h;
 
-
+	if ( verbose )
+		cout << "CHECK gradKernel: " << a << "   " << r << "   " << q << "   "
+			<< kgrad/r*pow((2-q),2)*a << "   " << kgrad2*(-3+9*q/4.)*a << endl;
 
 
     if(q>2)
@@ -2128,7 +2130,7 @@ void LinkList<D>::bsqsvoptimization2(int a,double tin,int & count)
             while(b!=-1 )
             {
 
-                Vector<double,D> gradK=gradKernel(_p[a].r-_p[b].r);
+                Vector<double,D> gradK=gradKernel(_p[a].r-_p[b].r, static_cast<bool>(a == 30 && b == 43));
                 Vector<double,D> va=rowp1(0,_p[a].shv);
                 Vector<double,D> vb=rowp1(0,_p[b].shv);
                 Matrix<double,D,D> vminia,vminib;
@@ -2138,7 +2140,7 @@ void LinkList<D>::bsqsvoptimization2(int a,double tin,int & count)
                 double sigsqrb=1/(_p[b].sigma*_p[b].sigma);
                 Vector<double,D> sigsigK=_p[b].sigmaweight*_p[a].sigma*gradK;
 
-//if (a == 30 && (t==1.7 || t==1.75) )
+if (a == 30 && b == 43)
 	cout << "CHECK PARTICLE: " << a << "   " << b << "   " << t << "   "
 		<< _p[a].r << "   " << _p[b].r << "   "
 		<< _p[b].sigmaweight << "   " << _p[a].sigma << "   "
