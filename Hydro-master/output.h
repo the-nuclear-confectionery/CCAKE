@@ -572,6 +572,8 @@ void Output<D>::compute_physical_quantities( LinkList<D> &linklist,
 	// loop over SPH particles
 	for (int iSPH = 0; iSPH < linklist.n(); iSPH++)
 	{
+		if ( Norm(r0-linklist._p[iSPH].r) < 2.0*linklist._h ) continue;
+
 		double kern 				 = linklist.kernel(r0-linklist._p[iSPH].r);
 		normalization 				+= kern;
 		energy_density 				+= kern * linklist._p[iSPH].EOSe();
