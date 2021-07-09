@@ -2,24 +2,41 @@ import numpy as np
 #import matplotlib
 #matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-import sys
+import os, sys
 
 filename = sys.argv[1]
 outfilename = sys.argv[2]
-colsToPlot = tuple(map(int,sys.argv[3:]))
+plotLabel = sys.argv[3]
+colToPlot = int(sys.argv[4])
 
-data = np.loadtxt(filename, usecols=colsToPlot)
+data = np.loadtxt(filename, usecols=(0,1,2,colToPlot))
+tau = data[0,0]
+data = data[:,1:]  # set tau and then discard that column
 data = data[np.where((np.abs(data[:,0])<5.0) & (np.abs(data[:,1])<5.0))]
 
 [x, y, f] = data.T
 
 extent = np.min(x), np.max(x), np.min(y), np.max(y)
-#plt.subplots(nrows=1, ncols=1) # same as two lines below
-fig = plt.figure()
-ax = plt.gca()
+fig, ax = plt.subplots( nrows=1, ncols=1 )
 
 length = int(np.sqrt(f.size))
-plt.imshow(f.reshape(length, length), cmap=plt.cm.viridis, interpolation='bicubic', extent=extent)
+psm = plt.imshow(f.reshape(length, length), cmap=plt.cm.viridis, interpolation='bicubic', extent=extent)
 #ax.set_facecolor('black')
 
+plt.text(0.075, 0.925, r'$\tau = %(t)5.2f$ fm$/c$'%{'t': tau}, \
+        {'color': 'white', 'fontsize': 12}, transform=ax.transAxes,
+        horizontalalignment='left', verticalalignment='top')
+
+
+ax.set_xlabel(r'$x$ (fm)', fontsize=16)
+ax.set_ylabel(r'$y$ (fm)', fontsize=16)
+cbar = fig.colorbar(psm, ax=ax)
+cbar.set_label()
+
+
 plt.show()
+#dirname = os.path.dirname(filename)
+#print('Saving to', outfilename)
+#fig.savefig(outfilename, bbox_inches='tight')
+#plt.close(fig)
+
