@@ -35,7 +35,7 @@ int main( int argc, char ** argv )
 	string resultsDirectory 	= "./outputfiles";
 	string fileStemToReadIn 	= argv[1];
 	string fileStemToPrintTo 	= argv[2];
-	string indexToProcess 		= stoi(argv[3]);
+	string indexToProcess 		= argv[3];
 
 	string infilename = resultsDirectory + "/" + fileStemToReadIn + indexToProcess + "_ev0.dat";
 	string outfilename = resultsDirectory + "/" + fileStemToPrintTo + indexToProcess + "_ev0.dat";
