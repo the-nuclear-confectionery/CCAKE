@@ -37,8 +37,9 @@ zi = interpolator(Xi, Yi)
 #zi = zi.flatten()
 #zi[ np.where( zi is np.ma.masked ) ] = 0.0
 #zi = zi.reshape(dims)
-plt.imshow(zi, cmap=plt.cm.viridis, interpolation='bicubic', extent=extent)
+psm = plt.imshow(zi, cmap=plt.cm.viridis, vmin = 0.0, interpolation='bicubic', extent=extent)
 
+fig.colorbar(psm, ax=ax)
 
 '''
 #################################################

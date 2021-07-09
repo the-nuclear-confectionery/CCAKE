@@ -1578,9 +1578,9 @@ Vector<double,D> LinkList<D>::gradKernel (Vector<double,D> a, bool verbose /*= f
     double r=Norm(a);
     double q=r/_h;
 
-	if ( verbose )
+	/*if ( verbose )
 		cout << "CHECK gradKernel: " << a << "   " << r << "   " << q << "   "
-			<< kgrad/r*pow((2-q),2)*a << "   " << kgrad2*(-3+9*q/4.)*a << endl;
+			<< kgrad/r*pow((2-q),2)*a << "   " << kgrad2*(-3+9*q/4.)*a << endl;*/
 
 
     if(q>2)
@@ -2140,11 +2140,11 @@ void LinkList<D>::bsqsvoptimization2(int a,double tin,int & count)
                 double sigsqrb=1/(_p[b].sigma*_p[b].sigma);
                 Vector<double,D> sigsigK=_p[b].sigmaweight*_p[a].sigma*gradK;
 
-if (a == 30 && b == 43)
+/*if (a == 30 && b == 43)
 	cout << "CHECK PARTICLE: " << a << "   " << b << "   " << t << "   "
 		<< _p[a].r << "   " << _p[b].r << "   "
 		<< _p[b].sigmaweight << "   " << _p[a].sigma << "   "
-		<< gradK << "   " << sigsigK << endl;
+		<< gradK << "   " << sigsigK << endl;*/
 
                 _p[a].gradP +=( sigsqrb*_p[b].EOSp()+ sigsqra*_p[a].EOSp() )*sigsigK;
 
@@ -2384,13 +2384,13 @@ void LinkList<D>::updateIC()
 			sw.Reset();
 		}
 
-		cout << "SPH particles(2): "
+		/*cout << "SPH particles(2): "
 			<< i << "   "
 			<< _p[i].r.x[0] << "   " << _p[i].r.x[1] << "   "
 			<< _p[i].s_an << "   " << sfcheck << "   "
 			<< _p[i].e_sub << "   " << efcheck << "   " << _p[i].rhoB_an << "   "
 			<< _p[i].rhoS_an << "   " << _p[i].rhoQ_an << "   "
-			<< _p[i].sigmaweight << endl;
+			<< _p[i].sigmaweight << endl;*/
 
 
 		////////////////////////////////////////////////////////////////////////

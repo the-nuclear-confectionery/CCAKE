@@ -489,6 +489,49 @@ void Output<D>::sveprofile(LinkList<D> &linklist)
     EPN.close();
 
 }
+
+
+/*
+template <int D>
+void Output<D>::compute_physical_quantities(
+		Vector<int,D> r0, double & temperature, double & baryon_chemical_potential,
+		double & strange_chemical_potential, double & electric_chemical_potential,
+		double & energy_density, double & baryon_density, double & strange_density,
+		double & electric_density, double & entropy_density )
+{
+	// define physical quantities to output to grid
+	temperature = 0.0;
+	baryon_chemical_potential = 0.0;
+	strange_chemical_potential = 0.0;
+	electric_chemical_potential = 0.0;
+	energy_density = 0.0;
+	baryon_density = 0.0;
+	strange_density = 0.0;
+	electric_density = 0.0;
+	entropy_density = 0.0;
+
+	double normalization = 0.0;
+
+	// loop over SPH particles
+	for (int iSPH = 0; iSPH < linklist.n(); iSPH++)
+	{
+		double wtd_kern 			 = linklist._p[iSPH].rho_weight
+										* kernel(r0-_p[iSPH].r);
+		normalization 				+= wtd_kern;
+		energy_density 				+= wtd_kern * linklist._p[iSPH].EOSe();
+		baryon_density 				+= wtd_kern * linklist._p[iSPH].EOSB();
+		strange_density 			+= wtd_kern * linklist._p[iSPH].EOSS();
+		electric_density 			+= wtd_kern * linklist._p[iSPH].EOSQ();
+		temperature 				+= wtd_kern * linklist._p[iSPH].EOST();
+		baryon_chemical_potential 	+= wtd_kern * linklist._p[iSPH].EOSmuB();
+		strange_chemical_potential 	+= wtd_kern * linklist._p[iSPH].EOSmuS();
+		electric_chemical_potential += wtd_kern * linklist._p[iSPH].EOSmuQ();
+		entropy_density 			+= wtd_kern * linklist._p[iSPH].EOSs();
+	}
+}
+*/
+
+
 template <int D>
 void Output<D>::bsqsveprofile(LinkList<D> &linklist)
 {
@@ -561,33 +604,6 @@ void Output<D>::bsqsveprofile(LinkList<D> &linklist)
 				<< linklist._p[i].u.x[0]/linklist._p[i].gamma << " "
 				<< linklist._p[i].u.x[1]/linklist._p[i].gamma << " "
 				<< linklist._p[i].gamma << endl;
-
-if ( i == 23 )
-{
-    cout << "bsqsveprofile: " << linklist._p[i].r   << " "
-		<< linklist._p[i].EOSp() << " "
-		<< linklist._p[i].EOST()*197.3 << " "
-		<< linklist._p[i].EOSmuB()*197.3 << " "
-		<< linklist._p[i].EOSmuS()*197.3 << " "
-		<< linklist._p[i].EOSmuQ()*197.3 << " "
-		<< linklist._p[i].EOSe()*197.3 << " "
-		<< linklist._p[i].EOSB() << " "
-		<< linklist._p[i].EOSS() << " "
-		<< linklist._p[i].EOSQ() << " "
-		<< linklist._p[i].stauRelax << " " <<  linklist._p[i].sigmaweight << " "
-		<< linklist._p[i].bigtheta   << " "
-		<<  sqrt( linklist._p[i].shv.x[0][0]*linklist._p[i].shv.x[0][0]
-				-2*linklist._p[i].shv.x[0][1]*linklist._p[i].shv.x[0][1]
-				-2*linklist._p[i].shv.x[0][2]*linklist._p[i].shv.x[0][2]
-				+ linklist._p[i].shv.x[1][1]*linklist._p[i].shv.x[1][1]
-				+ linklist._p[i].shv.x[2][2]*linklist._p[i].shv.x[2][2]
-				+2*linklist._p[i].shv.x[1][2]*linklist._p[i].shv.x[1][2]
-				+pow(linklist.t,4)*linklist._p[i].shv33*linklist._p[i].shv33 ) << " "
-		<< linklist._p[i].stauRelax/linklist.t * linklist._p[i].bigtheta << " "
-		<< linklist._p[i].u.x[0]/linklist._p[i].gamma << " "
-		<< linklist._p[i].u.x[1]/linklist._p[i].gamma << " "
-		<< linklist._p[i].gamma << " " << linklist._p[i].sigma << " " << i << endl;
-}
 
         }
     }
