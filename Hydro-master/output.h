@@ -527,7 +527,7 @@ void Output<D>::print_physical_quantities( LinkList<D> &linklist )
 	for (double y_local = ymin; y_local <= ymax + 1e-10; y_local += dy )
 	{
 		r0.x[0] = x_local;
-		y0.x[1] = y_local;
+		r0.x[1] = y_local;
 		compute_physical_quantities( linklist, r0, temperature,
 			baryon_chemical_potential, strange_chemical_potential,
 			electric_chemical_potential, energy_density, baryon_density,
@@ -572,7 +572,7 @@ void Output<D>::compute_physical_quantities( LinkList<D> &linklist,
 	// loop over SPH particles
 	for (int iSPH = 0; iSPH < linklist.n(); iSPH++)
 	{
-		double kern 				 = kernel(r0-_p[iSPH].r);
+		double kern 				 = kernel(r0-linklist._p[iSPH].r);
 		normalization 				+= kern;
 		energy_density 				+= kern * linklist._p[iSPH].EOSe();
 		baryon_density 				+= kern * linklist._p[iSPH].EOSB();
