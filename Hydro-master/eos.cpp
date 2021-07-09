@@ -1275,39 +1275,39 @@ double eos::deriv_mult_aTm_1b(gsl_vector* a, gsl_matrix* m, gsl_vector* b) {
     gsl_permutation *p = gsl_permutation_alloc(3);
     int s;
 
-	cout << "chi matrix: " << endl;
+	/*cout << "chi matrix: " << endl;
 	for (int ii = 0; ii < 3; ii++)
 	{
 		for (int jj = 0; jj < 3; jj++)
 			cout << gsl_matrix_get(m, ii, jj) << "   ";
 		cout << endl;
 	}
-	cout << endl;
+	cout << endl;*/
 
     // Compute the LU decomposition of this matrix
     gsl_linalg_LU_decomp(m, p, &s);
 
-	cout << "Inverting (LU decomposed chi matrix): " << endl;
+	/*cout << "Inverting (LU decomposed chi matrix): " << endl;
 	for (int ii = 0; ii < 3; ii++)
 	{
 		for (int jj = 0; jj < 3; jj++)
 			cout << gsl_matrix_get(m, ii, jj) << "   ";
 		cout << endl;
 	}
-	cout << endl;
+	cout << endl;*/
 
     // Compute the  inverse of the LU decomposition
     gsl_matrix *minv = gsl_matrix_alloc(3, 3);
     gsl_linalg_LU_invert(m, p, minv);
 
-	cout << "Success!" << endl;
+	/*cout << "Success!" << endl;
 	for (int ii = 0; ii < 3; ii++)
 	{
 		for (int jj = 0; jj < 3; jj++)
 			cout << gsl_matrix_get(minv, ii, jj) << "   ";
 		cout << endl;
 	}
-	cout << endl;
+	cout << endl;*/
 
     gsl_vector *y = gsl_vector_alloc(3);
 
