@@ -39,6 +39,12 @@ public:
     void eccout(LinkList<D> &linklist);
     double ecc(LinkList<D> &linklist, double  & psi,double & rout, int m,int n);
     void sveprofile(LinkList<D> &linklist);
+	void print_physical_quantities( LinkList<D> &linklist );
+	void compute_physical_quantities( LinkList<D> &linklist,
+		Vector<int,D> r0, double & temperature, double & baryon_chemical_potential,
+		double & strange_chemical_potential, double & electric_chemical_potential,
+		double & energy_density, double & baryon_density, double & strange_density,
+		double & electric_density, double & entropy_density );
     void bsqsveprofile(LinkList<D> &linklist);
     void gubcheckux(LinkList<D> &linklist);
     void gubcheckuy(LinkList<D> &linklist);
@@ -491,45 +497,108 @@ void Output<D>::sveprofile(LinkList<D> &linklist)
 }
 
 
-/*
+///*
 template <int D>
-void Output<D>::compute_physical_quantities(
+void Output<D>::print_physical_quantities( LinkList<D> &linklist )
+{
+	const double dx = 0.1, dy = 0.1;
+	const double xmin = -15.0, ymin = -15.0;
+	const double xmax = -xmin, ymax = -ymin;
+
+	double temperature 					= 0.0;
+	double baryon_chemical_potential 	= 0.0;
+	double strange_chemical_potential 	= 0.0;
+	double electric_chemical_potential 	= 0.0;
+	double energy_density 				= 0.0;
+	double baryon_density 				= 0.0;
+	double strange_density 				= 0.0;
+	double electric_density 			= 0.0;
+	double entropy_density 				= 0.0;
+
+	Vector<int,D> r0;
+	r0.x[0] = 0.0;
+	r0.x[1] = 0.0;
+
+	string physical_quantities_filename = "./outputfiles/physical_quantities_timestep"
+											+ to_string(countEP) + ".dat";
+	ofstream physical_quantities_output(physical_quantities_filename.c_str());
+
+	for (double x_local = xmin; x_local <= xmax + 1e-10; x_local += dx )
+	for (double y_local = ymin; y_local <= ymax + 1e-10; y_local += dy )
+	{
+		r0.x[0] = x_local;
+		y0.x[1] = y_local;
+		compute_physical_quantities( linklist, r0, temperature,
+			baryon_chemical_potential, strange_chemical_potential,
+			electric_chemical_potential, energy_density, baryon_density,
+			strange_density, electric_density, entropy_density );
+
+		physical_quantities_output << setw(12) << setprecision(8) << scientific
+			<< linklist.t << "   " << x_local << "   " << y_local << "   "
+			<< temperature << "   " << baryon_chemical_potential << "   "
+			<< strange_chemical_potential << "   " << electric_chemical_potential << "   "
+			<< energy_density << "   " << baryon_density << "   " << strange_density << "   "
+			<< electric_density << "   " << entropy_density << endl;
+	}
+
+	physical_quantities_output.close();
+
+	return;
+}
+
+
+
+
+template <int D>
+void Output<D>::compute_physical_quantities( LinkList<D> &linklist,
 		Vector<int,D> r0, double & temperature, double & baryon_chemical_potential,
 		double & strange_chemical_potential, double & electric_chemical_potential,
 		double & energy_density, double & baryon_density, double & strange_density,
 		double & electric_density, double & entropy_density )
 {
 	// define physical quantities to output to grid
-	temperature = 0.0;
-	baryon_chemical_potential = 0.0;
-	strange_chemical_potential = 0.0;
+	temperature 				= 0.0;
+	baryon_chemical_potential 	= 0.0;
+	strange_chemical_potential 	= 0.0;
 	electric_chemical_potential = 0.0;
-	energy_density = 0.0;
-	baryon_density = 0.0;
-	strange_density = 0.0;
-	electric_density = 0.0;
-	entropy_density = 0.0;
+	energy_density 				= 0.0;
+	baryon_density 				= 0.0;
+	strange_density 			= 0.0;
+	electric_density 			= 0.0;
+	entropy_density 			= 0.0;
 
-	double normalization = 0.0;
+	double normalization 		= 0.0;
 
 	// loop over SPH particles
 	for (int iSPH = 0; iSPH < linklist.n(); iSPH++)
 	{
-		double wtd_kern 			 = linklist._p[iSPH].rho_weight
-										* kernel(r0-_p[iSPH].r);
-		normalization 				+= wtd_kern;
-		energy_density 				+= wtd_kern * linklist._p[iSPH].EOSe();
-		baryon_density 				+= wtd_kern * linklist._p[iSPH].EOSB();
-		strange_density 			+= wtd_kern * linklist._p[iSPH].EOSS();
-		electric_density 			+= wtd_kern * linklist._p[iSPH].EOSQ();
-		temperature 				+= wtd_kern * linklist._p[iSPH].EOST();
-		baryon_chemical_potential 	+= wtd_kern * linklist._p[iSPH].EOSmuB();
-		strange_chemical_potential 	+= wtd_kern * linklist._p[iSPH].EOSmuS();
-		electric_chemical_potential += wtd_kern * linklist._p[iSPH].EOSmuQ();
-		entropy_density 			+= wtd_kern * linklist._p[iSPH].EOSs();
+		double kern 				 = kernel(r0-_p[iSPH].r);
+		normalization 				+= kern;
+		energy_density 				+= kern * linklist._p[iSPH].EOSe();
+		baryon_density 				+= kern * linklist._p[iSPH].EOSB();
+		strange_density 			+= kern * linklist._p[iSPH].EOSS();
+		electric_density 			+= kern * linklist._p[iSPH].EOSQ();
+		temperature 				+= kern * linklist._p[iSPH].EOST();
+		baryon_chemical_potential 	+= kern * linklist._p[iSPH].EOSmuB();
+		strange_chemical_potential 	+= kern * linklist._p[iSPH].EOSmuS();
+		electric_chemical_potential += kern * linklist._p[iSPH].EOSmuQ();
+		entropy_density 			+= kern * linklist._p[iSPH].EOSs();
 	}
+
+	// normalize results
+	energy_density 				/= normalization;
+	baryon_density 				/= normalization;
+	strange_density 			/= normalization;
+	electric_density 			/= normalization;
+	temperature 				/= normalization;
+	baryon_chemical_potential 	/= normalization;
+	strange_chemical_potential 	/= normalization;
+	electric_chemical_potential /= normalization;
+	entropy_density 			/= normalization;
+
+	return;
 }
-*/
+//*/
 
 
 template <int D>
@@ -912,6 +981,7 @@ void Output<D>::averages(LinkList<D> &linklist)
 template <int D>
 void Output<D>::cleardir(LinkList<D> &linklist)
 {
+
 
 
     DIR *pdir;
