@@ -6,7 +6,7 @@ physicalProfileStem=physical_quantities
 suffix="_ev0.dat"
 outsuffix="_ev0.png"
 
-nFiles=$(\ls -1 ${resultsDirectory}/${physicalProfileStem}*suffix | wc -l)
+nFiles=$(\ls -1 ${resultsDirectory}/${physicalProfileStem}*${suffix} | wc -l)
 
 for index in $(seq $nFiles)
 do
