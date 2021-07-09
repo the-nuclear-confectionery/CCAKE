@@ -38,6 +38,7 @@ int main( int argc, char ** argv )
 	string outfilename = resultsDirectory + "/" + fileStemToPrintTo + indexToProcess + "_ev0.dat";
 
 	vector<double> xvec, yvec, pvec, Tvec, muBvec, muQvec, muSvec, evec, Bvec, Svec, Qvec, svec;
+	double tau, x, y, pin, Tin, muBin, muSin, muQin, ein, Bin, Sin, Qin, sin;
 
 	// read in data here
 	int linecount = 0;
