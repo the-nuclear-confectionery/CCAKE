@@ -89,7 +89,7 @@ int main( int argc, char ** argv )
 	for (double x_local = xmin; x_local < xmax + 1e-10; x_local += dx )
 	for (double y_local = ymin; y_local < ymax + 1e-10; y_local += dy )
 	{
-		double normalization 				= 0.0;
+		double normalization 				= 1e-100;	// protects from dividing by zero below
 		double temperature 					= 0.0;
 		double baryon_chemical_potential 	= 0.0;
 		double strange_chemical_potential 	= 0.0;
