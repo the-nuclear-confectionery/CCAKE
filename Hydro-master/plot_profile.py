@@ -1,7 +1,7 @@
-import matplotlib.pyplot as plt
-import matplotlib.tri as tri
 import numpy as np
-from scipy.interpolate import griddata
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 import sys
 
 filename = sys.argv[1]
@@ -9,6 +9,8 @@ outfilename = sys.argv[2]
 colsToPlot = tuple(map(int,sys.argv[3:]))
 
 data = np.loadtxt(filename, usecols=colsToPlot)
+data = data[np.where((np.abs(data[:,0])<5.0) & (np.abs(data[:,1])<5.0))]
+
 [x, y, f] = data.T
 
 extent = np.min(x), np.max(x), np.min(y), np.max(y)
