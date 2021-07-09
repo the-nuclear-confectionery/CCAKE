@@ -515,7 +515,7 @@ void Output<D>::print_physical_quantities( LinkList<D> &linklist )
 	double electric_density 			= 0.0;
 	double entropy_density 				= 0.0;
 
-	Vector<int,D> r0;
+	Vector<double,D> r0;
 	r0.x[0] = 0.0;
 	r0.x[1] = 0.0;
 
