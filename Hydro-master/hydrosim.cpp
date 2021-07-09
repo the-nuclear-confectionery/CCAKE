@@ -944,9 +944,13 @@ void BSQshear(LinkList<D>  &linklist)  // shear+bulk Equations of motion, only s
         MI.x[1][1]=M.x[0][0]/det;
 
 
-/*cout << "CHECK MI: " << i << "   " << linklist.t << "   " << MI << endl;
+/*cout << "CHECK MI: " << i << "   " << linklist.t << "   " << MI << endl;*/
+
+
+
+
         linklist._p[i].du_dt.x[0]=F.x[0]*MI.x[0][0]+F.x[1]*MI.x[0][1];
-        linklist._p[i].du_dt.x[1]=F.x[0]*MI.x[1][0]+F.x[1]*MI.x[1][1];*/
+        linklist._p[i].du_dt.x[1]=F.x[0]*MI.x[1][0]+F.x[1]*MI.x[1][1];
 
 
 
