@@ -1,10 +1,13 @@
 #!/bin/bash
 
 maxFrames=250
+framesPerSecond=25
+
 resultsDirectory=outputfiles
 physicalProfileStem=physical_quantities
 insuffix="_ev0.dat"
 outsuffix="_ev0.png"
+moviesDirectory=movies
 
 nFiles=$(\ls -1 ${resultsDirectory}/${physicalProfileStem}*${insuffix} | wc -l)
 
@@ -29,14 +32,15 @@ nFrames=$((nFiles<maxFrames ? nFiles : maxFrames))
 python3 plot_profile.py \
 	${resultsDirectory}/${physicalProfileStem} \
 	${resultsDirectory}/"eProfile" \
-	${insuffix} ${outsuffix} $nFiles '$e$ (MeV/fm$^3$)' 7
+	${insuffix} ${outsuffix} $nFrames '$e$ (MeV/fm$^3$)' 7
 python3 plot_profile.py \
 	${resultsDirectory}/${physicalProfileStem} \
 	${resultsDirectory}/"rhoBProfile" \
-	${insuffix} ${outsuffix} $nFiles '$\rho_B$ (fm$^{-3}$)' 8
+	${insuffix} ${outsuffix} $nFrames '$\rho_B$ (fm$^{-3}$)' 8
 
 
-framesPerSecond=25
-pngs2mp4 $framesPerSecond ${resultsDirectory}/"eProfile"%03d${outsuffix} eProfile.mp4
-pngs2mp4 $framesPerSecond ${resultsDirectory}/"rhoBProfile"%03d${outsuffix} rhoBProfile.mp4
+
+mkdir -p $moviesDirectory
+pngs2mp4 $framesPerSecond ${resultsDirectory}/"eProfile"%03d${outsuffix} ${moviesDirectory}/eProfile.mp4
+pngs2mp4 $framesPerSecond ${resultsDirectory}/"rhoBProfile"%03d${outsuffix} ${moviesDirectory}/rhoBProfile.mp4
 
