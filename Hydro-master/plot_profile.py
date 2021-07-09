@@ -34,9 +34,9 @@ cbar = fig.colorbar(psm, ax=ax)
 cbar.set_label(plotLabel, fontsize=16)
 
 
-plt.show()
+#plt.show()
 #dirname = os.path.dirname(filename)
 #print('Saving to', outfilename)
-#fig.savefig(outfilename, bbox_inches='tight')
-#plt.close(fig)
+fig.savefig(outfilename, bbox_inches='tight')
+plt.close(fig)
 

@@ -5,7 +5,7 @@ SPHprofileStem=bsqsveprofile
 physicalProfileStem=physical_quantities
 suffix="_ev0.dat"
 
-nFiles=$(\ls -1 ${resultsDirectory}/${SPHprofileStem}*_ev0.dat | wc -l)
+nFiles=$(\ls -1 ${resultsDirectory}/${SPHprofileStem}*${suffix} | wc -l)
 
 for index in $(seq $nFiles)
 do
