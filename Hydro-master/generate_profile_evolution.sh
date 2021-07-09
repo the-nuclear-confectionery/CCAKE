@@ -26,10 +26,10 @@ nFiles=$(\ls -1 ${resultsDirectory}/${physicalProfileStem}*${insuffix} | wc -l)
 # use the minimum of these two quantities
 nFrames=$((nFiles<maxFrames ? nFiles : maxFrames))
 
-#python3 plot_profile.py \
-#	${resultsDirectory}/${physicalProfileStem} \
-#	${resultsDirectory}/"eProfile" \
-#	${insuffix} ${outsuffix} $nFiles '$e$ (MeV/fm$^3$)' 7
+python3 plot_profile.py \
+	${resultsDirectory}/${physicalProfileStem} \
+	${resultsDirectory}/"eProfile" \
+	${insuffix} ${outsuffix} $nFiles '$e$ (MeV/fm$^3$)' 7
 python3 plot_profile.py \
 	${resultsDirectory}/${physicalProfileStem} \
 	${resultsDirectory}/"rhoBProfile" \
@@ -37,6 +37,6 @@ python3 plot_profile.py \
 
 
 framesPerSecond=25
-#pngs2mp4 $framesPerSecond ${resultsDirectory}/"eProfile"%03d${outsuffix} eProfile.mp4
+pngs2mp4 $framesPerSecond ${resultsDirectory}/"eProfile"%03d${outsuffix} eProfile.mp4
 pngs2mp4 $framesPerSecond ${resultsDirectory}/"rhoBProfile"%03d${outsuffix} rhoBProfile.mp4
 
