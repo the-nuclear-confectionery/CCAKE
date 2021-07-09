@@ -572,7 +572,7 @@ void Output<D>::compute_physical_quantities( LinkList<D> &linklist,
 	// loop over SPH particles
 	for (int iSPH = 0; iSPH < linklist.n(); iSPH++)
 	{
-		double kern 				 = kernel(r0-linklist._p[iSPH].r);
+		double kern 				 = linklist.kernel(r0-linklist._p[iSPH].r);
 		normalization 				+= kern;
 		energy_density 				+= kern * linklist._p[iSPH].EOSe();
 		baryon_density 				+= kern * linklist._p[iSPH].EOSB();
