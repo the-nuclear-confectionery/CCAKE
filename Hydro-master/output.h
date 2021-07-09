@@ -682,7 +682,7 @@ void Output<D>::bsqsveprofile(LinkList<D> &linklist)
     EPN.close();
 
 	// also print out physical (i.e., not SPH) quantities on fixed grid
-	print_physical_quantities( linklist );
+	//print_physical_quantities( linklist );
 
 	return;
 }
