@@ -80,7 +80,7 @@ int main( int argc, char ** argv )
 	infile.close();
 
 	// now loop through and compute physical quantities
-	const double dx = 0.02, dy = 0.02;
+	const double dx = 0.05, dy = 0.05;
 	const double xmin = -5.0, ymin = -5.0;
 	const double xmax = -xmin, ymax = -ymin;
 
