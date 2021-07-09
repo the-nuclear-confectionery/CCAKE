@@ -31,7 +31,7 @@ plt.text(0.075, 0.925, r'$\tau = %(t)5.2f$ fm$/c$'%{'t': tau}, \
 ax.set_xlabel(r'$x$ (fm)', fontsize=16)
 ax.set_ylabel(r'$y$ (fm)', fontsize=16)
 cbar = fig.colorbar(psm, ax=ax)
-cbar.set_label()
+cbar.set_label(plotLabel, fontsize=16)
 
 
 plt.show()
