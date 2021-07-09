@@ -41,7 +41,7 @@ public:
     void sveprofile(LinkList<D> &linklist);
 	void print_physical_quantities( LinkList<D> &linklist );
 	void compute_physical_quantities( LinkList<D> &linklist,
-		Vector<int,D> r0, double & temperature, double & baryon_chemical_potential,
+		Vector<double,D> r0, double & temperature, double & baryon_chemical_potential,
 		double & strange_chemical_potential, double & electric_chemical_potential,
 		double & energy_density, double & baryon_density, double & strange_density,
 		double & electric_density, double & entropy_density );
@@ -551,7 +551,7 @@ void Output<D>::print_physical_quantities( LinkList<D> &linklist )
 
 template <int D>
 void Output<D>::compute_physical_quantities( LinkList<D> &linklist,
-		Vector<int,D> r0, double & temperature, double & baryon_chemical_potential,
+		Vector<double,D> r0, double & temperature, double & baryon_chemical_potential,
 		double & strange_chemical_potential, double & electric_chemical_potential,
 		double & energy_density, double & baryon_density, double & strange_density,
 		double & electric_density, double & entropy_density )
