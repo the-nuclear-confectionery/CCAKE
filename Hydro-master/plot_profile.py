@@ -15,6 +15,10 @@ colToPlot = int(sys.argv[7])
 
 
 for i in range(1, numberOfFrames+1):
+    outfilename = outfilenameStem + f'{i:03}' + outsuffix
+    if os.path.isfile(outfilename): # if file already exists, don't bother creating it again
+        continue
+
     filename = filenameStem + str(i) + insuffix
     data = np.loadtxt(filename, usecols=(0,1,2,colToPlot))
     tau = data[0,0]
@@ -38,7 +42,6 @@ for i in range(1, numberOfFrames+1):
     cbar.set_label(plotLabel, fontsize=16)
 
     #plt.show()
-    outfilename = outfilenameStem + f'{i:03}' + outsuffix
     fig.savefig(outfilename, bbox_inches='tight')
     plt.close(fig)
     
