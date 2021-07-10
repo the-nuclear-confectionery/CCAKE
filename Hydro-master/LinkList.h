@@ -2369,6 +2369,7 @@ template <int D>
 void LinkList<D>::updateIC()
 {
 	Stopwatch sw;
+	long long failCounter = 0;
     for (int i=0; i<_n; i++)
     {
         if (gtyp!=5)
@@ -2400,22 +2401,24 @@ void LinkList<D>::updateIC()
 		if (_p[i].s_an < 0.0)
 		{
 
+cout << "Error: " << _p[i].e_sub << "   " << _p[i].rhoB_an << "   "
+		<< _p[i].rhoS_an << "   " << _p[i].rhoQ_an << endl;
+
+			failCounter++;
 
 			// N.B. - STILL NEED TO FIX HOW THIS IS HANDLED
 			// THIS VERSION ADDS ARTIFICIAL ENTROPY DENSITY
-			if ( true )
+			/*if ( true )
 			{
 				cerr << "EXITING: THIS SHOULDN'T BE A PROBLEM AFTER FIXING EOS!!!" << endl;
 				exit(-1);
 			}
 
-//cout << "Error(1): " << _p[i].s_an << "   " << _p[i].e_sub << "   "
-//		<< _p[i].rhoB_an << "   " << _p[i].rhoS_an << "   " << _p[i].rhoQ_an << endl;
-
 			_p[i].s_an = sfcheck;
 			_p[i].Freeze = 4;
 			number_part++;
 			//continue;
+			*/
 		}
 
 		sw.Start();
@@ -2455,6 +2458,8 @@ void LinkList<D>::updateIC()
 	cerr << "Exiting prematurely from " << __PRETTY_FUNCTION__ << "::" << __LINE__ << "!" << endl;
 	exit(8);
 }*/
+
+if (failCounter > 0) exit(-1);
 
 	if (gtyp==6) BSQguess();
     else if (gtyp!=3) guess();
