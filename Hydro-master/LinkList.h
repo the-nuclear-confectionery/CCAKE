@@ -2401,7 +2401,8 @@ void LinkList<D>::updateIC()
 		if (_p[i].s_an < 0.0)
 		{
 
-cout << "Error: " << _p[i].e_sub << "   " << _p[i].rhoB_an << "   "
+cout << "Error: " << _p[i].r.x[0] << "   " << _p[i].r.x[1] << "   "
+		<< _p[i].e_sub*0.197327 << "   " << _p[i].rhoB_an << "   "
 		<< _p[i].rhoS_an << "   " << _p[i].rhoQ_an << endl;
 
 			failCounter++;
@@ -2419,6 +2420,13 @@ cout << "Error: " << _p[i].e_sub << "   " << _p[i].rhoB_an << "   "
 			number_part++;
 			//continue;
 			*/
+		}
+		else
+		{
+cout << "Success: " << _p[i].r.x[0] << "   " << _p[i].r.x[1] << "   "
+		<< _p[i].e_sub*0.197327 << "   " << _p[i].rhoB_an << "   "
+		<< _p[i].rhoS_an << "   " << _p[i].rhoQ_an << endl;
+
 		}
 
 		sw.Start();
