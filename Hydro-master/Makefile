@@ -10,8 +10,10 @@ OPTIMIZATION= -Og
 EIGENPATH=$(realpath ../eigen)
 SPLINTERPATH=$(realpath ../splinter/include)
 SPLINTERBUILDPATH=$(realpath ../splinter/build)
-CFLAGS = $(WARNINGS) $(OPTIMIZATION) -c -I$(EIGENPATH) -I$(SPLINTERPATH) $(DEBUG) $(STANDARD)
-LDFLAGS = -lm -lgsl -lblas -lm -lstdc++ -L$(SPLINTERBUILDPATH) -lsplinter-3-0 $(DEBUG) $(STANDARD)
+GSLPATH=/projects/jnorhos/local/gsl/include
+GSLLIBPATH=/projects/jnorhos/local/gsl/lib
+CFLAGS = $(WARNINGS) $(OPTIMIZATION) -c -I$(EIGENPATH) -I$(SPLINTERPATH) -I(GSLPATH) $(DEBUG) $(STANDARD)
+LDFLAGS = -lm -lgsl -lgslcblas -lblas -lstdc++ -L$(GSLLIBPATH) -L$(SPLINTERBUILDPATH) -lsplinter-3-0 $(DEBUG) $(STANDARD)
 
 export HDF5_LDFLAGS+=$(LDFLAGS)
 export HDF5_LIBS+=-L$(SPLINTERBUILDPATH) -lsplinter-3-0
