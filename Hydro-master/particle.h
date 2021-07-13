@@ -870,7 +870,10 @@ cout << "CHECK EOSupdate_s: " << SUCCESS_STRING << ": "
 		<< "   " << s_In << "   " << EOS.s()
 		<< "   " << rhoB_In << "   " << EOS.B()
 		<< "   " << rhoS_In << "   " << EOS.S()
-		<< "   " << rhoQ_In << "   " << EOS.Q() << endl;
+		<< "   " << rhoQ_In << "   " << EOS.Q() 
+		<< "   " << particle_T << "   " << particle_muB
+		<< "   " << particle_muQ << "   " << particle_muS
+		<< endl;
 	particle_T = EOS.T();
 	particle_muB = EOS.muB();
 	particle_muS = EOS.muS();
