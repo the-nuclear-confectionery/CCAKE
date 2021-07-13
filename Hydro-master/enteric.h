@@ -324,8 +324,10 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
 		{
 			//string quantityFile = ifolder + std::string("quantityFile.dat");
 			//string derivativeFile = ifolder + std::string("derivFile.dat");
-			string quantityFile = ifolder + std::string("full_EoS_Taylor_AllMu.dat");
-			string derivativeFile = ifolder + std::string("full_EoS_Taylor_AllMu_Derivatives.dat");
+			//string quantityFile = ifolder + std::string("full_EoS_Taylor_AllMu.dat");
+			//string derivativeFile = ifolder + std::string("full_EoS_Taylor_AllMu_Derivatives.dat");
+			string quantityFile = ifolder + std::string("EoS_Taylor_AllMu_T0_1200.dat");
+			string derivativeFile = ifolder + std::string("EoS_Taylor_AllMu_Derivatives_T0_1200.dat");
 		    std::cout << "Using BSQ Equation of State table from: "
 					<< quantityFile << " and " << derivativeFile << "\n";
 
