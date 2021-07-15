@@ -2405,7 +2405,7 @@ void LinkList<D>::updateIC()
 // VERSION 3
 // try to guesstimate the right entropy density but freeze it out, regardless
 // ignore other charge densities
-			double scale_factor = min( 1.0, _p[i].e_sub / efcheck );
+			double scale_factor = std::min( 1.0, _p[i].e_sub / efcheck );
 			_p[i].s_an = scale_factor * sfcheck;
 			_p[i].rhoB_an = 0.0;
 			_p[i].rhoS_an = 0.0;
