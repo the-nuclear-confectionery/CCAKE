@@ -2401,12 +2401,32 @@ void LinkList<D>::updateIC()
 		if (_p[i].s_an < 0.0)
 		{
 
-cout << "Error: " << _p[i].r.x[0] << "   " << _p[i].r.x[1] << "   "
+////////////////////////////////////////////////////////
+// VERSION 3
+// try to guesstimate the right entropy density but freeze it out, regardless
+// ignore other charge densities
+			double scale_factor = min( 1.0, _p[i].e_sub / efcheck );
+			_p[i].s_an = scale_factor * sfcheck;
+			_p[i].rhoB_an = 0.0;
+			_p[i].rhoS_an = 0.0;
+			_p[i].rhoQ_an = 0.0;
+			_p[i].Freeze = 4;
+			number_part++;
+
+
+
+
+////////////////////////////////////////////////////////
+// VERSION 2
+/*cout << "Error: " << _p[i].r.x[0] << "   " << _p[i].r.x[1] << "   "
 		<< _p[i].e_sub*0.197327 << "   " << _p[i].rhoB_an << "   "
 		<< _p[i].rhoS_an << "   " << _p[i].rhoQ_an << endl;
 
-			failCounter++;
+			failCounter++;*/
+////////////////////////////////////////////////////////
 
+////////////////////////////////////////////////////////
+// VERSION 1
 			// N.B. - STILL NEED TO FIX HOW THIS IS HANDLED
 			// THIS VERSION ADDS ARTIFICIAL ENTROPY DENSITY
 			/*if ( true )
@@ -2420,6 +2440,7 @@ cout << "Error: " << _p[i].r.x[0] << "   " << _p[i].r.x[1] << "   "
 			number_part++;
 			//continue;
 			*/
+////////////////////////////////////////////////////////
 		}
 		else
 		{
