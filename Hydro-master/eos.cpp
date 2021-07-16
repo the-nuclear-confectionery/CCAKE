@@ -1306,7 +1306,7 @@ double eos::deriv_mult_aTm_1b(gsl_vector* a, gsl_matrix* m, gsl_vector* b) {
 	{
 		cout << "Current TBQS location: "
 				<< 197.327*T() << "   " << 197.327*muB() << "   "
-				<< 197.327*muS() << "   " << 197.327*muQ() << endl
+				<< 197.327*muS() << "   " << 197.327*muQ() << endl;
 		cout << "m=" << endl;
 		for (int ii = 0; ii < 3; ii++)
 		{
