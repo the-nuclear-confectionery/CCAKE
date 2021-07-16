@@ -2402,6 +2402,44 @@ void LinkList<D>::updateIC()
 		{
 
 ////////////////////////////////////////////////////////
+// VERSION 4
+// if failed with charge densities, set them to zero and re-solve
+// guesstimate an answer if that fails too
+cout << "Error: " << _p[i].r.x[0] << "   " << _p[i].r.x[1] << "   "
+		<< _p[i].e_sub*0.197327 << "   " << _p[i].rhoB_an << "   "
+		<< _p[i].rhoS_an << "   " << _p[i].rhoQ_an << "   ";
+
+			// set charge densities to zero and re-solve
+			_p[i].rhoB_an = 0.0;
+			_p[i].rhoS_an = 0.0;
+			_p[i].rhoQ_an = 0.0;
+
+			_p[i].s_an = _p[i].EOSs_out( _p[i].e_sub,   _p[i].rhoB_an,
+										 _p[i].rhoS_an, _p[i].rhoQ_an );
+
+			// if this fails too...
+			if (_p[i].s_an < 0.0)
+			{
+				double scale_factor = std::min( 1.0, _p[i].e_sub / efcheck );
+	
+cout << 1 << "   " << efcheck*0.197327 << "   " << sfcheck << "   "
+		<< scale_factor << "   " << scale_factor * sfcheck << endl;
+	
+				_p[i].s_an = scale_factor * sfcheck;
+			}
+			else	// if a solution was found
+			{
+cout << 2 << "   "
+		<< _p[i].particle_T*197.327 << "   " << _p[i].particle_muB*197.327 << "   "
+		<< _p[i].particle_muS*197.327 << "   " << _p[i].particle_muQ*197.327 << endl;
+			}
+
+			// freeze this particle out!
+			_p[i].Freeze = 4;
+			number_part++;
+
+/*
+////////////////////////////////////////////////////////
 // VERSION 3
 // try to guesstimate the right entropy density but freeze it out, regardless
 // ignore other charge densities
@@ -2420,6 +2458,7 @@ cout << efcheck*0.197327 << "   " << sfcheck << "   "
 			_p[i].rhoQ_an = 0.0;
 			_p[i].Freeze = 4;
 			number_part++;
+*/
 
 
 ////////////////////////////////////////////////////////

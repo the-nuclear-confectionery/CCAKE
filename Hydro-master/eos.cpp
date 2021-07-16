@@ -1296,18 +1296,37 @@ double eos::deriv_mult_aTm_1b(gsl_vector* a, gsl_matrix* m, gsl_vector* b) {
 	}
 	cout << endl;*/
 
+	gsl_set_error_handler_off();
+
     // Compute the  inverse of the LU decomposition
     gsl_matrix *minv = gsl_matrix_alloc(3, 3);
-    gsl_linalg_LU_invert(m, p, minv);
+    int inversion_status = gsl_linalg_LU_invert(m, p, minv);
 
-	/*cout << "Success!" << endl;
-	for (int ii = 0; ii < 3; ii++)
+	if ( inversion_status )	// if an error occurred
 	{
-		for (int jj = 0; jj < 3; jj++)
-			cout << gsl_matrix_get(minv, ii, jj) << "   ";
+		cout << "Current TBQS location: "
+				<< 197.327*T() << "   " << 197.327*muB() << "   "
+				<< 197.327*muS() << "   " << 197.327*muQ() << endl
+		cout << "m=" << endl;
+		for (int ii = 0; ii < 3; ii++)
+		{
+			for (int jj = 0; jj < 3; jj++)
+				cout << gsl_matrix_get(minv, ii, jj) << "   ";
+			cout << endl;
+		}
+		cout << "minv=" << endl;
+		for (int ii = 0; ii < 3; ii++)
+		{
+			for (int jj = 0; jj < 3; jj++)
+				cout << gsl_matrix_get(minv, ii, jj) << "   ";
+			cout << endl;
+		}
 		cout << endl;
+		cout << "Exiting!" << endl;
+		exit (-1);
 	}
-	cout << endl;*/
+	gsl_set_error_handler (NULL);
+
 
     gsl_vector *y = gsl_vector_alloc(3);
 
