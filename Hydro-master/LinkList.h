@@ -2405,7 +2405,15 @@ void LinkList<D>::updateIC()
 // VERSION 3
 // try to guesstimate the right entropy density but freeze it out, regardless
 // ignore other charge densities
+cout << "Error: " << _p[i].r.x[0] << "   " << _p[i].r.x[1] << "   "
+		<< _p[i].e_sub*0.197327 << "   " << _p[i].rhoB_an << "   "
+		<< _p[i].rhoS_an << "   " << _p[i].rhoQ_an << "   ";
+
 			double scale_factor = std::min( 1.0, _p[i].e_sub / efcheck );
+
+cout << efcheck*0.197327 << "   " << sfcheck << "   "
+		<< scale_factor << "   " << scale_factor * sfcheck << endl;
+
 			_p[i].s_an = scale_factor * sfcheck;
 			_p[i].rhoB_an = 0.0;
 			_p[i].rhoS_an = 0.0;
@@ -2414,14 +2422,9 @@ void LinkList<D>::updateIC()
 			number_part++;
 
 
-
-
 ////////////////////////////////////////////////////////
 // VERSION 2
-/*cout << "Error: " << _p[i].r.x[0] << "   " << _p[i].r.x[1] << "   "
-		<< _p[i].e_sub*0.197327 << "   " << _p[i].rhoB_an << "   "
-		<< _p[i].rhoS_an << "   " << _p[i].rhoQ_an << endl;
-
+/*
 			failCounter++;*/
 ////////////////////////////////////////////////////////
 
@@ -2446,7 +2449,9 @@ void LinkList<D>::updateIC()
 		{
 cout << "Success: " << _p[i].r.x[0] << "   " << _p[i].r.x[1] << "   "
 		<< _p[i].e_sub*0.197327 << "   " << _p[i].rhoB_an << "   "
-		<< _p[i].rhoS_an << "   " << _p[i].rhoQ_an << endl;
+		<< _p[i].rhoS_an << "   " << _p[i].rhoQ_an
+		<< _p[i].particle_T*197.327 << "   " << _p[i].particle_muB*197.327 << "   "
+		<< _p[i].particle_muS*197.327 << "   " << _p[i].particle_muQ*197.327 << endl;
 
 		}
 
