@@ -882,7 +882,7 @@ double eos::dq_dmus() {
 }
 
 double eos::calc_term_1() {
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     gsl_vector *v = gsl_vector_alloc(3);
     gsl_matrix *m = gsl_matrix_alloc(3,3);
 
@@ -908,7 +908,8 @@ double eos::calc_term_1() {
 }
 
 double eos::calc_term_2(string i_char) {
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__
+								 << ": i_char = " << i_char << std::endl;
     gsl_vector *a = gsl_vector_alloc(3);
     gsl_matrix *m = gsl_matrix_alloc(3,3);
     gsl_vector *b = gsl_vector_alloc(3);
@@ -985,7 +986,8 @@ double eos::calc_term_2(string i_char) {
 }
 
 double eos::calc_term_3(string i_char) {
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__
+								 << ": i_char = " << i_char << std::endl;
     gsl_vector *a = gsl_vector_alloc(3);
     gsl_matrix *m = gsl_matrix_alloc(3,3);
     gsl_vector *b = gsl_vector_alloc(3);
@@ -1062,7 +1064,9 @@ double eos::calc_term_3(string i_char) {
 }
 
 double eos::calc_term_4(string j_char, string i_char) {
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__
+								 << ": j_char, i_char = "
+								<< j_char << "   " << i_char << std::endl;
     gsl_vector *a = gsl_vector_alloc(3);
     gsl_matrix *m = gsl_matrix_alloc(3,3);
     gsl_vector *b = gsl_vector_alloc(3);
@@ -1275,26 +1279,8 @@ double eos::deriv_mult_aTm_1b(gsl_vector* a, gsl_matrix* m, gsl_vector* b) {
     gsl_permutation *p = gsl_permutation_alloc(3);
     int s;
 
-	/*cout << "chi matrix: " << endl;
-	for (int ii = 0; ii < 3; ii++)
-	{
-		for (int jj = 0; jj < 3; jj++)
-			cout << gsl_matrix_get(m, ii, jj) << "   ";
-		cout << endl;
-	}
-	cout << endl;*/
-
     // Compute the LU decomposition of this matrix
     gsl_linalg_LU_decomp(m, p, &s);
-
-	/*cout << "Inverting (LU decomposed chi matrix): " << endl;
-	for (int ii = 0; ii < 3; ii++)
-	{
-		for (int jj = 0; jj < 3; jj++)
-			cout << gsl_matrix_get(m, ii, jj) << "   ";
-		cout << endl;
-	}
-	cout << endl;*/
 
 	gsl_set_error_handler_off();
 
@@ -1311,7 +1297,7 @@ double eos::deriv_mult_aTm_1b(gsl_vector* a, gsl_matrix* m, gsl_vector* b) {
 		for (int ii = 0; ii < 3; ii++)
 		{
 			for (int jj = 0; jj < 3; jj++)
-				cout << gsl_matrix_get(minv, ii, jj) << "   ";
+				cout << gsl_matrix_get(m, ii, jj) << "   ";
 			cout << endl;
 		}
 		cout << "minv=" << endl;
