@@ -781,24 +781,48 @@ double eos::w(double Tin, double muBin, double muQin, double muSin) {
 
 
 
-double eos::dwds() {
+double eos::dwds()
+{
 	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
-    return T() + entrVal/dentr_dt() + BVal/dentr_dmub() + QVal/dentr_dmuq() + SVal/dentr_dmus();
+
+	double charge_terms	/*if charge densities are not all zero*/
+			= ( abs(Bval)>1e-10 || abs(Sval)>1e-10 || abs(Qval)>1e-10 ) ?
+			  BVal/dentr_dmub() + QVal/dentr_dmuq() + SVal/dentr_dmus() : 0.0;
+
+    return T() + entrVal/dentr_dt() + charge_terms;
 }
 
-double eos::dwdB() {
+double eos::dwdB()
+{
 	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
-    return muB() + entrVal/db_dt() + BVal/db_dmub() + QVal/db_dmuq() + SVal/db_dmus();
+
+	double charge_terms	/*if charge densities are not all zero*/
+			= ( abs(Bval)>1e-10 || abs(Sval)>1e-10 || abs(Qval)>1e-10 ) ?
+			  BVal/db_dmub() + QVal/db_dmuq() + SVal/db_dmus() : 0.0;
+
+    return muB() + entrVal/db_dt() + charge_terms;
 }
 
-double eos::dwdS() {
+double eos::dwdS()
+{
 	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
-    return muS() + entrVal/ds_dt() + BVal/ds_dmub() + QVal/ds_dmuq() + SVal/ds_dmus();
+
+	double charge_terms	/*if charge densities are not all zero*/
+			= ( abs(Bval)>1e-10 || abs(Sval)>1e-10 || abs(Qval)>1e-10 ) ?
+			  BVal/ds_dmub() + QVal/ds_dmuq() + SVal/ds_dmus() : 0.0;
+
+    return muS() + entrVal/ds_dt() + charge_terms;
 }
 
-double eos::dwdQ() {
+double eos::dwdQ()
+{
 	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
-    return muQ() + entrVal/dq_dt() + BVal/dq_dmub() + QVal/dq_dmuq() + SVal/dq_dmus();
+
+	double charge_terms	/*if charge densities are not all zero*/
+			= ( abs(Bval)>1e-10 || abs(Sval)>1e-10 || abs(Qval)>1e-10 ) ?
+			  BVal/dq_dmub() + QVal/dq_dmuq() + SVal/dq_dmus() : 0.0;
+
+    return muQ() + entrVal/dq_dt() + charge_terms;
 }
 
 double eos::dentr_dt() {
@@ -882,7 +906,7 @@ double eos::dq_dmus() {
 }
 
 double eos::calc_term_1() {
-	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     gsl_vector *v = gsl_vector_alloc(3);
     gsl_matrix *m = gsl_matrix_alloc(3,3);
 
@@ -908,7 +932,7 @@ double eos::calc_term_1() {
 }
 
 double eos::calc_term_2(string i_char) {
-	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__
 								 << ": i_char = " << i_char << std::endl;
     gsl_vector *a = gsl_vector_alloc(3);
     gsl_matrix *m = gsl_matrix_alloc(3,3);
@@ -986,7 +1010,7 @@ double eos::calc_term_2(string i_char) {
 }
 
 double eos::calc_term_3(string i_char) {
-	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__
 								 << ": i_char = " << i_char << std::endl;
     gsl_vector *a = gsl_vector_alloc(3);
     gsl_matrix *m = gsl_matrix_alloc(3,3);
@@ -1064,7 +1088,7 @@ double eos::calc_term_3(string i_char) {
 }
 
 double eos::calc_term_4(string j_char, string i_char) {
-	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__
 								 << ": j_char, i_char = "
 								<< j_char << "   " << i_char << std::endl;
     gsl_vector *a = gsl_vector_alloc(3);
@@ -1292,7 +1316,27 @@ double eos::deriv_mult_aTm_1b(gsl_vector* a, gsl_matrix* m, gsl_vector* b) {
 	{
 		cout << "Current TBQS location: "
 				<< 197.327*T() << "   " << 197.327*muB() << "   "
-				<< 197.327*muS() << "   " << 197.327*muQ() << endl;
+				<< 197.327*muS() << "   " << 197.327*muQ() << endl << endl;
+
+		cout << "Current EoS data:" << endl;
+		cout << "pVal = " << pVal << endl
+			 << "BVal = " << BVal << endl
+			 << "SVal = " << SVal << endl
+			 << "QVal = " << QVal << endl
+			 << "eVal = " << eVal << endl
+			 << "cs2Val = " << cs2Val << endl
+			 << "db2 = " << db2 << endl
+			 << "ds2 = " << ds2 << endl
+			 << "dq2 = " << dq2 << endl
+			 << "dt2 = " << dt2 << endl
+			 << "dbdq = " << dbdq << endl
+			 << "dbds = " << dbds << endl
+			 << "dsdq = " << dsdq << endl
+			 << "dtdb = " << dtdb << endl
+			 << "dtds = " << dtds << endl
+			 << "dtdq = " << dtdq << endl
+			 << "entrVal = " << entrVal << endl << endl;
+
 		cout << "m=" << endl;
 		for (int ii = 0; ii < 3; ii++)
 		{

@@ -343,6 +343,7 @@ void Particle<D>::returnA()
 template <int D>
 void Particle<D>::returnv_A()
 {
+	//if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     Agam=EOS.w()-EOSdwds()*(EOSs()+ bigPI/EOST() )- zeta/tauRelax ;
     Agam/=gamma;
 }
@@ -350,6 +351,7 @@ void Particle<D>::returnv_A()
 template <int D>
 void Particle<D>::return_sv_A()
 {
+	//if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     eta_o_tau=setas/stauRelax;
 
     Agam=EOSw()-EOSdwds()*(EOSs()+ bigPI/EOST() )- zeta/tauRelax ;
@@ -362,6 +364,7 @@ void Particle<D>::return_sv_A()
 template <int D>
 void Particle<D>::return_bsqsv_A()
 {
+	//if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     eta_o_tau=setas/stauRelax;
 
     Agam=EOSw()-EOSdwds()*(EOSs()+ bigPI/EOST() )- zeta/tauRelax
@@ -817,6 +820,7 @@ double Particle<D>::EOSA()
 template <int D>
 double Particle<D>::EOSdwds()
 {
+	//if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
 	EOS.tbqs( particle_T, particle_muB, particle_muQ, particle_muS );
 	return EOS.dwds();
 }
