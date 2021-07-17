@@ -786,7 +786,7 @@ double eos::dwds()
 	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
 
 	double charge_terms	/*if charge densities are not all zero*/
-			= ( abs(Bval)>1e-10 || abs(Sval)>1e-10 || abs(Qval)>1e-10 ) ?
+			= ( abs(BVal)>1e-10 || abs(SVal)>1e-10 || abs(QVal)>1e-10 ) ?
 			  BVal/dentr_dmub() + QVal/dentr_dmuq() + SVal/dentr_dmus() : 0.0;
 
     return T() + entrVal/dentr_dt() + charge_terms;
@@ -797,7 +797,7 @@ double eos::dwdB()
 	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
 
 	double charge_terms	/*if charge densities are not all zero*/
-			= ( abs(Bval)>1e-10 || abs(Sval)>1e-10 || abs(Qval)>1e-10 ) ?
+			= ( abs(BVal)>1e-10 || abs(SVal)>1e-10 || abs(QVal)>1e-10 ) ?
 			  BVal/db_dmub() + QVal/db_dmuq() + SVal/db_dmus() : 0.0;
 
     return muB() + entrVal/db_dt() + charge_terms;
@@ -808,7 +808,7 @@ double eos::dwdS()
 	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
 
 	double charge_terms	/*if charge densities are not all zero*/
-			= ( abs(Bval)>1e-10 || abs(Sval)>1e-10 || abs(Qval)>1e-10 ) ?
+			= ( abs(BVal)>1e-10 || abs(SVal)>1e-10 || abs(QVal)>1e-10 ) ?
 			  BVal/ds_dmub() + QVal/ds_dmuq() + SVal/ds_dmus() : 0.0;
 
     return muS() + entrVal/ds_dt() + charge_terms;
@@ -819,7 +819,7 @@ double eos::dwdQ()
 	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
 
 	double charge_terms	/*if charge densities are not all zero*/
-			= ( abs(Bval)>1e-10 || abs(Sval)>1e-10 || abs(Qval)>1e-10 ) ?
+			= ( abs(BVal)>1e-10 || abs(SVal)>1e-10 || abs(QVal)>1e-10 ) ?
 			  BVal/dq_dmub() + QVal/dq_dmuq() + SVal/dq_dmus() : 0.0;
 
     return muQ() + entrVal/dq_dt() + charge_terms;
