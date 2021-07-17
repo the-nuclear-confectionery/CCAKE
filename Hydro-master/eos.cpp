@@ -783,7 +783,7 @@ double eos::w(double Tin, double muBin, double muQin, double muSin) {
 
 double eos::dwds()
 {
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
 
 	double charge_terms	/*if charge densities are not all zero*/
 			= ( abs(BVal)>1e-10 || abs(SVal)>1e-10 || abs(QVal)>1e-10 ) ?
@@ -794,119 +794,119 @@ double eos::dwds()
 
 double eos::dwdB()
 {
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
 
 	double charge_terms	/*if charge densities are not all zero*/
 			= ( abs(BVal)>1e-10 || abs(SVal)>1e-10 || abs(QVal)>1e-10 ) ?
-			  BVal/db_dmub() + QVal/db_dmuq() + SVal/db_dmus() : 0.0;
+			  entrVal/db_dt() + BVal/db_dmub() + QVal/db_dmuq() + SVal/db_dmus() : 0.0;
 
-    return muB() + entrVal/db_dt() + charge_terms;
+    return muB() + charge_terms;
 }
 
 double eos::dwdS()
 {
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
 
 	double charge_terms	/*if charge densities are not all zero*/
 			= ( abs(BVal)>1e-10 || abs(SVal)>1e-10 || abs(QVal)>1e-10 ) ?
-			  BVal/ds_dmub() + QVal/ds_dmuq() + SVal/ds_dmus() : 0.0;
+			  entrVal/ds_dt() + BVal/ds_dmub() + QVal/ds_dmuq() + SVal/ds_dmus() : 0.0;
 
-    return muS() + entrVal/ds_dt() + charge_terms;
+    return muS() + charge_terms;
 }
 
 double eos::dwdQ()
 {
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
 
 	double charge_terms	/*if charge densities are not all zero*/
 			= ( abs(BVal)>1e-10 || abs(SVal)>1e-10 || abs(QVal)>1e-10 ) ?
-			  BVal/dq_dmub() + QVal/dq_dmuq() + SVal/dq_dmus() : 0.0;
+			  entrVal/dq_dt() + BVal/dq_dmub() + QVal/dq_dmuq() + SVal/dq_dmus() : 0.0;
 
-    return muQ() + entrVal/dq_dt() + charge_terms;
+    return muQ() + charge_terms;
 }
 
 double eos::dentr_dt() {
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_1();
 }
 
 double eos::dentr_dmub() {
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_2("b");
 }
 
 double eos::dentr_dmuq() {
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_2("q");
 }
 
 double eos::dentr_dmus() {
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_2("s");
 }
 
 double eos::db_dt() {
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_3("b");
 }
 
 double eos::db_dmub() {
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_4("b","b");
 }
 
 double eos::db_dmuq() {
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_4("b","q");
 }
 
 double eos::db_dmus() {
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_4("b","s");
 }
 
 double eos::ds_dt() {
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_3("s");
 }
 
 double eos::ds_dmub() {
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_4("s","b");
 }
 
 double eos::ds_dmuq() {
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_4("s","q");
 }
 
 double eos::ds_dmus() {
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_4("s","s");
 }
 
 double eos::dq_dt() {
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_3("q");
 }
 
 double eos::dq_dmub() {
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_4("q","b");
 }
 
 double eos::dq_dmuq() {
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_4("q","q");
 }
 
 double eos::dq_dmus() {
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_4("q","s");
 }
 
 double eos::calc_term_1() {
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     gsl_vector *v = gsl_vector_alloc(3);
     gsl_matrix *m = gsl_matrix_alloc(3,3);
 
@@ -932,7 +932,7 @@ double eos::calc_term_1() {
 }
 
 double eos::calc_term_2(string i_char) {
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__
+	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__
 								 << ": i_char = " << i_char << std::endl;
     gsl_vector *a = gsl_vector_alloc(3);
     gsl_matrix *m = gsl_matrix_alloc(3,3);
@@ -1010,7 +1010,7 @@ double eos::calc_term_2(string i_char) {
 }
 
 double eos::calc_term_3(string i_char) {
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__
+	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__
 								 << ": i_char = " << i_char << std::endl;
     gsl_vector *a = gsl_vector_alloc(3);
     gsl_matrix *m = gsl_matrix_alloc(3,3);
@@ -1088,7 +1088,7 @@ double eos::calc_term_3(string i_char) {
 }
 
 double eos::calc_term_4(string j_char, string i_char) {
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__
+	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__
 								 << ": j_char, i_char = "
 								<< j_char << "   " << i_char << std::endl;
     gsl_vector *a = gsl_vector_alloc(3);
@@ -1299,7 +1299,7 @@ double eos::calc_term_4(string j_char, string i_char) {
 }
 
 double eos::deriv_mult_aTm_1b(gsl_vector* a, gsl_matrix* m, gsl_vector* b) {
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     gsl_permutation *p = gsl_permutation_alloc(3);
     int s;
 
