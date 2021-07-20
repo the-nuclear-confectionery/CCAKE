@@ -1814,7 +1814,7 @@ if ( VERBOSE > 5 ) std::cout << __PRETTY_FUNCTION__ << e_or_s_Given << "   " << 
         status = gsl_multiroot_fsolver_iterate(solver);
 
 
-        if(status) {
+        if(VERBOSE > 5 && status) {
 
 	if ( status == GSL_EBADFUNC && e_or_s_mode == 1 && VERBOSE > 5 )
 		std::cout << "Error: something went to +/-Inf or NaN!" << std::endl;
