@@ -180,15 +180,15 @@ int main(int argc, char *argv[])
 	long long gridEntry  = 0;
 
 	// set T and mu_i ranges
-	const int Tmin = 805, Tmax = 1200, DeltaT = 5;
-	const int muBmin = -450, muBmax = 450, DeltamuB = 50;
-	const int muQmin = -450, muQmax = 450, DeltamuQ = 50;
-	const int muSmin = -450, muSmax = 450, DeltamuS = 50;
+//	const int Tmin = 805, Tmax = 1200, DeltaT = 5;
+//	const int muBmin = -450, muBmax = 450, DeltamuB = 50;
+//	const int muQmin = -450, muQmax = 450, DeltamuQ = 50;
+//	const int muSmin = -450, muSmax = 450, DeltamuS = 50;
 
-	//const int Tmin = 30, Tmax = 200, DeltaT = 2;
-	//const int muBmin = -1000, muBmax = -200, DeltamuB = 20;
-        //const int muQmin = 0, muQmax = 1000, DeltamuQ = 20;
-        //const int muSmin = -1000, muSmax = 0, DeltamuS = 20;
+	const int Tmin = 30, Tmax = 500, DeltaT = 1;
+	const int muBmin = 0, muBmax = 0, DeltamuB = 1;
+	const int muQmin = 0, muQmax = 0, DeltamuQ = 1;
+	const int muSmin = 0, muSmax = 0, DeltamuS = 1;
 
 	// set HDF array lengths
 	for(i=Tmin;i<=Tmax;i+=DeltaT)
