@@ -13,7 +13,7 @@ using namespace std;
 // driver function
 int main(int argc, char ** argv)
 {
-	constexpr int test_mode = 1;
+	constexpr int test_mode = 2;
 
 	if ( test_mode == 1 )	// check single point
 	{
