@@ -70,6 +70,8 @@ namespace interp_thermo
 				rhoB *= T*T*T/hbarc3;	// 1/fm^3
 				rhoS *= T*T*T/hbarc3;	// 1/fm^3
 				rhoQ *= T*T*T/hbarc3;	// 1/fm^3
+
+e = pow(e, 0.75);
 	
 				vector<double> EoS_entry;
 				EoS_entry.push_back(T);
@@ -117,8 +119,7 @@ cout << "Check ranges(1): " << emin << "   "  << emax << "   "
 		<< rhoQmin << "   "  << rhoQmax << endl;
 		for ( auto & EoS_entry : EoS_table )
 		{
-//			EoS_entry[4] = normalize( emin,    emax,    EoS_entry[4] );
-			EoS_entry[4] = pow(normalize( emin, emax, EoS_entry[4] ), 0.75);
+			EoS_entry[4] = normalize( emin,    emax,    EoS_entry[4] );
 			EoS_entry[5] = normalize( rhoBmin, rhoBmax, EoS_entry[5] );
 			EoS_entry[6] = normalize( rhoSmin, rhoSmax, EoS_entry[6] );
 			EoS_entry[7] = normalize( rhoQmin, rhoQmax, EoS_entry[7] );
@@ -279,6 +280,8 @@ cout << "power = " << power << ": " << solution[0] << "   " << solution[1]
 				rhoB *= T*T*T/hbarc3;	// 1/fm^3
 				rhoS *= T*T*T/hbarc3;	// 1/fm^3
 				rhoQ *= T*T*T/hbarc3;	// 1/fm^3
+
+e = pow(e, 0.75);
 	
 				vector<double> point_to_check;
 				point_to_check.push_back(e);
@@ -298,8 +301,7 @@ cout << "Check ranges(2): " << emin << "   "  << emax << "   "
 		<< rhoQmin << "   "  << rhoQmax << endl;
 		for ( auto & point_to_check : points_to_check )
 		{
-//			point_to_check[0] = normalize( emin,    emax,    point_to_check[0] );
-			point_to_check[0] = pow(normalize( emin, emax, point_to_check[0] ), 0.75);
+			point_to_check[0] = normalize( emin,    emax,    point_to_check[0] );
 			point_to_check[1] = normalize( rhoBmin, rhoBmax, point_to_check[1] );
 			point_to_check[2] = normalize( rhoSmin, rhoSmax, point_to_check[2] );
 			point_to_check[3] = normalize( rhoQmin, rhoQmax, point_to_check[3] );
