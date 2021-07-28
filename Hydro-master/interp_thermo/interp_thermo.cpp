@@ -52,7 +52,7 @@ int main(int argc, char ** argv)
 		string testfilename = argv[2];
 		vector<vector<double> > EoS_table, points_to_check;
 		interp_thermo::load_file(filename, EoS_table);
-		interp_thermo::load_test_file(filename, points_to_check);
+		interp_thermo::load_test_file(testfilename, points_to_check);
 
 		const size_t k = 81;
 		vector<vector<double> > neighbors;
