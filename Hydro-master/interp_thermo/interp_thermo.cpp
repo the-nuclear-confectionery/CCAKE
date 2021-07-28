@@ -125,11 +125,12 @@ void load_file( string filename, vector<vector<double> > & EoS_table )
 	return;
 }
 
-// distances computed in density space (last 4 of 8 elements in vector)
-double distance2( const vector<double> & a, const vector<double> & b )
+// distances computed in density space (last 4 of 8 elements in first vector)
+// ==>> fixed point must be second argument
+inline double distance2( const vector<double> & a, const vector<double> & b )
 {
-	return (a[4]-b[4])*(a[4]-b[4]) + (a[5]-b[5])*(a[5]-b[5])
-		 + (a[6]-b[6])*(a[6]-b[6]) + (a[7]-b[7])*(a[7]-b[7]);
+	return (a[4]-b[0])*(a[4]-b[0]) + (a[5]-b[1])*(a[5]-b[1])
+		 + (a[6]-b[2])*(a[6]-b[2]) + (a[7]-b[3])*(a[7]-b[3]);
 }
 
 void get_nearest_neighbors( const vector<vector<double> > & EoS_table,
