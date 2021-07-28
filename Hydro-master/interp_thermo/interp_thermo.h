@@ -52,7 +52,6 @@ namespace interp_thermo
 			double T, muB, muQ, muS, e, rhoB, rhoS, rhoQ, dummy;
 			while ( getline (infile, line) )
 			{
-if ( count > 10000 ) break;
 				istringstream iss(line);
 				iss >> T >> muB >> muQ >> muS
 					>> dummy >> dummy
