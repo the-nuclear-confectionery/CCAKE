@@ -117,18 +117,18 @@ e = pow(e, 0.75);
 cout << "Check ranges(1): " << emin << "   "  << emax << "   " 
 		<< rhoBmin << "   "  << rhoBmax << "   "  << rhoSmin << "   "  << rhoSmax << "   " 
 		<< rhoQmin << "   "  << rhoQmax << endl;
-		for ( auto & EoS_entry : EoS_table )
-		{
-			EoS_entry[4] = normalize( emin,    emax,    EoS_entry[4] );
-			EoS_entry[5] = normalize( rhoBmin, rhoBmax, EoS_entry[5] );
-			EoS_entry[6] = normalize( rhoSmin, rhoSmax, EoS_entry[6] );
-			EoS_entry[7] = normalize( rhoQmin, rhoQmax, EoS_entry[7] );
-
-//			EoS_entry[4] = max(0.0, min(1.0, EoS_entry[4]*distribution(generator)));
-//			EoS_entry[5] = max(0.0, min(1.0, EoS_entry[5]*distribution(generator)));
-//			EoS_entry[6] = max(0.0, min(1.0, EoS_entry[6]*distribution(generator)));
-//			EoS_entry[7] = max(0.0, min(1.0, EoS_entry[7]*distribution(generator)));
-		}
+//		for ( auto & EoS_entry : EoS_table )
+//		{
+//			EoS_entry[4] = normalize( emin,    emax,    EoS_entry[4] );
+//			EoS_entry[5] = normalize( rhoBmin, rhoBmax, EoS_entry[5] );
+//			EoS_entry[6] = normalize( rhoSmin, rhoSmax, EoS_entry[6] );
+//			EoS_entry[7] = normalize( rhoQmin, rhoQmax, EoS_entry[7] );
+//
+////			EoS_entry[4] = max(0.0, min(1.0, EoS_entry[4]*distribution(generator)));
+////			EoS_entry[5] = max(0.0, min(1.0, EoS_entry[5]*distribution(generator)));
+////			EoS_entry[6] = max(0.0, min(1.0, EoS_entry[6]*distribution(generator)));
+////			EoS_entry[7] = max(0.0, min(1.0, EoS_entry[7]*distribution(generator)));
+//		}
 	
 		sw.Stop();
 		cout << "Finished loading " << filename << " in " << sw.printTime() << " s." << endl;
@@ -299,13 +299,13 @@ e = pow(e, 0.75);
 cout << "Check ranges(2): " << emin << "   "  << emax << "   " 
 		<< rhoBmin << "   "  << rhoBmax << "   "  << rhoSmin << "   "  << rhoSmax << "   " 
 		<< rhoQmin << "   "  << rhoQmax << endl;
-		for ( auto & point_to_check : points_to_check )
-		{
-			point_to_check[0] = normalize( emin,    emax,    point_to_check[0] );
-			point_to_check[1] = normalize( rhoBmin, rhoBmax, point_to_check[1] );
-			point_to_check[2] = normalize( rhoSmin, rhoSmax, point_to_check[2] );
-			point_to_check[3] = normalize( rhoQmin, rhoQmax, point_to_check[3] );
-		}
+//		for ( auto & point_to_check : points_to_check )
+//		{
+//			point_to_check[0] = normalize( emin,    emax,    point_to_check[0] );
+//			point_to_check[1] = normalize( rhoBmin, rhoBmax, point_to_check[1] );
+//			point_to_check[2] = normalize( rhoSmin, rhoSmax, point_to_check[2] );
+//			point_to_check[3] = normalize( rhoQmin, rhoQmax, point_to_check[3] );
+//		}
 
 //points_to_check.clear();
 //points_to_check.push_back( {pow(0.5,0.75), 0.5, 0.5, 0.5} );
