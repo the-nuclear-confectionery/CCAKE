@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 
+#include "interp_thermo.h"
 
 using namespace std;
 
