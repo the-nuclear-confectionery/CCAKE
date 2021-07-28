@@ -70,20 +70,20 @@ int main(int argc, char ** argv)
 
 				interp_thermo::get_nearest_neighbors( EoS_table, neighbors, point_to_check, k, true );
 	
-			cout << "Nearest neighbors are:" << endl;
-			for ( auto & neighbor : neighbors )
-			{
-				for ( auto & element : neighbor )
-					cout << element << "   ";
-				cout << endl;
-			}
+//			cout << "Nearest neighbors are:" << endl;
+//			for ( auto & neighbor : neighbors )
+//			{
+//				for ( auto & element : neighbor )
+//					cout << element << "   ";
+//				cout << endl;
+//			}
 
 				for ( double power_in = 1.0; power_in <= 5.0; power_in += 0.5 )
 					interp_thermo::get_IDW_point_estimate( neighbors, point_to_check, power_in );
 			}
 			k *= 2;
 			cout << endl;
-		} while ( count++ < 1 );
+		} while ( count++ < 8 );
 		
 	}
 	
