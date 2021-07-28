@@ -2,6 +2,7 @@
 #include <cmath>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -131,7 +132,7 @@ void get_nearest_neighbors( const vector<vector<double> > & EoS_table,
 	neighbors.clear();
 	neighbors = vector<vector<double> > ( k, vector<double> ( p.size(), 0.0 ) );
 
-	bool closer_than = [&p](const vector<double> & x, const vector<double> & y)
+	auto closer_than = [&p](const vector<double> & x, const vector<double> & y)
 					   { return distance2(x,p) < distance2(y,p); };
 
 	partial_sort_copy( EoS_table.begin(), EoS_table.end(),
