@@ -43,11 +43,6 @@ namespace interp_thermo
 		const double hbarc = 197.33;
 		const double hbarc3 = hbarc*hbarc*hbarc;
 
-		// add some smearing
-		unsigned seed = chrono::system_clock::now().time_since_epoch().count();
-		default_random_engine generator(seed);	
-		normal_distribution<double> distribution(1.0,0.1);
-
 		EoS_table.clear();
 		ifstream infile(filename.c_str());
 		if (infile.is_open())
@@ -72,14 +67,10 @@ namespace interp_thermo
 				EoS_entry.push_back(muB);
 				EoS_entry.push_back(muS);
 				EoS_entry.push_back(muQ);
-//				EoS_entry.push_back(e);
-//				EoS_entry.push_back(rhoB);
-//				EoS_entry.push_back(rhoS);
-//				EoS_entry.push_back(rhoQ);
-				EoS_entry.push_back(e*distribution(generator));
-				EoS_entry.push_back(rhoB*distribution(generator));
-				EoS_entry.push_back(rhoS*distribution(generator));
-				EoS_entry.push_back(rhoQ*distribution(generator));
+				EoS_entry.push_back(e);
+				EoS_entry.push_back(rhoB);
+				EoS_entry.push_back(rhoS);
+				EoS_entry.push_back(rhoQ);
 	
 				EoS_table.push_back( EoS_entry );
 	
@@ -106,6 +97,11 @@ namespace interp_thermo
 	
 		infile.close();
 	
+		// add some smearing
+		unsigned seed = chrono::system_clock::now().time_since_epoch().count();
+		default_random_engine generator(seed);	
+		normal_distribution<double> distribution(1.0,0.1);
+
 		// normalize input data (easy to go the other direction too)
 		for ( auto & EoS_entry : EoS_table )
 		{
@@ -113,6 +109,11 @@ namespace interp_thermo
 			EoS_entry[5] = normalize( rhoBmin, rhoBmax, EoS_entry[5] );
 			EoS_entry[6] = normalize( rhoSmin, rhoSmax, EoS_entry[6] );
 			EoS_entry[7] = normalize( rhoQmin, rhoQmax, EoS_entry[7] );
+
+			EoS_entry[4] = max(0.0, min(1.0, EoS_entry[4]*distribution(generator)));
+			EoS_entry[5] = max(0.0, min(1.0, EoS_entry[5]*distribution(generator)));
+			EoS_entry[6] = max(0.0, min(1.0, EoS_entry[6]*distribution(generator)));
+			EoS_entry[7] = max(0.0, min(1.0, EoS_entry[7]*distribution(generator)));
 		}
 	
 		sw.Stop();
