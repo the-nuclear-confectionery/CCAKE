@@ -308,7 +308,7 @@ cout << "Check ranges(2): " << emin << "   "  << emax << "   "
 		}
 
 points_to_check.clear();
-points_to_check.push_back( {0.5, 0.5, 0.5, 0.5} );
+points_to_check.push_back( {pow(0.5,0.75), 0.5, 0.5, 0.5} );
 	
 		sw.Stop();
 		cout << "Finished loading " << filename << " in " << sw.printTime() << " s." << endl;
