@@ -1,6 +1,8 @@
 # Set compiler and flags
 CC := g++
-CFLAGS= -g -std=c++14 -lm -lgsl -lgslcblas -lblas
+GSLPATH=/projects/jnorhos/local/gsl/include
+GSLLIBPATH=/projects/jnorhos/local/gsl/lib
+CFLAGS= -g -std=c++14 -I$(GSLPATH) -L$(GSLLIBPATH) -lm -lgsl -lgslcblas -lblas
 
 # Various directories and definitions
 RM          =   rm -f
