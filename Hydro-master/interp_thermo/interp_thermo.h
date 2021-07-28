@@ -100,7 +100,7 @@ namespace interp_thermo
 		// add some smearing
 		unsigned seed = chrono::system_clock::now().time_since_epoch().count();
 		default_random_engine generator(seed);	
-		normal_distribution<double> distribution(1.0,0.01);
+		normal_distribution<double> distribution(1.0,0.001);
 
 		// normalize input data (easy to go the other direction too)
 		for ( auto & EoS_entry : EoS_table )
@@ -197,7 +197,7 @@ namespace interp_thermo
 			lambda_sum += lambda[i];
 			cout << "lambda[" << i << "] = " << lambda[i] << endl;
 		}
-		cout << "lambda[" << dim+1 << "] = " << 1.0 - lambda_sum << endl;
+		cout << "lambda[" << dim << "] = " << 1.0 - lambda_sum << endl;
 	}
 }
 
