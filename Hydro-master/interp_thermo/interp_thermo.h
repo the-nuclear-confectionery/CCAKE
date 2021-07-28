@@ -103,7 +103,7 @@ namespace interp_thermo
 //		normal_distribution<double> distribution(1.0,0.001);
 
 		// normalize input data (easy to go the other direction too)
-cout << "Check ranges(1): " << emin << "   "  << emin << "   " 
+cout << "Check ranges(1): " << emin << "   "  << emax << "   " 
 		<< rhoBmin << "   "  << rhoBmax << "   "  << rhoSmin << "   "  << rhoSmax << "   " 
 		<< rhoQmin << "   "  << rhoQmax << endl;
 		for ( auto & EoS_entry : EoS_table )
@@ -274,7 +274,7 @@ cout << "power = " << power << ": " << solution[0] << "   " << solution[1]
 		infile.close();
 
 		// normalize input data (easy to go the other direction too)
-cout << "Check ranges(2): " << emin << "   "  << emin << "   " 
+cout << "Check ranges(2): " << emin << "   "  << emax << "   " 
 		<< rhoBmin << "   "  << rhoBmax << "   "  << rhoSmin << "   "  << rhoSmax << "   " 
 		<< rhoQmin << "   "  << rhoQmax << endl;
 		for ( auto & point_to_check : points_to_check )
@@ -284,6 +284,8 @@ cout << "Check ranges(2): " << emin << "   "  << emin << "   "
 			point_to_check[2] = normalize( rhoSmin, rhoSmax, point_to_check[2] );
 			point_to_check[3] = normalize( rhoQmin, rhoQmax, point_to_check[3] );
 		}
+
+points_to_check.push_back( {0.5, 0.5, 0.5, 0.5} );
 	
 		sw.Stop();
 		cout << "Finished loading " << filename << " in " << sw.printTime() << " s." << endl;
