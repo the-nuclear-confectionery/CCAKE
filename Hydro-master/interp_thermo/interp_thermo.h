@@ -117,7 +117,8 @@ cout << "Check ranges(1): " << emin << "   "  << emax << "   "
 		<< rhoQmin << "   "  << rhoQmax << endl;
 		for ( auto & EoS_entry : EoS_table )
 		{
-			EoS_entry[4] = normalize( emin,    emax,    EoS_entry[4] );
+//			EoS_entry[4] = normalize( emin,    emax,    EoS_entry[4] );
+			EoS_entry[4] = pow(normalize( emin, emax, EoS_entry[4] ), 0.75);
 			EoS_entry[5] = normalize( rhoBmin, rhoBmax, EoS_entry[5] );
 			EoS_entry[6] = normalize( rhoSmin, rhoSmax, EoS_entry[6] );
 			EoS_entry[7] = normalize( rhoQmin, rhoQmax, EoS_entry[7] );
@@ -297,14 +298,15 @@ cout << "Check ranges(2): " << emin << "   "  << emax << "   "
 		<< rhoQmin << "   "  << rhoQmax << endl;
 		for ( auto & point_to_check : points_to_check )
 		{
-			point_to_check[0] = normalize( emin,    emax,    point_to_check[0] );
+//			point_to_check[0] = normalize( emin,    emax,    point_to_check[0] );
+			point_to_check[0] = pow(normalize( emin, emax, point_to_check[0] ), 0.75);
 			point_to_check[1] = normalize( rhoBmin, rhoBmax, point_to_check[1] );
 			point_to_check[2] = normalize( rhoSmin, rhoSmax, point_to_check[2] );
 			point_to_check[3] = normalize( rhoQmin, rhoQmax, point_to_check[3] );
 		}
 
-//points_to_check.clear();
-//points_to_check.push_back( {0.5, 0.5, 0.5, 0.5} );
+points_to_check.clear();
+points_to_check.push_back( {0.5, 0.5, 0.5, 0.5} );
 	
 		sw.Stop();
 		cout << "Finished loading " << filename << " in " << sw.printTime() << " s." << endl;
