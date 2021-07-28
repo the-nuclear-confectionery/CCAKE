@@ -208,8 +208,8 @@ namespace interp_thermo
 		for ( auto & neighbor : neighbors )
 		{
 			const double d = sqrt(distance2(neighbor,p));
-			normalization += 1.0/d;
-			for (int i = 0; i < 4; i++) solution[i] += neighbor[i]/d;
+			normalization += 1.0/d/d;
+			for (int i = 0; i < 4; i++) solution[i] += neighbor[i]/d/d;
 		}
 		for (int i = 0; i < 4; i++) solution[i] /= normalization;
 
