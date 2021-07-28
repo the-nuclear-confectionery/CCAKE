@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <cmath>
 #include <iostream>
+#include <string>
 #include <vector>
 
 using namespace std;
@@ -10,7 +11,8 @@ double emin, emax, rhoBmin, rhoBmax, rhoSmin, rhoSmax, rhoQmin, rhoQmax;
 // prototypes
 void load_file( string filename, vector<vector<double> > & EoS_table );
 void get_nearest_neighbors( const vector<vector<double> > & EoS_table,
-							vector<size_t> & indices, const int k );
+							vector<vector<double> > & neighbors,
+							const vector<double> & p, const int k );
 
 // driver function
 int main(int argc, char ** argv)
