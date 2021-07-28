@@ -145,6 +145,47 @@ namespace interp_thermo
 	
 		return;
 	}
+
+	void check_point_in_simplex( vector<vector<double> > & neighbors,
+								 const vector<double> & p )
+	{
+		const int dim = p.size();
+		const int nVertices = dim + 1;	// by definition for a simplex
+		if ( neighbors.size() != nVertices )
+		{
+			cerr << "Neighbors do not define a unique simplex!" << endl;
+			exit(-1);
+		}
+	
+		// initialize v with appropriate neighbor coordinates
+		vector<vector<double> > v;
+		for ( auto & neighbor : neighbors )
+			v.push_back( vector<double>( neighbor.begin() + 4, neighbor.end() ) );
+	
+		// construct T matrix
+		double T[dim*dim];
+		for (int i = 0; i < dim; i++)	// x, y, z, ...
+		for (int j = 0; j < dim; j++)	// v1, v2, v3, ...
+			T[i*dim+j] = v[j][i] - v[dim][i];
+	
+		// construct displacement vector
+		double d[dim];
+		for (int i = 0; i < dim; i++)	// x, y, z, ...
+			d[i] = p[i] - v[dim][i];
+	
+		// construct lambda vector
+		double lambda[dim];
+		get_barycentric_coordinates(T, d, lambda, dim);
+	
+		// print results
+		double lambda_sum = 0.0;
+		for (int i = 0; i < dim; i++)
+		{
+			lambda_sum += lambda[i];
+			cout << "lambda[" << i << "] = " << lambda[i] << endl;
+		}
+		cout << "lambda[" << dim+1 << "] = " << 1.0 - lambda_sum << endl;
+	}
 }
 
 #endif

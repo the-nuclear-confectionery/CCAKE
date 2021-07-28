@@ -33,6 +33,9 @@ int main(int argc, char ** argv)
 			cout << element << "   ";
 		cout << endl;
 	}
+
+	// now check if point is inside simplex defined by neighbors
+	check_point_in_simplex( neighbors, point );
 	
 	return 0;
 }
