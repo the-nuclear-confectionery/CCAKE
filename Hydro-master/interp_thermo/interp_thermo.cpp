@@ -23,12 +23,12 @@ int main(int argc, char ** argv)
 	load_file(filename, EoS_table);
 
 	// pick a point
-	// vector<double> point = ...;
+	vector<double> point {0.5, 0.5, 0.5, 0.5};  // normalized coordinates
 
 	// get k nearest neighbors to point
 	const int k = 10;
 	vector<vector<double> > neighbors;
-	get_nearest_neighbors( EoS_table, neighbors, k );
+	get_nearest_neighbors( EoS_table, neighbors, point, k );
 
 	cout << "Nearest neighbors are:" << endl;
 	for ( auto & neighbor : neighbors )
