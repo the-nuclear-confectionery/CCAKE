@@ -40,7 +40,7 @@ namespace interp_thermo
 	{
 		Stopwatch sw;
 		sw.Start();
-		const double hbarc = 197.33;
+		const double hbarc = 197.327;
 		const double hbarc3 = hbarc*hbarc*hbarc;
 
 		EoS_table.clear();
@@ -208,17 +208,72 @@ namespace interp_thermo
 		for ( auto & neighbor : neighbors )
 		{
 			const double d = sqrt(distance2(neighbor,p));
-			normalization += 1.0/d/d;
-			for (int i = 0; i < 4; i++) solution[i] += neighbor[i]/d/d;
+			normalization += 1.0/d;
+			for (int i = 0; i < 4; i++) solution[i] += neighbor[i]/d;
 		}
 		for (int i = 0; i < 4; i++) solution[i] /= normalization;
 
-		cout << "Estimated interpolated value:" << endl;
-		cout << "point = {" << p[0] << ", " << p[1] << ", " << p[2] << ", " << p[3] << "}" << endl;
-		cout << "solution = {" << solution[0] << ", " << solution[1] << ", "
-				<< solution[2] << ", " << solution[3] << "}" << endl;
+//		cout << "Estimated interpolated value:" << endl;
+//		cout << "point = {" << p[0] << ", " << p[1] << ", " << p[2] << ", " << p[3] << "}" << endl;
+//		cout << "solution = {" << solution[0] << ", " << solution[1] << ", "
+//				<< solution[2] << ", " << solution[3] << "}" << endl;
+
+cout << solution[0] << "   " << solution[1] << "   " << solution[2] << "   " << solution[3] << endl;
 
 		return;		
+	}
+
+	// read in file for checking interpolator
+	void load_test_file( string filename, vector<vector<double> > & points_to_check )
+	{
+		Stopwatch sw;
+		sw.Start();
+		const double hbarc = 197.327;
+		const double hbarc3 = hbarc*hbarc*hbarc;
+
+		points_to_check.clear();
+		ifstream infile(filename.c_str());
+		if (infile.is_open())
+		{
+			string line;
+			double T, muB, muQ, muS, e, rhoB, rhoS, rhoQ, dummy;
+			while ( getline (infile, line) )
+			{
+				istringstream iss(line);
+				iss >> T >> muB >> muQ >> muS
+					>> dummy >> dummy
+					>> rhoB >> rhoS >> rhoQ >> e;
+	
+				e    *= T*T*T*T/hbarc3;	// MeV/fm^3
+				rhoB *= T*T*T/hbarc3;	// 1/fm^3
+				rhoS *= T*T*T/hbarc3;	// 1/fm^3
+				rhoQ *= T*T*T/hbarc3;	// 1/fm^3
+	
+				vector<double> point_to_check;
+				point_to_check.push_back(e);
+				point_to_check.push_back(rhoB);
+				point_to_check.push_back(rhoS);
+				point_to_check.push_back(rhoQ);
+	
+				points_to_check.push_back( point_to_check );
+			}
+		}
+	
+		infile.close();
+
+		// normalize input data (easy to go the other direction too)
+		for ( auto & point_to_check : points_to_check )
+		{
+			point_to_check[4] = normalize( emin,    emax,    point_to_check[4] );
+			point_to_check[5] = normalize( rhoBmin, rhoBmax, point_to_check[5] );
+			point_to_check[6] = normalize( rhoSmin, rhoSmax, point_to_check[6] );
+			point_to_check[7] = normalize( rhoQmin, rhoQmax, point_to_check[7] );
+		}
+	
+		sw.Stop();
+		cout << "Finished loading " << filename << " in " << sw.printTime() << " s." << endl;
+	
+		return;
 	}
 }
 
