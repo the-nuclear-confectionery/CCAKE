@@ -285,6 +285,7 @@ cout << "Check ranges(2): " << emin << "   "  << emax << "   "
 			point_to_check[3] = normalize( rhoQmin, rhoQmax, point_to_check[3] );
 		}
 
+points_to_check.clear();
 points_to_check.push_back( {0.5, 0.5, 0.5, 0.5} );
 	
 		sw.Stop();
