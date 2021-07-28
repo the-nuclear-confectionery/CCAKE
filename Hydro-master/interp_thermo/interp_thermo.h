@@ -82,7 +82,10 @@ namespace interp_thermo
 				rhoQ *= T*T*T/hbarc3;	// 1/fm^3
 
 e /= hbarc;
-e = pow(e, 0.75);
+e = pow(e, 0.25);
+rhoB = pow(rhoB, 1.0/3.0);
+rhoS = pow(rhoS, 1.0/3.0);
+rhoQ = pow(rhoQ, 1.0/3.0);
 	
 				vector<double> EoS_entry;
 				EoS_entry.push_back(T);
@@ -298,7 +301,10 @@ cout << "power = " << power << ": " << solution[0] << "   " << solution[1]
 				rhoQ *= T*T*T/hbarc3;	// 1/fm^3
 
 e /= hbarc;
-e = pow(e, 0.75);
+e = pow(e, 0.25);
+rhoB = pow(rhoB, 1.0/3.0);
+rhoS = pow(rhoS, 1.0/3.0);
+rhoQ = pow(rhoQ, 1.0/3.0);
 	
 				vector<double> point_to_check;
 				point_to_check.push_back(e);
