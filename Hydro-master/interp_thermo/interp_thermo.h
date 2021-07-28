@@ -97,10 +97,10 @@ namespace interp_thermo
 	
 		infile.close();
 	
-		// add some smearing
-		unsigned seed = chrono::system_clock::now().time_since_epoch().count();
-		default_random_engine generator(seed);	
-		normal_distribution<double> distribution(1.0,0.001);
+//		// add some smearing
+//		unsigned seed = chrono::system_clock::now().time_since_epoch().count();
+//		default_random_engine generator(seed);	
+//		normal_distribution<double> distribution(1.0,0.001);
 
 		// normalize input data (easy to go the other direction too)
 		for ( auto & EoS_entry : EoS_table )
@@ -110,10 +110,10 @@ namespace interp_thermo
 			EoS_entry[6] = normalize( rhoSmin, rhoSmax, EoS_entry[6] );
 			EoS_entry[7] = normalize( rhoQmin, rhoQmax, EoS_entry[7] );
 
-			EoS_entry[4] = max(0.0, min(1.0, EoS_entry[4]*distribution(generator)));
-			EoS_entry[5] = max(0.0, min(1.0, EoS_entry[5]*distribution(generator)));
-			EoS_entry[6] = max(0.0, min(1.0, EoS_entry[6]*distribution(generator)));
-			EoS_entry[7] = max(0.0, min(1.0, EoS_entry[7]*distribution(generator)));
+//			EoS_entry[4] = max(0.0, min(1.0, EoS_entry[4]*distribution(generator)));
+//			EoS_entry[5] = max(0.0, min(1.0, EoS_entry[5]*distribution(generator)));
+//			EoS_entry[6] = max(0.0, min(1.0, EoS_entry[6]*distribution(generator)));
+//			EoS_entry[7] = max(0.0, min(1.0, EoS_entry[7]*distribution(generator)));
 		}
 	
 		sw.Stop();
@@ -198,6 +198,27 @@ namespace interp_thermo
 			cout << "lambda[" << i << "] = " << lambda[i] << endl;
 		}
 		cout << "lambda[" << dim << "] = " << 1.0 - lambda_sum << endl;
+	}
+
+	void get_IDW_point_estimate( vector<vector<double> > & neighbors,
+								 const vector<double> & p )
+	{
+		vector<double> solution;
+		double normalization = 0.0;
+		for ( auto & neighbor : neighbors )
+		{
+			const double d = sqrt(distance2(neighbor,p));
+			normalization += 1.0/d;
+			for (int i = 0; i < 4; i++) solution[i] += neighbor[i]/d;
+		}
+		for (int i = 0; i < 4; i++) solution[i] /= normalization;
+
+		cout << "Estimated interpolated value:" << endl;
+		cout << "point = {" << p[0] << ", " << p[1] << ", " << p[2] << ", " << p[3] << "}" << endl;
+		cout << "solution = {" << solution[0] << ", " << solution[1] << ", "
+				<< solution[2] << ", " << solution[3] << "}" << endl;
+
+		return;		
 	}
 }
 

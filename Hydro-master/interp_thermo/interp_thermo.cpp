@@ -22,7 +22,7 @@ int main(int argc, char ** argv)
 	vector<double> point {0.5, 0.5, 0.5, 0.5};  // normalized coordinates
 
 	// get k nearest neighbors to point
-	const size_t k = 5;
+	const size_t k = 25;
 	vector<vector<double> > neighbors;
 	interp_thermo::get_nearest_neighbors( EoS_table, neighbors, point, k );
 
@@ -34,8 +34,12 @@ int main(int argc, char ** argv)
 		cout << endl;
 	}
 
+	// IGNORE THIS VERSION FOR NOW
 	// now check if point is inside simplex defined by neighbors
-	interp_thermo::check_point_in_simplex( neighbors, point );
+	//interp_thermo::check_point_in_simplex( neighbors, point );
+
+	// USE INVERSE DISTANCE WEIGHTING INSTEAD
+	interp_thermo::get_IDW_point_estimate( neighbors, point );
 	
 	return 0;
 }
