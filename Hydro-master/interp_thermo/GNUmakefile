@@ -1,6 +1,6 @@
 # Set compiler and flags
 CC := g++
-CFLAGS= -g -std=c++14
+CFLAGS= -g -std=c++14 -lm -lgsl -lgslcblas -lblas
 
 # Various directories and definitions
 RM          =   rm -f
@@ -15,7 +15,7 @@ MAIN		 =	interp_thermo
 
 MAINSRC      =  interp_thermo.cpp
 
-INC			 = 	Stopwatch.h
+INC			 = 	interp_thermo.h Stopwatch.h
 
 # -------------------------------------------------
 
@@ -39,4 +39,4 @@ distclean:
 		-rm $(TARGET)
 
 # --------------- Dependencies -------------------
-interp_thermo.cpp:	Stopwatch.h
+interp_thermo.cpp:	interp_thermo.h Stopwatch.h
