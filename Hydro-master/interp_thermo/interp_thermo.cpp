@@ -35,7 +35,7 @@ int main(int argc, char ** argv)
 	}
 
 	// now check if point is inside simplex defined by neighbors
-	check_point_in_simplex( neighbors, point );
+	interp_thermo::check_point_in_simplex( neighbors, point );
 	
 	return 0;
 }
