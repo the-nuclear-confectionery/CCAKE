@@ -203,7 +203,7 @@ namespace interp_thermo
 	void get_IDW_point_estimate( vector<vector<double> > & neighbors,
 								 const vector<double> & p )
 	{
-		vector<double> solution;
+		vector<double> solution(p.size());
 		double normalization = 0.0;
 		for ( auto & neighbor : neighbors )
 		{
