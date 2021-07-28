@@ -161,6 +161,9 @@ namespace interp_thermo
 		vector<vector<double> > v;
 		for ( auto & neighbor : neighbors )
 			v.push_back( vector<double>( neighbor.begin() + 4, neighbor.end() ) );
+
+		cout << "Check sizes:" << endl;
+		for ( auto & vec : v ) cout << "vec.size() = " << vec.size() << endl;
 	
 		// construct T matrix
 		double T[dim*dim];
