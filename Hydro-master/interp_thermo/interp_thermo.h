@@ -21,6 +21,11 @@ namespace interp_thermo
 {
 	double emin, emax, rhoBmin, rhoBmax, rhoSmin, rhoSmax, rhoQmin, rhoQmax;
 	
+	inline double sgn(double x)
+	{
+		return (0.0 < val) - (val < 0.0);
+	}
+
 	// probably don't need a separate function to do this...
 	inline double normalize( double x0, double x1, double x )
 	{
@@ -83,9 +88,9 @@ namespace interp_thermo
 
 e /= hbarc;
 e = pow(e, 0.25);
-rhoB = pow(rhoB, 1.0/3.0);
-rhoS = pow(rhoS, 1.0/3.0);
-rhoQ = pow(rhoQ, 1.0/3.0);
+rhoB = sgn(rhoB)*pow(abs(rhoB), 1.0/3.0);
+rhoS = sgn(rhoS)*pow(abs(rhoS), 1.0/3.0);
+rhoQ = sgn(rhoQ)*pow(abs(rhoQ), 1.0/3.0);
 	
 				vector<double> EoS_entry;
 				EoS_entry.push_back(T);
@@ -302,9 +307,9 @@ cout << "power = " << power << ": " << solution[0] << "   " << solution[1]
 
 e /= hbarc;
 e = pow(e, 0.25);
-rhoB = pow(rhoB, 1.0/3.0);
-rhoS = pow(rhoS, 1.0/3.0);
-rhoQ = pow(rhoQ, 1.0/3.0);
+rhoB = sgn(rhoB)*pow(abs(rhoB), 1.0/3.0);
+rhoS = sgn(rhoS)*pow(abs(rhoS), 1.0/3.0);
+rhoQ = sgn(rhoQ)*pow(abs(rhoQ), 1.0/3.0);
 	
 				vector<double> point_to_check;
 				point_to_check.push_back(e);
