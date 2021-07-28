@@ -181,9 +181,9 @@ int main(int argc, char *argv[])
 
 	// set T and mu_i ranges
 	const int Tmin = 30, Tmax = 800, DeltaT = 5;
-	const int muBmin = -450, muBmax = 450, DeltamuB = 50;
-	const int muQmin = -450, muQmax = 450, DeltamuQ = 50;
-	const int muSmin = -450, muSmax = 450, DeltamuS = 50;
+	const int muBmin = -450, muBmax = 450, DeltamuB = 20;
+	const int muQmin = -450, muQmax = 450, DeltamuQ = 20;
+	const int muSmin = -450, muSmax = 450, DeltamuS = 20;
 
 //	const int Tmin = 30, Tmax = 500, DeltaT = 1;
 //	const int muBmin = 0, muBmax = 0, DeltamuB = 1;
@@ -220,11 +220,11 @@ int main(int argc, char *argv[])
     for(j=muBmin;j<=muBmax;j+=DeltamuB){
     for(k=muQmin;k<=muQmax;k+=DeltamuQ){
     for(l=muSmin;l<=muSmax;l+=DeltamuS){
-//					Tval = i; muBval = j;  muQval = k; muSval = l;
-					Tval = i+0.5*DeltaT;
-					muBval = j+0.5*DeltamuB;
-					muQval = k+0.5*DeltamuQ;
-					muSval = l+0.5*DeltamuS;
+					Tval = i; muBval = j;  muQval = k; muSval = l;
+//					Tval = i+0.5*DeltaT;
+//					muBval = j+0.5*DeltamuB;
+//					muQval = k+0.5*DeltamuQ;
+//					muSval = l+0.5*DeltamuS;
 					
 					//Thermodynamics
 					PressVal = PressTaylor(i,j,k,l);
