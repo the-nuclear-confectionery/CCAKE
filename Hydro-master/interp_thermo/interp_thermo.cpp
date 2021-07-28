@@ -68,7 +68,7 @@ int main(int argc, char ** argv)
 					cout << element << "   ";
 				cout << endl;
 
-				interp_thermo::get_nearest_neighbors( EoS_table, neighbors, point_to_check, k, true );
+				interp_thermo::get_nearest_neighbors( EoS_table, neighbors, point_to_check, k, false );
 	
 			cout << "Nearest neighbors are:" << endl;
 			for ( auto & neighbor : neighbors )
