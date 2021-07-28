@@ -27,7 +27,7 @@ int main(int argc, char ** argv)
 	load_file(filename, EoS_table);
 
 	// pick a point
-	vector<double> point {0.93, 0.5, 0.22, 0.016};  // normalized coordinates
+	vector<double> point {0.5, 0.5, 0.5, 0.5};  // normalized coordinates
 
 	// get k nearest neighbors to point
 	const size_t k = EoS_table.size();
@@ -139,11 +139,10 @@ void get_nearest_neighbors( const vector<vector<double> > & EoS_table,
 	neighbors.clear();
 	neighbors = vector<vector<double> > ( k, vector<double> ( p.size(), 0.0 ) );
 
-	auto closer_than = [&p](const vector<double> & x, const vector<double> & y)
-					   { return distance2(x,p) < distance2(y,p); };
-
-	partial_sort_copy( EoS_table.begin(), EoS_table.end(),
-						neighbors.begin(), neighbors.end(), closer_than );
+	partial_sort_copy(
+		EoS_table.begin(), EoS_table.end(), neighbors.begin(), neighbors.end(),
+		[&p](const vector<double> & x, const vector<double> & y) -> bool
+			{ return distance2(x,p) < distance2(y,p); } );
 
 	return;
 }
