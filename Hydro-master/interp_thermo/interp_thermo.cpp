@@ -30,7 +30,7 @@ int main(int argc, char ** argv)
 	vector<double> point {0.5, 0.5, 0.5, 0.5};  // normalized coordinates
 
 	// get k nearest neighbors to point
-	const size_t k = EoS_table.size();
+	const size_t k = 10;
 	vector<vector<double> > neighbors;
 	get_nearest_neighbors( EoS_table, neighbors, point, k );
 
