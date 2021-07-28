@@ -68,7 +68,7 @@ int main(int argc, char ** argv)
 			}
 			k *= 2;
 			cout << endl;
-		} while ( count < 5 )
+		} while ( count < 5 );
 		
 	}
 	
