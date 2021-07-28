@@ -16,7 +16,7 @@ double emin, emax, rhoBmin, rhoBmax, rhoSmin, rhoSmax, rhoQmin, rhoQmax;
 void load_file( string filename, vector<vector<double> > & EoS_table );
 void get_nearest_neighbors( const vector<vector<double> > & EoS_table,
 							vector<vector<double> > & neighbors,
-							const vector<double> & p, const int k );
+							const vector<double> & p, const size_t k );
 
 // driver function
 int main(int argc, char ** argv)
@@ -30,7 +30,7 @@ int main(int argc, char ** argv)
 	vector<double> point {0.93, 0.5, 0.22, 0.016};  // normalized coordinates
 
 	// get k nearest neighbors to point
-	const int k = 10;
+	const size_t k = EoS_table.size();
 	vector<vector<double> > neighbors;
 	get_nearest_neighbors( EoS_table, neighbors, point, k );
 
@@ -134,7 +134,7 @@ inline double distance2( const vector<double> & a, const vector<double> & b )
 
 void get_nearest_neighbors( const vector<vector<double> > & EoS_table,
 							vector<vector<double> > & neighbors,
-							const vector<double> & p, const int k )
+							const vector<double> & p, const size_t k )
 {
 	neighbors.clear();
 	neighbors = vector<vector<double> > ( k, vector<double> ( p.size(), 0.0 ) );
