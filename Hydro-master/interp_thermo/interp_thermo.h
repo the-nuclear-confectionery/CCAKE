@@ -205,13 +205,21 @@ namespace interp_thermo
 	{
 		vector<double> solution(p.size());
 		double normalization = 0.0;
+		bool self_included = false;
 		for ( auto & neighbor : neighbors )
 		{
 			const double d = sqrt(distance2(neighbor,p));
+			if ( d < 1e-10 )
+			{
+				for (int i = 0; i < 4; i++) solution[i] = neighbor[i];
+				self_included = true;
+				break;
+			}
 			normalization += 1.0/d;
 			for (int i = 0; i < 4; i++) solution[i] += neighbor[i]/d;
 		}
-		for (int i = 0; i < 4; i++) solution[i] /= normalization;
+		if (not self_included)
+			for (int i = 0; i < 4; i++) solution[i] /= normalization;
 
 //		cout << "Estimated interpolated value:" << endl;
 //		cout << "point = {" << p[0] << ", " << p[1] << ", " << p[2] << ", " << p[3] << "}" << endl;
