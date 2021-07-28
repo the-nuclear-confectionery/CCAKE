@@ -15,7 +15,7 @@ MAIN		 =	interp_thermo
 
 MAINSRC      =  interp_thermo.cpp
 
-INC			 = 	
+INC			 = 	Stopwatch.h
 
 # -------------------------------------------------
 
@@ -39,4 +39,4 @@ distclean:
 		-rm $(TARGET)
 
 # --------------- Dependencies -------------------
-interp_thermo.cpp:
+interp_thermo.cpp:	Stopwatch.h

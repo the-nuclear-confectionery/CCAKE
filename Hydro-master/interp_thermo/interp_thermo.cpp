@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#include "Stopwatch.h"
+
 using namespace std;
 
 double emin, emax, rhoBmin, rhoBmax, rhoSmin, rhoSmax, rhoQmin, rhoQmax;
@@ -25,7 +27,7 @@ int main(int argc, char ** argv)
 	load_file(filename, EoS_table);
 
 	// pick a point
-	vector<double> point {0.5, 0.5, 0.5, 0.5};  // normalized coordinates
+	vector<double> point {0.93, 0.5, 0.22, 0.016};  // normalized coordinates
 
 	// get k nearest neighbors to point
 	const int k = 10;
@@ -50,6 +52,8 @@ inline double normalize( double x0, double x1, double x )
 
 void load_file( string filename, vector<vector<double> > & EoS_table )
 {
+	Stopwatch sw;
+	sw.Start();
 	const double hbarc = 197.33;
 	const double hbarc3 = hbarc*hbarc*hbarc;
 	EoS_table.clear();
@@ -114,6 +118,9 @@ void load_file( string filename, vector<vector<double> > & EoS_table )
 		EoS_entry[6] = normalize( rhoSmin, rhoSmax, EoS_entry[6] );
 		EoS_entry[7] = normalize( rhoQmin, rhoQmax, EoS_entry[7] );
 	}
+
+	sw.Stop();
+	cout << "Finished loading " << filename << " in " << sw.printTime() << " s." << endl;
 
 	return;
 }
