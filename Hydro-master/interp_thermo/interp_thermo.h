@@ -100,7 +100,7 @@ namespace interp_thermo
 		// add some smearing
 		unsigned seed = chrono::system_clock::now().time_since_epoch().count();
 		default_random_engine generator(seed);	
-		normal_distribution<double> distribution(1.0,0.1);
+		normal_distribution<double> distribution(1.0,0.01);
 
 		// normalize input data (easy to go the other direction too)
 		for ( auto & EoS_entry : EoS_table )
@@ -174,9 +174,6 @@ namespace interp_thermo
 		vector<vector<double> > v;
 		for ( auto & neighbor : neighbors )
 			v.push_back( vector<double>( neighbor.begin() + 4, neighbor.end() ) );
-
-		cout << "Check sizes:" << endl;
-		for ( auto & vec : v ) cout << "vec.size() = " << vec.size() << endl;
 	
 		// construct T matrix
 		double T[dim*dim];
