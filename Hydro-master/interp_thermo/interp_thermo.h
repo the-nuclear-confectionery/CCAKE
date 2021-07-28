@@ -201,7 +201,7 @@ namespace interp_thermo
 	}
 
 	void get_IDW_point_estimate( vector<vector<double> > & neighbors,
-								 const vector<double> & p )
+								 const vector<double> & p, const double power = 1.0 )
 	{
 		vector<double> solution(p.size());
 		double normalization = 0.0;
@@ -215,8 +215,8 @@ namespace interp_thermo
 				self_included = true;
 				break;
 			}
-			normalization += 1.0/d;
-			for (int i = 0; i < 4; i++) solution[i] += neighbor[i]/d;
+			normalization += 1.0/pow(d,power);
+			for (int i = 0; i < 4; i++) solution[i] += neighbor[i]/pow(d,power);
 		}
 		if (not self_included)
 			for (int i = 0; i < 4; i++) solution[i] /= normalization;
@@ -226,7 +226,8 @@ namespace interp_thermo
 //		cout << "solution = {" << solution[0] << ", " << solution[1] << ", "
 //				<< solution[2] << ", " << solution[3] << "}" << endl;
 
-cout << solution[0] << "   " << solution[1] << "   " << solution[2] << "   " << solution[3] << endl;
+cout << "power = " << power << ": " << solution[0] << "   " << solution[1]
+		<< "   " << solution[2] << "   " << solution[3] << endl;
 
 		return;		
 	}
