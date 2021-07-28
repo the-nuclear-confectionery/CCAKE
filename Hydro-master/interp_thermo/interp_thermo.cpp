@@ -142,7 +142,7 @@ void get_nearest_neighbors( const vector<vector<double> > & EoS_table,
 	partial_sort_copy(
 		EoS_table.begin(), EoS_table.end(), neighbors.begin(), neighbors.end(),
 		[&p](const vector<double> & x, const vector<double> & y) -> bool
-			{ return distance2(x,p) < distance2(y,p); } );
+			{ return distance2(x,p) > distance2(y,p); } );
 
 	return;
 }
