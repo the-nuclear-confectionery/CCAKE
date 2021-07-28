@@ -23,7 +23,7 @@ namespace interp_thermo
 	
 	inline double sgn(double x)
 	{
-		return (0.0 < val) - (val < 0.0);
+		return (0.0 < x) - (x < 0.0);
 	}
 
 	// probably don't need a separate function to do this...
