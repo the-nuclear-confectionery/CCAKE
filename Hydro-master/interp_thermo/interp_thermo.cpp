@@ -62,6 +62,12 @@ int main(int argc, char ** argv)
 			vector<vector<double> > neighbors;
 			for ( auto & point_to_check : points_to_check )
 			{
+
+			cout << "Point is at:" << endl;
+			for ( auto & element : point_to_check )
+					cout << element << "   ";
+				cout << endl;
+
 				interp_thermo::get_nearest_neighbors( EoS_table, neighbors, point_to_check, k );
 	
 			cout << "Nearest neighbors are:" << endl;
@@ -77,7 +83,7 @@ int main(int argc, char ** argv)
 			}
 			k *= 2;
 			cout << endl;
-		} while ( count++ < 5 );
+		} while ( count++ < 2 );
 		
 	}
 	
