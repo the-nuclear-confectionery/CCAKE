@@ -13,6 +13,8 @@
 
 #include "Stopwatch.h"
 
+using namespace std;
+
 namespace interp_thermo
 {
 	double emin, emax, rhoBmin, rhoBmax, rhoSmin, rhoSmax, rhoQmin, rhoQmax;
