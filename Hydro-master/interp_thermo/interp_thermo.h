@@ -44,6 +44,16 @@ namespace interp_thermo
 		return 0.25*(d1*d1/(s1*s1) + d2*d2/(s2*s2) + d3*d3/(s3*s3) + d4*d4/(s4*s4));
 	}
 	
+	// same as distance2(...), but returns *logarithmic* separation
+	inline double log_distance2( const vector<double> & a, const vector<double> & b )
+	{
+		double l1 = log((a[4]+1e-100)/(b[0]+1e-100));
+		double l2 = log((a[5]+1e-100)/(b[1]+1e-100));
+		double l3 = log((a[6]+1e-100)/(b[2]+1e-100));
+		double l4 = log((a[7]+1e-100)/(b[3]+1e-100));
+		return l1*l1+l2*l2+l3*l3+l4*l4;
+	}
+	
 	// read in EoS table to be interpolated over and normalize densities to respective ranges
 	void load_file( string filename, vector<vector<double> > & EoS_table )
 	{
@@ -140,21 +150,26 @@ cout << "Check ranges(1): " << emin << "   "  << emax << "   "
 	void get_nearest_neighbors( const vector<vector<double> > & EoS_table,
 								vector<vector<double> > & neighbors,
 								const vector<double> & p, const size_t k,
-								bool use_relative_distance = false )
+								int distance_mode = 0 )
 	{
 		neighbors.clear();
 		neighbors = vector<vector<double> > ( k, vector<double> ( p.size(), 0.0 ) );
 	
-		if ( use_relative_distance )	// use relative separation
-		partial_sort_copy(
-			EoS_table.begin(), EoS_table.end(), neighbors.begin(), neighbors.end(),
-			[&p](const vector<double> & x, const vector<double> & y) -> bool
-				{ return relative_distance2(x,p) < relative_distance2(y,p); } );
-		else							// use absolute separation
-		partial_sort_copy(
-			EoS_table.begin(), EoS_table.end(), neighbors.begin(), neighbors.end(),
-			[&p](const vector<double> & x, const vector<double> & y) -> bool
-				{ return distance2(x,p) < distance2(y,p); } );
+		if ( distance_mode == 0 )		// use relative separation
+			partial_sort_copy(
+				EoS_table.begin(), EoS_table.end(), neighbors.begin(), neighbors.end(),
+				[&p](const vector<double> & x, const vector<double> & y) -> bool
+					{ return distance2(x,p) < distance2(y,p); } );
+		else if ( distance_mode == 1 )	// use absolute separation
+			partial_sort_copy(
+				EoS_table.begin(), EoS_table.end(), neighbors.begin(), neighbors.end(),
+				[&p](const vector<double> & x, const vector<double> & y) -> bool
+					{ return relative_distance2(x,p) < relative_distance2(y,p); } );
+		else							
+			partial_sort_copy(
+				EoS_table.begin(), EoS_table.end(), neighbors.begin(), neighbors.end(),
+				[&p](const vector<double> & x, const vector<double> & y) -> bool
+					{ return log_distance2(x,p) < log_distance2(y,p); } );
 
 
 	
