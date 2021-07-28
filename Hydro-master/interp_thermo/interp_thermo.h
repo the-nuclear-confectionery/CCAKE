@@ -273,10 +273,10 @@ cout << solution[0] << "   " << solution[1] << "   " << solution[2] << "   " << 
 		// normalize input data (easy to go the other direction too)
 		for ( auto & point_to_check : points_to_check )
 		{
-			point_to_check[4] = normalize( emin,    emax,    point_to_check[4] );
-			point_to_check[5] = normalize( rhoBmin, rhoBmax, point_to_check[5] );
-			point_to_check[6] = normalize( rhoSmin, rhoSmax, point_to_check[6] );
-			point_to_check[7] = normalize( rhoQmin, rhoQmax, point_to_check[7] );
+			point_to_check[0] = normalize( emin,    emax,    point_to_check[0] );
+			point_to_check[1] = normalize( rhoBmin, rhoBmax, point_to_check[1] );
+			point_to_check[2] = normalize( rhoSmin, rhoSmax, point_to_check[2] );
+			point_to_check[3] = normalize( rhoQmin, rhoQmax, point_to_check[3] );
 		}
 	
 		sw.Stop();
