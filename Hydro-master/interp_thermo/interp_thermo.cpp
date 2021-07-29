@@ -69,9 +69,9 @@ int main(int argc, char ** argv)
 				cout << endl;
 
 				// absolute separation
-				//interp_thermo::get_nearest_neighbors( EoS_table, neighbors, point_to_check, k, 0 );
+				interp_thermo::get_nearest_neighbors( EoS_table, neighbors, point_to_check, k, 0 );
 				// relative separation
-				interp_thermo::get_nearest_neighbors( EoS_table, neighbors, point_to_check, k, 1 );
+				//interp_thermo::get_nearest_neighbors( EoS_table, neighbors, point_to_check, k, 1 );
 				// logarithmic separation
 				//interp_thermo::get_nearest_neighbors( EoS_table, neighbors, point_to_check, k, 2 );
 	
