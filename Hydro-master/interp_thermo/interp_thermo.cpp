@@ -88,7 +88,7 @@ int main(int argc, char ** argv)
 			}
 			k *= 2;
 			cout << endl;
-		} while ( count++ < 8 );
+		} while ( count++ < 2 );
 		
 	}
 	
