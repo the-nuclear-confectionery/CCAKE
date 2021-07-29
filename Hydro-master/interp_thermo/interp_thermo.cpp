@@ -83,7 +83,7 @@ int main(int argc, char ** argv)
 				cout << endl;
 			}
 
-				for ( double power_in = 0.0; power_in <= 1.0; power_in += 0.1 )
+				for ( double power_in = 0.0; power_in <= 10.0; power_in += 2.5 )
 					interp_thermo::get_IDW_point_estimate( neighbors, point_to_check, power_in );
 			}
 			k *= 2;
