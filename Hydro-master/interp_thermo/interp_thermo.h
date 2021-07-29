@@ -43,11 +43,13 @@ namespace interp_thermo
 	// same as distance2(...), but returns *relative* separation
 	inline double relative_distance2( const vector<double> & a, const vector<double> & b )
 	{
-		const double anisotropy = 10.0;
+		const double anisotropy = 1000.0;
 		const double d1=a[4]-b[0], d2=a[5]-b[1], d3=a[6]-b[2], d4=a[7]-b[3];
 		const double s1=a[4]+b[0]+1e-100, s2=a[5]+b[1]+1e-100,
 					 s3=a[6]+b[2]+1e-100, s4=a[7]+b[3]+1e-100;
-		return 0.25*(d1*d1/(s1*s1) + anisotropy*d2*d2/(s2*s2) + anisotropy*d3*d3/(s3*s3) + anisotropy*d4*d4/(s4*s4));
+		return 0.25*(d1*d1/(s1*s1) + anisotropy*d2*d2/(s2*s2)
+								   + anisotropy*d3*d3/(s3*s3)
+								   + anisotropy*d4*d4/(s4*s4));
 	}
 	
 	// same as distance2(...), but returns *logarithmic* separation
