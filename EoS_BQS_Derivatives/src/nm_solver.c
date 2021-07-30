@@ -10,9 +10,11 @@
 #include "../include/Variables.h"
 #include "../include/nm_solver.h"
 
-void solve( double & e0, double & B0, double & S0, double & Q0,	// allow to adjust density point if necessary
-			double & Tout, double & muBout, double & muSout, double & muQout )
+void solve ( double densities[], double sols[] )
 {
+	double e0 = densities[0], B0 = densities[1], S0 = densities[2], Q0 = densities[3];
+	double Tout = sols[0], muBout = sols[1], muSout = sols[2], muQout = sols[3];
+
 	const int maxTries = 100;
 	const double ACCURACY = 1e-4;
 	const double hbarc = 197.327;
@@ -100,6 +102,9 @@ void solve( double & e0, double & B0, double & S0, double & Q0,	// allow to adju
 		S0 = Ssol;
 		Q0 = Qsol;
 	}
+
+	densities[0] = e0; densities[1] = B0; densities[2] = S0; densities[3] = Q0;
+	sols[0] = Tout; sols[1] = muBout; sols[2] = muSout; sols[3] = muQout;
 
 	return;
 }

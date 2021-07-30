@@ -172,8 +172,11 @@ int main(int argc, char *argv[])
 	chdir("Thermodynamics");
   
 	double eIn = 1000.0, BIn = 5.0, SIn = 1.0, QIn = 3.0;
-	double Tsol, muBsol, muSsol, muQsol;
-	solver(eIn, BIn, SIn, QIn, Tsol, muBsol, muSsol, muQsol);
+	double densities[4] = {eIn, BIn, SIn, QIn};
+	double sols[4];
+	//solver(eIn, BIn, SIn, QIn, Tsol, muBsol, muSsol, muQsol);
+	solver(densities, sols);
+	double Tsol = sols[0] muBsol = sols[1], muSsol = sols[2], muQsol = sols[3];
 	printf("Input:\n");
 	printf("eIn = %15.8f\n", eIn);
 	printf("BIn = %15.8f\n", BIn);
