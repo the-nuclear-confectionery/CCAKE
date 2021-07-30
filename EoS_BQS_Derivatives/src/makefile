@@ -1,8 +1,6 @@
 EoS_BQS:
-	GSLPATH=/projects/jnorhos/local/gsl/include
-	GSLLIBPATH=/projects/jnorhos/local/gsl/lib
 	#gcc -o EoS_BQS *.c -lm
-	h5cc -o EoS_BQS *.c -I$(GSLPATH) -L$(GSLLIBPATH) -lm -lgsl -lgslcblas -lblas
+	h5cc -o EoS_BQS *.c -I/projects/jnorhos/local/gsl/include -L/projects/jnorhos/local/gsl/lib -lm -lgsl -lgslcblas -lblas
 
 install:
 	cp EoS_BQS ../
