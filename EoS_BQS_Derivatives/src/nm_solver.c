@@ -34,11 +34,12 @@ void solve ( double densities[], double sols[] )
 	double Qsol = T3*ChDensTaylor(Tout, muBout, muQout, muSout)/hbarc3;
 	double esol = slocal - Plocal + muBout*Bsol + muQout*Qsol + muSout*Ssol;
 
-	bool not_converged = abs(esol-e0) > ACCURACY or abs(Bsol-B0) > ACCURACY
-						  or abs(Ssol-S0) > ACCURACY or abs(Qsol-Q0) > ACCURACY;
+	//bool not_converged = abs(esol-e0) > ACCURACY or abs(Bsol-B0) > ACCURACY
+	//					  or abs(Ssol-S0) > ACCURACY or abs(Qsol-Q0) > ACCURACY;
 
 	int iter = 0;
-	while ( not_converged and iter++ < maxTries )
+	while ( (abs(esol-e0) > ACCURACY or abs(Bsol-B0) > ACCURACY
+			  or abs(Ssol-S0) > ACCURACY or abs(Qsol-Q0) > ACCURACY) and iter++ < maxTries )
 	{
 		T2 = Tout*Tout; T3 = T2*Tout;
 
@@ -89,8 +90,8 @@ void solve ( double densities[], double sols[] )
 		gsl_permutation_free (p);
 		gsl_vector_free (x);
 
-		not_converged = abs(esol-e0) > ACCURACY or abs(Bsol-B0) > ACCURACY
-						or abs(Ssol-S0) > ACCURACY or abs(Qsol-Q0) > ACCURACY;
+		//not_converged = abs(esol-e0) > ACCURACY or abs(Bsol-B0) > ACCURACY
+		//				or abs(Ssol-S0) > ACCURACY or abs(Qsol-Q0) > ACCURACY;
 
 	}
 

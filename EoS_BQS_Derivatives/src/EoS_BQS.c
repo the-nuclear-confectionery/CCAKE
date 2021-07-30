@@ -192,7 +192,7 @@ int main(int argc, char *argv[])
 	double BOut = Tsol*Tsol*Tsol*BarDensTaylor(Tsol, muBsol, muSsol, muQsol);
 	double SOut = Tsol*Tsol*Tsol*StrDensTaylor(Tsol, muBsol, muSsol, muQsol);
 	double QOut = Tsol*Tsol*Tsol*ChDensTaylor(Tsol, muBsol, muSsol, muQsol);
-	double eOut = sOut*Tsol - POut + muBsol*BOut + muQsol*QOut + muSsol*SOut);
+	double eOut = sOut*Tsol - POut + muBsol*BOut + muQsol*QOut + muSsol*SOut;
 	eOut /= 197.327*197.327*197.327;
 	BOut /= 197.327*197.327*197.327;
 	SOut /= 197.327*197.327*197.327;
