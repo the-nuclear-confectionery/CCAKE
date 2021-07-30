@@ -173,7 +173,7 @@ int main(int argc, char *argv[])
   
 	double eIn = 1000.0, BIn = 5.0, SIn = 1.0, QIn = 3.0;
 	double Tsol, muBsol, muSsol, muQsol;
-	nm_solver:solver(eIn, BIn, SIn, QIn, Tsol, muBsol, muSsol, muQsol);
+	solver(eIn, BIn, SIn, QIn, Tsol, muBsol, muSsol, muQsol);
 	printf("Input:\n");
 	printf("eIn = %15.8f\n", eIn);
 	printf("BIn = %15.8f\n", BIn);
@@ -200,7 +200,7 @@ int main(int argc, char *argv[])
 	printf("BOut = %15.8f\n", BOut);
 	printf("SOut = %15.8f\n", SOut);
 	printf("QOut = %15.8f\n", QOut);
-	if (true) exit(-1);
+	if (1) exit(-1);
 
 	// for HDF arrays
 	//long long gridLength = 69090879;
