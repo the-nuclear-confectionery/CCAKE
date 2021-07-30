@@ -38,8 +38,8 @@ void solve ( double densities[], double sols[] )
 	//					  or abs(Ssol-S0) > ACCURACY or abs(Qsol-Q0) > ACCURACY;
 
 	int iter = 0;
-	while ( (abs(esol-e0) > ACCURACY or abs(Bsol-B0) > ACCURACY
-			  or abs(Ssol-S0) > ACCURACY or abs(Qsol-Q0) > ACCURACY) and iter++ < maxTries )
+	while ( (abs(esol-e0) > ACCURACY || abs(Bsol-B0) > ACCURACY
+			  || abs(Ssol-S0) > ACCURACY || abs(Qsol-Q0) > ACCURACY) && iter++ < maxTries )
 	{
 		T2 = Tout*Tout; T3 = T2*Tout;
 
@@ -96,8 +96,8 @@ void solve ( double densities[], double sols[] )
 	}
 
 	// otherwise, store some other combination that's maybe nearby
-	if ( abs(esol-e0) > ACCURACY or abs(Bsol-B0) > ACCURACY
-		 or abs(Ssol-S0) > ACCURACY or abs(Qsol-Q0) > ACCURACY )
+	if ( abs(esol-e0) > ACCURACY || abs(Bsol-B0) > ACCURACY
+		 || abs(Ssol-S0) > ACCURACY || abs(Qsol-Q0) > ACCURACY )
 	{
 		e0 = esol;
 		B0 = Bsol;
