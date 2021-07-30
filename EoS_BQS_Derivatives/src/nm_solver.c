@@ -96,7 +96,8 @@ void solve ( double densities[], double sols[] )
 	}
 
 	// otherwise, store some other combination that's maybe nearby
-	if ( not_converged )
+	if ( abs(esol-e0) > ACCURACY or abs(Bsol-B0) > ACCURACY
+		 or abs(Ssol-S0) > ACCURACY or abs(Qsol-Q0) > ACCURACY )
 	{
 		e0 = esol;
 		B0 = Bsol;
