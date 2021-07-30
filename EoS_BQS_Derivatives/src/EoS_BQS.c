@@ -174,9 +174,9 @@ int main(int argc, char *argv[])
 	double eIn = 1000.0, BIn = 5.0, SIn = 1.0, QIn = 3.0;
 	double densities[4] = {eIn, BIn, SIn, QIn};
 	double sols[4];
-	//solver(eIn, BIn, SIn, QIn, Tsol, muBsol, muSsol, muQsol);
-	solver(densities, sols);
-	double Tsol = sols[0] muBsol = sols[1], muSsol = sols[2], muQsol = sols[3];
+	//solve(eIn, BIn, SIn, QIn, Tsol, muBsol, muSsol, muQsol);
+	solve(densities, sols);
+	double Tsol = sols[0], muBsol = sols[1], muSsol = sols[2], muQsol = sols[3];
 	printf("Input:\n");
 	printf("eIn = %15.8f\n", eIn);
 	printf("BIn = %15.8f\n", BIn);
@@ -192,8 +192,7 @@ int main(int argc, char *argv[])
 	double BOut = Tsol*Tsol*Tsol*BarDensTaylor(Tsol, muBsol, muSsol, muQsol);
 	double SOut = Tsol*Tsol*Tsol*StrDensTaylor(Tsol, muBsol, muSsol, muQsol);
 	double QOut = Tsol*Tsol*Tsol*ChDensTaylor(Tsol, muBsol, muSsol, muQsol);
-	double eOut = EntrVal*Tsol - PressVal 
-				  + muBsol*BarDensVal + muQsol*ChDensVal + muSsol*StrDensVal);
+	double eOut = sOut*Tsol - POut + muBsol*BOut + muQsol*QOut + muSsol*SOut);
 	eOut /= 197.327*197.327*197.327;
 	BOut /= 197.327*197.327*197.327;
 	SOut /= 197.327*197.327*197.327;
