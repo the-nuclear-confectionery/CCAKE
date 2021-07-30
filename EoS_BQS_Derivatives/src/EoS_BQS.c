@@ -20,6 +20,7 @@
 #include "../include/nrD.h"
 #include "../include/nrutilD.h"
 #include "../include/export_to_hdf.h"
+#include "../include/nm_solver.h"
 
 /* Import additional library for many variables used in the program. */
 #include "../include/Variables.h"
@@ -170,6 +171,36 @@ int main(int argc, char *argv[])
 	mkdir("Thermodynamics", S_IRWXU | S_IRWXG | S_IRWXO);
 	chdir("Thermodynamics");
   
+	double eIn = 1000.0, BIn = 5.0, SIn = 1.0, QIn = 3.0;
+	double Tsol, muBsol, muSsol, muQsol;
+	nm_solver:solver(eIn, BIn, SIn, QIn, Tsol, muBsol, muSsol, muQsol);
+	printf("Input:\n");
+	printf("eIn = %15.8f\n", eIn);
+	printf("BIn = %15.8f\n", BIn);
+	printf("SIn = %15.8f\n", SIn);
+	printf("QIn = %15.8f\n", QIn);
+	printf("Solution:\n");
+	printf("Tsol = %15.8f\n", Tsol);
+	printf("muBsol = %15.8f\n", muBsol);
+	printf("muSsol = %15.8f\n", muSsol);
+	printf("muQsol = %15.8f\n", muQsol);
+	double POut = Tsol*Tsol*Tsol*Tsol*PressTaylor(Tsol, muBsol, muSsol, muQsol);
+	double sOut = Tsol*Tsol*Tsol*EntrTaylor(Tsol, muBsol, muSsol, muQsol);
+	double BOut = Tsol*Tsol*Tsol*BarDensTaylor(Tsol, muBsol, muSsol, muQsol);
+	double SOut = Tsol*Tsol*Tsol*StrDensTaylor(Tsol, muBsol, muSsol, muQsol);
+	double QOut = Tsol*Tsol*Tsol*ChDensTaylor(Tsol, muBsol, muSsol, muQsol);
+	double eOut = EntrVal*Tsol - PressVal 
+				  + muBsol*BarDensVal + muQsol*ChDensVal + muSsol*StrDensVal);
+	eOut /= 197.327*197.327*197.327;
+	BOut /= 197.327*197.327*197.327;
+	SOut /= 197.327*197.327*197.327;
+	QOut /= 197.327*197.327*197.327;
+	printf("Check:\n");
+	printf("eOut = %15.8f\n", eOut);
+	printf("BOut = %15.8f\n", BOut);
+	printf("SOut = %15.8f\n", SOut);
+	printf("QOut = %15.8f\n", QOut);
+	if (true) exit(-1);
 
 	// for HDF arrays
 	//long long gridLength = 69090879;
