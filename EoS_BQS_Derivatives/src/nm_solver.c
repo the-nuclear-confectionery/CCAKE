@@ -15,7 +15,7 @@ void solve ( double densities[], double sols[] )
 	double e0 = densities[0], B0 = densities[1], S0 = densities[2], Q0 = densities[3];
 	double Tout = sols[0], muBout = sols[1], muSout = sols[2], muQout = sols[3];
 
-	const int maxTries = 100;
+	const int maxTries = 10;
 	const double ACCURACY = 1e-4;
 	const double hbarc = 197.327;
 	const double hbarc3 = hbarc*hbarc*hbarc;
@@ -33,6 +33,15 @@ void solve ( double densities[], double sols[] )
 	double Ssol = T3*StrDensTaylor(Tout, muBout, muQout, muSout)/hbarc3;
 	double Qsol = T3*ChDensTaylor(Tout, muBout, muQout, muSout)/hbarc3;
 	double esol = slocal - Plocal + muBout*Bsol + muQout*Qsol + muSout*Ssol;
+
+	printf("e0 = %15.8f\n", e0);
+	printf("B0 = %15.8f\n", B0);
+	printf("S0 = %15.8f\n", S0);
+	printf("Q0 = %15.8f\n", Q0);
+	printf("esol = %15.8f\n", esol);
+	printf("Bsol = %15.8f\n", Bsol);
+	printf("Ssol = %15.8f\n", Ssol);
+	printf("Qsol = %15.8f\n\n", Qsol);
 
 	//bool not_converged = abs(esol-e0) > ACCURACY or abs(Bsol-B0) > ACCURACY
 	//					  or abs(Ssol-S0) > ACCURACY or abs(Qsol-Q0) > ACCURACY;
@@ -95,7 +104,7 @@ void solve ( double densities[], double sols[] )
 	printf("esol = %15.8f\n", esol);
 	printf("Bsol = %15.8f\n", Bsol);
 	printf("Ssol = %15.8f\n", Ssol);
-	printf("Qsol = %15.8f\n", Qsol);
+	printf("Qsol = %15.8f\n\n", Qsol);
 
 		
 		gsl_permutation_free (p);
