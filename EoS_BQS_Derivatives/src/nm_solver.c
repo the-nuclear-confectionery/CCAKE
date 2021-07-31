@@ -77,10 +77,10 @@ void solve ( double densities[], double sols[] )
 		double dedmuQ = T3*P2TQ(Tout, muBout, muQout, muSout)
 						+ muBout*dBdmuQ + muSout*dSdmuQ + muQout*dQdmuQ;
 
-		double a_data[] = { dedT, dedmuB, dedmuS, dedmuQ,
-							dBdT, dBdmuB, dBdmuS, dBdmuQ,
-							dSdT, dSdmuB, dSdmuS, dSdmuQ,
-							dQdT, dQdmuB, dQdmuS, dQdmuQ };
+		double a_data[] = { dedT/hbarc3, dedmuB/hbarc3, dedmuS/hbarc3, dedmuQ/hbarc3,
+							dBdT/hbarc3, dBdmuB/hbarc3, dBdmuS/hbarc3, dBdmuQ/hbarc3,
+							dSdT/hbarc3, dSdmuB/hbarc3, dSdmuS/hbarc3, dSdmuQ/hbarc3,
+							dQdT/hbarc3, dQdmuB/hbarc3, dQdmuS/hbarc3, dQdmuQ/hbarc3 };
 		double b_data[] = { esol-e0, Bsol-B0, Ssol-S0, Qsol-Q0 };
 		
 		gsl_matrix_view m = gsl_matrix_view_array (a_data, 4, 4);
