@@ -41,6 +41,7 @@ void solve ( double densities[], double sols[] )
 	while ( (abs(esol-e0) > ACCURACY || abs(Bsol-B0) > ACCURACY
 			  || abs(Ssol-S0) > ACCURACY || abs(Qsol-Q0) > ACCURACY) && iter++ < maxTries )
 	{
+		printf("iter = %5d\n", iter);
 		T2 = Tout*Tout; T3 = T2*Tout;
 
 		double dBdT   = T2*P2TB(Tout, muBout, muQout, muSout);
@@ -86,6 +87,16 @@ void solve ( double densities[], double sols[] )
 		Bsol -= gsl_vector_get(x, 1);
 		Ssol -= gsl_vector_get(x, 2);
 		Qsol -= gsl_vector_get(x, 3);
+
+	printf("e0 = %15.8f\n", e0);
+	printf("B0 = %15.8f\n", B0);
+	printf("S0 = %15.8f\n", S0);
+	printf("Q0 = %15.8f\n", Q0);
+	printf("eOut = %15.8f\n", eOut);
+	printf("BOut = %15.8f\n", BOut);
+	printf("SOut = %15.8f\n", SOut);
+	printf("QOut = %15.8f\n", QOut);
+
 		
 		gsl_permutation_free (p);
 		gsl_vector_free (x);
@@ -99,6 +110,7 @@ void solve ( double densities[], double sols[] )
 	if ( abs(esol-e0) > ACCURACY || abs(Bsol-B0) > ACCURACY
 		 || abs(Ssol-S0) > ACCURACY || abs(Qsol-Q0) > ACCURACY )
 	{
+		printf("Did not find a solution!\n");
 		e0 = esol;
 		B0 = Bsol;
 		S0 = Ssol;
