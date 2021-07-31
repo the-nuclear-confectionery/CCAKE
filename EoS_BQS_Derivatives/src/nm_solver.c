@@ -92,10 +92,10 @@ void solve ( double densities[], double sols[] )
 	printf("B0 = %15.8f\n", B0);
 	printf("S0 = %15.8f\n", S0);
 	printf("Q0 = %15.8f\n", Q0);
-	printf("eOut = %15.8f\n", eOut);
-	printf("BOut = %15.8f\n", BOut);
-	printf("SOut = %15.8f\n", SOut);
-	printf("QOut = %15.8f\n", QOut);
+	printf("esol = %15.8f\n", esol);
+	printf("Bsol = %15.8f\n", Bsol);
+	printf("Ssol = %15.8f\n", Ssol);
+	printf("Qsol = %15.8f\n", Qsol);
 
 		
 		gsl_permutation_free (p);
