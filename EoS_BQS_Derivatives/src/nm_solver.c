@@ -15,7 +15,7 @@ void solve ( double densities[], double sols[] )
 	double e0 = densities[0], B0 = densities[1], S0 = densities[2], Q0 = densities[3];
 	double Tout = sols[0], muBout = sols[1], muSout = sols[2], muQout = sols[3];
 
-	const int maxTries = 10000;
+	const int maxTries = 100000;
 	const double ACCURACY = 1e-4;
 	const double hbarc = 197.327;
 	const double hbarc3 = hbarc*hbarc*hbarc;
