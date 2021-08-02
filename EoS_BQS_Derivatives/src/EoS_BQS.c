@@ -187,11 +187,11 @@ int main(int argc, char *argv[])
 	printf("muBsol = %15.8f\n", muBsol);
 	printf("muSsol = %15.8f\n", muSsol);
 	printf("muQsol = %15.8f\n", muQsol);
-	double POut = Tsol*Tsol*Tsol*Tsol*PressTaylor(Tsol, muBsol, muSsol, muQsol);
-	double sOut = Tsol*Tsol*Tsol*EntrTaylor(Tsol, muBsol, muSsol, muQsol);
-	double BOut = Tsol*Tsol*Tsol*BarDensTaylor(Tsol, muBsol, muSsol, muQsol);
-	double SOut = Tsol*Tsol*Tsol*StrDensTaylor(Tsol, muBsol, muSsol, muQsol);
-	double QOut = Tsol*Tsol*Tsol*ChDensTaylor(Tsol, muBsol, muSsol, muQsol);
+	double POut = Tsol*Tsol*Tsol*Tsol*PressTaylor(Tsol, muBsol, muQsol, muSsol);
+	double sOut = Tsol*Tsol*Tsol*EntrTaylor(Tsol, muBsol, muQsol, muSsol);
+	double BOut = Tsol*Tsol*Tsol*BarDensTaylor(Tsol, muBsol, muQsol, muSsol);
+	double SOut = Tsol*Tsol*Tsol*StrDensTaylor(Tsol, muBsol, muQsol, muSsol);
+	double QOut = Tsol*Tsol*Tsol*ChDensTaylor(Tsol, muBsol, muQsol, muSsol);
 	POut /= 197.327*197.327*197.327;
 	sOut /= 197.327*197.327*197.327;
 	BOut /= 197.327*197.327*197.327;
