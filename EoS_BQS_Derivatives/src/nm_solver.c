@@ -104,6 +104,11 @@ void solve ( double densities[], double sols[] )
 		muSout -= gsl_vector_get(x, 2);
 		muQout -= gsl_vector_get(x, 3);
 
+	printf("Tout = %15.8f\n", Tout);
+	printf("muBout = %15.8f\n", muBout);
+	printf("muSout = %15.8f\n", muSout);
+	printf("muQout = %15.8f\n", muQout);
+
 		// update previous estimates
 		Plocal = T4*PressTaylor(Tout, muBout, muQout, muSout)/hbarc3;
 		slocal = T3*EntrTaylor(Tout, muBout, muQout, muSout)/hbarc3;
