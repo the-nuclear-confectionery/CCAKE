@@ -99,10 +99,10 @@ void solve ( double densities[], double sols[] )
 //		Bsol -= gsl_vector_get(x, 1);
 //		Ssol -= gsl_vector_get(x, 2);
 //		Qsol -= gsl_vector_get(x, 3);
-		Tout += gsl_vector_get(x, 0);
-		muBout += gsl_vector_get(x, 1);
-		muSout += gsl_vector_get(x, 2);
-		muQout += gsl_vector_get(x, 3);
+		Tout -= gsl_vector_get(x, 0);
+		muBout -= gsl_vector_get(x, 1);
+		muSout -= gsl_vector_get(x, 2);
+		muQout -= gsl_vector_get(x, 3);
 
 		// update previous estimates
 		Plocal = T4*PressTaylor(Tout, muBout, muQout, muSout)/hbarc3;
