@@ -15,13 +15,13 @@ void solve ( double densities[], double sols[] )
 	double e0 = densities[0], B0 = densities[1], S0 = densities[2], Q0 = densities[3];
 	double Tout = sols[0], muBout = sols[1], muSout = sols[2], muQout = sols[3];
 
-	const int maxTries = 1000;
+	const int maxTries = 10;
 	const double ACCURACY = 1e-6;
 	const double hbarc = 197.327;
 	const double hbarc3 = hbarc*hbarc*hbarc;
 
 	//initial guess
-	Tout = hbarc; muBout = 0.0; muSout = 0.0; muQout = 0.0;
+	//Tout = hbarc; muBout = 0.0; muSout = 0.0; muQout = 0.0;
 	double T2 = Tout*Tout;
 	double T3 = T2*Tout;
 	double T4 = T3*Tout;

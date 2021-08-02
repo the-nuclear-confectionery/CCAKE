@@ -173,7 +173,7 @@ int main(int argc, char *argv[])
   
 	double eIn = 1000.0, BIn = 0.0, SIn = 0.0, QIn = 0.0;
 	double densities[4] = {eIn, BIn, SIn, QIn};
-	double sols[4];
+	double sols[4] = {197.327, 0.0, 0.0, 0.0};
 	//solve(eIn, BIn, SIn, QIn, Tsol, muBsol, muSsol, muQsol);
 	solve(densities, sols);
 	double Tsol = sols[0], muBsol = sols[1], muSsol = sols[2], muQsol = sols[3];
