@@ -92,10 +92,14 @@ void solve ( double densities[], double sols[] )
 		gsl_linalg_LU_decomp (&m.matrix, p, &s);
 		gsl_linalg_LU_solve (&m.matrix, p, &b.vector, x);
 		
-		esol -= gsl_vector_get(x, 0);
-		Bsol -= gsl_vector_get(x, 1);
-		Ssol -= gsl_vector_get(x, 2);
-		Qsol -= gsl_vector_get(x, 3);
+//		esol -= gsl_vector_get(x, 0);
+//		Bsol -= gsl_vector_get(x, 1);
+//		Ssol -= gsl_vector_get(x, 2);
+//		Qsol -= gsl_vector_get(x, 3);
+		Tout -= gsl_vector_get(x, 0);
+		muBout -= gsl_vector_get(x, 1);
+		muSout -= gsl_vector_get(x, 2);
+		muQout -= gsl_vector_get(x, 3);
 
 	printf("e0 = %15.8f\n", e0);
 	printf("B0 = %15.8f\n", B0);
