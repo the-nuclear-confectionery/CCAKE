@@ -192,12 +192,15 @@ int main(int argc, char *argv[])
 	double BOut = Tsol*Tsol*Tsol*BarDensTaylor(Tsol, muBsol, muSsol, muQsol);
 	double SOut = Tsol*Tsol*Tsol*StrDensTaylor(Tsol, muBsol, muSsol, muQsol);
 	double QOut = Tsol*Tsol*Tsol*ChDensTaylor(Tsol, muBsol, muSsol, muQsol);
-	double eOut = sOut*Tsol - POut + muBsol*BOut + muQsol*QOut + muSsol*SOut;
-	eOut /= 197.327*197.327*197.327;
+	POut /= 197.327*197.327*197.327;
+	sOut /= 197.327*197.327*197.327;
 	BOut /= 197.327*197.327*197.327;
 	SOut /= 197.327*197.327*197.327;
 	QOut /= 197.327*197.327*197.327;
+	double eOut = sOut*Tsol - POut + muBsol*BOut + muQsol*QOut + muSsol*SOut;
 	printf("Check:\n");
+	printf("POut = %15.8f\n", POut);
+	printf("sOut = %15.8f\n", sOut);
 	printf("eOut = %15.8f\n", eOut);
 	printf("BOut = %15.8f\n", BOut);
 	printf("SOut = %15.8f\n", SOut);

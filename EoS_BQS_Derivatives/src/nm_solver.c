@@ -117,6 +117,13 @@ void solve ( double densities[], double sols[] )
 		Qsol = T3*ChDensTaylor(Tout, muBout, muQout, muSout)/hbarc3;
 		esol = slocal*Tout - Plocal + muBout*Bsol + muQout*Qsol + muSout*Ssol;
 
+	printf("Plocal = %15.8f\n", Plocal);
+	printf("slocal = %15.8f\n", slocal);
+	printf("Bsol = %15.8f\n", Bsol);
+	printf("Ssol = %15.8f\n", Ssol);
+	printf("Qsol = %15.8f\n", Qsol);
+	printf("esol = %15.8f\n", esol);
+
 
 	printf("e0 = %15.8f\n", e0);
 	printf("B0 = %15.8f\n", B0);
