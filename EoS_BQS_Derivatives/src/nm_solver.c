@@ -47,8 +47,8 @@ void solve ( double densities[], double sols[] )
 	//					  or abs(Ssol-S0) > ACCURACY or abs(Qsol-Q0) > ACCURACY;
 
 	int iter = 0;
-	while ( (abs(esol-e0) > ACCURACY || abs(Bsol-B0) > ACCURACY
-			  || abs(Ssol-S0) > ACCURACY || abs(Qsol-Q0) > ACCURACY) && iter++ < maxTries )
+	while ( (fabs(esol-e0) > ACCURACY || fabs(Bsol-B0) > ACCURACY
+			  || fabs(Ssol-S0) > ACCURACY || fabs(Qsol-Q0) > ACCURACY) && iter++ < maxTries )
 	{
 		printf("iter = %5d\n", iter);
 		T2 = Tout*Tout; T3 = T2*Tout;
@@ -108,8 +108,8 @@ void solve ( double densities[], double sols[] )
 
 		printf("%15.12f %15.12f %15.12f %15.12f %15.12f %15.12f %15.12f %15.12f"
 				"%15.12f %15.12f %15.12f %15.12f %15.12f\n",
-				esol, e0, abs(esol-e0), Bsol, B0, abs(Bsol-B0),
-				Ssol, S0, abs(Ssol-S0), Qsol, Q0, abs(Qsol-Q0), ACCURACY);
+				esol, e0, fabs(esol-e0), Bsol, B0, fabs(Bsol-B0),
+				Ssol, S0, fabs(Ssol-S0), Qsol, Q0, fabs(Qsol-Q0), ACCURACY);
 
 		
 	printf("********************************************************************************\n\n");
@@ -123,14 +123,14 @@ void solve ( double densities[], double sols[] )
 	}
 
 	// otherwise, store some other combination that's maybe nearby
-	if ( abs(esol-e0) > ACCURACY || abs(Bsol-B0) > ACCURACY
-		 || abs(Ssol-S0) > ACCURACY || abs(Qsol-Q0) > ACCURACY )
+	if ( fabs(esol-e0) > ACCURACY || fabs(Bsol-B0) > ACCURACY
+		 || fabs(Ssol-S0) > ACCURACY || fabs(Qsol-Q0) > ACCURACY )
 	{
 		printf("Did not find a solution!\n");
 		printf("%15.12f %15.12f %15.12f %15.12f %15.12f %15.12f %15.12f %15.12f"
 				"%15.12f %15.12f %15.12f %15.12f %15.12f\n",
-				esol, e0, abs(esol-e0), Bsol, B0, abs(Bsol-B0),
-				Ssol, S0, abs(Ssol-S0), Qsol, Q0, abs(Qsol-Q0), ACCURACY);
+				esol, e0, fabs(esol-e0), Bsol, B0, fabs(Bsol-B0),
+				Ssol, S0, fabs(Ssol-S0), Qsol, Q0, fabs(Qsol-Q0), ACCURACY);
 
 		e0 = esol;
 		B0 = Bsol;
