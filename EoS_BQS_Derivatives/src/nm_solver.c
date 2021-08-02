@@ -107,7 +107,7 @@ void solve ( double densities[], double sols[] )
 	printf("Qsol = %15.8f\n", Qsol);
 
 		printf("%15.12f %15.12f %15.12f %15.12f %15.12f %15.12f %15.12f %15.12f"
-				"%15.12f %15.12f %15.12f %15.12f %15.12f ",
+				"%15.12f %15.12f %15.12f %15.12f %15.12f\n",
 				esol, e0, abs(esol-e0), Bsol, B0, abs(Bsol-B0),
 				Ssol, S0, abs(Ssol-S0), Qsol, Q0, abs(Qsol-Q0), ACCURACY);
 
@@ -128,7 +128,7 @@ void solve ( double densities[], double sols[] )
 	{
 		printf("Did not find a solution!\n");
 		printf("%15.12f %15.12f %15.12f %15.12f %15.12f %15.12f %15.12f %15.12f"
-				"%15.12f %15.12f %15.12f %15.12f %15.12f ",
+				"%15.12f %15.12f %15.12f %15.12f %15.12f\n",
 				esol, e0, abs(esol-e0), Bsol, B0, abs(Bsol-B0),
 				Ssol, S0, abs(Ssol-S0), Qsol, Q0, abs(Qsol-Q0), ACCURACY);
 
