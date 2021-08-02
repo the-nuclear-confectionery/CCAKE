@@ -16,7 +16,7 @@ void solve ( double densities[], double sols[] )
 	double Tout = sols[0], muBout = sols[1], muSout = sols[2], muQout = sols[3];
 
 	const int maxTries = 1000;
-	const double ACCURACY = 1e-3;
+	const double ACCURACY = 1e-10;
 	const double hbarc = 197.327;
 	const double hbarc3 = hbarc*hbarc*hbarc;
 
@@ -106,8 +106,8 @@ void solve ( double densities[], double sols[] )
 	printf("Ssol = %15.8f\n", Ssol);
 	printf("Qsol = %15.8f\n", Qsol);
 
-		printf("%15.8f %15.8f %15.8f %15.8f %15.8f %15.8f %15.8f "
-			   "%15.8f %15.8f %15.8f %15.8f %15.8f %15.8f ",
+		printf("%15.12f %15.12f %15.12f %15.12f %15.12f %15.12f %15.12f %15.12f"
+				"%15.12f %15.12f %15.12f %15.12f %15.12f ",
 				esol, e0, abs(esol-e0), Bsol, B0, abs(Bsol-B0),
 				Ssol, S0, abs(Ssol-S0), Qsol, Q0, abs(Qsol-Q0), ACCURACY);
 
@@ -127,8 +127,8 @@ void solve ( double densities[], double sols[] )
 		 || abs(Ssol-S0) > ACCURACY || abs(Qsol-Q0) > ACCURACY )
 	{
 		printf("Did not find a solution!\n");
-		printf("%15.8f %15.8f %15.8f %15.8f %15.8f %15.8f %15.8f "
-			   "%15.8f %15.8f %15.8f %15.8f %15.8f %15.8f ",
+		printf("%15.12f %15.12f %15.12f %15.12f %15.12f %15.12f %15.12f %15.12f"
+				"%15.12f %15.12f %15.12f %15.12f %15.12f ",
 				esol, e0, abs(esol-e0), Bsol, B0, abs(Bsol-B0),
 				Ssol, S0, abs(Ssol-S0), Qsol, Q0, abs(Qsol-Q0), ACCURACY);
 
