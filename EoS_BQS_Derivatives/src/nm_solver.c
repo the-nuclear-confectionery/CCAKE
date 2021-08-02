@@ -104,9 +104,16 @@ void solve ( double densities[], double sols[] )
 	printf("esol = %15.8f\n", esol);
 	printf("Bsol = %15.8f\n", Bsol);
 	printf("Ssol = %15.8f\n", Ssol);
-	printf("Qsol = %15.8f\n\n", Qsol);
+	printf("Qsol = %15.8f\n", Qsol);
+
+		printf("%15.8f %15.8f %15.8f %15.8f %15.8f %15.8f %15.8f "
+			   "%15.8f %15.8f %15.8f %15.8f %15.8f %15.8f ",
+				esol, e0, abs(esol-e0), Bsol, B0, abs(Bsol-B0)
+				Ssol, S0, abs(Ssol-S0), Qsol, Q0, abs(Qsol-Q0), ACCURACY);
 
 		
+	printf("********************************************************************************\n\n");
+
 		gsl_permutation_free (p);
 		gsl_vector_free (x);
 
@@ -120,6 +127,11 @@ void solve ( double densities[], double sols[] )
 		 || abs(Ssol-S0) > ACCURACY || abs(Qsol-Q0) > ACCURACY )
 	{
 		printf("Did not find a solution!\n");
+		printf("%15.8f %15.8f %15.8f %15.8f %15.8f %15.8f %15.8f "
+			   "%15.8f %15.8f %15.8f %15.8f %15.8f %15.8f ",
+				esol, e0, abs(esol-e0), Bsol, B0, abs(Bsol-B0)
+				Ssol, S0, abs(Ssol-S0), Qsol, Q0, abs(Qsol-Q0), ACCURACY);
+
 		e0 = esol;
 		B0 = Bsol;
 		S0 = Ssol;
