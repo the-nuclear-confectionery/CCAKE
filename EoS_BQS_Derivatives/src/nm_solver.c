@@ -34,14 +34,14 @@ void solve ( double densities[], double sols[] )
 	double Qsol = T3*ChDensTaylor(Tout, muBout, muQout, muSout)/hbarc3;				// 1/fm^3
 	double esol = slocal*Tout - Plocal + muBout*Bsol + muQout*Qsol + muSout*Ssol;	// MeV/fm^3
 
-//	printf("e0 = %15.8f\n", e0);
-//	printf("B0 = %15.8f\n", B0);
-//	printf("S0 = %15.8f\n", S0);
-//	printf("Q0 = %15.8f\n", Q0);
-//	printf("esol = %15.8f\n", esol);
-//	printf("Bsol = %15.8f\n", Bsol);
-//	printf("Ssol = %15.8f\n", Ssol);
-//	printf("Qsol = %15.8f\n\n", Qsol);
+	printf("e0 = %15.8f\n", e0);
+	printf("B0 = %15.8f\n", B0);
+	printf("S0 = %15.8f\n", S0);
+	printf("Q0 = %15.8f\n", Q0);
+	printf("esol = %15.8f\n", esol);
+	printf("Bsol = %15.8f\n", Bsol);
+	printf("Ssol = %15.8f\n", Ssol);
+	printf("Qsol = %15.8f\n\n", Qsol);
 
 	//bool not_converged = abs(esol-e0) > ACCURACY or abs(Bsol-B0) > ACCURACY
 	//					  or abs(Ssol-S0) > ACCURACY or abs(Qsol-Q0) > ACCURACY;
@@ -50,7 +50,7 @@ void solve ( double densities[], double sols[] )
 	while ( (fabs(esol-e0) > ACCURACY || fabs(Bsol-B0) > ACCURACY
 			  || fabs(Ssol-S0) > ACCURACY || fabs(Qsol-Q0) > ACCURACY) && iter++ < maxTries )
 	{
-//		printf("iter = %5d\n", iter);
+		printf("iter = %5d\n", iter);
 		T2 = Tout*Tout; T3 = T2*Tout; T4 = T3*Tout;
 
 		double dBdT   = T2*P2TB(Tout, muBout, muQout, muSout);				// MeV^2
@@ -104,10 +104,10 @@ void solve ( double densities[], double sols[] )
 		muSout -= gsl_vector_get(x, 2);
 		muQout -= gsl_vector_get(x, 3);
 
-//	printf("Tout = %15.8f\n", Tout);
-//	printf("muBout = %15.8f\n", muBout);
-//	printf("muSout = %15.8f\n", muSout);
-//	printf("muQout = %15.8f\n", muQout);
+	printf("Tout = %15.8f\n", Tout);
+	printf("muBout = %15.8f\n", muBout);
+	printf("muSout = %15.8f\n", muSout);
+	printf("muQout = %15.8f\n", muQout);
 
 		// update previous estimates
 		Plocal = T4*PressTaylor(Tout, muBout, muQout, muSout)/hbarc3;
@@ -117,25 +117,25 @@ void solve ( double densities[], double sols[] )
 		Qsol = T3*ChDensTaylor(Tout, muBout, muQout, muSout)/hbarc3;
 		esol = slocal*Tout - Plocal + muBout*Bsol + muQout*Qsol + muSout*Ssol;
 
-//	printf("Plocal = %15.8f\n", Plocal);
-//	printf("slocal = %15.8f\n", slocal);
+	printf("Plocal = %15.8f\n", Plocal);
+	printf("slocal = %15.8f\n", slocal);
 
-//	printf("e0 = %15.8f\n", e0);
-//	printf("B0 = %15.8f\n", B0);
-//	printf("S0 = %15.8f\n", S0);
-//	printf("Q0 = %15.8f\n", Q0);
-//	printf("esol = %15.8f\n", esol);
-//	printf("Bsol = %15.8f\n", Bsol);
-//	printf("Ssol = %15.8f\n", Ssol);
-//	printf("Qsol = %15.8f\n", Qsol);
+	printf("e0 = %15.8f\n", e0);
+	printf("B0 = %15.8f\n", B0);
+	printf("S0 = %15.8f\n", S0);
+	printf("Q0 = %15.8f\n", Q0);
+	printf("esol = %15.8f\n", esol);
+	printf("Bsol = %15.8f\n", Bsol);
+	printf("Ssol = %15.8f\n", Ssol);
+	printf("Qsol = %15.8f\n", Qsol);
 
-//		printf("%15.12f %15.12f %15.12f %15.12f %15.12f %15.12f %15.12f %15.12f"
-//				"%15.12f %15.12f %15.12f %15.12f %15.12f\n",
-//				esol, e0, fabs(esol-e0), Bsol, B0, fabs(Bsol-B0),
-//				Ssol, S0, fabs(Ssol-S0), Qsol, Q0, fabs(Qsol-Q0), ACCURACY);
+		printf("%15.12f %15.12f %15.12f %15.12f %15.12f %15.12f %15.12f %15.12f"
+				"%15.12f %15.12f %15.12f %15.12f %15.12f\n",
+				esol, e0, fabs(esol-e0), Bsol, B0, fabs(Bsol-B0),
+				Ssol, S0, fabs(Ssol-S0), Qsol, Q0, fabs(Qsol-Q0), ACCURACY);
 
 		
-//	printf("********************************************************************************\n\n");
+	printf("********************************************************************************\n\n");
 
 		gsl_permutation_free (p);
 		gsl_vector_free (x);
