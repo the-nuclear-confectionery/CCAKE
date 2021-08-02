@@ -51,7 +51,7 @@ void solve ( double densities[], double sols[] )
 			  || fabs(Ssol-S0) > ACCURACY || fabs(Qsol-Q0) > ACCURACY) && iter++ < maxTries )
 	{
 		printf("iter = %5d\n", iter);
-		T2 = Tout*Tout; T3 = T2*Tout;
+		T2 = Tout*Tout; T3 = T2*Tout; T4 = T3*Tout;
 
 		double dBdT   = T2*P2TB(Tout, muBout, muQout, muSout);				// MeV^2
 		double dBdmuB = T2*P2B2(Tout, muBout, muQout, muSout);				// MeV^2
