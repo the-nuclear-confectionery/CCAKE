@@ -82,7 +82,10 @@ void solve ( double densities[], double sols[] )
 							dSdT/hbarc3, dSdmuB/hbarc3, dSdmuS/hbarc3, dSdmuQ/hbarc3,
 							dQdT/hbarc3, dQdmuB/hbarc3, dQdmuS/hbarc3, dQdmuQ/hbarc3 };
 		double b_data[] = { esol-e0, Bsol-B0, Ssol-S0, Qsol-Q0 };
-		
+
+for (int i = 0; i < 16; i++) printf("a_data[%5d] = %15.12f\n", i, a_data[i]);
+for (int i = 0; i < 4; i++) printf("b_data[%5d] = %15.12f\n", i, b_data[i]);
+
 		gsl_matrix_view m = gsl_matrix_view_array (a_data, 4, 4);
 		gsl_vector_view b = gsl_vector_view_array (b_data, 4);
 		gsl_vector *x = gsl_vector_alloc (4);
