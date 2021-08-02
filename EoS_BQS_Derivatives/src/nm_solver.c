@@ -27,12 +27,12 @@ void solve ( double densities[], double sols[] )
 	double T4 = T3*Tout;
 
 	// compute initial estimates
-	double Plocal = T4*PressTaylor(Tout, muBout, muQout, muSout)/hbarc3;
-	double slocal = T3*EntrTaylor(Tout, muBout, muQout, muSout)/hbarc3;
-	double Bsol = T3*BarDensTaylor(Tout, muBout, muQout, muSout)/hbarc3;
-	double Ssol = T3*StrDensTaylor(Tout, muBout, muQout, muSout)/hbarc3;
-	double Qsol = T3*ChDensTaylor(Tout, muBout, muQout, muSout)/hbarc3;
-	double esol = slocal*Tout - Plocal + muBout*Bsol + muQout*Qsol + muSout*Ssol;
+	double Plocal = T4*PressTaylor(Tout, muBout, muQout, muSout)/hbarc3;			// MeV/fm^3
+	double slocal = T3*EntrTaylor(Tout, muBout, muQout, muSout)/hbarc3;				// 1/fm^3
+	double Bsol = T3*BarDensTaylor(Tout, muBout, muQout, muSout)/hbarc3;			// 1/fm^3
+	double Ssol = T3*StrDensTaylor(Tout, muBout, muQout, muSout)/hbarc3;			// 1/fm^3
+	double Qsol = T3*ChDensTaylor(Tout, muBout, muQout, muSout)/hbarc3;				// 1/fm^3
+	double esol = slocal*Tout - Plocal + muBout*Bsol + muQout*Qsol + muSout*Ssol;	// MeV/fm^3
 
 	printf("e0 = %15.8f\n", e0);
 	printf("B0 = %15.8f\n", B0);
@@ -53,29 +53,29 @@ void solve ( double densities[], double sols[] )
 		printf("iter = %5d\n", iter);
 		T2 = Tout*Tout; T3 = T2*Tout;
 
-		double dBdT   = T2*P2TB(Tout, muBout, muQout, muSout);
-		double dBdmuB = T2*P2B2(Tout, muBout, muQout, muSout);
-		double dBdmuS = T2*P2BS(Tout, muBout, muQout, muSout);
-		double dBdmuQ = T2*P2BQ(Tout, muBout, muQout, muSout);
+		double dBdT   = T2*P2TB(Tout, muBout, muQout, muSout);				// MeV^2
+		double dBdmuB = T2*P2B2(Tout, muBout, muQout, muSout);				// MeV^2
+		double dBdmuS = T2*P2BS(Tout, muBout, muQout, muSout);				// MeV^2
+		double dBdmuQ = T2*P2BQ(Tout, muBout, muQout, muSout);				// MeV^2
 
-		double dSdT   = T2*P2TS(Tout, muBout, muQout, muSout);
-		double dSdmuB = T2*P2BS(Tout, muBout, muQout, muSout);
-		double dSdmuS = T2*P2S2(Tout, muBout, muQout, muSout);
-		double dSdmuQ = T2*P2QS(Tout, muBout, muQout, muSout);
+		double dSdT   = T2*P2TS(Tout, muBout, muQout, muSout);				// MeV^2
+		double dSdmuB = T2*P2BS(Tout, muBout, muQout, muSout);				// MeV^2
+		double dSdmuS = T2*P2S2(Tout, muBout, muQout, muSout);				// MeV^2
+		double dSdmuQ = T2*P2QS(Tout, muBout, muQout, muSout);				// MeV^2
 
-		double dQdT   = T2*P2TQ(Tout, muBout, muQout, muSout);
-		double dQdmuB = T2*P2BQ(Tout, muBout, muQout, muSout);
-		double dQdmuS = T2*P2QS(Tout, muBout, muQout, muSout);
-		double dQdmuQ = T2*P2Q2(Tout, muBout, muQout, muSout);
+		double dQdT   = T2*P2TQ(Tout, muBout, muQout, muSout);				// MeV^2
+		double dQdmuB = T2*P2BQ(Tout, muBout, muQout, muSout);				// MeV^2
+		double dQdmuS = T2*P2QS(Tout, muBout, muQout, muSout);				// MeV^2
+		double dQdmuQ = T2*P2Q2(Tout, muBout, muQout, muSout);				// MeV^2
 
 		double dedT   = T3*P2T2(Tout, muBout, muQout, muSout)
-						+ muBout*dBdT   + muSout*dSdT   + muQout*dQdT;
+						+ muBout*dBdT   + muSout*dSdT   + muQout*dQdT;		// MeV^3
 		double dedmuB = T3*P2TB(Tout, muBout, muQout, muSout)
-						+ muBout*dBdmuB + muSout*dSdmuB + muQout*dQdmuB;
+						+ muBout*dBdmuB + muSout*dSdmuB + muQout*dQdmuB;	// MeV^3
 		double dedmuS = T3*P2TS(Tout, muBout, muQout, muSout)
-						+ muBout*dBdmuS + muSout*dSdmuS + muQout*dQdmuS;
+						+ muBout*dBdmuS + muSout*dSdmuS + muQout*dQdmuS;	// MeV^3
 		double dedmuQ = T3*P2TQ(Tout, muBout, muQout, muSout)
-						+ muBout*dBdmuQ + muSout*dSdmuQ + muQout*dQdmuQ;
+						+ muBout*dBdmuQ + muSout*dSdmuQ + muQout*dQdmuQ;	// MeV^3
 
 		double a_data[] = { dedT/hbarc3, dedmuB/hbarc3, dedmuS/hbarc3, dedmuQ/hbarc3,
 							dBdT/hbarc3, dBdmuB/hbarc3, dBdmuS/hbarc3, dBdmuQ/hbarc3,
@@ -99,10 +99,10 @@ void solve ( double densities[], double sols[] )
 //		Bsol -= gsl_vector_get(x, 1);
 //		Ssol -= gsl_vector_get(x, 2);
 //		Qsol -= gsl_vector_get(x, 3);
-		Tout -= gsl_vector_get(x, 0);
-		muBout -= gsl_vector_get(x, 1);
-		muSout -= gsl_vector_get(x, 2);
-		muQout -= gsl_vector_get(x, 3);
+		Tout += gsl_vector_get(x, 0);
+		muBout += gsl_vector_get(x, 1);
+		muSout += gsl_vector_get(x, 2);
+		muQout += gsl_vector_get(x, 3);
 
 		// update previous estimates
 		Plocal = T4*PressTaylor(Tout, muBout, muQout, muSout)/hbarc3;
