@@ -104,6 +104,15 @@ for (int i = 0; i < 4; i++) printf("b_data[%5d] = %15.12f\n", i, b_data[i]);
 		muSout -= gsl_vector_get(x, 2);
 		muQout -= gsl_vector_get(x, 3);
 
+		// update previous estimates
+		Plocal = T4*PressTaylor(Tout, muBout, muQout, muSout)/hbarc3;
+		slocal = T3*EntrTaylor(Tout, muBout, muQout, muSout)/hbarc3;
+		Bsol = T3*BarDensTaylor(Tout, muBout, muQout, muSout)/hbarc3;
+		Ssol = T3*StrDensTaylor(Tout, muBout, muQout, muSout)/hbarc3;
+		Qsol = T3*ChDensTaylor(Tout, muBout, muQout, muSout)/hbarc3;
+		esol = slocal*Tout - Plocal + muBout*Bsol + muQout*Qsol + muSout*Ssol;
+
+
 	printf("e0 = %15.8f\n", e0);
 	printf("B0 = %15.8f\n", B0);
 	printf("S0 = %15.8f\n", S0);
