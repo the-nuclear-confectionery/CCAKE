@@ -174,12 +174,12 @@ int main(int argc, char *argv[])
 	// special variables to uniformly cover parameter space
 	const double TINY = 0.001;
 	for (double loge = -5.0; loge <= 14.0 + TINY; loge += 0.5)
-	for (double rBt = -0.25; rBt <= 0.25 + TINY; rBt += 0.05)
-	for (double rSt = -0.5; rSt <= 0.5 + TINY; rSt += 0.1)
-	for (double rQt = -0.5; rQt <= 0.5 + TINY; rQt += 0.1)
+	for (double rBt = -0.25; rBt <= 0.25 + TINY; rBt += 0.025)
+	for (double rSt = -0.5; rSt <= 0.5 + TINY; rSt += 0.05)
+	for (double rQt = -0.5; rQt <= 0.5 + TINY; rQt += 0.05)
 	{
 		//double eIn = 1000.0, BIn = 1.0, SIn = 0.001, QIn = 0.5;	// (MeV,1,1,1)/fm^3
-		double eIn = pow(10.0, loge);	// MeV/fm^3
+		double eIn = exp(loge);	// MeV/fm^3
 		double BIn = rBt*pow(eIn/197.327, 0.75);
 		double SIn = rSt*pow(eIn/197.327, 0.75);
 		double QIn = rQt*pow(eIn/197.327, 0.75);

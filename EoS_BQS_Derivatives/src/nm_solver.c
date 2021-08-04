@@ -37,20 +37,20 @@ void solve ( double densities[], double sols[] )
 	double Qsol = T3*ChDensTaylor(Tout, muBout, muQout, muSout)/hbarc3;				// 1/fm^3
 	double esol = slocal*Tout - Plocal + muBout*Bsol + muQout*Qsol + muSout*Ssol;	// MeV/fm^3
 
-	printf("eTarget = %15.8f\n", eTarget);
-	printf("BTarget = %15.8f\n", BTarget);
-	printf("STarget = %15.8f\n", STarget);
-	printf("QTarget = %15.8f\n", QTarget);
-	printf("esol = %15.8f\n", esol);
-	printf("Bsol = %15.8f\n", Bsol);
-	printf("Ssol = %15.8f\n", Ssol);
-	printf("Qsol = %15.8f\n\n", Qsol);
+//	printf("eTarget = %15.8f\n", eTarget);
+//	printf("BTarget = %15.8f\n", BTarget);
+//	printf("STarget = %15.8f\n", STarget);
+//	printf("QTarget = %15.8f\n", QTarget);
+//	printf("esol = %15.8f\n", esol);
+//	printf("Bsol = %15.8f\n", Bsol);
+//	printf("Ssol = %15.8f\n", Ssol);
+//	printf("Qsol = %15.8f\n\n", Qsol);
 
 	int iter = 0;
 	while ( (fabs(esol-eTarget) > ACCURACY || fabs(Bsol-BTarget) > ACCURACY
 			  || fabs(Ssol-STarget) > ACCURACY || fabs(Qsol-QTarget) > ACCURACY) && iter++ < maxTries )
 	{
-		printf("iter = %5d\n", iter);
+//		printf("iter = %5d\n", iter);
 		T2 = Tout*Tout; T3 = T2*Tout; T4 = T3*Tout;
 
 		double dBdT   = T2*P2TB(Tout, muBout, muQout, muSout);				// MeV^2
