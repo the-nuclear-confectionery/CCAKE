@@ -102,7 +102,7 @@ void solve ( double densities[], double sols[] )
 				|| abs(muSout - gsl_vector_get(x, 2)) > amuSmax
 				|| abs(muQout - gsl_vector_get(x, 3)) > amuQmax )
 		{
-			if ( iter < 2 ) sols[0] = -1.0;	// indicates failure since T >= 0
+			/*if ( iter < 2 ) */sols[0] = -1.0;	// indicates failure since T >= 0
 			return;							// exit prematurely
 		}
 
@@ -112,10 +112,10 @@ void solve ( double densities[], double sols[] )
 		muSout -= gsl_vector_get(x, 2);
 		muQout -= gsl_vector_get(x, 3);
 
-		printf("Tout = %15.8f\n", Tout);
-		printf("muBout = %15.8f\n", muBout);
-		printf("muSout = %15.8f\n", muSout);
-		printf("muQout = %15.8f\n", muQout);
+//		printf("Tout = %15.8f\n", Tout);
+//		printf("muBout = %15.8f\n", muBout);
+//		printf("muSout = %15.8f\n", muSout);
+//		printf("muQout = %15.8f\n", muQout);
 
 		// update previous estimates
 		Plocal = T4*PressTaylor(Tout, muBout, muQout, muSout)/hbarc3;
@@ -125,24 +125,24 @@ void solve ( double densities[], double sols[] )
 		Qsol = T3*ChDensTaylor(Tout, muBout, muQout, muSout)/hbarc3;
 		esol = slocal*Tout - Plocal + muBout*Bsol + muQout*Qsol + muSout*Ssol;
 
-		printf("Plocal = %15.8f\n", Plocal);
-		printf("slocal = %15.8f\n", slocal);
-	
-		printf("eTarget = %15.8f\n", eTarget);
-		printf("BTarget = %15.8f\n", BTarget);
-		printf("STarget = %15.8f\n", STarget);
-		printf("QTarget = %15.8f\n", QTarget);
-		printf("esol = %15.8f\n", esol);
-		printf("Bsol = %15.8f\n", Bsol);
-		printf("Ssol = %15.8f\n", Ssol);
-		printf("Qsol = %15.8f\n", Qsol);
-	
-		printf("%15.12f %15.12f %15.12f %15.12f %15.12f %15.12f %15.12f %15.12f"
-				"%15.12f %15.12f %15.12f %15.12f %15.12f\n",
-				esol, eTarget, fabs(esol-eTarget), Bsol, BTarget, fabs(Bsol-BTarget),
-				Ssol, STarget, fabs(Ssol-STarget), Qsol, QTarget, fabs(Qsol-QTarget), ACCURACY);
-	
-		printf("********************************************************************************\n\n");
+//		printf("Plocal = %15.8f\n", Plocal);
+//		printf("slocal = %15.8f\n", slocal);
+//	
+//		printf("eTarget = %15.8f\n", eTarget);
+//		printf("BTarget = %15.8f\n", BTarget);
+//		printf("STarget = %15.8f\n", STarget);
+//		printf("QTarget = %15.8f\n", QTarget);
+//		printf("esol = %15.8f\n", esol);
+//		printf("Bsol = %15.8f\n", Bsol);
+//		printf("Ssol = %15.8f\n", Ssol);
+//		printf("Qsol = %15.8f\n", Qsol);
+//	
+//		printf("%15.12f %15.12f %15.12f %15.12f %15.12f %15.12f %15.12f %15.12f"
+//				"%15.12f %15.12f %15.12f %15.12f %15.12f\n",
+//				esol, eTarget, fabs(esol-eTarget), Bsol, BTarget, fabs(Bsol-BTarget),
+//				Ssol, STarget, fabs(Ssol-STarget), Qsol, QTarget, fabs(Qsol-QTarget), ACCURACY);
+//	
+//		printf("********************************************************************************\n\n");
 
 		gsl_permutation_free (p);
 		gsl_vector_free (x);
