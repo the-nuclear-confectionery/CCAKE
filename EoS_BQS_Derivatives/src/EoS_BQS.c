@@ -171,7 +171,7 @@ int main(int argc, char *argv[])
 	mkdir("Thermodynamics", S_IRWXU | S_IRWXG | S_IRWXO);
 	chdir("Thermodynamics");
   
-	double eIn = 1000.0, BIn = 0.5, SIn = 0.5, QIn = 0.5;	// (MeV,1,1,1)/fm^3
+	double eIn = 1000.0, BIn = 1.0, SIn = 0.001, QIn = 0.5;	// (MeV,1,1,1)/fm^3
 	double densities[4] = {eIn, BIn, SIn, QIn};
 	double sols[4] = {197.327, 0.0, 0.0, 0.0};	// MeV
 	//solve(eIn, BIn, SIn, QIn, Tsol, muBsol, muSsol, muQsol);
