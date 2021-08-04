@@ -10,13 +10,16 @@
 #include "../include/Variables.h"
 #include "../include/nm_solver.h"
 
+double Tmin = 30.0, Tmax = 800.0;
+double amuBmax = 450.0, amuSmax = 450.0, amuQmax = 450.0;
+
 void solve ( double densities[], double sols[] )
 {
 	double eTarget = densities[0], BTarget = densities[1], STarget = densities[2], QTarget = densities[3];
 	double Tout = sols[0], muBout = sols[1], muSout = sols[2], muQout = sols[3];
 
-	const int maxTries = 1000;
-	const double ACCURACY = 1e-6;
+	const int maxTries = 10000;
+	const double ACCURACY = 1e-8;
 	const double hbarc = 197.327;
 	const double hbarc3 = hbarc*hbarc*hbarc;
 
@@ -42,9 +45,6 @@ void solve ( double densities[], double sols[] )
 	printf("Bsol = %15.8f\n", Bsol);
 	printf("Ssol = %15.8f\n", Ssol);
 	printf("Qsol = %15.8f\n\n", Qsol);
-
-	//bool not_converged = abs(esol-eTarget) > ACCURACY or abs(Bsol-BTarget) > ACCURACY
-	//					  or abs(Ssol-STarget) > ACCURACY or abs(Qsol-QTarget) > ACCURACY;
 
 	int iter = 0;
 	while ( (fabs(esol-eTarget) > ACCURACY || fabs(Bsol-BTarget) > ACCURACY
@@ -83,8 +83,8 @@ void solve ( double densities[], double sols[] )
 							dQdT/hbarc3, dQdmuB/hbarc3, dQdmuS/hbarc3, dQdmuQ/hbarc3 };
 		double b_data[] = { esol-eTarget, Bsol-BTarget, Ssol-STarget, Qsol-QTarget };
 
-//for (int ii = 0; ii < 16; ii++) printf("a_data[%5d] = %15.12f\n", ii, a_data[ii]);
-//for (int ii = 0; ii < 4; ii++) printf("b_data[%5d] = %15.12f\n", ii, b_data[ii]);
+		//for (int ii = 0; ii < 16; ii++) printf("a_data[%5d] = %15.12f\n", ii, a_data[ii]);
+		//for (int ii = 0; ii < 4; ii++) printf("b_data[%5d] = %15.12f\n", ii, b_data[ii]);
 
 		gsl_matrix_view m = gsl_matrix_view_array (a_data, 4, 4);
 		gsl_vector_view b = gsl_vector_view_array (b_data, 4);
@@ -95,19 +95,27 @@ void solve ( double densities[], double sols[] )
 		gsl_linalg_LU_decomp (&m.matrix, p, &s);
 		gsl_linalg_LU_solve (&m.matrix, p, &b.vector, x);
 		
-//		esol -= gsl_vector_get(x, 0);
-//		Bsol -= gsl_vector_get(x, 1);
-//		Ssol -= gsl_vector_get(x, 2);
-//		Qsol -= gsl_vector_get(x, 3);
+		// if out of range
+		if ( Tout - gsl_vector_get(x, 0) < Tmin
+				|| Tout - gsl_vector_get(x, 0) > Tmax
+				|| abs(muBout - gsl_vector_get(x, 1)) > amuBmax
+				|| abs(muSout - gsl_vector_get(x, 2)) > amuSmax
+				|| abs(muQout - gsl_vector_get(x, 3)) > amuQmax )
+		{
+			if ( iter < 2 ) Tout = -1.0;	// indicates failure since T >= 0
+			return;							// exit prematurely
+		}
+
+		// otherwise, continue
 		Tout -= gsl_vector_get(x, 0);
 		muBout -= gsl_vector_get(x, 1);
 		muSout -= gsl_vector_get(x, 2);
 		muQout -= gsl_vector_get(x, 3);
 
-	printf("Tout = %15.8f\n", Tout);
-	printf("muBout = %15.8f\n", muBout);
-	printf("muSout = %15.8f\n", muSout);
-	printf("muQout = %15.8f\n", muQout);
+		printf("Tout = %15.8f\n", Tout);
+		printf("muBout = %15.8f\n", muBout);
+		printf("muSout = %15.8f\n", muSout);
+		printf("muQout = %15.8f\n", muQout);
 
 		// update previous estimates
 		Plocal = T4*PressTaylor(Tout, muBout, muQout, muSout)/hbarc3;
@@ -117,31 +125,27 @@ void solve ( double densities[], double sols[] )
 		Qsol = T3*ChDensTaylor(Tout, muBout, muQout, muSout)/hbarc3;
 		esol = slocal*Tout - Plocal + muBout*Bsol + muQout*Qsol + muSout*Ssol;
 
-	printf("Plocal = %15.8f\n", Plocal);
-	printf("slocal = %15.8f\n", slocal);
-
-	printf("eTarget = %15.8f\n", eTarget);
-	printf("BTarget = %15.8f\n", BTarget);
-	printf("STarget = %15.8f\n", STarget);
-	printf("QTarget = %15.8f\n", QTarget);
-	printf("esol = %15.8f\n", esol);
-	printf("Bsol = %15.8f\n", Bsol);
-	printf("Ssol = %15.8f\n", Ssol);
-	printf("Qsol = %15.8f\n", Qsol);
-
+		printf("Plocal = %15.8f\n", Plocal);
+		printf("slocal = %15.8f\n", slocal);
+	
+		printf("eTarget = %15.8f\n", eTarget);
+		printf("BTarget = %15.8f\n", BTarget);
+		printf("STarget = %15.8f\n", STarget);
+		printf("QTarget = %15.8f\n", QTarget);
+		printf("esol = %15.8f\n", esol);
+		printf("Bsol = %15.8f\n", Bsol);
+		printf("Ssol = %15.8f\n", Ssol);
+		printf("Qsol = %15.8f\n", Qsol);
+	
 		printf("%15.12f %15.12f %15.12f %15.12f %15.12f %15.12f %15.12f %15.12f"
 				"%15.12f %15.12f %15.12f %15.12f %15.12f\n",
 				esol, eTarget, fabs(esol-eTarget), Bsol, BTarget, fabs(Bsol-BTarget),
 				Ssol, STarget, fabs(Ssol-STarget), Qsol, QTarget, fabs(Qsol-QTarget), ACCURACY);
-
-		
-	printf("********************************************************************************\n\n");
+	
+		printf("********************************************************************************\n\n");
 
 		gsl_permutation_free (p);
 		gsl_vector_free (x);
-
-		//not_converged = abs(esol-eTarget) > ACCURACY or abs(Bsol-BTarget) > ACCURACY
-		//				or abs(Ssol-STarget) > ACCURACY or abs(Qsol-QTarget) > ACCURACY;
 
 	}
 
