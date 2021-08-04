@@ -189,6 +189,7 @@ int main(int argc, char *argv[])
 		double Tsol = sols[0], muBsol = sols[1], muSsol = sols[2], muQsol = sols[3];
 		Tval = Tsol; muBval = muBsol; muSval = muSsol; muQval = muQsol;
 		i = Tsol; j = muBsol; l = muSsol; k = muQsol;	// Q and S reversed
+		if (Tsol < 0.0) continue;
 //		printf("Input:\n");
 //		printf("eIn = %15.8f\n", eIn);
 //		printf("BIn = %15.8f\n", BIn);
