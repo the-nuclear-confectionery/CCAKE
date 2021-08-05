@@ -187,12 +187,19 @@ int main(int argc, char *argv[])
 		double BIn = rBt*pow(eIn/197.327, 0.75);
 		double SIn = rSt*pow(eIn/197.327, 0.75);
 		double QIn = rQt*pow(eIn/197.327, 0.75);
-		double densities[4] = {eIn, BIn, SIn, QIn};
-		double sols[4] = {4.0*197.327, 0.0, 0.0, 0.0};	// MeV
-		solve(densities, sols);
-		double Tsol = sols[0], muBsol = sols[1], muSsol = sols[2], muQsol = sols[3];
+		double Tsol = -1.0, muBsol = 0.0, muSsol = 0.0, muQsol = 0.0;
+		// try lots of initial guesses
+		for (double Tguess = 30.0; Tguess <= 800.0 + TINY; Tguess += 10.0)
+		{
+			double densities[4] = {eIn, BIn, SIn, QIn};
+			double sols[4] = {Tguess, 0.0, 0.0, 0.0};	// MeV
+			solve(densities, sols);
+			Tsol = sols[0]; muBsol = sols[1]; muSsol = sols[2]; muQsol = sols[3];
+			if ( Tsol >= 0.0 ) break;
+		}
 		Tval = Tsol; muBval = muBsol; muSval = muSsol; muQval = muQsol;
 		i = Tsol; j = muBsol; l = muSsol; k = muQsol;	// Q and S reversed
+		// if still failed, then give up
 		if (Tsol < 0.0)
 		{
 			printf("Failed at %15.12f %15.12f %15.12f %15.12f\n", eIn, BIn, SIn, QIn);
