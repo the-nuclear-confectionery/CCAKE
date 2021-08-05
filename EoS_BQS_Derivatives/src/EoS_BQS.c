@@ -173,7 +173,7 @@ int main(int argc, char *argv[])
 
 	// special variables to uniformly cover parameter space
 	const double TINY = 0.001;
-	for (double loge = 0.0; loge <= 14.0 + TINY; loge += 0.05)
+	for (double loge = -5.0; loge <= 14.0 + TINY; loge += 0.05)
 	for (double rBt = -0.25; rBt <= 0.25 + TINY; rBt += 0.0025)
 	for (double rSt = -0.5; rSt <= 0.5 + TINY; rSt += 0.005)
 	for (double rQt = -0.5; rQt <= 0.5 + TINY; rQt += 0.005)
@@ -189,45 +189,45 @@ int main(int argc, char *argv[])
 		double Tsol = sols[0], muBsol = sols[1], muSsol = sols[2], muQsol = sols[3];
 		Tval = Tsol; muBval = muBsol; muSval = muSsol; muQval = muQsol;
 		i = Tsol; j = muBsol; l = muSsol; k = muQsol;	// Q and S reversed
-//		if (Tsol < 0.0)
-//		{
-//			printf("Failed!\n");
-//			fflush(stdout);
-//			continue;
-//		}
+		if (Tsol < 0.0)
+		{
+			printf("Failed!\n");
+			fflush(stdout);
+			continue;
+		}
+
+//		printf("Input:\n");
+//		printf("eIn = %15.8f\n", eIn);
+//		printf("BIn = %15.8f\n", BIn);
+//		printf("SIn = %15.8f\n", SIn);
+//		printf("QIn = %15.8f\n", QIn);
+//		printf("Solution:\n");
+//		printf("Tsol = %15.8f\n", Tsol);
+//		printf("muBsol = %15.8f\n", muBsol);
+//		printf("muSsol = %15.8f\n", muSsol);
+//		printf("muQsol = %15.8f\n", muQsol);
 //
-		printf("Input:\n");
-		printf("eIn = %15.8f\n", eIn);
-		printf("BIn = %15.8f\n", BIn);
-		printf("SIn = %15.8f\n", SIn);
-		printf("QIn = %15.8f\n", QIn);
-		printf("Solution:\n");
-		printf("Tsol = %15.8f\n", Tsol);
-		printf("muBsol = %15.8f\n", muBsol);
-		printf("muSsol = %15.8f\n", muSsol);
-		printf("muQsol = %15.8f\n", muQsol);
-
-		double POut = Tsol*Tsol*Tsol*Tsol*PressTaylor(Tsol, muBsol, muQsol, muSsol);
-		double sOut = Tsol*Tsol*Tsol*EntrTaylor(Tsol, muBsol, muQsol, muSsol);
-		double BOut = Tsol*Tsol*Tsol*BarDensTaylor(Tsol, muBsol, muQsol, muSsol);
-		double SOut = Tsol*Tsol*Tsol*StrDensTaylor(Tsol, muBsol, muQsol, muSsol);
-		double QOut = Tsol*Tsol*Tsol*ChDensTaylor(Tsol, muBsol, muQsol, muSsol);
-		POut /= 197.327*197.327*197.327;
-		sOut /= 197.327*197.327*197.327;
-		BOut /= 197.327*197.327*197.327;
-		SOut /= 197.327*197.327*197.327;
-		QOut /= 197.327*197.327*197.327;
-		double eOut = sOut*Tsol - POut + muBsol*BOut + muQsol*QOut + muSsol*SOut;
-
-		printf("Check:\n");
-		printf("POut = %15.8f\n", POut);
-		printf("sOut = %15.8f\n", sOut);
-		printf("eOut = %15.8f\n", eOut);
-		printf("BOut = %15.8f\n", BOut);
-		printf("SOut = %15.8f\n", SOut);
-		printf("QOut = %15.8f\n", QOut);
-
-	if (1) exit(-1);
+//		double POut = Tsol*Tsol*Tsol*Tsol*PressTaylor(Tsol, muBsol, muQsol, muSsol);
+//		double sOut = Tsol*Tsol*Tsol*EntrTaylor(Tsol, muBsol, muQsol, muSsol);
+//		double BOut = Tsol*Tsol*Tsol*BarDensTaylor(Tsol, muBsol, muQsol, muSsol);
+//		double SOut = Tsol*Tsol*Tsol*StrDensTaylor(Tsol, muBsol, muQsol, muSsol);
+//		double QOut = Tsol*Tsol*Tsol*ChDensTaylor(Tsol, muBsol, muQsol, muSsol);
+//		POut /= 197.327*197.327*197.327;
+//		sOut /= 197.327*197.327*197.327;
+//		BOut /= 197.327*197.327*197.327;
+//		SOut /= 197.327*197.327*197.327;
+//		QOut /= 197.327*197.327*197.327;
+//		double eOut = sOut*Tsol - POut + muBsol*BOut + muQsol*QOut + muSsol*SOut;
+//
+//		printf("Check:\n");
+//		printf("POut = %15.8f\n", POut);
+//		printf("sOut = %15.8f\n", sOut);
+//		printf("eOut = %15.8f\n", eOut);
+//		printf("BOut = %15.8f\n", BOut);
+//		printf("SOut = %15.8f\n", SOut);
+//		printf("QOut = %15.8f\n", QOut);
+//
+//	if (1) exit(-1);
 
 
 		//Thermodynamics
