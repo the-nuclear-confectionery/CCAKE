@@ -205,36 +205,36 @@ int main(int argc, char *argv[])
 			fflush(stdout);
 		}
 
-//		printf("Input:\n");
-//		printf("eIn = %15.8f\n", eIn);
-//		printf("BIn = %15.8f\n", BIn);
-//		printf("SIn = %15.8f\n", SIn);
-//		printf("QIn = %15.8f\n", QIn);
-//		printf("Solution:\n");
-//		printf("Tsol = %15.8f\n", Tsol);
-//		printf("muBsol = %15.8f\n", muBsol);
-//		printf("muSsol = %15.8f\n", muSsol);
-//		printf("muQsol = %15.8f\n", muQsol);
-//
-//		double POut = Tsol*Tsol*Tsol*Tsol*PressTaylor(Tsol, muBsol, muQsol, muSsol);
-//		double sOut = Tsol*Tsol*Tsol*EntrTaylor(Tsol, muBsol, muQsol, muSsol);
-//		double BOut = Tsol*Tsol*Tsol*BarDensTaylor(Tsol, muBsol, muQsol, muSsol);
-//		double SOut = Tsol*Tsol*Tsol*StrDensTaylor(Tsol, muBsol, muQsol, muSsol);
-//		double QOut = Tsol*Tsol*Tsol*ChDensTaylor(Tsol, muBsol, muQsol, muSsol);
-//		POut /= 197.327*197.327*197.327;
-//		sOut /= 197.327*197.327*197.327;
-//		BOut /= 197.327*197.327*197.327;
-//		SOut /= 197.327*197.327*197.327;
-//		QOut /= 197.327*197.327*197.327;
-//		double eOut = sOut*Tsol - POut + muBsol*BOut + muQsol*QOut + muSsol*SOut;
-//
-//		printf("Check:\n");
-//		printf("POut = %15.8f\n", POut);
-//		printf("sOut = %15.8f\n", sOut);
-//		printf("eOut = %15.8f\n", eOut);
-//		printf("BOut = %15.8f\n", BOut);
-//		printf("SOut = %15.8f\n", SOut);
-//		printf("QOut = %15.8f\n", QOut);
+		printf("Input:\n");
+		printf("eIn = %15.8f\n", eIn);
+		printf("BIn = %15.8f\n", BIn);
+		printf("SIn = %15.8f\n", SIn);
+		printf("QIn = %15.8f\n", QIn);
+		printf("Solution:\n");
+		printf("Tsol = %15.8f\n", Tsol);
+		printf("muBsol = %15.8f\n", muBsol);
+		printf("muSsol = %15.8f\n", muSsol);
+		printf("muQsol = %15.8f\n", muQsol);
+
+		double POut = Tsol*Tsol*Tsol*Tsol*PressTaylor(Tsol, muBsol, muQsol, muSsol);
+		double sOut = Tsol*Tsol*Tsol*EntrTaylor(Tsol, muBsol, muQsol, muSsol);
+		double BOut = Tsol*Tsol*Tsol*BarDensTaylor(Tsol, muBsol, muQsol, muSsol);
+		double SOut = Tsol*Tsol*Tsol*StrDensTaylor(Tsol, muBsol, muQsol, muSsol);
+		double QOut = Tsol*Tsol*Tsol*ChDensTaylor(Tsol, muBsol, muQsol, muSsol);
+		POut /= 197.327*197.327*197.327;
+		sOut /= 197.327*197.327*197.327;
+		BOut /= 197.327*197.327*197.327;
+		SOut /= 197.327*197.327*197.327;
+		QOut /= 197.327*197.327*197.327;
+		double eOut = sOut*Tsol - POut + muBsol*BOut + muQsol*QOut + muSsol*SOut;
+
+		printf("Check:\n");
+		printf("POut = %15.8f\n", POut);
+		printf("sOut = %15.8f\n", sOut);
+		printf("eOut = %15.8f\n", eOut);
+		printf("BOut = %15.8f\n", BOut);
+		printf("SOut = %15.8f\n", SOut);
+		printf("QOut = %15.8f\n", QOut);
 //
 //	if (1) exit(-1);
 
@@ -270,6 +270,8 @@ int main(int argc, char *argv[])
 		printf("derivs: %lf  %lf  %lf  %lf  %3.12f  %3.12f %3.12f  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f%  3.12f\n", Tval, muBval, muQval, muSval, D2PB2, D2PQ2, D2PS2, D2PBQ, D2PBS, D2PQS,
 				D2PTB, D2PTQ, D2PTS, D2PT2);
 	
+		printf("********************************************************************************\n\n");
+
 		fflush(stdout);
 
 	}
