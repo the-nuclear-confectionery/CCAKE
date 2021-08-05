@@ -173,10 +173,10 @@ int main(int argc, char *argv[])
 
 	// special variables to uniformly cover parameter space
 	const double TINY = 0.001;
-	for (double loge = -5.0; loge <= 14.0 + TINY; loge += 0.5)
-	for (double rBt = -0.25; rBt <= 0.25 + TINY; rBt += 0.025)
-	for (double rSt = -0.5; rSt <= 0.5 + TINY; rSt += 0.05)
-	for (double rQt = -0.5; rQt <= 0.5 + TINY; rQt += 0.05)
+	for (double loge = -5.0; loge <= 14.0 + TINY; loge += 0.05)
+	for (double rBt = -0.25; rBt <= 0.25 + TINY; rBt += 0.0025)
+	for (double rSt = -0.5; rSt <= 0.5 + TINY; rSt += 0.005)
+	for (double rQt = -0.5; rQt <= 0.5 + TINY; rQt += 0.005)
 	{
 		//double eIn = 1000.0, BIn = 1.0, SIn = 0.001, QIn = 0.5;	// (MeV,1,1,1)/fm^3
 		double eIn = exp(loge);	// MeV/fm^3
@@ -189,7 +189,12 @@ int main(int argc, char *argv[])
 		double Tsol = sols[0], muBsol = sols[1], muSsol = sols[2], muQsol = sols[3];
 		Tval = Tsol; muBval = muBsol; muSval = muSsol; muQval = muQsol;
 		i = Tsol; j = muBsol; l = muSsol; k = muQsol;	// Q and S reversed
-		if (Tsol < 0.0) continue;
+		if (Tsol < 0.0)
+		{
+			printf("Failed!\n");
+			fflush(stdout);
+			continue;
+		}
 //		printf("Input:\n");
 //		printf("eIn = %15.8f\n", eIn);
 //		printf("BIn = %15.8f\n", BIn);
@@ -220,37 +225,40 @@ int main(int argc, char *argv[])
 //		printf("BOut = %15.8f\n", BOut);
 //		printf("SOut = %15.8f\n", SOut);
 //		printf("QOut = %15.8f\n", QOut);
+	
+		//Thermodynamics
+		PressVal = PressTaylor(i,j,k,l);
+		EntrVal = EntrTaylor(i,j,k,l);
+		BarDensVal = BarDensTaylor(i,j,k,l);
+		StrDensVal = StrDensTaylor(i,j,k,l);
+		ChDensVal = ChDensTaylor(i,j,k,l);
+		EnerDensVal = EntrVal - PressVal 
+				+ muBval/Tval*BarDensVal 
+				+ muQval/Tval*ChDensVal 
+				+ muSval/Tval*StrDensVal;
+		SpSoundVal = SpSound(Tval,muBval,muQval,muSval);
+		            
+		//Second Order Derivatives
+		D2PB2 = P2B2(i,j,k,l);
+		D2PQ2 = P2Q2(i,j,k,l);
+		D2PS2 = P2S2(i,j,k,l);
+		
+		D2PBQ = P2BQ(i,j,k,l);
+		D2PBS = P2BS(i,j,k,l);
+		D2PQS = P2QS(i,j,k,l);
+		
+		D2PTB = P2TB(i,j,k,l);
+		D2PTQ = P2TQ(i,j,k,l);
+		D2PTS = P2TS(i,j,k,l);
+		D2PT2 = P2T2(i,j,k,l);
+		
+		printf("vals: %lf  %lf  %lf  %lf  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f\n", Tval, muBval, muQval, muSval, PressVal, EntrVal, 
+		        BarDensVal, StrDensVal, ChDensVal, EnerDensVal, SpSoundVal);
+		printf("derivs: %lf  %lf  %lf  %lf  %3.12f  %3.12f %3.12f  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f%  3.12f\n", Tval, muBval, muQval, muSval, D2PB2, D2PQ2, D2PS2, D2PBQ, D2PBS, D2PQS,
+				D2PTB, D2PTQ, D2PTS, D2PT2);
+	
+		fflush(stdout);
 
-					//Thermodynamics
-					PressVal = PressTaylor(i,j,k,l);
-					EntrVal = EntrTaylor(i,j,k,l);
-					BarDensVal = BarDensTaylor(i,j,k,l);
-					StrDensVal = StrDensTaylor(i,j,k,l);
-					ChDensVal = ChDensTaylor(i,j,k,l);
-					EnerDensVal = EntrVal - PressVal 
-							+ muBval/Tval*BarDensVal 
-							+ muQval/Tval*ChDensVal 
-							+ muSval/Tval*StrDensVal;
-					SpSoundVal = SpSound(Tval,muBval,muQval,muSval);
-					            
-					//Second Order Derivatives
-					D2PB2 = P2B2(i,j,k,l);
-					D2PQ2 = P2Q2(i,j,k,l);
-					D2PS2 = P2S2(i,j,k,l);
-					
-					D2PBQ = P2BQ(i,j,k,l);
-					D2PBS = P2BS(i,j,k,l);
-					D2PQS = P2QS(i,j,k,l);
-					
-					D2PTB = P2TB(i,j,k,l);
-					D2PTQ = P2TQ(i,j,k,l);
-					D2PTS = P2TS(i,j,k,l);
-					D2PT2 = P2T2(i,j,k,l);
-					
-					printf("vals: %lf  %lf  %lf  %lf  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f\n", Tval, muBval, muQval, muSval, PressVal, EntrVal, 
-					        BarDensVal, StrDensVal, ChDensVal, EnerDensVal, SpSoundVal);
-					printf("derivs: %lf  %lf  %lf  %lf  %3.12f  %3.12f %3.12f  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f%  3.12f\n", Tval, muBval, muQval, muSval, D2PB2, D2PQ2, D2PS2, D2PBQ, D2PBS, D2PQS,
-							D2PTB, D2PTQ, D2PTS, D2PT2);
 	}
 	if (1) exit(-1);
 
