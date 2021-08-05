@@ -188,7 +188,7 @@ int main(int argc, char *argv[])
 		double SIn = rSt*pow(eIn/197.327, 0.75);
 		double QIn = rQt*pow(eIn/197.327, 0.75);
 		double densities[4] = {eIn, BIn, SIn, QIn};
-		double sols[4] = {197.327, 0.0, 0.0, 0.0};	// MeV
+		double sols[4] = {4.0*197.327, 0.0, 0.0, 0.0};	// MeV
 		solve(densities, sols);
 		double Tsol = sols[0], muBsol = sols[1], muSsol = sols[2], muQsol = sols[3];
 		Tval = Tsol; muBval = muBsol; muSval = muSsol; muQval = muQsol;
