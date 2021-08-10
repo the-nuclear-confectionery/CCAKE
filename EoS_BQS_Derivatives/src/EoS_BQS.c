@@ -178,6 +178,7 @@ int main(int argc, char *argv[])
 		int interpgridlength = 1001;
 		double logegrid[interpgridlength], max_rBt[interpgridlength],
 				max_rSt[interpgridlength], max_rQt[interpgridlength];
+		printf("argc = %d\n", argc);
 		FILE * MaximaIn = fopen(argv[2], "r");
 		if (MaximaIn == 0)
 		{
