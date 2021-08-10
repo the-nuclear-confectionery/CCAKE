@@ -174,19 +174,41 @@ int main(int argc, char *argv[])
 	int run_on_density_grid = 0;
 	if ( run_on_density_grid )
 	{
+		// load maxima from file
+		int interpgridlength = 1001;
+		double logegrid[interpgridlength], max_rBt[interpgridlength],
+				max_rSt[interpgridlength], max_rQt[interpgridlength];
+		FILE * MaximaIn = fopen(argv[2], "r");
+		if (MaximaIn == 0)
+		{
+			fprintf(stderr, "Failed to open maxima file.\n");
+			exit(1);
+		}
+		for(int ii = 0; ii < interpgridlength; ii++)
+			fscanf(MaximaIn,"%lf %lf %lf %lf\n",
+							&logegrid[ii], &max_rBt[ii],
+							&max_rSt[ii], &max_rQt[ii];
+		fclose(MaximaIn);
+		double logemin = logegrid[0], logemax = logegrid[interpgridlength-1];
+		double logestep = (logemax - logemin)/(interpgridlength-1.0);
+
 		// special variables to uniformly cover parameter space
 		const double TINY = 0.001;
-		for (double loge = -5.0; loge <= 14.0 + TINY; loge += 0.5)
-		for (double rBt = -0.25; rBt <= 0.25 + TINY; rBt += 0.025)
-		for (double rSt = -0.5; rSt <= 0.5 + TINY; rSt += 0.05)
-		for (double rQt = -0.5; rQt <= 0.5 + TINY; rQt += 0.05)
-		//	for (double loge = -5.0; loge <= 14.0 + TINY; loge += 0.5)
-		//	for (double rBt = 0.0; rBt <= 0.0 + TINY; rBt += 0.025)
-		//	for (double rSt = 0.0; rSt <= 0.0 + TINY; rSt += 0.05)
-		//	for (double rQt = 0.0; rQt <= 0.0 + TINY; rQt += 0.05)
+//		for (double loge = logemin; loge <= logemax + TINY; loge += logestep)
+		for (int iloge = 0; iloge < interpgridlength; iloge++)
+		for (double zetaB = -1.0; zetaB <= 1.0 + TINY; zetaB += 0.05)
+		for (double zetaS = -1.0; zetaS <= 1.0 + TINY; zetaS += 0.05)
+		for (double zetaQ = -1.0; zetaQ <= 1.0 + TINY; zetaQ += 0.05)
+//		for (double loge = -5.0; loge <= 14.0 + TINY; loge += 0.5)
+//		for (double rBt = -0.25; rBt <= 0.25 + TINY; rBt += 0.025)
+//		for (double rSt = -0.5; rSt <= 0.5 + TINY; rSt += 0.05)
+//		for (double rQt = -0.5; rQt <= 0.5 + TINY; rQt += 0.05)
 		{
 			//double eIn = 1000.0, BIn = 1.0, SIn = 0.001, QIn = 0.5;	// (MeV,1,1,1)/fm^3
-			double eIn = exp(loge);	// MeV/fm^3
+			double eIn = exp(logegrid[iloge]);	// MeV/fm^3
+			double rBt = zetaB * max_rBt[iloge];
+			double rSt = zetaS * max_rSt[iloge];
+			double rQt = zetaQ * max_rQt[iloge];
 			double BIn = rBt*pow(eIn/197.327, 0.75);
 			double SIn = rSt*pow(eIn/197.327, 0.75);
 			double QIn = rQt*pow(eIn/197.327, 0.75);
