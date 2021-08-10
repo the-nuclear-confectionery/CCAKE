@@ -17,6 +17,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <time.h>
+#include <string.h>
 #include <errno.h>
 #include "../include/nrD.h"
 #include "../include/nrutilD.h"
