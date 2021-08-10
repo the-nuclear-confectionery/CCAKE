@@ -190,7 +190,8 @@ int main(int argc, char *argv[])
 		if (MaximaIn == 0)
 		{
 			fprintf(stderr, "Failed to open maxima file.\n");
-			fprintf(stderr, "Error %d \n", errno);
+			perror("Error");
+			fprintf(stderr, "Error: %d (%s)\n", errno, strerror(errno));
 			exit(1);
 		}
 		for(int ii = 0; ii < interpgridlength; ii++)
