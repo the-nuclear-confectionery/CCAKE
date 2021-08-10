@@ -171,7 +171,7 @@ int main(int argc, char *argv[])
 	mkdir("Thermodynamics", S_IRWXU | S_IRWXG | S_IRWXO);
 	chdir("Thermodynamics");
 
-	int run_on_density_grid = 0;
+	int run_on_density_grid = 1;
 	if ( run_on_density_grid )
 	{
 		// load maxima from file
