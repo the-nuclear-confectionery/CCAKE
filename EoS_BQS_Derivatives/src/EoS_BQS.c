@@ -171,7 +171,7 @@ int main(int argc, char *argv[])
 	mkdir("Thermodynamics", S_IRWXU | S_IRWXG | S_IRWXO);
 	chdir("Thermodynamics");
 
-	int run_on_density_grid = 1;
+	int run_on_density_grid = 0;
 	if ( run_on_density_grid )
 	{
 		// special variables to uniformly cover parameter space
