@@ -149,6 +149,7 @@ int main(int argc, char *argv[])
 	mkdir("Coefficients_Check", S_IRWXU | S_IRWXG | S_IRWXO);
 	chdir("Coefficients_Check");
   	
+
   	// Print values of all coefficients and derivatives thereof wrt T. (To check that everything is in order.)
   	FILE *CHIS = fopen("All_Chis.dat","w");
   	FILE *DCHISDT = fopen("All_DChisDT.dat","w");
@@ -171,20 +172,15 @@ int main(int argc, char *argv[])
 	chdir(buff);
   	
   	
-  	/* Create folder for thermodynamic quantities. */
-	mkdir("Thermodynamics", S_IRWXU | S_IRWXG | S_IRWXO);
-	chdir("Thermodynamics");
-
-
-
+	int run_on_density_grid = 1;
+	if ( run_on_density_grid )
+	{
 		// load maxima from file
 		int interpgridlength = 1001;
 		double logegrid[interpgridlength], max_rBt[interpgridlength],
 				max_rSt[interpgridlength], max_rQt[interpgridlength];
-		printf("argc = %d\n", argc);
-		printf("argv[2] = %s\n", argv[2]);
 		errno = 0;
-		FILE * MaximaIn = fopen("maxima_cmp.dat", "r");
+		FILE * MaximaIn = fopen(argv[2], "r");
 		if (MaximaIn == 0)
 		{
 			fprintf(stderr, "Failed to open maxima file.\n");
@@ -197,31 +193,6 @@ int main(int argc, char *argv[])
 							&logegrid[ii], &max_rBt[ii],
 							&max_rSt[ii], &max_rQt[ii]);
 		fclose(MaximaIn);
-
-
-	int run_on_density_grid = 1;
-	if ( run_on_density_grid )
-	{
-//		// load maxima from file
-//		int interpgridlength = 1001;
-//		double logegrid[interpgridlength], max_rBt[interpgridlength],
-//				max_rSt[interpgridlength], max_rQt[interpgridlength];
-//		printf("argc = %d\n", argc);
-//		printf("argv[2] = %s\n", argv[2]);
-//		errno = 0;
-//		FILE * MaximaIn = fopen("maxima_cmp.dat", "r");
-//		if (MaximaIn == 0)
-//		{
-//			fprintf(stderr, "Failed to open maxima file.\n");
-//			perror("Error");
-//			fprintf(stderr, "Error: %d (%s)\n", errno, strerror(errno));
-//			exit(1);
-//		}
-//		for(int ii = 0; ii < interpgridlength; ii++)
-//			fscanf(MaximaIn,"%lf %lf %lf %lf\n",
-//							&logegrid[ii], &max_rBt[ii],
-//							&max_rSt[ii], &max_rQt[ii]);
-//		fclose(MaximaIn);
 
 		double logemin = logegrid[0], logemax = logegrid[interpgridlength-1];
 		double logestep = (logemax - logemin)/(interpgridlength-1.0);
@@ -343,6 +314,12 @@ int main(int argc, char *argv[])
 		}
 		if (1) exit(-1);
 	}
+
+	// DON'T CHANGE DIRECTORIES UNTIL EVERYTHING IS READ AND WRITTEN
+  	/* Create folder for thermodynamic quantities. */
+	mkdir("Thermodynamics", S_IRWXU | S_IRWXG | S_IRWXO);
+	chdir("Thermodynamics");
+
 
 	// for HDF arrays
 	//long long gridLength = 69090879;
