@@ -187,7 +187,7 @@ int main(int argc, char *argv[])
 		for(int ii = 0; ii < interpgridlength; ii++)
 			fscanf(MaximaIn,"%lf %lf %lf %lf\n",
 							&logegrid[ii], &max_rBt[ii],
-							&max_rSt[ii], &max_rQt[ii];
+							&max_rSt[ii], &max_rQt[ii]);
 		fclose(MaximaIn);
 		double logemin = logegrid[0], logemax = logegrid[interpgridlength-1];
 		double logestep = (logemax - logemin)/(interpgridlength-1.0);
