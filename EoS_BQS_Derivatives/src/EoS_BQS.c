@@ -173,26 +173,28 @@ int main(int argc, char *argv[])
 	mkdir("Thermodynamics", S_IRWXU | S_IRWXG | S_IRWXO);
 	chdir("Thermodynamics");
 
+	// load maxima from file
+	int interpgridlength = 1001;
+	double logegrid[interpgridlength], max_rBt[interpgridlength],
+			max_rSt[interpgridlength], max_rQt[interpgridlength];
+	printf("argc = %d\n", argc);
+	printf("argv[2] = %s\n", argv[2]);
+	FILE * MaximaIn = fopen("maxima_cmp.dat", "r");
+	if (MaximaIn == 0)
+	{
+		fprintf(stderr, "Failed to open maxima file.\n");
+		exit(1);
+	}
+	for(int ii = 0; ii < interpgridlength; ii++)
+		fscanf(MaximaIn,"%lf %lf %lf %lf\n",
+						&logegrid[ii], &max_rBt[ii],
+						&max_rSt[ii], &max_rQt[ii]);
+	fclose(MaximaIn);
+
+
 	int run_on_density_grid = 1;
 	if ( run_on_density_grid )
 	{
-		// load maxima from file
-		int interpgridlength = 1001;
-		double logegrid[interpgridlength], max_rBt[interpgridlength],
-				max_rSt[interpgridlength], max_rQt[interpgridlength];
-		printf("argc = %d\n", argc);
-		printf("argv[2] = %s\n", argv[2]);
-		FILE * MaximaIn = fopen("maxima_cmp.dat", "r");
-		if (MaximaIn == 0)
-		{
-			fprintf(stderr, "Failed to open maxima file.\n");
-			exit(1);
-		}
-		for(int ii = 0; ii < interpgridlength; ii++)
-			fscanf(MaximaIn,"%lf %lf %lf %lf\n",
-							&logegrid[ii], &max_rBt[ii],
-							&max_rSt[ii], &max_rQt[ii]);
-		fclose(MaximaIn);
 		double logemin = logegrid[0], logemax = logegrid[interpgridlength-1];
 		double logestep = (logemax - logemin)/(interpgridlength-1.0);
 
