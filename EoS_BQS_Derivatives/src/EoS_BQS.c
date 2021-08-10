@@ -182,7 +182,7 @@ int main(int argc, char *argv[])
 				max_rSt[interpgridlength], max_rQt[interpgridlength];
 		printf("argc = %d\n", argc);
 		printf("argv[2] = %s\n", argv[2]);
-		FILE * MaximaIn = fopen(argv[2], "r");
+		FILE *MaximaIn = fopen(argv[2], "r");
 		if (MaximaIn == 0)
 		{
 			fprintf(stderr, "Failed to open maxima file.\n");
