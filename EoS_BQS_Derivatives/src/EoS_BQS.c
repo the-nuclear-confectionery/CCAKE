@@ -219,7 +219,7 @@ int main(int argc, char *argv[])
 			double QIn = rQt*pow(eIn/197.327, 0.75);
 			double Tsol = -1.0, muBsol = 0.0, muSsol = 0.0, muQsol = 0.0;
 			// try lots of initial guesses, quit as soon as solution is found
-			for (double Tguess = 30.0; Tguess <= 800.0 + TINY; Tguess += 1.0)
+			for (double Tguess = 30.0; Tguess <= 800.0 + TINY; Tguess += 10.0)
                         for (double muBguess = -450.0; muBguess <= 450.0 + TINY; muBguess += 225.0)
                         for (double muSguess = -450.0; muSguess <= 450.0 + TINY; muSguess += 225.0)
                         for (double muQguess = -450.0; muQguess <= 450.0 + TINY; muQguess += 225.0)
@@ -235,13 +235,15 @@ int main(int argc, char *argv[])
 			// if still failed, then give up
 			if (Tsol < 0.0)
 			{
-				printf("Failed at %15.12f %15.12f %15.12f %15.12f\n", eIn, BIn, SIn, QIn);
+				printf("Failed at %15.12f %15.12f %15.12f %15.12f %d %15.12f %15.12f %15.12f\n",
+					eIn, BIn, SIn, QIn, iloge, zetaB, zetaS, zetaQ);
 				fflush(stdout);
 				continue;
 			}
 			else
 			{
-				printf("Succeeded at %15.12f %15.12f %15.12f %15.12f\n", eIn, BIn, SIn, QIn);
+				printf("Succeeded at %15.12f %15.12f %15.12f %15.12f %d %15.12f %15.12f %15.12f\n"
+                                        eIn, BIn, SIn, QIn, iloge, zetaB, zetaS, zetaQ);
 				fflush(stdout);
 			}
 		
