@@ -242,7 +242,7 @@ int main(int argc, char *argv[])
 			}
 			else
 			{
-				printf("Succeeded at %15.12f %15.12f %15.12f %15.12f %d %15.12f %15.12f %15.12f\n"
+				printf("Succeeded at %15.12f %15.12f %15.12f %15.12f %d %15.12f %15.12f %15.12f\n",
                                         eIn, BIn, SIn, QIn, iloge, zetaB, zetaS, zetaQ);
 				fflush(stdout);
 			}
