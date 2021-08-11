@@ -201,9 +201,9 @@ int main(int argc, char *argv[])
 		const double TINY = 0.001;
 //		for (double loge = logemin; loge <= logemax + TINY; loge += logestep)
 		for (int iloge = 0; iloge < interpgridlength; iloge++)
-		for (double zetaB = -1.0; zetaB <= 1.0 + TINY; zetaB += 0.05)
-		for (double zetaS = -1.0; zetaS <= 1.0 + TINY; zetaS += 0.05)
-		for (double zetaQ = -1.0; zetaQ <= 1.0 + TINY; zetaQ += 0.05)
+		for (double zetaB = -1.0; zetaB <= 1.0 + TINY; zetaB += 0.5)
+		for (double zetaS = -1.0; zetaS <= 1.0 + TINY; zetaS += 0.5)
+		for (double zetaQ = -1.0; zetaQ <= 1.0 + TINY; zetaQ += 0.5)
 //		for (double loge = -5.0; loge <= 14.0 + TINY; loge += 0.5)
 //		for (double rBt = -0.25; rBt <= 0.25 + TINY; rBt += 0.025)
 //		for (double rSt = -0.5; rSt <= 0.5 + TINY; rSt += 0.05)
@@ -219,10 +219,13 @@ int main(int argc, char *argv[])
 			double QIn = rQt*pow(eIn/197.327, 0.75);
 			double Tsol = -1.0, muBsol = 0.0, muSsol = 0.0, muQsol = 0.0;
 			// try lots of initial guesses, quit as soon as solution is found
-			for (double Tguess = 30.0; Tguess <= 800.0 + TINY; Tguess += 10.0)
+			for (double Tguess = 30.0; Tguess <= 800.0 + TINY; Tguess += 1.0)
+                        for (double muBguess = -450.0; muBguess <= 450.0 + TINY; muBguess += 225.0)
+                        for (double muSguess = -450.0; muSguess <= 450.0 + TINY; muSguess += 225.0)
+                        for (double muQguess = -450.0; muQguess <= 450.0 + TINY; muQguess += 225.0)
 			{
 				double densities[4] = {eIn, BIn, SIn, QIn};
-				double sols[4] = {Tguess, 0.0, 0.0, 0.0};	// MeV
+				double sols[4] = {Tguess, muBguess, muSguess, muQguess};	// MeV
 				solve(densities, sols);
 				Tsol = sols[0]; muBsol = sols[1]; muSsol = sols[2]; muQsol = sols[3];
 				if ( Tsol >= 0.0 ) break;

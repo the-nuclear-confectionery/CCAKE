@@ -7,5 +7,5 @@
 #SBATCH -A qgp
 #SBATCH --partition=qgp
 
-./EoS_BQS Coefficients_Parameters.dat
+./EoS_BQS Coefficients_Parameters.dat maxima_cmp.dat
 
