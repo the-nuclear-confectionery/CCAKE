@@ -10,7 +10,7 @@
 
 using namespace std;
 
-constexpr int mode = 2;
+constexpr int mode = 1;
 constexpr double EPS = 1e-25;
 const double hbarc = 197.327;
 
@@ -143,7 +143,7 @@ int main(int argc, char *argv[])
 
 	size_t n_deleted_elements = 0;
 
-	constexpr double r0 = 0.025;	// units normalized to unit hypercube
+	constexpr double r0 = 0.01;	// units normalized to unit hypercube
 	cout << "r0 = " << r0 << endl;
 	while ( densities.size() > 0 )
 	{
