@@ -15,4 +15,4 @@ loge0,loge1,loge=normalize(loge); bt0,bt1,bt=normalize(bt); st0,st1,st=normalize
 hull = ConvexHull(np.c_[ loge, bt, st, qt ])
 grid=np.c_[range(len(T)),T,muB,muS,muQ,loge,bt,st,qt]
 
-np.savetxt('hull.dat', grid[hull.vertices], fmt="%12.8f")
+np.savetxt('hull.dat', grid[hull.vertices], fmt=("%d" + " %12.8f"*8))
