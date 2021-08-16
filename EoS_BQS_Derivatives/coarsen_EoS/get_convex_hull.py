@@ -13,6 +13,6 @@ loge=np.log(e); bt=b/(e/hc)**0.75; st=s/(e/hc)**0.75; qt=q/(e/hc)**0.75;
 loge0,loge1,loge=normalize(loge); bt0,bt1,bt=normalize(bt); st0,st1,st=normalize(st); qt0,qt1,qt=normalize(qt)
 
 hull = ConvexHull(np.c_[ loge, bt, st, qt ])
-grid=np.c_[T,muB,muS,muQ,loge,bt,st,qt]
+grid=np.c_[range(len(T)),T,muB,muS,muQ,loge,bt,st,qt]
 
 np.savetxt('hull.dat', grid[hull.vertices], fmt="%12.8f")
