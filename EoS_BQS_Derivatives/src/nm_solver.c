@@ -102,8 +102,12 @@ void solve ( double densities[], double sols[] )
 				|| abs(muSout - gsl_vector_get(x, 2)) > amuSmax
 				|| abs(muQout - gsl_vector_get(x, 3)) > amuQmax )
 		{
-			/*if ( iter < 2 )*/ sols[0] = -1.0;	// indicates failure since T >= 0
-			return;							// exit prematurely
+			if ( iter < 2 )
+			{
+				sols[0] = -1.0;	// indicates failure since T >= 0
+				return;		// exit prematurely
+			}
+			break;			// otherwise, return slightly different point
 		}
 
 		// otherwise, continue

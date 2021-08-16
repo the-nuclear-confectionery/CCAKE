@@ -189,16 +189,21 @@ int main(int argc, char *argv[])
 			exit(1);
 		}
 		for (int ii = 0; ii < interpgridlength; ii++)
-			fscanf(MaximaIn,"%lf %lf %lf %lf\n",
-							&logegrid[ii], &max_rBt[ii],
-							&max_rSt[ii], &max_rQt[ii]);
+		{
+			double var1, var2, var3, var4;
+			fscanf(MaximaIn,"%lf %lf %lf %lf\n", &var1, &var2, &var3, &var4);
+			//printf("%10.8f %10.8f %10.8f %10.8f\n", var1, var2, var3, var4);
+			logegrid[ii] = var1; max_rBt[ii] = var2;
+			max_rSt[ii] = var3; max_rQt[ii] = var4;
+		}
 		fclose(MaximaIn);
 
-		printf("Check:\n");
+		printf("Check maxima:\n");
 		for (int ii = 0; ii < interpgridlength; ii++)
-			printf("%lf %lf %lf %lf\n", &logegrid[ii], &max_rBt[ii],
-                                                        &max_rSt[ii], &max_rQt[ii]);
+			printf("%10.8f %10.8f %10.8f %10.8f\n", logegrid[ii], max_rBt[ii],
+                                                        max_rSt[ii], max_rQt[ii]);
 		printf("\n\n");
+		//if (1) exit(1);
 
 		double logemin = logegrid[0], logemax = logegrid[interpgridlength-1];
 		double logestep = (logemax - logemin)/(interpgridlength-1.0);
@@ -207,23 +212,25 @@ int main(int argc, char *argv[])
 		const double TINY = 0.001;
 //		for (double loge = logemin; loge <= logemax + TINY; loge += logestep)
 		for (int iloge = 0; iloge < interpgridlength; iloge++)
-//		for (double zetaB = -1.0; zetaB <= 1.0 + TINY; zetaB += 0.5)
-//		for (double zetaS = -1.0; zetaS <= 1.0 + TINY; zetaS += 0.5)
-//		for (double zetaQ = -1.0; zetaQ <= 1.0 + TINY; zetaQ += 0.5)
+		for (double zetaB = -0.5; zetaB <= 0.5 + TINY; zetaB += 0.5)
+		for (double zetaS = -0.5; zetaS <= 0.5 + TINY; zetaS += 0.5)
+		for (double zetaQ = -0.5; zetaQ <= 0.5 + TINY; zetaQ += 0.5)
 //		for (double loge = -5.0; loge <= 14.0 + TINY; loge += 0.5)
 //		for (double rBt = -0.25; rBt <= 0.25 + TINY; rBt += 0.025)
 //		for (double rSt = -0.5; rSt <= 0.5 + TINY; rSt += 0.05)
 //		for (double rQt = -0.5; rQt <= 0.5 + TINY; rQt += 0.05)
 		{
 			//double eIn = 1000.0, BIn = 1.0, SIn = 0.001, QIn = 0.5;	// (MeV,1,1,1)/fm^3
-			double zetaB = 0.0, zetaS = 0.0, zetaQ = 0.0;
+			//double zetaB = 0.0, zetaS = 0.0, zetaQ = 0.0;
 			double eIn = exp(logegrid[iloge]);	// MeV/fm^3
 			double rBt = zetaB * max_rBt[iloge];
 			double rSt = zetaS * max_rSt[iloge];
 			double rQt = zetaQ * max_rQt[iloge];
+printf("Doing %15.12f %15.12f %15.12f %15.12f\n", logegrid[iloge], max_rBt[iloge], max_rSt[iloge], max_rQt[iloge]);
 			double BIn = rBt*pow(eIn/197.327, 0.75);
 			double SIn = rSt*pow(eIn/197.327, 0.75);
 			double QIn = rQt*pow(eIn/197.327, 0.75);
+                        double densities[4] = {eIn, BIn, SIn, QIn};             
 			double Tsol = -1.0, muBsol = 0.0, muSsol = 0.0, muQsol = 0.0;
 			// try lots of initial guesses, quit as soon as solution is found
 			for (double Tguess = 30.0; Tguess <= 800.0 + TINY; Tguess += 10.0)
@@ -231,7 +238,6 @@ int main(int argc, char *argv[])
                         //for (double muSguess = -450.0; muSguess <= 450.0 + TINY; muSguess += 225.0)
                         //for (double muQguess = -450.0; muQguess <= 450.0 + TINY; muQguess += 225.0)
 			{
-				double densities[4] = {eIn, BIn, SIn, QIn};
 				double sols[4] = {Tguess, 0.0, 0.0, 0.0};		// MeV
 				//double sols[4] = {Tguess, muBguess, muSguess, muQguess};	// MeV
 				solve(densities, sols);
@@ -244,14 +250,16 @@ int main(int argc, char *argv[])
 			if (Tsol < 0.0)
 			{
 				printf("Failed at %15.12f %15.12f %15.12f %15.12f %d %15.12f %15.12f %15.12f\n",
-					eIn, BIn, SIn, QIn, iloge, zetaB, zetaS, zetaQ);
+					densities[0], densities[1], densities[2], densities[3],
+					iloge, zetaB, zetaS, zetaQ);
 				fflush(stdout);
 				continue;
 			}
 			else
 			{
 				printf("Succeeded at %15.12f %15.12f %15.12f %15.12f %d %15.12f %15.12f %15.12f\n",
-                                        eIn, BIn, SIn, QIn, iloge, zetaB, zetaS, zetaQ);
+                                        densities[0], densities[1], densities[2], densities[3], 
+                                        iloge, zetaB, zetaS, zetaQ);
 				fflush(stdout);
 			}
 		
