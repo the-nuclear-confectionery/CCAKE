@@ -177,9 +177,11 @@ int main(int argc, char *argv[])
 	for ( const auto & current_density : densities  )
 	{
 		bool found_point_too_close = false;
-		for ( const auto & cd : coarsened_densities )
+		//for ( const auto & cd : coarsened_densities )
+		for ( auto it = coarsened_densities.rbegin(); it != coarsened_densities.rend(); ++it)
 		{
-			if ( are_nearby(current_density, cd, r0) )	// if this density too close to
+			//if ( are_nearby(current_density, cd, r0) )	// if this density too close to
+			if ( are_nearby(current_density, *it, r0) )	// if this density too close to
 			{											// some coarsened density...
 				found_point_too_close = true;
 				break;
