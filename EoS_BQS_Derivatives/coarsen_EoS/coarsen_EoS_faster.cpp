@@ -170,9 +170,10 @@ int main(int argc, char *argv[])
 	}*/
 
 	int count = 0;
+	Stopwatch sw;
+	sw.Reset();
 	for ( const auto & current_density : densities  )
 	{
-		if ( ++count%100000 == 0) cout << "count = " << count << endl;
 		bool found_point_too_close = false;
 		for ( const auto & cd : coarsened_densities )
 		{
@@ -185,6 +186,13 @@ int main(int argc, char *argv[])
 
 		if ( !found_point_too_close )
 			coarsened_densities.push_back( current_density );
+
+		if ( ++count%100000 == 0 )
+		{
+			sw.Stop();
+			cout << "count = " << count << " in " << sw.printTime() << " s." << endl;
+			sw.Reset();
+		}
 	}
 
 	cout << "Size after: " << densities.size() << endl;
