@@ -20,5 +20,5 @@ grid=np.c_[range(len(T)),T,muB,muS,muQ,loge,bt,st,qt]
 #hull = ConvexHull(np.c_[ e, b, s, q ])
 #grid=np.c_[range(len(T)),T,muB,muS,muQ,e,b,s,q]
 
-np.savetxt('grid_ebsq_normed.dat', grid, fmt=("%d" + " %12.8f"*8))
-np.savetxt('hull_ebsq_normed.dat', grid[hull.vertices], fmt=("%d" + " %12.8f"*8))
+np.savetxt('grid_logebtstqt.dat', grid, fmt=("%d" + " %12.8f"*8))
+np.savetxt('hull_logebtstqt.dat', grid[hull.vertices], fmt=("%d" + " %12.8f"*8))
