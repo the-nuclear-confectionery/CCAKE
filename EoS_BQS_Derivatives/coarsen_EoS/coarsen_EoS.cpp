@@ -115,13 +115,13 @@ int main(int argc, char *argv[])
 	}
 
 	double minloge = *min_element(logevec.begin(), logevec.end());
-        double maxloge = *max_element(logevec.begin(), logevec.end());
-        double minrBt = *min_element(rhoBtvec.begin(), rhoBtvec.end());
-        double maxrBt = *max_element(rhoBtvec.begin(), rhoBtvec.end());
-        double minrSt = *min_element(rhoStvec.begin(), rhoStvec.end());
-        double maxrSt = *max_element(rhoStvec.begin(), rhoStvec.end());
-        double minrQt = *min_element(rhoQtvec.begin(), rhoQtvec.end());
-        double maxrQt = *max_element(rhoQtvec.begin(), rhoQtvec.end());
+	double maxloge = *max_element(logevec.begin(), logevec.end());
+	double minrBt = *min_element(rhoBtvec.begin(), rhoBtvec.end());
+	double maxrBt = *max_element(rhoBtvec.begin(), rhoBtvec.end());
+	double minrSt = *min_element(rhoStvec.begin(), rhoStvec.end());
+	double maxrSt = *max_element(rhoStvec.begin(), rhoStvec.end());
+	double minrQt = *min_element(rhoQtvec.begin(), rhoQtvec.end());
+	double maxrQt = *max_element(rhoQtvec.begin(), rhoQtvec.end());
 
 	// normalize to unit hypercube
 	cout << "Normalizing..." << endl;
@@ -143,7 +143,8 @@ int main(int argc, char *argv[])
 
 	size_t n_deleted_elements = 0;
 
-	constexpr double r0 = 0.01;	// units normalized to unit hypercube
+	//constexpr double r0 = 0.01;	// units normalized to unit hypercube
+	const double r0 = ( argc > 2 ) ? stod(argv[2]) : 0.025;
 	cout << "r0 = " << r0 << endl;
 	while ( densities.size() > 0 )
 	{
