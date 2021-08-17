@@ -169,8 +169,10 @@ int main(int argc, char *argv[])
 		}
 	}*/
 
+	int count = 0;
 	for ( const auto & current_density : densities  )
 	{
+		if ( count %100 == 0) cout << "count = " << count++ << endl;
 		bool found_point_too_close = false;
 		for ( const auto & cd : coarsened_densities )
 		{
