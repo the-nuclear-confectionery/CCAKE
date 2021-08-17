@@ -8,6 +8,8 @@
 #include <iomanip>
 #include <string>
 
+#include "Stopwatch.h"
+
 using namespace std;
 
 constexpr int mode = 1;
