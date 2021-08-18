@@ -356,11 +356,6 @@ printf("Doing %15.12f %15.12f %15.12f %15.12f\n", logegrid[iloge], max_rBt[iloge
 	const int muQmin = -450, muQmax = 450, DeltamuQ = 25;
 	const int muSmin = -450, muSmax = 450, DeltamuS = 25;
 
-//	const int Tmin = 30, Tmax = 40, DeltaT = 5;
-//	const int muBmin = -450, muBmax = 450, DeltamuB = 10;
-//	const int muQmin = -450, muQmax = 450, DeltamuQ = 10;
-//	const int muSmin = -450, muSmax = 450, DeltamuS = 10;
-
 	// set HDF array lengths
 	for(i=Tmin;i<=Tmax;i+=DeltaT)
 	for(j=muBmin;j<=muBmax;j+=DeltamuB)
