@@ -172,7 +172,7 @@ int main(int argc, char *argv[])
 	chdir(buff);
   	
   	
-	int run_on_density_grid = 1;
+	int run_on_density_grid = 0;
 	if ( run_on_density_grid )
 	{
 		// load maxima from file
@@ -351,15 +351,15 @@ printf("Doing %15.12f %15.12f %15.12f %15.12f\n", logegrid[iloge], max_rBt[iloge
 	long long gridEntry  = 0;
 
 	// set T and mu_i ranges
-//	const int Tmin = 30, Tmax = 800, DeltaT = 5;
-//	const int muBmin = -450, muBmax = 450, DeltamuB = 20;
-//	const int muQmin = -450, muQmax = 450, DeltamuQ = 20;
-//	const int muSmin = -450, muSmax = 450, DeltamuS = 20;
+	const int Tmin = 30, Tmax = 800, DeltaT = 5;
+	const int muBmin = -450, muBmax = 450, DeltamuB = 25;
+	const int muQmin = -450, muQmax = 450, DeltamuQ = 25;
+	const int muSmin = -450, muSmax = 450, DeltamuS = 25;
 
-	const int Tmin = 30, Tmax = 40, DeltaT = 5;
-	const int muBmin = -450, muBmax = 450, DeltamuB = 10;
-	const int muQmin = -450, muQmax = 450, DeltamuQ = 10;
-	const int muSmin = -450, muSmax = 450, DeltamuS = 10;
+//	const int Tmin = 30, Tmax = 40, DeltaT = 5;
+//	const int muBmin = -450, muBmax = 450, DeltamuB = 10;
+//	const int muQmin = -450, muQmax = 450, DeltamuQ = 10;
+//	const int muSmin = -450, muSmax = 450, DeltamuS = 10;
 
 	// set HDF array lengths
 	for(i=Tmin;i<=Tmax;i+=DeltaT)
