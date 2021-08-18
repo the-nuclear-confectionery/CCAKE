@@ -3,6 +3,7 @@ from scipy.interpolate import interp1d, LinearNDInterpolator
 
 #===============================================================================================
 def get_interpolation1D(e0, rat, grid):
+    print('In get_interpolation1D', flush=True)
     slice_e = grid[np.where(np.abs(grid[:,5] - e0) < rat*(np.amax(grid[:,5])-np.amin(grid[:,5])))]
     T0, T1 = np.amin(slice_e[:,1]), np.amax(slice_e[:,1])
     slice_T = grid[np.where((T0 <= grid[:,1]) & (grid[:,1] <= T1))]
@@ -11,6 +12,8 @@ def get_interpolation1D(e0, rat, grid):
 
 #===============================================================================================
 def get_interpolation4D(e0, b0, s0, q0, rat, grid):
+    print('In get_interpolation4D', flush=True)
+    grid = grid[np.where(np.abs(grid[:,5] - e0) < rat*(np.amax(grid[:,5])-np.amin(grid[:,5])))]
     [erange, brange, srange, qrange] \
              = rat*[np.amax(grid[:,5])-np.amin(grid[:,5]),
                     np.amax(grid[:,6])-np.amin(grid[:,6]),
