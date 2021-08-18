@@ -7,8 +7,8 @@ def get_interpolation1D(e0, rat, grid):
     slice_e = grid[np.where(np.abs(grid[:,5] - e0) < rat*(np.amax(grid[:,5])-np.amin(grid[:,5])))]
     print('slice_e.shape =', slice_e.shape, flush=True)
     T0, T1 = np.amin(slice_e[:,1]), np.amax(slice_e[:,1])
-    print('slice_T.shape =', slice_T.shape, T0, T1, flush=True)
     slice_T = grid[np.where((T0 <= grid[:,1]) & (grid[:,1] <= T1))]
+    print('slice_T.shape =', slice_T.shape, T0, T1, flush=True)
     f = interp1d(grid[:,-4], grid[:,1])
     return f(e0)
 
