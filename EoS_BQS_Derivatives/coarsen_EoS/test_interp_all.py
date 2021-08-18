@@ -54,4 +54,4 @@ grid[:,[3,4]] = grid[:,[4,3]]  # muS <--> muQ
 zero_density = grid[np.where((grid[:,2]==0)&(grid[:,3]==0)&(grid[:,4]==0))]
 
 for x in np.arange(79500,80500,50):
-    print( 'Solution:', x, get_interpolation1D(x, 0.0001, zero_density), get_interpolation4D(x, 0, 0, 0, 0.0001, grid), flush=True )
+    print( 'Solution:', x, get_interpolation1D(x, 0.001, zero_density), get_interpolation4D(x, 0, 0, 0, 0.0001, grid), flush=True )
