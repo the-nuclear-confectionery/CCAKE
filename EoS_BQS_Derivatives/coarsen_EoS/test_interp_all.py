@@ -15,9 +15,9 @@ def get_interpolation1D(e0, rat, grid):
 #===============================================================================================
 def get_interpolation4D(e0, b0, s0, q0, rat, grid):
     print('In get_interpolation4D', flush=True)
-    #grid = grid[np.where(np.abs(grid[:,5] - e0) < rat*(np.amax(grid[:,5])-np.amin(grid[:,5])))]
+    grid = grid[np.where(np.abs(grid[:,5] - e0) < rat*(np.amax(grid[:,5])-np.amin(grid[:,5])))]
     [erange, brange, srange, qrange] \
-             = [rat*np.amax(grid[:,5])-np.amin(grid[:,5]),
+             = [np.amax(grid[:,5])-np.amin(grid[:,5]),
                 rat*np.amax(grid[:,6])-np.amin(grid[:,6]),
                 rat*np.amax(grid[:,7])-np.amin(grid[:,7]),
                 rat*np.amax(grid[:,8])-np.amin(grid[:,8])]
@@ -52,4 +52,4 @@ grid[:,[3,4]] = grid[:,[4,3]]  # muS <--> muQ
 zero_density = grid[np.where((grid[:,2]==0)&(grid[:,3]==0)&(grid[:,4]==0))]
 
 for x in np.arange(79500,80500,50):
-    print( x, get_interpolation1D(x, 0.01, grid), get_interpolation4D(x, 0, 0, 0, 0.01, grid), flush=True )
+    print( x, get_interpolation1D(x, 0.001, grid), get_interpolation4D(x, 0, 0, 0, 0.001, grid), flush=True )
