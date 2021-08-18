@@ -17,10 +17,10 @@ def get_interpolation4D(e0, b0, s0, q0, rat, grid):
     print('In get_interpolation4D', flush=True)
     grid = grid[np.where(np.abs(grid[:,5] - e0) < rat*(np.amax(grid[:,5])-np.amin(grid[:,5])))]
     [erange, brange, srange, qrange] \
-             = rat*[np.amax(grid[:,5])-np.amin(grid[:,5]),
-                    np.amax(grid[:,6])-np.amin(grid[:,6]),
-                    np.amax(grid[:,7])-np.amin(grid[:,7]),
-                    np.amax(grid[:,8])-np.amin(grid[:,8])]
+             = [rat*np.amax(grid[:,5])-np.amin(grid[:,5]),
+                rat*np.amax(grid[:,6])-np.amin(grid[:,6]),
+                rat*np.amax(grid[:,7])-np.amin(grid[:,7]),
+                rat*np.amax(grid[:,8])-np.amin(grid[:,8])]
     ce = np.abs(grid[:,5] - e0) <= erange
     cb = np.abs(grid[:,6] - b0) <= brange
     cs = np.abs(grid[:,7] - s0) <= srange
