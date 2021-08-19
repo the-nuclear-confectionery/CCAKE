@@ -21,7 +21,7 @@ constexpr size_t nT = 155, nmub = 37, nmus = 37, nmuq = 37;
 inline size_t indexer( const int iT, const int imub, const int imus, const int imuq )
 {
 	// mus varies faster than muq!!!!!
-	return ( ( ( it * nmub + imub ) * nmuq + imuq ) * nmus + imus );
+	return ( ( ( iT * nmub + imub ) * nmuq + imuq ) * nmus + imus );
 }
 
 bool are_nearby(const vector<double> & a, const vector<double> & b, double r0)
@@ -180,7 +180,7 @@ int main(int argc, char *argv[])
 			[nv0](const vector<double> & a, const vector<double> & b)
 			{ return d2(a, nv0) < d2(b, nv0); });
 
-	const size_t NN_index = NN.end();
+	const size_t NN_index = NN[4];
 	const int iTNN = Tinds[NN_index], imubNN = mubinds[NN_index],
 				imuqNN = muqinds[NN_index], imusNN = musinds[NN_index];
 
