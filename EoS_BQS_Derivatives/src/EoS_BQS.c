@@ -380,6 +380,7 @@ printf("Doing %15.12f %15.12f %15.12f %15.12f\n", logegrid[iloge], max_rBt[iloge
 //	double derivativeArray[gridLength][gridWidthD];
 
 	int use_staggered_grid = 1;	// for testing interpolation accuracy
+	if (use_staggered_grid) printf("Running on staggered grid!\n");
 	
 	/* (Unconstrained) thermodynamics for all T, muB, muS, muQ. */  	
   	FILE *All_Therm_Taylor = fopen("EoS_Taylor_AllMu.dat","w");
