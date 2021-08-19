@@ -39,7 +39,7 @@ $(TARGET2):
 	$(CC) $(MAIN2SRC) -o $(TARGET2) $(CFLAGS) $(INCFLAGS)  $(LDFLAGS)
 
 interpolate_ebsq: interpolate_ebsq.cpp Stopwatch.h
-	$(CC) interpolate_ebsq.cpp -o $(TARGET2) $(CFLAGS) $(INCFLAGS)  $(LDFLAGS)
+	$(CC) interpolate_ebsq.cpp -o interpolate_ebsq $(CFLAGS) $(INCFLAGS)  $(LDFLAGS)
 
 # -------------------------------------------------
 
