@@ -396,6 +396,7 @@ printf("Doing %15.12f %15.12f %15.12f %15.12f\n", logegrid[iloge], max_rBt[iloge
 						muQval = k+0.5*DeltamuQ;
 						muSval = l+0.5*DeltamuS;
 					}
+					if (Tval>Tmax || muBval > muBmax || muSval > muSmax || muQval > muQmax) continue;
 					
 					//Thermodynamics
 					PressVal = PressTaylor(Tval, muBval, muQval, muSval);
@@ -427,6 +428,8 @@ printf("Doing %15.12f %15.12f %15.12f %15.12f\n", logegrid[iloge], max_rBt[iloge
 					        BarDensVal, StrDensVal, ChDensVal, EnerDensVal, SpSoundVal);
 					fprintf(All_Therm_Der,"%lf  %lf  %lf  %lf  %3.12f  %3.12f %3.12f  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f%  3.12f\n", Tval, muBval, muQval, muSval, D2PB2, D2PQ2, D2PS2, D2PBQ, D2PBS, D2PQS,
 							D2PTB, D2PTQ, D2PTS, D2PT2);
+
+					if ( !use_staggered_grid ) continue;	// ignore HDF since then grid is wrong
 
 					quantityArray[gridEntry][0]  = Tval;
 					quantityArray[gridEntry][1]  = muBval;

@@ -2,6 +2,7 @@ import numpy as np
 from scipy.interpolate import interp1d, LinearNDInterpolator
 
 grid=np.loadtxt('grid_ebsq_mag.dat')
+grid[:,[3,4]] = grid[:,[4,3]]  # muS <--> muQ
 
 zero_density = grid[np.where((grid[:,2]==0)&(grid[:,3]==0)&(grid[:,4]==0))];
 slice_e = grid[np.where((grid[:,5]>=79990)&(grid[:,5]<=80010))]
