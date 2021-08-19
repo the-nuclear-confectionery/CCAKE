@@ -38,11 +38,14 @@ $(TARGET):
 $(TARGET2):
 	$(CC) $(MAIN2SRC) -o $(TARGET2) $(CFLAGS) $(INCFLAGS)  $(LDFLAGS)
 
+interpolate_ebsq: interpolate_ebsq.cpp Stopwatch.h
+	$(CC) interpolate_ebsq.cpp -o $(TARGET2) $(CFLAGS) $(INCFLAGS)  $(LDFLAGS)
+
 # -------------------------------------------------
 
 .PHONY:		all help distclean install
 
-all:		$(TARGET) $(TARGET2)
+all:		$(TARGET) $(TARGET2) interpolate_ebsq
 
 help:
 		@grep '^##' GNUmakefile
@@ -57,4 +60,5 @@ install:	$(TARGET) $(TARGET2)
 # --------------- Dependencies -------------------
 coarsen_EoS.cpp:		
 coarsen_EoS_faster.cpp:		Stopwatch.h
+interpolate_ebsq.cpp:		Stopwatch.h
 
