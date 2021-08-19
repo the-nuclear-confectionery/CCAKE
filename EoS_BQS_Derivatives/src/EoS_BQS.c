@@ -378,6 +378,8 @@ printf("Doing %15.12f %15.12f %15.12f %15.12f\n", logegrid[iloge], max_rBt[iloge
 
 //	double quantityArray[gridLength][gridWidth];
 //	double derivativeArray[gridLength][gridWidthD];
+
+	int use_staggered_grid = 1;	// for testing interpolation accuracy
 	
 	/* (Unconstrained) thermodynamics for all T, muB, muS, muQ. */  	
   	FILE *All_Therm_Taylor = fopen("EoS_Taylor_AllMu.dat","w");
@@ -387,36 +389,39 @@ printf("Doing %15.12f %15.12f %15.12f %15.12f\n", logegrid[iloge], max_rBt[iloge
     for(k=muQmin;k<=muQmax;k+=DeltamuQ){
     for(l=muSmin;l<=muSmax;l+=DeltamuS){
 					Tval = i; muBval = j;  muQval = k; muSval = l;
-//					Tval = i+0.5*DeltaT;
-//					muBval = j+0.5*DeltamuB;
-//					muQval = k+0.5*DeltamuQ;
-//					muSval = l+0.5*DeltamuS;
+					if (use_staggered_grid)
+					{
+						Tval = i+0.5*DeltaT;
+						muBval = j+0.5*DeltamuB;
+						muQval = k+0.5*DeltamuQ;
+						muSval = l+0.5*DeltamuS;
+					}
 					
 					//Thermodynamics
-					PressVal = PressTaylor(i,j,k,l);
-					EntrVal = EntrTaylor(i,j,k,l);
-					BarDensVal = BarDensTaylor(i,j,k,l);
-					StrDensVal = StrDensTaylor(i,j,k,l);
-					ChDensVal = ChDensTaylor(i,j,k,l);
+					PressVal = PressTaylor(Tval, muBval, muQval, muSval);
+					EntrVal = EntrTaylor(Tval, muBval, muQval, muSval);
+					BarDensVal = BarDensTaylor(Tval, muBval, muQval, muSval);
+					StrDensVal = StrDensTaylor(Tval, muBval, muQval, muSval);
+					ChDensVal = ChDensTaylor(Tval, muBval, muQval, muSval);
 					EnerDensVal = EntrVal - PressVal 
 							+ muBval/Tval*BarDensVal 
 							+ muQval/Tval*ChDensVal 
 							+ muSval/Tval*StrDensVal;
-					SpSoundVal = SpSound(Tval,muBval,muQval,muSval);
+					SpSoundVal = SpSound(Tval, muBval, muQval, muSval);
 					            
 					//Second Order Derivatives
-					D2PB2 = P2B2(i,j,k,l);
-					D2PQ2 = P2Q2(i,j,k,l);
-					D2PS2 = P2S2(i,j,k,l);
+					D2PB2 = P2B2(Tval, muBval, muQval, muSval);
+					D2PQ2 = P2Q2(Tval, muBval, muQval, muSval);
+					D2PS2 = P2S2(Tval, muBval, muQval, muSval);
 					
-					D2PBQ = P2BQ(i,j,k,l);
-					D2PBS = P2BS(i,j,k,l);
-					D2PQS = P2QS(i,j,k,l);
+					D2PBQ = P2BQ(Tval, muBval, muQval, muSval);
+					D2PBS = P2BS(Tval, muBval, muQval, muSval);
+					D2PQS = P2QS(Tval, muBval, muQval, muSval);
 					
-					D2PTB = P2TB(i,j,k,l);
-					D2PTQ = P2TQ(i,j,k,l);
-					D2PTS = P2TS(i,j,k,l);
-					D2PT2 = P2T2(i,j,k,l);
+					D2PTB = P2TB(Tval, muBval, muQval, muSval);
+					D2PTQ = P2TQ(Tval, muBval, muQval, muSval);
+					D2PTS = P2TS(Tval, muBval, muQval, muSval);
+					D2PT2 = P2T2(Tval, muBval, muQval, muSval);
 					
 					fprintf(All_Therm_Taylor,"%lf  %lf  %lf  %lf  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f\n", Tval, muBval, muQval, muSval, PressVal, EntrVal, 
 					        BarDensVal, StrDensVal, ChDensVal, EnerDensVal, SpSoundVal);
