@@ -196,6 +196,8 @@ int main(int argc, char *argv[])
 	cout << "Brute force: NN_index = " << NN_index << endl;
 	cout << "Indentified NN simplices in " << sw.printTime() << " s." << endl;
 
+
+	size_t densities_size = densities.size();
 	std::vector<std::array<double, 4>> density_points(densities_size);
 	for (size_t ii = 0; ii < densities_size; ii++)
 		std::copy_n( densities[ii].begin(), 4, density_points[ii].begin() );
