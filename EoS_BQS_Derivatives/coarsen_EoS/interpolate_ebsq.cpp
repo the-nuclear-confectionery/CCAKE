@@ -166,6 +166,7 @@ int main(int argc, char *argv[])
 	std::sort(densities.begin(), densities.end(), density_comp);
 
 	Stopwatch sw;
+	sw.Start();
 
 	const double e0 = 46308.20963821, b0 = -1.23317452, s0 = -1.53064765, q0 = -0.24540761;
 	const double ne0 = (e0 - emin) / (emax - emin);
@@ -176,13 +177,9 @@ int main(int argc, char *argv[])
 	vector<double> nv0 = {ne0, nb0, ns0, nq0};
 
 	// get nearest neighbor w.r.t. squared distance
-	sw.Start();
 	vector<double> NN = *min_element(densities.begin(), densities.end(),
 			[nv0](const vector<double> & a, const vector<double> & b)
 			{ return d2(a, nv0) < d2(b, nv0); });
-
-	sw.Stop();
-	cout << "Indentified NN simplices in " << sw.printTime() << " s." << endl;
 
 	const size_t NN_index = NN[4];
 	const int iTNN = Tinds[NN_index], imubNN = mubinds[NN_index],
@@ -195,14 +192,31 @@ int main(int argc, char *argv[])
 	for (int ll = -1; ll <= 1; ll++)
 		vertices.push_back( grid[indexer( iTNN+ii, imubNN+jj, imuqNN+kk, imusNN+ll )] );
 
+	sw.Stop();
+	cout << "Brute force: NN_index = " << NN_index << endl;
+	cout << "Indentified NN simplices in " << sw.printTime() << " s." << endl;
+
+	std::array<std::array<double, 4>, densities.size()> density_points;
+	for (size_t ii = 0; ii < densities.size(); ii++)
+	for (int jj = 0; jj < 4; jj++)
+		density_points[ii][jj] = densities[ii][jj];
+
 	// try this
 	try
 	{
-		test_wikipedia();
-		std::cout << '\n';
-		test_random(1000);
-		std::cout << '\n';
-		test_random(1000000);
+		typedef point<int, 2> point2d;
+		typedef kdtree<int, 2> tree2d;
+		
+		point2d points[] = { { 2, 3 }, { 5, 4 }, { 9, 6 }, { 4, 7 }, { 8, 1 }, { 7, 2 } };
+		
+		tree2d tree(std::begin(points), std::end(points));
+		point2d n = tree.nearest({ 9, 2 });
+		
+		std::cout << "Wikipedia example data:\n";
+		std::cout << "nearest point: " << n << '\n';
+		std::cout << "distance: " << tree.distance() << '\n';
+		std::cout << "nodes visited: " << tree.visited() << '\n';
+
 	}
 	catch (const std::exception& e)
 	{
