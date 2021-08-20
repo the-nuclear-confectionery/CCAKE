@@ -234,7 +234,8 @@ int main(int argc, char *argv[])
 		sw.Start();
 		point4d n = tree.nearest({ne0, nb0, ns0, nq0});
 		sw.Stop();
-		cout << "KD-Tree: Found nearest neighbor in " << sw.printTime() << " s." << endl;
+		cout << "KD-Tree: Found nearest neighbor in " << setprecision(18)
+				<< sw.printTime() << " s." << endl;
 		cout << "KD-Tree: Nearest neighbor is " << n << endl;
 	}
 	catch (const std::exception& e)
