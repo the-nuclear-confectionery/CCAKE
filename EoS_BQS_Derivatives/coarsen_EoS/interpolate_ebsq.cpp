@@ -181,14 +181,14 @@ int main(int argc, char *argv[])
 			[nv0](const vector<double> & a, const vector<double> & b)
 			{ return d2(a, nv0) < d2(b, nv0); });
 
+	const size_t NN_index = NN[4];
+	const int iTNN = Tinds[NN_index], imubNN = mubinds[NN_index],
+				imuqNN = muqinds[NN_index], imusNN = musinds[NN_index];
+
 	sw.Stop();
 	cout << "Brute force: NN_index = " << NN_index << endl;
 	cout << "Brute force: NN = " << NN[0] << "   " << NN[1] << "   " << NN[2] << "   " << NN[3] << endl;
 	cout << "Indentified NN simplices in " << sw.printTime() << " s." << endl;
-
-	const size_t NN_index = NN[4];
-	const int iTNN = Tinds[NN_index], imubNN = mubinds[NN_index],
-				imuqNN = muqinds[NN_index], imusNN = musinds[NN_index];
 
 	vector<vector<double> > vertices;
 	for (int ii = -1; ii <= 1; ii++)
@@ -196,6 +196,8 @@ int main(int argc, char *argv[])
 	for (int kk = -1; kk <= 1; kk++)
 	for (int ll = -1; ll <= 1; ll++)
 		vertices.push_back( grid[indexer( iTNN+ii, imubNN+jj, imuqNN+kk, imusNN+ll )] );
+
+
 
 
 	size_t densities_size = densities.size();
@@ -233,8 +235,7 @@ int main(int argc, char *argv[])
 		point4d n = tree.nearest({ne0, nb0, ns0, nq0});
 		sw.Stop();
 		cout << "KD-Tree: Found nearest neighbor in " << sw.printTime() << " s." << endl;
-		cout << "KD-Tree: Nearest neighbor is "
-			<< n[0] << "   " << n[1] << "   " << n[2] << "   " << n[3] << endl;
+		cout << "KD-Tree: Nearest neighbor is " << n << endl;
 	}
 	catch (const std::exception& e)
 	{
