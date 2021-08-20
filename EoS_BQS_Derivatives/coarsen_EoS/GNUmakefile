@@ -6,7 +6,7 @@ CFLAGS= -O3 -std=c++11 -lgsl -lgslcblas -lm -g
 RM          =   rm -f
 O           =   .o
 LDFLAGS     =   -L/usr/local/src/gsl/2.5/lib
-INCFLAGS    =   -I/usr/local/src/gsl/2.5/include
+INCFLAGS    =   -I/usr/local/src/gsl/2.5/include -I/projects/jnorhos/BSQ/kdtree_test
 SYSTEMFILES =   $(SRCGNU)
 
 

@@ -8,6 +8,7 @@
 #include <iomanip>
 #include <string>
 
+#include "kdtree.h"
 #include "Stopwatch.h"
 
 using namespace std;
