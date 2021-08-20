@@ -165,9 +165,6 @@ int main(int argc, char *argv[])
 	cout << "Sorting..." << endl;
 	std::sort(densities.begin(), densities.end(), density_comp);
 
-	Stopwatch sw;
-	sw.Start();
-
 	const double e0 = 46308.20963821, b0 = -1.23317452, s0 = -1.53064765, q0 = -0.24540761;
 	const double ne0 = (e0 - emin) / (emax - emin);
 	const double nb0 = (b0 - bmin) / (bmax - bmin);
@@ -176,10 +173,18 @@ int main(int argc, char *argv[])
 
 	vector<double> nv0 = {ne0, nb0, ns0, nq0};
 
+	Stopwatch sw;
+	sw.Start();
+
 	// get nearest neighbor w.r.t. squared distance
 	vector<double> NN = *min_element(densities.begin(), densities.end(),
 			[nv0](const vector<double> & a, const vector<double> & b)
 			{ return d2(a, nv0) < d2(b, nv0); });
+
+	sw.Stop();
+	cout << "Brute force: NN_index = " << NN_index << endl;
+	cout << "Brute force: NN = " << NN[0] << "   " << NN[1] << "   " << NN[2] << "   " << NN[3] << endl;
+	cout << "Indentified NN simplices in " << sw.printTime() << " s." << endl;
 
 	const size_t NN_index = NN[4];
 	const int iTNN = Tinds[NN_index], imubNN = mubinds[NN_index],
@@ -192,20 +197,16 @@ int main(int argc, char *argv[])
 	for (int ll = -1; ll <= 1; ll++)
 		vertices.push_back( grid[indexer( iTNN+ii, imubNN+jj, imuqNN+kk, imusNN+ll )] );
 
-	sw.Stop();
-	cout << "Brute force: NN_index = " << NN_index << endl;
-	cout << "Indentified NN simplices in " << sw.printTime() << " s." << endl;
-
 
 	size_t densities_size = densities.size();
-	std::vector<std::array<double, 4>> density_points(densities_size);
+	std::vector<std::array<double, 4> > density_points(densities_size);
 	for (size_t ii = 0; ii < densities_size; ii++)
 		std::copy_n( densities[ii].begin(), 4, density_points[ii].begin() );
 
 	// try this
 	try
 	{
-		typedef point<int, 2> point2d;
+		/*typedef point<int, 2> point2d;
 		typedef kdtree<int, 2> tree2d;
 		
 		point2d points[] = { { 2, 3 }, { 5, 4 }, { 9, 6 }, { 4, 7 }, { 8, 1 }, { 7, 2 } };
@@ -216,8 +217,24 @@ int main(int argc, char *argv[])
 		std::cout << "Wikipedia example data:\n";
 		std::cout << "nearest point: " << n << '\n';
 		std::cout << "distance: " << tree.distance() << '\n';
-		std::cout << "nodes visited: " << tree.visited() << '\n';
+		std::cout << "nodes visited: " << tree.visited() << '\n';*/
 
+		typedef point<double, 4> point4d;
+		typedef kdtree<double, 4> tree4d;
+
+		sw.Reset();
+		sw.Start();
+		tree4d tree(std::begin(density_points), std::end(density_points));
+		sw.Stop();
+		cout << "Constructed full tree in " << sw.printTime() << " s." << endl;
+
+		sw.Reset();
+		sw.Start();
+		point4d n = tree.nearest({ne0, nb0, ns0, nq0});
+		sw.Stop();
+		cout << "KD-Tree: Found nearest neighbor in " << sw.printTime() << " s." << endl;
+		cout << "KD-Tree: Nearest neighbor is "
+			<< n[0] << "   " << n[1] << "   " << n[2] << "   " << n[3] << endl;
 	}
 	catch (const std::exception& e)
 	{
