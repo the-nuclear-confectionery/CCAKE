@@ -220,8 +220,8 @@ int main(int argc, char *argv[])
 
 		sw.Reset();
 		sw.Start();
-		for (size_t ii = 0; ii < 10000000; ii++)
-			point4d n0 = tree.nearest({ne0+ii*1e-8, nb0, ns0, nq0});
+		//for (size_t ii = 0; ii < 10000000; ii++)
+		//	point4d n0 = tree.nearest({ne0+ii*1e-8, nb0, ns0, nq0});
 		size_t kdtree_nn_index = 0;
 		point4d n = tree.nearest({ne0, nb0, ns0, nq0}, kdtree_nn_index);
 		sw.Stop();
