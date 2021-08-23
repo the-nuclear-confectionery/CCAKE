@@ -10,6 +10,7 @@
 
 #include "delaunay.h"
 #include "kdtree.h"
+#include "point_in_simplex.h"
 #include "Stopwatch.h"
 
 using namespace std;
@@ -306,20 +307,25 @@ int main(int argc, char *argv[])
 
 	cout << "The closest simplex was isimplex = " << iclosestsimplex
 			<< " with d = " << sqrt(center_d2_min) << endl;
-	cout << "This simplex contains the following vertices: ";
+	cout << "This simplex contains the following vertices: " << endl;
 	int ivertex = 0;
+	vector<vector<double> > simplexVertices;
 	for ( const auto & vertex : simplices[iclosestsimplex] )
 	{
 		cout << ivertex++ << ":";
 		for ( auto it = vertices[vertex].begin()+4; it != vertices[vertex].end(); it++ )
 			cout << "   " << *it;
 		cout << endl;
+		simplexVertices.push_back( vector<double>( vertices[vertex].begin()+4, vertices[vertex].end() ) );
 	}
 
-	cout << endl << "********************************" << endl
-			<< "On to the interpolation!" << endl;
+	cout << endl
+			<< "********************************" << endl
+			<< "On to the interpolation!"
+			<< "********************************" << endl << endl;
 
-	
+	cout << "Next, check if point is contained in the simplex we found:" << endl;
+	point_is_in_simplex( simplexVertices, nv0 );
 	
 
 

@@ -45,14 +45,23 @@ void point_is_in_simplex( const vector<vector<double> > & v, const vector<double
 	double lambda[dim];
 	get_barycentric_coordinates(T, d, lambda, dim);
 
+	bool point_in_simplex = true;
+
 	// print results
 	double lambda_sum = 0.0;
 	for (int i = 0; i < dim; i++)
 	{
+		point_in_simplex = point_in_simplex && lambda[i] <= 1.0 && lambda[i] >= 0.0;
 		lambda_sum += lambda[i];
 		cout << "lambda[" << i << "] = " << lambda[i] << endl;
 	}
 	cout << "lambda[" << dim+1 << "] = " << 1.0 - lambda_sum << endl;
+	point_in_simplex = point_in_simplex && lambda_sum <= 1.0 && lambda_sum >= 0.0;
+
+	if (point_in_simplex)
+		cout << "Point is in simplex!" << endl;
+	else
+		cout << "Point is not in simplex!" << endl;
 
 	return 0;
 }
