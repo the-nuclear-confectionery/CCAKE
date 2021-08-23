@@ -75,7 +75,7 @@ private:
         point_type point_;
         node* left_;
         node* right_;
-		size_t index_;	// added by me
+		size_t oindex_;	// added by me
     };
     node* root_ = nullptr;
     node* best_ = nullptr;
@@ -111,14 +111,11 @@ private:
         if (best_ == nullptr || d < best_dist_) {
             best_dist_ = d;
             best_ = root;
-			best_->index_ = index;
         }
         if (best_dist_ == 0)
             return;
         double dx = root->get(index) - point.get(index);
-std::cout << "index = " << index << std::endl;
         index = (index + 1) % dimensions;
-		best_->index_ = index;
         nearest(dx > 0 ? root->left_ : root->right_, point, index);
         if (dx * dx >= best_dist_)
             return;
@@ -136,6 +133,8 @@ public:
      */
     template<typename iterator>
     kdtree(iterator begin, iterator end) : nodes_(begin, end) {
+		for ( size_t inode = 0; inode < nodes_.size(); inode++ )
+			nodes_[inode].oindex_ = inode; // added by me
         root_ = make_tree(0, nodes_.size(), 0);
     }
  
@@ -196,14 +195,14 @@ public:
      * @param pt a point
      * @return the nearest point in the tree to the given point
      */
-    const point_type& nearest(const point_type& pt, size_t & best_index ) {
+    const point_type& nearest(const point_type& pt, size_t & best_oindex ) {
         if (root_ == nullptr)
             throw std::logic_error("tree is empty");
         best_ = nullptr;
         visited_ = 0;
         best_dist_ = 0;
         nearest(root_, pt, 0);
-		best_index = best_->index_;
+		best_oindex = best_->oindex_;
         return best_->point_;
     }
 };
