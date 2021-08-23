@@ -251,9 +251,23 @@ int main(int argc, char *argv[])
 	// Test the Delaunay part here
 	// first get the triangulation
 	vector<vector<size_t> > simplices;
+	sw.Reset();
+	sw.Start();
 	compute_delaunay(&vertices[0], 4, vertices.size() / 4, simplices);
+	sw.Stop();
+	cout << "Finished the Delaunay triangulation in " << sw.printTime() << " s." << endl;
+	
+	cout << endl << "The triangulation contains the following simplices:" << endl;
+	int isimplex = 0;
+	for ( const auto & simplex : simplices )
+	{
+		cout << isimplex << ":";
+		for ( const auto & vertex : simplex )
+			cout << "   " << vertex;
+		cout << endl;
+	}
 
-
+	cout << "On to the interpolation!" << endl;
 
 	return 0;
 }
