@@ -77,7 +77,7 @@ int compute_delaunay(double * arr, const size_t pc_dimension, const size_t n_pts
 	{
 		vector<size_t> simplex;
 		for ( const auto & vertex : facet.vertices().toStdVector() )
-			simplex.push_back( vertVector[ivertex].point().id() );
+			simplex.push_back( vertex.point().id() );
 		simplices.push_back( simplex );
 	}
 
