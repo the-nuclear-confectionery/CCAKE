@@ -78,6 +78,14 @@ int main(int argc, char *argv[])
 	// check input first
 	if (argc < 2) exit(-1);
 
+	cout << "Bug checks:" << endl;
+	if ( point_is_in_simplex( {{0,0},{0,1},{1,0}}, {0.25,0.25} ) )
+			cout << " found point in this simplex!" << endl;
+		else
+			cout << " did not find point in this simplex!" << endl;
+
+if (true) exit(-1);
+
 	// read path to input file from command line
 	string path_to_file = string(argv[1]);
 
@@ -334,7 +342,7 @@ int main(int argc, char *argv[])
 	for ( int iloop = 0; iloop < 10; iloop++) cout << endl;
 
 	
-	cout << "Looping through all simplices:" << endl;
+	/*cout << "Looping through all simplices:" << endl;
 	isimplex = 0;
 	for ( auto & simplex : simplices )
 	{
@@ -346,7 +354,8 @@ int main(int argc, char *argv[])
 			cout << " found point in this simplex!" << endl;
 		else
 			cout << " did not find point in this simplex!" << endl;
-	}
+	}*/
+
 
 	return 0;
 }
