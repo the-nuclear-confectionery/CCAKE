@@ -261,7 +261,7 @@ int main(int argc, char *argv[])
 	int isimplex = 0;
 	for ( const auto & simplex : simplices )
 	{
-		cout << isimplex << ":";
+		cout << isimplex++ << ":";
 		for ( const auto & vertex : simplex )
 			cout << "   " << vertex;
 		cout << endl;
