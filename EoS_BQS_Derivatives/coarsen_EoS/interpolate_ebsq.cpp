@@ -321,17 +321,32 @@ int main(int argc, char *argv[])
 
 	cout << endl
 			<< "********************************" << endl
-			<< "On to the interpolation!"
+			<< "On to the interpolation!" << endl
 			<< "********************************" << endl << endl;
 
 	cout << "Next, check if point is contained in the simplex we found:" << endl;
-	point_is_in_simplex( simplexVertices, nv0 );
+	bool foundPoint = point_is_in_simplex( simplexVertices, nv0 );
 	
 	cout << "nv0: " << nv0[0] << "   " << nv0[1] << "   " << nv0[2] << "   " << nv0[3] << endl;
 
 
+	// create some space
+	for ( int iloop = 0; iloop < 10; iloop++) cout << endl;
 
-
+	
+	cout << "Looping through all simplices:" << endl;
+	isimplex = 0;
+	for ( auto & simplex : simplices )
+	{
+		cout << isimplex++ << ":";
+		for ( const auto & vertex : simplex )
+			simplexVertices.push_back( vector<double>( vertices[vertex].begin()+4,
+														vertices[vertex].end() ) );
+		if ( point_is_in_simplex( simplexVertices, nv0 ) )
+			cout << " found point in this simplex!" << endl;
+		else
+			cout << " did not find point in this simplex!" << endl;
+	}
 
 	return 0;
 }

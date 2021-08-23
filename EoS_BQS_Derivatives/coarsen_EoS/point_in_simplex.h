@@ -11,7 +11,8 @@ using namespace std;
 
 void get_barycentric_coordinates(double T[], double d[], double lambda[], int dim);
 
-void point_is_in_simplex( const vector<vector<double> > & v, const vector<double> & p )
+bool point_is_in_simplex( const vector<vector<double> > & v,
+							const vector<double> & p, bool verbose = true )
 {
 	//const int dim = 3;
 	const int dim = p.size();
@@ -31,15 +32,17 @@ void point_is_in_simplex( const vector<vector<double> > & v, const vector<double
 //	v.push_back( v3 );
 //	v.push_back( v4 );
 
-cout << "Point in simplex checks: " << endl;
-for ( auto & vertex : v )
+if (verbose)
 {
-	for ( auto & coordinate : vertex )
-		cout << coordinate << "   ";
-	cout << endl;
+	cout << "Point in simplex checks: " << endl;
+	for ( auto & vertex : v )
+	{
+		for ( auto & coordinate : vertex )
+			cout << coordinate << "   ";
+		cout << endl;
+	}
+	cout << "p = " << p[0] << "   " << p[1] << "   " << p[2] << "   " << p[3] << endl;
 }
-cout << "p = " << p[0] << "   " << p[1] << "   " << p[2] << "   " << p[3] << endl;
-
 	// construct T matrix
 	double T[dim*dim];
 	for (int i = 0; i < dim; i++)	// x, y, z, ...
@@ -63,17 +66,20 @@ cout << "p = " << p[0] << "   " << p[1] << "   " << p[2] << "   " << p[3] << end
 	{
 		point_in_simplex = point_in_simplex && lambda[i] <= 1.0 && lambda[i] >= 0.0;
 		lambda_sum += lambda[i];
-		cout << "lambda[" << i << "] = " << lambda[i] << endl;
+		if (verbose) cout << "lambda[" << i << "] = " << lambda[i] << endl;
 	}
-	cout << "lambda[" << dim << "] = " << 1.0 - lambda_sum << endl;
+	if (verbose) cout << "lambda[" << dim << "] = " << 1.0 - lambda_sum << endl;
 	point_in_simplex = point_in_simplex && lambda_sum <= 1.0 && lambda_sum >= 0.0;
 
-	if (point_in_simplex)
-		cout << "Point is in simplex!" << endl;
-	else
-		cout << "Point is not in simplex!" << endl;
+	if (verbose)
+	{
+		if (point_in_simplex)
+			cout << "Point is in simplex!" << endl;
+		else
+			cout << "Point is not in simplex!" << endl;
+	}
 
-	return;
+	return point_in_simplex;
 }
 
 void get_barycentric_coordinates(double T[], double d[], double lambda[], int dim)
