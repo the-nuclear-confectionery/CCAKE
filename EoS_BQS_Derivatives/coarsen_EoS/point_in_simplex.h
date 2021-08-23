@@ -64,7 +64,7 @@ void point_is_in_simplex( const vector<vector<double> > & v, const vector<double
 	else
 		cout << "Point is not in simplex!" << endl;
 
-	return 0;
+	return;
 }
 
 void get_barycentric_coordinates(double T[], double d[], double lambda[], int dim)
