@@ -8,6 +8,7 @@
 #include <iomanip>
 #include <string>
 
+//#include "delaunay.h"
 #include "kdtree.h"
 #include "Stopwatch.h"
 
@@ -208,19 +209,6 @@ int main(int argc, char *argv[])
 	// try this
 	try
 	{
-		/*typedef point<int, 2> point2d;
-		typedef kdtree<int, 2> tree2d;
-		
-		point2d points[] = { { 2, 3 }, { 5, 4 }, { 9, 6 }, { 4, 7 }, { 8, 1 }, { 7, 2 } };
-		
-		tree2d tree(std::begin(points), std::end(points));
-		point2d n = tree.nearest({ 9, 2 });
-		
-		std::cout << "Wikipedia example data:\n";
-		std::cout << "nearest point: " << n << '\n';
-		std::cout << "distance: " << tree.distance() << '\n';
-		std::cout << "nodes visited: " << tree.visited() << '\n';*/
-
 		typedef point<double, 4> point4d;
 		typedef kdtree<double, 4> tree4d;
 

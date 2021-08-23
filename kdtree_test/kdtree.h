@@ -75,6 +75,7 @@ private:
         point_type point_;
         node* left_;
         node* right_;
+		size_t index_;	// added by me
     };
     node* root_ = nullptr;
     node* best_ = nullptr;
@@ -103,6 +104,7 @@ private:
     }
  
     void nearest(node* root, const point_type& point, size_t index) {
+		index_ = index;
         if (root == nullptr)
             return;
         ++visited_;
@@ -115,6 +117,7 @@ private:
             return;
         double dx = root->get(index) - point.get(index);
         index = (index + 1) % dimensions;
+		index_ = index;
         nearest(dx > 0 ? root->left_ : root->right_, point, index);
         if (dx * dx >= best_dist_)
             return;
@@ -175,13 +178,14 @@ public:
      * @param pt a point
      * @return the nearest point in the tree to the given point
      */
-    const point_type& nearest(const point_type& pt) {
+    const point_type& nearest(const point_type& pt, size_t & best_index) {
         if (root_ == nullptr)
             throw std::logic_error("tree is empty");
         best_ = nullptr;
         visited_ = 0;
         best_dist_ = 0;
         nearest(root_, pt, 0);
+		best_index = best_->index_;
         return best_->point_;
     }
 };
