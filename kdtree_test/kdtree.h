@@ -104,7 +104,6 @@ private:
     }
  
     void nearest(node* root, const point_type& point, size_t index) {
-		index_ = index;
         if (root == nullptr)
             return;
         ++visited_;
@@ -112,12 +111,13 @@ private:
         if (best_ == nullptr || d < best_dist_) {
             best_dist_ = d;
             best_ = root;
+			best_->index_ = index;
         }
         if (best_dist_ == 0)
             return;
         double dx = root->get(index) - point.get(index);
         index = (index + 1) % dimensions;
-		index_ = index;
+		best_->index_ = index;
         nearest(dx > 0 ? root->left_ : root->right_, point, index);
         if (dx * dx >= best_dist_)
             return;
