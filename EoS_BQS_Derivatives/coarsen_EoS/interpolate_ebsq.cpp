@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
 	if (argc < 2) exit(-1);
 
 	cout << "Bug checks:" << endl;
-	if ( point_is_in_simplex( {{0,0,0,0},{0,1,0,0},{1,0,0,0},{0,0,1,0},{0,0,0,1}},
+	if ( point_is_in_simplex( {{0,0,0,0},{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}},
 							  {0.1,0.1,0.1,0.1} ) )
 		cout << " found point in this simplex!" << endl;
 	else
