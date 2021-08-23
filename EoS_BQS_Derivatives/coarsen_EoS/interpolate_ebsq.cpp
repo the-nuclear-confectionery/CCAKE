@@ -123,7 +123,11 @@ int main(int argc, char *argv[])
 			qvec.push_back( qin*Tin*Tin*Tin/(hbarc*hbarc*hbarc) );		// 1/fm^3
 			evec.push_back( ein*Tin*Tin*Tin*Tin/(hbarc*hbarc*hbarc) );	// MeV/fm^3
 
-			grid.push_back( vector<double>({Tin, muBin, muQin, muSin, ein, bin, sin, qin}) );
+			grid.push_back( vector<double>({Tin, muBin, muQin, muSin,
+											ein*Tin*Tin*Tin*Tin/(hbarc*hbarc*hbarc),
+											bin*Tin*Tin*Tin/(hbarc*hbarc*hbarc),
+											sin*Tin*Tin*Tin/(hbarc*hbarc*hbarc),
+											qin*Tin*Tin*Tin/(hbarc*hbarc*hbarc)}) );
 
 			if (count % 1000000 == 0) cout << "Read in " << count << " lines." << endl;
 		}
@@ -154,13 +158,22 @@ int main(int argc, char *argv[])
 	double qmax = *max_element(qvec.begin(), qvec.end());
 
 	// normalize to unit hypercube
-	cout << "Normalizing..." << endl;
+	cout << "Normalizing densities..." << endl;
 	for ( auto & density : densities )
 	{
 		density[0] = (density[0] - emin) / ( emax - emin );
 		density[1] = (density[1] - bmin) / ( bmax - bmin );
 		density[2] = (density[2] - smin) / ( smax - smin );
 		density[3] = (density[3] - qmin) / ( qmax - qmin );
+	}
+
+	cout << "Normalizing grid cells (same thing)..." << endl;
+	for ( auto & cell : grid )
+	{
+		cell[4] = (cell[4] - emin) / ( emax - emin );
+		cell[5] = (cell[5] - bmin) / ( bmax - bmin );
+		cell[6] = (cell[6] - smin) / ( smax - smin );
+		cell[7] = (cell[7] - qmin) / ( qmax - qmin );
 	}
 
 	//cout << "Sorting..." << endl;
@@ -265,13 +278,13 @@ int main(int argc, char *argv[])
 		vector<double> center(4, 0.0);
 		for ( const auto & vertex : simplex )
 		{
-			std::transform( center.begin(), center.end(), vertices[vertex].begin(),
+			std::transform( center.begin(), center.end(), vertices[vertex].begin()+4,
 							center.begin(), std::plus<double>());
 			cout << "   " << vertex;
 		}
 		// center is average of this simplex's vertices
 		std::transform( center.begin(), center.end(), center.begin(),
-						[](double & element){ return 0.25*element; } );
+						[](double & element){ return 0.2*element; } );	// 0.2 == 1/(dim+1), dim == 4
 		cout << "   center: " << center[0] << "   " << center[1] << "   "
 				<< center[2] << "   " << center[3] << endl;
 	}
