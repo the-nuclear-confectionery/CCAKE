@@ -31,6 +31,15 @@ void point_is_in_simplex( const vector<vector<double> > & v, const vector<double
 //	v.push_back( v3 );
 //	v.push_back( v4 );
 
+cout << "Point in simplex checks: " << endl;
+for ( auto & vertex : v )
+{
+	for ( auto & coordinate : vertex )
+		cout << coordinate << "   ";
+	cout << endl;
+}
+cout << "p = " << p[0] << "   " << p[1] << "   " << p[2] << "   " << p[3] << endl;
+
 	// construct T matrix
 	double T[dim*dim];
 	for (int i = 0; i < dim; i++)	// x, y, z, ...
@@ -56,7 +65,7 @@ void point_is_in_simplex( const vector<vector<double> > & v, const vector<double
 		lambda_sum += lambda[i];
 		cout << "lambda[" << i << "] = " << lambda[i] << endl;
 	}
-	cout << "lambda[" << dim+1 << "] = " << 1.0 - lambda_sum << endl;
+	cout << "lambda[" << dim << "] = " << 1.0 - lambda_sum << endl;
 	point_in_simplex = point_in_simplex && lambda_sum <= 1.0 && lambda_sum >= 0.0;
 
 	if (point_in_simplex)
