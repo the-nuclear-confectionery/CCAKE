@@ -62,5 +62,5 @@ install:	$(TARGET) $(TARGET2)
 # --------------- Dependencies -------------------
 coarsen_EoS.cpp:		
 coarsen_EoS_faster.cpp:		Stopwatch.h
-interpolate_ebsq.cpp:		Stopwatch.h delaunay.h kdtree.h
+interpolate_ebsq.cpp:		Stopwatch.h delaunay.h
 
