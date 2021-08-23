@@ -8,7 +8,7 @@
 #include <iomanip>
 #include <string>
 
-//#include "delaunay.h"
+#include "delaunay.h"
 #include "kdtree.h"
 #include "Stopwatch.h"
 
@@ -191,15 +191,25 @@ int main(int argc, char *argv[])
 	cout << "Brute force: NN = " << NN[0] << "   " << NN[1] << "   " << NN[2] << "   " << NN[3] << endl;
 	cout << "Indentified NN simplices in " << sw.printTime() << " s." << endl;
 
-	vector<vector<double> > vertices;
+	/*vector<vector<double> > vertices;
 	for (int ii = -1; ii <= 1; ii++)
 	for (int jj = -1; jj <= 1; jj++)
 	for (int kk = -1; kk <= 1; kk++)
 	for (int ll = -1; ll <= 1; ll++)
-		vertices.push_back( grid[indexer( iTNN+ii, imubNN+jj, imuqNN+kk, imusNN+ll )] );
+		vertices.push_back( grid[indexer( iTNN+ii, imubNN+jj, imuqNN+kk, imusNN+ll )] );*/
 
-
-
+	// Qhull requires vertices as 1D vector
+	for (int ii = -1; ii <= 1; ii++)
+	for (int jj = -1; jj <= 1; jj++)
+	for (int kk = -1; kk <= 1; kk++)
+	for (int ll = -1; ll <= 1; ll++)
+	{
+		const vector<double> & gridVertex = grid[indexer( iTNN+ii, imubNN+jj, imuqNN+kk, imusNN+ll )];
+		vertices.push_back( gridVertex[4] );	//e
+		vertices.push_back( gridVertex[5] );	//b
+		vertices.push_back( gridVertex[6] );	//s
+		vertices.push_back( gridVertex[7] );	//q
+	}
 
 	size_t densities_size = densities.size();
 	std::vector<std::array<double, 4> > density_points(densities_size);
@@ -234,6 +244,14 @@ int main(int argc, char *argv[])
 	{
 		std::cerr << e.what() << '\n';
 	}
+
+
+
+	// Test the Delaunay part here
+	// first get the triangulation
+	vector<vector<size_t> > simplices
+	compute_delaunay(&vertices[0], 4, vertices.size() / 4, simplices);
+
 
 
 	return 0;

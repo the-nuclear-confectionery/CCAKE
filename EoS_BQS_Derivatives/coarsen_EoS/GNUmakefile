@@ -5,8 +5,9 @@ CFLAGS= -O3 -std=c++11 -lgsl -lgslcblas -lm -g
 # Various directories and definitions
 RM          =   rm -f
 O           =   .o
-LDFLAGS     =   -L/usr/local/src/gsl/2.5/lib
-INCFLAGS    =   -I/usr/local/src/gsl/2.5/include -I/projects/jnorhos/BSQ/kdtree_test
+LDFLAGS     =   -L/usr/local/src/gsl/2.5/lib -L/projects/jnorhos/plumberg/qhull/lib
+INCFLAGS    =   -I/usr/local/src/gsl/2.5/include -I/projects/jnorhos/BSQ/kdtree_test \
+				-I/projects/jnorhos/plumberg/qhull/src
 SYSTEMFILES =   $(SRCGNU)
 
 
@@ -33,13 +34,14 @@ INSTPATH	=	..
 # --------------- Pattern rules -------------------
 
 $(TARGET):
-	$(CC) $(MAINSRC) -o $(TARGET) $(CFLAGS) $(INCFLAGS)  $(LDFLAGS)
+	$(CC) $(MAINSRC) -o $(TARGET) $(CFLAGS) $(INCFLAGS) $(LDFLAGS)
 
 $(TARGET2):
-	$(CC) $(MAIN2SRC) -o $(TARGET2) $(CFLAGS) $(INCFLAGS)  $(LDFLAGS)
+	$(CC) $(MAIN2SRC) -o $(TARGET2) $(CFLAGS) $(INCFLAGS) $(LDFLAGS)
 
-interpolate_ebsq: interpolate_ebsq.cpp Stopwatch.h
-	$(CC) interpolate_ebsq.cpp -o interpolate_ebsq $(CFLAGS) $(INCFLAGS)  $(LDFLAGS)
+interpolate_ebsq: interpolate_ebsq.cpp Stopwatch.h delaunay.h kdtree.h
+	$(CC) interpolate_ebsq.cpp -o interpolate_ebsq $(CFLAGS) $(INCFLAGS) -fpic \
+			$(LDFLAGS) -lqhullcpp -lqhullstatic_r
 
 # -------------------------------------------------
 
@@ -60,5 +62,5 @@ install:	$(TARGET) $(TARGET2)
 # --------------- Dependencies -------------------
 coarsen_EoS.cpp:		
 coarsen_EoS_faster.cpp:		Stopwatch.h
-interpolate_ebsq.cpp:		Stopwatch.h
+interpolate_ebsq.cpp:		Stopwatch.h delaunay.h kdtree.h
 

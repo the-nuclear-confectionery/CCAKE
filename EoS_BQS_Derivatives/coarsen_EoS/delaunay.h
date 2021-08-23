@@ -47,9 +47,6 @@ using orgQhull::QhullVertexSet;
 using orgQhull::QhullVertexSetIterator;
 using orgQhull::RboxPoints;
 
-int main(int argc, char **argv);
-int user_eg3(int argc, char **argv);
-
 /*--------------------------------------------
 -user_eg3-  main procedure of user_eg3 application
 */
@@ -70,35 +67,20 @@ double gaussian(double x, double y)
 	return exp(-x*x-y*y);
 }
 
-int compute_delaunay(double * arr, const int pc_dimension, const int n_pts)
+int compute_delaunay(double * arr, const size_t pc_dimension, const size_t n_pts,
+					 vector<vector<size_t> > & simplices)
 {
-Qhull qhull;
-qhull.runQhull("", pc_dimension, n_pts, arr, "d Qbb Qt");
-
-QhullFacetList facets = qhull.facetList();
-
-std::vector<QhullFacet> facetVector = facets.toStdVector();
-
-for ( int ifacet = 0; ifacet < facetVector.size(); ifacet++ )
-
-//for ( int ifacet = 0; ifacet < facetVector.size(); ifacet++ )
-//{
-//	cout << "facet #" << ifacet+1 << " of " << facetVector.size() << endl;
-//	QhullVertexSet verts = facetVector[ifacet].vertices();
-//	std::vector<QhullVertex> vertVector = verts.toStdVector();
-//	for ( int ivertex = 0; ivertex < vertVector.size(); ivertex++ )
-//	{
-//		cout << "   id() = " << vertVector[ivertex].id() << ": "
-//			<< ivertex+1 << "   " << vertVector[ivertex]
-//			<< "; " << (vertVector[ivertex].point()).id() << "   "
-//			<< (vertVector[ivertex].point()).size() << "   "
-//			<< (vertVector[ivertex].point()).count() << endl;
-//		const size_t pointID = (vertVector[ivertex].point()).id();
-//		cout << "   Check: " << arr[2*pointID] << "   " << arr[2*pointID+1] << endl;
-//	}
-//}
-
+	Qhull qhull;
+	qhull.runQhull("", pc_dimension, n_pts, arr, "d Qbb Qt");
+	
+	for ( const auto & facet : qhull.facetList().toStdVector() )
+	{
+		vector<size_t> simplex;
+		for ( const auto & vertex : facet.vertices().toStdVector() )
+			simplex.push_back( vertVector[ivertex].point().id() );
+		simplices.push_back( simplex );
+	}
 
     return 0;
-}//user_eg3
+}
 
