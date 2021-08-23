@@ -178,7 +178,24 @@ public:
      * @param pt a point
      * @return the nearest point in the tree to the given point
      */
-    const point_type& nearest(const point_type& pt, size_t & best_index) {
+    const point_type& nearest(const point_type& pt ) {
+        if (root_ == nullptr)
+            throw std::logic_error("tree is empty");
+        best_ = nullptr;
+        visited_ = 0;
+        best_dist_ = 0;
+        nearest(root_, pt, 0);
+        return best_->point_;
+    }
+
+    /**
+     * Finds the nearest point in the tree to the given point.
+     * It is not valid to call this function if the tree is empty.
+     *
+     * @param pt a point
+     * @return the nearest point in the tree to the given point
+     */
+    const point_type& nearest(const point_type& pt, size_t & best_index ) {
         if (root_ == nullptr)
             throw std::logic_error("tree is empty");
         best_ = nullptr;
