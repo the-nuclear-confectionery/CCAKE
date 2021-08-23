@@ -163,8 +163,8 @@ int main(int argc, char *argv[])
 		density[3] = (density[3] - qmin) / ( qmax - qmin );
 	}
 
-	cout << "Sorting..." << endl;
-	std::sort(densities.begin(), densities.end(), density_comp);
+	//cout << "Sorting..." << endl;
+	//std::sort(densities.begin(), densities.end(), density_comp);
 
 	const double e0 = 46308.20963821, b0 = -1.23317452, s0 = -1.53064765, q0 = -0.24540761;
 	const double ne0 = (e0 - emin) / (emax - emin);
