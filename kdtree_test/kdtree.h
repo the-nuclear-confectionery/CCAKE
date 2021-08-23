@@ -116,7 +116,7 @@ private:
         if (best_dist_ == 0)
             return;
         double dx = root->get(index) - point.get(index);
-cout << "index = " << index << endl;
+std::cout << "index = " << index << std::endl;
         index = (index + 1) % dimensions;
 		best_->index_ = index;
         nearest(dx > 0 ? root->left_ : root->right_, point, index);
