@@ -270,26 +270,53 @@ int main(int argc, char *argv[])
 	sw.Stop();
 	cout << "Finished the Delaunay triangulation in " << sw.printTime() << " s." << endl;
 	
-	cout << endl << "The triangulation contains the following simplices:" << endl;
+	cout << endl << "The triangulation contains the following simplices:"  << setprecision(8) << endl;
 	int isimplex = 0;
+	int iclosestsimplex = 0;
+	double center_d2_min = 2.0;	// start with unrealistically large value (0 <= d2 <= 1)
 	for ( const auto & simplex : simplices )
 	{
 		cout << isimplex++ << ":";
 		vector<double> center(4, 0.0);
+		bool NN_vertex_included = false;
 		for ( const auto & vertex : simplex )
 		{
 			std::transform( center.begin(), center.end(), vertices[vertex].begin()+4,
 							center.begin(), std::plus<double>());
 			cout << "   " << vertex;
+			if ( vertex == vertices.size()/2 ) NN_vertex_included = true;
 		}
+
 		// center is average of this simplex's vertices
 		std::transform( center.begin(), center.end(), center.begin(),
 						[](double & element){ return 0.2*element; } );	// 0.2 == 1/(dim+1), dim == 4
+		// print center
 		cout << "   center: " << center[0] << "   " << center[1] << "   "
-				<< center[2] << "   " << center[3] << endl;
+				<< center[2] << "   " << center[3];
+		// print if this simplex includes nearest neighbor
+		string inclusion_string = NN_vertex_included? "NN IS INCLUDED" : "NN IS NOT INCLUDED";
+		cout "; " << inclusion_string << endl;
+		double d2loc = d2( center, nv0 );
+		if ( d2loc < center_d2_min )
+		{
+			iclosestsimplex = isimplex;
+			center_d2_min = d2loc;
+		}
 	}
 
-	cout << "********************************" << endl
+	cout << "The closest simplex was isimplex = " << iclosestsimplex
+			<< " with d = " << sqrt(center_d2_min) << endl;
+	cout << "This simplex contains the following vertices: ";
+	int ivertex = 0;
+	for ( const auto & vertex : simplices[iclosestsimplex] )
+	{
+		cout << ivertex++ << ":";
+		for ( auto it = vertices[vertex].begin()+4; it != vertices[vertex].end(); it++ )
+			cout << "   " << *it;
+		cout << endl;
+	}
+
+	cout << endl << "********************************" << endl
 			<< "On to the interpolation!" << endl;
 
 	
