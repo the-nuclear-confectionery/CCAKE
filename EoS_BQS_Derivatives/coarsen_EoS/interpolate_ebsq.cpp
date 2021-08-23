@@ -327,7 +327,7 @@ int main(int argc, char *argv[])
 	cout << "Next, check if point is contained in the simplex we found:" << endl;
 	point_is_in_simplex( simplexVertices, nv0 );
 	
-
+	cout << "nv0: " << nv0[0] << "   " << nv0[1] << "   " << nv0[2] << "   " << nv0[3] << endl;
 
 
 
