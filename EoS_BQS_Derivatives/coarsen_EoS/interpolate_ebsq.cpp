@@ -262,12 +262,30 @@ int main(int argc, char *argv[])
 	for ( const auto & simplex : simplices )
 	{
 		cout << isimplex++ << ":";
+		vector<double> center(4, 0.0);
 		for ( const auto & vertex : simplex )
+		{
+			std::transform( center.begin(), center.end(), vertices[vertex].begin(),
+							center.begin(), std::plus<double>());
 			cout << "   " << vertex;
-		cout << endl;
+		}
+		// center is average of this simplex's vertices
+		std::transform( center.begin(), center.end(), center.begin(),
+						[](double & element){ return 0.25*element; } );
+		cout << "   center: " << center[0] << "   " << center[1] << "   "
+				<< center[2] << "   " << center[3] << endl;
 	}
 
-	cout << "On to the interpolation!" << endl;
+	cout << "********************************" << endl
+			<< "On to the interpolation!" << endl;
+
+	
+	
+
+
+
+
+
 
 	return 0;
 }
