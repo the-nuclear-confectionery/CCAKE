@@ -295,7 +295,7 @@ int main(int argc, char *argv[])
 				<< center[2] << "   " << center[3];
 		// print if this simplex includes nearest neighbor
 		string inclusion_string = NN_vertex_included? "NN IS INCLUDED" : "NN IS NOT INCLUDED";
-		cout "; " << inclusion_string << endl;
+		cout << "; " << inclusion_string << endl;
 		double d2loc = d2( center, nv0 );
 		if ( d2loc < center_d2_min )
 		{
