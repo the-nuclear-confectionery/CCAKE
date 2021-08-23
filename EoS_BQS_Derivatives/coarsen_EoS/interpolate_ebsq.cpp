@@ -249,7 +249,7 @@ int main(int argc, char *argv[])
 
 	// Test the Delaunay part here
 	// first get the triangulation
-	vector<vector<size_t> > simplices
+	vector<vector<size_t> > simplices;
 	compute_delaunay(&vertices[0], 4, vertices.size() / 4, simplices);
 
 
