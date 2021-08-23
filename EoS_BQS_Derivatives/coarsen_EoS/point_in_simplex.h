@@ -14,7 +14,8 @@ void get_barycentric_coordinates(double T[], double d[], double lambda[], int di
 void point_is_in_simplex( const vector<vector<double> > & v, const vector<double> & p )
 {
 	//const int dim = 3;
-	//const int nVertices = dim + 1;	// by definition for a simplex
+	const int dim = p.size();
+	const int nVertices = dim + 1;	// by definition for a simplex
 
 //	const double one_by_sqrt2 = 1.0/sqrt(2.0);
 //	vector<double> v1 {2, 0, one_by_sqrt2};
