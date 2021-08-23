@@ -199,6 +199,7 @@ int main(int argc, char *argv[])
 		vertices.push_back( grid[indexer( iTNN+ii, imubNN+jj, imuqNN+kk, imusNN+ll )] );*/
 
 	// Qhull requires vertices as 1D vector
+	vector<double> vertices;
 	for (int ii = -1; ii <= 1; ii++)
 	for (int jj = -1; jj <= 1; jj++)
 	for (int kk = -1; kk <= 1; kk++)
