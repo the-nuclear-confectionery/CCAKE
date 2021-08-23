@@ -39,7 +39,7 @@ $(TARGET):
 $(TARGET2):
 	$(CC) $(MAIN2SRC) -o $(TARGET2) $(CFLAGS) $(INCFLAGS) $(LDFLAGS)
 
-interpolate_ebsq: interpolate_ebsq.cpp Stopwatch.h delaunay.h kdtree.h
+interpolate_ebsq: interpolate_ebsq.cpp
 	$(CC) interpolate_ebsq.cpp -o interpolate_ebsq $(CFLAGS) $(INCFLAGS) -fpic \
 			$(LDFLAGS) -lqhullcpp -lqhullstatic_r
 
