@@ -125,8 +125,8 @@ if (true) exit(-1);*/
 			iss >> Tin >> muBin >> muQin >> muSin >> dummy >> dummy
 				>> bin >> sin >> qin >> ein >> dummy;
 
-cout << "CHECK: " << Tinds[idx] << "   " << mubinds[idx] << "   "
-		<< muqinds[idx] << "   " << musinds[idx] << "   "
+cout << "CHECK: " << Tinds[count-1] << "   " << mubinds[count-1] << "   "
+		<< muqinds[count-1] << "   " << musinds[count-1] << "   "
 		<< Tin << "   " << muBin << "   " << muQin << "   " << muSin << endl;
 
 			Tvec.push_back( Tin );
