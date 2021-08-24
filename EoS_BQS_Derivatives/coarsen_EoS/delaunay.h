@@ -73,6 +73,13 @@ int compute_delaunay(double * arr, const size_t pc_dimension, const size_t n_pts
 	Qhull qhull;
 	qhull.runQhull("", pc_dimension, n_pts, arr, "d Qbb Qt Qc Qz Q12 Qi");
 	
+	qhull.outputQhull();
+	if(qhull.hasQhullMessage())
+	{
+		cerr << "\nResults of qhull\n" << qhull.qhullMessage();
+		qhull.clearQhullMessage();
+	}
+
 	for ( const auto & facet : qhull.facetList().toStdVector() )
 	{
 		vector<size_t> simplex;
