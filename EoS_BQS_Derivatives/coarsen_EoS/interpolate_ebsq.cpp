@@ -125,10 +125,6 @@ if (true) exit(-1);*/
 			iss >> Tin >> muBin >> muQin >> muSin >> dummy >> dummy
 				>> bin >> sin >> qin >> ein >> dummy;
 
-//cout << "CHECK: " << Tinds[count-1] << "   " << mubinds[count-1] << "   "
-//		<< muqinds[count-1] << "   " << musinds[count-1] << "   "
-//		<< Tin << "   " << muBin << "   " << muQin << "   " << muSin << endl;
-
 			Tvec.push_back( Tin );
 			muBvec.push_back( muBin );
 			muSvec.push_back( muSin );
@@ -228,8 +224,6 @@ cout << "NN grid elements are (should be the same as above):" << endl;
 	for ( auto & elem : grid[NN_index] )
 		cout << elem << "   ";
 	cout << endl << endl;
-
-if ( true) exit(-1);
 
 cout << "Points in grid around NN are:" << endl;
 	for (int ii = -1; ii <= 1; ii++)
