@@ -230,10 +230,18 @@ cout << "Points in grid around NN are:" << endl;
 		&& imuqNN+kk < nmuq && imuqNN+kk >= 0
 		&& imusNN+ll < nmus && imusNN+ll >= 0 )
 		{
+//		cout << ii << "   " << jj << "   " << kk << "   " << ll << ": ";
+//		for ( auto & elem : grid[indexer( iTNN+ii, imubNN+jj, imuqNN+kk, imusNN+ll ) ] )
+//			cout << elem << "   ";
+//		cout << endl;
 		cout << ii << "   " << jj << "   " << kk << "   " << ll << ": ";
-		for ( auto & elem : grid[indexer( iTNN+ii, imubNN+jj, imuqNN+kk, imusNN+ll ) ] )
-			cout << elem << "   ";
-		cout << endl;
+		const auto & gridVertex = grid[indexer( iTNN+ii, imubNN+jj, imuqNN+kk, imusNN+ll ) ];
+		cout << gridVertex[0] << "   " << gridVertex[1] << "   "
+				<< gridVertex[2] << "   " << gridVertex[3] << "   "
+				<< emin + gridVertex[4]*(emax-emin) << "   "
+				<< bmin + gridVertex[5]*(bmax-bmin) << "   "
+				<< smin + gridVertex[6]*(smax-smin) << "   "
+				<< qmin + gridVertex[7]*(qmax-qmin) << endl;
 		}
 	}
 	cout << endl;
