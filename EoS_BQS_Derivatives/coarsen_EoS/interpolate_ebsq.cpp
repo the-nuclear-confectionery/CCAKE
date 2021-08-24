@@ -219,6 +219,13 @@ cout << "NN grid elements are:" << endl;
 		cout << elem << "   ";
 	cout << endl << endl;
 
+cout << "NN grid elements are (should be the same as above):" << endl;
+	for ( auto & elem : grid[NN_index] )
+		cout << elem << "   ";
+	cout << endl << endl;
+
+if ( true) exit(-1);
+
 cout << "Points in grid around NN are:" << endl;
 	for (int ii = -1; ii <= 1; ii++)
         for (int jj = -1; jj <= 1; jj++)
