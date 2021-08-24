@@ -244,6 +244,8 @@ cout << "Points in grid around NN are:" << endl;
 		const auto & gridVertex = grid[indexer( iTNN+ii, imubNN+jj, imuqNN+kk, imusNN+ll ) ];
 		cout << gridVertex[0] << "   " << gridVertex[1] << "   "
 				<< gridVertex[2] << "   " << gridVertex[3] << "   "
+				<< gridVertex[4] << "   " << gridVertex[5] << "   "
+				<< gridVertex[6] << "   " << gridVertex[7] << "   "
 				<< emin + gridVertex[4]*(emax-emin) << "   "
 				<< bmin + gridVertex[5]*(bmax-bmin) << "   "
 				<< smin + gridVertex[6]*(smax-smin) << "   "
@@ -252,7 +254,7 @@ cout << "Points in grid around NN are:" << endl;
 	}
 	cout << endl;
 
-//if (true) exit(-1);
+if (true) exit(-1);
 
 	vector<vector<double> > vertices;
 	for (int ii = -1; ii <= 1; ii++)
