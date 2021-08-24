@@ -71,7 +71,7 @@ int compute_delaunay(double * arr, const size_t pc_dimension, const size_t n_pts
 					 vector<vector<size_t> > & simplices)
 {
 	Qhull qhull;
-	qhull.runQhull("", pc_dimension, n_pts, arr, "d Qt Qbb");
+	qhull.runQhull("", pc_dimension, n_pts, arr, "d Qbb Qt");
 	
 	qhull.outputQhull();
 	if(qhull.hasQhullMessage())
