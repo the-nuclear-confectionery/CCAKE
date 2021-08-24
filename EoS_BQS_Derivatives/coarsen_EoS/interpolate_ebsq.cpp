@@ -105,7 +105,8 @@ if (true) exit(-1);*/
 		Tinds[idx] = iT;
 		mubinds[idx] = imub;
 		muqinds[idx] = imuq;
-		musinds[idx++] = imus;
+		musinds[idx] = imus;
+		idx++;
 	}
 
 	// then read in file itself
@@ -123,6 +124,10 @@ if (true) exit(-1);*/
 			istringstream iss(line);
 			iss >> Tin >> muBin >> muQin >> muSin >> dummy >> dummy
 				>> bin >> sin >> qin >> ein >> dummy;
+
+cout << "CHECK: " << Tinds[idx] << "   " << mubinds[idx] << "   "
+		<< muqinds[idx] << "   " << musinds[idx] << "   "
+		<< Tin << "   " << muBin << "   " << muQin << "   " << muSin << endl;
 
 			Tvec.push_back( Tin );
 			muBvec.push_back( muBin );
