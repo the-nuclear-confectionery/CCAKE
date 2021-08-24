@@ -78,14 +78,14 @@ int main(int argc, char *argv[])
 	// check input first
 	if (argc < 2) exit(-1);
 
-	cout << "Bug checks:" << endl;
+	/*cout << "Bug checks:" << endl;
 	if ( point_is_in_simplex( {{0,0,0,0},{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}},
 							  {0.1,0.1,0.1,0.1} ) )
 		cout << " found point in this simplex!" << endl;
 	else
 		cout << " did not find point in this simplex!" << endl;
 
-if (true) exit(-1);
+if (true) exit(-1);*/
 
 	// read path to input file from command line
 	string path_to_file = string(argv[1]);
@@ -214,12 +214,43 @@ if (true) exit(-1);
 	cout << "Brute force: NN = " << NN[0] << "   " << NN[1] << "   " << NN[2] << "   " << NN[3] << endl;
 	cout << "Indentified NN simplices in " << sw.printTime() << " s." << endl;
 
+cout << "NN grid elements are:" << endl;
+	for ( auto & elem : grid[indexer( iTNN, imubNN, imuqNN, imusNN ) ] )
+		cout << elem << "   ";
+	cout << endl << endl;
+
+cout << "Points in grid around NN are:" << endl;
+	for (int ii = -1; ii <= 1; ii++)
+        for (int jj = -1; jj <= 1; jj++)
+        for (int kk = -1; kk <= 1; kk++)
+        for (int ll = -1; ll <= 1; ll++)
+	{
+		if ( iTNN+ii < nT && iTNN+ii >= 0
+		&& imubNN+jj < nmub && imubNN+jj >= 0
+		&& imuqNN+kk < nmuq && imuqNN+kk >= 0
+		&& imusNN+ll < nmus && imusNN+ll >= 0 )
+		{
+		cout << ii << "   " << jj << "   " << kk << "   " << ll << ": ";
+		for ( auto & elem : grid[indexer( iTNN+ii, imubNN+jj, imuqNN+kk, imusNN+ll ) ] )
+			cout << elem << "   ";
+		cout << endl;
+		}
+	}
+	cout << endl;
+
+//if (true) exit(-1);
+
 	vector<vector<double> > vertices;
 	for (int ii = -1; ii <= 1; ii++)
 	for (int jj = -1; jj <= 1; jj++)
 	for (int kk = -1; kk <= 1; kk++)
 	for (int ll = -1; ll <= 1; ll++)
+	{	if ( iTNN+ii < nT && iTNN+ii >= 0
+			&& imubNN+jj < nmub && imubNN+jj >= 0
+			&& imuqNN+kk < nmuq && imuqNN+kk >= 0
+			&& imusNN+ll < nmus && imusNN+ll >= 0 )
 		vertices.push_back( grid[indexer( iTNN+ii, imubNN+jj, imuqNN+kk, imusNN+ll )] );
+	}
 
 	// Qhull requires vertices as 1D vector
 	vector<double> verticesFlat;
@@ -229,10 +260,16 @@ if (true) exit(-1);
 	for (int ll = -1; ll <= 1; ll++)
 	{
 		const vector<double> & gridVertex = grid[indexer( iTNN+ii, imubNN+jj, imuqNN+kk, imusNN+ll )];
+		if ( iTNN+ii < nT && iTNN+ii >= 0
+			&& imubNN+jj < nmub && imubNN+jj >= 0
+			&& imuqNN+kk < nmuq && imuqNN+kk >= 0
+			&& imusNN+ll < nmus && imusNN+ll >= 0 )
+		{
 		verticesFlat.push_back( gridVertex[4] );	//e
 		verticesFlat.push_back( gridVertex[5] );	//b
 		verticesFlat.push_back( gridVertex[6] );	//s
 		verticesFlat.push_back( gridVertex[7] );	//q
+		}
 	}
 
 	size_t densities_size = densities.size();
@@ -343,7 +380,7 @@ if (true) exit(-1);
 	for ( int iloop = 0; iloop < 10; iloop++) cout << endl;
 
 	
-	/*cout << "Looping through all simplices:" << endl;
+	cout << "Looping through all simplices:" << endl;
 	isimplex = 0;
 	for ( auto & simplex : simplices )
 	{
@@ -355,7 +392,7 @@ if (true) exit(-1);
 			cout << " found point in this simplex!" << endl;
 		else
 			cout << " did not find point in this simplex!" << endl;
-	}*/
+	}
 
 
 	return 0;
