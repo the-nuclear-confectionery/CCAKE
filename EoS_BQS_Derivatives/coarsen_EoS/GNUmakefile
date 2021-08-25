@@ -6,8 +6,7 @@ CFLAGS= -O3 -std=c++11 -lgsl -lgslcblas -lm -g
 RM          =   rm -f
 O           =   .o
 LDFLAGS     =   -L/usr/local/src/gsl/2.5/lib -L/projects/jnorhos/plumberg/qhull/lib
-INCFLAGS    =   -I/usr/local/src/gsl/2.5/include -I/projects/jnorhos/BSQ/kdtree_test \
-				-I/projects/jnorhos/plumberg/qhull/src
+INCFLAGS    =   -I/usr/local/src/gsl/2.5/include -I/projects/jnorhos/plumberg/qhull/src
 SYSTEMFILES =   $(SRCGNU)
 
 
@@ -62,4 +61,4 @@ install:	$(TARGET) $(TARGET2)
 # --------------- Dependencies -------------------
 coarsen_EoS.cpp:		
 coarsen_EoS_faster.cpp:		Stopwatch.h
-interpolate_ebsq_v2.cpp:	Stopwatch.h delaunay.h point_in_simplex.h
+interpolate_ebsq_v2.cpp:	Stopwatch.h delaunay.h point_in_simplex.h kdtree.h
