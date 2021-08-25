@@ -1,11 +1,11 @@
 # Set compiler and flags
 CC := g++
-CFLAGS= -O3 -std=c++11 -lgsl -lgslcblas -lm -g
+CFLAGS= -O3 -std=c++11
 
 # Various directories and definitions
 RM          =   rm -f
 O           =   .o
-LDFLAGS     =   -L/usr/local/src/gsl/2.5/lib -L/projects/jnorhos/plumberg/qhull/lib
+LDFLAGS     =   -L/usr/local/src/gsl/2.5/lib -L/projects/jnorhos/plumberg/qhull/lib -lgsl -lgslcblas -lm
 INCFLAGS    =   -I/usr/local/src/gsl/2.5/include -I/projects/jnorhos/BSQ/kdtree_test \
 				-I/projects/jnorhos/plumberg/qhull/src
 SYSTEMFILES =   $(SRCGNU)
@@ -54,7 +54,7 @@ interpolate_ebsq.o: interpolate_ebsq.cpp eos_delaunay.h
 
 interpolate_ebsq: eos_delaunay.o interpolate_ebsq.o
 	$(CC) -g eos_delaunay.o interpolate_ebsq.o -o interpolate_ebsq \
-			-fpic $(LDFLAGS) -lqhullcpp -lqhullstatic_r
+			$(INCFLAGS) -fpic $(LDFLAGS) -lqhullcpp -lqhullstatic_r
 	#$(CC) -g eos_delaunay.o interpolate_ebsq.cpp -o interpolate_ebsq $(CFLAGS) \
 	#		$(INCFLAGS) -fpic $(LDFLAGS) -lqhullcpp -lqhullstatic_r
 
