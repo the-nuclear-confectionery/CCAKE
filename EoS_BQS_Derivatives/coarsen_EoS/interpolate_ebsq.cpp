@@ -166,8 +166,8 @@ int main(int argc, char *argv[])
 		//sw.Stop();
 		//cout << "KD-Tree: Found nearest neighbor in " << setprecision(18)
 		//		<< sw.printTime() << " s." << endl;
-		cout << "KD-Tree: Nearest neighbor is " << n << endl;
-		cout << "KD-Tree: Nearest neighbor index is " << kdtree_nn_index << endl;
+		//cout << "KD-Tree: Nearest neighbor is " << n << endl;
+		//cout << "KD-Tree: Nearest neighbor index is " << kdtree_nn_index << endl;
 	}
 	catch (const std::exception& e)
 	{
@@ -283,12 +283,12 @@ int main(int argc, char *argv[])
 	{
 		int ivertex = 0;
 		for ( const auto & vertex : simplices[iclosestsimplex] )
-			simplexVertices[ivertex] = vector<double>( vertices[vertex].begin()+4,
+			simplexVertices[ivertex++] = vector<double>( vertices[vertex].begin()+4,
 														vertices[vertex].end() );
 	}
 
 
-	cout << "simplices[iclosestsimplex].size() = " << simplices[iclosestsimplex].size() << endl;
+	/*cout << "simplices[iclosestsimplex].size() = " << simplices[iclosestsimplex].size() << endl;
 	{
 		int ivertex = 0;
 	for ( const auto & vertex : simplexVertices )
@@ -298,7 +298,7 @@ int main(int argc, char *argv[])
 			cout << "   " << coordinate;
 		cout << endl;
 	}
-	}
+	}*/
 
 	// locate the point in the simplex (assuming we know it's there;
 	// currently no plan B for if point winds up outside this simplex)
