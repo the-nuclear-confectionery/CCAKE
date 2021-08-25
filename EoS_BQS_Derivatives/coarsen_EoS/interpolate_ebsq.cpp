@@ -446,6 +446,10 @@ cout << "Points in grid around NN are:" << endl;
 	double T0 = 0.0, mub0 = 0.0, muq0 = 0.0, mus0 = 0.0;
 	for ( const auto & vertex : simplices[isimplex] )
 	{
+		cout << "Check interpolation: " << ivertex << "   " << vertex << "   "
+				<< point_lambda_in_simplex[ivertex] << "   "
+				<< vertices[vertex][0] << "   " << vertices[vertex][1] << "   " 
+				<< vertices[vertex][2] << "   " << vertices[vertex][3] << endl;
 		T0 += point_lambda_in_simplex[ivertex] * vertices[vertex][0];
 		mub0 += point_lambda_in_simplex[ivertex] * vertices[vertex][1];
 		muq0 += point_lambda_in_simplex[ivertex] * vertices[vertex][2];
