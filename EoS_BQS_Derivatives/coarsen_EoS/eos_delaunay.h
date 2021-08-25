@@ -37,6 +37,8 @@ class eos_delaunay
 		const double hbarc = 197.327;
 		const size_t nT = 155, nmub = 37, nmus = 37, nmuq = 37;
 
+		double emin, emax, bmin, bmax, smin, smax, qmin, qmax;
+
 		vector<vector<double> > grid;
 		vector<int> Tinds, mubinds, muqinds, musinds;
 		

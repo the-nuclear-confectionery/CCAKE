@@ -12,7 +12,7 @@
 
 using namespace std;
 
-void eos::eos(string EoS_table_file)
+void eos_delaunay::eos_delaunay(string EoS_table_file)
 {
 	Tinds.resize(nT*nmub*nmuq*nmus);
 	mubinds.resize(nT*nmub*nmuq*nmus);
@@ -51,8 +51,8 @@ void eos::eos(string EoS_table_file)
 	}
 
 	// get density ranges and normalize
-	double emin = 0.0, emax = 0.0, bmin = 0.0, bmax = 0.0,
-			smin = 0.0, smax = 0.0, qmin = 0.0, qmax = 0.0;
+	emin = 0.0, emax = 0.0, bmin = 0.0, bmax = 0.0,
+	smin = 0.0, smax = 0.0, qmin = 0.0, qmax = 0.0;
 	get_min_and_max(evec, emin, emax, false);
 	get_min_and_max(bvec, bmin, bmax, false);
 	get_min_and_max(svec, smin, smax, false);
