@@ -424,8 +424,6 @@ cout << "Points in grid around NN are:" << endl;
 			isimplex++;
 			continue;	// skip simplices that don't need to be checked
 		}
-		else
-			isimplex++;
 		simplexVertices.clear();
 		for ( const auto & vertex : simplex )
 			simplexVertices.push_back( vector<double>( vertices[vertex].begin()+4,
@@ -437,6 +435,7 @@ cout << "Points in grid around NN are:" << endl;
 		}
 		else
 			cout << " did not find point in this simplex!" << endl;
+		isimplex++;
 	}
 
 
