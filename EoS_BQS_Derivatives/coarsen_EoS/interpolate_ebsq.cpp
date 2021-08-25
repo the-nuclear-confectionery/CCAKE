@@ -255,7 +255,7 @@ cout << "Points in grid around NN are:" << endl;
 	}
 	cout << endl;
 
-if (true) exit(-1);
+//if (true) exit(-1);
 
 	vector<vector<double> > vertices;
 	for (int ii = -1; ii <= 1; ii++)
