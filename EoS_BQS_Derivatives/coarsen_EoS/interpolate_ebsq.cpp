@@ -399,10 +399,10 @@ cout << "Points in grid around NN are:" << endl;
 	
 	cout << "Looping through all simplices:" << endl;
 	isimplex = 0;
-	simplexVertices.clear();
 	for ( auto & simplex : simplices )
 	{
 		cout << isimplex++ << ":" << endl;
+		simplexVertices.clear();
 		for ( const auto & vertex : simplex )
 			simplexVertices.push_back( vector<double>( vertices[vertex].begin()+4,
 														vertices[vertex].end() ) );
