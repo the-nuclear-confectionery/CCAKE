@@ -401,7 +401,7 @@ cout << "Points in grid around NN are:" << endl;
 	isimplex = 0;
 	for ( auto & simplex : simplices )
 	{
-		cout << isimplex++ << ":";
+		cout << isimplex++ << ":" << endl;
 		for ( const auto & vertex : simplex )
 			simplexVertices.push_back( vector<double>( vertices[vertex].begin()+4,
 														vertices[vertex].end() ) );

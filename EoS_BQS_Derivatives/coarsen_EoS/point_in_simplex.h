@@ -34,9 +34,11 @@ bool point_is_in_simplex( const vector<vector<double> > & v,
 
 if (verbose)
 {
-	cout << "Point in simplex checks: " << endl;
+	cout << "Point in simplex checks (v.size() = " << v.size() << "): " << endl;
+	size_t ivertex = 0;
 	for ( auto & vertex : v )
 	{
+		cout << ivertex << ": ";
 		for ( auto & coordinate : vertex )
 			cout << coordinate << "   ";
 		cout << endl;
