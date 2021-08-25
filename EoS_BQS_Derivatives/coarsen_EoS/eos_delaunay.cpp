@@ -77,7 +77,7 @@ eos_delaunay::eos_delaunay(string EoS_table_file)
 	//try
 	//{
 		cout << "Setting up kd-tree...";
-		tree4d tree(std::begin(density_points), std::end(density_points));
+		tree(std::begin(density_points), std::end(density_points));
 		cout << "finished!\n";
 		//cout << "Constructed full tree in " << sw.printTime() << " s." << endl;
 	//}
