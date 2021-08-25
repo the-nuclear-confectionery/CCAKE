@@ -55,43 +55,20 @@ inline double d2( const vector<double> & a, const vector<double> & b )
 			+ (a[3]-b[3])*(a[3]-b[3]) );
 }
 
-bool density_comp( const vector<double> & a, const vector<double> & b )
-{
-	if (a[0]==b[0])
-	{
-		if (a[1]==b[1])
-		{
-			if (a[2]==b[2])
-			{
-				if (a[3]==b[3]) return true;
-				else return (a[3] < b[3]);
-			}
-			else return (a[2] < b[2]);
-		}
-		else return (a[1] < b[1]);
-	}
-	else return (a[0] < b[0]);
-}
+
+// prototypes
+void load_EoS_table(std::string path_to_file, vector<vector<double> > & grid);
+void get_min_and_max(vector<double> & v, double & minval, double & maxval, bool normalize);
+
 
 int main(int argc, char *argv[])
 {
 	// check input first
 	if (argc < 2) exit(-1);
 
-	/*cout << "Bug checks:" << endl;
-	if ( point_is_in_simplex( {{0,0,0,0},{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}},
-							  {0.1,0.1,0.1,0.1} ) )
-		cout << " found point in this simplex!" << endl;
-	else
-		cout << " did not find point in this simplex!" << endl;
-
-if (true) exit(-1);*/
-
 	// read path to input file from command line
 	string path_to_file = string(argv[1]);
 
-	vector<double> Tvec, muBvec, muSvec, muQvec;
-	vector<double> evec, bvec, svec, qvec;
 	vector<vector<double> > grid;
 
 	vector<int> Tinds(nT*nmub*nmuq*nmus), mubinds(nT*nmub*nmuq*nmus),
@@ -109,7 +86,256 @@ if (true) exit(-1);*/
 		idx++;
 	}
 
-	// then read in file itself
+	// load EoS table
+	load_EoS_table(path_to_file, grid);
+
+	vector<double> Tvec(grid.size()), muBvec(grid.size()), muSvec(grid.size()), muQvec(grid.size());
+	vector<double> evec(grid.size()), bvec(grid.size()), svec(grid.size()), qvec(grid.size());
+	for (size_t igridcell = 0; igridcell < grid.size(); igridcell++)
+	{
+		const vector<double> & gridcell = grid[igridcell];
+		Tvec[igridcell] = gridcell[0];
+		muBvec[igridcell] = gridcell[1];
+		muQvec[igridcell] = gridcell[2];	// note order of muQ, muS
+		muSvec[igridcell] = gridcell[3];
+		evec[igridcell] = gridcell[4];
+		bvec[igridcell] = gridcell[5];
+		svec[igridcell] = gridcell[6];		// note order of s, q
+		qvec[igridcell] = gridcell[7];
+	}
+
+	// get density ranges and normalize
+	double emin = 0.0, emax = 0.0, bmin = 0.0, bmax = 0.0,
+			smin = 0.0, smax = 0.0, qmin = 0.0, qmax = 0.0;
+	get_min_max_normalize(evec, emin, emax, false);
+	get_min_max_normalize(bvec, bmin, bmax, false);
+	get_min_max_normalize(svec, smin, smax, false);
+	get_min_max_normalize(qvec, qmin, qmax, false);
+
+	// normalize grid points
+	for ( const vector<double> & gridcell : grid )
+	{
+		gridcell[4] = (gridcell[4] - emin) / ( emax - emin );
+		gridcell[5] = (gridcell[5] - bmin) / ( bmax - bmin );
+		gridcell[6] = (gridcell[6] - smin) / ( smax - smin );
+		gridcell[7] = (gridcell[7] - qmin) / ( qmax - qmin );
+	}
+
+	// copy normalized densities from grid to separate vector (for kd-tree)
+	// (needs to be vector of arrays to set up kd-tree correctly)
+	std::vector<std::array<double, 4> > density_points(grid.size());
+	for (size_t ii = 0; ii < densities_size; ii++)
+		std::copy_n( grid[ii].begin()+4, grid[ii].end(), density_points[ii].begin() );
+
+	// set up kd-tree
+	typedef point<double, 4> point4d;
+	typedef kdtree<double, 4> tree4d;
+	try
+	{
+		cout << "Setting up kd-tree...";
+		tree4d tree(std::begin(density_points), std::end(density_points));
+		cout << "finished!\n";
+		//cout << "Constructed full tree in " << sw.printTime() << " s." << endl;
+	}
+	catch (const std::exception& e)
+	{
+		std::cerr << '\n' << e.what() << '\n';
+	}
+
+	// set densities where we want to test the interpolator
+	const double e0 = 46308.20963821, b0 = -1.23317452, s0 = -1.53064765, q0 = -0.24540761;
+
+	// Set-up is finished; start timing now
+	Stopwatch sw;
+	sw.Reset();
+	sw.Start();
+
+	// normalize first
+	const double ne0 = (e0 - emin) / (emax - emin);
+	const double nb0 = (b0 - bmin) / (bmax - bmin);
+	const double ns0 = (s0 - smin) / (smax - smin);
+	const double nq0 = (q0 - qmin) / (qmax - qmin);
+
+	vector<double> nv0 = {ne0, nb0, ns0, nq0};
+
+	// here is where we query the kd-tree for the nearest neighbor (NN)
+	size_t kdtree_nn_index = 0;
+	try
+	{
+		point4d n = tree.nearest({ne0, nb0, ns0, nq0}, kdtree_nn_index);
+		//sw.Stop();
+		//cout << "KD-Tree: Found nearest neighbor in " << setprecision(18)
+		//		<< sw.printTime() << " s." << endl;
+		cout << "KD-Tree: Nearest neighbor is " << n << endl;
+		cout << "KD-Tree: Nearest neighbor index is " << kdtree_nn_index << endl;
+	}
+	catch (const std::exception& e)
+	{
+		std::cerr << e.what() << '\n';
+	}
+
+	// look up indices
+	const int iTNN = Tinds[kdtree_nn_index], imubNN = mubinds[kdtree_nn_index],
+				imuqNN = muqinds[kdtree_nn_index], imusNN = musinds[kdtree_nn_index];
+
+
+	// select vertices in vicinity of NN to triangulate
+	int NNvertex = 0;
+	vector<vector<double> > vertices;
+
+	// Qhull requires vertices as 1D vector
+	vector<double> verticesFlat;
+
+	// add block to constrain scope of unnecessary variables
+	{
+		int vertexcount = 0;
+		for (int ii = -1; ii <= 1; ii++)
+		for (int jj = -1; jj <= 1; jj++)
+		for (int kk = -1; kk <= 1; kk++)
+		for (int ll = -1; ll <= 1; ll++)
+		{
+			// check that we're not going outside the grid
+			if ( iTNN+ii < nT && iTNN+ii >= 0
+				&& imubNN+jj < nmub && imubNN+jj >= 0
+				&& imuqNN+kk < nmuq && imuqNN+kk >= 0
+				&& imusNN+ll < nmus && imusNN+ll >= 0 )
+			{
+				if (ii==0 && jj==0 && kk==0 && ll==0)
+					NNvertex = vertexcount;	// identify NN index below
+				vertices.push_back( grid[indexer( iTNN+ii, imubNN+jj, imuqNN+kk, imusNN+ll )] );
+				vertexcount++;
+			}
+		}
+
+		// flatten as efficiently as possible
+		size_t nVertices = vertices.size();
+		verticesFlat.resize(4*nVertices);	// dim == 4
+		for (int ii = 0; ii < nVertices; ii++)
+		{
+			const vector<double> & vertex = vertices[ii];
+			for (int jj = 0; jj < 4; jj++)
+				verticesFlat[4*ii + jj] = vertex[jj+4];
+		}
+	}
+
+
+	// Test the Delaunay part here
+	// first get the triangulation
+	vector<vector<size_t> > simplices;
+	compute_delaunay(&verticesFlat[0], 4, verticesFlat.size() / 4, simplices);
+	//cout << "Finished the Delaunay triangulation in " << sw.printTime() << " s." << endl;
+
+
+	// =======================================================
+	// triangulation is complete; now find containing simplex
+
+	// first check which simplices contain nearest neighbor
+	// (skip the ones which don't have it)
+	//vector<bool> simplices_to_check(simplices.size(), false);
+
+	// block to enforce local scope
+	int iclosestsimplex = 0;
+	{
+		int isimplex = 0;
+		double center_d2_min = 2.0;	// start with unrealistically large value (0 <= d2 <= 1)
+		for ( const auto & simplex : simplices )
+		{
+			bool NN_vertex_included_in_this_simplex = false;
+			for ( const auto & vertex : simplex )
+				if ( vertex == NNvertex )
+				{
+					NN_vertex_included_in_this_simplex = true;
+					break;
+				}
+			
+			// assume point must belong to simplex including NN, skip other simplices
+			//simplices_to_check[isimplex] = NN_vertex_included_in_this_simplex;
+			
+			if (!NN_vertex_included_in_this_simplex)
+			{
+				isimplex++;
+				continue;
+			}
+
+			// otherwise, compute simplex center and track squared distance to original point
+			vector<double> center(4, 0.0);
+			for ( const vector<double> & vertex : simplex )
+				std::transform( center.begin(), center.end(), vertices[vertex].begin()+4,
+								center.begin(), std::plus<double>());
+
+
+			// !!!!! N.B. - can remove this part and just multiple once !!!!!
+			// !!!!! below by appropriate factors of 5					!!!!!
+			// center is average of this simplex's vertices
+			std::transform( center.begin(), center.end(), center.begin(),
+							[](double & element){ return 0.2*element; } );
+							// 0.2 == 1/(dim+1), dim == 4
+
+			double d2loc = d2( center, nv0 );
+			if ( d2loc < center_d2_min )
+			{
+				iclosestsimplex = isimplex;
+				center_d2_min = d2loc;
+			}
+	
+			isimplex++;
+		}
+	}
+
+	// pass these to routine for locating point in simplex
+	vector<vector<double> > simplexVertices(5);	// 5 == dim + 1, dim == 4
+
+	// block for local scope
+	{
+		int ivertex = 0;
+		for ( const auto & vertex : simplices[iclosestsimplex] )
+			simplexVertices[ivertex] = vector<double>( vertices[vertex].begin()+4,
+														vertices[vertex].end() ) );
+	}
+
+
+	// locate the point in the simplex (assuming we know it's there;
+	// currently no plan B for if point winds up outside this simplex)
+	vector<double> point_lambda_in_simplex(5, 0.0);	// dim + 1 == 5
+	bool foundPoint = point_is_in_simplex( simplexVertices, nv0, point_lambda_in_simplex, false );
+
+
+	// finally, use the output lambda coefficients to get the interpolated values
+	double T0 = 0.0, mub0 = 0.0, muq0 = 0.0, mus0 = 0.0;
+	{
+		int ivertex = 0;
+		for ( const auto & vertex : simplices[isimplex] )
+		{
+			double lambda_coefficient = point_lambda_in_simplex[ivertex];
+			/*cout << "Check interpolation: " << ivertex << "   " << vertex << "   "
+					<< point_lambda_in_simplex[ivertex] << "   "
+					<< vertices[vertex][0] << "   " << vertices[vertex][1] << "   " 
+					<< vertices[vertex][2] << "   " << vertices[vertex][3] << endl;*/
+			T0   += lambda_coefficient * vertices[vertex][0];
+			mub0 += lambda_coefficient * vertices[vertex][1];
+			muq0 += lambda_coefficient * vertices[vertex][2];
+			mus0 += lambda_coefficient * vertices[vertex][3];
+			ivertex++;
+		}
+	}
+
+	sw.Stop();
+
+	cout << "The final answer is: "
+		<< T0 << "   " << mub0 << "   " << muq0 << "   " << mus0 << endl;
+
+	cout << "Found the answer in approximately " << sw.printTime() << " s." << endl;
+
+	return 0;
+}
+
+
+
+
+void load_EoS_table(std::string path_to_file, vector<vector<double> > & grid)
+{
+	grid.clear();
+	// read in file itself
 	ifstream infile(path_to_file.c_str());
 	if (infile.is_open())
 	{
@@ -125,7 +351,7 @@ if (true) exit(-1);*/
 			iss >> Tin >> muBin >> muQin >> muSin >> dummy >> dummy
 				>> bin >> sin >> qin >> ein >> dummy;
 
-			Tvec.push_back( Tin );
+			/*Tvec.push_back( Tin );
 			muBvec.push_back( muBin );
 			muSvec.push_back( muSin );
 			muQvec.push_back( muQin );
@@ -133,6 +359,7 @@ if (true) exit(-1);*/
 			svec.push_back( sin*Tin*Tin*Tin/(hbarc*hbarc*hbarc) );		// 1/fm^3
 			qvec.push_back( qin*Tin*Tin*Tin/(hbarc*hbarc*hbarc) );		// 1/fm^3
 			evec.push_back( ein*Tin*Tin*Tin*Tin/(hbarc*hbarc*hbarc) );	// MeV/fm^3
+			*/
 
 			grid.push_back( vector<double>({Tin, muBin, muQin, muSin,
 											ein*Tin*Tin*Tin*Tin/(hbarc*hbarc*hbarc),
@@ -145,321 +372,16 @@ if (true) exit(-1);*/
 	}
 
 	infile.close();
-
-	cout << "Initialize densities..." << endl;
-	vector<vector<double> > densities;
-	for ( size_t ivec = 0; ivec < evec.size(); ivec++ )
-	{
-		vector<double> density(5); // 5th element is cell index
-		density[0] = evec[ivec];
-		density[1] = bvec[ivec];
-		density[2] = svec[ivec];
-		density[3] = qvec[ivec];
-		density[4] = ivec;
-		densities.push_back( density );
-	}
-
-	double emin = *min_element(evec.begin(), evec.end());
-	double emax = *max_element(evec.begin(), evec.end());
-	double bmin = *min_element(bvec.begin(), bvec.end());
-	double bmax = *max_element(bvec.begin(), bvec.end());
-	double smin = *min_element(svec.begin(), svec.end());
-	double smax = *max_element(svec.begin(), svec.end());
-	double qmin = *min_element(qvec.begin(), qvec.end());
-	double qmax = *max_element(qvec.begin(), qvec.end());
-
-	// normalize to unit hypercube
-	cout << "Normalizing densities..." << endl;
-	for ( auto & density : densities )
-	{
-		density[0] = (density[0] - emin) / ( emax - emin );
-		density[1] = (density[1] - bmin) / ( bmax - bmin );
-		density[2] = (density[2] - smin) / ( smax - smin );
-		density[3] = (density[3] - qmin) / ( qmax - qmin );
-	}
-
-	cout << "Normalizing grid cells (same thing)..." << endl;
-	for ( auto & cell : grid )
-	{
-		cell[4] = (cell[4] - emin) / ( emax - emin );
-		cell[5] = (cell[5] - bmin) / ( bmax - bmin );
-		cell[6] = (cell[6] - smin) / ( smax - smin );
-		cell[7] = (cell[7] - qmin) / ( qmax - qmin );
-	}
-
-	//cout << "Sorting..." << endl;
-	//std::sort(densities.begin(), densities.end(), density_comp);
-
-	const double e0 = 46308.20963821, b0 = -1.23317452, s0 = -1.53064765, q0 = -0.24540761;
-	const double ne0 = (e0 - emin) / (emax - emin);
-	const double nb0 = (b0 - bmin) / (bmax - bmin);
-	const double ns0 = (s0 - smin) / (smax - smin);
-	const double nq0 = (q0 - qmin) / (qmax - qmin);
-
-	vector<double> nv0 = {ne0, nb0, ns0, nq0};
-
-	Stopwatch sw;
-	sw.Start();
-
-	// get nearest neighbor w.r.t. squared distance
-	vector<double> NN = *min_element(densities.begin(), densities.end(),
-			[nv0](const vector<double> & a, const vector<double> & b)
-			{ return d2(a, nv0) < d2(b, nv0); });
-
-	const size_t NN_index = NN[4];
-	const int iTNN = Tinds[NN_index], imubNN = mubinds[NN_index],
-				imuqNN = muqinds[NN_index], imusNN = musinds[NN_index];
-
-	sw.Stop();
-	cout << "Brute force: NN_index = " << NN_index << endl;
-	cout << "Brute force: NN = " << NN[0] << "   " << NN[1] << "   " << NN[2] << "   " << NN[3] << endl;
-	cout << "Indentified NN simplices in " << sw.printTime() << " s." << endl;
-
-cout << "NN grid elements are:" << endl;
-	for ( auto & elem : grid[indexer( iTNN, imubNN, imuqNN, imusNN ) ] )
-		cout << elem << "   ";
-	cout << endl << endl;
-
-cout << "NN grid elements are (should be the same as above):" << endl;
-	for ( auto & elem : grid[NN_index] )
-		cout << elem << "   ";
-	cout << endl << endl;
-
-cout << "Points in grid around NN are:" << endl;
-	for (int ii = -1; ii <= 1; ii++)
-        for (int jj = -1; jj <= 1; jj++)
-        for (int kk = -1; kk <= 1; kk++)
-        for (int ll = -1; ll <= 1; ll++)
-	{
-		if ( iTNN+ii < nT && iTNN+ii >= 0
-		&& imubNN+jj < nmub && imubNN+jj >= 0
-		&& imuqNN+kk < nmuq && imuqNN+kk >= 0
-		&& imusNN+ll < nmus && imusNN+ll >= 0 )
-		{
-//		cout << ii << "   " << jj << "   " << kk << "   " << ll << ": ";
-//		for ( auto & elem : grid[indexer( iTNN+ii, imubNN+jj, imuqNN+kk, imusNN+ll ) ] )
-//			cout << elem << "   ";
-//		cout << endl;
-		//cout << ii << "   " << jj << "   " << kk << "   " << ll << ": ";
-		const auto & gridVertex = grid[indexer( iTNN+ii, imubNN+jj, imuqNN+kk, imusNN+ll ) ];
-		cout /*<< gridVertex[0] << "   " << gridVertex[1] << "   "
-				<< gridVertex[2] << "   " << gridVertex[3] << "   "*/
-				<< setprecision(16)
-				<< gridVertex[4] << "   " << gridVertex[5] << "   "
-				<< gridVertex[6] << "   " << gridVertex[7] /*<< "   "
-				<< emin + gridVertex[4]*(emax-emin) << "   "
-				<< bmin + gridVertex[5]*(bmax-bmin) << "   "
-				<< smin + gridVertex[6]*(smax-smin) << "   "
-				<< qmin + gridVertex[7]*(qmax-qmin) */<< endl;
-		}
-	}
-	cout << endl;
-
-//if (true) exit(-1);
-
-	int NNvertex = 0;
-	vector<vector<double> > vertices;
-	{
-	int vertexcount = 0;
-	for (int ii = -1; ii <= 1; ii++)
-	for (int jj = -1; jj <= 1; jj++)
-	for (int kk = -1; kk <= 1; kk++)
-	for (int ll = -1; ll <= 1; ll++)
-	{
-		if ( iTNN+ii < nT && iTNN+ii >= 0
-			&& imubNN+jj < nmub && imubNN+jj >= 0
-			&& imuqNN+kk < nmuq && imuqNN+kk >= 0
-			&& imusNN+ll < nmus && imusNN+ll >= 0 )
-		{
-		if (ii==0&&jj==0&&kk==0&&ll==0) NNvertex = vertexcount;	// identify NN index below
-		vertices.push_back( grid[indexer( iTNN+ii, imubNN+jj, imuqNN+kk, imusNN+ll )] );
-		vertexcount++;
-		}
-	}
-	}
-
-	// Qhull requires vertices as 1D vector
-	vector<double> verticesFlat;
-	for (int ii = -1; ii <= 1; ii++)
-	for (int jj = -1; jj <= 1; jj++)
-	for (int kk = -1; kk <= 1; kk++)
-	for (int ll = -1; ll <= 1; ll++)
-	{
-		const vector<double> & gridVertex = grid[indexer( iTNN+ii, imubNN+jj, imuqNN+kk, imusNN+ll )];
-		if ( iTNN+ii < nT && iTNN+ii >= 0
-			&& imubNN+jj < nmub && imubNN+jj >= 0
-			&& imuqNN+kk < nmuq && imuqNN+kk >= 0
-			&& imusNN+ll < nmus && imusNN+ll >= 0 )
-		{
-		verticesFlat.push_back( gridVertex[4] );	//e
-		verticesFlat.push_back( gridVertex[5] );	//b
-		verticesFlat.push_back( gridVertex[6] );	//s
-		verticesFlat.push_back( gridVertex[7] );	//q
-		}
-	}
-
-	size_t densities_size = densities.size();
-	std::vector<std::array<double, 4> > density_points(densities_size);
-	for (size_t ii = 0; ii < densities_size; ii++)
-		std::copy_n( densities[ii].begin(), 4, density_points[ii].begin() );
-
-	// try this
-	try
-	{
-		typedef point<double, 4> point4d;
-		typedef kdtree<double, 4> tree4d;
-
-		sw.Reset();
-		sw.Start();
-		tree4d tree(std::begin(density_points), std::end(density_points));
-		sw.Stop();
-		cout << "Constructed full tree in " << sw.printTime() << " s." << endl;
-
-		sw.Reset();
-		sw.Start();
-		//for (size_t ii = 0; ii < 10000000; ii++)
-		//	point4d n0 = tree.nearest({ne0+ii*1e-8, nb0, ns0, nq0});
-		size_t kdtree_nn_index = 0;
-		point4d n = tree.nearest({ne0, nb0, ns0, nq0}, kdtree_nn_index);
-		sw.Stop();
-		cout << "KD-Tree: Found nearest neighbor in " << setprecision(18)
-				<< sw.printTime() << " s." << endl;
-		cout << "KD-Tree: Nearest neighbor is " << n << endl;
-		cout << "KD-Tree: Nearest neighbor index is " << kdtree_nn_index << endl;
-	}
-	catch (const std::exception& e)
-	{
-		std::cerr << e.what() << '\n';
-	}
-
-
-
-	// Test the Delaunay part here
-	// first get the triangulation
-	vector<vector<size_t> > simplices;
-	sw.Reset();
-	sw.Start();
-	compute_delaunay(&verticesFlat[0], 4, verticesFlat.size() / 4, simplices);
-	sw.Stop();
-	cout << "Finished the Delaunay triangulation in " << sw.printTime() << " s." << endl;
-	
-	vector<bool> simplices_to_check(simplices.size(), false);
-
-	cout << endl << "The triangulation contains the following simplices:"  << setprecision(8) << endl;
-	int isimplex = 0;
-	int iclosestsimplex = 0;
-	double center_d2_min = 2.0;	// start with unrealistically large value (0 <= d2 <= 1)
-	for ( const auto & simplex : simplices )
-	{
-		cout << isimplex << ":";
-		vector<double> center(4, 0.0);
-		bool NN_vertex_included = false;
-		for ( const auto & vertex : simplex )
-		{
-			std::transform( center.begin(), center.end(), vertices[vertex].begin()+4,
-							center.begin(), std::plus<double>());
-			cout << "   " << vertex;
-			if ( vertex == NNvertex ) NN_vertex_included = true;
-		}
-		
-		// assume point must belong to simplex including NN, skip other simplices
-		simplices_to_check[isimplex] = NN_vertex_included;
-
-		// center is average of this simplex's vertices
-		std::transform( center.begin(), center.end(), center.begin(),
-						[](double & element){ return 0.2*element; } );	// 0.2 == 1/(dim+1), dim == 4
-		// print center
-		cout << "   center: " << center[0] << "   " << center[1] << "   "
-				<< center[2] << "   " << center[3];
-		// print if this simplex includes nearest neighbor
-		string inclusion_string = NN_vertex_included? "NN IS INCLUDED" : "NN IS NOT INCLUDED";
-		cout << "; " << inclusion_string << endl;
-		double d2loc = d2( center, nv0 );
-		if ( d2loc < center_d2_min )
-		{
-			iclosestsimplex = isimplex;
-			center_d2_min = d2loc;
-		}
-
-		isimplex++;
-	}
-
-	cout << "The closest simplex was isimplex = " << iclosestsimplex
-			<< " with d = " << sqrt(center_d2_min) << endl;
-	cout << "This simplex contains the following vertices: " << endl;
-	int ivertex = 0;
-	vector<vector<double> > simplexVertices;
-	for ( const auto & vertex : simplices[iclosestsimplex] )
-	{
-		cout << ivertex++ << ":";
-		for ( auto it = vertices[vertex].begin()+4; it != vertices[vertex].end(); it++ )
-			cout << "   " << *it;
-		cout << endl;
-		simplexVertices.push_back( vector<double>( vertices[vertex].begin()+4, vertices[vertex].end() ) );
-	}
-
-	cout << endl
-			<< "********************************" << endl
-			<< "On to the interpolation!" << endl
-			<< "********************************" << endl << endl;
-
-	cout << "Next, check if point is contained in the simplex we found:" << endl;
-	vector<double> point_lambda_in_simplex(5, 0.0);	// dim + 1 == 5
-	bool foundPoint = point_is_in_simplex( simplexVertices, nv0, point_lambda_in_simplex );
-	
-	cout << "nv0: " << nv0[0] << "   " << nv0[1] << "   " << nv0[2] << "   " << nv0[3] << endl;
-
-
-	// create some space
-	for ( int iloop = 0; iloop < 10; iloop++) cout << endl;
-
-	
-	cout << "Looping through all simplices:" << endl;
-	isimplex = 0;
-	for ( auto & simplex : simplices )
-	{
-		cout << isimplex << ":" << endl;
-		if (!simplices_to_check[isimplex])
-		{
-			isimplex++;
-			continue;	// skip simplices that don't need to be checked
-		}
-		simplexVertices.clear();
-		for ( const auto & vertex : simplex )
-			simplexVertices.push_back( vector<double>( vertices[vertex].begin()+4,
-														vertices[vertex].end() ) );
-		if ( point_is_in_simplex( simplexVertices, nv0, point_lambda_in_simplex, false ) )
-		{
-			cout << " found point in this simplex!" << endl;
-			break;
-		}
-		else
-			cout << " did not find point in this simplex!" << endl;
-		isimplex++;
-	}
-
-
-	// finally, use the output lambda coefficients to get the interpolated values
-	{
-	ivertex = 0;
-	double T0 = 0.0, mub0 = 0.0, muq0 = 0.0, mus0 = 0.0;
-	for ( const auto & vertex : simplices[isimplex] )
-	{
-		cout << "Check interpolation: " << ivertex << "   " << vertex << "   "
-				<< point_lambda_in_simplex[ivertex] << "   "
-				<< vertices[vertex][0] << "   " << vertices[vertex][1] << "   " 
-				<< vertices[vertex][2] << "   " << vertices[vertex][3] << endl;
-		T0 += point_lambda_in_simplex[ivertex] * vertices[vertex][0];
-		mub0 += point_lambda_in_simplex[ivertex] * vertices[vertex][1];
-		muq0 += point_lambda_in_simplex[ivertex] * vertices[vertex][2];
-		mus0 += point_lambda_in_simplex[ivertex] * vertices[vertex][3];
-		ivertex++;
-	}
-
-		cout << "The final answer is: "
-			<< T0 << "   " << mub0 << "   " << muq0 << "   " << mus0 << endl;
-	}
-
-	return 0;
+	return;
 }
 
+void get_min_and_max(vector<double> & v, double & minval, double & maxval, bool normalize)
+{
+	minval = *min_element(v.begin(), v.end());
+	maxval = *max_element(v.begin(), v.end());
+	if (normalize)
+		std::transform( v.begin(), v.end(), v.begin(),
+						[minval,maxval](double & element
+						{ return (element-minval)/(maxval-minval); } );
+	return;
+}
