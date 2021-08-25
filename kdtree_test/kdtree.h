@@ -137,6 +137,8 @@ public:
 			nodes_[inode].oindex_ = inode; // added by me
         root_ = make_tree(0, nodes_.size(), 0);
     }
+
+	kdtree(){};	// add a default constructor (added by me)
  
     /**
      * Constructor taking a function object that generates
