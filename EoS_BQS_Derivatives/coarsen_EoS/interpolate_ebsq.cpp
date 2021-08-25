@@ -107,13 +107,13 @@ int main(int argc, char *argv[])
 	// get density ranges and normalize
 	double emin = 0.0, emax = 0.0, bmin = 0.0, bmax = 0.0,
 			smin = 0.0, smax = 0.0, qmin = 0.0, qmax = 0.0;
-	get_min_max_normalize(evec, emin, emax, false);
-	get_min_max_normalize(bvec, bmin, bmax, false);
-	get_min_max_normalize(svec, smin, smax, false);
-	get_min_max_normalize(qvec, qmin, qmax, false);
+	get_min_and_max(evec, emin, emax, false);
+	get_min_and_max(bvec, bmin, bmax, false);
+	get_min_and_max(svec, smin, smax, false);
+	get_min_and_max(qvec, qmin, qmax, false);
 
 	// normalize grid points
-	for ( const vector<double> & gridcell : grid )
+	for ( vector<double> & gridcell : grid )
 	{
 		gridcell[4] = (gridcell[4] - emin) / ( emax - emin );
 		gridcell[5] = (gridcell[5] - bmin) / ( bmax - bmin );
@@ -124,16 +124,17 @@ int main(int argc, char *argv[])
 	// copy normalized densities from grid to separate vector (for kd-tree)
 	// (needs to be vector of arrays to set up kd-tree correctly)
 	std::vector<std::array<double, 4> > density_points(grid.size());
-	for (size_t ii = 0; ii < densities_size; ii++)
+	for (size_t ii = 0; ii < grid.size(); ii++)
 		std::copy_n( grid[ii].begin()+4, grid[ii].end(), density_points[ii].begin() );
 
 	// set up kd-tree
 	typedef point<double, 4> point4d;
 	typedef kdtree<double, 4> tree4d;
+	tree4d tree;
 	try
 	{
 		cout << "Setting up kd-tree...";
-		tree4d tree(std::begin(density_points), std::end(density_points));
+		tree = tree4d(std::begin(density_points), std::end(density_points));
 		cout << "finished!\n";
 		//cout << "Constructed full tree in " << sw.printTime() << " s." << endl;
 	}
@@ -259,7 +260,7 @@ int main(int argc, char *argv[])
 
 			// otherwise, compute simplex center and track squared distance to original point
 			vector<double> center(4, 0.0);
-			for ( const vector<double> & vertex : simplex )
+			for ( const size_t vertex : simplex )
 				std::transform( center.begin(), center.end(), vertices[vertex].begin()+4,
 								center.begin(), std::plus<double>());
 
@@ -290,7 +291,7 @@ int main(int argc, char *argv[])
 		int ivertex = 0;
 		for ( const auto & vertex : simplices[iclosestsimplex] )
 			simplexVertices[ivertex] = vector<double>( vertices[vertex].begin()+4,
-														vertices[vertex].end() ) );
+														vertices[vertex].end() );
 	}
 
 
