@@ -47,26 +47,6 @@ using orgQhull::QhullVertexSet;
 using orgQhull::QhullVertexSetIterator;
 using orgQhull::RboxPoints;
 
-/*--------------------------------------------
--user_eg3-  main procedure of user_eg3 application
-*/
-/*int main(int argc, char **argv){
-
-    QHULL_LIB_CHECK
-
-    try{
-        return user_eg3(argc, argv);
-    }catch(QhullError &e){
-        cerr << e.what() << std::endl;
-        return e.errorCode();
-    }
-}//main*/
-
-double gaussian(double x, double y)
-{
-	return exp(-x*x-y*y);
-}
-
 int compute_delaunay(double * arr, const size_t pc_dimension, const size_t n_pts,
 					 vector<vector<size_t> > & simplices)
 {
@@ -90,4 +70,5 @@ int compute_delaunay(double * arr, const size_t pc_dimension, const size_t n_pts
 
     return 0;
 }
+
 

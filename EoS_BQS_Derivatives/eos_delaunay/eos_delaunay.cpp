@@ -12,8 +12,13 @@
 
 using namespace std;
 
-void eos::eos(string EoS_table_file)
+eos_delaunay::eos_delaunay(string EoS_table_file)
 {
+	Tinds.resize(nT*nmub*nmuq*nmus);
+	mubinds.resize(nT*nmub*nmuq*nmus);
+	muqinds.resize(nT*nmub*nmuq*nmus);
+	musinds.resize(nT*nmub*nmuq*nmus);
+
 	size_t idx = 0;
 	for (int iT = 0; iT < nT; iT++)
 	for (int imub = 0; imub < nmub; imub++)
@@ -28,7 +33,7 @@ void eos::eos(string EoS_table_file)
 	}
 
 	// load EoS table
-	load_EoS_table(path_to_file, grid);
+	load_EoS_table(EoS_table_file, grid);
 
 	vector<double> Tvec(grid.size()), muBvec(grid.size()), muSvec(grid.size()), muQvec(grid.size());
 	vector<double> evec(grid.size()), bvec(grid.size()), svec(grid.size()), qvec(grid.size());
@@ -46,8 +51,8 @@ void eos::eos(string EoS_table_file)
 	}
 
 	// get density ranges and normalize
-	double emin = 0.0, emax = 0.0, bmin = 0.0, bmax = 0.0,
-			smin = 0.0, smax = 0.0, qmin = 0.0, qmax = 0.0;
+	emin = 0.0, emax = 0.0, bmin = 0.0, bmax = 0.0,
+	smin = 0.0, smax = 0.0, qmin = 0.0, qmax = 0.0;
 	get_min_and_max(evec, emin, emax, false);
 	get_min_and_max(bvec, bmin, bmax, false);
 	get_min_and_max(svec, smin, smax, false);
@@ -69,12 +74,10 @@ void eos::eos(string EoS_table_file)
 		std::copy_n( grid[ii].begin()+4, 4, density_points[ii].begin() );
 
 	// set up kd-tree
-	typedef point<double, 4> point4d;
-	typedef kdtree<double, 4> tree4d;
 	//try
 	//{
 		cout << "Setting up kd-tree...";
-		tree4d tree(std::begin(density_points), std::end(density_points));
+		tree4d(std::begin(density_points), std::end(density_points));
 		cout << "finished!\n";
 		//cout << "Constructed full tree in " << sw.printTime() << " s." << endl;
 	//}

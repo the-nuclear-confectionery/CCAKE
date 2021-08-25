@@ -1,19 +1,78 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
-#include <fstream>
-#include <iomanip>
 #include <iostream>
+#include <fstream>
 #include <sstream>
-#include <string>
 #include <vector>
+#include <iomanip>
+#include <string>
 
-#include "eos_delaunay.h"
+#include "delaunay.h"
+#include "kdtree.h"
+#include "point_in_simplex.h"
+#include "Stopwatch.h"
 
 using namespace std;
 
-void eos::eos(string EoS_table_file)
+constexpr int mode = 1;
+constexpr double EPS = 1e-25;
+const double hbarc = 197.327;
+
+constexpr size_t nT = 155, nmub = 37, nmus = 37, nmuq = 37;
+
+inline size_t indexer( const int iT, const int imub, const int imuq, const int imus )
 {
+	// mus varies faster than muq!!!!!
+	return ( ( ( iT * nmub + imub ) * nmuq + imuq ) * nmus + imus );
+}
+
+bool are_nearby(const vector<double> & a, const vector<double> & b, double r0)
+{
+	if (mode == 1)
+		return (  (a[0]-b[0])*(a[0]-b[0])
+			+ (a[1]-b[1])*(a[1]-b[1])
+			+ (a[2]-b[2])*(a[2]-b[2])
+			+ (a[3]-b[3])*(a[3]-b[3]) < r0*r0 );
+	else if (mode == 2)
+		return (   (a[0]-b[0])*(a[0]-b[0]) < r0*r0
+			&& (a[1]-b[1])*(a[1]-b[1]) < r0*r0
+			&& (a[2]-b[2])*(a[2]-b[2]) < r0*r0
+			&& (a[3]-b[3])*(a[3]-b[3]) < r0*r0 );
+	else
+                return (   (a[0]-b[0])*(a[0]-b[0]) < r0*r0
+                        || (a[1]-b[1])*(a[1]-b[1]) < r0*r0
+                        || (a[2]-b[2])*(a[2]-b[2]) < r0*r0
+                        || (a[3]-b[3])*(a[3]-b[3]) < r0*r0 );
+
+}
+
+inline double d2( const vector<double> & a, const vector<double> & b )
+{
+	return ( (a[0]-b[0])*(a[0]-b[0])
+			+ (a[1]-b[1])*(a[1]-b[1])
+			+ (a[2]-b[2])*(a[2]-b[2])
+			+ (a[3]-b[3])*(a[3]-b[3]) );
+}
+
+
+// prototypes
+void load_EoS_table(std::string path_to_file, vector<vector<double> > & grid);
+void get_min_and_max(vector<double> & v, double & minval, double & maxval, bool normalize);
+
+
+int main(int argc, char *argv[])
+{
+	// check input first
+	if (argc < 2) exit(-1);
+
+	// read path to input file from command line
+	string path_to_file = string(argv[1]);
+
+	vector<vector<double> > grid;
+
+	vector<int> Tinds(nT*nmub*nmuq*nmus), mubinds(nT*nmub*nmuq*nmus),
+					muqinds(nT*nmub*nmuq*nmus), musinds(nT*nmub*nmuq*nmus);
 	size_t idx = 0;
 	for (int iT = 0; iT < nT; iT++)
 	for (int imub = 0; imub < nmub; imub++)
@@ -83,66 +142,13 @@ void eos::eos(string EoS_table_file)
 	//	std::cerr << '\n' << e.what() << '\n';
 	//}
 
-	return;
-}
+	// set densities where we want to test the interpolator
+	const double e0 = 46308.20963821, b0 = -1.23317452, s0 = -1.53064765, q0 = -0.24540761;
 
-void eos_delaunay::load_EoS_table(string path_to_file, vector<vector<double> > & grid)
-{
-	grid.clear();
-	// read in file itself
-	ifstream infile(path_to_file.c_str());
-	if (infile.is_open())
-	{
-		size_t count = 0;
-		string line;
-		double dummy, Tin, muBin, muSin, muQin, bin, sin, qin, ein; 
-		while ( getline (infile, line) )
-		{
-			count++;
-			//if (count % 100 != 0) continue;
-
-			istringstream iss(line);
-			iss >> Tin >> muBin >> muQin >> muSin >> dummy >> dummy
-				>> bin >> sin >> qin >> ein >> dummy;
-
-			/*Tvec.push_back( Tin );
-			muBvec.push_back( muBin );
-			muSvec.push_back( muSin );
-			muQvec.push_back( muQin );
-			bvec.push_back( bin*Tin*Tin*Tin/(hbarc*hbarc*hbarc) );		// 1/fm^3
-			svec.push_back( sin*Tin*Tin*Tin/(hbarc*hbarc*hbarc) );		// 1/fm^3
-			qvec.push_back( qin*Tin*Tin*Tin/(hbarc*hbarc*hbarc) );		// 1/fm^3
-			evec.push_back( ein*Tin*Tin*Tin*Tin/(hbarc*hbarc*hbarc) );	// MeV/fm^3
-			*/
-
-			grid.push_back( vector<double>({Tin, muBin, muQin, muSin,
-											ein*Tin*Tin*Tin*Tin/(hbarc*hbarc*hbarc),
-											bin*Tin*Tin*Tin/(hbarc*hbarc*hbarc),
-											sin*Tin*Tin*Tin/(hbarc*hbarc*hbarc),
-											qin*Tin*Tin*Tin/(hbarc*hbarc*hbarc)}) );
-
-			if (count % 1000000 == 0) cout << "Read in " << count << " lines." << endl;
-		}
-	}
-
-	infile.close();
-	return;
-}
-
-void eos_delaunay::get_min_and_max(vector<double> & v, double & minval, double & maxval, bool normalize)
-{
-	minval = *min_element(v.begin(), v.end());
-	maxval = *max_element(v.begin(), v.end());
-	if (normalize)
-		std::transform( v.begin(), v.end(), v.begin(),
-						[minval,maxval](double & element)
-						{ return (element-minval)/(maxval-minval); } );
-	return;
-}
-
-void eos_delaunay::interpolate(const vector<double> & v0, vector<double> & result)
-{
-	double e0 = v0[0], b0 = v0[1], s0 = v0[2], q0 = v0[3];
+	// Set-up is finished; start timing now
+	Stopwatch sw;
+	sw.Reset();
+	sw.Start();
 
 	// normalize first
 	const double ne0 = (e0 - emin) / (emax - emin);
@@ -319,11 +325,69 @@ void eos_delaunay::interpolate(const vector<double> & v0, vector<double> & resul
 		}
 	}
 
-	result.resize(4, 0.0);
-	result[0] = T0;
-	result[1] = mub0;
-	result[2] = mus0;
-	result[3] = muq0;
+	sw.Stop();
 
+	cout << "The final answer is: "
+		<< T0 << "   " << mub0 << "   " << muq0 << "   " << mus0 << endl;
+
+	cout << "Found the answer in approximately " << sw.printTime() << " s." << endl;
+
+	return 0;
+}
+
+
+
+
+void load_EoS_table(std::string path_to_file, vector<vector<double> > & grid)
+{
+	grid.clear();
+	// read in file itself
+	ifstream infile(path_to_file.c_str());
+	if (infile.is_open())
+	{
+		size_t count = 0;
+		string line;
+		double dummy, Tin, muBin, muSin, muQin, bin, sin, qin, ein; 
+		while ( getline (infile, line) )
+		{
+			count++;
+			//if (count % 100 != 0) continue;
+
+			istringstream iss(line);
+			iss >> Tin >> muBin >> muQin >> muSin >> dummy >> dummy
+				>> bin >> sin >> qin >> ein >> dummy;
+
+			/*Tvec.push_back( Tin );
+			muBvec.push_back( muBin );
+			muSvec.push_back( muSin );
+			muQvec.push_back( muQin );
+			bvec.push_back( bin*Tin*Tin*Tin/(hbarc*hbarc*hbarc) );		// 1/fm^3
+			svec.push_back( sin*Tin*Tin*Tin/(hbarc*hbarc*hbarc) );		// 1/fm^3
+			qvec.push_back( qin*Tin*Tin*Tin/(hbarc*hbarc*hbarc) );		// 1/fm^3
+			evec.push_back( ein*Tin*Tin*Tin*Tin/(hbarc*hbarc*hbarc) );	// MeV/fm^3
+			*/
+
+			grid.push_back( vector<double>({Tin, muBin, muQin, muSin,
+											ein*Tin*Tin*Tin*Tin/(hbarc*hbarc*hbarc),
+											bin*Tin*Tin*Tin/(hbarc*hbarc*hbarc),
+											sin*Tin*Tin*Tin/(hbarc*hbarc*hbarc),
+											qin*Tin*Tin*Tin/(hbarc*hbarc*hbarc)}) );
+
+			if (count % 1000000 == 0) cout << "Read in " << count << " lines." << endl;
+		}
+	}
+
+	infile.close();
+	return;
+}
+
+void get_min_and_max(vector<double> & v, double & minval, double & maxval, bool normalize)
+{
+	minval = *min_element(v.begin(), v.end());
+	maxval = *max_element(v.begin(), v.end());
+	if (normalize)
+		std::transform( v.begin(), v.end(), v.begin(),
+						[minval,maxval](double & element)
+						{ return (element-minval)/(maxval-minval); } );
 	return;
 }

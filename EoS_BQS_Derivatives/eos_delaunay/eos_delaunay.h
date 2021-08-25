@@ -34,12 +34,18 @@ class eos_delaunay
 
 	private:
 
+		typedef point<double, 4> point4d;
+		typedef kdtree<double, 4> tree4d;
+
+		tree4d tree;
+
 		const double hbarc = 197.327;
-		constexpr size_t nT = 155, nmub = 37, nmus = 37, nmuq = 37;
+		const size_t nT = 155, nmub = 37, nmus = 37, nmuq = 37;
+
+		double emin, emax, bmin, bmax, smin, smax, qmin, qmax;
 
 		vector<vector<double> > grid;
-		vector<int> Tinds(nT*nmub*nmuq*nmus), mubinds(nT*nmub*nmuq*nmus),
-					muqinds(nT*nmub*nmuq*nmus), musinds(nT*nmub*nmuq*nmus);
+		vector<int> Tinds, mubinds, muqinds, musinds;
 		
 		inline size_t indexer( const int iT, const int imub, const int imuq, const int imus )
 		{
@@ -58,7 +64,7 @@ class eos_delaunay
 		void load_EoS_table(string path_to_file, vector<vector<double> > & grid);
 		void get_min_and_max(vector<double> & v, double & minval, double & maxval, bool normalize);
 
-}
+};
 
 
 
