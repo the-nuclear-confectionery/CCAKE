@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
 	// (needs to be vector of arrays to set up kd-tree correctly)
 	std::vector<std::array<double, 4> > density_points(grid.size());
 	for (size_t ii = 0; ii < grid.size(); ii++)
-		std::copy_n( grid[ii].begin()+4, grid[ii].end(), density_points[ii].begin() );
+		std::copy_n( grid[ii].begin()+4, 4, density_points[ii].begin() );
 
 	// set up kd-tree
 	typedef point<double, 4> point4d;
