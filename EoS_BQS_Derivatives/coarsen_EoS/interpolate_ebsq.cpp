@@ -304,7 +304,7 @@ int main(int argc, char *argv[])
 	double T0 = 0.0, mub0 = 0.0, muq0 = 0.0, mus0 = 0.0;
 	{
 		int ivertex = 0;
-		for ( const auto & vertex : simplices[isimplex] )
+		for ( const auto & vertex : simplices[iclosestsimplex] )
 		{
 			double lambda_coefficient = point_lambda_in_simplex[ivertex];
 			/*cout << "Check interpolation: " << ivertex << "   " << vertex << "   "
