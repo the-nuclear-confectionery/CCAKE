@@ -406,7 +406,7 @@ cout << "Points in grid around NN are:" << endl;
 		for ( const auto & vertex : simplex )
 			simplexVertices.push_back( vector<double>( vertices[vertex].begin()+4,
 														vertices[vertex].end() ) );
-		if ( point_is_in_simplex( simplexVertices, nv0, true ) )
+		if ( point_is_in_simplex( simplexVertices, nv0, false ) )
 			cout << " found point in this simplex!" << endl;
 		else
 			cout << " did not find point in this simplex!" << endl;
