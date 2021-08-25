@@ -47,7 +47,7 @@ eos_delaunay.o: eos_delaunay.cpp eos_delaunay.h
 	$(CC) $(CFLAGS) -c eos_delaunay.cpp $(INCFLAGS) -fpic \
 			$(LDFLAGS) -lqhullcpp -lqhullstatic_r
 
-interpolate_ebsq: interpolate_ebsq.cpp eos_delaunay.cpp
+interpolate_ebsq: eos_delaunay.o
 	$(CC) -g eos_delaunay.o interpolate_ebsq.cpp -o interpolate_ebsq $(CFLAGS) \
 			$(INCFLAGS) -fpic $(LDFLAGS) -lqhullcpp -lqhullstatic_r
 
