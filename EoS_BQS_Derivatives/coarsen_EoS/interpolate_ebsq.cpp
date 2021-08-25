@@ -130,18 +130,17 @@ int main(int argc, char *argv[])
 	// set up kd-tree
 	typedef point<double, 4> point4d;
 	typedef kdtree<double, 4> tree4d;
-	tree4d tree;
-	try
-	{
+	//try
+	//{
 		cout << "Setting up kd-tree...";
-		tree = tree4d(std::begin(density_points), std::end(density_points));
+		tree4d tree(std::begin(density_points), std::end(density_points));
 		cout << "finished!\n";
 		//cout << "Constructed full tree in " << sw.printTime() << " s." << endl;
-	}
-	catch (const std::exception& e)
-	{
-		std::cerr << '\n' << e.what() << '\n';
-	}
+	//}
+	//catch (const std::exception& e)
+	//{
+	//	std::cerr << '\n' << e.what() << '\n';
+	//}
 
 	// set densities where we want to test the interpolator
 	const double e0 = 46308.20963821, b0 = -1.23317452, s0 = -1.53064765, q0 = -0.24540761;
