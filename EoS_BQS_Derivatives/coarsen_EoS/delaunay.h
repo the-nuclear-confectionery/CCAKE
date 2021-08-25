@@ -62,10 +62,10 @@ using orgQhull::RboxPoints;
     }
 }//main*/
 
-double gaussian(double x, double y)
+/*double gaussian(double x, double y)
 {
 	return exp(-x*x-y*y);
-}
+}*/
 
 int compute_delaunay(double * arr, const size_t pc_dimension, const size_t n_pts,
 					 vector<vector<size_t> > & simplices)
