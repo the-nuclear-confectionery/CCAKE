@@ -229,10 +229,6 @@ int main(int argc, char *argv[])
 	// =======================================================
 	// triangulation is complete; now find containing simplex
 
-	// first check which simplices contain nearest neighbor
-	// (skip the ones which don't have it)
-	//vector<bool> simplices_to_check(simplices.size(), false);
-
 	// block to enforce local scope
 	int iclosestsimplex = 0;
 	{
@@ -248,9 +244,7 @@ int main(int argc, char *argv[])
 					break;
 				}
 			
-			// assume point must belong to simplex including NN, skip other simplices
-			//simplices_to_check[isimplex] = NN_vertex_included_in_this_simplex;
-			
+			// assume point must belong to simplex including NN, skip other simplices			
 			if (!NN_vertex_included_in_this_simplex)
 			{
 				isimplex++;
@@ -293,6 +287,8 @@ int main(int argc, char *argv[])
 														vertices[vertex].end() );
 	}
 
+
+	cout << "simplices[iclosestsimplex].size() =" << simplices[iclosestsimplex].size() << endl;
 
 	// locate the point in the simplex (assuming we know it's there;
 	// currently no plan B for if point winds up outside this simplex)
