@@ -343,13 +343,15 @@ cout << "Points in grid around NN are:" << endl;
 	sw.Stop();
 	cout << "Finished the Delaunay triangulation in " << sw.printTime() << " s." << endl;
 	
+	vector<bool> simplices_to_check(simplices.size(), false);
+
 	cout << endl << "The triangulation contains the following simplices:"  << setprecision(8) << endl;
 	int isimplex = 0;
 	int iclosestsimplex = 0;
 	double center_d2_min = 2.0;	// start with unrealistically large value (0 <= d2 <= 1)
 	for ( const auto & simplex : simplices )
 	{
-		cout << isimplex++ << ":";
+		cout << isimplex << ":";
 		vector<double> center(4, 0.0);
 		bool NN_vertex_included = false;
 		for ( const auto & vertex : simplex )
@@ -359,6 +361,9 @@ cout << "Points in grid around NN are:" << endl;
 			cout << "   " << vertex;
 			if ( vertex == NNvertex ) NN_vertex_included = true;
 		}
+		
+		// assume point must belong to simplex including NN, skip other simplices
+		simplices_to_check[isimplex] = NN_vertex_included;
 
 		// center is average of this simplex's vertices
 		std::transform( center.begin(), center.end(), center.begin(),
@@ -375,6 +380,8 @@ cout << "Points in grid around NN are:" << endl;
 			iclosestsimplex = isimplex;
 			center_d2_min = d2loc;
 		}
+
+		isimplex++;
 	}
 
 	cout << "The closest simplex was isimplex = " << iclosestsimplex
@@ -411,6 +418,7 @@ cout << "Points in grid around NN are:" << endl;
 	for ( auto & simplex : simplices )
 	{
 		cout << isimplex++ << ":" << endl;
+		if (!simplices_to_check[isimplex]) continue;	// skip simplices that don't need to be checked
 		simplexVertices.clear();
 		for ( const auto & vertex : simplex )
 			simplexVertices.push_back( vector<double>( vertices[vertex].begin()+4,
