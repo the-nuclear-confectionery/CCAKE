@@ -257,16 +257,25 @@ cout << "Points in grid around NN are:" << endl;
 
 //if (true) exit(-1);
 
+	int NNvertex = 0;
+	{
+	int vertexcount = 0;
 	vector<vector<double> > vertices;
 	for (int ii = -1; ii <= 1; ii++)
 	for (int jj = -1; jj <= 1; jj++)
 	for (int kk = -1; kk <= 1; kk++)
 	for (int ll = -1; ll <= 1; ll++)
-	{	if ( iTNN+ii < nT && iTNN+ii >= 0
+	{
+		if ( iTNN+ii < nT && iTNN+ii >= 0
 			&& imubNN+jj < nmub && imubNN+jj >= 0
 			&& imuqNN+kk < nmuq && imuqNN+kk >= 0
 			&& imusNN+ll < nmus && imusNN+ll >= 0 )
+		{
+		if (ii==0&&jj==0&&kk==0&&ll==0) NNvertex = vertexcount;	// identify NN index below
 		vertices.push_back( grid[indexer( iTNN+ii, imubNN+jj, imuqNN+kk, imusNN+ll )] );
+		vertexcount++;
+		}
+	}
 	}
 
 	// Qhull requires vertices as 1D vector
@@ -348,7 +357,7 @@ cout << "Points in grid around NN are:" << endl;
 			std::transform( center.begin(), center.end(), vertices[vertex].begin()+4,
 							center.begin(), std::plus<double>());
 			cout << "   " << vertex;
-			if ( vertex == vertices.size()/2 ) NN_vertex_included = true;
+			if ( vertex == NNvertex ) NN_vertex_included = true;
 		}
 
 		// center is average of this simplex's vertices
