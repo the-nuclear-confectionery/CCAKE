@@ -1,6 +1,3 @@
-#ifndef KDTREE_H
-#define KDTREE_H
-
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -140,8 +137,6 @@ public:
 			nodes_[inode].oindex_ = inode; // added by me
         root_ = make_tree(0, nodes_.size(), 0);
     }
-
-	kdtree(){};	// add a default constructor (added by me)
  
     /**
      * Constructor taking a function object that generates
@@ -257,5 +252,4 @@ void test_random(size_t count) {
     std::cout << "distance: " << tree.distance() << '\n';
     std::cout << "nodes visited: " << tree.visited() << '\n';
 }
-
-#endif 
+ 
