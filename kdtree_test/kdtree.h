@@ -1,3 +1,6 @@
+#ifndef KDTREE_H
+#define KDTREE_H
+
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -254,4 +257,5 @@ void test_random(size_t count) {
     std::cout << "distance: " << tree.distance() << '\n';
     std::cout << "nodes visited: " << tree.visited() << '\n';
 }
- 
+
+#endif 
