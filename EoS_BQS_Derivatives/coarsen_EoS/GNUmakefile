@@ -39,15 +39,23 @@ $(TARGET):
 $(TARGET2):
 	$(CC) $(MAIN2SRC) -o $(TARGET2) $(CFLAGS) $(INCFLAGS) $(LDFLAGS)
 
-interpolate_ebsq: interpolate_ebsq.cpp
-	$(CC) interpolate_ebsq.cpp -o interpolate_ebsq $(CFLAGS) $(INCFLAGS) -fpic \
+interpolate_ebsq_v2: interpolate_ebsq_v2.cpp
+	$(CC) interpolate_ebsq_v2.cpp -o interpolate_ebsq_v2 $(CFLAGS) $(INCFLAGS) -fpic \
 			$(LDFLAGS) -lqhullcpp -lqhullstatic_r
+
+eos_delaunay.o: eos_delaunay.cpp eos_delaunay.h
+	$(CC) $(CFLAGS) eos_delaunay.cpp $(INCFLAGS) -fpic \
+			$(LDFLAGS) -lqhullcpp -lqhullstatic_r
+
+interpolate_ebsq: interpolate_ebsq.cpp eos_delaunay.cpp
+	$(CC) -g eos_delaunay.o interpolate_ebsq.cpp -o interpolate_ebsq $(CFLAGS) \
+			$(INCFLAGS) -fpic $(LDFLAGS) -lqhullcpp -lqhullstatic_r
 
 # -------------------------------------------------
 
 .PHONY:		all help distclean install
 
-all:		$(TARGET) $(TARGET2) interpolate_ebsq
+all:		$(TARGET) $(TARGET2) interpolate_ebsq_v2 interpolate_ebsq
 
 help:
 		@grep '^##' GNUmakefile
@@ -62,5 +70,6 @@ install:	$(TARGET) $(TARGET2)
 # --------------- Dependencies -------------------
 coarsen_EoS.cpp:		
 coarsen_EoS_faster.cpp:		Stopwatch.h
-interpolate_ebsq.cpp:		Stopwatch.h delaunay.h point_in_simplex.h
-
+interpolate_ebsq_v2.cpp:	Stopwatch.h delaunay.h point_in_simplex.h
+eos_delaunay.cpp:			eos_delaunay.h
+interpolate_ebsq.cpp:		eos_delaunay.cpp eos_delaunay.h
