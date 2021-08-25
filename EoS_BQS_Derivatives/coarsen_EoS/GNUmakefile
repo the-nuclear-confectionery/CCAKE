@@ -43,19 +43,11 @@ interpolate_ebsq_v2: interpolate_ebsq_v2.cpp
 	$(CC) interpolate_ebsq_v2.cpp -o interpolate_ebsq_v2 $(CFLAGS) $(INCFLAGS) -fpic \
 			$(LDFLAGS) -lqhullcpp -lqhullstatic_r
 
-eos_delaunay.o: eos_delaunay.cpp eos_delaunay.h
-	$(CC) $(CFLAGS) eos_delaunay.cpp $(INCFLAGS) -fpic \
-			$(LDFLAGS) -lqhullcpp -lqhullstatic_r
-
-interpolate_ebsq: interpolate_ebsq.cpp eos_delaunay.cpp
-	$(CC) -g eos_delaunay.o interpolate_ebsq.cpp -o interpolate_ebsq $(CFLAGS) \
-			$(INCFLAGS) -fpic $(LDFLAGS) -lqhullcpp -lqhullstatic_r
-
 # -------------------------------------------------
 
 .PHONY:		all help distclean install
 
-all:		$(TARGET) $(TARGET2) interpolate_ebsq_v2 interpolate_ebsq
+all:		$(TARGET) $(TARGET2) interpolate_ebsq_v2
 
 help:
 		@grep '^##' GNUmakefile
@@ -71,5 +63,3 @@ install:	$(TARGET) $(TARGET2)
 coarsen_EoS.cpp:		
 coarsen_EoS_faster.cpp:		Stopwatch.h
 interpolate_ebsq_v2.cpp:	Stopwatch.h delaunay.h point_in_simplex.h
-eos_delaunay.cpp:			eos_delaunay.h
-interpolate_ebsq.cpp:		eos_delaunay.cpp eos_delaunay.h
