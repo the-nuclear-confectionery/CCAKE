@@ -404,7 +404,8 @@ cout << "Points in grid around NN are:" << endl;
 			<< "********************************" << endl << endl;
 
 	cout << "Next, check if point is contained in the simplex we found:" << endl;
-	bool foundPoint = point_is_in_simplex( simplexVertices, nv0 );
+	vector<double> point_lambda_in_simplex(5, 0.0);	// dim + 1 == 5
+	bool foundPoint = point_is_in_simplex( simplexVertices, nv0, point_lambda_in_simplex );
 	
 	cout << "nv0: " << nv0[0] << "   " << nv0[1] << "   " << nv0[2] << "   " << nv0[3] << endl;
 
@@ -417,18 +418,39 @@ cout << "Points in grid around NN are:" << endl;
 	isimplex = 0;
 	for ( auto & simplex : simplices )
 	{
-		cout << isimplex++ << ":" << endl;
+		cout << isimplex << ":" << endl;
 		if (!simplices_to_check[isimplex]) continue;	// skip simplices that don't need to be checked
 		simplexVertices.clear();
 		for ( const auto & vertex : simplex )
 			simplexVertices.push_back( vector<double>( vertices[vertex].begin()+4,
 														vertices[vertex].end() ) );
-		if ( point_is_in_simplex( simplexVertices, nv0, false ) )
+		if ( point_is_in_simplex( simplexVertices, nv0, point_lambda_in_simplex, false ) )
+		{
 			cout << " found point in this simplex!" << endl;
+			break;
+		}
 		else
 			cout << " did not find point in this simplex!" << endl;
+		isimplex++;
 	}
 
+
+	// finally, use the output lambda coefficients to get the interpolated values
+	{
+	ivertex = 0;
+	double T0 = 0.0, mub0 = 0.0, muq0 = 0.0, mus0 = 0.0;
+	for ( const auto & vertex : simplices[isimplex] )
+	{
+		T0 += point_lambda_in_simplex[ivertex] * vertices[vertex][0];
+		mub0 += point_lambda_in_simplex[ivertex] * vertices[vertex][1];
+		muq0 += point_lambda_in_simplex[ivertex] * vertices[vertex][2];
+		mus0 += point_lambda_in_simplex[ivertex] * vertices[vertex][3];
+		ivertex++;
+	}
+
+		cout << "The final answer is: "
+			<< T0 << "   " << mub0 << "   " << muq0 << "   " << mus0 << endl;
+	}
 
 	return 0;
 }

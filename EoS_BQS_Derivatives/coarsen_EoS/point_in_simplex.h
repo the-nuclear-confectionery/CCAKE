@@ -11,12 +11,14 @@ using namespace std;
 
 void get_barycentric_coordinates(double T[], double d[], double lambda[], int dim);
 
-bool point_is_in_simplex( const vector<vector<double> > & v,
-							const vector<double> & p, bool verbose = true )
+bool point_is_in_simplex( const vector<vector<double> > & v, const vector<double> & p, 
+							vector<double> & lambda, bool verbose = true )
 {
 	//const int dim = 3;
 	const int dim = p.size();
 	const int nVertices = dim + 1;	// by definition for a simplex
+
+	std::fill( lambda.begin(), lambda.end(), 0.0 );
 
 //	const double one_by_sqrt2 = 1.0/sqrt(2.0);
 //	vector<double> v1 {2, 0, one_by_sqrt2};
@@ -57,8 +59,8 @@ if (verbose)
 		d[i] = p[i] - v[dim][i];
 
 	// construct lambda vector
-	double lambda[dim];
-	get_barycentric_coordinates(T, d, lambda, dim);
+	double lambda_arr[dim];
+	get_barycentric_coordinates(T, d, lambda_arr, dim);
 
 	bool point_in_simplex = true;
 
@@ -66,9 +68,9 @@ if (verbose)
 	double lambda_sum = 0.0;
 	for (int i = 0; i < dim; i++)
 	{
-		point_in_simplex = point_in_simplex && lambda[i] <= 1.0 && lambda[i] >= 0.0;
-		lambda_sum += lambda[i];
-		if (verbose) cout << "lambda[" << i << "] = " << lambda[i] << endl;
+		point_in_simplex = point_in_simplex && lambda_arr[i] <= 1.0 && lambda_arr[i] >= 0.0;
+		lambda_sum += lambda_arr[i];
+		if (verbose) cout << "lambda[" << i << "] = " << lambda_arr[i] << endl;
 	}
 	if (verbose) cout << "lambda[" << dim << "] = " << 1.0 - lambda_sum << endl;
 	point_in_simplex = point_in_simplex && lambda_sum <= 1.0 && lambda_sum >= 0.0;
@@ -79,6 +81,12 @@ if (verbose)
 			cout << "Point is in simplex!" << endl;
 		else
 			cout << "Point is not in simplex!" << endl;
+	}
+
+	if ( point_in_simplex )
+	{
+		lambda.assign(lambda_arr, lambda_arr + dim);
+		lambda[dim] = 1.0 - lambda_sum;
 	}
 
 	return point_in_simplex;
