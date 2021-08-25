@@ -381,7 +381,7 @@ void get_min_and_max(vector<double> & v, double & minval, double & maxval, bool 
 	maxval = *max_element(v.begin(), v.end());
 	if (normalize)
 		std::transform( v.begin(), v.end(), v.begin(),
-						[minval,maxval](double & element
+						[minval,maxval](double & element)
 						{ return (element-minval)/(maxval-minval); } );
 	return;
 }
