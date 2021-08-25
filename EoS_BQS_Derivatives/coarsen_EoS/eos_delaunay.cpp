@@ -12,7 +12,7 @@
 
 using namespace std;
 
-void eos_delaunay::eos_delaunay(string EoS_table_file)
+eos_delaunay::eos_delaunay(string EoS_table_file)
 {
 	Tinds.resize(nT*nmub*nmuq*nmus);
 	mubinds.resize(nT*nmub*nmuq*nmus);
@@ -33,7 +33,7 @@ void eos_delaunay::eos_delaunay(string EoS_table_file)
 	}
 
 	// load EoS table
-	load_EoS_table(path_to_file, grid);
+	load_EoS_table(EoS_table_file, grid);
 
 	vector<double> Tvec(grid.size()), muBvec(grid.size()), muSvec(grid.size()), muQvec(grid.size());
 	vector<double> evec(grid.size()), bvec(grid.size()), svec(grid.size()), qvec(grid.size());
@@ -74,8 +74,6 @@ void eos_delaunay::eos_delaunay(string EoS_table_file)
 		std::copy_n( grid[ii].begin()+4, 4, density_points[ii].begin() );
 
 	// set up kd-tree
-	typedef point<double, 4> point4d;
-	typedef kdtree<double, 4> tree4d;
 	//try
 	//{
 		cout << "Setting up kd-tree...";
