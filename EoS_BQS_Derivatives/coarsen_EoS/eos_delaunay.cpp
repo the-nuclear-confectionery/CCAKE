@@ -14,6 +14,11 @@ using namespace std;
 
 void eos::eos(string EoS_table_file)
 {
+	Tinds.resize(nT*nmub*nmuq*nmus);
+	mubinds.resize(nT*nmub*nmuq*nmus);
+	muqinds.resize(nT*nmub*nmuq*nmus);
+	musinds.resize(nT*nmub*nmuq*nmus);
+
 	size_t idx = 0;
 	for (int iT = 0; iT < nT; iT++)
 	for (int imub = 0; imub < nmub; imub++)

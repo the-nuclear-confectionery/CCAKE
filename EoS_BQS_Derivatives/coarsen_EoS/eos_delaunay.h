@@ -17,8 +17,6 @@
 
 using namespace std;
 
-constexpr size_t nT = 155, nmub = 37, nmus = 37, nmuq = 37;
-
 class eos_delaunay
 {
 	public:
@@ -37,10 +35,10 @@ class eos_delaunay
 	private:
 
 		const double hbarc = 197.327;
+		const size_t nT = 155, nmub = 37, nmus = 37, nmuq = 37;
 
 		vector<vector<double> > grid;
-		vector<int> Tinds(nT*nmub*nmuq*nmus), mubinds(nT*nmub*nmuq*nmus),
-					muqinds(nT*nmub*nmuq*nmus), musinds(nT*nmub*nmuq*nmus);
+		vector<int> Tinds, mubinds, muqinds, musinds;
 		
 		inline size_t indexer( const int iT, const int imub, const int imuq, const int imus )
 		{
