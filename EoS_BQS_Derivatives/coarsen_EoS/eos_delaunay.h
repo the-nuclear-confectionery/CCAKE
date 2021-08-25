@@ -57,7 +57,7 @@ class eos_delaunay
 		void load_EoS_table(string path_to_file, vector<vector<double> > & grid);
 		void get_min_and_max(vector<double> & v, double & minval, double & maxval, bool normalize);
 
-}
+};
 
 
 
