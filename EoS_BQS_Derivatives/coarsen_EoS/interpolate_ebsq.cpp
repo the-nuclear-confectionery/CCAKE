@@ -289,12 +289,15 @@ int main(int argc, char *argv[])
 
 
 	cout << "simplices[iclosestsimplex].size() = " << simplices[iclosestsimplex].size() << endl;
+	{
+		int ivertex = 0;
 	for ( const auto & vertex : simplexVertices )
 	{
-		cout << "vertex = " << vertex << ":" << endl;
+		cout << "ivertex = " << ivertex++ << ":" << endl;
 		for ( const auto & coordinate : vertex )
 			cout << "   " << coordinate;
 		cout << endl;
+	}
 	}
 
 	// locate the point in the simplex (assuming we know it's there;
