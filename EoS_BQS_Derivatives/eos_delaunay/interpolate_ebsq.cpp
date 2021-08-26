@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
 			{
 				sw.Stop();
 				cout << "Interpolated " << cellCount << " cells in " << sw.printTime() << " s." << endl;
-				sw.Reset();
+				//sw.Reset();
 				sw.Start();
 			}
 		}
