@@ -19,7 +19,8 @@ std::ostream& operator<<(std::ostream& out, const point<coordinate_type, dimensi
     return out;
 }
 
-typedef kdtree<coordinate_type, dimensions> kdtree_type;
+template<typename coordinate_type, size_t dimensions>
+	typedef kdtree<coordinate_type, dimensions> kdtree_type;
 
 /**
  * C++ k-d tree implementation, based on the C version at rosettacode.org.
