@@ -99,6 +99,7 @@ int main(int argc, char *argv[])
 
 void load_EoS_table(string path_to_file, vector<vector<double> > & grid)
 {
+	const double hbarc = 197.327;
 	grid.clear();
 	// read in file itself
 	ifstream infile(path_to_file.c_str());
