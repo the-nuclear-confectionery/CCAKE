@@ -69,8 +69,8 @@ public:
 
 	kdtree(){};	// add a default constructor (added by me)
  
-    template<typename func>
-    kdtree(func&& f, size_t n);
+    //template<typename func>
+    //kdtree(func&& f, size_t n);
  
     bool empty() const;
     size_t visited() const;
@@ -78,28 +78,6 @@ public:
     const point_type& nearest(const point_type& pt );
     const point_type& nearest(const point_type& pt, size_t & best_oindex );
 };
- 
-void test_wikipedia();
 
-typedef point<double, 3> point3d;
-typedef kdtree<double, 3> tree3d;
-
-
-struct random_point_generator {
-    random_point_generator(double min, double max)
-        : engine_(std::random_device()()), distribution_(min, max) {}
- 
-    point3d operator()() {
-        double x = distribution_(engine_);
-        double y = distribution_(engine_);
-        double z = distribution_(engine_);
-        return point3d({x, y, z});
-    }
- 
-    std::mt19937 engine_;
-    std::uniform_real_distribution<double> distribution_;
-};
-
-void test_random(size_t count);
 
 #endif 
