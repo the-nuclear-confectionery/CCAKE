@@ -8,7 +8,10 @@
 #include <string>
 #include <vector>
 
+#include "delaunay.h"
 #include "eos_delaunay.h"
+#include "kdtree.h"
+#include "point_in_simplex.h"
 
 using namespace std;
 
