@@ -18,12 +18,14 @@ std::ostream& operator<<(std::ostream& out, const point<coordinate_type, dimensi
     out << ')';
     return out;
 }
- 
+
+typedef kdtree<coordinate_type, dimensions> kdtree_type;
+
 /**
  * C++ k-d tree implementation, based on the C version at rosettacode.org.
  */
 	template<typename coordinate_type, size_t dimensions>
-	node* kdtree::make_tree(size_t begin, size_t end, size_t index) {
+	kdtree_type::node* kdtree::make_tree(size_t begin, size_t end, size_t index) {
         if (end <= begin)
             return nullptr;
         size_t n = begin + (end - begin)/2;
@@ -36,7 +38,7 @@ std::ostream& operator<<(std::ostream& out, const point<coordinate_type, dimensi
     }
  
 	template<typename coordinate_type, size_t dimensions>
-    void kdtree::nearest(node* root, const point_type& point, size_t index) {
+    void kdtree::nearest(kdtree::node* root, const point_type& point, size_t index) {
         if (root == nullptr)
             return;
         ++visited_;
