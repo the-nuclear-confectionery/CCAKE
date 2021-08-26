@@ -129,7 +129,7 @@ public:
     kdtree& operator=(const kdtree&) = delete;
 
 	// Default constructor (added by me)
-	kdtree(){};
+	//kdtree(){};
 
     /**
      * Constructor taking a pair of iterators. Adds each
