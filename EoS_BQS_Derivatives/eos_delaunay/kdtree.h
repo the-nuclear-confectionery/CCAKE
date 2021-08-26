@@ -127,6 +127,10 @@ private:
 public:
     kdtree(const kdtree&) = delete;
     kdtree& operator=(const kdtree&) = delete;
+
+	// Default constructor (added by me)
+	kdtree(){};
+
     /**
      * Constructor taking a pair of iterators. Adds each
      * point in the range [begin, end) to the tree.
