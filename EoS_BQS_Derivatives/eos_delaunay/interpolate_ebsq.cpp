@@ -44,12 +44,12 @@ int main(int argc, char *argv[])
 	vector<double> result(4, 0.0);
 	for (const vector<double> & staggered_cell : staggered_grid)
 	{
-		if ( cellCount+1 != 3500000 )
+		/*if ( cellCount+1 != 3500000 )
 		{
 			cellCount++;
 			continue;
-		}
-		if ( staggered_cell[0] < 100.0 )	//100 MeV
+		}*/
+		if ( staggered_cell[0] < 150.0 )	// MeV
 			continue;
 		// interpolate the densities
 		EoS.interpolate(vector<double>(staggered_cell.begin()+4,staggered_cell.end()), result);
