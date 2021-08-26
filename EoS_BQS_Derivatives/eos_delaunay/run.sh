@@ -3,9 +3,4 @@
 #SBATCH -p qgp
 #SBATCH -t 72:00:00
 
-#./coarsen_EoS ../Thermodynamics_dense/EoS_Taylor_AllMu.dat
-
-# Run with: sbatch --export=ALL,filename=...,r0=... run.sh
-
-./coarsen_EoS $filename $r0
-
+./interpolate_ebsq ../Thermodynamics_improved_dense/EoS_Taylor_AllMu.dat ../Thermodynamics_staggered/EoS_Taylor_AllMu.dat

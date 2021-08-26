@@ -230,6 +230,8 @@ void eos_delaunay::interpolate(const vector<double> & v0, vector<double> & resul
 	// =======================================================
 	// triangulation is complete; now find containing simplex
 
+	vector<bool> simplices_to_check(simplices.size(), false);
+
 	// block to enforce local scope
 	int iclosestsimplex = 0;
 	{
@@ -242,6 +244,7 @@ void eos_delaunay::interpolate(const vector<double> & v0, vector<double> & resul
 				if ( vertex == NNvertex )
 				{
 					NN_vertex_included_in_this_simplex = true;
+					simplices_to_check[isimplex] = true;
 					break;
 				}
 			
@@ -306,6 +309,33 @@ void eos_delaunay::interpolate(const vector<double> & v0, vector<double> & resul
 	vector<double> point_lambda_in_simplex(5, 0.0);	// dim + 1 == 5
 	bool foundPoint = point_is_in_simplex( simplexVertices, nv0, point_lambda_in_simplex, false );
 
+	if (!foundPoint)        // loop over all simplices
+	{
+		//cout << "Did not find point in first simplex! Looping through all simplices:" << endl; 
+		int isimplex = 0;
+		for ( auto & simplex : simplices )
+		{
+			//cout << isimplex << ":" << endl;
+			if (!simplices_to_check[isimplex])
+			{
+				isimplex++;
+				continue;       // skip simplices that don't need to be checked
+			}
+			simplexVertices.clear();
+			for ( const auto & vertex : simplex )
+				simplexVertices.push_back( vector<double>( vertices[vertex].begin()+4,
+									vertices[vertex].end() ) ); 
+			if ( point_is_in_simplex( simplexVertices, nv0, point_lambda_in_simplex, false ) )
+			{
+				//cout << " found point in this simplex!" << endl;
+				iclosestsimplex = isimplex;     // probably rename this
+				break;
+			}
+			//else
+			//	cout << " did not find point in this simplex!" << endl;
+			isimplex++;
+		}
+	}
 
 	// finally, use the output lambda coefficients to get the interpolated values
 	double T0 = 0.0, mub0 = 0.0, muq0 = 0.0, mus0 = 0.0;
