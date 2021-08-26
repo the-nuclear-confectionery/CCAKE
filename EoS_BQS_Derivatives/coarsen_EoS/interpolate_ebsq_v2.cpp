@@ -143,7 +143,8 @@ int main(int argc, char *argv[])
 	//}
 
 	// set densities where we want to test the interpolator
-	const double e0 = 46308.20963821, b0 = -1.23317452, s0 = -1.53064765, q0 = -0.24540761;
+	//const double e0 = 46308.20963821, b0 = -1.23317452, s0 = -1.53064765, q0 = -0.24540761;
+	const double e0 = 3405.08, b0 = -0.473819, s0 = -1.78269, q0 = -2.89511;
 
 	// Set-up is finished; start timing now
 	Stopwatch sw;
@@ -164,10 +165,10 @@ int main(int argc, char *argv[])
 	{
 		point4d n = tree.nearest({ne0, nb0, ns0, nq0}, kdtree_nn_index);
 		//sw.Stop();
-		//cout << "KD-Tree: Found nearest neighbor in " << setprecision(18)
-		//		<< sw.printTime() << " s." << endl;
-		//cout << "KD-Tree: Nearest neighbor is " << n << endl;
-		//cout << "KD-Tree: Nearest neighbor index is " << kdtree_nn_index << endl;
+		cout << "KD-Tree: Found nearest neighbor in " << setprecision(18)
+				<< sw.printTime() << " s." << endl;
+		cout << "KD-Tree: Nearest neighbor is " << n << endl;
+		cout << "KD-Tree: Nearest neighbor index is " << kdtree_nn_index << endl;
 	}
 	catch (const std::exception& e)
 	{
@@ -288,7 +289,7 @@ int main(int argc, char *argv[])
 	}
 
 
-	/*cout << "simplices[iclosestsimplex].size() = " << simplices[iclosestsimplex].size() << endl;
+	cout << "simplices[iclosestsimplex].size() = " << simplices[iclosestsimplex].size() << endl;
 	{
 		int ivertex = 0;
 	for ( const auto & vertex : simplexVertices )
@@ -298,7 +299,7 @@ int main(int argc, char *argv[])
 			cout << "   " << coordinate;
 		cout << endl;
 	}
-	}*/
+	}
 
 	// locate the point in the simplex (assuming we know it's there;
 	// currently no plan B for if point winds up outside this simplex)
@@ -313,10 +314,10 @@ int main(int argc, char *argv[])
 		for ( const auto & vertex : simplices[iclosestsimplex] )
 		{
 			double lambda_coefficient = point_lambda_in_simplex[ivertex];
-			/*cout << "Check interpolation: " << ivertex << "   " << vertex << "   "
+			cout << "Check interpolation: " << ivertex << "   " << vertex << "   "
 					<< point_lambda_in_simplex[ivertex] << "   "
 					<< vertices[vertex][0] << "   " << vertices[vertex][1] << "   " 
-					<< vertices[vertex][2] << "   " << vertices[vertex][3] << endl;*/
+					<< vertices[vertex][2] << "   " << vertices[vertex][3] << endl;
 			T0   += lambda_coefficient * vertices[vertex][0];
 			mub0 += lambda_coefficient * vertices[vertex][1];
 			muq0 += lambda_coefficient * vertices[vertex][2];
