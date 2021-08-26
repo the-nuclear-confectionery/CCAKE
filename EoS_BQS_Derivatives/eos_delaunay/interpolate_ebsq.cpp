@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
 	vector<double> result(4, 0.0);
 	for (const vector<double> & staggered_cell : staggered_grid)
 	{
-		if ( cellCount != 3500000 )
+		if ( cellCount+1 != 3500000 )
 		{
 			cellCount++;
 			continue;
