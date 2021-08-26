@@ -48,7 +48,7 @@ help:
 		@grep '^##' GNUmakefile
 
 distclean:	
-		-rm $(TARGET)
+		-rm $(TARGET) $(OBJS)
 
 install: $(TARGET)
 		cp $(TARGET) $(INSTPATH)
