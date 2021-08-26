@@ -80,7 +80,8 @@ eos_delaunay::eos_delaunay(string EoS_table_file)
 	//try
 	//{
 		cout << "Setting up kd-tree...";
-		tree = tree4d(std::begin(density_points), std::end(density_points));
+		static tree4d tree(std::begin(density_points), std::end(density_points));
+		tree_ptr = &tree;
 		cout << "finished!\n";
 		//cout << "Constructed full tree in " << sw.printTime() << " s." << endl;
 	//}
@@ -162,7 +163,7 @@ void eos_delaunay::interpolate(const vector<double> & v0, vector<double> & resul
 	size_t kdtree_nn_index = 0;
 	try
 	{
-		point4d n = tree.nearest({ne0, nb0, ns0, nq0}, kdtree_nn_index);
+		point4d n = tree_ptr->nearest({ne0, nb0, ns0, nq0}, kdtree_nn_index);
 		//sw.Stop();
 		//cout << "KD-Tree: Found nearest neighbor in " << setprecision(18)
 		//		<< sw.printTime() << " s." << endl;

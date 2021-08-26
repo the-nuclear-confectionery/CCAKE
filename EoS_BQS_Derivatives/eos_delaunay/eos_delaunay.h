@@ -37,7 +37,7 @@ class eos_delaunay
 		typedef point<double, 4> point4d;
 		typedef kdtree<double, 4> tree4d;
 
-		tree4d tree;
+		tree4d * tree_ptr;
 
 		const double hbarc = 197.327;
 		const size_t nT = 155, nmub = 37, nmus = 37, nmuq = 37;
