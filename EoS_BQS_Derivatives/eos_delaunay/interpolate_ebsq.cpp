@@ -41,6 +41,7 @@ int main(int argc, char *argv[])
 	sw.Reset();
 	sw.Start();
 	size_t cellCount = 0;
+	vector<double> result(4, 0.0);
 	for (const vector<double> & staggered_cell : staggered_grid)
 	{
 		// interpolate the densities
