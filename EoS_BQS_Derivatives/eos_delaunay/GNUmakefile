@@ -10,7 +10,7 @@ LDFLAGS     =   -L/usr/local/src/gsl/2.5/lib -L/projects/jnorhos/plumberg/qhull/
 INCFLAGS    =   -I/usr/local/src/gsl/2.5/include \
 				-I/projects/jnorhos/plumberg/qhull/src
 SYSTEMFILES =   $(SRCGNU)
-OBJS		=	eos_delaunay.o interpolate_ebsq.o kdtree.o delaunay.o point_in_simplex.o
+OBJS		=	eos_delaunay.o interpolate_ebsq.o delaunay.o point_in_simplex.o
 
 # -------------------------------------------------
 
@@ -28,8 +28,8 @@ eos_delaunay.o: eos_delaunay.cpp eos_delaunay.h
 delaunay.o: delaunay.cpp delaunay.h
 	$(CC) $(CFLAGS) -c delaunay.cpp $(INCFLAGS) -fpic
 
-kdtree.o: kdtree.cpp kdtree.h
-	$(CC) $(CFLAGS) -c kdtree.cpp $(INCFLAGS) -fpic
+#kdtree.o: kdtree.cpp kdtree.h
+#	$(CC) $(CFLAGS) -c kdtree.cpp $(INCFLAGS) -fpic
 
 point_in_simplex.o: point_in_simplex.cpp point_in_simplex.h
 	$(CC) $(CFLAGS) -c point_in_simplex.cpp $(INCFLAGS) -fpic
