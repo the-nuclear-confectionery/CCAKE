@@ -8,26 +8,69 @@
 #include <iomanip>
 #include <string>
 
-//#include "delaunay.h"
-//#include "kdtree.h"
-//#include "point_in_simplex.h"
 #include "eos_delaunay.h"
 #include "Stopwatch.h"
 
 using namespace std;
 
+void load_EoS_table(string path_to_file, vector<vector<double> > & grid);
+
 int main(int argc, char *argv[])
 {
 	// check input first
-	if (argc < 2) exit(-1);
+	if (argc < 3) exit(-1);
+
+	constexpr bool timing_test_only = true;
+	Stopwatch sw;
+	sw.Reset();
+	sw.Start();
 
 	// read path to input file from command line
 	string path_to_file = string(argv[1]);
+	string path_to_staggered_file = string(argv[2]);
 
+	vector<vector<double> > staggered_grid;
+	load_EoS_table(path_to_staggered_file, staggered_grid);
+
+	// set up EoS object
+	eos_delaunay EoS( path_to_file );
+
+	sw.Stop();
+	cout << "Set-up took " << sw.printTime() << " s." << endl;
+
+	sw.Reset();
+	sw.Start();
+	size_t cellCount = 0;
+	for (const vector<double> & staggered_cell : staggered_grid)
+	{
+		// interpolate the densities
+		EoS.interpolate(vector<double>(staggered_cell.begin()+4,staggered_cell.end()), result);
+		if ( timing_test_only )
+		{
+			if (++cellCount % 1000 == 0)
+			{
+				sw.Stop();
+				cout << "Interpolated " << cellCount << " cells in " << sw.printTime() << " s." << endl;
+				sw.Reset();
+				sw.Start();
+			}
+		}
+		else
+		{
+			cout << cellCount++ << ":";
+			for (const double & elem : staggered_cell)
+				cout << "   " << elem;
+			for (const double & elem : result)
+				cout << "   " << elem;
+			cout << "\n";
+		}
+	}
+
+	/*
 	// set densities where we want to test the interpolator
 	const double e0 = 46308.20963821, b0 = -1.23317452, s0 = -1.53064765, q0 = -0.24540761;
 
-	// Set-up is finished; start timing now
+	// Time set-up
 	Stopwatch sw;
 	sw.Reset();
 	sw.Start();
@@ -49,7 +92,43 @@ int main(int argc, char *argv[])
 		<< result[0] << "   " << result[1] << "   " << result[2] << "   " << result[3] << endl;
 		//<< T0 << "   " << mub0 << "   " << muq0 << "   " << mus0 << endl;
 	cout << "Found the answer in approximately " << sw.printTime() << " s." << endl;
+	*/
 
 	return 0;
+}
+
+void load_EoS_table(string path_to_file, vector<vector<double> > & grid)
+{
+	grid.clear();
+	// read in file itself
+	ifstream infile(path_to_file.c_str());
+	if (infile.is_open())
+	{
+		size_t count = 0;
+		string line;
+		double dummy, Tin, muBin, muSin, muQin, bin, sin, qin, ein; 
+		while ( getline (infile, line) )
+		{
+			count++;
+			//if (count % 100 != 0) continue;
+
+			istringstream iss(line);
+			iss >> Tin >> muBin >> muQin >> muSin >> dummy >> dummy
+				>> bin >> sin >> qin >> ein >> dummy;
+
+			grid.push_back( vector<double>({Tin, muBin, muQin, muSin,
+											ein*Tin*Tin*Tin*Tin/(hbarc*hbarc*hbarc),
+											bin*Tin*Tin*Tin/(hbarc*hbarc*hbarc),
+											sin*Tin*Tin*Tin/(hbarc*hbarc*hbarc),
+											qin*Tin*Tin*Tin/(hbarc*hbarc*hbarc)}) );
+
+			if (count % 1000000 == 0)
+				cout << "Read in " << count << " lines of "
+					<< path_to_file << "." << endl;
+		}
+	}
+
+	infile.close();
+	return;
 }
 
