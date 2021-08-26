@@ -23,7 +23,7 @@ std::ostream& operator<<(std::ostream& out, const point<coordinate_type, dimensi
  * C++ k-d tree implementation, based on the C version at rosettacode.org.
  */
 	template<typename coordinate_type, size_t dimensions>
-	kdtree<coordinate_type, dimensions>::node*
+	kdtree::node*
 	kdtree<coordinate_type, dimensions>::make_tree(size_t begin, size_t end, size_t index) {
         if (end <= begin)
             return nullptr;
