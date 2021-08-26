@@ -165,6 +165,7 @@ int main(int argc, char *argv[])
 	{
 		point4d n = tree.nearest({ne0, nb0, ns0, nq0}, kdtree_nn_index);
 		//sw.Stop();
+		cout << "Query point: {" << ne0 << ", " << nb0 << ", " << ns0 << ", " << nq0 << "}" << endl;
 		cout << "KD-Tree: Found nearest neighbor in " << setprecision(18)
 				<< sw.printTime() << " s." << endl;
 		cout << "KD-Tree: Nearest neighbor is " << n << endl;
@@ -304,7 +305,7 @@ int main(int argc, char *argv[])
 	// locate the point in the simplex (assuming we know it's there;
 	// currently no plan B for if point winds up outside this simplex)
 	vector<double> point_lambda_in_simplex(5, 0.0);	// dim + 1 == 5
-	bool foundPoint = point_is_in_simplex( simplexVertices, nv0, point_lambda_in_simplex, false );
+	bool foundPoint = point_is_in_simplex( simplexVertices, nv0, point_lambda_in_simplex, true );
 
 
 	// finally, use the output lambda coefficients to get the interpolated values
