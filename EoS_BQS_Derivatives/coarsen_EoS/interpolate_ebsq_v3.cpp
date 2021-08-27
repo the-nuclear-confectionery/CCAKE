@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
 	// use midpoints as alternate way of find best simplex
 	// "midpoints" are the average densities in the cell with lower corner at (iT,imu...)
 	std::vector<std::array<double, 4> > midpoint_grid;
-	vector<vector<int> > midpoint_inds;
+	vector<vector<size_t> > midpoint_inds;
 	for (size_t iT = 0; iT < nT-1; ++iT)
 	for (size_t imub = 0; imub < nmub-1; ++imub)
 	for (size_t imuq = 0; imuq < nmuq-1; ++imuq)
@@ -192,6 +192,7 @@ int main(int argc, char *argv[])
 
 	// here is where we query the kd-tree for the nearest neighbor (NN)
 	size_t kdtree_nn_index = 0;
+	size_t kdtree_n_mpt_index = 0;
 	try
 	{
 		point4d n = tree.nearest({ne0, nb0, ns0, nq0}, kdtree_nn_index);
