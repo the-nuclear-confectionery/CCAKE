@@ -121,6 +121,35 @@ int main(int argc, char *argv[])
 		gridcell[7] = (gridcell[7] - qmin) / ( qmax - qmin );
 	}
 
+	// use midpoints as alternate way of find best simplex
+	// "midpoints" are the average densities in the cell with lower corner at (iT,imu...)
+	std::vector<std::array<double, 4> > midpoint_grid;
+	vector<vector<int> > midpoint_inds;
+	for (size_t iT = 0; iT < nT-1; ++iT)
+	for (size_t imub = 0; imub < nmub-1; ++imub)
+	for (size_t imuq = 0; imuq < nmuq-1; ++imuq)
+	for (size_t imus = 0; imus < nmus-1; ++imus)
+	{
+		//vector<double> tmpvec(4, 0.0);
+		std::array<double, 4> midpoint;
+		for (size_t ii = 0; ii < 2; ++ii)
+		for (size_t jj = 0; jj < 2; ++jj)
+		for (size_t kk = 0; kk < 2; ++kk)
+		for (size_t ll = 0; ll < 2; ++ll)
+			std::transform( midpoint.begin(), midpoint.end(),
+							grid[indexer( iT+ii, imub+jj, imuq+kk, imus+ll )].begin()+4,
+							midpoint.begin(), std::plus<double>());
+
+		std::transform( midpoint.begin(), midpoint.end(), midpoint.begin(),
+							[](double & element){ return 0.0625*element; } );	//1/16
+
+		//std::array<double, 4> midpoint;
+		//std::copy_n(tmpvec.begin(), 4, midpoint.begin());
+		//midpoint_grid.push_back(tmpvec);
+		midpoint_grid.push_back(midpoint);
+		midpoint_inds.push_back( {iT, imub, imuq, imus} );
+	}
+
 	// copy normalized densities from grid to separate vector (for kd-tree)
 	// (needs to be vector of arrays to set up kd-tree correctly)
 	std::vector<std::array<double, 4> > density_points(grid.size());
@@ -132,8 +161,9 @@ int main(int argc, char *argv[])
 	typedef kdtree<double, 4> tree4d;
 	//try
 	//{
-		cout << "Setting up kd-tree...";
+		cout << "Setting up kd-trees...";
 		tree4d tree(std::begin(density_points), std::end(density_points));
+		tree4d midpoint_tree(std::begin(midpoint_grid), std::end(midpoint_grid));
 		cout << "finished!\n";
 		//cout << "Constructed full tree in " << sw.printTime() << " s." << endl;
 	//}
@@ -165,16 +195,33 @@ int main(int argc, char *argv[])
 	try
 	{
 		point4d n = tree.nearest({ne0, nb0, ns0, nq0}, kdtree_nn_index);
+		point4d n_mpt = midpoint_tree.nearest({ne0, nb0, ns0, nq0}, kdtree_n_mpt_index);
 
-kdtree_nn_index = 1215674;
+//kdtree_nn_index = 1215674;
 		//sw.Stop();
 		cout << "Query point: {" << ne0 << ", " << nb0 << ", " << ns0 << ", " << nq0 << "}" << endl;
 		cout << "KD-Tree: Found nearest neighbor in " << setprecision(18)
 				<< sw.printTime() << " s." << endl;
 		cout << "KD-Tree: Nearest neighbor is " << n << endl;
 		cout << "KD-Tree: Nearest neighbor index is " << kdtree_nn_index << endl;
+		cout << "KD-Tree: (T,muB,muQ,muS) indices of NN are:"
+				<< Tinds[kdtree_nn_index] << ", " << mubinds[kdtree_nn_index] << ", "
+				<< muqinds[kdtree_nn_index] << ", " << musinds[kdtree_nn_index] << endl;
 		cout << "KD-Tree: (T,muB,muQ,muS) coordinates of NN are:";
 		for ( const double & elem : grid[kdtree_nn_index] )
+			cout << "   " << elem;
+		cout << endl;
+		cout << "KD-Tree: Found nearest midpoint neighbor (NMN) in " << setprecision(18)
+				<< sw.printTime() << " s." << endl;
+		cout << "KD-Tree: NMN is " << n_mpt << endl;
+		cout << "KD-Tree: NMN index is " << kdtree_n_mpt_index << endl;
+		cout << "KD-Tree: (T,muB,muQ,muS) indices of NN are:"
+				<< midpoint_inds[kdtree_n_mpt_index][0] << ", "
+				<< midpoint_inds[kdtree_n_mpt_index][1] << ", "
+				<< midpoint_inds[kdtree_n_mpt_index][2] << ", "
+				<< midpoint_inds[kdtree_n_mpt_index][3] << endl;
+		cout << "KD-Tree: (T,muB,muQ,muS) coordinates of NMN are:";
+		for ( const double & elem : midpoint_grid[kdtree_n_mpt_index] )
 			cout << "   " << elem;
 		cout << endl;
 	}
