@@ -9,7 +9,7 @@
 #include <string>
 
 #include "delaunay.h"
-#include "kdtree.h"
+#include "kdtree_v3.h"
 #include "point_in_simplex.h"
 #include "Stopwatch.h"
 
@@ -165,12 +165,18 @@ int main(int argc, char *argv[])
 	try
 	{
 		point4d n = tree.nearest({ne0, nb0, ns0, nq0}, kdtree_nn_index);
+
+kdtree_nn_index = 1215674;
 		//sw.Stop();
 		cout << "Query point: {" << ne0 << ", " << nb0 << ", " << ns0 << ", " << nq0 << "}" << endl;
 		cout << "KD-Tree: Found nearest neighbor in " << setprecision(18)
 				<< sw.printTime() << " s." << endl;
 		cout << "KD-Tree: Nearest neighbor is " << n << endl;
 		cout << "KD-Tree: Nearest neighbor index is " << kdtree_nn_index << endl;
+		cout << "KD-Tree: (T,muB,muQ,muS) coordinates of NN are:";
+		for ( const double & elem : grid[kdtree_nn_index] )
+			cout << "   " << elem;
+		cout << endl;
 	}
 	catch (const std::exception& e)
 	{
@@ -191,11 +197,12 @@ int main(int argc, char *argv[])
 
 	// add block to constrain scope of unnecessary variables
 	{
+		constexpr int blockRadius = 1;
 		int vertexcount = 0;
-		for (int ii = -1; ii <= 1; ii++)
-		for (int jj = -1; jj <= 1; jj++)
-		for (int kk = -1; kk <= 1; kk++)
-		for (int ll = -1; ll <= 1; ll++)
+		for (int ii = -blockRadius; ii <= blockRadius; ii++)
+		for (int jj = -blockRadius; jj <= blockRadius; jj++)
+		for (int kk = -blockRadius; kk <= blockRadius; kk++)
+		for (int ll = -blockRadius; ll <= blockRadius; ll++)
 		{
 			// check that we're not going outside the grid
 			if ( iTNN+ii < nT && iTNN+ii >= 0
@@ -329,7 +336,7 @@ int main(int argc, char *argv[])
 				simplexVertices.push_back( vector<double>( vertices[vertex].begin()+4,
 			
 			vertices[vertex].end() ) );
-			if ( point_is_in_simplex( simplexVertices, nv0, point_lambda_in_simplex, true ) )
+			if ( point_is_in_simplex( simplexVertices, nv0, point_lambda_in_simplex, false ) )
 			{
 				cout << " found point in this simplex!" << endl;
 				iclosestsimplex = isimplex;	// probably rename this

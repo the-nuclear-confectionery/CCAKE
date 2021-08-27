@@ -43,12 +43,15 @@ interpolate_ebsq_v2: interpolate_ebsq_v2.cpp
 	$(CC) interpolate_ebsq_v2.cpp -o interpolate_ebsq_v2 $(CFLAGS) $(INCFLAGS) -fpic \
 			$(LDFLAGS) -lqhullcpp -lqhullstatic_r
 
+interpolate_ebsq_v3: interpolate_ebsq_v3.cpp
+	$(CC) interpolate_ebsq_v3.cpp -o interpolate_ebsq_v3 $(CFLAGS) $(INCFLAGS) -fpic \
+			$(LDFLAGS) -lqhullcpp -lqhullstatic_r
+
 # -------------------------------------------------
 
 .PHONY:		all help distclean install
 
-all:		$(TARGET) $(TARGET2) interpolate_ebsq_v2
-
+all:		$(TARGET) $(TARGET2) interpolate_ebsq_v2 interpolate_ebsq_v3
 help:
 		@grep '^##' GNUmakefile
 
@@ -63,3 +66,4 @@ install:	$(TARGET) $(TARGET2)
 coarsen_EoS.cpp:		
 coarsen_EoS_faster.cpp:		Stopwatch.h
 interpolate_ebsq_v2.cpp:	Stopwatch.h delaunay.h point_in_simplex.h kdtree.h
+interpolate_ebsq_v3.cpp:        Stopwatch.h delaunay.h point_in_simplex.h kdtree_v3.h
