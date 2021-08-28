@@ -67,6 +67,7 @@ int main(int argc, char *argv[])
 				cout << "   " << elem;
 			cout << "\n";
 		}
+if (true) exit(-1);
 	}
 
 	/*
