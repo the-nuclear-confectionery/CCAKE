@@ -125,6 +125,7 @@ int main(int argc, char *argv[])
 	// "midpoints" are the average densities in the cell with lower corner at (iT,imu...)
 	std::vector<std::array<double, 4> > midpoint_grid;
 	vector<vector<size_t> > midpoint_inds;
+	vector<vector<double> > midpoint_coords;
 	for (size_t iT = 0; iT < nT-1; ++iT)
 	for (size_t imub = 0; imub < nmub-1; ++imub)
 	for (size_t imuq = 0; imuq < nmuq-1; ++imuq)
@@ -148,6 +149,10 @@ int main(int argc, char *argv[])
 		//midpoint_grid.push_back(tmpvec);
 		midpoint_grid.push_back(midpoint);
 		midpoint_inds.push_back( {iT, imub, imuq, imus} );
+		vector<double> & gridcell = grid[indexer(iT,imub,imuq,imus)];
+		midpoint_coords.push_back(
+			vector<double>( gridcell.begin(), gridcell.begin()+4 )
+					);
 	}
 
 	// copy normalized densities from grid to separate vector (for kd-tree)
@@ -201,27 +206,34 @@ int main(int argc, char *argv[])
 //kdtree_nn_index = 1215674;
 		//sw.Stop();
 		cout << "Query point: {" << ne0 << ", " << nb0 << ", " << ns0 << ", " << nq0 << "}" << endl;
-		cout << "KD-Tree: Found nearest neighbor in " << setprecision(18)
+		cout << "KD-Tree: Found nearest neighbor (NN) in " << setprecision(18)
 				<< sw.printTime() << " s." << endl;
-		cout << "KD-Tree: Nearest neighbor is " << n << endl;
+		cout << "KD-Tree: NN is " << n << endl;
+		cout << "KD-Tree: NN distance: " << tree.distance() << endl;
 		cout << "KD-Tree: Nearest neighbor index is " << kdtree_nn_index << endl;
-		cout << "KD-Tree: (T,muB,muQ,muS) indices of NN are:"
+		cout << "KD-Tree: (T,muB,muQ,muS) indices of NN are: "
 				<< Tinds[kdtree_nn_index] << ", " << mubinds[kdtree_nn_index] << ", "
 				<< muqinds[kdtree_nn_index] << ", " << musinds[kdtree_nn_index] << endl;
-		cout << "KD-Tree: (T,muB,muQ,muS) coordinates of NN are:";
+		cout << "KD-Tree: (T,muB,muQ,muS,e,b,s,q) coordinates of NN are: \n\t";
 		for ( const double & elem : grid[kdtree_nn_index] )
 			cout << "   " << elem;
 		cout << endl;
 		cout << "KD-Tree: Found nearest midpoint neighbor (NMN) in " << setprecision(18)
 				<< sw.printTime() << " s." << endl;
 		cout << "KD-Tree: NMN is " << n_mpt << endl;
+		cout << "KD-Tree: NMN distance: " << midpoint_tree.distance() << endl;
 		cout << "KD-Tree: NMN index is " << kdtree_n_mpt_index << endl;
-		cout << "KD-Tree: (T,muB,muQ,muS) indices of NN are:"
-				<< midpoint_inds[kdtree_n_mpt_index][0] << ", "
-				<< midpoint_inds[kdtree_n_mpt_index][1] << ", "
-				<< midpoint_inds[kdtree_n_mpt_index][2] << ", "
-				<< midpoint_inds[kdtree_n_mpt_index][3] << endl;
-		cout << "KD-Tree: (T,muB,muQ,muS) coordinates of NMN are:";
+		cout << "KD-Tree: (T,muB,muQ,muS) indices of NMN are: "
+			<< midpoint_inds[kdtree_n_mpt_index][0] << ", "
+			<< midpoint_inds[kdtree_n_mpt_index][1] << ", "
+			<< midpoint_inds[kdtree_n_mpt_index][2] << ", "
+			<< midpoint_inds[kdtree_n_mpt_index][3] << endl;
+		cout << "KD-Tree: (T,mub,muq,mus) coordinates of NMN are: "
+			<< midpoint_coords[kdtree_n_mpt_index][0] << ", "
+			<< midpoint_coords[kdtree_n_mpt_index][1] << ", "
+			<< midpoint_coords[kdtree_n_mpt_index][2] << ", "
+			<< midpoint_coords[kdtree_n_mpt_index][3] << endl;
+		cout << "KD-Tree: (e,b,s,q) coordinates of NMN are: ";
 		for ( const double & elem : midpoint_grid[kdtree_n_mpt_index] )
 			cout << "   " << elem;
 		cout << endl;
@@ -231,10 +243,16 @@ int main(int argc, char *argv[])
 		std::cerr << e.what() << '\n';
 	}
 
-	// look up indices
-	const int iTNN = Tinds[kdtree_nn_index], imubNN = mubinds[kdtree_nn_index],
-				imuqNN = muqinds[kdtree_nn_index], imusNN = musinds[kdtree_nn_index];
+//if (true) exit(-1);
 
+	// look up indices
+	//const int iTNN = Tinds[kdtree_nn_index], imubNN = mubinds[kdtree_nn_index],
+	//			imuqNN = muqinds[kdtree_nn_index], imusNN = musinds[kdtree_nn_index];
+	const int iTNMN = midpoint_inds[kdtree_n_mpt_index][0];
+	const int imubNMN = midpoint_inds[kdtree_n_mpt_index][1];
+	const int imuqNMN = midpoint_inds[kdtree_n_mpt_index][2];
+	const int imusNMN = midpoint_inds[kdtree_n_mpt_index][3];
+	const int iTNN=iTNMN, imubNN=imubNMN, imuqNN=imuqNMN, imusNN=imusNMN;
 
 	// select vertices in vicinity of NN to triangulate
 	int NNvertex = 0;
