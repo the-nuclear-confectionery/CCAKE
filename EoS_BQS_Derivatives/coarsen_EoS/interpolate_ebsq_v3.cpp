@@ -195,7 +195,8 @@ int main(int argc, char *argv[])
 
 	vector<double> nv0 = {ne0, nb0, ns0, nq0};
 
-	// here is where we query the kd-tree for the nearest neighbor (NN)
+	// here is where we query the kd-tree for the nearest neighbor (NN) and
+	// nearest midpoint neighbor (NMN)
 	size_t kdtree_nn_index = 0;
 	size_t kdtree_n_mpt_index = 0;
 	try
@@ -203,9 +204,9 @@ int main(int argc, char *argv[])
 		point4d n = tree.nearest({ne0, nb0, ns0, nq0}, kdtree_nn_index);
 		point4d n_mpt = midpoint_tree.nearest({ne0, nb0, ns0, nq0}, kdtree_n_mpt_index);
 
-//kdtree_nn_index = 1215674;
 		//sw.Stop();
 		cout << "Query point: {" << ne0 << ", " << nb0 << ", " << ns0 << ", " << nq0 << "}" << endl;
+		// NN
 		cout << "KD-Tree: Found nearest neighbor (NN) in " << setprecision(18)
 				<< sw.printTime() << " s." << endl;
 		cout << "KD-Tree: NN is " << n << endl;
@@ -218,6 +219,7 @@ int main(int argc, char *argv[])
 		for ( const double & elem : grid[kdtree_nn_index] )
 			cout << "   " << elem;
 		cout << endl;
+		// NMN
 		cout << "KD-Tree: Found nearest midpoint neighbor (NMN) in " << setprecision(18)
 				<< sw.printTime() << " s." << endl;
 		cout << "KD-Tree: NMN is " << n_mpt << endl;
@@ -265,10 +267,10 @@ int main(int argc, char *argv[])
 	{
 		constexpr int blockRadius = 1;
 		int vertexcount = 0;
-		for (int ii = -blockRadius; ii <= blockRadius; ii++)
-		for (int jj = -blockRadius; jj <= blockRadius; jj++)
-		for (int kk = -blockRadius; kk <= blockRadius; kk++)
-		for (int ll = -blockRadius; ll <= blockRadius; ll++)
+		for (int ii = -0*blockRadius; ii <= blockRadius; ii++)
+		for (int jj = -0*blockRadius; jj <= blockRadius; jj++)
+		for (int kk = -0*blockRadius; kk <= blockRadius; kk++)
+		for (int ll = -0*blockRadius; ll <= blockRadius; ll++)
 		{
 			// check that we're not going outside the grid
 			if ( iTNN+ii < nT && iTNN+ii >= 0
@@ -387,7 +389,7 @@ int main(int argc, char *argv[])
 	bool foundPoint = point_is_in_simplex( simplexVertices, nv0, point_lambda_in_simplex, true );
 	if (!foundPoint)	// loop over all simplices
 	{
-	        cout << "Did not find point in first simplex! Looping through all simplices:" << endl;
+		cout << "Did not find point in first simplex! Looping through all simplices:" << endl;
 		int isimplex = 0;
 		for ( auto & simplex : simplices )
 		{
