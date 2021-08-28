@@ -29,9 +29,6 @@ int main(int argc, char *argv[])
 	string path_to_file = string(argv[1]);
 	string path_to_staggered_file = string(argv[2]);
 
-	vector<vector<double> > staggered_grid;
-	load_EoS_table(path_to_staggered_file, staggered_grid);
-
 	// set up EoS object
 	eos_delaunay EoS( path_to_file );
 
@@ -41,7 +38,19 @@ int main(int argc, char *argv[])
 	sw.Reset();
 	sw.Start();
 	size_t cellCount = 0;
+
+
 	vector<double> result(4, 0.0);
+	EoS.interpolate({3405.08, -0.473819, -1.78269, -2.89511}, result);
+	for (const double & elem : result)
+				cout << "   " << elem;
+			cout << endl;
+
+	
+	// load staggered file with test points
+	vector<vector<double> > staggered_grid;
+	load_EoS_table(path_to_staggered_file, staggered_grid);
+
 	for (const vector<double> & staggered_cell : staggered_grid)
 	{
 		if ( staggered_cell[0] < 150.0 )	// MeV
