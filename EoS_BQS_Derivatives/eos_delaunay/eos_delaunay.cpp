@@ -451,11 +451,8 @@ void eos_delaunay::interpolate_NMNmode(const vector<double> & v0, vector<double>
 	// where simplices are stored
 	vector<vector<size_t> > simplices;
 
-	int starting_index = 0;
-
-	try	// to catch an error if Qhull fails
+	for (int starting_index = 0; starting_index >= -1; --starting_index)
 	{
-		attempt_triangulation:
 		int vertexcount = 0;
 		for (int ii = starting_index; ii <= 1; ii++)
 		for (int jj = starting_index; jj <= 1; jj++) // only need containing hypercube
@@ -485,20 +482,23 @@ void eos_delaunay::interpolate_NMNmode(const vector<double> & v0, vector<double>
 				verticesFlat[4*ii + jj] = vertex[jj+4];
 		}
 
-		// Test the Delaunay part here
-		// first get the triangulation
-		compute_delaunay(&verticesFlat[0], 4, verticesFlat.size() / 4, simplices);
-	}
-	catch (const std::exception& e)
-	{
-		std::cerr << e.what() << '\n';
-		if ( starting_index == 0 )
+		try	// to catch an error if Qhull fails
 		{
-			starting_index = -1;	// try again with larger block to triangulate
-			goto attempt_triangulation;
+			// Test the Delaunay part here
+			// first get the triangulation
+			compute_delaunay(&verticesFlat[0], 4, verticesFlat.size() / 4, simplices);
 		}
-		else
-			return;					// otherwise give up
+		catch (const std::exception& e)
+		{
+			std::cerr << e.what() << '\n';
+			if ( starting_index == 0 )
+			{
+				starting_index = -1;	// try again with larger block to triangulate
+				continue;
+			}
+			else
+				return;					// otherwise give up
+		}
 	}
 
 
