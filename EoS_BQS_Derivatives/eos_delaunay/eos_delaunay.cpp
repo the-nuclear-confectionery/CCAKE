@@ -448,11 +448,12 @@ void eos_delaunay::interpolate_NMNmode(const vector<double> & v0, vector<double>
 	// Qhull requires vertices as 1D vector
 	vector<double> verticesFlat;
 
-	// where simplices are stored
-	vector<vector<size_t> > simplices;
-
-	// block to limit scope
+	for (int starting_index = 0; starting_index >= -1; --starting_index)
 	{
+		// reset
+		vertices.clear();
+		verticesFlat.clear();
+
 		int vertexcount = 0;
 		for (int ii = 0; ii <= 1; ii++)
 		for (int jj = 0; jj <= 1; jj++) // only need containing hypercube
@@ -474,6 +475,14 @@ void eos_delaunay::interpolate_NMNmode(const vector<double> & v0, vector<double>
 
 		// flatten as efficiently as possible
 		size_t nVertices = vertices.size();
+		if (nVertices < 6)	// this is how many Qhull needs
+		{
+			if (starting_index == 0)
+				continue;
+			else
+				return;
+		}
+
 		verticesFlat.resize(4*nVertices);	// dim == 4
 		for (int ii = 0; ii < nVertices; ii++)
 		{
@@ -482,11 +491,12 @@ void eos_delaunay::interpolate_NMNmode(const vector<double> & v0, vector<double>
 				verticesFlat[4*ii + jj] = vertex[jj+4];
 		}
 
-		// Test the Delaunay part here
-		// first get the triangulation
-		compute_delaunay(&verticesFlat[0], 4, verticesFlat.size() / 4, simplices);
 	}
 
+	// Test the Delaunay part here
+	// first get the triangulation
+	vector<vector<size_t> > simplices;
+	compute_delaunay(&verticesFlat[0], 4, verticesFlat.size() / 4, simplices);
 
 	// =======================================================
 	// triangulation is complete; now find containing simplex
