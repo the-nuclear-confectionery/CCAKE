@@ -193,6 +193,7 @@ void eos_delaunay::interpolate(const vector<double> & v0, vector<double> & resul
 // find containing simplex using nearest-neighbor (NN) method
 void eos_delaunay::interpolate_NNmode(const vector<double> & v0, vector<double> & result)
 {
+	result.resize(4, 0.0);
 	double e0 = v0[0], b0 = v0[1], s0 = v0[2], q0 = v0[3];
 
 	// normalize first
@@ -447,13 +448,19 @@ void eos_delaunay::interpolate_NMNmode(const vector<double> & v0, vector<double>
 	// Qhull requires vertices as 1D vector
 	vector<double> verticesFlat;
 
-	// add block to constrain scope of unnecessary variables
+	// where simplices are stored
+	vector<vector<size_t> > simplices;
+
+	int starting_index = 0;
+
+	try	// to catch an error if Qhull fails
 	{
+		attempt_triangulation:
 		int vertexcount = 0;
-		for (int ii = 0; ii <= 1; ii++)
-		for (int jj = 0; jj <= 1; jj++)	// only need containing hypercube
-		for (int kk = 0; kk <= 1; kk++)	// vertices for the NMN method
-		for (int ll = 0; ll <= 1; ll++)
+		for (int ii = starting_index; ii <= 1; ii++)
+		for (int jj = starting_index; jj <= 1; jj++) // only need containing hypercube
+		for (int kk = starting_index; kk <= 1; kk++) // vertices for the NMN method
+		for (int ll = starting_index; ll <= 1; ll++)
 		{
 			// check that we're not going outside the grid
 			if ( iTNMN+ii < nT && iTNMN+ii >= 0
@@ -477,13 +484,22 @@ void eos_delaunay::interpolate_NMNmode(const vector<double> & v0, vector<double>
 			for (int jj = 0; jj < 4; jj++)
 				verticesFlat[4*ii + jj] = vertex[jj+4];
 		}
+
+		// Test the Delaunay part here
+		// first get the triangulation
+		compute_delaunay(&verticesFlat[0], 4, verticesFlat.size() / 4, simplices);
 	}
-
-
-	// Test the Delaunay part here
-	// first get the triangulation
-	vector<vector<size_t> > simplices;
-	compute_delaunay(&verticesFlat[0], 4, verticesFlat.size() / 4, simplices);
+	catch (const std::exception& e)
+	{
+		std::cerr << e.what() << '\n';
+		if ( starting_point == 0 )
+		{
+			starting_point = -1;	// try again with larger block to triangulate
+			goto attempt_triangulation;
+		}
+		else
+			return;					// otherwise give up
+	}
 
 
 	// =======================================================
@@ -599,7 +615,6 @@ void eos_delaunay::interpolate_NMNmode(const vector<double> & v0, vector<double>
 		}
 	}
 
-	result.resize(4, 0.0);
 	result[0] = T0;
 	result[1] = mub0;
 	result[2] = mus0;
