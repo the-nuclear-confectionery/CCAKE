@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
 	for (const double & elem : result)
 				cout << "   " << elem;
 			cout << endl;
-
+	if (true) exit(-1);
 	
 	// load staggered file with test points
 	vector<vector<double> > staggered_grid;
@@ -76,7 +76,6 @@ int main(int argc, char *argv[])
 				cout << "   " << elem;
 			cout << "\n";
 		}
-if (true) exit(-1);
 	}
 
 	/*
