@@ -436,8 +436,8 @@ void eos_delaunay::interpolate_NMNmode(const vector<double> & v0, vector<double>
 	}
 
 	// look up indices
-	const int iTNMN = Tinds[kdtree_nmn_index], imubNN = mubinds[kdtree_nmn_index],
-				imuqNMN = muqinds[kdtree_nmn_index], imusNN = musinds[kdtree_nmn_index];
+	const int iTNMN = Tinds[kdtree_nmn_index], imubNMN = mubinds[kdtree_nmn_index],
+				imuqNMN = muqinds[kdtree_nmn_index], imusNMN = musinds[kdtree_nmn_index];
 
 
 	// select vertices in vicinity of NMN to triangulate
