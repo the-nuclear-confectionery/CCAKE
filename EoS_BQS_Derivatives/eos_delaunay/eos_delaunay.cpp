@@ -113,7 +113,7 @@ eos_delaunay::eos_delaunay(string EoS_table_file)
 		cout << "Setting up kd-trees...";
 		static tree4d tree(std::begin(density_points), std::end(density_points));
 		tree_ptr = &tree;
-		static tree4d midpoint_tree(std::begin(density_points), std::end(density_points));
+		static tree4d midpoint_tree(std::begin(midpoint_grid), std::end(midpoint_grid));
 		midpoint_tree_ptr = &midpoint_tree;
 		cout << "finished!\n";
 		//cout << "Constructed full tree in " << sw.printTime() << " s." << endl;
