@@ -451,7 +451,7 @@ void eos_delaunay::interpolate_NMNmode(const vector<double> & v0, vector<double>
 	// where simplices are stored
 	vector<vector<size_t> > simplices;
 
-	for (int starting_index = 0; starting_index >= -1; --starting_index)
+	// block to limit scope
 	{
 		int vertexcount = 0;
 		for (int ii = starting_index; ii <= 1; ii++)
@@ -482,23 +482,9 @@ void eos_delaunay::interpolate_NMNmode(const vector<double> & v0, vector<double>
 				verticesFlat[4*ii + jj] = vertex[jj+4];
 		}
 
-		try	// to catch an error if Qhull fails
-		{
-			// Test the Delaunay part here
-			// first get the triangulation
-			compute_delaunay(&verticesFlat[0], 4, verticesFlat.size() / 4, simplices);
-		}
-		catch (const std::exception& e)
-		{
-			std::cerr << e.what() << '\n';
-			if ( starting_index == 0 )
-			{
-				starting_index = -1;	// try again with larger block to triangulate
-				continue;
-			}
-			else
-				return;					// otherwise give up
-		}
+		// Test the Delaunay part here
+		// first get the triangulation
+		compute_delaunay(&verticesFlat[0], 4, verticesFlat.size() / 4, simplices);
 	}
 
 
