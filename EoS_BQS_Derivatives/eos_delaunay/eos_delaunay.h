@@ -48,6 +48,7 @@ class eos_delaunay
 
 		vector<vector<double> > grid;
 		vector<int> Tinds, mubinds, muqinds, musinds;
+		vector<vector<size_t> > midpoint_inds;
 		
 		inline size_t indexer( const int iT, const int imub, const int imuq, const int imus )
 		{
