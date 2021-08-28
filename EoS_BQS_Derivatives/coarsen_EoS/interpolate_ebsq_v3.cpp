@@ -307,6 +307,7 @@ int main(int argc, char *argv[])
 	// =======================================================
 	// triangulation is complete; now find containing simplex
 
+	constexpr bool check_simplices = false;
 	vector<bool> simplices_to_check(simplices.size(), false);
 
 	// block to enforce local scope
@@ -326,7 +327,7 @@ int main(int argc, char *argv[])
 				}
 			
 			// assume point must belong to simplex including NN, skip other simplices			
-			if (!NN_vertex_included_in_this_simplex)
+			if (check_simplices && !NN_vertex_included_in_this_simplex)
 			{
 				isimplex++;
 				continue;
@@ -380,8 +381,6 @@ int main(int argc, char *argv[])
 		cout << endl;
 	}
 	}*/
-
-	constexpr bool check_simplices = false;
 
 	// locate the point in the simplex (assuming we know it's there;
 	// currently no plan B for if point winds up outside this simplex)
