@@ -193,7 +193,6 @@ void eos_delaunay::interpolate(const vector<double> & v0, vector<double> & resul
 // find containing simplex using nearest-neighbor (NN) method
 void eos_delaunay::interpolate_NNmode(const vector<double> & v0, vector<double> & result)
 {
-	result.resize(4, 0.0);
 	double e0 = v0[0], b0 = v0[1], s0 = v0[2], q0 = v0[3];
 
 	// normalize first
@@ -414,6 +413,7 @@ void eos_delaunay::interpolate_NNmode(const vector<double> & v0, vector<double> 
 // find containing simplex using nearest-midpoint-neighbor (NMN) method
 void eos_delaunay::interpolate_NMNmode(const vector<double> & v0, vector<double> & result)
 {
+	result.resize(4, 0.0);
 	double e0 = v0[0], b0 = v0[1], s0 = v0[2], q0 = v0[3];
 
 	// normalize first
@@ -492,9 +492,9 @@ void eos_delaunay::interpolate_NMNmode(const vector<double> & v0, vector<double>
 	catch (const std::exception& e)
 	{
 		std::cerr << e.what() << '\n';
-		if ( starting_point == 0 )
+		if ( starting_index == 0 )
 		{
-			starting_point = -1;	// try again with larger block to triangulate
+			starting_index = -1;	// try again with larger block to triangulate
 			goto attempt_triangulation;
 		}
 		else
