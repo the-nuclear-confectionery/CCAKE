@@ -429,8 +429,6 @@ void eos_delaunay::interpolate_NMNmode(const vector<double> & v0, vector<double>
 	{
 		// point4d n not used; only need kdtree_nmn_index
 		point4d n = midpoint_tree_ptr->nearest({ne0, nb0, ns0, nq0}, kdtree_nmn_index);
-		cout << "KD-Tree: Found nearest midpoint neighbor (NMN) in " << setprecision(18)
-				<< sw.printTime() << " s." << endl;
 		cout << "KD-Tree: NMN is " << n << endl;
 		cout << "KD-Tree: NMN distance: " << midpoint_tree_ptr->distance() << endl;
 		cout << "KD-Tree: NMN index is " << kdtree_nmn_index << endl;
