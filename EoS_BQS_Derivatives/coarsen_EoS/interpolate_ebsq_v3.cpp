@@ -388,7 +388,8 @@ int main(int argc, char *argv[])
 	bool foundPoint = point_is_in_simplex( simplexVertices, nv0, point_lambda_in_simplex, true );
 	if (!foundPoint)	// loop over all simplices
 	{
-		cout << "Did not find point in first simplex! Looping through all simplices:" << endl;
+		cout << "Did not find point in first simplex!"
+				" Looping through all " << simplices.size() << " simplices:" << endl;
 		int isimplex = 0;
 		for ( auto & simplex : simplices )
 		{
