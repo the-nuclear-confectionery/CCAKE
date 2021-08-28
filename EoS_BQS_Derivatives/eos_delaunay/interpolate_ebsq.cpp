@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
 	// check input first
 	if (argc < 3) exit(-1);
 
-	constexpr bool timing_test_only = false;
+	constexpr bool timing_test_only = true;
 	Stopwatch sw;
 	sw.Reset();
 	sw.Start();
@@ -44,11 +44,6 @@ int main(int argc, char *argv[])
 	vector<double> result(4, 0.0);
 	for (const vector<double> & staggered_cell : staggered_grid)
 	{
-		/*if ( cellCount+1 != 3500000 )
-		{
-			cellCount++;
-			continue;
-		}*/
 		if ( staggered_cell[0] < 150.0 )	// MeV
 			continue;
 		// interpolate the densities

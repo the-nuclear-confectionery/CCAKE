@@ -30,6 +30,8 @@ class eos_delaunay
 	    //void init(vector<vector<double> > & grid_in);
 
 		void interpolate(const vector<double> & v0, vector<double> & result);
+		void interpolate_NNmode(const vector<double> & v0, vector<double> & result);
+		void interpolate_NMNmode(const vector<double> & v0, vector<double> & result);
 
 
 	private:
@@ -37,7 +39,7 @@ class eos_delaunay
 		typedef point<double, 4> point4d;
 		typedef kdtree<double, 4> tree4d;
 
-		tree4d * tree_ptr;
+		tree4d * tree_ptr, * midpoint_tree_ptr;
 
 		const double hbarc = 197.327;
 		const size_t nT = 155, nmub = 37, nmus = 37, nmuq = 37;
