@@ -720,8 +720,8 @@ bool eos_delaunay::interpolate_NMNmode_v2(const vector<double> & v0, vector<doub
 
 	// big block around first attempt
 	bool foundPoint = triangulate_and_locate_point
-						{iTNMN, imubNMN, imuqNMN, imusNMN}, vertices,
-						simplices, point_lambda_in_simplex, iclosestsimplex);
+						vector<double>({iTNMN, imubNMN, imuqNMN, imusNMN}),
+						vertices, simplices, point_lambda_in_simplex, iclosestsimplex);
 
 
 	// if we STILL have not found the containing simplex...
