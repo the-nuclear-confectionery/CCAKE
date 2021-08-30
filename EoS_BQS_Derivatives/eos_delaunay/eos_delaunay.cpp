@@ -182,14 +182,16 @@ void eos_delaunay::get_min_and_max(vector<double> & v, double & minval, double &
 
 void eos_delaunay::interpolate(const vector<double> & v0, vector<double> & result)
 {
-	constexpr bool use_NN_mode = false;
-	bool success = (use_NN_mode) ?
-			interpolate_NNmode(v0, result) :
-			interpolate_NMNmode(v0, result);
+//	constexpr bool use_NN_mode = false;
+//	bool success = (use_NN_mode) ?
+//			interpolate_NNmode(v0, result) :
+//			interpolate_NMNmode(v0, result);
 //			interpolate_NMNmode_v2(v0, result);
 //	if (!success)
 //		cout << "Failed! " << v0[0] << "   " << v0[1] << "   " << v0[2] << "   " << v0[3] << "   "
 //			<< result[0] << "   " << result[1] << "  " << result[2] << "   " << result[3] << endl;
+	if ( !interpolate_NMNmode(v0, result) )
+		interpolate_NMNmode_v2(v0, result);
 }
 
 // find containing simplex using nearest-neighbor (NN) method
