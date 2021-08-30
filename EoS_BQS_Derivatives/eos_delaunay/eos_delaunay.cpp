@@ -187,9 +187,9 @@ void eos_delaunay::interpolate(const vector<double> & v0, vector<double> & resul
 			interpolate_NNmode(v0, result) :
 			interpolate_NMNmode_v2(v0, result);
 			//interpolate_NMNmode(v0, result);
-	if (!success)
-		cout << "Failed! " << v0[0] << "   " << v0[1] << "   " << v0[2] << "   " << v0[3] << "   "
-			<< result[0] << "   " << result[1] << "  " << result[2] << "   " << result[3] << endl;
+//	if (!success)
+//		cout << "Failed! " << v0[0] << "   " << v0[1] << "   " << v0[2] << "   " << v0[3] << "   "
+//			<< result[0] << "   " << result[1] << "  " << result[2] << "   " << result[3] << endl;
 }
 
 // find containing simplex using nearest-neighbor (NN) method
@@ -688,14 +688,14 @@ bool eos_delaunay::interpolate_NMNmode_v2(const vector<double> & v0, vector<doub
 	{
 		// point4d n not used; only need kdtree_nmn_index
 		point4d n = midpoint_tree_ptr->nearest({ne0, nb0, ns0, nq0}, kdtree_nmn_index);
-		cout << "KD-Tree: NMN is " << n << endl;
-		cout << "KD-Tree: NMN distance: " << midpoint_tree_ptr->distance() << endl;
-		cout << "KD-Tree: NMN index is " << kdtree_nmn_index << endl;
-		cout << "KD-Tree: (T,muB,muQ,muS) indices of NMN are: "
-			<< midpoint_inds[kdtree_nmn_index][0] << ", "
-			<< midpoint_inds[kdtree_nmn_index][1] << ", "
-			<< midpoint_inds[kdtree_nmn_index][2] << ", "
-			<< midpoint_inds[kdtree_nmn_index][3] << endl;
+//		cout << "KD-Tree: NMN is " << n << endl;
+//		cout << "KD-Tree: NMN distance: " << midpoint_tree_ptr->distance() << endl;
+//		cout << "KD-Tree: NMN index is " << kdtree_nmn_index << endl;
+//		cout << "KD-Tree: (T,muB,muQ,muS) indices of NMN are: "
+//			<< midpoint_inds[kdtree_nmn_index][0] << ", "
+//			<< midpoint_inds[kdtree_nmn_index][1] << ", "
+//			<< midpoint_inds[kdtree_nmn_index][2] << ", "
+//			<< midpoint_inds[kdtree_nmn_index][3] << endl;
 	}
 	catch (const std::exception& e)
 	{
