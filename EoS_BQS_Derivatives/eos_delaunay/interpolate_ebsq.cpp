@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
 	// check input first
 	if (argc < 3) exit(-1);
 
-	constexpr bool timing_test_only = false;
+	constexpr bool timing_test_only = true;
 	Stopwatch sw;
 	sw.Reset();
 	sw.Start();
