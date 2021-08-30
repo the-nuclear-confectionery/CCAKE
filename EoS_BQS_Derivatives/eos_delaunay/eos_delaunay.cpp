@@ -727,9 +727,9 @@ bool eos_delaunay::interpolate_NMNmode_v2(const vector<double> & v0, vector<doub
 	// if we STILL have not found the containing simplex...
 	if (!foundPoint)
 	for (int iTshift = -1; iTshift <= -1; ++iTshift)
-	for (int imubshift = 0; imubshift <= 0; ++imubshift)
-	for (int imuqshift = 0; imuqshift <= 0; ++imuqshift)
-	for (int imusshift = -1; imusshift <= -1; ++imusshift)
+	for (int imubshift = -1; imubshift <= 1; ++imubshift)
+	for (int imuqshift = -1; imuqshift <= 1; ++imuqshift)
+	for (int imusshift = -1; imusshift <= 1; ++imusshift)
 	{
 		// the unshifted one was already tried above
 		if (iTshift==0 && imubshift==0 && imuqshift==0 && imusshift==0) continue;
