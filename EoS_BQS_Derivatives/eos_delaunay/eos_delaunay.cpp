@@ -718,6 +718,7 @@ bool eos_delaunay::interpolate_NMNmode_v2(const vector<double> & v0, vector<doub
 	// Qhull requires vertices as 1D vector
 	vector<double> verticesFlat;
 
+	bool foundPoint = false;
 	int iclosestsimplex = 0;
 	vector<vector<size_t> > simplices;
 	vector<double> point_lambda_in_simplex(5, 0.0);	// dim + 1 == 5
@@ -846,7 +847,7 @@ bool eos_delaunay::interpolate_NMNmode_v2(const vector<double> & v0, vector<doub
 		// try closest simplex first; otherwise loop through all simplices
 		//vector<double> point_lambda_in_simplex(5, 0.0);	// dim + 1 == 5
 		point_lambda_in_simplex.resize(5, 0.0);	// dim + 1 == 5
-		bool foundPoint = point_is_in_simplex( simplexVertices, nv0, point_lambda_in_simplex, false );
+		foundPoint = point_is_in_simplex( simplexVertices, nv0, point_lambda_in_simplex, false );
 	
 		if (!foundPoint)        // loop over all simplices
 		{
