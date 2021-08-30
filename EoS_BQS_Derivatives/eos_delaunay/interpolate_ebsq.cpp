@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
 	// check input first
 	if (argc < 3) exit(-1);
 
-	constexpr bool timing_test_only = false;
+	constexpr bool timing_test_only = true;
 	Stopwatch sw;
 	sw.Reset();
 	sw.Start();
@@ -54,8 +54,8 @@ int main(int argc, char *argv[])
 	sw.Start();
 	for (const vector<double> & staggered_cell : staggered_grid)
 	{
-		if ( staggered_cell[0] < 150.0 )	// MeV
-			continue;
+		//if ( staggered_cell[0] < 150.0 )	// MeV
+		//	continue;
 		// interpolate the densities
 		EoS.interpolate(vector<double>(staggered_cell.begin()+4,staggered_cell.end()), result);
 		if ( timing_test_only )

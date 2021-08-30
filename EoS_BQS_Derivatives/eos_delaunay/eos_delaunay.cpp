@@ -516,7 +516,14 @@ void eos_delaunay::interpolate_NMNmode(const vector<double> & v0, vector<double>
 	// Test the Delaunay part here
 	// first get the triangulation
 	vector<vector<size_t> > simplices;
-	compute_delaunay(&verticesFlat[0], 4, verticesFlat.size() / 4, simplices);
+	try
+	{
+		compute_delaunay(&verticesFlat[0], 4, verticesFlat.size() / 4, simplices);
+	}
+	catch
+	{
+		return;
+	}
 
 	// =======================================================
 	// triangulation is complete; now find containing simplex
