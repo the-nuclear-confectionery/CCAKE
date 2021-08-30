@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
 	// check input first
 	if (argc < 3) exit(-1);
 
-	constexpr bool timing_test_only = false;
+	constexpr bool timing_test_only = true;
 	Stopwatch sw;
 	sw.Reset();
 	sw.Start();
@@ -37,11 +37,11 @@ int main(int argc, char *argv[])
 
 	vector<double> result(4, 0.0);
 	//EoS.interpolate({3405.08, -0.473819, -1.78269, -2.89511}, result);
-	EoS.interpolate({1940.68, -0.284676, -1.0705, -1.5329}, result);
+	/*EoS.interpolate({1940.68, -0.284676, -1.0705, -1.5329}, result);
 	for (const double & elem : result)
 				cout << "   " << elem;
 			cout << endl;
-	if (true) exit(-1);
+	if (true) exit(-1);*/
 	
 	// load staggered file with test points
 	vector<vector<double> > staggered_grid;

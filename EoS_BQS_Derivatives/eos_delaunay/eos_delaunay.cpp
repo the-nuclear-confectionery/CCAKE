@@ -734,10 +734,10 @@ bool eos_delaunay::interpolate_NMNmode_v2(const vector<double> & v0, vector<doub
 		// the unshifted one was already tried above
 		if (iTshift==0 && imubshift==0 && imuqshift==0 && imusshift==0) continue;
 
-		cout << "Trying " << iTNMN+iTshift << "   " << imubNMN+imubshift << "   "
-			<< imuqNMN+imuqshift << "   " << imusNMN+imusshift << ";   "
-			<< iTshift << "   " << imubshift << "   " << imuqshift << "   " << imusshift
-			<< endl;
+//		cout << "Trying " << iTNMN+iTshift << "   " << imubNMN+imubshift << "   "
+//			<< imuqNMN+imuqshift << "   " << imusNMN+imusshift << ";   "
+//			<< iTshift << "   " << imubshift << "   " << imuqshift << "   " << imusshift
+//			<< endl;
 
 		foundPoint = triangulate_and_locate_point( nv0,
 						vector<int>({iTNMN+iTshift, imubNMN+imubshift,
