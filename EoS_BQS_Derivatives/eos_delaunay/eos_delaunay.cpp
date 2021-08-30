@@ -744,8 +744,10 @@ bool eos_delaunay::interpolate_NMNmode_v2(const vector<double> & v0, vector<doub
 									 imuqNMN+imuqshift, imusNMN+imusshift}),
 						vertices, simplices, point_lambda_in_simplex, iclosestsimplex);
 
-		if (foundPoint) break;
+		if (foundPoint) goto end;
 	}
+
+	end:
 
 	// finally, use the output lambda coefficients to get the interpolated values
 	double T0 = 0.0, mub0 = 0.0, muq0 = 0.0, mus0 = 0.0;
@@ -904,7 +906,7 @@ bool eos_delaunay::triangulate_and_locate_point(
 	// try closest simplex first; otherwise loop through all simplices
 	//vector<double> point_lambda_in_simplex(5, 0.0);	// dim + 1 == 5
 	point_lambda_in_simplex.resize(5, 0.0);	// dim + 1 == 5
-	bool foundPoint = point_is_in_simplex( simplexVertices, nv0, point_lambda_in_simplex, true );
+	bool foundPoint = point_is_in_simplex( simplexVertices, nv0, point_lambda_in_simplex, false );
 
 	if (!foundPoint)        // loop over all simplices
 	{
@@ -924,7 +926,7 @@ bool eos_delaunay::triangulate_and_locate_point(
 									vertices[vertex].end() ) );
 
 			// check if point is in simplex; if so, return lambda coefficients and break
-			if ( point_is_in_simplex( simplexVertices, nv0, point_lambda_in_simplex, true ) )
+			if ( point_is_in_simplex( simplexVertices, nv0, point_lambda_in_simplex, false ) )
 			{
 				iclosestsimplex = isimplex;     // probably rename this
 				foundPoint = true;
