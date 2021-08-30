@@ -754,6 +754,8 @@ bool eos_delaunay::interpolate_NMNmode_v2(const vector<double> & v0, vector<doub
 
 	// finally, use the output lambda coefficients to get the interpolated values
 	double T0 = 0.0, mub0 = 0.0, muq0 = 0.0, mus0 = 0.0;
+
+	if (foundPoint)
 	{
 		int ivertex = 0;
 		for ( const auto & vertex : simplices[iclosestsimplex] )
