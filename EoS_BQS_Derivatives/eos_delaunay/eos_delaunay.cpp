@@ -442,14 +442,14 @@ bool eos_delaunay::interpolate_NMNmode(const vector<double> & v0, vector<double>
 	{
 		// point4d n not used; only need kdtree_nmn_index
 		point4d n = midpoint_tree_ptr->nearest({ne0, nb0, ns0, nq0}, kdtree_nmn_index);
-		cout << "KD-Tree: NMN is " << n << endl;
-		cout << "KD-Tree: NMN distance: " << midpoint_tree_ptr->distance() << endl;
-		cout << "KD-Tree: NMN index is " << kdtree_nmn_index << endl;
-		cout << "KD-Tree: (T,muB,muQ,muS) indices of NMN are: "
-			<< midpoint_inds[kdtree_nmn_index][0] << ", "
-			<< midpoint_inds[kdtree_nmn_index][1] << ", "
-			<< midpoint_inds[kdtree_nmn_index][2] << ", "
-			<< midpoint_inds[kdtree_nmn_index][3] << endl;
+//		cout << "KD-Tree: NMN is " << n << endl;
+//		cout << "KD-Tree: NMN distance: " << midpoint_tree_ptr->distance() << endl;
+//		cout << "KD-Tree: NMN index is " << kdtree_nmn_index << endl;
+//		cout << "KD-Tree: (T,muB,muQ,muS) indices of NMN are: "
+//			<< midpoint_inds[kdtree_nmn_index][0] << ", "
+//			<< midpoint_inds[kdtree_nmn_index][1] << ", "
+//			<< midpoint_inds[kdtree_nmn_index][2] << ", "
+//			<< midpoint_inds[kdtree_nmn_index][3] << endl;
 	}
 	catch (const std::exception& e)
 	{
