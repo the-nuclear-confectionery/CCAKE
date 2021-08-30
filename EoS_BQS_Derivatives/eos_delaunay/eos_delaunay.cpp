@@ -485,10 +485,10 @@ void eos_delaunay::interpolate_NMNmode(const vector<double> & v0, vector<double>
 		verticesFlat.clear();
 
 		int vertexcount = 0;
-		for (int ii = 0; ii <= 1; ii++)
-		for (int jj = 0; jj <= 1; jj++) // only need containing hypercube
-		for (int kk = 0; kk <= 1; kk++) // vertices for the NMN method
-		for (int ll = 0; ll <= 1; ll++)
+		for (int ii = starting_index; ii <= 1; ii++)
+		for (int jj = starting_index; jj <= 1; jj++) // only need containing hypercube
+		for (int kk = starting_index; kk <= 1; kk++) // vertices for the NMN method
+		for (int ll = starting_index; ll <= 1; ll++)
 		{
 			// check that we're not going outside the grid
 			if ( iTNMN+ii < nT && iTNMN+ii >= 0
