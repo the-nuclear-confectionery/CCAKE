@@ -738,6 +738,13 @@ bool eos_delaunay::interpolate_NMNmode_v2(const vector<double> & v0, vector<doub
 			<< imuqNMN+imuqshift << "   " << imusNMN+imusshift << ";   "
 			<< iTshift << "   " << imubshift << "   " << imuqshift << "   " << imusshift
 			<< endl;
+
+		foundPoint = triangulate_and_locate_point( nv0,
+						vector<int>({iTNMN+iTshift, imubNMN+imubshift,
+									 imuqNMN+imuqshift, imusNMN+imusshift}),
+						vertices, simplices, point_lambda_in_simplex, iclosestsimplex);
+
+		if (foundPoint) break;
 	}
 
 	// finally, use the output lambda coefficients to get the interpolated values
