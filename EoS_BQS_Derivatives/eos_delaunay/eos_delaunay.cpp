@@ -520,7 +520,7 @@ void eos_delaunay::interpolate_NMNmode(const vector<double> & v0, vector<double>
 	{
 		compute_delaunay(&verticesFlat[0], 4, verticesFlat.size() / 4, simplices);
 	}
-	catch
+	catch (const std::exception& e)
 	{
 		return;
 	}
