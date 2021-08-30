@@ -754,11 +754,15 @@ bool eos_delaunay::interpolate_NMNmode_v2(const vector<double> & v0, vector<doub
 
 	// finally, use the output lambda coefficients to get the interpolated values
 	double T0 = 0.0, mub0 = 0.0, muq0 = 0.0, mus0 = 0.0;
-	try
 	{
 		int ivertex = 0;
 		for ( const auto & vertex : simplices[iclosestsimplex] )
 		{
+			if ( vertex >= vertices.size() )
+			{
+				cerr << "Trying to access out of range!"<< endl;
+				cerr << vertex << " vs. " << vertices.size() << endl;
+			}
 			double lambda_coefficient = point_lambda_in_simplex[ivertex];
 			T0   += lambda_coefficient * vertices[vertex][0];
 			mub0 += lambda_coefficient * vertices[vertex][1];
@@ -767,11 +771,8 @@ bool eos_delaunay::interpolate_NMNmode_v2(const vector<double> & v0, vector<doub
 			ivertex++;
 		}
 	}
-	catch (const std::exception& e)
-	{
-		std::cerr << '\n' << e.what() << '\n';
-		exit(-1);
-	}
+	
+
 	result[0] = T0;
 	result[1] = mub0;
 	result[2] = muq0;
