@@ -518,8 +518,9 @@ bool eos_delaunay::interpolate_NMNmode(const vector<double> & v0, vector<double>
 			}
 			
 			nVertices = vertices.size();
-			if (nVertices < 6) return false;	// just give up
 		}*/
+
+		if (nVertices < 6) return false;	// just give up
 
 		// flatten as efficiently as possible
 		verticesFlat.resize(4*nVertices);	// dim == 4
@@ -811,6 +812,7 @@ bool eos_delaunay::triangulate_and_locate_point(
 
 		// flatten as efficiently as possible
 		size_t nVertices = vertices.size();
+		if (nVertices < 6) return false;
 
 		verticesFlat.resize(4*nVertices);	// dim == 4
 		for (int ii = 0; ii < nVertices; ii++)
