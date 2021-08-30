@@ -1,6 +1,6 @@
 # Set compiler and flags
 CC := g++
-CFLAGS= -O3 -std=c++11
+CFLAGS= -O3 -std=c++11 -g
 
 # Various directories and definitions
 RM          =   rm -f
