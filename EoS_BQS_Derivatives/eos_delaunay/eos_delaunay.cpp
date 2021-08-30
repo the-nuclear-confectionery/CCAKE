@@ -718,159 +718,171 @@ bool eos_delaunay::interpolate_NMNmode_v2(const vector<double> & v0, vector<doub
 	// Qhull requires vertices as 1D vector
 	vector<double> verticesFlat;
 
-	// block for scope
+	int iclosestsimplex = 0;
+	vector<vector<size_t> > simplices;
+	vector<double> point_lambda_in_simplex(5, 0.0);	// dim + 1 == 5
+
+	// big block around first attempt
 	{
-		int vertexcount = 0;
-		for (int ii = 0; ii <= 1; ii++)
-		for (int jj = 0; jj <= 1; jj++) // only need containing hypercube
-		for (int kk = 0; kk <= 1; kk++) // vertices for the NMN method
-		for (int ll = 0; ll <= 1; ll++)
+		vertices.clear();
+		verticesFlat.clear();
+		simplices.clear();
+
+		// block for scope
 		{
-			// check that we're not going outside the grid
-			if ( iTNMN+ii < nT && iTNMN+ii >= 0
-				&& imubNMN+jj < nmub && imubNMN+jj >= 0
-				&& imuqNMN+kk < nmuq && imuqNMN+kk >= 0
-				&& imusNMN+ll < nmus && imusNMN+ll >= 0 )
+			int vertexcount = 0;
+			for (int ii = 0; ii <= 1; ii++)
+			for (int jj = 0; jj <= 1; jj++) // only need containing hypercube
+			for (int kk = 0; kk <= 1; kk++) // vertices for the NMN method
+			for (int ll = 0; ll <= 1; ll++)
 			{
-				if (ii==0 && jj==0 && kk==0 && ll==0)
-					NMNvertex = vertexcount;	// identify NMN index below
-				vertices.push_back( grid[indexer( iTNMN+ii, imubNMN+jj, imuqNMN+kk, imusNMN+ll )] );
-				vertexcount++;
+				// check that we're not going outside the grid
+				if ( iTNMN+ii < nT && iTNMN+ii >= 0
+					&& imubNMN+jj < nmub && imubNMN+jj >= 0
+					&& imuqNMN+kk < nmuq && imuqNMN+kk >= 0
+					&& imusNMN+ll < nmus && imusNMN+ll >= 0 )
+				{
+					if (ii==0 && jj==0 && kk==0 && ll==0)
+						NMNvertex = vertexcount;	// identify NMN index below
+					vertices.push_back( grid[indexer( iTNMN+ii, imubNMN+jj, imuqNMN+kk, imusNMN+ll )] );
+					vertexcount++;
+				}
 			}
-		}
-
-		// flatten as efficiently as possible
-		size_t nVertices = vertices.size();
-
-		verticesFlat.resize(4*nVertices);	// dim == 4
-		for (int ii = 0; ii < nVertices; ii++)
-		{
-			const vector<double> & vertex = vertices[ii];
-			for (int jj = 0; jj < 4; jj++)
-				verticesFlat[4*ii + jj] = vertex[jj+4];
+	
+			// flatten as efficiently as possible
+			size_t nVertices = vertices.size();
+	
+			verticesFlat.resize(4*nVertices);	// dim == 4
+			for (int ii = 0; ii < nVertices; ii++)
+			{
+				const vector<double> & vertex = vertices[ii];
+				for (int jj = 0; jj < 4; jj++)
+					verticesFlat[4*ii + jj] = vertex[jj+4];
+			}
+		
 		}
 	
-	}
-
-	// Test the Delaunay part here
-	// first get the triangulation
-	vector<vector<size_t> > simplices;
-	try
-	{
-		compute_delaunay(&verticesFlat[0], 4, verticesFlat.size() / 4, simplices);
-	}
-	catch (const std::exception& e)
-	{
-		std::cerr << '\n' << e.what() << '\n';
-		std::cerr << __FUNCTION__ << ": Error occurred at "
-				<< e0 << "   " << b0 << "   " << s0 << "   " << q0 << "\n";
-		return false;
-	}
-
-	// =======================================================
-	// triangulation is complete; now find containing simplex
-
-	constexpr bool check_simplices = false;
-	vector<bool> simplices_to_check(simplices.size(), false);
-
-	// block to enforce local scope
-	int iclosestsimplex = 0;
-	{
-		int isimplex = 0;
-		double center_d2_min = 2.0;	// start with unrealistically large value (0 <= d2 <= 1)
-		for ( const auto & simplex : simplices )
+		// Test the Delaunay part here
+		// first get the triangulation
+		//vector<vector<size_t> > simplices;
+		try
 		{
-			bool NMN_vertex_included_in_this_simplex = false;
-			for ( const auto & vertex : simplex )
-				if ( vertex == NMNvertex )
+			compute_delaunay(&verticesFlat[0], 4, verticesFlat.size() / 4, simplices);
+		}
+		catch (const std::exception& e)
+		{
+			std::cerr << '\n' << e.what() << '\n';
+			std::cerr << __FUNCTION__ << ": Error occurred at "
+					<< e0 << "   " << b0 << "   " << s0 << "   " << q0 << "\n";
+			return false;
+		}
+	
+		// =======================================================
+		// triangulation is complete; now find containing simplex
+	
+		constexpr bool check_simplices = false;
+		vector<bool> simplices_to_check(simplices.size(), false);
+	
+		// block to enforce local scope
+		iclosestsimplex = 0;
+		{
+			int isimplex = 0;
+			double center_d2_min = 2.0;	// start with unrealistically large value (0 <= d2 <= 1)
+			for ( const auto & simplex : simplices )
+			{
+				bool NMN_vertex_included_in_this_simplex = false;
+				for ( const auto & vertex : simplex )
+					if ( vertex == NMNvertex )
+					{
+						NMN_vertex_included_in_this_simplex = true;
+						simplices_to_check[isimplex] = true;
+						break;
+					}
+				
+				// assume point must belong to simplex including NN, skip other simplices			
+				if (check_simplices && !NMN_vertex_included_in_this_simplex)
 				{
-					NMN_vertex_included_in_this_simplex = true;
-					simplices_to_check[isimplex] = true;
+					isimplex++;
+					continue;
+				}
+	
+				// otherwise, compute simplex center and track squared distance to original point
+				vector<double> center(4, 0.0);
+				for ( const size_t vertex : simplex )
+					std::transform( center.begin(), center.end(), vertices[vertex].begin()+4,
+									center.begin(), std::plus<double>());
+	
+	
+				// !!!!! N.B. - can remove this part and just multiply once !!!!!
+				// !!!!! below by appropriate factors of 5					!!!!!
+				// center is average of this simplex's vertices
+				std::transform( center.begin(), center.end(), center.begin(),
+								[](double & element){ return 0.2*element; } );
+								// 0.2 == 1/(dim+1), dim == 4
+	
+				double d2loc = d2( center, nv0 );
+				if ( d2loc < center_d2_min )
+				{
+					iclosestsimplex = isimplex;
+					center_d2_min = d2loc;
+				}
+		
+				isimplex++;
+			}
+		}
+	
+		// pass these to routine for locating point in simplex
+		vector<vector<double> > simplexVertices(5);	// 5 == dim + 1, dim == 4
+	
+		// block for local scope
+		{
+			int ivertex = 0;
+			for ( const auto & vertex : simplices[iclosestsimplex] )
+				simplexVertices[ivertex++] = vector<double>( vertices[vertex].begin()+4,
+										vertices[vertex].end() );
+		}
+	
+	
+		// try closest simplex first; otherwise loop through all simplices
+		//vector<double> point_lambda_in_simplex(5, 0.0);	// dim + 1 == 5
+		point_lambda_in_simplex.resize(5, 0.0);	// dim + 1 == 5
+		bool foundPoint = point_is_in_simplex( simplexVertices, nv0, point_lambda_in_simplex, false );
+	
+		if (!foundPoint)        // loop over all simplices
+		{
+			int isimplex = 0;
+			for ( auto & simplex : simplices )
+			{
+				if (check_simplices && !simplices_to_check[isimplex])
+				{
+					isimplex++;
+					continue;       // skip simplices that don't need to be checked
+				}
+	
+				// set simplex vertices
+				simplexVertices.clear();
+				for ( const auto & vertex : simplex )
+					simplexVertices.push_back( vector<double>( vertices[vertex].begin()+4,
+										vertices[vertex].end() ) );
+	
+				// check if point is in simplex; if so, return lambda coefficients and break
+				if ( point_is_in_simplex( simplexVertices, nv0, point_lambda_in_simplex, false ) )
+				{
+					iclosestsimplex = isimplex;     // probably rename this
+					foundPoint = true;
 					break;
 				}
-			
-			// assume point must belong to simplex including NN, skip other simplices			
-			if (check_simplices && !NMN_vertex_included_in_this_simplex)
-			{
 				isimplex++;
-				continue;
 			}
-
-			// otherwise, compute simplex center and track squared distance to original point
-			vector<double> center(4, 0.0);
-			for ( const size_t vertex : simplex )
-				std::transform( center.begin(), center.end(), vertices[vertex].begin()+4,
-								center.begin(), std::plus<double>());
-
-
-			// !!!!! N.B. - can remove this part and just multiply once !!!!!
-			// !!!!! below by appropriate factors of 5					!!!!!
-			// center is average of this simplex's vertices
-			std::transform( center.begin(), center.end(), center.begin(),
-							[](double & element){ return 0.2*element; } );
-							// 0.2 == 1/(dim+1), dim == 4
-
-			double d2loc = d2( center, nv0 );
-			if ( d2loc < center_d2_min )
-			{
-				iclosestsimplex = isimplex;
-				center_d2_min = d2loc;
-			}
-	
-			isimplex++;
-		}
-	}
-
-	// pass these to routine for locating point in simplex
-	vector<vector<double> > simplexVertices(5);	// 5 == dim + 1, dim == 4
-
-	// block for local scope
-	{
-		int ivertex = 0;
-		for ( const auto & vertex : simplices[iclosestsimplex] )
-			simplexVertices[ivertex++] = vector<double>( vertices[vertex].begin()+4,
-									vertices[vertex].end() );
-	}
-
-
-	// try closest simplex first; otherwise loop through all simplices
-	vector<double> point_lambda_in_simplex(5, 0.0);	// dim + 1 == 5
-	bool foundPoint = point_is_in_simplex( simplexVertices, nv0, point_lambda_in_simplex, false );
-
-	if (!foundPoint)        // loop over all simplices
-	{
-		int isimplex = 0;
-		for ( auto & simplex : simplices )
-		{
-			if (check_simplices && !simplices_to_check[isimplex])
-			{
-				isimplex++;
-				continue;       // skip simplices that don't need to be checked
-			}
-
-			// set simplex vertices
-			simplexVertices.clear();
-			for ( const auto & vertex : simplex )
-				simplexVertices.push_back( vector<double>( vertices[vertex].begin()+4,
-									vertices[vertex].end() ) );
-
-			// check if point is in simplex; if so, return lambda coefficients and break
-			if ( point_is_in_simplex( simplexVertices, nv0, point_lambda_in_simplex, false ) )
-			{
-				iclosestsimplex = isimplex;     // probably rename this
-				foundPoint = true;
-				break;
-			}
-			isimplex++;
 		}
 	}
 
 
 	// if we STILL have not found the containing simplex...
 	if (!foundPoint)
-	for (int iTshift = -1; iTshift <= -1; ++iTshift)
-	for (int imubshift = 0; imubshift <= 0; ++imubshift)
-	for (int imuqshift = 0; imuqshift <= 0; ++imuqshift)
+	for (int iTshift = -1; iTshift <= 1; ++iTshift)
+	for (int imubshift = -1; imubshift <= 1; ++imubshift)
+	for (int imuqshift = -1; imuqshift <= 1; ++imuqshift)
 	for (int imusshift = -1; imusshift <= 1; ++imusshift)
 	{
 		// the unshifted one was already tried above
