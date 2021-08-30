@@ -719,7 +719,7 @@ bool eos_delaunay::interpolate_NMNmode_v2(const vector<double> & v0, vector<doub
 	vector<double> point_lambda_in_simplex(5, 0.0);	// dim + 1 == 5
 
 	// big block around first attempt
-	bool foundPoint = triangulate_and_locate_point(
+	bool foundPoint = triangulate_and_locate_point( nv0,
 						vector<int>({iTNMN, imubNMN, imuqNMN, imusNMN}),
 						vertices, simplices, point_lambda_in_simplex, iclosestsimplex);
 
@@ -766,9 +766,9 @@ bool eos_delaunay::interpolate_NMNmode_v2(const vector<double> & v0, vector<doub
 
 
 bool eos_delaunay::triangulate_and_locate_point(
-					const vector<int> & base, vector<vector<double> > & vertices,
-					vector<vector<size_t> > & simplices, vector<double> & point_lambda_in_simplex,
-					int & iclosestsimplex )
+					const vector<double> & nv0, const vector<int> & base,
+					vector<vector<double> > & vertices, vector<vector<size_t> > & simplices,
+					vector<double> & point_lambda_in_simplex, int & iclosestsimplex )
 {
 	const int iTbase = base[0], imubbase = base[1], imuqbase = base[2], imusbase = base[3];
 	int NMNvertex = 0;
@@ -824,7 +824,7 @@ bool eos_delaunay::triangulate_and_locate_point(
 	{
 		std::cerr << '\n' << e.what() << '\n';
 		std::cerr << __FUNCTION__ << ": Error occurred at "
-				<< e0 << "   " << b0 << "   " << s0 << "   " << q0 << "\n";
+				<< nv0[0] << "   " << nv0[1] << "   " << nv0[2] << "   " << nv0[3] << "\n";
 		return false;
 	}
 
