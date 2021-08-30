@@ -266,8 +266,18 @@ void eos_delaunay::interpolate_NNmode(const vector<double> & v0, vector<double> 
 	// Test the Delaunay part here
 	// first get the triangulation
 	vector<vector<size_t> > simplices;
-	compute_delaunay(&verticesFlat[0], 4, verticesFlat.size() / 4, simplices);
-	//cout << "Finished the Delaunay triangulation in " << sw.printTime() << " s." << endl;
+	try
+	{
+		compute_delaunay(&verticesFlat[0], 4, verticesFlat.size() / 4, simplices);
+		//cout << "Finished the Delaunay triangulation in " << sw.printTime() << " s." << endl;
+	}
+	catch (const std::exception& e)
+	{
+		std::cerr << '\n' << e.what() << '\n';
+		std::cerr << __FUNCTION__ << ": Error occurred at "
+				<< e0 << "   " << b0 << "   " << s0 << "   " << q0 << "\n";
+		return;
+	}
 
 
 	// =======================================================
@@ -522,6 +532,9 @@ void eos_delaunay::interpolate_NMNmode(const vector<double> & v0, vector<double>
 	}
 	catch (const std::exception& e)
 	{
+		std::cerr << '\n' << e.what() << '\n';
+		std::cerr << __FUNCTION__ << ": Error occurred at "
+				<< e0 << "   " << b0 << "   " << s0 << "   " << q0 << "\n";
 		return;
 	}
 
