@@ -508,7 +508,10 @@ void eos_delaunay::interpolate_NMNmode(const vector<double> & v0, vector<double>
 		if (nVertices < 6)	// this is how many Qhull needs
 		{
 			if (starting_index == 0)
+			{
+				std::cout << "Only found nVertices = " << nVertices << "!\n";
 				continue;
+			}
 			else
 				return;
 		}
