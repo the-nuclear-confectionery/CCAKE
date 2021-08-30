@@ -146,6 +146,7 @@ int main(int argc, char *argv[])
 	//const double e0 = 46308.20963821, b0 = -1.23317452, s0 = -1.53064765, q0 = -0.24540761;
 	//const double e0 = 3405.08, b0 = -0.473819, s0 = -1.78269, q0 = -2.89511;
 	const double e0 = 3153.57, b0 = -0.498583, s0 = -1.6149, q0 = -2.78429;
+	//const double e0 = 1940.68, b0 = -0.284676, s0 = -1.0705, q0 = -1.5329;
 
 	// Set-up is finished; start timing now
 	Stopwatch sw;
