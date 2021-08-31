@@ -726,7 +726,7 @@ bool eos_delaunay::interpolate_NMNmode_v2(const vector<double> & v0, vector<doub
 						vector<int>({iTNMN, imubNMN, imuqNMN, imusNMN}),
 						vertices, simplices, point_lambda_in_simplex, iclosestsimplex);
 
-
+/*
 	// if we STILL have not found the containing simplex...
 	if (!foundPoint)
 	for (int iTshift = -1; iTshift <= -1; ++iTshift)
@@ -751,6 +751,7 @@ bool eos_delaunay::interpolate_NMNmode_v2(const vector<double> & v0, vector<doub
 	}
 
 	end:
+*/
 
 	// finally, use the output lambda coefficients to get the interpolated values
 	double T0 = 0.0, mub0 = 0.0, muq0 = 0.0, mus0 = 0.0;
@@ -802,10 +803,14 @@ bool eos_delaunay::triangulate_and_locate_point(
 	// block for scope
 	{
 		int vertexcount = 0;
-		for (int ii = 0; ii <= 1; ii++)
-		for (int jj = 0; jj <= 1; jj++) // only need containing hypercube
-		for (int kk = 0; kk <= 1; kk++) // vertices for the NMN method
-		for (int ll = 0; ll <= 1; ll++)
+//		for (int ii = 0; ii <= 1; ii++)
+//		for (int jj = 0; jj <= 1; jj++) // only need containing hypercube
+//		for (int kk = 0; kk <= 1; kk++) // vertices for the NMN method
+//		for (int ll = 0; ll <= 1; ll++)
+		for (int ii = -1; ii <= 2; ii++)
+		for (int jj = -1; jj <= 2; jj++) // only need containing hypercube
+		for (int kk = -1; kk <= 2; kk++) // vertices for the NMN method
+		for (int ll = -1; ll <= 2; ll++)
 		{
 			// check that we're not going outside the grid
 			if ( iTbase+ii < nT && iTbase+ii >= 0
