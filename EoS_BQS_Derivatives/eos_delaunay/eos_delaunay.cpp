@@ -721,10 +721,11 @@ bool eos_delaunay::interpolate_NMNmode_v2(const vector<double> & v0, vector<doub
 													midpoint_inds[kdtree_nmn_index][1]+jj,
 													midpoint_inds[kdtree_nmn_index][2]+kk,
 													midpoint_inds[kdtree_nmn_index][3]+ll )];
-				for (const auto & elem : vertex)
+				for (const auto & elem : cell)
 					cout << elem << "   ";
 				cout << endl << endl;
 			}
+		}
 	}
 	catch (const std::exception& e)
 	{
