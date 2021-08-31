@@ -708,10 +708,14 @@ bool eos_delaunay::interpolate_NMNmode_v2(const vector<double> & v0, vector<doub
 		for (int kk = 0; kk <= 1; kk++) // vertices for the NMN method
 		for (int ll = 0; ll <= 1; ll++)
 		{
-			if ( iTbase+ii < nT && iTbase+ii >= 0
-				&& imubbase+jj < nmub && imubbase+jj >= 0
-				&& imuqbase+kk < nmuq && imuqbase+kk >= 0
-				&& imusbase+ll < nmus && imusbase+ll >= 0 )
+			if ( midpoint_inds[kdtree_nmn_index][0]+ii < nT
+				&& midpoint_inds[kdtree_nmn_index][0]+ii >= 0
+				&& midpoint_inds[kdtree_nmn_index][1]+jj < nmub
+				&& midpoint_inds[kdtree_nmn_index][1]+jj >= 0
+				&& midpoint_inds[kdtree_nmn_index][2]+kk < nmuq
+				&& midpoint_inds[kdtree_nmn_index][2]+kk >= 0
+				&& midpoint_inds[kdtree_nmn_index][3]+ll < nmus
+				&& midpoint_inds[kdtree_nmn_index][3]+ll >= 0 )
 			{
 				const auto & cell = grid[indexer( midpoint_inds[kdtree_nmn_index][0]+ii,
 													midpoint_inds[kdtree_nmn_index][1]+jj,
