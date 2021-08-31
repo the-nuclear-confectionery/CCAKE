@@ -807,10 +807,10 @@ bool eos_delaunay::triangulate_and_locate_point(
 //		for (int jj = 0; jj <= 1; jj++) // only need containing hypercube
 //		for (int kk = 0; kk <= 1; kk++) // vertices for the NMN method
 //		for (int ll = 0; ll <= 1; ll++)
-		for (int ii = -2; ii <= 3; ii++)
-		for (int jj = -2; jj <= 3; jj++) // only need containing hypercube
-		for (int kk = -2; kk <= 3; kk++) // vertices for the NMN method
-		for (int ll = -2; ll <= 3; ll++)
+		for (int ii = -3; ii <= 4; ii++)
+		for (int jj = -3; jj <= 4; jj++) // only need containing hypercube
+		for (int kk = -3; kk <= 4; kk++) // vertices for the NMN method
+		for (int ll = -3; ll <= 4; ll++)
 		{
 			// check that we're not going outside the grid
 			if ( iTbase+ii < nT && iTbase+ii >= 0
