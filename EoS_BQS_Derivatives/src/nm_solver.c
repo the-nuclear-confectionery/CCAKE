@@ -105,6 +105,7 @@ void solve ( double densities[], double sols[] )
 				|| abs(muSout - gsl_vector_get(x, 2)) > amuSmax
 				|| abs(muQout - gsl_vector_get(x, 3)) > amuQmax )
 		{
+			printf("Step took us out of bounds!\n");
 			sols[0] = -1.0;	// indicates failure since T >= 0
 			return;			// exit prematurely
 		}
@@ -157,6 +158,7 @@ void solve ( double densities[], double sols[] )
 			|| fabs(Ssol-STarget) > fmax(ACCURACY*fabs(STarget), ACCURACY)
 			|| fabs(Qsol-QTarget) > fmax(ACCURACY*fabs(QTarget), ACCURACY))
 		{
+			printf("All loops finished and solution (probably) not found!\n");
 			sols[0] = -1.0;	// indicates failure since T >= 0
 			return;			// exit prematurely
 		}
