@@ -181,7 +181,7 @@ int main(int argc, char *argv[])
 		double sols[4] = {157.5, -437.5, 437.5, -112.5};		// MeV
 
 		// find the solution
-		solve(densities, sols);
+		//solve(densities, sols);
 
 		double Tsol = sols[0], muBsol = sols[1], muSsol = sols[2], muQsol = sols[3];
 		Tval = Tsol; muBval = muBsol; muSval = muSsol; muQval = muQsol;
