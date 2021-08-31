@@ -48,9 +48,9 @@ void solve ( double densities[], double sols[] )
 
 	int iter = 0;
 	while ( (fabs(esol-eTarget) > ACCURACY*eTarget
-			|| fabs(Bsol-BTarget) > max(ACCURACY*fabs(BTarget), ACCURACY)
-			|| fabs(Ssol-STarget) > max(ACCURACY*fabs(STarget), ACCURACY)
-			|| fabs(Qsol-QTarget) > max(ACCURACY*fabs(QTarget), ACCURACY))
+			|| fabs(Bsol-BTarget) > fmax(ACCURACY*fabs(BTarget), ACCURACY)
+			|| fabs(Ssol-STarget) > fmax(ACCURACY*fabs(STarget), ACCURACY)
+			|| fabs(Qsol-QTarget) > fmax(ACCURACY*fabs(QTarget), ACCURACY))
 			&& iter++ < maxTries )
 	{
 		printf("iter = %5d\n", iter);
