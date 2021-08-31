@@ -720,7 +720,7 @@ bool eos_delaunay::interpolate_NMNmode_v2(const vector<double> & v0, vector<doub
 				const auto & cell = grid[indexer( midpoint_inds[kdtree_nmn_index][0]+ii,
 													midpoint_inds[kdtree_nmn_index][1]+jj,
 													midpoint_inds[kdtree_nmn_index][2]+kk,
-													midpoint_inds[kdtree_nmn_index][3]+ll )] );
+													midpoint_inds[kdtree_nmn_index][3]+ll )];
 				for (const auto & elem : vertex)
 					cout << elem << "   ";
 				cout << endl << endl;
