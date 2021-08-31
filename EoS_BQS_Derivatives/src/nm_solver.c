@@ -47,8 +47,11 @@ void solve ( double densities[], double sols[] )
 	printf("Qsol = %15.8f\n\n", Qsol);
 
 	int iter = 0;
-	while ( (fabs(esol-eTarget) > ACCURACY || fabs(Bsol-BTarget) > ACCURACY
-			  || fabs(Ssol-STarget) > ACCURACY || fabs(Qsol-QTarget) > ACCURACY) && iter++ < maxTries )
+	while ( (fabs(esol-eTarget) > ACCURACY*eTarget
+			|| fabs(Bsol-BTarget) > max(ACCURACY*fabs(BTarget), ACCURACY)
+			|| fabs(Ssol-STarget) > max(ACCURACY*fabs(STarget), ACCURACY)
+			|| fabs(Qsol-QTarget) > max(ACCURACY*fabs(QTarget), ACCURACY))
+			&& iter++ < maxTries )
 	{
 		printf("iter = %5d\n", iter);
 		T2 = Tout*Tout; T3 = T2*Tout; T4 = T3*Tout;
