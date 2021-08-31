@@ -47,7 +47,7 @@ void solve ( double densities[], double sols[] )
 	printf("Qsol = %15.8f\n\n", Qsol);
 
 	int iter = 0;
-	while ( (fabs(esol-eTarget) > ACCURACY*eTarget
+	while ( (  fabs(esol-eTarget) > fmax(ACCURACY*eTarget, ACCURACY)
 			|| fabs(Bsol-BTarget) > fmax(ACCURACY*fabs(BTarget), ACCURACY)
 			|| fabs(Ssol-STarget) > fmax(ACCURACY*fabs(STarget), ACCURACY)
 			|| fabs(Qsol-QTarget) > fmax(ACCURACY*fabs(QTarget), ACCURACY))
@@ -152,8 +152,10 @@ void solve ( double densities[], double sols[] )
 
 	}
 
-	if ( fabs(esol-eTarget) > ACCURACY || fabs(Bsol-BTarget) > ACCURACY
-		 || fabs(Ssol-STarget) > ACCURACY || fabs(Qsol-QTarget) > ACCURACY )
+	if (	   fabs(esol-eTarget) > fmax(ACCURACY*eTarget, ACCURACY)
+			|| fabs(Bsol-BTarget) > fmax(ACCURACY*fabs(BTarget), ACCURACY)
+			|| fabs(Ssol-STarget) > fmax(ACCURACY*fabs(STarget), ACCURACY)
+			|| fabs(Qsol-QTarget) > fmax(ACCURACY*fabs(QTarget), ACCURACY))
 		{
 			sols[0] = -1.0;	// indicates failure since T >= 0
 			return;			// exit prematurely
