@@ -86,8 +86,8 @@ int main(int argc, char *argv[])
   	start = clock();
 
 	/* Parametrization parameters are read from the user-input file, and saved. */
-		printf("argc = %d\n", argc);
-		printf("argv[1] = %s\n", argv[1]);
+	printf("argc = %d\n", argc);
+	printf("argv[1] = %s\n", argv[1]);
   	FILE *ParametersIn = fopen(argv[1], "r");
   	if (ParametersIn == 0){
   		fprintf(stderr,"failed to open paremeters file\n");
@@ -177,7 +177,7 @@ int main(int argc, char *argv[])
 	{
 		double eIn = 973.563, BIn = -0.316059, SIn = 0.323859, QIn = 1.06384;	// (MeV,1,1,1)/fm^3
 		double densities[4] = {eIn, BIn, SIn, QIn};
-		double sols[4] = {155.0, -437.5, -112.5, 437.5};		// MeV
+		double sols[4] = {155.0, -450.0, -125.0, 450.0};		// MeV
 
 		// find the solution
 		solve(densities, sols);
