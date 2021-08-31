@@ -86,8 +86,8 @@ int main(int argc, char *argv[])
   	start = clock();
 
 	/* Parametrization parameters are read from the user-input file, and saved. */
-	printf("argc = %d\n", argc);
-	printf("argv[1] = %s\n", argv[1]);
+//	printf("argc = %d\n", argc);
+//	printf("argv[1] = %s\n", argv[1]);
   	FILE *ParametersIn = fopen(argv[1], "r");
   	if (ParametersIn == 0){
   		fprintf(stderr,"failed to open paremeters file\n");
