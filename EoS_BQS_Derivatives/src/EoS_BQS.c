@@ -175,164 +175,88 @@ int main(int argc, char *argv[])
 	int run_on_density_grid = 0;
 	if ( run_on_density_grid )
 	{
-		// load maxima from file
-		int interpgridlength = 1001;
-		double logegrid[interpgridlength], max_rBt[interpgridlength],
-				max_rSt[interpgridlength], max_rQt[interpgridlength];
-		errno = 0;
-		FILE * MaximaIn = fopen(argv[2], "r");
-		if (MaximaIn == 0)
-		{
-			fprintf(stderr, "Failed to open maxima file.\n");
-			perror("Error");
-			fprintf(stderr, "Error: %d (%s)\n", errno, strerror(errno));
-			exit(1);
-		}
-		for (int ii = 0; ii < interpgridlength; ii++)
-		{
-			double var1, var2, var3, var4;
-			fscanf(MaximaIn,"%lf %lf %lf %lf\n", &var1, &var2, &var3, &var4);
-			//printf("%10.8f %10.8f %10.8f %10.8f\n", var1, var2, var3, var4);
-			logegrid[ii] = var1; max_rBt[ii] = var2;
-			max_rSt[ii] = var3; max_rQt[ii] = var4;
-		}
-		fclose(MaximaIn);
+		double eIn = 1000.0, BIn = 1.0, SIn = 0.001, QIn = 0.5;	// (MeV,1,1,1)/fm^3
+		double densities[4] = {eIn, BIn, SIn, QIn};
+		double sols[4] = {200.0, 0.0, 0.0, 0.0};		// MeV
 
-		printf("Check maxima:\n");
-		for (int ii = 0; ii < interpgridlength; ii++)
-			printf("%10.8f %10.8f %10.8f %10.8f\n", logegrid[ii], max_rBt[ii],
-                                                        max_rSt[ii], max_rQt[ii]);
-		printf("\n\n");
-		//if (1) exit(1);
+		// find the solution
+		solve(densities, sols);
 
-		double logemin = logegrid[0], logemax = logegrid[interpgridlength-1];
-		double logestep = (logemax - logemin)/(interpgridlength-1.0);
-
-		// special variables to uniformly cover parameter space
-		const double TINY = 0.001;
-//		for (double loge = logemin; loge <= logemax + TINY; loge += logestep)
-		for (int iloge = 0; iloge < interpgridlength; iloge++)
-		for (double zetaB = -0.5; zetaB <= 0.5 + TINY; zetaB += 0.5)
-		for (double zetaS = -0.5; zetaS <= 0.5 + TINY; zetaS += 0.5)
-		for (double zetaQ = -0.5; zetaQ <= 0.5 + TINY; zetaQ += 0.5)
-//		for (double loge = -5.0; loge <= 14.0 + TINY; loge += 0.5)
-//		for (double rBt = -0.25; rBt <= 0.25 + TINY; rBt += 0.025)
-//		for (double rSt = -0.5; rSt <= 0.5 + TINY; rSt += 0.05)
-//		for (double rQt = -0.5; rQt <= 0.5 + TINY; rQt += 0.05)
-		{
-			//double eIn = 1000.0, BIn = 1.0, SIn = 0.001, QIn = 0.5;	// (MeV,1,1,1)/fm^3
-			//double zetaB = 0.0, zetaS = 0.0, zetaQ = 0.0;
-			double eIn = exp(logegrid[iloge]);	// MeV/fm^3
-			double rBt = zetaB * max_rBt[iloge];
-			double rSt = zetaS * max_rSt[iloge];
-			double rQt = zetaQ * max_rQt[iloge];
-printf("Doing %15.12f %15.12f %15.12f %15.12f\n", logegrid[iloge], max_rBt[iloge], max_rSt[iloge], max_rQt[iloge]);
-			double BIn = rBt*pow(eIn/197.327, 0.75);
-			double SIn = rSt*pow(eIn/197.327, 0.75);
-			double QIn = rQt*pow(eIn/197.327, 0.75);
-                        double densities[4] = {eIn, BIn, SIn, QIn};             
-			double Tsol = -1.0, muBsol = 0.0, muSsol = 0.0, muQsol = 0.0;
-			// try lots of initial guesses, quit as soon as solution is found
-			for (double Tguess = 30.0; Tguess <= 800.0 + TINY; Tguess += 10.0)
-                        //for (double muBguess = -450.0; muBguess <= 450.0 + TINY; muBguess += 225.0)
-                        //for (double muSguess = -450.0; muSguess <= 450.0 + TINY; muSguess += 225.0)
-                        //for (double muQguess = -450.0; muQguess <= 450.0 + TINY; muQguess += 225.0)
-			{
-				double sols[4] = {Tguess, 0.0, 0.0, 0.0};		// MeV
-				//double sols[4] = {Tguess, muBguess, muSguess, muQguess};	// MeV
-				solve(densities, sols);
-				Tsol = sols[0]; muBsol = sols[1]; muSsol = sols[2]; muQsol = sols[3];
-				if ( Tsol >= 0.0 ) break;
-			}
-			Tval = Tsol; muBval = muBsol; muSval = muSsol; muQval = muQsol;
-			i = Tsol; j = muBsol; l = muSsol; k = muQsol;	// Q and S reversed
-			// if still failed, then give up
-			if (Tsol < 0.0)
-			{
-				printf("Failed at %15.12f %15.12f %15.12f %15.12f %d %15.12f %15.12f %15.12f\n",
-					densities[0], densities[1], densities[2], densities[3],
-					iloge, zetaB, zetaS, zetaQ);
-				fflush(stdout);
-				continue;
-			}
-			else
-			{
-				printf("Succeeded at %15.12f %15.12f %15.12f %15.12f %d %15.12f %15.12f %15.12f\n",
-                                        densities[0], densities[1], densities[2], densities[3], 
-                                        iloge, zetaB, zetaS, zetaQ);
-				fflush(stdout);
-			}
-		
-		//		printf("Input:\n");
-		//		printf("eIn = %15.8f\n", eIn);
-		//		printf("BIn = %15.8f\n", BIn);
-		//		printf("SIn = %15.8f\n", SIn);
-		//		printf("QIn = %15.8f\n", QIn);
-		//		printf("Solution:\n");
-		//		printf("Tsol = %15.8f\n", Tsol);
-		//		printf("muBsol = %15.8f\n", muBsol);
-		//		printf("muSsol = %15.8f\n", muSsol);
-		//		printf("muQsol = %15.8f\n", muQsol);
-		//
-		//		double POut = Tsol*Tsol*Tsol*Tsol*PressTaylor(Tsol, muBsol, muQsol, muSsol);
-		//		double sOut = Tsol*Tsol*Tsol*EntrTaylor(Tsol, muBsol, muQsol, muSsol);
-		//		double BOut = Tsol*Tsol*Tsol*BarDensTaylor(Tsol, muBsol, muQsol, muSsol);
-		//		double SOut = Tsol*Tsol*Tsol*StrDensTaylor(Tsol, muBsol, muQsol, muSsol);
-		//		double QOut = Tsol*Tsol*Tsol*ChDensTaylor(Tsol, muBsol, muQsol, muSsol);
-		//		POut /= 197.327*197.327*197.327;
-		//		sOut /= 197.327*197.327*197.327;
-		//		BOut /= 197.327*197.327*197.327;
-		//		SOut /= 197.327*197.327*197.327;
-		//		QOut /= 197.327*197.327*197.327;
-		//		double eOut = sOut*Tsol - POut + muBsol*BOut + muQsol*QOut + muSsol*SOut;
-		//
-		//		printf("Check:\n");
-		//		printf("POut = %15.8f\n", POut);
-		//		printf("sOut = %15.8f\n", sOut);
-		//		printf("eOut = %15.8f\n", eOut);
-		//		printf("BOut = %15.8f\n", BOut);
-		//		printf("SOut = %15.8f\n", SOut);
-		//		printf("QOut = %15.8f\n", QOut);
-		//
-		//	if (1) exit(-1);
+		double Tsol = sols[0], muBsol = sols[1], muSsol = sols[2], muQsol = sols[3];
+		Tval = Tsol; muBval = muBsol; muSval = muSsol; muQval = muQsol;
+		i = Tsol; j = muBsol; l = muSsol; k = muQsol;	// Q and S reversed
 		
 		
-			//Thermodynamics
-			PressVal = PressTaylor(i,j,k,l);
-			EntrVal = EntrTaylor(i,j,k,l);
-			BarDensVal = BarDensTaylor(i,j,k,l);
-			StrDensVal = StrDensTaylor(i,j,k,l);
-			ChDensVal = ChDensTaylor(i,j,k,l);
-			EnerDensVal = EntrVal - PressVal 
-					+ muBval/Tval*BarDensVal 
-					+ muQval/Tval*ChDensVal 
-					+ muSval/Tval*StrDensVal;
-			SpSoundVal = SpSound(Tval,muBval,muQval,muSval);
-			            
-			//Second Order Derivatives
-			D2PB2 = P2B2(i,j,k,l);
-			D2PQ2 = P2Q2(i,j,k,l);
-			D2PS2 = P2S2(i,j,k,l);
-			
-			D2PBQ = P2BQ(i,j,k,l);
-			D2PBS = P2BS(i,j,k,l);
-			D2PQS = P2QS(i,j,k,l);
-			
-			D2PTB = P2TB(i,j,k,l);
-			D2PTQ = P2TQ(i,j,k,l);
-			D2PTS = P2TS(i,j,k,l);
-			D2PT2 = P2T2(i,j,k,l);
-			
-			printf("vals: %lf  %lf  %lf  %lf  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f\n", Tval, muBval, muQval, muSval, PressVal, EntrVal, 
-			        BarDensVal, StrDensVal, ChDensVal, EnerDensVal, SpSoundVal);
-			printf("derivs: %lf  %lf  %lf  %lf  %3.12f  %3.12f %3.12f  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f%  3.12f\n", Tval, muBval, muQval, muSval, D2PB2, D2PQ2, D2PS2, D2PBQ, D2PBS, D2PQS,
-					D2PTB, D2PTQ, D2PTS, D2PT2);
+		printf("Input:\n");
+		printf("eIn = %15.8f\n", eIn);
+		printf("BIn = %15.8f\n", BIn);
+		printf("SIn = %15.8f\n", SIn);
+		printf("QIn = %15.8f\n", QIn);
+		printf("Solution:\n");
+		printf("Tsol = %15.8f\n", Tsol);
+		printf("muBsol = %15.8f\n", muBsol);
+		printf("muSsol = %15.8f\n", muSsol);
+		printf("muQsol = %15.8f\n", muQsol);
 		
-			printf("********************************************************************************\n\n");
+		double POut = Tsol*Tsol*Tsol*Tsol*PressTaylor(Tsol, muBsol, muQsol, muSsol);
+		double sOut = Tsol*Tsol*Tsol*EntrTaylor(Tsol, muBsol, muQsol, muSsol);
+		double BOut = Tsol*Tsol*Tsol*BarDensTaylor(Tsol, muBsol, muQsol, muSsol);
+		double SOut = Tsol*Tsol*Tsol*StrDensTaylor(Tsol, muBsol, muQsol, muSsol);
+		double QOut = Tsol*Tsol*Tsol*ChDensTaylor(Tsol, muBsol, muQsol, muSsol);
+		POut /= 197.327*197.327*197.327;
+		sOut /= 197.327*197.327*197.327;
+		BOut /= 197.327*197.327*197.327;
+		SOut /= 197.327*197.327*197.327;
+		QOut /= 197.327*197.327*197.327;
+		double eOut = sOut*Tsol - POut + muBsol*BOut + muQsol*QOut + muSsol*SOut;
 		
-			fflush(stdout);
+		printf("Check:\n");
+		printf("POut = %15.8f\n", POut);
+		printf("sOut = %15.8f\n", sOut);
+		printf("eOut = %15.8f\n", eOut);
+		printf("BOut = %15.8f\n", BOut);
+		printf("SOut = %15.8f\n", SOut);
+		printf("QOut = %15.8f\n", QOut);
 		
-		}
+		if (1) exit(-1);
+		
+		
+		//Thermodynamics
+		PressVal = PressTaylor(i,j,k,l);
+		EntrVal = EntrTaylor(i,j,k,l);
+		BarDensVal = BarDensTaylor(i,j,k,l);
+		StrDensVal = StrDensTaylor(i,j,k,l);
+		ChDensVal = ChDensTaylor(i,j,k,l);
+		EnerDensVal = EntrVal - PressVal 
+				+ muBval/Tval*BarDensVal 
+				+ muQval/Tval*ChDensVal 
+				+ muSval/Tval*StrDensVal;
+		SpSoundVal = SpSound(Tval,muBval,muQval,muSval);
+		            
+		//Second Order Derivatives
+		D2PB2 = P2B2(i,j,k,l);
+		D2PQ2 = P2Q2(i,j,k,l);
+		D2PS2 = P2S2(i,j,k,l);
+		
+		D2PBQ = P2BQ(i,j,k,l);
+		D2PBS = P2BS(i,j,k,l);
+		D2PQS = P2QS(i,j,k,l);
+		
+		D2PTB = P2TB(i,j,k,l);
+		D2PTQ = P2TQ(i,j,k,l);
+		D2PTS = P2TS(i,j,k,l);
+		D2PT2 = P2T2(i,j,k,l);
+		
+		printf("vals: %lf  %lf  %lf  %lf  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f\n", Tval, muBval, muQval, muSval, PressVal, EntrVal, 
+		        BarDensVal, StrDensVal, ChDensVal, EnerDensVal, SpSoundVal);
+		printf("derivs: %lf  %lf  %lf  %lf  %3.12f  %3.12f %3.12f  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f%  3.12f\n", Tval, muBval, muQval, muSval, D2PB2, D2PQ2, D2PS2, D2PBQ, D2PBS, D2PQS,
+				D2PTB, D2PTQ, D2PTS, D2PT2);
+		
+		printf("********************************************************************************\n\n");
+		
+		fflush(stdout);
+		
+//		}
 		if (1) exit(-1);
 	}
 

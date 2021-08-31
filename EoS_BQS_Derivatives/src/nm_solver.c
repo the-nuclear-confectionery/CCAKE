@@ -102,13 +102,17 @@ void solve ( double densities[], double sols[] )
 				|| abs(muSout - gsl_vector_get(x, 2)) > amuSmax
 				|| abs(muQout - gsl_vector_get(x, 3)) > amuQmax )
 		{
-			if ( iter < 2 )
-			{
-				sols[0] = -1.0;	// indicates failure since T >= 0
-				return;		// exit prematurely
-			}
-			break;			// otherwise, return slightly different point
+			sols[0] = -1.0;	// indicates failure since T >= 0
+			return;			// exit prematurely
 		}
+//		{
+//			if ( iter < 2 )
+//			{
+//				sols[0] = -1.0;	// indicates failure since T >= 0
+//				return;		// exit prematurely
+//			}
+//			break;			// otherwise, return slightly different point
+//		}
 
 		// otherwise, continue
 		Tout -= gsl_vector_get(x, 0);
@@ -153,23 +157,25 @@ void solve ( double densities[], double sols[] )
 
 	}
 
-	// otherwise, store some other combination that's maybe nearby
+//	// otherwise, store some other combination that's maybe nearby
+//	if ( fabs(esol-eTarget) > ACCURACY || fabs(Bsol-BTarget) > ACCURACY
+//		 || fabs(Ssol-STarget) > ACCURACY || fabs(Qsol-QTarget) > ACCURACY )
+//	{
+//		eTarget = esol;
+//		BTarget = Bsol;
+//		STarget = Ssol;
+//		QTarget = Qsol;
+//	}
+//
+//	densities[0] = eTarget; densities[1] = BTarget; densities[2] = STarget; densities[3] = QTarget;
+
 	if ( fabs(esol-eTarget) > ACCURACY || fabs(Bsol-BTarget) > ACCURACY
 		 || fabs(Ssol-STarget) > ACCURACY || fabs(Qsol-QTarget) > ACCURACY )
-	{
-//		printf("Did not find a solution!\n");
-//		printf("%15.12f %15.12f %15.12f %15.12f %15.12f %15.12f %15.12f %15.12f"
-//				"%15.12f %15.12f %15.12f %15.12f %15.12f\n",
-//				esol, eTarget, fabs(esol-eTarget), Bsol, BTarget, fabs(Bsol-BTarget),
-//				Ssol, STarget, fabs(Ssol-STarget), Qsol, QTarget, fabs(Qsol-QTarget), ACCURACY);
+		{
+			sols[0] = -1.0;	// indicates failure since T >= 0
+			return;			// exit prematurely
+		}
 
-		eTarget = esol;
-		BTarget = Bsol;
-		STarget = Ssol;
-		QTarget = Qsol;
-	}
-
-	densities[0] = eTarget; densities[1] = BTarget; densities[2] = STarget; densities[3] = QTarget;
 	sols[0] = Tout; sols[1] = muBout; sols[2] = muSout; sols[3] = muQout;
 
 	return;
