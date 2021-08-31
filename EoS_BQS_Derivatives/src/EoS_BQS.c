@@ -197,6 +197,7 @@ int main(int argc, char *argv[])
 		printf("muBsol = %15.8f\n", muBsol);
 		printf("muSsol = %15.8f\n", muSsol);
 		printf("muQsol = %15.8f\n", muQsol);
+		fflush(stdout);
 		
 		double POut = Tsol*Tsol*Tsol*Tsol*PressTaylor(Tsol, muBsol, muQsol, muSsol);
 		double sOut = Tsol*Tsol*Tsol*EntrTaylor(Tsol, muBsol, muQsol, muSsol);
@@ -217,6 +218,7 @@ int main(int argc, char *argv[])
 		printf("BOut = %15.8f\n", BOut);
 		printf("SOut = %15.8f\n", SOut);
 		printf("QOut = %15.8f\n", QOut);
+		fflush(stdout);
 		
 		if (1) exit(-1);
 		
