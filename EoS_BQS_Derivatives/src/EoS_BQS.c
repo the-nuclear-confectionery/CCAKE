@@ -172,8 +172,8 @@ int main(int argc, char *argv[])
 	chdir(buff);
   	
   	
-	int run_on_density_grid = 0;
-	if ( run_on_density_grid )
+	int run_density_solver = 1;
+	if ( run_density_solver )
 	{
 		double eIn = 1000.0, BIn = 1.0, SIn = 0.001, QIn = 0.5;	// (MeV,1,1,1)/fm^3
 		double densities[4] = {eIn, BIn, SIn, QIn};
