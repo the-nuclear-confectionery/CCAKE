@@ -177,7 +177,7 @@ int main(int argc, char *argv[])
 	{
 		double eIn = 973.563, BIn = -0.316059, SIn = 0.323859, QIn = 1.06384;	// (MeV,1,1,1)/fm^3
 		double densities[4] = {eIn, BIn, SIn, QIn};
-		double sols[4] = {155.0, -450.0, -125.0, 450.0};		// MeV
+		double sols[4] = {160.0, -450.0, -125.0, 450.0};		// MeV
 
 		// find the solution
 		solve(densities, sols);
