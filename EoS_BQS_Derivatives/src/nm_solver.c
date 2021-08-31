@@ -176,6 +176,8 @@ void solve ( double densities[], double sols[] )
 			return;			// exit prematurely
 		}
 
+	printf("Final iter = %d\n", iter);
+
 	sols[0] = Tout; sols[1] = muBout; sols[2] = muSout; sols[3] = muQout;
 
 	return;

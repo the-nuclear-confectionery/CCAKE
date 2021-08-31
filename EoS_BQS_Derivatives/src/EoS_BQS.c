@@ -175,7 +175,7 @@ int main(int argc, char *argv[])
 	int run_density_solver = 1;
 	if ( run_density_solver )
 	{
-		double eIn = 1000.0, BIn = 0.0, SIn = 0.0, QIn = 0.0;	// (MeV,1,1,1)/fm^3
+		double eIn = 1000.0, BIn = 0.01, SIn = 0.01, QIn = 0.01;	// (MeV,1,1,1)/fm^3
 		double densities[4] = {eIn, BIn, SIn, QIn};
 		double sols[4] = {200.0, 0.0, 0.0, 0.0};		// MeV
 
