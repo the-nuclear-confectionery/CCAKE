@@ -59,6 +59,12 @@ class eos_delaunay
 			return ( ( ( iT * nmub + imub ) * nmuq + imuq ) * nmus + imus );
 		}		
 		
+		/*inline size_t indexer( const vector<int> & inds )
+		{
+			// mus varies faster than muq!!!!!
+			return ( ( ( inds[0] * nmub + inds[1] ) * nmuq + inds[2] ) * nmus + inds[3] );
+		}*/	
+		
 		inline double d2( const vector<double> & a, const vector<double> & b )
 		{
 			return (  (a[0]-b[0])*(a[0]-b[0]) + (a[1]-b[1])*(a[1]-b[1])

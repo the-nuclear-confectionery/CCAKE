@@ -691,6 +691,9 @@ bool eos_delaunay::interpolate_NMNmode_v2(const vector<double> & v0, vector<doub
 	{
 		// point4d n not used; only need kdtree_nmn_index
 		point4d n = midpoint_tree_ptr->nearest({ne0, nb0, ns0, nq0}, kdtree_nmn_index);
+		cout << "KD-Tree: original point is "
+				<< ne0 << "   " << nb0 << "   "
+				<< ns0 << "   " << nq0 << endl;
 		cout << "KD-Tree: NMN is " << n << endl;
 		cout << "KD-Tree: NMN distance: " << midpoint_tree_ptr->distance() << endl;
 		cout << "KD-Tree: NMN index is " << kdtree_nmn_index << endl;
@@ -699,6 +702,25 @@ bool eos_delaunay::interpolate_NMNmode_v2(const vector<double> & v0, vector<doub
 			<< midpoint_inds[kdtree_nmn_index][1] << ", "
 			<< midpoint_inds[kdtree_nmn_index][2] << ", "
 			<< midpoint_inds[kdtree_nmn_index][3] << endl;
+		cout << "KD-Tree: vertices are:" << endl;
+		for (int ii = 0; ii <= 1; ii++)
+		for (int jj = 0; jj <= 1; jj++) // only need containing hypercube
+		for (int kk = 0; kk <= 1; kk++) // vertices for the NMN method
+		for (int ll = 0; ll <= 1; ll++)
+		{
+			if ( iTbase+ii < nT && iTbase+ii >= 0
+				&& imubbase+jj < nmub && imubbase+jj >= 0
+				&& imuqbase+kk < nmuq && imuqbase+kk >= 0
+				&& imusbase+ll < nmus && imusbase+ll >= 0 )
+			{
+				const auto & cell = grid[indexer( midpoint_inds[kdtree_nmn_index][0]+ii,
+													midpoint_inds[kdtree_nmn_index][1]+jj,
+													midpoint_inds[kdtree_nmn_index][2]+kk,
+													midpoint_inds[kdtree_nmn_index][3]+ll )] );
+				for (const auto & elem : vertex)
+					cout << elem << "   ";
+				cout << endl << endl;
+			}
 	}
 	catch (const std::exception& e)
 	{
