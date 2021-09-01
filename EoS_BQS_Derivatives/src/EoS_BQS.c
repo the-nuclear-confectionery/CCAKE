@@ -216,12 +216,14 @@ int main(int argc, char *argv[])
 			get_seed_points(minima[3], maxima[3], n_seeds_per_dimension, seedmuQ);
 			
 			int attempts = 0;
+			double Tseed = 0.0, muBseed = 0.0, muSseed = 0.0, muQseed = 0.0;
 			for (int ii = 1; ii < n_seeds_per_dimension-1; ii+=1)
 			for (int jj = 1; jj < n_seeds_per_dimension-1; jj+=1)
 			for (int kk = 1; kk < n_seeds_per_dimension-1; kk+=1)
 			for (int ll = 1; ll < n_seeds_per_dimension-1; ll+=1)
 			{
-				double seeds[4] = {seedT[ii], seedmuB[jj], seedmuS[kk], seedmuQ[ll]};
+				Tseed = seedT[ii]; muBseed = seedmuB[jj]; muSseed = seedmuS[kk]; muQseed = seedmuQ[ll];
+				double seeds[4] = {Tseed, muBseed, muSseed, muQseed};
 				solve2(densities, sols, minima, maxima, seeds);
 				attempts += 1;
 				if (sols[0] > 0.0) // success
@@ -229,11 +231,11 @@ int main(int argc, char *argv[])
 			}
 			success:
 				printf("Found solution in %d attempts!\n", attempts);
-				/*printf("Seed point: %lf %lf %lf %lf\n",
-						imapf(seedT[ii], minima[0], maxima[0]),
-						imapf(seedmuB[ii], minima[1], maxima[1])
-						imapf(seedmuS[ii], minima[2], maxima[2])
-						imapf(seedmuQ[ii], minima[3], maxima[3]));*/
+				printf("Seed point: %lf %lf %lf %lf\n",
+						imapf(Tseed, minima[0], maxima[0]),
+						imapf(muBseed, minima[1], maxima[1])
+						imapf(muSseed, minima[2], maxima[2])
+						imapf(muQseed, minima[3], maxima[3]));
 		}
 		double Tsol = sols[0], muBsol = sols[1], muSsol = sols[2], muQsol = sols[3];
 		Tval = Tsol; muBval = muBsol; muSval = muSsol; muQval = muQsol;
