@@ -260,7 +260,7 @@ int main(int argc, char *argv[])
 		fflush(stdout);
 		
 //		}
-		if (1) exit(-1);
+		if (irun==1) exit(-1);
 	}
 
 	// DON'T CHANGE DIRECTORIES UNTIL EVERYTHING IS READ AND WRITTEN
