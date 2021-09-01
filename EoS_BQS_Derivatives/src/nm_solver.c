@@ -236,7 +236,7 @@ void solve2( double densities[], double sols[], double minima[], double maxima[]
 			|| fabs(Qsol-QTarget) > fmax(ACCURACY*fabs(QTarget), ACCURACY))
 			&& iter++ < maxTries )
 	{
-//		printf("iter = %5d\n", iter);
+		printf("iter = %5d\n", iter);
 		T2 = Tout*Tout; T3 = T2*Tout; T4 = T3*Tout;
 
 		double dBdT   = T2*P2TB(Tout, muBout, muQout, muSout);				// MeV^2
@@ -306,10 +306,10 @@ void solve2( double densities[], double sols[], double minima[], double maxima[]
 
 		
 
-//		printf("Tout = %15.8f\n", Tout);
-//		printf("muBout = %15.8f\n", muBout);
-//		printf("muSout = %15.8f\n", muSout);
-//		printf("muQout = %15.8f\n", muQout);
+		printf("Tout = %15.8f\n", Tout);
+		printf("muBout = %15.8f\n", muBout);
+		printf("muSout = %15.8f\n", muSout);
+		printf("muQout = %15.8f\n", muQout);
 
 		// update previous estimates
 		Plocal = T4*PressTaylor(Tout, muBout, muQout, muSout)/hbarc3;
@@ -322,21 +322,21 @@ void solve2( double densities[], double sols[], double minima[], double maxima[]
 //		printf("Plocal = %15.8f\n", Plocal);
 //		printf("slocal = %15.8f\n", slocal);
 //	
-//		printf("eTarget = %15.8f\n", eTarget);
-//		printf("BTarget = %15.8f\n", BTarget);
-//		printf("STarget = %15.8f\n", STarget);
-//		printf("QTarget = %15.8f\n", QTarget);
-//		printf("esol = %15.8f\n", esol);
-//		printf("Bsol = %15.8f\n", Bsol);
-//		printf("Ssol = %15.8f\n", Ssol);
-//		printf("Qsol = %15.8f\n", Qsol);
+		printf("eTarget = %15.8f\n", eTarget);
+		printf("BTarget = %15.8f\n", BTarget);
+		printf("STarget = %15.8f\n", STarget);
+		printf("QTarget = %15.8f\n", QTarget);
+		printf("esol = %15.8f\n", esol);
+		printf("Bsol = %15.8f\n", Bsol);
+		printf("Ssol = %15.8f\n", Ssol);
+		printf("Qsol = %15.8f\n", Qsol);
 //	
 //		printf("%15.12f %15.12f %15.12f %15.12f %15.12f %15.12f %15.12f %15.12f"
 //				"%15.12f %15.12f %15.12f %15.12f %15.12f\n",
 //				esol, eTarget, fabs(esol-eTarget), Bsol, BTarget, fabs(Bsol-BTarget),
 //				Ssol, STarget, fabs(Ssol-STarget), Qsol, QTarget, fabs(Qsol-QTarget), ACCURACY);
 //	
-//		printf("********************************************************************************\n\n");
+		printf("********************************************************************************\n\n");
 
 		gsl_permutation_free (p);
 		gsl_vector_free (x);
