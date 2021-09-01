@@ -188,18 +188,19 @@ void map_dmapdx(double x, double a, double b, double *map, double *dmapdx)
 	*dmapdx = (b-a)*ex/(1.0+ex*ex);
 }
 
-void solve2( double densities[], double sols[], double minima[], double maxima[] )
+void solve2( double densities[], double sols[], double minima[], double maxima[], double seeds[] )
 {
 	double eTarget = densities[0], BTarget = densities[1], STarget = densities[2], QTarget = densities[3];
 //	double Tout = sols[0], muBout = sols[1], muSout = sols[2], muQout = sols[3];
 
 	double Tout = -1.0, muBout = 0.0, muSout = 0.0, muQout = 0.0;
 	double dToutdx = -1.0, dmuBoutdx = 0.0, dmuSoutdx = 0.0, dmuQoutdx = 0.0;
-	double mapT = 0.0, mapmuB = 0.0, mapmuS = 0.0, mapmuQ = 0.0;
+	double mapT = seeds[0], mapmuB = seeds[1], mapmuS = seeds[2], mapmuQ = seeds[3];
 	map_dmapdx(mapT, minima[0], maxima[0], &Tout, &dToutdx);
 	map_dmapdx(mapmuB, minima[1], maxima[1], &muBout, &dmuBoutdx);
 	map_dmapdx(mapmuS, minima[2], maxima[2], &muSout, &dmuSoutdx);
 	map_dmapdx(mapmuQ, minima[3], maxima[3], &muQout, &dmuQoutdx);
+
 
 	const size_t maxTries = 1000000;
 	const double ACCURACY = 1e-10;

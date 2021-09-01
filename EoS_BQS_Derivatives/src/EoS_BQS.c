@@ -41,6 +41,17 @@ void funcvSN(int n,double x[],double f[]){
 	f[2] = ChDensTaylor(Tval,muBval,x[1],x[2]) - 0.4*BarDensTaylor(Tval,muBval,x[1],x[2]);
 } 
 
+double mapf(double x, double a, double b)
+{
+	return log(fabs((x-a)/(b-x)));
+}
+
+void get_seed_points(double a, double b, int n, double result[])
+{
+	for (int ii = 1; ii < n-1; ii+=1) result[ii] = mapf(a + (b-a)*ii/double(n-1), a, b);
+	result[0] = mapf(a+1e-10, a, b);
+	result[n-1] = mapf(b-1e-10, a, b);
+}
 
 /* The main body of the program. */
 int main(int argc, char *argv[])
@@ -184,8 +195,34 @@ int main(int argc, char *argv[])
 
 		// find the solution
 		if (irun==1) solve(densities, sols);
-		else if (irun==2) solve2(densities, sols, minima, maxima);
+		else if (irun==2)
+		{
+			const int n_seeds_per_dimension = 6;	// includes endpoints
+			const double dT_seed = (maxima[0] - minima[0])/(n_seeds_per_dimension-1);
+			const double dmuB_seed = (maxima[1] - minima[1])/(n_seeds_per_dimension-1);
+			const double dmuS_seed = (maxima[2] - minima[2])/(n_seeds_per_dimension-1);
+			const double dmuQ_seed = (maxima[3] - minima[3])/(n_seeds_per_dimension-1);
 
+			double seedT[4], seedmuB[4], seedmuS[4], seedmuQ[4];
+
+			get_seed_points(minima[0], maxima[0], n_seeds_per_dimension, seedT);
+			get_seed_points(minima[1], maxima[1], n_seeds_per_dimension, seedmuB);
+			get_seed_points(minima[2], maxima[2], n_seeds_per_dimension, seedmuS);
+			get_seed_points(minima[3], maxima[3], n_seeds_per_dimension, seedmuQ);
+			
+			for (int ii = 0; ii < n_seeds_per_dimension; ii+=1)
+			for (int jj = 0; jj < n_seeds_per_dimension; jj+=1)
+			for (int kk = 0; kk < n_seeds_per_dimension; kk+=1)
+			for (int ll = 0; ll < n_seeds_per_dimension; ll+=1)
+			{
+				double seeds[4] = {seedT[ii], seedmuB[ii], seedmuS[ii], seedmuQ[ii]};
+				solve2(densities, sols, minima, maxima, seeds);
+				if (sols[0] > 0.0) // success
+					goto success;
+			}
+			success:
+				printf("Found solution!\n");
+		}
 		double Tsol = sols[0], muBsol = sols[1], muSsol = sols[2], muQsol = sols[3];
 		Tval = Tsol; muBval = muBsol; muSval = muSsol; muQval = muQsol;
 		i = Tsol; j = muBsol; l = muSsol; k = muQsol;	// Q and S reversed
