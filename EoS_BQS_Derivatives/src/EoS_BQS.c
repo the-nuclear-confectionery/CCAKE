@@ -216,10 +216,10 @@ int main(int argc, char *argv[])
 			get_seed_points(minima[3], maxima[3], n_seeds_per_dimension, seedmuQ);
 			
 			int attempts = 0;
-			for (int ii = 0; ii < n_seeds_per_dimension; ii+=1)
-			for (int jj = 0; jj < n_seeds_per_dimension; jj+=1)
-			for (int kk = 0; kk < n_seeds_per_dimension; kk+=1)
-			for (int ll = 0; ll < n_seeds_per_dimension; ll+=1)
+			for (int ii = 1; ii < n_seeds_per_dimension-1; ii+=1)
+			for (int jj = 1; jj < n_seeds_per_dimension-1; jj+=1)
+			for (int kk = 1; kk < n_seeds_per_dimension-1; kk+=1)
+			for (int ll = 1; ll < n_seeds_per_dimension-1; ll+=1)
 			{
 				double seeds[4] = {seedT[ii], seedmuB[jj], seedmuS[kk], seedmuQ[ll]};
 				solve2(densities, sols, minima, maxima, seeds);
