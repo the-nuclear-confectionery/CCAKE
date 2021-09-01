@@ -181,11 +181,11 @@ double dmap_dt(double t, double a, double b)
 	return (b-a)*et/(1.0+et*et);
 }*/
 
-void map_dmapdx(double x, double a, double b, double & map, double & dmapdx)
+void map_dmapdx(double x, double a, double b, double *map, double *dmapdx)
 {
 	double ex = exp(x);
-	map = a + (b-a)*ex/(1.0+ex);
-	dmapdx = (b-a)*ex/(1.0+ex*ex);
+	*map = a + (b-a)*ex/(1.0+ex);
+	*dmapdx = (b-a)*ex/(1.0+ex*ex);
 }
 
 void solve2( double densities[], double sols[], double minima[], double maxima[] )
