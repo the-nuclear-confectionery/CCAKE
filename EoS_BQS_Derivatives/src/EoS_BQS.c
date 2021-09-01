@@ -221,7 +221,7 @@ int main(int argc, char *argv[])
 		printf("QOut = %15.8f\n", QOut);
 		fflush(stdout);
 		
-		if (1) exit(-1);
+		//if (irun==1) exit(-1);
 		
 		
 		//Thermodynamics
