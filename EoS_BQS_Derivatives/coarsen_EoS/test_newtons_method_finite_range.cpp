@@ -1,7 +1,8 @@
 #include <bits/stdc++.h>
 #include <cmath>
+#include <iomanip>
 
-#define EPSILON 0.001
+#define EPSILON 0.0000001
 
 using namespace std;
 
@@ -27,7 +28,7 @@ void newtonRaphson(double x)
 		x = x - h;
 	}
 
-	cout << "The value of the root is : " << x << endl;
+	cout << "The value of the root is : " << setprecision(12) << x << endl;
 }
 
 // Driver program to test above
