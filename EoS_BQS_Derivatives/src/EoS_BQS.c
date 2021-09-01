@@ -202,6 +202,8 @@ int main(int argc, char *argv[])
 		if (irun==1) solve(densities, sols);
 		else if (irun==2)
 		{
+			start = clock();
+
 			const int n_seeds_per_dimension = 6;	// includes endpoints
 			const double dT_seed = (maxima[0] - minima[0])/(n_seeds_per_dimension-1);
 			const double dmuB_seed = (maxima[1] - minima[1])/(n_seeds_per_dimension-1);
@@ -230,6 +232,10 @@ int main(int argc, char *argv[])
 					goto success;
 			}
 			success:
+				end = clock();
+				cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+				printf("Finished calculating in %lf seconds.\n", cpu_time_used);	
+
 				printf("Found solution in %d attempts!\n", attempts);
 				printf("Seed point: %lf %lf %lf %lf\n",
 						imapf(Tseed, minima[0], maxima[0]),
