@@ -196,10 +196,10 @@ void solve2( double densities[], double sols[], double minima[], double maxima[]
 	double Tout = -1.0, muBout = 0.0, muSout = 0.0, muQout = 0.0;
 	double dToutdx = -1.0, dmuBoutdx = 0.0, dmuSoutdx = 0.0, dmuQoutdx = 0.0;
 	double mapT = 0.0, mapmuB = 0.0, map_muS = 0.0, map_muQ = 0.0;
-	map_dmapdx(mapT, minima[0], maxima[0], Tout, dToutdx);
-	map_dmapdx(mapmuB, minima[1], maxima[1], muBout, dmuBoutdx);
-	map_dmapdx(mapmuS, minima[2], maxima[2], muSout, dmuSoutdx);
-	map_dmapdx(mapmuQ, minima[3], maxima[3], muQout, dmuQoutdx);
+	map_dmapdx(mapT, minima[0], maxima[0], &Tout, &dToutdx);
+	map_dmapdx(mapmuB, minima[1], maxima[1], &muBout, &dmuBoutdx);
+	map_dmapdx(mapmuS, minima[2], maxima[2], &muSout, &dmuSoutdx);
+	map_dmapdx(mapmuQ, minima[3], maxima[3], &muQout, &dmuQoutdx);
 
 	const size_t maxTries = 1000000;
 	const double ACCURACY = 1e-10;
@@ -299,10 +299,10 @@ void solve2( double densities[], double sols[], double minima[], double maxima[]
 		mapmuB -= gsl_vector_get(x, 1);
 		mapmuS -= gsl_vector_get(x, 2);
 		mapmuQ -= gsl_vector_get(x, 3);
-		map_dmapdx(mapT, minima[0], maxima[0], Tout, dToutdx);
-		map_dmapdx(mapmuB, minima[1], maxima[1], muBout, dmuBoutdx);
-		map_dmapdx(mapmuS, minima[2], maxima[2], muSout, dmuSoutdx);
-		map_dmapdx(mapmuQ, minima[3], maxima[3], muQout, dmuQoutdx);
+		map_dmapdx(mapT, minima[0], maxima[0], &Tout, &dToutdx);
+		map_dmapdx(mapmuB, minima[1], maxima[1], &muBout, &dmuBoutdx);
+		map_dmapdx(mapmuS, minima[2], maxima[2], &muSout, &dmuSoutdx);
+		map_dmapdx(mapmuQ, minima[3], maxima[3], &muQout, &dmuQoutdx);
 
 		
 
