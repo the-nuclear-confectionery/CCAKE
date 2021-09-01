@@ -48,7 +48,7 @@ double mapf(double x, double a, double b)
 
 void get_seed_points(double a, double b, int n, double result[])
 {
-	for (int ii = 1; ii < n-1; ii+=1) result[ii] = mapf(a + (b-a)*ii/double(n-1), a, b);
+	for (int ii = 1; ii < n-1; ii+=1) result[ii] = mapf(a + (b-a)*ii/(n-1.0), a, b);
 	result[0] = mapf(a+1e-10, a, b);
 	result[n-1] = mapf(b-1e-10, a, b);
 }
