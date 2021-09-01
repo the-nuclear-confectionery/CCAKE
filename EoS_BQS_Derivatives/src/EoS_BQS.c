@@ -210,6 +210,7 @@ int main(int argc, char *argv[])
 			get_seed_points(minima[2], maxima[2], n_seeds_per_dimension, seedmuS);
 			get_seed_points(minima[3], maxima[3], n_seeds_per_dimension, seedmuQ);
 			
+			int attempts = 0;
 			for (int ii = 0; ii < n_seeds_per_dimension; ii+=1)
 			for (int jj = 0; jj < n_seeds_per_dimension; jj+=1)
 			for (int kk = 0; kk < n_seeds_per_dimension; kk+=1)
@@ -217,11 +218,12 @@ int main(int argc, char *argv[])
 			{
 				double seeds[4] = {seedT[ii], seedmuB[ii], seedmuS[ii], seedmuQ[ii]};
 				solve2(densities, sols, minima, maxima, seeds);
+				attempts += 1;
 				if (sols[0] > 0.0) // success
 					goto success;
 			}
 			success:
-				printf("Found solution!\n");
+				printf("Found solution in %d attempts!\n", attempts);
 		}
 		double Tsol = sols[0], muBsol = sols[1], muSsol = sols[2], muQsol = sols[3];
 		Tval = Tsol; muBval = muBsol; muSval = muSsol; muQval = muQsol;
