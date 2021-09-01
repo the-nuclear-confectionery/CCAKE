@@ -46,6 +46,11 @@ double mapf(double x, double a, double b)
 	return log(fabs((x-a)/(b-x)));
 }
 
+double imapf(double t, double a, double b)
+{
+	return a + (b-a)/(1.0+exp(-t));
+}
+
 void get_seed_points(double a, double b, int n, double result[])
 {
 	for (int ii = 1; ii < n-1; ii+=1) result[ii] = mapf(a + (b-a)*ii/(n-1.0), a, b);
@@ -224,6 +229,11 @@ int main(int argc, char *argv[])
 			}
 			success:
 				printf("Found solution in %d attempts!\n", attempts);
+				printf("Seed point: %lf %lf %lf %lf\n",
+						imapf(seedT[ii], minima[0], maxima[0]),
+						imapf(seedmuB[ii], minima[1], maxima[1])
+						imapf(seedmuS[ii], minima[2], maxima[2])
+						imapf(seedmuQ[ii], minima[3], maxima[3]));
 		}
 		double Tsol = sols[0], muBsol = sols[1], muSsol = sols[2], muQsol = sols[3];
 		Tval = Tsol; muBval = muBsol; muSval = muSsol; muQval = muQsol;
