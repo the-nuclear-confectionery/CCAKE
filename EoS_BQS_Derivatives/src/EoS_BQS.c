@@ -174,7 +174,7 @@ int main(int argc, char *argv[])
   	
 	int run_density_solver = 1;
 	if ( run_density_solver )
-	for (int irun = 0; irun <= 1; irun+=1)
+	for (int irun = 0; irun <= 2; irun+=1)
 	{
 		double eIn = 973.563, BIn = -0.316059, SIn = 0.323859, QIn = 1.06384;	// (MeV,1,1,1)/fm^3
 		double densities[4] = {eIn, BIn, SIn, QIn};
@@ -263,8 +263,8 @@ int main(int argc, char *argv[])
 		fflush(stdout);
 		
 //		}
-		if (irun==2) exit(-1);
 	}
+	if ( run_density_solver ) exit(-1);
 
 	// DON'T CHANGE DIRECTORIES UNTIL EVERYTHING IS READ AND WRITTEN
   	/* Create folder for thermodynamic quantities. */
