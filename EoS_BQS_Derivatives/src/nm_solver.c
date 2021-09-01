@@ -354,7 +354,7 @@ void solve2( double densities[], double sols[], double minima[], double maxima[]
 			return;			// exit prematurely
 		}
 
-	printf("Final iter = %d\n", iter);
+	if (iter>1) printf("Final iter = %d\n", iter);
 
 	sols[0] = Tout; sols[1] = muBout; sols[2] = muSout; sols[3] = muQout;
 
