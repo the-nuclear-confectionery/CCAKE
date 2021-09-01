@@ -204,7 +204,7 @@ int main(int argc, char *argv[])
 		{
 			start = clock();
 
-			const int n_seeds_per_dimension = 6;	// includes endpoints
+			const int n_seeds_per_dimension = 3;	// includes endpoints
 			const double dT_seed = (maxima[0] - minima[0])/(n_seeds_per_dimension-1);
 			const double dmuB_seed = (maxima[1] - minima[1])/(n_seeds_per_dimension-1);
 			const double dmuS_seed = (maxima[2] - minima[2])/(n_seeds_per_dimension-1);
