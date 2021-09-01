@@ -233,8 +233,8 @@ int main(int argc, char *argv[])
 				printf("Found solution in %d attempts!\n", attempts);
 				printf("Seed point: %lf %lf %lf %lf\n",
 						imapf(Tseed, minima[0], maxima[0]),
-						imapf(muBseed, minima[1], maxima[1])
-						imapf(muSseed, minima[2], maxima[2])
+						imapf(muBseed, minima[1], maxima[1]),
+						imapf(muSseed, minima[2], maxima[2]),
 						imapf(muQseed, minima[3], maxima[3]));
 		}
 		double Tsol = sols[0], muBsol = sols[1], muSsol = sols[2], muQsol = sols[3];
