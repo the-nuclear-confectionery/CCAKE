@@ -203,7 +203,7 @@ void solve2( double densities[], double sols[], double minima[], double maxima[]
 
 
 	const size_t maxTries = 1000000;
-	const double ACCURACY = 1e-10;
+	const double ACCURACY = 1e-4;
 	const double hbarc = 197.327;
 	const double hbarc3 = hbarc*hbarc*hbarc;
 
