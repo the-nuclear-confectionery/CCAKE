@@ -195,7 +195,7 @@ void solve2( double densities[], double sols[], double minima[], double maxima[]
 
 	double Tout = -1.0, muBout = 0.0, muSout = 0.0, muQout = 0.0;
 	double dToutdx = -1.0, dmuBoutdx = 0.0, dmuSoutdx = 0.0, dmuQoutdx = 0.0;
-	double mapT = 0.1, mapmuB = 0.1, mapmuS = 0.1, mapmuQ = 0.1;
+	double mapT = 0.0, mapmuB = 0.0, mapmuS = 0.0, mapmuQ = 0.0;
 	map_dmapdx(mapT, minima[0], maxima[0], &Tout, &dToutdx);
 	map_dmapdx(mapmuB, minima[1], maxima[1], &muBout, &dmuBoutdx);
 	map_dmapdx(mapmuS, minima[2], maxima[2], &muSout, &dmuSoutdx);
