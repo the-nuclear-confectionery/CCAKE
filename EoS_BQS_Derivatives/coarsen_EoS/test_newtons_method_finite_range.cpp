@@ -2,7 +2,7 @@
 #include <cmath>
 #include <iomanip>
 
-#define EPSILON 0.0000001
+#define EPSILON 1e-12
 
 using namespace std;
 
@@ -45,7 +45,7 @@ void newtonRaphson(double a, double b)
 {
 	double t = 0.0;
 	double h = func(xmap(t,a,b)) / (derivFunc(xmap(t,a,b))*dxmap_dt(t,a,b));
-	while (abs(func(xmap(t,a,b))) >= EPSILON)
+	while (abs(h) >= EPSILON)
 	{
 		h = func(xmap(t,a,b)) / (derivFunc(xmap(t,a,b))*dxmap_dt(t,a,b));
 		t -= h;
