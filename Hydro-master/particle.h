@@ -304,9 +304,9 @@ void Particle<D>::calcbsq(double tin)
     //double S_in2= rhoS/gamma/tin;
     //double Q_in2= rhoQ/gamma/tin;
     qmom=((EOSe()+ EOSp())*gamma/sigma)*u;
-	double rhoB_in2 = B*sigmaweight/sigma;		//  is this correct?  (confirm with Jaki)
-	double rhoS_in2 = S*sigmaweight/sigma;		//  is this correct?  (confirm with Jaki)
-	double rhoQ_in2 = Q*sigmaweight/sigma;		//  is this correct?  (confirm with Jaki)
+	double rhoB_in2 = B*sigma/sigmaweight;		//  is this correct?  (confirm with Jaki)
+	double rhoS_in2 = S*sigma/sigmaweight;		//  is this correct?  (confirm with Jaki)
+	double rhoQ_in2 = Q*sigma/sigmaweight;		//  is this correct?  (confirm with Jaki)
 	//double rhoB_in2 = B / (transverse_area*gamma*tin);	//N.B. - dx*dy constant for SPH!!!
 	//double rhoS_in2 = S / (transverse_area*gamma*tin);
 	//double rhoQ_in2 = Q / (transverse_area*gamma*tin);

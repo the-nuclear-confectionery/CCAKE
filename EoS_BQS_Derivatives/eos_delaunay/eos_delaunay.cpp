@@ -612,7 +612,7 @@ bool eos_delaunay::interpolate_NMNmode(const vector<double> & v0, vector<double>
 		int ivertex = 0;
 		for ( const auto & vertex : simplices[iclosestsimplex] )
 			simplexVertices[ivertex++] = vector<double>( vertices[vertex].begin()+4,
-														vertices[vertex].end() );
+									vertices[vertex].end() );
 	}
 
 
@@ -718,9 +718,9 @@ bool eos_delaunay::interpolate_NMNmode_v2(const vector<double> & v0, vector<doub
 				&& midpoint_inds[kdtree_nmn_index][3]+ll >= 0 )
 			{
 				const auto & cell = grid[indexer( midpoint_inds[kdtree_nmn_index][0]+ii,
-													midpoint_inds[kdtree_nmn_index][1]+jj,
-													midpoint_inds[kdtree_nmn_index][2]+kk,
-													midpoint_inds[kdtree_nmn_index][3]+ll )];
+								midpoint_inds[kdtree_nmn_index][1]+jj,
+								midpoint_inds[kdtree_nmn_index][2]+kk,
+								midpoint_inds[kdtree_nmn_index][3]+ll )];
 				for (const auto & elem : cell)
 					cout << "   " << elem;
 				cout << endl;
@@ -830,14 +830,14 @@ bool eos_delaunay::triangulate_and_locate_point(
 	// block for scope
 	{
 		int vertexcount = 0;
-//		for (int ii = 0; ii <= 1; ii++)
-//		for (int jj = 0; jj <= 1; jj++) // only need containing hypercube
-//		for (int kk = 0; kk <= 1; kk++) // vertices for the NMN method
-//		for (int ll = 0; ll <= 1; ll++)
-		for (int ii = -3; ii <= 4; ii++)
-		for (int jj = -3; jj <= 4; jj++) // only need containing hypercube
-		for (int kk = -3; kk <= 4; kk++) // vertices for the NMN method
-		for (int ll = -3; ll <= 4; ll++)
+		for (int ii = 0; ii <= 1; ii++)
+		for (int jj = 0; jj <= 1; jj++) // only need containing hypercube
+		for (int kk = 0; kk <= 1; kk++) // vertices for the NMN method
+		for (int ll = 0; ll <= 1; ll++)
+//		for (int ii = -3; ii <= 4; ii++)
+//		for (int jj = -3; jj <= 4; jj++) // only need containing hypercube
+//		for (int kk = -3; kk <= 4; kk++) // vertices for the NMN method
+//		for (int ll = -3; ll <= 4; ll++)
 		{
 			// check that we're not going outside the grid
 			if ( iTbase+ii < nT && iTbase+ii >= 0
@@ -950,13 +950,16 @@ bool eos_delaunay::triangulate_and_locate_point(
 	// try closest simplex first; otherwise loop through all simplices
 	//vector<double> point_lambda_in_simplex(5, 0.0);	// dim + 1 == 5
 	point_lambda_in_simplex.resize(5, 0.0);	// dim + 1 == 5
-	bool foundPoint = point_is_in_simplex( simplexVertices, nv0, point_lambda_in_simplex, false );
+	bool foundPoint = point_is_in_simplex( simplexVertices, nv0, point_lambda_in_simplex, true );
+
+cout << "iclosestsimplex = " << iclosestsimplex << endl;
 
 	if (!foundPoint)        // loop over all simplices
 	{
 		int isimplex = 0;
 		for ( auto & simplex : simplices )
 		{
+cout << "isimplex = " << isimplex << endl;
 			if (check_simplices && !simplices_to_check[isimplex])
 			{
 				isimplex++;
@@ -970,7 +973,7 @@ bool eos_delaunay::triangulate_and_locate_point(
 									vertices[vertex].end() ) );
 
 			// check if point is in simplex; if so, return lambda coefficients and break
-			if ( point_is_in_simplex( simplexVertices, nv0, point_lambda_in_simplex, false ) )
+			if ( point_is_in_simplex( simplexVertices, nv0, point_lambda_in_simplex, true ) )
 			{
 				iclosestsimplex = isimplex;     // probably rename this
 				foundPoint = true;

@@ -2525,7 +2525,7 @@ cout << "Success: " << _p[i].r.x[0] << "   " << _p[i].r.x[1] << "   "
 		_p[i].Q *= _p[i].gamma*t0;	// Q does not evolve in ideal case (confirm with Jaki)
     }
 
-if (true)
+if (false)
 {
 	cout << "Exiting prematurely from " << __PRETTY_FUNCTION__ << "::" << __LINE__ << "!" << endl;
 	cerr << "Exiting prematurely from " << __PRETTY_FUNCTION__ << "::" << __LINE__ << "!" << endl;
