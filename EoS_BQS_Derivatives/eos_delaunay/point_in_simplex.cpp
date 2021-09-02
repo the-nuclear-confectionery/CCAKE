@@ -8,6 +8,8 @@
 
 using namespace std;
 
+constexpr double TOLERANCE = 1e-3;
+
 bool point_is_in_simplex( const vector<vector<double> > & v, const vector<double> & p, 
 							vector<double> & lambda, bool verbose )
 {
@@ -65,7 +67,9 @@ if (verbose)
 	double lambda_sum = 0.0;
 	for (int i = 0; i < dim; i++)
 	{
-		point_in_simplex = point_in_simplex && lambda_arr[i] <= 1.0 && lambda_arr[i] >= 0.0;
+		point_in_simplex = point_in_simplex
+					&& lambda_arr[i] <= 1.0+TOLERANCE
+					&& lambda_arr[i] >= 0.0-TOLERANCE;
 		lambda_sum += lambda_arr[i];
 		if (verbose) cout << "lambda[" << i << "] = " << lambda_arr[i] << endl;
 	}
