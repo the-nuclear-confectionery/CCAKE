@@ -43,14 +43,14 @@ public:
         }
         return dist;
     }
-    /*double logdistance(const point& pt) const {
+    double logdistance(const point& pt) const {
         double dist = 0;
         for (size_t i = 0; i < dimensions; ++i) {
             double d = (get(i)*pt.get(i)<=1e-10)? 1e10 : log(abs(get(i)/pt.get(i)));
             dist += d * d;
         }
         return dist;
-    }*/
+    }
 private:
     std::array<coordinate_type, dimensions> coords_;
 };
@@ -83,6 +83,9 @@ private:
         double distance(const point_type& pt) const {
             return point_.distance(pt);
         }
+        double logdistance(const point_type& pt) const {
+            return point_.logdistance(pt);
+        }
         point_type point_;
         node* left_;
         node* right_;
@@ -114,11 +117,11 @@ private:
         return &nodes_[n];
     }
  
-    void nearest(node* root, const point_type& point, size_t index) {
+    void nearest(node* root, const point_type& point, size_t index, bool euc_dist) {
         if (root == nullptr)
             return;
         ++visited_;
-        double d = root->distance(point);
+        double d = (euc_dist)? root->distance(point): root->logdistance(point);
         if (best_ == nullptr || d < best_dist_) {
             best_dist_ = d;
             best_ = root;
@@ -127,10 +130,10 @@ private:
             return;
         double dx = root->get(index) - point.get(index);
         index = (index + 1) % dimensions;
-        nearest(dx > 0 ? root->left_ : root->right_, point, index);
+        nearest(dx > 0 ? root->left_ : root->right_, point, index, euc_dist);
         if (dx * dx >= best_dist_)
             return;
-        nearest(dx > 0 ? root->right_ : root->left_, point, index);
+        nearest(dx > 0 ? root->right_ : root->left_, point, index, euc_dist);
     }
 public:
     kdtree(const kdtree&) = delete;
@@ -177,13 +180,13 @@ public:
      * @param pt a point
      * @return the nearest point in the tree to the given point
      */
-    const point_type& nearest(const point_type& pt ) {
+    const point_type& nearest(const point_type& pt, bool euc_dist = true ) {
         if (root_ == nullptr)
             throw std::logic_error("tree is empty");
         best_ = nullptr;
         visited_ = 0;
         best_dist_ = 0;
-        nearest(root_, pt, 0);
+        nearest(root_, pt, 0, euc_dist);
         return best_->point_;
     }
 
@@ -194,13 +197,13 @@ public:
      * @param pt a point
      * @return the nearest point in the tree to the given point
      */
-    const point_type& nearest(const point_type& pt, size_t & best_oindex ) {
+    const point_type& nearest(const point_type& pt, size_t & best_oindex, bool euc_dist = true ) {
         if (root_ == nullptr)
             throw std::logic_error("tree is empty");
         best_ = nullptr;
         visited_ = 0;
         best_dist_ = 0;
-        nearest(root_, pt, 0);
+        nearest(root_, pt, 0, euc_dist);
 		best_oindex = best_->oindex_;
         return best_->point_;
     }
