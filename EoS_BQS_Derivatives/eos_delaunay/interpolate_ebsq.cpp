@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
 	// check input first
 	if (argc < 3) exit(-1);
 
-	constexpr bool timing_test_only = true;
+	constexpr bool timing_test_only = false;
 	Stopwatch sw;
 
 	/*if (!timing_test_only)
