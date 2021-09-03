@@ -210,7 +210,7 @@ bool eos_delaunay::interpolate_NMNmode(const vector<double> & v0, vector<double>
 	try
 	{
 		// point4d n not used; only need kdtree_nmn_index
-		point4d n = midpoint_tree_ptr->nearest(nv0, kdtree_nmn_index);
+		point4d n = midpoint_tree_ptr->nearest({ne0, nb0, ns0, nq0}, kdtree_nmn_index);
 //		cout << "KD-Tree: NMN is " << n << endl;
 //		cout << "KD-Tree: NMN distance: " << midpoint_tree_ptr->distance() << endl;
 //		cout << "KD-Tree: NMN index is " << kdtree_nmn_index << endl;
@@ -457,9 +457,9 @@ bool eos_delaunay::interpolate_NMNmode_v2(const vector<double> & v0, vector<doub
 	try
 	{
 		// point4d n not used; only need kdtree_nmn_index
-		point4d n = midpoint_tree_ptr->nearest(nv0, kdtree_nmn_index);
+		point4d n = midpoint_tree_ptr->nearest({ne0, nb0, ns0, nq0}, kdtree_nmn_index);
 		/*size_t kdtree_nn_index = 0;
-		point4d nn = tree_ptr->nearest(nv0, kdtree_nn_index);
+		point4d nn = tree_ptr->nearest({ne0, nb0, ns0, nq0}, kdtree_nn_index);
 		cout << "KD-Tree: original point is "
 				<< ne0 << "   " << nb0 << "   "
 				<< ns0 << "   " << nq0 << endl;
