@@ -42,14 +42,14 @@ class eos_delaunay
 		typedef point<double, 4> point4d;
 		typedef kdtree<double, 4> tree4d;
 
-		tree4d * tree_ptr, * midpoint_tree_ptr;
+		tree4d * tree_ptr, * midpoint_tree_ptr, * unnormalized_midpoint_tree_ptr;
 
 		const double hbarc = 197.327;
 		const size_t nT = 155, nmub = 37, nmus = 37, nmuq = 37;
 
 		double emin, emax, bmin, bmax, smin, smax, qmin, qmax;
 
-		vector<vector<double> > grid;
+		vector<vector<double> > grid, unnormalized_grid;
 		vector<int> Tinds, mubinds, muqinds, musinds;
 		vector<vector<size_t> > midpoint_inds;
 		

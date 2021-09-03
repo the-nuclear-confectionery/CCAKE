@@ -16,8 +16,6 @@
 
 using namespace std;
 
-constexpr bool normalize_grids = true;
-
 eos_delaunay::eos_delaunay(string EoS_table_file)
 {
 	Tinds.resize(nT*nmub*nmuq*nmus);
@@ -64,8 +62,10 @@ eos_delaunay::eos_delaunay(string EoS_table_file)
 	get_min_and_max(svec, smin, smax, false);
 	get_min_and_max(qvec, qmin, qmax, false);
 
+	// have one grid that we don't normalize for now
+	unnormalized_grid = grid;
+
 	// normalize grid points
-	if (normalize_grids)
 	for ( vector<double> & gridcell : grid )
 	{
 		gridcell[4] = (gridcell[4] - emin) / ( emax - emin );
@@ -78,7 +78,7 @@ eos_delaunay::eos_delaunay(string EoS_table_file)
 	// use midpoints as alternate way of find best simplex
 	// "midpoints" are the average densities in the cell with lower corner at (iT,imu...)
 	std::vector<std::array<double, 4> > midpoint_grid;
-	vector<vector<double> > midpoint_coords;
+//	vector<vector<double> > midpoint_coords;
 	for (size_t iT = 0; iT < nT-1; ++iT)
 	for (size_t imub = 0; imub < nmub-1; ++imub)
 	for (size_t imuq = 0; imuq < nmuq-1; ++imuq)
@@ -98,10 +98,20 @@ eos_delaunay::eos_delaunay(string EoS_table_file)
 
 		midpoint_grid.push_back(midpoint);
 		midpoint_inds.push_back( {iT, imub, imuq, imus} );
-		vector<double> & gridcell = grid[indexer(iT,imub,imuq,imus)];
-		midpoint_coords.push_back(
-			vector<double>( gridcell.begin(), gridcell.begin()+4 )
-					);
+//		vector<double> & gridcell = grid[indexer(iT,imub,imuq,imus)];
+//		midpoint_coords.push_back(
+//			vector<double>( gridcell.begin(), gridcell.begin()+4 )
+//					);
+	}
+
+	// use this for log-distance-based NMN method
+	std::vector<std::array<double, 4> > midpoint_unnormalized_grid(midpoint_grid.size());
+	for ( vector<double> & midpoint : midpoint_grid )
+	{
+		midpoint_unnormalized_grid[0] = emin + (emax-emin)*midpoint[0];
+		midpoint_unnormalized_grid[1] = bmin + (bmax-bmin)*midpoint[1];
+		midpoint_unnormalized_grid[2] = smin + (smax-smin)*midpoint[2];
+		midpoint_unnormalized_grid[3] = qmin + (qmax-qmin)*midpoint[3];
 	}
 
 
@@ -111,21 +121,18 @@ eos_delaunay::eos_delaunay(string EoS_table_file)
 	for (size_t ii = 0; ii < grid.size(); ii++)
 		std::copy_n( grid[ii].begin()+4, 4, density_points[ii].begin() );
 
-	// set up kd-tree
-	//try
-	//{
-		cout << "Setting up kd-trees...";
-		static tree4d tree(std::begin(density_points), std::end(density_points));
-		tree_ptr = &tree;
-		static tree4d midpoint_tree(std::begin(midpoint_grid), std::end(midpoint_grid));
-		midpoint_tree_ptr = &midpoint_tree;
-		cout << "finished!\n";
-		//cout << "Constructed full tree in " << sw.printTime() << " s." << endl;
-	//}
-	//catch (const std::exception& e)
-	//{
-	//	std::cerr << '\n' << e.what() << '\n';
-	//}
+	// set up kd-trees
+	cout << "Setting up kd-trees...";
+	static tree4d tree(std::begin(density_points), std::end(density_points));
+	tree_ptr = &tree;
+	
+	static tree4d midpoint_tree(std::begin(midpoint_grid), std::end(midpoint_grid));
+	midpoint_tree_ptr = &midpoint_tree;
+
+	static tree4d unnormalized_midpoint_tree(std::begin(midpoint_unnormalized_grid),
+											 std::end(midpoint_unnormalized_grid));
+	unnormalized_midpoint_tree_ptr = &unnormalized_midpoint_tree;
+	cout << "finished!\n";
 
 	return;
 }
@@ -198,10 +205,10 @@ bool eos_delaunay::interpolate_NMNmode(const vector<double> & v0, vector<double>
 	double e0 = v0[0], b0 = v0[1], s0 = v0[2], q0 = v0[3];
 
 	// normalize first
-	const double ne0 = (normalize_grids) ? (e0 - emin) / (emax - emin) : e0;
-	const double nb0 = (normalize_grids) ? (b0 - bmin) / (bmax - bmin) : b0;
-	const double ns0 = (normalize_grids) ? (s0 - smin) / (smax - smin) : s0;
-	const double nq0 = (normalize_grids) ? (q0 - qmin) / (qmax - qmin) : q0;
+	const double ne0 = (e0 - emin) / (emax - emin);
+	const double nb0 = (b0 - bmin) / (bmax - bmin);
+	const double ns0 = (s0 - smin) / (smax - smin);
+	const double nq0 = (q0 - qmin) / (qmax - qmin);
 
 	vector<double> nv0 = {ne0, nb0, ns0, nq0};
 
@@ -445,10 +452,10 @@ bool eos_delaunay::interpolate_NMNmode_v2(const vector<double> & v0, vector<doub
 	double e0 = v0[0], b0 = v0[1], s0 = v0[2], q0 = v0[3];
 
 	// normalize first
-	const double ne0 = (normalize_grids) ? (e0 - emin) / (emax - emin) : e0;
-	const double nb0 = (normalize_grids) ? (b0 - bmin) / (bmax - bmin) : b0;
-	const double ns0 = (normalize_grids) ? (s0 - smin) / (smax - smin) : s0;
-	const double nq0 = (normalize_grids) ? (q0 - qmin) / (qmax - qmin) : q0;
+	const double ne0 = (e0 - emin) / (emax - emin);
+	const double nb0 = (b0 - bmin) / (bmax - bmin);
+	const double ns0 = (s0 - smin) / (smax - smin);
+	const double nq0 = (q0 - qmin) / (qmax - qmin);
 
 	vector<double> nv0 = {ne0, nb0, ns0, nq0};
 
@@ -789,7 +796,7 @@ void eos_delaunay::refine_hypercube(vector<vector<double> > & hypercube)
 	//for (int i2 = 0; i2 < 2; i2++)
 	//for (int i3 = 0; i3 < 2; i3++)
 
-	iter_swap(middle.begin() + 2, middle.begin() + 3);
+	iter_swap(middle.begin() + 2, middle.begin() + 3);	// fix this eventually
 
 //	cout << "lowerCorner:";
 //	for (auto e : lowerCorner) cout << "   " << e;
@@ -803,13 +810,10 @@ void eos_delaunay::refine_hypercube(vector<vector<double> > & hypercube)
 	get_densities(middle.data(), densities_arr);
 	vector<double> densities(densities_arr, densities_arr+4);
 
-	if (normalize_grids)
-	{
-		densities[0] = (densities[0] - emin)/(emax-emin);
-		densities[1] = (densities[1] - bmin)/(bmax-bmin);
-		densities[2] = (densities[2] - smin)/(smax-smin);
-		densities[3] = (densities[3] - qmin)/(qmax-qmin);
-	}
+	densities[0] = (densities[0] - emin)/(emax-emin);
+	densities[1] = (densities[1] - bmin)/(bmax-bmin);
+	densities[2] = (densities[2] - smin)/(smax-smin);
+	densities[3] = (densities[3] - qmin)/(qmax-qmin);
 
 	middle.insert( middle.end(), densities.begin(), densities.end() );
 
@@ -821,3 +825,226 @@ void eos_delaunay::refine_hypercube(vector<vector<double> > & hypercube)
 
 	return;
 }
+
+// find containing simplex using nearest-midpoint-neighbor (NMN) method
+bool eos_delaunay::interpolate_NMNmode_v3(const vector<double> & v0, vector<double> & result)
+{
+	result.resize(4, 0.0);
+	double e0 = v0[0], b0 = v0[1], s0 = v0[2], q0 = v0[3];
+
+	// do not(!) normalize first
+	const double ne0 = e0;
+	const double nb0 = b0;
+	const double ns0 = s0;
+	const double nq0 = q0;
+
+	vector<double> nv0 = {ne0, nb0, ns0, nq0};
+
+	// here is where we query the kd-tree for the nearest midpoint neighbor (NMN)
+	size_t kdtree_nmn_index = 0;
+	try
+	{
+		// point4d n not used; only need kdtree_nmn_index
+		point4d n = unnormalized_midpoint_tree_ptr->nearest(
+					{ne0, nb0, ns0, nq0}, kdtree_nmn_index, false);	// false == log-distance mode
+//		cout << "KD-Tree: NMN is " << n << endl;
+//		cout << "KD-Tree: NMN distance: " << midpoint_tree_ptr->distance() << endl;
+//		cout << "KD-Tree: NMN index is " << kdtree_nmn_index << endl;
+//		cout << "KD-Tree: (T,muB,muQ,muS) indices of NMN are: "
+//			<< midpoint_inds[kdtree_nmn_index][0] << ", "
+//			<< midpoint_inds[kdtree_nmn_index][1] << ", "
+//			<< midpoint_inds[kdtree_nmn_index][2] << ", "
+//			<< midpoint_inds[kdtree_nmn_index][3] << endl;
+	}
+	catch (const std::exception& e)
+	{
+		std::cerr << e.what() << '\n';
+	}
+
+	// look up indices
+	const int iTNMN = midpoint_inds[kdtree_nmn_index][0];
+	const int imubNMN = midpoint_inds[kdtree_nmn_index][1];
+	const int imuqNMN = midpoint_inds[kdtree_nmn_index][2];
+	const int imusNMN = midpoint_inds[kdtree_nmn_index][3];
+
+
+	// select vertices in vicinity of NMN to triangulate
+	int NMNvertex = 0;
+	vector<vector<double> > vertices;
+
+	// Qhull requires vertices as 1D vector
+	vector<double> verticesFlat;
+
+	// block for scope
+	{
+		int vertexcount = 0;
+		for (int ii = 0; ii <= 1; ii++)
+		for (int jj = 0; jj <= 1; jj++) // only need containing hypercube
+		for (int kk = 0; kk <= 1; kk++) // vertices for the NMN method
+		for (int ll = 0; ll <= 1; ll++)
+		{
+			// check that we're not going outside the grid
+			if ( iTNMN+ii < nT && iTNMN+ii >= 0
+				&& imubNMN+jj < nmub && imubNMN+jj >= 0
+				&& imuqNMN+kk < nmuq && imuqNMN+kk >= 0
+				&& imusNMN+ll < nmus && imusNMN+ll >= 0 )
+			{
+				if (ii==0 && jj==0 && kk==0 && ll==0)
+					NMNvertex = vertexcount;	// identify NMN index below
+				vertices.push_back( grid[indexer( iTNMN+ii, imubNMN+jj, imuqNMN+kk, imusNMN+ll )] );
+				vertexcount++;
+			}
+		}
+
+		size_t nVertices = vertices.size();
+
+		if (nVertices < 6) return false;	// just give up
+
+		// flatten as efficiently as possible
+		verticesFlat.resize(4*nVertices);	// dim == 4
+		for (int ii = 0; ii < nVertices; ii++)
+		{
+			const vector<double> & vertex = vertices[ii];
+			for (int jj = 0; jj < 4; jj++)
+				verticesFlat[4*ii + jj] = vertex[jj+4];
+		}
+	
+	}
+
+	// Test the Delaunay part here
+	// first get the triangulation
+	vector<vector<size_t> > simplices;
+	try
+	{
+		compute_delaunay(&verticesFlat[0], 4, verticesFlat.size() / 4, simplices);
+	}
+	catch (const std::exception& e)
+	{
+		std::cerr << '\n' << e.what() << '\n';
+		std::cerr << __FUNCTION__ << ": Error occurred at "
+				<< e0 << "   " << b0 << "   " << s0 << "   " << q0 << "\n";
+		return false;
+	}
+
+	// =======================================================
+	// triangulation is complete; now find containing simplex
+
+	constexpr bool check_simplices = false;
+	vector<bool> simplices_to_check(simplices.size(), false);
+
+	// block to enforce local scope
+	int iclosestsimplex = 0;
+	{
+		int isimplex = 0;
+		double center_d2_min = 2.0;	// start with unrealistically large value (0 <= d2 <= 1)
+		for ( const auto & simplex : simplices )
+		{
+			bool NMN_vertex_included_in_this_simplex = false;
+			for ( const auto & vertex : simplex )
+				if ( vertex == NMNvertex )
+				{
+					NMN_vertex_included_in_this_simplex = true;
+					simplices_to_check[isimplex] = true;
+					break;
+				}
+			
+			// assume point must belong to simplex including NN, skip other simplices			
+			if (check_simplices && !NMN_vertex_included_in_this_simplex)
+			{
+				isimplex++;
+				continue;
+			}
+
+			// otherwise, compute simplex center and track squared distance to original point
+			vector<double> center(4, 0.0);
+			for ( const size_t vertex : simplex )
+				std::transform( center.begin(), center.end(), vertices[vertex].begin()+4,
+								center.begin(), std::plus<double>());
+
+
+			// !!!!! N.B. - can remove this part and just multiply once !!!!!
+			// !!!!! below by appropriate factors of 5					!!!!!
+			// center is average of this simplex's vertices
+			std::transform( center.begin(), center.end(), center.begin(),
+							[](double & element){ return 0.2*element; } );
+							// 0.2 == 1/(dim+1), dim == 4
+
+			double d2loc = d2( center, nv0 );
+			if ( d2loc < center_d2_min )
+			{
+				iclosestsimplex = isimplex;
+				center_d2_min = d2loc;
+			}
+	
+			isimplex++;
+		}
+	}
+
+	// pass these to routine for locating point in simplex
+	vector<vector<double> > simplexVertices(5);	// 5 == dim + 1, dim == 4
+
+	// block for local scope
+	{
+		int ivertex = 0;
+		for ( const auto & vertex : simplices[iclosestsimplex] )
+			simplexVertices[ivertex++] = vector<double>( vertices[vertex].begin()+4,
+									vertices[vertex].end() );
+	}
+
+
+	// try closest simplex first; otherwise loop through all simplices
+	vector<double> point_lambda_in_simplex(5, 0.0);	// dim + 1 == 5
+	bool foundPoint = point_is_in_simplex( simplexVertices, nv0, point_lambda_in_simplex, false );
+
+	if (!foundPoint)        // loop over all simplices
+	{
+		int isimplex = 0;
+		for ( auto & simplex : simplices )
+		{
+			if (check_simplices && !simplices_to_check[isimplex])
+			{
+				isimplex++;
+				continue;       // skip simplices that don't need to be checked
+			}
+
+			// set simplex vertices
+			simplexVertices.clear();
+			for ( const auto & vertex : simplex )
+				simplexVertices.push_back( vector<double>( vertices[vertex].begin()+4,
+									vertices[vertex].end() ) );
+
+			// check if point is in simplex; if so, return lambda coefficients and break
+			if ( point_is_in_simplex( simplexVertices, nv0, point_lambda_in_simplex, false ) )
+			{
+				iclosestsimplex = isimplex;     // probably rename this
+				foundPoint = true;
+				break;
+			}
+			isimplex++;
+		}
+	}
+
+	// finally, use the output lambda coefficients to get the interpolated values
+	double T0 = 0.0, mub0 = 0.0, muq0 = 0.0, mus0 = 0.0;
+	{
+		int ivertex = 0;
+		for ( const auto & vertex : simplices[iclosestsimplex] )
+		{
+			double lambda_coefficient = point_lambda_in_simplex[ivertex];
+			T0   += lambda_coefficient * vertices[vertex][0];
+			mub0 += lambda_coefficient * vertices[vertex][1];
+			muq0 += lambda_coefficient * vertices[vertex][2];
+			mus0 += lambda_coefficient * vertices[vertex][3];
+			ivertex++;
+		}
+	}
+
+	result[0] = T0;
+	result[1] = mub0;
+	result[2] = muq0;
+	result[3] = mus0;
+
+	return foundPoint;
+}
+
+
