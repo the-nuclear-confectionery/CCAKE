@@ -858,8 +858,11 @@ bool eos_delaunay::interpolate_NMNmode_v3(const vector<double> & v0, vector<doub
 		// point4d n not used; only need kdtree_nmn_index
 		point4d n = unnormalized_midpoint_tree_ptr->nearest(
 					{ne0, nb0, ns0, nq0}, kdtree_nmn_index, false);	// false == log-distance mode
+		cout << "KD-Tree: original point is "
+				<< ne0 << "   " << nb0 << "   "
+				<< ns0 << "   " << nq0 << endl;
 		cout << "KD-Tree: NMN is " << n << endl;
-		cout << "KD-Tree: NMN distance: " << midpoint_tree_ptr->distance() << endl;
+		cout << "KD-Tree: NMN distance: " << unnormalized_midpoint_tree_ptr->distance() << endl;
 		cout << "KD-Tree: NMN index is " << kdtree_nmn_index << endl;
 		cout << "KD-Tree: (T,muB,muQ,muS) indices of NMN are: "
 			<< midpoint_inds[kdtree_nmn_index][0] << ", "
@@ -881,7 +884,8 @@ bool eos_delaunay::interpolate_NMNmode_v3(const vector<double> & v0, vector<doub
 				&& midpoint_inds[kdtree_nmn_index][3]+ll < nmus
 				&& midpoint_inds[kdtree_nmn_index][3]+ll >= 0 )
 			{
-				const auto & cell = grid[indexer( midpoint_inds[kdtree_nmn_index][0]+ii,
+				const auto & cell
+					= unnormalized_grid[indexer( midpoint_inds[kdtree_nmn_index][0]+ii,
 								midpoint_inds[kdtree_nmn_index][1]+jj,
 								midpoint_inds[kdtree_nmn_index][2]+kk,
 								midpoint_inds[kdtree_nmn_index][3]+ll )];
@@ -934,7 +938,7 @@ bool eos_delaunay::interpolate_NMNmode_v3(const vector<double> & v0, vector<doub
 
 		size_t nVertices = vertices.size();
 		if (nVertices < 6) return false;	// just give up
-if (nVertices!=16)
+/*if (nVertices!=16)
 {
 	cout << "Not working with a true hypercube!  nVertices = " << nVertices << endl;
 }
@@ -942,7 +946,7 @@ else
 {
 		refine_hypercube(vertices);	// just adds hypercube midpoint
 		nVertices++;
-}
+}*/
 
 		// flatten as efficiently as possible
 		verticesFlat.resize(4*nVertices);	// dim == 4
