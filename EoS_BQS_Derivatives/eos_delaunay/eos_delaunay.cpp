@@ -209,6 +209,7 @@ void eos_delaunay::interpolate(const vector<double> & v0, vector<double> & resul
 // find containing simplex using nearest-midpoint-neighbor (NMN) method
 bool eos_delaunay::interpolate_NMNmode(const vector<double> & v0, vector<double> & result)
 {
+	cout << "Trying mode v1!" << endl;
 	result.resize(4, 0.0);
 	double e0 = v0[0], b0 = v0[1], s0 = v0[2], q0 = v0[3];
 
@@ -456,6 +457,7 @@ bool eos_delaunay::interpolate_NMNmode(const vector<double> & v0, vector<double>
 // find containing simplex using nearest-midpoint-neighbor (NMN) method
 bool eos_delaunay::interpolate_NMNmode_v2(const vector<double> & v0, vector<double> & result)
 {
+	cout << "Trying mode v2!" << endl;
 	result.resize(4, 0.0);
 	double e0 = v0[0], b0 = v0[1], s0 = v0[2], q0 = v0[3];
 
@@ -837,6 +839,7 @@ void eos_delaunay::refine_hypercube(vector<vector<double> > & hypercube)
 // find containing simplex using nearest-midpoint-neighbor (NMN) method
 bool eos_delaunay::interpolate_NMNmode_v3(const vector<double> & v0, vector<double> & result)
 {
+	cout << "Trying mode v3!" << endl;
 	result.resize(4, 0.0);
 	double e0 = v0[0], b0 = v0[1], s0 = v0[2], q0 = v0[3];
 
