@@ -45,7 +45,8 @@ class eos_delaunay
 		tree4d * tree_ptr, * midpoint_tree_ptr;
 
 		const double hbarc = 197.327;
-		const size_t nT = 155, nmub = 37, nmus = 37, nmuq = 37;
+		//const size_t nT = 155, nmub = 37, nmus = 37, nmuq = 37;
+		const size_t nT = 10, nmub = 37, nmus = 37, nmuq = 37;
 
 		double emin, emax, bmin, bmax, smin, smax, qmin, qmax;
 
