@@ -926,7 +926,8 @@ bool eos_delaunay::interpolate_NMNmode_v3(const vector<double> & v0, vector<doub
 			{
 				if (ii==0 && jj==0 && kk==0 && ll==0)
 					NMNvertex = vertexcount;	// identify NMN index below
-				vertices.push_back( grid[indexer( iTNMN+ii, imubNMN+jj, imuqNMN+kk, imusNMN+ll )] );
+				size_t local_index = indexer( iTNMN+ii, imubNMN+jj, imuqNMN+kk, imusNMN+ll );
+				vertices.push_back( unnormalized_grid[local_index] );
 				vertexcount++;
 			}
 		}
