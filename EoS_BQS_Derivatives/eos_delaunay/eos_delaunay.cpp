@@ -1103,10 +1103,10 @@ bool eos_delaunay::interpolate_NNmode(const vector<double> & v0, vector<double> 
 	double e0 = v0[0], b0 = v0[1], s0 = v0[2], q0 = v0[3];
 
 	// normalize first
-	const double ne0 = (normalize_grids) ? (e0 - emin) / (emax - emin) : e0;
-	const double nb0 = (normalize_grids) ? (b0 - bmin) / (bmax - bmin) : b0;
-	const double ns0 = (normalize_grids) ? (s0 - smin) / (smax - smin) : s0;
-	const double nq0 = (normalize_grids) ? (q0 - qmin) / (qmax - qmin) : q0;
+	const double ne0 = (e0 - emin) / (emax - emin);
+	const double nb0 = (b0 - bmin) / (bmax - bmin);
+	const double ns0 = (s0 - smin) / (smax - smin);
+	const double nq0 = (q0 - qmin) / (qmax - qmin);
 
 	vector<double> nv0 = {ne0, nb0, ns0, nq0};
 
