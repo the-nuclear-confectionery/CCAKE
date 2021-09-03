@@ -41,7 +41,7 @@ void funcvSN(int n,double x[],double f[]){
 	f[2] = ChDensTaylor(Tval,muBval,x[1],x[2]) - 0.4*BarDensTaylor(Tval,muBval,x[1],x[2]);
 } 
 
-double mapf(double x, double a, double b)
+/*double mapf(double x, double a, double b)
 {
 	return log(fabs((x-a)/(b-x)));
 }
@@ -56,7 +56,7 @@ void get_seed_points(double a, double b, int n, double result[])
 	for (int ii = 1; ii < n-1; ii+=1) result[ii] = mapf(a + (b-a)*ii/(n-1.0), a, b);
 	result[0] = mapf(a+1e-10, a, b);
 	result[n-1] = mapf(b-1e-10, a, b);
-}
+}*/
 
 /* The main body of the program. */
 int main(int argc, char *argv[])
@@ -188,7 +188,7 @@ int main(int argc, char *argv[])
 	chdir(buff);
   	
   	
-	int run_density_solver = 1;
+	/*int run_density_solver = 0;
 	if ( run_density_solver )
 	for (int irun = 0; irun <= 2; irun+=1)
 	{
@@ -322,6 +322,7 @@ int main(int argc, char *argv[])
 //		}
 	}
 	if ( run_density_solver ) exit(-1);
+*/
 
 	// DON'T CHANGE DIRECTORIES UNTIL EVERYTHING IS READ AND WRITTEN
   	/* Create folder for thermodynamic quantities. */
@@ -338,10 +339,10 @@ int main(int argc, char *argv[])
 	long long gridEntry  = 0;
 
 	// set T and mu_i ranges
-	const int Tmin = 30, Tmax = 800, DeltaT = 5;
-	const int muBmin = -450, muBmax = 450, DeltamuB = 25;
-	const int muQmin = -450, muQmax = 450, DeltamuQ = 25;
-	const int muSmin = -450, muSmax = 450, DeltamuS = 25;
+	const int Tmin = 30, Tmax = 200, DeltaT = 5;
+	const int muBmin = -450, muBmax = 450, DeltamuB = 10;
+	const int muQmin = -450, muQmax = 450, DeltamuQ = 10;
+	const int muSmin = -450, muSmax = 450, DeltamuS = 10;
 
 	// set HDF array lengths
 	for(i=Tmin;i<=Tmax;i+=DeltaT)
@@ -366,7 +367,7 @@ int main(int argc, char *argv[])
 //	double quantityArray[gridLength][gridWidth];
 //	double derivativeArray[gridLength][gridWidthD];
 
-	int use_staggered_grid = 1;	// for testing interpolation accuracy
+	int use_staggered_grid = 0;	// for testing interpolation accuracy
 	if (use_staggered_grid) printf("Running on staggered grid!\n");
 	
 	/* (Unconstrained) thermodynamics for all T, muB, muS, muQ. */  	

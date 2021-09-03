@@ -200,8 +200,8 @@ void eos_delaunay::interpolate(const vector<double> & v0, vector<double> & resul
 	if ( !interpolate_NMNmode(v0, result) )
 	if ( !interpolate_NMNmode_v2(v0, result) )
 	if ( !interpolate_NMNmode_v3(v0, result) )
-	if ( !interpolate_NMNmode_v2(v0, result, true) )
-		interpolate_NMNmode(v0, result);
+		interpolate_NMNmode_v2(v0, result, true);
+		//interpolate_NMNmode(v0, result);
 }
 
 // find containing simplex using nearest-midpoint-neighbor (NMN) method
