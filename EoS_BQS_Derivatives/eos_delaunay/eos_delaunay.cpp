@@ -16,7 +16,7 @@
 
 using namespace std;
 
-constexpr bool normalize_grids = true;
+constexpr bool normalize_grids = false;
 
 eos_delaunay::eos_delaunay(string EoS_table_file)
 {
