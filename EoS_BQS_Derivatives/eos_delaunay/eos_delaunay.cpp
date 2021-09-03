@@ -197,11 +197,11 @@ void eos_delaunay::get_min_and_max(vector<double> & v, double & minval, double &
 
 void eos_delaunay::interpolate(const vector<double> & v0, vector<double> & result)
 {
-	if ( !interpolate_NMNmode(v0, result) )
-		interpolate_NMNmode_v2(v0, result);
 //	if ( !interpolate_NMNmode(v0, result) )
-//	if ( !interpolate_NMNmode_v2(v0, result) )
-//		interpolate_NMNmode_v3(v0, result);
+//		interpolate_NMNmode_v2(v0, result);
+	if ( !interpolate_NMNmode(v0, result) )
+	if ( !interpolate_NMNmode_v2(v0, result) )
+		interpolate_NMNmode_v3(v0, result);
 	
 //	interpolate_NMNmode(v0, result);
 }
