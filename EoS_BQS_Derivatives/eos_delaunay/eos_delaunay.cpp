@@ -197,13 +197,10 @@ void eos_delaunay::get_min_and_max(vector<double> & v, double & minval, double &
 
 void eos_delaunay::interpolate(const vector<double> & v0, vector<double> & result)
 {
-//	if ( !interpolate_NMNmode(v0, result) )
-//		interpolate_NMNmode_v2(v0, result);
 	if ( !interpolate_NMNmode(v0, result) )
 	if ( !interpolate_NMNmode_v2(v0, result) )
-		interpolate_NMNmode_v3(v0, result);
-	
-//	interpolate_NMNmode(v0, result);
+	if ( !interpolate_NMNmode_v3(v0, result) )
+		interpolate_NMNmode_v2(v0, result, true);
 }
 
 // find containing simplex using nearest-midpoint-neighbor (NMN) method
@@ -455,7 +452,9 @@ bool eos_delaunay::interpolate_NMNmode(const vector<double> & v0, vector<double>
 }
 
 // find containing simplex using nearest-midpoint-neighbor (NMN) method
-bool eos_delaunay::interpolate_NMNmode_v2(const vector<double> & v0, vector<double> & result)
+bool eos_delaunay::interpolate_NMNmode_v2
+					const vector<double> & v0, vector<double> & result,
+					bool expand_hypercube )
 {
 	cout << "Trying mode v2!" << endl;
 	result.resize(4, 0.0);
@@ -545,9 +544,9 @@ bool eos_delaunay::interpolate_NMNmode_v2(const vector<double> & v0, vector<doub
 						vector<int>({iTNMN, imubNMN, imuqNMN, imusNMN}),
 						vertices, simplices, point_lambda_in_simplex, iclosestsimplex);
 
-/*
+
 	// if we STILL have not found the containing simplex...
-	if (!foundPoint)
+	if (expand_hypercube && !foundPoint)
 	for (int iTshift = -1; iTshift <= -1; ++iTshift)
 	for (int imubshift = -1; imubshift <= 1; ++imubshift)
 	for (int imuqshift = -1; imuqshift <= 1; ++imuqshift)
@@ -570,7 +569,7 @@ bool eos_delaunay::interpolate_NMNmode_v2(const vector<double> & v0, vector<doub
 	}
 
 	end:
-*/
+
 
 	// finally, use the output lambda coefficients to get the interpolated values
 	double T0 = 0.0, mub0 = 0.0, muq0 = 0.0, mus0 = 0.0;

@@ -31,7 +31,8 @@ class eos_delaunay
 
 		void interpolate(const vector<double> & v0, vector<double> & result);
 		bool interpolate_NMNmode(const vector<double> & v0, vector<double> & result);
-		bool interpolate_NMNmode_v2(const vector<double> & v0, vector<double> & result);
+		bool interpolate_NMNmode_v2(const vector<double> & v0, vector<double> & result,
+									bool expand_hypercube = false);
 		bool interpolate_NMNmode_v3(const vector<double> & v0, vector<double> & result);
 		bool triangulate_and_locate_point( const vector<double> & nv0, const vector<int> & base,
 					vector<vector<double> > & vertices, vector<vector<size_t> > & simplices,
