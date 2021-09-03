@@ -695,7 +695,7 @@ bool eos_delaunay::interpolate_NMNmode_v2(const vector<double> & v0, vector<doub
 	{
 		// point4d n not used; only need kdtree_nmn_index
 		point4d n = midpoint_tree_ptr->nearest({ne0, nb0, ns0, nq0}, kdtree_nmn_index);
-		size_t kdtree_nn_index = 0;
+		/*size_t kdtree_nn_index = 0;
 		point4d nn = tree_ptr->nearest({ne0, nb0, ns0, nq0}, kdtree_nn_index);
 		cout << "KD-Tree: original point is "
 				<< ne0 << "   " << nb0 << "   "
@@ -739,7 +739,7 @@ bool eos_delaunay::interpolate_NMNmode_v2(const vector<double> & v0, vector<doub
 					cout << "   " << elem;
 				cout << endl;
 			}
-		}
+		}*/
 	}
 	catch (const std::exception& e)
 	{
@@ -1030,12 +1030,12 @@ void eos_delaunay::refine_hypercube(vector<vector<double> > & hypercube)
 
 	iter_swap(middle.begin() + 2, middle.begin() + 3);
 
-	cout << "lowerCorner:";
-	for (auto e : lowerCorner) cout << "   " << e;
-        cout << endl << "upperCorner:";
-        for (auto e : upperCorner) cout << "   " << e;
-        cout << endl << "middle:";
-        for (auto e : middle) cout << "   " << e;
+//	cout << "lowerCorner:";
+//	for (auto e : lowerCorner) cout << "   " << e;
+//	cout << endl << "upperCorner:";
+//	for (auto e : upperCorner) cout << "   " << e;
+//	cout << endl << "middle:";
+//	for (auto e : middle) cout << "   " << e;
 
 	// just add midpoint for now	
 	double densities_arr[4];
@@ -1052,9 +1052,9 @@ void eos_delaunay::refine_hypercube(vector<vector<double> > & hypercube)
 
 	middle.insert( middle.end(), densities.begin(), densities.end() );
 
-        cout << endl << "middle:";
-        for (auto e : middle) cout << "   " << e;
-	cout << endl;
+//	cout << endl << "middle:";
+//	for (auto e : middle) cout << "   " << e;
+//	cout << endl;
 
 	hypercube.push_back( middle );
 
