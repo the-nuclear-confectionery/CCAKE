@@ -452,7 +452,7 @@ bool eos_delaunay::interpolate_NMNmode(const vector<double> & v0, vector<double>
 }
 
 // find containing simplex using nearest-midpoint-neighbor (NMN) method
-bool eos_delaunay::interpolate_NMNmode_v2
+bool eos_delaunay::interpolate_NMNmode_v2(
 					const vector<double> & v0, vector<double> & result,
 					bool expand_hypercube )
 {
