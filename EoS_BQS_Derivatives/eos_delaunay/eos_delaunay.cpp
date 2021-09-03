@@ -694,7 +694,7 @@ bool eos_delaunay::interpolate_NMNmode_v2(const vector<double> & v0, vector<doub
 	try
 	{
 		// point4d n not used; only need kdtree_nmn_index
-		point4d n = midpoint_tree_ptr->nearest({ne0, nb0, ns0, nq0}, kdtree_nmn_index);
+		point4d n = midpoint_tree_ptr->nearest({ne0, nb0, ns0, nq0}, kdtree_nmn_index, false);
 		/*size_t kdtree_nn_index = 0;
 		point4d nn = tree_ptr->nearest({ne0, nb0, ns0, nq0}, kdtree_nn_index);
 		cout << "KD-Tree: original point is "
