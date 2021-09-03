@@ -8,7 +8,7 @@
 
 using namespace std;
 
-constexpr double TOLERANCE = 1e-3;
+constexpr double TOLERANCE = 0.0;
 
 bool point_is_in_simplex( const vector<vector<double> > & v, const vector<double> & p, 
 							vector<double> & lambda, bool verbose )
