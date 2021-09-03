@@ -46,7 +46,7 @@ public:
     double distance(const point& pt) const {
         double dist = 0;
         for (size_t i = 0; i < dimensions; ++i) {
-            double d = (get(i)*pt.get(i)<=0.0)? 1e-10 : log(get(i)/pt.get(i));
+            double d = (get(i)*pt.get(i)<=1e-10)? 1e10 : log(std::abs(get(i)/pt.get(i)));
             dist += d * d;
         }
         return dist;
