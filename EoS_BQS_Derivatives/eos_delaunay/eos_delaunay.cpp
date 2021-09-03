@@ -106,7 +106,7 @@ eos_delaunay::eos_delaunay(string EoS_table_file)
 
 	// use this for log-distance-based NMN method
 	std::vector<std::array<double, 4> > midpoint_unnormalized_grid(midpoint_grid.size());
-	for ( vector<double> & midpoint : midpoint_grid )
+	for ( const std::array<double, 4> & midpoint : midpoint_grid )
 	{
 		midpoint_unnormalized_grid[0] = emin + (emax-emin)*midpoint[0];
 		midpoint_unnormalized_grid[1] = bmin + (bmax-bmin)*midpoint[1];
