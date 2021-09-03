@@ -100,6 +100,7 @@ int main(int argc, char *argv[])
 			for (const double & elem : result)
 				cout << "   " << elem;
 			cout << "\n";
+			if (true){ cout << endl; exit(-1); }
 		}
 	}
 
