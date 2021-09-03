@@ -35,10 +35,18 @@ public:
      * @param pt another point
      * @return distance squared from this point to the other point
      */
-    double distance(const point& pt) const {
+    /*double distance(const point& pt) const {
         double dist = 0;
         for (size_t i = 0; i < dimensions; ++i) {
             double d = get(i) - pt.get(i);
+            dist += d * d;
+        }
+        return dist;
+    }*/
+    double distance(const point& pt) const {
+        double dist = 0;
+        for (size_t i = 0; i < dimensions; ++i) {
+            double d = log(get(i)/pt.get(i));
             dist += d * d;
         }
         return dist;

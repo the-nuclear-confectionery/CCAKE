@@ -1,16 +1,18 @@
 # Set compiler and flags
-CC := g++
+CC := h5c++
 CFLAGS= -O3 -std=c++11 -g
 
 # Various directories and definitions
 RM          =   rm -f
 O           =   .o
-LDFLAGS     =   -L/usr/local/src/gsl/2.5/lib -L/projects/jnorhos/plumberg/qhull/lib \
-				-lgsl -lgslcblas -lm
-INCFLAGS    =   -I/usr/local/src/gsl/2.5/include \
-				-I/projects/jnorhos/plumberg/qhull/src
+LDFLAGS     =   -L/projects/jnorhos/plumberg/qhull/lib -lqhullcpp -lqhullstatic_r \
+		-L/projects/jnorhos/local/lib -lgsl -lgslcblas -lm \
+		-L`realpath ../lib` -lbsqeos
+INCFLAGS    =   -I/projects/jnorhos/plumberg/qhull/src \
+		-I/projects/jnorhos/local/include \
+		-I`realpath ../lib`
 SYSTEMFILES =   $(SRCGNU)
-OBJS		=	eos_delaunay.o interpolate_ebsq.o delaunay.o point_in_simplex.o
+OBJS	    =	eos_delaunay.o interpolate_ebsq.o delaunay.o point_in_simplex.o
 
 # -------------------------------------------------
 
@@ -20,10 +22,10 @@ INSTPATH	=	..
 # --------------- Pattern rules -------------------
 
 $(TARGET): $(OBJS)
-	$(CC) -g $(OBJS) -o interpolate_ebsq -fpic $(LDFLAGS) -lqhullcpp -lqhullstatic_r
+	$(CC) -g $(OBJS) -o interpolate_ebsq $(LDFLAGS)
 
 eos_delaunay.o: eos_delaunay.cpp eos_delaunay.h
-	$(CC) $(CFLAGS) -c eos_delaunay.cpp $(INCFLAGS) -fpic
+	$(CC) $(CFLAGS) $(INCFLAGS) -fpic -c eos_delaunay.cpp 
 
 delaunay.o: delaunay.cpp delaunay.h
 	$(CC) $(CFLAGS) -c delaunay.cpp $(INCFLAGS) -fpic

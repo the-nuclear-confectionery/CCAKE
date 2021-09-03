@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 
+#include <lib.h>
 #include "delaunay.h"
 #include "eos_delaunay.h"
 #include "kdtree.h"
@@ -691,17 +692,27 @@ bool eos_delaunay::interpolate_NMNmode_v2(const vector<double> & v0, vector<doub
 	{
 		// point4d n not used; only need kdtree_nmn_index
 		point4d n = midpoint_tree_ptr->nearest({ne0, nb0, ns0, nq0}, kdtree_nmn_index);
+		size_t kdtree_nn_index = 0;
+		point4d nn = tree_ptr->nearest({ne0, nb0, ns0, nq0}, kdtree_nn_index);
 		cout << "KD-Tree: original point is "
 				<< ne0 << "   " << nb0 << "   "
 				<< ns0 << "   " << nq0 << endl;
 		cout << "KD-Tree: NMN is " << n << endl;
+		cout << "KD-Tree: NN is " << nn << endl;
 		cout << "KD-Tree: NMN distance: " << midpoint_tree_ptr->distance() << endl;
+		cout << "KD-Tree: NN distance: " << tree_ptr->distance() << endl;
 		cout << "KD-Tree: NMN index is " << kdtree_nmn_index << endl;
+		cout << "KD-Tree: NN index is " << kdtree_nn_index << endl;
 		cout << "KD-Tree: (T,muB,muQ,muS) indices of NMN are: "
 			<< midpoint_inds[kdtree_nmn_index][0] << ", "
 			<< midpoint_inds[kdtree_nmn_index][1] << ", "
 			<< midpoint_inds[kdtree_nmn_index][2] << ", "
 			<< midpoint_inds[kdtree_nmn_index][3] << endl;
+		cout << "KD-Tree: (T,muB,muQ,muS) indices of NN are: "
+			<< Tinds[kdtree_nn_index] << ", "
+			<< mubinds[kdtree_nn_index] << ", "
+			<< muqinds[kdtree_nn_index] << ", "
+			<< musinds[kdtree_nn_index] << endl;
 		cout << "KD-Tree: vertices are:" << endl;
 		for (int ii = 0; ii <= 1; ii++)
 		for (int jj = 0; jj <= 1; jj++) // only need containing hypercube
@@ -856,6 +867,16 @@ bool eos_delaunay::triangulate_and_locate_point(
 		size_t nVertices = vertices.size();
 		if (nVertices < 6) return false;
 
+if (nVertices!=16)
+{
+	cout << "Not working with a true hypercube!  nVertices = " << nVertices << endl;
+}
+else
+{
+		refine_hypercube(vertices);	// just adds hypercube midpoint
+		nVertices++;
+}
+
 		verticesFlat.resize(4*nVertices);	// dim == 4
 		for (int ii = 0; ii < nVertices; ii++)
 		{
@@ -950,16 +971,17 @@ bool eos_delaunay::triangulate_and_locate_point(
 	// try closest simplex first; otherwise loop through all simplices
 	//vector<double> point_lambda_in_simplex(5, 0.0);	// dim + 1 == 5
 	point_lambda_in_simplex.resize(5, 0.0);	// dim + 1 == 5
-	bool foundPoint = point_is_in_simplex( simplexVertices, nv0, point_lambda_in_simplex, true );
+	bool foundPoint = point_is_in_simplex( simplexVertices, nv0, point_lambda_in_simplex, false );
 
-cout << "iclosestsimplex = " << iclosestsimplex << endl;
+//cout << "iclosestsimplex = " << iclosestsimplex << endl;
 
 	if (!foundPoint)        // loop over all simplices
 	{
 		int isimplex = 0;
 		for ( auto & simplex : simplices )
 		{
-cout << "isimplex = " << isimplex << endl;
+//cout << "isimplex = " << isimplex << endl;
+
 			if (check_simplices && !simplices_to_check[isimplex])
 			{
 				isimplex++;
@@ -973,7 +995,7 @@ cout << "isimplex = " << isimplex << endl;
 									vertices[vertex].end() ) );
 
 			// check if point is in simplex; if so, return lambda coefficients and break
-			if ( point_is_in_simplex( simplexVertices, nv0, point_lambda_in_simplex, true ) )
+			if ( point_is_in_simplex( simplexVertices, nv0, point_lambda_in_simplex, false ) )
 			{
 				iclosestsimplex = isimplex;     // probably rename this
 				foundPoint = true;
@@ -984,4 +1006,51 @@ cout << "isimplex = " << isimplex << endl;
 	}
 
 	return foundPoint;
+}
+
+void eos_delaunay::refine_hypercube(vector<vector<double> > & hypercube)
+{
+	// first element assumed to represent lower corner of hypercube;
+	// similarly for last element
+
+	vector<double> lowerCorner(hypercube.front().begin(), hypercube.front().begin()+4);
+	vector<double> upperCorner(hypercube.back().begin(), hypercube.back().begin()+4);
+	vector<double> middle;
+	std::transform( lowerCorner.begin(), lowerCorner.end(),
+			upperCorner.begin(), std::back_inserter(middle),
+			[](double x1, double x2) { return 0.5*(x1 + x2); });
+
+	//for (int i0 = 0; i0 < 2; i0++)
+	//for (int i1 = 0; i1 < 2; i1++)
+	//for (int i2 = 0; i2 < 2; i2++)
+	//for (int i3 = 0; i3 < 2; i3++)
+
+	iter_swap(middle.begin() + 2, middle.begin() + 3);
+
+	cout << "lowerCorner:";
+	for (auto e : lowerCorner) cout << "   " << e;
+        cout << endl << "upperCorner:";
+        for (auto e : upperCorner) cout << "   " << e;
+        cout << endl << "middle:";
+        for (auto e : middle) cout << "   " << e;
+
+	// just add midpoint for now	
+	double densities_arr[4];
+	get_densities(middle.data(), densities_arr);
+	vector<double> densities(densities_arr, densities_arr+4);
+
+	densities[0] = (densities[0] - emin)/(emax-emin);
+	densities[1] = (densities[1] - bmin)/(bmax-bmin);
+	densities[2] = (densities[2] - smin)/(smax-smin);
+	densities[3] = (densities[3] - qmin)/(qmax-qmin);
+
+	middle.insert( middle.end(), densities.begin(), densities.end() );
+
+        cout << endl << "middle:";
+        for (auto e : middle) cout << "   " << e;
+	cout << endl;
+
+	hypercube.push_back( middle );
+
+	return;
 }

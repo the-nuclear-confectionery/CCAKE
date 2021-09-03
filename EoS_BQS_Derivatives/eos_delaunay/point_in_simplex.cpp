@@ -39,7 +39,7 @@ if (verbose)
 	size_t ivertex = 0;
 	for ( auto & vertex : v )
 	{
-		cout << ivertex << ": ";
+		cout << ivertex << "(vertex.size() = " << vertex.size() << "): ";
 		for ( auto & coordinate : vertex )
 			cout << coordinate << "   ";
 		cout << endl;

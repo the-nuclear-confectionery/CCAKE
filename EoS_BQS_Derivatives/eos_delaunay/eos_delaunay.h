@@ -36,6 +36,7 @@ class eos_delaunay
 		bool triangulate_and_locate_point( const vector<double> & nv0, const vector<int> & base,
 					vector<vector<double> > & vertices, vector<vector<size_t> > & simplices,
 					vector<double> & point_lambda_in_simplex, int & iclosestsimplex );
+		void refine_hypercube(vector<vector<double> > & hypercube);
 
 	private:
 

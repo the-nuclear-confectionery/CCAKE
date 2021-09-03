@@ -8,6 +8,7 @@
 #include <iomanip>
 #include <string>
 
+#include <lib.h>
 #include "eos_delaunay.h"
 #include "Stopwatch.h"
 
@@ -22,6 +23,23 @@ int main(int argc, char *argv[])
 
 	constexpr bool timing_test_only = false;
 	Stopwatch sw;
+
+	/*if (!timing_test_only)
+	{
+		cout << "Testing interface to C library containing BSQ EoS" << endl;
+		printf("Starting!\n");
+	        initialize("../Coefficients_Parameters.dat");
+	
+	        double point[4] = {200.0, 50.0, 75.0, 100.0};
+	        double densities[4];
+	        get_densities(point, densities);
+	        printf("Found these densities: %lf %lf %lf %lf\n",
+	                densities[0], densities[1], densities[2], densities[3]);
+	
+	        printf("Finished!\n");
+		//if (true) exit(-1);
+	}*/
+
 	sw.Reset();
 	sw.Start();
 
@@ -30,15 +48,19 @@ int main(int argc, char *argv[])
 	string path_to_staggered_file = string(argv[2]);
 
 	// set up EoS object
+	initialize("../Coefficients_Parameters.dat");	// this is the C library that must be initialized be using
 	eos_delaunay EoS( path_to_file );
 
 	size_t cellCount = 0;
 
-
 	vector<double> result(4, 0.0);
+	sw.Reset();
+	sw.Start();
 	//EoS.interpolate({3405.08, -0.473819, -1.78269, -2.89511}, result);
-	//EoS.interpolate({1940.68, -0.284676, -1.0705, -1.5329}, result);
-	EoS.interpolate({973.563, -0.316059, 0.323859, 1.06384}, result);
+	EoS.interpolate({1940.68, -0.284676, -1.0705, -1.5329}, result);
+	//EoS.interpolate({973.563, -0.316059, 0.323859, 1.06384}, result);
+	sw.Stop();
+	cout << "Found the solution in " << sw.printTime() << " s." << endl;
 	for (const double & elem : result)
 				cout << "   " << elem;
 			cout << endl;
