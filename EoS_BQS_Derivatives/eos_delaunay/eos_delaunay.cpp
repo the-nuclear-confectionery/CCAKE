@@ -456,7 +456,7 @@ bool eos_delaunay::interpolate_NMNmode_v2(
 					const vector<double> & v0, vector<double> & result,
 					bool expand_hypercube )
 {
-	cout << "Trying mode v2!" << endl;
+//	cout << "Trying mode v2!" << endl;
 	result.resize(4, 0.0);
 	double e0 = v0[0], b0 = v0[1], s0 = v0[2], q0 = v0[3];
 
@@ -474,7 +474,7 @@ bool eos_delaunay::interpolate_NMNmode_v2(
 	{
 		// point4d n not used; only need kdtree_nmn_index
 		point4d n = midpoint_tree_ptr->nearest({ne0, nb0, ns0, nq0}, kdtree_nmn_index);
-		size_t kdtree_nn_index = 0;
+		/*size_t kdtree_nn_index = 0;
 		point4d nn = tree_ptr->nearest({ne0, nb0, ns0, nq0}, kdtree_nn_index);
 		cout << "KD-Tree: original point is "
 				<< ne0 << "   " << nb0 << "   "
@@ -518,7 +518,7 @@ bool eos_delaunay::interpolate_NMNmode_v2(
 					cout << "   " << elem;
 				cout << endl;
 			}
-		}
+		}*/
 	}
 	catch (const std::exception& e)
 	{
@@ -838,7 +838,7 @@ void eos_delaunay::refine_hypercube(vector<vector<double> > & hypercube)
 // find containing simplex using nearest-midpoint-neighbor (NMN) method
 bool eos_delaunay::interpolate_NMNmode_v3(const vector<double> & v0, vector<double> & result)
 {
-	cout << "Trying mode v3!" << endl;
+//	cout << "Trying mode v3!" << endl;
 	result.resize(4, 0.0);
 	double e0 = v0[0], b0 = v0[1], s0 = v0[2], q0 = v0[3];
 
@@ -857,7 +857,7 @@ bool eos_delaunay::interpolate_NMNmode_v3(const vector<double> & v0, vector<doub
 		// point4d n not used; only need kdtree_nmn_index
 		point4d n = unnormalized_midpoint_tree_ptr->nearest(
 					{ne0, nb0, ns0, nq0}, kdtree_nmn_index, false);	// false == log-distance mode
-		cout << "KD-Tree: original point is "
+		/*cout << "KD-Tree: original point is "
 				<< ne0 << "   " << nb0 << "   "
 				<< ns0 << "   " << nq0 << endl;
 		cout << "KD-Tree: NMN is " << n << endl;
@@ -892,7 +892,7 @@ bool eos_delaunay::interpolate_NMNmode_v3(const vector<double> & v0, vector<doub
 					cout << "   " << elem;
 				cout << endl;
 			}
-		}
+		}*/
 	}
 	catch (const std::exception& e)
 	{
