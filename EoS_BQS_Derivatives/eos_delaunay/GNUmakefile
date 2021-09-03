@@ -42,14 +42,14 @@ interpolate_ebsq.o: interpolate_ebsq.cpp eos_delaunay.h
 
 # -------------------------------------------------
 
-.PHONY:		all help distclean install
+.PHONY:		all help clean install
 
 all:		$(TARGET)
 
 help:
 		@grep '^##' GNUmakefile
 
-distclean:	
+clean:	
 		-rm $(TARGET) $(OBJS)
 
 install: $(TARGET)
