@@ -30,7 +30,6 @@ class eos_delaunay
 	    //void init(vector<vector<double> > & grid_in);
 
 		void interpolate(const vector<double> & v0, vector<double> & result);
-		bool interpolate_NNmode(const vector<double> & v0, vector<double> & result);
 		bool interpolate_NMNmode(const vector<double> & v0, vector<double> & result);
 		bool interpolate_NMNmode_v2(const vector<double> & v0, vector<double> & result);
 		bool triangulate_and_locate_point( const vector<double> & nv0, const vector<int> & base,
