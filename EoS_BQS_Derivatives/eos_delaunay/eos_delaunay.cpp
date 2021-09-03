@@ -933,8 +933,16 @@ bool eos_delaunay::interpolate_NMNmode_v3(const vector<double> & v0, vector<doub
 		}
 
 		size_t nVertices = vertices.size();
-
 		if (nVertices < 6) return false;	// just give up
+if (nVertices!=16)
+{
+	cout << "Not working with a true hypercube!  nVertices = " << nVertices << endl;
+}
+else
+{
+		refine_hypercube(vertices);	// just adds hypercube midpoint
+		nVertices++;
+}
 
 		// flatten as efficiently as possible
 		verticesFlat.resize(4*nVertices);	// dim == 4

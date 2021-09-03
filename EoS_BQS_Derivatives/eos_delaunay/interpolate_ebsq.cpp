@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
 	sw.Start();
 	//EoS.interpolate({3405.08, -0.473819, -1.78269, -2.89511}, result);
 	//EoS.interpolate({1940.68, -0.284676, -1.0705, -1.5329}, result);
-	EoS.interpolate({1152.45, -0.402379, 0.562341, 0.00269458}, result);
+	EoS.interpolate({1152.45, -0.402379, 0.562341, 0.00269458}, result);	// Exact: 152.5   -387.5   -37.5   212.5
 	//EoS.interpolate({973.563, -0.316059, 0.323859, 1.06384}, result);
 	sw.Stop();
 	cout << "Found the solution in " << sw.printTime() << " s." << endl;
