@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
 	sw.Start();
 	for (const vector<double> & staggered_cell : staggered_grid)
 	{
-		if ( staggered_cell[0] < 150.0 )	// MeV
+		if ( staggered_cell[0] < 150.0 || staggered_cell[0] > 200.0 )	// MeV
 			continue;
 		// interpolate the densities
 		EoS.interpolate(vector<double>(staggered_cell.begin()+4,staggered_cell.end()), result);
