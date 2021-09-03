@@ -475,7 +475,7 @@ bool eos_delaunay::interpolate_NMNmode_v2(const vector<double> & v0, vector<doub
 	{
 		// point4d n not used; only need kdtree_nmn_index
 		point4d n = midpoint_tree_ptr->nearest({ne0, nb0, ns0, nq0}, kdtree_nmn_index);
-		/*size_t kdtree_nn_index = 0;
+		size_t kdtree_nn_index = 0;
 		point4d nn = tree_ptr->nearest({ne0, nb0, ns0, nq0}, kdtree_nn_index);
 		cout << "KD-Tree: original point is "
 				<< ne0 << "   " << nb0 << "   "
@@ -519,7 +519,7 @@ bool eos_delaunay::interpolate_NMNmode_v2(const vector<double> & v0, vector<doub
 					cout << "   " << elem;
 				cout << endl;
 			}
-		}*/
+		}
 	}
 	catch (const std::exception& e)
 	{
@@ -858,14 +858,38 @@ bool eos_delaunay::interpolate_NMNmode_v3(const vector<double> & v0, vector<doub
 		// point4d n not used; only need kdtree_nmn_index
 		point4d n = unnormalized_midpoint_tree_ptr->nearest(
 					{ne0, nb0, ns0, nq0}, kdtree_nmn_index, false);	// false == log-distance mode
-//		cout << "KD-Tree: NMN is " << n << endl;
-//		cout << "KD-Tree: NMN distance: " << midpoint_tree_ptr->distance() << endl;
-//		cout << "KD-Tree: NMN index is " << kdtree_nmn_index << endl;
-//		cout << "KD-Tree: (T,muB,muQ,muS) indices of NMN are: "
-//			<< midpoint_inds[kdtree_nmn_index][0] << ", "
-//			<< midpoint_inds[kdtree_nmn_index][1] << ", "
-//			<< midpoint_inds[kdtree_nmn_index][2] << ", "
-//			<< midpoint_inds[kdtree_nmn_index][3] << endl;
+		cout << "KD-Tree: NMN is " << n << endl;
+		cout << "KD-Tree: NMN distance: " << midpoint_tree_ptr->distance() << endl;
+		cout << "KD-Tree: NMN index is " << kdtree_nmn_index << endl;
+		cout << "KD-Tree: (T,muB,muQ,muS) indices of NMN are: "
+			<< midpoint_inds[kdtree_nmn_index][0] << ", "
+			<< midpoint_inds[kdtree_nmn_index][1] << ", "
+			<< midpoint_inds[kdtree_nmn_index][2] << ", "
+			<< midpoint_inds[kdtree_nmn_index][3] << endl;
+		cout << "KD-Tree: vertices are:" << endl;
+		for (int ii = 0; ii <= 1; ii++)
+		for (int jj = 0; jj <= 1; jj++) // only need containing hypercube
+		for (int kk = 0; kk <= 1; kk++) // vertices for the NMN method
+		for (int ll = 0; ll <= 1; ll++)
+		{
+			if ( midpoint_inds[kdtree_nmn_index][0]+ii < nT
+				&& midpoint_inds[kdtree_nmn_index][0]+ii >= 0
+				&& midpoint_inds[kdtree_nmn_index][1]+jj < nmub
+				&& midpoint_inds[kdtree_nmn_index][1]+jj >= 0
+				&& midpoint_inds[kdtree_nmn_index][2]+kk < nmuq
+				&& midpoint_inds[kdtree_nmn_index][2]+kk >= 0
+				&& midpoint_inds[kdtree_nmn_index][3]+ll < nmus
+				&& midpoint_inds[kdtree_nmn_index][3]+ll >= 0 )
+			{
+				const auto & cell = grid[indexer( midpoint_inds[kdtree_nmn_index][0]+ii,
+								midpoint_inds[kdtree_nmn_index][1]+jj,
+								midpoint_inds[kdtree_nmn_index][2]+kk,
+								midpoint_inds[kdtree_nmn_index][3]+ll )];
+				for (const auto & elem : cell)
+					cout << "   " << elem;
+				cout << endl;
+			}
+		}
 	}
 	catch (const std::exception& e)
 	{
