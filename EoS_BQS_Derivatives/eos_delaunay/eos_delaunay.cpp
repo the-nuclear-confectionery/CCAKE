@@ -16,6 +16,8 @@
 
 using namespace std;
 
+constexpr bool normalize_grids = false;
+
 eos_delaunay::eos_delaunay(string EoS_table_file)
 {
 	Tinds.resize(nT*nmub*nmuq*nmus);
@@ -63,6 +65,7 @@ eos_delaunay::eos_delaunay(string EoS_table_file)
 	get_min_and_max(qvec, qmin, qmax, false);
 
 	// normalize grid points
+	if (normalize_grids)
 	for ( vector<double> & gridcell : grid )
 	{
 		gridcell[4] = (gridcell[4] - emin) / ( emax - emin );
@@ -201,10 +204,10 @@ bool eos_delaunay::interpolate_NNmode(const vector<double> & v0, vector<double> 
 	double e0 = v0[0], b0 = v0[1], s0 = v0[2], q0 = v0[3];
 
 	// normalize first
-	const double ne0 = (e0 - emin) / (emax - emin);
-	const double nb0 = (b0 - bmin) / (bmax - bmin);
-	const double ns0 = (s0 - smin) / (smax - smin);
-	const double nq0 = (q0 - qmin) / (qmax - qmin);
+	const double ne0 = (normalize_grids) ? (e0 - emin) / (emax - emin) : e0;
+	const double nb0 = (normalize_grids) ? (b0 - bmin) / (bmax - bmin) : b0;
+	const double ns0 = (normalize_grids) ? (s0 - smin) / (smax - smin) : s0;
+	const double nq0 = (normalize_grids) ? (q0 - qmin) / (qmax - qmin) : q0;
 
 	vector<double> nv0 = {ne0, nb0, ns0, nq0};
 
@@ -432,10 +435,10 @@ bool eos_delaunay::interpolate_NMNmode(const vector<double> & v0, vector<double>
 	double e0 = v0[0], b0 = v0[1], s0 = v0[2], q0 = v0[3];
 
 	// normalize first
-	const double ne0 = (e0 - emin) / (emax - emin);
-	const double nb0 = (b0 - bmin) / (bmax - bmin);
-	const double ns0 = (s0 - smin) / (smax - smin);
-	const double nq0 = (q0 - qmin) / (qmax - qmin);
+	const double ne0 = (normalize_grids) ? (e0 - emin) / (emax - emin) : e0;
+	const double nb0 = (normalize_grids) ? (b0 - bmin) / (bmax - bmin) : b0;
+	const double ns0 = (normalize_grids) ? (s0 - smin) / (smax - smin) : s0;
+	const double nq0 = (normalize_grids) ? (q0 - qmin) / (qmax - qmin) : q0;
 
 	vector<double> nv0 = {ne0, nb0, ns0, nq0};
 
@@ -679,10 +682,10 @@ bool eos_delaunay::interpolate_NMNmode_v2(const vector<double> & v0, vector<doub
 	double e0 = v0[0], b0 = v0[1], s0 = v0[2], q0 = v0[3];
 
 	// normalize first
-	const double ne0 = (e0 - emin) / (emax - emin);
-	const double nb0 = (b0 - bmin) / (bmax - bmin);
-	const double ns0 = (s0 - smin) / (smax - smin);
-	const double nq0 = (q0 - qmin) / (qmax - qmin);
+	const double ne0 = (normalize_grids) ? (e0 - emin) / (emax - emin) : e0;
+	const double nb0 = (normalize_grids) ? (b0 - bmin) / (bmax - bmin) : b0;
+	const double ns0 = (normalize_grids) ? (s0 - smin) / (smax - smin) : s0;
+	const double nq0 = (normalize_grids) ? (q0 - qmin) / (qmax - qmin) : q0;
 
 	vector<double> nv0 = {ne0, nb0, ns0, nq0};
 
@@ -1039,10 +1042,13 @@ void eos_delaunay::refine_hypercube(vector<vector<double> > & hypercube)
 	get_densities(middle.data(), densities_arr);
 	vector<double> densities(densities_arr, densities_arr+4);
 
-	densities[0] = (densities[0] - emin)/(emax-emin);
-	densities[1] = (densities[1] - bmin)/(bmax-bmin);
-	densities[2] = (densities[2] - smin)/(smax-smin);
-	densities[3] = (densities[3] - qmin)/(qmax-qmin);
+	if (normalize_grids)
+	{
+		densities[0] = (densities[0] - emin)/(emax-emin);
+		densities[1] = (densities[1] - bmin)/(bmax-bmin);
+		densities[2] = (densities[2] - smin)/(smax-smin);
+		densities[3] = (densities[3] - qmin)/(qmax-qmin);
+	}
 
 	middle.insert( middle.end(), densities.begin(), densities.end() );
 
