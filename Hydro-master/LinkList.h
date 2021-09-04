@@ -14,6 +14,9 @@
 #include <vector>
 #include "Stopwatch.h"
 
+// this contains functions for calling EoS directly
+#include <lib.h>
+
 //extern char ifolder [];
 
 template <int D>
@@ -2368,6 +2371,8 @@ void LinkList<D>::gubser(double h)
 template <int D>
 void LinkList<D>::updateIC()
 {
+	// set up EoS C library
+	initialize("/projects/jnorhos/BSQ/EoS_BQS_Derivatives/Coefficients_Parameters.dat");
 	Stopwatch sw;
 	long long failCounter = 0;
     for (int i=0; i<_n; i++)
@@ -2380,8 +2385,8 @@ void LinkList<D>::updateIC()
 //		<< "   " << _p[i].rhoS_an << "   " << _p[i].EOSS()
 //		<< "   " << _p[i].rhoQ_an << "   " << _p[i].EOSQ() << endl;
 			sw.Stop();
-			//cout << "SPH particle " << i << ", EOSs_out: completed in "
-			//		<< sw.printTime() << "s." << endl;
+			cout << "SPH particle " << i << ", EOSs_out: completed in "
+					<< sw.printTime() << "s." << endl;
 			sw.Reset();
 		}
 
@@ -2488,17 +2493,24 @@ cout << efcheck*0.197327 << "   " << sfcheck << "   "
 		{
 cout << "Success: " << _p[i].r.x[0] << "   " << _p[i].r.x[1] << "   "
 		<< _p[i].e_sub*0.197327 << "   " << _p[i].rhoB_an << "   "
-		<< _p[i].rhoS_an << "   " << _p[i].rhoQ_an
+		<< _p[i].rhoS_an << "   " << _p[i].rhoQ_an << "   "
 		<< _p[i].particle_T*197.327 << "   " << _p[i].particle_muB*197.327 << "   "
 		<< _p[i].particle_muS*197.327 << "   " << _p[i].particle_muQ*197.327 << endl;
 
+cout << "Double check:";
+double phase_diagram_point[4] = {_p[i].particle_T*197.327, _p[i].particle_muB*197.327, _p[i].particle_muS*197.327, _p[i].particle_muQ*197.327};
+double densities_at_point[4];
+get_densities(phase_diagram_point, densities_at_point);
+for (int iii = 0; iii < 4; iii++) cout << "   " << densities_at_point[iii];
+for (int iii = 0; iii < 4; iii++) cout << "   " << phase_diagram_point[iii];
+cout << endl;
 		}
 
 		sw.Start();
        _p[i].EOSupdate_s( _p[i].s_an, _p[i].rhoB_an, _p[i].rhoS_an, _p[i].rhoQ_an );
 		sw.Stop();
-		//cout << "SPH particle " << i << ", EOSupdate_s: completed in "
-		//		<< sw.printTime() << "s." << endl;
+		cout << "SPH particle " << i << ", EOSupdate_s: completed in "
+				<< sw.printTime() << "s." << endl;
 		sw.Reset();
 
         if (gtyp==5) _p[i].e_sub=_p[i].EOSe();
@@ -2525,7 +2537,7 @@ cout << "Success: " << _p[i].r.x[0] << "   " << _p[i].r.x[1] << "   "
 		_p[i].Q *= _p[i].gamma*t0;	// Q does not evolve in ideal case (confirm with Jaki)
     }
 
-if (false)
+if (true)
 {
 	cout << "Exiting prematurely from " << __PRETTY_FUNCTION__ << "::" << __LINE__ << "!" << endl;
 	cerr << "Exiting prematurely from " << __PRETTY_FUNCTION__ << "::" << __LINE__ << "!" << endl;

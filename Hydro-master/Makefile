@@ -12,8 +12,9 @@ SPLINTERPATH=$(realpath ../splinter/include)
 SPLINTERBUILDPATH=$(realpath ../splinter/build)
 GSLPATH=/projects/jnorhos/local/include
 GSLLIBPATH=/projects/jnorhos/local/lib
-CFLAGS = $(WARNINGS) $(OPTIMIZATION) -c -I$(EIGENPATH) -I$(SPLINTERPATH) -I$(GSLPATH) $(DEBUG) $(STANDARD)
-LDFLAGS = -lm -lgsl -lgslcblas -lblas -lstdc++ -L$(GSLLIBPATH) -L$(SPLINTERBUILDPATH) -lsplinter-3-0 $(DEBUG) $(STANDARD)
+EOSLIBPATH=$(realpath ../EoS_BQS_Derivatives/lib)
+CFLAGS = $(WARNINGS) $(OPTIMIZATION) -c -I$(EOSLIBPATH) -I$(EIGENPATH) -I$(SPLINTERPATH) -I$(GSLPATH) $(DEBUG) $(STANDARD)
+LDFLAGS = -L$(EOSLIBPATH) -lbsqeos -lm -lgsl -lgslcblas -lblas -lstdc++ -L$(GSLLIBPATH) -L$(SPLINTERBUILDPATH) -lsplinter-3-0 $(DEBUG) $(STANDARD)
 
 export HDF5_LDFLAGS+=$(LDFLAGS)
 export HDF5_LIBS+=-L$(SPLINTERBUILDPATH) -lsplinter-3-0
@@ -21,11 +22,11 @@ export HDF5_LIBS+=-L$(SPLINTERBUILDPATH) -lsplinter-3-0
 
 
 vusphydro : $(OBJS)
-	$(info [${LD_RUN_PATH}])
-	$(info [${LD_LIBRARY_PATH}])
-	$(info [${HDF5_LDFLAGS}])
-	$(info [${HDF5_LIBS}])
-	$(info [${HDF5_CXXFLAGS}])
+	#$(info [${LD_RUN_PATH}])
+	#$(info [${LD_LIBRARY_PATH}])
+	#$(info [${HDF5_LDFLAGS}])
+	#$(info [${HDF5_LIBS}])
+	#$(info [${HDF5_CXXFLAGS}])
 	$(CC) -g $(OBJS) -o vusphydro $(LDFLAGS)
 
 main.o: vector.h mathdef.h particle.h eos.h enteric.h LinkList.h random.h matrix.h hydrosim.h eostables.h read_in_hdf/read_in_hdf.h main.cpp

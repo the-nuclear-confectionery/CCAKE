@@ -29,12 +29,12 @@ class eos_delaunay
 	    //void init(string EoS_table_file);
 	    //void init(vector<vector<double> > & grid_in);
 
-		void interpolate(const vector<double> & v0, vector<double> & result);
-		bool interpolate_NNmode(const vector<double> & v0, vector<double> & result);
-		bool interpolate_NMNmode(const vector<double> & v0, vector<double> & result);
+		void interpolate(const vector<double> & v0, vector<double> & result, bool verbose = false);
+		bool interpolate_NNmode(const vector<double> & v0, vector<double> & result, bool verbose = false);
+		bool interpolate_NMNmode(const vector<double> & v0, vector<double> & result, bool verbose = false);
 		bool interpolate_NMNmode_v2(const vector<double> & v0, vector<double> & result,
-									bool expand_hypercube = false);
-		bool interpolate_NMNmode_v3(const vector<double> & v0, vector<double> & result);
+									bool expand_hypercube = false, bool verbose = false);
+		bool interpolate_NMNmode_v3(const vector<double> & v0, vector<double> & result, bool verbose = false);
 		bool triangulate_and_locate_point( const vector<double> & nv0, const vector<int> & base,
 					vector<vector<double> > & vertices, vector<vector<size_t> > & simplices,
 					vector<double> & point_lambda_in_simplex, int & iclosestsimplex );

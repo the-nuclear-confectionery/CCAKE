@@ -16,6 +16,9 @@
 #include <fstream>
 #include <string>
 
+// functions calls to static EoS C library
+#include <lib.h>
+
 using std::vector;
 using std::string;
 
@@ -36,6 +39,9 @@ eos::eos() : pSpline(4), entrSpline(4), bSpline(4), sSpline(4), qSpline(4), eSpl
 void eos::init(string quantityFile, string derivFile, int degree, bool using_HDF)
 {
 	VERBOSE = 5;
+
+	cout << "Initializing EoS C library" << endl;
+	initialize("/projects/jnorhos/BSQ/EoS_BQS_Derivatives/Coefficients_Parameters.dat");
 
 	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
 	if ( using_HDF )
@@ -1730,11 +1736,34 @@ int rootfinder_febqs(const gsl_vector *x, void *params, gsl_vector *f) {
     rhoBGiven = ((rootfinder_parameters*)params)->rhoBGiven;            //given variables contain the target point
     rhoQGiven = ((rootfinder_parameters*)params)->rhoQGiven;
     rhoSGiven = ((rootfinder_parameters*)params)->rhoSGiven;
+if(true)
+{
+	double phase_diagram_point[4] = {tbqsToEval(0)*197.327, tbqsToEval(1)*197.327,
+					 tbqsToEval(2)*197.327, tbqsToEval(3)*197.327};
+	double densities_at_point[4];
+	get_densities(phase_diagram_point, densities_at_point);
+	e = densities_at_point[0]/197.327;
+	rhoB = densities_at_point[1];
+	rhoS = densities_at_point[2];
+	rhoQ = densities_at_point[3];
+	/*cout << "Check here: " 
+		<< tbqsToEval(0)*197.327 << "   "
+		<< tbqsToEval(1)*197.327 << "   "
+		<< tbqsToEval(2)*197.327 << "   "
+		<< tbqsToEval(3)*197.327 << "   "
+		<< e*197.327 << "   " << eGiven*197.327 << "   "
+		<< rhoB << "   " << rhoBGiven << "   "
+		<< rhoS << "   " << rhoSGiven << "   "
+		<< rhoQ << "   " << rhoQGiven << endl;
+	*/
+}
+else
+{
     e = (((rootfinder_parameters*)params)->eorEntSpline).eval(tbqsToEval);    //e, rhoB, rhoQ, rhoS contain the current point
     rhoB = (((rootfinder_parameters*)params)->rhoBSpline).eval(tbqsToEval);
     rhoQ = (((rootfinder_parameters*)params)->rhoQSpline).eval(tbqsToEval);
     rhoS = (((rootfinder_parameters*)params)->rhoSSpline).eval(tbqsToEval);
-
+}
 
 
 
