@@ -2459,7 +2459,7 @@ void LinkList<D>::updateIC()
 			get_densities(phase_diagram_point, densities_at_point);
 			cout << "\t\t - phase diagram point:";
 			for (int iii = 0; iii < 4; iii++) cout << "   " << phase_diagram_point[iii];
-			cout << "\t\t - densities:";
+			cout << "\n\t\t - densities:";
 			for (int iii = 0; iii < 4; iii++) cout << "   " << densities_at_point[iii];
 			cout << endl;
 		}
