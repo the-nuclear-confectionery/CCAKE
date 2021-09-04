@@ -1736,7 +1736,7 @@ int rootfinder_febqs(const gsl_vector *x, void *params, gsl_vector *f) {
     rhoBGiven = ((rootfinder_parameters*)params)->rhoBGiven;            //given variables contain the target point
     rhoQGiven = ((rootfinder_parameters*)params)->rhoQGiven;
     rhoSGiven = ((rootfinder_parameters*)params)->rhoSGiven;
-if (false)
+if (true)
 {
 	double phase_diagram_point[4] = {tbqsToEval(0)*197.327, tbqsToEval(1)*197.327,
 					 tbqsToEval(2)*197.327, tbqsToEval(3)*197.327};
