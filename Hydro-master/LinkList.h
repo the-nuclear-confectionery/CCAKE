@@ -2375,29 +2375,22 @@ void LinkList<D>::updateIC()
 	initialize("/projects/jnorhos/BSQ/EoS_BQS_Derivatives/Coefficients_Parameters.dat");
 	Stopwatch sw;
 	long long failCounter = 0;
+	cout << "----------------------------------------"
+			"----------------------------------------" << endl;
+	cout << "----------------------------------------"
+			"----------------------------------------" << endl;
     for (int i=0; i<_n; i++)
     {
+		cout << "----------------------------------------"
+				"----------------------------------------" << endl;
         if (gtyp!=5)
 		{
 			sw.Start();
 			_p[i].s_an = _p[i].EOSs_out( _p[i].e_sub, _p[i].rhoB_an, _p[i].rhoS_an, _p[i].rhoQ_an );
-//cout << "CHECK EOS(1): " << _p[i].rhoB_an << "   " << _p[i].EOSB()
-//		<< "   " << _p[i].rhoS_an << "   " << _p[i].EOSS()
-//		<< "   " << _p[i].rhoQ_an << "   " << _p[i].EOSQ() << endl;
 			sw.Stop();
 			cout << "SPH particle " << i << ", EOSs_out: completed in "
 					<< sw.printTime() << "s." << endl;
-			sw.Reset();
 		}
-
-		/*cout << "SPH particles(2): "
-			<< i << "   "
-			<< _p[i].r.x[0] << "   " << _p[i].r.x[1] << "   "
-			<< _p[i].s_an << "   " << sfcheck << "   "
-			<< _p[i].e_sub << "   " << efcheck << "   " << _p[i].rhoB_an << "   "
-			<< _p[i].rhoS_an << "   " << _p[i].rhoQ_an << "   "
-			<< _p[i].sigmaweight << endl;*/
-
 
 		////////////////////////////////////////////////////////////////////////
 		// for now, if we failed to find a real entropy density for this
@@ -2406,13 +2399,14 @@ void LinkList<D>::updateIC()
 		if (_p[i].s_an < 0.0)
 		{
 
-////////////////////////////////////////////////////////
-// VERSION 4
-// if failed with charge densities, set them to zero and re-solve
-// guesstimate an answer if that fails too
-cout << "Error: " << _p[i].r.x[0] << "   " << _p[i].r.x[1] << "   "
-		<< _p[i].e_sub*0.197327 << "   " << _p[i].rhoB_an << "   "
-		<< _p[i].rhoS_an << "   " << _p[i].rhoQ_an << "   ";
+			////////////////////////////////////////////////////////
+			// if failed with charge densities, set them to zero and re-solve;
+			// if that fails too, guesstimate an answer
+			cout << "\t --> Densities not found in EoS table: "
+					<< _p[i].r.x[0] << "   " << _p[i].r.x[1] << "\n"
+					<< "\t\t - densities: "
+					<< _p[i].e_sub*197.327 << "   " << _p[i].rhoB_an << "   "
+					<< _p[i].rhoS_an << "   " << _p[i].rhoQ_an << "\n";
 
 			// set charge densities to zero and re-solve
 			_p[i].rhoB_an = 0.0;
@@ -2427,87 +2421,52 @@ cout << "Error: " << _p[i].r.x[0] << "   " << _p[i].r.x[1] << "   "
 			{
 				double scale_factor = std::min( 1.0, _p[i].e_sub / efcheck );
 	
-cout << 1 << "   " << efcheck*0.197327 << "   " << sfcheck << "   "
-		<< scale_factor << "   " << scale_factor * sfcheck << endl;
+				cout << "\t\t - scaling e to get s: "
+						<< efcheck*0.197327 << "   " << sfcheck << "   "
+						<< scale_factor << "   " << scale_factor * sfcheck << "\n";
 	
 				_p[i].s_an = scale_factor * sfcheck;
 			}
 			else	// if a solution was found
 			{
-cout << 2 << "   "
-		<< _p[i].particle_T*197.327 << "   " << _p[i].particle_muB*197.327 << "   "
-		<< _p[i].particle_muS*197.327 << "   " << _p[i].particle_muQ*197.327 << endl;
+				cout << "\t\t - phase diagram point: "
+						<< _p[i].particle_T*197.327 << "   " << _p[i].particle_muB*197.327 << "   "
+						<< _p[i].particle_muS*197.327 << "   " << _p[i].particle_muQ*197.327 << "\n";
 			}
 
 			// freeze this particle out!
 			_p[i].Freeze = 4;
 			number_part++;
-
-/*
-////////////////////////////////////////////////////////
-// VERSION 3
-// try to guesstimate the right entropy density but freeze it out, regardless
-// ignore other charge densities
-cout << "Error: " << _p[i].r.x[0] << "   " << _p[i].r.x[1] << "   "
-		<< _p[i].e_sub*0.197327 << "   " << _p[i].rhoB_an << "   "
-		<< _p[i].rhoS_an << "   " << _p[i].rhoQ_an << "   ";
-
-			double scale_factor = std::min( 1.0, _p[i].e_sub / efcheck );
-
-cout << efcheck*0.197327 << "   " << sfcheck << "   "
-		<< scale_factor << "   " << scale_factor * sfcheck << endl;
-
-			_p[i].s_an = scale_factor * sfcheck;
-			_p[i].rhoB_an = 0.0;
-			_p[i].rhoS_an = 0.0;
-			_p[i].rhoQ_an = 0.0;
-			_p[i].Freeze = 4;
-			number_part++;
-*/
-
-
-////////////////////////////////////////////////////////
-// VERSION 2
-/*
-			failCounter++;*/
-////////////////////////////////////////////////////////
-
-////////////////////////////////////////////////////////
-// VERSION 1
-			// N.B. - STILL NEED TO FIX HOW THIS IS HANDLED
-			// THIS VERSION ADDS ARTIFICIAL ENTROPY DENSITY
-			/*if ( true )
-			{
-				cerr << "EXITING: THIS SHOULDN'T BE A PROBLEM AFTER FIXING EOS!!!" << endl;
-				exit(-1);
-			}
-
-			_p[i].s_an = sfcheck;
-			_p[i].Freeze = 4;
-			number_part++;
-			//continue;
-			*/
-////////////////////////////////////////////////////////
+			////////////////////////////////////////////////////////
 		}
 		else
 		{
-cout << "Success: " << _p[i].r.x[0] << "   " << _p[i].r.x[1] << "   "
-		<< _p[i].e_sub*0.197327 << "   " << _p[i].rhoB_an << "   "
-		<< _p[i].rhoS_an << "   " << _p[i].rhoQ_an << "   "
-		<< _p[i].particle_T*197.327 << "   " << _p[i].particle_muB*197.327 << "   "
-		<< _p[i].particle_muS*197.327 << "   " << _p[i].particle_muQ*197.327 << endl;
-
-cout << "Double check:";
-double phase_diagram_point[4] = {_p[i].particle_T*197.327, _p[i].particle_muB*197.327, _p[i].particle_muS*197.327, _p[i].particle_muQ*197.327};
-double densities_at_point[4];
-get_densities(phase_diagram_point, densities_at_point);
-for (int iii = 0; iii < 4; iii++) cout << "   " << densities_at_point[iii];
-for (int iii = 0; iii < 4; iii++) cout << "   " << phase_diagram_point[iii];
-cout << endl;
+			cout << "\t --> Densities found in EoS table: "
+				<< _p[i].r.x[0] << "   " << _p[i].r.x[1] << "\n";
+			cout << "\t\t - phase diagram point: "
+					<< _p[i].particle_T*197.327 << "   " << _p[i].particle_muB*197.327 << "   "
+					<< _p[i].particle_muS*197.327 << "   " << _p[i].particle_muQ*197.327 << "\n";
+			cout << "\t\t - densities: "
+					<< _p[i].e_sub*197.327 << "   " << _p[i].rhoB_an << "   "
+					<< _p[i].rhoS_an << "   " << _p[i].rhoQ_an << "\n";
+			
+			cout << "\t --> Exact:";
+			double phase_diagram_point[4] = { _p[i].particle_T*197.327,
+											  _p[i].particle_muB*197.327,
+											  _p[i].particle_muS*197.327,
+											  _p[i].particle_muQ*197.327 };
+			double densities_at_point[4];
+			get_densities(phase_diagram_point, densities_at_point);
+			cout << "\t\t - phase diagram point:"
+			for (int iii = 0; iii < 4; iii++) cout << "   " << phase_diagram_point[iii];
+			cout << "\t\t - densities:"
+			for (int iii = 0; iii < 4; iii++) cout << "   " << densities_at_point[iii];
+			cout << endl;
 		}
 
+		sw.Reset();
 		sw.Start();
-       _p[i].EOSupdate_s( _p[i].s_an, _p[i].rhoB_an, _p[i].rhoS_an, _p[i].rhoQ_an );
+		_p[i].EOSupdate_s( _p[i].s_an, _p[i].rhoB_an, _p[i].rhoS_an, _p[i].rhoQ_an );
 		sw.Stop();
 		cout << "SPH particle " << i << ", EOSupdate_s: completed in "
 				<< sw.printTime() << "s." << endl;
@@ -2517,25 +2476,19 @@ cout << endl;
 
         _p[i].gamma=_p[i].gamcalc();
 
-/*cout << "Check sigmaweight(1): " << i << "   "
-		<< _p[i].sigmaweight << "   "
-		<< _p[i].s_an << "   "
-		<< _p[i].gamma << "   "
-		<< t0 << endl;*/
-
         _p[i].sigmaweight *= _p[i].s_an*_p[i].gamma*t0;	// sigmaweight is constant after this
         _p[i].rho_weight *= _p[i].gamma*t0;				// rho_weight is constant after this
-
-/*cout << "Check sigmaweight(2): " << i << "   "
-		<< _p[i].sigmaweight << "   "
-		<< _p[i].s_an << "   "
-		<< _p[i].gamma << "   "
-		<< t0 << endl;*/
 
 		_p[i].B *= _p[i].gamma*t0;	// B does not evolve in ideal case (confirm with Jaki)
 		_p[i].S *= _p[i].gamma*t0;	// S does not evolve in ideal case (confirm with Jaki)
 		_p[i].Q *= _p[i].gamma*t0;	// Q does not evolve in ideal case (confirm with Jaki)
     }
+	cout << "----------------------------------------"
+			"----------------------------------------" << endl;
+	cout << "----------------------------------------"
+			"----------------------------------------" << endl;
+	cout << "----------------------------------------"
+			"----------------------------------------" << endl;
 
 if (true)
 {

@@ -295,43 +295,17 @@ void Particle<D>::calc(double tin)
 template <int D>
 void Particle<D>::calcbsq(double tin)
 {
-
-    //gamma=gamcalcbsq();	//this is the same function as gamcalc
     gamma=gamcalc();
     v =(1/gamma)*u;
     double s_in2= eta/gamma/tin;
-    //double B_in2= rhoB/gamma/tin;
-    //double S_in2= rhoS/gamma/tin;
-    //double Q_in2= rhoQ/gamma/tin;
     qmom=((EOSe()+ EOSp())*gamma/sigma)*u;
-	double rhoB_in2 = B*sigma/sigmaweight;		//  is this correct?  (confirm with Jaki)
-	double rhoS_in2 = S*sigma/sigmaweight;		//  is this correct?  (confirm with Jaki)
-	double rhoQ_in2 = Q*sigma/sigmaweight;		//  is this correct?  (confirm with Jaki)
-	//double rhoB_in2 = B / (transverse_area*gamma*tin);	//N.B. - dx*dy constant for SPH!!!
-	//double rhoS_in2 = S / (transverse_area*gamma*tin);
-	//double rhoQ_in2 = Q / (transverse_area*gamma*tin);
+	double rhoB_in2 = B*sigma/sigmaweight;
+	double rhoS_in2 = S*sigma/sigmaweight;
+	double rhoQ_in2 = Q*sigma/sigmaweight;
 	rhoB_an = rhoB_in2;
 	rhoS_an = rhoS_in2;
 	rhoQ_an = rhoQ_in2;
-    /*string SUCCESSstring = 
-			( EOSupdate_s(s_in2, rhoB_in2, rhoS_in2, rhoQ_in2) ) ?
-			"Succeeded!" : "Failed!";
-
-	cout << "CHECK EOSupdate_s: " << SUCCESSstring << "   " << tin << "   "
-		<< s_in2 << "   " << rhoB_in2 << "   " << rhoS_in2 << "   " << rhoQ_in2 << "   "
-		<< EOS.s() << "   " << EOS.B() << "   " << EOS.S() << "   " << EOS.Q() << endl;*/
 	EOSupdate_s(s_in2, rhoB_in2, rhoS_in2, rhoQ_in2);
-
-/*cout << "CHECK " << __PRETTY_FUNCTION__ << "::" << __LINE__ << ": "
-		<< tin << "   " << r << "   " << v << "   " << s_in2 << "   "
-		<< rhoB_in2 << "   " << rhoS_in2 << "   " << rhoQ_in2 << "   "
-		<< B << "   " << S << "   " << Q << "   "
-		<< sigma << "   " << sigmaweight << endl;
-cout << "CHECK DENSITIES: " << tin << "   " << r << "   " << gamma << "   " << transverse_area
-		<< "   " << B << "   " << S << "   " << Q << "   "
-		<< rhoB_in2 << "   " << rhoS_in2 << "   " << rhoQ_in2 << endl;*/
-
-
 }
 
 template <int D>
@@ -869,7 +843,7 @@ void Particle<D>::EOSupdate_s(double s_In, double rhoB_In, double rhoS_In, doubl
 {
 	EOS.tbqs( particle_T, particle_muB, particle_muQ, particle_muS );
 	bool update_s_success = EOS.update_s( s_In, rhoB_In, rhoS_In, rhoQ_In );
-	string SUCCESS_STRING = ( update_s_success ) ? "PASS" : "FAIL";
+	/*string SUCCESS_STRING = ( update_s_success ) ? "PASS" : "FAIL";
 cout << "CHECK EOSupdate_s: " << SUCCESS_STRING << ": "
 		<< "   " << s_In << "   " << EOS.s()
 		<< "   " << rhoB_In << "   " << EOS.B()
@@ -877,7 +851,7 @@ cout << "CHECK EOSupdate_s: " << SUCCESS_STRING << ": "
 		<< "   " << rhoQ_In << "   " << EOS.Q() 
 		<< "   " << particle_T << "   " << particle_muB
 		<< "   " << particle_muS << "   " << particle_muQ
-		<< endl;
+		<< endl;*/
 	particle_T = EOS.T();
 	particle_muB = EOS.muB();
 	particle_muS = EOS.muS();
