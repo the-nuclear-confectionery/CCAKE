@@ -2450,7 +2450,7 @@ void LinkList<D>::updateIC()
 					<< _p[i].e_sub*197.327 << "   " << _p[i].rhoB_an << "   "
 					<< _p[i].rhoS_an << "   " << _p[i].rhoQ_an << "\n";
 			
-			cout << "\t --> Exact:";
+			cout << "\t --> Exact:\n";
 			double phase_diagram_point[4] = { _p[i].particle_T*197.327,
 											  _p[i].particle_muB*197.327,
 											  _p[i].particle_muS*197.327,
