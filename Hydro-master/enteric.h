@@ -318,7 +318,7 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
 		    std::cout << "Using BSQ Equation of State table from: "
 					<< quantityFile << " and " << derivativeFile << "\n";
 
-			EOS0.init( quantityFile, derivativeFile, 1, using_HDF );
+			EOS0.init( quantityFile, derivativeFile, 1 );
 		}
 		else
 		{
@@ -331,7 +331,7 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
 		    std::cout << "Using BSQ Equation of State table from: "
 					<< quantityFile << " and " << derivativeFile << "\n";
 
-			EOS0.init( quantityFile, derivativeFile, 1, using_HDF );
+			EOS0.init( quantityFile, derivativeFile, 1 );
 		}
 	    EOS0.eosin(eostype);			// does nothing!
 		const double freeze_out_T_at_mu_eq_0 = 0.15/0.197327;	//1/fm

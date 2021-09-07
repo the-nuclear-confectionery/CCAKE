@@ -9,6 +9,8 @@
 #include <fstream>
 #include <string>
 
+#include "eos_delaunay/eos_delaunay.h"
+
 using std::string;
 
 using namespace SPLINTER;
