@@ -2383,7 +2383,9 @@ void LinkList<D>::updateIC()
     {
 		cout << "----------------------------------------"
 				"----------------------------------------" << endl;
-        if (gtyp!=5)
+
+//		_p[i].s_an = -1.0;
+        if (/*_p[i].e_sub > 0.5*efcheck &&*/ gtyp!=5)
 		{
 			sw.Start();
 			_p[i].s_an = _p[i].EOSs_out( _p[i].e_sub, _p[i].rhoB_an, _p[i].rhoS_an, _p[i].rhoQ_an );
