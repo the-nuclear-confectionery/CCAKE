@@ -39,7 +39,7 @@ eos_delaunay::eos_delaunay(string EoS_table_file, int e_or_s)
 	init(EoS_table_file, e_or_s);
 }
 
-void eos_delaunay::init(string EoS_table_file, e_or_s)
+void eos_delaunay::init(string EoS_table_file, int e_or_s)
 {
 	Tinds.resize(nT*nmub*nmuq*nmus);
 	mubinds.resize(nT*nmub*nmuq*nmus);
