@@ -966,6 +966,101 @@ bool eos::update_s(double sin, double Bin, double Sin, double Qin) { //update th
     double mub0 = tbqsPosition(1);
     double muq0 = tbqsPosition(2);
     double mus0 = tbqsPosition(3);
+    double t10 = t0*.2;
+    double muB10 = mub0*.2;
+    double muQ10 = muq0*.2;
+    double muS10 = mus0*.2;
+
+    //perturb T
+    if(t0 + t10 > maxT) {
+        tbqs(maxT - 1, mub0, muq0, mus0);
+    } else {
+        tbqs(t0 + t10, mub0, muq0, mus0);
+    }
+    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+        return true;
+    }
+    if(t0 - t10 < minT) {
+        tbqs(minT + 1, mub0, muq0, mus0);
+    } else {
+        tbqs(t0 - t10, mub0, muq0, mus0);
+    }
+    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+        return true;
+    }
+
+    //perturb mub
+    if(mub0 + muB10 > maxMuB) {
+        tbqs(t0, maxMuB - 1, muq0, mus0);
+    } else {
+        tbqs(t0, mub0 + muB10, muq0, mus0);
+    }
+    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+        return true;
+    }
+    if(mub0 - muB10 < minMuB) {
+        tbqs(t0, minMuB + 1, muq0, mus0);
+    } else {
+        tbqs(t0, mub0 - muB10, muq0, mus0);
+    }
+    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+        return true;
+    }
+
+    //perturn muq
+    if(muq0 + muQ10 > maxMuQ) {
+        tbqs(t0, mub0, maxMuQ - 1, mus0);
+    } else {
+        tbqs(t0, mub0, muq0 + muQ10, mus0);
+    }
+    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+        return true;
+    }
+    if(muq0 - muQ10 < minMuQ) {
+        tbqs(t0, mub0, minMuQ + 1, mus0);
+    } else {
+        tbqs(t0, mub0, muq0 - muQ10, mus0);
+    }
+    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+        return true;
+    }
+
+    //perturb mus
+    if(mus0 + muS10 > maxMuS) {
+        tbqs(t0, mub0, muq0, maxMuS - 1);
+    } else {
+        tbqs(t0, mub0, muq0, mus0 + muS10);
+    }
+    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+        return true;
+    }
+    if(mus0 - muS10 < maxMuS) {
+        tbqs(t0, mub0, muq0, minMuS + 1);
+    } else {
+        tbqs(t0, mub0, muq0, mus0 - muS10);
+    }
+    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+        return true;
+    }
+
+    //check mu = 0
+    tbqs(t0, 0, 0, 0);
+    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+        return true;
+    }
+
+    tbqs(t0, mub0, muq0, mus0);
+    return false;
+}
+
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+    if (rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+        return true;
+    }
+    double t0 = tbqsPosition(0);
+    double mub0 = tbqsPosition(1);
+    double muq0 = tbqsPosition(2);
+    double mus0 = tbqsPosition(3);
     
 
     //check mu = 0
@@ -993,7 +1088,85 @@ double eos::s_out(double ein, double Bin, double Sin, double Qin) {   //update t
     double mub0 = tbqsPosition(1);
     double muq0 = tbqsPosition(2);
     double mus0 = tbqsPosition(3);
-    
+    double t10 = t0*.2;
+    double muB10 = mub0*.2;
+    double muQ10 = muq0*.2;
+    double muS10 = mus0*.2;
+
+    //perturb T
+    if(t0 + t10 > maxT) {
+        tbqs(maxT - 1, mub0, muq0, mus0);
+    } else {
+        tbqs(t0 + t10, mub0, muq0, mus0);
+    }
+    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+        return entrVal;
+    }
+    if(t0 - t10 < minT) {
+        tbqs(minT + 1, mub0, muq0, mus0);
+    } else {
+        tbqs(t0 - t10, mub0, muq0, mus0);
+    }
+    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+        return entrVal;
+    }
+
+    //perturb mub
+    if(mub0 + muB10 > maxMuB) {
+        tbqs(t0, maxMuB - 1, muq0, mus0);
+    } else {
+        tbqs(t0, mub0 + muB10, muq0, mus0);
+    }
+    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+        return entrVal;
+    }
+    if(mub0 - muB10 < minMuB) {
+        tbqs(t0, minMuB + 1, muq0, mus0);
+    } else {
+        tbqs(t0, mub0 - muB10, muq0, mus0);
+    }
+    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+        return entrVal;
+    }
+
+    //perturn muq
+    if(muq0 + muQ10 > maxMuQ) {
+        tbqs(t0, mub0, maxMuQ - 1, mus0);
+    } else {
+        tbqs(t0, mub0, muq0 + muQ10, mus0);
+    }
+    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+        return entrVal;
+    }
+    if(muq0 - muQ10 < minMuQ) {
+        tbqs(t0, mub0, minMuQ + 1, mus0);
+    } else {
+        tbqs(t0, mub0, muq0 - muQ10, mus0);
+    }
+    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+        return entrVal;
+    }
+
+    //perturb mus
+    if(mus0 + muS10 > maxMuS) {
+        tbqs(t0, mub0, muq0, maxMuS - 1);
+    } else {
+        tbqs(t0, mub0, muq0, mus0 + muS10);
+    }
+    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+        return entrVal;
+    }
+    if(mus0 - muS10 < maxMuS) {
+
+
+        tbqs(t0, mub0, muq0, minMuS + 1);
+    } else {
+        tbqs(t0, mub0, muq0, mus0 - muS10);
+    }
+    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+        return entrVal;
+    }
+
     //check mu = 0
     tbqs(t0, 0, 0, 0);
     if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
@@ -1003,6 +1176,7 @@ double eos::s_out(double ein, double Bin, double Sin, double Qin) {   //update t
     tbqs(t0, mub0, muq0, mus0);
     return -1;
 }
+
 
 double eos::s_terms_T(double Tt) { //return entropy at a given temperature for muB = muS = muQ = 0
 	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
@@ -1177,10 +1351,17 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
 
 	// Try the Delaunay interpolator first
 	vector<double> result(4, 0.0);
+	bool success = false;
 	if ( e_or_s_mode==0 )
-		e_delaunay.interpolate({e_or_s_Given, rhoBGiven, rhoSGiven, rhoQGiven}, result, true);
+		success = e_delaunay.interpolate({e_or_s_Given, rhoBGiven, rhoSGiven, rhoQGiven}, result, true);
 	else
-		entr_delaunay.interpolate({e_or_s_Given, rhoBGiven, rhoSGiven, rhoQGiven}, result, true);
+		success = entr_delaunay.interpolate({e_or_s_Given, rhoBGiven, rhoSGiven, rhoQGiven}, result, true);
+
+	if ( success )
+	{
+		tbqs( result[0], result[1], result[2], result[3]);    //set T, muB, muQ, muS
+		return true;
+	}
 
     //declare x = (T, muB, muS)
     gsl_vector *x = gsl_vector_alloc(4);

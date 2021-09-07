@@ -26,7 +26,7 @@ class eos_delaunay
 	    eos_delaunay();
 		void init(string EoS_table_file, int e_or_s);
 
-		void interpolate(const vector<double> & v0, vector<double> & result, bool verbose = false);
+		bool interpolate(const vector<double> & v0, vector<double> & result, bool verbose = false);
 		bool interpolate_NNmode(const vector<double> & v0, vector<double> & result, bool verbose = false);
 		bool interpolate_NMNmode(const vector<double> & v0, vector<double> & result, bool verbose = false);
 		bool interpolate_NMNmode_v2(const vector<double> & v0, vector<double> & result,
