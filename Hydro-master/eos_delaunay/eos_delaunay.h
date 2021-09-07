@@ -44,18 +44,22 @@ class eos_delaunay
 
 		tree4d * tree_ptr, * midpoint_tree_ptr, * unnormalized_midpoint_tree_ptr;
 
+		static const double hbarc;
+		//const size_t nT = 155, nmub = 37, nmus = 37, nmuq = 37;
+		static const size_t nT, nmub, nmus, nmuq;
+
 		double emin, emax, bmin, bmax, smin, smax, qmin, qmax;
 
 		vector<vector<double> > grid, unnormalized_grid;
 		vector<int> Tinds, mubinds, muqinds, musinds;
 		vector<vector<size_t> > midpoint_inds;
 		
-		/*inline size_t indexer( const int iT, const int imub, const int imuq, const int imus )
+		inline size_t indexer( const int iT, const int imub, const int imuq, const int imus )
 		{
 			// mus varies faster than muq!!!!!
 			return ( ( ( iT * nmub + imub ) * nmuq + imuq ) * nmus + imus );
-		}*/
-		size_t indexer( const int iT, const int imub, const int imuq, const int imus );
+		}
+//		size_t indexer( const int iT, const int imub, const int imuq, const int imus );
 
 		
 		inline double d2( const vector<double> & a, const vector<double> & b )
