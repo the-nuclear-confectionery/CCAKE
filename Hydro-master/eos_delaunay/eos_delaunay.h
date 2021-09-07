@@ -17,6 +17,14 @@
 
 using namespace std;
 
+const double eos_delaunay::hbarc = 197.327;
+//const size_t nT = 155, nmub = 37, nmus = 37, nmuq = 37;
+const size_t eos_delaunay::nT = 241,
+			eos_delaunay::nmub = 19,
+			eos_delaunay::nmus = 19,
+			eos_delaunay::nmuq = 19;
+
+
 class eos_delaunay
 {
 	public:
@@ -43,10 +51,6 @@ class eos_delaunay
 		typedef kdtree<double, 4> tree4d;
 
 		tree4d * tree_ptr, * midpoint_tree_ptr, * unnormalized_midpoint_tree_ptr;
-
-		const double hbarc = 197.327;
-		//const size_t nT = 155, nmub = 37, nmus = 37, nmuq = 37;
-		const size_t nT = 241, nmub = 19, nmus = 19, nmuq = 19;
 
 		double emin, emax, bmin, bmax, smin, smax, qmin, qmax;
 
