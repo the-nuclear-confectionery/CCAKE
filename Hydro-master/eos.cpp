@@ -1053,25 +1053,7 @@ bool eos::update_s(double sin, double Bin, double Sin, double Qin) { //update th
     return false;
 }
 
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
-    if (rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
-        return true;
-    }
-    double t0 = tbqsPosition(0);
-    double mub0 = tbqsPosition(1);
-    double muq0 = tbqsPosition(2);
-    double mus0 = tbqsPosition(3);
-    
 
-    //check mu = 0
-    tbqs(t0, 0, 0, 0);
-    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
-        return true;
-    }
-
-    tbqs(t0, mub0, muq0, mus0);
-    return false;
-}
 
 double eos::s_out(double ein) {   //update the t position (mu=0) based on input. Returns entropy if found, returns -1 if failed
 	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
