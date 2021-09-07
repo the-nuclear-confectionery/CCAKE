@@ -17,14 +17,6 @@
 
 using namespace std;
 
-const double eos_delaunay::hbarc = 197.327;
-//const size_t nT = 155, nmub = 37, nmus = 37, nmuq = 37;
-const size_t eos_delaunay::nT = 241,
-			eos_delaunay::nmub = 19,
-			eos_delaunay::nmus = 19,
-			eos_delaunay::nmuq = 19;
-
-
 class eos_delaunay
 {
 	public:
