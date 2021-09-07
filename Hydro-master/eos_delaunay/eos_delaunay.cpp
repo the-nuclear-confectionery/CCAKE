@@ -23,6 +23,12 @@ const size_t eos_delaunay::nT = 241,
 			eos_delaunay::nmus = 19,
 			eos_delaunay::nmuq = 19;
 
+size_t eos_delaunay::indexer( const int iT, const int imub, const int imuq, const int imus )
+{
+	// mus varies faster than muq!!!!!
+	return ( ( ( iT * nmub + imub ) * nmuq + imuq ) * nmus + imus );
+}	
+
 
 //default constructor. This function exists to satisfy the compiler
 //This function should never be called unless init is called directly afterward

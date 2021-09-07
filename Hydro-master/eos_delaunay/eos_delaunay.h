@@ -50,11 +50,13 @@ class eos_delaunay
 		vector<int> Tinds, mubinds, muqinds, musinds;
 		vector<vector<size_t> > midpoint_inds;
 		
-		inline size_t indexer( const int iT, const int imub, const int imuq, const int imus )
+		/*inline size_t indexer( const int iT, const int imub, const int imuq, const int imus )
 		{
 			// mus varies faster than muq!!!!!
 			return ( ( ( iT * nmub + imub ) * nmuq + imuq ) * nmus + imus );
-		}		
+		}*/
+		size_t indexer( const int iT, const int imub, const int imuq, const int imus );
+
 		
 		inline double d2( const vector<double> & a, const vector<double> & b )
 		{
