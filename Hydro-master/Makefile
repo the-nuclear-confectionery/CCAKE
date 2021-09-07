@@ -17,7 +17,7 @@ GSLPATH=/projects/jnorhos/local/include
 GSLLIBPATH=/projects/jnorhos/local/lib
 EOSLIBPATH=$(realpath ../EoS_BQS_Derivatives/lib)
 CFLAGS = $(WARNINGS) $(OPTIMIZATION) -c -I$(EOSLIBPATH) -I$(EIGENPATH) \
-        -I$(SPLINTERPATH)-I$(GSLPATH) $(DEBUG) $(STANDARD)
+        -I$(SPLINTERPATH)-I$(GSLPATH) $(DEBUG) $(STANDARD) -I$(QHULLSRCPATH)
 LDFLAGS = -L$(EOSLIBPATH) -lbsqeos -lm -lgsl -lgslcblas -lblas -lstdc++ \
           -L$(GSLLIBPATH) -L$(SPLINTERBUILDPATH) -lsplinter-3-0 $(DEBUG) \
 		  -L$(QHULLLIBPATH) -lqhullcpp -lqhullstatic_r $(STANDARD)
