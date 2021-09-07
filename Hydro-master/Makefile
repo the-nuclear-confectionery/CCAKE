@@ -1,4 +1,5 @@
-OBJS = main.o vector.o hydrosim.o newspline.o random.o eos.o matrix.o enteric.o
+OBJS = main.o vector.o hydrosim.o newspline.o random.o eos.o matrix.o \
+       enteric.o eos_delaunay.o delaunay.o point_in_simplex.o
 #CC = g++
 CC = h5c++
 DEBUG = -g
@@ -10,11 +11,16 @@ OPTIMIZATION= -Og
 EIGENPATH=$(realpath ../eigen)
 SPLINTERPATH=$(realpath ../splinter/include)
 SPLINTERBUILDPATH=$(realpath ../splinter/build)
+QHULLSRCPATH=/projects/jnorhos/plumberg/qhull/src
+QHULLLIBPATH=/projects/jnorhos/plumberg/qhull/lib
 GSLPATH=/projects/jnorhos/local/include
 GSLLIBPATH=/projects/jnorhos/local/lib
 EOSLIBPATH=$(realpath ../EoS_BQS_Derivatives/lib)
-CFLAGS = $(WARNINGS) $(OPTIMIZATION) -c -I$(EOSLIBPATH) -I$(EIGENPATH) -I$(SPLINTERPATH) -I$(GSLPATH) $(DEBUG) $(STANDARD)
-LDFLAGS = -L$(EOSLIBPATH) -lbsqeos -lm -lgsl -lgslcblas -lblas -lstdc++ -L$(GSLLIBPATH) -L$(SPLINTERBUILDPATH) -lsplinter-3-0 $(DEBUG) $(STANDARD)
+CFLAGS = $(WARNINGS) $(OPTIMIZATION) -c -I$(EOSLIBPATH) -I$(EIGENPATH) \
+        -I$(SPLINTERPATH)-I$(GSLPATH) $(DEBUG) $(STANDARD)
+LDFLAGS = -L$(EOSLIBPATH) -lbsqeos -lm -lgsl -lgslcblas -lblas -lstdc++ \
+          -L$(GSLLIBPATH) -L$(SPLINTERBUILDPATH) -lsplinter-3-0 $(DEBUG) \
+		  -L$(QHULLLIBPATH) -lqhullcpp -lqhullstatic_r $(STANDARD)
 
 export HDF5_LDFLAGS+=$(LDFLAGS)
 export HDF5_LIBS+=-L$(SPLINTERBUILDPATH) -lsplinter-3-0
@@ -53,7 +59,16 @@ random.o: random.cpp random.h
 enteric.o:  vector.h particle.h eos.h tables.h enteric.h LinkList.h matrix.h eostables.h enteric.cpp
 	$(CC) $(CFLAGS) enteric.cpp
 
+eos_delaunay.o: eos_delaunay/eos_delaunay.cpp eos_delaunay/eos_delaunay.h
+	$(CC) $(CFLAGS) $(INCFLAGS) -fpic -c eos_delaunay/eos_delaunay.cpp 
 
+delaunay.o: eos_delaunay/delaunay.cpp eos_delaunay/delaunay.h
+	$(CC) $(CFLAGS) -c eos_delaunay/delaunay.cpp $(INCFLAGS) -fpic
+
+point_in_simplex.o: eos_delaunay/point_in_simplex.cpp eos_delaunay/point_in_simplex.h
+	$(CC) $(CFLAGS) -c eos_delaunay/point_in_simplex.cpp $(INCFLAGS) -fpic
+	
+	
 
 # deletes all .o files in case of error in makefile.  This should not be something needed regularly, only if you are updating the code and run into an error.
 clean:

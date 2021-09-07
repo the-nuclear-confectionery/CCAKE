@@ -21,13 +21,10 @@ class eos_delaunay
 {
 	public:
 
-		eos_delaunay(string EoS_table_file);
-		//eos_delaunay(vector<vector<double> > & grid_in);
-
-	    //eos_delaunay();
-
-	    //void init(string EoS_table_file);
-	    //void init(vector<vector<double> > & grid_in);
+		// constructors and initialization routines
+		eos_delaunay(string EoS_table_file, int e_or_s);
+	    eos_delaunay();
+		void init(string EoS_table_file, int e_or_s);
 
 		void interpolate(const vector<double> & v0, vector<double> & result, bool verbose = false);
 		bool interpolate_NNmode(const vector<double> & v0, vector<double> & result, bool verbose = false);
@@ -48,7 +45,8 @@ class eos_delaunay
 		tree4d * tree_ptr, * midpoint_tree_ptr, * unnormalized_midpoint_tree_ptr;
 
 		const double hbarc = 197.327;
-		const size_t nT = 155, nmub = 37, nmus = 37, nmuq = 37;
+		//const size_t nT = 155, nmub = 37, nmus = 37, nmuq = 37;
+		const size_t nT = 241, nmub = 19, nmus = 19, nmuq = 19;
 
 		double emin, emax, bmin, bmax, smin, smax, qmin, qmax;
 
@@ -62,12 +60,6 @@ class eos_delaunay
 			return ( ( ( iT * nmub + imub ) * nmuq + imuq ) * nmus + imus );
 		}		
 		
-		/*inline size_t indexer( const vector<int> & inds )
-		{
-			// mus varies faster than muq!!!!!
-			return ( ( ( inds[0] * nmub + inds[1] ) * nmuq + inds[2] ) * nmus + inds[3] );
-		}*/	
-		
 		inline double d2( const vector<double> & a, const vector<double> & b )
 		{
 			return (  (a[0]-b[0])*(a[0]-b[0]) + (a[1]-b[1])*(a[1]-b[1])
@@ -76,7 +68,7 @@ class eos_delaunay
 		
 		
 		// prototypes
-		void load_EoS_table(string path_to_file, vector<vector<double> > & grid);
+		void load_EoS_table(string path_to_file, vector<vector<double> > & grid, int e_or_s);
 		void get_min_and_max(vector<double> & v, double & minval, double & maxval, bool normalize);
 
 };

@@ -23,19 +23,15 @@ public:
 
     //quantityFile must be in dimensionless quantities and must be formatted "T  muB  muQ  muS  p  s  B  S  Q  e  cs2"
     //derivFile should be formatted "T  muB  muQ  muS  d2p/dB2  d2p/dQ2  d2p/dS2  d2p/dBdQ  d2p/dBdS d2p/dQdS  d2p/dTdB  d2p/dTdQ  d2p/dTdS  d2p/dT2"
-    eos(string quantityFile, string derivFile, int degree = 1, bool using_HDF = false);
+    eos(string quantityFile, string derivFile, int degree = 1);
 
     eos();
-    void init(string quantityFile, string derivFile, int degree = 1, bool using_HDF = false);
+    void init(string quantityFile, string derivFile, int degree = 1);
     void init_with_txt(string quantityFile, string derivFile, int degree = 1);
-    void init_with_hdf(string quantityFile, string derivFile, int degree = 1);
 
     //initializes the position in the grid to (setT,setmuB,setmuQ,setmuS)
     //Once called, the splines will stay initialized at this point until the function is called again
     void tbqs(double setT, double setmuB, double setmuQ, double setmuS);
-
-    //initializes the position in the grid to (setT,setmuB,setmuQ,setmuS) only
-    //void set_tbqs(double setT, double setmuB, double setmuQ, double setmuS);
 
     //getter functions for the quantities of interest at the current tbs/tbqs
     double T();     //temperature
@@ -51,24 +47,11 @@ public:
     double e();     //energy density
     double cs2();   //speed of sound
     double w();     //enthalpy
-    /*double p(double Tin, double muBin, double muQin, double muSin);     //pressure density
-    double s(double Tin, double muBin, double muQin, double muSin);     //entropy density
-    double B(double Tin, double muBin, double muQin, double muSin);     //baryon density
-    double S(double Tin, double muBin, double muQin, double muSin);     //strangeness density
-    double Q(double Tin, double muBin, double muQin, double muSin);     //charge density
-    double e(double Tin, double muBin, double muQin, double muSin);     //energy density
-    double cs2(double Tin, double muBin, double muQin, double muSin);   //speed of sound
-    double w(double Tin, double muBin, double muQin, double muSin);     //enthalpy
-	*/
 
     double dwds();
     double dwdB();  //enthalpy derivatives **These still have not been checked**
     double dwdS();
     double dwdQ();
-    /*double dwds(double Tin, double muBin, double muQin, double muSin);
-    double dwdB(double Tin, double muBin, double muQin, double muSin);
-    double dwdS(double Tin, double muBin, double muQin, double muSin);
-    double dwdQ(double Tin, double muBin, double muQin, double muSin);*/
 
     double cs2out(double Tt, double muBin, double muQin, double muSin); //return cs2 given T and mu's - identical to calling cs2() after initializing position using tbqs()
     double cs2out(double Tt); //return cs2 given T and mu's = 0 - identical to calling cs2() after initializing position using tbqs()
@@ -157,12 +140,11 @@ private:
     //the current position in (T, muB, muQ, muS) initialized by tbqs()
     DenseVector tbqsPosition;
 
+	eos_delaunay e_delaunay;
+	eos_delaunay entr_delaunay;
+
     //finds t,mu for a given e and BSQ or s and BSQ
     //returns 1 if the point was found. Returns 0 if failed
     bool rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, double rhoSGiven, double rhoQgiven, double error, size_t steps);
-    //finds lines of constant e, p, entropy, or gibbs in the eos space
-    //returns 1 if the point was found. Returns 0 if failed
-    //quant type can be "e","p","entr","gibbs"
-    //whichIndepVar chooses the variable dimension along the line. 1 for varying T, 2 for varyng muB, 3 for varying muQ, 4 for varying muS
-    bool quant_rootfinder4D(double quantGiven, string quantType, int whichIndepVar, double error, size_t steps);
+
 };

@@ -16,7 +16,16 @@
 
 using namespace std;
 
-eos_delaunay::eos_delaunay(string EoS_table_file)
+//default constructor. This function exists to satisfy the compiler
+//This function should never be called unless init is called directly afterward
+eos_delaunay::eos_delaunay(){}
+
+eos_delaunay::eos_delaunay(string EoS_table_file, int e_or_s)
+{
+	init(EoS_table_file, e_or_s);
+}
+
+void eos_delaunay::init(string EoS_table_file, e_or_s)
 {
 	Tinds.resize(nT*nmub*nmuq*nmus);
 	mubinds.resize(nT*nmub*nmuq*nmus);
@@ -37,7 +46,14 @@ eos_delaunay::eos_delaunay(string EoS_table_file)
 	}
 
 	// load EoS table
-	load_EoS_table(EoS_table_file, grid);
+	load_EoS_table(EoS_table_file, grid, e_or_s);
+
+	// check grid size; probably make this part of EoS table file's header info eventually...
+	if ( grid.size() != nT*nmub*nmuq*nmus )
+	{
+		cerr << "Your chosen gridsizes do not match the input files!  Aborting!" << endl;
+		exit(-1);
+	}
 
 	vector<double> Tvec(grid.size()), muBvec(grid.size()), muSvec(grid.size()), muQvec(grid.size());
 	vector<double> evec(grid.size()), bvec(grid.size()), svec(grid.size()), qvec(grid.size());
@@ -141,7 +157,7 @@ eos_delaunay::eos_delaunay(string EoS_table_file)
 	return;
 }
 
-void eos_delaunay::load_EoS_table(string path_to_file, vector<vector<double> > & grid)
+void eos_delaunay::load_EoS_table(string path_to_file, vector<vector<double> > & grid, int e_or_s)
 {
 	grid.clear();
 	// read in file itself
@@ -150,33 +166,40 @@ void eos_delaunay::load_EoS_table(string path_to_file, vector<vector<double> > &
 	{
 		size_t count = 0;
 		string line;
-		double dummy, Tin, muBin, muSin, muQin, bin, sin, qin, ein; 
-		while ( getline (infile, line) )
+		double dummy, Tin, muBin, muSin, muQin, bin, sin, qin, ein, entrin;
+		if ( e_or_s == 0 )
 		{
-			count++;
-			//if (count % 100 != 0) continue;
+			while ( getline (infile, line) )
+			{
+				istringstream iss(line);
+				iss >> Tin >> muBin >> muQin >> muSin >> dummy >> dummy
+					>> bin >> sin >> qin >> ein >> dummy;
 
-			istringstream iss(line);
-			iss >> Tin >> muBin >> muQin >> muSin >> dummy >> dummy
-				>> bin >> sin >> qin >> ein >> dummy;
+				grid.push_back( vector<double>({Tin, muBin, muQin, muSin,
+												ein*Tin*Tin*Tin*Tin/(hbarc*hbarc*hbarc),
+												bin*Tin*Tin*Tin/(hbarc*hbarc*hbarc),
+												sin*Tin*Tin*Tin/(hbarc*hbarc*hbarc),
+												qin*Tin*Tin*Tin/(hbarc*hbarc*hbarc)}) );
 
-			/*Tvec.push_back( Tin );
-			muBvec.push_back( muBin );
-			muSvec.push_back( muSin );
-			muQvec.push_back( muQin );
-			bvec.push_back( bin*Tin*Tin*Tin/(hbarc*hbarc*hbarc) );		// 1/fm^3
-			svec.push_back( sin*Tin*Tin*Tin/(hbarc*hbarc*hbarc) );		// 1/fm^3
-			qvec.push_back( qin*Tin*Tin*Tin/(hbarc*hbarc*hbarc) );		// 1/fm^3
-			evec.push_back( ein*Tin*Tin*Tin*Tin/(hbarc*hbarc*hbarc) );	// MeV/fm^3
-			*/
+				if (++count % 1000000 == 0) cout << "Read in " << count << " lines." << endl;
+			}
+		}
+		else
+		{
+			while ( getline (infile, line) )
+			{
+				istringstream iss(line);
+				iss >> Tin >> muBin >> muQin >> muSin >> dummy >> entrin
+					>> bin >> sin >> qin >> dummy >> dummy;
 
-			grid.push_back( vector<double>({Tin, muBin, muQin, muSin,
-											ein*Tin*Tin*Tin*Tin/(hbarc*hbarc*hbarc),
-											bin*Tin*Tin*Tin/(hbarc*hbarc*hbarc),
-											sin*Tin*Tin*Tin/(hbarc*hbarc*hbarc),
-											qin*Tin*Tin*Tin/(hbarc*hbarc*hbarc)}) );
+				grid.push_back( vector<double>({Tin, muBin, muQin, muSin,
+												entrin*Tin*Tin*Tin/(hbarc*hbarc*hbarc),
+												bin*Tin*Tin*Tin/(hbarc*hbarc*hbarc),
+												sin*Tin*Tin*Tin/(hbarc*hbarc*hbarc),
+												qin*Tin*Tin*Tin/(hbarc*hbarc*hbarc)}) );
 
-			if (count % 1000000 == 0) cout << "Read in " << count << " lines." << endl;
+				if (++count % 1000000 == 0) cout << "Read in " << count << " lines." << endl;
+			}
 		}
 	}
 
