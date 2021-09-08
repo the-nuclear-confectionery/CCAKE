@@ -130,6 +130,7 @@ void eos_delaunay::init(string EoS_table_file, int e_or_s)
 	for (size_t imus = 0; imus < nmus-1; ++imus)
 	{
 		std::array<double, 4> midpoint;
+		midpoint.fill(0.0);
 		for (size_t ii = 0; ii < 2; ++ii)
 		for (size_t jj = 0; jj < 2; ++jj)
 		for (size_t kk = 0; kk < 2; ++kk)
@@ -152,6 +153,17 @@ void eos_delaunay::init(string EoS_table_file, int e_or_s)
 
 		std::transform( midpoint.begin(), midpoint.end(), midpoint.begin(),
 							[](double & element){ return 0.0625*element; } );	//1/16
+
+		if ( emergency_count <= 10 )
+		{
+			cout << " " << indexer( iT+ii, imub+jj, imuq+kk, imus+ll );
+			cout << endl;
+			cout << "\t --> phase diagram indices: "
+					<< iT+ii << "   " << imub+jj << "   " << imuq+kk << "   " << imus+ll << endl;
+			cout << "\t --> midpoint:";
+			for (const auto & elem : midpoint) cout << "   " << elem;
+			cout << endl << endl;
+		}
 
 		midpoint_grid.push_back(midpoint);
 		midpoint_inds.push_back( {iT, imub, imuq, imus} );
