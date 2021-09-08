@@ -46,7 +46,7 @@ void eos::init(string quantityFile, string derivFile, int degree)
 	initialize("/projects/jnorhos/BSQ/EoS_BQS_Derivatives/Coefficients_Parameters.dat");
 
 	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
-	init_with_txt(quantityFile, derivFile, degree);
+	//init_with_txt(quantityFile, derivFile, degree);
 
 	cout << "Initialize Delaunay interpolators" << endl;
 	e_delaunay.init(quantityFile, 0);		// 0 - energy density
@@ -1355,11 +1355,11 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
 {
 	if ( VERBOSE > 5 ) std::cout << __PRETTY_FUNCTION__ << e_or_s_Given << "   " << e_or_s_mode << "   " << rhoBGiven << "   " << rhoSGiven << "   " << rhoQGiven << "   " << error << "   " << steps << std::endl;
 
-	/*{
-	vector<double> result(4, 0.0);
+	{
+		vector<double> result(4, 0.0);
 		double phase_diagram_point[4] = {252.5, 52.5, 52.5, 52.5};	// NOTE: S <<-->> Q swapped!!!
 		double densities_at_point[4];
-		get_densities(phase_diagram_point, densities_at_point);
+		get_eBSQ_densities(phase_diagram_point, densities_at_point);
 
 		bool success
 			= e_delaunay.interpolate(
@@ -1368,7 +1368,35 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
 					densities_at_point[2],
 					densities_at_point[3]}, result, true);
 
-		cout << "Check solution:\n\t"
+		cout << "Check eBSQ solution:\n\t"
+			<< phase_diagram_point[0] << "   "
+			<< phase_diagram_point[1] << "   "
+			<< phase_diagram_point[2] << "   "
+			<< phase_diagram_point[3] << "\n\t"
+			<< densities_at_point[0] << "   "
+			<< densities_at_point[1] << "   "
+			<< densities_at_point[2] << "   "
+			<< densities_at_point[3] << "\n\t"
+			<< result[0] << "   "
+			<< result[1] << "   "
+			<< result[2] << "   "
+			<< result[3] << endl;
+
+		std::fill(result.begin(), result.end(), 0.0);
+		densities_at_point[0] = 0.0;
+		densities_at_point[1] = 0.0;
+		densities_at_point[2] = 0.0;
+		densities_at_point[3] = 0.0;
+		get_sBSQ_densities(phase_diagram_point, densities_at_point);
+
+		bool success
+			= entr_delaunay.interpolate(
+					{densities_at_point[0],
+					densities_at_point[1],
+					densities_at_point[2],
+					densities_at_point[3]}, result, true);
+
+		cout << "Check sBSQ solution:\n\t"
 			<< phase_diagram_point[0] << "   "
 			<< phase_diagram_point[1] << "   "
 			<< phase_diagram_point[2] << "   "
@@ -1383,7 +1411,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
 			<< result[3] << endl;
 
 		if (1) exit(-1);
-	}*/
+	}
 
 	// Try the Delaunay interpolator first
 	vector<double> result(4, 0.0);
