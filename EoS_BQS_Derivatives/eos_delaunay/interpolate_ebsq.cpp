@@ -61,8 +61,10 @@ int main(int argc, char *argv[])
 	//EoS.interpolate({1152.45, -0.402379, 0.562341, 0.00269458}, result);	// Exact: 152.5   -387.5   -37.5   212.5
 	//EoS.interpolate({973.563, -0.316059, 0.323859, 1.06384}, result);
 	//EoS.interpolate({31.0278, -8.98404e-05, -2.03722e-05, -0.0437323}, result);
-	EoS.interpolate({573.228, -0.0236158, -0.129289, -0.711049}, result, true);
-	cout << "Exact: " << "102.5   -437.5   -437.5   -212.5" << endl;
+	//EoS.interpolate({573.228, -0.0236158, -0.129289, -0.711049}, result, true);
+	//cout << "Exact: " << "102.5   -437.5   -437.5   -212.5" << endl;
+	EoS.interpolate({5754.35, 0.00231029, 0.351709, 0.378919}, result, true);
+	cout << "Exact: " << "252.5   52.5   52.5   52.5" << endl;
 	sw.Stop();
 	cout << "Found the solution in " << sw.printTime() << " s." << endl;
 	for (const double & elem : result)

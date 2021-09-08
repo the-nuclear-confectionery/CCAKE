@@ -62,6 +62,12 @@ eos_delaunay::eos_delaunay(string EoS_table_file)
 	get_min_and_max(svec, smin, smax, false);
 	get_min_and_max(qvec, qmin, qmax, false);
 
+	cout << "Check minima and maxima:" << endl
+		<< emin << "   " << emax << "   "
+		<< bmin << "   " << bmax << "   "
+		<< smin << "   " << smax << "   "
+		<< qmin << "   " << qmax << endl;
+
 	// have one grid that we don't normalize for now
 	unnormalized_grid = grid;
 
@@ -78,6 +84,7 @@ eos_delaunay::eos_delaunay(string EoS_table_file)
 	// use midpoints as alternate way of find best simplex
 	// "midpoints" are the average densities in the cell with lower corner at (iT,imu...)
 	std::vector<std::array<double, 4> > midpoint_grid;
+	int emergency_count = 0;
 //	vector<vector<double> > midpoint_coords;
 	for (size_t iT = 0; iT < nT-1; ++iT)
 	for (size_t imub = 0; imub < nmub-1; ++imub)
@@ -102,6 +109,23 @@ eos_delaunay::eos_delaunay(string EoS_table_file)
 //		midpoint_coords.push_back(
 //			vector<double>( gridcell.begin(), gridcell.begin()+4 )
 //					);
+/*if (emergency_count++ <= 10 )
+{			
+cout << "Checking midpoint grid:" << endl;
+cout << "\t --> grid indices:";
+for (size_t ii = 0; ii < 2; ++ii)
+for (size_t jj = 0; jj < 2; ++jj)
+for (size_t kk = 0; kk < 2; ++kk)
+for (size_t ll = 0; ll < 2; ++ll)
+	cout << " " << indexer( iT+ii, imub+jj, imuq+kk, imus+ll );
+cout << endl;
+cout << "\t --> phase diagram indices: "
+		<< iT << "   " << imub << "   " << imuq << "   " << imus << endl;
+cout << "\t --> midpoint:";
+for (const auto & elem : midpoint) cout << "   " << elem;
+cout << endl << endl;
+}*/
+
 	}
 
 	// use this for log-distance-based NMN method
@@ -129,6 +153,15 @@ eos_delaunay::eos_delaunay(string EoS_table_file)
 	cout << "Setting up kd-trees...";
 	static tree4d tree(std::begin(density_points), std::end(density_points));
 	tree_ptr = &tree;
+
+	
+	cout << "Big check:" << endl;
+	for ( const auto & midpoint : midpoint_grid )
+	{
+		for ( const auto & elem : midpoint )
+			cout << "   " << elem;
+		cout << endl;
+	}
 	
 	static tree4d midpoint_tree(std::begin(midpoint_grid), std::end(midpoint_grid));
 	midpoint_tree_ptr = &midpoint_tree;
@@ -176,7 +209,16 @@ void eos_delaunay::load_EoS_table(string path_to_file, vector<vector<double> > &
 											sin*Tin*Tin*Tin/(hbarc*hbarc*hbarc),
 											qin*Tin*Tin*Tin/(hbarc*hbarc*hbarc)}) );
 
-			if (count % 1000000 == 0) cout << "Read in " << count << " lines." << endl;
+			if (count % 1000000 == 0)
+			{
+				cout << "Read in " << count << " lines." << endl;
+				/*cout << "Most recently read in:" << endl
+				<< Tin << "   " << muBin << "   " << muQin << "   " << muSin << "   " << 
+				ein*Tin*Tin*Tin*Tin/(hbarc*hbarc*hbarc) << "   " << 
+				bin*Tin*Tin*Tin/(hbarc*hbarc*hbarc) << "   " << 
+				sin*Tin*Tin*Tin/(hbarc*hbarc*hbarc) << "   " << 
+				qin*Tin*Tin*Tin/(hbarc*hbarc*hbarc) << endl;*/
+			}
 		}
 	}
 
