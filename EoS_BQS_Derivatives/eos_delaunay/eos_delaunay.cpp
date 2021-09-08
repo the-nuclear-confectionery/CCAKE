@@ -85,8 +85,7 @@ eos_delaunay::eos_delaunay(string EoS_table_file)
 	// "midpoints" are the average densities in the cell with lower corner at (iT,imu...)
 	std::vector<std::array<double, 4> > midpoint_grid;
 	int emergency_count = 0;
-//	vector<vector<double> > midpoint_coords;
-	for (size_t iT = 0; iT < nT-1; ++iT)
+	for (size_t iT   = 0; iT   < nT-1;   ++iT)
 	for (size_t imub = 0; imub < nmub-1; ++imub)
 	for (size_t imuq = 0; imuq < nmuq-1; ++imuq)
 	for (size_t imus = 0; imus < nmus-1; ++imus)
@@ -105,26 +104,22 @@ eos_delaunay::eos_delaunay(string EoS_table_file)
 
 		midpoint_grid.push_back(midpoint);
 		midpoint_inds.push_back( {iT, imub, imuq, imus} );
-//		vector<double> & gridcell = grid[indexer(iT,imub,imuq,imus)];
-//		midpoint_coords.push_back(
-//			vector<double>( gridcell.begin(), gridcell.begin()+4 )
-//					);
-if (emergency_count++ <= 10 )
-{			
-cout << "Checking midpoint grid:" << endl;
-cout << "\t --> grid indices:";
-for (size_t ii = 0; ii < 2; ++ii)
-for (size_t jj = 0; jj < 2; ++jj)
-for (size_t kk = 0; kk < 2; ++kk)
-for (size_t ll = 0; ll < 2; ++ll)
-	cout << " " << indexer( iT+ii, imub+jj, imuq+kk, imus+ll );
-cout << endl;
-cout << "\t --> phase diagram indices: "
-		<< iT << "   " << imub << "   " << imuq << "   " << imus << endl;
-cout << "\t --> midpoint:";
-for (auto elem : midpoint) cout << "   " << elem;
-cout << endl << endl;
-}
+		if ( emergency_count++ <= 10 )
+		{			
+			cout << "Checking midpoint grid:" << endl;
+			cout << "\t --> grid indices:";
+			for (size_t ii = 0; ii < 2; ++ii)
+			for (size_t jj = 0; jj < 2; ++jj)
+			for (size_t kk = 0; kk < 2; ++kk)
+			for (size_t ll = 0; ll < 2; ++ll)
+				cout << " " << indexer( iT+ii, imub+jj, imuq+kk, imus+ll );
+			cout << endl;
+			cout << "\t --> phase diagram indices: "
+					<< iT << "   " << imub << "   " << imuq << "   " << imus << endl;
+			cout << "\t --> midpoint:";
+			//for (auto elem : midpoint) cout << "   " << elem;
+			cout << endl << endl;
+		}
 
 	}
 
