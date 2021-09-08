@@ -1343,19 +1343,19 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
 		double phase_diagram_point[4] = {result[0], result[1], result[3], result[2]};	// NOTE: S <<-->> Q swapped!!!
 		double densities_at_point[4];
 		get_densities(phase_diagram_point, densities_at_point);
-		e = densities_at_point[0]/197.327;
-		rhoB = densities_at_point[1];
-		rhoS = densities_at_point[2];
-		rhoQ = densities_at_point[3];
-		cout << "Check solution:" << endl
+		cout << "Check solution:\n\t"
 			<< phase_diagram_point[0] << "   "
 			<< phase_diagram_point[1] << "   "
 			<< phase_diagram_point[2] << "   "
-			<< phase_diagram_point[3] << "   "
-			<< densities_at_point[0] << "   " << e_or_s_Given*197.327 << "   "
-			<< densities_at_point[1] << "   " << rhoBGiven << "   "
-			<< densities_at_point[2] << "   " << rhoSGiven << "   "
-			<< densities_at_point[3] << "   " << rhoQGiven << endl;
+			<< phase_diagram_point[3] << "\n\t"
+			<< densities_at_point[0] << "   "
+			<< densities_at_point[1] << "   "
+			<< densities_at_point[2] << "   "
+			<< densities_at_point[3] << "\n\t"
+			<< e_or_s_Given*197.327 << "   "
+			<< rhoBGiven << "   "
+			<< rhoSGiven << "   "
+			<< rhoQGiven << endl;
 	}
 
 	if ( success )
