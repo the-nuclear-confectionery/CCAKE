@@ -36,6 +36,10 @@ eos_delaunay::eos_delaunay(){}
 
 eos_delaunay::eos_delaunay(string EoS_table_file, int e_or_s)
 {
+	if ( e_or_s == 0 )
+		cout << "\t --> initializing energy density" << endl;
+	else
+		cout << "\t --> initializing entropy density" << endl;
 	init(EoS_table_file, e_or_s);
 }
 

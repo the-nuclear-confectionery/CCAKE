@@ -143,7 +143,7 @@ private:
     DenseVector tbqsPosition;
 
 	eos_delaunay e_delaunay;
-	eos_delaunay entr_delaunay;
+	//eos_delaunay entr_delaunay;
 
     //finds t,mu for a given e and BSQ or s and BSQ
     //returns 1 if the point was found. Returns 0 if failed
