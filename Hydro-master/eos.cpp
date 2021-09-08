@@ -1332,6 +1332,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
 	if ( VERBOSE > 5 ) std::cout << __PRETTY_FUNCTION__ << e_or_s_Given << "   " << e_or_s_mode << "   " << rhoBGiven << "   " << rhoSGiven << "   " << rhoQGiven << "   " << error << "   " << steps << std::endl;
 
 	{
+	vector<double> result(4, 0.0);
 		double phase_diagram_point[4] = {251.0, 45.0, 45.0, 45.0};	// NOTE: S <<-->> Q swapped!!!
 		double densities_at_point[4];
 		get_densities(phase_diagram_point, densities_at_point);
