@@ -1339,7 +1339,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
 
 		bool success
 			= e_delaunay.interpolate(
-					densities_at_point[0],
+					{densities_at_point[0],
 					densities_at_point[1],
 					densities_at_point[2],
 					densities_at_point[3]}, result, true);
