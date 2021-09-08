@@ -174,6 +174,14 @@ void eos_delaunay::init(string EoS_table_file, int e_or_s)
 	static tree4d tree(std::begin(density_points), std::end(density_points));
 	tree_ptr = &tree;
 	
+	cout << "Big check:" << endl;
+	for ( const auto & midpoint : midpoint_grid )
+	{
+		for ( const auto & elem : midpoint )
+			cout << "   " << elem;
+		cout << endl;
+	}
+
 	static tree4d midpoint_tree(std::begin(midpoint_grid), std::end(midpoint_grid));
 	midpoint_tree_ptr = &midpoint_tree;
 
