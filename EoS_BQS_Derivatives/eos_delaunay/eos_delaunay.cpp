@@ -109,7 +109,7 @@ eos_delaunay::eos_delaunay(string EoS_table_file)
 //		midpoint_coords.push_back(
 //			vector<double>( gridcell.begin(), gridcell.begin()+4 )
 //					);
-/*if (emergency_count++ <= 10 )
+if (emergency_count++ <= 10 )
 {			
 cout << "Checking midpoint grid:" << endl;
 cout << "\t --> grid indices:";
@@ -124,7 +124,7 @@ cout << "\t --> phase diagram indices: "
 cout << "\t --> midpoint:";
 for (const auto & elem : midpoint) cout << "   " << elem;
 cout << endl << endl;
-}*/
+}
 
 	}
 
