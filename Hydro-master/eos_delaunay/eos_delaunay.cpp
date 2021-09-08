@@ -129,7 +129,7 @@ void eos_delaunay::init(string EoS_table_file, int e_or_s)
 	for (size_t imuq = 0; imuq < nmuq-1; ++imuq)
 	for (size_t imus = 0; imus < nmus-1; ++imus)
 	{
-cout << "-----------------------------------------------" << endl;
+//cout << "-----------------------------------------------" << endl;
 		std::array<double, 4> midpoint;
 		midpoint.fill(0.0);
 		for (size_t ii = 0; ii < 2; ++ii)
