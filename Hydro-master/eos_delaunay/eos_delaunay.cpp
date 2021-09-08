@@ -169,7 +169,7 @@ for (size_t kk = 0; kk < 2; ++kk)
 for (size_t ll = 0; ll < 2; ++ll)
 	cout << " " << indexer( iT+ii, imub+jj, imuq+kk, imus+ll );
 cout << endl;
-cout << "\t --> phase diagram indices: "
+cout << "\t --> phase diagram indices: " << endl;
 for (size_t ii = 0; ii < 2; ++ii)
 for (size_t jj = 0; jj < 2; ++jj)
 for (size_t kk = 0; kk < 2; ++kk)
