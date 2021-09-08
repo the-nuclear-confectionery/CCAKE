@@ -308,26 +308,26 @@ bool eos_delaunay::interpolate(const vector<double> & v0, vector<double> & resul
 		interpolate_NMNmode_v2(v0, result, true, verbose);
 		//interpolate_NMNmode(v0, result);*/
 
-cout << "Densities check: " << v0[0] << "   " << v0[1] << "   "
-		<< v0[2] << "   " << v0[3] << endl;
-//if (1) exit(-1);
+//cout << "Densities check: " << v0[0] << "   " << v0[1] << "   "
+//		<< v0[2] << "   " << v0[3] << endl;
+////if (1) exit(-1);
 	
-	cout << "Version 1" << endl;
+	//cout << "Version 1" << endl;
 	bool success = interpolate_NMNmode(v0, result, verbose);
 
 	if ( !success )
 	{
-		cout << "Version 2" << endl;
+		//cout << "Version 2" << endl;
 		success = interpolate_NMNmode_v2(v0, result, false, verbose);
 
 		if ( !success )
 		{
-			cout << "Version 3" << endl;
+			//cout << "Version 3" << endl;
 			success = interpolate_NMNmode_v3(v0, result, verbose);
 			
 			if ( !success )
 			{
-				cout << "Version NN" << endl;
+				//cout << "Version NN" << endl;
 				success = interpolate_NNmode(v0, result, verbose);
 			}
 		}
