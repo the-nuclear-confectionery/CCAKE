@@ -50,6 +50,8 @@ class eos_delaunay
 
 		double emin, emax, bmin, bmax, smin, smax, qmin, qmax;
 
+		int using_e_or_s_mode;
+
 		vector<vector<double> > grid, unnormalized_grid;
 		vector<int> Tinds, mubinds, muqinds, musinds;
 		vector<vector<size_t> > midpoint_inds;

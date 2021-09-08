@@ -49,6 +49,8 @@ eos_delaunay::eos_delaunay(string EoS_table_file, int e_or_s)
 
 void eos_delaunay::init(string EoS_table_file, int e_or_s)
 {
+	using_e_or_s_mode = e_or_s;
+
 	Tinds.resize(nT*nmub*nmuq*nmus);
 	mubinds.resize(nT*nmub*nmuq*nmus);
 	muqinds.resize(nT*nmub*nmuq*nmus);
@@ -1003,7 +1005,11 @@ void eos_delaunay::refine_hypercube(vector<vector<double> > & hypercube)
 
 	// just add midpoint for now	
 	double densities_arr[4];
-	get_densities(middle.data(), densities_arr);
+	if ( using_e_or_s_mode == 0 )
+		get_eBSQ_densities(middle.data(), densities_arr);
+	else
+		get_sBSQ_densities(middle.data(), densities_arr);
+
 	vector<double> densities(densities_arr, densities_arr+4);
 
 	densities[0] = (densities[0] - emin)/(emax-emin);
