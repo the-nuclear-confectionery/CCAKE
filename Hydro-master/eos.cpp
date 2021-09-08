@@ -1329,7 +1329,34 @@ else
 
 bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, double rhoSGiven, double rhoQGiven, double error, size_t steps)
 {
-	if ( VERBOSE > 5 || true ) std::cout << __PRETTY_FUNCTION__ << e_or_s_Given << "   " << e_or_s_mode << "   " << rhoBGiven << "   " << rhoSGiven << "   " << rhoQGiven << "   " << error << "   " << steps << std::endl;
+	if ( VERBOSE > 5 ) std::cout << __PRETTY_FUNCTION__ << e_or_s_Given << "   " << e_or_s_mode << "   " << rhoBGiven << "   " << rhoSGiven << "   " << rhoQGiven << "   " << error << "   " << steps << std::endl;
+
+	{
+		double phase_diagram_point[4] = {251.0, 45.0, 45.0, 45.0};	// NOTE: S <<-->> Q swapped!!!
+		double densities_at_point[4];
+		get_densities(phase_diagram_point, densities_at_point);
+
+		bool success = e_delaunay.interpolate({densities_at_point[0],
+												densities_at_point[1],
+												densities_at_point[2],
+												densities_at_point[3]}, result, true);
+
+		cout << "Check solution:\n\t"
+			<< phase_diagram_point[0] << "   "
+			<< phase_diagram_point[1] << "   "
+			<< phase_diagram_point[2] << "   "
+			<< phase_diagram_point[3] << "\n\t"
+			<< densities_at_point[0] << "   "
+			<< densities_at_point[1] << "   "
+			<< densities_at_point[2] << "   "
+			<< densities_at_point[3] << "\n\t"
+			<< result[0] << "   "
+			<< result[1] << "   "
+			<< result[2] << "   "
+			<< result[3] << endl;
+
+		if (1) exit(-1);
+	}
 
 	// Try the Delaunay interpolator first
 	vector<double> result(4, 0.0);
