@@ -1335,7 +1335,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
 	vector<double> result(4, 0.0);
 	bool success = false;
 	if ( e_or_s_mode==1 )
-		success = e_delaunay.interpolate({e_or_s_Given, rhoBGiven, rhoSGiven, rhoQGiven}, result);
+		success = e_delaunay.interpolate({e_or_s_Given*197.327, rhoBGiven, rhoSGiven, rhoQGiven}, result);
 	else
 		success = entr_delaunay.interpolate({e_or_s_Given, rhoBGiven, rhoSGiven, rhoQGiven}, result);
 

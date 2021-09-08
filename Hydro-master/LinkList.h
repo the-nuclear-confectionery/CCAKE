@@ -2388,6 +2388,7 @@ void LinkList<D>::updateIC()
         if (/*_p[i].e_sub > 0.5*efcheck &&*/ gtyp!=5)
 		{
 			sw.Start();
+			cout << "Doing this particle: " << _p[i].r.x[0] << "   " << _p[i].r.x[1] << endl;
 			_p[i].s_an = _p[i].EOSs_out( _p[i].e_sub, _p[i].rhoB_an, _p[i].rhoS_an, _p[i].rhoQ_an );
 			sw.Stop();
 			cout << "SPH particle " << i << ", EOSs_out: completed in "
