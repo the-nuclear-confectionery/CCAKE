@@ -160,7 +160,7 @@ cout << endl;
 cout << "\t --> phase diagram indices: "
 		<< iT << "   " << imub << "   " << imuq << "   " << imus << endl;
 cout << "\t --> midpoint:";
-for (const auto & elem : midpoint) cout << "   " << elem;
+//for (const auto & elem : midpoint) cout << "   " << elem;
 cout << endl << endl;
 }
 
