@@ -1333,7 +1333,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
 
 	{
 	vector<double> result(4, 0.0);
-		double phase_diagram_point[4] = {250.0, 50.0, 50.0, 50.0};	// NOTE: S <<-->> Q swapped!!!
+		double phase_diagram_point[4] = {252.5, 52.5, 52.5, 52.5};	// NOTE: S <<-->> Q swapped!!!
 		double densities_at_point[4];
 		get_densities(phase_diagram_point, densities_at_point);
 
