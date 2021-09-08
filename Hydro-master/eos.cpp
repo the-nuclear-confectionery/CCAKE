@@ -1359,7 +1359,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
 		vector<double> result(4, 0.0);
 		double phase_diagram_point[4] = {252.5, 52.5, 52.5, 52.5};	// NOTE: S <<-->> Q swapped!!!
 		double densities_at_point[4];
-		get_eBSQ_densities(phase_diagram_point, densities_at_point);
+		/*get_eBSQ_densities(phase_diagram_point, densities_at_point);
 
 		bool success
 			= e_delaunay.interpolate(
@@ -1380,7 +1380,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
 			<< result[0] << "   "
 			<< result[1] << "   "
 			<< result[2] << "   "
-			<< result[3] << endl;
+			<< result[3] << endl;*/
 
 		std::fill(result.begin(), result.end(), 0.0);
 		densities_at_point[0] = 0.0;
