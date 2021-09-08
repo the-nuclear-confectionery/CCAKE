@@ -121,8 +121,8 @@ for (size_t ll = 0; ll < 2; ++ll)
 cout << endl;
 cout << "\t --> phase diagram indices: "
 		<< iT << "   " << imub << "   " << imuq << "   " << imus << endl;
-cout << "\t --> midpoint:";
-for (const auto & elem : midpoint) cout << "   " << elem;
+//cout << "\t --> midpoint:";
+//for (const auto & elem : midpoint) cout << "   " << elem;
 cout << endl << endl;
 }
 
