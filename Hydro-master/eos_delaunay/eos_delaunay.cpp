@@ -242,7 +242,7 @@ bool eos_delaunay::interpolate(const vector<double> & v0, vector<double> & resul
 
 cout << "Densities check: " << v0[0] << "   " << v0[1] << "   "
 		<< v0[2] << "   " << v0[3] << endl;
-if (1) exit(-1);
+//if (1) exit(-1);
 	
 	bool success = interpolate_NMNmode(v0, result, verbose);
 

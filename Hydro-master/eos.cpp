@@ -1356,6 +1356,8 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
 			<< rhoBGiven << "   "
 			<< rhoSGiven << "   "
 			<< rhoQGiven << endl;
+
+		if (1) exit(-1);
 	}
 
 	if ( success )
