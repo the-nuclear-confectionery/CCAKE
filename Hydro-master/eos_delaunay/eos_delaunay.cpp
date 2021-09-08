@@ -122,7 +122,7 @@ void eos_delaunay::init(string EoS_table_file, int e_or_s)
 	// use midpoints as alternate way of find best simplex
 	// "midpoints" are the average densities in the cell with lower corner at (iT,imu...)
 	std::vector<std::array<double, 4> > midpoint_grid;
-	int emergency_count = 0;
+	size_t emergency_count = 0;
 //	vector<vector<double> > midpoint_coords;
 	for (size_t iT = 0; iT < nT-1; ++iT)
 	for (size_t imub = 0; imub < nmub-1; ++imub)
