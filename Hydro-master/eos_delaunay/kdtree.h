@@ -198,7 +198,6 @@ public:
      * @return the nearest point in the tree to the given point
      */
     const point_type& nearest(const point_type& pt, size_t & best_oindex, bool euc_dist = true ) {
-//std::cout << __PRETTY_FUNCTION__ << ": euc_dist = " << euc_dist << std::endl;
         if (root_ == nullptr)
             throw std::logic_error("tree is empty");
         best_ = nullptr;
