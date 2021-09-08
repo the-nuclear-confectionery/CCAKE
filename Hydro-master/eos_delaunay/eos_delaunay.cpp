@@ -137,7 +137,7 @@ cout << "-----------------------------------------------" << endl;
 		for (size_t kk = 0; kk < 2; ++kk)
 		for (size_t ll = 0; ll < 2; ++ll)
 		{
-			if ( emergency_count <= 10 )
+			/*if ( emergency_count <= 10 )
 			{
 				cout << " " << indexer( iT+ii, imub+jj, imuq+kk, imus+ll );
 				cout << endl;
@@ -146,7 +146,7 @@ cout << "-----------------------------------------------" << endl;
 				cout << "\t --> midpoint:";
 				for (const auto & elem : midpoint) cout << "   " << elem;
 				cout << endl << endl;
-			}
+			}*/
 			std::transform( midpoint.begin(), midpoint.end(),
 							grid[indexer( iT+ii, imub+jj, imuq+kk, imus+ll )].begin()+4,
 							midpoint.begin(), std::plus<double>());
@@ -155,12 +155,12 @@ cout << "-----------------------------------------------" << endl;
 		std::transform( midpoint.begin(), midpoint.end(), midpoint.begin(),
 							[](double & element){ return 0.0625*element; } );	//1/16
 
-		if ( emergency_count <= 10 )
+		/*if ( emergency_count <= 10 )
 		{
 			cout << "Check midpoint:" << endl;
 			for (const auto & elem : midpoint) cout << "   " << elem;
 			cout << endl << endl;
-		}
+		}*/
 
 		midpoint_grid.push_back(midpoint);
 		midpoint_inds.push_back( {iT, imub, imuq, imus} );
@@ -168,7 +168,7 @@ cout << "-----------------------------------------------" << endl;
 //		midpoint_coords.push_back(
 //			vector<double>( gridcell.begin(), gridcell.begin()+4 )
 //		
-if (emergency_count++ <= 10 )
+/*if (emergency_count++ <= 10 )
 {			
 cout << "Checking midpoint grid:" << endl;
 cout << "\t --> grid indices:";
@@ -187,8 +187,8 @@ for (size_t ll = 0; ll < 2; ++ll)
 cout << "\t --> midpoint:";
 //for (const auto & elem : midpoint) cout << "   " << elem;
 cout << endl << endl;
-}
-cout << "-----------------------------------------------" << endl;
+}*/
+//cout << "-----------------------------------------------" << endl;
 
 	}
 
