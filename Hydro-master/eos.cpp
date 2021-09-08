@@ -1389,7 +1389,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
 		densities_at_point[3] = 0.0;
 		get_sBSQ_densities(phase_diagram_point, densities_at_point);
 
-		success
+		bool success
 			= entr_delaunay.interpolate(
 					{densities_at_point[0],
 					densities_at_point[1],
