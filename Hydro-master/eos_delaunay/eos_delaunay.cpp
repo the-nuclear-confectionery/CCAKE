@@ -100,11 +100,11 @@ void eos_delaunay::init(string EoS_table_file, int e_or_s)
 	get_min_and_max(svec, smin, smax, false);
 	get_min_and_max(qvec, qmin, qmax, false);
 
-	cout << "Check minima and maxima:" << endl
-		<< emin << "   " << emax << "   "
-		<< bmin << "   " << bmax << "   "
-		<< smin << "   " << smax << "   "
-		<< qmin << "   " << qmax << endl;
+//	cout << "Check minima and maxima:" << endl
+//		<< emin << "   " << emax << "   "
+//		<< bmin << "   " << bmax << "   "
+//		<< smin << "   " << smax << "   "
+//		<< qmin << "   " << qmax << endl;
 
 	// have one grid that we don't normalize for now
 	unnormalized_grid = grid;
@@ -218,13 +218,13 @@ cout << endl << endl;
 	static tree4d tree(std::begin(density_points), std::end(density_points));
 	tree_ptr = &tree;
 	
-	cout << "Big check:" << endl;
-	for ( const auto & midpoint : midpoint_grid )
-	{
-		for ( const auto & elem : midpoint )
-			cout << "   " << elem;
-		cout << endl;
-	}
+//	cout << "Big check:" << endl;
+//	for ( const auto & midpoint : midpoint_grid )
+//	{
+//		for ( const auto & elem : midpoint )
+//			cout << "   " << elem;
+//		cout << endl;
+//	}
 
 	static tree4d midpoint_tree(std::begin(midpoint_grid), std::end(midpoint_grid));
 	midpoint_tree_ptr = &midpoint_tree;
@@ -262,15 +262,7 @@ void eos_delaunay::load_EoS_table(string path_to_file, vector<vector<double> > &
 												qin*Tin*Tin*Tin/(hbarc*hbarc*hbarc)}) );
 
 				if (++count % 1000000 == 0)
-				{
 					cout << "Read in " << count << " lines." << endl;
-					/*cout << "Most recently read in:" << endl
-						<< Tin << "   " << muBin << "   " << muQin << "   " << muSin << "   " << 
-							ein*Tin*Tin*Tin*Tin/(hbarc*hbarc*hbarc) << "   " << 
-							bin*Tin*Tin*Tin/(hbarc*hbarc*hbarc) << "   " << 
-							sin*Tin*Tin*Tin/(hbarc*hbarc*hbarc) << "   " << 
-							qin*Tin*Tin*Tin/(hbarc*hbarc*hbarc) << endl;*/
-				}
 			}
 		}
 		else
@@ -287,7 +279,8 @@ void eos_delaunay::load_EoS_table(string path_to_file, vector<vector<double> > &
 												sin*Tin*Tin*Tin/(hbarc*hbarc*hbarc),
 												qin*Tin*Tin*Tin/(hbarc*hbarc*hbarc)}) );
 
-				if (++count % 1000000 == 0) cout << "Read in " << count << " lines." << endl;
+				if (++count % 1000000 == 0)
+					cout << "Read in " << count << " lines." << endl;
 			}
 		}
 	}
