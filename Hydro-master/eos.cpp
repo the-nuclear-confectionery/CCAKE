@@ -1339,13 +1339,33 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
 	else
 		success = entr_delaunay.interpolate({e_or_s_Given, rhoBGiven, rhoSGiven, rhoQGiven}, result);
 
+	{
+		double phase_diagram_point[4] = {result[0], result[1], result[3], result[2]};	// NOTE: S <<-->> Q swapped!!!
+		double densities_at_point[4];
+		get_densities(phase_diagram_point, densities_at_point);
+		e = densities_at_point[0]/197.327;
+		rhoB = densities_at_point[1];
+		rhoS = densities_at_point[2];
+		rhoQ = densities_at_point[3];
+		cout << "Check solution:" << endl
+			<< phase_diagram_point[0] << "   "
+			<< phase_diagram_point[1] << "   "
+			<< phase_diagram_point[2] << "   "
+			<< phase_diagram_point[3] << "   "
+			<< densities_at_point[0] << "   " << e_or_s_Given*197.327 << "   "
+			<< densities_at_point[1] << "   " << rhoBGiven << "   "
+			<< densities_at_point[2] << "   " << rhoSGiven << "   "
+			<< densities_at_point[3] << "   " << rhoQGiven << endl;
+	}
+
 	if ( success )
 	{
-		tbqs( result[0], result[1], result[2], result[3]);    //set T, muB, muQ, muS
+		// set T, muB, muQ, muS
+		tbqs( result[0]/197.327, result[1]/197.327, result[2]/197.327, result[3]/197.327 );
 		return true;
 	}
 
-    //declare x = (T, muB, muS)
+    //declare x = (T, muB, muQ, muS)
     gsl_vector *x = gsl_vector_alloc(4);
 
     gsl_vector_set(x, 0, T());
@@ -1384,7 +1404,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
 		std::cout << std::endl
 			<< "=============================================="
 			<< std::endl << "Input (e,B,Q,S): "
-			<< e_or_s_Given*0.19733 << "   "
+			<< e_or_s_Given*0.197327 << "   "
 			<< rhoBGiven << "   "
 			<< rhoQGiven << "   "
 			<< rhoSGiven << std::endl;
@@ -1461,10 +1481,10 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
 
 	if ( e_or_s_mode == 1 && VERBOSE > 5 )
 		std::cout << "Output (" << output_status << "): rootfinder4D at x = "
-			<< 197.33*gsl_vector_get(solver->x, 0) << "   "
-			<< 197.33*gsl_vector_get(solver->x, 1) << "   "
-			<< 197.33*gsl_vector_get(solver->x, 2) << "   "
-			<< 197.33*gsl_vector_get(solver->x, 3) << std::endl << std::endl;
+			<< 197.327*gsl_vector_get(solver->x, 0) << "   "
+			<< 197.327*gsl_vector_get(solver->x, 1) << "   "
+			<< 197.327*gsl_vector_get(solver->x, 2) << "   "
+			<< 197.327*gsl_vector_get(solver->x, 3) << std::endl << std::endl;
 
     //memory deallocation
     gsl_multiroot_fsolver_free(solver);
