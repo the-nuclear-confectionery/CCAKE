@@ -91,6 +91,7 @@ eos_delaunay::eos_delaunay(string EoS_table_file)
 	for (size_t imus = 0; imus < nmus-1; ++imus)
 	{
 		std::array<double, 4> midpoint;
+		midpoint.fill(0.0);
 		for (size_t ii = 0; ii < 2; ++ii)
 		for (size_t jj = 0; jj < 2; ++jj)
 		for (size_t kk = 0; kk < 2; ++kk)
