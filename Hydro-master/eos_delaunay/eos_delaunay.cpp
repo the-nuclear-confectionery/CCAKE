@@ -250,13 +250,13 @@ cout << "Densities check: " << v0[0] << "   " << v0[1] << "   "
 	
 	bool success = interpolate_NMNmode(v0, result, verbose);
 
-	if ( !success )
+	/*if ( !success )
 	{
 		success = interpolate_NMNmode_v2(v0, result, false, verbose);
 
 		if ( !success )
 			success = interpolate_NMNmode_v3(v0, result, verbose);
-	}
+	}*/
 	
 	return success;
 }
