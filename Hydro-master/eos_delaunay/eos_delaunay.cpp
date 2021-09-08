@@ -203,7 +203,16 @@ void eos_delaunay::load_EoS_table(string path_to_file, vector<vector<double> > &
 												sin*Tin*Tin*Tin/(hbarc*hbarc*hbarc),
 												qin*Tin*Tin*Tin/(hbarc*hbarc*hbarc)}) );
 
-				if (++count % 1000000 == 0) cout << "Read in " << count << " lines." << endl;
+				if (++count % 1000000 == 0)
+				{
+					cout << "Read in " << count << " lines." << endl;
+					cout << "Most recently read in:" << endl
+						<< Tin << "   " << muBin << "   " << muQin << "   " << muSin << "   " << 
+							ein*Tin*Tin*Tin*Tin/(hbarc*hbarc*hbarc) << "   " << 
+							bin*Tin*Tin*Tin/(hbarc*hbarc*hbarc) << "   " << 
+							sin*Tin*Tin*Tin/(hbarc*hbarc*hbarc) << "   " << 
+							qin*Tin*Tin*Tin/(hbarc*hbarc*hbarc) << endl;
+				}
 			}
 		}
 		else
