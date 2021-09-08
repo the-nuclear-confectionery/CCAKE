@@ -100,6 +100,12 @@ void eos_delaunay::init(string EoS_table_file, int e_or_s)
 	get_min_and_max(svec, smin, smax, false);
 	get_min_and_max(qvec, qmin, qmax, false);
 
+	cout << "Check minima and maxima:" << endl
+		<< emin << "   " << emax << "   "
+		<< bmin << "   " << bmax << "   "
+		<< smin << "   " << smax << "   "
+		<< qmin << "   " << qmax << endl;
+
 	// have one grid that we don't normalize for now
 	unnormalized_grid = grid;
 
@@ -206,12 +212,12 @@ void eos_delaunay::load_EoS_table(string path_to_file, vector<vector<double> > &
 				if (++count % 1000000 == 0)
 				{
 					cout << "Read in " << count << " lines." << endl;
-					cout << "Most recently read in:" << endl
+					/*cout << "Most recently read in:" << endl
 						<< Tin << "   " << muBin << "   " << muQin << "   " << muSin << "   " << 
 							ein*Tin*Tin*Tin*Tin/(hbarc*hbarc*hbarc) << "   " << 
 							bin*Tin*Tin*Tin/(hbarc*hbarc*hbarc) << "   " << 
 							sin*Tin*Tin*Tin/(hbarc*hbarc*hbarc) << "   " << 
-							qin*Tin*Tin*Tin/(hbarc*hbarc*hbarc) << endl;
+							qin*Tin*Tin*Tin/(hbarc*hbarc*hbarc) << endl;*/
 				}
 			}
 		}
