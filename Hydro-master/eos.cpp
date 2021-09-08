@@ -1259,16 +1259,16 @@ if (true)
 	rhoB = densities_at_point[1];
 	rhoS = densities_at_point[2];
 	rhoQ = densities_at_point[3];
-	/*cout << "Check here: " 
+	cout << "Check here: " 
 		<< tbqsToEval(0)*197.327 << "   "
 		<< tbqsToEval(1)*197.327 << "   "
 		<< tbqsToEval(2)*197.327 << "   "
 		<< tbqsToEval(3)*197.327 << "   "
-		<< e*197.327 << "   " << eGiven*197.327 << "   "
+		<< entr << "   " << entrGiven << "   "
 		<< rhoB << "   " << rhoBGiven << "   "
 		<< rhoS << "   " << rhoSGiven << "   "
 		<< rhoQ << "   " << rhoQGiven << endl;
-	*/
+
 }
 else
 {

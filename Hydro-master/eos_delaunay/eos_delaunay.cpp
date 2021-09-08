@@ -102,12 +102,6 @@ void eos_delaunay::init(string EoS_table_file, int e_or_s)
 	get_min_and_max(svec, smin, smax, false);
 	get_min_and_max(qvec, qmin, qmax, false);
 
-//	cout << "Check minima and maxima:" << endl
-//		<< emin << "   " << emax << "   "
-//		<< bmin << "   " << bmax << "   "
-//		<< smin << "   " << smax << "   "
-//		<< qmin << "   " << qmax << endl;
-
 	// have one grid that we don't normalize for now
 	unnormalized_grid = grid;
 
@@ -124,14 +118,11 @@ void eos_delaunay::init(string EoS_table_file, int e_or_s)
 	// use midpoints as alternate way of find best simplex
 	// "midpoints" are the average densities in the cell with lower corner at (iT,imu...)
 	std::vector<std::array<double, 4> > midpoint_grid;
-	size_t emergency_count = 0;
-//	vector<vector<double> > midpoint_coords;
 	for (size_t iT = 0; iT < nT-1; ++iT)
 	for (size_t imub = 0; imub < nmub-1; ++imub)
 	for (size_t imuq = 0; imuq < nmuq-1; ++imuq)
 	for (size_t imus = 0; imus < nmus-1; ++imus)
 	{
-//cout << "-----------------------------------------------" << endl;
 		std::array<double, 4> midpoint;
 		midpoint.fill(0.0);
 		for (size_t ii = 0; ii < 2; ++ii)
@@ -139,16 +130,6 @@ void eos_delaunay::init(string EoS_table_file, int e_or_s)
 		for (size_t kk = 0; kk < 2; ++kk)
 		for (size_t ll = 0; ll < 2; ++ll)
 		{
-			/*if ( emergency_count <= 10 )
-			{
-				cout << " " << indexer( iT+ii, imub+jj, imuq+kk, imus+ll );
-				cout << endl;
-				cout << "\t --> phase diagram indices: "
-						<< iT+ii << "   " << imub+jj << "   " << imuq+kk << "   " << imus+ll << endl;
-				cout << "\t --> midpoint:";
-				for (const auto & elem : midpoint) cout << "   " << elem;
-				cout << endl << endl;
-			}*/
 			std::transform( midpoint.begin(), midpoint.end(),
 							grid[indexer( iT+ii, imub+jj, imuq+kk, imus+ll )].begin()+4,
 							midpoint.begin(), std::plus<double>());
@@ -157,41 +138,8 @@ void eos_delaunay::init(string EoS_table_file, int e_or_s)
 		std::transform( midpoint.begin(), midpoint.end(), midpoint.begin(),
 							[](double & element){ return 0.0625*element; } );	//1/16
 
-		/*if ( emergency_count <= 10 )
-		{
-			cout << "Check midpoint:" << endl;
-			for (const auto & elem : midpoint) cout << "   " << elem;
-			cout << endl << endl;
-		}*/
-
 		midpoint_grid.push_back(midpoint);
 		midpoint_inds.push_back( {iT, imub, imuq, imus} );
-//		vector<double> & gridcell = grid[indexer(iT,imub,imuq,imus)];
-//		midpoint_coords.push_back(
-//			vector<double>( gridcell.begin(), gridcell.begin()+4 )
-//		
-/*if (emergency_count++ <= 10 )
-{			
-cout << "Checking midpoint grid:" << endl;
-cout << "\t --> grid indices:";
-for (size_t ii = 0; ii < 2; ++ii)
-for (size_t jj = 0; jj < 2; ++jj)
-for (size_t kk = 0; kk < 2; ++kk)
-for (size_t ll = 0; ll < 2; ++ll)
-	cout << " " << indexer( iT+ii, imub+jj, imuq+kk, imus+ll );
-cout << endl;
-cout << "\t --> phase diagram indices: " << endl;
-for (size_t ii = 0; ii < 2; ++ii)
-for (size_t jj = 0; jj < 2; ++jj)
-for (size_t kk = 0; kk < 2; ++kk)
-for (size_t ll = 0; ll < 2; ++ll)
-	cout << iT+ii << "   " << imub+jj << "   " << imuq+kk << "   " << imus+ll << endl;
-cout << "\t --> midpoint:";
-//for (const auto & elem : midpoint) cout << "   " << elem;
-cout << endl << endl;
-}*/
-//cout << "-----------------------------------------------" << endl;
-
 	}
 
 	// use this for log-distance-based NMN method
@@ -312,7 +260,16 @@ bool eos_delaunay::interpolate(const vector<double> & v0, vector<double> & resul
 
 //cout << "Densities check: " << v0[0] << "   " << v0[1] << "   "
 //		<< v0[2] << "   " << v0[3] << endl;
+//cout << "Normalized densities check: " << v0[0] << "   " << v0[1] << "   "
+//		<< v0[2] << "   " << v0[3] << endl;
 ////if (1) exit(-1);
+
+	cout << "Check minima and maxima:" << endl
+		<< emin << "   " << emax << "   "
+		<< bmin << "   " << bmax << "   "
+		<< smin << "   " << smax << "   "
+		<< qmin << "   " << qmax << endl;
+
 	
 	cout << "\t\tVersion 1" << endl;
 	bool success = interpolate_NMNmode(v0, result, verbose);
