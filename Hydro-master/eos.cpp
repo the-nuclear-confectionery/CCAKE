@@ -1249,10 +1249,34 @@ int rootfinder_fsbqs(const gsl_vector *x, void *params, gsl_vector *f) {
     rhoBGiven = ((rootfinder_parameters*)params)->rhoBGiven;            //given variables contain the target point
     rhoQGiven = ((rootfinder_parameters*)params)->rhoQGiven;
     rhoSGiven = ((rootfinder_parameters*)params)->rhoSGiven;
+if (true)
+{
+	double phase_diagram_point[4] = {tbqsToEval(0)*197.327, tbqsToEval(1)*197.327,
+					 tbqsToEval(3)*197.327, tbqsToEval(2)*197.327};	// NOTE: S <<-->> Q swapped!!!
+	double densities_at_point[4];
+	get_sBSQ_densities(phase_diagram_point, densities_at_point);
+	entr = densities_at_point[0];
+	rhoB = densities_at_point[1];
+	rhoS = densities_at_point[2];
+	rhoQ = densities_at_point[3];
+	/*cout << "Check here: " 
+		<< tbqsToEval(0)*197.327 << "   "
+		<< tbqsToEval(1)*197.327 << "   "
+		<< tbqsToEval(2)*197.327 << "   "
+		<< tbqsToEval(3)*197.327 << "   "
+		<< e*197.327 << "   " << eGiven*197.327 << "   "
+		<< rhoB << "   " << rhoBGiven << "   "
+		<< rhoS << "   " << rhoSGiven << "   "
+		<< rhoQ << "   " << rhoQGiven << endl;
+	*/
+}
+else
+{
     entr = (((rootfinder_parameters*)params)->eorEntSpline).eval(tbqsToEval);    //s, rhoB, rhoQ, rhoS contain the current point
     rhoB = (((rootfinder_parameters*)params)->rhoBSpline).eval(tbqsToEval);
     rhoQ = (((rootfinder_parameters*)params)->rhoQSpline).eval(tbqsToEval);
     rhoS = (((rootfinder_parameters*)params)->rhoSSpline).eval(tbqsToEval);
+}
 
     gsl_vector_set(f, 0, (entr - entrGiven)); //f[0] contains (s(T,muB,muQ,muS) - sGiven)
     gsl_vector_set(f, 1, (rhoB - rhoBGiven)); //f[1] contains (rhoB(T,muB,muQ,muS) - rhoBGiven)
@@ -1284,7 +1308,7 @@ if (true)
 	double phase_diagram_point[4] = {tbqsToEval(0)*197.327, tbqsToEval(1)*197.327,
 					 tbqsToEval(3)*197.327, tbqsToEval(2)*197.327};	// NOTE: S <<-->> Q swapped!!!
 	double densities_at_point[4];
-	get_densities(phase_diagram_point, densities_at_point);
+	get_eBSQ_densities(phase_diagram_point, densities_at_point);
 	e = densities_at_point[0]/197.327;
 	rhoB = densities_at_point[1];
 	rhoS = densities_at_point[2];
@@ -1399,6 +1423,8 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, d
 		tbqs( result[0]/197.327, result[1]/197.327, result[2]/197.327, result[3]/197.327 );
 		return true;
 	}
+
+	cout << "\t\t" << "Falling back to default rootfinder!\n";
 
     //declare x = (T, muB, muQ, muS)
     gsl_vector *x = gsl_vector_alloc(4);

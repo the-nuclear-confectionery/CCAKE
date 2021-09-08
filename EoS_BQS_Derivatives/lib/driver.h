@@ -18,7 +18,8 @@
 __BEGIN_DECLS
 
 void initialize(const char parameters_filename[]);
-void get_densities(double point[], double densities[]);
+void get_eBSQ_densities(double point[], double densities[]);
+void get_sBSQ_densities(double point[], double densities[]);
 
 __END_DECLS
 //#ifdef __cplusplus

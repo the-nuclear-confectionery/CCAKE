@@ -159,158 +159,15 @@ void initialize(const char parameters_filename[])
   	for(i=1;i<=21;i++) CHI121PAR[i] = parMatrix[21][i];
   	for(i=1;i<=21;i++) CHI112PAR[i] = parMatrix[22][i];
   	
-
-	/*  	
-	int run_density_solver = 1;
-	if ( run_density_solver )
-	for (int irun = 0; irun <= 2; irun+=1)
-	{
-		double eIn = 973.563, BIn = -0.316059, SIn = 0.323859, QIn = 1.06384;	// (MeV,1,1,1)/fm^3
-		double densities[4] = {eIn, BIn, SIn, QIn};
-		double sols[4] = {158.0, -437.0, -112.0, 437.0};		// MeV
-		double minima[4] = {155.0, -450.0, -125.0, 425.0};		// MeV
-		double maxima[4] = {160.0, -425.0, -100.0, 450.0};		// MeV
-
-		// find the solution
-		if (irun==1) solve(densities, sols);
-		else if (irun==2)
-		{
-			start = clock();
-
-			const int n_seeds_per_dimension = 5;	// includes endpoints
-			const double dT_seed = (maxima[0] - minima[0])/(n_seeds_per_dimension-1);
-			const double dmuB_seed = (maxima[1] - minima[1])/(n_seeds_per_dimension-1);
-			const double dmuS_seed = (maxima[2] - minima[2])/(n_seeds_per_dimension-1);
-			const double dmuQ_seed = (maxima[3] - minima[3])/(n_seeds_per_dimension-1);
-
-			double seedT[4], seedmuB[4], seedmuS[4], seedmuQ[4];
-
-			get_seed_points(minima[0], maxima[0], n_seeds_per_dimension, seedT);
-			get_seed_points(minima[1], maxima[1], n_seeds_per_dimension, seedmuB);
-			get_seed_points(minima[2], maxima[2], n_seeds_per_dimension, seedmuS);
-			get_seed_points(minima[3], maxima[3], n_seeds_per_dimension, seedmuQ);
-			
-			int attempts = 0;
-			double Tseed = 0.0, muBseed = 0.0, muSseed = 0.0, muQseed = 0.0;
-			for (int ii = 1; ii < n_seeds_per_dimension-1; ii+=1)
-			for (int jj = 1; jj < n_seeds_per_dimension-1; jj+=1)
-			for (int kk = 1; kk < n_seeds_per_dimension-1; kk+=1)
-			for (int ll = 1; ll < n_seeds_per_dimension-1; ll+=1)
-			{
-				Tseed = seedT[ii]; muBseed = seedmuB[jj]; muSseed = seedmuS[kk]; muQseed = seedmuQ[ll];
-				double seeds[4] = {Tseed, muBseed, muSseed, muQseed};
-				solve2(densities, sols, minima, maxima, seeds);
-				attempts += 1;
-				if (sols[0] > 0.0) // success
-					goto success;
-			}
-			success:
-				end = clock();
-				cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
-				printf("Finished calculating in %lf seconds.\n", cpu_time_used);	
-
-				printf("Found solution in %d attempts!\n", attempts);
-				printf("Seed point: %lf %lf %lf %lf\n",
-						imapf(Tseed, minima[0], maxima[0]),
-						imapf(muBseed, minima[1], maxima[1]),
-						imapf(muSseed, minima[2], maxima[2]),
-						imapf(muQseed, minima[3], maxima[3]));
-		}
-		double Tsol = sols[0], muBsol = sols[1], muSsol = sols[2], muQsol = sols[3];
-		Tval = Tsol; muBval = muBsol; muSval = muSsol; muQval = muQsol;
-		i = Tsol; j = muBsol; l = muSsol; k = muQsol;	// Q and S reversed
-		
-		
-		printf("Input:\n");
-		printf("eIn = %15.8f\n", eIn);
-		printf("BIn = %15.8f\n", BIn);
-		printf("SIn = %15.8f\n", SIn);
-		printf("QIn = %15.8f\n", QIn);
-		printf("Solution:\n");
-		printf("Tsol = %15.8f\n", Tsol);
-		printf("muBsol = %15.8f\n", muBsol);
-		printf("muSsol = %15.8f\n", muSsol);
-		printf("muQsol = %15.8f\n", muQsol);
-		fflush(stdout);
-		
-		double POut = Tsol*Tsol*Tsol*Tsol*PressTaylor(Tsol, muBsol, muQsol, muSsol);
-		double sOut = Tsol*Tsol*Tsol*EntrTaylor(Tsol, muBsol, muQsol, muSsol);
-		double BOut = Tsol*Tsol*Tsol*BarDensTaylor(Tsol, muBsol, muQsol, muSsol);
-		double SOut = Tsol*Tsol*Tsol*StrDensTaylor(Tsol, muBsol, muQsol, muSsol);
-		double QOut = Tsol*Tsol*Tsol*ChDensTaylor(Tsol, muBsol, muQsol, muSsol);
-		POut /= 197.327*197.327*197.327;
-		sOut /= 197.327*197.327*197.327;
-		BOut /= 197.327*197.327*197.327;
-		SOut /= 197.327*197.327*197.327;
-		QOut /= 197.327*197.327*197.327;
-		double eOut = sOut*Tsol - POut + muBsol*BOut + muQsol*QOut + muSsol*SOut;
-		
-		printf("Check:\n");
-		printf("POut = %15.8f\n", POut);
-		printf("sOut = %15.8f\n", sOut);
-		printf("eOut = %15.8f\n", eOut);
-		printf("BOut = %15.8f\n", BOut);
-		printf("SOut = %15.8f\n", SOut);
-		printf("QOut = %15.8f\n", QOut);
-		fflush(stdout);
-		
-		//if (irun==1) exit(-1);
-		
-		
-		//Thermodynamics
-		PressVal = PressTaylor(i,j,k,l);
-		EntrVal = EntrTaylor(i,j,k,l);
-		BarDensVal = BarDensTaylor(i,j,k,l);
-		StrDensVal = StrDensTaylor(i,j,k,l);
-		ChDensVal = ChDensTaylor(i,j,k,l);
-		EnerDensVal = EntrVal - PressVal 
-				+ muBval/Tval*BarDensVal 
-				+ muQval/Tval*ChDensVal 
-				+ muSval/Tval*StrDensVal;
-		SpSoundVal = SpSound(Tval,muBval,muQval,muSval);
-		            
-		//Second Order Derivatives
-		D2PB2 = P2B2(i,j,k,l);
-		D2PQ2 = P2Q2(i,j,k,l);
-		D2PS2 = P2S2(i,j,k,l);
-		
-		D2PBQ = P2BQ(i,j,k,l);
-		D2PBS = P2BS(i,j,k,l);
-		D2PQS = P2QS(i,j,k,l);
-		
-		D2PTB = P2TB(i,j,k,l);
-		D2PTQ = P2TQ(i,j,k,l);
-		D2PTS = P2TS(i,j,k,l);
-		D2PT2 = P2T2(i,j,k,l);
-		
-		printf("vals: %lf  %lf  %lf  %lf  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f\n", Tval, muBval, muQval, muSval, PressVal, EntrVal, 
-		        BarDensVal, StrDensVal, ChDensVal, EnerDensVal, SpSoundVal);
-		printf("derivs: %lf  %lf  %lf  %lf  %3.12f  %3.12f %3.12f  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f%  3.12f\n", Tval, muBval, muQval, muSval, D2PB2, D2PQ2, D2PS2, D2PBQ, D2PBS, D2PQS,
-				D2PTB, D2PTQ, D2PTS, D2PT2);
-		
-		printf("********************************************************************************\n\n");
-		
-		fflush(stdout);
-		
-//		}
-	}
-	if ( run_density_solver ) exit(-1);
-
-	chdir(buff);
-
-	*/
-
 	end = clock();
 	cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
 	printf("Initialization completed in %lf seconds.\n", cpu_time_used);	
 
-	
-	
 	return;
 }
 
-//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// S <<-->> Q HAVE BEEN REVERSED!!!!!!!
+
+/*
 void get_densities(double point[], double densities[])
 {
 	const double hbarc3 = 197.327*197.327*197.327;
@@ -325,6 +182,37 @@ void get_densities(double point[], double densities[])
 	densities[1] = BOut;
 	densities[2] = SOut;
 	densities[3] = QOut;
+}
+*/
+
+
+
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// S <<-->> Q HAVE BEEN REVERSED!!!!!!!
+void get_eBSQ_densities(double point[], double densities[])
+{
+	const double Tsol = point[0], muBsol = point[1], muSsol = point[2], muQsol = point[3];
+	const double Tsol3_by_hc3 = Tsol*Tsol*Tsol/(197.327*197.327*197.327);
+	double POut = Tsol*Tsol3_by_hc3*PressTaylor(Tsol, muBsol, muQsol, muSsol);
+	double sOut = Tsol3_by_hc3*EntrTaylor(Tsol, muBsol, muQsol, muSsol);
+	double BOut = Tsol3_by_hc3*BarDensTaylor(Tsol, muBsol, muQsol, muSsol);
+	double SOut = Tsol3_by_hc3*StrDensTaylor(Tsol, muBsol, muQsol, muSsol);
+	double QOut = Tsol3_by_hc3*ChDensTaylor(Tsol, muBsol, muQsol, muSsol);
+	double eOut = sOut*Tsol - POut + muBsol*BOut + muQsol*QOut + muSsol*SOut;
+	densities[0] = eOut;
+	densities[1] = BOut;
+	densities[2] = SOut;
+	densities[3] = QOut;
+}
+
+void get_sBSQ_densities(double point[], double densities[])
+{
+	const double Tsol = point[0], muBsol = point[1], muSsol = point[2], muQsol = point[3];
+	const double Tsol3_by_hc3 = Tsol*Tsol*Tsol/(197.327*197.327*197.327);
+	densities[0] = Tsol3_by_hc3*EntrTaylor(Tsol, muBsol, muQsol, muSsol);
+	densities[1] = Tsol3_by_hc3*BarDensTaylor(Tsol, muBsol, muQsol, muSsol);
+	densities[2] = Tsol3_by_hc3*StrDensTaylor(Tsol, muBsol, muQsol, muSsol);
+	densities[3] = Tsol3_by_hc3*ChDensTaylor(Tsol, muBsol, muQsol, muSsol);
 }
 
 
