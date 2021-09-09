@@ -322,7 +322,7 @@ bool eos_delaunay::interpolate_NMNmode(const vector<double> & v0, vector<double>
 	{
 		// point4d n not used; only need kdtree_nmn_index
 		point4d n = midpoint_tree_ptr->nearest({ne0, nb0, ns0, nq0}, kdtree_nmn_index);
-kdtree_nmn_index = 2079524;
+//kdtree_nmn_index = 2079524;
 		if (verbose)
 		{
 			size_t kdtree_nn_index = 0;
