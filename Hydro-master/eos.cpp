@@ -47,6 +47,7 @@ void eos::init(string quantityFile, string derivFile, int degree)
 
 	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
 	//init_with_txt(quantityFile, derivFile, degree);
+	init_with_txt(quantityFile, derivFile);
 
 	cout << "Initialize Delaunay interpolators" << endl;
 	e_delaunay.init(quantityFile, 0);		// 0 - energy density
@@ -212,6 +213,66 @@ void eos::init_with_txt(string quantityFile, string derivFile, int degree)
 	//std::cout << "Check alternate: "
 	//			<< T() << "   " << muB() << "   "
 	//			<< muQ() << "   " << muS() << std::endl;
+
+	std::cout << "All initializations finished!" << std::endl;
+
+    return;
+}
+
+void eos::init_grid_ranges_only(string quantityFile, string derivFile)
+{
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+    std::ifstream dataFile;
+    std::ifstream derFile;
+    dataFile.open(quantityFile);
+    derFile.open(derivFile);
+
+    double tit, muBit, muQit, muSit, pit, entrit, bit, sit, qit, eit, cs2it;
+    double db2it, dq2it, ds2it, dt2it, dbdqit, dbdsit, dqdsit, dtdbit, dtdsit, dtdqit;
+
+    int count = 0;
+    double hbarc = 197.327;
+    while (dataFile >> tit >> muBit >> muQit >> muSit >> pit >> entrit >> bit >> sit >> qit >> eit >> cs2it)
+    {
+        derFile >> tit >> muBit >> muQit >> muSit
+        		>> db2it >> dq2it >> ds2it
+        		>> dbdqit >> dbdsit >> dqdsit
+        		>> dtdbit >> dtdqit >> dtdsit >> dt2it;  //read data from files
+
+		// Christopher Plumberg:
+		// put T and mu_i in units of 1/fm
+		tit   /= hbarc;
+		muBit /= hbarc;
+		muSit /= hbarc;
+		muQit /= hbarc;
+
+        if(count++ == 0)
+        {
+            minT   = tit;
+            maxT   = tit;
+            minMuB = muBit;
+            maxMuB = muBit;     //initialize eos range variables
+            minMuQ = muQit;
+            maxMuQ = muQit;
+            minMuS = muSit;
+            maxMuS = muSit;
+        }
+        
+		if (count%100000==0) std::cout << "Read in line# " << count << std::endl;
+		
+        if (maxT < tit) maxT = tit;
+        if (minT > tit) minT = tit;
+        if (maxMuB < muBit) maxMuB = muBit;
+        if (minMuB > muBit) minMuB = muBit;
+        if (maxMuQ < muQit) maxMuQ = muQit;
+        if (minMuQ > muQit) minMuQ = muQit;
+        if (maxMuS < muSit) maxMuS = muSit;
+        if (minMuS > muSit) minMuS = muSit;
+        
+	}
+
+    dataFile.close();
+    derFile.close();
 
 	std::cout << "All initializations finished!" << std::endl;
 
@@ -1363,7 +1424,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 {
 	if ( VERBOSE > 5 ) std::cout << __PRETTY_FUNCTION__ << e_or_s_Given << "   " << e_or_s_mode << "   " << rhoBGiven << "   " << rhoSGiven << "   " << rhoQGiven << "   " << error << "   " << steps << std::endl;
 
-	{
+	/*{
 		vector<double> result(4, 0.0);
 		double phase_diagram_point[4] = {252.5, 52.5, 52.5, 52.5};	// NOTE: S <<-->> Q swapped!!!
 		double densities_at_point[4];
@@ -1419,7 +1480,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 			<< result[3] << endl;
 
 		if (1) exit(-1);
-	}
+	}*/
 
 	// Try the Delaunay interpolator first
 	vector<double> result(4, 0.0);
