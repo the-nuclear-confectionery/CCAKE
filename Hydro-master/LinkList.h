@@ -2405,10 +2405,10 @@ void LinkList<D>::updateIC()
 		else
 		{
 		
-		//DEBUGGING PURPOSES ONLY
+		/*//DEBUGGING PURPOSES ONLY
 		_p[i].rhoB_an = 0.0;
 		_p[i].rhoS_an = 0.0;
-		_p[i].rhoQ_an = 0.0;
+		_p[i].rhoQ_an = 0.0;*/
 
 
 			if (gtyp!=5)
