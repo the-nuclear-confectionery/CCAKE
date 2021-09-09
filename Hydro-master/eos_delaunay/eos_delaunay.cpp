@@ -281,7 +281,7 @@ bool eos_delaunay::interpolate(const vector<double> & v0, vector<double> & resul
 	cout << "\t\tVersion 1" << endl;
 	bool success = interpolate_NMNmode(v0, result, verbose);
 
-	if ( false && !success )
+	if ( !success )
 	{
 		cout << "\t\tVersion 2" << endl;
 		success = interpolate_NMNmode_v2(v0, result, false, verbose);
@@ -330,7 +330,6 @@ bool eos_delaunay::interpolate_NMNmode(const vector<double> & v0, vector<double>
 		midpoint_tree_ptr = (using_e_or_s_mode==0) ? e_midpoint_tree_ptr : entr_midpoint_tree_ptr;
 		// point4d n not used; only need kdtree_nmn_index
 		point4d n = midpoint_tree_ptr->nearest({ne0, nb0, ns0, nq0}, kdtree_nmn_index);
-//kdtree_nmn_index = 2079524;
 		if (verbose)
 		{
 			size_t kdtree_nn_index = 0;
@@ -625,10 +624,12 @@ bool eos_delaunay::interpolate_NMNmode_v2(
 	try
 	{
 		// point4d n not used; only need kdtree_nmn_index
+		midpoint_tree_ptr = (using_e_or_s_mode==0) ? e_midpoint_tree_ptr : entr_midpoint_tree_ptr;
 		point4d n = midpoint_tree_ptr->nearest({ne0, nb0, ns0, nq0}, kdtree_nmn_index);
 		if (verbose)
 		{
 			size_t kdtree_nn_index = 0;
+			tree_ptr = (using_e_or_s_mode==0) ? e_tree_ptr : entr_tree_ptr;
 			point4d nn = tree_ptr->nearest({ne0, nb0, ns0, nq0}, kdtree_nn_index);
 			cout << "KD-Tree: original point is "
 					<< ne0 << "   " << nb0 << "   "
@@ -1015,6 +1016,9 @@ bool eos_delaunay::interpolate_NMNmode_v3(const vector<double> & v0, vector<doub
 	try
 	{
 		// point4d n not used; only need kdtree_nmn_index
+		unnormalized_midpoint_tree_ptr = (using_e_or_s_mode==0) ?
+											e_unnormalized_midpoint_tree_ptr :
+											entr_unnormalized_midpoint_tree_ptr;
 		point4d n = unnormalized_midpoint_tree_ptr->nearest(
 					{ne0, nb0, ns0, nq0}, kdtree_nmn_index, false);	// false == log-distance mode
 		if (verbose)
@@ -1281,6 +1285,7 @@ bool eos_delaunay::interpolate_NNmode(const vector<double> & v0, vector<double> 
 	size_t kdtree_nn_index = 0;
 	try
 	{
+		tree_ptr = (using_e_or_s_mode==0) ? e_tree_ptr : entr_tree_ptr;
 		point4d n = tree_ptr->nearest({ne0, nb0, ns0, nq0}, kdtree_nn_index);
 		//sw.Stop();
 		//cout << "KD-Tree: Found nearest neighbor in " << setprecision(18)
