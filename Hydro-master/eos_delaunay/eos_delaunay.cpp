@@ -165,23 +165,30 @@ void eos_delaunay::init(string EoS_table_file, int e_or_s)
 
 	// set up kd-trees
 	cout << "Setting up kd-trees...";
-	static tree4d tree(std::begin(density_points), std::end(density_points));
-	tree_ptr = &tree;
-	
-//	cout << "Big check:" << endl;
-//	for ( const auto & midpoint : midpoint_grid )
-//	{
-//		for ( const auto & elem : midpoint )
-//			cout << "   " << elem;
-//		cout << endl;
-//	}
+	if ( e_or_s == 0 )
+	{
+		static tree4d tree(std::begin(density_points), std::end(density_points));
+		e_tree_ptr = &tree;
+		
+		static tree4d midpoint_tree(std::begin(midpoint_grid), std::end(midpoint_grid));
+		e_midpoint_tree_ptr = &midpoint_tree;
 
-	static tree4d midpoint_tree(std::begin(midpoint_grid), std::end(midpoint_grid));
-	midpoint_tree_ptr = &midpoint_tree;
+		static tree4d unnormalized_midpoint_tree(std::begin(midpoint_unnormalized_grid),
+												 std::end(midpoint_unnormalized_grid));
+		e_unnormalized_midpoint_tree_ptr = &unnormalized_midpoint_tree;
+	}
+	else
+	{
+		static tree4d tree(std::begin(density_points), std::end(density_points));
+		entr_tree_ptr = &tree;
+		
+		static tree4d midpoint_tree(std::begin(midpoint_grid), std::end(midpoint_grid));
+		entr_midpoint_tree_ptr = &midpoint_tree;
 
-	static tree4d unnormalized_midpoint_tree(std::begin(midpoint_unnormalized_grid),
-											 std::end(midpoint_unnormalized_grid));
-	unnormalized_midpoint_tree_ptr = &unnormalized_midpoint_tree;
+		static tree4d unnormalized_midpoint_tree(std::begin(midpoint_unnormalized_grid),
+												 std::end(midpoint_unnormalized_grid));
+		entr_unnormalized_midpoint_tree_ptr = &unnormalized_midpoint_tree;
+	}
 	cout << "finished!\n";
 
 	return;
@@ -320,12 +327,14 @@ bool eos_delaunay::interpolate_NMNmode(const vector<double> & v0, vector<double>
 	size_t kdtree_nmn_index = 0;
 	try
 	{
+		midpoint_tree_ptr = (using_e_or_s_mode==0) ? e_midpoint_tree_ptr : entr_midpoint_tree_ptr;
 		// point4d n not used; only need kdtree_nmn_index
 		point4d n = midpoint_tree_ptr->nearest({ne0, nb0, ns0, nq0}, kdtree_nmn_index);
 //kdtree_nmn_index = 2079524;
 		if (verbose)
 		{
 			size_t kdtree_nn_index = 0;
+			tree_ptr = (using_e_or_s_mode==0) ? e_tree_ptr : entr_tree_ptr;
 			point4d nn = tree_ptr->nearest({ne0, nb0, ns0, nq0}, kdtree_nn_index);
 			cout << "KD-Tree: original point is "
 					<< ne0 << "   " << nb0 << "   "
