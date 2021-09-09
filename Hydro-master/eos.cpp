@@ -1460,11 +1460,11 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 		tbqs( result[0]/197.327, result[1]/197.327, result[2]/197.327, result[3]/197.327 );
 		return true;
 	}
-	/*else
+	else
 	{
 		cout << "Delaunay interpolator failed!" << endl;
 		return false;
-	}*/
+	}
 
 	cout << "\t\t" << "Falling back to default rootfinder!\n";
 
