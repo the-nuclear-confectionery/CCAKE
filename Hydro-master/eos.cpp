@@ -49,7 +49,7 @@ void eos::init(string quantityFile, string derivFile, int degree)
 	//init_with_txt(quantityFile, derivFile, degree);
 
 	cout << "Initialize Delaunay interpolators" << endl;
-	//e_delaunay.init(quantityFile, 0);		// 0 - energy density
+	e_delaunay.init(quantityFile, 0);		// 0 - energy density
 	entr_delaunay.init(quantityFile, 1);	// 1 - entropy density
 
 	return;
