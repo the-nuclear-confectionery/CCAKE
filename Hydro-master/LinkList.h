@@ -2384,7 +2384,7 @@ void LinkList<D>::updateIC()
 				"----------------------------------------" << endl;
 
 		//_p[i].s_an = -1.0;
-		if ( _p[i].e_sub < 0.2*efcheck )// speed things up
+		if ( false && _p[i].e_sub < 0.2*efcheck )// speed things up
 		{
 			// set charge densities to zero and re-solve
 			_p[i].rhoB_an = 0.0;
