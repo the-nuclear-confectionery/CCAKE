@@ -271,34 +271,34 @@ bool eos_delaunay::interpolate(const vector<double> & v0, vector<double> & resul
 //		<< v0[2] << "   " << v0[3] << endl;
 ////if (1) exit(-1);
 
-	cout << "Check minima and maxima:" << endl
+	/*cout << "Check minima and maxima:" << endl
 		<< emin << "   " << emax << "   "
 		<< bmin << "   " << bmax << "   "
 		<< smin << "   " << smax << "   "
-		<< qmin << "   " << qmax << endl;
+		<< qmin << "   " << qmax << endl;*/
 
 	
-	cout << "\t\tVersion 1" << endl;
+	//cout << "\t\tVersion 1" << endl;
 	bool success = interpolate_NMNmode(v0, result, verbose);
 
 	if ( !success )
 	{
-		cout << "\t\tVersion 2" << endl;
+		//cout << "\t\tVersion 2" << endl;
 		success = interpolate_NMNmode_v2(v0, result, false, verbose);
 
 		if ( !success )
 		{
-			cout << "\t\tVersion 3" << endl;
+			//cout << "\t\tVersion 3" << endl;
 			success = interpolate_NMNmode_v3(v0, result, verbose);
 			
 			if ( !success )
 			{
-				cout << "\t\tVersion 2b" << endl;
+				//cout << "\t\tVersion 2b" << endl;
 				success = interpolate_NMNmode_v2(v0, result, true, verbose);
 
 				if ( !success )
 				{
-					cout << "\t\tVersion NN" << endl;
+					//cout << "\t\tVersion NN" << endl;
 					success = interpolate_NNmode(v0, result, verbose);
 				}
 			}
