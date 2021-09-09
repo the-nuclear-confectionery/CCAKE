@@ -147,6 +147,8 @@ private:
 
     //finds t,mu for a given e and BSQ or s and BSQ
     //returns 1 if the point was found. Returns 0 if failed
-    bool rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, double rhoSGiven, double rhoQgiven, double error, size_t steps);
+    bool rootfinder4D(double e_or_s_Given, int e_or_s_mode,
+						double rhoBGiven, double rhoSGiven, double rhoQgiven,
+						double error, size_t steps);
 
 };

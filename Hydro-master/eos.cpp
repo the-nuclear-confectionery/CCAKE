@@ -962,6 +962,9 @@ bool eos::update_s(double sin, double Bin, double Sin, double Qin) { //update th
     if (rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
         return true;
     }
+	///////////////////////////
+	return false;//!!!!!!!!!!!!
+	///////////////////////////
     double t0 = tbqsPosition(0);
     double mub0 = tbqsPosition(1);
     double muq0 = tbqsPosition(2);
@@ -1065,6 +1068,9 @@ double eos::s_out(double ein, double Bin, double Sin, double Qin) {   //update t
     if (rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
         return entrVal;
     }
+	///////////////////////////
+	return -1.0;//!!!!!!!!!!!!
+	///////////////////////////
 
     double t0 = tbqsPosition(0);
     double mub0 = tbqsPosition(1);
@@ -1351,7 +1357,9 @@ else
 }
 
 
-bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode, double rhoBGiven, double rhoSGiven, double rhoQGiven, double error, size_t steps)
+bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
+						double rhoBGiven, double rhoSGiven, double rhoQGiven,
+						double error, size_t steps)
 {
 	if ( VERBOSE > 5 ) std::cout << __PRETTY_FUNCTION__ << e_or_s_Given << "   " << e_or_s_mode << "   " << rhoBGiven << "   " << rhoSGiven << "   " << rhoQGiven << "   " << error << "   " << steps << std::endl;
 
