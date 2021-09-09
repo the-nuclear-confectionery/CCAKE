@@ -46,7 +46,7 @@ void eos::init(string quantityFile, string derivFile, int degree)
 	initialize("/projects/jnorhos/BSQ/EoS_BQS_Derivatives/Coefficients_Parameters.dat");
 
 	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
-	init_with_txt(quantityFile, derivFile, degree);
+	//init_with_txt(quantityFile, derivFile, degree);
 
 	cout << "Initialize Delaunay interpolators" << endl;
 	e_delaunay.init(quantityFile, 0);		// 0 - energy density
@@ -1363,7 +1363,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 {
 	if ( VERBOSE > 5 ) std::cout << __PRETTY_FUNCTION__ << e_or_s_Given << "   " << e_or_s_mode << "   " << rhoBGiven << "   " << rhoSGiven << "   " << rhoQGiven << "   " << error << "   " << steps << std::endl;
 
-	/*{
+	{
 		vector<double> result(4, 0.0);
 		double phase_diagram_point[4] = {252.5, 52.5, 52.5, 52.5};	// NOTE: S <<-->> Q swapped!!!
 		double densities_at_point[4];
@@ -1419,7 +1419,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 			<< result[3] << endl;
 
 		if (1) exit(-1);
-	}*/
+	}
 
 	// Try the Delaunay interpolator first
 	vector<double> result(4, 0.0);
