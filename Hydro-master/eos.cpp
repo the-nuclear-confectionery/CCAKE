@@ -47,7 +47,7 @@ void eos::init(string quantityFile, string derivFile, int degree)
 
 	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
 	//init_with_txt(quantityFile, derivFile, degree);
-	init_with_txt(quantityFile, derivFile);
+	init_grid_ranges_only(quantityFile, derivFile);
 
 	cout << "Initialize Delaunay interpolators" << endl;
 	e_delaunay.init(quantityFile, 0);		// 0 - energy density
