@@ -1456,13 +1456,13 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 	if ( success )
 	{
 		// set T, muB, muQ, muS
-		cout << "Delaunay interpolator succeeded!" << endl;
+		//cout << "Delaunay interpolator succeeded!" << endl;
 		tbqs( result[0]/197.327, result[1]/197.327, result[2]/197.327, result[3]/197.327 );
 		return true;
 	}
 	else
 	{
-		cout << "Delaunay interpolator failed!" << endl;
+		//cout << "Delaunay interpolator failed!" << endl;
 		return false;
 	}
 

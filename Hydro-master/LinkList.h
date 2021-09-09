@@ -2405,19 +2405,14 @@ void LinkList<D>::updateIC()
 		else
 		{
 		
-		/*//DEBUGGING PURPOSES ONLY
-		_p[i].rhoB_an = 0.0;
-		_p[i].rhoS_an = 0.0;
-		_p[i].rhoQ_an = 0.0;*/
-
-
 			if (gtyp!=5)
 			{
 				sw.Start();
 				cout << "Doing this particle: " << _p[i].r.x[0] << "   " << _p[i].r.x[1] << endl;
 				_p[i].s_an = _p[i].EOSs_out( _p[i].e_sub, _p[i].rhoB_an, _p[i].rhoS_an, _p[i].rhoQ_an );
 				sw.Stop();
-				cout << "SPH particle " << i << ", EOSs_out: completed in "
+				string successString = (_p[i].s_an < 0.0) ? "unsuccessfully" : "successfully";
+				cout << "SPH particle " << i << ", EOSs_out: completed " << successString << " in "
 						<< sw.printTime() << "s." << endl;
 			}
 
@@ -2431,7 +2426,7 @@ void LinkList<D>::updateIC()
 				////////////////////////////////////////////////////////
 				// if failed with charge densities, set them to zero and re-solve;
 				// if that fails too, guesstimate an answer
-				cout << "\t --> Densities not found in EoS table: "
+				cout << "\t --> Densities not found in EoS table (setting BSQ --> 0): "
 						<< _p[i].r.x[0] << "   " << _p[i].r.x[1] << "\n"
 						<< "\t\t - densities: "
 						<< _p[i].e_sub*197.327 << "   " << _p[i].rhoB_an << "   "
@@ -2495,13 +2490,17 @@ void LinkList<D>::updateIC()
 
 		}
 
-		sw.Reset();
-		sw.Start();
-		_p[i].EOSupdate_s( _p[i].s_an, _p[i].rhoB_an, _p[i].rhoS_an, _p[i].rhoQ_an );
-		sw.Stop();
-		cout << "SPH particle " << i << ", EOSupdate_s: completed in "
-				<< sw.printTime() << "s." << endl;
-		sw.Reset();
+		// CUT OUT UPDATE_S SINCE IT'S REDUNDANT AND WASTING CPU TIME
+		/*{
+			sw.Reset();
+			sw.Start();
+			bool successTest = _p[i].EOSupdate_s( _p[i].s_an, _p[i].rhoB_an, _p[i].rhoS_an, _p[i].rhoQ_an );
+			sw.Stop();
+			string successString = (successTest) ? "successfully" : "unsuccessfully";
+			cout << "SPH particle " << i << ", EOSupdate_s: completed " << successString << " in "
+					<< sw.printTime() << "s." << endl;
+			sw.Reset();
+		}*/
 
         if (gtyp==5) _p[i].e_sub=_p[i].EOSe();
 
