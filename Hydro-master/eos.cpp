@@ -45,8 +45,8 @@ void eos::init(string quantityFile, string derivFile, int degree)
 	initialize("/projects/jnorhos/BSQ/EoS_BQS_Derivatives/Coefficients_Parameters.dat");
 
 	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
-	//init_with_txt(quantityFile, derivFile, degree);
-	init_grid_ranges_only(quantityFile, derivFile);
+	init_with_txt(quantityFile, derivFile, degree);
+	//init_grid_ranges_only(quantityFile, derivFile);
 
 	cout << "Initialize Delaunay interpolators" << endl;
 	e_delaunay.init(quantityFile, 0);		// 0 - energy density
@@ -231,7 +231,9 @@ void eos::init_grid_ranges_only(string quantityFile, string derivFile)
 
     int count = 0;
     double hbarc = 197.327;
-    while (dataFile >> tit >> muBit >> muQit >> muSit >> pit >> entrit >> bit >> sit >> qit >> eit >> cs2it)
+    while (dataFile >> tit >> muBit >> muQit >> muSit
+			>> pit >> entrit >> bit >> sit >> qit
+			>> eit >> cs2it)
     {
         derFile >> tit >> muBit >> muQit >> muSit
         		>> db2it >> dq2it >> ds2it
