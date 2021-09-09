@@ -2372,7 +2372,8 @@ void LinkList<D>::updateIC()
 {
 	// set up EoS C library
 	initialize("/projects/jnorhos/BSQ/EoS_BQS_Derivatives/Coefficients_Parameters.dat");
-	Stopwatch sw;
+	Stopwatch sw, swTotal;
+	swTotal.Start();
 	long long failCounter = 0;
 	cout << "----------------------------------------"
 			"----------------------------------------" << endl;
@@ -2513,6 +2514,9 @@ void LinkList<D>::updateIC()
 			"----------------------------------------" << endl;
 	cout << "----------------------------------------"
 			"----------------------------------------" << endl;
+
+swTotal.Stop();
+cout << "Finished function call to updateIC(...) in " << swTotal.printTime() << " s." << endl;
 
 if (true)
 {

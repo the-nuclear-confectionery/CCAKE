@@ -281,7 +281,7 @@ bool eos_delaunay::interpolate(const vector<double> & v0, vector<double> & resul
 	//cout << "\t\tVersion 1" << endl;
 	bool success = interpolate_NMNmode(v0, result, verbose);
 
-	if ( !success )
+	if ( false && !success )
 	{
 		//cout << "\t\tVersion 2" << endl;
 		success = interpolate_NMNmode_v2(v0, result, false, verbose);
@@ -296,7 +296,7 @@ bool eos_delaunay::interpolate(const vector<double> & v0, vector<double> & resul
 				//cout << "\t\tVersion NN" << endl;
 				success = interpolate_NNmode(v0, result, verbose);
 
-				if ( false && !success )
+				if ( !success )
 				{
 					//cout << "\t\tVersion 2b" << endl;
 					success = interpolate_NMNmode_v2(v0, result, true, verbose);
