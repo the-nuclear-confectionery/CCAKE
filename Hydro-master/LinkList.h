@@ -2490,6 +2490,7 @@ void LinkList<D>::updateIC()
 
 		}
 
+
 		// CUT OUT UPDATE_S SINCE IT'S REDUNDANT AND WASTING CPU TIME
 		/*{
 			sw.Reset();
@@ -2501,6 +2502,7 @@ void LinkList<D>::updateIC()
 					<< sw.printTime() << "s." << endl;
 			sw.Reset();
 		}*/
+
 
         if (gtyp==5) _p[i].e_sub=_p[i].EOSe();
 
