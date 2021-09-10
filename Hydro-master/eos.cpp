@@ -1425,110 +1425,115 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 {
 	if ( VERBOSE > 5 ) std::cout << __PRETTY_FUNCTION__ << e_or_s_Given << "   " << e_or_s_mode << "   " << rhoBGiven << "   " << rhoSGiven << "   " << rhoQGiven << "   " << error << "   " << steps << std::endl;
 
-	/*{
+	constexpr bool use_Delaunay_interpolator = false;
+
+	if ( use_Delaunay_interpolator )
+	{
+		/*{
+			vector<double> result(4, 0.0);
+			double phase_diagram_point[4] = {252.5, 52.5, 52.5, 52.5};	// NOTE: S <<-->> Q swapped!!!
+			double densities_at_point[4];
+			get_eBSQ_densities(phase_diagram_point, densities_at_point);
+
+			bool success
+				= e_delaunay.interpolate(
+						{densities_at_point[0],
+						densities_at_point[1],
+						densities_at_point[2],
+						densities_at_point[3]}, result, true);
+
+			cout << "Check eBSQ solution:\n\t"
+				<< phase_diagram_point[0] << "   "
+				<< phase_diagram_point[1] << "   "
+				<< phase_diagram_point[2] << "   "
+				<< phase_diagram_point[3] << "\n\t"
+				<< densities_at_point[0] << "   "
+				<< densities_at_point[1] << "   "
+				<< densities_at_point[2] << "   "
+				<< densities_at_point[3] << "\n\t"
+				<< result[0] << "   "
+				<< result[1] << "   "
+				<< result[2] << "   "
+				<< result[3] << endl;
+
+			std::fill(result.begin(), result.end(), 0.0);
+			densities_at_point[0] = 0.0;
+			densities_at_point[1] = 0.0;
+			densities_at_point[2] = 0.0;
+			densities_at_point[3] = 0.0;
+			get_sBSQ_densities(phase_diagram_point, densities_at_point);
+
+			success
+				= entr_delaunay.interpolate(
+						{densities_at_point[0],
+						densities_at_point[1],
+						densities_at_point[2],
+						densities_at_point[3]}, result, true);
+
+			cout << "Check sBSQ solution:\n\t"
+				<< phase_diagram_point[0] << "   "
+				<< phase_diagram_point[1] << "   "
+				<< phase_diagram_point[2] << "   "
+				<< phase_diagram_point[3] << "\n\t"
+				<< densities_at_point[0] << "   "
+				<< densities_at_point[1] << "   "
+				<< densities_at_point[2] << "   "
+				<< densities_at_point[3] << "\n\t"
+				<< result[0] << "   "
+				<< result[1] << "   "
+				<< result[2] << "   "
+				<< result[3] << endl;
+
+			if (1) exit(-1);
+		}*/
+
+		// Try the Delaunay interpolator first
 		vector<double> result(4, 0.0);
-		double phase_diagram_point[4] = {252.5, 52.5, 52.5, 52.5};	// NOTE: S <<-->> Q swapped!!!
-		double densities_at_point[4];
-		get_eBSQ_densities(phase_diagram_point, densities_at_point);
+		bool success = false;
+		if ( e_or_s_mode==1 )
+			success = e_delaunay.interpolate({e_or_s_Given*197.327, rhoBGiven, rhoSGiven, rhoQGiven}, result);
+		else
+			success = entr_delaunay.interpolate({e_or_s_Given, rhoBGiven, rhoSGiven, rhoQGiven}, result);
 
-		bool success
-			= e_delaunay.interpolate(
-					{densities_at_point[0],
-					densities_at_point[1],
-					densities_at_point[2],
-					densities_at_point[3]}, result, true);
+		/*if ( success ) cout << "Success!" << endl;
+		else cout << "Failed!" << endl;
 
-		cout << "Check eBSQ solution:\n\t"
-			<< phase_diagram_point[0] << "   "
-			<< phase_diagram_point[1] << "   "
-			<< phase_diagram_point[2] << "   "
-			<< phase_diagram_point[3] << "\n\t"
-			<< densities_at_point[0] << "   "
-			<< densities_at_point[1] << "   "
-			<< densities_at_point[2] << "   "
-			<< densities_at_point[3] << "\n\t"
-			<< result[0] << "   "
-			<< result[1] << "   "
-			<< result[2] << "   "
-			<< result[3] << endl;
+		{
+			double phase_diagram_point[4] = {result[0], result[1], result[3], result[2]};	// NOTE: S <<-->> Q swapped!!!
+			double densities_at_point[4];
+			get_densities(phase_diagram_point, densities_at_point);
+			cout << "Check solution:\n\t"
+				<< phase_diagram_point[0] << "   "
+				<< phase_diagram_point[1] << "   "
+				<< phase_diagram_point[2] << "   "
+				<< phase_diagram_point[3] << "\n\t"
+				<< densities_at_point[0] << "   "
+				<< densities_at_point[1] << "   "
+				<< densities_at_point[2] << "   "
+				<< densities_at_point[3] << "\n\t"
+				<< e_or_s_Given*197.327 << "   "
+				<< rhoBGiven << "   "
+				<< rhoSGiven << "   "
+				<< rhoQGiven << endl;
 
-		std::fill(result.begin(), result.end(), 0.0);
-		densities_at_point[0] = 0.0;
-		densities_at_point[1] = 0.0;
-		densities_at_point[2] = 0.0;
-		densities_at_point[3] = 0.0;
-		get_sBSQ_densities(phase_diagram_point, densities_at_point);
+			if (1) exit(-1);
+		}*/
 
-		success
-			= entr_delaunay.interpolate(
-					{densities_at_point[0],
-					densities_at_point[1],
-					densities_at_point[2],
-					densities_at_point[3]}, result, true);
-
-		cout << "Check sBSQ solution:\n\t"
-			<< phase_diagram_point[0] << "   "
-			<< phase_diagram_point[1] << "   "
-			<< phase_diagram_point[2] << "   "
-			<< phase_diagram_point[3] << "\n\t"
-			<< densities_at_point[0] << "   "
-			<< densities_at_point[1] << "   "
-			<< densities_at_point[2] << "   "
-			<< densities_at_point[3] << "\n\t"
-			<< result[0] << "   "
-			<< result[1] << "   "
-			<< result[2] << "   "
-			<< result[3] << endl;
-
-		if (1) exit(-1);
-	}*/
-
-	// Try the Delaunay interpolator first
-	vector<double> result(4, 0.0);
-	bool success = false;
-	if ( e_or_s_mode==1 )
-		success = e_delaunay.interpolate({e_or_s_Given*197.327, rhoBGiven, rhoSGiven, rhoQGiven}, result);
-	else
-		success = entr_delaunay.interpolate({e_or_s_Given, rhoBGiven, rhoSGiven, rhoQGiven}, result);
-
-	/*if ( success ) cout << "Success!" << endl;
-	else cout << "Failed!" << endl;
-
-	{
-		double phase_diagram_point[4] = {result[0], result[1], result[3], result[2]};	// NOTE: S <<-->> Q swapped!!!
-		double densities_at_point[4];
-		get_densities(phase_diagram_point, densities_at_point);
-		cout << "Check solution:\n\t"
-			<< phase_diagram_point[0] << "   "
-			<< phase_diagram_point[1] << "   "
-			<< phase_diagram_point[2] << "   "
-			<< phase_diagram_point[3] << "\n\t"
-			<< densities_at_point[0] << "   "
-			<< densities_at_point[1] << "   "
-			<< densities_at_point[2] << "   "
-			<< densities_at_point[3] << "\n\t"
-			<< e_or_s_Given*197.327 << "   "
-			<< rhoBGiven << "   "
-			<< rhoSGiven << "   "
-			<< rhoQGiven << endl;
-
-		if (1) exit(-1);
-	}*/
-
-	if ( success )
-	{
-		// set T, muB, muQ, muS
-		//cout << "Delaunay interpolator succeeded!" << endl;
-		tbqs( result[0]/197.327, result[1]/197.327, result[2]/197.327, result[3]/197.327 );
-		return true;
-	}
-	else
-	{
-		//cout << "Delaunay interpolator failed!" << endl;
-		return false;
+		if ( success )
+		{
+			// set T, muB, muQ, muS
+			//cout << "Delaunay interpolator succeeded!" << endl;
+			tbqs( result[0]/197.327, result[1]/197.327, result[2]/197.327, result[3]/197.327 );
+			return true;
+		}
+		else
+		{
+			//cout << "Delaunay interpolator failed!" << endl;
+			return false;
+		}
 	}
 
-	cout << "\t\t" << "Falling back to default rootfinder!\n";
+	//cout << "\t\t" << "Falling back to default rootfinder!\n";
 
     //declare x = (T, muB, muQ, muS)
     gsl_vector *x = gsl_vector_alloc(4);

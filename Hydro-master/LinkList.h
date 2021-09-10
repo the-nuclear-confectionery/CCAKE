@@ -2410,6 +2410,30 @@ void LinkList<D>::updateIC()
 				sw.Start();
 				cout << "Doing this particle: " << _p[i].r.x[0] << "   " << _p[i].r.x[1] << endl;
 				_p[i].s_an = _p[i].EOSs_out( _p[i].e_sub, _p[i].rhoB_an, _p[i].rhoS_an, _p[i].rhoQ_an );
+
+if (_p[i].s_an>0.0)
+{
+	double phase_diagram_point[4]
+		= { _p[i].particle_T*197.327,
+			  _p[i].particle_muB*197.327,
+			  _p[i].particle_muS*197.327,
+			  _p[i].particle_muQ*197.327 };
+	double densities_at_point[4];
+	get_eBSQ_densities(phase_diagram_point, densities_at_point);
+	cout << i << ":   " << _p[i].e_sub*197.327 << "   " << _p[i].rhoB_an
+		<< "   " << _p[i].rhoS_an << "   " << _p[i].rhoQ_an
+		<< "   " << _p[i].particle_T*197.327 << "   " << _p[i].particle_muB*197.327
+		<< "   " << _p[i].particle_muS*197.327 << "   " << _p[i].particle_muQ*197.327;
+		for (int iii = 0; iii < 4; iii++) cout << "   " << densities_at_point[iii];		
+	cout << "\n";
+}
+else
+	cout << i << ":   " << _p[i].e_sub*197.327 << "   " << _p[i].rhoB_an
+		<< "   " << _p[i].rhoS_an << "   " << _p[i].rhoQ_an
+		<< "   " << 0.0 << "   " << 0.0 << "   " << 0.0 << "   " << 0.0
+		<< "   nan   nan   nan   nan\n";
+
+
 				sw.Stop();
 				string successString = (_p[i].s_an < 0.0) ? "unsuccessfully" : "successfully";
 				cout << "SPH particle " << i << ", EOSs_out: completed " << successString << " in "
