@@ -1570,7 +1570,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 
 	// set GSL vector with best initial guess we can
 	for (int iCoord = 0; iCoord < 4; iCoord++)
-		gsl_vector_set(x, i, T_muB_muQ_muS_estimates[i]);
+		gsl_vector_set(x, iCoord, T_muB_muQ_muS_estimates[i]);
 
     /*gsl_vector_set(x, 0, T());
     gsl_vector_set(x, 1, muB());
