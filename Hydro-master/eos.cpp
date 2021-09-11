@@ -1265,38 +1265,57 @@ struct rootfinder_parameters {
     double rhoBGiven;
     double rhoQGiven;
     double rhoSGiven;
-    BSpline eorEntSpline;        //the splines that contain interpolations over s, BSQ
+    /*BSpline eorEntSpline;        //the splines that contain interpolations over s, BSQ
     BSpline rhoBSpline;
     BSpline rhoQSpline;
-    BSpline rhoSSpline;
+    BSpline rhoSSpline;*/
     rootfinder_parameters();
-    rootfinder_parameters(double seteorEntGiven, double setRhoBGiven, double setRhoQGiven, double setRhoSGiven, BSpline setEntrSpline, BSpline setRhoBSPLine, BSpline setRhoQSpline, BSpline setRhoSSpline);
+    rootfinder_parameters(
+		double seteorEntGiven, double setRhoBGiven,
+		double setRhoQGiven, double setRhoSGiven/*,
+		BSpline setEntrSpline, BSpline setRhoBSpline,
+		BSpline setRhoQSpline, BSpline setRhoSSpline*/);
 public:
-    void set(double setEorEntGiven, double setRhoBGiven, double setRhoQGiven, double setRhoSGiven, BSpline setEntrSpline, BSpline setRhoBSpline, BSpline setRhoQSpline, BSpline setRhoSSpline);
+    void set( double setEorEntGiven, double setRhoBGiven,
+			  double setRhoQGiven, double setRhoSGiven/*,
+			  BSpline setEntrSpline, BSpline setRhoBSpline,
+			  BSpline setRhoQSpline, BSpline setRhoSSpline*/);
 };
 //Default constructor to make the compiler happy. Should never be called
-rootfinder_parameters::rootfinder_parameters() : eorEntSpline(4), rhoBSpline(4), rhoQSpline(4), rhoSSpline(4) {}
+rootfinder_parameters::rootfinder_parameters()
+	/*: eorEntSpline(4), rhoBSpline(4), rhoQSpline(4), rhoSSpline(4)*/ {}
 //constructor which initializes all struct variables
-rootfinder_parameters::rootfinder_parameters(double setEorEntGiven, double setRhoBGiven, double setRhoQGiven, double setRhoSGiven, BSpline setEorEntSpline, BSpline setRhoBSpline, BSpline setRhoQSpline, BSpline setRhoSSpline) : eorEntSpline(4), rhoBSpline(4), rhoQSpline(4), rhoSSpline(4)
+rootfinder_parameters::rootfinder_parameters(
+	double setEorEntGiven, double setRhoBGiven,
+	double setRhoQGiven, double setRhoSGiven/*,
+	BSpline setEorEntSpline, BSpline setRhoBSpline,
+	BSpline setRhoQSpline, BSpline setRhoSSpline*/
+	)
+	//: eorEntSpline(4), rhoBSpline(4), rhoQSpline(4), rhoSSpline(4)
 {
     eorEntGiven = setEorEntGiven;
     rhoBGiven = setRhoBGiven;
     rhoQGiven = setRhoQGiven;
     rhoSGiven = setRhoSGiven;
-    eorEntSpline = setEorEntSpline;
+    /*eorEntSpline = setEorEntSpline;
     rhoBSpline = setRhoBSpline;
     rhoQSpline = setRhoQSpline;
-    rhoSSpline = setRhoSSpline;
+    rhoSSpline = setRhoSSpline;*/
 }
-void rootfinder_parameters::set(double setEorEntGiven, double setRhoBGiven, double setRhoQGiven, double setRhoSGiven, BSpline setEorEntSpline, BSpline setRhoBSpline, BSpline setRhoQSpline, BSpline setRhoSSpline) {
+void rootfinder_parameters::set(
+	double setEorEntGiven, double setRhoBGiven,
+	double setRhoQGiven, double setRhoSGiven/*,
+	BSpline setEorEntSpline, BSpline setRhoBSpline,
+	BSpline setRhoQSpline, BSpline setRhoSSpline*/)
+{
     eorEntGiven = setEorEntGiven;
     rhoBGiven = setRhoBGiven;
     rhoQGiven = setRhoQGiven;
     rhoSGiven = setRhoSGiven;
-    eorEntSpline = setEorEntSpline;
+    /*eorEntSpline = setEorEntSpline;
     rhoBSpline = setRhoBSpline;
     rhoQSpline = setRhoQSpline;
-    rhoSSpline = setRhoSSpline;
+    rhoSSpline = setRhoSSpline;*/
 }
 
 //helper function for the rootfinder. It provides the correct difference of s, rhoB, rhoQ, rhoS at a given (T, muB, muQ, muS) from the target
@@ -1340,10 +1359,10 @@ if (true)
 }
 else
 {
-    entr = (((rootfinder_parameters*)params)->eorEntSpline).eval(tbqsToEval);    //s, rhoB, rhoQ, rhoS contain the current point
-    rhoB = (((rootfinder_parameters*)params)->rhoBSpline).eval(tbqsToEval);
-    rhoQ = (((rootfinder_parameters*)params)->rhoQSpline).eval(tbqsToEval);
-    rhoS = (((rootfinder_parameters*)params)->rhoSSpline).eval(tbqsToEval);
+//    entr = (((rootfinder_parameters*)params)->eorEntSpline).eval(tbqsToEval);    //s, rhoB, rhoQ, rhoS contain the current point
+//    rhoB = (((rootfinder_parameters*)params)->rhoBSpline).eval(tbqsToEval);
+//    rhoQ = (((rootfinder_parameters*)params)->rhoQSpline).eval(tbqsToEval);
+//    rhoS = (((rootfinder_parameters*)params)->rhoSSpline).eval(tbqsToEval);
 }
 
     gsl_vector_set(f, 0, (entr - entrGiven)); //f[0] contains (s(T,muB,muQ,muS) - sGiven)
@@ -1394,10 +1413,10 @@ if (true)
 }
 else
 {
-    e = (((rootfinder_parameters*)params)->eorEntSpline).eval(tbqsToEval);    //e, rhoB, rhoQ, rhoS contain the current point
-    rhoB = (((rootfinder_parameters*)params)->rhoBSpline).eval(tbqsToEval);
-    rhoQ = (((rootfinder_parameters*)params)->rhoQSpline).eval(tbqsToEval);
-    rhoS = (((rootfinder_parameters*)params)->rhoSSpline).eval(tbqsToEval);
+//    e = (((rootfinder_parameters*)params)->eorEntSpline).eval(tbqsToEval);    //e, rhoB, rhoQ, rhoS contain the current point
+//    rhoB = (((rootfinder_parameters*)params)->rhoBSpline).eval(tbqsToEval);
+//    rhoQ = (((rootfinder_parameters*)params)->rhoQSpline).eval(tbqsToEval);
+//    rhoS = (((rootfinder_parameters*)params)->rhoSSpline).eval(tbqsToEval);
 }
 
 
@@ -1554,9 +1573,11 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
     }
     rootfinder_parameters p;
     if(isEntropy) {
-        p.set(e_or_s_Given, rhoBGiven, rhoQGiven, rhoSGiven, entrSpline, bSpline, qSpline, sSpline);
+        p.set( e_or_s_Given, rhoBGiven, rhoQGiven, rhoSGiven/*,
+				entrSpline, bSpline, qSpline, sSpline*/);
     } else {
-        p.set(e_or_s_Given, rhoBGiven, rhoQGiven, rhoSGiven, eSpline, bSpline, qSpline, sSpline);
+        p.set( e_or_s_Given, rhoBGiven, rhoQGiven, rhoSGiven/*,
+				eSpline, bSpline, qSpline, sSpline*/);
     }
 
     //initialize multiroot solver
@@ -1644,7 +1665,10 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 
 
     if(found) {
-        tbqs(gsl_vector_get(solver->x, 0), gsl_vector_get(solver->x, 1), gsl_vector_get(solver->x, 2), gsl_vector_get(solver->x, 3));    //set T, muB, muQ, muS
+        tbqs( gsl_vector_get(solver->x, 0),
+			  gsl_vector_get(solver->x, 1),
+			  gsl_vector_get(solver->x, 2),
+			  gsl_vector_get(solver->x, 3) );    //set T, muB, muQ, muS
     }
 
 	string output_status = ( found ) ? "FOUND" : "NOT FOUND";
