@@ -306,9 +306,9 @@ bool eos_delaunay::interpolate(const vector<double> & v0, vector<double> & resul
 				}
 			}
 		}
-	}*/
+	}
 	
-	return success;
+	return success;*/
 }
 
 // find containing simplex using nearest-midpoint-neighbor (NMN) method
