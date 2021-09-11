@@ -66,7 +66,7 @@ class eos_delaunay
 			return ( ( ( iT * nmub + imub ) * nmuq + imuq ) * nmus + imus );
 		}
 //		size_t indexer( const int iT, const int imub, const int imuq, const int imus );
-		inline size_t indexer( const vector<int> & v )
+		inline size_t indexer( const vector<size_t> & v )
 		{
 			// mus varies faster than muq!!!!!
 			return ( ( ( v[0] * nmub + v[1] ) * nmuq + v[2] ) * nmus + v[3] );
