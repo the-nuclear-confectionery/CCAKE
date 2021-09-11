@@ -17,14 +17,14 @@
 using namespace std;
 
 const double eos_delaunay::hbarc = 197.327;
-const size_t eos_delaunay::nT = 155,
+/*const size_t eos_delaunay::nT = 155,
 			eos_delaunay::nmub = 37,
 			eos_delaunay::nmus = 37,
-			eos_delaunay::nmuq = 37;
-/*const size_t eos_delaunay::nT = 155,
+			eos_delaunay::nmuq = 37;*/
+const size_t eos_delaunay::nT = 155,
 			eos_delaunay::nmub = 19,
 			eos_delaunay::nmus = 19,
-			eos_delaunay::nmuq = 19;*/
+			eos_delaunay::nmuq = 19;
 
 
 /*size_t eos_delaunay::indexer( const int iT, const int imub, const int imuq, const int imus )
