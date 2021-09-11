@@ -2408,7 +2408,7 @@ void LinkList<D>::updateIC()
 			if (gtyp!=5)
 			{
 				sw.Start();
-				cout << "Doing this particle: " << _p[i].r.x[0] << "   " << _p[i].r.x[1] << endl;
+				cout << "Doing this particle: " << _p[i].r.x[0] << "   " << _p[i].r.x[1] << "\n";
 				_p[i].s_an = _p[i].EOSs_out( _p[i].e_sub, _p[i].rhoB_an, _p[i].rhoS_an, _p[i].rhoQ_an );
 
 if (_p[i].s_an>0.0)
@@ -2437,7 +2437,7 @@ else
 				sw.Stop();
 				string successString = (_p[i].s_an < 0.0) ? "unsuccessfully" : "successfully";
 				cout << "SPH particle " << i << ", EOSs_out: completed " << successString << " in "
-						<< sw.printTime() << "s." << endl;
+						<< sw.printTime() << "s." << "\n";
 			}
 
 			////////////////////////////////////////////////////////////////////////
@@ -2509,7 +2509,7 @@ else
 				for (int iii = 0; iii < 4; iii++) cout << "   " << phase_diagram_point[iii];
 				cout << "\n\t\t - densities:";
 				for (int iii = 0; iii < 4; iii++) cout << "   " << densities_at_point[iii];
-				cout << endl;
+				cout << "\n";
 			}
 
 		}

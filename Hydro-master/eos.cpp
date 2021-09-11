@@ -1444,7 +1444,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 {
 	if ( VERBOSE > 5 ) std::cout << __PRETTY_FUNCTION__ << e_or_s_Given << "   " << e_or_s_mode << "   " << rhoBGiven << "   " << rhoSGiven << "   " << rhoQGiven << "   " << error << "   " << steps << std::endl;
 
-	constexpr bool use_Delaunay_interpolator = true;
+	constexpr bool use_Delaunay_interpolator = false;
 
 	if ( use_Delaunay_interpolator )
 	{
