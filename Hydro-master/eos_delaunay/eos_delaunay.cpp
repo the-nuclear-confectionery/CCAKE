@@ -277,12 +277,15 @@ bool eos_delaunay::interpolate(const vector<double> & v0, vector<double> & resul
 		<< smin << "   " << smax << "   "
 		<< qmin << "   " << qmax << endl;*/
 
-	
+	return interpolate_NMNmode(v0, result, verbose);
+
+	/*
 	//cout << "\t\tVersion 1" << endl;
 	if ( interpolate_NMNmode(v0, result, verbose) )
 		return true;
 	else
 		return interpolate_NNmode(v0, result, verbose);
+	*/
 
 	/*if ( !success )
 	{
