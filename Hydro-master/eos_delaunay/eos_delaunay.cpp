@@ -257,6 +257,33 @@ void eos_delaunay::get_min_and_max(vector<double> & v, double & minval, double &
 	return;
 }
 
+
+void eos_delaunay::get_NMN_coordinates(const vector<double> & v0, vector<double> & result)
+{
+	size_t kdtree_nmn_index = 0;
+	try
+	{
+		midpoint_tree_ptr = (using_e_or_s_mode==0) ?
+							e_midpoint_tree_ptr :
+							entr_midpoint_tree_ptr;
+		point4d n = midpoint_tree_ptr->nearest
+					( { (v0[0] - emin) / (emax - emin),
+						(v0[1] - bmin) / (bmax - bmin),
+						(v0[2] - smin) / (smax - smin),
+						(v0[3] - qmin) / (qmax - qmin) }, kdtree_nmn_index );
+	}
+	catch (const std::exception& e)
+	{
+		std::cerr << e.what() << '\n';
+	}
+
+	// approximate (T,muB,muQ,muS) coordinates of nearest midpoint neighbor
+	const vector<double> * vNMNptr = &grid[ indexer( midpoint_inds[kdtree_nmn_index] ) ];
+	result.assign( vNMNptr->begin(), vNMNptr->begin()+4 );
+}
+
+
+
 bool eos_delaunay::interpolate(const vector<double> & v0, vector<double> & result, bool verbose)
 {
 	/*if ( !interpolate_NMNmode(v0, result, verbose) )

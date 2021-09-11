@@ -36,6 +36,8 @@ class eos_delaunay
 					vector<vector<double> > & vertices, vector<vector<size_t> > & simplices,
 					vector<double> & point_lambda_in_simplex, int & iclosestsimplex );
 		void refine_hypercube(vector<vector<double> > & hypercube);
+		void get_NMN_coordinates(const vector<double> & v0, vector<double> & result);
+
 
 	private:
 
@@ -64,7 +66,11 @@ class eos_delaunay
 			return ( ( ( iT * nmub + imub ) * nmuq + imuq ) * nmus + imus );
 		}
 //		size_t indexer( const int iT, const int imub, const int imuq, const int imus );
-
+		inline size_t indexer( const vector<int> & v )
+		{
+			// mus varies faster than muq!!!!!
+			return ( ( ( v[0] * nmub + v[1] ) * nmuq + v[2] ) * nmus + v[3] );
+		}
 		
 		inline double d2( const vector<double> & a, const vector<double> & b )
 		{

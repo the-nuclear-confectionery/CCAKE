@@ -1557,10 +1557,25 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
     //declare x = (T, muB, muQ, muS)
     gsl_vector *x = gsl_vector_alloc(4);
 
-    gsl_vector_set(x, 0, T());
+	// use NMN method to estimate where to start the rootfinder
+	vector<double> T_muB_muQ_muS_estimates;
+	if ( e_or_s_mode==1 )
+		e_delaunay.get_NMN_coordinates(
+					{e_or_s_Given*197.327, rhoBGiven, rhoSGiven, rhoQGiven},
+					T_muB_muQ_muS_estimates );
+	else
+		entr_delaunay.get_NMN_coordinates(
+					{e_or_s_Given, rhoBGiven, rhoSGiven, rhoQGiven},
+					T_muB_muQ_muS_estimates );
+
+	// set GSL vector with best initial guess we can
+	for (int iCoord = 0; iCoord < 4; iCoord++)
+		gsl_vector_set(x, i, T_muB_muQ_muS_estimates[i]);
+
+    /*gsl_vector_set(x, 0, T());
     gsl_vector_set(x, 1, muB());
     gsl_vector_set(x, 2, muQ());
-    gsl_vector_set(x, 3, muS());
+    gsl_vector_set(x, 3, muS());*/
     /*gsl_vector_set(x, 0, 500.0/197.327);
     gsl_vector_set(x, 1, 0.0/197.327);
     gsl_vector_set(x, 2, 0.0/197.327);
