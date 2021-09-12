@@ -1025,7 +1025,7 @@ bool eos::update_s(double sin, double Bin, double Sin, double Qin) { //update th
         return true;
     }
 	///////////////////////////
-	return false;//!!!!!!!!!!!!
+	//return false;//!!!!!!!!!!!!
 	///////////////////////////
     double t0 = tbqsPosition(0);
     double mub0 = tbqsPosition(1);
@@ -1131,7 +1131,7 @@ double eos::s_out(double ein, double Bin, double Sin, double Qin) {   //update t
         return entrVal;
     }
 	///////////////////////////
-	return -1.0;//!!!!!!!!!!!!
+	//return -1.0;//!!!!!!!!!!!!
 	///////////////////////////
 
     double t0 = tbqsPosition(0);
