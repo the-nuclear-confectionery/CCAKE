@@ -48,8 +48,8 @@ void eos::init(string quantityFile, string derivFile, int degree)
 	initialize("/projects/jnorhos/BSQ/EoS_BQS_Derivatives/Coefficients_Parameters.dat");
 
 	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
-	//init_with_txt(quantityFile, derivFile, degree);
-	init_grid_ranges_only(quantityFile, derivFile);
+	init_with_txt(quantityFile, derivFile, degree);
+	//init_grid_ranges_only(quantityFile, derivFile);
 
 	cout << "Initialize Delaunay interpolators" << endl;
 	e_delaunay.init(quantityFile, 0);		// 0 - energy density
@@ -225,12 +225,12 @@ void eos::init_grid_ranges_only(string quantityFile, string derivFile)
 {
 	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     std::ifstream dataFile;
-    std::ifstream derFile;
+//    std::ifstream derFile;
     dataFile.open(quantityFile);
-    derFile.open(derivFile);
+//    derFile.open(derivFile);
 
     double tit, muBit, muQit, muSit, pit, entrit, bit, sit, qit, eit, cs2it;
-    double db2it, dq2it, ds2it, dt2it, dbdqit, dbdsit, dqdsit, dtdbit, dtdsit, dtdqit;
+//    double db2it, dq2it, ds2it, dt2it, dbdqit, dbdsit, dqdsit, dtdbit, dtdsit, dtdqit;
 
     int count = 0;
     double hbarc = 197.327;
@@ -238,10 +238,10 @@ void eos::init_grid_ranges_only(string quantityFile, string derivFile)
 			>> pit >> entrit >> bit >> sit >> qit
 			>> eit >> cs2it)
     {
-        derFile >> tit >> muBit >> muQit >> muSit
-        		>> db2it >> dq2it >> ds2it
-        		>> dbdqit >> dbdsit >> dqdsit
-        		>> dtdbit >> dtdqit >> dtdsit >> dt2it;  //read data from files
+//        derFile >> tit >> muBit >> muQit >> muSit
+//        		>> db2it >> dq2it >> ds2it
+//        		>> dbdqit >> dbdsit >> dqdsit
+//        		>> dtdbit >> dtdqit >> dtdsit >> dt2it;  //read data from files
 
 		// Christopher Plumberg:
 		// put T and mu_i in units of 1/fm
@@ -275,8 +275,10 @@ void eos::init_grid_ranges_only(string quantityFile, string derivFile)
         
 	}
 
+	for (int iTBQS = 0; iTBQS < 4; iTBQS++) tbqsPosition(iTBQS) = 1.0;
+
     dataFile.close();
-    derFile.close();
+//    derFile.close();
 
 	std::cout << "All initializations finished!" << std::endl;
 
@@ -307,7 +309,7 @@ void eos::tbqs(double setT, double setmuB, double setmuQ, double setmuS) {
     tbqsPosition(2) = setmuQ;
     tbqsPosition(3) = setmuS;
 
-	double phase_diagram_point[4] = {setT, setmuB, setmuS, setmuQ};	// NOTE: S <<-->> Q swapped!!!
+	/*double phase_diagram_point[4] = {setT, setmuB, setmuS, setmuQ};	// NOTE: S <<-->> Q swapped!!!
 	double thermodynamics[17];
 	get_full_thermo(phase_diagram_point, thermodynamics);
 
@@ -327,10 +329,10 @@ void eos::tbqs(double setT, double setmuB, double setmuQ, double setmuS) {
     dtdb    = thermodynamics[13];
     dtdq    = thermodynamics[14];
     dtds    = thermodynamics[15];
-    dt2     = thermodynamics[16];
+    dt2     = thermodynamics[16];*/
 
 
-    /*pVal = pSpline.eval(tbqsPosition);
+    pVal = pSpline.eval(tbqsPosition);
     BVal = bSpline.eval(tbqsPosition);
     SVal = sSpline.eval(tbqsPosition);
     QVal = qSpline.eval(tbqsPosition);
@@ -347,7 +349,7 @@ void eos::tbqs(double setT, double setmuB, double setmuQ, double setmuS) {
     dtds = dtdsSpline.eval(tbqsPosition);
     dtdq = dtdqSpline.eval(tbqsPosition);
 
-    entrVal = (eVal + pVal - setmuB*BVal - setmuQ*QVal - setmuS*SVal)/setT;*/
+    entrVal = (eVal + pVal - setmuB*BVal - setmuQ*QVal - setmuS*SVal)/setT;
 }
 
 
@@ -1309,8 +1311,8 @@ int rootfinder_fsbqs(const gsl_vector *x, void *params, gsl_vector *f) {
     //x contains the next (T, muB, muS) coordinate to test
     DenseVector tbqsToEval(4);
     tbqsToEval(0) = gsl_vector_get(x,0);
-    tbqsToEval(1) = gsl_vector_get(x,1);      //convert x into densevector so it can be a BSpline evaluation point
-    tbqsToEval(2) = gsl_vector_get(x,2);
+    tbqsToEval(1) = gsl_vector_get(x,1);	// convert x into densevector so it
+    tbqsToEval(2) = gsl_vector_get(x,2);	// can be a BSpline evaluation point
     tbqsToEval(3) = gsl_vector_get(x,3);
 
 
@@ -1364,8 +1366,8 @@ int rootfinder_febqs(const gsl_vector *x, void *params, gsl_vector *f) {
     //x contains the next (T, muB, muQ, muS) coordinate to test
     DenseVector tbqsToEval(4);
     tbqsToEval(0) = gsl_vector_get(x,0);
-    tbqsToEval(1) = gsl_vector_get(x,1);      //convert x into densevector so it can be a BSpline evaluation point
-    tbqsToEval(2) = gsl_vector_get(x,2);
+    tbqsToEval(1) = gsl_vector_get(x,1);	// convert x into densevector so it
+    tbqsToEval(2) = gsl_vector_get(x,2);	// can be a BSpline evaluation point
     tbqsToEval(3) = gsl_vector_get(x,3);
 
     double eGiven, rhoBGiven, rhoQGiven, rhoSGiven, e, rhoB, rhoQ, rhoS;
