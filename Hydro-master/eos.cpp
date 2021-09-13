@@ -28,7 +28,8 @@ using namespace SPLINTER;
 
 // Compile:         gcc eos4D.cpp -c -I /usr/include/eigen3 -Lsplinter/build -lm -lgsl -lgslcblas -lstdc++ -lsplinter-3-0
 
-constexpr bool use_exact = false;
+constexpr bool use_exact = true;
+constexpr bool accept_nearest_neighbor = false;
 
 //EoS constructor. Builds the splines of degree "degree" for each quantitiy and initializes the position at (30,0,0,0)
 eos::eos(string quantityFile, string derivFile, int degree) : pSpline(4), entrSpline(4), bSpline(4), sSpline(4), qSpline(4), eSpline(4), cs2Spline(4), db2Spline(4), dq2Spline(4), ds2Spline(4), dt2Spline(4), dbdqSpline(4), dbdsSpline(4), dtdbSpline(4), dqdsSpline(4), dtdqSpline(4), dtdsSpline(4), tbqsPosition(4) {
@@ -1609,26 +1610,35 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 
 
     bool found = true; //to return variable
-    if(iter >= steps) {
+    if ( iter >= steps ) {
         found = false;
     }
 
 
-    if(found) {
+    if ( found ) {
         tbqs( gsl_vector_get(solver->x, 0),
 			  gsl_vector_get(solver->x, 1),
 			  gsl_vector_get(solver->x, 2),
 			  gsl_vector_get(solver->x, 3) );    //set T, muB, muQ, muS
     }
+	else if ( accept_nearest_neighbor )	// just return nearest neighbor instead
+	{
+		// set T, muB, muQ, muS
+        tbqs( gsl_vector_get(solver->x, T_muB_muQ_muS_estimates[0]),
+			  gsl_vector_get(solver->x, T_muB_muQ_muS_estimates[1]),
+			  gsl_vector_get(solver->x, T_muB_muQ_muS_estimates[2]),
+			  gsl_vector_get(solver->x, T_muB_muQ_muS_estimates[3]) );
+		found = true;
+	}
 
-	string output_status = ( found ) ? "FOUND" : "NOT FOUND";
+	/*string output_status = ( found ) ? "FOUND" : "NOT FOUND";
 
 	if ( e_or_s_mode == 1 && VERBOSE > 5 )
 		std::cout << "Output (" << output_status << "): rootfinder4D at x = "
 			<< 197.327*gsl_vector_get(solver->x, 0) << "   "
 			<< 197.327*gsl_vector_get(solver->x, 1) << "   "
 			<< 197.327*gsl_vector_get(solver->x, 2) << "   "
-			<< 197.327*gsl_vector_get(solver->x, 3) << std::endl << std::endl;
+			<< 197.327*gsl_vector_get(solver->x, 3) << std::endl << std::endl;*/
 
     //memory deallocation
     gsl_multiroot_fsolver_free(solver);
