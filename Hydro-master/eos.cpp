@@ -28,8 +28,8 @@ using namespace SPLINTER;
 
 // Compile:         gcc eos4D.cpp -c -I /usr/include/eigen3 -Lsplinter/build -lm -lgsl -lgslcblas -lstdc++ -lsplinter-3-0
 
-constexpr bool use_exact = true;
-constexpr bool accept_nearest_neighbor = true;
+//constexpr bool use_exact = true;
+constexpr bool accept_nearest_neighbor = false;
 
 //EoS constructor. Builds the splines of degree "degree" for each quantitiy and initializes the position at (30,0,0,0)
 eos::eos(string quantityFile, string derivFile, int degree) : pSpline(4), entrSpline(4), bSpline(4), sSpline(4), qSpline(4), eSpline(4), cs2Spline(4), db2Spline(4), dq2Spline(4), ds2Spline(4), dt2Spline(4), dbdqSpline(4), dbdsSpline(4), dtdbSpline(4), dqdsSpline(4), dtdqSpline(4), dtdsSpline(4), tbqsPosition(4) {
@@ -48,8 +48,8 @@ void eos::init(string quantityFile, string derivFile, int degree)
 	initialize("/projects/jnorhos/BSQ/EoS_BQS_Derivatives/Coefficients_Parameters.dat");
 
 	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
-	init_with_txt(quantityFile, derivFile, degree);
-	//init_grid_ranges_only(quantityFile, derivFile);
+	//init_with_txt(quantityFile, derivFile, degree);
+	init_grid_ranges_only(quantityFile, derivFile);
 
 	cout << "Initialize Delaunay interpolators" << endl;
 	e_delaunay.init(quantityFile, 0);		// 0 - energy density
@@ -307,7 +307,30 @@ void eos::tbqs(double setT, double setmuB, double setmuQ, double setmuS) {
     tbqsPosition(2) = setmuQ;
     tbqsPosition(3) = setmuS;
 
-    pVal = pSpline.eval(tbqsPosition);
+	double phase_diagram_point[4] = {setT, setmuB, setmuS, setmuQ};	// NOTE: S <<-->> Q swapped!!!
+	double thermodynamics[17];
+	get_full_thermo(phase_diagram_point, thermodynamics);
+
+	pVal    = thermodynamics[0];
+    entrVal = thermodynamics[1];
+    BVal    = thermodynamics[2];
+    SVal    = thermodynamics[3];
+    QVal    = thermodynamics[4];
+    eVal    = thermodynamics[5];
+    cs2Val  = thermodynamics[6];
+    db2     = thermodynamics[7];
+    dq2     = thermodynamics[8];
+    ds2     = thermodynamics[9];
+    dbdq    = thermodynamics[10];
+    dbds    = thermodynamics[11];
+    dsdq    = thermodynamics[12];
+    dtdb    = thermodynamics[13];
+    dtdq    = thermodynamics[14];
+    dtds    = thermodynamics[15];
+    dt2     = thermodynamics[16];
+
+
+    /*pVal = pSpline.eval(tbqsPosition);
     BVal = bSpline.eval(tbqsPosition);
     SVal = sSpline.eval(tbqsPosition);
     QVal = qSpline.eval(tbqsPosition);
@@ -324,7 +347,7 @@ void eos::tbqs(double setT, double setmuB, double setmuQ, double setmuS) {
     dtds = dtdsSpline.eval(tbqsPosition);
     dtdq = dtdqSpline.eval(tbqsPosition);
 
-    entrVal = (eVal + pVal - setmuB*BVal - setmuQ*QVal - setmuS*SVal)/setT;
+    entrVal = (eVal + pVal - setmuB*BVal - setmuQ*QVal - setmuS*SVal)/setT;*/
 }
 
 
@@ -1219,63 +1242,63 @@ struct rootfinder_parameters {
     double rhoBGiven;
     double rhoQGiven;
     double rhoSGiven;
-    BSpline * eorEntSpline;        //the splines that contain interpolations over s, BSQ
+    /*BSpline * eorEntSpline;        //the splines that contain interpolations over s, BSQ
     BSpline * rhoBSpline;
     BSpline * rhoQSpline;
-    BSpline * rhoSSpline;
+    BSpline * rhoSSpline;*/
     rootfinder_parameters();
     rootfinder_parameters(
 		double seteorEntGiven, double setRhoBGiven,
-		double setRhoQGiven, double setRhoSGiven,
+		double setRhoQGiven, double setRhoSGiven/*,
 		BSpline * setEntrSpline = nullptr, BSpline * setRhoBSpline = nullptr,
-		BSpline * setRhoQSpline = nullptr, BSpline * setRhoSSpline = nullptr);
+		BSpline * setRhoQSpline = nullptr, BSpline * setRhoSSpline = nullptr*/);
 public:
     void set( double setEorEntGiven, double setRhoBGiven,
-			  double setRhoQGiven, double setRhoSGiven,
+			  double setRhoQGiven, double setRhoSGiven/*,
 			  BSpline * setEntrSpline = nullptr, BSpline * setRhoBSpline = nullptr,
-			  BSpline * setRhoQSpline = nullptr, BSpline * setRhoSSpline = nullptr);
+			  BSpline * setRhoQSpline = nullptr, BSpline * setRhoSSpline = nullptr*/);
 };
 //Default constructor to make the compiler happy. Should never be called
 rootfinder_parameters::rootfinder_parameters()
-	: eorEntSpline(nullptr), rhoBSpline(nullptr), rhoQSpline(nullptr), rhoSSpline(nullptr) {}
+	/*: eorEntSpline(nullptr), rhoBSpline(nullptr), rhoQSpline(nullptr), rhoSSpline(nullptr)*/ {}
 //constructor which initializes all struct variables
 rootfinder_parameters::rootfinder_parameters(
 	double setEorEntGiven, double setRhoBGiven,
-	double setRhoQGiven, double setRhoSGiven,
+	double setRhoQGiven, double setRhoSGiven/*,
 	BSpline * setEorEntSpline, BSpline * setRhoBSpline,
-	BSpline * setRhoQSpline, BSpline * setRhoSSpline
+	BSpline * setRhoQSpline, BSpline * setRhoSSpline*/
 	)
-	: eorEntSpline(nullptr), rhoBSpline(nullptr), rhoQSpline(nullptr), rhoSSpline(nullptr)
+	//: eorEntSpline(nullptr), rhoBSpline(nullptr), rhoQSpline(nullptr), rhoSSpline(nullptr)
 {
     eorEntGiven = setEorEntGiven;
     rhoBGiven = setRhoBGiven;
     rhoQGiven = setRhoQGiven;
     rhoSGiven = setRhoSGiven;
-	if ( !use_exact )
+	/*if ( !use_exact )
 	{
     eorEntSpline = setEorEntSpline;
     rhoBSpline = setRhoBSpline;
     rhoQSpline = setRhoQSpline;
     rhoSSpline = setRhoSSpline;
-	}
+	}*/
 }
 void rootfinder_parameters::set(
 	double setEorEntGiven, double setRhoBGiven,
-	double setRhoQGiven, double setRhoSGiven,
+	double setRhoQGiven, double setRhoSGiven/*,
 	BSpline * setEorEntSpline, BSpline * setRhoBSpline,
-	BSpline * setRhoQSpline, BSpline * setRhoSSpline)
+	BSpline * setRhoQSpline, BSpline * setRhoSSpline*/)
 {
     eorEntGiven = setEorEntGiven;
     rhoBGiven = setRhoBGiven;
     rhoQGiven = setRhoQGiven;
     rhoSGiven = setRhoSGiven;
-	if ( !use_exact )
+	/*if ( !use_exact )
 	{
     eorEntSpline = setEorEntSpline;
     rhoBSpline = setRhoBSpline;
     rhoQSpline = setRhoQSpline;
     rhoSSpline = setRhoSSpline;
-	}
+	}*/
 }
 
 //helper function for the rootfinder. It provides the correct difference of s, rhoB, rhoQ, rhoS at a given (T, muB, muQ, muS) from the target
@@ -1296,7 +1319,7 @@ int rootfinder_fsbqs(const gsl_vector *x, void *params, gsl_vector *f) {
     rhoBGiven = ((rootfinder_parameters*)params)->rhoBGiven;            //given variables contain the target point
     rhoQGiven = ((rootfinder_parameters*)params)->rhoQGiven;
     rhoSGiven = ((rootfinder_parameters*)params)->rhoSGiven;
-if (use_exact)
+//if (use_exact)
 {
 	double phase_diagram_point[4] = {tbqsToEval(0)*197.327, tbqsToEval(1)*197.327,
 					 tbqsToEval(3)*197.327, tbqsToEval(2)*197.327};	// NOTE: S <<-->> Q swapped!!!
@@ -1317,13 +1340,13 @@ if (use_exact)
 		<< rhoQ << "   " << rhoQGiven << endl;*/
 
 }
-else
-{
-    entr = (((rootfinder_parameters*)params)->eorEntSpline)->eval(tbqsToEval);    //s, rhoB, rhoQ, rhoS contain the current point
-    rhoB = (((rootfinder_parameters*)params)->rhoBSpline)->eval(tbqsToEval);
-    rhoQ = (((rootfinder_parameters*)params)->rhoQSpline)->eval(tbqsToEval);
-    rhoS = (((rootfinder_parameters*)params)->rhoSSpline)->eval(tbqsToEval);
-}
+//else
+//{
+//    entr = (((rootfinder_parameters*)params)->eorEntSpline)->eval(tbqsToEval);    //s, rhoB, rhoQ, rhoS contain the current point
+//    rhoB = (((rootfinder_parameters*)params)->rhoBSpline)->eval(tbqsToEval);
+//    rhoQ = (((rootfinder_parameters*)params)->rhoQSpline)->eval(tbqsToEval);
+//    rhoS = (((rootfinder_parameters*)params)->rhoSSpline)->eval(tbqsToEval);
+//}
 
     gsl_vector_set(f, 0, (entr - entrGiven)); //f[0] contains (s(T,muB,muQ,muS) - sGiven)
     gsl_vector_set(f, 1, (rhoB - rhoBGiven)); //f[1] contains (rhoB(T,muB,muQ,muS) - rhoBGiven)
@@ -1350,7 +1373,7 @@ int rootfinder_febqs(const gsl_vector *x, void *params, gsl_vector *f) {
     rhoBGiven = ((rootfinder_parameters*)params)->rhoBGiven;            //given variables contain the target point
     rhoQGiven = ((rootfinder_parameters*)params)->rhoQGiven;
     rhoSGiven = ((rootfinder_parameters*)params)->rhoSGiven;
-if (use_exact)
+//if (use_exact)
 {
 	double phase_diagram_point[4] = {tbqsToEval(0)*197.327, tbqsToEval(1)*197.327,
 					 tbqsToEval(3)*197.327, tbqsToEval(2)*197.327};	// NOTE: S <<-->> Q swapped!!!
@@ -1371,13 +1394,13 @@ if (use_exact)
 		<< rhoQ << "   " << rhoQGiven << endl;
 	*/
 }
-else
-{
-    e = (((rootfinder_parameters*)params)->eorEntSpline)->eval(tbqsToEval);    //e, rhoB, rhoQ, rhoS contain the current point
-    rhoB = (((rootfinder_parameters*)params)->rhoBSpline)->eval(tbqsToEval);
-    rhoQ = (((rootfinder_parameters*)params)->rhoQSpline)->eval(tbqsToEval);
-    rhoS = (((rootfinder_parameters*)params)->rhoSSpline)->eval(tbqsToEval);
-}
+//else
+//{
+//    e = (((rootfinder_parameters*)params)->eorEntSpline)->eval(tbqsToEval);    //e, rhoB, rhoQ, rhoS contain the current point
+//    rhoB = (((rootfinder_parameters*)params)->rhoBSpline)->eval(tbqsToEval);
+//    rhoQ = (((rootfinder_parameters*)params)->rhoQSpline)->eval(tbqsToEval);
+//    rhoS = (((rootfinder_parameters*)params)->rhoSSpline)->eval(tbqsToEval);
+//}
 
     gsl_vector_set(f, 0, (e - eGiven)); //f[0] contains (e(T,muB,muQ,muS) - eGiven)
     gsl_vector_set(f, 1, (rhoB - rhoBGiven)); //f[1] contains the (rhoB(T,muB,muQ,muS) - rhoBGiven)
@@ -1510,8 +1533,8 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
         isEntropy = true;
     }
     rootfinder_parameters p;
-	if (use_exact)
-	{
+	//if (use_exact)
+	//{
 		if(isEntropy) {
 			p.set( e_or_s_Given, rhoBGiven, rhoQGiven, rhoSGiven/*,
 					entrSpline, bSpline, qSpline, sSpline*/);
@@ -1519,8 +1542,8 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 			p.set( e_or_s_Given, rhoBGiven, rhoQGiven, rhoSGiven/*,
 					eSpline, bSpline, qSpline, sSpline*/);
 		}
-	}
-	else
+	//}
+	/*else
 	{
 		if(isEntropy) {
 			p.set( e_or_s_Given, rhoBGiven, rhoQGiven, rhoSGiven,
@@ -1529,7 +1552,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 			p.set( e_or_s_Given, rhoBGiven, rhoQGiven, rhoSGiven,
 					&eSpline, &bSpline, &qSpline, &sSpline);
 		}
-	}
+	}*/
 
     //initialize multiroot solver
     gsl_multiroot_fsolver *solver;

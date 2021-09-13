@@ -216,4 +216,43 @@ void get_sBSQ_densities(double point[], double densities[])
 }
 
 
+
+void get_full_thermo(double point[], double thermodynamics[])
+{
+	const double Tsol = point[0], muBsol = point[1], muSsol = point[2], muQsol = point[3];
+	const double Tsol3_by_hc3 = Tsol*Tsol*Tsol/(197.327*197.327*197.327);
+	double POut = Tsol*Tsol3_by_hc3*PressTaylor(Tsol, muBsol, muQsol, muSsol);
+	double sOut = Tsol3_by_hc3*EntrTaylor(Tsol, muBsol, muQsol, muSsol);
+	double BOut = Tsol3_by_hc3*BarDensTaylor(Tsol, muBsol, muQsol, muSsol);
+	double SOut = Tsol3_by_hc3*StrDensTaylor(Tsol, muBsol, muQsol, muSsol);
+	double QOut = Tsol3_by_hc3*ChDensTaylor(Tsol, muBsol, muQsol, muSsol);
+	double eOut = sOut*Tsol - POut + muBsol*BOut + muQsol*QOut + muSsol*SOut;
+
+
+	//Thermodynamics
+	thermodynamics[0]  = POut / 197.327;
+	thermodynamics[1]  = sOut;
+	thermodynamics[2]  = BOut;
+	thermodynamics[3]  = SOut;
+	thermodynamics[4]  = QOut;
+	thermodynamics[5]  = eOut / 197.327;
+	thermodynamics[6]  = SpSound(Tsol, muBsol, muQsol, muSsol);
+				
+	//Second Order Derivatives
+	thermodynamics[7]  = P2B2(Tsol, muBsol, muQsol, muSsol);
+	thermodynamics[8]  = P2Q2(Tsol, muBsol, muQsol, muSsol);
+	thermodynamics[9]  = P2S2(Tsol, muBsol, muQsol, muSsol);
+	
+	thermodynamics[10] = P2BQ(Tsol, muBsol, muQsol, muSsol);
+	thermodynamics[11] = P2BS(Tsol, muBsol, muQsol, muSsol);
+	thermodynamics[12] = P2QS(Tsol, muBsol, muQsol, muSsol);
+	
+	thermodynamics[13] = P2TB(Tsol, muBsol, muQsol, muSsol);
+	thermodynamics[14] = P2TQ(Tsol, muBsol, muQsol, muSsol);
+	thermodynamics[15] = P2TS(Tsol, muBsol, muQsol, muSsol);
+	thermodynamics[16] = P2T2(Tsol, muBsol, muQsol, muSsol);
+}
+
+
+
 #undef NRANSI
