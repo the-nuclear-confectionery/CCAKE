@@ -1236,7 +1236,7 @@ public:
 };
 //Default constructor to make the compiler happy. Should never be called
 rootfinder_parameters::rootfinder_parameters()
-	: eorEntSpline = nullptr, rhoBSpline = nullptr, rhoQSpline = nullptr, rhoSSpline = nullptr {}
+	: eorEntSpline(nullptr), rhoBSpline(nullptr), rhoQSpline(nullptr), rhoSSpline(nullptr) {}
 //constructor which initializes all struct variables
 rootfinder_parameters::rootfinder_parameters(
 	double setEorEntGiven, double setRhoBGiven,
@@ -1244,7 +1244,7 @@ rootfinder_parameters::rootfinder_parameters(
 	BSpline * setEorEntSpline, BSpline * setRhoBSpline,
 	BSpline * setRhoQSpline, BSpline * setRhoSSpline
 	)
-	: eorEntSpline = nullptr, rhoBSpline = nullptr, rhoQSpline = nullptr, rhoSSpline = nullptr
+	: eorEntSpline(nullptr), rhoBSpline(nullptr), rhoQSpline(nullptr), rhoSSpline(nullptr)
 {
     eorEntGiven = setEorEntGiven;
     rhoBGiven = setRhoBGiven;
