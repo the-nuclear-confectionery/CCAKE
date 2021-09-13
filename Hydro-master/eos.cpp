@@ -29,7 +29,7 @@ using namespace SPLINTER;
 // Compile:         gcc eos4D.cpp -c -I /usr/include/eigen3 -Lsplinter/build -lm -lgsl -lgslcblas -lstdc++ -lsplinter-3-0
 
 constexpr bool use_exact = true;
-constexpr bool accept_nearest_neighbor = false;
+constexpr bool accept_nearest_neighbor = true;
 
 //EoS constructor. Builds the splines of degree "degree" for each quantitiy and initializes the position at (30,0,0,0)
 eos::eos(string quantityFile, string derivFile, int degree) : pSpline(4), entrSpline(4), bSpline(4), sSpline(4), qSpline(4), eSpline(4), cs2Spline(4), db2Spline(4), dq2Spline(4), ds2Spline(4), dt2Spline(4), dbdqSpline(4), dbdsSpline(4), dtdbSpline(4), dqdsSpline(4), dtdqSpline(4), dtdsSpline(4), tbqsPosition(4) {
@@ -1623,6 +1623,9 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
     }
 	else if ( accept_nearest_neighbor )	// just return nearest neighbor instead
 	{
+		// eventually allow to include end point if it gives
+		// a closer approximation than starting value
+
 		// set T, muB, muQ, muS
         tbqs( gsl_vector_get(solver->x, T_muB_muQ_muS_estimates[0]),
 			  gsl_vector_get(solver->x, T_muB_muQ_muS_estimates[1]),

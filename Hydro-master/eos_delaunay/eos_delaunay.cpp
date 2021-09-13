@@ -117,7 +117,7 @@ void eos_delaunay::init(string EoS_table_file, int e_or_s)
 
 	// use midpoints as alternate way of find best simplex
 	// "midpoints" are the average densities in the cell with lower corner at (iT,imu...)
-	std::vector<std::array<double, 4> > midpoint_grid;
+	//std::vector<std::array<double, 4> > midpoint_grid;
 	for (size_t iT = 0; iT < nT-1; ++iT)
 	for (size_t imub = 0; imub < nmub-1; ++imub)
 	for (size_t imuq = 0; imuq < nmuq-1; ++imuq)
@@ -138,7 +138,7 @@ void eos_delaunay::init(string EoS_table_file, int e_or_s)
 		std::transform( midpoint.begin(), midpoint.end(), midpoint.begin(),
 							[](double & element){ return 0.0625*element; } );	//1/16
 
-		midpoint_grid.push_back(midpoint);
+		midpoint_grid.push_back( midpoint );
 		midpoint_inds.push_back( {iT, imub, imuq, imus} );
 	}
 
@@ -260,17 +260,33 @@ void eos_delaunay::get_min_and_max(vector<double> & v, double & minval, double &
 
 void eos_delaunay::get_NMN_coordinates(const vector<double> & v0, vector<double> & result)
 {
-	size_t kdtree_nmn_index = 0;
+	size_t kdtree_nmn_index = 0, kdtree_nn_index = 0;
+	double nmn_dist = 2.0, nn_dist = 2.0;	// choose impossibly large separation
 	try
 	{
-		midpoint_tree_ptr = (using_e_or_s_mode==0) ?
-							e_midpoint_tree_ptr :
-							entr_midpoint_tree_ptr;
-		point4d n = midpoint_tree_ptr->nearest
+		if ( using_e_or_s_mode == 0 )
+		{
+			midpoint_tree_ptr = e_midpoint_tree_ptr;
+			tree_ptr          = e_tree_ptr;
+		}
+		else
+		{
+			midpoint_tree_ptr = entr_midpoint_tree_ptr;
+			tree_ptr          = entr_tree_ptr;
+		}
+		
+		point4d nmn = midpoint_tree_ptr->nearest
 					( { (v0[0] - emin) / (emax - emin),
 						(v0[1] - bmin) / (bmax - bmin),
 						(v0[2] - smin) / (smax - smin),
 						(v0[3] - qmin) / (qmax - qmin) }, kdtree_nmn_index );
+		nmn_dist    = midpoint_tree_ptr->distance();
+		point4d nn  = tree_ptr->nearest
+					( { (v0[0] - emin) / (emax - emin),
+						(v0[1] - bmin) / (bmax - bmin),
+						(v0[2] - smin) / (smax - smin),
+						(v0[3] - qmin) / (qmax - qmin) }, kdtree_nn_index );
+		nn_dist     = tree_ptr->distance();
 	}
 	catch (const std::exception& e)
 	{
@@ -278,8 +294,18 @@ void eos_delaunay::get_NMN_coordinates(const vector<double> & v0, vector<double>
 	}
 
 	// approximate (T,muB,muQ,muS) coordinates of nearest midpoint neighbor
-	const vector<double> * vNMNptr = &grid[ indexer( midpoint_inds[kdtree_nmn_index] ) ];
-	result.assign( vNMNptr->begin(), vNMNptr->begin()+4 );
+	//const vector<double> * vNMNptr = &grid[ indexer( midpoint_inds[kdtree_nmn_index] ) ];
+	//result.assign( vNMNptr->begin(), vNMNptr->begin()+4 );
+	if ( nmn_dist < nn_dist )
+	{
+		const std::array<double, 4> * vNMNptr = &midpoint_grid[ kdtree_nmn_index ];
+		result.assign( vNMNptr->begin(), vNMNptr->end() );
+	}
+	else
+	{
+		const vector<double> * vNNptr = &grid[ kdtree_nn_index ];
+		result.assign( vNNptr->begin(), vNNptr->end() );
+	}
 }
 
 
