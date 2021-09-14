@@ -1229,7 +1229,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 		double inputDensities[4] = {e_or_s_Given, rhoBGiven, rhoSGiven, rhoQGiven};
 		double finalDensities[4], neighbor_estimate_densities[4];
 		double final_phase_diagram_point[4] = {Tfinal, muBfinal, muQfinal, muSfinal};
-		double neighbor_estimate_point[4] = T_muB_muQ_muS_estimates.data();
+		double * neighbor_estimate_point = T_muB_muQ_muS_estimates.data();
 
 		if ( isEntropy )
 		{
