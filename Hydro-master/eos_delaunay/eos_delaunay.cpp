@@ -9,10 +9,8 @@
 #include <vector>
 
 #include <lib.h>
-//#include "delaunay.h"
 #include "eos_delaunay.h"
 #include "kdtree.h"
-//#include "point_in_simplex.h"
 
 using namespace std;
 
@@ -25,13 +23,6 @@ const size_t eos_delaunay::nT = 155,
 			eos_delaunay::nmub = 19,
 			eos_delaunay::nmus = 19,
 			eos_delaunay::nmuq = 19;*/
-
-
-/*size_t eos_delaunay::indexer( const int iT, const int imub, const int imuq, const int imus )
-{
-	// mus varies faster than muq!!!!!
-	return ( ( ( iT * nmub + imub ) * nmuq + imuq ) * nmus + imus );
-}*/
 
 
 //default constructor. This function exists to satisfy the compiler
@@ -306,4 +297,14 @@ void eos_delaunay::get_NMN_coordinates(const vector<double> & v0, vector<double>
 	}
 }
 
+
+double normalized_d2(double a[], double b[])
+{
+	double na[4] = {(a[0]-emin)/(emax-emin), (a[1]-bmin)/(bmax-bmin),
+					(a[2]-smin)/(smax-smin), (a[3]-qmin)/(qmax-qmin)};
+	double nb[4] = {(b[0]-emin)/(emax-emin), (b[1]-bmin)/(bmax-bmin),
+					(b[2]-smin)/(smax-smin), (b[3]-qmin)/(qmax-qmin)};
+	return (  (na[0]-nb[0])*(na[0]-nb[0]) + (na[1]-nb[1])*(na[1]-nb[1])
+			+ (na[2]-nb[2])*(na[2]-nb[2]) + (na[3]-nb[3])*(na[3]-nb[3]) );
+}
 

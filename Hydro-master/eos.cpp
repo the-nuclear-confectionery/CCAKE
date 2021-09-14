@@ -24,7 +24,7 @@ using std::string;
 // Compile:         gcc eos4D.cpp -c -I /usr/include/eigen3 -Lsplinter/build -lm -lgsl -lgslcblas -lstdc++ -lsplinter-3-0
 
 constexpr bool use_exact = true;
-constexpr bool accept_nearest_neighbor = false;
+constexpr bool accept_nearest_neighbor = true;
 
 //EoS constructor
 eos::eos(string quantityFile, string derivFile)
@@ -1219,22 +1219,51 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 		// eventually allow to include end point if it gives
 		// a closer approximation than starting value
 		// set final solver location
-		//{
-		// double Tfinal = gsl_vector_get(solver->x, 0);
-		// double muBfinal = gsl_vector_get(solver->x, 1);
-		// double muQfinal = gsl_vector_get(solver->x, 2);
-		// double muSfinal = gsl_vector_get(solver->x, 3);
-		// double phase_diagram_point[4] = {Tfinal, muBfinal, muQfinal, muSfinal};
-		// double densities[4];
-		// if ( isEntropy )
-		// 	get_sBSQ_densities(phase_diagram_point, densities);
-		// else
-		// 	get_eBSQ_densities(phase_diagram_point, densities);
-		//}
+		int which_neighbor_closest = -1;
 
-		// set T, muB, muQ, muS
-        tbqs( T_muB_muQ_muS_estimates[0], T_muB_muQ_muS_estimates[1],
-			  T_muB_muQ_muS_estimates[2], T_muB_muQ_muS_estimates[3] );
+		double Tfinal = gsl_vector_get(solver->x, 0);
+		double muBfinal = gsl_vector_get(solver->x, 1);
+		double muQfinal = gsl_vector_get(solver->x, 2);
+		double muSfinal = gsl_vector_get(solver->x, 3);
+
+		double inputDensities[4] = {e_or_s_Given, rhoBGiven, rhoSGiven, rhoQGiven};
+		double finalDensities[4], neighbor_estimate_densities[4];
+		double final_phase_diagram_point[4] = {Tfinal, muBfinal, muQfinal, muSfinal};
+		double neighbor_estimate_point[4] = T_muB_muQ_muS_estimates.data();
+
+		if ( isEntropy )
+		{
+			get_sBSQ_densities(final_phase_diagram_point, finalDensities);
+			get_sBSQ_densities(neighbor_estimate_point, neighbor_estimate_densities);
+			which_neighbor_closest
+				= static_cast<int>(
+					entr_delaunay.normalized_d2( inputDensities, neighbor_estimate_densities )
+					< entr_delaunay.normalized_d2( inputDensities, finalDensities ) );
+		}
+		else
+		{
+			get_eBSQ_densities(final_phase_diagram_point, finalDensities);
+			get_eBSQ_densities(neighbor_estimate_point, neighbor_estimate_densities);
+			which_neighbor_closest
+				= static_cast<int>(
+					e_delaunay.normalized_d2( inputDensities, neighbor_estimate_densities )
+					< e_delaunay.normalized_d2( inputDensities, finalDensities ) );
+		}
+
+		// set (T, muB, muQ, muS) based on which point is closest to input point
+		if ( which_neighbor_closest == 0 )
+			tbqs( T_muB_muQ_muS_estimates[0], T_muB_muQ_muS_estimates[1],
+				  T_muB_muQ_muS_estimates[2], T_muB_muQ_muS_estimates[3] );
+		else if ( which_neighbor_closest == 1 )
+			tbqs( finalDensities[0], finalDensities[1],
+				  finalDensities[2], finalDensities[3] );
+		else
+		{
+			std::cerr << "Bad value: which_neighbor_closest = "
+					<< which_neighbor_closest << std::endl;
+			exit(-8);
+		}
+
 		found = true;
 	}
 

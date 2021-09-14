@@ -11,9 +11,7 @@
 #include <iomanip>
 #include <string>
 
-//#include "delaunay.h"
 #include "kdtree.h"
-//#include "point_in_simplex.h"
 
 using namespace std;
 
@@ -26,18 +24,18 @@ class eos_delaunay
 	    eos_delaunay();
 		void init(string EoS_table_file, int e_or_s);
 
-//		bool interpolate(const vector<double> & v0, vector<double> & result, bool verbose = false);
-//		bool interpolate_NNmode(const vector<double> & v0, vector<double> & result, bool verbose = false);
-//		bool interpolate_NMNmode(const vector<double> & v0, vector<double> & result, bool verbose = false);
-//		bool interpolate_NMNmode_v2(const vector<double> & v0, vector<double> & result,
-//									bool expand_hypercube = false, bool verbose = false);
-//		bool interpolate_NMNmode_v3(const vector<double> & v0, vector<double> & result, bool verbose = false);
-//		bool triangulate_and_locate_point( const vector<double> & nv0, const vector<int> & base,
-//					vector<vector<double> > & vertices, vector<vector<size_t> > & simplices,
-//					vector<double> & point_lambda_in_simplex, int & iclosestsimplex );
-//		void refine_hypercube(vector<vector<double> > & hypercube);
 		void get_NMN_coordinates(const vector<double> & v0, vector<double> & result);
 
+		/*double get_emax() {return emax;}
+		double get_emin() {return emin;}
+		double get_bmax() {return bmax;}
+		double get_bmin() {return bmin;}
+		double get_smax() {return smax;}
+		double get_smin() {return smin;}
+		double get_qmax() {return qmax;}
+		double get_qmin() {return qmin;}*/
+
+		double normalized_d2();
 
 	private:
 
@@ -49,7 +47,6 @@ class eos_delaunay
 		tree4d * entr_tree_ptr, * entr_midpoint_tree_ptr, * entr_unnormalized_midpoint_tree_ptr;
 
 		static const double hbarc;
-		//const size_t nT = 155, nmub = 37, nmus = 37, nmuq = 37;
 		static const size_t nT, nmub, nmus, nmuq;
 
 		double emin, emax, bmin, bmax, smin, smax, qmin, qmax;
@@ -59,14 +56,12 @@ class eos_delaunay
 		vector<vector<double> > grid, unnormalized_grid;
 		vector<int> Tinds, mubinds, muqinds, musinds;
 		vector<vector<size_t> > midpoint_inds;
-		//std::vector<std::array<double, 4> > midpoint_grid;
 		
 		inline size_t indexer( const int iT, const int imub, const int imuq, const int imus )
 		{
 			// mus varies faster than muq!!!!!
 			return ( ( ( iT * nmub + imub ) * nmuq + imuq ) * nmus + imus );
 		}
-//		size_t indexer( const int iT, const int imub, const int imuq, const int imus );
 		inline size_t indexer( const vector<size_t> & v )
 		{
 			// mus varies faster than muq!!!!!
