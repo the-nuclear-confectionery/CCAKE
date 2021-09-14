@@ -9,21 +9,21 @@ OPTIMIZATION= -Og
 #OPTIMIZATION= -Ofast -funroll-loops -fvectorize -finline-functions -s -DNDEBUG -march=native -mtune=native
 # change to -O3 or -Ofast for production
 EIGENPATH=$(realpath ../eigen)
-SPLINTERPATH=$(realpath ../splinter/include)
-SPLINTERBUILDPATH=$(realpath ../splinter/build)
+#SPLINTERPATH=$(realpath ../splinter/include)
+#SPLINTERBUILDPATH=$(realpath ../splinter/build)
 QHULLSRCPATH=/projects/jnorhos/plumberg/qhull/src
 QHULLLIBPATH=/projects/jnorhos/plumberg/qhull/lib
 GSLPATH=/projects/jnorhos/local/include
 GSLLIBPATH=/projects/jnorhos/local/lib
 EOSLIBPATH=$(realpath ../EoS_BQS_Derivatives/lib)
 CFLAGS = $(WARNINGS) $(OPTIMIZATION) -c -I$(EOSLIBPATH) -I$(EIGENPATH) \
-        -I$(SPLINTERPATH)-I$(GSLPATH) $(DEBUG) $(STANDARD) -I$(QHULLSRCPATH)
+        -I$(GSLPATH) $(DEBUG) $(STANDARD) -I$(QHULLSRCPATH)
 LDFLAGS = -L$(EOSLIBPATH) -lbsqeos -lm -lgsl -lgslcblas -lblas -lstdc++ \
-          -L$(GSLLIBPATH) -L$(SPLINTERBUILDPATH) -lsplinter-3-0 $(DEBUG) \
+          -L$(GSLLIBPATH) $(DEBUG) \
 		  -L$(QHULLLIBPATH) -lqhullcpp -lqhullstatic_r $(STANDARD)
 
 export HDF5_LDFLAGS+=$(LDFLAGS)
-export HDF5_LIBS+=-L$(SPLINTERBUILDPATH) -lsplinter-3-0
+#export HDF5_LIBS+=-L$(SPLINTERBUILDPATH) -lsplinter-3-0
 #export HDF5_CXXFLAGS=-I$(SPLINTERPATH)
 
 

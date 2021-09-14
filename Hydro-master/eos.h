@@ -1,6 +1,5 @@
 #pragma once
 
-//#include "../splinter/include/bspline.h"
 #include "read_in_hdf/read_in_hdf.h"
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_matrix.h>
@@ -13,7 +12,6 @@
 
 using std::string;
 
-//using namespace SPLINTER;
 
 class eos {
 
@@ -25,11 +23,10 @@ public:
 
     //quantityFile must be in dimensionless quantities and must be formatted "T  muB  muQ  muS  p  s  B  S  Q  e  cs2"
     //derivFile should be formatted "T  muB  muQ  muS  d2p/dB2  d2p/dQ2  d2p/dS2  d2p/dBdQ  d2p/dBdS d2p/dQdS  d2p/dTdB  d2p/dTdQ  d2p/dTdS  d2p/dT2"
-    eos(string quantityFile, string derivFile/*, int degree = 1*/);
+    eos(string quantityFile, string derivFile);
 
     eos();
-    void init(string quantityFile, string derivFile/*, int degree = 1*/);
-    //void init_with_txt(string quantityFile, string derivFile/*, int degree = 1*/);
+    void init(string quantityFile, string derivFile);
     void init_grid_ranges_only(string quantityFile, string derivFile);
 
     //initializes the position in the grid to (setT,setmuB,setmuQ,setmuS)
@@ -106,10 +103,6 @@ private:
     //Rootfinding method used **THIS CAN BE CHANGED DEPENDING ON EOS
     const gsl_multiroot_fsolver_type *TYPE = gsl_multiroot_fsolver_hybrids;
 
-    //interpolations of each quantity
-    //BSpline pSpline, entrSpline, bSpline, sSpline, qSpline, eSpline, cs2Spline;
-    //BSpline db2Spline, dq2Spline, ds2Spline, dt2Spline, dbdqSpline, dbdsSpline, dtdbSpline, dqdsSpline, dtdqSpline, dtdsSpline;
-
     //value of each quantity at the current tbsPosition
     double pVal, entrVal, BVal, SVal, QVal, eVal, cs2Val;
     double db2, ds2, dq2, dt2, dbdq, dbds, dsdq, dtdb, dtds, dtdq; //second derivative of pressure wrt i and j where didj =: (d^2p)/(didj) or di2 = (d^2p)/((di)^2)
@@ -141,7 +134,6 @@ private:
     double Aideal();
     double Atable();
     //the current position in (T, muB, muQ, muS) initialized by tbqs()
-    //DenseVector tbqsPosition;
 	vector<double> tbqsPosition;
 
 	eos_delaunay e_delaunay;

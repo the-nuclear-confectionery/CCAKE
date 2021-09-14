@@ -1,8 +1,5 @@
 #include "eos.h"
 
-//#include "../splinter/include/datatable.h"
-//#include "../splinter/include/bspline.h"
-//#include "../splinter/include/bsplinebuilder.h"
 #include "read_in_hdf/read_in_hdf.h"
 #include "Stopwatch.h"
 #include <gsl/gsl_multiroots.h>
@@ -24,29 +21,20 @@
 using std::vector;
 using std::string;
 
-//using namespace SPLINTER;
-
 // Compile:         gcc eos4D.cpp -c -I /usr/include/eigen3 -Lsplinter/build -lm -lgsl -lgslcblas -lstdc++ -lsplinter-3-0
 
 constexpr bool use_exact = true;
 constexpr bool accept_nearest_neighbor = false;
 
-//EoS constructor. Builds the splines of degree "degree" for each quantitiy and initializes the position at (30,0,0,0)
-eos::eos(string quantityFile, string derivFile/*, int degree*/)
-	/*: pSpline(4), entrSpline(4), bSpline(4), sSpline(4), qSpline(4), eSpline(4),
-		cs2Spline(4), db2Spline(4), dq2Spline(4), ds2Spline(4), dt2Spline(4),
-		dbdqSpline(4), dbdsSpline(4), dtdbSpline(4), dqdsSpline(4),
-		dtdqSpline(4), dtdsSpline(4), tbqsPosition(4)*/
+//EoS constructor
+eos::eos(string quantityFile, string derivFile)
 {
     init(quantityFile, derivFile/*, degree*/);
 }
 
 //EoS default constructor. This function exists to satisfy the compiler
 //This function should never be called unless init is called directly afterward
-eos::eos() /*: pSpline(4), entrSpline(4), bSpline(4), sSpline(4), qSpline(4), eSpline(4),
-				cs2Spline(4), db2Spline(4), dq2Spline(4), ds2Spline(4), dt2Spline(4),
-				dbdqSpline(4), dbdsSpline(4), dtdbSpline(4), dqdsSpline(4),
-				dtdqSpline(4), dtdsSpline(4), tbqsPosition(4)*/ {}
+eos::eos() {}
 
 void eos::init(string quantityFile, string derivFile/*, int degree*/)
 {
@@ -57,7 +45,6 @@ void eos::init(string quantityFile, string derivFile/*, int degree*/)
 	initialize("/projects/jnorhos/BSQ/EoS_BQS_Derivatives/Coefficients_Parameters.dat");
 
 	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
-	//init_with_txt(quantityFile, derivFile, degree);
 	init_grid_ranges_only(quantityFile, derivFile);
 
 	cout << "Initialize Delaunay interpolators" << endl;
@@ -66,160 +53,6 @@ void eos::init(string quantityFile, string derivFile/*, int degree*/)
 
 	return;
 }
-
-/*void eos::init_with_txt(string quantityFile, string derivFile, int degree)
-{
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
-    std::ifstream dataFile;
-    std::ifstream derFile;
-    dataFile.open(quantityFile);
-    derFile.open(derivFile);
-
-    DataTable psamples, entrsamples, bsamples, ssamples, qsamples, esamples, cs2samples;
-    DataTable db2samples, ds2samples, dq2samples, dt2samples, dbdssamples, dbdqsamples, dqdssamples, dtdssamples, dtdqsamples, dtdbsamples;
-
-    double tit, muBit, muQit, muSit, pit, entrit, bit, sit, qit, eit, cs2it;
-    double db2it, dq2it, ds2it, dt2it, dbdqit, dbdsit, dqdsit, dtdbit, dtdsit, dtdqit;
-    vector<double> toAdd;
-
-    int count = 0;
-    double hbarc = 197.327;
-    while (dataFile >> tit >> muBit >> muQit >> muSit >> pit >> entrit >> bit >> sit >> qit >> eit >> cs2it) {
-        derFile >> tit >> muBit >> muQit >> muSit >> db2it >> dq2it >> ds2it >> dbdqit >> dbdsit >> dqdsit >> dtdbit >> dtdqit >> dtdsit >> dt2it;  //read data from files
-
-		// Christopher Plumberg:
-		// put T and mu_i in units of 1/fm
-		tit   /= hbarc;
-		muBit /= hbarc;
-		muSit /= hbarc;
-		muQit /= hbarc;
-
-        if(count++ == 0) {
-            minT   = tit;
-            maxT   = tit;
-            minMuB = muBit;
-            maxMuB = muBit;     //initialize eos range variables
-            minMuQ = muQit;
-            maxMuQ = muQit;
-            minMuS = muSit;
-            maxMuS = muSit;
-        }
-		if (count%100000==0) std::cout << "Read in line# " << count << std::endl;
-        if(maxT < tit) {
-            maxT = tit;
-        }
-        if(minT > tit) {
-            minT = tit;
-        }
-        if(maxMuB < muBit) {
-            maxMuB = muBit;
-        }
-        if(minMuB > muBit) {
-            minMuB = muBit;
-        }
-        if(maxMuQ < muQit) {
-            maxMuQ = muQit;
-        }
-        if(minMuQ > muQit) {
-            minMuQ = muQit;
-        }
-        if(maxMuS < muSit) {
-            maxMuS = muSit;
-        }
-        if(minMuS > muSit) {
-            minMuS = muSit;
-        }
-
-        toAdd.push_back(tit);
-        toAdd.push_back(muBit);
-        toAdd.push_back(muQit);
-        toAdd.push_back(muSit);
-
-		// USE FM IN HYDRO
-        pit = pit*(tit*tit*tit*tit);
-        entrit = entrit*(tit*tit*tit);
-        bit = bit*(tit*tit*tit);
-        sit = sit*(tit*tit*tit);
-        qit = qit*(tit*tit*tit);
-        eit = eit*(tit*tit*tit*tit);
-		
-
-        psamples.addSample(toAdd, pit);
-        entrsamples.addSample(toAdd, entrit);
-        bsamples.addSample(toAdd, bit);
-        ssamples.addSample(toAdd, sit);
-        qsamples.addSample(toAdd, qit);
-        esamples.addSample(toAdd, eit);
-        cs2samples.addSample(toAdd, cs2it);
-        db2samples.addSample(toAdd, db2it);
-        dq2samples.addSample(toAdd, dq2it);     //add datapoint to table for spline builder
-        ds2samples.addSample(toAdd, ds2it);
-        dbdqsamples.addSample(toAdd, dbdqit);
-        dbdssamples.addSample(toAdd, dbdsit);
-        dqdssamples.addSample(toAdd, dqdsit);
-        dtdbsamples.addSample(toAdd, dtdbit);
-        dtdqsamples.addSample(toAdd, dtdqit);
-        dtdssamples.addSample(toAdd, dtdsit);
-        dt2samples.addSample(toAdd, dt2it);
-        toAdd.clear();
-    }
-
-    dataFile.close();
-    derFile.close();
-
-	std::cout << "Finished reading in thermodynamic data files!" << std::endl;
-
-	std::cout << "Building pspline..." << std::endl;
-    pSpline = BSpline::Builder(psamples).degree(degree).build();
-	std::cout << "Building entrSpline..." << std::endl;
-    entrSpline = BSpline::Builder(entrsamples).degree(degree).build();
-	std::cout << "Building bSpline..." << std::endl;
-    bSpline = BSpline::Builder(bsamples).degree(degree).build();
-	std::cout << "Building sSpline..." << std::endl;
-    sSpline = BSpline::Builder(ssamples).degree(degree).build();
-	std::cout << "Building qSpline..." << std::endl;
-    qSpline = BSpline::Builder(qsamples).degree(degree).build();
-	std::cout << "Building eSpline..." << std::endl;
-    eSpline = BSpline::Builder(esamples).degree(degree).build();
-	std::cout << "Building cs2Spline..." << std::endl;
-    cs2Spline = BSpline::Builder(cs2samples).degree(degree).build();
-	std::cout << "Building db2Spline..." << std::endl;
-    db2Spline = BSpline::Builder(db2samples).degree(degree).build();
-	std::cout << "Building dq2Spline..." << std::endl;
-    dq2Spline = BSpline::Builder(dq2samples).degree(degree).build();
- 	std::cout << "Building ds2Spline..." << std::endl;
-    ds2Spline = BSpline::Builder(ds2samples).degree(degree).build();        //make splines from table
-	std::cout << "Building dbdqSpline..." << std::endl;
-    dbdqSpline = BSpline::Builder(dbdqsamples).degree(degree).build();
-	std::cout << "Building dbdsSpline..." << std::endl;
-    dbdsSpline = BSpline::Builder(dbdssamples).degree(degree).build();
-	std::cout << "Building dqdsSpline..." << std::endl;
-    dqdsSpline = BSpline::Builder(dqdssamples).degree(degree).build();
-	std::cout << "Building dtdbSpline..." << std::endl;
-    dtdbSpline = BSpline::Builder(dtdbsamples).degree(degree).build();
-	std::cout << "Building dtdqSpline..." << std::endl;
-    dtdqSpline = BSpline::Builder(dtdqsamples).degree(degree).build();
-	std::cout << "Building dtdsSpline..." << std::endl;
-    dtdsSpline = BSpline::Builder(dtdssamples).degree(degree).build();
-	std::cout << "Building dt2Spline..." << std::endl;
-    dt2Spline = BSpline::Builder(dt2samples).degree(degree).build();
-
-	// initialize tbqsPosition to something...
-	std::cout << "Initializing tbqsPosition...\n";
-	for (int iTBQS = 0; iTBQS < 4; iTBQS++) tbqsPosition(iTBQS) = 1.0;
-
-	std::cout << "Check TBQS: ";
-	for (int iTBQS = 0; iTBQS < 4; iTBQS++) std::cout << tbqsPosition(iTBQS) << "   ";	
-	std::cout << std::endl;
-
-	//std::cout << "Check alternate: "
-	//			<< T() << "   " << muB() << "   "
-	//			<< muQ() << "   " << muS() << std::endl;
-
-	std::cout << "All initializations finished!" << std::endl;
-
-    return;
-}*/
 
 void eos::init_grid_ranges_only(string quantityFile, string derivFile)
 {
@@ -268,8 +101,6 @@ void eos::init_grid_ranges_only(string quantityFile, string derivFile)
         
 	}
 
-	//for (int iTBQS = 0; iTBQS < 4; iTBQS++) tbqsPosition(iTBQS) = 1.0;
-
     dataFile.close();
 
 	std::cout << "All initializations finished!" << std::endl;
@@ -295,10 +126,6 @@ void eos::tbqs(double setT, double setmuB, double setmuQ, double setmuS)
         std::cout << "muS = " << setmuS << " is out of range. Valid values are between [" << minMuS << "," << maxMuS << "]" << std::endl;
         return;
     }
-//    tbqsPosition(0) = setT;
-//    tbqsPosition(1) = setmuB;
-//    tbqsPosition(2) = setmuQ;
-//    tbqsPosition(3) = setmuS;
 	tbqsPosition[0] = setT;
 	tbqsPosition[1] = setmuB;
 	tbqsPosition[2] = setmuQ;
@@ -325,26 +152,6 @@ void eos::tbqs(double setT, double setmuB, double setmuQ, double setmuS)
     dtdq    = thermodynamics[14];
     dtds    = thermodynamics[15];
     dt2     = thermodynamics[16];
-
-
-    /*pVal = pSpline.eval(tbqsPosition);
-    BVal = bSpline.eval(tbqsPosition);
-    SVal = sSpline.eval(tbqsPosition);
-    QVal = qSpline.eval(tbqsPosition);
-    eVal = eSpline.eval(tbqsPosition);
-    cs2Val = cs2Spline.eval(tbqsPosition);
-    db2 = db2Spline.eval(tbqsPosition);
-    ds2 = ds2Spline.eval(tbqsPosition);
-    dq2 = dq2Spline.eval(tbqsPosition);
-    dt2 = dt2Spline.eval(tbqsPosition);
-    dbdq = dbdqSpline.eval(tbqsPosition);
-    dbds = dbdsSpline.eval(tbqsPosition);
-    dsdq = dqdsSpline.eval(tbqsPosition);
-    dtdb = dtdbSpline.eval(tbqsPosition);
-    dtds = dtdsSpline.eval(tbqsPosition);
-    dtdq = dtdqSpline.eval(tbqsPosition);
-
-    entrVal = (eVal + pVal - setmuB*BVal - setmuQ*QVal - setmuS*SVal)/setT;*/
 }
 
 
@@ -399,69 +206,22 @@ double eos::dwdQ()
     return muQ() + charge_terms;
 }
 
-double eos::dentr_dt() {
-    return calc_term_1();
-}
-
-double eos::dentr_dmub() {
-    return calc_term_2("b");
-}
-
-double eos::dentr_dmuq() {
-    return calc_term_2("q");
-}
-
-double eos::dentr_dmus() {
-    return calc_term_2("s");
-}
-
-double eos::db_dt() {
-    return calc_term_3("b");
-}
-
-double eos::db_dmub() {
-    return calc_term_4("b","b");
-}
-
-double eos::db_dmuq() {
-    return calc_term_4("b","q");
-}
-
-double eos::db_dmus() {
-    return calc_term_4("b","s");
-}
-
-double eos::ds_dt() {
-    return calc_term_3("s");
-}
-
-double eos::ds_dmub() {
-    return calc_term_4("s","b");
-}
-
-double eos::ds_dmuq() {
-    return calc_term_4("s","q");
-}
-
-double eos::ds_dmus() {
-    return calc_term_4("s","s");
-}
-
-double eos::dq_dt() {
-    return calc_term_3("q");
-}
-
-double eos::dq_dmub() {
-    return calc_term_4("q","b");
-}
-
-double eos::dq_dmuq() {
-    return calc_term_4("q","q");
-}
-
-double eos::dq_dmus() {
-    return calc_term_4("q","s");
-}
+double eos::dentr_dt()   { return calc_term_1();        }
+double eos::dentr_dmub() { return calc_term_2("b");     }
+double eos::dentr_dmuq() { return calc_term_2("q");     }
+double eos::dentr_dmus() { return calc_term_2("s");     }
+double eos::db_dt()      { return calc_term_3("b");     }
+double eos::db_dmub()    { return calc_term_4("b","b"); }
+double eos::db_dmuq()    { return calc_term_4("b","q"); }
+double eos::db_dmus()    { return calc_term_4("b","s"); }
+double eos::ds_dt()      { return calc_term_3("s");     }
+double eos::ds_dmub()    { return calc_term_4("s","b"); }
+double eos::ds_dmuq()    { return calc_term_4("s","q"); }
+double eos::ds_dmus()    { return calc_term_4("s","s"); }
+double eos::dq_dt()      { return calc_term_3("q");     }
+double eos::dq_dmub()    { return calc_term_4("q","b"); }
+double eos::dq_dmuq()    { return calc_term_4("q","q"); }
+double eos::dq_dmus()    { return calc_term_4("q","s"); }
 
 double eos::calc_term_1() {
     gsl_vector *v = gsl_vector_alloc(3);
@@ -1192,63 +952,36 @@ struct rootfinder_parameters {
     double rhoBGiven;
     double rhoQGiven;
     double rhoSGiven;
-//    BSpline * eorEntSpline;        //the splines that contain interpolations over s, BSQ
-//    BSpline * rhoBSpline;
-//    BSpline * rhoQSpline;
-//    BSpline * rhoSSpline;
     rootfinder_parameters();
     rootfinder_parameters(
 		double seteorEntGiven, double setRhoBGiven,
-		double setRhoQGiven, double setRhoSGiven/*,
-		BSpline * setEntrSpline = nullptr, BSpline * setRhoBSpline = nullptr,
-		BSpline * setRhoQSpline = nullptr, BSpline * setRhoSSpline = nullptr*/);
+		double setRhoQGiven, double setRhoSGiven);
 public:
     void set( double setEorEntGiven, double setRhoBGiven,
-			  double setRhoQGiven, double setRhoSGiven/*,
-			  BSpline * setEntrSpline = nullptr, BSpline * setRhoBSpline = nullptr,
-			  BSpline * setRhoQSpline = nullptr, BSpline * setRhoSSpline = nullptr*/);
+			  double setRhoQGiven, double setRhoSGiven);
 };
 //Default constructor to make the compiler happy. Should never be called
-rootfinder_parameters::rootfinder_parameters()
-	/*: eorEntSpline(nullptr), rhoBSpline(nullptr), rhoQSpline(nullptr), rhoSSpline(nullptr)*/ {}
+rootfinder_parameters::rootfinder_parameters() {}
 //constructor which initializes all struct variables
 rootfinder_parameters::rootfinder_parameters(
 	double setEorEntGiven, double setRhoBGiven,
-	double setRhoQGiven, double setRhoSGiven/*,
-	BSpline * setEorEntSpline, BSpline * setRhoBSpline,
-	BSpline * setRhoQSpline, BSpline * setRhoSSpline*/
+	double setRhoQGiven, double setRhoSGiven
 	)
-	//: eorEntSpline(nullptr), rhoBSpline(nullptr), rhoQSpline(nullptr), rhoSSpline(nullptr)
 {
     eorEntGiven = setEorEntGiven;
     rhoBGiven = setRhoBGiven;
     rhoQGiven = setRhoQGiven;
     rhoSGiven = setRhoSGiven;
-	/*if ( !use_exact )
-	{
-    eorEntSpline = setEorEntSpline;
-    rhoBSpline = setRhoBSpline;
-    rhoQSpline = setRhoQSpline;
-    rhoSSpline = setRhoSSpline;
-	}*/
 }
 void rootfinder_parameters::set(
 	double setEorEntGiven, double setRhoBGiven,
-	double setRhoQGiven, double setRhoSGiven/*,
-	BSpline * setEorEntSpline, BSpline * setRhoBSpline,
-	BSpline * setRhoQSpline, BSpline * setRhoSSpline*/)
+	double setRhoQGiven, double setRhoSGiven)
 {
     eorEntGiven = setEorEntGiven;
     rhoBGiven = setRhoBGiven;
     rhoQGiven = setRhoQGiven;
     rhoSGiven = setRhoSGiven;
-	/*if ( !use_exact )
-	{
-    eorEntSpline = setEorEntSpline;
-    rhoBSpline = setRhoBSpline;
-    rhoQSpline = setRhoQSpline;
-    rhoSSpline = setRhoSSpline;
-	}*/
+
 }
 
 //helper function for the rootfinder. It provides the correct difference of s, rhoB, rhoQ, rhoS at a given (T, muB, muQ, muS) from the target
@@ -1257,7 +990,6 @@ void rootfinder_parameters::set(
 int rootfinder_fsbqs(const gsl_vector *x, void *params, gsl_vector *f);
 int rootfinder_fsbqs(const gsl_vector *x, void *params, gsl_vector *f) {
     //x contains the next (T, muB, muS) coordinate to test
-    //DenseVector tbqsToEval(4);
     vector<double> tbqsToEval(4);
     tbqsToEval[0] = gsl_vector_get(x,0);
     tbqsToEval[1] = gsl_vector_get(x,1);	// convert x into densevector so it
@@ -1270,7 +1002,6 @@ int rootfinder_fsbqs(const gsl_vector *x, void *params, gsl_vector *f) {
     rhoBGiven = ((rootfinder_parameters*)params)->rhoBGiven;            //given variables contain the target point
     rhoQGiven = ((rootfinder_parameters*)params)->rhoQGiven;
     rhoSGiven = ((rootfinder_parameters*)params)->rhoSGiven;
-if (use_exact)
 {
 	double phase_diagram_point[4] = {tbqsToEval[0]*197.327, tbqsToEval[1]*197.327,
 					 tbqsToEval[3]*197.327, tbqsToEval[2]*197.327};	// NOTE: S <<-->> Q swapped!!!
@@ -1291,13 +1022,6 @@ if (use_exact)
 		<< rhoQ << "   " << rhoQGiven << endl;*/
 
 }
-//else
-//{
-//    entr = (((rootfinder_parameters*)params)->eorEntSpline)->eval(tbqsToEval);    //s, rhoB, rhoQ, rhoS contain the current point
-//    rhoB = (((rootfinder_parameters*)params)->rhoBSpline)->eval(tbqsToEval);
-//    rhoQ = (((rootfinder_parameters*)params)->rhoQSpline)->eval(tbqsToEval);
-//    rhoS = (((rootfinder_parameters*)params)->rhoSSpline)->eval(tbqsToEval);
-//}
 
     gsl_vector_set(f, 0, (entr - entrGiven)); //f[0] contains (s(T,muB,muQ,muS) - sGiven)
     gsl_vector_set(f, 1, (rhoB - rhoBGiven)); //f[1] contains (rhoB(T,muB,muQ,muS) - rhoBGiven)
@@ -1313,7 +1037,6 @@ if (use_exact)
 int rootfinder_febqs(const gsl_vector *x, void *params, gsl_vector *f);
 int rootfinder_febqs(const gsl_vector *x, void *params, gsl_vector *f) {
     //x contains the next (T, muB, muQ, muS) coordinate to test
-//    DenseVector tbqsToEval(4);
     vector<double> tbqsToEval(4);
     tbqsToEval[0] = gsl_vector_get(x,0);
     tbqsToEval[1] = gsl_vector_get(x,1);	// convert x into densevector so it
@@ -1325,7 +1048,6 @@ int rootfinder_febqs(const gsl_vector *x, void *params, gsl_vector *f) {
     rhoBGiven = ((rootfinder_parameters*)params)->rhoBGiven;            //given variables contain the target point
     rhoQGiven = ((rootfinder_parameters*)params)->rhoQGiven;
     rhoSGiven = ((rootfinder_parameters*)params)->rhoSGiven;
-if (use_exact)
 {
 	double phase_diagram_point[4] = {tbqsToEval[0]*197.327, tbqsToEval[1]*197.327,
 					 tbqsToEval[3]*197.327, tbqsToEval[2]*197.327};	// NOTE: S <<-->> Q swapped!!!
@@ -1346,13 +1068,6 @@ if (use_exact)
 		<< rhoQ << "   " << rhoQGiven << endl;
 	*/
 }
-//else
-//{
-//    e = (((rootfinder_parameters*)params)->eorEntSpline)->eval(tbqsToEval);    //e, rhoB, rhoQ, rhoS contain the current point
-//    rhoB = (((rootfinder_parameters*)params)->rhoBSpline)->eval(tbqsToEval);
-//    rhoQ = (((rootfinder_parameters*)params)->rhoQSpline)->eval(tbqsToEval);
-//    rhoS = (((rootfinder_parameters*)params)->rhoSSpline)->eval(tbqsToEval);
-//}
 
     gsl_vector_set(f, 0, (e - eGiven)); //f[0] contains (e(T,muB,muQ,muS) - eGiven)
     gsl_vector_set(f, 1, (rhoB - rhoBGiven)); //f[1] contains the (rhoB(T,muB,muQ,muS) - rhoBGiven)
@@ -1485,26 +1200,11 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
         isEntropy = true;
     }
     rootfinder_parameters p;
-	if (use_exact)
-	{
-		if(isEntropy) {
-			p.set( e_or_s_Given, rhoBGiven, rhoQGiven, rhoSGiven/*,
-					entrSpline, bSpline, qSpline, sSpline*/);
-		} else {
-			p.set( e_or_s_Given, rhoBGiven, rhoQGiven, rhoSGiven/*,
-					eSpline, bSpline, qSpline, sSpline*/);
-		}
+	if(isEntropy) {
+		p.set( e_or_s_Given, rhoBGiven, rhoQGiven, rhoSGiven);
+	} else {
+		p.set( e_or_s_Given, rhoBGiven, rhoQGiven, rhoSGiven);
 	}
-//	else
-//	{
-//		if(isEntropy) {
-//			p.set( e_or_s_Given, rhoBGiven, rhoQGiven, rhoSGiven,
-//					&entrSpline, &bSpline, &qSpline, &sSpline);
-//		} else {
-//			p.set( e_or_s_Given, rhoBGiven, rhoQGiven, rhoSGiven,
-//					&eSpline, &bSpline, &qSpline, &sSpline);
-//		}
-//	}
 
     //initialize multiroot solver
     gsl_multiroot_fsolver *solver;
@@ -1619,15 +1319,6 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 			  T_muB_muQ_muS_estimates[2], T_muB_muQ_muS_estimates[3] );
 		found = true;
 	}
-
-	/*string output_status = ( found ) ? "FOUND" : "NOT FOUND";
-
-	if ( e_or_s_mode == 1 && VERBOSE > 5 )
-		std::cout << "Output (" << output_status << "): rootfinder4D at x = "
-			<< 197.327*gsl_vector_get(solver->x, 0) << "   "
-			<< 197.327*gsl_vector_get(solver->x, 1) << "   "
-			<< 197.327*gsl_vector_get(solver->x, 2) << "   "
-			<< 197.327*gsl_vector_get(solver->x, 3) << std::endl << std::endl;*/
 
     //memory deallocation
     gsl_multiroot_fsolver_free(solver);
