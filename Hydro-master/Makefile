@@ -50,7 +50,8 @@ hydrosim.o: vector.h mathdef.h particle.h hydrosim.h LinkList.h rungekutta4.h eo
 newspline.o: newspline.cpp newspline.hpp
 	$(CC) $(CFLAGS) newspline.cpp
 
-eos.o: tables.h eos.h eostables.h eos.cpp $(SPLINTERPATH)/datatable.h $(SPLINTERPATH)/bspline.h $(SPLINTERPATH)/bsplinebuilder.h read_in_hdf/read_in_hdf.h eos_delaunay/eos_delaunay.h eos_delaunay/eos_delaunay.cpp
+#eos.o: tables.h eos.h eostables.h eos.cpp $(SPLINTERPATH)/datatable.h $(SPLINTERPATH)/bspline.h $(SPLINTERPATH)/bsplinebuilder.h read_in_hdf/read_in_hdf.h eos_delaunay/eos_delaunay.h eos_delaunay/eos_delaunay.cpp
+eos.o: tables.h eos.h eostables.h eos.cpp read_in_hdf/read_in_hdf.h eos_delaunay/eos_delaunay.h eos_delaunay/eos_delaunay.cpp
 	$(CC) $(CFLAGS) eos.cpp
 
 random.o: random.cpp random.h
