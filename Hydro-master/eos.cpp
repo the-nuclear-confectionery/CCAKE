@@ -823,6 +823,7 @@ double eos::s_out(double ein, double Bin, double Sin, double Qin) {   //update t
         return entrVal;
     }
 	///////////////////////////
+	std::cout << "Should not have made it here!" << std::endl;
 	return -1.0;//!!!!!!!!!!!!
 	///////////////////////////
 
@@ -1252,11 +1253,11 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 
 		// set (T, muB, muQ, muS) based on which point is closest to input point
 		if ( which_neighbor_closest == 0 )
-			tbqs( T_muB_muQ_muS_estimates[0], T_muB_muQ_muS_estimates[1],
-				  T_muB_muQ_muS_estimates[2], T_muB_muQ_muS_estimates[3] );
+			tbqs( neighbor_estimate_point[0], neighbor_estimate_point[1],
+				  neighbor_estimate_point[2], neighbor_estimate_point[3] );
 		else if ( which_neighbor_closest == 1 )
-			tbqs( finalDensities[0], finalDensities[1],
-				  finalDensities[2], finalDensities[3] );
+			tbqs( final_phase_diagram_point[0], final_phase_diagram_point[1],
+				  final_phase_diagram_point[2], final_phase_diagram_point[3] );
 		else
 		{
 			std::cerr << "Bad value: which_neighbor_closest = "
