@@ -33,9 +33,12 @@ constexpr bool accept_nearest_neighbor = false;
 
 //EoS constructor. Builds the splines of degree "degree" for each quantitiy and initializes the position at (30,0,0,0)
 eos::eos(string quantityFile, string derivFile/*, int degree*/)
-	//: pSpline(4), entrSpline(4), bSpline(4), sSpline(4), qSpline(4), eSpline(4), cs2Spline(4), db2Spline(4), dq2Spline(4), ds2Spline(4), dt2Spline(4), dbdqSpline(4), dbdsSpline(4), dtdbSpline(4), dqdsSpline(4), dtdqSpline(4), dtdsSpline(4), tbqsPosition(4)
+	/*: pSpline(4), entrSpline(4), bSpline(4), sSpline(4), qSpline(4), eSpline(4),
+		cs2Spline(4), db2Spline(4), dq2Spline(4), ds2Spline(4), dt2Spline(4),
+		dbdqSpline(4), dbdsSpline(4), dtdbSpline(4), dqdsSpline(4),
+		dtdqSpline(4), dtdsSpline(4), tbqsPosition(4)*/
 {
-    init(quantityFile, derivFile, degree);
+    init(quantityFile, derivFile/*, degree*/);
 }
 
 //EoS default constructor. This function exists to satisfy the compiler
@@ -264,7 +267,7 @@ void eos::init_grid_ranges_only(string quantityFile, string derivFile)
         
 	}
 
-	for (int iTBQS = 0; iTBQS < 4; iTBQS++) tbqsPosition(iTBQS) = 1.0;
+	//for (int iTBQS = 0; iTBQS < 4; iTBQS++) tbqsPosition(iTBQS) = 1.0;
 
     dataFile.close();
 
@@ -273,9 +276,8 @@ void eos::init_grid_ranges_only(string quantityFile, string derivFile)
     return;
 }
 
-void eos::tbqs(double setT, double setmuB, double setmuQ, double setmuS) {
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
-
+void eos::tbqs(double setT, double setmuB, double setmuQ, double setmuS)
+{
     if(setT < minT || setT > maxT) {
         std::cout << "T = " << setT << " is out of range. Valid values are between [" << minT << "," << maxT << "]" << std::endl;
         return;
@@ -292,10 +294,14 @@ void eos::tbqs(double setT, double setmuB, double setmuQ, double setmuS) {
         std::cout << "muS = " << setmuS << " is out of range. Valid values are between [" << minMuS << "," << maxMuS << "]" << std::endl;
         return;
     }
-    tbqsPosition(0) = setT;
-    tbqsPosition(1) = setmuB;
-    tbqsPosition(2) = setmuQ;
-    tbqsPosition(3) = setmuS;
+//    tbqsPosition(0) = setT;
+//    tbqsPosition(1) = setmuB;
+//    tbqsPosition(2) = setmuQ;
+//    tbqsPosition(3) = setmuS;
+	tbqsPosition[0] = setT;
+	tbqsPosition[1] = setmuB;
+	tbqsPosition[2] = setmuQ;
+	tbqsPosition[3] = setmuS;
 
 	double phase_diagram_point[4] = {setT, setmuB, setmuS, setmuQ};	// NOTE: S <<-->> Q swapped!!!
 	double thermodynamics[17];
@@ -341,10 +347,10 @@ void eos::tbqs(double setT, double setmuB, double setmuQ, double setmuS) {
 }
 
 
-double eos::T() { return tbqsPosition(0); }
-double eos::muB() { return tbqsPosition(1); }
-double eos::muQ() { return tbqsPosition(2); }
-double eos::muS() { return tbqsPosition(3); }
+double eos::T() { return tbqsPosition[0]; }
+double eos::muB() { return tbqsPosition[1]; }
+double eos::muQ() { return tbqsPosition[2]; }
+double eos::muS() { return tbqsPosition[3]; }
 
 double eos::p() { return pVal; }
 double eos::s() { return entrVal; }
@@ -954,10 +960,10 @@ bool eos::update_s(double sin, double Bin, double Sin, double Qin) { //update th
 	///////////////////////////
 	return false;//!!!!!!!!!!!!
 	///////////////////////////
-    double t0 = tbqsPosition(0);
-    double mub0 = tbqsPosition(1);
-    double muq0 = tbqsPosition(2);
-    double mus0 = tbqsPosition(3);
+    double t0 = tbqsPosition[0];
+    double mub0 = tbqsPosition[1];
+    double muq0 = tbqsPosition[2];
+    double mus0 = tbqsPosition[3];
     double t10 = t0*.2;
     double muB10 = mub0*.2;
     double muQ10 = muq0*.2;
@@ -1059,10 +1065,10 @@ double eos::s_out(double ein, double Bin, double Sin, double Qin) {   //update t
 	return -1.0;//!!!!!!!!!!!!
 	///////////////////////////
 
-    double t0 = tbqsPosition(0);
-    double mub0 = tbqsPosition(1);
-    double muq0 = tbqsPosition(2);
-    double mus0 = tbqsPosition(3);
+    double t0 = tbqsPosition[0];
+    double mub0 = tbqsPosition[1];
+    double muq0 = tbqsPosition[2];
+    double mus0 = tbqsPosition[3];
     double t10 = t0*.2;
     double muB10 = mub0*.2;
     double muQ10 = muq0*.2;

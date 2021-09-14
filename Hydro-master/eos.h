@@ -141,7 +141,8 @@ private:
     double Aideal();
     double Atable();
     //the current position in (T, muB, muQ, muS) initialized by tbqs()
-    DenseVector tbqsPosition;
+    //DenseVector tbqsPosition;
+	vector<double> tbqsPosition;
 
 	eos_delaunay e_delaunay;
 	eos_delaunay entr_delaunay;
