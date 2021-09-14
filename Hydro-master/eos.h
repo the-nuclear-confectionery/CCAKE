@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../splinter/include/bspline.h"
+//#include "../splinter/include/bspline.h"
 #include "read_in_hdf/read_in_hdf.h"
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_matrix.h>
@@ -13,7 +13,7 @@
 
 using std::string;
 
-using namespace SPLINTER;
+//using namespace SPLINTER;
 
 class eos {
 
@@ -107,8 +107,8 @@ private:
     const gsl_multiroot_fsolver_type *TYPE = gsl_multiroot_fsolver_hybrids;
 
     //interpolations of each quantity
-    BSpline pSpline, entrSpline, bSpline, sSpline, qSpline, eSpline, cs2Spline;
-    BSpline db2Spline, dq2Spline, ds2Spline, dt2Spline, dbdqSpline, dbdsSpline, dtdbSpline, dqdsSpline, dtdqSpline, dtdsSpline;
+    //BSpline pSpline, entrSpline, bSpline, sSpline, qSpline, eSpline, cs2Spline;
+    //BSpline db2Spline, dq2Spline, ds2Spline, dt2Spline, dbdqSpline, dbdsSpline, dtdbSpline, dqdsSpline, dtdqSpline, dtdsSpline;
 
     //value of each quantity at the current tbsPosition
     double pVal, entrVal, BVal, SVal, QVal, eVal, cs2Val;
