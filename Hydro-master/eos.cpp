@@ -1650,12 +1650,23 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 	{
 		// eventually allow to include end point if it gives
 		// a closer approximation than starting value
+		// set final solver location
+		//{
+		// double Tfinal = gsl_vector_get(solver->x, 0);
+		// double muBfinal = gsl_vector_get(solver->x, 1);
+		// double muQfinal = gsl_vector_get(solver->x, 2);
+		// double muSfinal = gsl_vector_get(solver->x, 3);
+		// double phase_diagram_point[4] = {Tfinal, muBfinal, muQfinal, muSfinal};
+		// double densities[4];
+		// if ( isEntropy )
+		// 	get_sBSQ_densities(phase_diagram_point, densities);
+		// else
+		// 	get_eBSQ_densities(phase_diagram_point, densities);
+		//}
 
 		// set T, muB, muQ, muS
-        tbqs( gsl_vector_get(solver->x, T_muB_muQ_muS_estimates[0]),
-			  gsl_vector_get(solver->x, T_muB_muQ_muS_estimates[1]),
-			  gsl_vector_get(solver->x, T_muB_muQ_muS_estimates[2]),
-			  gsl_vector_get(solver->x, T_muB_muQ_muS_estimates[3]) );
+        tbqs( T_muB_muQ_muS_estimates[0], T_muB_muQ_muS_estimates[1],
+			  T_muB_muQ_muS_estimates[2], T_muB_muQ_muS_estimates[3] );
 		found = true;
 	}
 
