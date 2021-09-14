@@ -51,6 +51,7 @@ eos::eos() /*: pSpline(4), entrSpline(4), bSpline(4), sSpline(4), qSpline(4), eS
 void eos::init(string quantityFile, string derivFile/*, int degree*/)
 {
 	VERBOSE = 5;
+	tbqsPosition.resize(4);
 
 	cout << "Initializing EoS C library" << endl;
 	initialize("/projects/jnorhos/BSQ/EoS_BQS_Derivatives/Coefficients_Parameters.dat");
@@ -1256,11 +1257,12 @@ void rootfinder_parameters::set(
 int rootfinder_fsbqs(const gsl_vector *x, void *params, gsl_vector *f);
 int rootfinder_fsbqs(const gsl_vector *x, void *params, gsl_vector *f) {
     //x contains the next (T, muB, muS) coordinate to test
-    DenseVector tbqsToEval(4);
-    tbqsToEval(0) = gsl_vector_get(x,0);
-    tbqsToEval(1) = gsl_vector_get(x,1);	// convert x into densevector so it
-    tbqsToEval(2) = gsl_vector_get(x,2);	// can be a BSpline evaluation point
-    tbqsToEval(3) = gsl_vector_get(x,3);
+    //DenseVector tbqsToEval(4);
+    vector<double> tbqsToEval(4);
+    tbqsToEval[0] = gsl_vector_get(x,0);
+    tbqsToEval[1] = gsl_vector_get(x,1);	// convert x into densevector so it
+    tbqsToEval[2] = gsl_vector_get(x,2);	// can be a BSpline evaluation point
+    tbqsToEval[3] = gsl_vector_get(x,3);
 
 
     double entrGiven, rhoBGiven, rhoQGiven, rhoSGiven, entr, rhoB, rhoQ, rhoS;
