@@ -28,7 +28,7 @@ using namespace SPLINTER;
 
 // Compile:         gcc eos4D.cpp -c -I /usr/include/eigen3 -Lsplinter/build -lm -lgsl -lgslcblas -lstdc++ -lsplinter-3-0
 
-constexpr bool use_exact = true;
+constexpr bool use_exact = false;
 constexpr bool accept_nearest_neighbor = false;
 
 //EoS constructor. Builds the splines of degree "degree" for each quantitiy and initializes the position at (30,0,0,0)
