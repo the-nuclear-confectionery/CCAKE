@@ -59,7 +59,7 @@ class eos_delaunay
 		vector<vector<double> > grid, unnormalized_grid;
 		vector<int> Tinds, mubinds, muqinds, musinds;
 		vector<vector<size_t> > midpoint_inds;
-		std::vector<std::array<double, 4> > midpoint_grid;
+		//std::vector<std::array<double, 4> > midpoint_grid;
 		
 		inline size_t indexer( const int iT, const int imub, const int imuq, const int imus )
 		{

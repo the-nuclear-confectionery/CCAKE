@@ -117,7 +117,7 @@ void eos_delaunay::init(string EoS_table_file, int e_or_s)
 
 	// use midpoints as alternate way of find best simplex
 	// "midpoints" are the average densities in the cell with lower corner at (iT,imu...)
-	//std::vector<std::array<double, 4> > midpoint_grid;
+	std::vector<std::array<double, 4> > midpoint_grid;
 	for (size_t iT = 0; iT < nT-1; ++iT)
 	for (size_t imub = 0; imub < nmub-1; ++imub)
 	for (size_t imuq = 0; imuq < nmuq-1; ++imuq)
@@ -267,12 +267,12 @@ void eos_delaunay::get_NMN_coordinates(const vector<double> & v0, vector<double>
 		if ( using_e_or_s_mode == 0 )
 		{
 			midpoint_tree_ptr = e_midpoint_tree_ptr;
-			//tree_ptr          = e_tree_ptr;
+			tree_ptr          = e_tree_ptr;
 		}
 		else
 		{
 			midpoint_tree_ptr = entr_midpoint_tree_ptr;
-			//tree_ptr          = entr_tree_ptr;
+			tree_ptr          = entr_tree_ptr;
 		}
 		
 		point4d nmn = midpoint_tree_ptr->nearest
@@ -280,13 +280,13 @@ void eos_delaunay::get_NMN_coordinates(const vector<double> & v0, vector<double>
 						(v0[1] - bmin) / (bmax - bmin),
 						(v0[2] - smin) / (smax - smin),
 						(v0[3] - qmin) / (qmax - qmin) }, kdtree_nmn_index );
-		//nmn_dist    = midpoint_tree_ptr->distance();
-		/*point4d nn  = tree_ptr->nearest
+		nmn_dist    = midpoint_tree_ptr->distance();
+		point4d nn  = tree_ptr->nearest
 					( { (v0[0] - emin) / (emax - emin),
 						(v0[1] - bmin) / (bmax - bmin),
 						(v0[2] - smin) / (smax - smin),
 						(v0[3] - qmin) / (qmax - qmin) }, kdtree_nn_index );
-		nn_dist     = tree_ptr->distance();*/
+		nn_dist     = tree_ptr->distance();
 	}
 	catch (const std::exception& e)
 	{
@@ -294,18 +294,18 @@ void eos_delaunay::get_NMN_coordinates(const vector<double> & v0, vector<double>
 	}
 
 	// approximate (T,muB,muQ,muS) coordinates of nearest midpoint neighbor
-	const vector<double> * vNMNptr = &grid[ indexer( midpoint_inds[kdtree_nmn_index] ) ];
-	result.assign( vNMNptr->begin(), vNMNptr->begin()+4 );
-	//if ( nmn_dist < nn_dist )
-//	{
+	if ( nmn_dist < nn_dist )
+	{
 //		const std::array<double, 4> * vNMNptr = &midpoint_grid[ kdtree_nmn_index ];
 //		result.assign( vNMNptr->begin(), vNMNptr->end() );
-//	}
-	/*else
+		const vector<double> * vNMNptr = &grid[ indexer( midpoint_inds[kdtree_nmn_index] ) ];
+		result.assign( vNMNptr->begin(), vNMNptr->begin()+4 );
+	}
+	else
 	{
 		const vector<double> * vNNptr = &grid[ kdtree_nn_index ];
 		result.assign( vNNptr->begin(), vNNptr->end() );
-	}*/
+	}
 }
 
 
