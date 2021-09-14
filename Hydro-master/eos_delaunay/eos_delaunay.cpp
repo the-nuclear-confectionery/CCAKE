@@ -298,7 +298,7 @@ void eos_delaunay::get_NMN_coordinates(const vector<double> & v0, vector<double>
 }
 
 
-double normalized_d2(double a[], double b[])
+double eos_delaunay::normalized_d2(double a[], double b[])
 {
 	double na[4] = {(a[0]-emin)/(emax-emin), (a[1]-bmin)/(bmax-bmin),
 					(a[2]-smin)/(smax-smin), (a[3]-qmin)/(qmax-qmin)};
