@@ -294,13 +294,13 @@ void eos_delaunay::get_NMN_coordinates(const vector<double> & v0, vector<double>
 	}
 
 	// approximate (T,muB,muQ,muS) coordinates of nearest midpoint neighbor
-	//const vector<double> * vNMNptr = &grid[ indexer( midpoint_inds[kdtree_nmn_index] ) ];
-	//result.assign( vNMNptr->begin(), vNMNptr->begin()+4 );
+	const vector<double> * vNMNptr = &grid[ indexer( midpoint_inds[kdtree_nmn_index] ) ];
+	result.assign( vNMNptr->begin(), vNMNptr->begin()+4 );
 	//if ( nmn_dist < nn_dist )
-	{
-		const std::array<double, 4> * vNMNptr = &midpoint_grid[ kdtree_nmn_index ];
-		result.assign( vNMNptr->begin(), vNMNptr->end() );
-	}
+//	{
+//		const std::array<double, 4> * vNMNptr = &midpoint_grid[ kdtree_nmn_index ];
+//		result.assign( vNMNptr->begin(), vNMNptr->end() );
+//	}
 	/*else
 	{
 		const vector<double> * vNNptr = &grid[ kdtree_nn_index ];
