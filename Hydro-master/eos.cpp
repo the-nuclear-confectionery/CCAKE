@@ -1,8 +1,8 @@
 #include "eos.h"
 
-#include "../splinter/include/datatable.h"
-#include "../splinter/include/bspline.h"
-#include "../splinter/include/bsplinebuilder.h"
+//#include "../splinter/include/datatable.h"
+//#include "../splinter/include/bspline.h"
+//#include "../splinter/include/bsplinebuilder.h"
 #include "read_in_hdf/read_in_hdf.h"
 #include "Stopwatch.h"
 #include <gsl/gsl_multiroots.h>
@@ -24,23 +24,28 @@
 using std::vector;
 using std::string;
 
-using namespace SPLINTER;
+//using namespace SPLINTER;
 
 // Compile:         gcc eos4D.cpp -c -I /usr/include/eigen3 -Lsplinter/build -lm -lgsl -lgslcblas -lstdc++ -lsplinter-3-0
 
-constexpr bool use_exact = false;
+constexpr bool use_exact = true;
 constexpr bool accept_nearest_neighbor = false;
 
 //EoS constructor. Builds the splines of degree "degree" for each quantitiy and initializes the position at (30,0,0,0)
-eos::eos(string quantityFile, string derivFile, int degree) : pSpline(4), entrSpline(4), bSpline(4), sSpline(4), qSpline(4), eSpline(4), cs2Spline(4), db2Spline(4), dq2Spline(4), ds2Spline(4), dt2Spline(4), dbdqSpline(4), dbdsSpline(4), dtdbSpline(4), dqdsSpline(4), dtdqSpline(4), dtdsSpline(4), tbqsPosition(4) {
+eos::eos(string quantityFile, string derivFile/*, int degree*/)
+	//: pSpline(4), entrSpline(4), bSpline(4), sSpline(4), qSpline(4), eSpline(4), cs2Spline(4), db2Spline(4), dq2Spline(4), ds2Spline(4), dt2Spline(4), dbdqSpline(4), dbdsSpline(4), dtdbSpline(4), dqdsSpline(4), dtdqSpline(4), dtdsSpline(4), tbqsPosition(4)
+{
     init(quantityFile, derivFile, degree);
 }
 
 //EoS default constructor. This function exists to satisfy the compiler
 //This function should never be called unless init is called directly afterward
-eos::eos() : pSpline(4), entrSpline(4), bSpline(4), sSpline(4), qSpline(4), eSpline(4), cs2Spline(4), db2Spline(4), dq2Spline(4), ds2Spline(4), dt2Spline(4), dbdqSpline(4), dbdsSpline(4), dtdbSpline(4), dqdsSpline(4), dtdqSpline(4), dtdsSpline(4), tbqsPosition(4) {}
+eos::eos() /*: pSpline(4), entrSpline(4), bSpline(4), sSpline(4), qSpline(4), eSpline(4),
+				cs2Spline(4), db2Spline(4), dq2Spline(4), ds2Spline(4), dt2Spline(4),
+				dbdqSpline(4), dbdsSpline(4), dtdbSpline(4), dqdsSpline(4),
+				dtdqSpline(4), dtdsSpline(4), tbqsPosition(4)*/ {}
 
-void eos::init(string quantityFile, string derivFile, int degree)
+void eos::init(string quantityFile, string derivFile/*, int degree*/)
 {
 	VERBOSE = 5;
 
@@ -48,8 +53,8 @@ void eos::init(string quantityFile, string derivFile, int degree)
 	initialize("/projects/jnorhos/BSQ/EoS_BQS_Derivatives/Coefficients_Parameters.dat");
 
 	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
-	init_with_txt(quantityFile, derivFile, degree);
-	//init_grid_ranges_only(quantityFile, derivFile);
+	//init_with_txt(quantityFile, derivFile, degree);
+	init_grid_ranges_only(quantityFile, derivFile);
 
 	cout << "Initialize Delaunay interpolators" << endl;
 	e_delaunay.init(quantityFile, 0);		// 0 - energy density
@@ -58,7 +63,7 @@ void eos::init(string quantityFile, string derivFile, int degree)
 	return;
 }
 
-void eos::init_with_txt(string quantityFile, string derivFile, int degree)
+/*void eos::init_with_txt(string quantityFile, string derivFile, int degree)
 {
 	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     std::ifstream dataFile;
@@ -125,15 +130,6 @@ void eos::init_with_txt(string quantityFile, string derivFile, int degree)
         toAdd.push_back(muBit);
         toAdd.push_back(muQit);
         toAdd.push_back(muSit);
-
-		/*
-        pit = pit*(tit*tit*tit*tit)/(hbarc*hbarc*hbarc);
-        entrit = entrit*(tit*tit*tit)/(hbarc*hbarc*hbarc);
-        bit = bit*(tit*tit*tit)/(hbarc*hbarc*hbarc);
-        sit = sit*(tit*tit*tit)/(hbarc*hbarc*hbarc);        //!!!!!convert to MeV and fm units
-        qit = qit*(tit*tit*tit)/(hbarc*hbarc*hbarc);		//!!!!! --> NOW fm only for use in hydro!
-        eit = eit*(tit*tit*tit*tit)/(hbarc*hbarc*hbarc);
-		*/
 
 		// USE FM IN HYDRO
         pit = pit*(tit*tit*tit*tit);
@@ -219,18 +215,15 @@ void eos::init_with_txt(string quantityFile, string derivFile, int degree)
 	std::cout << "All initializations finished!" << std::endl;
 
     return;
-}
+}*/
 
 void eos::init_grid_ranges_only(string quantityFile, string derivFile)
 {
 	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     std::ifstream dataFile;
-//    std::ifstream derFile;
     dataFile.open(quantityFile);
-//    derFile.open(derivFile);
 
     double tit, muBit, muQit, muSit, pit, entrit, bit, sit, qit, eit, cs2it;
-//    double db2it, dq2it, ds2it, dt2it, dbdqit, dbdsit, dqdsit, dtdbit, dtdsit, dtdqit;
 
     int count = 0;
     double hbarc = 197.327;
@@ -238,10 +231,6 @@ void eos::init_grid_ranges_only(string quantityFile, string derivFile)
 			>> pit >> entrit >> bit >> sit >> qit
 			>> eit >> cs2it)
     {
-//        derFile >> tit >> muBit >> muQit >> muSit
-//        		>> db2it >> dq2it >> ds2it
-//        		>> dbdqit >> dbdsit >> dqdsit
-//        		>> dtdbit >> dtdqit >> dtdsit >> dt2it;  //read data from files
 
 		// Christopher Plumberg:
 		// put T and mu_i in units of 1/fm
@@ -278,7 +267,6 @@ void eos::init_grid_ranges_only(string quantityFile, string derivFile)
 	for (int iTBQS = 0; iTBQS < 4; iTBQS++) tbqsPosition(iTBQS) = 1.0;
 
     dataFile.close();
-//    derFile.close();
 
 	std::cout << "All initializations finished!" << std::endl;
 
@@ -370,8 +358,6 @@ double eos::w() { return eVal + pVal; }
 
 double eos::dwds()
 {
-	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
-
 	double charge_terms	/*if charge densities are not all zero*/
 			= ( abs(BVal)>1e-10 || abs(SVal)>1e-10 || abs(QVal)>1e-10 ) ?
 			  BVal/dentr_dmub() + QVal/dentr_dmuq() + SVal/dentr_dmus() : 0.0;
@@ -381,8 +367,6 @@ double eos::dwds()
 
 double eos::dwdB()
 {
-	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
-
 	double charge_terms	/*if charge densities are not all zero*/
 			= ( abs(BVal)>1e-10 || abs(SVal)>1e-10 || abs(QVal)>1e-10 ) ?
 			  entrVal/db_dt() + BVal/db_dmub() + QVal/db_dmuq() + SVal/db_dmus() : 0.0;
@@ -392,8 +376,6 @@ double eos::dwdB()
 
 double eos::dwdS()
 {
-	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
-
 	double charge_terms	/*if charge densities are not all zero*/
 			= ( abs(BVal)>1e-10 || abs(SVal)>1e-10 || abs(QVal)>1e-10 ) ?
 			  entrVal/ds_dt() + BVal/ds_dmub() + QVal/ds_dmuq() + SVal/ds_dmus() : 0.0;
@@ -403,8 +385,6 @@ double eos::dwdS()
 
 double eos::dwdQ()
 {
-	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
-
 	double charge_terms	/*if charge densities are not all zero*/
 			= ( abs(BVal)>1e-10 || abs(SVal)>1e-10 || abs(QVal)>1e-10 ) ?
 			  entrVal/dq_dt() + BVal/dq_dmub() + QVal/dq_dmuq() + SVal/dq_dmus() : 0.0;
@@ -413,87 +393,70 @@ double eos::dwdQ()
 }
 
 double eos::dentr_dt() {
-	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_1();
 }
 
 double eos::dentr_dmub() {
-	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_2("b");
 }
 
 double eos::dentr_dmuq() {
-	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_2("q");
 }
 
 double eos::dentr_dmus() {
-	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_2("s");
 }
 
 double eos::db_dt() {
-	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_3("b");
 }
 
 double eos::db_dmub() {
-	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_4("b","b");
 }
 
 double eos::db_dmuq() {
-	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_4("b","q");
 }
 
 double eos::db_dmus() {
-	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_4("b","s");
 }
 
 double eos::ds_dt() {
-	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_3("s");
 }
 
 double eos::ds_dmub() {
-	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_4("s","b");
 }
 
 double eos::ds_dmuq() {
-	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_4("s","q");
 }
 
 double eos::ds_dmus() {
-	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_4("s","s");
 }
 
 double eos::dq_dt() {
-	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_3("q");
 }
 
 double eos::dq_dmub() {
-	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_4("q","b");
 }
 
 double eos::dq_dmuq() {
-	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_4("q","q");
 }
 
 double eos::dq_dmus() {
-	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return calc_term_4("q","s");
 }
 
 double eos::calc_term_1() {
-	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     gsl_vector *v = gsl_vector_alloc(3);
     gsl_matrix *m = gsl_matrix_alloc(3,3);
 
@@ -519,8 +482,6 @@ double eos::calc_term_1() {
 }
 
 double eos::calc_term_2(string i_char) {
-	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__
-								 << ": i_char = " << i_char << std::endl;
     gsl_vector *a = gsl_vector_alloc(3);
     gsl_matrix *m = gsl_matrix_alloc(3,3);
     gsl_vector *b = gsl_vector_alloc(3);
@@ -597,8 +558,6 @@ double eos::calc_term_2(string i_char) {
 }
 
 double eos::calc_term_3(string i_char) {
-	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__
-								 << ": i_char = " << i_char << std::endl;
     gsl_vector *a = gsl_vector_alloc(3);
     gsl_matrix *m = gsl_matrix_alloc(3,3);
     gsl_vector *b = gsl_vector_alloc(3);
@@ -675,9 +634,6 @@ double eos::calc_term_3(string i_char) {
 }
 
 double eos::calc_term_4(string j_char, string i_char) {
-	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__
-								 << ": j_char, i_char = "
-								<< j_char << "   " << i_char << std::endl;
     gsl_vector *a = gsl_vector_alloc(3);
     gsl_matrix *m = gsl_matrix_alloc(3,3);
     gsl_vector *b = gsl_vector_alloc(3);
@@ -886,7 +842,6 @@ double eos::calc_term_4(string j_char, string i_char) {
 }
 
 double eos::deriv_mult_aTm_1b(gsl_vector* a, gsl_matrix* m, gsl_vector* b) {
-	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     gsl_permutation *p = gsl_permutation_alloc(3);
     int s;
 
@@ -963,43 +918,36 @@ double eos::deriv_mult_aTm_1b(gsl_vector* a, gsl_matrix* m, gsl_vector* b) {
 
 double eos::Atable()
 {
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     Aout=w()-entrVal*dwds();
 
     return Aout;
 }
 
 double eos::cs2out(double Tt) {  //return cs2 given t and mu's=0
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     tbqs(Tt, 0.0, 0.0, 0.0);
     return cs2Val;
 }
 
 double eos::cs2out(double Tt, double muBin, double muQin, double muSin) {  //return cs2 given t and mu's
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     tbqs(Tt, muBin, muQin, muSin);
     return cs2Val;
 }
 
 double eos::wfz(double Tt) {   // return e + p for tbqs
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     tbqs(Tt, 0.0, 0.0, 0.0);
     return eVal + pVal;
 }
 
 double eos::wfz(double Tt, double muBin, double muQin, double muSin) {   // return e + p for tbqs
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     tbqs(Tt, muBin, muQin, muSin);
     return eVal + pVal;
 }
 
 bool eos::update_s(double sin) { //update the t position (mu=0) based on input. Returns 1 if found, returns 0 if failed
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return update_s(sin, 0.0, 0.0, 0.0);
 }
 
 bool eos::update_s(double sin, double Bin, double Sin, double Qin) { //update the t and mu position based on input. Returns 1 if found, returns 0 if failed
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     if (rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
         return true;
     }
@@ -1100,12 +1048,10 @@ bool eos::update_s(double sin, double Bin, double Sin, double Qin) { //update th
 
 
 double eos::s_out(double ein) {   //update the t position (mu=0) based on input. Returns entropy if found, returns -1 if failed
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return s_out(ein, 0.0, 0.0, 0.0);
 }
 
 double eos::s_out(double ein, double Bin, double Sin, double Qin) {   //update the t and mu position based on input. Returns entropy if found, returns -1 if failed
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     if (rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
         return entrVal;
     }
@@ -1208,7 +1154,6 @@ double eos::s_out(double ein, double Bin, double Sin, double Qin) {   //update t
 
 
 double eos::s_terms_T(double Tt) { //return entropy at a given temperature for muB = muS = muQ = 0
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     tbqs(Tt, 0, 0, 0);
     return entrVal;
 }
@@ -1216,22 +1161,18 @@ double eos::s_terms_T(double Tt) { //return entropy at a given temperature for m
 
 // UNCOMMENTED BY C. PLUMBERG
 void eos::eosin(std::string type) {
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
 }
 double eos::A() {
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return 0;
 }
 
 
 // confirm with Jaki
 double eos::efreeze(double T_freeze_out_at_mu_eq_0) {
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     tbqs(T_freeze_out_at_mu_eq_0, 0, 0, 0);
     return eVal;
 }
 double eos::sfreeze(double T_freeze_out_at_mu_eq_0) {
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     return s_terms_T(T_freeze_out_at_mu_eq_0);
 }
 
@@ -1244,63 +1185,63 @@ struct rootfinder_parameters {
     double rhoBGiven;
     double rhoQGiven;
     double rhoSGiven;
-    BSpline * eorEntSpline;        //the splines that contain interpolations over s, BSQ
-    BSpline * rhoBSpline;
-    BSpline * rhoQSpline;
-    BSpline * rhoSSpline;
+//    BSpline * eorEntSpline;        //the splines that contain interpolations over s, BSQ
+//    BSpline * rhoBSpline;
+//    BSpline * rhoQSpline;
+//    BSpline * rhoSSpline;
     rootfinder_parameters();
     rootfinder_parameters(
 		double seteorEntGiven, double setRhoBGiven,
-		double setRhoQGiven, double setRhoSGiven,
+		double setRhoQGiven, double setRhoSGiven/*,
 		BSpline * setEntrSpline = nullptr, BSpline * setRhoBSpline = nullptr,
-		BSpline * setRhoQSpline = nullptr, BSpline * setRhoSSpline = nullptr);
+		BSpline * setRhoQSpline = nullptr, BSpline * setRhoSSpline = nullptr*/);
 public:
     void set( double setEorEntGiven, double setRhoBGiven,
-			  double setRhoQGiven, double setRhoSGiven,
+			  double setRhoQGiven, double setRhoSGiven/*,
 			  BSpline * setEntrSpline = nullptr, BSpline * setRhoBSpline = nullptr,
-			  BSpline * setRhoQSpline = nullptr, BSpline * setRhoSSpline = nullptr);
+			  BSpline * setRhoQSpline = nullptr, BSpline * setRhoSSpline = nullptr*/);
 };
 //Default constructor to make the compiler happy. Should never be called
 rootfinder_parameters::rootfinder_parameters()
-	: eorEntSpline(nullptr), rhoBSpline(nullptr), rhoQSpline(nullptr), rhoSSpline(nullptr) {}
+	/*: eorEntSpline(nullptr), rhoBSpline(nullptr), rhoQSpline(nullptr), rhoSSpline(nullptr)*/ {}
 //constructor which initializes all struct variables
 rootfinder_parameters::rootfinder_parameters(
 	double setEorEntGiven, double setRhoBGiven,
-	double setRhoQGiven, double setRhoSGiven,
+	double setRhoQGiven, double setRhoSGiven/*,
 	BSpline * setEorEntSpline, BSpline * setRhoBSpline,
-	BSpline * setRhoQSpline, BSpline * setRhoSSpline
+	BSpline * setRhoQSpline, BSpline * setRhoSSpline*/
 	)
-	: eorEntSpline(nullptr), rhoBSpline(nullptr), rhoQSpline(nullptr), rhoSSpline(nullptr)
+	//: eorEntSpline(nullptr), rhoBSpline(nullptr), rhoQSpline(nullptr), rhoSSpline(nullptr)
 {
     eorEntGiven = setEorEntGiven;
     rhoBGiven = setRhoBGiven;
     rhoQGiven = setRhoQGiven;
     rhoSGiven = setRhoSGiven;
-	if ( !use_exact )
+	/*if ( !use_exact )
 	{
     eorEntSpline = setEorEntSpline;
     rhoBSpline = setRhoBSpline;
     rhoQSpline = setRhoQSpline;
     rhoSSpline = setRhoSSpline;
-	}
+	}*/
 }
 void rootfinder_parameters::set(
 	double setEorEntGiven, double setRhoBGiven,
-	double setRhoQGiven, double setRhoSGiven,
+	double setRhoQGiven, double setRhoSGiven/*,
 	BSpline * setEorEntSpline, BSpline * setRhoBSpline,
-	BSpline * setRhoQSpline, BSpline * setRhoSSpline)
+	BSpline * setRhoQSpline, BSpline * setRhoSSpline*/)
 {
     eorEntGiven = setEorEntGiven;
     rhoBGiven = setRhoBGiven;
     rhoQGiven = setRhoQGiven;
     rhoSGiven = setRhoSGiven;
-	if ( !use_exact )
+	/*if ( !use_exact )
 	{
     eorEntSpline = setEorEntSpline;
     rhoBSpline = setRhoBSpline;
     rhoQSpline = setRhoQSpline;
     rhoSSpline = setRhoSSpline;
-	}
+	}*/
 }
 
 //helper function for the rootfinder. It provides the correct difference of s, rhoB, rhoQ, rhoS at a given (T, muB, muQ, muS) from the target
@@ -1342,13 +1283,13 @@ if (use_exact)
 		<< rhoQ << "   " << rhoQGiven << endl;*/
 
 }
-else
-{
-    entr = (((rootfinder_parameters*)params)->eorEntSpline)->eval(tbqsToEval);    //s, rhoB, rhoQ, rhoS contain the current point
-    rhoB = (((rootfinder_parameters*)params)->rhoBSpline)->eval(tbqsToEval);
-    rhoQ = (((rootfinder_parameters*)params)->rhoQSpline)->eval(tbqsToEval);
-    rhoS = (((rootfinder_parameters*)params)->rhoSSpline)->eval(tbqsToEval);
-}
+//else
+//{
+//    entr = (((rootfinder_parameters*)params)->eorEntSpline)->eval(tbqsToEval);    //s, rhoB, rhoQ, rhoS contain the current point
+//    rhoB = (((rootfinder_parameters*)params)->rhoBSpline)->eval(tbqsToEval);
+//    rhoQ = (((rootfinder_parameters*)params)->rhoQSpline)->eval(tbqsToEval);
+//    rhoS = (((rootfinder_parameters*)params)->rhoSSpline)->eval(tbqsToEval);
+//}
 
     gsl_vector_set(f, 0, (entr - entrGiven)); //f[0] contains (s(T,muB,muQ,muS) - sGiven)
     gsl_vector_set(f, 1, (rhoB - rhoBGiven)); //f[1] contains (rhoB(T,muB,muQ,muS) - rhoBGiven)
@@ -1396,13 +1337,13 @@ if (use_exact)
 		<< rhoQ << "   " << rhoQGiven << endl;
 	*/
 }
-else
-{
-    e = (((rootfinder_parameters*)params)->eorEntSpline)->eval(tbqsToEval);    //e, rhoB, rhoQ, rhoS contain the current point
-    rhoB = (((rootfinder_parameters*)params)->rhoBSpline)->eval(tbqsToEval);
-    rhoQ = (((rootfinder_parameters*)params)->rhoQSpline)->eval(tbqsToEval);
-    rhoS = (((rootfinder_parameters*)params)->rhoSSpline)->eval(tbqsToEval);
-}
+//else
+//{
+//    e = (((rootfinder_parameters*)params)->eorEntSpline)->eval(tbqsToEval);    //e, rhoB, rhoQ, rhoS contain the current point
+//    rhoB = (((rootfinder_parameters*)params)->rhoBSpline)->eval(tbqsToEval);
+//    rhoQ = (((rootfinder_parameters*)params)->rhoQSpline)->eval(tbqsToEval);
+//    rhoS = (((rootfinder_parameters*)params)->rhoSSpline)->eval(tbqsToEval);
+//}
 
     gsl_vector_set(f, 0, (e - eGiven)); //f[0] contains (e(T,muB,muQ,muS) - eGiven)
     gsl_vector_set(f, 1, (rhoB - rhoBGiven)); //f[1] contains the (rhoB(T,muB,muQ,muS) - rhoBGiven)
@@ -1545,16 +1486,16 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 					eSpline, bSpline, qSpline, sSpline*/);
 		}
 	}
-	else
-	{
-		if(isEntropy) {
-			p.set( e_or_s_Given, rhoBGiven, rhoQGiven, rhoSGiven,
-					&entrSpline, &bSpline, &qSpline, &sSpline);
-		} else {
-			p.set( e_or_s_Given, rhoBGiven, rhoQGiven, rhoSGiven,
-					&eSpline, &bSpline, &qSpline, &sSpline);
-		}
-	}
+//	else
+//	{
+//		if(isEntropy) {
+//			p.set( e_or_s_Given, rhoBGiven, rhoQGiven, rhoSGiven,
+//					&entrSpline, &bSpline, &qSpline, &sSpline);
+//		} else {
+//			p.set( e_or_s_Given, rhoBGiven, rhoQGiven, rhoSGiven,
+//					&eSpline, &bSpline, &qSpline, &sSpline);
+//		}
+//	}
 
     //initialize multiroot solver
     gsl_multiroot_fsolver *solver;
