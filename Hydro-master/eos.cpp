@@ -1272,8 +1272,8 @@ int rootfinder_fsbqs(const gsl_vector *x, void *params, gsl_vector *f) {
     rhoSGiven = ((rootfinder_parameters*)params)->rhoSGiven;
 if (use_exact)
 {
-	double phase_diagram_point[4] = {tbqsToEval(0)*197.327, tbqsToEval(1)*197.327,
-					 tbqsToEval(3)*197.327, tbqsToEval(2)*197.327};	// NOTE: S <<-->> Q swapped!!!
+	double phase_diagram_point[4] = {tbqsToEval[0]*197.327, tbqsToEval[1]*197.327,
+					 tbqsToEval[3]*197.327, tbqsToEval[2]*197.327};	// NOTE: S <<-->> Q swapped!!!
 	double densities_at_point[4];
 	get_sBSQ_densities(phase_diagram_point, densities_at_point);
 	entr = densities_at_point[0];
@@ -1313,11 +1313,12 @@ if (use_exact)
 int rootfinder_febqs(const gsl_vector *x, void *params, gsl_vector *f);
 int rootfinder_febqs(const gsl_vector *x, void *params, gsl_vector *f) {
     //x contains the next (T, muB, muQ, muS) coordinate to test
-    DenseVector tbqsToEval(4);
-    tbqsToEval(0) = gsl_vector_get(x,0);
-    tbqsToEval(1) = gsl_vector_get(x,1);	// convert x into densevector so it
-    tbqsToEval(2) = gsl_vector_get(x,2);	// can be a BSpline evaluation point
-    tbqsToEval(3) = gsl_vector_get(x,3);
+//    DenseVector tbqsToEval(4);
+    vector<double> tbqsToEval(4);
+    tbqsToEval[0] = gsl_vector_get(x,0);
+    tbqsToEval[1] = gsl_vector_get(x,1);	// convert x into densevector so it
+    tbqsToEval[2] = gsl_vector_get(x,2);	// can be a BSpline evaluation point
+    tbqsToEval[3] = gsl_vector_get(x,3);
 
     double eGiven, rhoBGiven, rhoQGiven, rhoSGiven, e, rhoB, rhoQ, rhoS;
     eGiven = ((rootfinder_parameters*)params)->eorEntGiven;
@@ -1326,8 +1327,8 @@ int rootfinder_febqs(const gsl_vector *x, void *params, gsl_vector *f) {
     rhoSGiven = ((rootfinder_parameters*)params)->rhoSGiven;
 if (use_exact)
 {
-	double phase_diagram_point[4] = {tbqsToEval(0)*197.327, tbqsToEval(1)*197.327,
-					 tbqsToEval(3)*197.327, tbqsToEval(2)*197.327};	// NOTE: S <<-->> Q swapped!!!
+	double phase_diagram_point[4] = {tbqsToEval[0]*197.327, tbqsToEval[1]*197.327,
+					 tbqsToEval[3]*197.327, tbqsToEval[2]*197.327};	// NOTE: S <<-->> Q swapped!!!
 	double densities_at_point[4];
 	get_eBSQ_densities(phase_diagram_point, densities_at_point);
 	e = densities_at_point[0]/197.327;
