@@ -11,9 +11,9 @@
 #include <iomanip>
 #include <string>
 
-#include "delaunay.h"
+//#include "delaunay.h"
 #include "kdtree.h"
-#include "point_in_simplex.h"
+//#include "point_in_simplex.h"
 
 using namespace std;
 
@@ -26,16 +26,16 @@ class eos_delaunay
 	    eos_delaunay();
 		void init(string EoS_table_file, int e_or_s);
 
-		bool interpolate(const vector<double> & v0, vector<double> & result, bool verbose = false);
-		bool interpolate_NNmode(const vector<double> & v0, vector<double> & result, bool verbose = false);
-		bool interpolate_NMNmode(const vector<double> & v0, vector<double> & result, bool verbose = false);
-		bool interpolate_NMNmode_v2(const vector<double> & v0, vector<double> & result,
-									bool expand_hypercube = false, bool verbose = false);
-		bool interpolate_NMNmode_v3(const vector<double> & v0, vector<double> & result, bool verbose = false);
-		bool triangulate_and_locate_point( const vector<double> & nv0, const vector<int> & base,
-					vector<vector<double> > & vertices, vector<vector<size_t> > & simplices,
-					vector<double> & point_lambda_in_simplex, int & iclosestsimplex );
-		void refine_hypercube(vector<vector<double> > & hypercube);
+//		bool interpolate(const vector<double> & v0, vector<double> & result, bool verbose = false);
+//		bool interpolate_NNmode(const vector<double> & v0, vector<double> & result, bool verbose = false);
+//		bool interpolate_NMNmode(const vector<double> & v0, vector<double> & result, bool verbose = false);
+//		bool interpolate_NMNmode_v2(const vector<double> & v0, vector<double> & result,
+//									bool expand_hypercube = false, bool verbose = false);
+//		bool interpolate_NMNmode_v3(const vector<double> & v0, vector<double> & result, bool verbose = false);
+//		bool triangulate_and_locate_point( const vector<double> & nv0, const vector<int> & base,
+//					vector<vector<double> > & vertices, vector<vector<size_t> > & simplices,
+//					vector<double> & point_lambda_in_simplex, int & iclosestsimplex );
+//		void refine_hypercube(vector<vector<double> > & hypercube);
 		void get_NMN_coordinates(const vector<double> & v0, vector<double> & result);
 
 

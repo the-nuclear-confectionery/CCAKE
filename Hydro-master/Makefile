@@ -1,5 +1,4 @@
-OBJS = main.o vector.o hydrosim.o newspline.o random.o eos.o matrix.o \
-       enteric.o eos_delaunay.o delaunay.o point_in_simplex.o
+OBJS = main.o vector.o hydrosim.o newspline.o random.o eos.o matrix.o enteric.o eos_delaunay.o
 #CC = g++
 CC = h5c++
 DEBUG = -g
@@ -9,30 +8,17 @@ OPTIMIZATION= -Og
 #OPTIMIZATION= -Ofast -funroll-loops -fvectorize -finline-functions -s -DNDEBUG -march=native -mtune=native
 # change to -O3 or -Ofast for production
 EIGENPATH=$(realpath ../eigen)
-#SPLINTERPATH=$(realpath ../splinter/include)
-#SPLINTERBUILDPATH=$(realpath ../splinter/build)
-QHULLSRCPATH=/projects/jnorhos/plumberg/qhull/src
-QHULLLIBPATH=/projects/jnorhos/plumberg/qhull/lib
 GSLPATH=/projects/jnorhos/local/include
 GSLLIBPATH=/projects/jnorhos/local/lib
 EOSLIBPATH=$(realpath ../EoS_BQS_Derivatives/lib)
 CFLAGS = $(WARNINGS) $(OPTIMIZATION) -c -I$(EOSLIBPATH) -I$(EIGENPATH) \
-        -I$(GSLPATH) $(DEBUG) $(STANDARD) -I$(QHULLSRCPATH)
+        -I$(GSLPATH) $(DEBUG) $(STANDARD)
 LDFLAGS = -L$(EOSLIBPATH) -lbsqeos -lm -lgsl -lgslcblas -lblas -lstdc++ \
-          -L$(GSLLIBPATH) $(DEBUG) \
-		  -L$(QHULLLIBPATH) -lqhullcpp -lqhullstatic_r $(STANDARD)
+          -L$(GSLLIBPATH) $(DEBUG) $(STANDARD)
 
 export HDF5_LDFLAGS+=$(LDFLAGS)
-#export HDF5_LIBS+=-L$(SPLINTERBUILDPATH) -lsplinter-3-0
-#export HDF5_CXXFLAGS=-I$(SPLINTERPATH)
-
 
 vusphydro : $(OBJS)
-	#$(info [${LD_RUN_PATH}])
-	#$(info [${LD_LIBRARY_PATH}])
-	#$(info [${HDF5_LDFLAGS}])
-	#$(info [${HDF5_LIBS}])
-	#$(info [${HDF5_CXXFLAGS}])
 	$(CC) -g $(OBJS) -o vusphydro $(LDFLAGS)
 
 main.o: vector.h mathdef.h particle.h eos.h enteric.h LinkList.h random.h matrix.h hydrosim.h eostables.h read_in_hdf/read_in_hdf.h main.cpp
@@ -50,7 +36,6 @@ hydrosim.o: vector.h mathdef.h particle.h hydrosim.h LinkList.h rungekutta4.h eo
 newspline.o: newspline.cpp newspline.hpp
 	$(CC) $(CFLAGS) newspline.cpp
 
-#eos.o: tables.h eos.h eostables.h eos.cpp $(SPLINTERPATH)/datatable.h $(SPLINTERPATH)/bspline.h $(SPLINTERPATH)/bsplinebuilder.h read_in_hdf/read_in_hdf.h eos_delaunay/eos_delaunay.h eos_delaunay/eos_delaunay.cpp
 eos.o: tables.h eos.h eostables.h eos.cpp read_in_hdf/read_in_hdf.h eos_delaunay/eos_delaunay.h eos_delaunay/eos_delaunay.cpp
 	$(CC) $(CFLAGS) eos.cpp
 
@@ -60,14 +45,8 @@ random.o: random.cpp random.h
 enteric.o:  vector.h particle.h eos.h tables.h enteric.h LinkList.h matrix.h eostables.h enteric.cpp
 	$(CC) $(CFLAGS) enteric.cpp
 
-eos_delaunay.o: eos_delaunay/eos_delaunay.cpp eos_delaunay/eos_delaunay.h eos_delaunay/delaunay.h
+eos_delaunay.o: eos_delaunay/eos_delaunay.cpp eos_delaunay/eos_delaunay.h
 	$(CC) $(CFLAGS) $(INCFLAGS) -fpic -c eos_delaunay/eos_delaunay.cpp 
-
-delaunay.o: eos_delaunay/delaunay.cpp eos_delaunay/delaunay.h
-	$(CC) $(CFLAGS) -c eos_delaunay/delaunay.cpp $(INCFLAGS) -fpic
-
-point_in_simplex.o: eos_delaunay/point_in_simplex.cpp eos_delaunay/point_in_simplex.h
-	$(CC) $(CFLAGS) -c eos_delaunay/point_in_simplex.cpp $(INCFLAGS) -fpic
 	
 	
 
