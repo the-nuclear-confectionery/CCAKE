@@ -309,7 +309,7 @@ void eos::tbqs(double setT, double setmuB, double setmuQ, double setmuS) {
     tbqsPosition(2) = setmuQ;
     tbqsPosition(3) = setmuS;
 
-	/*double phase_diagram_point[4] = {setT, setmuB, setmuS, setmuQ};	// NOTE: S <<-->> Q swapped!!!
+	double phase_diagram_point[4] = {setT, setmuB, setmuS, setmuQ};	// NOTE: S <<-->> Q swapped!!!
 	double thermodynamics[17];
 	get_full_thermo(phase_diagram_point, thermodynamics);
 
@@ -329,10 +329,10 @@ void eos::tbqs(double setT, double setmuB, double setmuQ, double setmuS) {
     dtdb    = thermodynamics[13];
     dtdq    = thermodynamics[14];
     dtds    = thermodynamics[15];
-    dt2     = thermodynamics[16];*/
+    dt2     = thermodynamics[16];
 
 
-    pVal = pSpline.eval(tbqsPosition);
+    /*pVal = pSpline.eval(tbqsPosition);
     BVal = bSpline.eval(tbqsPosition);
     SVal = sSpline.eval(tbqsPosition);
     QVal = qSpline.eval(tbqsPosition);
@@ -349,7 +349,7 @@ void eos::tbqs(double setT, double setmuB, double setmuQ, double setmuS) {
     dtds = dtdsSpline.eval(tbqsPosition);
     dtdq = dtdqSpline.eval(tbqsPosition);
 
-    entrVal = (eVal + pVal - setmuB*BVal - setmuQ*QVal - setmuS*SVal)/setT;
+    entrVal = (eVal + pVal - setmuB*BVal - setmuQ*QVal - setmuS*SVal)/setT;*/
 }
 
 
