@@ -1104,7 +1104,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 	for (int iCoord = 0; iCoord < 4; iCoord++)
 		gsl_vector_set(x, iCoord, T_muB_muQ_muS_estimates[iCoord]/197.327);
 
-	std::cout << "Made it to line = " << __LINE__ << std::endl;
+//	std::cout << "Made it to line = " << __LINE__ << std::endl;
 
     /*gsl_vector_set(x, 0, T());
     gsl_vector_set(x, 1, muB());
@@ -1127,7 +1127,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 		p.set( e_or_s_Given, rhoBGiven, rhoQGiven, rhoSGiven);
 	}
 
-	std::cout << "Made it to line = " << __LINE__ << std::endl;
+//	std::cout << "Made it to line = " << __LINE__ << std::endl;
 
     //initialize multiroot solver
     gsl_multiroot_fsolver *solver;
@@ -1152,7 +1152,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
     solver = gsl_multiroot_fsolver_alloc(TYPE, 4);
     gsl_multiroot_fsolver_set(solver, &f, x);
 
-	std::cout << "Made it to line = " << __LINE__ << std::endl;
+//	std::cout << "Made it to line = " << __LINE__ << std::endl;
 
     int status;
     size_t iter = 0;
@@ -1161,52 +1161,78 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
         ++iter;
         status = gsl_multiroot_fsolver_iterate(solver);
 
-	std::cout << "Made it to line = " << __LINE__ << std::endl;
+//	std::cout << "Made it to line = " << __LINE__ << std::endl;
 
+        if(VERBOSE > 5 && status)
+		{
+			if ( status == GSL_EBADFUNC && e_or_s_mode == 1 && VERBOSE > 5 )
+				std::cout << "Error: something went to +/-Inf or NaN!" << std::endl;
+			else if ( status == GSL_ENOPROG && e_or_s_mode == 1 && VERBOSE > 5 )
+				std::cout << "Error: not making enough progress!" << std::endl;
+            //return 0;      //break if the rootfinder gets stuck
+			break;
 
-        if(VERBOSE > 5 && status) {
-
-	if ( status == GSL_EBADFUNC && e_or_s_mode == 1 && VERBOSE > 5 )
-		std::cout << "Error: something went to +/-Inf or NaN!" << std::endl;
-	else if ( status == GSL_ENOPROG && e_or_s_mode == 1 && VERBOSE > 5 )
-		std::cout << "Error: not making enough progress!" << std::endl;
-            return 0;      //break if the rootfinder gets stuck
-        }
-        if(gsl_vector_get(solver->x, 0) < minT) {
-	if ( e_or_s_mode == 1 && VERBOSE > 5 )
-		std::cout << "Error: out-of-bounds (T < minT)!" << std::endl;
-            return 0;
-        } else if(gsl_vector_get(solver->x, 0) > maxT) {
-	if ( e_or_s_mode == 1 && VERBOSE > 5 )
-		std::cout << "Error: out-of-bounds (T > maxT)!" << std::endl;
-            return 0;
-        } else if (gsl_vector_get(solver->x, 1) < minMuB) {
-	if ( e_or_s_mode == 1 && VERBOSE > 5 )
-		std::cout << "Error: out-of-bounds (MuB < minMuB)!" << std::endl;
-            return 0;
-        } else if (gsl_vector_get(solver->x, 1) > maxMuB) {
-	if ( e_or_s_mode == 1 && VERBOSE > 5 )
-		std::cout << "Error: out-of-bounds (MuB > maxMuB)!" << std::endl;
-            return 0;
-        } else if (gsl_vector_get(solver->x, 2) < minMuQ) {     //break if the rootfinder goes out of bounds
-	if ( e_or_s_mode == 1 && VERBOSE > 5 )
-		std::cout << "Error: out-of-bounds (MuQ < minMuQ)!" << std::endl;
-            return 0;
-        } else if (gsl_vector_get(solver->x, 2) > maxMuQ) {
-	if ( e_or_s_mode == 1 && VERBOSE > 5 )
-		std::cout << "Error: out-of-bounds (MuQ > maxMuQ)!" << std::endl;
-            return 0;
-        } else if (gsl_vector_get(solver->x, 3) < minMuS) {
-	if ( e_or_s_mode == 1 && VERBOSE > 5 )
-		std::cout << "Error: out-of-bounds (MuS < minMuS)!" << std::endl;
-            return 0;
-        } else if (gsl_vector_get(solver->x, 3) > maxMuS) {
-	if ( e_or_s_mode == 1 && VERBOSE > 5 )
-		std::cout << "Error: out-of-bounds (MuS > maxMuS)!" << std::endl;
-            return 0;
         }
 
-	std::cout << "Made it to line = " << __LINE__ << std::endl;
+		//break if the rootfinder goes out of bounds
+        if(gsl_vector_get(solver->x, 0) < minT)
+		{
+			if ( VERBOSE > 5 )
+				std::cout << "Error: out-of-bounds (T < minT)!" << std::endl;
+            //return 0;
+			break;
+        }
+		else if(gsl_vector_get(solver->x, 0) > maxT)
+		{
+			if ( VERBOSE > 5 )
+				std::cout << "Error: out-of-bounds (T > maxT)!" << std::endl;
+            //return 0;
+			break;
+        }
+		else if (gsl_vector_get(solver->x, 1) < minMuB)
+		{
+			if ( VERBOSE > 5 )
+				std::cout << "Error: out-of-bounds (MuB < minMuB)!" << std::endl;
+            //return 0;
+			break;
+        }
+		else if (gsl_vector_get(solver->x, 1) > maxMuB)
+		{
+			if ( VERBOSE > 5 )
+				std::cout << "Error: out-of-bounds (MuB > maxMuB)!" << std::endl;
+            //return 0;
+			break;
+        }
+		else if (gsl_vector_get(solver->x, 2) < minMuQ)
+		{
+			if ( VERBOSE > 5 )
+				std::cout << "Error: out-of-bounds (MuQ < minMuQ)!" << std::endl;
+            //return 0;
+			break;
+        }
+		else if (gsl_vector_get(solver->x, 2) > maxMuQ)
+		{
+			if ( VERBOSE > 5 )
+				std::cout << "Error: out-of-bounds (MuQ > maxMuQ)!" << std::endl;
+            //return 0;
+			break;
+        }
+		else if (gsl_vector_get(solver->x, 3) < minMuS)
+		{
+			if ( VERBOSE > 5 )
+				std::cout << "Error: out-of-bounds (MuS < minMuS)!" << std::endl;
+            //return 0;
+			break;
+        }
+		else if (gsl_vector_get(solver->x, 3) > maxMuS)
+		{
+			if ( VERBOSE > 5 )
+				std::cout << "Error: out-of-bounds (MuS > maxMuS)!" << std::endl;
+            //return 0;
+			break;
+        }
+
+//	std::cout << "Made it to line = " << __LINE__ << std::endl;
 
         status = gsl_multiroot_test_residual(solver->f, error);
 
