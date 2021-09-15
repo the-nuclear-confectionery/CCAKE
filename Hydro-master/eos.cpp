@@ -1104,6 +1104,8 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 	for (int iCoord = 0; iCoord < 4; iCoord++)
 		gsl_vector_set(x, iCoord, T_muB_muQ_muS_estimates[iCoord]/197.327);
 
+	std::cout << "Made it to line = " << __LINE__ << std::endl;
+
     /*gsl_vector_set(x, 0, T());
     gsl_vector_set(x, 1, muB());
     gsl_vector_set(x, 2, muQ());
@@ -1124,6 +1126,8 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 	} else {
 		p.set( e_or_s_Given, rhoBGiven, rhoQGiven, rhoSGiven);
 	}
+
+	std::cout << "Made it to line = " << __LINE__ << std::endl;
 
     //initialize multiroot solver
     gsl_multiroot_fsolver *solver;
@@ -1148,12 +1152,16 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
     solver = gsl_multiroot_fsolver_alloc(TYPE, 4);
     gsl_multiroot_fsolver_set(solver, &f, x);
 
+	std::cout << "Made it to line = " << __LINE__ << std::endl;
+
     int status;
     size_t iter = 0;
 
     do {
         ++iter;
         status = gsl_multiroot_fsolver_iterate(solver);
+
+	std::cout << "Made it to line = " << __LINE__ << std::endl;
 
 
         if(VERBOSE > 5 && status) {
@@ -1197,6 +1205,8 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 		std::cout << "Error: out-of-bounds (MuS > maxMuS)!" << std::endl;
             return 0;
         }
+
+	std::cout << "Made it to line = " << __LINE__ << std::endl;
 
         status = gsl_multiroot_test_residual(solver->f, error);
 
