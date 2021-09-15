@@ -731,21 +731,27 @@ double Particle<D>::EOSmuQ() { return SPH_cell.muQ; }
 template <int D>
 double Particle<D>::EOSp() { return SPH_cell.p; }
 template <int D>
-double Particle<D>::EOSs() { return SPH_cell.entr; }
+double Particle<D>::EOSs() { return SPH_cell.s; }
 template <int D>
 double Particle<D>::EOSe() { return SPH_cell.e; }
 template <int D>
-double Particle<D>::EOSB() { return SPH_cell.b; }
+double Particle<D>::EOSB() { return SPH_cell.B; }
 template <int D>
-double Particle<D>::EOSS() { return SPH_cell.s; }
+double Particle<D>::EOSS() { return SPH_cell.S; }
 template <int D>
-double Particle<D>::EOSQ() { return SPH_cell.q; }
+double Particle<D>::EOSQ() { return SPH_cell.Q; }
 template <int D>
 double Particle<D>::EOSw() { return SPH_cell.w; }
 template <int D>
 double Particle<D>::EOSA() { return SPH_cell.A; }
 template <int D>
-double Particle<D>::EOSdwds() { return EOS.dwds; }
+double Particle<D>::EOSdwds() { return SPH_cell.dwds; }
+template <int D>
+double Particle<D>::EOSdwdB() { return SPH_cell.dwdB; }
+template <int D>
+double Particle<D>::EOSdwdS() { return SPH_cell.dwdS; }
+template <int D>
+double Particle<D>::EOSdwdQ() { return SPH_cell.dwdQ; }
 template <int D>
 double Particle<D>::EOSs_terms_T(double Tin) { return EOS.s_terms_T(Tin); }
 
@@ -766,6 +772,7 @@ double Particle<D>::EOSs_out(double e_In, double rhoB_In, double rhoS_In, double
 	SPH_cell.e    = EOS.e();
 	SPH_cell.cs2  = EOS.cs2();
 	SPH_cell.w    = EOS.w();
+	SPH_cell.A    = EOS.A();
 	SPH_cell.dwds = EOS.dwds();
 	SPH_cell.dwdB = EOS.dwdB();
 	SPH_cell.dwdS = EOS.dwdS();
@@ -791,6 +798,7 @@ double Particle<D>::EOSs_out(double e_In)
 	SPH_cell.e    = EOS.e();
 	SPH_cell.cs2  = EOS.cs2();
 	SPH_cell.w    = EOS.w();
+	SPH_cell.A    = EOS.A();
 	SPH_cell.dwds = EOS.dwds();
 	SPH_cell.dwdB = EOS.dwdB();
 	SPH_cell.dwdS = EOS.dwdS();
@@ -816,6 +824,7 @@ void Particle<D>::EOSupdate_s(double s_In, double rhoB_In, double rhoS_In, doubl
 	SPH_cell.e    = EOS.e();
 	SPH_cell.cs2  = EOS.cs2();
 	SPH_cell.w    = EOS.w();
+	SPH_cell.A    = EOS.A();
 	SPH_cell.dwds = EOS.dwds();
 	SPH_cell.dwdB = EOS.dwdB();
 	SPH_cell.dwdS = EOS.dwdS();
@@ -841,6 +850,7 @@ void Particle<D>::EOSupdate_s(double s_In)
 	SPH_cell.e    = EOS.e();
 	SPH_cell.cs2  = EOS.cs2();
 	SPH_cell.w    = EOS.w();
+	SPH_cell.A    = EOS.A();
 	SPH_cell.dwds = EOS.dwds();
 	SPH_cell.dwdB = EOS.dwdB();
 	SPH_cell.dwdS = EOS.dwdS();
