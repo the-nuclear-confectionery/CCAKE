@@ -1319,12 +1319,12 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 			get_sBSQ_densities(neighbor_estimate_point, neighbor_estimate_densities);
 			which_neighbor_closest
 				= static_cast<int>(
-					entr_delaunay.log_d2( inputDensities, neighbor_estimate_densities )
-					< entr_delaunay.log_d2( inputDensities, finalDensities ) );
+					entr_delaunay.normalized_d2( inputDensities, neighbor_estimate_densities )
+					< entr_delaunay.normalized_d2( inputDensities, finalDensities ) );
 			std::cout << "Check separations: "
-					<< entr_delaunay.log_d2( inputDensities,
+					<< entr_delaunay.normalized_d2( inputDensities,
 													neighbor_estimate_densities ) << "   "
-					<< entr_delaunay.log_d2( inputDensities, finalDensities ) << "   "
+					<< entr_delaunay.normalized_d2( inputDensities, finalDensities ) << "   "
 					<< which_neighbor_closest << std::endl;
 		}
 		else
@@ -1333,12 +1333,12 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 			get_eBSQ_densities(neighbor_estimate_point, neighbor_estimate_densities);
 			which_neighbor_closest
 				= static_cast<int>(
-					e_delaunay.log_d2( inputDensities, neighbor_estimate_densities )
-					< e_delaunay.log_d2( inputDensities, finalDensities ) );
+					e_delaunay.normalized_d2( inputDensities, neighbor_estimate_densities )
+					< e_delaunay.normalized_d2( inputDensities, finalDensities ) );
 			std::cout << "Check separations: "
-					<< e_delaunay.log_d2( inputDensities,
+					<< e_delaunay.normalized_d2( inputDensities,
 													neighbor_estimate_densities ) << "   "
-					<< e_delaunay.log_d2( inputDensities, finalDensities ) << "   "
+					<< e_delaunay.normalized_d2( inputDensities, finalDensities ) << "   "
 					<< which_neighbor_closest << std::endl;
 		}
 
