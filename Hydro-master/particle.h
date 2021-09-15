@@ -153,6 +153,9 @@ public:
 	//double EOSwfz();
 	double EOSA();
 	double EOSdwds();
+	double EOSdwdB();
+	double EOSdwdS();
+	double EOSdwdQ();
 	double EOSs_out(double e_In);
 	double EOSs_out(double e_In, double rhoB_In, double rhoS_In, double rhoQ_In);
 	void EOSupdate_s(double s_In);
