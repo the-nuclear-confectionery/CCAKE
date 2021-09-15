@@ -22,6 +22,7 @@ template <int D>
 class LinkList {
 private:
 
+	static constexpr int VERBOSE = 5;
 
     Vector<double,D> min;
     Vector<double,D> max;
