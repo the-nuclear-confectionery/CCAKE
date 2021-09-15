@@ -24,7 +24,7 @@ using std::string;
 // Compile:         gcc eos4D.cpp -c -I /usr/include/eigen3 -Lsplinter/build -lm -lgsl -lgslcblas -lstdc++ -lsplinter-3-0
 
 constexpr bool use_exact = true;
-constexpr bool accept_nearest_neighbor = false;
+constexpr bool accept_nearest_neighbor = true;
 
 //EoS constructor
 eos::eos(string quantityFile, string derivFile)
@@ -719,6 +719,8 @@ bool eos::update_s(double sin, double Bin, double Sin, double Qin) { //update th
         return true;
     }
 	///////////////////////////
+	if (accept_nearest_neighbor)
+		std::cout << "Should not have made it here!" << std::endl;
 	return false;//!!!!!!!!!!!!
 	///////////////////////////
     double t0 = tbqsPosition[0];
@@ -823,7 +825,8 @@ double eos::s_out(double ein, double Bin, double Sin, double Qin) {   //update t
         return entrVal;
     }
 	///////////////////////////
-	std::cout << "Should not have made it here!" << std::endl;
+	if (accept_nearest_neighbor)
+		std::cout << "Should not have made it here!" << std::endl;
 	return -1.0;//!!!!!!!!!!!!
 	///////////////////////////
 
