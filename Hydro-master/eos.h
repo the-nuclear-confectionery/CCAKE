@@ -99,7 +99,7 @@ private:
     //tolerance for rootfinder function used in update_s() and s_out() **THIS CAN BE CHANGED DEPENDING ON EOS
     double TOLERANCE = 1e-2;
     //max number of steps taken by rootfinder before failure is declared **THIS CAN BE CHANGED DEPENDING ON EOS
-    size_t STEPS = 100;
+    size_t STEPS = 10;
     //Rootfinding method used **THIS CAN BE CHANGED DEPENDING ON EOS
     const gsl_multiroot_fsolver_type *TYPE = gsl_multiroot_fsolver_hybrids;
 

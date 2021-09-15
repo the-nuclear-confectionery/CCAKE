@@ -24,7 +24,7 @@ using std::string;
 // Compile:         gcc eos4D.cpp -c -I /usr/include/eigen3 -Lsplinter/build -lm -lgsl -lgslcblas -lstdc++ -lsplinter-3-0
 
 constexpr bool use_exact = true;
-constexpr bool accept_nearest_neighbor = true;
+constexpr bool accept_nearest_neighbor = false;
 
 //EoS constructor
 eos::eos(string quantityFile, string derivFile)
@@ -1091,7 +1091,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 	// use NMN method to estimate where to start the rootfinder
 	// ( returns estimates in units of MeV )
 	vector<double> T_muB_muQ_muS_estimates;
-	constexpr bool use_normalized_trees = false;
+	constexpr bool use_normalized_trees = true;
 	if ( e_or_s_mode==1 )
 		e_delaunay.get_NMN_coordinates(
 					{e_or_s_Given*197.327, rhoBGiven, rhoSGiven, rhoQGiven},
@@ -1276,8 +1276,16 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 		std::cout << "Entered to nearest neighbor tests" << std::endl;
 		std::cout << "found = " << found << std::endl;
 
-		// eventually allow to include end point if it gives
-		// a closer approximation than starting value
+		// use unnormalized distances to estimate neighbor (reset from above)
+		if ( e_or_s_mode==1 )
+			e_delaunay.get_NMN_coordinates(
+						{e_or_s_Given*197.327, rhoBGiven, rhoSGiven, rhoQGiven},
+						T_muB_muQ_muS_estimates, false );
+		else
+			entr_delaunay.get_NMN_coordinates(
+						{e_or_s_Given, rhoBGiven, rhoSGiven, rhoQGiven},
+						T_muB_muQ_muS_estimates, false );
+
 		// set final solver location
 		int which_neighbor_closest = -1;
 
