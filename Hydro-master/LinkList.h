@@ -2384,9 +2384,70 @@ void LinkList<D>::updateIC()
 		cout << "----------------------------------------"
 				"----------------------------------------" << endl;
 
-		//_p[i].s_an = -1.0;
-		if ( false && _p[i].e_sub < 0.2*efcheck )// speed things up
+		if (gtyp!=5)
 		{
+			sw.Start();
+			cout << "Doing this particle: "
+					<< _p[i].r.x[0] << "   " << _p[i].r.x[1] << "\n";
+			_p[i].s_an = _p[i].EOSs_out( _p[i].e_sub,   _p[i].rhoB_an,
+										 _p[i].rhoS_an, _p[i].rhoQ_an );
+
+			if (VERBOSE>5)
+			{
+				if (_p[i].s_an>0.0)
+				{
+					double phase_diagram_point[4]
+						= { _p[i].particle_T*197.327,
+							  _p[i].particle_muB*197.327,
+							  _p[i].particle_muS*197.327,
+							  _p[i].particle_muQ*197.327 };
+					double densities_at_point[4];
+					get_eBSQ_densities(phase_diagram_point, densities_at_point);
+					cout << i << ":   " << _p[i].e_sub*197.327
+						<< "   " << _p[i].rhoB_an
+						<< "   " << _p[i].rhoS_an
+						<< "   " << _p[i].rhoQ_an
+						<< "   " << _p[i].particle_T*197.327
+						<< "   " << _p[i].particle_muB*197.327
+						<< "   " << _p[i].particle_muS*197.327
+						<< "   " << _p[i].particle_muQ*197.327;
+						for (int iii = 0; iii < 4; iii++)
+							cout << "   " << densities_at_point[iii];		
+					cout << "\n";
+				}
+				else
+					cout << i << ":   " << _p[i].e_sub*197.327
+						<< "   " << _p[i].rhoB_an
+						<< "   " << _p[i].rhoS_an
+						<< "   " << _p[i].rhoQ_an
+						<< "   " << 0.0 << "   " << 0.0
+						<< "   " << 0.0 << "   " << 0.0
+						<< "   nan   nan   nan   nan\n";
+			}
+
+			sw.Stop();
+			string successString = (_p[i].s_an < 0.0) ?
+									"unsuccessfully" : "successfully";
+			cout << "SPH particle " << i << ", EOSs_out: completed "
+					<< successString << " in " << sw.printTime() << "s." << "\n";
+		}
+
+		////////////////////////////////////////////////////////////////////////
+		// for now, if we failed to find a real entropy density for this
+		// point, just freeze it out, set its entropy to the freeze-out value,
+		// and continue without setting anything else
+		/*if (_p[i].s_an < 0.0)
+		{
+
+			////////////////////////////////////////////////////////
+			// if failed with charge densities, set them to zero and re-solve;
+			// if that fails too, guesstimate an answer
+			cout << "\t --> Densities not found in EoS table (setting BSQ --> 0): "
+					<< _p[i].r.x[0] << "   " << _p[i].r.x[1] << "\n"
+					<< "\t\t - densities: "
+					<< _p[i].e_sub*197.327 << "   " << _p[i].rhoB_an << "   "
+					<< _p[i].rhoS_an << "   " << _p[i].rhoQ_an << "\n";
+
 			// set charge densities to zero and re-solve
 			_p[i].rhoB_an = 0.0;
 			_p[i].rhoS_an = 0.0;
@@ -2395,135 +2456,73 @@ void LinkList<D>::updateIC()
 			_p[i].s_an = _p[i].EOSs_out( _p[i].e_sub,   _p[i].rhoB_an,
 										 _p[i].rhoS_an, _p[i].rhoQ_an );
 
+			// if this fails too...
 			if (_p[i].s_an < 0.0)
 			{
 				double scale_factor = std::min( 1.0, _p[i].e_sub / efcheck );
 	
+				cout << "\t\t - scaling e to get s: "
+						<< efcheck*0.197327 << "   "
+						<< sfcheck << "   "
+						<< scale_factor << "   "
+						<< scale_factor * sfcheck << "\n";
+	
 				_p[i].s_an = scale_factor * sfcheck;
 			}
+			else	// if a solution was found
+			{
+				cout << "\t\t - phase diagram point: "
+						<< _p[i].particle_T*197.327 << "   "
+						<< _p[i].particle_muB*197.327 << "   "
+						<< _p[i].particle_muS*197.327 << "   "
+						<< _p[i].particle_muQ*197.327 << "\n";
+			}
+
+			// freeze this particle out!
+			_p[i].Freeze = 4;
+			number_part++;
+			////////////////////////////////////////////////////////
 		}
 		else
 		{
-		
-			if (gtyp!=5)
-			{
-				sw.Start();
-				cout << "Doing this particle: " << _p[i].r.x[0] << "   " << _p[i].r.x[1] << "\n";
-				_p[i].s_an = _p[i].EOSs_out( _p[i].e_sub, _p[i].rhoB_an, _p[i].rhoS_an, _p[i].rhoQ_an );
-
-if (_p[i].s_an>0.0)
-{
-	double phase_diagram_point[4]
-		= { _p[i].particle_T*197.327,
-			  _p[i].particle_muB*197.327,
-			  _p[i].particle_muS*197.327,
-			  _p[i].particle_muQ*197.327 };
-	double densities_at_point[4];
-	get_eBSQ_densities(phase_diagram_point, densities_at_point);
-	cout << i << ":   " << _p[i].e_sub*197.327 << "   " << _p[i].rhoB_an
-		<< "   " << _p[i].rhoS_an << "   " << _p[i].rhoQ_an
-		<< "   " << _p[i].particle_T*197.327 << "   " << _p[i].particle_muB*197.327
-		<< "   " << _p[i].particle_muS*197.327 << "   " << _p[i].particle_muQ*197.327;
-		for (int iii = 0; iii < 4; iii++) cout << "   " << densities_at_point[iii];		
-	cout << "\n";
-}
-else
-	cout << i << ":   " << _p[i].e_sub*197.327 << "   " << _p[i].rhoB_an
-		<< "   " << _p[i].rhoS_an << "   " << _p[i].rhoQ_an
-		<< "   " << 0.0 << "   " << 0.0 << "   " << 0.0 << "   " << 0.0
-		<< "   nan   nan   nan   nan\n";
-
-
-				sw.Stop();
-				string successString = (_p[i].s_an < 0.0) ? "unsuccessfully" : "successfully";
-				cout << "SPH particle " << i << ", EOSs_out: completed " << successString << " in "
-						<< sw.printTime() << "s." << "\n";
-			}
-
-			////////////////////////////////////////////////////////////////////////
-			// for now, if we failed to find a real entropy density for this
-			// point, just freeze it out, set its entropy to the freeze-out value,
-			// and continue without setting anything else
-			if (_p[i].s_an < 0.0)
-			{
-
-				////////////////////////////////////////////////////////
-				// if failed with charge densities, set them to zero and re-solve;
-				// if that fails too, guesstimate an answer
-				cout << "\t --> Densities not found in EoS table (setting BSQ --> 0): "
-						<< _p[i].r.x[0] << "   " << _p[i].r.x[1] << "\n"
-						<< "\t\t - densities: "
-						<< _p[i].e_sub*197.327 << "   " << _p[i].rhoB_an << "   "
-						<< _p[i].rhoS_an << "   " << _p[i].rhoQ_an << "\n";
-
-				// set charge densities to zero and re-solve
-				_p[i].rhoB_an = 0.0;
-				_p[i].rhoS_an = 0.0;
-				_p[i].rhoQ_an = 0.0;
-
-				_p[i].s_an = _p[i].EOSs_out( _p[i].e_sub,   _p[i].rhoB_an,
-											 _p[i].rhoS_an, _p[i].rhoQ_an );
-
-				// if this fails too...
-				if (_p[i].s_an < 0.0)
-				{
-					double scale_factor = std::min( 1.0, _p[i].e_sub / efcheck );
-		
-					cout << "\t\t - scaling e to get s: "
-							<< efcheck*0.197327 << "   " << sfcheck << "   "
-							<< scale_factor << "   " << scale_factor * sfcheck << "\n";
-		
-					_p[i].s_an = scale_factor * sfcheck;
-				}
-				else	// if a solution was found
-				{
-					cout << "\t\t - phase diagram point: "
-							<< _p[i].particle_T*197.327 << "   " << _p[i].particle_muB*197.327 << "   "
-							<< _p[i].particle_muS*197.327 << "   " << _p[i].particle_muQ*197.327 << "\n";
-				}
-
-				// freeze this particle out!
-				_p[i].Freeze = 4;
-				number_part++;
-				////////////////////////////////////////////////////////
-			}
-			else
-			{
-				cout << "\t --> Densities found in EoS table: "
-					<< _p[i].r.x[0] << "   " << _p[i].r.x[1] << "\n";
-				cout << "\t\t - phase diagram point: "
-						<< _p[i].particle_T*197.327 << "   " << _p[i].particle_muB*197.327 << "   "
-						<< _p[i].particle_muS*197.327 << "   " << _p[i].particle_muQ*197.327 << "\n";
-				cout << "\t\t - densities: "
-						<< _p[i].e_sub*197.327 << "   " << _p[i].rhoB_an << "   "
-						<< _p[i].rhoS_an << "   " << _p[i].rhoQ_an << "\n";
-				
-				cout << "\t --> Exact:\n";
-				double phase_diagram_point[4] = { _p[i].particle_T*197.327,
-												  _p[i].particle_muB*197.327,
-												  _p[i].particle_muS*197.327,
-												  _p[i].particle_muQ*197.327 };
-				double densities_at_point[4];
-				get_eBSQ_densities(phase_diagram_point, densities_at_point);
-				cout << "\t\t - phase diagram point:";
-				for (int iii = 0; iii < 4; iii++) cout << "   " << phase_diagram_point[iii];
-				cout << "\n\t\t - densities:";
-				for (int iii = 0; iii < 4; iii++) cout << "   " << densities_at_point[iii];
-				cout << "\n";
-			}
-
-		}
-
+			cout << "\t --> Densities found in EoS table: "
+				<< _p[i].r.x[0] << "   " << _p[i].r.x[1] << "\n";
+			cout << "\t\t - phase diagram point: "
+					<< _p[i].particle_T*197.327 << "   "
+					<< _p[i].particle_muB*197.327 << "   "
+					<< _p[i].particle_muS*197.327 << "   "
+					<< _p[i].particle_muQ*197.327 << "\n";
+			cout << "\t\t - densities: "
+					<< _p[i].e_sub*197.327 << "   "
+					<< _p[i].rhoB_an << "   "
+					<< _p[i].rhoS_an << "   "
+					<< _p[i].rhoQ_an << "\n";
+			
+			cout << "\t --> Exact:\n";
+			double phase_diagram_point[4] = { _p[i].particle_T*197.327,
+											  _p[i].particle_muB*197.327,
+											  _p[i].particle_muS*197.327,
+											  _p[i].particle_muQ*197.327 };
+			double densities_at_point[4];
+			get_eBSQ_densities(phase_diagram_point, densities_at_point);
+			cout << "\t\t - phase diagram point:";
+			for (int iii = 0; iii < 4; iii++) cout << "   " << phase_diagram_point[iii];
+			cout << "\n\t\t - densities:";
+			for (int iii = 0; iii < 4; iii++) cout << "   " << densities_at_point[iii];
+			cout << "\n";
+		}*/
 
 		// CUT OUT UPDATE_S SINCE IT'S REDUNDANT AND WASTING CPU TIME
 		/*{
 			sw.Reset();
 			sw.Start();
-			bool successTest = _p[i].EOSupdate_s( _p[i].s_an, _p[i].rhoB_an, _p[i].rhoS_an, _p[i].rhoQ_an );
+			bool successTest = _p[i].EOSupdate_s( _p[i].s_an,    _p[i].rhoB_an,
+												  _p[i].rhoS_an, _p[i].rhoQ_an );
 			sw.Stop();
-			string successString = (successTest) ? "successfully" : "unsuccessfully";
-			cout << "SPH particle " << i << ", EOSupdate_s: completed " << successString << " in "
-					<< sw.printTime() << "s." << endl;
+			string successString = (successTest) ?
+									"successfully" : "unsuccessfully";
+			cout << "SPH particle " << i << ", EOSupdate_s: completed "
+					<< successString << " in " << sw.printTime() << "s." << endl;
 			sw.Reset();
 		}*/
 
@@ -2546,17 +2545,20 @@ else
 	cout << "----------------------------------------"
 			"----------------------------------------" << endl;
 
-swTotal.Stop();
-cout << "Finished function call to updateIC(...) in " << swTotal.printTime() << " s." << endl;
+	swTotal.Stop();
+	cout << "Finished function call to updateIC(...) in "
+			<< swTotal.printTime() << " s." << endl;
 
-if (true)
-{
-	cout << "Exiting prematurely from " << __PRETTY_FUNCTION__ << "::" << __LINE__ << "!" << endl;
-	cerr << "Exiting prematurely from " << __PRETTY_FUNCTION__ << "::" << __LINE__ << "!" << endl;
-	exit(8);
-}
+	if (false)
+	{
+		cout << "Exiting prematurely from " << __PRETTY_FUNCTION__
+			<< "::" << __LINE__ << "!" << endl;
+		cerr << "Exiting prematurely from " << __PRETTY_FUNCTION__
+			<< "::" << __LINE__ << "!" << endl;
+		exit(8);
+	}
 
-if (failCounter > 0) exit(-1);
+	if (failCounter > 0) exit(-1);
 
 	if (gtyp==6) BSQguess();
     else if (gtyp!=3) guess();

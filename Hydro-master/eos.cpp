@@ -26,19 +26,22 @@ using std::string;
 constexpr bool use_exact = true;
 constexpr bool accept_nearest_neighbor = true;
 
+constexpr size_t STEPS = 10;
+constexpr int VERBOSE = 5;
+constexpr double TOLERANCE = 1e-2;
+
 //EoS constructor
 eos::eos(string quantityFile, string derivFile)
 {
-    init(quantityFile, derivFile/*, degree*/);
+    init(quantityFile, derivFile);
 }
 
 //EoS default constructor. This function exists to satisfy the compiler
 //This function should never be called unless init is called directly afterward
 eos::eos() {}
 
-void eos::init(string quantityFile, string derivFile/*, int degree*/)
+void eos::init(string quantityFile, string derivFile)
 {
-	VERBOSE = 5;
 	tbqsPosition.resize(4);
 
 	cout << "Initializing EoS C library" << endl;
@@ -1134,8 +1137,6 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 		p.set( e_or_s_Given, rhoBGiven, rhoQGiven, rhoSGiven);
 	}
 
-//	std::cout << "Made it to line = " << __LINE__ << std::endl;
-
     //initialize multiroot solver
     gsl_multiroot_fsolver *solver;
     gsl_multiroot_function f;
@@ -1246,8 +1247,6 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 			status = -10;
 			break;
         }
-
-//	std::cout << "Made it to line = " << __LINE__ << std::endl;
 
         status = gsl_multiroot_test_residual(solver->f, error);
 
