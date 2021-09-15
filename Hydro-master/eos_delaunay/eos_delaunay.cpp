@@ -151,8 +151,13 @@ void eos_delaunay::init(string EoS_table_file, int e_or_s)
 	// copy normalized densities from grid to separate vector (for kd-tree)
 	// (needs to be vector of arrays to set up kd-tree correctly)
 	std::vector<std::array<double, 4> > density_points(grid.size());
+	std::vector<std::array<double, 4> > unnormalized_density_points(grid.size());
 	for (size_t ii = 0; ii < grid.size(); ii++)
+	{
 		std::copy_n( grid[ii].begin()+4, 4, density_points[ii].begin() );
+		std::copy_n( unnormalized_grid[ii].begin()+4, 4,
+					 unnormalized_density_points[ii].begin() );
+	}
 
 	// set up kd-trees
 	cout << "Setting up kd-trees...";
@@ -163,6 +168,10 @@ void eos_delaunay::init(string EoS_table_file, int e_or_s)
 		
 		static tree4d midpoint_tree(std::begin(midpoint_grid), std::end(midpoint_grid));
 		e_midpoint_tree_ptr = &midpoint_tree;
+
+		static tree4d unnormalized_tree(std::begin(unnormalized_density_points),
+										std::end(unnormalized_density_points));
+		e_unnormalized_tree_ptr = &unnormalized_tree;
 
 		static tree4d unnormalized_midpoint_tree(std::begin(midpoint_unnormalized_grid),
 												 std::end(midpoint_unnormalized_grid));
@@ -175,6 +184,10 @@ void eos_delaunay::init(string EoS_table_file, int e_or_s)
 		
 		static tree4d midpoint_tree(std::begin(midpoint_grid), std::end(midpoint_grid));
 		entr_midpoint_tree_ptr = &midpoint_tree;
+
+		static tree4d unnormalized_tree(std::begin(unnormalized_density_points),
+										std::end(unnormalized_density_points));
+		entr_unnormalized_tree_ptr = &unnormalized_tree;
 
 		static tree4d unnormalized_midpoint_tree(std::begin(midpoint_unnormalized_grid),
 												 std::end(midpoint_unnormalized_grid));
@@ -249,35 +262,60 @@ void eos_delaunay::get_min_and_max(vector<double> & v, double & minval, double &
 }
 
 
-void eos_delaunay::get_NMN_coordinates(const vector<double> & v0, vector<double> & result)
+void eos_delaunay::get_NMN_coordinates(
+					const vector<double> & v0, vector<double> & result,
+					bool use_normalized)
 {
 	size_t kdtree_nmn_index = 0, kdtree_nn_index = 0;
 	double nmn_dist = 2.0, nn_dist = 2.0;	// choose impossibly large separation
 	try
 	{
-		if ( using_e_or_s_mode == 0 )
+		if (use_normalized)
 		{
-			midpoint_tree_ptr = e_midpoint_tree_ptr;
-			tree_ptr          = e_tree_ptr;
+			if ( using_e_or_s_mode == 0 )
+			{
+				midpoint_tree_ptr = e_midpoint_tree_ptr;
+				tree_ptr          = e_tree_ptr;
+			}
+			else
+			{
+				midpoint_tree_ptr = entr_midpoint_tree_ptr;
+				tree_ptr          = entr_tree_ptr;
+			}
+			
+			point4d nmn = midpoint_tree_ptr->nearest
+						( { (v0[0] - emin) / (emax - emin),
+							(v0[1] - bmin) / (bmax - bmin),
+							(v0[2] - smin) / (smax - smin),
+							(v0[3] - qmin) / (qmax - qmin) }, kdtree_nmn_index );
+			nmn_dist    = midpoint_tree_ptr->distance();
+			point4d nn  = tree_ptr->nearest
+						( { (v0[0] - emin) / (emax - emin),
+							(v0[1] - bmin) / (bmax - bmin),
+							(v0[2] - smin) / (smax - smin),
+							(v0[3] - qmin) / (qmax - qmin) }, kdtree_nn_index );
+			nn_dist     = tree_ptr->distance();
 		}
-		else
+		else	// using unnormalized grids
 		{
-			midpoint_tree_ptr = entr_midpoint_tree_ptr;
-			tree_ptr          = entr_tree_ptr;
+			if ( using_e_or_s_mode == 0 )
+			{
+				unnormalized_midpoint_tree_ptr = e_unnormalized_midpoint_tree_ptr;
+				unnormalized_tree_ptr          = e_unnormalized_tree_ptr;
+			}
+			else
+			{
+				unnormalized_midpoint_tree_ptr = entr_unnormalized_midpoint_tree_ptr;
+				unnormalized_tree_ptr          = entr_unnormalized_tree_ptr;
+			}
+			
+			point4d nmn = unnormalized_midpoint_tree_ptr->nearest
+						( { v0[0], v0[1], v0[2], v0[3] }, kdtree_nmn_index );
+			nmn_dist    = unnormalized_midpoint_tree_ptr->distance();
+			point4d nn  = unnormalized_tree_ptr->nearest
+						( { v0[0], v0[1], v0[2], v0[3] }, kdtree_nn_index );
+			nn_dist     = unnormalized_tree_ptr->distance();
 		}
-		
-		point4d nmn = midpoint_tree_ptr->nearest
-					( { (v0[0] - emin) / (emax - emin),
-						(v0[1] - bmin) / (bmax - bmin),
-						(v0[2] - smin) / (smax - smin),
-						(v0[3] - qmin) / (qmax - qmin) }, kdtree_nmn_index );
-		nmn_dist    = midpoint_tree_ptr->distance();
-		point4d nn  = tree_ptr->nearest
-					( { (v0[0] - emin) / (emax - emin),
-						(v0[1] - bmin) / (bmax - bmin),
-						(v0[2] - smin) / (smax - smin),
-						(v0[3] - qmin) / (qmax - qmin) }, kdtree_nn_index );
-		nn_dist     = tree_ptr->distance();
 	}
 	catch (const std::exception& e)
 	{

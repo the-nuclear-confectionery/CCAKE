@@ -24,7 +24,8 @@ class eos_delaunay
 	    eos_delaunay();
 		void init(string EoS_table_file, int e_or_s);
 
-		void get_NMN_coordinates(const vector<double> & v0, vector<double> & result);
+		void get_NMN_coordinates(const vector<double> & v0, vector<double> & result,
+								 bool use_normalized);
 
 		/*double get_emax() {return emax;}
 		double get_emin() {return emin;}
@@ -44,9 +45,12 @@ class eos_delaunay
 		typedef point<double, 4> point4d;
 		typedef kdtree<double, 4> tree4d;
 
-		tree4d * tree_ptr, * midpoint_tree_ptr, * unnormalized_midpoint_tree_ptr;
-		tree4d * e_tree_ptr, * e_midpoint_tree_ptr, * e_unnormalized_midpoint_tree_ptr;
-		tree4d * entr_tree_ptr, * entr_midpoint_tree_ptr, * entr_unnormalized_midpoint_tree_ptr;
+		tree4d * tree_ptr, * midpoint_tree_ptr, * unnormalized_tree_ptr,
+			   * unnormalized_midpoint_tree_ptr;
+		tree4d * e_tree_ptr, * e_midpoint_tree_ptr, * unnormalized_e_tree_ptr,
+			   * e_unnormalized_midpoint_tree_ptr;
+		tree4d * entr_tree_ptr, * entr_midpoint_tree_ptr, * unnormalized_entr_tree_ptr,
+			   * entr_unnormalized_midpoint_tree_ptr;
 
 		static const double hbarc;
 		static const size_t nT, nmub, nmus, nmuq;

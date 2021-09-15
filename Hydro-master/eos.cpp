@@ -24,7 +24,7 @@ using std::string;
 // Compile:         gcc eos4D.cpp -c -I /usr/include/eigen3 -Lsplinter/build -lm -lgsl -lgslcblas -lstdc++ -lsplinter-3-0
 
 constexpr bool use_exact = true;
-constexpr bool accept_nearest_neighbor = true;
+constexpr bool accept_nearest_neighbor = false;
 
 //EoS constructor
 eos::eos(string quantityFile, string derivFile)
@@ -1091,14 +1091,15 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 	// use NMN method to estimate where to start the rootfinder
 	// ( returns estimates in units of MeV )
 	vector<double> T_muB_muQ_muS_estimates;
+	constexpr bool use_normalized_trees = true;
 	if ( e_or_s_mode==1 )
 		e_delaunay.get_NMN_coordinates(
 					{e_or_s_Given*197.327, rhoBGiven, rhoSGiven, rhoQGiven},
-					T_muB_muQ_muS_estimates );
+					T_muB_muQ_muS_estimates, use_normalized_trees );
 	else
 		entr_delaunay.get_NMN_coordinates(
 					{e_or_s_Given, rhoBGiven, rhoSGiven, rhoQGiven},
-					T_muB_muQ_muS_estimates );
+					T_muB_muQ_muS_estimates, use_normalized_trees );
 
 	// set GSL vector with best initial guess we can
 	std::cout << "Closest neighbor found to be:";
@@ -1319,12 +1320,12 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 			get_sBSQ_densities(neighbor_estimate_point, neighbor_estimate_densities);
 			which_neighbor_closest
 				= static_cast<int>(
-					entr_delaunay.normalized_d2( inputDensities, neighbor_estimate_densities )
-					< entr_delaunay.normalized_d2( inputDensities, finalDensities ) );
+					entr_delaunay.unnormalized_d2( inputDensities, neighbor_estimate_densities )
+					< entr_delaunay.unnormalized_d2( inputDensities, finalDensities ) );
 			std::cout << "Check separations: "
-					<< entr_delaunay.normalized_d2( inputDensities,
+					<< entr_delaunay.unnormalized_d2( inputDensities,
 													neighbor_estimate_densities ) << "   "
-					<< entr_delaunay.normalized_d2( inputDensities, finalDensities ) << "   "
+					<< entr_delaunay.unnormalized_d2( inputDensities, finalDensities ) << "   "
 					<< which_neighbor_closest << std::endl;
 		}
 		else
@@ -1333,12 +1334,12 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 			get_eBSQ_densities(neighbor_estimate_point, neighbor_estimate_densities);
 			which_neighbor_closest
 				= static_cast<int>(
-					e_delaunay.normalized_d2( inputDensities, neighbor_estimate_densities )
-					< e_delaunay.normalized_d2( inputDensities, finalDensities ) );
+					e_delaunay.unnormalized_d2( inputDensities, neighbor_estimate_densities )
+					< e_delaunay.unnormalized_d2( inputDensities, finalDensities ) );
 			std::cout << "Check separations: "
-					<< e_delaunay.normalized_d2( inputDensities,
+					<< e_delaunay.unnormalized_d2( inputDensities,
 													neighbor_estimate_densities ) << "   "
-					<< e_delaunay.normalized_d2( inputDensities, finalDensities ) << "   "
+					<< e_delaunay.unnormalized_d2( inputDensities, finalDensities ) << "   "
 					<< which_neighbor_closest << std::endl;
 		}
 
