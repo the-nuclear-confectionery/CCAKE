@@ -158,7 +158,15 @@ public:
 	void EOSupdate_s(double s_In);
 	void EOSupdate_s(double s_In, double rhoB_In, double rhoS_In, double rhoQ_In);
 
-	double particle_T, particle_muB, particle_muS, particle_muQ;
+	//double particle_T, particle_muB, particle_muS, particle_muQ;
+	struct particle_thermo
+    {
+		double T, muB, muS, muQ;
+        double p, s, B, S, Q, e, cs2, w, A;
+		double dwds, dwdB, dwdS, dwdQ;
+		//double db2, dq2, ds2, dbdq, dbds, dsdq, dtdb, dtdq, dtds, dt2;
+    };
+	particle_thermo SPH_cell;
 
 };
 
@@ -706,8 +714,147 @@ void Particle<D>::setvar()
 
 
 
-
+//==================================================================
 // Functions added by Christopher Plumberg
+
+// THESE ARE THE NEW VERSIONS
+
+template <int D>
+double Particle<D>::EOST() { return SPH_cell.T; }
+template <int D>
+double Particle<D>::EOSmuB() { return SPH_cell.muB; }
+template <int D>
+double Particle<D>::EOSmuS() { return SPH_cell.muS; }
+template <int D>
+double Particle<D>::EOSmuQ() { return SPH_cell.muQ; }
+
+template <int D>
+double Particle<D>::EOSp() { return SPH_cell.p; }
+template <int D>
+double Particle<D>::EOSs() { return SPH_cell.entr; }
+template <int D>
+double Particle<D>::EOSe() { return SPH_cell.e; }
+template <int D>
+double Particle<D>::EOSB() { return SPH_cell.b; }
+template <int D>
+double Particle<D>::EOSS() { return SPH_cell.s; }
+template <int D>
+double Particle<D>::EOSQ() { return SPH_cell.q; }
+template <int D>
+double Particle<D>::EOSw() { return SPH_cell.w; }
+template <int D>
+double Particle<D>::EOSA() { return SPH_cell.A; }
+template <int D>
+double Particle<D>::EOSdwds() { return EOS.dwds; }
+template <int D>
+double Particle<D>::EOSs_terms_T(double Tin) { return EOS.s_terms_T(Tin); }
+
+template <int D>
+double Particle<D>::EOSs_out(double e_In, double rhoB_In, double rhoS_In, double rhoQ_In)
+{
+	double sVal   = EOS.s_out( e_In, rhoB_In, rhoS_In, rhoQ_In );
+	SPH_cell.T    = EOS.T();
+	SPH_cell.muB  = EOS.muB();
+	SPH_cell.muS  = EOS.muS();
+	SPH_cell.muQ  = EOS.muQ();
+
+	SPH_cell.p    = EOS.p();
+	SPH_cell.s    = EOS.s();
+	SPH_cell.B    = EOS.B();
+	SPH_cell.S    = EOS.S();
+	SPH_cell.Q    = EOS.Q();
+	SPH_cell.e    = EOS.e();
+	SPH_cell.cs2  = EOS.cs2();
+	SPH_cell.w    = EOS.w();
+	SPH_cell.dwds = EOS.dwds();
+	SPH_cell.dwdB = EOS.dwdB();
+	SPH_cell.dwdS = EOS.dwdS();
+	SPH_cell.dwdQ = EOS.dwdQ();
+
+	return sVal;
+}
+
+template <int D>
+double Particle<D>::EOSs_out(double e_In)
+{
+	double sVal = EOS.s_out( e_In, 0.0, 0.0, 0.0 );
+	SPH_cell.T    = EOS.T();
+	SPH_cell.muB  = EOS.muB();
+	SPH_cell.muS  = EOS.muS();
+	SPH_cell.muQ  = EOS.muQ();
+
+	SPH_cell.p    = EOS.p();
+	SPH_cell.s    = EOS.s();
+	SPH_cell.B    = EOS.B();
+	SPH_cell.S    = EOS.S();
+	SPH_cell.Q    = EOS.Q();
+	SPH_cell.e    = EOS.e();
+	SPH_cell.cs2  = EOS.cs2();
+	SPH_cell.w    = EOS.w();
+	SPH_cell.dwds = EOS.dwds();
+	SPH_cell.dwdB = EOS.dwdB();
+	SPH_cell.dwdS = EOS.dwdS();
+	SPH_cell.dwdQ = EOS.dwdQ();
+
+	return sVal;
+}
+
+template <int D>
+void Particle<D>::EOSupdate_s(double s_In, double rhoB_In, double rhoS_In, double rhoQ_In)
+{
+	bool update_s_success = EOS.update_s( s_In, rhoB_In, rhoS_In, rhoQ_In );
+	SPH_cell.T    = EOS.T();
+	SPH_cell.muB  = EOS.muB();
+	SPH_cell.muS  = EOS.muS();
+	SPH_cell.muQ  = EOS.muQ();
+
+	SPH_cell.p    = EOS.p();
+	SPH_cell.s    = EOS.s();
+	SPH_cell.B    = EOS.B();
+	SPH_cell.S    = EOS.S();
+	SPH_cell.Q    = EOS.Q();
+	SPH_cell.e    = EOS.e();
+	SPH_cell.cs2  = EOS.cs2();
+	SPH_cell.w    = EOS.w();
+	SPH_cell.dwds = EOS.dwds();
+	SPH_cell.dwdB = EOS.dwdB();
+	SPH_cell.dwdS = EOS.dwdS();
+	SPH_cell.dwdQ = EOS.dwdQ();
+
+	return;
+}
+
+template <int D>
+void Particle<D>::EOSupdate_s(double s_In)
+{
+	EOS.update_s( s_In, 0.0, 0.0, 0.0 );
+	SPH_cell.T    = EOS.T();
+	SPH_cell.muB  = EOS.muB();
+	SPH_cell.muS  = EOS.muS();
+	SPH_cell.muQ  = EOS.muQ();
+
+	SPH_cell.p    = EOS.p();
+	SPH_cell.s    = EOS.s();
+	SPH_cell.B    = EOS.B();
+	SPH_cell.S    = EOS.S();
+	SPH_cell.Q    = EOS.Q();
+	SPH_cell.e    = EOS.e();
+	SPH_cell.cs2  = EOS.cs2();
+	SPH_cell.w    = EOS.w();
+	SPH_cell.dwds = EOS.dwds();
+	SPH_cell.dwdB = EOS.dwdB();
+	SPH_cell.dwdS = EOS.dwdS();
+	SPH_cell.dwdQ = EOS.dwdQ();
+
+	return;
+}
+
+
+
+/*
+//THESE ARE THE OLD VERSIONS
+
+
 template <int D>
 double Particle<D>::EOST() { return particle_T; }
 
@@ -721,7 +868,6 @@ template <int D>
 double Particle<D>::EOSmuQ() { return particle_muQ; }
 
 
-
 template <int D>
 double Particle<D>::EOSp()
 {
@@ -730,7 +876,6 @@ double Particle<D>::EOSp()
 }
 
 
-// Functions added by Christopher Plumberg
 template <int D>
 double Particle<D>::EOSs()
 {
@@ -794,7 +939,6 @@ double Particle<D>::EOSA()
 template <int D>
 double Particle<D>::EOSdwds()
 {
-	//if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
 	EOS.tbqs( particle_T, particle_muB, particle_muQ, particle_muS );
 	return EOS.dwds();
 }
@@ -843,15 +987,6 @@ void Particle<D>::EOSupdate_s(double s_In, double rhoB_In, double rhoS_In, doubl
 {
 	EOS.tbqs( particle_T, particle_muB, particle_muQ, particle_muS );
 	bool update_s_success = EOS.update_s( s_In, rhoB_In, rhoS_In, rhoQ_In );
-	/*string SUCCESS_STRING = ( update_s_success ) ? "PASS" : "FAIL";
-cout << "CHECK EOSupdate_s: " << SUCCESS_STRING << ": "
-		<< "   " << s_In << "   " << EOS.s()
-		<< "   " << rhoB_In << "   " << EOS.B()
-		<< "   " << rhoS_In << "   " << EOS.S()
-		<< "   " << rhoQ_In << "   " << EOS.Q() 
-		<< "   " << particle_T << "   " << particle_muB
-		<< "   " << particle_muS << "   " << particle_muQ
-		<< endl;*/
 	particle_T = EOS.T();
 	particle_muB = EOS.muB();
 	particle_muS = EOS.muS();
@@ -875,7 +1010,7 @@ void Particle<D>::EOSupdate_s(double s_In)
 
 	return;
 }
-
+*/
 
 
 #endif
