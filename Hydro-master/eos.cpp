@@ -1210,11 +1210,14 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 			std::cout << "Error: something went to +/-Inf or NaN!" << std::endl;
 		else if ( status == GSL_ENOPROG )
 			std::cout << "Error: not making enough progress!" << std::endl;
+		else
+			std::cout << "Check: " << iter << "   " << steps << "   " << status << std::endl;
         found = false;
     }
 
 
-    if ( found ) {
+    if ( found )
+	{
         tbqs( gsl_vector_get(solver->x, 0),
 			  gsl_vector_get(solver->x, 1),
 			  gsl_vector_get(solver->x, 2),
@@ -1222,6 +1225,9 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
     }
 	else if ( accept_nearest_neighbor )	// just return nearest neighbor instead
 	{
+		std::cout << "Entered to nearest neighbor tests" << std::endl;
+		std::cout << "found = " << found << std::endl;
+
 		// eventually allow to include end point if it gives
 		// a closer approximation than starting value
 		// set final solver location
@@ -1256,6 +1262,8 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 					< e_delaunay.normalized_d2( inputDensities, finalDensities ) );
 		}
 
+		std::cout << "Made it to line = " << __LINE__ << std::endl;
+
 		// set (T, muB, muQ, muS) based on which point is closest to input point
 		if ( which_neighbor_closest == 0 )
 			tbqs( neighbor_estimate_point[0], neighbor_estimate_point[1],
@@ -1270,6 +1278,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 			exit(-8);
 		}
 
+		std::cout << "Setting found --> true" << std::endl;
 		found = true;
 	}
 
