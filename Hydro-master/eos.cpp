@@ -1298,8 +1298,10 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 
 		double inputDensities[4] = {e_or_s_Given, rhoBGiven, rhoSGiven, rhoQGiven};
 		double finalDensities[4], neighbor_estimate_densities[4];
-		double final_phase_diagram_point[4] = {Tfinal, muBfinal, muQfinal, muSfinal};
+		double final_phase_diagram_point[4] = {Tfinal, muBfinal, muSfinal, muQfinal};
 		double * neighbor_estimate_point = T_muB_muQ_muS_estimates.data();
+		neighbor_estimate_point[2] = T_muB_muQ_muS_estimates[3];	// swap muQ <--> muS!!!
+		neighbor_estimate_point[3] = T_muB_muQ_muS_estimates[2];	// swap muQ <--> muS!!!
 		std::cout << "final_phase_diagram_point =";
 		for (int iii = 0; iii < 4; iii++)
 			std::cout << "   " << final_phase_diagram_point[iii];
@@ -1341,12 +1343,13 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 		std::cout << "Made it to line = " << __LINE__ << std::endl;
 
 		// set (T, muB, muQ, muS) based on which point is closest to input point
+		// (SWAP S <--> Q AGAIN)
 		if ( which_neighbor_closest == 0 )
 			tbqs( final_phase_diagram_point[0]/197.327, final_phase_diagram_point[1]/197.327,
-				  final_phase_diagram_point[2]/197.327, final_phase_diagram_point[3]/197.327 );
+				  final_phase_diagram_point[3]/197.327, final_phase_diagram_point[2]/197.327 );
 		else if ( which_neighbor_closest == 1 )
 			tbqs( neighbor_estimate_point[0]/197.327, neighbor_estimate_point[1]/197.327,
-				  neighbor_estimate_point[2]/197.327, neighbor_estimate_point[3]/197.327 );
+				  neighbor_estimate_point[3]/197.327, neighbor_estimate_point[2]/197.327 );
 		else
 		{
 			std::cerr << "Bad value: which_neighbor_closest = "
