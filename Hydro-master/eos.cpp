@@ -1298,10 +1298,12 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 
 		double inputDensities[4] = {e_or_s_Given, rhoBGiven, rhoSGiven, rhoQGiven};
 		double finalDensities[4], neighbor_estimate_densities[4];
+		// swap muQ <--> muS!!!
 		double final_phase_diagram_point[4] = {Tfinal, muBfinal, muSfinal, muQfinal};
-		double * neighbor_estimate_point = T_muB_muQ_muS_estimates.data();
-		neighbor_estimate_point[2] = T_muB_muQ_muS_estimates[3];	// swap muQ <--> muS!!!
-		neighbor_estimate_point[3] = T_muB_muQ_muS_estimates[2];	// swap muQ <--> muS!!!
+		// swap muQ <--> muS!!!
+		double neighbor_estimate_point[4]
+				= {T_muB_muQ_muS_estimates[0], T_muB_muQ_muS_estimates[1],
+					T_muB_muQ_muS_estimates[3], T_muB_muQ_muS_estimates[2]};
 		std::cout << "final_phase_diagram_point =";
 		for (int iii = 0; iii < 4; iii++)
 			std::cout << "   " << final_phase_diagram_point[iii];
