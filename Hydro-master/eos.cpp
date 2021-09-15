@@ -134,7 +134,9 @@ void eos::tbqs(double setT, double setmuB, double setmuQ, double setmuS)
 	tbqsPosition[2] = setmuQ;
 	tbqsPosition[3] = setmuS;
 
-	double phase_diagram_point[4] = {setT, setmuB, setmuS, setmuQ};	// NOTE: S <<-->> Q swapped!!!
+	// EXPECTS UNITS OF MEV!!!
+	double phase_diagram_point[4]	// NOTE: S <<-->> Q swapped!!!
+			= {setT*197.327, setmuB*197.327, setmuS*197.327, setmuQ*197.327};
 	double thermodynamics[17];
 	get_full_thermo(phase_diagram_point, thermodynamics);
 
