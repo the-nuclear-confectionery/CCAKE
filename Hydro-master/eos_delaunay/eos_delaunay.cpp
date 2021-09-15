@@ -308,3 +308,20 @@ double eos_delaunay::normalized_d2(double a[], double b[])
 			+ (na[2]-nb[2])*(na[2]-nb[2]) + (na[3]-nb[3])*(na[3]-nb[3]) );
 }
 
+
+double eos_delaunay::unnormalized_d2(double a[], double b[])
+{
+	return (  (a[0]-b[0])*(a[0]-b[0]) + (a[1]-b[1])*(a[1]-b[1])
+			+ (a[2]-b[2])*(a[2]-b[2]) + (a[3]-b[3])*(a[3]-b[3]) );
+}
+
+double eos_delaunay::log_d2(double a[], double b[])
+{
+	double dist2 = 0;
+	for (size_t iii = 0; iii < 4; ++iii)
+	{
+		double d = (a[iii]*b[iii]<=1e-20)? 1e10 : log(abs(a[iii]/b[iii]));
+		dist2 += d * d;
+	}
+	return dist2;
+}

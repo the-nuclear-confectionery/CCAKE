@@ -36,6 +36,8 @@ class eos_delaunay
 		double get_qmin() {return qmin;}*/
 
 		double normalized_d2(double a[], double b[]);
+		double unnormalized_d2(double a[], double b[]);
+		double log_d2(double a[], double b[]);
 
 	private:
 

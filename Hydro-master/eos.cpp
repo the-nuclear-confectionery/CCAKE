@@ -1101,10 +1101,13 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 					T_muB_muQ_muS_estimates );
 
 	// set GSL vector with best initial guess we can
+	std::cout << "Closest neighbor found to be:";
 	for (int iCoord = 0; iCoord < 4; iCoord++)
+	{
+		std::cout << "   " << T_muB_muQ_muS_estimates[iCoord]/197.327;
 		gsl_vector_set(x, iCoord, T_muB_muQ_muS_estimates[iCoord]/197.327);
-
-//	std::cout << "Made it to line = " << __LINE__ << std::endl;
+	}
+	std::cout << std::endl;
 
     /*gsl_vector_set(x, 0, T());
     gsl_vector_set(x, 1, muB());
@@ -1140,38 +1143,38 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
     f.n = 4;
     f.params = &p;
 
-	if ( e_or_s_mode == 1 and VERBOSE > 5 )
+	/*if ( e_or_s_mode == 1 and VERBOSE > 5 )
 		std::cout << std::endl
 			<< "=============================================="
 			<< std::endl << "Input (e,B,Q,S): "
 			<< e_or_s_Given*0.197327 << "   "
 			<< rhoBGiven << "   "
 			<< rhoQGiven << "   "
-			<< rhoSGiven << std::endl;
+			<< rhoSGiven << std::endl;*/
 
     solver = gsl_multiroot_fsolver_alloc(TYPE, 4);
     gsl_multiroot_fsolver_set(solver, &f, x);
 
-//	std::cout << "Made it to line = " << __LINE__ << std::endl;
-
     int status;
     size_t iter = 0;
+	double previous_solver_step[4];
 
-    do {
+    do
+	{
+		for (int iSolverElem = 0; iSolverElem < 4; iSolverElem++)
+			previous_solver_step[iSolverElem] = gsl_vector_get(solver->x, iSolverElem);
+
         ++iter;
         status = gsl_multiroot_fsolver_iterate(solver);
 
-//	std::cout << "Made it to line = " << __LINE__ << std::endl;
-
         if(VERBOSE > 5 && status)
 		{
-			if ( status == GSL_EBADFUNC && e_or_s_mode == 1 && VERBOSE > 5 )
+			if ( status == GSL_EBADFUNC && VERBOSE > 5 )
 				std::cout << "Error: something went to +/-Inf or NaN!" << std::endl;
-			else if ( status == GSL_ENOPROG && e_or_s_mode == 1 && VERBOSE > 5 )
+			else if ( status == GSL_ENOPROG && VERBOSE > 5 )
 				std::cout << "Error: not making enough progress!" << std::endl;
             //return 0;      //break if the rootfinder gets stuck
 			break;
-
         }
 
 		//break if the rootfinder goes out of bounds
@@ -1277,15 +1280,25 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 		// set final solver location
 		int which_neighbor_closest = -1;
 
-		double Tfinal = gsl_vector_get(solver->x, 0);
-		double muBfinal = gsl_vector_get(solver->x, 1);
-		double muQfinal = gsl_vector_get(solver->x, 2);
-		double muSfinal = gsl_vector_get(solver->x, 3);
+		double Tfinal = 0.0, muBfinal = 0.0, muQfinal = 0.0, muSfinal = 0.0;
+		if (iter >= steps && status == 0)	// no reported problems, just ran out of steps
+		{
+			Tfinal   = gsl_vector_get(solver->x, 0)*197.327;
+			muBfinal = gsl_vector_get(solver->x, 1)*197.327;
+			muQfinal = gsl_vector_get(solver->x, 2)*197.327;
+			muSfinal = gsl_vector_get(solver->x, 3)*197.327;
+		}
+		else
+		{
+			Tfinal   = previous_solver_step[0]*197.327;
+			muBfinal = previous_solver_step[1]*197.327;
+			muQfinal = previous_solver_step[2]*197.327;
+			muSfinal = previous_solver_step[3]*197.327;
+		}
 
 		double inputDensities[4] = {e_or_s_Given, rhoBGiven, rhoSGiven, rhoQGiven};
 		double finalDensities[4], neighbor_estimate_densities[4];
-		double final_phase_diagram_point[4]
-				= {Tfinal*197.327, muBfinal*197.327, muQfinal*197.327, muSfinal*197.327};
+		double final_phase_diagram_point[4] = {Tfinal, muBfinal, muQfinal, muSfinal};
 		double * neighbor_estimate_point = T_muB_muQ_muS_estimates.data();
 
 		if ( isEntropy )
@@ -1294,12 +1307,12 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 			get_sBSQ_densities(neighbor_estimate_point, neighbor_estimate_densities);
 			which_neighbor_closest
 				= static_cast<int>(
-					entr_delaunay.normalized_d2( inputDensities, neighbor_estimate_densities )
-					< entr_delaunay.normalized_d2( inputDensities, finalDensities ) );
+					entr_delaunay.log_d2( inputDensities, neighbor_estimate_densities )
+					< entr_delaunay.log_d2( inputDensities, finalDensities ) );
 			std::cout << "Check separations: "
-					<< entr_delaunay.normalized_d2( inputDensities,
+					<< entr_delaunay.log_d2( inputDensities,
 													neighbor_estimate_densities ) << "   "
-					<< entr_delaunay.normalized_d2( inputDensities, finalDensities ) << "   "
+					<< entr_delaunay.log_d2( inputDensities, finalDensities ) << "   "
 					<< which_neighbor_closest << std::endl;
 		}
 		else
@@ -1308,12 +1321,12 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 			get_eBSQ_densities(neighbor_estimate_point, neighbor_estimate_densities);
 			which_neighbor_closest
 				= static_cast<int>(
-					e_delaunay.normalized_d2( inputDensities, neighbor_estimate_densities )
-					< e_delaunay.normalized_d2( inputDensities, finalDensities ) );
+					e_delaunay.log_d2( inputDensities, neighbor_estimate_densities )
+					< e_delaunay.log_d2( inputDensities, finalDensities ) );
 			std::cout << "Check separations: "
-					<< e_delaunay.normalized_d2( inputDensities,
+					<< e_delaunay.log_d2( inputDensities,
 													neighbor_estimate_densities ) << "   "
-					<< e_delaunay.normalized_d2( inputDensities, finalDensities ) << "   "
+					<< e_delaunay.log_d2( inputDensities, finalDensities ) << "   "
 					<< which_neighbor_closest << std::endl;
 		}
 
