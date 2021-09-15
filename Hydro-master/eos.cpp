@@ -1321,11 +1321,11 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 
 		// set (T, muB, muQ, muS) based on which point is closest to input point
 		if ( which_neighbor_closest == 0 )
-			tbqs( final_phase_diagram_point[0], final_phase_diagram_point[1],
-				  final_phase_diagram_point[2], final_phase_diagram_point[3] );
+			tbqs( final_phase_diagram_point[0]/197.327, final_phase_diagram_point[1]/197.327,
+				  final_phase_diagram_point[2]/197.327, final_phase_diagram_point[3]/197.327 );
 		else if ( which_neighbor_closest == 1 )
-			tbqs( neighbor_estimate_point[0], neighbor_estimate_point[1],
-				  neighbor_estimate_point[2], neighbor_estimate_point[3] );
+			tbqs( neighbor_estimate_point[0]/197.327, neighbor_estimate_point[1]/197.327,
+				  neighbor_estimate_point[2]/197.327, neighbor_estimate_point[3]/197.327 );
 		else
 		{
 			std::cerr << "Bad value: which_neighbor_closest = "
