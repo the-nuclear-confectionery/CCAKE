@@ -24,7 +24,7 @@ using std::string;
 // Compile:         gcc eos4D.cpp -c -I /usr/include/eigen3 -Lsplinter/build -lm -lgsl -lgslcblas -lstdc++ -lsplinter-3-0
 
 constexpr bool use_exact = true;
-constexpr bool accept_nearest_neighbor = false;
+constexpr bool accept_nearest_neighbor = true;
 
 //EoS constructor
 eos::eos(string quantityFile, string derivFile)
