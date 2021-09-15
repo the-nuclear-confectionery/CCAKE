@@ -1180,6 +1180,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 			if ( VERBOSE > 5 )
 				std::cout << "Error: out-of-bounds (T < minT)!" << std::endl;
             //return 0;
+			status = -10;
 			break;
         }
 		else if(gsl_vector_get(solver->x, 0) > maxT)
@@ -1187,6 +1188,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 			if ( VERBOSE > 5 )
 				std::cout << "Error: out-of-bounds (T > maxT)!" << std::endl;
             //return 0;
+			status = -10;
 			break;
         }
 		else if (gsl_vector_get(solver->x, 1) < minMuB)
@@ -1194,6 +1196,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 			if ( VERBOSE > 5 )
 				std::cout << "Error: out-of-bounds (MuB < minMuB)!" << std::endl;
             //return 0;
+			status = -10;
 			break;
         }
 		else if (gsl_vector_get(solver->x, 1) > maxMuB)
@@ -1201,6 +1204,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 			if ( VERBOSE > 5 )
 				std::cout << "Error: out-of-bounds (MuB > maxMuB)!" << std::endl;
             //return 0;
+			status = -10;
 			break;
         }
 		else if (gsl_vector_get(solver->x, 2) < minMuQ)
@@ -1208,6 +1212,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 			if ( VERBOSE > 5 )
 				std::cout << "Error: out-of-bounds (MuQ < minMuQ)!" << std::endl;
             //return 0;
+			status = -10;
 			break;
         }
 		else if (gsl_vector_get(solver->x, 2) > maxMuQ)
@@ -1215,6 +1220,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 			if ( VERBOSE > 5 )
 				std::cout << "Error: out-of-bounds (MuQ > maxMuQ)!" << std::endl;
             //return 0;
+			status = -10;
 			break;
         }
 		else if (gsl_vector_get(solver->x, 3) < minMuS)
@@ -1222,6 +1228,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 			if ( VERBOSE > 5 )
 				std::cout << "Error: out-of-bounds (MuS < minMuS)!" << std::endl;
             //return 0;
+			status = -10;
 			break;
         }
 		else if (gsl_vector_get(solver->x, 3) > maxMuS)
@@ -1229,6 +1236,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 			if ( VERBOSE > 5 )
 				std::cout << "Error: out-of-bounds (MuS > maxMuS)!" << std::endl;
             //return 0;
+			status = -10;
 			break;
         }
 
@@ -1276,7 +1284,8 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 
 		double inputDensities[4] = {e_or_s_Given, rhoBGiven, rhoSGiven, rhoQGiven};
 		double finalDensities[4], neighbor_estimate_densities[4];
-		double final_phase_diagram_point[4] = {Tfinal, muBfinal, muQfinal, muSfinal};
+		double final_phase_diagram_point[4]
+				= {Tfinal*197.327, muBfinal*197.327, muQfinal*197.327, muSfinal*197.327};
 		double * neighbor_estimate_point = T_muB_muQ_muS_estimates.data();
 
 		if ( isEntropy )
@@ -1312,11 +1321,11 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 
 		// set (T, muB, muQ, muS) based on which point is closest to input point
 		if ( which_neighbor_closest == 0 )
-			tbqs( neighbor_estimate_point[0], neighbor_estimate_point[1],
-				  neighbor_estimate_point[2], neighbor_estimate_point[3] );
-		else if ( which_neighbor_closest == 1 )
 			tbqs( final_phase_diagram_point[0], final_phase_diagram_point[1],
 				  final_phase_diagram_point[2], final_phase_diagram_point[3] );
+		else if ( which_neighbor_closest == 1 )
+			tbqs( neighbor_estimate_point[0], neighbor_estimate_point[1],
+				  neighbor_estimate_point[2], neighbor_estimate_point[3] );
 		else
 		{
 			std::cerr << "Bad value: which_neighbor_closest = "
