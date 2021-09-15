@@ -1287,6 +1287,11 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 				= static_cast<int>(
 					entr_delaunay.normalized_d2( inputDensities, neighbor_estimate_densities )
 					< entr_delaunay.normalized_d2( inputDensities, finalDensities ) );
+			std::cout << "Check separations: "
+					<< entr_delaunay.normalized_d2( inputDensities,
+													neighbor_estimate_densities ) << "   "
+					<< entr_delaunay.normalized_d2( inputDensities, finalDensities ) << "   "
+					<< which_neighbor_closest << std::endl;
 		}
 		else
 		{
@@ -1296,6 +1301,11 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 				= static_cast<int>(
 					e_delaunay.normalized_d2( inputDensities, neighbor_estimate_densities )
 					< e_delaunay.normalized_d2( inputDensities, finalDensities ) );
+			std::cout << "Check separations: "
+					<< e_delaunay.normalized_d2( inputDensities,
+													neighbor_estimate_densities ) << "   "
+					<< e_delaunay.normalized_d2( inputDensities, finalDensities ) << "   "
+					<< which_neighbor_closest << std::endl;
 		}
 
 		std::cout << "Made it to line = " << __LINE__ << std::endl;
