@@ -1104,7 +1104,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 	std::cout << "Closest neighbor found to be:";
 	for (int iCoord = 0; iCoord < 4; iCoord++)
 	{
-		std::cout << "   " << T_muB_muQ_muS_estimates[iCoord]/197.327;
+		std::cout << "   " << T_muB_muQ_muS_estimates[iCoord];
 		gsl_vector_set(x, iCoord, T_muB_muQ_muS_estimates[iCoord]/197.327);
 	}
 	std::cout << std::endl;
@@ -1300,6 +1300,14 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 		double finalDensities[4], neighbor_estimate_densities[4];
 		double final_phase_diagram_point[4] = {Tfinal, muBfinal, muQfinal, muSfinal};
 		double * neighbor_estimate_point = T_muB_muQ_muS_estimates.data();
+		std::cout << "final_phase_diagram_point =";
+		for (int iii = 0; iii < 4; iii++)
+			std::cout << "   " << final_phase_diagram_point[iii];
+		std::cout << std::endl;
+		std::cout << "neighbor_estimate_point =";
+		for (int iii = 0; iii < 4; iii++)
+			std::cout << "   " << neighbor_estimate_point[iii];
+		std::cout << std::endl;
 
 		if ( isEntropy )
 		{
