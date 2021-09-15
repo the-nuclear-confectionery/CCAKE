@@ -47,9 +47,9 @@ class eos_delaunay
 
 		tree4d * tree_ptr, * midpoint_tree_ptr, * unnormalized_tree_ptr,
 			   * unnormalized_midpoint_tree_ptr;
-		tree4d * e_tree_ptr, * e_midpoint_tree_ptr, * unnormalized_e_tree_ptr,
+		tree4d * e_tree_ptr, * e_midpoint_tree_ptr, * e_unnormalized_tree_ptr,
 			   * e_unnormalized_midpoint_tree_ptr;
-		tree4d * entr_tree_ptr, * entr_midpoint_tree_ptr, * unnormalized_entr_tree_ptr,
+		tree4d * entr_tree_ptr, * entr_midpoint_tree_ptr, * entr_unnormalized_tree_ptr,
 			   * entr_unnormalized_midpoint_tree_ptr;
 
 		static const double hbarc;
