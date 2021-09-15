@@ -548,10 +548,10 @@ void readICs_iccing( string &firstry, int &_Ntable3, Particle<2> *&_p,
 
 		// make educated initial guess here for this particle's (T, mu_i) coordinates
 		// (improve this in the future)
-		_p[j].particle_T   = 500.0/197.327;	// rootfinder seems to work better going downhill than "uphill"
-		_p[j].particle_muB = 0.0;
-		_p[j].particle_muS = 0.0;
-		_p[j].particle_muQ = 0.0;
+		_p[j].SPH_cell.T   = 500.0/197.327;	// rootfinder seems to work better going downhill than "uphill"
+		_p[j].SPH_cell.muB = 0.0;
+		_p[j].SPH_cell.muS = 0.0;
+		_p[j].SPH_cell.muQ = 0.0;
 
         if (_p[j].e_sub>efcheck)	// impose freeze-out check for e, not s
         {
