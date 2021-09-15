@@ -1091,7 +1091,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 	// use NMN method to estimate where to start the rootfinder
 	// ( returns estimates in units of MeV )
 	vector<double> T_muB_muQ_muS_estimates;
-	constexpr bool use_normalized_trees = true;
+	constexpr bool use_normalized_trees = false;
 	if ( e_or_s_mode==1 )
 		e_delaunay.get_NMN_coordinates(
 					{e_or_s_Given*197.327, rhoBGiven, rhoSGiven, rhoQGiven},
