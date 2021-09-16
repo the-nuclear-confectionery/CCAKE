@@ -243,7 +243,7 @@ void get_sBSQ_densities(double point[], double densities[])
 		densities[0] = Tratio*Tsol3_by_hc3*EntrTaylor(Tsol, muBsol, muQsol, muSsol);
 		densities[1] = Tratio*Tsol3_by_hc3*BarDensTaylor(Tsol, muBsol, muQsol, muSsol);
 		densities[2] = Tratio*Tsol3_by_hc3*StrDensTaylor(Tsol, muBsol, muQsol, muSsol);
-		densities[3] = Tratio*Tsol3_by_hc3*ChDensTaylor(Tsol, muBsol, muQsol, muSsol)
+		densities[3] = Tratio*Tsol3_by_hc3*ChDensTaylor(Tsol, muBsol, muQsol, muSsol);
 	}
 }
 
