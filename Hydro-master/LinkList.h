@@ -2744,9 +2744,12 @@ void LinkList<D>::BSQguess()
 	for (int i=0; i<_n; i++)
 	{
 		_p[i].s_sub = _p[i].sigma/_p[i].gamma/t0;
-		_p[i].rhoB_sub = _p[i].rhoB_sub/_p[i].gamma/t0;
-		_p[i].rhoS_sub = _p[i].rhoS_sub/_p[i].gamma/t0;
-		_p[i].rhoQ_sub = _p[i].rhoQ_sub/_p[i].gamma/t0;
+		_p[i].rhoB_sub /= _p[i].gamma*t0;
+		_p[i].rhoS_sub /= _p[i].gamma*t0;
+		_p[i].rhoQ_sub /= _p[i].gamma*t0;
+		_p[i].B /= _p[i].gamma*t0;
+		_p[i].S /= _p[i].gamma*t0;
+		_p[i].Q /= _p[i].gamma*t0;
 	cout << "SPH checkpoint(1): " << i << "   " << _p[i].sigmaweight << "   " << _p[i].s_sub << "   "
 			<< _p[i].rhoB_sub << "   " << _p[i].rhoS_sub << "   " << _p[i].rhoQ_sub << endl;
 		_p[i].EOSupdate_s(_p[i].s_sub, _p[i].rhoB_sub, _p[i].rhoS_sub, _p[i].rhoQ_sub);

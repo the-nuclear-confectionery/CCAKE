@@ -313,6 +313,9 @@ void Particle<D>::calcbsq(double tin)
 	double rhoB_in2 = B*sigma/sigmaweight;
 	double rhoS_in2 = S*sigma/sigmaweight;
 	double rhoQ_in2 = Q*sigma/sigmaweight;
+	//double rhoB_in2 = B*sigma/sigmaweight/gamma/tin;
+	//double rhoS_in2 = S*sigma/sigmaweight/gamma/tin;
+	//double rhoQ_in2 = Q*sigma/sigmaweight/gamma/tin;
 	rhoB_an = rhoB_in2;
 	rhoS_an = rhoS_in2;
 	rhoQ_an = rhoQ_in2;
