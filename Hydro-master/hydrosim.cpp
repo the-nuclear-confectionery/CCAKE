@@ -298,7 +298,10 @@ void BSQSimulation(double dt,LinkList<2> &linklist)
         out.bsqsveprofile(linklist);
         cout << "printed first timestep" << endl;
         linklist.conservation_entropy();
-        cout << "t=" << linklist.t << " S=" << linklist.S << endl;
+        linklist.conservation_entropy();
+        cout << "t=" << linklist.t << " S=" << linklist.S 
+			<< " " << linklist.Btotal << " " << linklist.Stotal
+			<< " " << linklist.Qtotal << endl;
         if (linklist.qmf==1) exit(0);
     }
     else if(linklist.qmf==4) {
@@ -318,7 +321,8 @@ void BSQSimulation(double dt,LinkList<2> &linklist)
 	cout << "Entering here:" << endl;
         bsqrungeKutta2<2>(dt,&BSQshear<2>,linklist);
         linklist.conservation_entropy();
-        cout << "t=" << linklist.t << " " <<  linklist.Eloss << " " << linklist.S <<  endl;
+        cout << "t=" << linklist.t << " " <<  linklist.Eloss << " " << linklist.S
+			<< " " << linklist.Btotal << " " << linklist.Stotal << " " << linklist.Qtotal <<  endl;
         out.bsqsveprofile(linklist);
 //        out.sveprofile(linklist);
 //        bbmg.propogate(linklist);

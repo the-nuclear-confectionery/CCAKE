@@ -1339,9 +1339,12 @@ void LinkList<D>::conservation_BSQ()
 
     for (int i=0; i<_n; i++)
 	{
-        Btotal += _p[i].B;
-        Stotal += _p[i].S;
-        Qtotal += _p[i].Q;
+        //Btotal += _p[i].B;
+        //Stotal += _p[i].S;
+        //Qtotal += _p[i].Q;
+        Btotal += _p[i].rhoB_sub*_p[i].rho_weight;
+        Stotal += _p[i].rhoS_sub*_p[i].rho_weight;
+        Qtotal += _p[i].rhoQ_sub*_p[i].rho_weight;
     }
 
     if (first==1)

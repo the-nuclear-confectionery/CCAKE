@@ -191,35 +191,74 @@ void get_densities(double point[], double densities[])
 // S <<-->> Q HAVE BEEN REVERSED!!!!!!!
 void get_eBSQ_densities(double point[], double densities[])
 {
-	const double Tsol = point[0], muBsol = point[1], muSsol = point[2], muQsol = point[3];
-	const double Tsol3_by_hc3 = Tsol*Tsol*Tsol/(197.327*197.327*197.327);
-	double POut = Tsol*Tsol3_by_hc3*PressTaylor(Tsol, muBsol, muQsol, muSsol);
-	double sOut = Tsol3_by_hc3*EntrTaylor(Tsol, muBsol, muQsol, muSsol);
-	double BOut = Tsol3_by_hc3*BarDensTaylor(Tsol, muBsol, muQsol, muSsol);
-	double SOut = Tsol3_by_hc3*StrDensTaylor(Tsol, muBsol, muQsol, muSsol);
-	double QOut = Tsol3_by_hc3*ChDensTaylor(Tsol, muBsol, muQsol, muSsol);
-	double eOut = sOut*Tsol - POut + muBsol*BOut + muQsol*QOut + muSsol*SOut;
-	densities[0] = eOut;
-	densities[1] = BOut;
-	densities[2] = SOut;
-	densities[3] = QOut;
+	if (Tsol >= 30.0)
+	{
+		const double Tsol = point[0], muBsol = point[1], muSsol = point[2], muQsol = point[3];
+		const double Tsol3_by_hc3 = Tsol*Tsol*Tsol/(197.327*197.327*197.327);
+		double POut = Tsol*Tsol3_by_hc3*PressTaylor(Tsol, muBsol, muQsol, muSsol);
+		double sOut = Tsol3_by_hc3*EntrTaylor(Tsol, muBsol, muQsol, muSsol);
+		double BOut = Tsol3_by_hc3*BarDensTaylor(Tsol, muBsol, muQsol, muSsol);
+		double SOut = Tsol3_by_hc3*StrDensTaylor(Tsol, muBsol, muQsol, muSsol);
+		double QOut = Tsol3_by_hc3*ChDensTaylor(Tsol, muBsol, muQsol, muSsol);
+		double eOut = sOut*Tsol - POut + muBsol*BOut + muQsol*QOut + muSsol*SOut;
+		densities[0] = eOut;
+		densities[1] = BOut;
+		densities[2] = SOut;
+		densities[3] = QOut;
+	}
+	else	// linearly interpolate to zero
+	{
+		const double Tratio = point[0]/30.0;
+		const double Tsol = 30.0, muBsol = point[1], muSsol = point[2], muQsol = point[3];
+		const double Tsol3_by_hc3 = Tsol*Tsol*Tsol/(197.327*197.327*197.327);
+		double POut = Tsol*Tsol3_by_hc3*PressTaylor(Tsol, muBsol, muQsol, muSsol);
+		double sOut = Tsol3_by_hc3*EntrTaylor(Tsol, muBsol, muQsol, muSsol);
+		double BOut = Tsol3_by_hc3*BarDensTaylor(Tsol, muBsol, muQsol, muSsol);
+		double SOut = Tsol3_by_hc3*StrDensTaylor(Tsol, muBsol, muQsol, muSsol);
+		double QOut = Tsol3_by_hc3*ChDensTaylor(Tsol, muBsol, muQsol, muSsol);
+		double eOut = sOut*Tsol - POut + muBsol*BOut + muQsol*QOut + muSsol*SOut;
+		densities[0] = eOut*Tratio;
+		densities[1] = BOut*Tratio;
+		densities[2] = SOut*Tratio;
+		densities[3] = QOut*Tratio;		
+	}
 }
 
 void get_sBSQ_densities(double point[], double densities[])
 {
-	const double Tsol = point[0], muBsol = point[1], muSsol = point[2], muQsol = point[3];
-	const double Tsol3_by_hc3 = Tsol*Tsol*Tsol/(197.327*197.327*197.327);
-	densities[0] = Tsol3_by_hc3*EntrTaylor(Tsol, muBsol, muQsol, muSsol);
-	densities[1] = Tsol3_by_hc3*BarDensTaylor(Tsol, muBsol, muQsol, muSsol);
-	densities[2] = Tsol3_by_hc3*StrDensTaylor(Tsol, muBsol, muQsol, muSsol);
-	densities[3] = Tsol3_by_hc3*ChDensTaylor(Tsol, muBsol, muQsol, muSsol);
+	if (Tsol >= 30.0)
+	{
+		const double Tsol = point[0], muBsol = point[1], muSsol = point[2], muQsol = point[3];
+		const double Tsol3_by_hc3 = Tsol*Tsol*Tsol/(197.327*197.327*197.327);
+		densities[0] = Tsol3_by_hc3*EntrTaylor(Tsol, muBsol, muQsol, muSsol);
+		densities[1] = Tsol3_by_hc3*BarDensTaylor(Tsol, muBsol, muQsol, muSsol);
+		densities[2] = Tsol3_by_hc3*StrDensTaylor(Tsol, muBsol, muQsol, muSsol);
+		densities[3] = Tsol3_by_hc3*ChDensTaylor(Tsol, muBsol, muQsol, muSsol);
+	}
+	else	// linearly interpolate to zero
+	{
+		const double Tratio = point[0]/30.0;
+		const double Tsol = 30.0, muBsol = point[1], muSsol = point[2], muQsol = point[3];
+		const double Tsol3_by_hc3 = Tsol*Tsol*Tsol/(197.327*197.327*197.327);
+		densities[0] = Tratio*Tsol3_by_hc3*EntrTaylor(Tsol, muBsol, muQsol, muSsol);
+		densities[1] = Tratio*Tsol3_by_hc3*BarDensTaylor(Tsol, muBsol, muQsol, muSsol);
+		densities[2] = Tratio*Tsol3_by_hc3*StrDensTaylor(Tsol, muBsol, muQsol, muSsol);
+		densities[3] = Tratio*Tsol3_by_hc3*ChDensTaylor(Tsol, muBsol, muQsol, muSsol)
+	}
 }
 
 
 
 void get_full_thermo(double point[], double thermodynamics[])
 {
-	const double Tsol = point[0], muBsol = point[1], muSsol = point[2], muQsol = point[3];
+	double Tratio = 1.0;
+	double Tsol = point[0], Tsol0 = point[0];
+	if (Tsol < 30.0)	// use linear interpolation to zero if out of range
+	{
+		Tsol = 30.0;
+		Tratio = Tsol0 / 30.0;
+	}
+	const double muBsol = point[1], muSsol = point[2], muQsol = point[3];
 	const double Tsol3_by_hc3 = Tsol*Tsol*Tsol/(197.327*197.327*197.327);
 	double POut = Tsol*Tsol3_by_hc3*PressTaylor(Tsol, muBsol, muQsol, muSsol);
 	double sOut = Tsol3_by_hc3*EntrTaylor(Tsol, muBsol, muQsol, muSsol);
@@ -230,27 +269,27 @@ void get_full_thermo(double point[], double thermodynamics[])
 
 
 	//Thermodynamics
-	thermodynamics[0]  = POut / 197.327;
-	thermodynamics[1]  = sOut;
-	thermodynamics[2]  = BOut;
-	thermodynamics[3]  = SOut;
-	thermodynamics[4]  = QOut;
-	thermodynamics[5]  = eOut / 197.327;
-	thermodynamics[6]  = SpSound(Tsol, muBsol, muQsol, muSsol);
+	thermodynamics[0]  = Tratio*POut / 197.327;
+	thermodynamics[1]  = Tratio*sOut;
+	thermodynamics[2]  = Tratio*BOut;
+	thermodynamics[3]  = Tratio*SOut;
+	thermodynamics[4]  = Tratio*QOut;
+	thermodynamics[5]  = Tratio*eOut / 197.327;
+	thermodynamics[6]  = Tratio*SpSound(Tsol, muBsol, muQsol, muSsol);
 				
 	//Second Order Derivatives
-	thermodynamics[7]  = P2B2(Tsol, muBsol, muQsol, muSsol);
-	thermodynamics[8]  = P2Q2(Tsol, muBsol, muQsol, muSsol);
-	thermodynamics[9]  = P2S2(Tsol, muBsol, muQsol, muSsol);
+	thermodynamics[7]  = Tratio*P2B2(Tsol, muBsol, muQsol, muSsol);
+	thermodynamics[8]  = Tratio*P2Q2(Tsol, muBsol, muQsol, muSsol);
+	thermodynamics[9]  = Tratio*P2S2(Tsol, muBsol, muQsol, muSsol);
 	
-	thermodynamics[10] = P2BQ(Tsol, muBsol, muQsol, muSsol);
-	thermodynamics[11] = P2BS(Tsol, muBsol, muQsol, muSsol);
-	thermodynamics[12] = P2QS(Tsol, muBsol, muQsol, muSsol);
+	thermodynamics[10] = Tratio*P2BQ(Tsol, muBsol, muQsol, muSsol);
+	thermodynamics[11] = Tratio*P2BS(Tsol, muBsol, muQsol, muSsol);
+	thermodynamics[12] = Tratio*P2QS(Tsol, muBsol, muQsol, muSsol);
 	
-	thermodynamics[13] = P2TB(Tsol, muBsol, muQsol, muSsol);
-	thermodynamics[14] = P2TQ(Tsol, muBsol, muQsol, muSsol);
-	thermodynamics[15] = P2TS(Tsol, muBsol, muQsol, muSsol);
-	thermodynamics[16] = P2T2(Tsol, muBsol, muQsol, muSsol);
+	thermodynamics[13] = Tratio*P2TB(Tsol, muBsol, muQsol, muSsol);
+	thermodynamics[14] = Tratio*P2TQ(Tsol, muBsol, muQsol, muSsol);
+	thermodynamics[15] = Tratio*P2TS(Tsol, muBsol, muQsol, muSsol);
+	thermodynamics[16] = Tratio*P2T2(Tsol, muBsol, muQsol, muSsol);
 }
 
 
