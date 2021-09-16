@@ -319,6 +319,8 @@ void Particle<D>::calcbsq(double tin)
 //	rhoB_an = rhoB_in2/gamma/tin;
 //	rhoS_an = rhoS_in2/gamma/tin;
 //	rhoQ_an = rhoQ_in2/gamma/tin;
+cout << "\t - finding EoS solution for sBSQ: " << s_in2 << "   "
+		<< rhoB_in2 << "   " << rhoS_in2 << "   " << rhoQ_in2 << endl;
 	EOSupdate_s(s_in2, rhoB_in2, rhoS_in2, rhoQ_in2);
 }
 
