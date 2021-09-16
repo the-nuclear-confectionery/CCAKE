@@ -1254,6 +1254,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 
     } while (status == GSL_CONTINUE && iter < steps);
 
+std::cout << "Exited GSL loop" << endl;
 
     bool found = true; //to return variable
     if ( iter >= steps || status != 0 )
@@ -1266,6 +1267,8 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 			std::cout << "Check: " << iter << "   " << steps << "   " << status << std::endl;
         found = false;
     }
+
+std::cout << "found = " << found << endl;
 
 
     if ( found )

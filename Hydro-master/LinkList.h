@@ -1938,6 +1938,7 @@ std::cout << "bsqsvoptimization(SPH particle == " << a << " ): "
 		_p[a].S = _p[a].rhoS_sub * _p[a].rho_weight;
 		_p[a].Q = _p[a].rhoQ_sub * _p[a].rho_weight;
 		cout << "AFTER: " << a << "   " << _p[a].B << "   " << _p[a].S << "   " << _p[a].Q << endl;
+		cout << _p[a].rho_weight << "   " << _p[a].rhoB_sub << "   " << _p[a].rhoS_sub << "   " << _p[a].rhoQ_sub << endl;
 		cout << "-----------------------------------------------------------------" << endl;
 	}
 
