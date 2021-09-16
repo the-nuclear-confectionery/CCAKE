@@ -1909,7 +1909,7 @@ void LinkList<D>::bsqsvoptimization(int a, bool init_mode /*== false*/)
                 _p[a].rhoS_sub  += _p[b].rho_weight*_p[b].rhoS_an*kern;    //confirm with Jaki
                 _p[a].rhoQ_sub  += _p[b].rho_weight*_p[b].rhoQ_an*kern;    //confirm with Jaki
 
-std::cout << "bsqsvoptimization(SPH particle == " << a << " ): "
+/*std::cout << "bsqsvoptimization(SPH particle == " << a << " ): "
 			<< b << "   " << _p[a].r
 			<< "   " << _p[a].sigma
 			<< "   " << _p[a].eta
@@ -1922,7 +1922,7 @@ std::cout << "bsqsvoptimization(SPH particle == " << a << " ): "
 			<< "   " << _p[a].rhoS_sub
 			<< "   " << _p[b].rhoQ_an
 			<< "   " << _p[a].rhoQ_sub
-			<< "   " << kern << std::endl;
+			<< "   " << kern << std::endl;*/
 
                 b=link[b];
             }
@@ -1934,6 +1934,7 @@ std::cout << "bsqsvoptimization(SPH particle == " << a << " ): "
 	if ( init_mode )
 	{
 		cout << "BEFORE: " << a << "   " << _p[a].B << "   " << _p[a].S << "   " << _p[a].Q << endl;
+		cout << _p[a].rho_weight << "   " << _p[a].rhoB_sub << "   " << _p[a].rhoS_sub << "   " << _p[a].rhoQ_sub << endl;
 		_p[a].B = _p[a].rhoB_sub * _p[a].rho_weight;
 		_p[a].S = _p[a].rhoS_sub * _p[a].rho_weight;
 		_p[a].Q = _p[a].rhoQ_sub * _p[a].rho_weight;
