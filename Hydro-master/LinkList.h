@@ -1318,7 +1318,7 @@ void LinkList<D>::conservation_entropy()
 
     for (int i=0; i<_n; i++) {
         S+= _p[i].eta_sigma*_p[i].sigmaweight;
-		cout << "\t\t --> " << i << _p[i].eta_sigma << "   "
+		cout << "\t\t --> " << i << "   " << _p[i].eta_sigma << "   "
 				<< _p[i].sigmaweight << "   " << S << endl;
     }
 
@@ -1909,7 +1909,7 @@ void LinkList<D>::bsqsvoptimization(int a, bool init_mode /*== false*/)
                 _p[a].rhoS_sub  += _p[b].rho_weight*_p[b].rhoS_an*kern;    //confirm with Jaki
                 _p[a].rhoQ_sub  += _p[b].rho_weight*_p[b].rhoQ_an*kern;    //confirm with Jaki
 
-/*std::cout << "bsqsvoptimization(SPH particle == " << a << " ): "
+std::cout << "bsqsvoptimization(SPH particle == " << a << " ): "
 			<< b << "   " << _p[a].r
 			<< "   " << _p[a].sigma
 			<< "   " << _p[a].eta
@@ -1922,7 +1922,7 @@ void LinkList<D>::bsqsvoptimization(int a, bool init_mode /*== false*/)
 			<< "   " << _p[a].rhoS_sub
 			<< "   " << _p[b].rhoQ_an
 			<< "   " << _p[a].rhoQ_sub
-			<< "   " << kern << std::endl;*/
+			<< "   " << kern << std::endl;
 
                 b=link[b];
             }
