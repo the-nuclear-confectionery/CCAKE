@@ -1373,7 +1373,7 @@ std::cout << "found = " << found << endl;
 			tbqs( neighbor_estimate_point[0]/197.327, neighbor_estimate_point[1]/197.327,
 				  neighbor_estimate_point[3]/197.327, neighbor_estimate_point[2]/197.327 );
 		cout << "neighbor_estimate_point!";
-		for (int iSol = 0; iSol <4; iSol++)
+		for (int iSol = 0; iSol < 4; iSol++)
 			cout << "   " << neighbor_estimate_point[iSol] / 197.327;
 		cout << endl;
 
@@ -1388,6 +1388,12 @@ std::cout << "found = " << found << endl;
 		std::cout << "Setting found --> true" << std::endl;
 		found = true;
 	}
+	else
+	{
+		std::cerr << "ERROR: you still need a back-up plan!" << std::endl;
+		exit(-8);
+	}
+
 
     //memory deallocation
     gsl_multiroot_fsolver_free(solver);
