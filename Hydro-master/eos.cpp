@@ -726,7 +726,7 @@ bool eos::update_s(double sin, double Bin, double Sin, double Qin) { //update th
 	///////////////////////////
 	if (accept_nearest_neighbor)
 		std::cout << "Should not have made it here!" << std::endl;
-	//return false;//!!!!!!!!!!!!
+	return false;//!!!!!!!!!!!!
 	///////////////////////////
     double t0 = tbqsPosition[0];
     double mub0 = tbqsPosition[1];
@@ -832,7 +832,7 @@ double eos::s_out(double ein, double Bin, double Sin, double Qin) {   //update t
 	///////////////////////////
 	if (accept_nearest_neighbor)
 		std::cout << "Should not have made it here!" << std::endl;
-	//return -1.0;//!!!!!!!!!!!!
+	return -1.0;//!!!!!!!!!!!!
 	///////////////////////////
 
     double t0 = tbqsPosition[0];
