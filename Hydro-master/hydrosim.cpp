@@ -818,6 +818,9 @@ void BSQshear(LinkList<D>  &linklist)  // shear+bulk Equations of motion, only s
         int curfrz=0;//added by Christopher Plumberg to get compilation
 		cout << "Calling bsqsvoptimization for i = " << i << endl;
         linklist.bsqsvoptimization(i);    // NOT bsqsvoptimization2!!! fix arguments accordingly!!!
+//		linklist._p[i].rhoB_sub /= _p[i].gamma*t0;
+//		linklist._p[i].rhoS_sub /= _p[i].gamma*t0;
+//		linklist._p[i].rhoQ_sub /= _p[i].gamma*t0;
 		cout << "Finished bsqsvoptimization for i = " << i << endl;
 
         if ((linklist._p[i].eta<0)||isnan(linklist._p[i].eta))
