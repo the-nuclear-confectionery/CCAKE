@@ -1274,6 +1274,10 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 			  gsl_vector_get(solver->x, 1),
 			  gsl_vector_get(solver->x, 2),
 			  gsl_vector_get(solver->x, 3) );    //set T, muB, muQ, muS
+		cout << "GSL found solution!";
+		for (int iSol = 0; iSol <4; iSol++)
+			cout << "   " << gsl_vector_get(solver->x, iSol);
+		cout << endl;
     }
 	else if ( accept_nearest_neighbor )	// just return nearest neighbor instead
 	{
@@ -1360,11 +1364,25 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 		// set (T, muB, muQ, muS) based on which point is closest to input point
 		// (SWAP S <--> Q AGAIN)
 		if ( which_neighbor_closest == 0 )
+		{
 			tbqs( final_phase_diagram_point[0]/197.327, final_phase_diagram_point[1]/197.327,
 				  final_phase_diagram_point[3]/197.327, final_phase_diagram_point[2]/197.327 );
+		cout << "final_phase_diagram_point: ";
+		for (int iSol = 0; iSol <4; iSol++)
+			cout << "   " << final_phase_diagram_point[iSol] / 197.327;
+		cout << endl;
+
+		}
 		else if ( which_neighbor_closest == 1 )
+		{
 			tbqs( neighbor_estimate_point[0]/197.327, neighbor_estimate_point[1]/197.327,
 				  neighbor_estimate_point[3]/197.327, neighbor_estimate_point[2]/197.327 );
+		cout << "neighbor_estimate_point!";
+		for (int iSol = 0; iSol <4; iSol++)
+			cout << "   " << neighbor_estimate_point[iSol] / 197.327;
+		cout << endl;
+
+		}
 		else
 		{
 			std::cerr << "Bad value: which_neighbor_closest = "
