@@ -1318,6 +1318,8 @@ void LinkList<D>::conservation_entropy()
 
     for (int i=0; i<_n; i++) {
         S+= _p[i].eta_sigma*_p[i].sigmaweight;
+		cout << "\t\t --> " << i << _p[i].eta_sigma << "   "
+				<< _p[i].sigmaweight << "   " << S << endl;
     }
 
     if (first==1)
@@ -1928,13 +1930,15 @@ void LinkList<D>::bsqsvoptimization(int a, bool init_mode /*== false*/)
 
 	// reset total B, S, and Q charge of each SPH particle to reflect
 	// smoothing from kernel function (ONLY ON FIRST TIME STEP)
+	cout << "-----------------------------------------------------------------" << endl;
 	if ( init_mode )
 	{
-		//cout << "BEFORE: " << a << "   " << _p[a].B << "   " << _p[a].S << "   " << _p[a].Q << endl;
+		cout << "BEFORE: " << a << "   " << _p[a].B << "   " << _p[a].S << "   " << _p[a].Q << endl;
 		_p[a].B = _p[a].rhoB_sub * _p[a].rho_weight;
 		_p[a].S = _p[a].rhoS_sub * _p[a].rho_weight;
 		_p[a].Q = _p[a].rhoQ_sub * _p[a].rho_weight;
-		//cout << "AFTER: " << a << "   " << _p[a].B << "   " << _p[a].S << "   " << _p[a].Q << endl;
+		cout << "AFTER: " << a << "   " << _p[a].B << "   " << _p[a].S << "   " << _p[a].Q << endl;
+		cout << "-----------------------------------------------------------------" << endl;
 	}
 
     return;
