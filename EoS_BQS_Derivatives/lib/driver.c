@@ -191,7 +191,7 @@ void get_densities(double point[], double densities[])
 // S <<-->> Q HAVE BEEN REVERSED!!!!!!!
 void get_eBSQ_densities(double point[], double densities[])
 {
-	if (Tsol >= 30.0)
+	if (point[0] >= 30.0)
 	{
 		const double Tsol = point[0], muBsol = point[1], muSsol = point[2], muQsol = point[3];
 		const double Tsol3_by_hc3 = Tsol*Tsol*Tsol/(197.327*197.327*197.327);
@@ -226,7 +226,7 @@ void get_eBSQ_densities(double point[], double densities[])
 
 void get_sBSQ_densities(double point[], double densities[])
 {
-	if (Tsol >= 30.0)
+	if (point[0] >= 30.0)
 	{
 		const double Tsol = point[0], muBsol = point[1], muSsol = point[2], muQsol = point[3];
 		const double Tsol3_by_hc3 = Tsol*Tsol*Tsol/(197.327*197.327*197.327);

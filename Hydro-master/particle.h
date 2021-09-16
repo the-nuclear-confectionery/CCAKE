@@ -313,12 +313,12 @@ void Particle<D>::calcbsq(double tin)
 	double rhoB_in2 = B*sigma/sigmaweight;
 	double rhoS_in2 = S*sigma/sigmaweight;
 	double rhoQ_in2 = Q*sigma/sigmaweight;
-//	rhoB_an = rhoB_in2;
-//	rhoS_an = rhoS_in2;	// is this the problem?
-//	rhoQ_an = rhoQ_in2;
-	rhoB_an = rhoB_in2/gamma/tin;
-	rhoS_an = rhoS_in2/gamma/tin;
-	rhoQ_an = rhoQ_in2/gamma/tin;
+	rhoB_an = rhoB_in2;
+	rhoS_an = rhoS_in2;
+	rhoQ_an = rhoQ_in2;
+//	rhoB_an = rhoB_in2/gamma/tin;
+//	rhoS_an = rhoS_in2/gamma/tin;
+//	rhoQ_an = rhoQ_in2/gamma/tin;
 	EOSupdate_s(s_in2, rhoB_in2, rhoS_in2, rhoQ_in2);
 }
 

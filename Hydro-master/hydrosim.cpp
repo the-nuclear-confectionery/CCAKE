@@ -298,7 +298,7 @@ void BSQSimulation(double dt,LinkList<2> &linklist)
         out.bsqsveprofile(linklist);
         cout << "printed first timestep" << endl;
         linklist.conservation_entropy();
-        linklist.conservation_entropy();
+        linklist.conservation_BSQ();
         cout << "t=" << linklist.t << " S=" << linklist.S 
 			<< " " << linklist.Btotal << " " << linklist.Stotal
 			<< " " << linklist.Qtotal << endl;
@@ -321,6 +321,7 @@ void BSQSimulation(double dt,LinkList<2> &linklist)
 	cout << "Entering here:" << endl;
         bsqrungeKutta2<2>(dt,&BSQshear<2>,linklist);
         linklist.conservation_entropy();
+		linklist.conservation_BSQ();
         cout << "t=" << linklist.t << " " <<  linklist.Eloss << " " << linklist.S
 			<< " " << linklist.Btotal << " " << linklist.Stotal << " " << linklist.Qtotal <<  endl;
         out.bsqsveprofile(linklist);
