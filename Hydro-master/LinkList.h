@@ -2514,7 +2514,7 @@ void LinkList<D>::updateIC()
 		}*/
 
 		// CUT OUT UPDATE_S SINCE IT'S REDUNDANT AND WASTING CPU TIME
-		/*{
+		{
 			sw.Reset();
 			sw.Start();
 			bool successTest = _p[i].EOSupdate_s( _p[i].s_an,    _p[i].rhoB_an,
@@ -2525,7 +2525,7 @@ void LinkList<D>::updateIC()
 			cout << "SPH particle " << i << ", EOSupdate_s: completed "
 					<< successString << " in " << sw.printTime() << "s." << endl;
 			sw.Reset();
-		}*/
+		}
 
 
         if (gtyp==5) _p[i].e_sub=_p[i].EOSe();
@@ -2735,13 +2735,12 @@ void LinkList<D>::BSQguess()
 	for (int i=0; i<_n; i++)
 	{
 		_p[i].s_sub = _p[i].sigma/_p[i].gamma/t0;
+		_p[i].rhoB_sub = _p[i].rhoB_sub/_p[i].gamma/t0;
+		_p[i].rhoS_sub = _p[i].rhoS_sub/_p[i].gamma/t0;
+		_p[i].rhoQ_sub = _p[i].rhoQ_sub/_p[i].gamma/t0;
 	cout << "SPH checkpoint(1): " << i << "   " << _p[i].sigmaweight << "   " << _p[i].s_sub << "   "
 			<< _p[i].rhoB_sub << "   " << _p[i].rhoS_sub << "   " << _p[i].rhoQ_sub << endl;
-		//_p[i].rhoB_sub = ....  // <<-- this part done in bsqsvoptimization(i)
-		//_p[i].rhoS_sub = ....  // <<-- this part done in bsqsvoptimization(i)
-		//_p[i].rhoQ_sub = ....  // <<-- this part done in bsqsvoptimization(i)
 		_p[i].EOSupdate_s(_p[i].s_sub, _p[i].rhoB_sub, _p[i].rhoS_sub, _p[i].rhoQ_sub);
-//if ( _p[i].s_sub < 0.0 )
 	cout << "SPH checkpoint(2): " << i << "   " << _p[i].sigmaweight << "   " << _p[i].s_sub << "   "
 			<< _p[i].rhoB_sub << "   " << _p[i].rhoS_sub << "   " << _p[i].rhoQ_sub << endl;
 
