@@ -24,7 +24,7 @@ using std::string;
 // Compile:         gcc eos4D.cpp -c -I /usr/include/eigen3 -Lsplinter/build -lm -lgsl -lgslcblas -lstdc++ -lsplinter-3-0
 
 constexpr bool use_exact = true;
-constexpr bool accept_nearest_neighbor = false;
+constexpr bool accept_nearest_neighbor = true;
 
 constexpr size_t STEPS = 1000;
 constexpr int VERBOSE = 5;
@@ -1180,7 +1180,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 				std::cout << "Error: something went to +/-Inf or NaN!" << std::endl;
 			else if ( status == GSL_ENOPROG && VERBOSE > 5 )
 				std::cout << "Error: not making enough progress!" << std::endl;
-            //return 0;      //break if the rootfinder gets stuck
+            //break if the rootfinder gets stuck
 			break;
         }
 
@@ -1189,7 +1189,6 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 		{
 			if ( VERBOSE > 5 )
 				std::cout << "Error: out-of-bounds (T < minT)!" << std::endl;
-            //return 0;
 			status = -10;
 			break;
         }
@@ -1197,7 +1196,6 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 		{
 			if ( VERBOSE > 5 )
 				std::cout << "Error: out-of-bounds (T > maxT)!" << std::endl;
-            //return 0;
 			status = -10;
 			break;
         }
@@ -1205,7 +1203,6 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 		{
 			if ( VERBOSE > 5 )
 				std::cout << "Error: out-of-bounds (MuB < minMuB)!" << std::endl;
-            //return 0;
 			status = -10;
 			break;
         }
@@ -1213,7 +1210,6 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 		{
 			if ( VERBOSE > 5 )
 				std::cout << "Error: out-of-bounds (MuB > maxMuB)!" << std::endl;
-            //return 0;
 			status = -10;
 			break;
         }
@@ -1221,7 +1217,6 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 		{
 			if ( VERBOSE > 5 )
 				std::cout << "Error: out-of-bounds (MuQ < minMuQ)!" << std::endl;
-            //return 0;
 			status = -10;
 			break;
         }
@@ -1229,7 +1224,6 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 		{
 			if ( VERBOSE > 5 )
 				std::cout << "Error: out-of-bounds (MuQ > maxMuQ)!" << std::endl;
-            //return 0;
 			status = -10;
 			break;
         }
@@ -1237,7 +1231,6 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 		{
 			if ( VERBOSE > 5 )
 				std::cout << "Error: out-of-bounds (MuS < minMuS)!" << std::endl;
-            //return 0;
 			status = -10;
 			break;
         }
@@ -1245,7 +1238,6 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 		{
 			if ( VERBOSE > 5 )
 				std::cout << "Error: out-of-bounds (MuS > maxMuS)!" << std::endl;
-            //return 0;
 			status = -10;
 			break;
         }
