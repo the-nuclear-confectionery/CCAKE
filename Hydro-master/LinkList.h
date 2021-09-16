@@ -1934,7 +1934,7 @@ void LinkList<D>::bsqsvoptimization(int a, bool init_mode /*== false*/)
 	if ( init_mode )
 	{
 		cout << "BEFORE: " << a << "   " << _p[a].B << "   " << _p[a].S << "   " << _p[a].Q << endl;
-		cout << _p[a].rho_weight << "   " << _p[a].rhoB_sub << "   " << _p[a].rhoS_sub << "   " << _p[a].rhoQ_sub << endl;
+		cout << _p[a].rho_weight << "   " << _p[a].rhoB_an << "   " << _p[a].rhoS_an << "   " << _p[a].rhoQ_an << endl;
 		_p[a].B = _p[a].rhoB_sub * _p[a].rho_weight;
 		_p[a].S = _p[a].rhoS_sub * _p[a].rho_weight;
 		_p[a].Q = _p[a].rhoQ_sub * _p[a].rho_weight;
