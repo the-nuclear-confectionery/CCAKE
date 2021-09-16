@@ -816,7 +816,9 @@ void BSQshear(LinkList<D>  &linklist)  // shear+bulk Equations of motion, only s
     {
 		cout << "Entering this loop: i = " << i << endl;
         int curfrz=0;//added by Christopher Plumberg to get compilation
+		cout << "Calling bsqsvoptimization for i = " << i << endl;
         linklist.bsqsvoptimization(i);    // NOT bsqsvoptimization2!!! fix arguments accordingly!!!
+		cout << "Finished bsqsvoptimization for i = " << i << endl;
 
         if ((linklist._p[i].eta<0)||isnan(linklist._p[i].eta))
         {
@@ -851,17 +853,25 @@ void BSQshear(LinkList<D>  &linklist)  // shear+bulk Equations of motion, only s
 
     }
 
+	cout << "Finished first loop over SPH particles" << endl;
+
 
     int curfrz=0;
     for(int i=0; i<linklist.n(); i++)
     {
         //  Computes gamma and velocity
 
+		cout << "Calling calcbsq for particle i = " << i << endl;
+
         linklist._p[i].calcbsq(linklist.t); //resets EOS!!
+		cout << "Finished calcbsq for particle i = " << i << endl;
         /*N.B. - eventually extend to read in viscosities from table, etc.*/linklist._p[i].setvisc(linklist.etaconst,linklist.bvf,linklist.svf,linklist.zTc,linklist.sTc,linklist.zwidth,linklist.visc);
         if (linklist.cfon==1) linklist._p[i].frzcheck(linklist.t,curfrz,linklist.n());
 
     }
+
+	cout << "Finished second loop over SPH particles" << endl;
+
     if (linklist.cfon==1)
     {
         linklist.number_part+=curfrz;
@@ -872,7 +882,9 @@ void BSQshear(LinkList<D>  &linklist)  // shear+bulk Equations of motion, only s
     for(int i=0; i<linklist.n(); i++)
     {
         //      Computes gradients to obtain dsigma/dt
+		cout << "Calling bsqsvoptimization2 for i = " << i << endl;
         linklist.bsqsvoptimization2(i,linklist.t,curfrz);
+		cout << "Finished bsqsvoptimization2 for i = " << i << endl;
 
         linklist._p[i].dsigma_dt = -linklist._p[i].sigma
 									*( linklist._p[i].gradV.x[0][0]
@@ -891,6 +903,9 @@ void BSQshear(LinkList<D>  &linklist)  // shear+bulk Equations of motion, only s
         }
 
     }
+
+	cout << "Finished third loop over SPH particles" << endl;
+
 
     if (linklist.rk2==1) linklist.bsqsvconservation();
     linklist.bsqsvconservation_Ez();
