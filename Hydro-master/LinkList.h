@@ -2730,6 +2730,8 @@ void LinkList<D>::BSQguess()
 	cout << "One more loop!" << endl;
 
 	int count1=0;
+	cout << "----------------------------------------"
+			"----------------------------------------" << endl;
 	for (int i=0; i<_n; i++)
 	{
 		_p[i].s_sub = _p[i].sigma/_p[i].gamma/t0;
@@ -2745,6 +2747,8 @@ void LinkList<D>::BSQguess()
 
 		_p[i].sigsub = 0;
 		_p[i].frzcheck(t0, count1, _n);
+	cout << "----------------------------------------"
+			"----------------------------------------" << endl;
 	}
 	return;
 }
