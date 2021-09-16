@@ -2393,7 +2393,7 @@ void LinkList<D>::updateIC()
 			_p[i].s_an = _p[i].EOSs_out( _p[i].e_sub,   _p[i].rhoB_an,
 										 _p[i].rhoS_an, _p[i].rhoQ_an );
 
-			if (VERBOSE>5)
+			if (true || VERBOSE>5)
 			{
 				if (_p[i].s_an>0.0)
 				{
