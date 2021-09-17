@@ -1904,7 +1904,7 @@ void LinkList<D>::bsqsvoptimization(int a, bool init_mode /*== false*/)
             while( b!=-1 )
             {
                 double kern  = kernel(_p[a].r-_p[b].r);
-				if (kern>0.0&&i.x[0]=-2&&i.x[1]=-2) neighbor_count++;
+				if (kern>0.0) neighbor_count++;
                 _p[a].sigma += _p[b].sigmaweight*kern;
                 _p[a].eta   += _p[b].sigmaweight*_p[b].eta_sigma*kern;
                 _p[a].rhoB_sub  += _p[b].rho_weight*_p[b].rhoB_an*kern;    //confirm with Jaki
