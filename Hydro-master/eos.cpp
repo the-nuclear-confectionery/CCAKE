@@ -26,9 +26,9 @@ using std::string;
 constexpr bool use_exact = true;
 constexpr bool accept_nearest_neighbor = true;
 
-constexpr size_t STEPS = 10000;
+constexpr size_t STEPS = 1000;
 constexpr int VERBOSE = 5;
-constexpr double TOLERANCE = 1e-6;
+constexpr double TOLERANCE = 1e-4;
 
 //EoS constructor
 eos::eos(string quantityFile, string derivFile)
@@ -1122,10 +1122,10 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
     gsl_vector_set(x, 1, muB());
     gsl_vector_set(x, 2, muQ());
     gsl_vector_set(x, 3, muS());*/
-    /*gsl_vector_set(x, 0, 500.0/197.327);
+    gsl_vector_set(x, 0, 500.0/197.327);
     gsl_vector_set(x, 1, 0.0/197.327);
     gsl_vector_set(x, 2, 0.0/197.327);
-    gsl_vector_set(x, 3, 0.0/197.327);*/
+    gsl_vector_set(x, 3, 0.0/197.327);
 
     //initialize the rootfinder equation to the correct variable quantities
     bool isEntropy = false;
