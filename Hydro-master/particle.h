@@ -796,7 +796,7 @@ double Particle<D>::EOSs_out(double e_In, double rhoB_In, double rhoS_In, double
 	SPH_cell.dwdS = EOS.dwdS();
 	SPH_cell.dwdQ = EOS.dwdQ();
 
-	cout << "Check entropy: " << sVal << " =?= " << EOS.s() << endl;
+	//cout << "Check entropy: " << sVal << " =?= " << EOS.s() << endl;
 
 	return sVal;
 }
