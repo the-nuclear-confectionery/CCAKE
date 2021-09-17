@@ -1911,7 +1911,8 @@ void LinkList<D>::bsqsvoptimization(int a, bool init_mode /*== false*/)
                 _p[a].rhoS_sub  += _p[b].rho_weight*_p[b].rhoS_an*kern;    //confirm with Jaki
                 _p[a].rhoQ_sub  += _p[b].rho_weight*_p[b].rhoQ_an*kern;    //confirm with Jaki
 
-/*std::cout << "bsqsvoptimization(SPH particle == " << a << " ): "
+if (a==0)
+std::cout << "bsqsvoptimization(SPH particle == " << a << " ): "
 			<< b << "   " << _p[a].r
 			<< "   " << _p[a].sigma
 			<< "   " << _p[a].eta
@@ -1924,7 +1925,7 @@ void LinkList<D>::bsqsvoptimization(int a, bool init_mode /*== false*/)
 			<< "   " << _p[a].rhoS_sub
 			<< "   " << _p[b].rhoQ_an
 			<< "   " << _p[a].rhoQ_sub
-			<< "   " << kern << std::endl;*/
+			<< "   " << kern << std::endl;
 
                 b=link[b];
             }
