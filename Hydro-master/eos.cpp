@@ -1118,14 +1118,14 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 	}
 	std::cout << std::endl;
 
-    /*gsl_vector_set(x, 0, T());
+    gsl_vector_set(x, 0, T());
     gsl_vector_set(x, 1, muB());
     gsl_vector_set(x, 2, muQ());
-    gsl_vector_set(x, 3, muS());*/
-    gsl_vector_set(x, 0, 500.0/197.327);
+    gsl_vector_set(x, 3, muS());
+    /*gsl_vector_set(x, 0, 500.0/197.327);
     gsl_vector_set(x, 1, 0.0/197.327);
     gsl_vector_set(x, 2, 0.0/197.327);
-    gsl_vector_set(x, 3, 0.0/197.327);
+    gsl_vector_set(x, 3, 0.0/197.327);*/
 
     //initialize the rootfinder equation to the correct variable quantities
     bool isEntropy = false;
