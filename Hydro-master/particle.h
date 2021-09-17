@@ -364,9 +364,9 @@ void Particle<D>::return_bsqsv_A()
 
     Agam2=(Agam-eta_o_tau*(0.5-1/3.) -dwdsT1*shv.x[0][0])/gamma;
     Ctot=C+eta_o_tau*(1/g2-1)/2.;
-	cout << "   " << eta_o_tau << "   " << EOSs() << "   " << Agam2
-			<< "   " << Ctot << "   " << EOS.dwdB() * rhoB_an
-			<< "   " << EOS.dwdS() * rhoS_an << "   " << EOS.dwdQ() * rhoQ_an;
+//	cout << "   " << eta_o_tau << "   " << EOSs() << "   " << Agam2
+//			<< "   " << Ctot << "   " << EOS.dwdB() * rhoB_an
+//			<< "   " << EOS.dwdS() * rhoS_an << "   " << EOS.dwdQ() * rhoQ_an;
 
 }
 
@@ -502,15 +502,34 @@ void Particle<D>::bsqsvsigset(double tin,int i)
     gradU=gamma*gradV+g3*(v*(v*gradV));
     bigPI= Bulk*sigma/gt ;
     C=EOSw()+ bigPI;
-	cout << "Check thermo1: " << i << "   " << tin << "   " << gamma
-			<< "   " << EOST()*197.327 << "   " << EOSdwds() << "   " << dwdsT1
-			<< "   " << sigma << "   " << dsigma_dt << "   " << sigl
-			<< "   " << gradU << "   " << gradV << "   " << v;
+//	cout << "Check thermo1: " << i << "   " << tin << "   " << gamma
+//			<< "   " << EOST()*197.327 << "   " << EOSdwds() << "   " << dwdsT1
+//			<< "   " << sigma << "   " << dsigma_dt << "   " << sigl
+//			<< "   " << gradU << "   " << gradV << "   " << v;
     return_bsqsv_A();
     Btot=(Agam*gamma+eta_o_tau/3*gamma)*sigl+ bigPI/tauRelax + dwdsT* (gt*shv33+  Bsub());
     check=sigl;
-	cout << "   " << EOSw() << "   " << bigPI << "   " << Agam
-			<< "   " << shv33 << "   " << Bsub() << "   " << Btot << endl;
+//	cout << "   " << EOSw() << "   " << bigPI << "   " << Agam
+//			<< "   " << shv33 << "   " << Bsub() << "   " << Btot << endl;
+	cout << "Check thermo: " << i << "   "
+			<< tin << "   " << r << "   "
+			<< SPH_cell.T << "   "
+			<< SPH_cell.muB << "   "
+			<< SPH_cell.muS << "   "
+			<< SPH_cell.muQ << "   "
+			<< SPH_cell.p << "   "
+			<< SPH_cell.s << "   "
+			<< SPH_cell.B << "   "
+			<< SPH_cell.S << "   "
+			<< SPH_cell.Q << "   "
+			<< SPH_cell.e << "   "
+			<< SPH_cell.cs2 << "   "
+			<< SPH_cell.w << "   "
+			<< SPH_cell.A << "   "
+			<< SPH_cell.dwds << "   "
+			<< SPH_cell.dwdB << "   "
+			<< SPH_cell.dwdS << "   "
+			<< SPH_cell.dwdQ << endl;
 
 }
 
