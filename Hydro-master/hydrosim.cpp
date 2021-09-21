@@ -337,9 +337,9 @@ void BSQSimulation(double dt,LinkList<2> &linklist)
             if (tsub<(0.0+dt*0.99)||(tsub>=1-+dt*0.99)) // uncomment if you want to observe energydensity profile, conservation of energy or do a Gubser check
             {
                 linklist.conservation_entropy();
-                cout << "t=" << linklist.t << " S=" << linklist.S << endl;  // outputs time step
-                out.bsqsveprofile(linklist);   // energy density profile
-                cout << "eloss= " << linklist.t << " " <<  linklist.Eloss << endl;
+                //cout << "t=" << linklist.t << " S=" << linklist.S << endl;  // outputs time step
+                //out.bsqsveprofile(linklist);   // energy density profile
+                //cout << "eloss= " << linklist.t << " " <<  linklist.Eloss << endl;
                 //out.conservation(linklist); // conservation of energy
 
             }
@@ -363,8 +363,8 @@ void BSQSimulation(double dt,LinkList<2> &linklist)
 //         }
             else if ((tsub<(0.5+dt*0.5))&&(tsub>=(0.5-+dt*0.5))) // uncomment if you want to observe energydensity profile, conservation of energy or do a Gubser check
             {
-                cout << "t=" <<  linklist.t <<endl;  // outputs time step
-                out.bsqsveprofile(linklist);   // energy density profile
+                //cout << "t=" <<  linklist.t <<endl;  // outputs time step
+                //out.bsqsveprofile(linklist);   // energy density profile
 //        out.conservation(linklist); // conservation of energy
 //        out.gubcheckux(linklist); // gubser test
 //        out.gubcheckuy(linklist); // gubser test
