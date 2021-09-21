@@ -1931,21 +1931,21 @@ std::cout << "bsqsvoptimization(SPH particle == " << a << " ): "
             }
         }
 
-	cout << "Check neighbor count: " << a << "   " << neighbor_count << endl;
+	//cout << "Check neighbor count: " << a << "   " << neighbor_count << endl;
 
 	// reset total B, S, and Q charge of each SPH particle to reflect
 	// smoothing from kernel function (ONLY ON FIRST TIME STEP)
-	cout << "-----------------------------------------------------------------" << endl;
+	//cout << "-----------------------------------------------------------------" << endl;
 	if ( init_mode )
 	{
-		cout << "BEFORE: " << a << "   " << _p[a].B << "   " << _p[a].S << "   " << _p[a].Q << endl;
-		cout << _p[a].rho_weight << "   " << _p[a].rhoB_an << "   " << _p[a].rhoS_an << "   " << _p[a].rhoQ_an << endl;
+		//cout << "BEFORE: " << a << "   " << _p[a].B << "   " << _p[a].S << "   " << _p[a].Q << endl;
+		//cout << _p[a].rho_weight << "   " << _p[a].rhoB_an << "   " << _p[a].rhoS_an << "   " << _p[a].rhoQ_an << endl;
 		_p[a].B = _p[a].rhoB_sub * _p[a].rho_weight;
 		_p[a].S = _p[a].rhoS_sub * _p[a].rho_weight;
 		_p[a].Q = _p[a].rhoQ_sub * _p[a].rho_weight;
-		cout << "AFTER: " << a << "   " << _p[a].B << "   " << _p[a].S << "   " << _p[a].Q << endl;
-		cout << _p[a].rho_weight << "   " << _p[a].rhoB_sub << "   " << _p[a].rhoS_sub << "   " << _p[a].rhoQ_sub << endl;
-		cout << "-----------------------------------------------------------------" << endl;
+		//cout << "AFTER: " << a << "   " << _p[a].B << "   " << _p[a].S << "   " << _p[a].Q << endl;
+		//cout << _p[a].rho_weight << "   " << _p[a].rhoB_sub << "   " << _p[a].rhoS_sub << "   " << _p[a].rhoQ_sub << endl;
+		//cout << "-----------------------------------------------------------------" << endl;
 	}
 
     return;
@@ -2755,11 +2755,11 @@ void LinkList<D>::BSQguess()
 //		_p[i].B /= _p[i].gamma*t0;
 //		_p[i].S /= _p[i].gamma*t0;
 //		_p[i].Q /= _p[i].gamma*t0;
-	cout << "SPH checkpoint(1): " << i << "   " << _p[i].sigmaweight << "   " << _p[i].s_sub << "   "
-			<< _p[i].rhoB_sub << "   " << _p[i].rhoS_sub << "   " << _p[i].rhoQ_sub << endl;
+	//cout << "SPH checkpoint(1): " << i << "   " << _p[i].sigmaweight << "   " << _p[i].s_sub << "   "
+	//		<< _p[i].rhoB_sub << "   " << _p[i].rhoS_sub << "   " << _p[i].rhoQ_sub << endl;
 		_p[i].EOSupdate_s(_p[i].s_sub, _p[i].rhoB_sub, _p[i].rhoS_sub, _p[i].rhoQ_sub);
-	cout << "SPH checkpoint(2): " << i << "   " << _p[i].sigmaweight << "   " << _p[i].s_sub << "   "
-			<< _p[i].rhoB_sub << "   " << _p[i].rhoS_sub << "   " << _p[i].rhoQ_sub << endl;
+	//cout << "SPH checkpoint(2): " << i << "   " << _p[i].sigmaweight << "   " << _p[i].s_sub << "   "
+	//		<< _p[i].rhoB_sub << "   " << _p[i].rhoS_sub << "   " << _p[i].rhoQ_sub << endl;
 
 		_p[i].sigsub = 0;
 		_p[i].frzcheck(t0, count1, _n);

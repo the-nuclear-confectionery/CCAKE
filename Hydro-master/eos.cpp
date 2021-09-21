@@ -28,7 +28,7 @@ constexpr bool accept_nearest_neighbor = false;
 constexpr bool discard_unsolvable_charge_densities = true;
 
 constexpr size_t STEPS = 1000;
-constexpr int VERBOSE = 5;
+constexpr int VERBOSE = 0;
 constexpr double TOLERANCE = 1e-4;
 
 //EoS constructor
