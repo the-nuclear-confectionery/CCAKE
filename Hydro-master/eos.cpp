@@ -24,7 +24,8 @@ using std::string;
 // Compile:         gcc eos4D.cpp -c -I /usr/include/eigen3 -Lsplinter/build -lm -lgsl -lgslcblas -lstdc++ -lsplinter-3-0
 
 constexpr bool use_exact = true;
-constexpr bool accept_nearest_neighbor = true;
+constexpr bool accept_nearest_neighbor = false;
+constexpr bool discard_unsolvable_charge_densities = true;
 
 constexpr size_t STEPS = 1000;
 constexpr int VERBOSE = 5;
@@ -734,7 +735,8 @@ bool eos::update_s(double sin, double Bin, double Sin, double Qin) { //update th
 	///////////////////////////
 	if (accept_nearest_neighbor)
 		std::cout << "Should not have made it here!" << std::endl;
-	return false;//!!!!!!!!!!!!
+	if (discard_unsolvable_charge_densities)
+		return false;//!!!!!!!!!!!!
 	///////////////////////////
     double t0 = tbqsPosition[0];
     double mub0 = tbqsPosition[1];
@@ -840,7 +842,8 @@ double eos::s_out(double ein, double Bin, double Sin, double Qin) {   //update t
 	///////////////////////////
 	if (accept_nearest_neighbor)
 		std::cout << "Should not have made it here!" << std::endl;
-	return -1.0;//!!!!!!!!!!!!
+	if (discard_unsolvable_charge_densities)
+		return -1.0;//!!!!!!!!!!!!
 	///////////////////////////
 
     double t0 = tbqsPosition[0];
@@ -1396,7 +1399,7 @@ std::cout << "found = " << found << endl;
 		std::cout << "Setting found --> true" << std::endl;
 		found = true;
 	}
-	else
+	else if (!discard_unsolvable_charge_densities)
 	{
 		std::cerr << "ERROR: you still need a back-up plan!" << std::endl;
 		exit(-8);

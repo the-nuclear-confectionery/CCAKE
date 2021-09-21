@@ -2451,7 +2451,7 @@ void LinkList<D>::updateIC()
 		// for now, if we failed to find a real entropy density for this
 		// point, just freeze it out, set its entropy to the freeze-out value,
 		// and continue without setting anything else
-		/*if (_p[i].s_an < 0.0)
+		if (_p[i].s_an < 0.0)
 		{
 
 			////////////////////////////////////////////////////////
@@ -2525,7 +2525,7 @@ void LinkList<D>::updateIC()
 			cout << "\n\t\t - densities:";
 			for (int iii = 0; iii < 4; iii++) cout << "   " << densities_at_point[iii];
 			cout << "\n";
-		}*/
+		}
 
 		// CUT OUT UPDATE_S SINCE IT'S REDUNDANT AND WASTING CPU TIME
 		/*{

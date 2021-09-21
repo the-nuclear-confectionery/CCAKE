@@ -358,9 +358,9 @@ void Particle<D>::return_bsqsv_A()
     eta_o_tau=setas/stauRelax;
 
     Agam=EOSw()-EOSdwds()*(EOSs()+ bigPI/EOST() )- zeta/tauRelax
-			- EOS.dwdB() * rhoB_an
-			- EOS.dwdS() * rhoS_an
-			- EOS.dwdQ() * rhoQ_an;
+			- EOSdwdB() * rhoB_an
+			- EOSdwdS() * rhoS_an
+			- EOSdwdQ() * rhoQ_an;
 
     Agam2=(Agam-eta_o_tau*(0.5-1/3.) -dwdsT1*shv.x[0][0])/gamma;
     Ctot=C+eta_o_tau*(1/g2-1)/2.;
