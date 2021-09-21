@@ -25,7 +25,7 @@ using std::string;
 
 constexpr bool use_exact = true;
 constexpr bool accept_nearest_neighbor = false;
-constexpr bool discard_unsolvable_charge_densities = true;
+constexpr bool discard_unsolvable_charge_densities = false;
 
 constexpr size_t STEPS = 10000;
 constexpr int VERBOSE = 0;
@@ -1399,11 +1399,11 @@ std::cout << "found = " << found << endl;
 		std::cout << "Setting found --> true" << std::endl;
 		found = true;
 	}
-	else if (!discard_unsolvable_charge_densities)
+	/*else if (!discard_unsolvable_charge_densities)
 	{
 		std::cerr << "ERROR: you still need a back-up plan!" << std::endl;
 		exit(-8);
-	}
+	}*/
 
 
     //memory deallocation
