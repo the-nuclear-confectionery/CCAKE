@@ -483,7 +483,7 @@ void readICs_iccing( string &firstry, int &_Ntable3, Particle<2> *&_p,
 
 		// do not scale by factor!!!
         //if ((factor*y[2])>0.01)
-        if (y[2]>0.003)
+        if (y[2]>0.00302)
         //if (y[2]>max(0.01,0.5*efcheck*hbarC)) //N.B. leave wiggle room around FO temp
 		{
 			// check if this file has finite energy density and zero charge densities
