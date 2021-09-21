@@ -2487,10 +2487,10 @@ void LinkList<D>::updateIC()
 			else	// if a solution was found
 			{
 				cout << "\t\t - phase diagram point: "
-						<< _p[i].particle_T*197.327 << "   "
-						<< _p[i].particle_muB*197.327 << "   "
-						<< _p[i].particle_muS*197.327 << "   "
-						<< _p[i].particle_muQ*197.327 << "\n";
+						<< _p[i].SPH_cell.T*197.327 << "   "
+						<< _p[i].SPH_cell.muB*197.327 << "   "
+						<< _p[i].SPH_cell.muS*197.327 << "   "
+						<< _p[i].SPH_cell.muQ*197.327 << "\n";
 			}
 
 			// freeze this particle out!
@@ -2503,10 +2503,10 @@ void LinkList<D>::updateIC()
 			cout << "\t --> Densities found in EoS table: "
 				<< _p[i].r.x[0] << "   " << _p[i].r.x[1] << "\n";
 			cout << "\t\t - phase diagram point: "
-					<< _p[i].particle_T*197.327 << "   "
-					<< _p[i].particle_muB*197.327 << "   "
-					<< _p[i].particle_muS*197.327 << "   "
-					<< _p[i].particle_muQ*197.327 << "\n";
+					<< _p[i].SPH_cell.T*197.327 << "   "
+					<< _p[i].SPH_cell.muB*197.327 << "   "
+					<< _p[i].SPH_cell.muS*197.327 << "   "
+					<< _p[i].SPH_cell.muQ*197.327 << "\n";
 			cout << "\t\t - densities: "
 					<< _p[i].e_sub*197.327 << "   "
 					<< _p[i].rhoB_an << "   "
@@ -2514,10 +2514,10 @@ void LinkList<D>::updateIC()
 					<< _p[i].rhoQ_an << "\n";
 			
 			cout << "\t --> Exact:\n";
-			double phase_diagram_point[4] = { _p[i].particle_T*197.327,
-											  _p[i].particle_muB*197.327,
-											  _p[i].particle_muS*197.327,
-											  _p[i].particle_muQ*197.327 };
+			double phase_diagram_point[4] = { _p[i].SPH_cell.T*197.327,
+											  _p[i].SPH_cell.muB*197.327,
+											  _p[i].SPH_cell.muS*197.327,
+											  _p[i].SPH_cell.muQ*197.327 };
 			double densities_at_point[4];
 			get_eBSQ_densities(phase_diagram_point, densities_at_point);
 			cout << "\t\t - phase diagram point:";
