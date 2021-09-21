@@ -489,13 +489,13 @@ void readICs_iccing( string &firstry, int &_Ntable3, Particle<2> *&_p,
 			// check if this file has finite energy density and zero charge densities
 			// (seems to cause problems in EOS)
 			const double eps_local = 1e-6;
-			if (   y[2] >= eps_local && y[3] < eps_local
+			/*if (   y[2] >= eps_local && y[3] < eps_local
 				&& y[4] < eps_local  && y[5] < eps_local)
 			{
 				y[3] = eps_local;
 				y[4] = eps_local;
 				y[5] = eps_local;
-			}
+			}*/
             xsub.push_back(y[0]);
             ysub.push_back(y[1]);
             esub.push_back(y[2]);
