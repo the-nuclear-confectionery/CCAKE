@@ -370,6 +370,59 @@ int main(int argc, char *argv[])
 	mkdir("Thermodynamics", S_IRWXU | S_IRWXG | S_IRWXO);
 	chdir("Thermodynamics");
 
+	/*
+	for (double T0 = 50.0; T0 < 800.001; T0+=0.5)
+	{
+		PressVal    = PressTaylor(   T0, 0, 0, 0 );
+		EntrVal     = EntrTaylor(    T0, 0, 0, 0 );
+		BarDensVal  = BarDensTaylor( T0, 0, 0, 0 );
+		StrDensVal  = StrDensTaylor( T0, 0, 0, 0 );
+		ChDensVal   = ChDensTaylor(  T0, 0, 0, 0 );
+		EnerDensVal = EntrVal - PressVal;
+		printf("%lf %15.12f %15.12f %15.12f\n", T0,
+				0.001*EnerDensVal*T0*T0*T0*T0/(197.327*197.327*197.327),
+				0.001*PressVal*T0*T0*T0*T0/(197.327*197.327*197.327),
+				EntrVal*T0*T0*T0/(197.327*197.327*197.327)
+							);
+
+	}
+	exit(-1);
+
+
+	// add a loop to generate toy initial conditions
+	for (double x0 = -5.0; x0 <= 5.000001; x0 += 0.05)
+	for (double y0 = -5.0; y0 <= 5.000001; y0 += 0.05)
+	{
+		double T0 = 500.0*exp(-0.1*(x0*x0+y0*y0));
+		//double T0 = 500.0;
+		//double muB0 = 20.0, muQ0 = 30.0, muS0 = 40.0;
+		double muB0 = 0.0, muQ0 = 0.0, muS0 = 0.0;
+
+		//Thermodynamics
+		PressVal    = PressTaylor(   T0, muB0, muQ0, muS0 );
+		EntrVal     = EntrTaylor(    T0, muB0, muQ0, muS0 );
+		BarDensVal  = BarDensTaylor( T0, muB0, muQ0, muS0 );
+		StrDensVal  = StrDensTaylor( T0, muB0, muQ0, muS0 );
+		ChDensVal   = ChDensTaylor(  T0, muB0, muQ0, muS0 );
+		EnerDensVal = EntrVal - PressVal
+					+ muB0/T0*BarDensVal
+					+ muQ0/T0*ChDensVal
+					+ muS0/T0*StrDensVal;
+		if ( T0 >= 30.0 )
+		{
+			printf("eBSQ: %lf %lf %15.12f %15.12f %15.12f %15.12f\n", x0, y0,
+			0.001*EnerDensVal*T0*T0*T0*T0/(197.327*197.327*197.327),
+			BarDensVal*T0*T0*T0/(197.327*197.327*197.327),
+			StrDensVal*T0*T0*T0/(197.327*197.327*197.327),
+			ChDensVal*T0*T0*T0/(197.327*197.327*197.327)
+		);
+		printf("s: %lf %lf %15.12f\n", x0, y0,
+				EntrVal*T0*T0*T0/(197.327*197.327*197.327));
+		}
+	}
+	if (1) exit(-1);
+	*/
+
 
 	// for HDF arrays
 	//long long gridLength = 69090879;
