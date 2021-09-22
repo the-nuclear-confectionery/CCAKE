@@ -83,6 +83,68 @@ double coeffsecondMod(double *par, double x){
 }
 
 
+// -------------- LOW T EXTENSIONS ----------------- //
+double lowT_coeff(double *par, double x)
+{
+	const double t = x/154.0;
+	return t*t*t*t*(par[3] + t*(par[2] + par[1]*t));
+}
+double coeffprime(double *par,double x)
+{
+	const double t = x/154.0;
+	return (t*t*t*(4.0*par[3] + t*(5.0*par[2] + 6.0*par[1]*t)))/154.0;
+}
+double coeffsecond(double *par, double x)
+{
+	const double t = x/154.0;
+	return (2.0*t*t*(6.0*par[3] + 5.0*t*(2.0*par[2] + 3.0*par[1]*t)))/(154.0*154.0);
+}
+
+
+// For CHI200
+double coeffMod(double *par, double x)
+{
+	const double t = x/200.0;
+	return t*t*t*t*(par[3] + t*(par[2] + par[1]*t));
+}
+double coeffprimeMod(double *par, double x)
+{
+	const double t = x/200.0;
+	return (t*t*t*(4.0*par[3] + t*(5.0*par[2] + 6.0*par[1]*t)))/200.0;
+}
+double coeffsecondMod(double *par, double x)
+{
+	const double t = x/200.0;
+	return (2.0*t*t*(6.0*par[3] + 5.0*t*(2.0*par[2] + 3.0*par[1]*t)))/(200.0*200.0);
+}
+
+
+void set_lowT_parameters(double *par1, double *par2)
+{
+	const double t = 30.0/154.0;
+	double chi_at_T0      = coeff(par1,30.0);
+	double dchidT_at_T0   = coeffprime(par1,30.0);
+	double d2chidT2_at_T0 = coeffsecond(par1,30.0);
+
+	par2[1] = (20.0*chi_at_T0 - 8.0*t*dchidT_at_T0 + t*t*d2chidT2_at_T0)/(2.0*t*t*t*t*t*t);
+	par2[2] = -(( 24.0*chi_at_T0 - 9.0*t*dchidT_at_T0 + t*t*d2chidT2_at_T0)/(t*t*t*t*t));
+	par2[3] = (30.0 chi_at_T0 - 10.0 t dchidT_at_T0 + t*t*d2chidT2_at_T0)/(2.0*t*t*t*t);
+}
+
+void set_lowT_Mod_parameters(double *par1, double *par2)
+{
+	const double t = 30.0/200.0;
+	double chi_at_T0      = coeff(par1,30.0);
+	double dchidT_at_T0   = coeffprime(par1,30.0);
+	double d2chidT2_at_T0 = coeffsecond(par1,30.0);
+
+	par2[1] = (20.0*chi_at_T0 - 8.0*t*dchidT_at_T0 + t*t*d2chidT2_at_T0)/(2.0*t*t*t*t*t*t);
+	par2[2] = -((24.0*chi_at_T0 - 9.0*t*dchidT_at_T0 + t*t*d2chidT2_at_T0)/(t*t*t*t*t));
+	par2[3] = (30.0 chi_at_T0 - 10.0 t dchidT_at_T0 + t*t*d2chidT2_at_T0)/(2.0*t*t*t*t);
+}
+
+
+
 // ------------- THE COEFFICIENTS ------------------ //
 double CHI000(double T){
     return coeff(CHI000PAR,T);
@@ -290,8 +352,115 @@ double D2CHI112DT2(double T){
 }
 
 
+
+
+
+///////////////////////////////////////////////////////
+//           BEGIN LOW-T EXTENSION SECTION           //
+///////////////////////////////////////////////////////
+// ------------- THE COEFFICIENTS ------------------ //
+double lowT_CHI000(double T){ return lowT_coeff(CHI000PAR_ABC,T); }
+double lowT_CHI200(double T){ return lowT_coeffMod(CHI200PAR_ABC,T);}
+double lowT_CHI020(double T){ return lowT_coeff(CHI020PAR_ABC,T); }
+double lowT_CHI002(double T){ return lowT_coeff(CHI002PAR_ABC,T); }
+double lowT_CHI110(double T){ return lowT_coeff(CHI110PAR_ABC,T); }
+double lowT_CHI101(double T){ return lowT_coeff(CHI101PAR_ABC,T); }
+double lowT_CHI011(double T){ return lowT_coeff(CHI011PAR_ABC,T); }
+double lowT_CHI400(double T){ return lowT_coeff(CHI400PAR_ABC,T); }
+double lowT_CHI040(double T){ return lowT_coeff(CHI040PAR_ABC,T); }
+double lowT_CHI004(double T){ return lowT_coeff(CHI004PAR_ABC,T); }
+double lowT_CHI310(double T){ return lowT_coeff(CHI310PAR_ABC,T); }
+double lowT_CHI301(double T){ return lowT_coeff(CHI301PAR_ABC,T); }
+double lowT_CHI031(double T){ return lowT_coeff(CHI031PAR_ABC,T); }
+double lowT_CHI130(double T){ return lowT_coeff(CHI130PAR_ABC,T); }
+double lowT_CHI103(double T){ return lowT_coeff(CHI103PAR_ABC,T); }
+double lowT_CHI013(double T){ return lowT_coeff(CHI013PAR_ABC,T); }
+double lowT_CHI220(double T){ return lowT_coeff(CHI220PAR_ABC,T); }
+double lowT_CHI202(double T){ return lowT_coeff(CHI202PAR_ABC,T); }
+double lowT_CHI022(double T){ return lowT_coeff(CHI022PAR_ABC,T); }
+double lowT_CHI211(double T){ return lowT_coeff(CHI211PAR_ABC,T); }
+double lowT_CHI121(double T){ return lowT_coeff(CHI121PAR_ABC,T); }
+double lowT_CHI112(double T){ return lowT_coeff(CHI112PAR_ABC,T); }
+
+
+// ---- Derivatives wrt T --------- //
+double lowT_DCHI000DT(double T){ return lowT_coeffprime(CHI000PAR_ABC,T); }
+double lowT_DCHI200DT(double T){ return lowT_coeffprimeMod(CHI200PAR_ABC,T); }
+double lowT_DCHI020DT(double T){ return lowT_coeffprime(CHI020PAR_ABC,T); }
+double lowT_DCHI002DT(double T){ return lowT_coeffprime(CHI002PAR_ABC,T); }
+double lowT_DCHI110DT(double T){ return lowT_coeffprime(CHI110PAR_ABC,T); }
+double lowT_DCHI101DT(double T){ return lowT_coeffprime(CHI101PAR_ABC,T); }
+double lowT_DCHI011DT(double T){ return lowT_coeffprime(CHI011PAR_ABC,T); }
+double lowT_DCHI400DT(double T){ return lowT_coeffprime(CHI400PAR_ABC,T); }
+double lowT_DCHI040DT(double T){ return lowT_coeffprime(CHI040PAR_ABC,T); }
+double lowT_DCHI004DT(double T){ return lowT_coeffprime(CHI004PAR_ABC,T); }
+double lowT_DCHI310DT(double T){ return lowT_coeffprime(CHI310PAR_ABC,T); }
+double lowT_DCHI301DT(double T){ return lowT_coeffprime(CHI301PAR_ABC,T); }
+double lowT_DCHI031DT(double T){ return lowT_coeffprime(CHI031PAR_ABC,T); }
+double lowT_DCHI130DT(double T){ return lowT_coeffprime(CHI130PAR_ABC,T); }
+double lowT_DCHI103DT(double T){ return lowT_coeffprime(CHI103PAR_ABC,T); }
+double lowT_DCHI013DT(double T){ return lowT_coeffprime(CHI013PAR_ABC,T); }
+double lowT_DCHI220DT(double T){ return lowT_coeffprime(CHI220PAR_ABC,T); }
+double lowT_DCHI202DT(double T){ return lowT_coeffprime(CHI202PAR_ABC,T); }
+double lowT_DCHI022DT(double T){ return lowT_coeffprime(CHI022PAR_ABC,T); }
+double lowT_DCHI211DT(double T){ return lowT_coeffprime(CHI211PAR_ABC,T); }
+double lowT_DCHI121DT(double T){ return lowT_coeffprime(CHI121PAR_ABC,T); }
+double lowT_DCHI112DT(double T){ return lowT_coeffprime(CHI112PAR_ABC,T); }
+
+
+// ---- Double derivatives wrt T --------- //
+double lowT_D2CHI000DT2(double T){ return lowT_coeffsecond(CHI000PAR_ABC,T); }
+double lowT_D2CHI200DT2(double T){ return lowT_coeffsecondMod(CHI200PAR_ABC,T); }
+double lowT_D2CHI020DT2(double T){ return lowT_coeffsecond(CHI020PAR_ABC,T); }
+double lowT_D2CHI002DT2(double T){ return lowT_coeffsecond(CHI002PAR_ABC,T); }
+double lowT_D2CHI110DT2(double T){ return lowT_coeffsecond(CHI110PAR_ABC,T); }
+double lowT_D2CHI101DT2(double T){ return lowT_coeffsecond(CHI101PAR_ABC,T); }
+double lowT_D2CHI011DT2(double T){ return lowT_coeffsecond(CHI011PAR_ABC,T); }
+double lowT_D2CHI400DT2(double T){ return lowT_coeffsecond(CHI400PAR_ABC,T); }
+double lowT_D2CHI040DT2(double T){ return lowT_coeffsecond(CHI040PAR_ABC,T); }
+double lowT_D2CHI004DT2(double T){ return lowT_coeffsecond(CHI004PAR_ABC,T); }
+double lowT_D2CHI310DT2(double T){ return lowT_coeffsecond(CHI310PAR_ABC,T); }
+double lowT_D2CHI301DT2(double T){ return lowT_coeffsecond(CHI301PAR_ABC,T); }
+double lowT_D2CHI031DT2(double T){ return lowT_coeffsecond(CHI031PAR_ABC,T); }
+double lowT_D2CHI130DT2(double T){ return lowT_coeffsecond(CHI130PAR_ABC,T); }
+double lowT_D2CHI103DT2(double T){ return lowT_coeffsecond(CHI103PAR_ABC,T); }
+double lowT_D2CHI013DT2(double T){ return lowT_coeffsecond(CHI013PAR_ABC,T); }
+double lowT_D2CHI220DT2(double T){ return lowT_coeffsecond(CHI220PAR_ABC,T); }
+double lowT_D2CHI202DT2(double T){ return lowT_coeffsecond(CHI202PAR_ABC,T); }
+double lowT_D2CHI022DT2(double T){ return lowT_coeffsecond(CHI022PAR_ABC,T); }
+double lowT_D2CHI211DT2(double T){ return lowT_coeffsecond(CHI211PAR_ABC,T); }
+double lowT_D2CHI121DT2(double T){ return lowT_coeffsecond(CHI121PAR_ABC,T); }
+double lowT_D2CHI112DT2(double T){ return lowT_coeffsecond(CHI112PAR_ABC,T); }
+///////////////////////////////////////////////////////
+//            END LOW-T EXTENSION SECTION            //
+///////////////////////////////////////////////////////
+
+
+
+
+
 // ------------ THERMODYNAMICS --------------------- //
 double PressTaylor(double T, double muB, double muQ, double muS){
+	if (T<30.0)
+    return lowT_CHI000(T) + lowT_CHI110(T)*muB/T*muQ/T + lowT_CHI101(T)*muB/T*muS/T
+			+ lowT_CHI011(T)*muQ/T*muS/T + 1.0/2.0*lowT_CHI200(T)*muB/T*muB/T
+			+ 1.0/2.0*lowT_CHI020(T)*muQ/T*muQ/T + 1.0/2.0*lowT_CHI002(T)*muS/T*muS/T 
+            + 1.0/2.0*lowT_CHI211(T)*muB/T*muB/T*muQ/T*muS/T
+			+ 1.0/2.0*lowT_CHI121(T)*muB/T*muQ/T*muQ/T*muS/T
+			+ 1.0/2.0*lowT_CHI112(T)*muB/T*muQ/T*muS/T*muS/T
+			+ 1.0/4.0*lowT_CHI220(T)*muB/T*muB/T*muQ/T*muQ/T 
+            + 1.0/4.0*lowT_CHI202(T)*muB/T*muB/T*muS/T*muS/T
+			+ 1.0/4.0*lowT_CHI022(T)*muQ/T*muQ/T*muS/T*muS/T
+			+ 1.0/6.0*lowT_CHI310(T)*muB/T*muB/T*muB/T*muQ/T
+			+ 1.0/6.0*lowT_CHI130(T)*muB/T*muQ/T*muQ/T*muQ/T 
+            + 1.0/6.0*lowT_CHI301(T)*muB/T*muB/T*muB/T*muS/T
+			+ 1.0/6.0*lowT_CHI103(T)*muB/T*muS/T*muS/T*muS/T
+			+ 1.0/6.0*lowT_CHI031(T)*muQ/T*muQ/T*muQ/T*muS/T
+			+ 1.0/6.0*lowT_CHI013(T)*muQ/T*muS/T*muS/T*muS/T 
+            + 1.0/24.0*lowT_CHI400(T)*muB/T*muB/T*muB/T*muB/T
+			+ 1.0/24.0*lowT_CHI040(T)*muQ/T*muQ/T*muQ/T*muQ/T
+			+ 1.0/24.0*lowT_CHI004(T)*muS/T*muS/T*muS/T*muS/T;
+	else
     return CHI000(T) + CHI110(T)*muB/T*muQ/T + CHI101(T)*muB/T*muS/T + CHI011(T)*muQ/T*muS/T + 1.0/2.0*CHI200(T)*muB/T*muB/T + 1.0/2.0*CHI020(T)*muQ/T*muQ/T + 1.0/2.0*CHI002(T)*muS/T*muS/T 
             + 1.0/2.0*CHI211(T)*muB/T*muB/T*muQ/T*muS/T + 1.0/2.0*CHI121(T)*muB/T*muQ/T*muQ/T*muS/T + 1.0/2.0*CHI112(T)*muB/T*muQ/T*muS/T*muS/T + 1.0/4.0*CHI220(T)*muB/T*muB/T*muQ/T*muQ/T 
             + 1.0/4.0*CHI202(T)*muB/T*muB/T*muS/T*muS/T + 1.0/4.0*CHI022(T)*muQ/T*muQ/T*muS/T*muS/T + 1.0/6.0*CHI310(T)*muB/T*muB/T*muB/T*muQ/T + 1.0/6.0*CHI130(T)*muB/T*muQ/T*muQ/T*muQ/T 
@@ -299,27 +468,83 @@ double PressTaylor(double T, double muB, double muQ, double muS){
             + 1.0/24.0*CHI400(T)*muB/T*muB/T*muB/T*muB/T + 1.0/24.0*CHI040(T)*muQ/T*muQ/T*muQ/T*muQ/T + 1.0/24.0*CHI004(T)*muS/T*muS/T*muS/T*muS/T;
 }
 double EntrTaylor(double T, double muB, double muQ, double muS){
-    return  1.0/(24.0*T*T*T)*(96.0*T*T*T*CHI000(T) + 24.0*muS*muS*T*CHI002(T) + 48.0*muQ*muS*T*CHI011(T) + 24.0*muQ*muQ*T*CHI020(T) + 48.0*muB*muS*T*CHI101(T) + 48.0*muB*muQ*T*CHI110(T) 
-            + 24.0*muB*muB*T*CHI200(T) + 24.0*T*T*T*T*DCHI000DT(T) + 12.0*muS*muS*T*T*DCHI002DT(T) + muS*muS*muS*muS*DCHI004DT(T) + 24.0*muQ*muS*T*T*DCHI011DT(T) 
-            + 4.0*muQ*muS*muS*muS*DCHI013DT(T) + 12.0*muQ*muQ*T*T*DCHI020DT(T) + 6.0*muQ*muQ*muS*muS*DCHI022DT(T) + 4.0*muQ*muQ*muQ*muS*DCHI031DT(T) + muQ*muQ*muQ*muQ*DCHI040DT(T) 
-            + 24.0*muB*muS*T*T*DCHI101DT(T) + 4.0*muB*muS*muS*muS*DCHI103DT(T) + 24.0*muB*muQ*T*T*DCHI110DT(T) + 12.0*muB*muQ*muS*muS*DCHI112DT(T) + 12.0*muB*muQ*muQ*muS*DCHI121DT(T) 
-            + 4.0*muB*muQ*muQ*muQ*DCHI130DT(T) + 12.0*muB*muB*T*T*DCHI200DT(T) + 6.0*muB*muB*muS*muS*DCHI202DT(T) + 12.0*muB*muB*muQ*muS*DCHI211DT(T) + 6.0*muB*muB*muQ*muQ*DCHI220DT(T) 
-            + 4.0*muB*muB*muB*muS*DCHI301DT(T) + 4.0*muB*muB*muB*muQ*DCHI310DT(T) + muB*muB*muB*muB*DCHI400DT(T));
+	if (T<30.0)
+    return  1.0/(24.0*T*T*T)*(96.0*T*T*T*lowT_CHI000(T) + 24.0*muS*muS*T*lowT_CHI002(T) + 48.0*muQ*muS*T*lowT_CHI011(T)
+			+ 24.0*muQ*muQ*T*lowT_CHI020(T) + 48.0*muB*muS*T*lowT_CHI101(T) + 48.0*muB*muQ*T*lowT_CHI110(T) 
+            + 24.0*muB*muB*T*lowT_CHI200(T) + 24.0*T*T*T*T*lowT_DCHI000DT(T) + 12.0*muS*muS*T*T*lowT_DCHI002DT(T)
+			+ muS*muS*muS*muS*lowT_DCHI004DT(T) + 24.0*muQ*muS*T*T*lowT_DCHI011DT(T) 
+            + 4.0*muQ*muS*muS*muS*lowT_DCHI013DT(T) + 12.0*muQ*muQ*T*T*lowT_DCHI020DT(T)
+			+ 6.0*muQ*muQ*muS*muS*lowT_DCHI022DT(T) + 4.0*muQ*muQ*muQ*muS*lowT_DCHI031DT(T)
+			+ muQ*muQ*muQ*muQ*lowT_DCHI040DT(T) 
+            + 24.0*muB*muS*T*T*lowT_DCHI101DT(T) + 4.0*muB*muS*muS*muS*lowT_DCHI103DT(T)
+			+ 24.0*muB*muQ*T*T*lowT_DCHI110DT(T) + 12.0*muB*muQ*muS*muS*lowT_DCHI112DT(T)
+			+ 12.0*muB*muQ*muQ*muS*lowT_DCHI121DT(T) 
+            + 4.0*muB*muQ*muQ*muQ*lowT_DCHI130DT(T) + 12.0*muB*muB*T*T*lowT_DCHI200DT(T)
+			+ 6.0*muB*muB*muS*muS*lowT_DCHI202DT(T) + 12.0*muB*muB*muQ*muS*lowT_DCHI211DT(T)
+			+ 6.0*muB*muB*muQ*muQ*lowT_DCHI220DT(T) 
+            + 4.0*muB*muB*muB*muS*lowT_DCHI301DT(T) + 4.0*muB*muB*muB*muQ*lowT_DCHI310DT(T)
+			+ muB*muB*muB*muB*lowT_DCHI400DT(T));
+	else
+    return  1.0/(24.0*T*T*T)*(96.0*T*T*T*CHI000(T) + 24.0*muS*muS*T*CHI002(T) + 48.0*muQ*muS*T*CHI011(T)
+			+ 24.0*muQ*muQ*T*CHI020(T) + 48.0*muB*muS*T*CHI101(T) + 48.0*muB*muQ*T*CHI110(T) 
+            + 24.0*muB*muB*T*CHI200(T) + 24.0*T*T*T*T*DCHI000DT(T) + 12.0*muS*muS*T*T*DCHI002DT(T)
+			+ muS*muS*muS*muS*DCHI004DT(T) + 24.0*muQ*muS*T*T*DCHI011DT(T) 
+            + 4.0*muQ*muS*muS*muS*DCHI013DT(T) + 12.0*muQ*muQ*T*T*DCHI020DT(T)
+			+ 6.0*muQ*muQ*muS*muS*DCHI022DT(T) + 4.0*muQ*muQ*muQ*muS*DCHI031DT(T)
+			+ muQ*muQ*muQ*muQ*DCHI040DT(T) 
+            + 24.0*muB*muS*T*T*DCHI101DT(T) + 4.0*muB*muS*muS*muS*DCHI103DT(T)
+			+ 24.0*muB*muQ*T*T*DCHI110DT(T) + 12.0*muB*muQ*muS*muS*DCHI112DT(T)
+			+ 12.0*muB*muQ*muQ*muS*DCHI121DT(T) 
+            + 4.0*muB*muQ*muQ*muQ*DCHI130DT(T) + 12.0*muB*muB*T*T*DCHI200DT(T)
+			+ 6.0*muB*muB*muS*muS*DCHI202DT(T) + 12.0*muB*muB*muQ*muS*DCHI211DT(T)
+			+ 6.0*muB*muB*muQ*muQ*DCHI220DT(T) 
+            + 4.0*muB*muB*muB*muS*DCHI301DT(T) + 4.0*muB*muB*muB*muQ*DCHI310DT(T)
+			+ muB*muB*muB*muB*DCHI400DT(T));
 }
 double BarDensTaylor(double T, double muB, double muQ, double muS){
+	if (T<30.0)
+    return lowT_CHI110(T)*muQ/T + lowT_CHI101(T)*muS/T + lowT_CHI200(T)*muB/T + lowT_CHI211(T)*muB/T*muQ/T*muS/T
+			+ 1.0/2.0*lowT_CHI121(T)*muQ/T*muQ/T*muS/T + 1.0/2.0*lowT_CHI112(T)*muQ/T*muS/T*muS/T 
+            + 1.0/2.0*lowT_CHI220(T)*muB/T*muQ/T*muQ/T + 1.0/2.0*lowT_CHI202(T)*muB/T*muS/T*muS/T
+			+ 1.0/2.0*lowT_CHI310(T)*muB/T*muB/T*muQ/T + 1.0/6.0*lowT_CHI130(T)*muQ/T*muQ/T*muQ/T 
+            + 1.0/2.0*lowT_CHI301(T)*muB/T*muB/T*muS/T + 1.0/6.0*lowT_CHI103(T)*muS/T*muS/T*muS/T
+			+ 1.0/6.0*lowT_CHI400(T)*muB/T*muB/T*muB/T;
+	else
     return CHI110(T)*muQ/T + CHI101(T)*muS/T + CHI200(T)*muB/T + CHI211(T)*muB/T*muQ/T*muS/T + 1.0/2.0*CHI121(T)*muQ/T*muQ/T*muS/T + 1.0/2.0*CHI112(T)*muQ/T*muS/T*muS/T 
             + 1.0/2.0*CHI220(T)*muB/T*muQ/T*muQ/T + 1.0/2.0*CHI202(T)*muB/T*muS/T*muS/T + 1.0/2.0*CHI310(T)*muB/T*muB/T*muQ/T + 1.0/6.0*CHI130(T)*muQ/T*muQ/T*muQ/T 
             + 1.0/2.0*CHI301(T)*muB/T*muB/T*muS/T + 1.0/6.0*CHI103(T)*muS/T*muS/T*muS/T + 1.0/6.0*CHI400(T)*muB/T*muB/T*muB/T;
 }
 double StrDensTaylor(double T, double muB, double muQ, double muS){
-    return CHI101(T)*muB/T + CHI011(T)*muQ/T + CHI002(T)*muS/T + 1.0/2.0*CHI211(T)*muB/T*muB/T*muQ/T + 1.0/2.0*CHI121(T)*muB/T*muQ/T*muQ/T + CHI112(T)*muB/T*muQ/T*muS/T 
-            + 1.0/2.0*CHI202(T)*muB/T*muB/T*muS/T + 1.0/2.0*CHI022(T)*muQ/T*muQ/T*muS/T + 1.0/6.0*CHI301(T)*muB/T*muB/T*muB/T + 1.0/2.0*CHI103(T)*muB/T*muS/T*muS/T 
-            + 1.0/6.0*CHI031(T)*muQ/T*muQ/T*muQ/T + 1.0/2.0*CHI013(T)*muQ/T*muS/T*muS/T + 1.0/6.0*CHI004(T)*muS/T*muS/T*muS/T;
+	if (T<30.0)
+    return lowT_CHI101(T)*muB/T + lowT_CHI011(T)*muQ/T + lowT_CHI002(T)*muS/T + 1.0/2.0*lowT_CHI211(T)*muB/T*muB/T*muQ/T
+			+ 1.0/2.0*lowT_CHI121(T)*muB/T*muQ/T*muQ/T + lowT_CHI112(T)*muB/T*muQ/T*muS/T 
+            + 1.0/2.0*lowT_CHI202(T)*muB/T*muB/T*muS/T + 1.0/2.0*lowT_CHI022(T)*muQ/T*muQ/T*muS/T
+			+ 1.0/6.0*lowT_CHI301(T)*muB/T*muB/T*muB/T + 1.0/2.0*lowT_CHI103(T)*muB/T*muS/T*muS/T 
+            + 1.0/6.0*lowT_CHI031(T)*muQ/T*muQ/T*muQ/T + 1.0/2.0*lowT_CHI013(T)*muQ/T*muS/T*muS/T
+			+ 1.0/6.0*lowT_CHI004(T)*muS/T*muS/T*muS/T;
+	else
+    return CHI101(T)*muB/T + CHI011(T)*muQ/T + CHI002(T)*muS/T + 1.0/2.0*CHI211(T)*muB/T*muB/T*muQ/T
+			+ 1.0/2.0*CHI121(T)*muB/T*muQ/T*muQ/T + CHI112(T)*muB/T*muQ/T*muS/T 
+            + 1.0/2.0*CHI202(T)*muB/T*muB/T*muS/T + 1.0/2.0*CHI022(T)*muQ/T*muQ/T*muS/T
+			+ 1.0/6.0*CHI301(T)*muB/T*muB/T*muB/T + 1.0/2.0*CHI103(T)*muB/T*muS/T*muS/T 
+            + 1.0/6.0*CHI031(T)*muQ/T*muQ/T*muQ/T + 1.0/2.0*CHI013(T)*muQ/T*muS/T*muS/T
+			+ 1.0/6.0*CHI004(T)*muS/T*muS/T*muS/T;
 }
 double ChDensTaylor(double T, double muB, double muQ, double muS){
-    return CHI110(T)*muB/T + CHI011(T)*muS/T + CHI020(T)*muQ/T + 1.0/2.0*CHI211(T)*muB/T*muB/T*muS/T + CHI121(T)*muB/T*muQ/T*muS/T + 1.0/2.0*CHI112(T)*muB/T*muS/T*muS/T 
-            + 1.0/2.0*CHI220(T)*muB/T*muB/T*muQ/T + 1.0/2.0*CHI022(T)*muQ/T*muS/T*muS/T + 1.0/6.0*CHI310(T)*muB/T*muB/T*muB/T + 1.0/2.0*CHI130(T)*muB/T*muQ/T*muQ/T 
-            + 1.0/2.0*CHI031(T)*muQ/T*muQ/T*muS/T + 1.0/6.0*CHI013(T)*muS/T*muS/T*muS/T + 1.0/6.0*CHI040(T)*muQ/T*muQ/T*muQ/T;
+	if (T<30.0)
+    return lowT_CHI110(T)*muB/T + lowT_CHI011(T)*muS/T + lowT_CHI020(T)*muQ/T + 1.0/2.0*lowT_CHI211(T)*muB/T*muB/T*muS/T
+			+ lowT_CHI121(T)*muB/T*muQ/T*muS/T + 1.0/2.0*lowT_CHI112(T)*muB/T*muS/T*muS/T 
+            + 1.0/2.0*lowT_CHI220(T)*muB/T*muB/T*muQ/T + 1.0/2.0*lowT_CHI022(T)*muQ/T*muS/T*muS/T
+			+ 1.0/6.0*lowT_CHI310(T)*muB/T*muB/T*muB/T + 1.0/2.0*lowT_CHI130(T)*muB/T*muQ/T*muQ/T 
+            + 1.0/2.0*lowT_CHI031(T)*muQ/T*muQ/T*muS/T + 1.0/6.0*lowT_CHI013(T)*muS/T*muS/T*muS/T
+			+ 1.0/6.0*lowT_CHI040(T)*muQ/T*muQ/T*muQ/T;
+	else
+    return CHI110(T)*muB/T + CHI011(T)*muS/T + CHI020(T)*muQ/T + 1.0/2.0*CHI211(T)*muB/T*muB/T*muS/T
+			+ CHI121(T)*muB/T*muQ/T*muS/T + 1.0/2.0*CHI112(T)*muB/T*muS/T*muS/T 
+            + 1.0/2.0*CHI220(T)*muB/T*muB/T*muQ/T + 1.0/2.0*CHI022(T)*muQ/T*muS/T*muS/T
+			+ 1.0/6.0*CHI310(T)*muB/T*muB/T*muB/T + 1.0/2.0*CHI130(T)*muB/T*muQ/T*muQ/T 
+            + 1.0/2.0*CHI031(T)*muQ/T*muQ/T*muS/T + 1.0/6.0*CHI013(T)*muS/T*muS/T*muS/T
+			+ 1.0/6.0*CHI040(T)*muQ/T*muQ/T*muQ/T;
 }
 
 
@@ -327,43 +552,133 @@ double ChDensTaylor(double T, double muB, double muQ, double muS){
 //Analytical expressions
 // Second order
 double Chi2BTaylor(double T, double muB, double muQ, double muS){
-    return CHI200(T) + CHI211(T)*muQ/T*muS/T + 1.0/2.0*CHI220(T)*muQ/T*muQ/T + 1.0/2.0*CHI202(T)*muS/T*muS/T + CHI310(T)*muB/T*muQ/T + CHI301(T)*muB/T*muS/T + 1.0/2.0*CHI400(T)*muB/T*muB/T;
+	if (T<30.0)
+    return lowT_CHI200(T) + lowT_CHI211(T)*muQ/T*muS/T + 1.0/2.0*lowT_CHI220(T)*muQ/T*muQ/T
+			+ 1.0/2.0*lowT_CHI202(T)*muS/T*muS/T + lowT_CHI310(T)*muB/T*muQ/T + lowT_CHI301(T)*muB/T*muS/T
+			+ 1.0/2.0*lowT_CHI400(T)*muB/T*muB/T;
+	else
+    return CHI200(T) + CHI211(T)*muQ/T*muS/T + 1.0/2.0*CHI220(T)*muQ/T*muQ/T
+			+ 1.0/2.0*CHI202(T)*muS/T*muS/T + CHI310(T)*muB/T*muQ/T + CHI301(T)*muB/T*muS/T
+			+ 1.0/2.0*CHI400(T)*muB/T*muB/T;
+
 }
 double Chi2QTaylor(double T, double muB, double muQ, double muS){
-    return CHI020(T) + CHI121(T)*muB/T*muS/T + 1.0/2.0*CHI220(T)*muB/T*muB/T + 1.0/2.0*CHI022(T)*muS/T*muS/T + CHI130(T)*muB/T*muQ/T + CHI031(T)*muQ/T*muS/T + 1.0/2.0*CHI040(T)*muQ/T*muQ/T;
+	if (T<30.0)
+    return lowT_CHI020(T) + lowT_CHI121(T)*muB/T*muS/T + 1.0/2.0*lowT_CHI220(T)*muB/T*muB/T
+			+ 1.0/2.0*lowT_CHI022(T)*muS/T*muS/T + lowT_CHI130(T)*muB/T*muQ/T + lowT_CHI031(T)*muQ/T*muS/T
+			+ 1.0/2.0*lowT_CHI040(T)*muQ/T*muQ/T;
+	else
+    return CHI020(T) + CHI121(T)*muB/T*muS/T + 1.0/2.0*CHI220(T)*muB/T*muB/T
+			+ 1.0/2.0*CHI022(T)*muS/T*muS/T + CHI130(T)*muB/T*muQ/T + CHI031(T)*muQ/T*muS/T
+			+ 1.0/2.0*CHI040(T)*muQ/T*muQ/T;
 }
 double Chi2STaylor(double T, double muB, double muQ, double muS){
-    return CHI002(T) + CHI112(T)*muB/T*muQ/T + 1.0/2.0*CHI202(T)*muB/T*muB/T + 1.0/2.0*CHI022(T)*muQ/T*muQ/T + CHI103(T)*muB/T*muS/T + CHI013(T)*muQ/T*muS/T + 1.0/2.0*CHI004(T)*muS/T*muS/T;
+	if (T<30.0)
+    return lowT_CHI002(T) + lowT_CHI112(T)*muB/T*muQ/T + 1.0/2.0*lowT_CHI202(T)*muB/T*muB/T
+			+ 1.0/2.0*lowT_CHI022(T)*muQ/T*muQ/T + lowT_CHI103(T)*muB/T*muS/T + lowT_CHI013(T)*muQ/T*muS/T
+			+ 1.0/2.0*lowT_CHI004(T)*muS/T*muS/T;
+	else
+    return CHI002(T) + CHI112(T)*muB/T*muQ/T + 1.0/2.0*CHI202(T)*muB/T*muB/T
+			+ 1.0/2.0*CHI022(T)*muQ/T*muQ/T + CHI103(T)*muB/T*muS/T + CHI013(T)*muQ/T*muS/T
+			+ 1.0/2.0*CHI004(T)*muS/T*muS/T;
 }
 double Chi11BQTaylor(double T, double muB, double muQ, double muS){
-    return CHI110(T) + CHI211(T)*muB/T*muS/T + CHI121(T)*muQ/T*muS/T + 1.0/2.0*CHI112(T)*muS/T*muS/T + CHI220(T)*muB/T*muQ/T + 1.0/2.0*CHI310(T)*muB/T*muB/T + 1.0/2.0*CHI130(T)*muQ/T*muQ/T;
+	if (T<30.0)
+    return lowT_CHI110(T) + lowT_CHI211(T)*muB/T*muS/T + lowT_CHI121(T)*muQ/T*muS/T + 1.0/2.0*lowT_CHI112(T)*muS/T*muS/T
+			+ lowT_CHI220(T)*muB/T*muQ/T + 1.0/2.0*lowT_CHI310(T)*muB/T*muB/T + 1.0/2.0*lowT_CHI130(T)*muQ/T*muQ/T;
+	else
+    return CHI110(T) + CHI211(T)*muB/T*muS/T + CHI121(T)*muQ/T*muS/T + 1.0/2.0*CHI112(T)*muS/T*muS/T
+			+ CHI220(T)*muB/T*muQ/T + 1.0/2.0*CHI310(T)*muB/T*muB/T + 1.0/2.0*CHI130(T)*muQ/T*muQ/T;
 }
 double Chi11BSTaylor(double T, double muB, double muQ, double muS){
-    return CHI101(T) + CHI211(T)*muB/T*muQ/T + 1.0/2.0*CHI121(T)*muQ/T*muQ/T + CHI112(T)*muQ/T*muS/T + CHI202(T)*muB/T*muS/T + 1.0/2.0*CHI301(T)*muB/T*muB/T + 1.0/2.0*CHI103(T)*muS/T*muS/T;
+	if (T<30.0)
+    return lowT_CHI101(T) + lowT_CHI211(T)*muB/T*muQ/T + 1.0/2.0*lowT_CHI121(T)*muQ/T*muQ/T + lowT_CHI112(T)*muQ/T*muS/T
+			+ lowT_CHI202(T)*muB/T*muS/T + 1.0/2.0*lowT_CHI301(T)*muB/T*muB/T + 1.0/2.0*lowT_CHI103(T)*muS/T*muS/T;
+	else
+    return CHI101(T) + CHI211(T)*muB/T*muQ/T + 1.0/2.0*CHI121(T)*muQ/T*muQ/T + CHI112(T)*muQ/T*muS/T
+			+ CHI202(T)*muB/T*muS/T + 1.0/2.0*CHI301(T)*muB/T*muB/T + 1.0/2.0*CHI103(T)*muS/T*muS/T;
 }
 double Chi11QSTaylor(double T, double muB, double muQ, double muS){
-    return CHI011(T) + 1.0/2.0*CHI211(T)*muB/T*muB/T + CHI121(T)*muB/T*muQ/T + CHI112(T)*muB/T*muS/T + CHI022(T)*muQ/T*muS/T + 1.0/2.0*CHI031(T)*muQ/T*muQ/T + 1.0/2.0*CHI013(T)*muS/T*muS/T;
+	if (T<30.0)
+    return lowT_CHI011(T) + 1.0/2.0*lowT_CHI211(T)*muB/T*muB/T + lowT_CHI121(T)*muB/T*muQ/T + lowT_CHI112(T)*muB/T*muS/T
+			+ lowT_CHI022(T)*muQ/T*muS/T + 1.0/2.0*lowT_CHI031(T)*muQ/T*muQ/T + 1.0/2.0*lowT_CHI013(T)*muS/T*muS/T;
+	else
+    return CHI011(T) + 1.0/2.0*CHI211(T)*muB/T*muB/T + CHI121(T)*muB/T*muQ/T + CHI112(T)*muB/T*muS/T
+			+ CHI022(T)*muQ/T*muS/T + 1.0/2.0*CHI031(T)*muQ/T*muQ/T + 1.0/2.0*CHI013(T)*muS/T*muS/T;
 }
 
 // Second order (one is T)
 double DBarDensDTTaylor(double T, double muB, double muQ, double muS){
-    return 1.0/(6.0*T*T)*(12.0*muS*T*CHI101(T) + 12.0*muQ*T*CHI110(T) + 12.0*muB*T*CHI200(T) + 6.0*muS*T*T*DCHI101DT(T) + muS*muS*muS*DCHI103DT(T) + 6.0*muQ*T*T*DCHI110DT(T) 
-            + 3.0*muQ*muS*muS*DCHI112DT(T) + 3.0*muQ*muQ*muS*DCHI121DT(T) + muQ*muQ*muQ*DCHI130DT(T) + 6.0*muB*T*T*DCHI200DT(T) + 3.0*muB*muS*muS*DCHI202DT(T) 
-            + 6.0*muB*muQ*muS*DCHI211DT(T) + 3.0*muB*muQ*muQ*DCHI220DT(T) + 3.0*muB*muB*muS*DCHI301DT(T) + 3.0*muB*muB*muQ*DCHI310DT(T) + muB*muB*muB*DCHI400DT(T));
+	if (T<30.0)
+    return 1.0/(6.0*T*T)*(12.0*muS*T*lowT_CHI101(T) + 12.0*muQ*T*lowT_CHI110(T) + 12.0*muB*T*lowT_CHI200(T)
+			+ 6.0*muS*T*T*lowT_DCHI101DT(T) + muS*muS*muS*lowT_DCHI103DT(T) + 6.0*muQ*T*T*lowT_DCHI110DT(T) 
+            + 3.0*muQ*muS*muS*lowT_DCHI112DT(T) + 3.0*muQ*muQ*muS*lowT_DCHI121DT(T) + muQ*muQ*muQ*lowT_DCHI130DT(T)
+			+ 6.0*muB*T*T*lowT_DCHI200DT(T) + 3.0*muB*muS*muS*lowT_DCHI202DT(T) 
+            + 6.0*muB*muQ*muS*lowT_DCHI211DT(T) + 3.0*muB*muQ*muQ*lowT_DCHI220DT(T) + 3.0*muB*muB*muS*lowT_DCHI301DT(T)
+			+ 3.0*muB*muB*muQ*lowT_DCHI310DT(T) + muB*muB*muB*lowT_DCHI400DT(T));
+	else
+    return 1.0/(6.0*T*T)*(12.0*muS*T*CHI101(T) + 12.0*muQ*T*CHI110(T) + 12.0*muB*T*CHI200(T)
+			+ 6.0*muS*T*T*DCHI101DT(T) + muS*muS*muS*DCHI103DT(T) + 6.0*muQ*T*T*DCHI110DT(T) 
+            + 3.0*muQ*muS*muS*DCHI112DT(T) + 3.0*muQ*muQ*muS*DCHI121DT(T) + muQ*muQ*muQ*DCHI130DT(T)
+			+ 6.0*muB*T*T*DCHI200DT(T) + 3.0*muB*muS*muS*DCHI202DT(T) 
+            + 6.0*muB*muQ*muS*DCHI211DT(T) + 3.0*muB*muQ*muQ*DCHI220DT(T) + 3.0*muB*muB*muS*DCHI301DT(T)
+			+ 3.0*muB*muB*muQ*DCHI310DT(T) + muB*muB*muB*DCHI400DT(T));
 }
 double DStrDensDTTaylor(double T, double muB, double muQ, double muS){
-    return 1.0/(6.0*T*T)*(12.0*muS*T*CHI002(T) + 12.0*muQ*T*CHI011(T) + 12.0*muB*T*CHI101(T) + 6.0*muS*T*T*DCHI002DT(T) + muS*muS*muS*DCHI004DT(T) + 6.0*muQ*T*T*DCHI011DT(T) 
-            + 3.0*muQ*muS*muS*DCHI013DT(T) + 3.0*muQ*muQ*muS*DCHI022DT(T) + muQ*muQ*muQ*DCHI031DT(T) + 6.0*muB*T*T*DCHI101DT(T) + 3.0*muB*muS*muS*DCHI103DT(T) 
-            + 6.0*muB*muQ*muS*DCHI112DT(T) + 3.0*muB*muQ*muQ*DCHI121DT(T) + 3.0*muB*muB*muS*DCHI202DT(T) + 3.0*muB*muB*muQ*DCHI211DT(T) + muB*muB*muB*DCHI301DT(T));
+	if (T<30.0)
+    return 1.0/(6.0*T*T)*(12.0*muS*T*lowT_CHI002(T) + 12.0*muQ*T*lowT_CHI011(T) + 12.0*muB*T*lowT_CHI101(T)
+			+ 6.0*muS*T*T*lowT_DCHI002DT(T) + muS*muS*muS*lowT_DCHI004DT(T) + 6.0*muQ*T*T*lowT_DCHI011DT(T) 
+            + 3.0*muQ*muS*muS*lowT_DCHI013DT(T) + 3.0*muQ*muQ*muS*lowT_DCHI022DT(T) + muQ*muQ*muQ*lowT_DCHI031DT(T)
+			+ 6.0*muB*T*T*lowT_DCHI101DT(T) + 3.0*muB*muS*muS*lowT_DCHI103DT(T) 
+            + 6.0*muB*muQ*muS*lowT_DCHI112DT(T) + 3.0*muB*muQ*muQ*lowT_DCHI121DT(T) + 3.0*muB*muB*muS*lowT_DCHI202DT(T)
+			+ 3.0*muB*muB*muQ*lowT_DCHI211DT(T) + muB*muB*muB*lowT_DCHI301DT(T));
+	else
+    return 1.0/(6.0*T*T)*(12.0*muS*T*CHI002(T) + 12.0*muQ*T*CHI011(T) + 12.0*muB*T*CHI101(T)
+			+ 6.0*muS*T*T*DCHI002DT(T) + muS*muS*muS*DCHI004DT(T) + 6.0*muQ*T*T*DCHI011DT(T) 
+            + 3.0*muQ*muS*muS*DCHI013DT(T) + 3.0*muQ*muQ*muS*DCHI022DT(T) + muQ*muQ*muQ*DCHI031DT(T)
+			+ 6.0*muB*T*T*DCHI101DT(T) + 3.0*muB*muS*muS*DCHI103DT(T) 
+            + 6.0*muB*muQ*muS*DCHI112DT(T) + 3.0*muB*muQ*muQ*DCHI121DT(T) + 3.0*muB*muB*muS*DCHI202DT(T)
+			+ 3.0*muB*muB*muQ*DCHI211DT(T) + muB*muB*muB*DCHI301DT(T));
 }
 double DChDensDTTaylor(double T, double muB, double muQ, double muS){
-    return 1.0/(6.0*T*T)*(12.0*muS*T*CHI011(T) + 12.0*muQ*T*CHI020(T) + 12.0*muB*T*CHI110(T) + 6.0*muS*T*T*DCHI011DT(T) + muS*muS*muS*DCHI013DT(T) + 6.0*muQ*T*T*DCHI020DT(T) 
-            + 3.0*muQ*muS*muS*DCHI022DT(T) + 3.0*muQ*muQ*muS*DCHI031DT(T) + muQ*muQ*muQ*DCHI040DT(T) + 6.0*muB*T*T*DCHI110DT(T) + 3.0*muB*muS*muS*DCHI112DT(T) 
-            + 6.0*muB*muQ*muS*DCHI121DT(T) + 3.0*muB*muQ*muQ*DCHI130DT(T) + 3.0*muB*muB*muS*DCHI211DT(T) + 3.0*muB*muB*muQ*DCHI220DT(T) + muB*muB*muB*DCHI310DT(T));
+	if (T<30.0)
+    return 1.0/(6.0*T*T)*(12.0*muS*T*lowT_CHI011(T) + 12.0*muQ*T*lowT_CHI020(T) + 12.0*muB*T*lowT_CHI110(T)
+			+ 6.0*muS*T*T*lowT_DCHI011DT(T) + muS*muS*muS*lowT_DCHI013DT(T) + 6.0*muQ*T*T*lowT_DCHI020DT(T) 
+            + 3.0*muQ*muS*muS*lowT_DCHI022DT(T) + 3.0*muQ*muQ*muS*lowT_DCHI031DT(T) + muQ*muQ*muQ*lowT_DCHI040DT(T)
+			+ 6.0*muB*T*T*lowT_DCHI110DT(T) + 3.0*muB*muS*muS*lowT_DCHI112DT(T) 
+            + 6.0*muB*muQ*muS*lowT_DCHI121DT(T) + 3.0*muB*muQ*muQ*lowT_DCHI130DT(T) + 3.0*muB*muB*muS*lowT_DCHI211DT(T)
+			+ 3.0*muB*muB*muQ*lowT_DCHI220DT(T) + muB*muB*muB*lowT_DCHI310DT(T));
+	else
+    return 1.0/(6.0*T*T)*(12.0*muS*T*CHI011(T) + 12.0*muQ*T*CHI020(T) + 12.0*muB*T*CHI110(T)
+			+ 6.0*muS*T*T*DCHI011DT(T) + muS*muS*muS*DCHI013DT(T) + 6.0*muQ*T*T*DCHI020DT(T) 
+            + 3.0*muQ*muS*muS*DCHI022DT(T) + 3.0*muQ*muQ*muS*DCHI031DT(T) + muQ*muQ*muQ*DCHI040DT(T)
+			+ 6.0*muB*T*T*DCHI110DT(T) + 3.0*muB*muS*muS*DCHI112DT(T) 
+            + 6.0*muB*muQ*muS*DCHI121DT(T) + 3.0*muB*muQ*muQ*DCHI130DT(T) + 3.0*muB*muB*muS*DCHI211DT(T)
+			+ 3.0*muB*muB*muQ*DCHI220DT(T) + muB*muB*muB*DCHI310DT(T));
 }
 
 // Second order (both are T)
 double DEntrDTTaylor(double T, double muB, double muQ, double muS){
+	if (T<30.0)
+    return (288*pow(T,2)*lowT_CHI000(T) + 24*(pow(muS,2)*lowT_CHI002(T)
+				+ 2*muQ*muS*lowT_CHI011(T) + pow(muQ,2)*lowT_CHI020(T)
+				+ 2*muB*muS*lowT_CHI101(T) + 2*muB*muQ*lowT_CHI110(T) + pow(muB,2)*lowT_CHI200(T)) 
+				+ 192*pow(T,3)*lowT_DCHI000DT(T) + 48*pow(muS,2)*T*lowT_DCHI002DT(T) + 96*muQ*muS*T*lowT_DCHI011DT(T)
+				+ 48*pow(muQ,2)*T*lowT_DCHI020DT(T) + 96*muB*muS*T*lowT_DCHI101DT(T) + 96*muB*muQ*T*lowT_DCHI110DT(T) 
+				+ 48*pow(muB,2)*T*lowT_DCHI200DT(T) + 24*pow(T,4)*lowT_D2CHI000DT2(T)
+				+ 12*pow(muS,2)*pow(T,2)*lowT_D2CHI002DT2(T) + pow(muS,4)*lowT_D2CHI004DT2(T)
+				+ 24*muQ*muS*pow(T,2)*lowT_D2CHI011DT2(T) 
+				+ 4*muQ*pow(muS,3)*lowT_D2CHI013DT2(T) + 12*pow(muQ,2)*pow(T,2)*lowT_D2CHI020DT2(T)
+				+ 6*pow(muQ,2)*pow(muS,2)*lowT_D2CHI022DT2(T) + 4*pow(muQ,3)*muS*lowT_D2CHI031DT2(T)
+				+ pow(muQ,4)*lowT_D2CHI040DT2(T) 
+				+ 24*muB*muS*pow(T,2)*lowT_D2CHI101DT2(T) + 4*muB*pow(muS,3)*lowT_D2CHI103DT2(T)
+				+ 24*muB*muQ*pow(T,2)*lowT_D2CHI110DT2(T) + 12*muB*muQ*pow(muS,2)*lowT_D2CHI112DT2(T) 
+				+ 12*muB*pow(muQ,2)*muS*lowT_D2CHI121DT2(T) + 4*muB*pow(muQ,3)*lowT_D2CHI130DT2(T)
+				+ 12*pow(muB,2)*pow(T,2)*lowT_D2CHI200DT2(T) + 6*pow(muB,2)*pow(muS,2)*lowT_D2CHI202DT2(T) 
+				+ 12*pow(muB,2)*muQ*muS*lowT_D2CHI211DT2(T) + 6*pow(muB,2)*pow(muQ,2)*lowT_D2CHI220DT2(T)
+				+ 4*pow(muB,3)*muS*lowT_D2CHI301DT2(T) + 4*pow(muB,3)*muQ*lowT_D2CHI310DT2(T) 
+				+ pow(muB,4)*lowT_D2CHI400DT2(T))/(24.*pow(T,2));
+	else
     return (288*pow(T,2)*CHI000(T) + 24*(pow(muS,2)*CHI002(T) + 2*muQ*muS*CHI011(T) + pow(muQ,2)*CHI020(T) + 2*muB*muS*CHI101(T) + 2*muB*muQ*CHI110(T) + pow(muB,2)*CHI200(T)) 
                + 192*pow(T,3)*DCHI000DT(T) + 48*pow(muS,2)*T*DCHI002DT(T) + 96*muQ*muS*T*DCHI011DT(T) + 48*pow(muQ,2)*T*DCHI020DT(T) + 96*muB*muS*T*DCHI101DT(T) + 96*muB*muQ*T*DCHI110DT(T) 
                + 48*pow(muB,2)*T*DCHI200DT(T) + 24*pow(T,4)*D2CHI000DT2(T) + 12*pow(muS,2)*pow(T,2)*D2CHI002DT2(T) + pow(muS,4)*D2CHI004DT2(T) + 24*muQ*muS*pow(T,2)*D2CHI011DT2(T) 
@@ -373,6 +688,11 @@ double DEntrDTTaylor(double T, double muB, double muQ, double muS){
                + 12*pow(muB,2)*muQ*muS*D2CHI211DT2(T) + 6*pow(muB,2)*pow(muQ,2)*D2CHI220DT2(T) + 4*pow(muB,3)*muS*D2CHI301DT2(T) + 4*pow(muB,3)*muQ*D2CHI310DT2(T) 
                + pow(muB,4)*D2CHI400DT2(T))/(24.*pow(T,2));
 }
+
+
+
+
+
 
 
 // Speed of Sound expression.
@@ -392,40 +712,6 @@ double SpSound(double T, double muB, double muQ, double muS){
    C2TQ = DChDensDTTaylor(T,muB,muS,muQ);
    C2TS = DStrDensDTTaylor(T,muB,muS,muQ);
    C2T2 = DEntrDTTaylor(T,muB,muS,muQ);
-
-/*if (muB==50 && muQ==50 && muS==50)
-  {printf( "CHECK: %lf %lf %lf %lf %lf\n", T,
-			T*(-(C2BQ*C2S2*C2TQ*C1B) - C2BQ*C2S2*C2TB*C1Q - pow(C2BS,2)*C2TQ*C1Q + C2B2*C2S2*C2TQ*C1Q + C2BQ*C2BS*C2TS*C1Q + C2BQ*C2BS*C2TQ*C1S - pow(C2BQ,2)*C2TS*C1S + pow(C2BQ,2)*C2S2*C1T 
-            + pow(C2QS,2)*(-(C2TB*C1B) + C2B2*C1T) + C2Q2*(C2S2*C2TB*C1B - C2BS*C2TS*C1B - C2BS*C2TB*C1S + C2B2*C2TS*C1S + pow(C2BS,2)*C1T - C2B2*C2S2*C1T) + C2QS*(C2BQ*C2TS*C1B - C2B2*C2TS*C1Q 
-            + C2BQ*C2TB*C1S - C2B2*C2TQ*C1S + C2BS*(C2TQ*C1B + C2TB*C1Q - 2.0*C2BQ*C1T)))
-               *1.0/((pow(C2BQ,2)*C2S2*C2T2 - pow(C2QS,2)*pow(C2TB,2) + C2Q2*C2S2*pow(C2TB,2) - 2.0*C2BQ*C2S2*C2TB*C2TQ + pow(C2BS,2)*(C2Q2*C2T2 - pow(C2TQ,2)) 
-            + 2.0*C2BQ*C2QS*C2TB*C2TS - pow(C2BQ,2)*pow(C2TS,2) + 2.0*C2BS*(-(C2BQ*C2QS*C2T2) + C2QS*C2TB*C2TQ - C2Q2*C2TB*C2TS + C2BQ*C2TQ*C2TS) + C2B2*(pow(C2QS,2)*C2T2 - C2Q2*C2S2*C2T2 
-            + C2S2*pow(C2TQ,2) - 2.0*C2QS*C2TQ*C2TS + C2Q2*pow(C2TS,2)))*T),
-            T*(C1B/(muB*C1B + muQ*C1Q + muS*C1S + T*C1T))*(-(C2QS*muB*(C2BQ*(C2TS*C1B + C2TB*C1S) - C2B2*(C2TS*C1Q + C2TQ*C1S) + C2BS*(C2TQ*C1B + C2TB*C1Q - 2*C2BQ*C1T))) + muB*((pow(C2BS,2) 
-            - C2B2*C2S2)*C2TQ*C1Q + C2BQ*(C2S2*C2TQ*C1B + C2S2*C2TB*C1Q - C2BS*C2TS*C1Q - C2BS*C2TQ*C1S) + pow(C2BQ,2)*(C2TS*C1S - C2S2*C1T) + C2Q2*(-(C2S2*C2TB*C1B) + C2BS*C2TS*C1B 
-            + C2BS*C2TB*C1S - C2B2*C2TS*C1S - pow(C2BS,2)*C1T + C2B2*C2S2*C1T)) + C2QS*(-2*C2TQ*C2TS*C1B + C2TB*C2TS*C1Q + C2TB*C2TQ*C1S - C2T2*(C2BS*C1Q + C2BQ*C1S) + C2BS*C2TQ*C1T 
-            + C2BQ*C2TS*C1T)*T + (-((C2BS*C2TQ - C2BQ*C2TS)*(-(C2TS*C1Q) + C2TQ*C1S)) + C2S2*(C2BQ*C2T2*C1Q + C2TQ*(C2TQ*C1B - C2TB*C1Q - C2BQ*C1T)) + C2Q2*(C2BS*C2T2*C1S + C2TS*(C2TS*C1B 
-            - C2TB*C1S - C2BS*C1T) + C2S2*(-(C2T2*C1B) + C2TB*C1T)))*T + pow(C2QS,2)*(C2TB*muB*C1B - C2B2*muB*C1T + C2T2*C1B*T - C2TB*C1T*T))/((pow(C2BQ,2)*C2S2*C2T2 - pow(C2QS,2)*pow(C2TB,2) 
-            + C2Q2*C2S2*pow(C2TB,2) - 2*C2BQ*C2S2*C2TB*C2TQ + pow(C2BS,2)*(C2Q2*C2T2 - pow(C2TQ,2)) + 2*C2BQ*C2QS*C2TB*C2TS - pow(C2BQ,2)*pow(C2TS,2) + 2*C2BS*(-(C2BQ*C2QS*C2T2) + C2QS*C2TB*C2TQ 
-            - C2Q2*C2TB*C2TS + C2BQ*C2TQ*C2TS) + C2B2*(pow(C2QS,2)*C2T2 - C2Q2*C2S2*C2T2 + C2S2*pow(C2TQ,2) - 2*C2QS*C2TQ*C2TS + C2Q2*pow(C2TS,2)))*T),
-            T*(C1Q/(muB*C1B + muQ*C1Q + muS*C1S + T*C1T))*(pow(C2QS,2)*muQ*(C2TB*C1B - C2B2*C1T) - C2QS*muQ*(C2BQ*(C2TS*C1B + C2TB*C1S) - C2B2*(C2TS*C1Q + C2TQ*C1S) + C2BS*(C2TQ*C1B + C2TB*C1Q 
-            - 2*C2BQ*C1T)) + muQ*((pow(C2BS,2) - C2B2*C2S2)*C2TQ*C1Q + C2BQ*(C2S2*C2TQ*C1B + C2S2*C2TB*C1Q - C2BS*C2TS*C1Q - C2BS*C2TQ*C1S) + pow(C2BQ,2)*(C2TS*C1S - C2S2*C1T) + C2Q2*(-(C2S2*C2TB*C1B) 
-            + C2BS*C2TS*C1B + C2BS*C2TB*C1S - C2B2*C2TS*C1S - pow(C2BS,2)*C1T + C2B2*C2S2*C1T)) + C2QS*(-(C2BS*C2T2*C1B) + C2TB*C2TS*C1B + C2B2*C2T2*C1S - pow(C2TB,2)*C1S + C2BS*C2TB*C1T 
-            - C2B2*C2TS*C1T)*T + (C2BS*C2TQ*C2TS*C1B + pow(C2BS,2)*C2T2*C1Q - 2*C2BS*C2TB*C2TS*C1Q + C2B2*pow(C2TS,2)*C1Q + C2BS*C2TB*C2TQ*C1S - C2B2*C2TQ*C2TS*C1S - pow(C2BS,2)*C2TQ*C1T 
-            + C2S2*(-(C2TB*C2TQ*C1B) - C2B2*C2T2*C1Q + pow(C2TB,2)*C1Q + C2B2*C2TQ*C1T) + C2BQ*(-(C2BS*C2T2*C1S) + C2TS*(-(C2TS*C1B) + C2TB*C1S + C2BS*C1T) + C2S2*(C2T2*C1B - C2TB*C1T)))*T)
-               *1.0/((pow(C2BQ,2)*C2S2*C2T2 - pow(C2QS,2)*pow(C2TB,2) + C2Q2*C2S2*pow(C2TB,2) - 2*C2BQ*C2S2*C2TB*C2TQ + pow(C2BS,2)*(C2Q2*C2T2 - pow(C2TQ,2)) + 2*C2BQ*C2QS*C2TB*C2TS 
-            - pow(C2BQ,2)*pow(C2TS,2) + 2*C2BS*(-(C2BQ*C2QS*C2T2) + C2QS*C2TB*C2TQ - C2Q2*C2TB*C2TS + C2BQ*C2TQ*C2TS) + C2B2*(pow(C2QS,2)*C2T2 - C2Q2*C2S2*C2T2 + C2S2*pow(C2TQ,2) 
-            - 2*C2QS*C2TQ*C2TS + C2Q2*pow(C2TS,2)))*T),
-            T*(C1S/(muB*C1B + muQ*C1Q + muS*C1S + T*C1T))*(pow(C2QS,2)*muS*(C2TB*C1B - C2B2*C1T) - C2QS*muS*(C2BQ*(C2TS*C1B + C2TB*C1S) - C2B2*(C2TS*C1Q + C2TQ*C1S) + C2BS*(C2TQ*C1B + C2TB*C1Q 
-            - 2*C2BQ*C1T)) + muS*((pow(C2BS,2) - C2B2*C2S2)*C2TQ*C1Q + C2BQ*(C2S2*C2TQ*C1B + C2S2*C2TB*C1Q - C2BS*C2TS*C1Q - C2BS*C2TQ*C1S) + pow(C2BQ,2)*(C2TS*C1S - C2S2*C1T) 
-            + C2Q2*(-(C2S2*C2TB*C1B) + C2BS*C2TS*C1B + C2BS*C2TB*C1S - C2B2*C2TS*C1S - pow(C2BS,2)*C1T + C2B2*C2S2*C1T)) + C2QS*(-(C2BQ*C2T2*C1B) + C2TB*C2TQ*C1B + C2B2*C2T2*C1Q - pow(C2TB,2)*C1Q 
-            + C2BQ*C2TB*C1T - C2B2*C2TQ*C1T)*T + (C2BQ*C2TQ*C2TS*C1B + C2BQ*C2TB*C2TS*C1Q - C2B2*C2TQ*C2TS*C1Q + pow(C2BQ,2)*C2T2*C1S - 2*C2BQ*C2TB*C2TQ*C1S + C2B2*pow(C2TQ,2)*C1S 
-            - pow(C2BQ,2)*C2TS*C1T + C2Q2*(-(C2TB*C2TS*C1B) - C2B2*C2T2*C1S + pow(C2TB,2)*C1S + C2B2*C2TS*C1T) + C2BS*(-(C2BQ*C2T2*C1Q) + C2TQ*(-(C2TQ*C1B) + C2TB*C1Q + C2BQ*C1T) 
-            + C2Q2*(C2T2*C1B - C2TB*C1T)))*T)/((pow(C2BQ,2)*C2S2*C2T2 - pow(C2QS,2)*pow(C2TB,2) + C2Q2*C2S2*pow(C2TB,2) - 2*C2BQ*C2S2*C2TB*C2TQ + pow(C2BS,2)*(C2Q2*C2T2 - pow(C2TQ,2)) 
-            + 2*C2BQ*C2QS*C2TB*C2TS - pow(C2BQ,2)*pow(C2TS,2) + 2*C2BS*(-(C2BQ*C2QS*C2T2) + C2QS*C2TB*C2TQ - C2Q2*C2TB*C2TS + C2BQ*C2TQ*C2TS) + C2B2*(pow(C2QS,2)*C2T2 - C2Q2*C2S2*C2T2 
-            + C2S2*pow(C2TQ,2) - 2*C2QS*C2TQ*C2TS + C2Q2*pow(C2TS,2)))*T) );
-		fflush(stdout);}*/
-
       
    return T*(-(C2BQ*C2S2*C2TQ*C1B) - C2BQ*C2S2*C2TB*C1Q - pow(C2BS,2)*C2TQ*C1Q + C2B2*C2S2*C2TQ*C1Q + C2BQ*C2BS*C2TS*C1Q + C2BQ*C2BS*C2TQ*C1S - pow(C2BQ,2)*C2TS*C1S + pow(C2BQ,2)*C2S2*C1T 
             + pow(C2QS,2)*(-(C2TB*C1B) + C2B2*C1T) + C2Q2*(C2S2*C2TB*C1B - C2BS*C2TS*C1B - C2BS*C2TB*C1S + C2B2*C2TS*C1S + pow(C2BS,2)*C1T - C2B2*C2S2*C1T) + C2QS*(C2BQ*C2TS*C1B - C2B2*C2TS*C1Q 

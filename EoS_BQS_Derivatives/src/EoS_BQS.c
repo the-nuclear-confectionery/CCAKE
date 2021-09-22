@@ -86,6 +86,26 @@ int main(int argc, char *argv[])
    CHI220PAR=vector(1,21); CHI202PAR=vector(1,21); CHI022PAR=vector(1,21);	
    // Mied 112
    CHI211PAR=vector(1,21);	CHI121PAR=vector(1,21); CHI112PAR=vector(1,21);
+	/* Vectors for coefficients at low T. */
+	// Order 0
+	CHI000PAR_ABC=vector(1,3);
+	// Order 2
+	// Diagonal 
+	CHI200PAR_ABC=vector(1,3); CHI020PAR_ABC=vector(1,3); CHI002PAR_ABC=vector(1,3); 
+	// Mixed
+	CHI110PAR_ABC=vector(1,3);	CHI101PAR_ABC=vector(1,3);	CHI011PAR_ABC=vector(1,3);	
+	// Order 4
+	// Diagonal
+	CHI400PAR_ABC=vector(1,3);	CHI040PAR_ABC=vector(1,3);	CHI004PAR_ABC=vector(1,3);
+	// Mixed 31
+	CHI310PAR_ABC=vector(1,3);	CHI301PAR_ABC=vector(1,3);	CHI031PAR_ABC=vector(1,3);	
+	// Mixed 13
+	CHI130PAR_ABC=vector(1,3);	CHI103PAR_ABC=vector(1,3); CHI013PAR_ABC=vector(1,3);	
+   // Mixed 22
+   CHI220PAR_ABC=vector(1,3); CHI202PAR_ABC=vector(1,3); CHI022PAR_ABC=vector(1,3);	
+   // Mied 112
+   CHI211PAR_ABC=vector(1,3);	CHI121PAR_ABC=vector(1,3); CHI112PAR_ABC=vector(1,3);
+
 
 	/* Matrix for coefficients: 22 coefficients, 21 parameters each. */
 	parMatrix=matrix(1,22,1,21);
@@ -159,8 +179,29 @@ int main(int argc, char *argv[])
   	for(i=1;i<=21;i++) CHI121PAR[i] = parMatrix[21][i];
   	for(i=1;i<=21;i++) CHI112PAR[i] = parMatrix[22][i];
   	
-  	
-  	
+  	set_lowT_parameters(CHI000PAR, CHI000PAR_ABC);
+  	set_lowT_Mod_parameters(CHI200PAR, CHI200PAR_ABC);
+  	set_lowT_parameters(CHI020PAR, CHI020PAR_ABC);
+  	set_lowT_parameters(CHI002PAR, CHI002PAR_ABC);
+  	set_lowT_parameters(CHI110PAR, CHI110PAR_ABC);
+  	set_lowT_parameters(CHI101PAR, CHI101PAR_ABC);
+  	set_lowT_parameters(CHI011PAR, CHI011PAR_ABC);
+  	set_lowT_parameters(CHI400PAR, CHI400PAR_ABC);
+  	set_lowT_parameters(CHI040PAR, CHI040PAR_ABC);
+  	set_lowT_parameters(CHI004PAR, CHI004PAR_ABC);
+  	set_lowT_parameters(CHI310PAR, CHI310PAR_ABC);
+  	set_lowT_parameters(CHI301PAR, CHI301PAR_ABC);
+  	set_lowT_parameters(CHI031PAR, CHI031PAR_ABC);
+  	set_lowT_parameters(CHI130PAR, CHI130PAR_ABC);
+  	set_lowT_parameters(CHI103PAR, CHI103PAR_ABC);
+  	set_lowT_parameters(CHI013PAR, CHI013PAR_ABC);
+  	set_lowT_parameters(CHI220PAR, CHI220PAR_ABC);
+  	set_lowT_parameters(CHI202PAR, CHI202PAR_ABC);
+  	set_lowT_parameters(CHI022PAR, CHI022PAR_ABC);
+  	set_lowT_parameters(CHI211PAR, CHI211PAR_ABC);
+  	set_lowT_parameters(CHI121PAR, CHI121PAR_ABC);
+  	set_lowT_parameters(CHI112PAR, CHI112PAR_ABC);
+
   	/* Create folder for coefficients checks. */
 	mkdir("Coefficients_Check", S_IRWXU | S_IRWXG | S_IRWXO);
 	chdir("Coefficients_Check");
