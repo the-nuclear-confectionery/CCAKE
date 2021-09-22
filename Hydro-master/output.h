@@ -677,7 +677,7 @@ void Output<D>::bsqsveprofile(LinkList<D> &linklist)
 				<< linklist._p[i].gamma << endl;
 
         }
-exit(-8);
+//exit(-8);
     }
 
     EPN.close();
