@@ -27,9 +27,9 @@ constexpr bool use_exact = true;
 constexpr bool accept_nearest_neighbor = false;
 constexpr bool discard_unsolvable_charge_densities = false;
 
-constexpr size_t STEPS = 10000;
+constexpr size_t STEPS = 100000;
 constexpr int VERBOSE = 0;
-constexpr double TOLERANCE = 1e-8;
+constexpr double TOLERANCE = 1e-10;
 
 //EoS constructor
 eos::eos(string quantityFile, string derivFile)
