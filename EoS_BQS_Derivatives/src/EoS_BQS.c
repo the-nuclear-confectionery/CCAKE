@@ -433,12 +433,12 @@ int main(int argc, char *argv[])
 		PressVal    = PressTaylor(   T0, 0, 0, 0 );
 		EntrVal     = EntrTaylor(    T0, 0, 0, 0 );
 		EnerDensVal = EntrVal - PressVal;
+		double dwds = T0+EntrVal*T0*T0*T0/(197.327*197.327*197.327
+										*DEntrDTTaylor(T0, 0, 0, 0)); //T+s/(ds/dT)
 		printf("%lf %15.12f %15.12f %15.12f %15.12f\n", T0,
 				0.001*EnerDensVal*T0*T0*T0*T0/(197.327*197.327*197.327),
 				0.001*PressVal*T0*T0*T0*T0/(197.327*197.327*197.327),
-				EntrVal*T0*T0*T0/(197.327*197.327*197.327),
-				T0+EntrVal*T0*T0*T0/(197.327*197.327*197.327*197.327
-										*DEntrDTTaylor(T0, 0, 0, 0)) );	//T+s/(ds/dT)
+				EntrVal*T0*T0*T0/(197.327*197.327*197.327), dwds/197.327 );	
 
 	}
 	for (double T0 = 50.0; T0 < 800.001; T0+=0.5)
@@ -446,12 +446,12 @@ int main(int argc, char *argv[])
 		PressVal    = PressTaylor(   T0, 0, 0, 0 );
 		EntrVal     = EntrTaylor(    T0, 0, 0, 0 );
 		EnerDensVal = EntrVal - PressVal;
+		double dwds = T0+EntrVal*T0*T0*T0/(197.327*197.327*197.327
+										*DEntrDTTaylor(T0, 0, 0, 0)); //T+s/(ds/dT)
 		printf("%lf %15.12f %15.12f %15.12f %15.12f\n", T0,
 				0.001*EnerDensVal*T0*T0*T0*T0/(197.327*197.327*197.327),
 				0.001*PressVal*T0*T0*T0*T0/(197.327*197.327*197.327),
-				EntrVal*T0*T0*T0/(197.327*197.327*197.327),
-				T0+EntrVal*T0*T0*T0/(197.327*197.327*197.327*197.327
-										*DEntrDTTaylor(T0, 0, 0, 0)) );	//T+s/(ds/dT)
+				EntrVal*T0*T0*T0/(197.327*197.327*197.327), dwds/197.327 );	
 
 	}
 	exit(-1);
