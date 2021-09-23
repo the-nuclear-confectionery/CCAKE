@@ -1426,7 +1426,8 @@ void LinkList<D>::bsqsvconservation_E()
     for (int i=0; i<_n; i++) {
         E+= (_p[i].C* _p[i].g2-_p[i].EOSp()-_p[i].bigPI+_p[i].shv.x[0][0])/_p[i].sigma*_p[i].sigmaweight*t;
 if (i==0)
-cout << "E: " << i << "   " << _p[i].C
+cout << "E: " << i << "   " << t
+		<< "   " << _p[i].C
 		<< "   " << _p[i].g2
 		<< "   " << _p[i].EOSp()
 		<< "   " << _p[i].bigPI
@@ -1566,8 +1567,9 @@ void LinkList<D>::bsqsvconservation_Ez()
     double t2=t*t;
     for (int i=0; i<_n; i++) {
         dEz+=( _p[i].EOSp()+_p[i].bigPI+_p[i].shv33*t2)/_p[i].sigma*_p[i].sigmaweight;
-if (i==0)
-cout << "dEz: " << i << "   " << _p[i].EOSp()
+if (false)
+cout << "dEz: " << i << "   " << t
+		<< "   " << _p[i].EOSp()
 		<< "   " << _p[i].bigPI
 		<< "   " << _p[i].shv33*t2
 		<< "   " << _p[i].sigma
