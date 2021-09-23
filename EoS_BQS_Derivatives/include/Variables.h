@@ -13,7 +13,7 @@ int i,j,k,l;
 double *xSN, *fSN;
 int check;
 
-const double T_min_matching = 40.0;
+double T_min_matching;
 double Tval, muBval, muSval, muQval;
 double Rat;
 
