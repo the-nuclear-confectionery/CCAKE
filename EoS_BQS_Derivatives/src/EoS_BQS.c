@@ -428,19 +428,28 @@ int main(int argc, char *argv[])
 
 
 
+	for (double T0 = 1.0; T0 < 49.999; T0+=0.1)
+	{
+		PressVal    = PressTaylor(   T0, 0, 0, 0 );
+		EntrVal     = EntrTaylor(    T0, 0, 0, 0 );
+		EnerDensVal = EntrVal - PressVal;
+		printf("%lf %15.12f %15.12f %15.12f %15.12f\n", T0,
+				0.001*EnerDensVal*T0*T0*T0*T0/(197.327*197.327*197.327),
+				0.001*PressVal*T0*T0*T0*T0/(197.327*197.327*197.327),
+				EntrVal*T0*T0*T0/(197.327*197.327*197.327),
+				SpSound(T0, 0, 0, 0) );
+
+	}
 	for (double T0 = 50.0; T0 < 800.001; T0+=0.5)
 	{
 		PressVal    = PressTaylor(   T0, 0, 0, 0 );
 		EntrVal     = EntrTaylor(    T0, 0, 0, 0 );
-		BarDensVal  = BarDensTaylor( T0, 0, 0, 0 );
-		StrDensVal  = StrDensTaylor( T0, 0, 0, 0 );
-		ChDensVal   = ChDensTaylor(  T0, 0, 0, 0 );
 		EnerDensVal = EntrVal - PressVal;
-		printf("%lf %15.12f %15.12f %15.12f\n", T0,
+		printf("%lf %15.12f %15.12f %15.12f %15.12f\n", T0,
 				0.001*EnerDensVal*T0*T0*T0*T0/(197.327*197.327*197.327),
 				0.001*PressVal*T0*T0*T0*T0/(197.327*197.327*197.327),
-				EntrVal*T0*T0*T0/(197.327*197.327*197.327)
-							);
+				EntrVal*T0*T0*T0/(197.327*197.327*197.327),
+				SpSound(T0, 0, 0, 0) );
 
 	}
 	exit(-1);
