@@ -84,6 +84,7 @@ double coeffsecondMod(double *par, double x){
 
 
 // -------------- LOW T EXTENSIONS ----------------- //
+/*
 double lowT_coeff(double *par, double x)
 {
 	return par[1]*exp(-par[3]/(x*x)-par[2]/x);
@@ -125,6 +126,47 @@ void set_lowT_Mod_parameters(double *par1, double *par2)
 	par2[1] = chi*exp( par2[3]/(T0*T0) + par2[2]/T0 );
 	printf("%g %g %g %g %g\n", par2[2], par2[3], chi, chip, chipp);
 }
+*/
+
+
+
+double lowT_coeff(double *par, double x)
+{
+	return par[1]*exp(-par[2]/x);
+}
+double lowT_coeffprime(double *par,double x)
+{
+	return par[1]*par[2]*exp(-par[2]/x)/(x*x);
+}
+double lowT_coeffsecond(double *par, double x)
+{
+	return par[1]*par[2]*exp(-par[2]/x)*(par[2]-2.0*x)/(x*x*x*x);
+}
+
+
+
+void set_lowT_parameters(double *par1, double *par2)
+{
+	const double T0 = T_min_matching;
+	double chi      = coeff(par1,T0);
+	double chip     = coeffprime(par1,T0);
+
+	par2[2] = T0*T0*chip/chi;
+	par2[1] = chi*exp( par2[2]/T0 );
+	printf("%g %g %g %g\n", par2[1], par2[2], chi, chip);
+}
+
+void set_lowT_Mod_parameters(double *par1, double *par2)
+{
+	const double T0 = T_min_matching;
+	double chi      = coeffMod(par1,T0);
+	double chip     = coeffprimeMod(par1,T0);
+
+	par2[2] = T0*T0*chip/chi;
+	par2[1] = chi*exp( par2[2]/T0 );
+	printf("%g %g %g %g\n", par2[1], par2[2], chi, chip);
+}
+
 
 
 // ------------- THE COEFFICIENTS ------------------ //

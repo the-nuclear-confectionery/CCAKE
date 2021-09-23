@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
   	for(i=1;i<=21;i++) CHI121PAR[i] = parMatrix[21][i];
   	for(i=1;i<=21;i++) CHI112PAR[i] = parMatrix[22][i];
   	
-	T_min_matching = 100.0;
+	T_min_matching = 30.0;
   	set_lowT_parameters(CHI000PAR, CHI000PAR_ABC);
   	set_lowT_Mod_parameters(CHI200PAR, CHI200PAR_ABC);
   	set_lowT_parameters(CHI020PAR, CHI020PAR_ABC);
