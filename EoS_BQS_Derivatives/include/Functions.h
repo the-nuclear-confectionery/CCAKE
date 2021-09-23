@@ -107,6 +107,52 @@ double lowT_CHI211(double T);
 double lowT_CHI121(double T);
 double lowT_CHI112(double T);
 
+double lowT_DCHI000DT(double T);
+double lowT_DCHI200DT(double T);
+double lowT_DCHI020DT(double T);
+double lowT_DCHI002DT(double T);
+double lowT_DCHI110DT(double T);
+double lowT_DCHI101DT(double T);
+double lowT_DCHI011DT(double T);
+double lowT_DCHI400DT(double T);
+double lowT_DCHI040DT(double T);
+double lowT_DCHI004DT(double T);
+double lowT_DCHI310DT(double T);
+double lowT_DCHI301DT(double T);
+double lowT_DCHI031DT(double T);
+double lowT_DCHI130DT(double T);
+double lowT_DCHI103DT(double T);
+double lowT_DCHI013DT(double T);
+double lowT_DCHI220DT(double T);
+double lowT_DCHI202DT(double T);
+double lowT_DCHI022DT(double T);
+double lowT_DCHI211DT(double T);
+double lowT_DCHI121DT(double T);
+double lowT_DCHI112DT(double T);
+
+double lowT_D2CHI000DT2(double T);
+double lowT_D2CHI200DT2(double T);
+double lowT_D2CHI020DT2(double T);
+double lowT_D2CHI002DT2(double T);
+double lowT_D2CHI110DT2(double T);
+double lowT_D2CHI101DT2(double T);
+double lowT_D2CHI011DT2(double T);
+double lowT_D2CHI400DT2(double T);
+double lowT_D2CHI040DT2(double T);
+double lowT_D2CHI004DT2(double T);
+double lowT_D2CHI310DT2(double T);
+double lowT_D2CHI301DT2(double T);
+double lowT_D2CHI031DT2(double T);
+double lowT_D2CHI130DT2(double T);
+double lowT_D2CHI103DT2(double T);
+double lowT_D2CHI013DT2(double T);
+double lowT_D2CHI220DT2(double T);
+double lowT_D2CHI202DT2(double T);
+double lowT_D2CHI022DT2(double T);
+double lowT_D2CHI211DT2(double T);
+double lowT_D2CHI121DT2(double T);
+double lowT_D2CHI112DT2(double T);
+
 
 // ------------ THERMODYNAMICS --------------------- //
 double PressTaylor(double T, double muB, double muQ, double muS);
