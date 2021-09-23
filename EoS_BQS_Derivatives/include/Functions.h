@@ -4,6 +4,10 @@
 double **parMatrix;
 double *par;
 
+void set_lowT_parameters(double *par1, double *par2);
+void set_lowT_Mod_parameters(double *par1, double *par2);
+
+
 // ------------- THE FUNCTIONAL FORMS --------------- //
 double coeff(double *par,double x); 
 double coeffprime(double *par,double x);

@@ -89,12 +89,12 @@ double lowT_coeff(double *par, double x)
 	const double t = x/154.0;
 	return t*t*t*t*(par[3] + t*(par[2] + par[1]*t));
 }
-double coeffprime(double *par,double x)
+double lowT_coeffprime(double *par,double x)
 {
 	const double t = x/154.0;
 	return (t*t*t*(4.0*par[3] + t*(5.0*par[2] + 6.0*par[1]*t)))/154.0;
 }
-double coeffsecond(double *par, double x)
+double lowT_coeffsecond(double *par, double x)
 {
 	const double t = x/154.0;
 	return (2.0*t*t*(6.0*par[3] + 5.0*t*(2.0*par[2] + 3.0*par[1]*t)))/(154.0*154.0);
@@ -102,17 +102,17 @@ double coeffsecond(double *par, double x)
 
 
 // For CHI200
-double coeffMod(double *par, double x)
+double lowT_coeffMod(double *par, double x)
 {
 	const double t = x/200.0;
 	return t*t*t*t*(par[3] + t*(par[2] + par[1]*t));
 }
-double coeffprimeMod(double *par, double x)
+double lowT_coeffprimeMod(double *par, double x)
 {
 	const double t = x/200.0;
 	return (t*t*t*(4.0*par[3] + t*(5.0*par[2] + 6.0*par[1]*t)))/200.0;
 }
-double coeffsecondMod(double *par, double x)
+double lowT_coeffsecondMod(double *par, double x)
 {
 	const double t = x/200.0;
 	return (2.0*t*t*(6.0*par[3] + 5.0*t*(2.0*par[2] + 3.0*par[1]*t)))/(200.0*200.0);
