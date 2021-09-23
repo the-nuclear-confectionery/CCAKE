@@ -202,6 +202,8 @@ int main(int argc, char *argv[])
   	set_lowT_parameters(CHI121PAR, CHI121PAR_ABC);
   	set_lowT_parameters(CHI112PAR, CHI112PAR_ABC);
 
+if (1) exit(-1);
+
   	/* Create folder for coefficients checks. */
 	mkdir("Coefficients_Check", S_IRWXU | S_IRWXG | S_IRWXO);
 	chdir("Coefficients_Check");
