@@ -110,7 +110,7 @@ void set_lowT_parameters(double *par1, double *par2)
 	par[2] = (chi_at_T0*d2chidT2_at_T0 - dchidT_at_T0*dchidT_at_T0)/(2.0*chi_at_T0*chi_at_T0);
 	par[3] = ( T0*dchidT_at_T0*dchidT_at_T0 + chi_at_T0*(dchidT_at_T0 - T0*d2chidT2_at_T0))
 			/(chi_at_T0*chi_at_T0);
-	par[1] = chi_at_T0*exp(-T0*(par[3] + par[2]*T0))
+	par[1] = chi_at_T0*exp(-T0*(par[3] + par[2]*T0));
 }
 
 
