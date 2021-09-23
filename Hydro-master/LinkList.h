@@ -2426,14 +2426,14 @@ if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
 			<< _p[i].sigmaweight << "   " << _p[i].e_sub << "   "
 			<< _p[i].EOST() << "   " << _p[i].EOSe() << "   "
-			<< _p[i].EOSp() << "   " << endl;
+			<< _p[i].EOSp() << "   " << _p[i].s_an << endl;
 			_p[i].s_an = _p[i].EOSs_out( _p[i].e_sub,   _p[i].rhoB_an,
 										 _p[i].rhoS_an, _p[i].rhoQ_an );
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
 			<< _p[i].sigmaweight << "   " << _p[i].e_sub << "   "
 			<< _p[i].EOST() << "   " << _p[i].EOSe() << "   "
-			<< _p[i].EOSp() << "   " << endl;
+			<< _p[i].EOSp() << "   " << _p[i].s_an << endl;
 
 			if (true || VERBOSE>5)
 			{
@@ -2481,9 +2481,9 @@ if (i==0)
 
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
-			<< _p[i].sigmaweight << "   " << _p[i].s_sub << "   "
+			<< _p[i].sigmaweight << "   " << _p[i].e_sub << "   "
 			<< _p[i].EOST() << "   " << _p[i].EOSe() << "   "
-			<< _p[i].EOSp() << "   " << endl;
+			<< _p[i].EOSp() << "   " << _p[i].s_an << endl;
 		}
 
 		////////////////////////////////////////////////////////////////////////
@@ -2546,7 +2546,7 @@ if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
 			<< _p[i].sigmaweight << "   " << _p[i].e_sub << "   "
 			<< _p[i].EOST() << "   " << _p[i].EOSe() << "   "
-			<< _p[i].EOSp() << "   " << endl;
+			<< _p[i].EOSp() << "   " << _p[i].s_an << endl;
 
 if (i==0)
 			cout << "\t --> Densities found in EoS table: "
@@ -2586,7 +2586,7 @@ if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
 			<< _p[i].sigmaweight << "   " << _p[i].e_sub << "   "
 			<< _p[i].EOST() << "   " << _p[i].EOSe() << "   "
-			<< _p[i].EOSp() << "   " << endl;
+			<< _p[i].EOSp() << "   " << _p[i].s_an << endl;
 
 		}
 
@@ -2620,7 +2620,7 @@ if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
 			<< _p[i].sigmaweight << "   " << _p[i].e_sub << "   "
 			<< _p[i].EOST() << "   " << _p[i].EOSe() << "   "
-			<< _p[i].EOSp() << "   " << endl;
+			<< _p[i].EOSp() << "   " << _p[i].s_an << endl;
 
     }
 	cout << "----------------------------------------"
@@ -2816,13 +2816,13 @@ if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
 			<< _p[i].sigmaweight << "   " << _p[i].s_sub << "   "
 			<< _p[i].EOST() << "   " << _p[i].EOSe() << "   "
-			<< _p[i].EOSp() << "   " << endl;
+			<< _p[i].EOSp() << "   " << _p[i].s_an << endl;
 		bsqsvoptimization(i, initialization_mode);
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
 			<< _p[i].sigmaweight << "   " << _p[i].s_sub << "   "
 			<< _p[i].EOST() << "   " << _p[i].EOSe() << "   "
-			<< _p[i].EOSp() << "   " << endl;
+			<< _p[i].EOSp() << "   " << _p[i].s_an << endl;
 	}
 	cout << "One more loop!" << endl;
 
