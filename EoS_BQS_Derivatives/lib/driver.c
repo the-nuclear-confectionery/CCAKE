@@ -190,7 +190,21 @@ void initialize(const char parameters_filename[])
   	set_lowT_parameters(CHI110PAR, CHI110PAR_ABC);
   	set_lowT_parameters(CHI101PAR, CHI101PAR_ABC);
   	set_lowT_parameters(CHI011PAR, CHI011PAR_ABC);
-  	set_lowT_paramete
+  	set_lowT_parameters(CHI400PAR, CHI400PAR_ABC);
+  	set_lowT_parameters(CHI040PAR, CHI040PAR_ABC);
+  	set_lowT_parameters(CHI004PAR, CHI004PAR_ABC);
+  	set_lowT_parameters(CHI310PAR, CHI310PAR_ABC);
+  	set_lowT_parameters(CHI301PAR, CHI301PAR_ABC);
+  	set_lowT_parameters(CHI031PAR, CHI031PAR_ABC);
+  	set_lowT_parameters(CHI130PAR, CHI130PAR_ABC);
+  	set_lowT_parameters(CHI103PAR, CHI103PAR_ABC);
+  	set_lowT_parameters(CHI013PAR, CHI013PAR_ABC);
+  	set_lowT_parameters(CHI220PAR, CHI220PAR_ABC);
+  	set_lowT_parameters(CHI202PAR, CHI202PAR_ABC);
+  	set_lowT_parameters(CHI022PAR, CHI022PAR_ABC);
+  	set_lowT_parameters(CHI211PAR, CHI211PAR_ABC);
+  	set_lowT_parameters(CHI121PAR, CHI121PAR_ABC);
+  	set_lowT_parameters(CHI112PAR, CHI112PAR_ABC);
 
   	
 	end = clock();
