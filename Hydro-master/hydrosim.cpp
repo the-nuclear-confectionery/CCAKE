@@ -383,6 +383,8 @@ void BSQSimulation(double dt,LinkList<2> &linklist)
         }
 
     }
+
+	cout << "BSQ-SV simulation completed!" << endl;
     //out.conservation(linklist,pcount);
 
 
