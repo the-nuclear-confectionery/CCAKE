@@ -441,7 +441,7 @@ int main(int argc, char *argv[])
 				EntrVal*T0*T0*T0/(197.327*197.327*197.327), dwds/197.327 );	
 
 	}
-	for (double T0 = 50.0; T0 < 800.001; T0+=0.5)
+	for (double T0 = 50.0; T0 < 800.001; T0+=0.1)
 	{
 		PressVal    = PressTaylor(   T0, 0, 0, 0 );
 		EntrVal     = EntrTaylor(    T0, 0, 0, 0 );
