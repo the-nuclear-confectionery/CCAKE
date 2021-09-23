@@ -2544,7 +2544,7 @@ if (i==0)
 		{
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
-			<< _p[i].sigmaweight << "   " << _p[i].s_sub << "   "
+			<< _p[i].sigmaweight << "   " << _p[i].e_sub << "   "
 			<< _p[i].EOST() << "   " << _p[i].EOSe() << "   "
 			<< _p[i].EOSp() << "   " << endl;
 
@@ -2584,7 +2584,7 @@ if (i==0)
 			cout << "\n";
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
-			<< _p[i].sigmaweight << "   " << _p[i].s_sub << "   "
+			<< _p[i].sigmaweight << "   " << _p[i].e_sub << "   "
 			<< _p[i].EOST() << "   " << _p[i].EOSe() << "   "
 			<< _p[i].EOSp() << "   " << endl;
 
@@ -2618,7 +2618,7 @@ if (i==0)
 
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
-			<< _p[i].sigmaweight << "   " << _p[i].s_sub << "   "
+			<< _p[i].sigmaweight << "   " << _p[i].e_sub << "   "
 			<< _p[i].EOST() << "   " << _p[i].EOSe() << "   "
 			<< _p[i].EOSp() << "   " << endl;
 
