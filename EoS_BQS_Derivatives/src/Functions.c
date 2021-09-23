@@ -103,13 +103,14 @@ double lowT_coeffsecond(double *par, double x)
 void set_lowT_parameters(double *par1, double *par2)
 {
 	const double T0 = 30.0;
-	double chi_at_T0         = coeff(par1,T0);
-	double T0dchidT_at_T0    = T0*coeffprime(par1,T0);
-	double T02d2chidT2_at_T0 = T0*T0*coeffsecond(par1,T0);
+	double chi_at_T0      = coeff(par1,T0);
+	double dchidT_at_T0   = coeffprime(par1,T0);
+	double d2chidT2_at_T0 = coeffsecond(par1,T0);
 
-	par2[1] = (20.0*chi_at_T0 - 8.0*T0dchidT_at_T0 + T02d2chidT2_at_T0)/(2.0*T0*T0*T0*T0*T0*T0);
-	par2[2] = -((24.0*chi_at_T0 - 9.0*T0dchidT_at_T0 + T02d2chidT2_at_T0)/(T0*T0*T0*T0*T0));
-	par2[3] = (30.0*chi_at_T0 - 10.0*T0dchidT_at_T0 + T02d2chidT2_at_T0)/(2.0*T0*T0*T0*T0);
+	par[2] = (chi_at_T0*d2chidT2_at_T0 - dchidT_at_T0*dchidT_at_T0)/(2.0*chi_at_T0*chi_at_T0);
+	par[3] = ( T0*dchidT_at_T0*dchidT_at_T0 + chi_at_T0*(dchidT_at_T0 - T0*d2chidT2_at_T0))
+			/(chi_at_T0*chi_at_T0);
+	par[1] = chi_at_T0*exp(-T0*(par[3] + par[2]*T0))
 }
 
 
