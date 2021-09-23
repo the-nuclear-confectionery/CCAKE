@@ -427,8 +427,8 @@ int main(int argc, char *argv[])
 //	exit(-1);
 
 
-
-	for (double T0 = 1.0; T0 < 49.999; T0+=0.1)
+	// generates tables for input to Jaki's original v-suphydro2
+	/*for (double T0 = 1.0; T0 < 49.999; T0+=0.1)
 	{
 		PressVal    = PressTaylor(   T0, 0, 0, 0 );
 		EntrVal     = EntrTaylor(    T0, 0, 0, 0 );
@@ -452,7 +452,7 @@ int main(int argc, char *argv[])
 				SpSound(T0, 0, 0, 0) );
 
 	}
-	exit(-1);
+	exit(-1);*/
 
 
 	// add a loop to generate toy initial conditions
@@ -474,15 +474,14 @@ int main(int argc, char *argv[])
 					+ muB0/T0*BarDensVal
 					+ muQ0/T0*ChDensVal
 					+ muS0/T0*StrDensVal;
-		if ( T0 >= 30.0 )
+		//if ( T0 >= 30.0 )
 		{
 			printf("eBSQ: %lf %lf %15.12f %15.12f %15.12f %15.12f\n", x0, y0,
-			0.001*EnerDensVal*T0*T0*T0*T0/(197.327*197.327*197.327),
-			BarDensVal*T0*T0*T0/(197.327*197.327*197.327),
-			StrDensVal*T0*T0*T0/(197.327*197.327*197.327),
-			ChDensVal*T0*T0*T0/(197.327*197.327*197.327)
-		);
-		printf("s: %lf %lf %15.12f\n", x0, y0,
+				0.001*EnerDensVal*T0*T0*T0*T0/(197.327*197.327*197.327),
+				BarDensVal*T0*T0*T0/(197.327*197.327*197.327),
+				StrDensVal*T0*T0*T0/(197.327*197.327*197.327),
+				ChDensVal*T0*T0*T0/(197.327*197.327*197.327) );
+			printf("s: %lf %lf %15.12f\n", x0, y0,
 				EntrVal*T0*T0*T0/(197.327*197.327*197.327));
 		}
 	}

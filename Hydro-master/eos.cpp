@@ -1121,13 +1121,13 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 					T_muB_muQ_muS_estimates, use_normalized_trees );
 
 	// set GSL vector with best initial guess we can
-	//std::cout << "Closest neighbor found to be:";
+	/*std::cout << "Closest neighbor found to be:";
 	for (int iCoord = 0; iCoord < 4; iCoord++)
 	{
 		std::cout << "   " << T_muB_muQ_muS_estimates[iCoord];
 		gsl_vector_set(x, iCoord, T_muB_muQ_muS_estimates[iCoord]/197.327);
 	}
-	std::cout << std::endl;
+	std::cout << std::endl;*/
 
     gsl_vector_set(x, 0, T());
     gsl_vector_set(x, 1, muB());
