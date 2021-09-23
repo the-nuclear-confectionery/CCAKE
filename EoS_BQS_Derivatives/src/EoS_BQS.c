@@ -309,11 +309,11 @@ int main(int argc, char *argv[])
 		double BOut = Tsol*Tsol*Tsol*BarDensTaylor(Tsol, muBsol, muQsol, muSsol);
 		double SOut = Tsol*Tsol*Tsol*StrDensTaylor(Tsol, muBsol, muQsol, muSsol);
 		double QOut = Tsol*Tsol*Tsol*ChDensTaylor(Tsol, muBsol, muQsol, muSsol);
-		POut /= 197.327*197.327*197.327;
-		sOut /= 197.327*197.327*197.327;
-		BOut /= 197.327*197.327*197.327;
-		SOut /= 197.327*197.327*197.327;
-		QOut /= 197.327*197.327*197.327;
+		POut /= 197.3*197.3*197.3;
+		sOut /= 197.3*197.3*197.3;
+		BOut /= 197.3*197.3*197.3;
+		SOut /= 197.3*197.3*197.3;
+		QOut /= 197.3*197.3*197.3;
 		double eOut = sOut*Tsol - POut + muBsol*BOut + muQsol*QOut + muSsol*SOut;
 		
 		printf("Check:\n");
@@ -433,12 +433,12 @@ int main(int argc, char *argv[])
 		PressVal    = PressTaylor(   T0, 0, 0, 0 );
 		EntrVal     = EntrTaylor(    T0, 0, 0, 0 );
 		EnerDensVal = EntrVal - PressVal;
-		double dwds = T0+EntrVal*T0*T0*T0/(197.327*197.327*197.327
+		double dwds = T0+EntrVal*T0*T0*T0/(197.3*197.3*197.3
 										*DEntrDTTaylor(T0, 0, 0, 0)); //T+s/(ds/dT)
 		printf("%lf %15.12f %15.12f %15.12f %15.12f\n", T0,
-				0.001*EnerDensVal*T0*T0*T0*T0/(197.327*197.327*197.327),
-				0.001*PressVal*T0*T0*T0*T0/(197.327*197.327*197.327),
-				EntrVal*T0*T0*T0/(197.327*197.327*197.327), dwds/197.327 );	
+				0.001*EnerDensVal*T0*T0*T0*T0/(197.3*197.3*197.3),
+				0.001*PressVal*T0*T0*T0*T0/(197.3*197.3*197.3),
+				EntrVal*T0*T0*T0/(197.3*197.3*197.3), dwds/197.3 );	
 
 	}
 	for (double T0 = 50.0; T0 < 800.001; T0+=0.1)
@@ -446,12 +446,12 @@ int main(int argc, char *argv[])
 		PressVal    = PressTaylor(   T0, 0, 0, 0 );
 		EntrVal     = EntrTaylor(    T0, 0, 0, 0 );
 		EnerDensVal = EntrVal - PressVal;
-		double dwds = T0+EntrVal*T0*T0*T0/(197.327*197.327*197.327
+		double dwds = T0+EntrVal*T0*T0*T0/(197.3*197.3*197.3
 										*DEntrDTTaylor(T0, 0, 0, 0)); //T+s/(ds/dT)
 		printf("%lf %15.12f %15.12f %15.12f %15.12f\n", T0,
-				0.001*EnerDensVal*T0*T0*T0*T0/(197.327*197.327*197.327),
-				0.001*PressVal*T0*T0*T0*T0/(197.327*197.327*197.327),
-				EntrVal*T0*T0*T0/(197.327*197.327*197.327), dwds/197.327 );	
+				0.001*EnerDensVal*T0*T0*T0*T0/(197.3*197.3*197.3),
+				0.001*PressVal*T0*T0*T0*T0/(197.3*197.3*197.3),
+				EntrVal*T0*T0*T0/(197.3*197.3*197.3), dwds/197.3 );	
 
 	}
 	exit(-1);
@@ -479,12 +479,12 @@ int main(int argc, char *argv[])
 		//if ( T0 >= 30.0 )
 		{
 			printf("eBSQ: %lf %lf %15.12f %15.12f %15.12f %15.12f\n", x0, y0,
-				0.001*EnerDensVal*T0*T0*T0*T0/(197.327*197.327*197.327),
-				BarDensVal*T0*T0*T0/(197.327*197.327*197.327),
-				StrDensVal*T0*T0*T0/(197.327*197.327*197.327),
-				ChDensVal*T0*T0*T0/(197.327*197.327*197.327) );
+				0.001*EnerDensVal*T0*T0*T0*T0/(197.3*197.3*197.3),
+				BarDensVal*T0*T0*T0/(197.3*197.3*197.3),
+				StrDensVal*T0*T0*T0/(197.3*197.3*197.3),
+				ChDensVal*T0*T0*T0/(197.3*197.3*197.3) );
 			printf("s: %lf %lf %15.12f\n", x0, y0,
-				EntrVal*T0*T0*T0/(197.327*197.327*197.327));
+				EntrVal*T0*T0*T0/(197.3*197.3*197.3));
 		}
 	}
 	if (1) exit(-1);
