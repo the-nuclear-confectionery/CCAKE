@@ -373,7 +373,20 @@ int main(int argc, char *argv[])
 
 	for (double T0 = 0.5; T0 < 50.001; T0+=0.5)
 	{
-		printf("%lf %15.12f %15.12f %15.12f %15.12f %15.12f "
+		if (T0<30.0)
+			printf("%lf %15.12f %15.12f %15.12f %15.12f %15.12f "
+				"%15.12f %15.12f %15.12f %15.12f %15.12f %15.12f "
+				"%15.12f %15.12f %15.12f %15.12f %15.12f %15.12f "
+				"%15.12f %15.12f %15.12f %15.12f %15.12f\n", T0,
+				lowT_CHI000(T0), lowT_CHI200(T0), lowT_CHI020(T0), lowT_CHI002(T0),
+				lowT_CHI110(T0), lowT_CHI101(T0), lowT_CHI011(T0), lowT_CHI400(T0),
+				lowT_CHI040(T0), lowT_CHI004(T0), lowT_CHI310(T0), lowT_CHI301(T0),
+				lowT_CHI031(T0), lowT_CHI130(T0), lowT_CHI103(T0), lowT_CHI013(T0),
+				lowT_CHI220(T0), lowT_CHI202(T0), lowT_CHI022(T0), lowT_CHI211(T0),
+				lowT_CHI121(T0), lowT_CHI112(T0) );
+
+		else
+			printf("%lf %15.12f %15.12f %15.12f %15.12f %15.12f "
 				"%15.12f %15.12f %15.12f %15.12f %15.12f %15.12f "
 				"%15.12f %15.12f %15.12f %15.12f %15.12f %15.12f "
 				"%15.12f %15.12f %15.12f %15.12f %15.12f\n", T0,
@@ -383,7 +396,6 @@ int main(int argc, char *argv[])
 				CHI031(T0), CHI130(T0), CHI103(T0), CHI013(T0),
 				CHI220(T0), CHI202(T0), CHI022(T0), CHI211(T0),
 				CHI121(T0), CHI112(T0) );
-
 	}
 	exit(-1);
 
