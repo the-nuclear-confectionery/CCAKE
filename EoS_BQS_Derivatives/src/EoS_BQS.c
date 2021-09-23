@@ -437,7 +437,7 @@ int main(int argc, char *argv[])
 				0.001*EnerDensVal*T0*T0*T0*T0/(197.327*197.327*197.327),
 				0.001*PressVal*T0*T0*T0*T0/(197.327*197.327*197.327),
 				EntrVal*T0*T0*T0/(197.327*197.327*197.327),
-				T0+EntrVal/DEntrDTTaylor(T0, 0, 0, 0) );	//dwds
+				T0+EntrVal*T0*T0*T0/(197.327*197.327*197.327*DEntrDTTaylor(T0, 0, 0, 0)) );	//T+s/(ds/dT)
 
 	}
 	for (double T0 = 50.0; T0 < 800.001; T0+=0.5)
@@ -449,7 +449,7 @@ int main(int argc, char *argv[])
 				0.001*EnerDensVal*T0*T0*T0*T0/(197.327*197.327*197.327),
 				0.001*PressVal*T0*T0*T0*T0/(197.327*197.327*197.327),
 				EntrVal*T0*T0*T0/(197.327*197.327*197.327),
-				T0+EntrVal/DEntrDTTaylor(T0, 0, 0, 0) );	//dwds
+				T0+EntrVal*T0*T0*T0/(197.327*197.327*197.327*DEntrDTTaylor(T0, 0, 0, 0)) );	//T+s/(ds/dT)
 
 	}
 	exit(-1);
