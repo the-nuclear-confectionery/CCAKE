@@ -86,16 +86,16 @@ double coeffsecondMod(double *par, double x){
 // -------------- LOW T EXTENSIONS ----------------- //
 double lowT_coeff(double *par, double x)
 {
-	return par[1]*exp(x*(par[3] + par[2]*x));
+	return par[1]*exp(-par[3]/(x*x)-par[2]/x);
 }
 double lowT_coeffprime(double *par,double x)
 {
-	return par[1]*exp(x*(par[3] + par[2]*x))*(par[3] + 2.0*par[2]*x);
+	return par[1]*exp(-par[3]/(x*x)-par[2]/x)*(2.0*par[3] + par[2]*x)/(x*x*x);
 }
 double lowT_coeffsecond(double *par, double x)
 {
-	return par[1]*exp(x*(par[3] + par[2]*x))
-			*(2.0*par[2] + par[3]*par[3] + 4.0*par[2]*x*(par[3] + par[2]*x));
+	return (par[1]/(x*x*x*x*x*x))*exp(-par[3]/(x*x)-par[2]/x)
+			*(4.0*par[3]*par[3] + 2.0*par[3]*(2.0*par[2] - 3.0*x)*x + par[2]*(par[2] - 2.0*x)*x*x);
 }
 
 
@@ -107,10 +107,9 @@ void set_lowT_parameters(double *par1, double *par2)
 	double dchidT_at_T0   = coeffprime(par1,T0);
 	double d2chidT2_at_T0 = coeffsecond(par1,T0);
 
-	par2[2] = (chi_at_T0*d2chidT2_at_T0 - dchidT_at_T0*dchidT_at_T0)/(2.0*chi_at_T0*chi_at_T0);
-	par2[3] = ( T0*dchidT_at_T0*dchidT_at_T0 + chi_at_T0*(dchidT_at_T0 - T0*d2chidT2_at_T0))
-			/(chi_at_T0*chi_at_T0);
-	par2[1] = chi_at_T0*exp(-T0*(par2[3] + par2[2]*T0));
+	par2[2] = (T0*T0*(3.0*chi*chip + T0*(chi*chipp - chip*chip))/(chi*chi);
+	par2[3] = -( T0*T0*T0*(2.0*chi*chip + T0*(chi*chipp - chip*chip)))/(2.0*chi*chi);
+	par2[1] = chi*exp( (par[3]/(T0*T0)) + par[2]/T0 );
 }
 
 
