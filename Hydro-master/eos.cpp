@@ -950,7 +950,7 @@ double eos::s_terms_T(double Tt) { //return entropy at a given temperature for m
 void eos::eosin(std::string type) {
 }
 double eos::A() {
-    return 0;
+    return w()-s()*dwds();
 }
 
 
