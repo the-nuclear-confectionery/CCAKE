@@ -102,7 +102,7 @@ double lowT_coeffsecond(double *par, double x)
 
 void set_lowT_parameters(double *par1, double *par2)
 {
-	const double T0 = 30.0;
+	const double T0 = T_min_matching;
 	double chi      = coeff(par1,T0);
 	double chip     = coeffprime(par1,T0);
 	double chipp    = coeffsecond(par1,T0);
@@ -115,7 +115,7 @@ void set_lowT_parameters(double *par1, double *par2)
 
 void set_lowT_Mod_parameters(double *par1, double *par2)
 {
-	const double T0 = 30.0;
+	const double T0 = T_min_matching;
 	double chi      = coeffMod(par1,T0);
 	double chip     = coeffprimeMod(par1,T0);
 	double chipp    = coeffsecondMod(par1,T0);
@@ -423,7 +423,7 @@ double lowT_D2CHI112DT2(double T){ return lowT_coeffsecond(CHI112PAR_ABC,T); }
 
 // ------------ THERMODYNAMICS --------------------- //
 double PressTaylor(double T, double muB, double muQ, double muS){
-	if (T<30.0)
+	if (T<T_min_matching)
     return lowT_CHI000(T) + lowT_CHI110(T)*muB/T*muQ/T + lowT_CHI101(T)*muB/T*muS/T
 			+ lowT_CHI011(T)*muQ/T*muS/T + 1.0/2.0*lowT_CHI200(T)*muB/T*muB/T
 			+ 1.0/2.0*lowT_CHI020(T)*muQ/T*muQ/T + 1.0/2.0*lowT_CHI002(T)*muS/T*muS/T 
@@ -450,7 +450,7 @@ double PressTaylor(double T, double muB, double muQ, double muS){
             + 1.0/24.0*CHI400(T)*muB/T*muB/T*muB/T*muB/T + 1.0/24.0*CHI040(T)*muQ/T*muQ/T*muQ/T*muQ/T + 1.0/24.0*CHI004(T)*muS/T*muS/T*muS/T*muS/T;
 }
 double EntrTaylor(double T, double muB, double muQ, double muS){
-	if (T<30.0)
+	if (T<T_min_matching)
     return  1.0/(24.0*T*T*T)*(96.0*T*T*T*lowT_CHI000(T) + 24.0*muS*muS*T*lowT_CHI002(T) + 48.0*muQ*muS*T*lowT_CHI011(T)
 			+ 24.0*muQ*muQ*T*lowT_CHI020(T) + 48.0*muB*muS*T*lowT_CHI101(T) + 48.0*muB*muQ*T*lowT_CHI110(T) 
             + 24.0*muB*muB*T*lowT_CHI200(T) + 24.0*T*T*T*T*lowT_DCHI000DT(T) + 12.0*muS*muS*T*T*lowT_DCHI002DT(T)
@@ -484,7 +484,7 @@ double EntrTaylor(double T, double muB, double muQ, double muS){
 			+ muB*muB*muB*muB*DCHI400DT(T));
 }
 double BarDensTaylor(double T, double muB, double muQ, double muS){
-	if (T<30.0)
+	if (T<T_min_matching)
     return lowT_CHI110(T)*muQ/T + lowT_CHI101(T)*muS/T + lowT_CHI200(T)*muB/T + lowT_CHI211(T)*muB/T*muQ/T*muS/T
 			+ 1.0/2.0*lowT_CHI121(T)*muQ/T*muQ/T*muS/T + 1.0/2.0*lowT_CHI112(T)*muQ/T*muS/T*muS/T 
             + 1.0/2.0*lowT_CHI220(T)*muB/T*muQ/T*muQ/T + 1.0/2.0*lowT_CHI202(T)*muB/T*muS/T*muS/T
@@ -497,7 +497,7 @@ double BarDensTaylor(double T, double muB, double muQ, double muS){
             + 1.0/2.0*CHI301(T)*muB/T*muB/T*muS/T + 1.0/6.0*CHI103(T)*muS/T*muS/T*muS/T + 1.0/6.0*CHI400(T)*muB/T*muB/T*muB/T;
 }
 double StrDensTaylor(double T, double muB, double muQ, double muS){
-	if (T<30.0)
+	if (T<T_min_matching)
     return lowT_CHI101(T)*muB/T + lowT_CHI011(T)*muQ/T + lowT_CHI002(T)*muS/T + 1.0/2.0*lowT_CHI211(T)*muB/T*muB/T*muQ/T
 			+ 1.0/2.0*lowT_CHI121(T)*muB/T*muQ/T*muQ/T + lowT_CHI112(T)*muB/T*muQ/T*muS/T 
             + 1.0/2.0*lowT_CHI202(T)*muB/T*muB/T*muS/T + 1.0/2.0*lowT_CHI022(T)*muQ/T*muQ/T*muS/T
@@ -513,7 +513,7 @@ double StrDensTaylor(double T, double muB, double muQ, double muS){
 			+ 1.0/6.0*CHI004(T)*muS/T*muS/T*muS/T;
 }
 double ChDensTaylor(double T, double muB, double muQ, double muS){
-	if (T<30.0)
+	if (T<T_min_matching)
     return lowT_CHI110(T)*muB/T + lowT_CHI011(T)*muS/T + lowT_CHI020(T)*muQ/T + 1.0/2.0*lowT_CHI211(T)*muB/T*muB/T*muS/T
 			+ lowT_CHI121(T)*muB/T*muQ/T*muS/T + 1.0/2.0*lowT_CHI112(T)*muB/T*muS/T*muS/T 
             + 1.0/2.0*lowT_CHI220(T)*muB/T*muB/T*muQ/T + 1.0/2.0*lowT_CHI022(T)*muQ/T*muS/T*muS/T
@@ -534,7 +534,7 @@ double ChDensTaylor(double T, double muB, double muQ, double muS){
 //Analytical expressions
 // Second order
 double Chi2BTaylor(double T, double muB, double muQ, double muS){
-	if (T<30.0)
+	if (T<T_min_matching)
     return lowT_CHI200(T) + lowT_CHI211(T)*muQ/T*muS/T + 1.0/2.0*lowT_CHI220(T)*muQ/T*muQ/T
 			+ 1.0/2.0*lowT_CHI202(T)*muS/T*muS/T + lowT_CHI310(T)*muB/T*muQ/T + lowT_CHI301(T)*muB/T*muS/T
 			+ 1.0/2.0*lowT_CHI400(T)*muB/T*muB/T;
@@ -545,7 +545,7 @@ double Chi2BTaylor(double T, double muB, double muQ, double muS){
 
 }
 double Chi2QTaylor(double T, double muB, double muQ, double muS){
-	if (T<30.0)
+	if (T<T_min_matching)
     return lowT_CHI020(T) + lowT_CHI121(T)*muB/T*muS/T + 1.0/2.0*lowT_CHI220(T)*muB/T*muB/T
 			+ 1.0/2.0*lowT_CHI022(T)*muS/T*muS/T + lowT_CHI130(T)*muB/T*muQ/T + lowT_CHI031(T)*muQ/T*muS/T
 			+ 1.0/2.0*lowT_CHI040(T)*muQ/T*muQ/T;
@@ -555,7 +555,7 @@ double Chi2QTaylor(double T, double muB, double muQ, double muS){
 			+ 1.0/2.0*CHI040(T)*muQ/T*muQ/T;
 }
 double Chi2STaylor(double T, double muB, double muQ, double muS){
-	if (T<30.0)
+	if (T<T_min_matching)
     return lowT_CHI002(T) + lowT_CHI112(T)*muB/T*muQ/T + 1.0/2.0*lowT_CHI202(T)*muB/T*muB/T
 			+ 1.0/2.0*lowT_CHI022(T)*muQ/T*muQ/T + lowT_CHI103(T)*muB/T*muS/T + lowT_CHI013(T)*muQ/T*muS/T
 			+ 1.0/2.0*lowT_CHI004(T)*muS/T*muS/T;
@@ -565,7 +565,7 @@ double Chi2STaylor(double T, double muB, double muQ, double muS){
 			+ 1.0/2.0*CHI004(T)*muS/T*muS/T;
 }
 double Chi11BQTaylor(double T, double muB, double muQ, double muS){
-	if (T<30.0)
+	if (T<T_min_matching)
     return lowT_CHI110(T) + lowT_CHI211(T)*muB/T*muS/T + lowT_CHI121(T)*muQ/T*muS/T + 1.0/2.0*lowT_CHI112(T)*muS/T*muS/T
 			+ lowT_CHI220(T)*muB/T*muQ/T + 1.0/2.0*lowT_CHI310(T)*muB/T*muB/T + 1.0/2.0*lowT_CHI130(T)*muQ/T*muQ/T;
 	else
@@ -573,7 +573,7 @@ double Chi11BQTaylor(double T, double muB, double muQ, double muS){
 			+ CHI220(T)*muB/T*muQ/T + 1.0/2.0*CHI310(T)*muB/T*muB/T + 1.0/2.0*CHI130(T)*muQ/T*muQ/T;
 }
 double Chi11BSTaylor(double T, double muB, double muQ, double muS){
-	if (T<30.0)
+	if (T<T_min_matching)
     return lowT_CHI101(T) + lowT_CHI211(T)*muB/T*muQ/T + 1.0/2.0*lowT_CHI121(T)*muQ/T*muQ/T + lowT_CHI112(T)*muQ/T*muS/T
 			+ lowT_CHI202(T)*muB/T*muS/T + 1.0/2.0*lowT_CHI301(T)*muB/T*muB/T + 1.0/2.0*lowT_CHI103(T)*muS/T*muS/T;
 	else
@@ -581,7 +581,7 @@ double Chi11BSTaylor(double T, double muB, double muQ, double muS){
 			+ CHI202(T)*muB/T*muS/T + 1.0/2.0*CHI301(T)*muB/T*muB/T + 1.0/2.0*CHI103(T)*muS/T*muS/T;
 }
 double Chi11QSTaylor(double T, double muB, double muQ, double muS){
-	if (T<30.0)
+	if (T<T_min_matching)
     return lowT_CHI011(T) + 1.0/2.0*lowT_CHI211(T)*muB/T*muB/T + lowT_CHI121(T)*muB/T*muQ/T + lowT_CHI112(T)*muB/T*muS/T
 			+ lowT_CHI022(T)*muQ/T*muS/T + 1.0/2.0*lowT_CHI031(T)*muQ/T*muQ/T + 1.0/2.0*lowT_CHI013(T)*muS/T*muS/T;
 	else
@@ -591,7 +591,7 @@ double Chi11QSTaylor(double T, double muB, double muQ, double muS){
 
 // Second order (one is T)
 double DBarDensDTTaylor(double T, double muB, double muQ, double muS){
-	if (T<30.0)
+	if (T<T_min_matching)
     return 1.0/(6.0*T*T)*(12.0*muS*T*lowT_CHI101(T) + 12.0*muQ*T*lowT_CHI110(T) + 12.0*muB*T*lowT_CHI200(T)
 			+ 6.0*muS*T*T*lowT_DCHI101DT(T) + muS*muS*muS*lowT_DCHI103DT(T) + 6.0*muQ*T*T*lowT_DCHI110DT(T) 
             + 3.0*muQ*muS*muS*lowT_DCHI112DT(T) + 3.0*muQ*muQ*muS*lowT_DCHI121DT(T) + muQ*muQ*muQ*lowT_DCHI130DT(T)
@@ -607,7 +607,7 @@ double DBarDensDTTaylor(double T, double muB, double muQ, double muS){
 			+ 3.0*muB*muB*muQ*DCHI310DT(T) + muB*muB*muB*DCHI400DT(T));
 }
 double DStrDensDTTaylor(double T, double muB, double muQ, double muS){
-	if (T<30.0)
+	if (T<T_min_matching)
     return 1.0/(6.0*T*T)*(12.0*muS*T*lowT_CHI002(T) + 12.0*muQ*T*lowT_CHI011(T) + 12.0*muB*T*lowT_CHI101(T)
 			+ 6.0*muS*T*T*lowT_DCHI002DT(T) + muS*muS*muS*lowT_DCHI004DT(T) + 6.0*muQ*T*T*lowT_DCHI011DT(T) 
             + 3.0*muQ*muS*muS*lowT_DCHI013DT(T) + 3.0*muQ*muQ*muS*lowT_DCHI022DT(T) + muQ*muQ*muQ*lowT_DCHI031DT(T)
@@ -623,7 +623,7 @@ double DStrDensDTTaylor(double T, double muB, double muQ, double muS){
 			+ 3.0*muB*muB*muQ*DCHI211DT(T) + muB*muB*muB*DCHI301DT(T));
 }
 double DChDensDTTaylor(double T, double muB, double muQ, double muS){
-	if (T<30.0)
+	if (T<T_min_matching)
     return 1.0/(6.0*T*T)*(12.0*muS*T*lowT_CHI011(T) + 12.0*muQ*T*lowT_CHI020(T) + 12.0*muB*T*lowT_CHI110(T)
 			+ 6.0*muS*T*T*lowT_DCHI011DT(T) + muS*muS*muS*lowT_DCHI013DT(T) + 6.0*muQ*T*T*lowT_DCHI020DT(T) 
             + 3.0*muQ*muS*muS*lowT_DCHI022DT(T) + 3.0*muQ*muQ*muS*lowT_DCHI031DT(T) + muQ*muQ*muQ*lowT_DCHI040DT(T)
@@ -641,7 +641,7 @@ double DChDensDTTaylor(double T, double muB, double muQ, double muS){
 
 // Second order (both are T)
 double DEntrDTTaylor(double T, double muB, double muQ, double muS){
-	if (T<30.0)
+	if (T<T_min_matching)
     return (288*pow(T,2)*lowT_CHI000(T) + 24*(pow(muS,2)*lowT_CHI002(T)
 				+ 2*muQ*muS*lowT_CHI011(T) + pow(muQ,2)*lowT_CHI020(T)
 				+ 2*muB*muS*lowT_CHI101(T) + 2*muB*muQ*lowT_CHI110(T) + pow(muB,2)*lowT_CHI200(T)) 
