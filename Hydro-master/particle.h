@@ -503,7 +503,7 @@ void Particle<D>::bsqsvsigset(double tin,int i)
     bigPI= Bulk*sigma/gt ;
     C=EOSw()+ bigPI;
 //	cout << "Check thermo1: " << i << "   " << tin << "   " << gamma
-//			<< "   " << EOST()*197.327 << "   " << EOSdwds() << "   " << dwdsT1
+//			<< "   " << EOST()*197.3 << "   " << EOSdwds() << "   " << dwdsT1
 //			<< "   " << sigma << "   " << dsigma_dt << "   " << sigl
 //			<< "   " << gradU << "   " << gradV << "   " << v;
     return_bsqsv_A();

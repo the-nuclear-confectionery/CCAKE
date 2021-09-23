@@ -1046,7 +1046,7 @@ std::cout << "Check detasigma_dt: " << i << "   "
 			<< linklist.t << "   "
 			<< linklist._p[i].detasigma_dt << "   "
 			<< linklist._p[i].sigma << "   "
-			<< linklist._p[i].EOST()*197.327 << "   "
+			<< linklist._p[i].EOST()*197.3 << "   "
 			<< linklist._p[i].bigPI << "   "
 			<< linklist._p[i].bigtheta << "   "
 			<< linklist._p[i].inside << std::endl;

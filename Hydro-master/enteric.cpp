@@ -427,7 +427,7 @@ void readICs_iccing( string &firstry, int &_Ntable3, Particle<2> *&_p,
 					 int & numpart, eos EOS)
 {
 
-	const double hbarC = 0.197327;
+	const double hbarC = 0.1973;
 	cout << "Reading in ICCING initial conditions!" << endl;
 
     string filename;
@@ -549,10 +549,10 @@ void readICs_iccing( string &firstry, int &_Ntable3, Particle<2> *&_p,
 		// make educated initial guess here for this particle's (T, mu_i) coordinates
 		// (improve this in the future)
 		_p[j].SPH_cell.T   = 500.0*exp(-0.1*(_p[j].r.x[0]*_p[j].r.x[0]+_p[j].r.x[1]*_p[j].r.x[1]))
-							/197.327;	// rootfinder seems to work better going downhill than "uphill"
-		_p[j].SPH_cell.muB = 20.0/197.327;
-		_p[j].SPH_cell.muS = 40.0/197.327;
-		_p[j].SPH_cell.muQ = 30.0/197.327;
+							/197.3;	// rootfinder seems to work better going downhill than "uphill"
+		_p[j].SPH_cell.muB = 20.0/197.3;
+		_p[j].SPH_cell.muS = 40.0/197.3;
+		_p[j].SPH_cell.muQ = 30.0/197.3;
 
         if (_p[j].e_sub>efcheck)	// impose freeze-out check for e, not s
         {

@@ -67,7 +67,7 @@ void eos::init_grid_ranges_only(string quantityFile, string derivFile)
     double tit, muBit, muQit, muSit, pit, entrit, bit, sit, qit, eit, cs2it;
 
     int count = 0;
-    double hbarc = 197.327;
+    double hbarc = 197.3;
     while (dataFile >> tit >> muBit >> muQit >> muSit
 			>> pit >> entrit >> bit >> sit >> qit
 			>> eit >> cs2it)
@@ -137,7 +137,7 @@ void eos::tbqs(double setT, double setmuB, double setmuQ, double setmuS)
 
 	// EXPECTS UNITS OF MEV!!!
 	double phase_diagram_point[4]	// NOTE: S <<-->> Q swapped!!!
-			= {setT*197.327, setmuB*197.327, setmuS*197.327, setmuQ*197.327};
+			= {setT*197.3, setmuB*197.3, setmuS*197.3, setmuQ*197.3};
 	double thermodynamics[17];
 	get_full_thermo(phase_diagram_point, thermodynamics);
 
@@ -638,8 +638,8 @@ double eos::deriv_mult_aTm_1b(gsl_vector* a, gsl_matrix* m, gsl_vector* b) {
 	if ( inversion_status )	// if an error occurred
 	{
 		cout << "Current TBQS location: "
-				<< 197.327*T() << "   " << 197.327*muB() << "   "
-				<< 197.327*muS() << "   " << 197.327*muQ() << endl << endl;
+				<< 197.3*T() << "   " << 197.3*muB() << "   "
+				<< 197.3*muS() << "   " << 197.3*muQ() << endl << endl;
 
 		cout << "Current EoS data:" << endl;
 		cout << "pVal = " << pVal << endl
@@ -1023,8 +1023,8 @@ int rootfinder_fsbqs(const gsl_vector *x, void *params, gsl_vector *f) {
     rhoQGiven = ((rootfinder_parameters*)params)->rhoQGiven;
     rhoSGiven = ((rootfinder_parameters*)params)->rhoSGiven;
 {
-	double phase_diagram_point[4] = {tbqsToEval[0]*197.327, tbqsToEval[1]*197.327,
-					 tbqsToEval[3]*197.327, tbqsToEval[2]*197.327};	// NOTE: S <<-->> Q swapped!!!
+	double phase_diagram_point[4] = {tbqsToEval[0]*197.3, tbqsToEval[1]*197.3,
+					 tbqsToEval[3]*197.3, tbqsToEval[2]*197.3};	// NOTE: S <<-->> Q swapped!!!
 	double densities_at_point[4];
 	get_sBSQ_densities(phase_diagram_point, densities_at_point);
 	entr = densities_at_point[0];
@@ -1032,10 +1032,10 @@ int rootfinder_fsbqs(const gsl_vector *x, void *params, gsl_vector *f) {
 	rhoS = densities_at_point[2];
 	rhoQ = densities_at_point[3];
 	/*cout << "Check here: " 
-		<< tbqsToEval(0)*197.327 << "   "
-		<< tbqsToEval(1)*197.327 << "   "
-		<< tbqsToEval(2)*197.327 << "   "
-		<< tbqsToEval(3)*197.327 << "   "
+		<< tbqsToEval(0)*197.3 << "   "
+		<< tbqsToEval(1)*197.3 << "   "
+		<< tbqsToEval(2)*197.3 << "   "
+		<< tbqsToEval(3)*197.3 << "   "
 		<< entr << "   " << entrGiven << "   "
 		<< rhoB << "   " << rhoBGiven << "   "
 		<< rhoS << "   " << rhoSGiven << "   "
@@ -1069,20 +1069,20 @@ int rootfinder_febqs(const gsl_vector *x, void *params, gsl_vector *f) {
     rhoQGiven = ((rootfinder_parameters*)params)->rhoQGiven;
     rhoSGiven = ((rootfinder_parameters*)params)->rhoSGiven;
 {
-	double phase_diagram_point[4] = {tbqsToEval[0]*197.327, tbqsToEval[1]*197.327,
-					 tbqsToEval[3]*197.327, tbqsToEval[2]*197.327};	// NOTE: S <<-->> Q swapped!!!
+	double phase_diagram_point[4] = {tbqsToEval[0]*197.3, tbqsToEval[1]*197.3,
+					 tbqsToEval[3]*197.3, tbqsToEval[2]*197.3};	// NOTE: S <<-->> Q swapped!!!
 	double densities_at_point[4];
 	get_eBSQ_densities(phase_diagram_point, densities_at_point);
-	e = densities_at_point[0]/197.327;
+	e = densities_at_point[0]/197.3;
 	rhoB = densities_at_point[1];
 	rhoS = densities_at_point[2];
 	rhoQ = densities_at_point[3];
 	/*cout << "Check here: " 
-		<< tbqsToEval(0)*197.327 << "   "
-		<< tbqsToEval(1)*197.327 << "   "
-		<< tbqsToEval(2)*197.327 << "   "
-		<< tbqsToEval(3)*197.327 << "   "
-		<< e*197.327 << "   " << eGiven*197.327 << "   "
+		<< tbqsToEval(0)*197.3 << "   "
+		<< tbqsToEval(1)*197.3 << "   "
+		<< tbqsToEval(2)*197.3 << "   "
+		<< tbqsToEval(3)*197.3 << "   "
+		<< e*197.3 << "   " << eGiven*197.3 << "   "
 		<< rhoB << "   " << rhoBGiven << "   "
 		<< rhoS << "   " << rhoSGiven << "   "
 		<< rhoQ << "   " << rhoQGiven << endl;
@@ -1113,7 +1113,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 	constexpr bool use_normalized_trees = true;
 	if ( e_or_s_mode==1 )
 		e_delaunay.get_NMN_coordinates(
-					{e_or_s_Given*197.327, rhoBGiven, rhoSGiven, rhoQGiven},
+					{e_or_s_Given*197.3, rhoBGiven, rhoSGiven, rhoQGiven},
 					T_muB_muQ_muS_estimates, use_normalized_trees );
 	else
 		entr_delaunay.get_NMN_coordinates(
@@ -1125,7 +1125,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 	for (int iCoord = 0; iCoord < 4; iCoord++)
 	{
 		std::cout << "   " << T_muB_muQ_muS_estimates[iCoord];
-		gsl_vector_set(x, iCoord, T_muB_muQ_muS_estimates[iCoord]/197.327);
+		gsl_vector_set(x, iCoord, T_muB_muQ_muS_estimates[iCoord]/197.3);
 	}
 	std::cout << std::endl;*/
 
@@ -1133,10 +1133,10 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
     gsl_vector_set(x, 1, muB());
     gsl_vector_set(x, 2, muQ());
     gsl_vector_set(x, 3, muS());
-    /*gsl_vector_set(x, 0, 500.0/197.327);
-    gsl_vector_set(x, 1, 0.0/197.327);
-    gsl_vector_set(x, 2, 0.0/197.327);
-    gsl_vector_set(x, 3, 0.0/197.327);*/
+    /*gsl_vector_set(x, 0, 500.0/197.3);
+    gsl_vector_set(x, 1, 0.0/197.3);
+    gsl_vector_set(x, 2, 0.0/197.3);
+    gsl_vector_set(x, 3, 0.0/197.3);*/
 
     //initialize the rootfinder equation to the correct variable quantities
     bool isEntropy = false;
@@ -1165,7 +1165,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 		std::cout << std::endl
 			<< "=============================================="
 			<< std::endl << "Input (e,B,Q,S): "
-			<< e_or_s_Given*0.197327 << "   "
+			<< e_or_s_Given*0.1973 << "   "
 			<< rhoBGiven << "   "
 			<< rhoQGiven << "   "
 			<< rhoSGiven << std::endl;*/
@@ -1293,7 +1293,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 		// use unnormalized distances to estimate neighbor (reset from above)
 		if ( e_or_s_mode==1 )
 			e_delaunay.get_NMN_coordinates(
-						{e_or_s_Given*197.327, rhoBGiven, rhoSGiven, rhoQGiven},
+						{e_or_s_Given*197.3, rhoBGiven, rhoSGiven, rhoQGiven},
 						T_muB_muQ_muS_estimates, false );
 		else
 			entr_delaunay.get_NMN_coordinates(
@@ -1306,17 +1306,17 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 		double Tfinal = 0.0, muBfinal = 0.0, muQfinal = 0.0, muSfinal = 0.0;
 		if (iter >= steps && status == 0)	// no reported problems, just ran out of steps
 		{
-			Tfinal   = gsl_vector_get(solver->x, 0)*197.327;
-			muBfinal = gsl_vector_get(solver->x, 1)*197.327;
-			muQfinal = gsl_vector_get(solver->x, 2)*197.327;
-			muSfinal = gsl_vector_get(solver->x, 3)*197.327;
+			Tfinal   = gsl_vector_get(solver->x, 0)*197.3;
+			muBfinal = gsl_vector_get(solver->x, 1)*197.3;
+			muQfinal = gsl_vector_get(solver->x, 2)*197.3;
+			muSfinal = gsl_vector_get(solver->x, 3)*197.3;
 		}
 		else
 		{
-			Tfinal   = previous_solver_step[0]*197.327;
-			muBfinal = previous_solver_step[1]*197.327;
-			muQfinal = previous_solver_step[2]*197.327;
-			muSfinal = previous_solver_step[3]*197.327;
+			Tfinal   = previous_solver_step[0]*197.3;
+			muBfinal = previous_solver_step[1]*197.3;
+			muQfinal = previous_solver_step[2]*197.3;
+			muSfinal = previous_solver_step[3]*197.3;
 		}
 
 		double inputDensities[4] = {e_or_s_Given, rhoBGiven, rhoSGiven, rhoQGiven};
@@ -1371,21 +1371,21 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 		// (SWAP S <--> Q AGAIN)
 		if ( which_neighbor_closest == 0 )
 		{
-			tbqs( final_phase_diagram_point[0]/197.327, final_phase_diagram_point[1]/197.327,
-				  final_phase_diagram_point[3]/197.327, final_phase_diagram_point[2]/197.327 );
+			tbqs( final_phase_diagram_point[0]/197.3, final_phase_diagram_point[1]/197.3,
+				  final_phase_diagram_point[3]/197.3, final_phase_diagram_point[2]/197.3 );
 		cout << "final_phase_diagram_point: ";
 		for (int iSol = 0; iSol <4; iSol++)
-			cout << "   " << final_phase_diagram_point[iSol] / 197.327;
+			cout << "   " << final_phase_diagram_point[iSol] / 197.3;
 		cout << endl;
 
 		}
 		else if ( which_neighbor_closest == 1 )
 		{
-			tbqs( neighbor_estimate_point[0]/197.327, neighbor_estimate_point[1]/197.327,
-				  neighbor_estimate_point[3]/197.327, neighbor_estimate_point[2]/197.327 );
+			tbqs( neighbor_estimate_point[0]/197.3, neighbor_estimate_point[1]/197.3,
+				  neighbor_estimate_point[3]/197.3, neighbor_estimate_point[2]/197.3 );
 		cout << "neighbor_estimate_point!";
 		for (int iSol = 0; iSol < 4; iSol++)
-			cout << "   " << neighbor_estimate_point[iSol] / 197.327;
+			cout << "   " << neighbor_estimate_point[iSol] / 197.3;
 		cout << endl;
 
 		}

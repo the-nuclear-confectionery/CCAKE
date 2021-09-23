@@ -338,13 +338,13 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
 			EOS0.init( quantityFile, derivativeFile );
 		}
 	    EOS0.eosin(eostype);			// does nothing!
-		const double freeze_out_T_at_mu_eq_0 = 0.15/0.197327;	//1/fm
+		const double freeze_out_T_at_mu_eq_0 = 0.15/0.1973;	//1/fm
 	    efcheck = EOS0.efreeze(freeze_out_T_at_mu_eq_0);
 	    sfcheck = EOS0.sfreeze(freeze_out_T_at_mu_eq_0);
-		//efcheck = 0.266112/0.197327;
+		//efcheck = 0.266112/0.1973;
 		//sfcheck = 2.05743;
 
-		std::cout << "efcheck = " << efcheck*0.197327 << " GeV/fm^3\n";
+		std::cout << "efcheck = " << efcheck*0.1973 << " GeV/fm^3\n";
 		std::cout << "sfcheck = " << sfcheck << " 1/fm^3\n";
 	}
 	else
@@ -377,10 +377,10 @@ void manualenter(_inputIC &ics, LinkList<D> &linklist)
 
 
 	    EOS0.eosin(eostype);
-		const double freeze_out_T_at_mu_eq_0 = 0.15/0.197327;	//1/fm
+		const double freeze_out_T_at_mu_eq_0 = 0.15/0.1973;	//1/fm
 	    efcheck=EOS0.efreeze(freeze_out_T_at_mu_eq_0);
 	    sfcheck=EOS0.sfreeze(freeze_out_T_at_mu_eq_0);
-		std::cout << "efcheck = " << efcheck*0.197327 << " GeV/fm^3\n";
+		std::cout << "efcheck = " << efcheck*0.1973 << " GeV/fm^3\n";
 		std::cout << "sfcheck = " << sfcheck << " 1/fm^3\n";
 	}
 
