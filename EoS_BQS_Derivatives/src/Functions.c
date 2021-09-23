@@ -128,7 +128,7 @@ void set_lowT_parameters(double *par1, double *par2)
 
 	par2[1] = (20.0*chi_at_T0 - 8.0*t*dchidT_at_T0 + t*t*d2chidT2_at_T0)/(2.0*t*t*t*t*t*t);
 	par2[2] = -(( 24.0*chi_at_T0 - 9.0*t*dchidT_at_T0 + t*t*d2chidT2_at_T0)/(t*t*t*t*t));
-	par2[3] = (30.0 chi_at_T0 - 10.0 t dchidT_at_T0 + t*t*d2chidT2_at_T0)/(2.0*t*t*t*t);
+	par2[3] = (30.0*chi_at_T0 - 10.0 t dchidT_at_T0 + t*t*d2chidT2_at_T0)/(2.0*t*t*t*t);
 }
 
 void set_lowT_Mod_parameters(double *par1, double *par2)
@@ -140,7 +140,7 @@ void set_lowT_Mod_parameters(double *par1, double *par2)
 
 	par2[1] = (20.0*chi_at_T0 - 8.0*t*dchidT_at_T0 + t*t*d2chidT2_at_T0)/(2.0*t*t*t*t*t*t);
 	par2[2] = -((24.0*chi_at_T0 - 9.0*t*dchidT_at_T0 + t*t*d2chidT2_at_T0)/(t*t*t*t*t));
-	par2[3] = (30.0 chi_at_T0 - 10.0 t dchidT_at_T0 + t*t*d2chidT2_at_T0)/(2.0*t*t*t*t);
+	par2[3] = (30.0*chi_at_T0 - 10.0 t dchidT_at_T0 + t*t*d2chidT2_at_T0)/(2.0*t*t*t*t);
 }
 
 
