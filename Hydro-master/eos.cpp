@@ -1121,7 +1121,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 					T_muB_muQ_muS_estimates, use_normalized_trees );
 
 	// set GSL vector with best initial guess we can
-	std::cout << "Closest neighbor found to be:";
+	//std::cout << "Closest neighbor found to be:";
 	for (int iCoord = 0; iCoord < 4; iCoord++)
 	{
 		std::cout << "   " << T_muB_muQ_muS_estimates[iCoord];
@@ -1257,7 +1257,7 @@ bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 
     } while (status == GSL_CONTINUE && iter < steps);
 
-std::cout << "Exited GSL loop" << endl;
+//std::cout << "Exited GSL loop" << endl;
 
     bool found = true; //to return variable
     if ( iter >= steps || status != 0 )
@@ -1271,7 +1271,7 @@ std::cout << "Exited GSL loop" << endl;
         found = false;
     }
 
-std::cout << "found = " << found << endl;
+//std::cout << "found = " << found << endl;
 
 
     if ( found )
@@ -1280,10 +1280,10 @@ std::cout << "found = " << found << endl;
 			  gsl_vector_get(solver->x, 1),
 			  gsl_vector_get(solver->x, 2),
 			  gsl_vector_get(solver->x, 3) );    //set T, muB, muQ, muS
-		cout << "GSL found solution!";
+		/*cout << "GSL found solution!";
 		for (int iSol = 0; iSol <4; iSol++)
 			cout << "   " << gsl_vector_get(solver->x, iSol);
-		cout << endl;
+		cout << endl;*/
     }
 	else if ( accept_nearest_neighbor )	// just return nearest neighbor instead
 	{

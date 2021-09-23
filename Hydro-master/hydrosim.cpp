@@ -816,14 +816,14 @@ void BSQshear(LinkList<D>  &linklist)  // shear+bulk Equations of motion, only s
 
     for(int i=0; i<linklist.n(); i++)
     {
-		cout << "Entering this loop: i = " << i << endl;
+		//cout << "Entering this loop: i = " << i << endl;
         int curfrz=0;//added by Christopher Plumberg to get compilation
-		cout << "Calling bsqsvoptimization for i = " << i << endl;
+		//cout << "Calling bsqsvoptimization for i = " << i << endl;
         linklist.bsqsvoptimization(i);    // NOT bsqsvoptimization2!!! fix arguments accordingly!!!
 //		linklist._p[i].rhoB_sub /= _p[i].gamma*t0;
 //		linklist._p[i].rhoS_sub /= _p[i].gamma*t0;
 //		linklist._p[i].rhoQ_sub /= _p[i].gamma*t0;
-		cout << "Finished bsqsvoptimization for i = " << i << endl;
+		//cout << "Finished bsqsvoptimization for i = " << i << endl;
 
         if ((linklist._p[i].eta<0)||isnan(linklist._p[i].eta))
         {
@@ -866,10 +866,10 @@ void BSQshear(LinkList<D>  &linklist)  // shear+bulk Equations of motion, only s
     {
         //  Computes gamma and velocity
 
-		cout << "Calling calcbsq for particle i = " << i << endl;
+		//cout << "Calling calcbsq for particle i = " << i << endl;
 
         linklist._p[i].calcbsq(linklist.t); //resets EOS!!
-		cout << "Finished calcbsq for particle i = " << i << endl;
+		//cout << "Finished calcbsq for particle i = " << i << endl;
         /*N.B. - eventually extend to read in viscosities from table, etc.*/linklist._p[i].setvisc(linklist.etaconst,linklist.bvf,linklist.svf,linklist.zTc,linklist.sTc,linklist.zwidth,linklist.visc);
         if (linklist.cfon==1) linklist._p[i].frzcheck(linklist.t,curfrz,linklist.n());
 
@@ -887,9 +887,9 @@ void BSQshear(LinkList<D>  &linklist)  // shear+bulk Equations of motion, only s
     for(int i=0; i<linklist.n(); i++)
     {
         //      Computes gradients to obtain dsigma/dt
-		cout << "Calling bsqsvoptimization2 for i = " << i << endl;
+		//cout << "Calling bsqsvoptimization2 for i = " << i << endl;
         linklist.bsqsvoptimization2(i,linklist.t,curfrz);
-		cout << "Finished bsqsvoptimization2 for i = " << i << endl;
+		//cout << "Finished bsqsvoptimization2 for i = " << i << endl;
 
         linklist._p[i].dsigma_dt = -linklist._p[i].sigma
 									*( linklist._p[i].gradV.x[0][0]
@@ -919,7 +919,7 @@ void BSQshear(LinkList<D>  &linklist)  // shear+bulk Equations of motion, only s
     //calculate matrix elements
 
 constexpr int ic = 0;
-constexpr bool printAll = true;
+constexpr bool printAll = false;
     for(int i=0; i<linklist.n(); i++)
     {
         double gamt=1./linklist._p[i].gamma/linklist._p[i].stauRelax;
