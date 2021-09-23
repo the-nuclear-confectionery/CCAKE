@@ -86,49 +86,30 @@ double coeffsecondMod(double *par, double x){
 // -------------- LOW T EXTENSIONS ----------------- //
 double lowT_coeff(double *par, double x)
 {
-	const double t = x/154.0;
-	return t*t*t*t*(par[3] + t*(par[2] + par[1]*t));
+	return par[1]*exp(x*(par[3] + par[2]*x));
 }
 double lowT_coeffprime(double *par,double x)
 {
-	const double t = x/154.0;
-	return (t*t*t*(4.0*par[3] + t*(5.0*par[2] + 6.0*par[1]*t)))/154.0;
+	return par[1]*exp(x*(par[3] + par[2]*x))*(par[3] + 2.0*par[2]*x);
 }
 double lowT_coeffsecond(double *par, double x)
 {
-	const double t = x/154.0;
-	return (2.0*t*t*(6.0*par[3] + 5.0*t*(2.0*par[2] + 3.0*par[1]*t)))/(154.0*154.0);
+	return par[1]*exp(x*(par[3] + par[2]*x))
+			*(2.0*par[2] + par[3]*par[3] + 4.0*par[2]*x*(par[3] + par[2]*x));
 }
 
-
-// For CHI200
-double lowT_coeffMod(double *par, double x)
-{
-	const double t = x/200.0;
-	return t*t*t*t*(par[3] + t*(par[2] + par[1]*t));
-}
-double lowT_coeffprimeMod(double *par, double x)
-{
-	const double t = x/200.0;
-	return (t*t*t*(4.0*par[3] + t*(5.0*par[2] + 6.0*par[1]*t)))/200.0;
-}
-double lowT_coeffsecondMod(double *par, double x)
-{
-	const double t = x/200.0;
-	return (2.0*t*t*(6.0*par[3] + 5.0*t*(2.0*par[2] + 3.0*par[1]*t)))/(200.0*200.0);
-}
 
 
 void set_lowT_parameters(double *par1, double *par2)
 {
-	const double t = 30.0/154.0;
-	double chi_at_T0      = coeff(par1,30.0);
-	double dchidT_at_T0   = coeffprime(par1,30.0);
-	double d2chidT2_at_T0 = coeffsecond(par1,30.0);
+	const double T0 = 30.0;
+	double chi_at_T0         = coeff(par1,T0);
+	double T0dchidT_at_T0    = T0*coeffprime(par1,T0);
+	double T02d2chidT2_at_T0 = T0*T0*coeffsecond(par1,T0);
 
-	par2[1] = (20.0*chi_at_T0 - 8.0*t*dchidT_at_T0 + t*t*d2chidT2_at_T0)/(2.0*t*t*t*t*t*t);
-	par2[2] = -(( 24.0*chi_at_T0 - 9.0*t*dchidT_at_T0 + t*t*d2chidT2_at_T0)/(t*t*t*t*t));
-	par2[3] = (30.0*chi_at_T0 - 10.0 t dchidT_at_T0 + t*t*d2chidT2_at_T0)/(2.0*t*t*t*t);
+	par2[1] = (20.0*chi_at_T0 - 8.0*T0dchidT_at_T0 + T02d2chidT2_at_T0)/(2.0*T0*T0*T0*T0*T0*T0);
+	par2[2] = -((24.0*chi_at_T0 - 9.0*T0dchidT_at_T0 + T02d2chidT2_at_T0)/(T0*T0*T0*T0*T0));
+	par2[3] = (30.0*chi_at_T0 - 10.0*T0dchidT_at_T0 + T02d2chidT2_at_T0)/(2.0*T0*T0*T0*T0);
 }
 
 void set_lowT_Mod_parameters(double *par1, double *par2)
@@ -140,7 +121,7 @@ void set_lowT_Mod_parameters(double *par1, double *par2)
 
 	par2[1] = (20.0*chi_at_T0 - 8.0*t*dchidT_at_T0 + t*t*d2chidT2_at_T0)/(2.0*t*t*t*t*t*t);
 	par2[2] = -((24.0*chi_at_T0 - 9.0*t*dchidT_at_T0 + t*t*d2chidT2_at_T0)/(t*t*t*t*t));
-	par2[3] = (30.0*chi_at_T0 - 10.0 t dchidT_at_T0 + t*t*d2chidT2_at_T0)/(2.0*t*t*t*t);
+	par2[3] = (30.0*chi_at_T0 - 10.0*t*dchidT_at_T0 + t*t*d2chidT2_at_T0)/(2.0*t*t*t*t);
 }
 
 
@@ -360,7 +341,7 @@ double D2CHI112DT2(double T){
 ///////////////////////////////////////////////////////
 // ------------- THE COEFFICIENTS ------------------ //
 double lowT_CHI000(double T){ return lowT_coeff(CHI000PAR_ABC,T); }
-double lowT_CHI200(double T){ return lowT_coeffMod(CHI200PAR_ABC,T);}
+double lowT_CHI200(double T){ return lowT_coeff(CHI200PAR_ABC,T);}
 double lowT_CHI020(double T){ return lowT_coeff(CHI020PAR_ABC,T); }
 double lowT_CHI002(double T){ return lowT_coeff(CHI002PAR_ABC,T); }
 double lowT_CHI110(double T){ return lowT_coeff(CHI110PAR_ABC,T); }
@@ -385,7 +366,7 @@ double lowT_CHI112(double T){ return lowT_coeff(CHI112PAR_ABC,T); }
 
 // ---- Derivatives wrt T --------- //
 double lowT_DCHI000DT(double T){ return lowT_coeffprime(CHI000PAR_ABC,T); }
-double lowT_DCHI200DT(double T){ return lowT_coeffprimeMod(CHI200PAR_ABC,T); }
+double lowT_DCHI200DT(double T){ return lowT_coeffprime(CHI200PAR_ABC,T); }
 double lowT_DCHI020DT(double T){ return lowT_coeffprime(CHI020PAR_ABC,T); }
 double lowT_DCHI002DT(double T){ return lowT_coeffprime(CHI002PAR_ABC,T); }
 double lowT_DCHI110DT(double T){ return lowT_coeffprime(CHI110PAR_ABC,T); }
@@ -410,7 +391,7 @@ double lowT_DCHI112DT(double T){ return lowT_coeffprime(CHI112PAR_ABC,T); }
 
 // ---- Double derivatives wrt T --------- //
 double lowT_D2CHI000DT2(double T){ return lowT_coeffsecond(CHI000PAR_ABC,T); }
-double lowT_D2CHI200DT2(double T){ return lowT_coeffsecondMod(CHI200PAR_ABC,T); }
+double lowT_D2CHI200DT2(double T){ return lowT_coeffsecond(CHI200PAR_ABC,T); }
 double lowT_D2CHI020DT2(double T){ return lowT_coeffsecond(CHI020PAR_ABC,T); }
 double lowT_D2CHI002DT2(double T){ return lowT_coeffsecond(CHI002PAR_ABC,T); }
 double lowT_D2CHI110DT2(double T){ return lowT_coeffsecond(CHI110PAR_ABC,T); }

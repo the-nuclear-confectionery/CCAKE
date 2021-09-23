@@ -370,6 +370,25 @@ int main(int argc, char *argv[])
 	mkdir("Thermodynamics", S_IRWXU | S_IRWXG | S_IRWXO);
 	chdir("Thermodynamics");
 
+
+	for (double T0 = 0.5; T0 < 50.001; T0+=0.5)
+	{
+		printf("%lf %15.12f %15.12f %15.12f %15.12f %15.12f "
+				"%15.12f %15.12f %15.12f %15.12f %15.12f %15.12f "
+				"%15.12f %15.12f %15.12f %15.12f %15.12f %15.12f "
+				"%15.12f %15.12f %15.12f %15.12f %15.12f\n", T0,
+				CHI000(T0), CHI200(T0), CHI020(T0), CHI002(T0),
+				CHI110(T0), CHI101(T0), CHI011(T0), CHI400(T0),
+				CHI040(T0), CHI004(T0), CHI310(T0), CHI301(T0),
+				CHI031(T0), CHI130(T0), CHI103(T0), CHI013(T0),
+				CHI220(T0), CHI202(T0), CHI022(T0), CHI211(T0),
+				CHI121(T0), CHI112(T0) );
+
+	}
+	exit(-1);
+
+
+
 	/*
 	for (double T0 = 50.0; T0 < 800.001; T0+=0.5)
 	{
