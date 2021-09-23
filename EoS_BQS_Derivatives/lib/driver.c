@@ -218,7 +218,7 @@ void initialize(const char parameters_filename[])
 /*
 void get_densities(double point[], double densities[])
 {
-	const double hbarc3 = 197.327*197.327*197.327;
+	const double hbarc3 = 197.3*197.3*197.3;
 	const double Tsol = point[0], muBsol = point[1], muSsol = point[2], muQsol = point[3];
 	double POut = Tsol*Tsol*Tsol*Tsol*PressTaylor(Tsol, muBsol, muQsol, muSsol)/hbarc3;
 	double sOut = Tsol*Tsol*Tsol*EntrTaylor(Tsol, muBsol, muQsol, muSsol)/hbarc3;
@@ -240,7 +240,7 @@ void get_densities(double point[], double densities[])
 void get_eBSQ_densities(double point[], double densities[])
 {
 	const double Tsol = point[0], muBsol = point[1], muSsol = point[2], muQsol = point[3];
-	const double Tsol3_by_hc3 = Tsol*Tsol*Tsol/(197.327*197.327*197.327);
+	const double Tsol3_by_hc3 = Tsol*Tsol*Tsol/(197.3*197.3*197.3);
 	double POut = Tsol*Tsol3_by_hc3*PressTaylor(Tsol, muBsol, muQsol, muSsol);
 	double sOut = Tsol3_by_hc3*EntrTaylor(Tsol, muBsol, muQsol, muSsol);
 	double BOut = Tsol3_by_hc3*BarDensTaylor(Tsol, muBsol, muQsol, muSsol);
@@ -256,7 +256,7 @@ void get_eBSQ_densities(double point[], double densities[])
 void get_sBSQ_densities(double point[], double densities[])
 {
 	const double Tsol = point[0], muBsol = point[1], muSsol = point[2], muQsol = point[3];
-	const double Tsol3_by_hc3 = Tsol*Tsol*Tsol/(197.327*197.327*197.327);
+	const double Tsol3_by_hc3 = Tsol*Tsol*Tsol/(197.3*197.3*197.3);
 	densities[0] = Tsol3_by_hc3*EntrTaylor(Tsol, muBsol, muQsol, muSsol);
 	densities[1] = Tsol3_by_hc3*BarDensTaylor(Tsol, muBsol, muQsol, muSsol);
 	densities[2] = Tsol3_by_hc3*StrDensTaylor(Tsol, muBsol, muQsol, muSsol);
@@ -268,7 +268,7 @@ void get_sBSQ_densities(double point[], double densities[])
 void get_full_thermo(double point[], double thermodynamics[])
 {
 	const double Tsol = point[0], muBsol = point[1], muSsol = point[2], muQsol = point[3];
-	const double Tsol3_by_hc3 = Tsol*Tsol*Tsol/(197.327*197.327*197.327);
+	const double Tsol3_by_hc3 = Tsol*Tsol*Tsol/(197.3*197.3*197.3);
 	double POut = Tsol*Tsol3_by_hc3*PressTaylor(Tsol, muBsol, muQsol, muSsol);
 	double sOut = Tsol3_by_hc3*EntrTaylor(Tsol, muBsol, muQsol, muSsol);
 	double BOut = Tsol3_by_hc3*BarDensTaylor(Tsol, muBsol, muQsol, muSsol);
@@ -278,12 +278,12 @@ void get_full_thermo(double point[], double thermodynamics[])
 
 
 	//Thermodynamics
-	thermodynamics[0]  = POut / 197.327;
+	thermodynamics[0]  = POut / 197.3;
 	thermodynamics[1]  = sOut;
 	thermodynamics[2]  = BOut;
 	thermodynamics[3]  = SOut;
 	thermodynamics[4]  = QOut;
-	thermodynamics[5]  = eOut / 197.327;
+	thermodynamics[5]  = eOut / 197.3;
 	thermodynamics[6]  = SpSound(Tsol, muBsol, muQsol, muSsol);
 				
 	//Second Order Derivatives
