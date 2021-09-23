@@ -107,10 +107,10 @@ void set_lowT_parameters(double *par1, double *par2)
 	double dchidT_at_T0   = coeffprime(par1,T0);
 	double d2chidT2_at_T0 = coeffsecond(par1,T0);
 
-	par[2] = (chi_at_T0*d2chidT2_at_T0 - dchidT_at_T0*dchidT_at_T0)/(2.0*chi_at_T0*chi_at_T0);
-	par[3] = ( T0*dchidT_at_T0*dchidT_at_T0 + chi_at_T0*(dchidT_at_T0 - T0*d2chidT2_at_T0))
+	par2[2] = (chi_at_T0*d2chidT2_at_T0 - dchidT_at_T0*dchidT_at_T0)/(2.0*chi_at_T0*chi_at_T0);
+	par2[3] = ( T0*dchidT_at_T0*dchidT_at_T0 + chi_at_T0*(dchidT_at_T0 - T0*d2chidT2_at_T0))
 			/(chi_at_T0*chi_at_T0);
-	par[1] = chi_at_T0*exp(-T0*(par[3] + par[2]*T0));
+	par2[1] = chi_at_T0*exp(-T0*(par2[3] + par2[2]*T0));
 }
 
 
