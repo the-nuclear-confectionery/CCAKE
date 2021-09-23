@@ -112,19 +112,6 @@ void set_lowT_parameters(double *par1, double *par2)
 	par2[3] = (30.0*chi_at_T0 - 10.0*T0dchidT_at_T0 + T02d2chidT2_at_T0)/(2.0*T0*T0*T0*T0);
 }
 
-void set_lowT_Mod_parameters(double *par1, double *par2)
-{
-	const double t = 30.0/200.0;
-	double chi_at_T0      = coeff(par1,30.0);
-	double dchidT_at_T0   = coeffprime(par1,30.0);
-	double d2chidT2_at_T0 = coeffsecond(par1,30.0);
-
-	par2[1] = (20.0*chi_at_T0 - 8.0*t*dchidT_at_T0 + t*t*d2chidT2_at_T0)/(2.0*t*t*t*t*t*t);
-	par2[2] = -((24.0*chi_at_T0 - 9.0*t*dchidT_at_T0 + t*t*d2chidT2_at_T0)/(t*t*t*t*t));
-	par2[3] = (30.0*chi_at_T0 - 10.0*t*dchidT_at_T0 + t*t*d2chidT2_at_T0)/(2.0*t*t*t*t);
-}
-
-
 
 // ------------- THE COEFFICIENTS ------------------ //
 double CHI000(double T){
