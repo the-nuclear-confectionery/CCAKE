@@ -537,22 +537,21 @@ void readICs_iccing( string &firstry, int &_Ntable3, Particle<2> *&_p,
         _p[j].rhoQ_an=rQsub[j];					// confirm with Jaki
 		_p[j].transverse_area = stepx*stepy;
 
-		//if (j==0)
-		//cout << "readICs_iccing(" << __LINE__ << "): "
-		/*cout << "SPH particles: "
+		if (j==0)
+		cout << "readICs_iccing(" << __LINE__ << "): "
+			<< "SPH particles: "
 			<< j << "   "
 			<< _p[j].r.x[0] << "   " << _p[j].r.x[1] << "   "
 			<< _p[j].e_sub << "   " << _p[j].rhoB_an << "   "
 			<< _p[j].rhoS_an << "   " << _p[j].rhoQ_an << "   "
-			<< _p[j].sigmaweight << endl;*/
+			<< _p[j].sigmaweight << endl;
 
 		// make educated initial guess here for this particle's (T, mu_i) coordinates
 		// (improve this in the future)
-		_p[j].SPH_cell.T   = 500.0*exp(-0.1*(_p[j].r.x[0]*_p[j].r.x[0]+_p[j].r.x[1]*_p[j].r.x[1]))
-							/197.3;	// rootfinder seems to work better going downhill than "uphill"
-		_p[j].SPH_cell.muB = 20.0/197.3;
-		_p[j].SPH_cell.muS = 40.0/197.3;
-		_p[j].SPH_cell.muQ = 30.0/197.3;
+		_p[j].SPH_cell.T   = 500.0/197.3;	// rootfinder seems to work better going downhill than "uphill"
+		_p[j].SPH_cell.muB = 0.0/197.3;
+		_p[j].SPH_cell.muS = 0.0/197.3;
+		_p[j].SPH_cell.muQ = 0.0/197.3;
 
         if (_p[j].e_sub>efcheck)	// impose freeze-out check for e, not s
         {

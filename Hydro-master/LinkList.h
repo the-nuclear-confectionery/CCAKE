@@ -2842,13 +2842,13 @@ if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
 			<< _p[i].sigmaweight << "   " << _p[i].s_sub << "   "
 			<< _p[i].EOST() << "   " << _p[i].EOSe() << "   "
-			<< _p[i].EOSp() << "   " << endl;
+			<< _p[i].EOSp() << "   " << _p[i].s_an << endl;
 		_p[i].EOSupdate_s(_p[i].s_sub, _p[i].rhoB_sub, _p[i].rhoS_sub, _p[i].rhoQ_sub);
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
 			<< _p[i].sigmaweight << "   " << _p[i].s_sub << "   "
 			<< _p[i].EOST() << "   " << _p[i].EOSe() << "   "
-			<< _p[i].EOSp() << "   " << endl;
+			<< _p[i].EOSp() << "   " << _p[i].s_an << endl;
 
 		_p[i].sigsub = 0;
 		_p[i].frzcheck(t0, count1, _n);
