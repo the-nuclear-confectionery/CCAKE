@@ -319,8 +319,8 @@ void Particle<D>::calcbsq(double tin)
 	rhoB_an = rhoB_in2;
 	rhoS_an = rhoS_in2;
 	rhoQ_an = rhoQ_in2;
-cout << "\t - finding EoS solution for sBSQ: " << s_in2 << "   "
-		<< rhoB_in2 << "   " << rhoS_in2 << "   " << rhoQ_in2 << endl;
+//cout << "\t - finding EoS solution for sBSQ: " << s_in2 << "   "
+//		<< rhoB_in2 << "   " << rhoS_in2 << "   " << rhoQ_in2 << endl;
 	EOSupdate_s(s_in2, rhoB_in2, rhoS_in2, rhoQ_in2);
 }
 
@@ -511,6 +511,7 @@ void Particle<D>::bsqsvsigset(double tin,int i)
     check=sigl;
 //	cout << "   " << EOSw() << "   " << bigPI << "   " << Agam
 //			<< "   " << shv33 << "   " << Bsub() << "   " << Btot << endl;
+if (i==0)
 	cout << "Check thermo: " << i << "   "
 			<< tin << "   " << r << "   "
 			<< SPH_cell.T << "   "
