@@ -203,7 +203,7 @@ int main(int argc, char *argv[])
   	set_lowT_parameters(CHI121PAR, CHI121PAR_ABC);
   	set_lowT_parameters(CHI112PAR, CHI112PAR_ABC);
 
-if (1) exit(-1);
+//if (1) exit(-1);
 
   	/* Create folder for coefficients checks. */
 	mkdir("Coefficients_Check", S_IRWXU | S_IRWXG | S_IRWXO);
@@ -374,9 +374,9 @@ if (1) exit(-1);
 	chdir("Thermodynamics");
 
 
-	for (double T0 = 0.5; T0 < 50.001; T0+=0.5)
+	for (double T0 = 0.5; T0 < T_min_matching+20.001; T0+=0.5)
 	{
-		if (T0<30.0)
+		if (T0<T_min_matching)
 			printf("%lf %15.12f %15.12f %15.12f %15.12f %15.12f "
 				"%15.12f %15.12f %15.12f %15.12f %15.12f %15.12f "
 				"%15.12f %15.12f %15.12f %15.12f %15.12f %15.12f "

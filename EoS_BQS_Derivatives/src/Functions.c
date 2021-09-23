@@ -153,7 +153,7 @@ void set_lowT_parameters(double *par1, double *par2)
 
 	par2[2] = T0*T0*chip/chi;
 	par2[1] = chi*exp( par2[2]/T0 );
-	printf("%g %g %g %g\n", par2[1], par2[2], chi, chip);
+	//printf("%g %g %g %g\n", par2[1], par2[2], chi, chip);
 }
 
 void set_lowT_Mod_parameters(double *par1, double *par2)
@@ -164,7 +164,7 @@ void set_lowT_Mod_parameters(double *par1, double *par2)
 
 	par2[2] = T0*T0*chip/chi;
 	par2[1] = chi*exp( par2[2]/T0 );
-	printf("%g %g %g %g\n", par2[1], par2[2], chi, chip);
+	//printf("%g %g %g %g\n", par2[1], par2[2], chi, chip);
 }
 
 
