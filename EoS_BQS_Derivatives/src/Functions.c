@@ -103,9 +103,9 @@ double lowT_coeffsecond(double *par, double x)
 void set_lowT_parameters(double *par1, double *par2)
 {
 	const double T0 = 30.0;
-	double chi_at_T0      = coeff(par1,T0);
-	double dchidT_at_T0   = coeffprime(par1,T0);
-	double d2chidT2_at_T0 = coeffsecond(par1,T0);
+	double chi      = coeff(par1,T0);
+	double chip     = coeffprime(par1,T0);
+	double chipp    = coeffsecond(par1,T0);
 
 	par2[2] = (T0*T0*(3.0*chi*chip + T0*(chi*chipp - chip*chip))/(chi*chi);
 	par2[3] = -( T0*T0*T0*(2.0*chi*chip + T0*(chi*chipp - chip*chip)))/(2.0*chi*chi);
