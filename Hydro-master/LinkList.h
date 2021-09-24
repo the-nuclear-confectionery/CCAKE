@@ -2414,14 +2414,12 @@ void LinkList<D>::updateIC()
 			"----------------------------------------" << endl;
     for (int i=0; i<_n; i++)
     {
-if (i==0)
 		cout << "----------------------------------------"
 				"----------------------------------------" << endl;
 
 		if (gtyp!=5)
 		{
 			sw.Start();
-if (i==0)
 			cout << "Doing this particle: "
 					<< _p[i].r.x[0] << "   " << _p[i].r.x[1] << "\n";
 if (i==0)
@@ -2448,7 +2446,6 @@ if (i==0)
 							  _p[i].SPH_cell.muQ*197.3 };
 					double densities_at_point[4];
 					get_eBSQ_densities(phase_diagram_point, densities_at_point);
-if (i==0)
 					cout << i << ":   " << _p[i].e_sub*197.3
 						<< "   " << _p[i].rhoB_an
 						<< "   " << _p[i].rhoS_an
@@ -2457,14 +2454,11 @@ if (i==0)
 						<< "   " << _p[i].SPH_cell.muB*197.3
 						<< "   " << _p[i].SPH_cell.muS*197.3
 						<< "   " << _p[i].SPH_cell.muQ*197.3;
-if (i==0)
 						for (int iii = 0; iii < 4; iii++)
 							cout << "   " << densities_at_point[iii];		
-if (i==0)
 					cout << "\n";
 				}
 				else
-if (i==0)
 					cout << i << ":   " << _p[i].e_sub*197.3
 						<< "   " << _p[i].rhoB_an
 						<< "   " << _p[i].rhoS_an
@@ -2477,7 +2471,6 @@ if (i==0)
 			sw.Stop();
 			string successString = (_p[i].s_an < 0.0) ?
 									"unsuccessfully" : "successfully";
-if (i==0)
 			cout << "SPH particle " << i << ", EOSs_out: completed "
 					<< successString << " in " << sw.printTime() << "s." << "\n";
 
@@ -2498,7 +2491,6 @@ if (i==0)
 			////////////////////////////////////////////////////////
 			// if failed with charge densities, set them to zero and re-solve;
 			// if that fails too, guesstimate an answer
-if (i==0)
 			cout << "\t --> Densities not found in EoS table (setting BSQ --> 0): "
 					<< _p[i].r.x[0] << "   " << _p[i].r.x[1] << "\n"
 					<< "\t\t - densities: "
@@ -2518,7 +2510,6 @@ if (i==0)
 			{
 				double scale_factor = std::min( 1.0, _p[i].e_sub / efcheck );
 	
-if (i==0)
 				cout << "\t\t - scaling e to get s: "
 						<< efcheck*0.1973 << "   "
 						<< sfcheck << "   "
@@ -2529,7 +2520,6 @@ if (i==0)
 			}
 			else	// if a solution was found
 			{
-if (i==0)
 				cout << "\t\t - phase diagram point: "
 						<< _p[i].SPH_cell.T*197.3 << "   "
 						<< _p[i].SPH_cell.muB*197.3 << "   "
@@ -2550,23 +2540,19 @@ if (i==0)
 			<< _p[i].EOST() << "   " << _p[i].EOSe() << "   "
 			<< _p[i].EOSp() << "   " << _p[i].s_an << endl;
 
-if (i==0)
 			cout << "\t --> Densities found in EoS table: "
 				<< _p[i].r.x[0] << "   " << _p[i].r.x[1] << "\n";
-if (i==0)
 			cout << "\t\t - phase diagram point: "
 					<< _p[i].SPH_cell.T*197.3 << "   "
 					<< _p[i].SPH_cell.muB*197.3 << "   "
 					<< _p[i].SPH_cell.muS*197.3 << "   "
 					<< _p[i].SPH_cell.muQ*197.3 << "\n";
-if (i==0)
 			cout << "\t\t - densities: "
 					<< _p[i].e_sub*197.3 << "   "
 					<< _p[i].rhoB_an << "   "
 					<< _p[i].rhoS_an << "   "
 					<< _p[i].rhoQ_an << "\n";
 			
-if (i==0)
 			cout << "\t --> Exact:\n";
 			double phase_diagram_point[4] = { _p[i].SPH_cell.T*197.3,
 											  _p[i].SPH_cell.muB*197.3,
@@ -2574,15 +2560,10 @@ if (i==0)
 											  _p[i].SPH_cell.muQ*197.3 };
 			double densities_at_point[4];
 			get_eBSQ_densities(phase_diagram_point, densities_at_point);
-if (i==0)
 			cout << "\t\t - phase diagram point:";
-if (i==0)
 			for (int iii = 0; iii < 4; iii++) cout << "   " << phase_diagram_point[iii];
-if (i==0)
 			cout << "\n\t\t - densities:";
-if (i==0)
 			for (int iii = 0; iii < 4; iii++) cout << "   " << densities_at_point[iii];
-if (i==0)
 			cout << "\n";
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
@@ -2854,7 +2835,6 @@ if (i==0)
 
 		_p[i].sigsub = 0;
 		_p[i].frzcheck(t0, count1, _n);
-if (i==0)
 	cout << "----------------------------------------"
 			"----------------------------------------" << endl;
 	}
