@@ -29,7 +29,7 @@ constexpr bool discard_unsolvable_charge_densities = false;
 
 constexpr size_t STEPS = 10000;
 constexpr int VERBOSE = 0;
-constexpr double TOLERANCE = 1e-8;
+constexpr double TOLERANCE = 1e-12;
 
 //EoS constructor
 eos::eos(string quantityFile, string derivFile)
