@@ -238,6 +238,16 @@ double eos::calc_term_1() {
     gsl_vector_set(v,1,dtds);
     gsl_vector_set(v,2,dtdq);
 
+/*if (verbose)
+{
+	cout << "----------------------------------------"
+			"----------------------------------------" << endl;
+	cout << "calc_term_1 check: v = ";
+	for (int iGSL = 0; iGSL < 3; iGSL++)
+		cout << gsl_vector_set(v,iGSL);
+	cout << endl;
+}*/
+
     gsl_matrix_set(m,0,0,db2);
     gsl_matrix_set(m,0,1,dbds);
     gsl_matrix_set(m,0,2,dbdq);
@@ -249,6 +259,21 @@ double eos::calc_term_1() {
     gsl_matrix_set(m,2,2,dq2);
 
     double toReturn = dt2 - deriv_mult_aTm_1b(v,m,v);
+
+/*if (verbose)
+{
+	cout << "calc_term_1 check: m = ";
+	for (int iGSL = 0; iGSL < 3; iGSL++)
+	{
+		for (int jGSL = 0; jGSL < 3; jGSL++)
+			cout << "   " << gsl_matrix_set(m,iGSL,jGSL);
+		cout << endl;
+	}
+	cout << "calc_term_1 check: " << toReturn << "   "
+			<< dt2 << "   " << deriv_mult_aTm_1b(v,m,v) << endl;
+	cout << "----------------------------------------"
+			"----------------------------------------" << endl;
+}*/
 
     gsl_matrix_free(m);
     gsl_vector_free(v);

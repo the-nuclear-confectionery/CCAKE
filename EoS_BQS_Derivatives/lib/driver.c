@@ -268,6 +268,7 @@ void get_sBSQ_densities(double point[], double densities[])
 void get_full_thermo(double point[], double thermodynamics[])
 {
 	const double Tsol = point[0], muBsol = point[1], muSsol = point[2], muQsol = point[3];
+	const double Tsol2_by_hc2 = Tsol*Tsol/(197.3*197.3);
 	const double Tsol3_by_hc3 = Tsol*Tsol*Tsol/(197.3*197.3*197.3);
 	double POut = Tsol*Tsol3_by_hc3*PressTaylor(Tsol, muBsol, muQsol, muSsol);
 	double sOut = Tsol3_by_hc3*EntrTaylor(Tsol, muBsol, muQsol, muSsol);
@@ -286,19 +287,19 @@ void get_full_thermo(double point[], double thermodynamics[])
 	thermodynamics[5]  = eOut / 197.3;
 	thermodynamics[6]  = SpSound(Tsol, muBsol, muQsol, muSsol);
 				
-	//Second Order Derivatives
-	thermodynamics[7]  = P2B2(Tsol, muBsol, muQsol, muSsol);
-	thermodynamics[8]  = P2Q2(Tsol, muBsol, muQsol, muSsol);
-	thermodynamics[9]  = P2S2(Tsol, muBsol, muQsol, muSsol);
+	//Second Order Derivatives (prefactor converts to physical susceptibilities in fm^-2)
+	thermodynamics[7]  = Tsol2_by_hc2*P2B2(Tsol, muBsol, muQsol, muSsol);
+	thermodynamics[8]  = Tsol2_by_hc2*P2Q2(Tsol, muBsol, muQsol, muSsol);
+	thermodynamics[9]  = Tsol2_by_hc2*P2S2(Tsol, muBsol, muQsol, muSsol);
 	
-	thermodynamics[10] = P2BQ(Tsol, muBsol, muQsol, muSsol);
-	thermodynamics[11] = P2BS(Tsol, muBsol, muQsol, muSsol);
-	thermodynamics[12] = P2QS(Tsol, muBsol, muQsol, muSsol);
+	thermodynamics[10] = Tsol2_by_hc2*P2BQ(Tsol, muBsol, muQsol, muSsol);
+	thermodynamics[11] = Tsol2_by_hc2*P2BS(Tsol, muBsol, muQsol, muSsol);
+	thermodynamics[12] = Tsol2_by_hc2*P2QS(Tsol, muBsol, muQsol, muSsol);
 	
-	thermodynamics[13] = P2TB(Tsol, muBsol, muQsol, muSsol);
-	thermodynamics[14] = P2TQ(Tsol, muBsol, muQsol, muSsol);
-	thermodynamics[15] = P2TS(Tsol, muBsol, muQsol, muSsol);
-	thermodynamics[16] = P2T2(Tsol, muBsol, muQsol, muSsol);
+	thermodynamics[13] = Tsol2_by_hc2*P2TB(Tsol, muBsol, muQsol, muSsol);
+	thermodynamics[14] = Tsol2_by_hc2*P2TQ(Tsol, muBsol, muQsol, muSsol);
+	thermodynamics[15] = Tsol2_by_hc2*P2TS(Tsol, muBsol, muQsol, muSsol);
+	thermodynamics[16] = Tsol2_by_hc2*P2T2(Tsol, muBsol, muQsol, muSsol);
 }
 
 
