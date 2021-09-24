@@ -427,7 +427,7 @@ int main(int argc, char *argv[])
 //	exit(-1);
 
 
-	// generates tables for input to Jaki's original v-suphydro2
+/*	// generates tables for input to Jaki's original v-suphydro2
 	for (double T0 = 1.0; T0 < 49.999; T0+=0.1)
 	{
 		PressVal    = PressTaylor(   T0, 0, 0, 0 );
@@ -455,7 +455,7 @@ int main(int argc, char *argv[])
 
 	}
 	exit(-1);
-
+*/
 
 	// add a loop to generate toy initial conditions
 	for (double x0 = -5.0; x0 <= 5.000001; x0 += 0.05)
