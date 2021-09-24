@@ -433,7 +433,7 @@ int main(int argc, char *argv[])
 		PressVal    = PressTaylor(   T0, 0, 0, 0 );
 		EntrVal     = EntrTaylor(    T0, 0, 0, 0 );
 		EnerDensVal = EntrVal - PressVal;
-		double dwds = T0+EntrVal*T0/(197.3*DEntrDTTaylor(T0, 0, 0, 0)); //T+s/(ds/dT)
+		double dwds = T0+EntrVal*T0/DEntrDTTaylor(T0, 0, 0, 0); //T+s/(ds/dT) [MeV]
 		printf("%lf %15.12f %15.12f %15.12f %15.12f\n", T0,
 				0.001*EnerDensVal*T0*T0*T0*T0/(197.3*197.3*197.3),
 				0.001*PressVal*T0*T0*T0*T0/(197.3*197.3*197.3),
@@ -445,7 +445,7 @@ int main(int argc, char *argv[])
 		PressVal    = PressTaylor(   T0, 0, 0, 0 );
 		EntrVal     = EntrTaylor(    T0, 0, 0, 0 );
 		EnerDensVal = EntrVal - PressVal;
-		double dwds = T0+EntrVal*T0/(197.3*DEntrDTTaylor(T0, 0, 0, 0)); //T+s/(ds/dT)
+		double dwds = T0+EntrVal*T0/DEntrDTTaylor(T0, 0, 0, 0); //T+s/(ds/dT) [MeV]
 		printf("%lf %15.12f %15.12f %15.12f %15.12f\n", T0,
 				0.001*EnerDensVal*T0*T0*T0*T0/(197.3*197.3*197.3),
 				0.001*PressVal*T0*T0*T0*T0/(197.3*197.3*197.3),
