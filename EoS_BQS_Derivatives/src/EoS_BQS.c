@@ -427,14 +427,13 @@ int main(int argc, char *argv[])
 //	exit(-1);
 
 
-/*	// generates tables for input to Jaki's original v-suphydro2
+	// generates tables for input to Jaki's original v-suphydro2
 	for (double T0 = 1.0; T0 < 49.999; T0+=0.1)
 	{
 		PressVal    = PressTaylor(   T0, 0, 0, 0 );
 		EntrVal     = EntrTaylor(    T0, 0, 0, 0 );
 		EnerDensVal = EntrVal - PressVal;
-		double dwds = T0+EntrVal*T0*T0*T0/(197.3*197.3*197.3
-										*DEntrDTTaylor(T0, 0, 0, 0)); //T+s/(ds/dT)
+		double dwds = T0+EntrVal*T0/(197.3*DEntrDTTaylor(T0, 0, 0, 0)); //T+s/(ds/dT)
 		printf("%lf %15.12f %15.12f %15.12f %15.12f\n", T0,
 				0.001*EnerDensVal*T0*T0*T0*T0/(197.3*197.3*197.3),
 				0.001*PressVal*T0*T0*T0*T0/(197.3*197.3*197.3),
@@ -446,8 +445,7 @@ int main(int argc, char *argv[])
 		PressVal    = PressTaylor(   T0, 0, 0, 0 );
 		EntrVal     = EntrTaylor(    T0, 0, 0, 0 );
 		EnerDensVal = EntrVal - PressVal;
-		double dwds = T0+EntrVal*T0*T0*T0/(197.3*197.3*197.3
-										*DEntrDTTaylor(T0, 0, 0, 0)); //T+s/(ds/dT)
+		double dwds = T0+EntrVal*T0/(197.3*DEntrDTTaylor(T0, 0, 0, 0)); //T+s/(ds/dT)
 		printf("%lf %15.12f %15.12f %15.12f %15.12f\n", T0,
 				0.001*EnerDensVal*T0*T0*T0*T0/(197.3*197.3*197.3),
 				0.001*PressVal*T0*T0*T0*T0/(197.3*197.3*197.3),
@@ -455,7 +453,7 @@ int main(int argc, char *argv[])
 
 	}
 	exit(-1);
-*/
+
 
 	// add a loop to generate toy initial conditions
 	for (double x0 = -5.0; x0 <= 5.000001; x0 += 0.05)
