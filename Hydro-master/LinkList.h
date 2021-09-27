@@ -2586,7 +2586,7 @@ if (i==0)
 					<< successString << " in " << sw.printTime() << "s." << endl;
 			sw.Reset();
 		}*/
-		_p[i].EOSupdate_s( _p[i].s_an, _p[i].rhoB_an, _p[i].rhoS_an, _p[i].rhoQ_an );
+		//_p[i].EOSupdate_s( _p[i].s_an, _p[i].rhoB_an, _p[i].rhoS_an, _p[i].rhoQ_an );
 
 
         if (gtyp==5) _p[i].e_sub=_p[i].EOSe();
