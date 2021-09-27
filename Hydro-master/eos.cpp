@@ -194,7 +194,7 @@ void eos::get_toy_thermo(double point[], double thermodynamics[])
 	double BOut = toy_thermo::B(Tsol, muBsol, muQsol, muSsol);
 	double SOut = toy_thermo::S(Tsol, muBsol, muQsol, muSsol);
 	double QOut = toy_thermo::Q(Tsol, muBsol, muQsol, muSsol);
-	double eOut = (sOut*Tsol - POut + muBsol*BOut + muQsol*QOut + muSsol*SOut)/197.3;
+	double eOut = (sOut*Tsol + muBsol*BOut + muQsol*QOut + muSsol*SOut)/197.3 - POut;
 
 
 	//Thermodynamics
