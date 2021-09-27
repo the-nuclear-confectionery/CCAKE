@@ -34,7 +34,7 @@ constexpr double TOLERANCE = 1e-12;
 
 namespace toy_thermo
 {
-	const double toy_T_scale = 150.0, toy_muB_scale = 101.0, toy_muB_scale = 103.0, toy_muB_scale = 113.0;
+	const double toy_T_scale = 150.0, toy_muB_scale = 101.0, toy_muS_scale = 103.0, toy_muQ_scale = 113.0;
 
 	double p(double T, double muB, double muQ, double muS)
 	{
