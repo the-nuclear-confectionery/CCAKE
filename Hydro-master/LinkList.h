@@ -2574,7 +2574,7 @@ if (i==0)
 		}
 
 		// CUT OUT UPDATE_S SINCE IT'S REDUNDANT AND WASTING CPU TIME
-		/*{
+		{
 			sw.Reset();
 			sw.Start();
 			bool successTest = _p[i].EOSupdate_s( _p[i].s_an,    _p[i].rhoB_an,
@@ -2585,7 +2585,7 @@ if (i==0)
 			cout << "SPH particle " << i << ", EOSupdate_s: completed "
 					<< successString << " in " << sw.printTime() << "s." << endl;
 			sw.Reset();
-		}*/
+		}
 
 
         if (gtyp==5) _p[i].e_sub=_p[i].EOSe();
