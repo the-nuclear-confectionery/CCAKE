@@ -160,7 +160,7 @@ void eos::check_EoS_derivatives()
 	// Compare with numerical checks from Mathematica to ensure error-free execution
 
 	double Tcheck = 0.5*toy_thermo::toy_T_scale;
-	double muBcheck = 0.0*toy_thermo::toy_muB_scale;
+	double muBcheck = 0.5*toy_thermo::toy_muB_scale;
 	double muScheck = 0.0*toy_thermo::toy_muS_scale;
 	double muQcheck = 0.0*toy_thermo::toy_muQ_scale;
 	/*for (double Tcheck = 30.0; Tcheck <= 800.001; Tcheck += 5.0)
@@ -359,7 +359,7 @@ double eos::dwds()
 			  BVal/dentr_dmub() + QVal/dentr_dmuq() + SVal/dentr_dmus() : 0.0;
 
 	cout << endl << endl << "inside dwds(): "
-		<< T() << "   " << entrVal << "   " << dentr_dt() << "   " << charge_terms << endl << endl;
+		<< T() << "   " << entrVal << "   " << dentr_dt() << endl << endl;
 
     return T() + entrVal/dentr_dt() + charge_terms;
 }
