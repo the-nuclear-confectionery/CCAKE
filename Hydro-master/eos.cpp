@@ -168,7 +168,7 @@ void eos::check_EoS_derivatives()
 	for (double muQcheck = -450.0; muQcheck <= 450.001; muQcheck += 10.0)*/
 	{
 		// reset (T,muB,muQ,muS) coordinates
-		tbqs(Tcheck, muBcheck, muQcheck, muScheck);	// note order of Q and S!
+		tbqs(Tcheck/197.3, muBcheck/197.3, muQcheck/197.3, muScheck/197.3);	// note order of Q and S!
 		cout << Tcheck << "   " << muBcheck << "   " << muScheck << "   " << muQcheck << "   "
 				<< p() << "   " << s() << "   " << B() << "   " << S() << "   " << Q() << "   "
 				<< dwds() << "   " << dwdB() << "   " << dwdS() << "   " << dwdQ() << "\n";
