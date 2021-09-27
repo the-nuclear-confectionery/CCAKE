@@ -513,7 +513,7 @@ void Particle<D>::bsqsvsigset(double tin,int i)
     check=sigl;
 //	cout << "   " << EOSw() << "   " << bigPI << "   " << Agam
 //			<< "   " << shv33 << "   " << Bsub() << "   " << Btot << endl;
-if (i==0)
+if (tin==0.6)
 	cout << setprecision(12) << "Check thermo: " << i << "   "
 			<< tin << "   " << r << "   "
 			<< SPH_cell.T << "   "
