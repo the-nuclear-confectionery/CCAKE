@@ -30,7 +30,7 @@ constexpr bool check_derivatives = false;
 
 constexpr size_t STEPS = 1000000;
 constexpr int VERBOSE = 0;
-constexpr double TOLERANCE = 1e-15;
+constexpr double TOLERANCE = 1e-12;
 
 namespace toy_thermo
 {
