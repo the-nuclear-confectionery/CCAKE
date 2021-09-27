@@ -521,13 +521,13 @@ double eos::calc_term_2(string i_char) {
 
         gsl_matrix_set(m,0,0,dtdb);
         gsl_matrix_set(m,0,1,db2);
-        gsl_matrix_set(m,0,2,dbdq);
+        gsl_matrix_set(m,0,2,dbds);
         gsl_matrix_set(m,1,0,dtds);
         gsl_matrix_set(m,1,1,dbds);
-        gsl_matrix_set(m,1,2,dsdq);
+        gsl_matrix_set(m,1,2,ds2);
         gsl_matrix_set(m,2,0,dtdq);
         gsl_matrix_set(m,2,1,dbdq);
-        gsl_matrix_set(m,2,2,dq2);
+        gsl_matrix_set(m,2,2,dsdq);
 
         toReturn = dtdq - deriv_mult_aTm_1b(a,m,b);
     } else {
