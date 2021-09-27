@@ -172,7 +172,7 @@ void eos::check_EoS_derivatives()
 		cout << Tcheck << "   " << muBcheck << "   " << muScheck << "   " << muQcheck << "   "
 				<< p() << "   " << s() << "   " << B() << "   " << S() << "   " << Q() << "\n\t\t"
 				<< dt2 << "   " << dtdb << "   " << dtds << "   " << dtdq << "\n\t\t"
-				<< dbdt << "   " << db2 << "   " << dbds << "   " << dbdq << "\n\t\t"
+				<< dtdb << "   " << db2 << "   " << dbds << "   " << dbdq << "\n\t\t"
 				<< dtds << "   " << dbds << "   " << ds2 << "   " << dsdq << "\n\t\t"
 				<< dtdq << "   " << dbdq << "   " << dsdq << "   " << dq2 << "\n\t"
 				<< dwds() << "   " << dwdB() << "   " << dwdS() << "   " << dwdQ() << "\n";
