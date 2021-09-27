@@ -161,8 +161,8 @@ void eos::check_EoS_derivatives()
 
 	double Tcheck = 0.5*toy_thermo::toy_T_scale;
 	double muBcheck = 0.5*toy_thermo::toy_muB_scale;
-	double muScheck = 0.0*toy_thermo::toy_muS_scale;
-	double muQcheck = 0.0*toy_thermo::toy_muQ_scale;
+	double muScheck = 0.5*toy_thermo::toy_muS_scale;
+	double muQcheck = 0.5*toy_thermo::toy_muQ_scale;
 	/*for (double Tcheck = 30.0; Tcheck <= 800.001; Tcheck += 5.0)
 	for (double muBcheck = -450.0; muBcheck <= 450.001; muBcheck += 10.0)
 	for (double muScheck = -450.0; muScheck <= 450.001; muScheck += 10.0)
@@ -177,9 +177,9 @@ void eos::check_EoS_derivatives()
 				<< dtdb << "   " << db2 << "   " << dbds << "   " << dbdq << "\n\t\t"
 				<< dtds << "   " << dbds << "   " << ds2 << "   " << dsdq << "\n\t\t"
 				<< dtdq << "   " << dbdq << "   " << dsdq << "   " << dq2 << "\n\t"
-				<< dentr_dt() /*<< "   " << dentr_dmub() << "   "
-				<< dentr_dmus() << "   " << dentr_dmuq()*/ << "\n\t"
-				<< dwds() /*<< "   " << dwdB() << "   " << dwdS() << "   " << dwdQ()*/ << "\n";
+				//<< dentr_dt() << "   " << dentr_dmub() << "   "
+				//<< dentr_dmus() << "   " << dentr_dmuq() << "\n\t"
+				<< dwds() << "   " << dwdB() << "   " << dwdS() << "   " << dwdQ() << "\n";
 	}
 
 	return;
@@ -354,8 +354,8 @@ double eos::w() { return eVal + pVal; }
 
 double eos::dwds()
 {
-	cout << endl << endl << "inside dwds(): "
-		<< T() << std::flush << "   " << entrVal << std::flush << "   " << dentr_dt() << endl << endl;
+	//cout << endl << endl << "inside dwds(): "
+	//	<< T() << std::flush << "   " << entrVal << std::flush << "   " << dentr_dt() << endl << endl;
 
 	double charge_terms	/*if charge densities are not all zero*/
 			= ( abs(BVal)>1e-10 || abs(SVal)>1e-10 || abs(QVal)>1e-10 ) ?
