@@ -158,14 +158,19 @@ void eos::check_EoS_derivatives()
 	// Check various complicated EoS derivatives assuming simple equation of state
 	// Compare with numerical checks from Mathematica to ensure error-free execution
 
-	for (double Tcheck = 30.0; Tcheck <= 800.001; Tcheck += 5.0)
+	double Tcheck = 0.5*toy_T_scale;
+	double muBcheck = 0.5*toy_muB_scale;
+	double muScheck = 0.5*toy_muS_scale;
+	double muQcheck = 0.5*toy_muQ_scale;
+	/*for (double Tcheck = 30.0; Tcheck <= 800.001; Tcheck += 5.0)
 	for (double muBcheck = -450.0; muBcheck <= 450.001; muBcheck += 10.0)
 	for (double muScheck = -450.0; muScheck <= 450.001; muScheck += 10.0)
-	for (double muQcheck = -450.0; muQcheck <= 450.001; muQcheck += 10.0)
+	for (double muQcheck = -450.0; muQcheck <= 450.001; muQcheck += 10.0)*/
 	{
 		// reset (T,muB,muQ,muS) coordinates
 		tbqs(Tcheck, muBcheck, muQcheck, muScheck);	// note order of Q and S!
-		cout << Tcheck << "   " << muBcheck << "   " << muScheck << "   " << muQcheck
+		cout << Tcheck << "   " << muBcheck << "   " << muScheck << "   " << muQcheck << "   "
+				<< p() << "   " << s() << "   " << B() << "   " << S() << "   " << Q() << "   "
 				<< dwds() << "   " << dwdB() << "   " << dwdS() << "   " << dwdQ() << "\n";
 	}
 
