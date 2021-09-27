@@ -356,6 +356,9 @@ double eos::dwds()
 			= ( abs(BVal)>1e-10 || abs(SVal)>1e-10 || abs(QVal)>1e-10 ) ?
 			  BVal/dentr_dmub() + QVal/dentr_dmuq() + SVal/dentr_dmus() : 0.0;
 
+	cout << endl << endl << "inside dwds(): "
+		<< T() << "   " << entrVal << "   " << dentr_dt() << "   " << charge_terms << endl << endl;
+
     return T() + entrVal/dentr_dt() + charge_terms;
 }
 
