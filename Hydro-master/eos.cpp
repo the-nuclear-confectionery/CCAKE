@@ -359,7 +359,7 @@ double eos::dwds()
 			  BVal/dentr_dmub() + QVal/dentr_dmuq() + SVal/dentr_dmus() : 0.0;
 
 	cout << endl << endl << "inside dwds(): "
-		<< T() << "   " << entrVal << "   " << dentr_dt() << endl << endl;
+		<< T() << std::flush << "   " << entrVal << std::flush << "   " << dentr_dt() << endl << endl;
 
     return T() + entrVal/dentr_dt() + charge_terms;
 }
