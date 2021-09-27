@@ -6,6 +6,7 @@
 #include "eos.h"
 #include <stdio.h>
 #include <math.h>
+#include <iomanip>
 
 //extern double freezeoutT;
 
@@ -357,10 +358,11 @@ void Particle<D>::return_bsqsv_A()
 	//if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     eta_o_tau=setas/stauRelax;
 
+	// THIS NEEDS TO BE CHECKED/FIXED, SPECIFICALLY WHEN INCLUDING MORE BETA-DOT TERMS
     Agam=EOSw()-EOSdwds()*(EOSs()+ bigPI/EOST() )- zeta/tauRelax
-			- EOSdwdB() * rhoB_an
-			- EOSdwdS() * rhoS_an
-			- EOSdwdQ() * rhoQ_an;
+			- EOSdwdB() * EOSB()
+			- EOSdwdS() * EOSS()
+			- EOSdwdQ() * EOSQ();
 
     Agam2=(Agam-eta_o_tau*(0.5-1/3.) -dwdsT1*shv.x[0][0])/gamma;
     Ctot=C+eta_o_tau*(1/g2-1)/2.;
@@ -512,7 +514,7 @@ void Particle<D>::bsqsvsigset(double tin,int i)
 //	cout << "   " << EOSw() << "   " << bigPI << "   " << Agam
 //			<< "   " << shv33 << "   " << Bsub() << "   " << Btot << endl;
 if (i==0)
-	cout << "Check thermo: " << i << "   "
+	cout << setprecision(12) << "Check thermo: " << i << "   "
 			<< tin << "   " << r << "   "
 			<< SPH_cell.T << "   "
 			<< SPH_cell.muB << "   "
