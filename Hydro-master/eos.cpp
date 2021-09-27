@@ -176,9 +176,9 @@ void eos::check_EoS_derivatives()
 				<< dtdb << "   " << db2 << "   " << dbds << "   " << dbdq << "\n\t\t"
 				<< dtds << "   " << dbds << "   " << ds2 << "   " << dsdq << "\n\t\t"
 				<< dtdq << "   " << dbdq << "   " << dsdq << "   " << dq2 << "\n\t"
-				<< dentr_dt() << "   " << dentr_dmub() << "   "
-				<< dentr_dmus() << "   " << dentr_dmuq() << "\n\t"
-				<< dwds() << "   " << dwdB() << "   " << dwdS() << "   " << dwdQ() << "\n";
+				<< dentr_dt() /*<< "   " << dentr_dmub() << "   "
+				<< dentr_dmus() << "   " << dentr_dmuq()*/ << "\n\t"
+				<< dwds() /*<< "   " << dwdB() << "   " << dwdS() << "   " << dwdQ()*/ << "\n";
 	}
 
 	return;
