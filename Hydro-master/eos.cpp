@@ -267,22 +267,29 @@ void eos::init_grid_ranges_only(string quantityFile, string derivFile)
 
 void eos::tbqs(double setT, double setmuB, double setmuQ, double setmuS)
 {
-    if(setT < minT || setT > maxT) {
-        std::cout << "T = " << setT << " is out of range. Valid values are between [" << minT << "," << maxT << "]" << std::endl;
-        return;
-    }
-    if(setmuB < minMuB || setmuB > maxMuB) {
-        std::cout << "muB = " << setmuB << " is out of range. Valid values are between [" << minMuB << "," << maxMuB << "]" << std::endl;
-        return;
-    }
-    if(setmuQ < minMuQ || setmuQ > maxMuQ) {
-        std::cout << "muQ = " << setmuQ << " is out of range. Valid values are between [" << minMuQ << "," << maxMuQ << "]" << std::endl;
-        return;
-    }
-    if(setmuS < minMuS || setmuS > maxMuS) {
-        std::cout << "muS = " << setmuS << " is out of range. Valid values are between [" << minMuS << "," << maxMuS << "]" << std::endl;
-        return;
-    }
+	if ( !check_derivatives )
+	{
+		if(setT < minT || setT > maxT) {
+			std::cout << "T = " << setT << " is out of range. Valid values are between ["
+				<< minT << "," << maxT << "]" << std::endl;
+			return;
+		}
+		if(setmuB < minMuB || setmuB > maxMuB) {
+			std::cout << "muB = " << setmuB << " is out of range. Valid values are between ["
+				<< minMuB << "," << maxMuB << "]" << std::endl;
+			return;
+		}
+		if(setmuQ < minMuQ || setmuQ > maxMuQ) {
+			std::cout << "muQ = " << setmuQ << " is out of range. Valid values are between ["
+				<< minMuQ << "," << maxMuQ << "]" << std::endl;
+			return;
+		}
+		if(setmuS < minMuS || setmuS > maxMuS) {
+			std::cout << "muS = " << setmuS << " is out of range. Valid values are between ["
+				<< minMuS << "," << maxMuS << "]" << std::endl;
+			return;
+		}
+	}
 	tbqsPosition[0] = setT;
 	tbqsPosition[1] = setmuB;
 	tbqsPosition[2] = setmuQ;
