@@ -34,6 +34,7 @@ constexpr double TOLERANCE = 1e-12;
 
 namespace toy_thermo
 {
+	const double hc = 197.3;
 	const double toy_T_scale = 150.0, toy_muB_scale = 101.0, toy_muS_scale = 103.0, toy_muQ_scale = 113.0;
 
 	double p(double T, double muB, double muQ, double muS)
@@ -47,71 +48,71 @@ namespace toy_thermo
 	{
 		double x = (T/toy_T_scale)*(T/toy_T_scale) + (muB/toy_muB_scale)*(muB/toy_muB_scale)
 					 + (muS/toy_muS_scale)*(muS/toy_muS_scale) + (muQ/toy_muQ_scale)*(muQ/toy_muQ_scale);
-		return 4.0*T*x/(toy_T_scale*toy_T_scale);
+		return 4.0*hc*T*x/(toy_T_scale*toy_T_scale);
 	}
 
 	double B(double T, double muB, double muQ, double muS)
 	{
 		double x = (T/toy_T_scale)*(T/toy_T_scale) + (muB/toy_muB_scale)*(muB/toy_muB_scale)
 					 + (muS/toy_muS_scale)*(muS/toy_muS_scale) + (muQ/toy_muQ_scale)*(muQ/toy_muQ_scale);
-		return 4.0*muB*x/(toy_muB_scale*toy_muB_scale);
+		return 4.0*hc*muB*x/(toy_muB_scale*toy_muB_scale);
 	}
 
 	double S(double T, double muB, double muQ, double muS)
 	{
 		double x = (T/toy_T_scale)*(T/toy_T_scale) + (muB/toy_muB_scale)*(muB/toy_muB_scale)
 					 + (muS/toy_muS_scale)*(muS/toy_muS_scale) + (muQ/toy_muQ_scale)*(muQ/toy_muQ_scale);
-		return 4.0*muS*x/(toy_muS_scale*toy_muS_scale);
+		return 4.0*hc*muS*x/(toy_muS_scale*toy_muS_scale);
 	}
 
 	double Q(double T, double muB, double muQ, double muS)
 	{
 		double x = (T/toy_T_scale)*(T/toy_T_scale) + (muB/toy_muB_scale)*(muB/toy_muB_scale)
 					 + (muS/toy_muS_scale)*(muS/toy_muS_scale) + (muQ/toy_muQ_scale)*(muQ/toy_muQ_scale);
-		return 4.0*muQ*x/(toy_muQ_scale*toy_muQ_scale);
+		return 4.0*hc*muQ*x/(toy_muQ_scale*toy_muQ_scale);
 	}
 
 	double P2B2(double T, double muB, double muQ, double muS)
 	{
 		double x = (T/toy_T_scale)*(T/toy_T_scale) + (muB/toy_muB_scale)*(muB/toy_muB_scale)
 					 + (muS/toy_muS_scale)*(muS/toy_muS_scale) + (muQ/toy_muQ_scale)*(muQ/toy_muQ_scale);
-		return 8.0*muB*muB/(toy_muB_scale*toy_muB_scale*toy_muB_scale*toy_muB_scale)
-				+ 4.0*x/(toy_muB_scale*toy_muB_scale);
+		return (8.0*muB*muB/(toy_muB_scale*toy_muB_scale*toy_muB_scale*toy_muB_scale)
+				+ 4.0*x/(toy_muB_scale*toy_muB_scale))*hc*hc;
 	}
 	double P2Q2(double T, double muB, double muQ, double muS)
 	{
 		double x = (T/toy_T_scale)*(T/toy_T_scale) + (muB/toy_muB_scale)*(muB/toy_muB_scale)
 					 + (muS/toy_muS_scale)*(muS/toy_muS_scale) + (muQ/toy_muQ_scale)*(muQ/toy_muQ_scale);
-		return 8.0*muQ*muQ/(toy_muQ_scale*toy_muQ_scale*toy_muQ_scale*toy_muQ_scale)
-				+ 4.0*x/(toy_muQ_scale*toy_muQ_scale);
+		return (8.0*muQ*muQ/(toy_muQ_scale*toy_muQ_scale*toy_muQ_scale*toy_muQ_scale)
+				+ 4.0*x/(toy_muQ_scale*toy_muQ_scale))*hc*hc;
 	}
 	double P2S2(double T, double muB, double muQ, double muS)
 	{
 		double x = (T/toy_T_scale)*(T/toy_T_scale) + (muB/toy_muB_scale)*(muB/toy_muB_scale)
 					 + (muS/toy_muS_scale)*(muS/toy_muS_scale) + (muQ/toy_muQ_scale)*(muQ/toy_muQ_scale);
-		return 8.0*muS*muS/(toy_muS_scale*toy_muS_scale*toy_muS_scale*toy_muS_scale)
-				+ 4.0*x/(toy_muS_scale*toy_muS_scale);
+		return (8.0*muS*muS/(toy_muS_scale*toy_muS_scale*toy_muS_scale*toy_muS_scale)
+				+ 4.0*x/(toy_muS_scale*toy_muS_scale))*hc*hc;
 	}
 	
 	double P2BQ(double T, double muB, double muQ, double muS)
-			{ return 8.0*muB*muQ/(toy_muB_scale*toy_muB_scale*toy_muQ_scale*toy_muQ_scale); }
+			{ return (8.0*muB*muQ/(toy_muB_scale*toy_muB_scale*toy_muQ_scale*toy_muQ_scale))*hc*hc; }
 	double P2BS(double T, double muB, double muQ, double muS)
-			{ return 8.0*muB*muS/(toy_muB_scale*toy_muB_scale*toy_muS_scale*toy_muS_scale); }
+			{ return (8.0*muB*muS/(toy_muB_scale*toy_muB_scale*toy_muS_scale*toy_muS_scale))*hc*hc; }
 	double P2QS(double T, double muB, double muQ, double muS)
-			{ return 8.0*muS*muQ/(toy_muS_scale*toy_muS_scale*toy_muQ_scale*toy_muQ_scale); }
+			{ return (8.0*muS*muQ/(toy_muS_scale*toy_muS_scale*toy_muQ_scale*toy_muQ_scale))*hc*hc; }
 	
 	double P2TB(double T, double muB, double muQ, double muS)
-			{ return 8.0*T*muB/(toy_T_scale*toy_T_scale*toy_muB_scale*toy_muB_scale); }
+			{ return (8.0*T*muB/(toy_T_scale*toy_T_scale*toy_muB_scale*toy_muB_scale))*hc*hc; }
 	double P2TQ(double T, double muB, double muQ, double muS)
-			{ return 8.0*T*muQ/(toy_T_scale*toy_T_scale*toy_muQ_scale*toy_muQ_scale); }
+			{ return (8.0*T*muQ/(toy_T_scale*toy_T_scale*toy_muQ_scale*toy_muQ_scale))*hc*hc; }
 	double P2TS(double T, double muB, double muQ, double muS)
-			{ return 8.0*T*muS/(toy_T_scale*toy_T_scale*toy_muS_scale*toy_muS_scale); }
+			{ return (8.0*T*muS/(toy_T_scale*toy_T_scale*toy_muS_scale*toy_muS_scale))*hc*hc; }
 	double P2T2(double T, double muB, double muQ, double muS)
 	{
 		double x = (T/toy_T_scale)*(T/toy_T_scale) + (muB/toy_muB_scale)*(muB/toy_muB_scale)
 					 + (muS/toy_muS_scale)*(muS/toy_muS_scale) + (muQ/toy_muQ_scale)*(muQ/toy_muQ_scale);
-		return 8.0*T*T/(toy_T_scale*toy_T_scale*toy_T_scale*toy_T_scale)
-				+ 4.0*x/(toy_T_scale*toy_T_scale);
+		return (8.0*T*T/(toy_T_scale*toy_T_scale*toy_T_scale*toy_T_scale)
+				+ 4.0*x/(toy_T_scale*toy_T_scale))*hc*hc;
 	}
 
 
@@ -197,27 +198,27 @@ void eos::get_toy_thermo(double point[], double thermodynamics[])
 
 
 	//Thermodynamics
-	thermodynamics[0]  = POut/197.3;
+	thermodynamics[0]  = POut;
 	thermodynamics[1]  = sOut;
 	thermodynamics[2]  = BOut;
 	thermodynamics[3]  = SOut;
 	thermodynamics[4]  = QOut;
-	thermodynamics[5]  = eOut/197.3;
+	thermodynamics[5]  = eOut;
 	thermodynamics[6]  = 0.0;	// not currently checking this
 				
 	//Second Order Derivatives (prefactor converts to physical susceptibilities in fm^-2)
-	thermodynamics[7]  = toy_thermo::P2B2(Tsol, muBsol, muQsol, muSsol)*197.3;
-	thermodynamics[8]  = toy_thermo::P2Q2(Tsol, muBsol, muQsol, muSsol)*197.3;
-	thermodynamics[9]  = toy_thermo::P2S2(Tsol, muBsol, muQsol, muSsol)*197.3;
+	thermodynamics[7]  = toy_thermo::P2B2(Tsol, muBsol, muQsol, muSsol);
+	thermodynamics[8]  = toy_thermo::P2Q2(Tsol, muBsol, muQsol, muSsol);
+	thermodynamics[9]  = toy_thermo::P2S2(Tsol, muBsol, muQsol, muSsol);
 	
-	thermodynamics[10] = toy_thermo::P2BQ(Tsol, muBsol, muQsol, muSsol)*197.3;
-	thermodynamics[11] = toy_thermo::P2BS(Tsol, muBsol, muQsol, muSsol)*197.3;
-	thermodynamics[12] = toy_thermo::P2QS(Tsol, muBsol, muQsol, muSsol)*197.3;
+	thermodynamics[10] = toy_thermo::P2BQ(Tsol, muBsol, muQsol, muSsol);
+	thermodynamics[11] = toy_thermo::P2BS(Tsol, muBsol, muQsol, muSsol);
+	thermodynamics[12] = toy_thermo::P2QS(Tsol, muBsol, muQsol, muSsol);
 	
-	thermodynamics[13] = toy_thermo::P2TB(Tsol, muBsol, muQsol, muSsol)*197.3;
-	thermodynamics[14] = toy_thermo::P2TQ(Tsol, muBsol, muQsol, muSsol)*197.3;
-	thermodynamics[15] = toy_thermo::P2TS(Tsol, muBsol, muQsol, muSsol)*197.3;
-	thermodynamics[16] = toy_thermo::P2T2(Tsol, muBsol, muQsol, muSsol)*197.3;
+	thermodynamics[13] = toy_thermo::P2TB(Tsol, muBsol, muQsol, muSsol);
+	thermodynamics[14] = toy_thermo::P2TQ(Tsol, muBsol, muQsol, muSsol);
+	thermodynamics[15] = toy_thermo::P2TS(Tsol, muBsol, muQsol, muSsol);
+	thermodynamics[16] = toy_thermo::P2T2(Tsol, muBsol, muQsol, muSsol);
 }
 
 
