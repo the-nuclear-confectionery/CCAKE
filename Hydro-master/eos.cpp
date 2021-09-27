@@ -354,8 +354,8 @@ double eos::w() { return eVal + pVal; }
 
 double eos::dwds()
 {
-	//cout << endl << endl << "inside dwds(): "
-	//	<< T() << std::flush << "   " << entrVal << std::flush << "   " << dentr_dt() << endl << endl;
+	cout << endl << endl << "inside dwds(): "
+		<< T() << std::flush << "   " << entrVal << std::flush << "   " << dentr_dt() << endl << endl;
 
 	double charge_terms	/*if charge densities are not all zero*/
 			= ( abs(BVal)>1e-10 || abs(SVal)>1e-10 || abs(QVal)>1e-10 ) ?
