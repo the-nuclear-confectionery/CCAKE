@@ -54,21 +54,21 @@ namespace toy_thermo
 	{
 		double x = (T/toy_T_scale)*(T/toy_T_scale) + (muB/toy_muB_scale)*(muB/toy_muB_scale)
 					 + (muS/toy_muS_scale)*(muS/toy_muS_scale) + (muQ/toy_muQ_scale)*(muQ/toy_muQ_scale);
-		return 4.0*muB*x/(toy_T_scale*toy_T_scale);
+		return 4.0*muB*x/(toy_B_scale*toy_B_scale);
 	}
 
 	double S(double T, double muB, double muQ, double muS)
 	{
 		double x = (T/toy_T_scale)*(T/toy_T_scale) + (muB/toy_muB_scale)*(muB/toy_muB_scale)
 					 + (muS/toy_muS_scale)*(muS/toy_muS_scale) + (muQ/toy_muQ_scale)*(muQ/toy_muQ_scale);
-		return 4.0*muS*x/(toy_T_scale*toy_T_scale);
+		return 4.0*muS*x/(toy_S_scale*toy_S_scale);
 	}
 
 	double Q(double T, double muB, double muQ, double muS)
 	{
 		double x = (T/toy_T_scale)*(T/toy_T_scale) + (muB/toy_muB_scale)*(muB/toy_muB_scale)
 					 + (muS/toy_muS_scale)*(muS/toy_muS_scale) + (muQ/toy_muQ_scale)*(muQ/toy_muQ_scale);
-		return 4.0*muQ*x/(toy_T_scale*toy_T_scale);
+		return 4.0*muQ*x/(toy_Q_scale*toy_Q_scale);
 	}
 
 	double P2B2(double T, double muB, double muQ, double muS)
