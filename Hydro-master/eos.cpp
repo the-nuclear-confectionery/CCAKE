@@ -206,18 +206,18 @@ void eos::get_toy_thermo(double point[], double thermodynamics[])
 	thermodynamics[6]  = 0.0;	// not currently checking this
 				
 	//Second Order Derivatives (prefactor converts to physical susceptibilities in fm^-2)
-	thermodynamics[7]  = toy_thermo::P2B2(Tsol, muBsol, muQsol, muSsol);
-	thermodynamics[8]  = toy_thermo::P2Q2(Tsol, muBsol, muQsol, muSsol);
-	thermodynamics[9]  = toy_thermo::P2S2(Tsol, muBsol, muQsol, muSsol);
+	thermodynamics[7]  = toy_thermo::P2B2(Tsol, muBsol, muQsol, muSsol)/197.3;
+	thermodynamics[8]  = toy_thermo::P2Q2(Tsol, muBsol, muQsol, muSsol)/197.3;
+	thermodynamics[9]  = toy_thermo::P2S2(Tsol, muBsol, muQsol, muSsol)/197.3;
 	
-	thermodynamics[10] = toy_thermo::P2BQ(Tsol, muBsol, muQsol, muSsol);
-	thermodynamics[11] = toy_thermo::P2BS(Tsol, muBsol, muQsol, muSsol);
-	thermodynamics[12] = toy_thermo::P2QS(Tsol, muBsol, muQsol, muSsol);
+	thermodynamics[10] = toy_thermo::P2BQ(Tsol, muBsol, muQsol, muSsol)/197.3;
+	thermodynamics[11] = toy_thermo::P2BS(Tsol, muBsol, muQsol, muSsol)/197.3;
+	thermodynamics[12] = toy_thermo::P2QS(Tsol, muBsol, muQsol, muSsol)/197.3;
 	
-	thermodynamics[13] = toy_thermo::P2TB(Tsol, muBsol, muQsol, muSsol);
-	thermodynamics[14] = toy_thermo::P2TQ(Tsol, muBsol, muQsol, muSsol);
-	thermodynamics[15] = toy_thermo::P2TS(Tsol, muBsol, muQsol, muSsol);
-	thermodynamics[16] = toy_thermo::P2T2(Tsol, muBsol, muQsol, muSsol);
+	thermodynamics[13] = toy_thermo::P2TB(Tsol, muBsol, muQsol, muSsol)/197.3;
+	thermodynamics[14] = toy_thermo::P2TQ(Tsol, muBsol, muQsol, muSsol)/197.3;
+	thermodynamics[15] = toy_thermo::P2TS(Tsol, muBsol, muQsol, muSsol)/197.3;
+	thermodynamics[16] = toy_thermo::P2T2(Tsol, muBsol, muQsol, muSsol)/197.3;
 }
 
 
