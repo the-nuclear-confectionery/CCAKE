@@ -899,16 +899,18 @@ double eos::deriv_mult_aTm_1b(gsl_vector* a, gsl_matrix* m, gsl_vector* b) {
     gsl_vector *y = gsl_vector_alloc(3);
 
     // Compute y = m^-1 @ b
-    gsl_blas_dgemv(CblasNoTrans,1,m,b,0,y);
+    //gsl_blas_dgemv(CblasNoTrans,1,m,b,0,y);
+    gsl_blas_dgemv(CblasNoTrans,1,minv,b,0,y);
 
 
-
+	cout << endl << endl;
 	cout << "=============================================" << endl;
 	cout << "y=" << endl;
 	for (int ii = 0; ii < 3; ii++)
 		cout << gsl_vector_get(y, ii) << "   ";
 	cout << endl;
 	cout << "=============================================" << endl;
+	cout << endl << endl;
 	
 
 
