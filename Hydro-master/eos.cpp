@@ -839,7 +839,7 @@ double eos::deriv_mult_aTm_1b(gsl_vector* a, gsl_matrix* m, gsl_vector* b) {
     gsl_matrix *minv = gsl_matrix_alloc(3, 3);
     int inversion_status = gsl_linalg_LU_invert(m, p, minv);
 
-	if ( true || inversion_status )	// if an error occurred
+	if ( inversion_status )	// if an error occurred
 	{
 		cout << "Current TBQS location: "
 				<< 197.3*T() << "   " << 197.3*muB() << "   "
