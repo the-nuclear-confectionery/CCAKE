@@ -903,16 +903,14 @@ double eos::deriv_mult_aTm_1b(gsl_vector* a, gsl_matrix* m, gsl_vector* b) {
     gsl_blas_dgemv(CblasNoTrans,1,minv,b,0,y);
 
 
-	cout << endl << endl;
+	/*cout << endl << endl;
 	cout << "=============================================" << endl;
 	cout << "y=" << endl;
 	for (int ii = 0; ii < 3; ii++)
 		cout << gsl_vector_get(y, ii) << "   ";
 	cout << endl;
 	cout << "=============================================" << endl;
-	cout << endl << endl;
-	
-
+	cout << endl << endl;*/
 
 
     double toReturn = 0;
