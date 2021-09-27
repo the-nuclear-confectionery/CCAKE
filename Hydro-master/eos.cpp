@@ -839,7 +839,7 @@ double eos::deriv_mult_aTm_1b(gsl_vector* a, gsl_matrix* m, gsl_vector* b) {
     gsl_matrix *minv = gsl_matrix_alloc(3, 3);
     int inversion_status = gsl_linalg_LU_invert(m, p, minv);
 
-	if ( true || inversion_status )	// if an error occurred
+	if ( inversion_status )	// if an error occurred
 	{
 		cout << "Current TBQS location: "
 				<< 197.3*T() << "   " << 197.3*muB() << "   "
@@ -865,13 +865,15 @@ double eos::deriv_mult_aTm_1b(gsl_vector* a, gsl_matrix* m, gsl_vector* b) {
 			 << "entrVal = " << entrVal << endl << endl;
 
 
-		cout << endl << "a=" << endl;
+		cout << "a=" << endl;
 		for (int ii = 0; ii < 3; ii++)
 			cout << gsl_vector_get(a, ii) << "   ";
+		cout << endl;
 
 		cout << endl << "b=" << endl;
 		for (int ii = 0; ii < 3; ii++)
 			cout << gsl_vector_get(b, ii) << "   ";
+		cout << endl;
 
 		cout << endl << "m=" << endl;
 		for (int ii = 0; ii < 3; ii++)
@@ -898,6 +900,18 @@ double eos::deriv_mult_aTm_1b(gsl_vector* a, gsl_matrix* m, gsl_vector* b) {
 
     // Compute y = m^-1 @ b
     gsl_blas_dgemv(CblasNoTrans,1,m,b,0,y);
+
+
+
+	cout << "=============================================" << endl;
+	cout << "y=" << endl;
+	for (int ii = 0; ii < 3; ii++)
+		cout << gsl_vector_get(y, ii) << "   ";
+	cout << endl;
+	cout << "=============================================" << endl;
+	
+
+
 
     double toReturn = 0;
     //compute toReturn = aT @ y
