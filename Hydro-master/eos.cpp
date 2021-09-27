@@ -26,7 +26,7 @@ using std::string;
 constexpr bool use_exact = true;
 constexpr bool accept_nearest_neighbor = false;
 constexpr bool discard_unsolvable_charge_densities = false;
-constexpr bool check_derivatives = true;
+constexpr bool check_derivatives = false;
 
 constexpr size_t STEPS = 100000;
 constexpr int VERBOSE = 0;
