@@ -145,4 +145,9 @@ private:
 						double rhoBGiven, double rhoSGiven, double rhoQgiven,
 						double error, size_t steps);
 
+	// some routines for checking various EoS functionalities
+	void check_EoS_derivatives();
+	void get_toy_thermo(double point[], double thermodynamics[]);
+
+
 };
