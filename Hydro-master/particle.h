@@ -454,7 +454,7 @@ Matrix<double, D,D> Particle<D>::Msub(int i)
 
     Matrix<double,D,D> msub=Agam2*uu+Ctot*gamma*Imat-(1+4/3./g2)*piu+dwdsT1*transpose(piu)+gamma*pimin ;
 
-cout << "CHECK Msub: " << Agam2 << "   "
+/*cout << "CHECK Msub: " << Agam2 << "   "
 		<< uu << "   "
 		<< Ctot << "   "
 		<< gamma << "   "
@@ -463,7 +463,7 @@ cout << "CHECK Msub: " << Agam2 << "   "
 		<< piu << "   "
 		<< dwdsT1 << "   "
 		<< transpose(piu) << "   "
-		<< pimin << endl;
+		<< pimin << endl;*/
 
     //if (i==11000) cout << "A=" << Agam2 << " C=" << Ctot << endl;
 
