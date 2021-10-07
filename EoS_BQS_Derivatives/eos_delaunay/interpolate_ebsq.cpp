@@ -15,11 +15,16 @@
 using namespace std;
 
 void load_EoS_table(string path_to_file, vector<vector<double> > & grid);
+void load_ICCING(string path_to_file, vector<vector<double> > & points);
 
 int main(int argc, char *argv[])
 {
 	// check input first
-	if (argc < 3) exit(-1);
+	if (argc < 4)
+	{
+		cerr << "Usage: ./interpolate_ebsq [filename of EoS table] [filename to read in] [execution mode]\n";
+		exit(-1);
+	}
 
 	constexpr bool timing_test_only = false;
 	Stopwatch sw;
@@ -45,7 +50,7 @@ int main(int argc, char *argv[])
 
 	// read path to input file from command line
 	string path_to_file = string(argv[1]);
-	string path_to_staggered_file = string(argv[2]);
+	int execution_mode = std::stoi(argv[3]);
 
 	// set up EoS object
 	initialize("../Coefficients_Parameters.dat");	// this is the C library that must be initialized be using
@@ -54,6 +59,8 @@ int main(int argc, char *argv[])
 	size_t cellCount = 0;
 
 	vector<double> result(4, 0.0);
+	if ( execution_mode == 0 )
+	{
 	sw.Reset();
 	sw.Start();
 	//EoS.interpolate({3405.08, -0.473819, -1.78269, -2.89511}, result);
@@ -63,16 +70,36 @@ int main(int argc, char *argv[])
 	//EoS.interpolate({31.0278, -8.98404e-05, -2.03722e-05, -0.0437323}, result);
 	//EoS.interpolate({573.228, -0.0236158, -0.129289, -0.711049}, result, true);
 	//cout << "Exact: " << "102.5   -437.5   -437.5   -212.5" << endl;
-	EoS.interpolate({5754.35, 0.00231029, 0.351709, 0.378919}, result, true);
-	cout << "Exact: " << "252.5   52.5   52.5   52.5" << endl;
-	sw.Stop();
-	cout << "Found the solution in " << sw.printTime() << " s." << endl;
+	//EoS.interpolate({5754.35, 0.00231029, 0.351709, 0.378919}, result, true);
+	//cout << "Exact: " << "252.5   52.5   52.5   52.5" << endl;
+	EoS.interpolate({75633.1, 0.0078043, -0.00259725, 0.0181128}, result, true);
+	/*double e0 = 75633.1, b0 = 0.0078043, s0 = -0.00259725, q0 = 0.0181128;
+	double taufactor = 1.0, Delta_tau = 1.0, taumax = 1000.0;
+	while ( result[0] < 1e-6 && taufactor <= taumax ) // no temperatures this small
+	{
+		taufactor += Delta_tau;
+		EoS.interpolate({e0/taufactor, b0/taufactor, s0/taufactor, q0/taufactor}, result, false);
+	
 	for (const double & elem : result)
 				cout << "   " << elem;
 			cout << endl;
+
+	cout << "taufactor = " << taufactor << endl << endl;
+	}*/
+
+        for (const double & elem : result)
+                                cout << "   " << elem;
+                        cout << endl;
 	
+	sw.Stop();
+	cout << "Found the solution in " << sw.printTime() << " s." << endl;
 	if (true) exit(-1);
-	
+	}
+
+	if ( execution_mode == 1 )
+	{
+	string path_to_staggered_file = string(argv[2]);
+
 	// load staggered file with test points
 	vector<vector<double> > staggered_grid;
 	load_EoS_table(path_to_staggered_file, staggered_grid);
@@ -108,6 +135,48 @@ int main(int argc, char *argv[])
 				cout << "   " << elem;
 			cout << "\n";
 			//if (true){ cout << endl; exit(-1); }
+		}
+	}
+	}
+
+	if ( execution_mode == 2 )
+	{
+		cout << "Loading ICCING cells\n";
+
+		// load staggered file with test points
+		vector<vector<double> > ICCING_points;
+		string path_to_ICCING_file = string(argv[2]);
+		load_ICCING(path_to_ICCING_file, ICCING_points);
+	
+	
+		sw.Stop();
+		cout << "Set-up took " << sw.printTime() << " s." << endl;
+	
+		sw.Reset();
+		sw.Start();
+		for (const vector<double> & ICCING_point : ICCING_points)
+		{
+			cellCount++;
+			//if (ICCING_point[2] > 1500.0) continue;	// trying just superdense EoS
+
+			// interpolate the densities
+			EoS.interpolate(vector<double>(ICCING_point.begin()+2,ICCING_point.end()), result);
+
+			// check solution
+			double densities_arr[4];
+			iter_swap(result.begin() + 2, result.begin() + 3);      // fix this eventually
+			get_eBSQ_densities(result.data(), densities_arr);
+			iter_swap(result.begin() + 2, result.begin() + 3);      // fix this eventually
+		        vector<double> densities(densities_arr, densities_arr+4);
+
+			cout << cellCount-1 << ":";
+			for (const double & elem : ICCING_point)
+				cout << "   " << elem;
+			for (const double & elem : result)
+				cout << "   " << elem;
+			for (const double & elem : densities)
+				cout << "   " << elem;
+			cout << "\n";
 		}
 	}
 
@@ -178,3 +247,31 @@ void load_EoS_table(string path_to_file, vector<vector<double> > & grid)
 	return;
 }
 
+
+void load_ICCING(string path_to_file, vector<vector<double> > & points)
+{
+	points.clear();
+	const int n_header = 1;	// assume number of header lines is 1
+
+	// read in file itself
+	ifstream infile(path_to_file.c_str());
+	if (infile.is_open())
+	{
+		size_t count = 0;
+		string line;
+		double xpt, ypt, bin, sin, qin, ein; 
+		while ( getline (infile, line) )
+		{
+			count++;
+			if (count < n_header+1) continue;
+
+			istringstream iss(line);
+			iss >> xpt >> ypt >> ein >> bin >> sin >> qin;
+
+			points.push_back( vector<double>({xpt, ypt, 1000.0*ein, bin, sin, qin}) );
+
+		}
+	}
+
+	infile.close();
+}

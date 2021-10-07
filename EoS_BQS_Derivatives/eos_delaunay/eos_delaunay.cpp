@@ -105,7 +105,7 @@ eos_delaunay::eos_delaunay(string EoS_table_file)
 
 		midpoint_grid.push_back(midpoint);
 		midpoint_inds.push_back( {iT, imub, imuq, imus} );
-		if ( emergency_count++ <= 10 )
+		/*if ( emergency_count++ <= 10 )
 		{			
 			cout << "Checking midpoint grid:" << endl;
 			cout << "\t --> grid indices:";
@@ -120,7 +120,7 @@ eos_delaunay::eos_delaunay(string EoS_table_file)
 			cout << "\t --> midpoint:";
 			//for (auto elem : midpoint) cout << "   " << elem;
 			cout << endl << endl;
-		}
+		}*/
 
 	}
 
@@ -151,13 +151,13 @@ eos_delaunay::eos_delaunay(string EoS_table_file)
 	tree_ptr = &tree;
 
 	
-	cout << "Big check:" << endl;
+	/*cout << "Big check:" << endl;
 	for ( const auto & midpoint : midpoint_grid )
 	{
 		for ( const auto & elem : midpoint )
 			cout << "   " << elem;
 		cout << endl;
-	}
+	}*/
 	
 	static tree4d midpoint_tree(std::begin(midpoint_grid), std::end(midpoint_grid));
 	midpoint_tree_ptr = &midpoint_tree;
@@ -235,11 +235,16 @@ void eos_delaunay::get_min_and_max(vector<double> & v, double & minval, double &
 
 void eos_delaunay::interpolate(const vector<double> & v0, vector<double> & result, bool verbose)
 {
-	if ( !interpolate_NMNmode(v0, result, verbose) )
+	
+  	/*if ( !interpolate_NMNmode(v0, result, verbose) )
+	if ( !interpolate_NNmode(v0, result, verbose) )
 	if ( !interpolate_NMNmode_v2(v0, result, false, verbose) )
 	if ( !interpolate_NMNmode_v3(v0, result, verbose) )
 		interpolate_NMNmode_v2(v0, result, true, verbose);
-		//interpolate_NMNmode(v0, result);
+	*/
+
+	if ( !interpolate_NMNmode(v0, result, verbose) )
+		interpolate_NNmode(v0, result, verbose);
 }
 
 // find containing simplex using nearest-midpoint-neighbor (NMN) method
@@ -691,7 +696,7 @@ bool eos_delaunay::triangulate_and_locate_point(
 
 if (nVertices!=16)
 {
-	cout << "Not working with a true hypercube!  nVertices = " << nVertices << endl;
+	//cout << "Not working with a true hypercube!  nVertices = " << nVertices << endl;
 }
 else
 {
@@ -858,7 +863,7 @@ void eos_delaunay::refine_hypercube(vector<vector<double> > & hypercube)
 
 	// just add midpoint for now	
 	double densities_arr[4];
-	get_densities(middle.data(), densities_arr);
+	get_eBSQ_densities(middle.data(), densities_arr);
 	vector<double> densities(densities_arr, densities_arr+4);
 
 	densities[0] = (densities[0] - emin)/(emax-emin);
