@@ -366,9 +366,9 @@ void Particle<D>::return_bsqsv_A()
 
     Agam2=(Agam-eta_o_tau*(0.5-1/3.) -dwdsT1*shv.x[0][0])/gamma;
     Ctot=C+eta_o_tau*(1/g2-1)/2.;
-//	cout << "   " << eta_o_tau << "   " << EOSs() << "   " << Agam2
-//			<< "   " << Ctot << "   " << EOS.dwdB() * rhoB_an
-//			<< "   " << EOS.dwdS() * rhoS_an << "   " << EOS.dwdQ() * rhoQ_an;
+	cout << "   " << eta_o_tau << "   " << EOSs() << "   " << Agam2
+			<< "   " << Ctot << "   " << EOS.dwdB() * EOSB()
+			<< "   " << EOS.dwdS() * EOSS() << "   " << EOS.dwdQ() * EOSQ();
 
 }
 
@@ -504,15 +504,15 @@ void Particle<D>::bsqsvsigset(double tin,int i)
     gradU=gamma*gradV+g3*(v*(v*gradV));
     bigPI= Bulk*sigma/gt ;
     C=EOSw()+ bigPI;
-//	cout << "Check thermo1: " << i << "   " << tin << "   " << gamma
-//			<< "   " << EOST()*197.3 << "   " << EOSdwds() << "   " << dwdsT1
-//			<< "   " << sigma << "   " << dsigma_dt << "   " << sigl
-//			<< "   " << gradU << "   " << gradV << "   " << v;
+	cout << "Check thermo1: " << i << "   " << tin << "   " << gamma
+			<< "   " << EOST()*197.3 << "   " << EOSdwds() << "   " << dwdsT1
+			<< "   " << sigma << "   " << dsigma_dt << "   " << sigl
+			<< "   " << gradU << "   " << gradV << "   " << v;
     return_bsqsv_A();
     Btot=(Agam*gamma+eta_o_tau/3*gamma)*sigl+ bigPI/tauRelax + dwdsT* (gt*shv33+  Bsub());
     check=sigl;
-//	cout << "   " << EOSw() << "   " << bigPI << "   " << Agam
-//			<< "   " << shv33 << "   " << Bsub() << "   " << Btot << endl;
+	cout << "   " << EOSw() << "   " << bigPI << "   " << Agam
+			<< "   " << shv33 << "   " << Bsub() << "   " << Btot << endl;
 if (true)
 	cout << setprecision(12) << "Check thermo: " << i << "   "
 			<< tin << "   " << r << "   "
