@@ -242,13 +242,6 @@ double Particle<D>::gamcalc()
 }
 
 
-/*template <int D>
-double Particle<D>::gamcalcbsq()
-{
-    return sqrt( Norm2(u) + 1 );
-
-}*/
-
 template <int D>
 void Particle<D>::frzcheck(double tin,int &count, int N)
 {

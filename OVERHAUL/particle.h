@@ -14,9 +14,12 @@
 
 class particle
 {
-  // Constructors and destructors.
-  // particle();
-  // ~particle();
+
+  public:
+
+    // Constructors and destructors.
+    particle();
+   ~particle();
 
 
 
@@ -60,7 +63,16 @@ class particle
     }
     thermodynamic_info thermo;
 
-    static eos EOS;	//use one copy of EOS for all particles
+    static EquationOfState eos;	//use one copy of EOS for all particles
+    //EquationOfState * eosPtr = nullptr;
+
+    // rename these functions and their arguments
+//    void calcbsq( double tin );
+//    void bsqsvsigset( double tin, int i );
+//    void return_bsqsv_A();
+//    void setvisc( int etaconst, double bvf, double svf, double zTc, double sTc,
+//                  double sig, int type );
+//    void frzcheck( double tin, int & count, int N );
 
 
   public:
