@@ -7,10 +7,10 @@
 #include "eos.h"
 #include "runge_kutta.h"
 
-namespace rk
+namespace RK
 {
-  void bsq_second_order( double dx, void (*derivatives)( LinkList<D> &linklist ),
-                         LinkList<D> &linklist )
+  void bsq_second_order( double dx, void (*derivatives)( LinkList &linklist ),
+                         LinkList &linklist )
   {
     int N = linklist.n();
 
