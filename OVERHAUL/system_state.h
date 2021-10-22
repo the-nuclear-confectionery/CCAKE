@@ -32,7 +32,7 @@ private:
 
   //RK runge_kutta_solver;
 
-  Evolve evolver;
+  //Evolve evolver;
 
 
 }
