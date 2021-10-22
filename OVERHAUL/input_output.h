@@ -21,17 +21,28 @@
 #include "LinkList.h"
 #include "eostables.h"
 #include "eos.h"
+#include "system.h"
 
 
-namespace input_output
+class input_output
 {
 
-  
+public:
 
-} 
+  input_output();
+  ~input_output();
 
+  void load_settings_file( string path_to_settings_file );
+  void set_results_directory( string path_to_results_directory );
+  void read_in_initial_conditions();
+  void print_results();
 
+private:
 
+  string input_directory
+  string output_directory;
+
+}
 
 
 
