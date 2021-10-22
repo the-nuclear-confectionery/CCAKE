@@ -79,12 +79,18 @@ public:
     double h; // static SPH cutoff paramter
     double dt; // time step in fm
     double t0; // initial time in fm
-
+    string EoS; // specify equation of state type
+    // there should an associated EoS directory with tables
+    string eta; // specificy the shear viscosity type to use
+    // in transport cpefficient file
+    string zeta; // specificy the bulk viscosity type to use
+    // in transport cpefficient file
   }
 
   struct Initial_Conditions
   {
-    
+      vector<vector string> headers;
+      vector<vector double> density_grid;
   }
 
 
