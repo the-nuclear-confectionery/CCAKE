@@ -2,8 +2,10 @@
 
 #ifndef INPUT_OUTPUT_CPP
 
-
-
+load_settings_file( string path_to_settings_file )
+{
+    
+}
 
 
 ///////////INPUT_OUTPUT.CPP END//////////////
