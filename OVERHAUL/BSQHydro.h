@@ -36,6 +36,9 @@ private:
   // the current state of the hydrodynamic simulation
   SystemState system;
 
+  void initialize_entropy_and_charge_densities();
+  void initial_smoothing();
+
 }
 
 #endif
