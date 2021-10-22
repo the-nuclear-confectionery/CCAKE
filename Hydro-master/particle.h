@@ -242,13 +242,6 @@ double Particle<D>::gamcalc()
 }
 
 
-/*template <int D>
-double Particle<D>::gamcalcbsq()
-{
-    return sqrt( Norm2(u) + 1 );
-
-}*/
-
 template <int D>
 void Particle<D>::frzcheck(double tin,int &count, int N)
 {
@@ -715,6 +708,44 @@ void Particle<D>::setvisc(int etaconst,double bvf, double svf, double zTc, doubl
 
     }
 }
+
+
+/*
+template <int D>
+void Particle<D>::set_viscosities_DukeBayesianParameterization()
+{
+    // assume type==3 (shear + bulk)
+	double temp = EOST()*197.3;
+
+	// do bulk
+	double relative_temperature = (temp - VisBulkT0)/VisBulkWidth;
+	zeta = VisBulkMax / (1.0 + relative_temperature*relative_temperature)
+	if (zeta<0.001) zeta=0.001;
+
+	//tauRelax = 9*zeta/(EOSe()-3*EOSp());
+	//if (tauRelax < 0.1) tauRelax=0.1;
+
+	double delta_cs = 1.0/3.0 - EOS.cs2out(EOST());
+	tauRelax = max(0.1, zeta/(14.55*delta_cs*delta_cs*EOSw()) );
+
+	// do shear
+	if (temp > VisT0)
+        setas = VisMin + VisSlope*(temp - VisT0) * pow(temp/VisT0, VisCrv);
+	else
+        setas = VisHRG;
+
+	setas *= EOSs();
+
+	//stauRelax=5*setas/EOSw();
+	stauRelax = max(5.0*setas, 1e-30)/EOSw();
+
+	return;
+}
+*/
+
+
+
+
 
 template <int D>
 void Particle<D>::sets(double tin2)
