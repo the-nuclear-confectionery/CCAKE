@@ -9,7 +9,10 @@
 #include <algorithm>
 #include <sstream>
 
-using namespace std;
+//using namespace std;
+using namespace std::cout;
+using namespace std::endl;
+using namespace std::string;
 
 #include "vector.h"
 #include "tables.h"
@@ -54,16 +57,8 @@ void SystemState::initialize()  // formerly called "manualenter"
     }
     else
     {
-      //string quantityFile = ifolder + std::string("quantityFile.dat");
-      //string derivativeFile = ifolder + std::string("derivFile.dat");
-      //string quantityFile = ifolder + std::string("full_EoS_Taylor_AllMu.dat");
-      //string derivativeFile = ifolder + std::string("full_EoS_Taylor_AllMu_Derivatives.dat");
       string quantityFile = ifolder + std::string("EoS_Taylor_AllMu_T0_1200.dat");
       string derivativeFile = ifolder + std::string("EoS_Taylor_AllMu_Derivatives_T0_1200.dat");
-      //string quantityFile = ifolder + std::string("EoS_Taylor_AllMu_T30_800.dat");
-      //string derivativeFile = ifolder + std::string("EoS_Taylor_AllMu_Derivatives_T30_800.dat");
-      //string quantityFile = ifolder + std::string("EoS_Taylor_AllMu_T30_800_dense.dat");
-      //string derivativeFile = ifolder + std::string("EoS_Taylor_AllMu_Derivatives_T30_800_dense.dat");
       std::cout << "Using BSQ Equation of State table from: "
       << quantityFile << " and " << derivativeFile << "\n";
 
@@ -119,7 +114,14 @@ void SystemState::initialize()  // formerly called "manualenter"
     Particle::set_equation_of_state( EOS0 );
 
     // initialize 0th particle
-    _p[0].start(eostype, EOS0);
+    //_p[0].start(eostype, EOS0);
+
+    // assume initial conditions have been read in from file
+    
+
+    initialize();
+
+
     linklist.setup(it0,_Ntable3,h,_p,ics.dt,numpart);
 
     cout << "number of sph particles=" << _Ntable3 << endl;
