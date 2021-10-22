@@ -31,13 +31,10 @@ public:
 input_output();
 ~input_output();
 
-void readICs_iccing(string &firstry,  int &_Ntable3,Particle<2> *&_p,double factor,double const& sfcheck, int & numpart, eos EOS);//iccing (energy density+ conserved charges) 
-//void read_in_iccing_IC();
-//void read_in_settings_file();
 
 void load_settings_file( string path_to_settings_file );
 void set_results_directory( string path_to_results_directory );
-void read_in_initial_conditions();
+void read_in_initial_conditions(const system_state &system);
 void print_system_state();
 
 
@@ -45,6 +42,8 @@ private:
 
 string input_directory
 string output_directory;
+void readICs_iccing(string &firstry,  int &_Ntable3,Particle<2> *&_p,double factor,double const& sfcheck, int & numpart, eos EOS);//iccing (energy density+ conserved charges) 
+
 
 }
 
