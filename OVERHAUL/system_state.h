@@ -8,6 +8,7 @@ using std::vector;
 
 class SystemState
 {
+friend class InputOutput;
 
 public:
 
@@ -24,9 +25,11 @@ private:
   LinkList linklist;  // can we please name it something else?
   // vector<vector<int> > neighbors;  //?
 
+  EquationOfState eos;
+
   vector< Particle > particles;
 
-  rk::RK runge_kutta_solver;
+  RK runge_kutta_solver;
 
   Evolve evolver;
 

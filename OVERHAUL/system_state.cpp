@@ -22,10 +22,142 @@ using namespace std;
 
 
 ////////////////////////////////////////////////////////////////////////////////
+void SystemState::manualenter(_inputIC &ics)
+{
+  string manf = ifolder+ics.man;
+  istringstream manis (manf.c_str());
+  FILE * openmanf = fopen (manf.c_str(),"r");
+  double h,factor;
+  double it0;
+  int start,end;
+
+
+  int df;
+
+  linklist.setv(fvisc);
+  linklist.eost=eostype;
+  linklist.cevent=0;
+  cout << fvisc << " hydro, h=" << h <<  " dimensions=" << D << " dt=" << ics.dt
+        << " QM fluc:  " <<  linklist.qmf << "\n";
+
+  // rewrite by C. Plumberg: allow for different EOS format if using BSQ
+  double efcheck = 0.0, sfcheck = 0.0;
+  eos EOS0;	// now declared globally
+  if ( linklist.visc == 4 )	//if we're running BSQ (table is only option)
+  {
+    bool using_HDF = false;
+    if (using_HDF)
+    {
+      string quantityFile = ifolder + std::string("quantityFile.h5");
+      string derivativeFile = ifolder + std::string("derivFile.h5");
+      std::cout << "Using BSQ Equation of State table from: "
+      << quantityFile << " and " << derivativeFile << "\n";
+
+      EOS0.init( quantityFile, derivativeFile );
+    }
+    else
+    {
+      //string quantityFile = ifolder + std::string("quantityFile.dat");
+      //string derivativeFile = ifolder + std::string("derivFile.dat");
+      //string quantityFile = ifolder + std::string("full_EoS_Taylor_AllMu.dat");
+      //string derivativeFile = ifolder + std::string("full_EoS_Taylor_AllMu_Derivatives.dat");
+      string quantityFile = ifolder + std::string("EoS_Taylor_AllMu_T0_1200.dat");
+      string derivativeFile = ifolder + std::string("EoS_Taylor_AllMu_Derivatives_T0_1200.dat");
+      //string quantityFile = ifolder + std::string("EoS_Taylor_AllMu_T30_800.dat");
+      //string derivativeFile = ifolder + std::string("EoS_Taylor_AllMu_Derivatives_T30_800.dat");
+      //string quantityFile = ifolder + std::string("EoS_Taylor_AllMu_T30_800_dense.dat");
+      //string derivativeFile = ifolder + std::string("EoS_Taylor_AllMu_Derivatives_T30_800_dense.dat");
+      std::cout << "Using BSQ Equation of State table from: "
+      << quantityFile << " and " << derivativeFile << "\n";
+
+      EOS0.init( quantityFile, derivativeFile );
+    }
+    EOS0.eosin(eostype);			// does nothing!
+    const double freeze_out_T_at_mu_eq_0 = 0.15/0.1973;	//1/fm
+    efcheck = EOS0.efreeze(freeze_out_T_at_mu_eq_0);
+    sfcheck = EOS0.sfreeze(freeze_out_T_at_mu_eq_0);
+    //efcheck = 0.266112/0.1973;
+    //sfcheck = 2.05743;
+
+    std::cout << "efcheck = " << efcheck*0.1973 << " GeV/fm^3\n";
+    std::cout << "sfcheck = " << sfcheck << " 1/fm^3\n";
+  }
+  else
+  {
+    std::cerr << "This EoS model not currently supported!" << std::endl;
+  }
+
+  linklist.efcheck=efcheck;
+  linklist.sfcheck=sfcheck;
+  linklist.fcount=0;
+  linklist.average=0;
+  //       Start reading ICs          //
+  //Particle<D> *_p;
+  int numpart, _Ntable3;
+
+  //  cout << "setting up SPH" << endl;
+
+  cout << "Initial conditions type: " << ictype << endl;
+
+  linklist.gtyp=0;
+  if (ictype==iccing)
+  {
+
+    int count=1;
+    linklist.ebe_folder=outf;
+    string *filelist;
+    filelist=new string[count];
+
+    int j=0;
+    filelist[j]= ic+"/ic0.dat"; // only doing single event
+    linklist.filenames=filelist;
+    linklist.fcount=count;
+    linklist.fnum=linklist.start;
+
+    // already done
+    //readICs_iccing(linklist.filenames[0], _Ntable3, _p, factor, efcheck, numpart, EOS0);
+
+    _p[0].start(eostype, EOS0);
+    linklist.setup(it0,_Ntable3,h,_p,ics.dt,numpart);
+    /// compare linklist.gubser
+
+    cout << "number of sph particles=" << _Ntable3 << endl;
+    linklist.gtyp=6;
+
+  }
+
+  if ((ictype==iccing))
+  {
+    linklist.updateIC();
+    cout << "bsq optimization done" << endl;
+    linklist.bsqsvfreezeset();
+  }
+
+  linklist.bsqsv_set();
+  return;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
 void SystemState::BSQSimulation( double dt, LinkList & linklist )
 {
   cout << "Ready to start hydrodynamics\n";
-  //     int cc=0;  ///unneded variable
   linklist.frzc=0;
   linklist.cf=0;
 
