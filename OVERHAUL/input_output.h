@@ -19,8 +19,6 @@
 #include "tables.h"
 #include "particle.h"
 #include "LinkList.h"
-#include "eostables.h"
-#include "eos.h"
 #include "system.h"
 
 
