@@ -2,11 +2,35 @@
 
 #ifndef INPUT_OUTPUT_CPP
 
-load_settings_file( string path_to_settings_file )
+void load_settings_file( string path_to_settings_file )
 {
+    string Param_file = path_to_settings_file+"Input_Parameters.inp"
+    ifstream infile( Param_file.c_str() );
+    if (infile.is_open())
+    {
+        string line;
+        string ignore
+        vector <string> param;
+        int param_line = 0
+        while ( getline (infile, line) )
+        {
+            istringstream iss(line);
+            iss >> ignore >> param[param_line];
+        }
 
+        input_parameter.IC_tpye = param[0]
+        input_parameter.h = stod(param[1])
+        input_parameter.dt = stod(param[2])
+        input_parameter.t0 = stod(param[3])
+        input_parameter.EoS = param[4]
+        input_parameter.eta = param[5]
+        input_parameter.zeta = param[6]
+        input_parameter.Freeze_Out_Temperature = stod(param[7])
+        input_parameter.Freeze_Out_Type = param[8]
+
+        infile.close();
+    }
 }
-
 
 ///////////INPUT_OUTPUT.CPP END//////////////
 

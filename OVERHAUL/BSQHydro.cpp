@@ -8,7 +8,15 @@
 
 void BSQHydro::load_settings_file( string path_to_settings_file )
 {
-  io.load_settings_file(path_to_settings_file) //sets the settings path in input_output
+  Input_Parameters input_parameters;
+  io.load_settings_file(path_to_settings_file) // sets the settings path in
+  // input_output, then loads parameters into Input_parameters struct
+  io.set_EoS_type(input_parameters.EoS) // input_output talks to EoS and
+  // tells it where to find its tables
+
+  // CURRENT WORKING POINT FOR TRAVIS. NEXT STEP:
+  // WRITE SET_EOS FUNCTION
+
   return
 }
 
@@ -37,7 +45,7 @@ void BSQHydro::initialize_hydrodynamics()
 
   system.initialize();
 
-  initialize_entropy_and_charge_densities();
+  initialize_entropy_and_charge_densities(); // this should be in a switch/if
 
   initial_smoothing();
 

@@ -31,6 +31,8 @@ public:
     // in transport cpefficient file
     string zeta; // specificy the bulk viscosity type to use
     // in transport cpefficient file
+    double Freeze_Out_Temperature;
+    string Freeze_Out_Type;
   }
 
   struct Initial_Conditions

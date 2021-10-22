@@ -33,6 +33,8 @@ input_output();
 void load_settings_file( string path_to_settings_file ); // load setting
 // paramters for simulation
 
+void set_EoS_type(string EoS_type); // load in table for interpolation
+
 void set_results_directory( string path_to_results_directory ); // sets up
 // output directory, will update the outfile as time goes on
 
