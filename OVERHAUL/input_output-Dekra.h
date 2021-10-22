@@ -23,15 +23,14 @@
 #include "eos.h"
 
 
-namespace input_output
-{
+//public
 
-  
+void readICs_iccing(string &firstry,  int &_Ntable3,Particle<2> *&_p,double factor,double const& sfcheck, int & numpart, eos EOS);//iccing (energy density+ conserved charges) 
+void read_in_iccing_IC();
+void read_in_settings_file();
+void print_system_state();
 
-} 
-
-
-
+//private
 
 
 
