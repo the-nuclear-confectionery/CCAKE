@@ -21,7 +21,8 @@ class particle
     particle();
    ~particle();
 
-
+  // use this to set equation of state object before creating particles
+  static void set_equation_of_state( EquationOfState & eos );
 
 
   private:
@@ -39,26 +40,26 @@ class particle
       double dwds = 0.0, dwdB = 0.0, dwdS = 0.0, dwdQ = 0.0;
 
       public:
-        void set(const eos & EOS)
+        void set(const EquationOfState & eos)
         {
-          T    = EOS.T();
-          muB  = EOS.muB();
-          muS  = EOS.muS();
-          muQ  = EOS.muQ();
+          T    = eos.T();
+          muB  = eos.muB();
+          muS  = eos.muS();
+          muQ  = eos.muQ();
 
-          p    = EOS.p();
-          s    = EOS.s();
-          B    = EOS.B();
-          S    = EOS.S();
-          Q    = EOS.Q();
-          e    = EOS.e();
-          w    = EOS.w();
-          A    = EOS.A();
-          cs2  = EOS.cs2();
-          dwds = EOS.dwds();
-          dwdB = EOS.dwdB();
-          dwdS = EOS.dwdS();
-          dwdQ = EOS.dwdQ();
+          p    = eos.p();
+          s    = eos.s();
+          B    = eos.B();
+          S    = eos.S();
+          Q    = eos.Q();
+          e    = eos.e();
+          w    = eos.w();
+          A    = eos.A();
+          cs2  = eos.cs2();
+          dwds = eos.dwds();
+          dwdB = eos.dwdB();
+          dwdS = eos.dwdS();
+          dwdQ = eos.dwdQ();
         }
     }
     thermodynamic_info thermo;

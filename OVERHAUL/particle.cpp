@@ -19,6 +19,12 @@ particle::particle()
   u.resize(2, 0.0);
 }
 
+void particle::set_equation_of_state( EquationOfState & eos_in )
+{
+  eos = eos_in;
+}
+
+
 // 
 double particle::locate_phase_diagram_point_eBSQ(
                  double e_In, double rhoB_In, double rhoS_In, double rhoQ_In )

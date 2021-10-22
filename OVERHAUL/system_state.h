@@ -2,6 +2,7 @@
 #include <vector>
 
 #include "particle.h"
+#include "runge_kutta.h"
 
 using std::string;
 using std::vector;
@@ -29,7 +30,7 @@ private:
 
   vector< Particle > particles;
 
-  RK runge_kutta_solver;
+  //RK runge_kutta_solver;
 
   Evolve evolver;
 

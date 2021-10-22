@@ -15,18 +15,13 @@ using namespace std;
 #include "tables.h"
 #include "particle.h"
 #include "runge_kutta.h"
-#include "hydrosim.h"
 #include "eos.h"
 #include "io.h"
-#include "bbmg.h"
 
 
 ////////////////////////////////////////////////////////////////////////////////
-void SystemState::manualenter(_inputIC &ics)
+void SystemState::initialize()  // formerly called "manualenter"
 {
-  string manf = ifolder+ics.man;
-  istringstream manis (manf.c_str());
-  FILE * openmanf = fopen (manf.c_str(),"r");
   double h,factor;
   double it0;
   int start,end;
@@ -40,6 +35,8 @@ void SystemState::manualenter(_inputIC &ics)
   cout << fvisc << " hydro, h=" << h <<  " dimensions=" << D << " dt=" << ics.dt
         << " QM fluc:  " <<  linklist.qmf << "\n";
 
+  //////////////////////////////////////////////////////////////////////////////
+  // SET EQUATION OF STATE
   // rewrite by C. Plumberg: allow for different EOS format if using BSQ
   double efcheck = 0.0, sfcheck = 0.0;
   eos EOS0;	// now declared globally
@@ -117,9 +114,13 @@ void SystemState::manualenter(_inputIC &ics)
     // already done
     //readICs_iccing(linklist.filenames[0], _Ntable3, _p, factor, efcheck, numpart, EOS0);
 
+    ////////////////////////////////////////////////////////////////////////////
+    // INITIALIZE PARTICLES
+    Particle::set_equation_of_state( EOS0 );
+
+    // initialize 0th particle
     _p[0].start(eostype, EOS0);
     linklist.setup(it0,_Ntable3,h,_p,ics.dt,numpart);
-    /// compare linklist.gubser
 
     cout << "number of sph particles=" << _Ntable3 << endl;
     linklist.gtyp=6;
