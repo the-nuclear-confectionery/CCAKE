@@ -50,6 +50,19 @@ int count=0;
     else 
     {
     iss >> xsub >> ysub >> esub >> rBsub >> rSsub >> rQsub;  
+    iss >> dummy;
+    xsub.push_back(dummy);
+    iss>>dummy;
+    ysub.push_back(y[1]);
+    iss>>dummy;
+    esub.push_back(y[2]);
+    iss>>dummy;
+    rBsub.push_back(y[3]);
+    iss>>dummy;
+    rSsub.push_back(y[4]);
+    iss>>dummy;
+    rQsub.push_back(y[5]);
+
     }
 
 count ++;
@@ -62,34 +75,12 @@ if (!infile.is_open())
   }
 }
 
-//double stepx,stepy;
-//stringstream s;
-//s << gx[1];
-//s >> stepx;
-stringstream s1;
-    s1 << gx[2];
-    s1 >> stepy;
 
-cout << "dx=dy=" << stepx << " " << stepy << endl;
-while (getline(input,line)) {
-        std::vector<double> y (6,0) ;
-
-        std::vector<std::string> x = split(line, ' ');
-
-
-        for(int j=0; j<6; j++)
-        {
-            stringstream ss;
-            ss << x[j];
-            ss >> y[j];
 //cout << "CHECK(" << __LINE__ << "): " << j << "   " << x[j] << "   " << y[j] << endl;
         }
 }
 }
 }
-
-//getline(input,line);
-//std::vector<std::string> gx = split(line, ' ');
 //==============================================================
 // Add new check here to enforce freeze-out criterion before
 // setting particle list size!!!
@@ -131,43 +122,42 @@ numpart=0;	//number of frozen out particles
 
 for(int j=0; j<_Ntable3; j++)
 	{
-const auto & pj = pj;
+const auto & pj = _p[j];
 pj.r.x[0]=xsub[j];
 pj.r.x[1]=ysub[j];
 // pj.e_sub=EOS.e_out(factor*esub[j]);
 pj.e_sub=esub[j]/hbarC;        // not s_an!!  convert to 1/fm^4 and do not rescale by factor!
-        pj.u.x[0]=0;
-        pj.u.x[1]=0;
-        pj.eta_sigma = 1;
-        pj.sigmaweight=stepx*stepy;
-		pj.rho_weight = stepx*stepy;
-        pj.Bulk = 0;
-        pj.B=rBsub[j]*stepx*stepy;			// confirm with Jaki
-        pj.S=rSsub[j]*stepx*stepy;			// confirm with Jaki
-        pj.Q=rQsub[j]*stepx*stepy;			// confirm with Jaki
-        pj.rhoB_an=rBsub[j];					// confirm with Jaki
-        pj.rhoS_an=rSsub[j];					// confirm with Jaki
-        pj.rhoQ_an=rQsub[j];					// confirm with Jaki
-		pj.transverse_area = stepx*stepy;
+pj.u.x[0]=0;
+pj.u.x[1]=0;
+pj.eta_sigma = 1;
+pj.sigmaweight=stepx*stepy;
+pj.rho_weight = stepx*stepy;
+pj.Bulk = 0;
+pj.B=rBsub[j]*stepx*stepy;			
+pj.S=rSsub[j]*stepx*stepy;			
+pj.Q=rQsub[j]*stepx*stepy;			
+pj.rhoB_an=rBsub[j];					
+pj.rhoS_an=rSsub[j];					
+pj.rhoQ_an=rQsub[j];					
+pj.transverse_area = stepx*stepy;
 
-		if (j==0)
-		cout << "readICs_iccing(" << __LINE__ << "): "
-			<< "SPH particles: "
-			<< j << "   "
-			<< pj.r.x[0] << "   " << pj.r.x[1] << "   "
-			<< pj.e_sub << "   " << pj.rhoB_an << "   "
-			<< pj.rhoS_an << "   " << pj.rhoQ_an << "   "
-			<< pj.sigmaweight << endl;
+if (j==0)
+	cout << "readICs_iccing(" << __LINE__ << "): "
+	<< "SPH particles: "
+	<< j << "   "
+	<< pj.r.x[0] << "   " << pj.r.x[1] << "   "
+	<< pj.e_sub << "   " << pj.rhoB_an << "   "
+	<< pj.rhoS_an << "   " << pj.rhoQ_an << "   "
+	<< pj.sigmaweight << endl;
+// make educated initial guess here for this particle's (T, mu_i) coordinates
+// (improve this in the future)
+	pj.SPH_cell.T   = 500.0/hbarc_MeVfm;	// rootfinder seems to work better going downhill than "uphill"
+	pj.SPH_cell.muB = 0.0/hbarc_MeVfm;
+	pj.SPH_cell.muS = 0.0/hbarc_MeVfm;
+	pj.SPH_cell.muQ = 0.0/hbarc_MeVfm;
 
-		// make educated initial guess here for this particle's (T, mu_i) coordinates
-		// (improve this in the future)
-		pj.SPH_cell.T   = 500.0/197.3;	// rootfinder seems to work better going downhill than "uphill"
-		pj.SPH_cell.muB = 0.0/197.3;
-		pj.SPH_cell.muS = 0.0/197.3;
-		pj.SPH_cell.muQ = 0.0/197.3;
-
-        if (pj.e_sub>efcheck)	// impose freeze-out check for e, not s
-        {
+  if (pj.e_sub>efcheck)	          // impose freeze-out check for e, not s
+  {
             pj.Freeze=0;
         }
         else
@@ -177,14 +167,6 @@ pj.e_sub=esub[j]/hbarC;        // not s_an!!  convert to 1/fm^4 and do not resca
             ++numpart;
         }
     }
-
-    cout << "After freezeout (redundant): size = " << _Ntable3-numpart << endl;
-
-
-
+cout << "After freezeout (redundant): size = " << _Ntable3-numpart << endl;
 }
-
-
-
-
 }

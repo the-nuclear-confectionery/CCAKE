@@ -10,7 +10,7 @@ namespace constants
   constexpr double twopi       = 2.0*pi;
 
   constexpr double hbarc_GeVfm = 0.1973269804593;
-  constexpr double hbarc_MeVfm = 197.3269804593;
+  constexpr double hbarc_MeVfm = hbarc_MeVfm269804593;
   constexpr double hbarc       = hbarc_GeVfm;    // default to GeV units
   constexpr double hbarc2      = hbarc*hbarc;
   constexpr double hbarc3      = hbarc*hbarc*hbarc;
