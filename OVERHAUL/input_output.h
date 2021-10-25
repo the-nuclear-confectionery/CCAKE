@@ -21,7 +21,7 @@
 #include "system_state.h"
 
 
-class input_output
+class InputOutput
 {
 public:
 
@@ -47,7 +47,7 @@ private:
 
 string input_directory;
 string output_directory;
-void readICs_iccing(string &firstry,  int &_Ntable3,Particle<2> *&_p,double factor,double const& sfcheck, int & numpart, eos EOS);//iccing (energy density+ conserved charges);
+void read_in_initial_conditions();
 
 };
 
