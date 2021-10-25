@@ -123,6 +123,10 @@ class Particle
   void setvar();
 
 
+
+
+  double sigma, sigmaweight;
+
 };
 
 #endif
