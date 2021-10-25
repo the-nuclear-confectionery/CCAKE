@@ -140,18 +140,5 @@ if (j==0)
 	p.SPH_cell.muB = 0.0/hbarc_MeVfm;
 	p.SPH_cell.muS = 0.0/hbarc_MeVfm;
 	p.SPH_cell.muQ = 0.0/hbarc_MeVfm;
-
-  if (p.e_sub>efcheck)	          // impose freeze-out check for e, not s
-  {
-            p.Freeze=0;
-        }
-        else
-        {
-            p.Freeze=4;
-            --kk;
-            ++initial_frozen_sph;
-        }
-    }
-cout << "After freezeout (redundant): size = " << numberof_sph-initial_frozen_sph << endl;
 }
 }

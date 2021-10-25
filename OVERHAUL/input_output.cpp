@@ -81,8 +81,7 @@ void input_output::set_EoS_type()
   return
 }
 
-void input_output::read_in_initial_conditions( int &_Ntable3, 
-double factor, double const & efcheck,int & numpart)
+void input_output::read_in_initial_conditions()
 {
   string initial_condition_type = input_parameters.IC_type;
   int n_header_lines;
