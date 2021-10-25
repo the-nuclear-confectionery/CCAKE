@@ -14,6 +14,7 @@ using namespace std::cout;
 using namespace std::endl;
 using namespace std::string;
 
+#include "constants.h"
 #include "vector.h"
 #include "tables.h"
 #include "particle.h"
@@ -21,22 +22,23 @@ using namespace std::string;
 #include "eos.h"
 #include "io.h"
 
+using namespace constants;
+
 
 ////////////////////////////////////////////////////////////////////////////////
 void SystemState::initialize()  // formerly called "manualenter"
 {
-  double h,factor;
+  double h, factor;
   double it0;
-  int start,end;
-
+  int start, end;
 
   int df;
 
   linklist.setv(fvisc);
   linklist.eost=eostype;
   linklist.cevent=0;
-  cout << fvisc << " hydro, h=" << h <<  " dimensions=" << D << " dt=" << ics.dt
-        << " QM fluc:  " <<  linklist.qmf << "\n";
+  std::cout << fvisc << " hydro, h=" << h <<  " dimensions=" << D
+            << " dt=" << ics.dt << " QM fluc:  " << linklist.qmf << "\n";
 
   //////////////////////////////////////////////////////////////////////////////
   // SET EQUATION OF STATE
@@ -48,30 +50,34 @@ void SystemState::initialize()  // formerly called "manualenter"
     bool using_HDF = false;
     if (using_HDF)
     {
-      string quantityFile = ifolder + std::string("quantityFile.h5");
+      string quantityFile   = ifolder + std::string("quantityFile.h5");
       string derivativeFile = ifolder + std::string("derivFile.h5");
       std::cout << "Using BSQ Equation of State table from: "
-      << quantityFile << " and " << derivativeFile << "\n";
+                << quantityFile << " and " << derivativeFile << "\n";
 
       EOS0.init( quantityFile, derivativeFile );
     }
     else
     {
-      string quantityFile = ifolder + std::string("EoS_Taylor_AllMu_T0_1200.dat");
-      string derivativeFile = ifolder + std::string("EoS_Taylor_AllMu_Derivatives_T0_1200.dat");
+      string quantityFilename   = "EoS_Taylor_AllMu_T0_1200.dat";
+      string derivativeFilename = "EoS_Taylor_AllMu_Derivatives_T0_1200.dat";
+      string quantityFile       = ifolder + quantityFilename;
+      string derivativeFile     = ifolder + derivativeFilename;
       std::cout << "Using BSQ Equation of State table from: "
-      << quantityFile << " and " << derivativeFile << "\n";
+                << quantityFile << " and " << derivativeFile << "\n";
 
       EOS0.init( quantityFile, derivativeFile );
     }
-    EOS0.eosin(eostype);			// does nothing!
-    const double freeze_out_T_at_mu_eq_0 = 0.15/0.1973;	//1/fm
-    efcheck = EOS0.efreeze(freeze_out_T_at_mu_eq_0);
-    sfcheck = EOS0.sfreeze(freeze_out_T_at_mu_eq_0);
+
+    EOS0.eosin( eostype );			// does nothing!
+    const double freeze_out_T_at_mu_eq_0
+                  = 0.15/hbarc_GeVfm;	//1/fm
+    efcheck       = EOS0.efreeze( freeze_out_T_at_mu_eq_0 );
+    sfcheck       = EOS0.sfreeze( freeze_out_T_at_mu_eq_0 );
     //efcheck = 0.266112/0.1973;
     //sfcheck = 2.05743;
 
-    std::cout << "efcheck = " << efcheck*0.1973 << " GeV/fm^3\n";
+    std::cout << "efcheck = " << efcheck*hbarc_GeVfm << " GeV/fm^3\n";
     std::cout << "sfcheck = " << sfcheck << " 1/fm^3\n";
   }
   else
@@ -79,12 +85,12 @@ void SystemState::initialize()  // formerly called "manualenter"
     std::cerr << "This EoS model not currently supported!" << std::endl;
   }
 
-  linklist.efcheck=efcheck;
-  linklist.sfcheck=sfcheck;
-  linklist.fcount=0;
-  linklist.average=0;
+  linklist.efcheck = efcheck;
+  linklist.sfcheck = sfcheck;
+  linklist.fcount  = 0;
+  linklist.average = 0;
   //       Start reading ICs          //
-  //Particle<D> *_p;
+
   int numpart, _Ntable3;
 
   //  cout << "setting up SPH" << endl;
@@ -92,19 +98,18 @@ void SystemState::initialize()  // formerly called "manualenter"
   cout << "Initial conditions type: " << ictype << endl;
 
   linklist.gtyp=0;
-  if (ictype==iccing)
+  if ( ictype == iccing )
   {
 
-    int count=1;
-    linklist.ebe_folder=outf;
-    string *filelist;
-    filelist=new string[count];
+    int count           = 1;
+    linklist.ebe_folder = outf;
+    vector<string>        filelist( count );
 
-    int j=0;
-    filelist[j]= ic+"/ic0.dat"; // only doing single event
-    linklist.filenames=filelist;
-    linklist.fcount=count;
-    linklist.fnum=linklist.start;
+    int j               = 0;
+    filelist[j]         = ic + "/ic0.dat"; // only doing single event
+    linklist.filenames  = filelist;
+    linklist.fcount     = count;
+    linklist.fnum       = linklist.start;
 
     // already done
     //readICs_iccing(linklist.filenames[0], _Ntable3, _p, factor, efcheck, numpart, EOS0);
@@ -119,17 +124,16 @@ void SystemState::initialize()  // formerly called "manualenter"
     // assume initial conditions have been read in from file
     
 
-    initialize();
+    linklist.initialize();
 
-
-    linklist.setup(it0,_Ntable3,h,_p,ics.dt,numpart);
+    linklist.setup( it0, _Ntable3, h, particles, ics.dt, numpart );
 
     cout << "number of sph particles=" << _Ntable3 << endl;
     linklist.gtyp=6;
 
   }
 
-  if ((ictype==iccing))
+  if ( ictype == iccing )
   {
     linklist.updateIC();
     cout << "bsq optimization done" << endl;
