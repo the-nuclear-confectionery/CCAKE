@@ -25,6 +25,8 @@ class Particle
     Particle();
    ~Particle();
 
+  bool operator==( const Particle & ) const;
+
   // use this to set equation of state object before creating particles
   static void set_equation_of_state( EquationOfState & eos );
 
