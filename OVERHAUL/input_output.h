@@ -32,6 +32,8 @@ InputOutput();
 void load_settings_file( string path_to_settings_file ); // load setting
 // paramters for simulation
 
+void read_in_initial_conditions();
+
 void set_EoS_type(); // load in table for interpolation
 
 void set_results_directory( string path_to_results_directory ); // sets up
@@ -47,7 +49,7 @@ private:
 
 string input_directory;
 string output_directory;
-void read_in_initial_conditions();
+
 
 };
 
