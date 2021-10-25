@@ -16,9 +16,8 @@
 
 #include "mathdef.h"
 #include "vector.h"
-#include "tables.h"
 #include "particle.h"
-#include "LinkList.h"
+#include "linklist.h"
 #include "system.h"
 
 

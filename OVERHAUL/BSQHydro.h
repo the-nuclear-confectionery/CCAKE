@@ -82,6 +82,6 @@ struct Initial_Conditions
   void initialize_entropy_and_charge_densities();
   void initial_smoothing();
 
-}
+};
 
 #endif
