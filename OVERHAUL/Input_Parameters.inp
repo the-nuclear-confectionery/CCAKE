@@ -2,7 +2,8 @@ ICtype: ICCING
 h: 0.300000
 dt: 0.050000
 t0: 0.600000
-EOS: Houston
+EoS_Type: Houston
+EoS_Spec: Default
 eta: constant_0.08
 zeta: off
 freezeoutT: 150.000000

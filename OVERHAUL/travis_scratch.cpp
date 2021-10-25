@@ -32,6 +32,21 @@ void load_settings_file( string path_to_settings_file )
     }
 }
 
+void set_EoS_type(string EoS_type)
+{
+  switch(EoS_type)
+  {
+    string 
+    Case 'Houston' :
+      cout << "EoS Selected: Houston Default" << endl
+
+    
+    Case default   :
+      cout << "Specified EoS not supported." << endl
+
+  }
+}
+
 ///////////INPUT_OUTPUT.CPP END//////////////
 
 

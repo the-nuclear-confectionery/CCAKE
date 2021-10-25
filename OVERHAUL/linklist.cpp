@@ -29,23 +29,27 @@ void LinkList::destroy()
 
 }
 
-void LinkList::setup(double it0, int ntot,double h, Particle<D> *_pin,double dtsave,int & numpart)
+void LinkList::setup( double it0, int ntot, double h,
+                      vector<Particle> & particles_in,
+                      double dtsave, int & numpart)
 {
-    t0=it0;
-    _h=h;
-    _n=ntot;
-    _p=_pin;
-    knorm=10/7./PI/(_h*_h);
-    knorm2=knorm*0.25;
-    kgrad=-10/7./PI/pow(_h,3)*3/4.;	//FIX MISSING MINUS SIGN!!!!!!  CONFIRM WITH JAKI
-    kgrad2=10/7./PI/pow(_h,3)/_h;
-    link=new int[_n];
-    dael=new Vector<int,D>[_n];
-    steps=100*(floor(tend-t0)+1);
+    t0          = it0;
+    _h          = h;
+    _n          = ntot;
+    particles   = particles_in;
+    knorm       = 10/7./pi/(_h*_h);
+    knorm2      = knorm*0.25;
+    kgrad       = -10/7./pi/pow(_h,3)*3/4.;	//FIX MISSING MINUS SIGN!!!!!!  CONFIRM WITH JAKI
+    kgrad2      = 10/7./pi/pow(_h,3)/_h;
+    //link        = new int[_n];
+    //dael        = new Vector<int,2>[_n];
+    link        = vector<int>(_n);
+    dael        = vector< Vector<int,2> >(_n);
+    steps       = 100*(floor(tend-t0)+1);
 
-    dt=dtsave;
-    number_part=numpart;
-    avgetasig=0.;
+    dt          = dtsave;
+    number_part = numpart;
+    avgetasig   = 0.0;
 }
 
 

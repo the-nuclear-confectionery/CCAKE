@@ -11,20 +11,20 @@ public:
 
   double _h;
   int _n;
-  int start,end,fnum;
+  int start, end, fnum;
   vector<double> sFO, Tfluc; //entropy at freezeout
   int qmf; //if==1 quantum mechanicanical corrections to the flow or added
            //if==0 no corrections are included
 
-  double kernel (Vector<double,D> kin);
+  double kernel( Vector<double,2> kin );
 
-  double knorm,knorm2,kgrad,kgrad2;
+  double knorm, knorm2, kgrad, kgrad2;
   int number_part;
   double t0;
-  double t,dt;
+  double t, dt;
   double factor;
   int frzc;
-  double tau,taup, taupp;
+  double tau, taup, taupp;
   int rk2;
   double gd2;
 
@@ -32,21 +32,23 @@ public:
 
   int cfon;
   vector<int> list;
-  int *lead;
-  int *link;
+  //int *lead;
+  //int *link;
+  vector<int> lead;
+  vector<int> link;
   int cf;
   int visc; // visc=0 for ideal
             // visc=1 for bulk
             // visc=2 for shear
             // visc=3 for bulk+shear
-  double efcheck,sfcheck;
+  double efcheck, sfcheck;
   int steps;
 
   int first;
   int average;
   int lowT;
 
-  double *divTtemp,*gsub,*bulksub,*swsub,*shear33sub,*tlist;
+  double *divTtemp, *gsub, *bulksub, *swsub, *shear33sub, *tlist;
   double avgetasig; // possibly not needed?
   Matrix<double,3,3> *shearsub;
   Vector<double,2> *divT,*rsub;
@@ -55,13 +57,14 @@ public:
 
   Vector<int,2> size;
 
-  Vector<int,2> *dael;
+  //Vector<int,2> *dael;
+  vector< Vector<int,2> > dael;
 
-  double dEz,E,Ez,E0,Etot,S,S0,Eloss,Esubb;
+  double dEz, E, Ez, E0, Etot, S, S0, Eloss, Esubb;
   double Btotal, Stotal, Qtotal;
   double Btotal0, Stotal0, Qtotal0;
 
-  double E1,E2;
+  double E1, E2;
 
 
   int etaconst;
@@ -71,7 +74,6 @@ public:
               vector<Particle> & particles, double dtsave, int & numpart );
 
   string eos_s,eos_p;
-  //string *filenames;
   vector<string> filenames;
 
   string ebe_folder;
@@ -81,7 +83,7 @@ public:
 
   void initialize();
 
-  int triToSum(Vector<int,2> dael, Vector<int,2> size);
+  int triToSum( Vector<int,2> dael, Vector<int,2> size );
 
   void destroy();
 
@@ -132,7 +134,7 @@ private:
               - innerp );
   }
 
-  Vector<double,2> gradKernel (Vector<double,2> a, bool verbose = false);
+  Vector<double,2> gradKernel( Vector<double,2> a, bool verbose = false );
 
 }
 
