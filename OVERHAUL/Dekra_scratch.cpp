@@ -68,17 +68,17 @@ const double eps_local = 1e-6;
 		 y[4] = eps_local;
 		 y[5] = eps_local;
 	}*/
-iss >> dummy;
+iss >> var1;
     xsub.push_back(y[0]);
-    iss>>dummy;
+    iss>>var2;
     ysub.push_back(y[1]);
-    iss>>dummy;
+    iss>>var3;
     esub.push_back(y[2]);
-    iss>>dummy;
+    iss>>var4;
     rBsub.push_back(y[3]);
-    iss>>dummy;
+    iss>>var5;
     rSsub.push_back(y[4]);
-    iss>>dummy;
+    iss>>var6;
     rQsub.push_back(y[5]);
 }
 count ++;
