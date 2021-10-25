@@ -45,7 +45,8 @@ struct Input_Parameters
     double h; // static SPH cutoff paramter
     double dt; // time step in fm
     double t0; // initial time in fm
-    string EoS; // specify equation of state type
+    string EoS_type; // specify equation of state type
+    string EoS_option; // specify specifc option for EOS
     // there should an associated EoS directory with tables
     string eta; // specificy the shear viscosity type to use
     // in transport cpefficient file
