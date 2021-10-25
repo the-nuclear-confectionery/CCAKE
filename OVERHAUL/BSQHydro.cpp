@@ -2,8 +2,8 @@
 
 
 // Constructors and destructors.
-  BSQHydro::BSQHydro(){}
- ~BSQHydro::BSQHydro(){}
+BSQHydro::BSQHydro(){}
+BSQHydro::~BSQHydro(){}
 
 
 void BSQHydro::load_settings_file( string path_to_settings_file )
