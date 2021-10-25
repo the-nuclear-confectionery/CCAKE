@@ -1,7 +1,24 @@
 #ifndef BSQHYDRO_H
 #define BSQHYDRO_H
 
+#include <algorithm>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <vector>
+
+#include "constants.h"
+#include "eos.h"
+#include "input_output.h"
+#include "system_state.h"
+
 using std::string;
+using std::vector;
 
 class BSQHydro
 {
@@ -33,7 +50,7 @@ private:
   InputOutput io;
 
   // hold freeze-out surface
-  FreezeOutSurface freeze_out_surface;
+  //FreezeOutSurface freeze_out_surface;
 
   // the current state of the hydrodynamic simulation
   SystemState system;
