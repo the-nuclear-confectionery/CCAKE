@@ -16,9 +16,10 @@
 
 #include "mathdef.h"
 #include "vector.h"
+#include "tables.h"
 #include "particle.h"
-#include "linklist.h"
-#include "system_state.h"
+#include "LinkList.h"
+#include "system.h"
 
 
 class input_output
@@ -49,7 +50,7 @@ string input_directory;
 string output_directory;
 void readICs_iccing(string &firstry,  int &_Ntable3,Particle<2> *&_p,double factor,double const& sfcheck, int & numpart, eos EOS);//iccing (energy density+ conserved charges);
 
-}
+};
 
 
 

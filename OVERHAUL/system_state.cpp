@@ -10,9 +10,9 @@
 #include <sstream>
 
 //using namespace std;
-using namespace std::cout;
-using namespace std::endl;
-using namespace std::string;
+using std::cout;
+using std::endl;
+using std::string;
 
 #include "constants.h"
 #include "vector.h"

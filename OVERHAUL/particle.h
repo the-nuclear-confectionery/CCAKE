@@ -12,6 +12,8 @@
 #include <string>
 #include <vector>
 
+#include "eos.h"
+
 class Particle
 {
 
@@ -118,6 +120,6 @@ class Particle
   void setvar();
 
 
-}
+};
 
 #endif

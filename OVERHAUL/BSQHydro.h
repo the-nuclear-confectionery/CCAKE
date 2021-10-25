@@ -40,7 +40,7 @@ public:
 
 private:
 
-  string input_directory
+  string input_directory;
   string output_directory;
 
   // equation of state information
