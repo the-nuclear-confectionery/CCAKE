@@ -17,6 +17,13 @@
 #include <string>
 #include <vector>
 
+#include "BSQHydro.h"
+
+using std::cout;
+using std::endl;
+using std::string;
+using std::vector;
+
 int main (int argc, char *argv[])
 {
   // Check if proper command-line arguments passed
