@@ -74,10 +74,11 @@ class Particle
     };
     thermodynamic_info thermo;
 
-    static EquationOfState eos;	//use one copy of EOS for all particles
-    //EquationOfState * eosPtr = nullptr;
 
   public:
+
+    static EquationOfState eos;	//use one copy of EOS for all particles
+    //EquationOfState * eosPtr = nullptr;
 
     // getter functions
     double T()    { return thermo.T;    }
