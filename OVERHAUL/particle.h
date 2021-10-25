@@ -35,11 +35,13 @@ class Particle
   void locate_phase_diagram_point_sBSQ( double s_In, double rhoB_In,
                                         double rhoS_In, double rhoQ_In );
 
-  private:
+  //private:
     // kinematic quantities
-    vector<double> r;  // (x,y) in fm
-    vector<double> v;  // velocity
-    vector<double> u;  // relativistic velocity
+//    vector<double> r;  // (x,y) in fm
+//    vector<double> v;  // velocity
+//    vector<double> u;  // relativistic velocity
+
+    Vector<double,2> r, v, u;
 
     // thermodynamic quantities (with default initialization)
     struct thermodynamic_info
@@ -75,7 +77,7 @@ class Particle
     thermodynamic_info thermo;
 
 
-  public:
+//  public:
 
     static EquationOfState eos;	//use one copy of EOS for all particles
     //EquationOfState * eosPtr = nullptr;
