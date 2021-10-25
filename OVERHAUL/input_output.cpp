@@ -70,7 +70,7 @@ void input_output::set_EoS_type()
   string derivatives = EoS_files_location + '/derivatives.dat';
   string EoS_option = input_paramters.EoS_option;
 
-  switch(EoS_spec)
+  switch(EoS_option)
   {
     Case default   :
       cout << "Running default EoS option for " << EoS_type << endl;
