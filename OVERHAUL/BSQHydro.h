@@ -71,13 +71,13 @@ struct Input_Parameters
     // in transport cpefficient file
     double Freeze_Out_Temperature;
     string Freeze_Out_Type;
-}
+};
 
 struct Initial_Conditions
 {
     vector<vector<string> > headers; // vector of header parameters as string
     vector<vector<double> > density_grid; // the hydro grid, read in and stored
-}
+};
 
   void initialize_entropy_and_charge_densities();
   void initial_smoothing();
