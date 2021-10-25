@@ -10,7 +10,6 @@
 #include <vector>
 #include "mathdef.h"
 #include "vector.h"
-#include "tables.h"
 #include "particle.h"
 #include "enteric.h"
 #include<dirent.h>
