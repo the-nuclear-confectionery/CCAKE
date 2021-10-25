@@ -342,17 +342,17 @@ double EquationOfState::muB() const { return tbqsPosition[1]; }
 double EquationOfState::muQ() const { return tbqsPosition[2]; }
 double EquationOfState::muS() const { return tbqsPosition[3]; }
 
-double EquationOfState::p() { return pVal; }
-double EquationOfState::s() { return entrVal; }
-double EquationOfState::B() { return BVal; }
-double EquationOfState::S() { return SVal; }
-double EquationOfState::Q() { return QVal; }
-double EquationOfState::e() { return eVal; }
-double EquationOfState::cs2() { return cs2Val; }
-double EquationOfState::w() { return eVal + pVal; }
+double EquationOfState::p()   const { return pVal; }
+double EquationOfState::s()   const { return entrVal; }
+double EquationOfState::B()   const { return BVal; }
+double EquationOfState::S()   const { return SVal; }
+double EquationOfState::Q()   const { return QVal; }
+double EquationOfState::e()   const { return eVal; }
+double EquationOfState::cs2() const { return cs2Val; }
+double EquationOfState::w()   const { return eVal + pVal; }
 
 
-double EquationOfState::dwds()
+double EquationOfState::dwds() const
 {
 	double charge_terms	/*if charge densities are not all zero*/
 			= ( abs(BVal)>1e-10 || abs(SVal)>1e-10 || abs(QVal)>1e-10 ) ?
@@ -368,7 +368,7 @@ double EquationOfState::dwds()
     return T() + entrVal/dentr_dt() + charge_terms;
 }
 
-double EquationOfState::dwdB()
+double EquationOfState::dwdB() const
 {
 	double charge_terms	/*if charge densities are not all zero*/
 			= ( abs(BVal)>1e-10 || abs(SVal)>1e-10 || abs(QVal)>1e-10 ) ?
@@ -377,7 +377,7 @@ double EquationOfState::dwdB()
     return muB() + charge_terms;
 }
 
-double EquationOfState::dwdS()
+double EquationOfState::dwdS() const
 {
 	double charge_terms	/*if charge densities are not all zero*/
 			= ( abs(BVal)>1e-10 || abs(SVal)>1e-10 || abs(QVal)>1e-10 ) ?
@@ -386,7 +386,7 @@ double EquationOfState::dwdS()
     return muS() + charge_terms;
 }
 
-double EquationOfState::dwdQ()
+double EquationOfState::dwdQ() const
 {
 	double charge_terms	/*if charge densities are not all zero*/
 			= ( abs(BVal)>1e-10 || abs(SVal)>1e-10 || abs(QVal)>1e-10 ) ?

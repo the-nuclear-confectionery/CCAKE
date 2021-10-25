@@ -88,7 +88,7 @@ public:
 
     // //**These functions are placeholders for the sake of compilation. They do nothing and should not be used**
     void eosin(std::string type);
-    double A();
+    double A() const;
 
     double efreeze(double TFO);
     double sfreeze(double TFO);
