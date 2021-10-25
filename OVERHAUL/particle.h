@@ -69,7 +69,7 @@ class Particle
           dwdS = eos.dwdS();
           dwdQ = eos.dwdQ();
         }
-    }
+    };
     thermodynamic_info thermo;
 
     static EquationOfState eos;	//use one copy of EOS for all particles
