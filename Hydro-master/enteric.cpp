@@ -67,7 +67,7 @@ void readEOS_T(string &firstry)
         while (i<nETH ) {
             fscanf(myfile,"%lf     %*f  %*f \n",&ETH[i].T); //assumes T is in the formate MeV
 
-            ETH[i].T/=197.3;
+            ETH[i].T/=hbarc_MeVfm;
             ++i;
         }
         fclose(myfile);
@@ -124,7 +124,7 @@ void readEOS_lowS(string &firstry)
         int i=0;
         while (i<nETL ) {
             fscanf(myfile,"%lf     %lf  %lf    %lf   %lf\n",&ETL[i].T,&ETL[i].e,&ETL[i].p,&ETL[i].s,&ETL[i].dtds); //assumes T is in the formate MeV
-            ETL[i].T/=197.3;
+            ETL[i].T/=hbarc_MeVfm;
             i++;
         }
         fclose(myfile);
@@ -548,10 +548,10 @@ void readICs_iccing( string &firstry, int &_Ntable3, Particle<2> *&_p,
 
 		// make educated initial guess here for this particle's (T, mu_i) coordinates
 		// (improve this in the future)
-		pj.SPH_cell.T   = 500.0/197.3;	// rootfinder seems to work better going downhill than "uphill"
-		pj.SPH_cell.muB = 0.0/197.3;
-		pj.SPH_cell.muS = 0.0/197.3;
-		pj.SPH_cell.muQ = 0.0/197.3;
+		pj.SPH_cell.T   = 500.0/hbarc_MeVfm;	// rootfinder seems to work better going downhill than "uphill"
+		pj.SPH_cell.muB = 0.0/hbarc_MeVfm;
+		pj.SPH_cell.muS = 0.0/hbarc_MeVfm;
+		pj.SPH_cell.muQ = 0.0/hbarc_MeVfm;
 
         if (pj.e_sub>efcheck)	// impose freeze-out check for e, not s
         {
