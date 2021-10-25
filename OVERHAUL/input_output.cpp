@@ -63,7 +63,7 @@ void input_output::load_settings_file( string path_to_settings_file )
     return
 }
 
-void set_EoS_type()
+void input_output::set_EoS_type()
 {
   EoS_type = input_parameters.EoS_type;
   string EoS_files_location = 'EoS/' + EoS_type;
