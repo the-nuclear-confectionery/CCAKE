@@ -337,10 +337,10 @@ void EquationOfState::tbqs(double setT, double setmuB, double setmuQ, double set
 }
 
 
-double EquationOfState::T() { return tbqsPosition[0]; }
-double EquationOfState::muB() { return tbqsPosition[1]; }
-double EquationOfState::muQ() { return tbqsPosition[2]; }
-double EquationOfState::muS() { return tbqsPosition[3]; }
+const double EquationOfState::T() { return tbqsPosition[0]; }
+const double EquationOfState::muB() { return tbqsPosition[1]; }
+const double EquationOfState::muQ() { return tbqsPosition[2]; }
+const double EquationOfState::muS() { return tbqsPosition[3]; }
 
 double EquationOfState::p() { return pVal; }
 double EquationOfState::s() { return entrVal; }
