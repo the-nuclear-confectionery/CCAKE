@@ -37,7 +37,7 @@ void set_EoS_type(); // load in table for interpolation
 void set_results_directory( string path_to_results_directory ); // sets up
 // output directory, will update the outfile as time goes on
 
-void read_in_initial_conditions(const system_state &system); // talks to
+void read_in_initial_conditions(const SystemState &system); // talks to
 // system state so that it can set initial system state
 
 void print_system_state(); //at every time step, will write to output file
