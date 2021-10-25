@@ -1,5 +1,5 @@
-#ifndef INPUT_OUTPUT_H
-#define INPUT_OUTPUT_H
+#ifndef InputOutput_H
+#define InputOutput_H
 
 #include <algorithm>
 #include <cmath>
@@ -25,8 +25,8 @@ class InputOutput
 {
 public:
 
-input_output();
-~input_output();
+InputOutput();
+~InputOutput();
 
 
 void load_settings_file( string path_to_settings_file ); // load setting
@@ -37,7 +37,7 @@ void set_EoS_type(); // load in table for interpolation
 void set_results_directory( string path_to_results_directory ); // sets up
 // output directory, will update the outfile as time goes on
 
-void read_in_initial_conditions(const SystemState &system); // talks to
+void read_in_initial_conditions(const system_state &system); // talks to
 // system state so that it can set initial system state
 
 void print_system_state(); //at every time step, will write to output file

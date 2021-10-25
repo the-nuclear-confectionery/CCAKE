@@ -24,7 +24,7 @@ infile.close();
 return;
 }
 //=============================================================================
-void input_output::read_in_initial_conditions( int &_Ntable3, 
+void InputOutput::read_in_initial_conditions( int &_Ntable3, 
 double factor, double const & efcheck,int & numpart)
 {
   string initial_condition_type = input_parameters.IC_type;

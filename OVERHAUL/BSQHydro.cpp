@@ -10,8 +10,8 @@ void BSQHydro::load_settings_file( string path_to_settings_file )
 {
   Input_Parameters input_parameters;
   io.load_settings_file(path_to_settings_file); // sets the settings path in
-  // input_output, then loads parameters into Input_parameters struct
-  io.set_EoS_type(); // input_output talks to EoS and
+  // InputOutput, then loads parameters into Input_parameters struct
+  io.set_EoS_type(); // InputOutput talks to EoS and
   // tells it where to find its tables
 
   return;
@@ -21,7 +21,7 @@ void BSQHydro::load_settings_file( string path_to_settings_file )
 
 void BSQHydro::set_results_directory( string path_to_results_directory )
 {
-  io.set_results_directory(path_to_results_directory); //set the results directory in input_output
+  io.set_results_directory(path_to_results_directory); //set the results directory in InputOutput
   return;
 }
 
@@ -29,7 +29,7 @@ void BSQHydro::set_results_directory( string path_to_results_directory )
 
 void BSQHydro::read_in_initial_conditions()
 {
-  io.read_in_initial_conditions(); // tells input_output to talk to system state and set initial system state
+  io.read_in_initial_conditions(); // tells InputOutput to talk to system state and set initial system state
   return;
 }
 

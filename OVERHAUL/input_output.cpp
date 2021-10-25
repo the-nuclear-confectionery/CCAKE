@@ -16,13 +16,13 @@
 #include <stdlib.h>
 #include <algorithm>
 #include <cmath>
-#include "input_output.h"
+#include "InputOutput.h"
 
 // Constructors and destructors.
-  InputOutput::input_output(){}
- ~input_output::input_output(){}
+  InputOutput::InputOutput(){}
+ ~InputOutput::InputOutput(){}
 
-void input_output::load_settings_file( string path_to_settings_file )
+void InputOutput::load_settings_file( string path_to_settings_file )
 {
     string Param_file = path_to_settings_file+"Input_Parameters.inp";
     ifstream infile( Param_file.c_str() );
@@ -54,7 +54,7 @@ void input_output::load_settings_file( string path_to_settings_file )
     return
 }
 
-void input_output::set_EoS_type()
+void InputOutput::set_EoS_type()
 {
   EoS_type = input_parameters.EoS_type;
   string EoS_files_location = 'EoS/' + EoS_type;
@@ -73,7 +73,7 @@ void input_output::set_EoS_type()
   return
 }
 
-void input_output::read_in_initial_conditions()
+void InputOutput::read_in_initial_conditions()
 {
   string initial_condition_type = input_parameters.IC_type;
   int n_header_lines;
