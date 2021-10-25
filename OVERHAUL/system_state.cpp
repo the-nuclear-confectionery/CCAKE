@@ -592,10 +592,10 @@ void SystemState::smooth_gradients( int a, double tin, int & count )
         cout << kernel( pa.r - pb.r ) << endl;
       }
       else if ( isnan( pa.gradP.x[1] ) )
-        cout << "1 " << gradPressure_weight(a, b)
+        cout << "1 " << gradPressure_weight(pa, pb)
              << " " << a << " " << b << endl;
       else if ( isnan( pa.gradP.x[2] ) )
-        cout << "2 " << gradPressure_weight(a, b)
+        cout << "2 " << gradPressure_weight(pa, pb)
              << " " << a << " " << b << endl;
 
       b=link[b];
