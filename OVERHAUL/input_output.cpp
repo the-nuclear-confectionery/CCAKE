@@ -45,15 +45,15 @@ void input_output::load_settings_file( string path_to_settings_file )
             all_parameters.push_back(param)
         }
 
-        input_parameters.IC_tpye = all_parameters[0]
-        input_parameters.h = stod(all_parameters[1])
-        input_parameters.dt = stod(all_parameters[2])
-        input_parameters.t0 = stod(all_parameters[3])
-        input_parameters.EoS = all_parameters[4]
-        input_parameters.eta = all_parameters[5]
-        input_parameters.zeta = all_parameters[6]
+        input_parameters.IC_type                = all_parameters[0]
+        input_parameters.h                      = stod(all_parameters[1])
+        input_parameters.dt                     = stod(all_parameters[2])
+        input_parameters.t0                     = stod(all_parameters[3])
+        input_parameters.EoS                    = all_parameters[4]
+        input_parameters.eta                    = all_parameters[5]
+        input_parameters.zeta                   = all_parameters[6]
         input_parameters.Freeze_Out_Temperature = stod(all_parameters[7])
-        input_parameters.Freeze_Out_Type = all_parameters[8]
+        input_parameters.Freeze_Out_Type        = all_parameters[8]
 
         infile.close();
     }
