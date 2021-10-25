@@ -34,27 +34,27 @@ public:
     void tbqs(double setT, double setmuB, double setmuQ, double setmuS);
 
     //getter functions for the quantities of interest at the current tbs/tbqs
-    double T();     //temperature
-    double muB();   //baryon chemical potential
-    double muQ();   //charge chemical potential
-    double muS();   //strangeness chemical potential
+    const double T();     //temperature
+    const double muB();   //baryon chemical potential
+    const double muQ();   //charge chemical potential
+    const double muS();   //strangeness chemical potential
 
-    double p();     //pressure density
-    double s();     //entropy density
-    double B();     //baryon density
-    double S();     //strangeness density
-    double Q();     //charge density
-    double e();     //energy density
-    double cs2();   //speed of sound
-    double w();     //enthalpy
+    const double p();     //pressure density
+    const double s();     //entropy density
+    const double B();     //baryon density
+    const double S();     //strangeness density
+    const double Q();     //charge density
+    const double e();     //energy density
+    const double cs2();   //speed of sound
+    const double w();     //enthalpy
 
-    double dwds();
-    double dwdB();  //enthalpy derivatives **These still have not been checked**
-    double dwdS();
-    double dwdQ();
+    const double dwds();
+    const double dwdB();  //enthalpy derivatives **These still have not been checked**
+    const double dwdS();
+    const double dwdQ();
 
-    double cs2out(double Tt, double muBin, double muQin, double muSin); //return cs2 given T and mu's - identical to calling cs2() after initializing position using tbqs()
-    double cs2out(double Tt); //return cs2 given T and mu's = 0 - identical to calling cs2() after initializing position using tbqs()
+    const double cs2out(double Tt, double muBin, double muQin, double muSin); //return cs2 given T and mu's - identical to calling cs2() after initializing position using tbqs()
+    const double cs2out(double Tt); //return cs2 given T and mu's = 0 - identical to calling cs2() after initializing position using tbqs()
     double wfz(double Tt, double muBin, double muQin, double muSin);    // return enthalpy for T and mu's - identical to calling w() after initializing position using tbqs()
     double wfz(double Tt);    // return enthalpy for T and mu's = 0 - identical to calling w() after initializing position using tbqs()
     double s_terms_T(double Tt);                              //returns entropy at a given T for muB = muS = muQ = 0

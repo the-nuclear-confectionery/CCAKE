@@ -13,6 +13,8 @@
 #include <vector>
 
 #include "eos.h"
+#include "matrix.h"
+#include "vector.h"
 
 class Particle
 {
