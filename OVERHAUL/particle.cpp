@@ -67,73 +67,68 @@ void Particle::locate_phase_diagram_point_sBSQ(double s_In) // previously update
 ////////////////////////////////////////////////////////////////////////////////
 double Particle::gamcalc()
 {
-    return sqrt( Norm2(u) + 1 );
-
+    return sqrt( Norm2(u) + 1.0 );
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
-void Particle::frzcheck(double tin,int &count, int N)
+void Particle::frzcheck( double tin, int &count, int N )
 {
-    if( Freeze==0)
+  if( Freeze == 0 )
+  {
+    if ( eos.T() <= freezeoutT )
     {
-        if (eos.T()<=freezeoutT)
-        {
-            Freeze=1;
-            frz2.t=tin;
-
-        }
+      Freeze = 1;
+      frz2.t = tin;
     }
-    else if( Freeze==1)
+  }
+  else if( Freeze == 1 )
+  {
+    if ( btrack == -1 )
     {
-
-
-        if (btrack==-1) {
-            count +=1;
-            Freeze=3;
-            frz1.t=tin;
-        }
-        else if (eos.T()>frz1.T) {
-            Freeze=1;
-            frz2.t=tin;
-        }
-        else if(eos.T()<=freezeoutT)
-        {
-            count +=1;
-            Freeze=3;
-            frz1.t=tin;
-        }
-        else
-        {
-            Freeze=0;
-        }
+      count += 1;
+      Freeze = 3;
+      frz1.t = tin;
     }
-
-
+    else if ( eos.T()>frz1.T )
+    {
+      Freeze = 1;
+      frz2.t = tin;
+    }
+    else if( eos.T() <= freezeoutT )
+    {
+      count += 1;
+      Freeze = 3;
+      frz1.t = tin;
+    }
+    else
+    {
+      Freeze=0;
+    }
+  }
 }
 
 
 
 ////////////////////////////////////////////////////////////////////////////////
 //  Computes gamma and velocity
-void Particle::calc(double tin)
+/*void Particle::calc(double tin)
 {
-
-    gamma=gamcalc();
-    v =(1/gamma)*u;
-    double s_in2= eta/gamma/tin;
-    qmom=((eos.e()+ eos.p())*gamma/sigma)*u;
-    EOSupdate_s(s_in2);    // single-argument version
-}
+    gamma        = gamcalc();
+    v            = (1.0/gamma)*u;
+    double s_in2 = eta/gamma/tin;
+    qmom         = ((eos.e()+ eos.p())*gamma/sigma)*u;
+    locate_phase_diagram_point_sBSQ( s_in2 );    // single-argument version
+}*/
 
 ////////////////////////////////////////////////////////////////////////////////
 //  Computes gamma and velocity
 void Particle::calcbsq(double tin)
 {
-    gamma=gamcalc();
-    v =(1/gamma)*u;
-    double s_in2= eta/gamma/tin;
-    qmom=((eos.e()+ eos.p())*gamma/sigma)*u;
+  gamma           = gamcalc();
+  v               = (1.0/gamma)*u;
+  double s_in2    = eta/gamma/tin;
+  qmom            = ( (eos.e()+ eos.p())*gamma/sigma )*u;
 	double rhoB_in2 = B*sigma/sigmaweight;
 	double rhoS_in2 = S*sigma/sigmaweight;
 	double rhoQ_in2 = Q*sigma/sigmaweight;
@@ -145,7 +140,7 @@ void Particle::calcbsq(double tin)
 	rhoQ_an = rhoQ_in2;
 //cout << "\t - finding EoS solution for sBSQ: " << tin << "   " << s_in2 << "   "
 //		<< rhoB_in2 << "   " << rhoS_in2 << "   " << rhoQ_in2 << endl;
-	EOSupdate_s(s_in2, rhoB_in2, rhoS_in2, rhoQ_in2);
+	locate_phase_diagram_point_sBSQ( s_in2, rhoB_in2, rhoS_in2, rhoQ_in2 );
 }
 
 
@@ -156,13 +151,14 @@ void Particle::return_bsqsv_A()
     eta_o_tau = setas/stauRelax;
 
 	// THIS NEEDS TO BE CHECKED/FIXED, SPECIFICALLY WHEN INCLUDING MORE BETA-DOT TERMS
-    Agam  = eos.w()-eos.dwds()*(eos.s()+ bigPI/eos.T() )- zeta/tauRelax
+    Agam  = eos.w() - eos.dwds()*(eos.s()+ bigPI/eos.T() )- zeta/tauRelax
             - eos.dwdB() * eos.B()
             - eos.dwdS() * eos.S()
             - eos.dwdQ() * eos.Q();
 
-    Agam2 = (Agam-eta_o_tau*(0.5-1/3.) -dwdsT1*shv.x[0][0])/gamma;
-    Ctot  = C+eta_o_tau*(1/g2-1)/2.;
+    //Agam2 = ( Agam - eta_o_tau*(0.5-1.0/3.0) - dwdsT1*shv.x[0][0] ) / gamma;
+    Agam2 = ( Agam - eta_o_tau/6.0 - dwdsT1*shv.x[0][0] ) / gamma;
+    Ctot  = C + 0.5*eta_o_tau*(1/g2-1);
 
 }
 
@@ -172,17 +168,16 @@ void Particle::return_bsqsv_A()
 double Particle::Bsub()
 {
     mini(pimin,shv);
-    uu=u*u;
-    piu=rowp1(0,shv)*u;
-    piutot=piu+transpose(piu);
-    double bsub=0.;
-    double pig=shv.x[0][0]/g2;
+    uu          = u*u;
+    piu         = rowp1(0,shv)*u;
+    piutot      = piu+transpose(piu);
+    double bsub = 0.0;
+    double pig  = shv.x[0][0]/g2;
 
     for (int i=0; i<=1; i++)
     for (int j=0; j<=1; j++)
-      bsub += ( pimin.x[i][j] + pig*uu.x[j][i]
-                - ( piu.x[i][j] +piu.x[j][i] ) / gamma )
-              * gradU.x[i][j];
+      bsub += gradU.x[i][j] * ( pimin.x[i][j] + pig*uu.x[j][i]
+                                - ( piu.x[i][j] + piu.x[j][i] ) / gamma );
 
     return bsub;
 }
@@ -190,9 +185,9 @@ double Particle::Bsub()
 ////////////////////////////////////////////////////////////////////////////////
 Matrix<double,2,2> Particle::Msub(int i)
 {
-  piu=rowp1(0,shv)*u;
+  piu                     = rowp1(0,shv)*u;
   Matrix<double,2,2> msub = Agam2*uu + Ctot*gamma*Imat - (1+4/3./g2)*piu
-                            +dwdsT1*transpose(piu) + gamma*pimin;
+                            + dwdsT1*transpose(piu) + gamma*pimin;
   return msub;
 }
 
@@ -211,7 +206,7 @@ Matrix<double,2,2> Particle::dpidtsub()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void Particle::bsqsvsigset(double tin,int i)
+void Particle::bsqsvsigset( double tin, int i )
 {
   // from svsigset
   g2           = gamma*gamma;
@@ -369,7 +364,6 @@ void Particle::setvisc( int etaconst, double bvf, double svf, double zTc,
 ////////////////////////////////////////////////////////////////////////////////
 void Particle::sets(double tin2)
 {
-
     gamma=gamcalc();
     shv.x[2][1]=shv.x[1][2];
     shv.x[0][1]=1./gamma*inner(u,colp1(1,shv));
@@ -380,9 +374,6 @@ void Particle::sets(double tin2)
     setvar();
     shv.x[0][0]=1./gamma/gamma*con(uu,pimin);
     shv33=(shv.x[0][0]-shv.x[1][1]-shv.x[2][2])/tin2;
-
-
-
 }
 
 

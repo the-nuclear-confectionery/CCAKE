@@ -11,7 +11,7 @@ void BSQHydro::load_settings_file( string path_to_settings_file )
   Input_Parameters input_parameters;
   io.load_settings_file(path_to_settings_file); // sets the settings path in
   // input_output, then loads parameters into Input_parameters struct
-  io.set_EoS_type() // input_output talks to EoS and
+  io.set_EoS_type(); // input_output talks to EoS and
   // tells it where to find its tables
 
   return
@@ -78,6 +78,10 @@ void BSQHydro::initialize_entropy_and_charge_densities() // formerly updateIC
 			"----------------------------------------" << endl;
     for (int i=0; i<_n; i++)
     {
+      auto & p = particles[i];
+
+
+
 		cout << "----------------------------------------"
 				"----------------------------------------" << endl;
 
@@ -85,94 +89,94 @@ void BSQHydro::initialize_entropy_and_charge_densities() // formerly updateIC
 		{
 			sw.Start();
 			cout << "Doing this particle: "
-					<< _p[i].r.x[0] << "   " << _p[i].r.x[1] << "\n";
+					<< p.r.x[0] << "   " << p.r.x[1] << "\n";
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
-			<< _p[i].sigmaweight << "   " << _p[i].e_sub << "   "
-			<< _p[i].eos.T() << "   " << _p[i].eos.e() << "   "
-			<< _p[i].eos.p() << "   " << _p[i].s_an << endl;
-			_p[i].s_an = _p[i].locate_phase_diagram_point_eBSQ(
-                    _p[i].e_sub, _p[i].rhoB_an, _p[i].rhoS_an, _p[i].rhoQ_an );
+			<< p.sigmaweight << "   " << p.e_sub << "   "
+			<< p.eos.T() << "   " << p.eos.e() << "   "
+			<< p.eos.p() << "   " << p.s_an << endl;
+			p.s_an = p.locate_phase_diagram_point_eBSQ(
+                    p.e_sub, p.rhoB_an, p.rhoS_an, p.rhoQ_an );
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
-			<< _p[i].sigmaweight << "   " << _p[i].e_sub << "   "
-			<< _p[i].eos.T() << "   " << _p[i].eos.e() << "   "
-			<< _p[i].eos.p() << "   " << _p[i].s_an << endl;
+			<< p.sigmaweight << "   " << p.e_sub << "   "
+			<< p.eos.T() << "   " << p.eos.e() << "   "
+			<< p.eos.p() << "   " << p.s_an << endl;
 
 			if (true || VERBOSE>5)
 			{
-				if (_p[i].s_an>0.0)
+				if (p.s_an>0.0)
 				{
 					double phase_diagram_point[4]
-						= { _p[i].SPH_cell.T*197.3,
-							  _p[i].SPH_cell.muB*197.3,
-							  _p[i].SPH_cell.muS*197.3,
-							  _p[i].SPH_cell.muQ*197.3 };
+						= { p.SPH_cell.T*197.3,
+							  p.SPH_cell.muB*197.3,
+							  p.SPH_cell.muS*197.3,
+							  p.SPH_cell.muQ*197.3 };
 					double densities_at_point[4];
 					get_eBSQ_densities(phase_diagram_point, densities_at_point);
-					cout << i << ":   " << _p[i].e_sub*197.3
-						<< "   " << _p[i].rhoB_an
-						<< "   " << _p[i].rhoS_an
-						<< "   " << _p[i].rhoQ_an
-						<< "   " << _p[i].SPH_cell.T*197.3
-						<< "   " << _p[i].SPH_cell.muB*197.3
-						<< "   " << _p[i].SPH_cell.muS*197.3
-						<< "   " << _p[i].SPH_cell.muQ*197.3;
+					cout << i << ":   " << p.e_sub*197.3
+						<< "   " << p.rhoB_an
+						<< "   " << p.rhoS_an
+						<< "   " << p.rhoQ_an
+						<< "   " << p.SPH_cell.T*197.3
+						<< "   " << p.SPH_cell.muB*197.3
+						<< "   " << p.SPH_cell.muS*197.3
+						<< "   " << p.SPH_cell.muQ*197.3;
 						for (int iii = 0; iii < 4; iii++)
 							cout << "   " << densities_at_point[iii];		
 					cout << "\n";
 				}
 				else
-					cout << i << ":   " << _p[i].e_sub*197.3
-						<< "   " << _p[i].rhoB_an
-						<< "   " << _p[i].rhoS_an
-						<< "   " << _p[i].rhoQ_an
+					cout << i << ":   " << p.e_sub*197.3
+						<< "   " << p.rhoB_an
+						<< "   " << p.rhoS_an
+						<< "   " << p.rhoQ_an
 						<< "   " << 0.0 << "   " << 0.0
 						<< "   " << 0.0 << "   " << 0.0
 						<< "   nan   nan   nan   nan\n";
 			}
 
 			sw.Stop();
-			string successString = (_p[i].s_an < 0.0) ?
+			string successString = (p.s_an < 0.0) ?
 									"unsuccessfully" : "successfully";
 			cout << "SPH particle " << i << ", locate_phase_diagram_point_eBSQ: completed "
 					<< successString << " in " << sw.printTime() << "s." << "\n";
 
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
-			<< _p[i].sigmaweight << "   " << _p[i].e_sub << "   "
-			<< _p[i].eos.T() << "   " << _p[i].eos.e() << "   "
-			<< _p[i].eos.p() << "   " << _p[i].s_an << endl;
+			<< p.sigmaweight << "   " << p.e_sub << "   "
+			<< p.eos.T() << "   " << p.eos.e() << "   "
+			<< p.eos.p() << "   " << p.s_an << endl;
 		}
 
 		////////////////////////////////////////////////////////////////////////
 		// for now, if we failed to find a real entropy density for this
 		// point, just freeze it out, set its entropy to the freeze-out value,
 		// and continue without setting anything else
-		if (_p[i].s_an < 0.0)
+		if (p.s_an < 0.0)
 		{
 
 			////////////////////////////////////////////////////////
 			// if failed with charge densities, set them to zero and re-solve;
 			// if that fails too, guesstimate an answer
 			cout << "\t --> Densities not found in EoS table (setting BSQ --> 0): "
-					<< _p[i].r.x[0] << "   " << _p[i].r.x[1] << "\n"
+					<< p.r.x[0] << "   " << p.r.x[1] << "\n"
 					<< "\t\t - densities: "
-					<< _p[i].e_sub*197.3 << "   " << _p[i].rhoB_an << "   "
-					<< _p[i].rhoS_an << "   " << _p[i].rhoQ_an << "\n";
+					<< p.e_sub*197.3 << "   " << p.rhoB_an << "   "
+					<< p.rhoS_an << "   " << p.rhoQ_an << "\n";
 
 			// set charge densities to zero and re-solve
-			_p[i].rhoB_an = 0.0;
-			_p[i].rhoS_an = 0.0;
-			_p[i].rhoQ_an = 0.0;
+			p.rhoB_an = 0.0;
+			p.rhoS_an = 0.0;
+			p.rhoQ_an = 0.0;
 
-			_p[i].s_an = _p[i].locate_phase_diagram_point_eBSQ(
-                    _p[i].e_sub, _p[i].rhoB_an, _p[i].rhoS_an, _p[i].rhoQ_an );
+			p.s_an = p.locate_phase_diagram_point_eBSQ(
+                    p.e_sub, p.rhoB_an, p.rhoS_an, p.rhoQ_an );
 
 			// if this fails too...
-			if (_p[i].s_an < 0.0)
+			if (p.s_an < 0.0)
 			{
-				double scale_factor = std::min( 1.0, _p[i].e_sub / efcheck );
+				double scale_factor = std::min( 1.0, p.e_sub / efcheck );
 	
 				cout << "\t\t - scaling e to get s: "
 						<< efcheck*0.1973 << "   "
@@ -180,19 +184,19 @@ if (i==0)
 						<< scale_factor << "   "
 						<< scale_factor * sfcheck << "\n";
 	
-				_p[i].s_an = scale_factor * sfcheck;
+				p.s_an = scale_factor * sfcheck;
 			}
 			else	// if a solution was found
 			{
 				cout << "\t\t - phase diagram point: "
-						<< _p[i].SPH_cell.T*197.3 << "   "
-						<< _p[i].SPH_cell.muB*197.3 << "   "
-						<< _p[i].SPH_cell.muS*197.3 << "   "
-						<< _p[i].SPH_cell.muQ*197.3 << "\n";
+						<< p.SPH_cell.T*197.3 << "   "
+						<< p.SPH_cell.muB*197.3 << "   "
+						<< p.SPH_cell.muS*197.3 << "   "
+						<< p.SPH_cell.muQ*197.3 << "\n";
 			}
 
 			// freeze this particle out!
-			_p[i].Freeze = 4;
+			p.Freeze = 4;
 			number_part++;
 			////////////////////////////////////////////////////////
 		}
@@ -200,28 +204,28 @@ if (i==0)
 		{
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
-			<< _p[i].sigmaweight << "   " << _p[i].e_sub << "   "
-			<< _p[i].eos.T() << "   " << _p[i].eos.e() << "   "
-			<< _p[i].eos.p() << "   " << _p[i].s_an << endl;
+			<< p.sigmaweight << "   " << p.e_sub << "   "
+			<< p.eos.T() << "   " << p.eos.e() << "   "
+			<< p.eos.p() << "   " << p.s_an << endl;
 
 			cout << "\t --> Densities found in EoS table: "
-				<< _p[i].r.x[0] << "   " << _p[i].r.x[1] << "\n";
+				<< p.r.x[0] << "   " << p.r.x[1] << "\n";
 			cout << "\t\t - phase diagram point: "
-					<< _p[i].SPH_cell.T*197.3 << "   "
-					<< _p[i].SPH_cell.muB*197.3 << "   "
-					<< _p[i].SPH_cell.muS*197.3 << "   "
-					<< _p[i].SPH_cell.muQ*197.3 << "\n";
+					<< p.SPH_cell.T*197.3 << "   "
+					<< p.SPH_cell.muB*197.3 << "   "
+					<< p.SPH_cell.muS*197.3 << "   "
+					<< p.SPH_cell.muQ*197.3 << "\n";
 			cout << "\t\t - densities: "
-					<< _p[i].e_sub*197.3 << "   "
-					<< _p[i].rhoB_an << "   "
-					<< _p[i].rhoS_an << "   "
-					<< _p[i].rhoQ_an << "\n";
+					<< p.e_sub*197.3 << "   "
+					<< p.rhoB_an << "   "
+					<< p.rhoS_an << "   "
+					<< p.rhoQ_an << "\n";
 			
 			cout << "\t --> Exact:\n";
-			double phase_diagram_point[4] = { _p[i].SPH_cell.T*197.3,
-											  _p[i].SPH_cell.muB*197.3,
-											  _p[i].SPH_cell.muS*197.3,
-											  _p[i].SPH_cell.muQ*197.3 };
+			double phase_diagram_point[4] = { p.SPH_cell.T*197.3,
+											  p.SPH_cell.muB*197.3,
+											  p.SPH_cell.muS*197.3,
+											  p.SPH_cell.muQ*197.3 };
 			double densities_at_point[4];
 			get_eBSQ_densities(phase_diagram_point, densities_at_point);
 			cout << "\t\t - phase diagram point:";
@@ -231,28 +235,28 @@ if (i==0)
 			cout << "\n";
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
-			<< _p[i].sigmaweight << "   " << _p[i].e_sub << "   "
-			<< _p[i].eos.T() << "   " << _p[i].eos.e() << "   "
-			<< _p[i].eos.p() << "   " << _p[i].s_an << endl;
+			<< p.sigmaweight << "   " << p.e_sub << "   "
+			<< p.eos.T() << "   " << p.eos.e() << "   "
+			<< p.eos.p() << "   " << p.s_an << endl;
 
 		}
 
-    if (gtyp==5) _p[i].e_sub=_p[i].eos.e();
+    if (gtyp==5) p.e_sub = p.eos.e();
 
-    _p[i].gamma=_p[i].gamcalc();
+    p.gamma=p.gamcalc();
 
-    _p[i].sigmaweight *= _p[i].s_an*_p[i].gamma*t0;	// sigmaweight is constant after this
-    //_p[i].rho_weight *= _p[i].gamma*t0;				// rho_weight is constant after this
+    p.sigmaweight *= p.s_an*p.gamma*t0;	// sigmaweight is constant after this
+    //p.rho_weight *= p.gamma*t0;				// rho_weight is constant after this
 
-		_p[i].B *= _p[i].gamma*t0;	// B does not evolve in ideal case (confirm with Jaki)
-		_p[i].S *= _p[i].gamma*t0;	// S does not evolve in ideal case (confirm with Jaki)
-		_p[i].Q *= _p[i].gamma*t0;	// Q does not evolve in ideal case (confirm with Jaki)
+		p.B *= p.gamma*t0;	// B does not evolve in ideal case (confirm with Jaki)
+		p.S *= p.gamma*t0;	// S does not evolve in ideal case (confirm with Jaki)
+		p.Q *= p.gamma*t0;	// Q does not evolve in ideal case (confirm with Jaki)
 
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
-			<< _p[i].sigmaweight << "   " << _p[i].e_sub << "   "
-			<< _p[i].eos.T() << "   " << _p[i].eos.e() << "   "
-			<< _p[i].eos.p() << "   " << _p[i].s_an << endl;
+			<< p.sigmaweight << "   " << p.e_sub << "   "
+			<< p.eos.T() << "   " << p.eos.e() << "   "
+			<< p.eos.p() << "   " << p.s_an << endl;
 
     }
 	cout << "----------------------------------------"
@@ -293,17 +297,19 @@ void BSQHydro::initial_smoothing()  // formerly BSQguess()
 	bool initialization_mode = true;
 	for (int i=0; i<_n; i++)
 	{
+    auto & p = particles[i];
+
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
-			<< _p[i].sigmaweight << "   " << _p[i].s_sub << "   "
-			<< _p[i].eos.T() << "   " << _p[i].eos.e() << "   "
-			<< _p[i].eos.p() << "   " << _p[i].s_an << endl;
+			<< p.sigmaweight << "   " << p.s_sub << "   "
+			<< p.eos.T() << "   " << p.eos.e() << "   "
+			<< p.eos.p() << "   " << p.s_an << endl;
 		bsqsvoptimization(i, initialization_mode);
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
-			<< _p[i].sigmaweight << "   " << _p[i].s_sub << "   "
-			<< _p[i].eos.T() << "   " << _p[i].eos.e() << "   "
-			<< _p[i].eos.p() << "   " << _p[i].s_an << endl;
+			<< p.sigmaweight << "   " << p.s_sub << "   "
+			<< p.eos.T() << "   " << p.eos.e() << "   "
+			<< p.eos.p() << "   " << p.s_an << endl;
 	}
 	cout << "One more loop!" << endl;
 
@@ -312,23 +318,23 @@ if (i==0)
 			"----------------------------------------" << endl;
 	for (int i=0; i<_n; i++)
 	{
-		_p[i].s_sub = _p[i].sigma/_p[i].gamma/t0;
+		p.s_sub = p.sigma/p.gamma/t0;
 
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
-			<< _p[i].sigmaweight << "   " << _p[i].s_sub << "   "
-			<< _p[i].eos.T() << "   " << _p[i].eos.e() << "   "
-			<< _p[i].eos.p() << "   " << _p[i].s_an << endl;
-		_p[i].locate_phase_diagram_point_sBSQ(
-      _p[i].s_sub, _p[i].rhoB_sub, _p[i].rhoS_sub, _p[i].rhoQ_sub );
+			<< p.sigmaweight << "   " << p.s_sub << "   "
+			<< p.eos.T() << "   " << p.eos.e() << "   "
+			<< p.eos.p() << "   " << p.s_an << endl;
+		p.locate_phase_diagram_point_sBSQ(
+      p.s_sub, p.rhoB_sub, p.rhoS_sub, p.rhoQ_sub );
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
-			<< _p[i].sigmaweight << "   " << _p[i].s_sub << "   "
-			<< _p[i].eos.T() << "   " << _p[i].eos.e() << "   "
-			<< _p[i].eos.p() << "   " << _p[i].s_an << endl;
+			<< p.sigmaweight << "   " << p.s_sub << "   "
+			<< p.eos.T() << "   " << p.eos.e() << "   "
+			<< p.eos.p() << "   " << p.s_an << endl;
 
-		_p[i].sigsub = 0;
-		_p[i].frzcheck(t0, count1, _n);
+		p.sigsub = 0;
+		p.frzcheck(t0, count1, _n);
 	cout << "----------------------------------------"
 			"----------------------------------------" << endl;
 	}

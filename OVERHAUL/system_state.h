@@ -35,4 +35,25 @@ private:
   //Evolve evolver;
 
 
+  void initialize();
+  void BSQSimulation( double dt, LinkList & linklist );
+  void BSQshear( LinkList & linklist );
+  void check_BSQ_energy_conservation();
+  void check_BSQ_entropy_conservation();
+  void check_BSQ_charge_conservation();
+  void smooth_fields(int a, bool init_mode = false);
+  void smooth_gradients( int a, double tin, int & count );
+
+
+  //void bsqsvconservation();
+  //void conservation_entropy();
+  //void conservation_BSQ();
+  //void bsqsvconservation_E();
+  void bsqsv_set();
+  //void bsqsvconservation_Ez();
+  void setshear();
+
+
+
+
 }

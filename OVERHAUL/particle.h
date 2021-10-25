@@ -24,6 +24,12 @@ class Particle
   // use this to set equation of state object before creating particles
   static void set_equation_of_state( EquationOfState & eos );
 
+  double locate_phase_diagram_point_eBSQ( double e_In );
+  double locate_phase_diagram_point_eBSQ( double e_In, double rhoB_In,
+                                          double rhoS_In, double rhoQ_In );
+  void locate_phase_diagram_point_sBSQ( double s_In );
+  void locate_phase_diagram_point_sBSQ( double s_In, double rhoB_In,
+                                        double rhoS_In, double rhoQ_In );
 
   private:
     // kinematic quantities
@@ -67,15 +73,6 @@ class Particle
     static EquationOfState eos;	//use one copy of EOS for all particles
     //EquationOfState * eosPtr = nullptr;
 
-    // rename these functions and their arguments
-//    void calcbsq( double tin );
-//    void bsqsvsigset( double tin, int i );
-//    void return_bsqsv_A();
-//    void setvisc( int etaconst, double bvf, double svf, double zTc, double sTc,
-//                  double sig, int type );
-//    void frzcheck( double tin, int & count, int N );
-
-
   public:
 
     // getter functions
@@ -97,6 +94,28 @@ class Particle
     double dwdB() { return thermo.dwdB; }
     double dwdS() { return thermo.dwdS; }
     double dwdQ() { return thermo.dwdQ; }
+
+
+    // rename these functions and their arguments
+//    void calcbsq( double tin );
+//    void bsqsvsigset( double tin, int i );
+//    void return_bsqsv_A();
+//    void setvisc( int etaconst, double bvf, double svf, double zTc, double sTc,
+//                  double sig, int type );
+//    void frzcheck( double tin, int & count, int N );
+  double gamcalc();
+  void frzcheck( double tin, int &count, int N );
+  void calc(double tin);
+  void calcbsq(double tin);
+  void return_bsqsv_A();
+  double Bsub();
+  Matrix<double,2,2> Msub(int i);
+  Matrix<double,2,2> dpidtsub();
+  void bsqsvsigset(double tin,int i);
+  void setvisc( int etaconst, double bvf, double svf, double zTc,
+                          double sTc, double sig, int type );
+  void sets(double tin2);
+  void setvar();
 
 
 }

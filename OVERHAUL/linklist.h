@@ -7,6 +7,14 @@ public:
   LinkList();
   ~LinkList();
 
+  void initialize( double it0, int ntot, double h,
+                   vector<Particle> & particles,
+                   double dtsave, int & numpart );
+  int triToSum( Vector<int,2> dael, Vector<int,2> size );
+
+  int n() { return _n; }
+
+
   static constexpr double tend=50.02;
 
   double _h;
@@ -16,9 +24,6 @@ public:
   int qmf; //if==1 quantum mechanicanical corrections to the flow or added
            //if==0 no corrections are included
 
-  double kernel( Vector<double,2> kin );
-
-  double knorm, knorm2, kgrad, kgrad2;
   int number_part;
   double t0;
   double t, dt;
@@ -32,8 +37,6 @@ public:
 
   int cfon;
   vector<int> list;
-  //int *lead;
-  //int *link;
   vector<int> lead;
   vector<int> link;
   int cf;
@@ -57,7 +60,6 @@ public:
 
   Vector<int,2> size;
 
-  //Vector<int,2> *dael;
   vector< Vector<int,2> > dael;
 
   double dEz, E, Ez, E0, Etot, S, S0, Eloss, Esubb;
@@ -70,30 +72,15 @@ public:
   int etaconst;
   double bvf, svf, zwidth, sTc, zTc;
 
-  void setup( double it0, int ntot, double h,
-              vector<Particle> & particles, double dtsave, int & numpart );
 
   string eos_s,eos_p;
   vector<string> filenames;
 
   string ebe_folder;
 
-  int fcount,cevent;
+  int fcount, cevent;
   string eost;
 
-  void initialize();
-
-  int triToSum( Vector<int,2> dael, Vector<int,2> size );
-
-  void destroy();
-
-  int n() { return _n; }
-
-  void etas_set();
-  void bsqsv_set();
-  void endEV();
-  void setshear();
-  void prints(); //possibly not needed?
 
 
 private:
