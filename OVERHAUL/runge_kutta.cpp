@@ -2,7 +2,6 @@
 #include "vector.h"
 #include "matrix.h"
 #include "LinkList.h"
-#include "tables.h"
 #include "particle.h"
 #include "eos.h"
 #include "runge_kutta.h"
