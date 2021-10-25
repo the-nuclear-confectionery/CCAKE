@@ -38,6 +38,8 @@ private:
   //Evolve evolver;
 
 
+public:
+
   void initialize();
   void BSQSimulation( double dt, LinkList & linklist );
   void BSQshear( LinkList & linklist );
