@@ -4,7 +4,7 @@
 #include <cmath>
 #include "vector.h"
 #include "matrix.h"
-#include "LinkList.h"
+#include "linklist.h"
 #include "particle.h"
 #include "eos.h"
 
