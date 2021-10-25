@@ -1,3 +1,6 @@
+#ifndef SYSTEM_STATE_H
+#define SYSTEM_STATE_H
+
 #include <string>
 #include <vector>
 
@@ -18,8 +21,8 @@ public:
   void compute_spatial_eccentricities( const vector<int> & orders );
   void compute_momentum_eccentricities( const vector<int> & orders );
 
-  void check_BSQ_E_conservation();
-  void check_BSQ_charge_conservation();
+  //void check_BSQ_E_conservation();
+  //void check_BSQ_charge_conservation();
 
 private:
 
@@ -56,4 +59,6 @@ private:
 
 
 
-}
+};
+
+#endif
