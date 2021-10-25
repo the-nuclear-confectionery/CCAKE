@@ -38,8 +38,6 @@ void BSQHydro::read_in_initial_conditions()
 ////////////////////////////////////////////////////////////////////////////////
 void BSQHydro::initialize_hydrodynamics()
 {
-  Imat.identity();  // need to set the identity matrix for use in simulation
-
   system.initialize();
 
   initialize_entropy_and_charge_densities(); // this should be in a switch/if

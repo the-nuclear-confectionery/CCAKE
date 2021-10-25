@@ -145,7 +145,7 @@ class Particle
 
   // old Particle class variables
 
-
+    Matrix <double,2,2> Imat;
 
 
     int btrack;
