@@ -1,4 +1,4 @@
-OBJS = main.o vector.o hydrosim.o newspline.o random.o eos.o matrix.o enteric.o eos_delaunay.o
+OBJS = main.o vector.o matrix.o BSQHydro.o particle.o eos.o equations_of_motion.o eos_delaunay.o
 #CC = g++
 CC = h5c++
 DEBUG = -g
@@ -30,30 +30,25 @@ vector.o: vector.h mathdef.h vector.cpp
 matrix.o: matrix.cpp matrix.h vector.h mathdef.h
 	$(CC) $(CFLAGS) matrix.cpp
 
-hydrosim.o: vector.h mathdef.h particle.h hydrosim.h LinkList.h rungekutta4.h eos.h output.h bbmg.h matrix.h hydrosim.cpp
-	$(CC) $(CFLAGS) hydrosim.cpp
+BSQHydro.o: vector.h mathdef.h particle.h BSQHydro.h linklist.h runge_kutta.h eos.h output.h matrix.h BSQHydro.cpp
+	$(CC) $(CFLAGS) BSQHydro.cpp
 
-newspline.o: newspline.cpp newspline.hpp
-	$(CC) $(CFLAGS) newspline.cpp
+particle.o: particle.cpp particle.h
+	$(CC) $(CFLAGS) particle.cpp
 
-eos.o: tables.h eos.h eostables.h eos.cpp read_in_hdf/read_in_hdf.h eos_delaunay/eos_delaunay.h eos_delaunay/eos_delaunay.cpp
+eos.o: eos.h eos.cpp read_in_hdf/read_in_hdf.h eos_delaunay/eos_delaunay.h eos_delaunay/eos_delaunay.cpp
 	$(CC) $(CFLAGS) eos.cpp
 
 random.o: random.cpp random.h
 	$(CC) $(CFLAGS) random.cpp
 
-enteric.o:  vector.h particle.h eos.h tables.h enteric.h LinkList.h matrix.h eostables.h enteric.cpp
-	$(CC) $(CFLAGS) enteric.cpp
+equations_of_motion.o:  vector.h particle.h eos.h equations_of_motion.h
+	$(CC) $(CFLAGS) equations_of_motion.cpp
 
 eos_delaunay.o: eos_delaunay/eos_delaunay.cpp eos_delaunay/eos_delaunay.h
 	$(CC) $(CFLAGS) $(INCFLAGS) -fpic -c eos_delaunay/eos_delaunay.cpp 
 	
 	
 
-# deletes all .o files in case of error in makefile.  This should not be something needed regularly, only if you are updating the code and run into an error.
 clean:
 	-rm *.o vusphydro
-
-# puts all the files in a vusphydro.tar file
-#tar:
-#    tar cfv vusphydro.tar vector.h main.cpp vector.cpp
