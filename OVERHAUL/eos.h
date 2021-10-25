@@ -148,6 +148,8 @@ private:
 	// some routines for checking various EoS functionalities
 	void check_EoS_derivatives();
 	void get_toy_thermo(double point[], double thermodynamics[]);
-
+    
+    string quantity_file;
+    string deriv_file;
 
 };
