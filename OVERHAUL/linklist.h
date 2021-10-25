@@ -87,15 +87,8 @@ public:
 
   int n() { return _n; }
 
-  void smoothopt(int a);
-  void optint(int a, double & T00,  double & Tx0);
-
-  void setv(string vtype);
   void etas_set();
-  void sv_set();
-  void sv_setb();
   void bsqsv_set();
-  void bsqsv_setb();
   void endEV();
   void setshear();
   void prints(); //possibly not needed?
@@ -140,12 +133,6 @@ private:
   }
 
   Vector<double,2> gradKernel (Vector<double,2> a, bool verbose = false);
-
-  double linint(double x, double x1, double x2, double y1, double y2);
-  Vector<double,2> linint(double x, double x1, double x2, Vector<double,2> y1, Vector<double,2> y2);
-  double linfac(double fac, double y1, double y2);
-  Vector<double,2> linfac(double fac, Vector<double,2> y1, Vector<double,2> y2);
-  Matrix<double,3,3> linfac(double fac, Matrix<double,3,3> y1, Matrix<double,3,3> y2);
 
 }
 
