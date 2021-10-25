@@ -39,22 +39,24 @@ public:
     double muQ() const;   //charge chemical potential
     double muS() const;   //strangeness chemical potential
 
-    double p();     //pressure density
-    double s();     //entropy density
-    double B();     //baryon density
-    double S();     //strangeness density
-    double Q();     //charge density
-    double e();     //energy density
-    double cs2();   //speed of sound
-    double w();     //enthalpy
+    double p()   const;     //pressure density
+    double s()   const;     //entropy density
+    double B()   const;     //baryon density
+    double S()   const;     //strangeness density
+    double Q()   const;     //charge density
+    double e()   const;     //energy density
+    double cs2() const;   //speed of sound
+    double w()   const;     //enthalpy
 
-    double dwds();
-    double dwdB();  //enthalpy derivatives **These still have not been checked**
-    double dwdS();
-    double dwdQ();
+    double dwds() const;
+    double dwdB() const;  //enthalpy derivatives **These still have not been checked**
+    double dwdS() const;
+    double dwdQ() const;
 
-    double cs2out(double Tt, double muBin, double muQin, double muSin); //return cs2 given T and mu's - identical to calling cs2() after initializing position using tbqs()
-    double cs2out(double Tt); //return cs2 given T and mu's = 0 - identical to calling cs2() after initializing position using tbqs()
+    double cs2out(double Tt, double muBin, double muQin, double muSin) const;
+    //return cs2 given T and mu's - identical to calling cs2() after initializing position using tbqs()
+    double cs2out(double Tt) const;
+    //return cs2 given T and mu's = 0 - identical to calling cs2() after initializing position using tbqs()
     double wfz(double Tt, double muBin, double muQin, double muSin);    // return enthalpy for T and mu's - identical to calling w() after initializing position using tbqs()
     double wfz(double Tt);    // return enthalpy for T and mu's = 0 - identical to calling w() after initializing position using tbqs()
     double s_terms_T(double Tt);                              //returns entropy at a given T for muB = muS = muQ = 0
