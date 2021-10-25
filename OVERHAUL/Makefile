@@ -21,7 +21,7 @@ export HDF5_LDFLAGS+=$(LDFLAGS)
 vusphydro : $(OBJS)
 	$(CC) -g $(OBJS) -o vusphydro $(LDFLAGS)
 
-main.o: vector.h mathdef.h particle.h eos.h enteric.h LinkList.h random.h matrix.h hydrosim.h eostables.h read_in_hdf/read_in_hdf.h main.cpp
+main.o: vector.h mathdef.h particle.h eos.h input_output.h linklist.h matrix.h BSQHydro.h read_in_hdf/read_in_hdf.h main.cpp
 	$(CC) $(CFLAGS) main.cpp
 
 vector.o: vector.h mathdef.h vector.cpp
