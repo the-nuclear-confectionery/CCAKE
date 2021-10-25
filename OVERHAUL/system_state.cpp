@@ -16,7 +16,6 @@ using namespace std::string;
 
 #include "constants.h"
 #include "vector.h"
-#include "tables.h"
 #include "particle.h"
 #include "runge_kutta.h"
 #include "eos.h"
