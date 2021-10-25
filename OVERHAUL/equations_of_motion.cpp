@@ -12,15 +12,19 @@
 
 #include "mathdef.h"
 #include "vector.h"
-
+#include "equations_of_motion.h"
 #include "particle.h"
 #include "linklist.h"
 #include "system_state.h"
 #include "rungekutta4.h"
 #include "eos.h"
 
+// Constructors and destructors.
+  EquationsOfMotion::EquationsOfMotion(){}
+  EquationsOfMotion::~EquationsOfMotion(){}
 
-void BSQshear(LinkList<D>  &linklist)  // shear+bulk Equations of motion, only set up completely for 2+1 at the moment
+
+void EquationsOfMotion::BSQ(&linklist)  // shear+bulk Equations of motion, only set up completely for 2+1 at the moment
 {
 
 
