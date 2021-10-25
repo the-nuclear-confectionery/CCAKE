@@ -33,7 +33,7 @@ void input_output::read_in_initial_conditions()
 
 void input_output::load_settings_file( string path_to_settings_file )
 {
-    string Param_file = path_to_settings_file+"Input_Parameters.inp"
+    string Param_file = path_to_settings_file+"Input_Parameters.inp";
     ifstream infile( Param_file.c_str() );
     if (infile.is_open())
     {
@@ -47,10 +47,10 @@ void input_output::load_settings_file( string path_to_settings_file )
             all_parameters.push_back(param)
         }
 
-        input_parameters.IC_type                = all_parameters[0]
-        input_parameters.h                      = stod(all_parameters[1])
-        input_parameters.dt                     = stod(all_parameters[2])
-        input_parameters.t0                     = stod(all_parameters[3])
+        input_parameters.IC_type                = all_parameters[0];
+        input_parameters.h                      = stod(all_parameters[1]);
+        input_parameters.dt                     = stod(all_parameters[2]);
+        input_parameters.t0                     = stod(all_parameters[3]);
         input_parameters.EoS_type               = param[4];
         input_parameters.EoS_option             = param[5];
         input_parameters.eta                    = param[6]

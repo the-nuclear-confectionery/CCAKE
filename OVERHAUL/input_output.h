@@ -46,10 +46,9 @@ void print_system_state(); //at every time step, will write to output file
 
 private:
 
-string input_directory
+string input_directory;
 string output_directory;
-void readICs_iccing(string &firstry,  int &_Ntable3,Particle<2> *&_p,double factor,double const& sfcheck, int & numpart, eos EOS);//iccing (energy density+ conserved charges) 
-
+void readICs_iccing(string &firstry,  int &_Ntable3,Particle<2> *&_p,double factor,double const& sfcheck, int & numpart, eos EOS);//iccing (energy density+ conserved charges);
 
 }
 
