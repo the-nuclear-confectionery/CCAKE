@@ -98,10 +98,10 @@ private:
   Vector<double,2> max;
   Vector<double,2> uni;
 
-  double gradPressure_weight(int a, int b)
+  double gradPressure_weight(const Particle & pa, const Particle & pb)
   {
-    const auto & pa = particles[a];
-    const auto & pb = particles[b];
+    //const auto & pa = particles[a];
+    //const auto & pb = particles[b];
 
     double alpha_q = 1.0;
     double v_signal_q = sqrt(1.0/3.0);
@@ -112,7 +112,7 @@ private:
             / ( pa.sigma/pa.gamma + pb.sigma/pb.gamma )
             / sqrt(innerr) * innerp;
 
-    if ( innerp > 0.0 || a==b ) innerp=0.0;
+    if ( innerp > 0.0 || pa==pb ) innerp=0.0;
 
 
     return pb.sigmaweight*pa.sigma
@@ -123,6 +123,6 @@ private:
 
   Vector<double,2> gradKernel( Vector<double,2> a, bool verbose = false );
 
-}
+};
 
 #endif
