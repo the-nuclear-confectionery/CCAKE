@@ -17,8 +17,8 @@
 #include "mathdef.h"
 #include "vector.h"
 #include "particle.h"
-#include "linkList.h"
-#include "system.h"
+#include "linklist.h"
+#include "system_state.h"
 
 
 class input_output
