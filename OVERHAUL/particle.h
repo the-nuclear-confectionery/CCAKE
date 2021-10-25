@@ -215,7 +215,7 @@ class Particle
 
     double bigtheta;
 
-    double B, S, Q;						// baryon, strange, electric charge
+    //double B, S, Q;						// baryon, strange, electric charge
     double drhoB_dt,drhoS_dt,drhoQ_dt;
 
     double g2,g3,gt;
