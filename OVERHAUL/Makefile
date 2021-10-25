@@ -30,7 +30,7 @@ vector.o: vector.h mathdef.h vector.cpp
 matrix.o: matrix.cpp matrix.h vector.h mathdef.h
 	$(CC) $(CFLAGS) matrix.cpp
 
-BSQHydro.o: vector.h mathdef.h particle.h BSQHydro.h linklist.h runge_kutta.h eos.h output.h matrix.h BSQHydro.cpp
+BSQHydro.o: vector.h mathdef.h particle.h BSQHydro.h linklist.h runge_kutta.h eos.h matrix.h BSQHydro.cpp
 	$(CC) $(CFLAGS) BSQHydro.cpp
 
 particle.o: particle.cpp particle.h eos.h
@@ -38,9 +38,6 @@ particle.o: particle.cpp particle.h eos.h
 
 eos.o: eos.h eos.cpp read_in_hdf/read_in_hdf.h eos_delaunay/eos_delaunay.h eos_delaunay/eos_delaunay.cpp
 	$(CC) $(CFLAGS) eos.cpp
-
-random.o: random.cpp random.h
-	$(CC) $(CFLAGS) random.cpp
 
 equations_of_motion.o:  vector.h particle.h eos.h equations_of_motion.h
 	$(CC) $(CFLAGS) equations_of_motion.cpp
