@@ -120,16 +120,16 @@ namespace toy_thermo
 }
 
 //EoS constructor
-eos::eos(string quantityFile, string derivFile)
+EquationOfState::EquationOfState(string quantityFile, string derivFile)
 {
     init(quantityFile, derivFile);
 }
 
 //EoS default constructor. This function exists to satisfy the compiler
 //This function should never be called unless init is called directly afterward
-eos::eos() {}
+EquationOfState::EquationOfState() {}
 
-void eos::init(string quantityFile, string derivFile)
+void EquationOfState::init(string quantityFile, string derivFile)
 {
 	tbqsPosition.resize(4);
 
@@ -154,7 +154,7 @@ void eos::init(string quantityFile, string derivFile)
 	return;
 }
 
-void eos::check_EoS_derivatives()
+void EquationOfState::check_EoS_derivatives()
 {
 	// Check various complicated EoS derivatives assuming simple equation of state
 	// Compare with numerical checks from Mathematica to ensure error-free execution
@@ -187,7 +187,7 @@ void eos::check_EoS_derivatives()
 
 
 
-void eos::get_toy_thermo(double point[], double thermodynamics[])
+void EquationOfState::get_toy_thermo(double point[], double thermodynamics[])
 {
 	const double Tsol = point[0], muBsol = point[1], muSsol = point[2], muQsol = point[3];
 	double POut = toy_thermo::p(Tsol, muBsol, muQsol, muSsol);
@@ -224,7 +224,7 @@ void eos::get_toy_thermo(double point[], double thermodynamics[])
 
 
 
-void eos::init_grid_ranges_only(string quantityFile, string derivFile)
+void EquationOfState::init_grid_ranges_only(string quantityFile, string derivFile)
 {
 	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     std::ifstream dataFile;
@@ -278,7 +278,7 @@ void eos::init_grid_ranges_only(string quantityFile, string derivFile)
     return;
 }
 
-void eos::tbqs(double setT, double setmuB, double setmuQ, double setmuS)
+void EquationOfState::tbqs(double setT, double setmuB, double setmuQ, double setmuS)
 {
 	if ( !check_derivatives )
 	{
@@ -337,22 +337,22 @@ void eos::tbqs(double setT, double setmuB, double setmuQ, double setmuS)
 }
 
 
-double eos::T() { return tbqsPosition[0]; }
-double eos::muB() { return tbqsPosition[1]; }
-double eos::muQ() { return tbqsPosition[2]; }
-double eos::muS() { return tbqsPosition[3]; }
+double EquationOfState::T() { return tbqsPosition[0]; }
+double EquationOfState::muB() { return tbqsPosition[1]; }
+double EquationOfState::muQ() { return tbqsPosition[2]; }
+double EquationOfState::muS() { return tbqsPosition[3]; }
 
-double eos::p() { return pVal; }
-double eos::s() { return entrVal; }
-double eos::B() { return BVal; }
-double eos::S() { return SVal; }
-double eos::Q() { return QVal; }
-double eos::e() { return eVal; }
-double eos::cs2() { return cs2Val; }
-double eos::w() { return eVal + pVal; }
+double EquationOfState::p() { return pVal; }
+double EquationOfState::s() { return entrVal; }
+double EquationOfState::B() { return BVal; }
+double EquationOfState::S() { return SVal; }
+double EquationOfState::Q() { return QVal; }
+double EquationOfState::e() { return eVal; }
+double EquationOfState::cs2() { return cs2Val; }
+double EquationOfState::w() { return eVal + pVal; }
 
 
-double eos::dwds()
+double EquationOfState::dwds()
 {
 	double charge_terms	/*if charge densities are not all zero*/
 			= ( abs(BVal)>1e-10 || abs(SVal)>1e-10 || abs(QVal)>1e-10 ) ?
@@ -368,7 +368,7 @@ double eos::dwds()
     return T() + entrVal/dentr_dt() + charge_terms;
 }
 
-double eos::dwdB()
+double EquationOfState::dwdB()
 {
 	double charge_terms	/*if charge densities are not all zero*/
 			= ( abs(BVal)>1e-10 || abs(SVal)>1e-10 || abs(QVal)>1e-10 ) ?
@@ -377,7 +377,7 @@ double eos::dwdB()
     return muB() + charge_terms;
 }
 
-double eos::dwdS()
+double EquationOfState::dwdS()
 {
 	double charge_terms	/*if charge densities are not all zero*/
 			= ( abs(BVal)>1e-10 || abs(SVal)>1e-10 || abs(QVal)>1e-10 ) ?
@@ -386,7 +386,7 @@ double eos::dwdS()
     return muS() + charge_terms;
 }
 
-double eos::dwdQ()
+double EquationOfState::dwdQ()
 {
 	double charge_terms	/*if charge densities are not all zero*/
 			= ( abs(BVal)>1e-10 || abs(SVal)>1e-10 || abs(QVal)>1e-10 ) ?
@@ -395,24 +395,24 @@ double eos::dwdQ()
     return muQ() + charge_terms;
 }
 
-double eos::dentr_dt()   { return calc_term_1();        }
-double eos::dentr_dmub() { return calc_term_2("b");     }
-double eos::dentr_dmuq() { return calc_term_2("q");     }
-double eos::dentr_dmus() { return calc_term_2("s");     }
-double eos::db_dt()      { return calc_term_3("b");     }
-double eos::db_dmub()    { return calc_term_4("b","b"); }
-double eos::db_dmuq()    { return calc_term_4("b","q"); }
-double eos::db_dmus()    { return calc_term_4("b","s"); }
-double eos::ds_dt()      { return calc_term_3("s");     }
-double eos::ds_dmub()    { return calc_term_4("s","b"); }
-double eos::ds_dmuq()    { return calc_term_4("s","q"); }
-double eos::ds_dmus()    { return calc_term_4("s","s"); }
-double eos::dq_dt()      { return calc_term_3("q");     }
-double eos::dq_dmub()    { return calc_term_4("q","b"); }
-double eos::dq_dmuq()    { return calc_term_4("q","q"); }
-double eos::dq_dmus()    { return calc_term_4("q","s"); }
+double EquationOfState::dentr_dt()   { return calc_term_1();        }
+double EquationOfState::dentr_dmub() { return calc_term_2("b");     }
+double EquationOfState::dentr_dmuq() { return calc_term_2("q");     }
+double EquationOfState::dentr_dmus() { return calc_term_2("s");     }
+double EquationOfState::db_dt()      { return calc_term_3("b");     }
+double EquationOfState::db_dmub()    { return calc_term_4("b","b"); }
+double EquationOfState::db_dmuq()    { return calc_term_4("b","q"); }
+double EquationOfState::db_dmus()    { return calc_term_4("b","s"); }
+double EquationOfState::ds_dt()      { return calc_term_3("s");     }
+double EquationOfState::ds_dmub()    { return calc_term_4("s","b"); }
+double EquationOfState::ds_dmuq()    { return calc_term_4("s","q"); }
+double EquationOfState::ds_dmus()    { return calc_term_4("s","s"); }
+double EquationOfState::dq_dt()      { return calc_term_3("q");     }
+double EquationOfState::dq_dmub()    { return calc_term_4("q","b"); }
+double EquationOfState::dq_dmuq()    { return calc_term_4("q","q"); }
+double EquationOfState::dq_dmus()    { return calc_term_4("q","s"); }
 
-double eos::calc_term_1() {
+double EquationOfState::calc_term_1() {
 	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     gsl_vector *v = gsl_vector_alloc(3);
     gsl_matrix *m = gsl_matrix_alloc(3,3);
@@ -463,7 +463,7 @@ double eos::calc_term_1() {
     return toReturn;
 }
 
-double eos::calc_term_2(string i_char) {
+double EquationOfState::calc_term_2(string i_char) {
 	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__
 								 << ": i_char = " << i_char << std::endl;
     gsl_vector *a = gsl_vector_alloc(3);
@@ -541,7 +541,7 @@ double eos::calc_term_2(string i_char) {
     return toReturn;
 }
 
-double eos::calc_term_3(string i_char) {
+double EquationOfState::calc_term_3(string i_char) {
 	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__
 								 << ": i_char = " << i_char << std::endl;
     gsl_vector *a = gsl_vector_alloc(3);
@@ -619,7 +619,7 @@ double eos::calc_term_3(string i_char) {
     return toReturn;
 }
 
-double eos::calc_term_4(string j_char, string i_char) {
+double EquationOfState::calc_term_4(string j_char, string i_char) {
 	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__
 								 << ": j_char, i_char = "
 								<< j_char << "   " << i_char << std::endl;
@@ -830,7 +830,7 @@ double eos::calc_term_4(string j_char, string i_char) {
     return toReturn;
 }
 
-double eos::deriv_mult_aTm_1b(gsl_vector* a, gsl_matrix* m, gsl_vector* b) {
+double EquationOfState::deriv_mult_aTm_1b(gsl_vector* a, gsl_matrix* m, gsl_vector* b) {
     gsl_permutation *p = gsl_permutation_alloc(3);
     int s;
 
@@ -928,38 +928,38 @@ double eos::deriv_mult_aTm_1b(gsl_vector* a, gsl_matrix* m, gsl_vector* b) {
     return toReturn;
 }
 
-double eos::Atable()
+double EquationOfState::Atable()
 {
     Aout=w()-entrVal*dwds();
 
     return Aout;
 }
 
-double eos::cs2out(double Tt) {  //return cs2 given t and mu's=0
+double EquationOfState::cs2out(double Tt) {  //return cs2 given t and mu's=0
     tbqs(Tt, 0.0, 0.0, 0.0);
     return cs2Val;
 }
 
-double eos::cs2out(double Tt, double muBin, double muQin, double muSin) {  //return cs2 given t and mu's
+double EquationOfState::cs2out(double Tt, double muBin, double muQin, double muSin) {  //return cs2 given t and mu's
     tbqs(Tt, muBin, muQin, muSin);
     return cs2Val;
 }
 
-double eos::wfz(double Tt) {   // return e + p for tbqs
+double EquationOfState::wfz(double Tt) {   // return e + p for tbqs
     tbqs(Tt, 0.0, 0.0, 0.0);
     return eVal + pVal;
 }
 
-double eos::wfz(double Tt, double muBin, double muQin, double muSin) {   // return e + p for tbqs
+double EquationOfState::wfz(double Tt, double muBin, double muQin, double muSin) {   // return e + p for tbqs
     tbqs(Tt, muBin, muQin, muSin);
     return eVal + pVal;
 }
 
-bool eos::update_s(double sin) { //update the t position (mu=0) based on input. Returns 1 if found, returns 0 if failed
+bool EquationOfState::update_s(double sin) { //update the t position (mu=0) based on input. Returns 1 if found, returns 0 if failed
     return update_s(sin, 0.0, 0.0, 0.0);
 }
 
-bool eos::update_s(double sin, double Bin, double Sin, double Qin) { //update the t and mu position based on input. Returns 1 if found, returns 0 if failed
+bool EquationOfState::update_s(double sin, double Bin, double Sin, double Qin) { //update the t and mu position based on input. Returns 1 if found, returns 0 if failed
     if (rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
         return true;
     }
@@ -1062,11 +1062,11 @@ bool eos::update_s(double sin, double Bin, double Sin, double Qin) { //update th
 
 
 
-double eos::s_out(double ein) {   //update the t position (mu=0) based on input. Returns entropy if found, returns -1 if failed
+double EquationOfState::s_out(double ein) {   //update the t position (mu=0) based on input. Returns entropy if found, returns -1 if failed
     return s_out(ein, 0.0, 0.0, 0.0);
 }
 
-double eos::s_out(double ein, double Bin, double Sin, double Qin) {   //update the t and mu position based on input. Returns entropy if found, returns -1 if failed
+double EquationOfState::s_out(double ein, double Bin, double Sin, double Qin) {   //update the t and mu position based on input. Returns entropy if found, returns -1 if failed
     if (rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
         return entrVal;
     }
@@ -1171,26 +1171,26 @@ double eos::s_out(double ein, double Bin, double Sin, double Qin) {   //update t
 }
 
 
-double eos::s_terms_T(double Tt) { //return entropy at a given temperature for muB = muS = muQ = 0
+double EquationOfState::s_terms_T(double Tt) { //return entropy at a given temperature for muB = muS = muQ = 0
     tbqs(Tt, 0, 0, 0);
     return entrVal;
 }
 
 
 // UNCOMMENTED BY C. PLUMBERG
-void eos::eosin(std::string type) {
+void EquationOfState::eosin(std::string type) {
 }
-double eos::A() {
+double EquationOfState::A() {
     return w()-s()*dwds();
 }
 
 
 // confirm with Jaki
-double eos::efreeze(double T_freeze_out_at_mu_eq_0) {
+double EquationOfState::efreeze(double T_freeze_out_at_mu_eq_0) {
     tbqs(T_freeze_out_at_mu_eq_0, 0, 0, 0);
     return eVal;
 }
-double eos::sfreeze(double T_freeze_out_at_mu_eq_0) {
+double EquationOfState::sfreeze(double T_freeze_out_at_mu_eq_0) {
     return s_terms_T(T_freeze_out_at_mu_eq_0);
 }
 
@@ -1329,7 +1329,7 @@ int rootfinder_febqs(const gsl_vector *x, void *params, gsl_vector *f) {
 }
 
 
-bool eos::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
+bool EquationOfState::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 						double rhoBGiven, double rhoSGiven, double rhoQGiven,
 						double error, size_t steps)
 {

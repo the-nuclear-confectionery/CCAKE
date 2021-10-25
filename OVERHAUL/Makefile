@@ -33,7 +33,7 @@ matrix.o: matrix.cpp matrix.h vector.h mathdef.h
 BSQHydro.o: vector.h mathdef.h particle.h BSQHydro.h linklist.h runge_kutta.h eos.h output.h matrix.h BSQHydro.cpp
 	$(CC) $(CFLAGS) BSQHydro.cpp
 
-particle.o: particle.cpp particle.h
+particle.o: particle.cpp particle.h eos.h
 	$(CC) $(CFLAGS) particle.cpp
 
 eos.o: eos.h eos.cpp read_in_hdf/read_in_hdf.h eos_delaunay/eos_delaunay.h eos_delaunay/eos_delaunay.cpp

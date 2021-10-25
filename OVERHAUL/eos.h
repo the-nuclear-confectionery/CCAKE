@@ -13,19 +13,19 @@
 using std::string;
 
 
-class eos {
+class EquationOfState {
 
 public:
 
     //Constructors:
-    //always either use the eos(string, string, int) constructor or the default constructor followed by the init function
+    //always either use the EquationOfState(string, string, int) constructor or the default constructor followed by the init function
     //both of those actions will accomplish the same thing
 
     //quantityFile must be in dimensionless quantities and must be formatted "T  muB  muQ  muS  p  s  B  S  Q  e  cs2"
     //derivFile should be formatted "T  muB  muQ  muS  d2p/dB2  d2p/dQ2  d2p/dS2  d2p/dBdQ  d2p/dBdS d2p/dQdS  d2p/dTdB  d2p/dTdQ  d2p/dTdS  d2p/dT2"
-    eos(string quantityFile, string derivFile);
+    EquationOfState(string quantityFile, string derivFile);
 
-    eos();
+    EquationOfState();
     void init(string quantityFile, string derivFile);
     void init_grid_ranges_only(string quantityFile, string derivFile);
 
