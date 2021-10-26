@@ -14,7 +14,7 @@
 #include "vector.h"
 #include "equations_of_motion.h"
 #include "particle.h"
-#include "linklist.h"
+#include "system.h"
 #include "system_state.h"
 #include "runge_kutta.h"
 #include "eos.h"
@@ -22,23 +22,24 @@
 using namespace constants;
 
 // Constructors and destructors.
-  EquationsOfMotion::EquationsOfMotion(){}
-  EquationsOfMotion::~EquationsOfMotion(){}
+  EquationsOfMotion::EquationsOfMotion(){};
+  EquationsOfMotion::~EquationsOfMotion(){};
 
 ////////////////////////////////////////////////////////////////////////////////
-// The structure here is temporary until we set the mode for different terms, 
-// equations are only set up for 2+1 at the moment
-void EquationsOfMotion::BSQshear( LinkList & linklist )
+// The structure here is temporary until we set the mode for different terms 
+//which will be shear, bulk, diffusion, and coupling terms, 
+// current equations are only set up for 2+1d.
+void EquationsOfMotion::BSQshear( system & system )
 {
-  linklist.setshear();
-  linklist.initiate();
+  system.setshear();
+  system.initiate();
 
-  for (int i = 0; i < linklist.n(); i++)
+  for (int i = 0; i < system.n(); i++)
   {
-    const auto & p = linklist._p[i];
+    const auto & p = system._p[i];
 
     int curfrz = 0; //added by Christopher Plumberg to get compilation
-    linklist.bsqsvoptimization(i);    // NOT bsqsvoptimization2!!!
+    system.bsqsvoptimization(i);    // NOT bsqsvoptimization2!!!
                                       // fix arguments accordingly!!!
 
     if ( (p.eta<0) || isnan(p.eta) )
@@ -52,65 +53,65 @@ void EquationsOfMotion::BSQshear( LinkList & linklist )
   cout << "Finished first loop over SPH particles" << endl;
 
   int curfrz = 0;
-  for ( int i = 0; i < linklist.n(); i++ )
+  for ( int i = 0; i < system.n(); i++ )
   {
-    const auto & p = linklist._p[i];
+    const auto & p = system._p[i];
 
     //  Computes gamma and velocity
-    p.calcbsq( linklist.t ); //resets EOS!!
+    p.calcbsq( system.t ); //resets EOS!!
 
     /*N.B. - eventually extend to read in viscosities from table, etc.*/
-    p.setvisc( linklist.etaconst, linklist.bvf, linklist.svf,
-               linklist.zTc,      linklist.sTc, linklist.zwidth,
-               linklist.visc );
+    p.setvisc( system.etaconst, system.bvf, system.svf,
+               system.zTc,      system.sTc, system.zwidth,
+               system.visc );
 
-    if (linklist.cfon==1)
-      p.frzcheck( linklist.t, curfrz, linklist.n() );
+    if (system.cfon==1)
+      p.frzcheck( system.t, curfrz, system.n() );
 
   }
 
   cout << "Finished second loop over SPH particles" << endl;
 
-  if (linklist.cfon==1)
+  if (system.cfon==1)
   {
-    linklist.number_part += curfrz;
-    linklist.list.resize(curfrz);
+    system.number_part += curfrz;
+    system.list.resize(curfrz);
   }
 
   int m=0;
-  for(int i=0; i<linklist.n(); i++)
+  for(int i=0; i<system.n(); i++)
   {
-    const auto & p = linklist._p[i];
+    const auto & p = system._p[i];
 
     //      Computes gradients to obtain dsigma/dt
-    linklist.bsqsvoptimization2( i, linklist.t, curfrz );
+    system.bsqsvoptimization2( i, system.t, curfrz );
 
     p.dsigma_dt = -p.sigma * ( p.gradV.x[0][0] + p.gradV.x[1][1] );
 
-    p.bsqsvsigset( linklist.t, i );
+    p.bsqsvsigset( system.t, i );
 
-    if ( (p.Freeze==3) && (linklist.cfon==1) )
+    if ( (p.Freeze==3) && (system.cfon==1) )
     {
-      linklist.list[m++] = i;
+      system.list[m++] = i;
       p.Freeze           = 4;
     }
 
   }
 
-  if (linklist.rk2==1)
-    linklist.bsqsvconservation();
+  if (system.rk2==1)
+    system.bsqsvconservation();
 
-  linklist.bsqsvconservation_Ez();
+  system.bsqsvconservation_Ez();
 
 
   //calculate matrix elements
-  for ( int i=0; i<linklist.n(); i++ )
+  for ( int i=0; i<system.n(); i++ )
   {
-    const auto & p = linklist._p[i];
+    const auto & p = system._p[i];
 
     double gamt=1./p.gamma/p.stauRelax;
     double pre=p.eta_o_tau/2./p.gamma;
-    double p1=gamt-4./3./p.sigma*p.dsigma_dt+1./linklist.t/3.;
+    double p1=gamt-4./3./p.sigma*p.dsigma_dt+1./system.t/3.;
     Vector<double,D>  minshv=rowp1(0, p.shv);
     Matrix <double,D,D> partU = p.gradU + transpose( p.gradU );
 
@@ -140,16 +141,16 @@ void EquationsOfMotion::BSQshear( LinkList & linklist )
 
     Matrix <double,D,D> Ipi   = -p.eta_o_tau/3. * ( p.Imat + p.uu ) + 4./3.*p.pimin;
 
-    linklist._p[i].div_u      = (1./ p.gamma)*inner( p.u, p.du_dt)
+    system._p[i].div_u      = (1./ p.gamma)*inner( p.u, p.du_dt)
                               - ( p.gamma/ p.sigma ) * p.dsigma_dt ;
-    linklist._p[i].bigtheta   = p.div_u*linklist.t+p.gamma;
+    system._p[i].bigtheta   = p.div_u*system.t+p.gamma;
 
     Matrix <double,D,D> sub   = p.pimin + p.shv.x[0][0]*p.uu/p.g2 -1./p.gamma*p.piutot;
 
-    p.inside                  = linklist.t*(
+    p.inside                  = system.t*(
                                 inner( -minshv+p.shv.x[0][0]*p.v, p.du_dt )
                                 - con2(sub, p.gradU)
-                                - p.gamma*linklist.t*p.shv33 );
+                                - p.gamma*system.t*p.shv33 );
 
     p.detasigma_dt            = 1./p.sigma/p.EOST()*( -p.bigPI*p.bigtheta + p.inside );
 
@@ -168,7 +169,7 @@ void EquationsOfMotion::BSQshear( LinkList & linklist )
   }
 
 
-  if (linklist.cfon==1) linklist.bsqsvfreezeout(curfrz);
+  if (system.cfon==1) system.bsqsvfreezeout(curfrz);
 
   return;
 }
@@ -178,33 +179,33 @@ void EquationsOfMotion::BSQshear( LinkList & linklist )
 
 
 
-void EquationsOfMotion::BSQ(&linklist)  // shear+bulk Equations of motion, only set up completely for 2+1 at the moment
+void EquationsOfMotion::BSQ(&system)  // shear+bulk Equations of motion, only set up completely for 2+1 at the moment
 {
 
 
 
-    linklist.setshear();
-    linklist.initiate();
+    system.setshear();
+    system.initiate();
 
 
 
 
-    for(int i=0; i<linklist.n(); i++)
+    for(int i=0; i<system.n(); i++)
     {
 		//cout << "Entering this loop: i = " << i << endl;
         int curfrz=0;//added by Christopher Plumberg to get compilation
 		//cout << "Calling bsqsvoptimization for i = " << i << endl;
-        linklist.bsqsvoptimization(i);    // NOT bsqsvoptimization2!!! fix arguments accordingly!!!
-//		linklist._p[i].rhoB_sub /= _p[i].gamma*t0;
-//		linklist._p[i].rhoS_sub /= _p[i].gamma*t0;
-//		linklist._p[i].rhoQ_sub /= _p[i].gamma*t0;
+        system.bsqsvoptimization(i);    // NOT bsqsvoptimization2!!! fix arguments accordingly!!!
+//		system._p[i].rhoB_sub /= _p[i].gamma*t0;
+//		system._p[i].rhoS_sub /= _p[i].gamma*t0;
+//		system._p[i].rhoQ_sub /= _p[i].gamma*t0;
 		//cout << "Finished bsqsvoptimization for i = " << i << endl;
 
-        if ((linklist._p[i].eta<0)||isnan(linklist._p[i].eta))
+        if ((system._p[i].eta<0)||isnan(system._p[i].eta))
         {
-            cout << i <<  " neg entropy " <<  linklist._p[i].EOST()*197.3   << " " << linklist._p[i].eta << endl;
+            cout << i <<  " neg entropy " <<  system._p[i].EOST()*197.3   << " " << system._p[i].eta << endl;
 
-            linklist._p[i].eta=0;
+            system._p[i].eta=0;
 
 //             int a,b;
 //             a=i;
@@ -215,18 +216,18 @@ void EquationsOfMotion::BSQ(&linklist)  // shear+bulk Equations of motion, only 
 //                for(ii.x[1]=-2; ii.x[1]<=2; ii.x[1]++)
 //                {
 
-//                     b=linklist.lead[linklist.triToSum(linklist.dael[a]+ii, linklist.size)];
+//                     b=system.lead[system.triToSum(system.dael[a]+ii, system.size)];
 //                     while(b!=-1 )
 //                     {
-//                     double kern=linklist.kernel(linklist._p[b].r-linklist._p[a].r);
-//                        sigma = sigma + linklist._p[b].sigmaweight*kern;
+//                     double kern=system.kernel(system._p[b].r-system._p[a].r);
+//                        sigma = sigma + system._p[b].sigmaweight*kern;
 //
 //
-//                       b=linklist.link[b];
+//                       b=system.link[b];
 //                       }
 //                }
 //            }
-//            cout << "final entropy=" << sigma << " eta_sigma=" << linklist._p[a].eta_sigma << " r=" << linklist._p[a].r << endl;
+//            cout << "final entropy=" << sigma << " eta_sigma=" << system._p[a].eta_sigma << " r=" << system._p[a].r << endl;
 //
 //            exit(1);
         }
@@ -237,48 +238,48 @@ void EquationsOfMotion::BSQ(&linklist)  // shear+bulk Equations of motion, only 
 
 
     int curfrz=0;
-    for(int i=0; i<linklist.n(); i++)
+    for(int i=0; i<system.n(); i++)
     {
         //  Computes gamma and velocity
 
 		//cout << "Calling calcbsq for particle i = " << i << endl;
 
-        linklist._p[i].calcbsq(linklist.t); //resets EOS!!
+        system._p[i].calcbsq(system.t); //resets EOS!!
 		//cout << "Finished calcbsq for particle i = " << i << endl;
-        /*N.B. - eventually extend to read in viscosities from table, etc.*/linklist._p[i].setvisc(linklist.etaconst,linklist.bvf,linklist.svf,linklist.zTc,linklist.sTc,linklist.zwidth,linklist.visc);
-        if (linklist.cfon==1) linklist._p[i].frzcheck(linklist.t,curfrz,linklist.n());
+        /*N.B. - eventually extend to read in viscosities from table, etc.*/system._p[i].setvisc(system.etaconst,system.bvf,system.svf,system.zTc,system.sTc,system.zwidth,system.visc);
+        if (system.cfon==1) system._p[i].frzcheck(system.t,curfrz,system.n());
 
     }
 
 	cout << "Finished second loop over SPH particles" << endl;
 
-    if (linklist.cfon==1)
+    if (system.cfon==1)
     {
-        linklist.number_part+=curfrz;
-        linklist.list.resize(curfrz);
+        system.number_part+=curfrz;
+        system.list.resize(curfrz);
     }
 
     int m=0;
-    for(int i=0; i<linklist.n(); i++)
+    for(int i=0; i<system.n(); i++)
     {
         //      Computes gradients to obtain dsigma/dt
 		//cout << "Calling bsqsvoptimization2 for i = " << i << endl;
-        linklist.bsqsvoptimization2(i,linklist.t,curfrz);
+        system.bsqsvoptimization2(i,system.t,curfrz);
 		//cout << "Finished bsqsvoptimization2 for i = " << i << endl;
 
-        linklist._p[i].dsigma_dt = -linklist._p[i].sigma
-									*( linklist._p[i].gradV.x[0][0]
-									 + linklist._p[i].gradV.x[1][1] );
+        system._p[i].dsigma_dt = -system._p[i].sigma
+									*( system._p[i].gradV.x[0][0]
+									 + system._p[i].gradV.x[1][1] );
 
-/*cout << "CHECK dsigma_dt: " << i << "   " << linklist.t << "   " << linklist._p[i].dsigma_dt
-		<< "   " << linklist._p[i].sigma << "   " << linklist._p[i].gradV.x[0][0]
-		<< "   " << linklist._p[i].gradV.x[1][1] << endl;*/
+/*cout << "CHECK dsigma_dt: " << i << "   " << system.t << "   " << system._p[i].dsigma_dt
+		<< "   " << system._p[i].sigma << "   " << system._p[i].gradV.x[0][0]
+		<< "   " << system._p[i].gradV.x[1][1] << endl;*/
 
-        linklist._p[i].bsqsvsigset(linklist.t,i);
-        if ((linklist._p[i].Freeze==3)&&(linklist.cfon==1))
+        system._p[i].bsqsvsigset(system.t,i);
+        if ((system._p[i].Freeze==3)&&(system.cfon==1))
         {
-            linklist.list[m]=i;
-            linklist._p[i].Freeze=4;
+            system.list[m]=i;
+            system._p[i].Freeze=4;
             ++m;
         }
 
@@ -287,67 +288,67 @@ void EquationsOfMotion::BSQ(&linklist)  // shear+bulk Equations of motion, only 
 	cout << "Finished third loop over SPH particles" << endl;
 
 
-    if (linklist.rk2==1) linklist.bsqsvconservation();
-    linklist.bsqsvconservation_Ez();
+    if (system.rk2==1) system.bsqsvconservation();
+    system.bsqsvconservation_Ez();
 
 
     //calculate matrix elements
 
 constexpr int ic = 0;
 constexpr bool printAll = false;
-    for(int i=0; i<linklist.n(); i++)
+    for(int i=0; i<system.n(); i++)
     {
-        double gamt=1./linklist._p[i].gamma/linklist._p[i].stauRelax;
-        double pre=linklist._p[i].eta_o_tau/2./linklist._p[i].gamma;
-        //p4=gamt-linklist._p[i].sigl*4./3.;
-        double p1=gamt-4./3./linklist._p[i].sigma*linklist._p[i].dsigma_dt+1./linklist.t/3.;
-        Vector<double,D>  minshv=rowp1(0,linklist._p[i].shv);
-        //p2=linklist._p[i].setas*gamt;
-        Matrix <double,D,D> partU=linklist._p[i].gradU+transpose(linklist._p[i].gradU);
+        double gamt=1./system._p[i].gamma/system._p[i].stauRelax;
+        double pre=system._p[i].eta_o_tau/2./system._p[i].gamma;
+        //p4=gamt-system._p[i].sigl*4./3.;
+        double p1=gamt-4./3./system._p[i].sigma*system._p[i].dsigma_dt+1./system.t/3.;
+        Vector<double,D>  minshv=rowp1(0,system._p[i].shv);
+        //p2=system._p[i].setas*gamt;
+        Matrix <double,D,D> partU=system._p[i].gradU+transpose(system._p[i].gradU);
 
 if (i==ic || printAll)
-cout << "CHECK misc1: " << i << "   " << linklist.t << "   " << gamt << "   " << linklist._p[i].sigma
-		<< "   " << linklist._p[i].dsigma_dt << endl;
+cout << "CHECK misc1: " << i << "   " << system.t << "   " << gamt << "   " << system._p[i].sigma
+		<< "   " << system._p[i].dsigma_dt << endl;
 
 if (i==ic || printAll)
-cout << "CHECK minshv: " << i << "   " << linklist.t << "   " << minshv << endl;
+cout << "CHECK minshv: " << i << "   " << system.t << "   " << minshv << endl;
 
 if (i==ic || printAll)
-cout << "CHECK partU: " << i << "   " << linklist.t << "   " << partU << endl;
+cout << "CHECK partU: " << i << "   " << system.t << "   " << partU << endl;
 
         // set the Mass and the Force
-        Matrix <double,D,D> M=linklist._p[i].Msub(i);
-        Vector<double,D> F=linklist._p[i].Btot*linklist._p[i].u
-							+ linklist._p[i].gradshear
-							- ( linklist._p[i].gradP + linklist._p[i].gradBulk
-								+ linklist._p[i].divshear );
+        Matrix <double,D,D> M=system._p[i].Msub(i);
+        Vector<double,D> F=system._p[i].Btot*system._p[i].u
+							+ system._p[i].gradshear
+							- ( system._p[i].gradP + system._p[i].gradBulk
+								+ system._p[i].divshear );
 
 if (i==ic || printAll)
-cout << "CHECK M: " << i << "   " << linklist.t << "   " << M << endl;
+cout << "CHECK M: " << i << "   " << system.t << "   " << M << endl;
 
 
 
 if (i==ic || printAll)
-cout << "CHECK F: " << i << "   " << linklist.t << "   " << F << "   "
-		<< linklist._p[i].Btot << "   " << linklist._p[i].u << "   "
-		<< linklist._p[i].gradshear << "   " << linklist._p[i].gradP << "   "
-		<< linklist._p[i].gradBulk << "   " << linklist._p[i].divshear << endl;
+cout << "CHECK F: " << i << "   " << system.t << "   " << F << "   "
+		<< system._p[i].Btot << "   " << system._p[i].u << "   "
+		<< system._p[i].gradshear << "   " << system._p[i].gradP << "   "
+		<< system._p[i].gradBulk << "   " << system._p[i].divshear << endl;
 
         // shear contribution
-        F+=pre*linklist._p[i].v*partU+p1*minshv;
+        F+=pre*system._p[i].v*partU+p1*minshv;
 
 if (i==ic || printAll)
-cout << "CHECK F(again): " << i << "   " << linklist.t << "   " << F << "   "
-		<< pre << "   " << linklist._p[i].v << "   " << partU << "   "
+cout << "CHECK F(again): " << i << "   " << system.t << "   " << F << "   "
+		<< pre << "   " << system._p[i].v << "   " << partU << "   "
 		<< p1 << "   " << minshv << endl;
 
-//if (linklist.t > 1.8) exit(8);
+//if (system.t > 1.8) exit(8);
 
         double det=deter(M);
 
 
 if (i==ic || printAll)
-cout << "CHECK det: " << i << "   " << linklist.t << "   " << M << "   " << det << endl;
+cout << "CHECK det: " << i << "   " << system.t << "   " << M << "   " << det << endl;
 
 
         Matrix <double,D,D> MI;
@@ -358,95 +359,95 @@ cout << "CHECK det: " << i << "   " << linklist.t << "   " << M << "   " << det 
 
 
 if (i==ic || printAll)
-cout << "CHECK MI: " << i << "   " << linklist.t << "   " << MI << endl;
+cout << "CHECK MI: " << i << "   " << system.t << "   " << MI << endl;
 
 
 
 
-        linklist._p[i].du_dt.x[0]=F.x[0]*MI.x[0][0]+F.x[1]*MI.x[0][1];
-        linklist._p[i].du_dt.x[1]=F.x[0]*MI.x[1][0]+F.x[1]*MI.x[1][1];
+        system._p[i].du_dt.x[0]=F.x[0]*MI.x[0][0]+F.x[1]*MI.x[0][1];
+        system._p[i].du_dt.x[1]=F.x[0]*MI.x[1][0]+F.x[1]*MI.x[1][1];
 
 
 
 
-        Matrix <double,D,D> ulpi=linklist._p[i].u*colp1(0,linklist._p[i].shv);
+        Matrix <double,D,D> ulpi=system._p[i].u*colp1(0,system._p[i].shv);
 
-        double vduk=inner(linklist._p[i].v,linklist._p[i].du_dt);
+        double vduk=inner(system._p[i].v,system._p[i].du_dt);
 
-        Matrix <double,D,D> Ipi=-linklist._p[i].eta_o_tau/3.*(linklist._p[i].Imat+linklist._p[i].uu)+4./3.*linklist._p[i].pimin;
+        Matrix <double,D,D> Ipi=-system._p[i].eta_o_tau/3.*(system._p[i].Imat+system._p[i].uu)+4./3.*system._p[i].pimin;
 
-        linklist._p[i].div_u = (1./ linklist._p[i].gamma)*inner( linklist._p[i].u, linklist._p[i].du_dt)
-								- ( linklist._p[i].gamma/ linklist._p[i].sigma)
-									* linklist._p[i].dsigma_dt ;
-        linklist._p[i].bigtheta=linklist._p[i].div_u*linklist.t+linklist._p[i].gamma;
+        system._p[i].div_u = (1./ system._p[i].gamma)*inner( system._p[i].u, system._p[i].du_dt)
+								- ( system._p[i].gamma/ system._p[i].sigma)
+									* system._p[i].dsigma_dt ;
+        system._p[i].bigtheta=system._p[i].div_u*system.t+system._p[i].gamma;
 
 if (i==ic || printAll)
 cout << "CHECK div_u: " << i
-		<< "   " << linklist.t
-		<< "   " << linklist._p[i].div_u
-		<< "   " << linklist._p[i].gamma
-		<< "   " << linklist._p[i].u
-		<< "   " << linklist._p[i].du_dt
-		<< "   " << inner( linklist._p[i].u, linklist._p[i].du_dt)
-		<< "   " << linklist._p[i].sigma << endl;
+		<< "   " << system.t
+		<< "   " << system._p[i].div_u
+		<< "   " << system._p[i].gamma
+		<< "   " << system._p[i].u
+		<< "   " << system._p[i].du_dt
+		<< "   " << inner( system._p[i].u, system._p[i].du_dt)
+		<< "   " << system._p[i].sigma << endl;
 if (i==ic || printAll)
 cout << "CHECK bigtheta: " << i
-		<< "   " << linklist.t
-		<< "   " << linklist._p[i].bigtheta
-		<< "   " << linklist._p[i].gamma << endl;
+		<< "   " << system.t
+		<< "   " << system._p[i].bigtheta
+		<< "   " << system._p[i].gamma << endl;
 
-        Matrix <double,D,D> sub=linklist._p[i].pimin+linklist._p[i].shv.x[0][0]/linklist._p[i].g2*linklist._p[i].uu-1./linklist._p[i].gamma*linklist._p[i].piutot;
+        Matrix <double,D,D> sub=system._p[i].pimin+system._p[i].shv.x[0][0]/system._p[i].g2*system._p[i].uu-1./system._p[i].gamma*system._p[i].piutot;
 
 
-        linklist._p[i].inside=linklist.t*(inner((-minshv+linklist._p[i].shv.x[0][0]*linklist._p[i].v),linklist._p[i].du_dt)- con2(sub,linklist._p[i].gradU)    -      linklist._p[i].gamma*linklist.t*linklist._p[i].shv33);
+        system._p[i].inside=system.t*(inner((-minshv+system._p[i].shv.x[0][0]*system._p[i].v),system._p[i].du_dt)- con2(sub,system._p[i].gradU)    -      system._p[i].gamma*system.t*system._p[i].shv33);
 
 if (i==ic || printAll)
 std::cout << "Check inside: " << i << "   "
-			<< linklist.t << "   "
-			<< linklist._p[i].inside << "   "
+			<< system.t << "   "
+			<< system._p[i].inside << "   "
 			<< minshv << ";   "
-			<< linklist._p[i].shv.x[0][0]*linklist._p[i].v << ";   "
-			<< linklist._p[i].du_dt << ";   "
+			<< system._p[i].shv.x[0][0]*system._p[i].v << ";   "
+			<< system._p[i].du_dt << ";   "
 			<< sub << "   "
-			<< linklist._p[i].gradU << ";   "
-			<< linklist._p[i].gamma*linklist.t*linklist._p[i].shv33 << std::endl;
+			<< system._p[i].gradU << ";   "
+			<< system._p[i].gamma*system.t*system._p[i].shv33 << std::endl;
 
 
 
-        linklist._p[i].detasigma_dt =1./linklist._p[i].sigma/linklist._p[i].EOST()
-										*( -linklist._p[i].bigPI*linklist._p[i].bigtheta
-											+linklist._p[i].inside);
+        system._p[i].detasigma_dt =1./system._p[i].sigma/system._p[i].EOST()
+										*( -system._p[i].bigPI*system._p[i].bigtheta
+											+system._p[i].inside);
 if (i==ic || printAll)
 std::cout << "Check detasigma_dt: " << i << "   "
-			<< linklist.t << "   "
-			<< linklist._p[i].detasigma_dt << "   "
-			<< linklist._p[i].sigma << "   "
-			<< linklist._p[i].EOST()*197.3 << "   "
-			<< linklist._p[i].bigPI << "   "
-			<< linklist._p[i].bigtheta << "   "
-			<< linklist._p[i].inside << std::endl;
+			<< system.t << "   "
+			<< system._p[i].detasigma_dt << "   "
+			<< system._p[i].sigma << "   "
+			<< system._p[i].EOST()*197.3 << "   "
+			<< system._p[i].bigPI << "   "
+			<< system._p[i].bigtheta << "   "
+			<< system._p[i].inside << std::endl;
 
 
 
 		// N.B. - ADD EXTRA TERMS FOR BULK EQUATION
-        linklist._p[i].dBulk_dt = (-linklist._p[i].zeta/linklist._p[i].sigma*linklist._p[i].bigtheta - linklist._p[i].Bulk/linklist._p[i].gamma )/linklist._p[i].tauRelax;
+        system._p[i].dBulk_dt = (-system._p[i].zeta/system._p[i].sigma*system._p[i].bigtheta - system._p[i].Bulk/system._p[i].gamma )/system._p[i].tauRelax;
 
-        Matrix <double,D,D> ududt=linklist._p[i].u*linklist._p[i].du_dt;
+        Matrix <double,D,D> ududt=system._p[i].u*system._p[i].du_dt;
 
 		// N.B. - ADD READABLE TERM NAMES
-        linklist._p[i].dshv_dt= -gamt*(linklist._p[i].pimin+linklist._p[i].setas*0.5*partU)-0.5*linklist._p[i].eta_o_tau*(ududt+transpose(ududt))+linklist._p[i].dpidtsub()-vduk*(ulpi+transpose(ulpi)+(1/linklist._p[i].gamma)*Ipi)+linklist._p[i].sigl*Ipi;
+        system._p[i].dshv_dt= -gamt*(system._p[i].pimin+system._p[i].setas*0.5*partU)-0.5*system._p[i].eta_o_tau*(ududt+transpose(ududt))+system._p[i].dpidtsub()-vduk*(ulpi+transpose(ulpi)+(1/system._p[i].gamma)*Ipi)+system._p[i].sigl*Ipi;
 
-        //linklist._p[i].drhoB_dt=-linklist._p[i].rhoB*linklist._p[i].sigma*linklist._p[i].bigtheta;
-        //linklist._p[i].drhoS_dt=-linklist._p[i].rhoS*linklist._p[i].sigma*linklist._p[i].bigtheta;
-        //linklist._p[i].drhoQ_dt=-linklist._p[i].rhoQ*linklist._p[i].sigma*linklist._p[i].bigtheta;
+        //system._p[i].drhoB_dt=-system._p[i].rhoB*system._p[i].sigma*system._p[i].bigtheta;
+        //system._p[i].drhoS_dt=-system._p[i].rhoS*system._p[i].sigma*system._p[i].bigtheta;
+        //system._p[i].drhoQ_dt=-system._p[i].rhoQ*system._p[i].sigma*system._p[i].bigtheta;
 
     }
 
 
-    if (linklist.cfon==1) linklist.bsqsvfreezeout(curfrz);
+    if (system.cfon==1) system.bsqsvfreezeout(curfrz);
 
 
-    linklist.destroy();
+    system.destroy();
 }
 
 
