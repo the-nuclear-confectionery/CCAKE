@@ -182,9 +182,6 @@ void EquationsOfMotion::BSQshear( system & system )
 }
 
 
-#endif
-
-
 
 
 
