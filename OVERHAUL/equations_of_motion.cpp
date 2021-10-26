@@ -39,7 +39,7 @@ void EquationsOfMotion::BSQshear( system & system )
     const auto & p = system._p[i];
 
     int curfrz = 0; //added by Christopher Plumberg to get compilation
-    system.bsqsvoptimization(i);    // NOT bsqsvoptimization2!!!
+    system.smooth_fields(i);    // NOT bsqsvoptimization2!!!
                                       // fix arguments accordingly!!!
 
     if ( (p.eta<0) || isnan(p.eta) )
@@ -57,8 +57,14 @@ void EquationsOfMotion::BSQshear( system & system )
   {
     const auto & p = system._p[i];
 
+
+
+
     //  Computes gamma and velocity
     p.calcbsq( system.t ); //resets EOS!!
+
+
+
 
     /*N.B. - eventually extend to read in viscosities from table, etc.*/
     p.setvisc( system.etaconst, system.bvf, system.svf,
@@ -69,6 +75,7 @@ void EquationsOfMotion::BSQshear( system & system )
       p.frzcheck( system.t, curfrz, system.n() );
 
   }
+
 
   cout << "Finished second loop over SPH particles" << endl;
 
@@ -83,8 +90,8 @@ void EquationsOfMotion::BSQshear( system & system )
   {
     const auto & p = system._p[i];
 
-    //      Computes gradients to obtain dsigma/dt
-    system.bsqsvoptimization2( i, system.t, curfrz );
+    //Computes gradients to obtain dsigma/dt
+    system.smooth_gradients( i, system.t, curfrz );
 
     p.dsigma_dt = -p.sigma * ( p.gradV.x[0][0] + p.gradV.x[1][1] );
 
@@ -175,17 +182,12 @@ void EquationsOfMotion::BSQshear( system & system )
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 #endif
+
+
+
+
+
+
+
+
