@@ -47,7 +47,7 @@ class Particle
     struct thermodynamic_info
     {
       double T    = 0.0, muB  = 0.0, muS  = 0.0, muQ  = 0.0;
-      double e    = 0.0, s    = 0.0, B    = 0.0, S    = 0.0, Q = 0.0,
+      double e    = 0.0, s    = 0.0, rhoB = 0.0, rhoS = 0.0, rhoQ = 0.0,
              p    = 0.0, cs2  = 0.0, w    = 0.0, A    = 0.0;
       double dwds = 0.0, dwdB = 0.0, dwdS = 0.0, dwdQ = 0.0;
 
@@ -61,9 +61,9 @@ class Particle
 
           p    = eos.p();
           s    = eos.s();
-          B    = eos.B();
-          S    = eos.S();
-          Q    = eos.Q();
+          rhoB = eos.B();
+          rhoS = eos.S();
+          rhoQ = eos.Q();
           e    = eos.e();
           w    = eos.w();
           A    = eos.A();
@@ -91,9 +91,9 @@ class Particle
     double p()    { return thermo.p;    }
     double s()    { return thermo.s;    }
     double e()    { return thermo.e;    }
-    double B()    { return thermo.B;    }
-    double S()    { return thermo.S;    }
-    double Q()    { return thermo.Q;    }
+    double rhoB() { return thermo.rhoB; }
+    double rhoS() { return thermo.rhoS; }
+    double rhoQ() { return thermo.rhoQ; }
     double w()    { return thermo.w;    }
     double A()    { return thermo.A;    }
     double cs2()  { return thermo.cs2;  }
@@ -140,7 +140,7 @@ class Particle
 
 
 
-
+private:
 
 
   // old Particle class variables
@@ -217,7 +217,7 @@ class Particle
 
     double bigtheta;
 
-    //double B, S, Q;						// baryon, strange, electric charge
+    double B, S, Q;						// baryon, strange, electric charge
     double drhoB_dt,drhoS_dt,drhoQ_dt;
 
     double g2,g3,gt;

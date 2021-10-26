@@ -30,9 +30,8 @@ void Particle::set_equation_of_state( EquationOfState & eos_in )
 double Particle::locate_phase_diagram_point_eBSQ(// previously s_out
                  double e_In, double rhoB_In, double rhoS_In, double rhoQ_In )
 {
-  double sVal = eosPtr->locate_phase_diagram_point_eBSQ(
-                    e_In, rhoB_In, rhoS_In, rhoQ_In );
-  thermo.set(EOS);
+  double sVal = eosPtr->s_out( e_In, rhoB_In, rhoS_In, rhoQ_In );
+  thermo.set(*eosPtr);
   return sVal;
 }
 
@@ -40,16 +39,15 @@ double Particle::locate_phase_diagram_point_eBSQ(// previously s_out
 ////////////////////////////////////////////////////////////////////////////////
 double Particle::locate_phase_diagram_point_eBSQ(double e_In)// previously s_out
 {
-	return EOSs_out( e_In, 0.0, 0.0, 0.0 );
+  eosPtr->s_out(e_In, 0.0, 0.0, 0.0 );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void Particle::locate_phase_diagram_point_sBSQ(// previously update_s
                  double s_In, double rhoB_In, double rhoS_In, double rhoQ_In )
 {
-  bool update_s_success
-       = eosPtr->locate_phase_diagram_point_sBSQ( s_In, rhoB_In, rhoS_In, rhoQ_In );
-  thermo.set(EOS);
+  bool update_s_success = eosPtr->update_s( s_In, rhoB_In, rhoS_In, rhoQ_In );
+  thermo.set(*eosPtr);
 
   return;
 }
@@ -57,7 +55,7 @@ void Particle::locate_phase_diagram_point_sBSQ(// previously update_s
 ////////////////////////////////////////////////////////////////////////////////
 void Particle::locate_phase_diagram_point_sBSQ(double s_In) // previously update_s
 {
-  locate_phase_diagram_point_sBSQ(s_In, 0.0, 0.0, 0.0 );
+  eosPtr->update_s(s_In, 0.0, 0.0, 0.0 );
   return;
 }
 
