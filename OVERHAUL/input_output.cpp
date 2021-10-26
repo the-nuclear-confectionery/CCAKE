@@ -1,6 +1,3 @@
-#ifndef _ENTERIC_CPP_
-#define _ENTERIC_CPP_
-
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -121,5 +118,3 @@ void InputOutput::read_in_initial_conditions()
   }
   infile.close();
 }
-
-#endif

@@ -13,7 +13,6 @@
 #include "matrix.h"
 #include "particle.h"
 #include "linklist.h"
-#include "input_output.h"
 
 using std::string;
 using std::vector;
