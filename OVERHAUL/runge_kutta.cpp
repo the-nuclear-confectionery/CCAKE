@@ -4,6 +4,8 @@
 #include "linklist.h"
 #include "particle.h"
 #include "eos.h"
+#include "equations_of_motion.h"
+#include "system_state.h"
 #include "runge_kutta.h"
 
 namespace RK

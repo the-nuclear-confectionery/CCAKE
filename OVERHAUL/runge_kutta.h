@@ -8,6 +8,7 @@
 #include "particle.h"
 #include "eos.h"
 #include "equations_of_motion.h"
+#include "system_state.h"
 
 namespace RK
 {
