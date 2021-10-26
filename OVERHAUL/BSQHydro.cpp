@@ -47,10 +47,10 @@ void BSQHydro::trim_initical_conditions()
     double rhoS = initial_conditions.density_grid[i][4];
     double rhoQ = initial_conditions.density_grid[i][5];
 
-    eos.sout(e,rhoB,rhoS,rhoQ);
+    eos.s_out(e,rhoB,rhoS,rhoQ);
     if (eos.T() > input_parameters.Freeze_Out_Temperature)
     {
-      trimmed_grid.pushback(initial_conditions.density_grid[i]);
+      trimmed_grid.push_back(initial_conditions.density_grid[i]);
     }
   }
   initial_conditions.density_grid = trimmed_grid;
