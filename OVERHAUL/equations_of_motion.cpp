@@ -16,7 +16,7 @@
 #include "particle.h"
 #include "linklist.h"
 #include "system_state.h"
-#include "rungekutta4.h"
+#include "runge_kutta.h"
 #include "eos.h"
 
 // Constructors and destructors.
