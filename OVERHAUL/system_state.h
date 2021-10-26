@@ -41,6 +41,7 @@ private:
 
 public:
 
+  void set_equation_of_state( EquationOfState & eos_in );
   void initialize();
   void BSQSimulation( double dt, LinkList & linklist );
   void BSQshear( LinkList & linklist );
