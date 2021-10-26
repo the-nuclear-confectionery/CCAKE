@@ -29,7 +29,8 @@ private:
   LinkList linklist;  // can we please name it something else?
   // vector<vector<int> > neighbors;  //?
 
-  EquationOfState eos;
+  //EquationOfState eos;
+  EquationOfState * eosPtr = nullptr;
 
   vector< Particle > particles;
 

@@ -79,8 +79,8 @@ class Particle
 
 //  public:
 
-    static EquationOfState eos;	//use one copy of EOS for all particles
-    //EquationOfState * eosPtr = nullptr;
+    //static EquationOfState eos;	//use one copy of EOS for all particles
+    EquationOfState * eosPtr = nullptr;
 
     // getter functions
     double T()    { return thermo.T;    }

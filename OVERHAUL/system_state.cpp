@@ -115,7 +115,8 @@ void SystemState::initialize()  // formerly called "manualenter"
 
     ////////////////////////////////////////////////////////////////////////////
     // INITIALIZE PARTICLES
-    Particle::set_equation_of_state( EOS0 );
+    //Particle::set_equation_of_state( EOS0 );
+    Particle::set_equation_of_state( &EOS0 );
 
     // initialize 0th particle
     //_p[0].start(eostype, EOS0);
@@ -310,8 +311,8 @@ void SystemState::smooth_gradients( int a, double tin, int & count )
       double sigsqrb           = 1.0/(pb.sigma*pb.sigma);
       Vector<double,2> sigsigK = pb.sigmaweight * pa.sigma * gradK;
 
-      pa.gradP                += ( sigsqrb*pb.eos.p()
-                                  + sigsqra*pa.eos.p() ) * sigsigK;
+      pa.gradP                += ( sigsqrb*pb.eosPtr->p()
+                                  + sigsqra*pa.eosPtr->p() ) * sigsigK;
 
       if ( ( ( Norm( pa.r - pb.r ) / _h ) <= 2 ) && ( a != b ) )
       {
@@ -337,8 +338,8 @@ void SystemState::smooth_gradients( int a, double tin, int & count )
       {
         cout << "gradP stopped working" << endl;
         cout << t <<" "  << pa.gradP << " " << a << " " << b << endl;
-        cout << pb.sigmaweight << " " << pa.sigma << " " << pb.eos.p() << endl;
-        cout << Size << " " << pb.eos.s() << " " << pa.eos.s() << endl;
+        cout << pb.sigmaweight << " " << pa.sigma << " " << pb.eosPtr->p() << endl;
+        cout << Size << " " << pb.eosPtr->s() << " " << pa.eosPtr->s() << endl;
 
         cout << pa.r << endl;
         cout << pb.r << endl;
@@ -356,13 +357,13 @@ void SystemState::smooth_gradients( int a, double tin, int & count )
   }
 
   if ( ( pa.btrack == 1 )
-        && ( ( pa.eos.T()*197.3 ) >= 150 ) )
+        && ( ( pa.eosPtr->T()*197.3 ) >= 150 ) )
     pa.frz2.t=tin;
   else if ( ( pa.btrack == 0 )
-            && ( ( pa.eos.T()*197.3 ) >= 150 )
+            && ( ( pa.eosPtr->T()*197.3 ) >= 150 )
             && ( pa.Freeze < 4 ) )
     cout << "Missed " << a << " " << tin << "  "
-         << pa.eos.T()*197.3 << " "
+         << pa.eosPtr->T()*197.3 << " "
          << rdis << " " << cfon <<  endl;
 
   return;
@@ -434,15 +435,15 @@ void SystemState::bsqsvconservation_E()
     {
       const auto & p = particles[i];
 
-        E += ( p.C*p.g2 - p.eos.p() - p.bigPI + p.shv.x[0][0] )
+        E += ( p.C*p.g2 - p.eosPtr->p() - p.bigPI + p.shv.x[0][0] )
               / p.sigma*p.sigmaweight*t;
         if (i==0)
           std::cout << "E: " << i << "   " << t
-              << "   " << p.eos.T()
+              << "   " << p.eosPtr->T()
               << "   " << p.EOSe()
               << "   " << p.C
               << "   " << p.g2
-              << "   " << p.eos.p()
+              << "   " << p.eosPtr->p()
               << "   " << p.bigPI
               << "   " << p.shv.x[0][0]
               << "   " << p.sigma
@@ -467,11 +468,11 @@ void SystemState::bsqsvconservation_Ez()
   {
     const auto & p = particles[i];
 
-    dEz += ( p.eos.p() + p.bigPI + p.shv33*t2 ) / p.sigma*p.sigmaweight;
+    dEz += ( p.eosPtr->p() + p.bigPI + p.shv33*t2 ) / p.sigma*p.sigmaweight;
 
     if (false)
       std::cout << "dEz: " << i << "   " << t
-        << "   " << p.eos.p()
+        << "   " << p.eosPtr->p()
         << "   " << p.bigPI
         << "   " << p.shv33*t2
         << "   " << p.sigma
