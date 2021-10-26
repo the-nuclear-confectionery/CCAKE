@@ -352,7 +352,7 @@ double EquationOfState::cs2() const { return cs2Val; }
 double EquationOfState::w()   const { return eVal + pVal; }
 
 
-double EquationOfState::dwds() const
+double EquationOfState::dwds()
 {
 	double charge_terms	/*if charge densities are not all zero*/
 			= ( abs(BVal)>1e-10 || abs(SVal)>1e-10 || abs(QVal)>1e-10 ) ?
@@ -368,7 +368,7 @@ double EquationOfState::dwds() const
     return T() + entrVal/dentr_dt() + charge_terms;
 }
 
-double EquationOfState::dwdB() const
+double EquationOfState::dwdB()
 {
 	double charge_terms	/*if charge densities are not all zero*/
 			= ( abs(BVal)>1e-10 || abs(SVal)>1e-10 || abs(QVal)>1e-10 ) ?
@@ -377,7 +377,7 @@ double EquationOfState::dwdB() const
     return muB() + charge_terms;
 }
 
-double EquationOfState::dwdS() const
+double EquationOfState::dwdS()
 {
 	double charge_terms	/*if charge densities are not all zero*/
 			= ( abs(BVal)>1e-10 || abs(SVal)>1e-10 || abs(QVal)>1e-10 ) ?
@@ -386,7 +386,7 @@ double EquationOfState::dwdS() const
     return muS() + charge_terms;
 }
 
-double EquationOfState::dwdQ() const
+double EquationOfState::dwdQ()
 {
 	double charge_terms	/*if charge densities are not all zero*/
 			= ( abs(BVal)>1e-10 || abs(SVal)>1e-10 || abs(QVal)>1e-10 ) ?

@@ -48,10 +48,10 @@ public:
     double cs2() const;   //speed of sound
     double w()   const;     //enthalpy
 
-    double dwds() const;
-    double dwdB() const;  //enthalpy derivatives **These still have not been checked**
-    double dwdS() const;
-    double dwdQ() const;
+    double dwds();
+    double dwdB();  //enthalpy derivatives **These still have not been checked**
+    double dwdS();
+    double dwdQ();
 
     double cs2out(double Tt, double muBin, double muQin, double muSin) const;
     //return cs2 given T and mu's - identical to calling cs2() after initializing position using tbqs()

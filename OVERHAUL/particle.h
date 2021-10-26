@@ -52,7 +52,7 @@ class Particle
       double dwds = 0.0, dwdB = 0.0, dwdS = 0.0, dwdQ = 0.0;
 
       public:
-        void set(const EquationOfState & eos)
+        void set(EquationOfState & eos)
         {
           T    = eos.T();
           muB  = eos.muB();
