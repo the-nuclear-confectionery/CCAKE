@@ -66,7 +66,7 @@ public:
   void bsqsvconservation_Ez();
   void setshear();
 
-
+  int n(){ return _n; }
 
 
 };
