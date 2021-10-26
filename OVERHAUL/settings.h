@@ -5,7 +5,7 @@ class Settings
 {
 public:
 
-  //static constexpr int VERBOSE = 5;
+  static constexpr int VERBOSE = 5;
 
   //static constexpr double q=1.;
   double step;

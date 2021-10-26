@@ -18,7 +18,6 @@
 #include "input_output.h"
 #include "system_state.h"
 #include "settings.h"
-#include "particle.h"
 
 using std::string;
 using std::vector;

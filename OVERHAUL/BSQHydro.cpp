@@ -112,7 +112,7 @@ void BSQHydro::run()
     {
       double tsub=system.t-floor(system.t);
       // if you add more points to print, must also change system<D>::setup and multiply steps=floor(tend-t0)+1; by the extra number of print offs / 1fm/c
-      if (tsub<(0.0+dt*0.99)||(tsub>=1-+dt*0.99)) // uncomment if you want to observe energydensity profile, conservation of energy or do a Gubser check
+      if (tsub<(0.0+system.dt*0.99)||(tsub>=1-+system.dt*0.99)) // uncomment if you want to observe energydensity profile, conservation of energy or do a Gubser check
       {
         system.conservation_entropy();
         cout << "t=" << system.t << " S=" << system.S << endl;  // outputs time step
@@ -144,27 +144,27 @@ void BSQHydro::initialize_entropy_and_charge_densities() // formerly updateIC
 			"----------------------------------------" << endl;
     for (int i=0; i<system._n; i++)
     {
-      auto & p = particles[i];
+      auto & p = system.particles[i];
 
 
 
 		cout << "----------------------------------------"
 				"----------------------------------------" << endl;
 
-		if (gtyp!=5)
+		if (settings.gtyp!=5)
 		{
 			sw.Start();
 			cout << "Doing this particle: "
 					<< p.r.x[0] << "   " << p.r.x[1] << "\n";
 if (i==0)
-	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
+	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << system.t << "   "
 			<< p.sigmaweight << "   " << p.e_sub << "   "
 			<< p.eosPtr->T() << "   " << p.eosPtr->e() << "   "
 			<< p.eosPtr->p() << "   " << p.s_an << endl;
 			p.s_an = p.locate_phase_diagram_point_eBSQ(
                     p.e_sub, p.rhoB_an, p.rhoS_an, p.rhoQ_an );
 if (i==0)
-	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
+	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << system.t << "   "
 			<< p.sigmaweight << "   " << p.e_sub << "   "
 			<< p.eosPtr->T() << "   " << p.eosPtr->e() << "   "
 			<< p.eosPtr->p() << "   " << p.s_an << endl;
@@ -209,7 +209,7 @@ if (i==0)
 					<< successString << " in " << sw.printTime() << "s." << "\n";
 
 if (i==0)
-	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
+	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << system.t << "   "
 			<< p.sigmaweight << "   " << p.e_sub << "   "
 			<< p.eosPtr->T() << "   " << p.eosPtr->e() << "   "
 			<< p.eosPtr->p() << "   " << p.s_an << endl;
@@ -263,13 +263,13 @@ if (i==0)
 
 			// freeze this particle out!
 			p.Freeze = 4;
-			number_part++;
+			system.number_part++;
 			////////////////////////////////////////////////////////
 		}
 		else
 		{
 if (i==0)
-	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
+	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << system.t << "   "
 			<< p.sigmaweight << "   " << p.e_sub << "   "
 			<< p.eosPtr->T() << "   " << p.eosPtr->e() << "   "
 			<< p.eosPtr->p() << "   " << p.s_an << endl;
@@ -300,7 +300,7 @@ if (i==0)
 			for (int iii = 0; iii < 4; iii++) cout << "   " << densities_at_point[iii];
 			cout << "\n";
 if (i==0)
-	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
+	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << system.t << "   "
 			<< p.sigmaweight << "   " << p.e_sub << "   "
 			<< p.eosPtr->T() << "   " << p.eosPtr->e() << "   "
 			<< p.eosPtr->p() << "   " << p.s_an << endl;
@@ -319,7 +319,7 @@ if (i==0)
 		p.Q *= p.gamma*t0;	// Q does not evolve in ideal case (confirm with Jaki)
 
 if (i==0)
-	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
+	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << system.t << "   "
 			<< p.sigmaweight << "   " << p.e_sub << "   "
 			<< p.eosPtr->T() << "   " << p.eosPtr->e() << "   "
 			<< p.eosPtr->p() << "   " << p.s_an << endl;
@@ -355,9 +355,9 @@ if (i==0)
 void BSQHydro::initial_smoothing()  // formerly BSQguess()
 {
 	cout << "setshear..." << endl;
-	setshear();
+	system.setshear();
 	cout << "initiate..." << endl;
-    initiate();
+  //system.linklist.initiate();
 
 	cout << "bsqsvoptimization..." << endl;
 	bool initialization_mode = true;
@@ -384,7 +384,7 @@ if (i==0)
 			"----------------------------------------" << endl;
 	for (int i=0; i<_n; i++)
 	{
-		p.s_sub = p.sigma/p.gamma/t0;
+		p.s_sub = p.sigma/p.gamma/settings.t0;
 
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "

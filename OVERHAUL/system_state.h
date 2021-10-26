@@ -31,6 +31,7 @@ public:
   double Qtotal;
   double Ez, E0, Eloss;
   int number_part, _n;
+  double efcheck, sfcheck;
 
   //void check_BSQ_E_conservation();
   //void check_BSQ_charge_conservation();
