@@ -1,5 +1,5 @@
 #include "BSQHydro.h"
-
+#include "settings.h"
 
 // Constructors and destructors.
 BSQHydro::BSQHydro(){}
@@ -51,18 +51,18 @@ void BSQHydro::initialize_hydrodynamics()
 void BSQHydro::run()
 {
   cout << "Ready to start hydrodynamics\n";
-  system.frzc=0;
-  system.cf=0;
+  settings.frzc=0;
+  settings.cf=0;
 
   /*BBMG<2> bbmg(system);
   bbmg.initial(system);
   cout << "started bbmg" << endl;*/
 
-  system.t=system.t0;
+  settings.t = settings.t0;
 
-  if ( system.qmf == 1 || system.qmf == 3 )
+  if ( settings.qmf == 1 || settings.qmf == 3 )
   {
-    out.bsqsveprofile(system);
+    //out.bsqsveprofile(system);
     cout << "printed first timestep" << endl;
 
     system.conservation_entropy();
@@ -76,7 +76,7 @@ void BSQHydro::run()
   }
   else if(system.qmf==4)
   {
-    out.eccout(system);
+    //out.eccout(system);
     cout << "eccentricity printed" << endl;
     exit(0);
   }

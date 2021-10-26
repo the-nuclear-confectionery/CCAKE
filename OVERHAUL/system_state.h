@@ -20,6 +20,11 @@ public:
   void compute_inverse_Reynolds_numbers();
   void compute_spatial_eccentricities( const vector<int> & orders );
   void compute_momentum_eccentricities( const vector<int> & orders );
+  //double entropytotal;
+  double Btotal;
+  double Stotal;
+  double Qtotal;
+  double Ez;
 
   //void check_BSQ_E_conservation();
   //void check_BSQ_charge_conservation();
@@ -51,12 +56,12 @@ public:
   void smooth_gradients( int a, double tin, int & count );
 
 
-  //void bsqsvconservation();
-  //void conservation_entropy();
-  //void conservation_BSQ();
-  //void bsqsvconservation_E();
+  void bsqsvconservation();
+  void conservation_entropy();
+  void conservation_BSQ();
+  void bsqsvconservation_E();
   void bsqsv_set();
-  //void bsqsvconservation_Ez();
+  void bsqsvconservation_Ez();
   void setshear();
 
 

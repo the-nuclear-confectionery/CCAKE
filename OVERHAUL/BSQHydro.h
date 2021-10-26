@@ -56,6 +56,9 @@ private:
   // the current state of the hydrodynamic simulation
   SystemState system;
 
+  // all settings for the hydro simulation
+  Settings settings;
+
 
   struct Input_Parameters
   {
