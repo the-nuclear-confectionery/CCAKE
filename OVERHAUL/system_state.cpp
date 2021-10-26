@@ -33,7 +33,7 @@ void SystemState::initialize()  // formerly called "manualenter"
 
   int df;
 
-  linklist.setv(    fvisc );
+  linklist.setv( fvisc );
   linklist.eost   = eostype;
   linklist.cevent = 0;
   std::cout << fvisc << " hydro, h=" << h <<  " dimensions=" << D
@@ -122,7 +122,6 @@ void SystemState::initialize()  // formerly called "manualenter"
 
     // assume initial conditions have been read in from file
     
-
     linklist.initialize( it0, _Ntable3, h, particles, ics.dt, numpart );
 
     cout << "number of sph particles=" << _Ntable3 << endl;
@@ -147,254 +146,9 @@ void SystemState::initialize()  // formerly called "manualenter"
 
   return;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-////////////////////////////////////////////////////////////////////////////////
-void SystemState::BSQSimulation( double dt, LinkList & linklist )
-{
-  cout << "Ready to start hydrodynamics\n";
-  linklist.frzc=0;
-  linklist.cf=0;
-
-  Output<2> out(linklist);
-
-  BBMG<2> bbmg(linklist);
-  bbmg.initial(linklist);
-  cout << "started bbmg" << endl;
-
-  linklist.t=linklist.t0;
-
-  if ( linklist.qmf == 1 || linklist.qmf == 3 )
-  {
-    out.bsqsveprofile(linklist);
-    cout << "printed first timestep" << endl;
-
-    linklist.conservation_entropy();
-    linklist.conservation_BSQ();
-
-    cout << "t=" << linklist.t << " S=" << linklist.S 
-         << " " << linklist.Btotal << " " << linklist.Stotal
-         << " " << linklist.Qtotal << endl;
-
-    if (linklist.qmf==1) exit(0);
-  }
-  else if(linklist.qmf==4)
-  {
-    out.eccout(linklist);
-    cout << "eccentricity printed" << endl;
-    exit(0);
-  }
-
-
-  cout << "Now let's do the main evolution!" << endl;
-  linklist.Ez=0;
-
-  while ((linklist.t<linklist.tend)&&(linklist.number_part<linklist.n()))
-  {
-    linklist.cfon=1;
-
-
-    cout << "Entering here:" << endl;
-
-    bsqrungeKutta2<2>( dt, &BSQshear<2>, linklist );
-    linklist.conservation_entropy();
-    linklist.conservation_BSQ();
-
-    cout << "t=" << linklist.t << " " <<  linklist.Eloss << " " << linklist.S
-         << " " << linklist.Btotal << " " << linklist.Stotal
-         << " " << linklist.Qtotal <<  endl;
-
-    out.bsqsveprofile(linklist);
-
-
-    if (linklist.cf>0) out.bsqsvFOprint(linklist);
-
-    if (linklist.qmf==3)
-    {
-      double tsub=linklist.t-floor(linklist.t);
-      // if you add more points to print, must also change LinkList<D>::setup and multiply steps=floor(tend-t0)+1; by the extra number of print offs / 1fm/c
-      if (tsub<(0.0+dt*0.99)||(tsub>=1-+dt*0.99)) // uncomment if you want to observe energydensity profile, conservation of energy or do a Gubser check
-      {
-        linklist.conservation_entropy();
-        cout << "t=" << linklist.t << " S=" << linklist.S << endl;  // outputs time step
-        out.bsqsveprofile(linklist);   // energy density profile
-        cout << "eloss= " << linklist.t << " " <<  linklist.Eloss << endl;
-        out.conservation(linklist); // conservation of energy
-      }
-    }
-
-  }
-
-  cout << "BSQ-SV simulation completed!" << endl;
-
-  return;
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-// BSQ+shear+bulk Equations of motion, only set up for 2+1 at the moment
-void SystemState::BSQshear( LinkList & linklist )
-{
-  linklist.setshear();
-  linklist.initiate();
-
-  for (int i = 0; i < linklist.n(); i++)
-  {
-    const auto & p = linklist._p[i];
-
-    int curfrz = 0; //added by Christopher Plumberg to get compilation
-    linklist.bsqsvoptimization(i);    // NOT bsqsvoptimization2!!!
-                                      // fix arguments accordingly!!!
-
-    if ( (p.eta<0) || isnan(p.eta) )
-    {
-      cout << i <<  " neg entropy " <<  p.EOST()*hbarc << " " << p.eta << endl;
-      p.eta = 0;
-    }
-
-  }
-
-  cout << "Finished first loop over SPH particles" << endl;
-
-  int curfrz = 0;
-  for ( int i = 0; i < linklist.n(); i++ )
-  {
-    const auto & p = linklist._p[i];
-
-    //  Computes gamma and velocity
-    p.calcbsq( linklist.t ); //resets EOS!!
-
-    /*N.B. - eventually extend to read in viscosities from table, etc.*/
-    p.setvisc( linklist.etaconst, linklist.bvf, linklist.svf,
-               linklist.zTc,      linklist.sTc, linklist.zwidth,
-               linklist.visc );
-
-    if (linklist.cfon==1)
-      p.frzcheck( linklist.t, curfrz, linklist.n() );
-
-  }
-
-  cout << "Finished second loop over SPH particles" << endl;
-
-  if (linklist.cfon==1)
-  {
-    linklist.number_part += curfrz;
-    linklist.list.resize(curfrz);
-  }
-
-  int m=0;
-  for(int i=0; i<linklist.n(); i++)
-  {
-    const auto & p = linklist._p[i];
-
-    //      Computes gradients to obtain dsigma/dt
-    linklist.bsqsvoptimization2( i, linklist.t, curfrz );
-
-    p.dsigma_dt = -p.sigma * ( p.gradV.x[0][0] + p.gradV.x[1][1] );
-
-    p.bsqsvsigset( linklist.t, i );
-
-    if ( (p.Freeze==3) && (linklist.cfon==1) )
-    {
-      linklist.list[m++] = i;
-      p.Freeze           = 4;
-    }
-
-  }
-
-  if (linklist.rk2==1)
-    linklist.bsqsvconservation();
-
-  linklist.bsqsvconservation_Ez();
-
-
-  //calculate matrix elements
-  for ( int i=0; i<linklist.n(); i++ )
-  {
-    const auto & p = linklist._p[i];
-
-    double gamt=1./p.gamma/p.stauRelax;
-    double pre=p.eta_o_tau/2./p.gamma;
-    double p1=gamt-4./3./p.sigma*p.dsigma_dt+1./linklist.t/3.;
-    Vector<double,D>  minshv=rowp1(0, p.shv);
-    Matrix <double,D,D> partU = p.gradU + transpose( p.gradU );
-
-    // set the Mass and the Force
-    Matrix <double,D,D> M = p.Msub(i);
-    Vector<double,D> F    = p.Btot*p.u + p.gradshear
-                            - ( p.gradP + p.gradBulk + p.divshear );
-
-    // shear contribution
-    F += pre*p.v*partU + p1*minshv;
-
-    double det=deter(M);
-
-    Matrix <double,D,D> MI;
-    MI.x[0][0]=M.x[1][1]/det;
-    MI.x[0][1]=-M.x[0][1]/det;
-    MI.x[1][0]=-M.x[1][0]/det;
-    MI.x[1][1]=M.x[0][0]/det;
-
-
-    p.du_dt.x[0]=F.x[0]*MI.x[0][0]+F.x[1]*MI.x[0][1];
-    p.du_dt.x[1]=F.x[0]*MI.x[1][0]+F.x[1]*MI.x[1][1];
-
-    Matrix <double,D,D> ulpi  = p.u*colp1(0, p.shv);
-
-    double vduk               = inner( p.v, p.du_dt);
-
-    Matrix <double,D,D> Ipi   = -p.eta_o_tau/3. * ( p.Imat + p.uu ) + 4./3.*p.pimin;
-
-    linklist._p[i].div_u      = (1./ p.gamma)*inner( p.u, p.du_dt)
-                              - ( p.gamma/ p.sigma ) * p.dsigma_dt ;
-    linklist._p[i].bigtheta   = p.div_u*linklist.t+p.gamma;
-
-    Matrix <double,D,D> sub   = p.pimin + p.shv.x[0][0]*p.uu/p.g2 -1./p.gamma*p.piutot;
-
-    p.inside                  = linklist.t*(
-                                inner( -minshv+p.shv.x[0][0]*p.v, p.du_dt )
-                                - con2(sub, p.gradU)
-                                - p.gamma*linklist.t*p.shv33 );
-
-    p.detasigma_dt            = 1./p.sigma/p.EOST()*( -p.bigPI*p.bigtheta + p.inside );
-
-
-    // N.B. - ADD EXTRA TERMS FOR BULK EQUATION
-    p.dBulk_dt = ( -p.zeta/p.sigma*p.bigtheta - p.Bulk/p.gamma )/p.tauRelax;
-
-    Matrix <double,D,D> ududt = p.u*p.du_dt;
-
-    // N.B. - ADD READABLE TERM NAMES
-    p.dshv_dt                 = - gamt*( p.pimin + p.setas*0.5*partU )
-                               - 0.5*p.eta_o_tau*( ududt + transpose(ududt) )
-                               + p.dpidtsub() + p.sigl*Ipi
-                               - vduk*( ulpi + transpose(ulpi) + (1/p.gamma)*Ipi );
-
-  }
-
-
-  if (linklist.cfon==1) linklist.bsqsvfreezeout(curfrz);
-
-  return;
-}
-
-
+///////////////////////////////////////////////////////////////////////////////
+//Dekra: BSQsimulation was moved from this location to BSQhydro
+///////////////////////////////////////////////////////////////////////////////
 void SystemState::check_BSQ_energy_conservation()
 {
   E=0.0;
@@ -410,7 +164,6 @@ void SystemState::check_BSQ_energy_conservation()
 
   return;
 }
-
 ////////////////////////////////////////////////////////////////////////////////
 // function to check conservation of B, S, and Q
 void SystemState::check_BSQ_charge_conservation()
