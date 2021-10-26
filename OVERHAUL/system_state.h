@@ -27,6 +27,7 @@ public:
   double Stotal;
   double Qtotal;
   double Ez;
+  int number_part, _n;
 
   //void check_BSQ_E_conservation();
   //void check_BSQ_charge_conservation();

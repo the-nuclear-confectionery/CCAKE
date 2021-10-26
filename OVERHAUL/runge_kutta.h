@@ -10,8 +10,7 @@
 
 namespace RK
 {
-	void bsq_second_order( double dx, void (*derivatives)( LinkList &linklist ),
-                         LinkList &linklist );
+	void bsq_second_order( double dx, EquationsOfMotion & eom, SystemState & system );
 }
 
 #endif

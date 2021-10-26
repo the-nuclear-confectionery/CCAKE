@@ -17,7 +17,7 @@ public:
 
 
   double _h;
-  int _n;
+  //int _n;
   int start, end, fnum;
   int qmf;  // if==1 quantum mechanicanical corrections to the flow or added,
             // if==0 no corrections are included
