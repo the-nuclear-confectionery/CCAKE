@@ -52,10 +52,6 @@ private:
 
   vector< Particle > particles;
 
-  //RK runge_kutta_solver;
-
-  //Evolve evolver;
-
   // creating vectors of vectors of the derivatives at each step
   vector<double> etasigma0;
   vector<double> Bulk0;

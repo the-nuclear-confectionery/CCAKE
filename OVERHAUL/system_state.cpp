@@ -32,18 +32,20 @@ void SystemState::initialize()  // formerly called "manualenter"
 
   int df;
 
-  linklist.setv( fvisc );
-  linklist.eost   = eostype;
-  linklist.cevent = 0;
-  std::cout << fvisc << " hydro, h=" << h <<  " dimensions=" << D
-            << " dt=" << ics.dt << " QM fluc:  " << linklist.qmf << "\n";
+
+  /*
+
+  //linklist.setv( fvisc );
+  //linklist.eost   = settings.eostype;
+  //linklist.cevent = 0;
+  //std::cout << fvisc << " hydro, h=" << h <<  " dimensions=" << 2
+  //          << " dt=" << dt << " QM fluc:  " << settings.qmf << "\n";
 
   //////////////////////////////////////////////////////////////////////////////
   // SET EQUATION OF STATE
   // rewrite by C. Plumberg: allow for different EOS format if using BSQ
   double efcheck = 0.0, sfcheck = 0.0;
-  eos EOS0;	// now declared globally
-  if ( linklist.visc == 4 )	//if we're running BSQ (table is only option)
+  if ( settings.visc == 4 )	//if we're running BSQ (table is only option)
   {
     bool using_HDF = false;
     if (using_HDF)
@@ -53,7 +55,7 @@ void SystemState::initialize()  // formerly called "manualenter"
       std::cout << "Using BSQ Equation of State table from: "
                 << quantityFile << " and " << derivativeFile << "\n";
 
-      EOS0.init( quantityFile, derivativeFile );
+      eosPtr->init( quantityFile, derivativeFile );
     }
     else
     {
@@ -64,10 +66,10 @@ void SystemState::initialize()  // formerly called "manualenter"
       std::cout << "Using BSQ Equation of State table from: "
                 << quantityFile << " and " << derivativeFile << "\n";
 
-      EOS0.init( quantityFile, derivativeFile );
+      eosPtr->init( quantityFile, derivativeFile );
     }
 
-    EOS0.eosin( eostype );			// does nothing!
+    //eosPtr->eosin( eostype );			// does nothing!
     const double freeze_out_T_at_mu_eq_0
                   = 0.15/hbarc_GeVfm;	//1/fm
     efcheck       = EOS0.efreeze( freeze_out_T_at_mu_eq_0 );
@@ -82,6 +84,8 @@ void SystemState::initialize()  // formerly called "manualenter"
   {
     std::cerr << "This EoS model not currently supported!" << std::endl;
   }
+
+  */
 
   linklist.efcheck = efcheck;
   linklist.sfcheck = sfcheck;
@@ -108,19 +112,6 @@ void SystemState::initialize()  // formerly called "manualenter"
     linklist.filenames  = filelist;
     linklist.fcount     = count;
     linklist.fnum       = linklist.start;
-
-    // already done
-    //readICs_iccing(linklist.filenames[0], _Ntable3, _p, factor, efcheck, numpart, EOS0);
-
-    ////////////////////////////////////////////////////////////////////////////
-    //assign thermodynamic quatities to sph particles
-    //Particle::set_equation_of_state( EOS0 );
-    Particle::set_equation_of_state( &EOS0 );
-
-    // initialize 0th particle
-    //_p[0].start(eostype, EOS0);
-
-    // assume initial conditions have been read in from file
     
     linklist.initialize( it0, _Ntable3, h, particles, ics.dt, numpart );
 
@@ -155,9 +146,9 @@ void SystemState::initialize()  // formerly called "manualenter"
 void SystemState::check_BSQ_energy_conservation()
 {
   E=0.0;
-  for (int i=0; i<_n; i++)
-    E += ( _p[i].C* _p[i].g2 - _p[i].EOSp() - _p[i].bigPI + _p[i].shv.x[0][0] )
-          *_p[i].sigmaweight*t/_p[i].sigma;
+  for ( auto & p : particles )
+    E += ( p.C* p.g2 - p.EOSp() - p.bigPI + p.shv.x[0][0] )
+          *p.sigmaweight*t/p.sigma;
 
   if (first == 1)
   {
@@ -174,14 +165,14 @@ void SystemState::check_BSQ_charge_conservation()
   Stotal = 0.0;
   Qtotal = 0.0;
 
-  for (int i=0; i<_n; i++)
+  for ( auto & p : particles )
   {
-    //Btotal += _p[i].B;
-    //Stotal += _p[i].S;
-    //Qtotal += _p[i].Q;
-    Btotal += _p[i].rhoB_sub*_p[i].rho_weight;
-    Stotal += _p[i].rhoS_sub*_p[i].rho_weight;
-    Qtotal += _p[i].rhoQ_sub*_p[i].rho_weight;
+    //Btotal += p.B;
+    //Stotal += p.S;
+    //Qtotal += p.Q;
+    Btotal += p.rhoB_sub*p.rho_weight;
+    Stotal += p.rhoS_sub*p.rho_weight;
+    Qtotal += p.rhoQ_sub*p.rho_weight;
   }
 
   if (first==1)
