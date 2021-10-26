@@ -95,7 +95,7 @@ void BSQHydro::run()
 
     cout << "Entering here:" << endl;
 
-    RK::bsq_second_order( settings.dt, &eom.BSQshear, system );
+    RK::bsq_second_order( settings.dt, &(eom.BSQshear), system );
     system.conservation_entropy();
     system.conservation_BSQ();
 
