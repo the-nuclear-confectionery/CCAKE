@@ -19,6 +19,8 @@
 #include "runge_kutta.h"
 #include "eos.h"
 
+using namespace constants;
+
 // Constructors and destructors.
   EquationsOfMotion::EquationsOfMotion(){}
   EquationsOfMotion::~EquationsOfMotion(){}
