@@ -19,7 +19,7 @@ using std::string;
 #include "particle.h"
 #include "runge_kutta.h"
 #include "eos.h"
-#include "io.h"
+#include "input_output.h"
 
 using namespace constants;
 
