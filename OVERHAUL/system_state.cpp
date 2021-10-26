@@ -363,9 +363,6 @@ void SystemState::smooth_gradients( int a, double tin, int & count )
   return;
 }
 
-
-
-
 void SystemState::bsqsvconservation()
 {
     bsqsvconservation_E();
