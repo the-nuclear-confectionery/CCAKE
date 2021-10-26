@@ -20,12 +20,12 @@ public:
   void compute_inverse_Reynolds_numbers();
   void compute_spatial_eccentricities( const vector<int> & orders );
   void compute_momentum_eccentricities( const vector<int> & orders );
-  double Stotal;
+  //double entropytotal;
   double Btotal;
   double Stotal;
   double Qtotal;
   double Ez;
-  
+
   //void check_BSQ_E_conservation();
   //void check_BSQ_charge_conservation();
 
