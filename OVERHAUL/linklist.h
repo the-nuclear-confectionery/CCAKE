@@ -1,6 +1,8 @@
 #ifndef LINKLIST_H
 #define LINKLIST_H
 
+#include "eos.h"
+
 class LinkList
 {
 public:
@@ -116,8 +118,8 @@ private:
 
 
     return pb.sigmaweight*pa.sigma
-          *(    pb.eos.p() / (pb.sigma*pb.sigma)
-              + pa.eos.p() / (pa.sigma*pb.sigma)
+          *(    pb.eosPtr->p() / (pb.sigma*pb.sigma)
+              + pa.eosPtr->p() / (pa.sigma*pb.sigma)
               - innerp );
   }
 
