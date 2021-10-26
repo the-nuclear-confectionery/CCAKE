@@ -92,10 +92,6 @@ private:
   Initial_Conditions initial_conditions;
 
 
-
-  void initialize_entropy_and_charge_densities();
-  void initial_smoothing();
-
 };
 
 #endif

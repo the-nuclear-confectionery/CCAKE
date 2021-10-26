@@ -2,6 +2,7 @@
 #define LINKLIST_H
 
 #include "eos.h"
+#include "particle.h"
 
 class LinkList
 {
