@@ -72,9 +72,9 @@ void BSQHydro::run()
          << " " << system.Btotal << " " << system.Stotal
          << " " << system.Qtotal << endl;
 
-    if (system.qmf==1) exit(0);
+    if (settings.qmf==1) exit(0);
   }
-  else if(system.qmf==4)
+  else if(settings.qmf==4)
   {
     //out.eccout(system);
     cout << "eccentricity printed" << endl;
@@ -85,9 +85,9 @@ void BSQHydro::run()
   cout << "Now let's do the main evolution!" << endl;
   system.Ez=0;
 
-  while ((system.t<system.tend)&&(system.number_part<system.n()))
+  while ((system.t<settings.tend)&&(system.number_part<system.n()))
   {
-    system.cfon=1;
+    settings.cfon=1;
 
 
     cout << "Entering here:" << endl;
@@ -100,12 +100,12 @@ void BSQHydro::run()
          << " " << system.Btotal << " " << system.Stotal
          << " " << system.Qtotal <<  endl;
 
-    out.bsqsveprofile(system);
+    //out.bsqsveprofile(system);
 
 
-    if (system.cf>0) out.bsqsvFOprint(system);
+    //if (settings.cf>0) out.bsqsvFOprint(system);
 
-    if (system.qmf==3)
+    if (settings.qmf==3)
     {
       double tsub=system.t-floor(system.t);
       // if you add more points to print, must also change system<D>::setup and multiply steps=floor(tend-t0)+1; by the extra number of print offs / 1fm/c
@@ -113,9 +113,9 @@ void BSQHydro::run()
       {
         system.conservation_entropy();
         cout << "t=" << system.t << " S=" << system.S << endl;  // outputs time step
-        out.bsqsveprofile(system);   // energy density profile
+        //out.bsqsveprofile(system);   // energy density profile
         cout << "eloss= " << system.t << " " <<  system.Eloss << endl;
-        out.conservation(system); // conservation of energy
+        //out.conservation(system); // conservation of energy
       }
     }
 
