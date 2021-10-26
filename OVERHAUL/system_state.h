@@ -30,7 +30,7 @@ public:
   double Stotal;
   double Qtotal;
   double Ez, E0, Eloss;
-  int number_part, _n;
+  int number_part, _n, rk2;
   double efcheck, sfcheck;
 
   //void check_BSQ_E_conservation();
@@ -49,6 +49,15 @@ private:
   //RK runge_kutta_solver;
 
   //Evolve evolver;
+
+  // creating vectors of vectors of the derivatives at each step
+  vector<double> etasigma0;
+  vector<double> Bulk0;
+
+  vector< Vector<double,2> > u0;
+  vector< Vector<double,2> > r0;
+
+  vector< Matrix <double,2,2> > shv0;
 
 
 public:
@@ -75,6 +84,12 @@ public:
   void initial_smoothing();
 
   int n(){ return _n; }
+
+
+  // these routines are called in runge kutta
+  void set_current_timestep_quantities();
+  void get_derivative_halfstep();
+  void get_derivative_fullstep();
 
 
 };
