@@ -161,6 +161,9 @@ class Particle
     Matrix<double,2,2> shv1,shv2,shv3,svh4;
     double shv33;
 
+
+    double freezeoutT;
+
     struct FRZ
     {
         Vector<double,2> r,u,gradP;
