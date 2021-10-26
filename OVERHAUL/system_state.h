@@ -5,7 +5,6 @@
 #include <vector>
 
 #include "particle.h"
-#include "runge_kutta.h"
 
 using std::string;
 using std::vector;
