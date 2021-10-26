@@ -15,10 +15,6 @@
 // Default constructor
 Particle::Particle()
 {
-  r.resize(2, 0.0);
-  v.resize(2, 0.0);
-  u.resize(2, 0.0);
-
   Imat.identity();
 }
 

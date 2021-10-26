@@ -28,7 +28,7 @@ class Particle
   bool operator==( const Particle & ) const;
 
   // use this to set equation of state object before creating particles
-  static void set_equation_of_state( EquationOfState & eos );
+  void set_equation_of_state( EquationOfState & eos );
 
   double locate_phase_diagram_point_eBSQ( double e_In );
   double locate_phase_diagram_point_eBSQ( double e_In, double rhoB_In,
@@ -80,7 +80,7 @@ class Particle
 //  public:
 
     //static EquationOfState eos;	//use one copy of EOS for all particles
-    EquationOfState * eosPtr = nullptr;
+    EquationOfState * eosPtr;
 
     // getter functions
     double T()    { return thermo.T;    }

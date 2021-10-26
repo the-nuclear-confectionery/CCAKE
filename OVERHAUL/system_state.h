@@ -19,6 +19,8 @@ friend class InputOutput;
 
 public:
 
+  void set_equation_of_state( EquationOfState & eos );
+
   void compute_Knudsen_numbers();
   void compute_inverse_Reynolds_numbers();
   void compute_spatial_eccentricities( const vector<int> & orders );
