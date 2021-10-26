@@ -99,7 +99,7 @@ void EquationsOfMotion::BSQshear( system & system )
   }
 
   if (system.rk2==1)
-    system.bsqsvconservation();
+  system.bsqsvconservation();
 
   system.bsqsvconservation_Ez();
 
