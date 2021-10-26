@@ -1,4 +1,4 @@
-OBJS = main.o vector.o matrix.o BSQHydro.o particle.o eos.o equations_of_motion.o eos_delaunay.o
+OBJS = main.o vector.o matrix.o BSQHydro.o runge_kutta.o particle.o eos.o system_state.o equations_of_motion.o eos_delaunay.o
 #CC = g++
 CC = h5c++
 DEBUG = -g
@@ -29,6 +29,13 @@ vector.o: vector.h mathdef.h vector.cpp
 
 matrix.o: matrix.cpp matrix.h vector.h mathdef.h
 	$(CC) $(CFLAGS) matrix.cpp
+
+runge_kutta.o: runge_kutta.cpp runge_kutta.h equations_of_motion.h system_state.h
+	$(CC) $(CFLAGS) runge_kutta.cpp
+
+system_state.o: system_state.cpp system_state.h
+	$(CC) $(CFLAGS) system_state.cpp
+
 
 BSQHydro.o: vector.h mathdef.h particle.h BSQHydro.h linklist.h runge_kutta.h eos.h matrix.h BSQHydro.cpp
 	$(CC) $(CFLAGS) BSQHydro.cpp
