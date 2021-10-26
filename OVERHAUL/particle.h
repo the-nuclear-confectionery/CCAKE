@@ -138,11 +138,6 @@ class Particle
 
 
 
-
-
-private:
-
-
   // old Particle class variables
 
     Matrix <double,2,2> Imat;
