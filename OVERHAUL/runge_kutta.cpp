@@ -1,17 +1,17 @@
 #include <cmath>
 #include "vector.h"
 #include "matrix.h"
-#include "linklist.h"
+#include "system.h"
 #include "particle.h"
 #include "eos.h"
 #include "runge_kutta.h"
 
 namespace RK
 {
-  void bsq_second_order( double dx, void (*derivatives)( LinkList &linklist ),
-                         LinkList &linklist )
+  void bsq_second_order( double dx, void (*derivatives)( system &system ),
+                         system &system )
   {
-    int N = linklist.n();
+    int N = system.n();
 
     // creating vectors of vectors of the derivatives at each step
     vector<double> etasigma0(N);
@@ -24,32 +24,32 @@ namespace RK
 
     double E0, t0;
 
-    linklist.rk2 = 1;
-    t0           = linklist.t;
+    system.rk2 = 1;
+    t0           = system.t;
 
     // initialize quantities at current time step
     for (int i=0; i<N; ++i)
     {
-      u0[i]        = linklist._p[i].u;
-      r0[i]        = linklist._p[i].r;
-      etasigma0[i] = linklist._p[i].eta_sigma;
-      Bulk0[i]     = linklist._p[i].Bulk;
-      mini( shv0[i], linklist._p[i].shv );
+      u0[i]        = system._p[i].u;
+      r0[i]        = system._p[i].r;
+      etasigma0[i] = system._p[i].eta_sigma;
+      Bulk0[i]     = system._p[i].Bulk;
+      mini( shv0[i], system._p[i].shv );
     }
 
-    E0 = linklist.Ez;
+    E0 = system.Ez;
 
     ////////////////////////////////////////////
     //    first step
     ////////////////////////////////////////////
 
     // compute derivatives
-    (*derivatives)(linklist);
+    (*derivatives)(system);
 
     // update quantities
     for (int i=0; i<N; ++i)
     {
-      const auto & this_particle = linklist._p[i];
+      const auto & this_particle = system._p[i];
       this_particle.u            = u0[i]        + 0.5*dx*this_particle.du_dt;
       this_particle.r            = r0[i]        + 0.5*dx*this_particle.v;
       this_particle.eta_sigma    = etasigma0[i] + 0.5*dx*this_particle.detasigma_dt;
@@ -57,20 +57,20 @@ namespace RK
       tmini( this_particle.shv,    shv0[i]      + 0.5*dx*this_particle.dshv_dt );
     }
 
-    linklist.Ez = E0 + 0.5*dx*linklist.dEz;
-    linklist.t  = t0 + 0.5*dx;
+    system.Ez = E0 + 0.5*dx*system.dEz;
+    system.t  = t0 + 0.5*dx;
 
     ////////////////////////////////////////////
     //    second step
     ////////////////////////////////////////////
 
     // compute derivatives
-    (*derivatives)(linklist);
+    (*derivatives)(system);
 
     // update quantities
     for (int i=0; i<N; ++i)
     {
-      const auto & this_particle = linklist._p[i];
+      const auto & this_particle = system._p[i];
       this_particle.u            = u0[i]        + dx*this_particle.du_dt;
       this_particle.r            = r0[i]        + dx*this_particle.v;
       this_particle.eta_sigma    = etasigma0[i] + dx*this_particle.detasigma_dt;
@@ -78,8 +78,8 @@ namespace RK
       tmini( this_particle.shv,    shv0[i]      + dx*this_particle.dshv_dt );
     }
 
-    linklist.Ez = E0 + dx*linklist.dEz;
-    linklist.t  = t0 + dx;
+    system.Ez = E0 + dx*system.dEz;
+    system.t  = t0 + dx;
 
 	}
 
