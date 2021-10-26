@@ -7,6 +7,7 @@
 #include "linklist.h"
 #include "particle.h"
 #include "eos.h"
+#include "equations_of_motion.h"
 
 namespace RK
 {
