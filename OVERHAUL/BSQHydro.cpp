@@ -8,7 +8,6 @@ BSQHydro::~BSQHydro(){}
 
 void BSQHydro::load_settings_file( string path_to_settings_file )
 {
-  Input_Parameters input_parameters;
   io.load_settings_file(path_to_settings_file); // sets the settings path in
   // InputOutput, then loads parameters into Input_parameters struct
   io.set_EoS_type(); // InputOutput talks to EoS and

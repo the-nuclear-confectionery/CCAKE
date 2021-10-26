@@ -43,6 +43,7 @@ private:
   string input_directory;
   string output_directory;
 
+
   // equation of state information
   EquationOfState eos;
 
@@ -56,8 +57,8 @@ private:
   SystemState system;
 
 
-struct Input_Parameters
-{
+  struct Input_Parameters
+  {
     string IC_type; // specify initial condition type
     double h; // static SPH cutoff paramter
     double dt; // time step in fm
@@ -71,13 +72,18 @@ struct Input_Parameters
     // in transport cpefficient file
     double Freeze_Out_Temperature;
     string Freeze_Out_Type;
-};
+  };
 
-struct Initial_Conditions
-{
+  struct Initial_Conditions
+  {
     vector<string> headers; // vector of header parameters as string
     vector<vector<double> > density_grid; // the hydro grid, read in and stored
-};
+  };
+
+  Input_Parameters input_parameters;
+  Initial_Conditions initial_conditions;
+
+
 
   void initialize_entropy_and_charge_densities();
   void initial_smoothing();
