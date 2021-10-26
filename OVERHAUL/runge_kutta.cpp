@@ -74,6 +74,7 @@ namespace RK
       this_particle.u            = u0[i]        + dx*this_particle.du_dt;
       this_particle.r            = r0[i]        + dx*this_particle.v;
       this_particle.eta_sigma    = etasigma0[i] + dx*this_particle.detasigma_dt;
+      /*!!!!!!!!!!*/this_particle.Bulk         = Bulk0[i]     + 0.5*dx*this_particle.dBulk_dt;
       tmini( this_particle.shv,    shv0[i]      + dx*this_particle.dshv_dt );
     }
 
