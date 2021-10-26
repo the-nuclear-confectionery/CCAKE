@@ -86,6 +86,7 @@ void InputOutput::read_in_initial_conditions()
       total_header_lines = 1;
     case default :
       cout << "Selected initial condition type not supported."
+      exit(1)
   }
 
   ifstream infile(IC_file.c_str());
