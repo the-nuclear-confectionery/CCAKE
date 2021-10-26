@@ -75,7 +75,7 @@ struct Input_Parameters
 
 struct Initial_Conditions
 {
-    vector<vector<string> > headers; // vector of header parameters as string
+    vector<string> headers; // vector of header parameters as string
     vector<vector<double> > density_grid; // the hydro grid, read in and stored
 };
 
