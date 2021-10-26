@@ -114,7 +114,7 @@ void SystemState::initialize()  // formerly called "manualenter"
     //readICs_iccing(linklist.filenames[0], _Ntable3, _p, factor, efcheck, numpart, EOS0);
 
     ////////////////////////////////////////////////////////////////////////////
-    // INITIALIZE PARTICLES
+    //assign thermodynamic quatities to sph particles
     //Particle::set_equation_of_state( EOS0 );
     Particle::set_equation_of_state( &EOS0 );
 
@@ -150,6 +150,9 @@ void SystemState::initialize()  // formerly called "manualenter"
 ///////////////////////////////////////////////////////////////////////////////
 //Dekra: BSQsimulation was moved from this location to BSQhydro
 ///////////////////////////////////////////////////////////////////////////////
+//Start routines for checking conservation of energy density, entropy density and BSQ
+// charges at each time step of the simulation
+///////////////////////////////////////
 void SystemState::check_BSQ_energy_conservation()
 {
   E=0.0;
@@ -165,8 +168,7 @@ void SystemState::check_BSQ_energy_conservation()
 
   return;
 }
-////////////////////////////////////////////////////////////////////////////////
-// function to check conservation of B, S, and Q
+////////////////////////////////////////
 void SystemState::check_BSQ_charge_conservation()
 {
   Btotal = 0.0;
@@ -192,7 +194,107 @@ void SystemState::check_BSQ_charge_conservation()
 
 	return;
 }
-//if we include the SPH over rhoB, rhoS, rhoQ
+///////////////////////////////////////
+void SystemState::bsqsvconservation()
+{
+    bsqsvconservation_E();
+    Etot  = E + Ez;
+    Eloss = (E0-Etot)/E0*100;
+    rk2   = 0;
+}
+///////////////////////////////////////
+void SystemState::conservation_entropy()
+{
+  S=0.0;
+
+  for (int i=0; i<_n; i++)
+  {
+    S += particles[i].eta_sigma*particles[i].sigmaweight;
+    if (i==0)
+    std::cout << "\t\t --> " << i << "   " << particles[i].eta_sigma << "   "
+              << particles[i].sigmaweight << "   " << S << endl;
+  }
+
+  if (first==1)
+    S0=S;
+}
+///////////////////////////////////////
+// function to check conservation of B, S, and Q
+void SystemState::conservation_BSQ()
+{
+    Btotal = 0.0;
+    Stotal = 0.0;
+    Qtotal = 0.0;
+
+    for (int i=0; i<_n; i++)
+	{
+        //Btotal += particles[i].B;
+        //Stotal += particles[i].S;
+        //Qtotal += particles[i].Q;
+        Btotal += particles[i].rhoB_sub*particles[i].rho_weight;
+        Stotal += particles[i].rhoS_sub*particles[i].rho_weight;
+        Qtotal += particles[i].rhoQ_sub*particles[i].rho_weight;
+    }
+
+    if (first==1)
+    {
+        Btotal0 = Btotal;
+        Stotal0 = Stotal;
+        Qtotal0 = Qtotal;
+    }
+	return;
+}
+///////////////////////////////////////
+void SystemState::bsqsvconservation_E()
+{
+
+    E=0.;
+    for (int i=0; i<_n; i++)
+    {
+      const auto & p = particles[i];
+
+        E += ( p.C*p.g2 - p.eosPtr->p() - p.bigPI + p.shv.x[0][0] )
+              / p.sigma*p.sigmaweight*t;
+        if (i==0)
+          std::cout << "E: " << i << "   " << t
+              << "   " << p.eosPtr->T()
+              << "   " << p.EOSe()
+              << "   " << p.C
+              << "   " << p.g2
+              << "   " << p.eosPtr->p()
+              << "   " << p.bigPI
+              << "   " << p.shv.x[0][0]
+              << "   " << p.sigma
+              << "   " << p.sigmaweight << endl;    }
+
+    if (first==1)
+    {
+      first=0;
+      E0=E;
+    }
+}
+///////////////////////////////////////
+void SystemState::bsqsvconservation_Ez()
+{
+  dEz=0.;
+
+  double t2=t*t;
+  for (int i=0; i<_n; i++)
+  {
+    const auto & p = particles[i];
+
+    dEz += ( p.eosPtr->p() + p.bigPI + p.shv33*t2 ) / p.sigma*p.sigmaweight;
+
+    if (false)
+      std::cout << "dEz: " << i << "   " << t
+        << "   " << p.eosPtr->p()
+        << "   " << p.bigPI
+        << "   " << p.shv33*t2
+        << "   " << p.sigma
+        << "   " << p.sigmaweight << endl;
+  }
+}
+// first smoothing routine covers all hydrodyanmical fields
 void SystemState::smooth_fields(int a, bool init_mode /*== false*/)
 {
   const auto & pa    = _p[a];
@@ -262,7 +364,8 @@ void SystemState::smooth_fields(int a, bool init_mode /*== false*/)
 
   return;
 }
-
+//Second smoothing smoothes the gradients after reading in the updated fields 
+//from the equation of state
 void SystemState::smooth_gradients( int a, double tin, int & count )
 {
   const auto & pa    = _p[a];
@@ -362,117 +465,11 @@ void SystemState::smooth_gradients( int a, double tin, int & count )
 
   return;
 }
-
-void SystemState::bsqsvconservation()
-{
-    bsqsvconservation_E();
-    Etot  = E + Ez;
-    Eloss = (E0-Etot)/E0*100;
-    rk2   = 0;
-}
-
-void SystemState::conservation_entropy()
-{
-  S=0.0;
-
-  for (int i=0; i<_n; i++)
-  {
-    S += particles[i].eta_sigma*particles[i].sigmaweight;
-    if (i==0)
-    std::cout << "\t\t --> " << i << "   " << particles[i].eta_sigma << "   "
-              << particles[i].sigmaweight << "   " << S << endl;
-  }
-
-  if (first==1)
-    S0=S;
-}
-
-
-// =============================================
-// function to check conservation of B, S, and Q
-void SystemState::conservation_BSQ()
-{
-    Btotal = 0.0;
-    Stotal = 0.0;
-    Qtotal = 0.0;
-
-    for (int i=0; i<_n; i++)
-	{
-        //Btotal += particles[i].B;
-        //Stotal += particles[i].S;
-        //Qtotal += particles[i].Q;
-        Btotal += particles[i].rhoB_sub*particles[i].rho_weight;
-        Stotal += particles[i].rhoS_sub*particles[i].rho_weight;
-        Qtotal += particles[i].rhoQ_sub*particles[i].rho_weight;
-    }
-
-    if (first==1)
-    {
-        Btotal0 = Btotal;
-        Stotal0 = Stotal;
-        Qtotal0 = Qtotal;
-    }
-	return;
-}
-
-
-
-
-void SystemState::bsqsvconservation_E()
-{
-
-    E=0.;
-    for (int i=0; i<_n; i++)
-    {
-      const auto & p = particles[i];
-
-        E += ( p.C*p.g2 - p.eosPtr->p() - p.bigPI + p.shv.x[0][0] )
-              / p.sigma*p.sigmaweight*t;
-        if (i==0)
-          std::cout << "E: " << i << "   " << t
-              << "   " << p.eosPtr->T()
-              << "   " << p.EOSe()
-              << "   " << p.C
-              << "   " << p.g2
-              << "   " << p.eosPtr->p()
-              << "   " << p.bigPI
-              << "   " << p.shv.x[0][0]
-              << "   " << p.sigma
-              << "   " << p.sigmaweight << endl;    }
-
-    if (first==1)
-    {
-      first=0;
-      E0=E;
-    }
-}
-
-
-
-
-void SystemState::bsqsvconservation_Ez()
-{
-  dEz=0.;
-
-  double t2=t*t;
-  for (int i=0; i<_n; i++)
-  {
-    const auto & p = particles[i];
-
-    dEz += ( p.eosPtr->p() + p.bigPI + p.shv33*t2 ) / p.sigma*p.sigmaweight;
-
-    if (false)
-      std::cout << "dEz: " << i << "   " << t
-        << "   " << p.eosPtr->p()
-        << "   " << p.bigPI
-        << "   " << p.shv33*t2
-        << "   " << p.sigma
-        << "   " << p.sigmaweight << endl;
-  }
-}
-
-
+///////////////////////////////////////
 void SystemState::setshear()
 {
     for ( auto & p : particles ) p.sets(t*t);
 }
+///////////////////////////////////////
+
+
