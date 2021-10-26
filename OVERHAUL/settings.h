@@ -13,7 +13,7 @@ public:
   // maximum upper limit for t
   static constexpr double tend=50.02;
 
-  double t0, dt;
+  double t0;
 
 
   double _h;

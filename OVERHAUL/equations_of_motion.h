@@ -20,5 +20,14 @@
 #include "linklist.h"
 #include "system_state.h"
 
+class EquationsOfMotion
+{
+
+public:
+
+  EquationsOfMotion();
+  ~EquationsOfMotion();
+  void BSQshear( SystemState & system );
+};
 
 #endif
