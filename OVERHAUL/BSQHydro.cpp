@@ -142,7 +142,7 @@ void BSQHydro::initialize_entropy_and_charge_densities() // formerly updateIC
 			"----------------------------------------" << endl;
 	cout << "----------------------------------------"
 			"----------------------------------------" << endl;
-    for (int i=0; i<_n; i++)
+    for (int i=0; i<system._n; i++)
     {
       auto & p = particles[i];
 
@@ -159,17 +159,17 @@ void BSQHydro::initialize_entropy_and_charge_densities() // formerly updateIC
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
 			<< p.sigmaweight << "   " << p.e_sub << "   "
-			<< p.eos.T() << "   " << p.eos.e() << "   "
-			<< p.eos.p() << "   " << p.s_an << endl;
+			<< p.eosPtr->T() << "   " << p.eosPtr->e() << "   "
+			<< p.eosPtr->p() << "   " << p.s_an << endl;
 			p.s_an = p.locate_phase_diagram_point_eBSQ(
                     p.e_sub, p.rhoB_an, p.rhoS_an, p.rhoQ_an );
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
 			<< p.sigmaweight << "   " << p.e_sub << "   "
-			<< p.eos.T() << "   " << p.eos.e() << "   "
-			<< p.eos.p() << "   " << p.s_an << endl;
+			<< p.eosPtr->T() << "   " << p.eosPtr->e() << "   "
+			<< p.eosPtr->p() << "   " << p.s_an << endl;
 
-			if (true || VERBOSE>5)
+			if (true || settings.VERBOSE>5)
 			{
 				if (p.s_an>0.0)
 				{
@@ -211,8 +211,8 @@ if (i==0)
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
 			<< p.sigmaweight << "   " << p.e_sub << "   "
-			<< p.eos.T() << "   " << p.eos.e() << "   "
-			<< p.eos.p() << "   " << p.s_an << endl;
+			<< p.eosPtr->T() << "   " << p.eosPtr->e() << "   "
+			<< p.eosPtr->p() << "   " << p.s_an << endl;
 		}
 
 		////////////////////////////////////////////////////////////////////////
@@ -242,15 +242,15 @@ if (i==0)
 			// if this fails too...
 			if (p.s_an < 0.0)
 			{
-				double scale_factor = std::min( 1.0, p.e_sub / efcheck );
+				double scale_factor = std::min( 1.0, p.e_sub / system.efcheck );
 	
 				cout << "\t\t - scaling e to get s: "
-						<< efcheck*0.1973 << "   "
-						<< sfcheck << "   "
+						<< system.efcheck*0.1973 << "   "
+						<< system.sfcheck << "   "
 						<< scale_factor << "   "
-						<< scale_factor * sfcheck << "\n";
+						<< scale_factor * system.sfcheck << "\n";
 	
-				p.s_an = scale_factor * sfcheck;
+				p.s_an = scale_factor * system.sfcheck;
 			}
 			else	// if a solution was found
 			{
@@ -271,8 +271,8 @@ if (i==0)
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
 			<< p.sigmaweight << "   " << p.e_sub << "   "
-			<< p.eos.T() << "   " << p.eos.e() << "   "
-			<< p.eos.p() << "   " << p.s_an << endl;
+			<< p.eosPtr->T() << "   " << p.eosPtr->e() << "   "
+			<< p.eosPtr->p() << "   " << p.s_an << endl;
 
 			cout << "\t --> Densities found in EoS table: "
 				<< p.r.x[0] << "   " << p.r.x[1] << "\n";
@@ -302,12 +302,12 @@ if (i==0)
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
 			<< p.sigmaweight << "   " << p.e_sub << "   "
-			<< p.eos.T() << "   " << p.eos.e() << "   "
-			<< p.eos.p() << "   " << p.s_an << endl;
+			<< p.eosPtr->T() << "   " << p.eosPtr->e() << "   "
+			<< p.eosPtr->p() << "   " << p.s_an << endl;
 
 		}
 
-    if (gtyp==5) p.e_sub = p.eos.e();
+    if (settings.gtyp==5) p.e_sub = p.eosPtr->e();
 
     p.gamma=p.gamcalc();
 
@@ -321,8 +321,8 @@ if (i==0)
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
 			<< p.sigmaweight << "   " << p.e_sub << "   "
-			<< p.eos.T() << "   " << p.eos.e() << "   "
-			<< p.eos.p() << "   " << p.s_an << endl;
+			<< p.eosPtr->T() << "   " << p.eosPtr->e() << "   "
+			<< p.eosPtr->p() << "   " << p.s_an << endl;
 
     }
 	cout << "----------------------------------------"
@@ -368,14 +368,14 @@ void BSQHydro::initial_smoothing()  // formerly BSQguess()
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
 			<< p.sigmaweight << "   " << p.s_sub << "   "
-			<< p.eos.T() << "   " << p.eos.e() << "   "
-			<< p.eos.p() << "   " << p.s_an << endl;
-		bsqsvoptimization(i, initialization_mode);
+			<< p.eosPtr->T() << "   " << p.eosPtr->e() << "   "
+			<< p.eosPtr->p() << "   " << p.s_an << endl;
+		smooth_fields(i, initialization_mode);
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
 			<< p.sigmaweight << "   " << p.s_sub << "   "
-			<< p.eos.T() << "   " << p.eos.e() << "   "
-			<< p.eos.p() << "   " << p.s_an << endl;
+			<< p.eosPtr->T() << "   " << p.eosPtr->e() << "   "
+			<< p.eosPtr->p() << "   " << p.s_an << endl;
 	}
 	cout << "One more loop!" << endl;
 
@@ -389,15 +389,15 @@ if (i==0)
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
 			<< p.sigmaweight << "   " << p.s_sub << "   "
-			<< p.eos.T() << "   " << p.eos.e() << "   "
-			<< p.eos.p() << "   " << p.s_an << endl;
+			<< p.eosPtr->T() << "   " << p.eosPtr->e() << "   "
+			<< p.eosPtr->p() << "   " << p.s_an << endl;
 		p.locate_phase_diagram_point_sBSQ(
       p.s_sub, p.rhoB_sub, p.rhoS_sub, p.rhoQ_sub );
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
 			<< p.sigmaweight << "   " << p.s_sub << "   "
-			<< p.eos.T() << "   " << p.eos.e() << "   "
-			<< p.eos.p() << "   " << p.s_an << endl;
+			<< p.eosPtr->T() << "   " << p.eosPtr->e() << "   "
+			<< p.eosPtr->p() << "   " << p.s_an << endl;
 
 		p.sigsub = 0;
 		p.frzcheck(t0, count1, _n);

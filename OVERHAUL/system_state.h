@@ -4,6 +4,10 @@
 #include <string>
 #include <vector>
 
+// functions calls to static EoS C library
+#include <lib.h>
+#include "eos_delaunay/eos_delaunay.h"
+
 #include "particle.h"
 
 using std::string;
@@ -21,11 +25,11 @@ public:
   void compute_momentum_eccentricities( const vector<int> & orders );
   //double entropytotal;
   double S;
-  double t;
+  double t, dt;
   double Btotal;
   double Stotal;
   double Qtotal;
-  double Ez;
+  double Ez, E0, Eloss;
   int number_part, _n;
 
   //void check_BSQ_E_conservation();
