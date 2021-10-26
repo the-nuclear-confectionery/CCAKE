@@ -337,4 +337,84 @@ if (i==0)
 			"----------------------------------------" << endl;
 	}
 	return;
+
+
+void BSQHydro::BSQRun( double dt, LinkList & linklist )
+{
+  cout << "Ready to start hydrodynamics\n";
+  linklist.frzc=0;
+  linklist.cf=0;
+
+  Output<2> out(linklist);
+
+  BBMG<2> bbmg(linklist);
+  bbmg.initial(linklist);
+  cout << "started bbmg" << endl;
+
+  linklist.t=linklist.t0;
+
+  if ( linklist.qmf == 1 || linklist.qmf == 3 )
+  {
+    out.bsqsveprofile(linklist);
+    cout << "printed first timestep" << endl;
+
+    linklist.conservation_entropy();
+    linklist.conservation_BSQ();
+
+    cout << "t=" << linklist.t << " S=" << linklist.S 
+         << " " << linklist.Btotal << " " << linklist.Stotal
+         << " " << linklist.Qtotal << endl;
+
+    if (linklist.qmf==1) exit(0);
+  }
+  else if(linklist.qmf==4)
+  {
+    out.eccout(linklist);
+    cout << "eccentricity printed" << endl;
+    exit(0);
+  }
+
+
+  cout << "Now let's do the main evolution!" << endl;
+  linklist.Ez=0;
+
+  while ((linklist.t<linklist.tend)&&(linklist.number_part<linklist.n()))
+  {
+    linklist.cfon=1;
+
+
+    cout << "Entering here:" << endl;
+
+    bsqrungeKutta2<2>( dt, &BSQshear<2>, linklist );
+    linklist.conservation_entropy();
+    linklist.conservation_BSQ();
+
+    cout << "t=" << linklist.t << " " <<  linklist.Eloss << " " << linklist.S
+         << " " << linklist.Btotal << " " << linklist.Stotal
+         << " " << linklist.Qtotal <<  endl;
+
+    out.bsqsveprofile(linklist);
+
+
+    if (linklist.cf>0) out.bsqsvFOprint(linklist);
+
+    if (linklist.qmf==3)
+    {
+      double tsub=linklist.t-floor(linklist.t);
+      // if you add more points to print, must also change LinkList<D>::setup and multiply steps=floor(tend-t0)+1; by the extra number of print offs / 1fm/c
+      if (tsub<(0.0+dt*0.99)||(tsub>=1-+dt*0.99)) // uncomment if you want to observe energydensity profile, conservation of energy or do a Gubser check
+      {
+        linklist.conservation_entropy();
+        cout << "t=" << linklist.t << " S=" << linklist.S << endl;  // outputs time step
+        out.bsqsveprofile(linklist);   // energy density profile
+        cout << "eloss= " << linklist.t << " " <<  linklist.Eloss << endl;
+        out.conservation(linklist); // conservation of energy
+      }
+    }
+
+  }
+
+  cout << "BSQ-SV simulation completed!" << endl;
+
+  return;
 }
