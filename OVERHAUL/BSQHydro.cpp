@@ -49,7 +49,7 @@ void BSQHydro::initialize_hydrodynamics()
 
 
 ////////////////////////////////////////////////////////////////////////////////
-void BSQHydro::run( double dt, LinkList & linklist )
+void BSQHydro::run()
 {
   cout << "Ready to start hydrodynamics\n";
   linklist.frzc=0;
