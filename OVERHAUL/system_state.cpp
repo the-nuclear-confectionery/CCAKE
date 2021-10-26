@@ -25,6 +25,15 @@ using namespace constants;
 
 
 ////////////////////////////////////////////////////////////////////////////////
+void SystemState::set_equation_of_state( EquationOfState & eos_in )
+{
+  //eos = eos_in;
+  eosPtr = &eos_in;
+}
+
+
+
+////////////////////////////////////////////////////////////////////////////////
 void SystemState::initialize()  // formerly called "manualenter"
 {
   double h, factor;
