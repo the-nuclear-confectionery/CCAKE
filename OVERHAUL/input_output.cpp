@@ -68,7 +68,7 @@ void InputOutput::set_EoS_type()
       cout << "Running default EoS option for " << EoS_type << endl;
   }
 
-  eos.quantity_file = desnities;
+  eos.quantity_file = densities;
   eos.deriv_file = derivatives;
   return
 }
