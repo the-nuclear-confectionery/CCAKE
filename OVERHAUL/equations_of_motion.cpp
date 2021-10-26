@@ -19,12 +19,15 @@
 #include "runge_kutta.h"
 #include "eos.h"
 
+using namespace constants;
+
 // Constructors and destructors.
   EquationsOfMotion::EquationsOfMotion(){}
   EquationsOfMotion::~EquationsOfMotion(){}
 
 ////////////////////////////////////////////////////////////////////////////////
-// BSQ+shear+bulk Equations of motion, only set up for 2+1 at the moment
+// The structure here is temporary until we set the mode for different terms, 
+// equations are only set up for 2+1 at the moment
 void EquationsOfMotion::BSQshear( LinkList & linklist )
 {
   linklist.setshear();

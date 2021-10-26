@@ -135,9 +135,6 @@ void SystemState::check_BSQ_charge_conservation()
 
 	return;
 }
-
-
-
 //if we include the SPH over rhoB, rhoS, rhoQ
 void SystemState::smooth_fields(int a, bool init_mode /*== false*/)
 {
@@ -208,9 +205,6 @@ void SystemState::smooth_fields(int a, bool init_mode /*== false*/)
 
   return;
 }
-
-
-
 
 void SystemState::smooth_gradients( int a, double tin, int & count )
 {
