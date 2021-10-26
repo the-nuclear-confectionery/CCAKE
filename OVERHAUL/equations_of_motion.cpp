@@ -28,7 +28,7 @@ using namespace constants;
 ////////////////////////////////////////////////////////////////////////////////
 // The structure here is temporary until we set the mode for different terms 
 //which will be shear, bulk, diffusion, and coupling terms, 
-// current equations are only set up for 2+1d.
+//current equations are only set up for 2+1d.
 void EquationsOfMotion::BSQshear( system & system )
 {
   system.setshear();
