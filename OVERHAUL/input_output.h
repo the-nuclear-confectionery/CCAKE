@@ -17,7 +17,6 @@
 #include "mathdef.h"
 #include "vector.h"
 #include "particle.h"
-#include "system.h"
 #include "system_state.h"
 
 

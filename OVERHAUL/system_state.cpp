@@ -25,15 +25,6 @@ using namespace constants;
 
 
 ////////////////////////////////////////////////////////////////////////////////
-void SystemState::set_equation_of_state( EquationOfState & eos_in )
-{
-  //eos = eos_in;
-  eosPtr = &eos_in;
-}
-
-
-
-////////////////////////////////////////////////////////////////////////////////
 void SystemState::initialize()  // formerly called "manualenter"
 {
   double h, factor;
@@ -47,6 +38,51 @@ void SystemState::initialize()  // formerly called "manualenter"
   linklist.cevent = 0;
   std::cout << fvisc << " hydro, h=" << h <<  " dimensions=" << D
             << " dt=" << ics.dt << " QM fluc:  " << linklist.qmf << "\n";
+
+  //////////////////////////////////////////////////////////////////////////////
+  // SET EQUATION OF STATE
+  // rewrite by C. Plumberg: allow for different EOS format if using BSQ
+  double efcheck = 0.0, sfcheck = 0.0;
+  eos EOS0;	// now declared globally
+  if ( linklist.visc == 4 )	//if we're running BSQ (table is only option)
+  {
+    bool using_HDF = false;
+    if (using_HDF)
+    {
+      string quantityFile   = ifolder + std::string("quantityFile.h5");
+      string derivativeFile = ifolder + std::string("derivFile.h5");
+      std::cout << "Using BSQ Equation of State table from: "
+                << quantityFile << " and " << derivativeFile << "\n";
+
+      EOS0.init( quantityFile, derivativeFile );
+    }
+    else
+    {
+      string quantityFilename   = "EoS_Taylor_AllMu_T0_1200.dat";
+      string derivativeFilename = "EoS_Taylor_AllMu_Derivatives_T0_1200.dat";
+      string quantityFile       = ifolder + quantityFilename;
+      string derivativeFile     = ifolder + derivativeFilename;
+      std::cout << "Using BSQ Equation of State table from: "
+                << quantityFile << " and " << derivativeFile << "\n";
+
+      EOS0.init( quantityFile, derivativeFile );
+    }
+
+    EOS0.eosin( eostype );			// does nothing!
+    const double freeze_out_T_at_mu_eq_0
+                  = 0.15/hbarc_GeVfm;	//1/fm
+    efcheck       = EOS0.efreeze( freeze_out_T_at_mu_eq_0 );
+    sfcheck       = EOS0.sfreeze( freeze_out_T_at_mu_eq_0 );
+    //efcheck = 0.266112/0.1973;
+    //sfcheck = 2.05743;
+
+    std::cout << "efcheck = " << efcheck*hbarc_GeVfm << " GeV/fm^3\n";
+    std::cout << "sfcheck = " << sfcheck << " 1/fm^3\n";
+  }
+  else
+  {
+    std::cerr << "This EoS model not currently supported!" << std::endl;
+  }
 
   linklist.efcheck = efcheck;
   linklist.sfcheck = sfcheck;
@@ -74,7 +110,19 @@ void SystemState::initialize()  // formerly called "manualenter"
     linklist.fcount     = count;
     linklist.fnum       = linklist.start;
 
-    // initialize linklist
+    // already done
+    //readICs_iccing(linklist.filenames[0], _Ntable3, _p, factor, efcheck, numpart, EOS0);
+
+    ////////////////////////////////////////////////////////////////////////////
+    // INITIALIZE PARTICLES
+    //Particle::set_equation_of_state( EOS0 );
+    Particle::set_equation_of_state( &EOS0 );
+
+    // initialize 0th particle
+    //_p[0].start(eostype, EOS0);
+
+    // assume initial conditions have been read in from file
+    
     linklist.initialize( it0, _Ntable3, h, particles, ics.dt, numpart );
 
     cout << "number of sph particles=" << _Ntable3 << endl;

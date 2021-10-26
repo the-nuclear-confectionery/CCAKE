@@ -21,8 +21,7 @@ void BSQHydro::load_settings_file( string path_to_settings_file )
 
 void BSQHydro::set_results_directory( string path_to_results_directory )
 {
-  io.set_results_directory(path_to_results_directory); //set the results direct
-  //ory in InputOutput
+  io.set_results_directory(path_to_results_directory); //set the results directory in InputOutput
   return;
 }
 
@@ -30,8 +29,7 @@ void BSQHydro::set_results_directory( string path_to_results_directory )
 
 void BSQHydro::read_in_initial_conditions()
 {
-  io.read_in_initial_conditions(); // tells InputOutput to talk to system state
-  // and set initial system state
+  io.read_in_initial_conditions(); // tells InputOutput to talk to system state and set initial system state
   return;
 }
 
@@ -51,76 +49,76 @@ void BSQHydro::initialize_hydrodynamics()
 
 
 ////////////////////////////////////////////////////////////////////////////////
-void BSQHydro::run( double dt, system & system )
+void BSQHydro::run( double dt, LinkList & linklist )
 {
   cout << "Ready to start hydrodynamics\n";
-  system.frzc=0;
-  system.cf=0;
+  linklist.frzc=0;
+  linklist.cf=0;
 
-  Output<2> out(system);
+  Output<2> out(linklist);
 
-  BBMG<2> bbmg(system);
-  bbmg.initial(system);
+  BBMG<2> bbmg(linklist);
+  bbmg.initial(linklist);
   cout << "started bbmg" << endl;
 
-  system.t=system.t0;
+  linklist.t=linklist.t0;
 
-  if ( system.qmf == 1 || system.qmf == 3 )
+  if ( linklist.qmf == 1 || linklist.qmf == 3 )
   {
-    out.bsqsveprofile(system);
+    out.bsqsveprofile(linklist);
     cout << "printed first timestep" << endl;
 
-    system.conservation_entropy();
-    system.conservation_BSQ();
+    linklist.conservation_entropy();
+    linklist.conservation_BSQ();
 
-    cout << "t=" << system.t << " S=" << system.S 
-         << " " << system.Btotal << " " << system.Stotal
-         << " " << system.Qtotal << endl;
+    cout << "t=" << linklist.t << " S=" << linklist.S 
+         << " " << linklist.Btotal << " " << linklist.Stotal
+         << " " << linklist.Qtotal << endl;
 
-    if (system.qmf==1) exit(0);
+    if (linklist.qmf==1) exit(0);
   }
-  else if(system.qmf==4)
+  else if(linklist.qmf==4)
   {
-    out.eccout(system);
+    out.eccout(linklist);
     cout << "eccentricity printed" << endl;
     exit(0);
   }
 
 
   cout << "Now let's do the main evolution!" << endl;
-  system.Ez=0;
+  linklist.Ez=0;
 
-  while ((system.t<system.tend)&&(system.number_part<system.n()))
+  while ((linklist.t<linklist.tend)&&(linklist.number_part<linklist.n()))
   {
-    system.cfon=1;
+    linklist.cfon=1;
 
 
     cout << "Entering here:" << endl;
 
-    bsqrungeKutta2<2>( dt, &BSQshear<2>, system );
-    system.conservation_entropy();
-    system.conservation_BSQ();
+    bsqrungeKutta2<2>( dt, &BSQshear<2>, linklist );
+    linklist.conservation_entropy();
+    linklist.conservation_BSQ();
 
-    cout << "t=" << system.t << " " <<  system.Eloss << " " << system.S
-         << " " << system.Btotal << " " << system.Stotal
-         << " " << system.Qtotal <<  endl;
+    cout << "t=" << linklist.t << " " <<  linklist.Eloss << " " << linklist.S
+         << " " << linklist.Btotal << " " << linklist.Stotal
+         << " " << linklist.Qtotal <<  endl;
 
-    out.bsqsveprofile(system);
+    out.bsqsveprofile(linklist);
 
 
-    if (system.cf>0) out.bsqsvFOprint(system);
+    if (linklist.cf>0) out.bsqsvFOprint(linklist);
 
-    if (system.qmf==3)
+    if (linklist.qmf==3)
     {
-      double tsub=system.t-floor(system.t);
-      // if you add more points to print, must also change system<D>::setup and multiply steps=floor(tend-t0)+1; by the extra number of print offs / 1fm/c
+      double tsub=linklist.t-floor(linklist.t);
+      // if you add more points to print, must also change LinkList<D>::setup and multiply steps=floor(tend-t0)+1; by the extra number of print offs / 1fm/c
       if (tsub<(0.0+dt*0.99)||(tsub>=1-+dt*0.99)) // uncomment if you want to observe energydensity profile, conservation of energy or do a Gubser check
       {
-        system.conservation_entropy();
-        cout << "t=" << system.t << " S=" << system.S << endl;  // outputs time step
-        out.bsqsveprofile(system);   // energy density profile
-        cout << "eloss= " << system.t << " " <<  system.Eloss << endl;
-        out.conservation(system); // conservation of energy
+        linklist.conservation_entropy();
+        cout << "t=" << linklist.t << " S=" << linklist.S << endl;  // outputs time step
+        out.bsqsveprofile(linklist);   // energy density profile
+        cout << "eloss= " << linklist.t << " " <<  linklist.Eloss << endl;
+        out.conservation(linklist); // conservation of energy
       }
     }
 
