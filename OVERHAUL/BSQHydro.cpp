@@ -1,5 +1,8 @@
 #include "BSQHydro.h"
 #include "settings.h"
+#include "runge_kutta.h"
+#include "equations_of_motion.h"
+#include "Stopwatch.h"
 
 // Constructors and destructors.
 BSQHydro::BSQHydro(){}
@@ -92,7 +95,7 @@ void BSQHydro::run()
 
     cout << "Entering here:" << endl;
 
-    bsqrungeKutta2<2>( dt, &BSQshear<2>, system );
+    RK::bsq_second_order( settings.dt, &eom.BSQshear, system );
     system.conservation_entropy();
     system.conservation_BSQ();
 

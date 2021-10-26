@@ -48,6 +48,9 @@ private:
   // equation of state information
   EquationOfState eos;
 
+  // equation of motion object
+  EquationsOfMotion eom;
+
   // input/output
   InputOutput io;
 
