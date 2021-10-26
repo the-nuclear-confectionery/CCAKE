@@ -36,6 +36,26 @@ void BSQHydro::read_in_initial_conditions()
 }
 
 
+void BSQHydro::trim_initical_conditions()
+{
+  vector<vector<double>> trimmed_grid;
+  int cells_before_trim = initial_conditions.density_grid.size();
+  for(int i=0; i<cells_before_trim; i++)
+  {
+    double e = initial_conditions.density_grid[i][2];
+    double rhoB = initial_conditions.density_grid[i][3];
+    double rhoS = initial_conditions.density_grid[i][4];
+    double rhoQ = initial_conditions.density_grid[i][5];
+
+    eos.sout(e,rhoB,rhoS,rhoQ);
+    if (eos.T() > input_parameters.Freeze_Out_Temperature)
+    {
+      trimmed_grid.pushback(initial_conditions.density_grid[i]);
+    }
+  }
+  initial_conditions.density_grid = trimmed_grid;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 void BSQHydro::initialize_hydrodynamics()
