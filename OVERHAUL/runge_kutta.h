@@ -12,7 +12,8 @@
 
 namespace RK
 {
-	void bsq_second_order( double dx, EquationsOfMotion & eom, SystemState & system );
+	void bsq_second_order( double dx, EquationsOfMotion & eom, SystemState & system,
+                          SPHWorkstation & ws );
 }
 
 #endif

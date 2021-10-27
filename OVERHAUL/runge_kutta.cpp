@@ -10,7 +10,8 @@
 
 namespace RK
 {
-  void bsq_second_order( double dx, EquationsOfMotion & eom, SystemState & system )
+  void bsq_second_order( double dx, EquationsOfMotion & eom, SystemState & system,
+                          SPHWorkstation & ws )
   {
     int N = system.n();
 
@@ -32,7 +33,7 @@ namespace RK
 
     // compute derivatives
     //(*derivatives)(linklist);
-    eom.BSQshear(system);
+    eom.BSQshear(system, ws;
 
     // update quantities
     system.get_derivative_halfstep(dx);
@@ -46,7 +47,7 @@ namespace RK
 
     // compute derivatives
     //(*derivatives)(linklist);
-    eom.BSQshear(system);
+    eom.BSQshear(system, ws);
 
     // update quantities
     system.get_derivative_fullstep(dx);

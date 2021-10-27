@@ -120,7 +120,7 @@ void BSQHydro::run()
 
     cout << "Entering here:" << endl;
 
-    RK::bsq_second_order( settings.dt, eom, system );
+    RK::bsq_second_order( settings.dt, eom, system, ws );
     system.conservation_entropy();
     system.conservation_BSQ();
 
