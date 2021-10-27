@@ -17,6 +17,26 @@
 //InputOutput::InputOutput(){}
 //InputOutput::~InputOutput(){}
 
+void InputOutput::set_EquationOfStatePtr( EquationOfState * eosPtr_in )
+{
+  eosPtr = eosPtr_in;
+}
+
+void InputOutput::set_EquationsOfMotionPtr( EquationsOfMotion * eomPtr_in )
+{
+  eomPtr = eomPtr_in;
+}
+
+void InputOutput::set_SettingsPtr( Settings * settingsPtr_in )
+{
+  settingsPtr = settingsPtr_in;
+}
+
+void InputOutput::set_SystemStatePtr( SystemState * systemPtr_in )
+{
+  systemPtr = systemPtr_in;
+}
+
 void InputOutput::load_settings_file( string path_to_settings_file )
 {
     string Param_file = path_to_settings_file+"Input_Parameters.inp";

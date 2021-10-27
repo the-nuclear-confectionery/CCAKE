@@ -23,6 +23,7 @@ class SystemState
 {
 friend class InputOutput;
 friend class EquationsOfMotion;
+friend class SPHWorkstation;
 
 public:
 
@@ -32,10 +33,10 @@ public:
   void set_equation_of_state( EquationOfState & eos );
   void set_settings( Settings & settings );
 
-  void compute_Knudsen_numbers();
-  void compute_inverse_Reynolds_numbers();
-  void compute_spatial_eccentricities( const vector<int> & orders );
-  void compute_momentum_eccentricities( const vector<int> & orders );
+  //void compute_Knudsen_numbers();
+  //void compute_inverse_Reynolds_numbers();
+  //void compute_spatial_eccentricities( const vector<int> & orders );
+  //void compute_momentum_eccentricities( const vector<int> & orders );
   //double entropytotal;
   double S, S0;
   double t, dt;
@@ -80,13 +81,13 @@ public:
 
   void initialize();
   void initialize_linklist() { linklist.initiate(particles); }
-  void BSQSimulation( double dt, LinkList & linklist );
-  void BSQshear( LinkList & linklist );
+  //void BSQSimulation( double dt, LinkList & linklist );
+  //void BSQshear( LinkList & linklist );
   void check_BSQ_energy_conservation();
   void check_BSQ_entropy_conservation();
   void check_BSQ_charge_conservation();
-  void smooth_fields(int a, bool init_mode = false);
-  void smooth_gradients( int a, double tin, int & count );
+  //void smooth_fields(int a, bool init_mode = false);
+  //void smooth_gradients( int a, double tin, int & count );
 
 
   void bsqsvconservation();
@@ -95,10 +96,10 @@ public:
   void bsqsvconservation_E();
   void bsqsv_set();
   void bsqsvconservation_Ez();
-  void setshear();
+  //void setshear();
 
-  void initialize_entropy_and_charge_densities();
-  void initial_smoothing();
+  //void initialize_entropy_and_charge_densities();
+  //void initial_smoothing();
 
   int n(){ return _n; }
 

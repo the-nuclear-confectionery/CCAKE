@@ -29,9 +29,9 @@ using namespace constants;
 // The structure here is temporary until we set the mode for different terms 
 //which will be shear, bulk, diffusion, and coupling terms, 
 //current equations are only set up for 2+1d.
-void EquationsOfMotion::BSQshear( SystemState & system )
+void EquationsOfMotion::BSQshear( SystemState & system, SPHWorkstation & ws )
 {
-  system.setshear();
+  ws.setshear();
   system.initialize_linklist();
 
   for (int i = 0; i < system.n(); i++)
@@ -39,7 +39,7 @@ void EquationsOfMotion::BSQshear( SystemState & system )
     auto & p = system.particles[i];
 
     int curfrz = 0; //added by Christopher Plumberg to get compilation
-    system.smooth_fields(i);    // NOT bsqsvoptimization2!!!
+    ws.smooth_fields(i);
                                       // fix arguments accordingly!!!
 
     if ( (p.eta<0) || isnan(p.eta) )
@@ -91,7 +91,7 @@ void EquationsOfMotion::BSQshear( SystemState & system )
     auto & p = system.particles[i];
 
     //Computes gradients to obtain dsigma/dt
-    system.smooth_gradients( i, system.t, curfrz );
+    ws.smooth_gradients( i, system.t, curfrz );
 
     p.dsigma_dt = -p.sigma * ( p.gradV.x[0][0] + p.gradV.x[1][1] );
 

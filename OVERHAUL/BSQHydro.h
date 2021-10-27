@@ -19,6 +19,7 @@
 #include "system_state.h"
 #include "settings.h"
 #include "kernel.h"
+#include "sph_workstation.h"
 
 using std::string;
 using std::vector;
@@ -61,6 +62,9 @@ private:
 
   // the current state of the hydrodynamic simulation
   SystemState system;
+
+  // the workstation for performing SPH-related actions on the system
+  SPHWorkstation ws;
 
   // all settings for the hydro simulation
   Settings settings;

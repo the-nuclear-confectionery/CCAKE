@@ -47,9 +47,9 @@ public:
   int lowT;
 
   double avgetasig;
-  double wfz,cs2;
+  double wfz, cs2;
 
-  double E1,E2;
+  double E1, E2;
 
   int etaconst;
   double bvf, svf, zwidth, sTc, zTc;
