@@ -20,8 +20,8 @@ LDFLAGS = -L$(EOSLIBPATH) -lbsqeos -lm -lgsl -lgslcblas -lblas -lstdc++ \
 
 export HDF5_LDFLAGS+=$(LDFLAGS)
 
-vusphydro : $(OBJS)
-	$(CC) -g $(OBJS) -o vusphydro $(LDFLAGS)
+persephone : $(OBJS)
+	$(CC) -g $(OBJS) -o persephone $(LDFLAGS)
 
 main.o: vector.h mathdef.h particle.h eos.h input_output.h linklist.h matrix.h BSQHydro.h read_in_hdf/read_in_hdf.h main.cpp
 	$(CC) $(CFLAGS) main.cpp
@@ -72,4 +72,4 @@ eos_delaunay.o: eos_delaunay/eos_delaunay.cpp eos_delaunay/eos_delaunay.h
 	
 
 clean:
-	-rm *.o vusphydro
+	-rm *.o persephone
