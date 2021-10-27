@@ -18,6 +18,7 @@
 #include "vector.h"
 #include "particle.h"
 #include "system_state.h"
+#include "equations_of_motion.h"
 
 // Forward declaration of friend classes
 class EquationOfState;
