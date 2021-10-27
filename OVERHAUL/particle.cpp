@@ -23,9 +23,9 @@ Particle::Particle()
 Particle::Particle(vector<double> &fields)
 {
   Imat.identity();
-  r.x[0] = fields[0];
-  r.x[1] = fields[1];
-  eden = fields[2];
+  r.x[0]  = fields[0];
+  r.x[1]  = fields[1];
+  e_sub   = fields[2];
   rhoB_an = fields[3];
   rhoS_an = fields[4];
   rhoQ_an = fields[5];

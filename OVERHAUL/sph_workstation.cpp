@@ -514,6 +514,53 @@ void SPHWorkstation::smooth_gradients( int a, double tin, int & count )
 }
 
 
-void SPHWorkstation::trim_initial_conditions()
-{}
+void SPHWorkstation::process_initial_conditions()
+{
+  // impose energy cut-off
+  /*for (auto & p : particles)
+  {
+
+  }*/
+
+  // fill out initial particle information
+  for (auto & p : particles)
+  {
+    p.u.x[0]          = 0.0;
+    p.u.x[1]          = 0.0;
+    p.eta_sigma       = 1.0;
+    p.sigmaweight     = stepx*stepy;
+    p.rho_weight      = stepx*stepy;
+    p.Bulk            = 0.0;
+    p.B               = p.rhoB_an*stepx*stepy;
+    p.S               = p.rhoS_an*stepx*stepy;
+    p.Q               = p.rhoQ_an*stepx*stepy;
+    p.transverse_area = stepx*stepy;
+
+		//if (j==0)
+		cout << "readICs_iccing(" << __LINE__ << "): "
+			<< "SPH particles: "
+			<< p.r.x[0] << "   " << p.r.x[1] << "   "
+			<< p.e_sub << "   " << p.rhoB_an << "   "
+			<< p.rhoS_an << "   " << p.rhoQ_an << "   "
+			<< p.sigmaweight << endl;
+
+    // make educated initial guess here for this particle's (T, mu_i) coordinates
+    // (improve this in the future)
+    p.thermo.T   = 500.0/hbarc_MeVfm;	// rootfinder seems to work better going downhill than "uphill"
+    p.thermo.muB = 0.0/hbarc_MeVfm;
+    p.thermo.muS = 0.0/hbarc_MeVfm;
+    p.thermo.muQ = 0.0/hbarc_MeVfm;
+
+    /*if (pj.e_sub>efcheck)	// impose freeze-out check for e, not s
+    {
+      pj.Freeze=0;
+    }
+    else
+    {
+      pj.Freeze=4;
+      --kk;
+      ++numpart;
+    }*/
+  }
+}
 /////////////////////////////////////////////////////////////////////////////////
