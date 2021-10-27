@@ -68,7 +68,27 @@ public:
     return;
   }
 
+  struct Input_Parameters
+{
+    string IC_type; // specify initial condition type
+    double h; // static SPH cutoff paramter
+    double dt; // time step in fm
+    double t0; // initial time in fm
+    string EoS_type; // specify equation of state type
+    string EoS_option; // specify specifc option for EOS
+    // there should an associated EoS directory with tables
+    string eta; // specificy the shear viscosity type to use
+    // in transport cpefficient file
+    string zeta; // specificy the bulk viscosity type to use
+    // in transport cpefficient file
+    double Freeze_Out_Temperature;
+    string Freeze_Out_Type;
 };
+
+};
+
+private:
+
 
 
 

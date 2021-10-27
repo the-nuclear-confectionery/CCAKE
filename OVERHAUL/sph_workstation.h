@@ -27,6 +27,8 @@ private:
   
   SystemState * systemPtr;
   Settings * settingsPtr;
+  
+  void trim_initial_conditions();
 
 
 };
