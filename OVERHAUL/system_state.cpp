@@ -322,7 +322,7 @@ void SystemState::smooth_fields(int a, bool init_mode /*== false*/)
     while ( b != -1 )
     {
       const auto & pb = particles[b];
-      double kern     = kernel::kernel( pa.r - pb.r, _h );
+      double kern     = kernel::kernel( pa.r - pb.r, settingsPtr->_h );
       pa.sigma       += pb.sigmaweight*kern;
       pa.eta         += pb.sigmaweight*pb.eta_sigma*kern;
       pa.rhoB_sub    += pb.rho_weight*pb.rhoB_an*kern;    //confirm with Jaki
@@ -404,7 +404,7 @@ void SystemState::smooth_gradients( int a, double tin, int & count )
     {
       const auto & pb          = particles[b];
 
-      Vector<double,2> gradK   = kernel::gradKernel( pa.r - pb.r, _h );
+      Vector<double,2> gradK   = kernel::gradKernel( pa.r - pb.r, settingsPtr->_h );
       Vector<double,2> va      = rowp1(0, pa.shv);
       Vector<double,2> vb      = rowp1(0, pb.shv);
       Matrix<double,2,2> vminia, vminib;
