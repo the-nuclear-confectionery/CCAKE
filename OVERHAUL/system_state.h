@@ -42,6 +42,9 @@ public:
   int number_part, _n, N, rk2;
   double efcheck, sfcheck, freezeoutT;
 
+  int etaconst, visc, cfon;
+  double bvf, svf, zTc, sTc, zwidth;
+
   //void check_BSQ_E_conservation();
   //void check_BSQ_charge_conservation();
 
@@ -66,10 +69,13 @@ private:
 
   vector< Matrix <double,2,2> > shv0;
 
+  vector<int> list;
+
 
 public:
 
   void initialize();
+  void initialize_linklist() { linklist.initiate(); }
   void BSQSimulation( double dt, LinkList & linklist );
   void BSQshear( LinkList & linklist );
   void check_BSQ_energy_conservation();

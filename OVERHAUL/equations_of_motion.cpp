@@ -32,11 +32,11 @@ using namespace constants;
 void EquationsOfMotion::BSQshear( SystemState & system )
 {
   system.setshear();
-  system.initiate();
+  system.initialize_linklist();
 
   for (int i = 0; i < system.n(); i++)
   {
-    const auto & p = system._p[i];
+    auto & p = system.particles[i];
 
     int curfrz = 0; //added by Christopher Plumberg to get compilation
     system.smooth_fields(i);    // NOT bsqsvoptimization2!!!
@@ -55,7 +55,7 @@ void EquationsOfMotion::BSQshear( SystemState & system )
   int curfrz = 0;
   for ( int i = 0; i < system.n(); i++ )
   {
-    const auto & p = system._p[i];
+    auto & p = system.particles[i];
 
 
 
@@ -88,7 +88,7 @@ void EquationsOfMotion::BSQshear( SystemState & system )
   int m=0;
   for(int i=0; i<system.n(); i++)
   {
-    const auto & p = system._p[i];
+    auto & p = system.particles[i];
 
     //Computes gradients to obtain dsigma/dt
     system.smooth_gradients( i, system.t, curfrz );
@@ -114,7 +114,7 @@ void EquationsOfMotion::BSQshear( SystemState & system )
   //calculate matrix elements
   for ( int i=0; i<system.n(); i++ )
   {
-    const auto & p = system._p[i];
+    auto & p = system.particles[i];
 
     double gamt=1./p.gamma/p.stauRelax;
     double pre=p.eta_o_tau/2./p.gamma;
@@ -148,9 +148,9 @@ void EquationsOfMotion::BSQshear( SystemState & system )
 
     Matrix <double,D,D> Ipi   = -p.eta_o_tau/3. * ( p.Imat + p.uu ) + 4./3.*p.pimin;
 
-    system._p[i].div_u      = (1./ p.gamma)*inner( p.u, p.du_dt)
+    system.particles[i].div_u      = (1./ p.gamma)*inner( p.u, p.du_dt)
                               - ( p.gamma/ p.sigma ) * p.dsigma_dt ;
-    system._p[i].bigtheta   = p.div_u*system.t+p.gamma;
+    system.particles[i].bigtheta   = p.div_u*system.t+p.gamma;
 
     Matrix <double,D,D> sub   = p.pimin + p.shv.x[0][0]*p.uu/p.g2 -1./p.gamma*p.piutot;
 
