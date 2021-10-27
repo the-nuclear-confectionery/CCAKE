@@ -47,7 +47,7 @@ void InputOutput::set_results_directory( string path_to_results_directory )
 
 void InputOutput::load_settings_file( string path_to_settings_file )
 {
-    string Param_file = path_to_settings_file+"Input_Parameters.inp";
+    string Param_file = path_to_settings_file;
     ifstream infile( Param_file.c_str() );
     if (infile.is_open())
     {
@@ -61,16 +61,16 @@ void InputOutput::load_settings_file( string path_to_settings_file )
             all_parameters.push_back(param);
         }
 
-        /*input_parameters.IC_type                = all_parameters[0];
-        input_parameters.h                      = stod(all_parameters[1]);
-        input_parameters.dt                     = stod(all_parameters[2]);
-        input_parameters.t0                     = stod(all_parameters[3]);
-        input_parameters.EoS_type               = all_parameters[4];
-        input_parameters.EoS_option             = all_parameters[5];
-        input_parameters.eta                    = all_parameters[6];
-        input_parameters.zeta                   = all_parameters[7];
-        input_parameters.Freeze_Out_Temperature = stod(all_parameters[8]);
-        input_parameters.Freeze_Out_Type        = all_parameters[9];*/
+        settingsPtr->input_parameters.IC_type                = all_parameters[0];
+        settingsPtr->input_parameters.h                      = stod(all_parameters[1]);
+        settingsPtr->input_parameters.dt                     = stod(all_parameters[2]);
+        settingsPtr->input_parameters.t0                     = stod(all_parameters[3]);
+        settingsPtr->input_parameters.EoS_type               = all_parameters[4];
+        settingsPtr->input_parameters.EoS_option             = all_parameters[5];
+        settingsPtr->input_parameters.eta                    = all_parameters[6];
+        settingsPtr->input_parameters.zeta                   = all_parameters[7];
+        settingsPtr->input_parameters.Freeze_Out_Temperature = stod(all_parameters[8]);
+        settingsPtr->input_parameters.Freeze_Out_Type        = all_parameters[9];
 
         infile.close();
     }
@@ -105,7 +105,7 @@ void InputOutput::read_in_initial_conditions()
 {
   string initial_condition_type = settingsPtr->input_parameters.IC_type;
   int total_header_lines;
-  string IC_file = "All_Initial_Conds/";
+  string IC_file = "initial_conditions/";
 
   if(initial_condition_type == "ICCING")
   {
