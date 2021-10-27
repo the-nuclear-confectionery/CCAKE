@@ -71,11 +71,11 @@ void InputOutput::load_settings_file( string path_to_settings_file )
 
 void InputOutput::set_EoS_type()
 {
-  EoS_type = input_parameters.EoS_type;
+  string EoS_type = settingsPtr->input_parameters.EoS_type;
   string EoS_files_location = "EoS/" + EoS_type;
   string densities = EoS_files_location + "/densities.dat";
   string derivatives = EoS_files_location + "/derivatives.dat";
-  string EoS_option = input_parameters.EoS_option;
+  string EoS_option = settingsPtr->input_parameters.EoS_option;
 
   switch(EoS_option)
   {
@@ -83,14 +83,14 @@ void InputOutput::set_EoS_type()
       cout << "Running default EoS option for " << EoS_type << endl;
   }
 
-  eos.quantity_file = densities;
-  eos.deriv_file = derivatives;
+  eosPtr->quantity_file = densities;
+  eosPtr->deriv_file = derivatives;
   return;
 }
 
 void InputOutput::read_in_initial_conditions()
 {
-  string initial_condition_type = input_parameters.IC_type;
+  string initial_condition_type = settingsPtr->input_parameters.IC_type;
   int total_header_lines;
   string IC_file = "All_Initial_Conds/";
   switch(initial_condition_type)
