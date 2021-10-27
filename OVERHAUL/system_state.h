@@ -75,7 +75,7 @@ private:
 public:
 
   void initialize();
-  void initialize_linklist(vector<Particle> & particles) { linklist.initialize(particles); }
+  void initialize_linklist(vector<Particle> & particles) { linklist.initiate(particles); }
   void BSQSimulation( double dt, LinkList & linklist );
   void BSQshear( LinkList & linklist );
   void check_BSQ_energy_conservation();
