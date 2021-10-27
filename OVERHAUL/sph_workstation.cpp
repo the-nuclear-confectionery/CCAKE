@@ -53,6 +53,17 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 			sw.Start();
 			cout << "Doing this particle: "
 					<< p.r.x[0] << "   " << p.r.x[1] << "\n";
+
+cout << "SPH checkpoint(" << __LINE__ << "): " << endl;
+cout << i << endl;
+cout << systemPtr->t << endl;
+cout << p.sigmaweight << endl;
+cout << p.e_sub << endl;
+cout << p.eosPtr->T() << endl;
+cout << p.eosPtr->e() << endl;
+cout << p.eosPtr->p() << endl;
+cout << p.s_an << endl;
+
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
 			<< p.sigmaweight << "   " << p.e_sub << "   "
