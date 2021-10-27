@@ -84,7 +84,7 @@ void InputOutput::set_EoS_type()
   else
   {
     cout <<"EoS option not recognized for " << EoS_type << ", now exiting." << endl;
-    exit(1)
+    exit(1);
   }
 
 
