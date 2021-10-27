@@ -26,6 +26,7 @@ friend class InputOutput;
 public:
 
   void set_equation_of_state( EquationOfState & eos );
+  void set_settings( Settings & settings );
 
   void compute_Knudsen_numbers();
   void compute_inverse_Reynolds_numbers();
@@ -51,6 +52,8 @@ private:
 
   //EquationOfState eos;
   EquationOfState * eosPtr = nullptr;
+
+  Settings * settingsPtr = nullptr;
 
   vector< Particle > particles;
 

@@ -62,6 +62,10 @@ void BSQHydro::initialize_hydrodynamics()
 {
   system.initialize();
 
+  system.set_equation_of_state(eos);
+
+  system.set_settings(settings);
+
   system.initialize_entropy_and_charge_densities(); // this should be in a switch/if
 
   system.initial_smoothing();

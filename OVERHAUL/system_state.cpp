@@ -25,6 +25,18 @@ using std::string;
 using namespace constants;
 
 
+void SystemState::set_equation_of_state(EquationOfState & eos)
+{
+  eosPtr = &eos;
+}
+
+void SystemState::set_settings(Settings & settings)
+{
+  settingsPtr = &settings;
+}
+
+
+
 ////////////////////////////////////////////////////////////////////////////////
 void SystemState::initialize()  // formerly called "manualenter"
 {
@@ -38,16 +50,16 @@ void SystemState::initialize()  // formerly called "manualenter"
   /*
 
   //linklist.setv( fvisc );
-  //linklist.eost   = settings.eostype;
+  //linklist.eost   = settingsPtr->eostype;
   //linklist.cevent = 0;
   //std::cout << fvisc << " hydro, h=" << h <<  " dimensions=" << 2
-  //          << " dt=" << dt << " QM fluc:  " << settings.qmf << "\n";
+  //          << " dt=" << dt << " QM fluc:  " << settingsPtr->qmf << "\n";
 
   //////////////////////////////////////////////////////////////////////////////
   // SET EQUATION OF STATE
   // rewrite by C. Plumberg: allow for different EOS format if using BSQ
   double efcheck = 0.0, sfcheck = 0.0;
-  if ( settings.visc == 4 )	//if we're running BSQ (table is only option)
+  if ( settingsPtr->visc == 4 )	//if we're running BSQ (table is only option)
   {
     bool using_HDF = false;
     if (using_HDF)
@@ -304,7 +316,7 @@ void SystemState::smooth_fields(int a, bool init_mode /*== false*/)
     int b = linklist.lead[ linklist.triToSum( linklist.dael[a] + i, linklist.size ) ];
     while ( b != -1 )
     {
-      const auto & pb = _p[b];
+      const auto & pb = particles[b];
       double kern     = kernel::kernel( pa.r - pb.r );
       pa.sigma       += pb.sigmaweight*kern;
       pa.eta         += pb.sigmaweight*pb.eta_sigma*kern;
@@ -329,7 +341,7 @@ void SystemState::smooth_fields(int a, bool init_mode /*== false*/)
         << "   " << pa.rhoQ_sub
         << "   " << kern << std::endl;
 
-      b = link[b];
+      b = linklist.link[b];
     }
   }
 
@@ -387,8 +399,7 @@ void SystemState::smooth_gradients( int a, double tin, int & count )
     {
       const auto & pb          = particles[b];
 
-      Vector<double,2> gradK   = kernel::gradKernel( pa.r - pb.r,
-                                  static_cast<bool>( a == 30 && b == 43 ) );
+      Vector<double,2> gradK   = kernel::gradKernel( pa.r - pb.r );
       Vector<double,2> va      = rowp1(0, pa.shv);
       Vector<double,2> vb      = rowp1(0, pb.shv);
       Matrix<double,2,2> vminia, vminib;
@@ -403,10 +414,10 @@ void SystemState::smooth_gradients( int a, double tin, int & count )
       pa.gradP                += ( sigsqrb*pb.eosPtr->p()
                                   + sigsqra*pa.eosPtr->p() ) * sigsigK;
 
-      if ( ( ( Norm( pa.r - pb.r ) / settings._h ) <= 2 ) && ( a != b ) )
+      if ( ( ( Norm( pa.r - pb.r ) / settingsPtr->_h ) <= 2 ) && ( a != b ) )
       {
         if ( pa.btrack != -1 ) pa.btrack++;
-        if ( pa.btrack ==  1 ) rdis = Norm(pa.r-pb.r)/settings._h;
+        if ( pa.btrack ==  1 ) rdis = Norm(pa.r-pb.r)/settingsPtr->_h;
       }
 
       pa.gradBulk             += ( pb.Bulk/pb.sigma/pb.gamma
@@ -453,7 +464,7 @@ void SystemState::smooth_gradients( int a, double tin, int & count )
             && ( pa.Freeze < 4 ) )
     cout << "Missed " << a << " " << tin << "  "
          << pa.eosPtr->T()*197.3 << " "
-         << rdis << " " << settings.cfon <<  endl;
+         << rdis << " " << settingsPtr->cfon <<  endl;
 
   return;
 }
@@ -489,7 +500,7 @@ void SystemState::initialize_entropy_and_charge_densities() // formerly updateIC
 		cout << "----------------------------------------"
 				"----------------------------------------" << endl;
 
-		if (settings.gtyp!=5)
+		if (settingsPtr->gtyp!=5)
 		{
 			sw.Start();
 			cout << "Doing this particle: "
@@ -507,7 +518,7 @@ if (i==0)
 			<< p.eosPtr->T() << "   " << p.eosPtr->e() << "   "
 			<< p.eosPtr->p() << "   " << p.s_an << endl;
 
-			if (true || settings.VERBOSE>5)
+			if (true || settingsPtr->VERBOSE>5)
 			{
 				if (p.s_an>0.0)
 				{
@@ -645,16 +656,16 @@ if (i==0)
 
 		}
 
-    if (settings.gtyp==5) p.e_sub = p.eosPtr->e();
+    if (settingsPtr->gtyp==5) p.e_sub = p.eosPtr->e();
 
     p.gamma=p.gamcalc();
 
-    p.sigmaweight *= p.s_an*p.gamma*settings.t0;	// sigmaweight is constant after this
+    p.sigmaweight *= p.s_an*p.gamma*settingsPtr->t0;	// sigmaweight is constant after this
     //p.rho_weight *= p.gamma*t0;				// rho_weight is constant after this
 
-		p.B *= p.gamma*settings.t0;	// B does not evolve in ideal case (confirm with Jaki)
-		p.S *= p.gamma*settings.t0;	// S does not evolve in ideal case (confirm with Jaki)
-		p.Q *= p.gamma*settings.t0;	// Q does not evolve in ideal case (confirm with Jaki)
+		p.B *= p.gamma*settingsPtr->t0;	// B does not evolve in ideal case (confirm with Jaki)
+		p.S *= p.gamma*settingsPtr->t0;	// S does not evolve in ideal case (confirm with Jaki)
+		p.Q *= p.gamma*settingsPtr->t0;	// Q does not evolve in ideal case (confirm with Jaki)
 
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
@@ -723,7 +734,7 @@ if (i==0)
 	for (int i=0; i<_n; i++)
 	{
     auto & p = particles[i];
-		p.s_sub = p.sigma/p.gamma/settings.t0;
+		p.s_sub = p.sigma/p.gamma/settingsPtr->t0;
 
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
