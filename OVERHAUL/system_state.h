@@ -22,6 +22,7 @@ using std::vector;
 class SystemState
 {
 friend class InputOutput;
+friend class EquationsOfMotion;
 
 public:
 
@@ -75,7 +76,7 @@ private:
 public:
 
   void initialize();
-  void initialize_linklist(vector<Particle> & particles) { linklist.initiate(particles); }
+  void initialize_linklist() { linklist.initiate(particles); }
   void BSQSimulation( double dt, LinkList & linklist );
   void BSQshear( LinkList & linklist );
   void check_BSQ_energy_conservation();
