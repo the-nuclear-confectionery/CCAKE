@@ -37,7 +37,7 @@ void BSQHydro::read_in_initial_conditions()
 }
 
 
-void BSQHydro::trim_initical_conditions()
+void BSQHydro::trim_initial_conditions()
 {
   vector<vector<double>> trimmed_grid;
   int cells_before_trim = initial_conditions.density_grid.size();
