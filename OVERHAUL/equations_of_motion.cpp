@@ -152,7 +152,7 @@ void EquationsOfMotion::BSQshear( SystemState & system )
                               - ( p.gamma/ p.sigma ) * p.dsigma_dt ;
     system.particles[i].bigtheta   = p.div_u*system.t+p.gamma;
 
-    Matrix <double,2,2> sub   = p.pimin + p.shv.x[0][0]*p.uu/p.g2 -1./p.gamma*p.piutot;
+    Matrix <double,2,2> sub   = p.pimin + (p.shv.x[0][0]/p.g2)*p.uu -1./p.gamma*p.piutot;
 
     p.inside                  = system.t*(
                                 inner( -minshv+p.shv.x[0][0]*p.v, p.du_dt )
@@ -176,7 +176,7 @@ void EquationsOfMotion::BSQshear( SystemState & system )
   }
 
 
-  if (system.cfon==1) system.bsqsvfreezeout(curfrz);
+  //if (system.cfon==1) system.bsqsvfreezeout(curfrz);
 
   return;
 }
