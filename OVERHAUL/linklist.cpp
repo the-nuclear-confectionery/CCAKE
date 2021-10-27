@@ -32,6 +32,12 @@ void LinkList::initialize( double it0, int ntot, double h,
   t0          = it0;
   _h          = h;
   _n          = ntot;
+
+  cout << "Check read in" << endl;
+  cout << "t0 = " << t0 << endl;
+  cout << "_h = " << _h << endl;
+  cout << "_n = " << _n << endl;
+
   particles   = particles_in;
 //    knorm       = 10/7./pi/(_h*_h);
 //    knorm2      = knorm*0.25;
