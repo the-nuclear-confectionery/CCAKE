@@ -84,8 +84,10 @@ public:
     double Freeze_Out_Temperature;
     string Freeze_Out_Type;
 };
-
   Input_Parameters input_parameters;
+
+  vector<string> headers;
+
 
 };
 
