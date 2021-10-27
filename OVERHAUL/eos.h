@@ -13,7 +13,9 @@
 using std::string;
 
 
-class EquationOfState {
+class EquationOfState
+{
+friend class InputOutput;
 
 public:
 
