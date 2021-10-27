@@ -19,6 +19,7 @@
 #include "particle.h"
 #include "linklist.h"
 #include "system_state.h"
+#include "sph_workstation.h"
 
 class EquationsOfMotion
 {
