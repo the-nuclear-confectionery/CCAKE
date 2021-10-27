@@ -69,6 +69,7 @@ cout << "Test read-in: " << ignore << "   " << param << endl;
         }
 
 cout << "made it to line " << __LINE__ << " of " << __FUNCTION__ << endl;
+cout << "Size: " << all_parameters.size() << endl;
 
         settingsPtr->input_parameters.IC_type                = all_parameters[0];
         settingsPtr->input_parameters.h                      = stod(all_parameters[1]);
