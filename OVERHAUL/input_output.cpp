@@ -99,7 +99,7 @@ void InputOutput::read_in_initial_conditions()
   int total_header_lines;
   string IC_file = "All_Initial_Conds/";
 
-  if(initial_condtion_type == "ICCING")
+  if(initial_condition_type == "ICCING")
   {
       cout << "Reading in ICCING initial conditions!" << endl;
       IC_file = IC_file+"Iccing_conditions.dat"; // need to change ic0.dat
