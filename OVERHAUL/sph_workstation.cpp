@@ -36,6 +36,9 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 			"----------------------------------------" << endl;
 	cout << "----------------------------------------"
 			"----------------------------------------" << endl;
+
+    cout << "systemPtr->_n = " << systemPtr->_n << endl;
+
     for (int i=0; i<systemPtr->_n; i++)
     {
       auto & p = systemPtr->particles[i];

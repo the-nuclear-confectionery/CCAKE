@@ -8,10 +8,18 @@
 // Constructors and destructors.
 BSQHydro::BSQHydro()
 {
+  // initialize I/O pointers
   io.set_EquationOfStatePtr( &eos );
   io.set_EquationsOfMotionPtr( &eom );
   io.set_SettingsPtr( &settings );
   io.set_SystemStatePtr( &system );
+
+  // initialize SPH workstation
+  ws.set_SystemStatePtr( &system );
+  ws.set_SettingsPtr( &settings );
+
+
+  return;
 }
 
 //BSQHydro::~BSQHydro(){}
