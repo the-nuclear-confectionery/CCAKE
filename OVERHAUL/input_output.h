@@ -30,8 +30,8 @@ class InputOutput
 {
 public:
 
-  InputOutput(){}
-  ~InputOutput(){}
+  InputOutput();
+  ~InputOutput();
 
   void set_EquationOfStatePtr( EquationOfState * eosPtr_in );
   void set_EquationsOfMotionPtr( EquationsOfMotion * eomPtr_in );
