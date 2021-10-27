@@ -795,7 +795,7 @@ void SystemState::get_derivative_halfstep(double dx)
 {
   for (int i=0; i<N; ++i)
   {
-    const auto & p = particles[i];
+    auto & p = particles[i];
     p.u            = u0[i]        + 0.5*dx*p.du_dt;
     p.r            = r0[i]        + 0.5*dx*p.v;
     p.eta_sigma    = etasigma0[i] + 0.5*dx*p.detasigma_dt;
@@ -809,7 +809,7 @@ void SystemState::get_derivative_fullstep(double dx)
 {
   for (int i=0; i<N; ++i)
   {
-    const auto & p = particles[i];
+    auto & p = particles[i];
     p.u            = u0[i]        + dx*p.du_dt;
     p.r            = r0[i]        + dx*p.v;
     p.eta_sigma    = etasigma0[i] + dx*p.detasigma_dt;
