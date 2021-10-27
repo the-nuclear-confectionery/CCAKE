@@ -65,7 +65,10 @@ cout << "made it to line " << __LINE__ << " of " << __FUNCTION__ << endl;
             istringstream iss(line);
             iss >> ignore >> param;
             all_parameters.push_back(param);
+cout << "Test read-in: " << ignore << "   " << param << endl;
         }
+
+cout << "made it to line " << __LINE__ << " of " << __FUNCTION__ << endl;
 
         settingsPtr->input_parameters.IC_type                = all_parameters[0];
         settingsPtr->input_parameters.h                      = stod(all_parameters[1]);
@@ -77,6 +80,7 @@ cout << "made it to line " << __LINE__ << " of " << __FUNCTION__ << endl;
         settingsPtr->input_parameters.zeta                   = all_parameters[7];
         settingsPtr->input_parameters.Freeze_Out_Temperature = stod(all_parameters[8]);
         settingsPtr->input_parameters.Freeze_Out_Type        = all_parameters[9];
+cout << "made it to line " << __LINE__ << " of " << __FUNCTION__ << endl;
 
         infile.close();
     }
