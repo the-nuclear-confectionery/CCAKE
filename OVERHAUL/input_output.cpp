@@ -84,6 +84,8 @@ cout << "made it to line " << __LINE__ << " of " << __FUNCTION__ << endl;
 
         infile.close();
     }
+cout << "made it to line " << __LINE__ << " of " << __FUNCTION__ << endl;
+
     return;
 }
 
