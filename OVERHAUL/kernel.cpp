@@ -14,8 +14,8 @@ namespace kernel
 //    kgrad2      = 10.0/7./pi/pow(_h,3)/_h;
     knorm       = 10.0/(7.*pi*h*h);
     knorm2      = knorm*0.25;
-    kgrad       = -15.0/(14.0*pi*h*h*h)
-    kgrad2      = -10.0/(7.0*pi*h*h*h*h)
+    kgrad       = -15.0/(14.0*pi*h*h*h);
+    kgrad2      = -10.0/(7.0*pi*h*h*h*h);
 
     return;
   }
