@@ -14,7 +14,6 @@
 #include "vector.h"
 #include "equations_of_motion.h"
 #include "particle.h"
-#include "system.h"
 #include "system_state.h"
 #include "runge_kutta.h"
 #include "eos.h"
