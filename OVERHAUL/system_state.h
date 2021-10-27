@@ -95,8 +95,8 @@ public:
 
   // these routines are called in runge kutta
   void set_current_timestep_quantities();
-  void get_derivative_halfstep();
-  void get_derivative_fullstep();
+  void get_derivative_halfstep(double dx);
+  void get_derivative_fullstep(double dx);
 
 
 };

@@ -14,6 +14,10 @@ using std::cout;
 using std::endl;
 using std::string;
 
+// functions calls to static EoS C library
+#include <lib.h>
+#include "eos_delaunay/eos_delaunay.h"
+
 #include "constants.h"
 #include "vector.h"
 #include "particle.h"
@@ -428,7 +432,7 @@ void SystemState::smooth_gradients( int a, double tin, int & count )
       //                            + pa.rhoS/pa.sigma/pa.gamma)/tin*sigsigK;
       //pa.gradrhoQ             += ( pb.rhoQ/pb.sigma/pb.gamma
       //                            + pa.rhoQ/pa.sigma/pa.gamma)/tin*sigsigK;
-      pa.gradV                += pb.sigmaweight*( pb.v -  pa.v )*gradK/pa.sigma;
+      pa.gradV                += (pb.sigmaweight/pa.sigma)*( pb.v -  pa.v )*gradK;
 
       pa.gradshear            += inner(sigsigK, pa.v)*( sigsqrb*vb + sigsqra*va );
       pa.divshear             += sigsqrb*sigsigK*transpose(vminib)
@@ -750,7 +754,7 @@ if (i==0)
 			<< p.eosPtr->p() << "   " << p.s_an << endl;
 
 		p.sigsub = 0;
-		p.frzcheck(t0, count1, _n);
+		p.frzcheck(settingsPtr->t0, count1, _n);
 	cout << "----------------------------------------"
 			"----------------------------------------" << endl;
 	}
@@ -768,13 +772,13 @@ if (i==0)
 
 void SystemState::set_current_timestep_quantities()
 {
-  etasigma0.resize(N, 0.0);
-  Bulk0.resize(N, 0.0);
+  etasigma0.resize(N);
+  Bulk0.resize(N);
 
-  u0.resize(N, 0.0);
-  r0.resize(N, 0.0, 0.0);
+  u0.resize(N);
+  r0.resize(N);
 
-  shv0.resize(N, 0.0);
+  shv0.resize(N);
 
   for (int i=0; i<N; ++i)
   {
@@ -787,7 +791,7 @@ void SystemState::set_current_timestep_quantities()
   }
 }
 
-void SystemState::get_derivative_halfstep()
+void SystemState::get_derivative_halfstep(double dx)
 {
   for (int i=0; i<N; ++i)
   {
@@ -801,7 +805,7 @@ void SystemState::get_derivative_halfstep()
 }
 
 
-void SystemState::get_derivative_fullstep()
+void SystemState::get_derivative_fullstep(double dx)
 {
   for (int i=0; i<N; ++i)
   {
