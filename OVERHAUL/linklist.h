@@ -85,6 +85,8 @@ public:
   int fcount, cevent;
   string eost;
 
+  vector<Particle> particles;
+
 
 
 //private:

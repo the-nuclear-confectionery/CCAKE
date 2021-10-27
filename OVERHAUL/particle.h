@@ -18,7 +18,6 @@
 
 class Particle
 {
-
   public:
 
     // Constructors and destructors.
