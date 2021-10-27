@@ -32,7 +32,7 @@ using namespace constants;
 void EquationsOfMotion::BSQshear( SystemState & system )
 {
   system.setshear();
-  system.initialize_linklist();
+  system.initialize_linklist(system.particles);
 
   for (int i = 0; i < system.n(); i++)
   {
