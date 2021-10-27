@@ -56,7 +56,8 @@ cout << "made it to line " << __LINE__ << " of " << __FUNCTION__ << endl;
 cout << "made it to line " << __LINE__ << " of " << __FUNCTION__ << endl;
 
         string line;
-        string ignore, param;
+        string ignore = "";
+        string param = "";
         vector<string> all_parameters;
         while ( getline (infile, line) )
         {
