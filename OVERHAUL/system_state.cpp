@@ -26,14 +26,14 @@ using std::string;
 using namespace constants;
 
 ////////////////////////////////////////////////////////////////////////////////
-void SystemState::set_equation_of_state(EquationOfState & eos)
+void SystemState::set_EquationOfStatePtr(EquationOfState * eosPtr_in)
 {
-  eosPtr = &eos;
+  eosPtr = eosPtr_in;
 }
 
-void SystemState::set_settings(Settings & settings)
+void SystemState::set_SettingsPtr(Settings * settingsPtr_in)
 {
-  settingsPtr = &settings;
+  settingsPtr = settingsPtr_in;
 }
 
 
@@ -121,9 +121,10 @@ cout << "_n = " << _n << endl;
   string ictype = "iccing";
   cout << "Initial conditions type: " << ictype << endl;
 
-  linklist.gtyp=0;
   if ( ictype == "iccing" )
   {
+
+    settingsPtr->gtyp=6;
 
     int count           = 1;
     vector<string>        filelist( count );
@@ -137,7 +138,7 @@ cout << "_n = " << _n << endl;
     linklist.initialize( it0, _Ntable3, h, particles, dt, numpart );
 
     cout << "number of sph particles=" << _Ntable3 << endl;
-    linklist.gtyp=6;
+    linklist.gtyp=settingsPtr->gtyp;
 
   }
 

@@ -30,8 +30,8 @@ public:
   SystemState(){}
   ~SystemState(){}
 
-  void set_equation_of_state( EquationOfState & eos );
-  void set_settings( Settings & settings );
+  void set_EquationOfStatePtr(EquationOfState * eosPtr_in);
+  void set_SettingsPtr(Settings * settingsPtr_in);
 
   //void compute_Knudsen_numbers();
   //void compute_inverse_Reynolds_numbers();

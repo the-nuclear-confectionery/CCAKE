@@ -18,6 +18,9 @@ BSQHydro::BSQHydro()
   ws.set_SystemStatePtr( &system );
   ws.set_SettingsPtr( &settings );
 
+  // initialize system state
+  system.set_EquationOfStatePtr( &eos );
+  system.set_SettingsPtr( &settings );
 
   return;
 }
@@ -61,10 +64,6 @@ void BSQHydro::read_in_initial_conditions()
 void BSQHydro::initialize_hydrodynamics()
 {
   system.initialize();
-
-  system.set_equation_of_state(eos);
-
-  system.set_settings(settings);
 
   ws.initialize_entropy_and_charge_densities(); // this should be in a switch/if
 
