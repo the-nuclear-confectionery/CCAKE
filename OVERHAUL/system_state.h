@@ -82,7 +82,7 @@ public:
   void bsqsvconservation_Ez();
   void setshear();
 
-  void initialize_entropy_and_charge_densiticlTabCtrles();
+  void initialize_entropy_and_charge_densities();
   void initial_smoothing();
 
   int n(){ return _n; }
