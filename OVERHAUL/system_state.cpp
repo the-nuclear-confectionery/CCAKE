@@ -52,7 +52,7 @@ _n = particles.size();
 
 cout << "_n = " << _n << endl;
 
-t = settingsPtr->t0;
+t = settingsPtr->input_parameters.t0;
 
 cout << "t = " << t << endl;
 
