@@ -20,7 +20,7 @@ Particle::Particle()
 ////////////////////////////////////////////////////////////////////////////////
 
 // Overloaded constructor with initial fields
-Particle::Particle(vector<double> fields)
+Particle::Particle(vector<double> &fields)
 {
   Imat.identity();
   this.r.x[0] = fields[0]
