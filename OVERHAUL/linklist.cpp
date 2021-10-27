@@ -2,7 +2,6 @@
 #include "matrix.h"
 #include "particle.h"
 #include "mathdef.h"
-#include "random.h"
 #include "eos.h"
 #include "kernel.h"
 #include <stdio.h>
