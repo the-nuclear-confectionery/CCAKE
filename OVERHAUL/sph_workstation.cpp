@@ -1,3 +1,4 @@
+#include "constants.h"
 #include "sph_workstation.h"
 #include "Stopwatch.h"
 
@@ -523,8 +524,10 @@ void SPHWorkstation::process_initial_conditions()
   }*/
 
   // fill out initial particle information
-  for (auto & p : particles)
+  for (auto & p : systemPtr->particles)
   {
+    double stepx = 0.05;
+    double stepy = 0.05;
     p.u.x[0]          = 0.0;
     p.u.x[1]          = 0.0;
     p.eta_sigma       = 1.0;
