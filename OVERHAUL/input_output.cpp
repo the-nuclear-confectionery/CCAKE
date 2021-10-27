@@ -32,7 +32,7 @@ void InputOutput::load_settings_file( string path_to_settings_file )
         {
             istringstream iss(line);
             iss >> ignore >> param;
-            all_parameters.push_back(param)
+            all_parameters.push_back(param);
         }
 
         input_parameters.IC_type                = all_parameters[0];
@@ -41,14 +41,14 @@ void InputOutput::load_settings_file( string path_to_settings_file )
         input_parameters.t0                     = stod(all_parameters[3]);
         input_parameters.EoS_type               = param[4];
         input_parameters.EoS_option             = param[5];
-        input_parameters.eta                    = param[6]
-        input_parameters.zeta                   = param[7]
-        input_parameters.Freeze_Out_Temperature = stod(param[8])
-        input_parameters.Freeze_Out_Type        = param[9]
+        input_parameters.eta                    = param[6];
+        input_parameters.zeta                   = param[7];
+        input_parameters.Freeze_Out_Temperature = stod(param[8]);
+        input_parameters.Freeze_Out_Type        = param[9];
 
         infile.close();
     }
-    return
+    return;
 }
 
 void InputOutput::set_EoS_type()
@@ -67,23 +67,23 @@ void InputOutput::set_EoS_type()
 
   eos.quantity_file = densities;
   eos.deriv_file = derivatives;
-  return
+  return;
 }
 
 void InputOutput::read_in_initial_conditions()
 {
   string initial_condition_type = input_parameters.IC_type;
   int total_header_lines;
-  string IC_file = 'All_Initial_Conds/'
+  string IC_file = 'All_Initial_Conds/';
   switch(initial_condition_type)
   {
     case 'ICCING' :
       cout << "Reading in ICCING initial conditions!" << endl;
-      IC_file = IC_file+'Iccing_conditions.dat' // need to change ic0.dat
+      IC_file = IC_file+'Iccing_conditions.dat'; // need to change ic0.dat
       total_header_lines = 1;
-    case default :
-      cout << "Selected initial condition type not supported."
-      exit(1)
+    default :
+      cout << "Selected initial condition type not supported." << endl;
+      exit(1);
   }
 
   ifstream infile(IC_file.c_str());
@@ -98,15 +98,15 @@ void InputOutput::read_in_initial_conditions()
           {
             if(count_header_lines < total_header_lines)
             {
-              initial_conditions.headers.pushback(line)
+              initial_conditions.headers.pushback(line);
               count_header_lines++;
             }
             else
             {
               istringstream iss(line);
               iss >> x >> y >> e >> rhoB >> rhoS >> rhoQ;
-              vector<double> fields({x,y,e,rhoB,rhoS,rhoQ})
-              initial_conditions.density_grid.pushback(fields)
+              vector<double> fields({x,y,e,rhoB,rhoS,rhoQ});
+              initial_conditions.density_grid.pushback(fields);
           }
         }
   }
