@@ -26,6 +26,9 @@ friend class EquationsOfMotion;
 
 public:
 
+  SystemState(){}
+  ~SystemState(){}
+
   void set_equation_of_state( EquationOfState & eos );
   void set_settings( Settings & settings );
 
