@@ -1,4 +1,5 @@
 #include "sph_workstation.h"
+#include "Stopwatch.h"
 
 // functions calls to static EoS C library
 #include <lib.h>
@@ -18,7 +19,8 @@ void SPHWorkstation::set_SettingsPtr( Settings * settingsPtr_in )
 
 void SPHWorkstation::setshear()
 {
-    for ( auto & p : systemPtr->particles ) p.sets(t*t);
+    for ( auto & p : systemPtr->particles )
+      p.sets(systemPtr->t*systemPtr->t);
 }
 
 
@@ -34,7 +36,7 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 			"----------------------------------------" << endl;
 	cout << "----------------------------------------"
 			"----------------------------------------" << endl;
-    for (int i=0; i<_n; i++)
+    for (int i=0; i<systemPtr->_n; i++)
     {
       auto & p = systemPtr->particles[i];
 
@@ -49,14 +51,14 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 			cout << "Doing this particle: "
 					<< p.r.x[0] << "   " << p.r.x[1] << "\n";
 if (i==0)
-	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
+	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
 			<< p.sigmaweight << "   " << p.e_sub << "   "
 			<< p.eosPtr->T() << "   " << p.eosPtr->e() << "   "
 			<< p.eosPtr->p() << "   " << p.s_an << endl;
 			p.s_an = p.locate_phase_diagram_point_eBSQ(
                     p.e_sub, p.rhoB_an, p.rhoS_an, p.rhoQ_an );
 if (i==0)
-	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
+	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
 			<< p.sigmaweight << "   " << p.e_sub << "   "
 			<< p.eosPtr->T() << "   " << p.eosPtr->e() << "   "
 			<< p.eosPtr->p() << "   " << p.s_an << endl;
@@ -134,15 +136,15 @@ if (i==0)
 			// if this fails too...
 			if (p.s_an < 0.0)
 			{
-				double scale_factor = std::min( 1.0, p.e_sub / efcheck );
+				double scale_factor = std::min( 1.0, p.e_sub / systemPtr->efcheck );
 	
 				cout << "\t\t - scaling e to get s: "
-						<< efcheck*0.1973 << "   "
-						<< sfcheck << "   "
+						<< systemPtr->efcheck*0.1973 << "   "
+						<< systemPtr->sfcheck << "   "
 						<< scale_factor << "   "
-						<< scale_factor * sfcheck << "\n";
+						<< scale_factor * systemPtr->sfcheck << "\n";
 	
-				p.s_an = scale_factor * sfcheck;
+				p.s_an = scale_factor * systemPtr->sfcheck;
 			}
 			else	// if a solution was found
 			{
@@ -155,13 +157,13 @@ if (i==0)
 
 			// freeze this particle out!
 			p.Freeze = 4;
-			number_part++;
+			systemPtr->number_part++;
 			////////////////////////////////////////////////////////
 		}
 		else
 		{
 if (i==0)
-	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
+	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
 			<< p.sigmaweight << "   " << p.e_sub << "   "
 			<< p.eosPtr->T() << "   " << p.eosPtr->e() << "   "
 			<< p.eosPtr->p() << "   " << p.s_an << endl;
@@ -192,7 +194,7 @@ if (i==0)
 			for (int iii = 0; iii < 4; iii++) cout << "   " << densities_at_point[iii];
 			cout << "\n";
 if (i==0)
-	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
+	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
 			<< p.sigmaweight << "   " << p.e_sub << "   "
 			<< p.eosPtr->T() << "   " << p.eosPtr->e() << "   "
 			<< p.eosPtr->p() << "   " << p.s_an << endl;
@@ -211,7 +213,7 @@ if (i==0)
 		p.Q *= p.gamma*settingsPtr->t0;	// Q does not evolve in ideal case (confirm with Jaki)
 
 if (i==0)
-	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
+	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
 			<< p.sigmaweight << "   " << p.e_sub << "   "
 			<< p.eosPtr->T() << "   " << p.eosPtr->e() << "   "
 			<< p.eosPtr->p() << "   " << p.s_an << endl;
@@ -255,18 +257,18 @@ void SPHWorkstation::initial_smoothing()  // formerly BSQguess()
 
 	cout << "bsqsvoptimization..." << endl;
 	bool initialization_mode = true;
-	for (int i=0; i<_n; i++)
+	for (int i=0; i<systemPtr->_n; i++)
 	{
     auto & p = systemPtr->particles[i];
 
 if (i==0)
-	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
+	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
 			<< p.sigmaweight << "   " << p.s_sub << "   "
 			<< p.eosPtr->T() << "   " << p.eosPtr->e() << "   "
 			<< p.eosPtr->p() << "   " << p.s_an << endl;
-		systemPtr->smooth_fields(i, initialization_mode);
+		smooth_fields(i, initialization_mode);
 if (i==0)
-	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
+	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
 			<< p.sigmaweight << "   " << p.s_sub << "   "
 			<< p.eosPtr->T() << "   " << p.eosPtr->e() << "   "
 			<< p.eosPtr->p() << "   " << p.s_an << endl;
@@ -282,20 +284,20 @@ if (i==0)
 		p.s_sub = p.sigma/p.gamma/settingsPtr->t0;
 
 if (i==0)
-	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
+	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
 			<< p.sigmaweight << "   " << p.s_sub << "   "
 			<< p.eosPtr->T() << "   " << p.eosPtr->e() << "   "
 			<< p.eosPtr->p() << "   " << p.s_an << endl;
 		p.locate_phase_diagram_point_sBSQ(
       p.s_sub, p.rhoB_sub, p.rhoS_sub, p.rhoQ_sub );
 if (i==0)
-	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
+	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
 			<< p.sigmaweight << "   " << p.s_sub << "   "
 			<< p.eosPtr->T() << "   " << p.eosPtr->e() << "   "
 			<< p.eosPtr->p() << "   " << p.s_an << endl;
 
 		p.sigsub = 0;
-		p.frzcheck(settingsPtr->t0, count1, _n);
+		p.frzcheck(settingsPtr->t0, count1, systemPtr->_n);
 	cout << "----------------------------------------"
 			"----------------------------------------" << endl;
 	}
