@@ -57,6 +57,7 @@ private:
 
   string input_directory;
   string output_directory;
+  vector<string> headers;
 
   // these allow I/O to access other objects in BSQHydro
   EquationOfState   * eosPtr;
