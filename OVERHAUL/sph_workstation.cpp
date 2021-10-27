@@ -6,6 +6,8 @@
 #include <lib.h>
 #include "eos_delaunay/eos_delaunay.h"
 
+using namespace constants;
+
 void SPHWorkstation::set_SystemStatePtr( SystemState * systemPtr_in )
 {
   systemPtr = systemPtr_in;
