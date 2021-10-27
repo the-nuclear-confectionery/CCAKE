@@ -448,7 +448,7 @@ void SystemState::smooth_gradients( int a, double tin, int & count )
 
         cout << pa.r << endl;
         cout << pb.r << endl;
-        cout << kernel::kernel( pa.r - pb.r, _h ) << endl;
+        cout << kernel::kernel( pa.r - pb.r, settingsPtr->_h ) << endl;
       }
       else if ( isnan( pa.gradP.x[1] ) )
         cout << "1 " << linklist.gradPressure_weight(pa, pb)
