@@ -8,8 +8,6 @@
 #include "mathdef.h"
 #include "vector.h"
 #include "particle.h"
-#include "enteric.h"
-#include<dirent.h>
 #include <stdlib.h>
 #include <algorithm>
 #include <cmath>
