@@ -3,9 +3,7 @@
 
 #include "vector.h"
 #include "matrix.h"
-#include "particle.h"
 #include "mathdef.h"
-#include "eos.h"
 #include <stdio.h>
 #include <math.h>
 #include <cmath>
