@@ -33,7 +33,7 @@ namespace RK
 
     // compute derivatives
     //(*derivatives)(linklist);
-    eom.BSQshear(system, ws;
+    eom.BSQshear(system, ws);
 
     // update quantities
     system.get_derivative_halfstep(dx);
