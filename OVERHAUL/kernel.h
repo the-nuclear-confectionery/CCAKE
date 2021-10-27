@@ -11,7 +11,7 @@
 
 namespace kernel
 {
-  double knorm, knorm2, kgrad, kgrad2;
+  extern double knorm, knorm2, kgrad, kgrad2;
 
   double kernel( Vector<double,2> a );
   Vector<double,2> gradKernel( Vector<double,2> a );

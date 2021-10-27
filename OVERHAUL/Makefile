@@ -12,9 +12,9 @@ GSLPATH=/projects/jnorhos/local/include
 GSLLIBPATH=/projects/jnorhos/local/lib
 EOSLIBPATH=$(realpath ../EoS_BQS_Derivatives/lib)
 CFLAGS = $(WARNINGS) $(OPTIMIZATION) -c -I$(EOSLIBPATH) -I$(EIGENPATH) \
-        -I$(GSLPATH) $(DEBUG) $(STANDARD) -fcommon
+        -I$(GSLPATH) $(DEBUG) $(STANDARD)
 LDFLAGS = -L$(EOSLIBPATH) -lbsqeos -lm -lgsl -lgslcblas -lblas -lstdc++ \
-          -L$(GSLLIBPATH) $(DEBUG) $(STANDARD) -fcommon
+          -L$(GSLLIBPATH) $(DEBUG) $(STANDARD)
 
 export HDF5_LDFLAGS+=$(LDFLAGS)
 
