@@ -86,7 +86,7 @@ public:
 
 
 
-private:
+//private:
 
   static constexpr int VERBOSE  = 5;
   static constexpr double e0    = 1.0;

@@ -30,12 +30,12 @@ public:
   void compute_spatial_eccentricities( const vector<int> & orders );
   void compute_momentum_eccentricities( const vector<int> & orders );
   //double entropytotal;
-  double S;
+  double S, S0;
   double t, dt;
-  double Btotal;
-  double Stotal;
-  double Qtotal;
-  double Ez, E0, Eloss, dEz;
+  double Btotal, Btotal0;
+  double Stotal, Stotal0;
+  double Qtotal, Qtotal0;
+  double E, Ez, E0, Eloss, dEz, Etot;
   int number_part, _n, rk2;
   double efcheck, sfcheck, freezeoutT;
 
@@ -82,7 +82,7 @@ public:
   void bsqsvconservation_Ez();
   void setshear();
 
-  void initialize_entropy_and_charge_densities();
+  void initialize_entropy_and_charge_densiticlTabCtrles();
   void initial_smoothing();
 
   int n(){ return _n; }

@@ -147,7 +147,7 @@ void SystemState::check_BSQ_energy_conservation()
 {
   E=0.0;
   for ( auto & p : particles )
-    E += ( p.C* p.g2 - p.EOSp() - p.bigPI + p.shv.x[0][0] )
+    E += ( p.C*p.g2 - p.eosPtr->p() - p.bigPI + p.shv.x[0][0] )
           *p.sigmaweight*t/p.sigma;
 
   if (first == 1)
@@ -248,7 +248,7 @@ void SystemState::bsqsvconservation_E()
         if (i==0)
           std::cout << "E: " << i << "   " << t
               << "   " << p.eosPtr->T()
-              << "   " << p.EOSe()
+              << "   " << p.eosPtr->e()
               << "   " << p.C
               << "   " << p.g2
               << "   " << p.eosPtr->p()
@@ -287,7 +287,7 @@ void SystemState::bsqsvconservation_Ez()
 // first smoothing routine covers all hydrodyanmical fields
 void SystemState::smooth_fields(int a, bool init_mode /*== false*/)
 {
-  const auto & pa    = _p[a];
+  const auto & pa    = particles[a];
   pa.sigma           = 0.0;
   pa.eta             = 0.0;
   pa.rhoB_sub        = 0.0;
@@ -303,7 +303,7 @@ void SystemState::smooth_fields(int a, bool init_mode /*== false*/)
     while ( b != -1 )
     {
       const auto & pb = _p[b];
-      double kern     = kernel( pa.r - pb.r );
+      double kern     = kernel::kernel( pa.r - pb.r );
       pa.sigma       += pb.sigmaweight*kern;
       pa.eta         += pb.sigmaweight*pb.eta_sigma*kern;
       pa.rhoB_sub    += pb.rho_weight*pb.rhoB_an*kern;    //confirm with Jaki
@@ -379,11 +379,11 @@ void SystemState::smooth_gradients( int a, double tin, int & count )
   for ( i.x[1] =- 2; i.x[1] <= 2; i.x[1]++ )
   {
 
-    int b=lead[ triToSum( dael[a] + i, size ) ];
+    int b=linklist.lead[ linklist.triToSum( linklist.dael[a] + i, linklist.size ) ];
 
     while( b != -1 )
     {
-      const auto & pb          = _p[b];
+      const auto & pb          = particles[b];
 
       Vector<double,2> gradK   = gradKernel( pa.r - pb.r,
                                   static_cast<bool>( a == 30 && b == 43 ) );
@@ -426,20 +426,20 @@ void SystemState::smooth_gradients( int a, double tin, int & count )
         cout << "gradP stopped working" << endl;
         cout << t <<" "  << pa.gradP << " " << a << " " << b << endl;
         cout << pb.sigmaweight << " " << pa.sigma << " " << pb.eosPtr->p() << endl;
-        cout << Size << " " << pb.eosPtr->s() << " " << pa.eosPtr->s() << endl;
+        cout << linklist.Size << " " << pb.eosPtr->s() << " " << pa.eosPtr->s() << endl;
 
         cout << pa.r << endl;
         cout << pb.r << endl;
-        cout << kernel( pa.r - pb.r ) << endl;
+        cout << kernel::kernel( pa.r - pb.r ) << endl;
       }
       else if ( isnan( pa.gradP.x[1] ) )
-        cout << "1 " << gradPressure_weight(pa, pb)
+        cout << "1 " << linklist.gradPressure_weight(pa, pb)
              << " " << a << " " << b << endl;
       else if ( isnan( pa.gradP.x[2] ) )
-        cout << "2 " << gradPressure_weight(pa, pb)
+        cout << "2 " << linklist.gradPressure_weight(pa, pb)
              << " " << a << " " << b << endl;
 
-      b=link[b];
+      b=linklist.link[b];
     }
   }
 
