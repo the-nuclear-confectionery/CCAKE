@@ -500,6 +500,6 @@ void SPHWorkstation::smooth_gradients( int a, double tin, int & count )
 }
 
 
-void sph_workstation::trim_initial_conditions()
+void SPHWorkstation::trim_initial_conditions()
 {}
 /////////////////////////////////////////////////////////////////////////////////
