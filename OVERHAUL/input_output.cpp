@@ -124,8 +124,7 @@ void InputOutput::read_in_initial_conditions()
               istringstream iss(line);
               iss >> x >> y >> e >> rhoB >> rhoS >> rhoQ;
               vector<double> fields({x,y,e,rhoB,rhoS,rhoQ});
-              Particle p = new Particle(fields)
-              systemPtr->particles.push_back(p)
+              systemPtr->particles.push_back(Particle(fields));
           }
         }
   }
