@@ -1,6 +1,7 @@
 #include "vector.h"
 #include "matrix.h"
 #include "particle.h"
+#include "linklist.h"
 #include "mathdef.h"
 #include "random.h"
 #include "eos.h"
@@ -21,7 +22,7 @@ LinkList::LinkList()
     for (int i=0; i<2; i++) uni.x[i]=1.0;
 }
 
-LinkList::~LinkList(){}
+//LinkList::~LinkList(){}
 
 
 void LinkList::initialize( double it0, int ntot, double h,
