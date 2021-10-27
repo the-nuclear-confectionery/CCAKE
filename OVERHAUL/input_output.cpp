@@ -133,7 +133,7 @@ void InputOutput::read_in_initial_conditions()
           {
             if(count_header_lines < total_header_lines)
             {
-              headers.push_back(line);
+              settingsPtr->headers.push_back(line);
               count_header_lines++;
             }
             else
