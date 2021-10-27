@@ -147,7 +147,7 @@ void InputOutput::read_in_initial_conditions()
               else
               {
                 iss >> x >> y >> e >> rhoB >> rhoS >> rhoQ;
-                e /= hbarc_Gevfm
+                e /= hbarc_Gevfm;
                 vector<double> fields({x,y,e,rhoB,rhoS,rhoQ});
                 systemPtr->particles.push_back(Particle(fields));
             }
