@@ -23,12 +23,12 @@ Particle::Particle()
 Particle::Particle(vector<double> &fields)
 {
   Imat.identity();
-  this.r.x[0] = fields[0];
-  this.r.x[1] = fields[1];
-  this.eden = fields[2];
-  this.rhoB_an = fields[3];
-  this.rhoS_an = fields[4];
-  this.rhoQ_an = fields[5];
+  r.x[0] = fields[0];
+  r.x[1] = fields[1];
+  eden = fields[2];
+  rhoB_an = fields[3];
+  rhoS_an = fields[4];
+  rhoQ_an = fields[5];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
