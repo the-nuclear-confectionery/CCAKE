@@ -24,8 +24,8 @@ class InputOutput
 {
 public:
 
-InputOutput();
-~InputOutput();
+InputOutput(){}
+~InputOutput(){}
 
 
 void load_settings_file( string path_to_settings_file ); // load setting

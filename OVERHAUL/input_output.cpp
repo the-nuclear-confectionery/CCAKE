@@ -16,8 +16,8 @@
 #include "input_output.h"
 
 // Constructors and destructors.
-InputOutput::InputOutput(){}
-InputOutput::~InputOutput(){}
+//InputOutput::InputOutput(){}
+//InputOutput::~InputOutput(){}
 
 void InputOutput::load_settings_file( string path_to_settings_file )
 {
