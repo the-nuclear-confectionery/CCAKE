@@ -10,6 +10,7 @@
 #include <vector>
 #include <stdlib.h>
 
+#include "constants.h"
 #include "mathdef.h"
 #include "vector.h"
 #include "equations_of_motion.h"
@@ -28,7 +29,7 @@ using namespace constants;
 // The structure here is temporary until we set the mode for different terms 
 //which will be shear, bulk, diffusion, and coupling terms, 
 //current equations are only set up for 2+1d.
-void EquationsOfMotion::BSQshear( system & system )
+void EquationsOfMotion::BSQshear( SystemState & system )
 {
   system.setshear();
   system.initiate();
