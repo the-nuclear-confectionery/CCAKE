@@ -37,6 +37,14 @@ void InputOutput::set_SystemStatePtr( SystemState * systemPtr_in )
   systemPtr = systemPtr_in;
 }
 
+
+void InputOutput::set_results_directory( string path_to_results_directory )
+{
+  output_directory = path_to_results_directory;
+}
+
+
+
 void InputOutput::load_settings_file( string path_to_settings_file )
 {
     string Param_file = path_to_settings_file+"Input_Parameters.inp";

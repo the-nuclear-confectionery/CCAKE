@@ -476,10 +476,10 @@ void SPHWorkstation::smooth_gradients( int a, double tin, int & count )
         cout << kernel::kernel( pa.r - pb.r, settingsPtr->_h ) << endl;
       }
       else if ( isnan( pa.gradP.x[1] ) )
-        cout << "1 " << systemPtr->linklist.gradPressure_weight(pa, pb)
+        cout << "1 " << systemPtr->linklist.gradPressure_weight(systemPtr->particles, a, b)
              << " " << a << " " << b << endl;
       else if ( isnan( pa.gradP.x[2] ) )
-        cout << "2 " << systemPtr->linklist.gradPressure_weight(pa, pb)
+        cout << "2 " << systemPtr->linklist.gradPressure_weight(systemPtr->particles, a, b)
              << " " << a << " " << b << endl;
 
       b=systemPtr->linklist.link[b];
