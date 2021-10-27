@@ -28,7 +28,7 @@ public:
 
   EquationsOfMotion();
   ~EquationsOfMotion();
-  void BSQshear( SystemState & system );
+  void BSQshear( SystemState & system, SPHWorkstation & ws );
 };
 
 #endif
