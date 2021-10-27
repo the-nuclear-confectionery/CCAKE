@@ -56,6 +56,7 @@ t = settingsPtr->input_parameters.t0;
 
 cout << "t = " << t << endl;
 
+for (auto & p : particles) p.set_EquationOfStatePtr( eosPtr );
 
   linklist.efcheck = efcheck;
   linklist.sfcheck = sfcheck;
@@ -90,13 +91,6 @@ cout << "t = " << t << endl;
     linklist.gtyp=settingsPtr->gtyp;
 
   }
-
-  /*if ( ictype == iccing )
-  {
-    linklist.updateIC();
-    cout << "bsq optimization done" << endl;
-    linklist.bsqsvfreezeset();
-  }*/
 
   // formerly bsqsv_set in this loop
   for (auto & p : particles)

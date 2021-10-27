@@ -32,10 +32,9 @@ Particle::Particle(vector<double> &fields)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void Particle::set_equation_of_state( EquationOfState & eos_in )
+void InputOutput::set_EquationOfStatePtr( EquationOfState * eosPtr_in )
 {
-  //eos = eos_in;
-  eosPtr = &eos_in;
+  eosPtr = eosPtr_in;
 }
 
 
