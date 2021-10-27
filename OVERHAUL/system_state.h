@@ -75,7 +75,7 @@ private:
 public:
 
   void initialize();
-  void initialize_linklist() { linklist.initiate(); }
+  void initialize_linklist() { linklist.initialize(); }
   void BSQSimulation( double dt, LinkList & linklist );
   void BSQshear( LinkList & linklist );
   void check_BSQ_energy_conservation();
