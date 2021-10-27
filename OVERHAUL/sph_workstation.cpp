@@ -103,7 +103,7 @@ if (i==0)
 					<< successString << " in " << sw.printTime() << "s." << "\n";
 
 if (i==0)
-	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
+	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
 			<< p.sigmaweight << "   " << p.e_sub << "   "
 			<< p.eosPtr->T() << "   " << p.eosPtr->e() << "   "
 			<< p.eosPtr->p() << "   " << p.s_an << endl;
@@ -251,7 +251,7 @@ if (i==0)
 void SPHWorkstation::initial_smoothing()  // formerly BSQguess()
 {
 	cout << "setshear..." << endl;
-  systemPtr->setshear();
+  setshear();
 	cout << "initiate..." << endl;
   //initiate();
 
@@ -278,7 +278,7 @@ if (i==0)
 	int count1=0;
 	cout << "----------------------------------------"
 			"----------------------------------------" << endl;
-	for (int i=0; i<_n; i++)
+	for (int i=0; i<systemPtr->_n; i++)
 	{
     auto & p = systemPtr->particles[i];
 		p.s_sub = p.sigma/p.gamma/settingsPtr->t0;
@@ -333,7 +333,10 @@ void SPHWorkstation::smooth_fields(int a, bool init_mode /*== false*/)
   for ( i.x[0] =- 2; i.x[0] <= 2; i.x[0]++ )
   for ( i.x[1] =- 2; i.x[1] <= 2; i.x[1]++ )
   {
-    int b = linklist.lead[ linklist.triToSum( linklist.dael[a] + i, linklist.size ) ];
+    int b = systemPtr->linklist.lead[
+              systemPtr->linklist.triToSum(
+                systemPtr->linklist.dael[a] + i,
+                  systemPtr->linklist.size ) ];
     while ( b != -1 )
     {
       const auto & pb = systemPtr->particles[b];
@@ -464,7 +467,7 @@ void SPHWorkstation::smooth_gradients( int a, double tin, int & count )
       if ( isnan( pa.gradP.x[0] ) )
       {
         cout << "gradP stopped working" << endl;
-        cout << t <<" "  << pa.gradP << " " << a << " " << b << endl;
+        cout << systemPtr->t <<" "  << pa.gradP << " " << a << " " << b << endl;
         cout << pb.sigmaweight << " " << pa.sigma << " " << pb.eosPtr->p() << endl;
         cout << systemPtr->linklist.Size << " " << pb.eosPtr->s() << " " << pa.eosPtr->s() << endl;
 
