@@ -1,6 +1,10 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
+#include <string>
+
+using std::string;
+
 class Settings
 {
 public:
