@@ -47,21 +47,26 @@ void InputOutput::set_results_directory( string path_to_results_directory )
 
 void InputOutput::load_settings_file( string path_to_settings_file )
 {
+cout << "made it to line " << __LINE__ << " of " << __FUNCTION__ << endl;
+
     string Param_file = path_to_settings_file;
     ifstream infile( Param_file.c_str() );
     if (infile.is_open())
     {
+cout << "made it to line " << __LINE__ << " of " << __FUNCTION__ << endl;
+
         string line;
-        string ignore = "";
-        string param = "";
+        string ignore, param;
         vector<string> all_parameters;
         while ( getline (infile, line) )
         {
+cout << "made it to line " << __LINE__ << " of " << __FUNCTION__ << endl;
+
             istringstream iss(line);
             iss >> ignore >> param;
             all_parameters.push_back(param);
         }
-        cout << all_parameters.size();
+
         settingsPtr->input_parameters.IC_type                = all_parameters[0];
         settingsPtr->input_parameters.h                      = stod(all_parameters[1]);
         settingsPtr->input_parameters.dt                     = stod(all_parameters[2]);

@@ -41,7 +41,9 @@ int main (int argc, char *argv[])
 
   // Define and set up the simulation object itself
   BSQHydro simulation;
+cout << "made it to line " << __LINE__ << " of " << __FUNCTION__ << endl;
   simulation.load_settings_file( path_to_settings_file );
+cout << "made it to line " << __LINE__ << " of " << __FUNCTION__ << endl;
   simulation.set_results_directory( path_to_results_directory );
 
   // Read in initial conditions (type/path defined in path_to_settings_file)
