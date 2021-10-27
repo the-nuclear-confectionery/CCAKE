@@ -116,7 +116,7 @@ void InputOutput::read_in_initial_conditions()
           {
             if(count_header_lines < total_header_lines)
             {
-              headers.pushback(line);
+              headers.push_back(line);
               count_header_lines++;
             }
             else
