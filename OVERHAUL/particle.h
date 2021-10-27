@@ -22,7 +22,7 @@ class Particle
 
     // Constructors and destructors.
     Particle();
-    Particle(vector<double> &fields)
+    Particle(vector<double> &fields);
    ~Particle(){}
 
   bool operator==( const Particle & ) const;
