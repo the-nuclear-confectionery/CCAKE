@@ -1,3 +1,6 @@
+#ifndef KERNEL_H
+#define KERNEL_H
+
 #include "vector.h"
 #include "matrix.h"
 #include "particle.h"
@@ -15,3 +18,5 @@ namespace kernel
   double kernel( Vector<double,2> a );
   Vector<double,2> gradKernel( Vector<double,2> a );
 }
+
+#endif
