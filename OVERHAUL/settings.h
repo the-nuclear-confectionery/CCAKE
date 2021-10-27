@@ -85,6 +85,8 @@ public:
     string Freeze_Out_Type;
 };
 
+  Input_Parameters input_parameters;
+
 };
 
 
