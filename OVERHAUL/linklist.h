@@ -127,7 +127,7 @@ public:
               - innerp );
   }
 
-  Vector<double,2> gradKernel( Vector<double,2> a, bool verbose = false );
+  //Vector<double,2> gradKernel( Vector<double,2> a, bool verbose = false );
 
 };
 
