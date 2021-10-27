@@ -17,6 +17,19 @@ Particle::Particle()
 {
   Imat.identity();
 }
+////////////////////////////////////////////////////////////////////////////////
+
+// Overloaded constructor with initial fields
+Particle::Particle(vector<double> fields)
+{
+  Imat.identity();
+  this.r.x[0] = fields[0]
+  this.r.x[1] = fields[1]
+  this.eden = fields[1]
+  this.rhoB_an = fields[1]
+  this.rhoS_an = fields[1]
+  this.rhoQ_an = fields[1]
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 void Particle::set_equation_of_state( EquationOfState & eos_in )

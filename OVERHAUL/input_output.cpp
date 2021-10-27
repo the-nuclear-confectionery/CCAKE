@@ -116,7 +116,7 @@ void InputOutput::read_in_initial_conditions()
           {
             if(count_header_lines < total_header_lines)
             {
-              initial_conditions.headers.pushback(line);
+              headers.pushback(line);
               count_header_lines++;
             }
             else
@@ -124,7 +124,8 @@ void InputOutput::read_in_initial_conditions()
               istringstream iss(line);
               iss >> x >> y >> e >> rhoB >> rhoS >> rhoQ;
               vector<double> fields({x,y,e,rhoB,rhoS,rhoQ});
-              initial_conditions.density_grid.pushback(fields);
+              Particle p = new Particle(fields)
+              systemPtr->particles.push_back(p)
           }
         }
   }
