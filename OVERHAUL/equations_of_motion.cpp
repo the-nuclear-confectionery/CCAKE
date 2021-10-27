@@ -44,7 +44,7 @@ void EquationsOfMotion::BSQshear( SystemState & system )
 
     if ( (p.eta<0) || isnan(p.eta) )
     {
-      cout << i <<  " neg entropy " <<  p.EOST()*hbarc << " " << p.eta << endl;
+      cout << i <<  " neg entropy " <<  p.eosPtr->T()*hbarc << " " << p.eta << endl;
       p.eta = 0;
     }
 
@@ -119,12 +119,12 @@ void EquationsOfMotion::BSQshear( SystemState & system )
     double gamt=1./p.gamma/p.stauRelax;
     double pre=p.eta_o_tau/2./p.gamma;
     double p1=gamt-4./3./p.sigma*p.dsigma_dt+1./system.t/3.;
-    Vector<double,D>  minshv=rowp1(0, p.shv);
-    Matrix <double,D,D> partU = p.gradU + transpose( p.gradU );
+    Vector<double,2>  minshv=rowp1(0, p.shv);
+    Matrix <double,2,2> partU = p.gradU + transpose( p.gradU );
 
     // set the Mass and the Force
-    Matrix <double,D,D> M = p.Msub(i);
-    Vector<double,D> F    = p.Btot*p.u + p.gradshear
+    Matrix <double,2,2> M = p.Msub(i);
+    Vector<double,2> F    = p.Btot*p.u + p.gradshear
                             - ( p.gradP + p.gradBulk + p.divshear );
 
     // shear contribution
@@ -132,7 +132,7 @@ void EquationsOfMotion::BSQshear( SystemState & system )
 
     double det=deter(M);
 
-    Matrix <double,D,D> MI;
+    Matrix <double,2,2> MI;
     MI.x[0][0]=M.x[1][1]/det;
     MI.x[0][1]=-M.x[0][1]/det;
     MI.x[1][0]=-M.x[1][0]/det;
@@ -142,30 +142,30 @@ void EquationsOfMotion::BSQshear( SystemState & system )
     p.du_dt.x[0]=F.x[0]*MI.x[0][0]+F.x[1]*MI.x[0][1];
     p.du_dt.x[1]=F.x[0]*MI.x[1][0]+F.x[1]*MI.x[1][1];
 
-    Matrix <double,D,D> ulpi  = p.u*colp1(0, p.shv);
+    Matrix <double,2,2> ulpi  = p.u*colp1(0, p.shv);
 
     double vduk               = inner( p.v, p.du_dt);
 
-    Matrix <double,D,D> Ipi   = -p.eta_o_tau/3. * ( p.Imat + p.uu ) + 4./3.*p.pimin;
+    Matrix <double,2,2> Ipi   = -p.eta_o_tau/3. * ( p.Imat + p.uu ) + 4./3.*p.pimin;
 
     system.particles[i].div_u      = (1./ p.gamma)*inner( p.u, p.du_dt)
                               - ( p.gamma/ p.sigma ) * p.dsigma_dt ;
     system.particles[i].bigtheta   = p.div_u*system.t+p.gamma;
 
-    Matrix <double,D,D> sub   = p.pimin + p.shv.x[0][0]*p.uu/p.g2 -1./p.gamma*p.piutot;
+    Matrix <double,2,2> sub   = p.pimin + p.shv.x[0][0]*p.uu/p.g2 -1./p.gamma*p.piutot;
 
     p.inside                  = system.t*(
                                 inner( -minshv+p.shv.x[0][0]*p.v, p.du_dt )
                                 - con2(sub, p.gradU)
                                 - p.gamma*system.t*p.shv33 );
 
-    p.detasigma_dt            = 1./p.sigma/p.EOST()*( -p.bigPI*p.bigtheta + p.inside );
+    p.detasigma_dt            = 1./p.sigma/p.eosPtr->T()*( -p.bigPI*p.bigtheta + p.inside );
 
 
     // N.B. - ADD EXTRA TERMS FOR BULK EQUATION
     p.dBulk_dt = ( -p.zeta/p.sigma*p.bigtheta - p.Bulk/p.gamma )/p.tauRelax;
 
-    Matrix <double,D,D> ududt = p.u*p.du_dt;
+    Matrix <double,2,2> ududt = p.u*p.du_dt;
 
     // N.B. - ADD READABLE TERM NAMES
     p.dshv_dt                 = - gamt*( p.pimin + p.setas*0.5*partU )
