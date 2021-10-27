@@ -29,7 +29,7 @@ int main (int argc, char *argv[])
   // Check if proper command-line arguments passed
   if ( argc < 3 )
   {
-    std::cerr << "Usage: ./BSQhydro /path/to/settings/file "
+    std::cerr << "Usage: ./persephone /path/to/settings/file "
                  "/path/to/results/directory" << std::endl;
     std::cerr << "Please cite all our papers." << std::endl;
     exit(1);
