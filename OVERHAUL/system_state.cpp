@@ -29,7 +29,7 @@ using std::string;
 
 using namespace constants;
 
-
+////////////////////////////////////////////////////////////////////////////////
 void SystemState::set_equation_of_state(EquationOfState & eos)
 {
   eosPtr = &eos;
@@ -157,10 +157,10 @@ void SystemState::initialize()  // formerly called "manualenter"
   return;
 }
 ///////////////////////////////////////////////////////////////////////////////
-//Dekra: BSQsimulation was moved from this location to BSQhydro
+//Dekra: BSQsimulation was moved from this location to BSQhydro and renamed to run
 ///////////////////////////////////////////////////////////////////////////////
-//Start routines for checking conservation of energy density, entropy density and BSQ
-// charges at each time step of the simulation
+//Start routines for checking conservation of energy density, entropy density and BSQ 
+// charge densities at each time step of the simulation
 ///////////////////////////////////////
 void SystemState::check_BSQ_energy_conservation()
 {
@@ -228,7 +228,6 @@ void SystemState::conservation_entropy()
     S0=S;
 }
 ///////////////////////////////////////
-// function to check conservation of B, S, and Q
 void SystemState::conservation_BSQ()
 {
     Btotal = 0.0;
@@ -303,7 +302,8 @@ void SystemState::bsqsvconservation_Ez()
         << "   " << p.sigmaweight << endl;
   }
 }
-// first smoothing routine covers all hydrodyanmical fields
+///////////////////////////////////////////////////////////////////////////////
+// smoothing routines: first smoothing covers all hydrodyanmical fields
 void SystemState::smooth_fields(int a, bool init_mode /*== false*/)
 {
   auto & pa    = particles[a];
@@ -373,8 +373,9 @@ void SystemState::smooth_fields(int a, bool init_mode /*== false*/)
 
   return;
 }
-//Second smoothing smoothes the gradients after reading in the updated fields 
-//from the equation of state
+///////////////////////////////////////////////////////////////////////////////
+//Second smoothing smoothes the gradients after constructing all the  fields 
+//and derivatives using the equation of state
 void SystemState::smooth_gradients( int a, double tin, int & count )
 {
   auto & pa    = particles[a];
@@ -473,7 +474,7 @@ void SystemState::smooth_gradients( int a, double tin, int & count )
 
   return;
 }
-///////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
 void SystemState::setshear()
 {
     for ( auto & p : particles ) p.sets(t*t);
@@ -569,14 +570,14 @@ if (i==0)
 			<< p.eosPtr->p() << "   " << p.s_an << endl;
 		}
 
-		////////////////////////////////////////////////////////////////////////
+		///////////////////////////////////////////////////////////////////////////
 		// for now, if we failed to find a real entropy density for this
 		// point, just freeze it out, set its entropy to the freeze-out value,
 		// and continue without setting anything else
 		if (p.s_an < 0.0)
 		{
 
-			////////////////////////////////////////////////////////
+			/////////////////////////////////////////////////////////////////////////
 			// if failed with charge densities, set them to zero and re-solve;
 			// if that fails too, guesstimate an answer
 			cout << "\t --> Densities not found in EoS table (setting BSQ --> 0): "
@@ -702,9 +703,6 @@ if (i==0)
 	if (failCounter > 0) exit(-1);
 
 }
-
-
-
 ////////////////////////////////////////////////////////////////////////////////
 void SystemState::initial_smoothing()  // formerly BSQguess()
 {
@@ -768,9 +766,7 @@ if (i==0)
 
   return;
 }
-
-
-
+///////////////////////////////////////////////////////////////////////////////
 void SystemState::set_current_timestep_quantities()
 {
   etasigma0.resize(N);
@@ -791,7 +787,7 @@ void SystemState::set_current_timestep_quantities()
     mini( shv0[i], p.shv );
   }
 }
-
+///////////////////////////////////////////////////////////////////////////////
 void SystemState::get_derivative_halfstep(double dx)
 {
   for (int i=0; i<N; ++i)
@@ -804,8 +800,7 @@ void SystemState::get_derivative_halfstep(double dx)
     tmini( p.shv,    shv0[i]      + 0.5*dx*p.dshv_dt );
   }
 }
-
-
+///////////////////////////////////////////////////////////////////////////////
 void SystemState::get_derivative_fullstep(double dx)
 {
   for (int i=0; i<N; ++i)
@@ -818,3 +813,4 @@ void SystemState::get_derivative_fullstep(double dx)
     tmini( p.shv,    shv0[i]      + dx*p.dshv_dt );
   }
 }
+//////////////////////////////////////////////////////////////////////////////
