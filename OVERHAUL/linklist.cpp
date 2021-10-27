@@ -98,7 +98,13 @@ void LinkList::initialize( double it0, int ntot, double h,
   //link: links the leader particle of one cube with the others of the same cube
   // if only one particle in cube then it is the lead
 
+  cout << "Checking this part:" << endl;
+  cout << "Size = " << Size << endl;
+
   lead = vector<int>(Size);
+
+  cout << "lead.size() = " << lead.size() << endl;
+
 
   for ( int j = 0; j < Size; j++ )
     lead[j] = -1;
