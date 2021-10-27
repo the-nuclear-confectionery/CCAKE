@@ -487,7 +487,7 @@ void SystemState::setshear()
 void SystemState::initialize_entropy_and_charge_densities() // formerly updateIC
 {
 	// set up EoS C library
-	initialize("/projects/jnorhos/BSQ/EoS_BQS_Derivatives/Coefficients_Parameters.dat");
+	initialize_thermodynamics("/projects/jnorhos/BSQ/EoS_BQS_Derivatives/Coefficients_Parameters.dat");
 	Stopwatch sw, swTotal;
 	swTotal.Start();
 	long long failCounter = 0;
