@@ -13,6 +13,8 @@
 #include "matrix.h"
 #include "particle.h"
 #include "linklist.h"
+#include "kernel.h"
+#include "settings.h"
 
 using std::string;
 using std::vector;
@@ -36,7 +38,7 @@ public:
   double Stotal, Stotal0;
   double Qtotal, Qtotal0;
   double E, Ez, E0, Eloss, dEz, Etot;
-  int number_part, _n, rk2;
+  int number_part, _n, N, rk2;
   double efcheck, sfcheck, freezeoutT;
 
   //void check_BSQ_E_conservation();

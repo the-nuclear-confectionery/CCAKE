@@ -19,6 +19,8 @@ using std::string;
 #include "particle.h"
 #include "runge_kutta.h"
 #include "eos.h"
+#include "Stopwatch.h"
+#include "system_state.h"
 
 using namespace constants;
 
@@ -97,23 +99,23 @@ void SystemState::initialize()  // formerly called "manualenter"
 
   //  cout << "setting up SPH" << endl;
 
+  string ictype = "iccing";
   cout << "Initial conditions type: " << ictype << endl;
 
   linklist.gtyp=0;
-  if ( ictype == iccing )
+  if ( ictype == "iccing" )
   {
 
     int count           = 1;
-    linklist.ebe_folder = outf;
     vector<string>        filelist( count );
 
     int j               = 0;
-    filelist[j]         = ic + "/ic0.dat"; // only doing single event
+    filelist[j]         = "./ic0.dat"; // only doing single event
     linklist.filenames  = filelist;
     linklist.fcount     = count;
     linklist.fnum       = linklist.start;
     
-    linklist.initialize( it0, _Ntable3, h, particles, ics.dt, numpart );
+    linklist.initialize( it0, _Ntable3, h, particles, dt, numpart );
 
     cout << "number of sph particles=" << _Ntable3 << endl;
     linklist.gtyp=6;
@@ -150,9 +152,9 @@ void SystemState::check_BSQ_energy_conservation()
     E += ( p.C*p.g2 - p.eosPtr->p() - p.bigPI + p.shv.x[0][0] )
           *p.sigmaweight*t/p.sigma;
 
-  if (first == 1)
+  if (linklist.first == 1)
   {
-    first = 0;
+    linklist.first = 0;
     E0    = E;
   }
 
@@ -175,7 +177,7 @@ void SystemState::check_BSQ_charge_conservation()
     Qtotal += p.rhoQ_sub*p.rho_weight;
   }
 
-  if (first==1)
+  if (linklist.first==1)
   {
     Btotal0 = Btotal;
     Stotal0 = Stotal;
@@ -205,7 +207,7 @@ void SystemState::conservation_entropy()
               << particles[i].sigmaweight << "   " << S << endl;
   }
 
-  if (first==1)
+  if (linklist.first==1)
     S0=S;
 }
 ///////////////////////////////////////
@@ -226,7 +228,7 @@ void SystemState::conservation_BSQ()
         Qtotal += particles[i].rhoQ_sub*particles[i].rho_weight;
     }
 
-    if (first==1)
+    if (linklist.first==1)
     {
         Btotal0 = Btotal;
         Stotal0 = Stotal;
@@ -257,9 +259,9 @@ void SystemState::bsqsvconservation_E()
               << "   " << p.sigma
               << "   " << p.sigmaweight << endl;    }
 
-    if (first==1)
+    if (linklist.first==1)
     {
-      first=0;
+      linklist.first=0;
       E0=E;
     }
 }
@@ -287,7 +289,7 @@ void SystemState::bsqsvconservation_Ez()
 // first smoothing routine covers all hydrodyanmical fields
 void SystemState::smooth_fields(int a, bool init_mode /*== false*/)
 {
-  const auto & pa    = particles[a];
+  auto & pa    = particles[a];
   pa.sigma           = 0.0;
   pa.eta             = 0.0;
   pa.rhoB_sub        = 0.0;
@@ -299,7 +301,7 @@ void SystemState::smooth_fields(int a, bool init_mode /*== false*/)
   for ( i.x[0] =- 2; i.x[0] <= 2; i.x[0]++ )
   for ( i.x[1] =- 2; i.x[1] <= 2; i.x[1]++ )
   {
-    int b = lead[ triToSum( dael[a] + i, size ) ];
+    int b = linklist.lead[ linklist.triToSum( linklist.dael[a] + i, linklist.size ) ];
     while ( b != -1 )
     {
       const auto & pb = _p[b];
@@ -358,7 +360,7 @@ void SystemState::smooth_fields(int a, bool init_mode /*== false*/)
 //from the equation of state
 void SystemState::smooth_gradients( int a, double tin, int & count )
 {
-  const auto & pa    = _p[a];
+  auto & pa    = particles[a];
 
   pa.gradP     = 0.0;
   pa.gradBulk  = 0.0;
@@ -385,7 +387,7 @@ void SystemState::smooth_gradients( int a, double tin, int & count )
     {
       const auto & pb          = particles[b];
 
-      Vector<double,2> gradK   = gradKernel( pa.r - pb.r,
+      Vector<double,2> gradK   = kernel::gradKernel( pa.r - pb.r,
                                   static_cast<bool>( a == 30 && b == 43 ) );
       Vector<double,2> va      = rowp1(0, pa.shv);
       Vector<double,2> vb      = rowp1(0, pb.shv);
@@ -401,10 +403,10 @@ void SystemState::smooth_gradients( int a, double tin, int & count )
       pa.gradP                += ( sigsqrb*pb.eosPtr->p()
                                   + sigsqra*pa.eosPtr->p() ) * sigsigK;
 
-      if ( ( ( Norm( pa.r - pb.r ) / _h ) <= 2 ) && ( a != b ) )
+      if ( ( ( Norm( pa.r - pb.r ) / settings._h ) <= 2 ) && ( a != b ) )
       {
         if ( pa.btrack != -1 ) pa.btrack++;
-        if ( pa.btrack ==  1 ) rdis = Norm(pa.r-pb.r)/_h;
+        if ( pa.btrack ==  1 ) rdis = Norm(pa.r-pb.r)/settings._h;
       }
 
       pa.gradBulk             += ( pb.Bulk/pb.sigma/pb.gamma
@@ -451,7 +453,7 @@ void SystemState::smooth_gradients( int a, double tin, int & count )
             && ( pa.Freeze < 4 ) )
     cout << "Missed " << a << " " << tin << "  "
          << pa.eosPtr->T()*197.3 << " "
-         << rdis << " " << cfon <<  endl;
+         << rdis << " " << settings.cfon <<  endl;
 
   return;
 }
@@ -510,20 +512,20 @@ if (i==0)
 				if (p.s_an>0.0)
 				{
 					double phase_diagram_point[4]
-						= { p.SPH_cell.T*197.3,
-							  p.SPH_cell.muB*197.3,
-							  p.SPH_cell.muS*197.3,
-							  p.SPH_cell.muQ*197.3 };
+						= { p.eosPtr->T()*197.3,
+							  p.eosPtr->muB()*197.3,
+							  p.eosPtr->muS()*197.3,
+							  p.eosPtr->muQ()*197.3 };
 					double densities_at_point[4];
 					get_eBSQ_densities(phase_diagram_point, densities_at_point);
 					cout << i << ":   " << p.e_sub*197.3
 						<< "   " << p.rhoB_an
 						<< "   " << p.rhoS_an
 						<< "   " << p.rhoQ_an
-						<< "   " << p.SPH_cell.T*197.3
-						<< "   " << p.SPH_cell.muB*197.3
-						<< "   " << p.SPH_cell.muS*197.3
-						<< "   " << p.SPH_cell.muQ*197.3;
+						<< "   " << p.eosPtr->T()*197.3
+						<< "   " << p.eosPtr->muB()*197.3
+						<< "   " << p.eosPtr->muS()*197.3
+						<< "   " << p.eosPtr->muQ()*197.3;
 						for (int iii = 0; iii < 4; iii++)
 							cout << "   " << densities_at_point[iii];		
 					cout << "\n";
@@ -591,10 +593,10 @@ if (i==0)
 			else	// if a solution was found
 			{
 				cout << "\t\t - phase diagram point: "
-						<< p.SPH_cell.T*197.3 << "   "
-						<< p.SPH_cell.muB*197.3 << "   "
-						<< p.SPH_cell.muS*197.3 << "   "
-						<< p.SPH_cell.muQ*197.3 << "\n";
+						<< p.eosPtr->T()*197.3 << "   "
+						<< p.eosPtr->muB()*197.3 << "   "
+						<< p.eosPtr->muS()*197.3 << "   "
+						<< p.eosPtr->muQ()*197.3 << "\n";
 			}
 
 			// freeze this particle out!
@@ -613,10 +615,10 @@ if (i==0)
 			cout << "\t --> Densities found in EoS table: "
 				<< p.r.x[0] << "   " << p.r.x[1] << "\n";
 			cout << "\t\t - phase diagram point: "
-					<< p.SPH_cell.T*197.3 << "   "
-					<< p.SPH_cell.muB*197.3 << "   "
-					<< p.SPH_cell.muS*197.3 << "   "
-					<< p.SPH_cell.muQ*197.3 << "\n";
+					<< p.eosPtr->T()*197.3 << "   "
+					<< p.eosPtr->muB()*197.3 << "   "
+					<< p.eosPtr->muS()*197.3 << "   "
+					<< p.eosPtr->muQ()*197.3 << "\n";
 			cout << "\t\t - densities: "
 					<< p.e_sub*197.3 << "   "
 					<< p.rhoB_an << "   "
@@ -624,10 +626,10 @@ if (i==0)
 					<< p.rhoQ_an << "\n";
 			
 			cout << "\t --> Exact:\n";
-			double phase_diagram_point[4] = { p.SPH_cell.T*197.3,
-											  p.SPH_cell.muB*197.3,
-											  p.SPH_cell.muS*197.3,
-											  p.SPH_cell.muQ*197.3 };
+			double phase_diagram_point[4] = { p.eosPtr->T()*197.3,
+											  p.eosPtr->muB()*197.3,
+											  p.eosPtr->muS()*197.3,
+											  p.eosPtr->muQ()*197.3 };
 			double densities_at_point[4];
 			get_eBSQ_densities(phase_diagram_point, densities_at_point);
 			cout << "\t\t - phase diagram point:";
@@ -647,12 +649,12 @@ if (i==0)
 
     p.gamma=p.gamcalc();
 
-    p.sigmaweight *= p.s_an*p.gamma*t0;	// sigmaweight is constant after this
+    p.sigmaweight *= p.s_an*p.gamma*settings.t0;	// sigmaweight is constant after this
     //p.rho_weight *= p.gamma*t0;				// rho_weight is constant after this
 
-		p.B *= p.gamma*t0;	// B does not evolve in ideal case (confirm with Jaki)
-		p.S *= p.gamma*t0;	// S does not evolve in ideal case (confirm with Jaki)
-		p.Q *= p.gamma*t0;	// Q does not evolve in ideal case (confirm with Jaki)
+		p.B *= p.gamma*settings.t0;	// B does not evolve in ideal case (confirm with Jaki)
+		p.S *= p.gamma*settings.t0;	// S does not evolve in ideal case (confirm with Jaki)
+		p.Q *= p.gamma*settings.t0;	// Q does not evolve in ideal case (confirm with Jaki)
 
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
@@ -720,6 +722,7 @@ if (i==0)
 			"----------------------------------------" << endl;
 	for (int i=0; i<_n; i++)
 	{
+    auto & p = particles[i];
 		p.s_sub = p.sigma/p.gamma/settings.t0;
 
 if (i==0)
@@ -751,20 +754,6 @@ if (i==0)
 }
 
 
-
-
-void SystemState::set_current_timestep_quantities();
-{
-  for (int i=0; i<N; ++i)
-  {
-    const auto & p = particles[i];
-    u0[i]        = p.u;
-    r0[i]        = p.r;
-    etasigma0[i] = p.eta_sigma;
-    Bulk0[i]     = p.Bulk;
-    mini( shv0[i], p.shv );
-  }
-}
 
 void SystemState::set_current_timestep_quantities()
 {
