@@ -1,6 +1,8 @@
 #include "constants.h"
 #include "kernel.h"
 
+using namespace constants;
+
 namespace kernel
 {
   double knorm, knorm2, kgrad, kgrad2;
