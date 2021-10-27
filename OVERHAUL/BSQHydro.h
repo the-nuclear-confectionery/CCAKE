@@ -29,7 +29,7 @@ class BSQHydro
 
 public:
 
-  BSQHydro(){}
+  BSQHydro();
   ~BSQHydro(){}
 
   void load_settings_file( string path_to_settings_file );

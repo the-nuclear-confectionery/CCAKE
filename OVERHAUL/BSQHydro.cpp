@@ -6,7 +6,14 @@
 #include "Stopwatch.h"
 
 // Constructors and destructors.
-//BSQHydro::BSQHydro(){}
+BSQHydro::BSQHydro()
+{
+  io.set_EquationOfStatePtr( &eos );
+  io.set_EquationsOfMotionPtr( &eom );
+  io.set_SettingsPtr( &settings );
+  io.set_SystemStatePtr( &system );
+}
+
 //BSQHydro::~BSQHydro(){}
 
 

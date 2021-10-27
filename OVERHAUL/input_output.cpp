@@ -14,8 +14,8 @@
 #include "input_output.h"
 
 // Constructors and destructors.
-//InputOutput::InputOutput(){}
-//InputOutput::~InputOutput(){}
+InputOutput::InputOutput(){}
+InputOutput::~InputOutput(){}
 
 void InputOutput::set_EquationOfStatePtr( EquationOfState * eosPtr_in )
 {
