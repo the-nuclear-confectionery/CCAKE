@@ -12,6 +12,9 @@
 #include <algorithm>
 #include <cmath>
 #include "input_output.h"
+#include "constants.h"
+
+using namespace constants;
 
 // Constructors and destructors.
 InputOutput::InputOutput(){}
