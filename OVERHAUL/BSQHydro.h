@@ -92,7 +92,7 @@ private:
   Input_Parameters input_parameters;
   Initial_Conditions initial_conditions;
 
-  void trim_initical_conditions();
+  void trim_initial_conditions();
 };
 
 #endif

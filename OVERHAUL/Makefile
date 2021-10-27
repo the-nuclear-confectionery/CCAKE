@@ -1,6 +1,6 @@
 OBJS = main.o vector.o matrix.o BSQHydro.o runge_kutta.o particle.o eos.o \
        system_state.o linklist.o equations_of_motion.o eos_delaunay.o \
-			 input_output.o kernel.o
+			 kernel.o input_output.o
 #CC = g++
 CC = h5c++
 DEBUG = -g
