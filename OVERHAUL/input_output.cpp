@@ -61,7 +61,7 @@ void InputOutput::load_settings_file( string path_to_settings_file )
             iss >> ignore >> param;
             all_parameters.push_back(param);
         }
-
+        cout << all_parameters.size();
         settingsPtr->input_parameters.IC_type                = all_parameters[0];
         settingsPtr->input_parameters.h                      = stod(all_parameters[1]);
         settingsPtr->input_parameters.dt                     = stod(all_parameters[2]);
