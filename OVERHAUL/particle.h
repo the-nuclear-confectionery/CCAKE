@@ -23,7 +23,7 @@ class Particle
 
     // Constructors and destructors.
     Particle();
-   ~Particle();
+   ~Particle(){}
 
   bool operator==( const Particle & ) const;
 

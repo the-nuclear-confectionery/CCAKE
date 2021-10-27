@@ -8,7 +8,7 @@ class LinkList
 {
 public:
   LinkList();
-  ~LinkList();
+  ~LinkList(){}
 
   void initiate(vector<Particle> & particles);
   void initialize( double it0, int ntot, double h,
