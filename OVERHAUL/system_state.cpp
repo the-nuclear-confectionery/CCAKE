@@ -47,6 +47,12 @@ void SystemState::initialize()  // formerly called "manualenter"
 
   int df;
 
+cout << __PRETTY_FUNCTION__ << ": " << endl;
+_n = particles.size();
+
+cout << "_n = " << _n << endl;
+
+
 
   /*
 
