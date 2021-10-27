@@ -15,6 +15,7 @@ public:
 
   double t0;
 
+  double stepx, stepy;
 
   double _h;
   //int _n;

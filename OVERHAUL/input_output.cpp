@@ -129,21 +129,26 @@ void InputOutput::read_in_initial_conditions()
     int count_header_lines = 0;
     int count_file_lines = 0;
     double x,y,e,rhoB,rhoS,rhoQ;
-  while (getline (infile, line))
-          {
-            if(count_header_lines < total_header_lines)
+    double ignore, stepX, stepY;
+    istringstream iss(line);
+    while (getline (infile, line))
             {
-              settingsPtr->headers.push_back(line);
-              count_header_lines++;
+              if(count_header_lines < total_header_lines)
+              {
+                settingsPtr->headers.push_back(line);
+                iss >> ignore >> stepX >> stepY;
+                settingsPtr->stepx = stepX;
+                settingsPtr->stepy = stepY;
+                count_header_lines++;
+              }
+              else
+              {
+                iss >> x >> y >> e >> rhoB >> rhoS >> rhoQ;
+                e /= hbarc_Gevfm
+                vector<double> fields({x,y,e,rhoB,rhoS,rhoQ});
+                systemPtr->particles.push_back(Particle(fields));
             }
-            else
-            {
-              istringstream iss(line);
-              iss >> x >> y >> e >> rhoB >> rhoS >> rhoQ;
-              vector<double> fields({x,y,e,rhoB,rhoS,rhoQ});
-              systemPtr->particles.push_back(Particle(fields));
           }
-        }
   }
   else
   {
