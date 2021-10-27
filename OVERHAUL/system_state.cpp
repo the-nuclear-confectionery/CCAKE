@@ -25,6 +25,7 @@ using std::string;
 #include "eos.h"
 #include "Stopwatch.h"
 #include "system_state.h"
+#include "linklist.h"
 
 using namespace constants;
 

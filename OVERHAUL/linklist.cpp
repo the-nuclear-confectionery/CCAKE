@@ -1,7 +1,6 @@
 #include "vector.h"
 #include "matrix.h"
 #include "particle.h"
-#include "linklist.h"
 #include "mathdef.h"
 #include "random.h"
 #include "eos.h"
@@ -11,6 +10,8 @@
 #include <cmath>
 #include <vector>
 #include "Stopwatch.h"
+
+#include "linklist.h"
 
 // this contains functions for calling EoS directly
 #include <lib.h>
