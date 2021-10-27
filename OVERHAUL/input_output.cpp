@@ -77,11 +77,16 @@ void InputOutput::set_EoS_type()
   string derivatives = EoS_files_location + "/derivatives.dat";
   string EoS_option = settingsPtr->input_parameters.EoS_option;
 
-  switch(EoS_option)
+  if(EoS_option == "Default")
   {
-    default:
-      cout << "Running default EoS option for " << EoS_type << endl;
+    cout << "Running default EoS option for " << EoS_type << endl;
   }
+  else
+  {
+    cout <<"EoS option not recognized for " << EoS_type << ", now exiting." << endl;
+    exit(1)
+  }
+
 
   eosPtr->quantity_file = densities;
   eosPtr->deriv_file = derivatives;
@@ -93,13 +98,15 @@ void InputOutput::read_in_initial_conditions()
   string initial_condition_type = settingsPtr->input_parameters.IC_type;
   int total_header_lines;
   string IC_file = "All_Initial_Conds/";
-  switch(initial_condition_type)
+
+  if(initial_condtion_type == "ICCING")
   {
-    case "ICCING" :
       cout << "Reading in ICCING initial conditions!" << endl;
       IC_file = IC_file+"Iccing_conditions.dat"; // need to change ic0.dat
-      total_header_lines = 1;
-    default :
+      total_header_lines = 1;    
+  }
+  else
+  {
       cout << "Selected initial condition type not supported." << endl;
       exit(1);
   }
