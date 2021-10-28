@@ -42,7 +42,7 @@ int animal::count_legs()
     return legs;
 }
 
-string animal::type()
+string animal::animal_type()
 {
     return type;
 }
