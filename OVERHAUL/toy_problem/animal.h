@@ -15,6 +15,7 @@
 class animal
 {
     animal();
+    animal(string Sound, String Type, int Legs);
     ~animal();
 };
 

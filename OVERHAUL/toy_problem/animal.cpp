@@ -38,7 +38,10 @@ int animal::count_legs()
 
 string animal::type()
 {
-    return typel
+    return type;
 }
 
-void animal::setOwner
+void animal::setNameByOwner(Ownder *owner)
+{
+    name = owner.getName();
+}
