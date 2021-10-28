@@ -158,8 +158,6 @@ void InputOutput::read_in_initial_conditions()
                 systemPtr->particles.push_back( Particle(fields) );
             }
           }
-          cout << (systemPtr->particles)[0].r.x[0] << "   "
-                << (systemPtr->particles)[0].r.x[1] << endl;
   }
   else
   {

@@ -38,11 +38,11 @@ void LinkList::initialize( double it0, int ntot, double h,
   cout << "_h = " << _h << endl;
   cout << "_n = " << _n << endl;
 
-    cout << "Check 1: " << particles_in[0].r.x[0] << "   " << particles_in[0].r.x[1] << endl;
+//    cout << "Check 1: " << particles_in[0].r.x[0] << "   " << particles_in[0].r.x[1] << endl;
 
   particles   = particles_in;
 
-    cout << "Check 2: " << particles[0].r.x[0] << "   " << particles[0].r.x[1] << endl;
+//    cout << "Check 2: " << particles[0].r.x[0] << "   " << particles[0].r.x[1] << endl;
 
 //    knorm       = 10/7./pi/(_h*_h);
 //    knorm2      = knorm*0.25;
@@ -76,7 +76,7 @@ void LinkList::initialize( double it0, int ntot, double h,
   max = particles[0].r;
   min = particles[0].r;
 
-  cout << "Check: " << _n << "   " << particles.size() << endl;
+//  cout << "Check: " << _n << "   " << particles.size() << endl;
 
   cout << particles[0].r << endl;
 
@@ -87,10 +87,10 @@ void LinkList::initialize( double it0, int ntot, double h,
   for ( int i = 1; i < _n; i++ )
   for ( int j = 0; j < 2;  j++ )
   {
-    cout << i << " ======= " << j << endl;
+    /*cout << i << " ======= " << j << endl;
     cout << particles[i].r.x[j] << endl;
     cout << min.x[j] << endl;
-    cout << max.x[j] << endl;
+    cout << max.x[j] << endl;*/
     if ( particles[i].r.x[j] > max.x[j] ) max.x[j] = particles[i].r.x[j];
     if ( particles[i].r.x[j] < min.x[j] ) min.x[j] = particles[i].r.x[j];
   }
