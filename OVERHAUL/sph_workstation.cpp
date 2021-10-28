@@ -541,7 +541,7 @@ void SPHWorkstation::process_initial_conditions()
 		p.u.x[1]          = 0.0;
 		p.eta_sigma       = 1.0;
 		p.sigmaweight     = stepX*stepY;
-		p.rho_weight      = settings->stepx*stepY;
+		p.rho_weight      = stepX*stepY;
 		p.Bulk            = 0.0;
 		p.B               = p.rhoB_an*stepX*stepY;
 		p.S               = p.rhoS_an*stepX*stepY;
