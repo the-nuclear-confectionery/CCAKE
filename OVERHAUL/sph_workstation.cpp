@@ -76,15 +76,15 @@ cout << p.s_an << endl;
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
 			<< p.sigmaweight << "   " << p.e_sub << "   "
-			<< p.eosPtr->T() << "   " << p.eosPtr->e() << "   "
-			<< p.eosPtr->p() << "   " << p.s_an << endl;
+			<< p.T() << "   " << p.e() << "   "
+			<< p.p() << "   " << p.s_an << endl;
 			p.s_an = p.locate_phase_diagram_point_eBSQ(
                     p.e_sub, p.rhoB_an, p.rhoS_an, p.rhoQ_an );
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
 			<< p.sigmaweight << "   " << p.e_sub << "   "
-			<< p.eosPtr->T() << "   " << p.eosPtr->e() << "   "
-			<< p.eosPtr->p() << "   " << p.s_an << endl;
+			<< p.T() << "   " << p.e() << "   "
+			<< p.p() << "   " << p.s_an << endl;
 
 			if (true || settingsPtr->VERBOSE>5)
 			{
