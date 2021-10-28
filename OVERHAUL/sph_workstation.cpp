@@ -521,7 +521,7 @@ void SPHWorkstation::process_initial_conditions()
 {
   // impose the energy cut-off before the initial time step of hydro
   // the original cut should be 0.15
-  vector<Particle> threshold_particles;
+  /*vector<Particle> threshold_particles;
   for (auto & p : systemPtr->particles)
   {
 cout << "check 0: " << p.r.x[0] << "   " << p.r.x[1] << "   " << p.e_sub << "   "
@@ -541,7 +541,7 @@ cout << "check 0: " << p.r.x[0] << "   " << p.r.x[1] << "   " << p.e_sub << "   
   systemPtr->particles = threshold_particles;
 
   // need to reset EoS pointers?
-  for (auto & p : systemPtr->particles) p.set_EquationOfStatePtr( eosPtr );
+  for (auto & p : systemPtr->particles) p.set_EquationOfStatePtr( eosPtr );*/
 
 
   cout << "After e-cutoff and freeze-out: size = " << systemPtr->particles.size() << endl;
