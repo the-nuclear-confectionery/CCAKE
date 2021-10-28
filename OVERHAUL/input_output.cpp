@@ -136,8 +136,8 @@ void InputOutput::read_in_initial_conditions()
   {
     string line;
     int count_header_lines = 0;
-    int count_file_lines = 0;
-    double x,y,e,rhoB,rhoS,rhoQ;
+    int count_file_lines   = 0;
+    double x, y, e, rhoB, rhoS, rhoQ;
     double ignore, stepX, stepY;
 
     while (getline (infile, line))
