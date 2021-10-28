@@ -524,6 +524,8 @@ void SPHWorkstation::process_initial_conditions()
   vector<Particle> threshold_particles;
   for (auto & p : systemPtr->particles)
   {
+cout << "check 0: " << p.r.x[0] << "   " << p.r.x[1] << "   " << p.e_sub << "   "
+      << p.rhoB_an << "   " << p.rhoS_an << "   " << p.rhoQ_an << endl;
 	  if (p.e_sub>0.00301/hbarc_GeVfm) // this will be changed, NOT HARDCODED!!
 	  {
       vector<double> tmp = {p.r.x[0], p.r.x[1], p.e_sub, p.rhoB_an, p.rhoS_an, p.rhoQ_an};

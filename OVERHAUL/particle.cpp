@@ -33,16 +33,6 @@ Particle::Particle(vector<double> &fields)
   s_an = 0.0;
 }
 
-/////////////////////////////////////////////
-// copy-constructor
-Particle::Particle( const Particle& p )
-{
-  Imat.identity();
-  eosPtr = p.eosPtr;
-  //thermo.set(*eosPtr);
-  return;
-}
-
 
 ////////////////////////////////////////////////////////////////////////////////
 void Particle::set_EquationOfStatePtr( EquationOfState * eosPtr_in )
