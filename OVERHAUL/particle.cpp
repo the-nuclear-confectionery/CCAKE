@@ -29,7 +29,7 @@ Particle::Particle(vector<double> &fields)
   rhoB_an = fields[3];
   rhoS_an = fields[4];
   rhoQ_an = fields[5];
-cout << "inside constructor: " << fields[0] << "   "
+cout << "inside constructor: " << std::flush << fields[0] << "   "
     << fields[1] << "   "
     << fields[2] << "   "
     << fields[3] << "   "
