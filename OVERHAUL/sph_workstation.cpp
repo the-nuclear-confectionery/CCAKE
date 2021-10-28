@@ -525,13 +525,15 @@ void SPHWorkstation::process_initial_conditions()
   }
   systemPtr->particles = threshold_particles;
 
+  cout << "After e-cutoff and freeze-out: size = " << systemPtr->particles.size() << endl;
+
 
   // fill out initial particle information
+  int TMP_particle_count = 0;
 	double stepX = settingsPtr->stepx;
 	double stepY = settingsPtr->stepy;
 	for (auto & p : systemPtr->particles)
   {
-    //double stepx = 0.05, stepy = 0.05;
 		p.u.x[0]          = 0.0;
 		p.u.x[1]          = 0.0;
 		p.eta_sigma       = 1.0;
@@ -543,13 +545,13 @@ void SPHWorkstation::process_initial_conditions()
 		p.Q               = p.rhoQ_an*stepX*stepY;
 		p.transverse_area = stepX*stepY;
 
-		//if (j==0)
-		cout << "readICs_iccing(" << __LINE__ << "): "
-		  << "SPH particles: "
-		  << p.r.x[0] << "   " << p.r.x[1] << "   "
-		  << p.e_sub << "   " << p.rhoB_an << "   "
-		  << p.rhoS_an << "   " << p.rhoQ_an << "   "
-		  << p.sigmaweight << endl;
+		if (TMP_particle_count++==0)
+      cout << "readICs_iccing(" << __LINE__ << "): "
+        << "SPH particles: "
+        << p.r.x[0] << "   " << p.r.x[1] << "   "
+        << p.e_sub << "   " << p.rhoB_an << "   "
+        << p.rhoS_an << "   " << p.rhoQ_an << "   "
+        << p.sigmaweight << endl;
 
 		// make educated initial guess here for this particle's (T, mu_i) coordinates
 		// (improve this in the future)
@@ -568,5 +570,8 @@ void SPHWorkstation::process_initial_conditions()
 			systemPtr->number_part++;
 		}
   }
+
+  cout << "After freezeout (redundant): size = "
+      << systemPtr->particles.size()-systemPtr->number_part << endl;
 }
 /////////////////////////////////////////////////////////////////////////////////
