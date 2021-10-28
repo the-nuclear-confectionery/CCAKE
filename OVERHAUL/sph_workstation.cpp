@@ -521,7 +521,7 @@ void SPHWorkstation::process_initial_conditions()
   // impose the energy cut-off at the initial time step
   for (auto & p : particles)
   {
-  // if (esub[i]>0.15) ++i;
+  if (esub>0.15) ++i;
             ++i; 
   }
 
