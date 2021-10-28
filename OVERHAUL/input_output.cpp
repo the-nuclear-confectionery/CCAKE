@@ -153,6 +153,15 @@ void InputOutput::read_in_initial_conditions()
               else
               {
                 iss >> x >> y >> e >> rhoB >> rhoS >> rhoQ;
+
+cout << "new check0: " << flush
+                << flush << x << "   "
+                << flush << y << "   "
+                << flush << e << "   "
+                << flush << rhoB << "   "
+                << flush << rhoS << "   "
+                << flush << rhoQ << "   " << endl;
+
                 e /= hbarc_GeVfm;
                 vector<double> fields({x,y,e,rhoB,rhoS,rhoQ});
                 Particle test = Particle(fields);
