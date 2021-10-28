@@ -47,7 +47,17 @@ string animal::type()
     return type;
 }
 
+void animal::setOwnerPtr(string* ownerPtrIn)
+{
+    ownerPtr = ownerPtrIn;
+}
+
 // void animal::setNameByOwner(Ownder *owner)
 // {
 //     name = owner.getName();
 // }
+
+string animal::returnOwner()
+{
+    return *ownerPtr;
+}
