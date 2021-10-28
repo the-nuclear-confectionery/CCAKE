@@ -518,7 +518,7 @@ void SPHWorkstation::process_initial_conditions()
   vector<Particle> threshold_particles;
   for (auto & p : systemPtr->particles)
   {
-	  if (p.esub>0.00301) // this will be changed, NOT HARDCODED!!
+	  if (p.e_sub>0.00301) // this will be changed, NOT HARDCODED!!
 	  {
 		 threshold_particles.push_back(p);
 	  }
@@ -527,8 +527,8 @@ void SPHWorkstation::process_initial_conditions()
 
 
   // fill out initial particle information
-	double stepX = settings->stepx;
-	double stepY = settings->stepy;
+	double stepX = settingsPtr->stepx;
+	double stepY = settingsPtr->stepy;
 	for (auto & p : systemPtr->particles)
   {
     //double stepx = 0.05, stepy = 0.05;
@@ -541,7 +541,7 @@ void SPHWorkstation::process_initial_conditions()
 		p.B               = p.rhoB_an*stepX*stepY;
 		p.S               = p.rhoS_an*stepX*stepY;
 		p.Q               = p.rhoQ_an*stepX*stepY;
-		p.transverse_area = stepX*sstepY;
+		p.transverse_area = stepX*stepY;
 
 		//if (j==0)
 		cout << "readICs_iccing(" << __LINE__ << "): "
@@ -558,14 +558,14 @@ void SPHWorkstation::process_initial_conditions()
 		p.thermo.muS = 0.0/hbarc_MeVfm;
 		p.thermo.muQ = 0.0/hbarc_MeVfm;
 
-		if (p.e_sub>efcheck)	// impose freeze-out check for e, not s
+		if (p.e_sub>systemPtr->efcheck)	// impose freeze-out check for e, not s
 	    {
 			p.Freeze=0;
 		}
 		else
 		{
 			p.Freeze=4;
-			systemPtr->number_part += 1;
+			systemPtr->number_part++;
 		}
   }
 }
