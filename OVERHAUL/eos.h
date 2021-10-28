@@ -28,6 +28,7 @@ public:
     EquationOfState(string quantityFile, string derivFile);
 
     EquationOfState();
+    void init();
     void init(string quantityFile, string derivFile);
     void init_grid_ranges_only(string quantityFile, string derivFile);
 
