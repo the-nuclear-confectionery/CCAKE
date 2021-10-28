@@ -12,6 +12,7 @@ public:
   SPHWorkstation(){}
   ~SPHWorkstation(){}
 
+  void set_EquationOfStatePtr(EquationOfState * eosPtr_in);
   void set_SystemStatePtr( SystemState * systemPtr_in );
   void set_SettingsPtr( Settings * settingsPtr_in );
 
@@ -28,7 +29,8 @@ private:
   
   SystemState * systemPtr;
   Settings * settingsPtr;
-  
+  EquationOfState * eosPtr;
+
 
 };
 

@@ -8,6 +8,12 @@
 
 using namespace constants;
 
+////////////////////////////////////////////////////////////////////////////////
+void SPHWorkstation::set_EquationOfStatePtr(EquationOfState * eosPtr_in)
+{
+  eosPtr = eosPtr_in;
+}
+
 void SPHWorkstation::set_SystemStatePtr( SystemState * systemPtr_in )
 {
   systemPtr = systemPtr_in;
@@ -524,6 +530,7 @@ void SPHWorkstation::process_initial_conditions()
 	  }
   }
   systemPtr->particles = threshold_particles;
+
 
   // need to reset EoS pointers?
   for (auto & p : systemPtr->particles) p.set_EquationOfStatePtr( eosPtr );
