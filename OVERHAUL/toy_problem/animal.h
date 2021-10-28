@@ -24,7 +24,7 @@ class animal
 {
 public:
     animal();
-    animal(string Sound, string Type, int Legs);
+    animal(string Type, int Legs);
     ~animal();
 
 
