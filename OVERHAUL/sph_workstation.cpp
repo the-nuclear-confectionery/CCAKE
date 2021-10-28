@@ -523,7 +523,7 @@ void SPHWorkstation::process_initial_conditions()
   vector<Particle> threshold_particles;
   for (auto & p : systemPtr->particles)
   {
-	  if (p.esub>0.00301) // this will be changed
+	  if (p.esub>0.00301) // this will be changed, NOT HARDCODED!!
 	  {
 		 threshold_particles.push_back(p);
 	  }
