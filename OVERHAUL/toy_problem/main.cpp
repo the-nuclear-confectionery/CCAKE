@@ -24,13 +24,13 @@ int main (int argc, char *argv[])
  vector<int> legs = {4,4,4,2};
  vector<animal> vecOfAnimals;
  string OWNER = "Jimbo";
- for (int i = 0; i<types.size;i++)
+ for (int i = 0; i<types.size();i++)
  {
     vecOfAnimals.push_back(animal(types[i],legs[i]));
  }
 
  vector<animal> tempAnimals;
-  for (int i = 0; i<types.size;i++)
+  for (int i = 0; i<types.size();i++)
  {
      vecOfAnimals[i].setOwnerPtr(*OWNER);
      cout << vecOfAnimals[i] << endl;
@@ -42,7 +42,7 @@ int main (int argc, char *argv[])
 
  vecOfAnimals = tempAnimals;
 
-   for (int i = 0; i<vecOfAnimals.size;i++)
+   for (int i = 0; i<vecOfAnimals.size();i++)
  {
      cout << vecOfAnimals[i] << endl;
  }
