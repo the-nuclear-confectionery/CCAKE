@@ -10,7 +10,7 @@
 #include <vector>
 
 #include "animal.h"
-#include "animal.cpp"
+//#include "animal.cpp"
 
 
 using std::cout;
