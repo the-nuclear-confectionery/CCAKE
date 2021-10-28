@@ -33,6 +33,20 @@ Particle::Particle(vector<double> &fields)
   s_an = 0.0;
 }
 
+Particle::Particle( const Particle& p )
+{
+  Imat.identity();
+  r.x[0]  = p.r.x[0];
+  r.x[1]  = p.r.x[1];
+  e_sub   = p.e_sub;
+  rhoB_an = p.rhoB_an;
+  rhoS_an = p.rhoS_an;
+  rhoQ_an = p.rhoQ_an;
+  s_an = 0.0;
+  eosPtr = p.eosPtr;
+}
+
+
 
 ////////////////////////////////////////////////////////////////////////////////
 void Particle::set_EquationOfStatePtr( EquationOfState * eosPtr_in )
