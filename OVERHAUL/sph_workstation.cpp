@@ -521,13 +521,15 @@ void SPHWorkstation::process_initial_conditions()
   // impose the energy cut-off before the initial time step of hydro
   // the original cut should be 0.15
   vector<Particle> threshold_particles;
-  for (auto & p : particles)
+  for (auto & p : systemPtr->particles)
   {
 	  if (p.esub>0.00301) // this will be changed
 	  {
-		 threshold_particles.push_back(p) 
+		 threshold_particles.push_back(p);
 	  }
   }
+  systemPtr->particles = threshold_particles;
+
 
   // fill out initial particle information
 	for (auto & p : systemPtr->particles)
