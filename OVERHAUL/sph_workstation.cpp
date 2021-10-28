@@ -547,7 +547,7 @@ cout << "check 0: " << p.r.x[0] << "   " << p.r.x[1] << "   " << p.e_sub << "   
   // try this
   systemPtr->particles.erase( std::remove_if(
     systemPtr->particles.begin(), systemPtr->particles.end(),
-    [](Particle const & x) { return p.e_sub > 0.00301 / hbarc_GeVfm; } ),
+    [](Particle const & p) { return p.e_sub > 0.00301 / hbarc_GeVfm; } ),
     systemPtr->particles.end() );
 
 
