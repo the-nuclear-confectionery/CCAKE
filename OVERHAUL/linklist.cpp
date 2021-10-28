@@ -26,7 +26,7 @@ LinkList::LinkList()
 
 
 void LinkList::initialize( double it0, int ntot, double h,
-                           vector<Particle> & particles_in,
+                           vector<Particle> * particlesPtr_in,
                            double dtsave, int & numpart)
 {
   t0          = it0;
@@ -40,7 +40,8 @@ void LinkList::initialize( double it0, int ntot, double h,
 
 //    cout << "Check 1: " << particles_in[0].r.x[0] << "   " << particles_in[0].r.x[1] << endl;
 
-  particles   = particles_in;
+  //particles   = particles_in;
+  particlesPtr = particlesPtr_in;
 
 //    cout << "Check 2: " << particles[0].r.x[0] << "   " << particles[0].r.x[1] << endl;
 
@@ -51,7 +52,7 @@ void LinkList::initialize( double it0, int ntot, double h,
   //link        = new int[_n];
   //dael        = new Vector<int,2>[_n];
   link        = vector<int>(_n);
-  dael        = vector< Vector<int,2> >(_n);
+  //dael        = vector< Vector<int,2> >(_n);
   steps       = 100*(floor(tend-t0)+1);
 
   kernel::set_kernel_parameters( _h );
@@ -61,114 +62,38 @@ void LinkList::initialize( double it0, int ntot, double h,
   avgetasig   = 0.0;
 
 
+  // initialize linklist
+  initiate();
 
-  //////////////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////////////
-
-
-
-  // check what happens with particle separates by itself?  Where in fortran code?
-  //find system boundaries
-
-  max = particles[0].r;
-  min = particles[0].r;
-
-//  cout << "Check: " << _n << "   " << particles.size() << endl;
-
-  cout << particles[0].r << endl;
-
-  cout << min << endl;
-  cout << max << endl;
-
-
-  for ( int i = 1; i < _n; i++ )
-  for ( int j = 0; j < 2;  j++ )
-  {
-    /*cout << i << " ======= " << j << endl;
-    cout << particles[i].r.x[j] << endl;
-    cout << min.x[j] << endl;
-    cout << max.x[j] << endl;*/
-    if ( particles[i].r.x[j] > max.x[j] ) max.x[j] = particles[i].r.x[j];
-    if ( particles[i].r.x[j] < min.x[j] ) min.x[j] = particles[i].r.x[j];
-  }
-
-  //evaluate system size
-
-  //2*range puts extra boxes on sides of grid
-  double sub = 1.0/_h;
-  size       = sub*(max-min)+(2.0*range+1.0)*uni;
-
-  //Size is the volume
-  Size       = 1;
-
-  Vector<double,2> dsub;
-
-  // finds total volume of the system
-  for ( int i = 0; i < 2; i++ )
-    Size *= size.x[i];
-
-
-  //dael: relates every particle with its linklist cube
-  // also convert particle position to an integer
-
-  for (int j=0; j<_n; j++)
-    dael[j] = sub*(particles[j].r-min) + (1.0*range)*uni;
-
-  //lead: relates every linklist cube with one of the particles (leader) in it
-  //link: links the leader particle of one cube with the others of the same cube
-  // if only one particle in cube then it is the lead
-
-  cout << "Checking this part:" << endl;
-  cout << "Size = " << Size << endl;
-
-  lead = vector<int>(Size);
-
-  cout << "lead.size() = " << lead.size() << endl;
-
-
-  for ( int j = 0; j < Size; j++ )
-    lead[j] = -1;
-
-
-  for ( int k = _n-1; k >= 0; k-- )
-  {
-    int tt   = triToSum( dael[k], size );
-    link[k]  = lead[tt];
-    lead[tt] = k;
-  }
 
 
   return;
 }
 
-void LinkList::initiate(vector<Particle> & particles)
+void LinkList::initiate()
 {
   // check what happens with particle separates by itself?  Where in fortran code?
   //find system boundaries
 
-  max = particles[0].r;
-  min = particles[0].r;
+  //max = (*particlesPtr)[0].r;
+  //min = (*particlesPtr)[0].r;
 
-  for ( int i = 1; i < _n; i++ )
+  //for ( int i = 1; i < _n; i++ )
+  for ( auto & p : *particlesPtr )
   for ( int j = 0; j < 2;  j++ )
   {
-    if ( particles[i].r.x[j] > max.x[j] ) max.x[j] = particles[i].r.x[j];
-    if ( particles[i].r.x[j] < min.x[j] ) min.x[j] = particles[i].r.x[j];
+    if ( p.r.x[j] > max.x[j] ) max.x[j] = p.r.x[j];
+    if ( p.r.x[j] < min.x[j] ) min.x[j] = p.r.x[j];
   }
 
   //evaluate system size
 
   //2*range puts extra boxes on sides of grid
-  double sub = 1.0/_h;
-  size       = sub*(max-min)+(2.0*range+1.0)*uni;
+  double inv_h = 1.0/_h;
+  size       = inv_h*(max-min)+(2.0*range+1.0)*uni;
 
   //Size is the volume
   Size       = 1;
-
-  Vector<double,2> dsub;
 
   // finds total volume of the system
   for ( int i = 0; i < 2; i++ )
@@ -178,8 +103,10 @@ void LinkList::initiate(vector<Particle> & particles)
   //dael: relates every particle with its linklist cube
   // also convert particle position to an integer
 
-  for (int j=0; j<_n; j++)
-    dael[j] = sub*(particles[j].r-min) + (1.0*range)*uni;
+  //for (int j=0; j<_n; j++)
+  //  dael[j] = inv_h*(particles[j].r-min) + (1.0*range)*uni;
+  for ( auto & p : *particlesPtr )
+    dael.push_back( inv_h*(p.r-min) + (1.0*range)*uni );
 
   //lead: relates every linklist cube with one of the particles (leader) in it
   //link: links the leader particle of one cube with the others of the same cube
