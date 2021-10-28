@@ -64,7 +64,7 @@ void eos_delaunay::init(string EoS_table_file, int e_or_s)
 	load_EoS_table(EoS_table_file, grid, e_or_s);
 
 	// check grid size; probably make this part of EoS table file's header info eventually...
-	if ( grid.size() != nT*nmub*nmuq*nmus )
+	if ( true || grid.size() != nT*nmub*nmuq*nmus )
 	{
 		cerr << "Your chosen gridsizes do not match the input files!  Aborting!" << endl;
 		exit(-1);
