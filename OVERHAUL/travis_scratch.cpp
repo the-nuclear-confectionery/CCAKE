@@ -18,33 +18,87 @@ void load_settings_file( string path_to_settings_file )
             iss >> ignore >> param[param_line];
         }
 
-        input_parameter.IC_tpye = param[0]
-        input_parameter.h = stod(param[1])
-        input_parameter.dt = stod(param[2])
-        input_parameter.t0 = stod(param[3])
-        input_parameter.EoS = param[4]
-        input_parameter.eta = param[5]
-        input_parameter.zeta = param[6]
-        input_parameter.Freeze_Out_Temperature = stod(param[7])
-        input_parameter.Freeze_Out_Type = param[8]
+        input_parameters.IC_tpye = param[0];
+        input_parameters.h = stod(param[1]);
+        input_parameters.dt = stod(param[2]);
+        input_parameters.t0 = stod(param[3]);
+        input_parameters.EoS_type = param[4];
+        input_parameters.EoS_option = param[5];
+        input_parameters.eta = param[6]
+        input_parameters.zeta = param[7]
+        input_parameters.Freeze_Out_Temperature = stod(param[8])
+        input_parameters.Freeze_Out_Type = param[9]
 
         infile.close();
     }
 }
 
-void set_EoS_type(string EoS_type)
+void set_EoS_type()
 {
-  switch(EoS_type)
+  EoS_type = input_parameters.EoS_type;
+  string EoS_files_location = 'EoS/' + EoS_type;
+  string densities = EoS_files_location + '/densities.dat';
+  string derivatives = EoS_files_location + '/derivatives.dat';
+  string EoS_option = input_paramters.EoS_option;
+
+  switch(EoS_spec)
   {
-    string 
-    Case 'Houston' :
-      cout << "EoS Selected: Houston Default" << endl
-
-    
     Case default   :
-      cout << "Specified EoS not supported." << endl
-
+      cout << "Running default EoS option for " << EoS_type << endl;
   }
+
+  eos.innit(desnities,derivatives);
+  return
+}
+
+
+
+void InputOutput::read_in_initial_conditions()
+{
+  string initial_condition_type = input_parameters.IC_type;
+  int total_header_lines;
+  string IC_file = 'All_Initial_Conds/'
+  switch(initial_condition_type)
+  {
+    case 'ICCING' :
+      cout << "Reading in ICCING initial conditions!" << endl;
+      IC_file = IC_file+'Iccing_conditions.dat' // need to change ic0.dat
+      total_header_lines = 1;
+    case default :
+      cout << "Selected initial condition type not supported."
+  }
+
+  ifstream infile(IC_file.c_str());
+  cout << "Initial conditions file: " << IC_file << endl;
+  if (infile.is_open())
+  {
+    string line;
+    int count_header_lines = 0;
+    int count_file_lines = 0;
+    double x,y,e,rhoB,rhoS,rhoQ;
+  while (getline (infile, line))
+          {
+            if(count_header_lines < total_header_lines)
+            {
+              initial_conditions.headers.pushback(line)
+              count_header_lines++;
+            }
+            else
+            {
+              istringstream iss(line);
+              iss >> x >> y >> e >> rhoB >> rhoS >> rhoQ;
+              vector<double> fields({x,y,e,rhoB,rhoS,rhoQ})
+              initial_conditions.density_grid.pushback(fields)
+          }
+        }
+  }
+  else
+  {
+
+    cout << "Can't open " << IC_file << endl;
+    exit(1);
+  }
+  infile.close();
 }
 
 ///////////INPUT_OUTPUT.CPP END//////////////
@@ -70,6 +124,28 @@ void BSQHydro::set_results_directory( string path_to_results_directory ){}
 
 
 void BSQHydro::read_in_initial_conditions(){}
+
+
+
+void BSQHydro::trim_initical_conditions()
+{
+  vector<vector<double>> trimmed_grid;
+  int cells_before_trim = initial_conditions.density_grid.size();
+  for(int i=0; i<cells_before_trim; i++)
+  {
+    double e = initial_conditions.density_grid[i][2];
+    double rhoB = initial_conditions.density_grid[i][3];
+    double rhoS = initial_conditions.density_grid[i][4];
+    double rhoQ = initial_conditions.density_grid[i][5];
+
+    eos.sout(e,rhoB,rhoS,rhoQ);
+    if (eos.T() > input_parameters.Freeze_Out_Temperature)
+    {
+      trimmed_grid.pushback(initial_conditions.density_grid[i]);
+    }
+  }
+  initial_conditions.density_grid = trimmed_grid;
+}
 
 
 
@@ -150,6 +226,9 @@ private:
 
   // the current state of the hydrodynamic simulation
   SystemState system;
+
+
+  void trim_initical_conditions()
 
 }
 
