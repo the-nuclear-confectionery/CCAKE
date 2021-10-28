@@ -9,10 +9,10 @@
 using namespace constants;
 
 ////////////////////////////////////////////////////////////////////////////////
-void SPHWorkstation::set_EquationOfStatePtr(EquationOfState * eosPtr_in)
-{
-  eosPtr = eosPtr_in;
-}
+//void SPHWorkstation::set_EquationOfStatePtr(EquationOfState * eosPtr_in)
+//{
+//  eosPtr = eosPtr_in;
+//}
 
 void SPHWorkstation::set_SystemStatePtr( SystemState * systemPtr_in )
 {
@@ -533,7 +533,7 @@ void SPHWorkstation::process_initial_conditions()
 
 
   // need to reset EoS pointers?
-  for (auto & p : systemPtr->particles) p.set_EquationOfStatePtr( eosPtr );
+//  for (auto & p : systemPtr->particles) p.set_EquationOfStatePtr( eosPtr );
 
 
   cout << "After e-cutoff and freeze-out: size = " << systemPtr->particles.size() << endl;
