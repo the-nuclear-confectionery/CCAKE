@@ -39,7 +39,7 @@ Particle::Particle( const Particle& p )
 {
   Imat.identity();
   eosPtr = p.eosPtr;
-  thermo.set(*eosPtr);
+  //thermo.set(*eosPtr);
   return;
 }
 
