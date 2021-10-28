@@ -35,7 +35,7 @@ Particle::Particle(vector<double> &fields)
 
 /////////////////////////////////////////////
 // copy-constructor
-Particle( const Particle& p )
+Particle::Particle( const Particle& p )
 {
   Imat.identity();
   eosPtr = p.eosPtr;
