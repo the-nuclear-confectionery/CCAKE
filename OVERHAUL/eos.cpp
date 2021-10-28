@@ -17,6 +17,9 @@
 #include <lib.h>
 #include "eos_delaunay/eos_delaunay.h"
 
+#include "constants.h"
+
+using namespace constants;
 
 using std::vector;
 using std::string;
@@ -34,7 +37,7 @@ constexpr double TOLERANCE = 1e-12;
 
 namespace toy_thermo
 {
-	const double hc = 197.3;
+	const double hc = hbarc_MeVfm;
 	const double toy_T_scale = 150.0, toy_muB_scale = 101.0, toy_muS_scale = 103.0, toy_muQ_scale = 113.0;
 
 	double p(double T, double muB, double muQ, double muS)
@@ -169,7 +172,7 @@ void EquationOfState::check_EoS_derivatives()
 	for (double muQcheck = -450.0; muQcheck <= 450.001; muQcheck += 10.0)*/
 	{
 		// reset (T,muB,muQ,muS) coordinates
-		tbqs(Tcheck/197.3, muBcheck/197.3, muQcheck/197.3, muScheck/197.3);	// note order of Q and S!
+		tbqs(Tcheck/hbarc_MeVfm, muBcheck/hbarc_MeVfm, muQcheck/hbarc_MeVfm, muScheck/hbarc_MeVfm);	// note order of Q and S!
 		cout << Tcheck << "   " << muBcheck << "   " << muScheck << "   " << muQcheck << "\n\t"
 				<< p() << "   " << s() << "   " << e() << "   "
 				<< B() << "   " << S() << "   " << Q() << "\n\t\t"
@@ -195,7 +198,7 @@ void EquationOfState::get_toy_thermo(double point[], double thermodynamics[])
 	double BOut = toy_thermo::B(Tsol, muBsol, muQsol, muSsol);
 	double SOut = toy_thermo::S(Tsol, muBsol, muQsol, muSsol);
 	double QOut = toy_thermo::Q(Tsol, muBsol, muQsol, muSsol);
-	double eOut = (sOut*Tsol + muBsol*BOut + muQsol*QOut + muSsol*SOut)/197.3 - POut;
+	double eOut = (sOut*Tsol + muBsol*BOut + muQsol*QOut + muSsol*SOut)/hbarc_MeVfm - POut;
 
 
 	//Thermodynamics
@@ -233,7 +236,7 @@ void EquationOfState::init_grid_ranges_only(string quantityFile, string derivFil
     double tit, muBit, muQit, muSit, pit, entrit, bit, sit, qit, eit, cs2it;
 
     int count = 0;
-    double hbarc = 197.3;
+    double hc = hbarc_MeVfm;
     while (dataFile >> tit >> muBit >> muQit >> muSit
 			>> pit >> entrit >> bit >> sit >> qit
 			>> eit >> cs2it)
@@ -241,10 +244,10 @@ void EquationOfState::init_grid_ranges_only(string quantityFile, string derivFil
 
 		// Christopher Plumberg:
 		// put T and mu_i in units of 1/fm
-		tit   /= hbarc;
-		muBit /= hbarc;
-		muSit /= hbarc;
-		muQit /= hbarc;
+		tit   /= hc;
+		muBit /= hc;
+		muSit /= hc;
+		muQit /= hc;
 
         if(count++ == 0)
         {
@@ -310,7 +313,7 @@ void EquationOfState::tbqs(double setT, double setmuB, double setmuQ, double set
 
 	// EXPECTS UNITS OF MEV!!!
 	double phase_diagram_point[4]	// NOTE: S <<-->> Q swapped!!!
-			= {setT*197.3, setmuB*197.3, setmuS*197.3, setmuQ*197.3};
+			= {setT*hbarc_MeVfm, setmuB*hbarc_MeVfm, setmuS*hbarc_MeVfm, setmuQ*hbarc_MeVfm};
 	double thermodynamics[17];
 	if ( check_derivatives )
 		get_toy_thermo(phase_diagram_point, thermodynamics);
@@ -846,8 +849,8 @@ double EquationOfState::deriv_mult_aTm_1b(gsl_vector* a, gsl_matrix* m, gsl_vect
 	if ( inversion_status )	// if an error occurred
 	{
 		cout << "Current TBQS location: "
-				<< 197.3*T() << "   " << 197.3*muB() << "   "
-				<< 197.3*muS() << "   " << 197.3*muQ() << endl << endl;
+				<< hbarc_MeVfm*T() << "   " << hbarc_MeVfm*muB() << "   "
+				<< hbarc_MeVfm*muS() << "   " << hbarc_MeVfm*muQ() << endl << endl;
 
 		cout << "Current EoS data:" << endl;
 		cout << "pVal = " << pVal << endl
@@ -1254,8 +1257,8 @@ int rootfinder_fsbqs(const gsl_vector *x, void *params, gsl_vector *f) {
     rhoQGiven = ((rootfinder_parameters*)params)->rhoQGiven;
     rhoSGiven = ((rootfinder_parameters*)params)->rhoSGiven;
 {
-	double phase_diagram_point[4] = {tbqsToEval[0]*197.3, tbqsToEval[1]*197.3,
-					 tbqsToEval[3]*197.3, tbqsToEval[2]*197.3};	// NOTE: S <<-->> Q swapped!!!
+	double phase_diagram_point[4] = {tbqsToEval[0]*hbarc_MeVfm, tbqsToEval[1]*hbarc_MeVfm,
+					 tbqsToEval[3]*hbarc_MeVfm, tbqsToEval[2]*hbarc_MeVfm};	// NOTE: S <<-->> Q swapped!!!
 	double densities_at_point[4];
 	get_sBSQ_densities(phase_diagram_point, densities_at_point);
 	entr = densities_at_point[0];
@@ -1263,10 +1266,10 @@ int rootfinder_fsbqs(const gsl_vector *x, void *params, gsl_vector *f) {
 	rhoS = densities_at_point[2];
 	rhoQ = densities_at_point[3];
 	/*cout << "Check here: " 
-		<< tbqsToEval(0)*197.3 << "   "
-		<< tbqsToEval(1)*197.3 << "   "
-		<< tbqsToEval(2)*197.3 << "   "
-		<< tbqsToEval(3)*197.3 << "   "
+		<< tbqsToEval(0)*hbarc_MeVfm << "   "
+		<< tbqsToEval(1)*hbarc_MeVfm << "   "
+		<< tbqsToEval(2)*hbarc_MeVfm << "   "
+		<< tbqsToEval(3)*hbarc_MeVfm << "   "
 		<< entr << "   " << entrGiven << "   "
 		<< rhoB << "   " << rhoBGiven << "   "
 		<< rhoS << "   " << rhoSGiven << "   "
@@ -1300,20 +1303,20 @@ int rootfinder_febqs(const gsl_vector *x, void *params, gsl_vector *f) {
     rhoQGiven = ((rootfinder_parameters*)params)->rhoQGiven;
     rhoSGiven = ((rootfinder_parameters*)params)->rhoSGiven;
 {
-	double phase_diagram_point[4] = {tbqsToEval[0]*197.3, tbqsToEval[1]*197.3,
-					 tbqsToEval[3]*197.3, tbqsToEval[2]*197.3};	// NOTE: S <<-->> Q swapped!!!
+	double phase_diagram_point[4] = {tbqsToEval[0]*hbarc_MeVfm, tbqsToEval[1]*hbarc_MeVfm,
+					 tbqsToEval[3]*hbarc_MeVfm, tbqsToEval[2]*hbarc_MeVfm};	// NOTE: S <<-->> Q swapped!!!
 	double densities_at_point[4];
 	get_eBSQ_densities(phase_diagram_point, densities_at_point);
-	e = densities_at_point[0]/197.3;
+	e = densities_at_point[0]/hbarc_MeVfm;
 	rhoB = densities_at_point[1];
 	rhoS = densities_at_point[2];
 	rhoQ = densities_at_point[3];
 	/*cout << "Check here: " 
-		<< tbqsToEval(0)*197.3 << "   "
-		<< tbqsToEval(1)*197.3 << "   "
-		<< tbqsToEval(2)*197.3 << "   "
-		<< tbqsToEval(3)*197.3 << "   "
-		<< e*197.3 << "   " << eGiven*197.3 << "   "
+		<< tbqsToEval(0)*hbarc_MeVfm << "   "
+		<< tbqsToEval(1)*hbarc_MeVfm << "   "
+		<< tbqsToEval(2)*hbarc_MeVfm << "   "
+		<< tbqsToEval(3)*hbarc_MeVfm << "   "
+		<< e*hbarc_MeVfm << "   " << eGiven*hbarc_MeVfm << "   "
 		<< rhoB << "   " << rhoBGiven << "   "
 		<< rhoS << "   " << rhoSGiven << "   "
 		<< rhoQ << "   " << rhoQGiven << endl;
@@ -1344,7 +1347,7 @@ bool EquationOfState::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 	constexpr bool use_normalized_trees = true;
 	if ( e_or_s_mode==1 )
 		e_delaunay.get_NMN_coordinates(
-					{e_or_s_Given*197.3, rhoBGiven, rhoSGiven, rhoQGiven},
+					{e_or_s_Given*hbarc_MeVfm, rhoBGiven, rhoSGiven, rhoQGiven},
 					T_muB_muQ_muS_estimates, use_normalized_trees );
 	else
 		entr_delaunay.get_NMN_coordinates(
@@ -1356,7 +1359,7 @@ bool EquationOfState::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 	for (int iCoord = 0; iCoord < 4; iCoord++)
 	{
 		std::cout << "   " << T_muB_muQ_muS_estimates[iCoord];
-		gsl_vector_set(x, iCoord, T_muB_muQ_muS_estimates[iCoord]/197.3);
+		gsl_vector_set(x, iCoord, T_muB_muQ_muS_estimates[iCoord]/hbarc_MeVfm);
 	}
 	std::cout << std::endl;*/
 
@@ -1364,10 +1367,10 @@ bool EquationOfState::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
     gsl_vector_set(x, 1, muB());
     gsl_vector_set(x, 2, muQ());
     gsl_vector_set(x, 3, muS());
-    /*gsl_vector_set(x, 0, 500.0/197.3);
-    gsl_vector_set(x, 1, 0.0/197.3);
-    gsl_vector_set(x, 2, 0.0/197.3);
-    gsl_vector_set(x, 3, 0.0/197.3);*/
+    /*gsl_vector_set(x, 0, 500.0/hbarc_MeVfm);
+    gsl_vector_set(x, 1, 0.0/hbarc_MeVfm);
+    gsl_vector_set(x, 2, 0.0/hbarc_MeVfm);
+    gsl_vector_set(x, 3, 0.0/hbarc_MeVfm);*/
 
     //initialize the rootfinder equation to the correct variable quantities
     bool isEntropy = false;
@@ -1396,7 +1399,7 @@ bool EquationOfState::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 		std::cout << std::endl
 			<< "=============================================="
 			<< std::endl << "Input (e,B,Q,S): "
-			<< e_or_s_Given*0.1973 << "   "
+			<< e_or_s_Given*hbarc_GeVfm << "   "
 			<< rhoBGiven << "   "
 			<< rhoQGiven << "   "
 			<< rhoSGiven << std::endl;*/
@@ -1524,7 +1527,7 @@ bool EquationOfState::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 		// use unnormalized distances to estimate neighbor (reset from above)
 		if ( e_or_s_mode==1 )
 			e_delaunay.get_NMN_coordinates(
-						{e_or_s_Given*197.3, rhoBGiven, rhoSGiven, rhoQGiven},
+						{e_or_s_Given*hbarc_MeVfm, rhoBGiven, rhoSGiven, rhoQGiven},
 						T_muB_muQ_muS_estimates, false );
 		else
 			entr_delaunay.get_NMN_coordinates(
@@ -1537,17 +1540,17 @@ bool EquationOfState::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 		double Tfinal = 0.0, muBfinal = 0.0, muQfinal = 0.0, muSfinal = 0.0;
 		if (iter >= steps && status == 0)	// no reported problems, just ran out of steps
 		{
-			Tfinal   = gsl_vector_get(solver->x, 0)*197.3;
-			muBfinal = gsl_vector_get(solver->x, 1)*197.3;
-			muQfinal = gsl_vector_get(solver->x, 2)*197.3;
-			muSfinal = gsl_vector_get(solver->x, 3)*197.3;
+			Tfinal   = gsl_vector_get(solver->x, 0)*hbarc_MeVfm;
+			muBfinal = gsl_vector_get(solver->x, 1)*hbarc_MeVfm;
+			muQfinal = gsl_vector_get(solver->x, 2)*hbarc_MeVfm;
+			muSfinal = gsl_vector_get(solver->x, 3)*hbarc_MeVfm;
 		}
 		else
 		{
-			Tfinal   = previous_solver_step[0]*197.3;
-			muBfinal = previous_solver_step[1]*197.3;
-			muQfinal = previous_solver_step[2]*197.3;
-			muSfinal = previous_solver_step[3]*197.3;
+			Tfinal   = previous_solver_step[0]*hbarc_MeVfm;
+			muBfinal = previous_solver_step[1]*hbarc_MeVfm;
+			muQfinal = previous_solver_step[2]*hbarc_MeVfm;
+			muSfinal = previous_solver_step[3]*hbarc_MeVfm;
 		}
 
 		double inputDensities[4] = {e_or_s_Given, rhoBGiven, rhoSGiven, rhoQGiven};
@@ -1602,21 +1605,21 @@ bool EquationOfState::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 		// (SWAP S <--> Q AGAIN)
 		if ( which_neighbor_closest == 0 )
 		{
-			tbqs( final_phase_diagram_point[0]/197.3, final_phase_diagram_point[1]/197.3,
-				  final_phase_diagram_point[3]/197.3, final_phase_diagram_point[2]/197.3 );
+			tbqs( final_phase_diagram_point[0]/hbarc_MeVfm, final_phase_diagram_point[1]/hbarc_MeVfm,
+				  final_phase_diagram_point[3]/hbarc_MeVfm, final_phase_diagram_point[2]/hbarc_MeVfm );
 		cout << "final_phase_diagram_point: ";
 		for (int iSol = 0; iSol <4; iSol++)
-			cout << "   " << final_phase_diagram_point[iSol] / 197.3;
+			cout << "   " << final_phase_diagram_point[iSol] / hbarc_MeVfm;
 		cout << endl;
 
 		}
 		else if ( which_neighbor_closest == 1 )
 		{
-			tbqs( neighbor_estimate_point[0]/197.3, neighbor_estimate_point[1]/197.3,
-				  neighbor_estimate_point[3]/197.3, neighbor_estimate_point[2]/197.3 );
+			tbqs( neighbor_estimate_point[0]/hbarc_MeVfm, neighbor_estimate_point[1]/hbarc_MeVfm,
+				  neighbor_estimate_point[3]/hbarc_MeVfm, neighbor_estimate_point[2]/hbarc_MeVfm );
 		cout << "neighbor_estimate_point!";
 		for (int iSol = 0; iSol < 4; iSol++)
-			cout << "   " << neighbor_estimate_point[iSol] / 197.3;
+			cout << "   " << neighbor_estimate_point[iSol] / hbarc_MeVfm;
 		cout << endl;
 
 		}
