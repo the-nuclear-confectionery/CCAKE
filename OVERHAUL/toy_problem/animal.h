@@ -1,3 +1,6 @@
+#ifndef animal_h
+#define animal_h
+
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
@@ -39,3 +42,5 @@ private:
     // void setNameByOwner(Owner &owner);
     
 };
+
+#endif
