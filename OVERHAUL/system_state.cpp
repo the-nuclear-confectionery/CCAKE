@@ -219,7 +219,7 @@ void SystemState::bsqsvconservation_E()
     E=0.;
     for (int i=0; i<_n; i++)
     {
-      const auto & p = particles[i];
+      auto & p = particles[i];
 
         E += ( p.C*p.g2 - p.p() - p.bigPI + p.shv.x[0][0] )
               / p.sigma*p.sigmaweight*t;
@@ -249,7 +249,7 @@ void SystemState::bsqsvconservation_Ez()
   double t2=t*t;
   for (int i=0; i<_n; i++)
   {
-    const auto & p = particles[i];
+    auto & p = particles[i];
 
     dEz += ( p.p() + p.bigPI + p.shv33*t2 ) / p.sigma*p.sigmaweight;
 
