@@ -22,7 +22,7 @@ class animal
     animal();
     animal(string Sound, string Type, int Legs);
     ~animal();
-};
+
 
 public:
     string animal_sound();
@@ -38,3 +38,4 @@ private:
 
     // void setNameByOwner(Owner &owner)
     
+};
