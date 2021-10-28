@@ -526,7 +526,7 @@ void SPHWorkstation::process_initial_conditions()
   systemPtr->particles = threshold_particles;
 
   // need to reset EoS pointers?
-  for (auto & p : particles) p.set_EquationOfStatePtr( eosPtr );
+  for (auto & p : systemPtr->particles) p.set_EquationOfStatePtr( eosPtr );
 
 
   cout << "After e-cutoff and freeze-out: size = " << systemPtr->particles.size() << endl;
