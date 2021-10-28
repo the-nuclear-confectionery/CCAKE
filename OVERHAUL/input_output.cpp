@@ -79,7 +79,7 @@ for ( auto & entry : all_parameters )
         settingsPtr->input_parameters.EoS_option             = all_parameters[5];
         settingsPtr->input_parameters.eta                    = all_parameters[6];
         settingsPtr->input_parameters.zeta                   = all_parameters[7];
-        settingsPtr->input_parameters.Freeze_Out_Temperature = stod(all_parameters[8]);
+        settingsPtr->input_parameters.Freeze_Out_Temperature = stod(all_parameters[8])/hbarc_MeVfm;
         settingsPtr->input_parameters.Freeze_Out_Type        = all_parameters[9];
 
         infile.close();
