@@ -64,7 +64,7 @@ void eos_delaunay::init(string EoS_table_file, int e_or_s)
 	load_EoS_table(EoS_table_file, grid, e_or_s);
 
 	// check grid size; probably make this part of EoS table file's header info eventually...
-	if ( false && grid.size() != nT*nmub*nmuq*nmus )
+	if ( grid.size() != nT*nmub*nmuq*nmus )
 	{
 		cerr << "Your chosen gridsizes do not match the input files!  Aborting!" << endl;
 		exit(-1);
@@ -212,9 +212,6 @@ void eos_delaunay::load_EoS_table(string path_to_file, vector<vector<double> > &
 		{
 			while ( getline (infile, line) )
 			{
-
-if (count > 10) break;
-
 				istringstream iss(line);
 				iss >> Tin >> muBin >> muQin >> muSin >> dummy >> dummy
 					>> bin >> sin >> qin >> ein >> dummy;
@@ -233,9 +230,6 @@ if (count > 10) break;
 		{
 			while ( getline (infile, line) )
 			{
-
-if (count > 10) break;
-
 				istringstream iss(line);
 				iss >> Tin >> muBin >> muQin >> muSin >> dummy >> entrin
 					>> bin >> sin >> qin >> dummy >> dummy;
