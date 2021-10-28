@@ -515,20 +515,20 @@ void SPHWorkstation::smooth_gradients( int a, double tin, int & count )
 
   return;
 }
-
-
+///////////////////////////////////////////////////////////////////////////////
 void SPHWorkstation::process_initial_conditions()
 {
-  // impose energy cut-off
-  /*for (auto & p : particles)
+  // impose the energy cut-off at the initial time step
+  for (auto & p : particles)
   {
-
-  }*/
+  if (esub>0.15) ++i;
+            ++i; 
+  }
 
   // fill out initial particle information
   for (auto & p : systemPtr->particles)
   {
-    double stepx = 0.05, stepy = 0.05;
+    //double stepx = 0.05, stepy = 0.05;
 
     p.u.x[0]          = 0.0;
     p.u.x[1]          = 0.0;
@@ -556,7 +556,7 @@ void SPHWorkstation::process_initial_conditions()
     p.thermo.muS = 0.0/hbarc_MeVfm;
     p.thermo.muQ = 0.0/hbarc_MeVfm;
 
-    /*if (pj.e_sub>efcheck)	// impose freeze-out check for e, not s
+    if (pj.e_sub>efcheck)	// impose freeze-out check for e, not s
     {
       pj.Freeze=0;
     }
@@ -565,7 +565,7 @@ void SPHWorkstation::process_initial_conditions()
       pj.Freeze=4;
       --kk;
       ++numpart;
-    }*/
+    }
   }
 }
 /////////////////////////////////////////////////////////////////////////////////
