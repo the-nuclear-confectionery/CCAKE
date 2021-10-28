@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "constants.h"
 #include "sph_workstation.h"
 #include "Stopwatch.h"
@@ -542,6 +543,12 @@ cout << "check 0: " << p.r.x[0] << "   " << p.r.x[1] << "   " << p.e_sub << "   
 
   // need to reset EoS pointers?
   for (auto & p : systemPtr->particles) p.set_EquationOfStatePtr( eosPtr );*/
+
+  // try this
+  systemPtr->particles.erase( std::remove_if(
+    systemPtr->particles.begin(), systemPtr->particles.end(),
+    [](Particle const & x) { return p.e_sub > 0.00301 / hbarc_GeVfm; } ),
+    systemPtr->particles.end() );
 
 
   cout << "After e-cutoff and freeze-out: size = " << systemPtr->particles.size() << endl;
