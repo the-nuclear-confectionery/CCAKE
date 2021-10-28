@@ -15,7 +15,7 @@ LDFLAGS = -L$(EOSLIBPATH) -lbsqeos -lm -lgsl -lgslcblas -lblas -lstdc++ \
 export HDF5_LDFLAGS+=$(LDFLAGS)
 
 animalCheck : $(OBJS)
-	$(CC) -g $(OBJS) -o animalChecl $(LDFLAGS)
+	$(CC) -g $(OBJS) -o animalCheck $(LDFLAGS)
 
 main.o: animal.h  main.cpp
 	$(CC) $(CFLAGS) main.cpp
