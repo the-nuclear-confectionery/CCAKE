@@ -9,13 +9,18 @@
 #include <string>
 #include <vector>
 
-#include "owner.h"
-#include "owner.cpp"
+using std::cout;
+using std::endl;
+using std::string;
+using std::vector;
+
+// #include "owner.h"
+// #include "owner.cpp"
 
 class animal
 {
     animal();
-    animal(string Sound, String Type, int Legs);
+    animal(string Sound, string Type, int Legs);
     ~animal();
 };
 
@@ -24,10 +29,10 @@ public:
     int count_legs();
     string animal_type();
 
-    setOwnerPtr(Owner *ownerPtrIn);
+    // setOwnerPtr(Owner *ownerPtrIn);
 private:
     int legs,
     string sound,type,name;
 
-    void setNameByOwner(Owner &owner)
+    // void setNameByOwner(Owner &owner)
     

@@ -10,14 +10,20 @@
 #include <vector>
 
 #include "animal.h"
-#include "owner.h"
-#include "owner.cpp"
+// #include "owner.h"
+// #include "owner.cpp"
+
+
+using std::cout;
+using std::endl;
+using std::string;
+using std::vector;
 
 animal::animal(){}
 
-animal::animal(string Sound, String Type, int Legs)
+animal::animal(String Type, int Legs)
 {
-    sound = Sound;
+    // sound = Sound;
     type = Type;
     legs = Legs
 }
@@ -41,7 +47,7 @@ string animal::type()
     return type;
 }
 
-void animal::setNameByOwner(Ownder *owner)
-{
-    name = owner.getName();
-}
+// void animal::setNameByOwner(Ownder *owner)
+// {
+//     name = owner.getName();
+// }
