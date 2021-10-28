@@ -10,9 +10,9 @@ public:
   LinkList();
   ~LinkList(){}
 
-  void initiate( vector<Particle> & particles );
+  void initiate();
   void initialize( double it0, int ntot, double h,
-                   vector<Particle> & particles,
+                   vector<Particle> * particlesPtr_in,
                    double dtsave, int & numpart );
   int triToSum( Vector<int,2> dael, Vector<int,2> size );
 
@@ -85,7 +85,7 @@ public:
   int fcount, cevent;
   string eost;
 
-  vector<Particle> particles;
+  vector<Particle> * particlesPtr;
 
 
 
