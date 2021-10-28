@@ -212,6 +212,9 @@ void eos_delaunay::load_EoS_table(string path_to_file, vector<vector<double> > &
 		{
 			while ( getline (infile, line) )
 			{
+
+if (count > 10) break;
+
 				istringstream iss(line);
 				iss >> Tin >> muBin >> muQin >> muSin >> dummy >> dummy
 					>> bin >> sin >> qin >> ein >> dummy;
@@ -230,6 +233,9 @@ void eos_delaunay::load_EoS_table(string path_to_file, vector<vector<double> > &
 		{
 			while ( getline (infile, line) )
 			{
+
+if (count > 10) break;
+
 				istringstream iss(line);
 				iss >> Tin >> muBin >> muQin >> muSin >> dummy >> entrin
 					>> bin >> sin >> qin >> dummy >> dummy;

@@ -249,6 +249,8 @@ void EquationOfState::init_grid_ranges_only(string quantityFile, string derivFil
 			>> eit >> cs2it)
     {
 
+if (count > 10) break;
+
 		// Christopher Plumberg:
 		// put T and mu_i in units of 1/fm
 		tit   /= hc;
