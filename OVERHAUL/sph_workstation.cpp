@@ -530,6 +530,8 @@ void SPHWorkstation::process_initial_conditions()
 		 threshold_particles.push_back( Particle( tmp ) );
 	  }
   }
+  cout << "Precheck 1: size = " << systemPtr->particles.size() << endl;
+  cout << "Precheck 2: size = " << threshold_particles.size() << endl;
   systemPtr->particles.clear();
   systemPtr->particles = threshold_particles;
 
