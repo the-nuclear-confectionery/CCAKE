@@ -568,7 +568,7 @@ void SPHWorkstation::process_initial_conditions()
 		{
 			p.Freeze=4;
 			systemPtr->number_part++;
-      cout << "number_part = " << number_part << endl;
+      cout << "number_part = " << systemPtr->number_part << endl;
 		}
   }
 
