@@ -561,17 +561,18 @@ void SPHWorkstation::process_initial_conditions()
 		p.thermo.muQ = 0.0/hbarc_MeVfm;
 
 		if (p.e_sub>systemPtr->efcheck)	// impose freeze-out check for e, not s
-	    {
+    {
 			p.Freeze=0;
 		}
 		else
 		{
 			p.Freeze=4;
 			systemPtr->number_part++;
+      cout << "number_part = " << number_part << endl;
 		}
   }
 
   cout << "After freezeout (redundant): size = "
-      << systemPtr->particles.size()-systemPtr->number_part << endl;
+      << systemPtr->particles.size() - systemPtr->number_part << endl;
 }
 /////////////////////////////////////////////////////////////////////////////////

@@ -61,6 +61,10 @@ _h = settingsPtr->input_parameters.h;
   settingsPtr->efcheck = eosPtr->efreeze(settingsPtr->input_parameters.Freeze_Out_Temperature);
   settingsPtr->sfcheck = eosPtr->sfreeze(settingsPtr->input_parameters.Freeze_Out_Temperature);
 
+		std::cout << "efcheck = " << settingsPtr->efcheck*hbarc_GeVfm << " GeV/fm^3\n";
+		std::cout << "sfcheck = " << settingsPtr->sfcheck << " 1/fm^3\n";
+
+
 for (auto & p : particles) p.set_EquationOfStatePtr( eosPtr );
 
   linklist.efcheck = efcheck;
