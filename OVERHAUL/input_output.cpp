@@ -153,32 +153,11 @@ void InputOutput::read_in_initial_conditions()
               else
               {
                 iss >> x >> y >> e >> rhoB >> rhoS >> rhoQ;
-
-cout << "new checkm1: " << flush
-                << flush << x << "   "
-                << flush << y << "   "
-                << flush << e << "   "
-                << flush << rhoB << "   "
-                << flush << rhoS << "   "
-                << flush << rhoQ << "   " << endl;
-
                 e /= hbarc_GeVfm;
                 vector<double> fields({x,y,e,rhoB,rhoS,rhoQ});
-                Particle test = Particle(fields);
-          cout << "new check0: " << flush
-                << flush << test.e_sub << "   "
-                << flush << test.rhoB_an << "   "
-                << flush << test.rhoS_an << "   "
-                << flush << test.rhoQ_an << "   " << endl;
                 systemPtr->particles.push_back( Particle(fields) );
             }
           }
-          auto & test = systemPtr->particles;
-          cout << "new check: " << flush << test.size() << "   "
-                << flush << (test[0]).e_sub << "   "
-                << flush << (test[0]).rhoB_an << "   "
-                << flush << (test[0]).rhoS_an << "   "
-                << flush << (test[0]).rhoQ_an << "   " << flush;
           cout << (systemPtr->particles)[0].r.x[0] << "   "
                 << (systemPtr->particles)[0].r.x[1] << endl;
   }
