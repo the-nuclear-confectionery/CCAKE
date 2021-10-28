@@ -87,6 +87,8 @@ for (auto & p : particles) p.set_EquationOfStatePtr( eosPtr );
     linklist.fcount     = count;
     linklist.fnum       = linklist.start;
     
+    cout << "Check 0: " << particles[0].r << endl;
+
     int currently_frozen_out = 0;
     //linklist.initialize( it0, _Ntable3, h, particles, dt, numpart );
     linklist.initialize( settingsPtr->input_parameters.t0, particles.size(),
