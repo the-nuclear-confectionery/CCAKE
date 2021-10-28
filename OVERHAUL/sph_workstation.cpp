@@ -532,20 +532,21 @@ void SPHWorkstation::process_initial_conditions()
 
 
   // fill out initial particle information
+	double stepX = settings->stepx;
+	double stepY = settings->stepy;
 	for (auto & p : systemPtr->particles)
   {
     //double stepx = 0.05, stepy = 0.05;
-
-    p.u.x[0]          = 0.0;
-    p.u.x[1]          = 0.0;
-    p.eta_sigma       = 1.0;
-    p.sigmaweight     = stepx*stepy;
-    p.rho_weight      = stepx*stepy;
-    p.Bulk            = 0.0;
-    p.B               = p.rhoB_an*stepx*stepy;
-    p.S               = p.rhoS_an*stepx*stepy;
-    p.Q               = p.rhoQ_an*stepx*stepy;
-    p.transverse_area = stepx*stepy;
+		p.u.x[0]          = 0.0;
+		p.u.x[1]          = 0.0;
+		p.eta_sigma       = 1.0;
+		p.sigmaweight     = stepX*stepY;
+		p.rho_weight      = settings->stepx*stepY;
+		p.Bulk            = 0.0;
+		p.B               = p.rhoB_an*stepX*stepY;
+		p.S               = p.rhoS_an*stepX*stepY;
+		p.Q               = p.rhoQ_an*stepX*stepY;
+		p.transverse_area = stepX*sstepY;
 
 		//if (j==0)
 		cout << "readICs_iccing(" << __LINE__ << "): "
