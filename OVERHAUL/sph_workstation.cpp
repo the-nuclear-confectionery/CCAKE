@@ -533,7 +533,7 @@ void SPHWorkstation::process_initial_conditions()
   const int total_particles_in_ICs = systemPtr->particles.size();
   for ( int ip = total_particles_in_ICs; ip >= 0; ip-- )
   {
-	  if (systemPtr->particles[i].e_sub > 0.00301/hbarc_GeVfm) // this will be changed, NOT HARDCODED!!
+	  if (systemPtr->particles[ip].e_sub > 0.00301/hbarc_GeVfm) // this will be changed, NOT HARDCODED!!
 	  {
       (systemPtr->particles).erase( (systemPtr->particles).begin() + ip );
 	  }
