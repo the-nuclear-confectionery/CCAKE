@@ -91,7 +91,7 @@ for ( auto & entry : all_parameters )
 void InputOutput::set_EoS_type()
 {
   string EoS_type = settingsPtr->input_parameters.EoS_type;
-  string EoS_files_location = "EoS/" + EoS_type;
+  string EoS_files_location = "EoS/" + EoS_type + "/" + EoS_option;
   string densities = EoS_files_location + "/densities.dat";
   string derivatives = EoS_files_location + "/derivatives.dat";
   string EoS_option = settingsPtr->input_parameters.EoS_option;

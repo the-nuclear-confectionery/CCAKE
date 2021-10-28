@@ -134,6 +134,8 @@ EquationOfState::EquationOfState() {}
 
 void EquationOfState::init()
 {
+  cout << "Attempting read in of EoS from "
+        << quantity_file << " and " << deriv_file << endl;
   init( quantity_file, deriv_file );
 }
 
