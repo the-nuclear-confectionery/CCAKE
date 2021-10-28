@@ -26,7 +26,12 @@ using std::string;
 using namespace constants;
 
 ////////////////////////////////////////////////////////////////////////////////
-void SystemState::set_EquationOfStatePtr(EquationOfState * eosPtr_in)
+//void Particle::set_EquationOfStatePtr( EquationOfState * eosPtr_in )
+//{
+//  eosPtr = eosPtr_in;
+//}
+
+void Particle::set_EquationOfStatePtr( std::shared_ptr<EquationOfState> eosPtr_in )
 {
   eosPtr = eosPtr_in;
 }
