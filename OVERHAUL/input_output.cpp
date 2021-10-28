@@ -139,9 +139,9 @@ void InputOutput::read_in_initial_conditions()
     int count_file_lines = 0;
     double x,y,e,rhoB,rhoS,rhoQ;
     double ignore, stepX, stepY;
-    istringstream iss(line);
     while (getline (infile, line))
             {
+    istringstream iss(line);
               if(count_header_lines < total_header_lines)
               {
                 settingsPtr->headers.push_back(line);
