@@ -528,11 +528,11 @@ void SPHWorkstation::process_initial_conditions()
 //      << p.rhoB_an << "   " << p.rhoS_an << "   " << p.rhoQ_an << endl;
 	  if (p.e_sub>0.00301/hbarc_GeVfm) // this will be changed, NOT HARDCODED!!
 	  {
-		  //Particle temp = new Particle(p)
-		  //threshold_particles.push_back(temp);
-		  //~temp();
-      vector<double> tmp = {p.r.x[0], p.r.x[1], p.e_sub, p.rhoB_an, p.rhoS_an, p.rhoQ_an};
-		 threshold_particles.push_back( Particle( tmp ) );
+		  Particle temp = new Particle(p);
+		  threshold_particles.push_back(temp);
+		  ~temp();
+      //vector<double> tmp = {p.r.x[0], p.r.x[1], p.e_sub, p.rhoB_an, p.rhoS_an, p.rhoQ_an};
+		 //threshold_particles.push_back( Particle( tmp ) );
 	  }
   }
   cout << "Precheck 1: size = " << systemPtr->particles.size() << endl;
