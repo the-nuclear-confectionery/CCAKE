@@ -445,7 +445,7 @@ void SPHWorkstation::smooth_gradients( int a, double tin, int & count )
 
     while( b != -1 )
     {
-      const auto & pb          = systemPtr->particles[b];
+      auto & pb          = systemPtr->particles[b];
 
       Vector<double,2> gradK   = kernel::gradKernel( pa.r - pb.r, settingsPtr->_h );
       Vector<double,2> va      = rowp1(0, pa.shv);
