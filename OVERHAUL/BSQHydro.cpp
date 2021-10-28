@@ -15,7 +15,7 @@ BSQHydro::BSQHydro()
   io.set_SystemStatePtr( &system );
 
   // initialize SPH workstation
-  ws.set_EquationOfStatePtr( &eos );
+//  ws.set_EquationOfStatePtr( &eos );
   ws.set_SystemStatePtr( &system );
   ws.set_SettingsPtr( &settings );
 
