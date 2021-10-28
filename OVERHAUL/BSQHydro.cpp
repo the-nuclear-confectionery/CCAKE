@@ -30,11 +30,12 @@ BSQHydro::BSQHydro()
 
 void BSQHydro::load_settings_file( string path_to_settings_file )
 {
-  io.load_settings_file(path_to_settings_file); // sets the settings path in
-  // InputOutput, then loads parameters into Input_parameters struct
+  // sets the settings path in InputOutput,
+  // then loads parameters into Input_parameters struct
+  io.load_settings_file(path_to_settings_file);
 
-  io.set_EoS_type(); // InputOutput talks to EoS and
-  // tells it where to find its tables
+  // InputOutput talks to EoS and tells it where to find its tables
+  io.set_EoS_type();
 
   return;
 }
@@ -43,7 +44,8 @@ void BSQHydro::load_settings_file( string path_to_settings_file )
 
 void BSQHydro::set_results_directory( string path_to_results_directory )
 {
-  io.set_results_directory(path_to_results_directory); //set the results directory in InputOutput
+  // set the results directory in InputOutput
+  io.set_results_directory(path_to_results_directory);
   return;
 }
 
@@ -51,7 +53,8 @@ void BSQHydro::set_results_directory( string path_to_results_directory )
 
 void BSQHydro::read_in_initial_conditions()
 {
-  io.read_in_initial_conditions(); // tells InputOutput to talk to system state and set initial system state
+  // tells InputOutput to talk to system state and set initial system state
+  io.read_in_initial_conditions();
   return;
 }
 
@@ -61,14 +64,20 @@ void BSQHydro::read_in_initial_conditions()
 ////////////////////////////////////////////////////////////////////////////////
 void BSQHydro::initialize_hydrodynamics()
 {
+  // initialize equation of state
   eos.init();
 
+  // initialize system state
   system.initialize();
 
+  // trim initial conditions with low-energy density cut-off,
+  // filling out initial conditions, and imposing initial freeze-out
   ws.process_initial_conditions();
 
+  // for each particle, find location in phase diagram
   ws.initialize_entropy_and_charge_densities();
 
+  // implement initial smoothing required by SPH formalism
   ws.initial_smoothing();
 
   return;
@@ -151,7 +160,9 @@ void BSQHydro::run()
 }
 
 
+// not yet defined
 void BSQHydro::find_freeze_out_surface(){}
 
 
+// not yet defined
 void BSQHydro::print_results(){}
