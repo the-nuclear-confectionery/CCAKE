@@ -38,6 +38,7 @@ public:
   //void compute_spatial_eccentricities( const vector<int> & orders );
   //void compute_momentum_eccentricities( const vector<int> & orders );
   //double entropytotal;
+  double _h;
   double S, S0;
   double t, dt;
   double Btotal, Btotal0;
