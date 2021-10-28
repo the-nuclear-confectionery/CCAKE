@@ -52,6 +52,7 @@ double Particle::locate_phase_diagram_point_eBSQ(// previously s_out
 double Particle::locate_phase_diagram_point_eBSQ(double e_In)// previously s_out
 {
   eosPtr->s_out(e_In, 0.0, 0.0, 0.0 );
+  thermo.set(*eosPtr);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -60,7 +61,6 @@ void Particle::locate_phase_diagram_point_sBSQ(// previously update_s
 {
   bool update_s_success = eosPtr->update_s( s_In, rhoB_In, rhoS_In, rhoQ_In );
   thermo.set(*eosPtr);
-
   return;
 }
 
@@ -68,6 +68,7 @@ void Particle::locate_phase_diagram_point_sBSQ(// previously update_s
 void Particle::locate_phase_diagram_point_sBSQ(double s_In) // previously update_s
 {
   eosPtr->update_s(s_In, 0.0, 0.0, 0.0 );
+  thermo.set(*eosPtr);
   return;
 }
 
@@ -85,7 +86,7 @@ void Particle::frzcheck( double tin, int &count, int N )
 {
   if( Freeze == 0 )
   {
-    if ( eosPtr->T() <= freezeoutT )
+    if ( T() <= freezeoutT )
     {
       Freeze = 1;
       frz2.t = tin;
@@ -99,12 +100,12 @@ void Particle::frzcheck( double tin, int &count, int N )
       Freeze = 3;
       frz1.t = tin;
     }
-    else if ( eosPtr->T()>frz1.T )
+    else if ( T()>frz1.T )
     {
       Freeze = 1;
       frz2.t = tin;
     }
-    else if( eosPtr->T() <= freezeoutT )
+    else if( T() <= freezeoutT )
     {
       count += 1;
       Freeze = 3;
@@ -126,7 +127,7 @@ void Particle::frzcheck( double tin, int &count, int N )
     gamma        = gamcalc();
     v            = (1.0/gamma)*u;
     double s_in2 = eta/gamma/tin;
-    qmom         = ((eosPtr->e()+ eosPtr->p())*gamma/sigma)*u;
+    qmom         = ((e()+ p())*gamma/sigma)*u;
     locate_phase_diagram_point_sBSQ( s_in2 );    // single-argument version
 }*/
 
@@ -137,7 +138,7 @@ void Particle::calcbsq(double tin)
   gamma           = gamcalc();
   v               = (1.0/gamma)*u;
   double s_in2    = eta/gamma/tin;
-  qmom            = ( (eosPtr->e()+ eosPtr->p())*gamma/sigma )*u;
+  qmom            = ( (e()+p())*gamma/sigma )*u;
 	double rhoB_in2 = B*sigma/sigmaweight;
 	double rhoS_in2 = S*sigma/sigmaweight;
 	double rhoQ_in2 = Q*sigma/sigmaweight;
@@ -160,10 +161,8 @@ void Particle::return_bsqsv_A()
     eta_o_tau = setas/stauRelax;
 
 	// THIS NEEDS TO BE CHECKED/FIXED, SPECIFICALLY WHEN INCLUDING MORE BETA-DOT TERMS
-    Agam  = eosPtr->w() - eosPtr->dwds()*(eosPtr->s()+ bigPI/eosPtr->T() )- zeta/tauRelax
-            - eosPtr->dwdB() * eosPtr->B()
-            - eosPtr->dwdS() * eosPtr->S()
-            - eosPtr->dwdQ() * eosPtr->Q();
+    Agam  = w() - dwds()*(s()+ bigPI/T() )- zeta/tauRelax
+            - dwdB() * B() - dwdS() * S() - dwdQ() * Q();
 
     //Agam2 = ( Agam - eta_o_tau*(0.5-1.0/3.0) - dwdsT1*shv.x[0][0] ) / gamma;
     Agam2 = ( Agam - eta_o_tau/6.0 - dwdsT1*shv.x[0][0] ) / gamma;
@@ -221,12 +220,12 @@ void Particle::bsqsvsigset( double tin, int i )
   g2           = gamma*gamma;
   g3           = gamma*g2;
   gt           = gamma*tin;
-  double dwdsT = eosPtr->dwds()/eosPtr->T();
-  dwdsT1       = 1- eosPtr->dwds()/eosPtr->T();
+  double dwdsT = dwds()/T();
+  dwdsT1       = 1- dwds()/T();
   sigl         = dsigma_dt/sigma -1/tin;
   gradU        = gamma*gradV+g3*(v*(v*gradV));
   bigPI        = Bulk*sigma/gt ;
-  C            = eosPtr->w()+ bigPI;
+  C            = w()+ bigPI;
   return_bsqsv_A();
   Btot         = ( Agam*gamma + eta_o_tau/3*gamma )*sigl
                 + bigPI/tauRelax + dwdsT*( gt*shv33 + Bsub() );
@@ -239,23 +238,23 @@ void Particle::setvisc( int etaconst, double bvf, double svf, double zTc,
 {
   if (type==1) // bulk viscosity
   {
-    double temp=eosPtr->T()*197.3;
+    double temp=T()*197.3;
     zeta = bvf/(sig*sqrt(2*PI))*exp(-pow(temp-zTc,2)/(2.*sig*sig));
-    zeta *= eosPtr->s();
+    zeta *= s();
     if (zeta<0.001) zeta=0.001;
-    tauRelax = 9*zeta/(eosPtr->e()-3*eosPtr->p());
+    tauRelax = 9*zeta/(e()-3*p());
     if (tauRelax < 0.1) tauRelax=0.1;
   }
   else if (type==2) // shear viscosity
   {
     setas = svf*0.08;
-    stauRelax=5*setas/eosPtr->w();
+    stauRelax=5*setas/w();
   }
   else if (type==3) // shear+bulk viscosity
   {
     if ((etaconst==1)||(etaconst==3)||(etaconst==4))
     {   // const eta/s
-      setas=2*eosPtr->s()*svf;  // svf defines eta/s const (the two is needed for the
+      setas=2*s()*svf;  // svf defines eta/s const (the two is needed for the
                            // definition in the code, don't remove!
     }
     //    for TECHQM/Gubser set svf=0.08
@@ -264,7 +263,7 @@ void Particle::setvisc( int etaconst, double bvf, double svf, double zTc,
   {
     if ((etaconst==1)||(etaconst==3)||(etaconst==4))
     { // const eta/s
-      setas=2*eosPtr->s()*svf;  // svf defines eta/s const; the two is needed
+      setas=2*s()*svf;  // svf defines eta/s const; the two is needed
       // for the definition in the code, don't remove!
       //    for TECHQM/Gubser set svf=0.08
     }
@@ -273,50 +272,50 @@ void Particle::setvisc( int etaconst, double bvf, double svf, double zTc,
       if (etaconst==5)
       {
         double TC=173.9; // 173.9/197.3
-        double temp=eosPtr->T()*197.3/TC;
+        double temp=T()*197.3/TC;
         double TC0=149.4/TC; // 149.4/197.3
         if( temp<TC0)
         {
-          setas = eosPtr->s()*(8.0191 - 16.4659* temp  +  8.60918* temp *temp  );
+          setas = s()*(8.0191 - 16.4659* temp  +  8.60918* temp *temp  );
         }
         else if( temp>1)
         {
-          //setas = eosPtr->s()*(0.48 - 0.36*temp );
-          setas = eosPtr->s()*(0.007407515123054544 +  0.06314680923610914* temp
+          //setas = s()*(0.48 - 0.36*temp );
+          setas = s()*(0.007407515123054544 +  0.06314680923610914* temp
                           + 0.08624567564083624* temp *temp  );
         }
         else
         {
-          //setas = eosPtr->s()*(-0.107143 + 0.227143*temp);
-          setas = eosPtr->s()*(0.397807 + 0.0776319* temp - 0.321513* temp *temp  );
+          //setas = ()*(-0.107143 + 0.227143*temp);
+          setas = ()*(0.397807 + 0.0776319* temp - 0.321513* temp *temp  );
         }
       }
       if (etaconst==6)
       {
         double TC=155; // 173.9/197.3
-        double temp=eosPtr->T()*197.3/TC;
+        double temp=T()*197.3/TC;
         double z=pow(0.66*temp,2);
         double alpha=33./(12.*PI)*(z-1)/(z*log(z));
 
-        setas = eosPtr->s()*(0.0416762/pow(alpha,1.6)+ 0.0388977/pow(temp,5.1) );
+        setas = ()*(0.0416762/pow(alpha,1.6)+ 0.0388977/pow(temp,5.1) );
       }
       else
       {
         double TC=sTc/197.3;
-        double temp=eosPtr->T()/TC;
+        double temp=T()/TC;
         if( temp>TC )
         {
-          setas = eosPtr->s()*(0.3153036437246963 + 0.051740890688259315* temp
+          setas = ()*(0.3153036437246963 + 0.051740890688259315* temp
                           - 0.24704453441295576* temp *temp  );
         }
         else
         {
-          setas = eosPtr->s()*(0.0054395278010882795 + 0.08078575671572835*temp
+          setas = ()*(0.0054395278010882795 + 0.08078575671572835*temp
                           + 0.033774715483183566* temp *temp );
         }
       }
     }
-    stauRelax=5*setas/eosPtr->w();
+    stauRelax=5*setas/w();
     if (stauRelax <0.005) stauRelax=0.005 ;
 
     /// defining bulk viscosity
@@ -328,7 +327,7 @@ void Particle::setvisc( int etaconst, double bvf, double svf, double zTc,
     }
     else
     {
-      double temp=eosPtr->T()*197.3;
+      double temp=T()*197.3;
 
       if ((etaconst==2)||(etaconst==3))
       {
@@ -339,7 +338,7 @@ void Particle::setvisc( int etaconst, double bvf, double svf, double zTc,
         else zeta=-13.77*t2*t2+27.55*t2-13.45;
 
         // single-argument version of cs2out
-        tauRelax =5.*zeta/(pow((1-eosPtr->cs2out(eosPtr->T())),2)*(eosPtr->e()+eosPtr->p()));
+        tauRelax =5.*zeta/(pow((1-cs2out(T())),2)*(e()+p()));
       }
       else if (etaconst==4)
       {
@@ -357,10 +356,10 @@ void Particle::setvisc( int etaconst, double bvf, double svf, double zTc,
         else zeta=-13.77*t2*t2+27.55*t2-13.45;
 
         // single-argument version of cs2out
-        tauRelax =5.*zeta/(pow((1-eosPtr->cs2out(eosPtr->T())),2)*(eosPtr->e()+eosPtr->p()));
+        tauRelax =5.*zeta/(pow((1-cs2out(T())),2)*(e()+p()));
       }
 
-      zeta*=eosPtr->s();
+      zeta*=();
       if (zeta<0.001) zeta=0.001;
       if (tauRelax <0.2) tauRelax=0.2;
     }

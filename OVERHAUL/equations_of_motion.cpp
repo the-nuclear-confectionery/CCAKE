@@ -44,7 +44,7 @@ void EquationsOfMotion::BSQshear( SystemState & system, SPHWorkstation & ws )
 
     if ( (p.eta<0) || isnan(p.eta) )
     {
-      cout << i <<  " neg entropy " <<  p.eosPtr->T()*hbarc << " " << p.eta << endl;
+      cout << i <<  " neg entropy " <<  p.T()*hbarc << " " << p.eta << endl;
       p.eta = 0;
     }
 
@@ -159,7 +159,7 @@ void EquationsOfMotion::BSQshear( SystemState & system, SPHWorkstation & ws )
                                 - con2(sub, p.gradU)
                                 - p.gamma*system.t*p.shv33 );
 
-    p.detasigma_dt            = 1./p.sigma/p.eosPtr->T()*( -p.bigPI*p.bigtheta + p.inside );
+    p.detasigma_dt            = 1./p.sigma/p.T()*( -p.bigPI*p.bigtheta + p.inside );
 
 
     // N.B. - ADD EXTRA TERMS FOR BULK EQUATION

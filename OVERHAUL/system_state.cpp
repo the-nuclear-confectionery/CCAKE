@@ -126,7 +126,7 @@ void SystemState::check_BSQ_energy_conservation()
 {
   E=0.0;
   for ( auto & p : particles )
-    E += ( p.C*p.g2 - p.eosPtr->p() - p.bigPI + p.shv.x[0][0] )
+    E += ( p.C*p.g2 - p.p() - p.bigPI + p.shv.x[0][0] )
           *p.sigmaweight*t/p.sigma;
 
   if (linklist.first == 1)
@@ -221,15 +221,15 @@ void SystemState::bsqsvconservation_E()
     {
       const auto & p = particles[i];
 
-        E += ( p.C*p.g2 - p.eosPtr->p() - p.bigPI + p.shv.x[0][0] )
+        E += ( p.C*p.g2 - p.p() - p.bigPI + p.shv.x[0][0] )
               / p.sigma*p.sigmaweight*t;
         if (i==0)
           std::cout << "E: " << i << "   " << t
-              << "   " << p.eosPtr->T()
-              << "   " << p.eosPtr->e()
+              << "   " << p.T()
+              << "   " << p.e()
               << "   " << p.C
               << "   " << p.g2
-              << "   " << p.eosPtr->p()
+              << "   " << p.p()
               << "   " << p.bigPI
               << "   " << p.shv.x[0][0]
               << "   " << p.sigma
@@ -251,11 +251,11 @@ void SystemState::bsqsvconservation_Ez()
   {
     const auto & p = particles[i];
 
-    dEz += ( p.eosPtr->p() + p.bigPI + p.shv33*t2 ) / p.sigma*p.sigmaweight;
+    dEz += ( p.p() + p.bigPI + p.shv33*t2 ) / p.sigma*p.sigmaweight;
 
     if (false)
       std::cout << "dEz: " << i << "   " << t
-        << "   " << p.eosPtr->p()
+        << "   " << p.p()
         << "   " << p.bigPI
         << "   " << p.shv33*t2
         << "   " << p.sigma

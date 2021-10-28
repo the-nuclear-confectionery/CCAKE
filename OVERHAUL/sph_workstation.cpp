@@ -9,10 +9,10 @@
 using namespace constants;
 
 ////////////////////////////////////////////////////////////////////////////////
-void SPHWorkstation::set_EquationOfStatePtr(EquationOfState * eosPtr_in)
-{
-  eosPtr = eosPtr_in;
-}
+//void SPHWorkstation::set_EquationOfStatePtr(EquationOfState * eosPtr_in)
+//{
+//  eosPtr = eosPtr_in;
+//}
 
 void SPHWorkstation::set_SystemStatePtr( SystemState * systemPtr_in )
 {
@@ -68,9 +68,9 @@ cout << i << endl;
 cout << systemPtr->t << endl;
 cout << p.sigmaweight << endl;
 cout << p.e_sub << endl;
-cout << p.eosPtr->T() << endl;
-cout << p.eosPtr->e() << endl;
-cout << p.eosPtr->p() << endl;
+cout << p.T() << endl;
+cout << p.e() << endl;
+cout << p.p() << endl;
 cout << p.s_an << endl;
 
 if (i==0)
@@ -91,20 +91,20 @@ if (i==0)
 				if (p.s_an>0.0)
 				{
 					double phase_diagram_point[4]
-						= { p.eosPtr->T()*197.3,
-							  p.eosPtr->muB()*197.3,
-							  p.eosPtr->muS()*197.3,
-							  p.eosPtr->muQ()*197.3 };
+						= { p.T()*197.3,
+							  p.muB()*197.3,
+							  p.muS()*197.3,
+							  p.muQ()*197.3 };
 					double densities_at_point[4];
 					get_eBSQ_densities(phase_diagram_point, densities_at_point);
 					cout << i << ":   " << p.e_sub*197.3
 						<< "   " << p.rhoB_an
 						<< "   " << p.rhoS_an
 						<< "   " << p.rhoQ_an
-						<< "   " << p.eosPtr->T()*197.3
-						<< "   " << p.eosPtr->muB()*197.3
-						<< "   " << p.eosPtr->muS()*197.3
-						<< "   " << p.eosPtr->muQ()*197.3;
+						<< "   " << p.T()*197.3
+						<< "   " << p.muB()*197.3
+						<< "   " << p.muS()*197.3
+						<< "   " << p.muQ()*197.3;
 						for (int iii = 0; iii < 4; iii++)
 							cout << "   " << densities_at_point[iii];		
 					cout << "\n";
@@ -128,8 +128,8 @@ if (i==0)
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
 			<< p.sigmaweight << "   " << p.e_sub << "   "
-			<< p.eosPtr->T() << "   " << p.eosPtr->e() << "   "
-			<< p.eosPtr->p() << "   " << p.s_an << endl;
+			<< p.T() << "   " << p.e() << "   "
+			<< p.p() << "   " << p.s_an << endl;
 		}
 
 		///////////////////////////////////////////////////////////////////////////
@@ -172,10 +172,10 @@ if (i==0)
 			else	// if a solution was found
 			{
 				cout << "\t\t - phase diagram point: "
-						<< p.eosPtr->T()*197.3 << "   "
-						<< p.eosPtr->muB()*197.3 << "   "
-						<< p.eosPtr->muS()*197.3 << "   "
-						<< p.eosPtr->muQ()*197.3 << "\n";
+						<< p.T()*197.3 << "   "
+						<< p.muB()*197.3 << "   "
+						<< p.muS()*197.3 << "   "
+						<< p.muQ()*197.3 << "\n";
 			}
 
 			// freeze this particle out!
@@ -188,16 +188,16 @@ if (i==0)
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
 			<< p.sigmaweight << "   " << p.e_sub << "   "
-			<< p.eosPtr->T() << "   " << p.eosPtr->e() << "   "
-			<< p.eosPtr->p() << "   " << p.s_an << endl;
+			<< p.T() << "   " << p.e() << "   "
+			<< p.p() << "   " << p.s_an << endl;
 
 			cout << "\t --> Densities found in EoS table: "
 				<< p.r.x[0] << "   " << p.r.x[1] << "\n";
 			cout << "\t\t - phase diagram point: "
-					<< p.eosPtr->T()*197.3 << "   "
-					<< p.eosPtr->muB()*197.3 << "   "
-					<< p.eosPtr->muS()*197.3 << "   "
-					<< p.eosPtr->muQ()*197.3 << "\n";
+					<< p.T()*197.3 << "   "
+					<< p.muB()*197.3 << "   "
+					<< p.muS()*197.3 << "   "
+					<< p.muQ()*197.3 << "\n";
 			cout << "\t\t - densities: "
 					<< p.e_sub*197.3 << "   "
 					<< p.rhoB_an << "   "
@@ -205,10 +205,10 @@ if (i==0)
 					<< p.rhoQ_an << "\n";
 			
 			cout << "\t --> Exact:\n";
-			double phase_diagram_point[4] = { p.eosPtr->T()*197.3,
-											  p.eosPtr->muB()*197.3,
-											  p.eosPtr->muS()*197.3,
-											  p.eosPtr->muQ()*197.3 };
+			double phase_diagram_point[4] = { p.T()*197.3,
+											  p.muB()*197.3,
+											  p.muS()*197.3,
+											  p.muQ()*197.3 };
 			double densities_at_point[4];
 			get_eBSQ_densities(phase_diagram_point, densities_at_point);
 			cout << "\t\t - phase diagram point:";
@@ -219,12 +219,12 @@ if (i==0)
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
 			<< p.sigmaweight << "   " << p.e_sub << "   "
-			<< p.eosPtr->T() << "   " << p.eosPtr->e() << "   "
-			<< p.eosPtr->p() << "   " << p.s_an << endl;
+			<< p.T() << "   " << p.e() << "   "
+			<< p.p() << "   " << p.s_an << endl;
 
 		}
 
-    if (settingsPtr->gtyp==5) p.e_sub = p.eosPtr->e();
+    if (settingsPtr->gtyp==5) p.e_sub = p.e();
 
     p.gamma=p.gamcalc();
 
@@ -238,8 +238,8 @@ if (i==0)
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
 			<< p.sigmaweight << "   " << p.e_sub << "   "
-			<< p.eosPtr->T() << "   " << p.eosPtr->e() << "   "
-			<< p.eosPtr->p() << "   " << p.s_an << endl;
+			<< p.T() << "   " << p.e() << "   "
+			<< p.p() << "   " << p.s_an << endl;
 
     }
 	cout << "----------------------------------------"
@@ -282,14 +282,14 @@ void SPHWorkstation::initial_smoothing()  // formerly BSQguess()
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
 			<< p.sigmaweight << "   " << p.s_sub << "   "
-			<< p.eosPtr->T() << "   " << p.eosPtr->e() << "   "
-			<< p.eosPtr->p() << "   " << p.s_an << endl;
+			<< p.T() << "   " << p.e() << "   "
+			<< p.p() << "   " << p.s_an << endl;
 		smooth_fields(i, initialization_mode);
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
 			<< p.sigmaweight << "   " << p.s_sub << "   "
-			<< p.eosPtr->T() << "   " << p.eosPtr->e() << "   "
-			<< p.eosPtr->p() << "   " << p.s_an << endl;
+			<< p.T() << "   " << p.e() << "   "
+			<< p.p() << "   " << p.s_an << endl;
 	}
 	cout << "One more loop!" << endl;
 
@@ -304,15 +304,15 @@ if (i==0)
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
 			<< p.sigmaweight << "   " << p.s_sub << "   "
-			<< p.eosPtr->T() << "   " << p.eosPtr->e() << "   "
-			<< p.eosPtr->p() << "   " << p.s_an << endl;
+			<< p.T() << "   " << p.e() << "   "
+			<< p.p() << "   " << p.s_an << endl;
 		p.locate_phase_diagram_point_sBSQ(
       p.s_sub, p.rhoB_sub, p.rhoS_sub, p.rhoQ_sub );
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
 			<< p.sigmaweight << "   " << p.s_sub << "   "
-			<< p.eosPtr->T() << "   " << p.eosPtr->e() << "   "
-			<< p.eosPtr->p() << "   " << p.s_an << endl;
+			<< p.T() << "   " << p.e() << "   "
+			<< p.p() << "   " << p.s_an << endl;
 
 		p.sigsub = 0;
 		p.frzcheck(settingsPtr->t0, count1, systemPtr->_n);
@@ -459,8 +459,8 @@ void SPHWorkstation::smooth_gradients( int a, double tin, int & count )
       double sigsqrb           = 1.0/(pb.sigma*pb.sigma);
       Vector<double,2> sigsigK = pb.sigmaweight * pa.sigma * gradK;
 
-      pa.gradP                += ( sigsqrb*pb.eosPtr->p()
-                                  + sigsqra*pa.eosPtr->p() ) * sigsigK;
+      pa.gradP                += ( sigsqrb*pb.p()
+                                  + sigsqra*pa.p() ) * sigsigK;
 
       if ( ( ( Norm( pa.r - pb.r ) / settingsPtr->_h ) <= 2 ) && ( a != b ) )
       {
@@ -486,8 +486,8 @@ void SPHWorkstation::smooth_gradients( int a, double tin, int & count )
       {
         cout << "gradP stopped working" << endl;
         cout << systemPtr->t <<" "  << pa.gradP << " " << a << " " << b << endl;
-        cout << pb.sigmaweight << " " << pa.sigma << " " << pb.eosPtr->p() << endl;
-        cout << systemPtr->linklist.Size << " " << pb.eosPtr->s() << " " << pa.eosPtr->s() << endl;
+        cout << pb.sigmaweight << " " << pa.sigma << " " << pb.p() << endl;
+        cout << systemPtr->linklist.Size << " " << pb.s() << " " << pa.s() << endl;
 
         cout << pa.r << endl;
         cout << pb.r << endl;
@@ -505,13 +505,13 @@ void SPHWorkstation::smooth_gradients( int a, double tin, int & count )
   }
 
   if ( ( pa.btrack == 1 )
-        && ( ( pa.eosPtr->T()*197.3 ) >= 150 ) )
+        && ( ( pa.T()*197.3 ) >= 150 ) )
     pa.frz2.t=tin;
   else if ( ( pa.btrack == 0 )
-            && ( ( pa.eosPtr->T()*197.3 ) >= 150 )
+            && ( ( pa.T()*197.3 ) >= 150 )
             && ( pa.Freeze < 4 ) )
     cout << "Missed " << a << " " << tin << "  "
-         << pa.eosPtr->T()*197.3 << " "
+         << pa.T()*197.3 << " "
          << rdis << " " << settingsPtr->cfon <<  endl;
 
   return;
@@ -533,7 +533,7 @@ void SPHWorkstation::process_initial_conditions()
 
 
   // need to reset EoS pointers?
-  for (auto & p : systemPtr->particles) p.set_EquationOfStatePtr( eosPtr );
+  //for (auto & p : systemPtr->particles) p.set_EquationOfStatePtr( eosPtr );
 
 
   cout << "After e-cutoff and freeze-out: size = " << systemPtr->particles.size() << endl;
