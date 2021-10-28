@@ -38,7 +38,12 @@ void LinkList::initialize( double it0, int ntot, double h,
   cout << "_h = " << _h << endl;
   cout << "_n = " << _n << endl;
 
+  cout << "Check 1: " << particles_in[0].r << endl;
+
   particles   = particles_in;
+
+  cout << "Check 2: " << particles[0].r << endl;
+
 //    knorm       = 10/7./pi/(_h*_h);
 //    knorm2      = knorm*0.25;
 //    kgrad       = -10/7./pi/pow(_h,3)*3/4.;	//FIX MISSING MINUS SIGN!!!!!!  CONFIRM WITH JAKI
@@ -73,15 +78,16 @@ void LinkList::initialize( double it0, int ntot, double h,
 
   cout << "Check: " << _n << "   " << particles.size() << endl;
 
+  cout << particles[0].r << endl;
+
   cout << min << endl;
   cout << max << endl;
-  cout << particles[0].r << endl;
 
 
   for ( int i = 1; i < _n; i++ )
   for ( int j = 0; j < 2;  j++ )
   {
-    cout << i << "   " << j << endl;
+    cout << i << " ======= " << j << endl;
     cout << particles[i].r.x[j] << endl;
     cout << min.x[j] << endl;
     cout << max.x[j] << endl;
