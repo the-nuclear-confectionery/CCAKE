@@ -521,15 +521,23 @@ void SPHWorkstation::process_initial_conditions()
 {
   // impose the energy cut-off before the initial time step of hydro
   // the original cut should be 0.15
-  vector<Particle> threshold_particles;
+  /*vector<Particle> threshold_particles;
   for (auto & p : systemPtr->particles)
   {
 	  if (p.e_sub>0.00301/hbarc_GeVfm) // this will be changed, NOT HARDCODED!!
 	  {
 		 threshold_particles.push_back(p);
 	  }
+  }*/
+  //systemPtr->particles = threshold_particles;
+  const int total_particles_in_ICs = systemPtr->particles.size();
+  for ( int ip = total_particles_in_ICs; ip >= 0; ip-- )
+  {
+	  if (systemPtr->particles[i].e_sub > 0.00301/hbarc_GeVfm) // this will be changed, NOT HARDCODED!!
+	  {
+      (systemPtr->particles).erase( (systemPtr->particles).begin() + ip );
+	  }
   }
-  systemPtr->particles = threshold_particles;
 
 
   // need to reset EoS pointers?

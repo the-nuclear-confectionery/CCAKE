@@ -25,7 +25,7 @@ class Particle
     Particle(vector<double> &fields);
     
     // copy-constructor
-    Particle( const Particle& p );
+    //Particle( const Particle& p );
    ~Particle(){}
 
   bool operator==( const Particle & ) const;

@@ -35,13 +35,13 @@ Particle::Particle(vector<double> &fields)
 
 /////////////////////////////////////////////
 // copy-constructor
-Particle::Particle( const Particle& p )
-{
-  Imat.identity();
-  eosPtr = p.eosPtr;
-  //thermo.set(*eosPtr);
-  return;
-}
+//Particle::Particle( const Particle& p )
+//{
+//  Imat.identity();
+//  eosPtr = p.eosPtr;
+//  //thermo.set(*eosPtr);
+//  return;
+//}
 
 
 ////////////////////////////////////////////////////////////////////////////////
