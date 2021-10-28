@@ -526,15 +526,16 @@ void SPHWorkstation::process_initial_conditions()
   {
 	  if (p.e_sub>0.00301/hbarc_GeVfm) // this will be changed, NOT HARDCODED!!
 	  {
-		 threshold_particles.push_back(p);
+		 threshold_particles.push_back(
+      Particle( vector<double>({p.r.x[0], p.r.x[0], p.e_sub,
+                                p.rhoB_an, p.rhoS_an, p.rhoQ_an}) ) );
 	  }
   }
+  systemPtr->particles.clear();
   systemPtr->particles = threshold_particles;
-  
-
 
   // need to reset EoS pointers?
-//  for (auto & p : systemPtr->particles) p.set_EquationOfStatePtr( eosPtr );
+  for (auto & p : systemPtr->particles) p.set_EquationOfStatePtr( eosPtr );
 
 
   cout << "After e-cutoff and freeze-out: size = " << systemPtr->particles.size() << endl;
