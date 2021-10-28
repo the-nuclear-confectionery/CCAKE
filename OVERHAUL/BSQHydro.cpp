@@ -61,6 +61,8 @@ void BSQHydro::read_in_initial_conditions()
 ////////////////////////////////////////////////////////////////////////////////
 void BSQHydro::initialize_hydrodynamics()
 {
+  eos.init();
+
   system.initialize();
 
   ws.process_initial_conditions();

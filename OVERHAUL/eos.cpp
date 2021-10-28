@@ -132,6 +132,11 @@ EquationOfState::EquationOfState(string quantityFile, string derivFile)
 //This function should never be called unless init is called directly afterward
 EquationOfState::EquationOfState() {}
 
+void EquationOfState::init()
+{
+  init( quantity_file, deriv_file );
+}
+
 void EquationOfState::init(string quantityFile, string derivFile)
 {
 	tbqsPosition.resize(4);
