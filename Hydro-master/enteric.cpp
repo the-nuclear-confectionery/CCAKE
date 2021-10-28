@@ -67,7 +67,7 @@ void readEOS_T(string &firstry)
         while (i<nETH ) {
             fscanf(myfile,"%lf     %*f  %*f \n",&ETH[i].T); //assumes T is in the formate MeV
 
-            ETH[i].T/=hbarc_MeVfm;
+            ETH[i].T/=197.3;
             ++i;
         }
         fclose(myfile);
@@ -124,7 +124,7 @@ void readEOS_lowS(string &firstry)
         int i=0;
         while (i<nETL ) {
             fscanf(myfile,"%lf     %lf  %lf    %lf   %lf\n",&ETL[i].T,&ETL[i].e,&ETL[i].p,&ETL[i].s,&ETL[i].dtds); //assumes T is in the formate MeV
-            ETL[i].T/=hbarc_MeVfm;
+            ETL[i].T/=197.3;
             i++;
         }
         fclose(myfile);
@@ -273,24 +273,24 @@ void readICs_ebe(string &firstry,  int &_Ntable3,Particle<2> *&_p,double factor,
 
 
         for(int j=0; j<_Ntable3; j++) {
-            pj.r.x[0]=xsub[j];
-            pj.r.x[1]=ysub[j];
-            pj.e_sub=factor*esub[j];
-            pj.u.x[0]=0;
-            pj.u.x[1]=0;
-            pj.eta_sigma  = 1;
-            pj.sigmaweight=stepx*stepy;
-            pj.Bulk = 0;
+            _p[j].r.x[0]=xsub[j];
+            _p[j].r.x[1]=ysub[j];
+            _p[j].e_sub=factor*esub[j];
+            _p[j].u.x[0]=0;
+            _p[j].u.x[1]=0;
+            _p[j].eta_sigma  = 1;
+            _p[j].sigmaweight=stepx*stepy;
+            _p[j].Bulk = 0;
 
 
 
-            if (pj.e_sub>efcheck)
+            if (_p[j].e_sub>efcheck)
             {
-                pj.Freeze=0;
+                _p[j].Freeze=0;
             }
             else
             {
-                pj.Freeze=4;
+                _p[j].Freeze=4;
                 --kk;
                 ++numpart;
             }
@@ -385,25 +385,25 @@ void readICs_tnt(string &firstry,  int &_Ntable3,Particle<2> *&_p,double factor,
 
 
     for(int j=0; j<_Ntable3; j++) {
-        pj.r.x[0]=xsub[j];
-        pj.r.x[1]=ysub[j];
-        // pj.e_sub=EOS.e_out(factor*esub[j]);
-        pj.s_an=factor*esub[j];
-        pj.u.x[0]=0;
-        pj.u.x[1]=0;
-        pj.eta_sigma  = 1;
-        pj.sigmaweight=stepx*stepy;
-        pj.Bulk = 0;
+        _p[j].r.x[0]=xsub[j];
+        _p[j].r.x[1]=ysub[j];
+        // _p[j].e_sub=EOS.e_out(factor*esub[j]);
+        _p[j].s_an=factor*esub[j];
+        _p[j].u.x[0]=0;
+        _p[j].u.x[1]=0;
+        _p[j].eta_sigma  = 1;
+        _p[j].sigmaweight=stepx*stepy;
+        _p[j].Bulk = 0;
 
 
 
-        if (pj.s_an>sfcheck)
+        if (_p[j].s_an>sfcheck)
         {
-            pj.Freeze=0;
+            _p[j].Freeze=0;
         }
         else
         {
-            pj.Freeze=4;
+            _p[j].Freeze=4;
             --kk;
             ++numpart;
         }
@@ -519,47 +519,47 @@ void readICs_iccing( string &firstry, int &_Ntable3, Particle<2> *&_p,
 
     for(int j=0; j<_Ntable3; j++)
 	{
-        pj.r.x[0]=xsub[j];
-        pj.r.x[1]=ysub[j];
-        // pj.e_sub=EOS.e_out(factor*esub[j]);
-        pj.e_sub=esub[j]/hbarC;        // not s_an!!  convert to 1/fm^4 and do not rescale by factor!
-        pj.u.x[0]=0;
-        pj.u.x[1]=0;
-        pj.eta_sigma = 1;
-        pj.sigmaweight=stepx*stepy;
-		pj.rho_weight = stepx*stepy;
-        pj.Bulk = 0;
-        pj.B=rBsub[j]*stepx*stepy;			// confirm with Jaki
-        pj.S=rSsub[j]*stepx*stepy;			// confirm with Jaki
-        pj.Q=rQsub[j]*stepx*stepy;			// confirm with Jaki
-        pj.rhoB_an=rBsub[j];					// confirm with Jaki
-        pj.rhoS_an=rSsub[j];					// confirm with Jaki
-        pj.rhoQ_an=rQsub[j];					// confirm with Jaki
-		pj.transverse_area = stepx*stepy;
+        _p[j].r.x[0]=xsub[j];
+        _p[j].r.x[1]=ysub[j];
+        // _p[j].e_sub=EOS.e_out(factor*esub[j]);
+        _p[j].e_sub=esub[j]/hbarC;        // not s_an!!  convert to 1/fm^4 and do not rescale by factor!
+        _p[j].u.x[0]=0;
+        _p[j].u.x[1]=0;
+        _p[j].eta_sigma = 1;
+        _p[j].sigmaweight=stepx*stepy;
+		_p[j].rho_weight = stepx*stepy;
+        _p[j].Bulk = 0;
+        _p[j].B=rBsub[j]*stepx*stepy;			// confirm with Jaki
+        _p[j].S=rSsub[j]*stepx*stepy;			// confirm with Jaki
+        _p[j].Q=rQsub[j]*stepx*stepy;			// confirm with Jaki
+        _p[j].rhoB_an=rBsub[j];					// confirm with Jaki
+        _p[j].rhoS_an=rSsub[j];					// confirm with Jaki
+        _p[j].rhoQ_an=rQsub[j];					// confirm with Jaki
+		_p[j].transverse_area = stepx*stepy;
 
 		if (j==0)
 		cout << "readICs_iccing(" << __LINE__ << "): "
 			<< "SPH particles: "
 			<< j << "   "
-			<< pj.r.x[0] << "   " << pj.r.x[1] << "   "
-			<< pj.e_sub << "   " << pj.rhoB_an << "   "
-			<< pj.rhoS_an << "   " << pj.rhoQ_an << "   "
-			<< pj.sigmaweight << endl;
+			<< _p[j].r.x[0] << "   " << _p[j].r.x[1] << "   "
+			<< _p[j].e_sub << "   " << _p[j].rhoB_an << "   "
+			<< _p[j].rhoS_an << "   " << _p[j].rhoQ_an << "   "
+			<< _p[j].sigmaweight << endl;
 
 		// make educated initial guess here for this particle's (T, mu_i) coordinates
 		// (improve this in the future)
-		pj.SPH_cell.T   = 500.0/hbarc_MeVfm;	// rootfinder seems to work better going downhill than "uphill"
-		pj.SPH_cell.muB = 0.0/hbarc_MeVfm;
-		pj.SPH_cell.muS = 0.0/hbarc_MeVfm;
-		pj.SPH_cell.muQ = 0.0/hbarc_MeVfm;
+		_p[j].SPH_cell.T   = 500.0/197.3;	// rootfinder seems to work better going downhill than "uphill"
+		_p[j].SPH_cell.muB = 0.0/197.3;
+		_p[j].SPH_cell.muS = 0.0/197.3;
+		_p[j].SPH_cell.muQ = 0.0/197.3;
 
-        if (pj.e_sub>efcheck)	// impose freeze-out check for e, not s
+        if (_p[j].e_sub>efcheck)	// impose freeze-out check for e, not s
         {
-            pj.Freeze=0;
+            _p[j].Freeze=0;
         }
         else
         {
-            pj.Freeze=4;
+            _p[j].Freeze=4;
             --kk;
             ++numpart;
         }
@@ -648,24 +648,24 @@ void readICs_gebe(string &firstry,  int &_Ntable3,Particle<2> *&_p,double factor
 
 
     for(int j=0; j<_Ntable3; j++) {
-        pj.r.x[0]=xsub[j];
-        pj.r.x[1]=ysub[j];
-        pj.e_sub=esub[j];
-        pj.u.x[0]=0;
-        pj.u.x[1]=0;
-        pj.eta_sigma  = 1;
-        pj.sigmaweight=gd2;
-        pj.Bulk = 0;
+        _p[j].r.x[0]=xsub[j];
+        _p[j].r.x[1]=ysub[j];
+        _p[j].e_sub=esub[j];
+        _p[j].u.x[0]=0;
+        _p[j].u.x[1]=0;
+        _p[j].eta_sigma  = 1;
+        _p[j].sigmaweight=gd2;
+        _p[j].Bulk = 0;
 
 
 
-        if (pj.e_sub>efcheck)
+        if (_p[j].e_sub>efcheck)
         {
-            pj.Freeze=0;
+            _p[j].Freeze=0;
         }
         else
         {
-            pj.Freeze=4;
+            _p[j].Freeze=4;
             --kk;
             ++numpart;
         }
@@ -723,28 +723,28 @@ void readICs_nebe(string &firstry,  int &_Ntable3,Particle<2> *&_p,double factor
         numpart=0;
 
         for(int j=0; j<_Ntable3; j++) {
-            pj.r.x[0]=xsub[j];
-            pj.r.x[1]=ysub[j];
-            pj.e_sub=factor*esub[j];
-            pj.v.x[0]=vxsub[j];
-            pj.v.x[1]=vysub[j];
-            pj.gamma=1/sqrt(1-Norm2(pj.v));
-            pj.u.x[0]=pj.gamma*vxsub[j];
-            pj.u.x[1]=pj.gamma*vysub[j];
+            _p[j].r.x[0]=xsub[j];
+            _p[j].r.x[1]=ysub[j];
+            _p[j].e_sub=factor*esub[j];
+            _p[j].v.x[0]=vxsub[j];
+            _p[j].v.x[1]=vysub[j];
+            _p[j].gamma=1/sqrt(1-Norm2(_p[j].v));
+            _p[j].u.x[0]=_p[j].gamma*vxsub[j];
+            _p[j].u.x[1]=_p[j].gamma*vysub[j];
 
-            pj.eta_sigma  = 1;
-            pj.sigmaweight=0.08*0.08;
-            pj.Bulk = 0;
+            _p[j].eta_sigma  = 1;
+            _p[j].sigmaweight=0.08*0.08;
+            _p[j].Bulk = 0;
 
 
 
-            if (pj.e_sub>efcheck)
+            if (_p[j].e_sub>efcheck)
             {
-                pj.Freeze=0;
+                _p[j].Freeze=0;
             }
             else
             {
-                pj.Freeze=4;
+                _p[j].Freeze=4;
                 --kk;
                 ++numpart;
             }
@@ -932,25 +932,25 @@ double readICs_gl(string &firstry,  int &_Ntable3,Particle<2> *&_p,double factor
     numpart=0;
 
     for(int j=0; j<_Ntable3; j++) {
-        pj.r.x[0]=rx[j];
-        pj.r.x[1]=ry[j];
-        pj.e_sub=e[j];
-        pj.u.x[0]=ux[j];  //these are actually already u not v
-        pj.u.x[1]=uy[j];
+        _p[j].r.x[0]=rx[j];
+        _p[j].r.x[1]=ry[j];
+        _p[j].e_sub=e[j];
+        _p[j].u.x[0]=ux[j];  //these are actually already u not v
+        _p[j].u.x[1]=uy[j];
 
-        pj.eta_sigma  = 1;
-        pj.sigmaweight=gd2;
-        pj.Bulk = 0;
+        _p[j].eta_sigma  = 1;
+        _p[j].sigmaweight=gd2;
+        _p[j].Bulk = 0;
 
 
 
-        if (pj.e_sub>efcheck)
+        if (_p[j].e_sub>efcheck)
         {
-            pj.Freeze=0;
+            _p[j].Freeze=0;
         }
         else
         {
-            pj.Freeze=4;
+            _p[j].Freeze=4;
             --kk;
             ++numpart;
         }
@@ -1119,25 +1119,25 @@ void readICs_glno(string &firstry,  int &_Ntable3,Particle<2> *&_p,double factor
     numpart=0;
 
     for(int j=0; j<_Ntable3; j++) {
-        pj.r.x[0]=rx[j];
-        pj.r.x[1]=ry[j];
-        pj.e_sub=e[j];
-        pj.u.x[0]=0;  //these are actually already u not v
-        pj.u.x[1]=0;
+        _p[j].r.x[0]=rx[j];
+        _p[j].r.x[1]=ry[j];
+        _p[j].e_sub=e[j];
+        _p[j].u.x[0]=0;  //these are actually already u not v
+        _p[j].u.x[1]=0;
 
-        pj.eta_sigma  = 1;
-        pj.sigmaweight=gd2;
-        pj.Bulk = 0;
+        _p[j].eta_sigma  = 1;
+        _p[j].sigmaweight=gd2;
+        _p[j].Bulk = 0;
 
 
 
-        if (pj.e_sub>efcheck)
+        if (_p[j].e_sub>efcheck)
         {
-            pj.Freeze=0;
+            _p[j].Freeze=0;
         }
         else
         {
-            pj.Freeze=4;
+            _p[j].Freeze=4;
             --kk;
             ++numpart;
         }
