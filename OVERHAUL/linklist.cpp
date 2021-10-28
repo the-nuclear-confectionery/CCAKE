@@ -52,7 +52,7 @@ void LinkList::initialize( double it0, int ntot, double h,
   //link        = new int[_n];
   //dael        = new Vector<int,2>[_n];
   link        = vector<int>(_n);
-  //dael        = vector< Vector<int,2> >(_n);
+  dael        = vector< Vector<int,2> >(_n);
   steps       = 100*(floor(tend-t0)+1);
 
   kernel::set_kernel_parameters( _h );
@@ -103,10 +103,10 @@ void LinkList::initiate()
   //dael: relates every particle with its linklist cube
   // also convert particle position to an integer
 
-  //for (int j=0; j<_n; j++)
-  //  dael[j] = inv_h*(particles[j].r-min) + (1.0*range)*uni;
-  for ( auto & p : *particlesPtr )
-    dael.push_back( inv_h*(p.r-min) + (1.0*range)*uni );
+  for (int j=0; j<_n; j++)
+    dael[j] = inv_h*((*particlesPtr)[j].r-min) + (1.0*range)*uni;
+  //for ( auto & p : *particlesPtr )
+  //  dael.push_back( inv_h*(p.r-min) + (1.0*range)*uni );
 
   //lead: relates every linklist cube with one of the particles (leader) in it
   //link: links the leader particle of one cube with the others of the same cube
