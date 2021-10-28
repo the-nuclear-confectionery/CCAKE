@@ -15,6 +15,7 @@
 // Default constructor
 Particle::Particle()
 {
+  s_an = 0.0;
   Imat.identity();
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -29,6 +30,7 @@ Particle::Particle(vector<double> &fields)
   rhoB_an = fields[3];
   rhoS_an = fields[4];
   rhoQ_an = fields[5];
+  s_an = 0.0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

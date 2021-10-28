@@ -29,7 +29,7 @@ private:
   
   SystemState * systemPtr;
   Settings * settingsPtr;
-//  EquationOfState * eosPtr;
+  EquationOfState * eosPtr;
 
 
 };
