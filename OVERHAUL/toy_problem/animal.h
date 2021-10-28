@@ -29,10 +29,12 @@ public:
     int count_legs();
     string animal_type();
 
-    // setOwnerPtr(Owner *ownerPtrIn);
+    void setOwnerPtr(string *ownerPtrIn);
+    string returnOwner();
 private:
     int legs,
     string sound,type,name;
+    string *ownerPtr;
 
     // void setNameByOwner(Owner &owner)
     
