@@ -73,6 +73,11 @@ void LinkList::initialize( double it0, int ntot, double h,
 
   cout << "Check: " << _n << "   " << particles.size() << endl;
 
+  cout << min << endl;
+  cout << max << endl;
+  cout << particles[0].r << endl;
+
+
   for ( int i = 1; i < _n; i++ )
   for ( int j = 0; j < 2;  j++ )
   {
