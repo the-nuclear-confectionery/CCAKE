@@ -159,6 +159,12 @@ void InputOutput::read_in_initial_conditions()
             }
           }
           auto & test = systemPtr->particles;
+for ( auto & p : systemPtr->particles )
+  cout << "new check: " << flush
+      << flush << p.e_sub << "   "
+      << flush << p.rhoB_an << "   "
+      << flush << p.rhoS_an << "   "
+      << flush << p.rhoQ_an << "   " << endl;
           cout << "new check: " << flush << test.size() << "   "
                 << flush << (test[0]).e_sub << "   "
                 << flush << (test[0]).rhoB_an << "   "
