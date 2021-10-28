@@ -563,7 +563,7 @@ void SPHWorkstation::process_initial_conditions()
 		p.thermo.muS = 0.0/hbarc_MeVfm;
 		p.thermo.muQ = 0.0/hbarc_MeVfm;
 
-		if (p.e_sub>efcheck)	// impose freeze-out check for e, not s
+		if (p.e_sub>systemPtr->efcheck)	// impose freeze-out check for e, not s
 	    {
 			p.Freeze=0;
 		}
