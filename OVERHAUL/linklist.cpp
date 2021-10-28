@@ -71,9 +71,12 @@ void LinkList::initialize( double it0, int ntot, double h,
   max = particles[0].r;
   min = particles[0].r;
 
+  cout << "Check: " << _n << "   " << particles.size() << endl;
+
   for ( int i = 1; i < _n; i++ )
   for ( int j = 0; j < 2;  j++ )
   {
+    cout << i << "   " << j << endl;
     if ( particles[i].r.x[j] > max.x[j] ) max.x[j] = particles[i].r.x[j];
     if ( particles[i].r.x[j] < min.x[j] ) min.x[j] = particles[i].r.x[j];
   }
