@@ -20,8 +20,8 @@ using std::vector;
 
 int main (int argc, char *argv[])
 {
- vector<string> types = ({"dog","cat","komono dragom","duck"});
- vector<int> legs = ({4,4,4,2});
+ vector<string> types = {"dog","cat","komono dragom","duck"};
+ vector<int> legs = {4,4,4,2};
  vector<animal> vecOfAnimals;
  string OWNER = "Jimbo";
  for (int i = 0; i<types.size;i++)

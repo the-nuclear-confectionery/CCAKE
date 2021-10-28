@@ -21,11 +21,11 @@ using std::vector;
 
 animal::animal(){}
 
-animal::animal(String Type, int Legs)
+animal::animal(string Type, int Legs)
 {
     // sound = Sound;
     type = Type;
-    legs = Legs
+    legs = Legs;
 }
 
 animal::~animal(){}
