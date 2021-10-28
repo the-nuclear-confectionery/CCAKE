@@ -158,10 +158,11 @@ void InputOutput::read_in_initial_conditions()
                 systemPtr->particles.push_back( Particle(fields) );
             }
           }
-          cout << "new check: " << (systemPtr->particles)[0].e_sub << "   "
-                << (systemPtr->particles)[0].rhoB_an << "   "
-                << (systemPtr->particles)[0].rhoS_an << "   "
-                << (systemPtr->particles)[0].rhoQ_an << "   " << flush;
+          auto & test = systemPtr->particles;
+          cout << "new check: " << flush << test[0].e_sub << "   "
+                << flush << test[0].rhoB_an << "   "
+                << flush << test[0].rhoS_an << "   "
+                << flush << test[0].rhoQ_an << "   " << flush;
           cout << (systemPtr->particles)[0].r.x[0] << "   "
                 << (systemPtr->particles)[0].r.x[1] << endl;
   }
