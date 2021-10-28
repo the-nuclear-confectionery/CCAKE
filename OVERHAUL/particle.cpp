@@ -29,6 +29,13 @@ Particle::Particle(vector<double> &fields)
   rhoB_an = fields[3];
   rhoS_an = fields[4];
   rhoQ_an = fields[5];
+cout << "inside constructor: "
+    << r.x[0] << "   " << fields[0] << "   "
+    << r.x[1] << "   " << fields[1] << "   "
+    << e_sub << "   " << fields[2] << "   "
+    << rhoB_an << "   " << fields[3] << "   "
+    << rhoS_an << "   " << fields[4] << "   "
+    << rhoQ_an << "   " << fields[5] << endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
