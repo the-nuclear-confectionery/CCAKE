@@ -56,6 +56,8 @@ t = settingsPtr->input_parameters.t0;
 
 cout << "t = " << t << endl;
 
+_h = settingsPtr->input_parameters.h;
+
 for (auto & p : particles) p.set_EquationOfStatePtr( eosPtr );
 
   linklist.efcheck = efcheck;
