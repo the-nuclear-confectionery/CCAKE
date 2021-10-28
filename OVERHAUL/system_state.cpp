@@ -87,7 +87,8 @@ for (auto & p : particles) p.set_EquationOfStatePtr( eosPtr );
     
     int currently_frozen_out = 0;
     //linklist.initialize( it0, _Ntable3, h, particles, dt, numpart );
-    linklist.initialize( settingsPtr->t0, particles.size(), _h, particles, dt, currently_frozen_out );
+    linklist.initialize( settingsPtr->t0, particles.size(), settingsPtr->_h,
+                         particles, dt, currently_frozen_out );
 
     cout << "number of sph particles=" << _Ntable3 << endl;
     linklist.gtyp=settingsPtr->gtyp;
