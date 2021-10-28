@@ -5,7 +5,7 @@ STANDARD= -std=c++11
 WARNINGS= -w -Wall -Wextra -pedantic -Wno-conversion -Wcast-align -Wunused -Wshadow -Wpointer-arith
 OPTIMIZATION= -Og
 CFLAGS = $(WARNINGS) $(OPTIMIZATION) -c - $(DEBUG) $(STANDARD)
-LDFLAGS = --lstdc++ $(DEBUG) $(STANDARD)
+LDFLAGS = -lstdc++ $(DEBUG) $(STANDARD)
 
 animalCheck : $(OBJS)
 	$(CC) -g $(OBJS) -o animalCheck $(LDFLAGS)
