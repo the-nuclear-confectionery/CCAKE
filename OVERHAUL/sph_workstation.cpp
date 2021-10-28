@@ -550,29 +550,28 @@ void SPHWorkstation::process_initial_conditions()
 
 		//if (j==0)
 		cout << "readICs_iccing(" << __LINE__ << "): "
-			<< "SPH particles: "
-			<< p.r.x[0] << "   " << p.r.x[1] << "   "
-			<< p.e_sub << "   " << p.rhoB_an << "   "
-			<< p.rhoS_an << "   " << p.rhoQ_an << "   "
-			<< p.sigmaweight << endl;
+		  << "SPH particles: "
+		  << p.r.x[0] << "   " << p.r.x[1] << "   "
+		  << p.e_sub << "   " << p.rhoB_an << "   "
+		  << p.rhoS_an << "   " << p.rhoQ_an << "   "
+		  << p.sigmaweight << endl;
 
-    // make educated initial guess here for this particle's (T, mu_i) coordinates
-    // (improve this in the future)
-    p.thermo.T   = 500.0/hbarc_MeVfm;	// rootfinder seems to work better going downhill than "uphill"
-    p.thermo.muB = 0.0/hbarc_MeVfm;
-    p.thermo.muS = 0.0/hbarc_MeVfm;
-    p.thermo.muQ = 0.0/hbarc_MeVfm;
+		// make educated initial guess here for this particle's (T, mu_i) coordinates
+		// (improve this in the future)
+		p.thermo.T   = 500.0/hbarc_MeVfm;	// rootfinder seems to work better going downhill than "uphill"
+		p.thermo.muB = 0.0/hbarc_MeVfm;
+		p.thermo.muS = 0.0/hbarc_MeVfm;
+		p.thermo.muQ = 0.0/hbarc_MeVfm;
 
-    if (pj.e_sub>efcheck)	// impose freeze-out check for e, not s
-    {
-      pj.Freeze=0;
-    }
-    else
-    {
-      pj.Freeze=4;
-      --kk;
-      ++numpart;
-    }
+		if (p.e_sub>efcheck)	// impose freeze-out check for e, not s
+	    {
+			p.Freeze=0;
+		}
+		else
+		{
+			p.Freeze=4;
+			systemPtr->numpber_part += 1;
+		}
   }
 }
 /////////////////////////////////////////////////////////////////////////////////
