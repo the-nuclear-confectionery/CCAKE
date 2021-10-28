@@ -44,7 +44,7 @@ int main (int argc, char *argv[])
 
    for (int i = 0; i<vecOfAnimals.size();i++)
  {
-     cout << vecOfAnimals[i] << endl;
+     cout << vecOfAnimals[i].returnOwner() << endl;
  }
 
 
