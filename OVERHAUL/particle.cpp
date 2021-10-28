@@ -162,7 +162,7 @@ void Particle::return_bsqsv_A()
 
 	// THIS NEEDS TO BE CHECKED/FIXED, SPECIFICALLY WHEN INCLUDING MORE BETA-DOT TERMS
     Agam  = w() - dwds()*(s()+ bigPI/T() )- zeta/tauRelax
-            - dwdB() * B() - dwdS() * S() - dwdQ() * Q();
+            - dwdB() * rhoB() - dwdS() * rhoS() - dwdQ() * rhoQ();
 
     //Agam2 = ( Agam - eta_o_tau*(0.5-1.0/3.0) - dwdsT1*shv.x[0][0] ) / gamma;
     Agam2 = ( Agam - eta_o_tau/6.0 - dwdsT1*shv.x[0][0] ) / gamma;
@@ -286,8 +286,8 @@ void Particle::setvisc( int etaconst, double bvf, double svf, double zTc,
         }
         else
         {
-          //setas = ()*(-0.107143 + 0.227143*temp);
-          setas = ()*(0.397807 + 0.0776319* temp - 0.321513* temp *temp  );
+          //setas = s()*(-0.107143 + 0.227143*temp);
+          setas = s()*(0.397807 + 0.0776319* temp - 0.321513* temp *temp  );
         }
       }
       if (etaconst==6)
@@ -297,7 +297,7 @@ void Particle::setvisc( int etaconst, double bvf, double svf, double zTc,
         double z=pow(0.66*temp,2);
         double alpha=33./(12.*PI)*(z-1)/(z*log(z));
 
-        setas = ()*(0.0416762/pow(alpha,1.6)+ 0.0388977/pow(temp,5.1) );
+        setas = s()*(0.0416762/pow(alpha,1.6)+ 0.0388977/pow(temp,5.1) );
       }
       else
       {
@@ -305,12 +305,12 @@ void Particle::setvisc( int etaconst, double bvf, double svf, double zTc,
         double temp=T()/TC;
         if( temp>TC )
         {
-          setas = ()*(0.3153036437246963 + 0.051740890688259315* temp
+          setas = s()*(0.3153036437246963 + 0.051740890688259315* temp
                           - 0.24704453441295576* temp *temp  );
         }
         else
         {
-          setas = ()*(0.0054395278010882795 + 0.08078575671572835*temp
+          setas = s()*(0.0054395278010882795 + 0.08078575671572835*temp
                           + 0.033774715483183566* temp *temp );
         }
       }
@@ -338,7 +338,7 @@ void Particle::setvisc( int etaconst, double bvf, double svf, double zTc,
         else zeta=-13.77*t2*t2+27.55*t2-13.45;
 
         // single-argument version of cs2out
-        tauRelax =5.*zeta/(pow((1-cs2out(T())),2)*(e()+p()));
+        tauRelax =5.*zeta/(pow((1-cs2()),2)*(e()+p()));
       }
       else if (etaconst==4)
       {
@@ -356,10 +356,10 @@ void Particle::setvisc( int etaconst, double bvf, double svf, double zTc,
         else zeta=-13.77*t2*t2+27.55*t2-13.45;
 
         // single-argument version of cs2out
-        tauRelax =5.*zeta/(pow((1-cs2out(T())),2)*(e()+p()));
+        tauRelax =5.*zeta/(pow((1-cs2()),2)*(e()+p()));
       }
 
-      zeta*=();
+      zeta*=s();
       if (zeta<0.001) zeta=0.001;
       if (tauRelax <0.2) tauRelax=0.2;
     }
