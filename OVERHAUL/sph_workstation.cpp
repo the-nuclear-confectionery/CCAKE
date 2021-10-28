@@ -541,7 +541,7 @@ void SPHWorkstation::process_initial_conditions()
 		p.u.x[1]          = 0.0;
 		p.eta_sigma       = 1.0;
 		p.sigmaweight     = stepX*stepY;
-		p.rho_weight      = settings->stepx*stepY;
+		p.rho_weight      = stepX*stepY;
 		p.Bulk            = 0.0;
 		p.B               = p.rhoB_an*stepX*stepY;
 		p.S               = p.rhoS_an*stepX*stepY;
@@ -563,14 +563,14 @@ void SPHWorkstation::process_initial_conditions()
 		p.thermo.muS = 0.0/hbarc_MeVfm;
 		p.thermo.muQ = 0.0/hbarc_MeVfm;
 
-		if (p.e_sub>efcheck)	// impose freeze-out check for e, not s
+		if (p.e_sub>systemPtr->efcheck)	// impose freeze-out check for e, not s
 	    {
 			p.Freeze=0;
 		}
 		else
 		{
 			p.Freeze=4;
-			systemPtr->numpber_part += 1;
+			systemPtr->number_part++;
 		}
   }
 }
