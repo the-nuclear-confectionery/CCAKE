@@ -33,7 +33,7 @@ int main (int argc, char *argv[])
   for (int i = 0; i<types.size;i++)
  {
      vecOfAnimals[i].setOwnerPtr(*OWNER);
-     cout << vecOfAnimals[i] << endl
+     cout << vecOfAnimals[i] << endl;
      if(vecOfAnimals[i].count_legs()==4)
      {
          tempAnimals.push_back(vecOfAnimals[i]);

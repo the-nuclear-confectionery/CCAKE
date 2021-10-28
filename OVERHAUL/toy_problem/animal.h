@@ -19,12 +19,12 @@ using std::vector;
 
 class animal
 {
+public:
     animal();
     animal(string Sound, string Type, int Legs);
     ~animal();
 
 
-public:
     string animal_sound();
     int count_legs();
     string animal_type();
