@@ -38,11 +38,11 @@ void LinkList::initialize( double it0, int ntot, double h,
   cout << "_h = " << _h << endl;
   cout << "_n = " << _n << endl;
 
-  cout << "Check 1: " << particles_in[0].r << endl;
+    cout << "Check 1: " << particles_in[0].r.x[0] << "   " << particles_in[0].r.x[1] << endl;
 
   particles   = particles_in;
 
-  cout << "Check 2: " << particles[0].r << endl;
+    cout << "Check 2: " << particles[0].r.x[0] << "   " << particles[0].r.x[1] << endl;
 
 //    knorm       = 10/7./pi/(_h*_h);
 //    knorm2      = knorm*0.25;

@@ -16,6 +16,8 @@
 
 using namespace constants;
 
+using std::flush;
+
 // Constructors and destructors.
 InputOutput::InputOutput(){}
 InputOutput::~InputOutput(){}
@@ -153,9 +155,12 @@ void InputOutput::read_in_initial_conditions()
                 iss >> x >> y >> e >> rhoB >> rhoS >> rhoQ;
                 e /= hbarc_GeVfm;
                 vector<double> fields({x,y,e,rhoB,rhoS,rhoQ});
-                systemPtr->particles.push_back(Particle(fields));
+                systemPtr->particles.push_back( Particle(fields) );
             }
           }
+          cout << "new check: " << flush;
+          cout << (systemPtr->particles)[0].r.x[0] << "   "
+                << (systemPtr->particles)[0].r.x[1] << endl;
   }
   else
   {
