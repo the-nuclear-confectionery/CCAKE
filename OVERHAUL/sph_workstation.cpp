@@ -570,7 +570,7 @@ void SPHWorkstation::process_initial_conditions()
 		else
 		{
 			p.Freeze=4;
-			systemPtr->number_part += 1;
+			systemPtr->number_part++;
 		}
   }
 }
