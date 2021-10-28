@@ -259,11 +259,6 @@ if (i==0)
 	if (failCounter > 0) exit(-1);
 
 }
-
-
-
-
-
 ////////////////////////////////////////////////////////////////////////////////
 void SPHWorkstation::initial_smoothing()  // formerly BSQguess()
 {
