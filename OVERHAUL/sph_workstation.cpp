@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "constants.h"
 #include "sph_workstation.h"
 #include "Stopwatch.h"
@@ -521,11 +522,11 @@ void SPHWorkstation::process_initial_conditions()
 {
   // impose the energy cut-off before the initial time step of hydro
   // the original cut should be 0.15
-  vector<Particle> threshold_particles;
+  /*vector<Particle> threshold_particles;
   for (auto & p : systemPtr->particles)
   {
-//cout << "check 0: " << p.r.x[0] << "   " << p.r.x[1] << "   " << p.e_sub << "   "
-//      << p.rhoB_an << "   " << p.rhoS_an << "   " << p.rhoQ_an << endl;
+cout << "check 0: " << p.r.x[0] << "   " << p.r.x[1] << "   " << p.e_sub << "   "
+      << p.rhoB_an << "   " << p.rhoS_an << "   " << p.rhoQ_an << endl;
 	  if (p.e_sub>0.00301/hbarc_GeVfm) // this will be changed, NOT HARDCODED!!
 	  {
 		  Particle temp = new Particle(p);
@@ -541,7 +542,13 @@ void SPHWorkstation::process_initial_conditions()
   systemPtr->particles = threshold_particles;
 
   // need to reset EoS pointers?
-  for (auto & p : systemPtr->particles) p.set_EquationOfStatePtr( eosPtr );
+  for (auto & p : systemPtr->particles) p.set_EquationOfStatePtr( eosPtr );*/
+
+  // try this
+  systemPtr->particles.erase( std::remove_if(
+    systemPtr->particles.begin(), systemPtr->particles.end(),
+    [](Particle const & p) { return p.e_sub > 0.00301 / hbarc_GeVfm; } ),
+    systemPtr->particles.end() );
 
 
   cout << "After e-cutoff and freeze-out: size = " << systemPtr->particles.size() << endl;
