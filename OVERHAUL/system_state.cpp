@@ -58,6 +58,9 @@ cout << "t = " << t << endl;
 
 _h = settingsPtr->input_parameters.h;
 
+  settingsPtr->efcheck = eosPtr->efreeze(settingPtr->Freeze_Out_Temperature);
+  settingsPtr->sfcheck = eosPtr->sfreeze(settingPtr->Freeze_Out_Temperature);
+
 for (auto & p : particles) p.set_EquationOfStatePtr( eosPtr );
 
   linklist.efcheck = efcheck;
