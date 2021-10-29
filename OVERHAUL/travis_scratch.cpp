@@ -4,7 +4,7 @@
 
 void load_settings_file( string path_to_settings_file )
 {
-    string Param_file = path_to_settings_file+"Input_Parameters.inp"
+    string Param_file = path_to_settings_file+"inp"
     ifstream infile( Param_file.c_str() );
     if (infile.is_open())
     {
@@ -18,16 +18,16 @@ void load_settings_file( string path_to_settings_file )
             iss >> ignore >> param[param_line];
         }
 
-        input_parameters.IC_tpye = param[0];
-        input_parameters.h = stod(param[1]);
-        input_parameters.dt = stod(param[2]);
-        input_parameters.t0 = stod(param[3]);
-        input_parameters.EoS_type = param[4];
-        input_parameters.EoS_option = param[5];
-        input_parameters.eta = param[6]
-        input_parameters.zeta = param[7]
-        input_parameters.Freeze_Out_Temperature = stod(param[8])
-        input_parameters.Freeze_Out_Type = param[9]
+        IC_tpye = param[0];
+        h = stod(param[1]);
+        dt = stod(param[2]);
+        t0 = stod(param[3]);
+        EoS_type = param[4];
+        EoS_option = param[5];
+        eta = param[6]
+        zeta = param[7]
+        Freeze_Out_Temperature = stod(param[8])
+        Freeze_Out_Type = param[9]
 
         infile.close();
     }
@@ -35,7 +35,7 @@ void load_settings_file( string path_to_settings_file )
 
 void set_EoS_type()
 {
-  EoS_type = input_parameters.EoS_type;
+  EoS_type = EoS_type;
   string EoS_files_location = 'EoS/' + EoS_type;
   string densities = EoS_files_location + '/densities.dat';
   string derivatives = EoS_files_location + '/derivatives.dat';
@@ -55,7 +55,7 @@ void set_EoS_type()
 
 void InputOutput::read_in_initial_conditions()
 {
-  string initial_condition_type = input_parameters.IC_type;
+  string initial_condition_type = IC_type;
   int total_header_lines;
   string IC_file = 'All_Initial_Conds/'
   switch(initial_condition_type)
@@ -139,7 +139,7 @@ void BSQHydro::trim_initical_conditions()
     double rhoQ = initial_conditions.density_grid[i][5];
 
     eos.sout(e,rhoB,rhoS,rhoQ);
-    if (eos.T() > input_parameters.Freeze_Out_Temperature)
+    if (eos.T() > Freeze_Out_Temperature)
     {
       trimmed_grid.pushback(initial_conditions.density_grid[i]);
     }

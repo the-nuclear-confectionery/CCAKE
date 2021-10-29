@@ -20,6 +20,7 @@ public:
   double stepx = 0.0;
   double stepy = 0.0;
   double _h = 0.0;
+  double Freeze_Out_Temperature = 0.0;
 
   double tau = 0.0;
   double taup = 0.0;
@@ -85,30 +86,24 @@ public:
   strin eos_p = "";
   string ebe_folder = "";
   string eost = "";
+  string IC_type = ""; // specify initial condition type
+  string EoS_type = ""; // specify equation of state type
+  string EoS_option = ""; // specify specifc option for EOS
+  // there should an associated EoS directory with tables
+  string eta = ""; // specificy the shear viscosity type to use
+  // in transport cpefficient file
+  string zeta = ""; // specificy the bulk viscosity type to use
+  // in transport cpefficient file
+  string Freeze_Out_Type = "";
+
+
+
 /********************************************************************************/
 
 
-
+/* VECTOR of headers */
   vector<string> headers;
-
-  struct Input_Parameters
-{
-    string IC_type = ""; // specify initial condition type
-    double h = 0.0; // static SPH cutoff paramter
-    double dt = 0.0; // time step in fm
-    double t0 = 0.0; // initial time in fm
-    string EoS_type = ""; // specify equation of state type
-    string EoS_option = ""; // specify specifc option for EOS
-    // there should an associated EoS directory with tables
-    string eta = ""; // specificy the shear viscosity type to use
-    // in transport cpefficient file
-    string zeta = ""; // specificy the bulk viscosity type to use
-    // in transport cpefficient file
-    double Freeze_Out_Temperature = 0.0;
-    string Freeze_Out_Type = "";
-};
-  Input_Parameters input_parameters;
-
+/********************************************************************************/
 
 
 

@@ -71,16 +71,16 @@ cout << "all_parameters.size() = " << all_parameters.size() << endl;
 for ( auto & entry : all_parameters )
   cout << entry << endl;
 
-        settingsPtr->input_parameters.IC_type                = all_parameters[0];
-        settingsPtr->input_parameters.h                      = stod(all_parameters[1]);
-        settingsPtr->input_parameters.dt                     = stod(all_parameters[2]);
-        settingsPtr->input_parameters.t0                     = stod(all_parameters[3]);
-        settingsPtr->input_parameters.EoS_type               = all_parameters[4];
-        settingsPtr->input_parameters.EoS_option             = all_parameters[5];
-        settingsPtr->input_parameters.eta                    = all_parameters[6];
-        settingsPtr->input_parameters.zeta                   = all_parameters[7];
-        settingsPtr->input_parameters.Freeze_Out_Temperature = stod(all_parameters[8])/hbarc_MeVfm;
-        settingsPtr->input_parameters.Freeze_Out_Type        = all_parameters[9];
+        settingsPtr->IC_type                = all_parameters[0];
+        settingsPtr->h                      = stod(all_parameters[1]);
+        settingsPtr->dt                     = stod(all_parameters[2]);
+        settingsPtr->t0                     = stod(all_parameters[3]);
+        settingsPtr->EoS_type               = all_parameters[4];
+        settingsPtr->EoS_option             = all_parameters[5];
+        settingsPtr->eta                    = all_parameters[6];
+        settingsPtr->zeta                   = all_parameters[7];
+        settingsPtr->Freeze_Out_Temperature = stod(all_parameters[8])/hbarc_MeVfm;
+        settingsPtr->Freeze_Out_Type        = all_parameters[9];
 
         infile.close();
     }
@@ -90,8 +90,8 @@ for ( auto & entry : all_parameters )
 
 void InputOutput::set_EoS_type()
 {
-  string EoS_type = settingsPtr->input_parameters.EoS_type;
-  string EoS_option = settingsPtr->input_parameters.EoS_option;
+  string EoS_type = settingsPtr->EoS_type;
+  string EoS_option = settingsPtr->EoS_option;
   string EoS_files_location = "EoS/" + EoS_type + "/" + EoS_option;
   string densities = EoS_files_location + "/densities.dat";
   string derivatives = EoS_files_location + "/derivatives.dat";
@@ -114,7 +114,7 @@ void InputOutput::set_EoS_type()
 
 void InputOutput::read_in_initial_conditions()
 {
-  string initial_condition_type = settingsPtr->input_parameters.IC_type;
+  string initial_condition_type = settingsPtr->IC_type;
   int total_header_lines;
   string IC_file = "initial_conditions/";
 
