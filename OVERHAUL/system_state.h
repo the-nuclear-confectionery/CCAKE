@@ -63,7 +63,10 @@ public:
   double sfcheck    = 0.0;
   double freezeoutT = 0.0;
   double bvf        = 0.0;
-  double svf        = 0.0;
+/*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+  double svf        = 0.04; // HARDCODED FOR NOW
+/*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+
   double zTc        = 0.0;
   double sTc        = 0.0;
   double zwidth     = 0.0;
@@ -74,9 +77,11 @@ public:
   int N           = 0;
   int rk2         = 0;
 
-  int etaconst = 0.0;
-  int visc     = 0.0;
-  int cfon     = 0.0;
+/*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+  int etaconst = 1; // HARDCODED FOR NOW
+  /*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+  int visc     = 0;
+  int cfon     = 0;
 
 
 private:
