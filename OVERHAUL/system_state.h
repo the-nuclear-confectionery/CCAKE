@@ -90,6 +90,7 @@ private:
 /* POINTERS */
   EquationOfState * eosPtr = nullptr;
   Settings * settingsPtr   = nullptr;
+/**********************************************************/
 
 
 
