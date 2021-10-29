@@ -154,7 +154,7 @@ void EquationsOfMotion::BSQshear( SystemState & system, SPHWorkstation & ws )
                                 - p.gamma*system.t*p.shv33 );
 
     p.detasigma_dt            = 1./p.sigma/p.T()*( -p.bigPI*p.bigtheta + p.inside );
-    cout << "p.inside: " << p.inside << " for particle: " << i;
+    cout << "p.inside: " << p.inside << " for particle: " << i << endl;
 
 
     // N.B. - ADD EXTRA TERMS FOR BULK EQUATION
