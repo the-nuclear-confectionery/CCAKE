@@ -47,6 +47,7 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 	cout << "----------------------------------------"
 			"----------------------------------------" << endl;
 
+    systemPtr->_n = systemPtr->particles.size();
     cout << "systemPtr->_n = " << systemPtr->_n << endl;
 
     for (int i=0; i<systemPtr->_n; i++)
@@ -64,7 +65,7 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 			cout << "Doing this particle: "
 					<< p.r.x[0] << "   " << p.r.x[1] << "\n";
 
-cout << "SPH checkpoint(" << __LINE__ << "): " << endl;
+/*cout << "SPH checkpoint(" << __LINE__ << "): " << endl;
 cout << i << endl;
 cout << systemPtr->t << endl;
 cout << p.sigmaweight << endl;
@@ -72,7 +73,7 @@ cout << p.e_sub << endl;
 cout << p.T() << endl;
 cout << p.e() << endl;
 cout << p.p() << endl;
-cout << p.s_an << endl;
+cout << p.s_an << endl;*/
 
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
@@ -228,6 +229,9 @@ if (i==0)
     if (settingsPtr->gtyp==5) p.e_sub = p.e();
 
     p.gamma=p.gamcalc();
+
+if (i==0)
+    cout << "Check these: " << p.s_an << "   " << p.gamma << "   " << settingsPtr->t0 << endl;
 
     p.sigmaweight *= p.s_an*p.gamma*settingsPtr->t0;	// sigmaweight is constant after this
     //p.rho_weight *= p.gamma*t0;				// rho_weight is constant after this
@@ -537,6 +541,8 @@ void SPHWorkstation::process_initial_conditions()
   //int TMP_particle_count = 0;
 	double stepX = settingsPtr->stepx;
 	double stepY = settingsPtr->stepy;
+  cout << "stepX = " << stepX << endl;
+  cout << "stepY = " << stepY << endl;
 	for (auto & p : systemPtr->particles)
   {
 		p.u.x[0]          = 0.0;

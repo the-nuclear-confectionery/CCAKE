@@ -938,12 +938,12 @@ double EquationOfState::deriv_mult_aTm_1b(gsl_vector* a, gsl_matrix* m, gsl_vect
     return toReturn;
 }
 
-double EquationOfState::Atable()
-{
-    Aout=w()-entrVal*dwds();
-
-    return Aout;
-}
+//double EquationOfState::Atable()
+//{
+//    Aout=w()-entrVal*dwds();
+//
+//    return Aout;
+//}
 
 double EquationOfState::cs2out(double Tt) {  //return cs2 given t and mu's=0
     tbqs(Tt, 0.0, 0.0, 0.0);
