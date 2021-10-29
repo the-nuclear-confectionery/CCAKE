@@ -467,8 +467,9 @@ void SPHWorkstation::smooth_gradients( int a, double tin, int & count )
                                   + sigsqra*pa.p() ) * sigsigK;
 
 if (a==0)
-  cout << "CHECK grads: " << a << "   " << b << "   " << sigsqra << "   " << sigsqrb
-        << pa.p() << "   " << pb.p() << "   " << gradK << "   " << sigsigK << "   " << pa.sigma << endl;
+  cout << "CHECK grads: " << tin << "   " << a << "   " << b << "   " << sigsqra << "   " << sigsqrb
+        << "   " << pa.p() << "   " << pb.p() << "   " << gradK << "   " << sigsigK
+        << "   " << pa.sigma << endl;
 
       if ( ( ( Norm( pa.r - pb.r ) / settingsPtr->_h ) <= 2 ) && ( a != b ) )
       {

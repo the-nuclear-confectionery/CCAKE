@@ -2186,8 +2186,8 @@ void LinkList<D>::bsqsvoptimization2(int a,double tin,int & count)
                 _p[a].gradP +=( sigsqrb*_p[b].EOSp()+ sigsqra*_p[a].EOSp() )*sigsigK;
 
 if (a==0)
-  cout << "CHECK grads: " << a << "   " << b << "   " << sigsqra << "   " << sigsqrb
-        << _p[a].EOSp() << "   " << _p[b].EOSp() << "   " << gradK << "   "
+  cout << "CHECK grads: " << tin << "   " << a << "   " << b << "   " << sigsqra << "   " << sigsqrb
+        << "   " << _p[a].EOSp() << "   " << _p[b].EOSp() << "   " << gradK << "   "
         << sigsigK << "   " << _p[a].sigma << endl;
 
 
