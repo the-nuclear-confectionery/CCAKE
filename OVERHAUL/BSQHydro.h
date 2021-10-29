@@ -50,6 +50,7 @@ private:
 
 
   // equation of state information
+  std::shared_ptr<EquationOfState> eosPtr;
   EquationOfState eos;
 
   // equation of motion object

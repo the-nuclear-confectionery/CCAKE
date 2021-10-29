@@ -9,7 +9,8 @@
 BSQHydro::BSQHydro()
 {
   //std::shared_ptr<EquationOfState> ptr = std::make_shared<EquationOfState>(eos);
-  std::shared_ptr<EquationOfState> ptr(new eos);
+  eosPtr = new EquationOfState();
+  std::shared_ptr<EquationOfState> ptr(eosPtr);
 
 cout << "ptr.use_count() = " << ptr.use_count() << endl;
     
@@ -84,7 +85,8 @@ void BSQHydro::read_in_initial_conditions()
 void BSQHydro::initialize_hydrodynamics()
 {
   // initialize equation of state
-  eos.init();
+  eosPtr->init();
+  //eos.init();
 
   // initialize system state
   system.initialize();
