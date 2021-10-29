@@ -230,6 +230,9 @@ if (i==0)
 
     p.gamma=p.gamcalc();
 
+if (i==0)
+    cout << "Check these: " << p.s_an << "   " << p.gamma << "   " << settingsPtr->t0 << endl;
+
     p.sigmaweight *= p.s_an*p.gamma*settingsPtr->t0;	// sigmaweight is constant after this
     //p.rho_weight *= p.gamma*t0;				// rho_weight is constant after this
 
