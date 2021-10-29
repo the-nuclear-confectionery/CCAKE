@@ -60,10 +60,10 @@ private:
   string output_directory;
 
   // these allow I/O to access other objects in BSQHydro
-  EquationOfState   * eosPtr;
-  EquationsOfMotion * eomPtr;
-  Settings          * settingsPtr;
-  SystemState       * systemPtr;
+  EquationOfState   * eosPtr      = nullptr;
+  EquationsOfMotion * eomPtr      = nullptr;
+  Settings          * settingsPtr = nullptr;
+  SystemState       * systemPtr   = nullptr;
 
 
 
