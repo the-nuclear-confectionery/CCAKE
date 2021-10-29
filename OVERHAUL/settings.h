@@ -9,61 +9,108 @@ class Settings
 {
 public:
 
-  static constexpr int VERBOSE = 5;
-
-  //static constexpr double q=1.;
-  double step;
-
+  /* DOUBLES */
   // maximum upper limit for t
   static constexpr double tend=50.02;
+  
+  double step = 0.0;
+  double t0 = 0.0;
+  double t = 0.0;
+  double dt = 0.0;
+  double stepx = 0.0;
+  double stepy = 0.0;
+  double _h = 0.0;
 
-  double t0;
+  double tau = 0.0;
+  double taup = 0.0;
+  double taupp = 0.0;
 
-  double stepx, stepy;
+  double gd2 = 0.0;
+  double factor = 0.0;
 
-  double _h;
-  //int _n;
-  int start, end, fnum;
-  int qmf;  // if==1 quantum mechanicanical corrections to the flow or added,
-            // if==0 no corrections are included
+  double efcheck = 0.0;
+  double sfcheck = 0.0;
 
-  int number_part;
-  double t,dt;
-  double factor;
-  int frzc;
-  double tau, taup, taupp;
-  int rk2;
-  double gd2;
+  double avgetasig = 0.0;
+  double wfz = 0.0;
+  double cs2 = 0.0;
 
-  int gtyp;
+  double E1 = 0.0;
+  double E2 = 0.0;
 
-  int cfon;
-  int cf;
-  int visc; // visc=0 for ideal
+  double bvf = 0.0;
+  double svf = 0.0;
+  double zwidth = 0.0
+  double sTc = 0.0;
+  double zTc = 0.0;
+/********************************************************************************/
+
+
+/* INTS */
+  static constexpr int VERBOSE = 5;
+  //static constexpr double q=1.;
+
+  //int _n = 0;
+  int start = 0;
+  int end = 0,
+  int fnum = 0;
+  int qmf = 0;  // if==1 quantum mechanicanical corrections to the flow or added,
+                // if==0 no corrections are included
+  int number_part = 0;
+  int frzc = 0;
+  int rk2 = 0;
+  int gtyp = 0;
+  int cfon = 0;
+  int cf = 0;
+  int visc = 0; // visc=0 for ideal
             // visc=1 for bulk,
             // visc=2 for shear
             // visc=3 for bulk+shear
             // visc=4 for bulk+shear+BSQ
-  double efcheck, sfcheck;
-  int steps;
 
-  int first;
-  int average;
-  int lowT;
+  int steps = 0;
+  int first = 0;
+  int average = 0;
+  int lowT = 0;
+  int etaconst = 0;
 
-  double avgetasig;
-  double wfz, cs2;
+  int fcount = 0;
+  int cevent = 0;
+  /********************************************************************************/
 
-  double E1, E2;
 
-  int etaconst;
-  double bvf, svf, zwidth, sTc, zTc;
+  /* STRINGS */
 
-  string eos_s, eos_p;
-  string ebe_folder;
+  string eos_s = "";
+  strin eos_p = "";
+  string ebe_folder = "";
+  string eost = "";
+/********************************************************************************/
 
-  int fcount, cevent;
-  string eost;
+
+
+  vector<string> headers;
+
+  struct Input_Parameters
+{
+    string IC_type = ""; // specify initial condition type
+    double h = 0.0; // static SPH cutoff paramter
+    double dt = 0.0; // time step in fm
+    double t0 = 0.0; // initial time in fm
+    string EoS_type = ""; // specify equation of state type
+    string EoS_option = ""; // specify specifc option for EOS
+    // there should an associated EoS directory with tables
+    string eta = ""; // specificy the shear viscosity type to use
+    // in transport cpefficient file
+    string zeta = ""; // specificy the bulk viscosity type to use
+    // in transport cpefficient file
+    double Freeze_Out_Temperature = 0.0;
+    string Freeze_Out_Type = "";
+};
+  Input_Parameters input_parameters;
+
+
+
 
   // make sure that all chosen settings make reasonable sense
   void check_consistency()
@@ -72,27 +119,6 @@ public:
 
     return;
   }
-
-  struct Input_Parameters
-{
-    string IC_type; // specify initial condition type
-    double h; // static SPH cutoff paramter
-    double dt; // time step in fm
-    double t0; // initial time in fm
-    string EoS_type; // specify equation of state type
-    string EoS_option; // specify specifc option for EOS
-    // there should an associated EoS directory with tables
-    string eta; // specificy the shear viscosity type to use
-    // in transport cpefficient file
-    string zeta; // specificy the bulk viscosity type to use
-    // in transport cpefficient file
-    double Freeze_Out_Temperature;
-    string Freeze_Out_Type;
-};
-  Input_Parameters input_parameters;
-
-  vector<string> headers;
-
 
 };
 
