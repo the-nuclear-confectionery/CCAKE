@@ -62,7 +62,7 @@ private:
 
   //EquationOfState eos;
 //  EquationOfState * eosPtr = nullptr;
-    std::shared_ptr<EquationOfState> eosPtr = std::make_shared<EquationOfState>();
+    std::shared_ptr<EquationOfState> eosPtr
 
   Settings * settingsPtr = nullptr;
 
