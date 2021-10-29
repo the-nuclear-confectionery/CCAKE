@@ -65,7 +65,7 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 			cout << "Doing this particle: "
 					<< p.r.x[0] << "   " << p.r.x[1] << "\n";
 
-cout << "SPH checkpoint(" << __LINE__ << "): " << endl;
+/*cout << "SPH checkpoint(" << __LINE__ << "): " << endl;
 cout << i << endl;
 cout << systemPtr->t << endl;
 cout << p.sigmaweight << endl;
@@ -73,7 +73,7 @@ cout << p.e_sub << endl;
 cout << p.T() << endl;
 cout << p.e() << endl;
 cout << p.p() << endl;
-cout << p.s_an << endl;
+cout << p.s_an << endl;*/
 
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
@@ -538,6 +538,8 @@ void SPHWorkstation::process_initial_conditions()
   //int TMP_particle_count = 0;
 	double stepX = settingsPtr->stepx;
 	double stepY = settingsPtr->stepy;
+  cout << "stepX = " << stepX << endl;
+  cout << "stepY = " << stepY << endl;
 	for (auto & p : systemPtr->particles)
   {
 		p.u.x[0]          = 0.0;
