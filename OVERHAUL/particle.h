@@ -154,7 +154,10 @@ class Particle
   double stauRelax       = 0.0; // Shear Relxation time
   double dBulk_dt        = 0.0; // derivative Bulk Viscosity
   double zeta            = 0.0; // bulk coefficient
-  double setas           = 0.0;
+/*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+  double setas           = 0.04; // THIS IS BEING HARDCODED BUT
+  // NEEDS TO BE CHANGED!!
+/*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
   double Ctot            = 0.0;
   double Btot            = 0.0;
 
