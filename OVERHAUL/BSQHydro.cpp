@@ -19,12 +19,11 @@ BSQHydro::BSQHydro()
   ws.set_EquationOfStatePtr( &eos );
   ws.set_SystemStatePtr( &system );
   ws.set_SettingsPtr( &settings );
-    
+  
   // initialize system state
   system.set_EquationOfStatePtr( &eos );
   system.set_SettingsPtr( &settings );
-    
-
+  
   return;
 }
 
@@ -69,7 +68,7 @@ void BSQHydro::initialize_hydrodynamics()
 {
 
   // FOR DEBUGGING PURPOSES ONLY
-  ws.process_initial_conditions();
+  //ws.process_initial_conditions();
 
 
 

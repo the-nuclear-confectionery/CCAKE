@@ -68,10 +68,6 @@ void InputOutput::load_settings_file( string path_to_settings_file )
             all_parameters.push_back(param);
         }
 
-cout << "all_parameters.size() = " << all_parameters.size() << endl;
-for ( auto & entry : all_parameters )
-  cout << entry << endl;
-
         settingsPtr->input_parameters.IC_type                = all_parameters[0];
         settingsPtr->input_parameters.h                      = stod(all_parameters[1]);
         settingsPtr->input_parameters.dt                     = stod(all_parameters[2]);
@@ -92,12 +88,6 @@ for ( auto & entry : all_parameters )
 void InputOutput::set_EoS_type()
 {
 
-cout << endl << "**************************************************************" << endl;
-
-cout << "In this function!" << endl;
-
-
-
   string EoS_type = settingsPtr->input_parameters.EoS_type;
   string EoS_option = settingsPtr->input_parameters.EoS_option;
   string EoS_files_location = "EoS/" + EoS_type + "/" + EoS_option;
@@ -114,28 +104,14 @@ cout << "In this function!" << endl;
     exit(1);
   }
 
-cout << EoS_type << "   " << EoS_option << "   " << EoS_files_location
-    << "   " << densities << "   " << derivatives << endl;
-
-cout << endl << "**************************************************************" << endl;
-
   eosPtr->quantity_file = densities;
   eosPtr->deriv_file = derivatives;
-cout << endl << "**************************************************************" << endl;
-cout << __PRETTY_FUNCTION__ << ": " /*<< eosPtr.use_count() << "   "*/
-    << eosPtr->quantity_file << "   " << eosPtr->deriv_file << endl;
-cout << endl << "**************************************************************" << endl;
+
   return;
 }
 
 void InputOutput::read_in_initial_conditions()
 {
-cout << endl << "**************************************************************" << endl;
-cout << __PRETTY_FUNCTION__ << ": " /*<< eosPtr.use_count() << "   "*/
-    << eosPtr->quantity_file << "   " << eosPtr->deriv_file << endl;
-cout << endl << "**************************************************************" << endl;
-
-
   string initial_condition_type = settingsPtr->input_parameters.IC_type;
   int total_header_lines;
   string IC_file = "initial_conditions/";
