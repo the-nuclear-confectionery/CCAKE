@@ -72,7 +72,7 @@ for ( auto & entry : all_parameters )
   cout << entry << endl;
 
         settingsPtr->IC_type                = all_parameters[0];
-        settingsPtr->h                      = stod(all_parameters[1]);
+        settingsPtr->_h                     = stod(all_parameters[1]);
         settingsPtr->dt                     = stod(all_parameters[2]);
         settingsPtr->t0                     = stod(all_parameters[3]);
         settingsPtr->EoS_type               = all_parameters[4];

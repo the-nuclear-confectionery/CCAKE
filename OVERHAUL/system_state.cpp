@@ -58,7 +58,7 @@ t = settingsPtr->t0;
 
 cout << "t = " << t << endl;
 
-_h = settingsPtr->h;
+_h = settingsPtr->_h;
 
   settingsPtr->efcheck = eosPtr->efreeze(settingsPtr->Freeze_Out_Temperature);
   settingsPtr->sfcheck = eosPtr->sfreeze(settingsPtr->Freeze_Out_Temperature);
@@ -100,7 +100,7 @@ for (auto & p : particles) p.set_EquationOfStatePtr( eosPtr );
     int currently_frozen_out = 0;
     //linklist.initialize( it0, _Ntable3, h, &particles, dt, numpart );
     linklist.initialize( settingsPtr->t0, particles.size(),
-                         settingsPtr->h, &particles, dt, currently_frozen_out );
+                         settingsPtr->_h, &particles, dt, currently_frozen_out );
 
     cout << "number of sph particles=" << _Ntable3 << endl;
     linklist.gtyp=settingsPtr->gtyp;
