@@ -10,6 +10,9 @@ BSQHydro::BSQHydro()
 {
   std::shared_ptr<EquationOfState> ptr = std::make_shared<EquationOfState>(eos);
 
+cout << "ptr.use_count() = " << ptr.use_count() << endl;
+    
+
   // initialize I/O pointers
 //  io.set_EquationOfStatePtr( &eos );
   io.set_EquationOfStatePtr( ptr );
@@ -17,16 +20,25 @@ BSQHydro::BSQHydro()
   io.set_SettingsPtr( &settings );
   io.set_SystemStatePtr( &system );
 
+cout << "ptr.use_count() = " << ptr.use_count() << endl;
+    
+
   // initialize SPH workstation
 //  ws.set_EquationOfStatePtr( &eos );
   ws.set_EquationOfStatePtr( ptr );
   ws.set_SystemStatePtr( &system );
   ws.set_SettingsPtr( &settings );
 
+cout << "ptr.use_count() = " << ptr.use_count() << endl;
+    
+
   // initialize system state
 //  system.set_EquationOfStatePtr( &eos );
   system.set_EquationOfStatePtr( ptr );
   system.set_SettingsPtr( &settings );
+
+cout << "ptr.use_count() = " << ptr.use_count() << endl;
+    
 
   return;
 }
