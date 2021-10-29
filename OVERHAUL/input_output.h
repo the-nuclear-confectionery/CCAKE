@@ -34,8 +34,7 @@ public:
   InputOutput();
   ~InputOutput();
 
-//  void set_EquationOfStatePtr( EquationOfState * eosPtr_in );
-  void set_EquationOfStatePtr( std::shared_ptr<EquationOfState> eosPtr_in );
+  void set_EquationOfStatePtr( EquationOfState * eosPtr_in );
   void set_EquationsOfMotionPtr( EquationsOfMotion * eomPtr_in );
   void set_SettingsPtr( Settings * settingsPtr_in );
   void set_SystemStatePtr( SystemState * systemPtr_in );

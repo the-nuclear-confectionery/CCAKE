@@ -15,15 +15,11 @@ BSQHydro::BSQHydro()
   io.set_SettingsPtr( &settings );
   io.set_SystemStatePtr( &system );
 
-cout << "ptr.use_count() = " << ptr.use_count() << endl;
-    
-
   // initialize SPH workstation
   ws.set_EquationOfStatePtr( &eos );
   ws.set_SystemStatePtr( &system );
   ws.set_SettingsPtr( &settings );
     
-
   // initialize system state
   system.set_EquationOfStatePtr( &eos );
   system.set_SettingsPtr( &settings );
