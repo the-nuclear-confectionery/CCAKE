@@ -22,15 +22,11 @@ using std::flush;
 InputOutput::InputOutput(){}
 InputOutput::~InputOutput(){}
 
-//void InputOutput::set_EquationOfStatePtr( EquationOfState * eosPtr_in )
-//{
-//  eosPtr = eosPtr_in;
-//}
-
-void InputOutput::set_EquationOfStatePtr( std::shared_ptr<EquationOfState> eosPtr_in )
+void InputOutput::set_EquationOfStatePtr( EquationOfState * eosPtr_in )
 {
   eosPtr = eosPtr_in;
 }
+
 
 void InputOutput::set_EquationsOfMotionPtr( EquationsOfMotion * eomPtr_in )
 {

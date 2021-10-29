@@ -32,8 +32,8 @@ class Particle
   bool operator==( const Particle & ) const;
 
   // use this to set equation of state object before creating particles
-//  void set_EquationOfStatePtr( EquationOfState * eosPtr_in );
-  void set_EquationOfStatePtr( std::shared_ptr<EquationOfState> eosPtr_in );
+  void set_EquationOfStatePtr( EquationOfState * eosPtr_in );
+//  void set_EquationOfStatePtr( std::shared_ptr<EquationOfState> eosPtr_in );
 
   double locate_phase_diagram_point_eBSQ( double e_In );
   double locate_phase_diagram_point_eBSQ( double e_In, double rhoB_In,

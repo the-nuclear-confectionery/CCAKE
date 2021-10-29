@@ -61,8 +61,7 @@ private:
   string output_directory;
 
   // these allow I/O to access other objects in BSQHydro
-//  EquationOfState   * eosPtr;
-    std::shared_ptr<EquationOfState> eosPtr;
+  EquationOfState   * eosPtr;
   EquationsOfMotion * eomPtr;
   Settings          * settingsPtr;
   SystemState       * systemPtr;

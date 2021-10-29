@@ -30,8 +30,7 @@ public:
   SystemState(){}
   ~SystemState(){}
 
-//  void set_EquationOfStatePtr( EquationOfState * eosPtr_in );
-  void set_EquationOfStatePtr( std::shared_ptr<EquationOfState> eosPtr_in );
+  void set_EquationOfStatePtr( EquationOfState * eosPtr_in );
   void set_SettingsPtr(Settings * settingsPtr_in);
 
   //void compute_Knudsen_numbers();
