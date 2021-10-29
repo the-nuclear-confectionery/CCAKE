@@ -370,7 +370,7 @@ void SPHWorkstation::smooth_fields(int a, bool init_mode /*== false*/)
       pa.rhoQ_sub    += pb.rho_weight*pb.rhoQ_an*kern;    //confirm with Jaki
 
       //if (kern>0.0) neighbor_count++;
-      if (true)
+      if (a==0)
         std::cout << __FUNCTION__ << "(SPH particle == " << a << " ): "
         << b << "   " << pa.r
         << "   " << pa.sigma
