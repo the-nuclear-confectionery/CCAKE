@@ -222,6 +222,8 @@ void SystemState::conservation_BSQ()
     }
 	return;
 }
+
+
 ///////////////////////////////////////
 void SystemState::bsqsvconservation_E()
 {
@@ -251,6 +253,8 @@ void SystemState::bsqsvconservation_E()
       E0=E;
     }
 }
+
+
 ///////////////////////////////////////
 void SystemState::bsqsvconservation_Ez()
 {

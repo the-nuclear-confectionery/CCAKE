@@ -1423,7 +1423,8 @@ void LinkList<D>::bsqsvconservation_E()
 {
 
     E=0.;
-    for (int i=0; i<_n; i++) {
+    for (int i=0; i<_n; i++)
+    {
         E+= (_p[i].C* _p[i].g2-_p[i].EOSp()-_p[i].bigPI+_p[i].shv.x[0][0])/_p[i].sigma*_p[i].sigmaweight*t;
 if (i==0)
 cout << "E: " << i << "   " << t
@@ -1435,7 +1436,8 @@ cout << "E: " << i << "   " << t
 		<< "   " << _p[i].bigPI
 		<< "   " << _p[i].shv.x[0][0]
 		<< "   " << _p[i].sigma
-		<< "   " << _p[i].sigmaweight << endl;    }
+		<< "   " << _p[i].sigmaweight << endl;
+    }
 
     if (first==1)
     {

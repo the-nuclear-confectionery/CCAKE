@@ -29,7 +29,7 @@ public:
   int rk2           = 0; 
   int steps         = 0;
   int gtyp          = 0;
-  int first         = 0;
+  int first         = 1;  //HARDCODE
   int average       = 0;
   int lowT          = 0;
   int etaconst      = 0;
