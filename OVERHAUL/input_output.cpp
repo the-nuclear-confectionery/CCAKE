@@ -27,7 +27,6 @@ void InputOutput::set_EquationOfStatePtr( EquationOfState * eosPtr_in )
   eosPtr = eosPtr_in;
 }
 
-
 void InputOutput::set_EquationsOfMotionPtr( EquationsOfMotion * eomPtr_in )
 {
   eomPtr = eomPtr_in;
@@ -68,6 +67,10 @@ void InputOutput::load_settings_file( string path_to_settings_file )
             all_parameters.push_back(param);
         }
 
+cout << "all_parameters.size() = " << all_parameters.size() << endl;
+for ( auto & entry : all_parameters )
+  cout << entry << endl;
+
         settingsPtr->input_parameters.IC_type                = all_parameters[0];
         settingsPtr->input_parameters.h                      = stod(all_parameters[1]);
         settingsPtr->input_parameters.dt                     = stod(all_parameters[2]);
@@ -87,7 +90,6 @@ void InputOutput::load_settings_file( string path_to_settings_file )
 
 void InputOutput::set_EoS_type()
 {
-
   string EoS_type = settingsPtr->input_parameters.EoS_type;
   string EoS_option = settingsPtr->input_parameters.EoS_option;
   string EoS_files_location = "EoS/" + EoS_type + "/" + EoS_option;
@@ -104,9 +106,9 @@ void InputOutput::set_EoS_type()
     exit(1);
   }
 
+
   eosPtr->quantity_file = densities;
   eosPtr->deriv_file = derivatives;
-
   return;
 }
 
@@ -166,3 +168,7 @@ void InputOutput::read_in_initial_conditions()
   }
   infile.close();
 }
+
+
+
+
