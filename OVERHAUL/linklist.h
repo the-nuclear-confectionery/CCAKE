@@ -78,7 +78,7 @@ public:
   double E1         = 0;
   double E2         = 0;
   double step       = 0;
-  double efcheck    = 0,
+  double efcheck    = 0;
   double sfcheck    = 0;
   double avgetasig  = 0; // possibly not needed?
   double wfz        = 0;
@@ -101,7 +101,7 @@ public:
   //vectors of doubles
   vector<double> sFO, Tfluc; //entropy at freezeout
   Vector<double,2> *divT = nullptr;
-  Vector<double>   *rsub = nullptr;
+  Vector<double,2> *rsub = nullptr;
   Vector<double,2> *uout = nullptr;
 
   //vectors of vectorrs

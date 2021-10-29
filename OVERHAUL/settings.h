@@ -40,7 +40,7 @@ public:
 
   double bvf = 0.0;
   double svf = 0.0;
-  double zwidth = 0.0
+  double zwidth = 0.0;
   double sTc = 0.0;
   double zTc = 0.0;
 /********************************************************************************/
@@ -52,7 +52,7 @@ public:
 
   //int _n = 0;
   int start = 0;
-  int end = 0,
+  int end = 0;
   int fnum = 0;
   int qmf = 0;  // if==1 quantum mechanicanical corrections to the flow or added,
                 // if==0 no corrections are included
@@ -82,7 +82,7 @@ public:
   /* STRINGS */
 
   string eos_s = "";
-  strin eos_p = "";
+  string eos_p = "";
   string ebe_folder = "";
   string eost = "";
 /********************************************************************************/

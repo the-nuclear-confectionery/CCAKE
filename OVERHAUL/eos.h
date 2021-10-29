@@ -29,9 +29,8 @@ public:
 
     EquationOfState();
     void init();
-    void init(string quantityFile, string tityFile, string derivFile);
-derivFile);
-    void init_grid_ranges_only(string quan
+    void init(string quantityFile, string derivFile);
+    void init_grid_ranges_only(string quantityFile, string derivFile);
     //initializes the position in the grid to (setT,setmuB,setmuQ,setmuS)
     //Once called, the splines will stay initialized at this point until the function is called again
     void tbqs(double setT, double setmuB, double setmuQ, double setmuS);
