@@ -9,8 +9,8 @@ class SPHWorkstation
 {
 public:
 
-  SPHWorkstation(){}
-  ~SPHWorkstation(){}
+  SPHWorkstation(){};
+  ~SPHWorkstation(){};
 
   void set_EquationOfStatePtr( EquationOfState * eosPtr_in );
   void set_SystemStatePtr( SystemState * systemPtr_in );
@@ -27,9 +27,9 @@ public:
 
 private:
   
-  SystemState * systemPtr;
-  Settings * settingsPtr;
-  EquationOfState * eosPtr;
+  SystemState * systemPtr  = nullptr;
+  Settings * settingsPtr   = nullptr;
+  EquationOfState * eosPtr = nullptr;
 
 
 };
