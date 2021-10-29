@@ -253,6 +253,9 @@ void Particle::bsqsvsigset( double tin, int i )
 void Particle::setvisc( int etaconst, double bvf, double svf, double zTc,
                         double sTc, double sig, int type )
 {
+  cout << __FUNCTION__ << ": " << etaconst << "   " << bvf << "   " << svf
+        << "   " << zTc << "   " << sTc << "   " << << "   " << type << endl;
+
   if (type==1) // bulk viscosity
   {
     double temp=T()*197.3;
