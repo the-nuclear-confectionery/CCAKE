@@ -12,20 +12,20 @@ BSQHydro::BSQHydro()
 
   // initialize I/O pointers
 //  io.set_EquationOfStatePtr( &eos );
-  io.set_EquationOfStatePtr( std::make_shared<EquationOfState>(&eos) );
+  io.set_EquationOfStatePtr( std::make_shared<EquationOfState>(eos) );
   io.set_EquationsOfMotionPtr( &eom );
   io.set_SettingsPtr( &settings );
   io.set_SystemStatePtr( &system );
 
   // initialize SPH workstation
 //  ws.set_EquationOfStatePtr( &eos );
-  ws.set_EquationOfStatePtr( std::make_shared<EquationOfState>(&eos) );
+  ws.set_EquationOfStatePtr( std::make_shared<EquationOfState>(eos) );
   ws.set_SystemStatePtr( &system );
   ws.set_SettingsPtr( &settings );
 
   // initialize system state
 //  system.set_EquationOfStatePtr( &eos );
-  system.set_EquationOfStatePtr( std::make_shared<EquationOfState>(&eos) );
+  system.set_EquationOfStatePtr( std::make_shared<EquationOfState>(eos) );
   system.set_SettingsPtr( &settings );
 
   return;

@@ -95,6 +95,13 @@ for ( auto & entry : all_parameters )
 
 void InputOutput::set_EoS_type()
 {
+
+cout << endl << "**************************************************************" << endl;
+
+cout << "In this function!" << endl;
+
+
+
   string EoS_type = settingsPtr->input_parameters.EoS_type;
   string EoS_option = settingsPtr->input_parameters.EoS_option;
   string EoS_files_location = "EoS/" + EoS_type + "/" + EoS_option;
@@ -111,6 +118,10 @@ void InputOutput::set_EoS_type()
     exit(1);
   }
 
+cout << EoS_type << "   " << EoS_option << "   " << EoS_files_location
+    << "   " << densities << "   " << derivatives << endl;
+
+cout << endl << "**************************************************************" << endl;
 
   eosPtr->quantity_file = densities;
   eosPtr->deriv_file = derivatives;
