@@ -56,7 +56,8 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 
 
 
-		cout << "----------------------------------------"
+		if (i==0)
+    cout << "----------------------------------------"
 				"----------------------------------------" << endl;
 
 		if (settingsPtr->gtyp!=5)
@@ -306,21 +307,22 @@ if (i==0)
     auto & p = systemPtr->particles[i];
 		p.s_sub = p.sigma/p.gamma/settingsPtr->t0;
 
-if (i==0)
-	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
+//if (i==0)
+	cout << "SPH checkpoint c(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
 			<< p.sigmaweight << "   " << p.s_sub << "   "
 			<< p.T() << "   " << p.e() << "   "
 			<< p.p() << "   " << p.s_an << endl;
 		p.locate_phase_diagram_point_sBSQ(
       p.s_sub, p.rhoB_sub, p.rhoS_sub, p.rhoQ_sub );
-if (i==0)
-	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
+//if (i==0)
+	cout << "SPH checkpoint c(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
 			<< p.sigmaweight << "   " << p.s_sub << "   "
 			<< p.T() << "   " << p.e() << "   "
 			<< p.p() << "   " << p.s_an << endl;
 
 		p.sigsub = 0;
 		p.frzcheck(settingsPtr->t0, count1, systemPtr->_n);
+if (i==0)
 	cout << "----------------------------------------"
 			"----------------------------------------" << endl;
 	}
