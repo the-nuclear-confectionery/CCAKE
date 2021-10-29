@@ -70,6 +70,10 @@ void BSQHydro::read_in_initial_conditions()
 ////////////////////////////////////////////////////////////////////////////////
 void BSQHydro::initialize_hydrodynamics()
 {
+cout << endl << "**************************************************************" << endl;
+cout << __PRETTY_FUNCTION__ << ": " << eos.quantity_file << "   " << eos.deriv_file << endl;
+cout << endl << "**************************************************************" << endl;
+
   // initialize equation of state
   eos.init();
 
