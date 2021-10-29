@@ -41,42 +41,42 @@ public:
 
 
   /* DOUBLES */
-  double _h = 0.0;
-  double S = 0.0;
-  double S0 = 0.0;
-  double t = 0.0;
-  double dt = 0.0;
-  double Btotal = 0.0;
+  double _h      = 0.0;
+  double S       = 0.0;
+  double S0      = 0.0;
+  double t       = 0.0;
+  double dt      = 0.0;
+  double Btotal  = 0.0;
   double Btotal0 = 0.0;
-  double Stotal = 0.0;
+  double Stotal  = 0.0;
   double Stotal0 = 0.0;
-  double Qtotal = 0.0;
+  double Qtotal  = 0.0;
   double Qtotal0 = 0.0;
 
-  double E = 0.0;
-  double Ez = 0.0;
-  double E0 = 0.0;
-  double Eloss = 0.0;
-  double dEz = 0.0;
-  double Etot = 0.0;
-  double efcheck = 0.0;
-  double sfcheck = 0.0;
+  double E          = 0.0;
+  double Ez         = 0.0;
+  double E0         = 0.0;
+  double Eloss      = 0.0;
+  double dEz        = 0.0;
+  double Etot       = 0.0;
+  double efcheck    = 0.0;
+  double sfcheck    = 0.0;
   double freezeoutT = 0.0;
-  double bvf = 0.0;
-  double svf = 0.0;
-  double zTc = 0.0;
-  double sTc = 0.0;
-  double zwidth = 0.0;
+  double bvf        = 0.0;
+  double svf        = 0.0;
+  double zTc        = 0.0;
+  double sTc        = 0.0;
+  double zwidth     = 0.0;
 
  /* INTS */
   int number_part = 0;
-  int _n = 0;
-  int N = 0;
-  int rk2 =0;
+  int _n          = 0;
+  int N           = 0;
+  int rk2         = 0;
 
   int etaconst = 0.0;
-  int visc = 0.0;
-  int cfon = 0.0;
+  int visc     = 0.0;
+  int cfon     = 0.0;
 
 
 
@@ -100,7 +100,7 @@ public:
 private:
 /* POINTERS */
   EquationOfState * eosPtr = nullptr;
-  Settings * settingsPtr = nullptr;
+  Settings * settingsPtr   = nullptr;
 
 
 
