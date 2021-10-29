@@ -352,7 +352,7 @@ void SPHWorkstation::smooth_fields(int a, bool init_mode /*== false*/)
   pa.rhoB_sub        = 0.0;
   pa.rhoS_sub        = 0.0;
   pa.rhoQ_sub        = 0.0;
-  int neighbor_count = 0;
+  //int neighbor_count = 0;
 
   Vector<int,2> i;
   for ( i.x[0] =- 2; i.x[0] <= 2; i.x[0]++ )
@@ -372,8 +372,8 @@ void SPHWorkstation::smooth_fields(int a, bool init_mode /*== false*/)
       pa.rhoS_sub    += pb.rho_weight*pb.rhoS_an*kern;    //confirm with Jaki
       pa.rhoQ_sub    += pb.rho_weight*pb.rhoQ_an*kern;    //confirm with Jaki
 
-      if (kern>0.0) neighbor_count++;
-      if (false)
+      //if (kern>0.0) neighbor_count++;
+      if (true)
         std::cout << __FUNCTION__ << "(SPH particle == " << a << " ): "
         << b << "   " << pa.r
         << "   " << pa.sigma

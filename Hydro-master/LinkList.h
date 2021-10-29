@@ -1913,7 +1913,7 @@ void LinkList<D>::bsqsvoptimization(int a, bool init_mode /*== false*/)
     _p[a].rhoB_sub = 0.0;
     _p[a].rhoS_sub = 0.0;
     _p[a].rhoQ_sub = 0.0;
-	int neighbor_count = 0;
+	//int neighbor_count = 0;
     Vector<int,D> i;
     for(i.x[0]=-2; i.x[0]<=2; i.x[0]++)
         for(i.x[1]=-2; i.x[1]<=2; i.x[1]++)
@@ -1922,14 +1922,14 @@ void LinkList<D>::bsqsvoptimization(int a, bool init_mode /*== false*/)
             while( b!=-1 )
             {
                 double kern  = kernel(_p[a].r-_p[b].r);
-				if (kern>0.0) neighbor_count++;
+				//if (kern>0.0) neighbor_count++;
                 _p[a].sigma += _p[b].sigmaweight*kern;
                 _p[a].eta   += _p[b].sigmaweight*_p[b].eta_sigma*kern;
                 _p[a].rhoB_sub  += _p[b].rho_weight*_p[b].rhoB_an*kern;    //confirm with Jaki
                 _p[a].rhoS_sub  += _p[b].rho_weight*_p[b].rhoS_an*kern;    //confirm with Jaki
                 _p[a].rhoQ_sub  += _p[b].rho_weight*_p[b].rhoQ_an*kern;    //confirm with Jaki
 
-if (false)
+if (true)
 std::cout << "bsqsvoptimization(SPH particle == " << a << " ): "
 			<< b << "   " << _p[a].r
 			<< "   " << _p[a].sigma
@@ -2822,14 +2822,14 @@ if (i==0)
 //		_p[i].B /= _p[i].gamma*t0;
 //		_p[i].S /= _p[i].gamma*t0;
 //		_p[i].Q /= _p[i].gamma*t0;
-if (i==0)
-	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
+//if (i==0)
+	cout << "SPH checkpoint c(" << __LINE__ << "): " << i << "   " << t << "   "
 			<< _p[i].sigmaweight << "   " << _p[i].s_sub << "   "
 			<< _p[i].EOST() << "   " << _p[i].EOSe() << "   "
 			<< _p[i].EOSp() << "   " << _p[i].s_an << endl;
 		_p[i].EOSupdate_s(_p[i].s_sub, _p[i].rhoB_sub, _p[i].rhoS_sub, _p[i].rhoQ_sub);
-if (i==0)
-	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
+//if (i==0)
+	cout << "SPH checkpoint c(" << __LINE__ << "): " << i << "   " << t << "   "
 			<< _p[i].sigmaweight << "   " << _p[i].s_sub << "   "
 			<< _p[i].EOST() << "   " << _p[i].EOSe() << "   "
 			<< _p[i].EOSp() << "   " << _p[i].s_an << endl;
