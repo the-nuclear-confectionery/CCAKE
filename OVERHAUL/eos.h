@@ -29,9 +29,9 @@ public:
 
     EquationOfState();
     void init();
-    void init(string quantityFile, string derivFile);
-    void init_grid_ranges_only(string quantityFile, string derivFile);
-
+    void init(string quantityFile, string tityFile, string derivFile);
+derivFile);
+    void init_grid_ranges_only(string quan
     //initializes the position in the grid to (setT,setmuB,setmuQ,setmuS)
     //Once called, the splines will stay initialized at this point until the function is called again
     void tbqs(double setT, double setmuB, double setmuQ, double setmuS);
@@ -109,10 +109,35 @@ private:
     const gsl_multiroot_fsolver_type *TYPE = gsl_multiroot_fsolver_hybrids;
 
     //value of each quantity at the current tbsPosition
-    double pVal, entrVal, BVal, SVal, QVal, eVal, cs2Val;
-    double db2, ds2, dq2, dt2, dbdq, dbds, dsdq, dtdb, dtds, dtdq; //second derivative of pressure wrt i and j where didj =: (d^2p)/(didj) or di2 = (d^2p)/((di)^2)
+    double pVal = 0.0;
+    double entrVal = 0.0;
+    double BVal = 0.0;
+    double SVal = 0.0;
+    double QVal = 0.0;
+    double eVal = 0.0;
+    double cs2Val = 0.0;
 
-    double maxMuB, minMuB, maxMuQ, minMuQ, maxMuS, minMuS, maxT, minT; //EOS range used for rootfinder checks
+
+    double db2 = 0.0;
+    double ds2 = 0.0;
+    double dq2 = 0.0;
+    double dt2 = 0.0;
+    double dbdq = 0.0;
+    double dbds = 0.0;
+    double dsdq = 0.0;
+    double dtdb = 0.0;
+    double dtds = 0.0;
+    double dtdq = 0.0; //second derivative of pressure wrt i and j 
+    //where didj =: (d^2p)/(didj) or di2 = (d^2p)/((di)^2)
+
+    double maxMuB = 0.0;
+    double minMuB = 0.0;
+    double maxMuQ = 0.0;
+    double minMuQ = 0.0;
+    double maxMuS = 0.0;
+    double minMuS = 0.0;
+    double maxT = 0.0;
+    double minT = 0.0; //EOS range used for rootfinder checks
 
     double dentr_dt();
     double dentr_dmub();
@@ -135,9 +160,9 @@ private:
     double calc_term_3(string i_char);
     double calc_term_4(string j_char, string i_char);
     double deriv_mult_aTm_1b(gsl_vector* a, gsl_matrix* m, gsl_vector* b);
-    double Aout;
+    // double Aout;
     double Aideal();
-    double Atable();
+    // double Atable();
     //the current position in (T, muB, muQ, muS) initialized by tbqs()
 	vector<double> tbqsPosition;
 
@@ -154,7 +179,7 @@ private:
 	void check_EoS_derivatives();
 	void get_toy_thermo(double point[], double thermodynamics[]);
     
-    string quantity_file;
-    string deriv_file;
+    string quantity_file = "";
+    string deriv_file = "";
 
 };
