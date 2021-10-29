@@ -583,6 +583,6 @@ void SPHWorkstation::process_initial_conditions()
       << systemPtr->particles.size() - systemPtr->number_part << endl;
   cout << systemPtr->number_part << endl;
 
-if (1) exit(1);
+//if (1) exit(1);
 }
 /////////////////////////////////////////////////////////////////////////////////
