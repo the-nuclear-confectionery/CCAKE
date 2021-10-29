@@ -60,10 +60,9 @@ private:
   // vector<vector<int> > neighbors;  //?
 
   //EquationOfState eos;
-//  EquationOfState * eosPtr = nullptr;
-    std::shared_ptr<EquationOfState> eosPtr;
+  EquationOfState * eosPtr;
 
-  Settings * settingsPtr = nullptr;
+  Settings * settingsPtr;
 
   vector< Particle > particles;
 

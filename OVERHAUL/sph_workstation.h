@@ -29,8 +29,7 @@ private:
   
   SystemState * systemPtr;
   Settings * settingsPtr;
-//  EquationOfState * eosPtr;
-    std::shared_ptr<EquationOfState> eosPtr;
+  EquationOfState * eosPtr;
 
 
 };
