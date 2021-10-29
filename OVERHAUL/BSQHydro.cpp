@@ -8,7 +8,8 @@
 // Constructors and destructors.
 BSQHydro::BSQHydro()
 {
-  std::shared_ptr<EquationOfState> ptr = std::make_shared<EquationOfState>(eos);
+  //std::shared_ptr<EquationOfState> ptr = std::make_shared<EquationOfState>(eos);
+  std::shared_ptr<EquationOfState> ptr(new eos);
 
 cout << "ptr.use_count() = " << ptr.use_count() << endl;
     
