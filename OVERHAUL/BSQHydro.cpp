@@ -9,8 +9,9 @@
 BSQHydro::BSQHydro()
 {
   //std::shared_ptr<EquationOfState> ptr = std::make_shared<EquationOfState>(eos);
-  eosPtr = new EquationOfState();
-  std::shared_ptr<EquationOfState> ptr(eosPtr);
+  EquationOfState * tmpeosPtr = new EquationOfState();
+  eosPtr = std::make_shared<EquationOfState>( tmpeosPtr );
+  std::shared_ptr<EquationOfState> ptr(tmpeosPtr);
 
 cout << "ptr.use_count() = " << ptr.use_count() << endl;
     
