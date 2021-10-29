@@ -15,79 +15,114 @@ public:
                    vector<Particle> * particlesPtr_in,
                    double dtsave, int & numpart );
   int triToSum( Vector<int,2> dael, Vector<int,2> size );
-
-  int n() { return _n; }
-
-
-  static constexpr double tend=50.02;
-
-  double _h;
+  //integers
   int _n;
-  int start, end, fnum;
-  vector<double> sFO, Tfluc; //entropy at freezeout
-  int qmf; //if==1 quantum mechanicanical corrections to the flow or added
-           //if==0 no corrections are included
+  int n() { return _n; }
+  int start         = 0;
+  int end           = 0;
+  int fnum          = 0;
+  int qmf           = 0;
+  //if==1 quantum mechanicanical corrections to the flow or added
+  //if==0 no corrections are included
+  int number_part   = 0;
+  int frzc          = 0;
+  int rk2           = 0; 
+  int steps         = 0;
+  int gtyp          = 0;
+  int first         = 0;
+  int average       = 0;
+  int lowT          = 0;
+  int etaconst      = 0;
+  int fcount        = 0;
+  int cevent        = 0;
+  int range         = 0;                //range is number of boxes from left to right extra
+  int Size          = 0;
+  int cfon          = 0;
+  int cf            = 0;
+  int visc          = 0; 
+  // visc=0 for ideal
+  // visc=1 for bulk
+  // visc=2 for shear
+  // visc=3 for bulk+shear
+  
+  //doubles
+  double _h         = 0;
+  double tau        = 0;
+  double taup       = 0;
+  double taupp      = 0;
+  double gd2        = 0;
+  double t0         = 0;
+  double t          = 0;
+  double dt         = 0;
+  double factor     = 0;
+  double dEz        = 0;
+  double E          = 0;
+  double Ez         = 0;
+  double E0         = 0;
+  double Etot       = 0;
+  double S          = 0;
+  double S0         = 0;
+  double Eloss      = 0;
+  double Esubb      = 0;
+  double Btotal     = 0;
+  double Stotal     = 0;
+  double Qtotal     = 0;
+  double Btotal0    = 0;
+  double Stotal0    = 0;
+  double Qtotal0    = 0;
+  double bvf        = 0;
+  double svf        = 0; 
+  double zwidth     = 0;
+  double sTc        = 0;
+  double zTc        = 0;
+  double E1         = 0;
+  double E2         = 0;
+  double step       = 0;
+  double efcheck    = 0,
+  double sfcheck    = 0;
+  double avgetasig  = 0; // possibly not needed?
+  double wfz        = 0;
+  double cs2        = 0;
 
-  int number_part;
-  double t0;
-  double t, dt;
-  double factor;
-  int frzc;
-  double tau, taup, taupp;
-  int rk2;
-  double gd2;
+  //pointers
+  double *divTtemp   = nullptr;
+  double *gsub       = nullptr;
+  double *bulksub    = nullptr; 
+  double *swsub      = nullptr;
+  double *shear33sub = nullptr;
+  double *tlist      = nullptr;
 
-  int gtyp;
-
-  int cfon;
+  //vectors of int
   vector<int> list;
   vector<int> lead;
   vector<int> link;
-  int cf;
-  int visc; // visc=0 for ideal
-            // visc=1 for bulk
-            // visc=2 for shear
-            // visc=3 for bulk+shear
-  double efcheck, sfcheck;
-  int steps;
-
-  int first;
-  int average;
-  int lowT;
-
-  double *divTtemp, *gsub, *bulksub, *swsub, *shear33sub, *tlist;
-  double avgetasig; // possibly not needed?
-  Matrix<double,3,3> *shearsub;
-  Vector<double,2> *divT,*rsub;
-  Vector<double,2> *uout;
-  double wfz,cs2;
-
   Vector<int,2> size;
+  
+  //vectors of doubles
+  vector<double> sFO, Tfluc; //entropy at freezeout
+  Vector<double,2> *divT;
+  Vector<double>   *rsub;
+  Vector<double,2> *uout;
 
+  //vectors of vectorrs
   vector< Vector<int,2> > dael;
 
-  double dEz, E, Ez, E0, Etot, S, S0, Eloss, Esubb;
-  double Btotal, Stotal, Qtotal;
-  double Btotal0, Stotal0, Qtotal0;
+  //matrix pointer
+  Matrix<double,3,3> *shearsub;
+  
+  //strings
+  string eos_s<>;
+  string eost<>;
+  string eos_p<>;
+  string ebe_folder<>;
 
-  double E1, E2;
-
-
-  int etaconst;
-  double bvf, svf, zwidth, sTc, zTc;
-
-
-  string eos_s,eos_p;
+  //vector of strings
   vector<string> filenames;
 
-  string ebe_folder;
-
-  int fcount, cevent;
-  string eost;
-
+  //vector of pointers
   vector<Particle> * particlesPtr;
 
-
+static constexpr double tend=50.02;
 
 //private:
 
@@ -96,10 +131,7 @@ public:
   static constexpr double q     = 1.0;
   static constexpr double dTemp = 0.00001;
 
-  int range;                //range is number of boxes from left to right extra
-  int Size;
-  double step;
-
+  //vectors of doubles
   Vector<double,2> min;
   Vector<double,2> max;
   Vector<double,2> uni;
