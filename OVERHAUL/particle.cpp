@@ -254,7 +254,7 @@ void Particle::setvisc( int etaconst, double bvf, double svf, double zTc,
                         double sTc, double sig, int type )
 {
   cout << __FUNCTION__ << ": " << etaconst << "   " << bvf << "   " << svf
-        << "   " << zTc << "   " << sTc << "   " << "   " << type << endl;
+        << "   " << zTc << "   " << sTc << "   " << sig << "   " << type << endl;
 
   if (type==1) // bulk viscosity
   {
