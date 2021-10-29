@@ -997,6 +997,7 @@ cout << "Made it to " << __PRETTY_FUNCTION__ << "::" << __LINE__ << "!" << endl;
 			<< etasigma0[i] << "   "
 			<< dx << "   "
 			<< linklist._p[i].detasigma_dt << std::endl;*/
+        linklist._p[i].Bulk=Bulk0[i]+dx*linklist._p[i].dBulk_dt;
         //linklist._p[i].rhoB=rhoB0[i]+dx*linklist._p[i].drhoB_dt;
         //linklist._p[i].rhoS=rhoS0[i]+dx*linklist._p[i].drhoS_dt;
         //linklist._p[i].rhoQ=rhoQ0[i]+dx*linklist._p[i].drhoQ_dt;
