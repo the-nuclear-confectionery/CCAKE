@@ -42,10 +42,6 @@ class Particle
                                         double rhoS_In, double rhoQ_In );
 
   //private:
-    // kinematic quantities
-//    vector<double> r;  // (x,y) in fm
-//    vector<double> v;  // velocity
-//    vector<double> u;  // relativistic velocity
 
     // thermodynamic quantities (with default initialization)
     struct thermodynamic_info
@@ -78,12 +74,12 @@ class Particle
           dwdQ = eos.dwdQ();
         }
     };
-    thermodynamic_info thermo;
+    thermodynamic_info thermo = {};
 
 
 //  public:
 
-    EquationOfState * eosPtr;
+    EquationOfState * eosPtr = nullptr;
 
     // getter functions
     double T()    { return thermo.T;    }
@@ -106,131 +102,139 @@ class Particle
     double dwdQ() { return thermo.dwdQ; }
 
 
-    // rename these functions and their arguments
-//    void calcbsq( double tin );
-//    void bsqsvsigset( double tin, int i );
-//    void return_bsqsv_A();
-//    void setvisc( int etaconst, double bvf, double svf, double zTc, double sTc,
-//                  double sig, int type );
-//    void frzcheck( double tin, int & count, int N );
-  double gamcalc();
+  // rename these functions and their arguments
   void frzcheck( double tin, int &count, int N );
   void calc(double tin);
   void calcbsq(double tin);
   void return_bsqsv_A();
-  double Bsub();
-  Matrix<double,2,2> Msub(int i);
-  Matrix<double,2,2> dpidtsub();
-  void bsqsvsigset(double tin,int i);
-  void setvisc( int etaconst, double bvf, double svf, double zTc,
-                          double sTc, double sig, int type );
+  void bsqsvsigset(double tin, int i);
+  void setvisc( int etaconst, double bvf, double svf, double zTc, double sTc, double sig, int type );
   void sets(double tin2);
   void setvar();
+  double gamcalc();
+  double Bsub();
+
+  // members
+  int btrack             = 0;
+  int count              = 0;
+  int Freeze             = 0;
+
+  double Agam            = 0.0;
+  double Agam2           = 0.0;
+  double sigmaweight     = 0.0; // specific volume per particle (times s_an)
+  double rho_weight      = 0.0; // specific volume per particle (without s_an)
+  double transverse_area = 0.0; // dx * dy
+  double ets1            = 0.0;
+  double ets2            = 0.0;
+  double ets3            = 0.0;
+  double ets4            = 0.0;
+  double b1              = 0.0;
+  double b2              = 0.0;
+  double b3              = 0.0;
+  double b4              = 0.0;
+  double bn1             = 0.0;
+  double bn2             = 0.0;
+  double bn3             = 0.0;
+  double bn4             = 0.0;
+  double shv33           = 0.0;
+
+  double div_u           = 0.0; // four-divergence of relativistic velocity
+  double gamma           = 0.0; // Lorentz factor
+  double s_sub           = 0.0;
+  double e_sub           = 0.0;
+  double s_an            = 0.0;
+  double s_rat           = 0.0;
+  double sigsub          = 0.0;
+  double eta_sigma       = 0.0; // Ratio entropy/especific volume
+  double detasigma_dt    = 0.0;
+  double Bulk            = 0.0; // Bulk Viscosity weight
+  double bigPI           = 0.0; // total bulk viscosity
+  double C               = 0.0;
+  double tauRelax        = 0.0; // Bulk Relaxation time
+  double stauRelax       = 0.0; // Shear Relxation time
+  double dBulk_dt        = 0.0; // derivative Bulk Viscosity
+  double zeta            = 0.0; // bulk coefficient
+  double setas           = 0.0;
+  double Ctot            = 0.0;
+  double Btot            = 0.0;
+
+  double sv_eta          = 0.0;
+  double taupi           = 0.0;
+
+  ////////////////////////////////////////////////////////////////////////////
+  //                         Fluid Variables                                //
+  ////////////////////////////////////////////////////////////////////////////
+  double sigma           = 0.0; // especific volume
+  double dsigma_dt       = 0.0; // derivative of especific volume
+
+  double dw_ds           = 0.0; // derivative of the enthalpy on entropy
+  double eta             = 0.0; // entropy density
+  double rhoB_an         = 0.0;
+  double rhoB_sub        = 0.0; // Baryon density
+  double rhoS_an         = 0.0;
+  double rhoS_sub        = 0.0; // strange density
+  double rhoQ_an         = 0.0;
+  double rhoQ_sub        = 0.0; // electric charge density
+  double eden            = 0.0;
+
+  double bigtheta        = 0.0;
+
+  double B               = 0.0; // Baryon density
+  double S               = 0.0; // Baryon density
+  double Q               = 0.0; // baryon, strange, electric charge
+  double drhoB_dt        = 0.0; // Baryon density
+  double drhoS_dt        = 0.0; // Baryon density
+  double drhoQ_dt        = 0.0;
+
+  double g2              = 0.0;
+  double g3              = 0.0;
+  double gt              = 0.0;
+  double eta_o_tau       = 0.0;
+  double dwdsT1          = 0.0;
+  double sigl            = 0.0;
+  double bcheck          = 0.0;
+  double check           = 0.0;
+  double saves           = 0.0;
+  double inside          = 0.0;
+
+  double freezeoutT      = 0.0;
+
+  // vector members
+  Vector<double,2> r;                                       // position
+  Vector<double,2> v;                                       // velocity
+  Vector<double,2> u;                                       // relativistic velocity
+  Vector<double,2> qmom;
+  Vector<double,2> du_dt, gradsig;                          // relativistic velocity derivative
+  Vector<double,2> k1, k2, k3, k4, ksub;
+  Vector<double,2> r1, r2, r3, r4, rsub;
+
+  Vector<double,2> gradP;                                   // Gradient of Pressure
+  Vector<double,2> gradBulk, gradrhoB, gradrhoS, gradrhoQ;  // Gradient of Bulk Viscosity
+  Vector<double,2> gradsigma;                               // Gradient of especific volume
+  Vector<double,2> divshear, gradshear;
 
 
+  // matrix members
+  Matrix<double,2,2> Msub(int i);
+  Matrix<double,2,2> dpidtsub();
+  Matrix<double,2,2> Imat;
+  Matrix<double,2,2> gradV, gradU;                          // Gradient of velocity needed for shear
+  Matrix<double,2,2> shv0, dshv_dt;
+  Matrix<double,2,2> shv1, shv2, shv3, svh4;
+  Matrix<double,2,2> uu, pimin, piu, piutot;
+  Matrix<double,3,3> shv;
 
 
+  // freeze out struct thingy?
+  struct FRZ
+  {
+      double t = 0.0, s = 0.0, T = 0.0, theta = 0.0, bulk = 0.0,
+             sigma = 0.0, shear33 = 0.0, inside = 0.0;
+      Vector<double,2> r, u, gradP;
+      Matrix<double,3,3> shear;
+  };
 
-
-
-
-
-
-
-
-
-
-
-  // old Particle class variables
-
-    Matrix <double,2,2> Imat;
-
-
-    int btrack;
-    double Agam, Agam2;
-    double sigmaweight;        // specific volume per particle (times s_an)
-    double rho_weight;		   // specific volume per particle (without s_an)
-    double transverse_area;	   // dx * dy
-    Vector<double,2> r;                   // position
-    Vector<double,2> v;                   // velocity
-    Vector<double,2> u;                   // relativistic velocity
-    Vector<double,2> qmom;
-    Vector<double,2> du_dt,gradsig;               // relativistic velocity derivative
-    Vector<double,2> k1,k2,k3,k4,ksub;
-    Vector<double,2> r1,r2,r3,r4,rsub;
-    double ets1,ets2,ets3,ets4;
-    double b1,b2,b3,b4;
-    double bn1,bn2,bn3,bn4;
-    Matrix<double,2,2> shv1,shv2,shv3,svh4;
-    double shv33;
-
-
-    double freezeoutT;
-
-    struct FRZ
-    {
-        Vector<double,2> r,u,gradP;
-        double t,s,T,theta,bulk,sigma,shear33,inside;
-        Matrix<double,3,3> shear;
-    };
-
-    FRZ frz1,frz2,fback,fback2,fback3,fback4;
-
-    double div_u;              // four-divergence of relativistic velocity
-    double gamma;               // Lorentz factor
-    double s_sub,e_sub,s_an,s_rat,sigsub;
-    double eta_sigma;          // Ratio entropy/especific volume
-    double detasigma_dt;
-    double Bulk;               // Bulk Viscosity weight
-    double bigPI;        // total bulk viscosity
-    double C;
-    double tauRelax;           // Bulk Relaxation time
-    double stauRelax;        // Shear Relxation time;
-    double dBulk_dt;           // derivative Bulk Viscosity
-    double zeta;               // bulk coefficient
-    double setas;
-    int count;
-    int Freeze;
-    double Ctot, Btot;
-    Matrix<double,3,3> shv;
-    Matrix<double,2,2> shv0,dshv_dt;
-    Vector<double,2>  divshear,gradshear;
-
-    double sv_eta,taupi;
-
-////////////////////////////////////////////////////////////////////////////////
-//                           Fluid Variables                                  //
-////////////////////////////////////////////////////////////////////////////////
-    double sigma;              // especific volume
-    double dsigma_dt;          // derivative of especific volume
-    Vector<double,2> gradP;              // Gradient of Pressure
-    Matrix<double,2,2> gradV,gradU;          // Gradient of velocity needed for shear
-
-    Vector<double,2> gradBulk,gradrhoB,gradrhoS,gradrhoQ;           // Gradient of Bulk Viscosity
-    Vector<double,2> gradsigma;          // Gradient of especific volume
-
-    double dw_ds;              // derivative of the enthalpy on entropy
-    double eta;                   // entropy density
-    double rhoB_an, rhoB_sub;                   // Baryon density
-    double rhoS_an, rhoS_sub;                   // strange density
-    double rhoQ_an, rhoQ_sub;                   // electric charge density
-    double eden;
-
-    double bigtheta;
-
-    double B, S, Q;						// baryon, strange, electric charge
-    double drhoB_dt,drhoS_dt,drhoQ_dt;
-
-    double g2,g3,gt;
-    double eta_o_tau,dwdsT1,sigl;
-    Matrix <double,2,2> uu,pimin,piu,piutot;
-    double bcheck;
-    double check;
-    double saves;
-    double inside;
-
-
-
+  FRZ frz1, frz2, fback, fback2, fback3, fback4;
 
 
 };
