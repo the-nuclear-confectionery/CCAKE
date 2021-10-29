@@ -25,6 +25,7 @@ using std::string;
 
 using namespace constants;
 
+
 ////////////////////////////////////////////////////////////////////////////////
 void SystemState::set_EquationOfStatePtr( EquationOfState * eosPtr_in )
 {
@@ -83,7 +84,6 @@ for (auto & p : particles) p.set_EquationOfStatePtr( eosPtr );
 
   if ( ictype == "iccing" )
   {
-
     settingsPtr->gtyp=6;
 
     int count           = 1;

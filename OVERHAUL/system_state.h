@@ -27,7 +27,7 @@ friend class SPHWorkstation;
 
 public:
 
-  SystemState(){number_part = 0;}
+  SystemState(){}
   ~SystemState(){}
 
   void set_EquationOfStatePtr( EquationOfState * eosPtr_in );
@@ -38,32 +38,76 @@ public:
   //void compute_spatial_eccentricities( const vector<int> & orders );
   //void compute_momentum_eccentricities( const vector<int> & orders );
   //double entropytotal;
-  double _h;
-  double S, S0;
-  double t, dt;
-  double Btotal, Btotal0;
-  double Stotal, Stotal0;
-  double Qtotal, Qtotal0;
-  double E, Ez, E0, Eloss, dEz, Etot;
-  int number_part, _n, N, rk2;
-  double efcheck, sfcheck, freezeoutT;
 
-  int etaconst, visc, cfon;
-  double bvf, svf, zTc, sTc, zwidth;
+
+  /* DOUBLES */
+  double _h = 0.0;
+  double S = 0.0;
+  double S0 = 0.0;
+  double t = 0.0;
+  double dt = 0.0;
+  double Btotal = 0.0;
+  double Btotal0 = 0.0;
+  double Stotal = 0.0;
+  double Stotal0 = 0.0;
+  double Qtotal = 0.0;
+  double Qtotal0 = 0.0;
+
+  double E = 0.0;
+  double Ez = 0.0;
+  double E0 = 0.0;
+  double Eloss = 0.0;
+  double dEz = 0.0;
+  double Etot = 0.0;
+  double efcheck = 0.0;
+  double sfcheck = 0.0;
+  double freezeoutT = 0.0;
+  double bvf = 0.0;
+  double svf = 0.0;
+  double zTc = 0.0;
+  double sTc = 0.0;
+  double zwidth = 0.0;
+
+ /* INTS */
+  int number_part = 0;
+  int _n = 0;
+  int N = 0;
+  int rk2 =0;
+
+  int etaconst = 0.0;
+  int visc = 0.0;
+  int cfon = 0.0;
+
+
+
+
+  // double _h;
+  // double S, S0;
+  // double t, dt;
+  // double Btotal, Btotal0;
+  // double Stotal, Stotal0;
+  // double Qtotal, Qtotal0;
+  // double E, Ez, E0, Eloss, dEz, Etot;
+  // int number_part, _n, N, rk2;
+  // double efcheck, sfcheck, freezeoutT;
+
+  // int etaconst, visc, cfon;
+  // double bvf, svf, zTc, sTc, zwidth;
 
   //void check_BSQ_E_conservation();
   //void check_BSQ_charge_conservation();
 
 private:
+/* POINTERS */
+  EquationOfState * eosPtr = nullptr;
+  Settings * settingsPtr = nullptr;
+
+
 
   LinkList linklist;  // can we please name it something else?
   // vector<vector<int> > neighbors;  //?
 
   //EquationOfState eos;
-  EquationOfState * eosPtr;
-
-  Settings * settingsPtr;
-
   vector< Particle > particles;
 
   // creating vectors of vectors of the derivatives at each step
