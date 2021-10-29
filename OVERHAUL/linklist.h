@@ -35,7 +35,7 @@ public:
   int etaconst      = 0;
   int fcount        = 0;
   int cevent        = 0;
-  int range         = 0;                //range is number of boxes from left to right extra
+  int range         = 0; //range is number of boxes from left to right extra
   int Size          = 0;
   int cfon          = 0;
   int cf            = 0;
@@ -111,20 +111,19 @@ public:
   Matrix<double,3,3> *shearsub;
   
   //strings
-  string eos_s<>;
-  string eost<>;
-  string eos_p<>;
-  string ebe_folder<>;
-
+  string eos_s       = "";
+  string eost        = "";
+  string eos_p       = "";
+  string ebe_folder  = "";
   //vector of strings
   vector<string> filenames;
 
   //vector of pointers
   vector<Particle> * particlesPtr;
 
-static constexpr double tend=50.02;
+  static constexpr double tend   = 50.02;
 
-//private:
+  //private:
 
   static constexpr int VERBOSE  = 5;
   static constexpr double e0    = 1.0;
