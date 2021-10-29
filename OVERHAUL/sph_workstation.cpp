@@ -586,7 +586,8 @@ cout << "check 0: " << p.r.x[0] << "   " << p.r.x[1] << "   " << p.e_sub << "   
 		p.thermo.muS = 0.0/hbarc_MeVfm;
 		p.thermo.muQ = 0.0/hbarc_MeVfm;
 
-		if (p.e_sub>settingsPtr->efcheck)	// impose freeze-out check for e, not s
+		//if (p.e_sub>settingsPtr->efcheck)	// impose freeze-out check for e, not s
+    if (p.e_sub>1.349325899645)
     {
     //   cout << "Found " << p.e_sub << " greater than " << systemPtr->efcheck << endl;
 			p.Freeze=0;

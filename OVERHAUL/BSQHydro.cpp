@@ -67,6 +67,13 @@ void BSQHydro::read_in_initial_conditions()
 ////////////////////////////////////////////////////////////////////////////////
 void BSQHydro::initialize_hydrodynamics()
 {
+
+  // FOR DEBUGGING PURPOSES ONLY
+  ws.process_initial_conditions();
+
+
+
+
   // initialize equation of state
   eos.init();
 
@@ -75,7 +82,7 @@ void BSQHydro::initialize_hydrodynamics()
 
   // trim initial conditions with low-energy density cut-off,
   // filling out initial conditions, and imposing initial freeze-out
-  ws.process_initial_conditions();
+  //ws.process_initial_conditions();
 
   // for each particle, find location in phase diagram
   ws.initialize_entropy_and_charge_densities();
