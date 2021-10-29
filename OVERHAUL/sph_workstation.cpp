@@ -276,8 +276,8 @@ void SPHWorkstation::initial_smoothing()  // formerly BSQguess()
 {
 	cout << "setshear..." << endl;
   setshear();
-	cout << "initiate..." << endl;
-  //initiate();
+	cout << "reset..." << endl;
+  systemPtr->reset_linklist();
 
 	cout << "bsqsvoptimization..." << endl;
 	bool initialization_mode = true;

@@ -39,26 +39,22 @@ void SystemState::set_SettingsPtr(Settings * settingsPtr_in)
 }
 
 
-
 ////////////////////////////////////////////////////////////////////////////////
 void SystemState::initialize()  // formerly called "manualenter"
 {
-  //double h, factor;
-  //double it0;
   int start, end;
-
   int df;
 
-cout << __PRETTY_FUNCTION__ << ": " << endl;
-_n = particles.size();
+  cout << __PRETTY_FUNCTION__ << ": " << endl;
+  _n = particles.size();
 
-cout << "_n = " << _n << endl;
+  cout << "_n = " << _n << endl;
 
-t = settingsPtr->t0;
+  t = settingsPtr->t0;
 
-cout << "t = " << t << endl;
+  cout << "t = " << t << endl;
 
-_h = settingsPtr->_h;
+  _h = settingsPtr->_h;
 
   settingsPtr->efcheck = eosPtr->efreeze(settingsPtr->Freeze_Out_Temperature);
   settingsPtr->sfcheck = eosPtr->sfreeze(settingsPtr->Freeze_Out_Temperature);
@@ -67,7 +63,7 @@ _h = settingsPtr->_h;
 		std::cout << "sfcheck = " << settingsPtr->sfcheck << " 1/fm^3\n";
 
 
-for (auto & p : particles) p.set_EquationOfStatePtr( eosPtr );
+  for (auto & p : particles) p.set_EquationOfStatePtr( eosPtr );
 
   linklist.efcheck = efcheck;
   linklist.sfcheck = sfcheck;
@@ -75,9 +71,16 @@ for (auto & p : particles) p.set_EquationOfStatePtr( eosPtr );
   linklist.average = 0;
   //       Start reading ICs          //
 
-  int numpart, _Ntable3;
+  //int numpart, _Ntable3;
 
   //  cout << "setting up SPH" << endl;
+  return;
+}
+
+
+
+void SystemState::initialize_linklist()
+{
 
   string ictype = "iccing";
   cout << "Initial conditions type: " << ictype << endl;
@@ -97,15 +100,15 @@ for (auto & p : particles) p.set_EquationOfStatePtr( eosPtr );
     
     cout << "Check 0: " << particles[0].r.x[0] << "   " << particles[0].r.x[1] << endl;
 
-    int currently_frozen_out = 0;
-    //linklist.initialize( it0, _Ntable3, h, &particles, dt, numpart );
+    int currently_frozen_out = number_part;
     linklist.initialize( settingsPtr->t0, particles.size(),
                          settingsPtr->_h, &particles, dt, currently_frozen_out );
 
-    cout << "number of sph particles=" << _Ntable3 << endl;
+    //cout << "number of sph particles=" << _Ntable3 << endl;
     linklist.gtyp=settingsPtr->gtyp;
 
   }
+
 
   // formerly bsqsv_set in this loop
   for (auto & p : particles)
@@ -117,6 +120,12 @@ for (auto & p : particles) p.set_EquationOfStatePtr( eosPtr );
 
   return;
 }
+
+
+
+
+
+
 ///////////////////////////////////////////////////////////////////////////////
 //Dekra: BSQsimulation was moved from this location to BSQhydro and renamed to run
 ///////////////////////////////////////////////////////////////////////////////

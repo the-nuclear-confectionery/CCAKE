@@ -79,24 +79,6 @@ public:
   int cfon     = 0.0;
 
 
-
-
-  // double _h;
-  // double S, S0;
-  // double t, dt;
-  // double Btotal, Btotal0;
-  // double Stotal, Stotal0;
-  // double Qtotal, Qtotal0;
-  // double E, Ez, E0, Eloss, dEz, Etot;
-  // int number_part, _n, N, rk2;
-  // double efcheck, sfcheck, freezeoutT;
-
-  // int etaconst, visc, cfon;
-  // double bvf, svf, zTc, sTc, zwidth;
-
-  //void check_BSQ_E_conservation();
-  //void check_BSQ_charge_conservation();
-
 private:
 /* POINTERS */
   EquationOfState * eosPtr = nullptr;
@@ -125,7 +107,8 @@ private:
 public:
 
   void initialize();
-  void initialize_linklist() { linklist.initiate(); }
+  void reset_linklist() { linklist.reset(); }
+  void initialize_linklist();
   //void BSQSimulation( double dt, LinkList & linklist );
   //void BSQshear( LinkList & linklist );
   void check_BSQ_energy_conservation();

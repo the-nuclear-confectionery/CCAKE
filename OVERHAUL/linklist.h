@@ -10,7 +10,7 @@ public:
   LinkList();
   ~LinkList(){}
 
-  void initiate();
+  void reset();
   void initialize( double it0, int ntot, double h,
                    vector<Particle> * particlesPtr_in,
                    double dtsave, int & numpart );

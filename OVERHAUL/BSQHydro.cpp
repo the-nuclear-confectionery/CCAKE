@@ -77,6 +77,9 @@ void BSQHydro::initialize_hydrodynamics()
   // filling out initial conditions, and imposing initial freeze-out
   ws.process_initial_conditions();
 
+  // comes after energy cut-off imposed
+  system.initialize_linklist();
+
   // for each particle, find location in phase diagram
   ws.initialize_entropy_and_charge_densities();
 

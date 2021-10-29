@@ -63,14 +63,14 @@ void LinkList::initialize( double it0, int ntot, double h,
 
 
   // initialize linklist
-  initiate();
+  reset();
 
 
 
   return;
 }
 
-void LinkList::initiate()
+void LinkList::reset()
 {
   // check what happens with particle separates by itself?  Where in fortran code?
   //find system boundaries
