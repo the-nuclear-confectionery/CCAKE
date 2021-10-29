@@ -85,7 +85,7 @@ class Particle
 //  public:
 
     //EquationOfState * eosPtr;
-    std::shared_ptr<EquationOfState> eosPtr = std::make_shared<EquationOfState>();;
+    std::shared_ptr<EquationOfState> eosPtr = std::make_shared<EquationOfState>();
 
     // getter functions
     double T()    { return thermo.T;    }

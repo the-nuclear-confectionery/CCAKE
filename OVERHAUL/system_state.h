@@ -61,7 +61,8 @@ private:
   // vector<vector<int> > neighbors;  //?
 
   //EquationOfState eos;
-  EquationOfState * eosPtr = nullptr;
+//  EquationOfState * eosPtr = nullptr;
+    std::shared_ptr<EquationOfState> eosPtr = std::make_shared<EquationOfState>();
 
   Settings * settingsPtr = nullptr;
 
