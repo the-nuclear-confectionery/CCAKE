@@ -238,8 +238,8 @@ void Particle::bsqsvsigset( double tin, int i )
   g3           = gamma*g2;
   gt           = gamma*tin;
   double dwdsT = dwds()/T();
-  dwdsT1       = 1- dwds()/T();
-  sigl         = dsigma_dt/sigma -1/tin;
+  dwdsT1       = 1 - dwds()/T();
+  sigl         = dsigma_dt/sigma - 1/tin;
   gradU        = gamma*gradV+g3*(v*(v*gradV));
   bigPI        = Bulk*sigma/gt ;
   C            = w()+ bigPI;
@@ -253,8 +253,8 @@ void Particle::bsqsvsigset( double tin, int i )
 void Particle::setvisc( int etaconst, double bvf, double svf, double zTc,
                         double sTc, double sig, int type )
 {
-  cout << __FUNCTION__ << ": " << etaconst << "   " << bvf << "   " << svf
-        << "   " << zTc << "   " << sTc << "   " << sig << "   " << type << endl;
+  //cout << __FUNCTION__ << ": " << etaconst << "   " << bvf << "   " << svf
+  //      << "   " << zTc << "   " << sTc << "   " << sig << "   " << type << endl;
 
   if (type==1) // bulk viscosity
   {
