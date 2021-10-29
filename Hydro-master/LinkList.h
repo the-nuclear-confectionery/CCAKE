@@ -2185,6 +2185,12 @@ void LinkList<D>::bsqsvoptimization2(int a,double tin,int & count)
 
                 _p[a].gradP +=( sigsqrb*_p[b].EOSp()+ sigsqra*_p[a].EOSp() )*sigsigK;
 
+if (a==0)
+  cout << "CHECK grads: " << a << "   " << b << "   " << sigsqra << "   " << sigsqrb
+        << _p[a].EOSp() << "   " << _p[b].EOSp() << "   " << gradK << "   "
+        << sigsigK << "   " << _p[a].sigma << endl;
+
+
                 if (((Norm(_p[a].r-_p[b].r)/_h)<=2)&&(a!=b)) {
                     if (_p[a].btrack!=-1) _p[a].btrack++;
                     if (_p[a].btrack==1) rdis=Norm(_p[a].r-_p[b].r)/_h;
