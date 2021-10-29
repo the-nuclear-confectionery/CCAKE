@@ -27,7 +27,7 @@ friend class SPHWorkstation;
 
 public:
 
-  SystemState(){}
+  SystemState(){number_part = 0;}
   ~SystemState(){}
 
   void set_EquationOfStatePtr( EquationOfState * eosPtr_in );
