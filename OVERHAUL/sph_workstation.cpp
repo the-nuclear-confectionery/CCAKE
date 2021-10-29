@@ -524,29 +524,8 @@ void SPHWorkstation::process_initial_conditions()
 {
   // impose the energy cut-off before the initial time step of hydro
   // the original cut should be 0.15
-  /*vector<Particle> threshold_particles;
-  for (auto & p : systemPtr->particles)
-  {
-cout << "check 0: " << p.r.x[0] << "   " << p.r.x[1] << "   " << p.e_sub << "   "
-      << p.rhoB_an << "   " << p.rhoS_an << "   " << p.rhoQ_an << endl;
-	  if (p.e_sub>0.00301/hbarc_GeVfm) // this will be changed, NOT HARDCODED!!
-	  {
-		  Particle temp = new Particle(p);
-		  threshold_particles.push_back(temp);
-		  ~temp();
-      //vector<double> tmp = {p.r.x[0], p.r.x[1], p.e_sub, p.rhoB_an, p.rhoS_an, p.rhoQ_an};
-		 //threshold_particles.push_back( Particle( tmp ) );
-	  }
-  }
-  cout << "Precheck 1: size = " << systemPtr->particles.size() << endl;
-  cout << "Precheck 2: size = " << threshold_particles.size() << endl;
-  systemPtr->particles.clear();
-  systemPtr->particles = threshold_particles;
 
-  // need to reset EoS pointers?
-  for (auto & p : systemPtr->particles) p.set_EquationOfStatePtr( eosPtr );*/
-
-  // try this
+  // try this; NOTE THAT THE 0.00301 IS HARDCODED IN FOR NOW
   systemPtr->particles.erase( std::remove_if(
     systemPtr->particles.begin(), systemPtr->particles.end(),
     [hbarc_GeVfm](Particle const & p) { return p.e_sub <= 0.00301 / hbarc_GeVfm; } ),
@@ -557,7 +536,7 @@ cout << "check 0: " << p.r.x[0] << "   " << p.r.x[1] << "   " << p.e_sub << "   
 
 
   // fill out initial particle information
-  int TMP_particle_count = 0;
+  //int TMP_particle_count = 0;
 	double stepX = settingsPtr->stepx;
 	double stepY = settingsPtr->stepy;
 	for (auto & p : systemPtr->particles)
@@ -573,13 +552,13 @@ cout << "check 0: " << p.r.x[0] << "   " << p.r.x[1] << "   " << p.e_sub << "   
 		p.Q               = p.rhoQ_an*stepX*stepY;
 		p.transverse_area = stepX*stepY;
 
-		if (TMP_particle_count++==0)
+		/*if (TMP_particle_count++==0)
       cout << "readICs_iccing(" << __LINE__ << "): "
         << "SPH particles: "
         << p.r.x[0] << "   " << p.r.x[1] << "   "
         << p.e_sub << "   " << p.rhoB_an << "   "
         << p.rhoS_an << "   " << p.rhoQ_an << "   "
-        << p.sigmaweight << endl;
+        << p.sigmaweight << endl;*/
 
 		// make educated initial guess here for this particle's (T, mu_i) coordinates
 		// (improve this in the future)
@@ -588,8 +567,8 @@ cout << "check 0: " << p.r.x[0] << "   " << p.r.x[1] << "   " << p.e_sub << "   
 		p.thermo.muS = 0.0/hbarc_MeVfm;
 		p.thermo.muQ = 0.0/hbarc_MeVfm;
 
-		//if (p.e_sub>settingsPtr->efcheck)	// impose freeze-out check for e, not s
-    if (p.e_sub>1.349325899645)
+    //if (p.e_sub>1.349325899645)
+		if (p.e_sub>settingsPtr->efcheck)	// impose freeze-out check for e, not s
     {
     //   cout << "Found " << p.e_sub << " greater than " << systemPtr->efcheck << endl;
 			p.Freeze=0;
@@ -606,6 +585,6 @@ cout << "check 0: " << p.r.x[0] << "   " << p.r.x[1] << "   " << p.e_sub << "   
       << systemPtr->particles.size() - systemPtr->number_part << endl;
   cout << systemPtr->number_part << endl;
 
-if (1) exit(1);
+//if (1) exit(1);
 }
 /////////////////////////////////////////////////////////////////////////////////

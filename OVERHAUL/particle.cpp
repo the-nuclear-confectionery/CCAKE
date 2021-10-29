@@ -55,7 +55,6 @@ void Particle::set_EquationOfStatePtr( EquationOfState * eosPtr_in )
 }
 
 
-
 ////////////////////////////////////////////////////////////////////////////////
 double Particle::locate_phase_diagram_point_eBSQ(// previously s_out
                  double e_In, double rhoB_In, double rhoS_In, double rhoQ_In )
