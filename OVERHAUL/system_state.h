@@ -66,7 +66,6 @@ public:
 /*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
   double svf        = 0.04; // HARDCODED FOR NOW
 /*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
-
   double zTc        = 0.0;
   double sTc        = 0.0;
   double zwidth     = 0.0;
