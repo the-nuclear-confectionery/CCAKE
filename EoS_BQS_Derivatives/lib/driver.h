@@ -18,6 +18,7 @@
 __BEGIN_DECLS
 
 void initialize(const char parameters_filename[]);
+void initialize_thermodynamics(const char parameters_filename[]);
 void get_eBSQ_densities(double point[], double densities[]);
 void get_sBSQ_densities(double point[], double densities[]);
 void get_full_thermo(double point[], double thermodynamics[]);
