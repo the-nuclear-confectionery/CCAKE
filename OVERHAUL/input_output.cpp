@@ -125,11 +125,19 @@ cout << endl << "**************************************************************"
 
   eosPtr->quantity_file = densities;
   eosPtr->deriv_file = derivatives;
+cout << endl << "**************************************************************" << endl;
+cout << __PRETTY_FUNCTION__ << ": " << eosPtr->quantity_file << "   " << eosPtr->deriv_file << endl;
+cout << endl << "**************************************************************" << endl;
   return;
 }
 
 void InputOutput::read_in_initial_conditions()
 {
+cout << endl << "**************************************************************" << endl;
+cout << __PRETTY_FUNCTION__ << ": " << eosPtr->quantity_file << "   " << eosPtr->deriv_file << endl;
+cout << endl << "**************************************************************" << endl;
+
+
   string initial_condition_type = settingsPtr->input_parameters.IC_type;
   int total_header_lines;
   string IC_file = "initial_conditions/";
