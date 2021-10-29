@@ -100,15 +100,15 @@ public:
   
   //vectors of doubles
   vector<double> sFO, Tfluc; //entropy at freezeout
-  Vector<double,2> *divT;
-  Vector<double>   *rsub;
-  Vector<double,2> *uout;
+  Vector<double,2> *divT = nullptr;
+  Vector<double>   *rsub = nullptr;
+  Vector<double,2> *uout = nullptr;
 
   //vectors of vectorrs
   vector< Vector<int,2> > dael;
 
   //matrix pointer
-  Matrix<double,3,3> *shearsub;
+  Matrix<double,3,3> *shearsub = nullptr;
   
   //strings
   string eos_s       = "";
