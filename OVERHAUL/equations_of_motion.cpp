@@ -209,6 +209,9 @@ cout << "CHECK bigtheta: " << i
     p.detasigma_dt            = 1./p.sigma/p.T()*( -p.bigPI*p.bigtheta + p.inside );
 
 
+    cout << "p.inside: " << p.inside << " for particle: " << i << endl;
+
+
     // N.B. - ADD EXTRA TERMS FOR BULK EQUATION
     p.dBulk_dt = ( -p.zeta/p.sigma*p.bigtheta - p.Bulk/p.gamma )/p.tauRelax;
 
