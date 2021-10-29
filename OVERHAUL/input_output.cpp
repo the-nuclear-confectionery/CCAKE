@@ -126,7 +126,8 @@ cout << endl << "**************************************************************"
   eosPtr->quantity_file = densities;
   eosPtr->deriv_file = derivatives;
 cout << endl << "**************************************************************" << endl;
-cout << __PRETTY_FUNCTION__ << ": " << eosPtr->quantity_file << "   " << eosPtr->deriv_file << endl;
+cout << __PRETTY_FUNCTION__ << ": " << eosPtr.use_count() << "   "
+    << eosPtr->quantity_file << "   " << eosPtr->deriv_file << endl;
 cout << endl << "**************************************************************" << endl;
   return;
 }
@@ -134,7 +135,8 @@ cout << endl << "**************************************************************"
 void InputOutput::read_in_initial_conditions()
 {
 cout << endl << "**************************************************************" << endl;
-cout << __PRETTY_FUNCTION__ << ": " << eosPtr->quantity_file << "   " << eosPtr->deriv_file << endl;
+cout << __PRETTY_FUNCTION__ << ": " << eosPtr.use_count() << "   "
+    << eosPtr->quantity_file << "   " << eosPtr->deriv_file << endl;
 cout << endl << "**************************************************************" << endl;
 
 
