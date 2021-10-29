@@ -106,6 +106,8 @@ void EquationsOfMotion::BSQshear( SystemState & system, SPHWorkstation & ws )
 
 
   //calculate matrix elements
+constexpr int ic = 0;
+constexpr bool printAll = false;
   for ( int i=0; i<system.n(); i++ )
   {
     auto & p = system.particles[i];
@@ -116,21 +118,56 @@ void EquationsOfMotion::BSQshear( SystemState & system, SPHWorkstation & ws )
     Vector<double,2>  minshv=rowp1(0, p.shv);
     Matrix <double,2,2> partU = p.gradU + transpose( p.gradU );
 
+if (i==ic || printAll)
+cout << "CHECK misc1: " << i << "   " << system.t << "   " << gamt << "   " << p.sigma
+		<< "   " << p.dsigma_dt << endl;
+
+if (i==ic || printAll)
+cout << "CHECK minshv: " << i << "   " << system.t << "   " << minshv << endl;
+
+if (i==ic || printAll)
+cout << "CHECK partU: " << i << "   " << system.t << "   " << partU << endl;
+
+
     // set the Mass and the Force
     Matrix <double,2,2> M = p.Msub(i);
     Vector<double,2> F    = p.Btot*p.u + p.gradshear
                             - ( p.gradP + p.gradBulk + p.divshear );
 
+if (i==ic || printAll)
+cout << "CHECK M: " << i << "   " << system.t << "   " << M << endl;
+
+
+
+if (i==ic || printAll)
+cout << "CHECK F: " << i << "   " << system.t << "   " << F << "   "
+		<< p.Btot << "   " << p.u << "   "
+		<< p.gradshear << "   " << p.gradP << "   "
+		<< p.gradBulk << "   " << p.divshear << endl;
+
     // shear contribution
     F += pre*p.v*partU + p1*minshv;
 
+if (i==ic || printAll)
+cout << "CHECK F(again): " << i << "   " << system.t << "   " << F << "   "
+		<< pre << "   " << p.v << "   " << partU << "   "
+		<< p1 << "   " << minshv << endl;
+
     double det=deter(M);
+
+
+if (i==ic || printAll)
+cout << "CHECK det: " << i << "   " << system.t << "   " << M << "   " << det << endl;
+
 
     Matrix <double,2,2> MI;
     MI.x[0][0]=M.x[1][1]/det;
     MI.x[0][1]=-M.x[0][1]/det;
     MI.x[1][0]=-M.x[1][0]/det;
     MI.x[1][1]=M.x[0][0]/det;
+
+if (i==ic || printAll)
+cout << "CHECK MI: " << i << "   " << system.t << "   " << MI << endl;
 
 
     p.du_dt.x[0]=F.x[0]*MI.x[0][0]+F.x[1]*MI.x[0][1];
@@ -142,9 +179,25 @@ void EquationsOfMotion::BSQshear( SystemState & system, SPHWorkstation & ws )
 
     Matrix <double,2,2> Ipi   = -p.eta_o_tau/3. * ( p.Imat + p.uu ) + 4./3.*p.pimin;
 
-    system.particles[i].div_u      = (1./ p.gamma)*inner( p.u, p.du_dt)
-                              - ( p.gamma/ p.sigma ) * p.dsigma_dt ;
-    system.particles[i].bigtheta   = p.div_u*system.t+p.gamma;
+    p.div_u                   = (1./ p.gamma)*inner( p.u, p.du_dt)
+                                  - ( p.gamma/ p.sigma ) * p.dsigma_dt;
+
+    p.bigtheta                = p.div_u*system.t+p.gamma;
+
+if (i==ic || printAll)
+cout << "CHECK div_u: " << i
+		<< "   " << system.t
+		<< "   " << p.div_u
+		<< "   " << p.gamma
+		<< "   " << p.u
+		<< "   " << p.du_dt
+		<< "   " << inner( p.u, p.du_dt)
+		<< "   " << p.sigma << endl;
+if (i==ic || printAll)
+cout << "CHECK bigtheta: " << i
+		<< "   " << system.t
+		<< "   " << p.bigtheta
+		<< "   " << p.gamma << endl;
 
     Matrix <double,2,2> sub   = p.pimin + (p.shv.x[0][0]/p.g2)*p.uu -1./p.gamma*p.piutot;
 
@@ -154,7 +207,6 @@ void EquationsOfMotion::BSQshear( SystemState & system, SPHWorkstation & ws )
                                 - p.gamma*system.t*p.shv33 );
 
     p.detasigma_dt            = 1./p.sigma/p.T()*( -p.bigPI*p.bigtheta + p.inside );
-    cout << "p.inside: " << p.inside << " for particle: " << i;
 
 
     // N.B. - ADD EXTRA TERMS FOR BULK EQUATION

@@ -779,9 +779,6 @@ void shear(LinkList<D>  &linklist)  // shear+bulk Equations of motion, only set 
 
 
         linklist._p[i].inside=linklist.t*(inner((-minshv+linklist._p[i].shv.x[0][0]*linklist._p[i].v),linklist._p[i].du_dt)- con2(sub,linklist._p[i].gradU)    -linklist._p[i].gamma*linklist.t*linklist._p[i].shv33);
-
-cout << "p.inside = " << linklist._p[i].inside << endl;
-
         linklist._p[i].detasigma_dt =1./linklist._p[i].sigma/linklist._p[i].EOST()*( -linklist._p[i].bigPI*linklist._p[i].bigtheta+linklist._p[i].inside);
 
 
