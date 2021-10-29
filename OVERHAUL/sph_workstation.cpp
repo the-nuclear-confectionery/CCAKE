@@ -326,14 +326,11 @@ if (i==0)
 	cout << "----------------------------------------"
 			"----------------------------------------" << endl;
 	}
+
+if (1) exit(1);
+
 	return;
 
-
-
-
-  cout << "BSQ-SV simulation completed!" << endl;
-
-  return;
 }
 
 
