@@ -32,7 +32,7 @@ using namespace constants;
 void EquationsOfMotion::BSQshear( SystemState & system, SPHWorkstation & ws )
 {
   ws.setshear();
-  system.initialize_linklist();
+  system.reset_linklist();
 
   for (int i = 0; i < system.n(); i++)
   {
@@ -57,14 +57,8 @@ void EquationsOfMotion::BSQshear( SystemState & system, SPHWorkstation & ws )
   {
     auto & p = system.particles[i];
 
-
-
-
     //  Computes gamma and velocity
     p.calcbsq( system.t ); //resets EOS!!
-
-
-
 
     /*N.B. - eventually extend to read in viscosities from table, etc.*/
     p.setvisc( system.etaconst, system.bvf, system.svf,
