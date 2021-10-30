@@ -50,6 +50,8 @@ void EquationsOfMotion::BSQshear( SystemState & system, SPHWorkstation & ws )
 
   }
 
+  cout << "CHECK cfon: " << system.cfon << endl;
+
   cout << "Finished first loop over SPH particles" << endl;
 
   int curfrz = 0;
@@ -90,6 +92,9 @@ void EquationsOfMotion::BSQshear( SystemState & system, SPHWorkstation & ws )
     p.dsigma_dt = -p.sigma * ( p.gradV.x[0][0] + p.gradV.x[1][1] );
 
     p.bsqsvsigset( system.t, i );
+
+  cout << "CHECK p[" << i << "].Freeze: " << p.Freeze << endl;
+
 
     if ( (p.Freeze==3) && (system.cfon==1) )
     {

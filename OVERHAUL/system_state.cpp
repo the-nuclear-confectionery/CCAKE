@@ -293,6 +293,8 @@ void SystemState::set_current_timestep_quantities()
 
   shv0.resize(N);
 
+  cout << __PRETTY_FUNCTION__ << ": N = " << N << endl;
+
   for (int i=0; i<N; ++i)
   {
     const auto & p = particles[i];

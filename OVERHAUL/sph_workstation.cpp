@@ -371,7 +371,8 @@ void SPHWorkstation::smooth_fields(int a, bool init_mode /*== false*/)
 
       //if (kern>0.0) neighbor_count++;
       if (a==0)
-        std::cout << __FUNCTION__ << "(SPH particle == " << a << " ): "
+        std::cout << __FUNCTION__ << "(SPH particle == " << a << "): "
+        << systemPtr->t << "   "
         << b << "   " << pa.r
         << "   " << pa.sigma
         << "   " << pa.eta
@@ -463,8 +464,7 @@ void SPHWorkstation::smooth_gradients( int a, double tin, int & count )
       double sigsqrb           = 1.0/(pb.sigma*pb.sigma);
       Vector<double,2> sigsigK = pb.sigmaweight * pa.sigma * gradK;
 
-      pa.gradP                += ( sigsqrb*pb.p()
-                                  + sigsqra*pa.p() ) * sigsigK;
+      pa.gradP                += ( sigsqrb*pb.p() + sigsqra*pa.p() ) * sigsigK;
 
 if (a==0)
   cout << "CHECK grads: " << tin << "   " << a << "   " << b << "   " << sigsqra << "   " << sigsqrb

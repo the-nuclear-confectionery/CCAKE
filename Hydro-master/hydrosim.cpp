@@ -858,6 +858,8 @@ void BSQshear(LinkList<D>  &linklist)  // shear+bulk Equations of motion, only s
 
     }
 
+  cout << "CHECK cfon: " << system.cfon << endl;
+
 	cout << "Finished first loop over SPH particles" << endl;
 
 
@@ -900,6 +902,10 @@ void BSQshear(LinkList<D>  &linklist)  // shear+bulk Equations of motion, only s
 		<< "   " << linklist._p[i].gradV.x[1][1] << endl;*/
 
         linklist._p[i].bsqsvsigset(linklist.t,i);
+
+  cout << "CHECK p[" << i << "].Freeze: " << linklist._p[i].Freeze << endl;
+
+
         if ((linklist._p[i].Freeze==3)&&(linklist.cfon==1))
         {
             linklist.list[m]=i;

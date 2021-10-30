@@ -929,6 +929,10 @@ cout << "Made it to " << __PRETTY_FUNCTION__ << "::" << __LINE__ << "!" << endl;
 
     // creating arrays of vectors of the derivatives at each step
     int N=linklist.n();
+
+  cout << __PRETTY_FUNCTION__ << ": N = " << N << endl;
+
+
     Vector<double,D> *u0,*r0;
     double *etasigma0,*Bulk0;
 	//double *rhoB0,*rhoS0,*rhoQ0;
