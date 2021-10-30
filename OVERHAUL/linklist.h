@@ -37,13 +37,14 @@ public:
   int cevent        = 0;
   int range         = 0; //range is number of boxes from left to right extra
   int Size          = 0;
-  int cfon          = 0;
+  int cfon          = 1;  // HARDCODE
   int cf            = 0;
   int visc          = 0; 
   // visc=0 for ideal
   // visc=1 for bulk
   // visc=2 for shear
   // visc=3 for bulk+shear
+  // visc=4 for BSQ+bulk+shear
   
   //doubles
   double _h         = 0;
