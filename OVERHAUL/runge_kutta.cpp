@@ -13,7 +13,8 @@ namespace RK
   void bsq_second_order( double dx, EquationsOfMotion & eom, SystemState & system,
                           SPHWorkstation & ws )
   {
-    int N = system.n();
+//    int N = system.n();
+    N = system.n();
 
 
     double E0, t0;
