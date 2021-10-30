@@ -285,6 +285,8 @@ void SystemState::bsqsvconservation_Ez()
 ///////////////////////////////////////////////////////////////////////////////
 void SystemState::set_current_timestep_quantities()
 {
+  N = system.n();
+
   etasigma0.resize(N);
   Bulk0.resize(N);
 
@@ -308,6 +310,8 @@ void SystemState::set_current_timestep_quantities()
 ///////////////////////////////////////////////////////////////////////////////
 void SystemState::get_derivative_halfstep(double dx)
 {
+  N = system.n();
+
   for (int i=0; i<N; ++i)
   {
     auto & p = particles[i];
@@ -321,6 +325,8 @@ void SystemState::get_derivative_halfstep(double dx)
 ///////////////////////////////////////////////////////////////////////////////
 void SystemState::get_derivative_fullstep(double dx)
 {
+  N = system.n();
+
   for (int i=0; i<N; ++i)
   {
     auto & p = particles[i];
