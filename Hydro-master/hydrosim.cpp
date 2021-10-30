@@ -858,7 +858,7 @@ void BSQshear(LinkList<D>  &linklist)  // shear+bulk Equations of motion, only s
 
     }
 
-  cout << "CHECK cfon: " << system.cfon << endl;
+  cout << "CHECK cfon: " << linklist.cfon << endl;
 
 	cout << "Finished first loop over SPH particles" << endl;
 
