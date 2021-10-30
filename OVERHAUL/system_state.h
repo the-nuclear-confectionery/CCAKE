@@ -118,14 +118,9 @@ public:
   void initialize();
   void reset_linklist() { linklist.reset(); }
   void initialize_linklist();
-  //void BSQSimulation( double dt, LinkList & linklist );
-  //void BSQshear( LinkList & linklist );
   void check_BSQ_energy_conservation();
   void check_BSQ_entropy_conservation();
   void check_BSQ_charge_conservation();
-  //void smooth_fields(int a, bool init_mode = false);
-  //void smooth_gradients( int a, double tin, int & count );
-
 
   void bsqsvconservation();
   void conservation_entropy();
@@ -133,10 +128,6 @@ public:
   void bsqsvconservation_E();
   void bsqsv_set();
   void bsqsvconservation_Ez();
-  //void setshear();
-
-  //void initialize_entropy_and_charge_densities();
-  //void initial_smoothing();
 
   int n(){ return _n; }
 
@@ -146,6 +137,9 @@ public:
   void get_derivative_halfstep(double dx);
   void get_derivative_fullstep(double dx);
 
+  // put FO routines in SystemState for time being
+  void bsqsvfreezeout(int curfrz);
+  void bsqsvinterpolate(int curfrz);
 
 };
 

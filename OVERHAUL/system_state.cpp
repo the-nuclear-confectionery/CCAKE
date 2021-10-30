@@ -338,3 +338,240 @@ void SystemState::get_derivative_fullstep(double dx)
   }
 }
 //////////////////////////////////////////////////////////////////////////////
+
+
+
+void SystemState::bsqsvfreezeout(int curfrz)
+{
+    if (frzc==0)
+    {
+        taupp=t;
+        frzc=1;
+        for (int i=0; i<_n; i++) {
+
+
+            _p[i].frz2.r=_p[i].r;
+            _p[i].frz2.u=_p[i].u;
+            _p[i].frz2.sigma=_p[i].sigma;
+            _p[i].frz2.T=_p[i].EOST();
+            _p[i].frz2.bulk=_p[i].bigPI ;
+            _p[i].frz2.theta=_p[i].div_u+_p[i].gamma/t;
+            _p[i].frz2.gradP=_p[i].gradP;
+            _p[i].frz2.shear=_p[i].shv;
+            _p[i].frz2.shear33=_p[i].shv33;
+            _p[i].frz2.inside=_p[i].inside;
+        }
+
+    }
+    else if (frzc==1)
+    {
+        taup=t;
+        frzc=2;
+        for (int i=0; i<_n; i++) {
+
+            _p[i].frz1.r=_p[i].r;
+            _p[i].frz1.u=_p[i].u;
+            _p[i].frz1.sigma=_p[i].sigma;
+            _p[i].frz1.T=_p[i].EOST();
+            _p[i].frz1.bulk=_p[i].bigPI ;
+            _p[i].frz1.theta=_p[i].div_u+_p[i].gamma/t;
+            _p[i].frz1.gradP=_p[i].gradP;
+            _p[i].frz1.shear=_p[i].shv;
+            _p[i].frz1.shear33=_p[i].shv33;
+            _p[i].frz1.inside=_p[i].inside;
+        }
+
+        divTtemp=new double [curfrz];
+        divT=new Vector<double,D> [curfrz];
+        gsub=new double [curfrz];
+        uout=new Vector<double,D> [curfrz];
+        swsub=new double [curfrz];
+        bulksub=new double [curfrz];
+        shearsub=new Matrix<double,D+1,D+1> [curfrz];
+        shear33sub=new double [curfrz];
+        tlist=new double [curfrz];
+        rsub=new Vector<double,D> [curfrz];
+
+        if (curfrz>0)
+            bsqsvinterpolate(curfrz);
+        else
+            cf=0;
+
+    }
+    else
+    {
+
+        for (int i=0; i<_n; i++) {
+            if (_p[i].Freeze<4) {
+                if ((_p[i].btrack<=3)&&(_p[i].btrack>0)) {
+                    _p[i].fback4=_p[i].fback2;
+                    _p[i].fback3=_p[i].fback;
+                    _p[i].fback2=_p[i].frz2;
+                    _p[i].fback=_p[i].frz1;
+                }
+                else if (_p[i].btrack==0) {
+                    if (_p[i].fback.gradP.x[0]!=0) {
+                        _p[i].frz2=_p[i].fback2;
+                        _p[i].frz1=_p[i].fback;
+                    }
+                    else {
+                        _p[i].frz2=_p[i].fback4;
+                        _p[i].frz1=_p[i].fback3;
+                        cout << "back second"  << endl;
+                    }
+
+
+                    curfrz++;
+                    list.push_back(i);
+                    _p[i].Freeze=4;
+                    _p[i].btrack=-1;
+                }
+            }
+        }
+
+        tau=t;
+
+        divTtemp=new double [curfrz];
+        divT=new Vector<double,D> [curfrz];
+        gsub=new double [curfrz];
+        uout=new Vector<double,D> [curfrz];
+        swsub=new double [curfrz];
+        bulksub=new double [curfrz];
+        shearsub=new Matrix<double,D+1,D+1> [curfrz];
+        shear33sub=new double [curfrz];
+        tlist=new double [curfrz];
+        rsub=new Vector<double,D> [curfrz];
+
+
+
+        if (curfrz>0)
+            bsqsvinterpolate(curfrz);
+        else
+            cf=0;
+
+
+        //sets up the variables for the next time step
+        for (int i=0; i<_n; i++) {
+            _p[i].frz2=_p[i].frz1;
+
+            _p[i].frz1.r=_p[i].r;
+            _p[i].frz1.u=_p[i].u;
+            _p[i].frz1.sigma=_p[i].sigma;
+            _p[i].frz1.T=_p[i].EOST();
+            _p[i].frz1.bulk=_p[i].bigPI ;
+            _p[i].frz1.theta=_p[i].div_u+_p[i].gamma/t;
+            _p[i].frz1.gradP=_p[i].gradP;
+            _p[i].frz1.shear=_p[i].shv;
+            _p[i].frz1.shear33=_p[i].shv33;
+            _p[i].frz1.inside=_p[i].inside;
+        }
+        taupp=taup;
+        taup=tau;
+    }
+    cfon=0;
+}
+
+
+
+
+void SystemState::bsqsvinterpolate(int curfrz)
+{
+
+    sFO.resize(curfrz,0);
+    Tfluc.resize(curfrz,0);
+    for (int j=0; j<curfrz; j++)
+    {
+        int i=list[j];
+
+        int swit=0;
+        if (abs(_p[i].frz1.T-freezeoutT)<abs(_p[i].frz2.T-freezeoutT)) swit=1;
+        else swit=2;
+
+        double sigsub,thetasub,inside;
+        Vector<double,D> gradPsub;
+        if (swit==1) {
+            if (_p[i].btrack!=-1) tlist[j]=taup;
+            else tlist[j]=taup-dt;
+            rsub[j]=_p[i].frz1.r;
+            uout[j]=_p[i].frz1.u;
+            bulksub[j]=_p[i].frz1.bulk;
+            shearsub[j]=_p[i].frz1.shear;
+            shear33sub[j]=_p[i].frz1.shear33;
+
+            gradPsub=_p[i].frz1.gradP;
+            inside=_p[i].frz1.inside;
+            sigsub=_p[i].frz1.sigma;
+            thetasub=_p[i].frz1.theta;
+            Tfluc[j]=_p[i].frz1.T;
+        }
+        else if (swit==2) {
+            if (_p[i].btrack!=-1) tlist[j]=taupp;
+            else tlist[j]=taupp-dt;
+            rsub[j]=_p[i].frz2.r;
+            uout[j]=_p[i].frz2.u;
+            bulksub[j]=_p[i].frz2.bulk;
+            shearsub[j]=_p[i].frz2.shear;
+            shear33sub[j]=_p[i].frz2.shear33;
+
+            gradPsub=_p[i].frz2.gradP;
+            inside=_p[i].frz2.inside;
+            sigsub=_p[i].frz2.sigma;
+            thetasub=_p[i].frz2.theta;
+            Tfluc[j]=_p[i].frz2.T;
+        }
+        else {
+            cout << "LinkList.h: Not at freeze-out temperature" << endl;
+
+        }
+
+        sFO[j]=_p[0].EOSs_terms_T(Tfluc[j]);
+
+        gsub[j]=sqrt( Norm2(uout[j]) + 1 );
+
+
+        sigsub/=gsub[j]*tlist[j];
+        swsub[j]=_p[i].sigmaweight/sigsub;
+
+        divT[j]=(1/sFO[j])*gradPsub;
+        divTtemp[j]=-(1/(gsub[j]*sFO[j]))*(cs2*(wfz+bulksub[j])*thetasub-cs2*inside+inner(uout[j],gradPsub));
+
+
+        double insub=divTtemp[j]*divTtemp[j]-Norm2(divT[j]);
+        double norm=-sqrt(abs(insub));
+        divTtemp[j]/=norm;
+        divT[j]=(1/norm)*divT[j];
+
+
+
+        if (divTtemp[j]==1) {
+            cout << "track sph=" << _p[i].btrack << " " << i <<  endl;
+            cout << divTtemp[j] << " " << divT[j] << " " << norm << endl;
+            cout << gradPsub << " " << thetasub << endl;
+            cout << tlist[j] << " " << _p[i].r << endl;
+            cout << _p[i].frz1.gradP<< " " << _p[i].frz2.gradP <<  endl;
+            cout << _p[i].frz1.T*197.3<< " " << _p[i].frz2.T*197.3 <<  endl;
+            getchar();
+
+        }
+
+        avgetasig+=sFO[j]/sigsub;
+
+        if(isnan(divTtemp[j]))
+        {
+
+            cout << "divtemp" << endl;
+            cout << divTtemp[j] << " " << divT[j] << " " << norm << endl;
+            cout << gradPsub << " " << thetasub << endl;
+            cout << bulksub[j] <<endl;
+            cout << gsub[j] << endl;
+            cout << tlist[j] << " " << _p[i].r << endl;
+            cout << _p[i].frz1.T*0.1973<< " " << _p[i].frz2.T*0.1973<<  endl;
+
+        }
+
+        sFO[j]*=pow(Tfluc[j]*0.1973,3);
+        Tfluc[j]*=0.1973;
+
+    }
+    cf=curfrz;
+}
