@@ -1933,7 +1933,7 @@ void LinkList<D>::bsqsvoptimization(int a, bool init_mode /*== false*/)
 
 if (a==0)
 std::cout << "bsqsvoptimization(SPH particle == " << a << "): "
-			<< linklist.t << "   "
+			<< LinkList.t << "   "
       << b << "   " << _p[a].r
 			<< "   " << _p[a].sigma
 			<< "   " << _p[a].eta
