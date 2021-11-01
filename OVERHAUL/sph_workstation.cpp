@@ -63,7 +63,7 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 		if (settingsPtr->gtyp!=5)
 		{
 			sw.Start();
-			cout << "Doing this particle: "
+			cout << setprecision(12) << "Doing this particle: "
 					<< p.r.x[0] << "   " << p.r.x[1] << "\n";
 
 /*cout << "SPH checkpoint(" << __LINE__ << "): " << endl;

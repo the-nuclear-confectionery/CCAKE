@@ -2429,7 +2429,7 @@ void LinkList<D>::updateIC()
 		if (gtyp!=5)
 		{
 			sw.Start();
-			cout << "Doing this particle: "
+			cout << setprecision(12) << "Doing this particle: "
 					<< _p[i].r.x[0] << "   " << _p[i].r.x[1] << "\n";
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << t << "   "
