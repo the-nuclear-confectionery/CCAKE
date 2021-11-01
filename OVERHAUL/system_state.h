@@ -113,6 +113,16 @@ private:
   vector<int> list;
 
   // freeze-out related quantities
+  int cf            = 0;
+  int frzc          = 0;
+  double avgetasig  = 0;
+  double tau        = 0;
+  double taup       = 0;
+  double taupp      = 0;
+  double wfz        = 0;
+
+
+
   vector<double> divTtemp;
   vector<double> gsub;
   vector<double> bulksub;

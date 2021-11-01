@@ -381,16 +381,6 @@ void SystemState::bsqsvfreezeout(int curfrz)
       p.frz1.inside  = p.inside;
     }
 
-    /*divTtemp=new double [curfrz];
-    divT=new Vector<double,D> [curfrz];
-    gsub=new double [curfrz];
-    uout=new Vector<double,D> [curfrz];
-    swsub=new double [curfrz];
-    bulksub=new double [curfrz];
-    shearsub=new Matrix<double,D+1,D+1> [curfrz];
-    shear33sub=new double [curfrz];
-    tlist=new double [curfrz];
-    rsub=new Vector<double,D> [curfrz];*/
     divTtemp.resize( curfrz );
     divT.resize( curfrz );
     gsub.resize( curfrz );
@@ -409,11 +399,12 @@ void SystemState::bsqsvfreezeout(int curfrz)
   }
   else
   {
-
+    int i_local = 0;
     for (auto & p : particles)
+    {
       if ( p.Freeze < 4 )
       {
-        if ( (p.btrack<=3) && (p.btrack>0) )
+        if ( ( p.btrack <= 3 ) && ( p.btrack > 0 ) )
         {
           p.fback4 = p.fback2;
           p.fback3 = p.fback;
@@ -436,10 +427,13 @@ void SystemState::bsqsvfreezeout(int curfrz)
 
 
           curfrz++;
-          list.push_back(i);
+          list.push_back( i_local );
           p.Freeze = 4;
           p.btrack = -1;
         }
+      }
+
+      i_local++;
     }
 
     tau = t;
@@ -502,14 +496,14 @@ void SystemState::bsqsvinterpolate(int curfrz)
 
 
     int swit = 0;
-    if ( abs(p.frz1.T-freezeoutT)<abs(p.frz2.T-freezeoutT))
+    if ( abs( p.frz1.T - freezeoutT ) < abs( p.frz2.T - freezeoutT ) )
       swit   = 1;
     else
       swit   = 2;
 
 
     double sigsub,thetasub,inside;
-    Vector<double,D> gradPsub;
+    Vector<double,2> gradPsub;
     if ( swit == 1 )
     {
       if ( p.btrack != -1 )
@@ -553,7 +547,8 @@ void SystemState::bsqsvinterpolate(int curfrz)
       cout << "LinkList.h: Not at freeze-out temperature" << endl;
     }
 
-    sFO[j]       = _p[0].EOSs_terms_T(Tfluc[j]);
+    //sFO[j]       = _p[0].EOSs_terms_T(Tfluc[j]);  // unnecessary since all EOS's identical
+    sFO[j]       = p.eosPtr->s_terms_T( Tfluc[j] );
 
     gsub[j]      = sqrt( Norm2(uout[j]) + 1 );
 
@@ -564,7 +559,7 @@ void SystemState::bsqsvinterpolate(int curfrz)
     divT[j]      = (1.0/sFO[j])*gradPsub;
     divTtemp[j]  = -(1.0/(gsub[j]*sFO[j]))
                       *( cs2 * (wfz+bulksub[j]) * thetasub
-                        - cs2*inside+inner(uout[j],gradPsub) );
+                        - cs2*inside+inner(uout[j], gradPsub) );
 
 
     double insub = divTtemp[j]*divTtemp[j] - Norm2(divT[j]);

@@ -25,7 +25,6 @@ public:
   //if==1 quantum mechanicanical corrections to the flow or added
   //if==0 no corrections are included
   int number_part   = 0;
-  int frzc          = 0;
   int rk2           = 0; 
   int steps         = 0;
   int gtyp          = 0;
@@ -38,7 +37,6 @@ public:
   int range         = 0; //range is number of boxes from left to right extra
   int Size          = 0;
   int cfon          = 1;  // HARDCODE
-  int cf            = 0;
   int visc          = 0; 
   // visc=0 for ideal
   // visc=1 for bulk
@@ -48,9 +46,6 @@ public:
   
   //doubles
   double _h         = 0;
-  double tau        = 0;
-  double taup       = 0;
-  double taupp      = 0;
   double gd2        = 0;
   double t0         = 0;
   double t          = 0;
@@ -81,8 +76,6 @@ public:
   double step       = 0;
   double efcheck    = 0;
   double sfcheck    = 0;
-  double avgetasig  = 0; // possibly not needed?
-  double wfz        = 0;
   double cs2        = 0;
 
   //vectors of int
