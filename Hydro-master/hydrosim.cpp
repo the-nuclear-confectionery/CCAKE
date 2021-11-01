@@ -79,7 +79,7 @@ void Simulation(double dt,LinkList<2> &linklist)
             double tsub=linklist.t-floor(linklist.t);
             if (tsub<(0.0+dt*0.99)||(tsub>=1-+dt*0.99)) // uncomment if you want to observe energydensity profile, conservation of energy or do a Gubser check
             {
-                cout << "t=" << linklist.t <<endl;  // outputs time step
+                cout << setprecision(10) << "t=" << linklist.t <<endl;  // outputs time step
                 out.eprofile(linklist);   // energy density profile
 //        out.conservation(linklist); // conservation of energy
 //        out.gubcheckux(linklist); // gubser test
@@ -88,7 +88,7 @@ void Simulation(double dt,LinkList<2> &linklist)
             }
             else if ((tsub<(0.5+dt*0.5))&&(tsub>=(0.5-+dt*0.5))) // uncomment if you want to observe energydensity profile, conservation of energy or do a Gubser check
             {
-                cout << "t=" <<  linklist.t <<endl;  // outputs time step
+                cout << setprecision(10) << "t=" <<  linklist.t <<endl;  // outputs time step
                 out.eprofile(linklist);   // energy density profile
 //        out.conservation(linklist); // conservation of energy
 //        out.gubcheckux(linklist); // gubser test
@@ -190,7 +190,7 @@ void svSimulation(double dt,LinkList<2> &linklist)
         out.sveprofile(linklist);
         cout << "printed first timestep" << endl;
         linklist.conservation_entropy();
-        cout << "t=" << linklist.t << " S=" << linklist.S << endl;
+        cout << setprecision(10) << "t=" << linklist.t << " S=" << linklist.S << endl;
         if (linklist.qmf==1) exit(0);
     }
     else if(linklist.qmf==4) {
@@ -207,7 +207,7 @@ void svSimulation(double dt,LinkList<2> &linklist)
 
         svrungeKutta2<2>(dt,&shear<2>,linklist);
         linklist.conservation_entropy();
-        cout << "t=" << linklist.t << " " <<  linklist.Eloss << " " << linklist.S <<  endl;
+        cout << setprecision(10) << "t=" << linklist.t << " " <<  linklist.Eloss << " " << linklist.S <<  endl;
         out.sveprofile(linklist);
 //        out.sveprofile(linklist);
 //        bbmg.propogate(linklist);
@@ -221,7 +221,7 @@ void svSimulation(double dt,LinkList<2> &linklist)
             if (tsub<(0.0+dt*0.99)||(tsub>=1-+dt*0.99)) // uncomment if you want to observe energydensity profile, conservation of energy or do a Gubser check
             {
                 linklist.conservation_entropy();
-                cout << "t=" << linklist.t << " S=" << linklist.S << endl;  // outputs time step
+                cout << setprecision(10) << "t=" << linklist.t << " S=" << linklist.S << endl;  // outputs time step
                 out.sveprofile(linklist);   // energy density profile
                 cout << "eloss= " << linklist.t << " " <<  linklist.Eloss << endl;
                 //out.conservation(linklist); // conservation of energy
@@ -247,7 +247,7 @@ void svSimulation(double dt,LinkList<2> &linklist)
 //         }
             else if ((tsub<(0.5+dt*0.5))&&(tsub>=(0.5-+dt*0.5))) // uncomment if you want to observe energydensity profile, conservation of energy or do a Gubser check
             {
-                cout << "t=" <<  linklist.t <<endl;  // outputs time step
+                cout << setprecision(10) << "t=" <<  linklist.t <<endl;  // outputs time step
                 out.sveprofile(linklist);   // energy density profile
 //        out.conservation(linklist); // conservation of energy
 //        out.gubcheckux(linklist); // gubser test
@@ -299,7 +299,7 @@ void BSQSimulation(double dt,LinkList<2> &linklist)
         cout << "printed first timestep" << endl;
         linklist.conservation_entropy();
         linklist.conservation_BSQ();
-        cout << "t=" << linklist.t << " S=" << linklist.S 
+        cout << setprecision(10) << "t=" << linklist.t << " S=" << linklist.S 
 			<< " " << linklist.Btotal << " " << linklist.Stotal
 			<< " " << linklist.Qtotal << endl;
         if (linklist.qmf==1) exit(0);
@@ -322,7 +322,7 @@ void BSQSimulation(double dt,LinkList<2> &linklist)
         bsqrungeKutta2<2>(dt,&BSQshear<2>,linklist);
         linklist.conservation_entropy();
 		linklist.conservation_BSQ();
-        cout << "t=" << linklist.t << " " <<  linklist.Eloss << " " << linklist.S
+        cout << setprecision(10) << "t=" << linklist.t << " " <<  linklist.Eloss << " " << linklist.S
 			<< " " << linklist.Btotal << " " << linklist.Stotal << " " << linklist.Qtotal <<  endl;
         out.bsqsveprofile(linklist);
 //        out.sveprofile(linklist);
