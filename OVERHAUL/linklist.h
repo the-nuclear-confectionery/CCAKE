@@ -85,32 +85,15 @@ public:
   double wfz        = 0;
   double cs2        = 0;
 
-  //pointers
-  double *divTtemp   = nullptr;
-  double *gsub       = nullptr;
-  double *bulksub    = nullptr; 
-  double *swsub      = nullptr;
-  double *shear33sub = nullptr;
-  double *tlist      = nullptr;
-
   //vectors of int
   vector<int> list;
   vector<int> lead;
   vector<int> link;
   Vector<int,2> size;
   
-  //vectors of doubles
-  vector<double> sFO, Tfluc; //entropy at freezeout
-  Vector<double,2> *divT = nullptr;
-  Vector<double,2> *rsub = nullptr;
-  Vector<double,2> *uout = nullptr;
-
-  //vectors of vectorrs
+  //vectors of vectors
   vector< Vector<int,2> > dael;
 
-  //matrix pointer
-  Matrix<double,3,3> *shearsub = nullptr;
-  
   //strings
   string eos_s       = "";
   string eost        = "";

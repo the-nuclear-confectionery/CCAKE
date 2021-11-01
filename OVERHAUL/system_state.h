@@ -112,6 +112,24 @@ private:
 
   vector<int> list;
 
+  // freeze-out related quantities
+  vector<double> divTtemp;
+  vector<double> gsub;
+  vector<double> bulksub;
+  vector<double> swsub;
+  vector<double> shear33sub;
+  vector<double> tlist;
+  vector<double> sFO;         //entropy at freezeout
+  vector<double> Tfluc;
+  vector<Vector<double,2> > divT;
+  vector<Vector<double,2> > rsub;
+  vector<Vector<double,2> > uout;
+
+  //matrix pointer
+  vector<Matrix<double,3,3> > shearsub;
+  
+
+
 
 public:
 
@@ -134,12 +152,12 @@ public:
 
   // these routines are called in runge kutta
   void set_current_timestep_quantities();
-  void get_derivative_halfstep(double dx);
-  void get_derivative_fullstep(double dx);
+  void get_derivative_halfstep( double dx );
+  void get_derivative_fullstep( double dx );
 
   // put FO routines in SystemState for time being
-  void bsqsvfreezeout(int curfrz);
-  void bsqsvinterpolate(int curfrz);
+  void bsqsvfreezeout( int curfrz );
+  void bsqsvinterpolate( int curfrz );
 
 };
 
