@@ -15,7 +15,9 @@ namespace kernel
     knorm       = 10.0/(7.*pi*h*h);
     knorm2      = knorm*0.25;
     kgrad       = -15.0/(14.0*pi*h*h*h);
-    kgrad2      = -10.0/(7.0*pi*h*h*h*h);
+    kgrad2      = 10.0/(7.0*pi*h*h*h*h);
+cout << "CHECK KERNEL: " << setprecision(16) << knorm << "   " << knorm2 << "   " << kgrad << "   " << kgrad2 << "   " << PI << endl;
+if (1) exit(-1);
 
     return;
   }

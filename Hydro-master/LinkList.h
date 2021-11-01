@@ -2288,6 +2288,8 @@ void LinkList<D>::gubsershear( double h)
     knorm2=knorm*0.25;
     kgrad=-10/7./PI/pow(_h,3)*3/4.;
     kgrad2=10/7./PI/pow(_h,3)/_h;
+cout << "CHECK KERNEL: " << setprecision(16) << knorm << "   " << knorm2 << "   " << kgrad << "   " << kgrad2 << "   " << PI << endl;
+if (1) exit(-1);
     number_part=0;
     step=0.02;
 
