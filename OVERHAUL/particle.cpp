@@ -136,18 +136,6 @@ void Particle::frzcheck( double tin, int &count, int N )
 }
 
 
-
-////////////////////////////////////////////////////////////////////////////////
-//  Computes gamma and velocity
-/*void Particle::calc(double tin)
-{
-    gamma        = gamcalc();
-    v            = (1.0/gamma)*u;
-    double s_in2 = eta/gamma/tin;
-    qmom         = ((e()+ p())*gamma/sigma)*u;
-    locate_phase_diagram_point_sBSQ( s_in2 );    // single-argument version
-}*/
-
 ////////////////////////////////////////////////////////////////////////////////
 //  Computes gamma and velocity
 void Particle::calcbsq(double tin)
@@ -159,9 +147,6 @@ void Particle::calcbsq(double tin)
 	double rhoB_in2 = B*sigma/sigmaweight;
 	double rhoS_in2 = S*sigma/sigmaweight;
 	double rhoQ_in2 = Q*sigma/sigmaweight;
-	//double rhoB_in2 = B*sigma/sigmaweight/gamma/tin;
-	//double rhoS_in2 = S*sigma/sigmaweight/gamma/tin;
-	//double rhoQ_in2 = Q*sigma/sigmaweight/gamma/tin;
 	rhoB_an = rhoB_in2;
 	rhoS_an = rhoS_in2;
 	rhoQ_an = rhoQ_in2;

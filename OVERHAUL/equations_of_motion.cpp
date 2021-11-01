@@ -59,15 +59,18 @@ void EquationsOfMotion::BSQshear( SystemState & system, SPHWorkstation & ws )
   {
     auto & p = system.particles[i];
 
+    cout << "CHECK PARTICLES: " << system.t << "   "
+          << i << "   " << p.T() << "   " << p.p() << "   ";
     //  Computes gamma and velocity
     p.calcbsq( system.t ); //resets EOS!!
+    cout << p.T() << "   " << p.p() << endl;
 
     /*N.B. - eventually extend to read in viscosities from table, etc.*/
     p.setvisc( system.etaconst, system.bvf, system.svf,
                system.zTc,      system.sTc, system.zwidth,
                system.visc );
 
-    if (system.cfon==1)
+    if ( system.cfon == 1 )
       p.frzcheck( system.t, curfrz, system.n() );
 
   }
@@ -75,14 +78,14 @@ void EquationsOfMotion::BSQshear( SystemState & system, SPHWorkstation & ws )
 
   cout << "Finished second loop over SPH particles" << endl;
 
-  if (system.cfon==1)
+  if ( system.cfon == 1 )
   {
     system.number_part += curfrz;
     system.list.resize(curfrz);
   }
 
   int m=0;
-  for(int i=0; i<system.n(); i++)
+  for ( int i=0; i<system.n(); i++ )
   {
     auto & p = system.particles[i];
 
