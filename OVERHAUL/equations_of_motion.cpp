@@ -231,7 +231,8 @@ cout << "CHECK bigtheta: " << i
   }
 
 
-  //if (system.cfon==1) system.bsqsvfreezeout(curfrz);
+  if (system.cfon==1)
+    system.bsqsvfreezeout( curfrz );
 
   return;
 }

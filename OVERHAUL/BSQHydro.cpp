@@ -111,7 +111,8 @@ void BSQHydro::run()
     system.conservation_entropy();
     system.conservation_BSQ();
 
-    cout << "t=" << system.t << " S=" << system.S 
+    cout << setw(12) << setprecision(10)
+         << "t=" << system.t << " S=" << system.S 
          << " " << system.Btotal << " " << system.Stotal
          << " " << system.Qtotal << endl;
 
@@ -139,7 +140,8 @@ void BSQHydro::run()
     system.conservation_entropy();
     system.conservation_BSQ();
 
-    cout << "t=" << system.t << " " <<  system.Eloss << " " << system.S
+    cout << setw(12) << setprecision(10)
+         << "t=" << system.t << " " <<  system.Eloss << " " << system.S
          << " " << system.Btotal << " " << system.Stotal
          << " " << system.Qtotal <<  endl;
 
@@ -155,7 +157,8 @@ void BSQHydro::run()
       if (tsub<(0.0+system.dt*0.99)||(tsub>=1-+system.dt*0.99)) // uncomment if you want to observe energydensity profile, conservation of energy or do a Gubser check
       {
         system.conservation_entropy();
-        cout << "t=" << system.t << " S=" << system.S << endl;  // outputs time step
+        cout << setw(12) << setprecision(10)
+         << "t=" << system.t << " S=" << system.S << endl;  // outputs time step
         //out.bsqsveprofile(system);   // energy density profile
         cout << "eloss= " << system.t << " " <<  system.Eloss << endl;
         //out.conservation(system); // conservation of energy

@@ -123,7 +123,6 @@ private:
   double wfz        = 0;
 
 
-
   vector<double> divTtemp;
   vector<double> gsub;
   vector<double> bulksub;
@@ -132,12 +131,12 @@ private:
   vector<double> tlist;
   vector<double> sFO;         //entropy at freezeout
   vector<double> Tfluc;
-  vector<Vector<double,2> > divT;
-  vector<Vector<double,2> > rsub;
-  vector<Vector<double,2> > uout;
+  vector< Vector<double,2> > divT;
+  vector< Vector<double,2> > rsub;
+  vector< Vector<double,2> > uout;
 
   //matrix pointer
-  vector<Matrix<double,3,3> > shearsub;
+  vector< Matrix<double,3,3> > shearsub;
   
 
 
