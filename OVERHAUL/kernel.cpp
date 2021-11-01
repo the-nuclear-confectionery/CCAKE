@@ -1,7 +1,13 @@
+#include <iomanip>
+
 #include "constants.h"
 #include "kernel.h"
 
 using namespace constants;
+
+using std::cout;
+using std::endl;
+using std::setprecision;
 
 namespace kernel
 {
