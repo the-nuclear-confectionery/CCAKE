@@ -25,8 +25,8 @@ public:
   double gd2 = 0.0;
   double factor = 0.0;
 
-  //double efcheck = 0.0;
-  //double sfcheck = 0.0;
+  double efcheck = 0.0;
+  double sfcheck = 0.0;
 
   double E1 = 0.0;
   double E2 = 0.0;
