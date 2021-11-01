@@ -22,19 +22,11 @@ public:
   double _h = 0.0;
   double Freeze_Out_Temperature = 0.0;
 
-  double tau = 0.0;
-  double taup = 0.0;
-  double taupp = 0.0;
-
   double gd2 = 0.0;
   double factor = 0.0;
 
-  double efcheck = 0.0;
-  double sfcheck = 0.0;
-
-  double avgetasig = 0.0;
-  double wfz = 0.0;
-  double cs2 = 0.0;
+  //double efcheck = 0.0;
+  //double sfcheck = 0.0;
 
   double E1 = 0.0;
   double E2 = 0.0;

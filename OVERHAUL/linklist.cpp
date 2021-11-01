@@ -59,7 +59,6 @@ void LinkList::initialize( double it0, int ntot, double h,
 
   dt          = dtsave;
   number_part = numpart;
-  avgetasig   = 0.0;
 
 
   // initialize linklist
