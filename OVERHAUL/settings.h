@@ -49,8 +49,8 @@ public:
   int fnum = 0;
   int qmf = 3;  // if==1 quantum mechanicanical corrections to the flow or added,
                 // if==0 no corrections are included
-  int number_part = 0;
-  int rk2 = 0;
+  //int number_part = 0;
+  //int rk2 = 0;
   int gtyp = 0;
   //int cfon = 0;
   int visc = 0; // visc=0 for ideal
@@ -60,7 +60,7 @@ public:
             // visc=4 for bulk+shear+BSQ
 
   int steps = 0;
-  int first = 0;
+  //int first = 0;
   int average = 0;
   int lowT = 0;
   int etaconst = 0;

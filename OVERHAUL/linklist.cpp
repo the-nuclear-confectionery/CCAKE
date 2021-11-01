@@ -58,7 +58,7 @@ void LinkList::initialize( double it0, int ntot, double h,
   kernel::set_kernel_parameters( _h );
 
   dt          = dtsave;
-  number_part = numpart;
+  //number_part = numpart;
 
 
   // initialize linklist

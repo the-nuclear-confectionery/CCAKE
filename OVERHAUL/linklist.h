@@ -24,8 +24,8 @@ public:
   int qmf           = 0;
   //if==1 quantum mechanicanical corrections to the flow or added
   //if==0 no corrections are included
-  int number_part   = 0;
-  int rk2           = 0; 
+  //int number_part   = 0;
+  //int rk2           = 0; 
   int steps         = 0;
   int gtyp          = 0;
   int first         = 1;  //HARDCODE
@@ -51,7 +51,7 @@ public:
   double t          = 0;
   double dt         = 0;
   double factor     = 0;
-  double dEz        = 0;
+  /*double dEz        = 0;
   double E          = 0;
   double Ez         = 0;
   double E0         = 0;
@@ -65,7 +65,7 @@ public:
   double Qtotal     = 0;
   double Btotal0    = 0;
   double Stotal0    = 0;
-  double Qtotal0    = 0;
+  double Qtotal0    = 0;*/
   double bvf        = 0;
   double svf        = 0; 
   double zwidth     = 0;
