@@ -76,7 +76,6 @@ public:
   double step       = 0;
   double efcheck    = 0;
   double sfcheck    = 0;
-  double cs2        = 0;
 
   //vectors of int
   vector<int> list;

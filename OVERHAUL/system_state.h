@@ -116,6 +116,7 @@ private:
   int cf            = 0;
   int frzc          = 0;
   double avgetasig  = 0;
+  double cs2        = 0;
   double tau        = 0;
   double taup       = 0;
   double taupp      = 0;
