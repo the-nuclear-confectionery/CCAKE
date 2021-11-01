@@ -94,8 +94,8 @@ void BSQHydro::initialize_hydrodynamics()
 void BSQHydro::run()
 {
   cout << "Ready to start hydrodynamics\n";
-  settings.frzc=0;
-  settings.cf=0;
+  //settings.frzc=0;
+  //settings.cf=0;
 
   /*BBMG<2> bbmg(system);
   bbmg.initial(system);
