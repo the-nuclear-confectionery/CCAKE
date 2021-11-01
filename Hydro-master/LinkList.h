@@ -248,8 +248,8 @@ void LinkList<D>::setup(double it0, int ntot,double h, Particle<D> *_pin,double 
     knorm2=knorm*0.25;
     kgrad=-10/7./PI/pow(_h,3)*3/4.;	//FIX MISSING MINUS SIGN!!!!!!  CONFIRM WITH JAKI
     kgrad2=10/7./PI/pow(_h,3)/_h;
-cout << "CHECK KERNEL: " << setprecision(16) << knorm << "   " << knorm2 << "   " << kgrad << "   " << kgrad2 << "   " << PI << endl;
-if (1) exit(-1);
+//cout << "CHECK KERNEL: " << setprecision(16) << knorm << "   " << knorm2 << "   " << kgrad << "   " << kgrad2 << "   " << PI << endl;
+//if (1) exit(-1);
     link=new int[_n];
     dael=new Vector<int,D>[_n];
     steps=100*(floor(tend-t0)+1);
