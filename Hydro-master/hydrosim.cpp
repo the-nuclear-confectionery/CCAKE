@@ -869,7 +869,7 @@ void BSQshear(LinkList<D>  &linklist)  // shear+bulk Equations of motion, only s
         //  Computes gamma and velocity
 
 		//cout << "Calling calcbsq for particle i = " << i << endl;
-    cout << "CHECK PARTICLES: " << system.t << "   "
+    cout << "CHECK PARTICLES: " << linklist.t << "   "
           << i << "   " << linklist._p[i].EOST() << "   " << linklist._p[i].EOSp() << "   ";
         linklist._p[i].calcbsq(linklist.t); //resets EOS!!
     cout << linklist._p[i].EOST() << "   " << linklist._p[i].EOSp() << endl;
