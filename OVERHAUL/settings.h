@@ -50,11 +50,9 @@ public:
   int qmf = 3;  // if==1 quantum mechanicanical corrections to the flow or added,
                 // if==0 no corrections are included
   int number_part = 0;
-  int frzc = 0;
   int rk2 = 0;
   int gtyp = 0;
-  int cfon = 0;
-  int cf = 0;
+  //int cfon = 0;
   int visc = 0; // visc=0 for ideal
             // visc=1 for bulk,
             // visc=2 for shear

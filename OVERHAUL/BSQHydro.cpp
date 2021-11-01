@@ -131,8 +131,7 @@ void BSQHydro::run()
 
   while ((system.t<settings.tend)&&(system.number_part<system.n()))
   {
-    settings.cfon=1;
-
+    system.cfon = 1;
 
     cout << "Entering here:" << endl;
 

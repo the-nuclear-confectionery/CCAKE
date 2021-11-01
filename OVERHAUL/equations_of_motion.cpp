@@ -117,10 +117,11 @@ constexpr bool printAll = false;
   {
     auto & p = system.particles[i];
 
-    double gamt=1./p.gamma/p.stauRelax;
-    double pre=p.eta_o_tau/2./p.gamma;
-    double p1=gamt-4./3./p.sigma*p.dsigma_dt+1./system.t/3.;
-    Vector<double,2>  minshv=rowp1(0, p.shv);
+    double gamt               = 1.0/p.gamma/p.stauRelax;
+    double pre                = p.eta_o_tau/2.0/p.gamma;
+    double p1                 = gamt - 4.0/3.0/p.sigma*p.dsigma_dt
+                                + 1.0/system.t/3.0;
+    Vector<double,2> minshv   = rowp1(0, p.shv);
     Matrix <double,2,2> partU = p.gradU + transpose( p.gradU );
 
 if (i==ic || printAll)

@@ -521,7 +521,7 @@ if (a==0)
             && ( pa.Freeze < 4 ) )
     cout << "Missed " << a << " " << tin << "  "
          << pa.T()*197.3 << " "
-         << rdis << " " << settingsPtr->cfon <<  endl;
+         << rdis << " " << systemPtr->cfon <<  endl;
 
   return;
 }
