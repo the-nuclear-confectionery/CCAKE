@@ -234,7 +234,12 @@ class Particle
       Matrix<double,3,3> shear;
   };
 
-  FRZ frz1, frz2, fback, fback2, fback3, fback4;
+  FRZ frz1   = {};
+  FRZ frz2   = {};
+  FRZ fback  = {};
+  FRZ fback2 = {};
+  FRZ fback3 = {};
+  FRZ fback4 = {};
 
 
 };
