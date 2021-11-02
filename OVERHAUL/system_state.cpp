@@ -305,7 +305,7 @@ void SystemState::set_current_timestep_quantities()
 
   for (int i=0; i<N; ++i)
   {
-    const auto & p = particles[i];
+    auto & p = particles[i];
 cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.T() << endl;
     u0[i]        = p.u;
     r0[i]        = p.r;
