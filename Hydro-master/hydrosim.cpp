@@ -317,6 +317,8 @@ void BSQSimulation(double dt,LinkList<2> &linklist)
     while ((linklist.t<linklist.tend)&&(linklist.number_part<linklist.n())) {
         linklist.cfon=1;
 
+cout << "TEST LOOP: " << linklist.t << "   " << linklist.tend
+      << "   " << linklist.number_part << "   " << linklist.n() << endl;
 
 	cout << "Entering here:" << endl;
         bsqrungeKutta2<2>(dt,&BSQshear<2>,linklist);

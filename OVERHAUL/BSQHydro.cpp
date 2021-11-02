@@ -133,6 +133,10 @@ void BSQHydro::run()
   {
     system.cfon = 1;
 
+cout << "TEST LOOP: " << system.t << "   " << settings.tend
+      << "   " << system.number_part << "   " << system.n() << endl;
+
+
     cout << "Entering here:" << endl;
 
     RK::bsq_second_order( settings.dt, eom, system, ws );
