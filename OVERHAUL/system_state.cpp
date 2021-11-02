@@ -337,10 +337,10 @@ cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.
     p.eta_sigma    = etasigma0[i] + 0.5*dx*p.detasigma_dt;
 cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.T() << endl;
     p.Bulk         = Bulk0[i]     + 0.5*dx*p.dBulk_dt;
-cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.T()
+cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.T() << "   "
      << p.shv << "   " << shv0[i] << "   " << 0.5*dx*p.dshv_dt << endl;
     tmini( p.shv,    shv0[i]      + 0.5*dx*p.dshv_dt, true );
-cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.T()
+cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.T() << "   "
      << p.shv << "   " << shv0[i] << "   " << 0.5*dx*p.dshv_dt << endl;
 
   }
