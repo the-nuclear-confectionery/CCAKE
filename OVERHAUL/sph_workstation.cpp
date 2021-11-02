@@ -232,7 +232,7 @@ if (i==0)
     p.gamma=p.gamcalc();
 
 if (i==0)
-    cout << "Check these: " << p.s_an << "   " << p.gamma << "   " << settingsPtr->t0 << endl;
+  cout << "Check these: " << p.s_an << "   " << p.gamma << "   " << settingsPtr->t0 << endl;
 
     p.sigmaweight *= p.s_an*p.gamma*settingsPtr->t0;	// sigmaweight is constant after this
     //p.rho_weight *= p.gamma*t0;				// rho_weight is constant after this
@@ -541,7 +541,7 @@ void SPHWorkstation::process_initial_conditions()
   // try this; NOTE THAT THE 0.00301 IS HARDCODED IN FOR NOW
   systemPtr->particles.erase( std::remove_if(
     systemPtr->particles.begin(), systemPtr->particles.end(),
-    [hbarc_GeVfm](Particle const & p) { return p.e_sub <= 0.00301 / hbarc_GeVfm; } ),
+    [/*hbarc_GeVfm*/](Particle const & p) { return p.e_sub <= 0.00301 / hbarc_GeVfm; } ),
     systemPtr->particles.end() );
 
 

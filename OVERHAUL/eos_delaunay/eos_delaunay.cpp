@@ -198,9 +198,9 @@ void eos_delaunay::init(string EoS_table_file, int e_or_s)
 	return;
 }
 
-void eos_delaunay::load_EoS_table(string path_to_file, vector<vector<double> > & grid, int e_or_s)
+void eos_delaunay::load_EoS_table(string path_to_file, vector<vector<double> > & grid_in, int e_or_s)
 {
-	grid.clear();
+	grid_in.clear();
 	// read in file itself
 	ifstream infile(path_to_file.c_str());
 	if (infile.is_open())
@@ -216,7 +216,7 @@ void eos_delaunay::load_EoS_table(string path_to_file, vector<vector<double> > &
 				iss >> Tin >> muBin >> muQin >> muSin >> dummy >> dummy
 					>> bin >> sin >> qin >> ein >> dummy;
 
-				grid.push_back( vector<double>({Tin, muBin, muQin, muSin,
+				grid_in.push_back( vector<double>({Tin, muBin, muQin, muSin,
 												ein*Tin*Tin*Tin*Tin/(hbarc*hbarc*hbarc),
 												bin*Tin*Tin*Tin/(hbarc*hbarc*hbarc),
 												sin*Tin*Tin*Tin/(hbarc*hbarc*hbarc),
@@ -234,7 +234,7 @@ void eos_delaunay::load_EoS_table(string path_to_file, vector<vector<double> > &
 				iss >> Tin >> muBin >> muQin >> muSin >> dummy >> entrin
 					>> bin >> sin >> qin >> dummy >> dummy;
 
-				grid.push_back( vector<double>({Tin, muBin, muQin, muSin,
+				grid_in.push_back( vector<double>({Tin, muBin, muQin, muSin,
 												entrin*Tin*Tin*Tin/(hbarc*hbarc*hbarc),
 												bin*Tin*Tin*Tin/(hbarc*hbarc*hbarc),
 												sin*Tin*Tin*Tin/(hbarc*hbarc*hbarc),

@@ -68,8 +68,9 @@ double Particle::locate_phase_diagram_point_eBSQ(// previously s_out
 ////////////////////////////////////////////////////////////////////////////////
 double Particle::locate_phase_diagram_point_eBSQ(double e_In)// previously s_out
 {
-  eosPtr->s_out(e_In, 0.0, 0.0, 0.0 );
+  double sVal = eosPtr->s_out(e_In, 0.0, 0.0, 0.0 );
   thermo.set(*eosPtr);
+  return sVal;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

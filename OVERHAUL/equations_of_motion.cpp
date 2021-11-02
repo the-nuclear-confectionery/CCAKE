@@ -22,8 +22,8 @@
 using namespace constants;
 
 // Constructors and destructors.
-  EquationsOfMotion::EquationsOfMotion(){};
-  EquationsOfMotion::~EquationsOfMotion(){};
+  EquationsOfMotion::EquationsOfMotion(){}
+  EquationsOfMotion::~EquationsOfMotion(){}
 
 ////////////////////////////////////////////////////////////////////////////////
 // The structure here is temporary until we set the mode for different terms 

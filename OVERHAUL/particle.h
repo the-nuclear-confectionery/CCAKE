@@ -116,7 +116,7 @@ class Particle
 
   // members
   int btrack             = 0;
-  int count              = 0;
+  //int count              = 0;
   int Freeze             = 0;
 
   double Agam            = 0.0;

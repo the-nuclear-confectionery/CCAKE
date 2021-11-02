@@ -529,7 +529,7 @@ void SystemState::bsqsvinterpolate(int curfrz)
       swit   = 2;
 
 
-    double sigsub,thetasub,inside;
+    double sigsub = 0.0, thetasub = 0.0, inside = 0.0;
     Vector<double,2> gradPsub;
     if ( swit == 1 )
     {

@@ -27,7 +27,7 @@ LinkList::LinkList()
 
 void LinkList::initialize( double it0, int ntot, double h,
                            vector<Particle> * particlesPtr_in,
-                           double dtsave, int & numpart)
+                           double dtsave, int & numpart )
 {
   t0          = it0;
   _h          = h;
@@ -126,7 +126,7 @@ void LinkList::reset()
 
 }
 
-int LinkList::triToSum( Vector<int,2> dael, Vector<int,2> size )
+int LinkList::triToSum( Vector<int,2> dael_local, Vector<int,2> size_local )
 {
-    return dael.x[0] + dael.x[1]*size.x[0];
+    return dael_local.x[0] + dael_local.x[1]*size_local.x[0];
 }
