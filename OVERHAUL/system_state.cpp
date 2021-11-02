@@ -68,6 +68,7 @@ void SystemState::initialize()  // formerly called "manualenter"
   {
     p.set_EquationOfStatePtr( eosPtr );
     p.freezeoutT = freezeoutT;
+cout << "CHECK FRZ" << __LINE__ << ": " << p.frz1.T << "   " << p.T() << endl;
   }
 
   linklist.efcheck = efcheck;
