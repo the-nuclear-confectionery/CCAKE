@@ -466,8 +466,8 @@ void tmini( Matrix<T, D1, D2> &b, Matrix<T, D1-1, D2-1>a)
 
 
 
-    for(int j=0; j<=(D1-1); j++) {
-        for(int i=0; i<=(D1-1); i++) {
+    for(int j=0; j<(D2-1); j++) {
+        for(int i=0; i<(D1-1); i++) {
             b.x[i+1][j+1]=(T)a.x[i][j];
 
         }
