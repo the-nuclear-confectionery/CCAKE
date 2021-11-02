@@ -38,6 +38,8 @@ void EquationsOfMotion::BSQshear( SystemState & system, SPHWorkstation & ws )
   {
     auto & p = system.particles[i];
 
+cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.T() << endl;
+
     int curfrz = 0; //added by Christopher Plumberg to get compilation
     ws.smooth_fields(i);
                                       // fix arguments accordingly!!!
@@ -47,6 +49,8 @@ void EquationsOfMotion::BSQshear( SystemState & system, SPHWorkstation & ws )
       cout << i <<  " neg entropy " <<  p.T()*hbarc << " " << p.eta << endl;
       p.eta = 0;
     }
+
+cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.T() << endl;
 
   }
 
@@ -58,6 +62,8 @@ void EquationsOfMotion::BSQshear( SystemState & system, SPHWorkstation & ws )
   for ( int i = 0; i < system.n(); i++ )
   {
     auto & p = system.particles[i];
+
+cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.T() << endl;
 
     cout << "CHECK PARTICLES: " << system.t << "   "
           << i << "   " << p.T() << "   " << p.p() << "   ";
@@ -72,6 +78,9 @@ void EquationsOfMotion::BSQshear( SystemState & system, SPHWorkstation & ws )
 
     if ( system.cfon == 1 )
       p.frzcheck( system.t, curfrz, system.n() );
+
+cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.T() << endl;
+
 
   }
 
@@ -89,6 +98,8 @@ void EquationsOfMotion::BSQshear( SystemState & system, SPHWorkstation & ws )
   {
     auto & p = system.particles[i];
 
+cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.T() << endl;
+
     //Computes gradients to obtain dsigma/dt
     ws.smooth_gradients( i, system.t, curfrz );
 
@@ -105,6 +116,8 @@ void EquationsOfMotion::BSQshear( SystemState & system, SPHWorkstation & ws )
       p.Freeze           = 4;
     }
 
+cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.T() << endl;
+
   }
 
   if (system.rk2==1)
@@ -119,6 +132,8 @@ constexpr bool printAll = false;
   for ( int i=0; i<system.n(); i++ )
   {
     auto & p = system.particles[i];
+
+cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.T() << endl;
 
     double gamt               = 1.0/p.gamma/p.stauRelax;
     double pre                = p.eta_o_tau/2.0/p.gamma;
@@ -232,7 +247,11 @@ cout << "CHECK bigtheta: " << i
                                + p.dpidtsub() + p.sigl*Ipi
                                - vduk*( ulpi + transpose(ulpi) + (1/p.gamma)*Ipi );
 
+cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.T() << endl;
+
+
   }
+
 
 
   if (system.cfon==1)
