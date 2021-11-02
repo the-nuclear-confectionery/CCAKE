@@ -14,15 +14,19 @@
 
 using namespace std;
 
-const double eos_delaunay::hbarc = 197.327;
+const double eos_delaunay::hbarc = 197.3;
 /*const size_t eos_delaunay::nT = 155,
 			eos_delaunay::nmub = 37,
 			eos_delaunay::nmus = 37,
 			eos_delaunay::nmuq = 37;*/
-const size_t eos_delaunay::nT = 241,
+/*const size_t eos_delaunay::nT = 241,
 			eos_delaunay::nmub = 19,
 			eos_delaunay::nmus = 19,
-			eos_delaunay::nmuq = 19;
+			eos_delaunay::nmuq = 19;*/
+const size_t eos_delaunay::nT = 13,
+			eos_delaunay::nmub = 9,
+			eos_delaunay::nmus = 9,
+			eos_delaunay::nmuq = 9;
 
 
 //default constructor. This function exists to satisfy the compiler
