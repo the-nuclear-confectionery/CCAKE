@@ -380,6 +380,7 @@ void SystemState::bsqsvfreezeout(int curfrz)
       p.frz1.r       = p.r;
       p.frz1.u       = p.u;
       p.frz1.sigma   = p.sigma;
+cout << "CHECK FRZ" << __LINE__ << ": " << p.frz1.T << "   " << p.T() << endl;
       p.frz1.T       = p.T();
       p.frz1.bulk    = p.bigPI;
       p.frz1.theta   = p.div_u + p.gamma/t;
@@ -472,6 +473,7 @@ void SystemState::bsqsvfreezeout(int curfrz)
       p.frz1.r       = p.r;
       p.frz1.u       = p.u;
       p.frz1.sigma   = p.sigma;
+cout << "CHECK FRZ" << __LINE__ << ": " << p.frz1.T << "   " << p.T() << endl;
       p.frz1.T       = p.T();
       p.frz1.bulk    = p.bigPI ;
       p.frz1.theta   = p.div_u+p.gamma/t;

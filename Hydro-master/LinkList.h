@@ -995,6 +995,7 @@ void LinkList<D>::bsqsvfreezeout(int curfrz)
             _p[i].frz1.r=_p[i].r;
             _p[i].frz1.u=_p[i].u;
             _p[i].frz1.sigma=_p[i].sigma;
+cout << "CHECK FRZ" << __LINE__ << ": " << _p[i].frz1.T << "   " << _p[i].EOST() << endl;
             _p[i].frz1.T=_p[i].EOST();
             _p[i].frz1.bulk=_p[i].bigPI ;
             _p[i].frz1.theta=_p[i].div_u+_p[i].gamma/t;
@@ -1081,6 +1082,7 @@ void LinkList<D>::bsqsvfreezeout(int curfrz)
             _p[i].frz1.r=_p[i].r;
             _p[i].frz1.u=_p[i].u;
             _p[i].frz1.sigma=_p[i].sigma;
+cout << "CHECK FRZ" << __LINE__ << ": " << _p[i].frz1.T << "   " << _p[i].EOST() << endl;
             _p[i].frz1.T=_p[i].EOST();
             _p[i].frz1.bulk=_p[i].bigPI ;
             _p[i].frz1.theta=_p[i].div_u+_p[i].gamma/t;
