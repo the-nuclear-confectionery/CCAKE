@@ -338,7 +338,7 @@ cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.
 cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.T() << endl;
     p.Bulk         = Bulk0[i]     + 0.5*dx*p.dBulk_dt;
 cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.T() << endl;
-    tmini( p.shv,    shv0[i]      + 0.5*dx*p.dshv_dt );
+    tmini( p.shv,    shv0[i]      + 0.5*dx*p.dshv_dt, true );
 cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.T() << endl;
 
   }

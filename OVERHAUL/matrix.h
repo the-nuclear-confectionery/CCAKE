@@ -44,7 +44,8 @@ template <class T, int D1> Matrix<T,D1,D1> diagonal(Vector<T, D1> a) ;
 template <class T, int D1> double deter(Matrix<T, D1, D1> a);
 template <class T, int D1, int D2>  double con(Matrix<T, D1,D2> a, Matrix< T,D1, D2> b);
 template <class T, int D1, int D2>  double con2(Matrix<T, D1,D2> a, Matrix< T,D1, D2> b);
-template <class T, int D1, int D2> void tmini( Matrix<T, D1, D2> &b, Matrix<T, D1-1, D2-1>a);
+template <class T, int D1, int D2> void tmini( Matrix<T, D1, D2> &b, Matrix<T, D1-1, D2-1>a,
+                                                bool verbose = false);
 
 
 
