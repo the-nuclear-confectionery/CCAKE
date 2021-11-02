@@ -321,6 +321,10 @@ void SystemState::get_derivative_halfstep(double dx)
 {
   N = _n;
 
+cout << "CHECK SIZES: " << particles.size() << "   " << _n << "   " << N << "   "
+      << u0.size() << "   " << r0.size() << "   " << etasigma0.size() << "   "
+      << Bulk0.size() << "   " << shv0.size() << endl;
+
   for (int i=0; i<N; ++i)
   {
     auto & p = particles[i];
@@ -343,6 +347,10 @@ cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.
 void SystemState::get_derivative_fullstep(double dx)
 {
   N = _n;
+
+cout << "CHECK SIZES: " << particles.size() << "   " << _n << "   " << N << "   "
+      << u0.size() << "   " << r0.size() << "   " << etasigma0.size() << "   "
+      << Bulk0.size() << "   " << shv0.size() << endl;
 
   for (int i=0; i<N; ++i)
   {
