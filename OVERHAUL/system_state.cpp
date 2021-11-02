@@ -349,6 +349,9 @@ void SystemState::get_derivative_fullstep(double dx)
 //////////////////////////////////////////////////////////////////////////////
 void SystemState::bsqsvfreezeout(int curfrz)
 {
+  cout << "CHECK BSQSVFREEZEOUT: " << frzc << "   " << tau << "   " << taup
+        << "   " << taupp << "   " << cfon << endl;
+
   if (frzc==0)
   {
     taupp = t;
@@ -359,7 +362,7 @@ void SystemState::bsqsvfreezeout(int curfrz)
       p.frz2.u       = p.u;
       p.frz2.sigma   = p.sigma;
       p.frz2.T       = p.T();
-      p.frz2.bulk    = p.bigPI ;
+      p.frz2.bulk    = p.bigPI;
       p.frz2.theta   = p.div_u + p.gamma/t;
       p.frz2.gradP   = p.gradP;
       p.frz2.shear   = p.shv;
@@ -378,7 +381,7 @@ void SystemState::bsqsvfreezeout(int curfrz)
       p.frz1.u       = p.u;
       p.frz1.sigma   = p.sigma;
       p.frz1.T       = p.T();
-      p.frz1.bulk    = p.bigPI ;
+      p.frz1.bulk    = p.bigPI;
       p.frz1.theta   = p.div_u + p.gamma/t;
       p.frz1.gradP   = p.gradP;
       p.frz1.shear   = p.shv;

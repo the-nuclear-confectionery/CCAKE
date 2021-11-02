@@ -962,7 +962,8 @@ void LinkList<D>::svinterpolate(int curfrz)
 template <int D>
 void LinkList<D>::bsqsvfreezeout(int curfrz)
 {
-
+  cout << "CHECK BSQSVFREEZEOUT: " << frzc << "   " << tau << "   " << taup
+        << "   " << taupp << "   " << cfon << endl;
 
 
     if (frzc==0)
