@@ -219,7 +219,7 @@ class Particle
   Matrix<double,2,2> dpidtsub();
   Matrix<double,2,2> Imat;
   Matrix<double,2,2> gradV, gradU;                          // Gradient of velocity needed for shear
-  Matrix<double,2,2> shv0, dshv_dt;
+  Matrix<double,2,2> /*shv0, */dshv_dt;
   Matrix<double,2,2> shv1, shv2, shv3, svh4;
   Matrix<double,2,2> uu, pimin, piu, piutot;
   Matrix<double,3,3> shv;
