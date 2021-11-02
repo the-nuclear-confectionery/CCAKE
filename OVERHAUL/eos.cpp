@@ -31,10 +31,9 @@ constexpr bool accept_nearest_neighbor = false;
 constexpr bool discard_unsolvable_charge_densities = false;
 constexpr bool check_derivatives = false;
 
-//constexpr size_t STEPS = 1000000;
-constexpr size_t STEPS = 10;
+constexpr size_t STEPS = 1000000;
 constexpr int VERBOSE = 0;
-constexpr double TOLERANCE = 1e-2;
+constexpr double TOLERANCE = 1e-12;
 
 namespace toy_thermo
 {
