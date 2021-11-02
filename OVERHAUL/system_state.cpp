@@ -306,11 +306,14 @@ void SystemState::set_current_timestep_quantities()
   for (int i=0; i<N; ++i)
   {
     const auto & p = particles[i];
+cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.T() << endl;
     u0[i]        = p.u;
     r0[i]        = p.r;
     etasigma0[i] = p.eta_sigma;
     Bulk0[i]     = p.Bulk;
     mini( shv0[i], p.shv );
+cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.T() << endl;
+
   }
 }
 ///////////////////////////////////////////////////////////////////////////////
@@ -321,11 +324,15 @@ void SystemState::get_derivative_halfstep(double dx)
   for (int i=0; i<N; ++i)
   {
     auto & p = particles[i];
+cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.T() << endl;
+
     p.u            = u0[i]        + 0.5*dx*p.du_dt;
     p.r            = r0[i]        + 0.5*dx*p.v;
     p.eta_sigma    = etasigma0[i] + 0.5*dx*p.detasigma_dt;
     p.Bulk         = Bulk0[i]     + 0.5*dx*p.dBulk_dt;
     tmini( p.shv,    shv0[i]      + 0.5*dx*p.dshv_dt );
+cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.T() << endl;
+
   }
 }
 ///////////////////////////////////////////////////////////////////////////////
@@ -336,11 +343,15 @@ void SystemState::get_derivative_fullstep(double dx)
   for (int i=0; i<N; ++i)
   {
     auto & p = particles[i];
+cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.T() << endl;
+
     p.u            = u0[i]        + dx*p.du_dt;
     p.r            = r0[i]        + dx*p.v;
     p.eta_sigma    = etasigma0[i] + dx*p.detasigma_dt;
     p.Bulk         = Bulk0[i]     + dx*p.dBulk_dt;
     tmini( p.shv,    shv0[i]      + dx*p.dshv_dt );
+cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.T() << endl;
+
   }
 }
 
