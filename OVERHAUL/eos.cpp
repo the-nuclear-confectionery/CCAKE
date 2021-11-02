@@ -1,6 +1,6 @@
 #include "eos.h"
 
-//#include "read_in_hdf/read_in_hdf.h"
+#include "read_in_hdf/read_in_hdf.h"
 #include "Stopwatch.h"
 #include <gsl/gsl_multiroots.h>
 #include <gsl/gsl_vector.h>
