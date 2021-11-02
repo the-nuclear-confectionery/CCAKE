@@ -464,12 +464,12 @@ template <class T, int D1, int D2>
 void tmini( Matrix<T, D1, D2> &b, Matrix<T, D1-1, D2-1>a, bool verbose)
 {
 
-//if (verbose) std::cout << "tmini: " << D1 << std::endl;
+if (verbose) std::cout << "tmini: " << D1 << std::endl;
 
     for(int j=0; j<(D2-1); j++) {
         for(int i=0; i<(D1-1); i++) {
-//if (verbose) std::cout << "tmini("<< i << "," << j << "): "
-//                        << b.x[i+1][j+1] << "   " << a.x[i][j] << std::endl;
+if (verbose) std::cout << "tmini("<< i << "," << j << "): "
+                        << b.x[i+1][j+1] << "   " << a.x[i][j] << std::endl;
             b.x[i+1][j+1]=(T)a.x[i][j];
 
         }
