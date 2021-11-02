@@ -327,9 +327,13 @@ void SystemState::get_derivative_halfstep(double dx)
 cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.T() << endl;
 
     p.u            = u0[i]        + 0.5*dx*p.du_dt;
+cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.T() << endl;
     p.r            = r0[i]        + 0.5*dx*p.v;
+cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.T() << endl;
     p.eta_sigma    = etasigma0[i] + 0.5*dx*p.detasigma_dt;
+cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.T() << endl;
     p.Bulk         = Bulk0[i]     + 0.5*dx*p.dBulk_dt;
+cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.T() << endl;
     tmini( p.shv,    shv0[i]      + 0.5*dx*p.dshv_dt );
 cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.T() << endl;
 
