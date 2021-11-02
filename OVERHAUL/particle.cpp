@@ -135,7 +135,8 @@ void Particle::frzcheck( double tin, int &count, int N )
   }
 
   cout << "TEST FREEZE: " << tin << "   " << Freeze << "   " << count << "   "
-        << T() << "   " << freezeoutT << endl;
+        << T() << "   " << freezeoutT << "   " << frz1.t << "   "
+        << frz2.t << "   "<< frz1.T << "   " << btrack << endl;
 }
 
 
