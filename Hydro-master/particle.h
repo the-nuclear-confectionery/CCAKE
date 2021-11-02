@@ -279,7 +279,8 @@ void Particle<D>::frzcheck(double tin,int &count, int N)
         }
     }
 
-
+  cout << "TEST FREEZE: " << tin << "   " << Freeze << "   " << count << "   "
+        << EOST() << "   " << freezeoutT << endl;
 }
 
 
