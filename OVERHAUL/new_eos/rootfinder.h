@@ -20,7 +20,16 @@ using namespace constants;
 
 class Rootfinder
 {
+public:
+  Rootfinder(){}
+  ~Rootfinder(){}
+
 private:
+
+  const int VERBOSE = 5;
+  const int STEPS = 1000000;
+  const double TOLERANCE = 1e-12;
+  double minT, maxT, minMuB, maxMuB, minMuS, maxMuS, minMuQ, maxMuQ;
 
   vector<double> tbqsPosition;
 
