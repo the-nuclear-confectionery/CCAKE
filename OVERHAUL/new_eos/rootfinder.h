@@ -24,6 +24,9 @@ private:
 
   vector<double> tbqsPosition;
 
+  void tbqs( vector<double> & tbqsIn );
+  void tbqs(double setT, double setmuB, double setmuQ, double setmuS);
+
   int rootfinder_fsbqs(const gsl_vector *x, void *params, gsl_vector *f);
   int rootfinder_febqs(const gsl_vector *x, void *params, gsl_vector *f);
 
