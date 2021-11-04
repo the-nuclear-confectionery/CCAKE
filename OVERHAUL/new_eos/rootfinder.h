@@ -11,47 +11,6 @@
 class Rootfinder
 {
 private:
-  //struct to pass the target (E, rhoB, rhoQ, rhoS) into the rootfinder function
-  struct rootfinder_parameters
-  {
-      double eorEntGiven;          //these are the desired s and BSQ
-      double rhoBGiven;
-      double rhoQGiven;
-      double rhoSGiven;
-      rootfinder_parameters();
-      rootfinder_parameters(
-      double seteorEntGiven, double setRhoBGiven,
-      double setRhoQGiven, double setRhoSGiven);
-  public:
-      void set( double setEorEntGiven, double setRhoBGiven,
-          double setRhoQGiven, double setRhoSGiven);
-  };
-
-  //Default constructor to make the compiler happy. Should never be called
-  rootfinder_parameters::rootfinder_parameters() {}
-  //constructor which initializes all struct variables
-  rootfinder_parameters::rootfinder_parameters(
-    double setEorEntGiven, double setRhoBGiven,
-    double setRhoQGiven, double setRhoSGiven
-    )
-  {
-      eorEntGiven = setEorEntGiven;
-      rhoBGiven = setRhoBGiven;
-      rhoQGiven = setRhoQGiven;
-      rhoSGiven = setRhoSGiven;
-  }
-
-  void rootfinder_parameters::set(
-    double setEorEntGiven, double setRhoBGiven,
-    double setRhoQGiven, double setRhoSGiven)
-  {
-      eorEntGiven = setEorEntGiven;
-      rhoBGiven = setRhoBGiven;
-      rhoQGiven = setRhoQGiven;
-      rhoSGiven = setRhoSGiven;
-
-  }
-
   int rootfinder_fsbqs(const gsl_vector *x, void *params, gsl_vector *f);
   int rootfinder_febqs(const gsl_vector *x, void *params, gsl_vector *f);
 
