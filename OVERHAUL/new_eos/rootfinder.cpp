@@ -20,9 +20,7 @@ struct rootfinder_parameters
           double setRhoQGiven, double setRhoSGiven);
   };
 
-  //Default constructor to make the compiler happy. Should never be called
   rootfinder_parameters::rootfinder_parameters() {}
-  //constructor which initializes all struct variables
   rootfinder_parameters::rootfinder_parameters(
     double setEorEntGiven, double setRhoBGiven,
     double setRhoQGiven, double setRhoSGiven
@@ -48,7 +46,7 @@ struct rootfinder_parameters
 
 
 ////////////////////////////////////////////////////////////////////////////////
-int Rootfinder::rootfinder_fsbqs(const gsl_vector *x, void *params, gsl_vector *f)
+int rootfinder_fsbqs(const gsl_vector *x, void *params, gsl_vector *f)
 {
     //x contains the next (T, muB, muS) coordinate to test
     vector<double> tbqsToEval(4);
@@ -86,7 +84,7 @@ int Rootfinder::rootfinder_fsbqs(const gsl_vector *x, void *params, gsl_vector *
 
 
 ////////////////////////////////////////////////////////////////////////////////
-int Rootfinder::rootfinder_febqs(const gsl_vector *x, void *params, gsl_vector *f)
+int rootfinder_febqs(const gsl_vector *x, void *params, gsl_vector *f)
 {
     //x contains the next (T, muB, muQ, muS) coordinate to test
     vector<double> tbqsToEval(4);
@@ -124,7 +122,8 @@ int Rootfinder::rootfinder_febqs(const gsl_vector *x, void *params, gsl_vector *
 
 
 
-
+////////////////////////////////////////////////////////////////////////////////
+// ROOTFINDER METHODS BELOW THIS LINE
 void Rootfinder::tbqs( vector<double> & tbqsIn )
 {
   tbqs( tbqsIn[0], tbqsIn[1], tbqsIn[2], tbqsIn[3] );
@@ -324,7 +323,7 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 bool Rootfinder::find_eBSQ_root( double ein, double Bin, double Sin, double Qin,
                           vector<double> & updated_tbqs )
 {
-    tbqs_initial_guess = updated_tbqs;
+    tbqsPosition = updated_tbqs;
 
     if (rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) { return true; }
 

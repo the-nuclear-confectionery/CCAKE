@@ -18,6 +18,9 @@
 using namespace std;
 using namespace constants;
 
+int rootfinder_fsbqs(const gsl_vector *x, void *params, gsl_vector *f);
+int rootfinder_febqs(const gsl_vector *x, void *params, gsl_vector *f);
+
 class Rootfinder
 {
 public:
@@ -39,9 +42,6 @@ private:
 
   void tbqs( vector<double> & tbqsIn );
   void tbqs(double setT, double setmuB, double setmuQ, double setmuS);
-
-  int rootfinder_fsbqs(const gsl_vector *x, void *params, gsl_vector *f);
-  int rootfinder_febqs(const gsl_vector *x, void *params, gsl_vector *f);
 
   bool rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 						double rhoBGiven, double rhoSGiven, double rhoQGiven,
