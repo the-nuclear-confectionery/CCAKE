@@ -1,10 +1,15 @@
 #pragma once
 
 //#include "read_in_hdf/read_in_hdf.h"
+#include "Stopwatch.h"
+#include <gsl/gsl_multiroots.h>
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_matrix.h>
-#include <gsl/gsl_multiroots.h>
-
+#include <gsl/gsl_permutation.h>
+#include <gsl/gsl_blas.h>
+#include <gsl/gsl_linalg.h>
+#include <iostream>
+#include <vector>
 #include <fstream>
 #include <string>
 
@@ -22,13 +27,14 @@ public:
     // PUBLIC METHODS
 
     //Constructors:
+    EquationOfState();
     EquationOfState(string quantityFile, string derivFile);
 
-    EquationOfState();
     void init();
     void init(string quantityFile, string derivFile);
     void init_grid_ranges_only(string quantityFile, string derivFile);
     void tbqs(double setT, double setmuB, double setmuQ, double setmuS);
+    void tbqs( vector<double> & tbqsIn );
 
     //getter functions for the quantities of interest at the current tbs/tbqs
     double T()   const;     //temperature
@@ -62,7 +68,6 @@ public:
     double wfz(double Tt);
     double s_terms_T(double Tt); 
 
-    //Rootfinder functions:
     bool update_s(double sin, double Bin, double Sin, double Qin);
     bool update_s(double sin);
     double s_out(double ein, double Bin, double Sin, double Qin);
@@ -146,7 +151,7 @@ private:
     ////////////////////////////////////////////////////////////////////////////
     // ROUTINES TO FIND (T,muX) COORDINATES OF (e,rhoX) POINT
     // - for using the root-finding functionality
-    Rootfinder rf;
+    Rootfinder rootfinder;
     // - for using a Delaunay interpolation
     eos_delaunay e_delaunay;
     eos_delaunay entr_delaunay;

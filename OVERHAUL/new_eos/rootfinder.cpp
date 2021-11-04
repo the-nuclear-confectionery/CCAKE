@@ -1,226 +1,4 @@
-
-
-
-
-
-
-
-
-
-
-double Rootfinder::s_out(double ein, double Bin, double Sin, double Qin)
-{   //update the t and mu position based on input. Returns entropy if found, returns -1 if failed
-    if (rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
-        return entrVal;
-    }
-	///////////////////////////
-	if (accept_nearest_neighbor)
-		std::cout << "Should not have made it here!" << std::endl;
-	if (discard_unsolvable_charge_densities)
-		return -1.0;//!!!!!!!!!!!!
-	///////////////////////////
-
-    double t0 = tbqsPosition[0];
-    double mub0 = tbqsPosition[1];
-    double muq0 = tbqsPosition[2];
-    double mus0 = tbqsPosition[3];
-    double t10 = t0*.2;
-    double muB10 = mub0*.2;
-    double muQ10 = muq0*.2;
-    double muS10 = mus0*.2;
-
-    //perturb T
-    if(t0 + t10 > maxT) {
-        tbqs(maxT - 1, mub0, muq0, mus0);
-    } else {
-        tbqs(t0 + t10, mub0, muq0, mus0);
-    }
-    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
-        return entrVal;
-    }
-    if(t0 - t10 < minT) {
-        tbqs(minT + 1, mub0, muq0, mus0);
-    } else {
-        tbqs(t0 - t10, mub0, muq0, mus0);
-    }
-    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
-        return entrVal;
-    }
-
-    //perturb mub
-    if(mub0 + muB10 > maxMuB) {
-        tbqs(t0, maxMuB - 1, muq0, mus0);
-    } else {
-        tbqs(t0, mub0 + muB10, muq0, mus0);
-    }
-    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
-        return entrVal;
-    }
-    if(mub0 - muB10 < minMuB) {
-        tbqs(t0, minMuB + 1, muq0, mus0);
-    } else {
-        tbqs(t0, mub0 - muB10, muq0, mus0);
-    }
-    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
-        return entrVal;
-    }
-
-    //perturn muq
-    if(muq0 + muQ10 > maxMuQ) {
-        tbqs(t0, mub0, maxMuQ - 1, mus0);
-    } else {
-        tbqs(t0, mub0, muq0 + muQ10, mus0);
-    }
-    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
-        return entrVal;
-    }
-    if(muq0 - muQ10 < minMuQ) {
-        tbqs(t0, mub0, minMuQ + 1, mus0);
-    } else {
-        tbqs(t0, mub0, muq0 - muQ10, mus0);
-    }
-    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
-        return entrVal;
-    }
-
-    //perturb mus
-    if(mus0 + muS10 > maxMuS) {
-        tbqs(t0, mub0, muq0, maxMuS - 1);
-    } else {
-        tbqs(t0, mub0, muq0, mus0 + muS10);
-    }
-    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
-        return entrVal;
-    }
-    if(mus0 - muS10 < maxMuS) {
-
-
-        tbqs(t0, mub0, muq0, minMuS + 1);
-    } else {
-        tbqs(t0, mub0, muq0, mus0 - muS10);
-    }
-    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
-        return entrVal;
-    }
-
-    //check mu = 0
-    tbqs(t0, 0, 0, 0);
-    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
-        return entrVal;
-    }
-
-    tbqs(t0, mub0, muq0, mus0);
-    return -1;
-}
-
-
-
-
-
-
-
-bool update_s(double sin, double Bin, double Sin, double Qin)
-{ //update the t and mu position based on input. Returns 1 if found, returns 0 if failed
-    if (rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
-        return true;
-    }
-	///////////////////////////
-	if (accept_nearest_neighbor)
-		std::cout << "Should not have made it here!" << std::endl;
-	if (discard_unsolvable_charge_densities)
-		return false;//!!!!!!!!!!!!
-	///////////////////////////
-    double t0 = tbqsPosition[0];
-    double mub0 = tbqsPosition[1];
-    double muq0 = tbqsPosition[2];
-    double mus0 = tbqsPosition[3];
-    double t10 = t0*.2;
-    double muB10 = mub0*.2;
-    double muQ10 = muq0*.2;
-    double muS10 = mus0*.2;
-
-    //perturb T
-    if(t0 + t10 > maxT) {
-        tbqs(maxT - 1, mub0, muq0, mus0);
-    } else {
-        tbqs(t0 + t10, mub0, muq0, mus0);
-    }
-    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
-        return true;
-    }
-    if(t0 - t10 < minT) {
-        tbqs(minT + 1, mub0, muq0, mus0);
-    } else {
-        tbqs(t0 - t10, mub0, muq0, mus0);
-    }
-    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
-        return true;
-    }
-
-    //perturb mub
-    if(mub0 + muB10 > maxMuB) {
-        tbqs(t0, maxMuB - 1, muq0, mus0);
-    } else {
-        tbqs(t0, mub0 + muB10, muq0, mus0);
-    }
-    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
-        return true;
-    }
-    if(mub0 - muB10 < minMuB) {
-        tbqs(t0, minMuB + 1, muq0, mus0);
-    } else {
-        tbqs(t0, mub0 - muB10, muq0, mus0);
-    }
-    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
-        return true;
-    }
-
-    //perturn muq
-    if(muq0 + muQ10 > maxMuQ) {
-        tbqs(t0, mub0, maxMuQ - 1, mus0);
-    } else {
-        tbqs(t0, mub0, muq0 + muQ10, mus0);
-    }
-    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
-        return true;
-    }
-    if(muq0 - muQ10 < minMuQ) {
-        tbqs(t0, mub0, minMuQ + 1, mus0);
-    } else {
-        tbqs(t0, mub0, muq0 - muQ10, mus0);
-    }
-    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
-        return true;
-    }
-
-    //perturb mus
-    if(mus0 + muS10 > maxMuS) {
-        tbqs(t0, mub0, muq0, maxMuS - 1);
-    } else {
-        tbqs(t0, mub0, muq0, mus0 + muS10);
-    }
-    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
-        return true;
-    }
-    if(mus0 - muS10 < maxMuS) {
-        tbqs(t0, mub0, muq0, minMuS + 1);
-    } else {
-        tbqs(t0, mub0, muq0, mus0 - muS10);
-    }
-    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
-        return true;
-    }
-
-    //check mu = 0
-    tbqs(t0, 0, 0, 0);
-    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
-        return true;
-    }
-
-    tbqs(t0, mub0, muq0, mus0);
-    return false;
-}
-
+#include "rootfinder.h"
 
 
 
@@ -260,6 +38,8 @@ int rootfinder_fsbqs(const gsl_vector *x, void *params, gsl_vector *f)
     return GSL_SUCCESS;
 }
 
+
+
 ////////////////////////////////////////////////////////////////////////////////
 int rootfinder_febqs(const gsl_vector *x, void *params, gsl_vector *f)
 {
@@ -295,26 +75,15 @@ int rootfinder_febqs(const gsl_vector *x, void *params, gsl_vector *f)
 }
 
 
-bool rootfinder4D(double e_or_s_Given, int e_or_s_mode,
+
+
+////////////////////////////////////////////////////////////////////////////////
+bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 						double rhoBGiven, double rhoSGiven, double rhoQGiven,
 						double error, size_t steps)
 {
     //declare x = (T, muB, muQ, muS)
     gsl_vector *x = gsl_vector_alloc(4);
-
-	// use NMN method to estimate where to start the rootfinder
-	// ( returns estimates in units of MeV )
-	vector<double> T_muB_muQ_muS_estimates;
-	constexpr bool use_normalized_trees = true;
-	if ( e_or_s_mode==1 )
-		e_delaunay.get_NMN_coordinates(
-					{e_or_s_Given*hbarc_MeVfm, rhoBGiven, rhoSGiven, rhoQGiven},
-					T_muB_muQ_muS_estimates, use_normalized_trees );
-	else
-		entr_delaunay.get_NMN_coordinates(
-					{e_or_s_Given, rhoBGiven, rhoSGiven, rhoQGiven},
-					T_muB_muQ_muS_estimates, use_normalized_trees );
-
 
     gsl_vector_set(x, 0, T());
     gsl_vector_set(x, 1, muB());
@@ -328,18 +97,24 @@ bool rootfinder4D(double e_or_s_Given, int e_or_s_mode,
         isEntropy = true;
     }
     rootfinder_parameters p;
-	if(isEntropy) {
+	if(isEntropy)
+  {
 		p.set( e_or_s_Given, rhoBGiven, rhoQGiven, rhoSGiven);
-	} else {
+	}
+  else
+  {
 		p.set( e_or_s_Given, rhoBGiven, rhoQGiven, rhoSGiven);
 	}
 
     //initialize multiroot solver
     gsl_multiroot_fsolver *solver;
     gsl_multiroot_function f;
-    if(isEntropy) {
+    if(isEntropy)
+    {
         f.f = &rootfinder_fsbqs;
-    } else {
+    }
+    else
+    {
         f.f = &rootfinder_febqs;
     }
     f.n = 4;
@@ -463,3 +238,211 @@ bool rootfinder4D(double e_or_s_Given, int e_or_s_mode,
     return found;
 }
 
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+double Rootfinder::s_out(double ein, double Bin, double Sin, double Qin)
+{
+    if (rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+        return entrVal;
+    }
+	///////////////////////////
+
+    double t0 = tbqsPosition[0];
+    double mub0 = tbqsPosition[1];
+    double muq0 = tbqsPosition[2];
+    double mus0 = tbqsPosition[3];
+    double t10 = t0*.2;
+    double muB10 = mub0*.2;
+    double muQ10 = muq0*.2;
+    double muS10 = mus0*.2;
+
+    //perturb T
+    if(t0 + t10 > maxT) {
+        tbqs(maxT - 1, mub0, muq0, mus0);
+    } else {
+        tbqs(t0 + t10, mub0, muq0, mus0);
+    }
+    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+        return entrVal;
+    }
+    if(t0 - t10 < minT) {
+        tbqs(minT + 1, mub0, muq0, mus0);
+    } else {
+        tbqs(t0 - t10, mub0, muq0, mus0);
+    }
+    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+        return entrVal;
+    }
+
+    //perturb mub
+    if(mub0 + muB10 > maxMuB) {
+        tbqs(t0, maxMuB - 1, muq0, mus0);
+    } else {
+        tbqs(t0, mub0 + muB10, muq0, mus0);
+    }
+    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+        return entrVal;
+    }
+    if(mub0 - muB10 < minMuB) {
+        tbqs(t0, minMuB + 1, muq0, mus0);
+    } else {
+        tbqs(t0, mub0 - muB10, muq0, mus0);
+    }
+    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+        return entrVal;
+    }
+
+    //perturn muq
+    if(muq0 + muQ10 > maxMuQ) {
+        tbqs(t0, mub0, maxMuQ - 1, mus0);
+    } else {
+        tbqs(t0, mub0, muq0 + muQ10, mus0);
+    }
+    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+        return entrVal;
+    }
+    if(muq0 - muQ10 < minMuQ) {
+        tbqs(t0, mub0, minMuQ + 1, mus0);
+    } else {
+        tbqs(t0, mub0, muq0 - muQ10, mus0);
+    }
+    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+        return entrVal;
+    }
+
+    //perturb mus
+    if(mus0 + muS10 > maxMuS) {
+        tbqs(t0, mub0, muq0, maxMuS - 1);
+    } else {
+        tbqs(t0, mub0, muq0, mus0 + muS10);
+    }
+    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+        return entrVal;
+    }
+    if(mus0 - muS10 < maxMuS) {
+
+
+        tbqs(t0, mub0, muq0, minMuS + 1);
+    } else {
+        tbqs(t0, mub0, muq0, mus0 - muS10);
+    }
+    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+        return entrVal;
+    }
+
+    //check mu = 0
+    tbqs(t0, 0, 0, 0);
+    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+        return entrVal;
+    }
+
+    tbqs(t0, mub0, muq0, mus0);
+    return -1;
+}
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+bool Rootfinder::update_s(double sin, double Bin, double Sin, double Qin)
+{
+    if (rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+        return true;
+    }
+	///////////////////////////
+    double t0 = tbqsPosition[0];
+    double mub0 = tbqsPosition[1];
+    double muq0 = tbqsPosition[2];
+    double mus0 = tbqsPosition[3];
+    double t10 = t0*.2;
+    double muB10 = mub0*.2;
+    double muQ10 = muq0*.2;
+    double muS10 = mus0*.2;
+
+    //perturb T
+    if(t0 + t10 > maxT) {
+        tbqs(maxT - 1, mub0, muq0, mus0);
+    } else {
+        tbqs(t0 + t10, mub0, muq0, mus0);
+    }
+    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+        return true;
+    }
+    if(t0 - t10 < minT) {
+        tbqs(minT + 1, mub0, muq0, mus0);
+    } else {
+        tbqs(t0 - t10, mub0, muq0, mus0);
+    }
+    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+        return true;
+    }
+
+    //perturb mub
+    if(mub0 + muB10 > maxMuB) {
+        tbqs(t0, maxMuB - 1, muq0, mus0);
+    } else {
+        tbqs(t0, mub0 + muB10, muq0, mus0);
+    }
+    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+        return true;
+    }
+    if(mub0 - muB10 < minMuB) {
+        tbqs(t0, minMuB + 1, muq0, mus0);
+    } else {
+        tbqs(t0, mub0 - muB10, muq0, mus0);
+    }
+    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+        return true;
+    }
+
+    //perturn muq
+    if(muq0 + muQ10 > maxMuQ) {
+        tbqs(t0, mub0, maxMuQ - 1, mus0);
+    } else {
+        tbqs(t0, mub0, muq0 + muQ10, mus0);
+    }
+    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+        return true;
+    }
+    if(muq0 - muQ10 < minMuQ) {
+        tbqs(t0, mub0, minMuQ + 1, mus0);
+    } else {
+        tbqs(t0, mub0, muq0 - muQ10, mus0);
+    }
+    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+        return true;
+    }
+
+    //perturb mus
+    if(mus0 + muS10 > maxMuS) {
+        tbqs(t0, mub0, muq0, maxMuS - 1);
+    } else {
+        tbqs(t0, mub0, muq0, mus0 + muS10);
+    }
+    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+        return true;
+    }
+    if(mus0 - muS10 < maxMuS) {
+        tbqs(t0, mub0, muq0, minMuS + 1);
+    } else {
+        tbqs(t0, mub0, muq0, mus0 - muS10);
+    }
+    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+        return true;
+    }
+
+    //check mu = 0
+    tbqs(t0, 0, 0, 0);
+    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+        return true;
+    }
+
+    tbqs(t0, mub0, muq0, mus0);
+    return false;
+}

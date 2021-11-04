@@ -1,4 +1,58 @@
-else if ( accept_nearest_neighbor )	// just return nearest neighbor instead
+#include "eos.h"
+
+//#include "read_in_hdf/read_in_hdf.h"
+#include "Stopwatch.h"
+#include <gsl/gsl_multiroots.h>
+#include <gsl/gsl_vector.h>
+#include <gsl/gsl_matrix.h>
+#include <gsl/gsl_permutation.h>
+#include <gsl/gsl_blas.h>
+#include <gsl/gsl_linalg.h>
+#include <iostream>
+#include <vector>
+#include <fstream>
+#include <string>
+
+// functions calls to static EoS C library
+#include <lib.h>
+#include "eos_delaunay/eos_delaunay.h"
+
+#include "constants.h"
+
+using namespace constants;
+
+using std::vector;
+using std::string;
+
+constexpr bool use_exact = true;
+constexpr bool accept_nearest_neighbor = false;
+constexpr bool discard_unsolvable_charge_densities = false;
+
+constexpr size_t STEPS = 1000000;
+constexpr int VERBOSE = 0;
+constexpr double TOLERANCE = 1e-12;
+
+
+void EquationOfState::delaunay_update_s
+{
+
+  // use NMN method to estimate where to start the rootfinder
+	// ( returns estimates in units of MeV )
+	vector<double> T_muB_muQ_muS_estimates;
+	constexpr bool use_normalized_trees = true;
+	if ( e_or_s_mode==1 )
+		e_delaunay.get_NMN_coordinates(
+					{e_or_s_Given*hbarc_MeVfm, rhoBGiven, rhoSGiven, rhoQGiven},
+					T_muB_muQ_muS_estimates, use_normalized_trees );
+	else
+		entr_delaunay.get_NMN_coordinates(
+					{e_or_s_Given, rhoBGiven, rhoSGiven, rhoQGiven},
+					T_muB_muQ_muS_estimates, use_normalized_trees );
+
+
+
+
+  if ( accept_nearest_neighbor )	// just return nearest neighbor instead
 	{
 		std::cout << "Entered to nearest neighbor tests" << std::endl;
 		std::cout << "found = " << found << std::endl;
@@ -117,3 +171,5 @@ else if ( accept_nearest_neighbor )	// just return nearest neighbor instead
 		std::cerr << "ERROR: you still need a back-up plan!" << std::endl;
 		exit(-8);
 	}*/
+
+}

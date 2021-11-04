@@ -33,102 +33,24 @@ constexpr size_t STEPS = 1000000;
 constexpr int VERBOSE = 0;
 constexpr double TOLERANCE = 1e-12;
 
-//EoS constructor
+////////////////////////////////////////////////////////////////////////////////
+// Constructors
+EquationOfState::EquationOfState(){}
+
 EquationOfState::EquationOfState(string quantityFile, string derivFile)
 {
     init(quantityFile, derivFile);
 }
 
-//EoS default constructor. This function exists to satisfy the compiler
-//This function should never be called unless init is called directly afterward
-EquationOfState::EquationOfState() {}
 
-void EquationOfState::init()
+
+////////////////////////////////////////////////////////////////////////////////
+void EquationOfState::tbqs( vector<double> & tbqsIn )
 {
-  cout << "Attempting read in of EoS from "
-        << quantity_file << " and " << deriv_file << endl;
-  init( quantity_file, deriv_file );
+  tbqs( tbqsIn[0], tbqsIn[1], tbqsIn[2], tbqsIn[3] );
 }
 
-void EquationOfState::init(string quantityFile, string derivFile)
-{
-	tbqsPosition.resize(4);
-
-	/*if ( check_derivatives )
-	{
-		cout << "Running EoS in test mode; checking derivatives!" << endl;
-		check_EoS_derivatives();
-		cout << "All tests completed!  Exiting." << endl;
-		exit(-1);
-	}*/
-
-	cout << "Initializing EoS C library" << endl;
-	initialize("/projects/jnorhos/BSQ/EoS_BQS_Derivatives/Coefficients_Parameters.dat");
-
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
-	init_grid_ranges_only(quantityFile, derivFile);
-
-	cout << "Initialize Delaunay interpolators" << endl;
-	e_delaunay.init(quantityFile, 0);		// 0 - energy density
-	entr_delaunay.init(quantityFile, 1);	// 1 - entropy density
-
-	return;
-}
-
-void EquationOfState::init_grid_ranges_only(string quantityFile, string derivFile)
-{
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
-    std::ifstream dataFile;
-    dataFile.open(quantityFile);
-
-    double tit, muBit, muQit, muSit, pit, entrit, bit, sit, qit, eit, cs2it;
-
-    int count = 0;
-    double hc = hbarc_MeVfm;
-    while (dataFile >> tit >> muBit >> muQit >> muSit
-			>> pit >> entrit >> bit >> sit >> qit
-			>> eit >> cs2it)
-    {
-
-		// Christopher Plumberg:
-		// put T and mu_i in units of 1/fm
-		tit   /= hc;
-		muBit /= hc;
-		muSit /= hc;
-		muQit /= hc;
-
-        if(count++ == 0)
-        {
-            minT   = tit;
-            maxT   = tit;
-            minMuB = muBit;
-            maxMuB = muBit;     //initialize eos range variables
-            minMuQ = muQit;
-            maxMuQ = muQit;
-            minMuS = muSit;
-            maxMuS = muSit;
-        }
-        
-		if (count%100000==0) std::cout << "Read in line# " << count << std::endl;
-		
-        if (maxT < tit) maxT = tit;
-        if (minT > tit) minT = tit;
-        if (maxMuB < muBit) maxMuB = muBit;
-        if (minMuB > muBit) minMuB = muBit;
-        if (maxMuQ < muQit) maxMuQ = muQit;
-        if (minMuQ > muQit) minMuQ = muQit;
-        if (maxMuS < muSit) maxMuS = muSit;
-        if (minMuS > muSit) minMuS = muSit;
-        
-	}
-
-    dataFile.close();
-
-	std::cout << "All initializations finished!" << std::endl;
-
-    return;
-}
-
+////////////////////////////////////////////////////////////////////////////////
 void EquationOfState::tbqs(double setT, double setmuB, double setmuQ, double setmuS)
 {
 	//if ( !check_derivatives )
@@ -267,44 +189,6 @@ double EquationOfState::wfz(double Tt, double muBin, double muQin, double muSin)
     return eVal + pVal;
 }
 
-bool EquationOfState::update_s(double sin) { return update_s(sin, 0.0, 0.0, 0.0); }
-
-bool EquationOfState::update_s(double sin, double Bin, double Sin, double Qin)
-{
-  bool success = false;
-  if ( use_delaunay )
-    success = delaunay_update_s(sin, Bin, Sin, Qin);
-  else if ( use_rootfinder )
-    success = rootfinder_update_s(sin, Bin, Sin, Qin);
-  else
-  {
-    std::cerr << __PRETTY_FUNCTION__ << ":" << __LINE__ << ": Option not supported!" << std::endl;
-    exit(1);
-  }
-
-  return success;
-}
-
-
-
-double EquationOfState::s_out(double ein) { return s_out(ein, 0.0, 0.0, 0.0); }
-
-double EquationOfState::s_out(double ein, double Bin, double Sin, double Qin)
-{
-  double result = 0.0;
-  if ( use_delaunay )
-    result = delaunay_s_out(sin, Bin, Sin, Qin);
-  else if ( use_rootfinder )
-    result = rootfinder_s_out(sin, Bin, Sin, Qin);
-  else
-  {
-    std::cerr << __PRETTY_FUNCTION__ << ":" << __LINE__ << ": Option not supported!" << std::endl;
-    exit(1);
-  }
-
-  return (result);
-}
-
 
 double EquationOfState::s_terms_T(double Tt)
 {
@@ -333,16 +217,97 @@ double EquationOfState::sfreeze(double T_freeze_out_at_mu_eq_0)
 
 
 
+////////////////////////////////////////////////////////////////////////////////
+// FUNCTIONS TO UPDATE LOCATION IN PHASE DIAGRAM AND COMPUTE CORRESPONDING
+// THERMODYNAMICS QUANTITIES NEEDED IN HYDRO
+// USE EITHER ROOTFINDER OR DELAUNAY INTERPOLATION
 
+
+////////////////////////////////////////////////
+// update phase diagram location given (s,B,S,Q)
+bool EquationOfState::update_s(double sin) { return update_s(sin, 0.0, 0.0, 0.0); }
+bool EquationOfState::update_s(double sin, double Bin, double Sin, double Qin)
+{
+  bool success = false;
+  if ( use_delaunay )
+    success = delaunay_update_s(sin, Bin, Sin, Qin);
+  else if ( use_rootfinder )
+    success = rootfinder_update_s(sin, Bin, Sin, Qin);
+  else
+  {
+    std::cerr << __PRETTY_FUNCTION__ << ":" << __LINE__ << ": Option not supported!" << std::endl;
+    exit(1);
+  }
+
+  return success;
+}
+
+////////////////////////////////////////////////
+bool EquationOfState::delaunay_update_s(double sin, double Bin, double Sin, double Qin)
+{
+  if (true)
+  {
+    std::cout << "You still need to check units!" << std::endl;
+    std::cerr << "You still need to check units!" << std::endl;
+    exit(1);
+  }
+  bool success = entr_delaunay.interpolate( {sin, Bin, Sin, Qin}, result, true );
+  tbqs( result );
+  return success;
+}
+
+////////////////////////////////////////////////
+bool EquationOfState::rootfinder_update_s(double sin, double Bin, double Sin, double Qin)
+{
+  vector<double> result(4, 0.0);
+  bool success = rootfinder.update_s( ein, Bin, Sin, Qin, result );
+  tbqs( result );
+  return success;
+}
+////////////////////////////////////////////////
+
+
+
+////////////////////////////////////////////////
+// update phase diagram location given (e,B,S,Q) and return resulting s
+double EquationOfState::s_out(double ein) { return s_out(ein, 0.0, 0.0, 0.0); }
+double EquationOfState::s_out(double ein, double Bin, double Sin, double Qin)
+{
+  double result = 0.0;
+  if ( use_delaunay )
+    result = delaunay_s_out(sin, Bin, Sin, Qin);
+  else if ( use_rootfinder )
+    result = rootfinder_s_out(sin, Bin, Sin, Qin);
+  else
+  {
+    std::cerr << __PRETTY_FUNCTION__ << ":" << __LINE__ << ": Option not supported!" << std::endl;
+    exit(1);
+  }
+
+  return (result);
+}
+
+////////////////////////////////////////////////
 double EquationOfState::delaunay_s_out(double ein, double Bin, double Sin, double Qin)
 {
-  
+  if (true)
+  {
+    std::cout << "You still need to check units!" << std::endl;
+    std::cerr << "You still need to check units!" << std::endl;
+    exit(1);
+  }
+  vector<double> result(4, 0.0);
+  e_delaunay.interpolate( {ein, Bin, Sin, Qin}, result, true );
+  tbqs( result );
+  return sVal;
 }
 
-
-
-
+////////////////////////////////////////////////
 double EquationOfState::rootfinder_s_out(double ein, double Bin, double Sin, double Qin)
 {
-  
+  vector<double> result(4, 0.0);
+  rootfinder.s_out( ein, Bin, Sin, Qin, result );
+  tbqs( result );
+  return sVal;
 }
+////////////////////////////////////////////////
