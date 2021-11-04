@@ -329,10 +329,10 @@ bool Rootfinder::find_eBSQ_root( double ein, double Bin, double Sin, double Qin,
 
     ///////////////////////////
 
-    double t0 = tbqs_initial_guess[0];
-    double mub0 = tbqs_initial_guess[1];
-    double muq0 = tbqs_initial_guess[2];
-    double mus0 = tbqs_initial_guess[3];
+    double t0 = tbqsPosition[0];
+    double mub0 = tbqsPosition[1];
+    double muq0 = tbqsPosition[2];
+    double mus0 = tbqsPosition[3];
     double t10 = t0*.2;
     double muB10 = mub0*.2;
     double muQ10 = muq0*.2;
