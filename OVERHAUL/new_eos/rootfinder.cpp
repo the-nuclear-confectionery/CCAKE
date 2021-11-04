@@ -122,165 +122,199 @@ int rootfinder_febqs(const gsl_vector *x, void *params, gsl_vector *f)
 
 
 
+
+
+
+void Rootfinder::tbqs( vector<double> & tbqsIn )
+{
+  tbqs( tbqsIn[0], tbqsIn[1], tbqsIn[2], tbqsIn[3] );
+}
+
+
+void Rootfinder::tbqs(double setT, double setmuB, double setmuQ, double setmuS)
+{
+  if(setT < minT || setT > maxT) {
+    std::cout << "T = " << setT << " is out of range. Valid values are between ["
+      << minT << "," << maxT << "]" << std::endl;
+    return;
+  }
+  if(setmuB < minMuB || setmuB > maxMuB) {
+    std::cout << "muB = " << setmuB << " is out of range. Valid values are between ["
+      << minMuB << "," << maxMuB << "]" << std::endl;
+    return;
+  }
+  if(setmuQ < minMuQ || setmuQ > maxMuQ) {
+    std::cout << "muQ = " << setmuQ << " is out of range. Valid values are between ["
+      << minMuQ << "," << maxMuQ << "]" << std::endl;
+    return;
+  }
+  if(setmuS < minMuS || setmuS > maxMuS) {
+    std::cout << "muS = " << setmuS << " is out of range. Valid values are between ["
+      << minMuS << "," << maxMuS << "]" << std::endl;
+    return;
+  }
+
+	tbqsPosition[0] = setT;
+	tbqsPosition[1] = setmuB;
+	tbqsPosition[2] = setmuQ;
+	tbqsPosition[3] = setmuS;
+
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 						double rhoBGiven, double rhoSGiven, double rhoQGiven,
 						double error, size_t steps)
 {
-    //declare x = (T, muB, muQ, muS)
-    gsl_vector *x = gsl_vector_alloc(4);
-
-    gsl_vector_set(x, 0, T());
-    gsl_vector_set(x, 1, muB());
-    gsl_vector_set(x, 2, muQ());
-    gsl_vector_set(x, 3, muS());
+  ////////////////////
+  // set initial guess
+  gsl_vector *x = gsl_vector_alloc(4);
+  for (int iTBQS = 0; iTBQS < 4; iTBQS++)
+    gsl_vector_set(x, iTBQS, tbqsPosition[iTBQS]);
 
 
-    //initialize the rootfinder equation to the correct variable quantities
-    bool isEntropy = false;
-    if(e_or_s_mode == 0) {
-        isEntropy = true;
-    }
-    rootfinder_parameters p;
-	if(isEntropy)
-  {
-		p.set( e_or_s_Given, rhoBGiven, rhoQGiven, rhoSGiven);
-	}
+  ////////////////////
+  // decide if entropy or energy density passed in
+  bool isEntropy = false;
+  if ( e_or_s_mode == 0 ) isEntropy = true;
+
+  ////////////////////
+  // pass relevant parameters to rootfinder
+  rootfinder_parameters p;
+  p.set( e_or_s_Given, rhoBGiven, rhoQGiven, rhoSGiven);
+
+  ////////////////////
+  // initialize multiroot solver
+  gsl_multiroot_fsolver *solver;
+  gsl_multiroot_function f;
+
+  if ( isEntropy )
+    f.f = &rootfinder_fsbqs;
   else
+    f.f = &rootfinder_febqs;
+
+  f.n = 4;
+  f.params = &p;
+
+  solver = gsl_multiroot_fsolver_alloc(TYPE, 4);
+  gsl_multiroot_fsolver_set(solver, &f, x);
+
+  int status;
+  size_t iter = 0;
+  double previous_solver_step[4];
+
+  ////////////////////
+  // Loop.
+  do
   {
-		p.set( e_or_s_Given, rhoBGiven, rhoQGiven, rhoSGiven);
-	}
+    for (int iPrev = 0; iPrev < 4; iPrev++)
+      previous_solver_step[iPrev] = gsl_vector_get(solver->x, iPrev);
 
-    //initialize multiroot solver
-    gsl_multiroot_fsolver *solver;
-    gsl_multiroot_function f;
-    if(isEntropy)
+    ++iter;
+    status = gsl_multiroot_fsolver_iterate(solver);
+
+    if(VERBOSE > 5 && status)
     {
-        f.f = &rootfinder_fsbqs;
+      if ( status == GSL_EBADFUNC && VERBOSE > 5 )
+        std::cout << "Error: something went to +/-Inf or NaN!" << std::endl;
+      else if ( status == GSL_ENOPROG && VERBOSE > 5 )
+        std::cout << "Error: not making enough progress!" << std::endl;
+      //break if the rootfinder gets stuck
+      break;
     }
-    else
+
+    //break if the rootfinder goes out of bounds
+    if(gsl_vector_get(solver->x, 0) < minT)
     {
-        f.f = &rootfinder_febqs;
+      if ( VERBOSE > 5 )
+        std::cout << "Error: out-of-bounds (T < minT)!" << std::endl;
+      status = -10;
+      break;
     }
-    f.n = 4;
-    f.params = &p;
-
-    solver = gsl_multiroot_fsolver_alloc(TYPE, 4);
-    gsl_multiroot_fsolver_set(solver, &f, x);
-
-    int status;
-    size_t iter = 0;
-	double previous_solver_step[4];
-
-    do
-	{
-		for (int iSolverElem = 0; iSolverElem < 4; iSolverElem++)
-			previous_solver_step[iSolverElem] = gsl_vector_get(solver->x, iSolverElem);
-
-        ++iter;
-        status = gsl_multiroot_fsolver_iterate(solver);
-
-        if(VERBOSE > 5 && status)
-		{
-			if ( status == GSL_EBADFUNC && VERBOSE > 5 )
-				std::cout << "Error: something went to +/-Inf or NaN!" << std::endl;
-			else if ( status == GSL_ENOPROG && VERBOSE > 5 )
-				std::cout << "Error: not making enough progress!" << std::endl;
-            //break if the rootfinder gets stuck
-			break;
-        }
-
-		//break if the rootfinder goes out of bounds
-        if(gsl_vector_get(solver->x, 0) < minT)
-		{
-			if ( VERBOSE > 5 )
-				std::cout << "Error: out-of-bounds (T < minT)!" << std::endl;
-			status = -10;
-			break;
-        }
-		else if(gsl_vector_get(solver->x, 0) > maxT)
-		{
-			if ( VERBOSE > 5 )
-				std::cout << "Error: out-of-bounds (T > maxT)!" << std::endl;
-			status = -10;
-			break;
-        }
-		else if (gsl_vector_get(solver->x, 1) < minMuB)
-		{
-			if ( VERBOSE > 5 )
-				std::cout << "Error: out-of-bounds (MuB < minMuB)!" << std::endl;
-			status = -10;
-			break;
-        }
-		else if (gsl_vector_get(solver->x, 1) > maxMuB)
-		{
-			if ( VERBOSE > 5 )
-				std::cout << "Error: out-of-bounds (MuB > maxMuB)!" << std::endl;
-			status = -10;
-			break;
-        }
-		else if (gsl_vector_get(solver->x, 2) < minMuQ)
-		{
-			if ( VERBOSE > 5 )
-				std::cout << "Error: out-of-bounds (MuQ < minMuQ)!" << std::endl;
-			status = -10;
-			break;
-        }
-		else if (gsl_vector_get(solver->x, 2) > maxMuQ)
-		{
-			if ( VERBOSE > 5 )
-				std::cout << "Error: out-of-bounds (MuQ > maxMuQ)!" << std::endl;
-			status = -10;
-			break;
-        }
-		else if (gsl_vector_get(solver->x, 3) < minMuS)
-		{
-			if ( VERBOSE > 5 )
-				std::cout << "Error: out-of-bounds (MuS < minMuS)!" << std::endl;
-			status = -10;
-			break;
-        }
-		else if (gsl_vector_get(solver->x, 3) > maxMuS)
-		{
-			if ( VERBOSE > 5 )
-				std::cout << "Error: out-of-bounds (MuS > maxMuS)!" << std::endl;
-			status = -10;
-			break;
-        }
-
-        status = gsl_multiroot_test_residual(solver->f, error);
-
-    } while (status == GSL_CONTINUE && iter < steps);
-
-//std::cout << "Exited GSL loop" << endl;
-
-    bool found = true; //to return variable
-    if ( iter >= steps || status != 0 )
-	{
-		if ( status == GSL_EBADFUNC )
-			std::cout << "Error: something went to +/-Inf or NaN!" << std::endl;
-		else if ( status == GSL_ENOPROG )
-			std::cout << "Error: not making enough progress!" << std::endl;
-		else
-			std::cout << "Check: " << iter << "   " << steps << "   " << status << std::endl;
-        found = false;
+    else if(gsl_vector_get(solver->x, 0) > maxT)
+    {
+      if ( VERBOSE > 5 )
+        std::cout << "Error: out-of-bounds (T > maxT)!" << std::endl;
+      status = -10;
+      break;
+    }
+    else if (gsl_vector_get(solver->x, 1) < minMuB)
+    {
+      if ( VERBOSE > 5 )
+        std::cout << "Error: out-of-bounds (MuB < minMuB)!" << std::endl;
+      status = -10;
+      break;
+    }
+    else if (gsl_vector_get(solver->x, 1) > maxMuB)
+    {
+      if ( VERBOSE > 5 )
+        std::cout << "Error: out-of-bounds (MuB > maxMuB)!" << std::endl;
+      status = -10;
+      break;
+    }
+    else if (gsl_vector_get(solver->x, 2) < minMuQ)
+    {
+      if ( VERBOSE > 5 )
+        std::cout << "Error: out-of-bounds (MuQ < minMuQ)!" << std::endl;
+      status = -10;
+      break;
+    }
+    else if (gsl_vector_get(solver->x, 2) > maxMuQ)
+    {
+      if ( VERBOSE > 5 )
+        std::cout << "Error: out-of-bounds (MuQ > maxMuQ)!" << std::endl;
+      status = -10;
+      break;
+    }
+    else if (gsl_vector_get(solver->x, 3) < minMuS)
+    {
+      if ( VERBOSE > 5 )
+        std::cout << "Error: out-of-bounds (MuS < minMuS)!" << std::endl;
+      status = -10;
+      break;
+    }
+    else if (gsl_vector_get(solver->x, 3) > maxMuS)
+    {
+      if ( VERBOSE > 5 )
+        std::cout << "Error: out-of-bounds (MuS > maxMuS)!" << std::endl;
+      status = -10;
+      break;
     }
 
+    status = gsl_multiroot_test_residual(solver->f, error);
 
-    if ( found )
-	{
-        tbqs( gsl_vector_get(solver->x, 0),
-			  gsl_vector_get(solver->x, 1),
-			  gsl_vector_get(solver->x, 2),
-			  gsl_vector_get(solver->x, 3) );    //set T, muB, muQ, muS
-    }
-	
+  } while (status == GSL_CONTINUE && iter < steps);
+
+  // check if a solution was found
+  bool found = true;
+  if ( iter >= steps || status != 0 )
+  {
+  if ( status == GSL_EBADFUNC )
+  std::cout << "Error: something went to +/-Inf or NaN!" << std::endl;
+  else if ( status == GSL_ENOPROG )
+  std::cout << "Error: not making enough progress!" << std::endl;
+  else
+  std::cout << "Check: " << iter << "   " << steps << "   " << status << std::endl;
+  found = false;
+  }
+
+  // if so, return the solution
+  if ( found )
+  {
+  tbqs( gsl_vector_get(solver->x, 0),
+  gsl_vector_get(solver->x, 1),
+  gsl_vector_get(solver->x, 2),
+  gsl_vector_get(solver->x, 3) );
+  }
 
 
-    //memory deallocation
-    gsl_multiroot_fsolver_free(solver);
-    gsl_vector_free(x);
-    return found;
+
+  // memory deallocation
+  gsl_multiroot_fsolver_free(solver);
+  gsl_vector_free(x);
+
+  return found;
 }
 
 
@@ -289,17 +323,19 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 
 
 ////////////////////////////////////////////////////////////////////////////////
-double Rootfinder::s_out(double ein, double Bin, double Sin, double Qin)
+double Rootfinder::s_out( double ein, double Bin, double Sin, double Qin,
+                          vector<double> & updated_tbqs )
 {
-    if (rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
-        return entrVal;
-    }
-	///////////////////////////
+    tbqs_initial_guess = updated_tbqs;
 
-    double t0 = tbqsPosition[0];
-    double mub0 = tbqsPosition[1];
-    double muq0 = tbqsPosition[2];
-    double mus0 = tbqsPosition[3];
+    if (rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) { return entrVal; }
+
+    ///////////////////////////
+
+    double t0 = tbqs_initial_guess[0];
+    double mub0 = tbqs_initial_guess[1];
+    double muq0 = tbqs_initial_guess[2];
+    double mus0 = tbqs_initial_guess[3];
     double t10 = t0*.2;
     double muB10 = mub0*.2;
     double muQ10 = muq0*.2;
@@ -395,11 +431,13 @@ double Rootfinder::s_out(double ein, double Bin, double Sin, double Qin)
 
 
 ////////////////////////////////////////////////////////////////////////////////
-bool Rootfinder::update_s(double sin, double Bin, double Sin, double Qin)
+bool Rootfinder::update_s( double sin, double Bin, double Sin, double Qin,
+                           vector<double> & updated_tbqs )
 {
-    if (rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
-        return true;
-    }
+    tbqsPosition = updated_tbqs;
+
+    if (rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) { return true; }
+
 	///////////////////////////
     double t0 = tbqsPosition[0];
     double mub0 = tbqsPosition[1];
