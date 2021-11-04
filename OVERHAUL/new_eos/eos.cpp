@@ -53,30 +53,39 @@ void EquationOfState::tbqs( vector<double> & tbqsIn )
 ////////////////////////////////////////////////////////////////////////////////
 void EquationOfState::tbqs(double setT, double setmuB, double setmuQ, double setmuS)
 {
-	//if ( !check_derivatives )
-	//{
-		if(setT < minT || setT > maxT) {
-			std::cout << "T = " << setT << " is out of range. Valid values are between ["
-				<< minT << "," << maxT << "]" << std::endl;
-			return;
-		}
-		if(setmuB < minMuB || setmuB > maxMuB) {
-			std::cout << "muB = " << setmuB << " is out of range. Valid values are between ["
-				<< minMuB << "," << maxMuB << "]" << std::endl;
-			return;
-		}
-		if(setmuQ < minMuQ || setmuQ > maxMuQ) {
-			std::cout << "muQ = " << setmuQ << " is out of range. Valid values are between ["
-				<< minMuQ << "," << maxMuQ << "]" << std::endl;
-			return;
-		}
-		if(setmuS < minMuS || setmuS > maxMuS) {
-			std::cout << "muS = " << setmuS << " is out of range. Valid values are between ["
-				<< minMuS << "," << maxMuS << "]" << std::endl;
-			return;
-		}
-	//}
-	tbqsPosition[0] = setT;
+  if(setT < minT || setT > maxT)
+  {
+    std::cout << "T = " << setT << " is out of range. Valid values are between ["
+      << minT << "," << maxT << "]" << std::endl;
+    return;
+  }
+  if(setmuB < minMuB || setmuB > maxMuB)
+  {
+    std::cout << "muB = " << setmuB << " is out of range. Valid values are between ["
+      << minMuB << "," << maxMuB << "]" << std::endl;
+    return;
+  }
+  if(setmuQ < minMuQ || setmuQ > maxMuQ)
+  {
+    std::cout << "muQ = " << setmuQ << " is out of range. Valid values are between ["
+      << minMuQ << "," << maxMuQ << "]" << std::endl;
+    return;
+  }
+  if(setmuS < minMuS || setmuS > maxMuS)
+  {
+    std::cout << "muS = " << setmuS << " is out of range. Valid values are between ["
+      << minMuS << "," << maxMuS << "]" << std::endl;
+    return;
+  }
+
+  // if we are in range, compute all thermodynamic quantities at the new point
+  evaluate_thermodynamics();
+}
+
+
+void EquationOfState::evaluate_thermodynamics()
+{
+  tbqsPosition[0] = setT;
 	tbqsPosition[1] = setmuB;
 	tbqsPosition[2] = setmuQ;
 	tbqsPosition[3] = setmuS;
@@ -85,29 +94,28 @@ void EquationOfState::tbqs(double setT, double setmuB, double setmuQ, double set
 	double phase_diagram_point[4]	// NOTE: S <<-->> Q swapped!!!
 			= {setT*hbarc_MeVfm, setmuB*hbarc_MeVfm, setmuS*hbarc_MeVfm, setmuQ*hbarc_MeVfm};
 	double thermodynamics[17];
-	//if ( check_derivatives )
-	//	get_toy_thermo(phase_diagram_point, thermodynamics);
-	//else
-		get_full_thermo(phase_diagram_point, thermodynamics);
+  get_full_thermo(phase_diagram_point, thermodynamics);
 
-    pVal    = thermodynamics[0];
-    entrVal = thermodynamics[1];
-    BVal    = thermodynamics[2];
-    SVal    = thermodynamics[3];
-    QVal    = thermodynamics[4];
-    eVal    = thermodynamics[5];
-    cs2Val  = thermodynamics[6];
-    db2     = thermodynamics[7];
-    dq2     = thermodynamics[8];
-    ds2     = thermodynamics[9];
-    dbdq    = thermodynamics[10];
-    dbds    = thermodynamics[11];
-    dsdq    = thermodynamics[12];
-    dtdb    = thermodynamics[13];
-    dtdq    = thermodynamics[14];
-    dtds    = thermodynamics[15];
-    dt2     = thermodynamics[16];
+  pVal    = thermodynamics[0];
+  entrVal = thermodynamics[1];
+  BVal    = thermodynamics[2];
+  SVal    = thermodynamics[3];
+  QVal    = thermodynamics[4];
+  eVal    = thermodynamics[5];
+  cs2Val  = thermodynamics[6];
+  db2     = thermodynamics[7];
+  dq2     = thermodynamics[8];
+  ds2     = thermodynamics[9];
+  dbdq    = thermodynamics[10];
+  dbds    = thermodynamics[11];
+  dsdq    = thermodynamics[12];
+  dtdb    = thermodynamics[13];
+  dtdq    = thermodynamics[14];
+  dtds    = thermodynamics[15];
+  dt2     = thermodynamics[16];
 }
+
+
 
 
 double EquationOfState::T()   const { return tbqsPosition[0]; }
@@ -260,7 +268,7 @@ bool EquationOfState::delaunay_update_s(double sin, double Bin, double Sin, doub
 bool EquationOfState::rootfinder_update_s(double sin, double Bin, double Sin, double Qin)
 {
   vector<double> result(4, 0.0);
-  bool success = rootfinder.update_s( ein, Bin, Sin, Qin, result );
+  bool success = rootfinder.find_sBSQ_root( sin, Bin, Sin, Qin, result );
   tbqs( result );
   return success;
 }
@@ -299,15 +307,15 @@ double EquationOfState::delaunay_s_out(double ein, double Bin, double Sin, doubl
   vector<double> result(4, 0.0);
   e_delaunay.interpolate( {ein, Bin, Sin, Qin}, result, true );
   tbqs( result );
-  return sVal;
+  return entrVal;
 }
 
 ////////////////////////////////////////////////
 double EquationOfState::rootfinder_s_out(double ein, double Bin, double Sin, double Qin)
 {
   vector<double> result(4, 0.0);
-  rootfinder.s_out( ein, Bin, Sin, Qin, result );
+  rootfinder.find_eBSQ_root( ein, Bin, Sin, Qin, result );
   tbqs( result );
-  return sVal;
+  return entrVal;
 }
 ////////////////////////////////////////////////

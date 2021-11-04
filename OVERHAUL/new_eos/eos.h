@@ -81,9 +81,6 @@ private:
     //the current position in (T, muB, muQ, muS) initialized by tbqs()
     vector<double> tbqsPosition;
 
-    //Rootfinding method used **THIS CAN BE CHANGED DEPENDING ON EOS
-    const gsl_multiroot_fsolver_type *TYPE = gsl_multiroot_fsolver_hybrids;
-
     // string to hold input filenames
     string quantity_file = "";
     string deriv_file    = "";

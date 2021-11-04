@@ -48,7 +48,7 @@ struct rootfinder_parameters
 
 
 ////////////////////////////////////////////////////////////////////////////////
-int rootfinder_fsbqs(const gsl_vector *x, void *params, gsl_vector *f)
+int Rootfinder::rootfinder_fsbqs(const gsl_vector *x, void *params, gsl_vector *f)
 {
     //x contains the next (T, muB, muS) coordinate to test
     vector<double> tbqsToEval(4);
@@ -86,7 +86,7 @@ int rootfinder_fsbqs(const gsl_vector *x, void *params, gsl_vector *f)
 
 
 ////////////////////////////////////////////////////////////////////////////////
-int rootfinder_febqs(const gsl_vector *x, void *params, gsl_vector *f)
+int Rootfinder::rootfinder_febqs(const gsl_vector *x, void *params, gsl_vector *f)
 {
     //x contains the next (T, muB, muQ, muS) coordinate to test
     vector<double> tbqsToEval(4);
@@ -290,25 +290,23 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
   bool found = true;
   if ( iter >= steps || status != 0 )
   {
-  if ( status == GSL_EBADFUNC )
-  std::cout << "Error: something went to +/-Inf or NaN!" << std::endl;
-  else if ( status == GSL_ENOPROG )
-  std::cout << "Error: not making enough progress!" << std::endl;
-  else
-  std::cout << "Check: " << iter << "   " << steps << "   " << status << std::endl;
-  found = false;
+    if ( status == GSL_EBADFUNC )
+      std::cout << "Error: something went to +/-Inf or NaN!" << std::endl;
+    else if ( status == GSL_ENOPROG )
+      std::cout << "Error: not making enough progress!" << std::endl;
+    else
+      std::cout << "Check: " << iter << "   " << steps << "   " << status << std::endl;
+    found = false;
   }
 
   // if so, return the solution
   if ( found )
   {
-  tbqs( gsl_vector_get(solver->x, 0),
-  gsl_vector_get(solver->x, 1),
-  gsl_vector_get(solver->x, 2),
-  gsl_vector_get(solver->x, 3) );
+    tbqs( gsl_vector_get(solver->x, 0),
+          gsl_vector_get(solver->x, 1),
+          gsl_vector_get(solver->x, 2),
+          gsl_vector_get(solver->x, 3) );
   }
-
-
 
   // memory deallocation
   gsl_multiroot_fsolver_free(solver);
@@ -323,12 +321,12 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 
 
 ////////////////////////////////////////////////////////////////////////////////
-double Rootfinder::s_out( double ein, double Bin, double Sin, double Qin,
+bool Rootfinder::find_eBSQ_root( double ein, double Bin, double Sin, double Qin,
                           vector<double> & updated_tbqs )
 {
     tbqs_initial_guess = updated_tbqs;
 
-    if (rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) { return entrVal; }
+    if (rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) { return true; }
 
     ///////////////////////////
 
@@ -348,7 +346,7 @@ double Rootfinder::s_out( double ein, double Bin, double Sin, double Qin,
         tbqs(t0 + t10, mub0, muq0, mus0);
     }
     if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
-        return entrVal;
+        return true;
     }
     if(t0 - t10 < minT) {
         tbqs(minT + 1, mub0, muq0, mus0);
@@ -356,7 +354,7 @@ double Rootfinder::s_out( double ein, double Bin, double Sin, double Qin,
         tbqs(t0 - t10, mub0, muq0, mus0);
     }
     if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
-        return entrVal;
+        return true;
     }
 
     //perturb mub
@@ -366,7 +364,7 @@ double Rootfinder::s_out( double ein, double Bin, double Sin, double Qin,
         tbqs(t0, mub0 + muB10, muq0, mus0);
     }
     if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
-        return entrVal;
+        return true;
     }
     if(mub0 - muB10 < minMuB) {
         tbqs(t0, minMuB + 1, muq0, mus0);
@@ -374,7 +372,7 @@ double Rootfinder::s_out( double ein, double Bin, double Sin, double Qin,
         tbqs(t0, mub0 - muB10, muq0, mus0);
     }
     if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
-        return entrVal;
+        return true;
     }
 
     //perturn muq
@@ -384,7 +382,7 @@ double Rootfinder::s_out( double ein, double Bin, double Sin, double Qin,
         tbqs(t0, mub0, muq0 + muQ10, mus0);
     }
     if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
-        return entrVal;
+        return true;
     }
     if(muq0 - muQ10 < minMuQ) {
         tbqs(t0, mub0, minMuQ + 1, mus0);
@@ -392,7 +390,7 @@ double Rootfinder::s_out( double ein, double Bin, double Sin, double Qin,
         tbqs(t0, mub0, muq0 - muQ10, mus0);
     }
     if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
-        return entrVal;
+        return true;
     }
 
     //perturb mus
@@ -402,7 +400,7 @@ double Rootfinder::s_out( double ein, double Bin, double Sin, double Qin,
         tbqs(t0, mub0, muq0, mus0 + muS10);
     }
     if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
-        return entrVal;
+        return true;
     }
     if(mus0 - muS10 < maxMuS) {
 
@@ -412,17 +410,17 @@ double Rootfinder::s_out( double ein, double Bin, double Sin, double Qin,
         tbqs(t0, mub0, muq0, mus0 - muS10);
     }
     if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
-        return entrVal;
+        return true;
     }
 
     //check mu = 0
     tbqs(t0, 0, 0, 0);
     if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
-        return entrVal;
+        return true;
     }
 
     tbqs(t0, mub0, muq0, mus0);
-    return -1;
+    return false;
 }
 
 
@@ -431,7 +429,7 @@ double Rootfinder::s_out( double ein, double Bin, double Sin, double Qin,
 
 
 ////////////////////////////////////////////////////////////////////////////////
-bool Rootfinder::update_s( double sin, double Bin, double Sin, double Qin,
+bool Rootfinder::find_sBSQ_root( double sin, double Bin, double Sin, double Qin,
                            vector<double> & updated_tbqs )
 {
     tbqsPosition = updated_tbqs;
