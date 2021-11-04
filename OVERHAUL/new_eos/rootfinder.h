@@ -1,12 +1,18 @@
 #ifndef ROOTFINDER_H
 #define ROOTFINDER_H
 
+#include <fstream>
+#include <iostream>
+#include <vector>
+
 #include <gsl/gsl_multiroots.h>
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_permutation.h>
 #include <gsl/gsl_blas.h>
 #include <gsl/gsl_linalg.h>
+
+using namespace std;
 
 class Rootfinder
 {
