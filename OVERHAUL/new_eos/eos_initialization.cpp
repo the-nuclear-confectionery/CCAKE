@@ -58,8 +58,8 @@ void EquationOfState::init(string quantityFile, string derivFile)
 
   // initialize corresponding interpolator for each table
 	cout << "Initialize Delaunay interpolators" << endl;
-	e_delaunay.init(quantityFile, 0);		// 0 - energy density
-	entr_delaunay.init(quantityFile, 1);	// 1 - entropy density
+	e_delaunay.init(    quantityFile, 0 );	// 0 - energy density
+	entr_delaunay.init( quantityFile, 1 );	// 1 - entropy density
 
 	return;
 }
@@ -73,30 +73,28 @@ void EquationOfState::init_grid_ranges_only(string quantityFile, string derivFil
     double tit, muBit, muQit, muSit, pit, entrit, bit, sit, qit, eit, cs2it;
 
     int count = 0;
-    double hc = hbarc_MeVfm;
-    while (dataFile >> tit >> muBit >> muQit >> muSit
-			>> pit >> entrit >> bit >> sit >> qit
-			>> eit >> cs2it)
+    while ( dataFile >> tit >> muBit >> muQit >> muSit
+                     >> pit >> entrit >> bit >> sit >> qit >> eit >> cs2it )
     {
 
 		// Christopher Plumberg:
 		// put T and mu_i in units of 1/fm
-		tit   /= hc;
-		muBit /= hc;
-		muSit /= hc;
-		muQit /= hc;
+		tit   /= hbarc_MeVfm;
+		muBit /= hbarc_MeVfm;
+		muSit /= hbarc_MeVfm;
+		muQit /= hbarc_MeVfm;
 
-        if(count++ == 0)
-        {
-            minT   = tit;
-            maxT   = tit;
-            minMuB = muBit;
-            maxMuB = muBit;     //initialize eos range variables
-            minMuQ = muQit;
-            maxMuQ = muQit;
-            minMuS = muSit;
-            maxMuS = muSit;
-        }
+    if(count++ == 0)
+    {
+      minT   = tit;
+      maxT   = tit;
+      minMuB = muBit;
+      maxMuB = muBit;     //initialize eos range variables
+      minMuQ = muQit;
+      maxMuQ = muQit;
+      minMuS = muSit;
+      maxMuS = muSit;
+    }
         
 		if (count%100000==0) std::cout << "Read in line# " << count << std::endl;
 		
