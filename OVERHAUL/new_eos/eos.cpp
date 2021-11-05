@@ -78,6 +78,11 @@ void EquationOfState::tbqs(double setT, double setmuB, double setmuQ, double set
     return;
   }
 
+  tbqsPosition[0] = setT;
+	tbqsPosition[1] = setmuB;
+	tbqsPosition[2] = setmuQ;
+	tbqsPosition[3] = setmuS;
+
   // if we are in range, compute all thermodynamic quantities at the new point
   evaluate_thermodynamics();
 }
@@ -85,11 +90,6 @@ void EquationOfState::tbqs(double setT, double setmuB, double setmuQ, double set
 
 void EquationOfState::evaluate_thermodynamics()
 {
-  tbqsPosition[0] = setT;
-	tbqsPosition[1] = setmuB;
-	tbqsPosition[2] = setmuQ;
-	tbqsPosition[3] = setmuS;
-
 	// EXPECTS UNITS OF MEV!!!
 	double phase_diagram_point[4]	// NOTE: S <<-->> Q swapped!!!
 			= {setT*hbarc_MeVfm, setmuB*hbarc_MeVfm, setmuS*hbarc_MeVfm, setmuQ*hbarc_MeVfm};
@@ -255,11 +255,14 @@ bool EquationOfState::delaunay_update_s(double sin, double Bin, double Sin, doub
 {
   if (true)
   {
-    std::cout << "You still need to check units!" << std::endl;
-    std::cerr << "You still need to check units!" << std::endl;
+    std::cout << "You still need to check units!  Etc." << std::endl;
+    std::cerr << "You still need to check units!  Etc." << std::endl;
     exit(1);
   }
-  bool success = entr_delaunay.interpolate( {sin, Bin, Sin, Qin}, result, true );
+  vector<double> result(4, 0.0);
+
+  //bool success = entr_delaunay.interpolate( {sin, Bin, Sin, Qin}, result, true );
+  bool success = false;
   tbqs( result );
   return success;
 }
@@ -269,7 +272,7 @@ bool EquationOfState::rootfinder_update_s(double sin, double Bin, double Sin, do
 {
   vector<double> result(4, 0.0);
   
-  bool success = rootfinder.find_sBSQ_root( sin, Bin, Sin, Qin, result );
+  bool success = rootfinder.find_sBSQ_root( sin, Bin, Sin, Qin, sBSQ_functional, result );
   tbqs( result );
   return success;
 }
@@ -301,12 +304,12 @@ double EquationOfState::delaunay_s_out(double ein, double Bin, double Sin, doubl
 {
   if (true)
   {
-    std::cout << "You still need to check units!" << std::endl;
-    std::cerr << "You still need to check units!" << std::endl;
+    std::cout << "You still need to check units!  Etc." << std::endl;
+    std::cerr << "You still need to check units!  Etc." << std::endl;
     exit(1);
   }
   vector<double> result(4, 0.0);
-  e_delaunay.interpolate( {ein, Bin, Sin, Qin}, result, true );
+  //e_delaunay.interpolate( {ein, Bin, Sin, Qin}, result, true );
   tbqs( result );
   return entrVal;
 }
@@ -315,7 +318,7 @@ double EquationOfState::delaunay_s_out(double ein, double Bin, double Sin, doubl
 double EquationOfState::rootfinder_s_out(double ein, double Bin, double Sin, double Qin)
 {
   vector<double> result(4, 0.0);
-  rootfinder.find_eBSQ_root( ein, Bin, Sin, Qin, result );
+  rootfinder.find_eBSQ_root( ein, Bin, Sin, Qin, eBSQ_functional, result );
   tbqs( result );
   return entrVal;
 }
