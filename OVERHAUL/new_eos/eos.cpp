@@ -27,10 +27,9 @@ using namespace constants;
 using std::vector;
 using std::string;
 
-constexpr bool use_exact = true;
-constexpr bool accept_nearest_neighbor = false;
-constexpr bool discard_unsolvable_charge_densities = false;
-//constexpr bool check_derivatives = false;
+//constexpr bool use_exact = true;
+//constexpr bool accept_nearest_neighbor = false;
+//constexpr bool discard_unsolvable_charge_densities = false;
 
 //constexpr size_t STEPS = 1000000;
 //constexpr int VERBOSE = 0;
