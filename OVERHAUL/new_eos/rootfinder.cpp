@@ -141,10 +141,10 @@ struct rootfinder_parameters
   double rhoSGiven;
 
   // this function should take (T,muX) and return (e/s,rhoX)
-  std::function<void(double[], double[])> get_densities;
+  std::function<void(double[], double[])> f;
 
   rootfinder_parameters();
-  rootfinder_parameters( double seteorEntGiven, double setRhoBGiven,
+  rootfinder_parameters( double setEorEntGiven, double setRhoBGiven,
                          double setRhoQGiven, double setRhoSGiven,
                          int e_or_entr_mode,
                          std::function<void(double[], double[])> f_in );
@@ -152,7 +152,7 @@ struct rootfinder_parameters
 
 rootfinder_parameters::rootfinder_parameters() {}
 rootfinder_parameters::rootfinder_parameters(
-  double seteorEntGiven, double setRhoBGiven, double setRhoQGiven,
+  double setEorEntGiven, double setRhoBGiven, double setRhoQGiven,
   double setRhoSGiven, int set_e_or_entr_mode,
   std::function<void(double[], double[])> f_in )
 {
@@ -162,7 +162,7 @@ rootfinder_parameters::rootfinder_parameters(
   rhoQGiven      = setRhoQGiven;
   rhoSGiven      = setRhoSGiven;
 
-  get_densities  = f_in;
+  f              = f_in;
 }
 
 
@@ -177,13 +177,12 @@ int rootfinder_f(const gsl_vector *x, void *params, gsl_vector *f)
     tbqsToEval[2] = gsl_vector_get(x,2);	// can be a BSpline evaluation point
     tbqsToEval[3] = gsl_vector_get(x,3);
 
-
-    int e_or_entr_mode = e_or_entr_modeGiven;
-    double eorEntGiven, rhoBGiven, rhoQGiven, rhoSGiven, entr, rhoB, rhoQ, rhoS;
-    eorEntGiven = ((rootfinder_parameters*)params)->eorEntGiven;
-    rhoBGiven = ((rootfinder_parameters*)params)->rhoBGiven;
-    rhoQGiven = ((rootfinder_parameters*)params)->rhoQGiven;
-    rhoSGiven = ((rootfinder_parameters*)params)->rhoSGiven;
+    double eorEntGiven, rhoBGiven, rhoQGiven, rhoSGiven, eorEnt, rhoB, rhoQ, rhoS;
+    eorEntGiven   = ((rootfinder_parameters*)params)->eorEntGiven;
+    rhoBGiven     = ((rootfinder_parameters*)params)->rhoBGiven;
+    rhoQGiven     = ((rootfinder_parameters*)params)->rhoQGiven;
+    rhoSGiven     = ((rootfinder_parameters*)params)->rhoSGiven;
+    get_densities = ((rootfinder_parameters*)params)->f;
 
     // limit scope for readability
     {
@@ -197,7 +196,7 @@ int rootfinder_f(const gsl_vector *x, void *params, gsl_vector *f)
 
       // set densities (convert to powers of fm if necessary)
       eorEnt  = densities_at_point[0];
-      if ( e_or_s_mode == 1 ) eorEnt /= hbarc_MeVfm;
+      if ( e_or_entr_mode == 1 ) eorEnt /= hbarc_MeVfm;
       rhoB    = densities_at_point[1];
       rhoS    = densities_at_point[2];
       rhoQ    = densities_at_point[3];
