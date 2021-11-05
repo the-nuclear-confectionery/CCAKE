@@ -198,9 +198,9 @@ int rootfinder_f(const gsl_vector *x, void *params, gsl_vector *f)
       get_densities( phase_diagram_point, densities_at_point );
 
 cout << "PD point:";
-for (int it = 0; i < 4; i++) cout << "   " << phase_diagram_point[i];
+for (int i = 0; i < 4; i++) cout << "   " << phase_diagram_point[i];
 cout << endl << "Densities:";
-for (int it = 0; i < 4; i++) cout << "   " << densities_at_point[i];
+for (int i = 0; i < 4; i++) cout << "   " << densities_at_point[i];
 if (1) exit(1);
 
       // set densities (convert to powers of fm if necessary)
