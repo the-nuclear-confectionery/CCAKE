@@ -71,6 +71,8 @@ public:
     double wfz(double Tt);
     double s_terms_T(double Tt); 
 
+    void evaluate_thermodynamics();
+
     bool update_s(double sin, double Bin, double Sin, double Qin);
     bool update_s(double sin);
     double s_out(double ein, double Bin, double Sin, double Qin);
@@ -83,6 +85,9 @@ private:
 
     ////////////////////////////////////////////////////////////////////////////
     // PRIVATE MEMBERS
+
+    bool use_delaunay = false, use_rootfinder = true;
+    const int VERBOSE = 1;
 
     //the current position in (T, muB, muQ, muS) initialized by tbqs()
     vector<double> tbqsPosition;
@@ -149,7 +154,15 @@ private:
     // ROUTINES FOR DEBUGGING (uncomment to call)
     //void check_EoS_derivatives();
     //void get_toy_thermo(double point[], double thermodynamics[]);
-    
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    // MISCELLANEOUS PRIVATE ROUTINES
+    bool delaunay_update_s(double sin, double Bin, double Sin, double Qin);
+    bool rootfinder_update_s(double sin, double Bin, double Sin, double Qin);
+    double delaunay_s_out(double ein, double Bin, double Sin, double Qin);
+    double rootfinder_s_out(double ein, double Bin, double Sin, double Qin);
+
 
     ////////////////////////////////////////////////////////////////////////////
     // MEMBERS AND ROUTINES TO FIND (T,muX) COORDINATES OF (e,rhoX) POINT
