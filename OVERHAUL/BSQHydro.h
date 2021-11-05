@@ -14,7 +14,8 @@
 #include <vector>
 
 #include "constants.h"
-#include "eos.h"
+//#include "eos.h"
+#include "new_eos/eos.h"
 #include "equations_of_motion.h"
 #include "input_output.h"
 #include "system_state.h"

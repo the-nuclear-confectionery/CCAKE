@@ -9,7 +9,8 @@
 #include "eos_delaunay/eos_delaunay.h"
 
 #include "vector.h"
-#include "eos.h"
+//#include "eos.h"
+#include "new_eos/eos.h"
 #include "matrix.h"
 #include "particle.h"
 #include "linklist.h"

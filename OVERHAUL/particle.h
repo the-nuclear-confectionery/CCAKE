@@ -13,7 +13,8 @@
 #include <string>
 #include <vector>
 
-#include "eos.h"
+//#include "eos.h"
+#include "new_eos/eos.h"
 #include "matrix.h"
 #include "vector.h"
 
