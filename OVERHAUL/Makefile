@@ -60,14 +60,8 @@ BSQHydro.o: vector.h mathdef.h particle.h BSQHydro.h linklist.h runge_kutta.h eo
 particle.o: particle.cpp particle.h eos.h
 	$(CC) $(CFLAGS) particle.cpp
 
-#eos.o: eos.h eos.cpp read_in_hdf/read_in_hdf.h eos_delaunay/eos_delaunay.h eos_delaunay/eos_delaunay.cpp
-#	$(CC) $(CFLAGS) eos.cpp
-
-eos.o: new_eos/eos.h new_eos/eos.cpp new_eos/eos_initialization.cpp \
-       new_eos/eos_checks.cpp new_eos/eos_derivatives.cpp \
-       read_in_hdf/read_in_hdf.h eos_delaunay/eos_delaunay.h eos_delaunay/eos_delaunay.cpp
-	$(CC) $(CFLAGS) new_eos/eos.cpp new_eos/eos_initialization.cpp \
-									new_eos/eos_checks.cpp new_eos/eos_derivatives.cpp
+eos.o: eos.h eos.cpp read_in_hdf/read_in_hdf.h eos_delaunay/eos_delaunay.h eos_delaunay/eos_delaunay.cpp
+	$(CC) $(CFLAGS) eos.cpp
 
 equations_of_motion.o:  vector.h particle.h eos.h equations_of_motion.h
 	$(CC) $(CFLAGS) equations_of_motion.cpp
