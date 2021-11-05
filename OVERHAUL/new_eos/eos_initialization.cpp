@@ -19,6 +19,8 @@
 
 #include "../constants.h"
 
+#include "rootfinder.h"
+
 using namespace constants;
 
 using std::vector;
@@ -55,6 +57,10 @@ void EquationOfState::init(string quantityFile, string derivFile)
   // load EoS tables, assess grid range
 	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
 	init_grid_ranges_only(quantityFile, derivFile);
+
+  // initialize Rootfinder ranges
+  rootfinder.set_grid_ranges( minT, maxT, minMuB, maxMuB
+                              minMuS, maxMuS, minMuQ, maxMuQ );
 
   // initialize corresponding interpolator for each table
 	cout << "Initialize Delaunay interpolators" << endl;
