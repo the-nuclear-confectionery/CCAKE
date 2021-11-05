@@ -49,7 +49,8 @@ private:
   bool rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 						double rhoBGiven, double rhoSGiven, double rhoQGiven,
 						double error, size_t steps,
-            std::function<void(double[], double[])> function_to_evaluate );
+            std::function<void(double[], double[])> function_to_evaluate,
+            vector<double> & updated_tbqs );
 
 public:
 

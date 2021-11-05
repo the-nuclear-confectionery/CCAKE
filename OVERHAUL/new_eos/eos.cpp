@@ -263,7 +263,7 @@ bool EquationOfState::delaunay_update_s(double sin, double Bin, double Sin, doub
     std::cerr << "You still need to check units!  Etc." << std::endl;
     exit(1);
   }
-  vector<double> result(4, 0.0);
+  vector<double> result = tbqsPosition;
 
   //bool success = entr_delaunay.interpolate( {sin, Bin, Sin, Qin}, result, true );
   bool success = false;
@@ -274,7 +274,7 @@ bool EquationOfState::delaunay_update_s(double sin, double Bin, double Sin, doub
 ////////////////////////////////////////////////
 bool EquationOfState::rootfinder_update_s(double sin, double Bin, double Sin, double Qin)
 {
-  vector<double> result(4, 0.0);
+  vector<double> result = tbqsPosition;
   
   bool success = rootfinder.find_sBSQ_root( sin, Bin, Sin, Qin, sBSQ_functional, result );
   tbqs( result );
@@ -312,7 +312,7 @@ double EquationOfState::delaunay_s_out(double ein, double Bin, double Sin, doubl
     std::cerr << "You still need to check units!  Etc." << std::endl;
     exit(1);
   }
-  vector<double> result(4, 0.0);
+  vector<double> result = tbqsPosition;
   //e_delaunay.interpolate( {ein, Bin, Sin, Qin}, result, true );
   tbqs( result );
   return entrVal;
@@ -321,7 +321,7 @@ double EquationOfState::delaunay_s_out(double ein, double Bin, double Sin, doubl
 ////////////////////////////////////////////////
 double EquationOfState::rootfinder_s_out(double ein, double Bin, double Sin, double Qin)
 {
-  vector<double> result(4, 0.0);
+  vector<double> result = tbqsPosition;
   rootfinder.find_eBSQ_root( ein, Bin, Sin, Qin, eBSQ_functional, result );
   tbqs( result );
   return entrVal;
