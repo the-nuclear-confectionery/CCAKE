@@ -68,6 +68,9 @@ eos.o: new_eos/eos.h new_eos/eos.cpp new_eos/eos_initialization.cpp \
        read_in_hdf/read_in_hdf.h eos_delaunay/eos_delaunay.h eos_delaunay/eos_delaunay.cpp
 	$(CC) $(CFLAGS) new_eos/eos.cpp new_eos/eos_initialization.cpp \
 									new_eos/eos_checks.cpp new_eos/eos_derivatives.cpp
+                  
+rootfinder.o: new_eos/rootfinder.h new_eos/rootfinder.cpp
+  $(CC) $(CFLAGS) new_eos/rootfinder.h new_eos/rootfinder.cpp
 
 equations_of_motion.o:  vector.h particle.h eos.h equations_of_motion.h
 	$(CC) $(CFLAGS) equations_of_motion.cpp
