@@ -92,7 +92,9 @@ void EquationOfState::evaluate_thermodynamics()
 {
 	// EXPECTS UNITS OF MEV!!!
 	double phase_diagram_point[4]	// NOTE: S <<-->> Q swapped!!!
-			= {setT*hbarc_MeVfm, setmuB*hbarc_MeVfm, setmuS*hbarc_MeVfm, setmuQ*hbarc_MeVfm};
+			= { tbqsPosition[0]*hbarc_MeVfm, tbqsPosition[1]*hbarc_MeVfm,
+          tbqsPosition[3]*hbarc_MeVfm, tbqsPosition[2]*hbarc_MeVfm };
+
 	double thermodynamics[17];
   get_full_thermo(phase_diagram_point, thermodynamics);
 
@@ -287,9 +289,9 @@ double EquationOfState::s_out(double ein, double Bin, double Sin, double Qin)
 {
   double result = 0.0;
   if ( use_delaunay )
-    result = delaunay_s_out(sin, Bin, Sin, Qin);
+    result = delaunay_s_out(ein, Bin, Sin, Qin);
   else if ( use_rootfinder )
-    result = rootfinder_s_out(sin, Bin, Sin, Qin);
+    result = rootfinder_s_out(ein, Bin, Sin, Qin);
   else
   {
     std::cerr << __PRETTY_FUNCTION__ << ":" << __LINE__ << ": Option not supported!" << std::endl;
