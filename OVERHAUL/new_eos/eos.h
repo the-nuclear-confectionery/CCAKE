@@ -15,7 +15,7 @@
 #include <gsl/gsl_blas.h>
 #include <gsl/gsl_linalg.h>
 
-#include "eos_delaunay/eos_delaunay.h"
+#include "../eos_delaunay/eos_delaunay.h"
 
 using std::string;
 

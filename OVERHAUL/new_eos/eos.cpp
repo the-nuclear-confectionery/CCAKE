@@ -15,7 +15,7 @@
 
 // functions calls to static EoS C library
 #include <lib.h>
-#include "eos_delaunay/eos_delaunay.h"
+#include "../eos_delaunay/eos_delaunay.h"
 
 #include "constants.h"
 
