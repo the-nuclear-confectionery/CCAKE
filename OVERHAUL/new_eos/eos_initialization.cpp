@@ -59,7 +59,7 @@ void EquationOfState::init(string quantityFile, string derivFile)
 	init_grid_ranges_only(quantityFile, derivFile);
 
   // initialize Rootfinder ranges
-  rootfinder.set_grid_ranges( minT, maxT, minMuB, maxMuB
+  rootfinder.set_grid_ranges( minT, maxT, minMuB, maxMuB,
                               minMuS, maxMuS, minMuQ, maxMuQ );
 
   // initialize corresponding interpolator for each table
