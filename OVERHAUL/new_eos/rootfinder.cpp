@@ -178,11 +178,12 @@ int rootfinder_f(const gsl_vector *x, void *params, gsl_vector *f)
     tbqsToEval[3] = gsl_vector_get(x,3);
 
     double eorEntGiven, rhoBGiven, rhoQGiven, rhoSGiven, eorEnt, rhoB, rhoQ, rhoS;
-    eorEntGiven   = ((rootfinder_parameters*)params)->eorEntGiven;
-    rhoBGiven     = ((rootfinder_parameters*)params)->rhoBGiven;
-    rhoQGiven     = ((rootfinder_parameters*)params)->rhoQGiven;
-    rhoSGiven     = ((rootfinder_parameters*)params)->rhoSGiven;
-    get_densities = ((rootfinder_parameters*)params)->f;
+    eorEntGiven     = ((rootfinder_parameters*)params)->eorEntGiven;
+    rhoBGiven       = ((rootfinder_parameters*)params)->rhoBGiven;
+    rhoQGiven       = ((rootfinder_parameters*)params)->rhoQGiven;
+    rhoSGiven       = ((rootfinder_parameters*)params)->rhoSGiven;
+    std::function<void(double[], double[])>
+      get_densities = ((rootfinder_parameters*)params)->f;
 
     // limit scope for readability
     {
