@@ -65,7 +65,7 @@ eos.o: eos.h eos.cpp read_in_hdf/read_in_hdf.h \
 	$(CC) $(CFLAGS) eos.cpp
                   
 rootfinder.o: rootfinder.h rootfinder.cpp
-	$(CC) $(CFLAGS) ootfinder.h rootfinder.cpp
+	$(CC) $(CFLAGS) rootfinder.cpp
 
 equations_of_motion.o:  vector.h particle.h eos.h equations_of_motion.h
 	$(CC) $(CFLAGS) equations_of_motion.cpp
