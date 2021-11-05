@@ -17,6 +17,9 @@
 #include <lib.h>
 #include "../eos_delaunay/eos_delaunay.h"
 
+#include "eos_derivatives.cpp"
+#include "eos_initialization.cpp"
+
 #include "../constants.h"
 
 using namespace constants;
