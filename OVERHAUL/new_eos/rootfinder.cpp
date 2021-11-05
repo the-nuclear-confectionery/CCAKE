@@ -1,7 +1,9 @@
+#include <functional>
+
 #include "rootfinder.h"
 
 
-
+/*
 
 ////////////////////////////////////////////////////////////////////////////////
 //struct to pass the target (E, rhoB, rhoQ, rhoS) into the rootfinder function
@@ -45,6 +47,8 @@ struct rootfinder_parameters
 
 
 
+
+
 ////////////////////////////////////////////////////////////////////////////////
 int rootfinder_fsbqs(const gsl_vector *x, void *params, gsl_vector *f)
 {
@@ -61,22 +65,23 @@ int rootfinder_fsbqs(const gsl_vector *x, void *params, gsl_vector *f)
     rhoBGiven = ((rootfinder_parameters*)params)->rhoBGiven;            //given variables contain the target point
     rhoQGiven = ((rootfinder_parameters*)params)->rhoQGiven;
     rhoSGiven = ((rootfinder_parameters*)params)->rhoSGiven;
-{
-	double phase_diagram_point[4] = {tbqsToEval[0]*hbarc_MeVfm, tbqsToEval[1]*hbarc_MeVfm,
-					 tbqsToEval[3]*hbarc_MeVfm, tbqsToEval[2]*hbarc_MeVfm};	// NOTE: S <<-->> Q swapped!!!
-	double densities_at_point[4];
-	get_sBSQ_densities(phase_diagram_point, densities_at_point);
-	entr = densities_at_point[0];
-	rhoB = densities_at_point[1];
-	rhoS = densities_at_point[2];
-	rhoQ = densities_at_point[3];
 
-}
+    // limit scope for readability
+    {
+      double phase_diagram_point[4] = {tbqsToEval[0]*hbarc_MeVfm, tbqsToEval[1]*hbarc_MeVfm,
+               tbqsToEval[3]*hbarc_MeVfm, tbqsToEval[2]*hbarc_MeVfm};	// NOTE: S <<-->> Q swapped!!!
+      double densities_at_point[4];
+      get_sBSQ_densities(phase_diagram_point, densities_at_point);
+      entr = densities_at_point[0];
+      rhoB = densities_at_point[1];
+      rhoS = densities_at_point[2];
+      rhoQ = densities_at_point[3];
+    }
 
     gsl_vector_set(f, 0, (entr - entrGiven)); //f[0] contains (s(T,muB,muQ,muS) - sGiven)
     gsl_vector_set(f, 1, (rhoB - rhoBGiven)); //f[1] contains (rhoB(T,muB,muQ,muS) - rhoBGiven)
     gsl_vector_set(f, 2, (rhoQ - rhoQGiven)); //f[2] contains (rhoQ(T,muB,muQ,muS) - rhoQGiven)
-    gsl_vector_set(f, 3, (rhoS - rhoSGiven)); //f[2] contains (rhoS(T,muB,muQ,muS) - rhoSGiven)
+    gsl_vector_set(f, 3, (rhoS - rhoSGiven)); //f[3] contains (rhoS(T,muB,muQ,muS) - rhoSGiven)
 
     return GSL_SUCCESS;
 }
@@ -98,21 +103,111 @@ int rootfinder_febqs(const gsl_vector *x, void *params, gsl_vector *f)
     rhoBGiven = ((rootfinder_parameters*)params)->rhoBGiven;            //given variables contain the target point
     rhoQGiven = ((rootfinder_parameters*)params)->rhoQGiven;
     rhoSGiven = ((rootfinder_parameters*)params)->rhoSGiven;
-{
-	double phase_diagram_point[4] = {tbqsToEval[0]*hbarc_MeVfm, tbqsToEval[1]*hbarc_MeVfm,
-					 tbqsToEval[3]*hbarc_MeVfm, tbqsToEval[2]*hbarc_MeVfm};	// NOTE: S <<-->> Q swapped!!!
-	double densities_at_point[4];
-	get_eBSQ_densities(phase_diagram_point, densities_at_point);
-	e = densities_at_point[0]/hbarc_MeVfm;
-	rhoB = densities_at_point[1];
-	rhoS = densities_at_point[2];
-	rhoQ = densities_at_point[3];
-}
+
+    // limit scope for readability
+    {
+      double phase_diagram_point[4] = {tbqsToEval[0]*hbarc_MeVfm, tbqsToEval[1]*hbarc_MeVfm,
+               tbqsToEval[3]*hbarc_MeVfm, tbqsToEval[2]*hbarc_MeVfm};	// NOTE: S <<-->> Q swapped!!!
+      double densities_at_point[4];
+      get_eBSQ_densities(phase_diagram_point, densities_at_point);
+      e = densities_at_point[0]/hbarc_MeVfm;
+      rhoB = densities_at_point[1];
+      rhoS = densities_at_point[2];
+      rhoQ = densities_at_point[3];
+    }
 
     gsl_vector_set(f, 0, (e - eGiven)); //f[0] contains (e(T,muB,muQ,muS) - eGiven)
     gsl_vector_set(f, 1, (rhoB - rhoBGiven)); //f[1] contains the (rhoB(T,muB,muQ,muS) - rhoBGiven)
     gsl_vector_set(f, 2, (rhoQ - rhoQGiven)); //f[2] contains the (rhoQ(T,muB,muQ,muS) - rhoQGiven)
-    gsl_vector_set(f, 3, (rhoS - rhoSGiven)); //f[2] contains the (rho2(T,muB,muQ,muS) - rhoSGiven)
+    gsl_vector_set(f, 3, (rhoS - rhoSGiven)); //f[3] contains the (rhoS(T,muB,muQ,muS) - rhoSGiven)
+
+    return GSL_SUCCESS;
+}
+
+*/
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+//struct to pass the target (E, rhoB, rhoQ, rhoS) into the rootfinder function
+struct rootfinder_parameters
+{
+  int e_or_entr_mode;
+  double eorEntGiven;          //these are the desired e/s and BSQ
+  double rhoBGiven;
+  double rhoQGiven;
+  double rhoSGiven;
+
+  // this function should take (T,muX) and return (e/s,rhoX)
+  std::function<void(double[], double[])> get_densities;
+
+  rootfinder_parameters();
+  rootfinder_parameters( double seteorEntGiven, double setRhoBGiven,
+                         double setRhoQGiven, double setRhoSGiven,
+                         int e_or_entr_mode,
+                         std::function<void(double[], double[])> f_in );
+};
+
+rootfinder_parameters::rootfinder_parameters() {}
+rootfinder_parameters::rootfinder_parameters(
+  double seteorEntGiven, double setRhoBGiven, double setRhoQGiven,
+  double setRhoSGiven, int set_e_or_entr_mode,
+  std::function<void(double[], double[])> f_in )
+{
+  e_or_entr_mode = set_e_or_entr_mode;
+  eorEntGiven    = setEorEntGiven;
+  rhoBGiven      = setRhoBGiven;
+  rhoQGiven      = setRhoQGiven;
+  rhoSGiven      = setRhoSGiven;
+
+  get_densities  = f_in;
+}
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+int rootfinder_f(const gsl_vector *x, void *params, gsl_vector *f)
+{
+    //x contains the next (T, muB, muS) coordinate to test
+    vector<double> tbqsToEval(4);
+    tbqsToEval[0] = gsl_vector_get(x,0);
+    tbqsToEval[1] = gsl_vector_get(x,1);	// convert x into densevector so it
+    tbqsToEval[2] = gsl_vector_get(x,2);	// can be a BSpline evaluation point
+    tbqsToEval[3] = gsl_vector_get(x,3);
+
+
+    int e_or_entr_mode = e_or_entr_modeGiven;
+    double eorEntGiven, rhoBGiven, rhoQGiven, rhoSGiven, entr, rhoB, rhoQ, rhoS;
+    eorEntGiven = ((rootfinder_parameters*)params)->eorEntGiven;
+    rhoBGiven = ((rootfinder_parameters*)params)->rhoBGiven;
+    rhoQGiven = ((rootfinder_parameters*)params)->rhoQGiven;
+    rhoSGiven = ((rootfinder_parameters*)params)->rhoSGiven;
+
+    // limit scope for readability
+    {
+      double phase_diagram_point[4]
+              = { tbqsToEval[0]*hbarc_MeVfm, tbqsToEval[1]*hbarc_MeVfm,
+                  tbqsToEval[3]*hbarc_MeVfm, tbqsToEval[2]*hbarc_MeVfm };	// NOTE: S <<-->> Q swapped!!!
+      double densities_at_point[4];
+
+      // compute densities using passed-in function object
+      get_densities( phase_diagram_point, densities_at_point );
+
+      // set densities (convert to powers of fm if necessary)
+      eorEnt  = densities_at_point[0];
+      if ( e_or_s_mode == 1 ) eorEnt /= hbarc_MeVfm;
+      rhoB    = densities_at_point[1];
+      rhoS    = densities_at_point[2];
+      rhoQ    = densities_at_point[3];
+    }
+
+    // set differences from zero
+    gsl_vector_set(f, 0, (eorEnt - eorEntGiven));
+    gsl_vector_set(f, 1, (rhoB   - rhoBGiven));
+    gsl_vector_set(f, 2, (rhoQ   - rhoQGiven));
+    gsl_vector_set(f, 3, (rhoS   - rhoSGiven));
 
     return GSL_SUCCESS;
 }
@@ -164,8 +259,15 @@ void Rootfinder::tbqs(double setT, double setmuB, double setmuQ, double setmuS)
 ////////////////////////////////////////////////////////////////////////////////
 bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 						double rhoBGiven, double rhoSGiven, double rhoQGiven,
-						double error, size_t steps)
+						double error, size_t steps,
+            std::function<void(double[], double[])> function_to_evaluate )
 {
+  /////////////////////////////////////////////
+  // e_or_s_mode == 0: using entropy density //
+  // e_or_s_mode == 1: using energy density  //
+  /////////////////////////////////////////////
+
+
   ////////////////////
   // set initial guess
   gsl_vector *x = gsl_vector_alloc(4);
@@ -174,27 +276,18 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 
 
   ////////////////////
-  // decide if entropy or energy density passed in
-  bool isEntropy = false;
-  if ( e_or_s_mode == 0 ) isEntropy = true;
-
-  ////////////////////
   // pass relevant parameters to rootfinder
-  rootfinder_parameters p;
-  p.set( e_or_s_Given, rhoBGiven, rhoQGiven, rhoSGiven);
+  rootfinder_parameters p( e_or_s_Given, rhoBGiven, rhoQGiven, rhoSGiven,
+                           e_or_s_mode, function_to_evaluate );
 
   ////////////////////
   // initialize multiroot solver
   gsl_multiroot_fsolver *solver;
   gsl_multiroot_function f;
 
-  if ( isEntropy )
-    f.f = &rootfinder_fsbqs;
-  else
-    f.f = &rootfinder_febqs;
-
-  f.n = 4;
+  f.n      = 4;
   f.params = &p;
+  f.f      = &rootfinder_f;
 
   solver = gsl_multiroot_fsolver_alloc(TYPE, 4);
   gsl_multiroot_fsolver_set(solver, &f, x);
@@ -321,11 +414,12 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 
 ////////////////////////////////////////////////////////////////////////////////
 bool Rootfinder::find_eBSQ_root( double ein, double Bin, double Sin, double Qin,
+                          std::function<void(double[], double[])> function_to_evaluate,
                           vector<double> & updated_tbqs )
 {
     tbqsPosition = updated_tbqs;
 
-    if (rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) { return true; }
+    if (rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS, function_to_evaluate)) { return true; }
 
     ///////////////////////////
 
@@ -344,7 +438,7 @@ bool Rootfinder::find_eBSQ_root( double ein, double Bin, double Sin, double Qin,
     } else {
         tbqs(t0 + t10, mub0, muq0, mus0);
     }
-    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS, function_to_evaluate)) {
         return true;
     }
     if(t0 - t10 < minT) {
@@ -352,7 +446,7 @@ bool Rootfinder::find_eBSQ_root( double ein, double Bin, double Sin, double Qin,
     } else {
         tbqs(t0 - t10, mub0, muq0, mus0);
     }
-    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS, function_to_evaluate)) {
         return true;
     }
 
@@ -362,7 +456,7 @@ bool Rootfinder::find_eBSQ_root( double ein, double Bin, double Sin, double Qin,
     } else {
         tbqs(t0, mub0 + muB10, muq0, mus0);
     }
-    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS, function_to_evaluate)) {
         return true;
     }
     if(mub0 - muB10 < minMuB) {
@@ -370,7 +464,7 @@ bool Rootfinder::find_eBSQ_root( double ein, double Bin, double Sin, double Qin,
     } else {
         tbqs(t0, mub0 - muB10, muq0, mus0);
     }
-    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS, function_to_evaluate)) {
         return true;
     }
 
@@ -380,7 +474,7 @@ bool Rootfinder::find_eBSQ_root( double ein, double Bin, double Sin, double Qin,
     } else {
         tbqs(t0, mub0, muq0 + muQ10, mus0);
     }
-    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS, function_to_evaluate)) {
         return true;
     }
     if(muq0 - muQ10 < minMuQ) {
@@ -388,7 +482,7 @@ bool Rootfinder::find_eBSQ_root( double ein, double Bin, double Sin, double Qin,
     } else {
         tbqs(t0, mub0, muq0 - muQ10, mus0);
     }
-    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS, function_to_evaluate)) {
         return true;
     }
 
@@ -398,7 +492,7 @@ bool Rootfinder::find_eBSQ_root( double ein, double Bin, double Sin, double Qin,
     } else {
         tbqs(t0, mub0, muq0, mus0 + muS10);
     }
-    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS, function_to_evaluate)) {
         return true;
     }
     if(mus0 - muS10 < maxMuS) {
@@ -408,13 +502,13 @@ bool Rootfinder::find_eBSQ_root( double ein, double Bin, double Sin, double Qin,
     } else {
         tbqs(t0, mub0, muq0, mus0 - muS10);
     }
-    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS, function_to_evaluate)) {
         return true;
     }
 
     //check mu = 0
     tbqs(t0, 0, 0, 0);
-    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS, function_to_evaluate)) {
         return true;
     }
 
@@ -429,11 +523,12 @@ bool Rootfinder::find_eBSQ_root( double ein, double Bin, double Sin, double Qin,
 
 ////////////////////////////////////////////////////////////////////////////////
 bool Rootfinder::find_sBSQ_root( double sin, double Bin, double Sin, double Qin,
+                           std::function<void(double[], double[])> function_to_evaluate,
                            vector<double> & updated_tbqs )
 {
     tbqsPosition = updated_tbqs;
 
-    if (rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) { return true; }
+    if (rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS, function_to_evaluate)) { return true; }
 
 	///////////////////////////
     double t0 = tbqsPosition[0];
@@ -451,7 +546,7 @@ bool Rootfinder::find_sBSQ_root( double sin, double Bin, double Sin, double Qin,
     } else {
         tbqs(t0 + t10, mub0, muq0, mus0);
     }
-    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS, function_to_evaluate)) {
         return true;
     }
     if(t0 - t10 < minT) {
@@ -459,7 +554,7 @@ bool Rootfinder::find_sBSQ_root( double sin, double Bin, double Sin, double Qin,
     } else {
         tbqs(t0 - t10, mub0, muq0, mus0);
     }
-    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS, function_to_evaluate)) {
         return true;
     }
 
@@ -469,7 +564,7 @@ bool Rootfinder::find_sBSQ_root( double sin, double Bin, double Sin, double Qin,
     } else {
         tbqs(t0, mub0 + muB10, muq0, mus0);
     }
-    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS, function_to_evaluate)) {
         return true;
     }
     if(mub0 - muB10 < minMuB) {
@@ -477,7 +572,7 @@ bool Rootfinder::find_sBSQ_root( double sin, double Bin, double Sin, double Qin,
     } else {
         tbqs(t0, mub0 - muB10, muq0, mus0);
     }
-    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS, function_to_evaluate)) {
         return true;
     }
 
@@ -487,7 +582,7 @@ bool Rootfinder::find_sBSQ_root( double sin, double Bin, double Sin, double Qin,
     } else {
         tbqs(t0, mub0, muq0 + muQ10, mus0);
     }
-    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS, function_to_evaluate)) {
         return true;
     }
     if(muq0 - muQ10 < minMuQ) {
@@ -495,7 +590,7 @@ bool Rootfinder::find_sBSQ_root( double sin, double Bin, double Sin, double Qin,
     } else {
         tbqs(t0, mub0, muq0 - muQ10, mus0);
     }
-    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS, function_to_evaluate)) {
         return true;
     }
 
@@ -505,7 +600,7 @@ bool Rootfinder::find_sBSQ_root( double sin, double Bin, double Sin, double Qin,
     } else {
         tbqs(t0, mub0, muq0, mus0 + muS10);
     }
-    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS, function_to_evaluate)) {
         return true;
     }
     if(mus0 - muS10 < maxMuS) {
@@ -513,13 +608,13 @@ bool Rootfinder::find_sBSQ_root( double sin, double Bin, double Sin, double Qin,
     } else {
         tbqs(t0, mub0, muq0, mus0 - muS10);
     }
-    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS, function_to_evaluate)) {
         return true;
     }
 
     //check mu = 0
     tbqs(t0, 0, 0, 0);
-    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS)) {
+    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS, function_to_evaluate)) {
         return true;
     }
 

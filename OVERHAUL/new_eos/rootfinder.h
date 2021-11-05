@@ -2,6 +2,7 @@
 #define ROOTFINDER_H
 
 #include <fstream>
+#include <functional>
 #include <iostream>
 #include <vector>
 
@@ -18,8 +19,10 @@
 using namespace std;
 using namespace constants;
 
-int rootfinder_fsbqs(const gsl_vector *x, void *params, gsl_vector *f);
-int rootfinder_febqs(const gsl_vector *x, void *params, gsl_vector *f);
+//int rootfinder_fsbqs(const gsl_vector *x, void *params, gsl_vector *f);
+//int rootfinder_febqs(const gsl_vector *x, void *params, gsl_vector *f);
+int rootfinder_f( const gsl_vector *x, void *params, gsl_vector *f );
+
 
 class Rootfinder
 {
@@ -45,15 +48,18 @@ private:
 
   bool rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 						double rhoBGiven, double rhoSGiven, double rhoQGiven,
-						double error, size_t steps);
+						double error, size_t steps,
+            std::function<void(double[], double[])> function_to_evaluate );
 
 public:
 
   // formerly update_s and s_out, respectively.
   bool find_sBSQ_root( double sin, double Bin, double Sin, double Qin,
+                       std::function<void(double[], double[])> function_to_evaluate,
                        vector<double> & updated_tbqs );
 
   bool find_eBSQ_root( double ein, double Bin, double Sin, double Qin,
+                       std::function<void(double[], double[])> function_to_evaluate,
                        vector<double> & updated_tbqs );
 
   
