@@ -197,12 +197,12 @@ int rootfinder_f(const gsl_vector *x, void *params, gsl_vector *f)
       // compute densities using passed-in function object
       get_densities( phase_diagram_point, densities_at_point );
 
-cout << "PD point:";
-for (int i = 0; i < 4; i++) cout << "   " << phase_diagram_point[i];
-cout << endl << "Densities:";
-for (int i = 0; i < 4; i++) cout << "   " << densities_at_point[i];
-cout << endl;
-if (1) exit(1);
+//cout << "PD point:";
+//for (int i = 0; i < 4; i++) cout << "   " << phase_diagram_point[i];
+//cout << endl << "Densities:";
+//for (int i = 0; i < 4; i++) cout << "   " << densities_at_point[i];
+//cout << endl;
+//if (1) exit(1);
 
       // set densities (convert to powers of fm if necessary)
       eorEnt  = densities_at_point[0];
@@ -280,9 +280,9 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 
   ////////////////////
   // set initial guess
-cout << "Check initial guess:";
-for (int iTBQS = 0; iTBQS < 4; iTBQS++) cout << "   " << tbqsPosition[iTBQS];
-cout << endl;
+//cout << "Check initial guess:";
+//for (int iTBQS = 0; iTBQS < 4; iTBQS++) cout << "   " << tbqsPosition[iTBQS];
+//cout << endl;
 
   gsl_vector *x = gsl_vector_alloc(4);
   for (int iTBQS = 0; iTBQS < 4; iTBQS++)
