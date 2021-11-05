@@ -17,8 +17,7 @@
 #include "particle.h"
 #include "system_state.h"
 #include "runge_kutta.h"
-//#include "eos.h"
-#include "new_eos/eos.h"
+#include "eos.h"
 
 using namespace constants;
 

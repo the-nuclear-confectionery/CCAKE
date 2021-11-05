@@ -1,8 +1,7 @@
 #ifndef LINKLIST_H
 #define LINKLIST_H
 
-//#include "eos.h"
-#include "new_eos/eos.h"
+#include "eos.h"
 #include "particle.h"
 
 class LinkList

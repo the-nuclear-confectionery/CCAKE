@@ -2,8 +2,7 @@
 #include "matrix.h"
 #include "particle.h"
 #include "mathdef.h"
-//#include "eos.h"
-#include "new_eos/eos.h"
+#include "eos.h"
 #include "kernel.h"
 #include <stdio.h>
 #include <math.h>
