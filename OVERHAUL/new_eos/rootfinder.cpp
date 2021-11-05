@@ -146,7 +146,7 @@ struct rootfinder_parameters
   rootfinder_parameters();
   rootfinder_parameters( double setEorEntGiven, double setRhoBGiven,
                          double setRhoQGiven, double setRhoSGiven,
-                         int e_or_entr_mode,
+                         int set_e_or_entr_mode,
                          std::function<void(double[], double[])> f_in );
 };
 
@@ -177,7 +177,9 @@ int rootfinder_f(const gsl_vector *x, void *params, gsl_vector *f)
     tbqsToEval[2] = gsl_vector_get(x,2);	// can be a BSpline evaluation point
     tbqsToEval[3] = gsl_vector_get(x,3);
 
+    int e_or_entr_mode;
     double eorEntGiven, rhoBGiven, rhoQGiven, rhoSGiven, eorEnt, rhoB, rhoQ, rhoS;
+    e_or_entr_mode  = ((rootfinder_parameters*)params)->e_or_entr_mode;
     eorEntGiven     = ((rootfinder_parameters*)params)->eorEntGiven;
     rhoBGiven       = ((rootfinder_parameters*)params)->rhoBGiven;
     rhoQGiven       = ((rootfinder_parameters*)params)->rhoQGiven;
