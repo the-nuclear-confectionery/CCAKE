@@ -59,6 +59,8 @@ void Particle::set_EquationOfStatePtr( EquationOfState * eosPtr_in )
 double Particle::locate_phase_diagram_point_eBSQ(// previously s_out
                  double e_In, double rhoB_In, double rhoS_In, double rhoQ_In )
 {
+  // default: use particle's current location as initial guess
+  eosPtr->tbqs( thermo.T, thermo.muB, thermo.muQ, thermo.muS );
   double sVal = eosPtr->s_out( e_In, rhoB_In, rhoS_In, rhoQ_In );
   thermo.set(*eosPtr);
   return sVal;
@@ -68,7 +70,9 @@ double Particle::locate_phase_diagram_point_eBSQ(// previously s_out
 ////////////////////////////////////////////////////////////////////////////////
 double Particle::locate_phase_diagram_point_eBSQ(double e_In)// previously s_out
 {
-  double sVal = eosPtr->s_out(e_In, 0.0, 0.0, 0.0 );
+  // default: use particle's current location as initial guess
+  eosPtr->tbqs( thermo.T, 0.0, 0.0, 0.0 );
+  double sVal = eosPtr->s_out( e_In, 0.0, 0.0, 0.0 );
   thermo.set(*eosPtr);
   return sVal;
 }
@@ -77,6 +81,8 @@ double Particle::locate_phase_diagram_point_eBSQ(double e_In)// previously s_out
 void Particle::locate_phase_diagram_point_sBSQ(// previously update_s
                  double s_In, double rhoB_In, double rhoS_In, double rhoQ_In )
 {
+  // default: use particle's current location as initial guess
+  eosPtr->tbqs( thermo.T, thermo.muB, thermo.muQ, thermo.muS );
   bool update_s_success = eosPtr->update_s( s_In, rhoB_In, rhoS_In, rhoQ_In );
   thermo.set(*eosPtr);
   return;
@@ -85,7 +91,9 @@ void Particle::locate_phase_diagram_point_sBSQ(// previously update_s
 ////////////////////////////////////////////////////////////////////////////////
 void Particle::locate_phase_diagram_point_sBSQ(double s_In) // previously update_s
 {
-  eosPtr->update_s(s_In, 0.0, 0.0, 0.0 );
+  // default: use particle's current location as initial guess
+  eosPtr->tbqs( thermo.T, 0.0, 0.0, 0.0 );
+  eosPtr->update_s( s_In, 0.0, 0.0, 0.0 );
   thermo.set(*eosPtr);
   return;
 }
