@@ -1,11 +1,11 @@
 OBJS = main.o vector.o matrix.o BSQHydro.o runge_kutta.o particle.o eos.o \
        system_state.o linklist.o equations_of_motion.o eos_delaunay.o \
-			 kernel.o sph_workstation.o input_output.o
+			 kernel.o sph_workstation.o input_output.o rootfinder.o
 #CC = g++
 CC = h5c++
 DEBUG = -g -D_GLIBCXX_CONCEPT_CHECKS -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC
 STANDARD= -std=c++11
-WARNINGS= -Wall -Wextra -pedantic -Wno-conversion -Wcast-align -Wunused -Wshadow -Wpointer-arith
+WARNINGS= -w -Wall -Wextra -pedantic -Wno-conversion -Wcast-align -Wunused -Wshadow -Wpointer-arith
 OPTIMIZATION= -Og
 #OPTIMIZATION= -Ofast -funroll-loops -fvectorize -finline-functions -s -DNDEBUG -march=native -mtune=native
 # change to -O3 or -Ofast for production
@@ -60,8 +60,12 @@ BSQHydro.o: vector.h mathdef.h particle.h BSQHydro.h linklist.h runge_kutta.h eo
 particle.o: particle.cpp particle.h eos.h
 	$(CC) $(CFLAGS) particle.cpp
 
-eos.o: eos.h eos.cpp read_in_hdf/read_in_hdf.h eos_delaunay/eos_delaunay.h eos_delaunay/eos_delaunay.cpp
+eos.o: eos.h eos.cpp read_in_hdf/read_in_hdf.h \
+       eos_delaunay/eos_delaunay.h eos_delaunay/eos_delaunay.cpp
 	$(CC) $(CFLAGS) eos.cpp
+                  
+rootfinder.o: rootfinder.h rootfinder.cpp
+	$(CC) $(CFLAGS) ootfinder.h rootfinder.cpp
 
 equations_of_motion.o:  vector.h particle.h eos.h equations_of_motion.h
 	$(CC) $(CFLAGS) equations_of_motion.cpp
