@@ -44,12 +44,19 @@ void EquationOfState::init(string quantityFile, string derivFile)
 {
 	tbqsPosition.resize(4);
 
+  // initialize things needed to use static C library
 	cout << "Initializing EoS C library" << endl;
 	initialize("/projects/jnorhos/BSQ/EoS_BQS_Derivatives/Coefficients_Parameters.dat");
+  std::function<void(double[], double[])> f_eBSQ = get_eBSQ_densities;
+  set_eBSQ_functional( f_eBSQ );
+  std::function<void(double[], double[])> f_sBSQ = get_sBSQ_densities;
+  set_sBSQ_functional( f_sBSQ );
 
+  // load EoS tables, assess grid range
 	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
 	init_grid_ranges_only(quantityFile, derivFile);
 
+  // initialize corresponding interpolator for each table
 	cout << "Initialize Delaunay interpolators" << endl;
 	e_delaunay.init(quantityFile, 0);		// 0 - energy density
 	entr_delaunay.init(quantityFile, 1);	// 1 - entropy density

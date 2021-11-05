@@ -1,5 +1,11 @@
 #pragma once
 
+#include <iostream>
+#include <vector>
+#include <fstream>
+#include <functional>
+#include <string>
+
 //#include "read_in_hdf/read_in_hdf.h"
 //#include "Stopwatch.h"
 #include <gsl/gsl_multiroots.h>
@@ -8,10 +14,6 @@
 #include <gsl/gsl_permutation.h>
 #include <gsl/gsl_blas.h>
 #include <gsl/gsl_linalg.h>
-#include <iostream>
-#include <vector>
-#include <fstream>
-#include <string>
 
 #include "eos_delaunay/eos_delaunay.h"
 
@@ -72,6 +74,9 @@ public:
     bool update_s(double sin);
     double s_out(double ein, double Bin, double Sin, double Qin);
     double s_out(double ein);
+
+    void set_eBSQ_functional( std::function<void(double[], double[])> fIn ) { eBSQ_functional = fIn; }
+    void set_sBSQ_functional( std::function<void(double[], double[])> fIn ) { sBSQ_functional = fIn; }
 
 private:
 
@@ -146,9 +151,11 @@ private:
     
 
     ////////////////////////////////////////////////////////////////////////////
-    // ROUTINES TO FIND (T,muX) COORDINATES OF (e,rhoX) POINT
+    // MEMBERS AND ROUTINES TO FIND (T,muX) COORDINATES OF (e,rhoX) POINT
     // - for using the root-finding functionality
     Rootfinder rootfinder;
+    std::function<void(double[], double[])> eBSQ_functional;
+    std::function<void(double[], double[])> sBSQ_functional;
     // - for using a Delaunay interpolation
     eos_delaunay e_delaunay;
     eos_delaunay entr_delaunay;

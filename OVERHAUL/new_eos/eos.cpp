@@ -268,6 +268,7 @@ bool EquationOfState::delaunay_update_s(double sin, double Bin, double Sin, doub
 bool EquationOfState::rootfinder_update_s(double sin, double Bin, double Sin, double Qin)
 {
   vector<double> result(4, 0.0);
+  
   bool success = rootfinder.find_sBSQ_root( sin, Bin, Sin, Qin, result );
   tbqs( result );
   return success;
