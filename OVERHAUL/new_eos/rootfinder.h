@@ -14,7 +14,7 @@
 #include <gsl/gsl_linalg.h>
 
 #include <lib.h>
-#include "/projects/jnorhos/BSQ/OVERHAUL/constants.h"
+#include "../constants.h"
 
 using namespace std;
 using namespace constants;

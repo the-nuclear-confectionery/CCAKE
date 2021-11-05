@@ -64,7 +64,7 @@ particle.o: particle.cpp particle.h eos.h
 #	$(CC) $(CFLAGS) eos.cpp
 
 eos.o: new_eos/eos.h new_eos/eos.cpp new_eos/eos_initialization.cpp \
-       new_eos/eos_checks.cpp new_eos/eos_derivatives.cpp \
+       new_eos/eos_derivatives.cpp \
        read_in_hdf/read_in_hdf.h eos_delaunay/eos_delaunay.h eos_delaunay/eos_delaunay.cpp
 	$(CC) $(CFLAGS) new_eos/eos.cpp new_eos/eos_initialization.cpp \
 									new_eos/eos_checks.cpp new_eos/eos_derivatives.cpp

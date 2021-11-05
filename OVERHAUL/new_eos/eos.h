@@ -16,6 +16,7 @@
 #include <gsl/gsl_linalg.h>
 
 #include "../eos_delaunay/eos_delaunay.h"
+#include "rootfinder.h"
 
 using std::string;
 

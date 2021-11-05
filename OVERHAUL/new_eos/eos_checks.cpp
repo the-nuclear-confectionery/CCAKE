@@ -17,7 +17,7 @@
 #include <lib.h>
 #include "../eos_delaunay/eos_delaunay.h"
 
-#include "constants.h"
+#include "../constants.h"
 #include "toy_thermo.h"
 
 using namespace constants;
