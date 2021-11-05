@@ -415,8 +415,8 @@ cout << endl;
           gsl_vector_get(solver->x, 3) );*/
 
     //UPDATE RESULT PASSED BACK TO EOS INSTEAD
-    for (int iTBQS = 0; iTBQS < 4; iTQBS++)
-      updated_tbqs[iTBQS] = gsl_vector_get(solver->x, iTQBS);
+    for (int iTBQS = 0; iTBQS < 4; iTBQS++)
+      updated_tbqs[iTBQS] = gsl_vector_get(solver->x, iTBQS);
   }
 
   // memory deallocation
