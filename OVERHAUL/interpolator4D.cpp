@@ -108,6 +108,8 @@ void Interpolator4D::evaluate( vector<double> & coordinates, vector<double> & re
     fracs[ic] = 1.0 - modf( (coordinates[ic] - grid_mins[ic])
                             / grid_spacings[ic], &index );
     inds[ic] = static_cast<int>( index );
+    cout << "CHECK: " << ic << "   " << fracs[ic] << "   " << inds[ic] << endl;
+
   }
 
   //////////////////////////////////////////
