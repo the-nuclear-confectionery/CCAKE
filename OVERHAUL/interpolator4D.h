@@ -42,7 +42,7 @@ class Interpolator4D
     void load_data( string filename );
     void construct_interpolant();
 
-}
+};
 
 
 

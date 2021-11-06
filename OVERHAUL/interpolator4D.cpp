@@ -135,7 +135,7 @@ void Interpolator4D::evaluate( vector<double> & coordinates, vector<double> & re
                                          inds[2] + imuS, inds[3] + imuQ ) ];
           // 
           for ( int iField = 0; iField < nFields; iField++ )
-            result[iField] += weight * cell[iField];
+            results[iField] += weight * cell[iField];
 
           // invert each weight to get opposite cell's contribution
           fracs[3] = 1.0 - fracs[3];
