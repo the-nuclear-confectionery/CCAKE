@@ -85,7 +85,7 @@ void Interpolator4D::construct_interpolant()
   for ( int iDim = 0; iDim < dim; iDim++ )
   {
     const int grid_n = grid_sizes[iDim];
-    const double delta = (grid_mins[iDim] - grid_mins[iDim]) / (grid_n-1.0);
+    const double delta = (grid_maxs[iDim] - grid_mins[iDim]) / (grid_n-1.0);
 cout << "check delta: " << iDim << "   " << delta << endl;
     grid_spacings.push_back( delta );
     for ( int iGrid = 0; iGrid < grid_n; iGrid++ )
