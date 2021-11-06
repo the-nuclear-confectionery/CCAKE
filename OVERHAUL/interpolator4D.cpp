@@ -126,17 +126,19 @@ void Interpolator4D::evaluate( vector<double> & coordinates, vector<double> & re
   const int nFields = fields.front().size();
   results = vector<double>(nFields, 0.0);
   cout << "nFields = " << nFields << endl;
-  for (int iT = 0; iT < 1; iT++)
+  for (int iT = 0; iT < 2; iT++)
   {
-    for (int imuB = 0; imuB < 1; imuB++)
+    for (int imuB = 0; imuB < 2; imuB++)
     {
-      for (int imuS = 0; imuS < 1; imuS++)
+      for (int imuS = 0; imuS < 2; imuS++)
       {
-        for (int imuQ = 0; imuQ < 1; imuQ++)
+        for (int imuQ = 0; imuQ < 2; imuQ++)
         {
           double weight = fracs[0]*fracs[1]*fracs[2]*fracs[3]; // fractional weights
           auto & cell = fields[ indexer( inds[0] + iT,   inds[1] + imuB,
                                          inds[2] + imuS, inds[3] + imuQ ) ];
+
+          cout << 
           // 
           for ( int iField = 0; iField < nFields; iField++ )
             results[iField] += weight * cell[iField];
