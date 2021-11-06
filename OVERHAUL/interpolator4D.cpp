@@ -138,7 +138,6 @@ void Interpolator4D::evaluate( vector<double> & coordinates, vector<double> & re
           auto & cell = fields[ indexer( inds[0] + iT,   inds[1] + imuB,
                                          inds[2] + imuS, inds[3] + imuQ ) ];
 
-          cout << 
           // 
           for ( int iField = 0; iField < nFields; iField++ )
             results[iField] += weight * cell[iField];
