@@ -125,6 +125,7 @@ void Interpolator4D::evaluate( vector<double> & coordinates, vector<double> & re
   }
   const int nFields = fields.front().size();
   results = vector<double>(nFields, 0.0);
+  cout << "nFields = " << nFields << endl;
   for (int iT = 0; iT < 1; iT++)
   {
     for (int imuB = 0; imuB < 1; imuB++)
