@@ -34,7 +34,7 @@ class Interpolator4D
                 * grid_sizes[3] + indices[3];
     }
 
-    inline size_t indexer( int & i0, int i1, int i2, int i3 )
+    inline size_t indexer( int i0, int i1, int i2, int i3 )
     {
       return ( ( i0 * grid_sizes[1] + i1 ) * grid_sizes[2] + i2 ) * grid_sizes[3] + i3;
     }
