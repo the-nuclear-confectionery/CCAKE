@@ -9,7 +9,7 @@
 #include "interpolatorND.h"
 
 template <int D>
-void InterpolatorND::initialize( string filename )
+void InterpolatorND<D>::initialize( string filename )
 {
   // import data from files (move this to I/O class eventually)
   load_data( filename );
@@ -20,7 +20,7 @@ void InterpolatorND::initialize( string filename )
 
 
 template <int D>
-void InterpolatorND::load_data( string filename )
+void InterpolatorND<D>::load_data( string filename )
 {
   ifstream infile( filename.c_str() );
   if (infile.is_open())
@@ -74,7 +74,7 @@ void InterpolatorND::load_data( string filename )
 }
 
 template <int D>
-void InterpolatorND::construct_interpolant()
+void InterpolatorND<D>::construct_interpolant()
 {
   // initialize grid ranges, etc.
   for ( auto & gridDirection : grid )
@@ -112,7 +112,7 @@ void InterpolatorND::construct_interpolant()
 
 
 template <int D>
-void InterpolatorND::evaluate( vector<double> & coordinates, vector<double> & results )
+void InterpolatorND<D>::evaluate( vector<double> & coordinates, vector<double> & results )
 {
   //const int dim = coordinates.size();
   const int dim = D;

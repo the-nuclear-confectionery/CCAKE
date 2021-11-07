@@ -10,8 +10,8 @@ template <int D>
 class InterpolatorND
 {
   public:
-    InterpolatorND(){}
-    ~InterpolatorND(){}
+    InterpolatorND<D>(){}
+    ~InterpolatorND<D>(){}
 
     void initialize( string filename );
 
