@@ -38,6 +38,6 @@ class InterpolatorND
 
 };
 
-
+#include "interpolatorND.cpp"
 
 #endif
