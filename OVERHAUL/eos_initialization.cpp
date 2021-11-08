@@ -56,6 +56,7 @@ void EquationOfState::init(string quantityFile, string derivFile)
   else  // if thermo not from static C library, read in table from file
   {
     // initialize things needed to use static C library
+equation_of_state_table_filename = "./EoS/Houston/Default/thermo.dat";
     cout << "Initializing EoS from input file(s): "
         << equation_of_state_table_filename << endl;
     equation_of_state_table.initialize( equation_of_state_table_filename );
@@ -90,7 +91,7 @@ void EquationOfState::init(string quantityFile, string derivFile)
     equation_of_state_table.rescale( "S",     "T", 3 );
     equation_of_state_table.rescale( "Q",     "T", 3 );
     equation_of_state_table.rescale( "chiBB", "T", 2 );
-    equation_of_state_table.rescale( "chiQQ", "T", 2 );
+    equation_of_state_table.rescale( "chiQQ", "T", 2clTabCtrl );
     equation_of_state_table.rescale( "chiSS", "T", 2 );
     equation_of_state_table.rescale( "chiBQ", "T", 2 );
     equation_of_state_table.rescale( "chiBS", "T", 2 );
