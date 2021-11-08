@@ -247,6 +247,15 @@ if (i==0)
 			<< p.T() << "   " << p.e() << "   "
 			<< p.p() << "   " << p.s_an << endl;
 
+	if (true)
+	{
+		cout << "Exiting prematurely from " << __PRETTY_FUNCTION__
+			<< "::" << __LINE__ << "!" << endl;
+		cerr << "Exiting prematurely from " << __PRETTY_FUNCTION__
+			<< "::" << __LINE__ << "!" << endl;
+		exit(8);
+	}
+
     }
 	cout << "----------------------------------------"
 			"----------------------------------------" << endl;
@@ -259,7 +268,7 @@ if (i==0)
 	cout << "Finished function call to updateIC(...) in "
 			<< swTotal.printTime() << " s." << endl;
 
-	if (true)
+	if (false)
 	{
 		cout << "Exiting prematurely from " << __PRETTY_FUNCTION__
 			<< "::" << __LINE__ << "!" << endl;
