@@ -96,7 +96,7 @@ if (i==0)
 					double phase_diagram_point[4]
 						= { p.T(), p.muB(), p.muQ(), p.muS() };
 					double densities_at_point[4];
-					get_eBSQ_densities(phase_diagram_point, densities_at_point);
+					STANDARD_get_eBSQ_densities(phase_diagram_point, densities_at_point);
 					cout << i << ":   " << p.e_sub*197.3
 						<< "   " << p.rhoB_an
 						<< "   " << p.rhoS_an
