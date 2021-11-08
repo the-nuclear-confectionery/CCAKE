@@ -141,9 +141,9 @@ void InterpolatorND<D>::evaluate( const vector<double> & coordinates, vector<dou
     fracs[ic] = 1.0 - modf( (coordinates[ic] - grid_mins[ic])
                             / grid_spacings[ic], &index );
     inds[ic] = static_cast<int>( index );
-    cout << "CHECK: " << ic << "   " << fracs[ic] << "   " << inds[ic] << "   " << index
-        << "   " << coordinates[ic] << "   " << (coordinates[ic] - grid_mins[ic])
-                                                / grid_spacings[ic] << endl;
+    //cout << "CHECK: " << ic << "   " << fracs[ic] << "   " << inds[ic] << "   " << index
+    //    << "   " << coordinates[ic] << "   " << (coordinates[ic] - grid_mins[ic])
+    //                                            / grid_spacings[ic] << endl;
   }
 
   //////////////////////////////////////////
@@ -151,7 +151,7 @@ void InterpolatorND<D>::evaluate( const vector<double> & coordinates, vector<dou
   // all fields interpolated at once
   const int nFields = fields.front().size();
   results = vector<double>(nFields, 0.0);
-  cout << "nFields = " << nFields << endl;
+  //cout << "nFields = " << nFields << endl;
 
   // loop over hypercube indices
   for ( auto & hypercube_index : hypercube_indices )
@@ -234,8 +234,6 @@ void InterpolatorND<D>::rescale( const string & column_to_rescale,
       << column_to_rescale_by << " to the power of " << power_of_rescaling << endl;
   int column_index_to_rescale    = field_names[column_to_rescale];
   int column_index_to_rescale_by = grid_names[column_to_rescale_by];
-  cout << "Column " << column_to_rescale << ": " << column_index_to_rescale << endl;
-  cout << "Column " << column_to_rescale_by << ": " << column_index_to_rescale_by << endl;
   auto & grid_column             = grid[column_index_to_rescale_by];
 
   const size_t nCells = fields.size();
@@ -253,7 +251,7 @@ void InterpolatorND<D>::rescale_axis( const string & column_to_rescale,
 {
   cout << "Rescaling " << column_to_rescale << " by factor of " << overall_factor << endl;
   int column_index_to_rescale = grid_names[column_to_rescale];
-  cout << "Column " << column_to_rescale << ": " << column_index_to_rescale << endl;
+
   auto & axis = grid[column_index_to_rescale];
   for ( auto & pt : axis ) pt *= overall_factor;
 
