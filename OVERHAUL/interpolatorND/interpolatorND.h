@@ -16,13 +16,13 @@ class InterpolatorND
 
     void initialize( string filename );
 
-    void set_grid_names( vector<string> & names )
+    void set_grid_names( const vector<string> & names )
     {
       int iName = 0;
       for ( auto & name : names ) grid_names[name] = iName++;
     }
 
-    void set_field_names( vector<string> & names )
+    void set_field_names( const vector<string> & names )
     {
       int iName = 0;
       for ( auto & name : names ) field_names[name] = iName++;
