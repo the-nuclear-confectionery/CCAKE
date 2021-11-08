@@ -163,7 +163,7 @@ void InterpolatorND<D>::evaluate( const vector<double> & coordinates, vector<dou
 template <int D>
 void InterpolatorND<D>::evaluate(
       const vector<double> & coordinates, vector<double> & results,
-      vector<string> & fields_to_interpolate )
+      const vector<string> & fields_to_interpolate )
 {
   const int dim = D;
 

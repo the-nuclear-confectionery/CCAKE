@@ -175,8 +175,9 @@ private:
     double delaunay_s_out(double ein, double Bin, double Sin, double Qin);
     double rootfinder_s_out(double ein, double Bin, double Sin, double Qin);
 
-    void get_eBSQ_densities_from_interpolator( double point[], double densities[] );
-    void get_sBSQ_densities_from_interpolator( double point[], double densities[] );
+    // need these to be static to initialize std::function<...> objects
+    static void get_eBSQ_densities_from_interpolator( double point[], double densities[] );
+    static void get_sBSQ_densities_from_interpolator( double point[], double densities[] );
 
 
     ////////////////////////////////////////////////////////////////////////////

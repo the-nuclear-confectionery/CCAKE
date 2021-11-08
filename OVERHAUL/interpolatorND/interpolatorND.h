@@ -45,7 +45,7 @@ class InterpolatorND
 
     // interpolates only specific fields by name
     void evaluate( const vector<double> & coordinates, vector<double> & results,
-                   vector<string> & fields_to_interpolate );
+                   const vector<string> & fields_to_interpolate );
 
     vector<double> get_grid_minima() { return grid_mins; }
     vector<double> get_grid_maxima() { return grid_maxs; }
