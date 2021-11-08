@@ -210,19 +210,15 @@ void InterpolatorND<D>::evaluate(
 ////////////////////////////////////////////////////////////////////////////////
 template <int D>
 void InterpolatorND<D>::rescale(
-        string & column_to_rescale, string & column_to_rescale_by,
-        int power_of_rescaling, double overall_factor )
+        string & column_to_rescale, string & column_to_rescale_by, int power_of_rescaling )
 {
-  const int dim = D;
-
   int column_index_to_rescale    = field_names[column_to_rescale];
   int column_index_to_rescale_by = grid_names[column_to_rescale_by];
 
   const size_t nCells = fields.size();
   for (size_t iCell = 0; iCell < nCells; iCell++)
     fields[iCell][column_index_to_rescale]
-      *= overall_factor * pow( grid[grid_names[column_index_to_rescale_by]][iCell],
-                               power_of_rescaling );
+      *= pow( grid[grid_names[column_index_to_rescale_by]][iCell], power_of_rescaling );
 
   return;
 }
