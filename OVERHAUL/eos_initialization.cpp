@@ -56,7 +56,7 @@ void EquationOfState::init(string quantityFile, string derivFile)
   else  // if thermo not from static C library, read in table from file
   {
     // initialize things needed to use static C library
-equation_of_state_table_filename = "./EoS/Houston/Default/thermo.dat";
+    equation_of_state_table_filename = "./EoS/Houston/Default/thermo.dat";
     cout << "Initializing EoS from input file(s): "
         << equation_of_state_table_filename << endl;
     equation_of_state_table.initialize( equation_of_state_table_filename );
