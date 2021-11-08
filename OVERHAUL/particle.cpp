@@ -61,6 +61,8 @@ double Particle::locate_phase_diagram_point_eBSQ(// previously s_out
 {
   // default: use particle's current location as initial guess
   eosPtr->tbqs( thermo.T, thermo.muB, thermo.muQ, thermo.muS );
+cout << "CHECK POINT: " << thermo.T << "   " << thermo.muB << "   "
+    << thermo.muQ << "   " << thermo.muS << endl;
   double sVal = eosPtr->s_out( e_In, rhoB_In, rhoS_In, rhoQ_In );
   thermo.set(*eosPtr);
   return sVal;
