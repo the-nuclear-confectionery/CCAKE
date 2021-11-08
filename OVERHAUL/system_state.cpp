@@ -368,10 +368,6 @@ cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.
 
   }
 }
-
-
-
-
 //////////////////////////////////////////////////////////////////////////////
 void SystemState::bsqsvfreezeout(int curfrz)
 {
@@ -516,10 +512,6 @@ void SystemState::bsqsvfreezeout(int curfrz)
 
   cfon = 0;
 }
-
-
-
-
 //////////////////////////////////////////////////////////////////////////////
 void SystemState::bsqsvinterpolate(int curfrz)
 {
@@ -636,3 +628,4 @@ void SystemState::bsqsvinterpolate(int curfrz)
 
   cf = curfrz;
 }
+///////////////////////////////////////////////////////////////////////////////////

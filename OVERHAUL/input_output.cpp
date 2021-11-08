@@ -168,6 +168,76 @@ void InputOutput::read_in_initial_conditions()
   }
   infile.close();
 }
+/*****************************************************************************/
+void InputOutput::output()
+{
+  ofstream EPN;
+  countEP+=1;
+  string epin ("profile");
+  string dat (".dat");
+  string sCEP;
+  sCEP=convertInt(countEP);
+  string epname;
+
+  if (linklist.average==1)
+    {
+        epname=cfolder+"average_eprof"+ sCEP + ".dat";
+    }
+  else if (linklist.fcount==0&&linklist.average!=1)
+    {
+        epname=ofolder+epin+sCEP+dat;
+    }
+  else
+    {
+        string under ("_ev");
+        string even;
+        even=convertInt(linklist.fnum);
+        epname=cfolder+epin+sCEP+under+even+dat;
+    }
+
+  //cout << epname << endl;
+  EPN.open(epname.c_str());
+  if (!EPN.is_open())
+    {
+
+        cout << "Error: cannot open eprofile" << sCEP <<".dat file!" << endl;
+        exit(1);
+    }
+  else
+    {
+  EPN << systemPtr->t << endl;
+  for (int i=0; i<systemPtr->_n; i++)
+    {
+      auto & p = systemPtr->particles[i];
+      EPN << i << " " << systemPtr->t << " " << systemPtr->p.r   << " "
+      << systemPtr->p.EOSp() << " "  << systemPtr->p.EOST()*197.3 << " "
+      << systemPtr->p.EOSmuB()*197.3 << " " << systemPtr->p.EOSmuS()*197.3 << " "
+      << systemPtr->p.EOSmuQ()*197.3 << " " << systemPtr->p.EOSe()*197.3 << " "
+      << systemPtr->p.EOSB() << " " << systemPtr->p.EOSS() << " " 
+      << systemPtr->p.EOSQ() << " " << systemPtr->p.EOSs() << " "	//column 14
+      << systemPtr->p.eta/(systemPtr->p.gamma*systemPtr->t) << " " 
+      << systemPtr->p.eta_sigma << " " << systemPtr->p.sigma << " " 
+      << systemPtr->p.sigmaweight << " "	<< systemPtr->p.stauRelax << " " 
+      << systemPtr->p.bigtheta   << " " 
+      <<  sqrt( systemPtr->p.shv.x[0][0]*systemPtr->p.shv.x[0][0]
+			-2*systemPtr->p.shv.x[0][1]*systemPtr->p.shv.x[0][1]
+						-2*systemPtr->p.shv.x[0][2]*systemPtr->p.shv.x[0][2]
+						+ systemPtr->p.shv.x[1][1]*systemPtr->p.shv.x[1][1]
+						+ systemPtr->p.shv.x[2][2]*systemPtr->p.shv.x[2][2]
+						+2*systemPtr->p.shv.x[1][2]*systemPtr->p.shv.x[1][2]
+						+pow(systemPtr->t,4)*systemPtr->p.shv33*systemPtr->p.shv33 ) << " "
+       << systemPtr->p.stauRelax/linklist.t * systemPtr->p.bigtheta << " "
+      << systemPtr->p.u.x[0]/systemPtr->p.gamma << " "
+      << systemPtr->p.u.x[1]/systemPtr->p.gamma << " " << systemPtr->p.gamma 
+      << endl;
+     }
+    //exit(-8);
+
+    EPN.close();
+
+	 return;
+  }
+}  
 
 
 

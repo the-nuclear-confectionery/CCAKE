@@ -335,13 +335,6 @@ if (i==0)
 	return;
 
 }
-
-
-
-
-
-
-
 ///////////////////////////////////////////////////////////////////////////////
 // smoothing routines: first smoothing covers all hydrodyanmical fields
 void SPHWorkstation::smooth_fields(int a, bool init_mode /*== false*/)
