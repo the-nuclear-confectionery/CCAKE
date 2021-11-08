@@ -9,6 +9,7 @@
 
 #include "interpolatorND.h"
 
+////////////////////////////////////////////////////////////////////////////////
 template <int D>
 void InterpolatorND<D>::initialize( string filename )
 {
@@ -20,6 +21,7 @@ void InterpolatorND<D>::initialize( string filename )
 }
 
 
+////////////////////////////////////////////////////////////////////////////////
 template <int D>
 void InterpolatorND<D>::load_data( string filename )
 {
@@ -44,17 +46,12 @@ void InterpolatorND<D>::load_data( string filename )
           std::cerr << "Your equation of state table has the wrong dimension!" << std::endl;
           exit(1);
         }
-        //size_t grid_length = 1;
-        //for ( auto & size : grid_sizes ) grid_length *= size;
         grid.resize(dim);
       }
       else
       {
         ///////////////////////////////
         // set grid coordinates first
-        //vector<double> gridPoint(dim);
-        //for ( auto & coord : gridPoint ) iss >> coord;
-        //grid.push_back( gridPoint );
         double tmp = 0.0;
         for ( int iDim = 0; iDim < dim; iDim++ )
         {
@@ -74,6 +71,8 @@ void InterpolatorND<D>::load_data( string filename )
   }
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
 template <int D>
 void InterpolatorND<D>::construct_interpolant()
 {
@@ -84,6 +83,7 @@ void InterpolatorND<D>::construct_interpolant()
     grid_maxs.push_back( *max_element(gridDirection.begin(), gridDirection.end()) );
   }
 
+  // using grid ranges and sizes, re-construct grid lattices themselves
   const int dim = D;
   grid_points.resize(dim);
   for ( int iDim = 0; iDim < dim; iDim++ )
@@ -95,6 +95,7 @@ void InterpolatorND<D>::construct_interpolant()
       grid_points[iDim].push_back( grid_mins[iDim] + iGrid*delta );
   }
 
+  // need this to loop over hypercube vertices systematically
   n_points_in_hypercube = 1;
   for ( int iDim = 0; iDim < dim; iDim++ ) n_points_in_hypercube *= 2;
 
@@ -112,10 +113,10 @@ void InterpolatorND<D>::construct_interpolant()
 }
 
 
+////////////////////////////////////////////////////////////////////////////////
 template <int D>
-void InterpolatorND<D>::evaluate( vector<double> & coordinates, vector<double> & results )
+void InterpolatorND<D>::evaluate( const vector<double> & coordinates, vector<double> & results )
 {
-  //const int dim = coordinates.size();
   const int dim = D;
 
   //////////////////////////////////////////
@@ -124,28 +125,17 @@ void InterpolatorND<D>::evaluate( vector<double> & coordinates, vector<double> &
   vector<double> fracs(dim); // fractional coordinate location in containing hypercube
   for ( int ic = 0; ic < dim; ic++ )
   {
-    double index = 0.0; // holds integer part of the coordinate location in grid
+    double index = 0.0;      // holds integer part of the coordinate location in grid
     fracs[ic] = 1.0 - modf( (coordinates[ic] - grid_mins[ic])
                             / grid_spacings[ic], &index );
     inds[ic] = static_cast<int>( index );
-    cout << "CHECK: " << ic << "   " << fracs[ic] << "   " << inds[ic] << "   " << index
-        << "   " << (coordinates[ic] - grid_mins[ic]) / grid_spacings[ic] << endl;
-
   }
 
   //////////////////////////////////////////
   // compute linear interpolant (assuming 4D thermodynamics for simplicity)
   // all fields interpolated at once
-  if (false)
-  {
-    std::cout << "You still need to check the order of the loops!" << endl;
-    std::cerr << "You still need to check the order of the loops!" << endl;
-    std::cout << "Also, you should invert fields if you haven't done so already" << std::endl;
-    exit(1);
-  }
   const int nFields = fields.front().size();
   results = vector<double>(nFields, 0.0);
-  cout << "nFields = " << nFields << endl;
 
   // loop over hypercube indices
   for ( auto & hypercube_index : hypercube_indices )
@@ -164,4 +154,94 @@ void InterpolatorND<D>::evaluate( vector<double> & coordinates, vector<double> &
     for ( int iField = 0; iField < nFields; iField++ )
       results[iField] += weight * cell[iField];
   }
+}
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+template <int D>
+void InterpolatorND<D>::evaluate(
+      const vector<double> & coordinates, vector<double> & results,
+      vector<string> & fields_to_interpolate )
+{
+  const int dim = D;
+
+  //////////////////////////////////////////
+  // locate coordinate in grid
+  vector<int> inds(dim);     // integral coordinate location for containing hypercube
+  vector<double> fracs(dim); // fractional coordinate location in containing hypercube
+  for ( int ic = 0; ic < dim; ic++ )
+  {
+    double index = 0.0;      // holds integer part of the coordinate location in grid
+    fracs[ic] = 1.0 - modf( (coordinates[ic] - grid_mins[ic])
+                            / grid_spacings[ic], &index );
+    inds[ic] = static_cast<int>( index );
+  }
+
+  //////////////////////////////////////////
+  // compute linear interpolant (assuming 4D thermodynamics for simplicity)
+  // all fields interpolated at once
+  const int nFields = fields_to_interpolate.size();
+  results = vector<double>(nFields, 0.0);
+
+  // loop over hypercube indices
+  for ( auto & hypercube_index : hypercube_indices )
+  {
+    double weight = 1.0;
+    for (int iDim = 0; iDim < dim; iDim++)
+      weight *= (fracs[iDim] + hypercube_index[iDim] - 2.0*hypercube_index[iDim]*fracs[iDim]);
+
+    vector<int> hypercube_inds = inds;
+    for (int iDim = 0; iDim < dim; iDim++)
+      hypercube_inds[iDim] += hypercube_index[iDim];
+
+    auto & cell = fields[ indexer( hypercube_inds ) ];
+
+    // 
+    for ( int iField = 0; iField < nFields; iField++ )
+      results[iField] += weight * cell[field_names[fields_to_interpolate[iField]]];
+  }
+}
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+template <int D>
+void InterpolatorND<D>::rescale(
+        string & column_to_rescale, string & column_to_rescale_by,
+        int power_of_rescaling, double overall_factor )
+{
+  const int dim = D;
+
+  int column_index_to_rescale    = field_names[column_to_rescale];
+  int column_index_to_rescale_by = grid_names[column_to_rescale_by];
+
+  const size_t nCells = fields.size();
+  for (size_t iCell = 0; iCell < nCells; iCell++)
+    fields[iCell][column_index_to_rescale]
+      *= overall_factor * pow( grid[grid_names[column_index_to_rescale_by]][iCell],
+                               power_of_rescaling );
+
+  return;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+template <int D>
+void InterpolatorND<D>::rescale_axis( string & column_to_rescale, double overall_factor )
+{
+  int column_index_to_rescale = grid_names[column_to_rescale];
+  auto & axis = grid[column_index_to_rescale];
+  for ( auto & pt : axis ) pt *= overall_factor;
+  return;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+template <int D>
+void InterpolatorND<D>::rescale_field( string & column_to_rescale, double overall_factor )
+{
+  for ( auto & cell : fields )
+    cell[field_names[column_to_rescale]] *= overall_factor;
+  return;
 }

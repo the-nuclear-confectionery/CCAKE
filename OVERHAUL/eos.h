@@ -16,10 +16,10 @@
 #include <gsl/gsl_linalg.h>
 
 #include "eos_delaunay/eos_delaunay.h"
+#include "interpolatorND/interpolatorND.h"
 #include "rootfinder.h"
 
 using std::string;
-
 
 class EquationOfState
 {
@@ -86,15 +86,27 @@ private:
     ////////////////////////////////////////////////////////////////////////////
     // PRIVATE MEMBERS
 
-    bool use_delaunay = false, use_rootfinder = true;
-    const int VERBOSE = 1;
+    //bool use_delaunay = false, use_rootfinder = true;
+    //const int VERBOSE = 1;
+    static constexpr bool use_rootfinder                      = true;
+    static constexpr bool use_delaunay                        = !use_rootfinder;
+    static constexpr bool use_static_C_library                = true;
+    static constexpr bool accept_nearest_neighbor             = false;
+    static constexpr bool discard_unsolvable_charge_densities = false;
+
+    static constexpr size_t STEPS     = 1000000;
+    static constexpr int VERBOSE      = 0;
+    static constexpr double TOLERANCE = 1e-12;
 
     //the current position in (T, muB, muQ, muS) initialized by tbqs()
     vector<double> tbqsPosition;
 
-    // string to hold input filenames
+    // string to hold input filenames and EoS table
     string quantity_file = "";
     string deriv_file    = "";
+    string equation_of_state_table_filename = "";
+    InterpolatorND<4> equation_of_state_table;
+
 
     double pVal          = 0.0;
     double entrVal       = 0.0;
@@ -162,6 +174,9 @@ private:
     bool rootfinder_update_s(double sin, double Bin, double Sin, double Qin);
     double delaunay_s_out(double ein, double Bin, double Sin, double Qin);
     double rootfinder_s_out(double ein, double Bin, double Sin, double Qin);
+
+    void get_eBSQ_densities_from_interpolator( double point[], double densities[] );
+    void get_sBSQ_densities_from_interpolator( double point[], double densities[] );
 
 
     ////////////////////////////////////////////////////////////////////////////

@@ -18,22 +18,12 @@
 #include "eos_delaunay/eos_delaunay.h"
 
 #include "constants.h"
-
 #include "rootfinder.h"
 
 using namespace constants;
 
 using std::vector;
 using std::string;
-
-constexpr bool use_exact = true;
-constexpr bool accept_nearest_neighbor = false;
-constexpr bool discard_unsolvable_charge_densities = false;
-
-constexpr size_t STEPS = 1000000;
-constexpr int VERBOSE = 0;
-constexpr double TOLERANCE = 1e-12;
-
 
 void EquationOfState::init()
 {
@@ -46,26 +36,98 @@ void EquationOfState::init(string quantityFile, string derivFile)
 {
 	tbqsPosition.resize(4);
 
-  // initialize things needed to use static C library
-	cout << "Initializing EoS C library" << endl;
-	initialize("/projects/jnorhos/BSQ/EoS_BQS_Derivatives/Coefficients_Parameters.dat");
-  std::function<void(double[], double[])> f_eBSQ = get_eBSQ_densities;
-  set_eBSQ_functional( f_eBSQ );
-  std::function<void(double[], double[])> f_sBSQ = get_sBSQ_densities;
-  set_sBSQ_functional( f_sBSQ );
+  //////////////////////////////////////////////////////////////////////////////
+  if ( use_static_C_library )
+  {
+    // initialize things needed to use static C library
+    cout << "Initializing EoS C library" << endl;
+    initialize("/projects/jnorhos/BSQ/EoS_BQS_Derivatives/Coefficients_Parameters.dat");
 
-  // load EoS tables, assess grid range
-	std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
-	init_grid_ranges_only(quantityFile, derivFile);
+    // set density-computing functions appropriately
+    std::function<void(double[], double[])> f_eBSQ = get_eBSQ_densities;
+    set_eBSQ_functional( f_eBSQ );
+    std::function<void(double[], double[])> f_sBSQ = get_sBSQ_densities;
+    set_sBSQ_functional( f_sBSQ );
 
-  // initialize Rootfinder ranges
-  rootfinder.set_grid_ranges( minT, maxT, minMuB, maxMuB,
-                              minMuS, maxMuS, minMuQ, maxMuQ );
+    // load EoS tables, assess grid range
+    std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+    init_grid_ranges_only(quantityFile, derivFile);
+  }
+  else  // if thermo not from static C library, read in table from file
+  {
+    // initialize things needed to use static C library
+    cout << "Initializing EoS from input file(s): "
+        << equation_of_state_table_filename << endl;
+    equation_of_state_table.initialize( equation_of_state_table_filename );
 
-  // initialize corresponding interpolator for each table
-	cout << "Initialize Delaunay interpolators" << endl;
-	e_delaunay.init(    quantityFile, 0 );	// 0 - energy density
-	entr_delaunay.init( quantityFile, 1 );	// 1 - entropy density
+    // set grid ranges
+    vector<double> grid_minima = equation_of_state_table.get_grid_minima();
+    vector<double> grid_maxima = equation_of_state_table.get_grid_maxima();
+    minT   = grid_minima[0]; minMuB = grid_minima[1];
+    minMuS = grid_minima[2]; minMuQ = grid_minima[3];
+    maxT   = grid_maxima[0]; maxMuB = grid_maxima[1];
+    maxMuS = grid_maxima[2]; maxMuQ = grid_maxima[3];
+
+    // set names of EoS quantities to interpolate, in order
+    equation_of_state_table.set_grid_names(
+      vector<string>{ "T","muB","muQ","muS" } );
+    equation_of_state_table.set_field_names(
+      vector<string>{ "p","s","B","S","Q","e","cs2",
+                      "chiBB","chiQQ","chiSS","chiBQ","chiBS",
+                      "chiQS","chiTB","chiTQ","chiTS","chiTT" } );
+
+    // finally, all dimensionalful quantities should be convert to fm and
+    // all dimensionless quantities need to be rescaled appropriately
+    equation_of_state_table.rescale_axis( "T",   1.0/hbarc_MeVfm );
+    equation_of_state_table.rescale_axis( "muB", 1.0/hbarc_MeVfm );
+    equation_of_state_table.rescale_axis( "muQ", 1.0/hbarc_MeVfm );
+    equation_of_state_table.rescale_axis( "muS", 1.0/hbarc_MeVfm );
+
+    equation_of_state_table.rescale( "p",     "T", 4 );
+    equation_of_state_table.rescale( "e",     "T", 4 );
+    equation_of_state_table.rescale( "s",     "T", 3 );
+    equation_of_state_table.rescale( "B",     "T", 3 );
+    equation_of_state_table.rescale( "S",     "T", 3 );
+    equation_of_state_table.rescale( "Q",     "T", 3 );
+    equation_of_state_table.rescale( "chiBB", "T", 2 );
+    equation_of_state_table.rescale( "chiQQ", "T", 2 );
+    equation_of_state_table.rescale( "chiSS", "T", 2 );
+    equation_of_state_table.rescale( "chiBQ", "T", 2 );
+    equation_of_state_table.rescale( "chiBS", "T", 2 );
+    equation_of_state_table.rescale( "chiQS", "T", 2 );
+    equation_of_state_table.rescale( "chiTB", "T", 2 );
+    equation_of_state_table.rescale( "chiTQ", "T", 2 );
+    equation_of_state_table.rescale( "chiTS", "T", 2 );
+    equation_of_state_table.rescale( "chiTT", "T", 2 );
+
+    // set functions from interpolant
+    std::function<void(double[], double[])> f_eBSQ = get_eBSQ_densities_from_interpolator;
+    set_eBSQ_functional( f_eBSQ );
+    std::function<void(double[], double[])> f_sBSQ = get_sBSQ_densities_from_interpolator;
+    set_sBSQ_functional( f_sBSQ );
+
+    // load EoS tables, assess grid range
+    //std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+    //init_grid(quantityFile, derivFile);
+  }
+  //////////////////////////////////////////////////////////////////////////////
+
+  //////////////////////////////////////////////////////////////////////////////
+  // set method for locating point in phase diagram
+  if ( use_rootfinder )
+  {
+    // initialize Rootfinder ranges
+    rootfinder.set_grid_ranges( minT, maxT, minMuB, maxMuB,
+                                minMuS, maxMuS, minMuQ, maxMuQ );
+  }
+  else if ( use_delaunay )
+  {
+    // initialize corresponding interpolator for each table
+    cout << "Initialize Delaunay interpolators" << endl;
+    e_delaunay.init(    quantityFile, 0 );	// 0 - energy density
+    entr_delaunay.init( quantityFile, 1 );	// 1 - entropy density
+  }
+  //////////////////////////////////////////////////////////////////////////////
 
 	return;
 }
