@@ -68,8 +68,6 @@ class InterpolatorND
       size_t result = indices[0];
       for ( size_t ind = 1; ind < indices.size(); ind++ )
         result = result * grid_sizes[ind] + indices[ind];
-      for ( size_t ind = 0; ind < indices.size(); ind++ )
-        cout << "CHECK indices: " << grid_sizes[ind] << "   " << indices[ind] << endl;
       return result;
     }
 
