@@ -214,11 +214,12 @@ void InterpolatorND<D>::rescale(
 {
   int column_index_to_rescale    = field_names[column_to_rescale];
   int column_index_to_rescale_by = grid_names[column_to_rescale_by];
+  auto & grid_column             = grid[column_index_to_rescale_by];
 
   const size_t nCells = fields.size();
   for (size_t iCell = 0; iCell < nCells; iCell++)
     fields[iCell][column_index_to_rescale]
-      *= pow( grid[grid_names[column_index_to_rescale_by]][iCell], power_of_rescaling );
+      *= pow( grid_column[iCell], power_of_rescaling );
 
   return;
 }
@@ -237,7 +238,7 @@ void InterpolatorND<D>::rescale_axis( string & column_to_rescale, double overall
 template <int D>
 void InterpolatorND<D>::rescale_field( string & column_to_rescale, double overall_factor )
 {
-  for ( auto & cell : fields )
-    cell[field_names[column_to_rescale]] *= overall_factor;
+  int column_index_to_rescale = field_names[column_to_rescale];
+  for ( auto & cell : fields ) cell[column_index_to_rescale] *= overall_factor;
   return;
 }
