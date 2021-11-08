@@ -86,31 +86,65 @@ void EquationOfState::tbqs(double setT, double setmuB, double setmuQ, double set
 
 void EquationOfState::evaluate_thermodynamics()
 {
-	// EXPECTS UNITS OF MEV!!!
-	double phase_diagram_point[4]	// NOTE: S <<-->> Q swapped!!!
-			= { tbqsPosition[0]*hbarc_MeVfm, tbqsPosition[1]*hbarc_MeVfm,
-          tbqsPosition[3]*hbarc_MeVfm, tbqsPosition[2]*hbarc_MeVfm };
+  if ( use_static_C_library )
+  {
+    // EXPECTS UNITS OF MEV!!!
+    double phase_diagram_point[4]	// NOTE: S <<-->> Q swapped!!!
+        = { tbqsPosition[0]*hbarc_MeVfm, tbqsPosition[1]*hbarc_MeVfm,
+            tbqsPosition[3]*hbarc_MeVfm, tbqsPosition[2]*hbarc_MeVfm };
 
-	double thermodynamics[17];
-  get_full_thermo(phase_diagram_point, thermodynamics);
+    double thermodynamics[17];
+    get_full_thermo(phase_diagram_point, thermodynamics);
 
-  pVal    = thermodynamics[0];
-  entrVal = thermodynamics[1];
-  BVal    = thermodynamics[2];
-  SVal    = thermodynamics[3];
-  QVal    = thermodynamics[4];
-  eVal    = thermodynamics[5];
-  cs2Val  = thermodynamics[6];
-  db2     = thermodynamics[7];
-  dq2     = thermodynamics[8];
-  ds2     = thermodynamics[9];
-  dbdq    = thermodynamics[10];
-  dbds    = thermodynamics[11];
-  dsdq    = thermodynamics[12];
-  dtdb    = thermodynamics[13];
-  dtdq    = thermodynamics[14];
-  dtds    = thermodynamics[15];
-  dt2     = thermodynamics[16];
+    pVal    = thermodynamics[0];
+    entrVal = thermodynamics[1];
+    BVal    = thermodynamics[2];
+    SVal    = thermodynamics[3];
+    QVal    = thermodynamics[4];
+    eVal    = thermodynamics[5];
+    cs2Val  = thermodynamics[6];
+    db2     = thermodynamics[7];
+    dq2     = thermodynamics[8];
+    ds2     = thermodynamics[9];
+    dbdq    = thermodynamics[10];
+    dbds    = thermodynamics[11];
+    dsdq    = thermodynamics[12];
+    dtdb    = thermodynamics[13];
+    dtdq    = thermodynamics[14];
+    dtds    = thermodynamics[15];
+    dt2     = thermodynamics[16];
+  }
+  else
+  {
+    vector<double> thermodynamics;  // gets re-sized inside evaluate function
+
+    // evaluate EoS interpolator at current location (S and Q NOT SWAPPED)
+    equation_of_state_table.evaluate( tbqsPosition, thermodynamics ); 
+
+    if ( thermodynamics.size() != 17 )
+    {
+      cerr << "PROBLEM" << endl;
+      exit(1);
+    }
+
+    pVal    = thermodynamics[0];
+    entrVal = thermodynamics[1];
+    BVal    = thermodynamics[2];
+    SVal    = thermodynamics[3];
+    QVal    = thermodynamics[4];
+    eVal    = thermodynamics[5];
+    cs2Val  = thermodynamics[6];
+    db2     = thermodynamics[7];
+    dq2     = thermodynamics[8];
+    ds2     = thermodynamics[9];
+    dbdq    = thermodynamics[10];
+    dbds    = thermodynamics[11];
+    dsdq    = thermodynamics[12];
+    dtdb    = thermodynamics[13];
+    dtdq    = thermodynamics[14];
+    dtds    = thermodynamics[15];
+    dt2     = thermodynamics[16];
+  }
 }
 
 
