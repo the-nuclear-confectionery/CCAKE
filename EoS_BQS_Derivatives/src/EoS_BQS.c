@@ -542,33 +542,35 @@ int main(int argc, char *argv[])
 						muSval = l+0.5*DeltamuS;
 					}
 					if (Tval>Tmax || muBval > muBmax || muSval > muSmax || muQval > muQmax) continue;
-					if ( Tval < 1 ) Tval += 0.001;
+          double lowT_factor = 1.0;
+					if ( Tval < 1 ) lowT_factor = 0.0;
 
 					//Thermodynamics
-					PressVal = PressTaylor(Tval, muBval, muQval, muSval);
-					EntrVal = EntrTaylor(Tval, muBval, muQval, muSval);
-					BarDensVal = BarDensTaylor(Tval, muBval, muQval, muSval);
-					StrDensVal = StrDensTaylor(Tval, muBval, muQval, muSval);
-					ChDensVal = ChDensTaylor(Tval, muBval, muQval, muSval);
+					PressVal    = lowT_factor*PressTaylor(Tval, muBval, muQval, muSval);
+					EntrVal     = lowT_factor*EntrTaylor(Tval, muBval, muQval, muSval);
+					BarDensVal  = lowT_factor*BarDensTaylor(Tval, muBval, muQval, muSval);
+					StrDensVal  = lowT_factor*StrDensTaylor(Tval, muBval, muQval, muSval);
+					ChDensVal   = lowT_factor*ChDensTaylor(Tval, muBval, muQval, muSval);
 					EnerDensVal = EntrVal - PressVal 
 							+ muBval/Tval*BarDensVal 
 							+ muQval/Tval*ChDensVal 
 							+ muSval/Tval*StrDensVal;
-					SpSoundVal = SpSound(Tval, muBval, muQval, muSval);
+          EnerDensVal *= lowT_factor;
+					SpSoundVal  = lowT_factor*SpSound(Tval, muBval, muQval, muSval);
 					            
 					//Second Order Derivatives
-					D2PB2 = P2B2(Tval, muBval, muQval, muSval);
-					D2PQ2 = P2Q2(Tval, muBval, muQval, muSval);
-					D2PS2 = P2S2(Tval, muBval, muQval, muSval);
+					D2PB2 = lowT_factor*P2B2(Tval, muBval, muQval, muSval);
+					D2PQ2 = lowT_factor*P2Q2(Tval, muBval, muQval, muSval);
+					D2PS2 = lowT_factor*P2S2(Tval, muBval, muQval, muSval);
 					
-					D2PBQ = P2BQ(Tval, muBval, muQval, muSval);
-					D2PBS = P2BS(Tval, muBval, muQval, muSval);
-					D2PQS = P2QS(Tval, muBval, muQval, muSval);
+					D2PBQ = lowT_factor*P2BQ(Tval, muBval, muQval, muSval);
+					D2PBS = lowT_factor*P2BS(Tval, muBval, muQval, muSval);
+					D2PQS = lowT_factor*P2QS(Tval, muBval, muQval, muSval);
 					
-					D2PTB = P2TB(Tval, muBval, muQval, muSval);
-					D2PTQ = P2TQ(Tval, muBval, muQval, muSval);
-					D2PTS = P2TS(Tval, muBval, muQval, muSval);
-					D2PT2 = P2T2(Tval, muBval, muQval, muSval);
+					D2PTB = lowT_factor*P2TB(Tval, muBval, muQval, muSval);
+					D2PTQ = lowT_factor*P2TQ(Tval, muBval, muQval, muSval);
+					D2PTS = lowT_factor*P2TS(Tval, muBval, muQval, muSval);
+					D2PT2 = lowT_factor*P2T2(Tval, muBval, muQval, muSval);
 					
 					fprintf(All_Therm_Taylor,"%lf  %lf  %lf  %lf  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f\n", Tval, muBval, muQval, muSval, PressVal, EntrVal, 
 					        BarDensVal, StrDensVal, ChDensVal, EnerDensVal, SpSoundVal);
