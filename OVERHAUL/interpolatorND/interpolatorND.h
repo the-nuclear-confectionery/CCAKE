@@ -15,6 +15,7 @@ class InterpolatorND
     ~InterpolatorND<D>(){}
 
     void initialize( string filename );
+    void initialize_hypercube();
 
     void set_grid_names( const vector<string> & names )
     {

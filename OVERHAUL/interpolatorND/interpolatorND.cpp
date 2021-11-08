@@ -13,6 +13,9 @@
 template <int D>
 void InterpolatorND<D>::initialize( string filename )
 {
+  // need this to iterate systematically over hypercube vertices
+  initialize_hypercube();
+
   // import data from files (move this to I/O class eventually)
   load_data( filename );
 
@@ -100,7 +103,13 @@ void InterpolatorND<D>::construct_interpolant()
       grid_points[iDim].push_back( grid_mins[iDim] + iGrid*delta );
   }
 
-  // need this to loop over hypercube vertices systematically
+}
+
+////////////////////////////////////////////////////////////////////////////////
+template <int D>
+void InterpolatorND<D>::initialize_hypercube()
+{
+  const int dim = D;
   n_points_in_hypercube = 1;
   for ( int iDim = 0; iDim < dim; iDim++ ) n_points_in_hypercube *= 2;
 
@@ -114,9 +123,7 @@ void InterpolatorND<D>::construct_interpolant()
 
     hypercube_indices.push_back( digits );
   }
-
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 template <int D>
