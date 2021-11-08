@@ -93,8 +93,7 @@ if (i==0)
 			{
 				if (p.s_an>0.0)
 				{
-					double phase_diagram_point[4]
-						= { p.T(), p.muB(), p.muQ(), p.muS() };
+					double phase_diagram_point[4] = { p.T(), p.muB(), p.muQ(), p.muS() };
 					double densities_at_point[4];
 					STANDARD_get_eBSQ_densities(phase_diagram_point, densities_at_point);
 					cout << i << ":   " << p.e_sub*197.3
@@ -242,7 +241,7 @@ if (i==0)
 			<< p.T() << "   " << p.e() << "   "
 			<< p.p() << "   " << p.s_an << endl;
 
-	if (true)
+	if (false)
 	{
 		cout << "Exiting prematurely from " << __PRETTY_FUNCTION__
 			<< "::" << __LINE__ << "!" << endl;
