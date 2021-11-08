@@ -143,7 +143,7 @@ void InterpolatorND<D>::evaluate( const vector<double> & coordinates, vector<dou
     inds[ic] = static_cast<int>( index );
 //    cout << "CHECK: " << ic << "   " << fracs[ic] << "   " << inds[ic] << "   " << index
 //        << "   " << coordinates[ic] << "   " << (coordinates[ic] - grid_mins[ic])
-                                                / grid_spacings[ic] << endl;
+//                                                / grid_spacings[ic] << endl;
   }
 
   //////////////////////////////////////////
@@ -196,7 +196,7 @@ void InterpolatorND<D>::evaluate(
     inds[ic] = static_cast<int>( index );
 //    cout << "CHECK: " << ic << "   " << fracs[ic] << "   " << inds[ic] << "   " << index
 //        << "   " << coordinates[ic] << "   " << (coordinates[ic] - grid_mins[ic])
-                                                / grid_spacings[ic] << endl;
+//                                                / grid_spacings[ic] << endl;
   }
 
   //////////////////////////////////////////
