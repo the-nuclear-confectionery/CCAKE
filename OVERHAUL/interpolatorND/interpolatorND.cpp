@@ -158,12 +158,14 @@ void InterpolatorND<D>::evaluate( const vector<double> & coordinates, vector<dou
   {
     double weight = 1.0;
     for (int iDim = 0; iDim < dim; iDim++)
-      weight *= (fracs[iDim] + hypercube_index[iDim] - 2.0*hypercube_index[iDim]*fracs[iDim]);
+      weight *= (fracs[iDim] + hypercube_index[iDim]
+                  - 2.0*hypercube_index[iDim]*fracs[iDim]);
 
     vector<int> hypercube_inds = inds;
     for (int iDim = 0; iDim < dim; iDim++)
       hypercube_inds[iDim] += hypercube_index[iDim];
 
+cout << __LINE__ << endl;
     auto & cell = fields[ indexer( hypercube_inds ) ];
 
     // 
@@ -213,6 +215,7 @@ void InterpolatorND<D>::evaluate(
     for (int iDim = 0; iDim < dim; iDim++)
       hypercube_inds[iDim] += hypercube_index[iDim];
 
+cout << __LINE__ << endl;
     auto & cell = fields[ indexer( hypercube_inds ) ];
 
     // 
