@@ -374,6 +374,8 @@ void EquationOfState::get_eBSQ_densities_from_interpolator(
         double point[], double densities[] )  // point and densities both length = 4
 {
     vector<double> results;
+cout << "CHECK POINT HERE: " << point[0] << "   " << 
+    << point[1] << "   " << point[2] << "   " << point[3] << endl;
     equation_of_state_table.evaluate(
       vector<double>(point, point + 4), results,
       vector<string>({ "e","B","S","Q" }) );
