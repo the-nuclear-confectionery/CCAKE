@@ -141,8 +141,8 @@ void InterpolatorND<D>::evaluate( const vector<double> & coordinates, vector<dou
     fracs[ic] = 1.0 - modf( (coordinates[ic] - grid_mins[ic])
                             / grid_spacings[ic], &index );
     inds[ic] = static_cast<int>( index );
-    cout << "CHECK: " << ic << "   " << fracs[ic] << "   " << inds[ic] << "   " << index
-        << "   " << coordinates[ic] << "   " << (coordinates[ic] - grid_mins[ic])
+//    cout << "CHECK: " << ic << "   " << fracs[ic] << "   " << inds[ic] << "   " << index
+//        << "   " << coordinates[ic] << "   " << (coordinates[ic] - grid_mins[ic])
                                                 / grid_spacings[ic] << endl;
   }
 
@@ -165,7 +165,6 @@ void InterpolatorND<D>::evaluate( const vector<double> & coordinates, vector<dou
     for (int iDim = 0; iDim < dim; iDim++)
       hypercube_inds[iDim] += hypercube_index[iDim];
 
-cout << __LINE__ << endl;
     auto & cell = fields[ indexer( hypercube_inds ) ];
 
     // 
@@ -195,8 +194,8 @@ void InterpolatorND<D>::evaluate(
     fracs[ic] = 1.0 - modf( (coordinates[ic] - grid_mins[ic])
                             / grid_spacings[ic], &index );
     inds[ic] = static_cast<int>( index );
-    cout << "CHECK: " << ic << "   " << fracs[ic] << "   " << inds[ic] << "   " << index
-        << "   " << coordinates[ic] << "   " << (coordinates[ic] - grid_mins[ic])
+//    cout << "CHECK: " << ic << "   " << fracs[ic] << "   " << inds[ic] << "   " << index
+//        << "   " << coordinates[ic] << "   " << (coordinates[ic] - grid_mins[ic])
                                                 / grid_spacings[ic] << endl;
   }
 
@@ -218,7 +217,6 @@ void InterpolatorND<D>::evaluate(
     for (int iDim = 0; iDim < dim; iDim++)
       hypercube_inds[iDim] += hypercube_index[iDim];
 
-cout << __LINE__ << endl;
     auto & cell = fields[ indexer( hypercube_inds ) ];
 
     // 
