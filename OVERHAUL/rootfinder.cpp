@@ -77,7 +77,6 @@ int rootfinder_f(const gsl_vector *x, void *params, gsl_vector *f)
 
       // set densities (convert to powers of fm if necessary)
       eorEnt  = densities_at_point[0];
-      //if ( e_or_entr_mode == 1 ) eorEnt /= hbarc_MeVfm;
       rhoB    = densities_at_point[1];
       rhoS    = densities_at_point[2];
       rhoQ    = densities_at_point[3];
