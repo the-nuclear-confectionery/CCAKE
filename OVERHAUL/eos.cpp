@@ -89,9 +89,8 @@ void EquationOfState::evaluate_thermodynamics()
   if ( use_static_C_library )
   {
     // EXPECTS UNITS OF MEV!!!
-    double phase_diagram_point[4]	// NOTE: S <<-->> Q swapped!!!
-        = { tbqsPosition[0]*hbarc_MeVfm, tbqsPosition[1]*hbarc_MeVfm,
-            tbqsPosition[3]*hbarc_MeVfm, tbqsPosition[2]*hbarc_MeVfm };
+    double phase_diagram_point[4]
+        = { tbqsPosition[0], tbqsPosition[1], tbqsPosition[2], tbqsPosition[3] };
 
 /*phase_diagram_point[0] = 150.0;
 phase_diagram_point[1] = 0.0;
@@ -99,7 +98,7 @@ phase_diagram_point[2] = 0.0;
 phase_diagram_point[3] = 0.0;*/
 
     double thermodynamics[17];
-    get_full_thermo(phase_diagram_point, thermodynamics);
+    STANDARD_get_full_thermo(phase_diagram_point, thermodynamics);
 
     pVal    = thermodynamics[0];
     entrVal = thermodynamics[1];

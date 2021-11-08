@@ -461,4 +461,98 @@ void get_full_thermo(double point[], double thermodynamics[])
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+// STANDARD ARGUMENT ORDERING BELOW THIS LINE
+
+void STANDARD_get_eBSQ_densities(double point[], double densities[])
+{
+	const double Tsol = point[0]*197.3, muBsol = point[1]*197.3,
+                muQsol = point[2]*197.3, muSsol = point[3]*197.3;
+	const double Tsol3_by_hc3 = Tsol*Tsol*Tsol/(197.3*197.3*197.3);
+	double POut = Tsol*Tsol3_by_hc3*PressTaylor(Tsol, muBsol, muQsol, muSsol);
+	double sOut = Tsol3_by_hc3*EntrTaylor(Tsol, muBsol, muQsol, muSsol);
+	double BOut = Tsol3_by_hc3*BarDensTaylor(Tsol, muBsol, muQsol, muSsol);
+	double SOut = Tsol3_by_hc3*StrDensTaylor(Tsol, muBsol, muQsol, muSsol);
+	double QOut = Tsol3_by_hc3*ChDensTaylor(Tsol, muBsol, muQsol, muSsol);
+	double eOut = sOut*Tsol - POut + muBsol*BOut + muQsol*QOut + muSsol*SOut;
+	densities[0] = eOut / 197.3;
+	densities[1] = BOut;
+	densities[2] = SOut;
+	densities[3] = QOut;
+}
+
+void STANDARD_get_sBSQ_densities(double point[], double densities[])
+{
+	const double Tsol = point[0]*197.3, muBsol = point[1]*197.3,
+                muQsol = point[2]*197.3, muSsol = point[3]*197.3;
+	const double Tsol3_by_hc3 = Tsol*Tsol*Tsol/(197.3*197.3*197.3);
+	densities[0] = Tsol3_by_hc3*EntrTaylor(Tsol, muBsol, muQsol, muSsol);
+	densities[1] = Tsol3_by_hc3*BarDensTaylor(Tsol, muBsol, muQsol, muSsol);
+	densities[2] = Tsol3_by_hc3*StrDensTaylor(Tsol, muBsol, muQsol, muSsol);
+	densities[3] = Tsol3_by_hc3*ChDensTaylor(Tsol, muBsol, muQsol, muSsol);
+}
+
+
+
+void STANDARD_get_full_thermo(double point[], double thermodynamics[])
+{
+	const double Tsol = point[0]*197.3, muBsol = point[1]*197.3,
+                muQsol = point[2]*197.3, muSsol = point[3]*197.3;
+	const double Tsol2_by_hc2 = Tsol*Tsol/(197.3*197.3);
+	const double Tsol3_by_hc3 = Tsol*Tsol*Tsol/(197.3*197.3*197.3);
+	double POut = Tsol*Tsol3_by_hc3*PressTaylor(Tsol, muBsol, muQsol, muSsol);
+	double sOut = Tsol3_by_hc3*EntrTaylor(Tsol, muBsol, muQsol, muSsol);
+	double BOut = Tsol3_by_hc3*BarDensTaylor(Tsol, muBsol, muQsol, muSsol);
+	double SOut = Tsol3_by_hc3*StrDensTaylor(Tsol, muBsol, muQsol, muSsol);
+	double QOut = Tsol3_by_hc3*ChDensTaylor(Tsol, muBsol, muQsol, muSsol);
+	double eOut = sOut*Tsol - POut + muBsol*BOut + muQsol*QOut + muSsol*SOut;
+
+
+	//Thermodynamics
+	thermodynamics[0]  = POut / 197.3;
+	thermodynamics[1]  = sOut;
+	thermodynamics[2]  = BOut;
+	thermodynamics[3]  = SOut;
+	thermodynamics[4]  = QOut;
+	thermodynamics[5]  = eOut / 197.3;
+	thermodynamics[6]  = SpSound(Tsol, muBsol, muQsol, muSsol);
+				
+	//Second Order Derivatives (prefactor converts to physical susceptibilities in fm^-2)
+	thermodynamics[7]  = Tsol2_by_hc2*P2B2(Tsol, muBsol, muQsol, muSsol);
+	thermodynamics[8]  = Tsol2_by_hc2*P2Q2(Tsol, muBsol, muQsol, muSsol);
+	thermodynamics[9]  = Tsol2_by_hc2*P2S2(Tsol, muBsol, muQsol, muSsol);
+	
+	thermodynamics[10] = Tsol2_by_hc2*P2BQ(Tsol, muBsol, muQsol, muSsol);
+	thermodynamics[11] = Tsol2_by_hc2*P2BS(Tsol, muBsol, muQsol, muSsol);
+	thermodynamics[12] = Tsol2_by_hc2*P2QS(Tsol, muBsol, muQsol, muSsol);
+	
+	thermodynamics[13] = Tsol2_by_hc2*P2TB(Tsol, muBsol, muQsol, muSsol);
+	thermodynamics[14] = Tsol2_by_hc2*P2TQ(Tsol, muBsol, muQsol, muSsol);
+	thermodynamics[15] = Tsol2_by_hc2*P2TS(Tsol, muBsol, muQsol, muSsol);
+	thermodynamics[16] = Tsol2_by_hc2*P2T2(Tsol, muBsol, muQsol, muSsol);
+}
+
+
+
 #undef NRANSI

@@ -94,10 +94,7 @@ if (i==0)
 				if (p.s_an>0.0)
 				{
 					double phase_diagram_point[4]
-						= { p.T()*197.3,
-							  p.muB()*197.3,
-							  p.muS()*197.3,
-							  p.muQ()*197.3 };
+						= { p.T(), p.muB(), p.muQ(), p.muS() };
 					double densities_at_point[4];
 					get_eBSQ_densities(phase_diagram_point, densities_at_point);
 					cout << i << ":   " << p.e_sub*197.3
@@ -208,12 +205,10 @@ if (i==0)
 					<< p.rhoQ_an << "\n";
 			
 			cout << "\t --> Exact:\n";
-			double phase_diagram_point[4] = { p.T()*197.3,
-											  p.muB()*197.3,
-											  p.muS()*197.3,
-											  p.muQ()*197.3 };
+			double phase_diagram_point[4] = { p.T(), p.muB(), p.muQ(), p.muS() };
+
 			double densities_at_point[4];
-			get_eBSQ_densities(phase_diagram_point, densities_at_point);
+			STANDARD_get_eBSQ_densities(phase_diagram_point, densities_at_point);
 			cout << "\t\t - phase diagram point:";
 			for (int iii = 0; iii < 4; iii++) cout << "   " << phase_diagram_point[iii];
 			cout << "\n\t\t - densities:";

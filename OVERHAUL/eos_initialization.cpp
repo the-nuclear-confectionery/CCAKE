@@ -44,9 +44,9 @@ void EquationOfState::init(string quantityFile, string derivFile)
     initialize("/projects/jnorhos/BSQ/EoS_BQS_Derivatives/Coefficients_Parameters.dat");
 
     // set density-computing functions appropriately
-    std::function<void(double[], double[])> f_eBSQ = get_eBSQ_densities;
+    std::function<void(double[], double[])> f_eBSQ = STANDARD_get_eBSQ_densities;
     set_eBSQ_functional( f_eBSQ );
-    std::function<void(double[], double[])> f_sBSQ = get_sBSQ_densities;
+    std::function<void(double[], double[])> f_sBSQ = STANDARD_get_sBSQ_densities;
     set_sBSQ_functional( f_sBSQ );
 
     // load EoS tables, assess grid range
