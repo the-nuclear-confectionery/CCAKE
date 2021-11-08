@@ -93,6 +93,11 @@ void EquationOfState::evaluate_thermodynamics()
         = { tbqsPosition[0]*hbarc_MeVfm, tbqsPosition[1]*hbarc_MeVfm,
             tbqsPosition[3]*hbarc_MeVfm, tbqsPosition[2]*hbarc_MeVfm };
 
+phase_diagram_point[0] = 150.0;
+phase_diagram_point[1] = 0.0;
+phase_diagram_point[2] = 0.0;
+phase_diagram_point[3] = 0.0;
+
     double thermodynamics[17];
     get_full_thermo(phase_diagram_point, thermodynamics);
 
@@ -121,6 +126,12 @@ void EquationOfState::evaluate_thermodynamics()
     // evaluate EoS interpolator at current location (S and Q NOT SWAPPED)
     equation_of_state_table.evaluate( tbqsPosition, thermodynamics ); 
 
+tbqsPosition[0] = 150.0/197.3;
+tbqsPosition[1] = 0.0;
+tbqsPosition[2] = 0.0;
+tbqsPosition[3] = 0.0;
+
+
     if ( thermodynamics.size() != 17 )
     {
       cerr << "PROBLEM" << endl;
@@ -145,6 +156,14 @@ void EquationOfState::evaluate_thermodynamics()
     dtds    = thermodynamics[15];
     dt2     = thermodynamics[16];
   }
+
+cout << "THERMO DUMP: " << pVal << "   " << entrVal << "   " << BVal << "   "
+      << SVal << "   " << QVal << "   " << eVal << "   " << cs2Val << "   "
+      << db2 << "   " << dq2 << "   " << ds2 << "   " << dbdq << "   "
+      << dbds << "   " << dsdq << "   " << dtdb << "   " << dtdq << "   "
+      << dtds << "   " << dt2 << endl;
+
+if (true) exit(1);
 }
 
 
