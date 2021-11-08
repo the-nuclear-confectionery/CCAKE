@@ -61,14 +61,6 @@ void EquationOfState::init(string quantityFile, string derivFile)
         << equation_of_state_table_filename << endl;
     equation_of_state_table.initialize( equation_of_state_table_filename );
 
-    // set grid ranges
-    vector<double> grid_minima = equation_of_state_table.get_grid_minima();
-    vector<double> grid_maxima = equation_of_state_table.get_grid_maxima();
-    minT   = grid_minima[0]; minMuB = grid_minima[1];
-    minMuS = grid_minima[2]; minMuQ = grid_minima[3];
-    maxT   = grid_maxima[0]; maxMuB = grid_maxima[1];
-    maxMuS = grid_maxima[2]; maxMuQ = grid_maxima[3];
-
     // set names of EoS quantities to interpolate, in order
     equation_of_state_table.set_grid_names(
       vector<string>{ "T","muB","muQ","muS" } );
@@ -79,10 +71,11 @@ void EquationOfState::init(string quantityFile, string derivFile)
 
     // finally, all dimensionalful quantities should be convert to fm and
     // all dimensionless quantities need to be rescaled appropriately
-    equation_of_state_table.rescale_axis( "T",   1.0/hbarc_MeVfm );
+    /*equation_of_state_table.rescale_axis( "T",   1.0/hbarc_MeVfm );
     equation_of_state_table.rescale_axis( "muB", 1.0/hbarc_MeVfm );
     equation_of_state_table.rescale_axis( "muQ", 1.0/hbarc_MeVfm );
-    equation_of_state_table.rescale_axis( "muS", 1.0/hbarc_MeVfm );
+    equation_of_state_table.rescale_axis( "muS", 1.0/hbarc_MeVfm );*/
+    equation_of_state_table.rescale_axes( 1.0/hbarc_MeVfm );  // do all axes at once
 
     equation_of_state_table.rescale( "p",     "T", 4 );
     equation_of_state_table.rescale( "e",     "T", 4 );
@@ -100,6 +93,14 @@ void EquationOfState::init(string quantityFile, string derivFile)
     equation_of_state_table.rescale( "chiTQ", "T", 2 );
     equation_of_state_table.rescale( "chiTS", "T", 2 );
     equation_of_state_table.rescale( "chiTT", "T", 2 );
+
+    // set grid ranges
+    vector<double> grid_minima = equation_of_state_table.get_grid_minima();
+    vector<double> grid_maxima = equation_of_state_table.get_grid_maxima();
+    minT   = grid_minima[0]; minMuB = grid_minima[1];
+    minMuS = grid_minima[2]; minMuQ = grid_minima[3];
+    maxT   = grid_maxima[0]; maxMuB = grid_maxima[1];
+    maxMuS = grid_maxima[2]; maxMuQ = grid_maxima[3];
 
     // set functions from interpolant
     std::function<void(double[], double[])> f_eBSQ = get_eBSQ_densities_from_interpolator;

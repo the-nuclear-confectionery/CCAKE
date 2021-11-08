@@ -76,6 +76,11 @@ void InterpolatorND<D>::load_data( string filename )
 template <int D>
 void InterpolatorND<D>::construct_interpolant()
 {
+  grid_mins.clear();
+  grid_maxs.clear();
+  grid_points.clear();
+  grid_spacings.clear();
+
   // initialize grid ranges, etc.
   for ( auto & gridDirection : grid )
   {
@@ -244,6 +249,25 @@ void InterpolatorND<D>::rescale_axis( const string & column_to_rescale,
   cout << "Column " << column_to_rescale << ": " << column_index_to_rescale << endl;
   auto & axis = grid[column_index_to_rescale];
   for ( auto & pt : axis ) pt *= overall_factor;
+
+  // reset all quantities appropriately (not efficient for each axis individually)
+  construct_interpolant();
+
+  return;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+template <int D>
+void InterpolatorND<D>::rescale_axes( double overall_factor )
+{
+  // rescale grid by factor
+  for ( auto & axis : grid )
+  for ( auto & pt : axis )
+    pt *= overall_factor;
+
+  // reset all quantities appropriately
+  construct_interpolant();
+
   return;
 }
 
