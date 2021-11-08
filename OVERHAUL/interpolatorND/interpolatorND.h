@@ -30,9 +30,10 @@ class InterpolatorND
 
     // need this in case units are not physical (e.g., file contains dimensionless ratios)
     // Example: rescale( "e", "T", 4, hbarc_MeVfm )
-    void rescale( string & column_to_rescale, string & column_to_rescale_by, int power_of_rescaling );
-    void rescale_axis( string & column_to_rescale, double overall_factor );
-    void rescale_field( string & column_to_rescale, double overall_factor );
+    void rescale( const string & column_to_rescale, const string & column_to_rescale_by,
+                  int power_of_rescaling );
+    void rescale_axis( const string & column_to_rescale, double overall_factor );
+    void rescale_field( const string & column_to_rescale, double overall_factor );
     
 
     // interpolates all fields at once

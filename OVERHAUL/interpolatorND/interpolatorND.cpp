@@ -209,8 +209,9 @@ void InterpolatorND<D>::evaluate(
 
 ////////////////////////////////////////////////////////////////////////////////
 template <int D>
-void InterpolatorND<D>::rescale(
-        string & column_to_rescale, string & column_to_rescale_by, int power_of_rescaling )
+void InterpolatorND<D>::rescale( const string & column_to_rescale,
+                                 const string & column_to_rescale_by,
+                                 int power_of_rescaling )
 {
   int column_index_to_rescale    = field_names[column_to_rescale];
   int column_index_to_rescale_by = grid_names[column_to_rescale_by];
@@ -226,7 +227,8 @@ void InterpolatorND<D>::rescale(
 
 ////////////////////////////////////////////////////////////////////////////////
 template <int D>
-void InterpolatorND<D>::rescale_axis( string & column_to_rescale, double overall_factor )
+void InterpolatorND<D>::rescale_axis( const string & column_to_rescale,
+                                      double overall_factor )
 {
   int column_index_to_rescale = grid_names[column_to_rescale];
   auto & axis = grid[column_index_to_rescale];
@@ -236,7 +238,8 @@ void InterpolatorND<D>::rescale_axis( string & column_to_rescale, double overall
 
 ////////////////////////////////////////////////////////////////////////////////
 template <int D>
-void InterpolatorND<D>::rescale_field( string & column_to_rescale, double overall_factor )
+void InterpolatorND<D>::rescale_field( const string & column_to_rescale,
+                                       double overall_factor )
 {
   int column_index_to_rescale = field_names[column_to_rescale];
   for ( auto & cell : fields ) cell[column_index_to_rescale] *= overall_factor;
