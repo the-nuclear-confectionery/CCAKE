@@ -62,8 +62,7 @@ int rootfinder_f(const gsl_vector *x, void *params, gsl_vector *f)
     // limit scope for readability
     {
       double phase_diagram_point[4]
-              = { tbqsToEval[0]*hbarc_MeVfm, tbqsToEval[1]*hbarc_MeVfm,
-                  tbqsToEval[3]*hbarc_MeVfm, tbqsToEval[2]*hbarc_MeVfm };	// NOTE: S <<-->> Q swapped!!!
+              = { tbqsToEval[0], tbqsToEval[1], tbqsToEval[2], tbqsToEval[3] };
       double densities_at_point[4];
 
       // compute densities using passed-in function object
@@ -78,7 +77,7 @@ int rootfinder_f(const gsl_vector *x, void *params, gsl_vector *f)
 
       // set densities (convert to powers of fm if necessary)
       eorEnt  = densities_at_point[0];
-      if ( e_or_entr_mode == 1 ) eorEnt /= hbarc_MeVfm;
+      //if ( e_or_entr_mode == 1 ) eorEnt /= hbarc_MeVfm;
       rhoB    = densities_at_point[1];
       rhoS    = densities_at_point[2];
       rhoQ    = densities_at_point[3];
