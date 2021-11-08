@@ -220,10 +220,10 @@ void InterpolatorND<D>::rescale( const string & column_to_rescale,
 {
   cout << "Rescaling " << column_to_rescale << " by "
       << column_to_rescale_by << " to the power of " << power_of_rescaling << endl;
-  cout << "Column " << column_to_rescale << ": " << column_index_to_rescale << endl;
-  cout << "Column " << column_to_rescale_by << ": " << column_index_to_rescale_by << endl;
   int column_index_to_rescale    = field_names[column_to_rescale];
   int column_index_to_rescale_by = grid_names[column_to_rescale_by];
+  cout << "Column " << column_to_rescale << ": " << column_index_to_rescale << endl;
+  cout << "Column " << column_to_rescale_by << ": " << column_index_to_rescale_by << endl;
   auto & grid_column             = grid[column_index_to_rescale_by];
 
   const size_t nCells = fields.size();
