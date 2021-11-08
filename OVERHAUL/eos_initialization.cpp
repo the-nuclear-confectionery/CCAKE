@@ -91,7 +91,7 @@ equation_of_state_table_filename = "./EoS/Houston/Default/thermo.dat";
     equation_of_state_table.rescale( "S",     "T", 3 );
     equation_of_state_table.rescale( "Q",     "T", 3 );
     equation_of_state_table.rescale( "chiBB", "T", 2 );
-    equation_of_state_table.rescale( "chiQQ", "T", 2clTabCtrl );
+    equation_of_state_table.rescale( "chiQQ", "T", 2 );
     equation_of_state_table.rescale( "chiSS", "T", 2 );
     equation_of_state_table.rescale( "chiBQ", "T", 2 );
     equation_of_state_table.rescale( "chiBS", "T", 2 );
