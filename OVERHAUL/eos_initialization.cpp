@@ -101,9 +101,9 @@ void EquationOfState::init(string quantityFile, string derivFile)
     equation_of_state_table.rescale( "chiTT", "T", 2 );
 
     // set functions from interpolant
-    std::function<void(double[], double[])> f_eBSQ = this->get_eBSQ_densities_from_interpolator;
+    std::function<void(double[], double[])> f_eBSQ = get_eBSQ_densities_from_interpolator;
     set_eBSQ_functional( f_eBSQ );
-    std::function<void(double[], double[])> f_sBSQ = this->get_sBSQ_densities_from_interpolator;
+    std::function<void(double[], double[])> f_sBSQ = get_sBSQ_densities_from_interpolator;
     set_sBSQ_functional( f_sBSQ );
 
     // load EoS tables, assess grid range

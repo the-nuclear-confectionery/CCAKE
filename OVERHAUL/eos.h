@@ -105,7 +105,7 @@ private:
     string quantity_file = "";
     string deriv_file    = "";
     string equation_of_state_table_filename = "";
-    InterpolatorND<4> equation_of_state_table;
+    static InterpolatorND<4> equation_of_state_table;
 
 
     double pVal          = 0.0;
@@ -176,8 +176,8 @@ private:
     double rootfinder_s_out(double ein, double Bin, double Sin, double Qin);
 
     // need these to be static to initialize std::function<...> objects
-    void get_eBSQ_densities_from_interpolator( double point[], double densities[] );
-    void get_sBSQ_densities_from_interpolator( double point[], double densities[] );
+    static void get_eBSQ_densities_from_interpolator( double point[], double densities[] );
+    static void get_sBSQ_densities_from_interpolator( double point[], double densities[] );
 
 
     ////////////////////////////////////////////////////////////////////////////

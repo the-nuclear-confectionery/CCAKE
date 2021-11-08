@@ -1,5 +1,7 @@
 #include "eos.h"
 
+InterpolatorND<4> EquationOfState::equation_of_state_table;
+
 //#include "read_in_hdf/read_in_hdf.h"
 //#include "Stopwatch.h"
 #include <gsl/gsl_multiroots.h>
