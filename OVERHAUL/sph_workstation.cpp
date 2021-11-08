@@ -259,7 +259,7 @@ if (i==0)
 	cout << "Finished function call to updateIC(...) in "
 			<< swTotal.printTime() << " s." << endl;
 
-	if (false)
+	if (true)
 	{
 		cout << "Exiting prematurely from " << __PRETTY_FUNCTION__
 			<< "::" << __LINE__ << "!" << endl;

@@ -178,9 +178,9 @@ void EquationOfState::init_grid_ranges_only(string quantityFile, string derivFil
         
 	}
 
-    dataFile.close();
+  dataFile.close();
 
 	std::cout << "All initializations finished!" << std::endl;
 
-    return;
+  return;
 }
