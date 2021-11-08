@@ -123,14 +123,13 @@ phase_diagram_point[3] = 0.0;
   {
     vector<double> thermodynamics;  // gets re-sized inside evaluate function
 
-    // evaluate EoS interpolator at current location (S and Q NOT SWAPPED)
-    equation_of_state_table.evaluate( tbqsPosition, thermodynamics ); 
-
 tbqsPosition[0] = 150.0/197.3;
 tbqsPosition[1] = 0.0;
 tbqsPosition[2] = 0.0;
 tbqsPosition[3] = 0.0;
 
+    // evaluate EoS interpolator at current location (S and Q NOT SWAPPED)
+    equation_of_state_table.evaluate( tbqsPosition, thermodynamics ); 
 
     if ( thermodynamics.size() != 17 )
     {

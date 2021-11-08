@@ -190,7 +190,8 @@ void InterpolatorND<D>::evaluate(
   {
     double weight = 1.0;
     for (int iDim = 0; iDim < dim; iDim++)
-      weight *= (fracs[iDim] + hypercube_index[iDim] - 2.0*hypercube_index[iDim]*fracs[iDim]);
+      weight *= (fracs[iDim] + hypercube_index[iDim]
+                  - 2.0*hypercube_index[iDim]*fracs[iDim]);
 
     vector<int> hypercube_inds = inds;
     for (int iDim = 0; iDim < dim; iDim++)
