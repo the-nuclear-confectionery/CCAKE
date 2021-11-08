@@ -496,9 +496,9 @@ int main(int argc, char *argv[])
 
 	// set T and mu_i ranges
 	const int Tmin = 0, Tmax = 800, DeltaT = 1;
-	const int muBmin = -50, muBmax = 50, DeltamuB = 3;
-	const int muQmin = -50, muQmax = 50, DeltamuQ = 3;
-	const int muSmin = -50, muSmax = 50, DeltamuS = 3;
+	const int muBmin = -50, muBmax = 50, DeltamuB = 50;
+	const int muQmin = -50, muQmax = 50, DeltamuQ = 50;
+	const int muSmin = -50, muSmax = 50, DeltamuS = 50;
 
 	// set HDF array lengths
 	for(i=Tmin;i<=Tmax;i+=DeltaT)
