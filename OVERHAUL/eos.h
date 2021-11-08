@@ -105,7 +105,7 @@ private:
     string quantity_file = "";
     string deriv_file    = "";
     string equation_of_state_table_filename = "";
-    InterpolatorND<4> equation_of_state_table;
+    static InterpolatorND<4> equation_of_state_table;
 
 
     double pVal          = 0.0;
