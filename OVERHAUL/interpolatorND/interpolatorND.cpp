@@ -213,6 +213,8 @@ void InterpolatorND<D>::rescale( const string & column_to_rescale,
                                  const string & column_to_rescale_by,
                                  int power_of_rescaling )
 {
+  cout << "Rescaling " << column_to_rescale << " by "
+      << column_to_rescale_by << " to the power of " << power_of_rescaling << endl;
   int column_index_to_rescale    = field_names[column_to_rescale];
   int column_index_to_rescale_by = grid_names[column_to_rescale_by];
   auto & grid_column             = grid[column_index_to_rescale_by];
@@ -230,6 +232,7 @@ template <int D>
 void InterpolatorND<D>::rescale_axis( const string & column_to_rescale,
                                       double overall_factor )
 {
+  cout << "Rescaling " << column_to_rescale << " by factor of " << overall_factor << endl;
   int column_index_to_rescale = grid_names[column_to_rescale];
   auto & axis = grid[column_index_to_rescale];
   for ( auto & pt : axis ) pt *= overall_factor;
