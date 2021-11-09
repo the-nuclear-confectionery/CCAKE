@@ -108,8 +108,6 @@ constexpr bool printAll = false;
   {
     auto & p = system.particles[i];
 
-cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.T() << endl;
-
     double gamt               = 1.0/p.gamma/p.stauRelax;
     double pre                = p.eta_o_tau/2.0/p.gamma;
     double p1                 = gamt - 4.0/3.0/p.sigma*p.dsigma_dt
@@ -221,9 +219,6 @@ cout << "CHECK bigtheta: " << i
                                - 0.5*p.eta_o_tau*( ududt + transpose(ududt) )
                                + p.dpidtsub() + p.sigl*Ipi
                                - vduk*( ulpi + transpose(ulpi) + (1/p.gamma)*Ipi );
-
-cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.T() << endl;
-
 
   }
 

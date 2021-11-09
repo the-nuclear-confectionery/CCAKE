@@ -68,7 +68,6 @@ void SystemState::initialize()  // formerly called "manualenter"
   {
     p.set_EquationOfStatePtr( eosPtr );
     p.freezeoutT = freezeoutT;
-//cout << "CHECK FRZ" << __LINE__ << ": " << p.frz1.T << "   " << p.T() << endl;
   }
 
   linklist.efcheck = efcheck;
@@ -341,7 +340,6 @@ void SystemState::bsqsvfreezeout(int curfrz)
 {
   cout << "CHECK BSQSVFREEZEOUT: " << frzc << "   " << tau << "   " << taup
         << "   " << taupp << "   " << cfon << endl;
-//cout << "CHECK FRZ" << __LINE__ << ": " << p.frz1.T << "   " << p.T() << endl;
 
   if (frzc==0)
   {
@@ -371,7 +369,6 @@ void SystemState::bsqsvfreezeout(int curfrz)
       p.frz1.r       = p.r;
       p.frz1.u       = p.u;
       p.frz1.sigma   = p.sigma;
-//cout << "CHECK FRZ" << __LINE__ << ": " << p.frz1.T << "   " << p.T() << endl;
       p.frz1.T       = p.T();
       p.frz1.bulk    = p.bigPI;
       p.frz1.theta   = p.div_u + p.gamma/t;
@@ -464,7 +461,6 @@ void SystemState::bsqsvfreezeout(int curfrz)
       p.frz1.r       = p.r;
       p.frz1.u       = p.u;
       p.frz1.sigma   = p.sigma;
-//cout << "CHECK FRZ" << __LINE__ << ": " << p.frz1.T << "   " << p.T() << endl;
       p.frz1.T       = p.T();
       p.frz1.bulk    = p.bigPI ;
       p.frz1.theta   = p.div_u+p.gamma/t;
@@ -541,7 +537,7 @@ void SystemState::bsqsvinterpolate(int curfrz)
     }
     else
     {
-      cout << "LinkList.h: Not at freeze-out temperature" << endl;
+      cout << __PRETTY_FUNCTION__ << ": Not at freeze-out temperature" << endl;
     }
 
     //sFO[j]       = _p[0].EOSs_terms_T(Tfluc[j]);  // unnecessary since all EOS's identical

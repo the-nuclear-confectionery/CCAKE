@@ -340,7 +340,6 @@ if (i==0)
 void SPHWorkstation::smooth_fields(int a, bool init_mode /*== false*/)
 {
   auto & pa    = systemPtr->particles[a];
-cout << "CHECK FRZ" << __LINE__ << ": " << a << "   " << pa.frz1.T << "   " << pa.T() << endl;
 
   pa.sigma           = 0.0;
   pa.eta             = 0.0;
@@ -410,8 +409,6 @@ cout << "CHECK FRZ" << __LINE__ << ": " << a << "   " << pa.frz1.T << "   " << p
     //cout << "-----------------------------------------------------------------" << endl;
   }
 
-cout << "CHECK FRZ" << __LINE__ << ": " << a << "   " << pa.frz1.T << "   " << pa.T() << endl;
-
   return;
 }
 
@@ -424,7 +421,6 @@ cout << "CHECK FRZ" << __LINE__ << ": " << a << "   " << pa.frz1.T << "   " << p
 void SPHWorkstation::smooth_gradients( int a, double tin, int & count )
 {
   auto & pa    = systemPtr->particles[a];
-cout << "CHECK FRZ" << __LINE__ << ": " << a << "   " << pa.frz1.T << "   " << pa.T() << endl;
 
   pa.gradP     = 0.0;
   pa.gradBulk  = 0.0;
@@ -523,8 +519,6 @@ if (a==0)
     cout << "Missed " << a << " " << tin << "  "
          << pa.T()*197.3 << " "
          << rdis << " " << systemPtr->cfon <<  endl;
-
-cout << "CHECK FRZ" << __LINE__ << ": " << a << "   " << pa.frz1.T << "   " << pa.T() << endl;
 
   return;
 }
