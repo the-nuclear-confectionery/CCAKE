@@ -182,8 +182,8 @@ void InputOutput::read_in_initial_conditions()
 void InputOutput::print_system_state()
 {
   string outputfilename = output_directory + "/system_state_"
-                          + std::stoi(n_timesteps_output) + ".dat";
-  std::ofstream out( outputfilename.c_str() );
+                          + std::to_string(n_timesteps_output) + ".dat";
+  ofstream out( outputfilename.c_str() );
 
   out << systemPtr->t << endl;
   int iParticle = 0;
