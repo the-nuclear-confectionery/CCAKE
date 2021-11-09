@@ -1,16 +1,17 @@
-#include <iostream>
+#include <algorithm>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <fstream>
-#include <string>
-#include <string.h>
+#include <iostream>
 #include <sstream>
-#include <stdio.h>
+#include <string>
 #include <vector>
+
 #include "mathdef.h"
 #include "vector.h"
 #include "particle.h"
-#include <stdlib.h>
-#include <algorithm>
-#include <cmath>
 #include "input_output.h"
 #include "constants.h"
 
@@ -180,7 +181,7 @@ void InputOutput::read_in_initial_conditions()
 void InputOutput::print_system_state()
 {
   string outputfilename = output_directory + "/system_state_"
-                          + stoi(n_timesteps_output) + ".dat";
+                          + std::stoi(n_timesteps_output) + ".dat";
   ofstream out( outputfilename.c_str() );
 
   out << systemPtr->t << endl;
