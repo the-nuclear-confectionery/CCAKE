@@ -235,13 +235,13 @@ cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.
 
   // keep track of which particles have let EoS grid completely
   // (reset list at end of each timestep)
-  particles_out_of_grid.clear();
+  system.particles_out_of_grid.clear();
   for ( int i = 0; i < system.n(); i++ )
     if ( system.particles[i].Freeze == 5 )
-      particles_out_of_grid.push_back( i );
+      system.particles_out_of_grid.push_back( i );
 
   std::cout << "Summary at t = " << system.t << ": "
-        << particles_out_of_grid.size()
+        << system.particles_out_of_grid.size()
         << " particles have gone out of the EoS grid." << std::endl;
 
 
