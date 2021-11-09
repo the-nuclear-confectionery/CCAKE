@@ -440,7 +440,7 @@ bool Rootfinder::find_eBSQ_root( double ein, double Bin, double Sin, double Qin,
         { cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
               << " attempts" << endl; return true; }
 
-cout << __PRETTY_FUNCTION__ << ": failed after " << number_of_attempts" << !" << endl;
+cout << __PRETTY_FUNCTION__ << ": failed after " << number_of_attempts << "!" << endl;
 
     tbqs(t0, mub0, muq0, mus0);
     return false;
@@ -588,7 +588,7 @@ bool Rootfinder::find_sBSQ_root( double sin, double Bin, double Sin, double Qin,
         { cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
               << " attempts" << endl; return true; }
 
-cout << __PRETTY_FUNCTION__ << ": failed after " << number_of_attempts" << !" << endl;
+cout << __PRETTY_FUNCTION__ << ": failed after " << number_of_attempts << "!" << endl;
 
     tbqs(t0, mub0, muq0, mus0);
     return false;
