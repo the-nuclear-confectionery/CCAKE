@@ -146,7 +146,12 @@ double Particle::gamcalc()
 ////////////////////////////////////////////////////////////////////////////////
 void Particle::frzcheck( double tin, int &count, int N )
 {
-  if( Freeze == 0 )
+  if ( Freeze == 5 )
+  {
+    count++;
+    return;
+  }
+  else if ( Freeze == 0 )
   {
     if ( T() <= freezeoutT )
     {
@@ -154,7 +159,7 @@ void Particle::frzcheck( double tin, int &count, int N )
       frz2.t = tin;
     }
   }
-  else if( Freeze == 1 )
+  else if ( Freeze == 1 )
   {
     if ( btrack == -1 )
     {

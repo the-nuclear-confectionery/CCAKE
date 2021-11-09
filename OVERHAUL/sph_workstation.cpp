@@ -38,7 +38,7 @@ void SPHWorkstation::setshear()
 void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updateIC
 {
 	// set up EoS C library
-	initialize_thermodynamics("/projects/jnorhos/BSQ/EoS_BQS_Derivatives/Coefficients_Parameters.dat");
+	//initialize_thermodynamics("/projects/jnorhos/BSQ/EoS_BQS_Derivatives/Coefficients_Parameters.dat");
 	Stopwatch sw, swTotal;
 	swTotal.Start();
 	long long failCounter = 0;
@@ -137,7 +137,7 @@ if (i==0)
 		// and continue without setting anything else
 		if (p.s_an < 0.0)
 		{
-
+      /*
 			/////////////////////////////////////////////////////////////////////////
 			// if failed with charge densities, set them to zero and re-solve;
 			// if that fails too, guesstimate an answer
@@ -176,9 +176,9 @@ if (i==0)
 						<< p.muS()*197.3 << "   "
 						<< p.muQ()*197.3 << "\n";
 			}
-
+      */
 			// freeze this particle out!
-			p.Freeze = 4;
+			p.Freeze = 5;
 			systemPtr->number_part++;
 			////////////////////////////////////////////////////////
 		}
@@ -578,7 +578,6 @@ void SPHWorkstation::process_initial_conditions()
 		p.thermo.muS = 0.0/hbarc_MeVfm;
 		p.thermo.muQ = 0.0/hbarc_MeVfm;
 
-    //if (p.e_sub>1.349325899645)
 		if (p.e_sub>settingsPtr->efcheck)	// impose freeze-out check for e, not s
     {
     //   cout << "Found " << p.e_sub << " greater than " << systemPtr->efcheck << endl;

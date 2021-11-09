@@ -301,19 +301,15 @@ void SystemState::set_current_timestep_quantities()
 
   shv0.resize(N);
 
-  cout << __PRETTY_FUNCTION__ << ": N = " << N << endl;
-
   for (int i=0; i<N; ++i)
   {
     auto & p = particles[i];
-cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.T() << endl;
+
     u0[i]        = p.u;
     r0[i]        = p.r;
     etasigma0[i] = p.eta_sigma;
     Bulk0[i]     = p.Bulk;
     mini( shv0[i], p.shv );
-cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.T() << endl;
-
   }
 }
 
