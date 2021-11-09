@@ -169,7 +169,7 @@ cout << "TEST LOOP: " << system.t << "   " << settings.tend
     }
 
     // print system state, once per timestep
-    print_system_state();
+    io.print_system_state();
 
   }
 }
