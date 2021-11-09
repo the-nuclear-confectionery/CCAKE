@@ -19,6 +19,7 @@ using namespace constants;
 
 using std::endl;
 using std::flush;
+using std::string;
 
 // Constructors and destructors.
 InputOutput::InputOutput(){}
@@ -182,7 +183,7 @@ void InputOutput::print_system_state()
 {
   string outputfilename = output_directory + "/system_state_"
                           + std::stoi(n_timesteps_output) + ".dat";
-  ofstream out( outputfilename.c_str() );
+  std::ofstream out( outputfilename.c_str() );
 
   out << systemPtr->t << endl;
   int iParticle = 0;
@@ -196,11 +197,11 @@ void InputOutput::print_system_state()
 				<< p.muS()*197.3 << " "
 				<< p.muQ()*197.3 << " "
 				<< p.e()*197.3 << " "
-				<< p.B() << " "
-				<< p.S() << " "
-				<< p.Q() << " "
+				<< p.rhoB() << " "
+				<< p.rhoS() << " "
+				<< p.rhoQ() << " "
 				<< p.s() << " "
-				<< p.eta/(p.gamma*linklist.t) << " "
+				<< p.eta/(p.gamma*systemPtr->t) << " "
 				<< p.eta_sigma << " "
 				<< p.sigma << " " 
 				<< p.sigmaweight << " "
