@@ -218,7 +218,6 @@ void InputOutput::print_system_state()
 				<< p.u.x[0]/p.gamma << " "
 				<< p.u.x[1]/p.gamma << " "
 				<< p.gamma << endl;
-  }
   
   out.close();
 
