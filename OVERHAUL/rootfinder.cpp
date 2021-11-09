@@ -289,6 +289,8 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
       updated_tbqs[iTBQS] = gsl_vector_get(solver->x, iTBQS);
   }
 
+cout << "\t --> " << __PRETTY_FUNCTION__ << ": iter = " << iter << endl;
+
   // memory deallocation
   gsl_multiroot_fsolver_free(solver);
   gsl_vector_free(x);
@@ -306,10 +308,13 @@ bool Rootfinder::find_eBSQ_root( double ein, double Bin, double Sin, double Qin,
                           std::function<void(double[], double[])> function_to_evaluate,
                           vector<double> & updated_tbqs )
 {
+    int number_of_attempts = 1;
     tbqsPosition = updated_tbqs;
 
     if (rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS,
-                      function_to_evaluate, updated_tbqs)) { return true; }
+                      function_to_evaluate, updated_tbqs))
+        { cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
+              << " attempts" << endl; return true; }
 
     ///////////////////////////
 
@@ -323,93 +328,119 @@ bool Rootfinder::find_eBSQ_root( double ein, double Bin, double Sin, double Qin,
     double muS10 = mus0*.2;
 
     //perturb T
+    number_of_attempts++;
+
     if(t0 + t10 > maxT) {
         tbqs(maxT - 1, mub0, muq0, mus0);
     } else {
         tbqs(t0 + t10, mub0, muq0, mus0);
     }
     if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS,
-                      function_to_evaluate, updated_tbqs)) {
-        return true;
-    }
+                      function_to_evaluate, updated_tbqs)) 
+        { cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
+              << " attempts" << endl; return true; }
+
+    number_of_attempts++;
+
     if(t0 - t10 < minT) {
         tbqs(minT + 1, mub0, muq0, mus0);
     } else {
         tbqs(t0 - t10, mub0, muq0, mus0);
     }
     if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS,
-                      function_to_evaluate, updated_tbqs)) {
-        return true;
-    }
+                      function_to_evaluate, updated_tbqs)) 
+        { cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
+              << " attempts" << endl; return true; }
 
     //perturb mub
+
+    number_of_attempts++;
+
     if(mub0 + muB10 > maxMuB) {
         tbqs(t0, maxMuB - 1, muq0, mus0);
     } else {
         tbqs(t0, mub0 + muB10, muq0, mus0);
     }
     if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS,
-                      function_to_evaluate, updated_tbqs)) {
-        return true;
-    }
+                      function_to_evaluate, updated_tbqs)) 
+        { cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
+              << " attempts" << endl; return true; }
+
+    number_of_attempts++;
+
     if(mub0 - muB10 < minMuB) {
         tbqs(t0, minMuB + 1, muq0, mus0);
     } else {
         tbqs(t0, mub0 - muB10, muq0, mus0);
     }
     if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS,
-                      function_to_evaluate, updated_tbqs)) {
-        return true;
-    }
+                      function_to_evaluate, updated_tbqs)) 
+        { cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
+              << " attempts" << endl; return true; }
 
     //perturn muq
+
+    number_of_attempts++;
+
     if(muq0 + muQ10 > maxMuQ) {
         tbqs(t0, mub0, maxMuQ - 1, mus0);
     } else {
         tbqs(t0, mub0, muq0 + muQ10, mus0);
     }
     if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS,
-                      function_to_evaluate, updated_tbqs)) {
-        return true;
-    }
+                      function_to_evaluate, updated_tbqs)) 
+        { cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
+              << " attempts" << endl; return true; }
+
+    number_of_attempts++;
+
     if(muq0 - muQ10 < minMuQ) {
         tbqs(t0, mub0, minMuQ + 1, mus0);
     } else {
         tbqs(t0, mub0, muq0 - muQ10, mus0);
     }
     if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS,
-                      function_to_evaluate, updated_tbqs)) {
-        return true;
-    }
+                      function_to_evaluate, updated_tbqs)) 
+        { cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
+              << " attempts" << endl; return true; }
 
     //perturb mus
+
+    number_of_attempts++;
+
     if(mus0 + muS10 > maxMuS) {
         tbqs(t0, mub0, muq0, maxMuS - 1);
     } else {
         tbqs(t0, mub0, muq0, mus0 + muS10);
     }
     if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS,
-                      function_to_evaluate, updated_tbqs)) {
-        return true;
-    }
+                      function_to_evaluate, updated_tbqs)) 
+        { cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
+              << " attempts" << endl; return true; }
+
+    number_of_attempts++;
+
     if(mus0 - muS10 < maxMuS) {
-
-
         tbqs(t0, mub0, muq0, minMuS + 1);
     } else {
         tbqs(t0, mub0, muq0, mus0 - muS10);
     }
     if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS,
-                      function_to_evaluate, updated_tbqs)) {
-        return true;
-    }
+                      function_to_evaluate, updated_tbqs)) 
+        { cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
+              << " attempts" << endl; return true; }
 
     //check mu = 0
     tbqs(t0, 0, 0, 0);
+
+    number_of_attempts++;
+
     if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS,
-                      function_to_evaluate, updated_tbqs)) {
-        return true;
-    }
+                      function_to_evaluate, updated_tbqs)) 
+        { cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
+              << " attempts" << endl; return true; }
+
+cout << __PRETTY_FUNCTION__ << ": failed after " << number_of_attempts" << !" << endl;
 
     tbqs(t0, mub0, muq0, mus0);
     return false;
@@ -425,10 +456,13 @@ bool Rootfinder::find_sBSQ_root( double sin, double Bin, double Sin, double Qin,
                            std::function<void(double[], double[])> function_to_evaluate,
                            vector<double> & updated_tbqs )
 {
+    int number_of_attempts = 1;
     tbqsPosition = updated_tbqs;
 
     if (rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS,
-                      function_to_evaluate, updated_tbqs)) { return true; }
+                      function_to_evaluate, updated_tbqs))
+        { cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
+              << " attempts" << endl; return true; }
 
 	///////////////////////////
     double t0 = tbqsPosition[0];
@@ -441,91 +475,120 @@ bool Rootfinder::find_sBSQ_root( double sin, double Bin, double Sin, double Qin,
     double muS10 = mus0*.2;
 
     //perturb T
+
+    number_of_attempts++;
+
     if(t0 + t10 > maxT) {
         tbqs(maxT - 1, mub0, muq0, mus0);
     } else {
         tbqs(t0 + t10, mub0, muq0, mus0);
     }
     if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS,
-                      function_to_evaluate, updated_tbqs)) {
-        return true;
-    }
+                      function_to_evaluate, updated_tbqs))
+        { cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
+              << " attempts" << endl; return true; }
+
+    number_of_attempts++;
+
     if(t0 - t10 < minT) {
         tbqs(minT + 1, mub0, muq0, mus0);
     } else {
         tbqs(t0 - t10, mub0, muq0, mus0);
     }
     if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS,
-                      function_to_evaluate, updated_tbqs)) {
-        return true;
-    }
+                      function_to_evaluate, updated_tbqs))
+        { cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
+              << " attempts" << endl; return true; }
 
     //perturb mub
+
+    number_of_attempts++;
+
     if(mub0 + muB10 > maxMuB) {
         tbqs(t0, maxMuB - 1, muq0, mus0);
     } else {
         tbqs(t0, mub0 + muB10, muq0, mus0);
     }
     if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS,
-                      function_to_evaluate, updated_tbqs)) {
-        return true;
-    }
+                      function_to_evaluate, updated_tbqs))
+        { cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
+              << " attempts" << endl; return true; }
+
+    number_of_attempts++;
+
     if(mub0 - muB10 < minMuB) {
         tbqs(t0, minMuB + 1, muq0, mus0);
     } else {
         tbqs(t0, mub0 - muB10, muq0, mus0);
     }
     if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS,
-                      function_to_evaluate, updated_tbqs)) {
-        return true;
-    }
+                      function_to_evaluate, updated_tbqs))
+        { cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
+              << " attempts" << endl; return true; }
 
     //perturn muq
+
+    number_of_attempts++;
+
     if(muq0 + muQ10 > maxMuQ) {
         tbqs(t0, mub0, maxMuQ - 1, mus0);
     } else {
         tbqs(t0, mub0, muq0 + muQ10, mus0);
     }
     if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS,
-                      function_to_evaluate, updated_tbqs)) {
-        return true;
-    }
+                      function_to_evaluate, updated_tbqs))
+        { cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
+              << " attempts" << endl; return true; }
+
+    number_of_attempts++;
+
     if(muq0 - muQ10 < minMuQ) {
         tbqs(t0, mub0, minMuQ + 1, mus0);
     } else {
         tbqs(t0, mub0, muq0 - muQ10, mus0);
     }
     if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS,
-                      function_to_evaluate, updated_tbqs)) {
-        return true;
-    }
+                      function_to_evaluate, updated_tbqs))
+        { cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
+              << " attempts" << endl; return true; }
 
     //perturb mus
+
+    number_of_attempts++;
+
     if(mus0 + muS10 > maxMuS) {
         tbqs(t0, mub0, muq0, maxMuS - 1);
     } else {
         tbqs(t0, mub0, muq0, mus0 + muS10);
     }
     if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS,
-                      function_to_evaluate, updated_tbqs)) {
-        return true;
-    }
+                      function_to_evaluate, updated_tbqs))
+        { cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
+              << " attempts" << endl; return true; }
+
+    number_of_attempts++;
+
     if(mus0 - muS10 < maxMuS) {
         tbqs(t0, mub0, muq0, minMuS + 1);
     } else {
         tbqs(t0, mub0, muq0, mus0 - muS10);
     }
     if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS,
-                      function_to_evaluate, updated_tbqs)) {
-        return true;
-    }
+                      function_to_evaluate, updated_tbqs))
+        { cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
+              << " attempts" << endl; return true; }
 
     //check mu = 0
     tbqs(t0, 0, 0, 0);
+
+    number_of_attempts++;
+
     if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS,
-                      function_to_evaluate, updated_tbqs)) {
-        return true;
-    }
+                      function_to_evaluate, updated_tbqs))
+        { cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
+              << " attempts" << endl; return true; }
+
+cout << __PRETTY_FUNCTION__ << ": failed after " << number_of_attempts" << !" << endl;
 
     tbqs(t0, mub0, muq0, mus0);
     return false;
