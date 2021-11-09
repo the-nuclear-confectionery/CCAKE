@@ -169,7 +169,9 @@ void InputOutput::read_in_initial_conditions()
   infile.close();
 }
 /*****************************************************************************/
-void InputOutput::output()
+
+
+/*void InputOutput::output()
 {
   ofstream EPN;
   countEP+=1;
@@ -237,7 +239,7 @@ void InputOutput::output()
 
 	 return;
   }
-}  
+}*/
 
 
 
