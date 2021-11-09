@@ -99,6 +99,7 @@ private:
   // vector<vector<int> > neighbors;  //?
 
   //EquationOfState eos;
+  vector<int> particles_out_of_grid;
   vector< Particle > particles;
 
   // creating vectors of vectors of the derivatives at each step
@@ -162,8 +163,7 @@ public:
 
   // these routines are called in runge kutta
   void set_current_timestep_quantities();
-  void get_derivative_halfstep( double dx );
-  void get_derivative_fullstep( double dx );
+  void get_derivative_step( double dx );
 
   // put FO routines in SystemState for time being
   void bsqsvfreezeout( int curfrz );

@@ -59,42 +59,78 @@ void Particle::set_EquationOfStatePtr( EquationOfState * eosPtr_in )
 double Particle::locate_phase_diagram_point_eBSQ(// previously s_out
                  double e_In, double rhoB_In, double rhoS_In, double rhoQ_In )
 {
-  // default: use particle's current location as initial guess
-  eosPtr->tbqs( thermo.T, thermo.muB, thermo.muQ, thermo.muS );
-  double sVal = eosPtr->s_out( e_In, rhoB_In, rhoS_In, rhoQ_In );
-  thermo.set(*eosPtr);
-  return sVal;
+  double current_sVal = s();
+  if ( Freeze == 5 )
+    return current_sVal;
+  else
+  {
+    // default: use particle's current location as initial guess
+    eosPtr->tbqs( thermo.T, thermo.muB, thermo.muQ, thermo.muS );
+    double sVal = eosPtr->s_out( e_In, rhoB_In, rhoS_In, rhoQ_In );
+
+    if ( sVal > 0.0 )
+      thermo.set(*eosPtr);
+    else
+      Freeze = 5; // new label for (totally decoupled) particles which go outside grid
+
+    return sVal;
+  }
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 double Particle::locate_phase_diagram_point_eBSQ(double e_In)// previously s_out
 {
-  // default: use particle's current location as initial guess
-  eosPtr->tbqs( thermo.T, 0.0, 0.0, 0.0 );
-  double sVal = eosPtr->s_out( e_In, 0.0, 0.0, 0.0 );
-  thermo.set(*eosPtr);
-  return sVal;
+  double current_sVal = s();
+  if ( Freeze == 5 )
+    return current_sVal;
+  else
+  {
+    // default: use particle's current location as initial guess
+    eosPtr->tbqs( thermo.T, 0.0, 0.0, 0.0 );
+    double sVal = eosPtr->s_out( e_In, 0.0, 0.0, 0.0 );
+
+    if ( sVal > 0.0 )
+      thermo.set(*eosPtr);
+    else
+      Freeze = 5; // new label for (totally decoupled) particles which go outside grid
+
+    return sVal;
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void Particle::locate_phase_diagram_point_sBSQ(// previously update_s
                  double s_In, double rhoB_In, double rhoS_In, double rhoQ_In )
 {
-  // default: use particle's current location as initial guess
-  eosPtr->tbqs( thermo.T, thermo.muB, thermo.muQ, thermo.muS );
-  bool update_s_success = eosPtr->update_s( s_In, rhoB_In, rhoS_In, rhoQ_In );
-  thermo.set(*eosPtr);
+  if ( Freeze != 5 )
+  {
+    // default: use particle's current location as initial guess
+    eosPtr->tbqs( thermo.T, thermo.muB, thermo.muQ, thermo.muS );
+    bool update_s_success = eosPtr->update_s( s_In, rhoB_In, rhoS_In, rhoQ_In );
+
+    if ( update_s_success )
+      thermo.set(*eosPtr);
+    else
+      Freeze = 5; // new label for (totally decoupled) particles which go outside grid
+  }
   return;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void Particle::locate_phase_diagram_point_sBSQ(double s_In) // previously update_s
 {
-  // default: use particle's current location as initial guess
-  eosPtr->tbqs( thermo.T, 0.0, 0.0, 0.0 );
-  eosPtr->update_s( s_In, 0.0, 0.0, 0.0 );
-  thermo.set(*eosPtr);
+  if ( Freeze != 5 )
+  {
+    // default: use particle's current location as initial guess
+    eosPtr->tbqs( thermo.T, 0.0, 0.0, 0.0 );
+    bool update_s_success = eosPtr->update_s( s_In, 0.0, 0.0, 0.0 );
+
+    if ( update_s_success )
+      thermo.set(*eosPtr);
+    else
+      Freeze = 5; // new label for (totally decoupled) particles which go outside grid
+  }
   return;
 }
 
@@ -142,10 +178,6 @@ void Particle::frzcheck( double tin, int &count, int N )
       Freeze=0;
     }
   }
-
-  cout << "TEST FREEZE: " << tin << "   " << Freeze << "   " << count << "   "
-        << T() << "   " << freezeoutT << "   " << frz1.t << "   "
-        << frz2.t << "   "<< frz1.T << "   " << btrack << endl;
 }
 
 

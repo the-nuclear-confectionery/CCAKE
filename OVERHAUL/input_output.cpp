@@ -99,7 +99,7 @@ void InputOutput::set_EoS_type()
   string densities = EoS_files_location + "/densities.dat";
   string derivatives = EoS_files_location + "/derivatives.dat";
 
-  if(EoS_option == "Default")
+  if (EoS_option == "Default")
   {
     cout << "Running default EoS option for " << EoS_type << endl;
   }
@@ -121,10 +121,10 @@ void InputOutput::read_in_initial_conditions()
   int total_header_lines;
   string IC_file = "initial_conditions/";
 
-  if(initial_condition_type == "ICCING")
+  if (initial_condition_type == "ICCING")
   {
       cout << "Reading in ICCING initial conditions!" << endl;
-      IC_file = IC_file+"Iccing_conditions.dat"; // need to change ic0.dat
+      IC_file = IC_file+"/Iccing_conditions.dat"; // need to change ic0.dat
       total_header_lines = 1;    
   }
   else
@@ -192,11 +192,11 @@ void InputOutput::print_system_state()
         << systemPtr->t << " "
 				<< p.r << " "
 				<< p.p() << " "
-				<< p.T()*197.3 << " "
-				<< p.muB()*197.3 << " "
-				<< p.muS()*197.3 << " "
-				<< p.muQ()*197.3 << " "
-				<< p.e()*197.3 << " "
+				<< p.T()*hbarc_MeVfm << " "
+				<< p.muB()*hbarc_MeVfm << " "
+				<< p.muS()*hbarc_MeVfm << " "
+				<< p.muQ()*hbarc_MeVfm << " "
+				<< p.e()*hbarc_MeVfm << " "
 				<< p.rhoB() << " "
 				<< p.rhoS() << " "
 				<< p.rhoQ() << " "

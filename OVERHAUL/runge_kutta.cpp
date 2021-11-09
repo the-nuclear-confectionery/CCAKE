@@ -28,7 +28,7 @@ namespace RK
     eom.BSQshear(system, ws);
 
     // update quantities
-    system.get_derivative_halfstep(dx);
+    system.get_derivative_step(0.5*dx);
 
     system.Ez = E0 + 0.5*dx*system.dEz;
     system.t  = t0 + 0.5*dx;
@@ -41,7 +41,7 @@ namespace RK
     eom.BSQshear(system, ws);
 
     // update quantities
-    system.get_derivative_fullstep(dx);
+    system.get_derivative_step(dx);
 
     system.Ez = E0 + dx*system.dEz;
     system.t  = t0 + dx;

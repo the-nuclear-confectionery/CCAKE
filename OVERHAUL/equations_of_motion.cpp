@@ -27,8 +27,8 @@ using namespace constants;
 
 ////////////////////////////////////////////////////////////////////////////////
 // The structure here is temporary until we set the mode for different terms 
-//which will be shear, bulk, diffusion, and coupling terms, 
-//current equations are only set up for 2+1d.
+// which will be shear, bulk, diffusion, and coupling terms, 
+// current equations are only set up for 2+1d.
 void EquationsOfMotion::BSQshear( SystemState & system, SPHWorkstation & ws )
 {
   ws.setshear();
@@ -38,23 +38,14 @@ void EquationsOfMotion::BSQshear( SystemState & system, SPHWorkstation & ws )
   {
     auto & p = system.particles[i];
 
-cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.T() << endl;
-
-    int curfrz = 0; //added by Christopher Plumberg to get compilation
     ws.smooth_fields(i);
-                                      // fix arguments accordingly!!!
 
     if ( (p.eta<0) || isnan(p.eta) )
     {
       cout << i <<  " neg entropy " <<  p.T()*hbarc << " " << p.eta << endl;
       p.eta = 0;
     }
-
-cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.T() << endl;
-
   }
-
-  cout << "CHECK cfon: " << system.cfon << endl;
 
   cout << "Finished first loop over SPH particles" << endl;
 
@@ -63,13 +54,8 @@ cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.
   {
     auto & p = system.particles[i];
 
-cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.T() << endl;
-
-    cout << "CHECK PARTICLES: " << system.t << "   "
-          << i << "   " << p.T() << "   " << p.p() << "   ";
     //  Computes gamma and velocity
     p.calcbsq( system.t ); //resets EOS!!
-    cout << p.T() << "   " << p.p() << endl;
 
     /*N.B. - eventually extend to read in viscosities from table, etc.*/
     p.setvisc( system.etaconst, system.bvf, system.svf,
@@ -78,10 +64,6 @@ cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.
 
     if ( system.cfon == 1 )
       p.frzcheck( system.t, curfrz, system.n() );
-
-cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.T() << endl;
-
-
   }
 
 
@@ -98,8 +80,6 @@ cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.
   {
     auto & p = system.particles[i];
 
-cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.T() << endl;
-
     //Computes gradients to obtain dsigma/dt
     ws.smooth_gradients( i, system.t, curfrz );
 
@@ -107,16 +87,11 @@ cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.
 
     p.bsqsvsigset( system.t, i );
 
-  cout << "CHECK p[" << i << "].Freeze: " << p.Freeze << endl;
-
-
     if ( (p.Freeze==3) && (system.cfon==1) )
     {
       system.list[m++] = i;
-      p.Freeze           = 4;
+      p.Freeze         = 4;
     }
-
-cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.T() << endl;
 
   }
 
@@ -256,6 +231,19 @@ cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.
 
   if (system.cfon==1)
     system.bsqsvfreezeout( curfrz );
+
+
+  // keep track of which particles have let EoS grid completely
+  // (reset list at end of each timestep)
+  particles_out_of_grid.clear();
+  for ( int i = 0; i < system.n(); i++ )
+    if ( system.particles[i].Freeze == 5 )
+      particles_out_of_grid.push_back( i );
+
+  std::cout << "Summary at t = " << system.t << ": "
+        << particles_out_of_grid.size()
+        << " particles have gone out of the EoS grid." << std::endl;
+
 
   return;
 }

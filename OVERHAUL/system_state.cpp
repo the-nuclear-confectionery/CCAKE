@@ -316,58 +316,30 @@ cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.
 
   }
 }
+
+
 ///////////////////////////////////////////////////////////////////////////////
-void SystemState::get_derivative_halfstep(double dx)
+void SystemState::get_derivative_step(double dx)
 {
   N = _n;
-
-cout << "CHECK SIZES: " << particles.size() << "   " << _n << "   " << N << "   "
-      << u0.size() << "   " << r0.size() << "   " << etasigma0.size() << "   "
-      << Bulk0.size() << "   " << shv0.size() << endl;
 
   for (int i=0; i<N; ++i)
   {
     auto & p = particles[i];
-cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.T() << endl;
 
-    p.u            = u0[i]        + 0.5*dx*p.du_dt;
-cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.T() << endl;
-    p.r            = r0[i]        + 0.5*dx*p.v;
-cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.T() << endl;
-    p.eta_sigma    = etasigma0[i] + 0.5*dx*p.detasigma_dt;
-cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.T() << endl;
-    p.Bulk         = Bulk0[i]     + 0.5*dx*p.dBulk_dt;
-cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.T() << "   "
-     << p.shv << "   " << shv0[i] << "   " << 0.5*dx*p.dshv_dt << endl;
-    tmini( p.shv,    shv0[i]      + 0.5*dx*p.dshv_dt, true );
-cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.T() << "   "
-     << p.shv << "   " << shv0[i] << "   " << 0.5*dx*p.dshv_dt << endl;
-
-  }
-}
-///////////////////////////////////////////////////////////////////////////////
-void SystemState::get_derivative_fullstep(double dx)
-{
-  N = _n;
-
-cout << "CHECK SIZES: " << particles.size() << "   " << _n << "   " << N << "   "
-      << u0.size() << "   " << r0.size() << "   " << etasigma0.size() << "   "
-      << Bulk0.size() << "   " << shv0.size() << endl;
-
-  for (int i=0; i<N; ++i)
-  {
-    auto & p = particles[i];
-cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.T() << endl;
-
-    p.u            = u0[i]        + dx*p.du_dt;
     p.r            = r0[i]        + dx*p.v;
-    p.eta_sigma    = etasigma0[i] + dx*p.detasigma_dt;
-    p.Bulk         = Bulk0[i]     + dx*p.dBulk_dt;
-    tmini( p.shv,    shv0[i]      + dx*p.dshv_dt );
-cout << "CHECK FRZ" << __LINE__ << ": " << i << "   " << p.frz1.T << "   " << p.T() << endl;
 
+    if ( p.Freeze < 5 )
+    {
+      p.u            = u0[i]        + dx*p.du_dt;
+      p.eta_sigma    = etasigma0[i] + dx*p.detasigma_dt;
+      p.Bulk         = Bulk0[i]     + dx*p.dBulk_dt;
+      tmini( p.shv,    shv0[i]      + dx*p.dshv_dt );
+    }
   }
 }
+
+
 //////////////////////////////////////////////////////////////////////////////
 void SystemState::bsqsvfreezeout(int curfrz)
 {

@@ -105,8 +105,9 @@ void BSQHydro::run()
 
   if ( settings.qmf == 1 || settings.qmf == 3 )
   {
-    //out.bsqsveprofile(system);
-    cout << "printed first timestep" << endl;
+    // print the initial timestep
+    io.print_system_state();
+    cout << "Printed first timestep" << endl;
 
     system.conservation_entropy();
     system.conservation_BSQ();
@@ -133,10 +134,6 @@ void BSQHydro::run()
   {
     system.cfon = 1;
 
-cout << "TEST LOOP: " << system.t << "   " << settings.tend
-      << "   " << system.number_part << "   " << system.n() << endl;
-
-
     cout << "Entering here:" << endl;
 
     RK::bsq_second_order( settings.dt, eom, system, ws );
@@ -144,7 +141,7 @@ cout << "TEST LOOP: " << system.t << "   " << settings.tend
     system.conservation_BSQ();
 
     cout << setw(12) << setprecision(10)
-         << "t=" << system.t << " " <<  system.Eloss << " " << system.S
+         << "t=" << system.t << " " << system.Eloss << " " << system.S
          << " " << system.Btotal << " " << system.Stotal
          << " " << system.Qtotal <<  endl;
 
