@@ -37,6 +37,7 @@ public:
   void set_SettingsPtr( Settings * settingsPtr_in );
   void set_SystemStatePtr( SystemState * systemPtr_in );
 
+  int n_timesteps_output = 0;
 
   void load_settings_file( string path_to_settings_file ); // load setting
   // paramters for simulation
@@ -52,8 +53,6 @@ public:
   void print_system_state(); //at every time step, will write to output file
 
 private:
-
-  int n_timesteps_output = 0;
 
   string input_directory;
   string output_directory;
