@@ -18,6 +18,7 @@
 #include "eos_delaunay/eos_delaunay.h"
 
 #include "constants.h"
+#include "eos_conformal.h"
 #include "rootfinder.h"
 
 using namespace constants;
@@ -37,7 +38,28 @@ void EquationOfState::init(string quantityFile, string derivFile)
 	tbqsPosition.resize(4);
 
   //////////////////////////////////////////////////////////////////////////////
-  if ( use_static_C_library )
+  if ( settingsPtr->EoS_type == "Conformal" )
+  {
+    std::cout << "Setting up equation of state for Gubser checks" << std::endl;
+    eos_conformal::c    = 4.0;
+    eos_conformal::T0   = 1.0;
+    eos_conformal::muB0 = 1.0;
+    eos_conformal::muQ0 = 1.0;
+    eos_conformal::muS0 = 1.0;
+    
+    // set density-computing functions appropriately
+    std::function<void(double[], double[])> f_eBSQ = eos_conformal::get_eBSQ;
+    set_eBSQ_functional( f_eBSQ );
+    std::function<void(double[], double[])> f_sBSQ = eos_conformal::get_sBSQ;
+    set_sBSQ_functional( f_sBSQ );
+
+    // set minima and maxima (can be arbitrarily large)
+    minT   =  0.0;     minMuB = -10000.0;
+    minMuS = -10000.0; minMuQ = -10000.0;
+    maxT   =  10000.0; maxMuB =  10000.0;
+    maxMuS =  10000.0; maxMuQ =  10000.0;
+  }
+  else if ( use_static_C_library )
   {
     // initialize things needed to use static C library
     cout << "Initializing EoS C library" << endl;

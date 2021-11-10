@@ -1,8 +1,8 @@
-ICtype: ICCING
+ICtype: Gubser
 h: 0.300000
 dt: 0.050000
 t0: 0.600000
-EoS_Type: Houston
+EoS_Type: Conformal
 EoS_Option: Default
 eta: constant_0.08
 zeta: off

@@ -91,7 +91,7 @@ for ( auto & entry : all_parameters )
           std::cerr << "WARNING: Gubser initial conditions require a conformal "
                        "equation of state!  Switching to conformal with "
                        "proportionality constant of 4" << std::endl;
-          settingsPtr->EoS_type == "Conformal";
+          settingsPtr->EoS_type = "Conformal";
         }
 
         infile.close();

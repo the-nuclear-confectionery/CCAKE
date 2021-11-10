@@ -86,7 +86,34 @@ void EquationOfState::tbqs(double setT, double setmuB, double setmuQ, double set
 
 void EquationOfState::evaluate_thermodynamics()
 {
-  if ( use_static_C_library )
+  if ( settingsPtr->EoS_type == "Conformal" )
+  {
+    // EXPECTS UNITS OF MEV!!!
+    double phase_diagram_point[4]
+        = { tbqsPosition[0], tbqsPosition[1], tbqsPosition[2], tbqsPosition[3] };
+
+    double thermodynamics[17];
+    eos_conformal::get_full_thermo(phase_diagram_point, thermodynamics);
+
+    pVal    = thermodynamics[0];
+    entrVal = thermodynamics[1];
+    BVal    = thermodynamics[2];
+    SVal    = thermodynamics[3];
+    QVal    = thermodynamics[4];
+    eVal    = thermodynamics[5];
+    cs2Val  = thermodynamics[6];
+    db2     = thermodynamics[7];
+    dq2     = thermodynamics[8];
+    ds2     = thermodynamics[9];
+    dbdq    = thermodynamics[10];
+    dbds    = thermodynamics[11];
+    dsdq    = thermodynamics[12];
+    dtdb    = thermodynamics[13];
+    dtdq    = thermodynamics[14];
+    dtds    = thermodynamics[15];
+    dt2     = thermodynamics[16];
+  }
+  else if ( use_static_C_library )
   {
     // EXPECTS UNITS OF MEV!!!
     double phase_diagram_point[4]
