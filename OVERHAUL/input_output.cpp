@@ -85,6 +85,15 @@ for ( auto & entry : all_parameters )
         settingsPtr->Freeze_Out_Temperature = stod(all_parameters[8])/hbarc_MeVfm;
         settingsPtr->Freeze_Out_Type        = all_parameters[9];
 
+        // put a warning check here; probably defer to separate routine eventually
+        if ( settingsPtr->IC_type == "Gubser" && settingsPtr->EoS_type != "Conformal" )
+        {
+          std::cerr << "WARNING: Gubser initial conditions require a conformal "
+                       "equation of state!  Switching to conformal with "
+                       "proportionality constant of 4" << std::endl;
+          settingsPtr->EoS_type == "Conformal";
+        }
+
         infile.close();
     }
 

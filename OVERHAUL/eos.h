@@ -94,9 +94,9 @@ private:
     static constexpr bool accept_nearest_neighbor             = false;
     static constexpr bool discard_unsolvable_charge_densities = false;
 
-    static constexpr size_t STEPS     = 1000000;
+    //static constexpr size_t STEPS     = 1000;
     static constexpr int VERBOSE      = 0;
-    static constexpr double TOLERANCE = 1e-12;
+    //static constexpr double TOLERANCE = 1e-12;
 
     //the current position in (T, muB, muQ, muS) initialized by tbqs()
     vector<double> tbqsPosition;

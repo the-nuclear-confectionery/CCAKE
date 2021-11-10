@@ -86,13 +86,11 @@ void SystemState::initialize()  // formerly called "manualenter"
 
 void SystemState::initialize_linklist()
 {
+  cout << "Initial conditions type: " << settingsPtr->IC_type << endl;
 
-  string ictype = "iccing";
-  cout << "Initial conditions type: " << ictype << endl;
-
-  if ( ictype == "iccing" )
+  if ( settingsPtr->IC_type == "ICCING" )
   {
-    settingsPtr->gtyp=6;
+    settingsPtr->gtyp   = 6;
 
     int count           = 1;
     vector<string>        filelist( count );
@@ -112,6 +110,34 @@ void SystemState::initialize_linklist()
     //cout << "number of sph particles=" << _Ntable3 << endl;
     linklist.gtyp=settingsPtr->gtyp;
 
+  }
+  else if ( settingsPtr->IC_type == "Gubser" )
+  {
+    settingsPtr->gtyp   = 7;
+
+    int count           = 1;
+    vector<string>        filelist( count );
+
+    int j               = 0;
+    filelist[j]         = "./ic0.dat"; // only doing single event
+    linklist.filenames  = filelist;
+    linklist.fcount     = count;
+    linklist.fnum       = linklist.start;
+    
+    cout << "Check 0: " << particles[0].r.x[0] << "   " << particles[0].r.x[1] << endl;
+
+    int currently_frozen_out = number_part;
+    linklist.initialize( settingsPtr->t0, particles.size(),
+                         settingsPtr->_h, &particles, dt, currently_frozen_out );
+
+    //cout << "number of sph particles=" << _Ntable3 << endl;
+    linklist.gtyp=settingsPtr->gtyp;
+  }
+  else
+  {
+    std::cerr << "Initial conditions type = " << settingsPtr->IC_type
+              << " not supported!" << std::endl;
+    exit(1);
   }
 
 
