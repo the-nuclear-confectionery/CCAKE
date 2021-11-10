@@ -213,7 +213,7 @@ void InputOutput::read_in_initial_conditions()
         double cphi = cos(phi), sphi = sin(phi);
         double x = r*cphi, y = r*sphi, ux = gammar*vr*cphi, uy = gammar*vr*sphi;
 
-        vector<double> fields({x,y,e,rhoB,rhoS,rhoQ,ux,uy});
+        vector<double> fields({x,y,eLocal,rhoBLocal,rhoSLocal,rhoQLocal,ux,uy});
         systemPtr->particles.push_back( Particle(fields) );
       }
     }
