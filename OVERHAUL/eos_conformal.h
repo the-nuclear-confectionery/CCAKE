@@ -105,11 +105,20 @@ namespace eos_conformal
   void get_eBSQ( double point[], double results[] )
   {
     // point: (T, muB, muQ, muS)
-    results[1] = B( hc*point[0], hc*point[1], hc*point[2], hc*point[3] );
-    results[2] = S( hc*point[0], hc*point[1], hc*point[2], hc*point[3] );
-    results[3] = Q( hc*point[0], hc*point[1], hc*point[2], hc*point[3] );
-    results[0] = -P( hc*point[0], hc*point[1], hc*point[2], hc*point[3] );
-                  + hc*point[1]*results[1] + hc*point[2]*results[2] + hc*point[3]*results[3];
+    const double Tsol  = hc*point[0],
+      muBsol           = hc*point[1],
+      muQsol           = hc*point[2],
+      muSsol           = hc*point[3];
+    double POut        = p(Tsol, muBsol, muQsol, muSsol);
+    double sOut        = s(Tsol, muBsol, muQsol, muSsol);
+    double BOut        = B(Tsol, muBsol, muQsol, muSsol);
+    double SOut        = S(Tsol, muBsol, muQsol, muSsol);
+    double QOut        = Q(Tsol, muBsol, muQsol, muSsol);
+    double eOut        = (sOut*Tsol + muBsol*BOut + muQsol*QOut + muSsol*SOut)/hc - POut;
+    results[0]         = eOut;
+    results[1]         = BOut;
+    results[2]         = SOut;
+    results[3]         = QOut;
   }
 
   void get_sBSQ( double point[], double results[] )
@@ -124,35 +133,33 @@ namespace eos_conformal
   void get_full_thermo( double point[], double results[] )
   {
     // point: (T, muB, muQ, muS)
-    const double Tsol  = hc*point[0],
-      muBsol           = hc*point[1],
-      muQsol           = hc*point[2],
-      muSsol           = hc*point[3];
-    double POut        = p(Tsol, muBsol, muQsol, muSsol);
-    double sOut        = s(Tsol, muBsol, muQsol, muSsol);
-    double BOut        = B(Tsol, muBsol, muQsol, muSsol);
-    double SOut        = S(Tsol, muBsol, muQsol, muSsol);
-    double QOut        = Q(Tsol, muBsol, muQsol, muSsol);
-    double eOut        = (sOut*Tsol + muBsol*BOut + muQsol*QOut + muSsol*SOut)/hc - POut;
+    const double Tsol   = hc*point[0], muBsol = hc*point[1],
+                 muQsol = hc*point[2], muSsol = hc*point[3];
+    double POut = p(Tsol, muBsol, muQsol, muSsol);
+    double sOut = s(Tsol, muBsol, muQsol, muSsol);
+    double BOut = B(Tsol, muBsol, muQsol, muSsol);
+    double SOut = S(Tsol, muBsol, muQsol, muSsol);
+    double QOut = Q(Tsol, muBsol, muQsol, muSsol);
+    double eOut = (sOut*Tsol + muBsol*BOut + muQsol*QOut + muSsol*SOut)/hc - POut;
 
-    thermodynamics[0]  = POut;
-    thermodynamics[1]  = sOut;
-    thermodynamics[2]  = BOut;
-    thermodynamics[3]  = SOut;
-    thermodynamics[4]  = QOut;
-    thermodynamics[5]  = eOut;
-    thermodynamics[6]  = 1.0/3.0;  // conformal
+    results[0]  = POut;
+    results[1]  = sOut;
+    results[2]  = BOut;
+    results[3]  = SOut;
+    results[4]  = QOut;
+    results[5]  = eOut;
+    results[6]  = 1.0/3.0;  // conformal
 
-    thermodynamics[7]  = P2B2(Tsol, muBsol, muQsol, muSsol);
-    thermodynamics[8]  = P2Q2(Tsol, muBsol, muQsol, muSsol);
-    thermodynamics[9]  = P2S2(Tsol, muBsol, muQsol, muSsol);
-    thermodynamics[10] = P2BQ(Tsol, muBsol, muQsol, muSsol);
-    thermodynamics[11] = P2BS(Tsol, muBsol, muQsol, muSsol);
-    thermodynamics[12] = P2QS(Tsol, muBsol, muQsol, muSsol);
-    thermodynamics[13] = P2TB(Tsol, muBsol, muQsol, muSsol);
-    thermodynamics[14] = P2TQ(Tsol, muBsol, muQsol, muSsol);
-    thermodynamics[15] = P2TS(Tsol, muBsol, muQsol, muSsol);
-    thermodynamics[16] = P2T2(Tsol, muBsol, muQsol, muSsol);
+    results[7]  = P2B2(Tsol, muBsol, muQsol, muSsol);
+    results[8]  = P2Q2(Tsol, muBsol, muQsol, muSsol);
+    results[9]  = P2S2(Tsol, muBsol, muQsol, muSsol);
+    results[10] = P2BQ(Tsol, muBsol, muQsol, muSsol);
+    results[11] = P2BS(Tsol, muBsol, muQsol, muSsol);
+    results[12] = P2QS(Tsol, muBsol, muQsol, muSsol);
+    results[13] = P2TB(Tsol, muBsol, muQsol, muSsol);
+    results[14] = P2TQ(Tsol, muBsol, muQsol, muSsol);
+    results[15] = P2TS(Tsol, muBsol, muQsol, muSsol);
+    results[16] = P2T2(Tsol, muBsol, muQsol, muSsol);
   }
   
 }

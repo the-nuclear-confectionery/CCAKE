@@ -23,6 +23,9 @@ BSQHydro::BSQHydro()
   // initialize system state
   system.set_EquationOfStatePtr( &eos );
   system.set_SettingsPtr( &settings );
+
+  // initialize EoS pointers
+  eos.set_SettingsPtr( &settings );
   
   return;
 }

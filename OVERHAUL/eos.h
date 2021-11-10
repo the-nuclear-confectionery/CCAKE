@@ -18,6 +18,7 @@
 #include "eos_delaunay/eos_delaunay.h"
 #include "interpolatorND/interpolatorND.h"
 #include "rootfinder.h"
+#include "settings.h"
 
 using std::string;
 
@@ -81,10 +82,14 @@ public:
     void set_eBSQ_functional( std::function<void(double[], double[])> fIn ) { eBSQ_functional = fIn; }
     void set_sBSQ_functional( std::function<void(double[], double[])> fIn ) { sBSQ_functional = fIn; }
 
+    void set_SettingsPtr( Settings * settingsPtr_in );
+
 private:
 
     ////////////////////////////////////////////////////////////////////////////
     // PRIVATE MEMBERS
+
+    Settings * settingsPtr = nullptr;
 
     //bool use_delaunay = false, use_rootfinder = true;
     //const int VERBOSE = 1;

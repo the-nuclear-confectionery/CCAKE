@@ -26,6 +26,9 @@ using namespace constants;
 using std::vector;
 using std::string;
 
+void EquationOfState::set_SettingsPtr( Settings * settingsPtr_in ) { settingsPtr = settingsPtr_in; }
+
+
 void EquationOfState::init()
 {
   cout << "Attempting read in of EoS from "
