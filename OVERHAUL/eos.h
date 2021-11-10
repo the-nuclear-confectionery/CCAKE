@@ -84,6 +84,10 @@ public:
 
     void set_SettingsPtr( Settings * settingsPtr_in );
 
+    std::function<void(double[], double[])> eBSQ_functional;
+    std::function<void(double[], double[])> sBSQ_functional;
+
+
 private:
 
     ////////////////////////////////////////////////////////////////////////////
@@ -189,8 +193,8 @@ private:
     // MEMBERS AND ROUTINES TO FIND (T,muX) COORDINATES OF (e,rhoX) POINT
     // - for using the root-finding functionality
     Rootfinder rootfinder;
-    std::function<void(double[], double[])> eBSQ_functional;
-    std::function<void(double[], double[])> sBSQ_functional;
+    //std::function<void(double[], double[])> eBSQ_functional;
+    //std::function<void(double[], double[])> sBSQ_functional;
     // - for using a Delaunay interpolation
     eos_delaunay e_delaunay;
     eos_delaunay entr_delaunay;
