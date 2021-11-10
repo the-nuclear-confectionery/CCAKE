@@ -118,9 +118,9 @@ void InputOutput::set_EoS_type()
     exit(1);
   }
 
-
   eosPtr->quantity_file = densities;
   eosPtr->deriv_file = derivatives;
+
   return;
 }
 

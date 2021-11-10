@@ -289,7 +289,12 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
       updated_tbqs[iTBQS] = gsl_vector_get(solver->x, iTBQS);
   }
 
-cout << "\t --> " << __PRETTY_FUNCTION__ << ": iter = " << iter << endl;
+cout << "\t --> " << __LINE__ << ": iter = " << iter << endl;
+cout << "\t --> " << __LINE__ << ": "
+      << gsl_vector_get(solver->x, 0) << "   "
+      << gsl_vector_get(solver->x, 1) << "   "
+      << gsl_vector_get(solver->x, 2) << "   "
+      << gsl_vector_get(solver->x, 3) << endl;
 
   // memory deallocation
   gsl_multiroot_fsolver_free(solver);
