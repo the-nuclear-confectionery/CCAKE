@@ -30,7 +30,9 @@ Particle::Particle(vector<double> &fields)
   rhoB_an = fields[3];
   rhoS_an = fields[4];
   rhoQ_an = fields[5];
-  s_an = 0.0;
+  u.x[0]  = fields[6];
+  u.x[1]  = fields[7];
+  s_an    = 0.0;
 }
 
 Particle::Particle( const Particle& p )

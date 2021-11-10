@@ -546,8 +546,8 @@ void SPHWorkstation::process_initial_conditions()
   cout << "stepY = " << stepY << endl;
 	for (auto & p : systemPtr->particles)
   {
-		p.u.x[0]          = 0.0;
-		p.u.x[1]          = 0.0;
+		//p.u.x[0]          = 0.0;  // flow must be set in Particle constructor!!!
+		//p.u.x[1]          = 0.0;  // flow must be set in Particle constructor!!!
 		p.eta_sigma       = 1.0;
 		p.sigmaweight     = stepX*stepY;
 		p.rho_weight      = stepX*stepY;

@@ -132,9 +132,92 @@ void InputOutput::read_in_initial_conditions()
 
   if (initial_condition_type == "ICCING")
   {
-      cout << "Reading in ICCING initial conditions!" << endl;
-      IC_file = IC_file+"/Iccing_conditions.dat"; // need to change ic0.dat
-      total_header_lines = 1;    
+    cout << "Reading in ICCING initial conditions!" << endl;
+    IC_file = IC_file+"/Iccing_conditions.dat"; // need to change ic0.dat
+    total_header_lines = 1;
+
+    ifstream infile(IC_file.c_str());
+    cout << "Initial conditions file: " << IC_file << endl;
+    if (infile.is_open())
+    {
+      string line;
+      int count_header_lines = 0;
+      int count_file_lines   = 0;
+      double x, y, e, rhoB, rhoS, rhoQ;
+      double ignore, stepX, stepY;
+
+      while (getline (infile, line))
+      {
+        istringstream iss(line);
+        if(count_header_lines < total_header_lines)
+        {
+          settingsPtr->headers.push_back(line);
+          iss >> ignore >> stepX >> stepY;
+          settingsPtr->stepx = stepX;
+          settingsPtr->stepy = stepY;
+          count_header_lines++;
+        }
+        else
+        {
+          iss >> x >> y >> e >> rhoB >> rhoS >> rhoQ;
+          e /= hbarc_GeVfm;
+          double ux = 0.0, uy = 0.0;
+          vector<double> fields({x,y,e,rhoB,rhoS,rhoQ,ux,uy});
+          systemPtr->particles.push_back( Particle(fields) );
+        }
+      }
+    }
+    else
+    {
+
+      cout << "Can't open " << IC_file << endl;
+      exit(1);
+    }
+    infile.close();
+
+  }
+  else if (initial_condition_type == "Gubser")
+  {
+    // initial time
+    const double tau0 = settingsPtr->t0;
+
+    // set Gubser profile parameters
+    const double q     = 1.0; // 1/fm
+    const double e0    = 1.0; // 1/fm^4
+    const double rhoB0 = 0.5; // 1/fm^3
+    const double rhoQ0 = 0.5; // 1/fm^3
+    const double rhoS0 = 0.5; // 1/fm^3
+
+    // set grid step size for test
+    const double TINY = 1e-10;
+    const double dr   = 0.01, dphi = 2.0*pi/10.0;
+    const double rmin = dr,   rmax = 10.0+dr*TINY;
+
+    // generate initial profiles
+    double q2 = q*q, q4 = q2*q2, t2 = tau0*tau0, t3 = t2*tau0, t4 = t3*tau0;
+    for ( double r = rmin; r <= rmax; r += dr )
+    {
+      double r2        = r*r;
+      double arg       = 1.0 + 2.0*q2*(t2+r2) + q4*(t2-r2)*(t2-r2);
+
+      double eLocal    = (e0/t4)*pow(2.0*q*tau0, 8.0/3.0) / pow(arg, 4.0/3.0);
+      double rhoBLocal = (rhoB0/t3)*4.0*q2*t2/(arg*arg);
+      double rhoQLocal = (rhoQ0/t3)*4.0*q2*t2/(arg*arg);
+      double rhoSLocal = (rhoS0/t3)*4.0*q2*t2/(arg*arg);
+
+      double vr = 2.0*q2*tau0*r/(1+q2*t2+q2*r2);
+      double gammar = sqrt(1.0-vr*vr);
+
+      for ( double phi = 0.0; phi <= 2.0*pi-dphi*TINY; phi += dphi )
+      {
+        double cphi = cos(phi), sphi = sin(phi);
+        double x = r*cphi, y = r*sphi, ux = gammar*vr*cphi, uy = gammar*vr*sphi;
+
+        vector<double> fields({x,y,e,rhoB,rhoS,rhoQ,ux,uy});
+        systemPtr->particles.push_back( Particle(fields) );
+      }
+    }
+    
   }
   else
   {
@@ -142,43 +225,7 @@ void InputOutput::read_in_initial_conditions()
       exit(1);
   }
 
-  ifstream infile(IC_file.c_str());
-  cout << "Initial conditions file: " << IC_file << endl;
-  if (infile.is_open())
-  {
-    string line;
-    int count_header_lines = 0;
-    int count_file_lines   = 0;
-    double x, y, e, rhoB, rhoS, rhoQ;
-    double ignore, stepX, stepY;
 
-    while (getline (infile, line))
-    {
-      istringstream iss(line);
-      if(count_header_lines < total_header_lines)
-      {
-        settingsPtr->headers.push_back(line);
-        iss >> ignore >> stepX >> stepY;
-        settingsPtr->stepx = stepX;
-        settingsPtr->stepy = stepY;
-        count_header_lines++;
-      }
-      else
-      {
-        iss >> x >> y >> e >> rhoB >> rhoS >> rhoQ;
-        e /= hbarc_GeVfm;
-        vector<double> fields({x,y,e,rhoB,rhoS,rhoQ});
-        systemPtr->particles.push_back( Particle(fields) );
-      }
-    }
-  }
-  else
-  {
-
-    cout << "Can't open " << IC_file << endl;
-    exit(1);
-  }
-  infile.close();
 }
 
 
