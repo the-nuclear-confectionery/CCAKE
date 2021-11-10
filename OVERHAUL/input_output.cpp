@@ -190,7 +190,7 @@ void InputOutput::read_in_initial_conditions()
 
     // set grid step size for test
     const double TINY = 1e-10;
-    const double dr   = 0.01, dphi = 2.0*pi/10.0;
+    const double dr   = 0.1, dphi = 2.0*pi/1000.0;
     const double rmin = dr,   rmax = 10.0+dr*TINY;
 
     // generate initial profiles
