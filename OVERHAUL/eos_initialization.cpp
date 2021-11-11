@@ -44,7 +44,7 @@ void EquationOfState::init(string quantityFile, string derivFile)
   if ( settingsPtr->EoS_type == "Conformal" )
   {
     std::cout << "Setting up equation of state for Gubser checks" << std::endl;
-    eos_conformal::c    = 4.0;
+    eos_conformal::c    = 1.0;
     eos_conformal::T0   = 1.0;
     eos_conformal::muB0 = 1.0;
     eos_conformal::muQ0 = 1.0;
