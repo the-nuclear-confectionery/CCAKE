@@ -241,9 +241,9 @@ void InputOutput::read_in_initial_conditions()
     // set Gubser profile parameters
     const double q     = 1.0; // 1/fm
     const double e0    = 1.0; // 1/fm^4
-    const double rhoB0 = 0.5; // 1/fm^3
-    const double rhoQ0 = 0.5; // 1/fm^3
-    const double rhoS0 = 0.5; // 1/fm^3
+    const double rhoB0 = 0.0; // 1/fm^3
+    const double rhoQ0 = 0.0; // 1/fm^3
+    const double rhoS0 = 0.0; // 1/fm^3
 
     // GRID GENERATION IN CARTESIAN COORDINATES
     // set grid step size for test
