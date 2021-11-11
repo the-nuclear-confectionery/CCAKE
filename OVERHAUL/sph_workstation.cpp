@@ -544,22 +544,41 @@ void SPHWorkstation::process_initial_conditions()
 
   // fill out initial particle information
   //int TMP_particle_count = 0;
-	double stepX = settingsPtr->stepx;
-	double stepY = settingsPtr->stepy;
-  cout << "stepX = " << stepX << endl;
-  cout << "stepY = " << stepY << endl;
 	for (auto & p : systemPtr->particles)
   {
+    // set area element for each SPH particle (for Polar, depends on particle!)
+    double dA = 0.0;
+    if (settingsPtr->initial_coordinate_distribution == "Cartesian")
+    {
+      cout << "stepX = " << settingsPtr->stepx << endl;
+      cout << "stepY = " << settingsPtr->stepy << endl;
+      dA = (settingsPtr->stepx)*(settingsPtr->stepy);
+    }
+    else if (settingsPtr->initial_coordinate_distribution == "Polar")
+    {
+      cout << "stepr = " << settingsPtr->stepr << endl;
+      cout << "stepphi = " << settingsPtr->stepphi << endl;
+      
+      dA = (settingsPtr->stepr)*(settingsPtr->stepphi)*Norm(p->r);
+    }
+    else
+    {
+      std::cerr << "ERROR: initial_coordinate_distribution = " << 
+                << initial_coordinate_distribution << " not supported!" << endl;
+      exit(1);
+    }
+
+    // Set the rest of particle elements using area element
 		//p.u.x[0]          = 0.0;  // flow must be set in Particle constructor!!!
 		//p.u.x[1]          = 0.0;  // flow must be set in Particle constructor!!!
 		p.eta_sigma       = 1.0;
-		p.sigmaweight     = stepX*stepY;
-		p.rho_weight      = stepX*stepY;
+		p.sigmaweight     = dA;
+		p.rho_weight      = dA;
 		p.Bulk            = 0.0;
-		p.B               = p.rhoB_an*stepX*stepY;
-		p.S               = p.rhoS_an*stepX*stepY;
-		p.Q               = p.rhoQ_an*stepX*stepY;
-		p.transverse_area = stepX*stepY;
+		p.B               = p.rhoB_an*dA;
+		p.S               = p.rhoS_an*dA;
+		p.Q               = p.rhoQ_an*dA;
+		p.transverse_area = dA;
 
 		/*if (TMP_particle_count++==0)
       cout << "readICs_iccing(" << __LINE__ << "): "

@@ -18,7 +18,9 @@ public:
   double t = 0.0;
   double dt = 0.0;
   double stepx = 0.0;
-  double stepy = 0.0;
+  double stepy = 0.0; // initial grid coordinate spacings
+  double stepr = 0.0;
+  double stepphi = 0.0
   double _h = 0.0;
   double Freeze_Out_Temperature = 0.0;
 
@@ -85,7 +87,7 @@ public:
   string zeta = ""; // specificy the bulk viscosity type to use
   // in transport cpefficient file
   string Freeze_Out_Type = "";
-
+  string initial_coordinate_distribution = "";
 
 
 /********************************************************************************/

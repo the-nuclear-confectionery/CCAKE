@@ -136,6 +136,8 @@ void InputOutput::read_in_initial_conditions()
     IC_file = IC_file+"/Iccing_conditions.dat"; // need to change ic0.dat
     total_header_lines = 1;
 
+    settingsPtr->initial_coordinate_distribution = "Cartesian";
+
     ifstream infile(IC_file.c_str());
     cout << "Initial conditions file: " << IC_file << endl;
     if (infile.is_open())
@@ -178,6 +180,8 @@ void InputOutput::read_in_initial_conditions()
   }
   else if (initial_condition_type == "Gubser")
   {
+    settingsPtr->initial_coordinate_distribution = "Polar";
+
     // initial time
     const double tau0 = settingsPtr->t0;
 
@@ -188,10 +192,13 @@ void InputOutput::read_in_initial_conditions()
     const double rhoQ0 = 0.5; // 1/fm^3
     const double rhoS0 = 0.5; // 1/fm^3
 
+    // GRID GENERATION IN POLAR COORDINATES --> CANNOT DEFINE SIGMAWEIGHT = DX*DY, ETC.
     // set grid step size for test
-    const double TINY = 1e-10;
-    const double dr   = 0.1, dphi = 2.0*pi/1000.0;
-    const double rmin = dr,   rmax = 10.0+dr*TINY;
+    const double TINY    = 1e-10;
+    const double dr      = 0.1, dphi = 2.0*pi/1000.0;
+    settingsPtr->stepr   = dr;
+    settingsPtr->stepphi = dphi;
+    const double rmin    = dr,  rmax = 10.0+dr*TINY;
 
     // generate initial profiles
     double q2 = q*q, q4 = q2*q2, t2 = tau0*tau0, t3 = t2*tau0, t4 = t3*tau0;
