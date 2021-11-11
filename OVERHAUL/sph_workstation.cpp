@@ -97,16 +97,17 @@ if (i==0)
 					double densities_at_point[4];
 //					STANDARD_get_eBSQ_densities(phase_diagram_point, densities_at_point);
           p.eosPtr->eBSQ_functional( phase_diagram_point, densities_at_point );
-					cout << i << ":   " << p.e_sub*197.3
+					cout << i << ":   " << p.e_sub*hbarc_MeVfm
 						<< "   " << p.rhoB_an
 						<< "   " << p.rhoS_an
 						<< "   " << p.rhoQ_an
-						<< "   " << p.T()*197.3
-						<< "   " << p.muB()*197.3
-						<< "   " << p.muS()*197.3
-						<< "   " << p.muQ()*197.3;
-						for (int iii = 0; iii < 4; iii++)
-							cout << "   " << densities_at_point[iii];		
+						<< "   " << p.T()*hbarc_MeVfm
+						<< "   " << p.muB()*hbarc_MeVfm
+						<< "   " << p.muS()*hbarc_MeVfm
+						<< "   " << p.muQ()*hbarc_MeVfm;
+          cout << "   " << densities_at_point[0]*hbarc_MeVfm;		
+          for (int iii = 1; iii < 4; iii++)
+            cout << "   " << densities_at_point[iii];		
 					cout << "\n";
 				}
 				else
@@ -194,12 +195,12 @@ if (i==0)
 			cout << "\t --> Densities found in EoS table: "
 				<< p.r.x[0] << "   " << p.r.x[1] << "\n";
 			cout << "\t\t - phase diagram point: "
-					<< p.T()*197.3 << "   "
-					<< p.muB()*197.3 << "   "
-					<< p.muS()*197.3 << "   "
-					<< p.muQ()*197.3 << "\n";
+					<< p.T()*hbarc_MeVfm << "   "
+					<< p.muB()*hbarc_MeVfm << "   "
+					<< p.muS()*hbarc_MeVfm << "   "
+					<< p.muQ()*hbarc_MeVfm << "\n";
 			cout << "\t\t - densities: "
-					<< p.e_sub*197.3 << "   "
+					<< p.e_sub*hbarc_MeVfm << "   "
 					<< p.rhoB_an << "   "
 					<< p.rhoS_an << "   "
 					<< p.rhoQ_an << "\n";
@@ -209,11 +210,12 @@ if (i==0)
 
 			double densities_at_point[4];
 //			STANDARD_get_eBSQ_densities(phase_diagram_point, densities_at_point);
-          p.eosPtr->eBSQ_functional( phase_diagram_point, densities_at_point );
+      p.eosPtr->eBSQ_functional( phase_diagram_point, densities_at_point );
 			cout << "\t\t - phase diagram point:";
-			for (int iii = 0; iii < 4; iii++) cout << "   " << phase_diagram_point[iii];
+			for (int iii = 0; iii < 4; iii++) cout << "   " << hbarc_MeVfm*phase_diagram_point[iii];
 			cout << "\n\t\t - densities:";
-			for (int iii = 0; iii < 4; iii++) cout << "   " << densities_at_point[iii];
+      cout << "   " << hbarc_MeVfm*densities_at_point[0];
+			for (int iii = 1; iii < 4; iii++) cout << "   " << densities_at_point[iii];
 			cout << "\n";
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
