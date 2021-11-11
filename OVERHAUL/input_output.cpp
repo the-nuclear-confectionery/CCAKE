@@ -178,7 +178,7 @@ void InputOutput::read_in_initial_conditions()
     infile.close();
 
   }
-  else if (initial_condition_type == "Gubser")
+  /*else if (initial_condition_type == "Gubser")
   {
     // choose initial coordinate system
     settingsPtr->initial_coordinate_distribution = "Polar";
@@ -196,10 +196,10 @@ void InputOutput::read_in_initial_conditions()
     // GRID GENERATION IN POLAR COORDINATES --> CANNOT DEFINE SIGMAWEIGHT = DX*DY, ETC.
     // set grid step size for test
     const double TINY    = 1e-10;
-    const double dr      = 0.1, dphi = 2.0*pi/1000.0;
+    const double dr      = 0.01, dphi = 2.0*pi/1000.0;
     settingsPtr->stepr   = dr;
     settingsPtr->stepphi = dphi;
-    const double rmin    = 0.0,  rmax = 10.0+dr*TINY;
+    const double rmin    = 0.0,  rmax = 5.0+dr*TINY;
 
     // generate initial profile in (r,phi)
     double q2 = q*q, q4 = q2*q2, t2 = tau0*tau0, t3 = t2*tau0, t4 = t3*tau0;
@@ -227,6 +227,56 @@ void InputOutput::read_in_initial_conditions()
         vector<double> fields({x,y,eLocal,rhoBLocal,rhoSLocal,rhoQLocal,ux,uy});
         systemPtr->particles.push_back( Particle(fields) );
       }
+    }
+    
+  }*/
+  else if (initial_condition_type == "Gubser")
+  {
+    // choose initial coordinate system
+    settingsPtr->initial_coordinate_distribution = "Cartesian";
+
+    // initial time
+    const double tau0 = settingsPtr->t0;
+
+    // set Gubser profile parameters
+    const double q     = 1.0; // 1/fm
+    const double e0    = 1.0; // 1/fm^4
+    const double rhoB0 = 0.5; // 1/fm^3
+    const double rhoQ0 = 0.5; // 1/fm^3
+    const double rhoS0 = 0.5; // 1/fm^3
+
+    // GRID GENERATION IN CARTESIAN COORDINATES
+    // set grid step size for test
+    const double TINY  = 1e-10;
+    const double dx    = 0.025, dy = 0.025;
+    settingsPtr->stepx = dx;
+    settingsPtr->stepy = dy;
+    const double xmin  = -5.0, xmax = 5.0+dx*TINY;
+    const double ymin  = -5.0, ymax = 5.0+dy*TINY;
+
+    // generate initial profile in (r,phi)
+    double q2 = q*q, q4 = q2*q2, t2 = tau0*tau0, t3 = t2*tau0, t4 = t3*tau0;
+    for ( double x = xmin; x <= xmax; x += dx )
+    for ( double y = ymin; y <= ymax; y += dy )
+    {
+      double r         = sqrt(x*x+y*y);
+      double r2        = r*r;
+      double arg       = 1.0 + 2.0*q2*(t2+r2) + q4*(t2-r2)*(t2-r2);
+
+      double eLocal    = (e0/t4)*pow(2.0*q*tau0, 8.0/3.0) / pow(arg, 4.0/3.0);
+      double rhoBLocal = (rhoB0/t3)*4.0*q2*t2/(arg*arg);
+      double rhoQLocal = (rhoQ0/t3)*4.0*q2*t2/(arg*arg);
+      double rhoSLocal = (rhoS0/t3)*4.0*q2*t2/(arg*arg);
+
+      double vr = 2.0*q2*tau0*r/(1+q2*t2+q2*r2);
+      double gammar = 1.0/sqrt(1.0-vr*vr);
+
+      double phi = atan2(y, x);
+      double cphi = cos(phi), sphi = sin(phi);
+      double ux = gammar*vr*cphi, uy = gammar*vr*sphi;
+
+      vector<double> fields({x,y,eLocal,rhoBLocal,rhoSLocal,rhoQLocal,ux,uy});
+      systemPtr->particles.push_back( Particle(fields) );
     }
     
   }
