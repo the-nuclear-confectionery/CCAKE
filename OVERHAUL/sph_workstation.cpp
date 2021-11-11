@@ -559,12 +559,13 @@ void SPHWorkstation::process_initial_conditions()
       cout << "stepr = " << settingsPtr->stepr << endl;
       cout << "stepphi = " << settingsPtr->stepphi << endl;
       
-      dA = (settingsPtr->stepr)*(settingsPtr->stepphi)*Norm(p->r);
+      dA = (settingsPtr->stepr)*(settingsPtr->stepphi)*Norm(p.r);
     }
     else
     {
-      std::cerr << "ERROR: initial_coordinate_distribution = " << 
-                << initial_coordinate_distribution << " not supported!" << endl;
+      std::cerr << "ERROR: initial_coordinate_distribution = "
+                << settingsPtr->initial_coordinate_distribution
+                << " not supported!" << endl;
       exit(1);
     }
 
