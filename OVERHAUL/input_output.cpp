@@ -180,6 +180,7 @@ void InputOutput::read_in_initial_conditions()
   }
   else if (initial_condition_type == "Gubser")
   {
+    // choose initial coordinate system
     settingsPtr->initial_coordinate_distribution = "Polar";
 
     // initial time
@@ -198,9 +199,9 @@ void InputOutput::read_in_initial_conditions()
     const double dr      = 0.1, dphi = 2.0*pi/1000.0;
     settingsPtr->stepr   = dr;
     settingsPtr->stepphi = dphi;
-    const double rmin    = dr,  rmax = 10.0+dr*TINY;
+    const double rmin    = 0.0,  rmax = 10.0+dr*TINY;
 
-    // generate initial profiles
+    // generate initial profile in (r,phi)
     double q2 = q*q, q4 = q2*q2, t2 = tau0*tau0, t3 = t2*tau0, t4 = t3*tau0;
     for ( double r = rmin; r <= rmax; r += dr )
     {
@@ -213,10 +214,13 @@ void InputOutput::read_in_initial_conditions()
       double rhoSLocal = (rhoS0/t3)*4.0*q2*t2/(arg*arg);
 
       double vr = 2.0*q2*tau0*r/(1+q2*t2+q2*r2);
-      double gammar = sqrt(1.0-vr*vr);
+      double gammar = 1.0/sqrt(1.0-vr*vr);
 
       for ( double phi = 0.0; phi <= 2.0*pi-dphi*TINY; phi += dphi )
       {
+        // include a single center point at the origin (r=0)
+        if (r < dr*TINY && phi > dphi*TINY) break;
+
         double cphi = cos(phi), sphi = sin(phi);
         double x = r*cphi, y = r*sphi, ux = gammar*vr*cphi, uy = gammar*vr*sphi;
 

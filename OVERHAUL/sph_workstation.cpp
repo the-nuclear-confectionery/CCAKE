@@ -550,14 +550,14 @@ void SPHWorkstation::process_initial_conditions()
     double dA = 0.0;
     if (settingsPtr->initial_coordinate_distribution == "Cartesian")
     {
-      cout << "stepX = " << settingsPtr->stepx << endl;
-      cout << "stepY = " << settingsPtr->stepy << endl;
+      //cout << "stepX = " << settingsPtr->stepx << endl;
+      //cout << "stepY = " << settingsPtr->stepy << endl;
       dA = (settingsPtr->stepx)*(settingsPtr->stepy);
     }
     else if (settingsPtr->initial_coordinate_distribution == "Polar")
     {
-      cout << "stepr = " << settingsPtr->stepr << endl;
-      cout << "stepphi = " << settingsPtr->stepphi << endl;
+      //cout << "stepr = " << settingsPtr->stepr << endl;
+      //cout << "stepphi = " << settingsPtr->stepphi << endl;
       
       dA = (settingsPtr->stepr)*(settingsPtr->stepphi)*Norm(p.r);
     }
