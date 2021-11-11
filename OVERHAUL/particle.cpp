@@ -44,6 +44,8 @@ Particle::Particle( const Particle& p )
   rhoB_an = p.rhoB_an;
   rhoS_an = p.rhoS_an;
   rhoQ_an = p.rhoQ_an;
+  u.x[0]  = p.u.x[0];
+  u.x[1]  = p.u.x[1];
   s_an = 0.0;
   eosPtr = p.eosPtr;
 }

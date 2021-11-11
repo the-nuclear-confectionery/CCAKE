@@ -569,6 +569,10 @@ void SPHWorkstation::process_initial_conditions()
       exit(1);
     }
 
+//cout << "CHECK PARTICLES: " << p.r.x[0] << "   " << p.r.x[0] << "   "
+//      << eLocal << "   " << rhoBLocal << "   " << rhoSLocal << "   "
+//      << rhoQLocal << "   " << ux << "   " << uy << endl;
+
     // Set the rest of particle elements using area element
 		//p.u.x[0]          = 0.0;  // flow must be set in Particle constructor!!!
 		//p.u.x[1]          = 0.0;  // flow must be set in Particle constructor!!!

@@ -226,10 +226,6 @@ void InputOutput::read_in_initial_conditions()
 
         vector<double> fields({x,y,eLocal,rhoBLocal,rhoSLocal,rhoQLocal,ux,uy});
         systemPtr->particles.push_back( Particle(fields) );
-
-cout << "CHECK PARTICLES: " << x << "   " << y << "   "
-      << eLocal << "   " << rhoBLocal << "   " << rhoSLocal << "   "
-      << rhoQLocal << "   " << ux << "   " << uy << endl;
       }
     }
     
@@ -240,8 +236,6 @@ cout << "CHECK PARTICLES: " << x << "   " << y << "   "
       exit(1);
   }
 
-
-if (1) exit(1);
 
 }
 
