@@ -58,9 +58,11 @@ void SystemState::initialize()  // formerly called "manualenter"
 
   settingsPtr->efcheck = eosPtr->efreeze(settingsPtr->Freeze_Out_Temperature);
   settingsPtr->sfcheck = eosPtr->sfreeze(settingsPtr->Freeze_Out_Temperature);
+  efcheck = settingsPtr->efcheck;
+  sfcheck = settingsPtr->sfcheck;
 
-  std::cout << "efcheck = " << settingsPtr->efcheck*hbarc_GeVfm << " GeV/fm^3\n";
-  std::cout << "sfcheck = " << settingsPtr->sfcheck << " 1/fm^3\n";
+  std::cout << "efcheck = " << efcheck*hbarc_GeVfm << " GeV/fm^3\n";
+  std::cout << "sfcheck = " << sfcheck << " 1/fm^3\n";
 
   freezeoutT = settingsPtr->Freeze_Out_Temperature;
 

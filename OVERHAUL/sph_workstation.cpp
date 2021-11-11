@@ -601,7 +601,7 @@ void SPHWorkstation::process_initial_conditions()
 		p.thermo.muS = 0.0/hbarc_MeVfm;
 		p.thermo.muQ = 0.0/hbarc_MeVfm;
 
-		if (p.e_sub>settingsPtr->efcheck)	// impose freeze-out check for e, not s
+		if ( p.e_sub > systemPtr->efcheck )	// impose freeze-out check for e, not s
     {
       cout << "Found " << p.e_sub << " greater than " << systemPtr->efcheck << endl;
 			p.Freeze=0;
