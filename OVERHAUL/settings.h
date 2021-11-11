@@ -20,7 +20,7 @@ public:
   double stepx = 0.0;
   double stepy = 0.0; // initial grid coordinate spacings
   double stepr = 0.0;
-  double stepphi = 0.0
+  double stepphi = 0.0;
   double _h = 0.0;
   double Freeze_Out_Temperature = 0.0;
 
