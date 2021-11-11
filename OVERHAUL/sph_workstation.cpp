@@ -603,11 +603,12 @@ void SPHWorkstation::process_initial_conditions()
 
 		if (p.e_sub>settingsPtr->efcheck)	// impose freeze-out check for e, not s
     {
-    //   cout << "Found " << p.e_sub << " greater than " << systemPtr->efcheck << endl;
+      cout << "Found " << p.e_sub << " greater than " << systemPtr->efcheck << endl;
 			p.Freeze=0;
 		}
 		else
 		{
+      cout << "Found " << p.e_sub << " less than " << systemPtr->efcheck << endl;
 			p.Freeze=4;
 			systemPtr->number_part++;
     //   cout << "number_part = " << systemPtr->number_part << endl;
