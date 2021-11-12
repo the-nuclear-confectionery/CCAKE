@@ -292,13 +292,6 @@ void InputOutput::read_in_initial_conditions()
 
 }
 
-
-
-
-
-
-
-
 void InputOutput::print_system_state()
 {
   string outputfilename = output_directory + "/system_state_"
