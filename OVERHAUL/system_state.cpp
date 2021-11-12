@@ -67,7 +67,7 @@ void SystemState::initialize()  // formerly called "manualenter"
 
   freezeoutT = settingsPtr->Freeze_Out_Temperature;
 
-if ( true ) exit(1);
+//if ( true ) exit(1);
 
 
   for (auto & p : particles)
