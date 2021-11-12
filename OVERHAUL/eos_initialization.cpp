@@ -44,7 +44,8 @@ void EquationOfState::init(string quantityFile, string derivFile)
   if ( settingsPtr->EoS_type == "Conformal" )
   {
     std::cout << "Setting up equation of state for Gubser checks" << std::endl;
-    eos_conformal::c    = 0.1;
+    const double Nc = 3.0, Nf = 2.5;  // u+d massless, s 'half massless'
+    eos_conformal::c    = pi*pi*(2.0*(Nc*Nc-1.0)+(7.0/2.0)*Nc*Nf)/90.0;
     eos_conformal::T0   = 1.0;
     eos_conformal::muB0 = 1.0;
     eos_conformal::muQ0 = 1.0;

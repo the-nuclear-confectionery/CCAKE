@@ -89,9 +89,10 @@ for ( auto & entry : all_parameters )
         if ( settingsPtr->IC_type == "Gubser" && settingsPtr->EoS_type != "Conformal" )
         {
           std::cerr << "WARNING: Gubser initial conditions require a conformal "
-                       "equation of state!  Switching to conformal with "
-                       "proportionality constant of 4" << std::endl;
+                       "equation of state!  Switching to gas of massless gluons"
+                       " and 2.5 massless quarks" << std::endl;
           settingsPtr->EoS_type = "Conformal";
+          settingsPtr->Freeze_Out_Temperature = 10.0;  // MeV
         }
 
         infile.close();
@@ -248,7 +249,7 @@ void InputOutput::read_in_initial_conditions()
     // GRID GENERATION IN CARTESIAN COORDINATES
     // set grid step size for test
     const double TINY  = 1e-10;
-    const double dx    = 0.01, dy = 0.01;
+    const double dx    = 0.025, dy = 0.025;
     settingsPtr->stepx = dx;
     settingsPtr->stepy = dy;
     const double xmin  = -5.0, xmax = 5.0+dx*TINY;

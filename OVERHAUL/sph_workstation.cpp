@@ -371,7 +371,7 @@ void SPHWorkstation::smooth_fields(int a, bool init_mode /*== false*/)
       pa.rhoQ_sub    += pb.rho_weight*pb.rhoQ_an*kern;    //confirm with Jaki
 
       //if (kern>0.0) neighbor_count++;
-      if (a==0)
+      /*if (a==0)
         std::cout << __FUNCTION__ << "(SPH particle == " << a << "): "
         << systemPtr->t << "   "
         << b << "   " << pa.r
@@ -386,7 +386,7 @@ void SPHWorkstation::smooth_fields(int a, bool init_mode /*== false*/)
         << "   " << pa.rhoS_sub
         << "   " << pb.rhoQ_an
         << "   " << pa.rhoQ_sub
-        << "   " << kern << std::endl;
+        << "   " << kern << std::endl;*/
 
       b = systemPtr->linklist.link[b];
     }
@@ -467,10 +467,10 @@ void SPHWorkstation::smooth_gradients( int a, double tin, int & count )
 
       pa.gradP                += ( sigsqrb*pb.p() + sigsqra*pa.p() ) * sigsigK;
 
-if (a==0)
+/*if (a==0)
   cout << "CHECK grads: " << tin << "   " << a << "   " << b << "   " << sigsqra << "   " << sigsqrb
         << "   " << pa.p() << "   " << pb.p() << "   " << gradK << "   " << sigsigK
-        << "   " << pa.sigma << endl;
+        << "   " << pa.sigma << endl;*/
 
       if ( ( ( Norm( pa.r - pb.r ) / settingsPtr->_h ) <= 2 ) && ( a != b ) )
       {
