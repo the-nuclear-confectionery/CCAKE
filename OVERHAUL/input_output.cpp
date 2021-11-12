@@ -92,7 +92,7 @@ for ( auto & entry : all_parameters )
                        "equation of state!  Switching to gas of massless gluons"
                        " and 2.5 massless quarks" << std::endl;
           settingsPtr->EoS_type = "Conformal";
-          settingsPtr->Freeze_Out_Temperature = 10.0;  // MeV
+          settingsPtr->Freeze_Out_Temperature = 0.01;  // MeV
         }
 
         infile.close();
