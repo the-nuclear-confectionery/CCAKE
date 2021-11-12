@@ -289,12 +289,12 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
       updated_tbqs[iTBQS] = gsl_vector_get(solver->x, iTBQS);
   }
 
-cout << "\t --> " << __LINE__ << ": iter = " << iter << endl;
+/*cout << "\t --> " << __LINE__ << ": iter = " << iter << endl;
 cout << "\t --> " << __LINE__ << ": "
       << gsl_vector_get(solver->x, 0) << "   "
       << gsl_vector_get(solver->x, 1) << "   "
       << gsl_vector_get(solver->x, 2) << "   "
-      << gsl_vector_get(solver->x, 3) << endl;
+      << gsl_vector_get(solver->x, 3) << endl;*/
 
   // memory deallocation
   gsl_multiroot_fsolver_free(solver);
@@ -318,8 +318,8 @@ bool Rootfinder::find_eBSQ_root( double ein, double Bin, double Sin, double Qin,
 
     if (rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs))
-        { cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
-              << " attempts" << endl; return true; }
+        { /*cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
+              << " attempts" << endl;*/ return true; }
 
     ///////////////////////////
 
@@ -368,8 +368,8 @@ bool Rootfinder::find_eBSQ_root( double ein, double Bin, double Sin, double Qin,
     }
     if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs)) 
-        { cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
-              << " attempts" << endl; return true; }
+        { /*cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
+              << " attempts" << endl;*/ return true; }
 
     number_of_attempts++;
 
@@ -466,8 +466,8 @@ bool Rootfinder::find_sBSQ_root( double sin, double Bin, double Sin, double Qin,
 
     if (rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs))
-        { cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
-              << " attempts" << endl; return true; }
+        { /*cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
+              << " attempts" << endl;*/ return true; }
 
 	///////////////////////////
     double t0 = tbqsPosition[0];
