@@ -251,7 +251,7 @@ void InputOutput::read_in_initial_conditions()
     // GRID GENERATION IN CARTESIAN COORDINATES
     // set grid step size for test
     const double TINY  = 1e-10;
-    const double dx    = 0.25, dy = 0.25;
+    const double dx    = 0.025, dy = 0.025;
     settingsPtr->stepx = dx;
     settingsPtr->stepy = dy;
     const double xmin  = -5.0, xmax = 5.0+dx*TINY;
