@@ -39,13 +39,13 @@ void EquationsOfMotion::BSQshear( SystemState & system, SPHWorkstation & ws )
     auto & p = system.particles[i];
 
 if ( abs(p.r.x[0]) < 0.000001 && abs(p.r.x[1]) < 0.000001 )
-  cout << "CHECK CENTER: " << i << "   " << p.T()*hbarc << "   "
+  cout << "CHECK CENTER: " system.t << "   " << i << "   " << p.T()*hbarc << "   "
         << p.eta/p.gamma/system.t << "   " << p.s() << endl;
 
     ws.smooth_fields(i);
 
 if ( abs(p.r.x[0]) < 0.000001 && abs(p.r.x[1]) < 0.000001 )
-  cout << "CHECK CENTER: " << i << "   " << p.T()*hbarc << "   "
+  cout << "CHECK CENTER: " system.t << "   " << i << "   " << p.T()*hbarc << "   "
         << p.eta/p.gamma/system.t << "   " << p.s() << endl;
 
     if ( (p.eta<0) || isnan(p.eta) )
