@@ -402,6 +402,8 @@ double EquationOfState::rootfinder_s_out(double ein, double Bin, double Sin, dou
 ////////////////////////////////////////////////
 
 
+// point     = (T,muB,muQ,muS)
+// densities = (e,rhoB,rhoS,rhoQ)
 void EquationOfState::get_eBSQ_densities_from_interpolator(
         double point[], double densities[] )  // point and densities both length = 4
 {
@@ -412,6 +414,8 @@ void EquationOfState::get_eBSQ_densities_from_interpolator(
     std::copy(results.begin(), results.end(), densities);
 }
 
+// point     = (T,muB,muQ,muS)
+// densities = (s,rhoB,rhoS,rhoQ)
 void EquationOfState::get_sBSQ_densities_from_interpolator(
         double point[], double densities[] )  // point and densities both length = 4
 {
