@@ -45,7 +45,7 @@ def load_semi_analytic_files():
 
 #===============================================================================
 def plot_yeq0_slice(ax, hydroOutput, tau):
-    yeq0Data = hydroOutput[:,np.where( np.abs(hydroOutput[:,1]) < 1e-6 )]
+    yeq0Data = hydroOutput[np.where( np.abs(hydroOutput[:,1]) < 1e-6 )]
     ax.plot( yeq0Data[:,0], yeq0Data[:,2], 'ro' )
     xpts = np.linspace(np.amin(yeq0Data[:,0]),np.amax(yeq0Data[:,0]), 1001)
     ax.plot( xpts, eGubser(tau, xpts), 'b-' )
