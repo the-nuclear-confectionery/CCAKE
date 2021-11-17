@@ -64,7 +64,7 @@ public:
   double freezeoutT = 0.0;
   double bvf        = 0.0;
 /*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
-  double svf        = 0.000001; // HARDCODED FOR NOW
+  double svf        = 0.2; // HARDCODED FOR NOW
 /*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
   double zTc        = 0.0;
   double sTc        = 0.0;
