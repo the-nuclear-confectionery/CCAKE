@@ -72,7 +72,7 @@ if __name__ == "__main__":
         hydroOutput = np.loadtxt( checkfile, skiprows=1 )
         
         # plot comparison along y==0 slice
-        plot_yeq0_slice( ax, hydroOutput )
+        plot_yeq0_slice( ax, hydroOutput, tau )
     
     #plt.show()
     plt.savefig('./yeq0_slice.pdf')
