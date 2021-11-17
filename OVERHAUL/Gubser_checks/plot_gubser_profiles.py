@@ -76,6 +76,7 @@ if __name__ == "__main__":
         plot_yeq0_slice( ax, hydroOutput, tau )
     
     #plt.show()
+    plt.xlim([-4.75, 4.75])
     plt.xlabel(r'$x$ (fm)')
     plt.ylabel(r'$e$ (fm$^{-4}$)')
     plt.savefig('./yeq0_slice.pdf')
