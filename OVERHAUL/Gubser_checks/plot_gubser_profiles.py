@@ -64,6 +64,7 @@ if __name__ == "__main__":
         
     # set up figure
     fig, ax = plt.subplots( nrows=1, ncols=1 )
+    ax.set_yscale('log')
 
     for checkfile in sys.argv[1:]:
         # load Gubser check output files produced by hydro code
@@ -75,5 +76,7 @@ if __name__ == "__main__":
         plot_yeq0_slice( ax, hydroOutput, tau )
     
     #plt.show()
+    plt.xlabel(r'$x$ (fm)')
+    plt.ylabel(r'$e$ (fm$^{-4}$)')
     plt.savefig('./yeq0_slice.pdf')
     
