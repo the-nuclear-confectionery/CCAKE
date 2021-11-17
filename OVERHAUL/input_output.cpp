@@ -243,7 +243,10 @@ void InputOutput::read_in_initial_conditions()
 
     // set Gubser profile parameters
     const double q     = 1.0; // 1/fm
-    const double e0    = 1.0; // 1/fm^4
+    //const double e0    = 1.0; // 1/fm^4
+    const double e0    = 9126.0*pi*pi/3125.0; // 1/fm^4
+                              // use this normalization to compare with semi-
+                              // analytic calculation in Phys. Rev. C 91, 014903
     const double rhoB0 = 0.0; // 1/fm^3
     const double rhoQ0 = 0.0; // 1/fm^3
     const double rhoS0 = 0.0; // 1/fm^3
@@ -251,7 +254,7 @@ void InputOutput::read_in_initial_conditions()
     // GRID GENERATION IN CARTESIAN COORDINATES
     // set grid step size for test
     const double TINY  = 1e-10;
-    const double dx    = 0.05, dy = 0.05;
+    const double dx    = 0.025, dy = 0.025;
     settingsPtr->stepx = dx;
     settingsPtr->stepy = dy;
     const double xmin  = -5.0, xmax = 5.0+dx*TINY;
@@ -335,6 +338,7 @@ void InputOutput::print_system_state()
                 +2.0*p.shv.x[1][2]*p.shv.x[1][2]
                 +pow(systemPtr->t,4.0)*p.shv33*p.shv33 ) << " "
 				<< p.stauRelax/systemPtr->t * p.bigtheta << " "
+        << p.shv << " "
 				<< p.u.x[0]/p.gamma << " "
 				<< p.u.x[1]/p.gamma << " "
 				<< p.gamma << endl;
