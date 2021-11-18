@@ -402,7 +402,11 @@ void InputOutput::print_system_state()
                 +2.0*p.shv.x[1][2]*p.shv.x[1][2]
                 +pow(systemPtr->t,4.0)*p.shv33*p.shv33 ) << " "
 				<< p.stauRelax/systemPtr->t * p.bigtheta << " "
-        << p.shv << " "
+        << p.shv.x[0][0] << " "
+        << p.shv.x[1][1] << " "
+        << p.shv.x[2][2] << " "
+        << p.shv.x[1][2] << " "
+        << pow(systemPtr->t,2.0)*p.shv33 << " "
 				<< p.u.x[0]/p.gamma << " "
 				<< p.u.x[1]/p.gamma << " "
 				<< p.gamma << endl;
