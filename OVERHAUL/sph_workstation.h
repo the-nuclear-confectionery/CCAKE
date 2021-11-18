@@ -16,7 +16,7 @@ public:
   void set_SystemStatePtr( SystemState * systemPtr_in );
   void set_SettingsPtr( Settings * settingsPtr_in );
 
-  void setshear();
+  void setshear(bool is_first_timestep);
 
   void process_initial_conditions();
   void initialize_entropy_and_charge_densities();

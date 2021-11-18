@@ -90,9 +90,12 @@ if ( check_ideal_EoS )
   {
     p.set_EquationOfStatePtr( eosPtr );
     p.freezeoutT = freezeoutT;
-    p.using_Gubser = static_cast<bool>(
+    p.using_Gubser
+      = static_cast<bool>(
                            settingsPtr->IC_type == "Gubser"
                         || settingsPtr->IC_type == "Gubser_with_shear" );
+    p.using_Gubser_with_shear
+      = static_cast<bool>( settingsPtr->IC_type == "Gubser_with_shear" );
   }
 
   linklist.efcheck = efcheck;

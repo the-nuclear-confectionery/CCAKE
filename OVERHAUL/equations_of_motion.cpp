@@ -31,7 +31,8 @@ using namespace constants;
 // current equations are only set up for 2+1d.
 void EquationsOfMotion::BSQshear( SystemState & system, SPHWorkstation & ws )
 {
-  ws.setshear();
+  // not initial call to setshear(bool is_first_timestep)
+  ws.setshear(false);
   system.reset_linklist();
 
   for (int i = 0; i < system.n(); i++)

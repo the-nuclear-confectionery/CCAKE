@@ -109,13 +109,14 @@ class Particle
   void return_bsqsv_A();
   void bsqsvsigset(double tin, int i);
   void setvisc( int etaconst, double bvf, double svf, double zTc, double sTc, double sig, int type );
-  void sets(double tin2);
+  void sets(double tin2, bool is_first_timestep);
   void setvar();
   double gamcalc();
   double Bsub();
 
   // members
   bool using_Gubser      = false;
+  bool using_Gubser_with_shear      = false;
 
   int btrack             = 0;
   //int count              = 0;

@@ -27,10 +27,10 @@ void SPHWorkstation::set_SettingsPtr( Settings * settingsPtr_in )
 }
 
 
-void SPHWorkstation::setshear()
+void SPHWorkstation::setshear(bool is_first_timestep)
 {
     for ( auto & p : systemPtr->particles )
-      p.sets(systemPtr->t*systemPtr->t);
+      p.sets(systemPtr->t*systemPtr->t, is_first_timestep);
 }
 
 
@@ -282,7 +282,7 @@ if (i==0)
 void SPHWorkstation::initial_smoothing()  // formerly BSQguess()
 {
 	cout << "setshear..." << endl;
-  setshear();
+  setshear(true);
 	cout << "reset..." << endl;
   systemPtr->reset_linklist();
 

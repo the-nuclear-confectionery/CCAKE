@@ -38,15 +38,16 @@ Particle::Particle(vector<double> &fields)
     double pi22 = fields[9];
     double pi12 = fields[10];
     double pi33 = fields[11];
-    shv.x[0][0] = pi11;
-    shv.x[0][1] = pi12;
+    shv.x[0][0] = 0.0;
+    shv.x[0][1] = 0.0;
     shv.x[0][2] = 0.0;
-    shv.x[1][0] = pi12;
-    shv.x[1][1] = pi22;
-    shv.x[1][2] = 0.0;
+    shv.x[1][0] = 0.0;
+    shv.x[1][1] = pi11;
+    shv.x[1][2] = pi12;
     shv.x[2][0] = 0.0;
-    shv.x[2][1] = 0.0;
-    shv.x[2][2] = pi33;
+    shv.x[2][1] = pi12;
+    shv.x[2][2] = pi22;
+    shv33       = pi33;
   }
   s_an    = 0.0;
 }
@@ -63,6 +64,7 @@ Particle::Particle( const Particle& p )
   u.x[0]  = p.u.x[0];
   u.x[1]  = p.u.x[1];
   shv     = p.shv;
+  shv33   = p.shv33;
   s_an    = p.s_an;
   eosPtr  = p.eosPtr;
 }
@@ -453,18 +455,31 @@ void Particle::setvisc( int etaconst, double bvf, double svf, double zTc,
 
 
 ////////////////////////////////////////////////////////////////////////////////
-void Particle::sets(double tin2)
+void Particle::sets(double tin2, bool is_first_timestep)
 {
     gamma=gamcalc();
-    shv.x[2][1]=shv.x[1][2];
-    shv.x[0][1]=1./gamma*inner(u,colp1(1,shv));
-    shv.x[0][2]=1./gamma*inner(u,colp1(2,shv));
-    shv.x[1][0]=shv.x[0][1];
-    shv.x[2][0]=shv.x[0][2];
+    if (using_Gubser_with_shear && is_first_timestep)
+    {
+      shv.x[0][1] = 1./gamma*inner(u,colp1(1,shv));
+      shv.x[0][2] = 1./gamma*inner(u,colp1(2,shv));
+      shv.x[1][0] = shv.x[0][1];
+      shv.x[2][0] = shv.x[0][2];
+      
+      setvar();
+      shv.x[0][0] = shv.x[1][1] + shv.x[2][2] + tin2*shv33;
+    }
+    else
+    {
+      shv.x[2][1]=shv.x[1][2];
+      shv.x[0][1]=1./gamma*inner(u,colp1(1,shv));
+      shv.x[0][2]=1./gamma*inner(u,colp1(2,shv));
+      shv.x[1][0]=shv.x[0][1];
+      shv.x[2][0]=shv.x[0][2];
 
-    setvar();
-    shv.x[0][0]=1./gamma/gamma*con(uu,pimin);
-    shv33=(shv.x[0][0]-shv.x[1][1]-shv.x[2][2])/tin2;
+      setvar();
+      shv.x[0][0]=1./gamma/gamma*con(uu,pimin);
+      shv33=(shv.x[0][0]-shv.x[1][1]-shv.x[2][2])/tin2;
+    }
 }
 
 
