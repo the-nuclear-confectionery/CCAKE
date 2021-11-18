@@ -318,7 +318,9 @@ void InputOutput::read_in_initial_conditions()
     const double cpLoc = pi*pi*(2.0*(Nc*Nc-1.0)+(7.0/2.0)*Nc*Nf)/90.0;
 
     // load input file
-    ifstream infile( "./Gubser_checks/ac/Initial_profile_tau=1fm.dat" );
+    string inputfilename = "./Gubser_checks/ac/Initial_Profile_tau=1fm.dat";
+    cout << "Reading in Gubser initial profile from " << inputfilename << endl;
+    ifstream infile( inputfilename.c_str() );
 
     //int n_header_line = 1;
     //int count = 0;
