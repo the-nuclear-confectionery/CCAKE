@@ -102,8 +102,8 @@ if __name__ == "__main__":
         for i, ax in enumerate(axs.ravel()):
             ax.set_yscale('log')
             plot_slice( ax, hydroOutput, tau, '0', toPlot[i] )
-            ax.xlim([-4.75, 4.75])
-            ax.xlabel(r'$x$ (fm)')
+            ax.set_xlim([-4.75, 4.75])
+            ax.set_xlabel(r'$x$ (fm)')
             #ax.ylabel(r'$e$ (fm$^{-4}$)')
     
     #plt.show()
