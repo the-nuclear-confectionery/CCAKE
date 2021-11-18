@@ -48,7 +48,7 @@ namespace message
 
   void guilty_welcome()
   {
-    cout << endl << endl
+    cout << endl << endl;
     cout << "-------------------------------------------------------------------------------------"
          << endl;
          << "______ _     _                            _ _                                _  ___  " << endl
