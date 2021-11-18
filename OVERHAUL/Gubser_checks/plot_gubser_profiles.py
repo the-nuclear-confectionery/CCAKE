@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sys
 
-use_semi_analytic = True
+use_semi_analytic = False
 
 q  = 1.
 #e0 = 1.0
