@@ -89,7 +89,7 @@ if __name__ == "__main__":
     #    load_semi_analytic_files()
         
     # set up figure
-    fig, axs = plt.subplots( nrows=1, ncols=2, figsize=(5, 10) )
+    fig, axs = plt.subplots( ncols=2, nrows=1, figsize=(10, 5) )
     toPlot = ['e', 'ux']
 
     for checkfile in sys.argv[1:]:
