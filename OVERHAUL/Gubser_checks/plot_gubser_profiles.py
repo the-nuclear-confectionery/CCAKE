@@ -89,8 +89,8 @@ if __name__ == "__main__":
     #    load_semi_analytic_files()
         
     # set up figure
-    fig, ax = plt.subplots( nrows=1, ncols=1 )
-    ax.set_yscale('log')
+    fig, axs = plt.subplots( nrows=1, ncols=3 )
+    toPlot = ['e', 'T', 'ux']
 
     for checkfile in sys.argv[1:]:
         # load Gubser check output files produced by hydro code
@@ -99,11 +99,13 @@ if __name__ == "__main__":
         hydroOutput = np.loadtxt( checkfile, skiprows=1 )
         
         # plot comparison along y==0 slice
-        plot_slice( ax, hydroOutput, tau, '0', 'e' )
+        for i, ax in enumerate(axs.ravel()):
+            ax.set_yscale('log')
+            plot_slice( ax, hydroOutput, tau, '0', toPlot[i] )
+            ax.xlim([-4.75, 4.75])
+            ax.xlabel(r'$x$ (fm)')
+            #ax.ylabel(r'$e$ (fm$^{-4}$)')
     
     #plt.show()
-    plt.xlim([-4.75, 4.75])
-    plt.xlabel(r'$x$ (fm)')
-    plt.ylabel(r'$e$ (fm$^{-4}$)')
     plt.savefig('./yeq0_slice.pdf')
     
