@@ -32,6 +32,22 @@ Particle::Particle(vector<double> &fields)
   rhoQ_an = fields[5];
   u.x[0]  = fields[6];
   u.x[1]  = fields[7];
+  if ( fields.size() > 8 ) // passing in shear tensor initialization as well
+  {
+    double pi11 = fields[8];
+    double pi22 = fields[9];
+    double pi12 = fields[10];
+    double pi33 = fields[11];
+    shv.x[0][0] = pi11;
+    shv.x[0][1] = pi12;
+    shv.x[0][2] = 0.0;
+    shv.x[1][0] = pi12;
+    shv.x[1][1] = pi22;
+    shv.x[1][2] = 0.0;
+    shv.x[2][0] = 0.0;
+    shv.x[2][1] = 0.0;
+    shv.x[2][2] = pi33;
+  }
   s_an    = 0.0;
 }
 
@@ -46,6 +62,7 @@ Particle::Particle( const Particle& p )
   rhoQ_an = p.rhoQ_an;
   u.x[0]  = p.u.x[0];
   u.x[1]  = p.u.x[1];
+  shv     = p.shv;
   s_an    = p.s_an;
   eosPtr  = p.eosPtr;
 }

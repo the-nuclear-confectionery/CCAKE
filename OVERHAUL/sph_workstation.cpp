@@ -533,11 +533,12 @@ void SPHWorkstation::process_initial_conditions()
   // the original cut should be 0.15
 
   // try this; NOTE THAT THE 0.00301 IS HARDCODED IN FOR NOW
-if ( settingsPtr->IC_type != "Gubser" ) //NO CUTOFF FOR GUBSER
-  systemPtr->particles.erase( std::remove_if(
-    systemPtr->particles.begin(), systemPtr->particles.end(),
-    [/*hbarc_GeVfm*/](Particle const & p) { return p.e_sub <= 0.00301 / hbarc_GeVfm; } ),
-    systemPtr->particles.end() );
+  if ( settingsPtr->IC_type != "Gubser"
+        && settingsPtr->IC_type != "Gubser_with_shear") //NO CUTOFF FOR GUBSER
+    systemPtr->particles.erase( std::remove_if(
+      systemPtr->particles.begin(), systemPtr->particles.end(),
+      [/*hbarc_GeVfm*/](Particle const & p) { return p.e_sub <= 0.00301 / hbarc_GeVfm; } ),
+      systemPtr->particles.end() );
 
 
   cout << "After e-cutoff and freeze-out: size = " << systemPtr->particles.size() << endl;

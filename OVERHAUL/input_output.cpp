@@ -86,14 +86,17 @@ for ( auto & entry : all_parameters )
         settingsPtr->Freeze_Out_Type        = all_parameters[9];
 
         // put a warning check here; probably defer to separate routine eventually
-        if ( settingsPtr->IC_type == "Gubser" && settingsPtr->EoS_type != "Conformal" )
+        if ( (   settingsPtr->IC_type == "Gubser"
+              || settingsPtr->IC_type == "Gubser_with_shear" )
+            && settingsPtr->EoS_type != "Conformal" )
         {
           std::cerr << "WARNING: Gubser initial conditions require a conformal "
                        "equation of state!  Switching to gas of massless gluons"
                        " and 2.5 massless quarks" << std::endl;
           settingsPtr->EoS_type = "Conformal";
         }
-        if ( settingsPtr->IC_type == "Gubser" )
+        if (   settingsPtr->IC_type == "Gubser"
+            || settingsPtr->IC_type == "Gubser_with_shear" )
           settingsPtr->Freeze_Out_Temperature = 1e-10/hbarc_MeVfm;
 
 
@@ -243,10 +246,7 @@ void InputOutput::read_in_initial_conditions()
 
     // set Gubser profile parameters
     const double q     = 1.0; // 1/fm
-    //const double e0    = 1.0; // 1/fm^4
-    const double e0    = 9126.0*pi*pi/3125.0; // 1/fm^4
-                              // use this normalization to compare with semi-
-                              // analytic calculation in Phys. Rev. C 91, 014903
+    const double e0    = 1.0; // 1/fm^4
     const double rhoB0 = 0.0; // 1/fm^3
     const double rhoQ0 = 0.0; // 1/fm^3
     const double rhoS0 = 0.0; // 1/fm^3
@@ -283,6 +283,68 @@ void InputOutput::read_in_initial_conditions()
 
       vector<double> fields({x,y,eLocal,rhoBLocal,rhoSLocal,rhoQLocal,ux,uy});
       systemPtr->particles.push_back( Particle(fields) );
+    }
+    
+  }
+  else if (initial_condition_type == "Gubser_with_shear")
+  { // NOTA BENE: THIS MODE MUST BE LOADED FROM FILE
+    // choose initial coordinate system
+    settingsPtr->initial_coordinate_distribution = "Cartesian";
+
+    // initial time
+    const double tau0 = settingsPtr->t0;
+
+    // set Gubser profile parameters
+    const double q     = 1.0; // 1/fm
+    const double e0    = 9126.0*pi*pi/3125.0; // 1/fm^4
+                              // use this normalization to compare with semi-
+                              // analytic calculation in Phys. Rev. C 91, 014903
+    const double rhoB0 = 0.0; // 1/fm^3
+    const double rhoQ0 = 0.0; // 1/fm^3
+    const double rhoS0 = 0.0; // 1/fm^3
+
+    // GRID GENERATION IN CARTESIAN COORDINATES
+    // set grid step size for test
+    const double TINY  = 1e-10;
+    const double dx    = 0.05, dy = 0.05;
+    settingsPtr->stepx = dx;
+    settingsPtr->stepy = dy;
+    const double xmin  = -5.0, xmax = 5.0+dx*TINY;
+    const double ymin  = -5.0, ymax = 5.0+dy*TINY;
+
+    // sets the scale for conformal EoS
+    const double Nc    = 3.0; // three colors
+    const double Nf    = 2.5; // u+d massless, s 'half massless'
+    const double cpLoc = pi*pi*(2.0*(Nc*Nc-1.0)+(7.0/2.0)*Nc*Nf)/90.0;
+
+    // load input file
+    ifstream infile( "./Gubser_checks/ac/Initial_profile_tau=1fm.dat" );
+
+    //int n_header_line = 1;
+    //int count = 0;
+    if (infile.is_open())
+    {
+      string line;
+      double x, y, TLocal, eLocal, ux, uy, pixx, piyy, pixy, pizz, pietaeta;
+      while ( getline (infile, line) )
+      {
+        //if ( count++ < n_header_line ) continue;
+
+        istringstream iss(line);
+        iss >> x >> y >> TLocal >> ux >> uy >> pixx >> piyy >> pixy >> pizz;
+
+        TLocal  /= hbarc_GeVfm;                           // 1/fm
+        eLocal   = 3.0*cpLoc*TLocal*TLocal*TLocal*TLocal; // 1/fm^4
+        pixx    /= hbarc_GeVfm;                           // 1/fm^4
+        piyy    /= hbarc_GeVfm;                           // 1/fm^4
+        pixy    /= hbarc_GeVfm;                           // 1/fm^4
+        pietaeta = pizz/(tau0*tau0*hbarc_GeVfm);          // 1/fm^6
+
+        vector<double> fields({ x, y, eLocal, 0.0, 0.0, 0.0, ux, uy,
+                                pixx, piyy, pixy, pietaeta });
+        systemPtr->particles.push_back( Particle(fields) );
+      }
+    
     }
     
   }

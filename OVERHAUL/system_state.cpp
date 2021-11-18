@@ -90,7 +90,8 @@ if ( check_ideal_EoS )
   {
     p.set_EquationOfStatePtr( eosPtr );
     p.freezeoutT = freezeoutT;
-    p.using_Gubser = static_cast<bool( settingsPtr->IC_type == "Gubser" );
+    p.using_Gubser = static_cast<bool(   settingsPtr->IC_type == "Gubser"
+                                      || settingsPtr->IC_type == "Gubser_with_shear" );
   }
 
   linklist.efcheck = efcheck;
@@ -134,7 +135,8 @@ void SystemState::initialize_linklist()
     linklist.gtyp=settingsPtr->gtyp;
 
   }
-  else if ( settingsPtr->IC_type == "Gubser" )
+  else if (    settingsPtr->IC_type == "Gubser"
+            || settingsPtr->IC_type == "Gubser_with_shear" )
   {
     settingsPtr->gtyp   = 7;
 
