@@ -63,8 +63,7 @@ def load_semi_analytic_files():
 def plot_slice(ax, hydroOutput, tau, axis, quantity):
     # c : column of quantity to plot in array
     c = cols[quantity]
-    cf = dict(zip([TGubser, eGubser, urGubser, urGubser,\
-                   None, None, None, None], range(2,len(quantities)+2)))
+    cf = [None, None, TGubser, eGubser, urGubser, urGubser, None, None, None, None][c]
     if axis == '0':
         yeq0Data = hydroOutput[np.where( np.abs(hydroOutput[:,1]) < 1e-6 )]
         ax.plot( yeq0Data[:,0], yeq0Data[:,c], 'ro' )
