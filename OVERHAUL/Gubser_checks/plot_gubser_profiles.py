@@ -30,6 +30,10 @@ def TGubser(tau, r):
     return ( eGubser(tau, r) / (3.*cp) )**0.25
 
 #===============================================================================
+def eFromT(T):
+    return 3.*cp*T**4
+
+#===============================================================================
 def urGubser(tau, r):
     return 2.0*q**2*r*tau / np.sqrt( 1. + 2.*q**2*(tau**2 + r**2) + q**4*(tau**2 - r**2)**2 )
 
@@ -114,10 +118,16 @@ if __name__ == "__main__":
             
     # plot results of semi-analytic calculation if desired
     if use_semi_analytic:
+        quantities = ['e','ux','uy','pixx','piyy','pixy','pizz']
+        cols = dict(zip(quantities,range(2,len(quantities)+2)))
         for i, ax in enumerate(axs.ravel()):
             c = cols[toPlot[i]]
-            for data in [yEq0_tau1_2, yEq0_tau1_5, yEq0_tau2_0]:
-                ax.plot( data[:,0], data[:,c], 'b--' )
+            if toPlot[i] == 'e':
+                for data in [yEq0_tau1_2, yEq0_tau1_5, yEq0_tau2_0]:
+                    ax.plot( data[:,0], eFromT(data[:,c]), 'b--' )
+            else:
+                for data in [yEq0_tau1_2, yEq0_tau1_5, yEq0_tau2_0]:
+                    ax.plot( data[:,0], data[:,c], 'b--' )
     
     #plt.show()
     plt.savefig('./yeq0_slice.pdf')
