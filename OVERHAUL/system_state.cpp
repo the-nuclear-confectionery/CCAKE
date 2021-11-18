@@ -175,7 +175,7 @@ void SystemState::initialize_linklist()
   {
     double gg = p.gamcalc();
     p.g2      = gg*gg;
-    p.shv33   = 0.0;
+    //p.shv33   = 0.0;
   }
 
   return;
