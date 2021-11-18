@@ -9,11 +9,19 @@ q  = 1.0
 e0 = 9126.0*np.pi**2/3125.0
 rhoB0, rhoS0, rhoQ0 = 0.5, 0.5, 0.5
 
+quantities = ['T','e','ux','uy','pixx','piyy','pixy','pizz']
+cols = dict(zip(quantities,range(2,len(quantities)+2)))
+
+
 #===============================================================================
 def eGubser(tau, r):
     return (e0/tau**4)*( (2.*q*tau)**(8./3.)
                         / ( 1. + 2.*q**2*(tau**2 + r**2) + q**4*(tau**2 - r**2)**2 )**(4./3.)
                          )
+
+#===============================================================================
+def urGubser(tau, r):
+    return 2.0*q**2*r*tau / np.sqrt( 1. + 2.*q**2*(tau**2 + r**2) + q**4*(tau**2 - r**2)**2 )
 
 #===============================================================================
 def chargeGubser(tau, r):
@@ -44,11 +52,22 @@ def load_semi_analytic_files():
            np.loadtxt('./ac/y=x_tau=2.0_SemiAnalytic.dat')
 
 #===============================================================================
-def plot_yeq0_slice(ax, hydroOutput, tau):
-    yeq0Data = hydroOutput[np.where( np.abs(hydroOutput[:,1]) < 1e-6 )]
-    ax.plot( yeq0Data[:,0], yeq0Data[:,2], 'ro' )
-    xpts = np.linspace(np.amin(yeq0Data[:,0]),np.amax(yeq0Data[:,0]), 1001)
-    ax.plot( xpts, eGubser(tau, xpts), 'b-' )
+def plot_slice(ax, hydroOutput, tau, axis, quantity):
+    # c : column of quantity to plot in array
+    c = cols[quantity]
+    cf = dict(zip([TGubser, eGubser, urGubser, urGubser,\
+                   None, None, None, None], range(2,len(quantities)+2)))
+    if axis == '0':
+        yeq0Data = hydroOutput[np.where( np.abs(hydroOutput[:,1]) < 1e-6 )]
+        ax.plot( yeq0Data[:,0], yeq0Data[:,c], 'ro' )
+        xpts = np.linspace(np.amin(yeq0Data[:,0]),np.amax(yeq0Data[:,0]), 1001)
+        ax.plot( xpts, cf(tau, xpts), 'b-' )
+    elif axis == 'x':
+        yeqxData = hydroOutput[np.where( np.isclose( hydroOutput[:,0], hydroOutput[:,1] ) )]
+        rpts = np.sqrt(hydroOutput[:,0]**2 + hydroOutput[:,1])
+        ax.plot( rpts, yeqxData[:,c], 'ro' )
+        rpts = np.linspace(0.0, np.amax(rpts), 1001)
+        ax.plot( rpts, cf(tau, rpts), 'b-' )
     
 
 #===============================================================================
@@ -73,7 +92,7 @@ if __name__ == "__main__":
         hydroOutput = np.loadtxt( checkfile, skiprows=1 )
         
         # plot comparison along y==0 slice
-        plot_yeq0_slice( ax, hydroOutput, tau )
+        plot_slice( ax, hydroOutput, tau, '0', 'e' )
     
     #plt.show()
     plt.xlim([-4.75, 4.75])

@@ -382,7 +382,7 @@ void Particle::setvisc( int etaconst, double bvf, double svf, double zTc,
       }
     }
     stauRelax=5*setas/w();
-    //if (stauRelax <0.005) stauRelax=0.005 ; //WARNING: THIS SHOULD BE UNCOMMENTED IF NOT RUNNING GUBSER
+    if (!using_Gubser && stauRelax < 0.005) stauRelax = 0.005;
 
     /// defining bulk viscosity
 

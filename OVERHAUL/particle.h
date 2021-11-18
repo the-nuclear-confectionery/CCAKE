@@ -115,6 +115,8 @@ class Particle
   double Bsub();
 
   // members
+  bool using_Gubser      = false;
+
   int btrack             = 0;
   //int count              = 0;
   int Freeze             = 0;

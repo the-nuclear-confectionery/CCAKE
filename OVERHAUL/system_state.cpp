@@ -85,11 +85,12 @@ if ( check_ideal_EoS )
   exit(1);
 }
 
-
+  // initialize information for particles
   for (auto & p : particles)
   {
     p.set_EquationOfStatePtr( eosPtr );
     p.freezeoutT = freezeoutT;
+    p.using_Gubser = static_cast<bool( settingsPtr->IC_type == "Gubser" );
   }
 
   linklist.efcheck = efcheck;
