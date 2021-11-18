@@ -98,7 +98,7 @@ if __name__ == "__main__":
         load_semi_analytic_files()
 
     # set up figure
-    toPlot = ['e', 'ux', 'pixy']
+    toPlot = ['e', 'ux', 'pizz']
     fig, axs = plt.subplots( ncols=len(toPlot), nrows=1, figsize=(5*len(toPlot), 5) )
 
     # plot hydro output files
