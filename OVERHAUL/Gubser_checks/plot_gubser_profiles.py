@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sys
 
-use_semi_analytic = False
+use_semi_analytic = True
 
 q  = 1.
 #e0 = 1.0
@@ -123,11 +123,11 @@ if __name__ == "__main__":
         for i, ax in enumerate(axs.ravel()):
             c = cols[toPlot[i]]
             if toPlot[i] == 'e':
-                for data in [yEq0_tau1_2, yEq0_tau1_5, yEq0_tau2_0]:
+                for data in [ic0, yEq0_tau1_2, yEq0_tau1_5, yEq0_tau2_0]:
                     data[:,c] /= 0.1973
                     ax.plot( data[:,0], eFromT(data[:,c]), 'b--' )
             else:
-                for data in [yEq0_tau1_2, yEq0_tau1_5, yEq0_tau2_0]:
+                for data in [ic0, yEq0_tau1_2, yEq0_tau1_5, yEq0_tau2_0]:
                     if ['pixx','piyy','pixy','pizz'].count(toPlot[i]) > 0:
                         data[:,c] /= 0.1973
                     ax.plot( data[:,0], data[:,c], 'b--' )
