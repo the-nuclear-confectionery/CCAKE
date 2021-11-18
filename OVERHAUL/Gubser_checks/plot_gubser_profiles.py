@@ -124,9 +124,12 @@ if __name__ == "__main__":
             c = cols[toPlot[i]]
             if toPlot[i] == 'e':
                 for data in [yEq0_tau1_2, yEq0_tau1_5, yEq0_tau2_0]:
+                    data[:,c] /= 0.1973
                     ax.plot( data[:,0], eFromT(data[:,c]), 'b--' )
             else:
                 for data in [yEq0_tau1_2, yEq0_tau1_5, yEq0_tau2_0]:
+                    if ['pixx','piyy','pixy','pizz'].count(toPlot[i]) > 0:
+                        data[:,c] /= 0.1973
                     ax.plot( data[:,0], data[:,c], 'b--' )
     
     #plt.show()
