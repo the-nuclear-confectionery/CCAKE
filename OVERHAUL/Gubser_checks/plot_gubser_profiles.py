@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sys
 
+use_semi_analytic = True
+
 q  = 1.
 #e0 = 1.0
 e0 = 9126.*np.pi**2/3125. # normalization needed to get initial T0 = 1.2 1/fm
@@ -63,18 +65,21 @@ def load_semi_analytic_files():
 def plot_slice(ax, hydroOutput, tau, axis, quantity):
     # c : column of quantity to plot in array
     c = cols[quantity]
-    cf = [None, None, TGubser, eGubser, urGubser, urGubser, None, None, None, None][c]
     if axis == '0':
         yeq0Data = hydroOutput[np.where( np.abs(hydroOutput[:,1]) < 1e-6 )]
-        ax.plot( yeq0Data[:,0], yeq0Data[:,c], 'ro' )
-        xpts = np.linspace(np.amin(yeq0Data[:,0]),np.amax(yeq0Data[:,0]), 1001)
-        ax.plot( xpts, cf(tau, xpts), 'b-' )
+        ax.plot( yeq0Data[:,0], yeq0Data[:,c], 'r-' )
+        if not use_semi_analytic:
+            cf   = [None, None, TGubser, eGubser, urGubser, urGubser, None, None, None, None][c]
+            xpts = np.linspace(np.amin(yeq0Data[:,0]), np.amax(yeq0Data[:,0]), 1001)
+            ax.plot( xpts, cf(tau, xpts), 'b--' )
     elif axis == 'x':
         yeqxData = hydroOutput[np.where( np.isclose( hydroOutput[:,0], hydroOutput[:,1] ) )]
         rpts = np.sqrt(hydroOutput[:,0]**2 + hydroOutput[:,1])
-        ax.plot( rpts, yeqxData[:,c], 'ro' )
-        rpts = np.linspace(0.0, np.amax(rpts), 1001)
-        ax.plot( rpts, cf(tau, rpts), 'b-' )
+        ax.plot( rpts, yeqxData[:,c], 'r-' )
+        if not use_semi_analytic:
+            cf   = [None, None, TGubser, eGubser, urGubser, urGubser, None, None, None, None][c]
+            rpts = np.linspace(0.0, np.amax(rpts), 1001)
+            ax.plot( rpts, cf(tau, rpts), 'b--' )
     
 
 #===============================================================================
@@ -84,14 +89,15 @@ def get_time_step(filename):
 #===============================================================================
 if __name__ == "__main__":
     # load files where semi-analytic calculations are stored that we can compare against (not used yet)
-    #ic, yEq0_tau1_2, yEq0_tau1_5, yEq0_tau2_0,  \
-    #    yEqx_tau1_2, yEqx_tau1_5, yEqx_tau2_0 = \
-    #    load_semi_analytic_files()
-        
-    # set up figure
-    fig, axs = plt.subplots( ncols=2, nrows=1, figsize=(10, 5) )
-    toPlot = ['e', 'ux']
+    ic, yEq0_tau1_2, yEq0_tau1_5, yEq0_tau2_0,  \
+        yEqx_tau1_2, yEqx_tau1_5, yEqx_tau2_0 = \
+        load_semi_analytic_files()
 
+    # set up figure
+    toPlot = ['e', 'ux', 'pixx']
+    fig, axs = plt.subplots( ncols=len(toPlot), nrows=1, figsize=(5*len(toPlot), 5) )
+
+    # plot hydro output files
     for checkfile in sys.argv[1:]:
         # load Gubser check output files produced by hydro code
         # (eventually) use format: x [fm], y [fm], e [1/fm^4], u_x, u_y, ...
@@ -105,6 +111,13 @@ if __name__ == "__main__":
             ax.set_xlim([-4.75, 4.75])
             ax.set_xlabel(r'$x$ (fm)')
             #ax.ylabel(r'$e$ (fm$^{-4}$)')
+            
+    # plot results of semi-analytic calculation if desired
+    if use_semi_analytic:
+        for i, ax in enumerate(axs.ravel()):
+            c = cols[toPlot[i]]
+            for data in [yEq0_tau1_2, yEq0_tau1_5, yEq0_tau2_0]:
+                ax.plot( data[:,0], data[:,c], 'b--' )
     
     #plt.show()
     plt.savefig('./yeq0_slice.pdf')
