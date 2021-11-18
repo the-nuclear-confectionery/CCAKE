@@ -4,10 +4,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sys
 
-q  = 1.0
+q  = 1.
 #e0 = 1.0
-e0 = 9126.0*np.pi**2/3125.0
+e0 = 9126.*np.pi**2/3125. # normalization needed to get initial T0 = 1.2 1/fm
 rhoB0, rhoS0, rhoQ0 = 0.5, 0.5, 0.5
+
+Nc = 3.
+Nf = 2.5
+cp = (2.*(Nc**2-1.) + 3.5*Nc*Nf)*np.pi**2/90.
 
 quantities = ['T','e','ux','uy','pixx','piyy','pixy','pizz']
 cols = dict(zip(quantities,range(2,len(quantities)+2)))
@@ -18,6 +22,10 @@ def eGubser(tau, r):
     return (e0/tau**4)*( (2.*q*tau)**(8./3.)
                         / ( 1. + 2.*q**2*(tau**2 + r**2) + q**4*(tau**2 - r**2)**2 )**(4./3.)
                          )
+
+#===============================================================================
+def TGubser(tau, r):
+    return ( eGubser(tau, r) / (3.*cp) )**0.25
 
 #===============================================================================
 def urGubser(tau, r):
