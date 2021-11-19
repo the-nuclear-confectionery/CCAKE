@@ -98,8 +98,8 @@ if __name__ == "__main__":
         load_semi_analytic_files()
 
     # set up figure
-    toPlot = ['e', 'ux', 'pixy']
-    fig, axs = plt.subplots( ncols=len(toPlot), nrows=1, figsize=(5*len(toPlot), 5) )
+    toPlot = ['e', 'ux', 'pixx', 'piyy', 'pixy', 'pizz']
+    fig, axs = plt.subplots( ncols=len(toPlot)//2, nrows=2, figsize=(5*len(toPlot)//2, 5) )
 
     # plot hydro output files
     for checkfile in sys.argv[1:]:
@@ -123,15 +123,13 @@ if __name__ == "__main__":
         for i, ax in enumerate(axs.ravel()):
             c = cols[toPlot[i]]
             if toPlot[i] == 'e':
-                #for data in [ic[np.where(np.abs(ic[:,1])<1e-10)], \
-                #             yEq0_tau1_2, yEq0_tau1_5, yEq0_tau2_0]:
-                for data in [ic[np.where(np.abs(ic[:,1])<1e-10)]]:
+                for data in [ic[np.where(np.abs(ic[:,1])<1e-10)], \
+                             yEq0_tau1_2, yEq0_tau1_5, yEq0_tau2_0]:
                     data[:,c] /= 0.1973
                     ax.plot( data[:,0], eFromT(data[:,c]), 'b--' )
             else:
-                #for data in [ic[np.where(np.abs(ic[:,1])<1e-10)], \
-                #             yEq0_tau1_2, yEq0_tau1_5, yEq0_tau2_0]:
-                for data in [ic[np.where(np.abs(ic[:,1])<1e-10)]]:
+                for data in [ic[np.where(np.abs(ic[:,1])<1e-10)], \
+                             yEq0_tau1_2, yEq0_tau1_5, yEq0_tau2_0]:
                     if ['pixx','piyy','pixy','pizz'].count(toPlot[i]) > 0:
                         data[:,c] /= 0.1973
                     ax.plot( data[:,0], data[:,c], 'b--' )
