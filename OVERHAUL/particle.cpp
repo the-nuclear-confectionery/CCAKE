@@ -457,7 +457,7 @@ void Particle::setvisc( int etaconst, double bvf, double svf, double zTc,
 ////////////////////////////////////////////////////////////////////////////////
 void Particle::sets(double tin2, bool is_first_timestep)
 {
-    gamma=gamcalc();
+    gamma = gamcalc();
     if (using_Gubser_with_shear && is_first_timestep)
     {
       shv.x[0][1] = 1./gamma*inner(u,colp1(1,shv));
@@ -466,6 +466,9 @@ void Particle::sets(double tin2, bool is_first_timestep)
       shv.x[2][0] = shv.x[0][2];
       
       setvar();
+      cout << "Sanity check: " << 1./gamma/gamma*con(uu,pimin) << "   "
+            << shv.x[1][1] + shv.x[2][2] + tin2*shv33 << endl;
+
       shv.x[0][0] = shv.x[1][1] + shv.x[2][2] + tin2*shv33;
     }
     else
