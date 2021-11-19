@@ -31,50 +31,40 @@ Matrix<T,D1,D2>& Matrix<T,D1,D2>::operator=(Matrix<U,D1,D2> a)
 template <class T, int D1, int D2>
 Matrix<T,D1,D2>& Matrix<T,D1,D2>::operator=(double a)
 {
-
-    for(int i=0; i<D1; i++)
-        for(int j=0; j<D2; j++)
-            x[i][j]=(T)a;
-
-    return *this;
-
+  for(int i=0; i<D1; i++)
+  for(int j=0; j<D2; j++)
+    x[i][j]=(T)a;
+  return *this;
 }
 
 
 template <class T, int D1, int D2>
 Matrix<T,D1,D2>& Matrix<T,D1,D2>::operator+=(Matrix<T,D1,D2> a)
 {
-
-    for(int i=0; i<D1; i++)
-        for(int j=0; j<D2; j++)
-            x[i][j]+=a[i][j];
-
-    return *this;
-
+  for(int i=0; i<D1; i++)
+  for(int j=0; j<D2; j++)
+    x[i][j]+=a[i][j];
+  return *this;
 }
 
 
 template <class T, int D1, int D2>
 Matrix<T,D1,D2>& Matrix<T,D1,D2>::operator-=(Matrix<T,D1,D2> a)
 {
-
-    for(int i=0; i<D1; i++)
-        for(int j=0; j<D2; j++)
-            x[i][j]-=a[i][j];
-
-    return *this;
-
+  for(int i=0; i<D1; i++)
+  for(int j=0; j<D2; j++)
+    x[i][j]-=a[i][j];
+  return *this;
 }
 
 
 template <class T, int D1, int D2>
 Matrix<T,D1,D2>& Matrix<T,D1,D2>::operator*=(T l)
 {
-    for(int i=0; i<D1; i++)
-        for(int j=0; j<D2; j++)
-            x[i][j]*=l;
-    return *this;
-
+  for(int i=0; i<D1; i++)
+  for(int j=0; j<D2; j++)
+    x[i][j]*=l;
+  return *this;
 }
 
 //only works for matrices with the same dimensions
@@ -84,10 +74,8 @@ Matrix<T,D1,D2>& Matrix<T,D1,D2>::operator*=(Matrix<T,D2,D1> b)
   for(int i=0; i<D1; i++)
   for(int j=0; j<D1; j++)
   {
-    double sub=0;
-    for(int k=0; k<D2; k++)
-      sub+=x[i][k]*b[k][j];
-
+    double sub=0.0;
+    for(int k=0; k<D2; k++) sub+=x[i][k]*b[k][j];
     x[i][j]=sub;
   }
   return *this;
@@ -97,48 +85,42 @@ Matrix<T,D1,D2>& Matrix<T,D1,D2>::operator*=(Matrix<T,D2,D1> b)
 template <class T, int D1, int D2>
 Matrix<T,D1,D2> operator+ (Matrix<T,D1,D2> a, Matrix<T,D1,D2> b)
 {
-    Matrix<T,D1, D2> t;
-    t=0;
-    return (t+=a)+=b;
+  Matrix<T,D1, D2> t = 0;
+  return (t+=a)+=b;
 }
 
 
 template <class T, int D1, int D2>
 Matrix<T,D1,D2> operator- (Matrix<T,D1,D2> a)
 {
-    Matrix<T,D1,D2> t;
-    t=0;
-    return t-=a;
+  Matrix<T,D1,D2> t = 0;
+  return t-=a;
 }
 
 
 template <class T, int D1, int D2>
 Matrix<T,D1,D2> operator- (Matrix<T,D1,D2> a, Matrix<T,D1,D2> b)
 {
-    Matrix<T,D1,D2> t;
-    return t=a+(-b);
+  Matrix<T,D1,D2> t;
+  return t=a+(-b);
 }
 
 
 template <class T, int D1, int D2>
 Matrix<T,D1,D2> operator* (T l, Matrix<T,D1,D2> a)
 {
-    Matrix<T,D1,D2> t;
-    return (t=a)*=l;
+  Matrix<T,D1,D2> t;
+  return (t=a)*=l;
 }
 
 template <class T, int D1, int D2>
 Matrix<T,D1,D2>& Matrix<T,D1,D2>::identity()
 {
-  if (D1!=D2) cout << "Error: not true indentity matrix!" << endl;
+  if (D1!=D2) cout << "Error: not true identity matrix!" << endl;
 
   for(int i=0; i<D1; i++)
   for(int j=0; j<D1; j++)
-  {
-    //if (i==j) x[i][j]=1;
-    //else x[i][j]=0;
     x[i][j] = ( i == j ) ? 1 : 0;
-  }
 
   return *this;
 }
@@ -148,22 +130,21 @@ Matrix<T,D1,D2>& Matrix<T,D1,D2>::identity()
 template <class T, int D1, int D2>
 ostream& operator<<(ostream& os, Matrix<T,  D1, D2> a)
 {
-    for(int j=0; j<D2; j++)
-        for(int i=0; i<D1; i++)
-            os << a[i][j] <<" ";
-
-    return os;
+  for(int j=0; j<D2; j++)
+  for(int i=0; i<D1; i++)
+    os << a[i][j] << " ";
+  return os;
 }
 
 template <class T, int D1, int D2>
 Matrix<T,D2,D1> transpose(Matrix<T,D1,D2> a)
 {
-    Matrix<T,D1,D2> t;
+  Matrix<T,D1,D2> t;
 
-    for(int i=0; i<D2; i++)
-        for(int j=0; j<D1; j++)
-            t[i][j]=a[j][i];
-    return t;
+  for(int i=0; i<D2; i++)
+  for(int j=0; j<D1; j++)
+    t[i][j]=a[j][i];
+  return t;
 }
 
 template <class T, int D1, int D2, int Da2, int Db1>
@@ -206,53 +187,19 @@ Vector< T,D1> operator* (Matrix<T, D1,D2> a, Vector< T,D2> b)
 }
 
 
+//template <class T, int D1, int D2>
+//Matrix<T,D1,D2> operator* ( Vector<T,D1> a, Vector<T,D2> b )
 template <class T, int D1, int D2>
-Matrix<T, D1, D2> operator* (Vector< T,D1> a, Vector<T,D2> b)
+Matrix<T,D1,D2> outer( Vector<T,D1> a, Vector<T,D2> b )
 {
   Matrix<T,D1,D2> t;
 
-  for(int i=0; i<D2; i++)
-  for(int j=0; j<D1; j++)
-    t[i][j]=a[i]*b[j];
+  for (int i = 0; i < D2; i++)
+  for (int j = 0; j < D1; j++)
+    t[i][j] = a[i]*b[j];
 
   return t;
 }
-
-template <class T, int D1, int D2>
-Vector<T,D2> column(int l, Matrix<T, D1, D2> a)
-{
-    Vector<T,D2> v;
-
-    for(int i=0; i<D1; i++)
-        v[i]=a[i][l];
-
-    return v;
-
-
-}
-
-template <class T, int D1, int D2>
-Vector<T,D1> row(int l, Matrix<T, D1,D2> a)
-{
-    Vector<T,D1> v;
-
-    for(int i=0; i<D2; i++)
-        v[i]=(T)a[l][i];
-
-    return v;
-}
-
-template <class T, int D1, int D2>
-Vector<T,(D2-1)> rowm1(int l, Matrix<T, D1,D2> a)
-{
-    Vector<T,(D2-1)> v;
-
-    for(int i=0; i<(D2-1); i++)
-        v[i]=(T)a[l][i];
-
-    return v;
-}
-
 
 
 template <class T, int D1, int D2>
@@ -275,14 +222,6 @@ Vector<T,(D1-1)> colp1(int l, Matrix<T, D1,D2> a)
         v[i-1]=(T)a[i][l];
 
     return v;
-}
-
-template <class T, int D1, int D2>
-void  mini(Matrix<T, D1-1, D2-1> &b, Matrix<T, D1, D2> a)
-{
-    for(int j=1; j<=2; j++)
-        for(int i=1; i<=2; i++)
-            b[i-1][j-1]=(T)a[i][j];
 }
 
 template <class T, int D1, int D2>
@@ -327,12 +266,22 @@ double con2(Matrix<T,D1,D2> a, Matrix<T,D1,D2> b)
   return t;
 }
 
+
 template <class T, int D1, int D2>
-void tmini( Matrix<T, D1, D2> &b, Matrix<T, D1-1, D2-1>a)
+void mini(Matrix<T, D1-1, D2-1> &b, Matrix<T, D1, D2> a)
 {
-    for(int j=0; j<(D2-1); j++)
-        for(int i=0; i<(D1-1); i++)
-            b[i+1][j+1]=(T)a[i][j];
+  for(int j=1; j<=2; j++)
+  for(int i=1; i<=2; i++)
+    b[i-1][j-1] = (T)a[i][j];
+}
+
+
+template <class T, int D1, int D2>
+void tmini( Matrix<T,D1,D2> &b, Matrix<T,D1-1,D2-1>a )
+{
+  for (int j = 0; j < (D2-1); j++)
+  for (int i = 0; i < (D1-1); i++)
+    b[i+1][j+1] = (T)a[i][j];
 }
 
 
