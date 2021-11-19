@@ -466,10 +466,14 @@ void Particle::sets(double tin2, bool is_first_timestep)
       shv.x[2][0] = shv.x[0][2];
       
       setvar();
-      cout << "Sanity check: " << 1./gamma/gamma*con(uu,pimin) << "   "
-            << shv.x[1][1] + shv.x[2][2] + tin2*shv33 << endl;
+      //cout << "Sanity check: " << 1./gamma/gamma*con(uu,pimin) << "   "
+      //      << shv.x[1][1] + shv.x[2][2] + tin2*shv33 << endl;
 
-      shv.x[0][0] = shv.x[1][1] + shv.x[2][2] + tin2*shv33;
+      //shv.x[0][0] = shv.x[1][1] + shv.x[2][2] + tin2*shv33;
+      
+      // go back to Jaki's default
+      shv.x[0][0]=1./gamma/gamma*con(uu,pimin);
+      shv33=(shv.x[0][0]-shv.x[1][1]-shv.x[2][2])/tin2;
     }
     else
     {

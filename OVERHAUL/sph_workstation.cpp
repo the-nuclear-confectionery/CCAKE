@@ -32,7 +32,7 @@ void SPHWorkstation::setshear(bool is_first_timestep)
     for ( auto & p : systemPtr->particles )
       p.sets(systemPtr->t*systemPtr->t, is_first_timestep);
 
-if (true) exit(1);
+//if (true) exit(1);
 }
 
 
