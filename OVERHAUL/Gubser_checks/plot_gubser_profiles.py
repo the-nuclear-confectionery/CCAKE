@@ -99,7 +99,9 @@ if __name__ == "__main__":
 
     # set up figure
     toPlot = ['e', 'ux', 'pixx', 'piyy', 'pixy', 'pizz']
-    fig, axs = plt.subplots( ncols=len(toPlot)//2, nrows=2, figsize=(5*len(toPlot)//2, 5) )
+    ncols = len(toPlot)//2
+    nrows = 2
+    fig, axs = plt.subplots( ncols=ncols, nrows=nrows, figsize=(5*ncols, 5*nrows) )
 
     # plot hydro output files
     for checkfile in sys.argv[1:]:
