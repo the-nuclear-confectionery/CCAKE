@@ -209,14 +209,13 @@ Vector< T,D1> operator* (Matrix<T, D1,D2> a, Vector< T,D2> b)
 template <class T, int D1, int D2>
 Matrix<T, D1, D2> operator* (Vector< T,D1> a, Vector<T,D2> b)
 {
-    Matrix<T,  D1,D2> t;
+  Matrix<T,D1,D2> t;
 
-    for(int i=0; i<D2; i++)
-        for(int j=0; j<D1; j++)
-            t[i][j]=a[i]*b[j];
+  for(int i=0; i<D2; i++)
+  for(int j=0; j<D1; j++)
+    t[i][j]=a[i]*b[j];
 
-    return t;
-
+  return t;
 }
 
 template <class T, int D1, int D2>

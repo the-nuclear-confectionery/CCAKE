@@ -219,8 +219,8 @@ cout << "CHECK bigtheta: " << i
     p.inside                  = system.t*(
                                 inner( -minshv+p.shv.x[0][0]*p.v, p.du_dt )
                                 - con2(sub, p.gradU)
-                                + p.gamma*system.t*p.shv33 );
-//                                - p.gamma*system.t*p.shv33 );
+//                                + p.gamma*system.t*p.shv33 );
+                                - p.gamma*system.t*p.shv33 );
 
     p.detasigma_dt            = 1./p.sigma/p.T()*( -p.bigPI*p.bigtheta + p.inside );
 
