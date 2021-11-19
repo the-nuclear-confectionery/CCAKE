@@ -205,7 +205,16 @@ cout << "CHECK bigtheta: " << i
 		<< "   " << p.bigtheta
 		<< "   " << p.gamma << endl;
 
+    // this term occurs in Eqs. (250) and (251) of Jaki's long notes
+    // translation: pi^{ij} + pi^{00} v^i v^j - pi^{i0} v^j - pi^{0j} v^i
     Matrix <double,2,2> sub   = p.pimin + (p.shv.x[0][0]/p.g2)*p.uu -1./p.gamma*p.piutot;
+
+    // minshv = pi^{0i}                   (i   = 1,2)
+    // pimin  = pi^{ij}                   (i,j = 1,2)
+    // uu     = u^i u^j                   (i,j = 1,2)
+    // piu    = pi^{0i} u^j               (i,j = 1,2)
+    // piutot = pi^{0i} u^j + pi^{0j} u^i (i,j = 1,2)
+    // gradU  = du_i/dx^j                 (i,j = 1,2)
 
     p.inside                  = system.t*(
                                 inner( -minshv+p.shv.x[0][0]*p.v, p.du_dt )
