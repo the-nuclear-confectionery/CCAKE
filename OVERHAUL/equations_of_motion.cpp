@@ -109,6 +109,8 @@ if ( abs(p.r.x[0]) < 0.000001 && abs(p.r.x[1]) < 0.000001 )
 
   system.bsqsvconservation_Ez();
 
+//TRAVIS: ALL OF THE ABOVE SHOULD BE SPLIT OFF INTO DIFFERENT FUNCTIONS
+// AND CALLED IN BSQHYDRO E.G. ws.smooth_gradients, system.freeze_out_check, etc
 
   //calculate matrix elements
 constexpr int ic = 0;
