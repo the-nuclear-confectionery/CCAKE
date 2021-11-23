@@ -36,6 +36,7 @@ class TransportCoeficients
     string etaOption, zetaOption; // for the case of interp should we
     // read in path and load here or should I/O
     //load in directly?? Similar qeustion for EOS..
+    string tauShearType, tauBulkType;
 
     double constEta();
     double eta_T_OV_w_IN;

@@ -114,3 +114,94 @@ double TransportCoeficients::tauBulk_DNMR_LeadingMass()
     //add this in later.. for now no bulk
     return 0.0;
 }
+
+//////////////////////////////////////////////////
+//////INITIALIZE THE TRANSPORT COEFFICIENTS//////
+////////////////////////////////////////////////
+void TransportCoefficients::initialize()
+{
+    // assuming I/O has already set the necessary
+    // parameters
+
+    //SET SHEAR VISCOSITY
+    if (etaType == "constant")
+    {
+        eta_T_OV_w_IN = stod(etaOption);
+        eta = constEta;
+    }
+    else if (etaType == "JakiParam")
+    {
+        eta = JakiParam;
+    }
+    else if (etaType == "linearMus")
+    {
+        eta = LinearMusParam;
+    }
+    else if (etaType = "interpolate")
+    {
+        //use etaOption to find directory of table, then
+        // execute interpolation
+        eta = InterpolantWrapper;
+    }
+    else
+    {
+        cout << "Shear viscosity specification not 
+        recognized. Now exiting." << endl;
+        exit(1);
+    }
+
+// SET SHEAR RELAXATION
+    if (tauShearType == "Default")
+    {
+        tauShear = tauShearMinval;
+    }
+    else if (tauShearType == "Gubser")
+    {
+        if (etaType != "constant")
+        {
+            cout << "Shear viscosity must be constant 
+            for Gubser. Check Input_Parameters.  
+            Now exiting." << endl;
+            exit(1);
+        }
+        tauShear = tauShearGubser;
+    }
+    else
+    {
+        cout << "Tau shear specification not 
+        recognized. Now exiting." << endl;
+        exit(1);
+    }
+
+// SET BULK VISCOSITY
+    if (zetaType = "Default")
+    {
+        zeta = zeta_DNMR_LeadingMass;
+    }
+    else if (zetaType = "interpolate")
+    {
+        //use zetaOption to find directory of table, then
+        // execute interpolation
+        zeta = InterpolantWrapper;
+    }
+    else
+    {
+        cout << "Bulk viscosity specification not 
+        recognized. Now exiting." << endl;
+        exit(1);
+    }
+
+// SET BULK RELAXATION
+    if (tauBulkType == "Default")
+    {
+        zeta = tauBulk_DNMR_LeadingMass;
+    }
+    else 
+    {
+        cout << "Tau bulk specification not 
+        recognized. Now exiting." << endl;
+        exit(1);   
+    }
+
+
+}
