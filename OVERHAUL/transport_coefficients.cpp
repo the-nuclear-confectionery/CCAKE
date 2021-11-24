@@ -16,7 +16,10 @@ using std::vector;
 //Constructors/destructor, may need to update later
 TransportCoeficients::TransportCoeficients()
 {
-
+    etaType = settingsPtr->eta;
+    etaOption = settingsPtr->etaOption;
+    zetaType = settingsPtr->zeta;
+    zetaOption = settingsPtr->zetaOption;
 }
 TransportCoeficients::~TransportCoeficients()
 {
@@ -26,6 +29,10 @@ TransportCoeficients::~TransportCoeficients()
 void TransportCoeficients::set_EquationOfStatePtr( EquationOfState * eosPtr_in )
 {
   eosPtr = eosPtr_in;
+}
+void TransportCoeficients::set_SettingsPtr( Settings * settingsPtr_in )
+{
+  settingsPtr = settingsPtr_in;
 }
 ///////////////////////////////////////////////////////////////
 //Getter functions for eta, zeta, and their relaxation times//

@@ -27,6 +27,7 @@ class TransportCoeficients
     double getTauBulk();
     // Matrix getTauDiffusive();
     void set_EquationOfStatePtr( EquationOfState * eosPtr_in );
+    void set_SettingsPtr( Settings * settingsPtr_in );
 
     void initialize();
 
@@ -57,6 +58,8 @@ class TransportCoeficients
 
 
     EquationOfState * eosPtr = nullptr;
+    Settings * settingsPtr   = nullptr;
+
 
     
 

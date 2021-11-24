@@ -83,9 +83,9 @@ public:
   string EoS_option = ""; // specify specifc option for EOS
   // there should an associated EoS directory with tables
   string eta = ""; // specificy the shear viscosity type to use
-  // in transport cpefficient file
+  string etaOption = ""; // specify necessary eta options
   string zeta = ""; // specificy the bulk viscosity type to use
-  // in transport cpefficient file
+  string zetaOption = ""; // specify necessary zeta options
   string Freeze_Out_Type = "";
   string initial_coordinate_distribution = "";
 
