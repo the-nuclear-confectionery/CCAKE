@@ -146,7 +146,7 @@ void TransportCoefficients::initialize()
     {
         eta = JakiParam;
     }
-    else if (etaType == "linearMus")
+    else if (etaType == "LinearMus")
     {
         eta = LinearMusParam;
     }
@@ -222,7 +222,7 @@ void TransportCoefficients::initialize()
 // SET BULK RELAXATION
     if (tauBulkType == "Default")
     {
-        zeta = tauBulk_DNMR_LeadingMass;
+        tauBulk = tauBulk_DNMR_LeadingMass;
     }
     else 
     {

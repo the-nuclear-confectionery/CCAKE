@@ -26,7 +26,8 @@ void SPHWorkstation::set_SettingsPtr( Settings * settingsPtr_in )
   settingsPtr = settingsPtr_in;
 }
 
-
+/* not sure it makes sense for this to be its own
+separate function? */
 void SPHWorkstation::setshear(bool is_first_timestep)
 {
     for ( auto & p : systemPtr->particles )
@@ -281,6 +282,11 @@ if (i==0)
 
 }
 ////////////////////////////////////////////////////////////////////////////////
+/* Does this need to be its own separate function? Why not call
+"p.sets(...)" from BSQHydro and then call smoothing? linklist can
+also be set from BSQHydro. It might make more sense to defne a
+general function in workstation the loops over SPH paticles and
+smooths them using its own various smoothing methods.*/
 void SPHWorkstation::initial_smoothing()  // formerly BSQguess()
 {
 	cout << "setshear..." << endl;
@@ -311,6 +317,11 @@ if (i==0)
 	int count1=0;
 	cout << "----------------------------------------"
 			"----------------------------------------" << endl;
+	/* this might be the only part that needs to stay... but the
+	function name should change if it's only setting s_sub and
+	some freeze=out checks.. maybe this can all be combined with 
+	initialize_entropy_and_charge_densities(...) into one 
+	intialize_hydrodynamics function*/
 	for (int i=0; i<systemPtr->_n; i++)
 	{
     auto & p = systemPtr->particles[i];
