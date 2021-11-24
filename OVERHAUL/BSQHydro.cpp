@@ -128,6 +128,7 @@ void BSQHydro::run()
     cout << "eccentricity printed" << endl;
     exit(0);
   }
+  /* qmf needs to be deprecated/removed */
 
 
   cout << "Now let's do the main evolution!" << endl;

@@ -321,7 +321,7 @@ if (i==0)
 	function name should change if it's only setting s_sub and
 	some freeze=out checks.. maybe this can all be combined with 
 	initialize_entropy_and_charge_densities(...) into one 
-	intialize_hydrodynamics function*/
+	intialize_particle_quantities function*/
 	for (int i=0; i<systemPtr->_n; i++)
 	{
     auto & p = systemPtr->particles[i];
