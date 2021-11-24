@@ -84,6 +84,10 @@ double TransportCoeficients::InterpolantWrapper()
     //need interpolator for this, first
     return 0.0;
 }
+double TransportCoeficients::NoShear()
+{
+    return 0.0 // no shear means no shear
+}
 
 //////////////////////////////////////////////////////////////
 ////////possible function choices for shear relaxation///////
@@ -112,6 +116,10 @@ double TransportCoeficients::zeta_DNMR_LeadingMass()
 {
     //add this in later.. for now no bulk
     return 0.0;
+}
+double TransportCoeficients::zeta_conformal()
+{
+    return 0.0 // of course, conformal zeta returns 0
 }
 
 //////////////////////////////////////////////////////////////
@@ -148,6 +156,10 @@ void TransportCoefficients::initialize()
         // execute interpolation
         eta = InterpolantWrapper;
     }
+    else if (etaType = "NoShear")
+    {
+        eta = NoShear;
+    }
     else
     {
         cout << "Shear viscosity specification not 
@@ -169,6 +181,13 @@ void TransportCoefficients::initialize()
             Now exiting." << endl;
             exit(1);
         }
+        if (zetaType != "conformal")
+        {
+            cout << "Bulk viscosity must be conformal 
+            for Gubser. Check Input_Parameters.  
+            Now exiting." << endl;
+            exit(1);
+        }
         tauShear = tauShearGubser;
     }
     else
@@ -182,6 +201,10 @@ void TransportCoefficients::initialize()
     if (zetaType = "Default")
     {
         zeta = zeta_DNMR_LeadingMass;
+    }
+    else if (zetaType = "conformal")
+    {
+        zeta = zeta_conformal;
     }
     else if (zetaType = "interpolate")
     {

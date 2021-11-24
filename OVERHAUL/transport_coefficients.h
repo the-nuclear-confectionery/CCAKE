@@ -44,6 +44,7 @@ class TransportCoeficients
     double JakiParam();
     double LinearMusParam();
     double InterpolantWrapper();
+    double NoShear();
     function<double()> eta;
     
     double tauShearGubser();
@@ -51,6 +52,7 @@ class TransportCoeficients
     function<double()> tauShear;
 
     double zeta_DNMR_LeadingMass();
+    double zeta_conformal();
     function<double()> zeta;
 
     double tauBulk_DNMR_LeadingMass();
