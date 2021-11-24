@@ -46,6 +46,10 @@ namespace RK
     system.Ez = E0 + dx*system.dEz;
     system.t  = t0 + dx;
 
+
+  /* Not sure why get_derivative_step is done in system, that method is almost the
+  only thing that runge_kutta should be doing... */
+
     return;
 	}
 
