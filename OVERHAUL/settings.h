@@ -84,8 +84,10 @@ public:
   // there should an associated EoS directory with tables
   string eta = ""; // specificy the shear viscosity type to use
   string etaOption = ""; // specify necessary eta options
+  string shearEta = ""; // specify which shear relaxation to use
   string zeta = ""; // specificy the bulk viscosity type to use
   string zetaOption = ""; // specify necessary zeta options
+  string bulkRelax = ""; // specify which bulk relaxation to use
   string Freeze_Out_Type = "";
   string initial_coordinate_distribution = "";
 

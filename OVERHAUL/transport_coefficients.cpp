@@ -59,7 +59,7 @@ double TransportCoeficients::getTauBulk()
 ////////////////////////////////////////////////////////////
 double TransportCoeficients::constEta()
 {
-    return eta_T_OV_w_IN*(eosPtr->w()/eosPtr->T())
+    return eta_T_OV_w_IN*(eosPtr->w()/eosPtr->T());
 }
 double TransportCoeficients::JakiParam()
 {
@@ -77,7 +77,7 @@ double TransportCoeficients::LinearMusParam()
     double etaBase = 0.08;
     double muSlope = 0.0033;
     return (etaBase + muSlope*(eosPtr->muB + 
-    eosPtr->muS + eosPtr->muQ))*(eosPtr->w()/eosPtr->T())
+    eosPtr->muS + eosPtr->muQ))*(eosPtr->w()/eosPtr->T());
 }
 double TransportCoeficients::InterpolantWrapper()
 {
@@ -86,7 +86,7 @@ double TransportCoeficients::InterpolantWrapper()
 }
 double TransportCoeficients::NoShear()
 {
-    return 0.0 // no shear means no shear
+    return 0.0; // no shear means no shear
 }
 
 //////////////////////////////////////////////////////////////
@@ -101,11 +101,11 @@ double TransportCoeficients::tauShearMinval()
     double tau = (5*eta())/eosPtr->w();
     if (tau >= .001)
     {
-        return tau
+        return tau;
     }
     else
     {
-        return 0.001
+        return 0.001;
     }
 }
 
@@ -119,7 +119,7 @@ double TransportCoeficients::zeta_DNMR_LeadingMass()
 }
 double TransportCoeficients::zeta_conformal()
 {
-    return 0.0 // of course, conformal zeta returns 0
+    return 0.0; // of course, conformal zeta returns 0
 }
 
 //////////////////////////////////////////////////////////////
@@ -174,6 +174,7 @@ void TransportCoefficients::initialize()
     }
     else if (tauShearType == "Gubser")
     {
+        /* these consistency checks maybe should be done in settings.h? */
         if (etaType != "constant")
         {
             cout << "Shear viscosity must be constant 
