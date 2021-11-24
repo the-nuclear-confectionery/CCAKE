@@ -63,6 +63,7 @@ double TransportCoeficients::constEta()
 }
 double TransportCoeficients::JakiParam()
 {
+    //picked the easiest one with functional dependence
     // parameters hardcoded for now.. just to see how it works
     double TC=155; // 173.9/197.3
     double temp=eosPtr->T()*197.3/TC;
@@ -127,9 +128,6 @@ double TransportCoeficients::tauBulk_DNMR_LeadingMass()
 ////////////////////////////////////////////////
 void TransportCoefficients::initialize()
 {
-    // assuming I/O has already set the necessary
-    // parameters
-
     //SET SHEAR VISCOSITY
     if (etaType == "constant")
     {
