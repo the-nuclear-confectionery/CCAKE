@@ -66,14 +66,14 @@ template <class T, int D1, int D2>
 // matrix functions
 //==============================
 template <class T, int D1, int D2>
-  Matrix<T,D2,D1> transpose( Matrix<T,D1,D1> a );
+  Matrix<T,D2,D1> transpose( Matrix<T, D1, D2> a );
 
 //==============================
 template <class T, int D1, int D2>
-  Vector<T,(D2-1)> rowp1( Matrix<T,D1,D1> a );
+  Vector<T,(D2-1)> rowp1( Matrix<T, D1, D2> a );
 //==============================
 template <class T, int D1, int D2>
-  Vector<T,(D1-1)> colp1( Matrix<T,D1,D1> a );
+  Vector<T,(D1-1)> colp1( Matrix<T, D1, D2> a );
 
 //==============================
 template <class T, int D1>

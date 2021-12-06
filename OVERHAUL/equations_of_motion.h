@@ -26,17 +26,10 @@ class EquationsOfMotion
 
 public:
 
-  EquationsOfMotion(){}
-  ~EquationsOfMotion(){}
+  EquationsOfMotion();
+  ~EquationsOfMotion();
   
-  void set_SettingsPtr( Settings * settingsPtr_in );
-
   void BSQshear( SystemState & system, SPHWorkstation & ws );
-
-private:
-
-  Settings * settingsPtr   = nullptr;
-
 };
 
 #endif

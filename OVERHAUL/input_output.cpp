@@ -82,59 +82,27 @@ for ( auto & entry : all_parameters )
         settingsPtr->EoS_option             = all_parameters[5];
         settingsPtr->eta                    = all_parameters[6];
         settingsPtr->etaOption              = all_parameters[7];
-        settingsPtr->shearRelax             = all_parameters[8];
+        settingsPtr->shearRelax             = all_parameters[8]
         settingsPtr->zeta                   = all_parameters[9];
         settingsPtr->zetaOption             = all_parameters[10];
-        settingsPtr->bulkRelax              = all_parameters[11];
+        settingsPtr->bulkRelax              = all_parameters[11]
         settingsPtr->Freeze_Out_Temperature = stod(all_parameters[12])/hbarc_MeVfm;
         settingsPtr->Freeze_Out_Type        = all_parameters[13];
 
-        ////////////////////////////////////////////////////////////////////////
-        // CONSISTENCY CHECKS FOR VARIOUS SETTINGS COMBINATIONS
-        ////////////////////////////////////////////////////////////////////////
-
-        // check if Gubser settings make sense
+        // put a warning check here; probably defer to separate routine eventually
+        if ( (   settingsPtr->IC_type == "Gubser"
+              || settingsPtr->IC_type == "Gubser_with_shear" )
+            && settingsPtr->EoS_type != "Conformal" )
+        {
+          std::cerr << "WARNING: Gubser initial conditions require a conformal "
+                       "equation of state!  Switching to gas of massless gluons"
+                       " and 2.5 massless quarks" << std::endl;
+          settingsPtr->EoS_type = "Conformal";
+        }
         if (   settingsPtr->IC_type == "Gubser"
             || settingsPtr->IC_type == "Gubser_with_shear" )
-        {
-          // make sure EoS is conformal
-          if ( settingsPtr->EoS_type != "Conformal" )
-          {
-            std::cerr << "WARNING: Gubser initial conditions require a conformal "
-                         "equation of state!  Switching to gas of massless gluons"
-                         " and 2.5 massless quarks" << std::endl;
-            settingsPtr->EoS_type = "Conformal";
-          }
-
-          // have Gubser run indefinitely
           settingsPtr->Freeze_Out_Temperature = 1e-10/hbarc_MeVfm;
 
-          // misc. Gubser settings
-          if ( settingsPtr->IC_type == "Gubser" /*&& settingsPtr->eta != "off"*/ )
-          {
-            //std::cerr << "WARNING: Gubser requires zero shear viscosity" << std::endl;
-            settingsPtr->eta       = "constant";
-            settingsPtr->etaOption = "0.0";
-          }
-          if ( settingsPtr->IC_type == "Gubser_with_shear" /*&& settingsPtr->eta == "off"*/ )
-          {
-            //std::cerr << "WARNING: Gubser with shear requires eta/s = 0.2" << std::endl;
-            settingsPtr->eta       = "constant";
-            settingsPtr->etaOption = "0.20";
-          }
-        }
-
-        // eta settings (probably move this to transport coefficients class)
-        // if eta/s == 0 identically, set using_shear to false
-        if ( settingsPtr->eta == "constant" && stod(settingsPtr->etaOption) < 1e-10 )
-          settingsPtr->using_shear  = false;
-        else
-          settingsPtr->using_shear  = true;
-
-cout << "CHECK: settingsPtr->using_shear = " << settingsPtr->using_shear << endl;
-if (1) exit(1);
-
-        //settingsPtr->using_bulk  = static_cast<bool>( settingsPtr->zeta != "off" );
 
         infile.close();
     }

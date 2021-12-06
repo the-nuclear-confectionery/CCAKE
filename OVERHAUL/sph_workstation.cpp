@@ -289,19 +289,8 @@ general function in workstation the loops over SPH paticles and
 smooths them using its own various smoothing methods.*/
 void SPHWorkstation::initial_smoothing()  // formerly BSQguess()
 {
-  // set gammas
-  for ( auto & p : systemPtr->particles )
-  {
-    p.gamma = p.gamcalc();
-    p.uu    = p.u*p.u;
-  }
-
-  if ( settingsPtr->using_shear )
-  {
-    cout << "setshear..." << endl;
-    setshear(true);
-  }
-
+	cout << "setshear..." << endl;
+  setshear(true);
 	cout << "reset..." << endl;
   systemPtr->reset_linklist();
 
@@ -512,12 +501,9 @@ void SPHWorkstation::smooth_gradients( int a, double tin, int & count )
       //                            + pa.rhoQ/pa.sigma/pa.gamma)/tin*sigsigK;
       pa.gradV                += (pb.sigmaweight/pa.sigma)*( pb.v -  pa.v )*gradK;
 
-      if ( settingsPtr->using_shear )
-      {
-        pa.gradshear            += inner(sigsigK, pa.v)*( sigsqrb*vb + sigsqra*va );
-        pa.divshear             += sigsqrb*sigsigK*transpose(vminib)
-                                    + sigsqra*sigsigK*transpose(vminia);
-      }
+      pa.gradshear            += inner(sigsigK, pa.v)*( sigsqrb*vb + sigsqra*va );
+      pa.divshear             += sigsqrb*sigsigK*transpose(vminib)
+                                  + sigsqra*sigsigK*transpose(vminia);
 
       if ( isnan( pa.gradP.x[0] ) )
       {
@@ -575,8 +561,6 @@ void SPHWorkstation::process_initial_conditions()
   //int TMP_particle_count = 0;
 	for (auto & p : systemPtr->particles)
   {
-    p.set_SettingsPtr( settingsPtr );
-
     // set area element for each SPH particle (for Polar, depends on particle!)
     double dA = 0.0;
     if (settingsPtr->initial_coordinate_distribution == "Cartesian")

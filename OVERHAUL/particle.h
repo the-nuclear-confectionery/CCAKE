@@ -33,7 +33,6 @@ class Particle
 
   // use this to set equation of state object before creating particles
   void set_EquationOfStatePtr( EquationOfState * eosPtr_in );
-  void set_SettingsPtr( Settings * settingsPtr_in );
 
   double locate_phase_diagram_point_eBSQ( double e_In );
   double locate_phase_diagram_point_eBSQ( double e_In, double rhoB_In,
@@ -81,7 +80,6 @@ class Particle
 //  public:
 
     EquationOfState * eosPtr = nullptr;
-    Settings * settingsPtr   = nullptr;
 
     // getter functions
     double T()    { return thermo.T;    }
@@ -112,6 +110,7 @@ class Particle
   void bsqsvsigset(double tin, int i);
   void setvisc( int etaconst, double bvf, double svf, double zTc, double sTc, double sig, int type );
   void sets(double tin2, bool is_first_timestep);
+  void setvar();
   double gamcalc();
   double Bsub();
 

@@ -21,7 +21,7 @@ Particle::Particle()
 ////////////////////////////////////////////////////////////////////////////////
 
 // Overloaded constructor with initial fields
-Particle::Particle( vector<double> &fields )
+Particle::Particle(vector<double> &fields)
 {
   Imat.identity();
   r.x[0]  = fields[0];
@@ -75,12 +75,6 @@ Particle::Particle( const Particle& p )
 void Particle::set_EquationOfStatePtr( EquationOfState * eosPtr_in )
 {
   eosPtr = eosPtr_in;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-void Particle::set_SettingsPtr( Settings * settingsPtr_in )
-{
-  settingsPtr = settingsPtr_in;
 }
 
 
@@ -263,22 +257,19 @@ void Particle::return_bsqsv_A()
 ////////////////////////////////////////////////////////////////////////////////
 double Particle::Bsub()
 {
-  if ( !settingsPtr->using_shear )
-    return 0.0;
+    mini(pimin,shv);
+    uu          = u*u;
+    piu         = rowp1(0,shv)*u;
+    piutot      = piu+transpose(piu);
+    double bsub = 0.0;
+    double pig  = shv.x[0][0]/g2;
 
-  mini(pimin,shv);
-  uu          = u*u;
-  piu         = rowp1(0,shv)*u;
-  piutot      = piu+transpose(piu);
-  double bsub = 0.0;
-  double pig  = shv.x[0][0]/g2;
+    for (int i=0; i<=1; i++)
+    for (int j=0; j<=1; j++)
+      bsub += gradU.x[i][j] * ( pimin.x[i][j] + pig*uu.x[j][i]
+                                - ( piu.x[i][j] + piu.x[j][i] ) / gamma );
 
-  for (int i=0; i<=1; i++)
-  for (int j=0; j<=1; j++)
-    bsub += gradU.x[i][j] * ( pimin.x[i][j] + pig*uu.x[j][i]
-                              - ( piu.x[i][j] + piu.x[j][i] ) / gamma );
-
-  return bsub;
+    return bsub;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -466,6 +457,7 @@ void Particle::setvisc( int etaconst, double bvf, double svf, double zTc,
 ////////////////////////////////////////////////////////////////////////////////
 void Particle::sets(double tin2, bool is_first_timestep)
 {
+    gamma = gamcalc();
     if (using_Gubser_with_shear && is_first_timestep)
     {
       shv.x[0][1] = 1./gamma*inner(u,colp1(1,shv));
@@ -473,7 +465,7 @@ void Particle::sets(double tin2, bool is_first_timestep)
       shv.x[1][0] = shv.x[0][1];
       shv.x[2][0] = shv.x[0][2];
       
-      mini(pimin,shv);
+      setvar();
       //cout << "Sanity check: " << 1./gamma/gamma*con(uu,pimin) << "   "
       //      << shv.x[1][1] + shv.x[2][2] + tin2*shv33 << endl;
 
@@ -491,8 +483,17 @@ void Particle::sets(double tin2, bool is_first_timestep)
       shv.x[1][0]=shv.x[0][1];
       shv.x[2][0]=shv.x[0][2];
 
-      mini(pimin,shv);
+      setvar();
       shv.x[0][0]=1./gamma/gamma*con(uu,pimin);
       shv33=(shv.x[0][0]-shv.x[1][1]-shv.x[2][2])/tin2;
     }
 }
+
+
+////////////////////////////////////////////////////////////////////////////////
+void Particle::setvar()
+{
+    mini(pimin,shv);
+    uu=u*u;
+}
+

@@ -5,7 +5,7 @@ t0: 1.000000
 EoS_Type: Conformal
 EoS_Option: Default
 eta: constant
-etaOpt: 0.20
+etaOpt: 0.08
 shearRelax: Gubser
 zeta: Conformal
 zetaOpt: Default
