@@ -45,12 +45,12 @@ public:
   static constexpr int VERBOSE = 5;
   //static constexpr double q=1.;
 
-  //int _n = 0;
+  //int _n  = 0;
   int start = 0;
-  int end = 0;
-  int fnum = 0;
-  int qmf = 3;  // if==1 quantum mechanicanical corrections to the flow or added,
-                // if==0 no corrections are included
+  int end   = 0;
+  int fnum  = 0;
+  int qmf   = 3;  // if==1 quantum mechanicanical corrections to the flow or added,
+                  // if==0 no corrections are included
   //int number_part = 0;
   //int rk2 = 0;
   int gtyp = 0;
@@ -61,10 +61,10 @@ public:
             // visc=3 for bulk+shear
             // visc=4 for bulk+shear+BSQ
 
-  int steps = 0;
-  //int first = 0;
-  int average = 0;
-  int lowT = 0;
+  int steps    = 0;
+  //int first  = 0;
+  int average  = 0;
+  int lowT     = 0;
   int etaconst = 0;
 
   int fcount = 0;
@@ -84,7 +84,7 @@ public:
   // there should an associated EoS directory with tables
   string eta = ""; // specificy the shear viscosity type to use
   string etaOption = ""; // specify necessary eta options
-  string shearEta = ""; // specify which shear relaxation to use
+  string shearRelax = ""; // specify which shear relaxation to use
   string zeta = ""; // specificy the bulk viscosity type to use
   string zetaOption = ""; // specify necessary zeta options
   string bulkRelax = ""; // specify which bulk relaxation to use
