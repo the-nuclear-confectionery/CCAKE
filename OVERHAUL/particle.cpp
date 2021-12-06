@@ -23,8 +23,6 @@ Particle::Particle()
 // Overloaded constructor with initial fields
 Particle::Particle( vector<double> &fields )
 {
-  cout << "settingsPtr->using_shear = " << settingsPtr->using_shear << endl;
-  cout << "fields.size() = " << fields.size() << endl;
   Imat.identity();
   r.x[0]  = fields[0];
   r.x[1]  = fields[1];
@@ -34,8 +32,7 @@ Particle::Particle( vector<double> &fields )
   rhoQ_an = fields[5];
   u.x[0]  = fields[6];
   u.x[1]  = fields[7];
-  if ( settingsPtr->using_shear
-        && fields.size() > 8 ) // passing in shear tensor initialization as well
+  if ( fields.size() > 8 ) // passing in shear tensor initialization as well
   {
     double pi11 = fields[8];
     double pi22 = fields[9];
