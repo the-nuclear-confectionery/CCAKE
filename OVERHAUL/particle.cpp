@@ -23,6 +23,8 @@ Particle::Particle()
 // Overloaded constructor with initial fields
 Particle::Particle( vector<double> &fields )
 {
+  cout << "settingsPtr->using_shear = " << settingsPtr->using_shear << endl;
+  cout << "fields.size() = " << fields.size() << endl;
   Imat.identity();
   r.x[0]  = fields[0];
   r.x[1]  = fields[1];
