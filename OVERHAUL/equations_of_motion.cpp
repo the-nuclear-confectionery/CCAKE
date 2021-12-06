@@ -21,9 +21,11 @@
 
 using namespace constants;
 
-// Constructors and destructors.
-  EquationsOfMotion::EquationsOfMotion(){}
-  EquationsOfMotion::~EquationsOfMotion(){}
+////////////////////////////////////////////////////////////////////////////////
+void EquationsOfMotion::set_SettingsPtr( Settings * settingsPtr_in )
+{
+  settingsPtr = settingsPtr_in;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // The structure here is temporary until we set the mode for different terms 
@@ -244,7 +246,7 @@ cout << "CHECK bigtheta: " << i
 
 
     // pi^{munu} sigma_{munu}
-    if ( using_shear )
+    if ( settingsPtr->using_shear )
       p.inside                  = system.t*(
                                 inner( -minshv+p.shv.x[0][0]*p.v, p.du_dt )
                                 - con2(sub, p.gradU)
@@ -266,7 +268,7 @@ cout << "CHECK bigtheta: " << i
     // N.B. - ADD READABLE TERM NAMES
     // cf. Eq. (237) with mu --> i and nu --> j
     // still need to check/confirm individual terms
-    if ( using_shear )
+    if ( settingsPtr->using_shear )
       p.dshv_dt                 = - gamt*( p.pimin + p.setas*0.5*partU )
                                - 0.5*p.eta_o_tau*( ududt + transpose(ududt) )
                                + p.dpidtsub() + p.sigl*Ipi
