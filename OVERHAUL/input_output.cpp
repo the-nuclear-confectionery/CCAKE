@@ -114,19 +114,19 @@ for ( auto & entry : all_parameters )
           {
             //std::cerr << "WARNING: Gubser requires zero shear viscosity" << std::endl;
             settingsPtr->eta       = "constant";
-            settingsPtr->etaOption = 0.0;
+            settingsPtr->etaOption = "0.0";
           }
           if ( settingsPtr->IC_type == "Gubser_with_shear" /*&& settingsPtr->eta == "off"*/ )
           {
             //std::cerr << "WARNING: Gubser with shear requires eta/s = 0.2" << std::endl;
             settingsPtr->eta       = "constant";
-            settingsPtr->etaOption = 0.20;
+            settingsPtr->etaOption = "0.20";
           }
         }
 
         // eta settings (probably move this to transport coefficients class)
         settingsPtr->using_shear  = static_cast<bool>( settingsPtr->eta != "constant"
-                                                        && settingsPtr->etaOption < 1e-10 );
+                                                        && stod(settingsPtr->etaOption) < 1e-10 );
         //settingsPtr->using_bulk  = static_cast<bool>( settingsPtr->zeta != "off" );
 
         infile.close();
