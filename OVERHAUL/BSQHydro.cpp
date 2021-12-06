@@ -26,6 +26,9 @@ BSQHydro::BSQHydro()
 
   // initialize EoS pointers
   eos.set_SettingsPtr( &settings );
+
+  // initialize Equations of Motion pointer
+  eom.set_SettingsPtr( &settings );
   
   return;
 }
