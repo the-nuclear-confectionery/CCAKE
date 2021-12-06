@@ -110,7 +110,7 @@ if ( check_ideal_EoS )
 
 
   // set up transport coefficients, etc.
-  if ( !using_shear ) svf = 0.0;
+  if ( !settingsPtr->using_shear ) svf = 0.0;
 
 
   return;
