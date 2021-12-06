@@ -131,6 +131,9 @@ for ( auto & entry : all_parameters )
         else
           settingsPtr->using_shear  = true;
 
+cout << "CHECK: settingsPtr->using_shear = " << settingsPtr->using_shear << endl;
+if (1) exit(1);
+
         //settingsPtr->using_bulk  = static_cast<bool>( settingsPtr->zeta != "off" );
 
         infile.close();
