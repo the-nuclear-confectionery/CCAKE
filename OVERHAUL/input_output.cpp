@@ -82,10 +82,10 @@ for ( auto & entry : all_parameters )
         settingsPtr->EoS_option             = all_parameters[5];
         settingsPtr->eta                    = all_parameters[6];
         settingsPtr->etaOption              = all_parameters[7];
-        settingsPtr->shearRelax             = all_parameters[8]
+        settingsPtr->shearRelax             = all_parameters[8];
         settingsPtr->zeta                   = all_parameters[9];
         settingsPtr->zetaOption             = all_parameters[10];
-        settingsPtr->bulkRelax              = all_parameters[11]
+        settingsPtr->bulkRelax              = all_parameters[11];
         settingsPtr->Freeze_Out_Temperature = stod(all_parameters[12])/hbarc_MeVfm;
         settingsPtr->Freeze_Out_Type        = all_parameters[13];
 
