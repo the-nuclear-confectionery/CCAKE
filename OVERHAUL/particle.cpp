@@ -21,7 +21,7 @@ Particle::Particle()
 ////////////////////////////////////////////////////////////////////////////////
 
 // Overloaded constructor with initial fields
-Particle::Particle(vector<double> &fields)
+Particle::Particle( vector<double> &fields )
 {
   Imat.identity();
   r.x[0]  = fields[0];
@@ -32,7 +32,8 @@ Particle::Particle(vector<double> &fields)
   rhoQ_an = fields[5];
   u.x[0]  = fields[6];
   u.x[1]  = fields[7];
-  if ( using_shear && fields.size() > 8 ) // passing in shear tensor initialization as well
+  if ( settingsPtr->using_shear
+        && fields.size() > 8 ) // passing in shear tensor initialization as well
   {
     double pi11 = fields[8];
     double pi22 = fields[9];
@@ -75,6 +76,12 @@ Particle::Particle( const Particle& p )
 void Particle::set_EquationOfStatePtr( EquationOfState * eosPtr_in )
 {
   eosPtr = eosPtr_in;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void Particle::set_SettingsPtr( Settings * settingsPtr_in )
+{
+  settingsPtr = settingsPtr_in;
 }
 
 

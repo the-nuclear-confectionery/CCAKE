@@ -162,8 +162,7 @@ void TransportCoefficients::initialize()
     }
     else
     {
-        cout << "Shear viscosity specification not 
-        recognized. Now exiting." << endl;
+        cout << "Shear viscosity specification not recognized. Now exiting." << endl;
         exit(1);
     }
 
@@ -177,24 +176,23 @@ void TransportCoefficients::initialize()
         /* these consistency checks maybe should be done in settings.h? */
         if (etaType != "constant")
         {
-            cout << "Shear viscosity must be constant 
-            for Gubser. Check Input_Parameters.  
-            Now exiting." << endl;
+            cout << "Shear viscosity must be constant for Gubser. "
+                    "Check Input_Parameters.  Now exiting." << endl;
             exit(1);
         }
         if (zetaType != "conformal")
         {
-            cout << "Bulk viscosity must be conformal 
-            for Gubser. Check Input_Parameters.  
-            Now exiting." << endl;
+            cout << "Bulk viscosity must be conformal "
+           " for Gubser. Check Input_Parameters.  "
+            "Now exiting." << endl;
             exit(1);
         }
         tauShear = tauShearGubser;
     }
     else
     {
-        cout << "Tau shear specification not 
-        recognized. Now exiting." << endl;
+        cout << "Tau shear specification not "
+        "recognized. Now exiting." << endl;
         exit(1);
     }
 
@@ -215,8 +213,8 @@ void TransportCoefficients::initialize()
     }
     else
     {
-        cout << "Bulk viscosity specification not 
-        recognized. Now exiting." << endl;
+        cout << "Bulk viscosity specification not "
+        "recognized. Now exiting." << endl;
         exit(1);
     }
 
@@ -227,8 +225,8 @@ void TransportCoefficients::initialize()
     }
     else 
     {
-        cout << "Tau bulk specification not 
-        recognized. Now exiting." << endl;
+        cout << "Tau bulk specification not "
+        "recognized. Now exiting." << endl;
         exit(1);   
     }
 

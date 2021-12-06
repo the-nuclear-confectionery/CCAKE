@@ -575,6 +575,8 @@ void SPHWorkstation::process_initial_conditions()
   //int TMP_particle_count = 0;
 	for (auto & p : systemPtr->particles)
   {
+    p.set_SettingsPtr( settingsPtr );
+
     // set area element for each SPH particle (for Polar, depends on particle!)
     double dA = 0.0;
     if (settingsPtr->initial_coordinate_distribution == "Cartesian")
