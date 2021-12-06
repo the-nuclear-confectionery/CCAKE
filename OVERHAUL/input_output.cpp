@@ -125,8 +125,12 @@ for ( auto & entry : all_parameters )
         }
 
         // eta settings (probably move this to transport coefficients class)
-        settingsPtr->using_shear  = static_cast<bool>( settingsPtr->eta != "constant"
-                                                        && stod(settingsPtr->etaOption) < 1e-10 );
+        // if eta/s == 0 identically, set using_shear to false
+        if ( settingsPtr->eta == "constant" && stod(settingsPtr->etaOption) < 1e-10 )
+          settingsPtr->using_shear  = false;
+        else
+          settingsPtr->using_shear  = true;
+
         //settingsPtr->using_bulk  = static_cast<bool>( settingsPtr->zeta != "off" );
 
         infile.close();
