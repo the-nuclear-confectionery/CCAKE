@@ -77,21 +77,22 @@ public:
 
   /* STRINGS */
 
-  string eos_s = "";
-  string eos_p = "";
-  string ebe_folder = "";
-  string eost = "";
-  string IC_type = ""; // specify initial condition type
-  string EoS_type = ""; // specify equation of state type
-  string EoS_option = ""; // specify specifc option for EOS
+  string eos_s                           = "";
+  string eos_p                           = "";
+  string ebe_folder                      = "";
+  string eost                            = "";
+  string IC_type                         = ""; // specify initial condition type
+  string EoS_type                        = ""; // specify equation of state type
+  string EoS_option                      = ""; // specify specifc option for EOS
+
   // there should an associated EoS directory with tables
-  string eta = ""; // specificy the shear viscosity type to use
-  string etaOption = ""; // specify necessary eta options
-  string shearEta = ""; // specify which shear relaxation to use
-  string zeta = ""; // specificy the bulk viscosity type to use
-  string zetaOption = ""; // specify necessary zeta options
-  string bulkRelax = ""; // specify which bulk relaxation to use
-  string Freeze_Out_Type = "";
+  string eta                             = ""; // specificy the shear viscosity type to use
+  string etaOption                       = ""; // specify necessary eta options
+  string shearRelax                      = ""; // specify which shear relaxation to use
+  string zeta                            = ""; // specificy the bulk viscosity type to use
+  string zetaOption                      = ""; // specify necessary zeta options
+  string bulkRelax                       = ""; // specify which bulk relaxation to use
+  string Freeze_Out_Type                 = "";
   string initial_coordinate_distribution = "";
 
 

@@ -82,10 +82,10 @@ for ( auto & entry : all_parameters )
         settingsPtr->EoS_option             = all_parameters[5];
         settingsPtr->eta                    = all_parameters[6];
         settingsPtr->etaOption              = all_parameters[7];
-        settingsPtr->shearRelax             = all_parameters[8]
+        settingsPtr->shearRelax             = all_parameters[8];
         settingsPtr->zeta                   = all_parameters[9];
         settingsPtr->zetaOption             = all_parameters[10];
-        settingsPtr->bulkRelax              = all_parameters[11]
+        settingsPtr->bulkRelax              = all_parameters[11];
         settingsPtr->Freeze_Out_Temperature = stod(all_parameters[12])/hbarc_MeVfm;
         settingsPtr->Freeze_Out_Type        = all_parameters[13];
 
@@ -113,20 +113,20 @@ for ( auto & entry : all_parameters )
           if ( settingsPtr->IC_type == "Gubser" /*&& settingsPtr->eta != "off"*/ )
           {
             //std::cerr << "WARNING: Gubser requires zero shear viscosity" << std::endl;
-            settingsPtr->eta = "constant";
-            settingsPtr->etaOpt = 0.0;
+            settingsPtr->eta       = "constant";
+            settingsPtr->etaOption = 0.0;
           }
           if ( settingsPtr->IC_type == "Gubser_with_shear" /*&& settingsPtr->eta == "off"*/ )
           {
             //std::cerr << "WARNING: Gubser with shear requires eta/s = 0.2" << std::endl;
-            settingsPtr->eta = "constant";
-            settingsPtr->etaOpt = 0.20;
+            settingsPtr->eta       = "constant";
+            settingsPtr->etaOption = 0.20;
           }
         }
 
         // eta settings (probably move this to transport coefficients class)
         settingsPtr->using_shear  = static_cast<bool>( settingsPtr->eta != "constant"
-                                                        && settingsPtr->etaOpt < 1e-10 );
+                                                        && settingsPtr->etaOption < 1e-10 );
         //settingsPtr->using_bulk  = static_cast<bool>( settingsPtr->zeta != "off" );
 
         infile.close();
