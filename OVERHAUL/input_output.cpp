@@ -89,20 +89,45 @@ for ( auto & entry : all_parameters )
         settingsPtr->Freeze_Out_Temperature = stod(all_parameters[12])/hbarc_MeVfm;
         settingsPtr->Freeze_Out_Type        = all_parameters[13];
 
-        // put a warning check here; probably defer to separate routine eventually
-        if ( (   settingsPtr->IC_type == "Gubser"
-              || settingsPtr->IC_type == "Gubser_with_shear" )
-            && settingsPtr->EoS_type != "Conformal" )
-        {
-          std::cerr << "WARNING: Gubser initial conditions require a conformal "
-                       "equation of state!  Switching to gas of massless gluons"
-                       " and 2.5 massless quarks" << std::endl;
-          settingsPtr->EoS_type = "Conformal";
-        }
+        ////////////////////////////////////////////////////////////////////////
+        // CONSISTENCY CHECKS FOR VARIOUS SETTINGS COMBINATIONS
+        ////////////////////////////////////////////////////////////////////////
+
+        // check if Gubser settings make sense
         if (   settingsPtr->IC_type == "Gubser"
             || settingsPtr->IC_type == "Gubser_with_shear" )
+        {
+          // make sure EoS is conformal
+          if ( settingsPtr->EoS_type != "Conformal" )
+          {
+            std::cerr << "WARNING: Gubser initial conditions require a conformal "
+                         "equation of state!  Switching to gas of massless gluons"
+                         " and 2.5 massless quarks" << std::endl;
+            settingsPtr->EoS_type = "Conformal";
+          }
+
+          // have Gubser run indefinitely
           settingsPtr->Freeze_Out_Temperature = 1e-10/hbarc_MeVfm;
 
+          // misc. Gubser settings
+          if ( settingsPtr->IC_type == "Gubser" /*&& settingsPtr->eta != "off"*/ )
+          {
+            //std::cerr << "WARNING: Gubser requires zero shear viscosity" << std::endl;
+            settingsPtr->eta = "constant";
+            settingsPtr->etaOpt = 0.0;
+          }
+          if ( settingsPtr->IC_type == "Gubser_with_shear" /*&& settingsPtr->eta == "off"*/ )
+          {
+            //std::cerr << "WARNING: Gubser with shear requires eta/s = 0.2" << std::endl;
+            settingsPtr->eta = "constant";
+            settingsPtr->etaOpt = 0.20;
+          }
+        }
+
+        // eta settings (probably move this to transport coefficients class)
+        settingsPtr->using_shear  = static_cast<bool>( settingsPtr->eta != "constant"
+                                                        && settingsPtr->etaOpt < 1e-10 );
+        //settingsPtr->using_bulk  = static_cast<bool>( settingsPtr->zeta != "off" );
 
         infile.close();
     }

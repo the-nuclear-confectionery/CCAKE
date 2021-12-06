@@ -107,6 +107,12 @@ if ( check_ideal_EoS )
   //int numpart, _Ntable3;
 
   //  cout << "setting up SPH" << endl;
+
+
+  // set up transport coefficients, etc.
+  if ( !using_shear ) svf = 0.0;
+
+
   return;
 }
 

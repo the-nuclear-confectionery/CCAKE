@@ -32,7 +32,7 @@ Particle::Particle(vector<double> &fields)
   rhoQ_an = fields[5];
   u.x[0]  = fields[6];
   u.x[1]  = fields[7];
-  if ( fields.size() > 8 ) // passing in shear tensor initialization as well
+  if ( using_shear && fields.size() > 8 ) // passing in shear tensor initialization as well
   {
     double pi11 = fields[8];
     double pi22 = fields[9];
@@ -257,19 +257,22 @@ void Particle::return_bsqsv_A()
 ////////////////////////////////////////////////////////////////////////////////
 double Particle::Bsub()
 {
-    mini(pimin,shv);
-    uu          = u*u;
-    piu         = rowp1(0,shv)*u;
-    piutot      = piu+transpose(piu);
-    double bsub = 0.0;
-    double pig  = shv.x[0][0]/g2;
+  if ( !settingsPtr->using_shear )
+    return 0.0;
 
-    for (int i=0; i<=1; i++)
-    for (int j=0; j<=1; j++)
-      bsub += gradU.x[i][j] * ( pimin.x[i][j] + pig*uu.x[j][i]
-                                - ( piu.x[i][j] + piu.x[j][i] ) / gamma );
+  mini(pimin,shv);
+  uu          = u*u;
+  piu         = rowp1(0,shv)*u;
+  piutot      = piu+transpose(piu);
+  double bsub = 0.0;
+  double pig  = shv.x[0][0]/g2;
 
-    return bsub;
+  for (int i=0; i<=1; i++)
+  for (int j=0; j<=1; j++)
+    bsub += gradU.x[i][j] * ( pimin.x[i][j] + pig*uu.x[j][i]
+                              - ( piu.x[i][j] + piu.x[j][i] ) / gamma );
+
+  return bsub;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -457,7 +460,6 @@ void Particle::setvisc( int etaconst, double bvf, double svf, double zTc,
 ////////////////////////////////////////////////////////////////////////////////
 void Particle::sets(double tin2, bool is_first_timestep)
 {
-    gamma = gamcalc();
     if (using_Gubser_with_shear && is_first_timestep)
     {
       shv.x[0][1] = 1./gamma*inner(u,colp1(1,shv));
@@ -465,7 +467,7 @@ void Particle::sets(double tin2, bool is_first_timestep)
       shv.x[1][0] = shv.x[0][1];
       shv.x[2][0] = shv.x[0][2];
       
-      setvar();
+      mini(pimin,shv);
       //cout << "Sanity check: " << 1./gamma/gamma*con(uu,pimin) << "   "
       //      << shv.x[1][1] + shv.x[2][2] + tin2*shv33 << endl;
 
@@ -483,17 +485,8 @@ void Particle::sets(double tin2, bool is_first_timestep)
       shv.x[1][0]=shv.x[0][1];
       shv.x[2][0]=shv.x[0][2];
 
-      setvar();
+      mini(pimin,shv);
       shv.x[0][0]=1./gamma/gamma*con(uu,pimin);
       shv33=(shv.x[0][0]-shv.x[1][1]-shv.x[2][2])/tin2;
     }
 }
-
-
-////////////////////////////////////////////////////////////////////////////////
-void Particle::setvar()
-{
-    mini(pimin,shv);
-    uu=u*u;
-}
-

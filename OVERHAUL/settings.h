@@ -9,6 +9,9 @@ class Settings
 {
 public:
 
+  bool using_shear = false;
+  bool using_bulk  = false;
+
   /* DOUBLES */
   // maximum upper limit for t
   static constexpr double tend=50.02;
@@ -33,11 +36,11 @@ public:
   double E1 = 0.0;
   double E2 = 0.0;
 
-  double bvf = 0.0;
+  /*double bvf = 0.0;
   double svf = 0.0;
   double zwidth = 0.0;
   double sTc = 0.0;
-  double zTc = 0.0;
+  double zTc = 0.0;*/
 /********************************************************************************/
 
 

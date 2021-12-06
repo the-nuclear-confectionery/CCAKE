@@ -110,7 +110,6 @@ class Particle
   void bsqsvsigset(double tin, int i);
   void setvisc( int etaconst, double bvf, double svf, double zTc, double sTc, double sig, int type );
   void sets(double tin2, bool is_first_timestep);
-  void setvar();
   double gamcalc();
   double Bsub();
 
