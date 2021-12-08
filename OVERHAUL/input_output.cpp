@@ -405,8 +405,8 @@ void InputOutput::print_system_state()
   if ( settingsPtr->using_Gubser )
     for ( auto & p : systemPtr->particles )
       out << p.r << " "
-          << p.T()*hbarc_MeVfm << " "
-          << p.e()*hbarc_MeVfm << " "
+          << p.T() << " "
+          << p.e() << " "
           << p.u.x[0] << " "
           << p.u.x[1]  << " "
           << p.shv.x[1][1] << " "
