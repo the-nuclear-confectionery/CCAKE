@@ -27,6 +27,9 @@ BSQHydro::BSQHydro()
   // initialize EoS pointers
   eos.set_SettingsPtr( &settings );
   
+  // initialize EoM pointers
+  eom.set_SettingsPtr( &settings );
+  
   return;
 }
 
