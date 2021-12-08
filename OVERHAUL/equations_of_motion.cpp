@@ -22,7 +22,7 @@
 using namespace constants;
 
 ////////////////////////////////////////////////////////////////////////////////
-void Particle::set_SettingsPtr(Settings * settingsPtr_in)
+void EquationsOfMotion::set_SettingsPtr(Settings * settingsPtr_in)
 {
   settingsPtr = settingsPtr_in;
 }
