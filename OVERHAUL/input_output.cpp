@@ -378,6 +378,39 @@ void InputOutput::read_in_initial_conditions()
     }
     
   }
+  else if (initial_condition_type == "TECHQM")
+  {
+    cerr << "THIS DOES NOT WORK YET" << endl;
+    exit(1);
+
+    // load input file
+    string inputfilename = "./TECHQM_checks/techqm.dat";
+    cout << "Reading in TECHQM initial profile from " << inputfilename << endl;
+    ifstream infile( inputfilename.c_str() );
+
+    if (infile.is_open())
+    {
+      string line;
+      double x, y, TLocal, eLocal, ux, uy, pixx, piyy, pixy, pizz, pietaeta;
+      while ( getline (infile, line) )
+      {
+        istringstream iss(line);
+        iss >> x >> y >> TLocal >> ux >> uy >> pixx >> piyy >> pixy >> pizz;
+
+        TLocal  /= hbarc_GeVfm;                           // 1/fm
+        eLocal   = 3.0*cpLoc*TLocal*TLocal*TLocal*TLocal; // 1/fm^4
+        pixx    /= hbarc_GeVfm;                           // 1/fm^4
+        piyy    /= hbarc_GeVfm;                           // 1/fm^4
+        pixy    /= hbarc_GeVfm;                           // 1/fm^4
+        pietaeta = pizz/(tau0*tau0*hbarc_GeVfm);          // 1/fm^6
+
+        vector<double> fields({ x, y, eLocal, 0.0, 0.0, 0.0, ux, uy,
+                                pixx, piyy, pixy, pietaeta });
+        systemPtr->particles.push_back( Particle(fields) );
+      }
+    
+    }
+  }
   else
   {
       cout << "Selected initial condition type not supported." << endl;
