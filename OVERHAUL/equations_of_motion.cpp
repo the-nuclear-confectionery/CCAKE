@@ -226,7 +226,8 @@ cout << "CHECK div_u: " << i
 		<< "   " << p.u
 		<< "   " << p.du_dt
 		<< "   " << inner( p.u, p.du_dt)
-		<< "   " << p.sigma << endl;
+		<< "   " << p.sigma 
+		<< "   " << p.dsigma_dt << endl;
 if (i==ic || printAll)
 cout << "CHECK bigtheta: " << i
 		<< "   " << system.t
