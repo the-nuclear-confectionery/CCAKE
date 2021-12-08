@@ -49,6 +49,9 @@ private:
   string output_directory;
 
 
+  // all settings for the hydro simulation
+  Settings settings;
+
   // equation of state information
   EquationOfState eos;
 
@@ -66,9 +69,6 @@ private:
 
   // the workstation for performing SPH-related actions on the system
   SPHWorkstation ws;
-
-  // all settings for the hydro simulation
-  Settings settings;
 
 };
 

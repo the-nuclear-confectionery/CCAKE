@@ -173,7 +173,8 @@ cout << "CHECK F: " << i << "   " << system.t << "   " << F << "   "
 		<< p.gradBulk << "   " << p.divshear << endl;
 
     // shear contribution
-    F += pre*p.v*partU + p1*minshv;
+    if ( settingsPtr->using_shear )
+      F += pre*p.v*partU + p1*minshv;
 
 if (i==ic || printAll)
 cout << "CHECK F(again): " << i << "   " << system.t << "   " << F << "   "
@@ -241,7 +242,8 @@ cout << "CHECK bigtheta: " << i
     // piutot = pi^{0i} u^j + pi^{0j} u^i (i,j = 1,2)
     // gradU  = du_i/dx^j                 (i,j = 1,2)
 
-    p.inside                  = system.t*(
+    if ( settingsPtr->using_shear )
+      p.inside                  = system.t*(
                                 inner( -minshv+p.shv.x[0][0]*p.v, p.du_dt )
                                 - con2(sub, p.gradU)
                                 - p.gamma*system.t*p.shv33 );
@@ -258,8 +260,9 @@ cout << "CHECK bigtheta: " << i
     Matrix <double,2,2> ududt = p.u*p.du_dt;
 
     // N.B. - ADD READABLE TERM NAMES
-    p.dshv_dt                 = - gamt*( p.pimin +/*should this be a minus sign?*/ p.setas*0.5*partU )
-                               - 0.5*p.eta_o_tau*( ududt + transpose(ududt) )//missing 1/sigma?
+    if ( settingsPtr->using_shear )
+      p.dshv_dt                 = - gamt*( p.pimin + p.setas*0.5*partU )
+                               - 0.5*p.eta_o_tau*( ududt + transpose(ududt) )
                                + p.dpidtsub() + p.sigl*Ipi
                                - vduk*( ulpi + transpose(ulpi) + (1/p.gamma)*Ipi );
 

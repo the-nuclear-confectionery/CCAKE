@@ -262,7 +262,11 @@ void Particle::return_bsqsv_A()
 ////////////////////////////////////////////////////////////////////////////////
 double Particle::Bsub()
 {
-    mini(pimin,shv);
+  if ( settingsPtr->using_shear )
+    return 0.0;
+  else
+  {
+    mini( pimin, shv );
     uu          = u*u;
     piu         = rowp1(0,shv)*u;
     piutot      = piu+transpose(piu);
@@ -273,8 +277,8 @@ double Particle::Bsub()
     for (int j=0; j<=1; j++)
       bsub += gradU.x[i][j] * ( pimin.x[i][j] + pig*uu.x[j][i]
                                 - ( piu.x[i][j] + piu.x[j][i] ) / gamma );
-
     return bsub;
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
