@@ -250,6 +250,10 @@ cout << "CHECK bigtheta: " << i
                                 - con2(sub, p.gradU)
                                 - p.gamma*system.t*p.shv33 );
 
+    cout << "CHECK 253: " << i << "   " << p.sigma << "   " << p.T()
+           << "   " << p.bigPI << "   " << p.bigtheta << "   " << p.inside << endl;
+
+
     p.detasigma_dt            = 1./p.sigma/p.T()*( -p.bigPI*p.bigtheta + p.inside );
 
 

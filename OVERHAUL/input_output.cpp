@@ -121,6 +121,10 @@ void InputOutput::load_settings_file( string path_to_settings_file )
       settingsPtr->zeta = "constant";
       settingsPtr->zetaOption = "0.0";
     }
+    else if ( settingsPtr->IC_type == "TECHQM" )
+    {
+      settingsPtr->t0 = 0.6;  //fm/c
+    }
 
     // if eta/s == 0 identically, set using_shear to false
     if ( settingsPtr->eta == "constant" && stod(settingsPtr->etaOption) < 1e-10 )
