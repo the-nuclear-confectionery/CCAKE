@@ -113,7 +113,7 @@ void InputOutput::load_settings_file( string path_to_settings_file )
       // Gubser shear viscosity settings
       settingsPtr->eta = "constant";
       if ( settingsPtr->IC_type == "Gubser" )
-        settingsPtr->etaOption = 0.0;
+        settingsPtr->etaOption = "0.0";
       else if ( settingsPtr->IC_type == "Gubser_with_shear" )
         settingsPtr->etaOption = "0.20";
 
