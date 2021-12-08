@@ -382,7 +382,7 @@ void InputOutput::read_in_initial_conditions()
   {
     cerr << "THIS DOES NOT WORK YET" << endl;
     exit(1);
-
+/*
     // load input file
     string inputfilename = "./TECHQM_checks/techqm.dat";
     cout << "Reading in TECHQM initial profile from " << inputfilename << endl;
@@ -408,8 +408,9 @@ void InputOutput::read_in_initial_conditions()
                                 pixx, piyy, pixy, pietaeta });
         systemPtr->particles.push_back( Particle(fields) );
       }
-    
     }
+*/
+
   }
   else
   {
