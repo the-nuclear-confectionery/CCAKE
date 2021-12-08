@@ -66,11 +66,11 @@ public:
   double Btotal0    = 0;
   double Stotal0    = 0;
   double Qtotal0    = 0;*/
-  double bvf        = 0;
+  /*double bvf        = 0;
   double svf        = 0; 
   double zwidth     = 0;
   double sTc        = 0;
-  double zTc        = 0;
+  double zTc        = 0;*/
   double E1         = 0;
   double E2         = 0;
   double step       = 0;
