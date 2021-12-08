@@ -262,7 +262,7 @@ void Particle::return_bsqsv_A()
 ////////////////////////////////////////////////////////////////////////////////
 double Particle::Bsub()
 {
-  if ( settingsPtr->using_shear )
+  if ( !settingsPtr->using_shear )
     return 0.0;
   else
   {
