@@ -77,6 +77,11 @@ void Particle::set_EquationOfStatePtr( EquationOfState * eosPtr_in )
   eosPtr = eosPtr_in;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+void Particle::set_SettingsPtr(Settings * settingsPtr_in)
+{
+  settingsPtr = settingsPtr_in;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 double Particle::locate_phase_diagram_point_eBSQ(// previously s_out
@@ -401,7 +406,7 @@ void Particle::setvisc( int etaconst, double bvf, double svf, double zTc,
       }
     }
     stauRelax=5*setas/w();
-    if (!using_Gubser && stauRelax < 0.005) stauRelax = 0.005;
+    if (!settingsPtr->using_Gubser && stauRelax < 0.005) stauRelax = 0.005;
 
     /// defining bulk viscosity
 
@@ -458,7 +463,7 @@ void Particle::setvisc( int etaconst, double bvf, double svf, double zTc,
 void Particle::sets(double tin2, bool is_first_timestep)
 {
     gamma = gamcalc();
-    if (using_Gubser_with_shear && is_first_timestep)
+    if (settingsPtr->using_Gubser_with_shear && is_first_timestep)
     {
       shv.x[0][1] = 1./gamma*inner(u,colp1(1,shv));
       shv.x[0][2] = 1./gamma*inner(u,colp1(2,shv));

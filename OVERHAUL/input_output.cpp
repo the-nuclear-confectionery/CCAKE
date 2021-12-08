@@ -55,68 +55,92 @@ void InputOutput::set_results_directory( string path_to_results_directory )
 
 void InputOutput::load_settings_file( string path_to_settings_file )
 {
-    string Param_file = path_to_settings_file;
-    ifstream infile( Param_file.c_str() );
-    if (infile.is_open())
+  string Param_file = path_to_settings_file;
+  ifstream infile( Param_file.c_str() );
+  if (infile.is_open())
+  {
+    string line;
+    string ignore = "";
+    string param = "";
+    vector<string> all_parameters;
+    while ( getline (infile, line) )
     {
-        string line;
-        string ignore = "";
-        string param = "";
-        vector<string> all_parameters;
-        while ( getline (infile, line) )
-        {
-            istringstream iss(line);
-            iss >> ignore >> param;
-            all_parameters.push_back(param);
-        }
-
-cout << "all_parameters.size() = " << all_parameters.size() << endl;
-for ( auto & entry : all_parameters )
-  cout << entry << endl;
-
-        settingsPtr->IC_type                = all_parameters[0];
-        settingsPtr->_h                     = stod(all_parameters[1]);
-        settingsPtr->dt                     = stod(all_parameters[2]);
-        settingsPtr->t0                     = stod(all_parameters[3]);
-        settingsPtr->EoS_type               = all_parameters[4];
-        settingsPtr->EoS_option             = all_parameters[5];
-        settingsPtr->eta                    = all_parameters[6];
-        settingsPtr->etaOption              = all_parameters[7];
-        settingsPtr->shearRelax             = all_parameters[8];
-        settingsPtr->zeta                   = all_parameters[9];
-        settingsPtr->zetaOption             = all_parameters[10];
-        settingsPtr->bulkRelax              = all_parameters[11];
-        settingsPtr->Freeze_Out_Temperature = stod(all_parameters[12])/hbarc_MeVfm;
-        settingsPtr->Freeze_Out_Type        = all_parameters[13];
-
-        // put a warning check here; probably defer to separate routine eventually
-        if ( (   settingsPtr->IC_type == "Gubser"
-              || settingsPtr->IC_type == "Gubser_with_shear" )
-            && settingsPtr->EoS_type != "Conformal" )
-        {
-          std::cerr << "WARNING: Gubser initial conditions require a conformal "
-                       "equation of state!  Switching to gas of massless gluons"
-                       " and 2.5 massless quarks" << std::endl;
-          settingsPtr->EoS_type = "Conformal";
-        }
-        if (   settingsPtr->IC_type == "Gubser"
-            || settingsPtr->IC_type == "Gubser_with_shear" )
-          settingsPtr->Freeze_Out_Temperature = 1e-10/hbarc_MeVfm;
-
-
-        infile.close();
+      istringstream iss(line);
+      iss >> ignore >> param;
+      all_parameters.push_back(param);
     }
 
-    return;
+    //cout << "all_parameters.size() = " << all_parameters.size() << endl;
+    //for ( auto & entry : all_parameters )
+    //  cout << entry << endl;
+
+    settingsPtr->IC_type                = all_parameters[0];
+    settingsPtr->_h                     = stod(all_parameters[1]);
+    settingsPtr->dt                     = stod(all_parameters[2]);
+    settingsPtr->t0                     = stod(all_parameters[3]);
+    settingsPtr->EoS_type               = all_parameters[4];
+    settingsPtr->EoS_option             = all_parameters[5];
+    settingsPtr->eta                    = all_parameters[6];
+    settingsPtr->etaOption              = all_parameters[7];
+    settingsPtr->shearRelax             = all_parameters[8];
+    settingsPtr->zeta                   = all_parameters[9];
+    settingsPtr->zetaOption             = all_parameters[10];
+    settingsPtr->bulkRelax              = all_parameters[11];
+    settingsPtr->Freeze_Out_Temperature = stod(all_parameters[12])/hbarc_MeVfm;
+    settingsPtr->Freeze_Out_Type        = all_parameters[13];
+
+    //==========================================================================
+    // enforce appropriate settings for Gubser
+    if (   settingsPtr->IC_type == "Gubser"
+        || settingsPtr->IC_type == "Gubser_with_shear" )
+    {
+      settingsPtr->using_Gubser = true;
+      if ( settingsPtr->IC_type == "Gubser_with_shear" )
+        settingsPtr->using_Gubser_with_shear = true;
+
+      // put a warning check here; probably defer to separate routine eventually
+      if ( settingsPtr->EoS_type != "Conformal" )
+      {
+        std::cerr << "WARNING: Gubser initial conditions require a conformal "
+                     "equation of state!  Switching to gas of massless gluons"
+                     " and 2.5 massless quarks" << std::endl;
+        settingsPtr->EoS_type = "Conformal";
+      }
+
+      // run Gubser indefinitely
+      settingsPtr->Freeze_Out_Temperature = 1e-10/hbarc_MeVfm;
+
+      // Gubser shear viscosity settings
+      settingsPtr->eta = "constant";
+      if ( settingsPtr->IC_type == "Gubser" )
+        settingsPtr->etaOption = 0.0;
+      else if ( settingsPtr->IC_type == "Gubser_with_shear" )
+        settingsPtr->etaOption = "0.20";
+
+      // Gubser bulk viscosity settings
+      settingsPtr->zeta = "constant";
+      settingsPtr->zetaOption = "0.0";
+    }
+
+    // if eta/s == 0 identically, set using_shear to false
+    if ( settingsPtr->eta == "constant" && stod(settingsPtr->etaOption) < 1e-10 )
+      settingsPtr->using_shear  = false;
+    else
+      settingsPtr->using_shear  = true;
+
+    infile.close();
+  }
+
+  return;
 }
 
 void InputOutput::set_EoS_type()
 {
-  string EoS_type = settingsPtr->EoS_type;
-  string EoS_option = settingsPtr->EoS_option;
+  string EoS_type           = settingsPtr->EoS_type;
+  string EoS_option         = settingsPtr->EoS_option;
   string EoS_files_location = "EoS/" + EoS_type + "/" + EoS_option;
-  string densities = EoS_files_location + "/densities.dat";
-  string derivatives = EoS_files_location + "/derivatives.dat";
+  string densities          = EoS_files_location + "/densities.dat";
+  string derivatives        = EoS_files_location + "/derivatives.dat";
 
   if (EoS_option == "Default")
   {
@@ -129,7 +153,7 @@ void InputOutput::set_EoS_type()
   }
 
   eosPtr->quantity_file = densities;
-  eosPtr->deriv_file = derivatives;
+  eosPtr->deriv_file    = derivatives;
 
   return;
 }
@@ -378,42 +402,54 @@ void InputOutput::print_system_state()
 
   out << systemPtr->t << endl;
   int iParticle = 0;
-  for ( auto & p : systemPtr->particles )
-    out << iParticle++ << " "
-        << systemPtr->t << " "
-				<< p.r << " "
-				<< p.p() << " "
-				<< p.T()*hbarc_MeVfm << " "
-				<< p.muB()*hbarc_MeVfm << " "
-				<< p.muS()*hbarc_MeVfm << " "
-				<< p.muQ()*hbarc_MeVfm << " "
-				<< p.e()*hbarc_MeVfm << " "
-				<< p.rhoB() << " "
-				<< p.rhoS() << " "
-				<< p.rhoQ() << " "
-				<< p.s() << " "
-				<< p.eta/(p.gamma*systemPtr->t) << " "
-				<< p.eta_sigma << " "
-				<< p.sigma << " " 
-				<< p.sigmaweight << " "
-				<< p.stauRelax << " " 
-				<< p.bigtheta << " "
-				<< sqrt( p.shv.x[0][0]*p.shv.x[0][0]
-                -2.0*p.shv.x[0][1]*p.shv.x[0][1]
-                -2.0*p.shv.x[0][2]*p.shv.x[0][2]
-                + p.shv.x[1][1]*p.shv.x[1][1]
-                + p.shv.x[2][2]*p.shv.x[2][2]
-                +2.0*p.shv.x[1][2]*p.shv.x[1][2]
-                +pow(systemPtr->t,4.0)*p.shv33*p.shv33 ) << " "
-				<< p.stauRelax/systemPtr->t * p.bigtheta << " "
-        << p.shv.x[0][0] << " "
-        << p.shv.x[1][1] << " "
-        << p.shv.x[2][2] << " "
-        << p.shv.x[1][2] << " "
-        << pow(systemPtr->t,2.0)*p.shv33 << " "
-				<< p.u.x[0]/p.gamma << " "
-				<< p.u.x[1]/p.gamma << " "
-				<< p.gamma << endl;
+  if ( settingsPtr->using_Gubser )
+    for ( auto & p : systemPtr->particles )
+      out << p.r << " "
+          << p.T()*hbarc_MeVfm << " "
+          << p.e()*hbarc_MeVfm << " "
+          << p.u.x[0] << " "
+          << p.u.x[1]  << " "
+          << p.shv.x[1][1] << " "
+          << p.shv.x[2][2] << " "
+          << p.shv.x[1][2] << " "
+          << pow(systemPtr->t,2.0)*p.shv33 << endl;
+  else
+    for ( auto & p : systemPtr->particles )
+      out << iParticle++ << " "
+          << systemPtr->t << " "
+          << p.r << " "
+          << p.p() << " "
+          << p.T()*hbarc_MeVfm << " "
+          << p.muB()*hbarc_MeVfm << " "
+          << p.muS()*hbarc_MeVfm << " "
+          << p.muQ()*hbarc_MeVfm << " "
+          << p.e()*hbarc_MeVfm << " "
+          << p.rhoB() << " "
+          << p.rhoS() << " "
+          << p.rhoQ() << " "
+          << p.s() << " "
+          << p.eta/(p.gamma*systemPtr->t) << " "
+          << p.eta_sigma << " "
+          << p.sigma << " " 
+          << p.sigmaweight << " "
+          << p.stauRelax << " " 
+          << p.bigtheta << " "
+          << sqrt( p.shv.x[0][0]*p.shv.x[0][0]
+                  -2.0*p.shv.x[0][1]*p.shv.x[0][1]
+                  -2.0*p.shv.x[0][2]*p.shv.x[0][2]
+                  + p.shv.x[1][1]*p.shv.x[1][1]
+                  + p.shv.x[2][2]*p.shv.x[2][2]
+                  +2.0*p.shv.x[1][2]*p.shv.x[1][2]
+                  +pow(systemPtr->t,4.0)*p.shv33*p.shv33 ) << " "
+          << p.stauRelax/systemPtr->t * p.bigtheta << " "
+          << p.shv.x[0][0] << " "
+          << p.shv.x[1][1] << " "
+          << p.shv.x[2][2] << " "
+          << p.shv.x[1][2] << " "
+          << pow(systemPtr->t,2.0)*p.shv33 << " "
+          << p.u.x[0]/p.gamma << " "
+          << p.u.x[1]/p.gamma << " "
+          << p.gamma << endl;
   
   out.close();
 

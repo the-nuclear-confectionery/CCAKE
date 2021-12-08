@@ -9,6 +9,10 @@ class Settings
 {
 public:
 
+  bool using_Gubser            = false;
+  bool using_Gubser_with_shear = false;
+  bool using_shear             = false;
+
   /* DOUBLES */
   // maximum upper limit for t
   static constexpr double tend=50.02;

@@ -33,6 +33,7 @@ class Particle
 
   // use this to set equation of state object before creating particles
   void set_EquationOfStatePtr( EquationOfState * eosPtr_in );
+  void set_SettingsPtr(Settings * settingsPtr_in);
 
   double locate_phase_diagram_point_eBSQ( double e_In );
   double locate_phase_diagram_point_eBSQ( double e_In, double rhoB_In,
@@ -80,6 +81,7 @@ class Particle
 //  public:
 
     EquationOfState * eosPtr = nullptr;
+    Settings * settingsPtr   = nullptr;
 
     // getter functions
     double T()    { return thermo.T;    }
@@ -115,9 +117,6 @@ class Particle
   double Bsub();
 
   // members
-  bool using_Gubser      = false;
-  bool using_Gubser_with_shear      = false;
-
   int btrack             = 0;
   //int count              = 0;
   int Freeze             = 0;
