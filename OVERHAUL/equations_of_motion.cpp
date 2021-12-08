@@ -21,9 +21,11 @@
 
 using namespace constants;
 
-// Constructors and destructors.
-  EquationsOfMotion::EquationsOfMotion(){}
-  EquationsOfMotion::~EquationsOfMotion(){}
+////////////////////////////////////////////////////////////////////////////////
+void Particle::set_SettingsPtr(Settings * settingsPtr_in)
+{
+  settingsPtr = settingsPtr_in;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // The structure here is temporary until we set the mode for different terms 
