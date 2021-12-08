@@ -137,10 +137,18 @@ constexpr bool printAll = false;
   {
     auto & p = system.particles[i];
 
-    double gamt               = 1.0/p.gamma/p.stauRelax;
+    /*double gamt               = 1.0/p.gamma/p.stauRelax;
     double pre                = p.eta_o_tau/2.0/p.gamma;
     double p1                 = gamt - 4.0/3.0/p.sigma*p.dsigma_dt
-                                + 1.0/system.t/3.0;
+                                + 1.0/system.t/3.0;*/
+    double gamt = 0.0, pre = 0.0, p1 = 0.0;
+    if ( settingsPtr->using_shear )
+    {
+      gamt = 1.0/p.gamma/p.stauRelax;
+      pre  = p.eta_o_tau/2.0/p.gamma;
+      p1   = gamt - 4.0/3.0/p.sigma*p.dsigma_dt + 1.0/system.t/3.0;
+    }
+
     Vector<double,2> minshv   = rowp1(0, p.shv);
     Matrix <double,2,2> partU = p.gradU + transpose( p.gradU );
 

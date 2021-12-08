@@ -245,7 +245,7 @@ void Particle::calcbsq(double tin)
 ////////////////////////////////////////////////////////////////////////////////
 void Particle::return_bsqsv_A()
 {
-    eta_o_tau = setas/stauRelax;
+    eta_o_tau = (settingsPtr->using_shear) ? setas/stauRelax : 0.0;
 
 	// THIS NEEDS TO BE CHECKED/FIXED, SPECIFICALLY WHEN INCLUDING MORE BETA-DOT TERMS
     Agam  = w() - dwds()*(s()+ bigPI/T() )- zeta/tauRelax
