@@ -7,8 +7,9 @@ import sys
 use_semi_analytic = False
 
 q  = 1.
-#e0 = 1.0
-e0 = 9126.*np.pi**2/3125. # normalization needed to get initial T0 = 1.2 1/fm
+e0 = 1.0
+if use_semi_analytic:
+    e0 = 9126.*np.pi**2/3125. # normalization needed to get initial T0 = 1.2 1/fm
 rhoB0, rhoS0, rhoQ0 = 0.5, 0.5, 0.5
 
 Nc = 3.
@@ -98,8 +99,10 @@ if __name__ == "__main__":
         load_semi_analytic_files()
 
     # set up figure
-    #toPlot = ['e', 'ux', 'pixx', 'piyy', 'pixy', 'pizz']
     toPlot = ['e', 'ux']
+    if use_semi_analytic:
+        toPlot = ['e', 'ux', 'pixx', 'piyy', 'pixy', 'pizz']
+    
     ncols = len(toPlot)//2
     nrows = 2
     fig, axs = plt.subplots( ncols=ncols, nrows=nrows, figsize=(5*ncols, 5*nrows) )
