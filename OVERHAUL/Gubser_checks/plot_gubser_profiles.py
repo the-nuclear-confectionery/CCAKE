@@ -98,7 +98,8 @@ if __name__ == "__main__":
         load_semi_analytic_files()
 
     # set up figure
-    toPlot = ['e', 'ux', 'pixx', 'piyy', 'pixy', 'pizz']
+    #toPlot = ['e', 'ux', 'pixx', 'piyy', 'pixy', 'pizz']
+    toPlot = ['e', 'ux']
     ncols = len(toPlot)//2
     nrows = 2
     fig, axs = plt.subplots( ncols=ncols, nrows=nrows, figsize=(5*ncols, 5*nrows) )
