@@ -452,7 +452,7 @@ void InputOutput::print_system_state()
           << p.shv.x[1][1] << " "
           << p.shv.x[2][2] << " "
           << p.shv.x[1][2] << " "
-          << pow(systemPtr->t,2.0)*p.shv33
+          << pow(systemPtr->t,2.0)*p.shv33 << " "
           << p.rhoB() << " "
           << p.rhoS() << " "
           << p.rhoQ() << endl;
