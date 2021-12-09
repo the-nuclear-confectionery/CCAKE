@@ -215,7 +215,7 @@ cout << "CHECK MI: " << i << "   " << system.t << "   " << MI << endl;
 
     Matrix <double,2,2> ulpi  = p.u*colp1(0, p.shv);
 
-    double vduk               = inner( p.v, p.du_dt);
+    double vduk               = inner( p.v, p.du_dt );
 
     Matrix <double,2,2> Ipi   = -p.eta_o_tau/3. * ( p.Imat + p.uu ) + 4./3.*p.pimin;
 

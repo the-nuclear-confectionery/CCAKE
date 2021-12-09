@@ -262,12 +262,15 @@ void Particle::return_bsqsv_A()
 ////////////////////////////////////////////////////////////////////////////////
 double Particle::Bsub()
 {
+  // make sure this quantity is set
+  uu = u*u;
+
   if ( !settingsPtr->using_shear )
     return 0.0;
   else
   {
+    // these quantities will all be zero without shear
     mini( pimin, shv );
-    uu          = u*u;
     piu         = rowp1(0,shv)*u;
     piutot      = piu+transpose(piu);
     double bsub = 0.0;

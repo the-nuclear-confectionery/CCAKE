@@ -75,19 +75,20 @@ void InputOutput::load_settings_file( string path_to_settings_file )
     //  cout << entry << endl;
 
     settingsPtr->IC_type                = all_parameters[0];
-    settingsPtr->_h                     = stod(all_parameters[1]);
-    settingsPtr->dt                     = stod(all_parameters[2]);
-    settingsPtr->t0                     = stod(all_parameters[3]);
-    settingsPtr->EoS_type               = all_parameters[4];
-    settingsPtr->EoS_option             = all_parameters[5];
-    settingsPtr->eta                    = all_parameters[6];
-    settingsPtr->etaOption              = all_parameters[7];
-    settingsPtr->shearRelax             = all_parameters[8];
-    settingsPtr->zeta                   = all_parameters[9];
-    settingsPtr->zetaOption             = all_parameters[10];
-    settingsPtr->bulkRelax              = all_parameters[11];
-    settingsPtr->Freeze_Out_Temperature = stod(all_parameters[12])/hbarc_MeVfm;
-    settingsPtr->Freeze_Out_Type        = all_parameters[13];
+    settingsPtr->IC_option              = all_parameters[1];
+    settingsPtr->_h                     = stod(all_parameters[2]);
+    settingsPtr->dt                     = stod(all_parameters[3]);
+    settingsPtr->t0                     = stod(all_parameters[4]);
+    settingsPtr->EoS_type               = all_parameters[5];
+    settingsPtr->EoS_option             = all_parameters[6];
+    settingsPtr->eta                    = all_parameters[7];
+    settingsPtr->etaOption              = all_parameters[8];
+    settingsPtr->shearRelax             = all_parameters[9];
+    settingsPtr->zeta                   = all_parameters[10];
+    settingsPtr->zetaOption             = all_parameters[11];
+    settingsPtr->bulkRelax              = all_parameters[12];
+    settingsPtr->Freeze_Out_Temperature = stod(all_parameters[13])/hbarc_MeVfm;
+    settingsPtr->Freeze_Out_Type        = all_parameters[14];
 
     //==========================================================================
     // enforce appropriate settings for Gubser
@@ -272,16 +273,17 @@ void InputOutput::read_in_initial_conditions()
   {
     // choose initial coordinate system
     settingsPtr->initial_coordinate_distribution = "Cartesian";
+    const bool BSQmode = static_cast<bool>( settingsPtr->IC_option == "BSQ" );
 
     // initial time
     const double tau0 = settingsPtr->t0;
 
     // set Gubser profile parameters
-    const double q     = 1.0; // 1/fm
-    const double e0    = 1.0; // 1/fm^4
-    const double rhoB0 = 0.0; // 1/fm^3
-    const double rhoQ0 = 0.0; // 1/fm^3
-    const double rhoS0 = 0.0; // 1/fm^3
+    const double q     = 1.0;                   // 1/fm
+    const double e0    = 1.0;                   // 1/fm^4
+    const double rhoB0 = (BSQmode) ? 0.5 : 0.0; // 1/fm^3
+    const double rhoQ0 = (BSQmode) ? 0.5 : 0.0; // 1/fm^3
+    const double rhoS0 = (BSQmode) ? 0.5 : 0.0; // 1/fm^3
 
     // GRID GENERATION IN CARTESIAN COORDINATES
     // set grid step size for test
@@ -450,7 +452,10 @@ void InputOutput::print_system_state()
           << p.shv.x[1][1] << " "
           << p.shv.x[2][2] << " "
           << p.shv.x[1][2] << " "
-          << pow(systemPtr->t,2.0)*p.shv33 << endl;
+          << pow(systemPtr->t,2.0)*p.shv33
+          << p.rhoB() << " "
+          << p.rhoS() << " "
+          << p.rhoQ() << endl;
   else
     for ( auto & p : systemPtr->particles )
       out << iParticle++ << " "

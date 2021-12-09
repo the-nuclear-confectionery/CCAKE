@@ -16,7 +16,7 @@ Nc = 3.
 Nf = 2.5
 cp = (2.*(Nc**2-1.) + 3.5*Nc*Nf)*np.pi**2/90.
 
-quantities = ['T','e','ux','uy','pixx','piyy','pixy','pizz']
+quantities = ['T','e','ux','uy','pixx','piyy','pixy','pizz','rhoB','rhoS','rhoQ']
 cols = dict(zip(quantities,range(2,len(quantities)+2)))
 
 
@@ -74,7 +74,8 @@ def plot_slice(ax, hydroOutput, tau, axis, quantity):
         yeq0Data = hydroOutput[np.where( np.abs(hydroOutput[:,1]) < 1e-6 )]
         ax.plot( yeq0Data[:,0], yeq0Data[:,c], 'r-' )
         if not use_semi_analytic:
-            cf   = [None, None, TGubser, eGubser, urGubser, urGubser, None, None, None, None][c]
+            cf   = [None, None, TGubser, eGubser, urGubser, urGubser, \
+                    None, None, None, None, rhoBGubser, rhoSGubser, rhoQGubser][c]
             xpts = np.linspace(np.amin(yeq0Data[:,0]), np.amax(yeq0Data[:,0]), 1001)
             ax.plot( xpts, cf(tau, xpts), 'b--' )
     elif axis == 'x':
@@ -82,7 +83,8 @@ def plot_slice(ax, hydroOutput, tau, axis, quantity):
         rpts = np.sqrt(hydroOutput[:,0]**2 + hydroOutput[:,1])
         ax.plot( rpts, yeqxData[:,c], 'r-' )
         if not use_semi_analytic:
-            cf   = [None, None, TGubser, eGubser, urGubser, urGubser, None, None, None, None][c]
+            cf   = [None, None, TGubser, eGubser, urGubser, urGubser, \
+                    None, None, None, None, rhoBGubser, rhoSGubser, rhoQGubser][c]
             rpts = np.linspace(0.0, np.amax(rpts), 1001)
             ax.plot( rpts, cf(tau, rpts), 'b--' )
     
@@ -99,7 +101,7 @@ if __name__ == "__main__":
         load_semi_analytic_files()
 
     # set up figure
-    toPlot = ['e', 'ux']
+    toPlot = ['T', 'e', 'ux', 'rhoB', 'rhoS', 'rhoQ']
     if use_semi_analytic:
         toPlot = ['e', 'ux', 'pixx', 'piyy', 'pixy', 'pizz']
     
