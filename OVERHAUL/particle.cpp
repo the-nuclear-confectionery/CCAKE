@@ -229,9 +229,9 @@ void Particle::calcbsq(double tin)
   v               = (1.0/gamma)*u;
   double s_in2    = eta/gamma/tin;
   qmom            = ( (e()+p())*gamma/sigma )*u;
-	double rhoB_in2 = B*sigma/sigmaweight;
-	double rhoS_in2 = S*sigma/sigmaweight;
-	double rhoQ_in2 = Q*sigma/sigmaweight;
+	double rhoB_in2 = B*sigma/(gamma*sigmaweight);
+	double rhoS_in2 = S*sigma/(gamma*sigmaweight);
+	double rhoQ_in2 = Q*sigma/(gamma*sigmaweight);
 	rhoB_an = rhoB_in2;
 	rhoS_an = rhoS_in2;
 	rhoQ_an = rhoQ_in2;
