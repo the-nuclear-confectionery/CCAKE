@@ -124,7 +124,9 @@ class Particle
   double Agam            = 0.0;
   double Agam2           = 0.0;
   double sigmaweight     = 0.0; // specific volume per particle (times s_an)
-  double rho_weight      = 0.0; // specific volume per particle (without s_an)
+  double rhoB_weight     = 0.0; // specific volume per particle (without rhoB_an)
+  double rhoS_weight     = 0.0; // specific volume per particle (without rhoS_an)
+  double rhoQ_weight     = 0.0; // specific volume per particle (without rhoQ_an)
   double transverse_area = 0.0; // dx * dy
   double ets1            = 0.0;
   double ets2            = 0.0;

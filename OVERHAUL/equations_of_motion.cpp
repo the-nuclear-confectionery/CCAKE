@@ -281,6 +281,11 @@ cout << "CHECK bigtheta: " << i
                                + p.dpidtsub() + p.sigl*Ipi
                                - vduk*( ulpi + transpose(ulpi) + (1/p.gamma)*Ipi );
 
+    // Here is where we evolve the B,S,Q charge densities directly (assume ideal evolution)
+    p.drhoB_dt = -p.rhoB_sub*p.bigtheta/system.t;
+    p.drhoS_dt = -p.rhoS_sub*p.bigtheta/system.t;
+    p.drhoQ_dt = -p.rhoQ_sub*p.bigtheta/system.t;
+
 
   /* all of this must be replaced for things more readable and more modular.
   Current working idea: Every term can be a separate defined function, then at run time

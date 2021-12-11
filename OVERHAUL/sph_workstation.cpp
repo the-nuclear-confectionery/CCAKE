@@ -233,10 +233,14 @@ if (i==0)
     p.gamma=p.gamcalc();
 
 if (i==0)
-  cout << "Check these: " << p.s_an << "   " << p.gamma << "   " << settingsPtr->t0 << endl;
+  cout << "Check these: " << p.s_an << "   " << p.rhoB_an << "   "
+      << p.rhoS_an << "   " << p.rhoQ_an << "   "
+      << p.gamma << "   " << settingsPtr->t0 << endl;
 
-    p.sigmaweight *= p.s_an*p.gamma*settingsPtr->t0;	// sigmaweight is constant after this
-    //p.rho_weight *= p.gamma*t0;				// rho_weight is constant after this
+    p.sigmaweight *= p.s_an*p.gamma*settingsPtr->t0;	  // sigmaweight is constant after this
+    p.rhoB_weight *= p.rhoB_an*p.gamma*settingsPtr->t0; // rhoB_weight is constant after this
+    p.rhoS_weight *= p.rhoS_an*p.gamma*settingsPtr->t0; // rhoB_weight is constant after this
+    p.rhoQ_weight *= p.rhoQ_an*p.gamma*settingsPtr->t0; // rhoB_weight is constant after this
 
 		p.B *= p.gamma*settingsPtr->t0;	// B does not evolve in ideal case (confirm with Jaki)
 		p.S *= p.gamma*settingsPtr->t0;	// S does not evolve in ideal case (confirm with Jaki)
@@ -379,9 +383,9 @@ void SPHWorkstation::smooth_fields(int a, bool init_mode /*== false*/)
       double kern     = kernel::kernel( pa.r - pb.r, settingsPtr->_h );
       pa.sigma       += pb.sigmaweight*kern;
       pa.eta         += pb.sigmaweight*pb.eta_sigma*kern;
-      pa.rhoB_sub    += pb.rho_weight*pb.rhoB_an*kern;    //confirm with Jaki
-      pa.rhoS_sub    += pb.rho_weight*pb.rhoS_an*kern;    //confirm with Jaki
-      pa.rhoQ_sub    += pb.rho_weight*pb.rhoQ_an*kern;    //confirm with Jaki
+      pa.rhoB_sub    += pb.rhoB_weight*pb.rhoB_an*kern;    //confirm with Jaki
+      pa.rhoS_sub    += pb.rhoS_weight*pb.rhoS_an*kern;    //confirm with Jaki
+      pa.rhoQ_sub    += pb.rhoQ_weight*pb.rhoQ_an*kern;    //confirm with Jaki
 
       //if (kern>0.0) neighbor_count++;
       if (abs(pa.r.x[0])<0.000001 && abs(pa.r.x[1])<0.000001)
@@ -416,9 +420,9 @@ void SPHWorkstation::smooth_fields(int a, bool init_mode /*== false*/)
     //    << pa.S << "   " << pa.Q << endl;
     //cout << pa.rho_weight << "   " << pa.rhoB_an << "   "
     //    << pa.rhoS_an << "   " << pa.rhoQ_an << endl;
-    pa.B = pa.rhoB_sub * pa.rho_weight;
-    pa.S = pa.rhoS_sub * pa.rho_weight;
-    pa.Q = pa.rhoQ_sub * pa.rho_weight;
+    pa.B = pa.rhoB_sub * pa.rhoB_weight;
+    pa.S = pa.rhoS_sub * pa.rhoS_weight;
+    pa.Q = pa.rhoQ_sub * pa.rhoQ_weight;
     //cout << "AFTER: " << a << "   " << pa.B << "   "
     //    << pa.S << "   " << pa.Q << endl;
     //cout << pa.rho_weight << "   " << pa.rhoB_sub << "   "
@@ -596,7 +600,9 @@ void SPHWorkstation::process_initial_conditions()
 		//p.u.x[1]          = 0.0;  // flow must be set in Particle constructor!!!
 		p.eta_sigma       = 1.0;
 		p.sigmaweight     = dA;
-		p.rho_weight      = dA;
+		p.rhoB_weight     = dA;
+		p.rhoS_weight     = dA;
+		p.rhoQ_weight     = dA;
 		p.Bulk            = 0.0;
 		p.B               = p.rhoB_an*dA;
 		p.S               = p.rhoS_an*dA;

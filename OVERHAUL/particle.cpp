@@ -229,6 +229,7 @@ void Particle::calcbsq(double tin)
   v               = (1.0/gamma)*u;
   double s_in2    = eta/gamma/tin;
   qmom            = ( (e()+p())*gamma/sigma )*u;
+/*//THIS IS THE OLD ROUGH VERSION, JUST USE THE EVOLUTION EQUATIONS INSTEAD
 	double rhoB_in2 = B*sigma/(gamma*sigmaweight);
 	double rhoS_in2 = S*sigma/(gamma*sigmaweight);
 	double rhoQ_in2 = Q*sigma/(gamma*sigmaweight);
@@ -238,6 +239,11 @@ void Particle::calcbsq(double tin)
 //cout << "\t - finding EoS solution for sBSQ: " << tin << "   " << s_in2 << "   "
 //		<< rhoB_in2 << "   " << rhoS_in2 << "   " << rhoQ_in2 << endl;
 	locate_phase_diagram_point_sBSQ( s_in2, rhoB_in2, rhoS_in2, rhoQ_in2 );
+*/
+  // using *_sub quantities (which have been smoothed) in order to be consistent
+  // with s_in2 = eta/(gamma*t) and evaluation of rest of EoM's quantities (e.g.,
+  // sigma) which are also smoothed
+	locate_phase_diagram_point_sBSQ( s_in2, rhoB_sub, rhoS_sub, rhoQ_sub );
 }
 
 
