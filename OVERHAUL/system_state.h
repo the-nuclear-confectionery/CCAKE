@@ -105,6 +105,9 @@ private:
   // creating vectors of vectors of the derivatives at each step
   vector<double> etasigma0;
   vector<double> Bulk0;
+  vector<double> rhoB0;
+  vector<double> rhoS0;
+  vector<double> rhoQ0;
 
   vector< Vector<double,2> > u0;
   vector< Vector<double,2> > r0;

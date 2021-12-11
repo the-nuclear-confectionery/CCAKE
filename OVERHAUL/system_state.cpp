@@ -341,6 +341,9 @@ void SystemState::set_current_timestep_quantities()
 
   etasigma0.resize(N);
   Bulk0.resize(N);
+  rhoB0.resize(N);
+  rhoS0.resize(N);
+  rhoQ0.resize(N);
 
   u0.resize(N);
   r0.resize(N);
