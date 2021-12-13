@@ -288,9 +288,9 @@ cout << "CHECK bigtheta: " << i
 
     // assume we are working with starred (lab frame) densities per unit rapidity
     // as with sigma evolution
-    p.drhoB_dt = -p.rhoB_sub * ( p.gradV.x[0][0] + p.gradV.x[1][1] );
-    p.drhoS_dt = -p.rhoS_sub * ( p.gradV.x[0][0] + p.gradV.x[1][1] );
-    p.drhoQ_dt = -p.rhoQ_sub * ( p.gradV.x[0][0] + p.gradV.x[1][1] );
+//    p.drhoB_dt = -p.rhoB_sub * ( p.gradV.x[0][0] + p.gradV.x[1][1] );
+//    p.drhoS_dt = -p.rhoS_sub * ( p.gradV.x[0][0] + p.gradV.x[1][1] );
+//    p.drhoQ_dt = -p.rhoQ_sub * ( p.gradV.x[0][0] + p.gradV.x[1][1] );
 
 
   /* all of this must be replaced for things more readable and more modular.

@@ -227,7 +227,10 @@ void Particle::calcbsq(double tin)
 {
   gamma           = gamcalc();
   v               = (1.0/gamma)*u;
-  double s_in2    = eta/gamma/tin;
+  double s_lab    = eta/gamma/tin;
+  double rhoB_lab = rhoB_sub/gamma/tin;
+  double rhoS_lab = rhoS_sub/gamma/tin;
+  double rhoQ_lab = rhoQ_sub/gamma/tin;
   qmom            = ( (e()+p())*gamma/sigma )*u;
 /*//THIS IS THE OLD ROUGH VERSION, JUST USE THE EVOLUTION EQUATIONS INSTEAD
 	double rhoB_in2 = B*sigma/(gamma*sigmaweight);
@@ -236,14 +239,14 @@ void Particle::calcbsq(double tin)
 	rhoB_an = rhoB_in2;
 	rhoS_an = rhoS_in2;
 	rhoQ_an = rhoQ_in2;
-//cout << "\t - finding EoS solution for sBSQ: " << tin << "   " << s_in2 << "   "
+//cout << "\t - finding EoS solution for sBSQ: " << tin << "   " << s_lab << "   "
 //		<< rhoB_in2 << "   " << rhoS_in2 << "   " << rhoQ_in2 << endl;
-	locate_phase_diagram_point_sBSQ( s_in2, rhoB_in2, rhoS_in2, rhoQ_in2 );
+	locate_phase_diagram_point_sBSQ( s_lab, rhoB_in2, rhoS_in2, rhoQ_in2 );
 */
   // using *_sub quantities (which have been smoothed) in order to be consistent
   // with s_in2 = eta/(gamma*t) and evaluation of rest of EoM's quantities (e.g.,
   // sigma) which are also smoothed
-	locate_phase_diagram_point_sBSQ( s_in2, rhoB_sub, rhoS_sub, rhoQ_sub );
+	locate_phase_diagram_point_sBSQ( s_lab, rhoB_lab, rhoS_lab, rhoQ_lab );
 }
 
 

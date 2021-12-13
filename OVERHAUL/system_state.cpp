@@ -358,9 +358,9 @@ void SystemState::set_current_timestep_quantities()
     r0[i]        = p.r;
     etasigma0[i] = p.eta_sigma;
     Bulk0[i]     = p.Bulk;
-    rhoB0[i]     = p.rhoB_an;
-    rhoS0[i]     = p.rhoS_an;
-    rhoQ0[i]     = p.rhoQ_an;
+//    rhoB0[i]     = p.rhoB_an;
+//    rhoS0[i]     = p.rhoS_an;
+//    rhoQ0[i]     = p.rhoQ_an;
     mini( shv0[i], p.shv );
   }
 }
@@ -382,9 +382,9 @@ void SystemState::get_derivative_step(double dx)
       p.u            = u0[i]        + dx*p.du_dt;
       p.eta_sigma    = etasigma0[i] + dx*p.detasigma_dt;
       p.Bulk         = Bulk0[i]     + dx*p.dBulk_dt;
-      p.rhoB_an      = rhoB0[i]     + dx*p.drhoB_dt;
-      p.rhoS_an      = rhoS0[i]     + dx*p.drhoS_dt;
-      p.rhoQ_an      = rhoQ0[i]     + dx*p.drhoQ_dt;
+//      p.rhoB_an      = rhoB0[i]     + dx*p.drhoB_dt/(p.gamma*t);  // convert increment to lab density
+//      p.rhoS_an      = rhoS0[i]     + dx*p.drhoS_dt/(p.gamma*t);  // convert increment to lab density
+//      p.rhoQ_an      = rhoQ0[i]     + dx*p.drhoQ_dt/(p.gamma*t);  // convert increment to lab density
       tmini( p.shv,    shv0[i]      + dx*p.dshv_dt );
     }
   }
