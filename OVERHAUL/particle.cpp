@@ -228,9 +228,12 @@ void Particle::calcbsq(double tin)
   gamma           = gamcalc();
   v               = (1.0/gamma)*u;
   double s_lab    = eta/gamma/tin;
-  double rhoB_lab = rhoB_sub/gamma/tin;
-  double rhoS_lab = rhoS_sub/gamma/tin;
-  double rhoQ_lab = rhoQ_sub/gamma/tin;
+//  double rhoB_lab = rhoB_sub/gamma/tin;
+//  double rhoS_lab = rhoS_sub/gamma/tin;
+//  double rhoQ_lab = rhoQ_sub/gamma/tin;
+  double rhoB_lab = rhoB_sub;
+  double rhoS_lab = rhoS_sub;
+  double rhoQ_lab = rhoQ_sub;
   qmom            = ( (e()+p())*gamma/sigma )*u;
 /*//THIS IS THE OLD ROUGH VERSION, JUST USE THE EVOLUTION EQUATIONS INSTEAD
 	double rhoB_in2 = B*sigma/(gamma*sigmaweight);

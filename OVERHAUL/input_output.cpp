@@ -444,6 +444,7 @@ void InputOutput::print_system_state()
   int iParticle = 0;
   if ( settingsPtr->using_Gubser )
     for ( auto & p : systemPtr->particles )
+    {
       out << p.r << " "
           << p.T() << " "
           << p.e() << " "
@@ -456,6 +457,17 @@ void InputOutput::print_system_state()
           << p.rhoB() << " "
           << p.rhoS() << " "
           << p.rhoQ() << endl;
+        cout << "CHECK PD QUANTITIES: "
+          << p.r << " "
+          << p.T()*hbarc << " "
+          << p.muB()*hbarc << " "
+          << p.muS()*hbarc << " "
+          << p.muQ()*hbarc << " "
+          << p.e()*hbarc << " "
+          << p.rhoB() << " "
+          << p.rhoS() << " "
+          << p.rhoQ() << endl;
+      }
   else
     for ( auto & p : systemPtr->particles )
       out << iParticle++ << " "

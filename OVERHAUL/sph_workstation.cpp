@@ -242,9 +242,9 @@ if (i==0)
     p.rhoS_weight *= p.gamma*settingsPtr->t0; // rhoS_weight is constant after this
     p.rhoQ_weight *= p.gamma*settingsPtr->t0; // rhoQ_weight is constant after this
 
-		p.B *= p.gamma*settingsPtr->t0;	// B does not evolve in ideal case
-		p.S *= p.gamma*settingsPtr->t0;	// S does not evolve in ideal case
-		p.Q *= p.gamma*settingsPtr->t0;	// Q does not evolve in ideal case
+//		p.B *= p.gamma*settingsPtr->t0;	// B does not evolve in ideal case
+//		p.S *= p.gamma*settingsPtr->t0;	// S does not evolve in ideal case
+//		p.Q *= p.gamma*settingsPtr->t0;	// Q does not evolve in ideal case
 
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
@@ -332,9 +332,9 @@ if (i==0)
 		p.s_sub = p.sigma/p.gamma/settingsPtr->t0;
 
     // must reset smoothed charge densities also
-		double smoothed_rhoB_lab = p.rhoB_sub/p.gamma/settingsPtr->t0;
-		double smoothed_rhoS_lab = p.rhoS_sub/p.gamma/settingsPtr->t0;
-		double smoothed_rhoQ_lab = p.rhoQ_sub/p.gamma/settingsPtr->t0;
+		double smoothed_rhoB_lab = p.rhoB_sub/*/p.gamma/settingsPtr->t0*/;
+		double smoothed_rhoS_lab = p.rhoS_sub/*/p.gamma/settingsPtr->t0*/;
+		double smoothed_rhoQ_lab = p.rhoQ_sub/*/p.gamma/settingsPtr->t0*/;
 
 //if (i==0)
 	cout << "SPH checkpoint c(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
