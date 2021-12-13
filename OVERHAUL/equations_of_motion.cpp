@@ -282,9 +282,15 @@ cout << "CHECK bigtheta: " << i
                                - vduk*( ulpi + transpose(ulpi) + (1/p.gamma)*Ipi );
 
     // Here is where we evolve the B,S,Q charge densities directly (assume ideal evolution)
-    p.drhoB_dt = -p.rhoB_sub*p.bigtheta/system.t;
-    p.drhoS_dt = -p.rhoS_sub*p.bigtheta/system.t;
-    p.drhoQ_dt = -p.rhoQ_sub*p.bigtheta/system.t;
+    //p.drhoB_dt = -p.rhoB_sub*p.bigtheta/system.t;
+    //p.drhoS_dt = -p.rhoS_sub*p.bigtheta/system.t;
+    //p.drhoQ_dt = -p.rhoQ_sub*p.bigtheta/system.t;
+
+    // assume we are working with starred (lab frame) densities per unit rapidity
+    // as with sigma evolution
+    p.drhoB_dt = -p.rhoB_sub * ( p.gradV.x[0][0] + p.gradV.x[1][1] );
+    p.drhoS_dt = -p.rhoS_sub * ( p.gradV.x[0][0] + p.gradV.x[1][1] );
+    p.drhoQ_dt = -p.rhoQ_sub * ( p.gradV.x[0][0] + p.gradV.x[1][1] );
 
 
   /* all of this must be replaced for things more readable and more modular.
