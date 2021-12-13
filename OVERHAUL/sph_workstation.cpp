@@ -233,14 +233,18 @@ if (i==0)
     p.gamma=p.gamcalc();
 
 if (i==0)
-  cout << "Check these: " << p.s_an << "   " << p.gamma << "   " << settingsPtr->t0 << endl;
+  cout << "Check these: " << p.s_an << "   " << p.rhoB_an << "   "
+      << p.rhoS_an << "   " << p.rhoQ_an << "   "
+      << p.gamma << "   " << settingsPtr->t0 << endl;
 
-    p.sigmaweight *= p.s_an*p.gamma*settingsPtr->t0;	// sigmaweight is constant after this
-    //p.rho_weight *= p.gamma*t0;				// rho_weight is constant after this
+    p.sigmaweight *= p.s_an*p.gamma*settingsPtr->t0;	  // sigmaweight is constant after this
+    p.rhoB_weight *= p.gamma*settingsPtr->t0; // rhoB_weight is constant after this
+    p.rhoS_weight *= p.gamma*settingsPtr->t0; // rhoS_weight is constant after this
+    p.rhoQ_weight *= p.gamma*settingsPtr->t0; // rhoQ_weight is constant after this
 
-		p.B *= p.gamma*settingsPtr->t0;	// B does not evolve in ideal case (confirm with Jaki)
-		p.S *= p.gamma*settingsPtr->t0;	// S does not evolve in ideal case (confirm with Jaki)
-		p.Q *= p.gamma*settingsPtr->t0;	// Q does not evolve in ideal case (confirm with Jaki)
+		p.B *= p.gamma*settingsPtr->t0;	// B does not evolve in ideal case
+		p.S *= p.gamma*settingsPtr->t0;	// S does not evolve in ideal case
+		p.Q *= p.gamma*settingsPtr->t0;	// Q does not evolve in ideal case
 
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
@@ -327,13 +331,18 @@ if (i==0)
     auto & p = systemPtr->particles[i];
 		p.s_sub = p.sigma/p.gamma/settingsPtr->t0;
 
+    // must reset smoothed charge densities also
+		double smoothed_rhoB_lab = p.rhoB_sub/p.gamma/settingsPtr->t0;
+		double smoothed_rhoS_lab = p.rhoS_sub/p.gamma/settingsPtr->t0;
+		double smoothed_rhoQ_lab = p.rhoQ_sub/p.gamma/settingsPtr->t0;
+
 //if (i==0)
 	cout << "SPH checkpoint c(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
 			<< p.sigmaweight << "   " << p.s_sub << "   "
 			<< p.T() << "   " << p.e() << "   "
 			<< p.p() << "   " << p.s_an << endl;
 		p.locate_phase_diagram_point_sBSQ(
-      p.s_sub, p.rhoB_sub, p.rhoS_sub, p.rhoQ_sub );
+      p.s_sub, smoothed_rhoB_lab, smoothed_rhoS_lab, smoothed_rhoQ_lab );
 //if (i==0)
 	cout << "SPH checkpoint c(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
 			<< p.sigmaweight << "   " << p.s_sub << "   "
@@ -379,9 +388,9 @@ void SPHWorkstation::smooth_fields(int a, bool init_mode /*== false*/)
       double kern     = kernel::kernel( pa.r - pb.r, settingsPtr->_h );
       pa.sigma       += pb.sigmaweight*kern;
       pa.eta         += pb.sigmaweight*pb.eta_sigma*kern;
-      pa.rhoB_sub    += pb.rho_weight*pb.rhoB_an*kern;    //confirm with Jaki
-      pa.rhoS_sub    += pb.rho_weight*pb.rhoS_an*kern;    //confirm with Jaki
-      pa.rhoQ_sub    += pb.rho_weight*pb.rhoQ_an*kern;    //confirm with Jaki
+      pa.rhoB_sub    += pb.B*kern;
+      pa.rhoS_sub    += pb.S*kern;
+      pa.rhoQ_sub    += pb.Q*kern;
 
       //if (kern>0.0) neighbor_count++;
       if (abs(pa.r.x[0])<0.000001 && abs(pa.r.x[1])<0.000001)
@@ -405,6 +414,9 @@ void SPHWorkstation::smooth_fields(int a, bool init_mode /*== false*/)
     }
   }
 
+
+
+/*
   //cout << "Check neighbor count: " << a << "   " << neighbor_count << endl;
 
   // reset total B, S, and Q charge of each SPH particle to reflect
@@ -416,15 +428,17 @@ void SPHWorkstation::smooth_fields(int a, bool init_mode /*== false*/)
     //    << pa.S << "   " << pa.Q << endl;
     //cout << pa.rho_weight << "   " << pa.rhoB_an << "   "
     //    << pa.rhoS_an << "   " << pa.rhoQ_an << endl;
-    pa.B = pa.rhoB_sub * pa.rho_weight;
-    pa.S = pa.rhoS_sub * pa.rho_weight;
-    pa.Q = pa.rhoQ_sub * pa.rho_weight;
+    pa.B = pa.rhoB_sub * pa.rhoB_weight;
+    pa.S = pa.rhoS_sub * pa.rhoS_weight;
+    pa.Q = pa.rhoQ_sub * pa.rhoQ_weight;
     //cout << "AFTER: " << a << "   " << pa.B << "   "
     //    << pa.S << "   " << pa.Q << endl;
     //cout << pa.rho_weight << "   " << pa.rhoB_sub << "   "
     //    << pa.rhoS_sub << "   " << pa.rhoQ_sub << endl;
     //cout << "-----------------------------------------------------------------" << endl;
   }
+
+*/
 
   return;
 }
@@ -596,7 +610,9 @@ void SPHWorkstation::process_initial_conditions()
 		//p.u.x[1]          = 0.0;  // flow must be set in Particle constructor!!!
 		p.eta_sigma       = 1.0;
 		p.sigmaweight     = dA;
-		p.rho_weight      = dA;
+		p.rhoB_weight     = dA;
+		p.rhoS_weight     = dA;
+		p.rhoQ_weight     = dA;
 		p.Bulk            = 0.0;
 		p.B               = p.rhoB_an*dA;
 		p.S               = p.rhoS_an*dA;

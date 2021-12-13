@@ -499,5 +499,7 @@ void InputOutput::print_system_state()
   // increment timestep index
   n_timesteps_output++;
 
+//if (true) exit(1);
+
   return;
 }
