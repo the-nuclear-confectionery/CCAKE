@@ -143,6 +143,6 @@ if __name__ == "__main__":
                         data[:,c] /= 0.1973
                     ax.plot( data[:,0], data[:,c], 'b--' )
     
-    #plt.show()
-    plt.savefig('./yeq0_slice.pdf')
+    plt.show()
+    #plt.savefig('./yeq0_slice.pdf')
     
