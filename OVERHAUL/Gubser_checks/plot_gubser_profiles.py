@@ -114,7 +114,7 @@ if __name__ == "__main__":
         # load Gubser check output files produced by hydro code
         # (eventually) use format: x [fm], y [fm], e [1/fm^4], u_x, u_y, ...
         tau = get_time_step(checkfile)
-        print('tau=', tau')
+        print('tau=', tau)
         hydroOutput = np.loadtxt( checkfile, skiprows=1 )
         
         # plot comparison along y==0 slice
