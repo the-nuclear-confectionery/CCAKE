@@ -457,7 +457,7 @@ void InputOutput::print_system_state()
           << p.rhoB() << " "
           << p.rhoS() << " "
           << p.rhoQ() << endl;
-      if ( Norm(p.r) < 1e-6 )
+      if ( abs(p.r.x[1]) < 1e-6 )
         cout << "CHECK PD QUANTITIES: "
           << systemPtr->t << " "
           << p.r << " "
