@@ -468,7 +468,11 @@ void InputOutput::print_system_state()
           << p.e()*hbarc << " "
           << p.rhoB() << " "
           << p.rhoS() << " "
-          << p.rhoQ() << endl;
+          << p.rhoQ() << " "
+          << p.rhoB_sub << " "
+          << p.rhoS_sub << " "
+          << p.rhoQ_sub << " "
+          << p.gamma << endl;
       }
   else
     for ( auto & p : systemPtr->particles )
