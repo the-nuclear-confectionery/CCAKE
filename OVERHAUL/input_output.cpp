@@ -457,7 +457,9 @@ void InputOutput::print_system_state()
           << p.rhoB() << " "
           << p.rhoS() << " "
           << p.rhoQ() << endl;
+      if ( Norm(r) < 1e-6 )
         cout << "CHECK PD QUANTITIES: "
+          << systemPtr->t << " "
           << p.r << " "
           << p.T()*hbarc << " "
           << p.muB()*hbarc << " "
