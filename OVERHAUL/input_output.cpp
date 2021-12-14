@@ -304,9 +304,9 @@ void InputOutput::read_in_initial_conditions()
       double arg       = 1.0 + 2.0*q2*(t2+r2) + q4*(t2-r2)*(t2-r2);
 
       double eLocal    = (e0/t4)*pow(2.0*q*tau0, 8.0/3.0) / pow(arg, 4.0/3.0);
-      double rhoBLocal = (rhoB0/t3)*4.0*q2*t2/(arg*arg);
-      double rhoQLocal = (rhoQ0/t3)*4.0*q2*t2/(arg*arg);
-      double rhoSLocal = (rhoS0/t3)*4.0*q2*t2/(arg*arg);
+      double rhoBLocal = (rhoB0/t3)*4.0*q2*t2/arg;
+      double rhoQLocal = (rhoQ0/t3)*4.0*q2*t2/arg;
+      double rhoSLocal = (rhoS0/t3)*4.0*q2*t2/arg;
 
       double vr = 2.0*q2*tau0*r/(1+q2*t2+q2*r2);
       double gammar = 1.0/sqrt(1.0-vr*vr);
