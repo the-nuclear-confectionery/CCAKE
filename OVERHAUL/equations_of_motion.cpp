@@ -137,10 +137,6 @@ constexpr bool printAll = false;
   {
     auto & p = system.particles[i];
 
-    /*double gamt               = 1.0/p.gamma/p.stauRelax;
-    double pre                = p.eta_o_tau/2.0/p.gamma;
-    double p1                 = gamt - 4.0/3.0/p.sigma*p.dsigma_dt
-                                + 1.0/system.t/3.0;*/
     double gamt = 0.0, pre = 0.0, p1 = 0.0;
     if ( settingsPtr->using_shear )
     {
@@ -293,6 +289,7 @@ cout << "CHECK eta_o_tau: " << i << "   " << p.eta_o_tau << endl;
 cout << "CHECK sigl: " << i << "   " << p.sigl << endl;
 cout << "CHECK vduk: " << i << "   " << vduk << endl;
 cout << "CHECK Ipi: " << i << "   " << Ipi << endl;
+cout << "CHECK stauRelax: " << i << "   " << p.stauRelax << endl;
 
 cout << "CHECK dshv_dt: " << i
 		<< " = " << p.dshv_dt
