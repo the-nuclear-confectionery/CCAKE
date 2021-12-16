@@ -281,21 +281,21 @@ cout << "CHECK bigtheta: " << i
                                + p.dpidtsub() + p.sigl*Ipi
                                - vduk*( ulpi + transpose(ulpi) + (1/p.gamma)*Ipi );
 
+if (abs(p.x[0]+2)<1e-6 && abs(p.x[1])<1e-6)
+{
+cout << "CHECK u: " << i << "   " << p.u << endl;
+cout << "CHECK du_dt: " << i << "   " << p.du_dt << endl;
+cout << "CHECK gamt: " << i << "   " << gamt << endl;
+cout << "CHECK pimin: " << i << "   " << p.pimin << endl;
+cout << "CHECK setas: " << i << "   " << p.setas << endl;
+cout << "CHECK partU: " << i << "   " << partU << endl;
+cout << "CHECK eta_o_tau: " << i << "   " << p.eta_o_tau << endl;
+cout << "CHECK sigl: " << i << "   " << p.sigl << endl;
+cout << "CHECK vduk: " << i << "   " << vduk << endl;
+cout << "CHECK Ipi: " << i << "   " << Ipi << endl;
+
 cout << "CHECK dshv_dt: " << i
-		<< " = " << system.t
 		<< " = " << p.dshv_dt
-		<< " = " << p.u
-		<< " = " << p.du_dt
-		<< " = " << gamt
-		<< " = " << p.pimin 
-		<< " = " << 0.5*p.setas
-		<< " = " << partU
-		<< " = " << 0.5*p.eta_o_tau
-		<< " = " << p.sigl
-		<< " = " << Ipi
-		<< " = " << vduk
-		<< " = " << ududt + transpose(ududt)
-		<< " = " << ulpi + transpose(ulpi)
 		<< " = " << - gamt*p.pimin 
 		<< " = " << - p.setas*0.5*partU
 		<< " = " << - 0.5*p.eta_o_tau*( ududt + transpose(ududt) )
@@ -304,7 +304,9 @@ cout << "CHECK dshv_dt: " << i
 		<< " = " << - vduk*( ulpi + transpose(ulpi))
 		<< " = " << - vduk* (1/p.gamma)*Ipi << endl;
 
-if (1) exit(1);
+exit(1);
+}
+
 
     // Here is where we evolve the B,S,Q charge densities directly (assume ideal evolution)
     //p.drhoB_dt = -p.rhoB_sub*p.bigtheta/system.t;
