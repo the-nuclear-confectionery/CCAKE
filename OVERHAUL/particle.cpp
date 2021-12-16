@@ -327,7 +327,7 @@ void Particle::bsqsvsigset( double tin, int i )
   dwdsT1       = 1 - dwds()/T();
   sigl         = dsigma_dt/sigma - 1/tin;
   gradU        = gamma*gradV+g3*(v*(v*gradV));
-  bigPI        = Bulk*sigma/gt ;
+  bigPI        = Bulk*sigma/gt;
   C            = w()+ bigPI;
   return_bsqsv_A();
   Btot         = ( Agam*gamma + eta_o_tau/3*gamma )*sigl
@@ -339,138 +339,18 @@ void Particle::bsqsvsigset( double tin, int i )
 void Particle::setvisc( int etaconst, double bvf, double svf, double zTc,
                         double sTc, double sig, int type )
 {
-  //cout << __FUNCTION__ << ": " << etaconst << "   " << bvf << "   " << svf
-  //      << "   " << zTc << "   " << sTc << "   " << sig << "   " << type << endl;
+  setas=s()*svf;
 
-  if (type==1) // bulk viscosity
+  stauRelax=5*setas/w();
+  if (!settingsPtr->using_Gubser && stauRelax < 0.005) stauRelax = 0.005;
+
+  if (abs(bvf) > 1e-6)
   {
-    double temp=T()*197.3;
-    zeta = bvf/(sig*sqrt(2*PI))*exp(-pow(temp-zTc,2)/(2.*sig*sig));
-    zeta *= s();
-    if (zeta<0.001) zeta=0.001;
-    tauRelax = 9*zeta/(e()-3*p());
-    if (tauRelax < 0.1) tauRelax=0.1;
+    cerr << "You need to replace setvisc!!!" << endl;
+    exit(1);
   }
-  else if (type==2) // shear viscosity
-  {
-    setas = svf*0.08;
-    stauRelax=5*setas/w();
-  }
-  else if (type==3) // shear+bulk viscosity
-  {
-    if ((etaconst==1)||(etaconst==3)||(etaconst==4))
-    {   // const eta/s
-      setas=2*s()*svf;  // svf defines eta/s const (the two is needed for the
-                           // definition in the code, don't remove!
-    }
-    //    for TECHQM/Gubser set svf=0.08
-  }
-  else if (type==4) // BSQ+shear+bulk viscosity
-  {
-    if ((etaconst==1)||(etaconst==3)||(etaconst==4))
-    { // const eta/s
-      setas=2*s()*svf;  // svf defines eta/s const; the two is needed
-      // for the definition in the code, don't remove!
-      //    for TECHQM/Gubser set svf=0.08
-    }
-    else
-    { // eta/s (T)
-      if (etaconst==5)
-      {
-        double TC=173.9; // 173.9/197.3
-        double temp=T()*197.3/TC;
-        double TC0=149.4/TC; // 149.4/197.3
-        if( temp<TC0)
-        {
-          setas = s()*(8.0191 - 16.4659* temp  +  8.60918* temp *temp  );
-        }
-        else if( temp>1)
-        {
-          //setas = s()*(0.48 - 0.36*temp );
-          setas = s()*(0.007407515123054544 +  0.06314680923610914* temp
-                          + 0.08624567564083624* temp *temp  );
-        }
-        else
-        {
-          //setas = s()*(-0.107143 + 0.227143*temp);
-          setas = s()*(0.397807 + 0.0776319* temp - 0.321513* temp *temp  );
-        }
-      }
-      if (etaconst==6)
-      {
-        double TC=155; // 173.9/197.3
-        double temp=T()*197.3/TC;
-        double z=pow(0.66*temp,2);
-        double alpha=33./(12.*PI)*(z-1)/(z*log(z));
-
-        setas = s()*(0.0416762/pow(alpha,1.6)+ 0.0388977/pow(temp,5.1) );
-      }
-      else
-      {
-        double TC=sTc/197.3;
-        double temp=T()/TC;
-        if( temp>TC )
-        {
-          setas = s()*(0.3153036437246963 + 0.051740890688259315* temp
-                          - 0.24704453441295576* temp *temp  );
-        }
-        else
-        {
-          setas = s()*(0.0054395278010882795 + 0.08078575671572835*temp
-                          + 0.033774715483183566* temp *temp );
-        }
-      }
-    }
-    stauRelax=5*setas/w();
-    if (!settingsPtr->using_Gubser && stauRelax < 0.005) stauRelax = 0.005;
-
-    /// defining bulk viscosity
-
-    if (bvf==0)
-    {
-      zeta =0;
-      tauRelax = 1;
-    }
-    else
-    {
-      double temp=T()*197.3;
-
-      if ((etaconst==2)||(etaconst==3))
-      {
-        double t2=temp/zTc;
-        double min1=t2-1;
-        if (t2>1.05) zeta=0.9*exp(-min1/0.025)+0.25*exp(-min1/0.13)+0.001;
-        else if (t2<0.995) zeta=0.9*exp(min1/0.0025)+0.22*exp(min1/0.022)+0.03;
-        else zeta=-13.77*t2*t2+27.55*t2-13.45;
-
-        // single-argument version of cs2out
-        tauRelax =5.*zeta/(pow((1-cs2()),2)*(e()+p()));
-      }
-      else if (etaconst==4)
-      {
-        double t2=temp/zTc;
-        zeta=0.01162/sqrt(pow((t2-1.104),2)+ 0.0569777  ) - 0.1081/(t2*t2+23.7169);
-        tauRelax = 5*( -0.0506*sTc/(temp*temp)
-                      + 10.453/( temp*sqrt(0.156658 + pow( (temp/sTc-1.131),2) ) ) );
-      }
-      else
-      {
-        double t2=temp/zTc;
-        double min1=t2-1;
-        if (t2>1.05) zeta=0.9*exp(-min1/0.025)+0.25*exp(-min1/0.13)+0.001;
-        else if (t2<0.995) zeta=0.9*exp(min1/0.0025)+0.22*exp(min1/0.022)+0.03;
-        else zeta=-13.77*t2*t2+27.55*t2-13.45;
-
-        // single-argument version of cs2out
-        tauRelax =5.*zeta/(pow((1-cs2()),2)*(e()+p()));
-      }
-
-      zeta*=s();
-      if (zeta<0.001) zeta=0.001;
-      if (tauRelax <0.2) tauRelax=0.2;
-    }
-
-  }
+  zeta = 0;
+  tauRelax = 1;
 }
 
 
