@@ -5,6 +5,7 @@ import numpy as np
 import sys
 
 use_semi_analytic = False
+use_log_scale = True
 
 q  = 1.
 e0 = 1.0
@@ -119,7 +120,8 @@ if __name__ == "__main__":
         
         # plot comparison along y==0 slice
         for i, ax in enumerate(axs.ravel()):
-            #ax.set_yscale('log')
+            if use_log_scale:
+                ax.set_yscale('log')
             plot_slice( ax, hydroOutput, tau, '0', toPlot[i] )
             ax.set_xlim([-4.75, 4.75])
             ax.set_xlabel(r'$x$ (fm)')
@@ -130,6 +132,8 @@ if __name__ == "__main__":
         quantities = ['e','ux','uy','pixx','piyy','pixy','pizz']
         cols = dict(zip(quantities,range(2,len(quantities)+2)))
         for i, ax in enumerate(axs.ravel()):
+            if use_log_scale:
+                ax.set_yscale('log')
             c = cols[toPlot[i]]
             if toPlot[i] == 'e':
                 for data in [ic[np.where(np.abs(ic[:,1])<1e-10)], \
