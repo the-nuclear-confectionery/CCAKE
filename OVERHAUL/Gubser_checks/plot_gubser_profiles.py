@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sys
 
-use_semi_analytic = False
-use_log_scale = True
+use_semi_analytic = True
+use_log_scale = False
 
 q  = 1.
 e0 = 1.0
