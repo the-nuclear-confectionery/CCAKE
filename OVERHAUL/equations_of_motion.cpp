@@ -287,7 +287,7 @@ cout << "CHECK dshv_dt: " << i
 		<< " = " << gamt
 		<< " = " << p.pimin 
 		<< " = " << 0.5*p.setas
-		<< " = " << p.partU
+		<< " = " << partU
 		<< " = " << 0.5*p.eta_o_tau
 		<< " = " << p.sigl
 		<< " = " << Ipi
