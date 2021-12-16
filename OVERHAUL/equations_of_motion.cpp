@@ -300,7 +300,7 @@ cout << "CHECK dshv_dt: " << i
 		<< " = " << p.dpidtsub()
 		<< " = " << p.sigl*Ipi
 		<< " = " << - vduk*( ulpi + transpose(ulpi))
-		<< " = " << - vduk* (1/p.gamma)*Ipi ) << endl;
+		<< " = " << - vduk* (1/p.gamma)*Ipi << endl;
 
     // Here is where we evolve the B,S,Q charge densities directly (assume ideal evolution)
     //p.drhoB_dt = -p.rhoB_sub*p.bigtheta/system.t;
