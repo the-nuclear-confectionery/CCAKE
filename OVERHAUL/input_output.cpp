@@ -457,22 +457,6 @@ void InputOutput::print_system_state()
           << p.rhoB() << " "
           << p.rhoS() << " "
           << p.rhoQ() << endl;
-      if ( abs(p.r.x[1]) < 1e-6 )
-        cout << "CHECK PD QUANTITIES: "
-          << systemPtr->t << " "
-          << p.r << " "
-          << p.T()*hbarc << " "
-          << p.muB()*hbarc << " "
-          << p.muS()*hbarc << " "
-          << p.muQ()*hbarc << " "
-          << p.e()*hbarc << " "
-          << p.rhoB() << " "
-          << p.rhoS() << " "
-          << p.rhoQ() << " "
-          << p.rhoB_sub << " "
-          << p.rhoS_sub << " "
-          << p.rhoQ_sub << " "
-          << p.gamma << endl;
       }
   else
     for ( auto & p : systemPtr->particles )
