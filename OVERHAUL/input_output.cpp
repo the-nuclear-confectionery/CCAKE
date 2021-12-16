@@ -304,9 +304,9 @@ void InputOutput::read_in_initial_conditions()
       double arg       = 1.0 + 2.0*q2*(t2+r2) + q4*(t2-r2)*(t2-r2);
 
       double eLocal    = (e0/t4)*pow(2.0*q*tau0, 8.0/3.0) / pow(arg, 4.0/3.0);
-      double rhoBLocal = (rhoB0/t3)*4.0*q2*t2/(arg*arg);
-      double rhoQLocal = (rhoQ0/t3)*4.0*q2*t2/(arg*arg);
-      double rhoSLocal = (rhoS0/t3)*4.0*q2*t2/(arg*arg);
+      double rhoBLocal = (rhoB0/t3)*4.0*q2*t2/arg;
+      double rhoQLocal = (rhoQ0/t3)*4.0*q2*t2/arg;
+      double rhoSLocal = (rhoS0/t3)*4.0*q2*t2/arg;
 
       double vr = 2.0*q2*tau0*r/(1+q2*t2+q2*r2);
       double gammar = 1.0/sqrt(1.0-vr*vr);
@@ -444,6 +444,7 @@ void InputOutput::print_system_state()
   int iParticle = 0;
   if ( settingsPtr->using_Gubser )
     for ( auto & p : systemPtr->particles )
+    {
       out << p.r << " "
           << p.T() << " "
           << p.e() << " "
@@ -456,6 +457,23 @@ void InputOutput::print_system_state()
           << p.rhoB() << " "
           << p.rhoS() << " "
           << p.rhoQ() << endl;
+      if ( abs(p.r.x[1]) < 1e-6 )
+        cout << "CHECK PD QUANTITIES: "
+          << systemPtr->t << " "
+          << p.r << " "
+          << p.T()*hbarc << " "
+          << p.muB()*hbarc << " "
+          << p.muS()*hbarc << " "
+          << p.muQ()*hbarc << " "
+          << p.e()*hbarc << " "
+          << p.rhoB() << " "
+          << p.rhoS() << " "
+          << p.rhoQ() << " "
+          << p.rhoB_sub << " "
+          << p.rhoS_sub << " "
+          << p.rhoQ_sub << " "
+          << p.gamma << endl;
+      }
   else
     for ( auto & p : systemPtr->particles )
       out << iParticle++ << " "

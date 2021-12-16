@@ -41,7 +41,7 @@ def urGubser(tau, r):
 #===============================================================================
 def chargeGubser(tau, r):
     return (1./tau**3)*( (4.*q**2*tau**2)
-                            / ( 1. + 2.*q**2*(tau**2 + r**2) + q**4*(tau**2 - r**2)**2 )**2
+                            / ( 1. + 2.*q**2*(tau**2 + r**2) + q**4*(tau**2 - r**2)**2 )
                             )
 
 #===============================================================================
@@ -80,7 +80,7 @@ def plot_slice(ax, hydroOutput, tau, axis, quantity):
             ax.plot( xpts, cf(tau, xpts), 'b--' )
     elif axis == 'x':
         yeqxData = hydroOutput[np.where( np.isclose( hydroOutput[:,0], hydroOutput[:,1] ) )]
-        rpts = np.sqrt(hydroOutput[:,0]**2 + hydroOutput[:,1])
+        rpts = np.sqrt(hydroOutput[:,0]**2 + hydroOutput[:,1]**2)
         ax.plot( rpts, yeqxData[:,c], 'r-' )
         if not use_semi_analytic:
             cf   = [None, None, TGubser, eGubser, urGubser, urGubser, \
@@ -114,6 +114,7 @@ if __name__ == "__main__":
         # load Gubser check output files produced by hydro code
         # (eventually) use format: x [fm], y [fm], e [1/fm^4], u_x, u_y, ...
         tau = get_time_step(checkfile)
+        print('tau=', tau)
         hydroOutput = np.loadtxt( checkfile, skiprows=1 )
         
         # plot comparison along y==0 slice
