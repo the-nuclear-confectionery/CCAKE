@@ -259,14 +259,14 @@ cout << "CHECK bigtheta: " << i
                                 - con2(sub, p.gradU)
                                 - p.gamma*system.t*p.shv33 );
 
-    cout << "CHECK 253: " << i << "   " << p.sigma << "   " << p.T()
-           << "   " << p.bigPI << "   " << p.bigtheta << "   " << p.inside << endl;
+//    cout << "CHECK 253: " << i << "   " << p.sigma << "   " << p.T()
+//           << "   " << p.bigPI << "   " << p.bigtheta << "   " << p.inside << endl;
 
 
     p.detasigma_dt            = 1./p.sigma/p.T()*( -p.bigPI*p.bigtheta + p.inside );
 
 
-    cout << "p.inside: " << p.inside << " for particle: " << i << endl;
+    //cout << "p.inside: " << p.inside << " for particle: " << i << endl;
 
 
     // N.B. - ADD EXTRA TERMS FOR BULK EQUATION
@@ -280,6 +280,27 @@ cout << "CHECK bigtheta: " << i
                                - 0.5*p.eta_o_tau*( ududt + transpose(ududt) )
                                + p.dpidtsub() + p.sigl*Ipi
                                - vduk*( ulpi + transpose(ulpi) + (1/p.gamma)*Ipi );
+
+cout << "CHECK dshv_dt: " << i
+		<< " = " << system.t
+		<< " = " << p.dshv_dt
+		<< " = " << gamt
+		<< " = " << p.pimin 
+		<< " = " << 0.5*p.setas
+		<< " = " << p.partU
+		<< " = " << 0.5*p.eta_o_tau
+		<< " = " << p.sigl
+		<< " = " << Ipi
+		<< " = " << vduk
+		<< " = " << ududt + transpose(ududt)
+		<< " = " << ulpi + transpose(ulpi)
+		<< " = " << - gamt*p.pimin 
+		<< " = " << - p.setas*0.5*partU
+		<< " = " << - 0.5*p.eta_o_tau*( ududt + transpose(ududt) )
+		<< " = " << p.dpidtsub()
+		<< " = " << p.sigl*Ipi
+		<< " = " << - vduk*( ulpi + transpose(ulpi))
+		<< " = " << - vduk* (1/p.gamma)*Ipi ) << endl;
 
     // Here is where we evolve the B,S,Q charge densities directly (assume ideal evolution)
     //p.drhoB_dt = -p.rhoB_sub*p.bigtheta/system.t;
