@@ -120,7 +120,7 @@ if __name__ == "__main__":
         
         # plot comparison along y==0 slice
         for i, ax in enumerate(axs.ravel()):
-            if use_log_scale:
+            if use_log_scale and ['T','e','rhoB','rhoS','rhoQ'].count(toPlot[i]) > 0:
                 ax.set_yscale('log')
             plot_slice( ax, hydroOutput, tau, '0', toPlot[i] )
             ax.set_xlim([-4.75, 4.75])
@@ -132,7 +132,7 @@ if __name__ == "__main__":
         quantities = ['e','ux','uy','pixx','piyy','pixy','pizz']
         cols = dict(zip(quantities,range(2,len(quantities)+2)))
         for i, ax in enumerate(axs.ravel()):
-            if use_log_scale:
+            if use_log_scale and ['T','e','rhoB','rhoS','rhoQ'].count(toPlot[i]) > 0:
                 ax.set_yscale('log')
             c = cols[toPlot[i]]
             if toPlot[i] == 'e':
