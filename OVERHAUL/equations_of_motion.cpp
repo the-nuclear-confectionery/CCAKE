@@ -277,7 +277,7 @@ cout << "CHECK bigtheta: " << i
                                + p.dpidtsub() + p.sigl*Ipi
                                - vduk*( ulpi + transpose(ulpi) + (1/p.gamma)*Ipi );
 
-if (abs(p.r.x[0]+2)<1e-6 && abs(p.r.x[1])<1e-6)
+/*if (abs(p.r.x[0]+2)<1e-6 && abs(p.r.x[1])<1e-6)
 {
 cout << "CHECK u: " << i << "   " << p.u << endl;
 cout << "CHECK du_dt: " << i << "   " << p.du_dt << endl;
@@ -308,7 +308,7 @@ cout << "CHECK dshv_dt: " << i
 		<< " = " << - vduk* (1/p.gamma)*Ipi << endl;
 
 exit(1);
-}
+}*/
 
 
     // Here is where we evolve the B,S,Q charge densities directly (assume ideal evolution)
