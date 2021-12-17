@@ -272,7 +272,7 @@ cout << "CHECK bigtheta: " << i
 
     // N.B. - ADD READABLE TERM NAMES
     if ( settingsPtr->using_shear )
-      p.dshv_dt                 = - gamt*( p.pimin - p.setas*0.5*partU )
+      p.dshv_dt                 = - gamt*( p.pimin + p.setas*0.5*partU )
                                - 0.5*p.eta_o_tau*( ududt + transpose(ududt) )
                                + p.dpidtsub() + p.sigl*Ipi
                                - vduk*( ulpi + transpose(ulpi) + (1/p.gamma)*Ipi );
