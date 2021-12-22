@@ -141,7 +141,7 @@ constexpr bool printAll = false;
     if ( settingsPtr->using_shear )
     {
       gamt = 1.0/p.gamma/p.stauRelax;
-      pre  = p.eta_o_tau/2.0/p.gamma;
+      pre  = p.eta_o_tau/p.gamma;
       p1   = gamt - 4.0/3.0/p.sigma*p.dsigma_dt + 1.0/system.t/3.0;
     }
 
@@ -213,7 +213,7 @@ cout << "CHECK MI: " << i << "   " << system.t << "   " << MI << endl;
 
     double vduk               = inner( p.v, p.du_dt );
 
-    Matrix <double,2,2> Ipi   = -p.eta_o_tau/3. * ( p.Imat + p.uu ) + 4./3.*p.pimin;
+    Matrix <double,2,2> Ipi   = -2.0*p.eta_o_tau/3.0 * ( p.Imat + p.uu ) + 4./3.*p.pimin;
 
     p.div_u                   = (1./ p.gamma)*inner( p.u, p.du_dt)
                                   - ( p.gamma/ p.sigma ) * p.dsigma_dt;
@@ -272,8 +272,8 @@ cout << "CHECK bigtheta: " << i
 
     // N.B. - ADD READABLE TERM NAMES
     if ( settingsPtr->using_shear )
-      p.dshv_dt                 = - gamt*( p.pimin + p.setas*0.5*partU )
-                               - 0.5*p.eta_o_tau*( ududt + transpose(ududt) )
+      p.dshv_dt                 = - gamt*( p.pimin + p.setas*partU )
+                               - p.eta_o_tau*( ududt + transpose(ududt) )
                                + p.dpidtsub() + p.sigl*Ipi
                                - vduk*( ulpi + transpose(ulpi) + (1/p.gamma)*Ipi );
 

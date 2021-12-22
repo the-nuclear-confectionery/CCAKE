@@ -260,9 +260,8 @@ void Particle::return_bsqsv_A()
     Agam  = w() - dwds()*(s()+ bigPI/T() )- zeta/tauRelax
             - dwdB() * rhoB() - dwdS() * rhoS() - dwdQ() * rhoQ();
 
-    //Agam2 = ( Agam - eta_o_tau*(0.5-1.0/3.0) - dwdsT1*shv.x[0][0] ) / gamma;
-    Agam2 = ( Agam - eta_o_tau/6.0 - dwdsT1*shv.x[0][0] ) / gamma;
-    Ctot  = C + 0.5*eta_o_tau*(1/g2-1);
+    Agam2 = ( Agam - eta_o_tau/3.0 - dwdsT1*shv.x[0][0] ) / gamma;
+    Ctot  = C + eta_o_tau*(1/g2-1);
 
 }
 
@@ -330,7 +329,7 @@ void Particle::bsqsvsigset( double tin, int i )
   bigPI        = Bulk*sigma/gt;
   C            = w()+ bigPI;
   return_bsqsv_A();
-  Btot         = ( Agam*gamma + eta_o_tau/3*gamma )*sigl
+  Btot         = ( Agam*gamma + 2.0*eta_o_tau/3.0*gamma )*sigl
                 + bigPI/tauRelax + dwdsT*( gt*shv33 + Bsub() );
   check        = sigl;
 }
@@ -397,4 +396,62 @@ void Particle::setvar()
     mini(pimin,shv);
     uu=u*u;
 }
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+// NEW FUNCTIONS TO CLEAN UP EQUATIONS_OF_MOTION BELOW THIS LINE
+////////////////////////////////////////////////////////////////////////////////
+
+void Particle::set_vartheta() { vartheta = dsigma_dt/sigma - 1.0/t; }
+
+
+////////////////////////////////////////////////////////////////////////////////
+double Particle::get_Theta_force() { return -vartheta/gamma; }
+
+
+////////////////////////////////////////////////////////////////////////////////
+double Particle::get_Pi_force()
+{
+  bigPi = Bulk*sigma/(gamma*t);
+  return vartheta*(zeta/tauRelax + bigPi) - bigPi/(gamma*gamma*sTauRelax);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+double Particle::get_aleph_force()
+{
+  double aleph_force = -gamma*t*shv33;
+  for (int i = 1; i < 3; i++)
+  for (int j = 1; j < 3; j++)
+    aleph_force += ( (shv.x[i][0]*u[j] + shv.x[0][j]*u.x[i])/gamma
+                      - shv.x[i][j] - shv.x[0][0]*u.x[i]*u.x[j]/(gamma*gamma) )
+                    * gradU.x[i][j];
+  return aleph_force;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+Vector<double,2> Particle::get_Theta_mass()
+{
+  return v; // just the non-relativistic velocity
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+Vector<double,2> Particle::get_Pi_mass()
+{
+  return (-(zeta/tauRelax + bigPi)/gamma)*v;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+Vector<double,2> Particle::get_aleph_mass()
+{
+  return shv.x[0][0]*v - colp1(0, shv);
+}
+
+
+
 
