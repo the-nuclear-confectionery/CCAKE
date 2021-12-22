@@ -414,7 +414,7 @@ double Particle::get_Theta_force() { return -vartheta/gamma; }
 ////////////////////////////////////////////////////////////////////////////////
 double Particle::get_Pi_force(double t)
 {
-  bigPi = Bulk*sigma/(gamma*t);
+  bigPI = Bulk*sigma/(gamma*t);
   return vartheta*(zeta/tauRelax + bigPI) - bigPI/(gamma*gamma*stauRelax);
 }
 
@@ -425,7 +425,7 @@ double Particle::get_aleph_force(double t)
   double aleph_force = -gamma*t*shv33;
   for (int i = 1; i < 3; i++)
   for (int j = 1; j < 3; j++)
-    aleph_force += ( (shv.x[i][0]*u[j] + shv.x[0][j]*u.x[i])/gamma
+    aleph_force += ( (shv.x[i][0]*u.x[j] + shv.x[0][j]*u.x[i])/gamma
                       - shv.x[i][j] - shv.x[0][0]*u.x[i]*u.x[j]/(gamma*gamma) )
                     * gradU.x[i][j];
   return aleph_force;
