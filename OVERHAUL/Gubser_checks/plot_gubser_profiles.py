@@ -86,7 +86,7 @@ def plot_slice(ax, hydroOutput, tau, axis, quantity):
             ax.plot( xpts, cf(tau, xpts), 'b--' )
     elif axis == 'x':
         yeqxData = hydroOutput[np.where( np.isclose( hydroOutput[:,0], hydroOutput[:,1] ) )]
-        rpts = np.sqrt(hydroOutput[:,0]**2 + hydroOutput[:,1]**2)
+        rpts = np.sqrt(yeqxData[:,0]**2 + yeqxData[:,1]**2)
         ax.plot( rpts, yeqxData[:,c], 'r-' )
         if not use_semi_analytic:
             cf   = [None, None, TGubser, eGubser, urGubser, urGubser, \
