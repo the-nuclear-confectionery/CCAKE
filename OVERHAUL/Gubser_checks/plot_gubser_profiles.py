@@ -7,6 +7,8 @@ import sys
 use_semi_analytic = True
 use_log_scale = False
 
+axisMode = sys.argv[1]
+
 q  = 1.
 e0 = 1.0
 if use_semi_analytic:
@@ -59,25 +61,28 @@ def rhoQGubser(tau, r):
 
 #===============================================================================
 def load_semi_analytic_files():
-    return np.loadtxt('./ac/Initial_Profile_tau=1fm.dat'),  \
-           np.loadtxt('./ac/y=0_tau=1.2_SemiAnalytic.dat'), \
-           np.loadtxt('./ac/y=0_tau=1.5_SemiAnalytic.dat'), \
-           np.loadtxt('./ac/y=0_tau=2.0_SemiAnalytic.dat'), \
-           np.loadtxt('./ac/y=x_tau=1.2_SemiAnalytic.dat'), \
-           np.loadtxt('./ac/y=x_tau=1.5_SemiAnalytic.dat'), \
-           np.loadtxt('./ac/y=x_tau=2.0_SemiAnalytic.dat')
+    if axisMode == '0':
+        return np.loadtxt('./ac/Initial_Profile_tau=1fm.dat'),  \
+               np.loadtxt('./ac/y=0_tau=1.2_SemiAnalytic.dat'), \
+               np.loadtxt('./ac/y=0_tau=1.5_SemiAnalytic.dat'), \
+               np.loadtxt('./ac/y=0_tau=2.0_SemiAnalytic.dat')
+    else:
+        return np.loadtxt('./ac/Initial_Profile_tau=1fm.dat'),  \
+               np.loadtxt('./ac/y=x_tau=1.2_SemiAnalytic.dat'), \
+               np.loadtxt('./ac/y=x_tau=1.5_SemiAnalytic.dat'), \
+               np.loadtxt('./ac/y=x_tau=2.0_SemiAnalytic.dat')
 
 #===============================================================================
 def plot_slice(ax, hydroOutput, tau, axis, quantity):
     # c : column of quantity to plot in array
     c = cols[quantity]
     if axis == '0':
-        yeq0Data = hydroOutput[np.where( np.abs(hydroOutput[:,1]) < 1e-6 )]
-        ax.plot( yeq0Data[:,0], yeq0Data[:,c], 'r-' )
+        yEqAxisData = hydroOutput[np.where( np.abs(hydroOutput[:,1]) < 1e-6 )]
+        ax.plot( yEqAxisData[:,0], yEqAxisData[:,c], 'r-' )
         if not use_semi_analytic:
             cf   = [None, None, TGubser, eGubser, urGubser, urGubser, \
                     None, None, None, None, rhoBGubser, rhoSGubser, rhoQGubser][c]
-            xpts = np.linspace(np.amin(yeq0Data[:,0]), np.amax(yeq0Data[:,0]), 1001)
+            xpts = np.linspace(np.amin(yEqAxisData[:,0]), np.amax(yEqAxisData[:,0]), 1001)
             ax.plot( xpts, cf(tau, xpts), 'b--' )
     elif axis == 'x':
         yeqxData = hydroOutput[np.where( np.isclose( hydroOutput[:,0], hydroOutput[:,1] ) )]
@@ -97,8 +102,7 @@ def get_time_step(filename):
 #===============================================================================
 if __name__ == "__main__":
     # load files where semi-analytic calculations are stored that we can compare against (not used yet)
-    ic, yEq0_tau1_2, yEq0_tau1_5, yEq0_tau2_0,  \
-        yEqx_tau1_2, yEqx_tau1_5, yEqx_tau2_0 = \
+    ic, yEqAxis_tau1_2, yEqAxis_tau1_5, yEqAxis_tau2_0 = \
         load_semi_analytic_files()
 
     # set up figure
@@ -111,7 +115,7 @@ if __name__ == "__main__":
     fig, axs = plt.subplots( ncols=ncols, nrows=nrows, figsize=(5*ncols, 5*nrows) )
 
     # plot hydro output files
-    for checkfile in sys.argv[1:]:
+    for checkfile in sys.argv[2:]:
         # load Gubser check output files produced by hydro code
         # (eventually) use format: x [fm], y [fm], e [1/fm^4], u_x, u_y, ...
         tau = get_time_step(checkfile)
@@ -122,9 +126,9 @@ if __name__ == "__main__":
         for i, ax in enumerate(axs.ravel()):
             if use_log_scale and ['T','e','rhoB','rhoS','rhoQ'].count(toPlot[i]) > 0:
                 ax.set_yscale('log')
-            plot_slice( ax, hydroOutput, tau, '0', toPlot[i] )
+            plot_slice( ax, hydroOutput, tau, axisMode, toPlot[i] )
             ax.set_xlim([-4.75, 4.75])
-            ax.set_xlabel(r'$x$ (fm)')
+            ax.set_xlabel(r'$r$ (fm)')
             #ax.ylabel(r'$e$ (fm$^{-4}$)')
             
     # plot results of semi-analytic calculation if desired
@@ -137,16 +141,16 @@ if __name__ == "__main__":
             c = cols[toPlot[i]]
             if toPlot[i] == 'e':
                 for data in [ic[np.where(np.abs(ic[:,1])<1e-10)], \
-                             yEq0_tau1_2, yEq0_tau1_5, yEq0_tau2_0]:
+                             yEqAxis_tau1_2, yEqAxis_tau1_5, yEqAxis_tau2_0]:
                     data[:,c] /= 0.1973
                     ax.plot( data[:,0], eFromT(data[:,c]), 'b--' )
             else:
                 for data in [ic[np.where(np.abs(ic[:,1])<1e-10)], \
-                             yEq0_tau1_2, yEq0_tau1_5, yEq0_tau2_0]:
+                             yEqAxis_tau1_2, yEqAxis_tau1_5, yEqAxis_tau2_0]:
                     if ['pixx','piyy','pixy','pizz'].count(toPlot[i]) > 0:
                         data[:,c] /= 0.1973
                     ax.plot( data[:,0], data[:,c], 'b--' )
     
     #plt.show()
-    plt.savefig('./yeq0_slice.pdf')
+    plt.savefig('./yeq' + axisMode + '_slice.pdf')
     
