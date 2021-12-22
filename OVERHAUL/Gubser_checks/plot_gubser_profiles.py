@@ -133,12 +133,13 @@ if __name__ == "__main__":
                 ax.set_yscale('log')
             plot_slice( ax, hydroOutput, tau, axisMode, toPlot[i] )
             if axisMode == '0':
-                ax.set_xlim([-4.75, 4.75])
+                ax.set_xlim([-4.5, 4.5])
+                ax.set_xlabel(r'$x$ (fm)')
             else:
-                ax.set_xlim([0.0, 4.75])
+                ax.set_xlim([0.0, 4.5])
+                ax.set_xlabel(r'$r$ (fm)')
             if toPlot[i] == 'ux' or toPlot[i] == 'uy':
                 ax.set_ylim([-2.0, 2.0])
-            ax.set_xlabel(r'$r$ (fm)')
             #ax.ylabel(r'$e$ (fm$^{-4}$)')
             
     # plot results of semi-analytic calculation if desired
