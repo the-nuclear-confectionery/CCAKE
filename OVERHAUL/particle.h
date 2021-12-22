@@ -246,12 +246,14 @@ class Particle
   FRZ fback4 = {};
 
 ////////////////////////////////////////////////////////////////////////////////
-// NEW FUNCTIONS TO CLEAN UP EQUATIONS_OF_MOTION BELOW THIS LINE
+// NEW VARIABLES AND FUNCTIONS TO CLEAN UP EQUATIONS_OF_MOTION BELOW THIS LINE
 ////////////////////////////////////////////////////////////////////////////////
-void set_vartheta();
+double vartheta = 0.0;
+
+void set_vartheta(double t);
 double get_Theta_force();
-double get_Pi_force();
-double get_aleph_force();
+double get_Pi_force(double t);
+double get_aleph_force(double t);
 Vector<double,2> get_Theta_mass();
 Vector<double,2> get_Pi_mass();
 Vector<double,2> get_aleph_mass();

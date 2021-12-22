@@ -404,7 +404,7 @@ void Particle::setvar()
 // NEW FUNCTIONS TO CLEAN UP EQUATIONS_OF_MOTION BELOW THIS LINE
 ////////////////////////////////////////////////////////////////////////////////
 
-void Particle::set_vartheta() { vartheta = dsigma_dt/sigma - 1.0/t; }
+void Particle::set_vartheta(double t) { vartheta = dsigma_dt/sigma - 1.0/t; }
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -412,15 +412,15 @@ double Particle::get_Theta_force() { return -vartheta/gamma; }
 
 
 ////////////////////////////////////////////////////////////////////////////////
-double Particle::get_Pi_force()
+double Particle::get_Pi_force(double t)
 {
   bigPi = Bulk*sigma/(gamma*t);
-  return vartheta*(zeta/tauRelax + bigPi) - bigPi/(gamma*gamma*sTauRelax);
+  return vartheta*(zeta/tauRelax + bigPI) - bigPI/(gamma*gamma*stauRelax);
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
-double Particle::get_aleph_force()
+double Particle::get_aleph_force(double t)
 {
   double aleph_force = -gamma*t*shv33;
   for (int i = 1; i < 3; i++)
@@ -442,7 +442,7 @@ Vector<double,2> Particle::get_Theta_mass()
 ////////////////////////////////////////////////////////////////////////////////
 Vector<double,2> Particle::get_Pi_mass()
 {
-  return (-(zeta/tauRelax + bigPi)/gamma)*v;
+  return (-(zeta/tauRelax + bigPI)/gamma)*v;
 }
 
 
