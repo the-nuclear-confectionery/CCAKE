@@ -83,7 +83,7 @@ def plot_slice(ax, hydroOutput, tau, axis, quantity):
             cf   = [None, None, TGubser, eGubser, urGubser, urGubser, \
                     None, None, None, None, rhoBGubser, rhoSGubser, rhoQGubser][c]
             xpts = np.linspace(np.amin(yEqAxisData[:,0]), np.amax(yEqAxisData[:,0]), 1001)
-            ax.plot( xpts, cf(tau, xpts), 'b--' )
+            ax.plot( xpts, cf(tau, xpts), 'b:' )
     elif axis == 'x':
         yeqxData = hydroOutput[np.where( np.isclose( hydroOutput[:,0], hydroOutput[:,1] ) )]
         rpts = np.sqrt(yeqxData[:,0]**2 + yeqxData[:,1]**2)
@@ -92,7 +92,7 @@ def plot_slice(ax, hydroOutput, tau, axis, quantity):
             cf   = [None, None, TGubser, eGubser, urGubser, urGubser, \
                     None, None, None, None, rhoBGubser, rhoSGubser, rhoQGubser][c]
             rpts = np.linspace(0.0, np.amax(rpts), 1001)
-            ax.plot( rpts, cf(tau, rpts), 'b--' )
+            ax.plot( rpts, cf(tau, rpts), 'b:' )
     
 
 #===============================================================================
@@ -149,18 +149,18 @@ if __name__ == "__main__":
                              yEqAxis_tau1_2, yEqAxis_tau1_5, yEqAxis_tau2_0]:
                     data[:,c] /= 0.1973
                     if axisMode == '0':
-                        ax.plot( data[:,0], eFromT(data[:,c]), 'b--' )
+                        ax.plot( data[:,0], eFromT(data[:,c]), 'b:' )
                     else:
-                        ax.plot( np.sqrt(data[:,0]**2+data[:,1]**2), eFromT(data[:,c]), 'b--' )
+                        ax.plot( np.sqrt(data[:,0]**2+data[:,1]**2), eFromT(data[:,c]), 'b:' )
             else:
                 for data in [ic[np.where(np.abs(ic[:,1])<1e-10)], \
                              yEqAxis_tau1_2, yEqAxis_tau1_5, yEqAxis_tau2_0]:
                     if ['pixx','piyy','pixy','pizz'].count(toPlot[i]) > 0:
                         data[:,c] /= 0.1973
                     if axisMode == '0':
-                        ax.plot( data[:,0], data[:,c], 'b--' )
+                        ax.plot( data[:,0], data[:,c], 'b:' )
                     else:
-                        ax.plot( np.sqrt(data[:,0]**2+data[:,1]**2), data[:,c], 'b--' )
+                        ax.plot( np.sqrt(data[:,0]**2+data[:,1]**2), data[:,c], 'b:' )
     
     #plt.show()
     plt.savefig('./yeq' + axisMode + '_slice.pdf')
