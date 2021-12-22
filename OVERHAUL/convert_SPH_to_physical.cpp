@@ -103,7 +103,11 @@ int main( int argc, char ** argv )
 		// loop over SPH particles
 		for (int iSPH = 0; iSPH < nSPH; iSPH++)
 		{
-			double kern 				 = kernel(x_local - xvec[iSPH], y_local - yvec[iSPH]);
+      const double delta_x = x_local - xvec[iSPH];
+      const double delta_y = y_local - yvec[iSPH];
+      if (delta_x*delta_x+delta_y*delta_y > 4.0*h*h) continue;
+
+			double kern 				 = kernel(delta_x, delta_y);
 			normalization 				+= kern;
 			energy_density 				+= kern * evec[iSPH];
 			baryon_density 				+= kern * Bvec[iSPH];
