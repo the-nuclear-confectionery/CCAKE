@@ -449,7 +449,7 @@ void InputOutput::print_system_state()
           << p.T() << " "
           << p.e() << " "
           << p.u.x[0] << " "
-          << p.u.x[1]  << " "
+          << p.u.x[1] << " "
           << p.shv.x[1][1] << " "
           << p.shv.x[2][2] << " "
           << p.shv.x[1][2] << " "
