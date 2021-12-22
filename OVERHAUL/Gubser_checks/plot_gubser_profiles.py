@@ -153,7 +153,7 @@ if __name__ == "__main__":
                     else:
                         ax.plot( np.sqrt(data[:,0]**2+data[:,1]**2), eFromT(data[:,c]), 'b:' )
             else:
-                for data in [ic[np.where(np.abs(ic[:,1])<1e-10)], \
+                for data in [ic[np.where(np.isclose(ic[:,0], ic[:,1]))], \
                              yEqAxis_tau1_2, yEqAxis_tau1_5, yEqAxis_tau2_0]:
                     if ['pixx','piyy','pixy','pizz'].count(toPlot[i]) > 0:
                         data[:,c] /= 0.1973
