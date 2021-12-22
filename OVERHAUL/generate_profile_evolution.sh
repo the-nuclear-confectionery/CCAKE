@@ -3,7 +3,7 @@
 maxFrames=250
 framesPerSecond=2
 
-resultsDirectory=outputfiles
+resultsDirectory=results
 physicalProfileStem=physical_quantities
 insuffix=".dat"
 outsuffix=".png"
