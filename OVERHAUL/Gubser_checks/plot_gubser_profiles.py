@@ -104,6 +104,11 @@ if __name__ == "__main__":
     # load files where semi-analytic calculations are stored that we can compare against (not used yet)
     ic, yEqAxis_tau1_2, yEqAxis_tau1_5, yEqAxis_tau2_0 = \
         load_semi_analytic_files()
+    
+    if axisMode == '0':
+        ic = ic[np.where(np.abs(ic[:,1])<1e-10)]
+    else:
+        ic = ic[np.where(np.isclose(ic[:,0], ic[:,1]))]
 
     # set up figure
     toPlot = ['T', 'e', 'ux', 'rhoB', 'rhoS', 'rhoQ']
@@ -145,16 +150,14 @@ if __name__ == "__main__":
                 ax.set_yscale('log')
             c = cols[toPlot[i]]
             if toPlot[i] == 'e':
-                for data in [ic[np.where(np.abs(ic[:,1])<1e-10)], \
-                             yEqAxis_tau1_2, yEqAxis_tau1_5, yEqAxis_tau2_0]:
+                for data in [ic, yEqAxis_tau1_2, yEqAxis_tau1_5, yEqAxis_tau2_0]:
                     data[:,c] /= 0.1973
                     if axisMode == '0':
                         ax.plot( data[:,0], eFromT(data[:,c]), 'b:' )
                     else:
                         ax.plot( np.sqrt(data[:,0]**2+data[:,1]**2), eFromT(data[:,c]), 'b:' )
             else:
-                for data in [ic[np.where(np.isclose(ic[:,0], ic[:,1]))], \
-                             yEqAxis_tau1_2, yEqAxis_tau1_5, yEqAxis_tau2_0]:
+                for data in [ic, yEqAxis_tau1_2, yEqAxis_tau1_5, yEqAxis_tau2_0]:
                     if ['pixx','piyy','pixy','pizz'].count(toPlot[i]) > 0:
                         data[:,c] /= 0.1973
                     if axisMode == '0':
