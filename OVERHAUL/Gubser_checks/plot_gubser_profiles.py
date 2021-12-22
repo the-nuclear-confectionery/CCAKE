@@ -131,6 +131,8 @@ if __name__ == "__main__":
                 ax.set_xlim([-4.75, 4.75])
             else:
                 ax.set_xlim([0.0, 4.75])
+            if toPlot[i] == 'ux' or toPlot[i] == 'uy':
+                ax.set_xlim([-3.0, 3.0])
             ax.set_xlabel(r'$r$ (fm)')
             #ax.ylabel(r'$e$ (fm$^{-4}$)')
             
