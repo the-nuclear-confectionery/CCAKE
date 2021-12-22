@@ -1,7 +1,7 @@
 #!/bin/bash
 
 maxFrames=250
-framesPerSecond=2
+framesPerSecond=12
 
 resultsDirectory=results
 physicalProfileStem=physical_quantities
