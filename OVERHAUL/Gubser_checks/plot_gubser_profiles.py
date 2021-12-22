@@ -127,7 +127,10 @@ if __name__ == "__main__":
             if use_log_scale and ['T','e','rhoB','rhoS','rhoQ'].count(toPlot[i]) > 0:
                 ax.set_yscale('log')
             plot_slice( ax, hydroOutput, tau, axisMode, toPlot[i] )
-            ax.set_xlim([-4.75, 4.75])
+            if axisMode == '0':
+                ax.set_xlim([-4.75, 4.75])
+            else:
+                ax.set_xlim([0.0, 4.75])
             ax.set_xlabel(r'$r$ (fm)')
             #ax.ylabel(r'$e$ (fm$^{-4}$)')
             
@@ -143,13 +146,19 @@ if __name__ == "__main__":
                 for data in [ic[np.where(np.abs(ic[:,1])<1e-10)], \
                              yEqAxis_tau1_2, yEqAxis_tau1_5, yEqAxis_tau2_0]:
                     data[:,c] /= 0.1973
-                    ax.plot( data[:,0], eFromT(data[:,c]), 'b--' )
+                    if axisMode == '0':
+                        ax.plot( data[:,0], eFromT(data[:,c]), 'b--' )
+                    else:
+                        ax.plot( np.sqrt(data[:,0]**2+data[:,1]**2), eFromT(data[:,c]), 'b--' )
             else:
                 for data in [ic[np.where(np.abs(ic[:,1])<1e-10)], \
                              yEqAxis_tau1_2, yEqAxis_tau1_5, yEqAxis_tau2_0]:
                     if ['pixx','piyy','pixy','pizz'].count(toPlot[i]) > 0:
                         data[:,c] /= 0.1973
-                    ax.plot( data[:,0], data[:,c], 'b--' )
+                    if axisMode == '0':
+                        ax.plot( data[:,0], data[:,c], 'b--' )
+                    else:
+                        ax.plot( np.sqrt(data[:,0]**2+data[:,1]**2), data[:,c], 'b--' )
     
     #plt.show()
     plt.savefig('./yeq' + axisMode + '_slice.pdf')
