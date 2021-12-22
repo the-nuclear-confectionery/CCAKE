@@ -32,7 +32,7 @@ double kernel( double x, double y )
 
 int main( int argc, char ** argv )
 {
-	string resultsDirectory 	= "./outputfiles";
+	string resultsDirectory 	= "./results";
 	string fileStemToReadIn 	= argv[1];
 	string fileStemToPrintTo 	= argv[2];
 	string indexToProcess 		= argv[3];
