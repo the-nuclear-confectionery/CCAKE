@@ -3,7 +3,7 @@ ICoption:   Default
 h:          0.300000
 dt:         0.05
 t0:         0.600000
-EoS_Type:   Houston
+EoS_Type:   Conformal
 EoS_Option: Default
 eta:        constant
 etaOpt:     0.08
