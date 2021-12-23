@@ -43,15 +43,15 @@ void EquationsOfMotion::BSQshear( SystemState & system, SPHWorkstation & ws )
   {
     auto & p = system.particles[i];
 
-if ( abs(p.r.x[0]) < 0.000001 && abs(p.r.x[1]) < 0.000001 )
-  cout << "CHECK CENTER: " << system.t << "   " << i << "   " << p.T()*hbarc << "   "
-        << p.eta/p.gamma/system.t << "   " << p.s() << endl;
+//if ( abs(p.r.x[0]) < 0.000001 && abs(p.r.x[1]) < 0.000001 )
+//  cout << "CHECK CENTER: " << system.t << "   " << i << "   " << p.T()*hbarc << "   "
+//        << p.eta/p.gamma/system.t << "   " << p.s() << endl;
 
     ws.smooth_fields(i);
 
-if ( abs(p.r.x[0]) < 0.000001 && abs(p.r.x[1]) < 0.000001 )
-  cout << "CHECK CENTER: " << system.t << "   " << i << "   " << p.T()*hbarc << "   "
-        << p.eta/p.gamma/system.t << "   " << p.s() << endl;
+//if ( abs(p.r.x[0]) < 0.000001 && abs(p.r.x[1]) < 0.000001 )
+//  cout << "CHECK CENTER: " << system.t << "   " << i << "   " << p.T()*hbarc << "   "
+//        << p.eta/p.gamma/system.t << "   " << p.s() << endl;
 
     if ( (p.eta<0) || isnan(p.eta) )
     {
@@ -148,15 +148,15 @@ constexpr bool printAll = false;
     Vector<double,2> minshv   = rowp1(0, p.shv);
     Matrix <double,2,2> partU = p.gradU + transpose( p.gradU );
 
-if (i==ic || printAll)
-cout << "CHECK misc1: " << i << "   " << system.t << "   " << gamt << "   " << p.sigma
-		<< "   " << p.dsigma_dt << endl;
+//if (i==ic || printAll)
+//cout << "CHECK misc1: " << i << "   " << system.t << "   " << gamt << "   " << p.sigma
+//		<< "   " << p.dsigma_dt << endl;
 
-if (i==ic || printAll)
-cout << "CHECK minshv: " << i << "   " << system.t << "   " << minshv << endl;
+//if (i==ic || printAll)
+//cout << "CHECK minshv: " << i << "   " << system.t << "   " << minshv << endl;
 
-if (i==ic || printAll)
-cout << "CHECK partU: " << i << "   " << system.t << "   " << partU << endl;
+//if (i==ic || printAll)
+//cout << "CHECK partU: " << i << "   " << system.t << "   " << partU << endl;
 
 
     // set the Mass and the Force
@@ -167,31 +167,31 @@ cout << "CHECK partU: " << i << "   " << system.t << "   " << partU << endl;
 further above loop could be done in workstation and M and F could be set
 at the same time... */
 
-if (i==ic || printAll)
-cout << "CHECK M: " << i << "   " << system.t << "   " << M << endl;
+//if (i==ic || printAll)
+//cout << "CHECK M: " << i << "   " << system.t << "   " << M << endl;
 
 
 
-if (i==ic || printAll)
-cout << "CHECK F: " << i << "   " << system.t << "   " << F << "   "
-		<< p.Btot << "   " << p.u << "   "
-		<< p.gradshear << "   " << p.gradP << "   "
-		<< p.gradBulk << "   " << p.divshear << endl;
+//if (i==ic || printAll)
+//cout << "CHECK F: " << i << "   " << system.t << "   " << F << "   "
+//		<< p.Btot << "   " << p.u << "   "
+//		<< p.gradshear << "   " << p.gradP << "   "
+//		<< p.gradBulk << "   " << p.divshear << endl;
 
     // shear contribution
     if ( settingsPtr->using_shear )
       F += pre*p.v*partU + p1*minshv;
 
-if (i==ic || printAll)
-cout << "CHECK F(again): " << i << "   " << system.t << "   " << F << "   "
-		<< pre << "   " << p.v << "   " << partU << "   "
-		<< p1 << "   " << minshv << endl;
+//if (i==ic || printAll)
+//cout << "CHECK F(again): " << i << "   " << system.t << "   " << F << "   "
+//		<< pre << "   " << p.v << "   " << partU << "   "
+//		<< p1 << "   " << minshv << endl;
 
     double det=deter(M);
 
 
-if (i==ic || printAll)
-cout << "CHECK det: " << i << "   " << system.t << "   " << M << "   " << det << endl;
+//if (i==ic || printAll)
+//cout << "CHECK det: " << i << "   " << system.t << "   " << M << "   " << det << endl;
 
 
     Matrix <double,2,2> MI;
@@ -202,8 +202,8 @@ cout << "CHECK det: " << i << "   " << system.t << "   " << M << "   " << det <<
   /* This notation is still a bit weird.. but also
   MI should be a member of particle as well */
 
-if (i==ic || printAll)
-cout << "CHECK MI: " << i << "   " << system.t << "   " << MI << endl;
+//if (i==ic || printAll)
+//cout << "CHECK MI: " << i << "   " << system.t << "   " << MI << endl;
 
 
     p.du_dt.x[0]=F.x[0]*MI.x[0][0]+F.x[1]*MI.x[0][1];
@@ -222,21 +222,21 @@ cout << "CHECK MI: " << i << "   " << system.t << "   " << MI << endl;
         /* the above lines could automaticlaly be set in particle after 
         calculating the matrix elements above */
 
-if (i==ic || printAll)
-cout << "CHECK div_u: " << i
-		<< "   " << system.t
-		<< "   " << p.div_u
-		<< "   " << p.gamma
-		<< "   " << p.u
-		<< "   " << p.du_dt
-		<< "   " << inner( p.u, p.du_dt)
-		<< "   " << p.sigma 
-		<< "   " << p.dsigma_dt << endl;
-if (i==ic || printAll)
-cout << "CHECK bigtheta: " << i
-		<< "   " << system.t
-		<< "   " << p.bigtheta
-		<< "   " << p.gamma << endl;
+//if (i==ic || printAll)
+//cout << "CHECK div_u: " << i
+//		<< "   " << system.t
+//		<< "   " << p.div_u
+//		<< "   " << p.gamma
+//		<< "   " << p.u
+//		<< "   " << p.du_dt
+//		<< "   " << inner( p.u, p.du_dt)
+//		<< "   " << p.sigma 
+//		<< "   " << p.dsigma_dt << endl;
+//if (i==ic || printAll)
+//cout << "CHECK bigtheta: " << i
+//		<< "   " << system.t
+//		<< "   " << p.bigtheta
+//		<< "   " << p.gamma << endl;
 
     // this term occurs in Eqs. (250) and (251) of Jaki's long notes
     // translation: pi^{ij} + pi^{00} v^i v^j - pi^{i0} v^j - pi^{0j} v^i
@@ -255,15 +255,7 @@ cout << "CHECK bigtheta: " << i
                                 - con2(sub, p.gradU)
                                 - p.gamma*system.t*p.shv33 );
 
-//    cout << "CHECK 253: " << i << "   " << p.sigma << "   " << p.T()
-//           << "   " << p.bigPI << "   " << p.bigtheta << "   " << p.inside << endl;
-
-
     p.detasigma_dt            = 1./p.sigma/p.T()*( -p.bigPI*p.bigtheta + p.inside );
-
-
-    //cout << "p.inside: " << p.inside << " for particle: " << i << endl;
-
 
     // N.B. - ADD EXTRA TERMS FOR BULK EQUATION
     p.dBulk_dt = ( -p.zeta/p.sigma*p.bigtheta - p.Bulk/p.gamma )/p.tauRelax;
