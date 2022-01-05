@@ -180,7 +180,7 @@ void BSQHydro::run()
           << system.number_part << "   "
           << settings.n() << "   "
           << (system.t<settings.tend) << "   "
-          << (system.number_part<system.n() << endl;
+          << (system.number_part<system.n()) << endl;
 
   }
 }
