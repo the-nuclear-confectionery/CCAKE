@@ -329,7 +329,7 @@ exit(1);
     system.bsqsvfreezeout( curfrz );
 
 
-  // keep track of which particles have let EoS grid completely
+  // keep track of which particles have left EoS grid completely
   // (reset list at end of each timestep)
   system.particles_out_of_grid.clear();
   for ( int i = 0; i < system.n(); i++ )

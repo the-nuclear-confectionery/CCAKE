@@ -494,7 +494,8 @@ void InputOutput::print_system_state()
           << pow(systemPtr->t,2.0)*p.shv33 << " "
           << p.u.x[0]/p.gamma << " "
           << p.u.x[1]/p.gamma << " "
-          << p.gamma << endl;
+          << p.gamma << " "
+          << p.Freeze << endl;
   
   out.close();
 

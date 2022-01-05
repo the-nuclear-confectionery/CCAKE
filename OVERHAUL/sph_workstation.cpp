@@ -447,7 +447,7 @@ void SPHWorkstation::smooth_fields(int a, bool init_mode /*== false*/)
 
 
 ///////////////////////////////////////////////////////////////////////////////
-//Second smoothing smoothes the gradients after constructing all the  fields 
+//Second smoothing smoothes the gradients after constructing all the fields 
 //and derivatives using the equation of state
 void SPHWorkstation::smooth_gradients( int a, double tin, int & count )
 {

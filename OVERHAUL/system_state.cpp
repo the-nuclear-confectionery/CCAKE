@@ -520,6 +520,8 @@ void SystemState::bsqsvfreezeout(int curfrz)
 
   cfon = 0;
 }
+
+
 //////////////////////////////////////////////////////////////////////////////
 void SystemState::bsqsvinterpolate(int curfrz)
 {
