@@ -13,7 +13,7 @@ data = np.swapaxes(data, 0, 1)
 
 print(data.shape)
 
-data = data[np.where(data0 > 150.0)]
+data = data[np.where(data0 > 400.0)]
 
 print(data.shape)
 
