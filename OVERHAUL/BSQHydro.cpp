@@ -175,6 +175,13 @@ void BSQHydro::run()
     // print system state, once per timestep
     io.print_system_state();
 
+    cout << "Check termination conditions: " << system.t << "   "
+          << settings.tend << "   "
+          << system.number_part << "   "
+          << settings.n() << "   "
+          << (system.t<settings.tend) << "   "
+          << (system.number_part<system.n() << endl;
+
   }
 }
 
