@@ -4,11 +4,29 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sys
 
+data = np.stack([np.loadtxt(file, usecols=(1,5,6,7,8), skiprows=1) \
+                 for file in sys.argv[1:]])
+
+data = np.swapaxes(data, 0, 1)
+
+plt.figure(figsize=(6,6), dpi=500)
+
+pid = 7108
+
+plt.plot( data[pid,:,1], data[pid,:,0] )
+plt.plot( data[pid,:,2], data[pid,:,0] )
+plt.plot( data[pid,:,3], data[pid,:,0] )
+plt.plot( data[pid,:,3], data[pid,:,0] )
+
+plt.savefig('particle_vs_t.png', dpi=500, bbox_inches='tight', pad_inches = 0)
+
+
+'''
 data = np.stack([np.loadtxt(file, usecols=(5,6,7,8), skiprows=1) \
                  for file in sys.argv[1:]])
 
-data0 = data[0,:,0]
 
+data0 = data[0,:,0]
 data = np.swapaxes(data, 0, 1)[np.where(data0 > 400.0)]
 
 print(data.shape)
@@ -36,3 +54,4 @@ for particle in data:
 
 plt.savefig('T_vs_muQ.png', dpi=500, bbox_inches='tight', pad_inches = 0)
 print('Saved to T_vs_muQ.png')
+'''
