@@ -16,6 +16,6 @@ print(data.shape)
 plt.figure(figsize=(8,8), dpi=500)
 
 for particle in data:
-    plt.plot( particle[:,1], particle[:,0], 'r-' )
+    plt.plot( particle[:,1], particle[:,0] )
 
 plt.savefig('T_vs_muB.png', dpi=500, bbox_inches='tight', pad_inches = 0)
