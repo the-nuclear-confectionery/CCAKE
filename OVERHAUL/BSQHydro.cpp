@@ -180,7 +180,8 @@ void BSQHydro::run()
           << system.number_part << "   "
           << system.n() << "   "
           << (system.t<settings.tend) << "   "
-          << (system.number_part<system.n()) << endl;
+          << (system.number_part<system.n()) << "   "
+          << systemPtr->particles[7108].Freeze << endl;
 
   }
 }
