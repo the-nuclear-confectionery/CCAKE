@@ -9,14 +9,13 @@ data = np.stack([np.loadtxt(file, usecols=(5,6,7,8), skiprows=1) \
 
 data0 = data[0,:,0]
 
-data = np.swapaxes(data, 0, 1)
+data = np.swapaxes(data, 0, 1)[np.where(data0 > 484.0)]
 
 print(data.shape)
 
-data = data[np.where(data0 > 400.0)]
+plt.figure(figsize=(8,8), dpi=500)
 
-print(data.shape)
+for particle in data:
+    plt.plot( particle[:,1], particle[:,0], 'r-' )
 
-#plt.figure(figsize=(8,8), dpi=500)
-
-#plt.plot(  )
+plt.savefig('T_vs_muB.png', dpi=500, bbox_inches='tight', pad_inches = 0)
