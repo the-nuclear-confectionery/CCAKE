@@ -159,7 +159,8 @@ public:
   void bsqsvconservation_Ez();
 
   int n(){ return _n; }
-
+  double get_particle_T(int id) {return particles[id].T();}
+  double get_particle_Freeze(int id) {return particles[id].Freeze;}
 
   // these routines are called in runge kutta
   void set_current_timestep_quantities();
