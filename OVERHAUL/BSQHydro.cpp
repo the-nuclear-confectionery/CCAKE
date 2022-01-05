@@ -178,7 +178,7 @@ void BSQHydro::run()
     cout << "Check termination conditions: " << system.t << "   "
           << settings.tend << "   "
           << system.number_part << "   "
-          << settings.n() << "   "
+          << system.n() << "   "
           << (system.t<settings.tend) << "   "
           << (system.number_part<system.n()) << endl;
 
