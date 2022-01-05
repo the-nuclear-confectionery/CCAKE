@@ -13,9 +13,26 @@ data = np.swapaxes(data, 0, 1)[np.where(data0 > 400.0)]
 
 print(data.shape)
 
-plt.figure(figsize=(8,8), dpi=500)
+plt.figure(figsize=(4,4), dpi=500)
 
 for particle in data:
     plt.plot( particle[:,1], particle[:,0] )
 
 plt.savefig('T_vs_muB.png', dpi=500, bbox_inches='tight', pad_inches = 0)
+print('Saved to T_vs_muB.png')
+
+plt.figure(figsize=(4,4), dpi=500)
+
+for particle in data:
+    plt.plot( particle[:,2], particle[:,0] )
+
+plt.savefig('T_vs_muS.png', dpi=500, bbox_inches='tight', pad_inches = 0)
+print('Saved to T_vs_muS.png')
+
+plt.figure(figsize=(4,4), dpi=500)
+
+for particle in data:
+    plt.plot( particle[:,3], particle[:,0] )
+
+plt.savefig('T_vs_muQ.png', dpi=500, bbox_inches='tight', pad_inches = 0)
+print('Saved to T_vs_muQ.png')
