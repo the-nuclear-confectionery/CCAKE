@@ -13,10 +13,10 @@ plt.figure(figsize=(6,6), dpi=500)
 
 pid = 7108
 
-plt.plot( data[pid,:,1], data[pid,:,0] )
-plt.plot( data[pid,:,2], data[pid,:,0] )
-plt.plot( data[pid,:,3], data[pid,:,0] )
-plt.plot( data[pid,:,3], data[pid,:,0] )
+plt.plot( data[pid,:,0], data[pid,:,1] )
+plt.plot( data[pid,:,0], data[pid,:,2] )
+plt.plot( data[pid,:,0], data[pid,:,3] )
+plt.plot( data[pid,:,0], data[pid,:,4] )
 
 plt.savefig('particle_vs_t.png', dpi=500, bbox_inches='tight', pad_inches = 0)
 
