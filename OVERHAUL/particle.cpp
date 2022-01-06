@@ -88,18 +88,18 @@ double Particle::locate_phase_diagram_point_eBSQ(// previously s_out
                  double e_In, double rhoB_In, double rhoS_In, double rhoQ_In )
 {
   double current_sVal = s();
-  if ( Freeze == 5 )
-    return current_sVal;
-  else
+//  if ( Freeze == 5 )
+//    return current_sVal;
+//  else
   {
     // default: use particle's current location as initial guess
     eosPtr->tbqs( thermo.T, thermo.muB, thermo.muQ, thermo.muS );
     double sVal = eosPtr->s_out( e_In, rhoB_In, rhoS_In, rhoQ_In );
 
-    if ( sVal > 0.0 )
+//    if ( sVal > 0.0 )
       thermo.set(*eosPtr);
-    else
-      Freeze = 5; // new label for (totally decoupled) particles which go outside grid
+//    else
+//      Freeze = 5; // new label for (totally decoupled) particles which go outside grid
 
     return sVal;
   }
@@ -110,18 +110,18 @@ double Particle::locate_phase_diagram_point_eBSQ(// previously s_out
 double Particle::locate_phase_diagram_point_eBSQ(double e_In)// previously s_out
 {
   double current_sVal = s();
-  if ( Freeze == 5 )
-    return current_sVal;
-  else
+//  if ( Freeze == 5 )
+//    return current_sVal;
+//  else
   {
     // default: use particle's current location as initial guess
     eosPtr->tbqs( thermo.T, 0.0, 0.0, 0.0 );
     double sVal = eosPtr->s_out( e_In, 0.0, 0.0, 0.0 );
 
-    if ( sVal > 0.0 )
+//    if ( sVal > 0.0 )
       thermo.set(*eosPtr);
-    else
-      Freeze = 5; // new label for (totally decoupled) particles which go outside grid
+//    else
+//      Freeze = 5; // new label for (totally decoupled) particles which go outside grid
 
     return sVal;
   }
@@ -140,10 +140,10 @@ void Particle::locate_phase_diagram_point_sBSQ(// previously update_s
     eosPtr->tbqs( thermo.T, thermo.muB, thermo.muQ, thermo.muS );
     bool update_s_success = eosPtr->update_s( s_In, rhoB_In, rhoS_In, rhoQ_In );
 
-    if ( update_s_success )
+//    if ( update_s_success )
       thermo.set(*eosPtr);
-    else
-      Freeze = 5; // new label for (totally decoupled) particles which go outside grid
+//    else
+//      Freeze = 5; // new label for (totally decoupled) particles which go outside grid
 
     if ( abs(r.x[0]) < 0.00001 && abs(r.x[1]) < 0.00001 )
     cout << "CHECK SBSQ(2): " << s_In << "   " << rhoB_In << "   " << rhoS_In
@@ -161,10 +161,10 @@ void Particle::locate_phase_diagram_point_sBSQ(double s_In) // previously update
     eosPtr->tbqs( thermo.T, 0.0, 0.0, 0.0 );
     bool update_s_success = eosPtr->update_s( s_In, 0.0, 0.0, 0.0 );
 
-    if ( update_s_success )
+//    if ( update_s_success )
       thermo.set(*eosPtr);
-    else
-      Freeze = 5; // new label for (totally decoupled) particles which go outside grid
+//    else
+//      Freeze = 5; // new label for (totally decoupled) particles which go outside grid
   }
   return;
 }
@@ -181,11 +181,11 @@ double Particle::gamcalc()
 ////////////////////////////////////////////////////////////////////////////////
 void Particle::frzcheck( double tin, int &count, int N )
 {
-  if ( Freeze == 5 )
-  {
-    count++;
-    return;
-  }
+//  if ( Freeze == 5 )
+//  {
+//    count++;
+//    return;
+//  }
   else if ( Freeze == 0 )
   {
     if ( T() <= freezeoutT )

@@ -368,13 +368,13 @@ void SystemState::get_derivative_step(double dx)
 
     p.r            = r0[i]        + dx*p.v;
 
-    if ( p.Freeze < 5 )
-    {
+    //if ( p.Freeze < 5 )
+    //{
       p.u            = u0[i]        + dx*p.du_dt;
       p.eta_sigma    = etasigma0[i] + dx*p.detasigma_dt;
       p.Bulk         = Bulk0[i]     + dx*p.dBulk_dt;
       tmini( p.shv,    shv0[i]      + dx*p.dshv_dt );
-    }
+    //}
   }
 }
 
