@@ -175,6 +175,13 @@ void BSQHydro::run()
     // print system state, once per timestep
     io.print_system_state();
 
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // NOW DOING THIS AFTER ADDING FREEZE == 5 OPTION!!!!!!!!!!!!!!!!!
+    system.number_part = system.get_frozen_out_count();
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
     cout << "Check termination conditions: " << system.t << "   "
           << settings.tend << "   "
           << system.get_frozen_out_count() << "   "

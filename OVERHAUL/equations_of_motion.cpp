@@ -329,16 +329,16 @@ exit(1);
     system.bsqsvfreezeout( curfrz );
 
 
-//  // keep track of which particles have left EoS grid completely
-//  // (reset list at end of each timestep)
-//  system.particles_out_of_grid.clear();
-//  for ( int i = 0; i < system.n(); i++ )
-//    if ( system.particles[i].Freeze == 5 )
-//      system.particles_out_of_grid.push_back( i );
-//
-//  std::cout << "Summary at t = " << system.t << ": "
-//        << system.particles_out_of_grid.size()
-//        << " particles have gone out of the EoS grid." << std::endl;
+  // keep track of which particles have left EoS grid completely
+  // (reset list at end of each timestep)
+  system.particles_out_of_grid.clear();
+  for ( int i = 0; i < system.n(); i++ )
+    if ( system.particles[i].Freeze == 5 )
+      system.particles_out_of_grid.push_back( i );
+
+  std::cout << "Summary at t = " << system.t << ": "
+        << system.particles_out_of_grid.size()
+        << " particles have gone out of the EoS grid." << std::endl;
 
 
   /* Not sure what any of the above does but I'm certain it can be

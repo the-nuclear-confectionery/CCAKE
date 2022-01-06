@@ -183,9 +183,9 @@ if (i==0)
 			}
       */
 			// freeze this particle out!
-			//p.Freeze = 5;
-			p.Freeze = 4;
-			systemPtr->number_part++;
+			p.Freeze = 5;
+			//p.Freeze = 4;
+			//systemPtr->number_part++;
 			////////////////////////////////////////////////////////
 		}
 		else
