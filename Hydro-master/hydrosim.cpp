@@ -384,6 +384,21 @@ cout << "TEST LOOP: " << linklist.t << "   " << linklist.tend
 
         }
 
+
+int total_frozen_out = 0;
+for (int i=0; i<linklist.n(); i++)
+  if (linklist._p[i].Freeze == 4)
+    total_frozen_out++;
+
+    cout << "Check termination conditions: " << linklist.t << "   "
+          << linklist.tend << "   "
+          << total_frozen_out << "   "
+          << linklist.number_part << "   "
+          << linklist.n() << "   "
+          << (linklist.t<linklist.tend) << "   "
+          << (linklist.number_part<linklist.n()) << endl;
+
+
     }
 
 	cout << "BSQ-SV simulation completed!" << endl;
