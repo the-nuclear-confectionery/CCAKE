@@ -161,6 +161,14 @@ public:
   int n(){ return _n; }
   double get_particle_T(int id) {return particles[id].T();}
   double get_particle_Freeze(int id) {return particles[id].Freeze;}
+  int get_frozen_out_count()
+  {
+    int total_frz_out = 0;
+    for ( auto & p : particles)
+      if (p.Freeze == 4 or p.Freeze == 5)
+        total_frz_out++;
+    return total_frz_out;
+  }
 
   // these routines are called in runge kutta
   void set_current_timestep_quantities();
