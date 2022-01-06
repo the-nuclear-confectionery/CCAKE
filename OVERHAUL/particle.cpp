@@ -186,7 +186,7 @@ void Particle::frzcheck( double tin, int &count, int N )
 //    count++;
 //    return;
 //  }
-  else if ( Freeze == 0 )
+/*  else*/ if ( Freeze == 0 )
   {
     if ( T() <= freezeoutT )
     {
