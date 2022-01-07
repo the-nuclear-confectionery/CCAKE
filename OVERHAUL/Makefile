@@ -21,6 +21,7 @@ LDFLAGS = -L$(EOSLIBPATH) -lbsqeos -lm -lgsl -lgslcblas -lblas -lstdc++ \
 export HDF5_LDFLAGS+=$(LDFLAGS)
 
 persephone : $(OBJS)
+	(cd $EOSLIBPATH; make clean; make)
 	$(CC) -g $(OBJS) -o persephone $(LDFLAGS)
 
 main.o: vector.h mathdef.h particle.h eos.h input_output.h linklist.h matrix.h BSQHydro.h read_in_hdf/read_in_hdf.h main.cpp
@@ -44,15 +45,11 @@ sph_workstation.o: sph_workstation.cpp sph_workstation.h
 linklist.o: linklist.cpp linklist.h particle.h
 	$(CC) $(CFLAGS) linklist.cpp
 
-
 input_output.o: input_output.cpp input_output.h
 	$(CC) $(CFLAGS) input_output.cpp
 	
-
-
 kernel.o: kernel.cpp kernel.h
 	$(CC) $(CFLAGS) kernel.cpp
-
 
 BSQHydro.o: vector.h mathdef.h particle.h BSQHydro.h linklist.h runge_kutta.h eos.h matrix.h BSQHydro.cpp
 	$(CC) $(CFLAGS) BSQHydro.cpp

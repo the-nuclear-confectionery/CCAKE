@@ -67,7 +67,8 @@ void EquationOfState::init(string quantityFile, string derivFile)
   {
     // initialize things needed to use static C library
     cout << "Initializing EoS C library" << endl;
-    initialize("/projects/jnorhos/BSQ/EoS_BQS_Derivatives/Coefficients_Parameters.dat");
+    //initialize("/projects/jnorhos/BSQ/EoS_BQS_Derivatives/Coefficients_Parameters.dat");
+    initialize("../EoS_BQS_Derivatives/Coefficients_Parameters.dat");
 
     // set density-computing functions appropriately
     std::function<void(double[], double[])> f_eBSQ = STANDARD_get_eBSQ_densities;
