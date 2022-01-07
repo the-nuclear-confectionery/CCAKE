@@ -133,9 +133,9 @@ void Particle::locate_phase_diagram_point_sBSQ(// previously update_s
 {
   if ( Freeze != 5 )
   {
-    if ( abs(r.x[0]) < 0.00001 && abs(r.x[1]) < 0.00001 )
-    cout << "CHECK SBSQ(1): " << s_In << "   " << rhoB_In << "   " << rhoS_In
-        << "   " << rhoQ_In << endl;
+//    if ( abs(r.x[0]) < 0.00001 && abs(r.x[1]) < 0.00001 )
+//    cout << "CHECK SBSQ(1): " << s_In << "   " << rhoB_In << "   " << rhoS_In
+//        << "   " << rhoQ_In << endl;
     // default: use particle's current location as initial guess
     eosPtr->tbqs( thermo.T, thermo.muB, thermo.muQ, thermo.muS );
     bool update_s_success = eosPtr->update_s( s_In, rhoB_In, rhoS_In, rhoQ_In );
@@ -145,9 +145,9 @@ void Particle::locate_phase_diagram_point_sBSQ(// previously update_s
     else
       Freeze = 5; // new label for (totally decoupled) particles which go outside grid
 
-    if ( abs(r.x[0]) < 0.00001 && abs(r.x[1]) < 0.00001 )
-    cout << "CHECK SBSQ(2): " << s_In << "   " << rhoB_In << "   " << rhoS_In
-        << "   " << rhoQ_In << endl;
+//    if ( abs(r.x[0]) < 0.00001 && abs(r.x[1]) < 0.00001 )
+//    cout << "CHECK SBSQ(2): " << s_In << "   " << rhoB_In << "   " << rhoS_In
+//        << "   " << rhoQ_In << endl;
   }
   return;
 }

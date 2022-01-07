@@ -336,17 +336,17 @@ if (i==0)
 		double smoothed_rhoQ_lab = p.rhoQ_sub/p.gamma/settingsPtr->t0;
 
 //if (i==0)
-	cout << "SPH checkpoint c(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
-			<< p.sigmaweight << "   " << p.s_sub << "   "
-			<< p.T() << "   " << p.e() << "   "
-			<< p.p() << "   " << p.s_an << endl;
-		p.locate_phase_diagram_point_sBSQ(
-      p.s_sub, smoothed_rhoB_lab, smoothed_rhoS_lab, smoothed_rhoQ_lab );
+//	cout << "SPH checkpoint c(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
+//			<< p.sigmaweight << "   " << p.s_sub << "   "
+//			<< p.T() << "   " << p.e() << "   "
+//			<< p.p() << "   " << p.s_an << endl;
+//		p.locate_phase_diagram_point_sBSQ(
+//      p.s_sub, smoothed_rhoB_lab, smoothed_rhoS_lab, smoothed_rhoQ_lab );
 //if (i==0)
-	cout << "SPH checkpoint c(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
-			<< p.sigmaweight << "   " << p.s_sub << "   "
-			<< p.T() << "   " << p.e() << "   "
-			<< p.p() << "   " << p.s_an << endl;
+//	cout << "SPH checkpoint c(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
+//			<< p.sigmaweight << "   " << p.s_sub << "   "
+//			<< p.T() << "   " << p.e() << "   "
+//			<< p.p() << "   " << p.s_an << endl;
 
 		p.sigsub = 0;
 		p.frzcheck(settingsPtr->t0, count1, systemPtr->_n);
@@ -392,7 +392,7 @@ void SPHWorkstation::smooth_fields(int a, bool init_mode /*== false*/)
       pa.rhoQ_sub    += pb.Q*kern;
 
       //if (kern>0.0) neighbor_count++;
-      if (abs(pa.r.x[0])<0.000001 && abs(pa.r.x[1])<0.000001)
+      /*if (abs(pa.r.x[0])<0.000001 && abs(pa.r.x[1])<0.000001)
         std::cout << __FUNCTION__ << "(SPH particle == " << a << "): "
         << systemPtr->t << "   "
         << b << "   " << pa.r
@@ -407,7 +407,7 @@ void SPHWorkstation::smooth_fields(int a, bool init_mode /*== false*/)
         << "   " << pa.rhoS_sub
         << "   " << pb.rhoQ_an
         << "   " << pa.rhoQ_sub
-        << "   " << kern << std::endl;
+        << "   " << kern << std::endl;*/
 
       b = systemPtr->linklist.link[b];
     }
@@ -635,12 +635,12 @@ void SPHWorkstation::process_initial_conditions()
 
 		if ( p.e_sub > systemPtr->efcheck )	// impose freeze-out check for e, not s
     {
-      cout << "Found " << p.e_sub << " greater than " << systemPtr->efcheck << endl;
+      //cout << "Found " << p.e_sub << " greater than " << systemPtr->efcheck << endl;
 			p.Freeze=0;
 		}
 		else
 		{
-      cout << "Found " << p.e_sub << " less than " << systemPtr->efcheck << endl;
+      //cout << "Found " << p.e_sub << " less than " << systemPtr->efcheck << endl;
 			p.Freeze=4;
 			systemPtr->number_part++;
     //   cout << "number_part = " << systemPtr->number_part << endl;
