@@ -99,7 +99,10 @@ double Particle::locate_phase_diagram_point_eBSQ(// previously s_out
     if ( sVal > 0.0 )
       thermo.set(*eosPtr);
     else
+    {
+      cout << __FUNCTION__ << "::" << __LINE__ << ": s_out failed!  sVal = " << sVal << endl;
       Freeze = 5; // new label for (totally decoupled) particles which go outside grid
+    }
 
     return sVal;
   }

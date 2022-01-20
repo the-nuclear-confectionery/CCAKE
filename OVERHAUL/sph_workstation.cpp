@@ -82,8 +82,13 @@ if (i==0)
 			<< p.sigmaweight << "   " << p.e_sub << "   "
 			<< p.T() << "   " << p.e() << "   "
 			<< p.p() << "   " << p.s_an << endl;
+
+
+      // solve for the entropy density
 			p.s_an = p.locate_phase_diagram_point_eBSQ(
                     p.e_sub, p.rhoB_an, p.rhoS_an, p.rhoQ_an );
+
+
 if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
 			<< p.sigmaweight << "   " << p.e_sub << "   "

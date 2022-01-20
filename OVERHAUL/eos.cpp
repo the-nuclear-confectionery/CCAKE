@@ -395,7 +395,7 @@ double EquationOfState::delaunay_s_out(double ein, double Bin, double Sin, doubl
 double EquationOfState::rootfinder_s_out(double ein, double Bin, double Sin, double Qin)
 {
   vector<double> result = tbqsPosition;
-  rootfinder.find_eBSQ_root( ein, Bin, Sin, Qin, eBSQ_functional, result );
+  bool success = rootfinder.find_eBSQ_root( ein, Bin, Sin, Qin, eBSQ_functional, result );
   tbqs( result );
   return entrVal;
 }
