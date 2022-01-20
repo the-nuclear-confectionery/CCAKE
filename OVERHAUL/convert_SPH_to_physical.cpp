@@ -57,23 +57,29 @@ int main( int argc, char ** argv )
 			if ( linecount++ < 1 )						// skip first row
 				continue;
 			else
+      {
 				iss >> dummy >> tau >> x >> y >> pin
 					>> Tin >> muBin >> muSin >> muQin
 					>> ein >> Bin >> Sin >> Qin >> sin;	// discard rest of line after this
+        while (iss) iss >> dummy;             // except for the last argument
+      }
 
-			xvec.push_back( x );
-			yvec.push_back( y );
-			pvec.push_back( pin );
-			Tvec.push_back( Tin );
-			muBvec.push_back( muBin );
-			muSvec.push_back( muSin );
-			muQvec.push_back( muQin );
-			evec.push_back( ein );
-			Bvec.push_back( Bin );
-			Svec.push_back( Sin );
-			Qvec.push_back( Qin );
-			svec.push_back( sin );
-			nSPH++;
+      if (int(dummy) != 5 )
+      {
+        xvec.push_back( x );
+        yvec.push_back( y );
+        pvec.push_back( pin );
+        Tvec.push_back( Tin );
+        muBvec.push_back( muBin );
+        muSvec.push_back( muSin );
+        muQvec.push_back( muQin );
+        evec.push_back( ein );
+        Bvec.push_back( Bin );
+        Svec.push_back( Sin );
+        Qvec.push_back( Qin );
+        svec.push_back( sin );
+        nSPH++;
+      }
 		}
 	}
 
