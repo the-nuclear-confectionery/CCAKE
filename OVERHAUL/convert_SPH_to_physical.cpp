@@ -136,7 +136,7 @@ int main( int argc, char ** argv )
 			<< temperature << "   " << baryon_chemical_potential << "   "
 			<< strange_chemical_potential << "   " << electric_chemical_potential << "   "
 			<< energy_density << "   " << baryon_density << "   " << strange_density << "   "
-			<< electric_density << "   " << entropy_density << endl;
+			<< electric_density << "   " << entropy_density << "\n";
 
 	}
 
