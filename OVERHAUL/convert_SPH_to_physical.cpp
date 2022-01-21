@@ -64,8 +64,8 @@ int main( int argc, char ** argv )
         while (iss) iss >> dummy;             // except for the last argument
       }
 
-cout << "CHECK: " << dummy << endl;
-exit(1);
+//cout << "CHECK: " << dummy << endl;
+//exit(1);
 
       if (int(dummy) < 4 )
       {
