@@ -90,7 +90,7 @@ int main( int argc, char ** argv )
 
 	// now loop through and compute physical quantities
 	const double dx = 0.05, dy = 0.05;
-	const double xmin = -5.0, ymin = -5.0;
+	const double xmin = -15.0, ymin = -15.0;
 	const double xmax = -xmin, ymax = -ymin;
 
 	ofstream outfile( outfilename.c_str() );
