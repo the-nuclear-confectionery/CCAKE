@@ -197,10 +197,10 @@ int main( int argc, char ** argv )
     const int iy0 = int((y0-ymin)/dy);
     const int x_box_size = 3.0*h/dx;
     const int y_box_size = 3.0*h/dy;
-    const int ix_min = max(0, ix0-x_box_size);
-    const int ix_max = min(xGrid.size()-1, ix0+x_box_size);
-    const int iy_min = max(0, iy0-y_box_size);
-    const int iy_max = min(yGrid.size()-1, iy0+y_box_size);
+    const int ix_min = std::max(0, ix0-x_box_size);
+    const int ix_max = std::min((int)xGrid.size()-1, ix0+x_box_size);
+    const int iy_min = std::max(0, iy0-y_box_size);
+    const int iy_max = std::min((int)yGrid.size()-1, iy0+y_box_size);
 
     for (int ix = ix_min; ix <= ix_max; ix++)
     for (int iy = iy_min; iy <= iy_max; iy++)
