@@ -225,8 +225,8 @@ int main( int argc, char ** argv )
 
 	ofstream outfile( outfilename.c_str() );
 
-  for (int ix = ix_min; ix <= ix_max; ix++)
-  for (int iy = iy_min; iy <= iy_max; iy++)
+  for (int ix = 0; ix < xGrid.size(); ix++)
+  for (int iy = 0; iy < yGrid.size(); iy++)
   {
     int index       = grid_index(ix, iy);
     double x0       = xGrid[ix];
