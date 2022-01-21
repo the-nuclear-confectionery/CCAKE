@@ -30,7 +30,7 @@ for i in range(1, numberOfFrames+1):
     fig, ax = plt.subplots( nrows=1, ncols=1 )
 
     length = int(np.sqrt(f.size))
-    psm = plt.imshow(f.reshape(length, length), cmap=plt.cm.viridis, interpolation='bicubic', extent=extent)
+    psm = plt.imshow(f.reshape(length, length), cmap=plt.cm.inferno, interpolation='bicubic', extent=extent)
 
     plt.text(0.075, 0.925, r'$\tau = %(t)5.2f$ fm$/c$'%{'t': tau}, \
             {'color': 'white', 'fontsize': 12}, transform=ax.transAxes,
