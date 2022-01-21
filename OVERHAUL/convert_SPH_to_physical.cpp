@@ -64,7 +64,10 @@ int main( int argc, char ** argv )
         while (iss) iss >> dummy;             // except for the last argument
       }
 
-      if (int(dummy) != 5 )
+cout << "CHECK: " << dummy << endl;
+exit(1);
+
+      if (int(dummy) < 4 )
       {
         xvec.push_back( x );
         yvec.push_back( y );
