@@ -23,7 +23,7 @@ for i in range(1, numberOfFrames+1):
     data = np.loadtxt(filename, usecols=(0,1,2,colToPlot))
     tau = data[0,0]
     data = data[:,1:]  # set tau and then discard that column
-    data = data[np.where((np.abs(data[:,0])<5.0) & (np.abs(data[:,1])<5.0))]
+    data = data[np.where((np.abs(data[:,0])<15.0) & (np.abs(data[:,1])<15.0))]
     [x, y, f] = data.T
 
     extent = np.min(x), np.max(x), np.min(y), np.max(y)
