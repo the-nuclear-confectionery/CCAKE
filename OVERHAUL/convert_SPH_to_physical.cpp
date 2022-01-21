@@ -29,6 +29,13 @@ double kernel( double x, double y )
 	}
 }
 
+int nX = 0, nY = 0;
+
+int grid_index(int ix, int iy)
+{
+  return ix * nY + iy;
+}
+
 
 int main( int argc, char ** argv )
 {
@@ -89,13 +96,15 @@ int main( int argc, char ** argv )
 	infile.close();
 
 	// now loop through and compute physical quantities
+  constexpr double TINY = 1e-10;
 	const double dx = 0.05, dy = 0.05;
 	const double xmin = -15.0, ymin = -15.0;
 	const double xmax = -xmin, ymax = -ymin;
 
+	/*
 	ofstream outfile( outfilename.c_str() );
 
-	for (double x_local = xmin; x_local < xmax + 1e-10; x_local += dx )
+  for (double x_local = xmin; x_local < xmax + 1e-10; x_local += dx )
 	for (double y_local = ymin; y_local < ymax + 1e-10; y_local += dy )
 	{
 		double normalization 				= 1e-100;	// protects from dividing by zero below
@@ -147,7 +156,101 @@ int main( int argc, char ** argv )
 			<< energy_density << "   " << baryon_density << "   " << strange_density << "   "
 			<< electric_density << "   " << entropy_density << "\n";
 
-	}
+	}*/
+
+  vector<double> xGrid, yGrid;
+  for (double x_local = xmin; x_local < xmax + 1e-10; x_local += dx )
+    xGrid.push_back( x_local );
+  for (double y_local = ymin; y_local < ymax + 1e-10; y_local += dy )
+    yGrid.push_back( y_local );
+
+  nX = xGrid.size();
+  nY = yGrid.size();
+
+  vector<double> normGrid(nX*nY, 1e-100);
+  vector<double> TGrid(nX*nY);
+  vector<double> muBGrid(nX*nY);
+  vector<double> muSGrid(nX*nY);
+  vector<double> muQGrid(nX*nY);
+  vector<double> eGrid(nX*nY);
+  vector<double> BGrid(nX*nY);
+  vector<double> SGrid(nX*nY);
+  vector<double> QGrid(nX*nY);
+  vector<double> sGrid(nX*nY);
+
+  // loop over SPH particles
+  for (int iSPH = 0; iSPH < nSPH; iSPH++)
+  {
+    const double x0  = xvec[iSPH];
+    const double y0  = yvec[iSPH];
+    const double e   = evec[iSPH];
+    const double B   = Bvec[iSPH];
+    const double S   = Svec[iSPH];
+    const double Q   = Qvec[iSPH];
+    const double T   = Tvec[iSPH];
+    const double muB = muBvec[iSPH];
+    const double muS = muSvec[iSPH];
+    const double muQ = muQvec[iSPH];
+    const double s   = svec[iSPH];
+
+    const int ix0 = int((x0-xmin)/dx);
+    const int iy0 = int((y0-ymin)/dy);
+    const int x_box_size = 3.0*h/dx;
+    const int y_box_size = 3.0*h/dy;
+    const int ix_min = max(0, ix0-x_box_size);
+    const int ix_max = min(xGrid.size()-1, ix0+x_box_size);
+    const int iy_min = max(0, iy0-y_box_size);
+    const int iy_max = min(yGrid.size()-1, iy0+y_box_size);
+
+    for (int ix = ix_min; ix <= ix_max; ix++)
+    for (int iy = iy_min; iy <= iy_max; iy++)
+    {
+      int index        = grid_index(ix, iy);
+      double delta_x   = xGrid[ix] - x0;
+      double delta_y   = yGrid[iy] - y0;
+      double kern      = kernel(delta_x, delta_y);
+
+			normGrid[index] += kern;
+			eGrid[index]    += kern * e;
+			BGrid[index]    += kern * B;
+			SGrid[index]    += kern * S;
+			QGrid[index]    += kern * Q;
+			TGrid[index]    += kern * T;
+			muBGrid[index]  += kern * muB;
+			muSGrid[index]  += kern * muS;
+			muQGrid[index]  += kern * muQ;
+			sGrid[index]    += kern * s;
+    }
+  }
+
+	ofstream outfile( outfilename.c_str() );
+
+  for (int ix = ix_min; ix <= ix_max; ix++)
+  for (int iy = iy_min; iy <= iy_max; iy++)
+  {
+    int index       = grid_index(ix, iy);
+    double x0       = xGrid[ix];
+    double y0       = yGrid[iy];
+
+    // normalize results
+    double norm     = normGrid[index];
+		eGrid[index]   /= norm;
+		BGrid[index]   /= norm;
+		SGrid[index]   /= norm;
+		QGrid[index]   /= norm;
+		TGrid[index]   /= norm;
+		muBGrid[index] /= norm;
+		muSGrid[index] /= norm;
+		muQGrid[index] /= norm;
+		sGrid[index]   /= norm;
+
+		outfile << setw(12) << setprecision(8) << scientific
+			<< tau << "   "   << x0 << "   " << y0 << "   "
+			<< TGrid[index]   << "   " << muBGrid[index] << "   "
+			<< muSGrid[index] << "   " << muQGrid[index] << "   "
+			<< eGrid[index]   << "   " << BGrid[index]   << "   " << SGrid[index] << "   "
+			<< QGrid[index]   << "   " << sGrid[index]   << "\n";
+  }
 
 	outfile.close();
 
