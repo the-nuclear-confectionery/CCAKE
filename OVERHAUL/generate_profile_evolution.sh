@@ -15,45 +15,43 @@ nFiles=$(\ls -1 ${resultsDirectory}/${physicalProfileStem}*${insuffix} | wc -l)
 nFrames=$((nFiles<maxFrames ? nFiles : maxFrames))
 
 
-'''
-python3 plot_profile.py \
-	${resultsDirectory}/${physicalProfileStem} \
-	${resultsDirectory}/"TProfile" \
-	${insuffix} ${outsuffix} $nFrames '$T$ (MeV)' 3 temperature
-python3 plot_profile.py \
-	${resultsDirectory}/${physicalProfileStem} \
-	${resultsDirectory}/"muBProfile" \
-	${insuffix} ${outsuffix} $nFrames '$\mu_B$ (MeV)' 4 baryon_chemical_potential
-python3 plot_profile.py \
-	${resultsDirectory}/${physicalProfileStem} \
-	${resultsDirectory}/"muSProfile" \
-	${insuffix} ${outsuffix} $nFrames '$\mu_S$ (MeV)' 5 strange_chemical_potential
-python3 plot_profile.py \
-	${resultsDirectory}/${physicalProfileStem} \
-	${resultsDirectory}/"muQProfile" \
-	${insuffix} ${outsuffix} $nFrames '$\mu_Q$ (MeV)' 6 electric_chemical_potential
-  '''
+
+#python3 plot_profile.py \
+#	${resultsDirectory}/${physicalProfileStem} \
+#	${resultsDirectory}/"TProfile" \
+#	${insuffix} ${outsuffix} $nFrames '$T$ (MeV)' 3 temperature
+#python3 plot_profile.py \
+#	${resultsDirectory}/${physicalProfileStem} \
+#	${resultsDirectory}/"muBProfile" \
+#	${insuffix} ${outsuffix} $nFrames '$\mu_B$ (MeV)' 4 baryon_chemical_potential
+#python3 plot_profile.py \
+#	${resultsDirectory}/${physicalProfileStem} \
+#	${resultsDirectory}/"muSProfile" \
+#	${insuffix} ${outsuffix} $nFrames '$\mu_S$ (MeV)' 5 strange_chemical_potential
+#python3 plot_profile.py \
+#	${resultsDirectory}/${physicalProfileStem} \
+#	${resultsDirectory}/"muQProfile" \
+#	${insuffix} ${outsuffix} $nFrames '$\mu_Q$ (MeV)' 6 electric_chemical_potential
+
 
 python3 plot_profile.py \
 	${resultsDirectory}/${physicalProfileStem} \
 	${resultsDirectory}/"eProfile" \
 	${insuffix} ${outsuffix} $nFrames '$e$ (MeV/fm$^3$)' 7 energy_density
 
-'''
-python3 plot_profile.py \
-	${resultsDirectory}/${physicalProfileStem} \
-	${resultsDirectory}/"rhoBProfile" \
-	${insuffix} ${outsuffix} $nFrames '$\rho_B$ (fm$^{-3}$)' 8 baryon_density
-python3 plot_profile.py \
-	${resultsDirectory}/${physicalProfileStem} \
-	${resultsDirectory}/"rhoSProfile" \
-	${insuffix} ${outsuffix} $nFrames '$\rho_S$ (fm$^{-3}$)' 9 strange_density
-python3 plot_profile.py \
-	${resultsDirectory}/${physicalProfileStem} \
-	${resultsDirectory}/"rhoQProfile" \
-	${insuffix} ${outsuffix} $nFrames '$\rho_Q$ (fm$^{-3}$)' 10 electric_density
+#python3 plot_profile.py \
+#	${resultsDirectory}/${physicalProfileStem} \
+#	${resultsDirectory}/"rhoBProfile" \
+#	${insuffix} ${outsuffix} $nFrames '$\rho_B$ (fm$^{-3}$)' 8 baryon_density
+#python3 plot_profile.py \
+#	${resultsDirectory}/${physicalProfileStem} \
+#	${resultsDirectory}/"rhoSProfile" \
+#	${insuffix} ${outsuffix} $nFrames '$\rho_S$ (fm$^{-3}$)' 9 strange_density
+#python3 plot_profile.py \
+#	${resultsDirectory}/${physicalProfileStem} \
+#	${resultsDirectory}/"rhoQProfile" \
+#	${insuffix} ${outsuffix} $nFrames '$\rho_Q$ (fm$^{-3}$)' 10 electric_density
 
-'''
 
 #mkdir -p $moviesDirectory
 #rm -rf ${moviesDirectory}/eProfile.mp4 ${moviesDirectory}/rhoBProfile.mp4 \
