@@ -390,13 +390,15 @@ bool EquationOfState::rootfinder_update_s(double sin, double Bin, double Sin, do
     tbqs( result, false );
     return success;
   }
-  else
+  else if (use_conformal_as_fallback)
   {
     success = rootfinder.find_sBSQ_root( sin, Bin, Sin, Qin, conformal_sBSQ_functional,
                                          conformal_tbqs_minima, conformal_tbqs_maxima, result );
     tbqs( result, true );
     return success;
   }
+  else
+    return false;
 }
 ////////////////////////////////////////////////
 
@@ -447,13 +449,15 @@ double EquationOfState::rootfinder_s_out(double ein, double Bin, double Sin, dou
     tbqs( result, false );
     return entrVal;
   }
-  else
+  else if ( use_conformal_as_fallback )
   {
     success = rootfinder.find_eBSQ_root( ein, Bin, Sin, Qin, conformal_eBSQ_functional,
                                          conformal_tbqs_minima, conformal_tbqs_maxima, result );
     tbqs( result, true );
     return entrVal;
   }
+  else
+    return false;
 }
 ////////////////////////////////////////////////
 

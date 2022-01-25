@@ -37,9 +37,10 @@ public:
     void init();
     void init(string quantityFile, string derivFile);
     void init_grid_ranges_only(string quantityFile, string derivFile);
-    void tbqs(double setT, double setmuB, double setmuQ, double setmuS);
-    void tbqs( vector<double> & tbqsIn );
-
+    void tbqs(double setT, double setmuB, double setmuQ, double setmuS, bool use_conformal);
+    void tbqs( vector<double> & tbqsIn, bool use_conformal );
+    bool point_not_in_range( double setT, double setmuB, double setmuQ,
+                             double setmuS, bool use_conformal );
     //getter functions for the quantities of interest at the current tbs/tbqs
     double T()   const;     //temperature
     double muB() const;   //baryon chemical potential
