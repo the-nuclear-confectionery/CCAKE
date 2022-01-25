@@ -41,38 +41,62 @@ EquationOfState::EquationOfState(string quantityFile, string derivFile)
 
 
 ////////////////////////////////////////////////////////////////////////////////
-void EquationOfState::tbqs( vector<double> & tbqsIn )
+bool EquationOfState::point_not_in_range(
+                        double setT, double setmuB, double setmuQ,
+                        double setmuS, bool use_conformal )
 {
-  tbqs( tbqsIn[0], tbqsIn[1], tbqsIn[2], tbqsIn[3] );
+  auto & tbqs_mins = ( use_conformal ) ? conformal_tbqs_minima : tbqs_minima;
+  auto & tbqs_maxs = ( use_conformal ) ? conformal_tbqs_maxima : tbqs_maxima;
+  string conformal_string = ( use_conformal ) ? "conformal" : "non-conformal";
+
+  if(setT < tbqs_mins[0] || setT > tbqs_maxs[0])
+  { 
+    std::cout << "T = " << setT
+      << " is out of (" << conformal_string << ") range."
+         " Valid values are between ["
+      << tbqs_mins[0] << "," << tbqs_maxs[0] << "]" << std::endl;
+    return true;
+  }
+  if(setmuB < tbqs_mins[1] || setmuB > tbqs_maxs[1])
+  {
+    std::cout << "muB = " << setmuB
+      << " is out of (" << conformal_string << ") range."
+         " Valid values are between ["
+      << tbqs_mins[1] << "," << tbqs_maxs[1] << "]" << std::endl;
+    return true;
+  }
+  if(setmuQ < tbqs_mins[2] || setmuQ > tbqs_maxs[2])
+  {
+    std::cout << "muQ = " << setmuQ
+      << " is out of (" << conformal_string << ") range."
+         " Valid values are between ["
+      << tbqs_mins[2] << "," << tbqs_maxs[2] << "]" << std::endl;
+    return true;
+  }
+  if(setmuS < tbqs_mins[3] || setmuS > tbqs_maxs[3])
+  {
+    std::cout << "muS = " << setmuS
+      << " is out of (" << conformal_string << ") range."
+         " Valid values are between ["
+      << tbqs_mins[3] << "," << tbqs_maxs[3] << "]" << std::endl;
+    return true;
+  }
+  return false;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+void EquationOfState::tbqs( vector<double> & tbqsIn, bool use_conformal )
+{
+  tbqs( tbqsIn[0], tbqsIn[1], tbqsIn[2], tbqsIn[3], use_conformal);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void EquationOfState::tbqs(double setT, double setmuB, double setmuQ, double setmuS)
+void EquationOfState::tbqs( double setT, double setmuB, double setmuQ,
+                            double setmuS, bool use_conformal )
 {
-  if(setT < minT || setT > maxT)
-  {
-    std::cout << "T = " << setT << " is out of range. Valid values are between ["
-      << minT << "," << maxT << "]" << std::endl;
+  if ( point_not_in_range( setT, setmuB, setmuQ, setmuS, use_conformal ) )
     return;
-  }
-  if(setmuB < minMuB || setmuB > maxMuB)
-  {
-    std::cout << "muB = " << setmuB << " is out of range. Valid values are between ["
-      << minMuB << "," << maxMuB << "]" << std::endl;
-    return;
-  }
-  if(setmuQ < minMuQ || setmuQ > maxMuQ)
-  {
-    std::cout << "muQ = " << setmuQ << " is out of range. Valid values are between ["
-      << minMuQ << "," << maxMuQ << "]" << std::endl;
-    return;
-  }
-  if(setmuS < minMuS || setmuS > maxMuS)
-  {
-    std::cout << "muS = " << setmuS << " is out of range. Valid values are between ["
-      << minMuS << "," << maxMuS << "]" << std::endl;
-    return;
-  }
 
   tbqsPosition[0] = setT;
 	tbqsPosition[1] = setmuB;
@@ -80,13 +104,13 @@ void EquationOfState::tbqs(double setT, double setmuB, double setmuQ, double set
 	tbqsPosition[3] = setmuS;
 
   // if we are in range, compute all thermodynamic quantities at the new point
-  evaluate_thermodynamics();
+  evaluate_thermodynamics(use_conformal);
 }
 
 
-void EquationOfState::evaluate_thermodynamics()
+void EquationOfState::evaluate_thermodynamics(bool use_conformal)
 {
-  if ( settingsPtr->EoS_type == "Conformal" )
+  if ( settingsPtr->EoS_type == "Conformal" or use_conformal )
   {
     // EXPECTS UNITS OF MEV!!!
     double phase_diagram_point[4]
@@ -255,29 +279,39 @@ double EquationOfState::dwdQ()
 
 
 double EquationOfState::cs2out(double Tt) {  //return cs2 given t and mu's=0
-    tbqs(Tt, 0.0, 0.0, 0.0);
+cout << "Entering " << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
+    tbqs(Tt, 0.0, 0.0, 0.0, false);
+cout << "Leaving " << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
     return cs2Val;
 }
 
 double EquationOfState::cs2out(double Tt, double muBin, double muQin, double muSin) {  //return cs2 given t and mu's
-    tbqs(Tt, muBin, muQin, muSin);
+cout << "Entering " << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
+    tbqs(Tt, muBin, muQin, muSin, false);
+cout << "Leaving " << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
     return cs2Val;
 }
 
 double EquationOfState::wfz(double Tt) {   // return e + p for tbqs
-    tbqs(Tt, 0.0, 0.0, 0.0);
+cout << "Entering " << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
+    tbqs(Tt, 0.0, 0.0, 0.0, false);
+cout << "Leaving " << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
     return eVal + pVal;
 }
 
 double EquationOfState::wfz(double Tt, double muBin, double muQin, double muSin) {   // return e + p for tbqs
-    tbqs(Tt, muBin, muQin, muSin);
+cout << "Entering " << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
+    tbqs(Tt, muBin, muQin, muSin, false);
+cout << "Leaving " << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
     return eVal + pVal;
 }
 
 
 double EquationOfState::s_terms_T(double Tt)
 {
-  tbqs(Tt, 0, 0, 0);
+cout << "Entering " << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
+  tbqs(Tt, 0, 0, 0, false);
+cout << "Leaving " << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
   return entrVal;
 }
 
@@ -291,13 +325,13 @@ double EquationOfState::A() { return w()-s()*dwds(); }
 // confirm with Jaki
 double EquationOfState::efreeze(double T_freeze_out_at_mu_eq_0)
 {
-  tbqs(T_freeze_out_at_mu_eq_0, 0, 0, 0);
+  tbqs(T_freeze_out_at_mu_eq_0, 0, 0, 0, false);
   return eVal;
 }
 
 double EquationOfState::sfreeze(double T_freeze_out_at_mu_eq_0)
 {
-  return s_terms_T(T_freeze_out_at_mu_eq_0);
+  return s_terms_T(T_freeze_out_at_mu_eq_0, false);
 }
 
 
@@ -340,7 +374,7 @@ bool EquationOfState::delaunay_update_s(double sin, double Bin, double Sin, doub
 
   //bool success = entr_delaunay.interpolate( {sin, Bin, Sin, Qin}, result, true );
   bool success = false;
-  tbqs( result );
+  tbqs( result, false );
   return success;
 }
 
@@ -349,9 +383,20 @@ bool EquationOfState::rootfinder_update_s(double sin, double Bin, double Sin, do
 {
   vector<double> result = tbqsPosition;
   
-  bool success = rootfinder.find_sBSQ_root( sin, Bin, Sin, Qin, sBSQ_functional, result );
-  tbqs( result );
-  return success;
+  bool success = rootfinder.find_sBSQ_root( sin, Bin, Sin, Qin, sBSQ_functional,
+                                            tbqs_minima, tbqs_maxima, result );
+  if (success)
+  {
+    tbqs( result, false );
+    return success;
+  }
+  else
+  {
+    success = rootfinder.find_sBSQ_root( sin, Bin, Sin, Qin, conformal_sBSQ_functional,
+                                         conformal_tbqs_minima, conformal_tbqs_maxima, result );
+    tbqs( result, true );
+    return success;
+  }
 }
 ////////////////////////////////////////////////
 
@@ -387,7 +432,7 @@ double EquationOfState::delaunay_s_out(double ein, double Bin, double Sin, doubl
   }
   vector<double> result = tbqsPosition;
   //e_delaunay.interpolate( {ein, Bin, Sin, Qin}, result, true );
-  tbqs( result );
+  tbqs( result, false );
   return entrVal;
 }
 
@@ -395,12 +440,20 @@ double EquationOfState::delaunay_s_out(double ein, double Bin, double Sin, doubl
 double EquationOfState::rootfinder_s_out(double ein, double Bin, double Sin, double Qin)
 {
   vector<double> result = tbqsPosition;
-  bool success = rootfinder.find_eBSQ_root( ein, Bin, Sin, Qin, eBSQ_functional, result );
-  tbqs( result );
-  //if (success)
+  bool success = rootfinder.find_eBSQ_root( ein, Bin, Sin, Qin, eBSQ_functional,
+                                            tbqs_minima, tbqs_maxima, result );
+  if (success)
+  {
+    tbqs( result, false );
     return entrVal;
-  //else
-  //  return -fabs(entrVal);
+  }
+  else
+  {
+    success = rootfinder.find_eBSQ_root( ein, Bin, Sin, Qin, conformal_eBSQ_functional,
+                                         conformal_tbqs_minima, conformal_tbqs_maxima, result );
+    tbqs( result, true );
+    return entrVal;
+  }
 }
 ////////////////////////////////////////////////
 

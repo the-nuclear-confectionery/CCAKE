@@ -311,9 +311,15 @@ cout << "\t --> " << __LINE__ << ": "
 ////////////////////////////////////////////////////////////////////////////////
 bool Rootfinder::find_eBSQ_root( double ein, double Bin, double Sin, double Qin,
                           std::function<void(double[], double[])> function_to_evaluate,
+                           vector<double> & tbqs_minima,
+                           vector<double> & tbqs_maxima,
                           vector<double> & updated_tbqs )
 {
     int number_of_attempts = 1;
+    minT   = tbqs_minima[0]; maxT   = tbqs_maxima[0];
+    minMuB = tbqs_minima[1]; maxMuB = tbqs_maxima[1];
+    minMuQ = tbqs_minima[2]; maxMuQ = tbqs_maxima[2];
+    minMuS = tbqs_minima[3]; maxMuS = tbqs_maxima[3];
     tbqsPosition = updated_tbqs;
 
     if (rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS,
@@ -459,9 +465,15 @@ cout << __PRETTY_FUNCTION__ << ": failed after " << number_of_attempts << "!" <<
 ////////////////////////////////////////////////////////////////////////////////
 bool Rootfinder::find_sBSQ_root( double sin, double Bin, double Sin, double Qin,
                            std::function<void(double[], double[])> function_to_evaluate,
+                           vector<double> & tbqs_minima,
+                           vector<double> & tbqs_maxima,
                            vector<double> & updated_tbqs )
 {
     int number_of_attempts = 1;
+    minT   = tbqs_minima[0]; maxT   = tbqs_maxima[0];
+    minMuB = tbqs_minima[1]; maxMuB = tbqs_maxima[1];
+    minMuQ = tbqs_minima[2]; maxMuQ = tbqs_maxima[2];
+    minMuS = tbqs_minima[3]; maxMuS = tbqs_maxima[3];
     tbqsPosition = updated_tbqs;
 
     if (rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS,

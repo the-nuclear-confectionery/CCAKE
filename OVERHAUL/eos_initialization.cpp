@@ -53,15 +53,23 @@ void EquationOfState::init(string quantityFile, string derivFile)
     
     // set density-computing functions appropriately
     std::function<void(double[], double[])> f_eBSQ = eos_conformal::get_eBSQ;
-    set_eBSQ_functional( f_eBSQ );
+    set_conformal_eBSQ_functional( f_eBSQ );
     std::function<void(double[], double[])> f_sBSQ = eos_conformal::get_sBSQ;
-    set_sBSQ_functional( f_sBSQ );
+    set_conformal_sBSQ_functional( f_sBSQ );
 
+    /*
     // set minima and maxima (can be arbitrarily large)
     minT   =  0.0;     minMuB = -10000.0;
     minMuS = -10000.0; minMuQ = -10000.0;
     maxT   =  10000.0; maxMuB =  10000.0;
     maxMuS =  10000.0; maxMuQ =  10000.0;
+    */
+    double conformal_scale = 100000.0;
+    conformal_tbqs_minima = { 0.0,             -conformal_scale,
+                             -conformal_scale, -conformal_scale };
+    conformal_tbqs_maxima = { conformal_scale, conformal_scale,
+                              conformal_scale, conformal_scale };
+    
   }
   else if ( use_static_C_library )
   {
@@ -122,12 +130,14 @@ void EquationOfState::init(string quantityFile, string derivFile)
     equation_of_state_table.rescale( "chiTT", "T", 2 );
 
     // set grid ranges
-    vector<double> grid_minima = equation_of_state_table.get_grid_minima();
+    /*vector<double> grid_minima = equation_of_state_table.get_grid_minima();
     vector<double> grid_maxima = equation_of_state_table.get_grid_maxima();
     minT   = grid_minima[0]; minMuB = grid_minima[1];
     minMuS = grid_minima[2]; minMuQ = grid_minima[3];
     maxT   = grid_maxima[0]; maxMuB = grid_maxima[1];
-    maxMuS = grid_maxima[2]; maxMuQ = grid_maxima[3];
+    maxMuS = grid_maxima[2]; maxMuQ = grid_maxima[3];*/
+    tbqs_minima = equation_of_state_table.get_grid_minima();
+    tbqs_maxima = equation_of_state_table.get_grid_maxima();
 
     // set functions from interpolant
     std::function<void(double[], double[])> f_eBSQ = get_eBSQ_densities_from_interpolator;
@@ -139,6 +149,33 @@ void EquationOfState::init(string quantityFile, string derivFile)
     //std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     //init_grid(quantityFile, derivFile);
   }
+
+  // set up conformal option in this case as well
+  if ( use_conformal_as_fallback )
+  {
+    std::cout << "Setting up equation of state as fallback "
+                 "when default equation of state fails" << std::endl;
+    const double Nc = 3.0, Nf = 2.5;  // u+d massless, s 'half massless'
+    eos_conformal::c    = pi*pi*(2.0*(Nc*Nc-1.0)+(7.0/2.0)*Nc*Nf)/90.0;
+    eos_conformal::T0   = 1.0;
+    eos_conformal::muB0 = 1.0;
+    eos_conformal::muQ0 = 1.0;
+    eos_conformal::muS0 = 1.0;
+    
+    // set density-computing functions appropriately
+    std::function<void(double[], double[])> f_eBSQ = eos_conformal::get_eBSQ;
+    set_conformal_eBSQ_functional( f_eBSQ );
+    std::function<void(double[], double[])> f_sBSQ = eos_conformal::get_sBSQ;
+    set_conformal_sBSQ_functional( f_sBSQ );
+
+    // set minima and maxima (can be arbitrarily large)
+    double conformal_scale = 100000.0;
+    conformal_tbqs_minima = { 0.0,             -conformal_scale,
+                             -conformal_scale, -conformal_scale };
+    conformal_tbqs_maxima = { conformal_scale, conformal_scale,
+                              conformal_scale, conformal_scale };
+    
+  }
   //////////////////////////////////////////////////////////////////////////////
 
   //////////////////////////////////////////////////////////////////////////////
@@ -146,8 +183,8 @@ void EquationOfState::init(string quantityFile, string derivFile)
   if ( use_rootfinder )
   {
     // initialize Rootfinder ranges
-    rootfinder.set_grid_ranges( minT, maxT, minMuB, maxMuB,
-                                minMuS, maxMuS, minMuQ, maxMuQ );
+    //rootfinder.set_grid_ranges( minT, maxT, minMuB, maxMuB,
+    //                            minMuS, maxMuS, minMuQ, maxMuQ );
   }
   else if ( use_delaunay )
   {
@@ -167,6 +204,14 @@ void EquationOfState::init_grid_ranges_only(string quantityFile, string derivFil
     std::ifstream dataFile;
     dataFile.open(quantityFile);
 
+    double maxMuB        = 0.0;
+    double minMuB        = 0.0;
+    double maxMuQ        = 0.0;
+    double minMuQ        = 0.0;
+    double maxMuS        = 0.0;
+    double minMuS        = 0.0;
+    double maxT          = 0.0;
+    double minT          = 0.0;
     double tit, muBit, muQit, muSit, pit, entrit, bit, sit, qit, eit, cs2it;
 
     int count = 0;
@@ -205,6 +250,10 @@ void EquationOfState::init_grid_ranges_only(string quantityFile, string derivFil
         if (minMuS > muSit) minMuS = muSit;
         
 	}
+
+  // initialize grid ranges here
+  tbqs_minima = {minT, minMuB, minMuQ, minMuS};
+  tbqs_maxima = {maxT, maxMuB, maxMuQ, maxMuS};
 
   dataFile.close();
 

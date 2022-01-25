@@ -586,7 +586,6 @@ void SystemState::bsqsvinterpolate(int curfrz)
       cout << __PRETTY_FUNCTION__ << ": Not at freeze-out temperature" << endl;
     }
 
-    //sFO[j]       = _p[0].EOSs_terms_T(Tfluc[j]);  // unnecessary since all EOS's identical
     sFO[j]       = p.eosPtr->s_terms_T( Tfluc[j] );
 
     gsub[j]      = sqrt( Norm2(uout[j]) + 1 );

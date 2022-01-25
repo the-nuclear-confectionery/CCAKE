@@ -79,13 +79,24 @@ public:
     double s_out(double ein, double Bin, double Sin, double Qin);
     double s_out(double ein);
 
-    void set_eBSQ_functional( std::function<void(double[], double[])> fIn ) { eBSQ_functional = fIn; }
-    void set_sBSQ_functional( std::function<void(double[], double[])> fIn ) { sBSQ_functional = fIn; }
+    void set_eBSQ_functional( std::function<void(double[], double[])> fIn )
+          { eBSQ_functional = fIn; }
+    void set_sBSQ_functional( std::function<void(double[], double[])> fIn )
+          { sBSQ_functional = fIn; }
+    void set_conformal_eBSQ_functional( std::function<void(double[], double[])> fIn )
+          { eBSQ_functional = fIn; }
+    void set_conformal_sBSQ_functional( std::function<void(double[], double[])> fIn )
+          { sBSQ_functional = fIn; }
 
     void set_SettingsPtr( Settings * settingsPtr_in );
 
     std::function<void(double[], double[])> eBSQ_functional;
     std::function<void(double[], double[])> sBSQ_functional;
+    std::function<void(double[], double[])> conformal_eBSQ_functional;
+    std::function<void(double[], double[])> conformal_sBSQ_functional;
+
+    vector<double> tbqs_minima, tbqs_maxima;
+    vector<double> conformal_tbqs_minima, conformal_tbqs_maxima;
 
 
 private:
@@ -102,6 +113,7 @@ private:
     static constexpr bool use_static_C_library                = true;
     static constexpr bool accept_nearest_neighbor             = false;
     static constexpr bool discard_unsolvable_charge_densities = false;
+    static constexpr bool use_conformal_as_fallback           = false;
 
     //static constexpr size_t STEPS     = 1000;
     static constexpr int VERBOSE      = 0;
@@ -137,6 +149,7 @@ private:
     double dtdq          = 0.0; //second derivative of pressure wrt i and j 
                                 //where didj =: (d^2p)/(didj) or di2 = (d^2p)/((di)^2)
 
+    /*
     double maxMuB        = 0.0;
     double minMuB        = 0.0;
     double maxMuQ        = 0.0;
@@ -145,6 +158,7 @@ private:
     double minMuS        = 0.0;
     double maxT          = 0.0;
     double minT          = 0.0; //EOS range used for rootfinder checks
+    */
 
     ////////////////////////////////////////////////////////////////////////////
     // ROUTINES NEEDED FOR COMPUTING THERMODYNAMIC DERIVATIVES
