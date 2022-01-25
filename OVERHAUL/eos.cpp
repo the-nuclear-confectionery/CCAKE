@@ -385,9 +385,10 @@ bool EquationOfState::rootfinder_update_s(double sin, double Bin, double Sin, do
   
   bool success = rootfinder.find_sBSQ_root( sin, Bin, Sin, Qin, sBSQ_functional,
                                             tbqs_minima, tbqs_maxima, result );
+  tbqs( result, false );
+
   if (success)
   {
-    tbqs( result, false );
     return success;
   }
   else if (use_conformal_as_fallback)
@@ -444,9 +445,10 @@ double EquationOfState::rootfinder_s_out(double ein, double Bin, double Sin, dou
   vector<double> result = tbqsPosition;
   bool success = rootfinder.find_eBSQ_root( ein, Bin, Sin, Qin, eBSQ_functional,
                                             tbqs_minima, tbqs_maxima, result );
+  tbqs( result, false );
+
   if (success)
   {
-    tbqs( result, false );
     return entrVal;
   }
   else if ( use_conformal_as_fallback )
@@ -457,7 +459,7 @@ double EquationOfState::rootfinder_s_out(double ein, double Bin, double Sin, dou
     return entrVal;
   }
   else
-    return false;
+    return entrVal;
 }
 ////////////////////////////////////////////////
 
