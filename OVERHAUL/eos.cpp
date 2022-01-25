@@ -331,7 +331,7 @@ double EquationOfState::efreeze(double T_freeze_out_at_mu_eq_0)
 
 double EquationOfState::sfreeze(double T_freeze_out_at_mu_eq_0)
 {
-  return s_terms_T(T_freeze_out_at_mu_eq_0, false);
+  return s_terms_T(T_freeze_out_at_mu_eq_0);
 }
 
 

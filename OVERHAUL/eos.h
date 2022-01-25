@@ -73,7 +73,7 @@ public:
     double wfz(double Tt);
     double s_terms_T(double Tt); 
 
-    void evaluate_thermodynamics();
+    void evaluate_thermodynamics(bool use_conformal);
 
     bool update_s(double sin, double Bin, double Sin, double Qin);
     bool update_s(double sin);
