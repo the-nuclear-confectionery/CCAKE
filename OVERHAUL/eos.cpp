@@ -490,8 +490,12 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
   {
     solution_found = rootfinder.find_eBSQ_root( ein, Bin, Sin, Qin, conformal_eBSQ_functional,
                                          conformal_tbqs_minima, conformal_tbqs_maxima, result );
+    if (solution_found)
+      cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << ": found solution with fallback!" << endl;
+    else
+      cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << ": did not find solution with fallback!" << endl;
+
     solution_found = false;
-    cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << ": using fallback!" << endl;
     tbqs( result, true );
     return entrVal;
   }
