@@ -214,4 +214,7 @@ private:
     eos_delaunay e_delaunay;
     eos_delaunay entr_delaunay;
 
+public:
+  bool using_conformal_as_fallback(){ return use_conformal_as_fallback; }
+
 };

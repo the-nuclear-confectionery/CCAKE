@@ -99,9 +99,13 @@ double Particle::locate_phase_diagram_point_eBSQ(// previously s_out
 
     cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << ": solution_found = " << solution_found << endl;
 
-    if ( solution_found )
+    // save results if either default or conformal EoS returned a result
+    // (assumes latter always succeeds)
+    if ( solution_found or eosPtr->using_conformal_as_fallback() )
       thermo.set(*eosPtr);
-    else
+
+    // if default EoS failed, don't propagate this particle further
+    if ( not solution_found )
       Freeze = 5; // new label for (totally decoupled) particles which go outside grid
 
     return sVal;

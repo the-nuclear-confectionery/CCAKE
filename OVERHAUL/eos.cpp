@@ -385,21 +385,17 @@ bool EquationOfState::rootfinder_update_s(double sin, double Bin, double Sin, do
   
   bool success = rootfinder.find_sBSQ_root( sin, Bin, Sin, Qin, sBSQ_functional,
                                             tbqs_minima, tbqs_maxima, result );
-  tbqs( result, false );
 
+  /// IMPORTANT: CURRENTLY DOES NOT IMPLEMENT CONFORMAL FALLBACK FOR UPDATE_S
+  ///            SINCE PARTICLE SHOULD HAVE ALREADY RECEIVED AT LEAST ONE GUESS
+
+  // only set new output if root was successfully found
+  // (shouldn't matter, but just to be careful)
   if (success)
-  {
-    return success;
-  }
-  else if (use_conformal_as_fallback)
-  {
-    success = rootfinder.find_sBSQ_root( sin, Bin, Sin, Qin, conformal_sBSQ_functional,
-                                         conformal_tbqs_minima, conformal_tbqs_maxima, result );
-    tbqs( result, true );
-    return success;
-  }
-  else
-    return false;
+    tbqs( result, false );
+
+  return success;
+
 }
 ////////////////////////////////////////////////
 
