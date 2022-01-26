@@ -265,9 +265,12 @@ double EquationOfState::dwdB()
 
   // alternative way to implement charge terms
 	double charge_terms	= 0.0;
-  if ( abs(BVal)>1e-10 ) charge_terms += entrVal/db_dt() + BVal/db_dmub();
-  if ( abs(QVal)>1e-10 ) charge_terms += QVal/db_dmuq();
-  if ( abs(SVal)>1e-10 ) charge_terms += SVal/db_dmus();
+  if ( abs(BVal)>1e-10 )
+  {
+    charge_terms += entrVal/db_dt() + BVal/db_dmub();
+    if ( abs(QVal)>1e-10 ) charge_terms += QVal/db_dmuq();
+    if ( abs(SVal)>1e-10 ) charge_terms += SVal/db_dmus();
+  }
 
   return muB() + charge_terms;
 }
@@ -280,9 +283,12 @@ double EquationOfState::dwdS()
 
   // alternative way to implement charge terms
 	double charge_terms	= 0.0;
-  if ( abs(BVal)>1e-10 ) charge_terms += BVal/ds_dmub();
-  if ( abs(QVal)>1e-10 ) charge_terms += QVal/ds_dmuq();
-  if ( abs(SVal)>1e-10 ) charge_terms += entrVal/ds_dt() + SVal/ds_dmus();
+  if ( abs(SVal)>1e-10 )
+  {
+    charge_terms += entrVal/ds_dt() + SVal/ds_dmus();
+    if ( abs(BVal)>1e-10 ) charge_terms += BVal/ds_dmub();
+    if ( abs(QVal)>1e-10 ) charge_terms += QVal/ds_dmuq();
+  }
 
   return muS() + charge_terms;
 }
@@ -295,10 +301,12 @@ double EquationOfState::dwdQ()
 
   // alternative way to implement charge terms
 	double charge_terms	= 0.0;
-  if ( abs(BVal)>1e-10 ) charge_terms += BVal/dq_dmub();
-  if ( abs(QVal)>1e-10 ) charge_terms += entrVal/dq_dt() + QVal/dq_dmuq();
-  if ( abs(SVal)>1e-10 ) charge_terms += SVal/dq_dmus();
-
+  if ( abs(QVal)>1e-10 )
+  {
+    charge_terms += entrVal/dq_dt() + QVal/dq_dmuq();
+    if ( abs(BVal)>1e-10 ) charge_terms += BVal/dq_dmub();
+    if ( abs(SVal)>1e-10 ) charge_terms += SVal/dq_dmus();
+  }
 
   return muQ() + charge_terms;
 }
