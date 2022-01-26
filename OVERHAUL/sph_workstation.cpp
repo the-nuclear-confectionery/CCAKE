@@ -89,7 +89,7 @@ if (i==0)
                     p.e_sub, p.rhoB_an, p.rhoS_an, p.rhoQ_an );
 
 
-if (false && i==0)
+if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
 			<< p.sigmaweight << "   " << p.e_sub << "   "
 			<< p.T() << "   " << p.e() << "   "
@@ -135,7 +135,7 @@ if (false && i==0)
 			cout << "SPH particle " << i << ", locate_phase_diagram_point_eBSQ: completed "
 					<< successString << " in " << sw.printTime() << "s." << "\n";
 
-if (false && i==0)
+if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
 			<< p.sigmaweight << "   " << p.e_sub << "   "
 			<< p.T() << "   " << p.e() << "   "
@@ -196,7 +196,7 @@ if (false && i==0)
 		}
 		else
 		{
-if (false && i==0)
+if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
 			<< p.sigmaweight << "   " << p.e_sub << "   "
 			<< p.T() << "   " << p.e() << "   "
@@ -231,7 +231,7 @@ if (false && i==0)
 			for (int iii = 1; iii < 4; iii++) cout << "   " << densities_at_point[iii];
 			cout << "\n\t\t - freeze-out status:";
       cout << "   " << p.Freeze << "\n";
-if (false && i==0)
+if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
 			<< p.sigmaweight << "   " << p.e_sub << "   "
 			<< p.T() << "   " << p.e() << "   "
