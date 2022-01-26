@@ -97,6 +97,8 @@ double Particle::locate_phase_diagram_point_eBSQ(// previously s_out
     bool solution_found = false;
     double sVal = eosPtr->s_out( e_In, rhoB_In, rhoS_In, rhoQ_In, solution_found );
 
+    cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << ": solution_found = " << solution_found << endl;
+
     if ( solution_found )
       thermo.set(*eosPtr);
     else
