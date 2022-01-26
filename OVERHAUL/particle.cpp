@@ -101,7 +101,10 @@ double Particle::locate_phase_diagram_point_eBSQ(// previously s_out
 
     // save results if either default or conformal EoS returned a result
     // (assumes latter always succeeds)
-    if ( solution_found or eosPtr->using_conformal_as_fallback() )
+    // ignore_failure allows to reproduce old problematic behavior where
+    // meaningless seed value was used for TBQS solution
+    bool ignore_failure = true;
+    if ( solution_found or eosPtr->using_conformal_as_fallback() or ignore_failure )
       thermo.set(*eosPtr);
 
     // if default EoS failed, don't propagate this particle further
