@@ -85,9 +85,9 @@ public:
     void set_sBSQ_functional( std::function<void(double[], double[])> fIn )
           { sBSQ_functional = fIn; }
     void set_conformal_eBSQ_functional( std::function<void(double[], double[])> fIn )
-          { eBSQ_functional = fIn; }
+          { conformal_eBSQ_functional = fIn; }
     void set_conformal_sBSQ_functional( std::function<void(double[], double[])> fIn )
-          { sBSQ_functional = fIn; }
+          { conformal_sBSQ_functional = fIn; }
 
     void set_SettingsPtr( Settings * settingsPtr_in );
 
