@@ -77,8 +77,8 @@ public:
 
     bool update_s(double sin, double Bin, double Sin, double Qin);
     bool update_s(double sin);
-    double s_out(double ein, double Bin, double Sin, double Qin);
-    double s_out(double ein);
+    double s_out(double ein, double Bin, double Sin, double Qin, bool & solution_found);
+    double s_out(double ein, bool & solution_found);
 
     void set_eBSQ_functional( std::function<void(double[], double[])> fIn )
           { eBSQ_functional = fIn; }
@@ -196,8 +196,8 @@ private:
     // MISCELLANEOUS PRIVATE ROUTINES
     bool delaunay_update_s(double sin, double Bin, double Sin, double Qin);
     bool rootfinder_update_s(double sin, double Bin, double Sin, double Qin);
-    double delaunay_s_out(double ein, double Bin, double Sin, double Qin);
-    double rootfinder_s_out(double ein, double Bin, double Sin, double Qin);
+    double delaunay_s_out(double ein, double Bin, double Sin, double Qin, bool & solution_found);
+    double rootfinder_s_out(double ein, double Bin, double Sin, double Qin, bool & solution_found);
 
     // need these to be static to initialize std::function<...> objects
     static void get_eBSQ_densities_from_interpolator( double point[], double densities[] );

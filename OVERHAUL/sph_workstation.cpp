@@ -81,7 +81,7 @@ if (i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
 			<< p.sigmaweight << "   " << p.e_sub << "   "
 			<< p.T() << "   " << p.e() << "   "
-			<< p.p() << "   " << p.s_an << endl;
+			<< p.p() << "   " << p.s_an << "   " << p.Freeze << endl;
 
 
       // solve for the entropy density
@@ -89,11 +89,11 @@ if (i==0)
                     p.e_sub, p.rhoB_an, p.rhoS_an, p.rhoQ_an );
 
 
-if (i==0)
+if (false && i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
 			<< p.sigmaweight << "   " << p.e_sub << "   "
 			<< p.T() << "   " << p.e() << "   "
-			<< p.p() << "   " << p.s_an << endl;
+			<< p.p() << "   " << p.s_an << "   " << p.Freeze << endl;
 
 			if (true || settingsPtr->VERBOSE>5)
 			{
@@ -101,7 +101,6 @@ if (i==0)
 				{
 					double phase_diagram_point[4] = { p.T(), p.muB(), p.muQ(), p.muS() };
 					double densities_at_point[4];
-//					STANDARD_get_eBSQ_densities(phase_diagram_point, densities_at_point);
           p.eosPtr->eBSQ_functional( phase_diagram_point, densities_at_point );
 					cout << i << ":   " << p.e_sub*hbarc_MeVfm
 						<< "   " << p.rhoB_an
@@ -132,11 +131,11 @@ if (i==0)
 			cout << "SPH particle " << i << ", locate_phase_diagram_point_eBSQ: completed "
 					<< successString << " in " << sw.printTime() << "s." << "\n";
 
-if (i==0)
+if (false && i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
 			<< p.sigmaweight << "   " << p.e_sub << "   "
 			<< p.T() << "   " << p.e() << "   "
-			<< p.p() << "   " << p.s_an << endl;
+			<< p.p() << "   " << p.s_an << "   " << p.Freeze  << endl;
 		}
 
 		///////////////////////////////////////////////////////////////////////////
@@ -193,11 +192,11 @@ if (i==0)
 		}
 		else
 		{
-if (i==0)
+if (false && i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
 			<< p.sigmaweight << "   " << p.e_sub << "   "
 			<< p.T() << "   " << p.e() << "   "
-			<< p.p() << "   " << p.s_an << endl;
+			<< p.p() << "   " << p.s_an << "   " << p.Freeze  << endl;
 
 			cout << "\t --> Densities found in EoS table: "
 				<< p.r.x[0] << "   " << p.r.x[1] << "\n";
@@ -223,12 +222,13 @@ if (i==0)
 			cout << "\n\t\t - densities:";
       cout << "   " << hbarc_MeVfm*densities_at_point[0];
 			for (int iii = 1; iii < 4; iii++) cout << "   " << densities_at_point[iii];
-			cout << "\n";
-if (i==0)
+			cout << "\n\t\t - freeze-out status:";
+      cout << "   " << p.Freeze << "\n";
+if (false && i==0)
 	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
 			<< p.sigmaweight << "   " << p.e_sub << "   "
 			<< p.T() << "   " << p.e() << "   "
-			<< p.p() << "   " << p.s_an << endl;
+			<< p.p() << "   " << p.s_an << "   " << p.Freeze  << endl;
 
 		}
 

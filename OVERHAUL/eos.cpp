@@ -407,14 +407,16 @@ bool EquationOfState::rootfinder_update_s(double sin, double Bin, double Sin, do
 
 ////////////////////////////////////////////////
 // update phase diagram location given (e,B,S,Q) and return resulting s
-double EquationOfState::s_out(double ein) { return s_out(ein, 0.0, 0.0, 0.0); }
-double EquationOfState::s_out(double ein, double Bin, double Sin, double Qin)
+double EquationOfState::s_out( double ein, bool & solution_found )
+                        { return s_out(ein, 0.0, 0.0, 0.0, solution_found); }
+double EquationOfState::s_out( double ein, double Bin, double Sin,
+                               double Qin, bool & solution_found )
 {
   double result = 0.0;
   if ( use_delaunay )
-    result = delaunay_s_out(ein, Bin, Sin, Qin);
+    result = delaunay_s_out(ein, Bin, Sin, Qin, solution_found);
   else if ( use_rootfinder )
-    result = rootfinder_s_out(ein, Bin, Sin, Qin);
+    result = rootfinder_s_out(ein, Bin, Sin, Qin, solution_found);
   else
   {
     std::cerr << __PRETTY_FUNCTION__ << ":" << __LINE__ << ": Option not supported!" << std::endl;
@@ -425,7 +427,8 @@ double EquationOfState::s_out(double ein, double Bin, double Sin, double Qin)
 }
 
 ////////////////////////////////////////////////
-double EquationOfState::delaunay_s_out(double ein, double Bin, double Sin, double Qin)
+double EquationOfState::delaunay_s_out( double ein, double Bin, double Sin,
+                                        double Qin, bool & solution_found )
 {
   if (true)
   {
@@ -440,26 +443,30 @@ double EquationOfState::delaunay_s_out(double ein, double Bin, double Sin, doubl
 }
 
 ////////////////////////////////////////////////
-double EquationOfState::rootfinder_s_out(double ein, double Bin, double Sin, double Qin)
+double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
+                                          double Qin, bool & solution_found )
 {
   vector<double> result = tbqsPosition;
-  bool success = rootfinder.find_eBSQ_root( ein, Bin, Sin, Qin, eBSQ_functional,
-                                            tbqs_minima, tbqs_maxima, result );
+  solution_found = rootfinder.find_eBSQ_root( ein, Bin, Sin, Qin, eBSQ_functional,
+                                              tbqs_minima, tbqs_maxima, result );
   tbqs( result, false );
 
-  if (success)
+  if (solution_found)
   {
     return entrVal;
   }
   else if ( use_conformal_as_fallback )
   {
-    success = rootfinder.find_eBSQ_root( ein, Bin, Sin, Qin, conformal_eBSQ_functional,
+    solution_found = rootfinder.find_eBSQ_root( ein, Bin, Sin, Qin, conformal_eBSQ_functional,
                                          conformal_tbqs_minima, conformal_tbqs_maxima, result );
     tbqs( result, true );
     return entrVal;
   }
   else
+  {
+    solution_found = false;
     return entrVal;
+  }
 }
 ////////////////////////////////////////////////
 

@@ -94,15 +94,13 @@ double Particle::locate_phase_diagram_point_eBSQ(// previously s_out
   {
     // default: use particle's current location as initial guess
     eosPtr->tbqs( thermo.T, thermo.muB, thermo.muQ, thermo.muS, false ); // use_conformal == false
-    double sVal = eosPtr->s_out( e_In, rhoB_In, rhoS_In, rhoQ_In );
+    bool solution_found = false;
+    double sVal = eosPtr->s_out( e_In, rhoB_In, rhoS_In, rhoQ_In, solution_found );
 
-    if ( sVal > 0.0 )
+    if ( not solution_found )
       thermo.set(*eosPtr);
     else
-    {
-      //cout << __FUNCTION__ << "::" << __LINE__ << ": s_out failed!  sVal = " << sVal << endl;
       Freeze = 5; // new label for (totally decoupled) particles which go outside grid
-    }
 
     return sVal;
   }
@@ -111,24 +109,7 @@ double Particle::locate_phase_diagram_point_eBSQ(// previously s_out
 
 ////////////////////////////////////////////////////////////////////////////////
 double Particle::locate_phase_diagram_point_eBSQ(double e_In)// previously s_out
-{
-  double current_sVal = s();
-  if ( Freeze == 5 )
-    return current_sVal;
-  else
-  {
-    // default: use particle's current location as initial guess
-    eosPtr->tbqs( thermo.T, 0.0, 0.0, 0.0, false ); // use_conformal == false
-    double sVal = eosPtr->s_out( e_In, 0.0, 0.0, 0.0 );
-
-    if ( sVal > 0.0 )
-      thermo.set(*eosPtr);
-    else
-      Freeze = 5; // new label for (totally decoupled) particles which go outside grid
-
-    return sVal;
-  }
-}
+                 { return locate_phase_diagram_point_eBSQ( e_In, 0.0, 0.0, 0.0 ); }
 
 ////////////////////////////////////////////////////////////////////////////////
 void Particle::locate_phase_diagram_point_sBSQ(// previously update_s
@@ -136,9 +117,6 @@ void Particle::locate_phase_diagram_point_sBSQ(// previously update_s
 {
   if ( Freeze != 5 )
   {
-//    if ( abs(r.x[0]) < 0.00001 && abs(r.x[1]) < 0.00001 )
-//    cout << "CHECK SBSQ(1): " << s_In << "   " << rhoB_In << "   " << rhoS_In
-//        << "   " << rhoQ_In << endl;
     // default: use particle's current location as initial guess
     eosPtr->tbqs( thermo.T, thermo.muB, thermo.muQ, thermo.muS, false ); // use_conformal == false
     bool update_s_success = eosPtr->update_s( s_In, rhoB_In, rhoS_In, rhoQ_In );
@@ -147,38 +125,18 @@ void Particle::locate_phase_diagram_point_sBSQ(// previously update_s
       thermo.set(*eosPtr);
     else
       Freeze = 5; // new label for (totally decoupled) particles which go outside grid
-
-//    if ( abs(r.x[0]) < 0.00001 && abs(r.x[1]) < 0.00001 )
-//    cout << "CHECK SBSQ(2): " << s_In << "   " << rhoB_In << "   " << rhoS_In
-//        << "   " << rhoQ_In << endl;
   }
   return;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void Particle::locate_phase_diagram_point_sBSQ(double s_In) // previously update_s
-{
-  if ( Freeze != 5 )
-  {
-    // default: use particle's current location as initial guess
-    eosPtr->tbqs( thermo.T, 0.0, 0.0, 0.0, false ); // use_conformal == false
-    bool update_s_success = eosPtr->update_s( s_In, 0.0, 0.0, 0.0 );
-
-    if ( update_s_success )
-      thermo.set(*eosPtr);
-    else
-      Freeze = 5; // new label for (totally decoupled) particles which go outside grid
-  }
-  return;
-}
+               { locate_phase_diagram_point_sBSQ( s_In, 0.0, 0.0, 0.0 ); }
 
 
 
 ////////////////////////////////////////////////////////////////////////////////
-double Particle::gamcalc()
-{
-    return sqrt( Norm2(u) + 1.0 );
-}
+double Particle::gamcalc() { return sqrt( Norm2(u) + 1.0 ); }
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -230,17 +188,6 @@ void Particle::calcbsq(double tin)
   double rhoS_lab = rhoS_sub/gamma/tin;
   double rhoQ_lab = rhoQ_sub/gamma/tin;
   qmom            = ( (e()+p())*gamma/sigma )*u;
-/*//THIS IS THE OLD ROUGH VERSION, JUST USE THE EVOLUTION EQUATIONS INSTEAD
-	double rhoB_in2 = B*sigma/(gamma*sigmaweight);
-	double rhoS_in2 = S*sigma/(gamma*sigmaweight);
-	double rhoQ_in2 = Q*sigma/(gamma*sigmaweight);
-	rhoB_an = rhoB_in2;
-	rhoS_an = rhoS_in2;
-	rhoQ_an = rhoQ_in2;
-//cout << "\t - finding EoS solution for sBSQ: " << tin << "   " << s_lab << "   "
-//		<< rhoB_in2 << "   " << rhoS_in2 << "   " << rhoQ_in2 << endl;
-	locate_phase_diagram_point_sBSQ( s_lab, rhoB_in2, rhoS_in2, rhoQ_in2 );
-*/
   // using *_sub quantities (which have been smoothed) in order to be consistent
   // with s_in2 = eta/(gamma*t) and evaluation of rest of EoM's quantities (e.g.,
   // sigma) which are also smoothed
