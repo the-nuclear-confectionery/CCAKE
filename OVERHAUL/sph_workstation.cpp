@@ -101,7 +101,11 @@ if (false && i==0)
 				{
 					double phase_diagram_point[4] = { p.T(), p.muB(), p.muQ(), p.muS() };
 					double densities_at_point[4];
-          p.eosPtr->eBSQ_functional( phase_diagram_point, densities_at_point );
+          if (p.eosPtr->using_conformal_as_fallback())
+            p.eosPtr->conformal_eBSQ_functional( phase_diagram_point, densities_at_point );
+          else
+            p.eosPtr->eBSQ_functional( phase_diagram_point, densities_at_point );
+
 					cout << i << ":   " << p.e_sub*hbarc_MeVfm
 						<< "   " << p.rhoB_an
 						<< "   " << p.rhoS_an
@@ -215,8 +219,11 @@ if (false && i==0)
 			double phase_diagram_point[4] = { p.T(), p.muB(), p.muQ(), p.muS() };
 
 			double densities_at_point[4];
-//			STANDARD_get_eBSQ_densities(phase_diagram_point, densities_at_point);
-      p.eosPtr->eBSQ_functional( phase_diagram_point, densities_at_point );
+      if (p.eosPtr->using_conformal_as_fallback())
+        p.eosPtr->conformal_eBSQ_functional( phase_diagram_point, densities_at_point );
+      else
+        p.eosPtr->eBSQ_functional( phase_diagram_point, densities_at_point );
+
 			cout << "\t\t - phase diagram point:";
 			for (int iii = 0; iii < 4; iii++) cout << "   " << hbarc_MeVfm*phase_diagram_point[iii];
 			cout << "\n\t\t - densities:";
