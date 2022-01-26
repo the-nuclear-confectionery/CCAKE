@@ -97,7 +97,7 @@ double Particle::locate_phase_diagram_point_eBSQ(// previously s_out
     bool solution_found = false;
     double sVal = eosPtr->s_out( e_In, rhoB_In, rhoS_In, rhoQ_In, solution_found );
 
-    if ( not solution_found )
+    if ( solution_found )
       thermo.set(*eosPtr);
     else
       Freeze = 5; // new label for (totally decoupled) particles which go outside grid

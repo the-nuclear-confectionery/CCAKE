@@ -459,6 +459,7 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
   {
     solution_found = rootfinder.find_eBSQ_root( ein, Bin, Sin, Qin, conformal_eBSQ_functional,
                                          conformal_tbqs_minima, conformal_tbqs_maxima, result );
+    solution_found = false;
     tbqs( result, true );
     return entrVal;
   }
