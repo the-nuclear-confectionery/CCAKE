@@ -137,12 +137,12 @@ void EquationOfState::evaluate_thermodynamics(bool use_conformal)
     dtds    = thermodynamics[15];
     dt2     = thermodynamics[16];
 
-    cout << endl << "CONFORMAL CHECK: ";
+    /*cout << endl << "CONFORMAL CHECK: ";
     for (int i = 0; i < 4; i++)
       cout << tbqsPosition[i] << "   ";
     for (int i = 0; i < 17; i++)
       cout << thermodynamics[i] << "   ";
-    cout << endl;
+    cout << endl;*/
   }
   else if ( use_static_C_library )
   {
