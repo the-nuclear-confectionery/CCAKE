@@ -446,24 +446,25 @@ double EquationOfState::calc_term_4(string j_char, string i_char) {
     return toReturn;
 }
 
-double EquationOfState::deriv_mult_aTm_1b(gsl_vector* a, gsl_matrix* m, gsl_vector* b) {
-    gsl_permutation *p = gsl_permutation_alloc(3);
-    int s;
+double EquationOfState::deriv_mult_aTm_1b(gsl_vector* a, gsl_matrix* m, gsl_vector* b)
+{
+  gsl_permutation *p = gsl_permutation_alloc(3);
+  int s;
 
-    // Compute the LU decomposition of this matrix
-    gsl_linalg_LU_decomp(m, p, &s);
+  // Compute the LU decomposition of this matrix
+  gsl_linalg_LU_decomp(m, p, &s);
 
 	gsl_set_error_handler_off();
 
-    // Compute the  inverse of the LU decomposition
-    gsl_matrix *minv = gsl_matrix_alloc(3, 3);
-    int inversion_status = gsl_linalg_LU_invert(m, p, minv);
+  // Compute the  inverse of the LU decomposition
+  gsl_matrix *minv = gsl_matrix_alloc(3, 3);
+  int inversion_status = gsl_linalg_LU_invert(m, p, minv);
 
 	if ( inversion_status )	// if an error occurred
 	{
 		cout << "Current TBQS location: "
 				<< hbarc_MeVfm*T() << "   " << hbarc_MeVfm*muB() << "   "
-				<< hbarc_MeVfm*muS() << "   " << hbarc_MeVfm*muQ() << endl << endl;
+				<< hbarc_MeVfm*muQ() << "   " << hbarc_MeVfm*muS() << endl << endl;
 
 		cout << "Current EoS data:" << endl;
 		cout << "pVal = " << pVal << endl
