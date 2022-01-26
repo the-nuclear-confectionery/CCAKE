@@ -117,7 +117,7 @@ private:
     static constexpr bool use_conformal_as_fallback           = true;
 
     //static constexpr size_t STEPS     = 1000;
-    static constexpr int VERBOSE      = 2;
+    static constexpr int VERBOSE      = 0;
     //static constexpr double TOLERANCE = 1e-12;
 
     //the current position in (T, muB, muQ, muS) initialized by tbqs()
