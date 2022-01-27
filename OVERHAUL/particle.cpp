@@ -108,7 +108,7 @@ double Particle::locate_phase_diagram_point_eBSQ(// previously s_out
       thermo.set(*eosPtr);
 
     // if default EoS failed, don't propagate this particle further
-    if ( not solution_found )
+    if ( not solution_found and not ignore_failure )
       Freeze = 5; // new label for (totally decoupled) particles which go outside grid
 
     return sVal;
