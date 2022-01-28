@@ -237,15 +237,15 @@ double EquationOfState::w()   const { return eVal + pVal; }
 
 double EquationOfState::dwds()
 {
-	double charge_terms	//if charge densities are not all zero
-			= ( abs(BVal)>1e-10 || abs(SVal)>1e-10 || abs(QVal)>1e-10 ) ?
-			  BVal/dentr_dmub() + QVal/dentr_dmuq() + SVal/dentr_dmus() : 0.0;
+//	double charge_terms	//if charge densities are not all zero
+//			= ( abs(BVal)>1e-10 || abs(SVal)>1e-10 || abs(QVal)>1e-10 ) ?
+//			  BVal/dentr_dmub() + QVal/dentr_dmuq() + SVal/dentr_dmus() : 0.0;
 
 //  // alternative way to implement charge terms
-//	double charge_terms	= 0.0;
-//  if ( abs(BVal)>1e-10 ) charge_terms += BVal/dentr_dmub();
-//  if ( abs(QVal)>1e-10 ) charge_terms += QVal/dentr_dmuq();
-//  if ( abs(SVal)>1e-10 ) charge_terms += SVal/dentr_dmus();
+	double charge_terms	= 0.0;
+  if ( abs(BVal)>TINY ) charge_terms += BVal/dentr_dmub();
+  if ( abs(QVal)>TINY ) charge_terms += QVal/dentr_dmuq();
+  if ( abs(SVal)>TINY ) charge_terms += SVal/dentr_dmus();
 
 
 	/*if ( check_derivatives )
@@ -260,54 +260,54 @@ double EquationOfState::dwds()
 
 double EquationOfState::dwdB()
 {
-	double charge_terms	//if charge densities are not all zero
-			= ( abs(BVal)>1e-10 || abs(SVal)>1e-10 || abs(QVal)>1e-10 ) ?
-			  entrVal/db_dt() + BVal/db_dmub() + QVal/db_dmuq() + SVal/db_dmus() : 0.0;
+//	double charge_terms	//if charge densities are not all zero
+//			= ( abs(BVal)>1e-10 || abs(SVal)>1e-10 || abs(QVal)>1e-10 ) ?
+//			  entrVal/db_dt() + BVal/db_dmub() + QVal/db_dmuq() + SVal/db_dmus() : 0.0;
 
 //  // alternative way to implement charge terms
-//	double charge_terms	= 0.0;
-//  if ( abs(BVal)>1e-10 )
-//  {
-//    charge_terms += entrVal/db_dt() + BVal/db_dmub();
-//    if ( abs(QVal)>1e-10 ) charge_terms += QVal/db_dmuq();
-//    if ( abs(SVal)>1e-10 ) charge_terms += SVal/db_dmus();
-//  }
+	double charge_terms	= 0.0;
+  if ( abs(BVal)>TINY )
+  {
+    charge_terms += entrVal/db_dt() + BVal/db_dmub();
+    if ( abs(QVal)>TINY ) charge_terms += QVal/db_dmuq();
+    if ( abs(SVal)>TINY ) charge_terms += SVal/db_dmus();
+  }
 
   return muB() + charge_terms;
 }
 
 double EquationOfState::dwdS()
 {
-	double charge_terms	//if charge densities are not all zero
-			= ( abs(BVal)>1e-10 || abs(SVal)>1e-10 || abs(QVal)>1e-10 ) ?
-			  entrVal/ds_dt() + BVal/ds_dmub() + QVal/ds_dmuq() + SVal/ds_dmus() : 0.0;
+//	double charge_terms	//if charge densities are not all zero
+//			= ( abs(BVal)>1e-10 || abs(SVal)>1e-10 || abs(QVal)>1e-10 ) ?
+//			  entrVal/ds_dt() + BVal/ds_dmub() + QVal/ds_dmuq() + SVal/ds_dmus() : 0.0;
 
 //  // alternative way to implement charge terms
-//	double charge_terms	= 0.0;
-//  if ( abs(SVal)>1e-10 )
-//  {
-//    charge_terms += entrVal/ds_dt() + SVal/ds_dmus();
-//    if ( abs(BVal)>1e-10 ) charge_terms += BVal/ds_dmub();
-//    if ( abs(QVal)>1e-10 ) charge_terms += QVal/ds_dmuq();
-//  }
+	double charge_terms	= 0.0;
+  if ( abs(SVal)>TINY )
+  {
+    charge_terms += entrVal/ds_dt() + SVal/ds_dmus();
+    if ( abs(BVal)>TINY ) charge_terms += BVal/ds_dmub();
+    if ( abs(QVal)>TINY ) charge_terms += QVal/ds_dmuq();
+  }
 
   return muS() + charge_terms;
 }
 
 double EquationOfState::dwdQ()
 {
-	double charge_terms	//if charge densities are not all zero
-			= ( abs(BVal)>1e-10 || abs(SVal)>1e-10 || abs(QVal)>1e-10 ) ?
-			  entrVal/dq_dt() + BVal/dq_dmub() + QVal/dq_dmuq() + SVal/dq_dmus() : 0.0;
+//	double charge_terms	//if charge densities are not all zero
+//			= ( abs(BVal)>1e-10 || abs(SVal)>1e-10 || abs(QVal)>1e-10 ) ?
+//			  entrVal/dq_dt() + BVal/dq_dmub() + QVal/dq_dmuq() + SVal/dq_dmus() : 0.0;
 
 //  // alternative way to implement charge terms
-//	double charge_terms	= 0.0;
-//  if ( abs(QVal)>1e-10 )
-//  {
-//    charge_terms += entrVal/dq_dt() + QVal/dq_dmuq();
-//    if ( abs(BVal)>1e-10 ) charge_terms += BVal/dq_dmub();
-//    if ( abs(SVal)>1e-10 ) charge_terms += SVal/dq_dmus();
-//  }
+	double charge_terms	= 0.0;
+  if ( abs(QVal)>TINY )
+  {
+    charge_terms += entrVal/dq_dt() + QVal/dq_dmuq();
+    if ( abs(BVal)>TINY ) charge_terms += BVal/dq_dmub();
+    if ( abs(SVal)>TINY ) charge_terms += SVal/dq_dmus();
+  }
 
   return muQ() + charge_terms;
 }
