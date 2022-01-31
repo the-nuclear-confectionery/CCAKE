@@ -496,7 +496,9 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
     else
       cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << ": did not find solution with fallback!" << endl;
 
-    solution_found = false;
+    solution_found = false; // set solution to false since we don't want to
+                            // propagate the particle further, but still save
+                            // the solution to the thermodynamics pointer
     tbqs( result, true );
     return entrVal;
   }
