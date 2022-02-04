@@ -7,7 +7,7 @@ resultsDirectory=results
 physicalProfileStem=physical_quantities
 insuffix=".dat"
 outsuffix=".png"
-moviesDirectory=movies
+moviesDirectory=short_movies
 
 nFiles=$(\ls -1 ${resultsDirectory}/${physicalProfileStem}*${insuffix} | wc -l)
 
