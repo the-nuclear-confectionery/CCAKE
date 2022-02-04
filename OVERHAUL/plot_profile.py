@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-from matplotlib.colors import LinearSegmentedColormap, LogNorm
+from matplotlib.colors import LinearSegmentedColormap, LogNorm, SymLogNorm
 import os, sys
 
 #cmap_energy \
@@ -90,9 +90,16 @@ for i in range(1, numberOfFrames+1):
     length = int(np.sqrt(f.size))
     #psm = plt.imshow(f.reshape(length, length), cmap=plt.cm.inferno, interpolation='bicubic', extent=extent)
     if use_log_scale:
-        psm = plt.imshow(f.reshape(length, length)+1e-15, cmap=colormap,\
-                         norm=LogNorm(vmin=minimum, vmax=maximum),\
-                         interpolation='bicubic', extent=extent)
+        if mode == "energy_density" or mode == "temperature":
+            psm = plt.imshow(f.reshape(length, length)+1e-15, cmap=colormap,\
+                             norm=LogNorm(vmin=minimum+1e-15, vmax=maximum),\
+                             interpolation='bicubic', extent=extent)
+        else:
+            # set range around zero to be linear instead of logarithmic
+            linthresh = 0.01*np.amax(np.abs(f))
+            psm = plt.imshow(f.reshape(length, length), cmap=colormap,\
+                             norm=SymLogNorm(linthresh, vmin=minimum, vmax=maximum),\
+                             interpolation='bicubic', extent=extent)
     else:
         psm = plt.imshow(f.reshape(length, length), cmap=colormap,\
                          vmin=minimum, vmax=maximum,\
