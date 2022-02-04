@@ -90,7 +90,7 @@ for i in range(1, numberOfFrames+1):
     length = int(np.sqrt(f.size))
     #psm = plt.imshow(f.reshape(length, length), cmap=plt.cm.inferno, interpolation='bicubic', extent=extent)
     if use_log_scale:
-        psm = plt.imshow(f.reshape(length, length), cmap=colormap,\
+        psm = plt.imshow(f.reshape(length, length)+1e-15, cmap=colormap,\
                          norm=LogNorm(vmin=minimum, vmax=maximum),\
                          interpolation='bicubic', extent=extent)
     else:
