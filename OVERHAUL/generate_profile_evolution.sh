@@ -35,19 +35,19 @@ python3 plot_profile.py \
 python3 plot_profile.py \
 	${resultsDirectory}/${physicalProfileStem} \
 	${resultsDirectory}/"eProfile" \
-	${insuffix} ${outsuffix} $nFrames '$e$ (MeV/fm$^3$)' 7 energy_density linear
+	${insuffix} ${outsuffix} $nFrames '$e$ (MeV/fm$^3$)' 7 energy_density log
 python3 plot_profile.py \
 	${resultsDirectory}/${physicalProfileStem} \
 	${resultsDirectory}/"rhoBProfile" \
-	${insuffix} ${outsuffix} $nFrames '$\rho_B$ (fm$^{-3}$)' 8 baryon_density linear
+	${insuffix} ${outsuffix} $nFrames '$\rho_B$ (fm$^{-3}$)' 8 baryon_density log
 python3 plot_profile.py \
 	${resultsDirectory}/${physicalProfileStem} \
 	${resultsDirectory}/"rhoSProfile" \
-	${insuffix} ${outsuffix} $nFrames '$\rho_S$ (fm$^{-3}$)' 9 strange_density linear
+	${insuffix} ${outsuffix} $nFrames '$\rho_S$ (fm$^{-3}$)' 9 strange_density log
 python3 plot_profile.py \
 	${resultsDirectory}/${physicalProfileStem} \
 	${resultsDirectory}/"rhoQProfile" \
-	${insuffix} ${outsuffix} $nFrames '$\rho_Q$ (fm$^{-3}$)' 10 electric_density linear
+	${insuffix} ${outsuffix} $nFrames '$\rho_Q$ (fm$^{-3}$)' 10 electric_density log
 
 
 mkdir -p $moviesDirectory
