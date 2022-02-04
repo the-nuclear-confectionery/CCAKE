@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-from matplotlib.colors import LinearSegmentedColormap
+from matplotlib.colors import LinearSegmentedColormap, LogNorm
 import os, sys
 
 #cmap_energy \
@@ -46,6 +46,7 @@ numberOfFrames = int(sys.argv[5])
 plotLabel = sys.argv[6]
 colToPlot = int(sys.argv[7])
 mode = sys.argv[8]
+use_log_scale = True if sys.argv[9] == "log" else False
 colormap = {"energy_density": cmap_energy, \
             "baryon_density": cmap_baryon, \
             "strange_density": cmap_strange, \
@@ -88,8 +89,15 @@ for i in range(1, numberOfFrames+1):
 
     length = int(np.sqrt(f.size))
     #psm = plt.imshow(f.reshape(length, length), cmap=plt.cm.inferno, interpolation='bicubic', extent=extent)
-    psm = plt.imshow(f.reshape(length, length), cmap=colormap, vmin=minimum, vmax=maximum,\
-                     interpolation='bicubic', extent=extent)
+    if use_log_scale:
+        psm = plt.imshow(f.reshape(length, length), cmap=colormap,\
+                         norm=LogNorm(vmin=minimum, vmax=maximum),\
+                         interpolation='bicubic', extent=extent)
+    else:
+        psm = plt.imshow(f.reshape(length, length), cmap=colormap,\
+                         vmin=minimum, vmax=maximum,\
+                         interpolation='bicubic', extent=extent)
+        
 
     plt.text(0.075, 0.925, r'$\tau = %(t)5.2f$ fm$/c$'%{'t': tau}, \
             {'color': 'white', 'fontsize': 12}, transform=ax.transAxes,
