@@ -75,11 +75,11 @@ for i in range(1, numberOfFrames+1):
     if i==1 or not fixed_maximum:
         maximum = np.amax(np.abs(f))
 
-    minimum = {"energy_density": 0.0, \
+    minimum = {"energy_density": np.amin(f[np.abs(f)>0.0]), \
                "baryon_density": -maximum, \
                "strange_density": -maximum, \
                "electric_density": -maximum, \
-               "temperature": 0.0, \
+               "temperature": np.amin(f[np.abs(f)>0.0]), \
                "baryon_chemical_potential": -maximum, \
                "strange_chemical_potential": -maximum, \
                "electric_chemical_potential": -maximum}[mode]
