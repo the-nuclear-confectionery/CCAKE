@@ -74,15 +74,15 @@ for i in range(1, numberOfFrames+1):
     
     if i==1 or not fixed_maximum:
         maximum = np.amax(np.abs(f))
-
-    minimum = {"energy_density": np.amin(f[np.abs(f)>0.0]), \
-               "baryon_density": -maximum, \
-               "strange_density": -maximum, \
-               "electric_density": -maximum, \
-               "temperature": np.amin(f[np.abs(f)>0.0]), \
-               "baryon_chemical_potential": -maximum, \
-               "strange_chemical_potential": -maximum, \
-               "electric_chemical_potential": -maximum}[mode]
+        
+        minimum = {"energy_density": np.amin(f[np.abs(f)>0.0]), \
+                   "baryon_density": -maximum, \
+                   "strange_density": -maximum, \
+                   "electric_density": -maximum, \
+                   "temperature": np.amin(f[np.abs(f)>0.0]), \
+                   "baryon_chemical_potential": -maximum, \
+                   "strange_chemical_potential": -maximum, \
+                   "electric_chemical_potential": -maximum}[mode]
 
     extent = np.min(x), np.max(x), np.min(y), np.max(y)
     fig, ax = plt.subplots( nrows=1, ncols=1 )
