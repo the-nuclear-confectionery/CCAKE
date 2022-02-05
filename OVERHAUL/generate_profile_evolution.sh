@@ -1,6 +1,6 @@
 #!/bin/bash
 
-maxFrames=100
+maxFrames=150
 framesPerSecond=30
 
 resultsDirectory=results
