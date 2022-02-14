@@ -26,6 +26,7 @@ def plot_all_particles():
     data = np.stack([np.loadtxt(file, usecols=(5,6,7,8), skiprows=1) \
                      for file in sys.argv[1:]])
 
+    print(data.shape)
 
     data0 = data[0,:,0]
     data = np.swapaxes(data, 0, 1)[np.where(data0 > 400.0)]
