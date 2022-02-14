@@ -44,7 +44,7 @@ def plot_all_particles():
 
     for iParticle, particle in enumerate(data):
         r,g,b,a = chosen_colormap((particle[0,0]-minimum)/(maximum-minimum))
-        plt.plot( particle[:,1], particle[:,0], lc=(r,g,b), alpha=0.3 )
+        plt.plot( particle[:,1], particle[:,0], color=(r,g,b), alpha=0.3 )
 
     plt.savefig('T_vs_muB.png', dpi=100, bbox_inches='tight', pad_inches = 0)
     print('Saved to T_vs_muB.png')
