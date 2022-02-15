@@ -62,7 +62,7 @@ public:
   double efcheck    = 0.0;
   double sfcheck    = 0.0;
   double freezeoutT = 0.0;
-  double bvf        = 0.0;
+  double bvf        = 0.005;
 /*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
   double svf        = 0.20; // HARDCODED FOR NOW
 /*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/

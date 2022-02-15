@@ -300,13 +300,15 @@ void Particle::setvisc( int etaconst, double bvf, double svf, double zTc,
   stauRelax=5*setas/w();
   if (!settingsPtr->using_Gubser && stauRelax < 0.005) stauRelax = 0.005;
 
-  if (abs(bvf) > 1e-6)
+  /*if (abs(bvf) > 1e-6)
   {
     cerr << "You need to replace setvisc!!!" << endl;
     exit(1);
   }
   zeta = 0;
-  tauRelax = 1;
+  tauRelax = 1;*/
+  zeta = s()*bvf;
+  tauRelax = 5.*zeta/(pow((1.0-cs2()),2.0)*w());
 }
 
 
