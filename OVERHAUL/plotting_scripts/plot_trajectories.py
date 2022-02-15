@@ -57,13 +57,14 @@ def plot_all_particles(Tmin, Tmax):
         plt.plot( particle[:,1], particle[:,0], color=(r,g,b), alpha=0.3 )
         
     maxrange = np.amax(np.abs(data[:,:,1]))
-    plt.xlim([-maxrange, maxrange])
+    plt.xlim([-1.1*maxrange, 1.1*maxrange])
     plt.xlabel(r'$\mu_B$ (MeV)')
     plt.ylabel(r'$T$ (MeV)')
     norm = Normalize(vmin=minimum,vmax=maximum)
     sm = cm.ScalarMappable(cmap=chosen_colormap, norm=norm)
     sm.set_array([])
-    plt.colorbar(sm)    
+    cbar = plt.colorbar(sm)    
+    cbar.set_label(r'Initial $T$ (MeV)', rotation=90, fontsize=14)
 
     plt.savefig('T_'+str(Tmin)+'_to_'+str(Tmax)+'_vs_muB.png', \
                 dpi=chosen_dpi, bbox_inches='tight', pad_inches = 0)
