@@ -52,11 +52,13 @@ def plot_all_particles(Tmin, Tmax):
     #data0 = data0[np.where(particleSelectionCriteria)]
 
     print(data.shape)
+    
+    width, height = 3, 2
 
     #####################################
     # T vs. muB figure
     #####################################
-    plt.figure(figsize=(4,4), dpi=chosen_dpi)
+    plt.figure(figsize=(width, height), dpi=chosen_dpi)
 
     for iParticle, particle in enumerate(data):
         r,g,b,a = chosen_colormap((particle[0,0]-minimum)/(maximum-minimum))
@@ -79,7 +81,7 @@ def plot_all_particles(Tmin, Tmax):
     #####################################
     # T vs. muS figure
     #####################################
-    plt.figure(figsize=(4,4), dpi=chosen_dpi)
+    plt.figure(figsize=(width, height), dpi=chosen_dpi)
 
     for iParticle, particle in enumerate(data):
         r,g,b,a = chosen_colormap((particle[0,0]-minimum)/(maximum-minimum))
@@ -102,7 +104,7 @@ def plot_all_particles(Tmin, Tmax):
     #####################################
     # T vs. muQ figure
     #####################################
-    plt.figure(figsize=(4,4), dpi=chosen_dpi)
+    plt.figure(figsize=(width, height), dpi=chosen_dpi)
 
     for iParticle, particle in enumerate(data):
         r,g,b,a = chosen_colormap((particle[0,0]-minimum)/(maximum-minimum))
