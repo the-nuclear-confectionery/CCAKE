@@ -53,7 +53,7 @@ def plot_all_particles(Tmin, Tmax):
 
     print(data.shape)
     
-    width, height = 3, 2
+    width, height = 6, 4
 
     #####################################
     # T vs. muB figure
