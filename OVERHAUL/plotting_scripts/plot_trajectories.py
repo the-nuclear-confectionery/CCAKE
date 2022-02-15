@@ -222,7 +222,7 @@ def plot_freeze_out_distributions():
     print(np.amin(data[:,0]), np.amin(data[:,1]), np.amax(data[:,0]), np.amax(data[:,1]))
 
     cm = plt.cm.get_cmap('inferno', 256)
-    axs.imshow(H.T, cmap=cm, vmin=0.0, vmax=np.max(H), origin='lower', interpolation='bicubic',\
+    axs.imshow(H.T, cmap=cm, vmin=1e-6, vmax=np.max(H), origin='lower', interpolation='bicubic',\
                extent=[xedges.min(), xedges.max(), yedges.min(), yedges.max()], aspect='auto')
     #axs.patch.set_facecolor('black')
     
