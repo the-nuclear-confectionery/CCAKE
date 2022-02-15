@@ -223,11 +223,11 @@ def plot_freeze_out_distributions():
     print(np.amax(H))
 
     cm = plt.cm.get_cmap('inferno', 256)
-    #newcolors = cm(np.linspace(0, 1, 256))
-    #pink = np.array([248/256, 24/256, 148/256, 1])
-    #newcolors[:5, :] = pink
-    #newcmp = ListedColormap(newcolors)
-    axs.imshow(H.T, cmap=cm, vmin=5.0, vmax=np.amax(H), origin='lower', interpolation='bicubic',\
+    newcolors = cm(np.linspace(0, 1, 256))
+    pink = np.array([248/256, 24/256, 148/256, 1])
+    newcolors[:5, :] = pink
+    newcmp = ListedColormap(newcolors)
+    axs.imshow(H.T, cmap=newcmp, vmin=0.0, vmax=np.amax(H), origin='lower', interpolation='bicubic',\
                extent=[xedges.min(), xedges.max(), yedges.min(), yedges.max()], aspect='auto')
     #axs.patch.set_facecolor('black')
     
