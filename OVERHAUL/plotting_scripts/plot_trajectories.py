@@ -200,7 +200,7 @@ def plot_all_particles(Tmin, Tmax):
 
 def load_freeze_out_cells(file):
     FOcells = np.loadtxt(file, usecols=(5,6,7,8,30), skiprows=1)
-    return FOcells[np.where((FOcells[:,0]>150.0)&(FOcells[:,4]>3))]
+    return FOcells[np.where((FOcells[:,0]>150.0)&(FOcells[:,0]<160.0)&(FOcells[:,4]>3))]
 
 #########################################################################################
 def plot_freeze_out_distributions():
