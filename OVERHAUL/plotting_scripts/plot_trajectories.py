@@ -222,14 +222,18 @@ def plot_freeze_out_distributions():
     print(np.amin(data[:,0]), np.amin(data[:,1]), np.amax(data[:,0]), np.amax(data[:,1]))
     print(np.amax(H))
 
-    cm = plt.cm.get_cmap('inferno', 256)
+    cm = plt.cm.get_cmap('cool', 256)
     newcolors = cm(np.linspace(0, 1, 256))
-    pink = np.array([248/256, 24/256, 148/256, 1])
-    newcolors[:5, :] = pink
+    #pink = np.array([248/256, 24/256, 148/256, 1])
+    white = np.array([255/256, 255/256, 255/256, 1])
+    #newcolors[:5, :] = pink
+    newcolors[:5, :] = white
     newcmp = ListedColormap(newcolors)
-    axs.imshow(H.T, cmap=newcmp, vmin=0.0, vmax=np.amax(H), origin='lower', interpolation='bicubic',\
-               extent=[xedges.min(), xedges.max(), yedges.min(), yedges.max()], aspect='auto')
+    im = axs.imshow(H.T, cmap=newcmp, vmin=0.0, vmax=np.amax(H), origin='lower', interpolation='bicubic',\
+                    extent=[xedges.min(), xedges.max(), yedges.min(), yedges.max()], aspect='auto')
     #axs.patch.set_facecolor('black')
+    cbar = plt.colorbar(im)    
+
     
     maximum = np.amax(np.abs(data[:,1]))
     axs.set_xlim([-1.1*maximum, 1.1*maximum])
