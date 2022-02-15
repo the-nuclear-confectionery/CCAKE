@@ -1,5 +1,5 @@
 import matplotlib
-matplotlib.use('Agg')
+#matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib import cm                                                                          
 from matplotlib.colors import ListedColormap, LinearSegmentedColormap, Normalize
@@ -224,7 +224,7 @@ def plot_freeze_out_distributions():
     extent=[xedges.min(), xedges.max(), yedges.min(), yedges.max()])
     axs.patch.set_facecolor('black')
     
-    plt.show(block=False)
+    plt.show()
 
 
 #########################################################################################
