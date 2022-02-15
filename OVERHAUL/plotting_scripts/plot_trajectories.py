@@ -198,6 +198,33 @@ def plot_all_particles(Tmin, Tmax):
 
 
 
+def load_freeze_out_cells(file):
+    FOcells = np.loadtxt(file, usecols=(5,6,7,8,30), skiprows=1)
+    return FOcells[np.where((FOcells[:,0]>150.0)&(FOcells[:,4]>3))]
+
+#########################################################################################
+def plot_freeze_out_distributions():
+    #####################################
+    # Set up
+    #####################################
+    data = np.stack([ load_freeze_out_cells(file)\
+                      for file in sys.argv[1:] ])
+    
+    chosen_dpi = 200
+
+    # Set up
+    fig, axs = plt.subplots(1, 1, figsize=(5,5))
+
+    nbins=75
+    H, xedges, yedges = np.histogram2d(data[:,:,1].flatten(), data[:,:,0].flatten(), bins=nbins)
+
+    cm = plt.cm.get_cmap('inferno', 256)
+    axs.imshow(H.T, cmap=cm, vmin=0.0, vmax=np.max(H), origin='lower', interpolation='bicubic',\
+    extent=[xedges.min(), xedges.max(), yedges.min(), yedges.max()])
+    axs.patch.set_facecolor('black')
+    
+    plt.show(block=False)
+
 
 #########################################################################################
 if __name__== "__main__":
@@ -207,6 +234,7 @@ if __name__== "__main__":
     #plot_all_particles(300,400)
     #plot_all_particles(200,300)
     #plot_all_particles(100,200)
-    plot_all_particles(400,1000)
+    #plot_all_particles(400,1000)
+    plot_freeze_out_distributions()
     #plot_one_particle(7108)
 
