@@ -229,7 +229,7 @@ def plot_freeze_out_distributions():
     #newcolors[:5, :] = pink
     newcolors[:1, :] = white
     newcmp = ListedColormap(newcolors)
-    im = axs.imshow(H.T, cmap=newcmp, vmin=np.amin(H), vmax=np.amax(H), origin='lower', interpolation='bicubic',\
+    im = axs.imshow(H.T, cmap=newcmp, vmin=np.amin(H[H>0.0]), vmax=np.amax(H), origin='lower', interpolation='bicubic',\
                     extent=[xedges.min(), xedges.max(), yedges.min(), yedges.max()], aspect='auto',\
                     norm=matplotlib.colors.LogNorm())
     #im = plt.scatter(x,y,edgecolors='none',s=marker_size,c=void_fraction,\
