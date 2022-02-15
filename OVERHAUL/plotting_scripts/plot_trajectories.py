@@ -62,7 +62,7 @@ def plot_all_particles(Tmin, Tmax):
     plt.ylabel(r'$T$ (MeV)')
     norm = Normalize(vmin=minimum,vmax=maximum)
     sm = cm.ScalarMappable(cmap=chosen_colormap, norm=norm)
-    #sm.set_array([])
+    sm.set_array([])
     plt.colorbar(sm)    
 
     plt.savefig('T_'+str(Tmin)+'_to_'+str(Tmax)+'_vs_muB.png', \
