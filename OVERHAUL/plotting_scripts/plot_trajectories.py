@@ -207,16 +207,17 @@ def plot_freeze_out_distributions():
     #####################################
     # Set up
     #####################################
-    data = np.stack([ load_freeze_out_cells(file)\
+    data = np.vstack([ load_freeze_out_cells(file)\
                       for file in sys.argv[1:] ])
     
+    print(data.shape)
     chosen_dpi = 200
 
     # Set up
     fig, axs = plt.subplots(1, 1, figsize=(5,5))
 
     nbins=75
-    H, xedges, yedges = np.histogram2d(data[:,:,1].flatten(), data[:,:,0].flatten(), bins=nbins)
+    H, xedges, yedges = np.histogram2d(data[:,1], data[:,0], bins=nbins)
 
     cm = plt.cm.get_cmap('inferno', 256)
     axs.imshow(H.T, cmap=cm, vmin=0.0, vmax=np.max(H), origin='lower', interpolation='bicubic',\
