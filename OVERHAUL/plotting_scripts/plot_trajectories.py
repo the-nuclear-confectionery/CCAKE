@@ -49,7 +49,7 @@ def plot_all_particles(Tmin, Tmax):
     print("minimum =", minimum)
     print("maximum =", maximum)
 
-    data0 = data0[np.where(particleSelectionCriteria)]
+    #data0 = data0[np.where(particleSelectionCriteria)]
 
     print(data.shape)
 
