@@ -227,7 +227,7 @@ def plot_freeze_out_distributions():
     #pink = np.array([248/256, 24/256, 148/256, 1])
     white = np.array([255/256, 255/256, 255/256, 1])
     #newcolors[:5, :] = pink
-    newcolors[:5, :] = white
+    newcolors[:1, :] = white
     newcmp = ListedColormap(newcolors)
     im = axs.imshow(H.T, cmap=newcmp, vmin=0.0, vmax=np.amax(H), origin='lower', interpolation='bicubic',\
                     extent=[xedges.min(), xedges.max(), yedges.min(), yedges.max()], aspect='auto')
