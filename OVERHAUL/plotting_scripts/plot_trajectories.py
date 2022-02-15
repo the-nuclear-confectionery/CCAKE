@@ -230,10 +230,13 @@ def plot_freeze_out_distributions():
     newcolors[:1, :] = white
     newcmp = ListedColormap(newcolors)
     im = axs.imshow(H.T, cmap=newcmp, vmin=0.0, vmax=np.amax(H), origin='lower', interpolation='bicubic',\
-                    extent=[xedges.min(), xedges.max(), yedges.min(), yedges.max()], aspect='auto')
+                    extent=[xedges.min(), xedges.max(), yedges.min(), yedges.max()], aspect='auto',\
+                    norm=cm.LogNorm())
+    #im = plt.scatter(x,y,edgecolors='none',s=marker_size,c=void_fraction,\
+    #                 norm=matplotlib.colors.LogNorm())
     #axs.patch.set_facecolor('black')
     cbar = plt.colorbar(im)    
-
+    cbar.set_label(r'Number of cells', rotation=90)
     
     maximum = np.amax(np.abs(data[:,1]))
     axs.set_xlim([-1.1*maximum, 1.1*maximum])
