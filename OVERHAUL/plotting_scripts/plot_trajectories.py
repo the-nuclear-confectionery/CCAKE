@@ -224,7 +224,7 @@ def plot_freeze_out_distributions():
     extent=[xedges.min(), xedges.max(), yedges.min(), yedges.max()])
     axs.patch.set_facecolor('black')
     
-    plt.show()
+    plt.show(block=False)
 
 
 #########################################################################################
