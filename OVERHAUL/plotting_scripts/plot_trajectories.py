@@ -226,7 +226,10 @@ def plot_freeze_out_distributions():
                extent=[xedges.min(), xedges.max(), yedges.min(), yedges.max()], aspect='auto')
     axs.patch.set_facecolor('black')
     
-    #plt.show()
+    maximum = np.amax(np.abs(data[:,1]))
+    axs.set_xlim([-1.1*maximum, 1.1*maximum])
+    axs.set_ylim([0.0, 200.0])
+    
     plt.savefig('T_vs_muB_distribution.png', \
             dpi=chosen_dpi, bbox_inches='tight', pad_inches = 0)
 
