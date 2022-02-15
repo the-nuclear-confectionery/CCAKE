@@ -222,8 +222,8 @@ def plot_freeze_out_distributions():
     print(np.amin(data[:,0]), np.amin(data[:,1]), np.amax(data[:,0]), np.amax(data[:,1]))
     print(np.amax(H))
 
-    cm = plt.cm.get_cmap('cool', 256)
-    newcolors = cm(np.linspace(0, 1, 2048))
+    cmap = plt.cm.get_cmap('cool', 256)
+    newcolors = cmap(np.linspace(0, 1, 2048))
     #pink = np.array([248/256, 24/256, 148/256, 1])
     white = np.array([255/256, 255/256, 255/256, 1])
     #newcolors[:5, :] = pink
@@ -231,7 +231,7 @@ def plot_freeze_out_distributions():
     newcmp = ListedColormap(newcolors)
     im = axs.imshow(H.T, cmap=newcmp, vmin=0.0, vmax=np.amax(H), origin='lower', interpolation='bicubic',\
                     extent=[xedges.min(), xedges.max(), yedges.min(), yedges.max()], aspect='auto',\
-                    norm=cm.LogNorm())
+                    norm=matplotlib.colors.LogNorm())
     #im = plt.scatter(x,y,edgecolors='none',s=marker_size,c=void_fraction,\
     #                 norm=matplotlib.colors.LogNorm())
     #axs.patch.set_facecolor('black')
