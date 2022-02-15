@@ -223,7 +223,7 @@ def plot_freeze_out_distributions():
     print(np.amax(H))
 
     cm = plt.cm.get_cmap('cool', 256)
-    newcolors = cm(np.linspace(0, 1, 256))
+    newcolors = cm(np.linspace(0, 1, 2048))
     #pink = np.array([248/256, 24/256, 148/256, 1])
     white = np.array([255/256, 255/256, 255/256, 1])
     #newcolors[:5, :] = pink
