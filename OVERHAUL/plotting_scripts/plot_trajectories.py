@@ -220,9 +220,10 @@ def plot_freeze_out_distributions():
     H, xedges, yedges = np.histogram2d(data[:,1], data[:,0], bins=nbins)
     
     print(np.amin(data[:,0]), np.amin(data[:,1]), np.amax(data[:,0]), np.amax(data[:,1]))
+    print(np.amax(H))
 
     cm = plt.cm.get_cmap('inferno', 256)
-    axs.imshow(H.T, cmap=cm, vmin=1e-6, vmax=np.max(H), origin='lower', interpolation='bicubic',\
+    axs.imshow(H.T, cmap=cm, vmin=1e-1, vmax=np.amax(H), origin='lower', interpolation='bicubic',\
                extent=[xedges.min(), xedges.max(), yedges.min(), yedges.max()], aspect='auto')
     #axs.patch.set_facecolor('black')
     
