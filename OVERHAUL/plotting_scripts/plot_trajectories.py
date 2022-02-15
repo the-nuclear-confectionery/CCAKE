@@ -225,7 +225,7 @@ def plot_freeze_out_distributions():
     axs.patch.set_facecolor('black')
     
     #plt.show()
-    plt.savefig('T_'+str(Tmin)+'_to_'+str(Tmax)+'_vs_muB_distribution.png', \
+    plt.savefig('T_vs_muB_distribution.png', \
             dpi=chosen_dpi, bbox_inches='tight', pad_inches = 0)
 
 
