@@ -50,10 +50,19 @@ def plot_all_particles(Tmin, Tmax):
     print(data.shape)
 
     plt.figure(figsize=(4,4), dpi=chosen_dpi)
+    ax = plt.gca()
 
     for iParticle, particle in enumerate(data):
         r,g,b,a = chosen_colormap((particle[0,0]-minimum)/(maximum-minimum))
         plt.plot( particle[:,1], particle[:,0], color=(r,g,b), alpha=0.3 )
+        
+    maxrange = np.amax(np.abs(data[:,:,1]))
+    plt.xlim([-maxrange, maxrange])
+    plt.xlabel(r'$\mu_B$ (MeV)')
+    plt.ylabel(r'$T$ (MeV)')
+    divider = make_axes_locatable(ax)
+    cax = divider.append_axes("right", size="5%", pad=0.05)
+    plt.colorbar(cax=cax)
 
     plt.savefig('T_'+str(Tmin)+'_to_'+str(Tmax)+'_vs_muB.png', \
                 dpi=chosen_dpi, bbox_inches='tight', pad_inches = 0)
@@ -82,11 +91,12 @@ def plot_all_particles(Tmin, Tmax):
 
 #########################################################################################
 if __name__== "__main__":
-    plot_all_particles(600,700)
-    plot_all_particles(500,600)
-    plot_all_particles(400,500)
-    plot_all_particles(300,400)
-    plot_all_particles(200,300)
-    plot_all_particles(100,200)
+    #plot_all_particles(600,700)
+    #plot_all_particles(500,600)
+    #plot_all_particles(400,500)
+    #plot_all_particles(300,400)
+    #plot_all_particles(200,300)
+    #plot_all_particles(100,200)
+    plot_all_particles(400,1000)
     #plot_one_particle(7108)
 
