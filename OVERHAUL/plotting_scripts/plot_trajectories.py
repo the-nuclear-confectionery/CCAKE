@@ -131,6 +131,6 @@ if __name__== "__main__":
     #plot_all_particles(300,400)
     #plot_all_particles(200,300)
     #plot_all_particles(100,200)
-    plot_all_particles(600,1000)
+    plot_all_particles(400,1000)
     #plot_one_particle(7108)
 
