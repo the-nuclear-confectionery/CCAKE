@@ -128,6 +128,77 @@ def plot_all_particles(Tmin, Tmax):
     print('Saved to T_'+str(Tmin)+'_to_'+str(Tmax)+'_vs_muQ.png')
 
 
+
+    #####################################
+    # muB vs. muQ figure
+    #####################################
+    plt.figure(figsize=(width, height), dpi=chosen_dpi)
+
+    for iParticle, particle in enumerate(data):
+        r,g,b,a = chosen_colormap((particle[0,0]-minimum)/(maximum-minimum))
+        plt.plot( particle[:,3], particle[:,1], color=(r,g,b), alpha=0.3 )
+
+    plt.xlabel(r'$\mu_Q$ (MeV)')
+    plt.ylabel(r'$\mu_B$ (MeV)')
+    plt.title(r'Pb+Pb $5.02$ TeV')
+    norm = Normalize(vmin=minimum, vmax=maximum)
+    sm = cm.ScalarMappable(cmap=chosen_colormap, norm=norm)
+    sm.set_array([])
+    cbar = plt.colorbar(sm)    
+    cbar.set_label(r'$T_0$ (MeV)', rotation=90)
+
+    plt.savefig('T_'+str(Tmin)+'_to_'+str(Tmax)+'_muB_vs_muQ.png', \
+                dpi=chosen_dpi, bbox_inches='tight', pad_inches = 0)
+    print('Saved to T_'+str(Tmin)+'_to_'+str(Tmax)+'_muB_vs_muQ.png')
+
+    #####################################
+    # muB vs. muS figure
+    #####################################
+    plt.figure(figsize=(width, height), dpi=chosen_dpi)
+
+    for iParticle, particle in enumerate(data):
+        r,g,b,a = chosen_colormap((particle[0,0]-minimum)/(maximum-minimum))
+        plt.plot( particle[:,2], particle[:,1], color=(r,g,b), alpha=0.3 )
+
+    plt.xlabel(r'$\mu_S$ (MeV)')
+    plt.ylabel(r'$\mu_B$ (MeV)')
+    plt.title(r'Pb+Pb $5.02$ TeV')
+    norm = Normalize(vmin=minimum, vmax=maximum)
+    sm = cm.ScalarMappable(cmap=chosen_colormap, norm=norm)
+    sm.set_array([])
+    cbar = plt.colorbar(sm)    
+    cbar.set_label(r'$T_0$ (MeV)', rotation=90)
+
+    plt.savefig('T_'+str(Tmin)+'_to_'+str(Tmax)+'_muB_vs_muS.png', \
+                dpi=chosen_dpi, bbox_inches='tight', pad_inches = 0)
+    print('Saved to T_'+str(Tmin)+'_to_'+str(Tmax)+'_muB_vs_muS.png')
+
+
+    #####################################
+    # muS vs. muQ figure
+    #####################################
+    plt.figure(figsize=(width, height), dpi=chosen_dpi)
+
+    for iParticle, particle in enumerate(data):
+        r,g,b,a = chosen_colormap((particle[0,0]-minimum)/(maximum-minimum))
+        plt.plot( particle[:,3], particle[:,2], color=(r,g,b), alpha=0.3 )
+
+    plt.xlabel(r'$\mu_Q$ (MeV)')
+    plt.ylabel(r'$\mu_S$ (MeV)')
+    plt.title(r'Pb+Pb $5.02$ TeV')
+    norm = Normalize(vmin=minimum, vmax=maximum)
+    sm = cm.ScalarMappable(cmap=chosen_colormap, norm=norm)
+    sm.set_array([])
+    cbar = plt.colorbar(sm)    
+    cbar.set_label(r'$T_0$ (MeV)', rotation=90)
+
+    plt.savefig('T_'+str(Tmin)+'_to_'+str(Tmax)+'_muS_vs_muQ.png', \
+                dpi=chosen_dpi, bbox_inches='tight', pad_inches = 0)
+    print('Saved to T_'+str(Tmin)+'_to_'+str(Tmax)+'_muS_vs_muQ.png')
+
+
+
+
 #########################################################################################
 if __name__== "__main__":
     #plot_all_particles(600,700)
