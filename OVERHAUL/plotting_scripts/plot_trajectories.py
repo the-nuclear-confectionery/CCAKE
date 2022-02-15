@@ -218,6 +218,8 @@ def plot_freeze_out_distributions():
 
     nbins=75
     H, xedges, yedges = np.histogram2d(data[:,1], data[:,0], bins=nbins)
+    
+    print(np.amin(data[:,0]), np.amin(data[:,1]), np.amax(data[:,0]), np.amax(data[:,1]))
 
     cm = plt.cm.get_cmap('inferno', 256)
     axs.imshow(H.T, cmap=cm, vmin=0.0, vmax=np.max(H), origin='lower', interpolation='bicubic',\
