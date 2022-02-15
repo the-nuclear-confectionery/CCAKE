@@ -51,7 +51,7 @@ def plot_all_particles(Tmin, Tmax):
     print(data.shape)
 
     plt.figure(figsize=(4,4), dpi=chosen_dpi)
-    ax = plt.gca()
+    #ax = plt.gca()
     im = None
 
     for iParticle, particle in enumerate(data):
@@ -62,9 +62,10 @@ def plot_all_particles(Tmin, Tmax):
     plt.xlim([-maxrange, maxrange])
     plt.xlabel(r'$\mu_B$ (MeV)')
     plt.ylabel(r'$T$ (MeV)')
-    divider = make_axes_locatable(ax)
-    cax = divider.append_axes("right", size="5%", pad=0.05)
-    plt.colorbar(im, cax=cax)
+    #divider = make_axes_locatable(ax)
+    #cax = divider.append_axes("right", size="5%", pad=0.05)
+    cax = plt.axes([0.85, 0.1, 0.075, 0.8])
+    plt.colorbar(cax=cax)
 
     plt.savefig('T_'+str(Tmin)+'_to_'+str(Tmax)+'_vs_muB.png', \
                 dpi=chosen_dpi, bbox_inches='tight', pad_inches = 0)
