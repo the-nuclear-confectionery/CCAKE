@@ -2,7 +2,7 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib import cm                                                                          
-from matplotlib.colors import ListedColormap, LinearSegmentedColormap
+from matplotlib.colors import ListedColormap, LinearSegmentedColormap, Normalize
 import numpy as np
 import sys
 from mpl_toolkits.axes_grid1 import make_axes_locatable
@@ -51,21 +51,19 @@ def plot_all_particles(Tmin, Tmax):
     print(data.shape)
 
     plt.figure(figsize=(4,4), dpi=chosen_dpi)
-    #ax = plt.gca()
-    im = None
 
     for iParticle, particle in enumerate(data):
         r,g,b,a = chosen_colormap((particle[0,0]-minimum)/(maximum-minimum))
-        im = plt.plot( particle[:,1], particle[:,0], color=(r,g,b), alpha=0.3 )
+        plt.plot( particle[:,1], particle[:,0], color=(r,g,b), alpha=0.3 )
         
     maxrange = np.amax(np.abs(data[:,:,1]))
     plt.xlim([-maxrange, maxrange])
     plt.xlabel(r'$\mu_B$ (MeV)')
     plt.ylabel(r'$T$ (MeV)')
-    #divider = make_axes_locatable(ax)
-    #cax = divider.append_axes("right", size="5%", pad=0.05)
-    cax = plt.axes([0.85, 0.1, 0.075, 0.8])
-    plt.colorbar(cax=cax)
+    norm = Normalize(vmin=minimum,vmax=maximum)
+    sm = plt.cm.ScalarMappable(cmap=chosen_cmap, norm=norm)
+    #sm.set_array([])
+    plt.colorbar(sm)    
 
     plt.savefig('T_'+str(Tmin)+'_to_'+str(Tmax)+'_vs_muB.png', \
                 dpi=chosen_dpi, bbox_inches='tight', pad_inches = 0)
