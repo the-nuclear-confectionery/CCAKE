@@ -199,6 +199,7 @@ def plot_all_particles(Tmin, Tmax):
 
 
 def load_freeze_out_cells(file):
+    print('Reading in', file, flush=True)
     FOcells = np.loadtxt(file, usecols=(5,6,7,8,30), skiprows=1)
     return FOcells[np.where((FOcells[:,0]<155.0)&(FOcells[:,4]==4))]
 
