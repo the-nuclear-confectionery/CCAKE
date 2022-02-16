@@ -309,6 +309,7 @@ void Particle::setvisc( int etaconst, double bvf, double svf, double zTc,
   tauRelax = 1;*/
   zeta = s()*bvf;
   tauRelax = 5.*zeta/(pow((1.0-cs2()),2.0)*w());
+  if (tauRelax < 0.1) tauRelax=0.1;
 }
 
 
