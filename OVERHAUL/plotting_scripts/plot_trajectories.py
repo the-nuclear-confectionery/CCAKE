@@ -213,7 +213,17 @@ def plot_freeze_out_distributions():
     print(data.shape)
     chosen_dpi = 200
 
-    # Set up
+    # Set special colormap
+    cmap = plt.cm.get_cmap('cool', 256)
+    newcolors = cmap(np.linspace(0, 1, 2048))
+    #pink = np.array([248/256, 24/256, 148/256, 1])
+    white = np.array([255/256, 255/256, 255/256, 1])
+    #newcolors[:5, :] = pink
+    newcolors[:1, :] = white
+    newcmp = ListedColormap(newcolors)
+
+    #################################################
+    # T vs. muB figure
     fig, axs = plt.subplots(1, 1, figsize=(5,5))
 
     nbins=75
@@ -222,18 +232,9 @@ def plot_freeze_out_distributions():
     print(np.amin(data[:,0]), np.amin(data[:,1]), np.amax(data[:,0]), np.amax(data[:,1]))
     print(np.amax(H))
 
-    cmap = plt.cm.get_cmap('cool', 256)
-    newcolors = cmap(np.linspace(0, 1, 2048))
-    #pink = np.array([248/256, 24/256, 148/256, 1])
-    white = np.array([255/256, 255/256, 255/256, 1])
-    #newcolors[:5, :] = pink
-    newcolors[:1, :] = white
-    newcmp = ListedColormap(newcolors)
     im = axs.imshow(H.T, cmap=newcmp, vmin=np.amin(H[H>0.0]), vmax=np.amax(H), origin='lower', interpolation='bicubic',\
                     extent=[xedges.min(), xedges.max(), yedges.min(), yedges.max()], aspect='auto',\
                     norm=matplotlib.colors.LogNorm())
-    #im = plt.scatter(x,y,edgecolors='none',s=marker_size,c=void_fraction,\
-    #                 norm=matplotlib.colors.LogNorm())
     #axs.patch.set_facecolor('black')
     cbar = plt.colorbar(im)    
     cbar.set_label(r'Number of cells', rotation=90)
@@ -243,6 +244,58 @@ def plot_freeze_out_distributions():
     axs.set_ylim([0.0, 200.0])
     
     plt.savefig('T_vs_muB_distribution.png', \
+            dpi=chosen_dpi, bbox_inches='tight', pad_inches = 0)
+
+
+    #################################################
+    # T vs. muS figure
+    fig, axs = plt.subplots(1, 1, figsize=(5,5))
+
+    nbins=75
+    H, xedges, yedges = np.histogram2d(data[:,2], data[:,0], bins=nbins)
+    
+    print(np.amin(data[:,0]), np.amin(data[:,2]), np.amax(data[:,0]), np.amax(data[:,2]))
+    print(np.amax(H))
+
+    im = axs.imshow(H.T, cmap=newcmp, vmin=np.amin(H[H>0.0]), vmax=np.amax(H), origin='lower', \
+                    interpolation='bicubic',\
+                    extent=[xedges.min(), xedges.max(), yedges.min(), yedges.max()], aspect='auto',\
+                    norm=matplotlib.colors.LogNorm())
+    #axs.patch.set_facecolor('black')
+    cbar = plt.colorbar(im)    
+    cbar.set_label(r'Number of cells', rotation=90)
+    
+    maximum = np.amax(np.abs(data[:,2]))
+    axs.set_xlim([-1.1*maximum, 1.1*maximum])
+    axs.set_ylim([0.0, 200.0])
+    
+    plt.savefig('T_vs_muS_distribution.png', \
+            dpi=chosen_dpi, bbox_inches='tight', pad_inches = 0)
+
+
+    #################################################
+    # T vs. muQ figure
+    fig, axs = plt.subplots(1, 1, figsize=(5,5))
+
+    nbins=75
+    H, xedges, yedges = np.histogram2d(data[:,3], data[:,0], bins=nbins)
+    
+    print(np.amin(data[:,0]), np.amin(data[:,3]), np.amax(data[:,0]), np.amax(data[:,3]))
+    print(np.amax(H))
+
+    im = axs.imshow(H.T, cmap=newcmp, vmin=np.amin(H[H>0.0]), vmax=np.amax(H), origin='lower', \
+                    interpolation='bicubic',\
+                    extent=[xedges.min(), xedges.max(), yedges.min(), yedges.max()], aspect='auto',\
+                    norm=matplotlib.colors.LogNorm())
+    #axs.patch.set_facecolor('black')
+    cbar = plt.colorbar(im)    
+    cbar.set_label(r'Number of cells', rotation=90)
+    
+    maximum = np.amax(np.abs(data[:,3]))
+    axs.set_xlim([-1.1*maximum, 1.1*maximum])
+    axs.set_ylim([0.0, 200.0])
+    
+    plt.savefig('T_vs_muQ_distribution.png', \
             dpi=chosen_dpi, bbox_inches='tight', pad_inches = 0)
 
 
