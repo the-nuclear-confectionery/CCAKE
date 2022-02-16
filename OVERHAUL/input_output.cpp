@@ -495,7 +495,9 @@ void InputOutput::print_system_state()
           << p.u.x[0]/p.gamma << " "
           << p.u.x[1]/p.gamma << " "
           << p.gamma << " "
-          << p.Freeze << endl;
+          << p.Freeze << " "
+          << p.bigPI << " "
+          << p.tauRelax << endl;
   
   out.close();
 
