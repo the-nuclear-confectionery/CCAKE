@@ -499,6 +499,7 @@ void InputOutput::print_system_state()
           << p.bigPI << " "
           << p.tauRelax << " "
           << p.Bulk << " "
+          << p.dBulk_dt << " "
           << p.zeta << endl;
   
   out.close();
