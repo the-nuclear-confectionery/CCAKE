@@ -497,7 +497,9 @@ void InputOutput::print_system_state()
           << p.gamma << " "
           << p.Freeze << " "
           << p.bigPI << " "
-          << p.tauRelax << endl;
+          << p.tauRelax << " "
+          << p.Bulk << " "
+          << p.zeta << endl;
   
   out.close();
 
