@@ -500,7 +500,15 @@ void InputOutput::print_system_state()
           << p.tauRelax << " "
           << p.Bulk << " "
           << p.dBulk_dt << " "
-          << p.zeta << endl;
+          << p.zeta << " "
+          << p.dsigma_dt << " "
+          << p.div_u << " "
+          << p.du_dt << "       "
+          << p.gradV << "       "
+          << p.gradU << "       "
+          << p.gradBulk << "       "
+          << p.gradshear << "       "
+          << p.divshear << endl;
   
   out.close();
 
