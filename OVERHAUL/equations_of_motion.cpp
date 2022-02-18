@@ -283,7 +283,7 @@ std::cout << "CHECK detasigma_dt: " << i << "   "
 			<< system.t << "   "
 			<< p.detasigma_dt << "   "
 			<< p.sigma << "   "
-			<< p.EOST()*197.3 << "   "
+			<< p.T()*hbarc_MeVfm << "   "
 			<< p.bigPI << "   "
 			<< p.bigtheta << "   "
 			<< p.inside << std::endl;
