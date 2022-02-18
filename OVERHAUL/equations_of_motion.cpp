@@ -261,17 +261,32 @@ cout << "CHECK bigtheta: " << i
                                 - con2(sub, p.gradU)
                                 - p.gamma*system.t*p.shv33 );
 
+
+if (i==ic || printAll)
+std::cout << "CHECK inside: " << i << "   "
+			<< linklist.t << "   "
+			<< linklist._p[i].inside << "   "
+			<< minshv << ";   "
+			<< linklist._p[i].shv.x[0][0]*linklist._p[i].v << ";   "
+			<< linklist._p[i].du_dt << ";   "
+			<< sub << "   "
+			<< linklist._p[i].gradU << ";   "
+			<< linklist._p[i].gamma*linklist.t*linklist._p[i].shv33 << std::endl;
+
+
+
     p.detasigma_dt            = 1./p.sigma/p.T()*( -p.bigPI*p.bigtheta + p.inside );
 
 
 if (i==ic || printAll)
-cout << "CHECK detasigma_dt: " << i
-		<< "   " << system.t
-		<< "   " << p.sigma
-		<< "   " << p.T()
-		<< "   " << p.bigPI
-		<< "   " << p.bigtheta
-		<< "   " << p.inside << endl;
+std::cout << "CHECK detasigma_dt: " << i << "   "
+			<< linklist.t << "   "
+			<< linklist._p[i].detasigma_dt << "   "
+			<< linklist._p[i].sigma << "   "
+			<< linklist._p[i].EOST()*197.3 << "   "
+			<< linklist._p[i].bigPI << "   "
+			<< linklist._p[i].bigtheta << "   "
+			<< linklist._p[i].inside << std::endl;
 
 
     // N.B. - ADD EXTRA TERMS FOR BULK EQUATION
