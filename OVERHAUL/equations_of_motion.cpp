@@ -264,14 +264,14 @@ cout << "CHECK bigtheta: " << i
 
 if (i==ic || printAll)
 std::cout << "CHECK inside: " << i << "   "
-			<< linklist.t << "   "
-			<< linklist._p[i].inside << "   "
+			<< system.t << "   "
+			<< p.inside << "   "
 			<< minshv << ";   "
-			<< linklist._p[i].shv.x[0][0]*linklist._p[i].v << ";   "
-			<< linklist._p[i].du_dt << ";   "
+			<< p.shv.x[0][0]*p.v << ";   "
+			<< p.du_dt << ";   "
 			<< sub << "   "
-			<< linklist._p[i].gradU << ";   "
-			<< linklist._p[i].gamma*linklist.t*linklist._p[i].shv33 << std::endl;
+			<< p.gradU << ";   "
+			<< p.gamma*system.t*p.shv33 << std::endl;
 
 
 
@@ -280,13 +280,13 @@ std::cout << "CHECK inside: " << i << "   "
 
 if (i==ic || printAll)
 std::cout << "CHECK detasigma_dt: " << i << "   "
-			<< linklist.t << "   "
-			<< linklist._p[i].detasigma_dt << "   "
-			<< linklist._p[i].sigma << "   "
-			<< linklist._p[i].EOST()*197.3 << "   "
-			<< linklist._p[i].bigPI << "   "
-			<< linklist._p[i].bigtheta << "   "
-			<< linklist._p[i].inside << std::endl;
+			<< system.t << "   "
+			<< p.detasigma_dt << "   "
+			<< p.sigma << "   "
+			<< p.EOST()*197.3 << "   "
+			<< p.bigPI << "   "
+			<< p.bigtheta << "   "
+			<< p.inside << std::endl;
 
 
     // N.B. - ADD EXTRA TERMS FOR BULK EQUATION
