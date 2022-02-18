@@ -33,6 +33,11 @@ void EquationsOfMotion::set_SettingsPtr(Settings * settingsPtr_in)
 // current equations are only set up for 2+1d.
 void EquationsOfMotion::BSQshear( SystemState & system, SPHWorkstation & ws )
 {
+  // which particles print extra info for
+  constexpr int ic = 17791;
+  constexpr bool printAll = false;
+
+
   // not initial call to setshear(bool is_first_timestep)
   ws.setshear(false);
   system.reset_linklist();
@@ -107,6 +112,9 @@ void EquationsOfMotion::BSQshear( SystemState & system, SPHWorkstation & ws )
     ws.smooth_gradients( i, system.t, curfrz );
 
     p.dsigma_dt = -p.sigma * ( p.gradV.x[0][0] + p.gradV.x[1][1] );
+if (i==ic || printAll)
+cout << "CHECK dsigma_dt: " << i << "   " << system.t << "   " << p.dsigma_dt << "   " << p.sigma
+		<< "   " << p.gradV << endl;
 
     p.bsqsvsigset( system.t, i );
 
@@ -131,8 +139,6 @@ void EquationsOfMotion::BSQshear( SystemState & system, SPHWorkstation & ws )
 // AND CALLED IN BSQHYDRO E.G. ws.smooth_gradients, system.freeze_out_check, etc
 
   //calculate matrix elements
-constexpr int ic = 17791;
-constexpr bool printAll = false;
   for ( int i=0; i<system.n(); i++ )
   {
     auto & p = system.particles[i];
