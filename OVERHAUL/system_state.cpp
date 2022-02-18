@@ -241,7 +241,7 @@ void SystemState::conservation_entropy()
   for (int i=0; i<_n; i++)
   {
     S += particles[i].eta_sigma*particles[i].sigmaweight;
-    if (i==0)
+    if (i==15962)
     std::cout << "\t\t --> " << i << "   " << particles[i].eta_sigma << "   "
               << particles[i].sigmaweight << "   " << S << endl;
   }
@@ -287,7 +287,7 @@ void SystemState::bsqsvconservation_E()
 
         E += ( p.C*p.g2 - p.p() - p.bigPI + p.shv.x[0][0] )
               / p.sigma*p.sigmaweight*t;
-        if (i==0)
+        if (i==15962)
           std::cout << "E: " << i << "   " << t
               << "   " << p.T()
               << "   " << p.e()

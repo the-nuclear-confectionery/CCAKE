@@ -34,7 +34,7 @@ void EquationsOfMotion::set_SettingsPtr(Settings * settingsPtr_in)
 void EquationsOfMotion::BSQshear( SystemState & system, SPHWorkstation & ws )
 {
   // which particles print extra info for
-  constexpr int ic = 17791;
+  constexpr int ic = 15962;
   constexpr bool printAll = false;
 
 
@@ -262,6 +262,17 @@ cout << "CHECK bigtheta: " << i
                                 - p.gamma*system.t*p.shv33 );
 
     p.detasigma_dt            = 1./p.sigma/p.T()*( -p.bigPI*p.bigtheta + p.inside );
+
+
+if (i==ic || printAll)
+cout << "CHECK detasigma_dt: " << i
+		<< "   " << system.t
+		<< "   " << p.sigma
+		<< "   " << p.T()
+		<< "   " << p.bigPI
+		<< "   " << p.bigtheta
+		<< "   " << p.inside << endl;
+
 
     // N.B. - ADD EXTRA TERMS FOR BULK EQUATION
     p.dBulk_dt = ( -p.zeta/p.sigma*p.bigtheta - p.Bulk/p.gamma )/p.tauRelax;

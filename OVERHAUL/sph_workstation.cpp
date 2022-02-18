@@ -525,12 +525,11 @@ void SPHWorkstation::smooth_gradients( int a, double tin, int & count )
       //pa.gradrhoQ             += ( pb.rhoQ/pb.sigma/pb.gamma
       //                            + pa.rhoQ/pa.sigma/pa.gamma)/tin*sigsigK;
       pa.gradV                += (pb.sigmaweight/pa.sigma)*( pb.v -  pa.v )*gradK;
-if (a==17791 || b==17791)
+if (a==15962)
 {
-cout << "CHECK gradV(a): " << a << "   " << tin << "   " << pa.sigma << "   " << pa.v
-		<< "   " << gradK << endl;
-cout << "CHECK gradV(b): " << b << "   " << tin << "   " << pb.sigmaweight << "   " << pb.v
-		<< "   " << pb.v -  pa.v << endl;
+cout << "CHECK gradV: " << a << "   " << tin << "   " << pa.sigma << "   " << pa.v
+		<< "   " << gradK << "   " << b << "   " << pb.sigmaweight << "   " << pb.v
+		<< "   " << pb.v -  pa.v << "   " << pa.Bulk << "   " << pb.Bulk << "   " << sigsigK << endl;
 }
 
       if ( settingsPtr->using_shear )
