@@ -468,7 +468,7 @@ void InputOutput::print_system_state()
           << p.muB()*hbarc_MeVfm << " "
           << p.muS()*hbarc_MeVfm << " "
           << p.muQ()*hbarc_MeVfm << " "
-          << p.e()*hbarc_MeVfm << " "
+          << p.e()*hbarc_MeVfm << " " //10
           << p.rhoB() << " "
           << p.rhoS() << " "
           << p.rhoQ() << " "
@@ -478,7 +478,7 @@ void InputOutput::print_system_state()
           << p.sigma << " " 
           << p.sigmaweight << " "
           << p.stauRelax << " " 
-          << p.bigtheta << " "
+          << p.bigtheta << " "  //20
           << sqrt( p.shv.x[0][0]*p.shv.x[0][0]
                   -2.0*p.shv.x[0][1]*p.shv.x[0][1]
                   -2.0*p.shv.x[0][2]*p.shv.x[0][2]
@@ -492,17 +492,17 @@ void InputOutput::print_system_state()
           << p.shv.x[2][2] << " "
           << p.shv.x[1][2] << " "
           << pow(systemPtr->t,2.0)*p.shv33 << " "
-          << p.u.x[0]/p.gamma << " "
+          << p.u.x[0]/p.gamma << " "  //28
           << p.u.x[1]/p.gamma << " "
           << p.gamma << " "
           << p.Freeze << " "
-          << p.bigPI << " "
+          << p.bigPI << " "     //32
           << p.tauRelax << " "
           << p.Bulk << " "
           << p.dBulk_dt << " "
           << p.zeta << " "
           << p.dsigma_dt << " "
-          << p.div_u << " "
+          << p.div_u << " "       //38
           << p.du_dt << "       "
           << p.gradV << "       "
           << p.gradU << "       "

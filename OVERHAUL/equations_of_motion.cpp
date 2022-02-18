@@ -131,7 +131,7 @@ void EquationsOfMotion::BSQshear( SystemState & system, SPHWorkstation & ws )
 // AND CALLED IN BSQHYDRO E.G. ws.smooth_gradients, system.freeze_out_check, etc
 
   //calculate matrix elements
-constexpr int ic = 0;
+constexpr int ic = 17791;
 constexpr bool printAll = false;
   for ( int i=0; i<system.n(); i++ )
   {
@@ -148,15 +148,15 @@ constexpr bool printAll = false;
     Vector<double,2> minshv   = rowp1(0, p.shv);
     Matrix <double,2,2> partU = p.gradU + transpose( p.gradU );
 
-//if (i==ic || printAll)
-//cout << "CHECK misc1: " << i << "   " << system.t << "   " << gamt << "   " << p.sigma
-//		<< "   " << p.dsigma_dt << endl;
+if (i==ic || printAll)
+cout << "CHECK misc1: " << i << "   " << system.t << "   " << gamt << "   " << p.sigma
+		<< "   " << p.dsigma_dt << endl;
 
-//if (i==ic || printAll)
-//cout << "CHECK minshv: " << i << "   " << system.t << "   " << minshv << endl;
+if (i==ic || printAll)
+cout << "CHECK minshv: " << i << "   " << system.t << "   " << minshv << endl;
 
-//if (i==ic || printAll)
-//cout << "CHECK partU: " << i << "   " << system.t << "   " << partU << endl;
+if (i==ic || printAll)
+cout << "CHECK partU: " << i << "   " << system.t << "   " << partU << endl;
 
 
     // set the Mass and the Force
@@ -167,31 +167,31 @@ constexpr bool printAll = false;
 further above loop could be done in workstation and M and F could be set
 at the same time... */
 
-//if (i==ic || printAll)
-//cout << "CHECK M: " << i << "   " << system.t << "   " << M << endl;
+if (i==ic || printAll)
+cout << "CHECK M: " << i << "   " << system.t << "   " << M << endl;
 
 
 
-//if (i==ic || printAll)
-//cout << "CHECK F: " << i << "   " << system.t << "   " << F << "   "
-//		<< p.Btot << "   " << p.u << "   "
-//		<< p.gradshear << "   " << p.gradP << "   "
-//		<< p.gradBulk << "   " << p.divshear << endl;
+if (i==ic || printAll)
+cout << "CHECK F: " << i << "   " << system.t << "   " << F << "   "
+		<< p.Btot << "   " << p.u << "   "
+		<< p.gradshear << "   " << p.gradP << "   "
+		<< p.gradBulk << "   " << p.divshear << endl;
 
     // shear contribution
     if ( settingsPtr->using_shear )
       F += pre*p.v*partU + p1*minshv;
 
-//if (i==ic || printAll)
-//cout << "CHECK F(again): " << i << "   " << system.t << "   " << F << "   "
-//		<< pre << "   " << p.v << "   " << partU << "   "
-//		<< p1 << "   " << minshv << endl;
+if (i==ic || printAll)
+cout << "CHECK F(again): " << i << "   " << system.t << "   " << F << "   "
+		<< pre << "   " << p.v << "   " << partU << "   "
+		<< p1 << "   " << minshv << endl;
 
     double det=deter(M);
 
 
-//if (i==ic || printAll)
-//cout << "CHECK det: " << i << "   " << system.t << "   " << M << "   " << det << endl;
+if (i==ic || printAll)
+cout << "CHECK det: " << i << "   " << system.t << "   " << M << "   " << det << endl;
 
 
     Matrix <double,2,2> MI;
@@ -202,8 +202,8 @@ at the same time... */
   /* This notation is still a bit weird.. but also
   MI should be a member of particle as well */
 
-//if (i==ic || printAll)
-//cout << "CHECK MI: " << i << "   " << system.t << "   " << MI << endl;
+if (i==ic || printAll)
+cout << "CHECK MI: " << i << "   " << system.t << "   " << MI << endl;
 
 
     p.du_dt.x[0]=F.x[0]*MI.x[0][0]+F.x[1]*MI.x[0][1];
@@ -222,21 +222,21 @@ at the same time... */
         /* the above lines could automaticlaly be set in particle after 
         calculating the matrix elements above */
 
-//if (i==ic || printAll)
-//cout << "CHECK div_u: " << i
-//		<< "   " << system.t
-//		<< "   " << p.div_u
-//		<< "   " << p.gamma
-//		<< "   " << p.u
-//		<< "   " << p.du_dt
-//		<< "   " << inner( p.u, p.du_dt)
-//		<< "   " << p.sigma 
-//		<< "   " << p.dsigma_dt << endl;
-//if (i==ic || printAll)
-//cout << "CHECK bigtheta: " << i
-//		<< "   " << system.t
-//		<< "   " << p.bigtheta
-//		<< "   " << p.gamma << endl;
+if (i==ic || printAll)
+cout << "CHECK div_u: " << i
+		<< "   " << system.t
+		<< "   " << p.div_u
+		<< "   " << p.gamma
+		<< "   " << p.u
+		<< "   " << p.du_dt
+		<< "   " << inner( p.u, p.du_dt)
+		<< "   " << p.sigma 
+		<< "   " << p.dsigma_dt << endl;
+if (i==ic || printAll)
+cout << "CHECK bigtheta: " << i
+		<< "   " << system.t
+		<< "   " << p.bigtheta
+		<< "   " << p.gamma << endl;
 
     // this term occurs in Eqs. (250) and (251) of Jaki's long notes
     // translation: pi^{ij} + pi^{00} v^i v^j - pi^{i0} v^j - pi^{0j} v^i
