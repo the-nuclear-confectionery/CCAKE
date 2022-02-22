@@ -297,7 +297,8 @@ void SystemState::bsqsvconservation_E()
               << "   " << p.bigPI
               << "   " << p.shv.x[0][0]
               << "   " << p.sigma
-              << "   " << p.sigmaweight << endl;    }
+              << "   " << p.sigmaweight << endl;
+    }
 
     if (linklist.first==1)
     {
