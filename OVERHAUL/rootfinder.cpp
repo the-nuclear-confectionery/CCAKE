@@ -260,11 +260,18 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 
     if ( VERBOSE > 8 )
       std::cout << "\t --> Status: " << status << "   "
-           << iter << "   " << error << "   ("
+           << iter << "   " << error
+           << std::endl << "\t             ("
            << gsl_vector_get(solver->x, 0) << ","
            << gsl_vector_get(solver->x, 1) << ","
            << gsl_vector_get(solver->x, 2) << ","
-           << gsl_vector_get(solver->x, 3) << ")   ("
+           << gsl_vector_get(solver->x, 3) << ")"
+           << std::endl << "\t             ("
+           << e_or_s_Given << ","
+           << rhoBGiven << ","
+           << rhoQGiven << ","
+           << rhoSGiven << ")"
+           << std::endl << "\t             ("
            << gsl_vector_get(solver->f, 0) << ","
            << gsl_vector_get(solver->f, 1) << ","
            << gsl_vector_get(solver->f, 2) << ","
