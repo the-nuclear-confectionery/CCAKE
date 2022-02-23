@@ -117,7 +117,7 @@ private:
     static constexpr bool use_conformal_as_fallback           = true;
 
     //static constexpr size_t STEPS     = 1000;
-    static constexpr int VERBOSE      = 0;
+    static constexpr int VERBOSE      = 10;
     //static constexpr double TOLERANCE = 1e-12;
     static constexpr double TINY = 1e-25;
 
