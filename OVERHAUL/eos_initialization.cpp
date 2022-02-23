@@ -252,18 +252,18 @@ void EquationOfState::init_grid_ranges_only(string quantityFile, string derivFil
 	}
 
   // Add this for now
-  if (false)
+  if (true)
   {
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "!!           WARNING           !!" << endl;
     cout << "!!   FORCING EOS GRID RANGES   !!" << endl;
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-    minMuB = -10000.0;
-    minMuQ = -10000.0;
-    minMuS = -10000.0;
-    maxMuB = 10000.0;
-    maxMuQ = 10000.0;
-    maxMuS = 10000.0;
+    minMuB = -1000.0;
+    minMuQ = -1000.0;
+    minMuS = -1000.0;
+    maxMuB = 1000.0;
+    maxMuQ = 1000.0;
+    maxMuS = 1000.0;
   }
 
   // initialize grid ranges here
