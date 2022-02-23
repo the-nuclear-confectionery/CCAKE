@@ -258,6 +258,18 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
       break;
     }
 
+    if ( VERBOSE > 8 )
+      std::cout << "\t --> Status: " << status << "   "
+           << iter << "   " << error << "   ("
+           << gsl_vector_get(solver->x, 0) << ","
+           << gsl_vector_get(solver->x, 1) << ","
+           << gsl_vector_get(solver->x, 2) << ","
+           << gsl_vector_get(solver->x, 3) << ")   ("
+           << gsl_vector_get(solver->f, 0) << ","
+           << gsl_vector_get(solver->f, 1) << ","
+           << gsl_vector_get(solver->f, 2) << ","
+           << gsl_vector_get(solver->f, 3) << ")" << std::endl;
+
     status = gsl_multiroot_test_residual(solver->f, error);
 
   } while (status == GSL_CONTINUE && iter < steps);
