@@ -263,7 +263,7 @@ if (i==0)
 			<< p.T() << "   " << p.e() << "   "
 			<< p.p() << "   " << p.s_an << endl;
 
-	if (false)
+	if (true)
 	{
 		cout << "Exiting prematurely from " << __PRETTY_FUNCTION__
 			<< "::" << __LINE__ << "!" << endl;
@@ -271,8 +271,6 @@ if (i==0)
 			<< "::" << __LINE__ << "!" << endl;
 		exit(8);
 	}
-
-if (true) exit(8);
 
     }
 	cout << "----------------------------------------"
@@ -648,7 +646,7 @@ void SPHWorkstation::process_initial_conditions()
 
 		// make educated initial guess here for this particle's (T, mu_i) coordinates
 		// (improve this in the future)
-		p.thermo.T   = 500.0/hbarc_MeVfm;	// rootfinder seems to work better going downhill than "uphill"
+		p.thermo.T   = 150.0/hbarc_MeVfm;	// rootfinder seems to work better going downhill than "uphill"
 		p.thermo.muB = 0.0/hbarc_MeVfm;
 		p.thermo.muS = 0.0/hbarc_MeVfm;
 		p.thermo.muQ = 0.0/hbarc_MeVfm;
