@@ -262,17 +262,17 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
       std::cout << "\t --> Status: " << status << "   "
            << iter << "   " << error
            << std::endl << "\t             ("
-           << gsl_vector_get(solver->x, 0) << ","
-           << gsl_vector_get(solver->x, 1) << ","
-           << gsl_vector_get(solver->x, 2) << ","
-           << gsl_vector_get(solver->x, 3) << ")"
+           << gsl_vector_get(solver->x, 0)*hbarc_MeVfm << ","
+           << gsl_vector_get(solver->x, 1)*hbarc_MeVfm << ","
+           << gsl_vector_get(solver->x, 2)*hbarc_MeVfm << ","
+           << gsl_vector_get(solver->x, 3)*hbarc_MeVfm << ")"
            << std::endl << "\t             ("
-           << e_or_s_Given << ","
+           << e_or_s_Given*hbarc_MeVfm << ","
            << rhoBGiven << ","
            << rhoQGiven << ","
            << rhoSGiven << ")"
            << std::endl << "\t             ("
-           << gsl_vector_get(solver->f, 0) << ","
+           << gsl_vector_get(solver->f, 0)*hbarc_MeVfm << ","
            << gsl_vector_get(solver->f, 1) << ","
            << gsl_vector_get(solver->f, 2) << ","
            << gsl_vector_get(solver->f, 3) << ")" << std::endl;
@@ -339,6 +339,15 @@ bool Rootfinder::find_eBSQ_root( double ein, double Bin, double Sin, double Qin,
     minMuB = tbqs_minima[1]; maxMuB = tbqs_maxima[1];
     minMuQ = tbqs_minima[2]; maxMuQ = tbqs_maxima[2];
     minMuS = tbqs_minima[3]; maxMuS = tbqs_maxima[3];
+std::cout << "Using grid ranges: "
+  << minT*hbarc_MeVfm << "   "
+  << maxT*hbarc_MeVfm << "   "
+  << minMuB*hbarc_MeVfm << "   "
+  << maxMuB*hbarc_MeVfm << "   "
+  << minMuQ*hbarc_MeVfm << "   "
+  << maxMuQ*hbarc_MeVfm << "   "
+  << minMuS*hbarc_MeVfm << "   "
+  << maxMuS*hbarc_MeVfm << std::endl;
     tbqsPosition = updated_tbqs;
 
     if (rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS,
