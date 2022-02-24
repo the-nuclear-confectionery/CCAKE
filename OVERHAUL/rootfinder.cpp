@@ -198,6 +198,8 @@ cout << "Status after(1): " << status << "   " << GSL_CONTINUE << endl;
         std::cout << "Error: something went to +/-Inf or NaN!" << std::endl;
       else if ( status == GSL_ENOPROG && VERBOSE > 5 )
         std::cout << "Error: not making enough progress!" << std::endl;
+      else if ( status == GSL_ENOPROGJ && VERBOSE > 5 )
+        std::cout << "Error: not making enough progress in Jacobian!" << std::endl;
       //break if the rootfinder gets stuck
       break;
     }
