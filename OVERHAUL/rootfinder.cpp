@@ -190,7 +190,7 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
     ++iter;
 cout << "Status before(1): " << status << "   " << GSL_CONTINUE << endl;
     status = gsl_multiroot_fsolver_iterate(solver);
-cout << "Status before(1): " << status << "   " << GSL_CONTINUE << endl;
+cout << "Status after(1): " << status << "   " << GSL_CONTINUE << endl;
 
     if(VERBOSE > 5 && status)
     {
