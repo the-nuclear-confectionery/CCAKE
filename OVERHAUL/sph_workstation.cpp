@@ -646,7 +646,7 @@ void SPHWorkstation::process_initial_conditions()
 
 		// make educated initial guess here for this particle's (T, mu_i) coordinates
 		// (improve this in the future)
-		p.thermo.T   = 150.0/hbarc_MeVfm;	// rootfinder seems to work better going downhill than "uphill"
+		p.thermo.T   = 75.0/hbarc_MeVfm;	// rootfinder seems to work better going downhill than "uphill"
 		p.thermo.muB = 0.0/hbarc_MeVfm;
 		p.thermo.muS = 0.0/hbarc_MeVfm;
 		p.thermo.muQ = 0.0/hbarc_MeVfm;

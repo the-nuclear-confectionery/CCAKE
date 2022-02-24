@@ -277,7 +277,9 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
            << gsl_vector_get(solver->f, 2) << ","
            << gsl_vector_get(solver->f, 3) << ")" << std::endl;
 
+cout << "Status before: " << status << endl;
     status = gsl_multiroot_test_residual(solver->f, error);
+cout << "Status after: " << status << endl;
 
   } while (status == GSL_CONTINUE && iter < steps);
 
