@@ -295,6 +295,8 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
       std::cout << "Error: something went to +/-Inf or NaN!" << std::endl;
     else if ( status == GSL_ENOPROG )
       std::cout << "Error: not making enough progress!" << std::endl;
+    else if ( status == GSL_ENOPROGJ )
+      std::cout << "Error: not making enough progress in Jacobian!" << std::endl;
     else
       std::cout << "Check: " << iter << "   " << steps << "   " << status << std::endl;
     found = false;
