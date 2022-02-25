@@ -188,9 +188,9 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
       previous_solver_step[iPrev] = gsl_vector_get(solver->x, iPrev);
 
     ++iter;
-cout << "Status before(1): " << status << "   " << GSL_CONTINUE << endl;
+//cout << "Status before(1): " << status << "   " << GSL_CONTINUE << endl;
     status = gsl_multiroot_fsolver_iterate(solver);
-cout << "Status after(1): " << status << "   " << GSL_CONTINUE << endl;
+//cout << "Status after(1): " << status << "   " << GSL_CONTINUE << endl;
 
     if(VERBOSE > 5 && status)
     {
@@ -281,9 +281,9 @@ cout << "Status after(1): " << status << "   " << GSL_CONTINUE << endl;
            << gsl_vector_get(solver->f, 2) << ","
            << gsl_vector_get(solver->f, 3) << ")" << std::endl;
 
-cout << "Status before(2): " << status << "   " << GSL_CONTINUE << endl;
+//cout << "Status before(2): " << status << "   " << GSL_CONTINUE << endl;
     status = gsl_multiroot_test_residual(solver->f, error);
-cout << "Status after(2): " << status << "   " << GSL_CONTINUE << endl;
+//cout << "Status after(2): " << status << "   " << GSL_CONTINUE << endl;
 
   } while (status == GSL_CONTINUE && iter < steps);
 
