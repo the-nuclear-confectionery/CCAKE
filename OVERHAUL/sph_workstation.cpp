@@ -263,7 +263,7 @@ if (i==0)
 			<< p.T() << "   " << p.e() << "   "
 			<< p.p() << "   " << p.s_an << endl;
 
-	if (true)
+	if (false)
 	{
 		cout << "Exiting prematurely from " << __PRETTY_FUNCTION__
 			<< "::" << __LINE__ << "!" << endl;
