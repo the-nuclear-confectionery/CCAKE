@@ -253,7 +253,7 @@ void EquationOfState::init_grid_ranges_only(string quantityFile, string derivFil
 	}
 
   // Add this for now
-  if (true)
+  if (false)
   {
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "!!           WARNING           !!" << endl;
