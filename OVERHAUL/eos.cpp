@@ -182,7 +182,10 @@ void EquationOfState::evaluate_thermodynamics(bool point_is_in_range, bool use_c
       /// NOTE: redefines thermodynamics!
       double PDpoint[4] = { tbqsPosition[0], tbqsPosition[1],
                             tbqsPosition[2], tbqsPosition[3] };
-      eos_extension::get_nonconformal_extension( PDpoint, thermodynamics );
+      double thermo_array[17] = thermodynamics.data();
+      eos_extension::get_nonconformal_extension( PDpoint, thermo_array );
+      thermodynamics.assign(thermo_array, thermo_array + 17);
+      
     }
 
   }
