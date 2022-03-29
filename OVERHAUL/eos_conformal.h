@@ -7,8 +7,6 @@ namespace eos_conformal
 {
   using namespace constants;
 
-  using namespace constants;
-
 	const double hc = hbarc_MeVfm;
 
   double c, T0, muB0, muS0, muQ0;

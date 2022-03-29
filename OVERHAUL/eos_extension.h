@@ -16,6 +16,7 @@ namespace eos_extension
   double b0022, b0202, b2002, b0220, b2020, b2200;
   double b0004, b0040, b0400, b4000;
 
+  /*
   //////////////////////////////////////////////////////////////////////////////
   // function prototypes
   void get_nonconformal_extension( double point[], double thermodynamics[] );
@@ -37,18 +38,10 @@ namespace eos_extension
 	double P2TQ(double T, double muB, double muQ, double muS);
   void get_full_thermo( double point[], double results[] );
   void project_to_boundary( double point[], const double minima[], const double maxima[] );
+  */
 
   //////////////////////////////////////////////////////////////////////////////
   // function definitions
-  void get_nonconformal_extension( double point[], double thermodynamics[] )
-  {
-    // determine parameters from thermodynamic quantities
-    set_coeffs( point, thermodynamics );
-
-    // evaluate extension and return result (stored in thermodynamics)
-    get_full_thermo( point, thermodynamics );
-  }
-
   void set_coeffs( double point[], double thermodynamics[] )
   {
 
@@ -242,6 +235,15 @@ namespace eos_extension
     ////////////////////////////////////////////////////////////////////////////
 
 
+  }
+
+  void get_nonconformal_extension( double point[], double thermodynamics[] )
+  {
+    // determine parameters from thermodynamic quantities
+    set_coeffs( point, thermodynamics );
+
+    // evaluate extension and return result (stored in thermodynamics)
+    get_full_thermo( point, thermodynamics );
   }
 
   void project_to_boundary( double point[], const double minima[], const double maxima[] )
