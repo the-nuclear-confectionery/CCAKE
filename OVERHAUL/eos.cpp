@@ -132,7 +132,8 @@ void EquationOfState::evaluate_thermodynamics(bool point_is_in_range, bool use_c
     {
       /// NOTE: phase_diagram_point gets reset!
       // project back toward origin until intersecting grid boundary
-      eos_extension::project_to_boundary( phase_diagram_point, tbqs_minima, tbqs_maxima );
+      eos_extension::project_to_boundary( phase_diagram_point,
+                                          tbqs_minima.data(), tbqs_maxima.data() );
     }
 
     double thermodynamics[17];
@@ -159,7 +160,8 @@ void EquationOfState::evaluate_thermodynamics(bool point_is_in_range, bool use_c
 
       /// NOTE: phase_diagram_point gets reset!
       // project back toward origin until intersecting grid boundary
-      eos_extension::project_to_boundary( phase_diagram_point, tbqs_minima, tbqs_maxima );
+      eos_extension::project_to_boundary( phase_diagram_point,
+                                          tbqs_minima.data(), tbqs_maxima.data() );
 
       // reset tbqsPosition with new phase_diagram_point
       tbqsPosition.assign(phase_diagram_point, phase_diagram_point + 4);

@@ -36,7 +36,7 @@ namespace eos_extension
 	double P2TS(double T, double muB, double muQ, double muS);
 	double P2TQ(double T, double muB, double muQ, double muS);
   void get_full_thermo( double point[], double results[] );
-  void project_to_boundary( double point[], double minima[], double maxima[] );
+  void project_to_boundary( double point[], const double minima[], const double maxima[] );
 
   //////////////////////////////////////////////////////////////////////////////
   // function definitions
@@ -244,7 +244,7 @@ namespace eos_extension
 
   }
 
-  void project_to_boundary( double point[], double minima[], double maxima[] )
+  void project_to_boundary( double point[], const double minima[], const double maxima[] )
   {
     double max_ratio = 0.0;
     for (int i = 0; i < 4; i++)
