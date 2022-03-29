@@ -16,7 +16,6 @@
 #include <gsl/gsl_linalg.h>
 
 #include "eos_delaunay/eos_delaunay.h"
-#include "eos_extension.h"
 #include "interpolatorND/interpolatorND.h"
 #include "rootfinder.h"
 #include "settings.h"

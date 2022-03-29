@@ -19,6 +19,7 @@
 
 #include "constants.h"
 #include "eos_conformal.h"
+#include "eos_extension.h"
 #include "rootfinder.h"
 
 using namespace constants;
