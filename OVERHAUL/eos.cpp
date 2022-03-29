@@ -95,20 +95,23 @@ void EquationOfState::tbqs( vector<double> & tbqsIn, bool use_conformal )
 void EquationOfState::tbqs( double setT, double setmuB, double setmuQ,
                             double setmuS, bool use_conformal )
 {
-  if ( point_not_in_range( setT, setmuB, setmuQ, setmuS, use_conformal ) )
-    return;
+  bool point_is_in_range = !point_not_in_range( setT, setmuB, setmuQ, setmuS, use_conformal );
+  if ( point_is_in_range or use_nonconformal_extension )
+  {
+    tbqsPosition[0] = setT;
+    tbqsPosition[1] = setmuB;
+    tbqsPosition[2] = setmuQ;
+    tbqsPosition[3] = setmuS;
 
-  tbqsPosition[0] = setT;
-	tbqsPosition[1] = setmuB;
-	tbqsPosition[2] = setmuQ;
-	tbqsPosition[3] = setmuS;
+    // if we are in range, compute all thermodynamic quantities at the new point
+    evaluate_thermodynamics(point_is_in_range, use_conformal);
+  }
 
-  // if we are in range, compute all thermodynamic quantities at the new point
-  evaluate_thermodynamics(use_conformal);
+  return;
 }
 
 
-void EquationOfState::evaluate_thermodynamics(bool use_conformal)
+void EquationOfState::evaluate_thermodynamics(bool point_is_in_range, bool use_conformal)
 {
   if ( settingsPtr->EoS_type == "Conformal" or use_conformal )
   {
@@ -119,66 +122,48 @@ void EquationOfState::evaluate_thermodynamics(bool use_conformal)
     double thermodynamics[17];
     eos_conformal::get_full_thermo(phase_diagram_point, thermodynamics);
 
-    pVal    = thermodynamics[0];
-    entrVal = thermodynamics[1];
-    BVal    = thermodynamics[2];
-    SVal    = thermodynamics[3];
-    QVal    = thermodynamics[4];
-    eVal    = thermodynamics[5];
-    cs2Val  = thermodynamics[6];
-    db2     = thermodynamics[7];
-    dq2     = thermodynamics[8];
-    ds2     = thermodynamics[9];
-    dbdq    = thermodynamics[10];
-    dbds    = thermodynamics[11];
-    dsdq    = thermodynamics[12];
-    dtdb    = thermodynamics[13];
-    dtdq    = thermodynamics[14];
-    dtds    = thermodynamics[15];
-    dt2     = thermodynamics[16];
-
-    /*cout << endl << "CONFORMAL CHECK: ";
-    for (int i = 0; i < 4; i++)
-      cout << tbqsPosition[i] << "   ";
-    for (int i = 0; i < 17; i++)
-      cout << thermodynamics[i] << "   ";
-    cout << endl;*/
   }
   else if ( use_static_C_library )
   {
-    // EXPECTS UNITS OF MEV!!!
     double phase_diagram_point[4]
         = { tbqsPosition[0], tbqsPosition[1], tbqsPosition[2], tbqsPosition[3] };
 
-/*phase_diagram_point[0] = 150.0;
-phase_diagram_point[1] = 0.0;
-phase_diagram_point[2] = 0.0;
-phase_diagram_point[3] = 0.0;*/
+    if ( not point_is_in_range )
+    {
+      /// NOTE: phase_diagram_point gets reset!
+      // project back toward origin until intersecting grid boundary
+      eos_extension::project_to_boundary( phase_diagram_point, tbqs_minima, tbqs_maxima );
+    }
 
     double thermodynamics[17];
     STANDARD_get_full_thermo(phase_diagram_point, thermodynamics);
 
-    pVal    = thermodynamics[0];
-    entrVal = thermodynamics[1];
-    BVal    = thermodynamics[2];
-    SVal    = thermodynamics[3];
-    QVal    = thermodynamics[4];
-    eVal    = thermodynamics[5];
-    cs2Val  = thermodynamics[6];
-    db2     = thermodynamics[7];
-    dq2     = thermodynamics[8];
-    ds2     = thermodynamics[9];
-    dbdq    = thermodynamics[10];
-    dbds    = thermodynamics[11];
-    dsdq    = thermodynamics[12];
-    dtdb    = thermodynamics[13];
-    dtdq    = thermodynamics[14];
-    dtds    = thermodynamics[15];
-    dt2     = thermodynamics[16];
+    // project back to original point using non-conformal extension
+    if ( not point_is_in_range )
+    {
+      /// NOTE: redefines thermodynamics!
+      double PDpoint[4] = { tbqsPosition[0], tbqsPosition[1],
+                            tbqsPosition[2], tbqsPosition[3] };
+      eos_extension::get_nonconformal_extension( PDpoint, thermodynamics );
+    }
+
   }
   else
   {
     vector<double> thermodynamics;  // gets re-sized inside evaluate function
+
+    if ( not point_is_in_range )
+    {
+      double phase_diagram_point[4]
+          = { tbqsPosition[0], tbqsPosition[1], tbqsPosition[2], tbqsPosition[3] };
+
+      /// NOTE: phase_diagram_point gets reset!
+      // project back toward origin until intersecting grid boundary
+      eos_extension::project_to_boundary( phase_diagram_point, tbqs_minima, tbqs_maxima );
+
+      // reset tbqsPosition with new phase_diagram_point
+      tbqsPosition.assign(phase_diagram_point, phase_diagram_point + 4);
+    }
 
     // evaluate EoS interpolator at current location (S and Q NOT SWAPPED)
     equation_of_state_table.evaluate( tbqsPosition, thermodynamics ); 
@@ -189,24 +174,35 @@ phase_diagram_point[3] = 0.0;*/
       exit(1);
     }
 
-    pVal    = thermodynamics[0];
-    entrVal = thermodynamics[1];
-    BVal    = thermodynamics[2];
-    SVal    = thermodynamics[3];
-    QVal    = thermodynamics[4];
-    eVal    = thermodynamics[5];
-    cs2Val  = thermodynamics[6];
-    db2     = thermodynamics[7];
-    dq2     = thermodynamics[8];
-    ds2     = thermodynamics[9];
-    dbdq    = thermodynamics[10];
-    dbds    = thermodynamics[11];
-    dsdq    = thermodynamics[12];
-    dtdb    = thermodynamics[13];
-    dtdq    = thermodynamics[14];
-    dtds    = thermodynamics[15];
-    dt2     = thermodynamics[16];
+    // project back to original point using non-conformal extension
+    if ( not point_is_in_range )
+    {
+      /// NOTE: redefines thermodynamics!
+      double PDpoint[4] = { tbqsPosition[0], tbqsPosition[1],
+                            tbqsPosition[2], tbqsPosition[3] };
+      eos_extension::get_nonconformal_extension( PDpoint, thermodynamics );
+    }
+
   }
+
+  // set final thermodynamic results
+  pVal    = thermodynamics[0];
+  entrVal = thermodynamics[1];
+  BVal    = thermodynamics[2];
+  SVal    = thermodynamics[3];
+  QVal    = thermodynamics[4];
+  eVal    = thermodynamics[5];
+  cs2Val  = thermodynamics[6];
+  db2     = thermodynamics[7];
+  dq2     = thermodynamics[8];
+  ds2     = thermodynamics[9];
+  dbdq    = thermodynamics[10];
+  dbds    = thermodynamics[11];
+  dsdq    = thermodynamics[12];
+  dtdb    = thermodynamics[13];
+  dtdq    = thermodynamics[14];
+  dtds    = thermodynamics[15];
+  dt2     = thermodynamics[16];
 
 /*cout << "THERMO DUMP: " << pVal << "   " << entrVal << "   " << BVal << "   "
       << SVal << "   " << QVal << "   " << eVal << "   " << cs2Val << "   "
@@ -216,7 +212,6 @@ phase_diagram_point[3] = 0.0;*/
 
 if (true) exit(1);*/
 }
-
 
 
 
