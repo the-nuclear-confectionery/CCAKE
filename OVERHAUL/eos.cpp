@@ -130,7 +130,7 @@ void EquationOfState::evaluate_thermodynamics(bool point_is_in_range, bool use_c
     double phase_diagram_point[4]
         = { tbqsPosition[0], tbqsPosition[1], tbqsPosition[2], tbqsPosition[3] };
 
-    if ( not point_is_in_range )
+    if ( not point_is_in_range and use_nonconformal_extension )
     {
       /// NOTE: phase_diagram_point gets reset!
       // project back toward origin until intersecting grid boundary
@@ -142,7 +142,7 @@ void EquationOfState::evaluate_thermodynamics(bool point_is_in_range, bool use_c
     STANDARD_get_full_thermo( phase_diagram_point, thermo_array );
 
     // project back to original point using non-conformal extension
-    if ( not point_is_in_range )
+    if ( not point_is_in_range and use_nonconformal_extension )
     {
       /// NOTE: redefines thermodynamics!
       double PDpoint[4] = { tbqsPosition[0], tbqsPosition[1],
@@ -155,7 +155,7 @@ void EquationOfState::evaluate_thermodynamics(bool point_is_in_range, bool use_c
   }
   else
   {
-    if ( not point_is_in_range )
+    if ( not point_is_in_range and use_nonconformal_extension )
     {
       double phase_diagram_point[4]
           = { tbqsPosition[0], tbqsPosition[1], tbqsPosition[2], tbqsPosition[3] };
@@ -179,7 +179,7 @@ void EquationOfState::evaluate_thermodynamics(bool point_is_in_range, bool use_c
     }
 
     // project back to original point using non-conformal extension
-    if ( not point_is_in_range )
+    if ( not point_is_in_range and use_nonconformal_extension )
     {
       /// NOTE: redefines thermodynamics!
       double PDpoint[4] = { tbqsPosition[0], tbqsPosition[1],
