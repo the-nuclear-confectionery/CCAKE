@@ -23,7 +23,6 @@ InterpolatorND<4> EquationOfState::equation_of_state_table;
 #include "eos_initialization.cpp"
 
 #include "constants.h"
-#include "eos_extension.h"
 
 using namespace constants;
 

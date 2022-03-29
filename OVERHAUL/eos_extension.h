@@ -16,6 +16,30 @@ namespace eos_extension
   double b0022, b0202, b2002, b0220, b2020, b2200;
   double b0004, b0040, b0400, b4000;
 
+  //////////////////////////////////////////////////////////////////////////////
+  // function prototypes
+  void get_nonconformal_extension( double point[], double thermodynamics[] );
+  void set_coeffs( double thermodynamics[] );
+  double p(double T, double muB, double muQ, double muS);
+	double s(double T, double muB, double muQ, double muS);
+	double B(double T, double muB, double muQ, double muS);
+	double S(double T, double muB, double muQ, double muS);
+	double Q(double T, double muB, double muQ, double muS);
+	double P2T2(double T, double muB, double muQ, double muS);
+	double P2B2(double T, double muB, double muQ, double muS);
+	double P2S2(double T, double muB, double muQ, double muS);
+	double P2Q2(double T, double muB, double muQ, double muS);
+	double P2BQ(double T, double muB, double muQ, double muS);
+	double P2BS(double T, double muB, double muQ, double muS);
+	double P2QS(double T, double muB, double muQ, double muS);
+	double P2TB(double T, double muB, double muQ, double muS);
+	double P2TS(double T, double muB, double muQ, double muS);
+	double P2TQ(double T, double muB, double muQ, double muS);
+  void get_full_thermo( double point[], double results[] );
+  void project_to_boundary( double point[], double minima[], double maxima[] );
+
+  //////////////////////////////////////////////////////////////////////////////
+  // function definitions
   void get_nonconformal_extension( double point[], double thermodynamics[] )
   {
     // determine parameters from thermodynamic quantities
