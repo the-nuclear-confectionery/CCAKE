@@ -43,14 +43,16 @@ namespace eos_extension
   void get_nonconformal_extension( double point[], double thermodynamics[] )
   {
     // determine parameters from thermodynamic quantities
-    set_coeffs( thermodynamics );
+    set_coeffs( point, thermodynamics );
 
     // evaluate extension and return result (stored in thermodynamics)
     get_full_thermo( point, thermodynamics );
   }
 
-  void set_coeffs( double thermodynamics[] )
+  void set_coeffs( double point[], double thermodynamics[] )
   {
+
+    double T0 = point[0], muB0 = point[1], muQ0 = point[2], muS0 = point[3];
 
     double p0     = thermodynamics[0];
     double s0     = thermodynamics[1];
@@ -93,54 +95,6 @@ namespace eos_extension
     b0004 = (muQ0*chiQQ0 - rhoQ0) / (8.0*muQ0*muQ0*muQ0);
   }
 
-  /*void set_coeffs_with_s(
-         double T0, double muB0, double muS0, double muQ0, double p0,
-         double s0, double rhoB0, double rhoS0, double rhoQ0,
-         double chiTT0, double chiTB0, double chiTS0, double chiTQ0,
-         double chiBB0, double chiBS0, double chiBQ0, double chiSS0,
-         double chiSQ0, double chiQQ0 )
-  {
-    if (true)
-    {
-      cerr << "Do not run this until units have been fixed!" << endl;
-      exit(8);
-    }
-    b0000 = p0 - (5.0/8.0)*(T0*s0+muB0*rhoB0+muS0*rhoS0+muQ0*rhoQ0)
-            + ( chiTT0*T0*T0 + chiTB0*T0*rhoB0 + chiTS0*T0*rhoS0 + chiTQ0*T0*rhoQ0
-                + chiBB0*rhoB0*rhoB0 + chiBS0*rhoB0*rhoS0 + chiBQ0*rhoB0*rhoQ0
-                + chiSS0*rhoS0*rhoS0 + chiSQ0*rhoS0*rhoQ0 + chiQQ0*rhoQ0*rhoQ0 ) / 8.0;
-
-    b2000 = (3.0*s0 - T0*chiTT0 - muB0*chiTB0 - muQ0*chiTQ0 - muS0*chiTS0) / (4.0*T0);
-    b0200 = (3.0*rhoB0 - T0*chiTB0 - muB0*chiBB0 - muQ0*chiBQ0 - muS0*chiBS0) / (4.0*muB0);
-    b0020 = (3.0*rhoS0 - T0*chiTS0 - muB0*chiBS0 - muQ0*chiSQ0 - muS0*chiSS0) / (4.0*muS0);
-    b0002 = (3.0*rhoQ0 - T0*chiTQ0 - muB0*chiBQ0 - muQ0*chiQQ0 - muS0*chiSQ0) / (4.0*muQ0);
-
-    b2200 = chiTB0 / (4.0*T0*muB0);
-    b2020 = chiTS0 / (4.0*T0*muS0);
-    b2002 = chiTQ0 / (4.0*T0*muQ0);
-    b0220 = chiBS0 / (4.0*muB0*muS0);
-    b0202 = chiBQ0 / (4.0*muB0*muQ0);
-    b0022 = chiSQ0 / (4.0*muS0*muQ0);
-
-    b4000 = (T0*chiTT0 - s0) / (8.0*T0*T0*T0);
-    b0400 = (muB0*chiBB0 - rhoB0) / (8.0*muB0*muB0*muB0);
-    b0040 = (muS0*chiSS0 - rhoS0) / (8.0*muS0*muS0*muS0);
-    b0004 = (muQ0*chiQQ0 - rhoQ0) / (8.0*muQ0*muQ0*muQ0);
-  }
-
-  void set_coeffs_with_e(
-         double T0, double muB0, double muS0, double muQ0, double p0,
-         double e0, double rhoB0, double rhoS0, double rhoQ0,
-         double chiTT0, double chiTB0, double chiTS0, double chiTQ0,
-         double chiBB0, double chiBS0, double chiBQ0, double chiSS0,
-         double chiSQ0, double chiQQ0 )
-  {
-      double s0 = (e0 + p0 - muB0*rhoB0 - muS0*rhoS0 - muQ0*rhoQ0) / T0;
-      set_coeffs_with_s( T0, muB0, muS0, muQ0, p0, s0, rhoB0, rhoS0, rhoQ0,
-                   chiTT0, chiTB0, chiTS0, chiTQ0, chiBB0, chiBS0, chiBQ0, chiSS0,
-                   chiSQ0, chiQQ0 );
-  }*/
-
 
   double p(double T, double muB, double muQ, double muS)
 	{
@@ -153,39 +107,39 @@ namespace eos_extension
 	
 	double s(double T, double muB, double muQ, double muS)
 	{
-		2.0*T*(b2000 + 2.0*T*T*b4000 + muB*muB*b2200 + muQ*muQ*b2002 + muS*muS*b2020)
+		2.0*T*(b2000 + 2.0*T*T*b4000 + muB*muB*b2200 + muQ*muQ*b2002 + muS*muS*b2020);
 	}
 
 	double B(double T, double muB, double muQ, double muS)
 	{
-		2.0*muB*(b0200 + T*T*b2200 + 2.0*muB*muB*b0400 + muS*muS*b0220 + muQ*muQ*b0202)
+		2.0*muB*(b0200 + T*T*b2200 + 2.0*muB*muB*b0400 + muS*muS*b0220 + muQ*muQ*b0202);
 	}
 
 	double S(double T, double muB, double muQ, double muS)
 	{
-		2.0*T*(b0020 + T*T*b2020 + muB*muB*b0220 + 2.0*muS*muS*b0040 + muQ*muQ*b0022)
+		2.0*T*(b0020 + T*T*b2020 + muB*muB*b0220 + 2.0*muS*muS*b0040 + muQ*muQ*b0022);
 	}
 
 	double Q(double T, double muB, double muQ, double muS)
 	{
-		2.0*T*(b0002 + T*T*b2002 + muB*muB*b0202 + muS*muS*b0022 + 2.0*muQ*muQ*b0004)
+		2.0*T*(b0002 + T*T*b2002 + muB*muB*b0202 + muS*muS*b0022 + 2.0*muQ*muQ*b0004);
 	}
 
 	double P2T2(double T, double muB, double muQ, double muS)
 	{
-		2.0*(b2000 + 6.0*T*T*b4000 + muB*muB*b2200 + muS*muS*b2020 + muQ*muQ*b2002)
+		2.0*(b2000 + 6.0*T*T*b4000 + muB*muB*b2200 + muS*muS*b2020 + muQ*muQ*b2002);
 	}
 	double P2B2(double T, double muB, double muQ, double muS)
 	{
-		2.0*(b0200 + T*T*b2200 + 6.0*muB*muB*b0400 + muS*muS*b0220 + muQ*muQ*b0202)
+		2.0*(b0200 + T*T*b2200 + 6.0*muB*muB*b0400 + muS*muS*b0220 + muQ*muQ*b0202);
 	}
 	double P2S2(double T, double muB, double muQ, double muS)
 	{
-		2.0*(b0020 + T*T*b2020 + muB*muB*b0220 + 6.0*muS*muS*b0040 + muQ*muQ*b0022)
+		2.0*(b0020 + T*T*b2020 + muB*muB*b0220 + 6.0*muS*muS*b0040 + muQ*muQ*b0022);
 	}
 	double P2Q2(double T, double muB, double muQ, double muS)
 	{
-		2.0*(b0002 + T*T*b2002 + muB*muB*b0202 + muS*muS*b0022 + 6.0*muQ*muQ*b0004)
+		2.0*(b0002 + T*T*b2002 + muB*muB*b0202 + muS*muS*b0022 + 6.0*muQ*muQ*b0004);
 	}
 	
 	double P2BQ(double T, double muB, double muQ, double muS)
@@ -236,21 +190,21 @@ namespace eos_extension
 
     ////////////////////////////////////////////////////////////////////////////
 
-    C1T = results[1];
-    C1B = results[2];
-    C1Q = results[3];
-    C1S = results[4];
+    double C1T = results[1];
+    double C1B = results[2];
+    double C1Q = results[3];
+    double C1S = results[4];
 
-    C2B2 = results[7];
-    C2Q2 = results[8];
-    C2S2 = results[9];
-    C2BQ = results[10];
-    C2BS = results[11];
-    C2QS = results[12];
-    C2TB = results[13];
-    C2TQ = results[14];
-    C2TS = results[15];
-    C2T2 = results[16];
+    double C2B2 = results[7];
+    double C2Q2 = results[8];
+    double C2S2 = results[9];
+    double C2BQ = results[10];
+    double C2BS = results[11];
+    double C2QS = results[12];
+    double C2TB = results[13];
+    double C2TQ = results[14];
+    double C2TS = results[15];
+    double C2T2 = results[16];
 
     // speed of sound
     results[6] = T*(-(C2BQ*C2S2*C2TQ*C1B) - C2BQ*C2S2*C2TB*C1Q - pow(C2BS,2)*C2TQ*C1Q + C2B2*C2S2*C2TQ*C1Q + C2BQ*C2BS*C2TS*C1Q + C2BQ*C2BS*C2TQ*C1S - pow(C2BQ,2)*C2TS*C1S + pow(C2BQ,2)*C2S2*C1T 
@@ -287,10 +241,6 @@ namespace eos_extension
 
 
   }
-
-
-
-
 
   void project_to_boundary( double point[], double minima[], double maxima[] )
   {
