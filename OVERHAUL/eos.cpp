@@ -113,14 +113,16 @@ void EquationOfState::tbqs( double setT, double setmuB, double setmuQ,
 
 void EquationOfState::evaluate_thermodynamics(bool point_is_in_range, bool use_conformal)
 {
+  vector<double> thermodynamics;
   if ( settingsPtr->EoS_type == "Conformal" or use_conformal )
   {
     // EXPECTS UNITS OF MEV!!!
     double phase_diagram_point[4]
         = { tbqsPosition[0], tbqsPosition[1], tbqsPosition[2], tbqsPosition[3] };
 
-    double thermodynamics[17];
-    eos_conformal::get_full_thermo(phase_diagram_point, thermodynamics);
+    double thermo_array[17];
+    eos_conformal::get_full_thermo(phase_diagram_point, thermo_array);
+    thermodynamics.assign(thermo_array, thermo_array + 17);
 
   }
   else if ( use_static_C_library )
@@ -136,7 +138,7 @@ void EquationOfState::evaluate_thermodynamics(bool point_is_in_range, bool use_c
                                           tbqs_minima.data(), tbqs_maxima.data() );
     }
 
-    double thermodynamics[17];
+    double thermo_array[17];
     STANDARD_get_full_thermo(phase_diagram_point, thermodynamics);
 
     // project back to original point using non-conformal extension
@@ -148,11 +150,11 @@ void EquationOfState::evaluate_thermodynamics(bool point_is_in_range, bool use_c
       eos_extension::get_nonconformal_extension( PDpoint, thermodynamics );
     }
 
+    thermodynamics.assign(thermo_array, thermo_array + 17);
+
   }
   else
   {
-    vector<double> thermodynamics;  // gets re-sized inside evaluate function
-
     if ( not point_is_in_range )
     {
       double phase_diagram_point[4]
@@ -182,7 +184,8 @@ void EquationOfState::evaluate_thermodynamics(bool point_is_in_range, bool use_c
       /// NOTE: redefines thermodynamics!
       double PDpoint[4] = { tbqsPosition[0], tbqsPosition[1],
                             tbqsPosition[2], tbqsPosition[3] };
-      double thermo_array[17] = thermodynamics.data();
+      double thermo_array[17];
+      std::copy( thermodynamics.begin(), thermodynamics.end(), thermo_array );
       eos_extension::get_nonconformal_extension( PDpoint, thermo_array );
       thermodynamics.assign(thermo_array, thermo_array + 17);
       
