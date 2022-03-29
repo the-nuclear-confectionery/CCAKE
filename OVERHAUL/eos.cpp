@@ -117,11 +117,11 @@ void EquationOfState::evaluate_thermodynamics(bool point_is_in_range, bool use_c
   if ( settingsPtr->EoS_type == "Conformal" or use_conformal )
   {
     // EXPECTS UNITS OF MEV!!!
-    double phase_diagram_point[4]
-        = { tbqsPosition[0], tbqsPosition[1], tbqsPosition[2], tbqsPosition[3] };
+    double phase_diagram_point[4] = { tbqsPosition[0], tbqsPosition[1],
+                                      tbqsPosition[2], tbqsPosition[3] };
 
     double thermo_array[17];
-    eos_conformal::get_full_thermo(phase_diagram_point, thermo_array);
+    eos_conformal::get_full_thermo( phase_diagram_point, thermo_array );
     thermodynamics.assign(thermo_array, thermo_array + 17);
 
   }
@@ -139,7 +139,7 @@ void EquationOfState::evaluate_thermodynamics(bool point_is_in_range, bool use_c
     }
 
     double thermo_array[17];
-    STANDARD_get_full_thermo(phase_diagram_point, thermodynamics);
+    STANDARD_get_full_thermo( phase_diagram_point, thermo_array );
 
     // project back to original point using non-conformal extension
     if ( not point_is_in_range )
@@ -147,7 +147,7 @@ void EquationOfState::evaluate_thermodynamics(bool point_is_in_range, bool use_c
       /// NOTE: redefines thermodynamics!
       double PDpoint[4] = { tbqsPosition[0], tbqsPosition[1],
                             tbqsPosition[2], tbqsPosition[3] };
-      eos_extension::get_nonconformal_extension( PDpoint, thermodynamics );
+      eos_extension::get_nonconformal_extension( PDpoint, thermo_array );
     }
 
     thermodynamics.assign(thermo_array, thermo_array + 17);
