@@ -19,7 +19,7 @@ namespace eos_extension
   //////////////////////////////////////////////////////////////////////////////
   // function prototypes
   void get_nonconformal_extension( double point[], double thermodynamics[] );
-  void set_coeffs( double thermodynamics[] );
+  void set_coeffs( double point[], double thermodynamics[] );
   double p(double T, double muB, double muQ, double muS);
 	double s(double T, double muB, double muQ, double muS);
 	double B(double T, double muB, double muQ, double muS);
@@ -189,6 +189,8 @@ namespace eos_extension
     results[16] = P2T2(Tsol, muBsol, muQsol, muSsol);
 
     ////////////////////////////////////////////////////////////////////////////
+
+    const double T = point[0], muB = point[1], muQ = point[2], muS = point[3];
 
     double C1T = results[1];
     double C1B = results[2];
