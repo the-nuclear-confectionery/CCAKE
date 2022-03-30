@@ -215,6 +215,8 @@ namespace eos_extension
 
   void get_nonconformal_extension( double point[], double thermodynamics[] )
   {
+    std::cout << "Getting non-conformal extension!" << std::endl;
+
     // determine parameters from thermodynamic quantities
     set_coeffs( point, thermodynamics );
 
