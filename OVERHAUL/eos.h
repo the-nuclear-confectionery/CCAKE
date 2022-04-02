@@ -1,4 +1,4 @@
-#pragma once
+//#pragma once
 
 #include <iostream>
 #include <vector>
@@ -15,6 +15,7 @@
 #include <gsl/gsl_blas.h>
 #include <gsl/gsl_linalg.h>
 
+#include "eos_header.h"
 #include "eos_delaunay/eos_delaunay.h"
 #include "interpolatorND/interpolatorND.h"
 #include "rootfinder.h"
@@ -34,14 +35,17 @@ public:
     EquationOfState();
     EquationOfState(string quantityFile, string derivFile);
 
+    typedef shared_ptr<eos_base> peos_base; // pointer to the base class from
+                                            // which all EoSs are derived
+
     void init();
     void init(string quantityFile, string derivFile);
 //    void init_grid_ranges_only(string quantityFile, string derivFile);
-    void tbqs(double setT, double setmuB, double setmuQ, double setmuS, bool use_conformal);
-    void tbqs( vector<double> & tbqsIn, bool use_conformal )
+    void tbqs(double setT, double setmuB, double setmuQ, double setmuS, peos_base peos);
+    void tbqs( vector<double> & tbqsIn, peos_base peos )
           { tbqs( tbqsIn[0], tbqsIn[1], tbqsIn[2], tbqsIn[3], peos); }
     bool point_not_in_range( double setT, double setmuB, double setmuQ,
-                             double setmuS, bool use_conformal );
+                             double setmuS, peos_base peos );
     //getter functions for the quantities of interest at the current tbs/tbqs
     double T()   const;   //temperature
     double muB() const;   //baryon chemical potential
@@ -83,8 +87,6 @@ public:
 
     void set_SettingsPtr( Settings * settingsPtr_in );
 
-    typedef shared_ptr<eos_base> peos_base; // pointer to the base class from
-                                            // which all EoSs are derived
     vector<peos_base> chosen_EOSs;          // the vector of EoSs to use, in order
 
 //    vector<double> tbqs_minima, tbqs_maxima;
