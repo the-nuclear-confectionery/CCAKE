@@ -11,6 +11,6 @@ static constexpr bool use_nonconformal_extension          = true;
 
 static constexpr int VERBOSE = 0;
 static constexpr double TINY = 1e-25;
-static constexpr double INFINITY = 1e10;  // indefinitely large limits for EoS
+static constexpr double TBQS_INFINITY = 1e10;  // indefinitely large limits for EoS
 
 #endif

@@ -67,8 +67,8 @@ void EoS_table::EoS_table( string quantityFile, string derivFile )
     // set grid ranges
     if ( use_nonconformal_extension )
     {
-      tbqs_minima = {0.0,     -INFINITY, -INFINITY, -INFINITY};
-      tbqs_maxima = {INFINITY, INFINITY,  INFINITY,  INFINITY};
+      tbqs_minima = {0.0,     -TBQS_INFINITY, -TBQS_INFINITY, -TBQS_INFINITY};
+      tbqs_maxima = {TBQS_INFINITY, TBQS_INFINITY,  TBQS_INFINITY,  TBQS_INFINITY};
     }
     else
     {
@@ -143,8 +143,8 @@ void EoS_table::init_grid_ranges_only(string quantityFile, string derivFile)
   // initialize grid ranges here
   if ( use_nonconformal_extension )
   {
-    tbqs_minima = {0.0,     -INFINITY, -INFINITY, -INFINITY};
-    tbqs_maxima = {INFINITY, INFINITY,  INFINITY,  INFINITY};
+    tbqs_minima = {0.0,          -TBQS_INFINITY, -TBQS_INFINITY, -TBQS_INFINITY};
+    tbqs_maxima = {TBQS_INFINITY, TBQS_INFINITY,  TBQS_INFINITY,  TBQS_INFINITY};
   }
   else
   {

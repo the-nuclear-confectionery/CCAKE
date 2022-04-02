@@ -51,8 +51,8 @@ void EquationOfState::init(string quantityFile, string derivFile)
     double T0 = 1.0, muB0 = 1.0, muQ0 = 1.0, muS0 = 1.0; // trivial scales
 
     // set minima and maxima (can be arbitrarily large)
-    vector<double> tbqs_minima = { 0.0,     -INFINITY, -INFINITY, -INFINITY };
-    vector<double> tbqs_maxima = { INFINITY, INFINITY,  INFINITY,  INFINITY };
+    vector<double> tbqs_minima = { 0.0,     -TBQS_INFINITY, -TBQS_INFINITY, -TBQS_INFINITY };
+    vector<double> tbqs_maxima = { TBQS_INFINITY, TBQS_INFINITY,  TBQS_INFINITY,  TBQS_INFINITY };
 
     // add EoS to vector
     chosen_EOSs.push_back( std::make_shared<EoS_conformal>(
@@ -82,8 +82,8 @@ void EquationOfState::init(string quantityFile, string derivFile)
     double T0 = 1.0, muB0 = 1.0, muQ0 = 1.0, muS0 = 1.0; // trivial scales
 
     // set minima and maxima (can be arbitrarily large)
-    vector<double> tbqs_minima = { 0.0,     -INFINITY, -INFINITY, -INFINITY };
-    vector<double> tbqs_maxima = { INFINITY, INFINITY,  INFINITY,  INFINITY };
+    vector<double> tbqs_minima = { 0.0,          -TBQS_INFINITY, -TBQS_INFINITY, -TBQS_INFINITY };
+    vector<double> tbqs_maxima = { TBQS_INFINITY, TBQS_INFINITY,  TBQS_INFINITY,  TBQS_INFINITY };
 
     // add EoS to vector
     chosen_EOSs.push_back( std::make_shared<EoS_conformal>(

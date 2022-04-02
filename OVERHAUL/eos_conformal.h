@@ -16,7 +16,7 @@ public:
   EoS_conformal(){}
   ~EoS_conformal(){}
 
-  { 0.0,     -INFINITY, -INFINITY, -INFINITY };
+  { 0.0,     -TBQS_INFINITY, -TBQS_INFINITY, -TBQS_INFINITY };
 
   EoS_conformal( const double c_in, const double T0_in, const double muB0_in,
                  const double muS0_in, const double muQ0_in )
