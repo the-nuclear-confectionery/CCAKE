@@ -1,12 +1,12 @@
-#ifndef EOS_EXTENSION_H
-#define EOS_EXTENSION_H
+#ifndef EOS_NONCONFORMAL_EXTENSION_H
+#define EOS_NONCONFORMAL_EXTENSION_H
 
 #include <algorithm>
 #include <cmath>
 
 #include "constants.h"
 
-namespace eos_extension
+namespace eos_nonconformal_extension
 {
   using namespace constants;
 

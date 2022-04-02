@@ -2,14 +2,26 @@
 #define EOS_CONFORMAL_H
 
 #include "constants.h"
+#include "eos_header.h"
 
-namespace eos_conformal
+class EoS_conformal
 {
-  using namespace constants;
-
-	const double hc = hbarc_MeVfm;
+private:
+	const double hc = constants::hbarc_MeVfm;
 
   double c, T0, muB0, muS0, muQ0;
+
+public:
+  // default constructor/destructor
+  EoS_conformal(){}
+  ~EoS_conformal(){}
+
+  { 0.0,     -INFINITY, -INFINITY, -INFINITY };
+
+  EoS_conformal( const double c_in, const double T0_in, const double muB0_in,
+                 const double muS0_in, const double muQ0_in )
+    { c = c_in; T0 = T0_in; muB0 = muB0_in; muS0 = muS0_in; muQ0 = muQ0_in; }
+
 
   double p(double T, double muB, double muQ, double muS)
 	{

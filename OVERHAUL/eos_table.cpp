@@ -1,0 +1,359 @@
+#include "eos_table.h"
+
+InterpolatorND<4> EoS_table::equation_of_state_table;
+
+#include <functional>
+#include <iostream>
+#include <string>
+#include <vector>
+
+#include "eos_extension.h"
+#include "eos_header.h"
+
+void EoS_table::EoS_table( string quantityFile, string derivFile )
+{
+  // allow to use static C library instead of table
+  if ( use_static_C_library )
+  {
+    // initialize things needed to use static C library
+    cout << "Initializing EoS C library" << endl;
+    initialize("../EoS_BQS_Derivatives/Coefficients_Parameters.dat");
+
+    // load EoS tables, assess grid range
+    std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+    init_grid_ranges_only(quantityFile, derivFile);
+  }
+  else  // if thermo not from static C library, read in table from file
+  {
+    // initialize things needed to store eos table from file
+    equation_of_state_table_filename = "./EoS/Houston/Default/thermo.dat";
+    cout << "Initializing EoS from input file(s): "
+         << equation_of_state_table_filename << endl;
+    equation_of_state_table.initialize( equation_of_state_table_filename );
+
+    // set names of EoS quantities to interpolate, in order
+    equation_of_state_table.set_grid_names(
+      vector<string>{ "T","muB","muQ","muS" } );
+    equation_of_state_table.set_field_names(
+      vector<string>{ "p","s","B","S","Q","e","cs2",
+                      "chiBB","chiQQ","chiSS","chiBQ","chiBS",
+                      "chiQS","chiTB","chiTQ","chiTS","chiTT" } );
+
+    // finally, all dimensionalful quantities should be convert to fm and
+    // all dimensionless quantities need to be rescaled appropriately
+    /*equation_of_state_table.rescale_axis( "T",   1.0/hbarc_MeVfm );
+    equation_of_state_table.rescale_axis( "muB", 1.0/hbarc_MeVfm );
+    equation_of_state_table.rescale_axis( "muQ", 1.0/hbarc_MeVfm );
+    equation_of_state_table.rescale_axis( "muS", 1.0/hbarc_MeVfm );*/
+    equation_of_state_table.rescale_axes( 1.0/hbarc_MeVfm );  // do all axes at once
+
+    equation_of_state_table.rescale( "p",     "T", 4 );
+    equation_of_state_table.rescale( "e",     "T", 4 );
+    equation_of_state_table.rescale( "s",     "T", 3 );
+    equation_of_state_table.rescale( "B",     "T", 3 );
+    equation_of_state_table.rescale( "S",     "T", 3 );
+    equation_of_state_table.rescale( "Q",     "T", 3 );
+    equation_of_state_table.rescale( "chiBB", "T", 2 );
+    equation_of_state_table.rescale( "chiQQ", "T", 2 );
+    equation_of_state_table.rescale( "chiSS", "T", 2 );
+    equation_of_state_table.rescale( "chiBQ", "T", 2 );
+    equation_of_state_table.rescale( "chiBS", "T", 2 );
+    equation_of_state_table.rescale( "chiQS", "T", 2 );
+    equation_of_state_table.rescale( "chiTB", "T", 2 );
+    equation_of_state_table.rescale( "chiTQ", "T", 2 );
+    equation_of_state_table.rescale( "chiTS", "T", 2 );
+    equation_of_state_table.rescale( "chiTT", "T", 2 );
+
+    // set grid ranges
+    if ( use_nonconformal_extension )
+    {
+      tbqs_minima = {0.0,     -INFINITY, -INFINITY, -INFINITY};
+      tbqs_maxima = {INFINITY, INFINITY,  INFINITY,  INFINITY};
+    }
+    else
+    {
+      tbqs_minima = equation_of_state_table.get_grid_minima();
+      tbqs_maxima = equation_of_state_table.get_grid_maxima();
+    }
+
+    // needed when using non-conformal extension to know actual table limits
+    tbqs_minima_no_ext = equation_of_state_table.get_grid_minima();
+    tbqs_maxima_no_ext = equation_of_state_table.get_grid_maxima();
+  }
+
+}
+
+
+
+
+
+void EoS_table::init_grid_ranges_only(string quantityFile, string derivFile)
+{
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+    std::ifstream dataFile;
+    dataFile.open(quantityFile);
+
+    double maxMuB        = 0.0;
+    double minMuB        = 0.0;
+    double maxMuQ        = 0.0;
+    double minMuQ        = 0.0;
+    double maxMuS        = 0.0;
+    double minMuS        = 0.0;
+    double maxT          = 0.0;
+    double minT          = 0.0;
+    double tit, muBit, muQit, muSit, pit, entrit, bit, sit, qit, eit, cs2it;
+
+    int count = 0;
+    while ( dataFile >> tit >> muBit >> muQit >> muSit
+                     >> pit >> entrit >> bit >> sit >> qit >> eit >> cs2it )
+    {
+
+		// Christopher Plumberg:
+		// put T and mu_i in units of 1/fm
+		tit   /= hbarc_MeVfm;
+		muBit /= hbarc_MeVfm;
+		muSit /= hbarc_MeVfm;
+		muQit /= hbarc_MeVfm;
+
+    if(count++ == 0)
+    {
+      minT   = tit;
+      maxT   = tit;
+      minMuB = muBit;
+      maxMuB = muBit;     //initialize eos range variables
+      minMuQ = muQit;
+      maxMuQ = muQit;
+      minMuS = muSit;
+      maxMuS = muSit;
+    }
+        
+		if (count%100000==0) std::cout << "Read in line# " << count << std::endl;
+		
+        if (maxT < tit) maxT = tit;
+        if (minT > tit) minT = tit;
+        if (maxMuB < muBit) maxMuB = muBit;
+        if (minMuB > muBit) minMuB = muBit;
+        if (maxMuQ < muQit) maxMuQ = muQit;
+        if (minMuQ > muQit) minMuQ = muQit;
+        if (maxMuS < muSit) maxMuS = muSit;
+        if (minMuS > muSit) minMuS = muSit;
+        
+	}
+
+  // initialize grid ranges here
+  if ( use_nonconformal_extension )
+  {
+    tbqs_minima = {0.0,     -INFINITY, -INFINITY, -INFINITY};
+    tbqs_maxima = {INFINITY, INFINITY,  INFINITY,  INFINITY};
+  }
+  else
+  {
+    tbqs_minima = {minT, minMuB, minMuQ, minMuS};
+    tbqs_maxima = {maxT, maxMuB, maxMuQ, maxMuS};
+  }
+
+  // needed when using non-conformal extension to know actual table limits
+  tbqs_minima_no_ext = {minT, minMuB, minMuQ, minMuS};
+  tbqs_maxima_no_ext = {maxT, maxMuB, maxMuQ, maxMuS};
+
+  dataFile.close();
+
+	std::cout << "All initializations finished!" << std::endl;
+
+  return;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// point     = (T,muB,muQ,muS)
+// densities = (e,rhoB,rhoS,rhoQ)
+void EoS_table::get_eBSQ_densities_from_interpolator(
+        double point[], double densities[] )  // point and densities both length = 4
+{
+    vector<double> results;
+    equation_of_state_table.evaluate(
+      vector<double>(point, point + 4), results,
+      vector<string>({ "e","B","S","Q" }) );
+    std::copy(results.begin(), results.end(), densities);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// point     = (T,muB,muQ,muS)
+// densities = (s,rhoB,rhoS,rhoQ)
+void EoS_table::get_sBSQ_densities_from_interpolator(
+        double point[], double densities[] )  // point and densities both length = 4
+{
+    vector<double> results;
+    equation_of_state_table.evaluate(
+      vector<double>(point, point + 4), results,
+      vector<string>({ "s","B","S","Q" }) );
+    std::copy(results.begin(), results.end(), densities);
+}
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+void EoS_table::get_eBSQ( double point_in[], double results[] )
+{
+  double point[4] = point_in;
+
+  //============================================================================
+  // decide this w.r.t. the tbqs ranges sans extension
+  // --> needed to decide whether to use extension
+  bool point_not_in_range = !point_is_in_range_no_ext( point[0], point[1], point[2], point[3] );
+
+  //============================================================================
+  if ( use_nonconformal_extension and point_not_in_range )
+  {
+    /// NOTE: point gets reset!
+    // project back toward origin until intersecting grid boundary
+    eos_extension::project_to_boundary(
+        point, tbqs_minima_no_ext.data(), tbqs_maxima_no_ext.data() );
+  }
+
+  //============================================================================
+  // evaluate the relevant grid point
+  if (use_static_C_library)
+    STANDARD_get_eBSQ_densities(point, results);
+  else  // using table itself
+    get_eBSQ_densities_from_interpolator(point, results);
+
+  //============================================================================
+  // project back to original point using non-conformal extension
+  if ( use_nonconformal_extension and point_not_in_range )
+    eos_extension::get_nonconformal_extension( point_in, results );
+}
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+void EoS_table::get_sBSQ( double point_in[], double results[] )
+{
+  double point[4] = point_in;
+
+  //============================================================================
+  // decide this w.r.t. the tbqs ranges sans extension
+  // --> needed to decide whether to use extension
+  bool point_not_in_range = !point_is_in_range_no_ext( point[0], point[1], point[2], point[3] );
+
+  //============================================================================
+  if ( use_nonconformal_extension and point_not_in_range )
+  {
+    /// NOTE: point gets reset!
+    // project back toward origin until intersecting grid boundary
+    eos_extension::project_to_boundary(
+        point, tbqs_minima_no_ext.data(), tbqs_maxima_no_ext.data() );
+  }
+
+  //============================================================================
+  // evaluate the relevant grid point
+  if (use_static_C_library)
+    STANDARD_get_sBSQ_densities(point, results);
+  else  // using table itself
+    get_sBSQ_densities_from_interpolator(point, results);
+
+  //============================================================================
+  // project back to original point using non-conformal extension
+  if ( use_nonconformal_extension and point_not_in_range )
+    eos_extension::get_nonconformal_extension( point_in, results );
+}
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+void EoS_table::get_full_thermo( const double point_in[], double results[] )
+{
+  double point[4] = point_in;
+
+  //============================================================================
+  // decide this w.r.t. the tbqs ranges sans extension
+  // --> needed to decide whether to use extension
+  bool point_not_in_range = !point_is_in_range_no_ext( point[0], point[1], point[2], point[3] );
+
+  //============================================================================
+  if ( use_nonconformal_extension and point_not_in_range )
+  {
+    /// NOTE: point gets reset!
+    // project back toward origin until intersecting grid boundary
+    eos_extension::project_to_boundary(
+        point, tbqs_minima_no_ext.data(), tbqs_maxima_no_ext.data() );
+  }
+
+  //============================================================================
+  // evaluate the relevant grid point
+  if (use_static_C_library)
+    STANDARD_get_full_thermo( point, results );
+  else  // using table itself
+  {
+    // copy C arrays to C++ vectors
+    vector<double> v_point, v_results;
+    v_point.insert(  v_point.begin(),   std::begin(point),   std::end(point));
+    v_results.insert(v_results.begin(), std::begin(results), std::end(results));
+
+    // evaluate EoS interpolator at current location (S and Q NOT SWAPPED)
+    equation_of_state_table.evaluate( v_point, v_results ); 
+
+    if ( v_results.size() != 17 )
+    {
+      cerr << "PROBLEM" << endl;
+      exit(1);
+    }
+
+    // copy C++ vector of results back to C array
+    std::copy(v_results.begin(), v_results.end(), results);
+  }
+
+  //============================================================================
+  // project back to original point using non-conformal extension
+  if ( use_nonconformal_extension and point_not_in_range )
+    eos_extension::get_nonconformal_extension( point_in, results );
+
+}  
+
+
+////////////////////////////////////////////////////////////////////////////////
+bool EoS_table::point_is_in_range_no_ext(
+                double setT, double setmuB, double setmuQ, double setmuS )
+{
+  if(setT < tbqs_minima_no_ext[0] || setT > tbqs_maxima_no_ext[0])
+  { 
+    std::cout << "T = " << setT
+      << " is out of (" << peos->name << ") range."
+         " Valid values are between ["
+      << tbqs_minima_no_ext[0] << "," << tbqs_maxima_no_ext[0] << "]" << std::endl;
+    return true;
+  }
+  if(setmuB < tbqs_minima_no_ext[1] || setmuB > tbqs_maxima_no_ext[1])
+  {
+    std::cout << "muB = " << setmuB
+      << " is out of (" << peos->name << ") range."
+         " Valid values are between ["
+      << tbqs_minima_no_ext[1] << "," << tbqs_maxima_no_ext[1] << "]" << std::endl;
+    return true;
+  }
+  if(setmuQ < tbqs_minima_no_ext[2] || setmuQ > tbqs_maxima_no_ext[2])
+  {
+    std::cout << "muQ = " << setmuQ
+      << " is out of (" << peos->name << ") range."
+         " Valid values are between ["
+      << tbqs_minima_no_ext[2] << "," << tbqs_maxima_no_ext[2] << "]" << std::endl;
+    return true;
+  }
+  if(setmuS < tbqs_minima_no_ext[3] || setmuS > tbqs_maxima_no_ext[3])
+  {
+    std::cout << "muS = " << setmuS
+      << " is out of (" << peos->name << ") range."
+         " Valid values are between ["
+      << tbqs_minima_no_ext[3] << "," << tbqs_maxima_no_ext[3] << "]" << std::endl;
+    return true;
+  }
+  return false;
+}

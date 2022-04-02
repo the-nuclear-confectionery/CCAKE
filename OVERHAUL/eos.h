@@ -36,28 +36,29 @@ public:
 
     void init();
     void init(string quantityFile, string derivFile);
-    void init_grid_ranges_only(string quantityFile, string derivFile);
+//    void init_grid_ranges_only(string quantityFile, string derivFile);
     void tbqs(double setT, double setmuB, double setmuQ, double setmuS, bool use_conformal);
-    void tbqs( vector<double> & tbqsIn, bool use_conformal );
+    void tbqs( vector<double> & tbqsIn, bool use_conformal )
+          { tbqs( tbqsIn[0], tbqsIn[1], tbqsIn[2], tbqsIn[3], peos); }
     bool point_not_in_range( double setT, double setmuB, double setmuQ,
                              double setmuS, bool use_conformal );
     //getter functions for the quantities of interest at the current tbs/tbqs
-    double T()   const;     //temperature
+    double T()   const;   //temperature
     double muB() const;   //baryon chemical potential
     double muQ() const;   //charge chemical potential
     double muS() const;   //strangeness chemical potential
 
-    double p()   const;     //pressure density
-    double s()   const;     //entropy density
-    double B()   const;     //baryon density
-    double S()   const;     //strangeness density
-    double Q()   const;     //charge density
-    double e()   const;     //energy density
+    double p()   const;   //pressure density
+    double s()   const;   //entropy density
+    double B()   const;   //baryon density
+    double S()   const;   //strangeness density
+    double Q()   const;   //charge density
+    double e()   const;   //energy density
     double cs2() const;   //speed of sound
-    double w()   const;     //enthalpy
+    double w()   const;   //enthalpy
 
     double dwds();
-    double dwdB();  //enthalpy derivatives **These still have not been checked**
+    double dwdB();
     double dwdS();
     double dwdQ();
 
@@ -80,24 +81,13 @@ public:
     double s_out(double ein, double Bin, double Sin, double Qin, bool & solution_found);
     double s_out(double ein, bool & solution_found);
 
-    void set_eBSQ_functional( std::function<void(double[], double[])> fIn )
-          { eBSQ_functional = fIn; }
-    void set_sBSQ_functional( std::function<void(double[], double[])> fIn )
-          { sBSQ_functional = fIn; }
-    void set_conformal_eBSQ_functional( std::function<void(double[], double[])> fIn )
-          { conformal_eBSQ_functional = fIn; }
-    void set_conformal_sBSQ_functional( std::function<void(double[], double[])> fIn )
-          { conformal_sBSQ_functional = fIn; }
-
     void set_SettingsPtr( Settings * settingsPtr_in );
 
-    std::function<void(double[], double[])> eBSQ_functional;
-    std::function<void(double[], double[])> sBSQ_functional;
-    std::function<void(double[], double[])> conformal_eBSQ_functional;
-    std::function<void(double[], double[])> conformal_sBSQ_functional;
+    typedef shared_ptr<eos_base> peos_base; // pointer to the base class from
+                                            // which all EoSs are derived
+    vector<peos_base> chosen_EOSs;          // the vector of EoSs to use, in order
 
-    vector<double> tbqs_minima, tbqs_maxima;
-    vector<double> conformal_tbqs_minima, conformal_tbqs_maxima;
+//    vector<double> tbqs_minima, tbqs_maxima;
 
 
 private:
@@ -107,21 +97,6 @@ private:
 
     Settings * settingsPtr = nullptr;
 
-    //bool use_delaunay = false, use_rootfinder = true;
-    //const int VERBOSE = 1;
-    static constexpr bool use_rootfinder                      = true;
-    static constexpr bool use_delaunay                        = !use_rootfinder;
-    static constexpr bool use_static_C_library                = true;
-    static constexpr bool accept_nearest_neighbor             = false;
-    static constexpr bool discard_unsolvable_charge_densities = false;
-    static constexpr bool use_conformal_as_fallback           = true;
-    static constexpr bool use_nonconformal_extension          = true;
-
-    //static constexpr size_t STEPS     = 1000;
-    static constexpr int VERBOSE      = 0;
-    //static constexpr double TOLERANCE = 1e-12;
-    static constexpr double TINY = 1e-25;
-
     //the current position in (T, muB, muQ, muS) initialized by tbqs()
     vector<double> tbqsPosition;
 
@@ -129,7 +104,7 @@ private:
     string quantity_file = "";
     string deriv_file    = "";
     string equation_of_state_table_filename = "";
-    static InterpolatorND<4> equation_of_state_table;
+    //static InterpolatorND<4> equation_of_state_table;
 
 
     double pVal          = 0.0;
@@ -151,17 +126,6 @@ private:
     double dtds          = 0.0;
     double dtdq          = 0.0; //second derivative of pressure wrt i and j 
                                 //where didj =: (d^2p)/(didj) or di2 = (d^2p)/((di)^2)
-
-    /*
-    double maxMuB        = 0.0;
-    double minMuB        = 0.0;
-    double maxMuQ        = 0.0;
-    double minMuQ        = 0.0;
-    double maxMuS        = 0.0;
-    double minMuS        = 0.0;
-    double maxT          = 0.0;
-    double minT          = 0.0; //EOS range used for rootfinder checks
-    */
 
     ////////////////////////////////////////////////////////////////////////////
     // ROUTINES NEEDED FOR COMPUTING THERMODYNAMIC DERIVATIVES
@@ -210,8 +174,6 @@ private:
     // MEMBERS AND ROUTINES TO FIND (T,muX) COORDINATES OF (e,rhoX) POINT
     // - for using the root-finding functionality
     Rootfinder rootfinder;
-    //std::function<void(double[], double[])> eBSQ_functional;
-    //std::function<void(double[], double[])> sBSQ_functional;
     // - for using a Delaunay interpolation
     eos_delaunay e_delaunay;
     eos_delaunay entr_delaunay;

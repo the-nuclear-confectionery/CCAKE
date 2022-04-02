@@ -101,10 +101,11 @@ if (i==0)
 				{
 					double phase_diagram_point[4] = { p.T(), p.muB(), p.muQ(), p.muS() };
 					double densities_at_point[4];
-          if (p.eosPtr->using_conformal_as_fallback())
-            p.eosPtr->conformal_eBSQ_functional( phase_diagram_point, densities_at_point );
-          else
-            p.eosPtr->eBSQ_functional( phase_diagram_point, densities_at_point );
+      cout << "!!!!! Warning !!!!!: the following output does not make sense!" << endl;
+//          if (p.eosPtr->using_conformal_as_fallback())
+//            p.eosPtr->conformal_eBSQ_functional( phase_diagram_point, densities_at_point );
+//          else
+//            p.eosPtr->eBSQ_functional( phase_diagram_point, densities_at_point );
 
 					cout << i << ":   " << p.e_sub*hbarc_MeVfm
 						<< "   " << p.rhoB_an
@@ -219,10 +220,11 @@ if (i==0)
 			double phase_diagram_point[4] = { p.T(), p.muB(), p.muQ(), p.muS() };
 
 			double densities_at_point[4];
-      if (p.eosPtr->using_conformal_as_fallback())
-        p.eosPtr->conformal_eBSQ_functional( phase_diagram_point, densities_at_point );
-      else
-        p.eosPtr->eBSQ_functional( phase_diagram_point, densities_at_point );
+      cout << "!!!!! Warning !!!!!: the following output does not make sense!" << endl;
+//      if (p.eosPtr->using_conformal_as_fallback())
+//        p.eosPtr->conformal_eBSQ_functional( phase_diagram_point, densities_at_point );
+//      else
+//        p.eosPtr->eBSQ_functional( phase_diagram_point, densities_at_point );
 
 			cout << "\t\t - phase diagram point:";
 			for (int iii = 0; iii < 4; iii++) cout << "   " << hbarc_MeVfm*phase_diagram_point[iii];

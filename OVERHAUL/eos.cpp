@@ -1,6 +1,6 @@
 #include "eos.h"
 
-InterpolatorND<4> EquationOfState::equation_of_state_table;
+//InterpolatorND<4> EquationOfState::equation_of_state_table;
 
 //#include "read_in_hdf/read_in_hdf.h"
 //#include "Stopwatch.h"
@@ -16,7 +16,7 @@ InterpolatorND<4> EquationOfState::equation_of_state_table;
 #include <string>
 
 // functions calls to static EoS C library
-#include <lib.h>
+//#include <lib.h>
 #include "eos_delaunay/eos_delaunay.h"
 
 #include "eos_derivatives.cpp"
@@ -43,16 +43,15 @@ EquationOfState::EquationOfState(string quantityFile, string derivFile)
 ////////////////////////////////////////////////////////////////////////////////
 bool EquationOfState::point_not_in_range(
                         double setT, double setmuB, double setmuQ,
-                        double setmuS, bool use_conformal )
+                        double setmuS, peos_base peos )
 {
-  auto & tbqs_mins = ( use_conformal ) ? conformal_tbqs_minima : tbqs_minima;
-  auto & tbqs_maxs = ( use_conformal ) ? conformal_tbqs_maxima : tbqs_maxima;
-  string conformal_string = ( use_conformal ) ? "conformal" : "non-conformal";
+  const auto & tbqs_mins = peos->tbqs_minima;
+  const auto & tbqs_maxs = peos->tbqs_maxima;
 
   if(setT < tbqs_mins[0] || setT > tbqs_maxs[0])
   { 
     std::cout << "T = " << setT
-      << " is out of (" << conformal_string << ") range."
+      << " is out of (" << peos->name << ") range."
          " Valid values are between ["
       << tbqs_mins[0] << "," << tbqs_maxs[0] << "]" << std::endl;
     return true;
@@ -60,7 +59,7 @@ bool EquationOfState::point_not_in_range(
   if(setmuB < tbqs_mins[1] || setmuB > tbqs_maxs[1])
   {
     std::cout << "muB = " << setmuB
-      << " is out of (" << conformal_string << ") range."
+      << " is out of (" << peos->name << ") range."
          " Valid values are between ["
       << tbqs_mins[1] << "," << tbqs_maxs[1] << "]" << std::endl;
     return true;
@@ -68,7 +67,7 @@ bool EquationOfState::point_not_in_range(
   if(setmuQ < tbqs_mins[2] || setmuQ > tbqs_maxs[2])
   {
     std::cout << "muQ = " << setmuQ
-      << " is out of (" << conformal_string << ") range."
+      << " is out of (" << peos->name << ") range."
          " Valid values are between ["
       << tbqs_mins[2] << "," << tbqs_maxs[2] << "]" << std::endl;
     return true;
@@ -76,7 +75,7 @@ bool EquationOfState::point_not_in_range(
   if(setmuS < tbqs_mins[3] || setmuS > tbqs_maxs[3])
   {
     std::cout << "muS = " << setmuS
-      << " is out of (" << conformal_string << ") range."
+      << " is out of (" << peos->name << ") range."
          " Valid values are between ["
       << tbqs_mins[3] << "," << tbqs_maxs[3] << "]" << std::endl;
     return true;
@@ -86,17 +85,11 @@ bool EquationOfState::point_not_in_range(
 
 
 ////////////////////////////////////////////////////////////////////////////////
-void EquationOfState::tbqs( vector<double> & tbqsIn, bool use_conformal )
-{
-  tbqs( tbqsIn[0], tbqsIn[1], tbqsIn[2], tbqsIn[3], use_conformal);
-}
-
-////////////////////////////////////////////////////////////////////////////////
 void EquationOfState::tbqs( double setT, double setmuB, double setmuQ,
-                            double setmuS, bool use_conformal )
+                            double setmuS, peos_base peos )
 {
-  bool point_is_in_range = !point_not_in_range( setT, setmuB, setmuQ, setmuS, use_conformal );
-  if ( point_is_in_range or use_nonconformal_extension )
+  bool point_is_in_range = !point_not_in_range( setT, setmuB, setmuQ, setmuS, peos );
+  if ( point_is_in_range )
   {
     tbqsPosition[0] = setT;
     tbqsPosition[1] = setmuB;
@@ -104,95 +97,32 @@ void EquationOfState::tbqs( double setT, double setmuB, double setmuQ,
     tbqsPosition[3] = setmuS;
 
     // if we are in range, compute all thermodynamic quantities at the new point
-    evaluate_thermodynamics(point_is_in_range, use_conformal);
+    evaluate_thermodynamics( peos );
+  }
+  else
+  {
+    std::cout << "Point was out of range! You need to tell me what to do!" << std::endl;
+    std::cerr << "Point was out of range! You need to tell me what to do!" << std::endl;
+    exit(8);
   }
 
   return;
 }
 
 
-void EquationOfState::evaluate_thermodynamics(bool point_is_in_range, bool use_conformal)
+void EquationOfState::evaluate_thermodynamics( peos_base peos )
 {
+  //============================================================================
+  // this function now works the same for all EoSs by construction
   vector<double> thermodynamics;
-  if ( settingsPtr->EoS_type == "Conformal" or use_conformal )
-  {
-    // EXPECTS UNITS OF MEV!!!
-    double phase_diagram_point[4] = { tbqsPosition[0], tbqsPosition[1],
-                                      tbqsPosition[2], tbqsPosition[3] };
+  double phase_diagram_point[4] = { tbqsPosition[0], tbqsPosition[1],
+                                    tbqsPosition[2], tbqsPosition[3] };
 
-    double thermo_array[17];
-    eos_conformal::get_full_thermo( phase_diagram_point, thermo_array );
-    thermodynamics.assign(thermo_array, thermo_array + 17);
+  double thermo_array[17];
+  peos->get_full_thermo( phase_diagram_point, thermo_array );
+  thermodynamics.assign(thermo_array, thermo_array + 17);
 
-  }
-  else if ( use_static_C_library )
-  {
-    double phase_diagram_point[4]
-        = { tbqsPosition[0], tbqsPosition[1], tbqsPosition[2], tbqsPosition[3] };
-
-    if ( use_nonconformal_extension and not point_is_in_range )
-    {
-      /// NOTE: phase_diagram_point gets reset!
-      // project back toward origin until intersecting grid boundary
-      eos_extension::project_to_boundary( phase_diagram_point,
-                                          tbqs_minima.data(), tbqs_maxima.data() );
-    }
-
-    double thermo_array[17];
-    STANDARD_get_full_thermo( phase_diagram_point, thermo_array );
-
-    // project back to original point using non-conformal extension
-    if ( use_nonconformal_extension and not point_is_in_range )
-    {
-      /// NOTE: redefines thermodynamics!
-      double PDpoint[4] = { tbqsPosition[0], tbqsPosition[1],
-                            tbqsPosition[2], tbqsPosition[3] };
-      eos_extension::get_nonconformal_extension( PDpoint, thermo_array );
-    }
-
-    thermodynamics.assign(thermo_array, thermo_array + 17);
-
-  }
-  else
-  {
-    if ( use_nonconformal_extension and not point_is_in_range )
-    {
-      double phase_diagram_point[4]
-          = { tbqsPosition[0], tbqsPosition[1], tbqsPosition[2], tbqsPosition[3] };
-
-      /// NOTE: phase_diagram_point gets reset!
-      // project back toward origin until intersecting grid boundary
-      eos_extension::project_to_boundary( phase_diagram_point,
-                                          tbqs_minima.data(), tbqs_maxima.data() );
-
-      // reset tbqsPosition with new phase_diagram_point
-      tbqsPosition.assign(phase_diagram_point, phase_diagram_point + 4);
-    }
-
-    // evaluate EoS interpolator at current location (S and Q NOT SWAPPED)
-    equation_of_state_table.evaluate( tbqsPosition, thermodynamics ); 
-
-    if ( thermodynamics.size() != 17 )
-    {
-      cerr << "PROBLEM" << endl;
-      exit(1);
-    }
-
-    // project back to original point using non-conformal extension
-    if ( use_nonconformal_extension and not point_is_in_range )
-    {
-      /// NOTE: redefines thermodynamics!
-      double PDpoint[4] = { tbqsPosition[0], tbqsPosition[1],
-                            tbqsPosition[2], tbqsPosition[3] };
-      double thermo_array[17];
-      std::copy( thermodynamics.begin(), thermodynamics.end(), thermo_array );
-      eos_extension::get_nonconformal_extension( PDpoint, thermo_array );
-      thermodynamics.assign(thermo_array, thermo_array + 17);
-      
-    }
-
-  }
-
+  //============================================================================
   // set final thermodynamic results
   pVal    = thermodynamics[0];
   entrVal = thermodynamics[1];
@@ -240,16 +170,11 @@ double EquationOfState::w()   const { return eVal + pVal; }
 
 double EquationOfState::dwds()
 {
-//	double charge_terms	//if charge densities are not all zero
-//			= ( abs(BVal)>1e-10 || abs(SVal)>1e-10 || abs(QVal)>1e-10 ) ?
-//			  BVal/dentr_dmub() + QVal/dentr_dmuq() + SVal/dentr_dmus() : 0.0;
-
-//  // alternative way to implement charge terms
+  // include non-zero charge terms
 	double charge_terms	= 0.0;
   if ( abs(BVal)>TINY ) charge_terms += BVal/dentr_dmub();
   if ( abs(QVal)>TINY ) charge_terms += QVal/dentr_dmuq();
   if ( abs(SVal)>TINY ) charge_terms += SVal/dentr_dmus();
-
 
 	/*if ( check_derivatives )
 	cout << endl << endl << "inside dwds(): "
@@ -263,11 +188,7 @@ double EquationOfState::dwds()
 
 double EquationOfState::dwdB()
 {
-//	double charge_terms	//if charge densities are not all zero
-//			= ( abs(BVal)>1e-10 || abs(SVal)>1e-10 || abs(QVal)>1e-10 ) ?
-//			  entrVal/db_dt() + BVal/db_dmub() + QVal/db_dmuq() + SVal/db_dmus() : 0.0;
-
-//  // alternative way to implement charge terms
+  // include non-zero charge terms
 	double charge_terms	= 0.0;
   if ( abs(BVal)>TINY )
   {
@@ -281,11 +202,7 @@ double EquationOfState::dwdB()
 
 double EquationOfState::dwdS()
 {
-//	double charge_terms	//if charge densities are not all zero
-//			= ( abs(BVal)>1e-10 || abs(SVal)>1e-10 || abs(QVal)>1e-10 ) ?
-//			  entrVal/ds_dt() + BVal/ds_dmub() + QVal/ds_dmuq() + SVal/ds_dmus() : 0.0;
-
-//  // alternative way to implement charge terms
+  // include non-zero charge terms
 	double charge_terms	= 0.0;
   if ( abs(SVal)>TINY )
   {
@@ -299,11 +216,7 @@ double EquationOfState::dwdS()
 
 double EquationOfState::dwdQ()
 {
-//	double charge_terms	//if charge densities are not all zero
-//			= ( abs(BVal)>1e-10 || abs(SVal)>1e-10 || abs(QVal)>1e-10 ) ?
-//			  entrVal/dq_dt() + BVal/dq_dmub() + QVal/dq_dmuq() + SVal/dq_dmus() : 0.0;
-
-//  // alternative way to implement charge terms
+  // include non-zero charge terms
 	double charge_terms	= 0.0;
   if ( abs(QVal)>TINY )
   {
@@ -317,39 +230,29 @@ double EquationOfState::dwdQ()
 
 
 double EquationOfState::cs2out(double Tt) {  //return cs2 given t and mu's=0
-cout << "Entering " << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
     tbqs(Tt, 0.0, 0.0, 0.0, false);
-cout << "Leaving " << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
     return cs2Val;
 }
 
 double EquationOfState::cs2out(double Tt, double muBin, double muQin, double muSin) {  //return cs2 given t and mu's
-cout << "Entering " << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
     tbqs(Tt, muBin, muQin, muSin, false);
-cout << "Leaving " << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
     return cs2Val;
 }
 
 double EquationOfState::wfz(double Tt) {   // return e + p for tbqs
-cout << "Entering " << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
     tbqs(Tt, 0.0, 0.0, 0.0, false);
-cout << "Leaving " << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
     return eVal + pVal;
 }
 
 double EquationOfState::wfz(double Tt, double muBin, double muQin, double muSin) {   // return e + p for tbqs
-cout << "Entering " << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
     tbqs(Tt, muBin, muQin, muSin, false);
-cout << "Leaving " << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
     return eVal + pVal;
 }
 
 
 double EquationOfState::s_terms_T(double Tt)
 {
-cout << "Entering " << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
   tbqs(Tt, 0, 0, 0, false);
-cout << "Leaving " << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
   return entrVal;
 }
 
@@ -420,20 +323,31 @@ bool EquationOfState::delaunay_update_s(double sin, double Bin, double Sin, doub
 bool EquationOfState::rootfinder_update_s(double sin, double Bin, double Sin, double Qin)
 {
   vector<double> result = tbqsPosition;
-  
-  bool success = rootfinder.find_sBSQ_root( sin, Bin, Sin, Qin, sBSQ_functional,
-                                            tbqs_minima, tbqs_maxima, result );
 
-  /// IMPORTANT: CURRENTLY DOES NOT IMPLEMENT CONFORMAL FALLBACK FOR UPDATE_S
-  ///            SINCE PARTICLE SHOULD HAVE ALREADY RECEIVED AT LEAST ONE GUESS
+  // try each EoS in turn
+  for ( const auto & this_eos : chosen_EOSs )
+  {
+    success
+      = rootfinder.find_sBSQ_root( ein, Bin, Sin, Qin, this_eos->eBSQ,
+                                   this_eos->tbqs_minima, this_eos->tbqs_maxima,
+                                   result );
 
-  // only set new output if root was successfully found
-  // (shouldn't matter, but just to be careful)
-  if (success)
-    tbqs( result, false );
+    // stop iterating through available EoSs when solution found
+    if (success)
+    {
+      tbqs( result, this_eos ); // set thermodynamics using solution
+      break;
+    }
+  }
+
+  if (!solution_found)
+  {
+    std::cout << "No solution found!" << std::endl;
+    std::cerr << "No solution found!" << std::endl;
+    exit(101);
+  }
 
   return success;
-
 }
 ////////////////////////////////////////////////
 
@@ -476,77 +390,39 @@ double EquationOfState::delaunay_s_out( double ein, double Bin, double Sin,
   return entrVal;
 }
 
-////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
                                           double Qin, bool & solution_found )
 {
+  // used for seed value in rootfinder
   vector<double> result = tbqsPosition;
-  solution_found = rootfinder.find_eBSQ_root( ein, Bin, Sin, Qin, eBSQ_functional,
-                                              tbqs_minima, tbqs_maxima, result );
-  tbqs( result, false );
 
-  if (solution_found)
+  // try each EoS in turn
+  for ( const auto & this_eos : chosen_EOSs )
   {
-    cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << ": found solution with default EoS!" << endl;
-    return entrVal;
-  }
-  else if ( use_nonconformal_extension )
-  {
-    solution_found = rootfinder.find_eBSQ_root( ein, Bin, Sin, Qin, conformal_eBSQ_functional,
-                                         conformal_tbqs_minima, conformal_tbqs_maxima, result );
+    solution_found
+      = rootfinder.find_eBSQ_root( ein, Bin, Sin, Qin, this_eos->eBSQ,
+                                   this_eos->tbqs_minima, this_eos->tbqs_maxima,
+                                   result );
+
+    // stop iterating through available EoSs when solution found
     if (solution_found)
-      cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << ": found solution with non-conformal extension!" << endl;
-    else
-      cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << ": did not find solution with non-conformal extension!" << endl;
-
-    tbqs( result, true );
-    return entrVal;
+    {
+      tbqs( result, this_eos ); // set thermodynamics using solution
+      break;
+    }
   }
-  else if ( use_conformal_as_fallback )
+
+  if (!solution_found)
   {
-    solution_found = rootfinder.find_eBSQ_root( ein, Bin, Sin, Qin, conformal_eBSQ_functional,
-                                         conformal_tbqs_minima, conformal_tbqs_maxima, result );
-    if (solution_found)
-      cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << ": found solution with fallback!" << endl;
-    else
-      cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << ": did not find solution with fallback!" << endl;
-
-    solution_found = false; // set solution to false since we don't want to
-                            // propagate the particle further, but still save
-                            // the solution to the thermodynamics pointer
-    tbqs( result, true );
-    return entrVal;
+    std::cout << "No solution found!" << std::endl;
+    std::cerr << "No solution found!" << std::endl;
+    exit(101);
   }
-  else
-  {
-    cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << ": failed, not using fallback!" << endl;
-    solution_found = false;
-    return entrVal;
-  }
-}
-////////////////////////////////////////////////
 
+  // this is set in most recent call to tbqs()
+  return entrVal;
 
-// point     = (T,muB,muQ,muS)
-// densities = (e,rhoB,rhoS,rhoQ)
-void EquationOfState::get_eBSQ_densities_from_interpolator(
-        double point[], double densities[] )  // point and densities both length = 4
-{
-    vector<double> results;
-    equation_of_state_table.evaluate(
-      vector<double>(point, point + 4), results,
-      vector<string>({ "e","B","S","Q" }) );
-    std::copy(results.begin(), results.end(), densities);
 }
+////////////////////////////////////////////////////////////////////////////////
 
-// point     = (T,muB,muQ,muS)
-// densities = (s,rhoB,rhoS,rhoQ)
-void EquationOfState::get_sBSQ_densities_from_interpolator(
-        double point[], double densities[] )  // point and densities both length = 4
-{
-    vector<double> results;
-    equation_of_state_table.evaluate(
-      vector<double>(point, point + 4), results,
-      vector<string>({ "s","B","S","Q" }) );
-    std::copy(results.begin(), results.end(), densities);
-}
