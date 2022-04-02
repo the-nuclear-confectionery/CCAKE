@@ -130,7 +130,7 @@ void EquationOfState::evaluate_thermodynamics(bool point_is_in_range, bool use_c
     double phase_diagram_point[4]
         = { tbqsPosition[0], tbqsPosition[1], tbqsPosition[2], tbqsPosition[3] };
 
-    if ( not point_is_in_range and use_nonconformal_extension )
+    if ( use_nonconformal_extension and not point_is_in_range )
     {
       /// NOTE: phase_diagram_point gets reset!
       // project back toward origin until intersecting grid boundary
@@ -142,7 +142,7 @@ void EquationOfState::evaluate_thermodynamics(bool point_is_in_range, bool use_c
     STANDARD_get_full_thermo( phase_diagram_point, thermo_array );
 
     // project back to original point using non-conformal extension
-    if ( not point_is_in_range and use_nonconformal_extension )
+    if ( use_nonconformal_extension and not point_is_in_range )
     {
       /// NOTE: redefines thermodynamics!
       double PDpoint[4] = { tbqsPosition[0], tbqsPosition[1],
@@ -155,7 +155,7 @@ void EquationOfState::evaluate_thermodynamics(bool point_is_in_range, bool use_c
   }
   else
   {
-    if ( not point_is_in_range and use_nonconformal_extension )
+    if ( use_nonconformal_extension and not point_is_in_range )
     {
       double phase_diagram_point[4]
           = { tbqsPosition[0], tbqsPosition[1], tbqsPosition[2], tbqsPosition[3] };
@@ -179,7 +179,7 @@ void EquationOfState::evaluate_thermodynamics(bool point_is_in_range, bool use_c
     }
 
     // project back to original point using non-conformal extension
-    if ( not point_is_in_range and use_nonconformal_extension )
+    if ( use_nonconformal_extension and not point_is_in_range )
     {
       /// NOTE: redefines thermodynamics!
       double PDpoint[4] = { tbqsPosition[0], tbqsPosition[1],
@@ -488,6 +488,18 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
   if (solution_found)
   {
     cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << ": found solution with default EoS!" << endl;
+    return entrVal;
+  }
+  else if ( use_nonconformal_extension )
+  {
+    solution_found = rootfinder.find_eBSQ_root( ein, Bin, Sin, Qin, conformal_eBSQ_functional,
+                                         conformal_tbqs_minima, conformal_tbqs_maxima, result );
+    if (solution_found)
+      cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << ": found solution with non-conformal extension!" << endl;
+    else
+      cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << ": did not find solution with non-conformal extension!" << endl;
+
+    tbqs( result, true );
     return entrVal;
   }
   else if ( use_conformal_as_fallback )
