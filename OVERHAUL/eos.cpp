@@ -138,12 +138,8 @@ void EquationOfState::evaluate_thermodynamics( pEoS_base peos )
   double phase_diagram_point[4] = { tbqsPosition[0], tbqsPosition[1],
                                     tbqsPosition[2], tbqsPosition[3] };
 
-  cout << __PRETTY_FUNCTION__ << ": " << peos->name << endl;
-
   double thermo_array[17];
-cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
   peos->get_full_thermo( phase_diagram_point, thermo_array );
-cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
 
   thermodynamics.assign(thermo_array, thermo_array + 17);
 
