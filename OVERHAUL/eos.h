@@ -1,4 +1,4 @@
-//#pragma once
+#pragma once
 
 #include <iostream>
 #include <vector>
@@ -15,6 +15,7 @@
 #include <gsl/gsl_blas.h>
 #include <gsl/gsl_linalg.h>
 
+#include "eos_base.h"
 #include "eos_header.h"
 #include "eos_delaunay/eos_delaunay.h"
 #include "interpolatorND/interpolatorND.h"
@@ -181,6 +182,6 @@ private:
     eos_delaunay entr_delaunay;
 
 public:
-  bool using_conformal_as_fallback() { return use_conformal_as_fallback; }
+  //bool using_conformal_as_fallback() { return use_conformal_as_fallback; }
 
 };
