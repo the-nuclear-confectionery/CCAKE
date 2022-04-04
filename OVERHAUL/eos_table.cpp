@@ -2,8 +2,10 @@
 
 InterpolatorND<4> EoS_table::equation_of_state_table;
 
+#include <algorithm>
 #include <functional>
 #include <iostream>
+#include <iterator>
 #include <string>
 #include <vector>
 
@@ -202,9 +204,8 @@ void EoS_table::get_eBSQ( double point_in[], double results[] )
 
 void EoS_table::get_eBSQ_safe( const double point_in[], double results[] )
 {
-  //double point[4] = point_in;
   double point[4];
-  std::copy(std::begin(point_in), std::end(point_in), std::begin(point));
+  for ( int i = 0; i < 4; i++ ) point[i] = point_in[i];
 
   //============================================================================
   // decide this w.r.t. the tbqs ranges sans extension
@@ -244,9 +245,8 @@ void EoS_table::get_sBSQ( double point_in[], double results[] )
 
 void EoS_table::get_sBSQ_safe( const double point_in[], double results[] )
 {
-  //double point[4] = point_in;
   double point[4];
-  std::copy(std::begin(point_in), std::end(point_in), std::begin(point));
+  for ( int i = 0; i < 4; i++ ) point[i] = point_in[i];
 
   //============================================================================
   // decide this w.r.t. the tbqs ranges sans extension
@@ -285,9 +285,8 @@ void EoS_table::get_full_thermo( double point_in[], double results[] )
 
 void EoS_table::get_full_thermo_safe( const double point_in[], double results[] )
 {
-  //double point[4] = point_in;
   double point[4];
-  std::copy(std::begin(point_in), std::end(point_in), std::begin(point));
+  for ( int i = 0; i < 4; i++ ) point[i] = point_in[i];
 
   //============================================================================
   // decide this w.r.t. the tbqs ranges sans extension
