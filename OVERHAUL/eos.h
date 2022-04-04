@@ -131,7 +131,6 @@ private:
     // string to hold input filenames and EoS table
     string quantity_file = "";
     string deriv_file    = "";
-    string equation_of_state_table_filename = "";
     string current_eos_name = "";
     //static InterpolatorND<4> equation_of_state_table;
 

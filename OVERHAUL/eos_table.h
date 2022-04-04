@@ -13,10 +13,10 @@
 
 class EoS_table: public EoS_base
 {
+  using namespace constants;
+
 private:
-//	const double hc = constants::hbarc_MeVfm;
-//
-//  double c, T0, muB0, muS0, muQ0;
+  string equation_of_state_table_filename = "";
 
   static InterpolatorND<4> equation_of_state_table;
 
