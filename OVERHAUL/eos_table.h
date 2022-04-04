@@ -10,9 +10,10 @@
 #include "eos_delaunay/eos_delaunay.h"
 #include "interpolatorND/interpolatorND.h"
 #include "constants.h"
+#include "eos_base.h"
 #include "eos_header.h"
 
-class EoS_table
+class EoS_table: public EoS_base
 {
 private:
 //	const double hc = constants::hbarc_MeVfm;

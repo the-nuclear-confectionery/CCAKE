@@ -2,9 +2,10 @@
 #define EOS_CONFORMAL_H
 
 #include "constants.h"
+#include "eos_base.h"
 #include "eos_header.h"
 
-class EoS_conformal
+class EoS_conformal: public EoS_base
 {
 private:
 	const double hc = constants::hbarc_MeVfm;

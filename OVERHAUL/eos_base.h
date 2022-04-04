@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "constants.h"
+#include "eos_header.h"
 
 class EoS_base
 {
