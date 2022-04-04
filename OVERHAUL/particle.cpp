@@ -93,7 +93,7 @@ double Particle::locate_phase_diagram_point_eBSQ(// previously s_out
   else
   {
     // default: use particle's current location as initial guess (pass in corresponding EoS as well!)
-    eosPtr->tbqs( thermo.T, thermo.muB, thermo.muQ, thermo.muS, false ); // use_conformal == false
+    eosPtr->tbqs( thermo.T, thermo.muB, thermo.muQ, thermo.muS, thermo.eos_name );
     bool solution_found = false;
     double sVal = eosPtr->s_out( e_In, rhoB_In, rhoS_In, rhoQ_In, solution_found );
 
@@ -130,7 +130,7 @@ void Particle::locate_phase_diagram_point_sBSQ(// previously update_s
   if ( Freeze != 5 )
   {
     // default: use particle's current location as initial guess
-    eosPtr->tbqs( thermo.T, thermo.muB, thermo.muQ, thermo.muS, false ); // use_conformal == false
+    eosPtr->tbqs( thermo.T, thermo.muB, thermo.muQ, thermo.muS, thermo.eos_name );
     bool update_s_success = eosPtr->update_s( s_In, rhoB_In, rhoS_In, rhoQ_In );
 
     if ( update_s_success )
