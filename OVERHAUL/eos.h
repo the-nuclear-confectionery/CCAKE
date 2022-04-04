@@ -53,10 +53,16 @@ public:
     void init(string quantityFile, string derivFile);
 //    void init_grid_ranges_only(string quantityFile, string derivFile);
     bool point_not_in_range( double setT, double setmuB, double setmuQ, double setmuS, pEoS_base peos );
-    void tbqs( double setT, double setmuB, double setmuQ, double setmuS, string eos_name )
-          { tbqs( setT, setmuB, setmuQ, setmuS, chosen_EOS_map[eos_name] ); }
-    void tbqs( vector<double> & tbqsIn, string eos_name )
-          { tbqs( tbqsIn, chosen_EOS_map[eos_name] ); }
+    void tbqs( double setT, double setmuB, double setmuQ, double setmuS, const string & eos_name )
+          { if ( eos_name == "default" )
+              tbqs( setT, setmuB, setmuQ, setmuS, chosen_EOS_map[default_eos_name] );
+            else
+              tbqs( setT, setmuB, setmuQ, setmuS, chosen_EOS_map[eos_name] ); }
+    void tbqs( vector<double> & tbqsIn, const string & eos_name )
+          { if ( eos_name == "default" )
+              tbqs( tbqsIn, chosen_EOS_map[default_eos_name] );
+            else
+              tbqs( tbqsIn, chosen_EOS_map[eos_name] ); }
 
 
     ////////////////////////////////////////////////////////////////////////////

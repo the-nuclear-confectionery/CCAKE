@@ -56,79 +56,15 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
       auto & p = systemPtr->particles[i];
 
 
-
-		if (i==0)
-    cout << "----------------------------------------"
-				"----------------------------------------" << endl;
-
 		if (settingsPtr->gtyp!=5)
 		{
 			sw.Start();
 			cout << setprecision(12) << "Doing this particle: "
 					<< p.r.x[0] << "   " << p.r.x[1] << "\n";
 
-/*cout << "SPH checkpoint(" << __LINE__ << "): " << endl;
-cout << i << endl;
-cout << systemPtr->t << endl;
-cout << p.sigmaweight << endl;
-cout << p.e_sub << endl;
-cout << p.T() << endl;
-cout << p.e() << endl;
-cout << p.p() << endl;
-cout << p.s_an << endl;*/
-
-if (i==0)
-	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
-			<< p.sigmaweight << "   " << p.e_sub << "   "
-			<< p.T() << "   " << p.e() << "   "
-			<< p.p() << "   " << p.s_an << "   " << p.Freeze << endl;
-
-
       // solve for the entropy density
 			p.s_an = p.locate_phase_diagram_point_eBSQ(
                     p.e_sub, p.rhoB_an, p.rhoS_an, p.rhoQ_an );
-
-
-if (i==0)
-	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
-			<< p.sigmaweight << "   " << p.e_sub << "   "
-			<< p.T() << "   " << p.e() << "   "
-			<< p.p() << "   " << p.s_an << "   " << p.Freeze << endl;
-
-			if (true || settingsPtr->VERBOSE>5)
-			{
-				if (p.s_an>0.0)
-				{
-					double phase_diagram_point[4] = { p.T(), p.muB(), p.muQ(), p.muS() };
-					double densities_at_point[4];
-      cout << "!!!!! Warning !!!!!: the following output does not make sense!" << endl;
-//          if (p.eosPtr->using_conformal_as_fallback())
-//            p.eosPtr->conformal_eBSQ_functional( phase_diagram_point, densities_at_point );
-//          else
-//            p.eosPtr->eBSQ_functional( phase_diagram_point, densities_at_point );
-
-					cout << i << ":   " << p.e_sub*hbarc_MeVfm
-						<< "   " << p.rhoB_an
-						<< "   " << p.rhoS_an
-						<< "   " << p.rhoQ_an
-						<< "   " << p.T()*hbarc_MeVfm
-						<< "   " << p.muB()*hbarc_MeVfm
-						<< "   " << p.muS()*hbarc_MeVfm
-						<< "   " << p.muQ()*hbarc_MeVfm;
-          cout << "   " << densities_at_point[0]*hbarc_MeVfm;		
-          for (int iii = 1; iii < 4; iii++)
-            cout << "   " << densities_at_point[iii];		
-					cout << "\n";
-				}
-				else
-					cout << i << ":   " << p.e_sub*197.3
-						<< "   " << p.rhoB_an
-						<< "   " << p.rhoS_an
-						<< "   " << p.rhoQ_an
-						<< "   " << 0.0 << "   " << 0.0
-						<< "   " << 0.0 << "   " << 0.0
-						<< "   nan   nan   nan   nan\n";
-			}
 
 			sw.Stop();
 			string successString = (p.s_an < 0.0) ?
@@ -136,11 +72,6 @@ if (i==0)
 			cout << "SPH particle " << i << ", locate_phase_diagram_point_eBSQ: completed "
 					<< successString << " in " << sw.printTime() << "s." << "\n";
 
-if (i==0)
-	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
-			<< p.sigmaweight << "   " << p.e_sub << "   "
-			<< p.T() << "   " << p.e() << "   "
-			<< p.p() << "   " << p.s_an << "   " << p.Freeze  << endl;
 		}
 
 		///////////////////////////////////////////////////////////////////////////
@@ -149,46 +80,6 @@ if (i==0)
 		// and continue without setting anything else
 		if (p.s_an < 0.0)
 		{
-      /*
-			/////////////////////////////////////////////////////////////////////////
-			// if failed with charge densities, set them to zero and re-solve;
-			// if that fails too, guesstimate an answer
-			cout << "\t --> Densities not found in EoS table (setting BSQ --> 0): "
-					<< p.r.x[0] << "   " << p.r.x[1] << "\n"
-					<< "\t\t - densities: "
-					<< p.e_sub*197.3 << "   " << p.rhoB_an << "   "
-					<< p.rhoS_an << "   " << p.rhoQ_an << "\n";
-
-			// set charge densities to zero and re-solve
-			p.rhoB_an = 0.0;
-			p.rhoS_an = 0.0;
-			p.rhoQ_an = 0.0;
-
-			p.s_an = p.locate_phase_diagram_point_eBSQ(
-                    p.e_sub, p.rhoB_an, p.rhoS_an, p.rhoQ_an );
-
-			// if this fails too...
-			if (p.s_an < 0.0)
-			{
-				double scale_factor = std::min( 1.0, p.e_sub / systemPtr->efcheck );
-	
-				cout << "\t\t - scaling e to get s: "
-						<< systemPtr->efcheck*0.1973 << "   "
-						<< systemPtr->sfcheck << "   "
-						<< scale_factor << "   "
-						<< scale_factor * systemPtr->sfcheck << "\n";
-	
-				p.s_an = scale_factor * systemPtr->sfcheck;
-			}
-			else	// if a solution was found
-			{
-				cout << "\t\t - phase diagram point: "
-						<< p.T()*197.3 << "   "
-						<< p.muB()*197.3 << "   "
-						<< p.muS()*197.3 << "   "
-						<< p.muQ()*197.3 << "\n";
-			}
-      */
 			// freeze this particle out!
 			p.Freeze = 5;
 			//p.Freeze = 4;
@@ -197,14 +88,9 @@ if (i==0)
 		}
 		else
 		{
-if (i==0)
-	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
-			<< p.sigmaweight << "   " << p.e_sub << "   "
-			<< p.T() << "   " << p.e() << "   "
-			<< p.p() << "   " << p.s_an << "   " << p.Freeze  << endl;
 
 			cout << "\t --> Densities found in EoS table: "
-				<< p.r.x[0] << "   " << p.r.x[1] << "\n";
+				<< p.r.x[0] << "   " << p.r.x[1] << "   " << p.get_current_eos_name() << "\n";
 			cout << "\t\t - phase diagram point: "
 					<< p.T()*hbarc_MeVfm << "   "
 					<< p.muB()*hbarc_MeVfm << "   "
@@ -220,7 +106,7 @@ if (i==0)
 			double phase_diagram_point[4] = { p.T(), p.muB(), p.muQ(), p.muS() };
 
 			double densities_at_point[4];
-      cout << "!!!!! Warning !!!!!: the following output does not make sense!" << endl;
+//      cout << "!!!!! Warning !!!!!: the following output does not make sense!" << endl;
 //      if (p.eosPtr->using_conformal_as_fallback())
 //        p.eosPtr->conformal_eBSQ_functional( phase_diagram_point, densities_at_point );
 //      else
@@ -233,22 +119,12 @@ if (i==0)
 			for (int iii = 1; iii < 4; iii++) cout << "   " << densities_at_point[iii];
 			cout << "\n\t\t - freeze-out status:";
       cout << "   " << p.Freeze << "\n";
-if (i==0)
-	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
-			<< p.sigmaweight << "   " << p.e_sub << "   "
-			<< p.T() << "   " << p.e() << "   "
-			<< p.p() << "   " << p.s_an << "   " << p.Freeze  << endl;
 
 		}
 
     if (settingsPtr->gtyp==5) p.e_sub = p.e();
 
     p.gamma=p.gamcalc();
-
-if (i==0)
-  cout << "Check these: " << p.s_an << "   " << p.rhoB_an << "   "
-      << p.rhoS_an << "   " << p.rhoQ_an << "   "
-      << p.gamma << "   " << settingsPtr->t0 << endl;
 
     p.sigmaweight *= p.s_an*p.gamma*settingsPtr->t0;	  // sigmaweight is constant after this
     p.rhoB_weight *= p.gamma*settingsPtr->t0; // rhoB_weight is constant after this
@@ -259,11 +135,6 @@ if (i==0)
 		p.S *= p.gamma*settingsPtr->t0;	// S does not evolve in ideal case
 		p.Q *= p.gamma*settingsPtr->t0;	// Q does not evolve in ideal case
 
-if (i==0)
-	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
-			<< p.sigmaweight << "   " << p.e_sub << "   "
-			<< p.T() << "   " << p.e() << "   "
-			<< p.p() << "   " << p.s_an << endl;
 
 	if (false)
 	{
@@ -285,15 +156,6 @@ if (i==0)
 	swTotal.Stop();
 	cout << "Finished function call to updateIC(...) in "
 			<< swTotal.printTime() << " s." << endl;
-
-	if (false)
-	{
-		cout << "Exiting prematurely from " << __PRETTY_FUNCTION__
-			<< "::" << __LINE__ << "!" << endl;
-		cerr << "Exiting prematurely from " << __PRETTY_FUNCTION__
-			<< "::" << __LINE__ << "!" << endl;
-		exit(8);
-	}
 
 	if (failCounter > 0) exit(-1);
 
@@ -317,17 +179,7 @@ void SPHWorkstation::initial_smoothing()  // formerly BSQguess()
 	{
     auto & p = systemPtr->particles[i];
 
-if (i==0)
-	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
-			<< p.sigmaweight << "   " << p.s_sub << "   "
-			<< p.T() << "   " << p.e() << "   "
-			<< p.p() << "   " << p.s_an << endl;
 		smooth_fields(i, initialization_mode);
-if (i==0)
-	cout << "SPH checkpoint(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
-			<< p.sigmaweight << "   " << p.s_sub << "   "
-			<< p.T() << "   " << p.e() << "   "
-			<< p.p() << "   " << p.s_an << endl;
 	}
 	cout << "One more loop!" << endl;
 
@@ -648,10 +500,11 @@ void SPHWorkstation::process_initial_conditions()
 
 		// make educated initial guess here for this particle's (T, mu_i) coordinates
 		// (improve this in the future)
-		p.thermo.T   = 500.0/hbarc_MeVfm;	// rootfinder seems to work better going downhill than "uphill"
-		p.thermo.muB = 0.0/hbarc_MeVfm;
-		p.thermo.muS = 0.0/hbarc_MeVfm;
-		p.thermo.muQ = 0.0/hbarc_MeVfm;
+		p.thermo.T        = 500.0/hbarc_MeVfm;	// rootfinder seems to work better going downhill than "uphill"
+		p.thermo.muB      = 0.0/hbarc_MeVfm;
+		p.thermo.muS      = 0.0/hbarc_MeVfm;
+		p.thermo.muQ      = 0.0/hbarc_MeVfm;
+		p.thermo.eos_name = "default";  // uses whatever the default EoS is
 
 		if ( p.e_sub > systemPtr->efcheck )	// impose freeze-out check for e, not s
     {
