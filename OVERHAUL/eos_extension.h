@@ -67,6 +67,30 @@ namespace eos_extension
 
   double p(double T, double muB, double muQ, double muS)
 	{
+cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
+cout << T << endl;
+cout << muB << endl;
+cout << muQ << endl;
+cout << muS << endl;
+cout << "------------------" << endl;
+cout << b0000 << endl;
+cout << "------------------" << endl;
+cout << b2000 << endl;
+cout << b0200 << endl;
+cout << b0020 << endl;
+cout << b0002 << endl;
+cout << "------------------" << endl;
+cout << b4000 << endl;
+cout << b0400 << endl;
+cout << b0040 << endl;
+cout << b0004 << endl;
+cout << "------------------" << endl;
+cout << b2200 << endl;
+cout << b2020 << endl;
+cout << b2002 << endl;
+cout << b0220 << endl;
+cout << b0202 << endl;
+cout << b0022 << endl;
 		return b0000 + b2000*T*T + b0200*muB*muB + b0020*muS*muS + b0002*muQ*muQ
             + b4000*T*T*T*T + b0400*muB*muB*muB*muB
             + b0040*muS*muS*muS*muS + b0004*muQ*muQ*muQ*muQ
