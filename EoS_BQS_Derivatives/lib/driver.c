@@ -517,7 +517,6 @@ void STANDARD_get_sBSQ_densities(double point[], double densities[])
 
 void STANDARD_get_full_thermo(double point[], double thermodynamics[])
 {
-  printf("Made it to this point\n");
 	const double Tsol = point[0]*197.3, muBsol = point[1]*197.3,
                 muQsol = point[2]*197.3, muSsol = point[3]*197.3;
 	const double Tsol2_by_hc2 = Tsol*Tsol/(197.3*197.3);
