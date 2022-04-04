@@ -17,11 +17,11 @@ public:
   EoS_conformal(){}
   ~EoS_conformal(){}
 
-  { 0.0,     -TBQS_INFINITY, -TBQS_INFINITY, -TBQS_INFINITY };
-
   EoS_conformal( const double c_in, const double T0_in, const double muB0_in,
-                 const double muS0_in, const double muQ0_in )
-    { c = c_in; T0 = T0_in; muB0 = muB0_in; muS0 = muS0_in; muQ0 = muQ0_in; }
+                 const double muS0_in, const double muQ0_in,
+                 std::vector & tbqs_minima_in, std::vector & tbqs_maxima_in )
+    { c = c_in; T0 = T0_in; muB0 = muB0_in; muS0 = muS0_in; muQ0 = muQ0_in;
+      tbqs_minima = tbqs_minima_in; tbqs_maxima = tbqs_maxima_in; }
 
 
   double p(double T, double muB, double muQ, double muS)

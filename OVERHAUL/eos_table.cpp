@@ -9,6 +9,7 @@ InterpolatorND<4> EoS_table::equation_of_state_table;
 
 #include "eos_extension.h"
 #include "eos_header.h"
+#include "eos_table.h"
 
 void EoS_table::EoS_table( string quantityFile, string derivFile )
 {
