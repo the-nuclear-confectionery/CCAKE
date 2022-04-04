@@ -46,22 +46,22 @@ namespace eos_extension
                 + chiBB0*rhoB0*rhoB0 + chiBS0*rhoB0*rhoS0 + chiBQ0*rhoB0*rhoQ0
                 + chiSS0*rhoS0*rhoS0 + chiSQ0*rhoS0*rhoQ0 + chiQQ0*rhoQ0*rhoQ0 ) / 8.0;
 
-    b2000 = (3.0*s0 - T0*chiTT0 - muB0*chiTB0 - muQ0*chiTQ0 - muS0*chiTS0) / (4.0*T0);
-    b0200 = (3.0*rhoB0 - T0*chiTB0 - muB0*chiBB0 - muQ0*chiBQ0 - muS0*chiBS0) / (4.0*muB0);
-    b0020 = (3.0*rhoS0 - T0*chiTS0 - muB0*chiBS0 - muQ0*chiSQ0 - muS0*chiSS0) / (4.0*muS0);
-    b0002 = (3.0*rhoQ0 - T0*chiTQ0 - muB0*chiBQ0 - muQ0*chiQQ0 - muS0*chiSQ0) / (4.0*muQ0);
+    b2000 = (3.0*s0 - T0*chiTT0 - muB0*chiTB0 - muQ0*chiTQ0 - muS0*chiTS0) / (4.0*T0+TINY);
+    b0200 = (3.0*rhoB0 - T0*chiTB0 - muB0*chiBB0 - muQ0*chiBQ0 - muS0*chiBS0) / (4.0*muB0+TINY);
+    b0020 = (3.0*rhoS0 - T0*chiTS0 - muB0*chiBS0 - muQ0*chiSQ0 - muS0*chiSS0) / (4.0*muS0+TINY);
+    b0002 = (3.0*rhoQ0 - T0*chiTQ0 - muB0*chiBQ0 - muQ0*chiQQ0 - muS0*chiSQ0) / (4.0*muQ0+TINY);
 
-    b2200 = chiTB0 / (4.0*T0*muB0);
-    b2020 = chiTS0 / (4.0*T0*muS0);
-    b2002 = chiTQ0 / (4.0*T0*muQ0);
-    b0220 = chiBS0 / (4.0*muB0*muS0);
-    b0202 = chiBQ0 / (4.0*muB0*muQ0);
-    b0022 = chiSQ0 / (4.0*muS0*muQ0);
+    b2200 = chiTB0 / (4.0*T0*muB0+TINY);
+    b2020 = chiTS0 / (4.0*T0*muS0+TINY);
+    b2002 = chiTQ0 / (4.0*T0*muQ0+TINY);
+    b0220 = chiBS0 / (4.0*muB0*muS0+TINY);
+    b0202 = chiBQ0 / (4.0*muB0*muQ0+TINY);
+    b0022 = chiSQ0 / (4.0*muS0*muQ0+TINY);
 
-    b4000 = (T0*chiTT0 - s0) / (8.0*T0*T0*T0);
-    b0400 = (muB0*chiBB0 - rhoB0) / (8.0*muB0*muB0*muB0);
-    b0040 = (muS0*chiSS0 - rhoS0) / (8.0*muS0*muS0*muS0);
-    b0004 = (muQ0*chiQQ0 - rhoQ0) / (8.0*muQ0*muQ0*muQ0);
+    b4000 = (T0*chiTT0 - s0) / (8.0*T0*T0*T0+TINY);
+    b0400 = (muB0*chiBB0 - rhoB0) / (8.0*muB0*muB0*muB0+TINY);
+    b0040 = (muS0*chiSS0 - rhoS0) / (8.0*muS0*muS0*muS0+TINY);
+    b0004 = (muQ0*chiQQ0 - rhoQ0) / (8.0*muQ0*muQ0*muQ0+TINY);
   }
 
 
