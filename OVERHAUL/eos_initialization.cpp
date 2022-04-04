@@ -56,7 +56,7 @@ void EquationOfState::init(string quantityFile, string derivFile)
                             tbqs_minima, tbqs_maxima ) );
     default_eos_name = "conformal";
   }
-  else if ( settingsPtr->EoS_type == "Table" )
+  else if ( settingsPtr->EoS_type == "Houston" )
   {
     // add EoS to vector
     chosen_EOSs.push_back( std::make_shared<EoS_table>( quantityFile, derivFile ) );
