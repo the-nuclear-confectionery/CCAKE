@@ -108,6 +108,8 @@ class Particle
     double dwdS() { return thermo.dwdS; }
     double dwdQ() { return thermo.dwdQ; }
 
+    string get_current_eos_name() { return thermo.eos_name; }
+
 
   // rename these functions and their arguments
   void frzcheck( double tin, int &count, int N );

@@ -97,21 +97,11 @@ double Particle::locate_phase_diagram_point_eBSQ(// previously s_out
     bool solution_found = false;
     double sVal = eosPtr->s_out( e_In, rhoB_In, rhoS_In, rhoQ_In, solution_found );
 
-    // solution_found == true:  found a solution with the default EoS
-    // solution_found == false: no solution was found with the default EoS, so
-    //                          the fallback (conformal) EoS was used instead
-    cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << ": solution_found = " << solution_found << endl;
-
     // save results if either default or conformal EoS returned a result
     // (assumes latter always succeeds)
-    // ignore_failure allows to reproduce old problematic behavior where
-    // meaningless seed value was used for TBQS solution
-    /*bool ignore_failure = true;*/
-    if ( solution_found or eosPtr->using_conformal_as_fallback() /*or ignore_failure*/ )
+    if ( solution_found )
       thermo.set(*eosPtr);
-
-    // if default EoS failed, don't propagate this particle further
-    if ( not solution_found /*and not ignore_failure*/ )
+    else
       Freeze = 5; // new label for (totally decoupled) particles which go outside grid
 
     return sVal;

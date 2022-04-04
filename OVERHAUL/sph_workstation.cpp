@@ -81,6 +81,8 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 		if (p.s_an < 0.0)
 		{
 			// freeze this particle out!
+      cout << "This shouldn't have happened!" << endl;
+      exit(8);
 			p.Freeze = 5;
 			//p.Freeze = 4;
 			//systemPtr->number_part++;
@@ -136,7 +138,7 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 		p.Q *= p.gamma*settingsPtr->t0;	// Q does not evolve in ideal case
 
 
-	if (false)
+	if (true)
 	{
 		cout << "Exiting prematurely from " << __PRETTY_FUNCTION__
 			<< "::" << __LINE__ << "!" << endl;

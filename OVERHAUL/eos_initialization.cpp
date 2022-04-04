@@ -1,7 +1,3 @@
-#include "eos.h"
-
-//#include "read_in_hdf/read_in_hdf.h"
-//#include "Stopwatch.h"
 #include <gsl/gsl_multiroots.h>
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_matrix.h>
@@ -13,16 +9,13 @@
 #include <fstream>
 #include <string>
 
-// functions calls to static EoS C library
-//#include <lib.h>
-#include "eos_delaunay/eos_delaunay.h"
-
 #include "constants.h"
+#include "eos.h"
 #include "eos_base.h"
 #include "eos_conformal.h"
-//#include "eos_extension.h"
 #include "eos_header.h"
 #include "eos_table.h"
+#include "eos_delaunay/eos_delaunay.h"
 #include "rootfinder.h"
 
 using namespace constants;
