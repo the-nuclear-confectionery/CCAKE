@@ -1,6 +1,8 @@
 #ifndef EOS_CONFORMAL_H
 #define EOS_CONFORMAL_H
 
+#include <vector>
+
 #include "constants.h"
 #include "eos_base.h"
 #include "eos_header.h"
@@ -19,7 +21,8 @@ public:
 
   EoS_conformal( const double c_in, const double T0_in, const double muB0_in,
                  const double muS0_in, const double muQ0_in,
-                 std::vector & tbqs_minima_in, std::vector & tbqs_maxima_in )
+                 const std::vector<double> & tbqs_minima_in,
+                 const std::vector<double> & tbqs_maxima_in )
     { c = c_in; T0 = T0_in; muB0 = muB0_in; muS0 = muS0_in; muQ0 = muQ0_in;
       tbqs_minima = tbqs_minima_in; tbqs_maxima = tbqs_maxima_in; }
 

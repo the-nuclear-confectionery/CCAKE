@@ -28,7 +28,7 @@ class EoS_base
     std::vector<double> tbqs_minima, tbqs_maxima; // ranges over which EoS is defined
                                                   // (including possible extension)
 
-    std::string eos_name = "";                    // name associated to EoS
+    std::string name = "";                    // name associated to EoS
 
     virtual void get_eBSQ( double point[], double results[] ){}
     virtual void get_sBSQ( double point[], double results[] ){}
