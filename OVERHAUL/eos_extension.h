@@ -100,39 +100,39 @@ cout << b0022 << endl;
 	
 	double s(double T, double muB, double muQ, double muS)
 	{
-		2.0*T*(b2000 + 2.0*T*T*b4000 + muB*muB*b2200 + muQ*muQ*b2002 + muS*muS*b2020);
+		return 2.0*T*(b2000 + 2.0*T*T*b4000 + muB*muB*b2200 + muQ*muQ*b2002 + muS*muS*b2020);
 	}
 
 	double B(double T, double muB, double muQ, double muS)
 	{
-		2.0*muB*(b0200 + T*T*b2200 + 2.0*muB*muB*b0400 + muS*muS*b0220 + muQ*muQ*b0202);
+		return 2.0*muB*(b0200 + T*T*b2200 + 2.0*muB*muB*b0400 + muS*muS*b0220 + muQ*muQ*b0202);
 	}
 
 	double S(double T, double muB, double muQ, double muS)
 	{
-		2.0*T*(b0020 + T*T*b2020 + muB*muB*b0220 + 2.0*muS*muS*b0040 + muQ*muQ*b0022);
+		return 2.0*T*(b0020 + T*T*b2020 + muB*muB*b0220 + 2.0*muS*muS*b0040 + muQ*muQ*b0022);
 	}
 
 	double Q(double T, double muB, double muQ, double muS)
 	{
-		2.0*T*(b0002 + T*T*b2002 + muB*muB*b0202 + muS*muS*b0022 + 2.0*muQ*muQ*b0004);
+		return 2.0*T*(b0002 + T*T*b2002 + muB*muB*b0202 + muS*muS*b0022 + 2.0*muQ*muQ*b0004);
 	}
 
 	double P2T2(double T, double muB, double muQ, double muS)
 	{
-		2.0*(b2000 + 6.0*T*T*b4000 + muB*muB*b2200 + muS*muS*b2020 + muQ*muQ*b2002);
+		return 2.0*(b2000 + 6.0*T*T*b4000 + muB*muB*b2200 + muS*muS*b2020 + muQ*muQ*b2002);
 	}
 	double P2B2(double T, double muB, double muQ, double muS)
 	{
-		2.0*(b0200 + T*T*b2200 + 6.0*muB*muB*b0400 + muS*muS*b0220 + muQ*muQ*b0202);
+		return 2.0*(b0200 + T*T*b2200 + 6.0*muB*muB*b0400 + muS*muS*b0220 + muQ*muQ*b0202);
 	}
 	double P2S2(double T, double muB, double muQ, double muS)
 	{
-		2.0*(b0020 + T*T*b2020 + muB*muB*b0220 + 6.0*muS*muS*b0040 + muQ*muQ*b0022);
+		return 2.0*(b0020 + T*T*b2020 + muB*muB*b0220 + 6.0*muS*muS*b0040 + muQ*muQ*b0022);
 	}
 	double P2Q2(double T, double muB, double muQ, double muS)
 	{
-		2.0*(b0002 + T*T*b2002 + muB*muB*b0202 + muS*muS*b0022 + 6.0*muQ*muQ*b0004);
+		return 2.0*(b0002 + T*T*b2002 + muB*muB*b0202 + muS*muS*b0022 + 6.0*muQ*muQ*b0004);
 	}
 	
 	double P2BQ(double T, double muB, double muQ, double muS)
