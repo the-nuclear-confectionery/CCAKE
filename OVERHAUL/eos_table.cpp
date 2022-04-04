@@ -349,6 +349,8 @@ cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
   {
 cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
     eos_extension::get_nonconformal_extension( point_in, results );
+cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
+
   }
 
 }  

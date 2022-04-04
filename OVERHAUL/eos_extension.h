@@ -261,6 +261,7 @@ cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
 
     // evaluate extension and return result (stored in thermodynamics)
     get_full_thermo( point, thermodynamics );
+cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
   }
 
   void project_to_boundary( double point[], const double minima[], const double maxima[] )

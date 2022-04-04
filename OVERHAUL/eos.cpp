@@ -141,7 +141,10 @@ void EquationOfState::evaluate_thermodynamics( pEoS_base peos )
   cout << __PRETTY_FUNCTION__ << ": " << peos->name << endl;
 
   double thermo_array[17];
+cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
   peos->get_full_thermo( phase_diagram_point, thermo_array );
+cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
+
   thermodynamics.assign(thermo_array, thermo_array + 17);
 
   //============================================================================
@@ -305,6 +308,7 @@ double EquationOfState::efreeze(double T_freeze_out_at_mu_eq_0, const string & e
   std::cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << ": "
             << "using " << eos_name << "!" << std::endl;
   tbqs(T_freeze_out_at_mu_eq_0, 0, 0, 0, eos_name);
+cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
   return eVal;
 }
 
