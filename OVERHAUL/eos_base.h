@@ -34,7 +34,8 @@ class EoS_base
     virtual void get_sBSQ( double point[], double results[] ){}
     virtual void get_full_thermo( double point[], double results[] ){}
 
-  private:
+  // allow derived classes to access and redefine
+  protected:
     std::vector<double> tbqs_minima_no_ext, tbqs_maxima_no_ext;
                         // ranges over which EoS is defined
                         // (excluding possible extension,
