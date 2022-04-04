@@ -88,6 +88,7 @@ bool EquationOfState::point_not_in_range(
 void EquationOfState::tbqs( double setT, double setmuB, double setmuQ,
                             double setmuS, pEoS_base peos )
 {
+cout << "here: " << peos->name << endl;
   bool point_is_in_range = !point_not_in_range( setT, setmuB, setmuQ, setmuS, peos );
   if ( point_is_in_range )
   {
@@ -117,6 +118,8 @@ void EquationOfState::evaluate_thermodynamics( pEoS_base peos )
   vector<double> thermodynamics;
   double phase_diagram_point[4] = { tbqsPosition[0], tbqsPosition[1],
                                     tbqsPosition[2], tbqsPosition[3] };
+
+  cout << __PRETTY_FUNCTION__ << ": " << peos->name << endl;
 
   double thermo_array[17];
   peos->get_full_thermo( phase_diagram_point, thermo_array );
