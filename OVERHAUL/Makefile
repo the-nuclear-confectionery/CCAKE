@@ -64,10 +64,6 @@ eos.o: eos.h eos.cpp read_in_hdf/read_in_hdf.h \
 eos_table.o: eos_table.h eos_table.cpp
 	$(CC) $(CFLAGS) eos_table.cpp
 
-eos.o: eos.h eos.cpp read_in_hdf/read_in_hdf.h \
-       eos_delaunay/eos_delaunay.h eos_delaunay/eos_delaunay.cpp
-	$(CC) $(CFLAGS) eos.cpp
-
 rootfinder.o: rootfinder.h rootfinder.cpp
 	$(CC) $(CFLAGS) rootfinder.cpp
 

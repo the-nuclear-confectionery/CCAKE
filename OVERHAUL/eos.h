@@ -89,7 +89,8 @@ public:
     double wfz(double Tt);
     double s_terms_T(double Tt); 
 
-    void evaluate_thermodynamics(bool point_is_in_range, bool use_conformal);
+    //void evaluate_thermodynamics(bool point_is_in_range, bool use_conformal);
+    void evaluate_thermodynamics( pEoS_base peos );
 
     bool update_s(double sin, double Bin, double Sin, double Qin);
     bool update_s(double sin);
