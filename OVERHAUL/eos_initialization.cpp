@@ -92,6 +92,18 @@ void EquationOfState::init(string quantityFile, string derivFile)
   }
 
 
+
+
+  //////////////////////////////////////////////////////////////////////////////
+  // create a map to access all needed EoSs by name
+  for ( const auto & chosen_eos : chosen_EOSs )
+    chosen_EOS_map.insert({{ chosen_eos.name, chosen_eos }})
+
+  
+
+
+
+
   //////////////////////////////////////////////////////////////////////////////
   // set method for locating point in phase diagram
   if ( use_rootfinder )

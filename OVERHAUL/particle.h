@@ -47,6 +47,9 @@ class Particle
     // thermodynamic quantities (with default initialization)
     struct thermodynamic_info
     {
+      // (T,mu_i) coordinates depend on which EoS was used!
+      string eos_name = "";
+
       double T    = 0.0, muB  = 0.0, muS  = 0.0, muQ  = 0.0;
       double e    = 0.0, s    = 0.0, rhoB = 0.0, rhoS = 0.0, rhoQ = 0.0,
              p    = 0.0, cs2  = 0.0, w    = 0.0, A    = 0.0;
@@ -55,6 +58,8 @@ class Particle
       public:
         void set(EquationOfState & eos)
         {
+          eos_name = eos.get_current_eos_name();
+
           T    = eos.T();
           muB  = eos.muB();
           muS  = eos.muS();

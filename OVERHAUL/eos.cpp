@@ -43,7 +43,7 @@ EquationOfState::EquationOfState(string quantityFile, string derivFile)
 ////////////////////////////////////////////////////////////////////////////////
 bool EquationOfState::point_not_in_range(
                         double setT, double setmuB, double setmuQ,
-                        double setmuS, peos_base peos )
+                        double setmuS, pEoS_base peos )
 {
   const auto & tbqs_mins = peos->tbqs_minima;
   const auto & tbqs_maxs = peos->tbqs_maxima;
@@ -86,7 +86,7 @@ bool EquationOfState::point_not_in_range(
 
 ////////////////////////////////////////////////////////////////////////////////
 void EquationOfState::tbqs( double setT, double setmuB, double setmuQ,
-                            double setmuS, peos_base peos )
+                            double setmuS, pEoS_base peos )
 {
   bool point_is_in_range = !point_not_in_range( setT, setmuB, setmuQ, setmuS, peos );
   if ( point_is_in_range )
@@ -110,7 +110,7 @@ void EquationOfState::tbqs( double setT, double setmuB, double setmuQ,
 }
 
 
-void EquationOfState::evaluate_thermodynamics( peos_base peos )
+void EquationOfState::evaluate_thermodynamics( pEoS_base peos )
 {
   //============================================================================
   // this function now works the same for all EoSs by construction
@@ -315,7 +315,7 @@ bool EquationOfState::delaunay_update_s(double sin, double Bin, double Sin, doub
 
   //bool success = entr_delaunay.interpolate( {sin, Bin, Sin, Qin}, result, true );
   bool success = false;
-  tbqs( result, false );
+  tbqs( result, "table" );
   return success;
 }
 
@@ -335,6 +335,7 @@ bool EquationOfState::rootfinder_update_s(double sin, double Bin, double Sin, do
     // stop iterating through available EoSs when solution found
     if (success)
     {
+      current_eos_name = this_eos.name;
       tbqs( result, this_eos ); // set thermodynamics using solution
       break;
     }
@@ -386,7 +387,7 @@ double EquationOfState::delaunay_s_out( double ein, double Bin, double Sin,
   }
   vector<double> result = tbqsPosition;
   //e_delaunay.interpolate( {ein, Bin, Sin, Qin}, result, true );
-  tbqs( result, false );
+  tbqs( result, "table" );
   return entrVal;
 }
 
@@ -408,6 +409,8 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
     // stop iterating through available EoSs when solution found
     if (solution_found)
     {
+      // any time we update the EoS pointer, we need to specify WHICH EoS we are updating!
+      current_eos_name = this_eos.name;
       tbqs( result, this_eos ); // set thermodynamics using solution
       break;
     }

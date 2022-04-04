@@ -5,6 +5,7 @@
 #include <functional>
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 //#include "read_in_hdf/read_in_hdf.h"
@@ -40,14 +41,22 @@ public:
     typedef shared_ptr<EoS_base> pEoS_base; // pointer to the base class from
                                             // which all EoSs are derived
 
+    // object to access appropriate EoS by name
+    std::unordered_map<std::string, pEoS_base> chosen_EOS_map;
+
+
+    ////////////////////////////////////////////////////////////////////////////
     void init();
     void init(string quantityFile, string derivFile);
 //    void init_grid_ranges_only(string quantityFile, string derivFile);
-    void tbqs(double setT, double setmuB, double setmuQ, double setmuS, pEoS_base peos);
-    void tbqs( vector<double> & tbqsIn, pEoS_base peos )
-          { tbqs( tbqsIn[0], tbqsIn[1], tbqsIn[2], tbqsIn[3], peos); }
-    bool point_not_in_range( double setT, double setmuB, double setmuQ,
-                             double setmuS, pEoS_base peos );
+    bool point_not_in_range( double setT, double setmuB, double setmuQ, double setmuS, pEoS_base peos );
+    void tbqs( double setT, double setmuB, double setmuQ, double setmuS, string eos_name )
+          { tbqs( setT, setmuB, setmuQ, setmuS, chosen_EOS_map[eos_name] ); }
+    void tbqs( vector<double> & tbqsIn, string eos_name )
+          { tbqs( tbqsIn, chosen_EOS_map[eos_name] ); }
+
+
+    ////////////////////////////////////////////////////////////////////////////
     //getter functions for the quantities of interest at the current tbs/tbqs
     double T()   const;   //temperature
     double muB() const;   //baryon chemical potential
@@ -108,6 +117,7 @@ private:
     string quantity_file = "";
     string deriv_file    = "";
     string equation_of_state_table_filename = "";
+    string current_eos_name = "";
     //static InterpolatorND<4> equation_of_state_table;
 
 
@@ -130,6 +140,15 @@ private:
     double dtds          = 0.0;
     double dtdq          = 0.0; //second derivative of pressure wrt i and j 
                                 //where didj =: (d^2p)/(didj) or di2 = (d^2p)/((di)^2)
+
+
+    ////////////////////////////////////////////////////////////////////////////
+    // PRIVATE ROUTINES FOR SETTING POINT IN PHASE DIAGRAM FOR GIVEN EOS
+    void tbqs(double setT, double setmuB, double setmuQ, double setmuS, pEoS_base peos);
+    void tbqs( vector<double> & tbqsIn, pEoS_base peos )
+          { tbqs( tbqsIn[0], tbqsIn[1], tbqsIn[2], tbqsIn[3], peos ); }
+
+
 
     ////////////////////////////////////////////////////////////////////////////
     // ROUTINES NEEDED FOR COMPUTING THERMODYNAMIC DERIVATIVES
@@ -183,6 +202,7 @@ private:
     eos_delaunay entr_delaunay;
 
 public:
-  //bool using_conformal_as_fallback() { return use_conformal_as_fallback; }
+  bool using_conformal_as_fallback() { return use_conformal_as_fallback; }
+  string get_current_eos_name() { return current_eos_name; }
 
 };
