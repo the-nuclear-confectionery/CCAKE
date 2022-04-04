@@ -97,7 +97,11 @@ void EquationOfState::init(string quantityFile, string derivFile)
   // (this step *MUST BE DONE AFTER* chosen EoSs have been set,
   //  and each EoS must have a *UNIQUE NAME*)
   for ( auto & chosen_eos : chosen_EOSs )
+  {
+    std::cout << "Before " << chosen_eos->name << ": chosen_EOS_map.size = " << chosen_EOS_map.size() << std::endl;
     chosen_EOS_map.insert({{ chosen_eos->name, chosen_eos }});
+    std::cout << "After " << chosen_eos->name << ": chosen_EOS_map.size = " << chosen_EOS_map.size() << std::endl;
+  }
 
   
 
