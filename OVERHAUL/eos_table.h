@@ -39,6 +39,6 @@ public:
 
   // constructor from files containing tables
   EoS_table( string quantityFile, string derivFile );
-}
+};
 
 #endif

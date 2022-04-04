@@ -173,6 +173,6 @@ public:
     results[16] = P2T2(Tsol, muBsol, muQsol, muSsol);
   }
   
-}
+};
 
 #endif

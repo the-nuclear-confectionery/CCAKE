@@ -40,6 +40,6 @@ class EoS_base
                         // (excluding possible extension,
                         // may be the same as above)
 
-}
+};
 
 #endif
