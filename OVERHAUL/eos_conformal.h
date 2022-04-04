@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "constants.h"
-#include "eos_base.h"
+#include "eos_base.h"clTabCtrl
 #include "eos_header.h"
 
 class EoS_conformal: public EoS_base
@@ -17,7 +17,7 @@ private:
 public:
   // default constructor/destructor
   EoS_conformal(){}
-  ~EoS_conformal(){}
+  virtual ~EoS_conformal(){}
 
   EoS_conformal( const double c_in, const double T0_in, const double muB0_in,
                  const double muS0_in, const double muQ0_in,

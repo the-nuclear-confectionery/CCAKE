@@ -34,7 +34,7 @@ private:
 public:
   // default constructor/destructor
   EoS_table(){}
-  ~EoS_table(){}
+  virtual ~EoS_table(){}
 
   // constructor from files containing tables
   EoS_table( string quantityFile, string derivFile );

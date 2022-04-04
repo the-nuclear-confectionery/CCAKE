@@ -12,7 +12,7 @@ class EoS_base
 {
   public:
     EoS_base(){}
-    ~EoS_base(){}
+    virtual ~EoS_base(){}
 
     // functionals every EoS needs
     std::function<void(double[], double[])> eBSQ
