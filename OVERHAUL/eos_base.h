@@ -15,14 +15,14 @@ class EoS_base
 
     // functionals every EoS needs
     std::function<void(double[], double[])> eBSQ
-              = [this](double a[], double b[]) { this->get_eBSQ(a, b); }
+              = [this](double a[], double b[]) { this->get_eBSQ(a, b); };
     std::function<void(double[], double[])> sBSQ
-              = [this](double a[], double b[]) { this->get_sBSQ(a, b); }
+              = [this](double a[], double b[]) { this->get_sBSQ(a, b); };
     std::function<void(double[], double[])> full_thermo
-              = [this](double a[], double b[]) { this->get_full_thermo(a, b); }
+              = [this](double a[], double b[]) { this->get_full_thermo(a, b); };
 
     //std::function<void(int,int)> f = [this](int a, int b)
-    //        { this->doSomethingArgs(a, b); }
+    //        { this->doSomethingArgs(a, b); };
 
     std::vector<double> tbqs_minima, tbqs_maxima; // ranges over which EoS is defined
                                                   // (including possible extension)
