@@ -36,7 +36,7 @@ public:
     EquationOfState();
     EquationOfState(string quantityFile, string derivFile);
 
-    typedef shared_ptr<eos_base> peos_base; // pointer to the base class from
+    typedef shared_ptr<EoS_base> pEoS_base; // pointer to the base class from
                                             // which all EoSs are derived
 
     void init();
@@ -88,7 +88,7 @@ public:
 
     void set_SettingsPtr( Settings * settingsPtr_in );
 
-    vector<peos_base> chosen_EOSs;          // the vector of EoSs to use, in order
+    vector<pEoS_base> chosen_EOSs;          // the vector of EoSs to use, in order
 
 //    vector<double> tbqs_minima, tbqs_maxima;
 
