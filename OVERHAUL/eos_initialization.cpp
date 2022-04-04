@@ -102,7 +102,7 @@ void EquationOfState::init(string quantityFile, string derivFile)
   // (this step *MUST BE DONE AFTER* chosen EoSs have been set,
   //  and each EoS must have a *UNIQUE NAME*)
   for ( const auto & chosen_eos : chosen_EOSs )
-    chosen_EOS_map.insert({{ chosen_eos->name, chosen_eos }})
+    chosen_EOS_map.insert({{ chosen_eos->name, chosen_eos }});
 
   
 
