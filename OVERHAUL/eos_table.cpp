@@ -308,13 +308,14 @@ cout << point[0] << "   " << point[1] << "   " << point[2] << "   " << point[3] 
     // project back toward origin until intersecting grid boundary
     eos_extension::project_to_boundary(
         point, tbqs_minima_no_ext.data(), tbqs_maxima_no_ext.data() );
+cout << point[0] << "   " << point[1] << "   " << point[2] << "   " << point[3] << endl;
   }
 
   //============================================================================
   // evaluate the relevant grid point
   if (use_static_C_library)
   {
-//cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
+cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
     STANDARD_get_full_thermo( point, results );
   }
   else  // using table itself
@@ -339,14 +340,14 @@ cout << point[0] << "   " << point[1] << "   " << point[2] << "   " << point[3] 
     std::copy(v_results.begin(), v_results.end(), results);
   }
 
-//cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
+cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
 
 
   //============================================================================
   // project back to original point using non-conformal extension
   if ( use_nonconformal_extension and point_not_in_range )
   {
-//cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
+cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
     eos_extension::get_nonconformal_extension( point_in, results );
   }
 
