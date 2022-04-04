@@ -133,11 +133,17 @@ cout << point[0] << "   " << point[1] << "   " << point[2] << "   " << point[3] 
     // point: (T, muB, muQ, muS)
     const double Tsol   = point[0], muBsol = point[1],
                  muQsol = point[2], muSsol = point[3];
+cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
     double POut = p(Tsol, muBsol, muQsol, muSsol);
+cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
     double sOut = s(Tsol, muBsol, muQsol, muSsol);
+cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
     double BOut = B(Tsol, muBsol, muQsol, muSsol);
+cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
     double SOut = S(Tsol, muBsol, muQsol, muSsol);
+cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
     double QOut = Q(Tsol, muBsol, muQsol, muSsol);
+cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
     double eOut = sOut*Tsol + muBsol*BOut + muQsol*QOut + muSsol*SOut - POut;
 cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
 
