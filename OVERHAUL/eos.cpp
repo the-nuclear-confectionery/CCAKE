@@ -88,8 +88,8 @@ bool EquationOfState::point_not_in_range(
 
 void EquationOfState::tbqs( double setT, double setmuB, double setmuQ, double setmuS, const string & eos_name )
       { std::cout << __PRETTY_FUNCTION__ << ": " << eos_name << std::endl;
-        std::cout << "chosen_EOS_map.size = " << chosen_EOS_map.size << std::endl;
-        std::cout << "chosen_EOSs.size = " << chosen_EOSs.size << std::endl;
+        std::cout << "chosen_EOS_map.size = " << chosen_EOS_map.size() << std::endl;
+        std::cout << "chosen_EOSs.size = " << chosen_EOSs.size() << std::endl;
         if ( eos_name == "default" )
           tbqs( setT, setmuB, setmuQ, setmuS, chosen_EOS_map[default_eos_name] );
         else
