@@ -345,20 +345,20 @@ bool EquationOfState::rootfinder_update_s(double sin, double Bin, double Sin, do
   for ( const auto & this_eos : chosen_EOSs )
   {
     success
-      = rootfinder.find_sBSQ_root( ein, Bin, Sin, Qin, this_eos->eBSQ,
+      = rootfinder.find_sBSQ_root( sin, Bin, Sin, Qin, this_eos->sBSQ,
                                    this_eos->tbqs_minima, this_eos->tbqs_maxima,
                                    result );
 
     // stop iterating through available EoSs when solution found
     if (success)
     {
-      current_eos_name = this_eos.name;
+      current_eos_name = this_eos->name;
       tbqs( result, this_eos ); // set thermodynamics using solution
       break;
     }
   }
 
-  if (!solution_found)
+  if (!success)
   {
     std::cout << "No solution found!" << std::endl;
     std::cerr << "No solution found!" << std::endl;
@@ -427,7 +427,7 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
     if (solution_found)
     {
       // any time we update the EoS pointer, we need to specify WHICH EoS we are updating!
-      current_eos_name = this_eos.name;
+      current_eos_name = this_eos->name;
       tbqs( result, this_eos ); // set thermodynamics using solution
       break;
     }
