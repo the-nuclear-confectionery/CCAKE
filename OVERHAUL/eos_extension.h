@@ -64,10 +64,10 @@ namespace eos_extension
     b0004 = (muQ0*chiQQ0 - rhoQ0) / (8.0*muQ0*muQ0*muQ0+TINY);
 
 cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
-cout << T << endl;
-cout << muB << endl;
-cout << muQ << endl;
-cout << muS << endl;
+cout << T0 << endl;
+cout << muB0 << endl;
+cout << muQ0 << endl;
+cout << muS0 << endl;
 cout << "------------------" << endl;
 cout << b0000 << endl;
 cout << "------------------" << endl;
