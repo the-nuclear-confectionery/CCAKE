@@ -12,9 +12,9 @@ namespace eos_extension
 
 	const double hc = hbarc_MeVfm;
 
-  double b0000, b0002, b0020, b0200, b2000;
-  double b0022, b0202, b2002, b0220, b2020, b2200;
-  double b0004, b0040, b0400, b4000;
+  double b0000 = 0.0, b0002 = 0.0, b0020 = 0.0, b0200 = 0.0, b2000 = 0.0;
+  double b0022 = 0.0, b0202 = 0.0, b2002 = 0.0, b0220 = 0.0, b2020 = 0.0, b2200 = 0.0;
+  double b0004 = 0.0, b0040 = 0.0, b0400 = 0.0, b4000 = 0.0;
 
   //////////////////////////////////////////////////////////////////////////////
   // function definitions
@@ -100,30 +100,6 @@ cout << b0022 << endl;
 	
 	double s(double T, double muB, double muQ, double muS)
 	{
-cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
-cout << T << endl;
-cout << muB << endl;
-cout << muQ << endl;
-cout << muS << endl;
-cout << "------------------" << endl;
-cout << b0000 << endl;
-cout << "------------------" << endl;
-cout << b2000 << endl;
-cout << b0200 << endl;
-cout << b0020 << endl;
-cout << b0002 << endl;
-cout << "------------------" << endl;
-cout << b4000 << endl;
-cout << b0400 << endl;
-cout << b0040 << endl;
-cout << b0004 << endl;
-cout << "------------------" << endl;
-cout << b2200 << endl;
-cout << b2020 << endl;
-cout << b2002 << endl;
-cout << b0220 << endl;
-cout << b0202 << endl;
-cout << b0022 << endl;
 		return 2.0*T*(b2000 + 2.0*T*T*b4000 + muB*muB*b2200 + muQ*muQ*b2002 + muS*muS*b2020);
 	}
 
