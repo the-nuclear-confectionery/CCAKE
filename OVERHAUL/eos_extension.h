@@ -139,6 +139,7 @@ cout << point[0] << "   " << point[1] << "   " << point[2] << "   " << point[3] 
     double SOut = S(Tsol, muBsol, muQsol, muSsol);
     double QOut = Q(Tsol, muBsol, muQsol, muSsol);
     double eOut = sOut*Tsol + muBsol*BOut + muQsol*QOut + muSsol*SOut - POut;
+cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
 
     results[0]  = POut;
     results[1]  = sOut;
@@ -147,6 +148,7 @@ cout << point[0] << "   " << point[1] << "   " << point[2] << "   " << point[3] 
     results[4]  = QOut;
     results[5]  = eOut;
     //results[6]  = 1.0/3.0;  // conformal
+cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
 
     results[7]  = P2B2(Tsol, muBsol, muQsol, muSsol);
     results[8]  = P2Q2(Tsol, muBsol, muQsol, muSsol);
@@ -160,6 +162,7 @@ cout << point[0] << "   " << point[1] << "   " << point[2] << "   " << point[3] 
     results[16] = P2T2(Tsol, muBsol, muQsol, muSsol);
 
     ////////////////////////////////////////////////////////////////////////////
+cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
 
     const double T = point[0], muB = point[1], muQ = point[2], muS = point[3];
 
@@ -178,6 +181,7 @@ cout << point[0] << "   " << point[1] << "   " << point[2] << "   " << point[3] 
     double C2TQ = results[14];
     double C2TS = results[15];
     double C2T2 = results[16];
+cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
 
     // speed of sound
     results[6] = T*(-(C2BQ*C2S2*C2TQ*C1B) - C2BQ*C2S2*C2TB*C1Q - pow(C2BS,2)*C2TQ*C1Q + C2B2*C2S2*C2TQ*C1Q + C2BQ*C2BS*C2TS*C1Q + C2BQ*C2BS*C2TQ*C1S - pow(C2BQ,2)*C2TS*C1S + pow(C2BQ,2)*C2S2*C1T 
@@ -211,6 +215,8 @@ cout << point[0] << "   " << point[1] << "   " << point[2] << "   " << point[3] 
               + C2S2*pow(C2TQ,2) - 2*C2QS*C2TQ*C2TS + C2Q2*pow(C2TS,2)))*T);
 
     ////////////////////////////////////////////////////////////////////////////
+
+cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
 
 
   }
