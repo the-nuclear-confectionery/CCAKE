@@ -11,10 +11,10 @@
 #include "eos_base.h"
 #include "eos_header.h"
 
+using namespace constants;
+
 class EoS_table: public EoS_base
 {
-  using namespace constants;
-
 private:
   string equation_of_state_table_filename = "";
 
