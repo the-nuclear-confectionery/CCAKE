@@ -61,11 +61,13 @@ void EquationOfState::init(string quantityFile, string derivFile)
     chosen_EOSs.push_back( std::make_shared<EoS_conformal>(
                             c, T0, muB0, muS0, muQ0,
                             tbqs_minima, tbqs_maxima ) );
+    default_eos_name = "conformal";
   }
   else if ( settingsPtr->EoS_type == "Table" )
   {
     // add EoS to vector
     chosen_EOSs.push_back( std::make_shared<EoS_table>( quantityFile, derivFile ) );
+    default_eos_name = "table";
   }
   //////////////////////////////////////////////////////////////////////////////
 

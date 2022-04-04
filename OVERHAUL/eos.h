@@ -30,6 +30,9 @@ class EquationOfState
 {
 friend class InputOutput;
 
+private:
+    string default_eos_name = "";
+
 public:
     ////////////////////////////////////////////////////////////////////////////
     // PUBLIC METHODS
@@ -80,14 +83,16 @@ public:
     void eosin(std::string type);
     double A();
 
-    double efreeze(double TFO, const string & eos_name);
-    double sfreeze(double TFO, const string & eos_name);
-
-    double cs2out(double Tt, double muBin, double muQin, double muSin, const string & eos_name);
-    double cs2out(double Tt, const string & eos_name);
-    double wfz(double Tt, double muBin, double muQin, double muSin, const string & eos_name);
-    double wfz(double Tt, const string & eos_name);
-    double s_terms_T(double Tt, const string & eos_name); 
+    // call these functions using default EoS if none is specified
+    double efreeze(double TFO, const string & eos_name = default_eos_name);
+    double sfreeze(double TFO, const string & eos_name = default_eos_name);
+    double cs2out(double Tt, double muBin, double muQin, double muSin,
+                  const string & eos_name = default_eos_name);
+    double cs2out(double Tt, const string & eos_name = default_eos_name);
+    double wfz(double Tt, double muBin, double muQin, double muSin,
+                  const string & eos_name = default_eos_name);
+    double wfz(double Tt, const string & eos_name = default_eos_name);
+    double s_terms_T(double Tt, const string & eos_name = default_eos_name); 
 
     //void evaluate_thermodynamics(bool point_is_in_range, bool use_conformal);
     void evaluate_thermodynamics( pEoS_base peos );
