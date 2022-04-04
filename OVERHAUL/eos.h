@@ -1,10 +1,11 @@
 #pragma once
 
 #include <iostream>
-#include <vector>
 #include <fstream>
 #include <functional>
+#include <memory>
 #include <string>
+#include <vector>
 
 //#include "read_in_hdf/read_in_hdf.h"
 //#include "Stopwatch.h"
