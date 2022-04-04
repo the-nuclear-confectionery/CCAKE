@@ -20,7 +20,7 @@
 #include "constants.h"
 #include "eos_base.h"
 #include "eos_conformal.h"
-#include "eos_extension.h"
+//#include "eos_extension.h"
 #include "eos_header.h"
 #include "eos_table.h"
 #include "rootfinder.h"
