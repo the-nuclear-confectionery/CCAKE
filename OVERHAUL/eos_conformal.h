@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "constants.h"
-#include "eos_base.h"clTabCtrl
+#include "eos_base.h"
 #include "eos_header.h"
 
 class EoS_conformal: public EoS_base
