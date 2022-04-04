@@ -309,9 +309,11 @@ void EoS_table::get_full_thermo_safe( const double point_in[], double results[] 
   else  // using table itself
   {
     // copy C arrays to C++ vectors
-    vector<double> v_point, v_results;
-    v_point.insert(  v_point.begin(),   std::begin(point),   std::end(point));
-    v_results.insert(v_results.begin(), std::begin(results), std::end(results));
+//    vector<double> v_point, v_results;
+//    v_point.insert(  v_point.begin(),   std::begin(point),   std::end(point));
+//    v_results.insert(v_results.begin(), std::begin(results), std::end(results));
+    vector<double> v_point(point, point+4);
+    vector<double> v_results(results, results+17);
 
     // evaluate EoS interpolator at current location (S and Q NOT SWAPPED)
     equation_of_state_table.evaluate( v_point, v_results ); 
