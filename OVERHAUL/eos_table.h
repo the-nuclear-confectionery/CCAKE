@@ -1,6 +1,8 @@
 #ifndef EOS_TABLE_H
 #define EOS_TABLE_H
 
+#include <algorithm>
+#include <iterator>
 #include <string>
 
 // functions calls to static EoS C library
