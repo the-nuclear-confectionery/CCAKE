@@ -62,6 +62,31 @@ namespace eos_extension
     b0400 = (muB0*chiBB0 - rhoB0) / (8.0*muB0*muB0*muB0+TINY);
     b0040 = (muS0*chiSS0 - rhoS0) / (8.0*muS0*muS0*muS0+TINY);
     b0004 = (muQ0*chiQQ0 - rhoQ0) / (8.0*muQ0*muQ0*muQ0+TINY);
+
+cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
+cout << T << endl;
+cout << muB << endl;
+cout << muQ << endl;
+cout << muS << endl;
+cout << "------------------" << endl;
+cout << b0000 << endl;
+cout << "------------------" << endl;
+cout << b2000 << endl;
+cout << b0200 << endl;
+cout << b0020 << endl;
+cout << b0002 << endl;
+cout << "------------------" << endl;
+cout << b4000 << endl;
+cout << b0400 << endl;
+cout << b0040 << endl;
+cout << b0004 << endl;
+cout << "------------------" << endl;
+cout << b2200 << endl;
+cout << b2020 << endl;
+cout << b2002 << endl;
+cout << b0220 << endl;
+cout << b0202 << endl;
+cout << b0022 << endl;
   }
 
 

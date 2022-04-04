@@ -448,7 +448,7 @@ std::cout << "Using grid ranges: "
         tbqs(t0, mub0, muq0 - muQ10, mus0);
     }
     if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS,
-                      function_to_evaluate, updated_tbqs)) 
+                      function_to_evaluate, updated_tbqs))
         { cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
               << " attempts" << endl; return true; }
 
