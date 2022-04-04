@@ -18,7 +18,7 @@ namespace eos_extension
 
   //////////////////////////////////////////////////////////////////////////////
   // function definitions
-  void set_coeffs( double point[], double thermodynamics[] )
+  void set_coeffs( const double point[], double thermodynamics[] )
   {
 
     double T0 = point[0], muB0 = point[1], muQ0 = point[2], muS0 = point[3];
@@ -126,7 +126,7 @@ namespace eos_extension
       { return 4.0*T*muQ*b2002; }
 
 
-  void get_full_thermo( double point[], double results[] )
+  void get_full_thermo( const double point[], double results[] )
   {
     // point: (T, muB, muQ, muS)
     const double Tsol   = point[0], muBsol = point[1],
@@ -215,7 +215,7 @@ namespace eos_extension
 
 
 
-  void get_eBSQ( double point[], double results[] )
+  void get_eBSQ( const double point[], double results[] )
   {
     // point: (T, muB, muQ, muS)
     const double Tsol   = point[0], muBsol = point[1],
@@ -227,18 +227,28 @@ namespace eos_extension
     double QOut = Q(Tsol, muBsol, muQsol, muSsol);
     double eOut = sOut*Tsol + muBsol*BOut + muQsol*QOut + muSsol*SOut - POut;
 
-    results[0]  = POut;
-    results[1]  = sOut;
-    results[2]  = BOut;
-    results[3]  = SOut;
-    results[4]  = QOut;
-    results[5]  = eOut;
+    results[0]  = eOut;
+    results[1]  = BOut;
+    results[2]  = SOut;
+    results[3]  = QOut;
+  }
+
+
+  void get_sBSQ( const double point[], double results[] )
+  {
+    // point: (T, muB, muQ, muS)
+    const double Tsol   = point[0], muBsol = point[1],
+                 muQsol = point[2], muSsol = point[3];
+
+    results[0]  = s(Tsol, muBsol, muQsol, muSsol);
+    results[1]  = B(Tsol, muBsol, muQsol, muSsol);
+    results[2]  = S(Tsol, muBsol, muQsol, muSsol);
+    results[3]  = Q(Tsol, muBsol, muQsol, muSsol);
   }
 
 
 
-
-  void get_nonconformal_extension( double point[], double thermodynamics[] )
+  void get_nonconformal_extension( const double point[], double thermodynamics[] )
   {
     std::cout << "Getting non-conformal extension!" << std::endl;
 
