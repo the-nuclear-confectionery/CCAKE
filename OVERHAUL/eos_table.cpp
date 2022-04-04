@@ -198,6 +198,9 @@ void EoS_table::get_sBSQ_densities_from_interpolator(
 
 ////////////////////////////////////////////////////////////////////////////////
 void EoS_table::get_eBSQ( double point_in[], double results[] )
+                { get_eBSQ_safe( point_in, results ); }
+
+void EoS_table::get_eBSQ_safe( double point_in[], double results[] )
 {
   double point[4] = point_in;
 
@@ -235,6 +238,9 @@ void EoS_table::get_eBSQ( double point_in[], double results[] )
 
 ////////////////////////////////////////////////////////////////////////////////
 void EoS_table::get_sBSQ( double point_in[], double results[] )
+                { get_sBSQ_safe( point_in, results ); }
+
+void EoS_table::get_sBSQ_safe( double point_in[], double results[] )
 {
   double point[4] = point_in;
 
@@ -270,7 +276,10 @@ void EoS_table::get_sBSQ( double point_in[], double results[] )
 
 
 ////////////////////////////////////////////////////////////////////////////////
-void EoS_table::get_full_thermo( const double point_in[], double results[] )
+void EoS_table::get_full_thermo( double point_in[], double results[] )
+                { get_full_thermo_safe( point_in, results ); }
+
+void EoS_table::get_full_thermo_safe( const double point_in[], double results[] )
 {
   double point[4] = point_in;
 
