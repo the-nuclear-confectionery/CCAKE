@@ -96,7 +96,7 @@ void EquationOfState::init(string quantityFile, string derivFile)
   // create a map to access all needed EoSs by name
   // (this step *MUST BE DONE AFTER* chosen EoSs have been set,
   //  and each EoS must have a *UNIQUE NAME*)
-  for ( const auto & chosen_eos : chosen_EOSs )
+  for ( auto & chosen_eos : chosen_EOSs )
     chosen_EOS_map.insert({{ chosen_eos->name, chosen_eos }});
 
   
