@@ -26,6 +26,11 @@ private:
   void get_eBSQ_densities_from_interpolator( double point[], double densities[] );
   void get_sBSQ_densities_from_interpolator( double point[], double densities[] );
 
+  void get_eBSQ_safe( const double point[], double results[] );
+  void get_sBSQ_safe( const double point[], double results[] );
+  void get_full_thermo_safe( const double point[], double results[] );
+
+
 public:
   // default constructor/destructor
   EoS_table(){}
