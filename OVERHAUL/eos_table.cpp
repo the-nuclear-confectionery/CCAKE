@@ -84,6 +84,9 @@ EoS_table::EoS_table( string quantityFile, string derivFile )
     tbqs_maxima_no_ext = equation_of_state_table.get_grid_maxima();
   }
 
+    // sets EoS type
+    name = "table";
+
 }
 
 
