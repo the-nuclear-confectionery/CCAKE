@@ -288,7 +288,7 @@ void EoS_table::get_full_thermo( double point_in[], double results[] )
 
 void EoS_table::get_full_thermo_safe( const double point_in[], double results[] )
 {
-cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
+//cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
 
   double point[4];
   for ( int i = 0; i < 4; i++ ) point[i] = point_in[i];
@@ -297,12 +297,12 @@ cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
   // decide this w.r.t. the tbqs ranges sans extension
   // --> needed to decide whether to use extension
   bool point_not_in_range = !point_is_in_range_no_ext( point[0], point[1], point[2], point[3] );
-cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
+//cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
 
   //============================================================================
   if ( use_nonconformal_extension and point_not_in_range )
   {
-cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
+//cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
     /// NOTE: point gets reset!
     // project back toward origin until intersecting grid boundary
     eos_extension::project_to_boundary(
@@ -313,7 +313,7 @@ cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
   // evaluate the relevant grid point
   if (use_static_C_library)
   {
-cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
+//cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
     STANDARD_get_full_thermo( point, results );
   }
   else  // using table itself
@@ -338,14 +338,14 @@ cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
     std::copy(v_results.begin(), v_results.end(), results);
   }
 
-cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
+//cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
 
 
   //============================================================================
   // project back to original point using non-conformal extension
   if ( use_nonconformal_extension and point_not_in_range )
   {
-cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
+//cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
     eos_extension::get_nonconformal_extension( point_in, results );
   }
 

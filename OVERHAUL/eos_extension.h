@@ -128,8 +128,8 @@ namespace eos_extension
 
   void get_full_thermo( const double point[], double results[] )
   {
-cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
-cout << point[0] << "   " << point[1] << "   " << point[2] << "   " << point[3] << endl;
+//cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
+//cout << point[0] << "   " << point[1] << "   " << point[2] << "   " << point[3] << endl;
     // point: (T, muB, muQ, muS)
     const double Tsol   = point[0], muBsol = point[1],
                  muQsol = point[2], muSsol = point[3];
@@ -253,11 +253,11 @@ cout << point[0] << "   " << point[1] << "   " << point[2] << "   " << point[3] 
   void get_nonconformal_extension( const double point[], double thermodynamics[] )
   {
     std::cout << "Getting non-conformal extension!" << std::endl;
-cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
+//cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
 
     // determine parameters from thermodynamic quantities
     set_coeffs( point, thermodynamics );
-cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
+//cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
 
     // evaluate extension and return result (stored in thermodynamics)
     get_full_thermo( point, thermodynamics );
