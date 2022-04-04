@@ -24,13 +24,14 @@ private:
 
   void init_grid_ranges_only(string quantityFile, string derivFile);
 
-
   void get_eBSQ_densities_from_interpolator( double point[], double densities[] );
   void get_sBSQ_densities_from_interpolator( double point[], double densities[] );
 
   void get_eBSQ_safe( const double point[], double results[] );
   void get_sBSQ_safe( const double point[], double results[] );
   void get_full_thermo_safe( const double point[], double results[] );
+
+  bool point_is_in_range_no_ext( double setT, double setmuB, double setmuQ, double setmuS );
 
 
 public:
