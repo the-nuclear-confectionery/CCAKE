@@ -288,7 +288,7 @@ void EoS_table::get_full_thermo( double point_in[], double results[] )
 
 void EoS_table::get_full_thermo_safe( const double point_in[], double results[] )
 {
-//cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
+cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
 
   double point[4];
   for ( int i = 0; i < 4; i++ ) point[i] = point_in[i];
