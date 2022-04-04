@@ -303,6 +303,7 @@ void EoS_table::get_full_thermo_safe( const double point_in[], double results[] 
   if ( use_nonconformal_extension and point_not_in_range )
   {
 cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
+cout << point[0] << "   " << point[1] << "   " << point[2] << "   " << point[3] << endl;
     /// NOTE: point gets reset!
     // project back toward origin until intersecting grid boundary
     eos_extension::project_to_boundary(
