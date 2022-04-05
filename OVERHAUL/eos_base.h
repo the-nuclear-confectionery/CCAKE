@@ -35,6 +35,11 @@ class EoS_base
     virtual void get_sBSQ( double point[], double results[] ){}
     virtual void get_full_thermo( double point[], double results[] ){}
 
+    const std::vector<double> & get_tbqs_minima_no_ext()
+                                const { return tbqs_minima_no_ext; }
+    const std::vector<double> & get_tbqs_maxima_no_ext()
+                                const { return tbqs_maxima_no_ext; }
+
   // allow derived classes to access and redefine
   protected:
     std::vector<double> tbqs_minima_no_ext, tbqs_maxima_no_ext;
