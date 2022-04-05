@@ -14,6 +14,7 @@
 #include "eos_base.h"
 #include "eos_conformal.h"
 #include "eos_header.h"
+#include "eos_nonconformal_extension.h"
 #include "eos_table.h"
 #include "eos_delaunay/eos_delaunay.h"
 #include "rootfinder.h"
