@@ -3,12 +3,15 @@
 
 #include <algorithm>
 #include <cmath>
+#include <iostream>
 
 #include "constants.h"
 
 namespace eos_extension
 {
   using namespace constants;
+  using std::cout;
+  using std::endl;
 
 	const double hc = hbarc_MeVfm;
 
