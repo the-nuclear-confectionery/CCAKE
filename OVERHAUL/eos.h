@@ -18,7 +18,7 @@
 #include <gsl/gsl_linalg.h>
 
 #include "eos_base.h"
-//#include "eos_extension.h"
+#include "eos_extension.h"
 #include "eos_header.h"
 #include "eos_delaunay/eos_delaunay.h"
 #include "interpolatorND/interpolatorND.h"
