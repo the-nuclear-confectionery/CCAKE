@@ -2,6 +2,7 @@
 #define EOS_BASE_H
 
 #include <functional>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -42,5 +43,8 @@ class EoS_base
                         // may be the same as above)
 
 };
+
+typedef shared_ptr<EoS_base> pEoS_base; // pointer to the base class from
+                                        // which all EoSs are derived
 
 #endif

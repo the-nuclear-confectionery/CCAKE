@@ -42,9 +42,6 @@ public:
     EquationOfState();
     EquationOfState(string quantityFile, string derivFile);
 
-    typedef shared_ptr<EoS_base> pEoS_base; // pointer to the base class from
-                                            // which all EoSs are derived
-
     // object to access appropriate EoS by name
     std::unordered_map<std::string, pEoS_base> chosen_EOS_map;
 

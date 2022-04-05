@@ -72,7 +72,21 @@ void EquationOfState::init(string quantityFile, string derivFile)
   // - conformal extension (extended everywhere)
   // - purely conformal fallback (always use this to guarantee solution)
   //////////////////////////////////////////////////////////////////////////////
-  if ( settingsPtr->EoS_type != "Conformal" ) // use conformal as fallback
+
+  /*
+  // set non-conformal extension
+  if ( settingsPtr->EoS_type != "Conformal" ) // redundant with below, but oh well
+  {
+    // pointer to default EoS (first element added above)
+    pEoS_base p_default_EoS = chosen_EOSs.front();
+    
+    
+  }
+  */
+
+
+  // use conformal as fallback
+  if ( settingsPtr->EoS_type != "Conformal" )
   {
     std::cout << "Setting conformal equation of state as fallback" << std::endl;
     const double Nc = 3.0, Nf = 2.5;  // u+d massless, s 'half massless'
