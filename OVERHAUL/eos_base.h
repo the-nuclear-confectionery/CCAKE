@@ -44,7 +44,7 @@ class EoS_base
 
 };
 
-typedef shared_ptr<EoS_base> pEoS_base; // pointer to the base class from
-                                        // which all EoSs are derived
+typedef std::shared_ptr<EoS_base> pEoS_base;  // pointer to the base class from
+                                              // which all EoSs are derived
 
 #endif
