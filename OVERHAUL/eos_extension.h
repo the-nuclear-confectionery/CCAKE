@@ -6,6 +6,7 @@
 #include <iostream>
 
 #include "constants.h"
+#include "eos_header.h"
 
 namespace eos_extension
 {
