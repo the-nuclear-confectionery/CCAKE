@@ -41,9 +41,9 @@ namespace eos_extension
     double chiTS0 = thermodynamics[15];
     double chiTT0 = thermodynamics[16];
 
-    std::cout << "Check:" << std::endl;
-    for (int i = 0; i < 17; i++)
-      std::cout << i << "   " << thermodynamics[i] << std::endl;
+//    std::cout << "Check:" << std::endl;
+//    for (int i = 0; i < 17; i++)
+//      std::cout << i << "   " << thermodynamics[i] << std::endl;
 
     b0000 = p0 - (5.0/8.0)*(T0*s0+muB0*rhoB0+muS0*rhoS0+muQ0*rhoQ0)
             + ( chiTT0*T0*T0 + chiTB0*T0*rhoB0 + chiTS0*T0*rhoS0 + chiTQ0*T0*rhoQ0
@@ -67,59 +67,59 @@ namespace eos_extension
     b0040 = (muS0*chiSS0 - rhoS0) / (8.0*muS0*muS0*muS0+TINY);
     b0004 = (muQ0*chiQQ0 - rhoQ0) / (8.0*muQ0*muQ0*muQ0+TINY);
 
-cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
-cout << T0 << endl;
-cout << muB0 << endl;
-cout << muQ0 << endl;
-cout << muS0 << endl;
-cout << "------------------" << endl;
-cout << b0000 << endl;
-cout << "------------------" << endl;
-cout << b2000 << endl;
-cout << b0200 << endl;
-cout << b0020 << endl;
-cout << b0002 << endl;
-cout << "------------------" << endl;
-cout << b4000 << endl;
-cout << b0400 << endl;
-cout << b0040 << endl;
-cout << b0004 << endl;
-cout << "------------------" << endl;
-cout << b2200 << endl;
-cout << b2020 << endl;
-cout << b2002 << endl;
-cout << b0220 << endl;
-cout << b0202 << endl;
-cout << b0022 << endl;
+//cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
+//cout << T0 << endl;
+//cout << muB0 << endl;
+//cout << muQ0 << endl;
+//cout << muS0 << endl;
+//cout << "------------------" << endl;
+//cout << b0000 << endl;
+//cout << "------------------" << endl;
+//cout << b2000 << endl;
+//cout << b0200 << endl;
+//cout << b0020 << endl;
+//cout << b0002 << endl;
+//cout << "------------------" << endl;
+//cout << b4000 << endl;
+//cout << b0400 << endl;
+//cout << b0040 << endl;
+//cout << b0004 << endl;
+//cout << "------------------" << endl;
+//cout << b2200 << endl;
+//cout << b2020 << endl;
+//cout << b2002 << endl;
+//cout << b0220 << endl;
+//cout << b0202 << endl;
+//cout << b0022 << endl;
   }
 
 
   double p(double T, double muB, double muQ, double muS)
 	{
-cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
-cout << T << endl;
-cout << muB << endl;
-cout << muQ << endl;
-cout << muS << endl;
-cout << "------------------" << endl;
-cout << b0000 << endl;
-cout << "------------------" << endl;
-cout << b2000 << endl;
-cout << b0200 << endl;
-cout << b0020 << endl;
-cout << b0002 << endl;
-cout << "------------------" << endl;
-cout << b4000 << endl;
-cout << b0400 << endl;
-cout << b0040 << endl;
-cout << b0004 << endl;
-cout << "------------------" << endl;
-cout << b2200 << endl;
-cout << b2020 << endl;
-cout << b2002 << endl;
-cout << b0220 << endl;
-cout << b0202 << endl;
-cout << b0022 << endl;
+//cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
+//cout << T << endl;
+//cout << muB << endl;
+//cout << muQ << endl;
+//cout << muS << endl;
+//cout << "------------------" << endl;
+//cout << b0000 << endl;
+//cout << "------------------" << endl;
+//cout << b2000 << endl;
+//cout << b0200 << endl;
+//cout << b0020 << endl;
+//cout << b0002 << endl;
+//cout << "------------------" << endl;
+//cout << b4000 << endl;
+//cout << b0400 << endl;
+//cout << b0040 << endl;
+//cout << b0004 << endl;
+//cout << "------------------" << endl;
+//cout << b2200 << endl;
+//cout << b2020 << endl;
+//cout << b2002 << endl;
+//cout << b0220 << endl;
+//cout << b0202 << endl;
+//cout << b0022 << endl;
 		return b0000 + b2000*T*T + b0200*muB*muB + b0020*muS*muS + b0002*muQ*muQ
             + b4000*T*T*T*T + b0400*muB*muB*muB*muB
             + b0040*muS*muS*muS*muS + b0004*muQ*muQ*muQ*muQ
@@ -181,24 +181,24 @@ cout << b0022 << endl;
 
   void get_full_thermo( const double point[], double results[] )
   {
-cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
-cout << point[0] << "   " << point[1] << "   " << point[2] << "   " << point[3] << endl;
+//cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
+//cout << point[0] << "   " << point[1] << "   " << point[2] << "   " << point[3] << endl;
     // point: (T, muB, muQ, muS)
     const double Tsol   = point[0], muBsol = point[1],
                  muQsol = point[2], muSsol = point[3];
-cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
+//cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
     double POut = p(Tsol, muBsol, muQsol, muSsol);
-cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
+//cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
     double sOut = s(Tsol, muBsol, muQsol, muSsol);
-cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
+//cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
     double BOut = B(Tsol, muBsol, muQsol, muSsol);
-cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
+//cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
     double SOut = S(Tsol, muBsol, muQsol, muSsol);
-cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
+//cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
     double QOut = Q(Tsol, muBsol, muQsol, muSsol);
-cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
+//cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
     double eOut = sOut*Tsol + muBsol*BOut + muQsol*QOut + muSsol*SOut - POut;
-cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
+//cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
 
     results[0]  = POut;
     results[1]  = sOut;
@@ -207,7 +207,7 @@ cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
     results[4]  = QOut;
     results[5]  = eOut;
     //results[6]  = 1.0/3.0;  // conformal
-cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
+//cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
 
     results[7]  = P2B2(Tsol, muBsol, muQsol, muSsol);
     results[8]  = P2Q2(Tsol, muBsol, muQsol, muSsol);
@@ -221,7 +221,7 @@ cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
     results[16] = P2T2(Tsol, muBsol, muQsol, muSsol);
 
     ////////////////////////////////////////////////////////////////////////////
-cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
+//cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
 
     const double T = point[0], muB = point[1], muQ = point[2], muS = point[3];
 
@@ -240,7 +240,7 @@ cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
     double C2TQ = results[14];
     double C2TS = results[15];
     double C2T2 = results[16];
-cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
+//cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
 
     // speed of sound
     results[6] = T*(-(C2BQ*C2S2*C2TQ*C1B) - C2BQ*C2S2*C2TB*C1Q - pow(C2BS,2)*C2TQ*C1Q + C2B2*C2S2*C2TQ*C1Q + C2BQ*C2BS*C2TS*C1Q + C2BQ*C2BS*C2TQ*C1S - pow(C2BQ,2)*C2TS*C1S + pow(C2BQ,2)*C2S2*C1T 
@@ -275,7 +275,7 @@ cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
 
     ////////////////////////////////////////////////////////////////////////////
 
-cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
+//cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
 
 
   }
