@@ -38,6 +38,7 @@ class EoS_nonconformal_extension: public EoS_base
       double point_save[4];
       for (int i = 0; i < 4; i++) point_save[i] = point[i];
 
+      // get default EoS's grid ranges
       const auto & minima = p_reference_EoS->get_tbqs_minima_no_ext();
       const auto & maxima = p_reference_EoS->get_tbqs_maxima_no_ext();
 
@@ -48,9 +49,10 @@ class EoS_nonconformal_extension: public EoS_base
       p_reference_EoS->get_sBSQ( point, results );
 
       // set coefficients from reference thermodynamics
-      eos_extension::set_coeffs( point, minima.data(), maxima.data() );
+      eos_extension::set_coeffs( point, results );
 
       // use non-conformal extension to obtain final answer (store in results)
+      eos_extension::get_nonconformal_extension( point_save, results, 2 );
       
     }
 
