@@ -40,11 +40,16 @@ namespace eos_extension
 	double P2TS(double T, double muB, double muQ, double muS);
 	double P2TQ(double T, double muB, double muQ, double muS);
 
-  void get_full_thermo( const double point[], double results[] );
-  void get_eBSQ( const double point[], double results[] );
-  void get_sBSQ( const double point[], double results[] );
+  void get_full_thermo( const double point[], double results[] ); // results length = 17
+  void get_eBSQ( const double point[], double results[] );        // results length = 4
+  void get_sBSQ( const double point[], double results[] );        // results length = 4
 
-  void get_nonconformal_extension( const double point[], double thermodynamics[] );
+  // projects point on boundary to arbitrary point outside phase diagram boundary
+  // - option = 0: project full thermodynamics
+  // - option = 1: project eBSQ
+  // - option = 2: project sBSQ
+  void get_nonconformal_extension( const double point[], double thermodynamics[],
+                                   const int option );
   void project_to_boundary( double point[], const double minima[], const double maxima[] );
 }
 

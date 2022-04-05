@@ -237,7 +237,7 @@ cout << __PRETTY_FUNCTION__ << ": " << point[0] << "   " << point[1] << "   "
   //============================================================================
   // project back to original point using non-conformal extension
   if ( use_nonconformal_extension and point_not_in_range )
-    eos_extension::get_nonconformal_extension( point_in, results );
+    eos_extension::get_nonconformal_extension( point_in, results, 1 );
 }
 
 
@@ -281,7 +281,7 @@ cout << __PRETTY_FUNCTION__ << ": " << point[0] << "   " << point[1] << "   "
   //============================================================================
   // project back to original point using non-conformal extension
   if ( use_nonconformal_extension and point_not_in_range )
-    eos_extension::get_nonconformal_extension( point_in, results );
+    eos_extension::get_nonconformal_extension( point_in, results, 2 );
 }
 
 
@@ -345,7 +345,7 @@ cout << point[0] << "   " << point[1] << "   " << point[2] << "   " << point[3] 
   //============================================================================
   // project back to original point using non-conformal extension
   if ( use_nonconformal_extension and point_not_in_range )
-    eos_extension::get_nonconformal_extension( point_in, results );
+    eos_extension::get_nonconformal_extension( point_in, results, 0 );
 
 }  
 

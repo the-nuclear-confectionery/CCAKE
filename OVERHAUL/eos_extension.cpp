@@ -315,18 +315,31 @@ cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
 
 
 
-  void get_nonconformal_extension( const double point[], double thermodynamics[] )
+  void get_nonconformal_extension( const double point[], double results[],
+                                   const int option )
   {
     std::cout << "Getting non-conformal extension!" << std::endl;
-cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
 
     // determine parameters from thermodynamic quantities
-    set_coeffs( point, thermodynamics );
-cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
+    set_coeffs( point, results );
 
     // evaluate extension and return result (stored in thermodynamics)
-    get_full_thermo( point, thermodynamics );
-cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
+    switch ( option )
+    {
+      case 0:
+        get_full_thermo( point, results );
+        break;
+      case 1:
+        get_eBSQ( point, results );
+        break;
+      case 2:
+        get_sBSQ( point, results );
+        break;
+      default:
+        std::cerr << __PRETTY_FUNCTION__ << ": " << option << " is not a valid option!" << std::endl;
+        break;
+    }
+//cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
   }
 
   void project_to_boundary( double point[], const double minima[], const double maxima[] )
