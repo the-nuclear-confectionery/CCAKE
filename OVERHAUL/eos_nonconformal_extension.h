@@ -39,7 +39,9 @@ class EoS_nonconformal_extension: public EoS_base
       for (int i = 0; i < 4; i++) point_save[i] = point[i];
 
       // project point to boundary of reference_EoS (resets point)
-      eos_extension::project_to_boundary( point, minima, maxima );
+      eos_extension::project_to_boundary( point,
+                      p_reference_EoS->tbqs_minima_no_ext.data(),
+                      p_reference_EoS->tbqs_maxima_no_ext.data() );
 
       // set reference thermodynamics on projected point (on boundary)
       p_reference_EoS->get_sBSQ( point, results );
