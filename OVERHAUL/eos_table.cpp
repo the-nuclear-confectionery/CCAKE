@@ -345,6 +345,8 @@ cout << point[0] << "   " << point[1] << "   " << point[2] << "   " << point[3] 
 bool EoS_table::point_is_in_range_no_ext(
                 double setT, double setmuB, double setmuQ, double setmuS )
 {
+cout << __PRETTY)FUNCTION__ << ": " << setT << "   " << setmuB << "   "
+     << setmuQ << "   " << setmuS << endl;
   if(setT < tbqs_minima_no_ext[0] || setT > tbqs_maxima_no_ext[0])
   { 
     std::cout << "T = " << setT
