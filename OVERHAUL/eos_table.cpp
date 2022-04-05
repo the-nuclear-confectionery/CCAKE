@@ -210,6 +210,9 @@ void EoS_table::get_eBSQ_safe( const double point_in[], double results[] )
   double point[4];
   for ( int i = 0; i < 4; i++ ) point[i] = point_in[i];
 
+cout << __PRETTY_FUNCTION__ << ": " << point[0] << "   " << point[1] << "   "
+     << point[2] << "   " << point[3] << endl;
+
   //============================================================================
   // decide this w.r.t. the tbqs ranges sans extension
   // --> needed to decide whether to use extension
@@ -251,6 +254,9 @@ void EoS_table::get_sBSQ_safe( const double point_in[], double results[] )
   double point[4];
   for ( int i = 0; i < 4; i++ ) point[i] = point_in[i];
 
+cout << __PRETTY_FUNCTION__ << ": " << point[0] << "   " << point[1] << "   "
+     << point[2] << "   " << point[3] << endl;
+
   //============================================================================
   // decide this w.r.t. the tbqs ranges sans extension
   // --> needed to decide whether to use extension
@@ -290,6 +296,9 @@ void EoS_table::get_full_thermo_safe( const double point_in[], double results[] 
 {
   double point[4];
   for ( int i = 0; i < 4; i++ ) point[i] = point_in[i];
+
+cout << __PRETTY_FUNCTION__ << ": " << point[0] << "   " << point[1] << "   "
+     << point[2] << "   " << point[3] << endl;
 
   //============================================================================
   // decide this w.r.t. the tbqs ranges sans extension
