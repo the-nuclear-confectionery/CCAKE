@@ -1,6 +1,3 @@
-#ifndef EOS_EXTENSION_H
-#define EOS_EXTENSION_H
-
 #include <algorithm>
 #include <cmath>
 #include <iostream>
@@ -353,5 +350,3 @@ cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
 
   
 }
-
-#endif
