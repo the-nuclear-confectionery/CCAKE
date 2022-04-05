@@ -14,6 +14,8 @@ private:
 
   double c, T0, muB0, muS0, muQ0;
 
+  pEoS_base p_reference_EoS;
+
 public:
   // default constructor/destructor
   EoS_nonconformal_extension(){}
