@@ -41,6 +41,10 @@ namespace eos_extension
     double chiTS0 = thermodynamics[15];
     double chiTT0 = thermodynamics[16];
 
+    std::cout << "Check:" << std::endl;
+    for (int i = 0; i < 17; i++)
+      std::cout << i << "   " << thermodynamics[i] << std::endl;
+
     b0000 = p0 - (5.0/8.0)*(T0*s0+muB0*rhoB0+muS0*rhoS0+muQ0*rhoQ0)
             + ( chiTT0*T0*T0 + chiTB0*T0*rhoB0 + chiTS0*T0*rhoS0 + chiTQ0*T0*rhoQ0
                 + chiBB0*rhoB0*rhoB0 + chiBS0*rhoB0*rhoS0 + chiBQ0*rhoB0*rhoQ0
