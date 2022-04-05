@@ -1,6 +1,7 @@
 OBJS = main.o vector.o matrix.o BSQHydro.o runge_kutta.o particle.o eos.o \
        system_state.o linklist.o equations_of_motion.o eos_delaunay.o \
-			 kernel.o sph_workstation.o input_output.o rootfinder.o eos_table.o
+			 kernel.o sph_workstation.o input_output.o rootfinder.o eos_table.o \
+			 eos_extension.o
 #CC = g++
 CC = h5c++
 DEBUG = -g -D_GLIBCXX_CONCEPT_CHECKS -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC
@@ -63,6 +64,9 @@ eos.o: eos.h eos.cpp read_in_hdf/read_in_hdf.h \
 
 eos_table.o: eos_table.h eos_table.cpp
 	$(CC) $(CFLAGS) eos_table.cpp
+
+eos_extension.o: eos_extension.h eos_extension.cpp
+	$(CC) $(CFLAGS) eos_extension.cpp
 
 rootfinder.o: rootfinder.h rootfinder.cpp
 	$(CC) $(CFLAGS) rootfinder.cpp
