@@ -318,7 +318,7 @@ namespace eos_extension
   void get_nonconformal_extension( const double point[], double results[],
                                    const int option )
   {
-    std::cout << "Getting non-conformal extension!" << std::endl;
+//    std::cout << "Getting non-conformal extension!" << std::endl;
 
     // determine parameters from thermodynamic quantities
     set_coeffs( point, results );

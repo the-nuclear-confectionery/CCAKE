@@ -357,7 +357,8 @@ bool EoS_table::point_is_in_range_no_ext(
 //cout << __PRETTY_FUNCTION__ << ": " << setT << "   " << setmuB << "   "
 //     << setmuQ << "   " << setmuS << endl;
   if(setT < tbqs_minima_no_ext[0] || setT > tbqs_maxima_no_ext[0])
-  { 
+  {
+    if ( VERBOSE > 3 )
     std::cout << "T = " << setT
       << " is out of table range (ignoring extension)."
          " Valid values are between ["
@@ -366,6 +367,7 @@ bool EoS_table::point_is_in_range_no_ext(
   }
   if(setmuB < tbqs_minima_no_ext[1] || setmuB > tbqs_maxima_no_ext[1])
   {
+    if ( VERBOSE > 3 )
     std::cout << "muB = " << setmuB
       << " is out of table range (ignoring extension)."
          " Valid values are between ["
@@ -374,6 +376,7 @@ bool EoS_table::point_is_in_range_no_ext(
   }
   if(setmuQ < tbqs_minima_no_ext[2] || setmuQ > tbqs_maxima_no_ext[2])
   {
+    if ( VERBOSE > 3 )
     std::cout << "muQ = " << setmuQ
       << " is out of table range (ignoring extension)."
          " Valid values are between ["
@@ -382,6 +385,7 @@ bool EoS_table::point_is_in_range_no_ext(
   }
   if(setmuS < tbqs_minima_no_ext[3] || setmuS > tbqs_maxima_no_ext[3])
   {
+    if ( VERBOSE > 3 )
     std::cout << "muS = " << setmuS
       << " is out of table range (ignoring extension)."
          " Valid values are between ["
