@@ -11,9 +11,9 @@ namespace eos_extension
   using std::cout;
   using std::endl;
 
-  double b0000 = 0.0, b0001 = 0.0, b0010 = 0.0, b0100 = 0.0, b1000 = 0.0;
-  double b0011 = 0.0, b0101 = 0.0, b1001 = 0.0, b0110 = 0.0, b1010 = 0.0, b1100 = 0.0;
-  double b0002 = 0.0, b0020 = 0.0, b0200 = 0.0, b2000 = 0.0;
+  double b0000 = 0.0, b0002 = 0.0, b0020 = 0.0, b0200 = 0.0, b2000 = 0.0;
+  double b0022 = 0.0, b0202 = 0.0, b2002 = 0.0, b0220 = 0.0, b2020 = 0.0, b2200 = 0.0;
+  double b0004 = 0.0, b0040 = 0.0, b0400 = 0.0, b4000 = 0.0;
 
   //////////////////////////////////////////////////////////////////////////////
   // function definitions
@@ -27,7 +27,7 @@ namespace eos_extension
     double rhoB0  = thermodynamics[2];
     double rhoS0  = thermodynamics[3];
     double rhoQ0  = thermodynamics[4];
-    double e0     = thermodynamics[5];
+    //double e0     = thermodynamics[5];
     //double cs20   = thermodynamics[6];
     double chiBB0 = thermodynamics[7];
     double chiQQ0 = thermodynamics[8];
@@ -40,185 +40,90 @@ namespace eos_extension
     double chiTS0 = thermodynamics[15];
     double chiTT0 = thermodynamics[16];
 
-    double p0_1_2 = sqrt(p0);
-    double p0_3_2 = p0_1_2*p0_1_2*p0_1_2;
+    b0000 = p0 - (5.0/8.0)*(T0*s0+muB0*rhoB0+muS0*rhoS0+muQ0*rhoQ0)
+            + ( chiTT0*T0*T0 + chiTB0*T0*rhoB0 + chiTS0*T0*rhoS0 + chiTQ0*T0*rhoQ0
+                + chiBB0*rhoB0*rhoB0 + chiBS0*rhoB0*rhoS0 + chiBQ0*rhoB0*rhoQ0
+                + chiSS0*rhoS0*rhoS0 + chiSQ0*rhoS0*rhoQ0 + chiQQ0*rhoQ0*rhoQ0 ) / 8.0;
 
-    double tr  = T0*T0*chiTT0 + muB0*muB0*chiBB0 + muS0*muS0*chiSS0 + muQ0*muQ0*chiQQ0
-                 + 2.0*( T0*muB0*chiTB0 + T0*muS0*chiTS0 + T0*muQ0*chiTQ0
-                        + muB0*muQ0*chiBQ0 + muB0*muS0*chiBS0 + muS0*muQ0*chiSQ0 );
+    b2000 = (3.0*s0 - T0*chiTT0 - muB0*chiTB0 - muQ0*chiTQ0 - muS0*chiTS0) / (4.0*T0+TINY);
+    b0200 = (3.0*rhoB0 - T0*chiTB0 - muB0*chiBB0 - muQ0*chiBQ0 - muS0*chiBS0) / (4.0*muB0+TINY);
+    b0020 = (3.0*rhoS0 - T0*chiTS0 - muB0*chiBS0 - muQ0*chiSQ0 - muS0*chiSS0) / (4.0*muS0+TINY);
+    b0002 = (3.0*rhoQ0 - T0*chiTQ0 - muB0*chiBQ0 - muQ0*chiQQ0 - muS0*chiSQ0) / (4.0*muQ0+TINY);
 
-    double trT = T0*chiTT0 + muB0*chiTB0 + muS0*chiTS0 + muQ0*chiTQ0;
-    double trB = T0*chiTB0 + muB0*chiBB0 + muS0*chiBS0 + muQ0*chiBQ0;
-    double trS = T0*chiTS0 + muB0*chiBS0 + muS0*chiSS0 + muQ0*chiSQ0;
-    double trQ = T0*chiTQ0 + muB0*chiBQ0 + muS0*chiSQ0 + muQ0*chiQQ0;
+    b2200 = chiTB0 / (4.0*T0*muB0+TINY);
+    b2020 = chiTS0 / (4.0*T0*muS0+TINY);
+    b2002 = chiTQ0 / (4.0*T0*muQ0+TINY);
+    b0220 = chiBS0 / (4.0*muB0*muS0+TINY);
+    b0202 = chiBQ0 / (4.0*muB0*muQ0+TINY);
+    b0022 = chiSQ0 / (4.0*muS0*muQ0+TINY);
 
-    b0000 = (e0*e0 + 6.0*e0*p0 - p0*(3.0*p0 + 2.0*tr)) / (8.0*p0_3_2);
-
-    b1000 = (2.0*p0*trT - s0   *(e0 + 3.0*p0)) / (4.0*p0_3_2);
-    b0100 = (2.0*p0*trB - rhoB0*(e0 + 3.0*p0)) / (4.0*p0_3_2);
-    b0010 = (2.0*p0*trS - rhoS0*(e0 + 3.0*p0)) / (4.0*p0_3_2);
-    b0001 = (2.0*p0*trQ - rhoQ0*(e0 + 3.0*p0)) / (4.0*p0_3_2);
-
-    b1100 = (s0*rhoB0    - 2.0*p0*chiTB0) / (4.0*p0_3_2);
-    b1010 = (s0*rhoS0    - 2.0*p0*chiTS0) / (4.0*p0_3_2);
-    b1001 = (s0*rhoQ0    - 2.0*p0*chiTQ0) / (4.0*p0_3_2);
-    b0110 = (rhoB0*rhoS0 - 2.0*p0*chiBS0) / (4.0*p0_3_2);
-    b0101 = (rhoB0*rhoQ0 - 2.0*p0*chiBQ0) / (4.0*p0_3_2);
-    b0011 = (rhoS0*rhoQ0 - 2.0*p0*chiSQ0) / (4.0*p0_3_2);
-
-    b2000 = (s0*s0       - 2.0*p0*chiTT0) / (8.0*p0_3_2);
-    b0200 = (rhoB0*rhoB0 - 2.0*p0*chiBB0) / (8.0*p0_3_2);
-    b0020 = (rhoS0*rhoS0 - 2.0*p0*chiSS0) / (8.0*p0_3_2);
-    b0002 = (rhoQ0*rhoQ0 - 2.0*p0*chiQQ0) / (8.0*p0_3_2);
+    b4000 = (T0*chiTT0 - s0) / (8.0*T0*T0*T0+TINY);
+    b0400 = (muB0*chiBB0 - rhoB0) / (8.0*muB0*muB0*muB0+TINY);
+    b0040 = (muS0*chiSS0 - rhoS0) / (8.0*muS0*muS0*muS0+TINY);
+    b0004 = (muQ0*chiQQ0 - rhoQ0) / (8.0*muQ0*muQ0*muQ0+TINY);
 
   }
 
 
   double p(double T, double muB, double muQ, double muS)
 	{
-		double x = b0000 + b1000*T + b0100*muB + b0010*muS + b0001*muQ
-               + b2000*T*T + b0200*muB*muB + b0020*muS*muS + b0002*muQ*muQ
-               + b1100*T*muB + b1010*T*muS + b1001*T*muQ
-               + b0110*muB*muS + b0101*muB*muQ + b0011*muS*muQ;
-    return x*x;
+		return b0000 + b2000*T*T + b0200*muB*muB + b0020*muS*muS + b0002*muQ*muQ
+            + b4000*T*T*T*T + b0400*muB*muB*muB*muB
+            + b0040*muS*muS*muS*muS + b0004*muQ*muQ*muQ*muQ
+            + b2200*T*T*muB*muB + b2020*T*T*muS*muS + b2002*T*T*muQ*muQ
+            + b0220*muB*muB*muS*muS + b0202*muB*muB*muQ*muQ + b0022*muS*muS*muQ*muQ;
 	}
 	
 	double s(double T, double muB, double muQ, double muS)
 	{
-		double x = b0000 + b1000*T + b0100*muB + b0010*muS + b0001*muQ
-               + b2000*T*T + b0200*muB*muB + b0020*muS*muS + b0002*muQ*muQ
-               + b1100*T*muB + b1010*T*muS + b1001*T*muQ
-               + b0110*muB*muS + b0101*muB*muQ + b0011*muS*muQ;
-    return 2.0*x*(b1000 + muQ*b1001 + muS*b1010 + muB*b1100 + 2.0*T*b2000);
+		return 2.0*T*(b2000 + 2.0*T*T*b4000 + muB*muB*b2200 + muQ*muQ*b2002 + muS*muS*b2020);
 	}
 
 	double B(double T, double muB, double muQ, double muS)
 	{
-		double x = b0000 + b1000*T + b0100*muB + b0010*muS + b0001*muQ
-               + b2000*T*T + b0200*muB*muB + b0020*muS*muS + b0002*muQ*muQ
-               + b1100*T*muB + b1010*T*muS + b1001*T*muQ
-               + b0110*muB*muS + b0101*muB*muQ + b0011*muS*muQ;
-    return 2.0*x*(b0100 + muQ*b0101 + muS*b0110 + 2.0*muB*b0200 + T*b1100);
+		return 2.0*muB*(b0200 + T*T*b2200 + 2.0*muB*muB*b0400 + muS*muS*b0220 + muQ*muQ*b0202);
 	}
 
 	double S(double T, double muB, double muQ, double muS)
 	{
-		double x = b0000 + b1000*T + b0100*muB + b0010*muS + b0001*muQ
-               + b2000*T*T + b0200*muB*muB + b0020*muS*muS + b0002*muQ*muQ
-               + b1100*T*muB + b1010*T*muS + b1001*T*muQ
-               + b0110*muB*muS + b0101*muB*muQ + b0011*muS*muQ;
-    return 2.0*x*(b0010 + muQ*b0011 + 2.0*muS*b0020 + muB*b0110 + T*b1010);
+		return 2.0*T*(b0020 + T*T*b2020 + muB*muB*b0220 + 2.0*muS*muS*b0040 + muQ*muQ*b0022);
 	}
 
 	double Q(double T, double muB, double muQ, double muS)
 	{
-		double x = b0000 + b1000*T + b0100*muB + b0010*muS + b0001*muQ
-               + b2000*T*T + b0200*muB*muB + b0020*muS*muS + b0002*muQ*muQ
-               + b1100*T*muB + b1010*T*muS + b1001*T*muQ
-               + b0110*muB*muS + b0101*muB*muQ + b0011*muS*muQ;
-    return 2.0*x*(b0001 + 2.0*muQ*b0002 + muS*b0011 + muB*b0101 + T*b1001);
+		return 2.0*T*(b0002 + T*T*b2002 + muB*muB*b0202 + muS*muS*b0022 + 2.0*muQ*muQ*b0004);
 	}
 
-  // diagonal susceptibilities
 	double P2T2(double T, double muB, double muQ, double muS)
 	{
-		double x = b0000 + b1000*T + b0100*muB + b0010*muS + b0001*muQ
-               + b2000*T*T + b0200*muB*muB + b0020*muS*muS + b0002*muQ*muQ
-               + b1100*T*muB + b1010*T*muS + b1001*T*muQ
-               + b0110*muB*muS + b0101*muB*muQ + b0011*muS*muQ;
-    double yT = b1000 + 2.0*T*b2000 + muB*b1100 + muS*b1010 + muQ*b1001;
-		return 2.0*(2.0*b2000*x + yT*yT);
+		return 2.0*(b2000 + 6.0*T*T*b4000 + muB*muB*b2200 + muS*muS*b2020 + muQ*muQ*b2002);
 	}
 	double P2B2(double T, double muB, double muQ, double muS)
 	{
-		double x = b0000 + b1000*T + b0100*muB + b0010*muS + b0001*muQ
-               + b2000*T*T + b0200*muB*muB + b0020*muS*muS + b0002*muQ*muQ
-               + b1100*T*muB + b1010*T*muS + b1001*T*muQ
-               + b0110*muB*muS + b0101*muB*muQ + b0011*muS*muQ;
-    double yB = b0100 + T*b1100 + 2.0*muB*b0200 + muS*b0110 + muQ*b0101;
-		return 2.0*(2.0*b0200*x + yB*yB);
+		return 2.0*(b0200 + T*T*b2200 + 6.0*muB*muB*b0400 + muS*muS*b0220 + muQ*muQ*b0202);
 	}
 	double P2S2(double T, double muB, double muQ, double muS)
 	{
-		double x = b0000 + b1000*T + b0100*muB + b0010*muS + b0001*muQ
-               + b2000*T*T + b0200*muB*muB + b0020*muS*muS + b0002*muQ*muQ
-               + b1100*T*muB + b1010*T*muS + b1001*T*muQ
-               + b0110*muB*muS + b0101*muB*muQ + b0011*muS*muQ;
-    double yS = b0010 + T*b1010 + muB*b0110 + 2.0*muS*b0020 + muQ*b0011;
-		return 2.0*(2.0*b2000*x + yS*yS);
+		return 2.0*(b0020 + T*T*b2020 + muB*muB*b0220 + 6.0*muS*muS*b0040 + muQ*muQ*b0022);
 	}
 	double P2Q2(double T, double muB, double muQ, double muS)
 	{
-		double x = b0000 + b1000*T + b0100*muB + b0010*muS + b0001*muQ
-               + b2000*T*T + b0200*muB*muB + b0020*muS*muS + b0002*muQ*muQ
-               + b1100*T*muB + b1010*T*muS + b1001*T*muQ
-               + b0110*muB*muS + b0101*muB*muQ + b0011*muS*muQ;
-    double yQ = b0001 + T*b1001 + muB*b0101 + muS*b0011 + 2.0*muQ*b0002;
-		return 2.0*(2.0*b2000*x + yQ*yQ);
+		return 2.0*(b0002 + T*T*b2002 + muB*muB*b0202 + muS*muS*b0022 + 6.0*muQ*muQ*b0004);
 	}
 	
-  // off-diagonal susceptibilities
 	double P2BQ(double T, double muB, double muQ, double muS)
-  {
-		double x = b0000 + b1000*T + b0100*muB + b0010*muS + b0001*muQ
-               + b2000*T*T + b0200*muB*muB + b0020*muS*muS + b0002*muQ*muQ
-               + b1100*T*muB + b1010*T*muS + b1001*T*muQ
-               + b0110*muB*muS + b0101*muB*muQ + b0011*muS*muQ;
-    double yB = b0100 + T*b1100 + 2.0*muB*b0200 + muS*b0110 + muQ*b0101;
-    double yQ = b0001 + T*b1001 + muB*b0101 + muS*b0011 + 2.0*muQ*b0002;
-    return 2.0*(b0110*x+yB*yQ);
-  }
+      { return 4.0*muB*muQ*b0202; }
 	double P2BS(double T, double muB, double muQ, double muS)
-  {
-		double x = b0000 + b1000*T + b0100*muB + b0010*muS + b0001*muQ
-               + b2000*T*T + b0200*muB*muB + b0020*muS*muS + b0002*muQ*muQ
-               + b1100*T*muB + b1010*T*muS + b1001*T*muQ
-               + b0110*muB*muS + b0101*muB*muQ + b0011*muS*muQ;
-    double yB = b0100 + T*b1100 + 2.0*muB*b0200 + muS*b0110 + muQ*b0101;
-    double yS = b0010 + T*b1010 + muB*b0110 + 2.0*muS*b0020 + muQ*b0011;
-    return 2.0*(b0110*x+yB*yS);
-  }
+      { return 4.0*muB*muS*b0220; }
 	double P2QS(double T, double muB, double muQ, double muS)
-  {
-		double x = b0000 + b1000*T + b0100*muB + b0010*muS + b0001*muQ
-               + b2000*T*T + b0200*muB*muB + b0020*muS*muS + b0002*muQ*muQ
-               + b1100*T*muB + b1010*T*muS + b1001*T*muQ
-               + b0110*muB*muS + b0101*muB*muQ + b0011*muS*muQ;
-    double yS = b0010 + T*b1010 + muB*b0110 + 2.0*muS*b0020 + muQ*b0011;
-    double yQ = b0001 + T*b1001 + muB*b0101 + muS*b0011 + 2.0*muQ*b0002;
-    return 2.0*(b0110*x+yS*yQ);
-  }
+      { return 4.0*muQ*muS*b0022; }
 	
 	double P2TB(double T, double muB, double muQ, double muS)
-  {
-		double x = b0000 + b1000*T + b0100*muB + b0010*muS + b0001*muQ
-               + b2000*T*T + b0200*muB*muB + b0020*muS*muS + b0002*muQ*muQ
-               + b1100*T*muB + b1010*T*muS + b1001*T*muQ
-               + b0110*muB*muS + b0101*muB*muQ + b0011*muS*muQ;
-    double yT = b1000 + 2.0*T*b2000 + muB*b1100 + muS*b1010 + muQ*b1001;
-    double yB = b0100 + T*b1100 + 2.0*muB*b0200 + muS*b0110 + muQ*b0101;
-    return 2.0*(b0110*x+yT*yB);
-  }
+      { return 4.0*T*muB*b2200; }
 	double P2TS(double T, double muB, double muQ, double muS)
-  {
-		double x = b0000 + b1000*T + b0100*muB + b0010*muS + b0001*muQ
-               + b2000*T*T + b0200*muB*muB + b0020*muS*muS + b0002*muQ*muQ
-               + b1100*T*muB + b1010*T*muS + b1001*T*muQ
-               + b0110*muB*muS + b0101*muB*muQ + b0011*muS*muQ;
-    double yT = b1000 + 2.0*T*b2000 + muB*b1100 + muS*b1010 + muQ*b1001;
-    double yS = b0010 + T*b1010 + muB*b0110 + 2.0*muS*b0020 + muQ*b0011;
-    return 2.0*(b0110*x+yT*yS);
-  }
+      { return 4.0*T*muS*b2020; }
 	double P2TQ(double T, double muB, double muQ, double muS)
-  {
-		double x = b0000 + b1000*T + b0100*muB + b0010*muS + b0001*muQ
-               + b2000*T*T + b0200*muB*muB + b0020*muS*muS + b0002*muQ*muQ
-               + b1100*T*muB + b1010*T*muS + b1001*T*muQ
-               + b0110*muB*muS + b0101*muB*muQ + b0011*muS*muQ;
-    double yT = b1000 + 2.0*T*b2000 + muB*b1100 + muS*b1010 + muQ*b1001;
-    double yQ = b0001 + T*b1001 + muB*b0101 + muS*b0011 + 2.0*muQ*b0002;
-    return 2.0*(b0110*x+yT*yQ);
-  }
+      { return 4.0*T*muQ*b2002; }
 
 
   void get_full_thermo( const double point[], double results[] )

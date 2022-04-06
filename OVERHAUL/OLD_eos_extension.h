@@ -16,9 +16,9 @@ namespace eos_extension
 
 	const double hc = hbarc_MeVfm;
 
-  extern double b0000, b0001, b0010, b0100, b1000;
-  extern double b0011, b0101, b1001, b0110, b1010, b1100;
-  extern double b0002, b0020, b0200, b2000;
+  extern double b0000, b0002, b0020, b0200, b2000;
+  extern double b0022, b0202, b2002, b0220, b2020, b2200;
+  extern double b0004, b0040, b0400, b4000;
 
   //////////////////////////////////////////////////////////////////////////////
   // function definitions
