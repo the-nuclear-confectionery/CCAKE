@@ -209,16 +209,4 @@ public:
   bool using_conformal_as_fallback() { return use_conformal_as_fallback; }
   string get_current_eos_name() { return current_eos_name; }
 
-  const vector<double> & get_thermodynamics( vector<double> & tbqsIn,
-                                             string & eos_name ) const
-  {
-    if ( eos_name == "default" )
-      tbqs( tbqsIn, chosen_EOS_map[default_eos_name] );
-    else
-      tbqs( tbqsIn, chosen_EOS_map[eos_name] );
-
-    return vector<double>({ pVal,entrVal,BVal,SVal,QVal,eVal,cs2Val,
-                            db2,dq2,ds2,dbdq,dbds,dsdq,dtdb,dtdq,dtds,dt2 });
-  }
-
 };

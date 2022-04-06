@@ -36,6 +36,19 @@ EquationOfState::EquationOfState(string quantityFile, string derivFile)
 }
 
 
+EquationOfState::vector<double> & get_thermodynamics( vector<double> & tbqsIn,
+                                                      const string & eos_name )
+{
+  if ( eos_name == "default" )
+    tbqs( tbqsIn, chosen_EOS_map[default_eos_name] );
+  else
+    tbqs( tbqsIn, chosen_EOS_map[eos_name] );
+
+  return vector<double>({ pVal,entrVal,BVal,SVal,QVal,eVal,cs2Val,
+                          db2,dq2,ds2,dbdq,dbds,dsdq,dtdb,dtdq,dtds,dt2 });
+}
+
+
 
 ////////////////////////////////////////////////////////////////////////////////
 bool EquationOfState::point_not_in_range(
@@ -89,6 +102,7 @@ void EquationOfState::tbqs( double setT, double setmuB, double setmuQ, double se
           tbqs( setT, setmuB, setmuQ, setmuS, chosen_EOS_map[default_eos_name] );
         else
           tbqs( setT, setmuB, setmuQ, setmuS, chosen_EOS_map[eos_name] ); }
+
 void EquationOfState::tbqs( vector<double> & tbqsIn, const string & eos_name )
       { if ( eos_name == "default" )
           tbqs( tbqsIn, chosen_EOS_map[default_eos_name] );
