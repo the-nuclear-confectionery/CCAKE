@@ -42,8 +42,10 @@ void EquationOfState::init()
     for (double muS0 = -1000.0; muS0 <= 1000.01; muS0 += 250.0)
     for (double muQ0 = -1000.0; muQ0 <= 1000.01; muQ0 += 250.0)
     {
-      std::vector<double> v = get_thermodynamics( {T0, muB0, muQ0, muS0}, "conformal" );
-      std::cout << T0 << "   " << muB0 << "   " << muQ0 << "   " << muS0 << "   " << v[0] << std::endl;
+      std::vector<double> p = {T0, muB0, muQ0, muS0};
+      std::vector<double> v = get_thermodynamics( p, "conformal" );
+      std::cout << T0 << "   " << muB0 << "   " << muQ0 << "   "
+                << muS0 << "   " << v[0] << std::endl;
     }
     exit(11);
   }

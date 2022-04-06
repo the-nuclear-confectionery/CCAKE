@@ -54,7 +54,7 @@ public:
     void tbqs( double setT, double setmuB, double setmuQ, double setmuS, const string & eos_name );
     void tbqs( vector<double> & tbqsIn, const string & eos_name );
 
-    vector<double> & get_thermodynamics( vector<double> & tbqsIn, const string & eos_name );
+    vector<double> get_thermodynamics( vector<double> & tbqsIn, string & eos_name );
 
 
     ////////////////////////////////////////////////////////////////////////////

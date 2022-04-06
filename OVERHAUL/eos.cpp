@@ -36,7 +36,7 @@ EquationOfState::EquationOfState(string quantityFile, string derivFile)
 }
 
 
-vector<double> & EquationOfState::get_thermodynamics( vector<double> & tbqsIn,
+vector<double> EquationOfState::get_thermodynamics( vector<double> & tbqsIn,
                                                       const string & eos_name )
 {
   if ( eos_name == "default" )
