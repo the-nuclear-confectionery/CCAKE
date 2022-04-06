@@ -36,8 +36,8 @@ EquationOfState::EquationOfState(string quantityFile, string derivFile)
 }
 
 
-vector<double> & EquationOfState::get_thermodynamics( vector<double> & tbqsIn,
-                                                      const string & eos_name )
+const vector<double> & EquationOfState::get_thermodynamics( vector<double> & tbqsIn,
+                                                      const string & eos_name ) const
 {
   if ( eos_name == "default" )
     tbqs( tbqsIn, chosen_EOS_map[default_eos_name] );
