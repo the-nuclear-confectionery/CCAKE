@@ -36,17 +36,36 @@ void EquationOfState::init()
 
   if ( true )
   {
+    const double hc = constants::hbarc_MeVfm;
+
+    //==========================================================================
     std::cout << "Check conformal EoS:" << std::endl;
     for (double T0   = 0.0;     T0   <= 1000.01; T0   += 1000.0)
     for (double muB0 = -1000.0; muB0 <= 1000.01; muB0 += 1000.0)
     for (double muS0 = -1000.0; muS0 <= 1000.01; muS0 += 1000.0)
     for (double muQ0 = -1000.0; muQ0 <= 1000.01; muQ0 += 1000.0)
     {
-      std::vector<double> p = {T0, muB0, muQ0, muS0};
-      std::vector<double> v = get_thermodynamics( p, "conformal" );
-      std::cout << T0 << "   " << muB0 << "   " << muQ0 << "   "
-                << muS0 << "   " << v[0] << std::endl;
+      std::vector<double> point = {T0/hc, muB0/hc, muQ0/hc, muS0/hc};
+      std::vector<double> v = get_thermodynamics( point, "conformal" );
+      std::cout << "Check conformal: " << T0 << "   " << muB0 << "   "
+                << muQ0 << "   "<< muS0 << "   " << v[0] << std::endl;
     }
+    std::cout << std::endl << std::endl << std::endl;
+
+    //==========================================================================
+    std::cout << "Check non-conformal extension of table EoS:" << std::endl;
+    for (double T0   = 0.0;     T0   <= 1000.01; T0   += 500.0)
+    for (double muB0 = -1000.0; muB0 <= 1000.01; muB0 += 500.0)
+    for (double muS0 = -1000.0; muS0 <= 1000.01; muS0 += 500.0)
+    for (double muQ0 = -1000.0; muQ0 <= 1000.01; muQ0 += 500.0)
+    {
+      std::vector<double> point = {T0/hc, muB0/hc, muQ0/hc, muS0/hc};
+      std::vector<double> v = get_thermodynamics( point, "table" );
+      std::cout << "Check nc_ext_table: " << T0 << "   " << muB0 << "   "
+                << muQ0 << "   "<< muS0 << "   " << v[0] << std::endl;
+    }
+    std::cout << std::endl << std::endl << std::endl;
+
     exit(11);
   }
 }
