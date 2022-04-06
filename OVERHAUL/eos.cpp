@@ -15,14 +15,11 @@
 #include <fstream>
 #include <string>
 
-// functions calls to static EoS C library
-//#include <lib.h>
+#include "constants.h"
 #include "eos_delaunay/eos_delaunay.h"
 
 #include "eos_derivatives.cpp"
 #include "eos_initialization.cpp"
-
-#include "constants.h"
 
 using namespace constants;
 
@@ -86,17 +83,14 @@ bool EquationOfState::point_not_in_range(
 
 
 
-void EquationOfState::tbqs( double setT, double setmuB, double setmuQ, double setmuS, const string & eos_name )
-      { std::cout << __PRETTY_FUNCTION__ << ": " << eos_name << std::endl;
-        std::cout << "chosen_EOS_map.size = " << chosen_EOS_map.size() << std::endl;
-        std::cout << "chosen_EOSs.size = " << chosen_EOSs.size() << std::endl;
-        if ( eos_name == "default" )
+void EquationOfState::tbqs( double setT, double setmuB, double setmuQ, double setmuS,
+                            const string & eos_name )
+      { if ( eos_name == "default" )
           tbqs( setT, setmuB, setmuQ, setmuS, chosen_EOS_map[default_eos_name] );
         else
           tbqs( setT, setmuB, setmuQ, setmuS, chosen_EOS_map[eos_name] ); }
 void EquationOfState::tbqs( vector<double> & tbqsIn, const string & eos_name )
-      { std::cout << __PRETTY_FUNCTION__ << ": " << eos_name << std::endl;
-        if ( eos_name == "default" )
+      { if ( eos_name == "default" )
           tbqs( tbqsIn, chosen_EOS_map[default_eos_name] );
         else
           tbqs( tbqsIn, chosen_EOS_map[eos_name] ); }

@@ -24,16 +24,32 @@ using namespace constants;
 using std::vector;
 using std::string;
 
+////////////////////////////////////////////////////////////////////////////////
 void EquationOfState::set_SettingsPtr( Settings * settingsPtr_in ) { settingsPtr = settingsPtr_in; }
 
-
+////////////////////////////////////////////////////////////////////////////////
 void EquationOfState::init()
 {
   cout << "Attempting read in of EoS from "
         << quantity_file << " and " << deriv_file << endl;
   init( quantity_file, deriv_file );
+
+  if ( true )
+  {
+    std::cout << "Check conformal EoS:" << std::endl;
+    for (double T0   = 0.0;     T0   <= 1000.01; T0   += 250.0)
+    for (double muB0 = -1000.0; muB0 <= 1000.01; muB0 += 250.0)
+    for (double muS0 = -1000.0; muS0 <= 1000.01; muS0 += 250.0)
+    for (double muQ0 = -1000.0; muQ0 <= 1000.01; muQ0 += 250.0)
+    {
+      std::vector<double> v = get_thermodynamics( {T0, muB0, muQ0, muS0}, "conformal" );
+      std::cout << T0 << "   " << muB0 << "   " << muQ0 << "   " << muS0 << "   " << v[0] << std::endl;
+    }
+    exit(11);
+  }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 void EquationOfState::init(string quantityFile, string derivFile)
 {
 	tbqsPosition.resize(4);
@@ -74,16 +90,20 @@ void EquationOfState::init(string quantityFile, string derivFile)
   // - purely conformal fallback (always use this to guarantee solution)
   //////////////////////////////////////////////////////////////////////////////
 
-  /*
   // set non-conformal extension
   if ( settingsPtr->EoS_type != "Conformal" ) // redundant with below, but oh well
   {
     // pointer to default EoS (first element added above)
     pEoS_base p_default_EoS = chosen_EOSs.front();
     
-    
+    // set minima and maxima (can be arbitrarily large)
+    vector<double> tbqs_minima = { 0.0,          -TBQS_INFINITY, -TBQS_INFINITY, -TBQS_INFINITY };
+    vector<double> tbqs_maxima = { TBQS_INFINITY, TBQS_INFINITY,  TBQS_INFINITY,  TBQS_INFINITY };
+
+    chosen_EOSs.push_back(
+        std::make_shared<EoS_nonconformal_extension>(
+                          p_default_EoS, tbqs_minima, tbqs_maxima ) );
   }
-  */
 
 
   // use conformal as fallback

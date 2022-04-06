@@ -99,7 +99,6 @@ public:
     double wfz(double Tt, const string & eos_name);
     double s_terms_T(double Tt, const string & eos_name);
 
-    //void evaluate_thermodynamics(bool point_is_in_range, bool use_conformal);
     void evaluate_thermodynamics( pEoS_base peos );
 
     bool update_s(double sin, double Bin, double Sin, double Qin);
@@ -109,10 +108,7 @@ public:
 
     void set_SettingsPtr( Settings * settingsPtr_in );
 
-    vector<pEoS_base> chosen_EOSs;          // the vector of EoSs to use, in order
-
-//    vector<double> tbqs_minima, tbqs_maxima;
-
+    vector<pEoS_base> chosen_EOSs;     // the vector of EoSs to use, in order
 
 private:
 
@@ -128,8 +124,6 @@ private:
     string quantity_file = "";
     string deriv_file    = "";
     string current_eos_name = "";
-    //static InterpolatorND<4> equation_of_state_table;
-
 
     double pVal          = 0.0;
     double entrVal       = 0.0;
@@ -214,5 +208,16 @@ private:
 public:
   bool using_conformal_as_fallback() { return use_conformal_as_fallback; }
   string get_current_eos_name() { return current_eos_name; }
+
+  const vector<double> & get_thermodynamics( vector<double> & tbqsIn, eos_name ) const
+  {
+    if ( eos_name == "default" )
+      tbqs( tbqsIn, chosen_EOS_map[default_eos_name] );
+    else
+      tbqs( tbqsIn, chosen_EOS_map[eos_name] );
+
+    return vector<double>({ pVal,entrVal,BVal,SVal,QVal,eVal,cs2Val,
+                            db2,dq2,ds2,dbdq,dbds,dsdq,dtdb,dtdq,dtds,dt2 });
+  }
 
 };
