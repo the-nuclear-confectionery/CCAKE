@@ -210,7 +210,7 @@ public:
   string get_current_eos_name() { return current_eos_name; }
 
   const vector<double> & get_thermodynamics( vector<double> & tbqsIn,
-                                             const string & eos_name ) const
+                                             string & eos_name ) const
   {
     if ( eos_name == "default" )
       tbqs( tbqsIn, chosen_EOS_map[default_eos_name] );
