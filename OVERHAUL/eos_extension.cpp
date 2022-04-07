@@ -71,7 +71,7 @@ namespace eos_extension
     b0020 = (rhoS0*rhoS0 - 2.0*p0*chiSS0) / (8.0*p0_3_2);
     b0002 = (rhoQ0*rhoQ0 - 2.0*p0*chiQQ0) / (8.0*p0_3_2);
 
-std::cout << b2000 << std::endl;
+std::cout << "Check nc_ext_table: " << b2000 << std::endl;
 
   }
 
