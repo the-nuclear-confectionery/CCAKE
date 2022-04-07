@@ -54,7 +54,7 @@ void EquationOfState::init()
 
     //==========================================================================
     std::cout << "Check non-conformal extension of table EoS:" << std::endl;
-    for (double T0   = 0.0;     T0   <= 1500.01; T0   += 50.0)
+    for (double T0   = 0.0;     T0   <= 2500.01; T0   += 50.0)
     for (double muB0 = -1500.0; muB0 <= 1500.01; muB0 += 500.0)
     for (double muS0 = -1500.0; muS0 <= 1500.01; muS0 += 500.0)
     for (double muQ0 = -1500.0; muQ0 <= 1500.01; muQ0 += 500.0)
