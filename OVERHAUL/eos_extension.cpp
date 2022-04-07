@@ -71,14 +71,13 @@ namespace eos_extension
     b0020 = (rhoS0*rhoS0 - 2.0*p0*chiSS0) / (8.0*p0_3_2);
     b0002 = (rhoQ0*rhoQ0 - 2.0*p0*chiQQ0) / (8.0*p0_3_2);
 
-std::cout << "Check nc_ext_table: " << b2000 << std::endl;
+//std::cout << "Check nc_ext_table: " << b2000 << std::endl;
 
   }
 
 
   double p(double T, double muB, double muQ, double muS)
 	{
-    std::cout << "Evaluating this pressure!" << std::endl;
 		double x = b0000 + b1000*T + b0100*muB + b0010*muS + b0001*muQ
                + b2000*T*T + b0200*muB*muB + b0020*muS*muS + b0002*muQ*muQ
                + b1100*T*muB + b1010*T*muS + b1001*T*muQ
@@ -345,13 +344,13 @@ std::cout << "Check nc_ext_table: " << b2000 << std::endl;
 
 
 
-  void get_nonconformal_extension( const double point[], double results[],
-                                   const int option )
+  void get_nonconformal_extension( const double point[], const double point_projected[],
+                                   double results[], const int option )
   {
     // determine parameters from thermodynamic quantities
-    set_coeffs( point, results );
+    set_coeffs( point_projected, results );
 
-    // evaluate extension and return result (stored in thermodynamics)
+    // evaluate extension and return result (stored in results)
     switch ( option )
     {
       case 0:

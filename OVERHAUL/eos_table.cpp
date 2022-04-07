@@ -207,16 +207,17 @@ void EoS_table::get_eBSQ( double point_in[], double results[] )
 
 void EoS_table::get_eBSQ_safe( const double point_in[], double results[] )
 {
-  double point[4];
-  for ( int i = 0; i < 4; i++ ) point[i] = point_in[i];
+  double point_projected[4];
+  for ( int i = 0; i < 4; i++ ) point_projected[i] = point_in[i];
 
-//cout << __PRETTY_FUNCTION__ << ": " << point[0] << "   " << point[1] << "   "
-//     << point[2] << "   " << point[3] << endl;
+//cout << __PRETTY_FUNCTION__ << ": " << point_projected[0] << "   " << point_projected[1] << "   "
+//     << point_projected[2] << "   " << point_projected[3] << endl;
 
   //============================================================================
   // decide this w.r.t. the tbqs ranges sans extension
   // --> needed to decide whether to use extension
-  bool point_not_in_range = !point_is_in_range_no_ext( point[0], point[1], point[2], point[3] );
+  bool point_not_in_range = !point_is_in_range_no_ext( point_projected[0], point_projected[1],
+                                                       point_projected[2], point_projected[3] );
 
   //============================================================================
   if ( use_nonconformal_extension and point_not_in_range )
@@ -237,7 +238,7 @@ void EoS_table::get_eBSQ_safe( const double point_in[], double results[] )
   //============================================================================
   // project back to original point using non-conformal extension
   if ( use_nonconformal_extension and point_not_in_range )
-    eos_extension::get_nonconformal_extension( point_in, results, 1 );
+    eos_extension::get_nonconformal_extension( point_in, point_projected, results, 1 );
 }
 
 
@@ -251,16 +252,17 @@ void EoS_table::get_sBSQ( double point_in[], double results[] )
 
 void EoS_table::get_sBSQ_safe( const double point_in[], double results[] )
 {
-  double point[4];
-  for ( int i = 0; i < 4; i++ ) point[i] = point_in[i];
+  double point_projected[4];
+  for ( int i = 0; i < 4; i++ ) point_projected[i] = point_in[i];
 
-//cout << __PRETTY_FUNCTION__ << ": " << point[0] << "   " << point[1] << "   "
-//     << point[2] << "   " << point[3] << endl;
+//cout << __PRETTY_FUNCTION__ << ": " << point_projected[0] << "   " << point_projected[1] << "   "
+//     << point_projected[2] << "   " << point_projected[3] << endl;
 
   //============================================================================
   // decide this w.r.t. the tbqs ranges sans extension
   // --> needed to decide whether to use extension
-  bool point_not_in_range = !point_is_in_range_no_ext( point[0], point[1], point[2], point[3] );
+  bool point_not_in_range = !point_is_in_range_no_ext( point_projected[0], point_projected[1],
+                                                       point_projected[2], point_projected[3] );
 
   //============================================================================
   if ( use_nonconformal_extension and point_not_in_range )
@@ -281,7 +283,7 @@ void EoS_table::get_sBSQ_safe( const double point_in[], double results[] )
   //============================================================================
   // project back to original point using non-conformal extension
   if ( use_nonconformal_extension and point_not_in_range )
-    eos_extension::get_nonconformal_extension( point_in, results, 2 );
+    eos_extension::get_nonconformal_extension( point_in, point_projected, results, 2 );
 }
 
 
@@ -294,16 +296,17 @@ void EoS_table::get_full_thermo( double point_in[], double results[] )
 
 void EoS_table::get_full_thermo_safe( const double point_in[], double results[] )
 {
-  double point[4];
-  for ( int i = 0; i < 4; i++ ) point[i] = point_in[i];
+  double point_projected[4];
+  for ( int i = 0; i < 4; i++ ) point_projected[i] = point_in[i];
 
-//cout << __PRETTY_FUNCTION__ << ": " << point[0] << "   " << point[1] << "   "
-//     << point[2] << "   " << point[3] << endl;
+//cout << __PRETTY_FUNCTION__ << ": " << point_projected[0] << "   " << point_projected[1] << "   "
+//     << point_projected[2] << "   " << point_projected[3] << endl;
 
   //============================================================================
   // decide this w.r.t. the tbqs ranges sans extension
   // --> needed to decide whether to use extension
-  bool point_not_in_range = !point_is_in_range_no_ext( point[0], point[1], point[2], point[3] );
+  bool point_not_in_range = !point_is_in_range_no_ext( point_projected[0], point_projected[1],
+                                                       point_projected[2], point_projected[3] );
 
   //============================================================================
   if ( use_nonconformal_extension and point_not_in_range )
@@ -312,20 +315,18 @@ void EoS_table::get_full_thermo_safe( const double point_in[], double results[] 
     // project back toward origin until intersecting grid boundary
     eos_extension::project_to_boundary(
         point, tbqs_minima_no_ext.data(), tbqs_maxima_no_ext.data() );
-cout << point[0] << "   " << point[1] << "   " << point[2] << "   " << point[3] << endl;
+cout << point_projected[0] << "   " << point_projected[1] << "   "
+      << point_projected[2] << "   " << point_projected[3] << endl;
   }
 
   //============================================================================
   // evaluate the relevant grid point
   if (use_static_C_library)
-    STANDARD_get_full_thermo( point, results );
+    STANDARD_get_full_thermo( point_projected, results );
   else  // using table itself
   {
     // copy C arrays to C++ vectors
-//    vector<double> v_point, v_results;
-//    v_point.insert(  v_point.begin(),   std::begin(point),   std::end(point));
-//    v_results.insert(v_results.begin(), std::begin(results), std::end(results));
-    vector<double> v_point(point, point+4);
+    vector<double> v_point(point_projected, point_projected+4);
     vector<double> v_results(results, results+17);
 
     // evaluate EoS interpolator at current location (S and Q NOT SWAPPED)
@@ -345,7 +346,7 @@ cout << point[0] << "   " << point[1] << "   " << point[2] << "   " << point[3] 
   //============================================================================
   // project back to original point using non-conformal extension
   if ( use_nonconformal_extension and point_not_in_range )
-    eos_extension::get_nonconformal_extension( point_in, results, 0 );
+    eos_extension::get_nonconformal_extension( point_in, point_projected, results, 0 );
 
 }  
 
