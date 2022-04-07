@@ -91,6 +91,7 @@ std::cout << "Check b0000: " << b0000 << std::endl;
 std::cout << "Check b1000: " << b1000 << std::endl;
 std::cout << "Check b0100: " << b0100 << std::endl;
 std::cout << "Check b0010: " << b0010 << std::endl;
+std::cout << "Check b0001: " << b0001 << std::endl;
 std::cout << "Check b0011: " << b0011 << std::endl;
 std::cout << "Check b0101: " << b0101 << std::endl;
 std::cout << "Check b1001: " << b1001 << std::endl;
