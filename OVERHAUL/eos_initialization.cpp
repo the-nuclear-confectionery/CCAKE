@@ -54,15 +54,19 @@ void EquationOfState::init()
 
     //==========================================================================
     std::cout << "Check non-conformal extension of table EoS:" << std::endl;
-    for (double T0 =  1000.0; T0 <= 1000.01; T0 += 500.0)
-    for (double muB0 = 1000.0; muB0 <= 1000.01; muB0 += 500.0)
-    for (double muS0 = 2000.0; muS0 <= 2000.01; muS0 += 500.0)
-    for (double muQ0 = 3000.0; muQ0 <= 3000.01; muQ0 += 500.0)
+//    for (double T0 =  1000.0; T0 <= 1000.01; T0 += 500.0)
+//    for (double muB0 = 1000.0; muB0 <= 1000.01; muB0 += 500.0)
+//    for (double muS0 = 2000.0; muS0 <= 2000.01; muS0 += 500.0)
+//    for (double muQ0 = 3000.0; muQ0 <= 3000.01; muQ0 += 500.0)
+    for (double T0 =  0.0; T0 <= 100000.01; T0 += 500.0)
+    for (double muB0 = 0.0; muB0 <= 0.01; muB0 += 500.0)
+    for (double muS0 = 0.0; muS0 <= 0.01; muS0 += 500.0)
+    for (double muQ0 = 0.0; muQ0 <= 0.01; muQ0 += 500.0)
     {
       std::vector<double> point = {T0/hc, muB0/hc, muQ0/hc, muS0/hc};
       std::vector<double> v = get_thermodynamics( point, "table" );
       std::cout << "Check nc_ext_table: " << T0 << "   " << muB0 << "   "
-                << muQ0 << "   "<< muS0 << "   " << v[0] << "   "
+                << muQ0 << "   "<< muS0 << "   " << v[0] << "   " << v[6] << "   "
                 << v[0]*hc*hc*hc*hc/(T0*T0*T0*T0) << std::endl;
     }
     std::cout << std::endl << std::endl << std::endl;
