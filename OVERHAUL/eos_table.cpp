@@ -316,10 +316,12 @@ void EoS_table::get_full_thermo_safe( const double point_in[], double results[] 
     eos_extension::project_to_boundary(
         point_projected, tbqs_minima_no_ext.data(), tbqs_maxima_no_ext.data() );
 
-cout << "Original point: " << point_in[0] << "   " << point_in[1] << "   "
-      << point_in[2] << "   " << point_in[3] << endl;
-cout << "Projected point: " << point_projected[0] << "   " << point_projected[1] << "   "
-      << point_projected[2] << "   " << point_projected[3] << endl;
+const double hc = constants::hbarc_MeVfm;
+
+cout << "Original point: " << point_in[0]*hc << "   " << point_in[1]*hc << "   "
+      << point_in[2]*hc << "   " << point_in[3]*hc << endl;
+cout << "Projected point: " << point_projected[0]*hc << "   " << point_projected[1]*hc << "   "
+      << point_projected[2]*hc << "   " << point_projected[3]*hc << endl;
   }
 
   //============================================================================
