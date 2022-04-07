@@ -54,10 +54,10 @@ void EquationOfState::init()
 
     //==========================================================================
     std::cout << "Check non-conformal extension of table EoS:" << std::endl;
-    for (double T0   = 0.0;     T0   <= 1000.01; T0   += 500.0)
-    for (double muB0 = -1000.0; muB0 <= 1000.01; muB0 += 500.0)
-    for (double muS0 = -1000.0; muS0 <= 1000.01; muS0 += 500.0)
-    for (double muQ0 = -1000.0; muQ0 <= 1000.01; muQ0 += 500.0)
+    for (double T0   = 0.0;     T0   <= 1500.01; T0   += 50.0)
+    for (double muB0 = -1500.0; muB0 <= 1500.01; muB0 += 500.0)
+    for (double muS0 = -1500.0; muS0 <= 1500.01; muS0 += 500.0)
+    for (double muQ0 = -1500.0; muQ0 <= 1500.01; muQ0 += 500.0)
     {
       std::vector<double> point = {T0/hc, muB0/hc, muQ0/hc, muS0/hc};
       std::vector<double> v = get_thermodynamics( point, "table" );
