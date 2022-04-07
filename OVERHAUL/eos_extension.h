@@ -48,8 +48,8 @@ namespace eos_extension
   // - option = 0: project full thermodynamics
   // - option = 1: project eBSQ
   // - option = 2: project sBSQ
-  void get_nonconformal_extension( const double point[], double thermodynamics[],
-                                   const int option );
+  void get_nonconformal_extension( const double point[], const double point_projected[],
+                                   double results[], const int option );
   void project_to_boundary( double point[], const double minima[], const double maxima[] );
 }
 
