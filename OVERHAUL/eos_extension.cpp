@@ -22,6 +22,20 @@ namespace eos_extension
 
     double T0 = point[0], muB0 = point[1], muQ0 = point[2], muS0 = point[3];
 
+    // random number check
+    constexpr bool do_check = true;
+    if (do_check)
+    {
+      T0 = 4633.4170691232885; muB = 6807.609126571999;
+      muQ = 110.31935549473928; muS = 8676.461504695537;
+      thermodynamics = {4873.084795168246, 4667.392176530491,
+                        9222.825349747662, 8451.68380691301, 8046.726811312314,
+                        684.8321682934966, 6976.250846056097, 3226.740793471554,
+                        5470.034816047701, 7258.491777388856, 9159.660100769841,
+                        5173.041982177994, 3932.206908293947, 6029.5289010392735,
+                        8790.68377403672, 8668.268493577376, 4257.053638971822};
+    }
+
     double p0     = thermodynamics[0];
     double s0     = thermodynamics[1];
     double rhoB0  = thermodynamics[2];
@@ -87,6 +101,8 @@ std::cout << "Check b0020: " << b0020 << std::endl;
 std::cout << "Check b0200: " << b0200 << std::endl;
 std::cout << "Check b2000: " << b2000 << std::endl;
 std::cout << "--------------------------------------------------------------------" << std::endl;
+
+if (do_check) exit(8);
 
   }
 
