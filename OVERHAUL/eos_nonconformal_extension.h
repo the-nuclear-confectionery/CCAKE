@@ -52,7 +52,7 @@ class EoS_nonconformal_extension: public EoS_base
       eos_extension::set_coeffs( point, results );
 
       // use non-conformal extension to obtain final answer (store in results)
-      eos_extension::get_nonconformal_extension( point_save, results, 2 );
+      eos_extension::get_nonconformal_extension( point_save, point, results, 2 );
       
     }
 
