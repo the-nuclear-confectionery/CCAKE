@@ -315,7 +315,10 @@ void EoS_table::get_full_thermo_safe( const double point_in[], double results[] 
     // project back toward origin until intersecting grid boundary
     eos_extension::project_to_boundary(
         point_projected, tbqs_minima_no_ext.data(), tbqs_maxima_no_ext.data() );
-cout << point_projected[0] << "   " << point_projected[1] << "   "
+
+cout << "Original point: " << point_in[0] << "   " << point_in[1] << "   "
+      << point_in[2] << "   " << point_in[3] << endl;
+cout << "Projected point: " << point_projected[0] << "   " << point_projected[1] << "   "
       << point_projected[2] << "   " << point_projected[3] << endl;
   }
 
