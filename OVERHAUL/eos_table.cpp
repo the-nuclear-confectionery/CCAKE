@@ -225,15 +225,15 @@ void EoS_table::get_eBSQ_safe( const double point_in[], double results[] )
     /// NOTE: point gets reset!
     // project back toward origin until intersecting grid boundary
     eos_extension::project_to_boundary(
-        point, tbqs_minima_no_ext.data(), tbqs_maxima_no_ext.data() );
+        point_projected, tbqs_minima_no_ext.data(), tbqs_maxima_no_ext.data() );
   }
 
   //============================================================================
   // evaluate the relevant grid point
   if (use_static_C_library)
-    STANDARD_get_eBSQ_densities(point, results);
+    STANDARD_get_eBSQ_densities(point_projected, results);
   else  // using table itself
-    get_eBSQ_densities_from_interpolator(point, results);
+    get_eBSQ_densities_from_interpolator(point_projected, results);
 
   //============================================================================
   // project back to original point using non-conformal extension
@@ -270,15 +270,15 @@ void EoS_table::get_sBSQ_safe( const double point_in[], double results[] )
     /// NOTE: point gets reset!
     // project back toward origin until intersecting grid boundary
     eos_extension::project_to_boundary(
-        point, tbqs_minima_no_ext.data(), tbqs_maxima_no_ext.data() );
+        point_projected, tbqs_minima_no_ext.data(), tbqs_maxima_no_ext.data() );
   }
 
   //============================================================================
   // evaluate the relevant grid point
   if (use_static_C_library)
-    STANDARD_get_sBSQ_densities(point, results);
+    STANDARD_get_sBSQ_densities(point_projected, results);
   else  // using table itself
-    get_sBSQ_densities_from_interpolator(point, results);
+    get_sBSQ_densities_from_interpolator(point_projected, results);
 
   //============================================================================
   // project back to original point using non-conformal extension
@@ -314,7 +314,7 @@ void EoS_table::get_full_thermo_safe( const double point_in[], double results[] 
     /// NOTE: point gets reset!
     // project back toward origin until intersecting grid boundary
     eos_extension::project_to_boundary(
-        point, tbqs_minima_no_ext.data(), tbqs_maxima_no_ext.data() );
+        point_projected, tbqs_minima_no_ext.data(), tbqs_maxima_no_ext.data() );
 cout << point_projected[0] << "   " << point_projected[1] << "   "
       << point_projected[2] << "   " << point_projected[3] << endl;
   }
