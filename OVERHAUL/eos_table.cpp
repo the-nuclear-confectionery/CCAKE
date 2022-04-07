@@ -353,6 +353,10 @@ cout << "Projected point: " << point_projected[0]*hc << "   " << point_projected
   if ( use_nonconformal_extension and point_not_in_range )
     eos_extension::get_nonconformal_extension( point_in, point_projected, results, 0 );
 
+cout << "Thermo:" << endl;
+for (int i = 0; i < 17; i++)
+  cout << results[i] << endl;
+
 }  
 
 
