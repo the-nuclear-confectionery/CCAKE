@@ -78,6 +78,7 @@ std::cout << "Check nc_ext_table: " << b2000 << std::endl;
 
   double p(double T, double muB, double muQ, double muS)
 	{
+    std::cout << "Evaluating this pressure!" << std::endl;
 		double x = b0000 + b1000*T + b0100*muB + b0010*muS + b0001*muQ
                + b2000*T*T + b0200*muB*muB + b0020*muS*muS + b0002*muQ*muQ
                + b1100*T*muB + b1010*T*muS + b1001*T*muQ

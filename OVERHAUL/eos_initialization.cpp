@@ -62,7 +62,8 @@ void EquationOfState::init()
       std::vector<double> point = {T0/hc, muB0/hc, muQ0/hc, muS0/hc};
       std::vector<double> v = get_thermodynamics( point, "table" );
       std::cout << "Check nc_ext_table: " << T0 << "   " << muB0 << "   "
-                << muQ0 << "   "<< muS0 << "   " << v[0] << std::endl;
+                << muQ0 << "   "<< muS0 << "   " << v[0] << "   "
+                << v[0]*hc*hc*hc*hc/(T0*T0*T0*T0) << std::endl;
     }
     std::cout << std::endl << std::endl << std::endl;
 
