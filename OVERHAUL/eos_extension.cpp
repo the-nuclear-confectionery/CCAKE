@@ -165,7 +165,7 @@ std::cout << "------------------------------------------------------------------
                + b1100*T*muB + b1010*T*muS + b1001*T*muQ
                + b0110*muB*muS + b0101*muB*muQ + b0011*muS*muQ;
     double yS = b0010 + T*b1010 + muB*b0110 + 2.0*muS*b0020 + muQ*b0011;
-		return 2.0*(2.0*b2000*x + yS*yS);
+		return 2.0*(2.0*b0020*x + yS*yS);
 	}
 	double P2Q2(double T, double muB, double muQ, double muS)
 	{
@@ -174,7 +174,7 @@ std::cout << "------------------------------------------------------------------
                + b1100*T*muB + b1010*T*muS + b1001*T*muQ
                + b0110*muB*muS + b0101*muB*muQ + b0011*muS*muQ;
     double yQ = b0001 + T*b1001 + muB*b0101 + muS*b0011 + 2.0*muQ*b0002;
-		return 2.0*(2.0*b2000*x + yQ*yQ);
+		return 2.0*(2.0*b0002*x + yQ*yQ);
 	}
 	
   // off-diagonal susceptibilities
@@ -186,7 +186,7 @@ std::cout << "------------------------------------------------------------------
                + b0110*muB*muS + b0101*muB*muQ + b0011*muS*muQ;
     double yB = b0100 + T*b1100 + 2.0*muB*b0200 + muS*b0110 + muQ*b0101;
     double yQ = b0001 + T*b1001 + muB*b0101 + muS*b0011 + 2.0*muQ*b0002;
-    return 2.0*(b0110*x+yB*yQ);
+    return 2.0*(b0101*x+yB*yQ);
   }
 	double P2BS(double T, double muB, double muQ, double muS)
   {
@@ -206,7 +206,7 @@ std::cout << "------------------------------------------------------------------
                + b0110*muB*muS + b0101*muB*muQ + b0011*muS*muQ;
     double yS = b0010 + T*b1010 + muB*b0110 + 2.0*muS*b0020 + muQ*b0011;
     double yQ = b0001 + T*b1001 + muB*b0101 + muS*b0011 + 2.0*muQ*b0002;
-    return 2.0*(b0110*x+yS*yQ);
+    return 2.0*(b0011*x+yS*yQ);
   }
 	
 	double P2TB(double T, double muB, double muQ, double muS)
@@ -217,7 +217,7 @@ std::cout << "------------------------------------------------------------------
                + b0110*muB*muS + b0101*muB*muQ + b0011*muS*muQ;
     double yT = b1000 + 2.0*T*b2000 + muB*b1100 + muS*b1010 + muQ*b1001;
     double yB = b0100 + T*b1100 + 2.0*muB*b0200 + muS*b0110 + muQ*b0101;
-    return 2.0*(b0110*x+yT*yB);
+    return 2.0*(b1100*x+yT*yB);
   }
 	double P2TS(double T, double muB, double muQ, double muS)
   {
@@ -227,7 +227,7 @@ std::cout << "------------------------------------------------------------------
                + b0110*muB*muS + b0101*muB*muQ + b0011*muS*muQ;
     double yT = b1000 + 2.0*T*b2000 + muB*b1100 + muS*b1010 + muQ*b1001;
     double yS = b0010 + T*b1010 + muB*b0110 + 2.0*muS*b0020 + muQ*b0011;
-    return 2.0*(b0110*x+yT*yS);
+    return 2.0*(b1010*x+yT*yS);
   }
 	double P2TQ(double T, double muB, double muQ, double muS)
   {
@@ -237,7 +237,7 @@ std::cout << "------------------------------------------------------------------
                + b0110*muB*muS + b0101*muB*muQ + b0011*muS*muQ;
     double yT = b1000 + 2.0*T*b2000 + muB*b1100 + muS*b1010 + muQ*b1001;
     double yQ = b0001 + T*b1001 + muB*b0101 + muS*b0011 + 2.0*muQ*b0002;
-    return 2.0*(b0110*x+yT*yQ);
+    return 2.0*(b1001*x+yT*yQ);
   }
 
 
