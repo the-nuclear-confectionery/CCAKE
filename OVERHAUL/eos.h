@@ -210,5 +210,7 @@ private:
 public:
   //bool using_conformal_as_fallback() { return use_conformal_as_fallback; }
   string get_current_eos_name() { return current_eos_name; }
+  void run_closure_test();
+
 
 };
