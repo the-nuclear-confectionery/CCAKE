@@ -55,6 +55,7 @@ void EquationOfState::init()
 
     //==========================================================================
     std::cout << "Check non-conformal extension of table EoS:" << std::endl;
+    double e_In, rhoB_In, rhoS_In, rhoQ_In;
     for (double T0 =  500.0; T0 <= 500.01; T0 += 500.0)
     for (double muB0 = 3000.0; muB0 <= 3000.01; muB0 += 500.0)
     for (double muS0 = 0.0; muS0 <= 0.01; muS0 += 500.0)
@@ -73,8 +74,30 @@ void EquationOfState::init()
       std::cout << "Check nc_ext_table: " << T0 << "   " << muB0 << "   "
                 << muQ0 << "   "<< muS0 << "   " << v[0] << "   " << v[6] << "   "
                 << v[0]*hc*hc*hc*hc/(T0*T0*T0*T0) << std::endl;
+      e_In    = v[5];
+      rhoB_In = v[2];
+      rhoS_In = v[3];
+      rhoQ_In = v[4];
     }
     std::cout << std::endl << std::endl << std::endl;
+
+    // closure test
+    bool solution_found = false;
+    double sLocal = s_out( e_In, rhoB_In, rhoS_In, rhoQ_In, solution_found );
+    if ( solution_found )
+      cout << "Closure test: successful!" << endl;
+    else
+      cout << "Closure test: unsuccessful!" << endl;
+
+		cout << sLocal << "   " << e_In << "   " << rhoB_In << "   "
+          << rhoS_In << "   " << rhoQ_In << endl;
+
+cout << "THERMO DUMP: " << pVal << "   " << entrVal << "   " << BVal << "   "
+      << SVal << "   " << QVal << "   " << eVal << "   " << cs2Val << "   "
+      << db2 << "   " << dq2 << "   " << ds2 << "   " << dbdq << "   "
+      << dbds << "   " << dsdq << "   " << dtdb << "   " << dtdq << "   "
+      << dtds << "   " << dt2 << endl;
+
 
     exit(11);
   }
