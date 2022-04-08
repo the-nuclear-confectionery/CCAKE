@@ -274,21 +274,21 @@ namespace eos_extension
 
     const double T = point[0], muB = point[1], muQ = point[2], muS = point[3];
 
-    double C1T = results[1];
-    double C1B = results[2];
-    double C1S = results[3];
-    double C1Q = results[4];
+    double C1T = results[1]/(T*T*T);
+    double C1B = results[2]/(T*T*T);
+    double C1S = results[3]/(T*T*T);
+    double C1Q = results[4]/(T*T*T);
 
-    double C2B2 = results[7];
-    double C2Q2 = results[8];
-    double C2S2 = results[9];
-    double C2BQ = results[10];
-    double C2BS = results[11];
-    double C2QS = results[12];
-    double C2TB = results[13];
-    double C2TQ = results[14];
-    double C2TS = results[15];
-    double C2T2 = results[16];
+    double C2B2 = results[7]/(T*T);
+    double C2Q2 = results[8]/(T*T);
+    double C2S2 = results[9]/(T*T);
+    double C2BQ = results[10]/(T*T);
+    double C2BS = results[11]/(T*T);
+    double C2QS = results[12]/(T*T);
+    double C2TB = results[13]/(T*T);
+    double C2TQ = results[14]/(T*T);
+    double C2TS = results[15]/(T*T);
+    double C2T2 = results[16]/(T*T);
 
     // speed of sound
     results[6] = T*(-(C2BQ*C2S2*C2TQ*C1B) - C2BQ*C2S2*C2TB*C1Q - pow(C2BS,2)*C2TQ*C1Q + C2B2*C2S2*C2TQ*C1Q + C2BQ*C2BS*C2TS*C1Q + C2BQ*C2BS*C2TQ*C1S - pow(C2BQ,2)*C2TS*C1S + pow(C2BQ,2)*C2S2*C1T 
