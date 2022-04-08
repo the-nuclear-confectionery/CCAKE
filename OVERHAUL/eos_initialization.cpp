@@ -36,7 +36,7 @@ void EquationOfState::init()
 
   bool do_eos_checks = true;
   if ( do_eos_checks )
-    run_closure_check();
+    run_closure_test();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
