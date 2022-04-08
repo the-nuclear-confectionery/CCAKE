@@ -272,7 +272,8 @@ std::cout << "------------------------------------------------------------------
 
     ////////////////////////////////////////////////////////////////////////////
 
-    const double T = point[0], muB = point[1], muQ = point[2], muS = point[3];
+    const double hc = constants::hbarc_MeVfm;
+    const double T = point[0]*hc, muB = point[1]*hc, muQ = point[2]*hc, muS = point[3]*hc;
 
     double C1T = results[1]/(T*T*T);
     double C1B = results[2]/(T*T*T);
