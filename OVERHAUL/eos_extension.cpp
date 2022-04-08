@@ -291,10 +291,11 @@ std::cout << "------------------------------------------------------------------
     double C2TS = results[15]/(T*T);
     double C2T2 = results[16]/(T*T);
 
-    T*=hc;
-    muB*=hc;
-    muQ*=hc;
-    muS*=hc;
+    cout << "Check input(C++): " << T << "   " << muB << "   " << muQ << "   " << muS << "   "
+          << C1T << "   " << C1B << "   " << C1S << "   " << C1Q << "   "
+          << C2B2 << "   " << C2Q2 << "   " << C2S2 << "   "
+          << C2BQ << "   " << C2BS << "   " << C2QS << "   "
+          << C2TB << "   " << C2TQ << "   " << C2TS << "   " << C2T2 << endl;
 
     // speed of sound
     results[6] = T*(-(C2BQ*C2S2*C2TQ*C1B) - C2BQ*C2S2*C2TB*C1Q - pow(C2BS,2)*C2TQ*C1Q + C2B2*C2S2*C2TQ*C1Q + C2BQ*C2BS*C2TS*C1Q + C2BQ*C2BS*C2TQ*C1S - pow(C2BQ,2)*C2TS*C1S + pow(C2BQ,2)*C2S2*C1T 
