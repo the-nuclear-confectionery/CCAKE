@@ -721,21 +721,37 @@ double DEntrDTTaylor(double T, double muB, double muQ, double muS){
 
 // Speed of Sound expression.
 double SpSound(double T, double muB, double muQ, double muS){
-   C1B = BarDensTaylor(T,muB,muS,muQ);
-   C1Q = ChDensTaylor(T,muB,muS,muQ);
-   C1S = StrDensTaylor(T,muB,muS,muQ);
-   C1T = EntrTaylor(T,muB,muS,muQ);
+//   C1B = BarDensTaylor(T,muB,muS,muQ);
+//   C1Q = ChDensTaylor(T,muB,muS,muQ);
+//   C1S = StrDensTaylor(T,muB,muS,muQ);
+//   C1T = EntrTaylor(T,muB,muS,muQ);
+//   
+//   C2B2 = Chi2BTaylor(T,muB,muS,muQ);   
+//   C2Q2 = Chi2QTaylor(T,muB,muS,muQ);
+//   C2S2 = Chi2STaylor(T,muB,muS,muQ);
+//   C2BQ = Chi11BQTaylor(T,muB,muS,muQ);
+//   C2BS = Chi11BSTaylor(T,muB,muS,muQ);
+//   C2QS = Chi11QSTaylor(T,muB,muS,muQ);
+//   C2TB = DBarDensDTTaylor(T,muB,muS,muQ);
+//   C2TQ = DChDensDTTaylor(T,muB,muS,muQ);
+//   C2TS = DStrDensDTTaylor(T,muB,muS,muQ);
+//   C2T2 = DEntrDTTaylor(T,muB,muS,muQ);
+
+   C1B = BarDensTaylor(T,muB,muQ,muS);
+   C1Q = ChDensTaylor(T,muB,muQ,muS);
+   C1S = StrDensTaylor(T,muB,muQ,muS);
+   C1T = EntrTaylor(T,muB,muQ,muS);
    
-   C2B2 = Chi2BTaylor(T,muB,muS,muQ);   
-   C2Q2 = Chi2QTaylor(T,muB,muS,muQ);
-   C2S2 = Chi2STaylor(T,muB,muS,muQ);
-   C2BQ = Chi11BQTaylor(T,muB,muS,muQ);
-   C2BS = Chi11BSTaylor(T,muB,muS,muQ);
-   C2QS = Chi11QSTaylor(T,muB,muS,muQ);
-   C2TB = DBarDensDTTaylor(T,muB,muS,muQ);
-   C2TQ = DChDensDTTaylor(T,muB,muS,muQ);
-   C2TS = DStrDensDTTaylor(T,muB,muS,muQ);
-   C2T2 = DEntrDTTaylor(T,muB,muS,muQ);
+   C2B2 = Chi2BTaylor(T,muB,muQ,muS);   
+   C2Q2 = Chi2QTaylor(T,muB,muQ,muS);
+   C2S2 = Chi2STaylor(T,muB,muQ,muS);
+   C2BQ = Chi11BQTaylor(T,muB,muQ,muS);
+   C2BS = Chi11BSTaylor(T,muB,muQ,muS);
+   C2QS = Chi11QSTaylor(T,muB,muQ,muS);
+   C2TB = DBarDensDTTaylor(T,muB,muQ,muS);
+   C2TQ = DChDensDTTaylor(T,muB,muQ,muS);
+   C2TS = DStrDensDTTaylor(T,muB,muQ,muS);
+   C2T2 = DEntrDTTaylor(T,muB,muQ,muS);
 
   printf("Check input(C): %lf  %lf  %lf  %lf  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f\n",
           T, muB, muQ, muS, C1T, C1B, C1S, C1Q, C2B2, C2Q2, C2S2, C2BQ, C2BS, C2QS, C2TB, C2TQ, C2TS, C2T2);
