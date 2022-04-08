@@ -71,23 +71,23 @@ namespace eos_extension
     b0020 = (rhoS0*rhoS0 - 2.0*p0*chiSS0) / (8.0*p0_3_2);
     b0002 = (rhoQ0*rhoQ0 - 2.0*p0*chiQQ0) / (8.0*p0_3_2);
 
-std::cout << "--------------------------------------------------------------------" << std::endl;
-std::cout << "Check b0000: " << b0000 << std::endl;
-std::cout << "Check b1000: " << b1000 << std::endl;
-std::cout << "Check b0100: " << b0100 << std::endl;
-std::cout << "Check b0010: " << b0010 << std::endl;
-std::cout << "Check b0001: " << b0001 << std::endl;
-std::cout << "Check b0011: " << b0011 << std::endl;
-std::cout << "Check b0101: " << b0101 << std::endl;
-std::cout << "Check b1001: " << b1001 << std::endl;
-std::cout << "Check b0110: " << b0110 << std::endl;
-std::cout << "Check b1010: " << b1010 << std::endl;
-std::cout << "Check b1100: " << b1100 << std::endl;
-std::cout << "Check b0002: " << b0002 << std::endl;
-std::cout << "Check b0020: " << b0020 << std::endl;
-std::cout << "Check b0200: " << b0200 << std::endl;
-std::cout << "Check b2000: " << b2000 << std::endl;
-std::cout << "--------------------------------------------------------------------" << std::endl;
+//std::cout << "--------------------------------------------------------------------" << std::endl;
+//std::cout << "Check b0000: " << b0000 << std::endl;
+//std::cout << "Check b1000: " << b1000 << std::endl;
+//std::cout << "Check b0100: " << b0100 << std::endl;
+//std::cout << "Check b0010: " << b0010 << std::endl;
+//std::cout << "Check b0001: " << b0001 << std::endl;
+//std::cout << "Check b0011: " << b0011 << std::endl;
+//std::cout << "Check b0101: " << b0101 << std::endl;
+//std::cout << "Check b1001: " << b1001 << std::endl;
+//std::cout << "Check b0110: " << b0110 << std::endl;
+//std::cout << "Check b1010: " << b1010 << std::endl;
+//std::cout << "Check b1100: " << b1100 << std::endl;
+//std::cout << "Check b0002: " << b0002 << std::endl;
+//std::cout << "Check b0020: " << b0020 << std::endl;
+//std::cout << "Check b0200: " << b0200 << std::endl;
+//std::cout << "Check b2000: " << b2000 << std::endl;
+//std::cout << "--------------------------------------------------------------------" << std::endl;
 
   }
 
@@ -291,11 +291,11 @@ std::cout << "------------------------------------------------------------------
     double C2TS = results[15]/(T*T);
     double C2T2 = results[16]/(T*T);
 
-    cout << "Check input(C++): " << T << "   " << muB << "   " << muQ << "   " << muS << "   "
-          << C1T << "   " << C1B << "   " << C1S << "   " << C1Q << "   "
-          << C2B2 << "   " << C2Q2 << "   " << C2S2 << "   "
-          << C2BQ << "   " << C2BS << "   " << C2QS << "   "
-          << C2TB << "   " << C2TQ << "   " << C2TS << "   " << C2T2 << endl;
+//    cout << "Check input(C++): " << T << "   " << muB << "   " << muQ << "   " << muS << "   "
+//          << C1T << "   " << C1B << "   " << C1S << "   " << C1Q << "   "
+//          << C2B2 << "   " << C2Q2 << "   " << C2S2 << "   "
+//          << C2BQ << "   " << C2BS << "   " << C2QS << "   "
+//          << C2TB << "   " << C2TQ << "   " << C2TS << "   " << C2T2 << endl;
 
     // speed of sound
     results[6] = T*(-(C2BQ*C2S2*C2TQ*C1B) - C2BQ*C2S2*C2TB*C1Q - pow(C2BS,2)*C2TQ*C1Q + C2B2*C2S2*C2TQ*C1Q + C2BQ*C2BS*C2TS*C1Q + C2BQ*C2BS*C2TQ*C1S - pow(C2BQ,2)*C2TS*C1S + pow(C2BQ,2)*C2S2*C1T 
