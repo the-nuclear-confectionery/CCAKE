@@ -208,7 +208,7 @@ private:
     eos_delaunay entr_delaunay;
 
 public:
-  bool using_conformal_as_fallback() { return use_conformal_as_fallback; }
+  //bool using_conformal_as_fallback() { return use_conformal_as_fallback; }
   string get_current_eos_name() { return current_eos_name; }
 
 };
