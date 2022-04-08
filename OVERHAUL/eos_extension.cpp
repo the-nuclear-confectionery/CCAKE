@@ -273,7 +273,7 @@ std::cout << "------------------------------------------------------------------
     ////////////////////////////////////////////////////////////////////////////
 
     const double hc = constants::hbarc_MeVfm;
-    const double T = point[0]*hc, muB = point[1]*hc, muQ = point[2]*hc, muS = point[3]*hc;
+    double T = point[0], muB = point[1], muQ = point[2], muS = point[3];
 
     double C1T = results[1]/(T*T*T);
     double C1B = results[2]/(T*T*T);
@@ -290,6 +290,11 @@ std::cout << "------------------------------------------------------------------
     double C2TQ = results[14]/(T*T);
     double C2TS = results[15]/(T*T);
     double C2T2 = results[16]/(T*T);
+
+    T*=hc;
+    muB*=hc;
+    muQ*=hc;
+    muS*=hc;
 
     // speed of sound
     results[6] = T*(-(C2BQ*C2S2*C2TQ*C1B) - C2BQ*C2S2*C2TB*C1Q - pow(C2BS,2)*C2TQ*C1Q + C2B2*C2S2*C2TQ*C1Q + C2BQ*C2BS*C2TS*C1Q + C2BQ*C2BS*C2TQ*C1S - pow(C2BQ,2)*C2TS*C1S + pow(C2BQ,2)*C2S2*C1T 
