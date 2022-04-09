@@ -375,6 +375,7 @@ bool EquationOfState::rootfinder_update_s(double sin, double Bin, double Sin, do
   for ( const auto & this_eos : chosen_EOSs )
   {
     std::cout << " --> currently trying " << this_eos->name << " EoS for solution..." << std::endl;
+    result = tbqsPosition;
     std::cout << "     - seed: "
               << result[0] << "   " << result[1] << "   "
               << result[2] << "   " << result[3] << std::endl;
@@ -470,6 +471,7 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
   for ( const auto & this_eos : chosen_EOSs )
   {
     std::cout << " --> currently trying " << this_eos->name << " EoS for solution..." << std::endl;
+    result = tbqsPosition;
     std::cout << "     - seed: "
               << result[0] << "   " << result[1] << "   "
               << result[2] << "   " << result[3] << std::endl;
