@@ -226,19 +226,32 @@ cout << __PRETTY_FUNCTION__ << ": " << point_projected[0] << "   " << point_proj
     // project back toward origin until intersecting grid boundary
     eos_extension::project_to_boundary(
         point_projected, tbqs_minima_no_ext.data(), tbqs_maxima_no_ext.data() );
+
+const double hc = constants::hbarc_MeVfm;
+
+cout << "Original point: " << point_in[0]*hc << "   " << point_in[1]*hc << "   "
+      << point_in[2]*hc << "   " << point_in[3]*hc << endl;
+cout << "Projected point: " << point_projected[0]*hc << "   " << point_projected[1]*hc << "   "
+      << point_projected[2]*hc << "   " << point_projected[3]*hc << endl;
   }
 
   //============================================================================
   // evaluate the relevant grid point
   if (use_static_C_library)
+  {
+    cout << "Computing STANDARD_get_eBSQ_densities" << endl;
     STANDARD_get_eBSQ_densities(point_projected, results);
+  }
   else  // using table itself
     get_eBSQ_densities_from_interpolator(point_projected, results);
 
   //============================================================================
   // project back to original point using non-conformal extension
   if ( use_nonconformal_extension and point_not_in_range )
+  {
+    cout << "Projecting back" << endl;
     eos_extension::get_nonconformal_extension( point_in, point_projected, results, 1 );
+  }
 }
 
 
@@ -299,8 +312,8 @@ void EoS_table::get_full_thermo_safe( const double point_in[], double results[] 
   double point_projected[4];
   for ( int i = 0; i < 4; i++ ) point_projected[i] = point_in[i];
 
-//cout << __PRETTY_FUNCTION__ << ": " << point_projected[0] << "   " << point_projected[1] << "   "
-//     << point_projected[2] << "   " << point_projected[3] << endl;
+cout << __PRETTY_FUNCTION__ << ": " << point_projected[0] << "   " << point_projected[1] << "   "
+     << point_projected[2] << "   " << point_projected[3] << endl;
 
   //============================================================================
   // decide this w.r.t. the tbqs ranges sans extension
