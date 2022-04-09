@@ -100,18 +100,53 @@ void EquationOfState::init(string quantityFile, string derivFile)
   if ( settingsPtr->EoS_type != "Conformal" )
   {
     std::cout << "Setting conformal equation of state as fallback" << std::endl;
-    const double Nc = 3.0, Nf = 2.5;  // u+d massless, s 'half massless'
-    double c  = pi*pi*(2.0*(Nc*Nc-1.0)+(7.0/2.0)*Nc*Nf)/90.0;
-    double T0 = 1.0, muB0 = 1.0, muQ0 = 1.0, muS0 = 1.0; // trivial scales
+    std::cout << "  --> all coefficients matched to p/T^4 at grid limits" << std::endl;
 
-    // set minima and maxima (can be arbitrarily large)
+    // pointer to default EoS (first element added above)
+    pEoS_base p_default_EoS = chosen_EOSs.front();
+
+    // look up grid maxima (without any extensions)
+    std::vector<double> maxima =  p_default_EoS->get_tbqs_maxima_no_ext();
+    double Tmax = maxima[0];
+    double muBmax = maxima[1];
+    double muQmax = maxima[2];
+    double muSmax = maxima[3];
+
+    // set overall scale using (Tmax,0,0,0)
+    tbqs( Tmax, 0.0, 0.0, 0.0, p_default_EoS );
+    double pTmax = pVal;
+    double c  = pTmax / (Tmax*Tmax*Tmax*Tmax);
+
+    // T-scale T0 = 1 by definition
+    double T0 = 1.0;
+
+    // set muB scale using (Tmax,muBmax,0,0)
+    tbqs( Tmax, muBmax, 0.0, 0.0, p_default_EoS );
+    double muB0 = pow(c,0.25) * muBmax / sqrt( sqrt(pTmax) - sqrt(pVal) );
+
+    // set muQ scale using (Tmax,0,muQmax,0)
+    tbqs( Tmax, 0.0, muQmax, 0.0, p_default_EoS );
+    double muQ0 = pow(c,0.25) * muQmax / sqrt( sqrt(pTmax) - sqrt(pVal) );
+
+    // set muS scale using (Tmax,0,0,muSmax)
+    tbqs( Tmax, 0.0, 0.0, muSmax, p_default_EoS );
+    double muS0 = pow(c,0.25) * muSmax / sqrt( sqrt(pTmax) - sqrt(pVal) );
+
+    // set minima and maxima for rootfinder (can be arbitrarily large)
     vector<double> tbqs_minima = { 0.0,          -TBQS_INFINITY, -TBQS_INFINITY, -TBQS_INFINITY };
     vector<double> tbqs_maxima = { TBQS_INFINITY, TBQS_INFINITY,  TBQS_INFINITY,  TBQS_INFINITY };
 
-    // add EoS to vector
+    cout << "Conformal fallback EoS set up with following parameters:" << endl;
+    cout << "  --> c0   = " << c0 << endl;
+    cout << "  --> T0   = " << T0 << endl;
+    cout << "  --> muB0 = " << muB0 << endl;
+    cout << "  --> muQ0 = " << muQ0 << endl;
+    cout << "  --> muS0 = " << muS0 << endl;
+
+    // add matched conformal EoS to vector of EoSs
     chosen_EOSs.push_back( std::make_shared<EoS_conformal>(
                             c, T0, muB0, muS0, muQ0,
-                            tbqs_minima, tbqs_maxima ) );
+                            tbqs_minima, tbqs_maxima, "conformal_fallback" ) );
   }
 
 
@@ -123,9 +158,15 @@ void EquationOfState::init(string quantityFile, string derivFile)
   //  and each EoS must have a *UNIQUE NAME*)
   for ( auto & chosen_eos : chosen_EOSs )
   {
-    std::cout << "Before " << chosen_eos->name << ": chosen_EOS_map.size = " << chosen_EOS_map.size() << std::endl;
+    std::cout << "Before " << chosen_eos->name
+              << ": chosen_EOS_map.size = "
+              << chosen_EOS_map.size() << std::endl;
+
     chosen_EOS_map.insert({{ chosen_eos->name, chosen_eos }});
-    std::cout << "After " << chosen_eos->name << ": chosen_EOS_map.size = " << chosen_EOS_map.size() << std::endl;
+
+    std::cout << "After " << chosen_eos->name
+              << ": chosen_EOS_map.size = "
+              << chosen_EOS_map.size() << std::endl;
   }
 
   
