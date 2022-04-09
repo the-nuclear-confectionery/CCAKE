@@ -1,21 +1,20 @@
-#include "eos.h"
+//#include "eos.h"
 
-//InterpolatorND<4> EquationOfState::equation_of_state_table;
+#include <algorithm>
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <vector>
 
-//#include "read_in_hdf/read_in_hdf.h"
-//#include "Stopwatch.h"
 #include <gsl/gsl_multiroots.h>
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_permutation.h>
 #include <gsl/gsl_blas.h>
 #include <gsl/gsl_linalg.h>
-#include <iostream>
-#include <vector>
-#include <fstream>
-#include <string>
 
 #include "constants.h"
+#include "eos.h"
 #include "eos_delaunay/eos_delaunay.h"
 
 #include "eos_derivatives.cpp"
@@ -376,10 +375,28 @@ bool EquationOfState::rootfinder_update_s(double sin, double Bin, double Sin, do
   for ( const auto & this_eos : chosen_EOSs )
   {
     std::cout << " --> currently trying " << this_eos->name << " EoS for solution..." << std::endl;
+    std::cout << "     - seed: "
+              << result[0] << "   " << result[1] << "   "
+              << result[2] << "   " << result[3] << std::endl;
     success
       = rootfinder.find_sBSQ_root( sin, Bin, Sin, Qin, this_eos->sBSQ,
                                    this_eos->tbqs_minima, this_eos->tbqs_maxima,
                                    result );
+
+    // try a different seed value if default guess fails
+    if (!success)
+    {
+      // try twice the grid maxima
+      result = this_eos->get_tbqs_maxima_no_ext();
+      std::for_each(result.begin(), result.end(), [2.0](double &c){ c *= k; });
+      std::cout << "     - seed: "
+                << result[0] << "   " << result[1] << "   "
+                << result[2] << "   " << result[3] << std::endl;
+      success
+        = rootfinder.find_sBSQ_root( sin, Bin, Sin, Qin, this_eos->sBSQ,
+                                     this_eos->tbqs_minima, this_eos->tbqs_maxima,
+                                     result );
+    }
 
     // stop iterating through available EoSs when solution found
     if (success)
@@ -453,10 +470,28 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
   for ( const auto & this_eos : chosen_EOSs )
   {
     std::cout << " --> currently trying " << this_eos->name << " EoS for solution..." << std::endl;
+    std::cout << "     - seed: "
+              << result[0] << "   " << result[1] << "   "
+              << result[2] << "   " << result[3] << std::endl;
     solution_found
       = rootfinder.find_eBSQ_root( ein, Bin, Sin, Qin, this_eos->eBSQ,
                                    this_eos->tbqs_minima, this_eos->tbqs_maxima,
                                    result );
+
+    // try a different seed value if default guess fails
+    if (!success)
+    {
+      // try twice the grid maxima
+      result = this_eos->get_tbqs_maxima_no_ext();
+      std::for_each(result.begin(), result.end(), [2.0](double &c){ c *= k; });
+      std::cout << "     - seed: "
+                << result[0] << "   " << result[1] << "   "
+                << result[2] << "   " << result[3] << std::endl;
+      success
+        = rootfinder.find_eBSQ_root( ein, Bin, Sin, Qin, this_eos->eBSQ,
+                                     this_eos->tbqs_minima, this_eos->tbqs_maxima,
+                                     result );
+    }
 
     // stop iterating through available EoSs when solution found
     if (solution_found)
