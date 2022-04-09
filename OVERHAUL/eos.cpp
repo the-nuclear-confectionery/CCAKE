@@ -484,8 +484,10 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
     if (!solution_found)
     {
       // try twice the grid maxima
-      result = this_eos->get_tbqs_maxima_no_ext();
-      std::for_each(result.begin(), result.end(), [](double &c){ c *= 2.0; });
+      //result = this_eos->get_tbqs_maxima_no_ext();
+      //std::for_each(result.begin(), result.end(), [](double &c){ c *= 2.0; });
+      const double hc = constants::hbarc_MeVfm;
+      result = std::vector<double>({510.0/hc,3010.0/hc,0.0,0.0});
       std::cout << "     - seed: "
                 << result[0] << "   " << result[1] << "   "
                 << result[2] << "   " << result[3] << std::endl;
