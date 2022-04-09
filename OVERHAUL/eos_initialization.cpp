@@ -81,7 +81,7 @@ void EquationOfState::init(string quantityFile, string derivFile)
   //////////////////////////////////////////////////////////////////////////////
 
   // set non-conformal extension
-  if ( settingsPtr->EoS_type != "Conformal" ) // redundant with below, but oh well
+  /*if ( settingsPtr->EoS_type != "Conformal" ) // redundant with below, but oh well
   {
     // pointer to default EoS (first element added above)
     pEoS_base p_default_EoS = chosen_EOSs.front();
@@ -93,7 +93,8 @@ void EquationOfState::init(string quantityFile, string derivFile)
     chosen_EOSs.push_back(
         std::make_shared<EoS_nonconformal_extension>(
                           p_default_EoS, tbqs_minima, tbqs_maxima ) );
-  }
+    YOU NEED TO DEFINE MISSING FUNCTIONS TO USE THIS
+  }*/
 
 
   // use conformal as fallback
