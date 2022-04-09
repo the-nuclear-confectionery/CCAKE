@@ -207,7 +207,7 @@ void EoS_table::get_eBSQ( double point_in[], double results[] )
 
 void EoS_table::get_eBSQ_safe( const double point_in[], double results[] )
 {
-  double point_projected[4];
+  double point_projected[4], results_full[17];
   for ( int i = 0; i < 4; i++ ) point_projected[i] = point_in[i];
 
 cout << __PRETTY_FUNCTION__ << ": " << point_projected[0] << "   " << point_projected[1] << "   "
@@ -227,31 +227,63 @@ cout << __PRETTY_FUNCTION__ << ": " << point_projected[0] << "   " << point_proj
     eos_extension::project_to_boundary(
         point_projected, tbqs_minima_no_ext.data(), tbqs_maxima_no_ext.data() );
 
-const double hc = constants::hbarc_MeVfm;
+    const double hc = constants::hbarc_MeVfm;
 
-cout << "Original point: " << point_in[0]*hc << "   " << point_in[1]*hc << "   "
-      << point_in[2]*hc << "   " << point_in[3]*hc << endl;
-cout << "Projected point: " << point_projected[0]*hc << "   " << point_projected[1]*hc << "   "
-      << point_projected[2]*hc << "   " << point_projected[3]*hc << endl;
+    std::cout << "Original point: "
+              << point_in[0]*hc << "   " << point_in[1]*hc << "   "
+              << point_in[2]*hc << "   " << point_in[3]*hc << std::endl;
+    std::cout << "Projected point: "
+              << point_projected[0]*hc << "   " << point_projected[1]*hc << "   "
+              << point_projected[2]*hc << "   " << point_projected[3]*hc << std::endl;
+
+    //============================================================================
+    // MUST USE FULL THERMO TO SET NON-CONFORMAL EXTENSION
+    // evaluate the relevant grid point
+    if (use_static_C_library)
+      STANDARD_get_full_thermo( point_projected, results_full );
+    else  // using table itself
+    {
+      // copy C arrays to C++ vectors
+      vector<double> v_point(point_projected, point_projected+4);
+      vector<double> v_results(results_full, results_full+17);
+
+      // evaluate EoS interpolator at current location (S and Q NOT SWAPPED)
+      equation_of_state_table.evaluate( v_point, v_results ); 
+
+      if ( v_results.size() != 17 )
+      {
+        cerr << "PROBLEM" << endl;
+        exit(1);
+      }
+
+      // copy C++ vector of results back to C array
+      std::copy(v_results.begin(), v_results.end(), results_full);
+    }
+
+    // project back to original point using non-conformal extension
+    std::cout << "Projecting back" << std::endl;
+    eos_extension::get_nonconformal_extension( point_in, point_projected, results_full, 1 );
+
+    // set relevant densities and return
+    results[0] = results_full[5];
+    results[1] = results_full[2];
+    results[2] = results_full[3];
+    results[3] = results_full[4];
+
   }
-
-  //============================================================================
-  // evaluate the relevant grid point
-  if (use_static_C_library)
+  else
   {
-    cout << "Computing STANDARD_get_eBSQ_densities" << endl;
-    STANDARD_get_eBSQ_densities(point_projected, results);
+    //============================================================================
+    // evaluate the relevant grid point
+    if (use_static_C_library)
+    {
+      cout << "Computing STANDARD_get_eBSQ_densities" << endl;
+      STANDARD_get_eBSQ_densities(point_projected, results);
+    }
+    else  // using table itself
+      get_eBSQ_densities_from_interpolator(point_projected, results);
   }
-  else  // using table itself
-    get_eBSQ_densities_from_interpolator(point_projected, results);
 
-  //============================================================================
-  // project back to original point using non-conformal extension
-  if ( use_nonconformal_extension and point_not_in_range )
-  {
-    cout << "Projecting back" << endl;
-    eos_extension::get_nonconformal_extension( point_in, point_projected, results, 1 );
-  }
 }
 
 
