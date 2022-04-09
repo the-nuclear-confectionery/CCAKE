@@ -68,11 +68,11 @@ int rootfinder_f(const gsl_vector *x, void *params, gsl_vector *f)
       // compute densities using passed-in function object
       get_densities( phase_diagram_point, densities_at_point );
 
-//cout << "PD point:";
-//for (int i = 0; i < 4; i++) cout << "   " << phase_diagram_point[i];
-//cout << endl << "Densities:";
-//for (int i = 0; i < 4; i++) cout << "   " << densities_at_point[i];
-//cout << endl;
+cout << "PD point:";
+for (int i = 0; i < 4; i++) cout << "   " << phase_diagram_point[i];
+cout << endl << "Densities:";
+for (int i = 0; i < 4; i++) cout << "   " << densities_at_point[i];
+cout << endl;
 //if (1) exit(1);
 
       // set densities (convert to powers of fm if necessary)
@@ -87,6 +87,13 @@ int rootfinder_f(const gsl_vector *x, void *params, gsl_vector *f)
     gsl_vector_set(f, 1, (rhoB   - rhoBGiven));
     gsl_vector_set(f, 2, (rhoQ   - rhoQGiven));
     gsl_vector_set(f, 3, (rhoS   - rhoSGiven));
+
+cout << "e: " << eorEnt << "   " << eorEntGiven << "   " << eorEnt - eorEntGiven << endl;
+cout << "B: " << rhoB << "   " << rhoBGiven << "   " << rhoB - rhoBGiven << endl;
+cout << "Q: " << rhoQ << "   " << rhoQGiven << "   " << rhoQ - rhoQGiven << endl;
+cout << "S: " << rhoS << "   " << rhoSGiven << "   " << rhoS - rhoSGiven << endl;
+if (1) exit(1);
+
 
     return GSL_SUCCESS;
 }
