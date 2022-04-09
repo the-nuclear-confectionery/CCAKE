@@ -473,8 +473,8 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
     std::cout << " --> currently trying " << this_eos->name << " EoS for solution..." << std::endl;
     result = tbqsPosition;
     std::cout << "     - seed: "
-              << result[0] << "   " << result[1] << "   "
-              << result[2] << "   " << result[3] << std::endl;
+              << result[0]*hc << "   " << result[1]*hc << "   "
+              << result[2]*hc << "   " << result[3]*hc << std::endl;
     solution_found
       = rootfinder.find_eBSQ_root( ein, Bin, Sin, Qin, this_eos->eBSQ,
                                    this_eos->tbqs_minima, this_eos->tbqs_maxima,
@@ -489,8 +489,8 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
       const double hc = constants::hbarc_MeVfm;
       result = std::vector<double>({5001.0/hc,0.0,0.0,0.0});
       std::cout << "     - seed: "
-                << result[0] << "   " << result[1] << "   "
-                << result[2] << "   " << result[3] << std::endl;
+                << result[0]*hc << "   " << result[1]*hc << "   "
+                << result[2]*hc << "   " << result[3]*hc << std::endl;
       solution_found
         = rootfinder.find_eBSQ_root( ein, Bin, Sin, Qin, this_eos->eBSQ,
                                      this_eos->tbqs_minima, this_eos->tbqs_maxima,
