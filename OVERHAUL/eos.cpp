@@ -479,7 +479,7 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
                                    result );
 
     // try a different seed value if default guess fails
-    if (!success)
+    if (!solution_found)
     {
       // try twice the grid maxima
       result = this_eos->get_tbqs_maxima_no_ext();
