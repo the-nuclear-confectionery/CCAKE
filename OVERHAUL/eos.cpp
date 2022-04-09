@@ -388,7 +388,7 @@ bool EquationOfState::rootfinder_update_s(double sin, double Bin, double Sin, do
     {
       // try twice the grid maxima
       result = this_eos->get_tbqs_maxima_no_ext();
-      std::for_each(result.begin(), result.end(), [2.0](double &c){ c *= k; });
+      std::for_each(result.begin(), result.end(), [](double &c){ c *= 2.0; });
       std::cout << "     - seed: "
                 << result[0] << "   " << result[1] << "   "
                 << result[2] << "   " << result[3] << std::endl;
@@ -483,7 +483,7 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
     {
       // try twice the grid maxima
       result = this_eos->get_tbqs_maxima_no_ext();
-      std::for_each(result.begin(), result.end(), [2.0](double &c){ c *= k; });
+      std::for_each(result.begin(), result.end(), [](double &c){ c *= 2.0; });
       std::cout << "     - seed: "
                 << result[0] << "   " << result[1] << "   "
                 << result[2] << "   " << result[3] << std::endl;
