@@ -23,7 +23,7 @@ public:
                  const double muS0_in, const double muQ0_in,
                  const std::vector<double> & tbqs_minima_in,
                  const std::vector<double> & tbqs_maxima_in,
-                 const std::string name_in & = "conformal")
+                 const std::string & name_in = "conformal")
     { c = c_in; T0 = T0_in; muB0 = muB0_in; muS0 = muS0_in; muQ0 = muQ0_in;
       tbqs_minima = tbqs_minima_in; tbqs_maxima = tbqs_maxima_in; name = name_in; }
 

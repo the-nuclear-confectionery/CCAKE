@@ -137,7 +137,7 @@ void EquationOfState::init(string quantityFile, string derivFile)
     vector<double> tbqs_maxima = { TBQS_INFINITY, TBQS_INFINITY,  TBQS_INFINITY,  TBQS_INFINITY };
 
     cout << "Conformal fallback EoS set up with following parameters:" << endl;
-    cout << "  --> c0   = " << c0 << endl;
+    cout << "  --> c    = " << c << endl;
     cout << "  --> T0   = " << T0 << endl;
     cout << "  --> muB0 = " << muB0 << endl;
     cout << "  --> muQ0 = " << muQ0 << endl;
