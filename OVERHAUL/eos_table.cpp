@@ -264,6 +264,10 @@ cout << __PRETTY_FUNCTION__ << ": " << point_projected[0] << "   " << point_proj
     std::cout << "Projecting back" << std::endl;
     eos_extension::get_nonconformal_extension( point_in, point_projected, results_full, 1 );
 
+cout << "Thermo:" << endl;
+for (int i = 0; i < 17; i++)
+  cout << results_full[i] << endl;
+
     // set relevant densities and return
     results[0] = results_full[5];
     results[1] = results_full[2];
