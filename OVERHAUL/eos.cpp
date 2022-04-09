@@ -487,7 +487,7 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
       std::cout << "     - seed: "
                 << result[0] << "   " << result[1] << "   "
                 << result[2] << "   " << result[3] << std::endl;
-      success
+      solution_found
         = rootfinder.find_eBSQ_root( ein, Bin, Sin, Qin, this_eos->eBSQ,
                                      this_eos->tbqs_minima, this_eos->tbqs_maxima,
                                      result );
