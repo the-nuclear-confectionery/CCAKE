@@ -149,7 +149,7 @@ void EquationOfState::init(string quantityFile, string derivFile)
     // add matched conformal EoS to vector of EoSs
     chosen_EOSs.push_back( std::make_shared<EoS_conformal>(
                             c, T0, muB0, muS0, muQ0,
-                            tbqs_minima, tbqs_maxima, "conformal_fallback" ) );
+                            tbqs_minima, tbqs_maxima, "conformal" ) );
   }
 
 
