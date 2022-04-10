@@ -227,6 +227,7 @@ void EquationOfState::run_closure_test()
   for (double muQ0 = -2000.0; muQ0 <= -2000.01; muQ0 += 500.0)
   {
     std::vector<double> point = {T0/hc, muB0/hc, muQ0/hc, muS0/hc};
+    std::cout << "GETTING THERMODYNAMICS" << std::endl;
     std::vector<double> v = get_thermodynamics( point, "table" );
     std::cout << "Check nc_ext_table: " << T0 << "   " << muB0 << "   "
               << muQ0 << "   "<< muS0 << "   " << v[0] << "   " << v[6] << "   "
@@ -235,6 +236,7 @@ void EquationOfState::run_closure_test()
     rhoB_In = v[2];
     rhoS_In = v[3];
     rhoQ_In = v[4];
+    std::cout << "GOT THERMODYNAMICS" << std::endl;
   }
   std::cout << std::endl << std::endl << std::endl;
 
