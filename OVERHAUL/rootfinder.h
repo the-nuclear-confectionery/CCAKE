@@ -30,9 +30,9 @@ public:
 
 private:
 
-  const int VERBOSE = 0;
+  const int VERBOSE = 10;
   const int STEPS = 1000;
-  const double TOLERANCE = 1e-3;
+  const double TOLERANCE = 1e-6;
 
   //Rootfinding method used **THIS CAN BE CHANGED DEPENDING ON EOS
   const gsl_multiroot_fsolver_type *TYPE = gsl_multiroot_fsolver_hybrids;
