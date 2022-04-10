@@ -225,7 +225,7 @@ void EquationOfState::run_closure_test()
   for (double T0 =  5000.0; T0 <= 5000.01; T0 += 500.0)
   for (double muB0 = 3000.0; muB0 <= 3000.01; muB0 += 500.0)
   for (double muS0 = -2000.0; muS0 <= -(2000.0-0.01); muS0 += 500.0)
-  for (double muQ0 = -2000.0; muQ0 <= -(2000.0-0.01); muQ0 += 500.0)
+  for (double muQ0 = -1000.0; muQ0 <= -(1000.0-0.01); muQ0 += 500.0)
   {
     std::cout << "GETTING THERMODYNAMICS" << std::endl;
     std::vector<double> point = {T0/hc, muB0/hc, muQ0/hc, muS0/hc};
