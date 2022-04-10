@@ -472,7 +472,7 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
   {
     std::cout << " --> currently trying " << this_eos->name << " EoS for solution..." << std::endl;
     result = tbqsPosition;
-    result = vector<double>({10000.0,10000.0,10000.0,10000.0});
+    result = vector<double>({5200.0,3200.0,-2200.0,-1200.0});
     const double hc = constants::hbarc_MeVfm;
     std::cout << "     - seed: "
               << result[0]*hc << "   " << result[1]*hc << "   "
