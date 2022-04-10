@@ -92,7 +92,7 @@ cout << "e: " << eorEnt << "   " << eorEntGiven << "   " << eorEnt - eorEntGiven
 cout << "B: " << rhoB << "   " << rhoBGiven << "   " << rhoB - rhoBGiven << endl;
 cout << "Q: " << rhoQ << "   " << rhoQGiven << "   " << rhoQ - rhoQGiven << endl;
 cout << "S: " << rhoS << "   " << rhoSGiven << "   " << rhoS - rhoSGiven << endl;
-//if (1) exit(1);
+if (1) exit(1);
 
 
     return GSL_SUCCESS;
