@@ -229,12 +229,12 @@ cout << __PRETTY_FUNCTION__ << ": " << point_projected[0] << "   " << point_proj
 
     const double hc = constants::hbarc_MeVfm;
 
-    std::cout << "Original point: "
-              << point_in[0]*hc << "   " << point_in[1]*hc << "   "
-              << point_in[2]*hc << "   " << point_in[3]*hc << std::endl;
-    std::cout << "Projected point: "
-              << point_projected[0]*hc << "   " << point_projected[1]*hc << "   "
-              << point_projected[2]*hc << "   " << point_projected[3]*hc << std::endl;
+//    std::cout << "Original point: "
+//              << point_in[0]*hc << "   " << point_in[1]*hc << "   "
+//              << point_in[2]*hc << "   " << point_in[3]*hc << std::endl;
+//    std::cout << "Projected point: "
+//              << point_projected[0]*hc << "   " << point_projected[1]*hc << "   "
+//              << point_projected[2]*hc << "   " << point_projected[3]*hc << std::endl;
 
     //============================================================================
     // MUST USE FULL THERMO TO SET NON-CONFORMAL EXTENSION
@@ -261,7 +261,7 @@ cout << __PRETTY_FUNCTION__ << ": " << point_projected[0] << "   " << point_proj
     }
 
     // project back to original point using non-conformal extension
-    std::cout << "Projecting back" << std::endl;
+//    std::cout << "Projecting back" << std::endl;
     eos_extension::get_nonconformal_extension( point_in, point_projected, results_full, 0 );
 
 //cout << "Thermo:" << endl;
