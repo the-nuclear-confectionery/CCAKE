@@ -262,7 +262,7 @@ cout << __PRETTY_FUNCTION__ << ": " << point_projected[0] << "   " << point_proj
 
     // project back to original point using non-conformal extension
     std::cout << "Projecting back" << std::endl;
-    eos_extension::get_nonconformal_extension( point_in, point_projected, results_full, 1 );
+    eos_extension::get_nonconformal_extension( point_in, point_projected, results_full, 0 );
 
 cout << "Thermo:" << endl;
 for (int i = 0; i < 17; i++)
