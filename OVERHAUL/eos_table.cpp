@@ -210,8 +210,8 @@ void EoS_table::get_eBSQ_safe( const double point_in[], double results[] )
   double point_projected[4], results_full[17];
   for ( int i = 0; i < 4; i++ ) point_projected[i] = point_in[i];
 
-cout << __PRETTY_FUNCTION__ << ": " << point_projected[0] << "   " << point_projected[1] << "   "
-     << point_projected[2] << "   " << point_projected[3] << endl;
+//cout << __PRETTY_FUNCTION__ << ": " << point_projected[0] << "   " << point_projected[1] << "   "
+//     << point_projected[2] << "   " << point_projected[3] << endl;
 
   //============================================================================
   // decide this w.r.t. the tbqs ranges sans extension
@@ -281,7 +281,7 @@ cout << __PRETTY_FUNCTION__ << ": " << point_projected[0] << "   " << point_proj
     // evaluate the relevant grid point
     if (use_static_C_library)
     {
-      cout << "Computing STANDARD_get_eBSQ_densities" << endl;
+//      cout << "Computing STANDARD_get_eBSQ_densities" << endl;
       STANDARD_get_eBSQ_densities(point_projected, results);
     }
     else  // using table itself
