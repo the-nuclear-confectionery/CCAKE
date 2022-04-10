@@ -210,8 +210,8 @@ void EoS_table::get_eBSQ_safe( const double point_in[], double results[] )
   double point_projected[4], results_full[17];
   for ( int i = 0; i < 4; i++ ) point_projected[i] = point_in[i];
 
-cout << __PRETTY_FUNCTION__ << ": " << point_projected[0] << "   " << point_projected[1] << "   "
-     << point_projected[2] << "   " << point_projected[3] << endl;
+//cout << __PRETTY_FUNCTION__ << ": " << point_projected[0] << "   " << point_projected[1] << "   "
+//     << point_projected[2] << "   " << point_projected[3] << endl;
 
   //============================================================================
   // decide this w.r.t. the tbqs ranges sans extension
@@ -227,14 +227,14 @@ cout << __PRETTY_FUNCTION__ << ": " << point_projected[0] << "   " << point_proj
     eos_extension::project_to_boundary(
         point_projected, tbqs_minima_no_ext.data(), tbqs_maxima_no_ext.data() );
 
-    const double hc = constants::hbarc_MeVfm;
-
-    std::cout << "Original point: "
-              << point_in[0]*hc << "   " << point_in[1]*hc << "   "
-              << point_in[2]*hc << "   " << point_in[3]*hc << std::endl;
-    std::cout << "Projected point: "
-              << point_projected[0]*hc << "   " << point_projected[1]*hc << "   "
-              << point_projected[2]*hc << "   " << point_projected[3]*hc << std::endl;
+//    const double hc = constants::hbarc_MeVfm;
+//
+//    std::cout << "Original point: "
+//              << point_in[0]*hc << "   " << point_in[1]*hc << "   "
+//              << point_in[2]*hc << "   " << point_in[3]*hc << std::endl;
+//    std::cout << "Projected point: "
+//              << point_projected[0]*hc << "   " << point_projected[1]*hc << "   "
+//              << point_projected[2]*hc << "   " << point_projected[3]*hc << std::endl;
 
     //============================================================================
     // MUST USE FULL THERMO TO SET NON-CONFORMAL EXTENSION
@@ -264,9 +264,9 @@ cout << __PRETTY_FUNCTION__ << ": " << point_projected[0] << "   " << point_proj
 //    std::cout << "Projecting back" << std::endl;
     eos_extension::get_nonconformal_extension( point_in, point_projected, results_full, 0 );
 
-cout << "Thermo:" << endl;
-for (int i = 0; i < 17; i++)
-  cout << results_full[i] << endl;
+//cout << "Thermo:" << endl;
+//for (int i = 0; i < 17; i++)
+//  cout << results_full[i] << endl;
 
     // set relevant densities and return
     results[0] = results_full[5];
@@ -348,8 +348,8 @@ void EoS_table::get_full_thermo_safe( const double point_in[], double results[] 
   double point_projected[4];
   for ( int i = 0; i < 4; i++ ) point_projected[i] = point_in[i];
 
-cout << __PRETTY_FUNCTION__ << ": " << point_projected[0] << "   " << point_projected[1] << "   "
-     << point_projected[2] << "   " << point_projected[3] << endl;
+//cout << __PRETTY_FUNCTION__ << ": " << point_projected[0] << "   " << point_projected[1] << "   "
+//     << point_projected[2] << "   " << point_projected[3] << endl;
 
   //============================================================================
   // decide this w.r.t. the tbqs ranges sans extension
@@ -365,12 +365,12 @@ cout << __PRETTY_FUNCTION__ << ": " << point_projected[0] << "   " << point_proj
     eos_extension::project_to_boundary(
         point_projected, tbqs_minima_no_ext.data(), tbqs_maxima_no_ext.data() );
 
-const double hc = constants::hbarc_MeVfm;
-
-cout << "Original point: " << point_in[0]*hc << "   " << point_in[1]*hc << "   "
-      << point_in[2]*hc << "   " << point_in[3]*hc << endl;
-cout << "Projected point: " << point_projected[0]*hc << "   " << point_projected[1]*hc << "   "
-      << point_projected[2]*hc << "   " << point_projected[3]*hc << endl;
+//const double hc = constants::hbarc_MeVfm;
+//
+//cout << "Original point: " << point_in[0]*hc << "   " << point_in[1]*hc << "   "
+//      << point_in[2]*hc << "   " << point_in[3]*hc << endl;
+//cout << "Projected point: " << point_projected[0]*hc << "   " << point_projected[1]*hc << "   "
+//      << point_projected[2]*hc << "   " << point_projected[3]*hc << endl;
   }
 
   //============================================================================
@@ -402,9 +402,9 @@ cout << "Projected point: " << point_projected[0]*hc << "   " << point_projected
   if ( use_nonconformal_extension and point_not_in_range )
     eos_extension::get_nonconformal_extension( point_in, point_projected, results, 0 );
 
-cout << "Thermo:" << endl;
-for (int i = 0; i < 17; i++)
-  cout << results[i] << endl;
+//cout << "Thermo:" << endl;
+//for (int i = 0; i < 17; i++)
+//  cout << results[i] << endl;
 
 }  
 

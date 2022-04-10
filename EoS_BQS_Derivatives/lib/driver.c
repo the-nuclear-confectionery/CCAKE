@@ -496,8 +496,8 @@ void STANDARD_get_eBSQ_densities(double point[], double densities[])
 	double SOut = Tsol3_by_hc3*StrDensTaylor(Tsol, muBsol, muQsol, muSsol);
 	double QOut = Tsol3_by_hc3*ChDensTaylor(Tsol, muBsol, muQsol, muSsol);
 	double eOut = sOut*Tsol - POut + muBsol*BOut + muQsol*QOut + muSsol*SOut;
-  printf("Total dump from eBSQ: %lf %lf %lf %lf %lf %lf %lf %lf\n",
-          Tsol, muBsol, muQsol, muSsol, eOut, BOut, SOut, QOut);
+//  printf("Total dump from eBSQ: %lf %lf %lf %lf %lf %lf %lf %lf\n",
+//          Tsol, muBsol, muQsol, muSsol, eOut, BOut, SOut, QOut);
 	densities[0] = eOut / 197.3;
 	densities[1] = BOut;
 	densities[2] = SOut;
@@ -530,8 +530,8 @@ void STANDARD_get_full_thermo(double point[], double thermodynamics[])
 	double QOut = Tsol3_by_hc3*ChDensTaylor(Tsol, muBsol, muQsol, muSsol);
 	double eOut = sOut*Tsol - POut + muBsol*BOut + muQsol*QOut + muSsol*SOut;
 
-  printf("Total dump from full thermo: %lf %lf %lf %lf %lf %lf %lf %lf\n",
-          Tsol, muBsol, muQsol, muSsol, eOut, BOut, SOut, QOut);
+//  printf("Total dump from full thermo: %lf %lf %lf %lf %lf %lf %lf %lf\n",
+//          Tsol, muBsol, muQsol, muSsol, eOut, BOut, SOut, QOut);
 
 
 	//Thermodynamics
