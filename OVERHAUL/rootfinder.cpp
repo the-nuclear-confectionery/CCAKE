@@ -218,8 +218,6 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
           std::cout << "Check: " << iter << "   " << steps << "   " << status << std::endl;
       }
 
-      std::cout << "Check: " << iter << "   " << steps << "   " << status << std::endl;
-
       //break if the rootfinder gets stuck
       break;
     }
