@@ -488,7 +488,7 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
       // try twice the grid maxima
       //result = this_eos->get_tbqs_maxima_no_ext();
       //std::for_each(result.begin(), result.end(), [](double &c){ c *= 2.0; });
-      result = std::vector<double>({5001.0/hc,0.0,0.0,0.0});
+      result = std::vector<double>({4900.0/hc,0.0,0.0,0.0});
       std::cout << "     - seed: "
                 << result[0]*hc << "   " << result[1]*hc << "   "
                 << result[2]*hc << "   " << result[3]*hc << std::endl;
