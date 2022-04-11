@@ -199,14 +199,15 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
     status = gsl_multiroot_fsolver_iterate(solver);
 //cout << "Status after(1): " << status << "   " << GSL_CONTINUE << endl;
 
-    if(VERBOSE > 5 && status)
+    if ( status )
     {
-      if ( status == GSL_EBADFUNC && VERBOSE > 5 )
+      if ( VERBOSE > 5 && status == GSL_EBADFUNC )
         std::cout << "Error: something went to +/-Inf or NaN!" << std::endl;
-      else if ( status == GSL_ENOPROG && VERBOSE > 5 )
+      else if ( VERBOSE > 5 && status == GSL_ENOPROG )
         std::cout << "Error: not making enough progress!" << std::endl;
-      else if ( status == GSL_ENOPROGJ && VERBOSE > 5 )
+      else if ( VERBOSE > 5 && status == GSL_ENOPROGJ )
         std::cout << "Error: not making enough progress in Jacobian!" << std::endl;
+
       //break if the rootfinder gets stuck
       break;
     }
@@ -302,7 +303,7 @@ std::cout << "Precheck: " << iter << "   " << steps << "   " << status << std::e
   if ( iter >= steps || status != 0 )
   {
 std::cout << "Made it to line " << __LINE__ << std::endl;
-    //if ( VERBOSE > 2 )
+    if ( VERBOSE > 2 )
     {
       if ( status == GSL_EBADFUNC )
         std::cout << "Error: something went to +/-Inf or NaN!" << std::endl;
