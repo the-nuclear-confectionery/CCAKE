@@ -207,6 +207,8 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
         std::cout << "Error: not making enough progress!" << std::endl;
       else if ( VERBOSE > 5 && status == GSL_ENOPROGJ )
         std::cout << "Error: not making enough progress in Jacobian!" << std::endl;
+      else
+        std::cout << "Check: " << iter << "   " << steps << "   " << status << std::endl;
 
       //break if the rootfinder gets stuck
       break;
