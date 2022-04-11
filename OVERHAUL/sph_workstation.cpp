@@ -53,6 +53,10 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 
     for (int i=0; i<systemPtr->_n; i++)
     {
+	cout << "----------------------------------------"
+			"----------------------------------------" << endl;
+
+
       auto & p = systemPtr->particles[i];
 
 
@@ -137,6 +141,8 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 		p.S *= p.gamma*settingsPtr->t0;	// S does not evolve in ideal case
 		p.Q *= p.gamma*settingsPtr->t0;	// Q does not evolve in ideal case
 
+	cout << "----------------------------------------"
+			"----------------------------------------" << endl;
 
 	if (true)
 	{

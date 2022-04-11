@@ -350,21 +350,26 @@ bool Rootfinder::find_eBSQ_root( double ein, double Bin, double Sin, double Qin,
     minMuB = tbqs_minima[1]; maxMuB = tbqs_maxima[1];
     minMuQ = tbqs_minima[2]; maxMuQ = tbqs_maxima[2];
     minMuS = tbqs_minima[3]; maxMuS = tbqs_maxima[3];
-std::cout << "Using grid ranges: "
-  << minT*hbarc_MeVfm << "   "
-  << maxT*hbarc_MeVfm << "   "
-  << minMuB*hbarc_MeVfm << "   "
-  << maxMuB*hbarc_MeVfm << "   "
-  << minMuQ*hbarc_MeVfm << "   "
-  << maxMuQ*hbarc_MeVfm << "   "
-  << minMuS*hbarc_MeVfm << "   "
-  << maxMuS*hbarc_MeVfm << std::endl;
+
+    if ( VERBOSE > 6 )
+      std::cout << "Using grid ranges: "
+        << minT*hbarc_MeVfm << "   "
+        << maxT*hbarc_MeVfm << "   "
+        << minMuB*hbarc_MeVfm << "   "
+        << maxMuB*hbarc_MeVfm << "   "
+        << minMuQ*hbarc_MeVfm << "   "
+        << maxMuQ*hbarc_MeVfm << "   "
+        << minMuS*hbarc_MeVfm << "   "
+        << maxMuS*hbarc_MeVfm << std::endl;
+
     tbqsPosition = updated_tbqs;
 
+
+    //==========================================================================
+    // try default seed point
     if (rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs))
-        { /*cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
-              << " attempts" << endl;*/ return true; }
+        return true;
 
     ///////////////////////////
 
@@ -377,6 +382,7 @@ std::cout << "Using grid ranges: "
     double muQ10 = muq0*.2;
     double muS10 = mus0*.2;
 
+    //==========================================================================
     //perturb T
     number_of_attempts++;
 
@@ -387,8 +393,7 @@ std::cout << "Using grid ranges: "
     }
     if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs)) 
-        { cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
-              << " attempts" << endl; return true; }
+        return true;
 
     number_of_attempts++;
 
@@ -399,11 +404,10 @@ std::cout << "Using grid ranges: "
     }
     if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs)) 
-        { cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
-              << " attempts" << endl; return true; }
+        return true;
 
+    //==========================================================================
     //perturb mub
-
     number_of_attempts++;
 
     if(mub0 + muB10 > maxMuB) {
@@ -413,8 +417,7 @@ std::cout << "Using grid ranges: "
     }
     if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs)) 
-        { /*cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
-              << " attempts" << endl;*/ return true; }
+        return true;
 
     number_of_attempts++;
 
@@ -425,11 +428,10 @@ std::cout << "Using grid ranges: "
     }
     if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs)) 
-        { cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
-              << " attempts" << endl; return true; }
+        return true;
 
-    //perturn muq
-
+    //==========================================================================
+    //perturb muq
     number_of_attempts++;
 
     if(muq0 + muQ10 > maxMuQ) {
@@ -439,8 +441,7 @@ std::cout << "Using grid ranges: "
     }
     if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs)) 
-        { cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
-              << " attempts" << endl; return true; }
+        return true;
 
     number_of_attempts++;
 
@@ -451,11 +452,10 @@ std::cout << "Using grid ranges: "
     }
     if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs))
-        { cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
-              << " attempts" << endl; return true; }
+        return true;
 
+    //==========================================================================
     //perturb mus
-
     number_of_attempts++;
 
     if(mus0 + muS10 > maxMuS) {
@@ -465,8 +465,7 @@ std::cout << "Using grid ranges: "
     }
     if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs)) 
-        { cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
-              << " attempts" << endl; return true; }
+        return true;
 
     number_of_attempts++;
 
@@ -477,9 +476,9 @@ std::cout << "Using grid ranges: "
     }
     if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs)) 
-        { cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
-              << " attempts" << endl; return true; }
+        return true;
 
+    //==========================================================================
     //check mu = 0
     tbqs(t0, 0, 0, 0);
 
@@ -487,10 +486,12 @@ std::cout << "Using grid ranges: "
 
     if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs)) 
-        { cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
-              << " attempts" << endl; return true; }
+        return true;
 
-cout << __PRETTY_FUNCTION__ << ": failed after " << number_of_attempts << "!" << endl;
+
+    if ( VERBOSE > 8 )
+      std::cout << __PRETTY_FUNCTION__ << ": failed after "
+                << number_of_attempts << "!" << std::endl;
 
     tbqs(t0, mub0, muq0, mus0);
     return false;
