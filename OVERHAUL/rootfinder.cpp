@@ -298,7 +298,7 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
   bool found = true;
   if ( iter >= steps || status != 0 )
   {
-    if ( VERBOSE > 2 )
+    //if ( VERBOSE > 2 )
     {
       if ( status == GSL_EBADFUNC )
         std::cout << "Error: something went to +/-Inf or NaN!" << std::endl;
