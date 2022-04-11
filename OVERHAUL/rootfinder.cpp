@@ -161,9 +161,9 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 //for (int iTBQS = 0; iTBQS < 4; iTBQS++) cout << "   " << tbqsPosition[iTBQS];
 //cout << endl;
 
-  std::cout << "Using these definitions: "
-            << GSL_CONTINUE << "   "<< GSL_EBADFUNC << "   "
-            << GSL_ENOPROG << "   " << GSL_ENOPROGJ << std::endl;
+//  std::cout << "Using these definitions: "
+//            << GSL_CONTINUE << "   "<< GSL_EBADFUNC << "   "
+//            << GSL_ENOPROG << "   " << GSL_ENOPROGJ << std::endl;
 
   gsl_vector *x = gsl_vector_alloc(4);
   for (int iTBQS = 0; iTBQS < 4; iTBQS++)
@@ -206,7 +206,7 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 //std::cout << "Made it to line " << __LINE__ << " with status = " << status << std::endl;
     if ( status )
     {
-      if ( VERBOSE > 2 )
+      if ( VERBOSE > 5 )
       {
         if ( status == GSL_EBADFUNC )
           std::cout << "Error: something went to +/-Inf or NaN!" << std::endl;
@@ -217,6 +217,8 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
         else
           std::cout << "Check: " << iter << "   " << steps << "   " << status << std::endl;
       }
+
+      std::cout << "Check: " << iter << "   " << steps << "   " << status << std::endl;
 
       //break if the rootfinder gets stuck
       break;
@@ -305,15 +307,12 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 
   } while (status == GSL_CONTINUE && iter < steps);
 
-std::cout << "Made it to line " << __LINE__ << std::endl;
-
   // check if a solution was found
   bool found = true;
   if ( iter >= steps || status != 0 )
   {
     if ( VERBOSE > 2 )
     {
-std::cout << "Made it to line " << __LINE__ << std::endl;
       if ( status == GSL_EBADFUNC )
         std::cout << "Error: something went to +/-Inf or NaN!" << std::endl;
       else if ( status == GSL_ENOPROG )
@@ -325,6 +324,9 @@ std::cout << "Made it to line " << __LINE__ << std::endl;
     }
     found = false;
   }
+
+  std::cout << "Check: " << iter << "   " << steps << "   " << status << std::endl;
+
 
   // if so, return the solution
   if ( found )
