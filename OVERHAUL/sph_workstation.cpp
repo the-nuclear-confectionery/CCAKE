@@ -73,7 +73,8 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 			sw.Stop();
 			string successString = (p.s_an < 0.0) ?
 									"unsuccessfully" : "successfully";
-			cout << "SPH particle " << i << ", locate_phase_diagram_point_eBSQ: completed "
+      cout << "Print particle info:\n";
+			cout << "    SPH particle " << i << ", locate_phase_diagram_point_eBSQ: completed "
 					<< successString << " in " << sw.printTime() << "s." << "\n";
 
 		}
@@ -94,38 +95,25 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 		}
 		else
 		{
-
-			cout << "\t --> Densities found in EoS table: "
-				<< p.r.x[0] << "   " << p.r.x[1] << "   " << p.get_current_eos_name() << "\n";
-			cout << "\t\t - phase diagram point: "
-					<< p.T()*hbarc_MeVfm << "   "
-					<< p.muB()*hbarc_MeVfm << "   "
-					<< p.muS()*hbarc_MeVfm << "   "
-					<< p.muQ()*hbarc_MeVfm << "\n";
-			cout << "\t\t - densities: "
-					<< p.e_sub*hbarc_MeVfm << "   "
-					<< p.rhoB_an << "   "
-					<< p.rhoS_an << "   "
-					<< p.rhoQ_an << "\n";
-			
-			cout << "\t --> Exact:\n";
-			double phase_diagram_point[4] = { p.T(), p.muB(), p.muQ(), p.muS() };
-
-			double densities_at_point[4];
-//      cout << "!!!!! Warning !!!!!: the following output does not make sense!" << endl;
-//      if (p.eosPtr->using_conformal_as_fallback())
-//        p.eosPtr->conformal_eBSQ_functional( phase_diagram_point, densities_at_point );
-//      else
-//        p.eosPtr->eBSQ_functional( phase_diagram_point, densities_at_point );
-
-			cout << "\t\t - phase diagram point:";
-			for (int iii = 0; iii < 4; iii++) cout << "   " << hbarc_MeVfm*phase_diagram_point[iii];
-			cout << "\n\t\t - densities:";
-      cout << "   " << hbarc_MeVfm*densities_at_point[0];
-			for (int iii = 1; iii < 4; iii++) cout << "   " << densities_at_point[iii];
-			cout << "\n\t\t - freeze-out status:";
-      cout << "   " << p.Freeze << "\n";
-
+			std::cout << "\t --> Solution info: "
+                << p.r.x[0] << "   " << p.r.x[1] << "   "
+                << p.get_current_eos_name() << "\n";
+			std::cout << "\t\t - phase diagram point (TBQS): "
+                << p.T()*hbarc_MeVfm << "   "
+                << p.muB()*hbarc_MeVfm << "   "
+                << p.muQ()*hbarc_MeVfm << "   "
+                << p.muS()*hbarc_MeVfm << "\n";
+			std::cout << "\t\t - input densities (eBSQ): "
+                << p.e_sub*hbarc_MeVfm << "   "
+                << p.rhoB_an << "   "
+                << p.rhoS_an << "   "
+                << p.rhoQ_an << "\n";
+			cout << "\t\t - output densities (eBSQ): "
+                << p.e()*hbarc_MeVfm << "   "
+                << p.rhoB() << "   "
+                << p.rhoS() << "   "
+                << p.rhoQ() << "\n";
+			cout << "\n\t\t - freeze-out status:   " << p.Freeze << "\n";
 		}
 
     if (settingsPtr->gtyp==5) p.e_sub = p.e();
@@ -508,7 +496,7 @@ void SPHWorkstation::process_initial_conditions()
 
 		// make educated initial guess here for this particle's (T, mu_i) coordinates
 		// (improve this in the future)
-		p.thermo.T        = 10000.0/hbarc_MeVfm;	// rootfinder seems to work better going downhill than "uphill"
+		p.thermo.T        = 500.0/hbarc_MeVfm;	// rootfinder seems to work better going downhill than "uphill"
 		p.thermo.muB      = 0.0/hbarc_MeVfm;
 		p.thermo.muS      = 0.0/hbarc_MeVfm;
 		p.thermo.muQ      = 0.0/hbarc_MeVfm;
