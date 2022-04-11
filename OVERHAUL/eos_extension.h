@@ -45,12 +45,12 @@ namespace eos_extension
   void get_sBSQ( const double point[], double results[] );        // results length = 4
 
   // projects point on boundary to arbitrary point outside phase diagram boundary
-  // - option = 0: project full thermodynamics
-  // - option = 1: project eBSQ
-  // - option = 2: project sBSQ
-  void get_nonconformal_extension( const double point[], const double point_projected[],
-                                   double results[], const int option );
-  void project_to_boundary( double point[], const double minima[], const double maxima[] );
+  void get_nonconformal_extension( const double point[],
+                                   const double point_projected[],
+                                   double results[] );
+
+  void project_to_boundary( double point[], const double minima[],
+                                            const double maxima[] );
 }
 
 #endif

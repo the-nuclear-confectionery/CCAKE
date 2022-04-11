@@ -202,22 +202,27 @@ void EoS_table::get_sBSQ_densities_from_interpolator(
 
 
 ////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 void EoS_table::get_eBSQ( double point_in[], double results[] )
                 { get_eBSQ_safe( point_in, results ); }
 
 void EoS_table::get_eBSQ_safe( const double point_in[], double results[] )
 {
+  //============================================================================
+  // save input point in case we need to project to boundary
+  // full results needed if projecting with extension
   double point_projected[4], results_full[17];
   for ( int i = 0; i < 4; i++ ) point_projected[i] = point_in[i];
 
-//cout << __PRETTY_FUNCTION__ << ": " << point_projected[0] << "   " << point_projected[1] << "   "
-//     << point_projected[2] << "   " << point_projected[3] << endl;
 
   //============================================================================
   // decide this w.r.t. the tbqs ranges sans extension
   // --> needed to decide whether to use extension
-  bool point_not_in_range = !point_is_in_range_no_ext( point_projected[0], point_projected[1],
-                                                       point_projected[2], point_projected[3] );
+  bool point_not_in_range
+        = !point_is_in_range_no_ext( point_projected[0], point_projected[1],
+                                     point_projected[2], point_projected[3] );
+
 
   //============================================================================
   if ( use_nonconformal_extension and point_not_in_range )
@@ -227,14 +232,20 @@ void EoS_table::get_eBSQ_safe( const double point_in[], double results[] )
     eos_extension::project_to_boundary(
         point_projected, tbqs_minima_no_ext.data(), tbqs_maxima_no_ext.data() );
 
-//    const double hc = constants::hbarc_MeVfm;
-//
-//    std::cout << "Original point: "
-//              << point_in[0]*hc << "   " << point_in[1]*hc << "   "
-//              << point_in[2]*hc << "   " << point_in[3]*hc << std::endl;
-//    std::cout << "Projected point: "
-//              << point_projected[0]*hc << "   " << point_projected[1]*hc << "   "
-//              << point_projected[2]*hc << "   " << point_projected[3]*hc << std::endl;
+    if ( VERBOSE > 8 )
+    {
+      const double hc = constants::hbarc_MeVfm;
+      std::cout << "Original point: "
+                << point_in[0]*hc << "   "
+                << point_in[1]*hc << "   "
+                << point_in[2]*hc << "   "
+                << point_in[3]*hc << std::endl;
+      std::cout << "Projected point: "
+                << point_projected[0]*hc << "   "
+                << point_projected[1]*hc << "   "
+                << point_projected[2]*hc << "   "
+                << point_projected[3]*hc << std::endl;
+    }
 
     //============================================================================
     // MUST USE FULL THERMO TO SET NON-CONFORMAL EXTENSION
@@ -261,14 +272,18 @@ void EoS_table::get_eBSQ_safe( const double point_in[], double results[] )
     }
 
     // project back to original point using non-conformal extension
-//    std::cout << "Projecting back" << std::endl;
-    eos_extension::get_nonconformal_extension( point_in, point_projected, results_full, 0 );
+    eos_extension::get_nonconformal_extension( point_in, point_projected,
+                                               results_full );
 
-//cout << "Thermo:" << endl;
-//for (int i = 0; i < 17; i++)
-//  cout << results_full[i] << endl;
+    // option to print results
+    if ( VERBOSE > 8 )
+    {
+      cout << "Thermo:" << endl;
+      for (int i = 0; i < 17; i++)
+        cout << results_full[i] << endl;
+    }
 
-    // set relevant densities and return
+    // set relevant densities from full thermo and return
     results[0] = results_full[5];
     results[1] = results_full[2];
     results[2] = results_full[3];
@@ -296,22 +311,27 @@ void EoS_table::get_eBSQ_safe( const double point_in[], double results[] )
 
 
 ////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 void EoS_table::get_sBSQ( double point_in[], double results[] )
                 { get_sBSQ_safe( point_in, results ); }
 
 void EoS_table::get_sBSQ_safe( const double point_in[], double results[] )
 {
-  double point_projected[4];
+  //============================================================================
+  // save input point in case we need to project to boundary
+  // full results needed if projecting with extension
+  double point_projected[4], results_full[17];
   for ( int i = 0; i < 4; i++ ) point_projected[i] = point_in[i];
 
-//cout << __PRETTY_FUNCTION__ << ": " << point_projected[0] << "   " << point_projected[1] << "   "
-//     << point_projected[2] << "   " << point_projected[3] << endl;
 
   //============================================================================
   // decide this w.r.t. the tbqs ranges sans extension
   // --> needed to decide whether to use extension
-  bool point_not_in_range = !point_is_in_range_no_ext( point_projected[0], point_projected[1],
-                                                       point_projected[2], point_projected[3] );
+  bool point_not_in_range
+        = !point_is_in_range_no_ext( point_projected[0], point_projected[1],
+                                     point_projected[2], point_projected[3] );
+
 
   //============================================================================
   if ( use_nonconformal_extension and point_not_in_range )
@@ -320,19 +340,75 @@ void EoS_table::get_sBSQ_safe( const double point_in[], double results[] )
     // project back toward origin until intersecting grid boundary
     eos_extension::project_to_boundary(
         point_projected, tbqs_minima_no_ext.data(), tbqs_maxima_no_ext.data() );
+
+    if ( VERBOSE > 8 )
+    {
+      const double hc = constants::hbarc_MeVfm;
+      std::cout << "Original point: "
+                << point_in[0]*hc << "   "
+                << point_in[1]*hc << "   "
+                << point_in[2]*hc << "   "
+                << point_in[3]*hc << std::endl;
+      std::cout << "Projected point: "
+                << point_projected[0]*hc << "   "
+                << point_projected[1]*hc << "   "
+                << point_projected[2]*hc << "   "
+                << point_projected[3]*hc << std::endl;
+    }
+
+    //============================================================================
+    // MUST USE FULL THERMO TO SET NON-CONFORMAL EXTENSION
+    // evaluate the relevant grid point
+    if (use_static_C_library)
+      STANDARD_get_full_thermo( point_projected, results_full );
+    else  // using table itself
+    {
+      // copy C arrays to C++ vectors
+      vector<double> v_point(point_projected, point_projected+4);
+      vector<double> v_results(results_full, results_full+17);
+
+      // evaluate EoS interpolator at current location (S and Q NOT SWAPPED)
+      equation_of_state_table.evaluate( v_point, v_results ); 
+
+      if ( v_results.size() != 17 )
+      {
+        cerr << "PROBLEM" << endl;
+        exit(1);
+      }
+
+      // copy C++ vector of results back to C array
+      std::copy(v_results.begin(), v_results.end(), results_full);
+    }
+
+    // project back to original point using non-conformal extension
+    eos_extension::get_nonconformal_extension( point_in, point_projected,
+                                               results_full );
+
+    // option to print results
+    if ( VERBOSE > 8 )
+    {
+      cout << "Thermo:" << endl;
+      for (int i = 0; i < 17; i++)
+        cout << results_full[i] << endl;
+    }
+
+    // set relevant densities from full thermo and return
+    results[0] = results_full[1];
+    results[1] = results_full[2];
+    results[2] = results_full[3];
+    results[3] = results_full[4];
+
+  }
+  else
+  {
+    //============================================================================
+    // evaluate the relevant grid point
+    if (use_static_C_library) // using static C library
+      STANDARD_get_sBSQ_densities(point_projected, results);
+    else                      // using table itself
+      get_sBSQ_densities_from_interpolator(point_projected, results);
   }
 
-  //============================================================================
-  // evaluate the relevant grid point
-  if (use_static_C_library)
-    STANDARD_get_sBSQ_densities(point_projected, results);
-  else  // using table itself
-    get_sBSQ_densities_from_interpolator(point_projected, results);
-
-  //============================================================================
-  // project back to original point using non-conformal extension
-  if ( use_nonconformal_extension and point_not_in_range )
-    eos_extension::get_nonconformal_extension( point_in, point_projected, results, 2 );
 }
 
 
@@ -340,22 +416,24 @@ void EoS_table::get_sBSQ_safe( const double point_in[], double results[] )
 
 
 ////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 void EoS_table::get_full_thermo( double point_in[], double results[] )
                 { get_full_thermo_safe( point_in, results ); }
 
 void EoS_table::get_full_thermo_safe( const double point_in[], double results[] )
 {
+  //============================================================================
+  // save input point in case we need to project to boundary
   double point_projected[4];
   for ( int i = 0; i < 4; i++ ) point_projected[i] = point_in[i];
-
-//cout << __PRETTY_FUNCTION__ << ": " << point_projected[0] << "   " << point_projected[1] << "   "
-//     << point_projected[2] << "   " << point_projected[3] << endl;
 
   //============================================================================
   // decide this w.r.t. the tbqs ranges sans extension
   // --> needed to decide whether to use extension
-  bool point_not_in_range = !point_is_in_range_no_ext( point_projected[0], point_projected[1],
-                                                       point_projected[2], point_projected[3] );
+  bool point_not_in_range
+        = !point_is_in_range_no_ext( point_projected[0], point_projected[1],
+                                     point_projected[2], point_projected[3] );
 
   //============================================================================
   if ( use_nonconformal_extension and point_not_in_range )
@@ -365,12 +443,21 @@ void EoS_table::get_full_thermo_safe( const double point_in[], double results[] 
     eos_extension::project_to_boundary(
         point_projected, tbqs_minima_no_ext.data(), tbqs_maxima_no_ext.data() );
 
-//const double hc = constants::hbarc_MeVfm;
-//
-//cout << "Original point: " << point_in[0]*hc << "   " << point_in[1]*hc << "   "
-//      << point_in[2]*hc << "   " << point_in[3]*hc << endl;
-//cout << "Projected point: " << point_projected[0]*hc << "   " << point_projected[1]*hc << "   "
-//      << point_projected[2]*hc << "   " << point_projected[3]*hc << endl;
+    // print if needed
+    if ( VERBOSE > 8 )
+    {
+      const double hc = constants::hbarc_MeVfm;
+      std::cout << "Original point: "
+                << point_in[0]*hc << "   "
+                << point_in[1]*hc << "   "
+                << point_in[2]*hc << "   "
+                << point_in[3]*hc << std::endl;
+      std::cout << "Projected point: "
+                << point_projected[0]*hc << "   "
+                << point_projected[1]*hc << "   "
+                << point_projected[2]*hc << "   "
+                << point_projected[3]*hc << std::endl;
+    }
   }
 
   //============================================================================
@@ -400,11 +487,16 @@ void EoS_table::get_full_thermo_safe( const double point_in[], double results[] 
   //============================================================================
   // project back to original point using non-conformal extension
   if ( use_nonconformal_extension and point_not_in_range )
-    eos_extension::get_nonconformal_extension( point_in, point_projected, results, 0 );
+    eos_extension::get_nonconformal_extension( point_in, point_projected,
+                                               results );
 
-//cout << "Thermo:" << endl;
-//for (int i = 0; i < 17; i++)
-//  cout << results[i] << endl;
+    // option to print results
+    if ( VERBOSE > 8 )
+    {
+      cout << "Thermo:" << endl;
+      for (int i = 0; i < 17; i++)
+        cout << results[i] << endl;
+    }
 
 }  
 
@@ -413,8 +505,6 @@ void EoS_table::get_full_thermo_safe( const double point_in[], double results[] 
 bool EoS_table::point_is_in_range_no_ext(
                 double setT, double setmuB, double setmuQ, double setmuS )
 {
-//cout << __PRETTY_FUNCTION__ << ": " << setT << "   " << setmuB << "   "
-//     << setmuQ << "   " << setmuS << endl;
   if(setT < tbqs_minima_no_ext[0] || setT > tbqs_maxima_no_ext[0])
   {
     if ( VERBOSE > 3 )

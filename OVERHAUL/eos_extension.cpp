@@ -366,32 +366,22 @@ namespace eos_extension
   }
 
 
-
-  void get_nonconformal_extension( const double point[], const double point_projected[],
-                                   double results[], const int option )
+  //////////////////////////////////////////////////////////////////////////////
+  // obtain non-conformal extension
+  // results MUST HAVE LENGTH 17
+  void get_nonconformal_extension( const double point[],
+                                   const double point_projected[],
+                                   double results[] )
   {
     // determine parameters from thermodynamic quantities
     set_coeffs( point_projected, results );
 
     // evaluate extension and return result (stored in results)
-    switch ( option )
-    {
-      case 0:
-        get_full_thermo( point, results );
-        break;
-      case 1:
-        get_eBSQ( point, results );
-        break;
-      case 2:
-        get_sBSQ( point, results );
-        break;
-      default:
-        std::cerr << __PRETTY_FUNCTION__ << ": " << option << " is not a valid option!" << std::endl;
-        break;
-    }
-
+    get_full_thermo( point, results );
   }
 
+  //////////////////////////////////////////////////////////////////////////////
+  // projects phase diagram point to grid boundary
   void project_to_boundary( double point[], const double minima[], const double maxima[] )
   {
     double max_ratio = 0.0;

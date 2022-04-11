@@ -108,10 +108,14 @@ double Particle::locate_phase_diagram_point_eBSQ(// previously s_out
   }
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 double Particle::locate_phase_diagram_point_eBSQ(double e_In)// previously s_out
                  { return locate_phase_diagram_point_eBSQ( e_In, 0.0, 0.0, 0.0 ); }
+
+
+
+
+
 
 ////////////////////////////////////////////////////////////////////////////////
 void Particle::locate_phase_diagram_point_sBSQ(// previously update_s

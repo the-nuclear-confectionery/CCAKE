@@ -298,16 +298,18 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
   bool found = true;
   if ( iter >= steps || status != 0 )
   {
-    if ( status == GSL_EBADFUNC )
-      std::cout << "Error: something went to +/-Inf or NaN!" << std::endl;
-    else if ( status == GSL_ENOPROG )
-      std::cout << "Error: not making enough progress!" << std::endl;
-    else if ( status == GSL_ENOPROGJ )
-      std::cout << "Error: not making enough progress in Jacobian!" << std::endl;
-    else
-      std::cout << "Check: " << iter << "   " << steps << "   " << status << std::endl;
+    if ( VERBOSE > 2 )
+    {
+      if ( status == GSL_EBADFUNC )
+        std::cout << "Error: something went to +/-Inf or NaN!" << std::endl;
+      else if ( status == GSL_ENOPROG )
+        std::cout << "Error: not making enough progress!" << std::endl;
+      else if ( status == GSL_ENOPROGJ )
+        std::cout << "Error: not making enough progress in Jacobian!" << std::endl;
+      else
+        std::cout << "Check: " << iter << "   " << steps << "   " << status << std::endl;
+    }
     found = false;
-    //exit(8);
   }
 
   // if so, return the solution
@@ -323,13 +325,6 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
     for (int iTBQS = 0; iTBQS < 4; iTBQS++)
       updated_tbqs[iTBQS] = gsl_vector_get(solver->x, iTBQS);
   }
-
-/*cout << "\t --> " << __LINE__ << ": iter = " << iter << endl;
-cout << "\t --> " << __LINE__ << ": "
-      << gsl_vector_get(solver->x, 0) << "   "
-      << gsl_vector_get(solver->x, 1) << "   "
-      << gsl_vector_get(solver->x, 2) << "   "
-      << gsl_vector_get(solver->x, 3) << endl;*/
 
   // memory deallocation
   gsl_multiroot_fsolver_free(solver);
