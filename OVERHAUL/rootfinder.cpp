@@ -68,11 +68,11 @@ int rootfinder_f(const gsl_vector *x, void *params, gsl_vector *f)
       // compute densities using passed-in function object
       get_densities( phase_diagram_point, densities_at_point );
 
-//cout << "PD point:";
-//for (int i = 0; i < 4; i++) cout << "   " << phase_diagram_point[i];
-//cout << endl << "Densities:";
-//for (int i = 0; i < 4; i++) cout << "   " << densities_at_point[i];
-//cout << endl;
+cout << "PD point:";
+for (int i = 0; i < 4; i++) cout << "   " << phase_diagram_point[i];
+cout << endl << "Densities:";
+for (int i = 0; i < 4; i++) cout << "   " << densities_at_point[i];
+cout << endl;
 //if (1) exit(1);
 
       // set densities (convert to powers of fm if necessary)
@@ -88,10 +88,10 @@ int rootfinder_f(const gsl_vector *x, void *params, gsl_vector *f)
     gsl_vector_set(f, 2, (rhoQ   - rhoQGiven));
     gsl_vector_set(f, 3, (rhoS   - rhoSGiven));
 
-//cout << "e: " << eorEnt << "   " << eorEntGiven << "   " << eorEnt - eorEntGiven << endl;
-//cout << "B: " << rhoB << "   " << rhoBGiven << "   " << rhoB - rhoBGiven << endl;
-//cout << "Q: " << rhoQ << "   " << rhoQGiven << "   " << rhoQ - rhoQGiven << endl;
-//cout << "S: " << rhoS << "   " << rhoSGiven << "   " << rhoS - rhoSGiven << endl;
+cout << "e: " << eorEnt << "   " << eorEntGiven << "   " << eorEnt - eorEntGiven << endl;
+cout << "B: " << rhoB << "   " << rhoBGiven << "   " << rhoB - rhoBGiven << endl;
+cout << "Q: " << rhoQ << "   " << rhoQGiven << "   " << rhoQ - rhoQGiven << endl;
+cout << "S: " << rhoS << "   " << rhoSGiven << "   " << rhoS - rhoSGiven << endl;
 //if (1) exit(1);
 
 
@@ -361,10 +361,10 @@ bool Rootfinder::find_eBSQ_root( double ein, double Bin, double Sin, double Qin,
 {
     int number_of_attempts = 1;
 
-    // try this
-    const double hc = constants::hbarc_MeVfm;
-    tbqs_minima = vector<double>({0.0/hc,-450.0/hc,-450.0/hc,-450.0/hc});
-    tbqs_maxima = vector<double>({1200.0/hc,450.0/hc,450.0/hc,450.0/hc});
+//    // try this
+//    const double hc = constants::hbarc_MeVfm;
+//    tbqs_minima = vector<double>({0.0/hc,-450.0/hc,-450.0/hc,-450.0/hc});
+//    tbqs_maxima = vector<double>({1200.0/hc,450.0/hc,450.0/hc,450.0/hc});
 
     minT   = tbqs_minima[0]; maxT   = tbqs_maxima[0];
     minMuB = tbqs_minima[1]; maxMuB = tbqs_maxima[1];
