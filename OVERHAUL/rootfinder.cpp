@@ -206,7 +206,7 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 //std::cout << "Made it to line " << __LINE__ << " with status = " << status << std::endl;
     if ( status )
     {
-      if ( VERBOSE > 5 )
+      if ( VERBOSE > 2 )
       {
         if ( status == GSL_EBADFUNC )
           std::cout << "Error: something went to +/-Inf or NaN!" << std::endl;
