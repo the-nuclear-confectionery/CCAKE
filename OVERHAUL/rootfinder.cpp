@@ -295,14 +295,10 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 
   } while (status == GSL_CONTINUE && iter < steps);
 
-std::cout << "Made it to line " << __LINE__ << std::endl;
-std::cout << "Precheck: " << iter << "   " << steps << "   " << status << std::endl;
-
   // check if a solution was found
   bool found = true;
   if ( iter >= steps || status != 0 )
   {
-std::cout << "Made it to line " << __LINE__ << std::endl;
     if ( VERBOSE > 2 )
     {
       if ( status == GSL_EBADFUNC )
@@ -314,7 +310,6 @@ std::cout << "Made it to line " << __LINE__ << std::endl;
       else
         std::cout << "Check: " << iter << "   " << steps << "   " << status << std::endl;
     }
-    std::cout << "Check: " << iter << "   " << steps << "   " << status << std::endl;
     found = false;
   }
 
