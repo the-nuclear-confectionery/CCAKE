@@ -103,12 +103,12 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
                 << p.muB()*hbarc_MeVfm << "   "
                 << p.muQ()*hbarc_MeVfm << "   "
                 << p.muS()*hbarc_MeVfm << "\n";
-			std::cout << "\t\t - input densities (eBSQ): "
+			std::cout << "\t\t - input densities (eBSQ):    "
                 << p.e_sub*hbarc_MeVfm << "   "
                 << p.rhoB_an << "   "
                 << p.rhoS_an << "   "
                 << p.rhoQ_an << "\n";
-			cout << "\t\t - output densities (eBSQ): "
+			cout << "\t\t - output densities (eBSQ):    "
                 << p.e()*hbarc_MeVfm << "   "
                 << p.rhoB() << "   "
                 << p.rhoS() << "   "
