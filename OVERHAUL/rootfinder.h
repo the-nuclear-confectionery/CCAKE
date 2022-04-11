@@ -30,7 +30,7 @@ public:
 
 private:
 
-  const int VERBOSE = 10;
+  const int VERBOSE = 8;
   const int STEPS = 1000;
   const double TOLERANCE = 1e-10;
 
