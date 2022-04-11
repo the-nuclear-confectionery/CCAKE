@@ -203,7 +203,7 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
     status = gsl_multiroot_fsolver_iterate(solver);
 //cout << "Status after(1): " << status << "   " << GSL_CONTINUE << endl;
 
-std::cout << "Made it to line " << __LINE__ << " with status = " << status << std::endl;
+//std::cout << "Made it to line " << __LINE__ << " with status = " << status << std::endl;
     if ( status )
     {
       if ( VERBOSE > 5 )
