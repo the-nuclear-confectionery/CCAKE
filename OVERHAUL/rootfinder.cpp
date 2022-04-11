@@ -360,6 +360,12 @@ bool Rootfinder::find_eBSQ_root( double ein, double Bin, double Sin, double Qin,
                            vector<double> & updated_tbqs )
 {
     int number_of_attempts = 1;
+
+    // try this
+    const double hc = constants::hbarc_MeVfm;
+    tbqs_minima = vector<double>({0.0/hc,-450.0/hc,-450.0/hc,-450.0/hc});
+    tbqs_maxima = vector<double>({1200.0/hc,450.0/hc,450.0/hc,450.0/hc});
+
     minT   = tbqs_minima[0]; maxT   = tbqs_maxima[0];
     minMuB = tbqs_minima[1]; maxMuB = tbqs_maxima[1];
     minMuQ = tbqs_minima[2]; maxMuQ = tbqs_maxima[2];
