@@ -113,7 +113,7 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
                 << p.rhoB() << "   "
                 << p.rhoS() << "   "
                 << p.rhoQ() << "\n";
-			cout << "\n\t\t - freeze-out status:   " << p.Freeze << "\n";
+			cout << "\t\t - freeze-out status:   " << p.Freeze << "\n";
 		}
 
     if (settingsPtr->gtyp==5) p.e_sub = p.e();
@@ -132,7 +132,7 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 	cout << "----------------------------------------"
 			"----------------------------------------" << endl;
 
-	if (true)
+	if (false)
 	{
 		cout << "Exiting prematurely from " << __PRETTY_FUNCTION__
 			<< "::" << __LINE__ << "!" << endl;
@@ -150,8 +150,18 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 			"----------------------------------------" << endl;
 
 	swTotal.Stop();
-	cout << "Finished function call to updateIC(...) in "
+	cout << "Finished function call to " << __FUNCTION__ << "(...) in "
 			<< swTotal.printTime() << " s." << endl;
+
+	if (true)
+	{
+		cout << "Exiting prematurely from " << __PRETTY_FUNCTION__
+			<< "::" << __LINE__ << "!" << endl;
+		cerr << "Exiting prematurely from " << __PRETTY_FUNCTION__
+			<< "::" << __LINE__ << "!" << endl;
+		exit(8);
+	}
+
 
 	if (failCounter > 0) exit(-1);
 
