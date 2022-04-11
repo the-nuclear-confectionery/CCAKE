@@ -314,6 +314,7 @@ std::cout << "Made it to line " << __LINE__ << std::endl;
       else
         std::cout << "Check: " << iter << "   " << steps << "   " << status << std::endl;
     }
+    std::cout << "Check: " << iter << "   " << steps << "   " << status << std::endl;
     found = false;
   }
 
