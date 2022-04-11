@@ -161,7 +161,8 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 //for (int iTBQS = 0; iTBQS < 4; iTBQS++) cout << "   " << tbqsPosition[iTBQS];
 //cout << endl;
 
-  std::cout << "Using these definitions: " << GSL_EBADFUNC << "   "
+  std::cout << "Using these definitions: "
+            << GSL_CONTINUE << "   "<< GSL_EBADFUNC << "   "
             << GSL_ENOPROG << "   " << GSL_ENOPROGJ << std::endl;
 
   gsl_vector *x = gsl_vector_alloc(4);
@@ -202,6 +203,7 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
     status = gsl_multiroot_fsolver_iterate(solver);
 //cout << "Status after(1): " << status << "   " << GSL_CONTINUE << endl;
 
+std::cout << "Made it to line " << __LINE__ << " with status = " << status << std::endl;
     if ( status )
     {
       if ( VERBOSE > 5 )
