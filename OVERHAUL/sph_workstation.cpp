@@ -1,12 +1,10 @@
 #include <algorithm>
+#include <memory>
+
 #include "constants.h"
+#include "eos_conformal_diagonal.h"
 #include "sph_workstation.h"
 #include "Stopwatch.h"
-
-// functions calls to static EoS C library
-//#include <lib.h>
-//#include "eos_delaunay/eos_delaunay.h"
-#include "eos_conformal_diagonal.h"
 
 using namespace constants;
 
@@ -464,15 +462,15 @@ void SPHWorkstation::process_initial_conditions()
 
     //==========================================================================
     // cut out particles whose energy density is too small for charge densities
-    EoS_conformal_diagonal & p_diag_conf_EoS = eosPtr->chosen_EOSs.back();
+    std::shared_ptr<EoS_conformal_diagonal> p_diag_conf_EoS = eosPtr->chosen_EOSs.back();
 
     // remove particles with no possible solutions
     systemPtr->particles.erase( std::remove_if(
       systemPtr->particles.begin(),
       systemPtr->particles.end(),
       [p_diag_conf_EoS](Particle const & p)
-        { return !p_diag_conf_EoS->eBSQ_has_solution( p.e_sub,   p.rhoB_an,
-                                                      p.rhoS_an, p.rhoQ_an );
+        { return !(p_diag_conf_EoS->eBSQ_has_solution( p.e_sub,   p.rhoB_an,
+                                                       p.rhoS_an, p.rhoQ_an ) );
         } ),
       systemPtr->particles.end() );
 
