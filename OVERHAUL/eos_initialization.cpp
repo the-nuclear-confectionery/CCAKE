@@ -35,7 +35,7 @@ void EquationOfState::init()
         << quantity_file << " and " << deriv_file << endl;
   init( quantity_file, deriv_file );
 
-  bool do_eos_checks = false;
+  bool do_eos_checks = true;
   if ( do_eos_checks )
     run_closure_test();
 }
@@ -209,17 +209,36 @@ void EquationOfState::run_closure_test()
 
   //==========================================================================
   std::cout << "Check conformal EoS:" << std::endl;
-  for (double T0   = 0.0;     T0   <= 1000.01; T0   += 1000.0)
-  for (double muB0 = -1000.0; muB0 <= 1000.01; muB0 += 1000.0)
-  for (double muS0 = -1000.0; muS0 <= 1000.01; muS0 += 1000.0)
-  for (double muQ0 = -1000.0; muQ0 <= 1000.01; muQ0 += 1000.0)
+  for (double T0   = 0.0;     T0   <= 1200.01; T0   += 1200.0)
+  for (double muB0 = -450.0; muB0 <= 450.01; muB0 += 450.0)
+  for (double muS0 = -450.0; muS0 <= 450.01; muS0 += 450.0)
+  for (double muQ0 = -450.0; muQ0 <= 450.01; muQ0 += 450.0)
   {
     std::vector<double> point = {T0/hc, muB0/hc, muQ0/hc, muS0/hc};
     std::vector<double> v = get_thermodynamics( point, "conformal" );
     std::cout << "Check conformal: " << T0 << "   " << muB0 << "   "
-              << muQ0 << "   "<< muS0 << "   " << v[0] << std::endl;
+              << muQ0 << "   "<< muS0 << "   " << v[0]*hc*hc*hc*hc/(T0*T0*T0*T0) << std::endl;
   }
   std::cout << std::endl << std::endl << std::endl;
+
+
+
+
+  //==========================================================================
+  /*std::cout << "Check conformal_diagonal EoS:" << std::endl;
+  for (double T0   = 0.0;     T0   <= 1200.01; T0   += 1200.0)
+  for (double muB0 = -450.0; muB0 <= 450.01; muB0 += 450.0)
+  for (double muS0 = -450.0; muS0 <= 450.01; muS0 += 450.0)
+  for (double muQ0 = -450.0; muQ0 <= 450.01; muQ0 += 450.0)
+  {
+    std::vector<double> point = {T0/hc, muB0/hc, muQ0/hc, muS0/hc};
+    std::vector<double> v = get_thermodynamics( point, "conformal_diagonal" );
+    std::cout << "Check conformal_diagonal: " << T0 << "   " << muB0 << "   "
+              << muQ0 << "   "<< muS0 << "   " << v[0] << std::endl;
+  }
+  std::cout << std::endl << std::endl << std::endl;*/
+
+
 
   //==========================================================================
   std::cout << "Check non-conformal extension of table EoS:" << std::endl;
