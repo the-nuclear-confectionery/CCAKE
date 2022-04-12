@@ -375,7 +375,13 @@ bool EquationOfState::rootfinder_update_s(double sin, double Bin, double Sin, do
   {
     std::cout << " --> currently trying " << this_eos->name
               << " EoS for solution..." << std::endl;
+    const double hc = constants::hbarc_MeVfm;
     result = tbqsPosition;
+    std::cout << "     - point: "
+              << sin << "   " << Bin << "   " << Sin << "   " << Qin << std::endl;
+    std::cout << "     - seed: "
+              << result[0]*hc << "   " << result[1]*hc << "   "
+              << result[2]*hc << "   " << result[3]*hc << std::endl;
 
     solution_found
       = rootfinder.find_sBSQ_root( sin, Bin, Sin, Qin, this_eos->sBSQ,
