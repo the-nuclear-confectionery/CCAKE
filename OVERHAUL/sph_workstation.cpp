@@ -467,8 +467,8 @@ void SPHWorkstation::process_initial_conditions()
     systemPtr->particles.erase( std::remove_if(
       systemPtr->particles.begin(),
       systemPtr->particles.end(),
-      [](Particle const & p)
-        { return !((eosPtr->conformal_diagonal_EoS)->eBSQ_has_solution(
+      [this](Particle const & p)
+        { return !((this->eosPtr->conformal_diagonal_EoS)->eBSQ_has_solution(
                     p.e_sub, p.rhoB_an, p.rhoS_an, p.rhoQ_an ) );
         } ),
       systemPtr->particles.end() );
