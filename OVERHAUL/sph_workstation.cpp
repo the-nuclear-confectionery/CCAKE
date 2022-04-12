@@ -468,7 +468,7 @@ void SPHWorkstation::process_initial_conditions()
       systemPtr->particles.begin(),
       systemPtr->particles.end(),
       [this](Particle const & p)
-        { return !((this->eosPtr->conformal_diagonal_EoS)->eBSQ_has_solution(
+        { return !((this->eosPtr->conformal_diagonal_EoS).eBSQ_has_solution(
                     p.e_sub, p.rhoB_an, p.rhoS_an, p.rhoQ_an ) );
         } ),
       systemPtr->particles.end() );
