@@ -457,7 +457,7 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
               << " EoS for solution..." << std::endl;
 
     const double hc = constants::hbarc_MeVfm;
-    result = conformal_diagonal_EoS.get_tbsq_seed( ein, Bin, Sin, Qin );
+    result = conformal_diagonal_EoS.get_tbqs_seed( ein, Bin, Sin, Qin );
 
     solution_found
       = rootfinder.find_eBSQ_root( ein, Bin, Sin, Qin, this_eos->eBSQ,
