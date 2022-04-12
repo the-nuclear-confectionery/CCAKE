@@ -218,7 +218,7 @@ void EquationOfState::run_closure_test()
     std::vector<double> v = get_thermodynamics( point, "conformal" );
     std::cout << "Check conformal: " << T0 << "   " << muB0 << "   "
               << muQ0 << "   "<< muS0 << "   "
-              << v[0]*hc*hc*hc*hc/(T0*T0*T0*T0) /*<< "   "
+              << v[0]*hc*hc*hc*hc/(T0*T0*T0*T0) << "   "
               << v[1]*hc*hc*hc/(T0*T0*T0) << "   "
               << v[2]*hc*hc*hc/(T0*T0*T0) << "   "
               << v[3]*hc*hc*hc/(T0*T0*T0) << "   "
@@ -234,7 +234,7 @@ void EquationOfState::run_closure_test()
               << v[13]*hc*hc/(T0*T0) << "   "
               << v[14]*hc*hc/(T0*T0) << "   "
               << v[15]*hc*hc/(T0*T0) << "   "
-              << v[16]*hc*hc/(T0*T0)*/ << std::endl;
+              << v[16]*hc*hc/(T0*T0) << std::endl;
   }
   std::cout << std::endl << std::endl << std::endl;
 
