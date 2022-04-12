@@ -197,6 +197,7 @@ void Particle::calcbsq(double tin)
   // using *_sub quantities (which have been smoothed) in order to be consistent
   // with s_in2 = eta/(gamma*t) and evaluation of rest of EoM's quantities (e.g.,
   // sigma) which are also smoothed
+  std::cout << "Doing this particle: " << r.x[0] << "   " << r.x[1] << std::endl;
 	locate_phase_diagram_point_sBSQ( s_lab, rhoB_lab, rhoS_lab, rhoQ_lab );
 }
 

@@ -538,8 +538,7 @@ bool Rootfinder::find_sBSQ_root( double sin, double Bin, double Sin, double Qin,
 
     if (rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs))
-        { /*cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
-              << " attempts" << endl;*/ return true; }
+        return true;
 
 	///////////////////////////
     double t0 = tbqsPosition[0];
@@ -562,8 +561,7 @@ bool Rootfinder::find_sBSQ_root( double sin, double Bin, double Sin, double Qin,
     }
     if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs))
-        { cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
-              << " attempts" << endl; return true; }
+        return true;
 
     number_of_attempts++;
 
@@ -574,8 +572,7 @@ bool Rootfinder::find_sBSQ_root( double sin, double Bin, double Sin, double Qin,
     }
     if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs))
-        { cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
-              << " attempts" << endl; return true; }
+        return true;
 
     //perturb mub
 
@@ -588,8 +585,7 @@ bool Rootfinder::find_sBSQ_root( double sin, double Bin, double Sin, double Qin,
     }
     if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs))
-        { cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
-              << " attempts" << endl; return true; }
+        return true;
 
     number_of_attempts++;
 
@@ -600,8 +596,7 @@ bool Rootfinder::find_sBSQ_root( double sin, double Bin, double Sin, double Qin,
     }
     if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs))
-        { cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
-              << " attempts" << endl; return true; }
+        return true;
 
     //perturn muq
 
@@ -614,8 +609,7 @@ bool Rootfinder::find_sBSQ_root( double sin, double Bin, double Sin, double Qin,
     }
     if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs))
-        { cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
-              << " attempts" << endl; return true; }
+        return true;
 
     number_of_attempts++;
 
@@ -626,8 +620,7 @@ bool Rootfinder::find_sBSQ_root( double sin, double Bin, double Sin, double Qin,
     }
     if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs))
-        { cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
-              << " attempts" << endl; return true; }
+        return true;
 
     //perturb mus
 
@@ -640,8 +633,7 @@ bool Rootfinder::find_sBSQ_root( double sin, double Bin, double Sin, double Qin,
     }
     if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs))
-        { cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
-              << " attempts" << endl; return true; }
+        return true;
 
     number_of_attempts++;
 
@@ -652,8 +644,7 @@ bool Rootfinder::find_sBSQ_root( double sin, double Bin, double Sin, double Qin,
     }
     if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs))
-        { cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
-              << " attempts" << endl; return true; }
+        return true;
 
     //check mu = 0
     tbqs(t0, 0, 0, 0);
@@ -662,10 +653,9 @@ bool Rootfinder::find_sBSQ_root( double sin, double Bin, double Sin, double Qin,
 
     if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs))
-        { cout << __PRETTY_FUNCTION__ << ": Completed in " << number_of_attempts
-              << " attempts" << endl; return true; }
+        return true;
 
-cout << __PRETTY_FUNCTION__ << ": failed after " << number_of_attempts << "!" << endl;
+//cout << __PRETTY_FUNCTION__ << ": failed after " << number_of_attempts << "!" << endl;
 
     tbqs(t0, mub0, muq0, mus0);
     return false;
