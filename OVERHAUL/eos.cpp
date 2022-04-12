@@ -376,29 +376,11 @@ bool EquationOfState::rootfinder_update_s(double sin, double Bin, double Sin, do
     std::cout << " --> currently trying " << this_eos->name
               << " EoS for solution..." << std::endl;
     result = tbqsPosition;
-//    std::cout << "     - seed: "
-//              << result[0] << "   " << result[1] << "   "
-//              << result[2] << "   " << result[3] << std::endl;
 
     solution_found
       = rootfinder.find_sBSQ_root( sin, Bin, Sin, Qin, this_eos->sBSQ,
                                    this_eos->tbqs_minima, this_eos->tbqs_maxima,
                                    result );
-
-//    // try a different seed value if default guess fails
-//    if (!solution_found)
-//    {
-//      // try twice the grid maxima
-//      result = this_eos->get_tbqs_maxima_no_ext();
-//      std::for_each(result.begin(), result.end(), [](double &c){ c *= 2.0; });
-//      std::cout << "     - seed: "
-//                << result[0] << "   " << result[1] << "   "
-//                << result[2] << "   " << result[3] << std::endl;
-//      solution_found
-//        = rootfinder.find_sBSQ_root( sin, Bin, Sin, Qin, this_eos->sBSQ,
-//                                     this_eos->tbqs_minima, this_eos->tbqs_maxima,
-//                                     result );
-//    }
 
     // stop iterating through available EoSs when solution found
     if (solution_found)
@@ -475,33 +457,12 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
               << " EoS for solution..." << std::endl;
 
     const double hc = constants::hbarc_MeVfm;
-    result = tbqsPosition;
-//    result = vector<double>({10000.0/hc,0.0/hc,0.0/hc,0.0/hc});
-
-//    std::cout << "     - seed: "
-//              << result[0]*hc << "   " << result[1]*hc << "   "
-//              << result[2]*hc << "   " << result[3]*hc << std::endl;
+    result = conformal_diagonal_EoS.get_tbsq_seed( ein, Bin, Sin, Qin );
 
     solution_found
       = rootfinder.find_eBSQ_root( ein, Bin, Sin, Qin, this_eos->eBSQ,
                                    this_eos->tbqs_minima, this_eos->tbqs_maxima,
                                    result );
-
-//    // try a different seed value if first guess fails
-//    if (!solution_found)
-//    {
-//      // try twice the grid maxima
-//      //result = this_eos->get_tbqs_maxima_no_ext();
-//      //std::for_each(result.begin(), result.end(), [](double &c){ c *= 2.0; });
-//      result = std::vector<double>({4900.0/hc,0.0,0.0,0.0});
-//      std::cout << "     - seed: "
-//                << result[0]*hc << "   " << result[1]*hc << "   "
-//                << result[2]*hc << "   " << result[3]*hc << std::endl;
-//      solution_found
-//        = rootfinder.find_eBSQ_root( ein, Bin, Sin, Qin, this_eos->eBSQ,
-//                                     this_eos->tbqs_minima, this_eos->tbqs_maxima,
-//                                     result );
-//    }
 
     // stop iterating through available EoSs when solution found
     if (solution_found)

@@ -43,6 +43,21 @@ public:
                   / ( 4.0 * two_to_two_thirds * pow(c, 1.0/3.0) );
   }
 
+  // makes an educated guess where the root should be
+  std::vector<double> get_tbqs_seed( const double e0, const double rhoB0,
+                                     const double rhoS0, const double rhoQ0 )
+  {
+    double den = two_to_two_thirds * pow(c, 1.0/3.0);
+    double disc = e0 - 3.0*( pow(muB0*abs(rhoB0), four_thirds)
+                      + pow(muS0*abs(rhoS0), four_thirds)
+                      + pow(muQ0*abs(rhoQ0), four_thirds) )
+                  / ( 4.0 * two_to_two_thirds * pow(c, 1.0/3.0) );
+    return std::vector<double>({ T0*pow(disc/(3.0*c), 0.25),
+                                pow( muB0*muB0*muB0*muB0*rhoB0, 1.0/3.0 )/den,
+                                pow( muQ0*muQ0*muQ0*muQ0*rhoQ0, 1.0/3.0 )/den,
+                                pow( muS0*muS0*muS0*muS0*rhoS0, 1.0/3.0 )/den
+                               });
+  }
 
   double p(double T, double muB, double muQ, double muS)
 	{

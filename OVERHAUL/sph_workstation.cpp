@@ -484,7 +484,7 @@ void SPHWorkstation::process_initial_conditions()
 
   cout << "After e-cutoff and freeze-out: size = " << systemPtr->particles.size() << endl;
 
-if (1) exit(8);
+//if (1) exit(8);
 
 
   // fill out initial particle information
