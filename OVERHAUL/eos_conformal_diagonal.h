@@ -19,6 +19,8 @@ private:
   static constexpr double four_thirds = 4.0/3.0;
   static constexpr double two_to_two_thirds = pow(2.0, 2.0/3.0);
 
+  inline double sgn(double val) { return (0.0 < val) - (val < 0.0); }
+
 public:
   // default constructor/destructor
   EoS_conformal_diagonal(){}
@@ -53,9 +55,9 @@ public:
                       + pow(muQ0*abs(rhoQ0), four_thirds) )
                   / ( 4.0 * two_to_two_thirds * pow(c, 1.0/3.0) );
     return std::vector<double>({ T0*pow(disc/(3.0*c), 0.25),
-                                pow( muB0*muB0*muB0*muB0*rhoB0, 1.0/3.0 )/den,
-                                pow( muQ0*muQ0*muQ0*muQ0*rhoQ0, 1.0/3.0 )/den,
-                                pow( muS0*muS0*muS0*muS0*rhoS0, 1.0/3.0 )/den
+                                sgn(rhoB0)*pow( muB0*muB0*muB0*muB0*abs(rhoB0), 1.0/3.0 )/den,
+                                sgn(rhoQ0)*pow( muQ0*muQ0*muQ0*muQ0*abs(rhoQ0), 1.0/3.0 )/den,
+                                sgn(rhoS0)*pow( muS0*muS0*muS0*muS0*abs(rhoS0), 1.0/3.0 )/den
                                });
   }
 
