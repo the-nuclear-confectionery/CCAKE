@@ -159,6 +159,69 @@ void EquationOfState::init(string quantityFile, string derivFile)
 
 
 
+
+    // use conformal as fallback
+  if ( settingsPtr->EoS_type != "Conformal" )
+  {
+    std::cout << "Setting DIAGONAL conformal equation of state as FINAL fallback" << std::endl;
+    std::cout << "  --> all coefficients matched to p/T^4 at grid limits" << std::endl;
+
+    // pointer to default EoS (first element added above)
+    pEoS_base p_default_EoS = chosen_EOSs.front();
+
+    // look up grid maxima (without any extensions)
+    std::vector<double> maxima =  p_default_EoS->get_tbqs_maxima_no_ext();
+    double Tmax = maxima[0];
+    double muBmax = maxima[1];
+    double muQmax = maxima[2];
+    double muSmax = maxima[3];
+
+    // set overall scale using (Tmax,0,0,0)
+    tbqs( Tmax, 0.0, 0.0, 0.0, p_default_EoS );
+    double pTmax = pVal;
+    double c  = pTmax / (Tmax*Tmax*Tmax*Tmax);
+
+    //const double hc = constants::hbarc_MeVfm;
+
+    // T-scale T0 = 1 by definition
+    double T0 = 1.0;
+
+    // set muB scale using (Tmax,muBmax,0,0)
+    tbqs( Tmax, muBmax, 0.0, 0.0, p_default_EoS );
+    cout << pTmax << "   " << pVal << "   " << c << "   " << muBmax << endl;
+    double muB0 = pow( c/(pVal - pTmax), 0.25) * muBmax / Tmax;
+
+    // set muQ scale using (Tmax,0,muQmax,0)
+    tbqs( Tmax, 0.0, muQmax, 0.0, p_default_EoS );
+    cout << pTmax << "   " << pVal << "   " << c << "   " << muQmax << endl;
+    double muQ0 = pow( c/(pVal - pTmax), 0.25) * muQmax / Tmax;
+
+    // set muS scale using (Tmax,0,0,muSmax)
+    tbqs( Tmax, 0.0, 0.0, muSmax, p_default_EoS );
+    cout << pTmax << "   " << pVal << "   " << c << "   " << muSmax << endl;
+    double muS0 = pow( c/(pVal - pTmax), 0.25) * muSmax / Tmax;
+
+    // set minima and maxima for rootfinder (can be arbitrarily large)
+    vector<double> tbqs_minima = { 0.0,          -TBQS_INFINITY, -TBQS_INFINITY, -TBQS_INFINITY };
+    vector<double> tbqs_maxima = { TBQS_INFINITY, TBQS_INFINITY,  TBQS_INFINITY,  TBQS_INFINITY };
+
+    cout << "Conformal fallback EoS set up with following parameters:" << endl;
+    cout << "  --> c    = " << c << endl;
+    cout << "  --> T0   = " << T0 << endl;
+    cout << "  --> muB0 = " << muB0 << endl;
+    cout << "  --> muQ0 = " << muQ0 << endl;
+    cout << "  --> muS0 = " << muS0 << endl;
+
+    // add matched conformal EoS to vector of EoSs
+    chosen_EOSs.push_back( std::make_shared<EoS_conformal_diagonal>(
+                            c, T0, muB0, muS0, muQ0,
+                            tbqs_minima, tbqs_maxima, "conformal_diagonal" ) );
+  }
+
+
+
+
+
   //////////////////////////////////////////////////////////////////////////////
   // create a map to access all needed EoSs by name
   // (this step *MUST BE DONE AFTER* chosen EoSs have been set,
@@ -242,7 +305,7 @@ void EquationOfState::run_closure_test()
 
 
   //==========================================================================
-  /*std::cout << "Check conformal_diagonal EoS:" << std::endl;
+  std::cout << "Check conformal_diagonal EoS:" << std::endl;
   for (double T0   = 0.0;     T0   <= 1200.01; T0   += 1200.0)
   for (double muB0 = -450.0; muB0 <= 450.01; muB0 += 450.0)
   for (double muS0 = -450.0; muS0 <= 450.01; muS0 += 450.0)
@@ -250,10 +313,28 @@ void EquationOfState::run_closure_test()
   {
     std::vector<double> point = {T0/hc, muB0/hc, muQ0/hc, muS0/hc};
     std::vector<double> v = get_thermodynamics( point, "conformal_diagonal" );
-    std::cout << "Check conformal_diagonal: " << T0 << "   " << muB0 << "   "
-              << muQ0 << "   "<< muS0 << "   " << v[0] << std::endl;
+    std::cout << "Check conformal_diagonal: "
+              << T0 << "   " << muB0 << "   "
+              << muQ0 << "   " << muS0 << "   "
+              << v[0]*hc*hc*hc*hc/(T0*T0*T0*T0) << "   "
+              << v[1]*hc*hc*hc/(T0*T0*T0) << "   "
+              << v[2]*hc*hc*hc/(T0*T0*T0) << "   "
+              << v[3]*hc*hc*hc/(T0*T0*T0) << "   "
+              << v[4]*hc*hc*hc/(T0*T0*T0) << "   "
+              << v[5]*hc*hc*hc*hc/(T0*T0*T0*T0) << "   "
+              << v[6] << "   "
+              << v[7]*hc*hc/(T0*T0) << "   "
+              << v[8]*hc*hc/(T0*T0) << "   "
+              << v[9]*hc*hc/(T0*T0) << "   "
+              << v[10]*hc*hc/(T0*T0) << "   "
+              << v[11]*hc*hc/(T0*T0) << "   "
+              << v[12]*hc*hc/(T0*T0) << "   "
+              << v[13]*hc*hc/(T0*T0) << "   "
+              << v[14]*hc*hc/(T0*T0) << "   "
+              << v[15]*hc*hc/(T0*T0) << "   "
+              << v[16]*hc*hc/(T0*T0) << std::endl;
   }
-  std::cout << std::endl << std::endl << std::endl;*/
+  std::cout << std::endl << std::endl << std::endl;
 
 
 
@@ -288,14 +369,14 @@ void EquationOfState::run_closure_test()
   else
     cout << "Closure test: unsuccessful!" << endl;
 
-  cout << sLocal << "   " << e_In << "   " << rhoB_In << "   "
+  cout << sLocal << "   " << e_In*hc << "   " << rhoB_In << "   "
         << rhoS_In << "   " << rhoQ_In << endl;
 
 cout << "THERMO DUMP: "
     << tbqsPosition[0]*hc << "   " << tbqsPosition[1]*hc << "   "
     << tbqsPosition[2]*hc << "   " << tbqsPosition[3]*hc << "   "
-    << pVal << "   " << entrVal << "   " << BVal << "   "
-    << SVal << "   " << QVal << "   " << eVal << "   " << cs2Val << "   "
+    << pVal*hc << "   " << entrVal << "   " << BVal << "   "
+    << SVal << "   " << QVal << "   " << eVal*hc << "   " << cs2Val << "   "
     << db2 << "   " << dq2 << "   " << ds2 << "   " << dbdq << "   "
     << dbds << "   " << dsdq << "   " << dtdb << "   " << dtdq << "   "
     << dtds << "   " << dt2 << endl;

@@ -10,7 +10,6 @@
 class EoS_conformal_diagonal: public EoS_base
 {
 private:
-	const double hc = constants::hbarc_MeVfm;
 
   double c, T0, muB0, muS0, muQ0;
 
@@ -35,48 +34,48 @@ public:
                 + (muB/muB0)*(muB/muB0)*(muB/muB0)*(muB/muB0)
                 + (muS/muS0)*(muS/muS0)*(muS/muS0)*(muS/muS0)
                 + (muQ/muQ0)*(muQ/muQ0)*(muQ/muQ0)*(muQ/muQ0);
-    double cp = c*T0*T0*T0*T0/(hc*hc*hc*hc);  // c dimensionless, cp - 1/fm^4
+    double cp = c*T0*T0*T0*T0;  // c dimensionless, cp - 1/fm^4
 		return cp*x;
 	}
 	
 	double s(double T, double muB, double muQ, double muS)
 	{
-    double cp = c*T0*T0*T0*T0/(hc*hc*hc*hc);  // c dimensionless, cp - 1/fm^4
-		return 4.0*cp*hc*T*T*T/(T0*T0*T0*T0);
+    double cp = c*T0*T0*T0*T0;  // c dimensionless, cp - 1/fm^4
+		return 4.0*cp*T*T*T/(T0*T0*T0*T0);
 	}
 
 	double B(double T, double muB, double muQ, double muS)
 	{
-    double cp = c*T0*T0*T0*T0/(hc*hc*hc*hc);  // c dimensionless, cp - 1/fm^4
-		return 4.0*cp*hc*muB*muB*muB/(muB0*muB0*muB0*muB0);
+    double cp = c*T0*T0*T0*T0;  // c dimensionless, cp - 1/fm^4
+		return 4.0*cp*muB*muB*muB/(muB0*muB0*muB0*muB0);
 	}
 
 	double S(double T, double muB, double muQ, double muS)
 	{
-    double cp = c*T0*T0*T0*T0/(hc*hc*hc*hc);  // c dimensionless, cp - 1/fm^4
-		return 4.0*cp*hc*muS*muS*muS/(muS0*muS0*muS0*muS0);
+    double cp = c*T0*T0*T0*T0;  // c dimensionless, cp - 1/fm^4
+		return 4.0*cp*muS*muS*muS/(muS0*muS0*muS0*muS0);
 	}
 
 	double Q(double T, double muB, double muQ, double muS)
 	{
-    double cp = c*T0*T0*T0*T0/(hc*hc*hc*hc);  // c dimensionless, cp - 1/fm^4
-		return 4.0*cp*hc*muQ*muQ*muQ/(muQ0*muQ0*muQ0*muQ0);
+    double cp = c*T0*T0*T0*T0;  // c dimensionless, cp - 1/fm^4
+		return 4.0*cp*muQ*muQ*muQ/(muQ0*muQ0*muQ0*muQ0);
 	}
 
 	double P2B2(double T, double muB, double muQ, double muS)
 	{
-    double cp = c*T0*T0*T0*T0/(hc*hc*hc*hc);  // c dimensionless, cp - 1/fm^4
-		return 12.0*cp*hc*hc*muB*muB/(muB0*muB0*muB0*muB0);
+    double cp = c*T0*T0*T0*T0;  // c dimensionless, cp - 1/fm^4
+		return 12.0*cp*muB*muB/(muB0*muB0*muB0*muB0);
 	}
 	double P2Q2(double T, double muB, double muQ, double muS)
 	{
-    double cp = c*T0*T0*T0*T0/(hc*hc*hc*hc);  // c dimensionless, cp - 1/fm^4
-		return 12.0*cp*hc*hc*muQ*muQ/(muQ0*muQ0*muQ0*muQ0);
+    double cp = c*T0*T0*T0*T0;  // c dimensionless, cp - 1/fm^4
+		return 12.0*cp*muQ*muQ/(muQ0*muQ0*muQ0*muQ0);
 	}
 	double P2S2(double T, double muB, double muQ, double muS)
 	{
-    double cp = c*T0*T0*T0*T0/(hc*hc*hc*hc);  // c dimensionless, cp - 1/fm^4
-		return 12.0*cp*hc*hc*muS*muS/(muS0*muS0*muS0*muS0);
+    double cp = c*T0*T0*T0*T0;  // c dimensionless, cp - 1/fm^4
+		return 12.0*cp*muS*muS/(muS0*muS0*muS0*muS0);
 	}
 	
 	double P2BQ(double T, double muB, double muQ, double muS) { return 0.0; }
@@ -89,23 +88,23 @@ public:
 
 	double P2T2(double T, double muB, double muQ, double muS)
 	{
-    double cp = c*T0*T0*T0*T0/(hc*hc*hc*hc);  // c dimensionless, cp - 1/fm^4
-		return 12.0*hc*hc*cp*T*T/(T0*T0*T0*T0);
+    double cp = c*T0*T0*T0*T0;  // c dimensionless, cp - 1/fm^4
+		return 12.0*cp*T*T/(T0*T0*T0*T0);
 	}
 
   void get_eBSQ( double point[], double results[] )
   {
     // point: (T, muB, muQ, muS)
-    const double Tsol  = hc*point[0],
-      muBsol           = hc*point[1],
-      muQsol           = hc*point[2],
-      muSsol           = hc*point[3];
+    const double Tsol  = point[0],
+      muBsol           = point[1],
+      muQsol           = point[2],
+      muSsol           = point[3];
     double POut        = p(Tsol, muBsol, muQsol, muSsol);
     double sOut        = s(Tsol, muBsol, muQsol, muSsol);
     double BOut        = B(Tsol, muBsol, muQsol, muSsol);
     double SOut        = S(Tsol, muBsol, muQsol, muSsol);
     double QOut        = Q(Tsol, muBsol, muQsol, muSsol);
-    double eOut        = (sOut*Tsol + muBsol*BOut + muQsol*QOut + muSsol*SOut)/hc - POut;
+    double eOut        = (sOut*Tsol + muBsol*BOut + muQsol*QOut + muSsol*SOut) - POut;
     results[0]         = eOut;
     results[1]         = BOut;
     results[2]         = SOut;
@@ -115,23 +114,23 @@ public:
   void get_sBSQ( double point[], double results[] )
   {
     // point: (T, muB, muQ, muS)
-    results[0] = s( hc*point[0], hc*point[1], hc*point[2], hc*point[3] );
-    results[1] = B( hc*point[0], hc*point[1], hc*point[2], hc*point[3] );
-    results[2] = S( hc*point[0], hc*point[1], hc*point[2], hc*point[3] );
-    results[3] = Q( hc*point[0], hc*point[1], hc*point[2], hc*point[3] );
+    results[0] = s( point[0], point[1], point[2], point[3] );
+    results[1] = B( point[0], point[1], point[2], point[3] );
+    results[2] = S( point[0], point[1], point[2], point[3] );
+    results[3] = Q( point[0], point[1], point[2], point[3] );
   }
 
   void get_full_thermo( double point[], double results[] )
   {
     // point: (T, muB, muQ, muS)
-    const double Tsol   = hc*point[0], muBsol = hc*point[1],
-                 muQsol = hc*point[2], muSsol = hc*point[3];
+    const double Tsol   = point[0], muBsol = point[1],
+                 muQsol = point[2], muSsol = point[3];
     double POut = p(Tsol, muBsol, muQsol, muSsol);
     double sOut = s(Tsol, muBsol, muQsol, muSsol);
     double BOut = B(Tsol, muBsol, muQsol, muSsol);
     double SOut = S(Tsol, muBsol, muQsol, muSsol);
     double QOut = Q(Tsol, muBsol, muQsol, muSsol);
-    double eOut = (sOut*Tsol + muBsol*BOut + muQsol*QOut + muSsol*SOut)/hc - POut;
+    double eOut = (sOut*Tsol + muBsol*BOut + muQsol*QOut + muSsol*SOut) - POut;
 
     results[0]  = POut;
     results[1]  = sOut;
