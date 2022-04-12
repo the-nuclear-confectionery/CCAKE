@@ -189,17 +189,17 @@ void EquationOfState::init(string quantityFile, string derivFile)
     // set muB scale using (Tmax,muBmax,0,0)
     tbqs( Tmax, muBmax, 0.0, 0.0, p_default_EoS );
     cout << pTmax << "   " << pVal << "   " << c << "   " << muBmax << endl;
-    double muB0 = pow( c/(pVal - pTmax), 0.25) * muBmax / Tmax;
+    double muB0 = pow( c/(pVal - pTmax), 0.25) * muBmax;
 
     // set muQ scale using (Tmax,0,muQmax,0)
     tbqs( Tmax, 0.0, muQmax, 0.0, p_default_EoS );
     cout << pTmax << "   " << pVal << "   " << c << "   " << muQmax << endl;
-    double muQ0 = pow( c/(pVal - pTmax), 0.25) * muQmax / Tmax;
+    double muQ0 = pow( c/(pVal - pTmax), 0.25) * muQmax;
 
     // set muS scale using (Tmax,0,0,muSmax)
     tbqs( Tmax, 0.0, 0.0, muSmax, p_default_EoS );
     cout << pTmax << "   " << pVal << "   " << c << "   " << muSmax << endl;
-    double muS0 = pow( c/(pVal - pTmax), 0.25) * muSmax / Tmax;
+    double muS0 = pow( c/(pVal - pTmax), 0.25) * muSmax;
 
     // set minima and maxima for rootfinder (can be arbitrarily large)
     vector<double> tbqs_minima = { 0.0,          -TBQS_INFINITY, -TBQS_INFINITY, -TBQS_INFINITY };
