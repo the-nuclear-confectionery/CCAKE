@@ -68,7 +68,7 @@ public:
                         const double rhoS0, const double rhoQ0 )
   {
     double den = two_to_two_thirds * pow(c, 1.0/3.0);
-    return std::vector<double>({ pow( T0*T0*T0*T0*e0, 1.0/3.0 )/den,
+    return std::vector<double>({ pow( T0*T0*T0*T0*s0, 1.0/3.0 )/den,
                                  sgn(rhoB0)*pow( muB0*muB0*muB0*muB0*abs(rhoB0), 1.0/3.0 )/den,
                                  sgn(rhoQ0)*pow( muQ0*muQ0*muQ0*muQ0*abs(rhoQ0), 1.0/3.0 )/den,
                                  sgn(rhoS0)*pow( muS0*muS0*muS0*muS0*abs(rhoS0), 1.0/3.0 )/den
