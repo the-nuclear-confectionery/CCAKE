@@ -4,8 +4,8 @@
 #include "Stopwatch.h"
 
 // functions calls to static EoS C library
-#include <lib.h>
-#include "eos_delaunay/eos_delaunay.h"
+//#include <lib.h>
+//#include "eos_delaunay/eos_delaunay.h"
 
 using namespace constants;
 
@@ -436,19 +436,55 @@ cout << "CHECK gradV: " << a << "   " << tin << "   " << pa.sigma << "   " << pa
 ///////////////////////////////////////////////////////////////////////////////
 void SPHWorkstation::process_initial_conditions()
 {
-  // impose the energy cut-off before the initial time step of hydro
-  // the original cut should be 0.15
-
-  // try this; NOTE THAT THE 0.00301 IS HARDCODED IN FOR NOW
+  //============================================================================
+  // IMPOSE ENERGY/CHARGE CUTOFFS TO REGULATE EVENT (NO CUTOFFS FOR GUBSER)
   if ( settingsPtr->IC_type != "Gubser"
-        && settingsPtr->IC_type != "Gubser_with_shear") //NO CUTOFF FOR GUBSER
+        && settingsPtr->IC_type != "Gubser_with_shear")
+  {
+
+    std::cout << "Length of particles at line " << __LINE__
+              << " is " << particles.size() << std::endl;
+
+    //==========================================================================
+    // impose the energy cut-off before the initial time step of hydro
+    // the original cut should be 0.15
+    // try this; NOTE THAT THE 0.00301 IS HARDCODED IN FOR NOW
     systemPtr->particles.erase( std::remove_if(
-      systemPtr->particles.begin(), systemPtr->particles.end(),
-      [/*hbarc_GeVfm*/](Particle const & p) { return p.e_sub <= 0.00301 / hbarc_GeVfm; } ),
+      systemPtr->particles.begin(),
+      systemPtr->particles.end(),
+      [](Particle const & p) { return p.e_sub <= 0.00301 / hbarc_GeVfm; } ),
       systemPtr->particles.end() );
 
 
+
+    std::cout << "Length of particles at line " << __LINE__
+              << " is " << particles.size() << std::endl;
+
+/*
+    //==========================================================================
+    // cut out particles whose energy density is too small for charge densities
+    auto & p_diag_conf_EoS = eosPtr->chosen_EOSs.back();
+    systemPtr->particles.erase( std::remove_if(
+      systemPtr->particles.begin(),
+      systemPtr->particles.end(),
+      [p_diag_conf_EoS](Particle const & p)
+        { return !p_diag_conf_EoS->eBSQ_has_solution( p.e_sub,   p.rhoB_an,
+                                                      p.rhoS_an, p.rhoQ_an );
+        } ),
+      systemPtr->particles.end() );
+*/
+
+
+    std::cout << "Length of particles at line " << __LINE__
+              << " is " << particles.size() << std::endl;
+
+  }
+
+
+
   cout << "After e-cutoff and freeze-out: size = " << systemPtr->particles.size() << endl;
+
+if (1) exit(8);
 
 
   // fill out initial particle information

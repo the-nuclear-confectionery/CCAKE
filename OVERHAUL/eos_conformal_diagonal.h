@@ -1,6 +1,7 @@
 #ifndef EOS_CONFORMAL_DIAGONAL_H
 #define EOS_CONFORMAL_DIAGONAL_H
 
+#include <cmath>
 #include <vector>
 
 #include "constants.h"
@@ -9,9 +10,14 @@
 
 class EoS_conformal_diagonal: public EoS_base
 {
+using std::abs;
+using std::pow;
+
 private:
 
   double c, T0, muB0, muS0, muQ0;
+  static constexpr double four_thirds = 4.0/3.0;
+  static constexpr double two_to_two_thirds = std::pow(2.0, 2.0/3.0);
 
 public:
   // default constructor/destructor
@@ -26,6 +32,16 @@ public:
                           const std::string & name_in = "conformal_diagonal")
     { c = c_in; T0 = T0_in; muB0 = muB0_in; muS0 = muS0_in; muQ0 = muQ0_in;
       tbqs_minima = tbqs_minima_in; tbqs_maxima = tbqs_maxima_in; name = name_in; }
+
+  // this is the criterion for a guaranteed solution with this EoS
+  bool eBSQ_has_solution( const double e0, const double rhoB0,
+                          const double rhoS0, const double rhoQ0 )
+  {
+    return e0 >= 3.0*( pow(muB0*abs(rhoB0), four_thirds)
+                      + pow(muS0*abs(rhoS0), four_thirds)
+                      + pow(muQ0*abs(rhoQ0), four_thirds) )
+                  / ( 4.0 * two_to_two_thirds * pow(c, 1.0/3.0) )
+  }
 
 
   double p(double T, double muB, double muQ, double muS)
