@@ -443,7 +443,7 @@ void SPHWorkstation::process_initial_conditions()
   {
 
     std::cout << "Length of particles at line " << __LINE__
-              << " is " << particles.size() << std::endl;
+              << " is " << systemPtr->particles.size() << std::endl;
 
     //==========================================================================
     // impose the energy cut-off before the initial time step of hydro
@@ -458,9 +458,9 @@ void SPHWorkstation::process_initial_conditions()
 
 
     std::cout << "Length of particles at line " << __LINE__
-              << " is " << particles.size() << std::endl;
+              << " is " << systemPtr->particles.size() << std::endl;
 
-/*
+
     //==========================================================================
     // cut out particles whose energy density is too small for charge densities
     auto & p_diag_conf_EoS = eosPtr->chosen_EOSs.back();
@@ -472,11 +472,11 @@ void SPHWorkstation::process_initial_conditions()
                                                       p.rhoS_an, p.rhoQ_an );
         } ),
       systemPtr->particles.end() );
-*/
+
 
 
     std::cout << "Length of particles at line " << __LINE__
-              << " is " << particles.size() << std::endl;
+              << " is " << systemPtr->particles.size() << std::endl;
 
   }
 
