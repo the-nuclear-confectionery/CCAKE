@@ -8,16 +8,16 @@
 #include "eos_base.h"
 #include "eos_header.h"
 
-class EoS_conformal_diagonal: public EoS_base
-{
 using std::abs;
 using std::pow;
 
+class EoS_conformal_diagonal: public EoS_base
+{
 private:
 
   double c, T0, muB0, muS0, muQ0;
   static constexpr double four_thirds = 4.0/3.0;
-  static constexpr double two_to_two_thirds = std::pow(2.0, 2.0/3.0);
+  static constexpr double two_to_two_thirds = pow(2.0, 2.0/3.0);
 
 public:
   // default constructor/destructor
@@ -40,7 +40,7 @@ public:
     return e0 >= 3.0*( pow(muB0*abs(rhoB0), four_thirds)
                       + pow(muS0*abs(rhoS0), four_thirds)
                       + pow(muQ0*abs(rhoQ0), four_thirds) )
-                  / ( 4.0 * two_to_two_thirds * pow(c, 1.0/3.0) )
+                  / ( 4.0 * two_to_two_thirds * pow(c, 1.0/3.0) );
   }
 
 
