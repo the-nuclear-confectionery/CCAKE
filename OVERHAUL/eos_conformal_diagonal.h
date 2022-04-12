@@ -46,8 +46,9 @@ public:
   }
 
   // makes an educated guess where the root should be
-  std::vector<double> get_tbqs_seed( const double e0, const double rhoB0,
-                                     const double rhoS0, const double rhoQ0 )
+  std::vector<double> get_tbqs_seed_from_eBSQ(
+                        const double e0, const double rhoB0,
+                        const double rhoS0, const double rhoQ0 )
   {
     double den = two_to_two_thirds * pow(c, 1.0/3.0);
     double disc = e0 - 3.0*( pow(muB0*abs(rhoB0), four_thirds)
@@ -58,6 +59,19 @@ public:
                                 sgn(rhoB0)*pow( muB0*muB0*muB0*muB0*abs(rhoB0), 1.0/3.0 )/den,
                                 sgn(rhoQ0)*pow( muQ0*muQ0*muQ0*muQ0*abs(rhoQ0), 1.0/3.0 )/den,
                                 sgn(rhoS0)*pow( muS0*muS0*muS0*muS0*abs(rhoS0), 1.0/3.0 )/den
+                               });
+  }
+
+  // makes an educated guess where the root should be
+  std::vector<double> get_tbqs_seed_from_sBSQ(
+                        const double s0, const double rhoB0,
+                        const double rhoS0, const double rhoQ0 )
+  {
+    double den = two_to_two_thirds * pow(c, 1.0/3.0);
+    return std::vector<double>({ pow( T0*T0*T0*T0*e0, 1.0/3.0 )/den,
+                                 sgn(rhoB0)*pow( muB0*muB0*muB0*muB0*abs(rhoB0), 1.0/3.0 )/den,
+                                 sgn(rhoQ0)*pow( muQ0*muQ0*muQ0*muQ0*abs(rhoQ0), 1.0/3.0 )/den,
+                                 sgn(rhoS0)*pow( muS0*muS0*muS0*muS0*abs(rhoS0), 1.0/3.0 )/den
                                });
   }
 

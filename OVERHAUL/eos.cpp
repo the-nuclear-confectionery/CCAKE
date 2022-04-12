@@ -382,6 +382,22 @@ bool EquationOfState::rootfinder_update_s(double sin, double Bin, double Sin, do
                                    this_eos->tbqs_minima, this_eos->tbqs_maxima,
                                    result );
 
+    // if rootfinder fails, try a different seed
+    if (!solution_found)
+    {
+      // try twice the grid maxima
+      result = conformal_diagonal_EoS.get_tbqs_seed_from_sBSQ( sin, Bin, Sin, Qin );
+      std::cout << "     - point: "
+                << sin << "   " << Bin << "   " << Sin << "   " << Qin << std::endl;
+      std::cout << "     - seed: "
+                << result[0]*hc << "   " << result[1]*hc << "   "
+                << result[2]*hc << "   " << result[3]*hc << std::endl;
+      solution_found
+        = rootfinder.find_sBSQ_root( sin, Bin, Sin, Qin, this_eos->sBSQ,
+                                     this_eos->tbqs_minima, this_eos->tbqs_maxima,
+                                     result );
+    }
+
     // stop iterating through available EoSs when solution found
     if (solution_found)
     {
@@ -457,7 +473,7 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
               << " EoS for solution..." << std::endl;
 
     const double hc = constants::hbarc_MeVfm;
-    result = conformal_diagonal_EoS.get_tbqs_seed( ein, Bin, Sin, Qin );
+    result = conformal_diagonal_EoS.get_tbqs_seed_from_eBSQ( ein, Bin, Sin, Qin );
 
     std::cout << "     - point: "
               << ein*hc << "   " << Bin << "   " << Sin << "   " << Qin << std::endl;
