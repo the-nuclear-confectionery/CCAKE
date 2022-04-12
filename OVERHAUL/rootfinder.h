@@ -31,7 +31,7 @@ public:
 private:
 
   const int VERBOSE = 0;
-  const int STEPS = 100;
+  const int STEPS = 1000;
   const double TOLERANCE = 1e-10;
 
   //Rootfinding method used **THIS CAN BE CHANGED DEPENDING ON EOS
