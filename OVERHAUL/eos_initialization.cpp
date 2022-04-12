@@ -13,6 +13,7 @@
 #include "eos.h"
 #include "eos_base.h"
 #include "eos_conformal.h"
+#include "eos_conformal_diagonal.h"
 #include "eos_header.h"
 #include "eos_nonconformal_extension.h"
 #include "eos_table.h"
@@ -118,23 +119,25 @@ void EquationOfState::init(string quantityFile, string derivFile)
     double pTmax = pVal;
     double c  = pTmax / (Tmax*Tmax*Tmax*Tmax);
 
+    const double hc = constants::hbarc_MeVfm;
+
     // T-scale T0 = 1 by definition
-    double T0 = 1.0;
+    double T0 = 1.0*hc;
 
     // set muB scale using (Tmax,muBmax,0,0)
     tbqs( Tmax, muBmax, 0.0, 0.0, p_default_EoS );
     cout << pTmax << "   " << pVal << "   " << c << "   " << muBmax << endl;
-    double muB0 = pow(c,0.25) * muBmax / sqrt( sqrt(pVal) - sqrt(pTmax) );
+    double muB0 = pow(c,0.25) * muBmax*hc / sqrt( sqrt(pVal) - sqrt(pTmax) );
 
     // set muQ scale using (Tmax,0,muQmax,0)
     tbqs( Tmax, 0.0, muQmax, 0.0, p_default_EoS );
     cout << pTmax << "   " << pVal << "   " << c << "   " << muQmax << endl;
-    double muQ0 = pow(c,0.25) * muQmax / sqrt( sqrt(pVal) - sqrt(pTmax) );
+    double muQ0 = pow(c,0.25) * muQmax*hc / sqrt( sqrt(pVal) - sqrt(pTmax) );
 
     // set muS scale using (Tmax,0,0,muSmax)
     tbqs( Tmax, 0.0, 0.0, muSmax, p_default_EoS );
     cout << pTmax << "   " << pVal << "   " << c << "   " << muSmax << endl;
-    double muS0 = pow(c,0.25) * muSmax / sqrt( sqrt(pVal) - sqrt(pTmax) );
+    double muS0 = pow(c,0.25) * muSmax*hc / sqrt( sqrt(pVal) - sqrt(pTmax) );
 
     // set minima and maxima for rootfinder (can be arbitrarily large)
     vector<double> tbqs_minima = { 0.0,          -TBQS_INFINITY, -TBQS_INFINITY, -TBQS_INFINITY };
