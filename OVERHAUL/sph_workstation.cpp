@@ -463,7 +463,9 @@ void SPHWorkstation::process_initial_conditions()
 
     //==========================================================================
     // cut out particles whose energy density is too small for charge densities
-    auto & p_diag_conf_EoS = eosPtr->chosen_EOSs.back();
+    EoS_conformal_diagonal & p_diag_conf_EoS = eosPtr->chosen_EOSs.back();
+
+    // remove particles with no possible solutions
     systemPtr->particles.erase( std::remove_if(
       systemPtr->particles.begin(),
       systemPtr->particles.end(),
