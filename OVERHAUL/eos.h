@@ -112,6 +112,9 @@ public:
 
     vector<pEoS_base> chosen_EOSs;     // the vector of EoSs to use, in order
 
+    // use this specifically to make educated guesses for seed values, etc.
+    EoS_conformal_diagonal conformal_diagonal_EoS;
+
 private:
 
     ////////////////////////////////////////////////////////////////////////////

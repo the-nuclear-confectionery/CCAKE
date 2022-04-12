@@ -460,21 +460,19 @@ void SPHWorkstation::process_initial_conditions()
               << " is " << systemPtr->particles.size() << std::endl;
 
 
-/*
+
     //==========================================================================
     // cut out particles whose energy density is too small for charge densities
-    std::shared_ptr<EoS_conformal_diagonal> p_diag_conf_EoS = eosPtr->chosen_EOSs.back();
-
     // remove particles with no possible solutions
     systemPtr->particles.erase( std::remove_if(
       systemPtr->particles.begin(),
       systemPtr->particles.end(),
-      [p_diag_conf_EoS](Particle const & p)
-        { return !(p_diag_conf_EoS->eBSQ_has_solution( p.e_sub,   p.rhoB_an,
-                                                       p.rhoS_an, p.rhoQ_an ) );
+      [eosPtr](Particle const & p)
+        { return !((eosPtr->conformal_diagonal_EoS)->eBSQ_has_solution(
+                    p.e_sub, p.rhoB_an, p.rhoS_an, p.rhoQ_an ) );
         } ),
       systemPtr->particles.end() );
-*/
+
 
 
     std::cout << "Length of particles at line " << __LINE__
