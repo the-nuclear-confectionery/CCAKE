@@ -35,7 +35,7 @@ void EquationsOfMotion::BSQshear( SystemState & system, SPHWorkstation & ws )
 {
   // which particles print extra info for
   constexpr int ic = 15962;
-  constexpr bool printAll = false;
+  constexpr bool printAll = true;
 
 
   // not initial call to setshear(bool is_first_timestep)
