@@ -111,13 +111,13 @@ public:
 		return 12.0*cp*muS*muS/(muS0*muS0*muS0*muS0);
 	}
 	
-	double P2BQ(double T, double muB, double muQ, double muS) { return 0.0; }
-	double P2BS(double T, double muB, double muQ, double muS) { return 0.0; }
-	double P2QS(double T, double muB, double muQ, double muS) { return 0.0; }
+	double P2BQ(double T, double muB, double muQ, double muS) { return TINY; }
+	double P2BS(double T, double muB, double muQ, double muS) { return TINY; }
+	double P2QS(double T, double muB, double muQ, double muS) { return TINY; }
 	
-	double P2TB(double T, double muB, double muQ, double muS) { return 0.0; }
-	double P2TQ(double T, double muB, double muQ, double muS) { return 0.0; }
-	double P2TS(double T, double muB, double muQ, double muS) { return 0.0; }
+	double P2TB(double T, double muB, double muQ, double muS) { return TINY; }
+	double P2TQ(double T, double muB, double muQ, double muS) { return TINY; }
+	double P2TS(double T, double muB, double muQ, double muS) { return TINY; }
 
 	double P2T2(double T, double muB, double muQ, double muS)
 	{
