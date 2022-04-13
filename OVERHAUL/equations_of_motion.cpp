@@ -179,10 +179,10 @@ cout << "CHECK M: " << i << "   " << system.t << "   " << M << endl;
 
 
 if (i==ic || printAll)
-cout << "CHECK F: " << i << "   " << system.t << "   " << F << "   "
-		<< p.Btot << "   " << p.u << "   "
-		<< p.gradshear << "   " << p.gradP << "   "
-		<< p.gradBulk << "   " << p.divshear << endl;
+cout << "CHECK F: " << i << "   " << system.t << "   " << F << ";   "
+		<< p.Btot << ";   " << p.u << ";   "
+		<< p.gradshear << ";   " << p.gradP << ";   "
+		<< p.gradBulk << ";   " << p.divshear << endl;
 
     // shear contribution
     if ( settingsPtr->using_shear )
