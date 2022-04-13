@@ -284,7 +284,7 @@ void Particle::bsqsvsigset( double tin, int i )
   Btot         = ( Agam*gamma + 2.0*eta_o_tau/3.0*gamma )*sigl
                 + bigPI/tauRelax + dwdsT*( gt*shv33 + Bsub() );
   check        = sigl;
-std::cout << "CHECK bsqsvsigset: " << i << "   " << system.t << "   " << g2
+std::cout << "CHECK bsqsvsigset: " << i << "   " << tin << "   " << g2
           << "   " << g2 << "   " << g3 << "   " << gt << "   "
           << dwds() << "   " << T() << "   " << sigl << "   "
           << w() << "   " << bigPI << "   " << gradU << "   "
