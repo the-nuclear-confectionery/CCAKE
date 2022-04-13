@@ -410,6 +410,10 @@ bool EquationOfState::rootfinder_update_s(double sin, double Bin, double Sin, do
       std::cout << " --> found a solution with "
                 << this_eos->name << " EoS!" << std::endl;
       current_eos_name = this_eos->name;
+
+      // truncate T in cells with small density
+      result[0] = max( 1e-3, result[0] ); // ~0.2 MeV
+
       tbqs( result, this_eos ); // set thermodynamics using solution
       break;
     }
