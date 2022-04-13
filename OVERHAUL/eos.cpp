@@ -404,6 +404,8 @@ bool EquationOfState::rootfinder_update_s(double sin, double Bin, double Sin, do
                                      result );
     }
 
+
+
     // stop iterating through available EoSs when solution found
     if (solution_found)
     {
@@ -475,6 +477,8 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
 {
   // used for seed value in rootfinder
   vector<double> result;
+
+  solution_found = false;
 
   // try each EoS in turn
   for ( const auto & this_eos : chosen_EOSs )

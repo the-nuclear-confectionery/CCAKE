@@ -34,8 +34,8 @@ void EquationsOfMotion::set_SettingsPtr(Settings * settingsPtr_in)
 void EquationsOfMotion::BSQshear( SystemState & system, SPHWorkstation & ws )
 {
   // which particles print extra info for
-  constexpr int ic = 15962;
-  constexpr bool printAll = true;
+  constexpr int ic = -1;
+  constexpr bool printAll = false;
 
 
   // not initial call to setshear(bool is_first_timestep)
