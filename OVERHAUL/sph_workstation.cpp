@@ -451,7 +451,7 @@ void SPHWorkstation::process_initial_conditions()
     systemPtr->particles.erase( std::remove_if(
       systemPtr->particles.begin(),
       systemPtr->particles.end(),
-      [](Particle const & p) { return p.e_sub <= 0.15 / hbarc_GeVfm; } ),
+      [](Particle const & p) { return p.e_sub <= 0.00301 / hbarc_GeVfm; } ),
       systemPtr->particles.end() );
 
 
