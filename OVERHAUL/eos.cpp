@@ -373,15 +373,18 @@ bool EquationOfState::rootfinder_update_s(double sin, double Bin, double Sin, do
   // try each EoS in turn
   for ( const auto & this_eos : chosen_EOSs )
   {
-    std::cout << " --> currently trying " << this_eos->name
-              << " EoS for solution..." << std::endl;
     const double hc = constants::hbarc_MeVfm;
     result = tbqsPosition;
-    std::cout << "     - point: "
-              << sin << "   " << Bin << "   " << Sin << "   " << Qin << std::endl;
-    std::cout << "     - seed: "
-              << result[0]*hc << "   " << result[1]*hc << "   "
-              << result[2]*hc << "   " << result[3]*hc << std::endl;
+    if ( VERBOSE > 2 )
+    {
+      std::cout << " --> currently trying " << this_eos->name
+                << " EoS for solution..." << std::endl;
+      std::cout << "     - point: "
+                << sin << "   " << Bin << "   " << Sin << "   " << Qin << std::endl;
+      std::cout << "     - seed: "
+                << result[0]*hc << "   " << result[1]*hc << "   "
+                << result[2]*hc << "   " << result[3]*hc << std::endl;
+    }
 
     solution_found
       = rootfinder.find_sBSQ_root( sin, Bin, Sin, Qin, this_eos->sBSQ,
@@ -393,11 +396,14 @@ bool EquationOfState::rootfinder_update_s(double sin, double Bin, double Sin, do
     {
       // try twice the grid maxima
       result = conformal_diagonal_EoS.get_tbqs_seed_from_sBSQ( sin, Bin, Sin, Qin );
-      std::cout << "     - point: "
-                << sin << "   " << Bin << "   " << Sin << "   " << Qin << std::endl;
-      std::cout << "     - seed: "
-                << result[0]*hc << "   " << result[1]*hc << "   "
-                << result[2]*hc << "   " << result[3]*hc << std::endl;
+      if ( VERBOSE > 2 )
+      {
+        std::cout << "     - point: "
+                  << sin << "   " << Bin << "   " << Sin << "   " << Qin << std::endl;
+        std::cout << "     - seed: "
+                  << result[0]*hc << "   " << result[1]*hc << "   "
+                  << result[2]*hc << "   " << result[3]*hc << std::endl;
+      }
       solution_found
         = rootfinder.find_sBSQ_root( sin, Bin, Sin, Qin, this_eos->sBSQ,
                                      this_eos->tbqs_minima, this_eos->tbqs_maxima,
@@ -409,8 +415,11 @@ bool EquationOfState::rootfinder_update_s(double sin, double Bin, double Sin, do
     // stop iterating through available EoSs when solution found
     if (solution_found)
     {
-      std::cout << " --> found a solution with "
-                << this_eos->name << " EoS!" << std::endl;
+      if ( VERBOSE > 2 )
+      {
+        std::cout << " --> found a solution with "
+                  << this_eos->name << " EoS!" << std::endl;
+      }
       current_eos_name = this_eos->name;
 
       // truncate T in cells with small density
@@ -483,18 +492,20 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
   // try each EoS in turn
   for ( const auto & this_eos : chosen_EOSs )
   {
-    std::cout << " --> currently trying " << this_eos->name
-              << " EoS for solution..." << std::endl;
 
     const double hc = constants::hbarc_MeVfm;
     result = conformal_diagonal_EoS.get_tbqs_seed_from_eBSQ( ein, Bin, Sin, Qin );
 
-    std::cout << "     - point: "
-              << ein*hc << "   " << Bin << "   " << Sin << "   " << Qin << std::endl;
-    std::cout << "     - seed: "
-              << result[0]*hc << "   " << result[1]*hc << "   "
-              << result[2]*hc << "   " << result[3]*hc << std::endl;
-
+    if ( VERBOSE > 2 )
+    {
+      std::cout << " --> currently trying " << this_eos->name
+                << " EoS for solution..." << std::endl;
+      std::cout << "     - point: "
+                << ein*hc << "   " << Bin << "   " << Sin << "   " << Qin << std::endl;
+      std::cout << "     - seed: "
+                << result[0]*hc << "   " << result[1]*hc << "   "
+                << result[2]*hc << "   " << result[3]*hc << std::endl;
+    }
 
     solution_found
       = rootfinder.find_eBSQ_root( ein, Bin, Sin, Qin, this_eos->eBSQ,
@@ -505,7 +516,8 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
     if (solution_found)
     {
       // any time we update the EoS pointer, we need to specify WHICH EoS we are updating!
-      std::cout << " --> found a solution with " << this_eos->name << " EoS!" << std::endl;
+      if ( VERBOSE > 2 )
+        std::cout << " --> found a solution with " << this_eos->name << " EoS!" << std::endl;
       current_eos_name = this_eos->name;
       tbqs( result, this_eos ); // set thermodynamics using solution
       break;
