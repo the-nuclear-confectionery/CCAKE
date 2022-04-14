@@ -25,7 +25,9 @@ public:
                  const std::vector<double> & tbqs_maxima_in,
                  const std::string & name_in = "conformal")
     { c = c_in; T0 = T0_in; muB0 = muB0_in; muS0 = muS0_in; muQ0 = muQ0_in;
-      tbqs_minima = tbqs_minima_in; tbqs_maxima = tbqs_maxima_in; name = name_in; }
+      tbqs_minima = tbqs_minima_in; tbqs_maxima = tbqs_maxima_in; 
+      tbqs_minima_no_ext = tbqs_minima_in; tbqs_maxima_no_ext = tbqs_maxima_in;
+      name = name_in; }
 
 
   double p(double T, double muB, double muQ, double muS)

@@ -161,6 +161,7 @@ void EquationOfState::init(string quantityFile, string derivFile)
 
 
   // use diagonal conformal as final fallback
+  //if ( settingsPtr->EoS_type != "Conformal" )
   {
     std::cout << "Setting DIAGONAL conformal equation of state as FINAL fallback" << std::endl;
     std::cout << "  --> all coefficients matched to p/T^4 at grid limits" << std::endl;
