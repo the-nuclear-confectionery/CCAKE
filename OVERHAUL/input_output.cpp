@@ -521,11 +521,12 @@ void InputOutput::print_system_state()
   n_timesteps_output++;
 
 // exit prematurely
-if (systemPtr->t > 0.8)
-{
-  std::cout << "EXITING PREMATURELY" << std::endl;
-  std::cerr << "EXITING PREMATURELY" << std::endl;
-  exit(1);
+//if (systemPtr->t > 0.8)
+//{
+//  std::cout << "EXITING PREMATURELY" << std::endl;
+//  std::cerr << "EXITING PREMATURELY" << std::endl;
+//  exit(1);
+//}
 
   return;
 }
