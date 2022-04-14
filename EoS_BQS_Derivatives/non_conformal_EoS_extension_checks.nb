@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[    195862,       5039]
-NotebookOptionsPosition[    187439,       4912]
-NotebookOutlinePosition[    187889,       4929]
-CellTagsIndexPosition[    187846,       4926]
+NotebookDataLength[    196626,       5060]
+NotebookOptionsPosition[    187977,       4929]
+NotebookOutlinePosition[    188427,       4946]
+CellTagsIndexPosition[    188384,       4943]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -4865,6 +4865,23 @@ Cell[BoxData["0.013522425132959284`"], "Output",
 
 Cell[CellGroupData[{
 
+Cell[BoxData[
+ RowBox[{"FixedPoint", "[", 
+  RowBox[{
+   RowBox[{
+    FractionBox["1", 
+     RowBox[{"1", "+", 
+      SuperscriptBox["E", "#"]}]], "&"}], ",", "5."}], "]"}]], "Input",
+ CellChangeTimes->{{3.8588923220504465`*^9, 3.8588923651197853`*^9}},
+ CellLabel->"In[16]:=",ExpressionUUID->"a73174f5-bfba-4988-9674-8c51147287e2"],
+
+Cell[BoxData["0.401058137541547`"], "Output",
+ CellChangeTimes->{3.858892366028097*^9},
+ CellLabel->"Out[16]=",ExpressionUUID->"a58b53a9-0df8-4ceb-be9e-ee466e12275c"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
 Cell[BoxData[{
  RowBox[{
   RowBox[{"Remove", "[", "\"\<Global`*\>\"", "]"}], 
@@ -5038,8 +5055,12 @@ Cell[183786, 4810, 1535, 45, 79, "Output",ExpressionUUID->"d08b03a5-24c6-4953-9b
 Cell[185324, 4857, 257, 5, 40, "Output",ExpressionUUID->"4cee912b-c3e2-4975-94da-5b22fc9995aa"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[185618, 4867, 1363, 34, 172, "Input",ExpressionUUID->"c4b50edb-3296-4649-938f-a78267d3bb77"],
-Cell[186984, 4903, 439, 6, 60, "Output",ExpressionUUID->"040b4d3c-ec18-42be-a293-0df030f24ebb"]
+Cell[185618, 4867, 332, 8, 56, "Input",ExpressionUUID->"a73174f5-bfba-4988-9674-8c51147287e2"],
+Cell[185953, 4877, 166, 2, 40, "Output",ExpressionUUID->"a58b53a9-0df8-4ceb-be9e-ee466e12275c"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[186156, 4884, 1363, 34, 172, "Input",ExpressionUUID->"c4b50edb-3296-4649-938f-a78267d3bb77"],
+Cell[187522, 4920, 439, 6, 40, "Output",ExpressionUUID->"040b4d3c-ec18-42be-a293-0df030f24ebb"]
 }, Open  ]]
 }
 ]

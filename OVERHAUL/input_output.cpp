@@ -459,6 +459,7 @@ void InputOutput::print_system_state()
           << p.rhoQ() << endl;
       }
   else
+  {
     for ( auto & p : systemPtr->particles )
       out << iParticle++ << " "
           << systemPtr->t << " "
@@ -468,7 +469,7 @@ void InputOutput::print_system_state()
           << p.muB()*hbarc_MeVfm << " "
           << p.muS()*hbarc_MeVfm << " "
           << p.muQ()*hbarc_MeVfm << " "
-          << p.e()*hbarc_MeVfm << " " //10
+          << p.e()*hbarc_MeVfm << "       " //10
           << p.rhoB() << " "
           << p.rhoS() << " "
           << p.rhoQ() << " "
@@ -478,7 +479,7 @@ void InputOutput::print_system_state()
           << p.sigma << " " 
           << p.sigmaweight << " "
           << p.stauRelax << " " 
-          << p.bigtheta << " "  //20
+          << p.bigtheta << "       "  //20
           << sqrt( p.shv.x[0][0]*p.shv.x[0][0]
                   -2.0*p.shv.x[0][1]*p.shv.x[0][1]
                   -2.0*p.shv.x[0][2]*p.shv.x[0][2]
@@ -494,7 +495,7 @@ void InputOutput::print_system_state()
           << pow(systemPtr->t,2.0)*p.shv33 << " "
           << p.u.x[0]/p.gamma << " "  //28
           << p.u.x[1]/p.gamma << " "
-          << p.gamma << " "
+          << p.gamma << "       "
           << p.Freeze << " "
           << p.bigPI << " "     //32
           << p.tauRelax << " "
@@ -508,7 +509,11 @@ void InputOutput::print_system_state()
           << p.gradU << "       "
           << p.gradBulk << "       "
           << p.gradshear << "       "
-          << p.divshear << endl;
+          << p.divshear << "   "
+          << p.get_current_eos_name << endl;
+
+    print_shear();
+  }
   
   out.close();
 
@@ -516,6 +521,55 @@ void InputOutput::print_system_state()
   n_timesteps_output++;
 
 //if (true) exit(1);
+
+  return;
+}
+
+
+
+
+
+
+void InputOutput::print_shear()
+{
+  string outputfilename = output_directory + "/shear_checks_"
+                          + std::to_string(n_timesteps_output) + ".dat";
+  ofstream out( outputfilename.c_str() );
+
+  out << systemPtr->t << endl;
+  int iParticle = 0;
+  for ( auto & p : systemPtr->particles )
+  {
+    p.setvar();
+    out << iParticle++ << "   "
+        << systemPtr->t << "   "
+        << p.r << "   "
+        << p.u << "   "
+        << p.shv << "   "
+        << pow(systemPtr->t,2.0)*p.shv33 << "   "
+        << p.shv.x[0][0]*p.shv.x[0][0]
+            - 2.0*p.shv.x[0][1]*p.shv.x[0][1]
+            - 2.0*p.shv.x[0][2]*p.shv.x[0][2]
+            + p.shv.x[1][1]*p.shv.x[1][1]
+            + p.shv.x[2][2]*p.shv.x[2][2]
+            + 2.0*p.shv.x[1][2]*p.shv.x[1][2]
+            + pow(systemPtr->t,4.0)*p.shv33*p.shv33 << "   "
+        << p.shv.x[0][1] - p.shv.x[1][0] << "   "
+        << p.shv.x[0][2] - p.shv.x[2][0] << "   "
+        << p.shv.x[1][2] - p.shv.x[2][1] << "   "
+        << shv.x[0][0]=1./gamma/gamma*con(uu,pimin) << "   "
+        << shv.x[0][0] - 1./gamma*inner(u,colp1(0,shv)) << "   "
+        << shv.x[0][1] - 1./gamma*inner(u,colp1(1,shv)) << "   "
+        << shv.x[0][2] - 1./gamma*inner(u,colp1(2,shv)) << "   "
+        << shv.x[0][0] - shv.x[1][1] - shv.x[2][2]
+                       - pow(systemPtr->t,2.0)*p.shv33 << "   "
+        << p.get_current_eos_name << endl;
+  }
+  
+  out.close();
+
+  // increment timestep index
+  n_timesteps_output++;
 
   return;
 }

@@ -51,6 +51,7 @@ public:
   // system state so that it can set initial system state
 
   void print_system_state(); //at every time step, will write to output file
+  void print_shear();        //at every time step, will write to output file
 
 private:
 
