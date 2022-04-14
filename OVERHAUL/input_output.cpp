@@ -510,7 +510,7 @@ void InputOutput::print_system_state()
           << p.gradBulk << "       "
           << p.gradshear << "       "
           << p.divshear << "   "
-          << p.get_current_eos_name << endl;
+          << p.get_current_eos_name() << endl;
 
     print_shear();
   }
@@ -557,13 +557,13 @@ void InputOutput::print_shear()
         << p.shv.x[0][1] - p.shv.x[1][0] << "   "
         << p.shv.x[0][2] - p.shv.x[2][0] << "   "
         << p.shv.x[1][2] - p.shv.x[2][1] << "   "
-        << shv.x[0][0]=1./gamma/gamma*con(uu,pimin) << "   "
-        << shv.x[0][0] - 1./gamma*inner(u,colp1(0,shv)) << "   "
-        << shv.x[0][1] - 1./gamma*inner(u,colp1(1,shv)) << "   "
-        << shv.x[0][2] - 1./gamma*inner(u,colp1(2,shv)) << "   "
-        << shv.x[0][0] - shv.x[1][1] - shv.x[2][2]
+        << p.shv.x[0][0] - 1./gamma/gamma*con(p.uu,p.pimin) << "   "
+        << p.shv.x[0][0] - 1./gamma*inner(p.u,colp1(0,p.shv)) << "   "
+        << p.shv.x[0][1] - 1./gamma*inner(p.u,colp1(1,p.shv)) << "   "
+        << p.shv.x[0][2] - 1./gamma*inner(p.u,colp1(2,p.shv)) << "   "
+        << p.shv.x[0][0] - p.shv.x[1][1] - p.shv.x[2][2]
                        - pow(systemPtr->t,2.0)*p.shv33 << "   "
-        << p.get_current_eos_name << endl;
+        << p.get_current_eos_name() << endl;
   }
   
   out.close();
