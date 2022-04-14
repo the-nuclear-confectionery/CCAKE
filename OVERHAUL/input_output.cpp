@@ -557,10 +557,10 @@ void InputOutput::print_shear()
         << p.shv.x[0][1] - p.shv.x[1][0] << "   "
         << p.shv.x[0][2] - p.shv.x[2][0] << "   "
         << p.shv.x[1][2] - p.shv.x[2][1] << "   "
-        << p.shv.x[0][0] - 1./gamma/gamma*con(p.uu,p.pimin) << "   "
-        << p.shv.x[0][0] - 1./gamma*inner(p.u,colp1(0,p.shv)) << "   "
-        << p.shv.x[0][1] - 1./gamma*inner(p.u,colp1(1,p.shv)) << "   "
-        << p.shv.x[0][2] - 1./gamma*inner(p.u,colp1(2,p.shv)) << "   "
+        << p.shv.x[0][0] - 1./p.gamma/p.gamma*con(p.uu,p.pimin) << "   "
+        << p.shv.x[0][0] - 1./p.gamma*inner(p.u,colp1(0,p.shv)) << "   "
+        << p.shv.x[0][1] - 1./p.gamma*inner(p.u,colp1(1,p.shv)) << "   "
+        << p.shv.x[0][2] - 1./p.gamma*inner(p.u,colp1(2,p.shv)) << "   "
         << p.shv.x[0][0] - p.shv.x[1][1] - p.shv.x[2][2]
                        - pow(systemPtr->t,2.0)*p.shv33 << "   "
         << p.get_current_eos_name() << endl;
