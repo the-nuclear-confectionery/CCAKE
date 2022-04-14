@@ -553,7 +553,7 @@ void InputOutput::print_shear()
             + p.shv.x[1][1]*p.shv.x[1][1]
             + p.shv.x[2][2]*p.shv.x[2][2]
             + 2.0*p.shv.x[1][2]*p.shv.x[1][2]
-            + pow(systemPtr->t,4.0)*p.shv33*p.shv33 << "   "
+            + pow(systemPtr->t,4.0)*p.shv33*p.shv33 << "   " //17
         << p.shv.x[0][1] - p.shv.x[1][0] << "   "
         << p.shv.x[0][2] - p.shv.x[2][0] << "   "
         << p.shv.x[1][2] - p.shv.x[2][1] << "   "
@@ -567,9 +567,6 @@ void InputOutput::print_shear()
   }
   
   out.close();
-
-  // increment timestep index
-  n_timesteps_output++;
 
   return;
 }

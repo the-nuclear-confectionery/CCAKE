@@ -323,7 +323,7 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
     found = false;
   }
 
-//  std::cout << "Check: " << iter << "   " << steps << "   " << status << std::endl;
+  std::cout << "Check: " << iter << "   " << steps << "   " << status << std::endl;
 
 
   // if so, return the solution
