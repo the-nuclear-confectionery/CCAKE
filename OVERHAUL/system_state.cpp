@@ -396,6 +396,13 @@ void SystemState::bsqsvfreezeout(int curfrz)
       p.frz2.u       = p.u;
       p.frz2.sigma   = p.sigma;
       p.frz2.T       = p.T();
+      p.frz2.muB     = p.muB();
+      p.frz2.muS     = p.muS();
+      p.frz2.muQ     = p.muQ();
+      p.frz2.e       = p.e();
+      p.frz2.rhoB    = p.rhoB();
+      p.frz2.rhoS    = p.rhoS();
+      p.frz2.rhoQ    = p.rhoQ();
       p.frz2.bulk    = p.bigPI;
       p.frz2.theta   = p.div_u + p.gamma/t;
       p.frz2.gradP   = p.gradP;
@@ -415,6 +422,13 @@ void SystemState::bsqsvfreezeout(int curfrz)
       p.frz1.u       = p.u;
       p.frz1.sigma   = p.sigma;
       p.frz1.T       = p.T();
+      p.frz1.muB     = p.muB();
+      p.frz1.muS     = p.muS();
+      p.frz1.muQ     = p.muQ();
+      p.frz1.e       = p.e();
+      p.frz1.rhoB    = p.rhoB();
+      p.frz1.rhoS    = p.rhoS();
+      p.frz1.rhoQ    = p.rhoQ();
       p.frz1.bulk    = p.bigPI;
       p.frz1.theta   = p.div_u + p.gamma/t;
       p.frz1.gradP   = p.gradP;
@@ -507,6 +521,13 @@ void SystemState::bsqsvfreezeout(int curfrz)
       p.frz1.u       = p.u;
       p.frz1.sigma   = p.sigma;
       p.frz1.T       = p.T();
+      p.frz1.muB     = p.muB();
+      p.frz1.muS     = p.muS();
+      p.frz1.muQ     = p.muQ();
+      p.frz1.e       = p.e();
+      p.frz1.rhoB    = p.rhoB();
+      p.frz1.rhoS    = p.rhoS();
+      p.frz1.rhoQ    = p.rhoQ();
       p.frz1.bulk    = p.bigPI ;
       p.frz1.theta   = p.div_u+p.gamma/t;
       p.frz1.gradP   = p.gradP;
@@ -535,11 +556,21 @@ void SystemState::bsqsvinterpolate(int curfrz)
     auto & p = particles[i];
 
 
+// the old freeze-out criterion at constant temeprature T
+//    int swit = 0;
+//    if ( abs( p.frz1.T - freezeoutT ) < abs( p.frz2.T - freezeoutT ) )
+//      swit   = 1;
+//    else
+//      swit   = 2;
+
+
     int swit = 0;
-    if ( abs( p.frz1.T - freezeoutT ) < abs( p.frz2.T - freezeoutT ) )
+    if ( abs( p.frz1.e - efcheck ) < abs( p.frz2.e - efcheck ) )
       swit   = 1;
     else
       swit   = 2;
+
+
 
 
     double sigsub = 0.0, thetasub = 0.0, inside = 0.0;
@@ -561,7 +592,7 @@ void SystemState::bsqsvinterpolate(int curfrz)
       inside        = p.frz1.inside;
       sigsub        = p.frz1.sigma;
       thetasub      = p.frz1.theta;
-      Tfluc[j]      = p.frz1.T;
+      Tfluc[j]      = p.frz1.T;             // replace with e
     }
     else if ( swit == 2 )
     {
@@ -580,14 +611,14 @@ void SystemState::bsqsvinterpolate(int curfrz)
       inside        = p.frz2.inside;
       sigsub        = p.frz2.sigma;
       thetasub      = p.frz2.theta;
-      Tfluc[j]      = p.frz2.T;
+      Tfluc[j]      = p.frz2.T;           // replace with e
     }
     else
     {
       cout << __PRETTY_FUNCTION__ << ": Not at freeze-out temperature" << endl;
     }
 
-    sFO[j]       = p.eosPtr->s_terms_T( Tfluc[j] );
+    sFO[j]       = p.eosPtr->s_terms_T( Tfluc[j] );  // replace with e, BSQ
 
     gsub[j]      = sqrt( Norm2(uout[j]) + 1 );
 
@@ -599,6 +630,7 @@ void SystemState::bsqsvinterpolate(int curfrz)
     divTtemp[j]  = -(1.0/(gsub[j]*sFO[j]))
                       *( cs2 * (wfz+bulksub[j]) * thetasub
                         - cs2*inside+inner(uout[j], gradPsub) );
+//THIS NEEDS TO BE RESET
 
 
     double insub = divTtemp[j]*divTtemp[j] - Norm2(divT[j]);

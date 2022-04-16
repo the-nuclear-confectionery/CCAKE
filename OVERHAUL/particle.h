@@ -239,7 +239,8 @@ class Particle
   // freeze out struct thingy?
   struct FRZ
   {
-      double t = 0.0, s = 0.0, T = 0.0, theta = 0.0, bulk = 0.0,
+      double t = 0.0, s = 0.0, e = 0.0, rhoB = 0.0, rhoS = 0.0, rhoQ = 0.0,
+             T = 0.0, muB = 0.0, muS = 0.0, muQ = 0.0, theta = 0.0, bulk = 0.0,
              sigma = 0.0, shear33 = 0.0, inside = 0.0;
       Vector<double,2> r, u, gradP;
       Matrix<double,3,3> shear;

@@ -148,9 +148,49 @@ double Particle::gamcalc() { return sqrt( Norm2(u) + 1.0 ); }
 ////////////////////////////////////////////////////////////////////////////////
 void Particle::frzcheck( double tin, int &count, int N )
 {
+
+// old version of freeze out
+//  if ( Freeze == 0 )
+//  {
+//    if ( T() <= freezeoutT )
+//    {
+//      Freeze = 1;
+//      frz2.t = tin;
+//    }
+//  }
+//  else if ( Freeze == 1 )
+//  {
+//    if ( btrack == -1 )
+//    {
+//      count += 1;
+//      Freeze = 3;
+//      frz1.t = tin;
+//    }
+//    else if ( T()>frz1.T )
+//    {
+//      Freeze = 1;
+//      frz2.t = tin;
+//    }
+//    else if( T() <= freezeoutT )
+//    {
+//      count += 1;
+//      Freeze = 3;
+//      frz1.t = tin;
+//    }
+//    else
+//    {
+//      Freeze=0;
+//    }
+//  }
+
+
+
+
+// new version of freeze out
+
   if ( Freeze == 0 )
   {
-    if ( T() <= freezeoutT )
+    if ( e() <= efcheck )
     {
       Freeze = 1;
       frz2.t = tin;
@@ -164,12 +204,12 @@ void Particle::frzcheck( double tin, int &count, int N )
       Freeze = 3;
       frz1.t = tin;
     }
-    else if ( T()>frz1.T )
+    else if ( e()>frz1.e )
     {
       Freeze = 1;
       frz2.t = tin;
     }
-    else if( T() <= freezeoutT )
+    else if( e() <= efcheck )
     {
       count += 1;
       Freeze = 3;
@@ -180,6 +220,7 @@ void Particle::frzcheck( double tin, int &count, int N )
       Freeze=0;
     }
   }
+
 }
 
 
