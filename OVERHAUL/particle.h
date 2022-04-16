@@ -209,6 +209,7 @@ class Particle
   double inside          = 0.0;
 
   double freezeoutT      = 0.0;
+  double efcheck         = 0.0;
 
   // vector members
   Vector<double,2> r;                                       // position

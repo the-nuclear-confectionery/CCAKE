@@ -91,6 +91,7 @@ if ( check_ideal_EoS )
     p.set_EquationOfStatePtr( eosPtr );
     p.set_SettingsPtr( settingsPtr );
     p.freezeoutT = freezeoutT;
+    p.efcheck = efcheck;
   }
 
   linklist.efcheck = efcheck;
