@@ -49,7 +49,6 @@ Vector<T,D>& Vector<T,D>::operator=(Vector<U,D> a) {
 
 
 
-
 template <class T, int D>
 Vector<T,D>& Vector<T,D>::operator=(double a) {
 

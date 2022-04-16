@@ -46,7 +46,6 @@ template <class T, int D> ostream& operator<<(ostream&, Vector<T,D>);
 template <int D> void unitaryVector(Vector<double,D> & V);
 template <int D> void unitaryVector(Vector<int,D> & V);
 
-
 #include "vector.cpp"
 
 #endif

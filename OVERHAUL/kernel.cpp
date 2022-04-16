@@ -11,6 +11,7 @@ using std::setprecision;
 
 namespace kernel
 {
+
   double knorm, knorm2, kgrad, kgrad2;
 
   void set_kernel_parameters( double h )

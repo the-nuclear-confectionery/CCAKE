@@ -1,13 +1,14 @@
 #ifndef KERNEL_H
 #define KERNEL_H
 
-#include "vector.h"
-#include "matrix.h"
-#include "mathdef.h"
 #include <stdio.h>
 #include <math.h>
 #include <cmath>
 #include <vector>
+
+#include "vector.h"
+#include "matrix.h"
+#include "mathdef.h"
 
 namespace kernel
 {

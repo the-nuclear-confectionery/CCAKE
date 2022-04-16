@@ -1,6 +1,6 @@
 ICtype:     ICCING
 ICoption:   Default
-h:          0.300000
+h:          0.150000
 dt:         0.05
 t0:         0.600000
 EoS_Type:   Conformal

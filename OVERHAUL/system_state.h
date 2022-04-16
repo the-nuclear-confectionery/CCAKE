@@ -123,7 +123,6 @@ private:
   double taupp      = 0;
   double wfz        = 0;
 
-
   vector<double> divTtemp;
   vector<double> gsub;
   vector<double> bulksub;
