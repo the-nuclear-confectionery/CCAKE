@@ -169,6 +169,12 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
   for (int iTBQS = 0; iTBQS < 4; iTBQS++)
     gsl_vector_set(x, iTBQS, tbqsPosition[iTBQS]);
 
+  gsl_vector *chosen_densities = gsl_vector_alloc(4);
+  gsl_vector_set(chosen_densities, 0, e_or_s_Given);
+  gsl_vector_set(chosen_densities, 1, rhoBGiven);
+  gsl_vector_set(chosen_densities, 2, rhoQGiven);
+  gsl_vector_set(chosen_densities, 3, rhoSGiven);
+
 
   ////////////////////
   // pass relevant parameters to rootfinder
@@ -299,9 +305,14 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
            << gsl_vector_get(solver->f, 2) << ","
            << gsl_vector_get(solver->f, 3) << ")" << std::endl;
 
-//cout << "Status before(2): " << status << "   " << GSL_CONTINUE << endl;
-    status = gsl_multiroot_test_residual(solver->f, error);
-//cout << "Status after(2): " << status << "   " << GSL_CONTINUE << endl;
+
+    // test absolute error
+    //status = gsl_multiroot_test_residual(solver->f, error);
+
+    // test relative error
+    status = gsl_multiroot_test_delta(solver->f, chosen_densities, 0.0, error);
+
+
 
   } while (status == GSL_CONTINUE && iter < steps);
 
