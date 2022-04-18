@@ -6,170 +6,170 @@
 
 // ------------- THE FUNCTIONAL FORMS --------------- //
 // For all CHIS except CHI200
-double coeff(double *par,double x)
-{
-     return par[21] + (par[1] + par[2]*(154.0/x) + par[3]*(154.0/x)*(154.0/x) + par[4]*(154.0/x)*(154.0/x)*(154.0/x) + par[5]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) 
-                + par[6]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) + par[7]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) 
-                + par[8]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) + par[9]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) 
-                + par[10]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x))
-                  *1.0/(par[11] + par[12]*(154.0/x) + par[13]*(154.0/x)*(154.0/x) + par[14]*(154.0/x)*(154.0/x)*(154.0/x)
-                + par[15]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) + par[16]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) 
-                + par[17]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) + par[18]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)
-                + par[19]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) 
-                + par[20]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x));
-}
-
-double coeffprime(double *par,double x)
-{
-    return (- 1.0/x*par[2]*(154.0/x) - 2.0/x*par[3]*(154.0/x)*(154.0/x) - 3.0/x*par[4]*(154.0/x)*(154.0/x)*(154.0/x) - 4.0/x*par[5]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) 
-                - 5.0/x*par[6]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) - 6.0/x*par[7]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) 
-                - 7.0/x*par[8]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) - 8.0/x*par[9]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) 
-                - 9.0/x*par[10]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x))
-                     *1.0/(par[11] + par[12]*(154.0/x) + par[13]*(154.0/x)*(154.0/x) + par[14]*(154.0/x)*(154.0/x)*(154.0/x)
-                + par[15]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) + par[16]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) 
-                + par[17]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) + par[18]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)
-                + par[19]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) 
-                + par[20]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x))
-           - (par[1] + par[2]*(154.0/x) + par[3]*(154.0/x)*(154.0/x) + par[4]*(154.0/x)*(154.0/x)*(154.0/x) + par[5]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) 
-                + par[6]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) + par[7]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) 
-                + par[8]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) + par[9]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) 
-                + par[10]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x))
-                    *(- 1.0/x*par[12]*(154.0/x) - 2.0/x*par[13]*(154.0/x)*(154.0/x) - 3.0/x*par[14]*(154.0/x)*(154.0/x)*(154.0/x) - 4.0/x*par[15]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) 
-                - 5.0/x*par[16]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) - 6.0/x*par[17]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) 
-                - 7.0/x*par[18]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) - 8.0/x*par[19]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)
-                - 9.0/x*par[20]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x))
-                     *1.0/pow((par[11] + par[12]*(154.0/x) + par[13]*(154.0/x)*(154.0/x) + par[14]*(154.0/x)*(154.0/x)*(154.0/x)
-                + par[15]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) + par[16]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) 
-                + par[17]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) + par[18]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)
-                + par[19]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) 
-                + par[20]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)),2);
-}
-
-
 //double coeff(double *par,double x)
 //{
-//  const double r = 154.0/x;
-//  const double r2 = r*r;
-//  const double r3 = r*r2;
-//  const double r4 = r*r3;
-//  const double r5 = r*r4;
-//  const double r6 = r*r5;
-//  const double r7 = r*r6;
-//  const double r8 = r*r7;
-//  const double r9 = r*r8;
-//  const double ix = 1.0/x;
-//     return par[21] + (par[1] + par[2]*r + par[3]*r2 + par[4]*r3 + par[5]*r4 
-//                + par[6]*r5 + par[7]*r6 + par[8]*r7 + par[9]*r8 + par[10]*r9)
-//                  *1.0/(par[11] + par[12]*r + par[13]*r2 + par[14]*r3
-//                + par[15]*r4 + par[16]*r5 + par[17]*r6 + par[18]*r7 + par[19]*r8 + par[20]*r9);
+//     return par[21] + (par[1] + par[2]*(154.0/x) + par[3]*(154.0/x)*(154.0/x) + par[4]*(154.0/x)*(154.0/x)*(154.0/x) + par[5]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) 
+//                + par[6]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) + par[7]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) 
+//                + par[8]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) + par[9]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) 
+//                + par[10]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x))
+//                  *1.0/(par[11] + par[12]*(154.0/x) + par[13]*(154.0/x)*(154.0/x) + par[14]*(154.0/x)*(154.0/x)*(154.0/x)
+//                + par[15]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) + par[16]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) 
+//                + par[17]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) + par[18]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)
+//                + par[19]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) 
+//                + par[20]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x));
 //}
 //
 //double coeffprime(double *par,double x)
 //{
-//  const double r = 154.0/x;
-//  const double r2 = r*r;
-//  const double r3 = r*r2;
-//  const double r4 = r*r3;
-//  const double r5 = r*r4;
-//  const double r6 = r*r5;
-//  const double r7 = r*r6;
-//  const double r8 = r*r7;
-//  const double r9 = r*r8;
-//  const double ix = 1.0/x;
-//    return (- 1.0*ix*par[2]*r - 2.0*ix*par[3]*r2 - 3.0*ix*par[4]*r3 - 4.0*ix*par[5]*r4 
-//                - 5.0*ix*par[6]*r5 - 6.0*ix*par[7]*r6 
-//                - 7.0*ix*par[8]*r7 - 8.0*ix*par[9]*r8 
-//                - 9.0*ix*par[10]*r9)
-//                     *1.0/(par[11] + par[12]*r + par[13]*r2 + par[14]*r3
-//                + par[15]*r4 + par[16]*r5 
-//                + par[17]*r6 + par[18]*r7
-//                + par[19]*r8 
-//                + par[20]*r9)
-//           - (par[1] + par[2]*r + par[3]*r2 + par[4]*r3 + par[5]*r4 
-//                + par[6]*r5 + par[7]*r6 
-//                + par[8]*r7 + par[9]*r8 
-//                + par[10]*r9)
-//                    *(- 1.0*ix*par[12]*r - 2.0*ix*par[13]*r2 - 3.0*ix*par[14]*r3 - 4.0*ix*par[15]*r4 
-//                - 5.0*ix*par[16]*r5 - 6.0*ix*par[17]*r6 
-//                - 7.0*ix*par[18]*r7 - 8.0*ix*par[19]*r8
-//                - 9.0*ix*par[20]*r9)
-//                     *1.0/pow((par[11] + par[12]*r + par[13]*r2 + par[14]*r3
-//                + par[15]*r4 + par[16]*r5 
-//                + par[17]*r6 + par[18]*r7
-//                + par[19]*r8 
-//                + par[20]*r9),2);
+//    return (- 1.0/x*par[2]*(154.0/x) - 2.0/x*par[3]*(154.0/x)*(154.0/x) - 3.0/x*par[4]*(154.0/x)*(154.0/x)*(154.0/x) - 4.0/x*par[5]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) 
+//                - 5.0/x*par[6]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) - 6.0/x*par[7]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) 
+//                - 7.0/x*par[8]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) - 8.0/x*par[9]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) 
+//                - 9.0/x*par[10]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x))
+//                     *1.0/(par[11] + par[12]*(154.0/x) + par[13]*(154.0/x)*(154.0/x) + par[14]*(154.0/x)*(154.0/x)*(154.0/x)
+//                + par[15]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) + par[16]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) 
+//                + par[17]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) + par[18]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)
+//                + par[19]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) 
+//                + par[20]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x))
+//           - (par[1] + par[2]*(154.0/x) + par[3]*(154.0/x)*(154.0/x) + par[4]*(154.0/x)*(154.0/x)*(154.0/x) + par[5]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) 
+//                + par[6]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) + par[7]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) 
+//                + par[8]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) + par[9]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) 
+//                + par[10]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x))
+//                    *(- 1.0/x*par[12]*(154.0/x) - 2.0/x*par[13]*(154.0/x)*(154.0/x) - 3.0/x*par[14]*(154.0/x)*(154.0/x)*(154.0/x) - 4.0/x*par[15]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) 
+//                - 5.0/x*par[16]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) - 6.0/x*par[17]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) 
+//                - 7.0/x*par[18]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) - 8.0/x*par[19]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)
+//                - 9.0/x*par[20]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x))
+//                     *1.0/pow((par[11] + par[12]*(154.0/x) + par[13]*(154.0/x)*(154.0/x) + par[14]*(154.0/x)*(154.0/x)*(154.0/x)
+//                + par[15]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) + par[16]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) 
+//                + par[17]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) + par[18]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)
+//                + par[19]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x) 
+//                + par[20]*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)*(154.0/x)),2);
 //}
 
 
-double coeffsecond(double *par, double x){
-   return (-2*(-((154.0*par[2])/pow(x,2)) - (2*pow(154.0,2)*par[3])/pow(x,3) - (3*pow(154.0,3)*par[4])/pow(x,4) - (4*pow(154.0,4)*par[5])/pow(x,5) - (5*pow(154.0,5)*par[6])/pow(x,6) - 
-        (6*pow(154.0,6)*par[7])/pow(x,7) - (7*pow(154.0,7)*par[8])/pow(x,8) - (8*pow(154.0,8)*par[9])/pow(x,9) - (9*pow(154.0,9)*par[10])/pow(x,10))*
-      (-((154.0*par[12])/pow(x,2)) - (2*pow(154.0,2)*par[13])/pow(x,3) - (3*pow(154.0,3)*par[14])/pow(x,4) - (4*pow(154.0,4)*par[15])/pow(x,5) - (5*pow(154.0,5)*par[16])/pow(x,6) - 
-        (6*pow(154.0,6)*par[17])/pow(x,7) - (7*pow(154.0,7)*par[18])/pow(x,8) - (8*pow(154.0,8)*par[19])/pow(x,9) - (9*pow(154.0,9)*par[20])/pow(x,10)))/
-    pow(par[11] + (154.0*par[12])/x + (pow(154.0,2)*par[13])/pow(x,2) + (pow(154.0,3)*par[14])/pow(x,3) + (pow(154.0,4)*par[15])/pow(x,4) + (pow(154.0,5)*par[16])/pow(x,5) + 
-      (pow(154.0,6)*par[17])/pow(x,6) + (pow(154.0,7)*par[18])/pow(x,7) + (pow(154.0,8)*par[19])/pow(x,8) + (pow(154.0,9)*par[20])/pow(x,9),2) + 
-   ((2*154.0*par[2])/pow(x,3) + (6*pow(154.0,2)*par[3])/pow(x,4) + (12*pow(154.0,3)*par[4])/pow(x,5) + 
-      (20*pow(154.0,4)*par[5])/pow(x,6) + (30*pow(154.0,5)*par[6])/pow(x,7) + (42*pow(154.0,6)*par[7])/pow(x,8) + (56*pow(154.0,7)*par[8])/pow(x,9) + (72*pow(154.0,8)*par[9])/pow(x,10) + 
-      (90*pow(154.0,9)*par[10])/pow(x,11))/
-    (par[11] + (154.0*par[12])/x + (pow(154.0,2)*par[13])/pow(x,2) + (pow(154.0,3)*par[14])/pow(x,3) + (pow(154.0,4)*par[15])/pow(x,4) + (pow(154.0,5)*par[16])/pow(x,5) + 
-      (pow(154.0,6)*par[17])/pow(x,6) + (pow(154.0,7)*par[18])/pow(x,7) + (pow(154.0,8)*par[19])/pow(x,8) + (pow(154.0,9)*par[20])/pow(x,9)) + 
-   (par[1] + (154.0*par[2])/x + (pow(154.0,2)*par[3])/pow(x,2) + (pow(154.0,3)*par[4])/pow(x,3) + (pow(154.0,4)*par[5])/pow(x,4) + (pow(154.0,5)*par[6])/pow(x,5) + 
-      (pow(154.0,6)*par[7])/pow(x,6) + (pow(154.0,7)*par[8])/pow(x,7) + (pow(154.0,8)*par[9])/pow(x,8) + (pow(154.0,9)*par[10])/pow(x,9))*
-    ((2*pow(-((154.0*par[12])/pow(x,2)) - (2*pow(154.0,2)*par[13])/pow(x,3) - (3*pow(154.0,3)*par[14])/pow(x,4) - (4*pow(154.0,4)*par[15])/pow(x,5) - (5*pow(154.0,5)*par[16])/pow(x,6) - 
-           (6*pow(154.0,6)*par[17])/pow(x,7) - (7*pow(154.0,7)*par[18])/pow(x,8) - (8*pow(154.0,8)*par[19])/pow(x,9) - (9*pow(154.0,9)*par[20])/pow(x,10),2))/
-       pow(par[11] + (154.0*par[12])/x + (pow(154.0,2)*par[13])/pow(x,2) + (pow(154.0,3)*par[14])/pow(x,3) + (pow(154.0,4)*par[15])/pow(x,4) + (pow(154.0,5)*par[16])/pow(x,5) + 
-         (pow(154.0,6)*par[17])/pow(x,6) + (pow(154.0,7)*par[18])/pow(x,7) + (pow(154.0,8)*par[19])/pow(x,8) + (pow(154.0,9)*par[20])/pow(x,9),3) - 
-      ((2*154.0*par[12])/pow(x,3) + (6*pow(154.0,2)*par[13])/pow(x,4) + (12*pow(154.0,3)*par[14])/pow(x,5) + (20*pow(154.0,4)*par[15])/pow(x,6) + (30*pow(154.0,5)*par[16])/pow(x,7) + 
-         (42*pow(154.0,6)*par[17])/pow(x,8) + (56*pow(154.0,7)*par[18])/pow(x,9) + (72*pow(154.0,8)*par[19])/pow(x,10) + (90*pow(154.0,9)*par[20])/pow(x,11))/
-       pow(par[11] + (154.0*par[12])/x + (pow(154.0,2)*par[13])/pow(x,2) + (pow(154.0,3)*par[14])/pow(x,3) + (pow(154.0,4)*par[15])/pow(x,4) + (pow(154.0,5)*par[16])/pow(x,5) + 
-         (pow(154.0,6)*par[17])/pow(x,6) + (pow(154.0,7)*par[18])/pow(x,7) + (pow(154.0,8)*par[19])/pow(x,8) + (pow(154.0,9)*par[20])/pow(x,9),2));          
+double coeff(double *par,double x)
+{
+  const double r = 154.0/x;
+  const double r2 = r*r;
+  const double r3 = r*r2;
+  const double r4 = r*r3;
+  const double r5 = r*r4;
+  const double r6 = r*r5;
+  const double r7 = r*r6;
+  const double r8 = r*r7;
+  const double r9 = r*r8;
+  const double ix = 1.0/x;
+     return par[21] + (par[1] + par[2]*r + par[3]*r2 + par[4]*r3 + par[5]*r4 
+                + par[6]*r5 + par[7]*r6 + par[8]*r7 + par[9]*r8 + par[10]*r9)
+                  *1.0/(par[11] + par[12]*r + par[13]*r2 + par[14]*r3
+                + par[15]*r4 + par[16]*r5 + par[17]*r6 + par[18]*r7 + par[19]*r8 + par[20]*r9);
+}
+
+double coeffprime(double *par,double x)
+{
+  const double r = 154.0/x;
+  const double r2 = r*r;
+  const double r3 = r*r2;
+  const double r4 = r*r3;
+  const double r5 = r*r4;
+  const double r6 = r*r5;
+  const double r7 = r*r6;
+  const double r8 = r*r7;
+  const double r9 = r*r8;
+  const double ix = 1.0/x;
+    return (- 1.0*ix*par[2]*r - 2.0*ix*par[3]*r2 - 3.0*ix*par[4]*r3 - 4.0*ix*par[5]*r4 
+                - 5.0*ix*par[6]*r5 - 6.0*ix*par[7]*r6 
+                - 7.0*ix*par[8]*r7 - 8.0*ix*par[9]*r8 
+                - 9.0*ix*par[10]*r9)
+                     *1.0/(par[11] + par[12]*r + par[13]*r2 + par[14]*r3
+                + par[15]*r4 + par[16]*r5 
+                + par[17]*r6 + par[18]*r7
+                + par[19]*r8 
+                + par[20]*r9)
+           - (par[1] + par[2]*r + par[3]*r2 + par[4]*r3 + par[5]*r4 
+                + par[6]*r5 + par[7]*r6 
+                + par[8]*r7 + par[9]*r8 
+                + par[10]*r9)
+                    *(- 1.0*ix*par[12]*r - 2.0*ix*par[13]*r2 - 3.0*ix*par[14]*r3 - 4.0*ix*par[15]*r4 
+                - 5.0*ix*par[16]*r5 - 6.0*ix*par[17]*r6 
+                - 7.0*ix*par[18]*r7 - 8.0*ix*par[19]*r8
+                - 9.0*ix*par[20]*r9)
+                     *1.0/pow((par[11] + par[12]*r + par[13]*r2 + par[14]*r3
+                + par[15]*r4 + par[16]*r5 
+                + par[17]*r6 + par[18]*r7
+                + par[19]*r8 
+                + par[20]*r9),2);
 }
 
 
-//double coeffsecond(double *par, double x)
-//{
-//  const double r = 154.0;
-//  const double r2 = r*r;
-//  const double r3 = r*r2;
-//  const double r4 = r*r3;
-//  const double r5 = r*r4;
-//  const double r6 = r*r5;
-//  const double r7 = r*r6;
-//  const double r8 = r*r7;
-//  const double r9 = r*r8;
-//  const double ix = 1.0/x;
-//  const double ix2 = ix*ix;
-//  const double ix3 = ix*ix2;
-//  const double ix4 = ix*ix3;
-//  const double ix5 = ix*ix4;
-//  const double ix6 = ix*ix5;
-//  const double ix7 = ix*ix6;
-//  const double ix8 = ix*ix7;
-//  const double ix9 = ix*ix8;
-//  const double ix10 = ix*ix9;
-//  const double ix11 = ix*ix10;
-//   return (-2*(-((r*par[2])*ix2) - (2*r2*par[3])*ix3 - (3*r3*par[4])*ix4 - (4*r4*par[5])*ix5 - (5*r5*par[6])*ix6 - 
-//        (6*r6*par[7])*ix7 - (7*r7*par[8])*ix8 - (8*r8*par[9])*ix9 - (9*r9*par[10])*ix10)*
-//      (-((r*par[12])*ix2) - (2*r2*par[13])*ix3 - (3*r3*par[14])*ix4 - (4*r4*par[15])*ix5 - (5*r5*par[16])*ix6 - 
-//        (6*r6*par[17])*ix7 - (7*r7*par[18])*ix8 - (8*r8*par[19])*ix9 - (9*r9*par[20])*ix10))/
-//    pow(par[11] + (r*par[12])*ix + (r2*par[13])*ix2 + (r3*par[14])*ix3 + (r4*par[15])*ix4 + (r5*par[16])*ix5 + 
-//      (r6*par[17])*ix6 + (r7*par[18])*ix7 + (r8*par[19])*ix8 + (r9*par[20])*ix9,2) + 
-//   ((2*r*par[2])*ix3 + (6*r2*par[3])*ix4 + (12*r3*par[4])*ix5 + 
-//      (20*r4*par[5])*ix6 + (30*r5*par[6])*ix7 + (42*r6*par[7])*ix8 + (56*r7*par[8])*ix9 + (72*r8*par[9])*ix10 + 
-//      (90*r9*par[10])*ix11)/
-//    (par[11] + (r*par[12])*ix + (r2*par[13])*ix2 + (r3*par[14])*ix3 + (r4*par[15])*ix4 + (r5*par[16])*ix5 + 
-//      (r6*par[17])*ix6 + (r7*par[18])*ix7 + (r8*par[19])*ix8 + (r9*par[20])*ix9) + 
-//   (par[1] + (r*par[2])*ix + (r2*par[3])*ix2 + (r3*par[4])*ix3 + (r4*par[5])*ix4 + (r5*par[6])*ix5 + 
-//      (r6*par[7])*ix6 + (r7*par[8])*ix7 + (r8*par[9])*ix8 + (r9*par[10])*ix9)*
-//    ((2*pow(-((r*par[12])*ix2) - (2*r2*par[13])*ix3 - (3*r3*par[14])*ix4 - (4*r4*par[15])*ix5 - (5*r5*par[16])*ix6 - 
-//           (6*r6*par[17])*ix7 - (7*r7*par[18])*ix8 - (8*r8*par[19])*ix9 - (9*r9*par[20])*ix10,2))/
-//       pow(par[11] + (r*par[12])*ix + (r2*par[13])*ix2 + (r3*par[14])*ix3 + (r4*par[15])*ix4 + (r5*par[16])*ix5 + 
-//         (r6*par[17])*ix6 + (r7*par[18])*ix7 + (r8*par[19])*ix8 + (r9*par[20])*ix9,3) - 
-//      ((2*r*par[12])*ix3 + (6*r2*par[13])*ix4 + (12*r3*par[14])*ix5 + (20*r4*par[15])*ix6 + (30*r5*par[16])*ix7 + 
-//         (42*r6*par[17])*ix8 + (56*r7*par[18])*ix9 + (72*r8*par[19])*ix10 + (90*r9*par[20])*ix11)/
-//       pow(par[11] + (r*par[12])*ix + (r2*par[13])*ix2 + (r3*par[14])*ix3 + (r4*par[15])*ix4 + (r5*par[16])*ix5 + 
-//         (r6*par[17])*ix6 + (r7*par[18])*ix7 + (r8*par[19])*ix8 + (r9*par[20])*ix9,2));          
+//double coeffsecond(double *par, double x){
+//   return (-2*(-((154.0*par[2])/pow(x,2)) - (2*pow(154.0,2)*par[3])/pow(x,3) - (3*pow(154.0,3)*par[4])/pow(x,4) - (4*pow(154.0,4)*par[5])/pow(x,5) - (5*pow(154.0,5)*par[6])/pow(x,6) - 
+//        (6*pow(154.0,6)*par[7])/pow(x,7) - (7*pow(154.0,7)*par[8])/pow(x,8) - (8*pow(154.0,8)*par[9])/pow(x,9) - (9*pow(154.0,9)*par[10])/pow(x,10))*
+//      (-((154.0*par[12])/pow(x,2)) - (2*pow(154.0,2)*par[13])/pow(x,3) - (3*pow(154.0,3)*par[14])/pow(x,4) - (4*pow(154.0,4)*par[15])/pow(x,5) - (5*pow(154.0,5)*par[16])/pow(x,6) - 
+//        (6*pow(154.0,6)*par[17])/pow(x,7) - (7*pow(154.0,7)*par[18])/pow(x,8) - (8*pow(154.0,8)*par[19])/pow(x,9) - (9*pow(154.0,9)*par[20])/pow(x,10)))/
+//    pow(par[11] + (154.0*par[12])/x + (pow(154.0,2)*par[13])/pow(x,2) + (pow(154.0,3)*par[14])/pow(x,3) + (pow(154.0,4)*par[15])/pow(x,4) + (pow(154.0,5)*par[16])/pow(x,5) + 
+//      (pow(154.0,6)*par[17])/pow(x,6) + (pow(154.0,7)*par[18])/pow(x,7) + (pow(154.0,8)*par[19])/pow(x,8) + (pow(154.0,9)*par[20])/pow(x,9),2) + 
+//   ((2*154.0*par[2])/pow(x,3) + (6*pow(154.0,2)*par[3])/pow(x,4) + (12*pow(154.0,3)*par[4])/pow(x,5) + 
+//      (20*pow(154.0,4)*par[5])/pow(x,6) + (30*pow(154.0,5)*par[6])/pow(x,7) + (42*pow(154.0,6)*par[7])/pow(x,8) + (56*pow(154.0,7)*par[8])/pow(x,9) + (72*pow(154.0,8)*par[9])/pow(x,10) + 
+//      (90*pow(154.0,9)*par[10])/pow(x,11))/
+//    (par[11] + (154.0*par[12])/x + (pow(154.0,2)*par[13])/pow(x,2) + (pow(154.0,3)*par[14])/pow(x,3) + (pow(154.0,4)*par[15])/pow(x,4) + (pow(154.0,5)*par[16])/pow(x,5) + 
+//      (pow(154.0,6)*par[17])/pow(x,6) + (pow(154.0,7)*par[18])/pow(x,7) + (pow(154.0,8)*par[19])/pow(x,8) + (pow(154.0,9)*par[20])/pow(x,9)) + 
+//   (par[1] + (154.0*par[2])/x + (pow(154.0,2)*par[3])/pow(x,2) + (pow(154.0,3)*par[4])/pow(x,3) + (pow(154.0,4)*par[5])/pow(x,4) + (pow(154.0,5)*par[6])/pow(x,5) + 
+//      (pow(154.0,6)*par[7])/pow(x,6) + (pow(154.0,7)*par[8])/pow(x,7) + (pow(154.0,8)*par[9])/pow(x,8) + (pow(154.0,9)*par[10])/pow(x,9))*
+//    ((2*pow(-((154.0*par[12])/pow(x,2)) - (2*pow(154.0,2)*par[13])/pow(x,3) - (3*pow(154.0,3)*par[14])/pow(x,4) - (4*pow(154.0,4)*par[15])/pow(x,5) - (5*pow(154.0,5)*par[16])/pow(x,6) - 
+//           (6*pow(154.0,6)*par[17])/pow(x,7) - (7*pow(154.0,7)*par[18])/pow(x,8) - (8*pow(154.0,8)*par[19])/pow(x,9) - (9*pow(154.0,9)*par[20])/pow(x,10),2))/
+//       pow(par[11] + (154.0*par[12])/x + (pow(154.0,2)*par[13])/pow(x,2) + (pow(154.0,3)*par[14])/pow(x,3) + (pow(154.0,4)*par[15])/pow(x,4) + (pow(154.0,5)*par[16])/pow(x,5) + 
+//         (pow(154.0,6)*par[17])/pow(x,6) + (pow(154.0,7)*par[18])/pow(x,7) + (pow(154.0,8)*par[19])/pow(x,8) + (pow(154.0,9)*par[20])/pow(x,9),3) - 
+//      ((2*154.0*par[12])/pow(x,3) + (6*pow(154.0,2)*par[13])/pow(x,4) + (12*pow(154.0,3)*par[14])/pow(x,5) + (20*pow(154.0,4)*par[15])/pow(x,6) + (30*pow(154.0,5)*par[16])/pow(x,7) + 
+//         (42*pow(154.0,6)*par[17])/pow(x,8) + (56*pow(154.0,7)*par[18])/pow(x,9) + (72*pow(154.0,8)*par[19])/pow(x,10) + (90*pow(154.0,9)*par[20])/pow(x,11))/
+//       pow(par[11] + (154.0*par[12])/x + (pow(154.0,2)*par[13])/pow(x,2) + (pow(154.0,3)*par[14])/pow(x,3) + (pow(154.0,4)*par[15])/pow(x,4) + (pow(154.0,5)*par[16])/pow(x,5) + 
+//         (pow(154.0,6)*par[17])/pow(x,6) + (pow(154.0,7)*par[18])/pow(x,7) + (pow(154.0,8)*par[19])/pow(x,8) + (pow(154.0,9)*par[20])/pow(x,9),2));          
 //}
+
+
+double coeffsecond(double *par, double x)
+{
+  const double r = 154.0;
+  const double r2 = r*r;
+  const double r3 = r*r2;
+  const double r4 = r*r3;
+  const double r5 = r*r4;
+  const double r6 = r*r5;
+  const double r7 = r*r6;
+  const double r8 = r*r7;
+  const double r9 = r*r8;
+  const double ix = 1.0/x;
+  const double ix2 = ix*ix;
+  const double ix3 = ix*ix2;
+  const double ix4 = ix*ix3;
+  const double ix5 = ix*ix4;
+  const double ix6 = ix*ix5;
+  const double ix7 = ix*ix6;
+  const double ix8 = ix*ix7;
+  const double ix9 = ix*ix8;
+  const double ix10 = ix*ix9;
+  const double ix11 = ix*ix10;
+   return (-2*(-((r*par[2])*ix2) - (2*r2*par[3])*ix3 - (3*r3*par[4])*ix4 - (4*r4*par[5])*ix5 - (5*r5*par[6])*ix6 - 
+        (6*r6*par[7])*ix7 - (7*r7*par[8])*ix8 - (8*r8*par[9])*ix9 - (9*r9*par[10])*ix10)*
+      (-((r*par[12])*ix2) - (2*r2*par[13])*ix3 - (3*r3*par[14])*ix4 - (4*r4*par[15])*ix5 - (5*r5*par[16])*ix6 - 
+        (6*r6*par[17])*ix7 - (7*r7*par[18])*ix8 - (8*r8*par[19])*ix9 - (9*r9*par[20])*ix10))/
+    pow(par[11] + (r*par[12])*ix + (r2*par[13])*ix2 + (r3*par[14])*ix3 + (r4*par[15])*ix4 + (r5*par[16])*ix5 + 
+      (r6*par[17])*ix6 + (r7*par[18])*ix7 + (r8*par[19])*ix8 + (r9*par[20])*ix9,2) + 
+   ((2*r*par[2])*ix3 + (6*r2*par[3])*ix4 + (12*r3*par[4])*ix5 + 
+      (20*r4*par[5])*ix6 + (30*r5*par[6])*ix7 + (42*r6*par[7])*ix8 + (56*r7*par[8])*ix9 + (72*r8*par[9])*ix10 + 
+      (90*r9*par[10])*ix11)/
+    (par[11] + (r*par[12])*ix + (r2*par[13])*ix2 + (r3*par[14])*ix3 + (r4*par[15])*ix4 + (r5*par[16])*ix5 + 
+      (r6*par[17])*ix6 + (r7*par[18])*ix7 + (r8*par[19])*ix8 + (r9*par[20])*ix9) + 
+   (par[1] + (r*par[2])*ix + (r2*par[3])*ix2 + (r3*par[4])*ix3 + (r4*par[5])*ix4 + (r5*par[6])*ix5 + 
+      (r6*par[7])*ix6 + (r7*par[8])*ix7 + (r8*par[9])*ix8 + (r9*par[10])*ix9)*
+    ((2*pow(-((r*par[12])*ix2) - (2*r2*par[13])*ix3 - (3*r3*par[14])*ix4 - (4*r4*par[15])*ix5 - (5*r5*par[16])*ix6 - 
+           (6*r6*par[17])*ix7 - (7*r7*par[18])*ix8 - (8*r8*par[19])*ix9 - (9*r9*par[20])*ix10,2))/
+       pow(par[11] + (r*par[12])*ix + (r2*par[13])*ix2 + (r3*par[14])*ix3 + (r4*par[15])*ix4 + (r5*par[16])*ix5 + 
+         (r6*par[17])*ix6 + (r7*par[18])*ix7 + (r8*par[19])*ix8 + (r9*par[20])*ix9,3) - 
+      ((2*r*par[12])*ix3 + (6*r2*par[13])*ix4 + (12*r3*par[14])*ix5 + (20*r4*par[15])*ix6 + (30*r5*par[16])*ix7 + 
+         (42*r6*par[17])*ix8 + (56*r7*par[18])*ix9 + (72*r8*par[19])*ix10 + (90*r9*par[20])*ix11)/
+       pow(par[11] + (r*par[12])*ix + (r2*par[13])*ix2 + (r3*par[14])*ix3 + (r4*par[15])*ix4 + (r5*par[16])*ix5 + 
+         (r6*par[17])*ix6 + (r7*par[18])*ix7 + (r8*par[19])*ix8 + (r9*par[20])*ix9,2));          
+}
 
 
 // For CHI200
@@ -827,10 +827,10 @@ double DEntrDTTaylor(double T, double muB, double muQ, double muS){
 
 // Speed of Sound expression.
 double SpSound(double T, double muB, double muQ, double muS){
-   C1B = BarDensTaylor(T,muB,muS,muQ);
-   C1Q = ChDensTaylor(T,muB,muS,muQ);
-   C1S = StrDensTaylor(T,muB,muS,muQ);
-   C1T = EntrTaylor(T,muB,muS,muQ);
+//   C1B = BarDensTaylor(T,muB,muS,muQ);
+//   C1Q = ChDensTaylor(T,muB,muS,muQ);
+//   C1S = StrDensTaylor(T,muB,muS,muQ);
+//   C1T = EntrTaylor(T,muB,muS,muQ);
    
    C2B2 = Chi2BTaylor(T,muB,muS,muQ);   
    C2Q2 = Chi2QTaylor(T,muB,muS,muQ);
@@ -843,10 +843,10 @@ double SpSound(double T, double muB, double muQ, double muS){
    C2TS = DStrDensDTTaylor(T,muB,muS,muQ);
    C2T2 = DEntrDTTaylor(T,muB,muS,muQ);
 
-//   C1B = BarDensTaylor(T,muB,muQ,muS);
-//   C1Q = ChDensTaylor(T,muB,muQ,muS);
-//   C1S = StrDensTaylor(T,muB,muQ,muS);
-//   C1T = EntrTaylor(T,muB,muQ,muS);
+   C1B = BarDensTaylor(T,muB,muQ,muS);
+   C1Q = ChDensTaylor(T,muB,muQ,muS);
+   C1S = StrDensTaylor(T,muB,muQ,muS);
+   C1T = EntrTaylor(T,muB,muQ,muS);
    
 //   C2B2 = Chi2BTaylor(T,muB,muQ,muS);   
 //   C2Q2 = Chi2QTaylor(T,muB,muQ,muS);
