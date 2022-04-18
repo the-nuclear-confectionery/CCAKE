@@ -1,288 +1,289 @@
-#ifndef MATRIX_CPP
-#define MATRIX_CPP
+#ifndef NEW_MATRIX_CPP
+#define NEW_MATRIX_CPP
 
 #include <cmath>
 #include <cstdio>
+#include <type_traits>
 
-#include "matrix.h"
-#include "vector.h"
+#include "new_matrix.h"
+#include "new_vector.h"
 
 // D1 is the number for the rows, D2 is the number for the columns
 template <class T, int D1, int D2>
 Matrix<T,D1,D2>::Matrix()
 {
-  for(int i=0; i<D1; i++)
-  for(int j=0; j<D2; j++)
-    x[i][j]=0;
+  for (int i=0; i<D1*D2; i++) x[i] = 0; // AOK
 }
-
 
 template <class T, int D1, int D2>
 template <class U>
-Matrix<T,D1,D2>& Matrix<T,D1,D2>::operator=(Matrix<U,D1,D2> a)
+Matrix<T,D1,D2>& Matrix<T,D1,D2>::operator=(const Matrix<U,D1,D2>& a)
 {
-  for(int i=0; i<D1; i++)
-  for(int j=0; j<D2; j++)
-    x[i][j]=(T)a[i][j];
-  return *this;
+  int k = 0;
+  for (int i=0; i<D1; i++)
+  for (int j=0; j<D2; j++)
+    x[k++] = (T)a(i,j);
+  return *this; // AOK
 }
 
 
 template <class T, int D1, int D2>
 Matrix<T,D1,D2>& Matrix<T,D1,D2>::operator=(double a)
 {
-  for(int i=0; i<D1; i++)
-  for(int j=0; j<D2; j++)
-    x[i][j]=(T)a;
-  return *this;
+  int k = 0;
+  for (int i=0; i<D1; i++)
+  for (int j=0; j<D2; j++)
+    x[k++] = (T)a;
+  return *this; // AOK
 }
 
 
 template <class T, int D1, int D2>
-Matrix<T,D1,D2>& Matrix<T,D1,D2>::operator+=(Matrix<T,D1,D2> a)
+Matrix<T,D1,D2>& Matrix<T,D1,D2>::operator+=(const Matrix<T,D1,D2>& a)
 {
+  int k = 0;
   for(int i=0; i<D1; i++)
   for(int j=0; j<D2; j++)
-    x[i][j]+=a[i][j];
-  return *this;
+    x[k++] += a(i,j);
+  return *this; // AOK
 }
 
 
 template <class T, int D1, int D2>
-Matrix<T,D1,D2>& Matrix<T,D1,D2>::operator-=(Matrix<T,D1,D2> a)
+Matrix<T,D1,D2>& Matrix<T,D1,D2>::operator-=(const Matrix<T,D1,D2>& a)
 {
+  int k = 0;
   for(int i=0; i<D1; i++)
   for(int j=0; j<D2; j++)
-    x[i][j]-=a[i][j];
-  return *this;
+    x[k++] -= a(i,j);
+  return *this; // AOK
 }
 
 
 template <class T, int D1, int D2>
 Matrix<T,D1,D2>& Matrix<T,D1,D2>::operator*=(T l)
 {
-  for(int i=0; i<D1; i++)
-  for(int j=0; j<D2; j++)
-    x[i][j]*=l;
-  return *this;
+  for (int i=0; i<D1*D2; i++) x[i] *= l;
+  return *this; // AOK
 }
 
-//only works for matrices with the same dimensions
 template <class T, int D1, int D2>
-Matrix<T,D1,D2>& Matrix<T,D1,D2>::operator*=(Matrix<T,D2,D1> b)
+Matrix<T,D1,D2>& Matrix<T,D1,D2>::operator*=(const Matrix<T,D2,D1>& b)
 {
-  for(int i=0; i<D1; i++)
-  for(int j=0; j<D1; j++)
+  //only works for matrices with the same dimensions
+  static_assert(D1 == D2);
+
+  if (true)
   {
-    double sub=0.0;
-    for(int k=0; k<D2; k++) sub+=x[i][k]*b[k][j];
-    x[i][j]=sub;
+    cout << "You should not be using this function!  This is buggy!" << endl;
+    exit(1);
   }
+
+//  for (int i=0; i<D1; i++)
+//  for (int j=0; j<D1; j++)
+//  {
+//    T sub = 0.0;
+//    for (int k=0; k<D2; k++) sub += x[index(i,k)]*b(k,j);
+//    x[index(i,j)] = sub;
+//  }
+  x = x*b;
   return *this;
-}
+} // AOK
 
 
 template <class T, int D1, int D2>
-Matrix<T,D1,D2> operator+ (Matrix<T,D1,D2> a, Matrix<T,D1,D2> b)
-{
-  Matrix<T,D1, D2> t = 0;
-  return (t+=a)+=b;
-}
-
-
-template <class T, int D1, int D2>
-Matrix<T,D1,D2> operator- (Matrix<T,D1,D2> a)
-{
-  Matrix<T,D1,D2> t = 0;
-  return t-=a;
-}
-
-
-template <class T, int D1, int D2>
-Matrix<T,D1,D2> operator- (Matrix<T,D1,D2> a, Matrix<T,D1,D2> b)
+Matrix<T,D1,D2> operator+(const Matrix<T,D1,D2>& a, const Matrix<T,D1,D2>& b)
 {
   Matrix<T,D1,D2> t;
-  return t=a+(-b);
-}
+  for (int i=0; i<D1; i++)
+  for (int j=0; j<D2; j++)
+    t(i,j) = a(i,j)+b(i,j);
+  return t;
+} // AOK
 
 
 template <class T, int D1, int D2>
-Matrix<T,D1,D2> operator* (T l, Matrix<T,D1,D2> a)
+Matrix<T,D1,D2> operator-(const Matrix<T,D1,D2>& a)
+{
+  return (-1.0)*a;
+} // AOK
+
+
+template <class T, int D1, int D2>
+Matrix<T,D1,D2> operator-(const Matrix<T,D1,D2>& a, const Matrix<T,D1,D2>& b)
 {
   Matrix<T,D1,D2> t;
-  return (t=a)*=l;
-}
+  for (int i = 0; i < D1; i++)
+  for (int j = 0; j < D2; j++)
+    t(i,j) = a(i,j) - b(i,j);
+  return t;
+} // AOK
+
+
+template <class T, int D1, int D2>
+Matrix<T,D1,D2> operator*(T l, const Matrix<T,D1,D2>& a)
+{
+  Matrix<T,D1,D2> t;
+  for (int i = 0; i < D1; i++)
+  for (int j = 0; j < D2; j++)
+    t(i,j) = l*a(i,j);
+  return t;
+} // AOK
 
 template <class T, int D1, int D2>
 Matrix<T,D1,D2>& Matrix<T,D1,D2>::identity()
 {
-  if (D1!=D2) cout << "Error: not true identity matrix!" << endl;
+  static_assert( D1 == D2 );
+//  if (D1!=D2) cout << "Error: not true identity matrix!" << endl;
 
-  for(int i=0; i<D1; i++)
-  for(int j=0; j<D1; j++)
-    x[i][j] = ( i == j ) ? 1 : 0;
+  for (int i=0; i<D1; i++)
+  for (int j=0; j<D2; j++)
+    x[index(i,j)] = ( i == j ) ? 1 : 0;
 
   return *this;
-}
+} // AOK
 
 
 
 template <class T, int D1, int D2>
-ostream& operator<<(ostream& os, Matrix<T,  D1, D2> a)
+ostream& operator<<(ostream& os, const Matrix<T,D1,D2>& a)
 {
-  for(int j=0; j<D2; j++)
-  for(int i=0; i<D1; i++)
-    os << a[i][j] << " ";
+  for (int i=0; i<D1; i++)
+  for (int j=0; j<D2; j++)
+    os << a(i,j) << " ";
   return os;
-}
+} // AOK
 
 template <class T, int D1, int D2>
-Matrix<T,D2,D1> transpose(Matrix<T,D1,D2> a)
+Matrix<T,D2,D1> transpose(const Matrix<T,D1,D2>& a)
 {
-  Matrix<T,D1,D2> t;
+  Matrix<T,D2,D1> t;
 
-  for(int i=0; i<D2; i++)
-  for(int j=0; j<D1; j++)
-    t[i][j]=a[j][i];
+  for (int i=0; i<D2; i++)
+  for (int j=0; j<D1; j++)
+    t(i,j)=a(j,i);
   return t;
-}
+} // AOK
 
 template <class T, int D1, int D2, int Da2, int Db1>
-Matrix<T,D1,D2> operator* (Matrix<T, D1,Da2> a, Matrix< T,Db1, D2> b)
+Matrix<T,D1,D2> operator*(const Matrix<T,D1,Da2>& a, const Matrix<T,Db1,D2>& b)
 {
+  static_assert( Da2 == Db1 );
 
-    if (Da2!=Db1)
-    {
-        cout << "Error: Attempt to multiple two matrices of improper sizes!" << endl;
-        getchar();
-    }
+  Matrix<T,D1,D2> t;
+  for (int i=0; i<D1; i++)
+  for (int j=0; j<D2; j++)
+  for (int k=0; k<Da2; k++)
+    t(i,j) += a(i,k) * b(k,j);
 
-
-    Matrix<T,D1, D2> t;
-
-    for(int i=0; i<D2; i++)
-        for(int j=0; j<D1; j++)
-  {
-            t[j][i]=0;
-            for(int k=0; k<Da2; k++)
-                t[j][i]+=a[j][k]*b[k][i];
-    }
-
-    return t;
-
-}
+  return t;
+} // AOK
 
 template <class T, int D1, int D2>
-Vector< T,D1> operator* (Matrix<T, D1,D2> a, Vector< T,D2> b)
+Vector<T,D1> operator*(const Matrix<T,D1,D2>& a, const Vector<T,D2>& b)
 {
-    Vector< T,D1> t;
-    for(int j=0; j<D1; j++)
-    {
-        t[j]=0;
-        for(int k=0; k<D2; k++)
-            t[j]+=a[j][k]*b[k];
-    }
-
-    return t;
-}
+  Vector<T,D1> t;
+  for (int i=0; i<D1; i++)
+  for (int j=0; j<D2; j++)
+    t(i) += a(i,j) * b(j);
+  return t;
+} // AOK
 
 
 //template <class T, int D1, int D2>
-//Matrix<T,D1,D2> operator* ( Vector<T,D1> a, Vector<T,D2> b )
+//Matrix<T,D1,D2> outer( const Vector<T,D1>& a, const Vector<T,D2>& b )
 template <class T, int D1, int D2>
-Matrix<T,D1,D2> outer( Vector<T,D1> a, Vector<T,D2> b )
+Matrix<T,D1,D2> operator* ( Vector<T,D1> a, Vector<T,D2> b )
 {
   Matrix<T,D1,D2> t;
-
-  for (int i = 0; i < D2; i++)
-  for (int j = 0; j < D1; j++)
-    t[i][j] = a[i]*b[j];
-
+  for (int i = 0; i < D1; i++)
+  for (int j = 0; j < D2; j++)
+    t(i,j) = a(i)*b(j);
   return t;
-}
+} // AOK
 
+
+// takes spatial components of l^{th} row in space-time tensor (Matrix a)
+template <class T, int D1, int D2>
+Vector<T,(D2-1)> rowp1(int l, const Matrix<T,D1,D2>& a)
+{
+  Vector<T,(D2-1)> v;
+  for (int i=1; i<D2; i++) v(i-1)=(T)a(l,i);
+  return v;
+} // AOK
+
+// takes spatial components of l^{th} column in space-time tensor (Matrix a)
+template <class T, int D1, int D2>
+Vector<T,(D1-1)> colp1(int l, const Matrix<T,D1,D2>& a)
+{
+  Vector<T,(D1-1)> v;
+  for(int i=1; i<D1; i++) v(i-1)=(T)a(i,l);
+  return v;
+} // AOK
 
 template <class T, int D1, int D2>
-Vector<T,(D2-1)> rowp1(int l, Matrix<T, D1,D2> a)
+Vector<T,D2> operator*(const Vector<T,D1>& a, const Matrix<T,D1,D2>& b)
 {
-    Vector<T,(D2-1)> v;
-
-    for(int i=1; i<D2; i++)
-        v[i-1]=(T)a[l][i];
-
-    return v;
-}
-
-template <class T, int D1, int D2>
-Vector<T,(D1-1)> colp1(int l, Matrix<T, D1,D2> a)
-{
-    Vector<T,(D1-1)> v;
-
-    for(int i=1; i<D1; i++)
-        v[i-1]=(T)a[i][l];
-
-    return v;
-}
-
-template <class T, int D1, int D2>
-Vector< T,D2> operator* ( Vector< T,D1> a, Matrix<T, D1,D2> b)
-{
-
-    Vector< T,D2> t;
-    for(int j=0; j<D2; j++)
-    {
-        t[j]=0;
-        for(int k=0; k<D1; k++)
-            t[j]+=a[k] *b[k][j];
-    }
-
-    return t;
-}
+  Vector<T,D2> t;
+  for (int i=0; i<D1; i++)
+  for (int j=0; j<D2; j++)
+    t(j)+=a(i)*b(i,j);
+  return t;
+} // AOK
 
 
 template <class T, int D1>
-double deter(Matrix<T, D1, D1> a)
+double deter(const Matrix<T,D1,D1>& a)
 {
-  return a[0][0]*a[1][1]-a[0][1]*a[1][0];
-}
+  // these are the only supported options for right now
+  static_assert( D1==2 || D1==3 );
+  if (D1==2)
+    return a(0,0)*a(1,1)-a(0,1)*a(1,0);
+  else if (D1==3)
+    return   a(0,0)*(a(1,1)*a(2,2)-a(1,2)*a(2,1))
+           + a(0,1)*(a(1,2)*a(2,0)-a(1,0)*a(2,2))
+           + a(0,2)*(a(1,0)*a(2,1)-a(1,1)*a(2,0));
+} // AOK
 
 template <class T, int D1, int D2>
-double con( Matrix<T,D1,D2> a, Matrix<T,D1,D2> b )
-{
-  double t = 0.0;
-  for (int i = 0; i < D2; i++)
-  for (int j = 0; j < D1; j++)
-    t += a[j][i]*b[j][i];
-  return t;
-}
-
-template <class T, int D1, int D2>
-double con2(Matrix<T,D1,D2> a, Matrix<T,D1,D2> b)
+double con( const Matrix<T,D1,D2>& a, const Matrix<T,D1,D2>& b )
 {
   double t = 0.0;
   for (int i = 0; i < D2; i++)
   for (int j = 0; j < D1; j++)
-    t += a[i][j]*b[i][j];
+    t += a(j,i)*b(j,i);
   return t;
-}
-
+} // AOK
 
 template <class T, int D1, int D2>
-void mini(Matrix<T, D1-1, D2-1> &b, Matrix<T, D1, D2> a)
+double con2(const Matrix<T,D1,D2>& a, const Matrix<T,D1,D2>& b)
 {
-  for(int j=1; j<=2; j++)
-  for(int i=1; i<=2; i++)
-    b[i-1][j-1] = (T)a[i][j];
-}
+  double t = 0.0;
+  for (int i = 0; i < D2; i++)
+  for (int j = 0; j < D1; j++)
+    t += a(i,j)*b(i,j);
+  return t;
+} // AOK
 
 
+// store transverse spatial components of a in b
 template <class T, int D1, int D2>
-void tmini( Matrix<T,D1,D2> &b, Matrix<T,D1-1,D2-1>a )
+void mini( Matrix<T,D1-1,D2-1> &b, const Matrix<T,D1,D2>& a)
+{
+  for(int i=1; i<D1; i++)
+  for(int j=1; j<D2; j++)
+    b(i-1,j-1) = (T)a(i,j);
+} // AOK
+
+
+// store a in transverse spatial components of b
+template <class T, int D1, int D2>
+void tmini( Matrix<T,D1,D2>& b, const Matrix<T,D1-1,D2-1>& a )
 {
   for (int j = 0; j < (D2-1); j++)
   for (int i = 0; i < (D1-1); i++)
-    b[i+1][j+1] = (T)a[i][j];
-}
+    b(i+1,j+1) = (T)a(i,j);
+} // AOK
 
 
 #endif
