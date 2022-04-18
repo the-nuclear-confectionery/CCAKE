@@ -263,7 +263,8 @@ void SPHWorkstation::smooth_fields(int a, bool init_mode /*== false*/)
       pa.rhoQ_sub    += pb.Q*kern;
 
       //if (kern>0.0) neighbor_count++;
-      /*if (abs(pa.r.x[0])<0.000001 && abs(pa.r.x[1])<0.000001)
+      //if (abs(pa.r.x[0])<0.000001 && abs(pa.r.x[1])<0.000001)
+      if ( isnan( pa.eta ) || pa.eta < 0 )
         std::cout << __FUNCTION__ << "(SPH particle == " << a << "): "
         << systemPtr->t << "   "
         << b << "   " << pa.r
@@ -278,7 +279,7 @@ void SPHWorkstation::smooth_fields(int a, bool init_mode /*== false*/)
         << "   " << pa.rhoS_sub
         << "   " << pb.rhoQ_an
         << "   " << pa.rhoQ_sub
-        << "   " << kern << std::endl;*/
+        << "   " << kern << std::endl;
 
       b = systemPtr->linklist.link[b];
     }

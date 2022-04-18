@@ -189,8 +189,12 @@ void SystemState::check_BSQ_energy_conservation()
 {
   E=0.0;
   for ( auto & p : particles )
+  {
     E += ( p.C*p.g2 - p.p() - p.bigPI + p.shv.x[0][0] )
           *p.sigmaweight*t/p.sigma;
+    p.contribution_to_total_energy = ( p.C*p.g2 - p.p() - p.bigPI + p.shv.x[0][0] )
+          *p.sigmaweight*t/p.sigma;
+  }
 
   if (linklist.first == 1)
   {

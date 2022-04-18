@@ -35,7 +35,7 @@ void EquationsOfMotion::BSQshear( SystemState & system, SPHWorkstation & ws )
 {
   // which particles print extra info for
   constexpr int ic = -1;
-  constexpr bool printAll = false;
+  bool printAll = false;
 
 
   // not initial call to setshear(bool is_first_timestep)
@@ -60,8 +60,9 @@ void EquationsOfMotion::BSQshear( SystemState & system, SPHWorkstation & ws )
 
     if ( (p.eta<0) || isnan(p.eta) )
     {
-      cout << i <<  " neg entropy " <<  p.T()*hbarc << " " << p.eta << endl;
+      cout << i <<  " has invalid entropy " <<  p.T()*hbarc << " " << p.eta << endl;
       p.eta = 0;
+      printAll = true;  // turn on verbosity
     }
   }
   /* the above should be called in BSQHydro via something like
