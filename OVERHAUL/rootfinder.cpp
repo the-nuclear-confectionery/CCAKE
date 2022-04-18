@@ -307,10 +307,10 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 
 
     // test absolute error
-    //status = gsl_multiroot_test_residual(solver->f, error);
+    status = gsl_multiroot_test_residual(solver->f, error);
 
     // test relative error
-    status = gsl_multiroot_test_delta(solver->f, chosen_densities, 0.0, error);
+    //status = gsl_multiroot_test_delta(solver->f, chosen_densities, 0.0, error);
 
 
 
