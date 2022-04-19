@@ -13,6 +13,7 @@
 using std::cout;
 using std::endl;
 using std::string;
+using std::stod;
 
 #include "constants.h"
 #include "vector.h"
@@ -59,6 +60,8 @@ void SystemState::initialize()  // formerly called "manualenter"
   // set viscosities (this will have to change when bringing in transport
   // coefficients class)
   // (probably add if statement to check if they're constants or variable)
+  std::cout << "settingsPtr->etaOption = " << settingsPtr->etaOption << std::endl;
+  std::cout << "settingsPtr->zetaOption = " << settingsPtr->zetaOption << std::endl;
   svf = stod(settingsPtr->etaOption);
   bvf = stod(settingsPtr->zetaOption);
 
