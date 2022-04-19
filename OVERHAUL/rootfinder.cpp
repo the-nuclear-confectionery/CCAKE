@@ -322,7 +322,7 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
     if ( VERBOSE > 2 )
     {
       if ( status == GSL_EBADFUNC )
-        std::cout << "Error: something went to +/-Inf or NaN!\n"
+        std::cout << "Error: something went to +/-Inf or NaN!\n";
       else if ( status == GSL_ENOPROG )
         std::cout << "Error: not making enough progress!\n";
       else if ( status == GSL_ENOPROGJ )
