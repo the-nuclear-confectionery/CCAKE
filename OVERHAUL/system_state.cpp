@@ -56,6 +56,12 @@ void SystemState::initialize()  // formerly called "manualenter"
 
   _h = settingsPtr->_h;
 
+  // set viscosities (this will have to change when bringing in transport
+  // coefficients class)
+  // (probably add if statement to check if they're constants or variable)
+  svf = stod(settingsPtr->etaOption);
+  bvf = stod(settingsPtr->zetaOption);
+
   settingsPtr->efcheck = eosPtr->efreeze(settingsPtr->Freeze_Out_Temperature);
   settingsPtr->sfcheck = eosPtr->sfreeze(settingsPtr->Freeze_Out_Temperature);
   efcheck = settingsPtr->efcheck;

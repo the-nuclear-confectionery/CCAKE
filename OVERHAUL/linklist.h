@@ -51,26 +51,7 @@ public:
   double t          = 0;
   double dt         = 0;
   double factor     = 0;
-  /*double dEz        = 0;
-  double E          = 0;
-  double Ez         = 0;
-  double E0         = 0;
-  double Etot       = 0;
-  double S          = 0;
-  double S0         = 0;
-  double Eloss      = 0;
-  double Esubb      = 0;
-  double Btotal     = 0;
-  double Stotal     = 0;
-  double Qtotal     = 0;
-  double Btotal0    = 0;
-  double Stotal0    = 0;
-  double Qtotal0    = 0;*/
-  /*double bvf        = 0;
-  double svf        = 0; 
-  double zwidth     = 0;
-  double sTc        = 0;
-  double zTc        = 0;*/
+
   double E1         = 0;
   double E2         = 0;
   double step       = 0;

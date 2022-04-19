@@ -6,9 +6,9 @@ t0:         0.600000
 EoS_Type:   Houston
 EoS_Option: Default
 eta:        constant
-etaOpt:     0.08
+etaOpt:     0.20
 shearRelax: Default
-zeta:       0.0
+zeta:       0.005
 zetaOpt:    Default
 bulkRelax:  Default
 freezeoutT: 150.000000
