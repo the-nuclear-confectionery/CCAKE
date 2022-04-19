@@ -387,9 +387,9 @@ bool EquationOfState::rootfinder_update_s(double sin, double Bin, double Sin, do
     }
 
     solution_found
-      = rootfinder.find_sBSQ_root( sin, Bin, Sin, Qin, this_eos->sBSQ,
-                                   this_eos->tbqs_minima, this_eos->tbqs_maxima,
-                                   result );
+      = rootfinder.find_root( "entropy", sin, Bin, Sin, Qin, this_eos->sBSQ,
+                              this_eos->tbqs_minima, this_eos->tbqs_maxima,
+                              result );
 
     // if rootfinder fails, try a different seed
     if (!solution_found)
@@ -404,10 +404,11 @@ bool EquationOfState::rootfinder_update_s(double sin, double Bin, double Sin, do
                   << result[0]*hc << "   " << result[1]*hc << "   "
                   << result[2]*hc << "   " << result[3]*hc << std::endl;
       }
+
       solution_found
-        = rootfinder.find_sBSQ_root( sin, Bin, Sin, Qin, this_eos->sBSQ,
-                                     this_eos->tbqs_minima, this_eos->tbqs_maxima,
-                                     result );
+        = rootfinder.find_root( "entropy", sin, Bin, Sin, Qin, this_eos->sBSQ,
+                                this_eos->tbqs_minima, this_eos->tbqs_maxima,
+                                result );
     }
 
 
@@ -508,9 +509,9 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
     }
 
     solution_found
-      = rootfinder.find_eBSQ_root( ein, Bin, Sin, Qin, this_eos->eBSQ,
-                                   this_eos->tbqs_minima, this_eos->tbqs_maxima,
-                                   result );
+      = rootfinder.find_root( "energy", ein, Bin, Sin, Qin, this_eos->eBSQ,
+                              this_eos->tbqs_minima, this_eos->tbqs_maxima,
+                              result );
 
     // stop iterating through available EoSs when solution found
     if (solution_found)

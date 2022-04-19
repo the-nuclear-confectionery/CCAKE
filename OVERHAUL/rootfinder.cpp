@@ -101,8 +101,6 @@ int rootfinder_f(const gsl_vector *x, void *params, gsl_vector *f)
 
 
 
-
-
 ////////////////////////////////////////////////////////////////////////////////
 // ROOTFINDER METHODS BELOW THIS LINE
 void Rootfinder::tbqs( vector<double> & tbqsIn )
@@ -114,23 +112,27 @@ void Rootfinder::tbqs( vector<double> & tbqsIn )
 void Rootfinder::tbqs(double setT, double setmuB, double setmuQ, double setmuS)
 {
   if(setT < minT || setT > maxT) {
-    std::cout << "T = " << setT << " is out of range. Valid values are between ["
-      << minT << "," << maxT << "]" << std::endl;
+    std::cout << "T = " << setT
+      << " is out of range. Valid values are between ["
+      << minT << "," << maxT << "]\n";
     return;
   }
   if(setmuB < minMuB || setmuB > maxMuB) {
-    std::cout << "muB = " << setmuB << " is out of range. Valid values are between ["
-      << minMuB << "," << maxMuB << "]" << std::endl;
+    std::cout << "muB = " << setmuB
+      << " is out of range. Valid values are between ["
+      << minMuB << "," << maxMuB << "]\n";
     return;
   }
   if(setmuQ < minMuQ || setmuQ > maxMuQ) {
-    std::cout << "muQ = " << setmuQ << " is out of range. Valid values are between ["
-      << minMuQ << "," << maxMuQ << "]" << std::endl;
+    std::cout << "muQ = " << setmuQ
+      << " is out of range. Valid values are between ["
+      << minMuQ << "," << maxMuQ << "]\n";
     return;
   }
   if(setmuS < minMuS || setmuS > maxMuS) {
-    std::cout << "muS = " << setmuS << " is out of range. Valid values are between ["
-      << minMuS << "," << maxMuS << "]" << std::endl;
+    std::cout << "muS = " << setmuS
+      << " is out of range. Valid values are between ["
+      << minMuS << "," << maxMuS << "]\n";
     return;
   }
 
@@ -157,14 +159,6 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 
   ////////////////////
   // set initial guess
-//cout << "Check initial guess:";
-//for (int iTBQS = 0; iTBQS < 4; iTBQS++) cout << "   " << tbqsPosition[iTBQS];
-//cout << endl;
-
-//  std::cout << "Using these definitions: "
-//            << GSL_CONTINUE << "   "<< GSL_EBADFUNC << "   "
-//            << GSL_ENOPROG << "   " << GSL_ENOPROGJ << std::endl;
-
   gsl_vector *x = gsl_vector_alloc(4);
   for (int iTBQS = 0; iTBQS < 4; iTBQS++)
     gsl_vector_set(x, iTBQS, tbqsPosition[iTBQS]);
@@ -205,23 +199,21 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
       previous_solver_step[iPrev] = gsl_vector_get(solver->x, iPrev);
 
     ++iter;
-//cout << "Status before(1): " << status << "   " << GSL_CONTINUE << endl;
     status = gsl_multiroot_fsolver_iterate(solver);
-//cout << "Status after(1): " << status << "   " << GSL_CONTINUE << endl;
 
-//std::cout << "Made it to line " << __LINE__ << " with status = " << status << std::endl;
     if ( status )
     {
       if ( VERBOSE > 5 )
       {
         if ( status == GSL_EBADFUNC )
-          std::cout << "Error: something went to +/-Inf or NaN!" << std::endl;
+          std::cout << "Error: something went to +/-Inf or NaN!\n";
         else if ( status == GSL_ENOPROG )
-          std::cout << "Error: not making enough progress!" << std::endl;
+          std::cout << "Error: not making enough progress!\n";
         else if ( status == GSL_ENOPROGJ )
-          std::cout << "Error: not making enough progress in Jacobian!" << std::endl;
+          std::cout << "Error: not making enough progress in Jacobian!\n";
         else
-          std::cout << "Check: " << iter << "   " << steps << "   " << status << std::endl;
+          std::cout << "Check: " << iter << "   " << steps << "   "
+                    << status << std::endl;
       }
 
       //break if the rootfinder gets stuck
@@ -232,74 +224,73 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
     if(gsl_vector_get(solver->x, 0) < minT)
     {
       if ( VERBOSE > 5 )
-        std::cout << "Error: out-of-bounds (T < minT)!" << std::endl;
+        std::cout << "Error: out-of-bounds (T < minT)!\n";
       status = -10;
       break;
     }
     else if(gsl_vector_get(solver->x, 0) > maxT)
     {
       if ( VERBOSE > 5 )
-        std::cout << "Error: out-of-bounds (T > maxT)!" << std::endl;
+        std::cout << "Error: out-of-bounds (T > maxT)!\n";
       status = -10;
       break;
     }
     else if (gsl_vector_get(solver->x, 1) < minMuB)
     {
       if ( VERBOSE > 5 )
-        std::cout << "Error: out-of-bounds (MuB < minMuB)!" << std::endl;
+        std::cout << "Error: out-of-bounds (MuB < minMuB)!\n";
       status = -10;
       break;
     }
     else if (gsl_vector_get(solver->x, 1) > maxMuB)
     {
       if ( VERBOSE > 5 )
-        std::cout << "Error: out-of-bounds (MuB > maxMuB)!" << std::endl;
+        std::cout << "Error: out-of-bounds (MuB > maxMuB)!\n";
       status = -10;
       break;
     }
     else if (gsl_vector_get(solver->x, 2) < minMuQ)
     {
       if ( VERBOSE > 5 )
-        std::cout << "Error: out-of-bounds (MuQ < minMuQ)!" << std::endl;
+        std::cout << "Error: out-of-bounds (MuQ < minMuQ)!\n";
       status = -10;
       break;
     }
     else if (gsl_vector_get(solver->x, 2) > maxMuQ)
     {
       if ( VERBOSE > 5 )
-        std::cout << "Error: out-of-bounds (MuQ > maxMuQ)!" << std::endl;
+        std::cout << "Error: out-of-bounds (MuQ > maxMuQ)!\n";
       status = -10;
       break;
     }
     else if (gsl_vector_get(solver->x, 3) < minMuS)
     {
       if ( VERBOSE > 5 )
-        std::cout << "Error: out-of-bounds (MuS < minMuS)!" << std::endl;
+        std::cout << "Error: out-of-bounds (MuS < minMuS)!\n";
       status = -10;
       break;
     }
     else if (gsl_vector_get(solver->x, 3) > maxMuS)
     {
       if ( VERBOSE > 5 )
-        std::cout << "Error: out-of-bounds (MuS > maxMuS)!" << std::endl;
+        std::cout << "Error: out-of-bounds (MuS > maxMuS)!\n";
       status = -10;
       break;
     }
 
     if ( VERBOSE > 8 )
       std::cout << "\t --> Status: " << status << "   "
-           << iter << "   " << error
-           << std::endl << "\t             ("
+           << iter << "   " << error << "\n\t             ("
            << gsl_vector_get(solver->x, 0)*hbarc_MeVfm << ","
            << gsl_vector_get(solver->x, 1)*hbarc_MeVfm << ","
            << gsl_vector_get(solver->x, 2)*hbarc_MeVfm << ","
            << gsl_vector_get(solver->x, 3)*hbarc_MeVfm << ")"
-           << std::endl << "\t             ("
+           << "\n\t             ("
            << e_or_s_Given*hbarc_MeVfm << ","
            << rhoBGiven << ","
            << rhoQGiven << ","
            << rhoSGiven << ")"
-           << std::endl << "\t             ("
+           << "\n\t             ("
            << gsl_vector_get(solver->f, 0)*hbarc_MeVfm << ","
            << gsl_vector_get(solver->f, 1) << ","
            << gsl_vector_get(solver->f, 2) << ","
@@ -331,18 +322,19 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
     if ( VERBOSE > 2 )
     {
       if ( status == GSL_EBADFUNC )
-        std::cout << "Error: something went to +/-Inf or NaN!" << std::endl;
+        std::cout << "Error: something went to +/-Inf or NaN!\n"
       else if ( status == GSL_ENOPROG )
-        std::cout << "Error: not making enough progress!" << std::endl;
+        std::cout << "Error: not making enough progress!\n";
       else if ( status == GSL_ENOPROGJ )
-        std::cout << "Error: not making enough progress in Jacobian!" << std::endl;
+        std::cout << "Error: not making enough progress in Jacobian!\n";
       else
-        std::cout << "Check: " << iter << "   " << steps << "   " << status << std::endl;
+        std::cout << "Check: " << iter << "   " << steps << "   "
+                  << status << "\n";
     }
     found = false;
   }
 
-//  std::cout << "Check: " << iter << "   " << steps << "   " << status << std::endl;
+//  std::cout << "Check: " << iter << "   " << steps << "   " << status << "\n";
 
 
   // if so, return the solution
@@ -368,22 +360,28 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 
 
 
-
-
-
 ////////////////////////////////////////////////////////////////////////////////
-bool Rootfinder::find_eBSQ_root( double ein, double Bin, double Sin, double Qin,
-                          std::function<void(double[], double[])> function_to_evaluate,
-                           vector<double> & tbqs_minima,
-                           vector<double> & tbqs_maxima,
-                           vector<double> & updated_tbqs )
+bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
+                            double Bin, double Sin, double Qin,
+                            std::function<void(double[], double[])>
+                                 function_to_evaluate,
+                            vector<double> & tbqs_minima,
+                            vector<double> & tbqs_maxima,
+                            vector<double> & updated_tbqs )
 {
-    int number_of_attempts = 1;
+    // set mode
+    int e_or_s_mode = -1;
+    if ( e_or_s == "e" || e_or_s == "energy" )
+      e_or_s_mode = 1;
+    else if ( e_or_s == "s" || e_or_s == "entropy" )
+      e_or_s_mode = 0;
+    else
+    {
+      std::cerr << "e_or_s = " << e_or_s << " is an invalid choice!\n";
+      exit(8);
+    }
 
-//    // try this
-//    const double hc = constants::hbarc_MeVfm;
-//    tbqs_minima = vector<double>({0.0/hc,-450.0/hc,-450.0/hc,-450.0/hc});
-//    tbqs_maxima = vector<double>({1200.0/hc,450.0/hc,450.0/hc,450.0/hc});
+    int number_of_attempts = 1;
 
     minT   = tbqs_minima[0]; maxT   = tbqs_maxima[0];
     minMuB = tbqs_minima[1]; maxMuB = tbqs_maxima[1];
@@ -392,21 +390,17 @@ bool Rootfinder::find_eBSQ_root( double ein, double Bin, double Sin, double Qin,
 
     if ( VERBOSE > 6 )
       std::cout << "Using grid ranges: "
-        << minT*hbarc_MeVfm << "   "
-        << maxT*hbarc_MeVfm << "   "
-        << minMuB*hbarc_MeVfm << "   "
-        << maxMuB*hbarc_MeVfm << "   "
-        << minMuQ*hbarc_MeVfm << "   "
-        << maxMuQ*hbarc_MeVfm << "   "
-        << minMuS*hbarc_MeVfm << "   "
-        << maxMuS*hbarc_MeVfm << std::endl;
+        << minT*hbarc_MeVfm   << "   " << maxT*hbarc_MeVfm << "   "
+        << minMuB*hbarc_MeVfm << "   " << maxMuB*hbarc_MeVfm << "   "
+        << minMuQ*hbarc_MeVfm << "   " << maxMuQ*hbarc_MeVfm << "   "
+        << minMuS*hbarc_MeVfm << "   " << maxMuS*hbarc_MeVfm << std::endl;
 
     tbqsPosition = updated_tbqs;
 
 
     //==========================================================================
     // try default seed point
-    if (rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS,
+    if (rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs))
         return true;
 
@@ -422,99 +416,103 @@ bool Rootfinder::find_eBSQ_root( double ein, double Bin, double Sin, double Qin,
     double muS10 = mus0*.2;
 
     //==========================================================================
-    //perturb T
-    number_of_attempts++;
+    // perturb T
 
-    if(t0 + t10 > maxT) {
-        tbqs(maxT - 1, mub0, muq0, mus0);
-    } else {
-        tbqs(t0 + t10, mub0, muq0, mus0);
-    }
-    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS,
-                      function_to_evaluate, updated_tbqs)) 
+    // perturb up
+    number_of_attempts++;
+    if (t0 + t10 > maxT)
+      tbqs(maxT - 1, mub0, muq0, mus0);
+    else
+      tbqs(t0 + t10, mub0, muq0, mus0);
+
+    if ( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
+                       function_to_evaluate, updated_tbqs ) ) 
         return true;
 
+    // perturb down
     number_of_attempts++;
+    if (t0 - t10 < minT)
+      tbqs(minT + 1, mub0, muq0, mus0);
+    else
+      tbqs(t0 - t10, mub0, muq0, mus0);
 
-    if(t0 - t10 < minT) {
-        tbqs(minT + 1, mub0, muq0, mus0);
-    } else {
-        tbqs(t0 - t10, mub0, muq0, mus0);
-    }
-    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS,
-                      function_to_evaluate, updated_tbqs)) 
-        return true;
-
-    //==========================================================================
-    //perturb mub
-    number_of_attempts++;
-
-    if(mub0 + muB10 > maxMuB) {
-        tbqs(t0, maxMuB - 1, muq0, mus0);
-    } else {
-        tbqs(t0, mub0 + muB10, muq0, mus0);
-    }
-    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS,
-                      function_to_evaluate, updated_tbqs)) 
-        return true;
-
-    number_of_attempts++;
-
-    if(mub0 - muB10 < minMuB) {
-        tbqs(t0, minMuB + 1, muq0, mus0);
-    } else {
-        tbqs(t0, mub0 - muB10, muq0, mus0);
-    }
-    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS,
-                      function_to_evaluate, updated_tbqs)) 
+    if ( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
+                       function_to_evaluate, updated_tbqs ) ) 
         return true;
 
     //==========================================================================
-    //perturb muq
-    number_of_attempts++;
+    // perturb muB
 
-    if(muq0 + muQ10 > maxMuQ) {
-        tbqs(t0, mub0, maxMuQ - 1, mus0);
-    } else {
-        tbqs(t0, mub0, muq0 + muQ10, mus0);
-    }
-    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS,
-                      function_to_evaluate, updated_tbqs)) 
+    // perturb up
+    number_of_attempts++;
+    if (mub0 + muB10 > maxMuB)
+      tbqs(t0, maxMuB - 1, muq0, mus0);
+    else
+      tbqs(t0, mub0 + muB10, muq0, mus0);
+
+    if( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
+                      function_to_evaluate, updated_tbqs ) ) 
         return true;
 
+    // perturb down
     number_of_attempts++;
+    if (mub0 - muB10 < minMuB)
+      tbqs(t0, minMuB + 1, muq0, mus0);
+    else
+      tbqs(t0, mub0 - muB10, muq0, mus0);
 
-    if(muq0 - muQ10 < minMuQ) {
-        tbqs(t0, mub0, minMuQ + 1, mus0);
-    } else {
-        tbqs(t0, mub0, muq0 - muQ10, mus0);
-    }
-    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS,
-                      function_to_evaluate, updated_tbqs))
+    if ( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
+                      function_to_evaluate, updated_tbqs ) ) 
         return true;
 
     //==========================================================================
-    //perturb mus
-    number_of_attempts++;
+    // perturb muQ
 
-    if(mus0 + muS10 > maxMuS) {
-        tbqs(t0, mub0, muq0, maxMuS - 1);
-    } else {
-        tbqs(t0, mub0, muq0, mus0 + muS10);
-    }
-    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS,
-                      function_to_evaluate, updated_tbqs)) 
+    // perturb up
+    number_of_attempts++;
+    if (muq0 + muQ10 > maxMuQ)
+      tbqs(t0, mub0, maxMuQ - 1, mus0);
+    else
+      tbqs(t0, mub0, muq0 + muQ10, mus0);
+
+    if( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
+                      function_to_evaluate, updated_tbqs ) ) 
         return true;
 
+    // perturb down
     number_of_attempts++;
+    if(muq0 - muQ10 < minMuQ)
+      tbqs(t0, mub0, minMuQ + 1, mus0);
+    else
+      tbqs(t0, mub0, muq0 - muQ10, mus0);
 
-    if(mus0 - muS10 < maxMuS) {
-        tbqs(t0, mub0, muq0, minMuS + 1);
-    } else {
-        tbqs(t0, mub0, muq0, mus0 - muS10);
-    }
-    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS,
-                      function_to_evaluate, updated_tbqs)) 
+    if( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
+                      function_to_evaluate, updated_tbqs ) ) 
+        return true;
+
+    //==========================================================================
+    // perturb muS
+
+    // perturb up
+    number_of_attempts++;
+    if(mus0 + muS10 > maxMuS)
+      tbqs(t0, mub0, muq0, maxMuS - 1);
+    else
+      tbqs(t0, mub0, muq0, mus0 + muS10);
+
+    if( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
+                      function_to_evaluate, updated_tbqs ) ) 
+        return true;
+
+    // perturb down
+    number_of_attempts++;
+    if(mus0 - muS10 < maxMuS)
+      tbqs(t0, mub0, muq0, minMuS + 1);
+    else
+      tbqs(t0, mub0, muq0, mus0 - muS10);
+
+    if( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
+                      function_to_evaluate, updated_tbqs ) ) 
         return true;
 
     //==========================================================================
@@ -523,159 +521,15 @@ bool Rootfinder::find_eBSQ_root( double ein, double Bin, double Sin, double Qin,
 
     number_of_attempts++;
 
-    if(rootfinder4D(ein, 1, Bin, Sin, Qin, TOLERANCE, STEPS,
-                      function_to_evaluate, updated_tbqs)) 
+    if( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
+                      function_to_evaluate, updated_tbqs ) ) 
         return true;
-
 
     if ( VERBOSE > 8 )
       std::cout << __PRETTY_FUNCTION__ << ": failed after "
-                << number_of_attempts << "!" << std::endl;
+                << number_of_attempts << "!\n";
 
     tbqs(t0, mub0, muq0, mus0);
     return false;
 }
 
-
-
-
-
-
-////////////////////////////////////////////////////////////////////////////////
-bool Rootfinder::find_sBSQ_root( double sin, double Bin, double Sin, double Qin,
-                           std::function<void(double[], double[])> function_to_evaluate,
-                           vector<double> & tbqs_minima,
-                           vector<double> & tbqs_maxima,
-                           vector<double> & updated_tbqs )
-{
-    int number_of_attempts = 1;
-    minT   = tbqs_minima[0]; maxT   = tbqs_maxima[0];
-    minMuB = tbqs_minima[1]; maxMuB = tbqs_maxima[1];
-    minMuQ = tbqs_minima[2]; maxMuQ = tbqs_maxima[2];
-    minMuS = tbqs_minima[3]; maxMuS = tbqs_maxima[3];
-    tbqsPosition = updated_tbqs;
-
-    if (rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS,
-                      function_to_evaluate, updated_tbqs))
-        return true;
-
-	///////////////////////////
-    double t0 = tbqsPosition[0];
-    double mub0 = tbqsPosition[1];
-    double muq0 = tbqsPosition[2];
-    double mus0 = tbqsPosition[3];
-    double t10 = t0*.2;
-    double muB10 = mub0*.2;
-    double muQ10 = muq0*.2;
-    double muS10 = mus0*.2;
-
-    //perturb T
-
-    number_of_attempts++;
-
-    if(t0 + t10 > maxT) {
-        tbqs(maxT - 1, mub0, muq0, mus0);
-    } else {
-        tbqs(t0 + t10, mub0, muq0, mus0);
-    }
-    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS,
-                      function_to_evaluate, updated_tbqs))
-        return true;
-
-    number_of_attempts++;
-
-    if(t0 - t10 < minT) {
-        tbqs(minT + 1, mub0, muq0, mus0);
-    } else {
-        tbqs(t0 - t10, mub0, muq0, mus0);
-    }
-    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS,
-                      function_to_evaluate, updated_tbqs))
-        return true;
-
-    //perturb mub
-
-    number_of_attempts++;
-
-    if(mub0 + muB10 > maxMuB) {
-        tbqs(t0, maxMuB - 1, muq0, mus0);
-    } else {
-        tbqs(t0, mub0 + muB10, muq0, mus0);
-    }
-    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS,
-                      function_to_evaluate, updated_tbqs))
-        return true;
-
-    number_of_attempts++;
-
-    if(mub0 - muB10 < minMuB) {
-        tbqs(t0, minMuB + 1, muq0, mus0);
-    } else {
-        tbqs(t0, mub0 - muB10, muq0, mus0);
-    }
-    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS,
-                      function_to_evaluate, updated_tbqs))
-        return true;
-
-    //perturn muq
-
-    number_of_attempts++;
-
-    if(muq0 + muQ10 > maxMuQ) {
-        tbqs(t0, mub0, maxMuQ - 1, mus0);
-    } else {
-        tbqs(t0, mub0, muq0 + muQ10, mus0);
-    }
-    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS,
-                      function_to_evaluate, updated_tbqs))
-        return true;
-
-    number_of_attempts++;
-
-    if(muq0 - muQ10 < minMuQ) {
-        tbqs(t0, mub0, minMuQ + 1, mus0);
-    } else {
-        tbqs(t0, mub0, muq0 - muQ10, mus0);
-    }
-    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS,
-                      function_to_evaluate, updated_tbqs))
-        return true;
-
-    //perturb mus
-
-    number_of_attempts++;
-
-    if(mus0 + muS10 > maxMuS) {
-        tbqs(t0, mub0, muq0, maxMuS - 1);
-    } else {
-        tbqs(t0, mub0, muq0, mus0 + muS10);
-    }
-    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS,
-                      function_to_evaluate, updated_tbqs))
-        return true;
-
-    number_of_attempts++;
-
-    if(mus0 - muS10 < maxMuS) {
-        tbqs(t0, mub0, muq0, minMuS + 1);
-    } else {
-        tbqs(t0, mub0, muq0, mus0 - muS10);
-    }
-    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS,
-                      function_to_evaluate, updated_tbqs))
-        return true;
-
-    //check mu = 0
-    tbqs(t0, 0, 0, 0);
-
-    number_of_attempts++;
-
-    if(rootfinder4D(sin, 0, Bin, Sin, Qin, TOLERANCE, STEPS,
-                      function_to_evaluate, updated_tbqs))
-        return true;
-
-//cout << __PRETTY_FUNCTION__ << ": failed after " << number_of_attempts << "!" << endl;
-
-    tbqs(t0, mub0, muq0, mus0);
-    return false;
-}
