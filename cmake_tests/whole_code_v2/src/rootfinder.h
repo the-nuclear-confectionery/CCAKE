@@ -13,7 +13,6 @@
 #include <gsl/gsl_blas.h>
 #include <gsl/gsl_linalg.h>
 
-#include <lib.h>
 #include "constants.h"
 
 using namespace std;

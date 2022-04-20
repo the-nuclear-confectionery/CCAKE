@@ -5,9 +5,6 @@
 #include <iterator>
 #include <string>
 
-// functions calls to static EoS C library
-#include <lib.h>
-
 #include "eos_delaunay/eos_delaunay.h"
 #include "interpolatorND/interpolatorND.h"
 #include "constants.h"

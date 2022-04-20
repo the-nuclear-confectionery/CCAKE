@@ -11,8 +11,6 @@
 #include <fstream>
 #include <string>
 
-// functions calls to static EoS C library
-#include <lib.h>
 #include "eos_delaunay/eos_delaunay.h"
 
 #include "constants.h"

@@ -12,10 +12,6 @@
 
 #include "linklist.h"
 
-// this contains functions for calling EoS directly
-#include <lib.h>
-
-
 LinkList::LinkList()
 {
     range = 2; //number of boxes on the sides
