@@ -13,3 +13,11 @@ Hydro-master/ICCING_and_SPH_T0_1200.pdf
 Hydro-master/eSPH.pdf
 *.ipynb
 .DS_Store
+*.zip
+*.cmake
+*.out
+*.bin
+*.check_cache
+**/build/**
+**/bin/**
+*.swp
