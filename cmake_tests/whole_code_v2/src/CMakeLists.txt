@@ -1,7 +1,6 @@
 add_library(src OBJECT
 	BSQHydro.cpp
 	eos.cpp
-	eos_checks.cpp
 	eos_derivatives.cpp
 	eos_extension.cpp
 	eos_initialization.cpp
