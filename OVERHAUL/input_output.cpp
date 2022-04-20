@@ -172,7 +172,7 @@ void InputOutput::read_in_initial_conditions()
   if (initial_condition_type == "ICCING")
   {
     cout << "Reading in ICCING initial conditions!" << endl;
-    IC_file = IC_file+"/Iccing_conditions.dat"; // need to change ic0.dat
+    IC_file = IC_file + "/Iccing_conditions.dat"; // need to change ic0.dat
     total_header_lines = 1;
 
     settingsPtr->initial_coordinate_distribution = "Cartesian";
