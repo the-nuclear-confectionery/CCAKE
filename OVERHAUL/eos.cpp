@@ -1,5 +1,3 @@
-//#include "eos.h"
-
 #include <algorithm>
 #include <fstream>
 #include <iostream>

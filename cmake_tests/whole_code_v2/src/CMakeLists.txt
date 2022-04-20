@@ -7,7 +7,6 @@ add_library(src OBJECT
 	eos_table.cpp
 	equations_of_motion.cpp
 	input_output.cpp
-	interpolatorND/interpolatorND.cpp
 	kernel.cpp
 	linklist.cpp
 	matrix.cpp
