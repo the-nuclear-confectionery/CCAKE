@@ -23,7 +23,7 @@ add_library(src OBJECT
 )
 
 find_package(GSL)
-target_link_libraries(${PROJECT_NAME} PUBLIC ${GSL_LIBRARIES})
-target_include_directories(${PROJECT_NAME} PUBLIC ${GSL_INCLUDE_DIR})
+target_link_libraries(src PUBLIC ${GSL_LIBRARIES})
+target_include_directories(src PUBLIC ${GSL_INCLUDE_DIR})
 
 target_include_directories(src PUBLIC .)
