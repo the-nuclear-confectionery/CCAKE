@@ -9,7 +9,7 @@ eta:        constant
 etaOpt:     0.20
 shearRelax: Default
 zeta:       constant
-zetaOpt:    0.005
+zetaOpt:    0.0
 bulkRelax:  Default
 freezeoutT: 150.000000
 freezeout:  No_Freezeout
