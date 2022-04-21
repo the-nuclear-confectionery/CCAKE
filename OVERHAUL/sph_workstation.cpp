@@ -600,50 +600,56 @@ void SPHWorkstation::advance_timestep_rk2( double dt )
   ////////////////////////////////////////////
 
   // compute derivatives
-  eomPtr->BSQshear(*systemPtr, *this); // will this compile?
+//  eomPtr->BSQshear(systemPtr, *this);
+  BSQshear();
 
   // update quantities
   {
-    for (auto & p : systemPtr->particles)
+    for (int i = 0; i < (int)systemPtr->particles.size(); i++)
     {
-      p.r = systemPtr->r0[i] + 0.5*dx*p.v;
+      auto & p    = systemPtr->particles[i];
+
+      p.r = systemPtr->r0[i] + 0.5*dt*p.v;
       if ( p.Freeze < 5 )
       {
-        p.u            = systemPtr->u0[i]        + 0.5*dx*p.du_dt;
-        p.eta_sigma    = systemPtr->etasigma0[i] + 0.5*dx*p.detasigma_dt;
-        p.Bulk         = systemPtr->Bulk0[i]     + 0.5*dx*p.dBulk_dt;
-        tmini( p.shv,    systemPtr->shv0[i]      + 0.5*dx*p.dshv_dt );
+        p.u            = systemPtr->u0[i]        + 0.5*dt*p.du_dt;
+        p.eta_sigma    = systemPtr->etasigma0[i] + 0.5*dt*p.detasigma_dt;
+        p.Bulk         = systemPtr->Bulk0[i]     + 0.5*dt*p.dBulk_dt;
+        tmini( p.shv,    systemPtr->shv0[i]      + 0.5*dt*p.dshv_dt );
       }
     }
   }
 
-  systemPtr->Ez = E0 + 0.5*dx*systemPtr->dEz;
-  systemPtr->t  = t0 + 0.5*dx;
+  systemPtr->Ez = E0 + 0.5*dt*systemPtr->dEz;
+  systemPtr->t  = t0 + 0.5*dt;
 
   ////////////////////////////////////////////
   //    second step
   ////////////////////////////////////////////
 
   // compute derivatives
-  eomPtr->BSQshear(system, *this); // will this compile?
+//  eomPtr->BSQshear(systemPtr, *this);
+  BSQshear();
 
   // update quantities
   {
-    for (auto & p : systemPtr->particles)
+    for (int i = 0; i < (int)systemPtr->particles.size(); i++)
     {
-      p.r = systemPtr->r0[i] + dx*p.v;
+      auto & p    = systemPtr->particles[i];
+
+      p.r = systemPtr->r0[i] + dt*p.v;
       if ( p.Freeze < 5 )
       {
-        p.u            = systemPtr->u0[i]        + dx*p.du_dt;
-        p.eta_sigma    = systemPtr->etasigma0[i] + dx*p.detasigma_dt;
-        p.Bulk         = systemPtr->Bulk0[i]     + dx*p.dBulk_dt;
-        tmini( p.shv,    systemPtr->shv0[i]      + dx*p.dshv_dt );
+        p.u            = systemPtr->u0[i]        + dt*p.du_dt;
+        p.eta_sigma    = systemPtr->etasigma0[i] + dt*p.detasigma_dt;
+        p.Bulk         = systemPtr->Bulk0[i]     + dt*p.dBulk_dt;
+        tmini( p.shv,    systemPtr->shv0[i]      + dt*p.dshv_dt );
       }
     }
   }
 
-  systemPtr->Ez = E0 + dx*systemPtr->dEz;
-  systemPtr->t  = t0 + dx;
+  systemPtr->Ez = E0 + dt*systemPtr->dEz;
+  systemPtr->t  = t0 + dt;
 
   return;
 }
@@ -675,11 +681,11 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
     auto & p    = systemPtr->particles[i];
 
     // store increments
-    p.k1        = dx*p.du_dt;
-    p.r1        = dx*p.v;
-    p.ets1      = dx*p.detasigma_dt;
-    p.b1        = dx*p.dBulk_dt;
-    p.shv1      = dx*p.dshv_dt;
+    p.k1        = dt*p.du_dt;
+    p.r1        = dt*p.v;
+    p.ets1      = dt*p.detasigma_dt;
+    p.b1        = dt*p.dBulk_dt;
+    p.shv1      = dt*p.dshv_dt;
 
     // implement increments with appropriate coefficients
     p.u         = systemPtr->u0[i]        + 0.5*p.k1;
@@ -689,14 +695,14 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
     tmini(p.shv,  systemPtr->shv0[i]      + 0.5*p.shv1);
   }
 
-  E1           = dx*systemPtr->dEz;
+  E1           = dt*systemPtr->dEz;
 
 
   ////////////////////////////////////////////
   //    second step
   ////////////////////////////////////////////
 
-  systemPtr->t = t0 + 0.5*dx;
+  systemPtr->t = t0 + 0.5*dt;
 //  eomPtr->BSQshear(systemPtr, *this);
   BSQshear();
 
@@ -704,11 +710,11 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
   {
     auto & p    = systemPtr->particles[i];
 
-    p.k2        = dx*p.du_dt;
-    p.r2        = dx*p.v;
-    p.ets2      = dx*p.detasigma_dt;
-    p.b2        = dx*p.dBulk_dt;
-    p.shv2      = dx*p.dshv_dt;
+    p.k2        = dt*p.du_dt;
+    p.r2        = dt*p.v;
+    p.ets2      = dt*p.detasigma_dt;
+    p.b2        = dt*p.dBulk_dt;
+    p.shv2      = dt*p.dshv_dt;
 
     p.u         = systemPtr->u0[i]        + 0.5*p.k2;
     p.r         = systemPtr->r0[i]        + 0.5*p.r2;
@@ -717,7 +723,7 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
     tmini(p.shv,  systemPtr->shv0[i]      + 0.5*p.shv2);
   }
 
-  E2           = dx*systemPtr->dEz;
+  E2           = dt*systemPtr->dEz;
 
 
   ////////////////////////////////////////////
@@ -731,11 +737,11 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
   {
     auto & p    = systemPtr->particles[i];
 
-    p.k3        = dx*p.du_dt;
-    p.r3        = dx*p.v;
-    p.ets3      = dx*p.detasigma_dt;
-    p.b3        = dx*p.dBulk_dt;
-    p.shv3      = dx*p.dshv_dt;
+    p.k3        = dt*p.du_dt;
+    p.r3        = dt*p.v;
+    p.ets3      = dt*p.detasigma_dt;
+    p.b3        = dt*p.dBulk_dt;
+    p.shv3      = dt*p.dshv_dt;
 
 
     p.u         = systemPtr->u0[i]        + p.k3;
@@ -745,13 +751,13 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
     tmini(p.shv,  systemPtr->shv0[i]      + p.shv3);
   }
 
-  E3           = dx*systemPtr->dEz;
+  E3           = dt*systemPtr->dEz;
 
   ////////////////////////////////////////////
   //    fourth step
   ////////////////////////////////////////////
 
-  systemPtr->t = t0 + dx;
+  systemPtr->t = t0 + dt;
 //  eomPtr->BSQshear(systemPtr, *this);
   BSQshear();
 
@@ -760,11 +766,11 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
   {
     auto & p    = systemPtr->particles[i];
 
-    p.k4        = dx*p.du_dt;
-    p.r4        = dx*p.v;
-    p.ets4      = dx*p.detasigma_dt;
-    p.b4        = dx*p.dBulk_dt;
-    p.shv4      = dx*p.dshv_dt;
+    p.k4        = dt*p.du_dt;
+    p.r4        = dt*p.v;
+    p.ets4      = dt*p.detasigma_dt;
+    p.b4        = dt*p.dBulk_dt;
+    p.shv4      = dt*p.dshv_dt;
 
     // sum the weighted steps into yf and return the final y values
     p.u         = systemPtr->u0[i]        + w1*p.k1   + w2*p.k2   + w2*p.k3   + w1*p.k4;
@@ -774,7 +780,7 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
     tmini(p.shv,  systemPtr->shv0[i]      + w1*p.shv1 + w2*p.shv2 + w2*p.shv3 + w1*p.shv4);
   }
 
-  E4            = dx*systemPtr->dEz;
+  E4            = dt*systemPtr->dEz;
   systemPtr->Ez = E0 + w1*E1 + w2*E2 + w2*E3 + w1*E4;
 
 
