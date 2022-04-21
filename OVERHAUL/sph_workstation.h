@@ -1,10 +1,12 @@
 #ifndef SPH_WORKSTATION_H
 #define SPH_WORKSTATION_H
 
-#include "equations_of_motion.h"
+//#include "equations_of_motion.h"
 #include "kernel.h"
 #include "settings.h"
 #include "system_state.h"
+
+class EquationsOfMotion;
 
 class SPHWorkstation
 {
