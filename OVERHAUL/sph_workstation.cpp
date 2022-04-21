@@ -670,7 +670,7 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
 //  eomPtr->BSQshear(systemPtr, *this);
   BSQshear();
 
-  for (int i = 0; i < (int)particles.size(); i++)
+  for (int i = 0; i < (int)systemPtr->particles.size(); i++)
   {
     auto & p    = systemPtr->particles[i];
 
@@ -700,7 +700,7 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
 //  eomPtr->BSQshear(systemPtr, *this);
   BSQshear();
 
-  for (int i = 0; i < (int)particles.size(); i++)
+  for (int i = 0; i < (int)systemPtr->particles.size(); i++)
   {
     auto & p    = systemPtr->particles[i];
 
@@ -727,7 +727,7 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
 //  eomPtr->BSQshear(systemPtr, *this);
   BSQshear();
 
-  for (int i = 0; i < (int)particles.size(); i++)
+  for (int i = 0; i < (int)systemPtr->particles.size(); i++)
   {
     auto & p    = systemPtr->particles[i];
 
@@ -756,7 +756,7 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
   BSQshear();
 
   constexpr double w1 = 1.0/6.0, w2 = 1.0/3.0;
-  for (int i = 0; i < (int)particles.size(); i++)
+  for (int i = 0; i < (int)systemPtr->particles.size(); i++)
   {
     auto & p    = systemPtr->particles[i];
 
