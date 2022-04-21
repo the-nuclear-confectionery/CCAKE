@@ -3,6 +3,7 @@
 
 #include "constants.h"
 #include "eos_conformal_diagonal.h"
+#include "equations_of_motion.h"
 #include "sph_workstation.h"
 #include "Stopwatch.h"
 
