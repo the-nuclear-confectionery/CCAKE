@@ -6,7 +6,7 @@ t0:         1.100000
 EoS_Type:   Conformal
 EoS_Option: Default
 eta:        constant
-etaOpt:     0.0
+etaOpt:     0.20
 shearRelax: Default
 zeta:       constant
 zetaOpt:    0.005
