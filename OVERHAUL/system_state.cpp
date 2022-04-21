@@ -16,7 +16,7 @@ using std::stod;
 #include "constants.h"
 #include "vector.h"
 #include "particle.h"
-#include "runge_kutta.h"
+//#include "runge_kutta.h"
 #include "eos.h"
 #include "Stopwatch.h"
 #include "system_state.h"
@@ -355,16 +355,12 @@ void SystemState::set_current_timestep_quantities()
 
   etasigma0.resize(N);
   Bulk0.resize(N);
-
   u0.resize(N);
   r0.resize(N);
-
   shv0.resize(N);
 
-  for (int i=0; i<N; ++i)
+  for (auto & p : particles)
   {
-    auto & p = particles[i];
-
     u0[i]        = p.u;
     r0[i]        = p.r;
     etasigma0[i] = p.eta_sigma;

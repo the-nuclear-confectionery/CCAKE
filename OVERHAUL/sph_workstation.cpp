@@ -14,16 +14,21 @@ void SPHWorkstation::set_EquationOfStatePtr( EquationOfState * eosPtr_in )
   eosPtr = eosPtr_in;
 }
 
+void SPHWorkstation::set_EquationsOfMotionPtr( EquationsOfMotion * eomPtr_in )
+{
+  eomPtr = eomPtr_in;
+}
+
 void SPHWorkstation::set_SystemStatePtr( SystemState * systemPtr_in )
 {
   systemPtr = systemPtr_in;
 }
 
-
 void SPHWorkstation::set_SettingsPtr( Settings * settingsPtr_in )
 {
   settingsPtr = settingsPtr_in;
 }
+
 
 /* not sure it makes sense for this to be its own
 separate function? */
@@ -576,3 +581,189 @@ void SPHWorkstation::process_initial_conditions()
 //if (1) exit(1);
 }
 /////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+void SPHWorkstation::advance_timestep_rk2( double dt )
+{
+  systemPtr->rk2 = 1;
+  double t0      = systemPtr->t;
+  double E0      = systemPtr->Ez;
+
+  // initialize quantities at current time step
+  systemPtr->set_current_timestep_quantities();
+
+  ////////////////////////////////////////////
+  //    first step
+  ////////////////////////////////////////////
+
+  // compute derivatives
+  eomPtr->BSQshear(*systemPtr, *this); // will this compile?
+
+  // update quantities
+  {
+    for (auto & p : systemPtr->particles)
+    {
+      p.r = systemPtr->r0[i] + 0.5*dx*p.v;
+      if ( p.Freeze < 5 )
+      {
+        p.u            = systemPtr->u0[i]        + 0.5*dx*p.du_dt;
+        p.eta_sigma    = systemPtr->etasigma0[i] + 0.5*dx*p.detasigma_dt;
+        p.Bulk         = systemPtr->Bulk0[i]     + 0.5*dx*p.dBulk_dt;
+        tmini( p.shv,    systemPtr->shv0[i]      + 0.5*dx*p.dshv_dt );
+      }
+    }
+  }
+
+  systemPtr->Ez = E0 + 0.5*dx*systemPtr->dEz;
+  systemPtr->t  = t0 + 0.5*dx;
+
+  ////////////////////////////////////////////
+  //    second step
+  ////////////////////////////////////////////
+
+  // compute derivatives
+  eomPtr->BSQshear(system, *this); // will this compile?
+
+  // update quantities
+  {
+    for (auto & p : systemPtr->particles)
+    {
+      p.r = systemPtr->r0[i] + dx*p.v;
+      if ( p.Freeze < 5 )
+      {
+        p.u            = systemPtr->u0[i]        + dx*p.du_dt;
+        p.eta_sigma    = systemPtr->etasigma0[i] + dx*p.detasigma_dt;
+        p.Bulk         = systemPtr->Bulk0[i]     + dx*p.dBulk_dt;
+        tmini( p.shv,    systemPtr->shv0[i]      + dx*p.dshv_dt );
+      }
+    }
+  }
+
+  systemPtr->Ez = E0 + dx*systemPtr->dEz;
+  systemPtr->t  = t0 + dx;
+
+  return;
+}
+
+
+
+
+void SPHWorkstation::advance_timestep_rk4( double dt )
+{
+  systemPtr->rk2 = 1;
+  double t0      = systemPtr->t;
+  double E0      = systemPtr->Ez;
+
+  double E1 = 0.0, E2 = 0.0, E3 = 0.0, E4 = 0.0;
+
+  // initialize quantities at current time step
+  systemPtr->set_current_timestep_quantities();
+
+  ////////////////////////////////////////////
+  //    first step
+  ////////////////////////////////////////////
+
+  // compute derivatives
+  eomPtr->BSQshear(*systemPtr, *this); // will this compile?
+
+  for (auto & p : systemPtr->particles)
+  {
+    // store increments
+    p.k1        = dx*p.du_dt;
+    p.r1        = dx*p.v;
+    p.ets1      = dx*p.detasigma_dt;
+    p.b1        = dx*p.dBulk_dt;
+    p.shv1      = dx*p.dshv_dt;
+
+    // implement increments with appropriate coefficients
+    p.u         = systemPtr->u0[i]        + 0.5*p.k1;
+    p.r         = systemPtr->r0[i]        + 0.5*p.r1;
+    p.eta_sigma = systemPtr->etasigma0[i] + 0.5*p.ets1;
+    p.Bulk      = systemPtr->Bulk0[i]     + 0.5*p.b1;
+    tmini(p.shv,  systemPtr->shv0[i]      + 0.5*p.shv1);
+  }
+
+  E1           = dx*systemPtr->dEz;
+
+
+  ////////////////////////////////////////////
+  //    second step
+  ////////////////////////////////////////////
+
+  systemPtr->t = t0 + 0.5*dx;
+  eomPtr->BSQshear(systemPtr, *this);
+
+  for (auto & p : systemPtr->particles)
+  {
+    p.k2        = dx*p.du_dt;
+    p.r2        = dx*p.v;
+    p.ets2      = dx*p.detasigma_dt;
+    p.b2        = dx*p.dBulk_dt;
+    p.shv2      = dx*p.dshv_dt;
+
+    p.u         = systemPtr->u0[i]        + 0.5*p.k2;
+    p.r         = systemPtr->r0[i]        + 0.5*p.r2;
+    p.eta_sigma = systemPtr->etasigma0[i] + 0.5*p.ets2;
+    p.Bulk      = systemPtr->Bulk0[i]     + 0.5*p.b2;
+    tmini(p.shv,  systemPtr->shv0[i]      + 0.5*p.shv2);
+  }
+
+  E2           = dx*systemPtr->dEz;
+
+
+  ////////////////////////////////////////////
+  //    third step
+  ////////////////////////////////////////////
+
+  eomPtr->BSQshear(systemPtr, *this);
+
+  for (auto & p : systemPtr->particles)
+  {
+    p.k3        = dx*p.du_dt;
+    p.r3        = dx*p.v;
+    p.ets3      = dx*p.detasigma_dt;
+    p.b3        = dx*p.dBulk_dt;
+    p.shv3      = dx*p.dshv_dt;
+
+
+    p.u         = systemPtr->u0[i]        + p.k3;
+    p.r         = systemPtr->r0[i]        + p.r3;
+    p.eta_sigma = systemPtr->etasigma0[i] + p.ets3;
+    p.Bulk      = systemPtr->Bulk0[i]     + p.b3;
+    tmini(p.shv,  systemPtr->shv0[i]      + p.shv3);
+  }
+
+  E3           = dx*systemPtr->dEz;
+
+  ////////////////////////////////////////////
+  //    fourth step
+  ////////////////////////////////////////////
+
+  systemPtr->t = t0 + dx;
+  eomPtr->BSQshear(systemPtr, *this);
+
+  constexpr double w1 = 1.0/6.0, w2 = 1.0/3.0;
+  for (auto & p : systemPtr->particles)
+  {
+    p.k4        = dx*p.du_dt;
+    p.r4        = dx*p.v;
+    p.ets4      = dx*p.detasigma_dt;
+    p.b4        = dx*p.dBulk_dt;
+    p.shv4      = dx*p.dshv_dt;
+
+    // sum the weighted steps into yf and return the final y values
+    p.u         = systemPtr->u0[i]        + w1*p.k1   + w2*p.k2   + w2*p.k3   + w1*p.k4;
+    p.r         = systemPtr->r0[i]        + w1*p.r1   + w2*p.r2   + w2*p.r3   + w1*p.r4;
+    p.eta_sigma = systemPtr->etasigma0[i] + w1*p.ets1 + w2*p.ets2 + w2*p.ets3 + w1*p.ets4;
+    p.Bulk      = systemPtr->Bulk0[i]     + w1*p.b1   + w2*p.b2   + w2*p.b3   + w1*p.b4;
+    tmini(p.shv,  systemPtr->shv0[i]      + w1*p.shv1 + w2*p.shv2 + w2*p.shv3 + w1*p.shv4);
+  }
+
+  E4            = dx*systemPtr->dEz;
+  systemPtr->Ez = E0 + w1*E1 + w2*E2 + w2*E3 + w1*E4;
+
+
+}

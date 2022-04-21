@@ -1,7 +1,7 @@
 #include "BSQHydro.h"
 #include "settings.h"
 #include "input_output.h"
-#include "runge_kutta.h"
+//#include "runge_kutta.h"
 #include "equations_of_motion.h"
 #include "Stopwatch.h"
 
@@ -17,6 +17,7 @@ BSQHydro::BSQHydro()
 
   // initialize SPH workstation
   ws.set_EquationOfStatePtr( &eos );
+  ws.set_EquationsOfMotionPtr( &eom );
   ws.set_SystemStatePtr( &system );
   ws.set_SettingsPtr( &settings );
   
@@ -143,7 +144,8 @@ void BSQHydro::run()
 
     cout << "Entering here:" << endl;
 
-    RK::bsq_second_order( settings.dt, eom, system, ws );
+    //RK::bsq_second_order( settings.dt, eom, system, ws );
+    ws.advance_timestep( settings.dt, rk_order );
     system.conservation_entropy();
     system.conservation_BSQ();
 

@@ -1,4 +1,4 @@
-OBJS = main.o vector.o matrix.o BSQHydro.o runge_kutta.o particle.o eos.o \
+OBJS = main.o vector.o matrix.o BSQHydro.o particle.o eos.o \
        system_state.o linklist.o equations_of_motion.o eos_delaunay.o \
 			 kernel.o sph_workstation.o input_output.o rootfinder.o eos_table.o \
 			 eos_extension.o
@@ -34,8 +34,8 @@ vector.o: vector.h mathdef.h vector.cpp
 matrix.o: matrix.cpp matrix.h vector.h mathdef.h
 	$(CC) $(CFLAGS) matrix.cpp
 
-runge_kutta.o: runge_kutta.cpp runge_kutta.h equations_of_motion.h system_state.h
-	$(CC) $(CFLAGS) runge_kutta.cpp
+#runge_kutta.o: runge_kutta.cpp runge_kutta.h equations_of_motion.h system_state.h
+#	$(CC) $(CFLAGS) runge_kutta.cpp
 
 system_state.o: system_state.cpp system_state.h
 	$(CC) $(CFLAGS) system_state.cpp

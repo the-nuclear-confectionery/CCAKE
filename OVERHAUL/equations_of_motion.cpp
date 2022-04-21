@@ -16,7 +16,7 @@
 #include "equations_of_motion.h"
 #include "particle.h"
 #include "system_state.h"
-#include "runge_kutta.h"
+//#include "runge_kutta.h"
 #include "eos.h"
 
 using namespace constants;
