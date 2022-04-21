@@ -15,7 +15,6 @@
 
 #include "constants.h"
 #include "eos.h"
-#include "equations_of_motion.h"
 #include "input_output.h"
 #include "system_state.h"
 #include "settings.h"
@@ -58,7 +57,7 @@ private:
   EquationOfState eos;
 
   // equation of motion object
-  EquationsOfMotion eom;
+//  EquationsOfMotion eom;
 
   // input/output
   InputOutput io;

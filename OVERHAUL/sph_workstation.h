@@ -16,7 +16,7 @@ public:
   ~SPHWorkstation(){};
 
   void set_EquationOfStatePtr( EquationOfState * eosPtr_in );
-  void set_EquationsOfMotionPtr( EquationsOfMotion * eomPtr_in );
+//  void set_EquationsOfMotionPtr( EquationsOfMotion * eomPtr_in );
   void set_SystemStatePtr( SystemState * systemPtr_in );
   void set_SettingsPtr( Settings * settingsPtr_in );
 
@@ -51,12 +51,15 @@ public:
     return;
   }
 
+  //MOVE THIS TO ITS OWN CLASS USING TRAVIS' IMPROVEMENTS
+  void BSQshear();
+
 private:
   
   SystemState * systemPtr   = nullptr;
   Settings * settingsPtr    = nullptr;
   EquationOfState * eosPtr  = nullptr;
-  EquationsOfMotion * eomPtr = nullptr;
+//  EquationsOfMotion * eomPtr = nullptr;
 
 
 };

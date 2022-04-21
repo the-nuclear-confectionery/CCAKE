@@ -1,5 +1,5 @@
 OBJS = main.o vector.o matrix.o BSQHydro.o particle.o eos.o \
-       system_state.o linklist.o equations_of_motion.o eos_delaunay.o \
+       system_state.o linklist.o eos_delaunay.o \
 			 kernel.o sph_workstation.o input_output.o rootfinder.o eos_table.o \
 			 eos_extension.o
 #CC = g++
@@ -71,8 +71,8 @@ eos_extension.o: eos_extension.h eos_extension.cpp
 rootfinder.o: rootfinder.h rootfinder.cpp
 	$(CC) $(CFLAGS) rootfinder.cpp
 
-equations_of_motion.o:  vector.h particle.h eos.h equations_of_motion.h
-	$(CC) $(CFLAGS) equations_of_motion.cpp
+#equations_of_motion.o:  vector.h particle.h eos.h equations_of_motion.h
+#	$(CC) $(CFLAGS) equations_of_motion.cpp
 
 eos_delaunay.o: eos_delaunay/eos_delaunay.cpp eos_delaunay/eos_delaunay.h
 	$(CC) $(CFLAGS) $(INCFLAGS) -fpic -c eos_delaunay/eos_delaunay.cpp 

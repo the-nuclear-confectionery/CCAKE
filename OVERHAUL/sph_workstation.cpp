@@ -3,7 +3,6 @@
 
 #include "constants.h"
 #include "eos_conformal_diagonal.h"
-//#include "equations_of_motion.h"
 #include "sph_workstation.h"
 #include "Stopwatch.h"
 
@@ -15,10 +14,10 @@ void SPHWorkstation::set_EquationOfStatePtr( EquationOfState * eosPtr_in )
   eosPtr = eosPtr_in;
 }
 
-void SPHWorkstation::set_EquationsOfMotionPtr( EquationsOfMotion * eomPtr_in )
-{
-  eomPtr = eomPtr_in;
-}
+//void SPHWorkstation::set_EquationsOfMotionPtr( EquationsOfMotion * eomPtr_in )
+//{
+//  eomPtr = eomPtr_in;
+//}
 
 void SPHWorkstation::set_SystemStatePtr( SystemState * systemPtr_in )
 {
@@ -775,4 +774,310 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
   systemPtr->Ez = E0 + w1*E1 + w2*E2 + w2*E3 + w1*E4;
 
 
+}
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+// The structure here is temporary until we set the mode for different terms 
+// which will be shear, bulk, diffusion, and coupling terms, 
+// current equations are only set up for 2+1d.
+void SPHWorkstation::BSQshear()
+{
+  // which particles print extra info for
+  constexpr int ic = -1;
+  bool printAll = false;
+
+
+  // not initial call to setshear(bool is_first_timestep)
+  setshear(false);
+  systemPtr->reset_linklist();
+  /* the above two functions should be called in BSQHydro
+  (although it's not clear setshear needs to exist) */
+
+  for (int i = 0; i < systemPtr->n(); i++)
+  {
+    auto & p = systemPtr->particles[i];
+
+//if ( abs(p.r.x[0]) < 0.000001 && abs(p.r.x[1]) < 0.000001 )
+//  cout << "CHECK CENTER: " << systemPtr->t << "   " << i << "   " << p.T()*hbarc << "   "
+//        << p.eta/p.gamma/systemPtr->t << "   " << p.s() << endl;
+
+    smooth_fields(i);
+
+//if ( abs(p.r.x[0]) < 0.000001 && abs(p.r.x[1]) < 0.000001 )
+//  cout << "CHECK CENTER: " << systemPtr->t << "   " << i << "   " << p.T()*hbarc << "   "
+//        << p.eta/p.gamma/systemPtr->t << "   " << p.s() << endl;
+
+    if ( (p.eta<0) || isnan(p.eta) )
+    {
+      cout << i <<  " has invalid entropy " <<  p.T()*hbarc << " " << p.eta << endl;
+      p.eta = 0;
+      printAll = true;  // turn on verbosity
+    }
+  }
+  /* the above should be called in BSQHydro via something like
+  smooth_all_particle_fields() */
+
+  cout << "Finished first loop over SPH particles" << endl;
+
+  int curfrz = 0;
+  for ( int i = 0; i < systemPtr->n(); i++ )
+  {
+    auto & p = systemPtr->particles[i];
+
+    //  Computes gamma and velocity
+    p.calcbsq( systemPtr->t ); //resets EOS!!
+    /* would be nice to remove the above from eom,
+    need to think about where to put it */
+
+    /*N.B. - eventually extend to read in viscosities from table, etc.*/
+    p.setvisc( systemPtr->etaconst, systemPtr->bvf, systemPtr->svf,
+               systemPtr->zTc,      systemPtr->sTc, systemPtr->zwidth,
+               systemPtr->visc );
+    /* the above is obsolete when including
+     transport_coefficients class */
+
+    if ( systemPtr->cfon == 1 )
+      p.frzcheck( systemPtr->t, curfrz, systemPtr->n() );
+  /* not sure what cfon is but I'm sure it doesn't need to be here */
+
+
+  }
+
+
+  cout << "Finished second loop over SPH particles" << endl;
+
+  if ( systemPtr->cfon == 1 )
+  {
+    systemPtr->number_part += curfrz;
+    systemPtr->list.resize(curfrz);
+  }
+  /* not sure what cfon is but I'm sure it doesn't need to be here */
+
+  int m=0;
+  for ( int i=0; i<systemPtr->n(); i++ )
+  {
+    auto & p = systemPtr->particles[i];
+
+    //Computes gradients to obtain dsigma/dt
+    smooth_gradients( i, systemPtr->t, curfrz );
+
+    p.dsigma_dt = -p.sigma * ( p.gradV.x[0][0] + p.gradV.x[1][1] );
+if (i==ic || printAll)
+cout << "CHECK dsigma_dt: " << i << "   " << systemPtr->t << "   " << p.dsigma_dt << "   " << p.sigma
+		<< "   " << p.gradV << endl;
+
+    p.bsqsvsigset( systemPtr->t, i );
+
+    if ( (p.Freeze==3) && (systemPtr->cfon==1) )
+    {
+      systemPtr->list[m++] = i;
+      p.Freeze         = 4;
+    }
+
+  }
+  /* the above should probably be put into something like
+  smooth_all_particle_gradients() */
+
+  if (systemPtr->rk2==1)
+  systemPtr->bsqsvconservation();
+
+  systemPtr->bsqsvconservation_Ez();
+
+  /* conservation can definitely be called in BSQHydro */
+
+//TRAVIS: ALL OF THE ABOVE SHOULD BE SPLIT OFF INTO DIFFERENT FUNCTIONS
+// AND CALLED IN BSQHYDRO E.G. smooth_gradients, systemPtr->freeze_out_check, etc
+
+  //calculate matrix elements
+  for ( int i=0; i<systemPtr->n(); i++ )
+  {
+    auto & p = systemPtr->particles[i];
+
+    double gamt = 0.0, pre = 0.0, p1 = 0.0;
+    if ( settingsPtr->using_shear )
+    {
+      gamt = 1.0/p.gamma/p.stauRelax;
+      pre  = p.eta_o_tau/p.gamma;
+      p1   = gamt - 4.0/3.0/p.sigma*p.dsigma_dt + 1.0/systemPtr->t/3.0;
+    }
+
+    Vector<double,2> minshv   = rowp1(0, p.shv);
+    Matrix <double,2,2> partU = p.gradU + transpose( p.gradU );
+
+if (i==ic || printAll)
+cout << "CHECK misc1: " << i << "   " << systemPtr->t << "   " << gamt << "   " << p.sigma
+		<< "   " << p.dsigma_dt << endl;
+
+if (i==ic || printAll)
+cout << "CHECK minshv: " << i << "   " << systemPtr->t << "   " << minshv << endl;
+
+if (i==ic || printAll)
+cout << "CHECK partU: " << i << "   " << systemPtr->t << "   " << partU << endl;
+
+
+    // set the Mass and the Force
+    Matrix <double,2,2> M = p.Msub(i);
+    Vector<double,2> F    = p.Btot*p.u + p.gradshear
+                            - ( p.gradP + p.gradBulk + p.divshear );
+/* Might make more sense for M and F to be members of particle? Then the
+further above loop could be done in workstation and M and F could be set
+at the same time... */
+
+if (i==ic || printAll)
+cout << "CHECK M: " << i << "   " << systemPtr->t << "   " << M << endl;
+
+
+
+if (i==ic || printAll)
+cout << "CHECK F: " << i << "   " << systemPtr->t << "   " << F << "   "
+		<< p.Btot << "   " << p.u << "   "
+		<< p.gradshear << "   " << p.gradP << "   "
+		<< p.gradBulk << "   " << p.divshear << endl;
+
+    // shear contribution
+    if ( settingsPtr->using_shear )
+      F += pre*p.v*partU + p1*minshv;
+
+if (i==ic || printAll)
+cout << "CHECK F(again): " << i << "   " << systemPtr->t << "   " << F << "   "
+		<< pre << "   " << p.v << "   " << partU << "   "
+		<< p1 << "   " << minshv << endl;
+
+    double det=deter(M);
+
+
+if (i==ic || printAll)
+cout << "CHECK det: " << i << "   " << systemPtr->t << "   " << M << "   " << det << endl;
+
+
+    Matrix <double,2,2> MI;
+    MI.x[0][0]=M.x[1][1]/det;
+    MI.x[0][1]=-M.x[0][1]/det;
+    MI.x[1][0]=-M.x[1][0]/det;
+    MI.x[1][1]=M.x[0][0]/det;
+  /* This notation is still a bit weird.. but also
+  MI should be a member of particle as well */
+
+if (i==ic || printAll)
+cout << "CHECK MI: " << i << "   " << systemPtr->t << "   " << MI << endl;
+
+
+    p.du_dt.x[0]=F.x[0]*MI.x[0][0]+F.x[1]*MI.x[0][1];
+    p.du_dt.x[1]=F.x[0]*MI.x[1][0]+F.x[1]*MI.x[1][1];
+
+    Matrix <double,2,2> ulpi  = p.u*colp1(0, p.shv);
+
+    double vduk               = inner( p.v, p.du_dt );
+
+    Matrix <double,2,2> Ipi   = -2.0*p.eta_o_tau/3.0 * ( p.Imat + p.uu ) + 4./3.*p.pimin;
+
+    p.div_u                   = (1./ p.gamma)*inner( p.u, p.du_dt)
+                                  - ( p.gamma/ p.sigma ) * p.dsigma_dt;
+
+    p.bigtheta                = p.div_u*systemPtr->t+p.gamma;
+        /* the above lines could automaticlaly be set in particle after 
+        calculating the matrix elements above */
+
+if (i==ic || printAll)
+cout << "CHECK div_u: " << i
+		<< "   " << systemPtr->t
+		<< "   " << p.div_u
+		<< "   " << p.gamma
+		<< "   " << p.u
+		<< "   " << p.du_dt
+		<< "   " << inner( p.u, p.du_dt)
+		<< "   " << p.sigma 
+		<< "   " << p.dsigma_dt << endl;
+if (i==ic || printAll)
+cout << "CHECK bigtheta: " << i
+		<< "   " << systemPtr->t
+		<< "   " << p.bigtheta
+		<< "   " << p.gamma << endl;
+
+    // this term occurs in Eqs. (250) and (251) of Jaki's long notes
+    // translation: pi^{ij} + pi^{00} v^i v^j - pi^{i0} v^j - pi^{0j} v^i
+    Matrix <double,2,2> sub   = p.pimin + (p.shv.x[0][0]/p.g2)*p.uu -1./p.gamma*p.piutot;
+
+    // minshv = pi^{0i}                   (i   = 1,2)
+    // pimin  = pi^{ij}                   (i,j = 1,2)
+    // uu     = u^i u^j                   (i,j = 1,2)
+    // piu    = pi^{0i} u^j               (i,j = 1,2)
+    // piutot = pi^{0i} u^j + pi^{0j} u^i (i,j = 1,2)
+    // gradU  = du_i/dx^j                 (i,j = 1,2)
+
+    if ( settingsPtr->using_shear )
+      p.inside                  = systemPtr->t*(
+                                inner( -minshv+p.shv.x[0][0]*p.v, p.du_dt )
+                                - con2(sub, p.gradU)
+                                - p.gamma*systemPtr->t*p.shv33 );
+
+
+if (i==ic || printAll)
+std::cout << "CHECK inside: " << i << "   "
+			<< systemPtr->t << "   "
+			<< p.inside << "   "
+			<< minshv << ";   "
+			<< p.shv.x[0][0]*p.v << ";   "
+			<< p.du_dt << ";   "
+			<< sub << "   "
+			<< p.gradU << ";   "
+			<< p.gamma*systemPtr->t*p.shv33 << std::endl;
+
+
+
+    p.detasigma_dt            = 1./p.sigma/p.T()*( -p.bigPI*p.bigtheta + p.inside );
+
+
+if (i==ic || printAll)
+std::cout << "CHECK detasigma_dt: " << i << "   "
+			<< systemPtr->t << "   "
+			<< p.detasigma_dt << "   "
+			<< p.sigma << "   "
+			<< p.T()*hbarc_MeVfm << "   "
+			<< p.bigPI << "   "
+			<< p.bigtheta << "   "
+			<< p.inside << std::endl;
+
+
+    // N.B. - ADD EXTRA TERMS FOR BULK EQUATION
+    p.dBulk_dt = ( -p.zeta/p.sigma*p.bigtheta - p.Bulk/p.gamma )/p.tauRelax;
+
+    Matrix <double,2,2> ududt = p.u*p.du_dt;
+
+    // N.B. - ADD READABLE TERM NAMES
+    if ( settingsPtr->using_shear )
+      p.dshv_dt                 = - gamt*( p.pimin + p.setas*partU )
+                               - p.eta_o_tau*( ududt + transpose(ududt) )
+                               + p.dpidtsub() + p.sigl*Ipi
+                               - vduk*( ulpi + transpose(ulpi) + (1/p.gamma)*Ipi );
+
+  }
+
+
+  if (systemPtr->cfon==1)
+    systemPtr->bsqsvfreezeout( curfrz );
+
+
+  // keep track of which particles have left EoS grid completely
+  // (reset list at end of each timestep)
+  systemPtr->particles_out_of_grid.clear();
+  for ( int i = 0; i < systemPtr->n(); i++ )
+    if ( systemPtr->particles[i].Freeze == 5 )
+      systemPtr->particles_out_of_grid.push_back( i );
+
+  std::cout << "Summary at t = " << systemPtr->t << ": "
+        << systemPtr->particles_out_of_grid.size()
+        << " particles have gone out of the EoS grid." << std::endl;
+
+
+  /* Not sure what any of the above does but I'm certain it can be
+  done somehwere else */
+
+
+  return;
 }

@@ -2,7 +2,7 @@
 #include "settings.h"
 #include "input_output.h"
 //#include "runge_kutta.h"
-#include "equations_of_motion.h"
+//#include "equations_of_motion.h"
 #include "Stopwatch.h"
 
 // Constructors and destructors.
@@ -11,13 +11,13 @@ BSQHydro::BSQHydro()
 
   // initialize I/O pointers
   io.set_EquationOfStatePtr( &eos );
-  io.set_EquationsOfMotionPtr( &eom );
+//  io.set_EquationsOfMotionPtr( &eom );
   io.set_SettingsPtr( &settings );
   io.set_SystemStatePtr( &system );
 
   // initialize SPH workstation
   ws.set_EquationOfStatePtr( &eos );
-  ws.set_EquationsOfMotionPtr( &eom );
+//  ws.set_EquationsOfMotionPtr( &eom );
   ws.set_SystemStatePtr( &system );
   ws.set_SettingsPtr( &settings );
   
