@@ -670,8 +670,10 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
   // compute derivatives
   eomPtr->BSQshear(*systemPtr, *this); // will this compile?
 
-  for (auto & p : systemPtr->particles)
+  for (int i = 0; i < (int)particles.size(); i++)
   {
+    auto & p    = systemPtr->particles[i];
+
     // store increments
     p.k1        = dx*p.du_dt;
     p.r1        = dx*p.v;
@@ -697,8 +699,10 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
   systemPtr->t = t0 + 0.5*dx;
   eomPtr->BSQshear(systemPtr, *this);
 
-  for (auto & p : systemPtr->particles)
+  for (int i = 0; i < (int)particles.size(); i++)
   {
+    auto & p    = systemPtr->particles[i];
+
     p.k2        = dx*p.du_dt;
     p.r2        = dx*p.v;
     p.ets2      = dx*p.detasigma_dt;
@@ -721,8 +725,10 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
 
   eomPtr->BSQshear(systemPtr, *this);
 
-  for (auto & p : systemPtr->particles)
+  for (int i = 0; i < (int)particles.size(); i++)
   {
+    auto & p    = systemPtr->particles[i];
+
     p.k3        = dx*p.du_dt;
     p.r3        = dx*p.v;
     p.ets3      = dx*p.detasigma_dt;
@@ -747,8 +753,10 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
   eomPtr->BSQshear(systemPtr, *this);
 
   constexpr double w1 = 1.0/6.0, w2 = 1.0/3.0;
-  for (auto & p : systemPtr->particles)
+  for (int i = 0; i < (int)particles.size(); i++)
   {
+    auto & p    = systemPtr->particles[i];
+
     p.k4        = dx*p.du_dt;
     p.r4        = dx*p.v;
     p.ets4      = dx*p.detasigma_dt;

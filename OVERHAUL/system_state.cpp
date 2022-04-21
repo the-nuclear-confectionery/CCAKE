@@ -355,12 +355,16 @@ void SystemState::set_current_timestep_quantities()
 
   etasigma0.resize(N);
   Bulk0.resize(N);
+
   u0.resize(N);
   r0.resize(N);
+
   shv0.resize(N);
 
-  for (auto & p : particles)
+  for (int i=0; i<N; ++i)
   {
+    auto & p = particles[i];
+
     u0[i]        = p.u;
     r0[i]        = p.r;
     etasigma0[i] = p.eta_sigma;
