@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -409,11 +410,18 @@ bool EquationOfState::rootfinder_update_s(double sin, double Bin, double Sin, do
                                 result );
     }
 
-
-
     // stop iterating through available EoSs when solution found
     if (solution_found)
     {
+
+{
+  const double Nc = 3.0, Nf = 2.5;  // u+d massless, s 'half massless'
+  double c  = pi*pi*(2.0*(Nc*Nc-1.0)+(7.0/2.0)*Nc*Nf)/90.0;
+  std::cout << "CHECK ROOTFINDER: " << setprecision(12)
+            << sin << "   " << result[0]*hc << "   "
+            << pow( sin/(4.0*c), 1.0/3.0 ) << std::endl;
+}
+
       if ( VERBOSE > 2 )
       {
         std::cout << " --> found a solution with "
@@ -514,6 +522,14 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
     // stop iterating through available EoSs when solution found
     if (solution_found)
     {
+{
+  const double Nc = 3.0, Nf = 2.5;  // u+d massless, s 'half massless'
+  double c  = pi*pi*(2.0*(Nc*Nc-1.0)+(7.0/2.0)*Nc*Nf)/90.0;
+  std::cout << "CHECK ROOTFINDER: " << setprecision(12)
+            << ein << "   " << result[0]*hc << "   "
+            << pow( ein/(3.0*c), 0.25 ) << std::endl;
+}
+
       // any time we update the EoS pointer, we need to specify WHICH EoS we are updating!
       if ( VERBOSE > 2 )
         std::cout << " --> found a solution with " << this_eos->name << " EoS!" << std::endl;
