@@ -667,7 +667,8 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
   ////////////////////////////////////////////
 
   // compute derivatives
-  eomPtr->BSQshear(*systemPtr, *this); // will this compile?
+//  eomPtr->BSQshear(systemPtr, *this);
+  BSQshear();
 
   for (int i = 0; i < (int)particles.size(); i++)
   {
@@ -696,7 +697,8 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
   ////////////////////////////////////////////
 
   systemPtr->t = t0 + 0.5*dx;
-  eomPtr->BSQshear(systemPtr, *this);
+//  eomPtr->BSQshear(systemPtr, *this);
+  BSQshear();
 
   for (int i = 0; i < (int)particles.size(); i++)
   {
@@ -722,7 +724,8 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
   //    third step
   ////////////////////////////////////////////
 
-  eomPtr->BSQshear(systemPtr, *this);
+//  eomPtr->BSQshear(systemPtr, *this);
+  BSQshear();
 
   for (int i = 0; i < (int)particles.size(); i++)
   {
@@ -749,7 +752,8 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
   ////////////////////////////////////////////
 
   systemPtr->t = t0 + dx;
-  eomPtr->BSQshear(systemPtr, *this);
+//  eomPtr->BSQshear(systemPtr, *this);
+  BSQshear();
 
   constexpr double w1 = 1.0/6.0, w2 = 1.0/3.0;
   for (int i = 0; i < (int)particles.size(); i++)
