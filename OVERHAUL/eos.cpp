@@ -417,9 +417,9 @@ bool EquationOfState::rootfinder_update_s(double sin, double Bin, double Sin, do
 {
   const double Nc = 3.0, Nf = 2.5;  // u+d massless, s 'half massless'
   double c  = pi*pi*(2.0*(Nc*Nc-1.0)+(7.0/2.0)*Nc*Nf)/90.0;
-  std::cout << "CHECK ROOTFINDER: " << setprecision(12)
+  std::cout << "CHECK ROOTFINDER: " << setprecision(20)
             << sin << "   " << result[0]*hc << "   "
-            << pow( sin/(4.0*c), 1.0/3.0 ) << std::endl;
+            << hc*pow( sin/(4.0*c), 1.0/3.0 ) << std::endl;
 }
 
       if ( VERBOSE > 2 )
@@ -525,9 +525,9 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
 {
   const double Nc = 3.0, Nf = 2.5;  // u+d massless, s 'half massless'
   double c  = pi*pi*(2.0*(Nc*Nc-1.0)+(7.0/2.0)*Nc*Nf)/90.0;
-  std::cout << "CHECK ROOTFINDER: " << setprecision(12)
+  std::cout << "CHECK ROOTFINDER: " << setprecision(20)
             << ein << "   " << result[0]*hc << "   "
-            << pow( ein/(3.0*c), 0.25 ) << std::endl;
+            << hc*pow( ein/(3.0*c), 0.25 ) << std::endl;
 }
 
       // any time we update the EoS pointer, we need to specify WHICH EoS we are updating!
