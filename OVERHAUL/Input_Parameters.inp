@@ -6,10 +6,10 @@ t0:         1.100000
 EoS_Type:   Conformal
 EoS_Option: Default
 eta:        constant
-etaOpt:     0.20
+etaOpt:     0.0
 shearRelax: Default
 zeta:       constant
-zetaOpt:    0.0
+zetaOpt:    0.005
 bulkRelax:  Default
 freezeoutT: 150.000000
 freezeout:  No_Freezeout
