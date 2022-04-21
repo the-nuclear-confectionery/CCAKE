@@ -150,7 +150,7 @@ void BSQHydro::run()
     system.conservation_BSQ();
 
     cout << setw(12) << setprecision(10)
-         << "t=" << system.t << " " << system.Eloss << " " << system.S
+         << "t=" << system.t << " " << system.Eloss << " " << system.E0 << " " << system.Etot << " " << system.S
          << " " << system.Btotal << " " << system.Stotal
          << " " << system.Qtotal <<  endl;
 
