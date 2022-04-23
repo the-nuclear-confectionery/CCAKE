@@ -298,7 +298,7 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 
 
     // test absolute error
-    status = gsl_multiroot_test_residual(solver->f, error);
+//    status = gsl_multiroot_test_residual(solver->f, error);
 
     // test relative error
     //status = gsl_multiroot_test_delta(solver->f, chosen_densities, 1e-15, 1e-15);
@@ -306,12 +306,12 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
     // test convergence of root location
     //status = gsl_multiroot_test_delta(solver->dx, solver->x, 0.0, error);
 
-    // test both conditions at once
-//    if (   gsl_multiroot_test_residual(solver->f, error) == GSL_CONTINUE
-//        || gsl_multiroot_test_delta(solver->dx, solver->x, error, error) == GSL_CONTINUE
+    // test all both conditions at once
+    if (   gsl_multiroot_test_residual(solver->f, error) == GSL_CONTINUE
+        && gsl_multiroot_test_delta(solver->dx, solver->x, error, error) == GSL_CONTINUE
 //        || gsl_multiroot_test_delta(solver->f, chosen_densities, error, error) == GSL_CONTINUE
-//       )
-//      status = GSL_CONTINUE;
+       )
+      status = GSL_CONTINUE;
 
   } while (status == GSL_CONTINUE && iter < steps);
 
