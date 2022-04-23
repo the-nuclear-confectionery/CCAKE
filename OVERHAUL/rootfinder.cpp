@@ -308,8 +308,8 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 
     // test all both conditions at once
     if (   gsl_multiroot_test_residual(solver->f, error) == GSL_CONTINUE
-        || gsl_multiroot_test_delta(solver->dx, solver->x, error, error) == GSL_CONTINUE
-//        || gsl_multiroot_test_delta(solver->f, chosen_densities, error, error) == GSL_CONTINUE
+//        || gsl_multiroot_test_delta(solver->dx, solver->x, error, error) == GSL_CONTINUE
+        || gsl_multiroot_test_delta(solver->f, chosen_densities, error, error) == GSL_CONTINUE
        )
       status = GSL_CONTINUE;
 
