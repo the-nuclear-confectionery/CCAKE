@@ -494,12 +494,12 @@ int main(int argc, char *argv[])
         + muQ0/T0*ChDensVal
         + muS0/T0*StrDensVal;
   {
-    printf("eBSQ: %lf %lf %15.12f %15.12f %15.12f %15.12f\n", x0, y0,
+    printf("eBSQ: %lf %lf %15.12f %15.12f %15.12f %15.12f\n", 0.0, 0.0,
       0.001*EnerDensVal*T0*T0*T0*T0/(197.3*197.3*197.3),
       BarDensVal*T0*T0*T0/(197.3*197.3*197.3),
       StrDensVal*T0*T0*T0/(197.3*197.3*197.3),
       ChDensVal*T0*T0*T0/(197.3*197.3*197.3) );
-    printf("s: %lf %lf %15.12f\n", x0, y0,
+    printf("s: %lf %lf %15.12f\n", 0.0, 0.0,
       EntrVal*T0*T0*T0/(197.3*197.3*197.3));
   }
 
