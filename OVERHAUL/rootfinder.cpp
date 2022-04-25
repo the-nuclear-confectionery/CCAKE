@@ -68,11 +68,11 @@ int rootfinder_f(const gsl_vector *x, void *params, gsl_vector *f)
       // compute densities using passed-in function object
       get_densities( phase_diagram_point, densities_at_point );
 
-cout << "PD point:";
-for (int i = 0; i < 4; i++) cout << "   " << phase_diagram_point[i];
-cout << endl << "Densities:";
-for (int i = 0; i < 4; i++) cout << "   " << densities_at_point[i];
-cout << endl;
+//cout << "PD point:";
+//for (int i = 0; i < 4; i++) cout << "   " << phase_diagram_point[i];
+//cout << endl << "Densities:";
+//for (int i = 0; i < 4; i++) cout << "   " << densities_at_point[i];
+//cout << endl;
 //if (1) exit(1);
 
       // set densities (convert to powers of fm if necessary)
@@ -88,10 +88,10 @@ cout << endl;
     gsl_vector_set(f, 2, (rhoQ   - rhoQGiven));
     gsl_vector_set(f, 3, (rhoS   - rhoSGiven));
 
-cout << "e: " << eorEnt << "   " << eorEntGiven << "   " << eorEnt - eorEntGiven << endl;
-cout << "B: " << rhoB << "   " << rhoBGiven << "   " << rhoB - rhoBGiven << endl;
-cout << "Q: " << rhoQ << "   " << rhoQGiven << "   " << rhoQ - rhoQGiven << endl;
-cout << "S: " << rhoS << "   " << rhoSGiven << "   " << rhoS - rhoSGiven << endl;
+//cout << "e: " << eorEnt << "   " << eorEntGiven << "   " << eorEnt - eorEntGiven << endl;
+//cout << "B: " << rhoB << "   " << rhoBGiven << "   " << rhoB - rhoBGiven << endl;
+//cout << "Q: " << rhoQ << "   " << rhoQGiven << "   " << rhoQ - rhoQGiven << endl;
+//cout << "S: " << rhoS << "   " << rhoSGiven << "   " << rhoS - rhoSGiven << endl;
 //if (1) exit(1);
 
 
@@ -398,7 +398,12 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
         << minT*hbarc_MeVfm   << "   " << maxT*hbarc_MeVfm << "   "
         << minMuB*hbarc_MeVfm << "   " << maxMuB*hbarc_MeVfm << "   "
         << minMuQ*hbarc_MeVfm << "   " << maxMuQ*hbarc_MeVfm << "   "
-        << minMuS*hbarc_MeVfm << "   " << maxMuS*hbarc_MeVfm << std::endl;
+        << minMuS*hbarc_MeVfm << "   " << maxMuS*hbarc_MeVfm
+        << ";   TBQS seed values: "
+        << updated_tbqs[0]*hbarc_MeVfm << "   "
+        << updated_tbqs[1]*hbarc_MeVfm << "   "
+        << updated_tbqs[2]*hbarc_MeVfm << "   "
+        << updated_tbqs[3]*hbarc_MeVfm << std::endl;
 
     tbqsPosition = updated_tbqs;
 
