@@ -136,7 +136,7 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 	cout << "----------------------------------------"
 			"----------------------------------------" << endl;
 
-	if (false)
+	if (true)
 	{
 		cout << "Exiting prematurely from " << __PRETTY_FUNCTION__
 			<< "::" << __LINE__ << "!" << endl;
@@ -554,7 +554,7 @@ void SPHWorkstation::process_initial_conditions()
 
 		// make educated initial guess here for this particle's (T, mu_i) coordinates
 		// (improve this in the future)
-		p.thermo.T        = 50.0/hbarc_MeVfm;	// rootfinder seems to work better going downhill than "uphill"
+		p.thermo.T        = 200.0/hbarc_MeVfm;	// rootfinder seems to work better going downhill than "uphill"
 		p.thermo.muB      = 0.0/hbarc_MeVfm;
 		p.thermo.muS      = 0.0/hbarc_MeVfm;
 		p.thermo.muQ      = 0.0/hbarc_MeVfm;
@@ -580,12 +580,46 @@ void SPHWorkstation::process_initial_conditions()
 
 //if (1) exit(1);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-
 void SPHWorkstation::advance_timestep_rk2( double dt )
 {
   systemPtr->rk2 = 1;
