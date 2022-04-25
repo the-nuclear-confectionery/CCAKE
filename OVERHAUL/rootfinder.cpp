@@ -399,7 +399,7 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
         << minMuB*hbarc_MeVfm << "   " << maxMuB*hbarc_MeVfm << "   "
         << minMuQ*hbarc_MeVfm << "   " << maxMuQ*hbarc_MeVfm << "   "
         << minMuS*hbarc_MeVfm << "   " << maxMuS*hbarc_MeVfm
-        << ";   TBQS seed values: "
+        << "\n" << "TBQS seed values: "
         << updated_tbqs[0]*hbarc_MeVfm << "   "
         << updated_tbqs[1]*hbarc_MeVfm << "   "
         << updated_tbqs[2]*hbarc_MeVfm << "   "

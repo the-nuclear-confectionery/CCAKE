@@ -501,6 +501,14 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
     const double hc = constants::hbarc_MeVfm;
     result = conformal_diagonal_EoS.get_tbqs_seed_from_eBSQ( ein, Bin, Sin, Qin );
 
+    // check if seed is outside grid ranges being passed to rootfinder!
+    /*for ( int i = 0; i < 4; i++ )
+    {
+      if ( result[i] < this_eos->tbqs_minima[i] ) result[i] = this_eos->tbqs_minima[i];
+      else if ( result[i] > this_eos->tbqs_maxima[i] ) result[i] = this_eos->tbqs_maxima[i];
+    }*/
+    result = vector<double>({30.0/hc,200.0/hc,300.0/hc,400.0/hc});
+
     if ( VERBOSE > 2 )
     {
       std::cout << " --> currently trying " << this_eos->name
