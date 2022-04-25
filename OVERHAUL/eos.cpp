@@ -395,6 +395,7 @@ bool EquationOfState::rootfinder_update_s(double sin, double Bin, double Sin, do
     {
       // try twice the grid maxima
       result = conformal_diagonal_EoS.get_tbqs_seed_from_sBSQ( sin, Bin, Sin, Qin );
+    result = vector<double>({1000.0/hc,0.0,0.0,0.0});
       if ( VERBOSE > 2 )
       {
         std::cout << "     - point: "
@@ -424,6 +425,7 @@ bool EquationOfState::rootfinder_update_s(double sin, double Bin, double Sin, do
       //result[0] = max( 1e-3, result[0] ); // ~0.2 MeV
 
       tbqs( result, this_eos ); // set thermodynamics using solution
+if (false)
 {
   const double Nc = 3.0, Nf = 2.5;  // u+d massless, s 'half massless'
   double c  = pi*pi*(2.0*(Nc*Nc-1.0)+(7.0/2.0)*Nc*Nf)/90.0;
@@ -508,7 +510,7 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
       else if ( result[i] > this_eos->tbqs_maxima[i] ) result[i] = this_eos->tbqs_maxima[i];
     }*/
     //result = vector<double>({26.7929/hc,200.0/hc,300.0/hc,400.0/hc});
-    result = vector<double>({250.0/hc,0.0,0.0,0.0});
+    result = vector<double>({1000.0/hc,0.0,0.0,0.0});
 
     if ( VERBOSE > 2 )
     {
@@ -534,6 +536,7 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
         std::cout << " --> found a solution with " << this_eos->name << " EoS!" << std::endl;
       current_eos_name = this_eos->name;
       tbqs( result, this_eos ); // set thermodynamics using solution
+if (false)
 {
   const double Nc = 3.0, Nf = 2.5;  // u+d massless, s 'half massless'
   double c  = pi*pi*(2.0*(Nc*Nc-1.0)+(7.0/2.0)*Nc*Nf)/90.0;
