@@ -454,15 +454,15 @@ int main(int argc, char *argv[])
 	}
 	exit(-1);*/
 
-/*
+///*
 	// add a loop to generate toy initial conditions
 	for (double x0 = -5.0; x0 <= 5.000001; x0 += 0.05)
 	for (double y0 = -5.0; y0 <= 5.000001; y0 += 0.05)
 	{
-		double T0 = 500.0*exp(-0.1*(x0*x0+y0*y0));
+		double T0 = 150.0*exp(-0.1*(x0*x0+y0*y0));
 		//double T0 = 500.0;
-		//double muB0 = 20.0, muQ0 = 30.0, muS0 = 40.0;
-		double muB0 = 0.0, muQ0 = 0.0, muS0 = 0.0;
+		double muB0 = 200.0, muQ0 = 300.0, muS0 = 400.0;
+//		double muB0 = 0.0, muQ0 = 0.0, muS0 = 0.0;
 
 		//Thermodynamics
 		PressVal    = PressTaylor(   T0, muB0, muQ0, muS0 );
@@ -486,7 +486,7 @@ int main(int argc, char *argv[])
 		}
 	}
 	if (1) exit(-1);
-*/
+//*/
 
 	// for HDF arrays
 	long long gridLength = 0;
