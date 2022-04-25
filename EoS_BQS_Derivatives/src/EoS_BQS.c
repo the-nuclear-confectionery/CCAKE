@@ -454,6 +454,60 @@ int main(int argc, char *argv[])
 	}
 	exit(-1);*/
 
+
+//THIS LOOPS TESTS EXISTENCE OF DEGENERATE POINTS IN PHASE DIAGRAM
+///*
+{
+  double T0 = 150.0*exp(-0.1*(4.15*4.15 + 0.05*0.05));
+  double muB0 = 200.0, muQ0 = 300.0, muS0 = 400.0;
+
+  //Thermodynamics
+  PressVal    = PressTaylor(   T0, muB0, muQ0, muS0 );
+  EntrVal     = EntrTaylor(    T0, muB0, muQ0, muS0 );
+  BarDensVal  = BarDensTaylor( T0, muB0, muQ0, muS0 );
+  StrDensVal  = StrDensTaylor( T0, muB0, muQ0, muS0 );
+  ChDensVal   = ChDensTaylor(  T0, muB0, muQ0, muS0 );
+  EnerDensVal = EntrVal - PressVal
+        + muB0/T0*BarDensVal
+        + muQ0/T0*ChDensVal
+        + muS0/T0*StrDensVal;
+  {
+    printf("eBSQ: %lf %lf %15.12f %15.12f %15.12f %15.12f\n", x0, y0,
+      0.001*EnerDensVal*T0*T0*T0*T0/(197.3*197.3*197.3),
+      BarDensVal*T0*T0*T0/(197.3*197.3*197.3),
+      StrDensVal*T0*T0*T0/(197.3*197.3*197.3),
+      ChDensVal*T0*T0*T0/(197.3*197.3*197.3) );
+    printf("s: %lf %lf %15.12f\n", x0, y0,
+      EntrVal*T0*T0*T0/(197.3*197.3*197.3));
+  }
+
+  T0 = 70.814877023; muB0 = -192.17969165; muQ0 = 58.5547109; muS0 = -30.7107003;
+
+  //Thermodynamics
+  PressVal    = PressTaylor(   T0, muB0, muQ0, muS0 );
+  EntrVal     = EntrTaylor(    T0, muB0, muQ0, muS0 );
+  BarDensVal  = BarDensTaylor( T0, muB0, muQ0, muS0 );
+  StrDensVal  = StrDensTaylor( T0, muB0, muQ0, muS0 );
+  ChDensVal   = ChDensTaylor(  T0, muB0, muQ0, muS0 );
+  EnerDensVal = EntrVal - PressVal
+        + muB0/T0*BarDensVal
+        + muQ0/T0*ChDensVal
+        + muS0/T0*StrDensVal;
+  {
+    printf("eBSQ: %lf %lf %15.12f %15.12f %15.12f %15.12f\n", x0, y0,
+      0.001*EnerDensVal*T0*T0*T0*T0/(197.3*197.3*197.3),
+      BarDensVal*T0*T0*T0/(197.3*197.3*197.3),
+      StrDensVal*T0*T0*T0/(197.3*197.3*197.3),
+      ChDensVal*T0*T0*T0/(197.3*197.3*197.3) );
+    printf("s: %lf %lf %15.12f\n", x0, y0,
+      EntrVal*T0*T0*T0/(197.3*197.3*197.3));
+  }
+
+	if (1) exit(-1);
+}
+//*/
+
+
 ///*
 	// add a loop to generate toy initial conditions
 	for (double x0 = -5.0; x0 <= 5.000001; x0 += 0.05)
