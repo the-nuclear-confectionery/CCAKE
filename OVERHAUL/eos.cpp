@@ -507,7 +507,8 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
       if ( result[i] < this_eos->tbqs_minima[i] ) result[i] = this_eos->tbqs_minima[i];
       else if ( result[i] > this_eos->tbqs_maxima[i] ) result[i] = this_eos->tbqs_maxima[i];
     }*/
-    result = vector<double>({26.7929/hc,200.0/hc,300.0/hc,400.0/hc});
+    //result = vector<double>({26.7929/hc,200.0/hc,300.0/hc,400.0/hc});
+    result = vector<double>({result[0],0.0,0.0,0.0});
 
     if ( VERBOSE > 2 )
     {
