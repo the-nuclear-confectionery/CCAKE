@@ -554,10 +554,10 @@ void SPHWorkstation::process_initial_conditions()
 
 		// make educated initial guess here for this particle's (T, mu_i) coordinates
 		// (improve this in the future)
-		p.thermo.T        = 200.0/hbarc_MeVfm;	// rootfinder seems to work better going downhill than "uphill"
-		p.thermo.muB      = 0.0/hbarc_MeVfm;
-		p.thermo.muS      = 0.0/hbarc_MeVfm;
-		p.thermo.muQ      = 0.0/hbarc_MeVfm;
+		p.thermo.T        = 30.0/hbarc_MeVfm;	// rootfinder seems to work better going downhill than "uphill"
+		p.thermo.muB      = 200.0/hbarc_MeVfm;
+		p.thermo.muS      = 400.0/hbarc_MeVfm;
+		p.thermo.muQ      = 300.0/hbarc_MeVfm;
 		p.thermo.eos_name = "default";  // uses whatever the default EoS is
 
 		if ( p.e_sub > systemPtr->efcheck )	// impose freeze-out check for e, not s
