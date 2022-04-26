@@ -193,6 +193,11 @@ private:
 
     ////////////////////////////////////////////////////////////////////////////
     // MISCELLANEOUS PRIVATE ROUTINES
+    bool EquationOfState::find_root_with_seed(
+      const string & e_or_s_mode, double e_or_s_in,
+      double Bin, double Sin, double Qin,
+      pEoS_base this_eos, vector<double> & result );
+
     bool delaunay_update_s(double sin, double Bin, double Sin, double Qin);
     bool rootfinder_update_s(double sin, double Bin, double Sin, double Qin);
     double delaunay_s_out(double ein, double Bin, double Sin, double Qin, bool & solution_found);

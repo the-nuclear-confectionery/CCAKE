@@ -363,17 +363,14 @@ bool EquationOfState::delaunay_update_s(double sin, double Bin, double Sin, doub
   return solution_found;
 }
 
-////////////////////////////////////////////////
-bool EquationOfState::rootfinder_update_s(double sin, double Bin, double Sin, double Qin)
-{
-  bool solution_found = false;
-  vector<double> result;
 
-  // try each EoS in turn
-  for ( const auto & this_eos : chosen_EOSs )
-  {
+////////////////////////////////////////////////
+bool EquationOfState::find_root_with_seed(
+      const string & e_or_s_mode, double e_or_s_in,
+      double Bin, double Sin, double Qin,
+      pEoS_base this_eos, vector<double> & result )
+{
     const double hc = constants::hbarc_MeVfm;
-    result = tbqsPosition;
     if ( VERBOSE > 2 )
     {
       std::cout << " --> currently trying " << this_eos->name
@@ -385,32 +382,53 @@ bool EquationOfState::rootfinder_update_s(double sin, double Bin, double Sin, do
                 << result[2]*hc << "   " << result[3]*hc << std::endl;
     }
 
-    solution_found
-      = rootfinder.find_root( "entropy", sin, Bin, Sin, Qin, this_eos->sBSQ,
-                              this_eos->tbqs_minima, this_eos->tbqs_maxima,
-                              result );
+    return rootfinder.find_root(
+            e_or_s_mode, e_or_s_in, Bin, Sin, Qin,
+            this_eos->sBSQ, this_eos->tbqs_minima, this_eos->tbqs_maxima,
+            result );
+}
 
+
+
+
+
+////////////////////////////////////////////////
+bool EquationOfState::rootfinder_update_s(double sin, double Bin, double Sin, double Qin)
+{
+  bool solution_found = false;
+  vector<double> result;
+
+  //////////////////////////////////////////////////
+  // try each EoS in turn
+  for ( const auto & this_eos : chosen_EOSs )
+  {
+    ////////////////////////////////////////////////
+    // try current location
+    result = tbqsPosition;
+    solution_found = find_root_with_seed( "entropy", sin, Bin, Sin, Qin, this_eos, result );
+
+
+    ////////////////////////////////////////////////
     // if rootfinder fails, try a different seed
     if (!solution_found)
     {
-      // try twice the grid maxima
-      result = conformal_diagonal_EoS.get_tbqs_seed_from_sBSQ( sin, Bin, Sin, Qin );
-    result = vector<double>({1000.0/hc,0.0,0.0,0.0});
-      if ( VERBOSE > 2 )
-      {
-        std::cout << "     - point: "
-                  << sin << "   " << Bin << "   " << Sin << "   " << Qin << std::endl;
-        std::cout << "     - seed: "
-                  << result[0]*hc << "   " << result[1]*hc << "   "
-                  << result[2]*hc << "   " << result[3]*hc << std::endl;
-      }
-
-      solution_found
-        = rootfinder.find_root( "entropy", sin, Bin, Sin, Qin, this_eos->sBSQ,
-                                this_eos->tbqs_minima, this_eos->tbqs_maxima,
-                                result );
+      // try forced seed
+      result = vector<double>({1000.0/hc,0.0,0.0,0.0});
+      solution_found = find_root_with_seed( "entropy", sin, Bin, Sin, Qin, this_eos, result );
     }
 
+
+    ////////////////////////////////////////////////
+    // if rootfinder fails, try another different seed
+    if (!solution_found)
+    {
+      // try conformal diagonal seed
+      result = conformal_diagonal_EoS.get_tbqs_seed_from_sBSQ( sin, Bin, Sin, Qin );
+      solution_found = find_root_with_seed( "entropy", sin, Bin, Sin, Qin, this_eos, result );
+    }
+
+
+    ////////////////////////////////////////////////
     // stop iterating through available EoSs when solution found
     if (solution_found)
     {
@@ -421,18 +439,16 @@ bool EquationOfState::rootfinder_update_s(double sin, double Bin, double Sin, do
       }
       current_eos_name = this_eos->name;
 
-      // truncate T in cells with small density
-      //result[0] = max( 1e-3, result[0] ); // ~0.2 MeV
-
       tbqs( result, this_eos ); // set thermodynamics using solution
-if (false)
-{
-  const double Nc = 3.0, Nf = 2.5;  // u+d massless, s 'half massless'
-  double c  = pi*pi*(2.0*(Nc*Nc-1.0)+(7.0/2.0)*Nc*Nf)/90.0;
-  std::cout << "ROOTFINDER: " << setprecision(16)
-            << sin << "   " << s() << "   " << result[0]*hc << "   "
-            << hc*pow( sin/(4.0*c), 1.0/3.0 ) << std::endl;
-}
+
+//      if (false)
+//      {
+//        const double Nc = 3.0, Nf = 2.5;  // u+d massless, s 'half massless'
+//        double c  = pi*pi*(2.0*(Nc*Nc-1.0)+(7.0/2.0)*Nc*Nf)/90.0;
+//        std::cout << "ROOTFINDER: " << setprecision(16)
+//                  << sin << "   " << s() << "   " << result[0]*hc << "   "
+//                  << hc*pow( sin/(4.0*c), 1.0/3.0 ) << std::endl;
+//      }
       break;
     }
   }
@@ -496,38 +512,28 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
 
   solution_found = false;
 
+  ///////////////////////////////////////////////////////////
   // try each EoS in turn
   for ( const auto & this_eos : chosen_EOSs )
   {
-
-    const double hc = constants::hbarc_MeVfm;
-    result = conformal_diagonal_EoS.get_tbqs_seed_from_eBSQ( ein, Bin, Sin, Qin );
-
-    // check if seed is outside grid ranges being passed to rootfinder!
-    /*for ( int i = 0; i < 4; i++ )
-    {
-      if ( result[i] < this_eos->tbqs_minima[i] ) result[i] = this_eos->tbqs_minima[i];
-      else if ( result[i] > this_eos->tbqs_maxima[i] ) result[i] = this_eos->tbqs_maxima[i];
-    }*/
-    //result = vector<double>({26.7929/hc,200.0/hc,300.0/hc,400.0/hc});
+    /////////////////////////////////////////////////////////
+    // try forced seed first
     result = vector<double>({1000.0/hc,0.0,0.0,0.0});
+    solution_found = find_root_with_seed( "energy", ein, Bin, Sin, Qin,
+                                          this_eos, result );
 
-    if ( VERBOSE > 2 )
+
+    /////////////////////////////////////////////////////////
+    // try conformal diagonal seed next
+    if (!solution_found)
     {
-      std::cout << " --> currently trying " << this_eos->name
-                << " EoS for solution..." << std::endl;
-      std::cout << "     - point: "
-                << ein*hc << "   " << Bin << "   " << Sin << "   " << Qin << std::endl;
-      std::cout << "     - seed: "
-                << result[0]*hc << "   " << result[1]*hc << "   "
-                << result[2]*hc << "   " << result[3]*hc << std::endl;
+      result = conformal_diagonal_EoS.get_tbqs_seed_from_eBSQ( ein, Bin, Sin, Qin );
+      solution_found = find_root_with_seed( "energy", ein, Bin, Sin, Qin,
+                                            this_eos, result );
     }
 
-    solution_found
-      = rootfinder.find_root( "energy", ein, Bin, Sin, Qin, this_eos->eBSQ,
-                              this_eos->tbqs_minima, this_eos->tbqs_maxima,
-                              result );
 
+    /////////////////////////////////////////////////////////
     // stop iterating through available EoSs when solution found
     if (solution_found)
     {
@@ -536,14 +542,14 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
         std::cout << " --> found a solution with " << this_eos->name << " EoS!" << std::endl;
       current_eos_name = this_eos->name;
       tbqs( result, this_eos ); // set thermodynamics using solution
-if (false)
-{
-  const double Nc = 3.0, Nf = 2.5;  // u+d massless, s 'half massless'
-  double c  = pi*pi*(2.0*(Nc*Nc-1.0)+(7.0/2.0)*Nc*Nf)/90.0;
-  std::cout << "ROOTFINDER: " << setprecision(16)
-            << ein << "   " << e() << "   " << result[0]*hc << "   "
-            << hc*pow( ein/(3.0*c), 0.25 ) << std::endl;
-}
+//      if (false)
+//      {
+//        const double Nc = 3.0, Nf = 2.5;  // u+d massless, s 'half massless'
+//        double c  = pi*pi*(2.0*(Nc*Nc-1.0)+(7.0/2.0)*Nc*Nf)/90.0;
+//        std::cout << "ROOTFINDER: " << setprecision(16)
+//                  << ein << "   " << e() << "   " << result[0]*hc << "   "
+//                  << hc*pow( ein/(3.0*c), 0.25 ) << std::endl;
+//      }
 
       break;
     }
