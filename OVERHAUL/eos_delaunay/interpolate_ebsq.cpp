@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
 
 	// set up EoS object
 	initialize("../Coefficients_Parameters.dat");	// this is the C library that must be initialized be using
-	eos_delaunay EoS( path_to_file );
+	eos_delaunay EoS( path_to_file, 0 );  // Delaunay of (e,B,S,Q)
 
 	size_t cellCount = 0;
 

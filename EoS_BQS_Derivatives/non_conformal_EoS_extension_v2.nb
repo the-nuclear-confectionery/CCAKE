@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[     26179,        711]
-NotebookOptionsPosition[     24295,        679]
-NotebookOutlinePosition[     24747,        696]
-CellTagsIndexPosition[     24704,        693]
+NotebookDataLength[     26925,        732]
+NotebookOptionsPosition[     24822,        696]
+NotebookOutlinePosition[     25271,        713]
+CellTagsIndexPosition[     25228,        710]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -675,10 +675,27 @@ Cell[BoxData[
  CellLabel->
   "Out[338]//TraditionalForm=",ExpressionUUID->"d3f6fbc2-7f4b-4420-895e-\
 7278954ee2c8"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"2", "\[Pi]", 
+  RowBox[{"(", 
+   RowBox[{"93", " ", 
+    SuperscriptBox["10", "6"]}], ")"}], "35."}]], "Input",
+ CellChangeTimes->{{3.859981029595898*^9, 3.8599810409062815`*^9}},
+ CellLabel->
+  "In[340]:=",ExpressionUUID->"59895014-fa75-4845-94bc-480b32e310a7"],
+
+Cell[BoxData["2.0451768174869553`*^10"], "Output",
+ CellChangeTimes->{{3.8599810373359413`*^9, 3.859981041055676*^9}},
+ CellLabel->
+  "Out[340]=",ExpressionUUID->"189670b9-ee04-415f-ae61-f3acb74e10bb"]
 }, Open  ]]
 },
-WindowSize->{1101., 537.6},
-WindowMargins->{{15.6, Automatic}, {17.399999999999977`, Automatic}},
+WindowSize->{1060.2, 537.6},
+WindowMargins->{{12, Automatic}, {6.600000000000023, Automatic}},
 Magnification:>1.25 Inherited,
 FrontEndVersion->"12.3 for Microsoft Windows (64-bit) (June 30, 2021)",
 StyleDefinitions->"Default.nb",
@@ -711,7 +728,11 @@ Cell[20594, 573, 735, 19, 56, "Output",ExpressionUUID->"ec97e37d-b5cc-4771-aa5a-
 Cell[21332, 594, 735, 19, 56, "Output",ExpressionUUID->"eebe098a-aa63-44c0-9f7e-d402fb864a23"],
 Cell[22070, 615, 735, 19, 56, "Output",ExpressionUUID->"13891612-d779-47f0-8f32-8f4ce892220f"],
 Cell[22808, 636, 735, 19, 56, "Output",ExpressionUUID->"e146a724-77b2-48c1-8a35-d3288bd3a693"],
-Cell[23546, 657, 733, 19, 76, "Output",ExpressionUUID->"d3f6fbc2-7f4b-4420-895e-7278954ee2c8"]
+Cell[23546, 657, 733, 19, 56, "Output",ExpressionUUID->"d3f6fbc2-7f4b-4420-895e-7278954ee2c8"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[24316, 681, 286, 7, 40, "Input",ExpressionUUID->"59895014-fa75-4845-94bc-480b32e310a7"],
+Cell[24605, 690, 201, 3, 89, "Output",ExpressionUUID->"189670b9-ee04-415f-ae61-f3acb74e10bb"]
 }, Open  ]]
 }
 ]
