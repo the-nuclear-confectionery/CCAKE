@@ -395,6 +395,8 @@ bool EquationOfState::find_root_with_seed(
 ////////////////////////////////////////////////
 bool EquationOfState::rootfinder_update_s(double sin, double Bin, double Sin, double Qin)
 {
+  const double hc = constants::hbarc_MeVfm;
+
   bool solution_found = false;
   vector<double> result;
 
@@ -507,6 +509,8 @@ double EquationOfState::delaunay_s_out( double ein, double Bin, double Sin,
 double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
                                           double Qin, bool & solution_found )
 {
+  const double hc = constants::hbarc_MeVfm;
+
   // used for seed value in rootfinder
   vector<double> result;
 
