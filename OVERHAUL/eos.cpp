@@ -459,6 +459,8 @@ bool EquationOfState::rootfinder_update_s(double sin, double Bin, double Sin, do
   {
     std::cout << "No solution found!" << std::endl;
     std::cerr << "No solution found!" << std::endl;
+    std::cout << "Failed to find a solution for (s,B,S,Q) = "
+              << sin << "   " << Bin << "   " << Sin << "   " << Qin << std::endl;
     exit(101);
   }
 
@@ -563,6 +565,8 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
   {
     std::cout << "No solution found!" << std::endl;
     std::cerr << "No solution found!" << std::endl;
+    std::cout << "Failed to find a solution for (e,B,S,Q) = "
+              << ein << "   " << Bin << "   " << Sin << "   " << Qin << std::endl;
     exit(101);
   }
 

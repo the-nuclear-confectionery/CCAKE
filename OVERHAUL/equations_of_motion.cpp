@@ -75,6 +75,8 @@ void EquationsOfMotion::BSQshear( SystemState & system, SPHWorkstation & ws )
   {
     auto & p = system.particles[i];
 
+    std::cout << "Working on particle #" << i << std::endl;
+
     //  Computes gamma and velocity
     p.calcbsq( system.t ); //resets EOS!!
     /* would be nice to remove the above from eom,
