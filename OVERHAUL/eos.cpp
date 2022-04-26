@@ -258,32 +258,32 @@ double EquationOfState::dwdQ()
 
 double EquationOfState::cs2out(double Tt, const string & eos_name)
 {  //return cs2 given t and mu's=0
-  std::cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << ": "
-            << "using " << eos_name << "!" << std::endl;
+//  std::cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << ": "
+//            << "using " << eos_name << "!" << std::endl;
   tbqs(Tt, 0.0, 0.0, 0.0, eos_name);
   return cs2Val;
 }
 
 double EquationOfState::cs2out(double Tt, double muBin, double muQin, double muSin, const string & eos_name)
 {  //return cs2 given t and mu's
-  std::cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << ": "
-            << "using " << eos_name << "!" << std::endl;
+//  std::cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << ": "
+//            << "using " << eos_name << "!" << std::endl;
   tbqs(Tt, muBin, muQin, muSin, eos_name);
   return cs2Val;
 }
 
 double EquationOfState::wfz(double Tt, const string & eos_name)
 {   // return e + p for tbqs
-  std::cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << ": "
-            << "using " << eos_name << "!" << std::endl;
+//  std::cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << ": "
+//            << "using " << eos_name << "!" << std::endl;
   tbqs(Tt, 0.0, 0.0, 0.0, eos_name);
   return eVal + pVal;
 }
 
 double EquationOfState::wfz(double Tt, double muBin, double muQin, double muSin, const string & eos_name)
 {   // return e + p for tbqs
-  std::cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << ": "
-            << "using " << eos_name << "!" << std::endl;
+//  std::cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << ": "
+//            << "using " << eos_name << "!" << std::endl;
   tbqs(Tt, muBin, muQin, muSin, eos_name);
   return eVal + pVal;
 }
@@ -291,8 +291,8 @@ double EquationOfState::wfz(double Tt, double muBin, double muQin, double muSin,
 
 double EquationOfState::s_terms_T(double Tt, const string & eos_name)
 {
-  std::cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << ": "
-            << "using " << eos_name << "!" << std::endl;
+//  std::cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << ": "
+//            << "using " << eos_name << "!" << std::endl;
   tbqs(Tt, 0, 0, 0, eos_name);
   return entrVal;
 }
@@ -307,10 +307,10 @@ double EquationOfState::A() { return w()-s()*dwds(); }
 // confirm with Jaki
 double EquationOfState::efreeze(double T_freeze_out_at_mu_eq_0, const string & eos_name)
 {
-  std::cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << ": "
-            << "using " << eos_name << "!" << std::endl;
+//  std::cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << ": "
+//            << "using " << eos_name << "!" << std::endl;
   tbqs(T_freeze_out_at_mu_eq_0, 0, 0, 0, eos_name);
-cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
+//cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
   return eVal;
 }
 

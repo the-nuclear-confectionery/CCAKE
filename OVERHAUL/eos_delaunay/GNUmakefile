@@ -7,10 +7,10 @@ RM          =   rm -f
 O           =   .o
 LDFLAGS     =   -L/projects/jnorhos/plumberg/qhull/lib -lqhullcpp -lqhullstatic_r \
 		-L/projects/jnorhos/local/lib -lgsl -lgslcblas -lm \
-		-L`realpath ../lib` -lbsqeos
+		-L`realpath ../../EoS_BQS_Derivatives/lib` -lbsqeos
 INCFLAGS    =   -I/projects/jnorhos/plumberg/qhull/src \
 		-I/projects/jnorhos/local/include \
-		-I`realpath ../lib`
+		-I`realpath ../../EoS_BQS_Derivatives/lib`
 SYSTEMFILES =   $(SRCGNU)
 OBJS	    =	eos_delaunay.o interpolate_ebsq.o delaunay.o point_in_simplex.o
 
