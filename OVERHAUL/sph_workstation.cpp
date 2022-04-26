@@ -634,7 +634,6 @@ void SPHWorkstation::advance_timestep_rk2( double dt )
   ////////////////////////////////////////////
 
   // compute derivatives
-//  eomPtr->BSQshear(systemPtr, *this);
   BSQshear();
 
   // update quantities
@@ -642,6 +641,11 @@ void SPHWorkstation::advance_timestep_rk2( double dt )
     for (int i = 0; i < (int)systemPtr->particles.size(); i++)
     {
       auto & p    = systemPtr->particles[i];
+
+      // regulate detasigma_dt to keep it from going negative
+      //if ( systemPtr->etasigma0[i] + 0.5*dt*p.detasigma_dt < 0.0 )
+      //  p.detasigma_dt = 0.0;
+//      else if ( 0.5*dt*p.detasigma_dt > 10.0*systemPtr->etasigma0[i]
 
       p.r = systemPtr->r0[i] + 0.5*dt*p.v;
       if ( p.Freeze < 5 )
@@ -662,7 +666,6 @@ void SPHWorkstation::advance_timestep_rk2( double dt )
   ////////////////////////////////////////////
 
   // compute derivatives
-//  eomPtr->BSQshear(systemPtr, *this);
   BSQshear();
 
   // update quantities
