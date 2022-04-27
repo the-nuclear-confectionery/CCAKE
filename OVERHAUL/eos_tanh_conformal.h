@@ -16,7 +16,7 @@ private:
 
   double t_factor, tp_factor, tpp_factor;
 
-  inline double pow2( double x ) { return x*x };
+  inline double pow2( double x ) { return x*x; }
 
   void set_hyp( double T )
   {
