@@ -269,7 +269,8 @@ void SPHWorkstation::smooth_fields(int a, bool init_mode /*== false*/)
 
       //if (kern>0.0) neighbor_count++;
       //if (abs(pa.r.x[0])<0.000001 && abs(pa.r.x[1])<0.000001)
-      if ( isnan( pa.eta ) || pa.eta < 0 || a == 9457 )
+
+      if ( isnan( pa.eta ) || pa.eta < 0 || settingsPtr->print_particle(a) )
         std::cout << __FUNCTION__ << "(SPH particle == " << a << "): "
         << systemPtr->t << "   "
         << b << "   " << pa.r
@@ -370,14 +371,15 @@ void SPHWorkstation::smooth_gradients( int a, double tin, int & count )
 
       pa.gradP                += ( sigsqrb*pb.p() + sigsqra*pa.p() ) * sigsigK;
 
-//      if (abs(pa.r.x[0])<0.000001 && abs(pa.r.x[1])<0.000001)
-//if (a==310||a==3000)
-//  cout << "CHECK grads: " << tin << "   " << a << "   " << b << "   " << sigsqra << "   " << sigsqrb
-//        << "   " << pa.p() << "   " << pb.p()
-//        << "   " << pa.get_current_eos_name()
-//        << "   " << pb.get_current_eos_name()
-//        << "   " << gradK << "   " << sigsigK
-//        << "   " << pa.sigma << endl;
+if (settingsPtr->print_particle(a))
+  cout << "CHECK grads: " << tin << "   "
+        << gradP << "   " << a << "   " << b << "   "
+        << sigsqra << "   " << sigsqrb
+        << "   " << pa.p() << "   " << pb.p()
+        << "   " << pa.get_current_eos_name()
+        << "   " << pb.get_current_eos_name()
+        << "   " << gradK << "   " << sigsigK
+        << "   " << pa.sigma << endl;
 
       if ( ( ( Norm( pa.r - pb.r ) / settingsPtr->_h ) <= 2 ) && ( a != b ) )
       {
@@ -394,13 +396,14 @@ void SPHWorkstation::smooth_gradients( int a, double tin, int & count )
       //pa.gradrhoQ             += ( pb.rhoQ/pb.sigma/pb.gamma
       //                            + pa.rhoQ/pa.sigma/pa.gamma)/tin*sigsigK;
       pa.gradV                += (pb.sigmaweight/pa.sigma)*( pb.v -  pa.v )*gradK;
-if (a==9457||a==11868||a==12075)
+if (settingsPtr->print_particle(a))
 {
 cout << "CHECK gradV: " << a << "   " << tin << "   " << pa.sigma << "   " << pa.v
 		<< "   " << gradK << "   " << pa.get_current_eos_name()
     << "   " << pb.get_current_eos_name()
     << "   " << b << "   " << pb.sigmaweight << "   " << pb.v
-		<< "   " << pb.v -  pa.v << "   " << pa.Bulk << "   " << pb.Bulk << "   " << sigsigK << endl;
+		<< "   " << pb.v -  pa.v << "   " << pa.Bulk << "   " << pb.Bulk << "   "
+    << sigsigK << endl;
 }
 
       if ( settingsPtr->using_shear )
@@ -432,14 +435,16 @@ cout << "CHECK gradV: " << a << "   " << tin << "   " << pa.sigma << "   " << pa
     }
   }
 
+  const double hc = constants::hbarc_MeVfm;
+
   if ( ( pa.btrack == 1 )
-        && ( ( pa.T()*197.3 ) >= 150 ) )
+        && ( ( pa.T()*hc ) >= 150 ) )
     pa.frz2.t=tin;
   else if ( ( pa.btrack == 0 )
-            && ( ( pa.T()*197.3 ) >= 150 )
+            && ( ( pa.T()*hc ) >= 150 )
             && ( pa.Freeze < 4 ) )
     cout << "Missed " << a << " " << tin << "  "
-         << pa.T()*197.3 << " "
+         << pa.T()*hc << " "
          << rdis << " " << systemPtr->cfon <<  endl;
 
   return;
@@ -642,11 +647,6 @@ void SPHWorkstation::advance_timestep_rk2( double dt )
     {
       auto & p    = systemPtr->particles[i];
 
-      // regulate detasigma_dt to keep it from going negative
-      //if ( systemPtr->etasigma0[i] + 0.5*dt*p.detasigma_dt < 0.0 )
-      //  p.detasigma_dt = 0.0;
-//      else if ( 0.5*dt*p.detasigma_dt > 10.0*systemPtr->etasigma0[i]
-
       p.r = systemPtr->r0[i] + 0.5*dt*p.v;
       if ( p.Freeze < 5 )
       {
@@ -835,7 +835,7 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
 void SPHWorkstation::BSQshear()
 {
   // which particles print extra info for
-  constexpr int ic = -1;
+  //constexpr int ic = -1;
   bool printAll = false;
 
 
@@ -862,7 +862,8 @@ void SPHWorkstation::BSQshear()
     if ( (p.eta<0) || isnan(p.eta) )
     {
       cout << i <<  " has invalid entropy " <<  p.T()*hbarc << " " << p.eta << endl;
-      p.eta = 0;
+      //p.eta = 0;
+      p.eta = TOLERANCE;
       printAll = true;  // turn on verbosity
     }
   }
@@ -916,7 +917,8 @@ void SPHWorkstation::BSQshear()
     smooth_gradients( i, systemPtr->t, curfrz );
 
     p.dsigma_dt = -p.sigma * ( p.gradV.x[0][0] + p.gradV.x[1][1] );
-if (i==ic || printAll)
+//if (i==ic || printAll)
+if ( settingsPtr->print_particle(i) || printAll )
 cout << "CHECK dsigma_dt: " << i << "   " << systemPtr->t << "   " << p.dsigma_dt << "   " << p.sigma
 		<< "   " << p.gradV << endl;
 
@@ -958,14 +960,17 @@ cout << "CHECK dsigma_dt: " << i << "   " << systemPtr->t << "   " << p.dsigma_d
     Vector<double,2> minshv   = rowp1(0, p.shv);
     Matrix <double,2,2> partU = p.gradU + transpose( p.gradU );
 
-if (i==ic || printAll)
+//if (i==ic || printAll)
+if ( settingsPtr->print_particle(i) || printAll )
 cout << "CHECK misc1: " << i << "   " << systemPtr->t << "   " << gamt << "   " << p.sigma
 		<< "   " << p.dsigma_dt << endl;
 
-if (i==ic || printAll)
+//if (i==ic || printAll)
+if ( settingsPtr->print_particle(i) || printAll )
 cout << "CHECK minshv: " << i << "   " << systemPtr->t << "   " << minshv << endl;
 
-if (i==ic || printAll)
+//if (i==ic || printAll)
+if ( settingsPtr->print_particle(i) || printAll )
 cout << "CHECK partU: " << i << "   " << systemPtr->t << "   " << partU << endl;
 
 
@@ -977,12 +982,14 @@ cout << "CHECK partU: " << i << "   " << systemPtr->t << "   " << partU << endl;
 further above loop could be done in workstation and M and F could be set
 at the same time... */
 
-if (i==ic || printAll)
+//if (i==ic || printAll)
+if ( settingsPtr->print_particle(i) || printAll )
 cout << "CHECK M: " << i << "   " << systemPtr->t << "   " << M << endl;
 
 
 
-if (i==ic || printAll)
+//if (i==ic || printAll)
+if ( settingsPtr->print_particle(i) || printAll )
 cout << "CHECK F: " << i << "   " << systemPtr->t << "   " << F << "   "
 		<< p.Btot << "   " << p.u << "   "
 		<< p.gradshear << "   " << p.gradP << "   "
@@ -992,7 +999,8 @@ cout << "CHECK F: " << i << "   " << systemPtr->t << "   " << F << "   "
     if ( settingsPtr->using_shear )
       F += pre*p.v*partU + p1*minshv;
 
-if (i==ic || printAll)
+//if (i==ic || printAll)
+if ( settingsPtr->print_particle(i) || printAll )
 cout << "CHECK F(again): " << i << "   " << systemPtr->t << "   " << F << "   "
 		<< pre << "   " << p.v << "   " << partU << "   "
 		<< p1 << "   " << minshv << endl;
@@ -1000,7 +1008,8 @@ cout << "CHECK F(again): " << i << "   " << systemPtr->t << "   " << F << "   "
     double det=deter(M);
 
 
-if (i==ic || printAll)
+//if (i==ic || printAll)
+if ( settingsPtr->print_particle(i) || printAll )
 cout << "CHECK det: " << i << "   " << systemPtr->t << "   " << M << "   " << det << endl;
 
 
@@ -1012,7 +1021,8 @@ cout << "CHECK det: " << i << "   " << systemPtr->t << "   " << M << "   " << de
   /* This notation is still a bit weird.. but also
   MI should be a member of particle as well */
 
-if (i==ic || printAll)
+//if (i==ic || printAll)
+if ( settingsPtr->print_particle(i) || printAll )
 cout << "CHECK MI: " << i << "   " << systemPtr->t << "   " << MI << endl;
 
 
@@ -1032,7 +1042,8 @@ cout << "CHECK MI: " << i << "   " << systemPtr->t << "   " << MI << endl;
         /* the above lines could automaticlaly be set in particle after 
         calculating the matrix elements above */
 
-if (i==ic || printAll)
+//if (i==ic || printAll)
+if ( settingsPtr->print_particle(i) || printAll )
 cout << "CHECK div_u: " << i
 		<< "   " << systemPtr->t
 		<< "   " << p.div_u
@@ -1042,7 +1053,8 @@ cout << "CHECK div_u: " << i
 		<< "   " << inner( p.u, p.du_dt)
 		<< "   " << p.sigma 
 		<< "   " << p.dsigma_dt << endl;
-if (i==ic || printAll)
+//if (i==ic || printAll)
+if ( settingsPtr->print_particle(i) || printAll )
 cout << "CHECK bigtheta: " << i
 		<< "   " << systemPtr->t
 		<< "   " << p.bigtheta
@@ -1066,7 +1078,8 @@ cout << "CHECK bigtheta: " << i
                                 - p.gamma*systemPtr->t*p.shv33 );
 
 
-if (i==ic || printAll)
+//if (i==ic || printAll)
+if ( settingsPtr->print_particle(i) || printAll )
 std::cout << "CHECK inside: " << i << "   "
 			<< systemPtr->t << "   "
 			<< p.inside << "   "
@@ -1079,10 +1092,17 @@ std::cout << "CHECK inside: " << i << "   "
 
 
 
+      // regulate detasigma_dt to keep it from going negative
+      //if ( systemPtr->etasigma0[i] + 0.5*dt*p.detasigma_dt < 0.0 )
+      //  p.detasigma_dt = 0.0;
+//      else if ( 0.5*dt*p.detasigma_dt > 10.0*systemPtr->etasigma0[i]
+
+
     p.detasigma_dt            = 1./p.sigma/p.T()*( -p.bigPI*p.bigtheta + p.inside );
 
 
-if (i==ic || printAll)
+//if (i==ic || printAll)
+if ( settingsPtr->print_particle(i) || printAll )
 std::cout << "CHECK detasigma_dt: " << i << "   "
 			<< systemPtr->t << "   "
 			<< p.detasigma_dt << "   "

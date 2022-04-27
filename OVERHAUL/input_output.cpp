@@ -136,6 +136,16 @@ void InputOutput::load_settings_file( string path_to_settings_file )
     infile.close();
   }
 
+
+
+  // set particles to print
+  settingsPtr->particles_to_print
+    = vector<int>({9457,11868,12057});
+
+
+
+
+
   return;
 }
 

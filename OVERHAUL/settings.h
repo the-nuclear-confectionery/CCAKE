@@ -1,6 +1,7 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
+#include <algorithm>
 #include <string>
 
 using std::string;
@@ -100,6 +101,9 @@ public:
 /********************************************************************************/
 
 
+  // allows for explicitly printing tons of information about specific particles
+  vector<int> particles_to_print;
+
 
   // make sure that all chosen settings make reasonable sense
   void check_consistency()
@@ -107,6 +111,12 @@ public:
     // put any necessary consistency checks here
 
     return;
+  }
+
+  inline bool print_particle( int i )
+  {
+    return std::binary_search( particles_to_print.begin(),
+                               particles_to_print.end(), i );
   }
 
 };

@@ -96,16 +96,20 @@ bool EquationOfState::point_not_in_range(
 
 void EquationOfState::tbqs( double setT, double setmuB, double setmuQ, double setmuS,
                             const string & eos_name )
-      { if ( eos_name == "default" )
-          tbqs( setT, setmuB, setmuQ, setmuS, chosen_EOS_map[default_eos_name] );
-        else
-          tbqs( setT, setmuB, setmuQ, setmuS, chosen_EOS_map[eos_name] ); }
+{
+  if ( eos_name == "default" )
+    tbqs( setT, setmuB, setmuQ, setmuS, chosen_EOS_map[default_eos_name] );
+  else
+    tbqs( setT, setmuB, setmuQ, setmuS, chosen_EOS_map[eos_name] );
+}
 
 void EquationOfState::tbqs( vector<double> & tbqsIn, const string & eos_name )
-      { if ( eos_name == "default" )
-          tbqs( tbqsIn, chosen_EOS_map[default_eos_name] );
-        else
-          tbqs( tbqsIn, chosen_EOS_map[eos_name] ); }
+{
+  if ( eos_name == "default" )
+    tbqs( tbqsIn, chosen_EOS_map[default_eos_name] );
+  else
+    tbqs( tbqsIn, chosen_EOS_map[eos_name] );
+}
 
 
 
@@ -113,7 +117,10 @@ void EquationOfState::tbqs( vector<double> & tbqsIn, const string & eos_name )
 void EquationOfState::tbqs( double setT, double setmuB, double setmuQ,
                             double setmuS, pEoS_base peos )
 {
-//cout << __PRETTY_FUNCTION__ << ": " << peos->name << endl;
+  // set name of current EoS
+  current_eos_name = peos->name;
+
+  // check if proposed point is in range
   bool point_is_in_range = !point_not_in_range( setT, setmuB, setmuQ, setmuS, peos );
   if ( point_is_in_range )
   {
@@ -122,7 +129,7 @@ void EquationOfState::tbqs( double setT, double setmuB, double setmuQ,
     tbqsPosition[2] = setmuQ;
     tbqsPosition[3] = setmuS;
 
-    // if we are in range, compute all thermodynamic quantities at the new point
+    // if we are in range, compute all thermodynamic quantities at this point
     evaluate_thermodynamics( peos );
   }
   else
@@ -398,12 +405,23 @@ bool EquationOfState::rootfinder_update_s(double sin, double Bin, double Sin, do
   const double hc = constants::hbarc_MeVfm;
 
   bool solution_found = false;
+  bool skipping_EoSs = true;  // start out skipping EoSs by default
   vector<double> result;
 
   //////////////////////////////////////////////////
   // try each EoS in turn
   for ( const auto & this_eos : chosen_EOSs )
   {
+    ////////////////////////////////////////////////
+    // skip EoSs where the particle has previously failed to find a solution
+    if ( skip_failed_EoS && skipping_EoSs )
+    {
+      if ( this_eos->name != current_eos_name )
+        continue;
+      else
+        skipping_EoSs = false;  //stop skipping at this point
+    }
+
     ////////////////////////////////////////////////
     // try current location
     result = tbqsPosition;
@@ -439,7 +457,7 @@ bool EquationOfState::rootfinder_update_s(double sin, double Bin, double Sin, do
         std::cout << " --> found a solution with "
                   << this_eos->name << " EoS!" << std::endl;
       }
-      current_eos_name = this_eos->name;
+      //current_eos_name = this_eos->name;
 
       tbqs( result, this_eos ); // set thermodynamics using solution
 
@@ -515,13 +533,13 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
 
   // used for seed value in rootfinder
   vector<double> result;
-
   solution_found = false;
 
   ///////////////////////////////////////////////////////////
   // try each EoS in turn
   for ( const auto & this_eos : chosen_EOSs )
   {
+
     /////////////////////////////////////////////////////////
     // try forced seed first
     result = vector<double>({1000.0/hc,0.0,0.0,0.0});
@@ -546,7 +564,7 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
       // any time we update the EoS pointer, we need to specify WHICH EoS we are updating!
       if ( VERBOSE > 2 )
         std::cout << " --> found a solution with " << this_eos->name << " EoS!" << std::endl;
-      current_eos_name = this_eos->name;
+      //current_eos_name = this_eos->name;
       tbqs( result, this_eos ); // set thermodynamics using solution
 //      if (false)
 //      {
