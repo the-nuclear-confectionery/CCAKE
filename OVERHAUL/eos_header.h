@@ -9,7 +9,7 @@ static constexpr bool use_static_C_library                = true;
 //static constexpr bool use_conformal_as_fallback           = true;
 static constexpr bool use_nonconformal_extension          = false;
 
-static constexpr int VERBOSE = 0;
+static constexpr int VERBOSE = 3;
 static constexpr double TINY = 1e-25;
 static constexpr double TBQS_INFINITY = 1e10;  // indefinitely large limits for EoS
 
