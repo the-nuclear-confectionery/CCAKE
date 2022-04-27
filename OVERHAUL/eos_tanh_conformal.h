@@ -17,11 +17,12 @@ private:
   double t_factor, tp_factor, tpp_factor;
 
   inline double pow2( double x ) { return x*x; }
+  inline double sech( double x ) { return 1.0/cosh(x); }
 
   void set_hyp( double T )
   {
     t_factor   = std::tanh( (T-Tc)/Ts );
-    tp_factor  = pow2( std::sech( (T-Tc)/Ts ) )/Ts;
+    tp_factor  = pow2( sech( (T-Tc)/Ts ) )/Ts;
     tpp_factor = -2.0*t_factor*tp_factor/Ts;
   }
 
