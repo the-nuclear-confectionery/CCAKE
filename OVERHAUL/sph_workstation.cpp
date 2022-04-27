@@ -269,7 +269,7 @@ void SPHWorkstation::smooth_fields(int a, bool init_mode /*== false*/)
 
       //if (kern>0.0) neighbor_count++;
       //if (abs(pa.r.x[0])<0.000001 && abs(pa.r.x[1])<0.000001)
-      if ( isnan( pa.eta ) || pa.eta < 0 )
+      if ( isnan( pa.eta ) || pa.eta < 0 || a == 9457 )
         std::cout << __FUNCTION__ << "(SPH particle == " << a << "): "
         << systemPtr->t << "   "
         << b << "   " << pa.r

@@ -34,7 +34,7 @@ void EquationsOfMotion::set_SettingsPtr(Settings * settingsPtr_in)
 void EquationsOfMotion::BSQshear( SystemState & system, SPHWorkstation & ws )
 {
   // which particles print extra info for
-  constexpr int ic = -1;
+  constexpr int ic = 9457;
   bool printAll = false;
 
 
