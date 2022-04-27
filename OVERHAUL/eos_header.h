@@ -9,7 +9,7 @@ static constexpr bool use_static_C_library                = true;
 //static constexpr bool use_conformal_as_fallback           = true;
 static constexpr bool use_nonconformal_extension          = false;
 static constexpr bool use_tanh_conformal                  = false;
-static constexpr bool skip_failed_EoS                     = false;
+static constexpr bool skip_failed_EoS                     = true;
 
 static constexpr int VERBOSE = 3;
 static constexpr double TINY = 1e-25;
