@@ -654,6 +654,12 @@ void SPHWorkstation::advance_timestep_rk2( double dt )
         p.eta_sigma    = systemPtr->etasigma0[i] + 0.5*dt*p.detasigma_dt;
         p.Bulk         = systemPtr->Bulk0[i]     + 0.5*dt*p.dBulk_dt;
         tmini( p.shv,    systemPtr->shv0[i]      + 0.5*dt*p.dshv_dt );
+
+        // regulate updated results if necessary
+        if ( REGULATE_LOW_T && p.eta_sigma < 0.0
+              && p.T() < 50.0/constants::hbarc_MeVfm )
+          p.eta_sigma    = systemPtr->etasigma0[i];
+        //if ( 0.5*dt*p.detasigma_dt > 10.0*systemPtr->etasigma0[i]
       }
     }
   }
@@ -681,6 +687,12 @@ void SPHWorkstation::advance_timestep_rk2( double dt )
         p.eta_sigma    = systemPtr->etasigma0[i] + dt*p.detasigma_dt;
         p.Bulk         = systemPtr->Bulk0[i]     + dt*p.dBulk_dt;
         tmini( p.shv,    systemPtr->shv0[i]      + dt*p.dshv_dt );
+
+        // regulate updated results if necessary
+        if ( REGULATE_LOW_T && p.eta_sigma < 0.0
+              && p.T() < 50.0/constants::hbarc_MeVfm )
+          p.eta_sigma    = systemPtr->etasigma0[i];
+        //if ( 0.5*dt*p.detasigma_dt > 10.0*systemPtr->etasigma0[i]
       }
     }
   }
@@ -710,7 +722,6 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
   ////////////////////////////////////////////
 
   // compute derivatives
-//  eomPtr->BSQshear(systemPtr, *this);
   BSQshear();
 
   for (int i = 0; i < (int)systemPtr->particles.size(); i++)
@@ -730,6 +741,11 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
     p.eta_sigma = systemPtr->etasigma0[i] + 0.5*p.ets1;
     p.Bulk      = systemPtr->Bulk0[i]     + 0.5*p.b1;
     tmini(p.shv,  systemPtr->shv0[i]      + 0.5*p.shv1);
+
+    // regulate updated results if necessary
+    if ( REGULATE_LOW_T && p.eta_sigma < 0.0
+          && p.T() < 50.0/constants::hbarc_MeVfm )
+      p.eta_sigma    = systemPtr->etasigma0[i];
   }
 
   E1           = dt*systemPtr->dEz;
@@ -740,7 +756,6 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
   ////////////////////////////////////////////
 
   systemPtr->t = t0 + 0.5*dt;
-//  eomPtr->BSQshear(systemPtr, *this);
   BSQshear();
 
   for (int i = 0; i < (int)systemPtr->particles.size(); i++)
@@ -758,6 +773,11 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
     p.eta_sigma = systemPtr->etasigma0[i] + 0.5*p.ets2;
     p.Bulk      = systemPtr->Bulk0[i]     + 0.5*p.b2;
     tmini(p.shv,  systemPtr->shv0[i]      + 0.5*p.shv2);
+
+    // regulate updated results if necessary
+    if ( REGULATE_LOW_T && p.eta_sigma < 0.0
+          && p.T() < 50.0/constants::hbarc_MeVfm )
+      p.eta_sigma    = systemPtr->etasigma0[i];
   }
 
   E2           = dt*systemPtr->dEz;
@@ -767,7 +787,6 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
   //    third step
   ////////////////////////////////////////////
 
-//  eomPtr->BSQshear(systemPtr, *this);
   BSQshear();
 
   for (int i = 0; i < (int)systemPtr->particles.size(); i++)
@@ -786,6 +805,11 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
     p.eta_sigma = systemPtr->etasigma0[i] + p.ets3;
     p.Bulk      = systemPtr->Bulk0[i]     + p.b3;
     tmini(p.shv,  systemPtr->shv0[i]      + p.shv3);
+
+    // regulate updated results if necessary
+    if ( REGULATE_LOW_T && p.eta_sigma < 0.0
+          && p.T() < 50.0/constants::hbarc_MeVfm )
+      p.eta_sigma    = systemPtr->etasigma0[i];
   }
 
   E3           = dt*systemPtr->dEz;
@@ -795,7 +819,6 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
   ////////////////////////////////////////////
 
   systemPtr->t = t0 + dt;
-//  eomPtr->BSQshear(systemPtr, *this);
   BSQshear();
 
   constexpr double w1 = 1.0/6.0, w2 = 1.0/3.0;
@@ -815,6 +838,11 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
     p.eta_sigma = systemPtr->etasigma0[i] + w1*p.ets1 + w2*p.ets2 + w2*p.ets3 + w1*p.ets4;
     p.Bulk      = systemPtr->Bulk0[i]     + w1*p.b1   + w2*p.b2   + w2*p.b3   + w1*p.b4;
     tmini(p.shv,  systemPtr->shv0[i]      + w1*p.shv1 + w2*p.shv2 + w2*p.shv3 + w1*p.shv4);
+
+    // regulate updated results if necessary
+    if ( REGULATE_LOW_T && p.eta_sigma < 0.0
+          && p.T() < 50.0/constants::hbarc_MeVfm )
+      p.eta_sigma    = systemPtr->etasigma0[i];
   }
 
   E4            = dt*systemPtr->dEz;
@@ -1090,13 +1118,7 @@ std::cout << "CHECK inside: " << i << "   "
 			<< p.gradU << ";   "
 			<< p.gamma*systemPtr->t*p.shv33 << std::endl;
 
-
-
-      // regulate detasigma_dt to keep it from going negative
-      //if ( systemPtr->etasigma0[i] + 0.5*dt*p.detasigma_dt < 0.0 )
-      //  p.detasigma_dt = 0.0;
-//      else if ( 0.5*dt*p.detasigma_dt > 10.0*systemPtr->etasigma0[i]
-
+ 
 
     p.detasigma_dt            = 1./p.sigma/p.T()*( -p.bigPI*p.bigtheta + p.inside );
 

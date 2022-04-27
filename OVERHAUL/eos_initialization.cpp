@@ -17,6 +17,7 @@
 #include "eos_header.h"
 #include "eos_nonconformal_extension.h"
 #include "eos_table.h"
+#include "eos_tanh_conformal.h"
 #include "eos_delaunay/eos_delaunay.h"
 #include "rootfinder.h"
 
@@ -45,8 +46,9 @@ void EquationOfState::init(string quantityFile, string derivFile)
 {
 	tbqsPosition.resize(4);
 
-  //////////////////////////////////////////////////////////////////////////////
+  //============================================================================
   // THIS IF-CHAIN INITIALIZES THE DEFAULT EOS TO USE
+  //============================================================================
   if ( settingsPtr->EoS_type == "Conformal" )
   {
     std::cout << "Setting up equation of state for Gubser checks" << std::endl;
@@ -70,16 +72,17 @@ void EquationOfState::init(string quantityFile, string derivFile)
     chosen_EOSs.push_back( std::make_shared<EoS_table>( quantityFile, derivFile ) );
     default_eos_name = "table";
   }
-  //////////////////////////////////////////////////////////////////////////////
+  //============================================================================
+  //============================================================================
 
 
 
-  //////////////////////////////////////////////////////////////////////////////
+  //============================================================================
   // SET REMAINING BACKUP EQUATIONS OF STATE
   // - non-conformal extension (extended everywhere)
   // - conformal extension (extended everywhere)
   // - purely conformal fallback (always use this to guarantee solution)
-  //////////////////////////////////////////////////////////////////////////////
+  //============================================================================
 
   // set non-conformal extension
   /*if ( settingsPtr->EoS_type != "Conformal" ) // redundant with below, but oh well
@@ -98,7 +101,76 @@ void EquationOfState::init(string quantityFile, string derivFile)
   }*/
 
 
-  // use conformal as fallback
+
+  //============================================================================
+  // use tanh-modulated "conformal" as next fallback
+  //============================================================================
+  if ( use_tanh_conformal )
+  {
+    std::cout << "Setting tanh-modulated \"conformal\" equation of state as fallback" << std::endl;
+    std::cout << "  --> all coefficients matched to p/T^4 at grid limits" << std::endl;
+
+    // pointer to default EoS (first element added above)
+    pEoS_base p_default_EoS = chosen_EOSs.front();
+
+    // look up grid maxima (without any extensions)
+    std::vector<double> maxima =  p_default_EoS->get_tbqs_maxima_no_ext();
+    double Tmax = maxima[0];
+    double muBmax = maxima[1];
+    double muQmax = maxima[2];
+    double muSmax = maxima[3];
+
+    // set overall scale using (Tmax,0,0,0)
+    tbqs( Tmax, 0.0, 0.0, 0.0, p_default_EoS );
+    double pTmax = pVal;
+    double c  = pTmax / (Tmax*Tmax*Tmax*Tmax);
+
+    // T-scale T0 = 1 by definition
+    double T0 = 1.0;
+
+    // set muB scale using (Tmax,muBmax,0,0)
+    tbqs( Tmax, muBmax, 0.0, 0.0, p_default_EoS );
+    cout << pTmax << "   " << pVal << "   " << c << "   " << muBmax << endl;
+    double muB0 = pow(c,0.25) * muBmax / sqrt( sqrt(pVal) - sqrt(pTmax) );
+
+    // set muQ scale using (Tmax,0,muQmax,0)
+    tbqs( Tmax, 0.0, muQmax, 0.0, p_default_EoS );
+    cout << pTmax << "   " << pVal << "   " << c << "   " << muQmax << endl;
+    double muQ0 = pow(c,0.25) * muQmax / sqrt( sqrt(pVal) - sqrt(pTmax) );
+
+    // set muS scale using (Tmax,0,0,muSmax)
+    tbqs( Tmax, 0.0, 0.0, muSmax, p_default_EoS );
+    cout << pTmax << "   " << pVal << "   " << c << "   " << muSmax << endl;
+    double muS0 = pow(c,0.25) * muSmax / sqrt( sqrt(pVal) - sqrt(pTmax) );
+
+    // try rough scales for now (estimated by eye, not rigorously)
+    double Tc = 220.0/constants::hbarc_MeVfm;
+    double Ts = 120.0/constants::hbarc_MeVfm;
+
+    // set minima and maxima for rootfinder (can be arbitrarily large)
+    vector<double> tbqs_minima = { 0.0,          -TBQS_INFINITY, -TBQS_INFINITY, -TBQS_INFINITY };
+    vector<double> tbqs_maxima = { TBQS_INFINITY, TBQS_INFINITY,  TBQS_INFINITY,  TBQS_INFINITY };
+
+    cout << "Tanh-modulated \"conformal\" fallback EoS set up with following parameters:" << endl;
+    cout << "  --> c    = " << c << endl;
+    cout << "  --> T0   = " << T0 << endl;
+    cout << "  --> muB0 = " << muB0 << endl;
+    cout << "  --> muQ0 = " << muQ0 << endl;
+    cout << "  --> muS0 = " << muS0 << endl;
+    cout << "  --> Tc   = " << Tc << endl;
+    cout << "  --> Ts   = " << Ts << endl;
+
+    // add matched conformal EoS to vector of EoSs
+    chosen_EOSs.push_back( std::make_shared<EoS_conformal>(
+                            c, T0, muB0, muS0, muQ0,
+                            tbqs_minima, tbqs_maxima, "tanh_conformal" ) );
+  }
+
+
+
+  //============================================================================
+  // use conformal as next fallback
+  //============================================================================
   if ( settingsPtr->EoS_type != "Conformal" )
   {
     std::cout << "Setting conformal equation of state as fallback" << std::endl;
@@ -160,7 +232,9 @@ void EquationOfState::init(string quantityFile, string derivFile)
 
 
 
+  //============================================================================
   // use diagonal conformal as final fallback
+  //============================================================================
   //if ( settingsPtr->EoS_type != "Conformal" )
   {
     std::cout << "Setting DIAGONAL conformal equation of state as FINAL fallback" << std::endl;
@@ -226,10 +300,11 @@ void EquationOfState::init(string quantityFile, string derivFile)
 
 
 
-  //////////////////////////////////////////////////////////////////////////////
+  //============================================================================
   // create a map to access all needed EoSs by name
   // (this step *MUST BE DONE AFTER* chosen EoSs have been set,
   //  and each EoS must have a *UNIQUE NAME*)
+  //============================================================================
   for ( auto & chosen_eos : chosen_EOSs )
   {
     std::cout << "Before " << chosen_eos->name
@@ -248,8 +323,9 @@ void EquationOfState::init(string quantityFile, string derivFile)
 
 
 
-  //////////////////////////////////////////////////////////////////////////////
+  //============================================================================
   // set method for locating point in phase diagram
+  //============================================================================
   if ( use_rootfinder )
   {
     // initialize Rootfinder ranges
@@ -263,7 +339,7 @@ void EquationOfState::init(string quantityFile, string derivFile)
     e_delaunay.init(    quantityFile, 0 );	// 0 - energy density
     entr_delaunay.init( quantityFile, 1 );	// 1 - entropy density
   }
-  //////////////////////////////////////////////////////////////////////////////
+  //============================================================================
 
 	return;
 }
