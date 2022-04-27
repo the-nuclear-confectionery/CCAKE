@@ -373,7 +373,7 @@ void SPHWorkstation::smooth_gradients( int a, double tin, int & count )
 
 if (settingsPtr->print_particle(a))
   cout << "CHECK grads: " << tin << "   "
-        << gradP << "   " << a << "   " << b << "   "
+        << pa.gradP << "   " << a << "   " << b << "   "
         << sigsqra << "   " << sigsqrb
         << "   " << pa.p() << "   " << pb.p()
         << "   " << pa.get_current_eos_name()
