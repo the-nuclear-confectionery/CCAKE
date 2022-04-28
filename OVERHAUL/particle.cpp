@@ -331,7 +331,7 @@ std::cout << "CHECK bsqsvsigset: " << i << "   " << tin << "   " << g2
           << w() << "   " << bigPI << "   " << gradU << "   "
           << Agam << "   " << eta_o_tau << "   " << tauRelax << "   "
           << shv33 << "   " << Bsub() << "   " << Btot << "   "
-          << Agam2 << "   " << Ctot << std::endl;
+          << Agam2 << "   " << Ctot << "\n";
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -947,7 +947,7 @@ void SPHWorkstation::BSQshear()
 //if (i==ic || printAll)
 if ( settingsPtr->print_particle(i) || printAll )
 cout << "CHECK dsigma_dt: " << i << "   " << systemPtr->t << "   " << p.dsigma_dt << "   " << p.sigma
-		<< "   " << p.gradV << endl;
+		<< "   " << p.gradV << "\n";
 
     p.bsqsvsigset( systemPtr->t, i );
 
@@ -990,15 +990,15 @@ cout << "CHECK dsigma_dt: " << i << "   " << systemPtr->t << "   " << p.dsigma_d
 //if (i==ic || printAll)
 if ( settingsPtr->print_particle(i) || printAll )
 cout << "CHECK misc1: " << i << "   " << systemPtr->t << "   " << gamt << "   " << p.sigma
-		<< "   " << p.dsigma_dt << endl;
+		<< "   " << p.dsigma_dt << "\n";
 
 //if (i==ic || printAll)
 if ( settingsPtr->print_particle(i) || printAll )
-cout << "CHECK minshv: " << i << "   " << systemPtr->t << "   " << minshv << endl;
+cout << "CHECK minshv: " << i << "   " << systemPtr->t << "   " << minshv << "\n";
 
 //if (i==ic || printAll)
 if ( settingsPtr->print_particle(i) || printAll )
-cout << "CHECK partU: " << i << "   " << systemPtr->t << "   " << partU << endl;
+cout << "CHECK partU: " << i << "   " << systemPtr->t << "   " << partU << "\n";
 
 
     // set the Mass and the Force
@@ -1011,7 +1011,7 @@ at the same time... */
 
 //if (i==ic || printAll)
 if ( settingsPtr->print_particle(i) || printAll )
-cout << "CHECK M: " << i << "   " << systemPtr->t << "   " << M << endl;
+cout << "CHECK M: " << i << "   " << systemPtr->t << "   " << M << "\n";
 
 
 
@@ -1020,7 +1020,7 @@ if ( settingsPtr->print_particle(i) || printAll )
 cout << "CHECK F: " << i << "   " << systemPtr->t << "   " << F << "   "
 		<< p.Btot << "   " << p.u << "   "
 		<< p.gradshear << "   " << p.gradP << "   "
-		<< p.gradBulk << "   " << p.divshear << endl;
+		<< p.gradBulk << "   " << p.divshear << "\n";
 
     // shear contribution
     if ( settingsPtr->using_shear )
@@ -1030,14 +1030,14 @@ cout << "CHECK F: " << i << "   " << systemPtr->t << "   " << F << "   "
 if ( settingsPtr->print_particle(i) || printAll )
 cout << "CHECK F(again): " << i << "   " << systemPtr->t << "   " << F << "   "
 		<< pre << "   " << p.v << "   " << partU << "   "
-		<< p1 << "   " << minshv << endl;
+		<< p1 << "   " << minshv << "\n";
 
     double det=deter(M);
 
 
 //if (i==ic || printAll)
 if ( settingsPtr->print_particle(i) || printAll )
-cout << "CHECK det: " << i << "   " << systemPtr->t << "   " << M << "   " << det << endl;
+cout << "CHECK det: " << i << "   " << systemPtr->t << "   " << M << "   " << det << "\n";
 
 
     Matrix <double,2,2> MI;
@@ -1050,7 +1050,7 @@ cout << "CHECK det: " << i << "   " << systemPtr->t << "   " << M << "   " << de
 
 //if (i==ic || printAll)
 if ( settingsPtr->print_particle(i) || printAll )
-cout << "CHECK MI: " << i << "   " << systemPtr->t << "   " << MI << endl;
+cout << "CHECK MI: " << i << "   " << systemPtr->t << "   " << MI << "\n";
 
 
     p.du_dt.x[0]=F.x[0]*MI.x[0][0]+F.x[1]*MI.x[0][1];
@@ -1079,13 +1079,13 @@ cout << "CHECK div_u: " << i
 		<< "   " << p.du_dt
 		<< "   " << inner( p.u, p.du_dt)
 		<< "   " << p.sigma 
-		<< "   " << p.dsigma_dt << endl;
+		<< "   " << p.dsigma_dt << "\n";
 //if (i==ic || printAll)
 if ( settingsPtr->print_particle(i) || printAll )
 cout << "CHECK bigtheta: " << i
 		<< "   " << systemPtr->t
 		<< "   " << p.bigtheta
-		<< "   " << p.gamma << endl;
+		<< "   " << p.gamma << "\n";
 
     // this term occurs in Eqs. (250) and (251) of Jaki's long notes
     // translation: pi^{ij} + pi^{00} v^i v^j - pi^{i0} v^j - pi^{0j} v^i
@@ -1115,7 +1115,7 @@ std::cout << "CHECK inside: " << i << "   "
 			<< p.du_dt << ";   "
 			<< sub << "   "
 			<< p.gradU << ";   "
-			<< p.gamma*systemPtr->t*p.shv33 << std::endl;
+			<< p.gamma*systemPtr->t*p.shv33 << "\n";
 
  
 
@@ -1131,7 +1131,7 @@ std::cout << "CHECK detasigma_dt: " << i << "   "
 			<< p.T()*hbarc_MeVfm << "   "
 			<< p.bigPI << "   "
 			<< p.bigtheta << "   "
-			<< p.inside << std::endl;
+			<< p.inside << "\n";
 
 
     // N.B. - ADD EXTRA TERMS FOR BULK EQUATION
