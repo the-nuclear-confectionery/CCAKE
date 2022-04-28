@@ -462,14 +462,15 @@ bool EquationOfState::rootfinder_update_s(double sin, double Bin, double Sin, do
     // stop iterating through available EoSs when solution found
     if (solution_found)
     {
+      tbqs( result, this_eos ); // set thermodynamics using solution
+
       if ( VERBOSE > 2 )
       {
         std::cout << " --> found a solution with "
                   << this_eos->name << " EoS!" << std::endl;
+        std::cout << " --> solution has (s,B,S,Q) = "
+                  << s() << "   " << B() << "   " << S() << "   " << Q() << endl;
       }
-      //current_eos_name = this_eos->name;
-
-      tbqs( result, this_eos ); // set thermodynamics using solution
 
 //      if (false)
 //      {
@@ -571,11 +572,16 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
     // stop iterating through available EoSs when solution found
     if (solution_found)
     {
-      // any time we update the EoS pointer, we need to specify WHICH EoS we are updating!
-      if ( VERBOSE > 2 )
-        std::cout << " --> found a solution with " << this_eos->name << " EoS!" << std::endl;
-      //current_eos_name = this_eos->name;
       tbqs( result, this_eos ); // set thermodynamics using solution
+
+      if ( VERBOSE > 2 )
+      {
+        std::cout << " --> found a solution with "
+                  << this_eos->name << " EoS!" << std::endl;
+        std::cout << " --> solution has (e,B,S,Q) = "
+                  << e() << "   " << B() << "   " << S() << "   " << Q() << endl;
+      }
+
 //      if (false)
 //      {
 //        const double Nc = 3.0, Nf = 2.5;  // u+d massless, s 'half massless'
