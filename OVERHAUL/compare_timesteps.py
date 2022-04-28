@@ -28,7 +28,9 @@ for curr_i, filename in enumerate(sys.argv[2:], 1):
     
     for particle_to_print in particles_to_print:
         print('-------------')
-        print(particle_to_print)
+        print(particle_to_print,   all_data[prev_i, particle_to_print, 1],
+              all_data[curr_i, particle_to_print, 1]
+            - all_data[prev_i, particle_to_print, 1])
         print(*chosenQuantities)
         print(str(all_data[:, particle_to_print]).replace(' [', '').replace('[', '').replace(']', ''))
         print('\n')
