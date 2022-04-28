@@ -8,7 +8,7 @@ previous_EoSs = np.genfromtxt(sys.argv[1], usecols=(-1), skip_header=1, dtype=st
                            
 # load all data
 print('Loading all data...')
-all_data = np.array([np.loadtxt(filename, usecols=tuple(range(1,14)), skiprows=1)
+all_data = np.array([np.loadtxt(filename, usecols=(1, 4, 5, 6, 7, 8), skiprows=1)
                      for filename in sys.argv[1:]])
 
 np.set_printoptions(precision=6, suppress=True)
