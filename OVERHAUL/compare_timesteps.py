@@ -2,9 +2,10 @@ import numpy as np
 from operator import itemgetter
 import sys
 
-quantities = ['id','t','x','y','p','T','muB','muS','muQ','e','rhoB','rhoS','rhoQ','s']
+quantities = ['id','tau','x','y','p','T','muB','muS','muQ','e','rhoB','rhoS','rhoQ','s']
 cols = dict(zip(quantities,range(len(quantities))))
-chosenCols = itemgetter('t','e','rhoB','rhoS','rhoQ','s')(cols)
+chosenQuantities = ['tau','e','rhoB','rhoS','rhoQ','s']
+chosenCols = itemgetter(*chosenQuantities)(cols)
 
 # initialize arrays
 print('Initializing arrays...')
@@ -28,6 +29,7 @@ for curr_i, filename in enumerate(sys.argv[2:], 1):
     for particle_to_print in particles_to_print:
         print('-------------')
         print(particle_to_print)
+        print(str(chosenQuantities).replace(' [', '').replace('[', '').replace(']', ''))
         print(str(all_data[:, particle_to_print]).replace(' [', '').replace('[', '').replace(']', ''))
         print('\n')
         
