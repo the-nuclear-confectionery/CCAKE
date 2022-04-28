@@ -29,7 +29,7 @@ for curr_i, filename in enumerate(sys.argv[2:], 1):
     for particle_to_print in particles_to_print:
         print('-------------')
         print(particle_to_print)
-        print(str(chosenQuantities).replace(' [', '').replace('[', '').replace(']', ''))
+        print(*chosenQuantities)
         print(str(all_data[:, particle_to_print]).replace(' [', '').replace('[', '').replace(']', ''))
         print('\n')
         
