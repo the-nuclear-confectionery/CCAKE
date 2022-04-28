@@ -21,8 +21,8 @@ for curr_i, filename in enumerate(sys.argv[2:], 1):
     
     for particle_to_print in particles_to_print:
         print(particle_to_print)
-        print(all_data[:, particle_to_print].shape)
-        print('\n\n\n')
+        print(all_data[:, particle_to_print])
+        print('-------------\n')
         
     prev_i = curr_i
     previous_EoSs = current_EoSs
