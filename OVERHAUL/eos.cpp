@@ -432,6 +432,16 @@ bool EquationOfState::rootfinder_update_s(double sin, double Bin, double Sin, do
     // if rootfinder fails, try a different seed
     if (!solution_found)
     {
+      // try default seed at zero density
+      result = vector<double>({tbqsPosition[0],0.0,0.0,0.0});
+      solution_found = find_root_with_seed( "entropy", sin, Bin, Sin, Qin, this_eos, result );
+    }
+
+
+    ////////////////////////////////////////////////
+    // if rootfinder fails, try a different seed
+    if (!solution_found)
+    {
       // try forced seed
       result = vector<double>({1000.0/hc,0.0,0.0,0.0});
       solution_found = find_root_with_seed( "entropy", sin, Bin, Sin, Qin, this_eos, result );

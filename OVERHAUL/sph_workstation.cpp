@@ -371,15 +371,15 @@ void SPHWorkstation::smooth_gradients( int a, double tin, int & count )
 
       pa.gradP                += ( sigsqrb*pb.p() + sigsqra*pa.p() ) * sigsigK;
 
-//if (settingsPtr->print_particle(a))
-//  cout << "CHECK grads: " << tin << "   "
-//        << pa.gradP << "   " << a << "   " << b << "   "
-//        << sigsqra << "   " << sigsqrb
-//        << "   " << pa.p() << "   " << pb.p()
-//        << "   " << pa.get_current_eos_name()
-//        << "   " << pb.get_current_eos_name()
-//        << "   " << gradK << "   " << sigsigK
-//        << "   " << pa.sigma << endl;
+if (settingsPtr->print_particle(a))
+  cout << "CHECK grads: " << tin << "   "
+        << pa.gradP << "   " << a << "   " << b << "   "
+        << sigsqra << "   " << sigsqrb
+        << "   " << pa.p() << "   " << pb.p()
+        << "   " << pa.get_current_eos_name()
+        << "   " << pb.get_current_eos_name()
+        << "   " << gradK << "   " << sigsigK
+        << "   " << pa.sigma << endl;
 
       if ( ( ( Norm( pa.r - pb.r ) / settingsPtr->_h ) <= 2 ) && ( a != b ) )
       {
@@ -396,15 +396,15 @@ void SPHWorkstation::smooth_gradients( int a, double tin, int & count )
       //pa.gradrhoQ             += ( pb.rhoQ/pb.sigma/pb.gamma
       //                            + pa.rhoQ/pa.sigma/pa.gamma)/tin*sigsigK;
       pa.gradV                += (pb.sigmaweight/pa.sigma)*( pb.v -  pa.v )*gradK;
-//if (settingsPtr->print_particle(a))
-//{
-//cout << "CHECK gradV: " << a << "   " << tin << "   " << pa.sigma << "   " << pa.v
-//		<< "   " << gradK << "   " << pa.get_current_eos_name()
-//    << "   " << pb.get_current_eos_name()
-//    << "   " << b << "   " << pb.sigmaweight << "   " << pb.v
-//		<< "   " << pb.v -  pa.v << "   " << pa.Bulk << "   " << pb.Bulk << "   "
-//    << sigsigK << endl;
-//}
+if (settingsPtr->print_particle(a))
+{
+cout << "CHECK gradV: " << a << "   " << tin << "   " << pa.sigma << "   " << pa.v
+		<< "   " << gradK << "   " << pa.get_current_eos_name()
+    << "   " << pb.get_current_eos_name()
+    << "   " << b << "   " << pb.sigmaweight << "   " << pb.v
+		<< "   " << pb.v -  pa.v << "   " << pa.Bulk << "   " << pb.Bulk << "   "
+    << sigsigK << endl;
+}
 
       if ( settingsPtr->using_shear )
       {
@@ -863,8 +863,7 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
 void SPHWorkstation::BSQshear()
 {
   // which particles print extra info for
-  //constexpr int ic = -1;
-  bool printAll = false;
+  bool printAll = true;
 
 
   // not initial call to setshear(bool is_first_timestep)

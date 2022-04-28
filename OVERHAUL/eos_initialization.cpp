@@ -161,8 +161,8 @@ void EquationOfState::init(string quantityFile, string derivFile)
     cout << "  --> Ts   = " << Ts << endl;
 
     // add matched conformal EoS to vector of EoSs
-    chosen_EOSs.push_back( std::make_shared<EoS_conformal>(
-                            c, T0, muB0, muS0, muQ0,
+    chosen_EOSs.push_back( std::make_shared<EoS_tanh_conformal>(
+                            c, T0, muB0, muS0, muQ0, Tc, Ts,
                             tbqs_minima, tbqs_maxima, "tanh_conformal" ) );
   }
 
