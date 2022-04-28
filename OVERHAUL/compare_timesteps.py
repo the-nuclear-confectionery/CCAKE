@@ -17,7 +17,7 @@ for curr_i, filename in enumerate(sys.argv[2:], 1):
     current_EoSs = np.genfromtxt(filename, usecols=(-1), skip_header=1, dtype=str)
     
     particles_to_print = np.where( current_EoSs != previous_EoSs )
-    data_to_print = all_data[:, particles_to_print]
+    print(particles_to_print)
     
     for particle_to_print in particles_to_print:
         print(particle_to_print)
