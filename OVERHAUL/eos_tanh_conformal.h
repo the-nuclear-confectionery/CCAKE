@@ -21,9 +21,10 @@ private:
 
   void set_hyp( double T )
   {
-    t_factor   = std::tanh( (T-Tc)/Ts );
-    tp_factor  = pow2( sech( (T-Tc)/Ts ) )/Ts;
-    tpp_factor = -2.0*t_factor*tp_factor/Ts;
+    double t_arg = std::tanh( (T-Tc)/Ts );
+    t_factor   = 0.5*(1.0+t_arg);
+    tp_factor  = 0.5*pow2( sech( (T-Tc)/Ts ) )/Ts;
+    tpp_factor = -2.0*t_arg*tp_factor/Ts;
   }
 
 public:
