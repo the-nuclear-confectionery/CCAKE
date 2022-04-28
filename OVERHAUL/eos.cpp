@@ -389,10 +389,17 @@ bool EquationOfState::find_root_with_seed(
                 << result[2]*hc << "   " << result[3]*hc << std::endl;
     }
 
-    return rootfinder.find_root(
-            e_or_s_mode, e_or_s_in, Bin, Sin, Qin,
-            this_eos->sBSQ, this_eos->tbqs_minima, this_eos->tbqs_maxima,
-            result );
+    // if not energy, do entropy
+    if ( e_or_s_mode != "energy" )
+      return rootfinder.find_root(
+              e_or_s_mode, e_or_s_in, Bin, Sin, Qin,
+              this_eos->sBSQ, this_eos->tbqs_minima, this_eos->tbqs_maxima,
+              result );
+    else
+      return rootfinder.find_root(
+              e_or_s_mode, e_or_s_in, Bin, Sin, Qin,
+              this_eos->eBSQ, this_eos->tbqs_minima, this_eos->tbqs_maxima,
+              result );
 }
 
 
