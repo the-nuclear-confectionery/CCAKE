@@ -16,7 +16,7 @@ for curr_i, filename in enumerate(sys.argv[2:], 1):
     print('  - differences between', prev_i, 'and', curr_i, ':')
     current_EoSs = np.genfromtxt(filename, usecols=(-1), skip_header=1, dtype=str)
     
-    particles_to_print = np.where( current_EoSs != previous_EoSs ).flatten()
+    particles_to_print = np.array(np.where( current_EoSs != previous_EoSs )).flatten()
     print(particles_to_print)
     
     for particle_to_print in particles_to_print:
