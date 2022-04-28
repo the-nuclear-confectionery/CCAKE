@@ -139,7 +139,7 @@ public:
     const double Tsol   = point[0], muBsol = point[1],
                  muQsol = point[2], muSsol = point[3];
 
-cout << "EVALUATE full_thermo at "
+cout << "EVALUATE eBSQ at "
       << Tsol << "   " << muBsol << "   "
       << muQsol << "   " << muSsol << endl;
 

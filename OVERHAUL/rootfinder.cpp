@@ -91,7 +91,8 @@ cout << endl;
 cout << "e: " << eorEnt << "   " << eorEntGiven << "   " << eorEnt - eorEntGiven << endl;
 cout << "B: " << rhoB << "   " << rhoBGiven << "   " << rhoB - rhoBGiven << endl;
 cout << "Q: " << rhoQ << "   " << rhoQGiven << "   " << rhoQ - rhoQGiven << endl;
-cout << "S: " << rhoS << "   " << rhoSGiven << "   " << rhoS - rhoSGiven << endl;
+cout << "S: " << rhoS << "   " << rhoSGiven << "   " << rhoS - rhoSGiven << endl
+      <<"------" << endl;
 //if (1) exit(1);
 
 
