@@ -136,7 +136,7 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 	cout << "----------------------------------------"
 			"----------------------------------------" << endl;
 
-	if (false)
+	if (true)
 	{
 		cout << "Exiting prematurely from " << __PRETTY_FUNCTION__
 			<< "::" << __LINE__ << "!" << endl;
