@@ -10,7 +10,8 @@ previous_EoSs = np.genfromtxt(sys.argv[1], usecols=(-1), skip_header=1, dtype=st
 print('Loading all data...')
 all_data = np.array([np.loadtxt(filename, usecols=tuple(range(1,14)), skiprows=1)
                      for filename in sys.argv[1:]])
-print(all_data.shape)
+
+np.set_printoptions(precision=6, suppress=True)
 
 for curr_i, filename in enumerate(sys.argv[2:], 1):
     print('  - differences between', prev_i, 'and', curr_i, ':')
