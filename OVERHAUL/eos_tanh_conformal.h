@@ -188,6 +188,9 @@ public:
     // point: (T, muB, muQ, muS)
     const double Tsol   = point[0], muBsol = point[1],
                  muQsol = point[2], muSsol = point[3];
+cout << "EVALUATE full_thermo at "
+      << Tsol << "   " << muBsol << "   "
+      << muQsol << "   " << muSsol << endl;
     double POut_c      = p(Tsol, muBsol, muQsol, muSsol);
     double sOut_c      = s(Tsol, muBsol, muQsol, muSsol);
     double BOut_c      = B(Tsol, muBsol, muQsol, muSsol);
@@ -199,6 +202,8 @@ public:
     double SOut        = t_factor*SOut_c;
     double QOut        = t_factor*QOut_c;
     double eOut = (sOut*Tsol + muBsol*BOut + muQsol*QOut + muSsol*SOut) - POut;
+
+cout << "eOut = " << eOut << endl;
 
     results[0]  = POut;
     results[1]  = sOut;
