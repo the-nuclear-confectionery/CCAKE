@@ -415,7 +415,8 @@ cout << "CHECK gradV: " << a << "   " << tin << "   " << pa.sigma << "   " << pa
 
 cout << "CHECK DIVSHEAR: " << a << "   " << tin << "   " << b << "   "
       << sigsqrb << "   " << sigsqra << "   " << sigsigK << "   "
-      << transpose(vminib) << "   " << transpose(vminia) << endl;
+      << transpose(vminib) << "   " << transpose(vminia) << "   "
+      << pa.divshear << endl;
 
       if ( isnan( pa.gradP.x[0] ) )
       {
@@ -586,6 +587,12 @@ void SPHWorkstation::process_initial_conditions()
   cout << "After freezeout (redundant): size = "
       << systemPtr->particles.size() - systemPtr->number_part << endl;
   cout << systemPtr->number_part << endl;
+
+
+// flag to keep track of which particles to print
+  settingsPtr->is_printable.resize( systemPtr->particles.size(), false );
+  for ( int & p : settingsPtr->particles_to_print )
+    settingsPtr->is_printable[ p ] = true;
 
 //if (1) exit(1);
 }
