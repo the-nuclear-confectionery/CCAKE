@@ -116,9 +116,12 @@ public:
 
   inline bool print_particle( int i )
   {
+//      return ( particles_to_print.size() > 0 &&
+//                std::binary_search( particles_to_print.begin(),
+//                                    particles_to_print.end(), i ) );
       return ( particles_to_print.size() > 0 &&
-                std::binary_search( particles_to_print.begin(),
-                                    particles_to_print.end(), i ) );
+                std::count( particles_to_print.begin(),
+                            particles_to_print.end(), i ) );
   }
 
 };
