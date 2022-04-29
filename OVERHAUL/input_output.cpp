@@ -136,8 +136,8 @@ void InputOutput::load_settings_file( string path_to_settings_file )
 
 
   // set particles to print
-//  settingsPtr->particles_to_print
-//    = vector<int>({9457,11868,12075,31482});
+  settingsPtr->particles_to_print
+    = vector<int>({0,1,2});
 
 
   return;
