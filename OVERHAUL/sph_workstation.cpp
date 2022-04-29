@@ -593,7 +593,7 @@ void SPHWorkstation::process_initial_conditions()
 
   // flag to keep track of which particles to print
   settingsPtr->is_printable.resize( systemPtr->particles.size(), false );
-  for ( int & p : particles_to_print )
+  for ( int & p : settingsPtr->particles_to_print )
     settingsPtr->is_printable[ p ] = true;
 
 //if (1) exit(1);
