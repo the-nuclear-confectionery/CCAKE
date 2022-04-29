@@ -695,6 +695,7 @@ void SPHWorkstation::advance_timestep_rk2( double dt )
                                       + dt*p.contribution_to_total_dEz;
 
 cout << "CHECK energies: " << i << "   " << t0+dt << "   "
+      << systemPtr->particles_E0[i] << "   "
       << p.contribution_to_total_Ez << "   "
       << p.contribution_to_total_E << endl;
 
