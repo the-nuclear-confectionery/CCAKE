@@ -427,9 +427,9 @@ cout << "CHECK gradV: " << a << "   " << tin << "   " << pa.sigma << "   " << pa
       else if ( isnan( pa.gradP(1) ) )
         cout << "1 " << systemPtr->linklist.gradPressure_weight(systemPtr->particles, a, b)
              << " " << a << " " << b << endl;
-      else if ( isnan( pa.gradP(2) ) )
-        cout << "2 " << systemPtr->linklist.gradPressure_weight(systemPtr->particles, a, b)
-             << " " << a << " " << b << endl;
+      //else if ( isnan( pa.gradP(2) ) )
+      //  cout << "2 " << systemPtr->linklist.gradPressure_weight(systemPtr->particles, a, b)
+      //       << " " << a << " " << b << endl;
 
       b=systemPtr->linklist.link[b];
     }
