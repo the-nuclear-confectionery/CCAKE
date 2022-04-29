@@ -343,24 +343,39 @@ void SPHWorkstation::smooth_gradients( int a, double tin, int & count )
 
   if ( pa.btrack != -1 ) pa.btrack = 0;
 
+cout << __LINE__ << ":: DIVSHEAR = " << pa.divshear << endl;
+
   double rdis = 0;
 
   for ( i(0) = -2; i(0) <= 2; i(0)++ )
   for ( i(1) = -2; i(1) <= 2; i(1)++ )
   {
 
+cout << __LINE__ << ":: DIVSHEAR = " << pa.divshear << endl;
+
     int b=systemPtr->linklist.lead[
             systemPtr->linklist.triToSum(
               systemPtr->linklist.dael[a] + i, systemPtr->linklist.size ) ];
 
+cout << __LINE__ << ":: DIVSHEAR = " << pa.divshear << endl;
+
     while( b != -1 )
     {
+
+cout << __LINE__ << ":: DIVSHEAR = " << pa.divshear << endl;
+
       auto & pb          = systemPtr->particles[b];
+
+cout << __LINE__ << ":: DIVSHEAR = " << pa.divshear << endl;
+
 
       Vector<double,2> gradK   = kernel::gradKernel( pa.r - pb.r, settingsPtr->_h );
       Vector<double,2> va      = rowp1(0, pa.shv);
       Vector<double,2> vb      = rowp1(0, pb.shv);
       Matrix<double,2,2> vminia, vminib;
+
+cout << __LINE__ << ":: DIVSHEAR = " << pa.divshear << endl;
+
 
       mini(vminia, pa.shv);
       mini(vminib, pb.shv);
@@ -370,6 +385,9 @@ void SPHWorkstation::smooth_gradients( int a, double tin, int & count )
       Vector<double,2> sigsigK = pb.sigmaweight * pa.sigma * gradK;
 
       pa.gradP                += ( sigsqrb*pb.p() + sigsqra*pa.p() ) * sigsigK;
+
+cout << __LINE__ << ":: DIVSHEAR = " << pa.divshear << endl;
+
 
 if (settingsPtr->print_particle(a))
   cout << "CHECK grads: " << tin << "   "
@@ -386,6 +404,9 @@ if (settingsPtr->print_particle(a))
         if ( pa.btrack != -1 ) pa.btrack++;
         if ( pa.btrack ==  1 ) rdis = Norm(pa.r-pb.r)/settingsPtr->_h;
       }
+
+cout << __LINE__ << ":: DIVSHEAR = " << pa.divshear << endl;
+
 
       pa.gradBulk             += ( pb.Bulk/pb.sigma/pb.gamma
                                     + pa.Bulk/pa.sigma/pa.gamma)/tin*sigsigK;
@@ -405,6 +426,9 @@ cout << "CHECK gradV: " << a << "   " << tin << "   " << pa.sigma << "   " << pa
 		<< "   " << pb.v -  pa.v << "   " << pa.Bulk << "   " << pb.Bulk << "   "
     << sigsigK << endl;
 }
+
+cout << __LINE__ << ":: DIVSHEAR = " << pa.divshear << endl;
+
 
       if ( settingsPtr->using_shear )
       {
