@@ -70,25 +70,23 @@ void InputOutput::load_settings_file( string path_to_settings_file )
       all_parameters.push_back(param);
     }
 
-    //cout << "all_parameters.size() = " << all_parameters.size() << endl;
-    //for ( auto & entry : all_parameters )
-    //  cout << entry << endl;
-
-    settingsPtr->IC_type                = all_parameters[0];
-    settingsPtr->IC_option              = all_parameters[1];
-    settingsPtr->_h                     = stod(all_parameters[2]);
-    settingsPtr->dt                     = stod(all_parameters[3]);
-    settingsPtr->t0                     = stod(all_parameters[4]);
-    settingsPtr->EoS_type               = all_parameters[5];
-    settingsPtr->EoS_option             = all_parameters[6];
-    settingsPtr->eta                    = all_parameters[7];
-    settingsPtr->etaOption              = all_parameters[8];
-    settingsPtr->shearRelax             = all_parameters[9];
-    settingsPtr->zeta                   = all_parameters[10];
-    settingsPtr->zetaOption             = all_parameters[11];
-    settingsPtr->bulkRelax              = all_parameters[12];
-    settingsPtr->Freeze_Out_Temperature = stod(all_parameters[13])/hbarc_MeVfm;
-    settingsPtr->Freeze_Out_Type        = all_parameters[14];
+    int paramCount = 0;
+    settingsPtr->IC_type                = all_parameters[paramCount++];
+    settingsPtr->IC_option              = all_parameters[paramCount++];
+    settingsPtr->IC_file                = all_parameters[paramCount++];
+    settingsPtr->_h                     = stod(all_parameters[paramCount++]);
+    settingsPtr->dt                     = stod(all_parameters[paramCount++]);
+    settingsPtr->t0                     = stod(all_parameters[paramCount++]);
+    settingsPtr->EoS_type               = all_parameters[paramCount++];
+    settingsPtr->EoS_option             = all_parameters[paramCount++];
+    settingsPtr->eta                    = all_parameters[paramCount++];
+    settingsPtr->etaOption              = all_parameters[paramCount++];
+    settingsPtr->shearRelax             = all_parameters[paramCount++];
+    settingsPtr->zeta                   = all_parameters[paramCount++];
+    settingsPtr->zetaOption             = all_parameters[paramCount++];
+    settingsPtr->bulkRelax              = all_parameters[paramCount++];
+    settingsPtr->Freeze_Out_Temperature = stod(all_parameters[paramCount++])/hbarc_MeVfm;
+    settingsPtr->Freeze_Out_Type        = all_parameters[paramCount++];
 
     //==========================================================================
     // enforce appropriate settings for Gubser
@@ -137,13 +135,9 @@ void InputOutput::load_settings_file( string path_to_settings_file )
   }
 
 
-
   // set particles to print
 //  settingsPtr->particles_to_print
 //    = vector<int>({9457,11868,12075,31482});
-
-
-
 
 
   return;
@@ -173,16 +167,16 @@ void InputOutput::set_EoS_type()
   return;
 }
 
+//==============================================================================
 void InputOutput::read_in_initial_conditions()
 {
   string initial_condition_type = settingsPtr->IC_type;
   int total_header_lines;
-  string IC_file = "initial_conditions/";
+  string IC_file = settingsPtr->IC_file;
 
   if (initial_condition_type == "ICCING")
   {
     cout << "Reading in ICCING initial conditions!" << endl;
-    IC_file = IC_file + "/Iccing_conditions.dat"; // need to change ic0.dat
     total_header_lines = 1;
 
     settingsPtr->initial_coordinate_distribution = "Cartesian";
@@ -227,58 +221,6 @@ void InputOutput::read_in_initial_conditions()
     infile.close();
 
   }
-  /*else if (initial_condition_type == "Gubser")
-  {
-    // choose initial coordinate system
-    settingsPtr->initial_coordinate_distribution = "Polar";
-
-    // initial time
-    const double tau0 = settingsPtr->t0;
-
-    // set Gubser profile parameters
-    const double q     = 1.0; // 1/fm
-    const double e0    = 1.0; // 1/fm^4
-    const double rhoB0 = 0.5; // 1/fm^3
-    const double rhoQ0 = 0.5; // 1/fm^3
-    const double rhoS0 = 0.5; // 1/fm^3
-
-    // GRID GENERATION IN POLAR COORDINATES --> CANNOT DEFINE SIGMAWEIGHT = DX*DY, ETC.
-    // set grid step size for test
-    const double TINY    = 1e-10;
-    const double dr      = 0.01, dphi = 2.0*pi/1000.0;
-    settingsPtr->stepr   = dr;
-    settingsPtr->stepphi = dphi;
-    const double rmin    = 0.0,  rmax = 5.0+dr*TINY;
-
-    // generate initial profile in (r,phi)
-    double q2 = q*q, q4 = q2*q2, t2 = tau0*tau0, t3 = t2*tau0, t4 = t3*tau0;
-    for ( double r = rmin; r <= rmax; r += dr )
-    {
-      double r2        = r*r;
-      double arg       = 1.0 + 2.0*q2*(t2+r2) + q4*(t2-r2)*(t2-r2);
-
-      double eLocal    = (e0/t4)*pow(2.0*q*tau0, 8.0/3.0) / pow(arg, 4.0/3.0);
-      double rhoBLocal = (rhoB0/t3)*4.0*q2*t2/(arg*arg);
-      double rhoQLocal = (rhoQ0/t3)*4.0*q2*t2/(arg*arg);
-      double rhoSLocal = (rhoS0/t3)*4.0*q2*t2/(arg*arg);
-
-      double vr = 2.0*q2*tau0*r/(1+q2*t2+q2*r2);
-      double gammar = 1.0/sqrt(1.0-vr*vr);
-
-      for ( double phi = 0.0; phi <= 2.0*pi-dphi*TINY; phi += dphi )
-      {
-        // include a single center point at the origin (r=0)
-        if (r < dr*TINY && phi > dphi*TINY) break;
-
-        double cphi = cos(phi), sphi = sin(phi);
-        double x = r*cphi, y = r*sphi, ux = gammar*vr*cphi, uy = gammar*vr*sphi;
-
-        vector<double> fields({x,y,eLocal,rhoBLocal,rhoSLocal,rhoQLocal,ux,uy});
-        systemPtr->particles.push_back( Particle(fields) );
-      }
-    }
-    
-  }*/
   else if (initial_condition_type == "Gubser")
   {
     // choose initial coordinate system
@@ -390,43 +332,7 @@ void InputOutput::read_in_initial_conditions()
                                 pixx, piyy, pixy, pietaeta });
         systemPtr->particles.push_back( Particle(fields) );
       }
-    
     }
-    
-  }
-  else if (initial_condition_type == "TECHQM")
-  {
-    cerr << "THIS DOES NOT WORK YET" << endl;
-    exit(1);
-/*
-    // load input file
-    string inputfilename = "./TECHQM_checks/techqm.dat";
-    cout << "Reading in TECHQM initial profile from " << inputfilename << endl;
-    ifstream infile( inputfilename.c_str() );
-
-    if (infile.is_open())
-    {
-      string line;
-      double x, y, TLocal, eLocal, ux, uy, pixx, piyy, pixy, pizz, pietaeta;
-      while ( getline (infile, line) )
-      {
-        istringstream iss(line);
-        iss >> x >> y >> TLocal >> ux >> uy >> pixx >> piyy >> pixy >> pizz;
-
-        TLocal  /= hbarc_GeVfm;                           // 1/fm
-        eLocal   = 3.0*cpLoc*TLocal*TLocal*TLocal*TLocal; // 1/fm^4
-        pixx    /= hbarc_GeVfm;                           // 1/fm^4
-        piyy    /= hbarc_GeVfm;                           // 1/fm^4
-        pixy    /= hbarc_GeVfm;                           // 1/fm^4
-        pietaeta = pizz/(tau0*tau0*hbarc_GeVfm);          // 1/fm^6
-
-        vector<double> fields({ x, y, eLocal, 0.0, 0.0, 0.0, ux, uy,
-                                pixx, piyy, pixy, pietaeta });
-        systemPtr->particles.push_back( Particle(fields) );
-      }
-    }
-*/
-
   }
   else
   {

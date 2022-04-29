@@ -80,6 +80,7 @@ public:
   string eost = "";
   string IC_type = ""; // specify initial condition type
   string IC_option = ""; // specify option for given initial condition type
+  string IC_file = ""; // specify option for given initial condition type
   string EoS_type = ""; // specify equation of state type
   string EoS_option = ""; // specify specifc option for EOS
   // there should an associated EoS directory with tables
