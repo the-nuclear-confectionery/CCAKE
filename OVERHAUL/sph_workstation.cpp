@@ -442,6 +442,8 @@ cout << "CHECK DIVSHEAR: " << a << "   " << tin << "   " << b << "   "
       << transpose(vminib) << "   " << transpose(vminia) << "   "
       << pa.divshear << endl;
 
+if (1) exit(8);
+
       if ( isnan( pa.gradP(0) ) )
       {
         cout << "gradP stopped working" << endl;
