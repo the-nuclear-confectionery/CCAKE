@@ -438,8 +438,26 @@ cout << "CHECK DIVSHEAR: " << __LINE__ << ":: " << a << "   " << tin << "   " <<
       << pa.divshear << endl;
 
         pa.gradshear            += inner(sigsigK, pa.v)*( sigsqrb*vb + sigsqra*va );
+
+cout << "CHECK DIVSHEAR: " << __LINE__ << ":: " << a << "   " << tin << "   " << b << "   "
+      << sigsqrb << "   " << sigsqra << "   " << sigsigK << "   "
+      << transpose(vminib) << "   " << transpose(vminia) << "   "
+      << pa.divshear << endl;
+
+
         pa.divshear             += sigsqrb*sigsigK*transpose(vminib)
                                     + sigsqra*sigsigK*transpose(vminia);
+
+cout << __LINE__ << ":: " << sigsqrb*sigsigK*transpose(vminib) << endl;
+cout << __LINE__ << ":: " << sigsqra*sigsigK*transpose(vminia) << endl;
+
+cout << __LINE__ << ":: " << sigsigK*transpose(vminia) << endl;
+cout << __LINE__ << ":: " << sigsigK*transpose(vminib) << endl;
+
+cout << __LINE__ << ":: " << sigsqrb*sigsigK << endl;
+cout << __LINE__ << ":: " << sigsqra*sigsigK << endl;
+
+
 
 cout << "CHECK DIVSHEAR: " << __LINE__ << ":: " << a << "   " << tin << "   " << b << "   "
       << sigsqrb << "   " << sigsqra << "   " << sigsigK << "   "
