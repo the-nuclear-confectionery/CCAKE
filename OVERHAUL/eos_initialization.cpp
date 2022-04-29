@@ -105,7 +105,7 @@ void EquationOfState::init(string quantityFile, string derivFile)
   //============================================================================
   // use tanh-modulated "conformal" as next fallback
   //============================================================================
-  if ( use_tanh_conformal )
+  if ( use_tanh_conformal && settingsPtr->EoS_type != "Conformal" )
   {
     std::cout << "Setting tanh-modulated \"conformal\" equation of state as fallback" << std::endl;
     std::cout << "  --> all coefficients matched to p/T^4 at grid limits" << std::endl;

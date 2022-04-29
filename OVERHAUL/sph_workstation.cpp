@@ -863,7 +863,7 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
 void SPHWorkstation::BSQshear()
 {
   // which particles print extra info for
-  bool printAll = true;
+  bool printAll = false;
 
 
   // not initial call to setshear(bool is_first_timestep)

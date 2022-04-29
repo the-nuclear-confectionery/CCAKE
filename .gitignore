@@ -21,3 +21,7 @@ Hydro-master/eSPH.pdf
 **/build/**
 **/bin/**
 *.swp
+*.db
+OVERHAUL/.vs/OVERHAUL/v17/.suo
+*.json
+*.sqlite

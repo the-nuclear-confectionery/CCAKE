@@ -11,7 +11,7 @@ static constexpr bool use_nonconformal_extension          = false;
 static constexpr bool use_tanh_conformal                  = true;
 static constexpr bool skip_failed_EoS                     = true;
 
-static constexpr int VERBOSE = 3;
+static constexpr int VERBOSE = 0;
 static constexpr double TINY = 1e-25;
 static constexpr double TBQS_INFINITY = 1e10;  // indefinitely large limits for EoS
 
