@@ -694,6 +694,9 @@ void SPHWorkstation::advance_timestep_rk2( double dt )
         p.contribution_to_total_Ez = systemPtr->particles_E0[i]
                                       + dt*p.contribution_to_total_dEz;
 
+cout << "CHECK energies: " << t0+dt << "   " << p.contribution_to_total_Ez
+      << "   " << p.contribution_to_total_E << endl;
+
         // regulate updated results if necessary
         if ( REGULATE_LOW_T && p.eta_sigma < 0.0
               && p.T() < 50.0/constants::hbarc_MeVfm )
