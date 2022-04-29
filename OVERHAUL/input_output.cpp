@@ -520,6 +520,8 @@ void InputOutput::print_system_state()
           << p.gradBulk << "       "
           << p.gradshear << "       "
           << p.divshear << "   "
+          << p.contribution_to_total_E << "   "
+          << p.contribution_to_total_Ez << "   "
           << p.get_current_eos_name() << endl;
 
     print_shear();

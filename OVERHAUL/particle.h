@@ -172,8 +172,9 @@ class Particle
   double sv_eta          = 0.0;
   double taupi           = 0.0;
 
-  double contribution_to_total_energy   = 0.0;
-  double contribution_to_total_energy_Z = 0.0;
+  double contribution_to_total_E   = 0.0;
+  double contribution_to_total_dEz = 0.0;
+  double contribution_to_total_Ez  = 0.0;
 
   ////////////////////////////////////////////////////////////////////////////
   //                         Fluid Variables                                //

@@ -238,7 +238,7 @@ void Particle::calcbsq(double tin)
   // using *_sub quantities (which have been smoothed) in order to be consistent
   // with s_in2 = eta/(gamma*t) and evaluation of rest of EoM's quantities (e.g.,
   // sigma) which are also smoothed
-  std::cout << "Doing this particle: " << r << "   " << eta << std::endl;
+//  std::cout << "Doing this particle: " << r << "   " << eta << std::endl;
 	locate_phase_diagram_point_sBSQ( s_lab, rhoB_lab, rhoS_lab, rhoQ_lab );
 }
 
@@ -325,13 +325,13 @@ void Particle::bsqsvsigset( double tin, int i )
   Btot         = ( Agam*gamma + 2.0*eta_o_tau/3.0*gamma )*sigl
                 + bigPI/tauRelax + dwdsT*( gt*shv33 + Bsub() );
   check        = sigl;
-std::cout << "CHECK bsqsvsigset: " << i << "   " << tin << "   " << g2
-          << "   " << g2 << "   " << g3 << "   " << gt << "   "
-          << dwds() << "   " << T() << "   " << sigl << "   "
-          << w() << "   " << bigPI << "   " << gradU << "   "
-          << Agam << "   " << eta_o_tau << "   " << tauRelax << "   "
-          << shv33 << "   " << Bsub() << "   " << Btot << "   "
-          << Agam2 << "   " << Ctot << "\n";
+//std::cout << "CHECK bsqsvsigset: " << i << "   " << tin << "   " << g2
+//          << "   " << g2 << "   " << g3 << "   " << gt << "   "
+//          << dwds() << "   " << T() << "   " << sigl << "   "
+//          << w() << "   " << bigPI << "   " << gradU << "   "
+//          << Agam << "   " << eta_o_tau << "   " << tauRelax << "   "
+//          << shv33 << "   " << Bsub() << "   " << Btot << "   "
+//          << Agam2 << "   " << Ctot << "\n";
 }
 
 ////////////////////////////////////////////////////////////////////////////////

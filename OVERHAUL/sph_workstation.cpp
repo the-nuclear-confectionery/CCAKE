@@ -655,6 +655,9 @@ void SPHWorkstation::advance_timestep_rk2( double dt )
         p.Bulk         = systemPtr->Bulk0[i]     + 0.5*dt*p.dBulk_dt;
         tmini( p.shv,    systemPtr->shv0[i]      + 0.5*dt*p.dshv_dt );
 
+        p.contribution_to_total_Ez = systemPtr->particles_E0[i]
+                                      + 0.5*dt*p.contribution_to_total_dEz;
+
         // regulate updated results if necessary
         if ( REGULATE_LOW_T && p.eta_sigma < 0.0
               && p.T() < 50.0/constants::hbarc_MeVfm )
@@ -687,6 +690,9 @@ void SPHWorkstation::advance_timestep_rk2( double dt )
         p.eta_sigma    = systemPtr->etasigma0[i] + dt*p.detasigma_dt;
         p.Bulk         = systemPtr->Bulk0[i]     + dt*p.dBulk_dt;
         tmini( p.shv,    systemPtr->shv0[i]      + dt*p.dshv_dt );
+
+        p.contribution_to_total_Ez = systemPtr->particles_E0[i]
+                                      + dt*p.contribution_to_total_dEz;
 
         // regulate updated results if necessary
         if ( REGULATE_LOW_T && p.eta_sigma < 0.0
@@ -904,7 +910,7 @@ void SPHWorkstation::BSQshear()
   {
     auto & p = systemPtr->particles[i];
 
-    std::cout << "Working on particle #" << i << std::endl;
+//    std::cout << "Working on particle #" << i << std::endl;
 
     //  Computes gamma and velocity
     p.calcbsq( systemPtr->t ); //resets EOS!!

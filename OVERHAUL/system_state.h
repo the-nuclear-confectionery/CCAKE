@@ -96,7 +96,6 @@ private:
 
 
   LinkList linklist;  // can we please name it something else?
-  // vector<vector<int> > neighbors;  //?
 
   //EquationOfState eos;
   vector<int> particles_out_of_grid;
@@ -105,6 +104,7 @@ private:
   // creating vectors of vectors of the derivatives at each step
   vector<double> etasigma0;
   vector<double> Bulk0;
+  vector<double> particles_E0;
 
   vector< Vector<double,2> > u0;
   vector< Vector<double,2> > r0;

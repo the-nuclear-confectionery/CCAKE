@@ -199,8 +199,8 @@ void SystemState::check_BSQ_energy_conservation()
   {
     E += ( p.C*p.g2 - p.p() - p.bigPI + p.shv.x[0][0] )
           *p.sigmaweight*t/p.sigma;
-    p.contribution_to_total_energy = ( p.C*p.g2 - p.p() - p.bigPI + p.shv.x[0][0] )
-          *p.sigmaweight*t/p.sigma;
+    p.contribution_to_total_E = ( p.C*p.g2 - p.p() - p.bigPI + p.shv.x[0][0] )
+                                *p.sigmaweight*t/p.sigma;
   }
 
   if (linklist.first == 1)
@@ -300,8 +300,8 @@ void SystemState::bsqsvconservation_E()
         E += ( p.C*p.g2 - p.p() - p.bigPI + p.shv.x[0][0] )
               / p.sigma*p.sigmaweight*t;
 
-        p.contribution_to_total_energy = ( p.C*p.g2 - p.p() - p.bigPI + p.shv.x[0][0] )
-          *p.sigmaweight*t/p.sigma;
+        p.contribution_to_total_E = ( p.C*p.g2 - p.p() - p.bigPI + p.shv.x[0][0] )
+                                    *p.sigmaweight*t/p.sigma;
 
         if (i==-1)
           std::cout << "E: " << i << "   " << t
@@ -335,6 +335,7 @@ void SystemState::bsqsvconservation_Ez()
     auto & p = particles[i];
 
     dEz += ( p.p() + p.bigPI + p.shv33*t2 ) / p.sigma*p.sigmaweight;
+    p.contribution_to_total_dEz = ( p.p() + p.bigPI + p.shv33*t2 ) / p.sigma*p.sigmaweight;
 
     if (false)
       std::cout << "dEz: " << i << "   " << t
@@ -355,6 +356,7 @@ void SystemState::set_current_timestep_quantities()
 
   etasigma0.resize(N);
   Bulk0.resize(N);
+  particles_E0.resize(N);
 
   u0.resize(N);
   r0.resize(N);
@@ -370,6 +372,8 @@ void SystemState::set_current_timestep_quantities()
     etasigma0[i] = p.eta_sigma;
     Bulk0[i]     = p.Bulk;
     mini( shv0[i], p.shv );
+
+    particles_E0[i] = p.contribution_to_total_Ez;
   }
 }
 
