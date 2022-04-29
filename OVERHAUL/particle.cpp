@@ -24,29 +24,29 @@ Particle::Particle()
 Particle::Particle(vector<double> &fields)
 {
   Imat.identity();
-  r.x[0]  = fields[0];
-  r.x[1]  = fields[1];
+  r(0)    = fields[0];
+  r(1)    = fields[1];
   e_sub   = fields[2];
   rhoB_an = fields[3];
   rhoS_an = fields[4];
   rhoQ_an = fields[5];
-  u.x[0]  = fields[6];
-  u.x[1]  = fields[7];
+  u(0)    = fields[6];
+  u(1)    = fields[7];
   if ( fields.size() > 8 ) // passing in shear tensor initialization as well
   {
     double pi11 = fields[8];
     double pi22 = fields[9];
     double pi12 = fields[10];
     double pi33 = fields[11];
-    shv.x[0][0] = 0.0;
-    shv.x[0][1] = 0.0;
-    shv.x[0][2] = 0.0;
-    shv.x[1][0] = 0.0;
-    shv.x[1][1] = pi11;
-    shv.x[1][2] = pi12;
-    shv.x[2][0] = 0.0;
-    shv.x[2][1] = pi12;
-    shv.x[2][2] = pi22;
+    shv(0,0)    = 0.0;
+    shv(0,1)    = 0.0;
+    shv(0,2)    = 0.0;
+    shv(1,0)    = 0.0;
+    shv(1,1)    = pi11;
+    shv(1,2)    = pi12;
+    shv(2,0)    = 0.0;
+    shv(2,1)    = pi12;
+    shv(2,2)    = pi22;
     shv33       = pi33;
   }
   s_an    = 0.0;
@@ -55,14 +55,12 @@ Particle::Particle(vector<double> &fields)
 Particle::Particle( const Particle& p )
 {
   Imat.identity();
-  r.x[0]  = p.r.x[0];
-  r.x[1]  = p.r.x[1];
+  r       = p.r;
   e_sub   = p.e_sub;
   rhoB_an = p.rhoB_an;
   rhoS_an = p.rhoS_an;
   rhoQ_an = p.rhoQ_an;
-  u.x[0]  = p.u.x[0];
-  u.x[1]  = p.u.x[1];
+  u       = p.u;
   shv     = p.shv;
   shv33   = p.shv33;
   s_an    = p.s_an;
@@ -253,7 +251,7 @@ void Particle::return_bsqsv_A()
     Agam  = w() - dwds()*(s()+ bigPI/T() )- zeta/tauRelax
             - dwdB() * rhoB() - dwdS() * rhoS() - dwdQ() * rhoQ();
 
-    Agam2 = ( Agam - eta_o_tau/3.0 - dwdsT1*shv.x[0][0] ) / gamma;
+    Agam2 = ( Agam - eta_o_tau/3.0 - dwdsT1*shv(0,0) ) / gamma;
     Ctot  = C + eta_o_tau*(1/g2-1);
 
 }
@@ -275,12 +273,11 @@ double Particle::Bsub()
     piu         = rowp1(0,shv)*u;
     piutot      = piu+transpose(piu);
     double bsub = 0.0;
-    double pig  = shv.x[0][0]/g2;
+    double pig  = shv(0,0)/g2;
 
     for (int i=0; i<=1; i++)
     for (int j=0; j<=1; j++)
-      bsub += gradU.x[i][j] * ( pimin.x[i][j] + pig*uu.x[j][i]
-                                - ( piu.x[i][j] + piu.x[j][i] ) / gamma );
+      bsub += gradU(i,j) * ( pimin(i,j) + pig*uu(j,i) - ( piu(i,j) + piu(j,i) ) / gamma );
     return bsub;
   }
 }
@@ -303,7 +300,7 @@ Matrix<double,2,2> Particle::dpidtsub()
   for (int i=0; i<=1; i++)
   for (int j=0; j<=1; j++)
   for (int k=0; k<=1; k++)
-    vsub.x[i][j] += ( u.x[i]*pimin.x[j][k] + u.x[j]*pimin.x[i][k] )*du_dt.x[k];
+    vsub(i,j) += ( u(i)*pimin(j,k) + u(j)*pimin(i,k) )*du_dt(k);
 
   return vsub;
 }
@@ -363,32 +360,32 @@ void Particle::sets(double tin2, bool is_first_timestep)
     gamma = gamcalc();
     if (settingsPtr->using_Gubser_with_shear && is_first_timestep)
     {
-      shv.x[0][1] = 1./gamma*inner(u,colp1(1,shv));
-      shv.x[0][2] = 1./gamma*inner(u,colp1(2,shv));
-      shv.x[1][0] = shv.x[0][1];
-      shv.x[2][0] = shv.x[0][2];
+      shv(0,1) = 1./gamma*inner(u,colp1(1,shv));
+      shv(0,2) = 1./gamma*inner(u,colp1(2,shv));
+      shv(1,0) = shv(0,1);
+      shv(2,0) = shv(0,2);
       
       setvar();
       //cout << "Sanity check: " << 1./gamma/gamma*con(uu,pimin) << "   "
-      //      << shv.x[1][1] + shv.x[2][2] + tin2*shv33 << endl;
+      //      << shv(1,1) + shv(2,2) + tin2*shv33 << endl;
 
-      //shv.x[0][0] = shv.x[1][1] + shv.x[2][2] + tin2*shv33;
+      //shv(0,0) = shv(1,1) + shv(2,2) + tin2*shv33;
       
       // go back to Jaki's default
-      shv.x[0][0]=1./gamma/gamma*con(uu,pimin);
-      shv33=(shv.x[0][0]-shv.x[1][1]-shv.x[2][2])/tin2;
+      shv(0,0)=1./gamma/gamma*con(uu,pimin);
+      shv33=(shv(0,0)-shv(1,1)-shv(2,2))/tin2;
     }
     else
     {
-      shv.x[2][1]=shv.x[1][2];
-      shv.x[0][1]=1./gamma*inner(u,colp1(1,shv));
-      shv.x[0][2]=1./gamma*inner(u,colp1(2,shv));
-      shv.x[1][0]=shv.x[0][1];
-      shv.x[2][0]=shv.x[0][2];
+      shv(2,1)=shv(1,2);
+      shv(0,1)=1./gamma*inner(u,colp1(1,shv));
+      shv(0,2)=1./gamma*inner(u,colp1(2,shv));
+      shv(1,0)=shv(0,1);
+      shv(2,0)=shv(0,2);
 
       setvar();
-      shv.x[0][0]=1./gamma/gamma*con(uu,pimin);
-      shv33=(shv.x[0][0]-shv.x[1][1]-shv.x[2][2])/tin2;
+      shv(0,0)=1./gamma/gamma*con(uu,pimin);
+      shv33=(shv(0,0)-shv(1,1)-shv(2,2))/tin2;
     }
 }
 
@@ -428,9 +425,9 @@ double Particle::get_aleph_force(double t)
   double aleph_force = -gamma*t*shv33;
   for (int i = 1; i < 3; i++)
   for (int j = 1; j < 3; j++)
-    aleph_force += ( (shv.x[i][0]*u.x[j] + shv.x[0][j]*u.x[i])/gamma
-                      - shv.x[i][j] - shv.x[0][0]*u.x[i]*u.x[j]/(gamma*gamma) )
-                    * gradU.x[i][j];
+    aleph_force += ( (shv(i,0)*u(j) + shv(0,j)*u(i))/gamma
+                      - shv(i,j) - shv(0,0)*u(i)*u(j)/(gamma*gamma) )
+                    * gradU(i,j);
   return aleph_force;
 }
 
@@ -452,7 +449,7 @@ Vector<double,2> Particle::get_Pi_mass()
 ////////////////////////////////////////////////////////////////////////////////
 Vector<double,2> Particle::get_aleph_mass()
 {
-  return shv.x[0][0]*v - colp1(0, shv);
+  return shv(0,0)*v - colp1(0, shv);
 }
 
 

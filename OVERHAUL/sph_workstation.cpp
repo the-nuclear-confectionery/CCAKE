@@ -68,7 +68,7 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 		{
 			sw.Start();
 			cout << setprecision(12) << "Doing this particle: "
-					<< p.r.x[0] << "   " << p.r.x[1] << "\n";
+					<< p.r(0) << "   " << p.r(1) << "\n";
 
       // solve for the entropy density
 			p.s_an = p.locate_phase_diagram_point_eBSQ(
@@ -100,7 +100,7 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 		else
 		{
 			std::cout << "\t --> Solution info: "
-                << p.r.x[0] << "   " << p.r.x[1] << "   "
+                << p.r(0) << "   " << p.r(1) << "   "
                 << p.get_current_eos_name() << "\n";
 			std::cout << "\t\t - phase diagram point (TBQS): "
                 << p.T()*hbarc_MeVfm << "   "
@@ -250,8 +250,8 @@ void SPHWorkstation::smooth_fields(int a, bool init_mode /*== false*/)
   //int neighbor_count = 0;
 
   Vector<int,2> i;
-  for ( i.x[0] = -2; i.x[0] <= 2; i.x[0]++ )
-  for ( i.x[1] = -2; i.x[1] <= 2; i.x[1]++ )
+  for ( i(0) = -2; i(0) <= 2; i(0)++ )
+  for ( i(1) = -2; i(1) <= 2; i(1)++ )
   {
     int b = systemPtr->linklist.lead[
               systemPtr->linklist.triToSum(
@@ -268,7 +268,7 @@ void SPHWorkstation::smooth_fields(int a, bool init_mode /*== false*/)
       pa.rhoQ_sub    += pb.Q*kern;
 
       //if (kern>0.0) neighbor_count++;
-      //if (abs(pa.r.x[0])<0.000001 && abs(pa.r.x[1])<0.000001)
+      //if (abs(pa.r(0))<0.000001 && abs(pa.r(1))<0.000001)
 
       if ( isnan( pa.eta ) || pa.eta < 0 || settingsPtr->print_particle(a) )
         std::cout << __FUNCTION__ << "(SPH particle == " << a << "): "
@@ -345,8 +345,8 @@ void SPHWorkstation::smooth_gradients( int a, double tin, int & count )
 
   double rdis = 0;
 
-  for ( i.x[0] = -2; i.x[0] <= 2; i.x[0]++ )
-  for ( i.x[1] = -2; i.x[1] <= 2; i.x[1]++ )
+  for ( i(0) = -2; i(0) <= 2; i(0)++ )
+  for ( i(1) = -2; i(1) <= 2; i(1)++ )
   {
 
     int b=systemPtr->linklist.lead[
@@ -413,7 +413,7 @@ cout << "CHECK gradV: " << a << "   " << tin << "   " << pa.sigma << "   " << pa
                                     + sigsqra*sigsigK*transpose(vminia);
       }
 
-      if ( isnan( pa.gradP.x[0] ) )
+      if ( isnan( pa.gradP(0) ) )
       {
         cout << "gradP stopped working" << endl;
         cout << systemPtr->t <<" "  << pa.gradP << " " << a << " " << b << endl;
@@ -424,10 +424,10 @@ cout << "CHECK gradV: " << a << "   " << tin << "   " << pa.sigma << "   " << pa
         cout << pb.r << endl;
         cout << kernel::kernel( pa.r - pb.r, settingsPtr->_h ) << endl;
       }
-      else if ( isnan( pa.gradP.x[1] ) )
+      else if ( isnan( pa.gradP(1) ) )
         cout << "1 " << systemPtr->linklist.gradPressure_weight(systemPtr->particles, a, b)
              << " " << a << " " << b << endl;
-      else if ( isnan( pa.gradP.x[2] ) )
+      else if ( isnan( pa.gradP(2) ) )
         cout << "2 " << systemPtr->linklist.gradPressure_weight(systemPtr->particles, a, b)
              << " " << a << " " << b << endl;
 
@@ -531,13 +531,13 @@ void SPHWorkstation::process_initial_conditions()
       exit(1);
     }
 
-//cout << "CHECK PARTICLES: " << p.r.x[0] << "   " << p.r.x[0] << "   "
+//cout << "CHECK PARTICLES: " << p.r(0) << "   " << p.r(1) << "   "
 //      << eLocal << "   " << rhoBLocal << "   " << rhoSLocal << "   "
 //      << rhoQLocal << "   " << ux << "   " << uy << endl;
 
     // Set the rest of particle elements using area element
-		//p.u.x[0]          = 0.0;  // flow must be set in Particle constructor!!!
-		//p.u.x[1]          = 0.0;  // flow must be set in Particle constructor!!!
+		//p.u(0)          = 0.0;  // flow must be set in Particle constructor!!!
+		//p.u(1)          = 0.0;  // flow must be set in Particle constructor!!!
 		p.eta_sigma       = 1.0;
 		p.sigmaweight     = dA;
 		p.rhoB_weight     = dA;
@@ -552,7 +552,7 @@ void SPHWorkstation::process_initial_conditions()
 		/*if (TMP_particle_count++==0)
       cout << "readICs_iccing(" << __LINE__ << "): "
         << "SPH particles: "
-        << p.r.x[0] << "   " << p.r.x[1] << "   "
+        << p.r(0) << "   " << p.r(1) << "   "
         << p.e_sub << "   " << p.rhoB_an << "   "
         << p.rhoS_an << "   " << p.rhoQ_an << "   "
         << p.sigmaweight << endl;*/
@@ -886,13 +886,13 @@ void SPHWorkstation::BSQshear()
   {
     auto & p = systemPtr->particles[i];
 
-//if ( abs(p.r.x[0]) < 0.000001 && abs(p.r.x[1]) < 0.000001 )
+//if ( abs(p.r(0)) < 0.000001 && abs(p.r(1)) < 0.000001 )
 //  cout << "CHECK CENTER: " << systemPtr->t << "   " << i << "   " << p.T()*hbarc << "   "
 //        << p.eta/p.gamma/systemPtr->t << "   " << p.s() << endl;
 
     smooth_fields(i);
 
-//if ( abs(p.r.x[0]) < 0.000001 && abs(p.r.x[1]) < 0.000001 )
+//if ( abs(p.r(0)) < 0.000001 && abs(p.r(1)) < 0.000001 )
 //  cout << "CHECK CENTER: " << systemPtr->t << "   " << i << "   " << p.T()*hbarc << "   "
 //        << p.eta/p.gamma/systemPtr->t << "   " << p.s() << endl;
 
@@ -953,7 +953,7 @@ void SPHWorkstation::BSQshear()
     //Computes gradients to obtain dsigma/dt
     smooth_gradients( i, systemPtr->t, curfrz );
 
-    p.dsigma_dt = -p.sigma * ( p.gradV.x[0][0] + p.gradV.x[1][1] );
+    p.dsigma_dt = -p.sigma * ( p.gradV(0,0) + p.gradV(1,1) );
 //if (i==ic || printAll)
 if ( settingsPtr->print_particle(i) || printAll )
 cout << "CHECK dsigma_dt: " << i << "   " << systemPtr->t << "   " << p.dsigma_dt << "   " << p.sigma
@@ -1051,10 +1051,10 @@ cout << "CHECK det: " << i << "   " << systemPtr->t << "   " << M << "   " << de
 
 
     Matrix <double,2,2> MI;
-    MI.x[0][0]=M.x[1][1]/det;
-    MI.x[0][1]=-M.x[0][1]/det;
-    MI.x[1][0]=-M.x[1][0]/det;
-    MI.x[1][1]=M.x[0][0]/det;
+    MI(0,0) =  M(1,1)/det;
+    MI(0,1) = -M(0,1)/det;
+    MI(1,0) = -M(1,0)/det;
+    MI(1,1) =  M(0,0)/det;
   /* This notation is still a bit weird.. but also
   MI should be a member of particle as well */
 
@@ -1063,8 +1063,8 @@ if ( settingsPtr->print_particle(i) || printAll )
 cout << "CHECK MI: " << i << "   " << systemPtr->t << "   " << MI << "\n";
 
 
-    p.du_dt.x[0]=F.x[0]*MI.x[0][0]+F.x[1]*MI.x[0][1];
-    p.du_dt.x[1]=F.x[0]*MI.x[1][0]+F.x[1]*MI.x[1][1];
+    p.du_dt(0) = F(0) * MI(0,0) + F(1) * MI(0,1);
+    p.du_dt(1) = F(0) * MI(1,0) + F(1) * MI(1,1);
 
     Matrix <double,2,2> ulpi  = p.u*colp1(0, p.shv);
 
@@ -1099,7 +1099,7 @@ cout << "CHECK bigtheta: " << i
 
     // this term occurs in Eqs. (250) and (251) of Jaki's long notes
     // translation: pi^{ij} + pi^{00} v^i v^j - pi^{i0} v^j - pi^{0j} v^i
-    Matrix <double,2,2> sub   = p.pimin + (p.shv.x[0][0]/p.g2)*p.uu -1./p.gamma*p.piutot;
+    Matrix <double,2,2> sub   = p.pimin + (p.shv(0,0)/p.g2)*p.uu -1./p.gamma*p.piutot;
 
     // minshv = pi^{0i}                   (i   = 1,2)
     // pimin  = pi^{ij}                   (i,j = 1,2)
@@ -1110,7 +1110,7 @@ cout << "CHECK bigtheta: " << i
 
     if ( settingsPtr->using_shear )
       p.inside                  = systemPtr->t*(
-                                inner( -minshv+p.shv.x[0][0]*p.v, p.du_dt )
+                                inner( -minshv+p.shv(0,0)*p.v, p.du_dt )
                                 - con2(sub, p.gradU)
                                 - p.gamma*systemPtr->t*p.shv33 );
 
@@ -1121,7 +1121,7 @@ std::cout << "CHECK inside: " << i << "   "
 			<< systemPtr->t << "   "
 			<< p.inside << "   "
 			<< minshv << ";   "
-			<< p.shv.x[0][0]*p.v << ";   "
+			<< p.shv(0,0)*p.v << ";   "
 			<< p.du_dt << ";   "
 			<< sub << "   "
 			<< p.gradU << ";   "
