@@ -104,6 +104,7 @@ public:
 
   // allows for explicitly printing tons of information about specific particles
   vector<int> particles_to_print;
+  vector<bool> is_printable;
 
 
   // make sure that all chosen settings make reasonable sense
@@ -116,12 +117,13 @@ public:
 
   inline bool print_particle( int i )
   {
-      return ( particles_to_print.size() > 0 &&
-                std::binary_search( particles_to_print.begin(),
-                                    particles_to_print.end(), i ) );
+//      return ( particles_to_print.size() > 0 &&
+//                std::binary_search( particles_to_print.begin(),
+//                                    particles_to_print.end(), i ) );
 //      return ( particles_to_print.size() > 0 &&
 //                std::count( particles_to_print.begin(),
 //                            particles_to_print.end(), i ) );
+        return is_printable[ i ];
   }
 
 };
