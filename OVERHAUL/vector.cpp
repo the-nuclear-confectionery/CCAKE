@@ -82,7 +82,7 @@ Vector<T,D> operator*(T l, const Vector<T,D>& a)
 
 //==============================================================================
 template <class T, int D>
-double norm(const Vector<T,D>& a)
+double Norm(const Vector<T,D>& a)
 {
   double t = 0;
   for (int i = 0; i < D; i++) t += a(i)*a(i);
@@ -91,7 +91,7 @@ double norm(const Vector<T,D>& a)
 
 //==============================================================================
 template <class T, int D>
-double norm2(const Vector<T,D>& a)
+double Norm2(const Vector<T,D>& a)
 {
   double t = 0;
   for (int i = 0; i < D; i++) t += a(i)*a(i);

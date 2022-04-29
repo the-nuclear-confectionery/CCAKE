@@ -36,8 +36,8 @@ template <class T, int D> ostream&    operator<<( ostream&, const Vector<T,D>&  
 //==============================================================================
 // vector functions
 template <class T, int D> double inner( const Vector<T,D>&, const Vector<T,D>& );
-template <class T, int D> double norm(  const Vector<T,D>&              );
-template <class T, int D> double norm2( const Vector<T,D>&              );
+template <class T, int D> double Norm(  const Vector<T,D>&              );
+template <class T, int D> double Norm2( const Vector<T,D>&              );
 
 #include "vector.cpp"
 
