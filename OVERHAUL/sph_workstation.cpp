@@ -345,6 +345,11 @@ void SPHWorkstation::smooth_gradients( int a, double tin, int & count )
 
   double rdis = 0;
 
+  {
+
+  Vector<double,2> gradK, va, vb, sigsigK;
+  Matrix<double,2,2> vminia, vminib;
+
   for ( i(0) = -2; i(0) <= 2; i(0)++ )
   for ( i(1) = -2; i(1) <= 2; i(1)++ )
   {
@@ -357,19 +362,17 @@ void SPHWorkstation::smooth_gradients( int a, double tin, int & count )
     {
       auto & pb          = systemPtr->particles[b];
 
-      Vector<double,2> gradK   = kernel::gradKernel( pa.r - pb.r, settingsPtr->_h );
-      Vector<double,2> va      = rowp1(0, pa.shv);
-      Vector<double,2> vb      = rowp1(0, pb.shv);
-      Matrix<double,2,2> vminia, vminib;
-
+      gradK   = kernel::gradKernel( pa.r - pb.r, settingsPtr->_h );
+      va      = rowp1(0, pa.shv);
+      vb      = rowp1(0, pb.shv);
       mini(vminia, pa.shv);
       mini(vminib, pb.shv);
 
-      double sigsqra           = 1.0/(pa.sigma*pa.sigma);
-      double sigsqrb           = 1.0/(pb.sigma*pb.sigma);
-      Vector<double,2> sigsigK = pb.sigmaweight * pa.sigma * gradK;
+      double sigsqra = 1.0/(pa.sigma*pa.sigma);
+      double sigsqrb = 1.0/(pb.sigma*pb.sigma);
+      sigsigK        = pb.sigmaweight * pa.sigma * gradK;
 
-      pa.gradP                += ( sigsqrb*pb.p() + sigsqra*pa.p() ) * sigsigK;
+      pa.gradP      += ( sigsqrb*pb.p() + sigsqra*pa.p() ) * sigsigK;
 
 if (settingsPtr->print_particle(a))
   cout << "CHECK grads: " << tin << "   "
@@ -433,6 +436,8 @@ cout << "CHECK gradV: " << a << "   " << tin << "   " << pa.sigma << "   " << pa
 
       b=systemPtr->linklist.link[b];
     }
+  }
+
   }
 
   const double hc = constants::hbarc_MeVfm;
