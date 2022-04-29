@@ -432,12 +432,23 @@ cout << __LINE__ << ":: DIVSHEAR = " << pa.divshear << endl;
 
       if ( settingsPtr->using_shear )
       {
+cout << "CHECK DIVSHEAR: " << __LINE__ << ":: " << a << "   " << tin << "   " << b << "   "
+      << sigsqrb << "   " << sigsqra << "   " << sigsigK << "   "
+      << transpose(vminib) << "   " << transpose(vminia) << "   "
+      << pa.divshear << endl;
+
         pa.gradshear            += inner(sigsigK, pa.v)*( sigsqrb*vb + sigsqra*va );
         pa.divshear             += sigsqrb*sigsigK*transpose(vminib)
                                     + sigsqra*sigsigK*transpose(vminia);
+
+cout << "CHECK DIVSHEAR: " << __LINE__ << ":: " << a << "   " << tin << "   " << b << "   "
+      << sigsqrb << "   " << sigsqra << "   " << sigsigK << "   "
+      << transpose(vminib) << "   " << transpose(vminia) << "   "
+      << pa.divshear << endl;
+
       }
 
-cout << "CHECK DIVSHEAR: " << a << "   " << tin << "   " << b << "   "
+cout << "CHECK DIVSHEAR: " << __LINE__ << ":: " << a << "   " << tin << "   " << b << "   "
       << sigsqrb << "   " << sigsqra << "   " << sigsigK << "   "
       << transpose(vminib) << "   " << transpose(vminia) << "   "
       << pa.divshear << endl;
