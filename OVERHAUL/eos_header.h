@@ -9,7 +9,6 @@ static constexpr bool use_static_C_library                = true;
 //static constexpr bool use_conformal_as_fallback           = true;
 static constexpr bool use_nonconformal_extension          = false;
 static constexpr bool use_tanh_conformal                  = true;
-static constexpr bool use_conformal_diagonal              = true;
 static constexpr bool skip_failed_EoS                     = true;
 
 static constexpr int VERBOSE = 0;
