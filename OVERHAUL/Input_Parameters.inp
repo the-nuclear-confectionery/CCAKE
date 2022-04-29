@@ -4,7 +4,7 @@ ICfile:     initial_conditions/Iccing_conditions.dat
 h:          0.300000
 dt:         0.05
 t0:         1.100000
-EoS_Type:   Conformal_Diagonal
+EoS_Type:   Conformal
 EoS_Option: Default
 eta:        constant
 etaOpt:     0.20
