@@ -343,7 +343,7 @@ void SPHWorkstation::smooth_gradients( int a, double tin, int & count )
 
   if ( pa.btrack != -1 ) pa.btrack = 0;
 
-cout << __LINE__ << ":: DIVSHEAR = " << pa.divshear << endl;
+//cout << __LINE__ << ":: DIVSHEAR = " << pa.divshear << endl;
 
   double rdis = 0;
 
@@ -351,22 +351,22 @@ cout << __LINE__ << ":: DIVSHEAR = " << pa.divshear << endl;
   for ( i(1) = -2; i(1) <= 2; i(1)++ )
   {
 
-cout << __LINE__ << ":: DIVSHEAR = " << pa.divshear << endl;
+//cout << __LINE__ << ":: DIVSHEAR = " << pa.divshear << endl;
 
     int b=systemPtr->linklist.lead[
             systemPtr->linklist.triToSum(
               systemPtr->linklist.dael[a] + i, systemPtr->linklist.size ) ];
 
-cout << __LINE__ << ":: DIVSHEAR = " << pa.divshear << endl;
+//cout << __LINE__ << ":: DIVSHEAR = " << pa.divshear << endl;
 
     while( b != -1 )
     {
 
-cout << __LINE__ << ":: DIVSHEAR = " << pa.divshear << endl;
+//cout << __LINE__ << ":: DIVSHEAR = " << pa.divshear << endl;
 
       auto & pb          = systemPtr->particles[b];
 
-cout << __LINE__ << ":: DIVSHEAR = " << pa.divshear << endl;
+//cout << __LINE__ << ":: DIVSHEAR = " << pa.divshear << endl;
 
 
       Vector<double,2> gradK   = kernel::gradKernel( pa.r - pb.r, settingsPtr->_h );
@@ -374,7 +374,7 @@ cout << __LINE__ << ":: DIVSHEAR = " << pa.divshear << endl;
       Vector<double,2> vb      = rowp1(0, pb.shv);
       Matrix<double,2,2> vminia, vminib;
 
-cout << __LINE__ << ":: DIVSHEAR = " << pa.divshear << endl;
+//cout << __LINE__ << ":: DIVSHEAR = " << pa.divshear << endl;
 
 
       mini(vminia, pa.shv);
@@ -386,7 +386,7 @@ cout << __LINE__ << ":: DIVSHEAR = " << pa.divshear << endl;
 
       pa.gradP                += ( sigsqrb*pb.p() + sigsqra*pa.p() ) * sigsigK;
 
-cout << __LINE__ << ":: DIVSHEAR = " << pa.divshear << endl;
+//cout << __LINE__ << ":: DIVSHEAR = " << pa.divshear << endl;
 
 
 if (settingsPtr->print_particle(a))
@@ -405,7 +405,7 @@ if (settingsPtr->print_particle(a))
         if ( pa.btrack ==  1 ) rdis = Norm(pa.r-pb.r)/settingsPtr->_h;
       }
 
-cout << __LINE__ << ":: DIVSHEAR = " << pa.divshear << endl;
+//cout << __LINE__ << ":: DIVSHEAR = " << pa.divshear << endl;
 
 
       pa.gradBulk             += ( pb.Bulk/pb.sigma/pb.gamma
@@ -427,51 +427,51 @@ cout << "CHECK gradV: " << a << "   " << tin << "   " << pa.sigma << "   " << pa
     << sigsigK << endl;
 }
 
-cout << __LINE__ << ":: DIVSHEAR = " << pa.divshear << endl;
+//cout << __LINE__ << ":: DIVSHEAR = " << pa.divshear << endl;
 
 
       if ( settingsPtr->using_shear )
       {
-cout << "CHECK DIVSHEAR: " << __LINE__ << ":: " << a << "   " << tin << "   " << b << "   "
-      << sigsqrb << "   " << sigsqra << "   " << sigsigK << "   "
-      << transpose(vminib) << "   " << transpose(vminia) << "   "
-      << pa.divshear << endl;
+//cout << "CHECK DIVSHEAR: " << __LINE__ << ":: " << a << "   " << tin << "   " << b << "   "
+//      << sigsqrb << "   " << sigsqra << "   " << sigsigK << "   "
+//      << transpose(vminib) << "   " << transpose(vminia) << "   "
+//      << pa.divshear << endl;
 
         pa.gradshear            += inner(sigsigK, pa.v)*( sigsqrb*vb + sigsqra*va );
 
-cout << "CHECK DIVSHEAR: " << __LINE__ << ":: " << a << "   " << tin << "   " << b << "   "
-      << sigsqrb << "   " << sigsqra << "   " << sigsigK << "   "
-      << transpose(vminib) << "   " << transpose(vminia) << "   "
-      << pa.divshear << endl;
+//cout << "CHECK DIVSHEAR: " << __LINE__ << ":: " << a << "   " << tin << "   " << b << "   "
+//      << sigsqrb << "   " << sigsqra << "   " << sigsigK << "   "
+//      << transpose(vminib) << "   " << transpose(vminia) << "   "
+//      << pa.divshear << endl;
 
 
         pa.divshear             += sigsqrb*sigsigK*transpose(vminib)
                                     + sigsqra*sigsigK*transpose(vminia);
 
-cout << __LINE__ << ":: " << sigsqrb*sigsigK*transpose(vminib) << endl;
-cout << __LINE__ << ":: " << sigsqra*sigsigK*transpose(vminia) << endl;
-
-cout << __LINE__ << ":: " << sigsigK*transpose(vminia) << endl;
-cout << __LINE__ << ":: " << sigsigK*transpose(vminib) << endl;
-
-cout << __LINE__ << ":: " << sigsqrb*sigsigK << endl;
-cout << __LINE__ << ":: " << sigsqra*sigsigK << endl;
-
-
-
-cout << "CHECK DIVSHEAR: " << __LINE__ << ":: " << a << "   " << tin << "   " << b << "   "
-      << sigsqrb << "   " << sigsqra << "   " << sigsigK << "   "
-      << transpose(vminib) << "   " << transpose(vminia) << "   "
-      << pa.divshear << endl;
+//cout << __LINE__ << ":: " << sigsqrb*sigsigK*transpose(vminib) << endl;
+//cout << __LINE__ << ":: " << sigsqra*sigsigK*transpose(vminia) << endl;
+//
+//cout << __LINE__ << ":: " << sigsigK*transpose(vminia) << endl;
+//cout << __LINE__ << ":: " << sigsigK*transpose(vminib) << endl;
+//
+//cout << __LINE__ << ":: " << sigsqrb*sigsigK << endl;
+//cout << __LINE__ << ":: " << sigsqra*sigsigK << endl;
+//
+//
+//
+//cout << "CHECK DIVSHEAR: " << __LINE__ << ":: " << a << "   " << tin << "   " << b << "   "
+//      << sigsqrb << "   " << sigsqra << "   " << sigsigK << "   "
+//      << transpose(vminib) << "   " << transpose(vminia) << "   "
+//      << pa.divshear << endl;
 
       }
 
-cout << "CHECK DIVSHEAR: " << __LINE__ << ":: " << a << "   " << tin << "   " << b << "   "
-      << sigsqrb << "   " << sigsqra << "   " << sigsigK << "   "
-      << transpose(vminib) << "   " << transpose(vminia) << "   "
-      << pa.divshear << endl;
-
-if (1) exit(8);
+//cout << "CHECK DIVSHEAR: " << __LINE__ << ":: " << a << "   " << tin << "   " << b << "   "
+//      << sigsqrb << "   " << sigsqra << "   " << sigsigK << "   "
+//      << transpose(vminib) << "   " << transpose(vminia) << "   "
+//      << pa.divshear << endl;
+//
+//if (1) exit(8);
 
       if ( isnan( pa.gradP(0) ) )
       {
