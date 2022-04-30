@@ -238,7 +238,7 @@ Vector<T,D2> operator*(const Vector<T,D1>& a, const Matrix<T,D1,D2>& b)
   for (int j=0; j<D2; j++)
     t(j)+=a(i)*b(i,j);
 
-std::cout << __FUNCTION__ << ":: " << b << "   " << a << "   " << t << std::endl;
+//std::cout << __FUNCTION__ << ":: " << b << "   " << a << "   " << t << std::endl;
 
   return t;
 } // AOK
