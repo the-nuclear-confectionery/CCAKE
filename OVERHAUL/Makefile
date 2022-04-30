@@ -9,7 +9,7 @@ DEBUG=
 STANDARD= -std=c++11
 WARNINGS= -w -Wall -Wextra -pedantic -Wno-conversion -Wcast-align -Wunused -Wshadow -Wpointer-arith
 #OPTIMIZATION= -Og
-OPTIMIZATION= -Ofast -funroll-loops -fvectorize -finline-functions -s -DNDEBUG -march=native -mtune=native
+OPTIMIZATION= -Ofast -s -march=native -mtune=native
 # change to -O3 or -Ofast for production
 EIGENPATH=$(realpath ../eigen)
 GSLPATH=/projects/jnorhos/local/include
