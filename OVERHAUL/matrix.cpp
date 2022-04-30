@@ -202,7 +202,7 @@ Vector<T,D1> operator*(const Matrix<T,D1,D2>& a, const Vector<T,D2>& b)
 //template <class T, int D1, int D2>
 //Matrix<T,D1,D2> outer( const Vector<T,D1>& a, const Vector<T,D2>& b )
 template <class T, int D1, int D2>
-Matrix<T,D1,D2> operator* ( Vector<T,D1> a, Vector<T,D2> b )
+Matrix<T,D1,D2> operator* ( const Vector<T,D1>& a, const Vector<T,D2>& b )
 {
   Matrix<T,D1,D2> t;
   for (int i = 0; i < D1; i++)
