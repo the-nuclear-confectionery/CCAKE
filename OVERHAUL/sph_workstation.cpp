@@ -398,12 +398,9 @@ if (settingsPtr->print_particle(a))
       pa.gradV                += (pb.sigmaweight/pa.sigma)*( pb.v -  pa.v )*gradK;
 if (settingsPtr->print_particle(a))
 {
-cout << "CHECK gradV: " << a << "   " << tin << "   " << pa.sigma << "   " << pa.v
-		<< "   " << gradK << "   " << pa.get_current_eos_name()
-    << "   " << pb.get_current_eos_name()
-    << "   " << b << "   " << pb.sigmaweight << "   " << pb.v
-		<< "   " << pb.v -  pa.v << "   " << pa.Bulk << "   " << pb.Bulk << "   "
-    << sigsigK << endl;
+cout << "CHECK gradV: " << tin << "   " << a << "   " << b << "   "
+    << pb.sigmaweight/pa.sigma << "   " << pb.v -  pa.v
+		<< "   " << gradK << "   " << pa.gradV << endl;
 }
 
       if ( settingsPtr->using_shear )
