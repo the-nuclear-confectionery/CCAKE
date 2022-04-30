@@ -13,8 +13,8 @@ template <class T, int D1, int D2>
 class Matrix
 {
 private:
-  vector<T> x{vector<T>(D1*D2,0)};
-//  T x[D1*D2];
+//  vector<T> x{vector<T>(D1*D2,0)};
+  T x[D1*D2];
   inline int index(const int i, const int j) const { return i*D2+j; }
 public:
   Matrix<T,D1,D2>();
