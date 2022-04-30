@@ -128,7 +128,7 @@ Matrix<T,D1,D2> operator*(T l, const Matrix<T,D1,D2>& a)
   for (int j = 0; j < D2; j++)
     t(i,j) = l*a(i,j);
 
-std::cout << __LINE__ << ":: " << l << "   " << a << "   " << t << std::endl;
+std::cout << __FUNCTION__ << ":: " << l << "   " << a << "   " << t << std::endl;
 
   return t;
 } // AOK
@@ -166,7 +166,7 @@ Matrix<T,D2,D1> transpose(const Matrix<T,D1,D2>& a)
   for (int j=0; j<D1; j++)
     t(i,j)=a(j,i);
 
-std::cout << __LINE__ << ":: " << a << "   " << t << std::endl;
+std::cout << __FUNCTION__ << ":: " << a << "   " << t << std::endl;
 
   return t;
 } // AOK
@@ -193,7 +193,7 @@ Vector<T,D1> operator*(const Matrix<T,D1,D2>& a, const Vector<T,D2>& b)
   for (int j=0; j<D2; j++)
     t(i) += a(i,j) * b(j);
 
-std::cout << __LINE__ << ":: " << b << "   " << a << "   " << t << std::endl;
+std::cout << __FUNCTION__ << ":: " << b << "   " << a << "   " << t << std::endl;
 
   return t;
 } // AOK
