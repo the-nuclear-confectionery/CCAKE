@@ -164,9 +164,7 @@ Matrix<T,D2,D1> transpose(const Matrix<T,D1,D2>& a)
 
   for (int i=0; i<D2; i++)
   for (int j=0; j<D1; j++)
-    t(i,j)=a(j,i);
-
-//std::cout << __FUNCTION__ << ":: " << a << "   " << t << std::endl;
+    t(i,j) = a(j,i);
 
   return t;
 } // AOK

@@ -29,10 +29,9 @@ namespace kernel
     return;
   }
 
-  double kernel( Vector<double,2> a, double h )
+  double kernel( const Vector<double,2> & a, double h )
   {
-    double r = Norm(a);
-    double q = r/h;
+    double q = Norm(a)/h;
 
     if ( q >= 2.0 )
       return 0.0;
@@ -43,7 +42,7 @@ namespace kernel
     return knorm*(1 - 1.5*qq + 0.75*q*qq);
   }
 
-  Vector<double,2> gradKernel( Vector<double,2> a, double h )
+  Vector<double,2> gradKernel( const Vector<double,2> & a, double h )
   {
     Vector<double,2> tsubb;
     double r = Norm(a);

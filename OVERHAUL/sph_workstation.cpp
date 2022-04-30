@@ -309,16 +309,18 @@ void SPHWorkstation::smooth_gradients( int a, double tin, int & count )
   for ( i(1) = -2; i(1) <= 2; i(1)++ )
   {
 
-    int b=systemPtr->linklist.lead[
+    int b = systemPtr->linklist.lead[
             systemPtr->linklist.triToSum(
-              systemPtr->linklist.dael[a] + i, systemPtr->linklist.size ) ];
+              systemPtr->linklist.dael[a] + i,
+              systemPtr->linklist.size ) ];
 
     while( b != -1 )
     {
 
       auto & pb          = systemPtr->particles[b];
 
-      Vector<double,2> gradK   = kernel::gradKernel( pa.r - pb.r, settingsPtr->_h );
+      Vector<double,2> rel_sep = pa.r - pb.r;
+      Vector<double,2> gradK   = kernel::gradKernel( rel_sep, settingsPtr->_h );
       Vector<double,2> va      = rowp1(0, pa.shv);
       Vector<double,2> vb      = rowp1(0, pb.shv);
       Matrix<double,2,2> vminia, vminib;
@@ -345,10 +347,11 @@ void SPHWorkstation::smooth_gradients( int a, double tin, int & count )
                   << "   " << gradK << "   " << sigsigK
                   << "   " << pa.sigma << "\n";
 
-      if ( ( ( Norm( pa.r - pb.r ) / settingsPtr->_h ) <= 2 ) && ( a != b ) )
+      double relative_distance_by_h = Norm( rel_sep ) / settingsPtr->_h;
+      if ( ( relative_distance_by_h <= 2.0 ) && ( a != b ) )
       {
         if ( pa.btrack != -1 ) pa.btrack++;
-        if ( pa.btrack ==  1 ) rdis = Norm(pa.r-pb.r)/settingsPtr->_h;
+        if ( pa.btrack ==  1 ) rdis = relative_distance_by_h;
       }
 
       pa.gradBulk             += ( pb.Bulk/pb.sigma/pb.gamma
