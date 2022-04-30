@@ -61,6 +61,7 @@ private:
   EquationOfState * eosPtr  = nullptr;
 //  EquationsOfMotion * eomPtr = nullptr;
 
+  static constexpr int VERBOSE = 0;
   static constexpr double TOLERANCE = 0.0;
   static constexpr bool REGULATE_LOW_T = false;
 
