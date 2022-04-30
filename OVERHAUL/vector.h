@@ -12,8 +12,8 @@ template <class T, int D>
 class Vector
 {
 private:
-//  vector<T> x{vector<T>(D,0)};
-  T x[D];
+  vector<T> x{vector<T>(D,0)};
+//  T x[D];
 public:
   Vector<T,D>(){}
 
