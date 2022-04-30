@@ -183,8 +183,8 @@ Matrix<T,D1,D2>& Matrix<T,D1,D2>::identity() {
 template <class T, int D1, int D2>
 ostream& operator<<(ostream& os, Matrix<T,  D1, D2> a) {
 
-    for(int j=0; j<D2; j++) {
         for(int i=0; i<D1; i++) {
+    for(int j=0; j<D2; j++) {
             os << a.x[i][j] <<" ";
         }
     }
