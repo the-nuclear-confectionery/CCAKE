@@ -975,7 +975,7 @@ void SPHWorkstation::BSQshear()
     {
       std::cout << "CHECK misc1: " << i << "   " << systemPtr->t << "   "
                 << gamt << "   " << p.sigma	<< "   " << p.dsigma_dt << "\n"
-                << "CHECK minshv: " << i << "   " << systemPtr->t << "   " << minshv << "\n";
+                << "CHECK minshv: " << i << "   " << systemPtr->t << "   " << minshv << "\n"
                 << "CHECK partU: " << i << "   " << systemPtr->t << "   " << partU << "\n";
     }
 
