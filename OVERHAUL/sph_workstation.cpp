@@ -320,7 +320,9 @@ void SPHWorkstation::smooth_gradients( int a, double tin, int & count )
       auto & pb          = systemPtr->particles[b];
 
       Vector<double,2> rel_sep = pa.r - pb.r;
-      Vector<double,2> gradK   = kernel::gradKernel( rel_sep, settingsPtr->_h );
+      double rel_sep_norm      = Norm( rel_sep );
+      Vector<double,2> gradK   = kernel::gradKernel( rel_sep, rel_sep_norm, settingsPtr->_h );
+      //Vector<double,2> gradK   = kernel::gradKernel( rel_sep, settingsPtr->_h );
       Vector<double,2> va      = rowp1(0, pa.shv);
       Vector<double,2> vb      = rowp1(0, pb.shv);
       Matrix<double,2,2> vminia, vminib;
@@ -347,7 +349,7 @@ void SPHWorkstation::smooth_gradients( int a, double tin, int & count )
                   << "   " << gradK << "   " << sigsigK
                   << "   " << pa.sigma << "\n";
 
-      double relative_distance_by_h = Norm( rel_sep ) / settingsPtr->_h;
+      double relative_distance_by_h = rel_sep_norm / settingsPtr->_h;
       if ( ( relative_distance_by_h <= 2.0 ) && ( a != b ) )
       {
         if ( pa.btrack != -1 ) pa.btrack++;
