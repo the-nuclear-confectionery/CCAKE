@@ -4,11 +4,12 @@ OBJS = main.o vector.o matrix.o BSQHydro.o particle.o eos.o \
 			 eos_extension.o
 #CC = g++
 CC = h5c++
-DEBUG = -g -D_GLIBCXX_CONCEPT_CHECKS -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC
+#DEBUG = -g -D_GLIBCXX_CONCEPT_CHECKS -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC
+DEBUG=
 STANDARD= -std=c++11
 WARNINGS= -w -Wall -Wextra -pedantic -Wno-conversion -Wcast-align -Wunused -Wshadow -Wpointer-arith
-OPTIMIZATION= -Og
-#OPTIMIZATION= -Ofast -funroll-loops -fvectorize -finline-functions -s -DNDEBUG -march=native -mtune=native
+#OPTIMIZATION= -Og
+OPTIMIZATION= -Ofast -s -march=native -mtune=native
 # change to -O3 or -Ofast for production
 EIGENPATH=$(realpath ../eigen)
 GSLPATH=/projects/jnorhos/local/include
