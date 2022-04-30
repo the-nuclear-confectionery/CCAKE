@@ -413,10 +413,10 @@ cout << "CHECK gradV: " << a << "   " << tin << "   " << pa.sigma << "   " << pa
                                     + sigsqra*sigsigK*transpose(vminia);
       }
 
-cout << "CHECK DIVSHEAR: " << a << "   " << tin << "   " << b << "   "
-      << sigsqrb << "   " << sigsqra << "   " << sigsigK << "   "
-      << transpose(vminib) << "   " << transpose(vminia) << "   "
-      << pa.divshear << endl;
+//cout << "CHECK DIVSHEAR: " << a << "   " << tin << "   " << b << "   "
+//      << sigsqrb << "   " << sigsqra << "   " << sigsigK << "   "
+//      << transpose(vminib) << "   " << transpose(vminia) << "   "
+//      << pa.divshear << endl;
 
       if ( isnan( pa.gradP.x[0] ) )
       {
