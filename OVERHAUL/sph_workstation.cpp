@@ -493,7 +493,7 @@ cout << "CHECK gradV: " << tin << "   " << a << "   " << b << "   "
   }
 
 
-if (1) exit(8);
+if (tin > 1.15) exit(8);
 
 
   const double hc = constants::hbarc_MeVfm;
