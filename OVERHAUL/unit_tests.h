@@ -3,6 +3,9 @@
 
 using namespace std;
 
+inline void passed(const string & f) { cout << f << ": " << "PASSED" << endl; }
+inline void failed(const string & f) { cout << f << ": " << "FAILED" << endl; }
+
 template <class T, int D>
 bool operator==( const Vector<T,D>& a, const Vector<T,D>& b )
 {
@@ -10,6 +13,20 @@ bool operator==( const Vector<T,D>& a, const Vector<T,D>& b )
   for (int i = 0; i < D; i++) result = result && ( a(i) == b(i) );
   return result;
 }
+
+void check_assignment()
+{
+  Vector<int, 2> a, b;
+  a(0) = 1; a(1) = 2;
+  b = a;
+  if ( a == b ) passed( __FUNCTION__ ); else failed( __FUNCTION__ );
+}
+
+void run_vector_tests()
+{
+  check_assignment();
+}
+
 
 /*
 ////////////////////////////////////////////////////////////////////////////////
