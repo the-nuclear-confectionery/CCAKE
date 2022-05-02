@@ -24,7 +24,7 @@ bool operator==( const Vector<T,D>& a, const Vector<T,D>& b )
 ////////////////////////////////////////////////////////////////////////////////
 void check_copy()
 {
-  Vector<int, 2> a, b;
+  Vector<double, 2> a, b;
   a(0) = 1; a(1) = 2;
   b = a;
   if ( a == b ) passed( __FUNCTION__ ); else failed( __FUNCTION__ );
@@ -33,14 +33,14 @@ void check_copy()
 ////////////////////////////////////////////////////////////////////////////////
 void check_assignment()
 {
-  Vector<int, 2> a = 7;
+  Vector<double, 2> a = 7;
   if ( a[0] == 7 && a[1] == 7 ) passed( __FUNCTION__ ); else failed( __FUNCTION__ );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void check_inplace_addition()
 {
-  Vector<int, 2> a = 7, b = 1;
+  Vector<double, 2> a = 7, b = 1;
   a += b;
   if ( a[0] == 8 && a[1] == 8 ) passed( __FUNCTION__ ); else failed( __FUNCTION__ );
 }
@@ -48,7 +48,7 @@ void check_inplace_addition()
 ////////////////////////////////////////////////////////////////////////////////
 void check_inplace_subtraction()
 {
-  Vector<int, 2> a = 7, b = 1;
+  Vector<double, 2> a = 7, b = 1;
   a -= b;
   if ( a[0] == 6 && a[1] == 6 ) passed( __FUNCTION__ ); else failed( __FUNCTION__ );
 }
@@ -57,7 +57,7 @@ void check_inplace_subtraction()
 ////////////////////////////////////////////////////////////////////////////////
 void check_inplace_multiplication()
 {
-  Vector<int, 2> a = 7;
+  Vector<double, 2> a = 7;
   int b = 3;
   a *= b;
   if ( a[0] == 21 && a[1] == 21 ) passed( __FUNCTION__ ); else failed( __FUNCTION__ );
@@ -66,7 +66,7 @@ void check_inplace_multiplication()
 ////////////////////////////////////////////////////////////////////////////////
 void check_negation()
 {
-  Vector<int, 2> a = 7;
+  Vector<double, 2> a = 7;
   a = -a;
   if ( a[0] == -7 && a[1] == -7 ) passed( __FUNCTION__ ); else failed( __FUNCTION__ );
 }
