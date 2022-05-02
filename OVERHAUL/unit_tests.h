@@ -11,8 +11,8 @@
 
 using namespace std;
 
-inline void passed(const string & f) { cout << f << ":" << setw(50) << right << GREEN << "PASSED\n" << RESET; }
-inline void failed(const string & f) { cout << f << ":" << setw(50) << right << RED << "FAILED\n" << RESET; }
+inline void passed(const string & f) { cout << f << ":" << right << setw(50) << GREEN << "PASSED\n" << RESET; }
+inline void failed(const string & f) { cout << f << ":" << right << setw(50) << RED << "FAILED\n" << RESET; }
 
 template <class T, int D>
 bool operator==( const Vector<T,D>& a, const Vector<T,D>& b )
