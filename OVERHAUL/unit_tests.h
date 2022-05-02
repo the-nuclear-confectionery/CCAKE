@@ -4,7 +4,7 @@
 using namespace std;
 
 inline void passed(const string & f) { cout << f << ": " << "PASSED" << endl; }
-inline void failed(const string & f) { cout << f << ": " << "FAILED" << endl; }
+inline void failed(const string & f) { cout << f << ": " "\033[1;31mFAILED\033[0m\n"; }
 
 template <class T, int D>
 bool operator==( const Vector<T,D>& a, const Vector<T,D>& b )
