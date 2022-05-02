@@ -38,7 +38,7 @@ void check_assignment()
 }
 
 
-/*
+
 ////////////////////////////////////////////////////////////////////////////////
 void check_inplace_addition()
 {
@@ -72,7 +72,8 @@ void check_negation()
   a = -a;
   if ( a(0) == -7 && a(1) == -7 ) passed( __FUNCTION__ ); else failed( __FUNCTION__ );
 }
-*/
+
+
 
 
 /*
@@ -127,8 +128,8 @@ void run_vector_tests()
 {
   check_copy();
   check_assignment();
-//  check_inplace_addition();
-//  check_inplace_subtraction();
-//  check_inplace_multiplication();
-//  check_negation();
+  check_inplace_addition();
+  check_inplace_subtraction();
+  check_inplace_multiplication();
+  check_negation();
 }
