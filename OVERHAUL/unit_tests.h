@@ -4,9 +4,14 @@
 //#include "matrix.h"
 #include "vector.h"
 
+#define RESET   "\033[0m"
+#define BLACK   "\033[30m"      /* Black */
+#define RED     "\033[31m"      /* Red */
+#define GREEN   "\033[32m"      /* Green */
+
 using namespace std;
 
-inline void passed(const string & f) { cout << f << ": PASSED\n"; }
+inline void passed(const string & f) { cout << f << GREEN << ": PASSED\n" << RESET; }
 inline void failed(const string & f) { cout << f << ": \033[1;31mFAILED\033[0m\n"; }
 
 template <class T, int D>
