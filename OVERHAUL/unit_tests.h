@@ -11,8 +11,8 @@
 
 using namespace std;
 
-inline void passed(const string & f) { cout << f << ":" << right << setw(50) << GREEN << "PASSED\n" << RESET; }
-inline void failed(const string & f) { cout << f << ":" << right << setw(50) << RED << "FAILED\n" << RESET; }
+inline void passed(const string & f) { cout << f << ":" << GREEN << "PASSED\n" << RESET; }
+inline void failed(const string & f) { cout << f << ":" << RED << "FAILED\n" << RESET; }
 
 template <class T, int D>
 bool operator==( const Vector<T,D>& a, const Vector<T,D>& b )
@@ -75,56 +75,70 @@ void check_negation()
 }
 
 
-
-
-/*
 ////////////////////////////////////////////////////////////////////////////////
-void run_vector_and_matrix_unit_tests()
+void check_addition()
 {
-
-  Vector<T,D>& operator+=(const Vector<T,D>&);
-  Vector<T,D>& operator-=(const Vector<T,D>&);
-  Vector<T,D>& operator*=(T);
-
-
-//==============================================================================
-// overloaded operations
-template <class T, int D> Vector<T,D> operator+ ( const Vector<T,D>&, const Vector<T,D>& );
-template <class T, int D> Vector<T,D> operator- ( const Vector<T,D>&              );
-template <class T, int D> Vector<T,D> operator- ( const Vector<T,D>&, const Vector<T,D>& );
-template <class T, int D> Vector<T,D> operator* ( T, const Vector<T,D>&           );
-template <class T, int D> ostream&    operator<<( ostream&, const Vector<T,D>&    );
-
-//==============================================================================
-// vector functions
-template <class T, int D> double inner( const Vector<T,D>&, const Vector<T,D>& );
-template <class T, int D> double Norm(  const Vector<T,D>&              );
-template <class T, int D> double Norm2( const Vector<T,D>&              );  }
-
-
-
-Vector<T,D>& Vector<T,D>::operator=(const Vector<U,D> & a)
-Vector<T,D>& Vector<T,D>::operator=(double a)
-Vector<T,D>& Vector<T,D>::operator+=(const Vector<T,D> & a)
-Vector<T,D>& Vector<T,D>::operator-=(const Vector<T,D> & a)
-Vector<T,D>& Vector<T,D>::operator*=(T l)
-Vector<T,D> operator+(const Vector<T,D>& a, const Vector<T,D>& b)
-Vector<T,D> operator-(const Vector<T,D>& a)
-Vector<T,D> operator-(const Vector<T,D>& a, const Vector<T,D>& b)
-Vector<T,D> operator*(T l, const Vector<T,D>& a)
-double Norm(const Vector<T,D>& a)
-double Norm2(const Vector<T,D>& a)
-ostream& operator<<(ostream& os, const Vector<T,D>& a)
-double inner (const Vector<T,D>& a, const Vector<T,D>& b)
-
-
+  Vector<double, 2> a = 7, b = 3;
+  Vector<double, 2> c = a + b;
+  if ( c(0) == 10 && c(1) == 10 ) passed( __FUNCTION__ ); else failed( __FUNCTION__ );
 }
 
 
-*/
+////////////////////////////////////////////////////////////////////////////////
+void check_subtraction()
+{
+  Vector<double, 2> a = 7, b = 3;
+  Vector<double, 2> c = a - b;
+  if ( c(0) == 4 && c(1) == 4 ) passed( __FUNCTION__ ); else failed( __FUNCTION__ );
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+void check_multiplication()
+{
+  Vector<double, 2> a = 7;
+  double b = 3;
+  Vector<double, 2> c = b*a;
+  if ( c(0) == 21 && c(1) == 21 ) passed( __FUNCTION__ ); else failed( __FUNCTION__ );
+}
 
 
 
+////////////////////////////////////////////////////////////////////////////////
+void check_inner()
+{
+  Vector<double, 2> a = 7;
+  Vector<double, 2> b = 3;
+  a(1) -= 1; b(0) += 1;
+  if ( inner(a,b) == 46 ) passed( __FUNCTION__ ); else failed( __FUNCTION__ );
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+void check_Norm()
+{
+  Vector<double, 2> a = 3;
+  a(1) += 1;
+  if ( Norm(a) == 5 ) passed( __FUNCTION__ ); else failed( __FUNCTION__ );
+}
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+void check_Norm2()
+{
+  Vector<double, 2> a = 3;
+  a(1) += 1;
+  if ( Norm2(a) == 25 ) passed( __FUNCTION__ ); else failed( __FUNCTION__ );
+}
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 void run_vector_tests()
 {
   check_copy();
@@ -133,4 +147,10 @@ void run_vector_tests()
   check_inplace_subtraction();
   check_inplace_multiplication();
   check_negation();
+  check_addition();
+  check_subtraction();
+  check_multiplication();
+  check_inner();
+  check_Norm();
+  check_Norm2();
 }
