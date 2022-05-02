@@ -1,4 +1,5 @@
 #include <cstdlib>
+#include <iomanip>
 #include <iostream>
 
 //#include "matrix.h"
@@ -10,8 +11,8 @@
 
 using namespace std;
 
-inline void passed(const string & f) { cout << f << ": " << GREEN << "PASSED\n" << RESET; }
-inline void failed(const string & f) { cout << f << ": " << RED << "FAILED\n" << RESET; }
+inline void passed(const string & f) { cout << f << ":" << setw(25) << GREEN << "PASSED\n" << RESET; }
+inline void failed(const string & f) { cout << f << ":" << setw(25) << RED << "FAILED\n" << RESET; }
 
 template <class T, int D>
 bool operator==( const Vector<T,D>& a, const Vector<T,D>& b )
