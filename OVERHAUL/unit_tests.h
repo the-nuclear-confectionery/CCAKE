@@ -53,6 +53,8 @@ double Norm2(const Vector<T,D>& a)
 ostream& operator<<(ostream& os, const Vector<T,D>& a)
 double inner (const Vector<T,D>& a, const Vector<T,D>& b)
 
-*/
 
 }
+
+
+*/
