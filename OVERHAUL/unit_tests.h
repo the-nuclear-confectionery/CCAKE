@@ -127,8 +127,8 @@ void run_vector_tests()
 {
   check_copy();
   check_assignment();
-  check_inplace_addition();
-  check_inplace_subtraction();
-  check_inplace_multiplication();
-  check_negation();
+//  check_inplace_addition();
+//  check_inplace_subtraction();
+//  check_inplace_multiplication();
+//  check_negation();
 }
