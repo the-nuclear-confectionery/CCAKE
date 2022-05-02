@@ -33,7 +33,7 @@ void check_copy()
 ////////////////////////////////////////////////////////////////////////////////
 void check_assignment()
 {
-  Vector<double, 2> a(7);
+  Vector<double, 2> a = 7;
   if ( a(0) == 7 && a(1) == 7 ) passed( __FUNCTION__ ); else failed( __FUNCTION__ );
 }
 
