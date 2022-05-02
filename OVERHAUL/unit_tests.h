@@ -21,7 +21,8 @@ bool operator==( const Vector<T,D>& a, const Vector<T,D>& b )
   return result;
 }
 
-void check_assignment()
+////////////////////////////////////////////////////////////////////////////////
+void check_copy()
 {
   Vector<int, 2> a, b;
   a(0) = 1; a(1) = 2;
@@ -29,10 +30,48 @@ void check_assignment()
   if ( a == b ) passed( __FUNCTION__ ); else failed( __FUNCTION__ );
 }
 
-void run_vector_tests()
+////////////////////////////////////////////////////////////////////////////////
+void check_assignment()
 {
-  check_assignment();
+  Vector<int, 2> a = 7;
+  if ( a[0] == 7 && a[1] == 7 ) passed( __FUNCTION__ ); else failed( __FUNCTION__ );
 }
+
+////////////////////////////////////////////////////////////////////////////////
+void check_inplace_addition()
+{
+  Vector<int, 2> a = 7, b = 1;
+  a += b;
+  if ( a[0] == 8 && a[1] == 8 ) passed( __FUNCTION__ ); else failed( __FUNCTION__ );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void check_inplace_subtraction()
+{
+  Vector<int, 2> a = 7, b = 1;
+  a -= b;
+  if ( a[0] == 6 && a[1] == 6 ) passed( __FUNCTION__ ); else failed( __FUNCTION__ );
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+void check_inplace_multiplication()
+{
+  Vector<int, 2> a = 7;
+  int b = 3;
+  a *= b;
+  if ( a[0] == 21 && a[1] == 21 ) passed( __FUNCTION__ ); else failed( __FUNCTION__ );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void check_negation()
+{
+  Vector<int, 2> a = 7;
+  a = -a;
+  if ( a[0] == -7 && a[1] == -7 ) passed( __FUNCTION__ ); else failed( __FUNCTION__ );
+}
+
+
 
 
 /*
@@ -40,8 +79,6 @@ void run_vector_tests()
 void run_vector_and_matrix_unit_tests()
 {
 
-  template <class U> Vector<T,D>& operator=(const Vector<U,D>&);
-  Vector<T,D>& operator=(double);
   Vector<T,D>& operator+=(const Vector<T,D>&);
   Vector<T,D>& operator-=(const Vector<T,D>&);
   Vector<T,D>& operator*=(T);
@@ -82,3 +119,15 @@ double inner (const Vector<T,D>& a, const Vector<T,D>& b)
 
 
 */
+
+
+
+void run_vector_tests()
+{
+  check_copy();
+  check_assignment();
+  check_inplace_addition();
+  check_inplace_subtraction();
+  check_inplace_multiplication();
+  check_negation();
+}
