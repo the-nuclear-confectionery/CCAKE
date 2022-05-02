@@ -1,10 +1,13 @@
+#include <cstdlib>
+#include <iostream>
+
 //#include "matrix.h"
 #include "vector.h"
 
 using namespace std;
 
-inline void passed(const string & f) { cout << f << ": " << "PASSED" << endl; }
-inline void failed(const string & f) { cout << f << ": " "\033[1;31mFAILED\033[0m\n"; }
+inline void passed(const string & f) { cout << f << ": PASSED\n"; }
+inline void failed(const string & f) { cout << f << ": \033[1;31mFAILED\033[0m\n"; }
 
 template <class T, int D>
 bool operator==( const Vector<T,D>& a, const Vector<T,D>& b )
