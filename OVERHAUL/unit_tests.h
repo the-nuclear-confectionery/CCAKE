@@ -33,9 +33,10 @@ void check_copy()
 ////////////////////////////////////////////////////////////////////////////////
 void check_assignment()
 {
-  Vector<double, 2> a = 7;
+  Vector<double, 2> a(7);
   if ( a(0) == 7 && a(1) == 7 ) passed( __FUNCTION__ ); else failed( __FUNCTION__ );
 }
+
 
 /*
 ////////////////////////////////////////////////////////////////////////////////
@@ -71,7 +72,6 @@ void check_negation()
   a = -a;
   if ( a(0) == -7 && a(1) == -7 ) passed( __FUNCTION__ ); else failed( __FUNCTION__ );
 }
-
 */
 
 
@@ -127,8 +127,8 @@ void run_vector_tests()
 {
   check_copy();
   check_assignment();
-//  check_inplace_addition();
-//  check_inplace_subtraction();
-//  check_inplace_multiplication();
-//  check_negation();
+  check_inplace_addition();
+  check_inplace_subtraction();
+  check_inplace_multiplication();
+  check_negation();
 }

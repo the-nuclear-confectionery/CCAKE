@@ -15,7 +15,8 @@ private:
 //  vector<T> x{vector<T>(D,0)};
   T x[D];
 public:
-  Vector<T,D>(){for (int i = 0; i < D; i++) x[i] = 0.0;}
+  Vector<T,D>(){for (int i = 0; i < D; i++) x[i] = (T)0.0;}
+  Vector<T,D>(T x0){for (int i = 0; i < D; i++) x[i] = x0;}
 
   template <class U> Vector<T,D>& operator=(const Vector<U,D>&);
   Vector<T,D>& operator=(double);
