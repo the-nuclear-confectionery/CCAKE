@@ -3,6 +3,7 @@
 
 using namespace std;
 
+template <class T, int D>
 bool operator==( const Vector<T,D>& a, const Vector<T,D>& b )
 {
   bool result = true;
