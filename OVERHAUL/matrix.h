@@ -75,10 +75,10 @@ template <class T, int D1, int D2>
 
 //==============================
 template <class T, int D1, int D2>
-  Vector<T,(D2-1)> rowp1( const Matrix<T, D1, D2>& a );
+  Vector<T,(D2-1)> rowp1( int l, const Matrix<T, D1, D2>& a );
 //==============================
 template <class T, int D1, int D2>
-  Vector<T,(D1-1)> colp1( const Matrix<T, D1, D2>& a );
+  Vector<T,(D1-1)> colp1( int l, const Matrix<T, D1, D2>& a );
 
 //==============================
 template <class T, int D1>
