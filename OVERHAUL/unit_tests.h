@@ -331,15 +331,15 @@ namespace matrix_checks
   }
 
   ////////////////////////////////////////////////////////////////////////////////
-//  void check_determinant_3D()
-//  {
-//    Matrix<double, 3, 3> a;
-//    a(0) = 1; a(1) = 2;  a(2) = 3;
-//    a(3) = 4; a(4) = 15; a(5) = 6;
-//    a(6) = 7; a(7) = 8;  a(8) = 9;
-//    bool test_condition = (deter(a) == -120);
-//    if ( test_condition ) passed( __FUNCTION__ ); else failed( __FUNCTION__ );
-//  }
+  void check_determinant_3D()
+  {
+    Matrix<double, 3, 3> a;
+    a(0) = 1; a(1) = 2;  a(2) = 3;
+    a(3) = 4; a(4) = 15; a(5) = 6;
+    a(6) = 7; a(7) = 8;  a(8) = 9;
+    bool test_condition = (deter(a) == -120);
+    if ( test_condition ) passed( __FUNCTION__ ); else failed( __FUNCTION__ );
+  }
 
   ////////////////////////////////////////////////////////////////////////////////
   void check_con()
@@ -349,7 +349,7 @@ namespace matrix_checks
     a(1,0) = 4; a(1,1) = 15; a(1,2) = 6;
     a(2,0) = 7; a(2,1) = 8;  a(2,2) = 9;
     Matrix<double, 3, 3> b = 5; b += a;
-    bool test_condition = (con(a,b) == 736);
+    bool test_condition = (con(a,b) == 760);
     if ( test_condition ) passed( __FUNCTION__ ); else failed( __FUNCTION__ );
   }
 
@@ -361,7 +361,7 @@ namespace matrix_checks
     a(1,0) = 4; a(1,1) = 15; a(1,2) = 6;
     a(2,0) = 7; a(2,1) = 8;  a(2,2) = 9;
     Matrix<double, 3, 3> b = 5; b += a;
-    bool test_condition = (con2(a,b) == 736);
+    bool test_condition = (con2(a,b) == 760);
     if ( test_condition ) passed( __FUNCTION__ ); else failed( __FUNCTION__ );
   }
 
@@ -459,7 +459,7 @@ void run_matrix_tests()
 
   check_transpose();
   check_determinant_2D();
-//  check_determinant_3D();
+  check_determinant_3D();
   check_con();
   check_con2();
 
