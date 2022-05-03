@@ -491,13 +491,13 @@ cout << "=======================================================================
 
     pEoS_base table_EoS_object = chosen_EOS_map["table"];
 
-    dynamic_cast<std::shared_ptr<EoS_table> >(table_EoS_object)->set_debug_mode(true);
+    (dynamic_cast<EoS_table*>(table_EoS_object))->set_debug_mode(true);
     std::vector<double> v = get_thermodynamics( point, "table" );
     std::cout << "Check exact: " << T0 << "   " << muB0 << "   "
               << muQ0 << "   "<< muS0 << "   " << v[5] << "   "
               << v[2] << "   " << v[3] << "   " << v[4] << std::endl;
 
-    dynamic_cast<std::shared_ptr<EoS_table> >(table_EoS_object)->set_debug_mode(false);
+//    dynamic_cast<std::shared_ptr<EoS_table> >(table_EoS_object)->set_debug_mode(false);
     v = get_thermodynamics( point, "table" );
     std::cout << "Check interpolant: " << T0 << "   " << muB0 << "   "
               << muQ0 << "   "<< muS0 << "   " << v[5] << "   "
