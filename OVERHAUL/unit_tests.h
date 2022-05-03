@@ -22,7 +22,7 @@ bool operator==( const Vector<T,D>& a, const Vector<T,D>& b )
 }
 
 
-template <class T, int D>
+template <class T, int D1, int D2>
 bool operator==( const Matrix<T,D1,D2>& a, const Matrix<T,D1,D2>& b )
 {
   bool result = true;
