@@ -463,6 +463,11 @@ void run_matrix_tests()
   check_con();
   check_con2();
 
+  check_rowp1();
+  check_colp1();
+  check_mini();
+  check_tmini();
+
   cout << endl;
 }
 

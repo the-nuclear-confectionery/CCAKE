@@ -6,5 +6,7 @@ int main()
 {
   run_vector_tests();
 
+  run_matrix_tests();
+
   return 0;
 }
