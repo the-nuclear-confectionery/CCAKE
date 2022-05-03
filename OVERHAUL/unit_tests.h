@@ -373,7 +373,7 @@ namespace matrix_checks
     a(1,0) = 4; a(1,1) = 15; a(1,2) = 6;
     a(2,0) = 7; a(2,1) = 8;  a(2,2) = 9;
     Vector<double,2> b = rowp1( a );
-    bool test_condition = (b(0,0) == 2 && b(0,1) == 3);
+    bool test_condition = (b(0) == 2 && b(1) == 3);
     if ( test_condition ) passed( __FUNCTION__ ); else failed( __FUNCTION__ );
   }
 
@@ -385,7 +385,7 @@ namespace matrix_checks
     a(1,0) = 4; a(1,1) = 15; a(1,2) = 6;
     a(2,0) = 7; a(2,1) = 8;  a(2,2) = 9;
     Vector<double,2> b = colp1( a );
-    bool test_condition = (b(0,0) == 4 && b(0,1) == 7);
+    bool test_condition = (b(0) == 4 && b(1) == 7);
     if ( test_condition ) passed( __FUNCTION__ ); else failed( __FUNCTION__ );
   }
 
