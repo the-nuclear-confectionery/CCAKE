@@ -17,7 +17,9 @@ private:
   T x[D1*D2];
   inline int index(const int i, const int j) const { return i*D2+j; }
 public:
-  Matrix<T,D1,D2>();
+  Matrix<T,D1,D2>() {for (int i=0; i<D1*D2; i++) x[i] = 0;}
+  Matrix<T,D1,D2>(T x0) {for (int i = 0; i < D1*D2; i++) x[i] = x0;}
+
   Matrix<T,D1,D2>& operator=(double);
   Matrix<T,D1,D2>& operator+=(const Matrix<T,D1,D2>&);
   Matrix<T,D1,D2>& operator-=(const Matrix<T,D1,D2>&);
@@ -89,10 +91,10 @@ template <class T, int D1, int D2>
   double con2(  const Matrix<T,D1,D2>& a, const Matrix<T,D1,D2>& b );
 //==============================
 template <class T, int D1, int D2>
-  void mini(    const Matrix<T,D1-1,D2-1> &b, const Matrix<T,D1,D2>& a );
+  void mini(    Matrix<T,D1-1,D2-1> &b, const Matrix<T,D1,D2>& a );
 //==============================
 template <class T, int D1, int D2>
-  void tmini(   const Matrix<T,D1,D2>& b, const Matrix<T,D1-1,D2-1>& a );
+  void tmini(   Matrix<T,D1,D2>& b, const Matrix<T,D1-1,D2-1>& a );
 
 #include "matrix.cpp"
 

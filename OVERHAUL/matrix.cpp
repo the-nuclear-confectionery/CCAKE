@@ -10,12 +10,6 @@
 
 // D1 is the number for the rows, D2 is the number for the columns
 template <class T, int D1, int D2>
-Matrix<T,D1,D2>::Matrix()
-{
-  for (int i=0; i<D1*D2; i++) x[i] = 0; // AOK
-}
-
-template <class T, int D1, int D2>
 template <class U>
 Matrix<T,D1,D2>& Matrix<T,D1,D2>::operator=(const Matrix<U,D1,D2>& a)
 {
