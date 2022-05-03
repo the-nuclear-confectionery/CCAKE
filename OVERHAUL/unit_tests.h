@@ -401,7 +401,7 @@ namespace matrix_checks
     b(1,0) = -12; b(1,1) = -13;
     mini( b, a );
     bool test_condition = (b(0,0) == 15 && b(0,1) == 6
-                            && b(1,0) == 8 && b(1,1) = 9);
+                            && b(1,0) == 8 && b(1,1) == 9);
     if ( test_condition ) passed( __FUNCTION__ ); else failed( __FUNCTION__ );
   }
 
@@ -417,8 +417,8 @@ namespace matrix_checks
     b(1,0) = -12; b(1,1) = -13;
     tmini( a, b );
     bool test_condition = (a(0,0) == 1 && a(0,1) == 2 && a(0,2) == 3
-                            && a(1,0) == 4 && a(1,1) = -10 && a(1,2) = -11
-                            && a(2,0) == 7 && a(2,1) = -12 && a(2,2) = -13);
+                            && a(1,0) == 4 && a(1,1) == -10 && a(1,2) == -11
+                            && a(2,0) == 7 && a(2,1) == -12 && a(2,2) == -13);
     if ( test_condition ) passed( __FUNCTION__ ); else failed( __FUNCTION__ );
   }
 
