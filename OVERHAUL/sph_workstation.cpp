@@ -53,12 +53,12 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 			"----------------------------------------" << endl;
 
     systemPtr->_n = systemPtr->particles.size();
-    cout << "systemPtr->_n = " << systemPtr->_n << endl;
+    cout << "systemPtr->_n = " << systemPtr->_n << "\n";
 
     for (int i=0; i<systemPtr->_n; i++)
     {
 	cout << "----------------------------------------"
-			"----------------------------------------" << endl;
+			"----------------------------------------" << "\n";
 
 
       auto & p = systemPtr->particles[i];
@@ -68,7 +68,7 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 		{
 			sw.Start();
 			cout << setprecision(12) << "Doing this particle: "
-					<< p.r.x[0] << "   " << p.r.x[1] << "\n";
+					<< p.r(0) << "   " << p.r(1) << "\n";
 
       // solve for the entropy density
 			p.s_an = p.locate_phase_diagram_point_eBSQ(
@@ -100,7 +100,7 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 		else
 		{
 			std::cout << "\t --> Solution info: "
-                << p.r.x[0] << "   " << p.r.x[1] << "   "
+                << p.r(0) << "   " << p.r(1) << "   "
                 << p.get_current_eos_name() << "\n";
 			std::cout << "\t\t - phase diagram point (TBQS): "
                 << p.T()*hbarc_MeVfm << "   "
@@ -134,7 +134,7 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 		p.Q *= p.gamma*settingsPtr->t0;	// Q does not evolve in ideal case
 
 	cout << "----------------------------------------"
-			"----------------------------------------" << endl;
+			"----------------------------------------" << "\n";
 
 	if (false)
 	{
@@ -211,27 +211,9 @@ void SPHWorkstation::initial_smoothing()  // formerly BSQguess()
 		double smoothed_rhoS_lab = p.rhoS_sub/p.gamma/settingsPtr->t0;
 		double smoothed_rhoQ_lab = p.rhoQ_sub/p.gamma/settingsPtr->t0;
 
-//if (i==0)
-//	cout << "SPH checkpoint c(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
-//			<< p.sigmaweight << "   " << p.s_sub << "   "
-//			<< p.T() << "   " << p.e() << "   "
-//			<< p.p() << "   " << p.s_an << endl;
-//		p.locate_phase_diagram_point_sBSQ(
-//      p.s_sub, smoothed_rhoB_lab, smoothed_rhoS_lab, smoothed_rhoQ_lab );
-//if (i==0)
-//	cout << "SPH checkpoint c(" << __LINE__ << "): " << i << "   " << systemPtr->t << "   "
-//			<< p.sigmaweight << "   " << p.s_sub << "   "
-//			<< p.T() << "   " << p.e() << "   "
-//			<< p.p() << "   " << p.s_an << endl;
-
 		p.sigsub = 0;
 		p.frzcheck(settingsPtr->t0, count1, systemPtr->_n);
-if (i==0)
-	cout << "----------------------------------------"
-			"----------------------------------------" << endl;
 	}
-
-//if (1) exit(1);
 
 	return;
 
@@ -250,8 +232,8 @@ void SPHWorkstation::smooth_fields(int a, bool init_mode /*== false*/)
   //int neighbor_count = 0;
 
   Vector<int,2> i;
-  for ( i.x[0] = -2; i.x[0] <= 2; i.x[0]++ )
-  for ( i.x[1] = -2; i.x[1] <= 2; i.x[1]++ )
+  for ( i(0) = -2; i(0) <= 2; i(0)++ )
+  for ( i(1) = -2; i(1) <= 2; i(1)++ )
   {
     int b = systemPtr->linklist.lead[
               systemPtr->linklist.triToSum(
@@ -268,54 +250,32 @@ void SPHWorkstation::smooth_fields(int a, bool init_mode /*== false*/)
       pa.rhoQ_sub    += pb.Q*kern;
 
       //if (kern>0.0) neighbor_count++;
-      //if (abs(pa.r.x[0])<0.000001 && abs(pa.r.x[1])<0.000001)
 
-      if ( isnan( pa.eta ) || pa.eta < 0 || settingsPtr->print_particle(a) )
+      //===============
+      // print status
+      if ( ( VERBOSE > 2
+              && settingsPtr->particles_to_print.size() > 0
+              && settingsPtr->print_particle(a) )
+            || pa.eta < 0 || isnan( pa.eta ) )
         std::cout << __FUNCTION__ << "(SPH particle == " << a << "): "
-        << systemPtr->t << "   "
-        << b << "   " << pa.r
-        << "   " << pa.sigma
-        << "   " << pa.eta
-        << "   " << pb.r
-        << "   " << pb.sigmaweight
-        << "   " << pb.eta_sigma
-        << "   " << pb.rhoB_an
-        << "   " << pa.rhoB_sub
-        << "   " << pb.rhoS_an
-        << "   " << pa.rhoS_sub
-        << "   " << pb.rhoQ_an
-        << "   " << pa.rhoQ_sub
-        << "   " << kern << std::endl;
+                  << systemPtr->t << "   "
+                  << b << "   " << pa.r
+                  << "   " << pa.sigma
+                  << "   " << pa.eta
+                  << "   " << pb.r
+                  << "   " << pb.sigmaweight
+                  << "   " << pb.eta_sigma
+                  << "   " << pb.rhoB_an
+                  << "   " << pa.rhoB_sub
+                  << "   " << pb.rhoS_an
+                  << "   " << pa.rhoS_sub
+                  << "   " << pb.rhoQ_an
+                  << "   " << pa.rhoQ_sub
+                  << "   " << kern << "\n";
 
       b = systemPtr->linklist.link[b];
     }
   }
-
-
-
-/*
-  //cout << "Check neighbor count: " << a << "   " << neighbor_count << endl;
-
-  // reset total B, S, and Q charge of each SPH particle to reflect
-  // smoothing from kernel function (ONLY ON FIRST TIME STEP)
-  //cout << "-----------------------------------------------------------------" << endl;
-  if ( init_mode )
-  {
-    //cout << "BEFORE: " << a << "   " << pa.B << "   "
-    //    << pa.S << "   " << pa.Q << endl;
-    //cout << pa.rho_weight << "   " << pa.rhoB_an << "   "
-    //    << pa.rhoS_an << "   " << pa.rhoQ_an << endl;
-    pa.B = pa.rhoB_sub * pa.rhoB_weight;
-    pa.S = pa.rhoS_sub * pa.rhoS_weight;
-    pa.Q = pa.rhoQ_sub * pa.rhoQ_weight;
-    //cout << "AFTER: " << a << "   " << pa.B << "   "
-    //    << pa.S << "   " << pa.Q << endl;
-    //cout << pa.rho_weight << "   " << pa.rhoB_sub << "   "
-    //    << pa.rhoS_sub << "   " << pa.rhoQ_sub << endl;
-    //cout << "-----------------------------------------------------------------" << endl;
-  }
-
-*/
 
   return;
 }
@@ -345,23 +305,27 @@ void SPHWorkstation::smooth_gradients( int a, double tin, int & count )
 
   double rdis = 0;
 
-  for ( i.x[0] = -2; i.x[0] <= 2; i.x[0]++ )
-  for ( i.x[1] = -2; i.x[1] <= 2; i.x[1]++ )
+  for ( i(0) = -2; i(0) <= 2; i(0)++ )
+  for ( i(1) = -2; i(1) <= 2; i(1)++ )
   {
 
-    int b=systemPtr->linklist.lead[
+    int b = systemPtr->linklist.lead[
             systemPtr->linklist.triToSum(
-              systemPtr->linklist.dael[a] + i, systemPtr->linklist.size ) ];
+              systemPtr->linklist.dael[a] + i,
+              systemPtr->linklist.size ) ];
 
     while( b != -1 )
     {
+
       auto & pb          = systemPtr->particles[b];
 
-      Vector<double,2> gradK   = kernel::gradKernel( pa.r - pb.r, settingsPtr->_h );
+      Vector<double,2> rel_sep = pa.r - pb.r;
+      double rel_sep_norm      = Norm( rel_sep );
+      Vector<double,2> gradK   = kernel::gradKernel( rel_sep, rel_sep_norm, settingsPtr->_h );
+      //Vector<double,2> gradK   = kernel::gradKernel( rel_sep, settingsPtr->_h );
       Vector<double,2> va      = rowp1(0, pa.shv);
       Vector<double,2> vb      = rowp1(0, pb.shv);
       Matrix<double,2,2> vminia, vminib;
-
       mini(vminia, pa.shv);
       mini(vminib, pb.shv);
 
@@ -371,20 +335,25 @@ void SPHWorkstation::smooth_gradients( int a, double tin, int & count )
 
       pa.gradP                += ( sigsqrb*pb.p() + sigsqra*pa.p() ) * sigsigK;
 
-if (settingsPtr->print_particle(a))
-  cout << "CHECK grads: " << tin << "   "
-        << pa.gradP << "   " << a << "   " << b << "   "
-        << sigsqra << "   " << sigsqrb
-        << "   " << pa.p() << "   " << pb.p()
-        << "   " << pa.get_current_eos_name()
-        << "   " << pb.get_current_eos_name()
-        << "   " << gradK << "   " << sigsigK
-        << "   " << pa.sigma << endl;
+      //===============
+      // print status
+      if ( VERBOSE > 2
+            && settingsPtr->particles_to_print.size() > 0
+            && settingsPtr->print_particle(a) )
+        std::cout << "CHECK grads: " << tin << "   "
+                  << pa.gradP << "   " << a << "   " << b << "   "
+                  << sigsqra << "   " << sigsqrb
+                  << "   " << pa.p() << "   " << pb.p()
+                  << "   " << pa.get_current_eos_name()
+                  << "   " << pb.get_current_eos_name()
+                  << "   " << gradK << "   " << sigsigK
+                  << "   " << pa.sigma << "\n";
 
-      if ( ( ( Norm( pa.r - pb.r ) / settingsPtr->_h ) <= 2 ) && ( a != b ) )
+      double relative_distance_by_h = rel_sep_norm / settingsPtr->_h;
+      if ( ( relative_distance_by_h <= 2.0 ) && ( a != b ) )
       {
         if ( pa.btrack != -1 ) pa.btrack++;
-        if ( pa.btrack ==  1 ) rdis = Norm(pa.r-pb.r)/settingsPtr->_h;
+        if ( pa.btrack ==  1 ) rdis = relative_distance_by_h;
       }
 
       pa.gradBulk             += ( pb.Bulk/pb.sigma/pb.gamma
@@ -396,13 +365,18 @@ if (settingsPtr->print_particle(a))
       //pa.gradrhoQ             += ( pb.rhoQ/pb.sigma/pb.gamma
       //                            + pa.rhoQ/pa.sigma/pa.gamma)/tin*sigsigK;
       pa.gradV                += (pb.sigmaweight/pa.sigma)*( pb.v -  pa.v )*gradK;
-if (settingsPtr->print_particle(a))
-{
-cout << "CHECK gradV: " << tin << "   " << a << "   " << b << "   "
-    << pb.sigmaweight/pa.sigma << "   " << pb.v -  pa.v
-		<< "   " << gradK << "   " << pa.gradV << endl;
-}
 
+      //===============
+      // print status
+      if ( VERBOSE > 2
+            && settingsPtr->particles_to_print.size() > 0
+            && settingsPtr->print_particle(a) )
+          std::cout << "CHECK gradV: " << tin << "   " << a << "   " << b << "   "
+                    << pb.sigmaweight/pa.sigma << "   " << pb.v -  pa.v
+                    << "   " << gradK << "   " << pa.gradV << "\n";
+
+      //===============
+      // add shear terms
       if ( settingsPtr->using_shear )
       {
         pa.gradshear            += inner(sigsigK, pa.v)*( sigsqrb*vb + sigsqra*va );
@@ -410,12 +384,9 @@ cout << "CHECK gradV: " << tin << "   " << a << "   " << b << "   "
                                     + sigsqra*sigsigK*transpose(vminia);
       }
 
-//cout << "CHECK DIVSHEAR: " << a << "   " << tin << "   " << b << "   "
-//      << sigsqrb << "   " << sigsqra << "   " << sigsigK << "   "
-//      << transpose(vminib) << "   " << transpose(vminia) << "   "
-//      << pa.divshear << endl;
-
-      if ( isnan( pa.gradP.x[0] ) )
+      //===============
+      // check for nan pressure gradients
+      if ( isnan( pa.gradP(0) ) )
       {
         cout << "gradP stopped working" << endl;
         cout << systemPtr->t <<" "  << pa.gradP << " " << a << " " << b << endl;
@@ -426,12 +397,9 @@ cout << "CHECK gradV: " << tin << "   " << a << "   " << b << "   "
         cout << pb.r << endl;
         cout << kernel::kernel( pa.r - pb.r, settingsPtr->_h ) << endl;
       }
-      else if ( isnan( pa.gradP.x[1] ) )
+      else if ( isnan( pa.gradP(1) ) )
         cout << "1 " << systemPtr->linklist.gradPressure_weight(systemPtr->particles, a, b)
              << " " << a << " " << b << endl;
-      //else if ( isnan( pa.gradP.x[2] ) )
-      //  cout << "2 " << systemPtr->linklist.gradPressure_weight(systemPtr->particles, a, b)
-      //       << " " << a << " " << b << endl;
 
       b=systemPtr->linklist.link[b];
     }
@@ -453,7 +421,8 @@ cout << "CHECK gradV: " << tin << "   " << a << "   " << b << "   "
 
   return;
 }
-///////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
 void SPHWorkstation::process_initial_conditions()
 {
   //============================================================================
@@ -535,13 +504,13 @@ void SPHWorkstation::process_initial_conditions()
       exit(1);
     }
 
-//cout << "CHECK PARTICLES: " << p.r.x[0] << "   " << p.r.x[0] << "   "
+//cout << "CHECK PARTICLES: " << p.r(0) << "   " << p.r(1) << "   "
 //      << eLocal << "   " << rhoBLocal << "   " << rhoSLocal << "   "
 //      << rhoQLocal << "   " << ux << "   " << uy << endl;
 
     // Set the rest of particle elements using area element
-		//p.u.x[0]          = 0.0;  // flow must be set in Particle constructor!!!
-		//p.u.x[1]          = 0.0;  // flow must be set in Particle constructor!!!
+		//p.u(0)          = 0.0;  // flow must be set in Particle constructor!!!
+		//p.u(1)          = 0.0;  // flow must be set in Particle constructor!!!
 		p.eta_sigma       = 1.0;
 		p.sigmaweight     = dA;
 		p.rhoB_weight     = dA;
@@ -553,20 +522,12 @@ void SPHWorkstation::process_initial_conditions()
 		p.Q               = p.rhoQ_an*dA;
 		p.transverse_area = dA;
 
-		/*if (TMP_particle_count++==0)
-      cout << "readICs_iccing(" << __LINE__ << "): "
-        << "SPH particles: "
-        << p.r.x[0] << "   " << p.r.x[1] << "   "
-        << p.e_sub << "   " << p.rhoB_an << "   "
-        << p.rhoS_an << "   " << p.rhoQ_an << "   "
-        << p.sigmaweight << endl;*/
-
 		// make educated initial guess here for this particle's (T, mu_i) coordinates
 		// (improve this in the future)
-		p.thermo.T        = 30.0/hbarc_MeVfm;	// rootfinder seems to work better going downhill than "uphill"
-		p.thermo.muB      = 200.0/hbarc_MeVfm;
-		p.thermo.muS      = 400.0/hbarc_MeVfm;
-		p.thermo.muQ      = 300.0/hbarc_MeVfm;
+		p.thermo.T        = 1000.0/hbarc_MeVfm;	// rootfinder seems to work better going downhill than "uphill"
+		p.thermo.muB      = 0.0/hbarc_MeVfm;
+		p.thermo.muS      = 0.0/hbarc_MeVfm;
+		p.thermo.muQ      = 0.0/hbarc_MeVfm;
 		p.thermo.eos_name = "default";  // uses whatever the default EoS is
 
 		if ( p.e_sub > systemPtr->efcheck )	// impose freeze-out check for e, not s
@@ -588,7 +549,6 @@ void SPHWorkstation::process_initial_conditions()
   cout << systemPtr->number_part << endl;
 
 
-// flag to keep track of which particles to print
   settingsPtr->is_printable.resize( systemPtr->particles.size(), false );
   for ( int & p : settingsPtr->particles_to_print )
     settingsPtr->is_printable[ p ] = true;
@@ -704,9 +664,9 @@ void SPHWorkstation::advance_timestep_rk2( double dt )
         p.contribution_to_total_Ez = systemPtr->particles_E0[i]
                                       + dt*p.contribution_to_total_dEz;
 
-cout << "CHECK energies: " << i << "   " << t0+dt << "   " << p.r << "   " << p.e() << "   "
-      << systemPtr->particles_E0[i] << "   "
-      << p.contribution_to_total_E << endl;
+//cout << "CHECK energies: " << i << "   " << t0+dt << "   " << p.r << "   " << p.e() << "   "
+//      << systemPtr->particles_E0[i] << "   "
+//      << p.contribution_to_total_E << endl;
 
         // regulate updated results if necessary
         if ( REGULATE_LOW_T && p.eta_sigma < 0.0
@@ -896,13 +856,13 @@ void SPHWorkstation::BSQshear()
   {
     auto & p = systemPtr->particles[i];
 
-//if ( abs(p.r.x[0]) < 0.000001 && abs(p.r.x[1]) < 0.000001 )
+//if ( abs(p.r(0)) < 0.000001 && abs(p.r(1)) < 0.000001 )
 //  cout << "CHECK CENTER: " << systemPtr->t << "   " << i << "   " << p.T()*hbarc << "   "
 //        << p.eta/p.gamma/systemPtr->t << "   " << p.s() << endl;
 
     smooth_fields(i);
 
-//if ( abs(p.r.x[0]) < 0.000001 && abs(p.r.x[1]) < 0.000001 )
+//if ( abs(p.r(0)) < 0.000001 && abs(p.r(1)) < 0.000001 )
 //  cout << "CHECK CENTER: " << systemPtr->t << "   " << i << "   " << p.T()*hbarc << "   "
 //        << p.eta/p.gamma/systemPtr->t << "   " << p.s() << endl;
 
@@ -963,11 +923,16 @@ void SPHWorkstation::BSQshear()
     //Computes gradients to obtain dsigma/dt
     smooth_gradients( i, systemPtr->t, curfrz );
 
-    p.dsigma_dt = -p.sigma * ( p.gradV.x[0][0] + p.gradV.x[1][1] );
-//if (i==ic || printAll)
-if ( settingsPtr->print_particle(i) || printAll )
-cout << "CHECK dsigma_dt: " << i << "   " << systemPtr->t << "   " << p.dsigma_dt << "   " << p.sigma
-		<< "   " << p.gradV << "\n";
+    p.dsigma_dt = -p.sigma * ( p.gradV(0,0) + p.gradV(1,1) );
+
+    //===============
+    // print status
+    if ( VERBOSE > 2 && ( ( settingsPtr->particles_to_print.size() > 0
+                            && settingsPtr->print_particle(i) ) || printAll ) )
+      std::cout << "CHECK dsigma_dt: " << i << "   " << systemPtr->t << "   "
+                << p.dsigma_dt << "   " << p.sigma << "   " << p.gradV << "\n";
+
+
 
     p.bsqsvsigset( systemPtr->t, i );
 
@@ -1007,18 +972,16 @@ cout << "CHECK dsigma_dt: " << i << "   " << systemPtr->t << "   " << p.dsigma_d
     Vector<double,2> minshv   = rowp1(0, p.shv);
     Matrix <double,2,2> partU = p.gradU + transpose( p.gradU );
 
-//if (i==ic || printAll)
-if ( settingsPtr->print_particle(i) || printAll )
-cout << "CHECK misc1: " << i << "   " << systemPtr->t << "   " << gamt << "   " << p.sigma
-		<< "   " << p.dsigma_dt << "\n";
-
-//if (i==ic || printAll)
-if ( settingsPtr->print_particle(i) || printAll )
-cout << "CHECK minshv: " << i << "   " << systemPtr->t << "   " << minshv << "\n";
-
-//if (i==ic || printAll)
-if ( settingsPtr->print_particle(i) || printAll )
-cout << "CHECK partU: " << i << "   " << systemPtr->t << "   " << partU << "\n";
+    //===============
+    // print status
+    if ( VERBOSE > 2 && ( ( settingsPtr->particles_to_print.size() > 0
+                            && settingsPtr->print_particle(i) ) || printAll ) )
+    {
+      std::cout << "CHECK misc1: " << i << "   " << systemPtr->t << "   "
+                << gamt << "   " << p.sigma	<< "   " << p.dsigma_dt << "\n"
+                << "CHECK minshv: " << i << "   " << systemPtr->t << "   " << minshv << "\n"
+                << "CHECK partU: " << i << "   " << systemPtr->t << "   " << partU << "\n";
+    }
 
 
     // set the Mass and the Force
@@ -1029,87 +992,93 @@ cout << "CHECK partU: " << i << "   " << systemPtr->t << "   " << partU << "\n";
 further above loop could be done in workstation and M and F could be set
 at the same time... */
 
-//if (i==ic || printAll)
-if ( settingsPtr->print_particle(i) || printAll )
-cout << "CHECK M: " << i << "   " << systemPtr->t << "   " << M << "\n";
+    //===============
+    // print status
+    if ( VERBOSE > 2 && ( ( settingsPtr->particles_to_print.size() > 0
+                            && settingsPtr->print_particle(i) ) || printAll ) )
+      std::cout << "CHECK M: " << i << "   " << systemPtr->t << "   " << M << "\n"
+                << "CHECK F: " << i << "   " << systemPtr->t << "   " << F << "   "
+                << p.Btot << "   " << p.u << "   "
+                << p.gradshear << "   " << p.gradP << "   "
+                << p.gradBulk << "   " << p.divshear << "\n";
 
-
-
-//if (i==ic || printAll)
-if ( settingsPtr->print_particle(i) || printAll )
-cout << "CHECK F: " << i << "   " << systemPtr->t << "   " << F << "   "
-		<< p.Btot << "   " << p.u << "   "
-		<< p.gradshear << "   " << p.gradP << "   "
-		<< p.gradBulk << "   " << p.divshear << "\n";
-
+    //===============
     // shear contribution
     if ( settingsPtr->using_shear )
       F += pre*p.v*partU + p1*minshv;
 
-//if (i==ic || printAll)
-if ( settingsPtr->print_particle(i) || printAll )
-cout << "CHECK F(again): " << i << "   " << systemPtr->t << "   " << F << "   "
-		<< pre << "   " << p.v << "   " << partU << "   "
-		<< p1 << "   " << minshv << "\n";
+    //===============
+    // print status
+    if ( VERBOSE > 2 && ( ( settingsPtr->particles_to_print.size() > 0
+                            && settingsPtr->print_particle(i) ) || printAll ) )
+      std::cout << "CHECK F(again): " << i << "   " << systemPtr->t << "   "
+                << F << "   " << pre << "   " << p.v << "   " << partU << "   "
+                << p1 << "   " << minshv << "\n";
+
 
     double det=deter(M);
 
-
-//if (i==ic || printAll)
-if ( settingsPtr->print_particle(i) || printAll )
-cout << "CHECK det: " << i << "   " << systemPtr->t << "   " << M << "   " << det << "\n";
-
-
     Matrix <double,2,2> MI;
-    MI.x[0][0]=M.x[1][1]/det;
-    MI.x[0][1]=-M.x[0][1]/det;
-    MI.x[1][0]=-M.x[1][0]/det;
-    MI.x[1][1]=M.x[0][0]/det;
+    MI(0,0) =  M(1,1)/det;
+    MI(0,1) = -M(0,1)/det;
+    MI(1,0) = -M(1,0)/det;
+    MI(1,1) =  M(0,0)/det;
   /* This notation is still a bit weird.. but also
   MI should be a member of particle as well */
 
-//if (i==ic || printAll)
-if ( settingsPtr->print_particle(i) || printAll )
-cout << "CHECK MI: " << i << "   " << systemPtr->t << "   " << MI << "\n";
+    //===============
+    // print status
+    if ( VERBOSE > 2 && ( ( settingsPtr->particles_to_print.size() > 0
+                            && settingsPtr->print_particle(i) ) || printAll ) )
+      std::cout << "CHECK det: " << i << "   " << systemPtr->t << "   "
+                << M << "   " << det << "\n"
+                << "CHECK MI: " << i << "   " << systemPtr->t
+                << "   " << MI << "\n";
 
 
-    p.du_dt.x[0]=F.x[0]*MI.x[0][0]+F.x[1]*MI.x[0][1];
-    p.du_dt.x[1]=F.x[0]*MI.x[1][0]+F.x[1]*MI.x[1][1];
+    //===============
+    // compute acceleration
+    p.du_dt(0) = F(0) * MI(0,0) + F(1) * MI(0,1);
+    p.du_dt(1) = F(0) * MI(1,0) + F(1) * MI(1,1);
 
-    Matrix <double,2,2> ulpi  = p.u*colp1(0, p.shv);
-
+    //===============
+    // define auxiliary variables
     double vduk               = inner( p.v, p.du_dt );
-
+    Matrix <double,2,2> ulpi  = p.u*colp1(0, p.shv);
     Matrix <double,2,2> Ipi   = -2.0*p.eta_o_tau/3.0 * ( p.Imat + p.uu ) + 4./3.*p.pimin;
 
+    //===============
+    // "coordinate" divergence
     p.div_u                   = (1./ p.gamma)*inner( p.u, p.du_dt)
                                   - ( p.gamma/ p.sigma ) * p.dsigma_dt;
-
+    //===============
+    // "covariant" divergence
     p.bigtheta                = p.div_u*systemPtr->t+p.gamma;
-        /* the above lines could automaticlaly be set in particle after 
+        /* the above lines could automatically be set in particle after 
         calculating the matrix elements above */
 
-//if (i==ic || printAll)
-if ( settingsPtr->print_particle(i) || printAll )
-cout << "CHECK div_u: " << i
-		<< "   " << systemPtr->t
-		<< "   " << p.div_u
-		<< "   " << p.gamma
-		<< "   " << p.u
-		<< "   " << p.du_dt
-		<< "   " << inner( p.u, p.du_dt)
-		<< "   " << p.sigma 
-		<< "   " << p.dsigma_dt << "\n";
-//if (i==ic || printAll)
-if ( settingsPtr->print_particle(i) || printAll )
-cout << "CHECK bigtheta: " << i
-		<< "   " << systemPtr->t
-		<< "   " << p.bigtheta
-		<< "   " << p.gamma << "\n";
+    //===============
+    // print status
+    if ( VERBOSE > 2 && ( ( settingsPtr->particles_to_print.size() > 0
+                            && settingsPtr->print_particle(i) ) || printAll ) )
+      std::cout << "CHECK div_u: " << i
+                << "   " << systemPtr->t
+                << "   " << p.div_u
+                << "   " << p.gamma
+                << "   " << p.u
+                << "   " << p.du_dt
+                << "   " << inner( p.u, p.du_dt)
+                << "   " << p.sigma 
+                << "   " << p.dsigma_dt << "\n"
+                << "CHECK bigtheta: " << i
+                << "   " << systemPtr->t
+                << "   " << p.bigtheta
+                << "   " << p.gamma << "\n";
 
+    //===============
     // this term occurs in Eqs. (250) and (251) of Jaki's long notes
     // translation: pi^{ij} + pi^{00} v^i v^j - pi^{i0} v^j - pi^{0j} v^i
-    Matrix <double,2,2> sub   = p.pimin + (p.shv.x[0][0]/p.g2)*p.uu -1./p.gamma*p.piutot;
+    Matrix <double,2,2> sub   = p.pimin + (p.shv(0,0)/p.g2)*p.uu -1./p.gamma*p.piutot;
 
     // minshv = pi^{0i}                   (i   = 1,2)
     // pimin  = pi^{ij}                   (i,j = 1,2)
@@ -1118,40 +1087,45 @@ cout << "CHECK bigtheta: " << i
     // piutot = pi^{0i} u^j + pi^{0j} u^i (i,j = 1,2)
     // gradU  = du_i/dx^j                 (i,j = 1,2)
 
+    //===============
     if ( settingsPtr->using_shear )
       p.inside                  = systemPtr->t*(
-                                inner( -minshv+p.shv.x[0][0]*p.v, p.du_dt )
+                                inner( -minshv+p.shv(0,0)*p.v, p.du_dt )
                                 - con2(sub, p.gradU)
                                 - p.gamma*systemPtr->t*p.shv33 );
 
 
-//if (i==ic || printAll)
-if ( settingsPtr->print_particle(i) || printAll )
-std::cout << "CHECK inside: " << i << "   "
-			<< systemPtr->t << "   "
-			<< p.inside << "   "
-			<< minshv << ";   "
-			<< p.shv.x[0][0]*p.v << ";   "
-			<< p.du_dt << ";   "
-			<< sub << "   "
-			<< p.gradU << ";   "
-			<< p.gamma*systemPtr->t*p.shv33 << "\n";
+    //===============
+    // print status
+    if ( VERBOSE > 2 && ( ( settingsPtr->particles_to_print.size() > 0
+                            && settingsPtr->print_particle(i) ) || printAll ) )
+      std::cout << "CHECK inside: " << i << "   "
+                << systemPtr->t << "   "
+                << p.inside << "   "
+                << minshv << ";   "
+                << p.shv(0,0)*p.v << ";   "
+                << p.du_dt << ";   "
+                << sub << "   "
+                << p.gradU << ";   "
+                << p.gamma*systemPtr->t*p.shv33 << "\n";
 
  
 
     p.detasigma_dt            = 1./p.sigma/p.T()*( -p.bigPI*p.bigtheta + p.inside );
 
 
-//if (i==ic || printAll)
-if ( settingsPtr->print_particle(i) || printAll )
-std::cout << "CHECK detasigma_dt: " << i << "   "
-			<< systemPtr->t << "   "
-			<< p.detasigma_dt << "   "
-			<< p.sigma << "   "
-			<< p.T()*hbarc_MeVfm << "   "
-			<< p.bigPI << "   "
-			<< p.bigtheta << "   "
-			<< p.inside << "\n";
+    //===============
+    // print status
+    if ( VERBOSE > 2 && ( ( settingsPtr->particles_to_print.size() > 0
+                            && settingsPtr->print_particle(i) ) || printAll ) )
+      std::cout << "CHECK detasigma_dt: " << i << "   "
+                << systemPtr->t << "   "
+                << p.detasigma_dt << "   "
+                << p.sigma << "   "
+                << p.T()*hbarc_MeVfm << "   "
+                << p.bigPI << "   "
+                << p.bigtheta << "   "
+                << p.inside << "\n";
 
 
     // N.B. - ADD EXTRA TERMS FOR BULK EQUATION
@@ -1186,7 +1160,7 @@ std::cout << "CHECK detasigma_dt: " << i << "   "
 
 
   /* Not sure what any of the above does but I'm certain it can be
-  done somehwere else */
+  done somewhere else */
 
 
   return;

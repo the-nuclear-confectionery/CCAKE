@@ -19,7 +19,7 @@
 LinkList::LinkList()
 {
     range = 2; //number of boxes on the sides
-    for (int i=0; i<2; i++) uni.x[i]=1.0;
+    for (int i=0; i<2; i++) uni(i)=1.0;
 }
 
 //LinkList::~LinkList(){}
@@ -38,12 +38,12 @@ void LinkList::initialize( double it0, int ntot, double h,
   cout << "_h = " << _h << endl;
   cout << "_n = " << _n << endl;
 
-//    cout << "Check 1: " << particles_in[0].r.x[0] << "   " << particles_in[0].r.x[1] << endl;
+//    cout << "Check 1: " << particles_in[0].r(0) << "   " << particles_in[0].r(1) << endl;
 
   //particles   = particles_in;
   particlesPtr = particlesPtr_in;
 
-//    cout << "Check 2: " << particles[0].r.x[0] << "   " << particles[0].r.x[1] << endl;
+//    cout << "Check 2: " << particles[0].r(0) << "   " << particles[0].r(1) << endl;
 
 //    knorm       = 10/7./pi/(_h*_h);
 //    knorm2      = knorm*0.25;
@@ -81,8 +81,8 @@ void LinkList::reset()
   for ( auto & p : *particlesPtr )
   for ( int j = 0; j < 2;  j++ )
   {
-    if ( p.r.x[j] > max.x[j] ) max.x[j] = p.r.x[j];
-    if ( p.r.x[j] < min.x[j] ) min.x[j] = p.r.x[j];
+    if ( p.r(j) > max(j) ) max(j) = p.r(j);
+    if ( p.r(j) < min(j) ) min(j) = p.r(j);
   }
 
   //evaluate system size
@@ -96,7 +96,7 @@ void LinkList::reset()
 
   // finds total volume of the system
   for ( int i = 0; i < 2; i++ )
-    Size *= size.x[i];
+    Size *= size(i);
 
 
   //dael: relates every particle with its linklist cube
@@ -128,5 +128,5 @@ void LinkList::reset()
 
 int LinkList::triToSum( Vector<int,2> dael_local, Vector<int,2> size_local )
 {
-    return dael_local.x[0] + dael_local.x[1]*size_local.x[0];
+    return dael_local(0) + dael_local(1)*size_local(0);
 }

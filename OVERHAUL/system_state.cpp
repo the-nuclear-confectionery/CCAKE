@@ -129,7 +129,7 @@ void SystemState::initialize_linklist()
     linklist.fcount     = count;
     linklist.fnum       = linklist.start;
     
-    cout << "Check 0: " << particles[0].r.x[0] << "   " << particles[0].r.x[1] << endl;
+    cout << "Check 0: " << particles[0].r(0) << "   " << particles[0].r(1) << endl;
 
     int currently_frozen_out = number_part;
     linklist.initialize( settingsPtr->t0, particles.size(),
@@ -153,7 +153,7 @@ void SystemState::initialize_linklist()
     linklist.fcount     = count;
     linklist.fnum       = linklist.start;
     
-    cout << "Check 0: " << particles[0].r.x[0] << "   " << particles[0].r.x[1] << endl;
+    cout << "Check 0: " << particles[0].r(0) << "   " << particles[0].r(1) << endl;
 
     int currently_frozen_out = number_part;
     linklist.initialize( settingsPtr->t0, particles.size(),
@@ -197,9 +197,9 @@ void SystemState::check_BSQ_energy_conservation()
   E=0.0;
   for ( auto & p : particles )
   {
-    E += ( p.C*p.g2 - p.p() - p.bigPI + p.shv.x[0][0] )
+    E += ( p.C*p.g2 - p.p() - p.bigPI + p.shv(0,0) )
           *p.sigmaweight*t/p.sigma;
-    p.contribution_to_total_E = ( p.C*p.g2 - p.p() - p.bigPI + p.shv.x[0][0] )
+    p.contribution_to_total_E = ( p.C*p.g2 - p.p() - p.bigPI + p.shv(0,0) )
                                 *p.sigmaweight*t/p.sigma;
   }
 
@@ -297,10 +297,10 @@ void SystemState::bsqsvconservation_E()
     {
       auto & p = particles[i];
 
-        E += ( p.C*p.g2 - p.p() - p.bigPI + p.shv.x[0][0] )
+        E += ( p.C*p.g2 - p.p() - p.bigPI + p.shv(0,0) )
               / p.sigma*p.sigmaweight*t;
 
-        p.contribution_to_total_E = ( p.C*p.g2 - p.p() - p.bigPI + p.shv.x[0][0] )
+        p.contribution_to_total_E = ( p.C*p.g2 - p.p() - p.bigPI + p.shv(0,0) )
                                     *p.sigmaweight*t/p.sigma;
 
         if (i==-1)
@@ -311,7 +311,7 @@ void SystemState::bsqsvconservation_E()
               << "   " << p.g2
               << "   " << p.p()
               << "   " << p.bigPI
-              << "   " << p.shv.x[0][0]
+              << "   " << p.shv(0,0)
               << "   " << p.sigma
               << "   " << p.sigmaweight << endl;
     }
@@ -489,7 +489,7 @@ void SystemState::bsqsvfreezeout(int curfrz)
         }
         else if ( p.btrack == 0 )
         {
-          if ( p.fback.gradP.x[0] != 0 )
+          if ( p.fback.gradP(0) != 0 )
           {
             p.frz2 = p.fback2;
             p.frz1 = p.fback;

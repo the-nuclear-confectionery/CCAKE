@@ -356,7 +356,7 @@ void InputOutput::print_system_state()
                           + std::to_string(n_timesteps_output) + ".dat";
   ofstream out( outputfilename.c_str() );
 
-  out << systemPtr->t << endl;
+  out << systemPtr->t << "\n";
   int iParticle = 0;
   if ( settingsPtr->using_Gubser )
     for ( auto & p : systemPtr->particles )
@@ -364,15 +364,15 @@ void InputOutput::print_system_state()
       out << p.r << " "
           << p.T() << " "
           << p.e() << " "
-          << p.u.x[0] << " "
-          << p.u.x[1] << " "
-          << p.shv.x[1][1] << " "
-          << p.shv.x[2][2] << " "
-          << p.shv.x[1][2] << " "
+          << p.u(0) << " "
+          << p.u(1) << " "
+          << p.shv(1,1) << " "
+          << p.shv(2,2) << " "
+          << p.shv(1,2) << " "
           << pow(systemPtr->t,2.0)*p.shv33 << " "
           << p.rhoB() << " "
           << p.rhoS() << " "
-          << p.rhoQ() << endl;
+          << p.rhoQ() << "\n";
       }
   else
   {
@@ -396,21 +396,21 @@ void InputOutput::print_system_state()
           << p.sigmaweight << " "
           << p.stauRelax << " " 
           << p.bigtheta << "       "  //20
-          << sqrt( p.shv.x[0][0]*p.shv.x[0][0]
-                  -2.0*p.shv.x[0][1]*p.shv.x[0][1]
-                  -2.0*p.shv.x[0][2]*p.shv.x[0][2]
-                  + p.shv.x[1][1]*p.shv.x[1][1]
-                  + p.shv.x[2][2]*p.shv.x[2][2]
-                  +2.0*p.shv.x[1][2]*p.shv.x[1][2]
+          << sqrt(     p.shv(0,0)*p.shv(0,0)
+                  -2.0*p.shv(0,1)*p.shv(0,1)
+                  -2.0*p.shv(0,2)*p.shv(0,2)
+                  +    p.shv(1,1)*p.shv(1,1)
+                  +    p.shv(2,2)*p.shv(2,2)
+                  +2.0*p.shv(1,2)*p.shv(1,2)
                   +pow(systemPtr->t,4.0)*p.shv33*p.shv33 ) << " "
           << p.stauRelax/systemPtr->t * p.bigtheta << " "
-          << p.shv.x[0][0] << " "
-          << p.shv.x[1][1] << " "
-          << p.shv.x[2][2] << " "
-          << p.shv.x[1][2] << " "
+          << p.shv(0,0) << " "
+          << p.shv(1,1) << " "
+          << p.shv(2,2) << " "
+          << p.shv(1,2) << " "
           << pow(systemPtr->t,2.0)*p.shv33 << " "
-          << p.u.x[0]/p.gamma << " "  //28
-          << p.u.x[1]/p.gamma << " "
+          << p.u(0)/p.gamma << " "  //28
+          << p.u(1)/p.gamma << " "
           << p.gamma << "       "
           << p.Freeze << " "
           << p.bigPI << " "     //32
@@ -428,10 +428,12 @@ void InputOutput::print_system_state()
           << p.divshear << "   "
           << p.contribution_to_total_E << "   "
           << p.contribution_to_total_Ez << "   "
-          << p.get_current_eos_name() << endl;
+          << p.get_current_eos_name() << "\n";
 
     print_shear();
   }
+
+  out << std::flush;
   
   out.close();
 
@@ -460,7 +462,7 @@ void InputOutput::print_shear()
                           + std::to_string(n_timesteps_output) + ".dat";
   ofstream out( outputfilename.c_str() );
 
-  out << systemPtr->t << endl;
+  out << systemPtr->t << "\n";
   int iParticle = 0;
   for ( auto & p : systemPtr->particles )
   {
@@ -471,24 +473,26 @@ void InputOutput::print_shear()
         << p.u << "   "
         << p.shv << "   "
         << pow(systemPtr->t,2.0)*p.shv33 << "   "
-        << p.shv.x[0][0]*p.shv.x[0][0]
-            - 2.0*p.shv.x[0][1]*p.shv.x[0][1]
-            - 2.0*p.shv.x[0][2]*p.shv.x[0][2]
-            + p.shv.x[1][1]*p.shv.x[1][1]
-            + p.shv.x[2][2]*p.shv.x[2][2]
-            + 2.0*p.shv.x[1][2]*p.shv.x[1][2]
-            + pow(systemPtr->t,4.0)*p.shv33*p.shv33 << "   " //17
-        << p.shv.x[0][1] - p.shv.x[1][0] << "   "
-        << p.shv.x[0][2] - p.shv.x[2][0] << "   "
-        << p.shv.x[1][2] - p.shv.x[2][1] << "   "
-        << p.shv.x[0][0] - 1./p.gamma/p.gamma*con(p.uu,p.pimin) << "   "
-        << p.shv.x[0][0] - 1./p.gamma*inner(p.u,colp1(0,p.shv)) << "   "
-        << p.shv.x[0][1] - 1./p.gamma*inner(p.u,colp1(1,p.shv)) << "   "
-        << p.shv.x[0][2] - 1./p.gamma*inner(p.u,colp1(2,p.shv)) << "   "
-        << p.shv.x[0][0] - p.shv.x[1][1] - p.shv.x[2][2]
+        <<       p.shv(0,0)*p.shv(0,0)
+            -2.0*p.shv(0,1)*p.shv(0,1)
+            -2.0*p.shv(0,2)*p.shv(0,2)
+            +    p.shv(1,1)*p.shv(1,1)
+            +    p.shv(2,2)*p.shv(2,2)
+            +2.0*p.shv(1,2)*p.shv(1,2)
+            +pow(systemPtr->t,4.0)*p.shv33*p.shv33 << "   " //17
+        << p.shv(0,1) - p.shv(1,0) << "   "
+        << p.shv(0,2) - p.shv(2,0) << "   "
+        << p.shv(1,2) - p.shv(2,1) << "   "
+        << p.shv(0,0) - 1./p.gamma/p.gamma*con(p.uu,p.pimin) << "   "
+        << p.shv(0,0) - 1./p.gamma*inner(p.u,colp1(0,p.shv)) << "   "
+        << p.shv(0,1) - 1./p.gamma*inner(p.u,colp1(1,p.shv)) << "   "
+        << p.shv(0,2) - 1./p.gamma*inner(p.u,colp1(2,p.shv)) << "   "
+        << p.shv(0,0) - p.shv(1,1) - p.shv(2,2)
                        - pow(systemPtr->t,2.0)*p.shv33 << "   "
-        << p.get_current_eos_name() << endl;
+        << p.get_current_eos_name() << "\n";
   }
+
+  out << std::flush;
   
   out.close();
 

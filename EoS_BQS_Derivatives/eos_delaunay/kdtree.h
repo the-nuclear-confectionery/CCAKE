@@ -129,6 +129,7 @@ private:
         if (best_dist_ == 0)
             return;
         double dx = root->get(index) - point.get(index);
+if (true) throw std::logic_error("THIS DOES NOT SEEM CONSISTENT WITH LOGDISTANCE OPTION!");
         index = (index + 1) % dimensions;
         nearest(dx > 0 ? root->left_ : root->right_, point, index, euc_dist);
         if (dx * dx >= best_dist_)
