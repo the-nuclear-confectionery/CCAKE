@@ -405,7 +405,7 @@ void SPHWorkstation::smooth_gradients( int a, double tin, int & count )
     }
   }
 
-if (tin > 1.425) exit(8);
+//if (tin > 1.425) exit(8);
 
   const double hc = constants::hbarc_MeVfm;
 

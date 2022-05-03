@@ -15,8 +15,9 @@ InterpolatorND<4> EoS_table::equation_of_state_table;
 
 EoS_table::EoS_table( string quantityFile, string derivFile )
 {
+  //////////////////////////////////////////////////////////////////////////////
   // allow to use static C library instead of table
-  if ( use_static_C_library )
+  if ( use_static_C_library || debug_mode )
   {
     // initialize things needed to use static C library
     cout << "Initializing EoS C library" << endl;
@@ -26,7 +27,10 @@ EoS_table::EoS_table( string quantityFile, string derivFile )
     std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     init_grid_ranges_only(quantityFile, derivFile);
   }
-  else  // if thermo not from static C library, read in table from file
+
+  //////////////////////////////////////////////////////////////////////////////
+  // if thermo not from static C library, read in table from file
+  if (!use_static_C_library)
   {
     // initialize things needed to store eos table from file
     equation_of_state_table_filename = "./EoS/Houston/Default/thermo.dat";
@@ -42,7 +46,7 @@ EoS_table::EoS_table( string quantityFile, string derivFile )
                       "chiBB","chiQQ","chiSS","chiBQ","chiBS",
                       "chiQS","chiTB","chiTQ","chiTS","chiTT" } );
 
-    // finally, all dimensionalful quantities should be convert to fm and
+    // finally, all dimensionful quantities should be convert to fm and
     // all dimensionless quantities need to be rescaled appropriately
     /*equation_of_state_table.rescale_axis( "T",   1.0/hbarc_MeVfm );
     equation_of_state_table.rescale_axis( "muB", 1.0/hbarc_MeVfm );
@@ -250,7 +254,7 @@ void EoS_table::get_eBSQ_safe( const double point_in[], double results[] )
     //============================================================================
     // MUST USE FULL THERMO TO SET NON-CONFORMAL EXTENSION
     // evaluate the relevant grid point
-    if (use_static_C_library)
+    if (use_static_C_library || debug_mode)
       STANDARD_get_full_thermo( point_projected, results_full );
     else  // using table itself
     {
@@ -294,7 +298,7 @@ void EoS_table::get_eBSQ_safe( const double point_in[], double results[] )
   {
     //============================================================================
     // evaluate the relevant grid point
-    if (use_static_C_library)
+    if (use_static_C_library || debug_mode)
     {
 //      cout << "Computing STANDARD_get_eBSQ_densities" << endl;
       STANDARD_get_eBSQ_densities(point_projected, results);
@@ -359,7 +363,7 @@ void EoS_table::get_sBSQ_safe( const double point_in[], double results[] )
     //============================================================================
     // MUST USE FULL THERMO TO SET NON-CONFORMAL EXTENSION
     // evaluate the relevant grid point
-    if (use_static_C_library)
+    if (use_static_C_library || debug_mode)
       STANDARD_get_full_thermo( point_projected, results_full );
     else  // using table itself
     {
@@ -403,7 +407,7 @@ void EoS_table::get_sBSQ_safe( const double point_in[], double results[] )
   {
     //============================================================================
     // evaluate the relevant grid point
-    if (use_static_C_library) // using static C library
+    if (use_static_C_library || debug_mode) // using static C library
       STANDARD_get_sBSQ_densities(point_projected, results);
     else                      // using table itself
       get_sBSQ_densities_from_interpolator(point_projected, results);
@@ -462,7 +466,7 @@ void EoS_table::get_full_thermo_safe( const double point_in[], double results[] 
 
   //============================================================================
   // evaluate the relevant grid point
-  if (use_static_C_library)
+  if (use_static_C_library || debug_mode)
     STANDARD_get_full_thermo( point_projected, results );
   else  // using table itself
   {

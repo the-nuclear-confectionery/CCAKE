@@ -36,7 +36,7 @@ void EquationOfState::init()
         << quantity_file << " and " << deriv_file << endl;
   init( quantity_file, deriv_file );
 
-  bool do_eos_checks = false;
+  bool do_eos_checks = true;
   if ( do_eos_checks )
     run_closure_test();
 }
@@ -364,7 +364,7 @@ void EquationOfState::init(string quantityFile, string derivFile)
 void EquationOfState::run_closure_test()
 {
   const double hc = constants::hbarc_MeVfm;
-
+/*
   //==========================================================================
   std::cout << "Check conformal EoS:" << std::endl;
   for (double T0   = 0.0;     T0   <= 1200.01; T0   += 1200.0)
@@ -395,10 +395,10 @@ void EquationOfState::run_closure_test()
               << v[16]*hc*hc/(T0*T0) << std::endl;
   }
   std::cout << std::endl << std::endl << std::endl;
+*/
 
 
-
-
+/*
   //==========================================================================
   std::cout << "Check conformal_diagonal EoS:" << std::endl;
   for (double T0   = 0.0;     T0   <= 1200.01; T0   += 1200.0)
@@ -430,9 +430,9 @@ void EquationOfState::run_closure_test()
               << v[16]*hc*hc/(T0*T0) << std::endl;
   }
   std::cout << std::endl << std::endl << std::endl;
+*/
 
-
-
+/*
   //==========================================================================
   std::cout << "Check non-conformal extension of table EoS:" << std::endl;
   std::cout << "Made it here" << std::endl;
@@ -475,6 +475,38 @@ cout << "THERMO DUMP: "
     << db2 << "   " << dq2 << "   " << ds2 << "   " << dbdq << "   "
     << dbds << "   " << dsdq << "   " << dtdb << "   " << dtdq << "   "
     << dtds << "   " << dt2 << endl;
+*/
+
+cout << "================================================================================\n"
+      << "================================================================================\n"
+      << "================================================================================\n";
+
+  for (double T0 =  500.0; T0 <= 500.01; T0 += 500.0)
+  for (double muB0 = 0.0; muB0 <= 0.01; muB0 += 500.0)
+  for (double muQ0 = 0.0; muQ0 <= 0.01; muQ0 += 500.0)
+  for (double muS0 = 0.0; muS0 <= 0.01; muS0 += 500.0)
+  {
+    std::cout << "GETTING THERMODYNAMICS" << std::endl;
+    std::vector<double> point = {T0/hc, muB0/hc, muQ0/hc, muS0/hc};
+
+    chosen_EOS_map["table"]->set_debug_mode(true);
+    std::vector<double> v = get_thermodynamics( point, "table" );
+    std::cout << "Check exact: " << T0 << "   " << muB0 << "   "
+              << muQ0 << "   "<< muS0 << "   " << v[5] << "   "
+              << v[2] << "   " << v[3] << "   " << v[4] << std::endl;
+
+    chosen_EOS_map["table"]->set_debug_mode(false);
+    std::vector<double> v = get_thermodynamics( point, "table" );
+    std::cout << "Check interpolant: " << T0 << "   " << muB0 << "   "
+              << muQ0 << "   "<< muS0 << "   " << v[5] << "   "
+              << v[2] << "   " << v[3] << "   " << v[4] << std::endl;
+    e_In    = v[5];
+    rhoB_In = v[2];
+    rhoS_In = v[3];
+    rhoQ_In = v[4];
+    std::cout << "GOT THERMODYNAMICS" << std::endl;
+  }
+  std::cout << std::endl << std::endl << std::endl;
 
 
   exit(11);

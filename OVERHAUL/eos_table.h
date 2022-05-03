@@ -19,6 +19,8 @@ using namespace constants;
 class EoS_table: public EoS_base
 {
 private:
+  bool debug_mode = true;
+
   string equation_of_state_table_filename = "";
 
   static InterpolatorND<4> equation_of_state_table;
@@ -46,6 +48,8 @@ public:
   void get_eBSQ( double point[], double results[] );
   void get_sBSQ( double point[], double results[] );
   void get_full_thermo( double point[], double results[] );
+
+  void set_debug_mode( bool debug_mode_in ) { debug_mode = debug_mode_in; }
 };
 
 #endif
