@@ -334,9 +334,9 @@ namespace matrix_checks
   void check_determinant_3D()
   {
     Matrix<double, 3, 3> a;
-    a(0) = 1; a(1) = 2;  a(2) = 3;
-    a(3) = 4; a(4) = 15; a(5) = 6;
-    a(6) = 7; a(7) = 8;  a(8) = 9;
+    a(0,0) = 1; a(0,1) = 2;  a(0,2) = 3;
+    a(1,0) = 4; a(1,1) = 15; a(1,2) = 6;
+    a(2,0) = 7; a(2,1) = 8;  a(2,2) = 9;
     bool test_condition = (deter(a) == -120);
     if ( test_condition ) passed( __FUNCTION__ ); else failed( __FUNCTION__ );
   }
