@@ -12,8 +12,8 @@ class SPHWorkstation
 {
 public:
 
-  SPHWorkstation(){};
-  ~SPHWorkstation(){};
+  SPHWorkstation(){}
+  ~SPHWorkstation(){}
 
   void set_EquationOfStatePtr( EquationOfState * eosPtr_in );
 //  void set_EquationsOfMotionPtr( EquationsOfMotion * eomPtr_in );

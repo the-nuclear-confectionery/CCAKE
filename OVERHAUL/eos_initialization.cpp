@@ -489,21 +489,18 @@ cout << "=======================================================================
     std::cout << "GETTING THERMODYNAMICS" << std::endl;
     std::vector<double> point = {T0/hc, muB0/hc, muQ0/hc, muS0/hc};
 
-    chosen_EOS_map["table"]->set_debug_mode(true);
+    dynamic_cast<EoS_table*>(chosen_EOS_map["table"])->set_debug_mode(true);
     std::vector<double> v = get_thermodynamics( point, "table" );
     std::cout << "Check exact: " << T0 << "   " << muB0 << "   "
               << muQ0 << "   "<< muS0 << "   " << v[5] << "   "
               << v[2] << "   " << v[3] << "   " << v[4] << std::endl;
 
-    chosen_EOS_map["table"]->set_debug_mode(false);
-    std::vector<double> v = get_thermodynamics( point, "table" );
+    dynamic_cast<EoS_table*>(chosen_EOS_map["table"])->set_debug_mode(false);
+    v = get_thermodynamics( point, "table" );
     std::cout << "Check interpolant: " << T0 << "   " << muB0 << "   "
               << muQ0 << "   "<< muS0 << "   " << v[5] << "   "
               << v[2] << "   " << v[3] << "   " << v[4] << std::endl;
-    e_In    = v[5];
-    rhoB_In = v[2];
-    rhoS_In = v[3];
-    rhoQ_In = v[4];
+    
     std::cout << "GOT THERMODYNAMICS" << std::endl;
   }
   std::cout << std::endl << std::endl << std::endl;
