@@ -2,7 +2,7 @@
 #include <iostream>
 
 #include "colors.h"
-//#include "matrix.h"
+#include "matrix.h"
 #include "vector.h"
 
 using namespace std;
@@ -458,8 +458,3 @@ void run_matrix_tests()
   cout << endl;
 }
 
-
-  Vector<T,(D2-1)> rowp1( const Matrix<T, D1, D2>& a );
-  Vector<T,(D1-1)> colp1( const Matrix<T, D1, D2>& a );
-  void mini(    const Matrix<T,D1-1,D2-1> &b, const Matrix<T,D1,D2>& a );
-  void tmini(   const Matrix<T,D1,D2>& b, const Matrix<T,D1-1,D2-1>& a );
