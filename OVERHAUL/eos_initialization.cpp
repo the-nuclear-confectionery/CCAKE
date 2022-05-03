@@ -5,6 +5,7 @@
 #include <gsl/gsl_blas.h>
 #include <gsl/gsl_linalg.h>
 #include <iostream>
+#include <memory>
 #include <vector>
 #include <fstream>
 #include <string>
@@ -491,7 +492,7 @@ cout << "=======================================================================
 
     pEoS_base table_EoS_object = chosen_EOS_map["table"];
 
-    (dynamic_cast<EoS_table*>(table_EoS_object))->set_debug_mode(true);
+    std::dynamic_pointer_cast<EoS_table>(table_EoS_object)->set_debug_mode(true);
     std::vector<double> v = get_thermodynamics( point, "table" );
     std::cout << "Check exact: " << T0 << "   " << muB0 << "   "
               << muQ0 << "   "<< muS0 << "   " << v[5] << "   "
