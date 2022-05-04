@@ -42,6 +42,8 @@ class Particle
   void locate_phase_diagram_point_sBSQ( double s_In, double rhoB_In,
                                         double rhoS_In, double rhoQ_In );
 
+  void evaluate_time_derivatives( double t );
+
   //private:
 
     // thermodynamic quantities (with default initialization)
