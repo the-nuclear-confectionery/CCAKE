@@ -537,7 +537,10 @@ void SPHWorkstation::process_initial_conditions()
   // set particles to print
   settingsPtr->is_printable.resize( systemPtr->particles.size(), false );
   for ( int & p : settingsPtr->particles_to_print )
+  {
     settingsPtr->is_printable[ p ] = true;
+    systemPtr->particles[p].print_this_particle = true;
+  }
 }
 
 
@@ -593,7 +596,7 @@ void SPHWorkstation::advance_timestep_rk2( double dt )
   ////////////////////////////////////////////
 
   // compute derivatives
-  compute_time_derivatives();
+  get_time_derivatives();
 
   // update quantities
   {
@@ -629,7 +632,7 @@ void SPHWorkstation::advance_timestep_rk2( double dt )
   ////////////////////////////////////////////
 
   // compute derivatives
-  compute_time_derivatives();
+  get_time_derivatives();
 
   // update quantities
   {
@@ -686,7 +689,7 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
   ////////////////////////////////////////////
 
   // compute derivatives
-  compute_time_derivatives();
+  get_time_derivatives();
 
   for (int i = 0; i < (int)systemPtr->particles.size(); i++)
   {
@@ -720,7 +723,7 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
   ////////////////////////////////////////////
 
   systemPtr->t = t0 + 0.5*dt;
-  compute_time_derivatives();
+  get_time_derivatives();
 
   for (int i = 0; i < (int)systemPtr->particles.size(); i++)
   {
@@ -751,7 +754,7 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
   //    third step
   ////////////////////////////////////////////
 
-  compute_time_derivatives();
+  get_time_derivatives();
 
   for (int i = 0; i < (int)systemPtr->particles.size(); i++)
   {
@@ -783,7 +786,7 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
   ////////////////////////////////////////////
 
   systemPtr->t = t0 + dt;
-  compute_time_derivatives();
+  get_time_derivatives();
 
   constexpr double w1 = 1.0/6.0, w2 = 1.0/3.0;
   for (int i = 0; i < (int)systemPtr->particles.size(); i++)
@@ -819,7 +822,7 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
 
 
 ////////////////////////////////////////////////////////////////////////////////
-int SPHWorkstation::do_freezeout_checks()
+int SPHWorkstation::do_freeze_out_checks()
 {
   int curfrz = 0;
   if ( systemPtr->cfon == 1 )
@@ -837,13 +840,39 @@ int SPHWorkstation::do_freezeout_checks()
 
 
 
+//==============================================================================
+void SPHWorkstation::update_all_particles_dsigma_dt()
+{
+  for ( auto & p : systemPtr->particles )
+  {
+    p.dsigma_dt = -p.sigma * ( p.gradV(0,0) + p.gradV(1,1) );
+
+    //===============
+    // print status
+    if ( VERBOSE > 2
+          && settingsPtr->particles_to_print.size() > 0
+          && settingsPtr->print_particle(p.ID) )
+      std::cout << "CHECK dsigma_dt: " << p.ID << "   " << systemPtr->t << "   "
+                << p.dsigma_dt << "   " << p.sigma << "   " << p.gradV << "\n";
+  }
+}
+
+
+void SPHWorkstation::update_freeze_out_lists()
+{
+  int m = 0;
+  for ( auto & p : systemPtr->particles )
+    if ( (p.Freeze==3) && (systemPtr->cfon==1) )
+    {
+      systemPtr->list[m++] = p.ID;
+      p.Freeze         = 4;
+    }
+}
+
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// The structure here is temporary until we set the mode for different terms 
-// which will be shear, bulk, diffusion, and coupling terms, 
-// current equations are only set up for 2+1d.
-void SPHWorkstation::compute_time_derivatives()
+void SPHWorkstation::get_time_derivatives()
 {
   // reset nearest neighbors
   reset_linklist();
@@ -862,272 +891,29 @@ void SPHWorkstation::compute_time_derivatives()
   update_all_particle_viscosities();
 
   // freeze-out checks here
-  int curfrz = do_freezeout_checks();
-
-//  int m = 0;
-//  for ( auto & p : systemPtr->particles )
-//  {
-//    int i = p.ID;
-//
-//    //Computes gradients to obtain dsigma/dt
-//    smooth_gradients( p, systemPtr->t, curfrz );
-//
-//    p.dsigma_dt = -p.sigma * ( p.gradV(0,0) + p.gradV(1,1) );
-//
-//    //===============
-//    // print status
-//    if ( VERBOSE > 2 && ( settingsPtr->particles_to_print.size() > 0
-//                            && settingsPtr->print_particle(i) ) )
-//      std::cout << "CHECK dsigma_dt: " << i << "   " << systemPtr->t << "   "
-//                << p.dsigma_dt << "   " << p.sigma << "   " << p.gradV << "\n";
-//
-//
-//
-//    p.bsqsvsigset( systemPtr->t );
-//
-//    if ( (p.Freeze==3) && (systemPtr->cfon==1) )
-//    {
-//      systemPtr->list[m++] = i;
-//      p.Freeze         = 4;
-//    }
-//
-//  }
-//  /* the above should probably be put into something like
-//  smooth_all_particle_gradients() */
-
-
-
+  int curfrz = do_freeze_out_checks();
 
   //Computes gradients to obtain dsigma/dt
-  for ( auto & p : systemPtr->particles )
-    smooth_gradients( p, systemPtr->t, curfrz );
+  smooth_all_particle_gradients( curfrz );
 
   // set dsigma_dt
-  for ( auto & p : systemPtr->particles )
-  {
-    p.dsigma_dt = -p.sigma * ( p.gradV(0,0) + p.gradV(1,1) );
+  update_all_particle_dsigma_dt();
 
-    //===============
-    // print status
-    if ( VERBOSE > 2
-          && settingsPtr->particles_to_print.size() > 0
-          && settingsPtr->print_particle(p.ID) )
-      std::cout << "CHECK dsigma_dt: " << p.ID << "   " << systemPtr->t << "   "
-                << p.dsigma_dt << "   " << p.sigma << "   " << p.gradV << "\n";
-  }
-
-  // bsqsvsigset
-  for ( auto & p : systemPtr->particles )
-    p.bsqsvsigset( systemPtr->t );
-
+  // update fluid quantities for all particles
+  update_all_particle_fluid_quantities();
 
   // update freeze out status/lists
-  int m = 0;
-  for ( auto & p : systemPtr->particles )
-    if ( (p.Freeze==3) && (systemPtr->cfon==1) )
-    {
-      systemPtr->list[m++] = p.ID;
-      p.Freeze         = 4;
-    }
+  update_freeze_out_lists();
 
-
-
-
-
-
-
-
-
-
+  // check/update energy conservation
   systemPtr->conservation_energy();
 
-
-
-
-
-  //calculate matrix elements
+  //calculate time derivatives for all particles
   for ( auto & p : systemPtr->particles )
-  {
-    int i = p.ID;
-
-    double gamt = 0.0, pre = 0.0, p1 = 0.0;
-    if ( settingsPtr->using_shear )
-    {
-      gamt = 1.0/p.gamma/p.stauRelax;
-      pre  = p.eta_o_tau/p.gamma;
-      p1   = gamt - 4.0/3.0/p.sigma*p.dsigma_dt + 1.0/systemPtr->t/3.0;
-    }
-
-    Vector<double,2> minshv   = rowp1(0, p.shv);
-    Matrix <double,2,2> partU = p.gradU + transpose( p.gradU );
-
-    //===============
-    // print status
-    if ( VERBOSE > 2 && ( settingsPtr->particles_to_print.size() > 0
-                            && settingsPtr->print_particle(i) ) )
-    {
-      std::cout << "CHECK misc1: " << i << "   " << systemPtr->t << "   "
-                << gamt << "   " << p.sigma	<< "   " << p.dsigma_dt << "\n"
-                << "CHECK minshv: " << i << "   " << systemPtr->t << "   " << minshv << "\n"
-                << "CHECK partU: " << i << "   " << systemPtr->t << "   " << partU << "\n";
-    }
+    evaluate_time_derivatives( systemPtr->t );
 
 
-    // set the Mass and the Force
-    Matrix <double,2,2> M = p.Msub();
-    Vector<double,2> F    = p.Btot*p.u + p.gradshear
-                            - ( p.gradP + p.gradBulk + p.divshear );
 
-
-    //===============
-    // print status
-    if ( VERBOSE > 2 && ( settingsPtr->particles_to_print.size() > 0
-                            && settingsPtr->print_particle(i) ) )
-      std::cout << "CHECK M: " << i << "   " << systemPtr->t << "   " << M << "\n"
-                << "CHECK F: " << i << "   " << systemPtr->t << "   " << F << "   "
-                << p.Btot << "   " << p.u << "   "
-                << p.gradshear << "   " << p.gradP << "   "
-                << p.gradBulk << "   " << p.divshear << "\n";
-
-    //===============
-    // shear contribution
-    if ( settingsPtr->using_shear )
-      F += pre*p.v*partU + p1*minshv;
-
-    //===============
-    // print status
-    if ( VERBOSE > 2 && ( settingsPtr->particles_to_print.size() > 0
-                            && settingsPtr->print_particle(i) ) )
-      std::cout << "CHECK F(again): " << i << "   " << systemPtr->t << "   "
-                << F << "   " << pre << "   " << p.v << "   " << partU << "   "
-                << p1 << "   " << minshv << "\n";
-
-
-    double det=deter(M);
-
-    Matrix <double,2,2> MI;
-    MI(0,0) =  M(1,1)/det;
-    MI(0,1) = -M(0,1)/det;
-    MI(1,0) = -M(1,0)/det;
-    MI(1,1) =  M(0,0)/det;
-  /* This notation is still a bit weird.. but also
-  MI should be a member of particle as well */
-
-    //===============
-    // print status
-    if ( VERBOSE > 2 && ( settingsPtr->particles_to_print.size() > 0
-                            && settingsPtr->print_particle(i) ) )
-      std::cout << "CHECK det: " << i << "   " << systemPtr->t << "   "
-                << M << "   " << det << "\n"
-                << "CHECK MI: " << i << "   " << systemPtr->t
-                << "   " << MI << "\n";
-
-
-    //===============
-    // compute acceleration
-    p.du_dt(0) = F(0) * MI(0,0) + F(1) * MI(0,1);
-    p.du_dt(1) = F(0) * MI(1,0) + F(1) * MI(1,1);
-
-    //===============
-    // define auxiliary variables
-    double vduk               = inner( p.v, p.du_dt );
-    Matrix <double,2,2> ulpi  = p.u*colp1(0, p.shv);
-    Matrix <double,2,2> Ipi   = -2.0*p.eta_o_tau/3.0 * ( p.Imat + p.uu ) + 4./3.*p.pimin;
-
-    //===============
-    // "coordinate" divergence
-    p.div_u                   = (1./ p.gamma)*inner( p.u, p.du_dt)
-                                  - ( p.gamma/ p.sigma ) * p.dsigma_dt;
-    //===============
-    // "covariant" divergence
-    p.bigtheta                = p.div_u*systemPtr->t+p.gamma;
-        /* the above lines could automatically be set in particle after 
-        calculating the matrix elements above */
-
-    //===============
-    // print status
-    if ( VERBOSE > 2 && ( settingsPtr->particles_to_print.size() > 0
-                            && settingsPtr->print_particle(i) ) )
-      std::cout << "CHECK div_u: " << i
-                << "   " << systemPtr->t
-                << "   " << p.div_u
-                << "   " << p.gamma
-                << "   " << p.u
-                << "   " << p.du_dt
-                << "   " << inner( p.u, p.du_dt)
-                << "   " << p.sigma 
-                << "   " << p.dsigma_dt << "\n"
-                << "CHECK bigtheta: " << i
-                << "   " << systemPtr->t
-                << "   " << p.bigtheta
-                << "   " << p.gamma << "\n";
-
-    //===============
-    // this term occurs in Eqs. (250) and (251) of Jaki's long notes
-    // translation: pi^{ij} + pi^{00} v^i v^j - pi^{i0} v^j - pi^{0j} v^i
-    Matrix <double,2,2> sub   = p.pimin + (p.shv(0,0)/p.g2)*p.uu -1./p.gamma*p.piutot;
-
-    // minshv = pi^{0i}                   (i   = 1,2)
-    // pimin  = pi^{ij}                   (i,j = 1,2)
-    // uu     = u^i u^j                   (i,j = 1,2)
-    // piu    = pi^{0i} u^j               (i,j = 1,2)
-    // piutot = pi^{0i} u^j + pi^{0j} u^i (i,j = 1,2)
-    // gradU  = du_i/dx^j                 (i,j = 1,2)
-
-    //===============
-    if ( settingsPtr->using_shear )
-      p.inside                  = systemPtr->t*(
-                                inner( -minshv+p.shv(0,0)*p.v, p.du_dt )
-                                - con2(sub, p.gradU)
-                                - p.gamma*systemPtr->t*p.shv33 );
-
-
-    //===============
-    // print status
-    if ( VERBOSE > 2 && ( settingsPtr->particles_to_print.size() > 0
-                            && settingsPtr->print_particle(i) ) )
-      std::cout << "CHECK inside: " << i << "   "
-                << systemPtr->t << "   "
-                << p.inside << "   "
-                << minshv << ";   "
-                << p.shv(0,0)*p.v << ";   "
-                << p.du_dt << ";   "
-                << sub << "   "
-                << p.gradU << ";   "
-                << p.gamma*systemPtr->t*p.shv33 << "\n";
-
- 
-
-    p.detasigma_dt            = 1./p.sigma/p.T()*( -p.bigPI*p.bigtheta + p.inside );
-
-
-    //===============
-    // print status
-    if ( VERBOSE > 2 && ( settingsPtr->particles_to_print.size() > 0
-                            && settingsPtr->print_particle(i) ) )
-      std::cout << "CHECK detasigma_dt: " << i << "   "
-                << systemPtr->t << "   "
-                << p.detasigma_dt << "   "
-                << p.sigma << "   "
-                << p.T()*hbarc_MeVfm << "   "
-                << p.bigPI << "   "
-                << p.bigtheta << "   "
-                << p.inside << "\n";
-
-
-    // N.B. - ADD EXTRA TERMS FOR BULK EQUATION
-    p.dBulk_dt = ( -p.zeta/p.sigma*p.bigtheta - p.Bulk/p.gamma )/p.tauRelax;
-
-    Matrix <double,2,2> ududt = p.u*p.du_dt;
-
-    // N.B. - ADD READABLE TERM NAMES
-    if ( settingsPtr->using_shear )
-      p.dshv_dt                 = - gamt*( p.pimin + p.setas*partU )
-                               - p.eta_o_tau*( ududt + transpose(ududt) )
-                               + p.dpidtsub() + p.sigl*Ipi
-                               - vduk*( ulpi + transpose(ulpi) + (1/p.gamma)*Ipi );
-
-  }
 
 
   if (systemPtr->cfon==1)
@@ -1144,11 +930,6 @@ void SPHWorkstation::compute_time_derivatives()
   std::cout << "Summary at t = " << systemPtr->t << ": "
         << systemPtr->particles_out_of_grid.size()
         << " particles have gone out of the EoS grid." << std::endl;
-
-
-  /* Not sure what any of the above does but I'm certain it can be
-  done somewhere else */
-
 
   return;
 }

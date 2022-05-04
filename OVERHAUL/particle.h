@@ -42,6 +42,9 @@ class Particle
   void locate_phase_diagram_point_sBSQ( double s_In, double rhoB_In,
                                         double rhoS_In, double rhoQ_In );
 
+  void evaluate_time_derivatives( double t );
+
+
   //private:
 
     // thermodynamic quantities (with default initialization)
@@ -115,7 +118,7 @@ class Particle
   void frzcheck( double tin, int &count, int N );
   void calc(double tin);
   void calcbsq(double tin);
-  void bsqsvsigset(double tin);
+  void update_fluid_quantities(double tin);
   void setvisc( int etaconst, double bvf, double svf, double zTc,
                 double sTc, double sig, int type );
   void reset_pi_tensor(double tin2);
@@ -123,6 +126,8 @@ class Particle
   double Bsub();
 
   // members
+  bool print_this_particle = false;
+
   int ID                 = -1;
   int btrack             = 0;
   int Freeze             = 0;
