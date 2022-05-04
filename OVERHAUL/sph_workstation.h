@@ -43,6 +43,20 @@ public:
 //  void smooth_all_particle_gradients()
 //        { for ( auto & p : systemPtr->particles ) smooth_fields(p); }
 
+  void update_all_particle_thermodynamics()
+        { for ( auto & p : systemPtr->particles ) p.calcbsq( systemPtr->t ) };
+
+  void update_all_particle_viscosities()
+        { for ( auto & p : systemPtr->particles )
+            p.setvisc( systemPtr->etaconst, systemPtr->bvf, systemPtr->svf,
+                       systemPtr->zTc,      systemPtr->sTc, systemPtr->zwidth,
+                       systemPtr->visc ); }
+
+
+  int do_freezeout_checks();
+
+
+
   // Move this into a different namespace or something?
   // It feels like this should be organized separately
   void advance_timestep_rk2( double dt );

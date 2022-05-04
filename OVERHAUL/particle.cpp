@@ -242,20 +242,6 @@ void Particle::calcbsq(double tin)
 
 
 
-////////////////////////////////////////////////////////////////////////////////
-void Particle::return_bsqsv_A()
-{
-    eta_o_tau = (settingsPtr->using_shear) ? setas/stauRelax : 0.0;
-
-	// THIS NEEDS TO BE CHECKED/FIXED, SPECIFICALLY WHEN INCLUDING MORE BETA-DOT TERMS
-    Agam  = w() - dwds()*(s()+ bigPI/T() )- zeta/tauRelax
-            - dwdB() * rhoB() - dwdS() * rhoS() - dwdQ() * rhoQ();
-
-    Agam2 = ( Agam - eta_o_tau/3.0 - dwdsT1*shv(0,0) ) / gamma;
-    Ctot  = C + eta_o_tau*(1/g2-1);
-
-}
-
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -306,7 +292,7 @@ Matrix<double,2,2> Particle::dpidtsub()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void Particle::bsqsvsigset( double tin, int i )
+void Particle::bsqsvsigset( double tin )
 {
   // from svsigset
   g2           = gamma*gamma;
@@ -318,11 +304,22 @@ void Particle::bsqsvsigset( double tin, int i )
   gradU        = gamma*gradV+g3*(v*(v*gradV));
   bigPI        = Bulk*sigma/gt;
   C            = w()+ bigPI;
-  return_bsqsv_A();
+
+  eta_o_tau    = (settingsPtr->using_shear) ? setas/stauRelax : 0.0;
+
+  // THIS NEEDS TO BE CHECKED/FIXED,
+  // SPECIFICALLY WHEN INCLUDING MORE BETA-DOT TERMS
+  Agam         = w() - dwds()*( s()+ bigPI/T() )- zeta/tauRelax
+                 - dwdB() * rhoB() - dwdS() * rhoS() - dwdQ() * rhoQ();
+
+  Agam2        = ( Agam - eta_o_tau/3.0 - dwdsT1*shv(0,0) ) / gamma;
+  Ctot         = C + eta_o_tau*(1.0/g2-1.0);
+
+
   Btot         = ( Agam*gamma + 2.0*eta_o_tau/3.0*gamma )*sigl
                 + bigPI/tauRelax + dwdsT*( gt*shv33 + Bsub() );
   check        = sigl;
-//std::cout << "CHECK bsqsvsigset: " << i << "   " << tin << "   " << g2
+//std::cout << "CHECK bsqsvsigset: " << ID << "   " << tin << "   " << g2
 //          << "   " << g2 << "   " << g3 << "   " << gt << "   "
 //          << dwds() << "   " << T() << "   " << sigl << "   "
 //          << w() << "   " << bigPI << "   " << gradU << "   "
@@ -335,9 +332,9 @@ void Particle::bsqsvsigset( double tin, int i )
 void Particle::setvisc( int etaconst, double bvf, double svf, double zTc,
                         double sTc, double sig, int type )
 {
-  setas=s()*svf;
+  setas     = s()*svf;
 
-  stauRelax=5*setas/w();
+  stauRelax = 5*setas/w();
   if (!settingsPtr->using_Gubser && stauRelax < 0.005) stauRelax = 0.005;
 
   /*if (abs(bvf) > 1e-6)
@@ -355,7 +352,7 @@ void Particle::setvisc( int etaconst, double bvf, double svf, double zTc,
 
 
 ////////////////////////////////////////////////////////////////////////////////
-void Particle::sets(double tin2)
+void Particle::reset_pi_tensor(double tin2)
 {
   gamma    = gamcalc();
   shv(2,1) = shv(1,2);

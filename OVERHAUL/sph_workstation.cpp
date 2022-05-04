@@ -30,7 +30,7 @@ separate function? */
 void SPHWorkstation::reset_pi_tensor()
 {
   for ( auto & p : systemPtr->particles )
-    p.sets(systemPtr->t*systemPtr->t);
+    p.reset_pi_tensor(systemPtr->t*systemPtr->t);
 }
 
 
@@ -165,7 +165,7 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 }
 ////////////////////////////////////////////////////////////////////////////////
 /* Does this need to be its own separate function? Why not call
-"p.sets(...)" from BSQHydro and then call smoothing? linklist can
+"p.reset_pi_tensor(...)" from BSQHydro and then call smoothing? linklist can
 also be set from BSQHydro. It might make more sense to defne a
 general function in workstation the loops over SPH paticles and
 smooths them using its own various smoothing methods.*/
@@ -188,9 +188,8 @@ void SPHWorkstation::initial_smoothing()  // formerly BSQguess()
 	some freeze=out checks.. maybe this can all be combined with 
 	initialize_entropy_and_charge_densities(...) into one 
 	intialize_particle_quantities function*/
-	for (int i=0; i<systemPtr->_n; i++)
+	for ( auto & p : systemPtr->particles )
 	{
-    auto & p = systemPtr->particles[i];
 		p.s_sub = p.sigma/p.gamma/settingsPtr->t0;
 
     // must reset smoothed charge densities also
@@ -819,6 +818,25 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
 
 
 
+////////////////////////////////////////////////////////////////////////////////
+int SPHWorkstation::do_freezeout_checks()
+{
+  int curfrz = 0;
+  if ( systemPtr->cfon == 1 )
+  {
+    // freeze-out checks for all particles
+    for ( auto & p : systemPtr->particles )
+      p.frzcheck( systemPtr->t, curfrz, systemPtr->n() );
+
+    // update global quantities accordingly
+    systemPtr->number_part += curfrz;
+    systemPtr->list.resize(curfrz);
+  }
+  return curfrz;
+}
+
+
+
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -837,102 +855,89 @@ void SPHWorkstation::compute_time_derivatives()
   // smooth all particle fields
   smooth_all_particle_fields();
 
+  // update gamma, velocity, and thermodynamics for all particles
+  update_all_particle_thermodynamics();
 
+  // update viscosities for all particles
+  update_all_particle_viscosities();
 
+  // freeze-out checks here
+  int curfrz = do_freezeout_checks();
 
-
-
-
-//  int curfrz = 0;
+//  int m = 0;
 //  for ( auto & p : systemPtr->particles )
 //  {
 //    int i = p.ID;
 //
-//    //  Computes gamma and velocity
-//    p.calcbsq( systemPtr->t ); //resets EOS!!
+//    //Computes gradients to obtain dsigma/dt
+//    smooth_gradients( p, systemPtr->t, curfrz );
 //
-//    p.setvisc( systemPtr->etaconst, systemPtr->bvf, systemPtr->svf,
-//               systemPtr->zTc,      systemPtr->sTc, systemPtr->zwidth,
-//               systemPtr->visc );
+//    p.dsigma_dt = -p.sigma * ( p.gradV(0,0) + p.gradV(1,1) );
 //
-//    if ( systemPtr->cfon == 1 )
-//      p.frzcheck( systemPtr->t, curfrz, systemPtr->n() );
+//    //===============
+//    // print status
+//    if ( VERBOSE > 2 && ( settingsPtr->particles_to_print.size() > 0
+//                            && settingsPtr->print_particle(i) ) )
+//      std::cout << "CHECK dsigma_dt: " << i << "   " << systemPtr->t << "   "
+//                << p.dsigma_dt << "   " << p.sigma << "   " << p.gradV << "\n";
+//
+//
+//
+//    p.bsqsvsigset( systemPtr->t );
+//
+//    if ( (p.Freeze==3) && (systemPtr->cfon==1) )
+//    {
+//      systemPtr->list[m++] = i;
+//      p.Freeze         = 4;
+//    }
+//
 //  }
-//
-//  if ( systemPtr->cfon == 1 )
-//  {
-//    systemPtr->number_part += curfrz;
-//    systemPtr->list.resize(curfrz);
-//  }
+//  /* the above should probably be put into something like
+//  smooth_all_particle_gradients() */
 
-  
-  // update gamma, velocity, and thermodynamics for all particles
+
+
+
+  //Computes gradients to obtain dsigma/dt
   for ( auto & p : systemPtr->particles )
-    p.calcbsq( systemPtr->t );
-
-
-  // update viscosities for all particles
-  for ( auto & p : systemPtr->particles )
-    p.setvisc( systemPtr->etaconst, systemPtr->bvf, systemPtr->svf,
-               systemPtr->zTc,      systemPtr->sTc, systemPtr->zwidth,
-               systemPtr->visc );
-
-
-  // freeze-out checks here
-  int curfrz = 0;
-  if ( systemPtr->cfon == 1 )
-  {
-    // freeze-out checks for all particles
-    for ( auto & p : systemPtr->particles )
-      p.frzcheck( systemPtr->t, curfrz, systemPtr->n() );
-
-    // update global quantities accordingly
-    systemPtr->number_part += curfrz;
-    systemPtr->list.resize(curfrz);
-  }
-
-
-
-
-
-
-
-
-
-
-
-
-
-  int m = 0;
-  for ( auto & p : systemPtr->particles )
-  {
-    int i = p.ID;
-
-    //Computes gradients to obtain dsigma/dt
     smooth_gradients( p, systemPtr->t, curfrz );
 
+  // set dsigma_dt
+  for ( auto & p : systemPtr->particles )
+  {
     p.dsigma_dt = -p.sigma * ( p.gradV(0,0) + p.gradV(1,1) );
 
     //===============
     // print status
-    if ( VERBOSE > 2 && ( settingsPtr->particles_to_print.size() > 0
-                            && settingsPtr->print_particle(i) ) )
-      std::cout << "CHECK dsigma_dt: " << i << "   " << systemPtr->t << "   "
+    if ( VERBOSE > 2
+          && settingsPtr->particles_to_print.size() > 0
+          && settingsPtr->print_particle(p.ID) )
+      std::cout << "CHECK dsigma_dt: " << p.ID << "   " << systemPtr->t << "   "
                 << p.dsigma_dt << "   " << p.sigma << "   " << p.gradV << "\n";
+  }
+
+  // bsqsvsigset
+  for ( auto & p : systemPtr->particles )
+    p.bsqsvsigset( systemPtr->t );
 
 
-
-    p.bsqsvsigset( systemPtr->t, i );
-
+  // update freeze out status/lists
+  int m = 0;
+  for ( auto & p : systemPtr->particles )
     if ( (p.Freeze==3) && (systemPtr->cfon==1) )
     {
-      systemPtr->list[m++] = i;
+      systemPtr->list[m++] = p.ID;
       p.Freeze         = 4;
     }
 
-  }
-  /* the above should probably be put into something like
-  smooth_all_particle_gradients() */
+
+
+
+
+
+
+
+
 
   systemPtr->conservation_energy();
 

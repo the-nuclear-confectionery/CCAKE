@@ -115,10 +115,10 @@ class Particle
   void frzcheck( double tin, int &count, int N );
   void calc(double tin);
   void calcbsq(double tin);
-  void return_bsqsv_A();
-  void bsqsvsigset(double tin, int i);
-  void setvisc( int etaconst, double bvf, double svf, double zTc, double sTc, double sig, int type );
-  void sets(double tin2);
+  void bsqsvsigset(double tin);
+  void setvisc( int etaconst, double bvf, double svf, double zTc,
+                double sTc, double sig, int type );
+  void reset_pi_tensor(double tin2);
   double gamcalc();
   double Bsub();
 
