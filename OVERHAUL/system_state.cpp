@@ -106,7 +106,6 @@ if ( check_ideal_EoS )
   linklist.fcount  = 0;
   linklist.average = 0;
 
-  //  cout << "setting up SPH" << endl;
   return;
 }
 
@@ -129,13 +128,10 @@ void SystemState::initialize_linklist()
     linklist.fcount     = count;
     linklist.fnum       = linklist.start;
     
-    cout << "Check 0: " << particles[0].r(0) << "   " << particles[0].r(1) << endl;
-
     int currently_frozen_out = number_part;
     linklist.initialize( settingsPtr->t0, particles.size(),
                          settingsPtr->_h, &particles, dt, currently_frozen_out );
 
-    //cout << "number of sph particles=" << _Ntable3 << endl;
     linklist.gtyp=settingsPtr->gtyp;
 
   }
@@ -159,7 +155,6 @@ void SystemState::initialize_linklist()
     linklist.initialize( settingsPtr->t0, particles.size(),
                          settingsPtr->_h, &particles, dt, currently_frozen_out );
 
-    //cout << "number of sph particles=" << _Ntable3 << endl;
     linklist.gtyp=settingsPtr->gtyp;
   }
   else
@@ -175,7 +170,6 @@ void SystemState::initialize_linklist()
   {
     double gg = p.gamcalc();
     p.g2      = gg*gg;
-    //p.shv33   = 0.0;
   }
 
   return;
@@ -186,57 +180,8 @@ void SystemState::initialize_linklist()
 
 
 
-///////////////////////////////////////////////////////////////////////////////
-//Dekra: BSQsimulation was moved from this location to BSQhydro and renamed to run
-///////////////////////////////////////////////////////////////////////////////
-//Start routines for checking conservation of energy density, entropy density and BSQ 
-// charge densities at each time step of the simulation
-///////////////////////////////////////
-void SystemState::check_BSQ_energy_conservation()
-{
-  E=0.0;
-  for ( auto & p : particles )
-  {
-    E += ( p.C*p.g2 - p.p() - p.bigPI + p.shv(0,0) )
-          *p.sigmaweight*t/p.sigma;
-    p.contribution_to_total_E = ( p.C*p.g2 - p.p() - p.bigPI + p.shv(0,0) )
-                                *p.sigmaweight*t/p.sigma;
-  }
 
-  if (linklist.first == 1)
-  {
-    linklist.first = 0;
-    E0    = E;
-  }
 
-  return;
-}
-////////////////////////////////////////
-void SystemState::check_BSQ_charge_conservation()
-{
-  Btotal = 0.0;
-  Stotal = 0.0;
-  Qtotal = 0.0;
-
-  for ( auto & p : particles )
-  {
-    //Btotal += p.B;
-    //Stotal += p.S;
-    //Qtotal += p.Q;
-    Btotal += p.rhoB_sub*p.rhoB_weight;
-    Stotal += p.rhoS_sub*p.rhoS_weight;
-    Qtotal += p.rhoQ_sub*p.rhoQ_weight;
-  }
-
-  if (linklist.first==1)
-  {
-    Btotal0 = Btotal;
-    Stotal0 = Stotal;
-    Qtotal0 = Qtotal;
-  }
-
-	return;
-}
 ///////////////////////////////////////
 void SystemState::bsqsvconservation()
 {
@@ -245,22 +190,17 @@ void SystemState::bsqsvconservation()
     Eloss = (E0-Etot)/E0*100;
     rk2   = 0;
 }
+
 ///////////////////////////////////////
 void SystemState::conservation_entropy()
 {
-  S=0.0;
+  S = 0.0;
+  for ( auto & p : particles )
+    S += p.eta_sigma*p.sigmaweight;
 
-  for (int i=0; i<_n; i++)
-  {
-    S += particles[i].eta_sigma*particles[i].sigmaweight;
-    if (i==-1)
-    std::cout << "\t\t --> " << i << "   " << particles[i].eta_sigma << "   "
-              << particles[i].sigmaweight << "   " << S << endl;
-  }
-
-  if (linklist.first==1)
-    S0=S;
+  if (linklist.first==1) S0=S;
 }
+
 ///////////////////////////////////////
 void SystemState::conservation_BSQ()
 {
@@ -291,59 +231,32 @@ void SystemState::conservation_BSQ()
 ///////////////////////////////////////
 void SystemState::bsqsvconservation_E()
 {
+  E = 0.0;
+  for ( auto & p : particles )
+  {
+    p.contribution_to_total_E
+       = ( p.C*p.g2 - p.p() - p.bigPI + p.shv(0,0) ) * p.sigmaweight*t/p.sigma;
+    E += p.contribution_to_total_E;
+  }
 
-    E=0.;
-    for (int i=0; i<_n; i++)
-    {
-      auto & p = particles[i];
-
-        E += ( p.C*p.g2 - p.p() - p.bigPI + p.shv(0,0) )
-              / p.sigma*p.sigmaweight*t;
-
-        p.contribution_to_total_E = ( p.C*p.g2 - p.p() - p.bigPI + p.shv(0,0) )
-                                    *p.sigmaweight*t/p.sigma;
-
-        if (i==-1)
-          std::cout << "E: " << i << "   " << t
-              << "   " << p.T()
-              << "   " << p.e()
-              << "   " << p.C
-              << "   " << p.g2
-              << "   " << p.p()
-              << "   " << p.bigPI
-              << "   " << p.shv(0,0)
-              << "   " << p.sigma
-              << "   " << p.sigmaweight << endl;
-    }
-
-    if (linklist.first==1)
-    {
-      linklist.first=0;
-      E0=E;
-    }
+  if (linklist.first==1)
+  {
+    linklist.first = 0;
+    E0             = E;
+  }
 }
 
 
 ///////////////////////////////////////
 void SystemState::bsqsvconservation_Ez()
 {
-  dEz=0.;
-
-  double t2=t*t;
-  for (int i=0; i<_n; i++)
+  dEz = 0.0;
+  double t2 = t*t;
+  for ( auto & p : particles )
   {
-    auto & p = particles[i];
-
-    dEz += ( p.p() + p.bigPI + p.shv33*t2 ) / p.sigma*p.sigmaweight;
-    p.contribution_to_total_dEz = ( p.p() + p.bigPI + p.shv33*t2 ) / p.sigma*p.sigmaweight;
-
-    if (false)
-      std::cout << "dEz: " << i << "   " << t
-        << "   " << p.p()
-        << "   " << p.bigPI
-        << "   " << p.shv33*t2
-        << "   " << p.sigma
-        << "   " << p.sigmaweight << endl;
+    p.contribution_to_total_dEz
+         = ( p.p() + p.bigPI + p.shv33*t2 ) / p.sigma*p.sigmaweight;
+    dEz += p.contribution_to_total_dEz;
   }
 }
 

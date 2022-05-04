@@ -146,9 +146,6 @@ public:
   void initialize();
   void reset_linklist() { linklist.reset(); }
   void initialize_linklist();
-  void check_BSQ_energy_conservation();
-  void check_BSQ_entropy_conservation();
-  void check_BSQ_charge_conservation();
 
   void bsqsvconservation();
   void conservation_entropy();

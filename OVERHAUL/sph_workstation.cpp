@@ -911,11 +911,11 @@ void SPHWorkstation::BSQshear()
   smooth_all_particle_gradients() */
 
   if (systemPtr->rk2==1)
-  systemPtr->bsqsvconservation();
+    systemPtr->bsqsvconservation();
 
   systemPtr->bsqsvconservation_Ez();
 
-  /* conservation can definitely be called in BSQHydro */
+
 
 //TRAVIS: ALL OF THE ABOVE SHOULD BE SPLIT OFF INTO DIFFERENT FUNCTIONS
 // AND CALLED IN BSQHYDRO E.G. smooth_gradients, systemPtr->freeze_out_check, etc

@@ -11,13 +11,11 @@ BSQHydro::BSQHydro()
 
   // initialize I/O pointers
   io.set_EquationOfStatePtr( &eos );
-//  io.set_EquationsOfMotionPtr( &eom );
   io.set_SettingsPtr( &settings );
   io.set_SystemStatePtr( &system );
 
   // initialize SPH workstation
   ws.set_EquationOfStatePtr( &eos );
-//  ws.set_EquationsOfMotionPtr( &eom );
   ws.set_SystemStatePtr( &system );
   ws.set_SettingsPtr( &settings );
   
@@ -28,14 +26,8 @@ BSQHydro::BSQHydro()
   // initialize EoS pointers
   eos.set_SettingsPtr( &settings );
   
-  // initialize EoM pointers
-//  eom.set_SettingsPtr( &settings );
-  
   return;
 }
-
-//BSQHydro::~BSQHydro(){}
-
 
 void BSQHydro::load_settings_file( string path_to_settings_file )
 {
@@ -127,7 +119,6 @@ void BSQHydro::run()
     // workstation advances by given timestep at given RK order
     ws.advance_timestep( settings.dt, rk_order );
 
-    // check conservation laws
     system.conservation_entropy();
     system.conservation_BSQ();
 

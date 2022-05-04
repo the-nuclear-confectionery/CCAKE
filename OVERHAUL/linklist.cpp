@@ -1,28 +1,21 @@
-#include "vector.h"
-#include "matrix.h"
-#include "particle.h"
-#include "mathdef.h"
+#include <cmath>
+#include <cstdio>
+#include <vector>
+
 #include "eos.h"
 #include "kernel.h"
-#include <stdio.h>
-#include <math.h>
-#include <cmath>
-#include <vector>
-#include "Stopwatch.h"
-
 #include "linklist.h"
-
-// this contains functions for calling EoS directly
-#include <lib.h>
-
+#include "mathdef.h"
+#include "matrix.h"
+#include "particle.h"
+#include "Stopwatch.h"
+#include "vector.h"
 
 LinkList::LinkList()
 {
     range = 2; //number of boxes on the sides
-    for (int i=0; i<2; i++) uni(i)=1.0;
+    for (int i=0; i<2; i++) uni(i) = 1.0;
 }
-
-//LinkList::~LinkList(){}
 
 
 void LinkList::initialize( double it0, int ntot, double h,
@@ -38,19 +31,8 @@ void LinkList::initialize( double it0, int ntot, double h,
   cout << "_h = " << _h << endl;
   cout << "_n = " << _n << endl;
 
-//    cout << "Check 1: " << particles_in[0].r(0) << "   " << particles_in[0].r(1) << endl;
-
-  //particles   = particles_in;
   particlesPtr = particlesPtr_in;
 
-//    cout << "Check 2: " << particles[0].r(0) << "   " << particles[0].r(1) << endl;
-
-//    knorm       = 10/7./pi/(_h*_h);
-//    knorm2      = knorm*0.25;
-//    kgrad       = -10/7./pi/pow(_h,3)*3/4.;	//FIX MISSING MINUS SIGN!!!!!!  CONFIRM WITH JAKI
-//    kgrad2      = 10/7./pi/pow(_h,3)/_h;
-  //link        = new int[_n];
-  //dael        = new Vector<int,2>[_n];
   link        = vector<int>(_n);
   dael        = vector< Vector<int,2> >(_n);
   steps       = 100*(floor(tend-t0)+1);
@@ -58,8 +40,6 @@ void LinkList::initialize( double it0, int ntot, double h,
   kernel::set_kernel_parameters( _h );
 
   dt          = dtsave;
-  //number_part = numpart;
-
 
   // initialize linklist
   reset();
@@ -71,13 +51,6 @@ void LinkList::initialize( double it0, int ntot, double h,
 
 void LinkList::reset()
 {
-  // check what happens with particle separates by itself?  Where in fortran code?
-  //find system boundaries
-
-  //max = (*particlesPtr)[0].r;
-  //min = (*particlesPtr)[0].r;
-
-  //for ( int i = 1; i < _n; i++ )
   for ( auto & p : *particlesPtr )
   for ( int j = 0; j < 2;  j++ )
   {
