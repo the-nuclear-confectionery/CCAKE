@@ -431,9 +431,9 @@ void Particle::evaluate_time_derivatives( double t )
   double gamt = 0.0, pre = 0.0, p1 = 0.0;
   if ( settingsPtr->using_shear )
   {
-    gamt = 1.0/(gamma*stauRelax);
+    gamt = 1.0/gamma/stauRelax;
     pre  = eta_o_tau/gamma;
-    p1   = gamt - 4.0*dsigma_dt/(3.0*sigma) + 1.0/(3.0*t);
+    p1   = gamt - 4.0/3.0/sigma*dsigma_dt + 1.0/t/3.0;
   }
 
   Vector<double,2> minshv   = rowp1(0, shv);
@@ -508,8 +508,8 @@ void Particle::evaluate_time_derivatives( double t )
 
   //===============
   // "coordinate" divergence
-  div_u                   = (1.0 / gamma)*inner( u, du_dt)
-                                - ( gamma / sigma ) * dsigma_dt;
+  div_u                   = (1./ gamma)*inner( u, du_dt)
+                                - ( gamma/ sigma ) * dsigma_dt;
   //===============
   // "covariant" divergence
   bigtheta                = div_u*t+gamma;
@@ -536,7 +536,7 @@ void Particle::evaluate_time_derivatives( double t )
   //===============
   // this term occurs in Eqs. (250) and (251) of Jaki's long notes
   // translation: pi^{ij} + pi^{00} v^i v^j - pi^{i0} v^j - pi^{0j} v^i
-  Matrix <double,2,2> sub   = pimin + (shv(0,0)/g2)*uu - (1.0/gamma)*piutot;
+  Matrix <double,2,2> sub   = pimin + (shv(0,0)/g2)*uu -1./gamma*piutot;
 
   // minshv = pi^{0i}                   (i   = 1,2)
   // pimin  = pi^{ij}                   (i,j = 1,2)
@@ -547,7 +547,7 @@ void Particle::evaluate_time_derivatives( double t )
 
   //===============
   if ( settingsPtr->using_shear )
-    inside                  = t*( inner( -minshv + shv(0,0)*v, du_dt )
+    inside                  = t*( inner( -minshv+shv(0,0)*v, du_dt )
                                   - con2(sub, gradU) - gamma*t*shv33 );
 
 
@@ -566,7 +566,7 @@ void Particle::evaluate_time_derivatives( double t )
 
 
 
-  detasigma_dt            = ( -bigPI*bigtheta + inside ) / (sigma*T());
+  detasigma_dt            = 1./sigma/T()*( -bigPI*bigtheta + inside );
 
 
   //===============
@@ -583,7 +583,7 @@ void Particle::evaluate_time_derivatives( double t )
 
 
   // N.B. - ADD EXTRA TERMS FOR BULK EQUATION
-  dBulk_dt = ( -zeta*bigtheta/sigma - Bulk/gamma )/tauRelax;
+  dBulk_dt = ( -zeta/sigma*bigtheta - Bulk/gamma )/tauRelax;
 
   Matrix <double,2,2> ududt = u*du_dt;
 
