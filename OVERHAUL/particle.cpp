@@ -583,7 +583,7 @@ void Particle::evaluate_time_derivatives( double t )
 
 
   // N.B. - ADD EXTRA TERMS FOR BULK EQUATION
-  dBulk_dt = ( -zeta/sigma*bigtheta - Bulk/gamma )/tauRelax;
+  dBulk_dt = ( -zeta*bigtheta/sigma - Bulk/gamma )/tauRelax;
 
   Matrix <double,2,2> ududt = u*du_dt;
 

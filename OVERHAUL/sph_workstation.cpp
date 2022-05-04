@@ -467,28 +467,8 @@ void SPHWorkstation::process_initial_conditions()
   //int TMP_particle_count = 0;
 	for (auto & p : systemPtr->particles)
   {
-    // set area element for each SPH particle (for Polar, depends on particle!)
-    double dA = 0.0;
-    if (settingsPtr->initial_coordinate_distribution == "Cartesian")
-    {
-      //cout << "stepX = " << settingsPtr->stepx << endl;
-      //cout << "stepY = " << settingsPtr->stepy << endl;
-      dA = (settingsPtr->stepx)*(settingsPtr->stepy);
-    }
-    else if (settingsPtr->initial_coordinate_distribution == "Polar")
-    {
-      //cout << "stepr = " << settingsPtr->stepr << endl;
-      //cout << "stepphi = " << settingsPtr->stepphi << endl;
-      
-      dA = (settingsPtr->stepr)*(settingsPtr->stepphi)*Norm(p.r);
-    }
-    else
-    {
-      std::cerr << "ERROR: initial_coordinate_distribution = "
-                << settingsPtr->initial_coordinate_distribution
-                << " not supported!" << endl;
-      exit(1);
-    }
+    // set area element for each SPH particle
+    double dA = (settingsPtr->stepx)*(settingsPtr->stepy);
 
     // Set the rest of particle elements using area element
 		//p.u(0)          = 0.0;  // flow must be set in Particle constructor!!!
@@ -659,7 +639,6 @@ void SPHWorkstation::advance_timestep_rk2( double dt )
         if ( REGULATE_LOW_T && p.eta_sigma < 0.0
               && p.T() < 50.0/constants::hbarc_MeVfm )
           p.eta_sigma    = systemPtr->etasigma0[i];
-        //if ( 0.5*dt*p.detasigma_dt > 10.0*systemPtr->etasigma0[i]
       }
     }
   }

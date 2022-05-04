@@ -175,8 +175,6 @@ void InputOutput::read_in_initial_conditions()
     cout << "Reading in ICCING initial conditions!" << endl;
     total_header_lines = 1;
 
-    settingsPtr->initial_coordinate_distribution = "Cartesian";
-
     ifstream infile(IC_file.c_str());
     cout << "Initial conditions file: " << IC_file << endl;
     if (infile.is_open())
@@ -220,7 +218,6 @@ void InputOutput::read_in_initial_conditions()
   else if (initial_condition_type == "Gubser")
   {
     // choose initial coordinate system
-    settingsPtr->initial_coordinate_distribution = "Cartesian";
     const bool BSQmode = static_cast<bool>( settingsPtr->IC_option == "BSQ" );
 
     // initial time
@@ -271,7 +268,6 @@ void InputOutput::read_in_initial_conditions()
   else if (initial_condition_type == "Gubser_with_shear")
   { // NOTA BENE: THIS MODE MUST BE LOADED FROM FILE
     // choose initial coordinate system
-    settingsPtr->initial_coordinate_distribution = "Cartesian";
 
     // initial time
     const double tau0 = settingsPtr->t0;

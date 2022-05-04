@@ -84,7 +84,6 @@ public:
   string zetaOption = ""; // specify necessary zeta options
   string bulkRelax = ""; // specify which bulk relaxation to use
   string Freeze_Out_Type = "";
-  string initial_coordinate_distribution = "";
 
 
 /********************************************************************************/

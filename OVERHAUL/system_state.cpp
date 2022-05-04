@@ -73,23 +73,6 @@ void SystemState::initialize()  // formerly called "manualenter"
 
   freezeoutT = settingsPtr->Freeze_Out_Temperature;
 
-bool check_ideal_EoS = false;
-if ( check_ideal_EoS )
-{
-  for (double s_density = 0.01; s_density < 10.0; s_density += 0.01)
-  {
-    eosPtr->update_s( s_density );
-    cout << eosPtr->T() << "   "
-          << eosPtr->p() << "   "
-          << eosPtr->s() << "   "
-          << eosPtr->e() << "   "
-          << eosPtr->A() << "   "
-          << eosPtr->w() << "   "
-          << eosPtr->dwds() << "   "
-          << eosPtr->cs2out(eosPtr->T()) << endl;
-  }
-  exit(1);
-}
 
   // initialize information for particles
   for (auto & p : particles)
