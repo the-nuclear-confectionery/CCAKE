@@ -596,7 +596,7 @@ void SPHWorkstation::advance_timestep_rk2( double dt )
   ////////////////////////////////////////////
 
   // compute derivatives
-  compute_time_derivatives();
+  get_time_derivatives();
 
   // update quantities
   {
@@ -632,7 +632,7 @@ void SPHWorkstation::advance_timestep_rk2( double dt )
   ////////////////////////////////////////////
 
   // compute derivatives
-  compute_time_derivatives();
+  get_time_derivatives();
 
   // update quantities
   {
@@ -689,7 +689,7 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
   ////////////////////////////////////////////
 
   // compute derivatives
-  compute_time_derivatives();
+  get_time_derivatives();
 
   for (int i = 0; i < (int)systemPtr->particles.size(); i++)
   {
@@ -723,7 +723,7 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
   ////////////////////////////////////////////
 
   systemPtr->t = t0 + 0.5*dt;
-  compute_time_derivatives();
+  get_time_derivatives();
 
   for (int i = 0; i < (int)systemPtr->particles.size(); i++)
   {
@@ -754,7 +754,7 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
   //    third step
   ////////////////////////////////////////////
 
-  compute_time_derivatives();
+  get_time_derivatives();
 
   for (int i = 0; i < (int)systemPtr->particles.size(); i++)
   {
@@ -786,7 +786,7 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
   ////////////////////////////////////////////
 
   systemPtr->t = t0 + dt;
-  compute_time_derivatives();
+  get_time_derivatives();
 
   constexpr double w1 = 1.0/6.0, w2 = 1.0/3.0;
   for (int i = 0; i < (int)systemPtr->particles.size(); i++)
