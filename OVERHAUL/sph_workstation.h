@@ -44,7 +44,7 @@ public:
 //        { for ( auto & p : systemPtr->particles ) smooth_fields(p); }
 
   void update_all_particle_thermodynamics()
-        { for ( auto & p : systemPtr->particles ) p.calcbsq( systemPtr->t ) };
+        { for ( auto & p : systemPtr->particles ) p.calcbsq( systemPtr->t ); }
 
   void update_all_particle_viscosities()
         { for ( auto & p : systemPtr->particles )
