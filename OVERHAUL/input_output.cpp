@@ -30,10 +30,6 @@ void InputOutput::set_EquationOfStatePtr( EquationOfState * eosPtr_in )
   eosPtr = eosPtr_in;
 }
 
-//void InputOutput::set_EquationsOfMotionPtr( EquationsOfMotion * eomPtr_in )
-//{
-//  eomPtr = eomPtr_in;
-//}
 
 void InputOutput::set_SettingsPtr( Settings * settingsPtr_in )
 {

@@ -272,7 +272,9 @@ double Particle::Bsub()
 Matrix<double,2,2> Particle::Msub()
 {
   piu                     = rowp1(0,shv)*u;
-  Matrix<double,2,2> msub = Agam2*uu + Ctot*gamma*Imat - (1.0+4.0/(3.0*g2))*piu
+//  Matrix<double,2,2> msub = Agam2*uu + Ctot*gamma*Imat - (1.0+4.0/(3.0*g2))*piu
+//                            + dwdsT1*transpose(piu) + gamma*pimin;
+  Matrix<double,2,2> msub = Agam2*uu + Ctot*gamma*Imat - (1+4/3./g2)*piu
                             + dwdsT1*transpose(piu) + gamma*pimin;
   return msub;
 }
@@ -431,9 +433,12 @@ void Particle::evaluate_time_derivatives( double t )
     double gamt = 0.0, pre = 0.0, p1 = 0.0;
     if ( settingsPtr->using_shear )
     {
-      gamt = 1.0/(gamma*stauRelax);
+//      gamt = 1.0/(gamma*stauRelax);
+//      pre  = eta_o_tau/gamma;
+//      p1   = gamt - 4.0*dsigma_dt/(3.0*sigma) + 1.0/(3.0*t);
+     gamt = 1.0/gamma/stauRelax;
       pre  = eta_o_tau/gamma;
-      p1   = gamt - 4.0*dsigma_dt/(3.0*sigma) + 1.0/(3.0*t);
+      p1   = gamt - 4.0/3.0/sigma*dsigma_dt + 1.0/t/3.0;
     }
 
     Vector<double,2> minshv   = rowp1(0, shv);
@@ -564,8 +569,8 @@ void Particle::evaluate_time_derivatives( double t )
 
  
 
-    detasigma_dt            = ( -bigPI*bigtheta + inside ) / (sigma*T());
-
+    //detasigma_dt            = ( -bigPI*bigtheta + inside ) / (sigma*T());
+    detasigma_dt            = 1./sigma/T()*( -bigPI*bigtheta + inside );
 
     //===============
     // print status
