@@ -172,13 +172,13 @@ smooths them using its own various smoothing methods.*/
 void SPHWorkstation::initial_smoothing()  // formerly BSQguess()
 {
   // reset linklist to update nearest neighbors
-  systemPtr->reset_linklist();
+  reset_linklist();
 
   // reset linklist to update nearest neighbors
   reset_pi_tensor();
 
   // smooth fields over particles
-	for ( auto & p : systemPtr->particles ) smooth_fields(p);
+  smooth_all_particle_fields();
 
 	int count1=0;
 	cout << "----------------------------------------"
