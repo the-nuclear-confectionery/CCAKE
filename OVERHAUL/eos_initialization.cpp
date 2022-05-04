@@ -37,7 +37,7 @@ void EquationOfState::init()
         << quantity_file << " and " << deriv_file << endl;
   init( quantity_file, deriv_file );
 
-  bool do_eos_checks = true;
+  bool do_eos_checks = false;
   if ( do_eos_checks )
     run_closure_test();
 }
