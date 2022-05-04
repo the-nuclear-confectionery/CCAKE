@@ -431,7 +431,7 @@ void Particle::evaluate_time_derivatives( double t )
   double gamt = 0.0, pre = 0.0, p1 = 0.0;
   if ( settingsPtr->using_shear )
   {
-    gamt = 1.0/gamma/stauRelax;
+    gamt = 1.0/(gamma*stauRelax);
     pre  = eta_o_tau/gamma;
     p1   = gamt - 4.0/3.0/sigma*dsigma_dt + 1.0/t/3.0;
   }
