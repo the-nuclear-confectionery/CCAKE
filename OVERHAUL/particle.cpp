@@ -292,7 +292,7 @@ Matrix<double,2,2> Particle::dpidtsub()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void Particle::bsqsvsigset( double tin )
+void Particle::update_fluid_quantities( double tin )
 {
   // from svsigset
   g2           = gamma*gamma;
@@ -319,7 +319,7 @@ void Particle::bsqsvsigset( double tin )
   Btot         = ( Agam*gamma + 2.0*eta_o_tau/3.0*gamma )*sigl
                 + bigPI/tauRelax + dwdsT*( gt*shv33 + Bsub() );
   check        = sigl;
-//std::cout << "CHECK bsqsvsigset: " << ID << "   " << tin << "   " << g2
+//std::cout << "CHECK update_fluid_quantities: " << ID << "   " << tin << "   " << g2
 //          << "   " << g2 << "   " << g3 << "   " << gt << "   "
 //          << dwds() << "   " << T() << "   " << sigl << "   "
 //          << w() << "   " << bigPI << "   " << gradU << "   "

@@ -54,6 +54,8 @@ public:
 
 
   int do_freezeout_checks();
+  void update_all_particles_dsigma_dt();
+  void update_freeze_out_lists();
 
 
 
@@ -80,7 +82,7 @@ public:
   }
 
   //MOVE THIS TO ITS OWN CLASS USING TRAVIS' IMPROVEMENTS
-  void compute_time_derivatives();
+  void get_time_derivatives();
 
 };
 
