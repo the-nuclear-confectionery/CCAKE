@@ -67,10 +67,11 @@ public:
   void print_conservation_status(std::ostream & out = std::cout)
   {
     // print energy/entropy and conserved charge totals
-    out << setw(12) << setprecision(10)
-        << "t=" << systemPtr->t << " "
-        << systemPtr->Eloss << " " << systemPtr->E0 << " " << Etot << " "
-        << S << " " << Btotal << " " << Stotal << " " << Qtotal << endl;
+    out << setw(12) << setprecision(10) << "t="
+        << systemPtr->t      << " " << systemPtr->Eloss  << " "
+        << systemPtr->E0     << " " << systemPtr->Etot   << " "
+        << systemPtr->S      << " " << systemPtr->Btotal << " "
+        << systemPtr->Stotal << " " << systemPtr->Qtotal << endl;
   }
 
 };
@@ -78,23 +79,3 @@ public:
 
 
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
