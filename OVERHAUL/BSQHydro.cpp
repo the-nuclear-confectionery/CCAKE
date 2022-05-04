@@ -101,78 +101,42 @@ void BSQHydro::initialize_hydrodynamics()
 void BSQHydro::run()
 {
   cout << "Ready to start hydrodynamics\n";
-  //settings.frzc=0;
-  //settings.cf=0;
-
-  /*BBMG<2> bbmg(system);
-  bbmg.initial(system);
-  cout << "started bbmg" << endl;*/
 
   settings.t = settings.t0;
 
-  if ( settings.qmf == 1 || settings.qmf == 3 )
-  {
-    // print the initial timestep
-    io.print_system_state();
-    cout << "Printed first timestep" << endl;
+  // print the initial timestep
+  io.print_system_state();
+  cout << "Printed first timestep" << endl;
 
-    system.conservation_entropy();
-    system.conservation_BSQ();
+  system.conservation_entropy();
+  system.conservation_BSQ();
 
-    cout << setw(12) << setprecision(10)
-         << "t=" << system.t << " S=" << system.S 
-         << " " << system.Btotal << " " << system.Stotal
-         << " " << system.Qtotal << endl;
-
-    if (settings.qmf==1) exit(0);
-  }
-  else if(settings.qmf==4)
-  {
-    //out.eccout(system);
-    cout << "eccentricity printed" << endl;
-    exit(0);
-  }
-  /* qmf needs to be deprecated/removed */
+  cout << setw(12) << setprecision(10)
+       << "t=" << system.t << " S=" << system.S 
+       << " " << system.Btotal << " " << system.Stotal
+       << " " << system.Qtotal << endl;
 
 
   cout << "Now let's do the main evolution!" << endl;
-  system.Ez=0;
+  system.Ez = 0.0;
 
-  while ((system.t<settings.tend)&&(system.number_part<system.n()))
+  while ( (system.t<settings.tend) && (system.number_part<system.n()) )
   {
     system.cfon = 1;
 
-    cout << "Entering here:" << endl;
-
-    //RK::bsq_second_order( settings.dt, eom, system, ws );
+    // workstation advances by given timestep at given RK order
     ws.advance_timestep( settings.dt, rk_order );
+
+    // check conservation laws
     system.conservation_entropy();
     system.conservation_BSQ();
 
+    // print energy/entropy and conserved charge totals
     cout << setw(12) << setprecision(10)
-         << "t=" << system.t << " " << system.Eloss << " " << system.E0 << " " << system.Etot << " " << system.S
+         << "t=" << system.t << " " << system.Eloss << " " << system.E0
+         << " " << system.Etot << " " << system.S
          << " " << system.Btotal << " " << system.Stotal
-         << " " << system.Qtotal <<  endl;
-
-    //out.bsqsveprofile(system);
-
-
-    //if (settings.cf>0) out.bsqsvFOprint(system);
-
-    if (settings.qmf==3)
-    {
-      double tsub=system.t-floor(system.t);
-      // if you add more points to print, must also change system<D>::setup and multiply steps=floor(tend-t0)+1; by the extra number of print offs / 1fm/c
-      if (tsub<(0.0+system.dt*0.99)||(tsub>=1-+system.dt*0.99)) // uncomment if you want to observe energydensity profile, conservation of energy or do a Gubser check
-      {
-        system.conservation_entropy();
-        cout << setw(12) << setprecision(10)
-         << "t=" << system.t << " S=" << system.S << endl;  // outputs time step
-        //out.bsqsveprofile(system);   // energy density profile
-        cout << "eloss= " << system.t << " " <<  system.Eloss << endl;
-        //out.conservation(system); // conservation of energy
-      }
-    }
+         << " " << system.Qtotal << endl;
 
     // print system state, once per timestep
     io.print_system_state();
@@ -184,15 +148,14 @@ void BSQHydro::run()
     //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-    cout << "Check termination conditions: " << system.t << "   "
+    cout << "Check termination conditions: "
+          << system.t << "   "
           << settings.tend << "   "
           << system.get_frozen_out_count() << "   "
           << system.number_part << "   "
           << system.n() << "   "
-          << (system.t<settings.tend) << "   "
-          << (system.number_part<system.n()) << "   "
-          << system.get_particle_T(7108) << "   "
-          << system.get_particle_Freeze(7108) << endl;
+          << ( system.t < settings.tend ) << "   "
+          << ( system.number_part < system.n() ) << endl;
 
   }
 }

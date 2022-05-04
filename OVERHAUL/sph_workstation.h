@@ -1,12 +1,9 @@
 #ifndef SPH_WORKSTATION_H
 #define SPH_WORKSTATION_H
 
-//#include "equations_of_motion.h"
 #include "kernel.h"
 #include "settings.h"
 #include "system_state.h"
-
-class EquationsOfMotion;
 
 class SPHWorkstation
 {
@@ -16,18 +13,17 @@ public:
   ~SPHWorkstation(){}
 
   void set_EquationOfStatePtr( EquationOfState * eosPtr_in );
-//  void set_EquationsOfMotionPtr( EquationsOfMotion * eomPtr_in );
   void set_SystemStatePtr( SystemState * systemPtr_in );
   void set_SettingsPtr( Settings * settingsPtr_in );
 
-  void setshear(bool is_first_timestep);
+  void setshear();
 
   void process_initial_conditions();
   void initialize_entropy_and_charge_densities();
   void initial_smoothing();
 
-  void smooth_fields(int a, bool init_mode = false);
-  void smooth_gradients( int a, double tin, int & count );
+  void smooth_fields( Particle & pa );
+  void smooth_gradients( Particle & pa, double tin, int & count );
 
   // Move this into a different namespace or something?
   // It feels like this should be organized separately
@@ -59,10 +55,9 @@ private:
   SystemState * systemPtr   = nullptr;
   Settings * settingsPtr    = nullptr;
   EquationOfState * eosPtr  = nullptr;
-//  EquationsOfMotion * eomPtr = nullptr;
 
-  static constexpr int VERBOSE = 0;
-  static constexpr double TOLERANCE = 0.0;
+  static constexpr int VERBOSE         = 0;
+  static constexpr double TOLERANCE    = 0.0;
   static constexpr bool REGULATE_LOW_T = false;
 
 };

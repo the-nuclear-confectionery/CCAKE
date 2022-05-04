@@ -466,7 +466,7 @@ void InputOutput::print_shear()
   int iParticle = 0;
   for ( auto & p : systemPtr->particles )
   {
-    p.setvar();
+    p.sets();
     out << iParticle++ << "   "
         << systemPtr->t << "   "
         << p.r << "   "

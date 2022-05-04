@@ -14,11 +14,6 @@ void SPHWorkstation::set_EquationOfStatePtr( EquationOfState * eosPtr_in )
   eosPtr = eosPtr_in;
 }
 
-//void SPHWorkstation::set_EquationsOfMotionPtr( EquationsOfMotion * eomPtr_in )
-//{
-//  eomPtr = eomPtr_in;
-//}
-
 void SPHWorkstation::set_SystemStatePtr( SystemState * systemPtr_in )
 {
   systemPtr = systemPtr_in;
@@ -32,12 +27,10 @@ void SPHWorkstation::set_SettingsPtr( Settings * settingsPtr_in )
 
 /* not sure it makes sense for this to be its own
 separate function? */
-void SPHWorkstation::setshear(bool is_first_timestep)
+void SPHWorkstation::setshear()
 {
-    for ( auto & p : systemPtr->particles )
-      p.sets(systemPtr->t*systemPtr->t, is_first_timestep);
-
-//if (true) exit(1);
+  for ( auto & p : systemPtr->particles )
+    p.sets(systemPtr->t*systemPtr->t);
 }
 
 
@@ -178,20 +171,11 @@ general function in workstation the loops over SPH paticles and
 smooths them using its own various smoothing methods.*/
 void SPHWorkstation::initial_smoothing()  // formerly BSQguess()
 {
-	cout << "setshear..." << endl;
-  setshear(true);
-	cout << "reset..." << endl;
+  setshear();
   systemPtr->reset_linklist();
 
-	cout << "bsqsvoptimization..." << endl;
-	bool initialization_mode = true;
-	for (int i=0; i<systemPtr->_n; i++)
-	{
-    auto & p = systemPtr->particles[i];
-
-		smooth_fields(i, initialization_mode);
-	}
-	cout << "One more loop!" << endl;
+  // smooth fields over particles
+	for ( auto & p : systemPtr->particles ) smooth_fields(p);
 
 	int count1=0;
 	cout << "----------------------------------------"
@@ -220,9 +204,9 @@ void SPHWorkstation::initial_smoothing()  // formerly BSQguess()
 }
 ///////////////////////////////////////////////////////////////////////////////
 // smoothing routines: first smoothing covers all hydrodyanmical fields
-void SPHWorkstation::smooth_fields(int a, bool init_mode /*== false*/)
+void SPHWorkstation::smooth_fields(Particle & pa)
 {
-  auto & pa    = systemPtr->particles[a];
+  int a = pa.ID;
 
   pa.sigma           = 0.0;
   pa.eta             = 0.0;
@@ -277,6 +261,15 @@ void SPHWorkstation::smooth_fields(int a, bool init_mode /*== false*/)
     }
   }
 
+  // check if particle has gone nan or negative entropy
+  if ( (pa.eta<0) || isnan(pa.eta) )
+  {
+    std::cout << pa.ID <<  " has invalid entropy "
+              << pa.T()*hbarc << " " << pa.eta << endl;
+    pa.eta = TOLERANCE;
+  }
+
+
   return;
 }
 
@@ -286,15 +279,12 @@ void SPHWorkstation::smooth_fields(int a, bool init_mode /*== false*/)
 ///////////////////////////////////////////////////////////////////////////////
 //Second smoothing smoothes the gradients after constructing all the fields 
 //and derivatives using the equation of state
-void SPHWorkstation::smooth_gradients( int a, double tin, int & count )
+void SPHWorkstation::smooth_gradients( Particle & pa, double tin, int & count )
 {
-  auto & pa    = systemPtr->particles[a];
+  int a = pa.ID;
 
   pa.gradP     = 0.0;
   pa.gradBulk  = 0.0;
-//  pa.gradrhoB  = 0.0;
-//  pa.gradrhoS  = 0.0;
-//  pa.gradrhoQ  = 0.0;
   pa.gradV     = 0.0;
   pa.gradshear = 0.0;
   pa.divshear  = 0.0;
@@ -358,12 +348,6 @@ void SPHWorkstation::smooth_gradients( int a, double tin, int & count )
 
       pa.gradBulk             += ( pb.Bulk/pb.sigma/pb.gamma
                                     + pa.Bulk/pa.sigma/pa.gamma)/tin*sigsigK;
-      //pa.gradrhoB             += ( pb.rhoB/pb.sigma/pb.gamma
-      //                            + pa.rhoB/pa.sigma/pa.gamma)/tin*sigsigK;
-      //pa.gradrhoS             += ( pb.rhoS/pb.sigma/pb.gamma
-      //                            + pa.rhoS/pa.sigma/pa.gamma)/tin*sigsigK;
-      //pa.gradrhoQ             += ( pb.rhoQ/pb.sigma/pb.gamma
-      //                            + pa.rhoQ/pa.sigma/pa.gamma)/tin*sigsigK;
       pa.gradV                += (pb.sigmaweight/pa.sigma)*( pb.v -  pa.v )*gradK;
 
       //===============
@@ -401,7 +385,7 @@ void SPHWorkstation::smooth_gradients( int a, double tin, int & count )
         cout << "1 " << systemPtr->linklist.gradPressure_weight(systemPtr->particles, a, b)
              << " " << a << " " << b << endl;
 
-      b=systemPtr->linklist.link[b];
+      b = systemPtr->linklist.link[b];
     }
   }
 
@@ -410,7 +394,7 @@ void SPHWorkstation::smooth_gradients( int a, double tin, int & count )
   const double hc = constants::hbarc_MeVfm;
 
   if ( ( pa.btrack == 1 )
-        && ( ( pa.T()*hc ) >= 150 ) )
+            && ( ( pa.T()*hc ) >= 150 ) )
     pa.frz2.t=tin;
   else if ( ( pa.btrack == 0 )
             && ( ( pa.T()*hc ) >= 150 )
@@ -504,10 +488,6 @@ void SPHWorkstation::process_initial_conditions()
       exit(1);
     }
 
-//cout << "CHECK PARTICLES: " << p.r(0) << "   " << p.r(1) << "   "
-//      << eLocal << "   " << rhoBLocal << "   " << rhoSLocal << "   "
-//      << rhoQLocal << "   " << ux << "   " << uy << endl;
-
     // Set the rest of particle elements using area element
 		//p.u(0)          = 0.0;  // flow must be set in Particle constructor!!!
 		//p.u(1)          = 0.0;  // flow must be set in Particle constructor!!!
@@ -531,16 +511,11 @@ void SPHWorkstation::process_initial_conditions()
 		p.thermo.eos_name = "default";  // uses whatever the default EoS is
 
 		if ( p.e_sub > systemPtr->efcheck )	// impose freeze-out check for e, not s
-    {
-      //cout << "Found " << p.e_sub << " greater than " << systemPtr->efcheck << endl;
 			p.Freeze=0;
-		}
 		else
 		{
-      //cout << "Found " << p.e_sub << " less than " << systemPtr->efcheck << endl;
 			p.Freeze=4;
 			systemPtr->number_part++;
-    //   cout << "number_part = " << systemPtr->number_part << endl;
 		}
   }
 
@@ -549,11 +524,18 @@ void SPHWorkstation::process_initial_conditions()
   cout << systemPtr->number_part << endl;
 
 
+  //============================================================================
+  // with particles vector now fully initialized, specify or initialize any
+  // remaining quantities which depend on this
+
+  // assign particles IDs
+  for ( int i = 0; i < systemPtr->particles.size(); i++ )
+    systemPtr->particles[i].ID = i;
+
+  // set particles to print
   settingsPtr->is_printable.resize( systemPtr->particles.size(), false );
   for ( int & p : settingsPtr->particles_to_print )
     settingsPtr->is_printable[ p ] = true;
-
-//if (1) exit(1);
 }
 
 
@@ -842,42 +824,20 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
 // current equations are only set up for 2+1d.
 void SPHWorkstation::BSQshear()
 {
-  // which particles print extra info for
-  bool printAll = false;
-
-
-  // not initial call to setshear(bool is_first_timestep)
-  setshear(false);
+  setshear();
   systemPtr->reset_linklist();
-  /* the above two functions should be called in BSQHydro
-  (although it's not clear setshear needs to exist) */
 
-  for (int i = 0; i < systemPtr->n(); i++)
-  {
-    auto & p = systemPtr->particles[i];
+  for ( auto & p : systemPtr->particles ) smooth_fields(p);
 
-//if ( abs(p.r(0)) < 0.000001 && abs(p.r(1)) < 0.000001 )
-//  cout << "CHECK CENTER: " << systemPtr->t << "   " << i << "   " << p.T()*hbarc << "   "
-//        << p.eta/p.gamma/systemPtr->t << "   " << p.s() << endl;
-
-    smooth_fields(i);
-
-//if ( abs(p.r(0)) < 0.000001 && abs(p.r(1)) < 0.000001 )
-//  cout << "CHECK CENTER: " << systemPtr->t << "   " << i << "   " << p.T()*hbarc << "   "
-//        << p.eta/p.gamma/systemPtr->t << "   " << p.s() << endl;
-
-    if ( (p.eta<0) || isnan(p.eta) )
-    {
-      cout << i <<  " has invalid entropy " <<  p.T()*hbarc << " " << p.eta << endl;
-      //p.eta = 0;
-      p.eta = TOLERANCE;
-      printAll = true;  // turn on verbosity
-    }
-  }
   /* the above should be called in BSQHydro via something like
   smooth_all_particle_fields() */
 
   cout << "Finished first loop over SPH particles" << endl;
+
+
+
+
+
 
   int curfrz = 0;
   for ( int i = 0; i < systemPtr->n(); i++ )
@@ -903,7 +863,6 @@ void SPHWorkstation::BSQshear()
 
   }
 
-
   cout << "Finished second loop over SPH particles" << endl;
 
   if ( systemPtr->cfon == 1 )
@@ -913,20 +872,27 @@ void SPHWorkstation::BSQshear()
   }
   /* not sure what cfon is but I'm sure it doesn't need to be here */
 
-  int m=0;
-  for ( int i=0; i<systemPtr->n(); i++ )
+
+
+
+
+
+
+
+  int m = 0;
+  for ( auto & p : systemPtr->particles )
   {
-    auto & p = systemPtr->particles[i];
+    int i = p.ID;
 
     //Computes gradients to obtain dsigma/dt
-    smooth_gradients( i, systemPtr->t, curfrz );
+    smooth_gradients( p, systemPtr->t, curfrz );
 
     p.dsigma_dt = -p.sigma * ( p.gradV(0,0) + p.gradV(1,1) );
 
     //===============
     // print status
-    if ( VERBOSE > 2 && ( ( settingsPtr->particles_to_print.size() > 0
-                            && settingsPtr->print_particle(i) ) || printAll ) )
+    if ( VERBOSE > 2 && ( settingsPtr->particles_to_print.size() > 0
+                            && settingsPtr->print_particle(i) ) )
       std::cout << "CHECK dsigma_dt: " << i << "   " << systemPtr->t << "   "
                 << p.dsigma_dt << "   " << p.sigma << "   " << p.gradV << "\n";
 
@@ -972,8 +938,8 @@ void SPHWorkstation::BSQshear()
 
     //===============
     // print status
-    if ( VERBOSE > 2 && ( ( settingsPtr->particles_to_print.size() > 0
-                            && settingsPtr->print_particle(i) ) || printAll ) )
+    if ( VERBOSE > 2 && ( settingsPtr->particles_to_print.size() > 0
+                            && settingsPtr->print_particle(i) ) )
     {
       std::cout << "CHECK misc1: " << i << "   " << systemPtr->t << "   "
                 << gamt << "   " << p.sigma	<< "   " << p.dsigma_dt << "\n"
@@ -983,7 +949,7 @@ void SPHWorkstation::BSQshear()
 
 
     // set the Mass and the Force
-    Matrix <double,2,2> M = p.Msub(i);
+    Matrix <double,2,2> M = p.Msub();
     Vector<double,2> F    = p.Btot*p.u + p.gradshear
                             - ( p.gradP + p.gradBulk + p.divshear );
 /* Might make more sense for M and F to be members of particle? Then the
@@ -992,8 +958,8 @@ at the same time... */
 
     //===============
     // print status
-    if ( VERBOSE > 2 && ( ( settingsPtr->particles_to_print.size() > 0
-                            && settingsPtr->print_particle(i) ) || printAll ) )
+    if ( VERBOSE > 2 && ( settingsPtr->particles_to_print.size() > 0
+                            && settingsPtr->print_particle(i) ) )
       std::cout << "CHECK M: " << i << "   " << systemPtr->t << "   " << M << "\n"
                 << "CHECK F: " << i << "   " << systemPtr->t << "   " << F << "   "
                 << p.Btot << "   " << p.u << "   "
@@ -1007,8 +973,8 @@ at the same time... */
 
     //===============
     // print status
-    if ( VERBOSE > 2 && ( ( settingsPtr->particles_to_print.size() > 0
-                            && settingsPtr->print_particle(i) ) || printAll ) )
+    if ( VERBOSE > 2 && ( settingsPtr->particles_to_print.size() > 0
+                            && settingsPtr->print_particle(i) ) )
       std::cout << "CHECK F(again): " << i << "   " << systemPtr->t << "   "
                 << F << "   " << pre << "   " << p.v << "   " << partU << "   "
                 << p1 << "   " << minshv << "\n";
@@ -1026,8 +992,8 @@ at the same time... */
 
     //===============
     // print status
-    if ( VERBOSE > 2 && ( ( settingsPtr->particles_to_print.size() > 0
-                            && settingsPtr->print_particle(i) ) || printAll ) )
+    if ( VERBOSE > 2 && ( settingsPtr->particles_to_print.size() > 0
+                            && settingsPtr->print_particle(i) ) )
       std::cout << "CHECK det: " << i << "   " << systemPtr->t << "   "
                 << M << "   " << det << "\n"
                 << "CHECK MI: " << i << "   " << systemPtr->t
@@ -1057,8 +1023,8 @@ at the same time... */
 
     //===============
     // print status
-    if ( VERBOSE > 2 && ( ( settingsPtr->particles_to_print.size() > 0
-                            && settingsPtr->print_particle(i) ) || printAll ) )
+    if ( VERBOSE > 2 && ( settingsPtr->particles_to_print.size() > 0
+                            && settingsPtr->print_particle(i) ) )
       std::cout << "CHECK div_u: " << i
                 << "   " << systemPtr->t
                 << "   " << p.div_u
@@ -1095,8 +1061,8 @@ at the same time... */
 
     //===============
     // print status
-    if ( VERBOSE > 2 && ( ( settingsPtr->particles_to_print.size() > 0
-                            && settingsPtr->print_particle(i) ) || printAll ) )
+    if ( VERBOSE > 2 && ( settingsPtr->particles_to_print.size() > 0
+                            && settingsPtr->print_particle(i) ) )
       std::cout << "CHECK inside: " << i << "   "
                 << systemPtr->t << "   "
                 << p.inside << "   "
@@ -1114,8 +1080,8 @@ at the same time... */
 
     //===============
     // print status
-    if ( VERBOSE > 2 && ( ( settingsPtr->particles_to_print.size() > 0
-                            && settingsPtr->print_particle(i) ) || printAll ) )
+    if ( VERBOSE > 2 && ( settingsPtr->particles_to_print.size() > 0
+                            && settingsPtr->print_particle(i) ) )
       std::cout << "CHECK detasigma_dt: " << i << "   "
                 << systemPtr->t << "   "
                 << p.detasigma_dt << "   "

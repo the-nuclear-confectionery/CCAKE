@@ -118,14 +118,13 @@ class Particle
   void return_bsqsv_A();
   void bsqsvsigset(double tin, int i);
   void setvisc( int etaconst, double bvf, double svf, double zTc, double sTc, double sig, int type );
-  void sets(double tin2, bool is_first_timestep);
-  void setvar();
+  void sets(double tin2);
   double gamcalc();
   double Bsub();
 
   // members
+  int ID                 = -1;
   int btrack             = 0;
-  //int count              = 0;
   int Freeze             = 0;
 
   double Agam            = 0.0;

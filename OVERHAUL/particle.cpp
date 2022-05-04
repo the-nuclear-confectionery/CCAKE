@@ -283,7 +283,7 @@ double Particle::Bsub()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-Matrix<double,2,2> Particle::Msub(int i)
+Matrix<double,2,2> Particle::Msub()
 {
   piu                     = rowp1(0,shv)*u;
   Matrix<double,2,2> msub = Agam2*uu + Ctot*gamma*Imat - (1+4/3./g2)*piu
@@ -355,46 +355,19 @@ void Particle::setvisc( int etaconst, double bvf, double svf, double zTc,
 
 
 ////////////////////////////////////////////////////////////////////////////////
-void Particle::sets(double tin2, bool is_first_timestep)
+void Particle::sets(double tin2)
 {
-    gamma = gamcalc();
-    if (settingsPtr->using_Gubser_with_shear && is_first_timestep)
-    {
-      shv(0,1) = 1./gamma*inner(u,colp1(1,shv));
-      shv(0,2) = 1./gamma*inner(u,colp1(2,shv));
-      shv(1,0) = shv(0,1);
-      shv(2,0) = shv(0,2);
-      
-      setvar();
-      //cout << "Sanity check: " << 1./gamma/gamma*con(uu,pimin) << "   "
-      //      << shv(1,1) + shv(2,2) + tin2*shv33 << endl;
+  gamma    = gamcalc();
+  shv(2,1) = shv(1,2);
+  shv(0,1) = 1./gamma*inner(u,colp1(1,shv));
+  shv(0,2) = 1./gamma*inner(u,colp1(2,shv));
+  shv(1,0) = shv(0,1);
+  shv(2,0) = shv(0,2);
 
-      //shv(0,0) = shv(1,1) + shv(2,2) + tin2*shv33;
-      
-      // go back to Jaki's default
-      shv(0,0)=1./gamma/gamma*con(uu,pimin);
-      shv33=(shv(0,0)-shv(1,1)-shv(2,2))/tin2;
-    }
-    else
-    {
-      shv(2,1)=shv(1,2);
-      shv(0,1)=1./gamma*inner(u,colp1(1,shv));
-      shv(0,2)=1./gamma*inner(u,colp1(2,shv));
-      shv(1,0)=shv(0,1);
-      shv(2,0)=shv(0,2);
-
-      setvar();
-      shv(0,0)=1./gamma/gamma*con(uu,pimin);
-      shv33=(shv(0,0)-shv(1,1)-shv(2,2))/tin2;
-    }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-void Particle::setvar()
-{
-    mini(pimin,shv);
-    uu=u*u;
+  mini(pimin,shv);
+  uu       = u*u;
+  shv(0,0) = 1./gamma/gamma*con(uu,pimin);
+  shv33    = (shv(0,0)-shv(1,1)-shv(2,2))/tin2;
 }
 
 

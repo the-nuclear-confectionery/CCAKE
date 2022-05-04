@@ -21,11 +21,6 @@ public:
   int start         = 0;
   int end           = 0;
   int fnum          = 0;
-  int qmf           = 0;
-  //if==1 quantum mechanicanical corrections to the flow or added
-  //if==0 no corrections are included
-  //int number_part   = 0;
-  //int rk2           = 0; 
   int steps         = 0;
   int gtyp          = 0;
   int first         = 1;  //HARDCODE
