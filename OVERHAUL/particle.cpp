@@ -441,8 +441,7 @@ void Particle::evaluate_time_derivatives( double t )
 
   //===============
   // print status
-  if ( VERBOSE > 2 && ( settingsPtr->particles_to_print.size() > 0
-                          && settingsPtr->print_particle(ID) ) )
+  if ( VERBOSE > 2 && print_this_particle )
   {
     std::cout << "CHECK misc1: " << ID << "   " << t << "   "
               << gamt << "   " << sigma	<< "   " << dsigma_dt << "\n"
@@ -459,8 +458,7 @@ void Particle::evaluate_time_derivatives( double t )
 
   //===============
   // print status
-  if ( VERBOSE > 2 && ( settingsPtr->particles_to_print.size() > 0
-                          && settingsPtr->print_particle(ID) ) )
+  if ( VERBOSE > 2 && print_this_particle )
     std::cout << "CHECK M: " << ID << "   " << t << "   " << M << "\n"
               << "CHECK F: " << ID << "   " << t << "   " << F << "   "
               << Btot << "   " << u << "   "
@@ -474,8 +472,7 @@ void Particle::evaluate_time_derivatives( double t )
 
   //===============
   // print status
-  if ( VERBOSE > 2 && ( settingsPtr->particles_to_print.size() > 0
-                          && settingsPtr->print_particle(ID) ) )
+  if ( VERBOSE > 2 && print_this_particle )
     std::cout << "CHECK F(again): " << ID << "   " << t << "   "
               << F << "   " << pre << "   " << v << "   " << partU << "   "
               << p1 << "   " << minshv << "\n";
@@ -492,8 +489,7 @@ void Particle::evaluate_time_derivatives( double t )
 
   //===============
   // print status
-  if ( VERBOSE > 2 && ( settingsPtr->particles_to_print.size() > 0
-                          && settingsPtr->print_particle(ID) ) )
+  if ( VERBOSE > 2 && print_this_particle )
     std::cout << "CHECK det: " << ID << "   " << t << "   "
               << M << "   " << det << "\n"
               << "CHECK MI: " << ID << "   " << t
@@ -523,8 +519,7 @@ void Particle::evaluate_time_derivatives( double t )
 
   //===============
   // print status
-  if ( VERBOSE > 2 && ( settingsPtr->particles_to_print.size() > 0
-                          && settingsPtr->print_particle(ID) ) )
+  if ( VERBOSE > 2 && print_this_particle )
     std::cout << "CHECK div_u: " << ID
               << "   " << t
               << "   " << div_u
@@ -553,16 +548,13 @@ void Particle::evaluate_time_derivatives( double t )
 
   //===============
   if ( settingsPtr->using_shear )
-    inside                  = t*(
-                              inner( -minshv+shv(0,0)*v, du_dt )
-                              - con2(sub, gradU)
-                              - gamma*t*shv33 );
+    inside                  = t*( inner( -minshv+shv(0,0)*v, du_dt )
+                                  - con2(sub, gradU) - gamma*t*shv33 );
 
 
   //===============
   // print status
-  if ( VERBOSE > 2 && ( settingsPtr->particles_to_print.size() > 0
-                          && settingsPtr->print_particle(ID) ) )
+  if ( VERBOSE > 2 && print_this_particle )
     std::cout << "CHECK inside: " << ID << "   "
               << t << "   "
               << inside << "   "
@@ -580,8 +572,7 @@ void Particle::evaluate_time_derivatives( double t )
 
   //===============
   // print status
-  if ( VERBOSE > 2 && ( settingsPtr->particles_to_print.size() > 0
-                          && settingsPtr->print_particle(ID) ) )
+  if ( VERBOSE > 2 && print_this_particle )
     std::cout << "CHECK detasigma_dt: " << ID << "   "
               << t << "   "
               << detasigma_dt << "   "
