@@ -858,6 +858,7 @@ void SPHWorkstation::update_all_particles_dsigma_dt()
 }
 
 
+////////////////////////////////////////////////////////////////////////////////
 void SPHWorkstation::update_freeze_out_lists()
 {
   int m = 0;
@@ -869,6 +870,24 @@ void SPHWorkstation::update_freeze_out_lists()
     }
 }
 
+
+void SPHWorkstation::finalize_freeze_out()
+{
+  if (systemPtr->cfon==1)
+    systemPtr->bsqsvfreezeout( curfrz );
+
+
+  // keep track of which particles have left EoS grid completely
+  // (reset list at end of each timestep)
+  systemPtr->particles_out_of_grid.clear();
+  for ( auto & p : systemPtr->particles )
+    if ( p.Freeze == 5 )
+      systemPtr->particles_out_of_grid.push_back( p.ID );
+
+  std::cout << "Summary at t = " << systemPtr->t << ": "
+        << systemPtr->particles_out_of_grid.size()
+        << " particles have gone out of the EoS grid." << std::endl;
+}
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -893,54 +912,26 @@ void SPHWorkstation::get_time_derivatives()
   // freeze-out checks here
   int curfrz = do_freezeout_checks();
 
-
   //Computes gradients to obtain dsigma/dt
-  for ( auto & p : systemPtr->particles )
-    smooth_gradients( p, systemPtr->t, curfrz );
+  smooth_all_particle_gradients( curfrz );
 
   // set dsigma_dt
   update_all_particles_dsigma_dt();
 
   // update fluid quantities
-  for ( auto & p : systemPtr->particles )
-    p.update_fluid_quantities( systemPtr->t );
-
+  update_all_particle_fluid_quantities();
 
   // update freeze out status/lists
   update_freeze_out_lists();
 
-
   // check/update conserved quantities
   systemPtr->conservation_energy();
 
+  //calculate time derivatives needed for equations of motion
+  evaluate_all_particle_time_derivatives();
 
-
-
-
-  //calculate matrix elements
-  for ( auto & p : systemPtr->particles )
-    p.evaluate_time_derivatives( systemPtr->t );
-
-
-  if (systemPtr->cfon==1)
-    systemPtr->bsqsvfreezeout( curfrz );
-
-
-  // keep track of which particles have left EoS grid completely
-  // (reset list at end of each timestep)
-  systemPtr->particles_out_of_grid.clear();
-  for ( auto & p : systemPtr->particles )
-    if ( p.Freeze == 5 )
-      systemPtr->particles_out_of_grid.push_back( p.ID );
-
-  std::cout << "Summary at t = " << systemPtr->t << ": "
-        << systemPtr->particles_out_of_grid.size()
-        << " particles have gone out of the EoS grid." << std::endl;
-
-
-  /* Not sure what any of the above does but I'm certain it can be
-  done somewhere else */
-
+  // finalize frozen out particles
+  finalize_freeze_out();
 
   return;
 }
