@@ -27,7 +27,7 @@ void SPHWorkstation::set_SettingsPtr( Settings * settingsPtr_in )
 
 /* not sure it makes sense for this to be its own
 separate function? */
-void SPHWorkstation::setshear()
+void SPHWorkstation::reset_pi_tensor()
 {
   for ( auto & p : systemPtr->particles )
     p.sets(systemPtr->t*systemPtr->t);
@@ -171,8 +171,11 @@ general function in workstation the loops over SPH paticles and
 smooths them using its own various smoothing methods.*/
 void SPHWorkstation::initial_smoothing()  // formerly BSQguess()
 {
-  setshear();
+  // reset linklist to update nearest neighbors
   systemPtr->reset_linklist();
+
+  // reset linklist to update nearest neighbors
+  reset_pi_tensor();
 
   // smooth fields over particles
 	for ( auto & p : systemPtr->particles ) smooth_fields(p);
@@ -591,7 +594,7 @@ void SPHWorkstation::advance_timestep_rk2( double dt )
   ////////////////////////////////////////////
 
   // compute derivatives
-  BSQshear();
+  compute_time_derivatives();
 
   // update quantities
   {
@@ -627,7 +630,7 @@ void SPHWorkstation::advance_timestep_rk2( double dt )
   ////////////////////////////////////////////
 
   // compute derivatives
-  BSQshear();
+  compute_time_derivatives();
 
   // update quantities
   {
@@ -684,7 +687,7 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
   ////////////////////////////////////////////
 
   // compute derivatives
-  BSQshear();
+  compute_time_derivatives();
 
   for (int i = 0; i < (int)systemPtr->particles.size(); i++)
   {
@@ -718,7 +721,7 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
   ////////////////////////////////////////////
 
   systemPtr->t = t0 + 0.5*dt;
-  BSQshear();
+  compute_time_derivatives();
 
   for (int i = 0; i < (int)systemPtr->particles.size(); i++)
   {
@@ -749,7 +752,7 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
   //    third step
   ////////////////////////////////////////////
 
-  BSQshear();
+  compute_time_derivatives();
 
   for (int i = 0; i < (int)systemPtr->particles.size(); i++)
   {
@@ -781,7 +784,7 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
   ////////////////////////////////////////////
 
   systemPtr->t = t0 + dt;
-  BSQshear();
+  compute_time_derivatives();
 
   constexpr double w1 = 1.0/6.0, w2 = 1.0/3.0;
   for (int i = 0; i < (int)systemPtr->particles.size(); i++)
@@ -822,55 +825,76 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
 // The structure here is temporary until we set the mode for different terms 
 // which will be shear, bulk, diffusion, and coupling terms, 
 // current equations are only set up for 2+1d.
-void SPHWorkstation::BSQshear()
+void SPHWorkstation::compute_time_derivatives()
 {
-  setshear();
-  systemPtr->reset_linklist();
+  // reset nearest neighbors
+  reset_linklist();
 
-  for ( auto & p : systemPtr->particles ) smooth_fields(p);
+  // reset pi tensor to be consistent
+  // with all essential symmetries
+  reset_pi_tensor();
 
-  /* the above should be called in BSQHydro via something like
-  smooth_all_particle_fields() */
-
-  cout << "Finished first loop over SPH particles" << endl;
-
-
+  // smooth all particle fields
+  smooth_all_particle_fields();
 
 
 
 
-  int curfrz = 0;
-  for ( int i = 0; i < systemPtr->n(); i++ )
-  {
-    auto & p = systemPtr->particles[i];
 
-    //  Computes gamma and velocity
-    p.calcbsq( systemPtr->t ); //resets EOS!!
-    /* would be nice to remove the above from eom,
-    need to think about where to put it */
 
-    /*N.B. - eventually extend to read in viscosities from table, etc.*/
+
+//  int curfrz = 0;
+//  for ( auto & p : systemPtr->particles )
+//  {
+//    int i = p.ID;
+//
+//    //  Computes gamma and velocity
+//    p.calcbsq( systemPtr->t ); //resets EOS!!
+//
+//    p.setvisc( systemPtr->etaconst, systemPtr->bvf, systemPtr->svf,
+//               systemPtr->zTc,      systemPtr->sTc, systemPtr->zwidth,
+//               systemPtr->visc );
+//
+//    if ( systemPtr->cfon == 1 )
+//      p.frzcheck( systemPtr->t, curfrz, systemPtr->n() );
+//  }
+//
+//  if ( systemPtr->cfon == 1 )
+//  {
+//    systemPtr->number_part += curfrz;
+//    systemPtr->list.resize(curfrz);
+//  }
+
+  
+  // update gamma, velocity, and thermodynamics for all particles
+  for ( auto & p : systemPtr->particles )
+    p.calcbsq( systemPtr->t );
+
+
+  // update viscosities for all particles
+  for ( auto & p : systemPtr->particles )
     p.setvisc( systemPtr->etaconst, systemPtr->bvf, systemPtr->svf,
                systemPtr->zTc,      systemPtr->sTc, systemPtr->zwidth,
                systemPtr->visc );
-    /* the above is obsolete when including
-     transport_coefficients class */
-
-    if ( systemPtr->cfon == 1 )
-      p.frzcheck( systemPtr->t, curfrz, systemPtr->n() );
-  /* not sure what cfon is but I'm sure it doesn't need to be here */
 
 
-  }
-
-  cout << "Finished second loop over SPH particles" << endl;
-
+  // freeze-out checks here
+  int curfrz = 0;
   if ( systemPtr->cfon == 1 )
   {
+    // freeze-out checks for all particles
+    for ( auto & p : systemPtr->particles )
+      p.frzcheck( systemPtr->t, curfrz, systemPtr->n() );
+
+    // update global quantities accordingly
     systemPtr->number_part += curfrz;
     systemPtr->list.resize(curfrz);
   }
-  /* not sure what cfon is but I'm sure it doesn't need to be here */
+
+
+
+
+
 
 
 
@@ -913,8 +937,8 @@ void SPHWorkstation::BSQshear()
   systemPtr->conservation_energy();
 
 
-//TRAVIS: ALL OF THE ABOVE SHOULD BE SPLIT OFF INTO DIFFERENT FUNCTIONS
-// AND CALLED IN BSQHYDRO E.G. smooth_gradients, systemPtr->freeze_out_check, etc
+
+
 
   //calculate matrix elements
   for ( auto & p : systemPtr->particles )
@@ -948,9 +972,7 @@ void SPHWorkstation::BSQshear()
     Matrix <double,2,2> M = p.Msub();
     Vector<double,2> F    = p.Btot*p.u + p.gradshear
                             - ( p.gradP + p.gradBulk + p.divshear );
-/* Might make more sense for M and F to be members of particle? Then the
-further above loop could be done in workstation and M and F could be set
-at the same time... */
+
 
     //===============
     // print status

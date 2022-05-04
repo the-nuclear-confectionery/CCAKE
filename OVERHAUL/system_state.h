@@ -42,10 +42,11 @@ public:
 
   /* DOUBLES */
   double _h      = 0.0;
-  double S       = 0.0;
-  double S0      = 0.0;
   double t       = 0.0;
   double dt      = 0.0;
+
+  double S       = 0.0;
+  double S0      = 0.0;
   double Btotal  = 0.0;
   double Btotal0 = 0.0;
   double Stotal  = 0.0;
@@ -59,6 +60,7 @@ public:
   double Eloss      = 0.0;
   double dEz        = 0.0;
   double Etot       = 0.0;
+
   double efcheck    = 0.0;
   double sfcheck    = 0.0;
   double freezeoutT = 0.0;
@@ -142,11 +144,8 @@ private:
 
 
 public:
-  // initialize system state
+  // initialize system state, linklist, etc.
   void initialize();
-
-  // linklist stuff
-  void reset_linklist() { linklist.reset(); }
   void initialize_linklist();
 
   // check conserved quantities

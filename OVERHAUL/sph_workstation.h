@@ -7,16 +7,30 @@
 
 class SPHWorkstation
 {
+private:
+  
+  static constexpr int    VERBOSE        = 0;
+  static constexpr double TOLERANCE      = 0.0;
+  static constexpr bool   REGULATE_LOW_T = false;
+
+  SystemState     * systemPtr            = nullptr;
+  Settings        * settingsPtr          = nullptr;
+  EquationOfState * eosPtr               = nullptr;
+
 public:
 
+  // default constructor/destructor
   SPHWorkstation(){}
   ~SPHWorkstation(){}
 
+  // initialize pointers
   void set_EquationOfStatePtr( EquationOfState * eosPtr_in );
   void set_SystemStatePtr( SystemState * systemPtr_in );
   void set_SettingsPtr( Settings * settingsPtr_in );
 
-  void setshear();
+  // routines for resetting quantities
+  void reset_linklist() { systemPtr->linklist.reset(); }
+  void reset_pi_tensor();
 
   void process_initial_conditions();
   void initialize_entropy_and_charge_densities();
@@ -24,6 +38,10 @@ public:
 
   void smooth_fields( Particle & pa );
   void smooth_gradients( Particle & pa, double tin, int & count );
+  void smooth_all_particle_fields()
+        { for ( auto & p : systemPtr->particles ) smooth_fields(p); }
+//  void smooth_all_particle_gradients()
+//        { for ( auto & p : systemPtr->particles ) smooth_fields(p); }
 
   // Move this into a different namespace or something?
   // It feels like this should be organized separately
@@ -48,17 +66,7 @@ public:
   }
 
   //MOVE THIS TO ITS OWN CLASS USING TRAVIS' IMPROVEMENTS
-  void BSQshear();
-
-private:
-  
-  SystemState * systemPtr   = nullptr;
-  Settings * settingsPtr    = nullptr;
-  EquationOfState * eosPtr  = nullptr;
-
-  static constexpr int VERBOSE         = 0;
-  static constexpr double TOLERANCE    = 0.0;
-  static constexpr bool REGULATE_LOW_T = false;
+  void compute_time_derivatives();
 
 };
 
