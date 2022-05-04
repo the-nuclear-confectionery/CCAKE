@@ -910,20 +910,16 @@ void SPHWorkstation::BSQshear()
   /* the above should probably be put into something like
   smooth_all_particle_gradients() */
 
-  if (systemPtr->rk2==1)
-    systemPtr->bsqsvconservation();
-
-  systemPtr->bsqsvconservation_Ez();
-
+  systemPtr->conservation_energy();
 
 
 //TRAVIS: ALL OF THE ABOVE SHOULD BE SPLIT OFF INTO DIFFERENT FUNCTIONS
 // AND CALLED IN BSQHYDRO E.G. smooth_gradients, systemPtr->freeze_out_check, etc
 
   //calculate matrix elements
-  for ( int i=0; i<systemPtr->n(); i++ )
+  for ( auto & p : systemPtr->particles )
   {
-    auto & p = systemPtr->particles[i];
+    int i = p.ID;
 
     double gamt = 0.0, pre = 0.0, p1 = 0.0;
     if ( settingsPtr->using_shear )
@@ -1114,9 +1110,9 @@ at the same time... */
   // keep track of which particles have left EoS grid completely
   // (reset list at end of each timestep)
   systemPtr->particles_out_of_grid.clear();
-  for ( int i = 0; i < systemPtr->n(); i++ )
-    if ( systemPtr->particles[i].Freeze == 5 )
-      systemPtr->particles_out_of_grid.push_back( i );
+  for ( auto & p : systemPtr->particles )
+    if ( systemPtr->p.Freeze == 5 )
+      systemPtr->particles_out_of_grid.push_back( p.ID );
 
   std::cout << "Summary at t = " << systemPtr->t << ": "
         << systemPtr->particles_out_of_grid.size()

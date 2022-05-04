@@ -142,17 +142,17 @@ private:
 
 
 public:
-
+  // initialize system state
   void initialize();
+
+  // linklist stuff
   void reset_linklist() { linklist.reset(); }
   void initialize_linklist();
 
-  void bsqsvconservation();
+  // check conserved quantities
   void conservation_entropy();
+  void conservation_energy();
   void conservation_BSQ();
-  void bsqsvconservation_E();
-  void bsqsv_set();
-  void bsqsvconservation_Ez();
 
   int n(){ return _n; }
   double get_particle_T(int id) {return particles[id].T();}

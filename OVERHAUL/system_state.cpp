@@ -149,8 +149,6 @@ void SystemState::initialize_linklist()
     linklist.fcount     = count;
     linklist.fnum       = linklist.start;
     
-    cout << "Check 0: " << particles[0].r(0) << "   " << particles[0].r(1) << endl;
-
     int currently_frozen_out = number_part;
     linklist.initialize( settingsPtr->t0, particles.size(),
                          settingsPtr->_h, &particles, dt, currently_frozen_out );
@@ -165,7 +163,6 @@ void SystemState::initialize_linklist()
   }
 
 
-  // formerly bsqsv_set in this loop
   for (auto & p : particles)
   {
     double gg = p.gamcalc();
@@ -182,14 +179,6 @@ void SystemState::initialize_linklist()
 
 
 
-///////////////////////////////////////
-void SystemState::bsqsvconservation()
-{
-    bsqsvconservation_E();
-    Etot  = E + Ez;
-    Eloss = (E0-Etot)/E0*100;
-    rk2   = 0;
-}
 
 ///////////////////////////////////////
 void SystemState::conservation_entropy()
@@ -198,26 +187,26 @@ void SystemState::conservation_entropy()
   for ( auto & p : particles )
     S += p.eta_sigma*p.sigmaweight;
 
-  if (linklist.first==1) S0=S;
+  if (linklist.first==1) S0 = S;
 }
 
 ///////////////////////////////////////
 void SystemState::conservation_BSQ()
 {
+  // reset
   Btotal = 0.0;
   Stotal = 0.0;
   Qtotal = 0.0;
 
-  for (int i=0; i<_n; i++)
+  // sum
+  for ( auto & p : particles )
   {
-    //Btotal += particles[i].B;
-    //Stotal += particles[i].S;
-    //Qtotal += particles[i].Q;
-    Btotal += particles[i].rhoB_sub*particles[i].rhoB_weight;
-    Stotal += particles[i].rhoS_sub*particles[i].rhoS_weight;
-    Qtotal += particles[i].rhoQ_sub*particles[i].rhoQ_weight;
+    Btotal += p.rhoB_sub*p.rhoB_weight;
+    Stotal += p.rhoS_sub*p.rhoS_weight;
+    Qtotal += p.rhoQ_sub*p.rhoQ_weight;
   }
 
+  // save initial totals
   if (linklist.first==1)
   {
     Btotal0 = Btotal;
@@ -228,36 +217,55 @@ void SystemState::conservation_BSQ()
 }
 
 
-///////////////////////////////////////
-void SystemState::bsqsvconservation_E()
-{
-  E = 0.0;
-  for ( auto & p : particles )
-  {
-    p.contribution_to_total_E
-       = ( p.C*p.g2 - p.p() - p.bigPI + p.shv(0,0) ) * p.sigmaweight*t/p.sigma;
-    E += p.contribution_to_total_E;
-  }
-
-  if (linklist.first==1)
-  {
-    linklist.first = 0;
-    E0             = E;
-  }
-}
 
 
 ///////////////////////////////////////
-void SystemState::bsqsvconservation_Ez()
+void SystemState::conservation_energy()
 {
+  ///////////////////////////////////////////////
+  // don't bother checking energy conservation on
+  // intermediate RK steps
+  if ( rk2 == 1 )
+  {
+    // calculate total energy (T^{00})
+    E = 0.0;
+    for ( auto & p : particles )
+    {
+      p.contribution_to_total_E
+         = ( p.C*p.g2 - p.p() - p.bigPI + p.shv(0,0) )
+           * p.sigmaweight * t / p.sigma;
+      E += p.contribution_to_total_E;
+    }
+
+    // store initial total energy
+    // for checking subsequent energy loss
+    if (linklist.first==1)
+    {
+      linklist.first = 0;
+      E0             = E;
+    }
+
+    // Ez is initially set to zero,
+    // updated subsequently during RK integration
+    Etot  = E + Ez;
+    Eloss = (E0-Etot)/E0*100;
+    rk2   = 0;
+  }
+
+  ///////////////////////////////////////////////
+  // this enters the RK routine and should be
+  // done for intermediate steps as well;
+  // this gives the longitudinal energy flux (~T^{\eta\eta})
   dEz = 0.0;
   double t2 = t*t;
   for ( auto & p : particles )
   {
     p.contribution_to_total_dEz
-         = ( p.p() + p.bigPI + p.shv33*t2 ) / p.sigma*p.sigmaweight;
+         = ( p.p() + p.bigPI + p.shv33*t2 )
+           * p.sigmaweight / p.sigma;
     dEz += p.contribution_to_total_dEz;
   }
+
 }
 
 
