@@ -39,15 +39,12 @@ public:
   void smooth_fields( Particle & pa );
   void smooth_gradients( Particle & pa, double tin, int & count );
   void smooth_all_particle_fields()
-        { for ( auto & p : systemPtr->particles )
-            smooth_fields(p); }
-  void smooth_all_particle_gradients( int & count )
-        { for ( auto & p : systemPtr->particles )
-            smooth_gradients( p, systemPtr->t, count ); }
+        { for ( auto & p : systemPtr->particles ) smooth_fields(p); }
+//  void smooth_all_particle_gradients()
+//        { for ( auto & p : systemPtr->particles ) smooth_fields(p); }
 
   void update_all_particle_thermodynamics()
-        { for ( auto & p : systemPtr->particles )
-            p.calcbsq( systemPtr->t ); }
+        { for ( auto & p : systemPtr->particles ) p.calcbsq( systemPtr->t ); }
 
   void update_all_particle_viscosities()
         { for ( auto & p : systemPtr->particles )
@@ -56,14 +53,7 @@ public:
                        systemPtr->visc ); }
 
 
-  int do_freeze_out_checks();
-  void update_all_particle_dsigma_dt();
-  void update_all_particle_fluid_quantities()
-        { for ( auto & p : systemPtr->particles )
-            p.update_fluid_quantities( systemPtr->t ); }
-
-  void update_freeze_out_lists();
-
+  int do_freezeout_checks();
 
 
 
@@ -90,7 +80,7 @@ public:
   }
 
   //MOVE THIS TO ITS OWN CLASS USING TRAVIS' IMPROVEMENTS
-  void get_time_derivatives();
+  void compute_time_derivatives();
 
 };
 

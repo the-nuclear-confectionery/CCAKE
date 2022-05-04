@@ -272,8 +272,6 @@ double Particle::Bsub()
 Matrix<double,2,2> Particle::Msub()
 {
   piu                     = rowp1(0,shv)*u;
-//  Matrix<double,2,2> msub = Agam2*uu + Ctot*gamma*Imat - (1.0+4.0/(3.0*g2))*piu
-//                            + dwdsT1*transpose(piu) + gamma*pimin;
   Matrix<double,2,2> msub = Agam2*uu + Ctot*gamma*Imat - (1+4/3./g2)*piu
                             + dwdsT1*transpose(piu) + gamma*pimin;
   return msub;
@@ -294,15 +292,15 @@ Matrix<double,2,2> Particle::dpidtsub()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void Particle::update_fluid_quantities( double tin )
+void Particle::bsqsvsigset( double tin )
 {
   // from svsigset
   g2           = gamma*gamma;
   g3           = gamma*g2;
   gt           = gamma*tin;
   double dwdsT = dwds()/T();
-  dwdsT1       = 1.0 - dwds()/T();
-  sigl         = dsigma_dt/sigma - 1.0/tin;
+  dwdsT1       = 1 - dwds()/T();
+  sigl         = dsigma_dt/sigma - 1/tin;
   gradU        = gamma*gradV+g3*(v*(v*gradV));
   bigPI        = Bulk*sigma/gt;
   C            = w()+ bigPI;
@@ -321,7 +319,7 @@ void Particle::update_fluid_quantities( double tin )
   Btot         = ( Agam*gamma + 2.0*eta_o_tau/3.0*gamma )*sigl
                 + bigPI/tauRelax + dwdsT*( gt*shv33 + Bsub() );
   check        = sigl;
-//std::cout << "CHECK update_fluid_quantities: " << ID << "   " << tin << "   " << g2
+//std::cout << "CHECK bsqsvsigset: " << ID << "   " << tin << "   " << g2
 //          << "   " << g2 << "   " << g3 << "   " << gt << "   "
 //          << dwds() << "   " << T() << "   " << sigl << "   "
 //          << w() << "   " << bigPI << "   " << gradU << "   "
@@ -422,179 +420,4 @@ Vector<double,2> Particle::get_Pi_mass()
 Vector<double,2> Particle::get_aleph_mass()
 {
   return shv(0,0)*v - colp1(0, shv);
-}
-
-
-
-
-void Particle::evaluate_time_derivatives( double t )
-{
-
-    double gamt = 0.0, pre = 0.0, p1 = 0.0;
-    if ( settingsPtr->using_shear )
-    {
-//      gamt = 1.0/(gamma*stauRelax);
-//      pre  = eta_o_tau/gamma;
-//      p1   = gamt - 4.0*dsigma_dt/(3.0*sigma) + 1.0/(3.0*t);
-     gamt = 1.0/gamma/stauRelax;
-      pre  = eta_o_tau/gamma;
-      p1   = gamt - 4.0/3.0/sigma*dsigma_dt + 1.0/t/3.0;
-    }
-
-    Vector<double,2> minshv   = rowp1(0, shv);
-    Matrix <double,2,2> partU = gradU + transpose( gradU );
-
-    //===============
-    // print status
-    if ( VERBOSE > 2 && print_this_particle )
-    {
-      std::cout << "CHECK misc1: " << ID << "   " << t << "   "
-                << gamt << "   " << sigma	<< "   " << dsigma_dt << "\n"
-                << "CHECK minshv: " << ID << "   " << t << "   " << minshv << "\n"
-                << "CHECK partU: " << ID << "   " << t << "   " << partU << "\n";
-    }
-
-
-    // set the Mass and the Force
-    Matrix <double,2,2> M = Msub();
-    Vector<double,2> F    = Btot*u + gradshear - ( gradP + gradBulk + divshear );
-
-
-    //===============
-    // print status
-    if ( VERBOSE > 2 && print_this_particle )
-      std::cout << "CHECK M: " << ID << "   " << t << "   " << M << "\n"
-                << "CHECK F: " << ID << "   " << t << "   " << F << "   "
-                << Btot << "   " << u << "   "
-                << gradshear << "   " << gradP << "   "
-                << gradBulk << "   " << divshear << "\n";
-
-    //===============
-    // shear contribution
-    if ( settingsPtr->using_shear )
-      F += pre*v*partU + p1*minshv;
-
-    //===============
-    // print status
-    if ( VERBOSE > 2 && print_this_particle )
-      std::cout << "CHECK F(again): " << ID << "   " << t << "   "
-                << F << "   " << pre << "   " << v << "   " << partU << "   "
-                << p1 << "   " << minshv << "\n";
-
-
-    double det = deter(M);
-    Matrix <double,2,2> MI;
-    MI(0,0) =  M(1,1)/det;
-    MI(0,1) = -M(0,1)/det;
-    MI(1,0) = -M(1,0)/det;
-    MI(1,1) =  M(0,0)/det;
-
-    //===============
-    // print status
-    if ( VERBOSE > 2 && print_this_particle )
-      std::cout << "CHECK det: " << ID << "   " << t << "   "
-                << M << "   " << det << "\n"
-                << "CHECK MI: " << ID << "   " << t
-                << "   " << MI << "\n";
-
-
-    //===============
-    // compute acceleration
-    du_dt(0) = F(0) * MI(0,0) + F(1) * MI(0,1);
-    du_dt(1) = F(0) * MI(1,0) + F(1) * MI(1,1);
-
-    //===============
-    // define auxiliary variables
-    double vduk               = inner( v, du_dt );
-    Matrix <double,2,2> ulpi  = u*colp1(0, shv);
-    Matrix <double,2,2> Ipi   = -2.0*eta_o_tau/3.0 * ( Imat + uu ) + 4./3.*pimin;
-
-    //===============
-    // "coordinate" divergence
-    div_u                   = (1./ gamma)*inner( u, du_dt)
-                                  - ( gamma/ sigma ) * dsigma_dt;
-    //===============
-    // "covariant" divergence
-    bigtheta                = div_u*t+gamma;
-        /* the above lines could automatically be set in particle after 
-        calculating the matrix elements above */
-
-    //===============
-    // print status
-    if ( VERBOSE > 2 && print_this_particle )
-      std::cout << "CHECK div_u: " << ID
-                << "   " << t
-                << "   " << div_u
-                << "   " << gamma
-                << "   " << u
-                << "   " << du_dt
-                << "   " << inner( u, du_dt)
-                << "   " << sigma 
-                << "   " << dsigma_dt << "\n"
-                << "CHECK bigtheta: " << ID
-                << "   " << t
-                << "   " << bigtheta
-                << "   " << gamma << "\n";
-
-    //===============
-    // this term occurs in Eqs. (250) and (251) of Jaki's long notes
-    // translation: pi^{ij} + pi^{00} v^i v^j - pi^{i0} v^j - pi^{0j} v^i
-    Matrix <double,2,2> sub   = pimin + (shv(0,0)/g2)*uu -1./gamma*piutot;
-
-    // minshv = pi^{0i}                   (i   = 1,2)
-    // pimin  = pi^{ij}                   (i,j = 1,2)
-    // uu     = u^i u^j                   (i,j = 1,2)
-    // piu    = pi^{0i} u^j               (i,j = 1,2)
-    // piutot = pi^{0i} u^j + pi^{0j} u^i (i,j = 1,2)
-    // gradU  = du_i/dx^j                 (i,j = 1,2)
-
-    //===============
-    if ( settingsPtr->using_shear )
-      inside                  = t*( inner( -minshv + shv(0,0)*v, du_dt )
-                                    - con2(sub, gradU) - gamma*t*shv33 );
-
-
-    //===============
-    // print status
-    if ( VERBOSE > 2 && print_this_particle )
-      std::cout << "CHECK inside: " << ID << "   "
-                << t << "   "
-                << inside << "   "
-                << minshv << ";   "
-                << shv(0,0)*v << ";   "
-                << du_dt << ";   "
-                << sub << "   "
-                << gradU << ";   "
-                << gamma*t*shv33 << "\n";
-
- 
-
-    //detasigma_dt            = ( -bigPI*bigtheta + inside ) / (sigma*T());
-    detasigma_dt            = 1./sigma/T()*( -bigPI*bigtheta + inside );
-
-    //===============
-    // print status
-    if ( VERBOSE > 2 && print_this_particle )
-      std::cout << "CHECK detasigma_dt: " << ID << "   "
-                << t << "   "
-                << detasigma_dt << "   "
-                << sigma << "   "
-                << T()*hbarc_MeVfm << "   "
-                << bigPI << "   "
-                << bigtheta << "   "
-                << inside << "\n";
-
-
-    // N.B. - ADD EXTRA TERMS FOR BULK EQUATION
-    dBulk_dt = ( -zeta*bigtheta/sigma - Bulk/gamma )/tauRelax;
-
-    Matrix <double,2,2> ududt = u*du_dt;
-
-    // N.B. - ADD READABLE TERM NAMES
-    if ( settingsPtr->using_shear )
-      dshv_dt                 = - gamt*( pimin + setas*partU )
-                               - eta_o_tau*( ududt + transpose(ududt) )
-                               + dpidtsub() + sigl*Ipi
-                               - vduk*( ulpi + transpose(ulpi) + (1.0/gamma)*Ipi );
-
 }
