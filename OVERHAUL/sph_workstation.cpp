@@ -841,7 +841,7 @@ int SPHWorkstation::do_freeze_out_checks()
 
 
 //==============================================================================
-void SPHWorkstation::update_all_particles_dsigma_dt()
+void SPHWorkstation::update_all_particle_dsigma_dt()
 {
   for ( auto & p : systemPtr->particles )
   {
@@ -910,7 +910,7 @@ void SPHWorkstation::get_time_derivatives()
 
   //calculate time derivatives for all particles
   for ( auto & p : systemPtr->particles )
-    evaluate_time_derivatives( systemPtr->t );
+    p.evaluate_time_derivatives( systemPtr->t );
 
 
 
