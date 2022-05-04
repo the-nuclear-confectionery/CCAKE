@@ -35,9 +35,6 @@ vector.o: vector.h mathdef.h vector.cpp
 matrix.o: matrix.cpp matrix.h vector.h mathdef.h
 	$(CC) $(CFLAGS) matrix.cpp
 
-#runge_kutta.o: runge_kutta.cpp runge_kutta.h equations_of_motion.h system_state.h
-#	$(CC) $(CFLAGS) runge_kutta.cpp
-
 system_state.o: system_state.cpp system_state.h
 	$(CC) $(CFLAGS) system_state.cpp
 
@@ -53,7 +50,7 @@ input_output.o: input_output.cpp input_output.h
 kernel.o: kernel.cpp kernel.h
 	$(CC) $(CFLAGS) kernel.cpp
 
-BSQHydro.o: vector.h mathdef.h particle.h BSQHydro.h linklist.h runge_kutta.h eos.h matrix.h BSQHydro.cpp
+BSQHydro.o: vector.h mathdef.h particle.h BSQHydro.h linklist.h eos.h matrix.h BSQHydro.cpp
 	$(CC) $(CFLAGS) BSQHydro.cpp
 
 particle.o: particle.cpp particle.h eos.h
