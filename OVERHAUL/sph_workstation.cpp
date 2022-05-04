@@ -1111,7 +1111,7 @@ at the same time... */
   // (reset list at end of each timestep)
   systemPtr->particles_out_of_grid.clear();
   for ( auto & p : systemPtr->particles )
-    if ( systemPtr->p.Freeze == 5 )
+    if ( p.Freeze == 5 )
       systemPtr->particles_out_of_grid.push_back( p.ID );
 
   std::cout << "Summary at t = " << systemPtr->t << ": "
