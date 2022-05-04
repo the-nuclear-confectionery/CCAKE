@@ -72,7 +72,7 @@ public:
   int do_freezeout_checks();
   void update_all_particles_dsigma_dt();
   void update_freeze_out_lists();
-  void finalize_freeze_out();
+  void finalize_freeze_out(int curfrz);
 
 
   // Move this into a different namespace or something?
@@ -81,6 +81,9 @@ public:
   void advance_timestep_rk4( double dt );
   void advance_timestep( double dt, int rk_order )
   {
+    // turn on freeze-out flag initially
+    systemPtr->cfon = 1;
+
     switch ( rk_order )
     {
       case 2:
@@ -94,11 +97,30 @@ public:
         exit(8);
         break;
     }
+
+    // set number of particles which have frozen out
+    systemPtr->number_part = systemPtr->get_frozen_out_count();
+//    std::cout << "Check termination conditions: "
+//              << system.t << "   "
+//              << settings.tend << "   "
+//              << system.get_frozen_out_count() << "   "
+//              << system.number_part << "   "
+//              << system.n() << "   "
+//              << ( system.t < settings.tend ) << "   "
+//              << ( system.number_part < system.n() ) << endl;
+
     return;
   }
 
   //MOVE THIS TO ITS OWN CLASS USING TRAVIS' IMPROVEMENTS
   void get_time_derivatives();
+
+  // decide whether to continue evolving
+  bool continue_evolution()
+  {
+    return ( systemPtr->t < settingsPtr->tend )
+            && ( systemPtr->number_part < systemPtr->n() );
+  }
 
 };
 

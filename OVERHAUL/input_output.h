@@ -17,11 +17,9 @@
 #include "vector.h"
 #include "particle.h"
 #include "system_state.h"
-//#include "equations_of_motion.h"
 
 // Forward declaration of friend classes
 class EquationOfState;
-//class EquationsOfNotion;
 class Settings;
 class SystemState;
 
@@ -33,7 +31,6 @@ public:
   ~InputOutput();
 
   void set_EquationOfStatePtr( EquationOfState * eosPtr_in );
-//  void set_EquationsOfMotionPtr( EquationsOfMotion * eomPtr_in );
   void set_SettingsPtr( Settings * settingsPtr_in );
   void set_SystemStatePtr( SystemState * systemPtr_in );
 
@@ -60,11 +57,21 @@ private:
 
   // these allow I/O to access other objects in BSQHydro
   EquationOfState   * eosPtr      = nullptr;
-//  EquationsOfMotion * eomPtr      = nullptr;
   Settings          * settingsPtr = nullptr;
   SystemState       * systemPtr   = nullptr;
 
 
+
+public:
+
+  void print_conservation_status(std::ostream & out = std::cout)
+  {
+    // print energy/entropy and conserved charge totals
+    out << setw(12) << setprecision(10)
+        << "t=" << systemPtr->t << " "
+        << systemPtr->Eloss << " " << systemPtr->E0 << " " << Etot << " "
+        << S << " " << Btotal << " " << Stotal << " " << Qtotal << endl;
+  }
 
 };
 

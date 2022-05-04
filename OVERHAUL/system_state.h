@@ -1,6 +1,7 @@
 #ifndef SYSTEM_STATE_H
 #define SYSTEM_STATE_H
 
+#include <iostream>
 #include <string>
 #include <vector>
 

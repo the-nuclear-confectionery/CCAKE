@@ -871,7 +871,7 @@ void SPHWorkstation::update_freeze_out_lists()
 }
 
 
-void SPHWorkstation::finalize_freeze_out()
+void SPHWorkstation::finalize_freeze_out(int curfrz)
 {
   if (systemPtr->cfon==1)
     systemPtr->bsqsvfreezeout( curfrz );
@@ -931,7 +931,7 @@ void SPHWorkstation::get_time_derivatives()
   evaluate_all_particle_time_derivatives();
 
   // finalize frozen out particles
-  finalize_freeze_out();
+  finalize_freeze_out( curfrz );
 
   return;
 }

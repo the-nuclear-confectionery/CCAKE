@@ -16,7 +16,6 @@ using std::stod;
 #include "constants.h"
 #include "vector.h"
 #include "particle.h"
-//#include "runge_kutta.h"
 #include "eos.h"
 #include "Stopwatch.h"
 #include "system_state.h"

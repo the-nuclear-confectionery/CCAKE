@@ -41,7 +41,6 @@ public:
   
   //doubles
   double _h         = 0;
-  double gd2        = 0;
   double t0         = 0;
   double t          = 0;
   double dt         = 0;

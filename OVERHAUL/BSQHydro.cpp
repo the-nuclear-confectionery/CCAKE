@@ -92,62 +92,34 @@ void BSQHydro::initialize_hydrodynamics()
 ////////////////////////////////////////////////////////////////////////////////
 void BSQHydro::run()
 {
-  cout << "Ready to start hydrodynamics\n";
-
-  settings.t = settings.t0;
-
-  // print the initial timestep
-  io.print_system_state();
-  cout << "Printed first timestep" << endl;
-
+  //===================================
+  // initialize conserved quantities
   system.conservation_entropy();
   system.conservation_BSQ();
 
-  cout << setw(12) << setprecision(10)
-       << "t=" << system.t << " S=" << system.S 
-       << " " << system.Btotal << " " << system.Stotal
-       << " " << system.Qtotal << endl;
+  //===================================
+  // print initialized system and status
+  io.print_conservation_status();
+  io.print_system_state();
 
-
-  cout << "Now let's do the main evolution!" << endl;
-  system.Ez = 0.0;
-
-  while ( (system.t<settings.tend) && (system.number_part<system.n()) )
+  //===================================
+  // evolve until simulation terminates
+  while ( ws.continue_evolution() )
   {
-    system.cfon = 1;
-
-    // workstation advances by given timestep at given RK order
+    //===================================
+    // workstation advances by given
+    // timestep at given RK order
     ws.advance_timestep( settings.dt, rk_order );
 
+    //===================================
+    // re-compute conserved quantities
     system.conservation_entropy();
     system.conservation_BSQ();
 
-    // print energy/entropy and conserved charge totals
-    cout << setw(12) << setprecision(10)
-         << "t=" << system.t << " " << system.Eloss << " " << system.E0
-         << " " << system.Etot << " " << system.S
-         << " " << system.Btotal << " " << system.Stotal
-         << " " << system.Qtotal << endl;
-
-    // print system state, once per timestep
+    //===================================
+    // print updated system and status
+    io.print_conservation_status();
     io.print_system_state();
-
-    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    // NOW DOING THIS AFTER ADDING FREEZE == 5 OPTION!!!!!!!!!!!!!!!!!
-    system.number_part = system.get_frozen_out_count();
-    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-    cout << "Check termination conditions: "
-          << system.t << "   "
-          << settings.tend << "   "
-          << system.get_frozen_out_count() << "   "
-          << system.number_part << "   "
-          << system.n() << "   "
-          << ( system.t < settings.tend ) << "   "
-          << ( system.number_part < system.n() ) << endl;
-
   }
 }
 
