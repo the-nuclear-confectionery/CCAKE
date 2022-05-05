@@ -160,10 +160,10 @@ double TransportCoefficients::tauBulk_DNMR_LeadingMass()
 //////////////////////////////////////////////////
 //////INITIALIZE THE TRANSPORT COEFFICIENTS//////
 ////////////////////////////////////////////////
-void TransportCoefficients::initialize( string & etaType_in,
-                                        string & tauShearType_in,
-                                        string & zetaType_in,
-                                        string & tauBulkType_in )
+void TransportCoefficients::initialize( const string & etaType_in,
+                                        const string & tauShearType_in,
+                                        const string & zetaType_in,
+                                        const string & tauBulkType_in )
 {
   etaType      = etaType_in;
   tauShearType = tauShearType_in;

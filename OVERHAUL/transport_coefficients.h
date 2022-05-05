@@ -25,10 +25,10 @@ class TransportCoefficients
 
     void set_SettingsPtr( Settings * settingsPtr_in );
 
-    void initialize(  string & etaType_in      = "default",
-                      string & tauShearType_in = "default",
-                      string & zetaType_in     = "default",
-                      string & tauBulkType_in  = "default" );
+    void initialize(  const string & etaType_in      = "default",
+                      const string & tauShearType_in = "default",
+                      const string & zetaType_in     = "default",
+                      const string & tauBulkType_in  = "default" );
 
     void setTherm(thermodynamic_info & thermo_from_particle);
 
