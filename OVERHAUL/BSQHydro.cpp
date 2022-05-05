@@ -8,6 +8,7 @@ BSQHydro::BSQHydro()
 {
 
   // initialize I/O pointers
+  io.set_EquationOfStatePtr( &ws.eos );
   io.set_SettingsPtr( &settings );
   io.set_SystemStatePtr( &system );
 
