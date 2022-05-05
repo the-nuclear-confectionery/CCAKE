@@ -16,10 +16,10 @@ using std::vector;
 //Constructors/destructor, may need to update later
 TransportCoefficients::TransportCoefficients()
 {
-  etaType = settingsPtr->eta;
-  etaOption = settingsPtr->etaOption;
-  zetaType = settingsPtr->zeta;
-  zetaOption = settingsPtr->zetaOption;
+//  etaType    = settingsPtr->eta;
+//  etaOption  = settingsPtr->etaOption;
+//  zetaType   = settingsPtr->zeta;
+//  zetaOption = settingsPtr->zetaOption;
 }
 
 TransportCoefficients::~TransportCoefficients(){}
