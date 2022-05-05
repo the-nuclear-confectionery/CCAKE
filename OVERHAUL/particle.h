@@ -13,12 +13,17 @@
 #include <string>
 #include <vector>
 
+#include "constants.h"
 #include "matrix.h"
 #include "settings.h"
 #include "vector.h"
 
 class Particle
 {
+  private:
+
+    static constexpr int VERBOSE = 0;
+
   public:
 
     // Constructors and destructors.

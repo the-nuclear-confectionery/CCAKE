@@ -497,7 +497,7 @@ void Particle::evaluate_time_derivatives( double t )
               << t << "   "
               << detasigma_dt << "   "
               << sigma << "   "
-              << T()*hbarc_MeVfm << "   "
+              << T()*constants::hbarc_MeVfm << "   "
               << bigPI << "   "
               << bigtheta << "   "
               << inside << "\n";
