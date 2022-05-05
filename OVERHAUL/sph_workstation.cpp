@@ -936,7 +936,7 @@ double SPHWorkstation::locate_phase_diagram_point_eBSQ( Particle & p,
     // save results if either default or conformal EoS returned a result
     // (assumes latter always succeeds)
     if ( solution_found )
-      set_particle_thermo(p);
+      eos.set_thermo( p.thermo );
     else
       p.Freeze = 5; // new label for (totally decoupled) particles which go outside grid
 
@@ -964,7 +964,7 @@ void SPHWorkstation::locate_phase_diagram_point_sBSQ( Particle & p,
     bool update_s_success = eos.update_s( s_In, rhoB_In, rhoS_In, rhoQ_In );
 
     if ( update_s_success )
-      set_particle_thermo(p);
+      eos.set_thermo( p.thermo );
     else
       p.Freeze = 5; // new label for (totally decoupled) particles which go outside grid
   }
@@ -975,15 +975,6 @@ void SPHWorkstation::locate_phase_diagram_point_sBSQ( Particle & p,
 void SPHWorkstation::locate_phase_diagram_point_sBSQ(Particle & p, double s_In) // previously update_s
                { locate_phase_diagram_point_sBSQ( p, s_In, 0.0, 0.0, 0.0 ); }
 
-
-
-void SPHWorkstation::set_particle_thermo(Particle & p)
-{
-  eos.set_thermo( p.thermo );
-
-
-
-}
 
 
 ////////////////////////////////////////////////////////////////////////////////

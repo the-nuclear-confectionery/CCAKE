@@ -16,7 +16,4 @@ struct thermodynamic_info
 };
 
 
-
-
-
 #endif

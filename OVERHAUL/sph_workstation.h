@@ -104,7 +104,6 @@ public:
   void locate_phase_diagram_point_sBSQ(
           Particle & p, double s_In );
 
-  void set_particle_thermo( Particle & p );
   void calcbsq( Particle & p );
 
   // freeze-out routines
