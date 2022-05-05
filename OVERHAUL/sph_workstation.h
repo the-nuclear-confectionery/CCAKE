@@ -21,7 +21,7 @@ private:
   Settings        * settingsPtr          = nullptr;
 
   EquationOfState eos;
-  TransportCoefficients tc;
+//  TransportCoefficients tc;
 
 
 public:
@@ -42,9 +42,8 @@ public:
     eos.init();
 
     // set up transport coefficients
-    tc.set_SettingsPtr( settingsPtr );
-    tc.initialize();
-
+//    tc.set_SettingsPtr( settingsPtr );
+//    tc.initialize();
 
     settingsPtr->efcheck = eos.efreeze(settingsPtr->Freeze_Out_Temperature);
     settingsPtr->sfcheck = eos.sfreeze(settingsPtr->Freeze_Out_Temperature);
