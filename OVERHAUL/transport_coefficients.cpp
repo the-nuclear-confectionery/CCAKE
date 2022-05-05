@@ -5,7 +5,7 @@
 #include "settings.h"
 #include "kernel.h"
 #include "particle.h"
-#include "new_matrix.h"
+#include "matrix.h"
 #include "eos.h"
 #include "transport_coefficients.h"
 
@@ -26,14 +26,21 @@ TransportCoefficients::~TransportCoefficients()
 
 }
 
-void TransportCoefficients::set_EquationOfStatePtr( EquationOfState * eosPtr_in )
-{
-  eosPtr = eosPtr_in;
-}
+// void TransportCoefficients::set_EquationOfStatePtr( EquationOfState * eosPtr_in )
+// {
+//   eosPtr = eosPtr_in;
+// }
 void TransportCoefficients::set_SettingsPtr( Settings * settingsPtr_in )
 {
   settingsPtr = settingsPtr_in;
 }
+
+//Setter for thermodynamic information
+void setTherm(thermodynamic_info & thermo_from_particle)
+{
+    therm = thermo_from_particle;
+}
+
 ///////////////////////////////////////////////////////////////
 //Getter functions for eta, zeta, and their relaxation times//
 /////////////////////////////////////////////////////////////
@@ -59,25 +66,35 @@ double TransportCoefficients::getTauBulk()
 ////////////////////////////////////////////////////////////
 double TransportCoefficients::constEta()
 {
-    return eta_T_OV_w_IN*(eosPtr->w()/eosPtr->T());
+    double w = therm.w;
+    double T = therm.T;
+    return eta_T_OV_w_IN*(w/T);
 }
 double TransportCoefficients::JakiParam()
 {
     //picked the easiest one with functional dependence
     // parameters hardcoded for now.. just to see how it works
+
+    double T = therm.T;
+    double s = therm.s;
     double TC=155; // 173.9/197.3
-    double temp=eosPtr->T()*197.3/TC;
-    double z=pow(0.66*temp,2);
+    double TovTC = (T*hbarc_MeVfm)/TC;
+    double z=pow(0.66*TovTC,2);
     double alpha=33./(12.*PI)*(z-1)/(z*log(z));
-    return eosPtr->s()*(0.0416762/pow(alpha,1.6)+ 0.0388977/pow(temp,5.1) );
+    return s*(0.0416762/pow(alpha,1.6)+ 0.0388977/pow(temp,5.1) );
 }
 double TransportCoefficients::LinearMusParam()
 {
     // parameters hardcoded for now.. just to see how it works
     double etaBase = 0.08;
     double muSlope = 0.0033;
-    return (etaBase + muSlope*(eosPtr->muB + 
-    eosPtr->muS + eosPtr->muQ))*(eosPtr->w()/eosPtr->T());
+    double muB = therm.muB;
+    double muS = therm.muS;
+    double muQ = therm.muQ;
+    double w = therm.w;
+    double T = therm.T;
+
+    return (etaBase + muSlope*(muB + muS + muQ))*(w/T);
 }
 double TransportCoefficients::InterpolantWrapper()
 {
@@ -94,11 +111,13 @@ double TransportCoefficients::NoShear()
 ////////////////////////////////////////////////////////////
 double TransportCoefficients::tauShearGubser()
 {
-    return (5*eta())/eosPtr->w();
+    w = therm.w;
+    return (5*eta(therm))/w;
 }
 double TransportCoefficients::tauShearMinval()
 {
-    double tau = (5*eta())/eosPtr->w();
+    w = therm.w;
+    double tau = (5*eta(therm))/w;
     if (tau >= .001)
     {
         return tau;
@@ -110,14 +129,14 @@ double TransportCoefficients::tauShearMinval()
 }
 
 //////////////////////////////////////////////////////////////
-//////////////possible function choices for eta//////////////
+//////////////possible function choices for zeta//////////////
 ////////////////////////////////////////////////////////////
 double TransportCoefficients::zeta_DNMR_LeadingMass()
 {
     //add this in later.. for now no bulk
     return 0.0;
 }
-double TransportCoefficients::zeta_conformal()
+double TransportCoefficients::NoBulk()
 {
     return 0.0; // of course, conformal zeta returns 0
 }
@@ -182,7 +201,7 @@ void TransportCoefficients::initialize()
             Now exiting." << endl;
             exit(1);
         }
-        if (zetaType != "conformal")
+        if (zetaType != "NoBulk")
         {
             cout << "Bulk viscosity must be conformal 
             for Gubser. Check Input_Parameters.  
@@ -203,9 +222,9 @@ void TransportCoefficients::initialize()
     {
         zeta = zeta_DNMR_LeadingMass;
     }
-    else if (zetaType = "conformal")
+    else if (zetaType = "NoBulk")
     {
-        zeta = zeta_conformal;
+        zeta = NoBulk;
     }
     else if (zetaType = "interpolate")
     {
@@ -215,8 +234,7 @@ void TransportCoefficients::initialize()
     }
     else
     {
-        cout << "Bulk viscosity specification not 
-        recognized. Now exiting." << endl;
+        cout << "Bulk viscosity specification not recognized. Now exiting." << endl;
         exit(1);
     }
 
