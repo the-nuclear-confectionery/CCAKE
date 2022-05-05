@@ -128,6 +128,7 @@ double TransportCoefficients::tauShearMinval()
 ////////////////////////////////////////////////////////////
 double TransportCoefficients::default_zeta()
 {
+cout << __FUNCTION__ << endl;
   double zeta_over_s = 0.005;
   return therm.s * zeta_over_s;
 }
