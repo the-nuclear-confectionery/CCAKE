@@ -1,14 +1,15 @@
+#include <fstream>
+#include <iostream>
+#include <memory>
+#include <string>
+#include <vector>
+
 #include <gsl/gsl_multiroots.h>
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_permutation.h>
 #include <gsl/gsl_blas.h>
 #include <gsl/gsl_linalg.h>
-#include <iostream>
-#include <memory>
-#include <vector>
-#include <fstream>
-#include <string>
 
 #include "constants.h"
 #include "eos.h"

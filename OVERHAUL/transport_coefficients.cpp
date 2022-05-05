@@ -1,35 +1,29 @@
+#include <cmath>
+#include <functional>
 #include <string>
 #include <vector>
-#include <functional>
-#include <math.h>
-#include "settings.h"
-#include "kernel.h"
-#include "particle.h"
-#include "matrix.h"
+
 #include "eos.h"
+#include "kernel.h"
+#include "matrix.h"
+#include "particle.h"
+#include "settings.h"
 #include "transport_coefficients.h"
 
 using std::string;
 using std::vector;
 
-
 //Constructors/destructor, may need to update later
 TransportCoefficients::TransportCoefficients()
 {
-    etaType = settingsPtr->eta;
-    etaOption = settingsPtr->etaOption;
-    zetaType = settingsPtr->zeta;
-    zetaOption = settingsPtr->zetaOption;
-}
-TransportCoefficients::~TransportCoefficients()
-{
-
+  etaType = settingsPtr->eta;
+  etaOption = settingsPtr->etaOption;
+  zetaType = settingsPtr->zeta;
+  zetaOption = settingsPtr->zetaOption;
 }
 
-// void TransportCoefficients::set_EquationOfStatePtr( EquationOfState * eosPtr_in )
-// {
-//   eosPtr = eosPtr_in;
-// }
+TransportCoefficients::~TransportCoefficients(){}
+
 void TransportCoefficients::set_SettingsPtr( Settings * settingsPtr_in )
 {
   settingsPtr = settingsPtr_in;
@@ -38,28 +32,16 @@ void TransportCoefficients::set_SettingsPtr( Settings * settingsPtr_in )
 //Setter for thermodynamic information
 void setTherm(thermodynamic_info & thermo_from_particle)
 {
-    therm = thermo_from_particle;
+  therm = thermo_from_particle;
 }
 
 ///////////////////////////////////////////////////////////////
 //Getter functions for eta, zeta, and their relaxation times//
 /////////////////////////////////////////////////////////////
-double TransportCoefficients::getEta()
-{
-    return eta();
-}
-double TransportCoefficients::getZeta()
-{
-    return zeta();
-}
-double TransportCoefficients::getTauShear()
-{
-    return tauShear();
-}
-double TransportCoefficients::getTauBulk()
-{
-    return tauBulk();
-}
+double TransportCoefficients::getEta()      { return eta();      }
+double TransportCoefficients::getZeta()     { return zeta();     }
+double TransportCoefficients::getTauShear() { return tauShear(); }
+double TransportCoefficients::getTauBulk()  { return tauBulk();  }
 
 //////////////////////////////////////////////////////////////
 //////////////possible function choices for eta//////////////
@@ -81,7 +63,7 @@ double TransportCoefficients::JakiParam()
     double TovTC = (T*hbarc_MeVfm)/TC;
     double z=pow(0.66*TovTC,2);
     double alpha=33./(12.*PI)*(z-1)/(z*log(z));
-    return s*(0.0416762/pow(alpha,1.6)+ 0.0388977/pow(temp,5.1) );
+    return s*(0.0416762/pow(alpha,1.6)+ 0.0388977/pow(T,5.1) );
 }
 double TransportCoefficients::LinearMusParam()
 {
@@ -111,12 +93,12 @@ double TransportCoefficients::NoShear()
 ////////////////////////////////////////////////////////////
 double TransportCoefficients::tauShearGubser()
 {
-    w = therm.w;
+    double w = therm.w;
     return (5*eta(therm))/w;
 }
 double TransportCoefficients::tauShearMinval()
 {
-    w = therm.w;
+    double w = therm.w;
     double tau = (5*eta(therm))/w;
     if (tau >= .001)
     {
@@ -181,8 +163,7 @@ void TransportCoefficients::initialize()
     }
     else
     {
-        cout << "Shear viscosity specification not 
-        recognized. Now exiting." << endl;
+        cout << "Shear viscosity specification not recognized. Now exiting." << endl;
         exit(1);
     }
 
@@ -196,24 +177,23 @@ void TransportCoefficients::initialize()
         /* these consistency checks maybe should be done in settings.h? */
         if (etaType != "constant")
         {
-            cout << "Shear viscosity must be constant 
-            for Gubser. Check Input_Parameters.  
-            Now exiting." << endl;
+            cout << "Shear viscosity must be constant for Gubser. "
+                    "Check Input_Parameters.  Now exiting." << endl;
             exit(1);
         }
         if (zetaType != "NoBulk")
         {
-            cout << "Bulk viscosity must be conformal 
-            for Gubser. Check Input_Parameters.  
-            Now exiting." << endl;
+            cout << "Bulk viscosity must be conformal "
+            " for Gubser. Check Input_Parameters.  "
+            " Now exiting." << endl;
             exit(1);
         }
         tauShear = tauShearGubser;
     }
     else
     {
-        cout << "Tau shear specification not 
-        recognized. Now exiting." << endl;
+        cout << "Tau shear specification not "
+        "recognized. Now exiting." << endl;
         exit(1);
     }
 
@@ -245,8 +225,8 @@ void TransportCoefficients::initialize()
     }
     else 
     {
-        cout << "Tau bulk specification not 
-        recognized. Now exiting." << endl;
+        cout << "Tau bulk specification not "
+        "recognized. Now exiting." << endl;
         exit(1);   
     }
 
