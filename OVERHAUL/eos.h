@@ -246,7 +246,7 @@ public:
   //============================================================================
   // function to check whether conformal-diagonal EoS instance
   // yields a real solution for this (e,B,S,Q) combination
-  bool eBSQ_has_solution_in_conformal_diagonal
+  bool eBSQ_has_solution_in_conformal_diagonal(
         double e_in, double B_in, double S_in, double Q_in )
   {
     // select the currently defined conformal-diagonal EoS instance
