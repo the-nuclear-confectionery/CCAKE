@@ -141,25 +141,25 @@ void TransportCoefficients::initialize()
     if (etaType == "constant")
     {
         eta_T_OV_w_IN = stod(etaOption);
-        eta = constEta;
+        eta = std::bind(constEta);
     }
     else if (etaType == "JakiParam")
     {
-        eta = JakiParam;
+        eta = std::bind(JakiParam);
     }
     else if (etaType == "LinearMus")
     {
-        eta = LinearMusParam;
+        eta = std::bind(LinearMusParam);
     }
     else if (etaType = "interpolate")
     {
         //use etaOption to find directory of table, then
         // execute interpolation
-        eta = InterpolantWrapper;
+        eta = std::bind(InterpolantWrapper);
     }
     else if (etaType = "NoShear")
     {
-        eta = NoShear;
+        eta = std::bind(NoShear);
     }
     else
     {
@@ -170,7 +170,7 @@ void TransportCoefficients::initialize()
 // SET SHEAR RELAXATION
     if (tauShearType == "Default")
     {
-        tauShear = tauShearMinval;
+        tauShear = std::bind(tauShearMinval);
     }
     else if (tauShearType == "Gubser")
     {
@@ -188,7 +188,7 @@ void TransportCoefficients::initialize()
             " Now exiting." << endl;
             exit(1);
         }
-        tauShear = tauShearGubser;
+        tauShear = std::bind(tauShearGubser);
     }
     else
     {
@@ -200,17 +200,17 @@ void TransportCoefficients::initialize()
 // SET BULK VISCOSITY
     if (zetaType = "Default")
     {
-        zeta = zeta_DNMR_LeadingMass;
+        zeta = std::bind(zeta_DNMR_LeadingMass);
     }
     else if (zetaType = "NoBulk")
     {
-        zeta = NoBulk;
+        zeta = std::bind(NoBulk);
     }
     else if (zetaType = "interpolate")
     {
         //use zetaOption to find directory of table, then
         // execute interpolation
-        zeta = InterpolantWrapper;
+        zeta = std::bind(InterpolantWrapper);
     }
     else
     {
@@ -221,7 +221,7 @@ void TransportCoefficients::initialize()
 // SET BULK RELAXATION
     if (tauBulkType == "Default")
     {
-        tauBulk = tauBulk_DNMR_LeadingMass;
+        tauBulk = std::bind(tauBulk_DNMR_LeadingMass);
     }
     else 
     {

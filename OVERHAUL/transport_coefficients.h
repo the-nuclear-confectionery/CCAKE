@@ -45,23 +45,23 @@ class TransportCoefficients
     load in directly?? Similar qeustion for EOS..*/
     string tauShearType, tauBulkType;
 
-    static double constEta();
-    static double eta_T_OV_w_IN;
-    static double JakiParam();
-    static double LinearMusParam();
-    static double InterpolantWrapper();
-    static double NoShear();
+    double constEta();
+    double eta_T_OV_w_IN;
+    double JakiParam();
+    double LinearMusParam();
+    double InterpolantWrapper();
+    double NoShear();
     function<double()> eta;
     
-    static double tauShearGubser();
-    static double tauShearMinval();
+    double tauShearGubser();
+    double tauShearMinval();
     function<double()> tauShear;
 
-    static double zeta_DNMR_LeadingMass();
-    static double NoBulk();
+    double zeta_DNMR_LeadingMass();
+    double NoBulk();
     function<double()> zeta;
 
-    static double tauBulk_DNMR_LeadingMass();
+    double tauBulk_DNMR_LeadingMass();
     function<double()> tauBulk;
 
     Settings * settingsPtr   = nullptr;
