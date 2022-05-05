@@ -83,26 +83,26 @@ public:
 
     void set_thermo( thermodynamic_info & thermo )
     {
-      thermo.eos_name = eos.get_current_eos_name();
+      thermo.eos_name = get_current_eos_name();
 
-      thermo.T    = eos.T();
-      thermo.muB  = eos.muB();
-      thermo.muS  = eos.muS();
-      thermo.muQ  = eos.muQ();
+      thermo.T    = T();
+      thermo.muB  = muB();
+      thermo.muS  = muS();
+      thermo.muQ  = muQ();
 
-      thermo.p    = eos.p();
-      thermo.s    = eos.s();
-      thermo.rhoB = eos.B();
-      thermo.rhoS = eos.S();
-      thermo.rhoQ = eos.Q();
-      thermo.e    = eos.e();
-      thermo.w    = eos.w();
-      thermo.A    = eos.A();
-      thermo.cs2  = eos.cs2();
-      thermo.dwds = eos.dwds();
-      thermo.dwdB = eos.dwdB();
-      thermo.dwdS = eos.dwdS();
-      thermo.dwdQ = eos.dwdQ();
+      thermo.p    = p();
+      thermo.s    = s();
+      thermo.rhoB = B();
+      thermo.rhoS = S();
+      thermo.rhoQ = Q();
+      thermo.e    = e();
+      thermo.w    = w();
+      thermo.A    = A();
+      thermo.cs2  = cs2();
+      thermo.dwds = dwds();
+      thermo.dwdB = dwdB();
+      thermo.dwdS = dwdS();
+      thermo.dwdQ = dwdQ();
     }
 
     // call these functions using default EoS if none is specified
