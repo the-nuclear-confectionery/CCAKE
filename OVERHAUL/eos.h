@@ -8,8 +8,6 @@
 #include <unordered_map>
 #include <vector>
 
-//#include "read_in_hdf/read_in_hdf.h"
-//#include "Stopwatch.h"
 #include <gsl/gsl_multiroots.h>
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_matrix.h>
@@ -25,6 +23,7 @@
 #include "interpolatorND/interpolatorND.h"
 #include "rootfinder.h"
 #include "settings.h"
+#include "thermodynamic_info.h"
 
 using std::string;
 
@@ -81,6 +80,30 @@ public:
 
     void eosin(std::string type);
     double A();
+
+    void set_thermo( thermodynamic_info & thermo )
+    {
+      thermo.eos_name = eos.get_current_eos_name();
+
+      thermo.T    = eos.T();
+      thermo.muB  = eos.muB();
+      thermo.muS  = eos.muS();
+      thermo.muQ  = eos.muQ();
+
+      thermo.p    = eos.p();
+      thermo.s    = eos.s();
+      thermo.rhoB = eos.B();
+      thermo.rhoS = eos.S();
+      thermo.rhoQ = eos.Q();
+      thermo.e    = eos.e();
+      thermo.w    = eos.w();
+      thermo.A    = eos.A();
+      thermo.cs2  = eos.cs2();
+      thermo.dwds = eos.dwds();
+      thermo.dwdB = eos.dwdB();
+      thermo.dwdS = eos.dwdS();
+      thermo.dwdQ = eos.dwdQ();
+    }
 
     // call these functions using default EoS if none is specified
     double efreeze(double TFO){return efreeze(TFO, default_eos_name);}

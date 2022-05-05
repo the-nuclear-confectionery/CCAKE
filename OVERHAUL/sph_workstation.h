@@ -107,6 +107,10 @@ public:
   void bsqsvfreezeout(int curfrz);
   void bsqsvinterpolate(int curfrz);
 
+  // misc. routine
+  double gradPressure_weight(const int a, const int b);
+
+
 
   // Move this into a different namespace or something?
   // It feels like this should be organized separately
