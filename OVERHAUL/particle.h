@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "matrix.h"
+#include "settings.h"
 #include "vector.h"
 
 class Particle
