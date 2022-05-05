@@ -80,9 +80,7 @@ public:
 
   void update_all_particle_viscosities()
         { for ( auto & p : systemPtr->particles )
-            p.setvisc( systemPtr->etaconst, systemPtr->bvf, systemPtr->svf,
-                       systemPtr->zTc,      systemPtr->sTc, systemPtr->zwidth,
-                       systemPtr->visc ); }
+            setvisc( p ); }
 
   void update_all_particle_fluid_quantities()
         { for ( auto & p : systemPtr->particles )
