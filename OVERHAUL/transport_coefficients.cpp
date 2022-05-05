@@ -30,7 +30,7 @@ void TransportCoefficients::set_SettingsPtr( Settings * settingsPtr_in )
 }
 
 //Setter for thermodynamic information
-void setTherm(thermodynamic_info & thermo_from_particle)
+void TransportCoefficients::setTherm(thermodynamic_info & thermo_from_particle)
 {
   therm = thermo_from_particle;
 }
@@ -94,12 +94,12 @@ double TransportCoefficients::NoShear()
 double TransportCoefficients::tauShearGubser()
 {
     double w = therm.w;
-    return (5*eta(therm))/w;
+    return (5*eta())/w;
 }
 double TransportCoefficients::tauShearMinval()
 {
     double w = therm.w;
-    double tau = (5*eta(therm))/w;
+    double tau = (5*eta())/w;
     if (tau >= .001)
     {
         return tau;
