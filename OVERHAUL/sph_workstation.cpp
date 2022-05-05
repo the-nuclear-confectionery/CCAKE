@@ -1241,7 +1241,7 @@ void SPHWorkstation::bsqsvinterpolate(int curfrz)
     systemPtr->divT[j]      = (1.0/systemPtr->sFO[j])*gradPsub;
     systemPtr->divTtemp[j]  = -(1.0/(systemPtr->gsub[j]*systemPtr->sFO[j]))
                       *( systemPtr->cs2 * (systemPtr->wfz+systemPtr->bulksub[j]) * thetasub
-                        - systemPtr->cs2*inside+inner(uout[j], gradPsub) );
+                        - systemPtr->cs2*inside+inner(systemPtr->uout[j], gradPsub) );
 //THIS NEEDS TO BE RESET
 
 
@@ -1287,8 +1287,8 @@ void SPHWorkstation::bsqsvinterpolate(int curfrz)
 ///////////////////////////////////////////////////////////////////////////////////
 double SPHWorkstation::gradPressure_weight(const int a, const int b)
 {
-  const auto & pa = systemPtr->particles[a];
-  const auto & pb = systemPtr->particles[b];
+  auto & pa = systemPtr->particles[a];
+  auto & pb = systemPtr->particles[b];
 
   double alpha_q    = 1.0;
   double v_signal_q = sqrt(1.0/3.0);
