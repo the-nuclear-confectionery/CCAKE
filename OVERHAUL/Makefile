@@ -1,4 +1,4 @@
-OBJS = main.o transport_coefficients.o vector.o matrix.o BSQHydro.o particle.o eos.o \
+OBJS = transport_coefficients.o main.o vector.o matrix.o BSQHydro.o particle.o eos.o \
        system_state.o linklist.o eos_delaunay.o \
 			 kernel.o sph_workstation.o input_output.o rootfinder.o eos_table.o \
 			 eos_extension.o
