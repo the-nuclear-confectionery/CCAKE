@@ -23,7 +23,6 @@ using std::vector;
 class SystemState
 {
 friend class InputOutput;
-friend class EquationsOfMotion;
 friend class SPHWorkstation;
 
 public:

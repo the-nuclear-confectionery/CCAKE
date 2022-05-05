@@ -64,78 +64,16 @@ Particle::Particle( const Particle& p )
   shv     = p.shv;
   shv33   = p.shv33;
   s_an    = p.s_an;
-  eosPtr  = p.eosPtr;
 }
 
 
 
-////////////////////////////////////////////////////////////////////////////////
-void Particle::set_EquationOfStatePtr( EquationOfState * eosPtr_in )
-{
-  eosPtr = eosPtr_in;
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 void Particle::set_SettingsPtr(Settings * settingsPtr_in)
 {
   settingsPtr = settingsPtr_in;
 }
-
-////////////////////////////////////////////////////////////////////////////////
-double Particle::locate_phase_diagram_point_eBSQ(// previously s_out
-                 double e_In, double rhoB_In, double rhoS_In, double rhoQ_In )
-{
-  double current_sVal = s();
-  if ( Freeze == 5 )
-    return current_sVal;
-  else
-  {
-    // default: use particle's current location as initial guess (pass in corresponding EoS as well!)
-    eosPtr->tbqs( thermo.T, thermo.muB, thermo.muQ, thermo.muS, thermo.eos_name );
-    bool solution_found = false;
-    double sVal = eosPtr->s_out( e_In, rhoB_In, rhoS_In, rhoQ_In, solution_found );
-
-    // save results if either default or conformal EoS returned a result
-    // (assumes latter always succeeds)
-    if ( solution_found )
-      thermo.set(*eosPtr);
-    else
-      Freeze = 5; // new label for (totally decoupled) particles which go outside grid
-
-    return sVal;
-  }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-double Particle::locate_phase_diagram_point_eBSQ(double e_In)// previously s_out
-                 { return locate_phase_diagram_point_eBSQ( e_In, 0.0, 0.0, 0.0 ); }
-
-
-
-
-
-
-////////////////////////////////////////////////////////////////////////////////
-void Particle::locate_phase_diagram_point_sBSQ(// previously update_s
-                 double s_In, double rhoB_In, double rhoS_In, double rhoQ_In )
-{
-  if ( Freeze != 5 )
-  {
-    // default: use particle's current location as initial guess
-    eosPtr->tbqs( thermo.T, thermo.muB, thermo.muQ, thermo.muS, thermo.eos_name );
-    bool update_s_success = eosPtr->update_s( s_In, rhoB_In, rhoS_In, rhoQ_In );
-
-    if ( update_s_success )
-      thermo.set(*eosPtr);
-    else
-      Freeze = 5; // new label for (totally decoupled) particles which go outside grid
-  }
-  return;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-void Particle::locate_phase_diagram_point_sBSQ(double s_In) // previously update_s
-               { locate_phase_diagram_point_sBSQ( s_In, 0.0, 0.0, 0.0 ); }
 
 
 
@@ -222,23 +160,6 @@ void Particle::frzcheck( double tin, int &count, int N )
 }
 
 
-////////////////////////////////////////////////////////////////////////////////
-//  Computes gamma and velocity
-void Particle::calcbsq(double tin)
-{
-  gamma           = gamcalc();
-  v               = (1.0/gamma)*u;
-  double s_lab    = eta/gamma/tin;
-  double rhoB_lab = rhoB_sub/gamma/tin;
-  double rhoS_lab = rhoS_sub/gamma/tin;
-  double rhoQ_lab = rhoQ_sub/gamma/tin;
-  qmom            = ( (e()+p())*gamma/sigma )*u;
-  // using *_sub quantities (which have been smoothed) in order to be consistent
-  // with s_in2 = eta/(gamma*t) and evaluation of rest of EoM's quantities (e.g.,
-  // sigma) which are also smoothed
-//  std::cout << "Doing this particle: " << r << "   " << eta << std::endl;
-	locate_phase_diagram_point_sBSQ( s_lab, rhoB_lab, rhoS_lab, rhoQ_lab );
-}
 
 
 

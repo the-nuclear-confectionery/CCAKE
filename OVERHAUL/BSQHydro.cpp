@@ -1,8 +1,6 @@
 #include "BSQHydro.h"
 #include "settings.h"
 #include "input_output.h"
-//#include "runge_kutta.h"
-//#include "equations_of_motion.h"
 #include "Stopwatch.h"
 
 // Constructors and destructors.
@@ -10,21 +8,15 @@ BSQHydro::BSQHydro()
 {
 
   // initialize I/O pointers
-  io.set_EquationOfStatePtr( &eos );
   io.set_SettingsPtr( &settings );
   io.set_SystemStatePtr( &system );
 
   // initialize SPH workstation
-  ws.set_EquationOfStatePtr( &eos );
   ws.set_SystemStatePtr( &system );
   ws.set_SettingsPtr( &settings );
   
   // initialize system state
-  system.set_EquationOfStatePtr( &eos );
   system.set_SettingsPtr( &settings );
-
-  // initialize EoS pointers
-  eos.set_SettingsPtr( &settings );
   
   return;
 }
@@ -67,7 +59,7 @@ void BSQHydro::initialize_hydrodynamics()
 {
 
   // initialize equation of state
-  eos.init();
+  ws.initialize();
 
   // initialize system state
   system.initialize();

@@ -13,7 +13,6 @@
 #include <string>
 #include <vector>
 
-#include "eos.h"
 #include "matrix.h"
 #include "vector.h"
 
@@ -32,15 +31,8 @@ class Particle
   bool operator==( const Particle & ) const;
 
   // use this to set equation of state object before creating particles
-  void set_EquationOfStatePtr( EquationOfState * eosPtr_in );
   void set_SettingsPtr(Settings * settingsPtr_in);
 
-  double locate_phase_diagram_point_eBSQ( double e_In );
-  double locate_phase_diagram_point_eBSQ( double e_In, double rhoB_In,
-                                          double rhoS_In, double rhoQ_In );
-  void locate_phase_diagram_point_sBSQ( double s_In );
-  void locate_phase_diagram_point_sBSQ( double s_In, double rhoB_In,
-                                        double rhoS_In, double rhoQ_In );
 
   void evaluate_time_derivatives( double t );
 
@@ -57,37 +49,12 @@ class Particle
              p    = 0.0, cs2  = 0.0, w    = 0.0, A    = 0.0;
       double dwds = 0.0, dwdB = 0.0, dwdS = 0.0, dwdQ = 0.0;
 
-      public:
-        void set(EquationOfState & eos)
-        {
-          eos_name = eos.get_current_eos_name();
-
-          T    = eos.T();
-          muB  = eos.muB();
-          muS  = eos.muS();
-          muQ  = eos.muQ();
-
-          p    = eos.p();
-          s    = eos.s();
-          rhoB = eos.B();
-          rhoS = eos.S();
-          rhoQ = eos.Q();
-          e    = eos.e();
-          w    = eos.w();
-          A    = eos.A();
-          cs2  = eos.cs2();
-          dwds = eos.dwds();
-          dwdB = eos.dwdB();
-          dwdS = eos.dwdS();
-          dwdQ = eos.dwdQ();
-        }
     };
     thermodynamic_info thermo = {};
 
 
 //  public:
 
-    EquationOfState * eosPtr = nullptr;
     Settings * settingsPtr   = nullptr;
 
     // getter functions
@@ -116,7 +83,6 @@ class Particle
   // rename these functions and their arguments
   void frzcheck( double tin, int &count, int N );
   void calc(double tin);
-  void calcbsq(double tin);
   void update_fluid_quantities(double tin);
   void setvisc( int etaconst, double bvf, double svf, double zTc,
                 double sTc, double sig, int type );

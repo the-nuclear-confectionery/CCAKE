@@ -15,7 +15,9 @@ private:
 
   SystemState     * systemPtr            = nullptr;
   Settings        * settingsPtr          = nullptr;
-  EquationOfState * eosPtr               = nullptr;
+
+  EquationOfState eos;
+
 
 public:
 
@@ -24,9 +26,20 @@ public:
   ~SPHWorkstation(){}
 
   // initialize pointers
-  void set_EquationOfStatePtr( EquationOfState * eosPtr_in );
   void set_SystemStatePtr( SystemState * systemPtr_in );
   void set_SettingsPtr( Settings * settingsPtr_in );
+
+  // initialize workstation (now includes eos initialization)
+  void initialize()
+  {
+    eos.init();
+
+    settingsPtr->efcheck = eos.efreeze(settingsPtr->Freeze_Out_Temperature);
+    settingsPtr->sfcheck = eos.sfreeze(settingsPtr->Freeze_Out_Temperature);
+    systemPtr->efcheck   = settingsPtr->efcheck;
+    systemPtr->sfcheck   = settingsPtr->sfcheck;
+
+  }
 
   // routines for resetting quantities
   void reset_linklist() { systemPtr->linklist.reset(); }
@@ -52,7 +65,7 @@ public:
 
   void update_all_particle_thermodynamics()
         { for ( auto & p : systemPtr->particles )
-            p.calcbsq( systemPtr->t ); }
+            calcbsq( p ); }
 
   void update_all_particle_viscosities()
         { for ( auto & p : systemPtr->particles )
@@ -73,6 +86,26 @@ public:
   void update_all_particles_dsigma_dt();
   void update_freeze_out_lists();
   void finalize_freeze_out(int curfrz);
+
+
+  // routines to edit particles directly
+  double locate_phase_diagram_point_eBSQ(
+          Particle & p, double e_In,
+          double rhoB_In, double rhoS_In, double rhoQ_In );
+  double locate_phase_diagram_point_eBSQ(
+          Particle & p, double e_In );
+  void locate_phase_diagram_point_sBSQ(
+          Particle & p, double s_In,
+          double rhoB_In, double rhoS_In, double rhoQ_In );
+  void locate_phase_diagram_point_sBSQ(
+          Particle & p, double s_In );
+
+  void set_particle_thermo( Particle & p );
+  void calcbsq( Particle & p );
+
+  // freeze-out routines
+  void bsqsvfreezeout(int curfrz);
+  void bsqsvinterpolate(int curfrz);
 
 
   // Move this into a different namespace or something?

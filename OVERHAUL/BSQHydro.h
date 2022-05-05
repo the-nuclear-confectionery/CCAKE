@@ -53,9 +53,6 @@ private:
   // all settings for the hydro simulation
   Settings settings;
 
-  // equation of state information
-  EquationOfState eos;
-
   // input/output
   InputOutput io;
 

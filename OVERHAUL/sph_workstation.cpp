@@ -8,11 +8,6 @@
 
 using namespace constants;
 
-////////////////////////////////////////////////////////////////////////////////
-void SPHWorkstation::set_EquationOfStatePtr( EquationOfState * eosPtr_in )
-{
-  eosPtr = eosPtr_in;
-}
 
 void SPHWorkstation::set_SystemStatePtr( SystemState * systemPtr_in )
 {
@@ -64,7 +59,7 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 					<< p.r(0) << "   " << p.r(1) << "\n";
 
       // solve for the entropy density
-			p.s_an = p.locate_phase_diagram_point_eBSQ(
+			p.s_an = locate_phase_diagram_point_eBSQ( p,
                     p.e_sub, p.rhoB_an, p.rhoS_an, p.rhoQ_an );
 
 			sw.Stop();
@@ -444,7 +439,7 @@ void SPHWorkstation::process_initial_conditions()
       systemPtr->particles.begin(),
       systemPtr->particles.end(),
       [this](Particle const & p)
-        { return !((this->eosPtr->conformal_diagonal_EoS).eBSQ_has_solution(
+        { return !((this->eos.conformal_diagonal_EoS).eBSQ_has_solution(
                     p.e_sub, p.rhoB_an, p.rhoS_an, p.rhoQ_an ) );
         } ),
       systemPtr->particles.end() );
@@ -853,7 +848,7 @@ void SPHWorkstation::update_freeze_out_lists()
 void SPHWorkstation::finalize_freeze_out(int curfrz)
 {
   if (systemPtr->cfon==1)
-    systemPtr->bsqsvfreezeout( curfrz );
+    bsqsvfreezeout( curfrz );
 
 
   // keep track of which particles have left EoS grid completely
@@ -914,3 +909,394 @@ void SPHWorkstation::get_time_derivatives()
 
   return;
 }
+
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+double SPHWorkstation::locate_phase_diagram_point_eBSQ( Particle & p,
+                 double e_In, double rhoB_In, double rhoS_In, double rhoQ_In )
+{
+  double current_sVal = s();
+  if ( Freeze == 5 )
+    return current_sVal;
+  else
+  {
+    // default: use particle's current location as initial guess (pass in corresponding EoS as well!)
+    eos.tbqs( p.T, p.muB, p.muQ, p.muS, p.eos_name );
+    bool solution_found = false;
+    double sVal = eos.s_out( e_In, rhoB_In, rhoS_In, rhoQ_In, solution_found );
+
+    // save results if either default or conformal EoS returned a result
+    // (assumes latter always succeeds)
+    if ( solution_found )
+      set_particle_thermo(p);
+    else
+      Freeze = 5; // new label for (totally decoupled) particles which go outside grid
+
+    return sVal;
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+double SPHWorkstation::locate_phase_diagram_point_eBSQ(Particle & p, double e_In)
+                 { return locate_phase_diagram_point_eBSQ( p, e_In, 0.0, 0.0, 0.0 ); }
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+void SPHWorkstation::locate_phase_diagram_point_sBSQ( Particle & p,
+                 double s_In, double rhoB_In, double rhoS_In, double rhoQ_In )
+{
+  if ( Freeze != 5 )
+  {
+    // default: use particle's current location as initial guess
+    eos.tbqs( p.T, p.muB, p.muQ, p.muS, p.eos_name );
+    bool update_s_success = eos.update_s( s_In, rhoB_In, rhoS_In, rhoQ_In );
+
+    if ( update_s_success )
+      set_particle_thermo(p);
+    else
+      Freeze = 5; // new label for (totally decoupled) particles which go outside grid
+  }
+  return;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void SPHWorkstation::locate_phase_diagram_point_sBSQ(Particle & p, double s_In) // previously update_s
+               { locate_phase_diagram_point_sBSQ( p, s_In, 0.0, 0.0, 0.0 ); }
+
+
+
+void SPHWorkstation::set_particle_thermo(Particle & p)
+{
+  p.eos_name = eos.get_current_eos_name();
+
+  p.T    = eos.T();
+  p.muB  = eos.muB();
+  p.muS  = eos.muS();
+  p.muQ  = eos.muQ();
+
+  p.p    = eos.p();
+  p.s    = eos.s();
+  p.rhoB = eos.B();
+  p.rhoS = eos.S();
+  p.rhoQ = eos.Q();
+  p.e    = eos.e();
+  p.w    = eos.w();
+  p.A    = eos.A();
+  p.cs2  = eos.cs2();
+  p.dwds = eos.dwds();
+  p.dwdB = eos.dwdB();
+  p.dwdS = eos.dwdS();
+  p.dwdQ = eos.dwdQ();
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+//  Computes gamma and velocity
+void SPHWorkstation::calcbsq(Particle & p)
+{
+  p.gamma           = p.gamcalc();
+  p.v               = (1.0/p.gamma)*p.u;
+  double s_lab    = p.eta/p.gamma/systemPtr->t;
+  double rhoB_lab = p.rhoB_sub/p.gamma/systemPtr->t;
+  double rhoS_lab = p.rhoS_sub/p.gamma/systemPtr->t;
+  double rhoQ_lab = p.rhoQ_sub/p.gamma/systemPtr->t;
+  p.qmom            = ( (p.e()+p.p())*p.gamma/p.sigma )*p.u;
+	locate_phase_diagram_point_sBSQ( p, s_lab, rhoB_lab, rhoS_lab, rhoQ_lab );
+}
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////
+void SPHWorkstation::bsqsvfreezeout(int curfrz)
+{
+  cout << "CHECK BSQSVFREEZEOUT: " << systemPtr->frzc
+        << "   " << systemPtr->tau << "   " << systemPtr->taup
+        << "   " << systemPtr->taupp << "   " << systemPtr->cfon << endl;
+
+  if (systemPtr->frzc==0)
+  {
+    systemPtr->taupp = systemPtr->t;
+    systemPtr->frzc  = 1;
+    for (auto & p : systemPtr->particles)
+    {
+      p.frz2.r       = p.r;
+      p.frz2.u       = p.u;
+      p.frz2.sigma   = p.sigma;
+      p.frz2.T       = p.T();
+      p.frz2.muB     = p.muB();
+      p.frz2.muS     = p.muS();
+      p.frz2.muQ     = p.muQ();
+      p.frz2.e       = p.e();
+      p.frz2.rhoB    = p.rhoB();
+      p.frz2.rhoS    = p.rhoS();
+      p.frz2.rhoQ    = p.rhoQ();
+      p.frz2.bulk    = p.bigPI;
+      p.frz2.theta   = p.div_u + p.gamma/t;
+      p.frz2.gradP   = p.gradP;
+      p.frz2.shear   = p.shv;
+      p.frz2.shear33 = p.shv33;
+      p.frz2.inside  = p.inside;
+    }
+
+  }
+  else if (systemPtr->frzc==1)
+  {
+    systemPtr->taup = systemPtr->t;
+    systemPtr->frzc = 2;
+    for (auto & p : systemPtr->particles)
+    {
+      p.frz1.r       = p.r;
+      p.frz1.u       = p.u;
+      p.frz1.sigma   = p.sigma;
+      p.frz1.T       = p.T();
+      p.frz1.muB     = p.muB();
+      p.frz1.muS     = p.muS();
+      p.frz1.muQ     = p.muQ();
+      p.frz1.e       = p.e();
+      p.frz1.rhoB    = p.rhoB();
+      p.frz1.rhoS    = p.rhoS();
+      p.frz1.rhoQ    = p.rhoQ();
+      p.frz1.bulk    = p.bigPI;
+      p.frz1.theta   = p.div_u + p.gamma/t;
+      p.frz1.gradP   = p.gradP;
+      p.frz1.shear   = p.shv;
+      p.frz1.shear33 = p.shv33;
+      p.frz1.inside  = p.inside;
+    }
+
+    systemPtr->divTtemp.resize( curfrz );
+    systemPtr->divT.resize( curfrz );
+    systemPtr->gsub.resize( curfrz );
+    systemPtr->uout.resize( curfrz );
+    systemPtr->swsub.resize( curfrz );
+    systemPtr->bulksub.resize( curfrz );
+    systemPtr->shearsub.resize( curfrz );
+    systemPtr->shear33sub.resize( curfrz );
+    systemPtr->tlist.resize( curfrz );
+    systemPtr->rsub.resize( curfrz );
+
+    if ( curfrz > 0 )
+      bsqsvinterpolate( curfrz );
+    else
+      systemPtr->cf = 0;
+  }
+  else
+  {
+    int i_local = 0;
+    for (auto & p : systemPtr->particles)
+    {
+      if ( p.Freeze < 4 )
+      {
+        if ( ( p.btrack <= 3 ) && ( p.btrack > 0 ) )
+        {
+          p.fback4 = p.fback2;
+          p.fback3 = p.fback;
+          p.fback2 = p.frz2;
+          p.fback  = p.frz1;
+        }
+        else if ( p.btrack == 0 )
+        {
+          if ( p.fback.gradP(0) != 0 )
+          {
+            p.frz2 = p.fback2;
+            p.frz1 = p.fback;
+          }
+          else
+          {
+            p.frz2 = p.fback4;
+            p.frz1 = p.fback3;
+            cout << "back second"  << endl;
+          }
+
+
+          curfrz++;
+          systemPtr->list.push_back( i_local );
+          p.Freeze = 4;
+          p.btrack = -1;
+        }
+      }
+
+      i_local++;
+    }
+
+    systemPtr->tau = systemPtr->t;
+
+    // resize vectors
+    systemPtr->divTtemp.resize( curfrz );
+    systemPtr->divT.resize( curfrz );
+    systemPtr->gsub.resize( curfrz );
+    systemPtr->uout.resize( curfrz );
+    systemPtr->swsub.resize( curfrz );
+    systemPtr->bulksub.resize( curfrz );
+    systemPtr->shearsub.resize( curfrz );
+    systemPtr->shear33sub.resize( curfrz );
+    systemPtr->tlist.resize( curfrz );
+    systemPtr->rsub.resize( curfrz );
+
+    if ( curfrz > 0 )
+      bsqsvinterpolate( curfrz );
+    else
+      systemPtr->cf = 0;
+
+
+    //sets up the variables for the next time step
+    for (auto & p : systemPtr->particles)
+    {
+      p.frz2         = p.frz1;
+
+      p.frz1.r       = p.r;
+      p.frz1.u       = p.u;
+      p.frz1.sigma   = p.sigma;
+      p.frz1.T       = p.T();
+      p.frz1.muB     = p.muB();
+      p.frz1.muS     = p.muS();
+      p.frz1.muQ     = p.muQ();
+      p.frz1.e       = p.e();
+      p.frz1.rhoB    = p.rhoB();
+      p.frz1.rhoS    = p.rhoS();
+      p.frz1.rhoQ    = p.rhoQ();
+      p.frz1.bulk    = p.bigPI ;
+      p.frz1.theta   = p.div_u+p.gamma/systemPtr->t;
+      p.frz1.gradP   = p.gradP;
+      p.frz1.shear   = p.shv;
+      p.frz1.shear33 = p.shv33;
+      p.frz1.inside  = p.inside;
+    }
+
+    systemPtr->taupp = systemPtr->taup;
+    systemPtr->taup  = systemPtr->tau;
+  }
+
+  systemPtr->cfon = 0;
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+void SPHWorkstation::bsqsvinterpolate(int curfrz)
+{
+  systemPtr->sFO.resize( curfrz, 0 );
+  systemPtr->Tfluc.resize( curfrz, 0 );
+
+  for (int j=0; j<curfrz; j++)
+  {
+    int i    = systemPtr->list[j];
+    auto & p = systemPtr->particles[i];
+
+    int swit = 0;
+    if ( abs( p.frz1.e - systemPtr->efcheck ) < abs( p.frz2.e - systemPtr->efcheck ) )
+      swit   = 1;
+    else
+      swit   = 2;
+
+    double sigsub = 0.0, thetasub = 0.0, inside = 0.0;
+    Vector<double,2> gradPsub;
+    if ( swit == 1 )
+    {
+      if ( p.btrack != -1 )
+        systemPtr->tlist[j]    = systemPtr->taup;
+      else
+        systemPtr->tlist[j]    = systemPtr->taup - systemPtr->dt;
+
+      systemPtr->rsub[j]       = p.frz1.r;
+      systemPtr->uout[j]       = p.frz1.u;
+      systemPtr->bulksub[j]    = p.frz1.bulk;
+      systemPtr->shearsub[j]   = p.frz1.shear;
+      systemPtr->shear33sub[j] = p.frz1.shear33;
+
+      gradPsub      = p.frz1.gradP;
+      inside        = p.frz1.inside;
+      sigsub        = p.frz1.sigma;
+      thetasub      = p.frz1.theta;
+      systemPtr->Tfluc[j]      = p.frz1.T;             // replace with e
+    }
+    else if ( swit == 2 )
+    {
+      if ( p.btrack != -1 )
+        systemPtr->tlist[j]    = systemPtr->taupp;
+      else
+        systemPtr->tlist[j]    = systemPtr->taupp - systemPtr->dt;
+
+      systemPtr->rsub[j]       = p.frz2.r;
+      systemPtr->uout[j]       = p.frz2.u;
+      systemPtr->bulksub[j]    = p.frz2.bulk;
+      systemPtr->shearsub[j]   = p.frz2.shear;
+      systemPtr->shear33sub[j] = p.frz2.shear33;
+
+      gradPsub      = p.frz2.gradP;
+      inside        = p.frz2.inside;
+      sigsub        = p.frz2.sigma;
+      thetasub      = p.frz2.theta;
+      systemPtr->Tfluc[j]      = p.frz2.T;           // replace with e
+    }
+    else
+    {
+      cout << __PRETTY_FUNCTION__ << ": Not at freeze-out temperature" << endl;
+    }
+
+    systemPtr->sFO[j]       = eos.s_terms_T( Tfluc[j] );  // replace with e, BSQ
+
+    systemPtr->gsub[j]      = sqrt( Norm2(systemPtr->uout[j]) + 1 );
+
+
+    sigsub      /= systemPtr->gsub[j]*systemPtr->tlist[j];
+    swsub[j]     = p.sigmaweight/sigsub;
+
+    systemPtr->divT[j]      = (1.0/systemPtr->sFO[j])*gradPsub;
+    systemPtr->divTtemp[j]  = -(1.0/(systemPtr->gsub[j]*systemPtr->sFO[j]))
+                      *( cs2 * (systemPtr->wfz+bulksub[j]) * thetasub
+                        - cs2*inside+inner(uout[j], gradPsub) );
+//THIS NEEDS TO BE RESET
+
+
+    double insub = systemPtr->divTtemp[j]*systemPtr->divTtemp[j] - Norm2(systemPtr->divT[j]);
+    double norm  = -sqrt(abs(insub));
+    systemPtr->divTtemp[j] /= norm;
+    systemPtr->divT[j]      = (1.0/norm)*systemPtr->divT[j];
+
+
+    if ( systemPtr->divTtemp[j] == 1 )
+    {
+      cout << "track sph=" << p.btrack << " " << i << endl;
+      cout << systemPtr->divTtemp[j] << " " << systemPtr->divT[j] << " " << norm << endl;
+      cout << gradPsub << " " << thetasub << endl;
+      cout << systemPtr->tlist[j] << " " << p.r << endl;
+      cout << p.frz1.gradP << " " << p.frz2.gradP << endl;
+      cout << p.frz1.T*197.3<< " " << p.frz2.T*197.3 << endl;
+      getchar();
+    }
+
+    avgetasig += systemPtr->sFO[j]/sigsub;
+
+    if(isnan(systemPtr->divTtemp[j]))
+    {
+      cout << "divtemp" << endl;
+      cout << systemPtr->divTtemp[j] << " " << systemPtr->divT[j] << " " << norm << endl;
+      cout << gradPsub << " " << thetasub << endl;
+      cout << bulksub[j] << endl;
+      cout << gsub[j] << endl;
+      cout << systemPtr->tlist[j] << " " << p.r << endl;
+      cout << p.frz1.T*0.1973<< " " << p.frz2.T*0.1973<< endl;
+    }
+
+    systemPtr->sFO[j]   *= pow(systemPtr->Tfluc[j]*0.1973, 3);
+    systemPtr->Tfluc[j] *= 0.1973;
+
+  }
+
+  systemPtr->cf = curfrz;
+}
+///////////////////////////////////////////////////////////////////////////////////
