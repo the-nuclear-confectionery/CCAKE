@@ -1,7 +1,7 @@
-OBJS = main.o vector.o matrix.o BSQHydro.o particle.o eos.o \
+OBJS = main.o vector.o matrix.o BSQHydro.o particle.o eos.o transport_coefficients.o \
        system_state.o linklist.o eos_delaunay.o \
 			 kernel.o sph_workstation.o input_output.o rootfinder.o eos_table.o \
-			 eos_extension.o transport_coefficients.o
+			 eos_extension.o
 #CC = g++
 CC = h5c++
 #DEBUG = -g -D_GLIBCXX_CONCEPT_CHECKS -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC

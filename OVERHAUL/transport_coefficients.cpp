@@ -141,25 +141,25 @@ void TransportCoefficients::initialize()
     if (etaType == "constant")
     {
         eta_T_OV_w_IN = stod(etaOption);
-        eta = std::bind(constEta);
+        eta = std::bind(constEta, this);
     }
     else if (etaType == "JakiParam")
     {
-        eta = std::bind(JakiParam);
+        eta = std::bind(JakiParam, this);
     }
     else if (etaType == "LinearMus")
     {
-        eta = std::bind(LinearMusParam);
+        eta = std::bind(LinearMusParam, this);
     }
     else if (etaType == "interpolate")
     {
         //use etaOption to find directory of table, then
         // execute interpolation
-        eta = std::bind(InterpolantWrapper);
+        eta = std::bind(InterpolantWrapper, this);
     }
     else if (etaType == "NoShear")
     {
-        eta = std::bind(NoShear);
+        eta = std::bind(NoShear, this);
     }
     else
     {
@@ -170,7 +170,7 @@ void TransportCoefficients::initialize()
 // SET SHEAR RELAXATION
     if (tauShearType == "Default")
     {
-        tauShear = std::bind(tauShearMinval);
+        tauShear = std::bind(tauShearMinval, this);
     }
     else if (tauShearType == "Gubser")
     {
@@ -188,7 +188,7 @@ void TransportCoefficients::initialize()
             " Now exiting." << endl;
             exit(1);
         }
-        tauShear = std::bind(tauShearGubser);
+        tauShear = std::bind(tauShearGubser, this);
     }
     else
     {
@@ -200,17 +200,17 @@ void TransportCoefficients::initialize()
 // SET BULK VISCOSITY
     if (zetaType == "Default")
     {
-        zeta = std::bind(zeta_DNMR_LeadingMass);
+        zeta = std::bind(zeta_DNMR_LeadingMass, this);
     }
     else if (zetaType == "NoBulk")
     {
-        zeta = std::bind(NoBulk);
+        zeta = std::bind(NoBulk, this);
     }
     else if (zetaType == "interpolate")
     {
         //use zetaOption to find directory of table, then
         // execute interpolation
-        zeta = std::bind(InterpolantWrapper);
+        zeta = std::bind(InterpolantWrapper, this);
     }
     else
     {
@@ -221,7 +221,7 @@ void TransportCoefficients::initialize()
 // SET BULK RELAXATION
     if (tauBulkType == "Default")
     {
-        tauBulk = std::bind(tauBulk_DNMR_LeadingMass);
+        tauBulk = std::bind(tauBulk_DNMR_LeadingMass, this);
     }
     else 
     {
