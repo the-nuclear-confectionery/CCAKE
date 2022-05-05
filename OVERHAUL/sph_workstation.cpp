@@ -2,7 +2,6 @@
 #include <memory>
 
 #include "constants.h"
-//#include "eos_conformal_diagonal.h"
 #include "sph_workstation.h"
 #include "Stopwatch.h"
 
@@ -19,9 +18,6 @@ void SPHWorkstation::set_SettingsPtr( Settings * settingsPtr_in )
   settingsPtr = settingsPtr_in;
 }
 
-
-/* not sure it makes sense for this to be its own
-separate function? */
 void SPHWorkstation::reset_pi_tensor()
 {
   for ( auto & p : systemPtr->particles )
@@ -435,15 +431,6 @@ void SPHWorkstation::process_initial_conditions()
     //==========================================================================
     // cut out particles whose energy density is too small for charge densities
     // remove particles with no possible solutions
-//    systemPtr->particles.erase( std::remove_if(
-//      systemPtr->particles.begin(),
-//      systemPtr->particles.end(),
-//      [this](Particle const & p)
-//        { return !((this->eos.conformal_diagonal_EoS).eBSQ_has_solution(
-//                    p.e_sub, p.rhoB_an, p.rhoS_an, p.rhoQ_an ) );
-//        } ),
-//      systemPtr->particles.end() );
-
     systemPtr->particles.erase( std::remove_if(
       systemPtr->particles.begin(),
       systemPtr->particles.end(),
@@ -1306,4 +1293,19 @@ double SPHWorkstation::gradPressure_weight(const int a, const int b)
   return pb.sigmaweight * pa.sigma
         * ( pb.p() / (pb.sigma*pb.sigma)
           + pa.p() / (pa.sigma*pb.sigma) - innerp );
+}
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+void SPHWorkstation::setvisc(Particle & p)
+{
+  tc.setTherm( p.thermo );
+  p.setas     = tc.getEta();
+  p.stauRelax = tc.getTauShear();
+  p.zeta      = tc.getZeta();
+  p.tauRelax  = tc.getTauBulk();
 }

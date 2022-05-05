@@ -25,11 +25,12 @@ class TransportCoefficients
 
     void set_SettingsPtr( Settings * settingsPtr_in );
 
-    void initialize();
+    void initialize(  string & etaType_in      == "default",
+                      string & tauShearType_in == "default",
+                      string & zetaType_in     == "default",
+                      string & tauBulkType_in  == "default" );
 
-    void setTherm(thermodynamic_info & thermo_from_particle); //maybe constructor??
-    // change input to unordered map???? I think better that way so trcoef
-    // doesnt need to be friends with particle
+    void setTherm(thermodynamic_info & thermo_from_particle);
 
     double getEta();
     double getZeta();

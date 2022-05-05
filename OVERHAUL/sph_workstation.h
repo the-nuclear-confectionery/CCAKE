@@ -21,7 +21,7 @@ private:
   Settings        * settingsPtr          = nullptr;
 
   EquationOfState eos;
-//  TransportCoefficients tc;
+  TransportCoefficients tc;
 
 
 public:
@@ -42,14 +42,14 @@ public:
     eos.init();
 
     // set up transport coefficients
-//    tc.set_SettingsPtr( settingsPtr );
-//    tc.initialize();
+    tc.set_SettingsPtr( settingsPtr );
+    tc.initialize();
 
+    // set freeze-out properties
     settingsPtr->efcheck = eos.efreeze(settingsPtr->Freeze_Out_Temperature);
     settingsPtr->sfcheck = eos.sfreeze(settingsPtr->Freeze_Out_Temperature);
     systemPtr->efcheck   = settingsPtr->efcheck;
     systemPtr->sfcheck   = settingsPtr->sfcheck;
-
   }
 
   // routines for resetting quantities
@@ -112,6 +112,8 @@ public:
           Particle & p, double s_In );
 
   void calcbsq( Particle & p );
+  void setvisc( Particle & p );
+
 
   // freeze-out routines
   void bsqsvfreezeout(int curfrz);

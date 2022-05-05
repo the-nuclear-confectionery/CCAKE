@@ -43,9 +43,7 @@ public:
 
 /* INTS */
   static constexpr int VERBOSE = 5;
-  //static constexpr double q=1.;
 
-  //int _n  = 0;
   int start = 0;
   int end   = 0;
   int fnum  = 0;

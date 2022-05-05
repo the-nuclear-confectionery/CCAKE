@@ -460,7 +460,6 @@ bool EquationOfState::rootfinder_update_s(double sin, double Bin, double Sin, do
     if (!solution_found)
     {
       // try conformal diagonal seed
-//      result = conformal_diagonal_EoS.get_tbqs_seed_from_sBSQ( sin, Bin, Sin, Qin );
       auto conformal_diagonal_EoS = std::dynamic_pointer_cast<EoS_conformal_diagonal>
                                         ( chosen_EOS_map["conformal_diagonal"] );
 
@@ -576,7 +575,7 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
     // try conformal diagonal seed next
     if (!solution_found)
     {
-//      result = conformal_diagonal_EoS.get_tbqs_seed_from_eBSQ( ein, Bin, Sin, Qin );
+      // try conformal diagonal seed
       auto conformal_diagonal_EoS = std::dynamic_pointer_cast<EoS_conformal_diagonal>
                                         ( chosen_EOS_map["conformal_diagonal"] );
 

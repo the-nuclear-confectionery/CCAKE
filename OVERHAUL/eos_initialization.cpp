@@ -93,9 +93,6 @@ void EquationOfState::init(string quantityFile, string derivFile)
                             c, T0, muB0, muS0, muQ0,
                             tbqs_minima, tbqs_maxima, "conformal_diagonal" ) );
 
-//    conformal_diagonal_EoS = EoS_conformal_diagonal( c, T0, muB0, muS0, muQ0,
-//                                                     tbqs_minima, tbqs_maxima,
-//                                                     "conformal_diagonal" );
     default_eos_name = "conformal_diagonal";
 
   }
@@ -306,9 +303,6 @@ void EquationOfState::init(string quantityFile, string derivFile)
                               c, T0, muB0, muS0, muQ0,
                               tbqs_minima, tbqs_maxima, "conformal_diagonal" ) );
 
-//      conformal_diagonal_EoS = EoS_conformal_diagonal( c, T0, muB0, muS0, muQ0,
-//                                                       tbqs_minima, tbqs_maxima,
-//                                                       "conformal_diagonal" );
     }
 
 

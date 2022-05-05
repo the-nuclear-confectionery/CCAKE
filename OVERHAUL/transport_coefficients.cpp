@@ -46,6 +46,13 @@ double TransportCoefficients::getTauBulk()  { return tauBulk();  }
 //////////////////////////////////////////////////////////////
 //////////////possible function choices for eta//////////////
 ////////////////////////////////////////////////////////////
+double TransportCoefficients::default_eta()
+{
+  double eta_over_s = 0.20;
+  return therm.s * eta_over_s;
+}
+
+
 double TransportCoefficients::constEta()
 {
     double w = therm.w;
@@ -91,6 +98,12 @@ double TransportCoefficients::NoShear()
 //////////////////////////////////////////////////////////////
 ////////possible function choices for shear relaxation///////
 ////////////////////////////////////////////////////////////
+double TransportCoefficients::default_tauShear()
+{
+  return std::max( 5.0*eta()/therm.w, 0.005 );
+}
+
+
 double TransportCoefficients::tauShearGubser()
 {
     double w = therm.w;
@@ -113,6 +126,13 @@ double TransportCoefficients::tauShearMinval()
 //////////////////////////////////////////////////////////////
 //////////////possible function choices for zeta//////////////
 ////////////////////////////////////////////////////////////
+double TransportCoefficients::default_zeta()
+{
+  double zeta_over_s = 0.005;
+  return therm.s * zeta_over_s;
+}
+
+
 double TransportCoefficients::zeta_DNMR_LeadingMass()
 {
     //add this in later.. for now no bulk
@@ -126,6 +146,11 @@ double TransportCoefficients::NoBulk()
 //////////////////////////////////////////////////////////////
 ////////possible function choices for bulk relaxation///////
 ////////////////////////////////////////////////////////////
+double TransportCoefficients::default_tauBulk()
+{
+  return std::max( 5.0*zeta()/(pow((1.0-therm.cs2),2.0)*therm.w), 0.1 );
+}
+
 double TransportCoefficients::tauBulk_DNMR_LeadingMass()
 {
     //add this in later.. for now no bulk
@@ -135,100 +160,124 @@ double TransportCoefficients::tauBulk_DNMR_LeadingMass()
 //////////////////////////////////////////////////
 //////INITIALIZE THE TRANSPORT COEFFICIENTS//////
 ////////////////////////////////////////////////
-void TransportCoefficients::initialize()
+void TransportCoefficients::initialize( string & etaType_in,
+                                        string & tauShearType_in,
+                                        string & zetaType_in,
+                                        string & tauBulkType_in )
 {
-    //SET SHEAR VISCOSITY
-    if (etaType == "constant")
-    {
-        eta_T_OV_w_IN = stod(etaOption);
-        eta = [this]{ return constEta(); };
-    }
-    else if (etaType == "JakiParam")
-    {
-        eta = [this]{ return JakiParam(); };
-    }
-    else if (etaType == "LinearMus")
-    {
-        eta = [this]{ return LinearMusParam(); };
-    }
-    else if (etaType == "interpolate")
-    {
-        //use etaOption to find directory of table, then
-        // execute interpolation
-        eta = [this]{ return InterpolantWrapper(); };
-    }
-    else if (etaType == "NoShear")
-    {
-        eta = [this]{ return NoShear(); };
-    }
-    else
-    {
-        cout << "Shear viscosity specification not recognized. Now exiting." << endl;
-        exit(1);
-    }
+  etaType      = etaType_in;
+  tauShearType = tauShearType_in;
+  zetaType     = zetaType_in;
+  tauBulkType  = tauBulkType_in;
+
+  //SET SHEAR VISCOSITY
+  if (etaType == "default")
+  {
+      eta = [this]{ return default_eta(); };
+  }
+  else if (etaType == "constant")
+  {
+      eta_T_OV_w_IN = stod(etaOption);
+      eta = [this]{ return constEta(); };
+  }
+  else if (etaType == "JakiParam")
+  {
+      eta = [this]{ return JakiParam(); };
+  }
+  else if (etaType == "LinearMus")
+  {
+      eta = [this]{ return LinearMusParam(); };
+  }
+  else if (etaType == "interpolate")
+  {
+      //use etaOption to find directory of table, then
+      // execute interpolation
+      eta = [this]{ return InterpolantWrapper(); };
+  }
+  else if (etaType == "NoShear")
+  {
+      eta = [this]{ return NoShear(); };
+  }
+  else
+  {
+      cout << "Shear viscosity specification not recognized. Now exiting." << endl;
+      exit(1);
+  }
 
 // SET SHEAR RELAXATION
-    if (tauShearType == "Default")
-    {
-        tauShear = [this]{ return tauShearMinval(); };
-    }
-    else if (tauShearType == "Gubser")
-    {
-        /* these consistency checks maybe should be done in settings.h? */
-        if (etaType != "constant")
-        {
-            cout << "Shear viscosity must be constant for Gubser. "
-                    "Check Input_Parameters.  Now exiting." << endl;
-            exit(1);
-        }
-        if (zetaType != "NoBulk")
-        {
-            cout << "Bulk viscosity must be conformal "
-            " for Gubser. Check Input_Parameters.  "
-            " Now exiting." << endl;
-            exit(1);
-        }
-        tauShear = [this]{ return tauShearGubser(); };
-    }
-    else
-    {
-        cout << "Tau shear specification not "
-        "recognized. Now exiting." << endl;
-        exit(1);
-    }
+  if (tauShearType == "default")
+  {
+      tauShear = [this]{ return default_tauShear(); };
+  }
+  else if (tauShearType == "minVal")
+  {
+      tauShear = [this]{ return tauShearMinval(); };
+  }
+  else if (tauShearType == "Gubser")
+  {
+      /* these consistency checks maybe should be done in settings.h? */
+      if (etaType != "constant")
+      {
+          cout << "Shear viscosity must be constant for Gubser. "
+                  "Check Input_Parameters.  Now exiting." << endl;
+          exit(1);
+      }
+      if (zetaType != "NoBulk")
+      {
+          cout << "Bulk viscosity must be conformal "
+          " for Gubser. Check Input_Parameters.  "
+          " Now exiting." << endl;
+          exit(1);
+      }
+      tauShear = [this]{ return tauShearGubser(); };
+  }
+  else
+  {
+      cout << "Tau shear specification not "
+      "recognized. Now exiting." << endl;
+      exit(1);
+  }
 
 // SET BULK VISCOSITY
-    if (zetaType == "Default")
-    {
-        zeta = [this]{ return zeta_DNMR_LeadingMass(); };
-    }
-    else if (zetaType == "NoBulk")
-    {
-        zeta = [this]{ return NoBulk(); };
-    }
-    else if (zetaType == "interpolate")
-    {
-        //use zetaOption to find directory of table, then
-        // execute interpolation
-        zeta = [this]{ return InterpolantWrapper(); };
-    }
-    else
-    {
-        cout << "Bulk viscosity specification not recognized. Now exiting." << endl;
-        exit(1);
-    }
+  if (zetaType == "default")
+  {
+      zeta = [this]{ return default_zeta(); };
+  }
+  else if (zetaType == "DNMR")
+  {
+      zeta = [this]{ return zeta_DNMR_LeadingMass(); };
+  }
+  else if (zetaType == "NoBulk")
+  {
+      zeta = [this]{ return NoBulk(); };
+  }
+  else if (zetaType == "interpolate")
+  {
+      //use zetaOption to find directory of table, then
+      // execute interpolation
+      zeta = [this]{ return InterpolantWrapper(); };
+  }
+  else
+  {
+      cout << "Bulk viscosity specification not recognized. Now exiting." << endl;
+      exit(1);
+  }
 
 // SET BULK RELAXATION
-    if (tauBulkType == "Default")
-    {
-        tauBulk = [this]{ return tauBulk_DNMR_LeadingMass(); };
-    }
-    else 
-    {
-        cout << "Tau bulk specification not "
-        "recognized. Now exiting." << endl;
-        exit(1);   
-    }
+  if (tauBulkType == "default")
+  {
+      tauBulk = [this]{ return default_tauBulk(); };
+  }
+  else if (tauBulkType == "DNMR")
+  {
+      tauBulk = [this]{ return tauBulk_DNMR_LeadingMass(); };
+  }
+  else 
+  {
+      cout << "Tau bulk specification not "
+      "recognized. Now exiting." << endl;
+      exit(1);   
+  }
 
 
 }

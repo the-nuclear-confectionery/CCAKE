@@ -250,25 +250,25 @@ void Particle::update_fluid_quantities( double tin )
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void Particle::setvisc( int etaconst, double bvf, double svf, double zTc,
-                        double sTc, double sig, int type )
-{
-  setas     = s()*svf;
-
-  stauRelax = 5*setas/w();
-  if (!settingsPtr->using_Gubser && stauRelax < 0.005) stauRelax = 0.005;
-
-  /*if (abs(bvf) > 1e-6)
-  {
-    cerr << "You need to replace setvisc!!!" << endl;
-    exit(1);
-  }
-  zeta = 0;
-  tauRelax = 1;*/
-  zeta = s()*bvf;
-  tauRelax = 5.*zeta/(pow((1.0-cs2()),2.0)*w());
-  if (tauRelax < 0.1) tauRelax=0.1;
-}
+//void Particle::setvisc( int etaconst, double bvf, double svf, double zTc,
+//                        double sTc, double sig, int type )
+//{
+//  setas     = s()*svf;
+//
+//  stauRelax = 5*setas/w();
+//  if (!settingsPtr->using_Gubser && stauRelax < 0.005) stauRelax = 0.005;
+//
+//  /*if (abs(bvf) > 1e-6)
+//  {
+//    cerr << "You need to replace setvisc!!!" << endl;
+//    exit(1);
+//  }
+//  zeta = 0;
+//  tauRelax = 1;*/
+//  zeta = s()*bvf;
+//  tauRelax = 5.*zeta/(pow((1.0-cs2()),2.0)*w());
+//  if (tauRelax < 0.1) tauRelax=0.1;
+//}
 
 
 
