@@ -253,7 +253,7 @@ public:
     auto conformal_diagonal_EoS
             = std::dynamic_pointer_cast<EoS_conformal_diagonal>
                         ( chosen_EOS_map["conformal_diagonal"] );
-    return conformal_diagonal_EoS.eBSQ_has_solution( e_in, B_in, S_in, Q_in );
+    return conformal_diagonal_EoS->eBSQ_has_solution( e_in, B_in, S_in, Q_in );
   }
 
 };
