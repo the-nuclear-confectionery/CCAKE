@@ -35,6 +35,7 @@ public:
   // initialize workstation (now includes eos initialization)
   void initialize()
   {
+    eos.set_SettingsPtr( settingsPtr );
     eos.init();
 
     settingsPtr->efcheck = eos.efreeze(settingsPtr->Freeze_Out_Temperature);
