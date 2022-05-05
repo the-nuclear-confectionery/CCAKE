@@ -25,10 +25,10 @@ class TransportCoefficients
 
     void set_SettingsPtr( Settings * settingsPtr_in );
 
-    void initialize(  string & etaType_in      == "default",
-                      string & tauShearType_in == "default",
-                      string & zetaType_in     == "default",
-                      string & tauBulkType_in  == "default" );
+    void initialize(  string & etaType_in      = "default",
+                      string & tauShearType_in = "default",
+                      string & zetaType_in     = "default",
+                      string & tauBulkType_in  = "default" );
 
     void setTherm(thermodynamic_info & thermo_from_particle);
 
@@ -46,6 +46,13 @@ class TransportCoefficients
     load in directly?? Similar qeustion for EOS..*/
     string tauShearType, tauBulkType;
 
+    // Chris' defaults
+    double default_eta();
+    double default_tauShear();
+    double default_zeta();
+    double default_tauBulk();
+
+    // other parmaterizations (not organized yet)
     double constEta();
     double eta_T_OV_w_IN;
     double JakiParam();
