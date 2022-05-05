@@ -250,7 +250,7 @@ public:
         double e_in, double B_in, double S_in, double Q_in )
   {
     // select the currently defined conformal-diagonal EoS instance
-    auto & conformal_diagonal_EoS
+    auto conformal_diagonal_EoS
             = std::dynamic_pointer_cast<EoS_conformal_diagonal>
                         ( chosen_EOS_map["conformal_diagonal"] );
     return conformal_diagonal_EoS.eBSQ_has_solution( e_in, B_in, S_in, Q_in );
