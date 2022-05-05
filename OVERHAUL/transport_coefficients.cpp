@@ -151,13 +151,13 @@ void TransportCoefficients::initialize()
     {
         eta = std::bind(LinearMusParam);
     }
-    else if (etaType = "interpolate")
+    else if (etaType == "interpolate")
     {
         //use etaOption to find directory of table, then
         // execute interpolation
         eta = std::bind(InterpolantWrapper);
     }
-    else if (etaType = "NoShear")
+    else if (etaType == "NoShear")
     {
         eta = std::bind(NoShear);
     }
@@ -198,15 +198,15 @@ void TransportCoefficients::initialize()
     }
 
 // SET BULK VISCOSITY
-    if (zetaType = "Default")
+    if (zetaType == "Default")
     {
         zeta = std::bind(zeta_DNMR_LeadingMass);
     }
-    else if (zetaType = "NoBulk")
+    else if (zetaType == "NoBulk")
     {
         zeta = std::bind(NoBulk);
     }
-    else if (zetaType = "interpolate")
+    else if (zetaType == "interpolate")
     {
         //use zetaOption to find directory of table, then
         // execute interpolation
