@@ -137,7 +137,7 @@ public:
     vector<pEoS_base> chosen_EOSs;     // the vector of EoSs to use, in order
 
     // use this specifically to make educated guesses for seed values, etc.
-    EoS_conformal_diagonal conformal_diagonal_EoS;
+//    EoS_conformal_diagonal conformal_diagonal_EoS;
 
 private:
 
@@ -243,5 +243,17 @@ public:
   string get_current_eos_name() { return current_eos_name; }
   void run_closure_test();
 
+  //============================================================================
+  // function to check whether conformal-diagonal EoS instance
+  // yields a real solution for this (e,B,S,Q) combination
+  bool eBSQ_has_solution_in_conformal_diagonal
+        double e_in, double B_in, double S_in, double Q_in )
+  {
+    // select the currently defined conformal-diagonal EoS instance
+    auto & conformal_diagonal_EoS
+            = std::dynamic_pointer_cast<EoS_conformal_diagonal>
+                        ( chosen_EOS_map["conformal_diagonal"] );
+    return conformal_diagonal_EoS.eBSQ_has_solution( e_in, B_in, S_in, Q_in );
+  }
 
 };

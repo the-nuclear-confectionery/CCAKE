@@ -2,7 +2,7 @@
 #include <memory>
 
 #include "constants.h"
-#include "eos_conformal_diagonal.h"
+//#include "eos_conformal_diagonal.h"
 #include "sph_workstation.h"
 #include "Stopwatch.h"
 
@@ -435,14 +435,25 @@ void SPHWorkstation::process_initial_conditions()
     //==========================================================================
     // cut out particles whose energy density is too small for charge densities
     // remove particles with no possible solutions
+//    systemPtr->particles.erase( std::remove_if(
+//      systemPtr->particles.begin(),
+//      systemPtr->particles.end(),
+//      [this](Particle const & p)
+//        { return !((this->eos.conformal_diagonal_EoS).eBSQ_has_solution(
+//                    p.e_sub, p.rhoB_an, p.rhoS_an, p.rhoQ_an ) );
+//        } ),
+//      systemPtr->particles.end() );
+
     systemPtr->particles.erase( std::remove_if(
       systemPtr->particles.begin(),
       systemPtr->particles.end(),
-      [this](Particle const & p)
-        { return !((this->eos.conformal_diagonal_EoS).eBSQ_has_solution(
+      [this](Particle const & p)  // apply lambda to all particles;
+        {                         // check if eBSQ combo has real solution
+          return !(this->eos.eBSQ_has_solution_in_conformal_diagonal(
                     p.e_sub, p.rhoB_an, p.rhoS_an, p.rhoQ_an ) );
         } ),
       systemPtr->particles.end() );
+
 
 
 
