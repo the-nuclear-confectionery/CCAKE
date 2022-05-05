@@ -460,7 +460,9 @@ bool EquationOfState::rootfinder_update_s(double sin, double Bin, double Sin, do
     if (!solution_found)
     {
       // try conformal diagonal seed
-      result = conformal_diagonal_EoS.get_tbqs_seed_from_sBSQ( sin, Bin, Sin, Qin );
+//      result = conformal_diagonal_EoS.get_tbqs_seed_from_sBSQ( sin, Bin, Sin, Qin );
+      result = chosen_EOS_map["conformal_diagonal"]->get_tbqs_seed_from_sBSQ
+                                                      ( sin, Bin, Sin, Qin );
       solution_found = find_root_with_seed( "entropy", sin, Bin, Sin, Qin, this_eos, result );
     }
 
@@ -569,7 +571,9 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
     // try conformal diagonal seed next
     if (!solution_found)
     {
-      result = conformal_diagonal_EoS.get_tbqs_seed_from_eBSQ( ein, Bin, Sin, Qin );
+//      result = conformal_diagonal_EoS.get_tbqs_seed_from_eBSQ( ein, Bin, Sin, Qin );
+      result = chosen_EOS_map["conformal_diagonal"]->get_tbqs_seed_from_eBSQ
+                                                      ( ein, Bin, Sin, Qin );
       solution_found = find_root_with_seed( "energy", ein, Bin, Sin, Qin,
                                             this_eos, result );
     }
