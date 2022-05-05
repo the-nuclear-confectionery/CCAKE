@@ -7,6 +7,8 @@
 
 class SPHWorkstation
 {
+friend class InputOutput;
+
 private:
   
   static constexpr int    VERBOSE        = 0;
