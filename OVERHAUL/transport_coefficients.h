@@ -71,7 +71,7 @@ class TransportCoefficients
     Settings * settingsPtr   = nullptr;
 
 
-}
+};
 
 
 
