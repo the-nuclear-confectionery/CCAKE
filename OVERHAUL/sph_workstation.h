@@ -4,6 +4,7 @@
 #include "kernel.h"
 #include "settings.h"
 #include "system_state.h"
+#include "transport_coefficients.h"
 
 class SPHWorkstation
 {
@@ -20,6 +21,7 @@ private:
   Settings        * settingsPtr          = nullptr;
 
   EquationOfState eos;
+  TransportCoefficients tc;
 
 
 public:
@@ -35,8 +37,14 @@ public:
   // initialize workstation (now includes eos initialization)
   void initialize()
   {
+    // set up equation of state
     eos.set_SettingsPtr( settingsPtr );
     eos.init();
+
+    // set up transport coefficients
+    tc.set_SettingsPtr( settingsPtr );
+    tc.initialize();
+
 
     settingsPtr->efcheck = eos.efreeze(settingsPtr->Freeze_Out_Temperature);
     settingsPtr->sfcheck = eos.sfreeze(settingsPtr->Freeze_Out_Temperature);

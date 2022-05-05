@@ -13,12 +13,12 @@
 using std::string;
 using std::vector;
 
-class TransportCoeficients
+class TransportCoefficients
 {
 
   public:
-    TransportCoeficients();
-    ~TransportCoeficients();
+    TransportCoefficients();
+    ~TransportCoefficients();
 
     double getEta();
     double getZeta();
@@ -61,16 +61,6 @@ class TransportCoeficients
 
     EquationOfState * eosPtr = nullptr;
     Settings * settingsPtr   = nullptr;
-
-
-    
-
-
-
-
-
-
-
 
 
 }

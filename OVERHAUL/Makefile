@@ -1,7 +1,7 @@
 OBJS = main.o vector.o matrix.o BSQHydro.o particle.o eos.o \
        system_state.o linklist.o eos_delaunay.o \
 			 kernel.o sph_workstation.o input_output.o rootfinder.o eos_table.o \
-			 eos_extension.o
+			 eos_extension.o transport_coefficients.o
 #CC = g++
 CC = h5c++
 #DEBUG = -g -D_GLIBCXX_CONCEPT_CHECKS -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC
@@ -38,7 +38,7 @@ matrix.o: matrix.cpp matrix.h vector.h mathdef.h
 system_state.o: system_state.cpp system_state.h
 	$(CC) $(CFLAGS) system_state.cpp
 
-sph_workstation.o: sph_workstation.cpp sph_workstation.h
+sph_workstation.o: sph_workstation.cpp sph_workstation.h transport_coefficients.h
 	$(CC) $(CFLAGS) sph_workstation.cpp
 
 linklist.o: linklist.cpp linklist.h particle.h
@@ -75,7 +75,11 @@ rootfinder.o: rootfinder.h rootfinder.cpp
 eos_delaunay.o: eos_delaunay/eos_delaunay.cpp eos_delaunay/eos_delaunay.h
 	$(CC) $(CFLAGS) $(INCFLAGS) -fpic -c eos_delaunay/eos_delaunay.cpp 
 	
+transport_coefficients.o: transport_coefficients.cpp transport_coefficients.h
+	$(CC) $(CFLAGS) $(INCFLAGS) -fpic -c transport_coefficients.cpp 
 	
+	
+
 
 clean:
 	-rm *.o persephone

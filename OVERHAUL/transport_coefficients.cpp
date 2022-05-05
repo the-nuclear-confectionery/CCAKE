@@ -14,42 +14,42 @@ using std::vector;
 
 
 //Constructors/destructor, may need to update later
-TransportCoeficients::TransportCoeficients()
+TransportCoefficients::TransportCoefficients()
 {
     etaType = settingsPtr->eta;
     etaOption = settingsPtr->etaOption;
     zetaType = settingsPtr->zeta;
     zetaOption = settingsPtr->zetaOption;
 }
-TransportCoeficients::~TransportCoeficients()
+TransportCoefficients::~TransportCoefficients()
 {
 
 }
 
-void TransportCoeficients::set_EquationOfStatePtr( EquationOfState * eosPtr_in )
+void TransportCoefficients::set_EquationOfStatePtr( EquationOfState * eosPtr_in )
 {
   eosPtr = eosPtr_in;
 }
-void TransportCoeficients::set_SettingsPtr( Settings * settingsPtr_in )
+void TransportCoefficients::set_SettingsPtr( Settings * settingsPtr_in )
 {
   settingsPtr = settingsPtr_in;
 }
 ///////////////////////////////////////////////////////////////
 //Getter functions for eta, zeta, and their relaxation times//
 /////////////////////////////////////////////////////////////
-double TransportCoeficients::getEta()
+double TransportCoefficients::getEta()
 {
     return eta();
 }
-double TransportCoeficients::getZeta()
+double TransportCoefficients::getZeta()
 {
     return zeta();
 }
-double TransportCoeficients::getTauShear()
+double TransportCoefficients::getTauShear()
 {
     return tauShear();
 }
-double TransportCoeficients::getTauBulk()
+double TransportCoefficients::getTauBulk()
 {
     return tauBulk();
 }
@@ -57,11 +57,11 @@ double TransportCoeficients::getTauBulk()
 //////////////////////////////////////////////////////////////
 //////////////possible function choices for eta//////////////
 ////////////////////////////////////////////////////////////
-double TransportCoeficients::constEta()
+double TransportCoefficients::constEta()
 {
     return eta_T_OV_w_IN*(eosPtr->w()/eosPtr->T());
 }
-double TransportCoeficients::JakiParam()
+double TransportCoefficients::JakiParam()
 {
     //picked the easiest one with functional dependence
     // parameters hardcoded for now.. just to see how it works
@@ -71,7 +71,7 @@ double TransportCoeficients::JakiParam()
     double alpha=33./(12.*PI)*(z-1)/(z*log(z));
     return eosPtr->s()*(0.0416762/pow(alpha,1.6)+ 0.0388977/pow(temp,5.1) );
 }
-double TransportCoeficients::LinearMusParam()
+double TransportCoefficients::LinearMusParam()
 {
     // parameters hardcoded for now.. just to see how it works
     double etaBase = 0.08;
@@ -79,12 +79,12 @@ double TransportCoeficients::LinearMusParam()
     return (etaBase + muSlope*(eosPtr->muB + 
     eosPtr->muS + eosPtr->muQ))*(eosPtr->w()/eosPtr->T());
 }
-double TransportCoeficients::InterpolantWrapper()
+double TransportCoefficients::InterpolantWrapper()
 {
     //need interpolator for this, first
     return 0.0;
 }
-double TransportCoeficients::NoShear()
+double TransportCoefficients::NoShear()
 {
     return 0.0; // no shear means no shear
 }
@@ -92,11 +92,11 @@ double TransportCoeficients::NoShear()
 //////////////////////////////////////////////////////////////
 ////////possible function choices for shear relaxation///////
 ////////////////////////////////////////////////////////////
-double TransportCoeficients::tauShearGubser()
+double TransportCoefficients::tauShearGubser()
 {
     return (5*eta())/eosPtr->w();
 }
-double TransportCoeficients::tauShearMinval()
+double TransportCoefficients::tauShearMinval()
 {
     double tau = (5*eta())/eosPtr->w();
     if (tau >= .001)
@@ -112,12 +112,12 @@ double TransportCoeficients::tauShearMinval()
 //////////////////////////////////////////////////////////////
 //////////////possible function choices for eta//////////////
 ////////////////////////////////////////////////////////////
-double TransportCoeficients::zeta_DNMR_LeadingMass()
+double TransportCoefficients::zeta_DNMR_LeadingMass()
 {
     //add this in later.. for now no bulk
     return 0.0;
 }
-double TransportCoeficients::zeta_conformal()
+double TransportCoefficients::zeta_conformal()
 {
     return 0.0; // of course, conformal zeta returns 0
 }
@@ -125,7 +125,7 @@ double TransportCoeficients::zeta_conformal()
 //////////////////////////////////////////////////////////////
 ////////possible function choices for bulk relaxation///////
 ////////////////////////////////////////////////////////////
-double TransportCoeficients::tauBulk_DNMR_LeadingMass()
+double TransportCoefficients::tauBulk_DNMR_LeadingMass()
 {
     //add this in later.. for now no bulk
     return 0.0;
