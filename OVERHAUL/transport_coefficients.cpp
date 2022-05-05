@@ -141,26 +141,25 @@ void TransportCoefficients::initialize()
     if (etaType == "constant")
     {
         eta_T_OV_w_IN = stod(etaOption);
-//        eta = std::bind(&TransportCoefficients::constEta, this);
         eta = [this]{ return constEta(); };
     }
     else if (etaType == "JakiParam")
     {
-        eta = std::bind(JakiParam, this);
+        eta = [this]{ return JakiParam(); };
     }
     else if (etaType == "LinearMus")
     {
-        eta = std::bind(LinearMusParam, this);
+        eta = [this]{ return LinearMusParam(); };
     }
     else if (etaType == "interpolate")
     {
         //use etaOption to find directory of table, then
         // execute interpolation
-        eta = std::bind(InterpolantWrapper, this);
+        eta = [this]{ return InterpolantWrapper(); };
     }
     else if (etaType == "NoShear")
     {
-        eta = std::bind(NoShear, this);
+        eta = [this]{ return NoShear(); };
     }
     else
     {
@@ -171,7 +170,7 @@ void TransportCoefficients::initialize()
 // SET SHEAR RELAXATION
     if (tauShearType == "Default")
     {
-        tauShear = std::bind(tauShearMinval, this);
+        tauShear = [this]{ return tauShearMinval(); };
     }
     else if (tauShearType == "Gubser")
     {
@@ -189,7 +188,7 @@ void TransportCoefficients::initialize()
             " Now exiting." << endl;
             exit(1);
         }
-        tauShear = std::bind(tauShearGubser, this);
+        tauShear = [this]{ return tauShearGubser(); };
     }
     else
     {
@@ -201,17 +200,17 @@ void TransportCoefficients::initialize()
 // SET BULK VISCOSITY
     if (zetaType == "Default")
     {
-        zeta = std::bind(zeta_DNMR_LeadingMass, this);
+        zeta = [this]{ return zeta_DNMR_LeadingMass(); };
     }
     else if (zetaType == "NoBulk")
     {
-        zeta = std::bind(NoBulk, this);
+        zeta = [this]{ return NoBulk(); };
     }
     else if (zetaType == "interpolate")
     {
         //use zetaOption to find directory of table, then
         // execute interpolation
-        zeta = std::bind(InterpolantWrapper, this);
+        zeta = [this]{ return InterpolantWrapper(); };
     }
     else
     {
@@ -222,7 +221,7 @@ void TransportCoefficients::initialize()
 // SET BULK RELAXATION
     if (tauBulkType == "Default")
     {
-        tauBulk = std::bind(tauBulk_DNMR_LeadingMass, this);
+        tauBulk = [this]{ return tauBulk_DNMR_LeadingMass(); };
     }
     else 
     {
