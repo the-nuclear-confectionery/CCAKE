@@ -142,7 +142,7 @@ void TransportCoefficients::initialize()
     {
         eta_T_OV_w_IN = stod(etaOption);
 //        eta = std::bind(&TransportCoefficients::constEta, this);
-        eta = [this]{ constEta(); }
+        eta = [this]{ constEta(); };
     }
     else if (etaType == "JakiParam")
     {
