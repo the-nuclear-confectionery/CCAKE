@@ -379,7 +379,7 @@ void SPHWorkstation::smooth_gradients( Particle & pa, double tin, int & count )
         cout << kernel::kernel( pa.r - pb.r, settingsPtr->_h ) << endl;
       }
       else if ( isnan( pa.gradP(1) ) )
-        cout << "1 " << systemPtr->linklist.gradPressure_weight(systemPtr->particles, a, b)
+        cout << "1 " << gradPressure_weight(a, b)
              << " " << a << " " << b << endl;
 
       b = systemPtr->linklist.link[b];
@@ -1299,4 +1299,26 @@ void SPHWorkstation::bsqsvinterpolate(int curfrz)
 
   systemPtr->cf = curfrz;
 }
+
+
 ///////////////////////////////////////////////////////////////////////////////////
+double SPHWorkstation::gradPressure_weight(const int a, const int b)
+{
+  const auto & pa = systemPtr->particles[a];
+  const auto & pb = systemPtr->particles[b];
+
+  double alpha_q    = 1.0;
+  double v_signal_q = sqrt(1.0/3.0);
+
+  double innerp = inner( pa.r - pb.r, pa.qmom - pb.qmom );
+  double innerr = inner( pa.r - pb.r, pa.r    - pb.r    );
+  innerp = 2.0*alpha_q*v_signal_q
+          / ( pa.sigma/pa.gamma + pb.sigma/pb.gamma )
+          / sqrt(innerr) * innerp;
+
+  if ( innerp > 0.0 || a == b ) innerp = 0.0;
+
+  return pb.sigmaweight * pa.sigma
+        * ( pb.p() / (pb.sigma*pb.sigma)
+          + pa.p() / (pa.sigma*pb.sigma) - innerp );
+}

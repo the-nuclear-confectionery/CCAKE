@@ -86,29 +86,6 @@ public:
   Vector<double,2> max;
   Vector<double,2> uni;
 
-  double gradPressure_weight(vector<Particle> & particles, const int a, const int b)
-  {
-    const auto & pa = particles[a];
-    const auto & pb = particles[b];
-
-    double alpha_q = 1.0;
-    double v_signal_q = sqrt(1.0/3.0);
-
-    double innerp = inner( pa.r - pb.r, pa.qmom - pb.qmom );
-    double innerr = inner( pa.r - pb.r, pa.r    - pb.r    );
-    innerp = 2.0*alpha_q*v_signal_q
-            / ( pa.sigma/pa.gamma + pb.sigma/pb.gamma )
-            / sqrt(innerr) * innerp;
-
-    if ( innerp > 0.0 || a==b ) innerp=0.0;
-
-
-    return pb.sigmaweight*pa.sigma
-          *(    pb.eosPtr->p() / (pb.sigma*pb.sigma)
-              + pa.eosPtr->p() / (pa.sigma*pb.sigma)
-              - innerp );
-  }
-
 };
 
 #endif
