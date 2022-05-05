@@ -7,6 +7,7 @@
 
 class SPHWorkstation
 {
+friend class BSQHydro;
 friend class InputOutput;
 
 private:
