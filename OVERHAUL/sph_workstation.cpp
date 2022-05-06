@@ -1301,11 +1301,11 @@ double SPHWorkstation::gradPressure_weight(const int a, const int b)
 
 
 ////////////////////////////////////////////////////////////////////////////////
-void SPHWorkstation::setvisc(Particle & p)
+void SPHWorkstation::setvisc( Particle & p )
 {
   tc.setTherm( p.thermo );
-  p.setas     = tc.getEta();
-  p.stauRelax = tc.getTauShear();
-  p.zeta      = tc.getZeta();
-  p.tauRelax  = tc.getTauBulk();
+  p.setas     = tc.eta();
+  p.stauRelax = tc.tau_pi();
+  p.zeta      = tc.zeta();
+  p.tauRelax  = tc.tau_Pi();
 }

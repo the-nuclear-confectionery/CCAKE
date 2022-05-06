@@ -15,14 +15,6 @@ using std::vector;
 
 //==============================================================================
 //==============================================================================
-// Getter functions for eta, zeta, and their relaxation times
-double TransportCoefficients::getEta()      { return eta();      }
-double TransportCoefficients::getZeta()     { return zeta();     }
-double TransportCoefficients::getTauShear() { return tauShear(); }
-double TransportCoefficients::getTauBulk()  { return tauBulk();  }
-
-//==============================================================================
-//==============================================================================
 // INITIALIZE THE TRANSPORT COEFFICIENTS
 
 //===============================
@@ -45,21 +37,21 @@ void TransportCoefficients::initialize( const string & mode )
 //===============================
 // explicit (individual) initialization
 void TransportCoefficients::initialize( const string & etaType_in,
-                                        const string & tauShearType_in,
+                                        const string & tau_piType_in,
                                         const string & zetaType_in,
-                                        const string & tauBulkType_in )
+                                        const string & tau_PiType_in )
 {
   // Set shear viscosity
   initialize_eta( etaType_in );
 
   // Set shear relaxation
-  initialize_tauShear( tauShearType_in );
+  initialize_tau_pi( tau_piType_in );
 
   // Set bulk viscosity
   initialize_zeta( zetaType_in );
 
   // Set bulk relaxation
-  initialize_tauBulk( tauBulkType_in );
+  initialize_tau_Pi( tau_PiType_in );
 }
 
 
@@ -106,19 +98,19 @@ void TransportCoefficients::initialize_eta(const string & etaType_in)
 
 
 //==============================================================================
-void TransportCoefficients::initialize_tauShear(const string & tauShearType_in)
+void TransportCoefficients::initialize_tau_pi(const string & tau_piType_in)
 {
-  tauShearType = tauShearType_in;
+  tau_piType = tau_piType_in;
 
-  if (tauShearType == "default")
+  if (tau_piType == "default")
   {
-    tauShear = [this]{ return default_tauShear(); };
+    tau_pi = [this]{ return default_tau_pi(); };
   }
-  else if (tauShearType == "minVal")
+  else if (tau_piType == "minVal")
   {
-    tauShear = [this]{ return tauShearMinval(); };
+    tau_pi = [this]{ return tau_piMinval(); };
   }
-  else if (tauShearType == "Gubser")
+  else if (tau_piType == "Gubser")
   {
     /* these consistency checks maybe should be done in settings.h? */
     if (etaType != "constant")
@@ -134,7 +126,7 @@ void TransportCoefficients::initialize_tauShear(const string & tauShearType_in)
                    " Now exiting.\n";
       exit(1);
     }
-    tauShear = [this]{ return tauShearGubser(); };
+    tau_pi = [this]{ return tau_piGubser(); };
   }
   else
   {
@@ -176,17 +168,17 @@ void TransportCoefficients::initialize_zeta(const string & zetaType_in)
 
 
 //==============================================================================
-void TransportCoefficients::initialize_tauBulk(const string & tauBulkType_in)
+void TransportCoefficients::initialize_tau_Pi(const string & tau_PiType_in)
 {
-  tauBulkType  = tauBulkType_in;
+  tau_PiType  = tau_PiType_in;
 
-  if (tauBulkType == "default")
+  if (tau_PiType == "default")
   {
-    tauBulk = [this]{ return default_tauBulk(); };
+    tau_Pi = [this]{ return default_tau_Pi(); };
   }
-  else if (tauBulkType == "DNMR")
+  else if (tau_PiType == "DNMR")
   {
-    tauBulk = [this]{ return tauBulk_DNMR_LeadingMass(); };
+    tau_Pi = [this]{ return tau_Pi_DNMR_LeadingMass(); };
   }
   else 
   {
@@ -258,13 +250,13 @@ double TransportCoefficients::NoShear() { return 0.0; }
 // Possible function choices for shear relaxation
 
 //===============================
-double TransportCoefficients::default_tauShear() { return std::max( 5.0*eta()/therm.w, 0.005 ); }
+double TransportCoefficients::default_tau_pi() { return std::max( 5.0*eta()/therm.w, 0.005 ); }
 
 //===============================
-double TransportCoefficients::tauShearGubser() { return (5.0*eta())/therm.w; }
+double TransportCoefficients::tau_piGubser() { return (5.0*eta())/therm.w; }
 
 //===============================
-double TransportCoefficients::tauShearMinval() { return std::max( (5.0*eta())/therm.w, 0.001 ); }
+double TransportCoefficients::tau_piMinval() { return std::max( (5.0*eta())/therm.w, 0.001 ); }
 
 
 
@@ -295,10 +287,10 @@ double TransportCoefficients::NoBulk() { return 0.0; }
 // Possible function choices for bulk relaxation
 
 //===============================
-double TransportCoefficients::default_tauBulk()
+double TransportCoefficients::default_tau_Pi()
 {
   return std::max( 5.0*zeta()/(pow((1.0-therm.cs2),2.0)*therm.w), 0.1 );
 }
 
 //===============================
-double TransportCoefficients::tauBulk_DNMR_LeadingMass() { return 0.0; }
+double TransportCoefficients::tau_Pi_DNMR_LeadingMass() { return 0.0; }

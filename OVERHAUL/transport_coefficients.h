@@ -25,18 +25,18 @@ class TransportCoefficients
     string etaOption, zetaOption; /*for the case of interp should we
                                     read in path and load here or should I/O
                                     load in directly?? Similar qeustion for EOS..*/
-    string tauShearType, tauBulkType;
+    string tau_piType, tau_PiType;
 
     void initialize_eta(const string & etaType_in);
-    void initialize_tauShear(const string & tauShearType_in);
+    void initialize_tau_pi(const string & tau_piType_in);
     void initialize_zeta(const string & zetaType_in);
-    void initialize_tauBulk(const string & tauBulkType_in);
+    void initialize_tau_Pi(const string & tau_PiType_in);
 
     // Chris' defaults
     double default_eta();
-    double default_tauShear();
+    double default_tau_pi();
     double default_zeta();
-    double default_tauBulk();
+    double default_tau_Pi();
 
     // other parmaterizations (not organized yet)
     double constEta();
@@ -45,18 +45,14 @@ class TransportCoefficients
     double LinearMusParam();
     double InterpolantWrapper();
     double NoShear();
-    function<double()> eta;
     
-    double tauShearGubser();
-    double tauShearMinval();
-    function<double()> tauShear;
+    double tau_piGubser();
+    double tau_piMinval();
 
     double zeta_DNMR_LeadingMass();
     double NoBulk();
-    function<double()> zeta;
 
-    double tauBulk_DNMR_LeadingMass();
-    function<double()> tauBulk;
+    double tau_Pi_DNMR_LeadingMass();
 
     Settings * settingsPtr   = nullptr;
 
@@ -69,15 +65,16 @@ class TransportCoefficients
 
     // use this to set combinations of TC parameterizations automatically
     void initialize( const string & mode = "default" );
-    void initialize( const string & etaType_in,  const string & tauShearType_in,
-                     const string & zetaType_in, const string & tauBulkType_in );
+    void initialize( const string & etaType_in,  const string & tau_piType_in,
+                     const string & zetaType_in, const string & tau_PiType_in );
 
     void setTherm( thermodynamic_info & thermo_from_particle ) { therm = thermo_from_particle; }
 
-    double getEta();
-    double getZeta();
-    double getTauShear();
-    double getTauBulk();
+    // these functions actually return the needed transport coefficients
+    std::function<double()> eta;
+    std::function<double()> tau_pi;
+    std::function<double()> zeta;
+    std::function<double()> tau_Pi;
 
 };
 
