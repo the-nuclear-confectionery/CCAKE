@@ -1,6 +1,8 @@
 #ifndef SPH_WORKSTATION_H
 #define SPH_WORKSTATION_H
 
+#include <omp.h>
+
 #include "kernel.h"
 #include "settings.h"
 #include "system_state.h"
@@ -71,8 +73,11 @@ public:
             smooth_fields(p); }
 
   void smooth_all_particle_gradients()
-        { for ( auto & p : systemPtr->particles )
-            smooth_gradients( p, systemPtr->t ); }
+        {
+          #pragma omp parallel for
+          for ( auto & p : systemPtr->particles )
+            smooth_gradients( p, systemPtr->t );
+        }
 
   void update_all_particle_thermodynamics()
         { for ( auto & p : systemPtr->particles )
