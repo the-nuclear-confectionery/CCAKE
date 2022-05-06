@@ -15,6 +15,8 @@ public:
                    vector<Particle> * particlesPtr_in,
                    double dtsave, int & numpart );
   int triToSum( Vector<int,2> dael, Vector<int,2> size );
+
+
   //integers
   int _n;
   int n() { return _n; }
@@ -60,6 +62,8 @@ public:
   
   //vectors of vectors
   vector< Vector<int,2> > dael;
+
+  vector<vector<int> > all_neighbors;
 
   //strings
   string eos_s       = "";

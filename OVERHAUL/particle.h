@@ -79,8 +79,6 @@ class Particle
     void frzcheck( double tin, int &count, int N );
     void calc(double tin);
     void update_fluid_quantities(double tin);
-//    void setvisc( int etaconst, double bvf, double svf, double zTc,
-//                  double sTc, double sig, int type );
     void reset_pi_tensor(double tin2);
     double gamcalc();
     double Bsub();

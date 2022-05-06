@@ -51,6 +51,7 @@ void LinkList::initialize( double it0, int ntot, double h,
 
 void LinkList::reset()
 {
+  // min and max (x,y) coordinates of all particles
   for ( auto & p : *particlesPtr )
   for ( int j = 0; j < 2;  j++ )
   {
@@ -58,7 +59,7 @@ void LinkList::reset()
     if ( p.r(j) < min(j) ) min(j) = p.r(j);
   }
 
-  //evaluate system size
+  //evaluate system size [in units of h]
 
   //2*range puts extra boxes on sides of grid
   double inv_h = 1.0/_h;
@@ -96,6 +97,32 @@ void LinkList::reset()
     link[k]  = lead[tt];
     lead[tt] = k;
   }
+
+
+
+
+  // add vector of neighbors
+  Stopwatch sw;
+  sw.Start();
+  cout << "Setting vector of neighbors...";
+  all_neighbors.resize(_n);
+  for (int a = 0; a < _n; a++)
+  {
+    auto & pa = all_neighbors[a];
+    Vector<int,2> i;
+    for ( i(0) = -2; i(0) <= 2; i(0)++ )
+    for ( i(1) = -2; i(1) <= 2; i(1)++ )
+    {
+      int b = lead[ triToSum( dael[a] + i, size ) ];
+      while( b != -1 )
+      {
+        pa.push_back( b );
+        b = link[b];
+      }
+    }
+  }
+  sw.Stop();
+  cout << "done in " << sw.printTime() << " s.\n";
 
 }
 

@@ -272,7 +272,7 @@ void SPHWorkstation::smooth_fields(Particle & pa)
 ///////////////////////////////////////////////////////////////////////////////
 //Second smoothing smoothes the gradients after constructing all the fields 
 //and derivatives using the equation of state
-void SPHWorkstation::smooth_gradients( Particle & pa, double tin )
+/*void SPHWorkstation::smooth_gradients( Particle & pa, double tin )
 {
   int a = pa.ID;
 
@@ -396,7 +396,129 @@ void SPHWorkstation::smooth_gradients( Particle & pa, double tin )
          << rdis << " " << systemPtr->cfon <<  endl;
 
   return;
+}*/
+
+
+
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+//Second smoothing smoothes the gradients after constructing all the fields 
+//and derivatives using the equation of state
+void SPHWorkstation::smooth_gradients( Particle & pa, double tin )
+{
+  int a = pa.ID;
+
+  pa.gradP     = 0.0;
+  pa.gradBulk  = 0.0;
+  pa.gradV     = 0.0;
+  pa.gradshear = 0.0;
+  pa.divshear  = 0.0;
+
+  if ( pa.btrack != -1 ) pa.btrack = 0;
+
+  double rdis = 0;
+
+  auto & a_neighbors = linklist.all_neighbors[a];
+
+  for ( int b : a_neighbors )
+  {
+    auto & pb                = systemPtr->particles[b];
+
+    Vector<double,2> rel_sep = pa.r - pb.r;
+    double rel_sep_norm      = Norm( rel_sep );
+    Vector<double,2> gradK   = kernel::gradKernel( rel_sep, rel_sep_norm, settingsPtr->_h );
+    Vector<double,2> va      = rowp1(0, pa.shv);
+    Vector<double,2> vb      = rowp1(0, pb.shv);
+    Matrix<double,2,2> vminia, vminib;
+    mini(vminia, pa.shv);
+    mini(vminib, pb.shv);
+
+    double sigsqra           = 1.0/(pa.sigma*pa.sigma);
+    double sigsqrb           = 1.0/(pb.sigma*pb.sigma);
+    Vector<double,2> sigsigK = pb.sigmaweight * pa.sigma * gradK;
+
+    pa.gradP                += ( sigsqrb*pb.p() + sigsqra*pa.p() ) * sigsigK;
+
+    //===============
+    // print status
+    if ( VERBOSE > 2
+          && settingsPtr->particles_to_print.size() > 0
+          && settingsPtr->print_particle(a) )
+      std::cout << "CHECK grads: " << tin << "   "
+                << pa.gradP << "   " << a << "   " << b << "   "
+                << sigsqra << "   " << sigsqrb
+                << "   " << pa.p() << "   " << pb.p()
+                << "   " << pa.get_current_eos_name()
+                << "   " << pb.get_current_eos_name()
+                << "   " << gradK << "   " << sigsigK
+                << "   " << pa.sigma << "\n";
+
+    double relative_distance_by_h = rel_sep_norm / settingsPtr->_h;
+    if ( ( relative_distance_by_h <= 2.0 ) && ( a != b ) )
+    {
+      if ( pa.btrack != -1 ) pa.btrack++;
+      if ( pa.btrack ==  1 ) rdis = relative_distance_by_h;
+    }
+
+    pa.gradBulk             += ( pb.Bulk/pb.sigma/pb.gamma
+                                  + pa.Bulk/pa.sigma/pa.gamma)/tin*sigsigK;
+    pa.gradV                += (pb.sigmaweight/pa.sigma)*( pb.v -  pa.v )*gradK;
+
+    //===============
+    // print status
+    if ( VERBOSE > 2
+          && settingsPtr->particles_to_print.size() > 0
+          && settingsPtr->print_particle(a) )
+        std::cout << "CHECK gradV: " << tin << "   " << a << "   " << b << "   "
+                  << pb.sigmaweight/pa.sigma << "   " << pb.v -  pa.v
+                  << "   " << gradK << "   " << pa.gradV << "\n";
+
+    //===============
+    // add shear terms
+    if ( settingsPtr->using_shear )
+    {
+      pa.gradshear            += inner(sigsigK, pa.v)*( sigsqrb*vb + sigsqra*va );
+      pa.divshear             += sigsqrb*sigsigK*transpose(vminib)
+                                  + sigsqra*sigsigK*transpose(vminia);
+    }
+
+    //===============
+    // check for nan pressure gradients
+    if ( isnan( pa.gradP(0) ) )
+    {
+      cout << "gradP stopped working" << endl;
+      cout << systemPtr->t <<" "  << pa.gradP << " " << a << " " << b << endl;
+      cout << pb.sigmaweight << " " << pa.sigma << " " << pb.p() << endl;
+      cout << systemPtr->linklist.Size << " " << pb.s() << " " << pa.s() << endl;
+
+      cout << pa.r << endl;
+      cout << pb.r << endl;
+      cout << kernel::kernel( pa.r - pb.r, settingsPtr->_h ) << endl;
+    }
+    else if ( isnan( pa.gradP(1) ) )
+      cout << "1 " << gradPressure_weight(a, b)
+           << " " << a << " " << b << endl;
+  }
+
+  const double hc = constants::hbarc_MeVfm;
+
+  if ( ( pa.btrack == 1 )
+            && ( ( pa.T()*hc ) >= 150 ) )
+    pa.frz2.t=tin;
+  else if ( ( pa.btrack == 0 )
+            && ( ( pa.T()*hc ) >= 150 )
+            && ( pa.Freeze < 4 ) )
+    cout << "Missed " << a << " " << tin << "  "
+         << pa.T()*hc << " "
+         << rdis << " " << systemPtr->cfon <<  endl;
+
+  return;
 }
+
+
+
 
 ////////////////////////////////////////////////////////////////////////////////
 void SPHWorkstation::process_initial_conditions()
