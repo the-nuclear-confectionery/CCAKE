@@ -69,17 +69,21 @@ public:
 
   // functions to apply action to all particles
   void smooth_all_particle_fields()
-        { for ( auto & p : systemPtr->particles )
-            smooth_fields(p); }
-
-  void smooth_all_particle_gradients()
         {
           #pragma omp parallel for
           for ( auto & p : systemPtr->particles )
-          {
-          //cout << "t=" << systemPtr->t << ": omp_num_threads = " << omp_get_num_threads() << endl;
+            smooth_fields(p);
+        }
+
+  void smooth_all_particle_gradients()
+        {
+          Stopwatch sw;
+          sw.Start();
+          #pragma omp parallel for
+          for ( auto & p : systemPtr->particles )
             smooth_gradients( p, systemPtr->t );
-          }
+          sw.Stop();
+          cout << "t=" << systemPtr->t << ": finished in " << sw.printTime() << " s.\n";
         }
 
   void update_all_particle_thermodynamics()
