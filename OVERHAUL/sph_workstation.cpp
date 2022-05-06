@@ -272,7 +272,7 @@ void SPHWorkstation::smooth_fields(Particle & pa)
 ///////////////////////////////////////////////////////////////////////////////
 //Second smoothing smoothes the gradients after constructing all the fields 
 //and derivatives using the equation of state
-void SPHWorkstation::smooth_gradients( Particle & pa, double tin, int & count )
+void SPHWorkstation::smooth_gradients( Particle & pa, double tin )
 {
   int a = pa.ID;
 
@@ -300,12 +300,11 @@ void SPHWorkstation::smooth_gradients( Particle & pa, double tin, int & count )
     while( b != -1 )
     {
 
-      auto & pb          = systemPtr->particles[b];
+      auto & pb                = systemPtr->particles[b];
 
       Vector<double,2> rel_sep = pa.r - pb.r;
       double rel_sep_norm      = Norm( rel_sep );
       Vector<double,2> gradK   = kernel::gradKernel( rel_sep, rel_sep_norm, settingsPtr->_h );
-      //Vector<double,2> gradK   = kernel::gradKernel( rel_sep, settingsPtr->_h );
       Vector<double,2> va      = rowp1(0, pa.shv);
       Vector<double,2> vb      = rowp1(0, pb.shv);
       Matrix<double,2,2> vminia, vminib;
@@ -885,7 +884,7 @@ void SPHWorkstation::get_time_derivatives()
   int curfrz = do_freezeout_checks();
 
   //Computes gradients to obtain dsigma/dt
-  smooth_all_particle_gradients( curfrz );
+  smooth_all_particle_gradients();
 
   // set dsigma_dt
   update_all_particles_dsigma_dt();

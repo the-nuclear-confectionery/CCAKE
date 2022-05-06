@@ -63,16 +63,16 @@ public:
 
   // smoothing
   void smooth_fields( Particle & pa );
-  void smooth_gradients( Particle & pa, double tin, int & count );
+  void smooth_gradients( Particle & pa, double tin );
 
   // functions to apply action to all particles
   void smooth_all_particle_fields()
         { for ( auto & p : systemPtr->particles )
             smooth_fields(p); }
 
-  void smooth_all_particle_gradients( int & count )
+  void smooth_all_particle_gradients()
         { for ( auto & p : systemPtr->particles )
-            smooth_gradients( p, systemPtr->t, count ); }
+            smooth_gradients( p, systemPtr->t ); }
 
   void update_all_particle_thermodynamics()
         { for ( auto & p : systemPtr->particles )
