@@ -19,32 +19,18 @@ using std::vector;
 class TransportCoefficients
 {
 
-  public:
-    TransportCoefficients();
-    ~TransportCoefficients();
-
-    void set_SettingsPtr( Settings * settingsPtr_in );
-
-    void initialize(  const string & etaType_in      = "default",
-                      const string & tauShearType_in = "default",
-                      const string & zetaType_in     = "default",
-                      const string & tauBulkType_in  = "default" );
-
-    void setTherm(thermodynamic_info & thermo_from_particle);
-
-    double getEta();
-    double getZeta();
-    double getTauShear();
-    double getTauBulk();
-
-
   private:
     thermodynamic_info therm;
     string etaType, zetaType;
     string etaOption, zetaOption; /*for the case of interp should we
-    read in path and load here or should I/O
-    load in directly?? Similar qeustion for EOS..*/
+                                    read in path and load here or should I/O
+                                    load in directly?? Similar qeustion for EOS..*/
     string tauShearType, tauBulkType;
+
+    void initialize_eta(string & etaType_in);
+    void initialize_tauShear(string & tauShearType_in);
+    void initialize_zeta(string & zetaType_in);
+    void initialize_tauBulk(string & tauBulkType_in);
 
     // Chris' defaults
     double default_eta();
@@ -73,6 +59,25 @@ class TransportCoefficients
     function<double()> tauBulk;
 
     Settings * settingsPtr   = nullptr;
+
+
+  public:
+    TransportCoefficients(){}
+    ~TransportCoefficients(){}
+
+    void set_SettingsPtr( Settings * settingsPtr_in ) { settingsPtr = settingsPtr_in; }
+
+    // use this to set combinations of TC parameterizations automatically
+    void initialize( const string & mode == "default" );
+    void initialize( const string & etaType_in,  const string & tauShearType_in,
+                     const string & zetaType_in, const string & tauBulkType_in );
+
+    void setTherm( thermodynamic_info & thermo_from_particle ) { therm = thermo_from_particle; }
+
+    double getEta();
+    double getZeta();
+    double getTauShear();
+    double getTauBulk();
 
 };
 
