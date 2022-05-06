@@ -240,36 +240,16 @@ void Particle::update_fluid_quantities( double tin )
   Btot         = ( Agam*gamma + 2.0*eta_o_tau/3.0*gamma )*sigl
                 + bigPI/tauRelax + dwdsT*( gt*shv33 + Bsub() );
   check        = sigl;
-//std::cout << "CHECK update_fluid_quantities: " << ID << "   " << tin << "   " << g2
-//          << "   " << g2 << "   " << g3 << "   " << gt << "   "
-//          << dwds() << "   " << T() << "   " << sigl << "   "
-//          << w() << "   " << bigPI << "   " << gradU << "   "
-//          << Agam << "   " << eta_o_tau << "   " << tauRelax << "   "
-//          << shv33 << "   " << Bsub() << "   " << Btot << "   "
-//          << Agam2 << "   " << Ctot << "\n";
+//  std::cout << "CHECK update_fluid_quantities: " << ID << "   " << tin << "   " << g2
+//            << "   " << g2 << "   " << g3 << "   " << gt << "   "
+//            << dwds() << "   " << T() << "   " << sigl << "   "
+//            << w() << "   " << bigPI << "   " << gradU << "   "
+//            << Agam << "   " << eta_o_tau << "   " << tauRelax << "   "
+//            << shv33 << "   " << Bsub() << "   " << Btot << "   "
+//            << Agam2 << "   " << Ctot << "\n";
+
+  return;
 }
-
-////////////////////////////////////////////////////////////////////////////////
-//void Particle::setvisc( int etaconst, double bvf, double svf, double zTc,
-//                        double sTc, double sig, int type )
-//{
-//  setas     = s()*svf;
-//
-//  stauRelax = 5*setas/w();
-//  if (!settingsPtr->using_Gubser && stauRelax < 0.005) stauRelax = 0.005;
-//
-//  /*if (abs(bvf) > 1e-6)
-//  {
-//    cerr << "You need to replace setvisc!!!" << endl;
-//    exit(1);
-//  }
-//  zeta = 0;
-//  tauRelax = 1;*/
-//  zeta = s()*bvf;
-//  tauRelax = 5.*zeta/(pow((1.0-cs2()),2.0)*w());
-//  if (tauRelax < 0.1) tauRelax=0.1;
-//}
-
 
 
 ////////////////////////////////////////////////////////////////////////////////
