@@ -30,7 +30,7 @@ double TransportCoefficients::getTauBulk()  { return tauBulk();  }
 void TransportCoefficients::initialize( const string & mode )
 {
   if ( mode == "default" )
-    initialize( "default", "default" "default", "default" );
+    initialize( "default", "default", "default", "default" );
   else if ( mode == "Gubser" )
     initialize( "constant", "Gubser" "NoBulk", "default" );
   else
