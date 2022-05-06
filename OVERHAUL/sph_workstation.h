@@ -5,6 +5,7 @@
 
 #include "kernel.h"
 #include "settings.h"
+#include "Stopwatch.h"
 #include "system_state.h"
 #include "transport_coefficients.h"
 
