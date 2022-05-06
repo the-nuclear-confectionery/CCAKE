@@ -64,7 +64,7 @@ void TransportCoefficients::initialize( const string & etaType_in,
 
 
 //==============================================================================
-void TransportCoefficients::initialize_eta(string & etaType_in)
+void TransportCoefficients::initialize_eta(const string & etaType_in)
 {
   // set chosen eta parameterization
   etaType = etaType_in;
@@ -106,7 +106,7 @@ void TransportCoefficients::initialize_eta(string & etaType_in)
 
 
 //==============================================================================
-void TransportCoefficients::initialize_tauShear(string & tauShearType_in)
+void TransportCoefficients::initialize_tauShear(const string & tauShearType_in)
 {
   tauShearType = tauShearType_in;
 
@@ -145,7 +145,7 @@ void TransportCoefficients::initialize_tauShear(string & tauShearType_in)
 
 
 //==============================================================================
-void TransportCoefficients::initialize_zeta(string & zetaType_in)
+void TransportCoefficients::initialize_zeta(const string & zetaType_in)
 {
   zetaType     = zetaType_in;
 
@@ -176,7 +176,7 @@ void TransportCoefficients::initialize_zeta(string & zetaType_in)
 
 
 //==============================================================================
-void TransportCoefficients::initialize_tauBulk(string & tauBulkType_in)
+void TransportCoefficients::initialize_tauBulk(const string & tauBulkType_in)
 {
   tauBulkType  = tauBulkType_in;
 

@@ -27,10 +27,10 @@ class TransportCoefficients
                                     load in directly?? Similar qeustion for EOS..*/
     string tauShearType, tauBulkType;
 
-    void initialize_eta(string & etaType_in);
-    void initialize_tauShear(string & tauShearType_in);
-    void initialize_zeta(string & zetaType_in);
-    void initialize_tauBulk(string & tauBulkType_in);
+    void initialize_eta(const string & etaType_in);
+    void initialize_tauShear(const string & tauShearType_in);
+    void initialize_zeta(const string & zetaType_in);
+    void initialize_tauBulk(const string & tauBulkType_in);
 
     // Chris' defaults
     double default_eta();
