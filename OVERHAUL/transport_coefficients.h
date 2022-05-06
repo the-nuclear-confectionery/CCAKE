@@ -68,7 +68,7 @@ class TransportCoefficients
     void set_SettingsPtr( Settings * settingsPtr_in ) { settingsPtr = settingsPtr_in; }
 
     // use this to set combinations of TC parameterizations automatically
-    void initialize( const string & mode == "default" );
+    void initialize( const string & mode = "default" );
     void initialize( const string & etaType_in,  const string & tauShearType_in,
                      const string & zetaType_in, const string & tauBulkType_in );
 
