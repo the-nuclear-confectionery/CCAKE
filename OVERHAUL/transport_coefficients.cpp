@@ -32,7 +32,7 @@ void TransportCoefficients::initialize( const string & mode )
   if ( mode == "default" )
     initialize( "default", "default", "default", "default" );
   else if ( mode == "Gubser" )
-    initialize( "constant", "Gubser" "NoBulk", "default" );
+    initialize( "constant", "Gubser", "NoBulk", "default" );
   else
   {
     std::cout << "TransportCoefficients::mode value = "
