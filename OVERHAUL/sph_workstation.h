@@ -77,7 +77,7 @@ public:
           #pragma omp parallel for
           for ( auto & p : systemPtr->particles )
           {
-          cout << "t=" << systemPtr->t << ": omp_num_threads = " << omp_get_num_threads() << endl;
+          //cout << "t=" << systemPtr->t << ": omp_num_threads = " << omp_get_num_threads() << endl;
             smooth_gradients( p, systemPtr->t );
           }
         }
