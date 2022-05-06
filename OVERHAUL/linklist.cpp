@@ -104,7 +104,7 @@ void LinkList::reset()
   // add vector of neighbors
   Stopwatch sw;
   sw.Start();
-  cout << "Setting vector of neighbors...";
+  cout << "t=" << t << ": setting vector of neighbors...";
   all_neighbors.resize(_n);
   for (int a = 0; a < _n; a++)
   {
