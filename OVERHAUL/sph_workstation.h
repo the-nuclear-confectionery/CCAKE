@@ -80,7 +80,7 @@ public:
         {
           Stopwatch sw;
           sw.Start();
-          #pragma omp parallel for
+          #pragma omp parallel for schedule(dynamic)
           for ( auto & p : systemPtr->particles )
             smooth_gradients( p, systemPtr->t );
           sw.Stop();
