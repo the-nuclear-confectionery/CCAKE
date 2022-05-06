@@ -420,7 +420,7 @@ void SPHWorkstation::smooth_gradients( Particle & pa, double tin )
 
   double rdis = 0;
 
-  auto & a_neighbors = linklist.all_neighbors[a];
+  auto & a_neighbors = systemPtr->linklist.all_neighbors[a];
 
   for ( int b : a_neighbors )
   {

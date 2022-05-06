@@ -105,6 +105,8 @@ void LinkList::reset()
   Stopwatch sw;
   sw.Start();
   cout << "t=" << t << ": setting vector of neighbors...";
+  
+  all_neighbors.clear();
   all_neighbors.resize(_n);
   for (int a = 0; a < _n; a++)
   {
