@@ -422,7 +422,6 @@ void SPHWorkstation::smooth_gradients( Particle & pa, double tin )
 
   auto & a_neighbors = systemPtr->linklist.all_neighbors[a];
 
-  #pragma omp parallel for schedule(dynamic)
   for ( int b : a_neighbors )
   {
     auto & pb                = systemPtr->particles[b];
