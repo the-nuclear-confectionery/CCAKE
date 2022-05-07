@@ -70,17 +70,14 @@ public:
 
   // functions to apply action to all particles
   void smooth_all_particle_fields()
-        {
-          #pragma omp parallel for
-          for ( auto & p : systemPtr->particles )
-            smooth_fields(p);
-        }
+        { for ( auto & p : systemPtr->particles )
+            smooth_fields(p); }
 
   void smooth_all_particle_gradients()
         {
           Stopwatch sw;
           sw.Start();
-          #pragma omp parallel for schedule(static)
+          /////#pragma omp parallel for schedule(static)
           for ( auto & p : systemPtr->particles )
             smooth_gradients( p, systemPtr->t );
           sw.Stop();
