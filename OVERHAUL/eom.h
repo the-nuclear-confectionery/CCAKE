@@ -31,7 +31,7 @@ class EquationsOfMotion
     virtual void compute_dBulk_dt(){}
 
     virtual void evaluate_time_derivatives(const hydrodynamic_info & h_i)
-{cout << "t=: In " << __LINE__ << endl;}
+{cout << "t=: In " << __FILE__ << "::" << __LINE__ << endl;}
 
   //private:
     
