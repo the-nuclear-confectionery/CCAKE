@@ -22,7 +22,21 @@ class EoM_default: public EquationsOfMotion
     void compute_detasigma_dt(){}
     void compute_dBulk_dt(){}
 
+    //==========================================================================
+    Matrix<double,2,2> dpidtsub_fun( hydrodynamic_info & hi )
+    {
+      Matrix<double,2,2> vsub;
+
+      for (int i=0; i<=1; i++)
+      for (int j=0; j<=1; j++)
+      for (int k=0; k<=1; k++)
+        vsub(i,j) += ( hi.u(i)*hi.pimin(j,k) + hi.u(j)*hi.pimin(i,k) )*hi.du_dt(k);
+
+      return vsub;
+    }
+
     
+    //==========================================================================
     void evaluate_time_derivatives( hydrodynamic_info & hi )
     {
 //cout << "t=: In " << __FILE__ << "::" << __LINE__ << endl;
@@ -91,6 +105,8 @@ class EoM_default: public EquationsOfMotion
       hi.dBulk_dt = ( -hi.zeta/hi.sigma*hi.bigtheta - hi.Bulk/hi.gamma )/hi.tauRelax;
 
       Matrix <double,2,2> ududt = hi.u*hi.du_dt;
+
+      hi.dpidtsub = dpidtsub_fun(hi);
 
       // N.B. - ADD READABLE TERM NAMES
       if ( settingsPtr->using_shear )
