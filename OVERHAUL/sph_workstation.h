@@ -108,7 +108,7 @@ public:
   void evaluate_all_particle_time_derivatives()
         { for ( auto & p : systemPtr->particles )
           { p.set_hydro_info( systemPtr->t );
-            eom.evaluate_time_derivatives( &p.hydro ); } }
+            eom.evaluate_time_derivatives( p.hydro ); } }
 
   int do_freezeout_checks();
   void update_all_particles_dsigma_dt();
