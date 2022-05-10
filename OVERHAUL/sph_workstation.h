@@ -43,6 +43,7 @@ public:
   void initialize()
   {
     // set up equation of motion object
+    eom = EoS_default();
     eom.set_SettingsPtr( settingsPtr );
 
     // set up equation of state
