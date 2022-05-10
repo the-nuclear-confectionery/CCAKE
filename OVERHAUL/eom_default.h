@@ -62,18 +62,18 @@ cout << "t=: In " << __FILE__ << "::" << __LINE__ << endl;
 
       //===============
       // define auxiliary variables
-      double vduk               = inner( hi.v, du_dt );
+      double vduk               = inner( hi.v, hi.du_dt );
       Matrix <double,2,2> ulpi  = hi.u*colp1(0, hi.shv);
       Matrix <double,2,2> Ipi   = - 2.0*hi.eta_o_tau/3.0 * ( hi.Imat + hi.uu )
                                   + 4./3.*hi.pimin;
 
       //===============
       // "coordinate" divergence
-      hi.div_u                   = (1./ hi.gamma)*inner( hi.u, du_dt)
+      hi.div_u                   = (1./ hi.gamma)*inner( hi.u, hi.du_dt)
                                     - ( hi.gamma/ hi.sigma ) * hi.dsigma_dt;
       //===============
       // "covariant" divergence
-      hi.bigtheta                = div_u*hi.t+hi.gamma;
+      hi.bigtheta                = hi.div_u*hi.t+hi.gamma;
 
       //===============
       Matrix <double,2,2> sub   = hi.pimin + (hi.shv(0,0)/hi.g2)*hi.uu
@@ -81,16 +81,16 @@ cout << "t=: In " << __FILE__ << "::" << __LINE__ << endl;
 
       //===============
       if ( settingsPtr->using_shear )
-        hi.inside                  = hi.t*( inner( -minshv+hi.shv(0,0)*hi.v, du_dt )
+        hi.inside                  = hi.t*( inner( -minshv+hi.shv(0,0)*hi.v, hi.du_dt )
                                       - con2(sub, hi.gradU) - hi.gamma*hi.t*hi.shv33 );
 
-      hi.detasigma_dt            = 1./hi.sigma/hi.T*( -hi.bigPI*bigtheta + inside );
+      hi.detasigma_dt            = 1./hi.sigma/hi.T*( -hi.bigPI*hi.bigtheta + hi.inside );
 
 
       // N.B. - ADD EXTRA TERMS FOR BULK EQUATION
-      hi.dBulk_dt = ( -hi.zeta/hi.sigma*bigtheta - hi.Bulk/hi.gamma )/hi.tauRelax;
+      hi.dBulk_dt = ( -hi.zeta/hi.sigma*hi.bigtheta - hi.Bulk/hi.gamma )/hi.tauRelax;
 
-      Matrix <double,2,2> ududt = hi.u*du_dt;
+      Matrix <double,2,2> ududt = hi.u*hi.du_dt;
 
       // N.B. - ADD READABLE TERM NAMES
       if ( settingsPtr->using_shear )
