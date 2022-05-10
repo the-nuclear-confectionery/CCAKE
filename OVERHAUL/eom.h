@@ -12,7 +12,8 @@
 // THIS IS THE BASE CLASS
 class EquationsOfMotion
 {
-  private:
+  // allow derived classes to access and redefine
+  protected:
     Settings * settingsPtr   = nullptr;
 
   public:
@@ -30,10 +31,6 @@ class EquationsOfMotion
     virtual void compute_dBulk_dt(){}
 
     virtual void evaluate_time_derivatives(const hydrodynamic_info & h_i){cout << "t=: In " << __PRETTY_FUNCTION__ << endl;}
-
-  // allow derived classes to access and redefine
-  //protected:
-
 
   //private:
     
