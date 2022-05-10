@@ -45,7 +45,7 @@ public:
   {
     // set up equation of motion object
     pEoM = std::make_shared<EoM_default>();
-    pEoM.set_SettingsPtr( settingsPtr );
+    pEoM->set_SettingsPtr( settingsPtr );
 
     // set up equation of state
     eos.set_SettingsPtr( settingsPtr );
