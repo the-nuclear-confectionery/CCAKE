@@ -14,7 +14,6 @@
 #include <vector>
 
 #include "constants.h"
-#include "eos.h"
 #include "input_output.h"
 #include "system_state.h"
 #include "settings.h"

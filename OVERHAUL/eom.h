@@ -1,5 +1,5 @@
-#ifndef EQUATIONSOFMOTION_H
-#define EQUATIONSOFMOTION_H
+#ifndef EOM_H
+#define EOM_H
 
 #include <memory>
 #include <string>
