@@ -15,7 +15,6 @@ struct hydrodynamic_info
   double Agam2           = 0.0;
   double shv33           = 0.0;
 
-  double div_u           = 0.0; // four-divergence of relativistic velocity
   double gamma           = 0.0; // Lorentz factor
   double s_sub           = 0.0;
   double e_sub           = 0.0;
