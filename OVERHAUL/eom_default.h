@@ -1,12 +1,13 @@
 #ifndef EOM_DEFAULT_H
 #define EOM_DEFAULT_H
 
+#include "eom.h"
 #include "hydrodynamic_info.h"
 #include "matrix.h"
 #include "settings.h"
 #include "vector.h"
 
-class EoM_default: public EoM_base
+class EoM_default: public EquationsOfMotion
 {
   private:
     double bigtheta        = 0.0;

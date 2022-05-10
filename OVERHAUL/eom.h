@@ -1,5 +1,5 @@
-#ifndef EOM_BASE_H
-#define EOM_BASE_H
+#ifndef EQUATIONSOFMOTION_H
+#define EQUATIONSOFMOTION_H
 
 #include <memory>
 #include <string>
@@ -7,15 +7,17 @@
 
 #include "constants.h"
 #include "hydrodynamic_info.h"
+#include "settings.h"
 
-class EoM_base
+// THIS IS THE BASE CLASS
+class EquationsOfMotion
 {
   private:
     Settings * settingsPtr   = nullptr;
 
   public:
-    EoM_base(){}
-    virtual ~EoM_base(){}
+    EquationsOfMotion(){}
+    virtual ~EquationsOfMotion(){}
 
     std::string name = "";                    // name associated to EoM
 
@@ -38,7 +40,6 @@ class EoM_base
 
 };
 
-typedef std::shared_ptr<EoM_base> pEoM_base;  // pointer to the base class from
-                                              // which all EoMs are derived
+typedef std::shared_ptr<EquationsOfMotion> pEquationsOfMotion;
 
 #endif

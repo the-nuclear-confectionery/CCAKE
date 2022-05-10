@@ -3,6 +3,7 @@
 
 #include <omp.h>
 
+#include "eom.h"
 #include "kernel.h"
 #include "settings.h"
 #include "Stopwatch.h"
@@ -23,7 +24,7 @@ private:
   SystemState     * systemPtr            = nullptr;
   Settings        * settingsPtr          = nullptr;
 
-  EquationOfMotion eom;
+  EquationsOfMotion eom;
   EquationOfState eos;
   TransportCoefficients tc;
 
