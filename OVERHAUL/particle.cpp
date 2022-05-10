@@ -502,7 +502,7 @@ std::cout << "t=CHECK: " << ID << "   "
               << du_dt << "   "
               << dshv_dt << "\n";
 
-exit(8);
+if (t > 1.5) exit(8);
 }
 
 
