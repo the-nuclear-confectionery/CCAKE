@@ -25,7 +25,7 @@ private:
   SystemState     * systemPtr            = nullptr;
   Settings        * settingsPtr          = nullptr;
 
-  EquationsOfMotion eom;
+  pEquationsOfMotion pEoM;
   EquationOfState eos;
   TransportCoefficients tc;
 
@@ -44,8 +44,8 @@ public:
   void initialize()
   {
     // set up equation of motion object
-    eom = EoM_default();
-    eom.set_SettingsPtr( settingsPtr );
+    pEoM = std::make_shared<EoM_default>();
+    pEoM.set_SettingsPtr( settingsPtr );
 
     // set up equation of state
     eos.set_SettingsPtr( settingsPtr );
@@ -110,7 +110,7 @@ public:
   void evaluate_all_particle_time_derivatives()
         { for ( auto & p : systemPtr->particles )
           { p.set_hydro_info( systemPtr->t );
-            eom.evaluate_time_derivatives( p.hydro ); } }
+            pEoM->evaluate_time_derivatives( p.hydro ); } }
 
   int do_freezeout_checks();
   void update_all_particles_dsigma_dt();
