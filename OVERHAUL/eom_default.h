@@ -35,6 +35,7 @@ class EoM_default: public EquationsOfMotion
     
     void evaluate_time_derivatives( const hydrodynamic_info & hi )
     {
+cout << "In " << __FUNCTION__ << endl;
       double gamt = 0.0, pre = 0.0, p1 = 0.0;
       if ( settingsPtr->using_shear )
       {
