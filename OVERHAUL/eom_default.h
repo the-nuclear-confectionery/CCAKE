@@ -41,7 +41,7 @@ cout << "t=: In " << __PRETTY_FUNCTION__ << endl;
       {
         gamt = 1.0/hi.gamma/hi.stauRelax;
         pre  = hi.eta_o_tau/hi.gamma;
-        p1   = hi.gamt - 4.0/3.0/hi.sigma*hi.dsigma_dt + 1.0/hi.t/3.0;
+        p1   = gamt - 4.0/3.0/hi.sigma*hi.dsigma_dt + 1.0/hi.t/3.0;
       }
 
       Vector<double,2> minshv   = rowp1(0, hi.shv);
@@ -55,7 +55,7 @@ cout << "t=: In " << __PRETTY_FUNCTION__ << endl;
       //===============
       // shear contribution
       if ( settingsPtr->using_shear )
-        F += pre*hi.v*partU + p1*hi.minshv;
+        F += pre*hi.v*partU + p1*minshv;
 
       double det = deter(M);
 
@@ -73,7 +73,7 @@ cout << "t=: In " << __PRETTY_FUNCTION__ << endl;
       //===============
       // define auxiliary variables
       double vduk               = inner( hi.v, du_dt );
-      Matrix <double,2,2> ulpi  = u*colp1(0, hi.shv);
+      Matrix <double,2,2> ulpi  = hi.u*colp1(0, hi.shv);
       Matrix <double,2,2> Ipi   = - 2.0*hi.eta_o_tau/3.0 * ( hi.Imat + hi.uu )
                                   + 4./3.*hi.pimin;
 
@@ -91,7 +91,7 @@ cout << "t=: In " << __PRETTY_FUNCTION__ << endl;
 
       //===============
       if ( settingsPtr->using_shear )
-        inside                  = t*( inner( -hi.minshv+hi.shv(0,0)*hi.v, du_dt )
+        inside                  = hi.t*( inner( -minshv+hi.shv(0,0)*hi.v, du_dt )
                                       - con2(sub, hi.gradU) - hi.gamma*hi.t*hi.shv33 );
 
       detasigma_dt            = 1./hi.sigma/hi.T*( -hi.bigPI*bigtheta + inside );
@@ -104,7 +104,7 @@ cout << "t=: In " << __PRETTY_FUNCTION__ << endl;
 
       // N.B. - ADD READABLE TERM NAMES
       if ( settingsPtr->using_shear )
-        dshv_dt                 = - gamt*( pimin + hi.setas*partU )
+        dshv_dt                 = - gamt*( hi.pimin + hi.setas*partU )
                                  - hi.eta_o_tau*( ududt + transpose(ududt) )
                                  + hi.dpidtsub + hi.sigl*Ipi
                                  - vduk*( ulpi + transpose(ulpi) + (1/hi.gamma)*Ipi );
