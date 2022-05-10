@@ -110,6 +110,7 @@ public:
 };
 
 
+typedef std::shared_ptr<Settings> pSettings;  // smart pointer to settings object
 
 
 

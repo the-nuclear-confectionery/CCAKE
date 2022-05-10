@@ -3,6 +3,8 @@
 
 #include <omp.h>
 
+#include "eom.h"
+#include "eom_default.h"
 #include "kernel.h"
 #include "settings.h"
 #include "Stopwatch.h"
@@ -23,6 +25,7 @@ private:
   SystemState     * systemPtr            = nullptr;
   Settings        * settingsPtr          = nullptr;
 
+  pEquationsOfMotion pEoM;
   EquationOfState eos;
   TransportCoefficients tc;
 
@@ -40,6 +43,10 @@ public:
   // initialize workstation (now includes eos initialization)
   void initialize()
   {
+    // set up equation of motion object
+    pEoM = std::make_shared<EoM_default>();
+    pEoM->set_SettingsPtr( settingsPtr );
+
     // set up equation of state
     eos.set_SettingsPtr( settingsPtr );
     eos.init();
@@ -96,10 +103,16 @@ public:
         { for ( auto & p : systemPtr->particles )
             p.update_fluid_quantities( systemPtr->t ); }
 
+//  void evaluate_all_particle_time_derivatives()
+//        { for ( auto & p : systemPtr->particles )
+//            p.evaluate_time_derivatives( systemPtr->t ); }
+
   void evaluate_all_particle_time_derivatives()
         { for ( auto & p : systemPtr->particles )
-            p.evaluate_time_derivatives( systemPtr->t ); }
-
+          { p.set_hydro_info( systemPtr->t );
+            pEoM->evaluate_time_derivatives( p.hydro );
+            p.update_from_hydro_info(); } } // the first and last steps will
+                                            // eventually be unnecessary
 
   int do_freezeout_checks();
   void update_all_particles_dsigma_dt();
