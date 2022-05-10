@@ -192,10 +192,9 @@ double Particle::Bsub()
 ////////////////////////////////////////////////////////////////////////////////
 Matrix<double,2,2> Particle::Msub()
 {
-  piu                     = rowp1(0,shv)*u;
-  Matrix<double,2,2> msub = Agam2*uu + Ctot*gamma*Imat - (1+4/3./g2)*piu
-                            + dwdsT1*transpose(piu) + gamma*pimin;
-  return msub;
+  piu  = rowp1(0,shv)*u;
+  return Agam2*uu + Ctot*gamma*Imat - (1+4/3./g2)*piu
+          + dwdsT1*transpose(piu) + gamma*pimin;
 }
 
 
