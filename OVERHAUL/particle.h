@@ -43,7 +43,7 @@ class Particle
 
     void set_hydro_info(double t);
 
-//    void evaluate_time_derivatives( double t );
+    void evaluate_time_derivatives( double t );
 
   //private:
 
