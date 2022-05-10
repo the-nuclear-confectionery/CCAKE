@@ -501,6 +501,8 @@ std::cout << "CHECK: " << ID << "   "
               << detasigma_dt << "   "
               << du_dt << "   "
               << dshv_dt << "\n";
+
+exit(8);
 }
 
 
