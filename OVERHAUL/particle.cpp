@@ -502,7 +502,15 @@ std::cout << "t=CHECK: " << ID << "   "
               << du_dt << "   "
               << dshv_dt << "\n";
 
-if (t > 1.5) exit(8);
+std::cout << "CHECK dshv_dt: " << ID << "   "
+              << t << "   "
+              << dshv_dt << "   "
+              << - gamt*( pimin + setas*partU ) << "   "
+              << - eta_o_tau*( ududt + transpose(ududt) ) << "   "
+              << dpidtsub() + sigl*Ipi << "   "
+              << - vduk*( ulpi + transpose(ulpi) + (1/gamma)*Ipi ) << "\n";
+
+if (t > 1.1) exit(8);
 }
 
 
