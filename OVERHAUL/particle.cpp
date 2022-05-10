@@ -494,6 +494,13 @@ void Particle::evaluate_time_derivatives( double t )
                              - eta_o_tau*( ududt + transpose(ududt) )
                              + dpidtsub() + sigl*Ipi
                              - vduk*( ulpi + transpose(ulpi) + (1/gamma)*Ipi );
+
+std::cout << "CHECK: " << ID << "   "
+              << t << "   "
+              << dBulk_dt << "   "
+              << detasigma_dt << "   "
+              << du_dt << "   "
+              << dshv_dt << "\n";
 }
 
 
@@ -503,6 +510,7 @@ void Particle::evaluate_time_derivatives( double t )
 ////////////////////////////////////////////////////////////////////////////////
 void Particle::set_hydro_info(double t)
 {
+  hydro.ID              = ID;
   hydro.t               = t;
 
   hydro.Agam            = Agam;

@@ -9,6 +9,7 @@
 // hydrodynamic quantities (with default initialization)
 struct hydrodynamic_info
 {
+  int ID                 = -1;  // for debugging purposes only
   double t               = 0.0; // current time in hydro simulation
 
   double Agam            = 0.0;
