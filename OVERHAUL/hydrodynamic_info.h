@@ -73,6 +73,20 @@ struct hydrodynamic_info
   Matrix<double,2,2> uu, pimin, piu, piutot;
   Matrix<double,3,3> shv;
 
+  // quantities (possibly?) set in EoM classes
+  double bigtheta        = 0.0;
+  double inside          = 0.0;
+  double div_u           = 0.0;
+
+
+  // derivatives
+  double dBulk_dt        = 0.0;
+  double detasigma_dt    = 0.0;
+
+  Vector<double, 2> du_dt;
+  Matrix<double, 2, 2> dshv_dt;
+
+
 };
 
 typedef std::shared_ptr<hydrodynamic_info> pHydrodynamic_info;

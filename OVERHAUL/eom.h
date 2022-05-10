@@ -30,7 +30,7 @@ class EquationsOfMotion
     virtual void compute_detasigma_dt(){}
     virtual void compute_dBulk_dt(){}
 
-    virtual void evaluate_time_derivatives(const hydrodynamic_info & h_i)
+    virtual void evaluate_time_derivatives( hydrodynamic_info & hi )
 {cout << "t=: In " << __FILE__ << "::" << __LINE__ << endl;}
 
   //private:

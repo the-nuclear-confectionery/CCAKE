@@ -9,16 +9,6 @@
 
 class EoM_default: public EquationsOfMotion
 {
-  private:
-    double bigtheta        = 0.0;
-    double inside          = 0.0;
-    double div_u           = 0.0;
-
-    double dBulk_dt        = 0.0;
-    double detasigma_dt    = 0.0;
-
-    Vector<double, 2> du_dt;
-    Matrix<double, 2, 2> dshv_dt;
 
   public:
     EoM_default(){}
@@ -33,7 +23,7 @@ class EoM_default: public EquationsOfMotion
     void compute_dBulk_dt(){}
 
     
-    void evaluate_time_derivatives( const hydrodynamic_info & hi )
+    void evaluate_time_derivatives( hydrodynamic_info & hi )
     {
 cout << "t=: In " << __FILE__ << "::" << __LINE__ << endl;
       double gamt = 0.0, pre = 0.0, p1 = 0.0;
@@ -67,8 +57,8 @@ cout << "t=: In " << __FILE__ << "::" << __LINE__ << endl;
 
       //===============
       // compute acceleration
-      du_dt(0) = F(0) * MI(0,0) + F(1) * MI(0,1);
-      du_dt(1) = F(0) * MI(1,0) + F(1) * MI(1,1);
+      hi.du_dt(0) = F(0) * MI(0,0) + F(1) * MI(0,1);
+      hi.du_dt(1) = F(0) * MI(1,0) + F(1) * MI(1,1);
 
       //===============
       // define auxiliary variables
@@ -79,11 +69,11 @@ cout << "t=: In " << __FILE__ << "::" << __LINE__ << endl;
 
       //===============
       // "coordinate" divergence
-      div_u                   = (1./ hi.gamma)*inner( hi.u, du_dt)
+      hi.div_u                   = (1./ hi.gamma)*inner( hi.u, du_dt)
                                     - ( hi.gamma/ hi.sigma ) * hi.dsigma_dt;
       //===============
       // "covariant" divergence
-      bigtheta                = div_u*hi.t+hi.gamma;
+      hi.bigtheta                = div_u*hi.t+hi.gamma;
 
       //===============
       Matrix <double,2,2> sub   = hi.pimin + (hi.shv(0,0)/hi.g2)*hi.uu
@@ -91,20 +81,20 @@ cout << "t=: In " << __FILE__ << "::" << __LINE__ << endl;
 
       //===============
       if ( settingsPtr->using_shear )
-        inside                  = hi.t*( inner( -minshv+hi.shv(0,0)*hi.v, du_dt )
+        hi.inside                  = hi.t*( inner( -minshv+hi.shv(0,0)*hi.v, du_dt )
                                       - con2(sub, hi.gradU) - hi.gamma*hi.t*hi.shv33 );
 
-      detasigma_dt            = 1./hi.sigma/hi.T*( -hi.bigPI*bigtheta + inside );
+      hi.detasigma_dt            = 1./hi.sigma/hi.T*( -hi.bigPI*bigtheta + inside );
 
 
       // N.B. - ADD EXTRA TERMS FOR BULK EQUATION
-      dBulk_dt = ( -hi.zeta/hi.sigma*bigtheta - hi.Bulk/hi.gamma )/hi.tauRelax;
+      hi.dBulk_dt = ( -hi.zeta/hi.sigma*bigtheta - hi.Bulk/hi.gamma )/hi.tauRelax;
 
       Matrix <double,2,2> ududt = hi.u*du_dt;
 
       // N.B. - ADD READABLE TERM NAMES
       if ( settingsPtr->using_shear )
-        dshv_dt                 = - gamt*( hi.pimin + hi.setas*partU )
+        hi.dshv_dt                 = - gamt*( hi.pimin + hi.setas*partU )
                                  - hi.eta_o_tau*( ududt + transpose(ududt) )
                                  + hi.dpidtsub + hi.sigl*Ipi
                                  - vduk*( ulpi + transpose(ulpi) + (1/hi.gamma)*Ipi );
