@@ -103,14 +103,14 @@ public:
         { for ( auto & p : systemPtr->particles )
             p.update_fluid_quantities( systemPtr->t ); }
 
-  void evaluate_all_particle_time_derivatives()
-        { for ( auto & p : systemPtr->particles )
-            p.evaluate_time_derivatives( systemPtr->t ); }
-
 //  void evaluate_all_particle_time_derivatives()
 //        { for ( auto & p : systemPtr->particles )
-//          { p.set_hydro_info( systemPtr->t );
-//            pEoM->evaluate_time_derivatives( p.hydro ); } }
+//            p.evaluate_time_derivatives( systemPtr->t ); }
+
+  void evaluate_all_particle_time_derivatives()
+        { for ( auto & p : systemPtr->particles )
+          { p.set_hydro_info( systemPtr->t );
+            pEoM->evaluate_time_derivatives( p.hydro ); } }
 
   int do_freezeout_checks();
   void update_all_particles_dsigma_dt();
