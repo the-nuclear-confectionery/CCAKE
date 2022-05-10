@@ -4,6 +4,7 @@
 #include <omp.h>
 
 #include "eom.h"
+#include "eom_default.h"
 #include "kernel.h"
 #include "settings.h"
 #include "Stopwatch.h"
