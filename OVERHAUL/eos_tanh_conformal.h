@@ -24,6 +24,7 @@ private:
     double t_arg = std::tanh( (T-Tc)/Ts );
     t_factor   = 0.5*(1.0+t_arg);
     tp_factor  = 0.5*pow2( sech( (T-Tc)/Ts ) )/Ts;
+    // tp_factor  = 0.5*( [](int x){ return x*x; }(sech( (T-Tc)/Ts) )/Ts;
     tpp_factor = -2.0*t_arg*tp_factor/Ts;
   }
 
