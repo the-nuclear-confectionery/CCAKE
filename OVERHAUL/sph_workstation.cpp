@@ -1014,17 +1014,17 @@ void SPHWorkstation::get_time_derivatives()
   // update fluid quantities
   update_all_particle_fluid_quantities();
 
-  // update freeze out status/lists
-  update_freeze_out_lists();
-
-  // check/update conserved quantities
-  systemPtr->conservation_energy();
-
   //calculate time derivatives needed for equations of motion
   evaluate_all_particle_time_derivatives();
 
+  // update freeze out status/lists
+  update_freeze_out_lists();
+
   // finalize frozen out particles
   finalize_freeze_out( curfrz );
+
+  // check/update conserved quantities
+  systemPtr->conservation_energy();
 
   return;
 }
