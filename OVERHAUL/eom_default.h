@@ -98,12 +98,12 @@ class EoM_default: public EquationsOfMotion
                                  - hi.eta_o_tau*( ududt + transpose(ududt) )
                                  + hi.dpidtsub + hi.sigl*Ipi
                                  - vduk*( ulpi + transpose(ulpi) + (1/hi.gamma)*Ipi );
-std::cout << "t=CHECK: " << hi.ID << "   "
-              << hi.t << "   "
-              << hi.dBulk_dt << "   "
-              << hi.detasigma_dt << "   "
-              << hi.du_dt << "   "
-              << hi.dshv_dt << "\n";
+//std::cout << "t=CHECK: " << hi.ID << "   "
+//              << hi.t << "   "
+//              << hi.dBulk_dt << "   "
+//              << hi.detasigma_dt << "   "
+//              << hi.du_dt << "   "
+//              << hi.dshv_dt << "\n";
 
 if (hi.t > 1.5) exit(8);
 

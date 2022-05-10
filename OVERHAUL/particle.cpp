@@ -581,3 +581,18 @@ void Particle::set_hydro_info(double t)
   hydro.piutot          = piutot;
   hydro.shv             = shv;
 }
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+void Particle::update_from_hydro_info()
+{
+  div_u        = hydro.div_u;
+  bigtheta     = hydro.bigtheta;
+  inside       = hydro.inside;
+
+  dBulk_dt     = hydro.dBulk_dt;
+  detasigma_dt = hydro.detasigma_dt;
+  du_dt        = hydro.du_dt;
+  dshv_dt      = hydro.dshv_dt;
+}

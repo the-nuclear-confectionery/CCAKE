@@ -42,6 +42,7 @@ class Particle
     void set_SettingsPtr(Settings * settingsPtr_in);
 
     void set_hydro_info(double t);
+    void update_from_hydro_info();
 
     void evaluate_time_derivatives( double t );
 
