@@ -495,7 +495,7 @@ void Particle::evaluate_time_derivatives( double t )
                              + dpidtsub() + sigl*Ipi
                              - vduk*( ulpi + transpose(ulpi) + (1/gamma)*Ipi );
 
-std::cout << "CHECK: " << ID << "   "
+std::cout << "t=CHECK: " << ID << "   "
               << t << "   "
               << dBulk_dt << "   "
               << detasigma_dt << "   "
