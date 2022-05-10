@@ -326,7 +326,7 @@ Vector<double,2> Particle::get_aleph_mass()
 
 
 
-void Particle::evaluate_time_derivatives( double t )
+/*void Particle::evaluate_time_derivatives( double t )
 {
 
   double gamt = 0.0, pre = 0.0, p1 = 0.0;
@@ -494,4 +494,83 @@ void Particle::evaluate_time_derivatives( double t )
                              - eta_o_tau*( ududt + transpose(ududt) )
                              + dpidtsub() + sigl*Ipi
                              - vduk*( ulpi + transpose(ulpi) + (1/gamma)*Ipi );
+}*/
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+void Particle::set_hydro_info(double t)
+{
+  hydro.t               = t;
+
+  hydro.Agam            = Agam;
+  hydro.Agam2           = Agam2;
+  hydro.shv33           = shv33;
+
+  hydro.div_u           = div_u;
+  hydro.gamma           = gamma;
+  hydro.s_sub           = s_sub;
+  hydro.e_sub           = e_sub;
+  hydro.s_an            = s_an;
+  hydro.s_rat           = s_rat;
+  hydro.sigsub          = sigsub;
+  hydro.Bulk            = Bulk;
+  hydro.bigPI           = bigPI;
+  hydro.C               = C;
+  hydro.tauRelax        = tauRelax;
+  hydro.stauRelax       = stauRelax;
+  hydro.zeta            = zeta;
+  hydro.setas           = setas; 
+  hydro.Ctot            = Ctot;
+  hydro.Btot            = Btot;
+  hydro.Bsub            = Bsub();
+
+  hydro.sv_eta          = sv_eta;
+  hydro.taupi           = taupi;
+
+  hydro.sigma           = sigma;
+  hydro.dsigma_dt       = dsigma_dt;
+
+  hydro.dw_ds           = dw_ds;
+  hydro.eta             = eta;
+  hydro.eden            = eden;
+
+  hydro.bigtheta        = bigtheta;
+
+  hydro.g2              = g2;
+  hydro.g3              = g3;
+  hydro.gt              = gt;
+  hydro.eta_o_tau       = eta_o_tau;
+  hydro.dwdsT1          = dwdsT1;
+  hydro.sigl            = sigl;
+  hydro.inside          = inside;
+
+  hydro.T               = T();
+
+  // vector members
+  hydro.v               = v;
+  hydro.u               = u;
+  hydro.qmom            = qmom;
+  hydro.gradsig         = gradsig;
+
+  hydro.gradP           = gradP;
+  hydro.gradBulk        = gradBulk;
+  hydro.gradsigma       = gradsigma;
+  hydro.divshear        = divshear;
+  hydro.gradshear       = gradshear;
+
+
+  // matrix members
+  hydro.Msub            = Msub();
+  hydro.dpidtsub        = dpidtsub();
+  hydro.Imat            = Imat;
+  hydro.gradV           = gradV;
+  hydro.gradU           = gradU;
+  hydro.uu              = uu;
+  hydro.pimin           = pimin;
+  hydro.piu             = piu;
+  hydro.piutot          = piutot;
+  hydro.shv             = shv;
 }

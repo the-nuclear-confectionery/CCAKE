@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "constants.h"
+#include "hydrodynamic_info.h"
 #include "matrix.h"
 #include "settings.h"
 #include "thermodynamic_info.h"
@@ -40,19 +41,22 @@ class Particle
     // use this to set equation of state object before creating particles
     void set_SettingsPtr(Settings * settingsPtr_in);
 
+    void set_hydro_info(double t);
 
-    void evaluate_time_derivatives( double t );
+//    void evaluate_time_derivatives( double t );
 
   //private:
 
+    hydrodynamic_info  hydro  = {};
     thermodynamic_info thermo = {};
 
 
-//  public:
+  //public:
 
     Settings * settingsPtr   = nullptr;
 
-    // getter functions
+    //==========================================================================
+    // getter functions for thermodynamic information
     double T()    { return thermo.T;    }
     double muB()  { return thermo.muB;  }
     double muS()  { return thermo.muS;  }
@@ -73,6 +77,13 @@ class Particle
     double dwdQ() { return thermo.dwdQ; }
 
     string get_current_eos_name() { return thermo.eos_name; }
+
+    //==========================================================================
+    // getter functions for hydrodynamic information
+    //...
+    //...add these later...
+    //...
+
 
 
     // rename these functions and their arguments

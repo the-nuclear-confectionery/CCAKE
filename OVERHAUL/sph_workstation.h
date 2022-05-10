@@ -23,6 +23,7 @@ private:
   SystemState     * systemPtr            = nullptr;
   Settings        * settingsPtr          = nullptr;
 
+  EquationOfMotion eom;
   EquationOfState eos;
   TransportCoefficients tc;
 
@@ -40,6 +41,9 @@ public:
   // initialize workstation (now includes eos initialization)
   void initialize()
   {
+    // set up equation of motion object
+    eom.set_SettingsPtr( settingsPtr );
+
     // set up equation of state
     eos.set_SettingsPtr( settingsPtr );
     eos.init();
@@ -96,9 +100,14 @@ public:
         { for ( auto & p : systemPtr->particles )
             p.update_fluid_quantities( systemPtr->t ); }
 
+//  void evaluate_all_particle_time_derivatives()
+//        { for ( auto & p : systemPtr->particles )
+//            p.evaluate_time_derivatives( systemPtr->t ); }
+
   void evaluate_all_particle_time_derivatives()
         { for ( auto & p : systemPtr->particles )
-            p.evaluate_time_derivatives( systemPtr->t ); }
+          { p.set_hydro_info( systemPtr->t );
+            eom.evaluate_time_derivatives( &p.hydro ); }
 
 
   int do_freezeout_checks();
