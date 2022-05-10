@@ -114,22 +114,22 @@ class EoM_default: public EquationsOfMotion
                                  - hi.eta_o_tau*( ududt + transpose(ududt) )
                                  + hi.dpidtsub + hi.sigl*Ipi
                                  - vduk*( ulpi + transpose(ulpi) + (1/hi.gamma)*Ipi );
-std::cout << "t=CHECK: " << hi.ID << "   "
-              << hi.t << "   "
-              << hi.dBulk_dt << "   "
-              << hi.detasigma_dt << "   "
-              << hi.du_dt << "   "
-              << hi.dshv_dt << "\n";
-
-std::cout << "CHECK dshv_dt: " << hi.ID << "   "
-              << hi.t << "   "
-              << hi.dshv_dt << "   "
-              << - gamt*( hi.pimin + hi.setas*partU ) << "   "
-              << - hi.eta_o_tau*( ududt + transpose(ududt) ) << "   "
-              << hi.dpidtsub + hi.sigl*Ipi << "   "
-              << - vduk*( ulpi + transpose(ulpi) + (1/hi.gamma)*Ipi ) << "\n";
-
-if (hi.t > 1.1) exit(8);
+//std::cout << "t=CHECK: " << hi.ID << "   "
+//              << hi.t << "   "
+//              << hi.dBulk_dt << "   "
+//              << hi.detasigma_dt << "   "
+//              << hi.du_dt << "   "
+//              << hi.dshv_dt << "\n";
+//
+//std::cout << "CHECK dshv_dt: " << hi.ID << "   "
+//              << hi.t << "   "
+//              << hi.dshv_dt << "   "
+//              << - gamt*( hi.pimin + hi.setas*partU ) << "   "
+//              << - hi.eta_o_tau*( ududt + transpose(ududt) ) << "   "
+//              << hi.dpidtsub + hi.sigl*Ipi << "   "
+//              << - vduk*( ulpi + transpose(ulpi) + (1/hi.gamma)*Ipi ) << "\n";
+//
+//if (hi.t > 1.1) exit(8);
 
     }
 
