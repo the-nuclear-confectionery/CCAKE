@@ -29,7 +29,7 @@ class EquationsOfMotion
     virtual void compute_detasigma_dt(){}
     virtual void compute_dBulk_dt(){}
 
-    virtual void evaluate_time_derivatives(const hydrodynamic_info & h_i){cout << "In " << __FUNCTION__ << endl;}
+    virtual void evaluate_time_derivatives(const hydrodynamic_info & h_i){cout << "t=: In " << __FUNCTION__ << endl;}
 
   // allow derived classes to access and redefine
   //protected:
