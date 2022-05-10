@@ -537,15 +537,12 @@ void Particle::set_hydro_info(double t)
   hydro.eta             = eta;
   hydro.eden            = eden;
 
-  hydro.bigtheta        = bigtheta;
-
   hydro.g2              = g2;
   hydro.g3              = g3;
   hydro.gt              = gt;
   hydro.eta_o_tau       = eta_o_tau;
   hydro.dwdsT1          = dwdsT1;
   hydro.sigl            = sigl;
-  hydro.inside          = inside;
 
   hydro.T               = T();
 
