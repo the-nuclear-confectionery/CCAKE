@@ -60,14 +60,14 @@ void SystemState::initialize()  // formerly called "manualenter"
   std::cout << "efcheck = " << efcheck*hbarc_GeVfm << " GeV/fm^3\n";
   std::cout << "sfcheck = " << sfcheck << " 1/fm^3\n";
 
-  freezeoutT = settingsPtr->Freeze_Out_Temperature;
+//  freezeoutT = settingsPtr->Freeze_Out_Temperature;
 
 
   // initialize information for particles
   for (auto & p : particles)
   {
     p.set_SettingsPtr( settingsPtr );
-    p.freezeoutT = freezeoutT;
+//    p.freezeoutT = freezeoutT;
     p.efcheck = efcheck;
   }
 

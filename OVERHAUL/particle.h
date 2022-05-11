@@ -93,7 +93,7 @@ class Particle
     void update_fluid_quantities(double tin);
     void reset_pi_tensor(double tin2);
     double gamcalc();
-    double Bsub();
+//    double Bsub();
 
     // members
     bool print_this_particle = false;
@@ -107,15 +107,6 @@ class Particle
     double rhoS_weight     = 0.0; // specific volume per particle (without rhoS_an)
     double rhoQ_weight     = 0.0; // specific volume per particle (without rhoQ_an)
     double transverse_area = 0.0; // dx * dy
-    double ets1            = 0.0;
-    double ets2            = 0.0;
-    double ets3            = 0.0;
-    double ets4            = 0.0;
-    double b1              = 0.0;
-    double b2              = 0.0;
-    double b3              = 0.0;
-    double b4              = 0.0;
-//    double shv33           = 0.0;
 
     double s_sub           = 0.0;
     double e_sub           = 0.0;
@@ -124,9 +115,6 @@ class Particle
     double sigsub          = 0.0;
     double eta_sigma       = 0.0; // Ratio entropy/especific volume
 
-    double sv_eta          = 0.0;
-    double taupi           = 0.0;
-
     double contribution_to_total_E   = 0.0;
     double contribution_to_total_dEz = 0.0;
     double contribution_to_total_Ez  = 0.0;
@@ -134,7 +122,6 @@ class Particle
     ////////////////////////////////////////////////////////////////////////////
     //                         Fluid Variables                                //
     ////////////////////////////////////////////////////////////////////////////
-    double dw_ds           = 0.0; // derivative of the enthalpy on entropy
     double eta             = 0.0; // entropy density
     double rhoB_an         = 0.0;
     double rhoB_sub        = 0.0; // Baryon density
@@ -142,26 +129,17 @@ class Particle
     double rhoS_sub        = 0.0; // strange density
     double rhoQ_an         = 0.0;
     double rhoQ_sub        = 0.0; // electric charge density
-    double eden            = 0.0;
 
-    double B               = 0.0; // Baryon density
-    double S               = 0.0; // Baryon density
-    double Q               = 0.0; // baryon, strange, electric charge
-    double drhoB_dt        = 0.0; // Baryon density
-    double drhoS_dt        = 0.0; // Baryon density
-    double drhoQ_dt        = 0.0;
+    //double B               = 0.0; // Baryon density
+    //double S               = 0.0; // Baryon density
+    //double Q               = 0.0; // baryon, strange, electric charge
 
-    double bcheck          = 0.0;
-    double saves           = 0.0;
-
-    double freezeoutT      = 0.0;
+//    double freezeoutT      = 0.0;
     double efcheck         = 0.0;
 
     // vector members
     Vector<double,2> r;                                       // position
     Vector<double,2> qmom;
-    Vector<double,2> k1, k2, k3, k4, ksub;
-    Vector<double,2> r1, r2, r3, r4, rsub;
 
 
     // matrix members
@@ -185,19 +163,6 @@ class Particle
     FRZ fback2 = {};
     FRZ fback3 = {};
     FRZ fback4 = {};
-
-    ////////////////////////////////////////////////////////////////////////////////
-    // NEW VARIABLES AND FUNCTIONS TO CLEAN UP EQUATIONS_OF_MOTION BELOW THIS LINE
-    ////////////////////////////////////////////////////////////////////////////////
-    double vartheta = 0.0;
-
-    void set_vartheta(double t);
-    double get_Theta_force();
-    double get_Pi_force(double t);
-    double get_aleph_force(double t);
-    Vector<double,2> get_Theta_mass();
-    Vector<double,2> get_Pi_mass();
-    Vector<double,2> get_aleph_mass();
 
 };
 
