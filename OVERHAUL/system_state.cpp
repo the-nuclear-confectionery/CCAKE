@@ -282,10 +282,10 @@ void SystemState::get_derivative_step(double dx)
 
     if ( p.Freeze < 5 )
     {
-      p.u            = u0[i]        + dx*p.hydro.du_dt;
+      p.hydro.u            = u0[i]        + dx*p.hydro.du_dt;
       p.eta_sigma    = etasigma0[i] + dx*p.hydro.detasigma_dt;
-      p.Bulk         = Bulk0[i]     + dx*p.hydro.dBulk_dt;
-      tmini( p.shv,    shv0[i]      + dx*p.hydro.dshv_dt );
+      p.hydro.Bulk         = Bulk0[i]     + dx*p.hydro.dBulk_dt;
+      tmini( p.hydro.shv,    shv0[i]      + dx*p.hydro.dshv_dt );
     }
   }
 }
