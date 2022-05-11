@@ -86,7 +86,10 @@ public:
           sw.Start();
           //#pragma omp parallel for schedule(dynamic)
           for ( auto & p : systemPtr->particles )
+          {
+            cout << "Doing this\n";
             smooth_gradients( p, systemPtr->t );
+          }
           sw.Stop();
           cout << "t=" << systemPtr->t << ": finished in " << sw.printTime()
               << " s using " << omp_get_num_threads() << " threads.\n";
