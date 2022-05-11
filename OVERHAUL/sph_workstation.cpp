@@ -768,11 +768,10 @@ void SPHWorkstation::advance_timestep_rk2( double dt )
 
 void SPHWorkstation::advance_timestep_rk4( double dt )
 {
-  // make these quantities local instead of global
-  double ets1 = 0.0, ets2 = 0.0, ets3 = 0.0, ets4 = 0.0;
-  double b1 = 0.0, b2 = 0.0, b3 = 0.0, b4 = 0.0;
-  Vector<double,2> k1, k2, k3, k4;
-  Vector<double,2> r1, r2, r3, r4;
+//  double ets1 = 0.0, ets2 = 0.0, ets3 = 0.0, ets4 = 0.0;
+//  double b1 = 0.0, b2 = 0.0, b3 = 0.0, b4 = 0.0;
+//  Vector<double,2> k1, k2, k3, k4;
+//  Vector<double,2> r1, r2, r3, r4;
 
 
   systemPtr->rk2 = 1;
