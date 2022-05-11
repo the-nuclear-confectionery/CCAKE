@@ -136,9 +136,9 @@ class Particle
     double rhoQ_an         = 0.0;
     double rhoQ_sub        = 0.0; // electric charge density
 
-    //double B               = 0.0; // Baryon density
-    //double S               = 0.0; // Baryon density
-    //double Q               = 0.0; // baryon, strange, electric charge
+    double B               = 0.0; // Baryon density
+    double S               = 0.0; // Baryon density
+    double Q               = 0.0; // baryon, strange, electric charge
 
 //    double freezeoutT      = 0.0;
     double efcheck         = 0.0;
