@@ -66,6 +66,8 @@ struct hydrodynamic_info
   Matrix<double,2,2> gradV, gradU;        // Gradient of velocity needed for shear
   Matrix<double,2,2> uu, pimin, piu, piutot;
   Matrix<double,3,3> shv;
+  Matrix<double,2,2> shv1, shv2, shv3, shv4;
+
 
   // quantities (possibly?) set in EoM classes
   double bigtheta        = 0.0;

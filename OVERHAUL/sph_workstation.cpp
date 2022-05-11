@@ -340,7 +340,7 @@ void SPHWorkstation::smooth_fields(Particle & pa)
 
       pa.hydro.gradBulk             += ( pb.hydro.Bulk/pb.hydro.sigma/pb.hydro.gamma
                                     + pa.hydro.Bulk/pa.hydro.sigma/pa.hydro.gamma)/tin*sigsigK;
-      pa.hydro.gradV                += (pb.sigmaweight/pa.hydro.sigma)*( pb.v -  pa.v )*gradK;
+      pa.hydro.gradV                += (pb.sigmaweight/pa.hydro.sigma)*( pb.hydro.v -  pa.hydro.v )*gradK;
 
       //===============
       // print status
@@ -348,14 +348,14 @@ void SPHWorkstation::smooth_fields(Particle & pa)
             && settingsPtr->particles_to_print.size() > 0
             && settingsPtr->print_particle(a) )
           std::cout << "CHECK gradV: " << tin << "   " << a << "   " << b << "   "
-                    << pb.sigmaweight/pa.hydro.sigma << "   " << pb.v -  pa.v
+                    << pb.sigmaweight/pa.hydro.sigma << "   " << pb.hydro.v -  pa.hydro.v
                     << "   " << gradK << "   " << pa.hydro.gradV << "\n";
 
       //===============
       // add shear terms
       if ( settingsPtr->using_shear )
       {
-        pa.hydro.gradshear            += inner(sigsigK, pa.v)*( sigsqrb*vb + sigsqra*va );
+        pa.hydro.gradshear            += inner(sigsigK, pa.hydro.v)*( sigsqrb*vb + sigsqra*va );
         pa.hydro.divshear             += sigsqrb*sigsigK*transpose(vminib)
                                     + sigsqra*sigsigK*transpose(vminia);
       }
@@ -464,7 +464,7 @@ void SPHWorkstation::smooth_gradients( Particle & pa, double tin )
 
     pa.hydro.gradBulk             += ( pb.hydro.Bulk/pb.hydro.sigma/pb.hydro.gamma
                                   + pa.hydro.Bulk/pa.hydro.sigma/pa.hydro.gamma)/tin*sigsigK;
-    pa.hydro.gradV                += (pb.sigmaweight/pa.hydro.sigma)*( pb.v -  pa.v )*gradK;
+    pa.hydro.gradV                += (pb.sigmaweight/pa.hydro.sigma)*( pb.hydro.v -  pa.hydro.v )*gradK;
 
     //===============
     // print status
@@ -472,14 +472,14 @@ void SPHWorkstation::smooth_gradients( Particle & pa, double tin )
           && settingsPtr->particles_to_print.size() > 0
           && settingsPtr->print_particle(a) )
         std::cout << "CHECK gradV: " << tin << "   " << a << "   " << b << "   "
-                  << pb.sigmaweight/pa.hydro.sigma << "   " << pb.v -  pa.v
+                  << pb.sigmaweight/pa.hydro.sigma << "   " << pb.hydro.v -  pa.hydro.v
                   << "   " << gradK << "   " << pa.hydro.gradV << "\n";
 
     //===============
     // add shear terms
     if ( settingsPtr->using_shear )
     {
-      pa.hydro.gradshear            += inner(sigsigK, pa.v)*( sigsqrb*vb + sigsqra*va );
+      pa.hydro.gradshear            += inner(sigsigK, pa.hydro.v)*( sigsqrb*vb + sigsqra*va );
       pa.hydro.divshear             += sigsqrb*sigsigK*transpose(vminib)
                                   + sigsqra*sigsigK*transpose(vminia);
     }
@@ -698,13 +698,13 @@ void SPHWorkstation::advance_timestep_rk2( double dt )
     {
       auto & p    = systemPtr->particles[i];
 
-      p.r = systemPtr->r0[i] + 0.5*dt*p.v;
+      p.r = systemPtr->r0[i] + 0.5*dt*p.hydro.v;
       if ( p.Freeze < 5 )
       {
-        p.u            = systemPtr->u0[i]        + 0.5*dt*p.du_dt;
-        p.eta_sigma    = systemPtr->etasigma0[i] + 0.5*dt*p.detasigma_dt;
-        p.Bulk         = systemPtr->Bulk0[i]     + 0.5*dt*p.dBulk_dt;
-        tmini( p.hydro.shv,    systemPtr->shv0[i]      + 0.5*dt*p.dshv_dt );
+        p.hydro.u            = systemPtr->u0[i]        + 0.5*dt*p.hydro.du_dt;
+        p.eta_sigma    = systemPtr->etasigma0[i] + 0.5*dt*p.hydro.detasigma_dt;
+        p.hydro.Bulk         = systemPtr->Bulk0[i]     + 0.5*dt*p.hydro.dBulk_dt;
+        tmini( p.hydro.shv,    systemPtr->shv0[i]      + 0.5*dt*p.hydro.dshv_dt );
 
         p.contribution_to_total_Ez = systemPtr->particles_E0[i]
                                       + 0.5*dt*p.contribution_to_total_dEz;
@@ -734,13 +734,13 @@ void SPHWorkstation::advance_timestep_rk2( double dt )
     {
       auto & p    = systemPtr->particles[i];
 
-      p.r = systemPtr->r0[i] + dt*p.v;
+      p.r = systemPtr->r0[i] + dt*p.hydro.v;
       if ( p.Freeze < 5 )
       {
-        p.u            = systemPtr->u0[i]        + dt*p.du_dt;
-        p.eta_sigma    = systemPtr->etasigma0[i] + dt*p.detasigma_dt;
-        p.Bulk         = systemPtr->Bulk0[i]     + dt*p.dBulk_dt;
-        tmini( p.hydro.shv,    systemPtr->shv0[i]      + dt*p.dshv_dt );
+        p.hydro.u            = systemPtr->u0[i]        + dt*p.hydro.du_dt;
+        p.eta_sigma    = systemPtr->etasigma0[i] + dt*p.hydro.detasigma_dt;
+        p.hydro.Bulk         = systemPtr->Bulk0[i]     + dt*p.hydro.dBulk_dt;
+        tmini( p.hydro.shv,    systemPtr->shv0[i]      + dt*p.hydro.dshv_dt );
 
         p.contribution_to_total_Ez = systemPtr->particles_E0[i]
                                       + dt*p.contribution_to_total_dEz;
@@ -789,17 +789,17 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
     auto & p    = systemPtr->particles[i];
 
     // store increments
-    p.k1        = dt*p.du_dt;
-    p.r1        = dt*p.v;
-    p.ets1      = dt*p.detasigma_dt;
-    p.b1        = dt*p.dBulk_dt;
-    p.hydro.shv1      = dt*p.dshv_dt;
+    p.k1        = dt*p.hydro.du_dt;
+    p.r1        = dt*p.hydro.v;
+    p.ets1      = dt*p.hydro.detasigma_dt;
+    p.b1        = dt*p.hydro.dBulk_dt;
+    p.hydro.shv1      = dt*p.hydro.dshv_dt;
 
     // implement increments with appropriate coefficients
-    p.u         = systemPtr->u0[i]        + 0.5*p.k1;
+    p.hydro.u         = systemPtr->u0[i]        + 0.5*p.k1;
     p.r         = systemPtr->r0[i]        + 0.5*p.r1;
     p.eta_sigma = systemPtr->etasigma0[i] + 0.5*p.ets1;
-    p.Bulk      = systemPtr->Bulk0[i]     + 0.5*p.b1;
+    p.hydro.Bulk      = systemPtr->Bulk0[i]     + 0.5*p.b1;
     tmini(p.hydro.shv,  systemPtr->shv0[i]      + 0.5*p.hydro.shv1);
 
     // regulate updated results if necessary
@@ -822,16 +822,16 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
   {
     auto & p    = systemPtr->particles[i];
 
-    p.k2        = dt*p.du_dt;
-    p.r2        = dt*p.v;
-    p.ets2      = dt*p.detasigma_dt;
-    p.b2        = dt*p.dBulk_dt;
-    p.hydro.shv2      = dt*p.dshv_dt;
+    p.k2        = dt*p.hydro.du_dt;
+    p.r2        = dt*p.hydro.v;
+    p.ets2      = dt*p.hydro.detasigma_dt;
+    p.b2        = dt*p.hydro.dBulk_dt;
+    p.hydro.shv2      = dt*p.hydro.dshv_dt;
 
-    p.u         = systemPtr->u0[i]        + 0.5*p.k2;
+    p.hydro.u         = systemPtr->u0[i]        + 0.5*p.k2;
     p.r         = systemPtr->r0[i]        + 0.5*p.r2;
     p.eta_sigma = systemPtr->etasigma0[i] + 0.5*p.ets2;
-    p.Bulk      = systemPtr->Bulk0[i]     + 0.5*p.b2;
+    p.hydro.Bulk      = systemPtr->Bulk0[i]     + 0.5*p.b2;
     tmini(p.hydro.shv,  systemPtr->shv0[i]      + 0.5*p.hydro.shv2);
 
     // regulate updated results if necessary
@@ -853,17 +853,17 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
   {
     auto & p    = systemPtr->particles[i];
 
-    p.k3        = dt*p.du_dt;
-    p.r3        = dt*p.v;
-    p.ets3      = dt*p.detasigma_dt;
-    p.b3        = dt*p.dBulk_dt;
-    p.hydro.shv3      = dt*p.dshv_dt;
+    p.k3        = dt*p.hydro.du_dt;
+    p.r3        = dt*p.hydro.v;
+    p.ets3      = dt*p.hydro.detasigma_dt;
+    p.b3        = dt*p.hydro.dBulk_dt;
+    p.hydro.shv3      = dt*p.hydro.dshv_dt;
 
 
-    p.u         = systemPtr->u0[i]        + p.k3;
+    p.hydro.u         = systemPtr->u0[i]        + p.k3;
     p.r         = systemPtr->r0[i]        + p.r3;
     p.eta_sigma = systemPtr->etasigma0[i] + p.ets3;
-    p.Bulk      = systemPtr->Bulk0[i]     + p.b3;
+    p.hydro.Bulk      = systemPtr->Bulk0[i]     + p.b3;
     tmini(p.hydro.shv,  systemPtr->shv0[i]      + p.hydro.shv3);
 
     // regulate updated results if necessary
@@ -886,17 +886,17 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
   {
     auto & p    = systemPtr->particles[i];
 
-    p.k4        = dt*p.du_dt;
-    p.r4        = dt*p.v;
-    p.ets4      = dt*p.detasigma_dt;
-    p.b4        = dt*p.dBulk_dt;
-    p.hydro.shv4      = dt*p.dshv_dt;
+    p.k4        = dt*p.hydro.du_dt;
+    p.r4        = dt*p.hydro.v;
+    p.ets4      = dt*p.hydro.detasigma_dt;
+    p.b4        = dt*p.hydro.dBulk_dt;
+    p.hydro.shv4      = dt*p.hydro.dshv_dt;
 
     // sum the weighted steps into yf and return the final y values
-    p.u         = systemPtr->u0[i]        + w1*p.k1   + w2*p.k2   + w2*p.k3   + w1*p.k4;
+    p.hydro.u         = systemPtr->u0[i]        + w1*p.k1   + w2*p.k2   + w2*p.k3   + w1*p.k4;
     p.r         = systemPtr->r0[i]        + w1*p.r1   + w2*p.r2   + w2*p.r3   + w1*p.r4;
     p.eta_sigma = systemPtr->etasigma0[i] + w1*p.ets1 + w2*p.ets2 + w2*p.ets3 + w1*p.ets4;
-    p.Bulk      = systemPtr->Bulk0[i]     + w1*p.b1   + w2*p.b2   + w2*p.b3   + w1*p.b4;
+    p.hydro.Bulk      = systemPtr->Bulk0[i]     + w1*p.b1   + w2*p.b2   + w2*p.b3   + w1*p.b4;
     tmini(p.hydro.shv,  systemPtr->shv0[i]      + w1*p.hydro.shv1 + w2*p.hydro.shv2 + w2*p.hydro.shv3 + w1*p.hydro.shv4);
 
     // regulate updated results if necessary
@@ -1105,12 +1105,12 @@ void SPHWorkstation::locate_phase_diagram_point_sBSQ(Particle & p, double s_In) 
 void SPHWorkstation::calcbsq(Particle & p)
 {
   p.hydro.gamma           = p.gamcalc();
-  p.v               = (1.0/p.hydro.gamma)*p.u;
+  p.hydro.v               = (1.0/p.hydro.gamma)*p.hydro.u;
   double s_lab    = p.eta/p.hydro.gamma/systemPtr->t;
   double rhoB_lab = p.rhoB_sub/p.hydro.gamma/systemPtr->t;
   double rhoS_lab = p.rhoS_sub/p.hydro.gamma/systemPtr->t;
   double rhoQ_lab = p.rhoQ_sub/p.hydro.gamma/systemPtr->t;
-  p.qmom            = ( (p.e()+p.p())*p.hydro.gamma/p.hydro.sigma )*p.u;
+  p.qmom            = ( (p.e()+p.p())*p.hydro.gamma/p.hydro.sigma )*p.hydro.u;
 	locate_phase_diagram_point_sBSQ( p, s_lab, rhoB_lab, rhoS_lab, rhoQ_lab );
 }
 
@@ -1132,7 +1132,7 @@ void SPHWorkstation::bsqsvfreezeout(int curfrz)
     for (auto & p : systemPtr->particles)
     {
       p.frz2.r       = p.r;
-      p.frz2.u       = p.u;
+      p.frz2.u       = p.hydro.u;
       p.frz2.sigma   = p.hydro.sigma;
       p.frz2.T       = p.T();
       p.frz2.muB     = p.muB();
@@ -1158,7 +1158,7 @@ void SPHWorkstation::bsqsvfreezeout(int curfrz)
     for (auto & p : systemPtr->particles)
     {
       p.frz1.r       = p.r;
-      p.frz1.u       = p.u;
+      p.frz1.u       = p.hydro.u;
       p.frz1.sigma   = p.hydro.sigma;
       p.frz1.T       = p.T();
       p.frz1.muB     = p.muB();
@@ -1257,7 +1257,7 @@ void SPHWorkstation::bsqsvfreezeout(int curfrz)
       p.frz2         = p.frz1;
 
       p.frz1.r       = p.r;
-      p.frz1.u       = p.u;
+      p.frz1.u       = p.hydro.u;
       p.frz1.sigma   = p.hydro.sigma;
       p.frz1.T       = p.T();
       p.frz1.muB     = p.muB();
@@ -1429,8 +1429,8 @@ double SPHWorkstation::gradPressure_weight(const int a, const int b)
 void SPHWorkstation::setvisc( Particle & p )
 {
   tc.setTherm( p.thermo );
-  p.setas     = tc.eta();
-  p.stauRelax = tc.tau_pi();
-  p.zeta      = tc.zeta();
-  p.tauRelax  = tc.tau_Pi();
+  p.hydro.setas     = tc.eta();
+  p.hydro.stauRelax = tc.tau_pi();
+  p.hydro.zeta      = tc.zeta();
+  p.hydro.tauRelax  = tc.tau_Pi();
 }
