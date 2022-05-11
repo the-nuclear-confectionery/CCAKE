@@ -68,7 +68,7 @@ class EoM_default: public EquationsOfMotion
     Matrix<double,2,2> Msub_fun( hydrodynamic_info & hi )
     {
       hi.piu  = rowp1(0,hi.shv)*hi.u;
-      return hi.Agam2*hi.uu + hi.Ctot*hi.gamma*hi.Imat - (1+4/3./hi.g2)*hi.piu
+      return hi.Agam2*hi.uu + hi.Ctot*hi.gamma*Imat - (1+4/3./hi.g2)*hi.piu
               + hi.dwdsT1*transpose(hi.piu) + hi.gamma*hi.pimin;
     }
 
@@ -156,7 +156,7 @@ class EoM_default: public EquationsOfMotion
       // define auxiliary variables
       double vduk               = inner( hi.v, hi.du_dt );
       Matrix <double,2,2> ulpi  = hi.u*colp1(0, hi.shv);
-      Matrix <double,2,2> Ipi   = - 2.0*hi.eta_o_tau/3.0 * ( hi.Imat + hi.uu )
+      Matrix <double,2,2> Ipi   = - 2.0*hi.eta_o_tau/3.0 * ( Imat + hi.uu )
                                   + 4./3.*hi.pimin;
 
       //===============
