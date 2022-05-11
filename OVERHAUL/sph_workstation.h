@@ -103,23 +103,18 @@ public:
         { for ( auto & p : systemPtr->particles )
             setvisc( p ); }
 
-//  void update_all_particle_fluid_quantities()
-//        { for ( auto & p : systemPtr->particles )
-//            p.update_fluid_quantities( systemPtr->t ); }
 
-//  void evaluate_all_particle_time_derivatives()
-//        { for ( auto & p : systemPtr->particles )
-//            p.evaluate_time_derivatives( systemPtr->t ); }
 
   void evaluate_all_particle_time_derivatives()
         { for ( auto & p : systemPtr->particles )
-          { p.set_hydro_info( systemPtr->t );
+          { /*p.set_hydro_info( systemPtr->t );*/
+            p.hydro.ID = p.ID;
+            p.hydro.t  = systemPtr->t;
             pEoM->evaluate_time_derivatives( p.hydro );
-            p.update_from_hydro_info(); } } // the first and last steps will
+            /*p.update_from_hydro_info();*/ } } // the first and last steps will
                                             // eventually be unnecessary
 
   int do_freezeout_checks();
-//  void update_all_particles_dsigma_dt();
   void update_freeze_out_lists();
   void finalize_freeze_out(int curfrz);
 

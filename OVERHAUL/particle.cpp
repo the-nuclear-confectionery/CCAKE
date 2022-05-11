@@ -181,26 +181,6 @@ void Particle::reset_pi_tensor(double tin2)
 ////////////////////////////////////////////////////////////////////////////////
 void Particle::set_hydro_info(double t)
 {
-  hydro.ID              = ID;
-  hydro.t               = t;
-
-//  hydro.Agam            = Agam;
-//  hydro.Agam2           = Agam2;
-//  hydro.shv33           = shv33;
-//
-//  hydro.gamma           = gamma;
-//  hydro.Bulk            = Bulk;
-//  hydro.bigPI           = bigPI;
-//  hydro.C               = C;
-//  hydro.tauRelax        = tauRelax;
-//  hydro.stauRelax       = stauRelax;
-//  hydro.zeta            = zeta;
-//  hydro.setas           = setas; 
-//  hydro.Ctot            = Ctot;
-//  hydro.Btot            = Btot;
-//
-//  hydro.sigma           = sigma;
-//  hydro.dsigma_dt       = dsigma_dt;
 
   hydro.dwds            = dwds();
   hydro.dwdB            = dwdB();
@@ -210,72 +190,10 @@ void Particle::set_hydro_info(double t)
   hydro.rhoS            = rhoS();
   hydro.rhoQ            = rhoQ();
 
-//  hydro.g2              = g2;
-//  hydro.g3              = g3;
-//  hydro.gt              = gt;
-//  hydro.eta_o_tau       = eta_o_tau;
-//  hydro.dwdsT1          = dwdsT1;
-//  hydro.sigl            = sigl;
-
   hydro.T               = T();
   hydro.w               = w();
   hydro.s               = s();
 
-  // vector members
-//  hydro.v               = v;
-//  hydro.u               = u;
-//
-//  hydro.gradP           = gradP;
-//  hydro.gradBulk        = gradBulk;
-//  hydro.divshear        = divshear;
-//  hydro.gradshear       = gradshear;
-//
-//  // matrix members
-  hydro.Imat            = Imat;
-//  hydro.gradV           = gradV;
-//  hydro.gradU           = gradU;
-//  hydro.uu              = uu;
-//  hydro.pimin           = pimin;
-//  hydro.piu             = piu;
-//  hydro.piutot          = piutot;
-//  hydro.shv             = shv;
 }
 
 
-
-////////////////////////////////////////////////////////////////////////////////
-void Particle::update_from_hydro_info()
-{
-//  Agam         = hydro.Agam;
-//  Agam2        = hydro.Agam2;
-//
-//  bigPI        = hydro.bigPI;
-//  C            = hydro.C;
-//  Ctot         = hydro.Ctot;
-//  Btot         = hydro.Btot;
-//
-//  sigma        = hydro.sigma;
-//  dsigma_dt    = hydro.dsigma_dt;
-//
-//  g2           = hydro.g2;
-//  g3           = hydro.g3;
-//  gt           = hydro.gt;
-//  eta_o_tau    = hydro.eta_o_tau;
-//  dwdsT1       = hydro.dwdsT1;
-//  sigl         = hydro.sigl;
-//
-//  gradU        = hydro.gradU;
-//  uu           = hydro.uu;
-//  pimin        = hydro.pimin;
-//  piu          = hydro.piu;
-//  piutot       = hydro.piutot;
-//
-//  div_u        = hydro.div_u;
-//  bigtheta     = hydro.bigtheta;
-//  inside       = hydro.inside;
-//
-//  dBulk_dt     = hydro.dBulk_dt;
-//  detasigma_dt = hydro.detasigma_dt;
-//  du_dt        = hydro.du_dt;
-//  dshv_dt      = hydro.dshv_dt;
-}

@@ -9,9 +9,11 @@
 
 class EoM_default: public EquationsOfMotion
 {
+  private:
+    Matrix<double,2,2> Imat;
 
   public:
-    EoM_default(){}
+    EoM_default(){ Imat.identity(); }
     virtual ~EoM_default(){}
 
     std::string name = "";                    // name associated to EoM
@@ -71,7 +73,8 @@ class EoM_default: public EquationsOfMotion
 
     
     //==========================================================================
-    void evaluate_time_derivatives( hydrodynamic_info & hi )
+    void evaluate_time_derivatives( hydrodynamic_info & hi,
+                                    thermodynamic_info & ti )
     {
       // PREVIOUSLY DONE IN UPDATE_DSIGMA_DT
       hi.dsigma_dt = -hi.sigma * ( hi.gradV(0,0) + hi.gradV(1,1) );
@@ -85,17 +88,17 @@ class EoM_default: public EquationsOfMotion
       hi.g2           = hi.gamma*hi.gamma;
       hi.g3           = hi.gamma*hi.g2;
       hi.gt           = hi.gamma*hi.t;
-      double dwdsT    = hi.dwds/hi.T;
-      hi.dwdsT1       = 1 - hi.dwds/hi.T;
+      double dwdsT    = ti.dwds/ti.T;
+      hi.dwdsT1       = 1 - ti.dwds/ti.T;
       hi.sigl         = hi.dsigma_dt/hi.sigma - 1/hi.t;
       hi.gradU        = hi.gamma*hi.gradV+hi.g3*(hi.v*(hi.v*hi.gradV));
       hi.bigPI        = hi.Bulk*hi.sigma/hi.gt;
-      hi.C            = hi.w + hi.bigPI;
+      hi.C            = ti.w + hi.bigPI;
 
       hi.eta_o_tau    = (settingsPtr->using_shear) ? hi.setas/hi.stauRelax : 0.0;
 
-      hi.Agam         = hi.w - hi.dwds*( hi.s + hi.bigPI/hi.T ) - hi.zeta/hi.tauRelax
-                        - hi.dwdB*hi.rhoB - hi.dwdS*hi.rhoS - hi.dwdQ*hi.rhoQ;
+      hi.Agam         = ti.w - ti.dwds*( ti.s + hi.bigPI/ti.T ) - hi.zeta/hi.tauRelax
+                        - ti.dwdB*ti.rhoB - ti.dwdS*ti.rhoS - ti.dwdQ*ti.rhoQ;
 
       hi.Agam2        = ( hi.Agam - hi.eta_o_tau/3.0 - hi.dwdsT1*hi.shv(0,0) ) / hi.gamma;
       hi.Ctot         = hi.C + hi.eta_o_tau*(1.0/hi.g2-1.0);
