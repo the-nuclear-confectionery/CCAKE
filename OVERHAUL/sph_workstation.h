@@ -88,7 +88,8 @@ public:
           for ( auto & p : systemPtr->particles )
             smooth_gradients( p, systemPtr->t );
           sw.Stop();
-          cout << "t=" << systemPtr->t << ": finished in " << sw.printTime() << " s.\n";
+          cout << "t=" << systemPtr->t << ": finished in " << sw.printTime()
+              << " s using " << omp_get_num_threads() << " threads.\n";
         }
 
   void update_all_particle_thermodynamics()
@@ -109,9 +110,9 @@ public:
 
   void evaluate_all_particle_time_derivatives()
         { for ( auto & p : systemPtr->particles )
-          { /*p.set_hydro_info( systemPtr->t );*/
+          { p.set_hydro_info( systemPtr->t );
             pEoM->evaluate_time_derivatives( p.hydro );
-            /*p.update_from_hydro_info();*/ } } // the first and last steps will
+            p.update_from_hydro_info(); } } // the first and last steps will
                                             // eventually be unnecessary
 
   int do_freezeout_checks();

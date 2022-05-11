@@ -32,13 +32,13 @@ struct hydrodynamic_info
   double sigma           = 0.0; // especific volume
   double dsigma_dt       = 0.0; // derivative of especific volume
 
-  double dwds           = 0.0; // derivative of the enthalpy on entropy
-  double dwdB           = 0.0; // derivative of the enthalpy on entropy
-  double dwdS           = 0.0; // derivative of the enthalpy on entropy
-  double dwdQ           = 0.0; // derivative of the enthalpy on entropy
-  double rhoB           = 0.0; // derivative of the enthalpy on entropy
-  double rhoS           = 0.0; // derivative of the enthalpy on entropy
-  double rhoQ           = 0.0; // derivative of the enthalpy on entropy
+  double dwds            = 0.0; // derivative of the enthalpy on entropy
+  double dwdB            = 0.0; // derivative of the enthalpy on entropy
+  double dwdS            = 0.0; // derivative of the enthalpy on entropy
+  double dwdQ            = 0.0; // derivative of the enthalpy on entropy
+  double rhoB            = 0.0; // derivative of the enthalpy on entropy
+  double rhoS            = 0.0; // derivative of the enthalpy on entropy
+  double rhoQ            = 0.0; // derivative of the enthalpy on entropy
 
   double g2              = 0.0;
   double g3              = 0.0;
