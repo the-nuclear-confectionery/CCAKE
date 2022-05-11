@@ -136,7 +136,7 @@ void SystemState::initialize_linklist()
   for (auto & p : particles)
   {
     double gg = p.gamcalc();
-    p.g2      = gg*gg;
+    p.hydro.g2      = gg*gg;
   }
 
   return;
@@ -202,8 +202,8 @@ void SystemState::conservation_energy()
     for ( auto & p : particles )
     {
       p.contribution_to_total_E
-         = ( p.C*p.g2 - p.p() - p.bigPI + p.shv(0,0) )
-           * p.sigmaweight * t / p.sigma;
+         = ( p.hydro.C*p.hydro.g2 - p.p() - p.hydro.bigPI + p.hydro.shv(0,0) )
+           * p.sigmaweight * t / p.hydro.sigma;
       E += p.contribution_to_total_E;
     }
 
@@ -231,8 +231,8 @@ void SystemState::conservation_energy()
   for ( auto & p : particles )
   {
     p.contribution_to_total_dEz
-         = ( p.p() + p.bigPI + p.shv33*t2 )
-           * p.sigmaweight / p.sigma;
+         = ( p.p() + p.hydro.bigPI + p.hydro.shv33*t2 )
+           * p.sigmaweight / p.hydro.sigma;
     dEz += p.contribution_to_total_dEz;
   }
 
@@ -258,11 +258,11 @@ void SystemState::set_current_timestep_quantities()
   {
     auto & p = particles[i];
 
-    u0[i]        = p.u;
+    u0[i]        = p.hydro.u;
     r0[i]        = p.r;
     etasigma0[i] = p.eta_sigma;
-    Bulk0[i]     = p.Bulk;
-    mini( shv0[i], p.shv );
+    Bulk0[i]     = p.hydro.Bulk;
+    mini( shv0[i], p.hydro.shv );
 
     particles_E0[i] = p.contribution_to_total_Ez;
   }
@@ -278,14 +278,14 @@ void SystemState::get_derivative_step(double dx)
   {
     auto & p = particles[i];
 
-    p.r            = r0[i]        + dx*p.v;
+    p.r            = r0[i]        + dx*p.hydro.v;
 
     if ( p.Freeze < 5 )
     {
-      p.u            = u0[i]        + dx*p.du_dt;
-      p.eta_sigma    = etasigma0[i] + dx*p.detasigma_dt;
-      p.Bulk         = Bulk0[i]     + dx*p.dBulk_dt;
-      tmini( p.shv,    shv0[i]      + dx*p.dshv_dt );
+      p.u            = u0[i]        + dx*p.hydro.du_dt;
+      p.eta_sigma    = etasigma0[i] + dx*p.hydro.detasigma_dt;
+      p.Bulk         = Bulk0[i]     + dx*p.hydro.dBulk_dt;
+      tmini( p.shv,    shv0[i]      + dx*p.hydro.dshv_dt );
     }
   }
 }
