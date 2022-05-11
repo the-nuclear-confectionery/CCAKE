@@ -37,36 +37,36 @@ class EoM_default: public EquationsOfMotion
     }
 
     //==========================================================================
-    double Bsub_fun()
+    double Bsub_fun( hydrodynamic_info & hi )
     {
       // make sure this quantity is set
-      uu = u*u;
+      hi.uu = hi.u*hi.u;
 
       if ( !settingsPtr->using_shear )
         return 0.0;
       else
       {
         // these quantities will all be zero without shear
-        mini( pimin, shv );
-        piu         = rowp1(0,shv)*u;
-        piutot      = piu+transpose(piu);
+        mini( hi.pimin, hi.shv );
+        hi.piu         = rowp1(0,hi.shv)*hi.u;
+        hi.piutot      = hi.piu+transpose(hi.piu);
         double bsub = 0.0;
-        double pig  = shv(0,0)/g2;
+        double pig  = hi.shv(0,0)/hi.g2;
 
         for (int i=0; i<=1; i++)
         for (int j=0; j<=1; j++)
-          bsub += gradU(i,j) * ( pimin(i,j) + pig*uu(j,i)
-                                - ( piu(i,j) + piu(j,i) ) / gamma );
+          bsub += hi.gradU(i,j) * ( hi.pimin(i,j) + hi.pig*uu(j,i)
+                                - ( hi.piu(i,j) + hi.piu(j,i) ) / hi.gamma );
         return bsub;
       }
     }
 
     //==========================================================================
-    Matrix<double,2,2> Msub_fun()
+    Matrix<double,2,2> Msub_fun( hydrodynamic_info & hi )
     {
-      piu  = rowp1(0,shv)*u;
-      return Agam2*uu + Ctot*gamma*Imat - (1+4/3./g2)*piu
-              + dwdsT1*transpose(piu) + gamma*pimin;
+      hi.piu  = rowp1(0,hi.shv)*hi.u;
+      return hi.Agam2*hi.uu + hi.Ctot*hi.gamma*hi.Imat - (1+4/3./hi.g2)*hi.piu
+              + hi.dwdsT1*transpose(hi.piu) + hi.gamma*hi.pimin;
     }
 
     
@@ -90,7 +90,7 @@ class EoM_default: public EquationsOfMotion
       hi.sigl         = hi.dsigma_dt/hi.sigma - 1/hi.t;
       hi.gradU        = hi.gamma*hi.gradV+hi.g3*(hi.v*(hi.v*hi.gradV));
       hi.bigPI        = hi.Bulk*hi.sigma/hi.gt;
-      hi.C            = hi.w+ hi.bigPI;
+      hi.C            = hi.w + hi.bigPI;
 
       hi.eta_o_tau    = (settingsPtr->using_shear) ? hi.setas/hi.stauRelax : 0.0;
 
@@ -103,7 +103,7 @@ class EoM_default: public EquationsOfMotion
 
       hi.Btot         = ( hi.Agam*hi.gamma + 2.0*hi.eta_o_tau/3.0*hi.gamma )*hi.sigl
                           + hi.bigPI/hi.tauRelax
-                          + hi.dwdsT*( hi.gt*hi.shv33 + Bsub_fun() );
+                          + hi.dwdsT*( hi.gt*hi.shv33 + Bsub_fun(hi) );
       hi.check        = hi.sigl;
 
 
@@ -127,7 +127,7 @@ class EoM_default: public EquationsOfMotion
       Matrix <double,2,2> partU = hi.gradU + transpose( hi.gradU );
 
       // set the Mass and the Force
-      Matrix <double,2,2> M = hi.Msub;
+      Matrix <double,2,2> M = Msub_fun();
       Vector<double,2> F    = hi.Btot*hi.u + hi.gradshear
                               - ( hi.gradP + hi.gradBulk + hi.divshear );
 

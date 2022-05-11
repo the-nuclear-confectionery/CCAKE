@@ -68,12 +68,12 @@ struct hydrodynamic_info
 
 
 //  // matrix members
-  Matrix<double,2,2> Msub;
-  Matrix<double,2,2> dpidtsub;
+//  Matrix<double,2,2> Msub;
+//  Matrix<double,2,2> dpidtsub;
   Matrix<double,2,2> Imat;
   Matrix<double,2,2> gradV, gradU;        // Gradient of velocity needed for shear
   Matrix<double,2,2> uu, pimin, piu, piutot;
-//  Matrix<double,3,3> shv;
+  Matrix<double,3,3> shv;
 //
 //  // quantities (possibly?) set in EoM classes
 //  double bigtheta        = 0.0;
