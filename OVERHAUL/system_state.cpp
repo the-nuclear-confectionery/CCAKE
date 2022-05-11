@@ -73,7 +73,6 @@ void SystemState::initialize()  // formerly called "manualenter"
 
   linklist.efcheck = efcheck;
   linklist.sfcheck = sfcheck;
-  linklist.fcount  = 0;
   linklist.average = 0;
 
   return;
@@ -85,54 +84,10 @@ void SystemState::initialize_linklist()
 {
   cout << "Initial conditions type: " << settingsPtr->IC_type << endl;
 
-  if ( settingsPtr->IC_type == "ICCING" )
-  {
-    settingsPtr->gtyp   = 6;
+  // initialize linklist
+  linklist.initialize( &particles, settingsPtr->_h );
 
-    int count           = 1;
-    vector<string>        filelist( count );
-
-    int j               = 0;
-    filelist[j]         = "./ic0.dat"; // only doing single event
-    linklist.filenames  = filelist;
-    linklist.fcount     = count;
-    linklist.fnum       = linklist.start;
-    
-    int currently_frozen_out = number_part;
-    linklist.initialize( settingsPtr->t0, particles.size(),
-                         settingsPtr->_h, &particles, dt, currently_frozen_out );
-
-    linklist.gtyp=settingsPtr->gtyp;
-
-  }
-  else if (    settingsPtr->IC_type == "Gubser"
-            || settingsPtr->IC_type == "Gubser_with_shear" )
-  {
-    settingsPtr->gtyp   = 7;
-
-    int count           = 1;
-    vector<string>        filelist( count );
-
-    int j               = 0;
-    filelist[j]         = "./ic0.dat"; // only doing single event
-    linklist.filenames  = filelist;
-    linklist.fcount     = count;
-    linklist.fnum       = linklist.start;
-    
-    int currently_frozen_out = number_part;
-    linklist.initialize( settingsPtr->t0, particles.size(),
-                         settingsPtr->_h, &particles, dt, currently_frozen_out );
-
-    linklist.gtyp=settingsPtr->gtyp;
-  }
-  else
-  {
-    std::cerr << "Initial conditions type = " << settingsPtr->IC_type
-              << " not supported!" << std::endl;
-    exit(1);
-  }
-
-
+  // this should be moved
   for (auto & p : particles)
   {
     double gg = p.gamcalc();

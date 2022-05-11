@@ -86,10 +86,7 @@ public:
           sw.Start();
           #pragma omp parallel for schedule(dynamic)
           for ( auto & p : systemPtr->particles )
-          {
-//            cout << "Doing this\n";
             smooth_gradients( p, systemPtr->t );
-          }
           sw.Stop();
           cout << "t=" << systemPtr->t << ": finished in " << sw.printTime()
               << " s using " << omp_get_num_threads() << " threads.\n";
@@ -107,12 +104,10 @@ public:
 
   void evaluate_all_particle_time_derivatives()
         { for ( auto & p : systemPtr->particles )
-          { /*p.set_hydro_info( systemPtr->t );*/
-            p.hydro.ID = p.ID;
+          { p.hydro.ID = p.ID;
             p.hydro.t  = systemPtr->t;
-            pEoM->evaluate_time_derivatives( p.hydro, p.thermo );
-            /*p.update_from_hydro_info();*/ } } // the first and last steps will
-                                            // eventually be unnecessary
+            pEoM->evaluate_time_derivatives( p.hydro, p.thermo );} }
+
 
   int do_freezeout_checks();
   void update_freeze_out_lists();

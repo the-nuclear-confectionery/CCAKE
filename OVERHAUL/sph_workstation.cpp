@@ -48,7 +48,7 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
       auto & p = systemPtr->particles[i];
 
 
-		if (settingsPtr->gtyp!=5)
+		
 		{
 			sw.Start();
 			cout << setprecision(12) << "Doing this particle: "
@@ -104,8 +104,6 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 			cout << "\t\t - freeze-out status:   " << p.Freeze << "\n";
 		}
 
-    if (settingsPtr->gtyp==5) p.e_sub = p.e();
-
     p.hydro.gamma=p.gamcalc();
 
     p.sigmaweight *= p.s_an*p.hydro.gamma*settingsPtr->t0;	  // sigmaweight is constant after this
@@ -154,13 +152,10 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 	if (failCounter > 0) exit(-1);
 
 }
-////////////////////////////////////////////////////////////////////////////////
-/* Does this need to be its own separate function? Why not call
-"p.reset_pi_tensor(...)" from BSQHydro and then call smoothing? linklist can
-also be set from BSQHydro. It might make more sense to defne a
-general function in workstation the loops over SPH paticles and
-smooths them using its own various smoothing methods.*/
-void SPHWorkstation::initial_smoothing()  // formerly BSQguess()
+
+
+//==============================================================================
+void SPHWorkstation::initial_smoothing()
 {
   // reset linklist to update nearest neighbors
   reset_linklist();
@@ -174,21 +169,19 @@ void SPHWorkstation::initial_smoothing()  // formerly BSQguess()
 	int count1=0;
 	cout << "----------------------------------------"
 			"----------------------------------------" << endl;
-	/* this might be the only part that needs to stay... but the
-	function name should change if it's only setting s_sub and
-	some freeze=out checks.. maybe this can all be combined with 
-	initialize_entropy_and_charge_densities(...) into one 
-	intialize_particle_quantities function*/
+
 	for ( auto & p : systemPtr->particles )
 	{
-		p.s_sub = p.hydro.sigma/p.hydro.gamma/settingsPtr->t0;
-
     // must reset smoothed charge densities also
+    double smoothed_s_lab    = p.hydro.sigma/p.hydro.gamma/settingsPtr->t0;
 		double smoothed_rhoB_lab = p.rhoB_sub/p.hydro.gamma/settingsPtr->t0;
 		double smoothed_rhoS_lab = p.rhoS_sub/p.hydro.gamma/settingsPtr->t0;
 		double smoothed_rhoQ_lab = p.rhoQ_sub/p.hydro.gamma/settingsPtr->t0;
 
-//		p.sigsub = 0;
+    // UNCOMMENT THIS AND DOCUMENT OUTPUT AS REFERENCE
+//    locate_phase_diagram_point_sBSQ( p, smoothed_s_lab, smoothed_rhoB_lab,
+//                                      smoothed_rhoS_lab, smoothed_rhoQ_lab );
+
 		p.frzcheck(settingsPtr->t0, count1, systemPtr->_n);
 	}
 
@@ -213,7 +206,7 @@ void SPHWorkstation::smooth_fields(Particle & pa)
   for ( i(1) = -2; i(1) <= 2; i(1)++ )
   {
     int b = systemPtr->linklist.lead[
-              systemPtr->linklist.triToSum(
+              systemPtr->linklist.indexer(
                 systemPtr->linklist.dael[a] + i,
                   systemPtr->linklist.size ) ];
     while ( b != -1 )
@@ -460,7 +453,6 @@ void SPHWorkstation::process_initial_conditions()
 		p.B               = p.rhoB_an*dA;
 		p.S               = p.rhoS_an*dA;
 		p.Q               = p.rhoQ_an*dA;
-		p.transverse_area = dA;
 
 		// make educated initial guess here for this particle's (T, mu_i) coordinates
 		// (improve this in the future)

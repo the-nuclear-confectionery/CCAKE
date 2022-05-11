@@ -18,33 +18,19 @@ LinkList::LinkList()
 }
 
 
-void LinkList::initialize( double it0, int ntot, double h,
-                           vector<Particle> * particlesPtr_in,
-                           double dtsave, int & numpart )
+void LinkList::initialize( vector<Particle> * particlesPtr_in, double h_in )
 {
-  t0          = it0;
-  _h          = h;
-  _n          = ntot;
-
-  cout << "Check read in" << endl;
-  cout << "t0 = " << t0 << endl;
-  cout << "_h = " << _h << endl;
-  cout << "_n = " << _n << endl;
-
+  h            = h_in;
   particlesPtr = particlesPtr_in;
+  n_particles  = particlesPtr->size();
 
-  link        = vector<int>(_n);
-  dael        = vector< Vector<int,2> >(_n);
-  steps       = 100*(floor(tend-t0)+1);
+  link         = vector<int>(n_particles);
+  dael         = vector< Vector<int,2> >(n_particles);
 
-  kernel::set_kernel_parameters( _h );
+  kernel::set_kernel_parameters( h );
 
-  dt          = dtsave;
-
-  // initialize linklist
+  // (re)set linklist
   reset();
-
-
 
   return;
 }
@@ -62,7 +48,7 @@ void LinkList::reset()
   //evaluate system size [in units of h]
 
   //2*range puts extra boxes on sides of grid
-  double inv_h = 1.0/_h;
+  double inv_h = 1.0/h;
   size       = inv_h*(max-min)+(2.0*range+1.0)*uni;
 
   //Size is the volume
@@ -73,27 +59,25 @@ void LinkList::reset()
     Size *= size(i);
 
 
+  //============================================================================
   //dael: relates every particle with its linklist cube
   // also convert particle position to an integer
 
-  for (int j=0; j<_n; j++)
+  for (int j = 0; j < n_particles; j++)
     dael[j] = inv_h*((*particlesPtr)[j].r-min) + (1.0*range)*uni;
-  //for ( auto & p : *particlesPtr )
-  //  dael.push_back( inv_h*(p.r-min) + (1.0*range)*uni );
 
+  //============================================================================
   //lead: relates every linklist cube with one of the particles (leader) in it
   //link: links the leader particle of one cube with the others of the same cube
   // if only one particle in cube then it is the lead
 
   lead = vector<int>(Size);
-
   for ( int j = 0; j < Size; j++ )
     lead[j] = -1;
 
-
-  for ( int k = _n-1; k >= 0; k-- )
+  for ( int k = n_particles - 1; k >= 0; k-- )
   {
-    int tt   = triToSum( dael[k], size );
+    int tt   = indexer( dael[k], size );
     link[k]  = lead[tt];
     lead[tt] = k;
   }
@@ -104,18 +88,18 @@ void LinkList::reset()
   // add vector of neighbors
   Stopwatch sw;
   sw.Start();
-  cout << "t=" << t << ": setting vector of neighbors...";
+  cout << "t=" << ": setting vector of neighbors...";
   
   all_neighbors.clear();
-  all_neighbors.resize(_n);
-  for (int a = 0; a < _n; a++)
+  all_neighbors.resize(n_particles);
+  for (int a = 0; a < n_particles; a++)
   {
     auto & pa = all_neighbors[a];
     Vector<int,2> i;
     for ( i(0) = -2; i(0) <= 2; i(0)++ )
     for ( i(1) = -2; i(1) <= 2; i(1)++ )
     {
-      int b = lead[ triToSum( dael[a] + i, size ) ];
+      int b = lead[ indexer( dael[a] + i, size ) ];
       while( b != -1 )
       {
         pa.push_back( b );
@@ -128,7 +112,3 @@ void LinkList::reset()
 
 }
 
-int LinkList::triToSum( Vector<int,2> dael_local, Vector<int,2> size_local )
-{
-    return dael_local(0) + dael_local(1)*size_local(0);
-}

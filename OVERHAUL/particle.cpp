@@ -11,19 +11,15 @@
 
 #include "particle.h"
 
-////////////////////////////////////////////////////////////////////////////////
+//==============================================================================
 // Default constructor
-Particle::Particle()
-{
-  s_an = 0.0;
-  Imat.identity();
-}
-////////////////////////////////////////////////////////////////////////////////
+Particle::Particle() { s_an = 0.0; }
 
+
+//==============================================================================
 // Overloaded constructor with initial fields
 Particle::Particle(vector<double> &fields)
 {
-  Imat.identity();
   r(0)    = fields[0];
   r(1)    = fields[1];
   e_sub   = fields[2];
@@ -54,7 +50,6 @@ Particle::Particle(vector<double> &fields)
 
 Particle::Particle( const Particle& p )
 {
-  Imat.identity();
   r       = p.r;
   e_sub   = p.e_sub;
   rhoB_an = p.rhoB_an;
@@ -67,18 +62,13 @@ Particle::Particle( const Particle& p )
 }
 
 
-////////////////////////////////////////////////////////////////////////////////
-void Particle::set_SettingsPtr(Settings * settingsPtr_in)
-{
-  settingsPtr = settingsPtr_in;
-}
 
 
-////////////////////////////////////////////////////////////////////////////////
+//==============================================================================
 double Particle::gamcalc() { return sqrt( Norm2(hydro.u) + 1.0 ); }
 
 
-////////////////////////////////////////////////////////////////////////////////
+//==============================================================================
 void Particle::frzcheck( double tin, int &count, int N )
 {
 
@@ -119,7 +109,7 @@ void Particle::frzcheck( double tin, int &count, int N )
 
 
 
-////////////////////////////////////////////////////////////////////////////////
+//==============================================================================
 void Particle::reset_pi_tensor(double tin2)
 {
   hydro.gamma    = gamcalc();

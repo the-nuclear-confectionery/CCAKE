@@ -26,6 +26,8 @@ class Particle
 
     static constexpr int VERBOSE = 0;
 
+    Settings * settingsPtr   = nullptr;
+
   public:
 
     // Constructors and destructors.
@@ -39,10 +41,8 @@ class Particle
     bool operator==( const Particle & ) const;
 
     // use this to set equation of state object before creating particles
-    void set_SettingsPtr(Settings * settingsPtr_in);
+    void set_SettingsPtr(Settings * settingsPtr_in) { settingsPtr = settingsPtr_in; }
 
-    void set_hydro_info(double t);
-    void update_from_hydro_info();
 
     void evaluate_time_derivatives( double t );
 
@@ -54,7 +54,6 @@ class Particle
 
   //public:
 
-    Settings * settingsPtr   = nullptr;
 
     //==========================================================================
     // getter functions for thermodynamic information
@@ -89,11 +88,8 @@ class Particle
 
     // rename these functions and their arguments
     void frzcheck( double tin, int &count, int N );
-    void calc(double tin);
-    void update_fluid_quantities(double tin);
     void reset_pi_tensor(double tin2);
     double gamcalc();
-//    double Bsub();
 
     // members
     bool print_this_particle = false;
@@ -106,22 +102,20 @@ class Particle
     double rhoB_weight     = 0.0; // specific volume per particle (without rhoB_an)
     double rhoS_weight     = 0.0; // specific volume per particle (without rhoS_an)
     double rhoQ_weight     = 0.0; // specific volume per particle (without rhoQ_an)
-    double transverse_area = 0.0; // dx * dy
 
     double s_sub           = 0.0;
     double e_sub           = 0.0;
     double s_an            = 0.0;
-//    double sigsub          = 0.0;
     double eta_sigma       = 0.0; // Ratio entropy/especific volume
 
     double contribution_to_total_E   = 0.0;
     double contribution_to_total_dEz = 0.0;
     double contribution_to_total_Ez  = 0.0;
 
-  double ets1 = 0.0, ets2 = 0.0, ets3 = 0.0, ets4 = 0.0;
-  double b1 = 0.0, b2 = 0.0, b3 = 0.0, b4 = 0.0;
-  Vector<double,2> k1, k2, k3, k4;
-  Vector<double,2> r1, r2, r3, r4;
+    double ets1 = 0.0, ets2 = 0.0, ets3 = 0.0, ets4 = 0.0;
+    double b1 = 0.0, b2 = 0.0, b3 = 0.0, b4 = 0.0;
+    Vector<double,2> k1, k2, k3, k4;
+    Vector<double,2> r1, r2, r3, r4;
 
 
     ////////////////////////////////////////////////////////////////////////////
@@ -139,18 +133,10 @@ class Particle
     double S               = 0.0; // Baryon density
     double Q               = 0.0; // baryon, strange, electric charge
 
-//    double freezeoutT      = 0.0;
     double efcheck         = 0.0;
 
     // vector members
-    Vector<double,2> r;                                       // position
-    Vector<double,2> qmom;
-
-
-    // matrix members
-    Matrix<double,2,2> Imat;
-
-
+    Vector<double,2> r, qmom;
 
     // freeze out struct thingy?
     struct FRZ
