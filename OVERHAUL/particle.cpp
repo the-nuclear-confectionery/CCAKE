@@ -166,89 +166,89 @@ void Particle::frzcheck( double tin, int &count, int N )
 
 
 ////////////////////////////////////////////////////////////////////////////////
-double Particle::Bsub()
-{
-  // make sure this quantity is set
-  uu = u*u;
-
-  if ( !settingsPtr->using_shear )
-    return 0.0;
-  else
-  {
-    // these quantities will all be zero without shear
-    mini( pimin, shv );
-    piu         = rowp1(0,shv)*u;
-    piutot      = piu+transpose(piu);
-    double bsub = 0.0;
-    double pig  = shv(0,0)/g2;
-
-    for (int i=0; i<=1; i++)
-    for (int j=0; j<=1; j++)
-      bsub += gradU(i,j) * ( pimin(i,j) + pig*uu(j,i) - ( piu(i,j) + piu(j,i) ) / gamma );
-    return bsub;
-  }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-Matrix<double,2,2> Particle::Msub()
-{
-  piu  = rowp1(0,shv)*u;
-  return Agam2*uu + Ctot*gamma*Imat - (1+4/3./g2)*piu
-          + dwdsT1*transpose(piu) + gamma*pimin;
-}
-
+//double Particle::Bsub()
+//{
+//  // make sure this quantity is set
+//  uu = u*u;
+//
+//  if ( !settingsPtr->using_shear )
+//    return 0.0;
+//  else
+//  {
+//    // these quantities will all be zero without shear
+//    mini( pimin, shv );
+//    piu         = rowp1(0,shv)*u;
+//    piutot      = piu+transpose(piu);
+//    double bsub = 0.0;
+//    double pig  = shv(0,0)/g2;
+//
+//    for (int i=0; i<=1; i++)
+//    for (int j=0; j<=1; j++)
+//      bsub += gradU(i,j) * ( pimin(i,j) + pig*uu(j,i) - ( piu(i,j) + piu(j,i) ) / gamma );
+//    return bsub;
+//  }
+//}
 
 ////////////////////////////////////////////////////////////////////////////////
-Matrix<double,2,2> Particle::dpidtsub()
-{
-  Matrix<double,2,2> vsub;
+//Matrix<double,2,2> Particle::Msub()
+//{
+//  piu  = rowp1(0,shv)*u;
+//  return Agam2*uu + Ctot*gamma*Imat - (1+4/3./g2)*piu
+//          + dwdsT1*transpose(piu) + gamma*pimin;
+//}
 
-  for (int i=0; i<=1; i++)
-  for (int j=0; j<=1; j++)
-  for (int k=0; k<=1; k++)
-    vsub(i,j) += ( u(i)*pimin(j,k) + u(j)*pimin(i,k) )*du_dt(k);
-
-  return vsub;
-}
 
 ////////////////////////////////////////////////////////////////////////////////
-void Particle::update_fluid_quantities( double tin )
-{
-  // from svsigset
-  g2           = gamma*gamma;
-  g3           = gamma*g2;
-  gt           = gamma*tin;
-  double dwdsT = dwds()/T();
-  dwdsT1       = 1 - dwds()/T();
-  sigl         = dsigma_dt/sigma - 1/tin;
-  gradU        = gamma*gradV+g3*(v*(v*gradV));
-  bigPI        = Bulk*sigma/gt;
-  C            = w()+ bigPI;
+//Matrix<double,2,2> Particle::dpidtsub()
+//{
+//  Matrix<double,2,2> vsub;
+//
+//  for (int i=0; i<=1; i++)
+//  for (int j=0; j<=1; j++)
+//  for (int k=0; k<=1; k++)
+//    vsub(i,j) += ( u(i)*pimin(j,k) + u(j)*pimin(i,k) )*du_dt(k);
+//
+//  return vsub;
+//}
 
-  eta_o_tau    = (settingsPtr->using_shear) ? setas/stauRelax : 0.0;
-
-  // THIS NEEDS TO BE CHECKED/FIXED,
-  // SPECIFICALLY WHEN INCLUDING MORE BETA-DOT TERMS
-  Agam         = w() - dwds()*( s()+ bigPI/T() )- zeta/tauRelax
-                 - dwdB() * rhoB() - dwdS() * rhoS() - dwdQ() * rhoQ();
-
-  Agam2        = ( Agam - eta_o_tau/3.0 - dwdsT1*shv(0,0) ) / gamma;
-  Ctot         = C + eta_o_tau*(1.0/g2-1.0);
-
-
-  Btot         = ( Agam*gamma + 2.0*eta_o_tau/3.0*gamma )*sigl
-                + bigPI/tauRelax + dwdsT*( gt*shv33 + Bsub() );
-  check        = sigl;
-//  std::cout << "CHECK update_fluid_quantities: " << ID << "   " << tin << "   " << g2
-//            << "   " << g2 << "   " << g3 << "   " << gt << "   "
-//            << dwds() << "   " << T() << "   " << sigl << "   "
-//            << w() << "   " << bigPI << "   " << gradU << "   "
-//            << Agam << "   " << eta_o_tau << "   " << tauRelax << "   "
-//            << shv33 << "   " << Bsub() << "   " << Btot << "   "
-//            << Agam2 << "   " << Ctot << "\n";
-
-  return;
-}
+////////////////////////////////////////////////////////////////////////////////
+//void Particle::update_fluid_quantities( double tin )
+//{
+//  // from svsigset
+//  g2           = gamma*gamma;
+//  g3           = gamma*g2;
+//  gt           = gamma*tin;
+//  double dwdsT = dwds()/T();
+//  dwdsT1       = 1 - dwds()/T();
+//  sigl         = dsigma_dt/sigma - 1/tin;
+//  gradU        = gamma*gradV+g3*(v*(v*gradV));
+//  bigPI        = Bulk*sigma/gt;
+//  C            = w()+ bigPI;
+//
+//  eta_o_tau    = (settingsPtr->using_shear) ? setas/stauRelax : 0.0;
+//
+//  // THIS NEEDS TO BE CHECKED/FIXED,
+//  // SPECIFICALLY WHEN INCLUDING MORE BETA-DOT TERMS
+//  Agam         = w() - dwds()*( s()+ bigPI/T() )- zeta/tauRelax
+//                 - dwdB() * rhoB() - dwdS() * rhoS() - dwdQ() * rhoQ();
+//
+//  Agam2        = ( Agam - eta_o_tau/3.0 - dwdsT1*shv(0,0) ) / gamma;
+//  Ctot         = C + eta_o_tau*(1.0/g2-1.0);
+//
+//
+//  Btot         = ( Agam*gamma + 2.0*eta_o_tau/3.0*gamma )*sigl
+//                + bigPI/tauRelax + dwdsT*( gt*shv33 + Bsub() );
+//  check        = sigl;
+////  std::cout << "CHECK update_fluid_quantities: " << ID << "   " << tin << "   " << g2
+////            << "   " << g2 << "   " << g3 << "   " << gt << "   "
+////            << dwds() << "   " << T() << "   " << sigl << "   "
+////            << w() << "   " << bigPI << "   " << gradU << "   "
+////            << Agam << "   " << eta_o_tau << "   " << tauRelax << "   "
+////            << shv33 << "   " << Bsub() << "   " << Btot << "   "
+////            << Agam2 << "   " << Ctot << "\n";
+//
+//  return;
+//}
 
 
 ////////////////////////////////////////////////////////////////////////////////

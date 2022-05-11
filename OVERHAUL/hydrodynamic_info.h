@@ -60,6 +60,9 @@ struct hydrodynamic_info
   double sigl            = 0.0;
 
   double T               = 0.0;
+  double w               = 0.0;
+  double s               = 0.0;
+
 
   // vector members
   Vector<double,2> v;                     // velocity

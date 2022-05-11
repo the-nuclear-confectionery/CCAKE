@@ -182,7 +182,7 @@ class Particle
     double dwdsT1          = 0.0;
     double sigl            = 0.0;
     double bcheck          = 0.0;
-    double check           = 0.0;
+//    double check           = 0.0;
     double saves           = 0.0;
     double inside          = 0.0;
 

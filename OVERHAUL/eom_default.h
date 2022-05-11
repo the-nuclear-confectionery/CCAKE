@@ -103,8 +103,8 @@ class EoM_default: public EquationsOfMotion
 
       hi.Btot         = ( hi.Agam*hi.gamma + 2.0*hi.eta_o_tau/3.0*hi.gamma )*hi.sigl
                           + hi.bigPI/hi.tauRelax
-                          + hi.dwdsT*( hi.gt*hi.shv33 + Bsub_fun(hi) );
-      hi.check        = hi.sigl;
+                          + dwdsT*( hi.gt*hi.shv33 + Bsub_fun(hi) );
+//      hi.check        = hi.sigl;
 
 
 
@@ -127,7 +127,7 @@ class EoM_default: public EquationsOfMotion
       Matrix <double,2,2> partU = hi.gradU + transpose( hi.gradU );
 
       // set the Mass and the Force
-      Matrix <double,2,2> M = Msub_fun();
+      Matrix <double,2,2> M = Msub_fun(hi);
       Vector<double,2> F    = hi.Btot*hi.u + hi.gradshear
                               - ( hi.gradP + hi.gradBulk + hi.divshear );
 
@@ -181,13 +181,11 @@ class EoM_default: public EquationsOfMotion
 
       Matrix <double,2,2> ududt = hi.u*hi.du_dt;
 
-      hi.dpidtsub = dpidtsub_fun(hi);
-
       // N.B. - ADD READABLE TERM NAMES
       if ( settingsPtr->using_shear )
         hi.dshv_dt                 = - gamt*( hi.pimin + hi.setas*partU )
                                  - hi.eta_o_tau*( ududt + transpose(ududt) )
-                                 + hi.dpidtsub + hi.sigl*Ipi
+                                 + dpidtsub_fun(hi) + hi.sigl*Ipi
                                  - vduk*( ulpi + transpose(ulpi) + (1/hi.gamma)*Ipi );
 //std::cout << "t=CHECK: " << hi.ID << "   "
 //              << hi.t << "   "
