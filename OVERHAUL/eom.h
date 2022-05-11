@@ -8,6 +8,7 @@
 #include "constants.h"
 #include "hydrodynamic_info.h"
 #include "settings.h"
+#include "thermodynamic_info.h"
 
 // THIS IS THE BASE CLASS
 class EquationsOfMotion

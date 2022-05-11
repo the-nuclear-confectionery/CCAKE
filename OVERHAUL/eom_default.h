@@ -5,6 +5,7 @@
 #include "hydrodynamic_info.h"
 #include "matrix.h"
 #include "settings.h"
+#include "thermodynamic_info.h"
 #include "vector.h"
 
 class EoM_default: public EquationsOfMotion
