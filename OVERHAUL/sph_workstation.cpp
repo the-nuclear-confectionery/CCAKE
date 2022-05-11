@@ -934,21 +934,21 @@ int SPHWorkstation::do_freezeout_checks()
 
 
 //==============================================================================
-void SPHWorkstation::update_all_particles_dsigma_dt()
-{
-  for ( auto & p : systemPtr->particles )
-  {
-    p.dsigma_dt = -p.sigma * ( p.gradV(0,0) + p.gradV(1,1) );
-
-    //===============
-    // print status
-    if ( VERBOSE > 2
-          && settingsPtr->particles_to_print.size() > 0
-          && settingsPtr->print_particle(p.ID) )
-      std::cout << "CHECK dsigma_dt: " << p.ID << "   " << systemPtr->t << "   "
-                << p.dsigma_dt << "   " << p.sigma << "   " << p.gradV << "\n";
-  }
-}
+//void SPHWorkstation::update_all_particles_dsigma_dt()
+//{
+//  for ( auto & p : systemPtr->particles )
+//  {
+//    p.dsigma_dt = -p.sigma * ( p.gradV(0,0) + p.gradV(1,1) );
+//
+//    //===============
+//    // print status
+//    if ( VERBOSE > 2
+//          && settingsPtr->particles_to_print.size() > 0
+//          && settingsPtr->print_particle(p.ID) )
+//      std::cout << "CHECK dsigma_dt: " << p.ID << "   " << systemPtr->t << "   "
+//                << p.dsigma_dt << "   " << p.sigma << "   " << p.gradV << "\n";
+//  }
+//}
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1008,11 +1008,15 @@ void SPHWorkstation::get_time_derivatives()
   //Computes gradients to obtain dsigma/dt
   smooth_all_particle_gradients();
 
-  // set dsigma_dt
-  update_all_particles_dsigma_dt();
-
-  // update fluid quantities
-  update_all_particle_fluid_quantities();
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//  // set dsigma_dt
+//  update_all_particles_dsigma_dt();
+//
+//  // update fluid quantities
+//  update_all_particle_fluid_quantities();
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// THESE TWO FUNCTIONS NOW LUMPED INTO THE NEXT ONE
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   //calculate time derivatives needed for equations of motion
   evaluate_all_particle_time_derivatives();

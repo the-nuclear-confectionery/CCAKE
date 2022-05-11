@@ -22,6 +22,7 @@ class EoM_default: public EquationsOfMotion
     void compute_detasigma_dt(){}
     void compute_dBulk_dt(){}
 
+
     //==========================================================================
     Matrix<double,2,2> dpidtsub_fun( hydrodynamic_info & hi )
     {
@@ -35,11 +36,85 @@ class EoM_default: public EquationsOfMotion
       return vsub;
     }
 
+    //==========================================================================
+    double Bsub_fun()
+    {
+      // make sure this quantity is set
+      uu = u*u;
+
+      if ( !settingsPtr->using_shear )
+        return 0.0;
+      else
+      {
+        // these quantities will all be zero without shear
+        mini( pimin, shv );
+        piu         = rowp1(0,shv)*u;
+        piutot      = piu+transpose(piu);
+        double bsub = 0.0;
+        double pig  = shv(0,0)/g2;
+
+        for (int i=0; i<=1; i++)
+        for (int j=0; j<=1; j++)
+          bsub += gradU(i,j) * ( pimin(i,j) + pig*uu(j,i)
+                                - ( piu(i,j) + piu(j,i) ) / gamma );
+        return bsub;
+      }
+    }
+
+    //==========================================================================
+    Matrix<double,2,2> Msub_fun()
+    {
+      piu  = rowp1(0,shv)*u;
+      return Agam2*uu + Ctot*gamma*Imat - (1+4/3./g2)*piu
+              + dwdsT1*transpose(piu) + gamma*pimin;
+    }
+
     
     //==========================================================================
     void evaluate_time_derivatives( hydrodynamic_info & hi )
     {
-//cout << "t=: In " << __FILE__ << "::" << __LINE__ << endl;
+      // PREVIOUSLY DONE IN UPDATE_DSIGMA_DT
+      hi.dsigma_dt = -hi.sigma * ( hi.gradV(0,0) + hi.gradV(1,1) );
+
+
+
+
+
+
+      // PREVIOUSLY DONE IN UPDATE_FLUID_VARIABLES
+      hi.g2           = hi.gamma*hi.gamma;
+      hi.g3           = hi.gamma*hi.g2;
+      hi.gt           = hi.gamma*hi.t;
+      double dwdsT    = hi.dwds/hi.T;
+      hi.dwdsT1       = 1 - hi.dwds/hi.T;
+      hi.sigl         = hi.dsigma_dt/hi.sigma - 1/hi.t;
+      hi.gradU        = hi.gamma*hi.gradV+hi.g3*(hi.v*(hi.v*hi.gradV));
+      hi.bigPI        = hi.Bulk*hi.sigma/hi.gt;
+      hi.C            = hi.w+ hi.bigPI;
+
+      hi.eta_o_tau    = (settingsPtr->using_shear) ? hi.setas/hi.stauRelax : 0.0;
+
+      hi.Agam         = hi.w - hi.dwds*( hi.s + hi.bigPI/hi.T ) - hi.zeta/hi.tauRelax
+                        - hi.dwdB*hi.rhoB - hi.dwdS*hi.rhoS - hi.dwdQ*hi.rhoQ;
+
+      hi.Agam2        = ( hi.Agam - hi.eta_o_tau/3.0 - hi.dwdsT1*hi.shv(0,0) ) / hi.gamma;
+      hi.Ctot         = hi.C + hi.eta_o_tau*(1.0/hi.g2-1.0);
+
+
+      hi.Btot         = ( hi.Agam*hi.gamma + 2.0*hi.eta_o_tau/3.0*hi.gamma )*hi.sigl
+                          + hi.bigPI/hi.tauRelax
+                          + hi.dwdsT*( hi.gt*hi.shv33 + Bsub_fun() );
+      hi.check        = hi.sigl;
+
+
+
+
+
+
+
+
+
+      // THIS IS THE ORIGINAL PART IN TIME DERIVATIVES
       double gamt = 0.0, pre = 0.0, p1 = 0.0;
       if ( settingsPtr->using_shear )
       {
