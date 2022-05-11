@@ -71,9 +71,9 @@ void SystemState::initialize()  // formerly called "manualenter"
     p.efcheck = efcheck;
   }
 
-  linklist.efcheck = efcheck;
-  linklist.sfcheck = sfcheck;
-  linklist.average = 0;
+//  linklist.efcheck = efcheck;
+//  linklist.sfcheck = sfcheck;
+//  linklist.average = 0;
 
   return;
 }
