@@ -87,7 +87,7 @@ public:
           //#pragma omp parallel for schedule(dynamic)
           for ( auto & p : systemPtr->particles )
           {
-            cout << "Doing this\n";
+//            cout << "Doing this\n";
             smooth_gradients( p, systemPtr->t );
           }
           sw.Stop();
