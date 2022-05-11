@@ -55,7 +55,7 @@ class EoM_default: public EquationsOfMotion
 
         for (int i=0; i<=1; i++)
         for (int j=0; j<=1; j++)
-          bsub += hi.gradU(i,j) * ( hi.pimin(i,j) + hi.pig*uu(j,i)
+          bsub += hi.gradU(i,j) * ( hi.pimin(i,j) + pig*hi.uu(j,i)
                                 - ( hi.piu(i,j) + hi.piu(j,i) ) / hi.gamma );
         return bsub;
       }
