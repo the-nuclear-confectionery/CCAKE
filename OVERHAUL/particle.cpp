@@ -231,7 +231,7 @@ void Particle::set_hydro_info(double t)
 //  hydro.gradshear       = gradshear;
 //
 //  // matrix members
-//  hydro.Imat            = Imat;
+  hydro.Imat            = Imat;
 //  hydro.gradV           = gradV;
 //  hydro.gradU           = gradU;
 //  hydro.uu              = uu;
