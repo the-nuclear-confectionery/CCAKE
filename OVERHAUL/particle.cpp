@@ -584,6 +584,51 @@ void Particle::set_hydro_info(double t)
 ////////////////////////////////////////////////////////////////////////////////
 void Particle::update_from_hydro_info()
 {
+  Agam = hydro.Agam;
+  Agam2 = hydro.Agam2;
+  shv33 = hydro.shv33;
+
+  gamma = hydro.gamma;
+  Bulk = hydro.Bulk;
+  bigPI = hydro.bigPI;
+  C = hydro.C;
+  tauRelax = hydro.tauRelax;
+  stauRelax = hydro.stauRelax;
+  zeta = hydro.zeta;
+  setas = hydro.setas;
+  Ctot = hydro.Ctot;
+  Btot = hydro.Btot;
+
+  sigma = hydro.sigma;
+  dsigma_dt = hydro.dsigma_dt;
+
+  g2 = hydro.g2;
+  g3 = hydro.g3;
+  gt = hydro.gt;
+  eta_o_tau = hydro.eta_o_tau;
+  dwdsT1 = hydro.dwdsT1;
+  sigl = hydro.sigl;
+
+
+  // vector members
+  v = hydro.v;
+  u = hydro.u;
+
+  gradP = hydro.gradP;
+  gradBulk = hydro.gradBulk;
+  divshear = hydro.divshear;
+  gradshear = hydro.gradshear;
+
+  // matrix members
+  Imat = hydro.Imat;
+  gradV = hydro.gradV;
+  gradU = hydro.gradU;
+  uu = hydro.uu;
+  pimin = hydro.pimin;
+  piu = hydro.piu;
+  piutot = hydro.piutot;
+  shv = hydro.shv;
+
   div_u        = hydro.div_u;
   bigtheta     = hydro.bigtheta;
   inside       = hydro.inside;
