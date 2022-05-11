@@ -111,8 +111,7 @@ class Particle
     double s_sub           = 0.0;
     double e_sub           = 0.0;
     double s_an            = 0.0;
-    double s_rat           = 0.0;
-    double sigsub          = 0.0;
+//    double sigsub          = 0.0;
     double eta_sigma       = 0.0; // Ratio entropy/especific volume
 
     double contribution_to_total_E   = 0.0;
