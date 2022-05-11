@@ -182,17 +182,17 @@ void Particle::reset_pi_tensor(double tin2)
 void Particle::set_hydro_info(double t)
 {
 
-  hydro.dwds            = dwds();
-  hydro.dwdB            = dwdB();
-  hydro.dwdS            = dwdS();
-  hydro.dwdQ            = dwdQ();
-  hydro.rhoB            = rhoB();
-  hydro.rhoS            = rhoS();
-  hydro.rhoQ            = rhoQ();
-
-  hydro.T               = T();
-  hydro.w               = w();
-  hydro.s               = s();
+//  hydro.dwds            = dwds();
+//  hydro.dwdB            = dwdB();
+//  hydro.dwdS            = dwdS();
+//  hydro.dwdQ            = dwdQ();
+//  hydro.rhoB            = rhoB();
+//  hydro.rhoS            = rhoS();
+//  hydro.rhoQ            = rhoQ();
+//
+//  hydro.T               = T();
+//  hydro.w               = w();
+//  hydro.s               = s();
 
 }
 
