@@ -106,16 +106,16 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 
     if (settingsPtr->gtyp==5) p.e_sub = p.e();
 
-    p.gamma=p.gamcalc();
+    p.hydro.gamma=p.gamcalc();
 
-    p.sigmaweight *= p.s_an*p.gamma*settingsPtr->t0;	  // sigmaweight is constant after this
-    p.rhoB_weight *= p.gamma*settingsPtr->t0; // rhoB_weight is constant after this
-    p.rhoS_weight *= p.gamma*settingsPtr->t0; // rhoS_weight is constant after this
-    p.rhoQ_weight *= p.gamma*settingsPtr->t0; // rhoQ_weight is constant after this
+    p.sigmaweight *= p.s_an*p.hydro.gamma*settingsPtr->t0;	  // sigmaweight is constant after this
+    p.rhoB_weight *= p.hydro.gamma*settingsPtr->t0; // rhoB_weight is constant after this
+    p.rhoS_weight *= p.hydro.gamma*settingsPtr->t0; // rhoS_weight is constant after this
+    p.rhoQ_weight *= p.hydro.gamma*settingsPtr->t0; // rhoQ_weight is constant after this
 
-		p.B *= p.gamma*settingsPtr->t0;	// B does not evolve in ideal case
-		p.S *= p.gamma*settingsPtr->t0;	// S does not evolve in ideal case
-		p.Q *= p.gamma*settingsPtr->t0;	// Q does not evolve in ideal case
+		p.B *= p.hydro.gamma*settingsPtr->t0;	// B does not evolve in ideal case
+		p.S *= p.hydro.gamma*settingsPtr->t0;	// S does not evolve in ideal case
+		p.Q *= p.hydro.gamma*settingsPtr->t0;	// Q does not evolve in ideal case
 
 	cout << "----------------------------------------"
 			"----------------------------------------" << "\n";
@@ -181,12 +181,12 @@ void SPHWorkstation::initial_smoothing()  // formerly BSQguess()
 	intialize_particle_quantities function*/
 	for ( auto & p : systemPtr->particles )
 	{
-		p.s_sub = p.sigma/p.gamma/settingsPtr->t0;
+		p.s_sub = p.hydro.sigma/p.hydro.gamma/settingsPtr->t0;
 
     // must reset smoothed charge densities also
-		double smoothed_rhoB_lab = p.rhoB_sub/p.gamma/settingsPtr->t0;
-		double smoothed_rhoS_lab = p.rhoS_sub/p.gamma/settingsPtr->t0;
-		double smoothed_rhoQ_lab = p.rhoQ_sub/p.gamma/settingsPtr->t0;
+		double smoothed_rhoB_lab = p.rhoB_sub/p.hydro.gamma/settingsPtr->t0;
+		double smoothed_rhoS_lab = p.rhoS_sub/p.hydro.gamma/settingsPtr->t0;
+		double smoothed_rhoQ_lab = p.rhoQ_sub/p.hydro.gamma/settingsPtr->t0;
 
 		p.sigsub = 0;
 		p.frzcheck(settingsPtr->t0, count1, systemPtr->_n);
@@ -201,7 +201,7 @@ void SPHWorkstation::smooth_fields(Particle & pa)
 {
   int a = pa.ID;
 
-  pa.sigma           = 0.0;
+  pa.hydro.sigma           = 0.0;
   pa.eta             = 0.0;
   pa.rhoB_sub        = 0.0;
   pa.rhoS_sub        = 0.0;
@@ -220,8 +220,8 @@ void SPHWorkstation::smooth_fields(Particle & pa)
     {
       const auto & pb = systemPtr->particles[b];
       double kern     = kernel::kernel( pa.r - pb.r, settingsPtr->_h );
-      pa.sigma       += pb.sigmaweight*kern;
-      pa.eta         += pb.sigmaweight*pb.eta_sigma*kern;
+      pa.hydro.sigma       += pb.hydro.sigmaweight*kern;
+      pa.eta         += pb.hydro.sigmaweight*pb.eta_sigma*kern;
       pa.rhoB_sub    += pb.B*kern;
       pa.rhoS_sub    += pb.S*kern;
       pa.rhoQ_sub    += pb.Q*kern;
@@ -237,10 +237,10 @@ void SPHWorkstation::smooth_fields(Particle & pa)
         std::cout << __FUNCTION__ << "(SPH particle == " << a << "): "
                   << systemPtr->t << "   "
                   << b << "   " << pa.r
-                  << "   " << pa.sigma
+                  << "   " << pa.hydro.sigma
                   << "   " << pa.eta
                   << "   " << pb.r
-                  << "   " << pb.sigmaweight
+                  << "   " << pb.hydro.sigmaweight
                   << "   " << pb.eta_sigma
                   << "   " << pb.rhoB_an
                   << "   " << pa.rhoB_sub
@@ -276,7 +276,7 @@ void SPHWorkstation::smooth_fields(Particle & pa)
 {
   int a = pa.ID;
 
-  pa.gradP     = 0.0;
+  pa.hydro.gradP     = 0.0;
   pa.gradBulk  = 0.0;
   pa.gradV     = 0.0;
   pa.gradshear = 0.0;
@@ -311,11 +311,11 @@ void SPHWorkstation::smooth_fields(Particle & pa)
       mini(vminia, pa.shv);
       mini(vminib, pb.shv);
 
-      double sigsqra           = 1.0/(pa.sigma*pa.sigma);
-      double sigsqrb           = 1.0/(pb.sigma*pb.sigma);
-      Vector<double,2> sigsigK = pb.sigmaweight * pa.sigma * gradK;
+      double sigsqra           = 1.0/(pa.hydro.sigma*pa.hydro.sigma);
+      double sigsqrb           = 1.0/(pb.hydro.sigma*pb.hydro.sigma);
+      Vector<double,2> sigsigK = pb.hydro.sigmaweight * pa.hydro.sigma * gradK;
 
-      pa.gradP                += ( sigsqrb*pb.p() + sigsqra*pa.p() ) * sigsigK;
+      pa.hydro.gradP                += ( sigsqrb*pb.p() + sigsqra*pa.p() ) * sigsigK;
 
       //===============
       // print status
@@ -323,13 +323,13 @@ void SPHWorkstation::smooth_fields(Particle & pa)
             && settingsPtr->particles_to_print.size() > 0
             && settingsPtr->print_particle(a) )
         std::cout << "CHECK grads: " << tin << "   "
-                  << pa.gradP << "   " << a << "   " << b << "   "
+                  << pa.hydro.gradP << "   " << a << "   " << b << "   "
                   << sigsqra << "   " << sigsqrb
                   << "   " << pa.p() << "   " << pb.p()
                   << "   " << pa.get_current_eos_name()
                   << "   " << pb.get_current_eos_name()
                   << "   " << gradK << "   " << sigsigK
-                  << "   " << pa.sigma << "\n";
+                  << "   " << pa.hydro.sigma << "\n";
 
       double relative_distance_by_h = rel_sep_norm / settingsPtr->_h;
       if ( ( relative_distance_by_h <= 2.0 ) && ( a != b ) )
@@ -338,9 +338,9 @@ void SPHWorkstation::smooth_fields(Particle & pa)
         if ( pa.btrack ==  1 ) rdis = relative_distance_by_h;
       }
 
-      pa.gradBulk             += ( pb.Bulk/pb.sigma/pb.gamma
-                                    + pa.Bulk/pa.sigma/pa.gamma)/tin*sigsigK;
-      pa.gradV                += (pb.sigmaweight/pa.sigma)*( pb.v -  pa.v )*gradK;
+      pa.gradBulk             += ( pb.hydro.Bulk/pb.hydro.sigma/pb.hydro.gamma
+                                    + pa.hydro.Bulk/pa.hydro.sigma/pa.hydro.gamma)/tin*sigsigK;
+      pa.gradV                += (pb.hydro.sigmaweight/pa.hydro.sigma)*( pb.v -  pa.v )*gradK;
 
       //===============
       // print status
@@ -348,7 +348,7 @@ void SPHWorkstation::smooth_fields(Particle & pa)
             && settingsPtr->particles_to_print.size() > 0
             && settingsPtr->print_particle(a) )
           std::cout << "CHECK gradV: " << tin << "   " << a << "   " << b << "   "
-                    << pb.sigmaweight/pa.sigma << "   " << pb.v -  pa.v
+                    << pb.hydro.sigmaweight/pa.hydro.sigma << "   " << pb.v -  pa.v
                     << "   " << gradK << "   " << pa.gradV << "\n";
 
       //===============
@@ -362,18 +362,18 @@ void SPHWorkstation::smooth_fields(Particle & pa)
 
       //===============
       // check for nan pressure gradients
-      if ( isnan( pa.gradP(0) ) )
+      if ( isnan( pa.hydro.gradP(0) ) )
       {
         cout << "gradP stopped working" << endl;
-        cout << systemPtr->t <<" "  << pa.gradP << " " << a << " " << b << endl;
-        cout << pb.sigmaweight << " " << pa.sigma << " " << pb.p() << endl;
+        cout << systemPtr->t <<" "  << pa.hydro.gradP << " " << a << " " << b << endl;
+        cout << pb.hydro.sigmaweight << " " << pa.hydro.sigma << " " << pb.p() << endl;
         cout << systemPtr->linklist.Size << " " << pb.s() << " " << pa.s() << endl;
 
         cout << pa.r << endl;
         cout << pb.r << endl;
         cout << kernel::kernel( pa.r - pb.r, settingsPtr->_h ) << endl;
       }
-      else if ( isnan( pa.gradP(1) ) )
+      else if ( isnan( pa.hydro.gradP(1) ) )
         cout << "1 " << gradPressure_weight(a, b)
              << " " << a << " " << b << endl;
 
@@ -410,7 +410,7 @@ void SPHWorkstation::smooth_gradients( Particle & pa, double tin )
 {
   int a = pa.ID;
 
-  pa.gradP     = 0.0;
+  pa.hydro.gradP     = 0.0;
   pa.gradBulk  = 0.0;
   pa.gradV     = 0.0;
   pa.gradshear = 0.0;
@@ -435,11 +435,11 @@ void SPHWorkstation::smooth_gradients( Particle & pa, double tin )
     mini(vminia, pa.shv);
     mini(vminib, pb.shv);
 
-    double sigsqra           = 1.0/(pa.sigma*pa.sigma);
-    double sigsqrb           = 1.0/(pb.sigma*pb.sigma);
-    Vector<double,2> sigsigK = pb.sigmaweight * pa.sigma * gradK;
+    double sigsqra           = 1.0/(pa.hydro.sigma*pa.hydro.sigma);
+    double sigsqrb           = 1.0/(pb.hydro.sigma*pb.hydro.sigma);
+    Vector<double,2> sigsigK = pb.hydro.sigmaweight * pa.hydro.sigma * gradK;
 
-    pa.gradP                += ( sigsqrb*pb.p() + sigsqra*pa.p() ) * sigsigK;
+    pa.hydro.gradP                += ( sigsqrb*pb.p() + sigsqra*pa.p() ) * sigsigK;
 
     //===============
     // print status
@@ -447,13 +447,13 @@ void SPHWorkstation::smooth_gradients( Particle & pa, double tin )
           && settingsPtr->particles_to_print.size() > 0
           && settingsPtr->print_particle(a) )
       std::cout << "CHECK grads: " << tin << "   "
-                << pa.gradP << "   " << a << "   " << b << "   "
+                << pa.hydro.gradP << "   " << a << "   " << b << "   "
                 << sigsqra << "   " << sigsqrb
                 << "   " << pa.p() << "   " << pb.p()
                 << "   " << pa.get_current_eos_name()
                 << "   " << pb.get_current_eos_name()
                 << "   " << gradK << "   " << sigsigK
-                << "   " << pa.sigma << "\n";
+                << "   " << pa.hydro.sigma << "\n";
 
     double relative_distance_by_h = rel_sep_norm / settingsPtr->_h;
     if ( ( relative_distance_by_h <= 2.0 ) && ( a != b ) )
@@ -462,9 +462,9 @@ void SPHWorkstation::smooth_gradients( Particle & pa, double tin )
       if ( pa.btrack ==  1 ) rdis = relative_distance_by_h;
     }
 
-    pa.gradBulk             += ( pb.Bulk/pb.sigma/pb.gamma
-                                  + pa.Bulk/pa.sigma/pa.gamma)/tin*sigsigK;
-    pa.gradV                += (pb.sigmaweight/pa.sigma)*( pb.v -  pa.v )*gradK;
+    pa.gradBulk             += ( pb.hydro.Bulk/pb.hydro.sigma/pb.hydro.gamma
+                                  + pa.hydro.Bulk/pa.hydro.sigma/pa.hydro.gamma)/tin*sigsigK;
+    pa.gradV                += (pb.hydro.sigmaweight/pa.hydro.sigma)*( pb.v -  pa.v )*gradK;
 
     //===============
     // print status
@@ -472,7 +472,7 @@ void SPHWorkstation::smooth_gradients( Particle & pa, double tin )
           && settingsPtr->particles_to_print.size() > 0
           && settingsPtr->print_particle(a) )
         std::cout << "CHECK gradV: " << tin << "   " << a << "   " << b << "   "
-                  << pb.sigmaweight/pa.sigma << "   " << pb.v -  pa.v
+                  << pb.hydro.sigmaweight/pa.hydro.sigma << "   " << pb.v -  pa.v
                   << "   " << gradK << "   " << pa.gradV << "\n";
 
     //===============
@@ -486,18 +486,18 @@ void SPHWorkstation::smooth_gradients( Particle & pa, double tin )
 
     //===============
     // check for nan pressure gradients
-    if ( isnan( pa.gradP(0) ) )
+    if ( isnan( pa.hydro.gradP(0) ) )
     {
       cout << "gradP stopped working" << endl;
-      cout << systemPtr->t <<" "  << pa.gradP << " " << a << " " << b << endl;
-      cout << pb.sigmaweight << " " << pa.sigma << " " << pb.p() << endl;
+      cout << systemPtr->t <<" "  << pa.hydro.gradP << " " << a << " " << b << endl;
+      cout << pb.hydro.sigmaweight << " " << pa.hydro.sigma << " " << pb.p() << endl;
       cout << systemPtr->linklist.Size << " " << pb.s() << " " << pa.s() << endl;
 
       cout << pa.r << endl;
       cout << pb.r << endl;
       cout << kernel::kernel( pa.r - pb.r, settingsPtr->_h ) << endl;
     }
-    else if ( isnan( pa.gradP(1) ) )
+    else if ( isnan( pa.hydro.gradP(1) ) )
       cout << "1 " << gradPressure_weight(a, b)
            << " " << a << " " << b << endl;
   }
@@ -704,7 +704,7 @@ void SPHWorkstation::advance_timestep_rk2( double dt )
         p.u            = systemPtr->u0[i]        + 0.5*dt*p.du_dt;
         p.eta_sigma    = systemPtr->etasigma0[i] + 0.5*dt*p.detasigma_dt;
         p.Bulk         = systemPtr->Bulk0[i]     + 0.5*dt*p.dBulk_dt;
-        tmini( p.shv,    systemPtr->shv0[i]      + 0.5*dt*p.dshv_dt );
+        tmini( p.hydro.shv,    systemPtr->shv0[i]      + 0.5*dt*p.dshv_dt );
 
         p.contribution_to_total_Ez = systemPtr->particles_E0[i]
                                       + 0.5*dt*p.contribution_to_total_dEz;
@@ -740,7 +740,7 @@ void SPHWorkstation::advance_timestep_rk2( double dt )
         p.u            = systemPtr->u0[i]        + dt*p.du_dt;
         p.eta_sigma    = systemPtr->etasigma0[i] + dt*p.detasigma_dt;
         p.Bulk         = systemPtr->Bulk0[i]     + dt*p.dBulk_dt;
-        tmini( p.shv,    systemPtr->shv0[i]      + dt*p.dshv_dt );
+        tmini( p.hydro.shv,    systemPtr->shv0[i]      + dt*p.dshv_dt );
 
         p.contribution_to_total_Ez = systemPtr->particles_E0[i]
                                       + dt*p.contribution_to_total_dEz;
@@ -793,14 +793,14 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
     p.r1        = dt*p.v;
     p.ets1      = dt*p.detasigma_dt;
     p.b1        = dt*p.dBulk_dt;
-    p.shv1      = dt*p.dshv_dt;
+    p.hydro.shv1      = dt*p.dshv_dt;
 
     // implement increments with appropriate coefficients
     p.u         = systemPtr->u0[i]        + 0.5*p.k1;
     p.r         = systemPtr->r0[i]        + 0.5*p.r1;
     p.eta_sigma = systemPtr->etasigma0[i] + 0.5*p.ets1;
     p.Bulk      = systemPtr->Bulk0[i]     + 0.5*p.b1;
-    tmini(p.shv,  systemPtr->shv0[i]      + 0.5*p.shv1);
+    tmini(p.hydro.shv,  systemPtr->shv0[i]      + 0.5*p.hydro.shv1);
 
     // regulate updated results if necessary
     if ( REGULATE_LOW_T && p.eta_sigma < 0.0
@@ -826,13 +826,13 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
     p.r2        = dt*p.v;
     p.ets2      = dt*p.detasigma_dt;
     p.b2        = dt*p.dBulk_dt;
-    p.shv2      = dt*p.dshv_dt;
+    p.hydro.shv2      = dt*p.dshv_dt;
 
     p.u         = systemPtr->u0[i]        + 0.5*p.k2;
     p.r         = systemPtr->r0[i]        + 0.5*p.r2;
     p.eta_sigma = systemPtr->etasigma0[i] + 0.5*p.ets2;
     p.Bulk      = systemPtr->Bulk0[i]     + 0.5*p.b2;
-    tmini(p.shv,  systemPtr->shv0[i]      + 0.5*p.shv2);
+    tmini(p.hydro.shv,  systemPtr->shv0[i]      + 0.5*p.hydro.shv2);
 
     // regulate updated results if necessary
     if ( REGULATE_LOW_T && p.eta_sigma < 0.0
@@ -857,14 +857,14 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
     p.r3        = dt*p.v;
     p.ets3      = dt*p.detasigma_dt;
     p.b3        = dt*p.dBulk_dt;
-    p.shv3      = dt*p.dshv_dt;
+    p.hydro.shv3      = dt*p.dshv_dt;
 
 
     p.u         = systemPtr->u0[i]        + p.k3;
     p.r         = systemPtr->r0[i]        + p.r3;
     p.eta_sigma = systemPtr->etasigma0[i] + p.ets3;
     p.Bulk      = systemPtr->Bulk0[i]     + p.b3;
-    tmini(p.shv,  systemPtr->shv0[i]      + p.shv3);
+    tmini(p.hydro.shv,  systemPtr->shv0[i]      + p.hydro.shv3);
 
     // regulate updated results if necessary
     if ( REGULATE_LOW_T && p.eta_sigma < 0.0
@@ -890,14 +890,14 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
     p.r4        = dt*p.v;
     p.ets4      = dt*p.detasigma_dt;
     p.b4        = dt*p.dBulk_dt;
-    p.shv4      = dt*p.dshv_dt;
+    p.hydro.shv4      = dt*p.dshv_dt;
 
     // sum the weighted steps into yf and return the final y values
     p.u         = systemPtr->u0[i]        + w1*p.k1   + w2*p.k2   + w2*p.k3   + w1*p.k4;
     p.r         = systemPtr->r0[i]        + w1*p.r1   + w2*p.r2   + w2*p.r3   + w1*p.r4;
     p.eta_sigma = systemPtr->etasigma0[i] + w1*p.ets1 + w2*p.ets2 + w2*p.ets3 + w1*p.ets4;
     p.Bulk      = systemPtr->Bulk0[i]     + w1*p.b1   + w2*p.b2   + w2*p.b3   + w1*p.b4;
-    tmini(p.shv,  systemPtr->shv0[i]      + w1*p.shv1 + w2*p.shv2 + w2*p.shv3 + w1*p.shv4);
+    tmini(p.hydro.shv,  systemPtr->shv0[i]      + w1*p.hydro.shv1 + w2*p.hydro.shv2 + w2*p.hydro.shv3 + w1*p.hydro.shv4);
 
     // regulate updated results if necessary
     if ( REGULATE_LOW_T && p.eta_sigma < 0.0
@@ -938,7 +938,7 @@ int SPHWorkstation::do_freezeout_checks()
 //{
 //  for ( auto & p : systemPtr->particles )
 //  {
-//    p.dsigma_dt = -p.sigma * ( p.gradV(0,0) + p.gradV(1,1) );
+//    p.dsigma_dt = -p.hydro.sigma * ( p.gradV(0,0) + p.gradV(1,1) );
 //
 //    //===============
 //    // print status
@@ -946,7 +946,7 @@ int SPHWorkstation::do_freezeout_checks()
 //          && settingsPtr->particles_to_print.size() > 0
 //          && settingsPtr->print_particle(p.ID) )
 //      std::cout << "CHECK dsigma_dt: " << p.ID << "   " << systemPtr->t << "   "
-//                << p.dsigma_dt << "   " << p.sigma << "   " << p.gradV << "\n";
+//                << p.dsigma_dt << "   " << p.hydro.sigma << "   " << p.gradV << "\n";
 //  }
 //}
 
@@ -1104,13 +1104,13 @@ void SPHWorkstation::locate_phase_diagram_point_sBSQ(Particle & p, double s_In) 
 //  Computes gamma and velocity
 void SPHWorkstation::calcbsq(Particle & p)
 {
-  p.gamma           = p.gamcalc();
-  p.v               = (1.0/p.gamma)*p.u;
-  double s_lab    = p.eta/p.gamma/systemPtr->t;
-  double rhoB_lab = p.rhoB_sub/p.gamma/systemPtr->t;
-  double rhoS_lab = p.rhoS_sub/p.gamma/systemPtr->t;
-  double rhoQ_lab = p.rhoQ_sub/p.gamma/systemPtr->t;
-  p.qmom            = ( (p.e()+p.p())*p.gamma/p.sigma )*p.u;
+  p.hydro.gamma           = p.gamcalc();
+  p.v               = (1.0/p.hydro.gamma)*p.u;
+  double s_lab    = p.eta/p.hydro.gamma/systemPtr->t;
+  double rhoB_lab = p.rhoB_sub/p.hydro.gamma/systemPtr->t;
+  double rhoS_lab = p.rhoS_sub/p.hydro.gamma/systemPtr->t;
+  double rhoQ_lab = p.rhoQ_sub/p.hydro.gamma/systemPtr->t;
+  p.qmom            = ( (p.e()+p.p())*p.hydro.gamma/p.hydro.sigma )*p.u;
 	locate_phase_diagram_point_sBSQ( p, s_lab, rhoB_lab, rhoS_lab, rhoQ_lab );
 }
 
@@ -1133,7 +1133,7 @@ void SPHWorkstation::bsqsvfreezeout(int curfrz)
     {
       p.frz2.r       = p.r;
       p.frz2.u       = p.u;
-      p.frz2.sigma   = p.sigma;
+      p.frz2.sigma   = p.hydro.sigma;
       p.frz2.T       = p.T();
       p.frz2.muB     = p.muB();
       p.frz2.muS     = p.muS();
@@ -1142,12 +1142,12 @@ void SPHWorkstation::bsqsvfreezeout(int curfrz)
       p.frz2.rhoB    = p.rhoB();
       p.frz2.rhoS    = p.rhoS();
       p.frz2.rhoQ    = p.rhoQ();
-      p.frz2.bulk    = p.bigPI;
-      p.frz2.theta   = p.div_u + p.gamma/systemPtr->t;
-      p.frz2.gradP   = p.gradP;
-      p.frz2.shear   = p.shv;
-      p.frz2.shear33 = p.shv33;
-      p.frz2.inside  = p.inside;
+      p.frz2.bulk    = p.hydro.bigPI;
+      p.frz2.theta   = p.hydro.div_u + p.hydro.gamma/systemPtr->t;
+      p.frz2.gradP   = p.hydro.gradP;
+      p.frz2.shear   = p.hydro.shv;
+      p.frz2.shear33 = p.hydro.shv33;
+      p.frz2.inside  = p.hydro.inside;
     }
 
   }
@@ -1159,7 +1159,7 @@ void SPHWorkstation::bsqsvfreezeout(int curfrz)
     {
       p.frz1.r       = p.r;
       p.frz1.u       = p.u;
-      p.frz1.sigma   = p.sigma;
+      p.frz1.sigma   = p.hydro.sigma;
       p.frz1.T       = p.T();
       p.frz1.muB     = p.muB();
       p.frz1.muS     = p.muS();
@@ -1168,12 +1168,12 @@ void SPHWorkstation::bsqsvfreezeout(int curfrz)
       p.frz1.rhoB    = p.rhoB();
       p.frz1.rhoS    = p.rhoS();
       p.frz1.rhoQ    = p.rhoQ();
-      p.frz1.bulk    = p.bigPI;
-      p.frz1.theta   = p.div_u + p.gamma/systemPtr->t;
-      p.frz1.gradP   = p.gradP;
-      p.frz1.shear   = p.shv;
-      p.frz1.shear33 = p.shv33;
-      p.frz1.inside  = p.inside;
+      p.frz1.bulk    = p.hydro.bigPI;
+      p.frz1.theta   = p.hydro.div_u + p.hydro.gamma/systemPtr->t;
+      p.frz1.gradP   = p.hydro.gradP;
+      p.frz1.shear   = p.hydro.shv;
+      p.frz1.shear33 = p.hydro.shv33;
+      p.frz1.inside  = p.hydro.inside;
     }
 
     systemPtr->divTtemp.resize( curfrz );
@@ -1258,7 +1258,7 @@ void SPHWorkstation::bsqsvfreezeout(int curfrz)
 
       p.frz1.r       = p.r;
       p.frz1.u       = p.u;
-      p.frz1.sigma   = p.sigma;
+      p.frz1.sigma   = p.hydro.sigma;
       p.frz1.T       = p.T();
       p.frz1.muB     = p.muB();
       p.frz1.muS     = p.muS();
@@ -1267,12 +1267,12 @@ void SPHWorkstation::bsqsvfreezeout(int curfrz)
       p.frz1.rhoB    = p.rhoB();
       p.frz1.rhoS    = p.rhoS();
       p.frz1.rhoQ    = p.rhoQ();
-      p.frz1.bulk    = p.bigPI ;
-      p.frz1.theta   = p.div_u+p.gamma/systemPtr->t;
-      p.frz1.gradP   = p.gradP;
-      p.frz1.shear   = p.shv;
-      p.frz1.shear33 = p.shv33;
-      p.frz1.inside  = p.inside;
+      p.frz1.bulk    = p.hydro.bigPI ;
+      p.frz1.theta   = p.hydro.div_u+p.hydro.gamma/systemPtr->t;
+      p.frz1.gradP   = p.hydro.gradP;
+      p.frz1.shear   = p.hydro.shv;
+      p.frz1.shear33 = p.hydro.shv33;
+      p.frz1.inside  = p.hydro.inside;
     }
 
     systemPtr->taupp = systemPtr->taup;
@@ -1410,14 +1410,14 @@ double SPHWorkstation::gradPressure_weight(const int a, const int b)
   double innerp = inner( pa.r - pb.r, pa.qmom - pb.qmom );
   double innerr = inner( pa.r - pb.r, pa.r    - pb.r    );
   innerp = 2.0*alpha_q*v_signal_q
-          / ( pa.sigma/pa.gamma + pb.sigma/pb.gamma )
+          / ( pa.hydro.sigma/pa.hydro.gamma + pb.hydro.sigma/pb.hydro.gamma )
           / sqrt(innerr) * innerp;
 
   if ( innerp > 0.0 || a == b ) innerp = 0.0;
 
-  return pb.sigmaweight * pa.sigma
-        * ( pb.p() / (pb.sigma*pb.sigma)
-          + pa.p() / (pa.sigma*pb.sigma) - innerp );
+  return pb.hydro.sigmaweight * pa.hydro.sigma
+        * ( pb.p() / (pb.hydro.sigma*pb.hydro.sigma)
+          + pa.p() / (pa.hydro.sigma*pb.hydro.sigma) - innerp );
 }
 
 
