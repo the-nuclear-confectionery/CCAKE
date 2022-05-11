@@ -526,13 +526,7 @@ void Particle::set_hydro_info(double t)
   hydro.Agam2           = Agam2;
   hydro.shv33           = shv33;
 
-  hydro.div_u           = div_u;
   hydro.gamma           = gamma;
-//  hydro.s_sub           = s_sub;
-//  hydro.e_sub           = e_sub;
-//  hydro.s_an            = s_an;
-//  hydro.s_rat           = s_rat;
-//  hydro.sigsub          = sigsub;
   hydro.Bulk            = Bulk;
   hydro.bigPI           = bigPI;
   hydro.C               = C;
@@ -542,10 +536,6 @@ void Particle::set_hydro_info(double t)
   hydro.setas           = setas; 
   hydro.Ctot            = Ctot;
   hydro.Btot            = Btot;
-//  hydro.Bsub            = Bsub();
-
-//  hydro.sv_eta          = sv_eta;
-//  hydro.taupi           = taupi;
 
   hydro.sigma           = sigma;
   hydro.dsigma_dt       = dsigma_dt;
@@ -557,8 +547,6 @@ void Particle::set_hydro_info(double t)
   hydro.rhoB            = rhoB();
   hydro.rhoS            = rhoS();
   hydro.rhoQ            = rhoQ();
-//  hydro.eta             = eta;
-//  hydro.eden            = eden;
 
   hydro.g2              = g2;
   hydro.g3              = g3;
@@ -568,23 +556,19 @@ void Particle::set_hydro_info(double t)
   hydro.sigl            = sigl;
 
   hydro.T               = T();
+  hydro.w               = w();
+  hydro.s               = s();
 
   // vector members
   hydro.v               = v;
   hydro.u               = u;
-//  hydro.qmom            = qmom;
-//  hydro.gradsig         = gradsig;
 
   hydro.gradP           = gradP;
   hydro.gradBulk        = gradBulk;
-//  hydro.gradsigma       = gradsigma;
   hydro.divshear        = divshear;
   hydro.gradshear       = gradshear;
 
-
   // matrix members
-//  hydro.Msub            = Msub();
-//  hydro.dpidtsub        = dpidtsub();
   hydro.Imat            = Imat;
   hydro.gradV           = gradV;
   hydro.gradU           = gradU;

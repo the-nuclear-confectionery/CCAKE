@@ -104,7 +104,6 @@ class EoM_default: public EquationsOfMotion
       hi.Btot         = ( hi.Agam*hi.gamma + 2.0*hi.eta_o_tau/3.0*hi.gamma )*hi.sigl
                           + hi.bigPI/hi.tauRelax
                           + dwdsT*( hi.gt*hi.shv33 + Bsub_fun(hi) );
-//      hi.check        = hi.sigl;
 
 
 
