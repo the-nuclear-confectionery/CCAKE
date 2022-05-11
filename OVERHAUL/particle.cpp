@@ -67,14 +67,11 @@ Particle::Particle( const Particle& p )
 }
 
 
-
-
 ////////////////////////////////////////////////////////////////////////////////
 void Particle::set_SettingsPtr(Settings * settingsPtr_in)
 {
   settingsPtr = settingsPtr_in;
 }
-
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -84,45 +81,6 @@ double Particle::gamcalc() { return sqrt( Norm2(hydro.u) + 1.0 ); }
 ////////////////////////////////////////////////////////////////////////////////
 void Particle::frzcheck( double tin, int &count, int N )
 {
-
-// old version of freeze out
-//  if ( Freeze == 0 )
-//  {
-//    if ( T() <= freezeoutT )
-//    {
-//      Freeze = 1;
-//      frz2.t = tin;
-//    }
-//  }
-//  else if ( Freeze == 1 )
-//  {
-//    if ( btrack == -1 )
-//    {
-//      count += 1;
-//      Freeze = 3;
-//      frz1.t = tin;
-//    }
-//    else if ( T()>frz1.T )
-//    {
-//      Freeze = 1;
-//      frz2.t = tin;
-//    }
-//    else if( T() <= freezeoutT )
-//    {
-//      count += 1;
-//      Freeze = 3;
-//      frz1.t = tin;
-//    }
-//    else
-//    {
-//      Freeze=0;
-//    }
-//  }
-
-
-
-
-// new version of freeze out
 
   if ( Freeze == 0 )
   {
@@ -176,24 +134,4 @@ void Particle::reset_pi_tensor(double tin2)
   hydro.shv(0,0) = 1./hydro.gamma/hydro.gamma*con(hydro.uu,hydro.pimin);
   hydro.shv33    = (hydro.shv(0,0)-hydro.shv(1,1)-hydro.shv(2,2))/tin2;
 }
-
-
-////////////////////////////////////////////////////////////////////////////////
-void Particle::set_hydro_info(double t)
-{
-
-//  hydro.dwds            = dwds();
-//  hydro.dwdB            = dwdB();
-//  hydro.dwdS            = dwdS();
-//  hydro.dwdQ            = dwdQ();
-//  hydro.rhoB            = rhoB();
-//  hydro.rhoS            = rhoS();
-//  hydro.rhoQ            = rhoQ();
-//
-//  hydro.T               = T();
-//  hydro.w               = w();
-//  hydro.s               = s();
-
-}
-
 
