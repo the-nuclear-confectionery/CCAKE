@@ -353,18 +353,18 @@ void InputOutput::print_system_state()
   if ( settingsPtr->using_Gubser )
     for ( auto & p : systemPtr->particles )
     {
-      out << p.r << " "
-          << p.T() << " "
-          << p.e() << " "
-          << p.u(0) << " "
-          << p.u(1) << " "
-          << p.shv(1,1) << " "
-          << p.shv(2,2) << " "
-          << p.shv(1,2) << " "
-          << pow(systemPtr->t,2.0)*p.shv33 << " "
-          << p.rhoB() << " "
-          << p.rhoS() << " "
-          << p.rhoQ() << "\n";
+      out << p.hydro.r << " "
+          << p.hydro.T() << " "
+          << p.hydro.e() << " "
+          << p.hydro.u(0) << " "
+          << p.hydro.u(1) << " "
+          << p.hydro.shv(1,1) << " "
+          << p.hydro.shv(2,2) << " "
+          << p.hydro.shv(1,2) << " "
+          << pow(systemPtr->t,2.0)*p.hydro.shv33 << " "
+          << p.hydro.rhoB() << " "
+          << p.hydro.rhoS() << " "
+          << p.hydro.rhoQ() << "\n";
       }
   else
   {
@@ -382,42 +382,42 @@ void InputOutput::print_system_state()
           << p.rhoS() << " "
           << p.rhoQ() << " "
           << p.s() << " "
-          << p.eta/(p.gamma*systemPtr->t) << " "
+          << p.eta/(p.hydro.gamma*systemPtr->t) << " "
           << p.eta_sigma << " "
-          << p.sigma << " " 
+          << p.hydro.sigma << " " 
           << p.sigmaweight << " "
-          << p.stauRelax << " " 
-          << p.bigtheta << "       "  //20
-          << sqrt(     p.shv(0,0)*p.shv(0,0)
-                  -2.0*p.shv(0,1)*p.shv(0,1)
-                  -2.0*p.shv(0,2)*p.shv(0,2)
-                  +    p.shv(1,1)*p.shv(1,1)
-                  +    p.shv(2,2)*p.shv(2,2)
-                  +2.0*p.shv(1,2)*p.shv(1,2)
-                  +pow(systemPtr->t,4.0)*p.shv33*p.shv33 ) << " "
-          << p.stauRelax/systemPtr->t * p.bigtheta << " "
-          << p.shv(0,0) << " "
-          << p.shv(1,1) << " "
-          << p.shv(2,2) << " "
-          << p.shv(1,2) << " "
-          << pow(systemPtr->t,2.0)*p.shv33 << " "
-          << p.u(0)/p.gamma << " "  //28
-          << p.u(1)/p.gamma << " "
-          << p.gamma << "       "
+          << p.hydro.stauRelax << " " 
+          << p.hydro.bigtheta << "       "  //20
+          << sqrt(     p.hydro.shv(0,0)*p.hydro.shv(0,0)
+                  -2.0*p.hydro.shv(0,1)*p.hydro.shv(0,1)
+                  -2.0*p.hydro.shv(0,2)*p.hydro.shv(0,2)
+                  +    p.hydro.shv(1,1)*p.hydro.shv(1,1)
+                  +    p.hydro.shv(2,2)*p.hydro.shv(2,2)
+                  +2.0*p.hydro.shv(1,2)*p.hydro.shv(1,2)
+                  +pow(systemPtr->t,4.0)*p.hydro.shv33*p.hydro.shv33 ) << " "
+          << p.hydro.stauRelax/systemPtr->t * p.hydro.bigtheta << " "
+          << p.hydro.shv(0,0) << " "
+          << p.hydro.shv(1,1) << " "
+          << p.hydro.shv(2,2) << " "
+          << p.hydro.shv(1,2) << " "
+          << pow(systemPtr->t,2.0)*p.hydro.shv33 << " "
+          << p.hydro.u(0)/p.hydro.gamma << " "  //28
+          << p.hydro.u(1)/p.hydro.gamma << " "
+          << p.hydro.gamma << "       "
           << p.Freeze << " "
-          << p.bigPI << " "     //32
-          << p.tauRelax << " "
-          << p.Bulk << " "
-          << p.dBulk_dt << " "
-          << p.zeta << " "
-          << p.dsigma_dt << " "
-          << p.div_u << " "       //38
-          << p.du_dt << "       "
-          << p.gradV << "       "
-          << p.gradU << "       "
-          << p.gradBulk << "       "
-          << p.gradshear << "       "
-          << p.divshear << "   "
+          << p.hydro.bigPI << " "     //32
+          << p.hydro.tauRelax << " "
+          << p.hydro.Bulk << " "
+          << p.hydro.dBulk_dt << " "
+          << p.hydro.zeta << " "
+          << p.hydro.dsigma_dt << " "
+          << p.hydro.div_u << " "       //38
+          << p.hydro.du_dt << "       "
+          << p.hydro.gradV << "       "
+          << p.hydro.gradU << "       "
+          << p.hydro.gradBulk << "       "
+          << p.hydro.gradshear << "       "
+          << p.hydro.divshear << "   "
           << p.contribution_to_total_E << "   "
           << p.contribution_to_total_Ez << "   "
           << p.get_current_eos_name() << "\n";
@@ -458,30 +458,30 @@ void InputOutput::print_shear()
   int iParticle = 0;
   for ( auto & p : systemPtr->particles )
   {
-    p.reset_pi_tensor(systemPtr->t*systemPtr->t);
+    p.hydro.reset_pi_tensor(systemPtr->t*systemPtr->t);
 
     out << iParticle++ << "   "
         << systemPtr->t << "   "
-        << p.r << "   "
-        << p.u << "   "
-        << p.shv << "   "
-        << pow(systemPtr->t,2.0)*p.shv33 << "   "
-        <<       p.shv(0,0)*p.shv(0,0)
-            -2.0*p.shv(0,1)*p.shv(0,1)
-            -2.0*p.shv(0,2)*p.shv(0,2)
-            +    p.shv(1,1)*p.shv(1,1)
-            +    p.shv(2,2)*p.shv(2,2)
-            +2.0*p.shv(1,2)*p.shv(1,2)
-            +pow(systemPtr->t,4.0)*p.shv33*p.shv33 << "   " //17
-        << p.shv(0,1) - p.shv(1,0) << "   "
-        << p.shv(0,2) - p.shv(2,0) << "   "
-        << p.shv(1,2) - p.shv(2,1) << "   "
-        << p.shv(0,0) - 1./p.gamma/p.gamma*con(p.uu,p.pimin) << "   "
-        << p.shv(0,0) - 1./p.gamma*inner(p.u,colp1(0,p.shv)) << "   "
-        << p.shv(0,1) - 1./p.gamma*inner(p.u,colp1(1,p.shv)) << "   "
-        << p.shv(0,2) - 1./p.gamma*inner(p.u,colp1(2,p.shv)) << "   "
-        << p.shv(0,0) - p.shv(1,1) - p.shv(2,2)
-                       - pow(systemPtr->t,2.0)*p.shv33 << "   "
+        << p.hydro.r << "   "
+        << p.hydro.u << "   "
+        << p.hydro.shv << "   "
+        << pow(systemPtr->t,2.0)*p.hydro.shv33 << "   "
+        <<       p.hydro.shv(0,0)*p.hydro.shv(0,0)
+            -2.0*p.hydro.shv(0,1)*p.hydro.shv(0,1)
+            -2.0*p.hydro.shv(0,2)*p.hydro.shv(0,2)
+            +    p.hydro.shv(1,1)*p.hydro.shv(1,1)
+            +    p.hydro.shv(2,2)*p.hydro.shv(2,2)
+            +2.0*p.hydro.shv(1,2)*p.hydro.shv(1,2)
+            +pow(systemPtr->t,4.0)*p.hydro.shv33*p.hydro.shv33 << "   " //17
+        << p.hydro.shv(0,1) - p.hydro.shv(1,0) << "   "
+        << p.hydro.shv(0,2) - p.hydro.shv(2,0) << "   "
+        << p.hydro.shv(1,2) - p.hydro.shv(2,1) << "   "
+        << p.hydro.shv(0,0) - 1./p.hydro.gamma/p.hydro.gamma*con(p.hydro.uu,p.hydro.pimin) << "   "
+        << p.hydro.shv(0,0) - 1./p.hydro.gamma*inner(p.hydro.u,colp1(0,p.hydro.shv)) << "   "
+        << p.hydro.shv(0,1) - 1./p.hydro.gamma*inner(p.hydro.u,colp1(1,p.hydro.shv)) << "   "
+        << p.hydro.shv(0,2) - 1./p.hydro.gamma*inner(p.hydro.u,colp1(2,p.hydro.shv)) << "   "
+        << p.hydro.shv(0,0) - p.hydro.shv(1,1) - p.hydro.shv(2,2)
+                       - pow(systemPtr->t,2.0)*p.hydro.shv33 << "   "
         << p.get_current_eos_name() << "\n";
   }
 
