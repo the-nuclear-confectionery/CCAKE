@@ -175,7 +175,7 @@ class EoM_default: public EquationsOfMotion
         hi.inside                  = hi.t*( inner( -minshv+hi.shv(0,0)*hi.v, hi.du_dt )
                                       - con2(sub, hi.gradU) - hi.gamma*hi.t*hi.shv33 );
 
-      hi.detasigma_dt            = 1./hi.sigma/hi.T*( -hi.bigPI*hi.bigtheta + hi.inside );
+      hi.detasigma_dt            = 1./hi.sigma/ti.T*( -hi.bigPI*hi.bigtheta + hi.inside );
 
 
       // N.B. - ADD EXTRA TERMS FOR BULK EQUATION

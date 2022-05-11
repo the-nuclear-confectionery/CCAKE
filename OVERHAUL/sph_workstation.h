@@ -110,7 +110,7 @@ public:
           { /*p.set_hydro_info( systemPtr->t );*/
             p.hydro.ID = p.ID;
             p.hydro.t  = systemPtr->t;
-            pEoM->evaluate_time_derivatives( p.hydro );
+            pEoM->evaluate_time_derivatives( p.hydro, p.thermo );
             /*p.update_from_hydro_info();*/ } } // the first and last steps will
                                             // eventually be unnecessary
 
