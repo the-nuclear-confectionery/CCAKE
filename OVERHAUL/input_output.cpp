@@ -353,18 +353,18 @@ void InputOutput::print_system_state()
   if ( settingsPtr->using_Gubser )
     for ( auto & p : systemPtr->particles )
     {
-      out << p.hydro.r << " "
-          << p.hydro.T() << " "
-          << p.hydro.e() << " "
+      out << p.r << " "
+          << p.T() << " "
+          << p.e() << " "
           << p.hydro.u(0) << " "
           << p.hydro.u(1) << " "
           << p.hydro.shv(1,1) << " "
           << p.hydro.shv(2,2) << " "
           << p.hydro.shv(1,2) << " "
           << pow(systemPtr->t,2.0)*p.hydro.shv33 << " "
-          << p.hydro.rhoB() << " "
-          << p.hydro.rhoS() << " "
-          << p.hydro.rhoQ() << "\n";
+          << p.rhoB() << " "
+          << p.rhoS() << " "
+          << p.rhoQ() << "\n";
       }
   else
   {
@@ -458,11 +458,11 @@ void InputOutput::print_shear()
   int iParticle = 0;
   for ( auto & p : systemPtr->particles )
   {
-    p.hydro.reset_pi_tensor(systemPtr->t*systemPtr->t);
+    p.reset_pi_tensor(systemPtr->t*systemPtr->t);
 
     out << iParticle++ << "   "
         << systemPtr->t << "   "
-        << p.hydro.r << "   "
+        << p.r << "   "
         << p.hydro.u << "   "
         << p.hydro.shv << "   "
         << pow(systemPtr->t,2.0)*p.hydro.shv33 << "   "
