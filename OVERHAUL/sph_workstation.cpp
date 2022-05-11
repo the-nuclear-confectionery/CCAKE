@@ -768,8 +768,6 @@ void SPHWorkstation::advance_timestep_rk2( double dt )
 
 void SPHWorkstation::advance_timestep_rk4( double dt )
 {
-  double 
-
   systemPtr->rk2 = 1;
   double t0      = systemPtr->t;
   double E0      = systemPtr->Ez;
