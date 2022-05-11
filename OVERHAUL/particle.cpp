@@ -554,9 +554,9 @@ void Particle::set_hydro_info(double t)
   hydro.dwdB            = dwdB();
   hydro.dwdS            = dwdS();
   hydro.dwdQ            = dwdQ();
-  hydro.rhoB            = B();
-  hydro.rhoS            = S();
-  hydro.rhoQ            = Q();
+  hydro.rhoB            = rhoB();
+  hydro.rhoS            = rhoS();
+  hydro.rhoQ            = rhoQ();
 //  hydro.eta             = eta;
 //  hydro.eden            = eden;
 
