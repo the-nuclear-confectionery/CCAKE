@@ -195,7 +195,7 @@ void SPHWorkstation::smooth_fields(Particle & pa)
   int a = pa.ID;
 
   pa.hydro.sigma     = 0.0;
-  pa.eta             = 0.0;
+  pa.smoothed.s             = 0.0;
   pa.rhoB_sub        = 0.0;
   pa.rhoS_sub        = 0.0;
   pa.rhoQ_sub        = 0.0;
@@ -208,7 +208,7 @@ void SPHWorkstation::smooth_fields(Particle & pa)
 
     double kern     = kernel::kernel( pa.r - pb.r, settingsPtr->h );
     pa.hydro.sigma += pb.sigmaweight*kern;
-    pa.eta         += pb.sigmaweight*pb.eta_sigma*kern;
+    pa.smoothed.s         += pb.sigmaweight*pb.eta_sigma*kern;
     pa.rhoB_sub    += pb.B*kern;
     pa.rhoS_sub    += pb.S*kern;
     pa.rhoQ_sub    += pb.Q*kern;
@@ -216,12 +216,12 @@ void SPHWorkstation::smooth_fields(Particle & pa)
     //===============
     // print status
     if ( ( VERBOSE > 2 && pa.print_this_particle )
-          || pa.eta < 0 || isnan( pa.eta ) )
+          || pa.smoothed.s < 0 || isnan( pa.smoothed.s ) )
       std::cout << __FUNCTION__ << "(SPH particle == " << a << "): "
                 << systemPtr->t << "   "
                 << b << "   " << pa.r
                 << "   " << pa.hydro.sigma
-                << "   " << pa.eta
+                << "   " << pa.smoothed.s
                 << "   " << pb.r
                 << "   " << pb.sigmaweight
                 << "   " << pb.eta_sigma
@@ -236,11 +236,11 @@ void SPHWorkstation::smooth_fields(Particle & pa)
   }
 
   // check if particle has gone nan or negative entropy
-  if ( (pa.eta<0) || isnan(pa.eta) )
+  if ( (pa.smoothed.s<0) || isnan(pa.smoothed.s) )
   {
     std::cout << pa.ID <<  " has invalid entropy "
-              << pa.T()*hbarc << " " << pa.eta << endl;
-    pa.eta = TOLERANCE;
+              << pa.T()*hbarc << " " << pa.smoothed.s << endl;
+    pa.smoothed.s = TOLERANCE;
   }
 
 
@@ -919,7 +919,7 @@ void SPHWorkstation::calcbsq(Particle & p)
 {
   p.hydro.gamma     = p.gamcalc();
   p.hydro.v         = (1.0/p.hydro.gamma)*p.hydro.u;
-  double s_lab      = p.eta/p.hydro.gamma/systemPtr->t;
+  double s_lab      = p.smoothed.s/p.hydro.gamma/systemPtr->t;
   double rhoB_lab   = p.rhoB_sub/p.hydro.gamma/systemPtr->t;
   double rhoS_lab   = p.rhoS_sub/p.hydro.gamma/systemPtr->t;
   double rhoQ_lab   = p.rhoQ_sub/p.hydro.gamma/systemPtr->t;
