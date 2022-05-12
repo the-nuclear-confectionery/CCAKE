@@ -790,7 +790,7 @@ void SPHWorkstation::update_freeze_out_lists()
 void SPHWorkstation::finalize_freeze_out(int curfrz)
 {
   if (systemPtr->cfon==1)
-    fo->bsqsvfreezeout( curfrz );
+    fo.bsqsvfreezeout( curfrz );
 
 
   // keep track of which particles have left EoS grid completely
