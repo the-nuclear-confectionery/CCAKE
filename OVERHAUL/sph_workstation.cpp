@@ -654,7 +654,7 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
     p.r               = systemPtr->r0[i]        + 0.5*ps.r1;
     p.specific.s      = systemPtr->etasigma0[i] + 0.5*ps.ets1;
     p.hydro.Bulk      = systemPtr->Bulk0[i]     + 0.5*ps.b1;
-    tmini(p.hydro.shv,  systemPtr->shv0[i]      + 0.5*ps.hydro.shv1);
+    tmini(p.hydro.shv,  systemPtr->shv0[i]      + 0.5*ps.shv1);
 
     // regulate updated results if necessary
     if ( REGULATE_LOW_T && p.specific.s < 0.0
@@ -687,7 +687,7 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
     p.r               = systemPtr->r0[i]        + 0.5*ps.r2;
     p.specific.s      = systemPtr->etasigma0[i] + 0.5*ps.ets2;
     p.hydro.Bulk      = systemPtr->Bulk0[i]     + 0.5*ps.b2;
-    tmini(p.hydro.shv,  systemPtr->shv0[i]      + 0.5*ps.hydro.shv2);
+    tmini(p.hydro.shv,  systemPtr->shv0[i]      + 0.5*ps.shv2);
 
     // regulate updated results if necessary
     if ( REGULATE_LOW_T && p.specific.s < 0.0
@@ -720,7 +720,7 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
     p.r               = systemPtr->r0[i]        + ps.r3;
     p.specific.s      = systemPtr->etasigma0[i] + ps.ets3;
     p.hydro.Bulk      = systemPtr->Bulk0[i]     + ps.b3;
-    tmini(p.hydro.shv,  systemPtr->shv0[i]      + ps.hydro.shv3);
+    tmini(p.hydro.shv,  systemPtr->shv0[i]      + ps.shv3);
 
     // regulate updated results if necessary
     if ( REGULATE_LOW_T && p.specific.s < 0.0
