@@ -55,7 +55,7 @@ class Settings
 
     // allows for explicitly printing tons of information about specific particles
     vector<int> particles_to_print;
-    vector<bool> is_printable;
+//    vector<bool> is_printable;
 
     // make sure that all chosen settings make reasonable sense
     void check_consistency()

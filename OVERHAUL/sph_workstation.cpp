@@ -215,9 +215,7 @@ void SPHWorkstation::smooth_fields(Particle & pa)
 
     //===============
     // print status
-    if ( ( VERBOSE > 2
-            && settingsPtr->particles_to_print.size() > 0
-            && settingsPtr->print_particle(a) )
+    if ( ( VERBOSE > 2 && pa.print_this_particle )
           || pa.eta < 0 || isnan( pa.eta ) )
       std::cout << __FUNCTION__ << "(SPH particle == " << a << "): "
                 << systemPtr->t << "   "
@@ -290,9 +288,7 @@ void SPHWorkstation::smooth_gradients( Particle & pa, double tin )
 
     //===============
     // print status
-    if ( VERBOSE > 2
-          && settingsPtr->particles_to_print.size() > 0
-          && settingsPtr->print_particle(a) )
+    if ( VERBOSE > 2 && pa.print_this_particle )
       std::cout << "CHECK grads: " << tin << "   "
                 << pa.hydro.gradP << "   " << a << "   " << b << "   "
                 << sigsqra << "   " << sigsqrb
@@ -315,9 +311,7 @@ void SPHWorkstation::smooth_gradients( Particle & pa, double tin )
 
     //===============
     // print status
-    if ( VERBOSE > 2
-          && settingsPtr->particles_to_print.size() > 0
-          && settingsPtr->print_particle(a) )
+    if ( VERBOSE > 2 && pa.print_this_particle )
         std::cout << "CHECK gradV: " << tin << "   " << a << "   " << b << "   "
                   << pb.sigmaweight/pa.hydro.sigma << "   " << pb.hydro.v -  pa.hydro.v
                   << "   " << gradK << "   " << pa.hydro.gradV << "\n";
@@ -478,7 +472,7 @@ void SPHWorkstation::process_initial_conditions()
   settingsPtr->is_printable.resize( systemPtr->particles.size(), false );
   for ( int & p : settingsPtr->particles_to_print )
   {
-    settingsPtr->is_printable[ p ] = true;
+//    settingsPtr->is_printable[ p ] = true;
     systemPtr->particles[p].print_this_particle = true;
   }
 }
@@ -785,24 +779,6 @@ int SPHWorkstation::do_freezeout_checks()
 
 
 
-//==============================================================================
-//void SPHWorkstation::update_all_particles_dsigma_dt()
-//{
-//  for ( auto & p : systemPtr->particles )
-//  {
-//    p.dsigma_dt = -p.hydro.sigma * ( p.gradV(0,0) + p.gradV(1,1) );
-//
-//    //===============
-//    // print status
-//    if ( VERBOSE > 2
-//          && settingsPtr->particles_to_print.size() > 0
-//          && settingsPtr->print_particle(p.ID) )
-//      std::cout << "CHECK dsigma_dt: " << p.ID << "   " << systemPtr->t << "   "
-//                << p.dsigma_dt << "   " << p.hydro.sigma << "   " << p.gradV << "\n";
-//  }
-//}
-
-
 ////////////////////////////////////////////////////////////////////////////////
 void SPHWorkstation::update_freeze_out_lists()
 {
@@ -859,16 +835,6 @@ void SPHWorkstation::get_time_derivatives()
 
   //Computes gradients to obtain dsigma/dt
   smooth_all_particle_gradients();
-
-//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//  // set dsigma_dt
-//  update_all_particles_dsigma_dt();
-//
-//  // update fluid quantities
-//  update_all_particle_fluid_quantities();
-//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// THESE TWO FUNCTIONS NOW LUMPED INTO THE NEXT ONE
-//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   //calculate time derivatives needed for equations of motion
   evaluate_all_particle_time_derivatives();
