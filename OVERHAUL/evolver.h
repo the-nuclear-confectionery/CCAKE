@@ -18,6 +18,8 @@ class Evolver
     Settings * settingsPtr    = nullptr;
     SystemState * systemPtr   = nullptr;
 
+    int n_particles = -1;
+
     // creating vectors of quantities for RK evolution
     vector<double> etasigma0;
     vector<double> Bulk0;
@@ -60,13 +62,15 @@ class Evolver
     // this routine is used to initialize quantities prior to RK evolution
     void set_current_timestep_quantities()
     {
+      // set number of particles
+      n_particles = systemPtr->particles.size();
+
+      // store quantities at current timestep
       etasigma0.resize(n_particles);
       Bulk0.resize(n_particles);
       particles_E0.resize(n_particles);
-
       u0.resize(n_particles);
       r0.resize(n_particles);
-
       shv0.resize(n_particles);
 
       for (int i = 0; i < n_particles; ++i)
@@ -106,7 +110,7 @@ class Evolver
 
       // update quantities
       {
-        for (int i = 0; i < (int)systemPtr->particles.size(); i++)
+        for (int i = 0; i < n_particles; i++)
         {
           auto & p    = systemPtr->particles[i];
           auto & ph   = p.hydro;
@@ -142,7 +146,7 @@ class Evolver
 
       // update quantities
       {
-        for (int i = 0; i < (int)systemPtr->particles.size(); i++)
+        for (int i = 0; i < n_particles; i++)
         {
           auto & p    = systemPtr->particles[i];
           auto & ph   = p.hydro;
