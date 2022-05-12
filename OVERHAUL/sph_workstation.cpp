@@ -255,11 +255,13 @@ void SPHWorkstation::smooth_gradients( Particle & pa, double tin )
 {
   int a = pa.ID;
 
-  pa.hydro.gradP     = 0.0;
-  pa.hydro.gradBulk  = 0.0;
-  pa.hydro.gradV     = 0.0;
-  pa.hydro.gradshear = 0.0;
-  pa.hydro.divshear  = 0.0;
+  auto & pah = pa.hydro;
+
+  pah.gradP     = 0.0;
+  pah.gradBulk  = 0.0;
+  pah.gradV     = 0.0;
+  pah.gradshear = 0.0;
+  pah.divshear  = 0.0;
 
   if ( pa.btrack != -1 ) pa.btrack = 0;
 
@@ -270,33 +272,34 @@ void SPHWorkstation::smooth_gradients( Particle & pa, double tin )
   for ( int b : a_neighbors )
   {
     auto & pb                = systemPtr->particles[b];
+    auto & pbh               = pb.hydro;
 
     Vector<double,2> rel_sep = pa.r - pb.r;
     double rel_sep_norm      = Norm( rel_sep );
     Vector<double,2> gradK   = kernel::gradKernel( rel_sep, rel_sep_norm, settingsPtr->h );
-    Vector<double,2> va      = rowp1(0, pa.hydro.shv);
-    Vector<double,2> vb      = rowp1(0, pb.hydro.shv);
+    Vector<double,2> va      = rowp1(0, pah.shv);
+    Vector<double,2> vb      = rowp1(0, pbh.shv);
     Matrix<double,2,2> vminia, vminib;
-    mini(vminia, pa.hydro.shv);
-    mini(vminib, pb.hydro.shv);
+    mini(vminia, pah.shv);
+    mini(vminib, pbh.shv);
 
-    double sigsqra           = 1.0/(pa.hydro.sigma*pa.hydro.sigma);
-    double sigsqrb           = 1.0/(pb.hydro.sigma*pb.hydro.sigma);
-    Vector<double,2> sigsigK = pb.norm_spec.s * pa.hydro.sigma * gradK;
+    double sigsqra           = 1.0/(pah.sigma*pah.sigma);
+    double sigsqrb           = 1.0/(pbh.sigma*pbh.sigma);
+    Vector<double,2> sigsigK = pb.norm_spec.s * pah.sigma * gradK;
 
-    pa.hydro.gradP                += ( sigsqrb*pb.p() + sigsqra*pa.p() ) * sigsigK;
+    pah.gradP                += ( sigsqrb*pb.p() + sigsqra*pa.p() ) * sigsigK;
 
     //===============
     // print status
     if ( VERBOSE > 2 && pa.print_this_particle )
       std::cout << "CHECK grads: " << tin << "   "
-                << pa.hydro.gradP << "   " << a << "   " << b << "   "
+                << pah.gradP << "   " << a << "   " << b << "   "
                 << sigsqra << "   " << sigsqrb
                 << "   " << pa.p() << "   " << pb.p()
                 << "   " << pa.get_current_eos_name()
                 << "   " << pb.get_current_eos_name()
                 << "   " << gradK << "   " << sigsigK
-                << "   " << pa.hydro.sigma << "\n";
+                << "   " << pah.sigma << "\n";
 
     double relative_distance_by_h = rel_sep_norm / settingsPtr->h;
     if ( ( relative_distance_by_h <= 2.0 ) && ( a != b ) )
@@ -305,40 +308,40 @@ void SPHWorkstation::smooth_gradients( Particle & pa, double tin )
       if ( pa.btrack ==  1 ) rdis = relative_distance_by_h;
     }
 
-    pa.hydro.gradBulk             += ( pb.hydro.Bulk/pb.hydro.sigma/pb.hydro.gamma
-                                  + pa.hydro.Bulk/pa.hydro.sigma/pa.hydro.gamma)/tin*sigsigK;
-    pa.hydro.gradV                += (pb.norm_spec.s/pa.hydro.sigma)*( pb.hydro.v -  pa.hydro.v )*gradK;
+    pah.gradBulk             += ( pbh.Bulk/pbh.sigma/pbh.gamma
+                                + pah.Bulk/pah.sigma/pah.gamma)/tin*sigsigK;
+    pah.gradV                += (pb.norm_spec.s/pah.sigma)*( pbh.v -  pah.v )*gradK;
 
     //===============
     // print status
     if ( VERBOSE > 2 && pa.print_this_particle )
         std::cout << "CHECK gradV: " << tin << "   " << a << "   " << b << "   "
-                  << pb.norm_spec.s/pa.hydro.sigma << "   " << pb.hydro.v -  pa.hydro.v
-                  << "   " << gradK << "   " << pa.hydro.gradV << "\n";
+                  << pb.norm_spec.s/pah.sigma << "   " << pbh.v -  pah.v
+                  << "   " << gradK << "   " << pah.gradV << "\n";
 
     //===============
     // add shear terms
     if ( settingsPtr->using_shear )
     {
-      pa.hydro.gradshear            += inner(sigsigK, pa.hydro.v)*( sigsqrb*vb + sigsqra*va );
-      pa.hydro.divshear             += sigsqrb*sigsigK*transpose(vminib)
+      pah.gradshear            += inner(sigsigK, pah.v)*( sigsqrb*vb + sigsqra*va );
+      pah.divshear             += sigsqrb*sigsigK*transpose(vminib)
                                   + sigsqra*sigsigK*transpose(vminia);
     }
 
     //===============
     // check for nan pressure gradients
-    if ( isnan( pa.hydro.gradP(0) ) )
+    if ( isnan( pah.gradP(0) ) )
     {
       cout << "gradP stopped working" << endl;
-      cout << systemPtr->t <<" "  << pa.hydro.gradP << " " << a << " " << b << endl;
-      cout << pb.norm_spec.s << " " << pa.hydro.sigma << " " << pb.p() << endl;
+      cout << systemPtr->t <<" "  << pah.gradP << " " << a << " " << b << endl;
+      cout << pb.norm_spec.s << " " << pah.sigma << " " << pb.p() << endl;
       cout << systemPtr->linklist.Size << " " << pb.s() << " " << pa.s() << endl;
 
       cout << pa.r << endl;
       cout << pb.r << endl;
       cout << kernel::kernel( pa.r - pb.r, settingsPtr->h ) << endl;
     }
-    else if ( isnan( pa.hydro.gradP(1) ) )
+    else if ( isnan( pah.gradP(1) ) )
       cout << "1 " << gradPressure_weight(a, b)
            << " " << a << " " << b << endl;
   }
