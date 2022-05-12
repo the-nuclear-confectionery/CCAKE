@@ -923,7 +923,6 @@ void SPHWorkstation::calcbsq(Particle & p)
   double rhoB_lab   = p.rhoB_sub/p.hydro.gamma/systemPtr->t;
   double rhoS_lab   = p.rhoS_sub/p.hydro.gamma/systemPtr->t;
   double rhoQ_lab   = p.rhoQ_sub/p.hydro.gamma/systemPtr->t;
-  p.qmom            = ( (p.e()+p.p())*p.hydro.gamma/p.hydro.sigma )*p.hydro.u;
 	locate_phase_diagram_point_sBSQ( p, s_lab, rhoB_lab, rhoS_lab, rhoQ_lab );
 }
 
@@ -936,10 +935,14 @@ double SPHWorkstation::gradPressure_weight(const int a, const int b)
   auto & pa = systemPtr->particles[a];
   auto & pb = systemPtr->particles[b];
 
+  Vector<double,2> pa_qmom = ( (pa.e()+pa.p())*pa.hydro.gamma/pa.hydro.sigma )*pa.hydro.u;
+  Vector<double,2> pb_qmom = ( (pb.e()+pb.p())*pb.hydro.gamma/pb.hydro.sigma )*pb.hydro.u;
+
+
   double alpha_q    = 1.0;
   double v_signal_q = sqrt(1.0/3.0);
 
-  double innerp = inner( pa.r - pb.r, pa.qmom - pb.qmom );
+  double innerp = inner( pa.r - pb.r, pa_qmom - pb_qmom );
   double innerr = inner( pa.r - pb.r, pa.r    - pb.r    );
   innerp = 2.0*alpha_q*v_signal_q
           / ( pa.hydro.sigma/pa.hydro.gamma + pb.hydro.sigma/pb.hydro.gamma )

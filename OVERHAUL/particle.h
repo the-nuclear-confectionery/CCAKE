@@ -110,6 +110,10 @@ class Particle
     Vector<double,2> k1, k2, k3, k4;
     Vector<double,2> r1, r2, r3, r4;
 
+    Vector<double,2> r; // transverse position
+
+
+
 
     ////////////////////////////////////////////////////////////////////////////
     //                         Fluid Variables                                //
@@ -125,9 +129,6 @@ class Particle
     double B               = 0.0; // Baryon density
     double S               = 0.0; // Baryon density
     double Q               = 0.0; // baryon, strange, electric charge
-
-    // vector members
-    Vector<double,2> r, qmom;
 
     // freeze out struct
     struct FRZ
