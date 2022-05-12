@@ -65,14 +65,14 @@ class Particle
     ////////////////////////////////////////////////////////////////////////////
     //                         Fluid Variables                                //
     ////////////////////////////////////////////////////////////////////////////
-    double e_sub           = 0.0;
-    double s_an            = 0.0;
+//    double e_sub           = 0.0;
+//    double s_an            = 0.0;
     double eta             = 0.0; // entropy density
-    double rhoB_an         = 0.0;
+//    double rhoB_an         = 0.0;
     double rhoB_sub        = 0.0; // Baryon density
-    double rhoS_an         = 0.0;
+//    double rhoS_an         = 0.0;
     double rhoS_sub        = 0.0; // strange density
-    double rhoQ_an         = 0.0;
+//    double rhoQ_an         = 0.0;
     double rhoQ_sub        = 0.0; // electric charge density
 
     double eta_sigma       = 0.0; // Ratio entropy/especific volume

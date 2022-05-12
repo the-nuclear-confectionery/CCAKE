@@ -55,11 +55,11 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 					<< p.r(0) << "   " << p.r(1) << "\n";
 
       // solve for the entropy density
-			p.s_an = locate_phase_diagram_point_eBSQ( p,
-                    p.e_sub, p.rhoB_an, p.rhoS_an, p.rhoQ_an );
+			p.input.s = locate_phase_diagram_point_eBSQ( p,
+                    p.input.e, p.input.rhoB, p.input.rhoS, p.input.rhoQ );
 
 			sw.Stop();
-			string successString = (p.s_an < 0.0) ?
+			string successString = (p.input.s < 0.0) ?
 									"unsuccessfully" : "successfully";
       cout << "Print particle info:\n";
 			cout << "    SPH particle " << i << ", locate_phase_diagram_point_eBSQ: completed "
@@ -71,7 +71,7 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 		// for now, if we failed to find a real entropy density for this
 		// point, just freeze it out, set its entropy to the freeze-out value,
 		// and continue without setting anything else
-		if (p.s_an < 0.0)
+		if (p.input.s < 0.0)
 		{
 			// freeze this particle out!
       cout << "This shouldn't have happened!" << endl;
@@ -92,10 +92,10 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
                 << p.muQ()*hbarc_MeVfm << "   "
                 << p.muS()*hbarc_MeVfm << "\n";
 			std::cout << "\t\t - input densities (eBSQ):    "
-                << p.e_sub*hbarc_MeVfm << "   "
-                << p.rhoB_an << "   "
-                << p.rhoS_an << "   "
-                << p.rhoQ_an << "\n";
+                << p.input.e*hbarc_MeVfm << "   "
+                << p.input.rhoB << "   "
+                << p.input.rhoS << "   "
+                << p.input.rhoQ << "\n";
 			cout << "\t\t - output densities (eBSQ):    "
                 << p.e()*hbarc_MeVfm << "   "
                 << p.rhoB() << "   "
@@ -106,7 +106,7 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 
     p.hydro.gamma = p.gamcalc();
 
-    p.sigmaweight *= p.s_an*p.hydro.gamma*settingsPtr->t0;	  // sigmaweight is constant after this
+    p.sigmaweight *= p.input.s*p.hydro.gamma*settingsPtr->t0;	  // sigmaweight is constant after this
     p.rhoB_weight *= p.hydro.gamma*settingsPtr->t0; // rhoB_weight is constant after this
     p.rhoS_weight *= p.hydro.gamma*settingsPtr->t0; // rhoS_weight is constant after this
     p.rhoQ_weight *= p.hydro.gamma*settingsPtr->t0; // rhoQ_weight is constant after this
@@ -225,11 +225,11 @@ void SPHWorkstation::smooth_fields(Particle & pa)
                 << "   " << pb.r
                 << "   " << pb.sigmaweight
                 << "   " << pb.eta_sigma
-                << "   " << pb.rhoB_an
+                << "   " << pb.input.rhoB
                 << "   " << pa.rhoB_sub
-                << "   " << pb.rhoS_an
+                << "   " << pb.input.rhoS
                 << "   " << pa.rhoS_sub
-                << "   " << pb.rhoQ_an
+                << "   " << pb.input.rhoQ
                 << "   " << pa.rhoQ_sub
                 << "   " << kern << "\n";
 
@@ -380,7 +380,7 @@ void SPHWorkstation::process_initial_conditions()
     systemPtr->particles.erase( std::remove_if(
       systemPtr->particles.begin(),
       systemPtr->particles.end(),
-      [](Particle const & p) { return p.e_sub <= 0.00301 / hbarc_GeVfm; } ),
+      [](Particle const & p) { return p.input.e <= 0.00301 / hbarc_GeVfm; } ),
       systemPtr->particles.end() );
 
 
@@ -399,7 +399,7 @@ void SPHWorkstation::process_initial_conditions()
       [this](Particle const & p)  // apply lambda to all particles;
         {                         // check if eBSQ combo has real solution
           return !(this->eos.eBSQ_has_solution_in_conformal_diagonal(
-                    p.e_sub, p.rhoB_an, p.rhoS_an, p.rhoQ_an ) );
+                    p.input.e, p.input.rhoB, p.input.rhoS, p.input.rhoQ ) );
         } ),
       systemPtr->particles.end() );
 
@@ -434,9 +434,9 @@ void SPHWorkstation::process_initial_conditions()
 		p.rhoS_weight     = dA;
 		p.rhoQ_weight     = dA;
 		p.hydro.Bulk      = 0.0;
-		p.B               = p.rhoB_an*dA;
-		p.S               = p.rhoS_an*dA;
-		p.Q               = p.rhoQ_an*dA;
+		p.B               = p.input.rhoB*dA;
+		p.S               = p.input.rhoS*dA;
+		p.Q               = p.input.rhoQ*dA;
 
 		// make educated initial guess here for this particle's (T, mu_i) coordinates
 		// (improve this in the future)
@@ -446,7 +446,7 @@ void SPHWorkstation::process_initial_conditions()
 		p.thermo.muQ      = 0.0/hbarc_MeVfm;
 		p.thermo.eos_name = "default";  // uses whatever the default EoS is
 
-		if ( p.e_sub > systemPtr->efcheck )	// impose freeze-out check for e, not s
+		if ( p.input.e > systemPtr->efcheck )	// impose freeze-out check for e, not s
 			p.Freeze=0;
 		else
 		{
