@@ -21,7 +21,7 @@ class Evolver
     int n_particles = -1;
 
     // creating vectors of quantities for RK evolution
-    vector<double> etasigma0;
+    vector<double> specific_s0;
     vector<double> Bulk0;
     vector<double> particles_E0;
 
@@ -66,7 +66,7 @@ class Evolver
       n_particles = systemPtr->particles.size();
 
       // store quantities at current timestep
-      etasigma0.resize(n_particles);
+      specific_s0.resize(n_particles);
       Bulk0.resize(n_particles);
       particles_E0.resize(n_particles);
       u0.resize(n_particles);
@@ -77,10 +77,10 @@ class Evolver
       {
         auto & p = systemPtr->particles[i];
 
-        u0[i]        = p.hydro.u;
-        r0[i]        = p.r;
-        etasigma0[i] = p.specific.s;
-        Bulk0[i]     = p.hydro.Bulk;
+        u0[i]          = p.hydro.u;
+        r0[i]          = p.r;
+        specific_s0[i] = p.specific.s;
+        Bulk0[i]       = p.hydro.Bulk;
         mini( shv0[i], p.hydro.shv );
 
         particles_E0[i] = p.contribution_to_total_Ez;
@@ -118,10 +118,10 @@ class Evolver
           p.r = r0[i] + 0.5*dt*ph.v;
           if ( p.Freeze < 5 )
           {
-            ph.u            = u0[i]        + 0.5*dt*ph.du_dt;
-            p.specific.s    = etasigma0[i] + 0.5*dt*p.d_dt_spec.s;
-            ph.Bulk         = Bulk0[i]     + 0.5*dt*ph.dBulk_dt;
-            tmini( ph.shv,    shv0[i]      + 0.5*dt*ph.dshv_dt );
+            ph.u            = u0[i]          + 0.5*dt*ph.du_dt;
+            p.specific.s    = specific_s0[i] + 0.5*dt*p.d_dt_spec.s;
+            ph.Bulk         = Bulk0[i]       + 0.5*dt*ph.dBulk_dt;
+            tmini( ph.shv,    shv0[i]        + 0.5*dt*ph.dshv_dt );
 
             p.contribution_to_total_Ez = particles_E0[i]
                                           + 0.5*dt*p.contribution_to_total_dEz;
@@ -129,7 +129,7 @@ class Evolver
 //            // regulate updated results if necessary
 //            if ( REGULATE_LOW_T && p.specific.s < 0.0
 //                  && p.T() < 50.0/constants::hbarc_MeVfm )
-//              p.specific.s    = systemPtr->etasigma0[i];
+//              p.specific.s    = systemPtr->specific_s0[i];
           }
         }
       }
@@ -154,10 +154,10 @@ class Evolver
           p.r = r0[i] + dt*ph.v;
           if ( p.Freeze < 5 )
           {
-            ph.u            = u0[i]        + dt*ph.du_dt;
-            p.specific.s    = etasigma0[i] + dt*p.d_dt_spec.s;
-            ph.Bulk         = Bulk0[i]     + dt*ph.dBulk_dt;
-            tmini( ph.shv,    shv0[i]      + dt*ph.dshv_dt );
+            ph.u            = u0[i]          + dt*ph.du_dt;
+            p.specific.s    = specific_s0[i] + dt*p.d_dt_spec.s;
+            ph.Bulk         = Bulk0[i]       + dt*ph.dBulk_dt;
+            tmini( ph.shv,    shv0[i]        + dt*ph.dshv_dt );
 
             p.contribution_to_total_Ez = particles_E0[i]
                                           + dt*p.contribution_to_total_dEz;
@@ -169,7 +169,7 @@ class Evolver
 //            // regulate updated results if necessary
 //            if ( REGULATE_LOW_T && p.specific.s < 0.0
 //                  && p.T() < 50.0/constants::hbarc_MeVfm )
-//              p.specific.s    = systemPtr->etasigma0[i];
+//              p.specific.s    = systemPtr->specific_s0[i];
           }
         }
       }
@@ -231,16 +231,16 @@ class Evolver
         ps.shv1      = dt*ph.dshv_dt;
 
         // implement increments with appropriate coefficients
-        ph.u         = u0[i]        + 0.5*ps.k1;
-        p.r          = r0[i]        + 0.5*ps.r1;
-        p.specific.s = etasigma0[i] + 0.5*ps.ets1;
-        ph.Bulk      = Bulk0[i]     + 0.5*ps.b1;
-        tmini(ph.shv,  shv0[i]      + 0.5*ps.shv1);
+        ph.u         = u0[i]          + 0.5*ps.k1;
+        p.r          = r0[i]          + 0.5*ps.r1;
+        p.specific.s = specific_s0[i] + 0.5*ps.ets1;
+        ph.Bulk      = Bulk0[i]       + 0.5*ps.b1;
+        tmini(ph.shv,  shv0[i]        + 0.5*ps.shv1);
 
 //        // regulate updated results if necessary
 //        if ( REGULATE_LOW_T && p.specific.s < 0.0
 //              && p.T() < 50.0/constants::hbarc_MeVfm )
-//          p.specific.s    = systemPtr->etasigma0[i];
+//          p.specific.s    = systemPtr->specific_s0[i];
       }
 
       E1           = dt*systemPtr->dEz;
@@ -265,16 +265,16 @@ class Evolver
         ps.b2        = dt*ph.dBulk_dt;
         ps.shv2      = dt*ph.dshv_dt;
 
-        ph.u         = u0[i]        + 0.5*ps.k2;
-        p.r          = r0[i]        + 0.5*ps.r2;
-        p.specific.s = etasigma0[i] + 0.5*ps.ets2;
-        ph.Bulk      = Bulk0[i]     + 0.5*ps.b2;
-        tmini(ph.shv,  shv0[i]      + 0.5*ps.shv2);
+        ph.u         = u0[i]          + 0.5*ps.k2;
+        p.r          = r0[i]          + 0.5*ps.r2;
+        p.specific.s = specific_s0[i] + 0.5*ps.ets2;
+        ph.Bulk      = Bulk0[i]       + 0.5*ps.b2;
+        tmini(ph.shv,  shv0[i]        + 0.5*ps.shv2);
 
 //        // regulate updated results if necessary
 //        if ( REGULATE_LOW_T && p.specific.s < 0.0
 //              && p.T() < 50.0/constants::hbarc_MeVfm )
-//          p.specific.s    = systemPtr->etasigma0[i];
+//          p.specific.s    = systemPtr->specific_s0[i];
       }
 
       E2           = dt*systemPtr->dEz;
@@ -299,16 +299,16 @@ class Evolver
         ps.shv3      = dt*ph.dshv_dt;
 
 
-        ph.u         = u0[i]        + ps.k3;
-        p.r          = r0[i]        + ps.r3;
-        p.specific.s = etasigma0[i] + ps.ets3;
-        ph.Bulk      = Bulk0[i]     + ps.b3;
-        tmini(ph.shv,  shv0[i]      + ps.shv3);
+        ph.u         = u0[i]          + ps.k3;
+        p.r          = r0[i]          + ps.r3;
+        p.specific.s = specific_s0[i] + ps.ets3;
+        ph.Bulk      = Bulk0[i]       + ps.b3;
+        tmini(ph.shv,  shv0[i]        + ps.shv3);
 
 //        // regulate updated results if necessary
 //        if ( REGULATE_LOW_T && p.specific.s < 0.0
 //              && p.T() < 50.0/constants::hbarc_MeVfm )
-//          p.specific.s    = systemPtr->etasigma0[i];
+//          p.specific.s    = systemPtr->specific_s0[i];
       }
 
       E3           = dt*systemPtr->dEz;
@@ -334,16 +334,16 @@ class Evolver
         ps.shv4      = dt*ph.dshv_dt;
 
         // sum the weighted steps into yf and return the final y values
-        ph.u         = u0[i]         + w1*ps.k1   + w2*ps.k2   + w2*ps.k3   + w1*ps.k4;
-        p.r          = r0[i]         + w1*ps.r1   + w2*ps.r2   + w2*ps.r3   + w1*ps.r4;
-        p.specific.s = etasigma0[i]  + w1*ps.ets1 + w2*ps.ets2 + w2*ps.ets3 + w1*ps.ets4;
-        ph.Bulk      = Bulk0[i]      + w1*ps.b1   + w2*ps.b2   + w2*ps.b3   + w1*ps.b4;
-        tmini(ph.shv,  shv0[i]       + w1*ps.shv1 + w2*ps.shv2 + w2*ps.shv3 + w1*ps.shv4);
+        ph.u         = u0[i]          + w1*ps.k1   + w2*ps.k2   + w2*ps.k3   + w1*ps.k4;
+        p.r          = r0[i]          + w1*ps.r1   + w2*ps.r2   + w2*ps.r3   + w1*ps.r4;
+        p.specific.s = specific_s0[i] + w1*ps.ets1 + w2*ps.ets2 + w2*ps.ets3 + w1*ps.ets4;
+        ph.Bulk      = Bulk0[i]       + w1*ps.b1   + w2*ps.b2   + w2*ps.b3   + w1*ps.b4;
+        tmini(ph.shv,  shv0[i]        + w1*ps.shv1 + w2*ps.shv2 + w2*ps.shv3 + w1*ps.shv4);
 
 //        // regulate updated results if necessary
 //        if ( REGULATE_LOW_T && p.specific.s < 0.0
 //              && p.T() < 50.0/constants::hbarc_MeVfm )
-//          p.specific.s    = systemPtr->etasigma0[i];
+//          p.specific.s    = systemPtr->specific_s0[i];
       }
 
       E4            = dt*systemPtr->dEz;
