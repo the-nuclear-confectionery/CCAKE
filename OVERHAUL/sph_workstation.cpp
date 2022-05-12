@@ -469,7 +469,7 @@ void SPHWorkstation::process_initial_conditions()
     systemPtr->particles[i].ID = i;
 
   // set particles to print
-  settingsPtr->is_printable.resize( systemPtr->particles.size(), false );
+//  settingsPtr->is_printable.resize( systemPtr->particles.size(), false );
   for ( int & p : settingsPtr->particles_to_print )
   {
 //    settingsPtr->is_printable[ p ] = true;
