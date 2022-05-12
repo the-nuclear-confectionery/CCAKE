@@ -264,7 +264,7 @@ class FreezeOut
           cout << __PRETTY_FUNCTION__ << ": Not at freeze-out temperature" << endl;
         }
 
-        systemPtr->sFO[j]       = eos->s_terms_T( systemPtr->Tfluc[j] );  // replace with e, BSQ
+        systemPtr->sFO[j]       = eosPtr->s_terms_T( systemPtr->Tfluc[j] );  // replace with e, BSQ
         systemPtr->gsub[j]      = sqrt( Norm2(systemPtr->uout[j]) + 1 );
 
 

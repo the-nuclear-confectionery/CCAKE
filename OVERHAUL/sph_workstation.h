@@ -65,7 +65,7 @@ public:
     tc.initialize();
 
     // set up freeze out (constant energy density
-    fo.set_EquationOfStatePtr( eosPtr );
+    fo.set_EquationOfStatePtr( &eos );
     fo.set_SettingsPtr( settingsPtr );
     fo.set_SystemStatePtr( systemPtr );
     systemPtr->efcheck = eos.efreeze(settingsPtr->Freeze_Out_Temperature);
