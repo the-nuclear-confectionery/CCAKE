@@ -55,11 +55,11 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 					<< p.r(0) << "   " << p.r(1) << "\n";
 
       // solve for the entropy density
-			p.input.s = locate_phase_diagram_point_eBSQ( p,
-                    p.input.e, p.input.rhoB, p.input.rhoB, p.input.rhoB );
+			p.s_an = locate_phase_diagram_point_eBSQ( p,
+                    p.e_sub, p.rhoB_an, p.rhoS_an, p.rhoQ_an );
 
 			sw.Stop();
-			string successString = (p.input.s < 0.0) ?
+			string successString = (p.s_an < 0.0) ?
 									"unsuccessfully" : "successfully";
       cout << "Print particle info:\n";
 			cout << "    SPH particle " << i << ", locate_phase_diagram_point_eBSQ: completed "
@@ -71,7 +71,7 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 		// for now, if we failed to find a real entropy density for this
 		// point, just freeze it out, set its entropy to the freeze-out value,
 		// and continue without setting anything else
-		if (p.input.s < 0.0)
+		if (p.s_an < 0.0)
 		{
 			// freeze this particle out!
       cout << "This shouldn't have happened!" << endl;
@@ -92,10 +92,10 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
                 << p.muQ()*hbarc_MeVfm << "   "
                 << p.muS()*hbarc_MeVfm << "\n";
 			std::cout << "\t\t - input densities (eBSQ):    "
-                << p.input.e*hbarc_MeVfm << "   "
-                << p.input.rhoB << "   "
-                << p.input.rhoS << "   "
-                << p.input.rhoQ << "\n";
+                << p.e_sub*hbarc_MeVfm << "   "
+                << p.rhoB_an << "   "
+                << p.rhoS_an << "   "
+                << p.rhoQ_an << "\n";
 			cout << "\t\t - output densities (eBSQ):    "
                 << p.e()*hbarc_MeVfm << "   "
                 << p.rhoB() << "   "
@@ -106,7 +106,7 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 
     p.hydro.gamma = p.gamcalc();
 
-    p.sigmaweight *= p.input.s*p.hydro.gamma*settingsPtr->t0;	  // sigmaweight is constant after this
+    p.sigmaweight *= p.s_an*p.hydro.gamma*settingsPtr->t0;	  // sigmaweight is constant after this
     p.rhoB_weight *= p.hydro.gamma*settingsPtr->t0; // rhoB_weight is constant after this
     p.rhoS_weight *= p.hydro.gamma*settingsPtr->t0; // rhoS_weight is constant after this
     p.rhoQ_weight *= p.hydro.gamma*settingsPtr->t0; // rhoQ_weight is constant after this
@@ -174,9 +174,9 @@ void SPHWorkstation::initial_smoothing()
 	{
     // must reset smoothed charge densities also
     double smoothed_s_lab    = p.hydro.sigma/p.hydro.gamma/settingsPtr->t0;
-		double smoothed_rhoB_lab = p.smoothed.rhoB/p.hydro.gamma/settingsPtr->t0;
-		double smoothed_rhoS_lab = p.smoothed.rhoS/p.hydro.gamma/settingsPtr->t0;
-		double smoothed_rhoQ_lab = p.smoothed.rhoQ/p.hydro.gamma/settingsPtr->t0;
+		double smoothed_rhoB_lab = p.rhoB_sub/p.hydro.gamma/settingsPtr->t0;
+		double smoothed_rhoS_lab = p.rhoS_sub/p.hydro.gamma/settingsPtr->t0;
+		double smoothed_rhoQ_lab = p.rhoQ_sub/p.hydro.gamma/settingsPtr->t0;
 
     // UNCOMMENT THIS AND DOCUMENT OUTPUT AS REFERENCE
 //    locate_phase_diagram_point_sBSQ( p, smoothed_s_lab, smoothed_rhoB_lab,
@@ -195,10 +195,10 @@ void SPHWorkstation::smooth_fields(Particle & pa)
   int a = pa.ID;
 
   pa.hydro.sigma     = 0.0;
-  pa.smoothed.s             = 0.0;
-  pa.smoothed.rhoB        = 0.0;
-  pa.smoothed.rhoS        = 0.0;
-  pa.smoothed.rhoQ        = 0.0;
+  pa.eta             = 0.0;
+  pa.rhoB_sub        = 0.0;
+  pa.rhoS_sub        = 0.0;
+  pa.rhoQ_sub        = 0.0;
 
   auto & a_neighbors = systemPtr->linklist.all_neighbors[a];
 
@@ -208,39 +208,39 @@ void SPHWorkstation::smooth_fields(Particle & pa)
 
     double kern     = kernel::kernel( pa.r - pb.r, settingsPtr->h );
     pa.hydro.sigma += pb.sigmaweight*kern;
-    pa.smoothed.s  += pb.sigmaweight*pb.eta_sigma*kern;
-    pa.smoothed.rhoB    += pb.B*kern;
-    pa.smoothed.rhoS    += pb.S*kern;
-    pa.smoothed.rhoQ    += pb.Q*kern;
+    pa.eta         += pb.sigmaweight*pb.eta_sigma*kern;
+    pa.rhoB_sub    += pb.B*kern;
+    pa.rhoS_sub    += pb.S*kern;
+    pa.rhoQ_sub    += pb.Q*kern;
 
     //===============
     // print status
     if ( ( VERBOSE > 2 && pa.print_this_particle )
-          || pa.smoothed.s < 0 || isnan( pa.smoothed.s ) )
+          || pa.eta < 0 || isnan( pa.eta ) )
       std::cout << __FUNCTION__ << "(SPH particle == " << a << "): "
                 << systemPtr->t << "   "
                 << b << "   " << pa.r
                 << "   " << pa.hydro.sigma
-                << "   " << pa.smoothed.s
+                << "   " << pa.eta
                 << "   " << pb.r
                 << "   " << pb.sigmaweight
                 << "   " << pb.eta_sigma
-                << "   " << pb.input.rhoB
-                << "   " << pa.smoothed.rhoB
-                << "   " << pb.input.rhoS
-                << "   " << pa.smoothed.rhoS
-                << "   " << pb.input.rhoQ
-                << "   " << pa.smoothed.rhoQ
+                << "   " << pb.rhoB_an
+                << "   " << pa.rhoB_sub
+                << "   " << pb.rhoS_an
+                << "   " << pa.rhoS_sub
+                << "   " << pb.rhoQ_an
+                << "   " << pa.rhoQ_sub
                 << "   " << kern << "\n";
 
   }
 
   // check if particle has gone nan or negative entropy
-  if ( (pa.smoothed.s<0) || isnan(pa.smoothed.s) )
+  if ( (pa.eta<0) || isnan(pa.eta) )
   {
     std::cout << pa.ID <<  " has invalid entropy "
-              << pa.T()*hbarc << " " << pa.smoothed.s << endl;
-    pa.smoothed.s = TOLERANCE;
+              << pa.T()*hbarc << " " << pa.eta << endl;
+    pa.eta = TOLERANCE;
   }
 
 
@@ -380,7 +380,7 @@ void SPHWorkstation::process_initial_conditions()
     systemPtr->particles.erase( std::remove_if(
       systemPtr->particles.begin(),
       systemPtr->particles.end(),
-      [](Particle const & p) { return p.input.e <= 0.00301 / hbarc_GeVfm; } ),
+      [](Particle const & p) { return p.e_sub <= 0.00301 / hbarc_GeVfm; } ),
       systemPtr->particles.end() );
 
 
@@ -399,7 +399,7 @@ void SPHWorkstation::process_initial_conditions()
       [this](Particle const & p)  // apply lambda to all particles;
         {                         // check if eBSQ combo has real solution
           return !(this->eos.eBSQ_has_solution_in_conformal_diagonal(
-                    p.input.e, p.input.rhoB, p.input.rhoS, p.input.rhoQ ) );
+                    p.e_sub, p.rhoB_an, p.rhoS_an, p.rhoQ_an ) );
         } ),
       systemPtr->particles.end() );
 
@@ -434,9 +434,9 @@ void SPHWorkstation::process_initial_conditions()
 		p.rhoS_weight     = dA;
 		p.rhoQ_weight     = dA;
 		p.hydro.Bulk      = 0.0;
-		p.B               = p.input.rhoB*dA;
-		p.S               = p.input.rhoS*dA;
-		p.Q               = p.input.rhoQ*dA;
+		p.B               = p.rhoB_an*dA;
+		p.S               = p.rhoS_an*dA;
+		p.Q               = p.rhoQ_an*dA;
 
 		// make educated initial guess here for this particle's (T, mu_i) coordinates
 		// (improve this in the future)
@@ -446,7 +446,7 @@ void SPHWorkstation::process_initial_conditions()
 		p.thermo.muQ      = 0.0/hbarc_MeVfm;
 		p.thermo.eos_name = "default";  // uses whatever the default EoS is
 
-		if ( p.input.e > systemPtr->efcheck )	// impose freeze-out check for e, not s
+		if ( p.e_sub > systemPtr->efcheck )	// impose freeze-out check for e, not s
 			p.Freeze=0;
 		else
 		{
@@ -917,16 +917,12 @@ void SPHWorkstation::locate_phase_diagram_point_sBSQ(Particle & p, double s_In) 
 //  Computes gamma and velocity
 void SPHWorkstation::calcbsq(Particle & p)
 {
-  auto & ph       = p.hydro;
-  ph.gamma        = p.gamcalc();
-  ph.v            = (1.0/ph.gamma)*ph.u;
-
-  // compute updated densities
-  double s_lab    = p.smoothed.s/ph.gamma/systemPtr->t;
-  double rhoB_lab = p.smoothed.rhoB/ph.gamma/systemPtr->t;
-  double rhoS_lab = p.smoothed.rhoS/ph.gamma/systemPtr->t;
-  double rhoQ_lab = p.smoothed.rhoQ/ph.gamma/systemPtr->t;
-
+  p.hydro.gamma     = p.gamcalc();
+  p.hydro.v         = (1.0/p.hydro.gamma)*p.hydro.u;
+  double s_lab      = p.eta/p.hydro.gamma/systemPtr->t;
+  double rhoB_lab   = p.rhoB_sub/p.hydro.gamma/systemPtr->t;
+  double rhoS_lab   = p.rhoS_sub/p.hydro.gamma/systemPtr->t;
+  double rhoQ_lab   = p.rhoQ_sub/p.hydro.gamma/systemPtr->t;
 	locate_phase_diagram_point_sBSQ( p, s_lab, rhoB_lab, rhoS_lab, rhoQ_lab );
 }
 
