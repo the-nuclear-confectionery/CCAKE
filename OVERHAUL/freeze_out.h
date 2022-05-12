@@ -33,6 +33,8 @@ class FreezeOut
       Matrix<double,3,3> shear;
     };
 
+  public:
+
     vector<FRZ> frz1;
     vector<FRZ> frz2;
     vector<FRZ> fback;
@@ -40,8 +42,6 @@ class FreezeOut
     vector<FRZ> fback3;
     vector<FRZ> fback4;
 
-
-  public:
 
     void set_EquationOfStatePtr(EquationOfState * eosPtr_in) { eosPtr = eosPtr_in; }
     void set_SettingsPtr(Settings * settingsPtr_in) { settingsPtr = settingsPtr_in; }
