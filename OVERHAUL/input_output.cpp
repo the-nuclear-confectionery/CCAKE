@@ -346,7 +346,7 @@ void InputOutput::print_system_state()
 {
   string outputfilename = output_directory + "/system_state_"
                           + std::to_string(n_timesteps_output) + ".dat";
-  ofstream out( outputfilename.c_str(), ios::out | ios::binary );
+  ofstream out( outputfilename.c_str() );
 
   out << systemPtr->t << "\n";
   int iParticle = 0;
