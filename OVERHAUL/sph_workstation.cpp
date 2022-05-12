@@ -350,7 +350,7 @@ void SPHWorkstation::smooth_gradients( Particle & pa, double tin )
 
   if ( ( pa.btrack == 1 )
             && ( ( pa.T()*hc ) >= 150 ) )
-    pa.frz2.t=tin;
+    fo.frz2[pa.ID].t=tin;
   else if ( ( pa.btrack == 0 )
             && ( ( pa.T()*hc ) >= 150 )
             && ( pa.Freeze < 4 ) )
