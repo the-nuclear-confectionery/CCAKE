@@ -5,6 +5,7 @@
 
 #include "eom.h"
 #include "eom_default.h"
+#include "evolver.h"
 #include "freeze_out.h"
 #include "kernel.h"
 #include "settings.h"
@@ -15,6 +16,7 @@
 class SPHWorkstation
 {
 friend class BSQHydro;
+friend class Evolver;
 friend class InputOutput;
 
 private:
@@ -28,6 +30,9 @@ private:
 
   // equations of motion
   pEquationsOfMotion pEoM;
+
+  // evolver
+  Evolver evolver;
 
   // equation of state
   EquationOfState eos;
@@ -71,6 +76,9 @@ public:
     systemPtr->efcheck = eos.efreeze(settingsPtr->Freeze_Out_Temperature);
     systemPtr->sfcheck = eos.sfreeze(settingsPtr->Freeze_Out_Temperature);
     fo.initialize( systemPtr->efcheck );
+
+    evolver.set_SettingsPtr( settingsPtr );
+    evolver.set_SystemStatePtr( systemPtr );
   }
 
   // routines for resetting quantities
@@ -85,6 +93,9 @@ public:
   // smoothing
   void smooth_fields( Particle & pa );
   void smooth_gradients( Particle & pa, double tin );
+
+  void get_time_derivatives();
+
 
   // functions to apply action to all particles
   void smooth_all_particle_fields()
@@ -147,54 +158,24 @@ public:
   void setvisc( Particle & p );
 
 
-  // freeze-out routines
-//  void bsqsvfreezeout(int curfrz);
-//  void bsqsvinterpolate(int curfrz);
-
   // misc. routine
   double gradPressure_weight(const int a, const int b);
 
 
-
-  // Move this into a different namespace or something?
-  // It feels like this should be organized separately
-  void advance_timestep_rk2( double dt );
-  void advance_timestep_rk4( double dt );
+  // what it says on the label
   void advance_timestep( double dt, int rk_order )
   {
     // turn on freeze-out flag initially
     systemPtr->cfon = 1;
 
-    switch ( rk_order )
-    {
-      case 2:
-        advance_timestep_rk2( dt );
-        break;
-      case 4:
-        advance_timestep_rk4( dt );
-        break;
-      default:
-        std::cerr << "Invalid Runge-Kutta order!" << std::endl;
-        exit(8);
-        break;
-    }
+    // use evolver to actually do RK evolution
+    evolver.advance_timestep( dt, rk_order );
 
     // set number of particles which have frozen out
     systemPtr->number_part = systemPtr->get_frozen_out_count();
-//    std::cout << "Check termination conditions: "
-//              << system.t << "   "
-//              << settings.tend << "   "
-//              << system.get_frozen_out_count() << "   "
-//              << system.number_part << "   "
-//              << system.n() << "   "
-//              << ( system.t < settings.tend ) << "   "
-//              << ( system.number_part < system.n() ) << endl;
 
     return;
   }
-
-  //MOVE THIS TO ITS OWN CLASS USING TRAVIS' IMPROVEMENTS
-  void get_time_derivatives();
 
   // decide whether to continue evolving
   bool continue_evolution()

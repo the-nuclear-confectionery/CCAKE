@@ -24,6 +24,7 @@ class SystemState
 {
   friend class InputOutput;
   friend class SPHWorkstation;
+  friend class Evolver;
   friend class FreezeOut;
 
   public:

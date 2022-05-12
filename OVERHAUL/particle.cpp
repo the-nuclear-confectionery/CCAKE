@@ -20,12 +20,12 @@ Particle::Particle() { input.s = 0.0; }
 // Overloaded constructor with initial fields
 Particle::Particle(vector<double> &fields)
 {
-  r(0)    = fields[0];
-  r(1)    = fields[1];
-  input.e   = fields[2];
-  input.rhoB = fields[3];
-  input.rhoS = fields[4];
-  input.rhoQ = fields[5];
+  r(0)          = fields[0];
+  r(1)          = fields[1];
+  input.e       = fields[2];
+  input.rhoB    = fields[3];
+  input.rhoS    = fields[4];
+  input.rhoQ    = fields[5];
   hydro.u(0)    = fields[6];
   hydro.u(1)    = fields[7];
   if ( fields.size() > 8 ) // passing in shear tensor initialization as well
@@ -45,20 +45,20 @@ Particle::Particle(vector<double> &fields)
     hydro.shv(2,2)    = pi22;
     hydro.shv33       = pi33;
   }
-  input.s    = 0.0;
+  input.s       = 0.0;
 }
 
 Particle::Particle( const Particle& p )
 {
-  r       = p.r;
-  input.e   = p.input.e;
-  input.rhoB = p.input.rhoB;
-  input.rhoS = p.input.rhoS;
-  input.rhoQ = p.input.rhoQ;
+  r             = p.r;
+  input.e       = p.input.e;
+  input.rhoB    = p.input.rhoB;
+  input.rhoS    = p.input.rhoS;
+  input.rhoQ    = p.input.rhoQ;
   hydro.u       = p.hydro.u;
   hydro.shv     = p.hydro.shv;
   hydro.shv33   = p.hydro.shv33;
-  input.s    = p.input.s;
+  input.s       = p.input.s;
 }
 
 
