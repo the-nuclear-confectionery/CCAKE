@@ -15,8 +15,9 @@ class FreezeOut
 {
   private:
     
-    Settings * settingsPtr  = nullptr;
-    SystemState * systemPtr = nullptr;
+    EquationOfState * eosPtr  = nullptr;
+    Settings * settingsPtr    = nullptr;
+    SystemState * systemPtr   = nullptr;
 
     string freeze_out_mode = "constant_energy_density";
 
@@ -24,6 +25,7 @@ class FreezeOut
 
   public:
 
+    void set_EquationOfStatePtr(EquationOfState * eosPtr_in) { eosPtr = eosPtr_in; }
     void set_SettingsPtr(Settings * settingsPtr_in) { settingsPtr = settingsPtr_in; }
     void set_SystemStatePtr(SystemState * systemPtr_in) { systemPtr = systemPtr_in; }
 
@@ -262,7 +264,7 @@ class FreezeOut
           cout << __PRETTY_FUNCTION__ << ": Not at freeze-out temperature" << endl;
         }
 
-        systemPtr->sFO[j]       = eos.s_terms_T( systemPtr->Tfluc[j] );  // replace with e, BSQ
+        systemPtr->sFO[j]       = eos->s_terms_T( systemPtr->Tfluc[j] );  // replace with e, BSQ
         systemPtr->gsub[j]      = sqrt( Norm2(systemPtr->uout[j]) + 1 );
 
 

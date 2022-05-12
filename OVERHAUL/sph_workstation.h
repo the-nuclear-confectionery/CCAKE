@@ -23,8 +23,8 @@ private:
   static constexpr double TOLERANCE      = 0.0;
   static constexpr bool   REGULATE_LOW_T = false;
 
-  SystemState     * systemPtr            = nullptr;
   Settings        * settingsPtr          = nullptr;
+  SystemState     * systemPtr            = nullptr;
 
   // equations of motion
   pEquationsOfMotion pEoM;
@@ -65,6 +65,7 @@ public:
     tc.initialize();
 
     // set up freeze out (constant energy density
+    fo.set_EquationOfStatePtr( eosPtr );
     fo.set_SettingsPtr( settingsPtr );
     fo.set_SystemStatePtr( systemPtr );
     systemPtr->efcheck = eos.efreeze(settingsPtr->Freeze_Out_Temperature);
