@@ -98,9 +98,9 @@ void SystemState::conservation_BSQ()
   // sum
   for ( auto & p : particles )
   {
-    Btotal += p.rhoB_sub*p.rhoB_weight;
-    Stotal += p.rhoS_sub*p.rhoS_weight;
-    Qtotal += p.rhoQ_sub*p.rhoQ_weight;
+    Btotal += p.smoothed.rhoB*p.rhoB_weight;
+    Stotal += p.smoothed.rhoS*p.rhoS_weight;
+    Qtotal += p.smoothed.rhoQ*p.rhoQ_weight;
   }
 
   // save initial totals

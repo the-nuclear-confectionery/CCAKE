@@ -174,9 +174,9 @@ void SPHWorkstation::initial_smoothing()
 	{
     // must reset smoothed charge densities also
     double smoothed_s_lab    = p.hydro.sigma/p.hydro.gamma/settingsPtr->t0;
-		double smoothed_rhoB_lab = p.rhoB_sub/p.hydro.gamma/settingsPtr->t0;
-		double smoothed_rhoS_lab = p.rhoS_sub/p.hydro.gamma/settingsPtr->t0;
-		double smoothed_rhoQ_lab = p.rhoQ_sub/p.hydro.gamma/settingsPtr->t0;
+		double smoothed_rhoB_lab = p.smoothed.rhoB/p.hydro.gamma/settingsPtr->t0;
+		double smoothed_rhoS_lab = p.smoothed.rhoS/p.hydro.gamma/settingsPtr->t0;
+		double smoothed_rhoQ_lab = p.smoothed.rhoQ/p.hydro.gamma/settingsPtr->t0;
 
     // UNCOMMENT THIS AND DOCUMENT OUTPUT AS REFERENCE
 //    locate_phase_diagram_point_sBSQ( p, smoothed_s_lab, smoothed_rhoB_lab,
@@ -196,9 +196,9 @@ void SPHWorkstation::smooth_fields(Particle & pa)
 
   pa.hydro.sigma     = 0.0;
   pa.smoothed.s             = 0.0;
-  pa.rhoB_sub        = 0.0;
-  pa.rhoS_sub        = 0.0;
-  pa.rhoQ_sub        = 0.0;
+  pa.smoothed.rhoB        = 0.0;
+  pa.smoothed.rhoS        = 0.0;
+  pa.smoothed.rhoQ        = 0.0;
 
   auto & a_neighbors = systemPtr->linklist.all_neighbors[a];
 
@@ -209,9 +209,9 @@ void SPHWorkstation::smooth_fields(Particle & pa)
     double kern     = kernel::kernel( pa.r - pb.r, settingsPtr->h );
     pa.hydro.sigma += pb.sigmaweight*kern;
     pa.smoothed.s         += pb.sigmaweight*pb.eta_sigma*kern;
-    pa.rhoB_sub    += pb.B*kern;
-    pa.rhoS_sub    += pb.S*kern;
-    pa.rhoQ_sub    += pb.Q*kern;
+    pa.smoothed.rhoB    += pb.B*kern;
+    pa.smoothed.rhoS    += pb.S*kern;
+    pa.smoothed.rhoQ    += pb.Q*kern;
 
     //===============
     // print status
@@ -226,11 +226,11 @@ void SPHWorkstation::smooth_fields(Particle & pa)
                 << "   " << pb.sigmaweight
                 << "   " << pb.eta_sigma
                 << "   " << pb.input.rhoB
-                << "   " << pa.rhoB_sub
+                << "   " << pa.smoothed.rhoB
                 << "   " << pb.input.rhoS
-                << "   " << pa.rhoS_sub
+                << "   " << pa.smoothed.rhoS
                 << "   " << pb.input.rhoQ
-                << "   " << pa.rhoQ_sub
+                << "   " << pa.smoothed.rhoQ
                 << "   " << kern << "\n";
 
   }
@@ -920,9 +920,9 @@ void SPHWorkstation::calcbsq(Particle & p)
   p.hydro.gamma     = p.gamcalc();
   p.hydro.v         = (1.0/p.hydro.gamma)*p.hydro.u;
   double s_lab      = p.smoothed.s/p.hydro.gamma/systemPtr->t;
-  double rhoB_lab   = p.rhoB_sub/p.hydro.gamma/systemPtr->t;
-  double rhoS_lab   = p.rhoS_sub/p.hydro.gamma/systemPtr->t;
-  double rhoQ_lab   = p.rhoQ_sub/p.hydro.gamma/systemPtr->t;
+  double rhoB_lab   = p.smoothed.rhoB/p.hydro.gamma/systemPtr->t;
+  double rhoS_lab   = p.smoothed.rhoS/p.hydro.gamma/systemPtr->t;
+  double rhoQ_lab   = p.smoothed.rhoQ/p.hydro.gamma/systemPtr->t;
 	locate_phase_diagram_point_sBSQ( p, s_lab, rhoB_lab, rhoS_lab, rhoQ_lab );
 }
 
