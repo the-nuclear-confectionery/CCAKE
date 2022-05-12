@@ -70,7 +70,7 @@ void InputOutput::load_settings_file( string path_to_settings_file )
     settingsPtr->IC_type                = all_parameters[paramCount++];
     settingsPtr->IC_option              = all_parameters[paramCount++];
     settingsPtr->IC_file                = all_parameters[paramCount++];
-    settingsPtr->_h                     = stod(all_parameters[paramCount++]);
+    settingsPtr->h                      = stod(all_parameters[paramCount++]);
     settingsPtr->dt                     = stod(all_parameters[paramCount++]);
     settingsPtr->t0                     = stod(all_parameters[paramCount++]);
     settingsPtr->EoS_type               = all_parameters[paramCount++];
