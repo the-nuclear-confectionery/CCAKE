@@ -1,5 +1,5 @@
-#ifndef FREEZEOUT_H
-#define FREEZEOUT_H
+#ifndef EVOLVER_H
+#define EVOLVER_H
 
 #include <algorithm>
 #include <string>
