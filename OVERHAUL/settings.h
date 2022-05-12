@@ -44,20 +44,19 @@ public:
 /* INTS */
   static constexpr int VERBOSE = 5;
 
-  int start = 0;
-  int end   = 0;
-  int fnum  = 0;
-  int gtyp = 0;
-  int visc = 0; // visc=0 for ideal
-            // visc=1 for bulk,
-            // visc=2 for shear
-            // visc=3 for bulk+shear
-            // visc=4 for bulk+shear+BSQ
-
-  int steps    = 0;
-  int average  = 0;
-  int lowT     = 0;
-  int etaconst = 0;
+//  int start = 0;
+//  int end   = 0;
+//  int fnum  = 0;
+//  int gtyp = 0;
+//  int visc = 0; // visc=0 for ideal
+//            // visc=1 for bulk,
+//            // visc=2 for shear
+//            // visc=3 for bulk+shear
+//            // visc=4 for bulk+shear+BSQ
+//
+//  int steps    = 0;
+//  int average  = 0;
+//  int lowT     = 0;
 
   /********************************************************************************/
 

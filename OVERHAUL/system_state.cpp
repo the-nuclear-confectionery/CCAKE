@@ -71,9 +71,6 @@ void SystemState::initialize()  // formerly called "manualenter"
     p.efcheck = efcheck;
   }
 
-//  linklist.efcheck = efcheck;
-//  linklist.sfcheck = sfcheck;
-//  linklist.average = 0;
 
   return;
 }
@@ -222,27 +219,4 @@ void SystemState::set_current_timestep_quantities()
     particles_E0[i] = p.contribution_to_total_Ez;
   }
 }
-
-
-///////////////////////////////////////////////////////////////////////////////
-void SystemState::get_derivative_step(double dx)
-{
-  N = _n;
-
-  for (int i=0; i<N; ++i)
-  {
-    auto & p = particles[i];
-
-    p.r            = r0[i]        + dx*p.hydro.v;
-
-    if ( p.Freeze < 5 )
-    {
-      p.hydro.u            = u0[i]        + dx*p.hydro.du_dt;
-      p.eta_sigma    = etasigma0[i] + dx*p.hydro.detasigma_dt;
-      p.hydro.Bulk         = Bulk0[i]     + dx*p.hydro.dBulk_dt;
-      tmini( p.hydro.shv,    shv0[i]      + dx*p.hydro.dshv_dt );
-    }
-  }
-}
-
 
