@@ -225,11 +225,11 @@ void SPHWorkstation::smooth_fields(Particle & pa)
                 << "   " << pb.r
                 << "   " << pb.sigmaweight
                 << "   " << pb.eta_sigma
-                << "   " << pb.rhoB_an
+                << "   " << pb.input.rhoB
                 << "   " << pa.smoothed.rhoB
-                << "   " << pb.rhoS_an
+                << "   " << pb.input.rhoS
                 << "   " << pa.smoothed.rhoS
-                << "   " << pb.rhoQ_an
+                << "   " << pb.input.rhoQ
                 << "   " << pa.smoothed.rhoQ
                 << "   " << kern << "\n";
 
