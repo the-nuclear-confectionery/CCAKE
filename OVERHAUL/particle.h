@@ -46,14 +46,8 @@ class Particle
 
     void evaluate_time_derivatives( double t );
 
-  //private:
-
     hydrodynamic_info  hydro  = {};
     thermodynamic_info thermo = {};
-
-
-  //public:
-
 
     //==========================================================================
     // getter functions for thermodynamic information
@@ -87,7 +81,6 @@ class Particle
 
 
     // rename these functions and their arguments
-    void frzcheck( double tin, int &count, int N );
     void reset_pi_tensor(double tin2);
     double gamcalc();
 
@@ -132,8 +125,6 @@ class Particle
     double B               = 0.0; // Baryon density
     double S               = 0.0; // Baryon density
     double Q               = 0.0; // baryon, strange, electric charge
-
-    double efcheck         = 0.0;
 
     // vector members
     Vector<double,2> r, qmom;

@@ -35,6 +35,11 @@ class FreezeOut
     {
       freeze_out_threshold = fo_threshold_in;
       freeze_out_mode      = fo_mode;
+      if ( freeze_out_mode != "constant_energy_density" )
+      {
+        cerr << "This freeze out mode is not supported.  Please try a different one.\n";
+        exit(8);
+      }
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -315,6 +320,50 @@ class FreezeOut
 
       systemPtr->cf = curfrz;
     }
+
+
+    //==============================================================================
+    void frzcheck( Particle & p, double tin, int &count, int N )
+    {
+
+      double efcheck = freeze_out_threshold;
+
+      if ( p.Freeze == 0 )
+      {
+        if ( p.e() <= efcheck )
+        {
+          p.Freeze = 1;
+          p.frz2.t = tin;
+        }
+      }
+      else if ( p.Freeze == 1 )
+      {
+        if ( p.btrack == -1 )
+        {
+          count += 1;
+          p.Freeze = 3;
+          p.frz1.t = tin;
+        }
+        else if ( p.e()>p.frz1.e )
+        {
+          p.Freeze = 1;
+          p.frz2.t = tin;
+        }
+        else if( p.e() <= efcheck )
+        {
+          count += 1;
+          p.Freeze = 3;
+          p.frz1.t = tin;
+        }
+        else
+        {
+          p.Freeze=0;
+        }
+      }
+
+    }
+
+
 };
 
 typedef std::shared_ptr<FreezeOut> pFreezeOut;  // smart pointer to freeze out object

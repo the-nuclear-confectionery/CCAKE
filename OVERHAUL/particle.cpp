@@ -68,46 +68,6 @@ Particle::Particle( const Particle& p )
 double Particle::gamcalc() { return sqrt( Norm2(hydro.u) + 1.0 ); }
 
 
-//==============================================================================
-void Particle::frzcheck( double tin, int &count, int N )
-{
-
-  if ( Freeze == 0 )
-  {
-    if ( e() <= efcheck )
-    {
-      Freeze = 1;
-      frz2.t = tin;
-    }
-  }
-  else if ( Freeze == 1 )
-  {
-    if ( btrack == -1 )
-    {
-      count += 1;
-      Freeze = 3;
-      frz1.t = tin;
-    }
-    else if ( e()>frz1.e )
-    {
-      Freeze = 1;
-      frz2.t = tin;
-    }
-    else if( e() <= efcheck )
-    {
-      count += 1;
-      Freeze = 3;
-      frz1.t = tin;
-    }
-    else
-    {
-      Freeze=0;
-    }
-  }
-
-}
-
-
 
 //==============================================================================
 void Particle::reset_pi_tensor(double tin2)
