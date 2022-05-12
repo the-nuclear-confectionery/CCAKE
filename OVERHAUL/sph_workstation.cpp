@@ -606,12 +606,21 @@ void SPHWorkstation::advance_timestep_rk2( double dt )
 
 void SPHWorkstation::advance_timestep_rk4( double dt )
 {
-//  double ets1 = 0.0, ets2 = 0.0, ets3 = 0.0, ets4 = 0.0;
-//  double b1 = 0.0, b2 = 0.0, b3 = 0.0, b4 = 0.0;
-//  Vector<double,2> k1, k2, k3, k4;
-//  Vector<double,2> r1, r2, r3, r4;
+  // define a local struct just to help with the RK evolution here
+  struct particle_state_RK4
+  {
+    double ets1 = 0.0, ets2 = 0.0, ets3 = 0.0, ets4 = 0.0;
+    double b1 = 0.0, b2 = 0.0, b3 = 0.0, b4 = 0.0;
+    Vector<double,2> k1, k2, k3, k4;
+    Vector<double,2> r1, r2, r3, r4;
+    Matrix<double,2,2> shv1, shv2, shv3, shv4;
+  };
 
+  // make vector of struct objects
+  const int number_of_particles = systemPtr->particles.size();
+  vector<particle_state_RK4> particle_states( number_of_particles );
 
+  // set up RK4 evolution
   systemPtr->rk2 = 1;
   double t0      = systemPtr->t;
   double E0      = systemPtr->Ez;
@@ -628,23 +637,24 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
   // compute derivatives
   get_time_derivatives();
 
-  for (int i = 0; i < (int)systemPtr->particles.size(); i++)
+  for (int i = 0; i < number_of_particles; i++)
   {
     auto & p    = systemPtr->particles[i];
+    auto & ps   = particle_states[i];
 
     // store increments
-    p.k1        = dt*p.hydro.du_dt;
-    p.r1        = dt*p.hydro.v;
-    p.ets1      = dt*p.hydro.detasigma_dt;
-    p.b1        = dt*p.hydro.dBulk_dt;
-    p.hydro.shv1      = dt*p.hydro.dshv_dt;
+    ps.k1        = dt*p.hydro.du_dt;
+    ps.r1        = dt*p.hydro.v;
+    ps.ets1      = dt*p.hydro.detasigma_dt;
+    ps.b1        = dt*p.hydro.dBulk_dt;
+    ps.shv1      = dt*p.hydro.dshv_dt;
 
     // implement increments with appropriate coefficients
-    p.hydro.u         = systemPtr->u0[i]        + 0.5*p.k1;
-    p.r         = systemPtr->r0[i]        + 0.5*p.r1;
-    p.specific.s = systemPtr->etasigma0[i] + 0.5*p.ets1;
-    p.hydro.Bulk      = systemPtr->Bulk0[i]     + 0.5*p.b1;
-    tmini(p.hydro.shv,  systemPtr->shv0[i]      + 0.5*p.hydro.shv1);
+    p.hydro.u         = systemPtr->u0[i]        + 0.5*ps.k1;
+    p.r               = systemPtr->r0[i]        + 0.5*ps.r1;
+    p.specific.s      = systemPtr->etasigma0[i] + 0.5*ps.ets1;
+    p.hydro.Bulk      = systemPtr->Bulk0[i]     + 0.5*ps.b1;
+    tmini(p.hydro.shv,  systemPtr->shv0[i]      + 0.5*ps.hydro.shv1);
 
     // regulate updated results if necessary
     if ( REGULATE_LOW_T && p.specific.s < 0.0
@@ -662,21 +672,22 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
   systemPtr->t = t0 + 0.5*dt;
   get_time_derivatives();
 
-  for (int i = 0; i < (int)systemPtr->particles.size(); i++)
+  for (int i = 0; i < number_of_particles; i++)
   {
     auto & p    = systemPtr->particles[i];
+    auto & ps   = particle_states[i];
 
-    p.k2        = dt*p.hydro.du_dt;
-    p.r2        = dt*p.hydro.v;
-    p.ets2      = dt*p.hydro.detasigma_dt;
-    p.b2        = dt*p.hydro.dBulk_dt;
-    p.hydro.shv2      = dt*p.hydro.dshv_dt;
+    ps.k2        = dt*p.hydro.du_dt;
+    ps.r2        = dt*p.hydro.v;
+    ps.ets2      = dt*p.hydro.detasigma_dt;
+    ps.b2        = dt*p.hydro.dBulk_dt;
+    ps.shv2      = dt*p.hydro.dshv_dt;
 
-    p.hydro.u         = systemPtr->u0[i]        + 0.5*p.k2;
-    p.r         = systemPtr->r0[i]        + 0.5*p.r2;
-    p.specific.s = systemPtr->etasigma0[i] + 0.5*p.ets2;
-    p.hydro.Bulk      = systemPtr->Bulk0[i]     + 0.5*p.b2;
-    tmini(p.hydro.shv,  systemPtr->shv0[i]      + 0.5*p.hydro.shv2);
+    p.hydro.u         = systemPtr->u0[i]        + 0.5*ps.k2;
+    p.r               = systemPtr->r0[i]        + 0.5*ps.r2;
+    p.specific.s      = systemPtr->etasigma0[i] + 0.5*ps.ets2;
+    p.hydro.Bulk      = systemPtr->Bulk0[i]     + 0.5*ps.b2;
+    tmini(p.hydro.shv,  systemPtr->shv0[i]      + 0.5*ps.hydro.shv2);
 
     // regulate updated results if necessary
     if ( REGULATE_LOW_T && p.specific.s < 0.0
@@ -693,22 +704,23 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
 
   get_time_derivatives();
 
-  for (int i = 0; i < (int)systemPtr->particles.size(); i++)
+  for (int i = 0; i < number_of_particles; i++)
   {
     auto & p    = systemPtr->particles[i];
+    auto & ps   = particle_states[i];
 
-    p.k3        = dt*p.hydro.du_dt;
-    p.r3        = dt*p.hydro.v;
-    p.ets3      = dt*p.hydro.detasigma_dt;
-    p.b3        = dt*p.hydro.dBulk_dt;
-    p.hydro.shv3      = dt*p.hydro.dshv_dt;
+    ps.k3        = dt*p.hydro.du_dt;
+    ps.r3        = dt*p.hydro.v;
+    ps.ets3      = dt*p.hydro.detasigma_dt;
+    ps.b3        = dt*p.hydro.dBulk_dt;
+    ps.shv3      = dt*p.hydro.dshv_dt;
 
 
-    p.hydro.u         = systemPtr->u0[i]        + p.k3;
-    p.r         = systemPtr->r0[i]        + p.r3;
-    p.specific.s = systemPtr->etasigma0[i] + p.ets3;
-    p.hydro.Bulk      = systemPtr->Bulk0[i]     + p.b3;
-    tmini(p.hydro.shv,  systemPtr->shv0[i]      + p.hydro.shv3);
+    p.hydro.u         = systemPtr->u0[i]        + ps.k3;
+    p.r               = systemPtr->r0[i]        + ps.r3;
+    p.specific.s      = systemPtr->etasigma0[i] + ps.ets3;
+    p.hydro.Bulk      = systemPtr->Bulk0[i]     + ps.b3;
+    tmini(p.hydro.shv,  systemPtr->shv0[i]      + ps.hydro.shv3);
 
     // regulate updated results if necessary
     if ( REGULATE_LOW_T && p.specific.s < 0.0
@@ -726,22 +738,23 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
   get_time_derivatives();
 
   constexpr double w1 = 1.0/6.0, w2 = 1.0/3.0;
-  for (int i = 0; i < (int)systemPtr->particles.size(); i++)
+  for (int i = 0; i < number_of_particles; i++)
   {
     auto & p    = systemPtr->particles[i];
+    auto & ps   = particle_states[i];
 
-    p.k4        = dt*p.hydro.du_dt;
-    p.r4        = dt*p.hydro.v;
-    p.ets4      = dt*p.hydro.detasigma_dt;
-    p.b4        = dt*p.hydro.dBulk_dt;
-    p.hydro.shv4      = dt*p.hydro.dshv_dt;
+    ps.k4        = dt*p.hydro.du_dt;
+    ps.r4        = dt*p.hydro.v;
+    ps.ets4      = dt*p.hydro.detasigma_dt;
+    ps.b4        = dt*p.hydro.dBulk_dt;
+    ps.shv4      = dt*p.hydro.dshv_dt;
 
     // sum the weighted steps into yf and return the final y values
-    p.hydro.u         = systemPtr->u0[i]        + w1*p.k1   + w2*p.k2   + w2*p.k3   + w1*p.k4;
-    p.r         = systemPtr->r0[i]        + w1*p.r1   + w2*p.r2   + w2*p.r3   + w1*p.r4;
-    p.specific.s = systemPtr->etasigma0[i] + w1*p.ets1 + w2*p.ets2 + w2*p.ets3 + w1*p.ets4;
-    p.hydro.Bulk      = systemPtr->Bulk0[i]     + w1*p.b1   + w2*p.b2   + w2*p.b3   + w1*p.b4;
-    tmini(p.hydro.shv,  systemPtr->shv0[i]      + w1*p.hydro.shv1 + w2*p.hydro.shv2 + w2*p.hydro.shv3 + w1*p.hydro.shv4);
+    p.hydro.u         = systemPtr->u0[i]    + w1*ps.k1   + w2*ps.k2   + w2*ps.k3   + w1*ps.k4;
+    p.r               = systemPtr->r0[i]    + w1*ps.r1   + w2*ps.r2   + w2*ps.r3   + w1*ps.r4;
+    p.specific.s = systemPtr->etasigma0[i]  + w1*ps.ets1 + w2*ps.ets2 + w2*ps.ets3 + w1*ps.ets4;
+    p.hydro.Bulk      = systemPtr->Bulk0[i] + w1*ps.b1   + w2*ps.b2   + w2*ps.b3   + w1*ps.b4;
+    tmini(p.hydro.shv,  systemPtr->shv0[i]  + w1*ps.shv1 + w2*ps.shv2 + w2*ps.shv3 + w1*ps.shv4);
 
     // regulate updated results if necessary
     if ( REGULATE_LOW_T && p.specific.s < 0.0

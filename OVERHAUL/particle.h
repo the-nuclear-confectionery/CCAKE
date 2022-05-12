@@ -33,20 +33,16 @@ class Particle
 
     //==========================================================================
     // MEMBERS
-    bool print_this_particle = false;
+    bool print_this_particle         = false;
 
-    int ID                 = -1;
-    int btrack             = 0;
-    int Freeze             = 0;
+    int ID                           = -1;
+    int btrack                       = 0;
+    int Freeze                       = 0;
 
+    double efcheck                   = 0.0;
     double contribution_to_total_E   = 0.0;
     double contribution_to_total_dEz = 0.0;
     double contribution_to_total_Ez  = 0.0;
-
-    double ets1 = 0.0, ets2 = 0.0, ets3 = 0.0, ets4 = 0.0;
-    double b1 = 0.0, b2 = 0.0, b3 = 0.0, b4 = 0.0;
-    Vector<double,2> k1, k2, k3, k4;
-    Vector<double,2> r1, r2, r3, r4;
 
     Vector<double,2> r;       // transverse position
 
@@ -69,26 +65,9 @@ class Particle
                               // values for different densities by convenience;
                               // entropy component previously called "sigmaweight"
 
-
-    ////////////////////////////////////////////////////////////////////////////
-    //                         Fluid Variables                                //
-    ////////////////////////////////////////////////////////////////////////////
-
-//    double B               = 0.0; // Baryon per particle
-//    double S               = 0.0; // Net strangeness per particle
-//    double Q               = 0.0; // Electric charge per particle
-
-//    double rhoB_weight     = 0.0; // specific volume per particle (without rhoB_an)
-//    double rhoS_weight     = 0.0; // specific volume per particle (without rhoS_an)
-//    double rhoQ_weight     = 0.0; // specific volume per particle (without rhoQ_an)
-
-
+    // structs for hydrodynamic and thermodynamic information
     hydrodynamic_info  hydro  = {};
     thermodynamic_info thermo = {};
-
-
-
-
 
     // freeze out struct
     struct FRZ
@@ -106,11 +85,6 @@ class Particle
     FRZ fback2 = {};
     FRZ fback3 = {};
     FRZ fback4 = {};
-
-    double efcheck = 0.0;
-
-
-
 
 
     //==========================================================================
