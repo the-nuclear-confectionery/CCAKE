@@ -36,10 +36,10 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 	cout << "----------------------------------------"
 			"----------------------------------------" << endl;
 
-    systemPtr->_n = systemPtr->particles.size();
-    cout << "systemPtr->_n = " << systemPtr->_n << "\n";
+    systemPtr->n_particles = systemPtr->particles.size();
+    cout << "systemPtr->n_particles = " << systemPtr->n_particles << "\n";
 
-    for (int i=0; i<systemPtr->_n; i++)
+    for (int i=0; i<systemPtr->n_particles; i++)
     {
 	cout << "----------------------------------------"
 			"----------------------------------------" << "\n";
@@ -182,7 +182,7 @@ void SPHWorkstation::initial_smoothing()
 //    locate_phase_diagram_point_sBSQ( p, smoothed_s_lab, smoothed_rhoB_lab,
 //                                      smoothed_rhoS_lab, smoothed_rhoQ_lab );
 
-		p.frzcheck(settingsPtr->t0, count1, systemPtr->_n);
+		p.frzcheck(settingsPtr->t0, count1, systemPtr->n_particles);
 	}
 
 	return;
@@ -212,7 +212,7 @@ void SPHWorkstation::smooth_fields(Particle & pa)
     while ( b != -1 )
     {
       const auto & pb = systemPtr->particles[b];
-      double kern     = kernel::kernel( pa.r - pb.r, settingsPtr->_h );
+      double kern     = kernel::kernel( pa.r - pb.r, settingsPtr->h );
       pa.hydro.sigma       += pb.sigmaweight*kern;
       pa.eta         += pb.sigmaweight*pb.eta_sigma*kern;
       pa.rhoB_sub    += pb.B*kern;
@@ -285,7 +285,7 @@ void SPHWorkstation::smooth_gradients( Particle & pa, double tin )
 
     Vector<double,2> rel_sep = pa.r - pb.r;
     double rel_sep_norm      = Norm( rel_sep );
-    Vector<double,2> gradK   = kernel::gradKernel( rel_sep, rel_sep_norm, settingsPtr->_h );
+    Vector<double,2> gradK   = kernel::gradKernel( rel_sep, rel_sep_norm, settingsPtr->h );
     Vector<double,2> va      = rowp1(0, pa.hydro.shv);
     Vector<double,2> vb      = rowp1(0, pb.hydro.shv);
     Matrix<double,2,2> vminia, vminib;
@@ -312,7 +312,7 @@ void SPHWorkstation::smooth_gradients( Particle & pa, double tin )
                 << "   " << gradK << "   " << sigsigK
                 << "   " << pa.hydro.sigma << "\n";
 
-    double relative_distance_by_h = rel_sep_norm / settingsPtr->_h;
+    double relative_distance_by_h = rel_sep_norm / settingsPtr->h;
     if ( ( relative_distance_by_h <= 2.0 ) && ( a != b ) )
     {
       if ( pa.btrack != -1 ) pa.btrack++;
@@ -352,7 +352,7 @@ void SPHWorkstation::smooth_gradients( Particle & pa, double tin )
 
       cout << pa.r << endl;
       cout << pb.r << endl;
-      cout << kernel::kernel( pa.r - pb.r, settingsPtr->_h ) << endl;
+      cout << kernel::kernel( pa.r - pb.r, settingsPtr->h ) << endl;
     }
     else if ( isnan( pa.hydro.gradP(1) ) )
       cout << "1 " << gradPressure_weight(a, b)
