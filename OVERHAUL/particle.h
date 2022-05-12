@@ -129,7 +129,7 @@ class Particle
     // vector members
     Vector<double,2> r, qmom;
 
-    // freeze out struct thingy?
+    // freeze out struct
     struct FRZ
     {
       double t = 0.0, s = 0.0, e = 0.0, rhoB = 0.0, rhoS = 0.0, rhoQ = 0.0,
@@ -138,6 +138,8 @@ class Particle
       Vector<double,2> r, u, gradP;
       Matrix<double,3,3> shear;
     };
+
+    double efcheck = 0.0;
 
     FRZ frz1   = {};
     FRZ frz2   = {};

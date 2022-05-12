@@ -326,11 +326,9 @@ class FreezeOut
     void frzcheck( Particle & p, double tin, int &count, int N )
     {
 
-      double efcheck = freeze_out_threshold;
-
       if ( p.Freeze == 0 )
       {
-        if ( p.e() <= efcheck )
+        if ( p.e() <= p.efcheck )
         {
           p.Freeze = 1;
           p.frz2.t = tin;
@@ -349,7 +347,7 @@ class FreezeOut
           p.Freeze = 1;
           p.frz2.t = tin;
         }
-        else if( p.e() <= efcheck )
+        else if( p.e() <= p.efcheck )
         {
           count += 1;
           p.Freeze = 3;
