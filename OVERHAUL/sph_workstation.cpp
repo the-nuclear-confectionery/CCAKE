@@ -209,9 +209,9 @@ void SPHWorkstation::smooth_fields(Particle & pa)
     double kern     = kernel::kernel( pa.r - pb.r, settingsPtr->h );
     pa.hydro.sigma += pb.norm_spec.s*kern;
     pa.smoothed.s         += pb.norm_spec.s*pb.specific.s*kern;
-    pa.smoothed.rhoB    += pb.B*kern;
-    pa.smoothed.rhoS    += pb.S*kern;
-    pa.smoothed.rhoQ    += pb.Q*kern;
+    pa.smoothed.rhoB    += pb.specific.rhoB*kern;
+    pa.smoothed.rhoS    += pb.specific.rhoS*kern;
+    pa.smoothed.rhoQ    += pb.specific.rhoQ*kern;
 
     //===============
     // print status
