@@ -9,13 +9,14 @@
 #include <lib.h>
 #include "eos_delaunay/eos_delaunay.h"
 
-#include "vector.h"
 #include "eos.h"
+#include "freeze_out.h"
+#include "kernel.h"
+#include "linklist.h"
 #include "matrix.h"
 #include "particle.h"
-#include "linklist.h"
-#include "kernel.h"
 #include "settings.h"
+#include "vector.h"
 
 using std::string;
 using std::vector;
@@ -24,6 +25,7 @@ class SystemState
 {
   friend class InputOutput;
   friend class SPHWorkstation;
+  friend class FreezeOut;
 
   public:
 
@@ -144,10 +146,6 @@ class SystemState
 
     // these routines are called in runge kutta
     void set_current_timestep_quantities();
-
-    // put FO routines in SystemState for time being
-    void bsqsvfreezeout( int curfrz );
-    void bsqsvinterpolate( int curfrz );
 
 };
 

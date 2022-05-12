@@ -29,8 +29,8 @@ class Settings
     double h       = 0.0; // SPH kernel scale [fm]
 
     double Freeze_Out_Temperature = 0.0;  // freeze-out temperature (at zero mu)
-    double efcheck                = 0.0;  // freeze-out energy density
-    double sfcheck                = 0.0;  // freeze-out entropy density
+//    double efcheck                = 0.0;  // freeze-out energy density
+//    double sfcheck                = 0.0;  // freeze-out entropy density
 
 
     // quantities read in from InputParameters.inp file

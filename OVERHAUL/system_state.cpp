@@ -14,12 +14,12 @@ using std::string;
 using std::stod;
 
 #include "constants.h"
-#include "vector.h"
-#include "particle.h"
 #include "eos.h"
+#include "linklist.h"
+#include "particle.h"
 #include "Stopwatch.h"
 #include "system_state.h"
-#include "linklist.h"
+#include "vector.h"
 
 using namespace constants;
 

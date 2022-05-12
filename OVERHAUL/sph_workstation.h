@@ -25,9 +25,17 @@ private:
   SystemState     * systemPtr            = nullptr;
   Settings        * settingsPtr          = nullptr;
 
+  // equations of motion
   pEquationsOfMotion pEoM;
+
+  // equation of state
   EquationOfState eos;
+
+  // transport coefficients
   TransportCoefficients tc;
+
+  // freeze out
+  FreezeOut fo;
 
 
 public:
@@ -55,11 +63,12 @@ public:
     tc.set_SettingsPtr( settingsPtr );
     tc.initialize();
 
-    // set freeze-out properties
-    settingsPtr->efcheck = eos.efreeze(settingsPtr->Freeze_Out_Temperature);
-    settingsPtr->sfcheck = eos.sfreeze(settingsPtr->Freeze_Out_Temperature);
-    systemPtr->efcheck   = settingsPtr->efcheck;
-    systemPtr->sfcheck   = settingsPtr->sfcheck;
+    // set up freeze out (constant energy density
+    fo.set_SettingsPtr( settingsPtr );
+    fo.set_SystemStatePtr( systemPtr );
+    systemPtr->efcheck = eos.efreeze(settingsPtr->Freeze_Out_Temperature);
+    systemPtr->sfcheck = eos.sfreeze(settingsPtr->Freeze_Out_Temperature);
+    fo.initialize( systemPtr->efcheck );
   }
 
   // routines for resetting quantities
@@ -137,8 +146,8 @@ public:
 
 
   // freeze-out routines
-  void bsqsvfreezeout(int curfrz);
-  void bsqsvinterpolate(int curfrz);
+//  void bsqsvfreezeout(int curfrz);
+//  void bsqsvinterpolate(int curfrz);
 
   // misc. routine
   double gradPressure_weight(const int a, const int b);
