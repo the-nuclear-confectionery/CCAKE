@@ -358,6 +358,6 @@ class Evolver
 
 };
 
-typedef std::shared_ptr<Evolver> pEvolver;  // smart pointer to freeze out object
+typedef std::shared_ptr<Evolver> pEvolver;  // smart pointer to evolver object
 
 #endif
