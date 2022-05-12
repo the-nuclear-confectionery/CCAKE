@@ -169,7 +169,7 @@ public:
     systemPtr->cfon = 1;
 
     // use evolver to actually do RK evolution
-    evolver.advance_timestep( dt, rk_order, [this]{ this->get_time_derivatives(); }; );
+    evolver.advance_timestep( dt, rk_order, [this]{ this->get_time_derivatives(); } );
 
     // set number of particles which have frozen out
     systemPtr->number_part = systemPtr->get_frozen_out_count();
