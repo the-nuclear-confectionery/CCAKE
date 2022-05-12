@@ -24,15 +24,17 @@ class Evolver
     void set_SystemStatePtr(SystemState * systemPtr_in) { systemPtr = systemPtr_in; }
 
     //==========================================================================
-    void advance_timestep( double dt, int rk_order )
+    void advance_timestep( double dt, int rk_order,
+                            std::function<void(void)>
+                            time_derivatives_functional )
     {
       switch ( rk_order )
       {
         case 2:
-          advance_timestep_rk2( dt );
+          advance_timestep_rk2( dt, time_derivatives_functional );
           break;
         case 4:
-          advance_timestep_rk4( dt );
+          advance_timestep_rk4( dt, time_derivatives_functional );
           break;
         default:
           std::cerr << "Invalid Runge-Kutta order!" << std::endl;
