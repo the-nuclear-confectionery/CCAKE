@@ -20,8 +20,8 @@ CFLAGS = $(WARNINGS) $(OPTIMIZATION) -c -I$(EOSLIBPATH) -I$(EIGENPATH) \
 LDFLAGS = -L$(EOSLIBPATH) -lbsqeos -lm -lgsl -lgslcblas -lblas -lstdc++ \
           -L$(GSLLIBPATH) $(DEBUG) $(STANDARD) -fopenmp
 
-#export OMP_NUM_THREADS=`nproc --all`
-export OMP_NUM_THREADS=1
+export OMP_NUM_THREADS=`nproc --all`
+#export OMP_NUM_THREADS=1
 export HDF5_LDFLAGS+=$(LDFLAGS)
 
 persephone : $(OBJS)

@@ -46,29 +46,36 @@ private:
 
 public:
 
+  //============================================================================
   // default constructor/destructor
   SPHWorkstation(){}
   ~SPHWorkstation(){}
 
+  //============================================================================
   // initialize pointers
   void set_SystemStatePtr( SystemState * systemPtr_in );
   void set_SettingsPtr( Settings * settingsPtr_in );
 
+  //============================================================================
   // initialize workstation (now includes eos initialization)
   void initialize()
   {
+    //==========================================================================
     // set up equation of motion object
     pEoM = std::make_shared<EoM_default>();
     pEoM->set_SettingsPtr( settingsPtr );
 
+    //==========================================================================
     // set up equation of state
     eos.set_SettingsPtr( settingsPtr );
     eos.init();
 
+    //==========================================================================
     // set up transport coefficients
     tc.set_SettingsPtr( settingsPtr );
     tc.initialize();
 
+    //==========================================================================
     // set up freeze out (constant energy density
     fo.set_EquationOfStatePtr( &eos );
     fo.set_SettingsPtr( settingsPtr );
@@ -81,6 +88,7 @@ public:
     evolver.set_SystemStatePtr( systemPtr );
   }
 
+  //============================================================================
   // routines for resetting quantities
   void reset_linklist() { systemPtr->linklist.reset(); }
   void reset_pi_tensor();
@@ -90,6 +98,7 @@ public:
   void initial_smoothing();
 
 
+  //============================================================================
   // smoothing
   void smooth_fields( Particle & pa );
   void smooth_gradients( Particle & pa, double tin );
@@ -97,6 +106,7 @@ public:
   void get_time_derivatives();
 
 
+  //============================================================================
   // functions to apply action to all particles
   void smooth_all_particle_fields()
         { Stopwatch sw;
@@ -104,7 +114,8 @@ public:
           for ( auto & p : systemPtr->particles )
             smooth_fields(p);
           sw.Stop();
-          cout << "t=" << systemPtr->t << ": finished " << __FUNCTION__ << " in " << sw.printTime()
+          cout << "t=" << systemPtr->t << ": finished "
+              << __FUNCTION__ << " in " << sw.printTime()
               << " s using " << omp_get_num_threads() << " threads.\n";
         }
 
@@ -116,7 +127,8 @@ public:
           for ( auto & p : systemPtr->particles )
             smooth_gradients( p, systemPtr->t );
           sw.Stop();
-          cout << "t=" << systemPtr->t << ": finished " << __FUNCTION__ << " in " << sw.printTime()
+          cout << "t=" << systemPtr->t << ": finished "
+              << __FUNCTION__ << " in " << sw.printTime()
               << " s using " << omp_get_num_threads() << " threads.\n";
         }
 
@@ -142,6 +154,7 @@ public:
   void finalize_freeze_out(int curfrz);
 
 
+  //============================================================================
   // routines to edit particles directly
   double locate_phase_diagram_point_eBSQ(
           Particle & p, double e_In,
@@ -162,6 +175,7 @@ public:
   double gradPressure_weight(const int a, const int b);
 
 
+  //============================================================================
   // what it says on the label
   void advance_timestep( double dt, int rk_order )
   {
@@ -169,6 +183,7 @@ public:
     systemPtr->cfon = 1;
 
     // use evolver to actually do RK evolution
+    // (pass workstation's own time derivatives function as lambda)
     evolver.advance_timestep( dt, rk_order, [this]{ this->get_time_derivatives(); } );
 
     // set number of particles which have frozen out
@@ -177,6 +192,7 @@ public:
     return;
   }
 
+  //============================================================================
   // decide whether to continue evolving
   bool continue_evolution()
   {
