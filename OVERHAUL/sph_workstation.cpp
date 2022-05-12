@@ -106,14 +106,14 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 
     p.hydro.gamma = p.gamcalc();
 
-    p.norm_spec.s *= p.input.s*p.hydro.gamma*settingsPtr->t0;	  // norm_spec.s is constant after this
-    p.rhoB_weight *= p.hydro.gamma*settingsPtr->t0; // rhoB_weight is constant after this
-    p.rhoS_weight *= p.hydro.gamma*settingsPtr->t0; // rhoS_weight is constant after this
-    p.rhoQ_weight *= p.hydro.gamma*settingsPtr->t0; // rhoQ_weight is constant after this
+    p.norm_spec.s    *= p.input.s*p.hydro.gamma*settingsPtr->t0;	  // norm_spec.s is constant after this
+    p.norm_spec.rhoB *= p.hydro.gamma*settingsPtr->t0; // constant after this
+    p.norm_spec.rhoS *= p.hydro.gamma*settingsPtr->t0; // constant after this
+    p.norm_spec.rhoQ *= p.hydro.gamma*settingsPtr->t0; // constant after this
 
-		p.B *= p.hydro.gamma*settingsPtr->t0;	// B does not evolve in ideal case
-		p.S *= p.hydro.gamma*settingsPtr->t0;	// S does not evolve in ideal case
-		p.Q *= p.hydro.gamma*settingsPtr->t0;	// Q does not evolve in ideal case
+		p.specific.rhoB  *= p.hydro.gamma*settingsPtr->t0;	// B does not evolve in ideal case
+		p.specific.rhoS  *= p.hydro.gamma*settingsPtr->t0;	// S does not evolve in ideal case
+		p.specific.rhoQ  *= p.hydro.gamma*settingsPtr->t0;	// Q does not evolve in ideal case
 
 	cout << "----------------------------------------"
 			"----------------------------------------" << "\n";
@@ -428,15 +428,18 @@ void SPHWorkstation::process_initial_conditions()
     // Set the rest of particle elements using area element
 		//p.u(0)          = 0.0;  // flow must be set in Particle constructor!!!
 		//p.u(1)          = 0.0;  // flow must be set in Particle constructor!!!
+
 		p.specific.s       = 1.0;
+		p.specific.rhoB   = p.input.rhoB*dA;
+		p.specific.rhoS   = p.input.rhoS*dA;
+		p.specific.rhoQ   = p.input.rhoQ*dA;
+
 		p.norm_spec.s     = dA;
-		p.rhoB_weight     = dA;
-		p.rhoS_weight     = dA;
-		p.rhoQ_weight     = dA;
+		p.norm_spec.rhoB  = dA;
+		p.norm_spec.rhoS  = dA;
+		p.norm_spec.rhoQ  = dA;
+
 		p.hydro.Bulk      = 0.0;
-		p.B               = p.input.rhoB*dA;
-		p.S               = p.input.rhoS*dA;
-		p.Q               = p.input.rhoQ*dA;
 
 		// make educated initial guess here for this particle's (T, mu_i) coordinates
 		// (improve this in the future)
