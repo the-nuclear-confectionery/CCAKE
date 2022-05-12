@@ -1,6 +1,7 @@
 #ifndef EOM_DEFAULT_H
 #define EOM_DEFAULT_H
 
+#include "densities.h"
 #include "eom.h"
 #include "hydrodynamic_info.h"
 #include "matrix.h"
@@ -22,7 +23,7 @@ class EoM_default: public EquationsOfMotion
     // require all of these to be defined
     void compute_du_dt(){}
     void compute_dshv_dt(){}
-    void compute_detasigma_dt(){}
+    void compute_dspec_s_dt(){}
     void compute_dBulk_dt(){}
 
 
@@ -75,14 +76,11 @@ class EoM_default: public EquationsOfMotion
     
     //==========================================================================
     void evaluate_time_derivatives( hydrodynamic_info & hi,
-                                    thermodynamic_info & ti )
+                                    thermodynamic_info & ti,
+                                    densities & d_dt_specific )
     {
       // PREVIOUSLY DONE IN UPDATE_DSIGMA_DT
       hi.dsigma_dt = -hi.sigma * ( hi.gradV(0,0) + hi.gradV(1,1) );
-
-
-
-
 
 
       // PREVIOUSLY DONE IN UPDATE_FLUID_VARIABLES
@@ -108,12 +106,6 @@ class EoM_default: public EquationsOfMotion
       hi.Btot         = ( hi.Agam*hi.gamma + 2.0*hi.eta_o_tau/3.0*hi.gamma )*hi.sigl
                           + hi.bigPI/hi.tauRelax
                           + dwdsT*( hi.gt*hi.shv33 + Bsub_fun(hi) );
-
-
-
-
-
-
 
 
 
@@ -176,7 +168,13 @@ class EoM_default: public EquationsOfMotion
         hi.inside                  = hi.t*( inner( -minshv+hi.shv(0,0)*hi.v, hi.du_dt )
                                       - con2(sub, hi.gradU) - hi.gamma*hi.t*hi.shv33 );
 
-      hi.detasigma_dt            = 1./hi.sigma/ti.T*( -hi.bigPI*hi.bigtheta + hi.inside );
+      // time derivative of ``specific entropy density per particle"
+      d_dt_specific.s            = 1./hi.sigma/ti.T*( -hi.bigPI*hi.bigtheta + hi.inside );
+
+      // specific charge per particle does not change with time
+      //d_dt_specific.rhoB         = 0.0;
+      //d_dt_specific.rhoS         = 0.0;
+      //d_dt_specific.rhoQ         = 0.0;
 
 
       // N.B. - ADD EXTRA TERMS FOR BULK EQUATION
@@ -193,7 +191,7 @@ class EoM_default: public EquationsOfMotion
 //std::cout << "t=CHECK: " << hi.ID << "   "
 //              << hi.t << "   "
 //              << hi.dBulk_dt << "   "
-//              << hi.detasigma_dt << "   "
+//              << d_dt_specific.s << "   "
 //              << hi.du_dt << "   "
 //              << hi.dshv_dt << "\n";
 //

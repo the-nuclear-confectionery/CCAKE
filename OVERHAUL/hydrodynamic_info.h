@@ -64,7 +64,6 @@ struct hydrodynamic_info
 
   // derivatives
   double dBulk_dt        = 0.0;
-  double detasigma_dt    = 0.0;
 
   Vector<double, 2> du_dt;
   Matrix<double, 2, 2> dshv_dt;

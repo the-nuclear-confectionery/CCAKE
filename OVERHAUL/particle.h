@@ -69,23 +69,6 @@ class Particle
     hydrodynamic_info  hydro  = {};
     thermodynamic_info thermo = {};
 
-//    // freeze out struct
-//    struct FRZ
-//    {
-//      double t = 0.0, s = 0.0, e = 0.0, rhoB = 0.0, rhoS = 0.0, rhoQ = 0.0,
-//             T = 0.0, muB = 0.0, muS = 0.0, muQ = 0.0, theta = 0.0, bulk = 0.0,
-//             sigma = 0.0, shear33 = 0.0, inside = 0.0;
-//      Vector<double,2> r, u, gradP;
-//      Matrix<double,3,3> shear;
-//    };
-//
-//    FRZ frz1   = {};
-//    FRZ frz2   = {};
-//    FRZ fback  = {};
-//    FRZ fback2 = {};
-//    FRZ fback3 = {};
-//    FRZ fback4 = {};
-
 
     //==========================================================================
     // FUNCTIONS AND ROUTINES

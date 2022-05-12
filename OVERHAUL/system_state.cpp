@@ -167,30 +167,3 @@ void SystemState::conservation_energy()
 
 
 
-//==============================================================================
-// this routine is used to initialize quantities prior to RK evolution
-void SystemState::set_current_timestep_quantities()
-{
-  etasigma0.resize(n_particles);
-  Bulk0.resize(n_particles);
-  particles_E0.resize(n_particles);
-
-  u0.resize(n_particles);
-  r0.resize(n_particles);
-
-  shv0.resize(n_particles);
-
-  for (int i = 0; i < n_particles; ++i)
-  {
-    auto & p = particles[i];
-
-    u0[i]        = p.hydro.u;
-    r0[i]        = p.r;
-    etasigma0[i] = p.specific.s;
-    Bulk0[i]     = p.hydro.Bulk;
-    mini( shv0[i], p.hydro.shv );
-
-    particles_E0[i] = p.contribution_to_total_Ez;
-  }
-}
-

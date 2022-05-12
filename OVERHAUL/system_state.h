@@ -144,9 +144,6 @@ class SystemState
       return total_frz_out;
     }
 
-    // these routines are called in runge kutta
-    void set_current_timestep_quantities();
-
 };
 
 #endif

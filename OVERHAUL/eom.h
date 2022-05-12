@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "constants.h"
+#include "densities.h"
 #include "hydrodynamic_info.h"
 #include "settings.h"
 #include "thermodynamic_info.h"
@@ -28,14 +29,13 @@ class EquationsOfMotion
     // require all of these to be defined
     virtual void compute_du_dt(){}
     virtual void compute_dshv_dt(){}
-    virtual void compute_detasigma_dt(){}
+    virtual void compute_dspec_s_dt(){}
     virtual void compute_dBulk_dt(){}
 
     virtual void evaluate_time_derivatives( hydrodynamic_info & hi,
-                                            thermodynamic_info & ti ){}
+                                            thermodynamic_info & ti,
+                                            densities & d_dt_specific){}
 //{cout << "t=: In " << __FILE__ << "::" << __LINE__ << endl;}
-
-  //private:
     
 
 };

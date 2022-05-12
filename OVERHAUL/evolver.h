@@ -45,6 +45,37 @@ class Evolver
 
 
 
+
+    //==============================================================================
+    // this routine is used to initialize quantities prior to RK evolution
+    void set_current_timestep_quantities()
+    {
+      etasigma0.resize(n_particles);
+      Bulk0.resize(n_particles);
+      particles_E0.resize(n_particles);
+
+      u0.resize(n_particles);
+      r0.resize(n_particles);
+
+      shv0.resize(n_particles);
+
+      for (int i = 0; i < n_particles; ++i)
+      {
+        auto & p = systemPtr->particles[i];
+
+        u0[i]        = p.hydro.u;
+        r0[i]        = p.r;
+        etasigma0[i] = p.specific.s;
+        Bulk0[i]     = p.hydro.Bulk;
+        mini( shv0[i], p.hydro.shv );
+
+        particles_E0[i] = p.contribution_to_total_Ez;
+      }
+    }
+
+
+
+
     //==========================================================================
     void advance_timestep_rk2( double dt, std::function<void(void)>
                                           time_derivatives_functional )
@@ -54,7 +85,7 @@ class Evolver
       double E0      = systemPtr->Ez;
 
       // initialize quantities at current time step
-      systemPtr->set_current_timestep_quantities();
+      set_current_timestep_quantities();
 
       ////////////////////////////////////////////
       //    first step
@@ -74,7 +105,7 @@ class Evolver
           if ( p.Freeze < 5 )
           {
             ph.u            = systemPtr->u0[i]        + 0.5*dt*ph.du_dt;
-            p.specific.s    = systemPtr->etasigma0[i] + 0.5*dt*ph.detasigma_dt;
+            p.specific.s    = systemPtr->etasigma0[i] + 0.5*dt*p.d_dt_specific.s;
             ph.Bulk         = systemPtr->Bulk0[i]     + 0.5*dt*ph.dBulk_dt;
             tmini( ph.shv,    systemPtr->shv0[i]      + 0.5*dt*ph.dshv_dt );
 
@@ -110,7 +141,7 @@ class Evolver
           if ( p.Freeze < 5 )
           {
             ph.u            = systemPtr->u0[i]        + dt*ph.du_dt;
-            p.specific.s    = systemPtr->etasigma0[i] + dt*ph.detasigma_dt;
+            p.specific.s    = systemPtr->etasigma0[i] + dt*p.d_dt_specific.s;
             ph.Bulk         = systemPtr->Bulk0[i]     + dt*ph.dBulk_dt;
             tmini( ph.shv,    systemPtr->shv0[i]      + dt*ph.dshv_dt );
 
@@ -163,7 +194,7 @@ class Evolver
       double E1 = 0.0, E2 = 0.0, E3 = 0.0, E4 = 0.0;
 
       // initialize quantities at current time step
-      systemPtr->set_current_timestep_quantities();
+      set_current_timestep_quantities();
 
       ////////////////////////////////////////////
       //    first step
@@ -181,7 +212,7 @@ class Evolver
         // store increments
         ps.k1        = dt*ph.du_dt;
         ps.r1        = dt*ph.v;
-        ps.ets1      = dt*ph.detasigma_dt;
+        ps.ets1      = dt*p.d_dt_specific.s;
         ps.b1        = dt*ph.dBulk_dt;
         ps.shv1      = dt*ph.dshv_dt;
 
@@ -216,7 +247,7 @@ class Evolver
 
         ps.k2        = dt*ph.du_dt;
         ps.r2        = dt*ph.v;
-        ps.ets2      = dt*ph.detasigma_dt;
+        ps.ets2      = dt*p.d_dt_specific.s;
         ps.b2        = dt*ph.dBulk_dt;
         ps.shv2      = dt*ph.dshv_dt;
 
@@ -249,7 +280,7 @@ class Evolver
 
         ps.k3        = dt*ph.du_dt;
         ps.r3        = dt*ph.v;
-        ps.ets3      = dt*ph.detasigma_dt;
+        ps.ets3      = dt*p.d_dt_specific.s;
         ps.b3        = dt*ph.dBulk_dt;
         ps.shv3      = dt*ph.dshv_dt;
 
@@ -284,7 +315,7 @@ class Evolver
 
         ps.k4        = dt*ph.du_dt;
         ps.r4        = dt*ph.v;
-        ps.ets4      = dt*ph.detasigma_dt;
+        ps.ets4      = dt*p.d_dt_specific.s;
         ps.b4        = dt*ph.dBulk_dt;
         ps.shv4      = dt*ph.dshv_dt;
 

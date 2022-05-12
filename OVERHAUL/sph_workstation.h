@@ -146,7 +146,7 @@ public:
         { for ( auto & p : systemPtr->particles )
           { p.hydro.ID = p.ID;
             p.hydro.t  = systemPtr->t;
-            pEoM->evaluate_time_derivatives( p.hydro, p.thermo );} }
+            pEoM->evaluate_time_derivatives( p.hydro, p.thermo, p.d_dt_spec );} }
 
 
   int do_freezeout_checks();
