@@ -346,7 +346,7 @@ void InputOutput::print_system_state()
 {
   string outputfilename = output_directory + "/system_state_"
                           + std::to_string(n_timesteps_output) + ".dat";
-  ofstream out( outputfilename.c_str() );
+  ofstream out( outputfilename.c_str(), ios::out | ios::binary );
 
   out << systemPtr->t << "\n";
   int iParticle = 0;
@@ -422,7 +422,7 @@ void InputOutput::print_system_state()
           << p.contribution_to_total_Ez << "   "
           << p.get_current_eos_name() << "\n";
 
-    print_shear();
+//    print_shear();
   }
 
   out << std::flush;
