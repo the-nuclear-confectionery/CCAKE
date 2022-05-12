@@ -208,7 +208,7 @@ void SPHWorkstation::smooth_fields(Particle & pa)
 
     double kern     = kernel::kernel( pa.r - pb.r, settingsPtr->h );
     pa.hydro.sigma += pb.sigmaweight*kern;
-    pa.smoothed.s         += pb.sigmaweight*pb.eta_sigma*kern;
+    pa.smoothed.s         += pb.sigmaweight*pb.specific.s*kern;
     pa.smoothed.rhoB    += pb.B*kern;
     pa.smoothed.rhoS    += pb.S*kern;
     pa.smoothed.rhoQ    += pb.Q*kern;
@@ -224,7 +224,7 @@ void SPHWorkstation::smooth_fields(Particle & pa)
                 << "   " << pa.smoothed.s
                 << "   " << pb.r
                 << "   " << pb.sigmaweight
-                << "   " << pb.eta_sigma
+                << "   " << pb.specific.s
                 << "   " << pb.input.rhoB
                 << "   " << pa.smoothed.rhoB
                 << "   " << pb.input.rhoS
@@ -428,7 +428,7 @@ void SPHWorkstation::process_initial_conditions()
     // Set the rest of particle elements using area element
 		//p.u(0)          = 0.0;  // flow must be set in Particle constructor!!!
 		//p.u(1)          = 0.0;  // flow must be set in Particle constructor!!!
-		p.eta_sigma       = 1.0;
+		p.specific.s       = 1.0;
 		p.sigmaweight     = dA;
 		p.rhoB_weight     = dA;
 		p.rhoS_weight     = dA;
@@ -538,7 +538,7 @@ void SPHWorkstation::advance_timestep_rk2( double dt )
       if ( p.Freeze < 5 )
       {
         p.hydro.u            = systemPtr->u0[i]        + 0.5*dt*p.hydro.du_dt;
-        p.eta_sigma    = systemPtr->etasigma0[i] + 0.5*dt*p.hydro.detasigma_dt;
+        p.specific.s    = systemPtr->etasigma0[i] + 0.5*dt*p.hydro.detasigma_dt;
         p.hydro.Bulk         = systemPtr->Bulk0[i]     + 0.5*dt*p.hydro.dBulk_dt;
         tmini( p.hydro.shv,    systemPtr->shv0[i]      + 0.5*dt*p.hydro.dshv_dt );
 
@@ -546,9 +546,9 @@ void SPHWorkstation::advance_timestep_rk2( double dt )
                                       + 0.5*dt*p.contribution_to_total_dEz;
 
         // regulate updated results if necessary
-        if ( REGULATE_LOW_T && p.eta_sigma < 0.0
+        if ( REGULATE_LOW_T && p.specific.s < 0.0
               && p.T() < 50.0/constants::hbarc_MeVfm )
-          p.eta_sigma    = systemPtr->etasigma0[i];
+          p.specific.s    = systemPtr->etasigma0[i];
       }
     }
   }
@@ -573,7 +573,7 @@ void SPHWorkstation::advance_timestep_rk2( double dt )
       if ( p.Freeze < 5 )
       {
         p.hydro.u            = systemPtr->u0[i]        + dt*p.hydro.du_dt;
-        p.eta_sigma    = systemPtr->etasigma0[i] + dt*p.hydro.detasigma_dt;
+        p.specific.s    = systemPtr->etasigma0[i] + dt*p.hydro.detasigma_dt;
         p.hydro.Bulk         = systemPtr->Bulk0[i]     + dt*p.hydro.dBulk_dt;
         tmini( p.hydro.shv,    systemPtr->shv0[i]      + dt*p.hydro.dshv_dt );
 
@@ -585,9 +585,9 @@ void SPHWorkstation::advance_timestep_rk2( double dt )
 //      << p.contribution_to_total_E << endl;
 
         // regulate updated results if necessary
-        if ( REGULATE_LOW_T && p.eta_sigma < 0.0
+        if ( REGULATE_LOW_T && p.specific.s < 0.0
               && p.T() < 50.0/constants::hbarc_MeVfm )
-          p.eta_sigma    = systemPtr->etasigma0[i];
+          p.specific.s    = systemPtr->etasigma0[i];
       }
     }
   }
@@ -639,14 +639,14 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
     // implement increments with appropriate coefficients
     p.hydro.u         = systemPtr->u0[i]        + 0.5*p.k1;
     p.r         = systemPtr->r0[i]        + 0.5*p.r1;
-    p.eta_sigma = systemPtr->etasigma0[i] + 0.5*p.ets1;
+    p.specific.s = systemPtr->etasigma0[i] + 0.5*p.ets1;
     p.hydro.Bulk      = systemPtr->Bulk0[i]     + 0.5*p.b1;
     tmini(p.hydro.shv,  systemPtr->shv0[i]      + 0.5*p.hydro.shv1);
 
     // regulate updated results if necessary
-    if ( REGULATE_LOW_T && p.eta_sigma < 0.0
+    if ( REGULATE_LOW_T && p.specific.s < 0.0
           && p.T() < 50.0/constants::hbarc_MeVfm )
-      p.eta_sigma    = systemPtr->etasigma0[i];
+      p.specific.s    = systemPtr->etasigma0[i];
   }
 
   E1           = dt*systemPtr->dEz;
@@ -671,14 +671,14 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
 
     p.hydro.u         = systemPtr->u0[i]        + 0.5*p.k2;
     p.r         = systemPtr->r0[i]        + 0.5*p.r2;
-    p.eta_sigma = systemPtr->etasigma0[i] + 0.5*p.ets2;
+    p.specific.s = systemPtr->etasigma0[i] + 0.5*p.ets2;
     p.hydro.Bulk      = systemPtr->Bulk0[i]     + 0.5*p.b2;
     tmini(p.hydro.shv,  systemPtr->shv0[i]      + 0.5*p.hydro.shv2);
 
     // regulate updated results if necessary
-    if ( REGULATE_LOW_T && p.eta_sigma < 0.0
+    if ( REGULATE_LOW_T && p.specific.s < 0.0
           && p.T() < 50.0/constants::hbarc_MeVfm )
-      p.eta_sigma    = systemPtr->etasigma0[i];
+      p.specific.s    = systemPtr->etasigma0[i];
   }
 
   E2           = dt*systemPtr->dEz;
@@ -703,14 +703,14 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
 
     p.hydro.u         = systemPtr->u0[i]        + p.k3;
     p.r         = systemPtr->r0[i]        + p.r3;
-    p.eta_sigma = systemPtr->etasigma0[i] + p.ets3;
+    p.specific.s = systemPtr->etasigma0[i] + p.ets3;
     p.hydro.Bulk      = systemPtr->Bulk0[i]     + p.b3;
     tmini(p.hydro.shv,  systemPtr->shv0[i]      + p.hydro.shv3);
 
     // regulate updated results if necessary
-    if ( REGULATE_LOW_T && p.eta_sigma < 0.0
+    if ( REGULATE_LOW_T && p.specific.s < 0.0
           && p.T() < 50.0/constants::hbarc_MeVfm )
-      p.eta_sigma    = systemPtr->etasigma0[i];
+      p.specific.s    = systemPtr->etasigma0[i];
   }
 
   E3           = dt*systemPtr->dEz;
@@ -736,14 +736,14 @@ void SPHWorkstation::advance_timestep_rk4( double dt )
     // sum the weighted steps into yf and return the final y values
     p.hydro.u         = systemPtr->u0[i]        + w1*p.k1   + w2*p.k2   + w2*p.k3   + w1*p.k4;
     p.r         = systemPtr->r0[i]        + w1*p.r1   + w2*p.r2   + w2*p.r3   + w1*p.r4;
-    p.eta_sigma = systemPtr->etasigma0[i] + w1*p.ets1 + w2*p.ets2 + w2*p.ets3 + w1*p.ets4;
+    p.specific.s = systemPtr->etasigma0[i] + w1*p.ets1 + w2*p.ets2 + w2*p.ets3 + w1*p.ets4;
     p.hydro.Bulk      = systemPtr->Bulk0[i]     + w1*p.b1   + w2*p.b2   + w2*p.b3   + w1*p.b4;
     tmini(p.hydro.shv,  systemPtr->shv0[i]      + w1*p.hydro.shv1 + w2*p.hydro.shv2 + w2*p.hydro.shv3 + w1*p.hydro.shv4);
 
     // regulate updated results if necessary
-    if ( REGULATE_LOW_T && p.eta_sigma < 0.0
+    if ( REGULATE_LOW_T && p.specific.s < 0.0
           && p.T() < 50.0/constants::hbarc_MeVfm )
-      p.eta_sigma    = systemPtr->etasigma0[i];
+      p.specific.s    = systemPtr->etasigma0[i];
   }
 
   E4            = dt*systemPtr->dEz;

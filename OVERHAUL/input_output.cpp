@@ -383,7 +383,7 @@ void InputOutput::print_system_state()
           << p.rhoQ() << " "
           << p.s() << " "
           << p.smoothed.s/(p.hydro.gamma*systemPtr->t) << " "
-          << p.eta_sigma << " "
+          << p.specific.s << " "
           << p.hydro.sigma << " " 
           << p.sigmaweight << " "
           << p.hydro.stauRelax << " " 

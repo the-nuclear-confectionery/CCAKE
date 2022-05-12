@@ -50,27 +50,31 @@ class Particle
 
     Vector<double,2> r;       // transverse position
 
+    //==========================================================================
     // different combinations of densities
-    densities input    = {};  // these densities are read in initially which
-                              // have physical units ~1/fm^3
+    densities input     = {}; // these densities are read in initially and
+                              // have physical units ~1/fm^3;
                               // entropy component previously called "s_an"
-    densities smoothed = {};  // these are the smoothed (propagated) densities
-                              // which have units ~/1/fm^2
+    densities smoothed  = {}; // these are the smoothed (propagated) densities
+                              // which have units ~/1/fm^2;
                               // entropy component previously called "eta"
-    densities specific = {};  // these are the densities "per particle" which
-                              // are effectively dimensionless
+    densities specific  = {}; // these are the densities "per particle" which
+                              // are effectively dimensionless;
                               // entropy component previously called "eta_sigma"
+    densities d_dt_spec = {}; // these are the TIME DERIVATIVES of the specific
+                              // densities above;
+                              // entropy component previously called "detasigma_dt"
+    densities norm_spec = {}; // gives the normalizations of each of the
+                              // specific densities above, can choose different
+                              // values for different densities by convenience;
+                              // entropy component previously called "sigmaweight"
 
 
     ////////////////////////////////////////////////////////////////////////////
     //                         Fluid Variables                                //
     ////////////////////////////////////////////////////////////////////////////
-//    double eta             = 0.0; // entropy density
-//    double rhoB_sub        = 0.0; // Baryon density
-//    double rhoS_sub        = 0.0; // strange density
-//    double rhoQ_sub        = 0.0; // electric charge density
 
-    double eta_sigma       = 0.0; // Ratio entropy/especific volume
+//    double eta_sigma       = 0.0; // Ratio entropy/especific volume
     double B               = 0.0; // Baryon per particle
     double S               = 0.0; // Net strangeness per particle
     double Q               = 0.0; // Electric charge per particle

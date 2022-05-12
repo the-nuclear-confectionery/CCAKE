@@ -82,7 +82,7 @@ void SystemState::conservation_entropy()
 {
   S = 0.0;
   for ( auto & p : particles )
-    S += p.eta_sigma*p.sigmaweight;
+    S += p.specific.s*p.sigmaweight;
 
   if (linklist.first==1) S0 = S;
 }
@@ -186,7 +186,7 @@ void SystemState::set_current_timestep_quantities()
 
     u0[i]        = p.hydro.u;
     r0[i]        = p.r;
-    etasigma0[i] = p.eta_sigma;
+    etasigma0[i] = p.specific.s;
     Bulk0[i]     = p.hydro.Bulk;
     mini( shv0[i], p.hydro.shv );
 
