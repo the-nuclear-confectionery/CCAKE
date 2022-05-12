@@ -23,6 +23,24 @@ class FreezeOut
 
     double freeze_out_threshold = 0.0;  // units depend on what mode is used
 
+    // freeze out struct
+    struct FRZ
+    {
+      double t = 0.0, s = 0.0, e = 0.0, rhoB = 0.0, rhoS = 0.0, rhoQ = 0.0,
+             T = 0.0, muB = 0.0, muS = 0.0, muQ = 0.0, theta = 0.0, bulk = 0.0,
+             sigma = 0.0, shear33 = 0.0, inside = 0.0;
+      Vector<double,2> r, u, gradP;
+      Matrix<double,3,3> shear;
+    };
+
+    vector<FRZ> frz1;
+    vector<FRZ> frz2;
+    vector<FRZ> fback;
+    vector<FRZ> fback2;
+    vector<FRZ> fback3;
+    vector<FRZ> fback4;
+
+
   public:
 
     void set_EquationOfStatePtr(EquationOfState * eosPtr_in) { eosPtr = eosPtr_in; }
@@ -40,6 +58,20 @@ class FreezeOut
         cerr << "This freeze out mode is not supported.  Please try a different one.\n";
         exit(8);
       }
+
+      if ( systemPtr == nullptr )
+      {
+        cerr << "You need to provide the location of the SystemState object.\n";
+        exit(8);
+      }
+
+      // resize vectors to contain all particles
+      frz1.resize( systemPtr->particles.size() );
+      frz2.resize( systemPtr->particles.size() );
+      fback.resize( systemPtr->particles.size() );
+      fback2.resize( systemPtr->particles.size() );
+      fback3.resize( systemPtr->particles.size() );
+      fback4.resize( systemPtr->particles.size() );
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -55,23 +87,24 @@ class FreezeOut
         systemPtr->frzc  = 1;
         for (auto & p : systemPtr->particles)
         {
-          p.frz2.r       = p.r;
-          p.frz2.u       = p.hydro.u;
-          p.frz2.sigma   = p.hydro.sigma;
-          p.frz2.T       = p.T();
-          p.frz2.muB     = p.muB();
-          p.frz2.muS     = p.muS();
-          p.frz2.muQ     = p.muQ();
-          p.frz2.e       = p.e();
-          p.frz2.rhoB    = p.rhoB();
-          p.frz2.rhoS    = p.rhoS();
-          p.frz2.rhoQ    = p.rhoQ();
-          p.frz2.bulk    = p.hydro.bigPI;
-          p.frz2.theta   = p.hydro.div_u + p.hydro.gamma/systemPtr->t;
-          p.frz2.gradP   = p.hydro.gradP;
-          p.frz2.shear   = p.hydro.shv;
-          p.frz2.shear33 = p.hydro.shv33;
-          p.frz2.inside  = p.hydro.inside;
+          auto & p_frz2  = frz2[p.ID];
+          p_frz2.r       = p.r;
+          p_frz2.u       = p.hydro.u;
+          p_frz2.sigma   = p.hydro.sigma;
+          p_frz2.T       = p.T();
+          p_frz2.muB     = p.muB();
+          p_frz2.muS     = p.muS();
+          p_frz2.muQ     = p.muQ();
+          p_frz2.e       = p.e();
+          p_frz2.rhoB    = p.rhoB();
+          p_frz2.rhoS    = p.rhoS();
+          p_frz2.rhoQ    = p.rhoQ();
+          p_frz2.bulk    = p.hydro.bigPI;
+          p_frz2.theta   = p.hydro.div_u + p.hydro.gamma/systemPtr->t;
+          p_frz2.gradP   = p.hydro.gradP;
+          p_frz2.shear   = p.hydro.shv;
+          p_frz2.shear33 = p.hydro.shv33;
+          p_frz2.inside  = p.hydro.inside;
         }
 
       }
@@ -81,23 +114,24 @@ class FreezeOut
         systemPtr->frzc = 2;
         for (auto & p : systemPtr->particles)
         {
-          p.frz1.r       = p.r;
-          p.frz1.u       = p.hydro.u;
-          p.frz1.sigma   = p.hydro.sigma;
-          p.frz1.T       = p.T();
-          p.frz1.muB     = p.muB();
-          p.frz1.muS     = p.muS();
-          p.frz1.muQ     = p.muQ();
-          p.frz1.e       = p.e();
-          p.frz1.rhoB    = p.rhoB();
-          p.frz1.rhoS    = p.rhoS();
-          p.frz1.rhoQ    = p.rhoQ();
-          p.frz1.bulk    = p.hydro.bigPI;
-          p.frz1.theta   = p.hydro.div_u + p.hydro.gamma/systemPtr->t;
-          p.frz1.gradP   = p.hydro.gradP;
-          p.frz1.shear   = p.hydro.shv;
-          p.frz1.shear33 = p.hydro.shv33;
-          p.frz1.inside  = p.hydro.inside;
+          auto & p_frz1  = frz1[p.ID];
+          p_frz1.r       = p.r;
+          p_frz1.u       = p.hydro.u;
+          p_frz1.sigma   = p.hydro.sigma;
+          p_frz1.T       = p.T();
+          p_frz1.muB     = p.muB();
+          p_frz1.muS     = p.muS();
+          p_frz1.muQ     = p.muQ();
+          p_frz1.e       = p.e();
+          p_frz1.rhoB    = p.rhoB();
+          p_frz1.rhoS    = p.rhoS();
+          p_frz1.rhoQ    = p.rhoQ();
+          p_frz1.bulk    = p.hydro.bigPI;
+          p_frz1.theta   = p.hydro.div_u + p.hydro.gamma/systemPtr->t;
+          p_frz1.gradP   = p.hydro.gradP;
+          p_frz1.shear   = p.hydro.shv;
+          p_frz1.shear33 = p.hydro.shv33;
+          p_frz1.inside  = p.hydro.inside;
         }
 
         systemPtr->divTtemp.resize( curfrz );
@@ -125,22 +159,25 @@ class FreezeOut
           {
             if ( ( p.btrack <= 3 ) && ( p.btrack > 0 ) )
             {
-              p.fback4 = p.fback2;
-              p.fback3 = p.fback;
-              p.fback2 = p.frz2;
-              p.fback  = p.frz1;
+              int p_ID = p.ID;
+              fback4[p_ID] = fback2[p_ID];
+              fback3[p_ID] = fback[p_ID];
+              fback2[p_ID] = frz2[p_ID];
+              fback[p_ID]  = frz1[p_ID];
             }
             else if ( p.btrack == 0 )
             {
               if ( p.fback.gradP(0) != 0 )
               {
-                p.frz2 = p.fback2;
-                p.frz1 = p.fback;
+                int p_ID = p.ID;
+                frz2[p_ID] = fback2[p_ID];
+                frz1[p_ID] = fback[p_ID];
               }
               else
               {
-                p.frz2 = p.fback4;
-                p.frz1 = p.fback3;
+                int p_ID = p.ID;
+                frz2[p_ID] = fback4[p_ID];
+                frz1[p_ID] = fback3[p_ID];
                 cout << "back second"  << endl;
               }
 
@@ -178,25 +215,27 @@ class FreezeOut
         //sets up the variables for the next time step
         for (auto & p : systemPtr->particles)
         {
-          p.frz2         = p.frz1;
+          auto & p_frz1  = frz1[p.ID];
+          auto & p_frz2  = frz2[p.ID];
+          p_frz2         = p_frz1;
 
-          p.frz1.r       = p.r;
-          p.frz1.u       = p.hydro.u;
-          p.frz1.sigma   = p.hydro.sigma;
-          p.frz1.T       = p.T();
-          p.frz1.muB     = p.muB();
-          p.frz1.muS     = p.muS();
-          p.frz1.muQ     = p.muQ();
-          p.frz1.e       = p.e();
-          p.frz1.rhoB    = p.rhoB();
-          p.frz1.rhoS    = p.rhoS();
-          p.frz1.rhoQ    = p.rhoQ();
-          p.frz1.bulk    = p.hydro.bigPI ;
-          p.frz1.theta   = p.hydro.div_u+p.hydro.gamma/systemPtr->t;
-          p.frz1.gradP   = p.hydro.gradP;
-          p.frz1.shear   = p.hydro.shv;
-          p.frz1.shear33 = p.hydro.shv33;
-          p.frz1.inside  = p.hydro.inside;
+          p_frz1.r       = p.r;
+          p_frz1.u       = p.hydro.u;
+          p_frz1.sigma   = p.hydro.sigma;
+          p_frz1.T       = p.T();
+          p_frz1.muB     = p.muB();
+          p_frz1.muS     = p.muS();
+          p_frz1.muQ     = p.muQ();
+          p_frz1.e       = p.e();
+          p_frz1.rhoB    = p.rhoB();
+          p_frz1.rhoS    = p.rhoS();
+          p_frz1.rhoQ    = p.rhoQ();
+          p_frz1.bulk    = p.hydro.bigPI ;
+          p_frz1.theta   = p.hydro.div_u+p.hydro.gamma/systemPtr->t;
+          p_frz1.gradP   = p.hydro.gradP;
+          p_frz1.shear   = p.hydro.shv;
+          p_frz1.shear33 = p.hydro.shv33;
+          p_frz1.inside  = p.hydro.inside;
         }
 
         systemPtr->taupp = systemPtr->taup;
@@ -219,7 +258,7 @@ class FreezeOut
         auto & p = systemPtr->particles[i];
 
         int swit = 0;
-        if ( abs( p.frz1.e - systemPtr->efcheck ) < abs( p.frz2.e - systemPtr->efcheck ) )
+        if ( abs( frz1[i].e - systemPtr->efcheck ) < abs( frz2[i].e - systemPtr->efcheck ) )
           swit   = 1;
         else
           swit   = 2;
@@ -233,17 +272,17 @@ class FreezeOut
           else
             systemPtr->tlist[j]    = systemPtr->taup - systemPtr->dt;
 
-          systemPtr->rsub[j]       = p.frz1.r;
-          systemPtr->uout[j]       = p.frz1.u;
-          systemPtr->bulksub[j]    = p.frz1.bulk;
-          systemPtr->shearsub[j]   = p.frz1.shear;
-          systemPtr->shear33sub[j] = p.frz1.shear33;
+          systemPtr->rsub[j]       = frz1[i].r;
+          systemPtr->uout[j]       = frz1[i].u;
+          systemPtr->bulksub[j]    = frz1[i].bulk;
+          systemPtr->shearsub[j]   = frz1[i].shear;
+          systemPtr->shear33sub[j] = frz1[i].shear33;
 
-          gradPsub      = p.frz1.gradP;
-          inside        = p.frz1.inside;
-          sigsub        = p.frz1.sigma;
-          thetasub      = p.frz1.theta;
-          systemPtr->Tfluc[j]      = p.frz1.T;             // replace with e
+          gradPsub      = frz1[i].gradP;
+          inside        = frz1[i].inside;
+          sigsub        = frz1[i].sigma;
+          thetasub      = frz1[i].theta;
+          systemPtr->Tfluc[j]      = frz1[i].T;             // replace with e
         }
         else if ( swit == 2 )
         {
@@ -252,17 +291,17 @@ class FreezeOut
           else
             systemPtr->tlist[j]    = systemPtr->taupp - systemPtr->dt;
 
-          systemPtr->rsub[j]       = p.frz2.r;
-          systemPtr->uout[j]       = p.frz2.u;
-          systemPtr->bulksub[j]    = p.frz2.bulk;
-          systemPtr->shearsub[j]   = p.frz2.shear;
-          systemPtr->shear33sub[j] = p.frz2.shear33;
+          systemPtr->rsub[j]       = frz2[i].r;
+          systemPtr->uout[j]       = frz2[i].u;
+          systemPtr->bulksub[j]    = frz2[i].bulk;
+          systemPtr->shearsub[j]   = frz2[i].shear;
+          systemPtr->shear33sub[j] = frz2[i].shear33;
 
-          gradPsub      = p.frz2.gradP;
-          inside        = p.frz2.inside;
-          sigsub        = p.frz2.sigma;
-          thetasub      = p.frz2.theta;
-          systemPtr->Tfluc[j]      = p.frz2.T;           // replace with e
+          gradPsub      = frz2[i].gradP;
+          inside        = frz2[i].inside;
+          sigsub        = frz2[i].sigma;
+          thetasub      = frz2[i].theta;
+          systemPtr->Tfluc[j]      = frz2[i].T;           // replace with e
         }
         else
         {
@@ -295,8 +334,8 @@ class FreezeOut
           cout << systemPtr->divTtemp[j] << " " << systemPtr->divT[j] << " " << norm << endl;
           cout << gradPsub << " " << thetasub << endl;
           cout << systemPtr->tlist[j] << " " << p.r << endl;
-          cout << p.frz1.gradP << " " << p.frz2.gradP << endl;
-          cout << p.frz1.T*197.3<< " " << p.frz2.T*197.3 << endl;
+          cout << frz1[i].gradP << " " << frz2[i].gradP << endl;
+          cout << frz1[i].T*197.3<< " " << frz2[i].T*197.3 << endl;
           getchar();
         }
 
@@ -310,7 +349,7 @@ class FreezeOut
           cout << systemPtr->bulksub[j] << endl;
           cout << systemPtr->gsub[j] << endl;
           cout << systemPtr->tlist[j] << " " << p.r << endl;
-          cout << p.frz1.T*0.1973<< " " << p.frz2.T*0.1973<< endl;
+          cout << frz1[i].T*0.1973<< " " << frz2[i].T*0.1973<< endl;
         }
 
         systemPtr->sFO[j]   *= pow(systemPtr->Tfluc[j]*0.1973, 3);
@@ -325,13 +364,13 @@ class FreezeOut
     //==============================================================================
     void frzcheck( Particle & p, double tin, int &count, int N )
     {
-
+      int p_ID = p.ID;
       if ( p.Freeze == 0 )
       {
         if ( p.e() <= p.efcheck )
         {
           p.Freeze = 1;
-          p.frz2.t = tin;
+          frz2[p_ID].t = tin;
         }
       }
       else if ( p.Freeze == 1 )
@@ -340,18 +379,18 @@ class FreezeOut
         {
           count += 1;
           p.Freeze = 3;
-          p.frz1.t = tin;
+          frz1[p_ID].t = tin;
         }
-        else if ( p.e()>p.frz1.e )
+        else if ( p.e()>frz1[p_ID].e )
         {
           p.Freeze = 1;
-          p.frz2.t = tin;
+          frz2[p_ID].t = tin;
         }
         else if( p.e() <= p.efcheck )
         {
           count += 1;
           p.Freeze = 3;
-          p.frz1.t = tin;
+          frz1[p_ID].t = tin;
         }
         else
         {
