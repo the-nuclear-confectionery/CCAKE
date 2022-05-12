@@ -385,7 +385,7 @@ void InputOutput::print_system_state()
           << p.smoothed.s/(p.hydro.gamma*systemPtr->t) << " "
           << p.specific.s << " "
           << p.hydro.sigma << " " 
-          << p.sigmaweight << " "
+          << p.norm_spec.s << " "
           << p.hydro.stauRelax << " " 
           << p.hydro.bigtheta << "       "  //20
           << sqrt(     p.hydro.shv(0,0)*p.hydro.shv(0,0)

@@ -106,7 +106,7 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 
     p.hydro.gamma = p.gamcalc();
 
-    p.sigmaweight *= p.input.s*p.hydro.gamma*settingsPtr->t0;	  // sigmaweight is constant after this
+    p.norm_spec.s *= p.input.s*p.hydro.gamma*settingsPtr->t0;	  // norm_spec.s is constant after this
     p.rhoB_weight *= p.hydro.gamma*settingsPtr->t0; // rhoB_weight is constant after this
     p.rhoS_weight *= p.hydro.gamma*settingsPtr->t0; // rhoS_weight is constant after this
     p.rhoQ_weight *= p.hydro.gamma*settingsPtr->t0; // rhoQ_weight is constant after this
@@ -207,8 +207,8 @@ void SPHWorkstation::smooth_fields(Particle & pa)
     auto & pb       = systemPtr->particles[b];
 
     double kern     = kernel::kernel( pa.r - pb.r, settingsPtr->h );
-    pa.hydro.sigma += pb.sigmaweight*kern;
-    pa.smoothed.s         += pb.sigmaweight*pb.specific.s*kern;
+    pa.hydro.sigma += pb.norm_spec.s*kern;
+    pa.smoothed.s         += pb.norm_spec.s*pb.specific.s*kern;
     pa.smoothed.rhoB    += pb.B*kern;
     pa.smoothed.rhoS    += pb.S*kern;
     pa.smoothed.rhoQ    += pb.Q*kern;
@@ -223,7 +223,7 @@ void SPHWorkstation::smooth_fields(Particle & pa)
                 << "   " << pa.hydro.sigma
                 << "   " << pa.smoothed.s
                 << "   " << pb.r
-                << "   " << pb.sigmaweight
+                << "   " << pb.norm_spec.s
                 << "   " << pb.specific.s
                 << "   " << pb.input.rhoB
                 << "   " << pa.smoothed.rhoB
@@ -282,7 +282,7 @@ void SPHWorkstation::smooth_gradients( Particle & pa, double tin )
 
     double sigsqra           = 1.0/(pa.hydro.sigma*pa.hydro.sigma);
     double sigsqrb           = 1.0/(pb.hydro.sigma*pb.hydro.sigma);
-    Vector<double,2> sigsigK = pb.sigmaweight * pa.hydro.sigma * gradK;
+    Vector<double,2> sigsigK = pb.norm_spec.s * pa.hydro.sigma * gradK;
 
     pa.hydro.gradP                += ( sigsqrb*pb.p() + sigsqra*pa.p() ) * sigsigK;
 
@@ -307,13 +307,13 @@ void SPHWorkstation::smooth_gradients( Particle & pa, double tin )
 
     pa.hydro.gradBulk             += ( pb.hydro.Bulk/pb.hydro.sigma/pb.hydro.gamma
                                   + pa.hydro.Bulk/pa.hydro.sigma/pa.hydro.gamma)/tin*sigsigK;
-    pa.hydro.gradV                += (pb.sigmaweight/pa.hydro.sigma)*( pb.hydro.v -  pa.hydro.v )*gradK;
+    pa.hydro.gradV                += (pb.norm_spec.s/pa.hydro.sigma)*( pb.hydro.v -  pa.hydro.v )*gradK;
 
     //===============
     // print status
     if ( VERBOSE > 2 && pa.print_this_particle )
         std::cout << "CHECK gradV: " << tin << "   " << a << "   " << b << "   "
-                  << pb.sigmaweight/pa.hydro.sigma << "   " << pb.hydro.v -  pa.hydro.v
+                  << pb.norm_spec.s/pa.hydro.sigma << "   " << pb.hydro.v -  pa.hydro.v
                   << "   " << gradK << "   " << pa.hydro.gradV << "\n";
 
     //===============
@@ -331,7 +331,7 @@ void SPHWorkstation::smooth_gradients( Particle & pa, double tin )
     {
       cout << "gradP stopped working" << endl;
       cout << systemPtr->t <<" "  << pa.hydro.gradP << " " << a << " " << b << endl;
-      cout << pb.sigmaweight << " " << pa.hydro.sigma << " " << pb.p() << endl;
+      cout << pb.norm_spec.s << " " << pa.hydro.sigma << " " << pb.p() << endl;
       cout << systemPtr->linklist.Size << " " << pb.s() << " " << pa.s() << endl;
 
       cout << pa.r << endl;
@@ -429,7 +429,7 @@ void SPHWorkstation::process_initial_conditions()
 		//p.u(0)          = 0.0;  // flow must be set in Particle constructor!!!
 		//p.u(1)          = 0.0;  // flow must be set in Particle constructor!!!
 		p.specific.s       = 1.0;
-		p.sigmaweight     = dA;
+		p.norm_spec.s     = dA;
 		p.rhoB_weight     = dA;
 		p.rhoS_weight     = dA;
 		p.rhoQ_weight     = dA;
@@ -950,7 +950,7 @@ double SPHWorkstation::gradPressure_weight(const int a, const int b)
 
   if ( innerp > 0.0 || a == b ) innerp = 0.0;
 
-  return pb.sigmaweight * pa.hydro.sigma
+  return pb.norm_spec.s * pa.hydro.sigma
         * ( pb.p() / (pb.hydro.sigma*pb.hydro.sigma)
           + pa.p() / (pa.hydro.sigma*pb.hydro.sigma) - innerp );
 }

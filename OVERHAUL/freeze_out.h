@@ -274,7 +274,7 @@ class FreezeOut
 
 
         sigsub      /= systemPtr->gsub[j]*systemPtr->tlist[j];
-        systemPtr->swsub[j]     = p.sigmaweight/sigsub;
+        systemPtr->swsub[j]     = p.norm_spec.s/sigsub;
 
         systemPtr->divT[j]      = (1.0/systemPtr->sFO[j])*gradPsub;
         systemPtr->divTtemp[j]  = -(1.0/(systemPtr->gsub[j]*systemPtr->sFO[j]))

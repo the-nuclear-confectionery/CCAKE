@@ -82,7 +82,7 @@ void SystemState::conservation_entropy()
 {
   S = 0.0;
   for ( auto & p : particles )
-    S += p.specific.s*p.sigmaweight;
+    S += p.specific.s*p.norm_spec.s;
 
   if (linklist.first==1) S0 = S;
 }
@@ -130,7 +130,7 @@ void SystemState::conservation_energy()
     {
       p.contribution_to_total_E
          = ( p.hydro.C*p.hydro.g2 - p.p() - p.hydro.bigPI + p.hydro.shv(0,0) )
-           * p.sigmaweight * t / p.hydro.sigma;
+           * p.norm_spec.s * t / p.hydro.sigma;
       E += p.contribution_to_total_E;
     }
 
@@ -159,7 +159,7 @@ void SystemState::conservation_energy()
   {
     p.contribution_to_total_dEz
          = ( p.p() + p.hydro.bigPI + p.hydro.shv33*t2 )
-           * p.sigmaweight / p.hydro.sigma;
+           * p.norm_spec.s / p.hydro.sigma;
     dEz += p.contribution_to_total_dEz;
   }
 

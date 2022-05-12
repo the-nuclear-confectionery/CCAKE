@@ -74,12 +74,11 @@ class Particle
     //                         Fluid Variables                                //
     ////////////////////////////////////////////////////////////////////////////
 
-//    double eta_sigma       = 0.0; // Ratio entropy/especific volume
     double B               = 0.0; // Baryon per particle
     double S               = 0.0; // Net strangeness per particle
     double Q               = 0.0; // Electric charge per particle
 
-    double sigmaweight     = 0.0; // specific volume per particle (times s_an)
+//    double sigmaweight     = 0.0; // specific volume per particle (times s_an)
     double rhoB_weight     = 0.0; // specific volume per particle (without rhoB_an)
     double rhoS_weight     = 0.0; // specific volume per particle (without rhoS_an)
     double rhoQ_weight     = 0.0; // specific volume per particle (without rhoQ_an)
