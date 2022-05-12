@@ -155,11 +155,11 @@ class FreezeOut
         int i_local = 0;
         for (auto & p : systemPtr->particles)
         {
+          int p_ID = p.ID;
           if ( p.Freeze < 4 )
           {
             if ( ( p.btrack <= 3 ) && ( p.btrack > 0 ) )
             {
-              int p_ID = p.ID;
               fback4[p_ID] = fback2[p_ID];
               fback3[p_ID] = fback[p_ID];
               fback2[p_ID] = frz2[p_ID];
@@ -167,15 +167,13 @@ class FreezeOut
             }
             else if ( p.btrack == 0 )
             {
-              if ( p.fback.gradP(0) != 0 )
+              if ( fback[p_ID].gradP(0) != 0 )
               {
-                int p_ID = p.ID;
                 frz2[p_ID] = fback2[p_ID];
                 frz1[p_ID] = fback[p_ID];
               }
               else
               {
-                int p_ID = p.ID;
                 frz2[p_ID] = fback4[p_ID];
                 frz1[p_ID] = fback3[p_ID];
                 cout << "back second"  << endl;
