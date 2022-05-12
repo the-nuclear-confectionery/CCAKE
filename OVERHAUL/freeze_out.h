@@ -5,6 +5,10 @@
 #include <string>
 #include <vector>
 
+#include "eos.h"
+#include "particle.h"
+#include "system_state.h"
+
 using std::string;
 
 class FreezeOut
