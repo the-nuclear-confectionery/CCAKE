@@ -77,8 +77,14 @@ public:
 
   // functions to apply action to all particles
   void smooth_all_particle_fields()
-        { for ( auto & p : systemPtr->particles )
-            smooth_fields(p); }
+        { Stopwatch sw;
+          sw.Start();
+          for ( auto & p : systemPtr->particles )
+            smooth_fields(p);
+          sw.Stop();
+          cout << "t=" << systemPtr->t << ": finished " << __FUNCTION__ << " in " << sw.printTime()
+              << " s using " << omp_get_num_threads() << " threads.\n";
+        }
 
   void smooth_all_particle_gradients()
         {
@@ -88,7 +94,7 @@ public:
           for ( auto & p : systemPtr->particles )
             smooth_gradients( p, systemPtr->t );
           sw.Stop();
-          cout << "t=" << systemPtr->t << ": finished in " << sw.printTime()
+          cout << "t=" << systemPtr->t << ": finished " << __FUNCTION__ << " in " << sw.printTime()
               << " s using " << omp_get_num_threads() << " threads.\n";
         }
 
