@@ -106,14 +106,10 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 
     p.hydro.gamma = p.gamcalc();
 
-    p.norm_spec.s    *= p.input.s*p.hydro.gamma*settingsPtr->t0;	  // norm_spec.s is constant after this
-    p.norm_spec.rhoB *= p.hydro.gamma*settingsPtr->t0; // constant after this
-    p.norm_spec.rhoS *= p.hydro.gamma*settingsPtr->t0; // constant after this
-    p.norm_spec.rhoQ *= p.hydro.gamma*settingsPtr->t0; // constant after this
-
-		p.specific.rhoB  *= p.hydro.gamma*settingsPtr->t0;	// B does not evolve in ideal case
-		p.specific.rhoS  *= p.hydro.gamma*settingsPtr->t0;	// S does not evolve in ideal case
-		p.specific.rhoQ  *= p.hydro.gamma*settingsPtr->t0;	// Q does not evolve in ideal case
+    p.norm_spec.s    *= p.input.s*p.hydro.gamma*settingsPtr->t0;	  // constant after this
+    p.norm_spec.rhoB *= p.input.rhoB*p.hydro.gamma*settingsPtr->t0; // constant after this
+    p.norm_spec.rhoS *= p.input.rhoS*p.hydro.gamma*settingsPtr->t0; // constant after this
+    p.norm_spec.rhoQ *= p.input.rhoQ*p.hydro.gamma*settingsPtr->t0; // constant after this
 
 	cout << "----------------------------------------"
 			"----------------------------------------" << "\n";
@@ -194,8 +190,8 @@ void SPHWorkstation::smooth_fields(Particle & pa)
 {
   int a = pa.ID;
 
-  pa.hydro.sigma     = 0.0;
-  pa.smoothed.s             = 0.0;
+  pa.hydro.sigma          = 0.0;
+  pa.smoothed.s           = 0.0;
   pa.smoothed.rhoB        = 0.0;
   pa.smoothed.rhoS        = 0.0;
   pa.smoothed.rhoQ        = 0.0;
@@ -207,11 +203,11 @@ void SPHWorkstation::smooth_fields(Particle & pa)
     auto & pb       = systemPtr->particles[b];
 
     double kern     = kernel::kernel( pa.r - pb.r, settingsPtr->h );
-    pa.hydro.sigma += pb.norm_spec.s*kern;
-    pa.smoothed.s         += pb.norm_spec.s*pb.specific.s*kern;
-    pa.smoothed.rhoB    += pb.specific.rhoB*kern;
-    pa.smoothed.rhoS    += pb.specific.rhoS*kern;
-    pa.smoothed.rhoQ    += pb.specific.rhoQ*kern;
+    pa.hydro.sigma   += pb.norm_spec.s    * kern;
+    pa.smoothed.s    += pb.norm_spec.s    * pb.specific.s    * kern;
+    pa.smoothed.rhoB += pb.norm_spec.rhoB * pb.specific.rhoB * kern;
+    pa.smoothed.rhoS += pb.norm_spec.rhoS * pb.specific.rhoS * kern;
+    pa.smoothed.rhoQ += pb.norm_spec.rhoQ * pb.specific.rhoQ * kern;
 
     //===============
     // print status
@@ -432,11 +428,13 @@ void SPHWorkstation::process_initial_conditions()
 		//p.u(0)          = 0.0;  // flow must be set in Particle constructor!!!
 		//p.u(1)          = 0.0;  // flow must be set in Particle constructor!!!
 
-		p.specific.s       = 1.0;
-		p.specific.rhoB   = p.input.rhoB*dA;
-		p.specific.rhoS   = p.input.rhoS*dA;
-		p.specific.rhoQ   = p.input.rhoQ*dA;
+    // normalize all specific densities to 1
+		p.specific.s      = 1.0;
+		p.specific.rhoB   = 1.0;
+		p.specific.rhoS   = 1.0;
+		p.specific.rhoQ   = 1.0;
 
+    // normalization of each density include transverse area element dA
 		p.norm_spec.s     = dA;
 		p.norm_spec.rhoB  = dA;
 		p.norm_spec.rhoS  = dA;

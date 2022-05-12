@@ -51,19 +51,24 @@ class Particle
     densities input     = {}; // these densities are read in initially and
                               // have physical units ~1/fm^3;
                               // entropy component previously called "s_an"
+                              //================================================
     densities smoothed  = {}; // these are the smoothed (propagated) densities
                               // which have units ~/1/fm^2;
                               // entropy component previously called "eta"
+                              //================================================
     densities specific  = {}; // these are the densities "per particle" which
                               // are effectively dimensionless;
                               // entropy component previously called "eta_sigma"
+                              //================================================
     densities d_dt_spec = {}; // these are the TIME DERIVATIVES of the specific
                               // densities above;
                               // entropy component previously called "detasigma_dt"
+                              //================================================
     densities norm_spec = {}; // gives the normalizations of each of the
                               // specific densities above, can choose different
                               // values for different densities by convenience;
                               // entropy component previously called "sigmaweight"
+                              //================================================
 
     // structs for hydrodynamic and thermodynamic information
     hydrodynamic_info  hydro  = {};
