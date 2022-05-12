@@ -21,13 +21,12 @@ public:
   
   double step = 0.0;
   double t0 = 0.0;
-//  double t = 0.0;
   double dt = 0.0;
   double stepx = 0.0;
   double stepy = 0.0; // initial grid coordinate spacings
-  double stepr = 0.0;
-  double stepphi = 0.0;
-  double _h = 0.0;
+//  double stepr = 0.0;
+//  double stepphi = 0.0;
+  double h = 0.0;
   double Freeze_Out_Temperature = 0.0;
 
   double factor = 0.0;
@@ -35,8 +34,8 @@ public:
   double efcheck = 0.0;
   double sfcheck = 0.0;
 
-  double E1 = 0.0;
-  double E2 = 0.0;
+//  double E1 = 0.0;
+//  double E2 = 0.0;
 
 /********************************************************************************/
 
@@ -63,10 +62,10 @@ public:
 
   /* STRINGS */
 
-  string eos_s = "";
-  string eos_p = "";
-  string ebe_folder = "";
-  string eost = "";
+//  string eos_s = "";
+//  string eos_p = "";
+//  string ebe_folder = "";
+//  string eost = "";
   string IC_type = ""; // specify initial condition type
   string IC_option = ""; // specify option for given initial condition type
   string IC_file = ""; // specify option for given initial condition type
