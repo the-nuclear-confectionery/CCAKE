@@ -104,7 +104,7 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 			cout << "\t\t - freeze-out status:   " << p.Freeze << "\n";
 		}
 
-    p.hydro.gamma=p.gamcalc();
+    p.hydro.gamma = p.gamcalc();
 
     p.sigmaweight *= p.s_an*p.hydro.gamma*settingsPtr->t0;	  // sigmaweight is constant after this
     p.rhoB_weight *= p.hydro.gamma*settingsPtr->t0; // rhoB_weight is constant after this

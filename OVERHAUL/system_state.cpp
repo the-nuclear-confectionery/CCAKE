@@ -34,43 +34,20 @@ void SystemState::set_SettingsPtr(Settings * settingsPtr_in)
 ////////////////////////////////////////////////////////////////////////////////
 void SystemState::initialize()  // formerly called "manualenter"
 {
-  int start, end;
-  int df;
-
-  cout << __PRETTY_FUNCTION__ << ": " << endl;
-  _n = particles.size();
-
-  cout << "_n = " << _n << endl;
-
-  t = settingsPtr->t0;
-
-  cout << "t = " << t << endl;
-
-  _h = settingsPtr->_h;
-
-  // set viscosities (this will have to change when bringing in transport
-  // coefficients class)
-  // (probably add if statement to check if they're constants or variable)
-  std::cout << "settingsPtr->etaOption = " << settingsPtr->etaOption << std::endl;
-  std::cout << "settingsPtr->zetaOption = " << settingsPtr->zetaOption << std::endl;
-  svf = stod(settingsPtr->etaOption);
-  bvf = stod(settingsPtr->zetaOption);
+  n_particles = particles.size();
+  t           = settingsPtr->t0;
+  h           = settingsPtr->h;
 
   std::cout << "FO temp. = " << settingsPtr->Freeze_Out_Temperature << " 1/fm\n";
   std::cout << "efcheck = " << efcheck*hbarc_GeVfm << " GeV/fm^3\n";
   std::cout << "sfcheck = " << sfcheck << " 1/fm^3\n";
 
-//  freezeoutT = settingsPtr->Freeze_Out_Temperature;
-
-
   // initialize information for particles
   for (auto & p : particles)
   {
     p.set_SettingsPtr( settingsPtr );
-//    p.freezeoutT = freezeoutT;
     p.efcheck = efcheck;
   }
-
 
   return;
 }
@@ -82,14 +59,12 @@ void SystemState::initialize_linklist()
   cout << "Initial conditions type: " << settingsPtr->IC_type << endl;
 
   // initialize linklist
-  linklist.initialize( &particles, settingsPtr->_h );
+  linklist.initialize( &particles, settingsPtr->h );
 
   // this should be moved
+  // use a lambda function for convenience
   for (auto & p : particles)
-  {
-    double gg = p.gamcalc();
-    p.hydro.g2      = gg*gg;
-  }
+    p.hydro.g2 = [](double x){ return x*x; }( p.gamcalc() );
 
   return;
 }
@@ -192,21 +167,20 @@ void SystemState::conservation_energy()
 
 
 
-///////////////////////////////////////////////////////////////////////////////
+//==============================================================================
+// this routine is used to initialize quantities prior to RK evolution
 void SystemState::set_current_timestep_quantities()
 {
-  N = _n;
+  etasigma0.resize(n_particles);
+  Bulk0.resize(n_particles);
+  particles_E0.resize(n_particles);
 
-  etasigma0.resize(N);
-  Bulk0.resize(N);
-  particles_E0.resize(N);
+  u0.resize(n_particles);
+  r0.resize(n_particles);
 
-  u0.resize(N);
-  r0.resize(N);
+  shv0.resize(n_particles);
 
-  shv0.resize(N);
-
-  for (int i=0; i<N; ++i)
+  for (int i = 0; i < n_particles; ++i)
   {
     auto & p = particles[i];
 

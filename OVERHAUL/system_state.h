@@ -33,26 +33,19 @@ class SystemState
     void set_EquationOfStatePtr( EquationOfState * eosPtr_in );
     void set_SettingsPtr( Settings * settingsPtr_in );
 
-    //void compute_Knudsen_numbers();
-    //void compute_inverse_Reynolds_numbers();
-    //void compute_spatial_eccentricities( const vector<int> & orders );
-    //void compute_momentum_eccentricities( const vector<int> & orders );
-    //double entropytotal;
-
-
     /* DOUBLES */
-    double _h      = 0.0;
-    double t       = 0.0;
-    double dt      = 0.0;
+    double h          = 0.0;
+    double t          = 0.0;
+    double dt         = 0.0;
 
-    double S       = 0.0;
-    double S0      = 0.0;
-    double Btotal  = 0.0;
-    double Btotal0 = 0.0;
-    double Stotal  = 0.0;
-    double Stotal0 = 0.0;
-    double Qtotal  = 0.0;
-    double Qtotal0 = 0.0;
+    double S          = 0.0;
+    double S0         = 0.0;
+    double Btotal     = 0.0;
+    double Btotal0    = 0.0;
+    double Stotal     = 0.0;
+    double Stotal0    = 0.0;
+    double Qtotal     = 0.0;
+    double Qtotal0    = 0.0;
 
     double E          = 0.0;
     double Ez         = 0.0;
@@ -63,17 +56,12 @@ class SystemState
 
     double efcheck    = 0.0;
     double sfcheck    = 0.0;
-    double bvf        = 0.0;
-    double svf        = 0.0;
 
    /* INTS */
     int number_part = 0;
-    int _n          = 0;
-    int N           = 0;
+    int n_particles = 0;
     int rk2         = 0;
-
-//    int visc     = 4; // HARDCODED FOR NOW
-    int cfon     = 1;
+    int cfon        = 1;
 
 
   private:
@@ -87,9 +75,10 @@ class SystemState
     // the linklist specifying nearest neighbors
     LinkList linklist; 
 
+    // used to track when a particle fails to find a solution in any EoS
     vector<int> particles_out_of_grid;
 
-    // creating vectors of vectors of the derivatives at each step
+    // creating vectors of quantities for RK evolution
     vector<double> etasigma0;
     vector<double> Bulk0;
     vector<double> particles_E0;
@@ -103,7 +92,8 @@ class SystemState
 
 
 
-
+    //==========================================================================
+    // MOVE TO THEIR OWN CLASS???
     // freeze-out related quantities
     int cf            = 0;
     int frzc          = 0;
@@ -127,7 +117,8 @@ class SystemState
     vector< Vector<double,2> > rsub;
     vector< Vector<double,2> > uout;
     vector< Matrix<double,3,3> > shearsub;
-    
+    //==========================================================================    
+
 
   public:
     // initialize system state, linklist, etc.
@@ -139,7 +130,7 @@ class SystemState
     void conservation_energy();
     void conservation_BSQ();
 
-    int n(){ return _n; }
+    int n(){ return n_particles; }
     double get_particle_T(int id) {return particles[id].T();}
     double get_particle_Freeze(int id) {return particles[id].Freeze;}
     int get_frozen_out_count()
