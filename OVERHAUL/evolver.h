@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 
+#include "eos.h"
 #include "particle.h"
 #include "system_state.h"
 
@@ -43,7 +44,8 @@ class Evolver
 
 
     //==========================================================================
-    void advance_timestep_rk2( double dt )
+    void advance_timestep_rk2( double dt, std::function<void(void)>
+                                          time_derivatives_functional )
     {
       systemPtr->rk2 = 1;
       double t0      = systemPtr->t;
@@ -57,7 +59,7 @@ class Evolver
       ////////////////////////////////////////////
 
       // compute derivatives
-      get_time_derivatives();
+      time_derivatives_functional();
 
       // update quantities
       {
@@ -77,10 +79,10 @@ class Evolver
             p.contribution_to_total_Ez = systemPtr->particles_E0[i]
                                           + 0.5*dt*p.contribution_to_total_dEz;
 
-            // regulate updated results if necessary
-            if ( REGULATE_LOW_T && p.specific.s < 0.0
-                  && p.T() < 50.0/constants::hbarc_MeVfm )
-              p.specific.s    = systemPtr->etasigma0[i];
+//            // regulate updated results if necessary
+//            if ( REGULATE_LOW_T && p.specific.s < 0.0
+//                  && p.T() < 50.0/constants::hbarc_MeVfm )
+//              p.specific.s    = systemPtr->etasigma0[i];
           }
         }
       }
@@ -93,7 +95,7 @@ class Evolver
       ////////////////////////////////////////////
 
       // compute derivatives
-      get_time_derivatives();
+      time_derivatives_functional();
 
       // update quantities
       {
@@ -117,10 +119,10 @@ class Evolver
     //      << systemPtr->particles_E0[i] << "   "
     //      << p.contribution_to_total_E << endl;
 
-            // regulate updated results if necessary
-            if ( REGULATE_LOW_T && p.specific.s < 0.0
-                  && p.T() < 50.0/constants::hbarc_MeVfm )
-              p.specific.s    = systemPtr->etasigma0[i];
+//            // regulate updated results if necessary
+//            if ( REGULATE_LOW_T && p.specific.s < 0.0
+//                  && p.T() < 50.0/constants::hbarc_MeVfm )
+//              p.specific.s    = systemPtr->etasigma0[i];
           }
         }
       }
@@ -134,7 +136,8 @@ class Evolver
 
 
     //==========================================================================
-    void advance_timestep_rk4( double dt )
+    void advance_timestep_rk4( double dt, std::function<void(void)>
+                                          time_derivatives_functional )
     {
       // define a local struct just to help with the RK evolution here
       struct particle_state_RK4
@@ -165,7 +168,7 @@ class Evolver
       ////////////////////////////////////////////
 
       // compute derivatives
-      get_time_derivatives();
+      time_derivatives_functional();
 
       for (int i = 0; i < number_of_particles; i++)
       {
@@ -187,10 +190,10 @@ class Evolver
         ph.Bulk      = systemPtr->Bulk0[i]     + 0.5*ps.b1;
         tmini(ph.shv,  systemPtr->shv0[i]      + 0.5*ps.shv1);
 
-        // regulate updated results if necessary
-        if ( REGULATE_LOW_T && p.specific.s < 0.0
-              && p.T() < 50.0/constants::hbarc_MeVfm )
-          p.specific.s    = systemPtr->etasigma0[i];
+//        // regulate updated results if necessary
+//        if ( REGULATE_LOW_T && p.specific.s < 0.0
+//              && p.T() < 50.0/constants::hbarc_MeVfm )
+//          p.specific.s    = systemPtr->etasigma0[i];
       }
 
       E1           = dt*systemPtr->dEz;
@@ -201,7 +204,7 @@ class Evolver
       ////////////////////////////////////////////
 
       systemPtr->t = t0 + 0.5*dt;
-      get_time_derivatives();
+      time_derivatives_functional();
 
       for (int i = 0; i < number_of_particles; i++)
       {
@@ -221,10 +224,10 @@ class Evolver
         ph.Bulk      = systemPtr->Bulk0[i]     + 0.5*ps.b2;
         tmini(ph.shv,  systemPtr->shv0[i]      + 0.5*ps.shv2);
 
-        // regulate updated results if necessary
-        if ( REGULATE_LOW_T && p.specific.s < 0.0
-              && p.T() < 50.0/constants::hbarc_MeVfm )
-          p.specific.s    = systemPtr->etasigma0[i];
+//        // regulate updated results if necessary
+//        if ( REGULATE_LOW_T && p.specific.s < 0.0
+//              && p.T() < 50.0/constants::hbarc_MeVfm )
+//          p.specific.s    = systemPtr->etasigma0[i];
       }
 
       E2           = dt*systemPtr->dEz;
@@ -234,7 +237,7 @@ class Evolver
       //    third step
       ////////////////////////////////////////////
 
-      get_time_derivatives();
+      time_derivatives_functional();
 
       for (int i = 0; i < number_of_particles; i++)
       {
@@ -255,10 +258,10 @@ class Evolver
         ph.Bulk      = systemPtr->Bulk0[i]     + ps.b3;
         tmini(ph.shv,  systemPtr->shv0[i]      + ps.shv3);
 
-        // regulate updated results if necessary
-        if ( REGULATE_LOW_T && p.specific.s < 0.0
-              && p.T() < 50.0/constants::hbarc_MeVfm )
-          p.specific.s    = systemPtr->etasigma0[i];
+//        // regulate updated results if necessary
+//        if ( REGULATE_LOW_T && p.specific.s < 0.0
+//              && p.T() < 50.0/constants::hbarc_MeVfm )
+//          p.specific.s    = systemPtr->etasigma0[i];
       }
 
       E3           = dt*systemPtr->dEz;
@@ -268,7 +271,7 @@ class Evolver
       ////////////////////////////////////////////
 
       systemPtr->t = t0 + dt;
-      get_time_derivatives();
+      time_derivatives_functional();
 
       constexpr double w1 = 1.0/6.0, w2 = 1.0/3.0;
       for (int i = 0; i < number_of_particles; i++)
@@ -290,10 +293,10 @@ class Evolver
         ph.Bulk      = systemPtr->Bulk0[i]      + w1*ps.b1   + w2*ps.b2   + w2*ps.b3   + w1*ps.b4;
         tmini(ph.shv,  systemPtr->shv0[i]       + w1*ps.shv1 + w2*ps.shv2 + w2*ps.shv3 + w1*ps.shv4);
 
-        // regulate updated results if necessary
-        if ( REGULATE_LOW_T && p.specific.s < 0.0
-              && p.T() < 50.0/constants::hbarc_MeVfm )
-          p.specific.s    = systemPtr->etasigma0[i];
+//        // regulate updated results if necessary
+//        if ( REGULATE_LOW_T && p.specific.s < 0.0
+//              && p.T() < 50.0/constants::hbarc_MeVfm )
+//          p.specific.s    = systemPtr->etasigma0[i];
       }
 
       E4            = dt*systemPtr->dEz;
