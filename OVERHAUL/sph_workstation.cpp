@@ -194,57 +194,47 @@ void SPHWorkstation::smooth_fields(Particle & pa)
 {
   int a = pa.ID;
 
-  pa.hydro.sigma           = 0.0;
+  pa.hydro.sigma     = 0.0;
   pa.eta             = 0.0;
   pa.rhoB_sub        = 0.0;
   pa.rhoS_sub        = 0.0;
   pa.rhoQ_sub        = 0.0;
-  //int neighbor_count = 0;
 
-  Vector<int,2> i;
-  for ( i(0) = -2; i(0) <= 2; i(0)++ )
-  for ( i(1) = -2; i(1) <= 2; i(1)++ )
+  auto & a_neighbors = systemPtr->linklist.all_neighbors[a];
+
+  for ( int b : a_neighbors )
   {
-    int b = systemPtr->linklist.lead[
-              systemPtr->linklist.indexer(
-                systemPtr->linklist.dael[a] + i,
-                  systemPtr->linklist.size ) ];
-    while ( b != -1 )
-    {
-      const auto & pb = systemPtr->particles[b];
-      double kern     = kernel::kernel( pa.r - pb.r, settingsPtr->h );
-      pa.hydro.sigma       += pb.sigmaweight*kern;
-      pa.eta         += pb.sigmaweight*pb.eta_sigma*kern;
-      pa.rhoB_sub    += pb.B*kern;
-      pa.rhoS_sub    += pb.S*kern;
-      pa.rhoQ_sub    += pb.Q*kern;
+    auto & pb       = systemPtr->particles[b];
 
-      //if (kern>0.0) neighbor_count++;
+    double kern     = kernel::kernel( pa.r - pb.r, settingsPtr->h );
+    pa.hydro.sigma += pb.sigmaweight*kern;
+    pa.eta         += pb.sigmaweight*pb.eta_sigma*kern;
+    pa.rhoB_sub    += pb.B*kern;
+    pa.rhoS_sub    += pb.S*kern;
+    pa.rhoQ_sub    += pb.Q*kern;
 
-      //===============
-      // print status
-      if ( ( VERBOSE > 2
-              && settingsPtr->particles_to_print.size() > 0
-              && settingsPtr->print_particle(a) )
-            || pa.eta < 0 || isnan( pa.eta ) )
-        std::cout << __FUNCTION__ << "(SPH particle == " << a << "): "
-                  << systemPtr->t << "   "
-                  << b << "   " << pa.r
-                  << "   " << pa.hydro.sigma
-                  << "   " << pa.eta
-                  << "   " << pb.r
-                  << "   " << pb.sigmaweight
-                  << "   " << pb.eta_sigma
-                  << "   " << pb.rhoB_an
-                  << "   " << pa.rhoB_sub
-                  << "   " << pb.rhoS_an
-                  << "   " << pa.rhoS_sub
-                  << "   " << pb.rhoQ_an
-                  << "   " << pa.rhoQ_sub
-                  << "   " << kern << "\n";
+    //===============
+    // print status
+    if ( ( VERBOSE > 2
+            && settingsPtr->particles_to_print.size() > 0
+            && settingsPtr->print_particle(a) )
+          || pa.eta < 0 || isnan( pa.eta ) )
+      std::cout << __FUNCTION__ << "(SPH particle == " << a << "): "
+                << systemPtr->t << "   "
+                << b << "   " << pa.r
+                << "   " << pa.hydro.sigma
+                << "   " << pa.eta
+                << "   " << pb.r
+                << "   " << pb.sigmaweight
+                << "   " << pb.eta_sigma
+                << "   " << pb.rhoB_an
+                << "   " << pa.rhoB_sub
+                << "   " << pb.rhoS_an
+                << "   " << pa.rhoS_sub
+                << "   " << pb.rhoQ_an
+                << "   " << pa.rhoQ_sub
+                << "   " << kern << "\n";
 
-      b = systemPtr->linklist.link[b];
-    }
   }
 
   // check if particle has gone nan or negative entropy
