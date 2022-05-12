@@ -80,16 +80,6 @@ class SystemState
     // used to track when a particle fails to find a solution in any EoS
     vector<int> particles_out_of_grid;
 
-    // creating vectors of quantities for RK evolution
-    vector<double> etasigma0;
-    vector<double> Bulk0;
-    vector<double> particles_E0;
-
-    vector< Vector<double,2> > u0;
-    vector< Vector<double,2> > r0;
-
-    vector< Matrix <double,2,2> > shv0;
-
     vector<int> list;
 
 

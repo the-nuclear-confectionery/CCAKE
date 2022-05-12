@@ -18,6 +18,16 @@ class Evolver
     Settings * settingsPtr    = nullptr;
     SystemState * systemPtr   = nullptr;
 
+    // creating vectors of quantities for RK evolution
+    vector<double> etasigma0;
+    vector<double> Bulk0;
+    vector<double> particles_E0;
+
+    vector< Vector<double,2> > u0;
+    vector< Vector<double,2> > r0;
+
+    vector< Matrix <double,2,2> > shv0;
+
   public:
 
     void set_SettingsPtr(Settings * settingsPtr_in) { settingsPtr = settingsPtr_in; }
@@ -105,7 +115,7 @@ class Evolver
           if ( p.Freeze < 5 )
           {
             ph.u            = systemPtr->u0[i]        + 0.5*dt*ph.du_dt;
-            p.specific.s    = systemPtr->etasigma0[i] + 0.5*dt*p.d_dt_specific.s;
+            p.specific.s    = systemPtr->etasigma0[i] + 0.5*dt*p.d_dt_spec.s;
             ph.Bulk         = systemPtr->Bulk0[i]     + 0.5*dt*ph.dBulk_dt;
             tmini( ph.shv,    systemPtr->shv0[i]      + 0.5*dt*ph.dshv_dt );
 
@@ -141,7 +151,7 @@ class Evolver
           if ( p.Freeze < 5 )
           {
             ph.u            = systemPtr->u0[i]        + dt*ph.du_dt;
-            p.specific.s    = systemPtr->etasigma0[i] + dt*p.d_dt_specific.s;
+            p.specific.s    = systemPtr->etasigma0[i] + dt*p.d_dt_spec.s;
             ph.Bulk         = systemPtr->Bulk0[i]     + dt*ph.dBulk_dt;
             tmini( ph.shv,    systemPtr->shv0[i]      + dt*ph.dshv_dt );
 
@@ -212,7 +222,7 @@ class Evolver
         // store increments
         ps.k1        = dt*ph.du_dt;
         ps.r1        = dt*ph.v;
-        ps.ets1      = dt*p.d_dt_specific.s;
+        ps.ets1      = dt*p.d_dt_spec.s;
         ps.b1        = dt*ph.dBulk_dt;
         ps.shv1      = dt*ph.dshv_dt;
 
@@ -247,7 +257,7 @@ class Evolver
 
         ps.k2        = dt*ph.du_dt;
         ps.r2        = dt*ph.v;
-        ps.ets2      = dt*p.d_dt_specific.s;
+        ps.ets2      = dt*p.d_dt_spec.s;
         ps.b2        = dt*ph.dBulk_dt;
         ps.shv2      = dt*ph.dshv_dt;
 
@@ -280,7 +290,7 @@ class Evolver
 
         ps.k3        = dt*ph.du_dt;
         ps.r3        = dt*ph.v;
-        ps.ets3      = dt*p.d_dt_specific.s;
+        ps.ets3      = dt*p.d_dt_spec.s;
         ps.b3        = dt*ph.dBulk_dt;
         ps.shv3      = dt*ph.dshv_dt;
 
@@ -315,7 +325,7 @@ class Evolver
 
         ps.k4        = dt*ph.du_dt;
         ps.r4        = dt*ph.v;
-        ps.ets4      = dt*p.d_dt_specific.s;
+        ps.ets4      = dt*p.d_dt_spec.s;
         ps.b4        = dt*ph.dBulk_dt;
         ps.shv4      = dt*ph.dshv_dt;
 
