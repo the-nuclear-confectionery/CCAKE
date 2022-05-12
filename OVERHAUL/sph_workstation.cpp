@@ -469,12 +469,8 @@ void SPHWorkstation::process_initial_conditions()
     systemPtr->particles[i].ID = i;
 
   // set particles to print
-//  settingsPtr->is_printable.resize( systemPtr->particles.size(), false );
   for ( int & p : settingsPtr->particles_to_print )
-  {
-//    settingsPtr->is_printable[ p ] = true;
     systemPtr->particles[p].print_this_particle = true;
-  }
 }
 
 
@@ -553,7 +549,6 @@ void SPHWorkstation::advance_timestep_rk2( double dt )
         if ( REGULATE_LOW_T && p.eta_sigma < 0.0
               && p.T() < 50.0/constants::hbarc_MeVfm )
           p.eta_sigma    = systemPtr->etasigma0[i];
-        //if ( 0.5*dt*p.detasigma_dt > 10.0*systemPtr->etasigma0[i]
       }
     }
   }
