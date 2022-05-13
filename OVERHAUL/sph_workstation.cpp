@@ -175,8 +175,8 @@ void SPHWorkstation::initial_smoothing()
 		double smoothed_rhoQ_lab = p.smoothed.rhoQ/p.hydro.gamma/settingsPtr->t0;
 
     // UNCOMMENT THIS AND DOCUMENT OUTPUT AS REFERENCE
-//    locate_phase_diagram_point_sBSQ( p, smoothed_s_lab, smoothed_rhoB_lab,
-//                                      smoothed_rhoS_lab, smoothed_rhoQ_lab );
+    locate_phase_diagram_point_sBSQ( p, smoothed_s_lab, smoothed_rhoB_lab,
+                                      smoothed_rhoS_lab, smoothed_rhoQ_lab );
 
 		fo.frzcheck(p, settingsPtr->t0, count1, systemPtr->n_particles);
 	}
