@@ -8,8 +8,8 @@ CC = h5c++
 DEBUG=-g
 STANDARD= -std=c++11
 WARNINGS= -w -Wall -Wextra -pedantic -Wno-conversion -Wcast-align -Wunused -Wshadow -Wpointer-arith
-OPTIMIZATION= -Og
-#OPTIMIZATION= -Ofast -s -march=native -mtune=native
+#OPTIMIZATION= -Og
+OPTIMIZATION= -Ofast -s -march=native -mtune=native
 # change to -O3 or -Ofast for production
 EIGENPATH=$(realpath ../eigen)
 GSLPATH=/projects/jnorhos/local/include
