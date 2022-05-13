@@ -11,6 +11,28 @@
 
 using std::string;
 
+//==============================================================================
+// A DICTIONARY FOR CONFUSINGLY NAMED QUANTITIES
+//------------------------------------------------------------------------------
+// cfon   - whether to do FO this timestep (only done once per dt)
+// tau    - current tau
+// taup   - tau of previous timestep
+// taupp  - tau of two timesteps ago
+// curfrz - number of particles currently in process of freezing out
+// Freeze - current freeze out status of particle (0 == freeze-out not begun,
+//                                                 1 == freeze-out begun,
+//                                                 3 == freeze-out basically done,
+//                                                 4 == completely frozen out)
+// frz1   - snapshot of particle state at taup
+// frz2   - snapshot of particle state at taupp
+// fback1 - snapshot of particle state at taup
+// fback2 - snapshot of particle state at taupp
+// fback3 - snapshot of particle state at tauppp(?)
+// fback4 - snapshot of particle state at taupppp(?)
+// cf     - basically the same as curfrz
+// btrack - essentially counts the number of nearest neighbors a particle has
+//==============================================================================
+
 class FreezeOut
 {
   private:
@@ -74,6 +96,60 @@ class FreezeOut
       fback4.resize( systemPtr->particles.size() );
     }
 
+
+
+
+
+
+
+
+    //==============================================================================
+    void frzcheck( Particle & p, double tin, int &count, int N )
+    {
+      int p_ID = p.ID;
+      if ( p.Freeze == 0 )              // if particle has not yet started freezing out
+      {
+        if ( p.e() <= p.efcheck )       //  * if it's energy is below eFO
+        {
+          p.Freeze = 1;                 //    - start freeze-out
+          frz2[p_ID].t = tin;           //    - note the time as the most distant
+        }
+      }
+      else if ( p.Freeze == 1 )         // otherwise, if freeze-out has begun
+      {
+        if ( p.btrack == -1 )           //  * if particle has no neighbors
+        {
+          count += 1;                   //    - increment currently freezing out count
+          p.Freeze = 3;                 //    - set Freeze = 3
+          frz1[p_ID].t = tin;           //    - note the time as previous
+        }
+        else if ( p.e()>frz1[p_ID].e )  //  * otherwise, if the particle's energy
+        {                               //    has increased since the previous timestep
+          p.Freeze = 1;                 //    - keep Freeze = 1
+          frz2[p_ID].t = tin;           //    - set penultimate time
+        }
+        else if( p.e() <= p.efcheck )   //  * otherwise, if e is below eFO
+        {
+          count += 1;                   //    - increment currently freezing out count
+          p.Freeze = 3;                 //    - set Freeze = 3
+          frz1[p_ID].t = tin;           //    - note the time as previous
+        }
+        else                            //  * otherwise,
+        {
+          p.Freeze=0;                   //    - particle is not ready to freeze-out
+        }
+      }
+
+    }
+
+
+
+
+
+
+
+
+
     ////////////////////////////////////////////////////////////////////////////
     void bsqsvfreezeout(int curfrz)
     {
@@ -81,7 +157,7 @@ class FreezeOut
             << "   " << systemPtr->tau << "   " << systemPtr->taup
             << "   " << systemPtr->taupp << "   " << systemPtr->cfon << endl;
 
-      if (systemPtr->frzc==0)
+      if (systemPtr->frzc==0) // true in first timestep only
       {
         systemPtr->taupp = systemPtr->t;
         systemPtr->frzc  = 1;
@@ -108,7 +184,7 @@ class FreezeOut
         }
 
       }
-      else if (systemPtr->frzc==1)
+      else if (systemPtr->frzc==1) // true in second timestep only
       {
         systemPtr->taup = systemPtr->t;
         systemPtr->frzc = 2;
@@ -150,40 +226,42 @@ class FreezeOut
         else
           systemPtr->cf = 0;
       }
-      else
+      else // true in third timestep and afterward
       {
         int i_local = 0;
         for (auto & p : systemPtr->particles)
         {
           int p_ID = p.ID;
-          if ( p.Freeze < 4 )
+          if ( p.Freeze < 4 )                             // particle not fully frozen out
           {
-            if ( ( p.btrack <= 3 ) && ( p.btrack > 0 ) )
+            if ( ( p.btrack <= 3 ) && ( p.btrack > 0 ) )  // particle has 1-3 nearest neighbors
             {
-              fback4[p_ID] = fback2[p_ID];
-              fback3[p_ID] = fback[p_ID];
-              fback2[p_ID] = frz2[p_ID];
-              fback[p_ID]  = frz1[p_ID];
+              fback4[p_ID] = fback2[p_ID];                // shift particle snapshots
+              fback3[p_ID] = fback[p_ID];                 // at two past timesteps
+              fback2[p_ID] = frz2[p_ID];                  // back another two timesteps
+              fback[p_ID]  = frz1[p_ID];                  // (thus saving four previous
+                                                          //  timesteps in total)
             }
-            else if ( p.btrack == 0 )
+            else if ( p.btrack == 0 )                     // particle has NO nearest neighbors
             {
-              if ( fback[p_ID].gradP(0) != 0 )
-              {
-                frz2[p_ID] = fback2[p_ID];
-                frz1[p_ID] = fback[p_ID];
+              if ( fback[p_ID].gradP(0) != 0 )            // if particle still had neighbors
+              {                                           // at the previous timestep,
+                frz2[p_ID] = fback2[p_ID];                // REUSE last two timesteps
+                frz1[p_ID] = fback[p_ID];                 // for freeze out interpolation
               }
               else
               {
-                frz2[p_ID] = fback4[p_ID];
-                frz1[p_ID] = fback3[p_ID];
-                cout << "back second"  << endl;
-              }
+                frz2[p_ID] = fback4[p_ID];                // if particle did NOT still
+                frz1[p_ID] = fback3[p_ID];                // have neighbors at previous
+                cout << "back second"  << endl;           // timestep, RECYCLE 3-4 timesteps ago
+              }                                           // for freeze out interpolation
 
-
-              curfrz++;
-              systemPtr->list.push_back( i_local );
-              p.Freeze = 4;
-              p.btrack = -1;
+              //================================================================
+              // !!!! N.B.: CURFRZ IS NOT ACTUALLY INCREMENTED HERE WITHOUT & ABOVE !!!!
+              curfrz++;                                   // freeze-out the particle out
+              systemPtr->list.push_back( i_local );       // list stores currently freezing
+              p.Freeze = 4;                               // out particle indices
+              p.btrack = -1;                              // don't let it "freeze in"?
             }
           }
 
@@ -215,7 +293,7 @@ class FreezeOut
         {
           auto & p_frz1  = frz1[p.ID];
           auto & p_frz2  = frz2[p.ID];
-          p_frz2         = p_frz1;
+          p_frz2         = p_frz1;  // reset snapshots appropriately
 
           p_frz1.r       = p.r;
           p_frz1.u       = p.hydro.u;
@@ -244,17 +322,27 @@ class FreezeOut
     }
 
 
-    //////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+    //==========================================================================
+    // THIS FUNCTION APPLIES ONLY TO PARTICLES WHICH ARE CURRENTLY IN THE PROCESS
+    // OF FREEZING OUT
     void bsqsvinterpolate(int curfrz)
     {
       systemPtr->sFO.resize( curfrz, 0 );
       systemPtr->Tfluc.resize( curfrz, 0 );
 
+      // for all CURRENTLY FREEZING OUT PARTICLES
       for (int j=0; j<curfrz; j++)
       {
         int i    = systemPtr->list[j];
         auto & p = systemPtr->particles[i];
 
+        // decide whether the particle was closer to freeze out at the previous
+        // timestep or the one before that
         int swit = 0;
         if ( abs( frz1[i].e - systemPtr->efcheck ) < abs( frz2[i].e - systemPtr->efcheck ) )
           swit   = 1;
@@ -263,12 +351,12 @@ class FreezeOut
 
         double sigsub = 0.0, thetasub = 0.0, inside = 0.0;
         Vector<double,2> gradPsub;
-        if ( swit == 1 )
+        if ( swit == 1 )  // if particle was closer to freeze-out at last timestep
         {
-          if ( p.btrack != -1 )
-            systemPtr->tlist[j]    = systemPtr->taup;
-          else
-            systemPtr->tlist[j]    = systemPtr->taup - systemPtr->dt;
+//          if ( p.btrack != -1 )                                       // if particle had neighbors
+            systemPtr->tlist[j]    = systemPtr->taup;                 // at previous timestep
+//          else
+//            systemPtr->tlist[j]    = systemPtr->taup - systemPtr->dt; // otherwise, go back two timestep
 
           systemPtr->rsub[j]       = frz1[i].r;
           systemPtr->uout[j]       = frz1[i].u;
@@ -282,12 +370,12 @@ class FreezeOut
           thetasub      = frz1[i].theta;
           systemPtr->Tfluc[j]      = frz1[i].T;             // replace with e
         }
-        else if ( swit == 2 )
+        else if ( swit == 2 ) // if particle was closer to freeze-out two timesteps ago
         {
-          if ( p.btrack != -1 )
-            systemPtr->tlist[j]    = systemPtr->taupp;
-          else
-            systemPtr->tlist[j]    = systemPtr->taupp - systemPtr->dt;
+//          if ( p.btrack != -1 )                                         // if particle had neighbors
+            systemPtr->tlist[j]    = systemPtr->taupp;                  // two timesteps ago
+//          else
+//            systemPtr->tlist[j]    = systemPtr->taupp - systemPtr->dt;  // otherwise, go back three timesteps
 
           systemPtr->rsub[j]       = frz2[i].r;
           systemPtr->uout[j]       = frz2[i].u;
@@ -301,11 +389,13 @@ class FreezeOut
           thetasub      = frz2[i].theta;
           systemPtr->Tfluc[j]      = frz2[i].T;           // replace with e
         }
-        else
+        else  // this should never happen
         {
           cout << __PRETTY_FUNCTION__ << ": Not at freeze-out temperature" << endl;
         }
 
+
+        // COMPUTE NORMALS AFTER THIS POINT
         systemPtr->sFO[j]       = eosPtr->s_terms_T( systemPtr->Tfluc[j] );  // replace with e, BSQ
         systemPtr->gsub[j]      = sqrt( Norm2(systemPtr->uout[j]) + 1 );
 
@@ -356,46 +446,6 @@ class FreezeOut
       }
 
       systemPtr->cf = curfrz;
-    }
-
-
-    //==============================================================================
-    void frzcheck( Particle & p, double tin, int &count, int N )
-    {
-      int p_ID = p.ID;
-      if ( p.Freeze == 0 )
-      {
-        if ( p.e() <= p.efcheck )
-        {
-          p.Freeze = 1;
-          frz2[p_ID].t = tin;
-        }
-      }
-      else if ( p.Freeze == 1 )
-      {
-        if ( p.btrack == -1 )
-        {
-          count += 1;
-          p.Freeze = 3;
-          frz1[p_ID].t = tin;
-        }
-        else if ( p.e()>frz1[p_ID].e )
-        {
-          p.Freeze = 1;
-          frz2[p_ID].t = tin;
-        }
-        else if( p.e() <= p.efcheck )
-        {
-          count += 1;
-          p.Freeze = 3;
-          frz1[p_ID].t = tin;
-        }
-        else
-        {
-          p.Freeze=0;
-        }
-      }
-
     }
 
 

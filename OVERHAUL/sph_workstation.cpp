@@ -300,7 +300,7 @@ void SPHWorkstation::smooth_gradients( Particle & pa, double tin )
     double relative_distance_by_h = rel_sep_norm / settingsPtr->h;
     if ( ( relative_distance_by_h <= 2.0 ) && ( a != b ) )
     {
-      if ( pa.btrack != -1 ) pa.btrack++;
+      if ( pa.btrack != -1 ) pa.btrack++;                   // effectively counts nearest neighbors
       if ( pa.btrack ==  1 ) rdis = relative_distance_by_h;
     }
 
@@ -344,12 +344,12 @@ void SPHWorkstation::smooth_gradients( Particle & pa, double tin )
 
   const double hc = constants::hbarc_MeVfm;
 
-  if ( ( pa.btrack == 1 )
-            && ( ( pa.T()*hc ) >= 150 ) )
-    fo.frz2[pa.ID].t=tin;
-  else if ( ( pa.btrack == 0 )
-            && ( ( pa.T()*hc ) >= 150 )
-            && ( pa.Freeze < 4 ) )
+  if ( ( pa.btrack == 1 )                               // if particle a has only
+            && ( ( pa.T()*hc ) >= 150 ) )               // one nearest neighbor (and T>150),
+    fo.frz2[pa.ID].t=tin;                               // set penultimate timestep;
+  else if ( ( pa.btrack == 0 )                          // otherwise, if a has no nearest neighbors
+            && ( ( pa.T()*hc ) >= 150 )                 // but has T>150 and isn't frozen out,
+            && ( pa.Freeze < 4 ) )                      // just print this warning message
     cout << "Missed " << a << " " << tin << "  "
          << pa.T()*hc << " "
          << rdis << " " << systemPtr->cfon <<  endl;
