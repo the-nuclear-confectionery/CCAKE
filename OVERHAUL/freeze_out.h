@@ -366,7 +366,7 @@ class FreezeOut
       // for all CURRENTLY FREEZING OUT PARTICLES
       for (int j=0; j<curfrz; j++)
       {
-        int i    = list[j];
+        int i    = systemPtr->list[j];
         auto & p = systemPtr->particles[i];
 
         // decide whether the particle was closer to freeze out at the previous
