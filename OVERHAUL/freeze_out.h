@@ -85,13 +85,17 @@ class FreezeOut
 
 
     vector<FRZ> frz1;
-    vector<FRZ> frz2;
+//    vector<FRZ> frz2;
     vector<FRZ> fback;
     vector<FRZ> fback2;
     vector<FRZ> fback3;
     vector<FRZ> fback4;
 
   public:
+
+    // for some dumb reason, this needs to be public
+    // (must be accessed in system state)
+    vector<FRZ> frz2;
 
     void set_EquationOfStatePtr(EquationOfState * eosPtr_in) { eosPtr = eosPtr_in; }
     void set_SettingsPtr(Settings * settingsPtr_in) { settingsPtr = settingsPtr_in; }
