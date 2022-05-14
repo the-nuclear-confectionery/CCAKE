@@ -55,7 +55,34 @@ class FreezeOut
       Matrix<double,3,3> shear;
     };
 
-  public:
+
+    //==========================================================================
+    // MOVE TO THEIR OWN CLASS???
+    // freeze-out related quantities
+    int cf            = 0;
+    int frzc          = 0;
+    double avgetasig  = 0;
+    double cs2        = 0;
+    double tau        = 0;
+    double taup       = 0;
+    double taupp      = 0;
+    double wfz        = 0;
+
+    vector<double> divTtemp;
+    vector<double> gsub;
+    vector<double> bulksub;
+    vector<double> swsub;
+    vector<double> shear33sub;
+    vector<double> tlist;
+    vector<double> sFO;         //entropy at freezeout
+    vector<double> Tfluc;
+
+    vector< Vector<double,2> > divT;
+    vector< Vector<double,2> > rsub;
+    vector< Vector<double,2> > uout;
+    vector< Matrix<double,3,3> > shearsub;
+    //==========================================================================    
+
 
     vector<FRZ> frz1;
     vector<FRZ> frz2;
@@ -64,6 +91,7 @@ class FreezeOut
     vector<FRZ> fback3;
     vector<FRZ> fback4;
 
+  public:
 
     void set_EquationOfStatePtr(EquationOfState * eosPtr_in) { eosPtr = eosPtr_in; }
     void set_SettingsPtr(Settings * settingsPtr_in) { settingsPtr = settingsPtr_in; }
@@ -153,14 +181,14 @@ class FreezeOut
     ////////////////////////////////////////////////////////////////////////////
     void bsqsvfreezeout(int curfrz)
     {
-      cout << "CHECK BSQSVFREEZEOUT: " << systemPtr->frzc
-            << "   " << systemPtr->tau << "   " << systemPtr->taup
-            << "   " << systemPtr->taupp << "   " << systemPtr->cfon << endl;
+      cout << "CHECK BSQSVFREEZEOUT: " << frzc
+            << "   " << tau << "   " << taup
+            << "   " << taupp << "   " << systemPtr->cfon << endl;
 
-      if (systemPtr->frzc==0) // true in first timestep only
+      if (frzc==0) // true in first timestep only
       {
-        systemPtr->taupp = systemPtr->t;
-        systemPtr->frzc  = 1;
+        taupp = systemPtr->t;
+        frzc  = 1;
         for (auto & p : systemPtr->particles)
         {
           auto & p_frz2  = frz2[p.ID];
@@ -184,10 +212,10 @@ class FreezeOut
         }
 
       }
-      else if (systemPtr->frzc==1) // true in second timestep only
+      else if (frzc==1) // true in second timestep only
       {
-        systemPtr->taup = systemPtr->t;
-        systemPtr->frzc = 2;
+        taup = systemPtr->t;
+        frzc = 2;
         for (auto & p : systemPtr->particles)
         {
           auto & p_frz1  = frz1[p.ID];
@@ -210,21 +238,21 @@ class FreezeOut
           p_frz1.inside  = p.hydro.inside;
         }
 
-        systemPtr->divTtemp.resize( curfrz );
-        systemPtr->divT.resize( curfrz );
-        systemPtr->gsub.resize( curfrz );
-        systemPtr->uout.resize( curfrz );
-        systemPtr->swsub.resize( curfrz );
-        systemPtr->bulksub.resize( curfrz );
-        systemPtr->shearsub.resize( curfrz );
-        systemPtr->shear33sub.resize( curfrz );
-        systemPtr->tlist.resize( curfrz );
-        systemPtr->rsub.resize( curfrz );
+        divTtemp.resize( curfrz );
+        divT.resize( curfrz );
+        gsub.resize( curfrz );
+        uout.resize( curfrz );
+        swsub.resize( curfrz );
+        bulksub.resize( curfrz );
+        shearsub.resize( curfrz );
+        shear33sub.resize( curfrz );
+        tlist.resize( curfrz );
+        rsub.resize( curfrz );
 
         if ( curfrz > 0 )
           bsqsvinterpolate( curfrz );
         else
-          systemPtr->cf = 0;
+          cf = 0;
       }
       else // true in third timestep and afterward
       {
@@ -268,24 +296,24 @@ class FreezeOut
           i_local++;
         }
 
-        systemPtr->tau = systemPtr->t;
+        tau = systemPtr->t;
 
         // resize vectors
-        systemPtr->divTtemp.resize( curfrz );
-        systemPtr->divT.resize( curfrz );
-        systemPtr->gsub.resize( curfrz );
-        systemPtr->uout.resize( curfrz );
-        systemPtr->swsub.resize( curfrz );
-        systemPtr->bulksub.resize( curfrz );
-        systemPtr->shearsub.resize( curfrz );
-        systemPtr->shear33sub.resize( curfrz );
-        systemPtr->tlist.resize( curfrz );
-        systemPtr->rsub.resize( curfrz );
+        divTtemp.resize( curfrz );
+        divT.resize( curfrz );
+        gsub.resize( curfrz );
+        uout.resize( curfrz );
+        swsub.resize( curfrz );
+        bulksub.resize( curfrz );
+        shearsub.resize( curfrz );
+        shear33sub.resize( curfrz );
+        tlist.resize( curfrz );
+        rsub.resize( curfrz );
 
         if ( curfrz > 0 )
           bsqsvinterpolate( curfrz );
         else
-          systemPtr->cf = 0;
+          cf = 0;
 
 
         //sets up the variables for the next time step
@@ -314,8 +342,8 @@ class FreezeOut
           p_frz1.inside  = p.hydro.inside;
         }
 
-        systemPtr->taupp = systemPtr->taup;
-        systemPtr->taup  = systemPtr->tau;
+        taupp = taup;
+        taup  = tau;
       }
 
       systemPtr->cfon = 0;
@@ -332,13 +360,13 @@ class FreezeOut
     // OF FREEZING OUT
     void bsqsvinterpolate(int curfrz)
     {
-      systemPtr->sFO.resize( curfrz, 0 );
-      systemPtr->Tfluc.resize( curfrz, 0 );
+      sFO.resize( curfrz, 0 );
+      Tfluc.resize( curfrz, 0 );
 
       // for all CURRENTLY FREEZING OUT PARTICLES
       for (int j=0; j<curfrz; j++)
       {
-        int i    = systemPtr->list[j];
+        int i    = list[j];
         auto & p = systemPtr->particles[i];
 
         // decide whether the particle was closer to freeze out at the previous
@@ -354,40 +382,40 @@ class FreezeOut
         if ( swit == 1 )  // if particle was closer to freeze-out at last timestep
         {
 //          if ( p.btrack != -1 )                                       // if particle had neighbors
-            systemPtr->tlist[j]    = systemPtr->taup;                 // at previous timestep
+            tlist[j]    = taup;                 // at previous timestep
 //          else
-//            systemPtr->tlist[j]    = systemPtr->taup - systemPtr->dt; // otherwise, go back two timestep
+//            tlist[j]    = taup - systemPtr->dt; // otherwise, go back two timestep
 
-          systemPtr->rsub[j]       = frz1[i].r;
-          systemPtr->uout[j]       = frz1[i].u;
-          systemPtr->bulksub[j]    = frz1[i].bulk;
-          systemPtr->shearsub[j]   = frz1[i].shear;
-          systemPtr->shear33sub[j] = frz1[i].shear33;
+          rsub[j]       = frz1[i].r;
+          uout[j]       = frz1[i].u;
+          bulksub[j]    = frz1[i].bulk;
+          shearsub[j]   = frz1[i].shear;
+          shear33sub[j] = frz1[i].shear33;
 
           gradPsub      = frz1[i].gradP;
           inside        = frz1[i].inside;
           sigsub        = frz1[i].sigma;
           thetasub      = frz1[i].theta;
-          systemPtr->Tfluc[j]      = frz1[i].T;             // replace with e
+          Tfluc[j]      = frz1[i].T;             // replace with e
         }
         else if ( swit == 2 ) // if particle was closer to freeze-out two timesteps ago
         {
 //          if ( p.btrack != -1 )                                         // if particle had neighbors
-            systemPtr->tlist[j]    = systemPtr->taupp;                  // two timesteps ago
+            tlist[j]    = taupp;                  // two timesteps ago
 //          else
-//            systemPtr->tlist[j]    = systemPtr->taupp - systemPtr->dt;  // otherwise, go back three timesteps
+//            tlist[j]    = taupp - systemPtr->dt;  // otherwise, go back three timesteps
 
-          systemPtr->rsub[j]       = frz2[i].r;
-          systemPtr->uout[j]       = frz2[i].u;
-          systemPtr->bulksub[j]    = frz2[i].bulk;
-          systemPtr->shearsub[j]   = frz2[i].shear;
-          systemPtr->shear33sub[j] = frz2[i].shear33;
+          rsub[j]       = frz2[i].r;
+          uout[j]       = frz2[i].u;
+          bulksub[j]    = frz2[i].bulk;
+          shearsub[j]   = frz2[i].shear;
+          shear33sub[j] = frz2[i].shear33;
 
           gradPsub      = frz2[i].gradP;
           inside        = frz2[i].inside;
           sigsub        = frz2[i].sigma;
           thetasub      = frz2[i].theta;
-          systemPtr->Tfluc[j]      = frz2[i].T;           // replace with e
+          Tfluc[j]      = frz2[i].T;           // replace with e
         }
         else  // this should never happen
         {
@@ -396,56 +424,56 @@ class FreezeOut
 
 
         // COMPUTE NORMALS AFTER THIS POINT
-        systemPtr->sFO[j]       = eosPtr->s_terms_T( systemPtr->Tfluc[j] );  // replace with e, BSQ
-        systemPtr->gsub[j]      = sqrt( Norm2(systemPtr->uout[j]) + 1 );
+        sFO[j]       = eosPtr->s_terms_T( Tfluc[j] );  // replace with e, BSQ
+        gsub[j]      = sqrt( Norm2(uout[j]) + 1 );
 
 
-        sigsub      /= systemPtr->gsub[j]*systemPtr->tlist[j];
-        systemPtr->swsub[j]     = p.norm_spec.s/sigsub;
+        sigsub      /= gsub[j]*tlist[j];
+        swsub[j]     = p.norm_spec.s/sigsub;
 
-        systemPtr->divT[j]      = (1.0/systemPtr->sFO[j])*gradPsub;
-        systemPtr->divTtemp[j]  = -(1.0/(systemPtr->gsub[j]*systemPtr->sFO[j]))
-                          *( systemPtr->cs2 * (systemPtr->wfz+systemPtr->bulksub[j]) * thetasub
-                            - systemPtr->cs2*inside+inner(systemPtr->uout[j], gradPsub) );
+        divT[j]      = (1.0/sFO[j])*gradPsub;
+        divTtemp[j]  = -(1.0/(gsub[j]*sFO[j]))
+                          *( cs2 * (wfz+bulksub[j]) * thetasub
+                            - cs2*inside+inner(uout[j], gradPsub) );
     //THIS NEEDS TO BE RESET
 
 
-        double insub = systemPtr->divTtemp[j]*systemPtr->divTtemp[j] - Norm2(systemPtr->divT[j]);
+        double insub = divTtemp[j]*divTtemp[j] - Norm2(divT[j]);
         double norm  = -sqrt(abs(insub));
-        systemPtr->divTtemp[j] /= norm;
-        systemPtr->divT[j]      = (1.0/norm)*systemPtr->divT[j];
+        divTtemp[j] /= norm;
+        divT[j]      = (1.0/norm)*divT[j];
 
 
-        if ( systemPtr->divTtemp[j] == 1 )
+        if ( divTtemp[j] == 1 )
         {
           cout << "track sph=" << p.btrack << " " << i << endl;
-          cout << systemPtr->divTtemp[j] << " " << systemPtr->divT[j] << " " << norm << endl;
+          cout << divTtemp[j] << " " << divT[j] << " " << norm << endl;
           cout << gradPsub << " " << thetasub << endl;
-          cout << systemPtr->tlist[j] << " " << p.r << endl;
+          cout << tlist[j] << " " << p.r << endl;
           cout << frz1[i].gradP << " " << frz2[i].gradP << endl;
           cout << frz1[i].T*197.3<< " " << frz2[i].T*197.3 << endl;
           getchar();
         }
 
-        systemPtr->avgetasig += systemPtr->sFO[j]/sigsub;
+        avgetasig += sFO[j]/sigsub;
 
-        if(isnan(systemPtr->divTtemp[j]))
+        if(isnan(divTtemp[j]))
         {
           cout << "divtemp" << endl;
-          cout << systemPtr->divTtemp[j] << " " << systemPtr->divT[j] << " " << norm << endl;
+          cout << divTtemp[j] << " " << divT[j] << " " << norm << endl;
           cout << gradPsub << " " << thetasub << endl;
-          cout << systemPtr->bulksub[j] << endl;
-          cout << systemPtr->gsub[j] << endl;
-          cout << systemPtr->tlist[j] << " " << p.r << endl;
+          cout << bulksub[j] << endl;
+          cout << gsub[j] << endl;
+          cout << tlist[j] << " " << p.r << endl;
           cout << frz1[i].T*0.1973<< " " << frz2[i].T*0.1973<< endl;
         }
 
-        systemPtr->sFO[j]   *= pow(systemPtr->Tfluc[j]*0.1973, 3);
-        systemPtr->Tfluc[j] *= 0.1973;
+        sFO[j]   *= pow(Tfluc[j]*0.1973, 3);
+        Tfluc[j] *= 0.1973;
 
       }
 
-      systemPtr->cf = curfrz;
+      cf = curfrz;
     }
 
 
