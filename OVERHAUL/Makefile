@@ -39,12 +39,12 @@ export HDF5_LDFLAGS+=$(LDFLAGS)
 #	
 #target:	mkobjdir persephone
 
-mkobjdir:
-	-@mkdir -p $(OBJDIR)
-
 persephone: mkobjdir $(OBJS)
 	(cd $(EOSLIBPATH); make clean; make)
 	$(CC) -g $(OBJS) -o persephone $(LDFLAGS)
+
+mkobjdir:
+	-@mkdir -p $(OBJDIR)
 
 $(OBJDIR)/main.o: $(INCLUDE)/vector.h $(INCLUDE)/mathdef.h $(INCLUDE)/particle.h \
         $(INCLUDE)/eos.h $(INCLUDE)/input_output.h $(INCLUDE)/linklist.h \
