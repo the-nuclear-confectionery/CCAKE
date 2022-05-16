@@ -33,18 +33,16 @@ LDFLAGS = -L$(EOSLIBPATH) -lbsqeos -lm -lgsl -lgslcblas -lblas -lstdc++ \
 export OMP_NUM_THREADS=1
 export HDF5_LDFLAGS+=$(LDFLAGS)
 
-.PHONY:	all mkobjdir target
-
-all:
-	mkobjdir persephone
-	
-target:
-	mkobjdir persephone
+#.PHONY:	all mkobjdir target
+#
+#all:	mkobjdir persephone
+#	
+#target:	mkobjdir persephone
 
 mkobjdir:
 	-@mkdir -p $(OBJDIR)
 
-persephone: $(OBJS)
+persephone: mkobjdir $(OBJS)
 	(cd $(EOSLIBPATH); make clean; make)
 	$(CC) -g $(OBJS) -o persephone $(LDFLAGS)
 
