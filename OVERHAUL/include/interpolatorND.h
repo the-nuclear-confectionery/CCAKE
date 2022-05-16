@@ -76,6 +76,6 @@ class InterpolatorND
 
 };
 
-#include "interpolatorND.cpp"
+#include "../src/interpolatorND.cpp"
 
 #endif
