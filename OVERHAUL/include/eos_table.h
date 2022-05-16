@@ -8,8 +8,8 @@
 // functions calls to static EoS C library
 #include <lib.h>
 
-#include "eos_delaunay/eos_delaunay.h"
-#include "interpolatorND/interpolatorND.h"
+#include "eos_delaunay.h"
+#include "interpolatorND.h"
 #include "constants.h"
 #include "eos_base.h"
 #include "eos_header.h"

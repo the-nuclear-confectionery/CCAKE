@@ -20,7 +20,7 @@
 #include "../include/eos_nonconformal_extension.h"
 #include "../include/eos_table.h"
 #include "../include/eos_tanh_conformal.h"
-#include "../include/eos_delaunay/eos_delaunay.h"
+#include "../include/eos_delaunay.h"
 #include "../include/rootfinder.h"
 
 using namespace constants;
