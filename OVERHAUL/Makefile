@@ -33,7 +33,8 @@ LDFLAGS = -L$(EOSLIBPATH) -lbsqeos -lm -lgsl -lgslcblas -lblas -lstdc++ \
 export OMP_NUM_THREADS=1
 export HDF5_LDFLAGS+=$(LDFLAGS)
 
-mkdir -p $(OBJDIR)
+$(info $(shell mkdir -p $(OBJDIR)))
+
 
 $(OBJDIR)/persephone : $(OBJS)
 	(cd $(EOSLIBPATH); make clean; make)
