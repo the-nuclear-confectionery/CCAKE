@@ -129,8 +129,7 @@ class SystemState
     {
       int total_frz_out = 0;
       for ( auto & p : particles)
-        if (p.Freeze == 4 or p.Freeze == 5)
-          total_frz_out++;
+        if (p.Freeze == 4) total_frz_out++;
       return total_frz_out;
     }
 

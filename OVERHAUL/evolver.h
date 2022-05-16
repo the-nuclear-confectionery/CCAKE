@@ -116,21 +116,13 @@ class Evolver
           auto & ph   = p.hydro;
 
           p.r = r0[i] + 0.5*dt*ph.v;
-          if ( p.Freeze < 5 )
-          {
-            ph.u            = u0[i]          + 0.5*dt*ph.du_dt;
-            p.specific.s    = specific_s0[i] + 0.5*dt*p.d_dt_spec.s;
-            ph.Bulk         = Bulk0[i]       + 0.5*dt*ph.dBulk_dt;
-            tmini( ph.shv,    shv0[i]        + 0.5*dt*ph.dshv_dt );
+          ph.u            = u0[i]          + 0.5*dt*ph.du_dt;
+          p.specific.s    = specific_s0[i] + 0.5*dt*p.d_dt_spec.s;
+          ph.Bulk         = Bulk0[i]       + 0.5*dt*ph.dBulk_dt;
+          tmini( ph.shv,    shv0[i]        + 0.5*dt*ph.dshv_dt );
 
-            p.contribution_to_total_Ez = particles_E0[i]
-                                          + 0.5*dt*p.contribution_to_total_dEz;
-
-//            // regulate updated results if necessary
-//            if ( REGULATE_LOW_T && p.specific.s < 0.0
-//                  && p.T() < 50.0/constants::hbarc_MeVfm )
-//              p.specific.s    = systemPtr->specific_s0[i];
-          }
+          p.contribution_to_total_Ez = particles_E0[i]
+                                        + 0.5*dt*p.contribution_to_total_dEz;
         }
       }
 
@@ -152,8 +144,6 @@ class Evolver
           auto & ph   = p.hydro;
 
           p.r = r0[i] + dt*ph.v;
-          if ( p.Freeze < 5 )
-          {
             ph.u            = u0[i]          + dt*ph.du_dt;
             p.specific.s    = specific_s0[i] + dt*p.d_dt_spec.s;
             ph.Bulk         = Bulk0[i]       + dt*ph.dBulk_dt;
@@ -162,15 +152,10 @@ class Evolver
             p.contribution_to_total_Ez = particles_E0[i]
                                           + dt*p.contribution_to_total_dEz;
 
-    //cout << "CHECK energies: " << i << "   " << t0+dt << "   " << p.r << "   " << p.e() << "   "
+    //cout << "CHECK energies: " << i << "   " << t0+dt << "   "
+    //      << p.r << "   " << p.e() << "   "
     //      << particles_E0[i] << "   "
     //      << p.contribution_to_total_E << endl;
-
-//            // regulate updated results if necessary
-//            if ( REGULATE_LOW_T && p.specific.s < 0.0
-//                  && p.T() < 50.0/constants::hbarc_MeVfm )
-//              p.specific.s    = systemPtr->specific_s0[i];
-          }
         }
       }
 

@@ -76,9 +76,7 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 			// freeze this particle out!
       cout << "This shouldn't have happened!" << endl;
       exit(8);
-			p.Freeze = 5;
-			//p.Freeze = 4;
-			//systemPtr->number_part++;
+			p.Freeze = 4;
 			////////////////////////////////////////////////////////
 		}
 		else
@@ -519,18 +517,6 @@ void SPHWorkstation::finalize_freeze_out(int curfrz)
 {
   if (systemPtr->cfon==1)
     fo.bsqsvfreezeout( curfrz );
-
-
-  // keep track of which particles have left EoS grid completely
-  // (reset list at end of each timestep)
-  systemPtr->particles_out_of_grid.clear();
-  for ( auto & p : systemPtr->particles )
-    if ( p.Freeze == 5 )
-      systemPtr->particles_out_of_grid.push_back( p.ID );
-
-  std::cout << "Summary at t = " << systemPtr->t << ": "
-        << systemPtr->particles_out_of_grid.size()
-        << " particles have gone out of the EoS grid." << std::endl;
 }
 
 
@@ -587,25 +573,17 @@ void SPHWorkstation::get_time_derivatives()
 double SPHWorkstation::locate_phase_diagram_point_eBSQ( Particle & p,
                  double e_In, double rhoB_In, double rhoS_In, double rhoQ_In )
 {
-  double current_sVal = p.s();
-  if ( p.Freeze == 5 )
-    return current_sVal;
-  else
-  {
-    // default: use particle's current location as initial guess (pass in corresponding EoS as well!)
-    eos.tbqs( p.T(), p.muB(), p.muQ(), p.muS(), p.get_current_eos_name() );
-    bool solution_found = false;
-    double sVal = eos.s_out( e_In, rhoB_In, rhoS_In, rhoQ_In, solution_found );
+  // default: use particle's current location as initial guess
+  // (pass in corresponding EoS as well!)
+  eos.tbqs( p.T(), p.muB(), p.muQ(), p.muS(), p.get_current_eos_name() );
 
-    // save results if either default or conformal EoS returned a result
-    // (assumes latter always succeeds)
-    if ( solution_found )
-      eos.set_thermo( p.thermo );
-    else
-      p.Freeze = 5; // new label for (totally decoupled) particles which go outside grid
+  bool solution_found = false;
+  double sVal = eos.s_out( e_In, rhoB_In, rhoS_In, rhoQ_In, solution_found );
 
-    return sVal;
-  }
+  if ( solution_found )
+    eos.set_thermo( p.thermo );
+
+  return sVal;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -621,17 +599,14 @@ double SPHWorkstation::locate_phase_diagram_point_eBSQ(Particle & p, double e_In
 void SPHWorkstation::locate_phase_diagram_point_sBSQ( Particle & p,
                  double s_In, double rhoB_In, double rhoS_In, double rhoQ_In )
 {
-  if ( p.Freeze != 5 )
-  {
-    // default: use particle's current location as initial guess
-    eos.tbqs( p.T(), p.muB(), p.muQ(), p.muS(), p.get_current_eos_name() );
-    bool update_s_success = eos.update_s( s_In, rhoB_In, rhoS_In, rhoQ_In );
+  // default: use particle's current location as initial guess
+  eos.tbqs( p.T(), p.muB(), p.muQ(), p.muS(), p.get_current_eos_name() );
 
-    if ( update_s_success )
-      eos.set_thermo( p.thermo );
-    else
-      p.Freeze = 5; // new label for (totally decoupled) particles which go outside grid
-  }
+  bool update_s_success = eos.update_s( s_In, rhoB_In, rhoS_In, rhoQ_In );
+
+  if ( update_s_success )
+    eos.set_thermo( p.thermo );
+
   return;
 }
 
