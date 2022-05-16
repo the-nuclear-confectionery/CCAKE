@@ -38,7 +38,7 @@ persephone : $(OBJS)
 main.o: $(INCLUDE)/vector.h $(INCLUDE)/mathdef.h $(INCLUDE)/particle.h \
         $(INCLUDE)/eos.h $(INCLUDE)/input_output.h $(INCLUDE)/linklist.h \
 				$(INCLUDE)/matrix.h $(INCLUDE)/BSQHydro.h $(SRC)/main.cpp
-	$(CC) $(CFLAGS) main.cpp
+	$(CC) $(CFLAGS) $(SRC)/main.cpp
 
 vector.o: $(INCLUDE)/vector.h $(INCLUDE)/mathdef.h $(SRC)/vector.cpp
 	$(CC) $(CFLAGS) $(SRC)/vector.cpp
