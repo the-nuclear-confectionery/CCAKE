@@ -1,7 +1,9 @@
-OBJS = transport_coefficients.o main.o vector.o matrix.o BSQHydro.o particle.o eos.o \
-       system_state.o linklist.o eos_delaunay.o \
-			 kernel.o sph_workstation.o input_output.o rootfinder.o eos_table.o \
-			 eos_extension.o
+OBJDIR=obj
+OBJS = $(OBJDIR)/transport_coefficients.o $(OBJDIR)/main.o $(OBJDIR)/vector.o \
+			 $(OBJDIR)/matrix.o $(OBJDIR)/BSQHydro.o $(OBJDIR)/particle.o $(OBJDIR)/eos.o \
+       $(OBJDIR)/system_state.o $(OBJDIR)/linklist.o $(OBJDIR)/eos_delaunay.o \
+			 $(OBJDIR)/kernel.o $(OBJDIR)/sph_workstation.o $(OBJDIR)/input_output.o \
+			 $(OBJDIR)/rootfinder.o $(OBJDIR)/eos_table.o $(OBJDIR)/eos_extension.o
 			 
 #CC = g++
 CC = h5c++
@@ -18,7 +20,7 @@ OPTIMIZATION= -Og
 SRC=$(realpath src)
 INCLUDE=$(realpath include)
 
-EIGENPATH=$(realpath ../eigen)
+#EIGENPATH=$(realpath ../eigen)
 GSLPATH=/projects/jnorhos/local/include
 GSLLIBPATH=/projects/jnorhos/local/lib
 EOSLIBPATH=$(realpath ../EoS_BQS_Derivatives/lib)
@@ -89,4 +91,4 @@ transport_coefficients.o: $(SRC)/transport_coefficients.cpp $(INCLUDE)/transport
 
 
 clean:
-	-rm *.o persephone
+	-rm $(OBJDIR)/*.o persephone
