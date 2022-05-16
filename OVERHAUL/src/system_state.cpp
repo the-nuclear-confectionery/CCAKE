@@ -17,7 +17,7 @@ using std::stod;
 #include "../include/eos.h"
 #include "../include/linklist.h"
 #include "../include/particle.h"
-#include "../include/Stopwatch.h"
+#include "../include/stopwatch.h"
 #include "../include/system_state.h"
 #include "../include/vector.h"
 

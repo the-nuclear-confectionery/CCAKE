@@ -9,7 +9,7 @@
 #include "freeze_out.h"
 #include "kernel.h"
 #include "settings.h"
-#include "Stopwatch.h"
+#include "stopwatch.h"
 #include "system_state.h"
 #include "transport_coefficients.h"
 

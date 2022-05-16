@@ -3,7 +3,7 @@
 
 #include "../include/constants.h"
 #include "../include/sph_workstation.h"
-#include "../include/Stopwatch.h"
+#include "../include/stopwatch.h"
 
 using namespace constants;
 

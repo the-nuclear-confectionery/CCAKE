@@ -1,7 +1,7 @@
 #include "../include/BSQHydro.h"
 #include "../include/settings.h"
 #include "../include/input_output.h"
-#include "../include/Stopwatch.h"
+#include "../include/stopwatch.h"
 
 // Constructors and destructors.
 BSQHydro::BSQHydro()

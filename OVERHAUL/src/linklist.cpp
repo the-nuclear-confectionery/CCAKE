@@ -8,7 +8,7 @@
 #include "../include/mathdef.h"
 #include "../include/matrix.h"
 #include "../include/particle.h"
-#include "../include/Stopwatch.h"
+#include "../include/stopwatch.h"
 #include "../include/vector.h"
 
 LinkList::LinkList()
