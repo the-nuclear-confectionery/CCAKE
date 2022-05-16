@@ -35,6 +35,7 @@ export HDF5_LDFLAGS+=$(LDFLAGS)
 
 $(OBJDIR)/persephone : $(OBJS)
 	(cd $(EOSLIBPATH); make clean; make)
+	-mkdir -p $(OBJDIR)
 	$(CC) -g $(OBJS) -o persephone $(LDFLAGS)
 
 $(OBJDIR)/main.o: $(INCLUDE)/vector.h $(INCLUDE)/mathdef.h $(INCLUDE)/particle.h \
