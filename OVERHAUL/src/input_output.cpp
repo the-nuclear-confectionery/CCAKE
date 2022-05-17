@@ -30,59 +30,43 @@ using std::flush;
 using std::string;
 
 // Constructors and destructors.
-InputOutput::InputOutput(){}
+InputOutput::InputOutput(){int status = initialize_HDF();}
 InputOutput::~InputOutput(){}
 
 //==============================================================================
 int InputOutput::initialize_HDF()
 {
-  cout << "Made it to line " << __LINE__ << endl;
-
 	try
   {
 		Exception::dontPrint();
-  cout << "Made it to line " << __LINE__ << endl;
 
     const H5std_string FILE_NAME("system_state.h5");
-  cout << "Made it to line " << __LINE__ << endl;
     GROUPEVENT_NAME = "/Event";
-  cout << "Made it to line " << __LINE__ << endl;
 
 		file = H5File(FILE_NAME, H5F_ACC_TRUNC);
-  cout << "Made it to line " << __LINE__ << endl;
 		Group groupEvent(file.createGroup(GROUPEVENT_NAME.c_str()));
-  cout << "Made it to line " << __LINE__ << endl;
 	}
 
 	// catch any errors
   catch(FileIException error)
   {
     error.printError();
-  cout << "Made it to line " << __LINE__ << endl;
-
     return (-1);
   }
 
   catch(DataSetIException error)
   {
     error.printError();
-  cout << "Made it to line " << __LINE__ << endl;
-
     return (-1);
   }
 
   catch(DataSpaceIException error)
   {
     error.printError();
-  cout << "Made it to line " << __LINE__ << endl;
-
     return (-1);
   }
 
-  cout << "Made it to line " << __LINE__ << endl;
-
   return 0;
-
 }
 
 //==============================================================================
@@ -197,13 +181,13 @@ void InputOutput::load_settings_file( string path_to_settings_file )
 //    = vector<int>({0});
 
 
-  cout << "Made it to line " << __LINE__ << endl;
-
-
-// try initializing here
-  int status = initialize_HDF();
-
-  cout << "Made it to line " << __LINE__ << endl;
+//  cout << "Made it to line " << __LINE__ << endl;
+//
+//
+//// try initializing here
+//  int status = initialize_HDF();
+//
+//  cout << "Made it to line " << __LINE__ << endl;
 
 
   return;
