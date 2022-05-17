@@ -24,6 +24,14 @@ using std::string;
 // Constructors and destructors.
 InputOutput::InputOutput()
 {
+  int status = initialize_HDF();
+}
+
+InputOutput::~InputOutput(){}
+
+//==============================================================================
+int InputOutput::initialize_HDF()
+{
 	const H5std_string FILE_NAME("system_state.h5");
 	string GROUPEVENT_NAME = "/Event";
 
@@ -54,8 +62,7 @@ InputOutput::InputOutput()
   }
 }
 
-InputOutput::~InputOutput(){}
-
+//==============================================================================
 void InputOutput::set_EquationOfStatePtr( EquationOfState * eosPtr_in )
 {
   eosPtr = eosPtr_in;

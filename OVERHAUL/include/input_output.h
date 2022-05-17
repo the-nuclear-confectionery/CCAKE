@@ -42,19 +42,13 @@ public:
 
   int n_timesteps_output = 0;
 
-  void load_settings_file( string path_to_settings_file ); // load setting
-  // paramters for simulation
+  void load_settings_file( string path_to_settings_file );
+  void set_EoS_type();
+  void set_results_directory( string path_to_results_directory );
+  void read_in_initial_conditions();
 
-  void set_EoS_type(); // load in table for interpolation
-
-  void set_results_directory( string path_to_results_directory ); // sets up
-  // output directory, will update the outfile as time goes on
-
-  void read_in_initial_conditions(); // talks to
-  // system state so that it can set initial system state
-
-  void print_system_state(); //at every time step, will write to output file
-  void print_shear();        //at every time step, will write to output file
+  void print_system_state();
+  void print_shear();
 
 private:
 
