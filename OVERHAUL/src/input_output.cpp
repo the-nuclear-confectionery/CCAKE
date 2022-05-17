@@ -537,6 +537,17 @@ void InputOutput::output_double_attribute(Group & group, double value, string na
 	return;
 }
 
+
+void InputOutput::set_units(DataSet & ds, const std::string & units)
+{
+  StrType str_type(PredType::C_S1, H5T_VARIABLE);
+  DataSpace att_space(H5S_SCALAR);
+  Attribute att = ds.createAttribute( "Units", str_type, att_space );
+  att.write( str_type, units );
+  return;
+}
+
+
 //------------------------------------------------------------------------------
 void InputOutput::output_dataset( string FRAME_NAME, const double time)
 {
@@ -546,7 +557,7 @@ void InputOutput::output_dataset( string FRAME_NAME, const double time)
   {
 		data[0][p.ID] = p.r(0);
 		data[1][p.ID] = p.r(1);
-		data[2][p.ID] = p.e();
+		data[2][p.ID] = p.e()*hbarc_MeVfm;
   }
 
 	Group groupFrame(file.createGroup(FRAME_NAME.c_str()));
@@ -556,6 +567,8 @@ void InputOutput::output_dataset( string FRAME_NAME, const double time)
 
 	// name the different quantities
 	vector<string> dataset_names = {"/x", "/y", "/e"};
+	vector<string> dataset_units = {"fm", "fm", "MeV/fm^3"};
+
 	for (int iDS = 0; iDS < dataset_names.size(); iDS++)
 	{
 		hsize_t dims[1];
@@ -565,7 +578,10 @@ void InputOutput::output_dataset( string FRAME_NAME, const double time)
 		string DATASET_NAME = FRAME_NAME + dataset_names[iDS];
 		DataSet dataset = groupFrame.createDataSet( DATASET_NAME.c_str(),
 													PredType::NATIVE_DOUBLE, dataspace);
-			
+    
+    // specify units
+    set_units( dataset, dataset_units[iDS] );
+
 		dataset.write(data[iDS], PredType::NATIVE_DOUBLE);
 	}
 	return;

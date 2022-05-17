@@ -68,6 +68,8 @@ private:
   string get_zero_padded_int( int i, int width );
   void output_double_attribute( Group & group, double value, string name );
   void output_dataset( string FRAME_NAME, const double time );
+  void set_units(DataSet & ds, const std::string & units);
+
 
 
 public:
