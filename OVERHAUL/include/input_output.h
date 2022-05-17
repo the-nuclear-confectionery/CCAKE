@@ -63,6 +63,7 @@ private:
   SystemState       * systemPtr   = nullptr;
 
   H5File file;
+ 	string GROUPEVENT_NAME = "/Event";
 
   string get_zero_padded_int( int i, int width );
   void output_double_attribute( Group & group, double value, string name );

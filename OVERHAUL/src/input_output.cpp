@@ -33,7 +33,7 @@ InputOutput::~InputOutput(){}
 int InputOutput::initialize_HDF()
 {
 	const H5std_string FILE_NAME("system_state.h5");
-	string GROUPEVENT_NAME = "/Event";
+	GROUPEVENT_NAME = "/Event";
 
 	try
   {
