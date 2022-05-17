@@ -503,6 +503,7 @@ void InputOutput::print_system_state()
   // increment timestep index
   n_timesteps_output++;
 
+file.close();
 
 if (1) exit(1);
 
