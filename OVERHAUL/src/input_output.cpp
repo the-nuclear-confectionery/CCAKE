@@ -353,7 +353,7 @@ void InputOutput::print_system_state()
   // increment timestep index
   n_timesteps_output++;
 
-//if (systemPtr->t > 1.5) exit(1);
+if (systemPtr->t > 1.5) exit(1);
 
   return;
 }
@@ -468,4 +468,6 @@ void InputOutput::print_system_state_to_HDF()
 
   hdf5_file.output_dataset( dataset_names, dataset_units, data, width,
                             n_timesteps_output, systemPtr->t );
+
+  return;
 }
