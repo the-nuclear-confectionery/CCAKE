@@ -37,20 +37,22 @@ InputOutput::~InputOutput(){}
 int InputOutput::initialize_HDF()
 {
   cout << "Made it to line " << __LINE__ << endl;
-	const H5std_string FILE_NAME("system_state.h5");
-  cout << "Made it to line " << __LINE__ << endl;
-
-
-	GROUPEVENT_NAME = "/Event";
-  cout << "Made it to line " << __LINE__ << endl;
 
 	try
   {
 		Exception::dontPrint();
-		file = H5File(FILE_NAME, H5F_ACC_TRUNC);
-		Group groupEvent(file.createGroup(GROUPEVENT_NAME.c_str()));
-	}
   cout << "Made it to line " << __LINE__ << endl;
+
+    const H5std_string FILE_NAME("system_state.h5");
+  cout << "Made it to line " << __LINE__ << endl;
+    GROUPEVENT_NAME = "/Event";
+  cout << "Made it to line " << __LINE__ << endl;
+
+		file = H5File(FILE_NAME, H5F_ACC_TRUNC);
+  cout << "Made it to line " << __LINE__ << endl;
+		Group groupEvent(file.createGroup(GROUPEVENT_NAME.c_str()));
+  cout << "Made it to line " << __LINE__ << endl;
+	}
 
 	// catch any errors
   catch(FileIException error)
