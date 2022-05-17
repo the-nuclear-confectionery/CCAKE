@@ -65,6 +65,8 @@ class SystemState
     int rk2         = 0;
     int cfon        = 1;
 
+    int number_of_elapsed_timesteps = 0;
+
 
   private:
     EquationOfState * eosPtr = nullptr;

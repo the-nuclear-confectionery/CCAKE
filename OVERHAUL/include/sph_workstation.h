@@ -190,6 +190,9 @@ public:
     // set number of particles which have frozen out
     systemPtr->number_part = systemPtr->get_frozen_out_count();
 
+    // keep track of how many timesteps have elapsed
+    systemPtr->number_of_elapsed_timesteps++;
+
     return;
   }
 

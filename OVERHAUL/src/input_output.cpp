@@ -467,9 +467,6 @@ void InputOutput::print_system_state()
   
   out.close();
 
-  // increment timestep index
-  n_timesteps_output++;
-
 // exit prematurely
 //if (systemPtr->t > 0.8)
 //{
@@ -478,14 +475,88 @@ void InputOutput::print_system_state()
 //  exit(1);
 //}
 
+
+  if (true)
+  {
+
+    //------------------------------------------------------------------
+    // send outputGrid to HDF file
+    const int width = 4;
+    string FRAME_NAME = GROUPEVENT_NAME + "/Frame_"
+              + get_zero_padded_int( n_timesteps_output, width );
+    output_dataset( FRAME_NAME, systemPtr->t,
+            outputGrid, xGridSize, yGridSize, 6 );
+
+
+  }
+
+
+  // increment timestep index
+  n_timesteps_output++;
+
+
   return;
 }
 
 
 
 
+//------------------------------------------------------------------------------
+string InputOutput::get_zero_padded_int( int i, int width )
+{
+	std::ostringstream ss;
+    ss << std::setw( width ) << std::setfill( '0' ) << i;
+    return ss.str();
+}
 
 
+
+//------------------------------------------------------------------------------
+void InputOutput::output_double_attribute(Group & group, double value, string name)
+{
+	hsize_t dims[1]; dims[0] = 1;
+	DataSpace dspace(1, dims);
+	Attribute att = group.createAttribute(name.c_str(), PredType::NATIVE_DOUBLE, dspace );
+	att.write(PredType::NATIVE_DOUBLE, &value);
+
+	return;
+}
+
+//------------------------------------------------------------------------------
+void InputOutput::output_dataset( string FRAME_NAME, const double time)
+{
+
+	double data[3][systemPtr->particles.size()];
+	for (auto & p : systemPtr->particles)
+  {
+		data[0][p.ID] = p.r(0);
+		data[1][p.ID] = p.r(1);
+		data[2][p.ID] = p.e();
+  }
+
+	Group groupFrame(file.createGroup(FRAME_NAME.c_str()));
+
+	// some frames apparently come with a timestamp(?)
+	output_double_attribute( groupFrame, time, "Time" );
+
+	// name the different quantities
+	vector<string> dataset_names = {"/x", "/y", "/e"};
+	for (int iDS = 0; iDS < dataset_names.size(); iDS++)
+	{
+		hsize_t dims[1];
+		dims[0] = systemPtr->particles.size();
+		DataSpace dataspace(1, dims);
+	
+		string DATASET_NAME = FRAME_NAME + dataset_names[iDS];
+		DataSet dataset = groupFrame.createDataSet( DATASET_NAME.c_str(),
+													PredType::NATIVE_DOUBLE, dataspace);
+			
+		dataset.write(data[iDS], PredType::NATIVE_DOUBLE);
+	}
+	return;
+}
+
+//------------------------------------------------------------------------------
 void InputOutput::print_shear()
 {
   string outputfilename = output_directory + "/shear_checks_"

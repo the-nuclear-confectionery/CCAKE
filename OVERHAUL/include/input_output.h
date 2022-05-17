@@ -64,6 +64,11 @@ private:
 
   H5File file;
 
+  string get_zero_padded_int( int i, int width );
+  void output_double_attribute( Group & group, double value, string name );
+  void output_dataset( string FRAME_NAME, const double time );
+
+
 public:
 
   void print_conservation_status(std::ostream & out = std::cout)
