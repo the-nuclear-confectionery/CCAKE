@@ -30,7 +30,7 @@ using std::flush;
 using std::string;
 
 // Constructors and destructors.
-InputOutput::InputOutput(){int status = initialize_HDF();}
+InputOutput::InputOutput(){}
 InputOutput::~InputOutput(){}
 
 //==============================================================================
@@ -40,7 +40,7 @@ int InputOutput::initialize_HDF()
   {
 		Exception::dontPrint();
 
-    const H5std_string FILE_NAME("system_state.h5");
+    const H5std_string FILE_NAME(output_directory + "system_state.h5");
     GROUPEVENT_NAME = "/Event";
 
 		file = H5File(FILE_NAME, H5F_ACC_TRUNC);
@@ -181,13 +181,7 @@ void InputOutput::load_settings_file( string path_to_settings_file )
 //    = vector<int>({0});
 
 
-//  cout << "Made it to line " << __LINE__ << endl;
-//
-//
-//// try initializing here
-//  int status = initialize_HDF();
-//
-//  cout << "Made it to line " << __LINE__ << endl;
+  int status = initialize_HDF();
 
 
   return;
@@ -509,6 +503,8 @@ void InputOutput::print_system_state()
   // increment timestep index
   n_timesteps_output++;
 
+
+if (1) exit(1);
 
   return;
 }

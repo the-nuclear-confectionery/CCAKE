@@ -46,8 +46,8 @@ int main (int argc, char *argv[])
 
   // Define and set up the simulation object itself.
   BSQHydro simulation;
-  simulation.load_settings_file( path_to_settings_file );
   simulation.set_results_directory( path_to_results_directory );
+  simulation.load_settings_file( path_to_settings_file );
 
   // Read in initial conditions (type/path defined in path_to_settings_file).
   simulation.read_in_initial_conditions();
