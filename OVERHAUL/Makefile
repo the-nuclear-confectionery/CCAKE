@@ -13,7 +13,7 @@ DEBUG=-g
 STANDARD= -std=c++11
 WARNINGS= -w -Wall -Wextra -pedantic -Wno-conversion -Wcast-align -Wunused \
           -Wshadow -Wpointer-arith
-#OPTIMIZATION= -Og
+OPTIMIZATION= -Og
 #OPTIMIZATION= -Ofast -s -march=native -mtune=native
 # change to -O3 or -Ofast for production
 
@@ -30,7 +30,10 @@ LDFLAGS = -L$(EOSLIBPATH) -lbsqeos -lm -lgsl -lgslcblas -lblas -lstdc++ \
           -L$(GSLLIBPATH) $(DEBUG) $(STANDARD) -fopenmp
 
 #export OMP_NUM_THREADS=`nproc --all`
-export OMP_NUM_THREADS=1
+#export OMP_NUM_THREADS=1
+export HDF5_CXX=$(which g++)
+export HDF5_CXXLINKER=$(which g++)
+export HDF5_CLINKER=$(which g++)
 export HDF5_LDFLAGS+=$(LDFLAGS)
 
 .PHONY:	all clean mkobjdir persephone
