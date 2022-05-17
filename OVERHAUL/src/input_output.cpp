@@ -86,6 +86,39 @@ void InputOutput::load_settings_file( string path_to_settings_file )
     settingsPtr->Freeze_Out_Temperature = stod(all_parameters[paramCount++])/hbarc_MeVfm;
     settingsPtr->Freeze_Out_Type        = all_parameters[paramCount++];
 
+
+
+
+
+
+
+
+
+    cout << endl << endl << "Check input:" << endl;
+    cout << settingsPtr->IC_type << endl;
+    cout << settingsPtr->IC_option << endl;
+    cout << settingsPtr->IC_file << endl;
+    cout << settingsPtr->h << endl;
+    cout << settingsPtr->dt << endl;
+    cout << settingsPtr->t0 << endl;
+    cout << settingsPtr->EoS_type << endl;
+    cout << settingsPtr->EoS_option << endl;
+    cout << settingsPtr->eta << endl;
+    cout << settingsPtr->etaOption << endl;
+    cout << settingsPtr->shearRelax << endl;
+    cout << settingsPtr->zeta << endl;
+    cout << settingsPtr->zetaOption << endl;
+    cout << settingsPtr->bulkRelax << endl;
+    cout << settingsPtr->Freeze_Out_Temperature << endl;
+    cout << settingsPtr->Freeze_Out_Type << endl;
+
+
+
+if (1) exit(8);
+
+
+
+
     //==========================================================================
     // enforce appropriate settings for Gubser
     if (   settingsPtr->IC_type == "Gubser"
