@@ -18,6 +18,12 @@
 #include "particle.h"
 #include "system_state.h"
 
+#include "H5Cpp.h"
+
+#ifndef H5_NO_NAMESPACE
+    using namespace H5;
+#endif
+
 // Forward declaration of friend classes
 class EquationOfState;
 class Settings;
@@ -60,7 +66,7 @@ private:
   Settings          * settingsPtr = nullptr;
   SystemState       * systemPtr   = nullptr;
 
-
+  H5File file;
 
 public:
 

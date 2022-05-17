@@ -22,7 +22,38 @@ using std::flush;
 using std::string;
 
 // Constructors and destructors.
-InputOutput::InputOutput(){}
+InputOutput::InputOutput()
+{
+	const H5std_string FILE_NAME("system_state.h5");
+	string GROUPEVENT_NAME = "/Event";
+
+	try
+  {
+		Exception::dontPrint();
+		file = H5File(FILE_NAME, H5F_ACC_TRUNC);
+		Group groupEvent(file.createGroup(GROUPEVENT_NAME.c_str()));
+	}
+
+	// catch any errors
+  catch(FileIException error)
+  {
+    error.printError();
+    return (-1);
+  }
+
+  catch(DataSetIException error)
+  {
+    error.printError();
+    return (-1);
+  }
+
+  catch(DataSpaceIException error)
+  {
+    error.printError();
+    return (-1);
+  }
+}
+
 InputOutput::~InputOutput(){}
 
 void InputOutput::set_EquationOfStatePtr( EquationOfState * eosPtr_in )
