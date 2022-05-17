@@ -81,6 +81,8 @@ int InputOutput::initialize_HDF()
 
   cout << "Made it to line " << __LINE__ << endl;
 
+  return 0;
+
 }
 
 //==============================================================================
