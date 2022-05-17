@@ -36,6 +36,8 @@ public:
   InputOutput();
   ~InputOutput();
 
+  int initialize_HDF();
+
   void set_EquationOfStatePtr( EquationOfState * eosPtr_in );
   void set_SettingsPtr( Settings * settingsPtr_in );
   void set_SystemStatePtr( SystemState * systemPtr_in );
