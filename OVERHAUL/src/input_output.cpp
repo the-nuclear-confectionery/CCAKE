@@ -40,7 +40,7 @@ int InputOutput::initialize_HDF()
   {
 		Exception::dontPrint();
 
-    const H5std_string FILE_NAME(output_directory + "system_state.h5");
+    const H5std_string FILE_NAME(output_directory + "/system_state.h5");
     GROUPEVENT_NAME = "/Event";
 
 		file = H5File(FILE_NAME, H5F_ACC_TRUNC);
@@ -503,7 +503,6 @@ void InputOutput::print_system_state()
   // increment timestep index
   n_timesteps_output++;
 
-file.close();
 
 if (1) exit(1);
 
@@ -576,10 +575,11 @@ void InputOutput::output_dataset( string FRAME_NAME, const double time)
 		DataSet dataset = groupFrame.createDataSet( DATASET_NAME.c_str(),
 													PredType::NATIVE_DOUBLE, dataspace);
     
+		dataset.write(data[iDS], PredType::NATIVE_DOUBLE);
+
     // specify units
     set_units( dataset, dataset_units[iDS] );
 
-		dataset.write(data[iDS], PredType::NATIVE_DOUBLE);
 	}
 	return;
 }
