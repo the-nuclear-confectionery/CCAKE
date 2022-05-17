@@ -58,20 +58,29 @@ int InputOutput::initialize_HDF()
   catch(FileIException error)
   {
     error.printError();
+  cout << "Made it to line " << __LINE__ << endl;
+
     return (-1);
   }
 
   catch(DataSetIException error)
   {
     error.printError();
+  cout << "Made it to line " << __LINE__ << endl;
+
     return (-1);
   }
 
   catch(DataSpaceIException error)
   {
     error.printError();
+  cout << "Made it to line " << __LINE__ << endl;
+
     return (-1);
   }
+
+  cout << "Made it to line " << __LINE__ << endl;
+
 }
 
 //==============================================================================
@@ -186,11 +195,13 @@ void InputOutput::load_settings_file( string path_to_settings_file )
 //    = vector<int>({0});
 
 
+  cout << "Made it to line " << __LINE__ << endl;
 
 
 // try initializing here
   int status = initialize_HDF();
 
+  cout << "Made it to line " << __LINE__ << endl;
 
 
   return;
