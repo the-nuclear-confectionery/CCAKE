@@ -1,7 +1,9 @@
 #ifndef INTERFACE_TO_HDF5_H
 #define INTERFACE_TO_HDF5_H
 
+#include <iomanip>
 //#include <memory>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -26,7 +28,7 @@ class interface_to_HDF5
     interface_to_HDF5(){}
     ~interface_to_HDF5(){}
 
-    initialize(const std::string & filename)
+    void initialize(const std::string & filename)
     {
       try
       {
@@ -100,11 +102,12 @@ class interface_to_HDF5
 //    void output_dataset( string FRAME_NAME, const double time)
     void output_dataset( const vector<string> & dataset_names,
                          const vector<string> & dataset_units,
-                         double **data, const double time, const int width,
+                         double **data, const int timestepindex,
+                         const double time, const int width,
                          const int Nfields, const int length)
     {
       string FRAME_NAME = GROUPEVENT_NAME + "/Frame_"
-                + get_zero_padded_int( n_timesteps_output, width );
+                + get_zero_padded_int( timestepindex, width );
 
       Group groupFrame(file.createGroup(FRAME_NAME.c_str()));
 

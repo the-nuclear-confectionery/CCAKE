@@ -449,8 +449,8 @@ void InputOutput::print_system_state()
     }
 
     hdf5_file.output_dataset( dataset_names, dataset_units, data,
-                              systemPtr->t, width, dataset_names.size(),
-                              systemPtr->particles.size() );
+                              n_timesteps_output, systemPtr->t, width,
+                              dataset_names.size(), systemPtr->particles.size() );
   }
 
 
