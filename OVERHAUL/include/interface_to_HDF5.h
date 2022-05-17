@@ -99,13 +99,20 @@ class interface_to_HDF5
 
 
     //------------------------------------------------------------------------------
-//    void output_dataset( string FRAME_NAME, const double time)
     void output_dataset( const vector<string> & dataset_names,
                          const vector<string> & dataset_units,
-                         double **data, const int timestepindex,
-                         const double time, const int width,
-                         const int Nfields, const int length)
+                         const vector<vector<double> > & v, const int width,
+                         const int timestepindex, const double time )
     {
+      const int Nfields = v.size();
+      const int length = v[0].size();
+      
+      double data[Nfields][length];
+      for (int i = 0; i < Nfields; i++)
+      for (int j = 0; j < length;  j++)	// skip x and y coordinates
+        data[i][j] = v[i][j];
+
+
       string FRAME_NAME = GROUPEVENT_NAME + "/Frame_"
                 + get_zero_padded_int( timestepindex, width );
 

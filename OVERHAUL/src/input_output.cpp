@@ -440,7 +440,8 @@ void InputOutput::print_system_state()
     vector<string> dataset_names = {"x", "y", "e"};
     vector<string> dataset_units = {"fm", "fm", "MeV/fm^3"};
 
-    double data[3][systemPtr->particles.size()];
+    vector<vector<double> > data( dataset_names.size(),
+                                  vector<double>(systemPtr->particles.size()) );
     for (auto & p : systemPtr->particles)
     {
       data[0][p.ID] = p.r(0);
@@ -448,9 +449,8 @@ void InputOutput::print_system_state()
       data[2][p.ID] = p.e()*hbarc_MeVfm;
     }
 
-    hdf5_file.output_dataset( dataset_names, dataset_units, data,
-                              n_timesteps_output, systemPtr->t, width,
-                              dataset_names.size(), systemPtr->particles.size() );
+    hdf5_file.output_dataset( dataset_names, dataset_units, data, width,
+                              n_timesteps_output, systemPtr->t );
   }
 
 
