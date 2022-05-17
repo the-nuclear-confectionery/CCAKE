@@ -45,6 +45,8 @@ public:
   void read_in_initial_conditions();
 
   void print_system_state();
+  void print_system_state_to_txt();
+  void print_system_state_to_HDF();
 
 private:
 

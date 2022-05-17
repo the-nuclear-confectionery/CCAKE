@@ -16,6 +16,9 @@ class Settings
     bool using_Gubser_with_shear = false;
     bool using_shear             = false;
 
+    bool printing_to_txt         = true;
+    bool printing_to_HDF         = true;
+
     static constexpr int VERBOSE = 5;
 
     // maximum upper limit for t

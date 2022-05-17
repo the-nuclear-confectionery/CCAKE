@@ -25,30 +25,32 @@ using std::string;
 InputOutput::InputOutput(){}
 InputOutput::~InputOutput(){}
 
-//==============================================================================
+//------------------------------------------------------------------------------
 void InputOutput::set_EquationOfStatePtr( EquationOfState * eosPtr_in )
 {
   eosPtr = eosPtr_in;
 }
 
+//------------------------------------------------------------------------------
 void InputOutput::set_SettingsPtr( Settings * settingsPtr_in )
 {
   settingsPtr = settingsPtr_in;
 }
 
+//------------------------------------------------------------------------------
 void InputOutput::set_SystemStatePtr( SystemState * systemPtr_in )
 {
   systemPtr = systemPtr_in;
 }
 
 
+//------------------------------------------------------------------------------
 void InputOutput::set_results_directory( string path_to_results_directory )
 {
   output_directory = path_to_results_directory;
 }
 
-
-
+//------------------------------------------------------------------------------
 void InputOutput::load_settings_file( string path_to_settings_file )
 {
   string Param_file = path_to_settings_file;
@@ -143,6 +145,7 @@ void InputOutput::load_settings_file( string path_to_settings_file )
   return;
 }
 
+//------------------------------------------------------------------------------
 void InputOutput::set_EoS_type()
 {
   string EoS_type           = settingsPtr->EoS_type;
@@ -167,7 +170,7 @@ void InputOutput::set_EoS_type()
   return;
 }
 
-//==============================================================================
+//------------------------------------------------------------------------------
 void InputOutput::read_in_initial_conditions()
 {
   string initial_condition_type = settingsPtr->IC_type;
@@ -336,17 +339,27 @@ void InputOutput::read_in_initial_conditions()
       exit(1);
   }
 
-
 }
 
-
-
-
-
-
-
-
+//------------------------------------------------------------------------------
 void InputOutput::print_system_state()
+{
+  if (settingsPtr->printing_to_txt)
+    print_system_state_to_txt();
+
+  if (settingsPtr->printing_to_HDF)
+    print_system_state_to_HDF();
+
+  // increment timestep index
+  n_timesteps_output++;
+
+//if (systemPtr->t > 1.5) exit(1);
+
+  return;
+}
+
+//------------------------------------------------------------------------------
+void InputOutput::print_system_state_to_txt()
 {
   string outputfilename = output_directory + "/system_state_"
                           + std::to_string(n_timesteps_output) + ".dat";
@@ -432,34 +445,27 @@ void InputOutput::print_system_state()
   
   out.close();
 
-  if (true)
-  {
-    // get width from maximum possible number of timesteps
-    const int width = ceil(log10(ceil(settingsPtr->tend/settingsPtr->dt)));
-
-    vector<string> dataset_names = {"x", "y", "e"};
-    vector<string> dataset_units = {"fm", "fm", "MeV/fm^3"};
-
-    vector<vector<double> > data( dataset_names.size(),
-                                  vector<double>(systemPtr->particles.size()) );
-    for (auto & p : systemPtr->particles)
-    {
-      data[0][p.ID] = p.r(0);
-      data[1][p.ID] = p.r(1);
-      data[2][p.ID] = p.e()*hbarc_MeVfm;
-    }
-
-    hdf5_file.output_dataset( dataset_names, dataset_units, data, width,
-                              n_timesteps_output, systemPtr->t );
-  }
-
-
-  // increment timestep index
-  n_timesteps_output++;
-
-
-if (systemPtr->t > 1.5) exit(1);
-
   return;
 }
 
+//------------------------------------------------------------------------------
+void InputOutput::print_system_state_to_HDF()
+{
+  // get width from maximum possible number of timesteps
+  const int width = ceil(log10(ceil(settingsPtr->tend/settingsPtr->dt)));
+
+  vector<string> dataset_names = {"x", "y", "e"};
+  vector<string> dataset_units = {"fm", "fm", "MeV/fm^3"};
+
+  vector<vector<double> > data( dataset_names.size(),
+                                vector<double>(systemPtr->particles.size()) );
+  for (auto & p : systemPtr->particles)
+  {
+    data[0][p.ID] = p.r(0);
+    data[1][p.ID] = p.r(1);
+    data[2][p.ID] = p.e()*hbarc_MeVfm;
+  }
+
+  hdf5_file.output_dataset( dataset_names, dataset_units, data, width,
+                            n_timesteps_output, systemPtr->t );
+}
