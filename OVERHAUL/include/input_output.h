@@ -57,7 +57,7 @@ private:
   SystemState       * systemPtr   = nullptr;
 
 
-  interface_to_HDF hdf5_file;
+  interface_to_HDF5 hdf5_file;
 
 
 public:

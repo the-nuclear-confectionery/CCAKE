@@ -11,6 +11,9 @@
     using namespace H5;
 #endif
 
+using std::string;
+using std::vector;
+
 class interface_to_HDF5
 {
 
