@@ -13,7 +13,7 @@ DEBUG=-g
 STANDARD= -std=c++11
 WARNINGS= -w -Wall -Wextra -pedantic -Wno-conversion -Wcast-align -Wunused \
           -Wshadow -Wpointer-arith
-OPTIMIZATION= -Og
+#OPTIMIZATION= -Og
 #OPTIMIZATION= -Ofast -s -march=native -mtune=native
 # change to -O3 or -Ofast for production
 
@@ -24,7 +24,7 @@ INCLUDE=$(realpath include)
 GSLPATH=/projects/jnorhos/local/include
 GSLLIBPATH=/projects/jnorhos/local/lib
 EOSLIBPATH=$(realpath ../EoS_BQS_Derivatives/lib)
-CFLAGS = $(WARNINGS) $(OPTIMIZATION) -c -I$(EOSLIBPATH) -I$(EIGENPATH) \
+CFLAGS = $(WARNINGS) $(OPTIMIZATION) -c -I$(EOSLIBPATH) \
         -I$(GSLPATH) $(DEBUG) $(STANDARD) -fopenmp
 LDFLAGS = -L$(EOSLIBPATH) -lbsqeos -lm -lgsl -lgslcblas -lblas -lstdc++ \
           -L$(GSLLIBPATH) $(DEBUG) $(STANDARD) -fopenmp

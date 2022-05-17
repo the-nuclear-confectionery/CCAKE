@@ -15,6 +15,14 @@
 #include "../include/input_output.h"
 #include "../include/constants.h"
 
+
+#include "H5Cpp.h"
+
+#ifndef H5_NO_NAMESPACE
+    using namespace H5;
+#endif
+
+
 using namespace constants;
 
 using std::endl;
