@@ -13,16 +13,11 @@
 #include <string>
 #include <vector>
 
+#include "interface_to_HDF5.h"
 #include "mathdef.h"
 #include "vector.h"
 #include "particle.h"
 #include "system_state.h"
-
-#include "H5Cpp.h"
-
-#ifndef H5_NO_NAMESPACE
-    using namespace H5;
-#endif
 
 // Forward declaration of friend classes
 class EquationOfState;
@@ -50,7 +45,6 @@ public:
   void read_in_initial_conditions();
 
   void print_system_state();
-  void print_shear();
 
 private:
 
@@ -62,14 +56,8 @@ private:
   Settings          * settingsPtr = nullptr;
   SystemState       * systemPtr   = nullptr;
 
-  H5File file;
- 	string GROUPEVENT_NAME = "/Event";
 
-  string get_zero_padded_int( int i, int width );
-  void output_double_attribute( Group & group, double value, string name );
-  void output_dataset( string FRAME_NAME, const double time );
-  void set_units(DataSet & ds, const std::string & units);
-
+  interface_to_HDF hdf5_file;
 
 
 public:

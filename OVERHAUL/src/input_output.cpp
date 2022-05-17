@@ -15,14 +15,6 @@
 #include "../include/input_output.h"
 #include "../include/constants.h"
 
-
-#include "H5Cpp.h"
-
-#ifndef H5_NO_NAMESPACE
-    using namespace H5;
-#endif
-
-
 using namespace constants;
 
 using std::endl;
@@ -34,47 +26,10 @@ InputOutput::InputOutput(){}
 InputOutput::~InputOutput(){}
 
 //==============================================================================
-int InputOutput::initialize_HDF()
-{
-	try
-  {
-		Exception::dontPrint();
-
-    const H5std_string FILE_NAME(output_directory + "/system_state.h5");
-    GROUPEVENT_NAME = "/Event";
-
-		file = H5File(FILE_NAME, H5F_ACC_TRUNC);
-		Group groupEvent(file.createGroup(GROUPEVENT_NAME.c_str()));
-	}
-
-	// catch any errors
-  catch(FileIException error)
-  {
-    error.printError();
-    return (-1);
-  }
-
-  catch(DataSetIException error)
-  {
-    error.printError();
-    return (-1);
-  }
-
-  catch(DataSpaceIException error)
-  {
-    error.printError();
-    return (-1);
-  }
-
-  return 0;
-}
-
-//==============================================================================
 void InputOutput::set_EquationOfStatePtr( EquationOfState * eosPtr_in )
 {
   eosPtr = eosPtr_in;
 }
-
 
 void InputOutput::set_SettingsPtr( Settings * settingsPtr_in )
 {
@@ -181,7 +136,8 @@ void InputOutput::load_settings_file( string path_to_settings_file )
 //    = vector<int>({0});
 
 
-  int status = initialize_HDF();
+  // set up HDF5 output file here
+  hdf5_file.initialize( output_directory + "/system_state.h5" );
 
 
   return;
@@ -470,33 +426,31 @@ void InputOutput::print_system_state()
           << p.contribution_to_total_Ez << "   "
           << p.get_current_eos_name() << "\n";
 
-//    print_shear();
   }
 
   out << std::flush;
   
   out.close();
 
-// exit prematurely
-//if (systemPtr->t > 0.8)
-//{
-//  std::cout << "EXITING PREMATURELY" << std::endl;
-//  std::cerr << "EXITING PREMATURELY" << std::endl;
-//  exit(1);
-//}
-
-
   if (true)
   {
+    // get width from maximum possible number of timesteps
+    const int width = ceil(log10(ceil(settingsPtr->tend/settingsPtr->dt)));
 
-    //------------------------------------------------------------------
-    // send outputGrid to HDF file
-    const int width = 4;
-    string FRAME_NAME = GROUPEVENT_NAME + "/Frame_"
-              + get_zero_padded_int( n_timesteps_output, width );
-    output_dataset( FRAME_NAME, systemPtr->t );
+    vector<string> dataset_names = {"x", "y", "e"};
+    vector<string> dataset_units = {"fm", "fm", "MeV/fm^3"};
 
+    double data[3][systemPtr->particles.size()];
+    for (auto & p : systemPtr->particles)
+    {
+      data[0][p.ID] = p.r(0);
+      data[1][p.ID] = p.r(1);
+      data[2][p.ID] = p.e()*hbarc_MeVfm;
+    }
 
+    hdf5_file.output_dataset( dataset_names, dataset_units, data,
+                              systemPtr->t, width, dataset_names.size(),
+                              systemPtr->particles.size() );
   }
 
 
@@ -504,127 +458,8 @@ void InputOutput::print_system_state()
   n_timesteps_output++;
 
 
-if (1) exit(1);
+if (systemPtr->t > 1.5) exit(1);
 
   return;
 }
 
-
-
-
-//------------------------------------------------------------------------------
-string InputOutput::get_zero_padded_int( int i, int width )
-{
-	std::ostringstream ss;
-    ss << std::setw( width ) << std::setfill( '0' ) << i;
-    return ss.str();
-}
-
-
-
-//------------------------------------------------------------------------------
-void InputOutput::output_double_attribute(Group & group, double value, string name)
-{
-	hsize_t dims[1]; dims[0] = 1;
-	DataSpace dspace(1, dims);
-	Attribute att = group.createAttribute(name.c_str(), PredType::NATIVE_DOUBLE, dspace );
-	att.write(PredType::NATIVE_DOUBLE, &value);
-
-	return;
-}
-
-
-void InputOutput::set_units(DataSet & ds, const std::string & units)
-{
-  StrType str_type(PredType::C_S1, H5T_VARIABLE);
-  DataSpace att_space(H5S_SCALAR);
-  Attribute att = ds.createAttribute( "Units", str_type, att_space );
-  att.write( str_type, units );
-  return;
-}
-
-
-//------------------------------------------------------------------------------
-void InputOutput::output_dataset( string FRAME_NAME, const double time)
-{
-
-	double data[3][systemPtr->particles.size()];
-	for (auto & p : systemPtr->particles)
-  {
-		data[0][p.ID] = p.r(0);
-		data[1][p.ID] = p.r(1);
-		data[2][p.ID] = p.e()*hbarc_MeVfm;
-  }
-
-	Group groupFrame(file.createGroup(FRAME_NAME.c_str()));
-
-	// some frames apparently come with a timestamp(?)
-	output_double_attribute( groupFrame, time, "Time" );
-
-	// name the different quantities
-	vector<string> dataset_names = {"/x", "/y", "/e"};
-	vector<string> dataset_units = {"fm", "fm", "MeV/fm^3"};
-
-	for (int iDS = 0; iDS < dataset_names.size(); iDS++)
-	{
-		hsize_t dims[1];
-		dims[0] = systemPtr->particles.size();
-		DataSpace dataspace(1, dims);
-	
-		string DATASET_NAME = FRAME_NAME + dataset_names[iDS];
-		DataSet dataset = groupFrame.createDataSet( DATASET_NAME.c_str(),
-													PredType::NATIVE_DOUBLE, dataspace);
-    
-		dataset.write(data[iDS], PredType::NATIVE_DOUBLE);
-
-    // specify units
-    set_units( dataset, dataset_units[iDS] );
-
-	}
-	return;
-}
-
-//------------------------------------------------------------------------------
-void InputOutput::print_shear()
-{
-  string outputfilename = output_directory + "/shear_checks_"
-                          + std::to_string(n_timesteps_output) + ".dat";
-  ofstream out( outputfilename.c_str() );
-
-  out << systemPtr->t << "\n";
-  int iParticle = 0;
-  for ( auto & p : systemPtr->particles )
-  {
-    p.reset_pi_tensor(systemPtr->t*systemPtr->t);
-
-    out << iParticle++ << "   "
-        << systemPtr->t << "   "
-        << p.r << "   "
-        << p.hydro.u << "   "
-        << p.hydro.shv << "   "
-        << pow(systemPtr->t,2.0)*p.hydro.shv33 << "   "
-        <<       p.hydro.shv(0,0)*p.hydro.shv(0,0)
-            -2.0*p.hydro.shv(0,1)*p.hydro.shv(0,1)
-            -2.0*p.hydro.shv(0,2)*p.hydro.shv(0,2)
-            +    p.hydro.shv(1,1)*p.hydro.shv(1,1)
-            +    p.hydro.shv(2,2)*p.hydro.shv(2,2)
-            +2.0*p.hydro.shv(1,2)*p.hydro.shv(1,2)
-            +pow(systemPtr->t,4.0)*p.hydro.shv33*p.hydro.shv33 << "   " //17
-        << p.hydro.shv(0,1) - p.hydro.shv(1,0) << "   "
-        << p.hydro.shv(0,2) - p.hydro.shv(2,0) << "   "
-        << p.hydro.shv(1,2) - p.hydro.shv(2,1) << "   "
-        << p.hydro.shv(0,0) - 1./p.hydro.gamma/p.hydro.gamma*con(p.hydro.uu,p.hydro.pimin) << "   "
-        << p.hydro.shv(0,0) - 1./p.hydro.gamma*inner(p.hydro.u,colp1(0,p.hydro.shv)) << "   "
-        << p.hydro.shv(0,1) - 1./p.hydro.gamma*inner(p.hydro.u,colp1(1,p.hydro.shv)) << "   "
-        << p.hydro.shv(0,2) - 1./p.hydro.gamma*inner(p.hydro.u,colp1(2,p.hydro.shv)) << "   "
-        << p.hydro.shv(0,0) - p.hydro.shv(1,1) - p.hydro.shv(2,2)
-                       - pow(systemPtr->t,2.0)*p.hydro.shv33 << "   "
-        << p.get_current_eos_name() << "\n";
-  }
-
-  out << std::flush;
-  
-  out.close();
-
-  return;
-}
