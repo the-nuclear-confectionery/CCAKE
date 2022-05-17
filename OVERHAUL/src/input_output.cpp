@@ -484,8 +484,7 @@ void InputOutput::print_system_state()
     const int width = 4;
     string FRAME_NAME = GROUPEVENT_NAME + "/Frame_"
               + get_zero_padded_int( n_timesteps_output, width );
-    output_dataset( FRAME_NAME, systemPtr->t,
-            outputGrid, xGridSize, yGridSize, 6 );
+    output_dataset( FRAME_NAME, systemPtr->t );
 
 
   }
