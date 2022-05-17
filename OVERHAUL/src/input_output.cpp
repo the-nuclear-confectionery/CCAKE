@@ -30,11 +30,7 @@ using std::flush;
 using std::string;
 
 // Constructors and destructors.
-InputOutput::InputOutput()
-{
-  int status = initialize_HDF();
-}
-
+InputOutput::InputOutput(){}
 InputOutput::~InputOutput(){}
 
 //==============================================================================
@@ -180,6 +176,13 @@ void InputOutput::load_settings_file( string path_to_settings_file )
   // set particles to print
 //  settingsPtr->particles_to_print
 //    = vector<int>({0});
+
+
+
+
+// try initializing here
+  int status = initialize_HDF();
+
 
 
   return;
