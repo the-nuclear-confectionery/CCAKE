@@ -62,8 +62,22 @@ public:
     try { cout << "here" << endl; values.at(key) = value; }
     catch (const std::out_of_range& oor)
         { std::cerr << "Invalid key: \"" << key << "\" not found in values!" << endl; abort(); }
-    catch (const std::exception& ex)
-        { cout << "here instead" << endl; abort(); }
+    catch(const std::runtime_error& re)
+{
+    // speciffic handling for runtime_error
+    std::cerr << "Runtime error: " << re.what() << std::endl;
+}
+catch(const std::exception& ex)
+{
+    // speciffic handling for all exceptions extending std::exception, except
+    // std::runtime_error which is handled explicitly
+    std::cerr << "Error occurred: " << ex.what() << std::endl;
+}
+catch(...)
+{
+    // catch any other errors (that we have no information about)
+    std::cerr << "Unknown failure occurred. Possible memory corruption" << std::endl;
+}
   }
 
   string get_value( setting_map & values, const string & key )
