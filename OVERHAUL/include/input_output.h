@@ -57,7 +57,7 @@ public:
   inline void remove_char( std::string & s, char c )
               { s.erase(std::remove(s.begin(), s.end(), c), s.end()); }
 
-  string set_value( setting_map & values, const string & key, const string & value )
+  string set_value( setting_map & values, const string key, const string value )
   {
     try { cout << key << " " << value << endl;
           auto & tmp = values.at(key);
