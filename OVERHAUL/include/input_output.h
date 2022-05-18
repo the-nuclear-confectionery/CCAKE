@@ -61,7 +61,7 @@ public:
   {
     try { return values.at(key); }
     catch (const std::out_of_range& oor)
-        { std::cerr << "Out of Range error: " << oor.what() << '\n'; abort(); }
+        { std::cerr << "Invalid key: \"" << key << "\" not found in values!\n"; abort(); }
   }
 
 private:
