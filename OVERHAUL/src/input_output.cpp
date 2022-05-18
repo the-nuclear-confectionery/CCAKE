@@ -118,6 +118,10 @@ void InputOutput::load_settings_file( string path_to_settings_file )
       values[ignore] = param;
     }
 
+    // check set values
+    for ( auto & it : values )
+      cout << "Set " << it.first << " to be " << it.second << endl;
+
     settingsPtr->IC_type                = values["ICtype"];
     settingsPtr->IC_option              = values["IC_option"];
     settingsPtr->IC_file                = values["IC_file"];
