@@ -117,25 +117,25 @@ void InputOutput::load_settings_file( string path_to_settings_file )
 
 cout << "Setting " << ignore << " to " << param << endl;
 
-      values[ignore] = param;
+      values.at(ignore) = param;
     }
 
-    settingsPtr->IC_type                = values["ICtype"];
-    settingsPtr->IC_option              = values["ICoption"];
-    settingsPtr->IC_file                = values["ICfile"];
-    settingsPtr->h                      = stod(values["h"]);
-    settingsPtr->dt                     = stod(values["dt"]);
-    settingsPtr->t0                     = stod(values["t0"]);
-    settingsPtr->EoS_type               = values["EoS_type"];
-    settingsPtr->EoS_option             = values["EoS_option"];
-    settingsPtr->eta                    = values["eta"];
-    settingsPtr->etaOption              = values["etaOption"];
-    settingsPtr->shearRelax             = values["shearRelax"];
-    settingsPtr->zeta                   = values["zeta"];
-    settingsPtr->zetaOption             = values["zetaOption"];
-    settingsPtr->bulkRelax              = values["bulkRelax"];
-    settingsPtr->Freeze_Out_Temperature = stod(values["freezeoutT"])/hbarc_MeVfm;
-    settingsPtr->Freeze_Out_Type        = values["freezeout"];
+    settingsPtr->IC_type                = values.at("ICtype");
+    settingsPtr->IC_option              = values.at("ICoption");
+    settingsPtr->IC_file                = values.at("ICfile");
+    settingsPtr->h                      = stod(values.at("h"));
+    settingsPtr->dt                     = stod(values.at("dt"));
+    settingsPtr->t0                     = stod(values.at("t0"));
+    settingsPtr->EoS_type               = values.at("EoS_type");
+    settingsPtr->EoS_option             = values.at("EoS_option");
+    settingsPtr->eta                    = values.at("eta");
+    settingsPtr->etaOption              = values.at("etaOption");
+    settingsPtr->shearRelax             = values.at("shearRelax");
+    settingsPtr->zeta                   = values.at("zeta");
+    settingsPtr->zetaOption             = values.at("zetaOption");
+    settingsPtr->bulkRelax              = values.at("bulkRelax");
+    settingsPtr->Freeze_Out_Temperature = stod(values.at("freezeoutT"))/hbarc_MeVfm;
+    settingsPtr->Freeze_Out_Type        = values.at("freezeout");
 
 
 
