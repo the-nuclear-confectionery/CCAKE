@@ -113,7 +113,7 @@ void InputOutput::load_settings_file( string path_to_settings_file )
       iss >> ignore >> param;
       remove_char(ignore, ':');
 
-cout << "Setting " << ignore << " to " << param << endl;
+//cout << "Setting " << ignore << " to " << param << endl;
 
       values.at(ignore) = param;
     }
@@ -130,7 +130,7 @@ cout << "Setting " << ignore << " to " << param << endl;
     settingsPtr->etaOption              = get_value(values, "etaOpt");
     settingsPtr->shearRelax             = get_value(values, "shearRelax");
     settingsPtr->zeta                   = get_value(values, "zeta");
-    settingsPtr->zetaOption             = get_value(values, "etaOpt");
+    settingsPtr->zetaOption             = get_value(values, "zetaOpt");
     settingsPtr->bulkRelax              = get_value(values, "bulkRelax");
     settingsPtr->Freeze_Out_Temperature = stod(get_value(values, "freezeoutT"))/hbarc_MeVfm;
     settingsPtr->Freeze_Out_Type        = get_value(values, "freezeout");
