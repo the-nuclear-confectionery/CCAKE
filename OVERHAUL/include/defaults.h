@@ -10,7 +10,7 @@ typedef std::pair <std::string, std::string> setting_pair;
 
 namespace parameter_settings
 {
-  void get_defaults()
+  setting_map get_defaults()
   {
     setting_map defaults;
 
@@ -31,6 +31,8 @@ namespace parameter_settings
     defaults.insert( setting_pair("bulkRelax",  "Default") );
     defaults.insert( setting_pair("freezeoutT", "150.000000") );
     defaults.insert( setting_pair("freezeout",  "No_Freezeout") );
+
+    return defaults;
   }
 }
 
