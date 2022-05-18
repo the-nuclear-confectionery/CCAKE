@@ -63,7 +63,7 @@ void InputOutput::load_settings_file( string path_to_settings_file )
     string param  = "";
     
     // set default values first
-    setting_map values = get_defaults();
+    setting_map values = parameter_settings::get_defaults();
 //    values.insert( setting_pair("ICtype",     "ICCING") );
 //    values.insert( setting_pair("ICoption",   "Default") );
 //    values.insert( setting_pair("ICfile",     "initial_conditions/"
