@@ -62,6 +62,8 @@ public:
     try { cout << "here" << endl; values.at(key) = value; }
     catch (const std::out_of_range& oor)
         { std::cerr << "Invalid key: \"" << key << "\" not found in values!" << endl; abort(); }
+    catch (const std::exception& ex)
+        { cout << "here instead" << endl; abort(); }
   }
 
   string get_value( setting_map & values, const string & key )
