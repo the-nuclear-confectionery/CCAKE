@@ -118,44 +118,22 @@ void InputOutput::load_settings_file( string path_to_settings_file )
       values[ignore] = param;
     }
 
-    // check set values
-    for ( auto & it : values )
-      cout << "Set " << it.first << " to be " << it.second << endl;
-
-cout << "Made it to line " << __LINE__ << endl;
     settingsPtr->IC_type                = values["ICtype"];
-cout << "Made it to line " << __LINE__ << endl;
     settingsPtr->IC_option              = values["IC_option"];
-cout << "Made it to line " << __LINE__ << endl;
     settingsPtr->IC_file                = values["IC_file"];
-cout << "Made it to line " << __LINE__ << endl;
     settingsPtr->h                      = stod(values["h"]);
-cout << "Made it to line " << __LINE__ << endl;
     settingsPtr->dt                     = stod(values["dt"]);
-cout << "Made it to line " << __LINE__ << endl;
     settingsPtr->t0                     = stod(values["t0"]);
-cout << "Made it to line " << __LINE__ << endl;
     settingsPtr->EoS_type               = values["EoS_type"];
-cout << "Made it to line " << __LINE__ << endl;
     settingsPtr->EoS_option             = values["EoS_option"];
-cout << "Made it to line " << __LINE__ << endl;
     settingsPtr->eta                    = values["eta"];
-cout << "Made it to line " << __LINE__ << endl;
     settingsPtr->etaOption              = values["etaOption"];
-cout << "Made it to line " << __LINE__ << endl;
     settingsPtr->shearRelax             = values["shearRelax"];
-cout << "Made it to line " << __LINE__ << endl;
     settingsPtr->zeta                   = values["zeta"];
-cout << "Made it to line " << __LINE__ << endl;
     settingsPtr->zetaOption             = values["zetaOption"];
-cout << "Made it to line " << __LINE__ << endl;
     settingsPtr->bulkRelax              = values["bulkRelax"];
-cout << "Made it to line " << __LINE__ << endl;
-    settingsPtr->Freeze_Out_Temperature = stod(values["Freeze_Out_Temperature"])
-                                          /hbarc_MeVfm;
-cout << "Made it to line " << __LINE__ << endl;
-    settingsPtr->Freeze_Out_Type        = values["Freeze_Out_Type"];
-cout << "Made it to line " << __LINE__ << endl;
+    settingsPtr->Freeze_Out_Temperature = stod(values["freezeoutT"])/hbarc_MeVfm;
+    settingsPtr->Freeze_Out_Type        = values["freezeout"];
 
 
 
