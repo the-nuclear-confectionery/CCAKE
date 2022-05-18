@@ -59,10 +59,10 @@ public:
 
   string set_value( setting_map & values, const string & key, const string & value )
   {
-    try { cout << "here" << endl; values.at(key) = value; }
+    try { cout << key << " " << value << endl; values.at(key) = value; }
     catch (const std::out_of_range& oor)
-        { std::cerr << "Invalid key: \"" << key << "\" not found in values!" << endl; abort(); }
-    catch(const std::runtime_error& re)
+        { std::cerr << "Invalid key: \"" << key << "\" not found in values!" << endl; }
+/*    catch(const std::runtime_error& re)
 {
     // speciffic handling for runtime_error
     std::cerr << "Runtime error: " << re.what() << std::endl;
@@ -77,7 +77,7 @@ catch(...)
 {
     // catch any other errors (that we have no information about)
     std::cerr << "Unknown failure occurred. Possible memory corruption" << std::endl;
-}
+}*/
   }
 
   string get_value( setting_map & values, const string & key )
