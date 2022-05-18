@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 
+#include "../include/constants.h"
 #include "../include/eos.h"
 #include "../include/kernel.h"
 #include "../include/matrix.h"
@@ -68,7 +69,7 @@ void TransportCoefficients::initialize_eta(const string & etaType_in)
   }
   else if (etaType == "constant")
   {
-    eta_T_OV_w_IN = stod(etaOption);
+    eta_T_OV_w_IN = settingsPtr->constant_eta_over_s;
     eta = [this]{ return constEta(); };
   }
   else if (etaType == "JakiParam")
@@ -81,7 +82,7 @@ void TransportCoefficients::initialize_eta(const string & etaType_in)
   }
   else if (etaType == "interpolate")
   {
-    //use etaOption to find directory of table, then
+    //use parameter to find directory of table, then
     // execute interpolation
     eta = [this]{ return InterpolantWrapper(); };
   }
@@ -155,9 +156,13 @@ void TransportCoefficients::initialize_zeta(const string & zetaType_in)
   }
   else if (zetaType == "interpolate")
   {
-    //use zetaOption to find directory of table, then
+    //use parameter to find directory of table, then
     // execute interpolation
     zeta = [this]{ return InterpolantWrapper(); };
+  }
+  else if (zetaType == "cs2_dependent")
+  {
+    zeta = [this]{ return cs2_dependent_zeta(); };
   }
   else
   {
@@ -281,6 +286,16 @@ double TransportCoefficients::zeta_DNMR_LeadingMass()
 
 //===============================
 double TransportCoefficients::NoBulk() { return 0.0; }
+
+//===============================
+double TransportCoefficients::cs2_dependent_zeta()
+{
+//  const double A = 8.0*constants::pi/15.0;
+//  const double p = 2.0;
+  const double A = settingsPtr->cs2_dependent_zeta_A;
+  const double p = settingsPtr->cs2_dependent_zeta_p;
+  return A*pow((1.0/3.0)-therm.cs2, p);
+}
 
 //==============================================================================
 //==============================================================================

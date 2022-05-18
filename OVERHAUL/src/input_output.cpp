@@ -64,23 +64,6 @@ void InputOutput::load_settings_file( string path_to_settings_file )
     
     // set default values first
     setting_map values = parameter_settings::get_defaults();
-//    values.insert( setting_pair("ICtype",     "ICCING") );
-//    values.insert( setting_pair("ICoption",   "Default") );
-//    values.insert( setting_pair("ICfile",     "initial_conditions/"
-//                                              "Iccing_conditions.dat") );
-//    values.insert( setting_pair("h",          "0.300000") );
-//    values.insert( setting_pair("dt",         "0.05") );
-//    values.insert( setting_pair("t0",         "1.100000") );
-//    values.insert( setting_pair("EoS_Type",   "Conformal") );
-//    values.insert( setting_pair("EoS_Option", "Default") );
-//    values.insert( setting_pair("eta",        "constant") );
-//    values.insert( setting_pair("etaOpt",     "0.20") );
-//    values.insert( setting_pair("shearRelax", "Default") );
-//    values.insert( setting_pair("zeta",       "constant") );
-//    values.insert( setting_pair("zetaOpt",    "0.005") );
-//    values.insert( setting_pair("bulkRelax",  "Default") );
-//    values.insert( setting_pair("freezeoutT", "150.000000") );
-//    values.insert( setting_pair("freezeout",  "No_Freezeout") );
 
     // update settings from input file
     while ( getline (infile, line) )
@@ -102,10 +85,12 @@ void InputOutput::load_settings_file( string path_to_settings_file )
     settingsPtr->EoS_type               = get_value(values, "EoS_Type");
     settingsPtr->EoS_option             = get_value(values, "EoS_Option");
     settingsPtr->eta                    = get_value(values, "eta");
-    settingsPtr->etaOption              = get_value(values, "etaOpt");
+    settingsPtr->constant_eta_over_s    = get_value(values, "constant_eta_over_s");
     settingsPtr->shearRelax             = get_value(values, "shearRelax");
     settingsPtr->zeta                   = get_value(values, "zeta");
-    settingsPtr->zetaOption             = get_value(values, "zetaOpt");
+    settingsPtr->constant_zeta_over_s   = get_value(values, "constant_zeta_over_s");
+    settingsPtr->cs2_dependent_zeta_A   = get_value(values, "cs2_dependent_zeta_A");
+    settingsPtr->cs2_dependent_zeta_p   = get_value(values, "cs2_dependent_zeta_p");
     settingsPtr->bulkRelax              = get_value(values, "bulkRelax");
     settingsPtr->Freeze_Out_Temperature = stod(get_value(values, "freezeoutT"))/hbarc_MeVfm;
     settingsPtr->Freeze_Out_Type        = get_value(values, "freezeout");
@@ -123,10 +108,12 @@ void InputOutput::load_settings_file( string path_to_settings_file )
     cout << settingsPtr->EoS_type << endl;
     cout << settingsPtr->EoS_option << endl;
     cout << settingsPtr->eta << endl;
-    cout << settingsPtr->etaOption << endl;
+    cout << settingsPtr->constant_eta_over_s << endl;
     cout << settingsPtr->shearRelax << endl;
     cout << settingsPtr->zeta << endl;
-    cout << settingsPtr->zetaOption << endl;
+    cout << settingsPtr->constant_zeta_over_s << endl;
+    cout << settingsPtr->cs2_dependent_zeta_A << endl;
+    cout << settingsPtr->cs2_dependent_zeta_p << endl;
     cout << settingsPtr->bulkRelax << endl;
     cout << settingsPtr->Freeze_Out_Temperature << endl;
     cout << settingsPtr->Freeze_Out_Type << endl;
@@ -162,13 +149,13 @@ if (1) exit(8);
       // Gubser shear viscosity settings
       settingsPtr->eta = "constant";
       if ( settingsPtr->IC_type == "Gubser" )
-        settingsPtr->etaOption = "0.0";
+        settingsPtr->constant_eta_over_s = 0.0;
       else if ( settingsPtr->IC_type == "Gubser_with_shear" )
-        settingsPtr->etaOption = "0.20";
+        settingsPtr->constant_eta_over_s = 0.20;
 
       // Gubser bulk viscosity settings
       settingsPtr->zeta = "constant";
-      settingsPtr->zetaOption = "0.0";
+      settingsPtr->constant_zeta_over_s = 0.0;
     }
     else if ( settingsPtr->IC_type == "TECHQM" )
     {
@@ -176,7 +163,8 @@ if (1) exit(8);
     }
 
     // if eta/s == 0 identically, set using_shear to false
-    if ( settingsPtr->eta == "constant" && stod(settingsPtr->etaOption) < 1e-10 )
+    if ( settingsPtr->eta == "constant" &&
+         settingsPtr->constant_eta_over_s < 1e-10 )
       settingsPtr->using_shear  = false;
     else
       settingsPtr->using_shear  = true;

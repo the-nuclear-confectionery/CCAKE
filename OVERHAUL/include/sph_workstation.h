@@ -60,22 +60,22 @@ public:
   // initialize workstation (now includes eos initialization)
   void initialize()
   {
-    //==========================================================================
+    //----------------------------------------
     // set up equation of motion object
     pEoM = std::make_shared<EoM_default>();
     pEoM->set_SettingsPtr( settingsPtr );
 
-    //==========================================================================
+    //----------------------------------------
     // set up equation of state
     eos.set_SettingsPtr( settingsPtr );
     eos.init();
 
-    //==========================================================================
+    //----------------------------------------
     // set up transport coefficients
     tc.set_SettingsPtr( settingsPtr );
     tc.initialize();
 
-    //==========================================================================
+    //----------------------------------------
     // set up freeze out (constant energy density
     fo.set_EquationOfStatePtr( &eos );
     fo.set_SettingsPtr( settingsPtr );
