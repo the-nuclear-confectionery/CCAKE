@@ -59,7 +59,8 @@ public:
 
   string set_value( setting_map & values, const string & key, const string & value )
   {
-    try { cout << key << " " << value << endl; values.at(key) = value; }
+    try { cout << key << " " << value << endl;
+          values.at(key) = value; }
     catch (const std::out_of_range& oor)
         { std::cerr << "Invalid key: \"" << key << "\" not found in values!" << endl; }
 /*    catch(const std::runtime_error& re)
