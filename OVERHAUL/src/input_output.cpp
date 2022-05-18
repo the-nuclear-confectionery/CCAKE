@@ -503,7 +503,7 @@ void InputOutput::print_freeze_out()
 {
   string outputfilename = output_directory + "/freeze_out_"
                           + std::to_string(n_timesteps_output) + ".dat";
-  FO.open( outputfilename.c_str(), ios::out | ios::app );
+  ofstream FO( outputfilename.c_str(), ios::out | ios::app );
 
   auto & fo = wsPtr->fo;
 
@@ -524,11 +524,11 @@ void InputOutput::print_freeze_out()
     FO << fo.divTtemp[i] << " " << fo.divT[i] << " "
         << fo.gsub[i] << " " << fo.uout[i] << " "
         << fo.swsub[i] << " " << fo.bulksub[i] << " " 
-        << fo.shearsub[i].x[0][0] << " "
-        << fo.shearsub[i].x[1][1] << " " 
-        << fo.shearsub[i].x[2][2] << " "
+        << fo.shearsub[i](0,0) << " "
+        << fo.shearsub[i](1,1) << " " 
+        << fo.shearsub[i](2,2) << " "
         << fo.shear33sub[i] << " " 
-        << fo.shearsub[i].x[1][2] << " " 
+        << fo.shearsub[i](1,2) << " " 
         << fo.tlist[i] << " " << fo.rsub[i] << " "
         << fo.sFO[i] << " " << fo.Tfluc[i] << endl;
 
