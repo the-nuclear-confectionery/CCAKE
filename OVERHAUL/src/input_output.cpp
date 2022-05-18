@@ -115,12 +115,14 @@ void InputOutput::load_settings_file( string path_to_settings_file )
       iss >> ignore >> param;
       remove_char(ignore, ':');
 
+cout << "Setting " << ignore << " to " << param << endl;
+
       values[ignore] = param;
     }
 
     settingsPtr->IC_type                = values["ICtype"];
-    settingsPtr->IC_option              = values["IC_option"];
-    settingsPtr->IC_file                = values["IC_file"];
+    settingsPtr->IC_option              = values["ICoption"];
+    settingsPtr->IC_file                = values["ICfile"];
     settingsPtr->h                      = stod(values["h"]);
     settingsPtr->dt                     = stod(values["dt"]);
     settingsPtr->t0                     = stod(values["t0"]);
