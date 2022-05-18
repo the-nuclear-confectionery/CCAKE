@@ -1,5 +1,5 @@
-#ifndef DEFAULTS_H
-#define DEFAULTS_H
+#ifndef DEFAULTS_BLAH_H
+#define DEFAULTS_BLAH_H
 
 #include <map>
 #include <string>
