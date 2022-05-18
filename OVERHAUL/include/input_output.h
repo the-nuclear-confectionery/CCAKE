@@ -15,15 +15,12 @@
 #include <string>
 #include <vector>
 
+#include "defaults.h"
 #include "interface_to_HDF5.h"
 #include "mathdef.h"
 #include "vector.h"
 #include "particle.h"
 #include "system_state.h"
-
-
-typedef map  <string, string> setting_map;
-typedef pair <string, string> setting_pair;
 
 // Forward declaration of friend classes
 class EquationOfState;
@@ -66,22 +63,6 @@ public:
         { std::cerr << endl << "Invalid key: \"" << key
                     << "\" not found in values!" << endl << endl;
           abort(); }
-/*    catch(const std::runtime_error& re)
-{
-    // speciffic handling for runtime_error
-    std::cerr << "Runtime error: " << re.what() << std::endl;
-}
-catch(const std::exception& ex)
-{
-    // speciffic handling for all exceptions extending std::exception, except
-    // std::runtime_error which is handled explicitly
-    std::cerr << "Error occurred: " << ex.what() << std::endl;
-}
-catch(...)
-{
-    // catch any other errors (that we have no information about)
-    std::cerr << "Unknown failure occurred. Possible memory corruption" << std::endl;
-}*/
   }
 
   string get_value( setting_map & values, const string & key )

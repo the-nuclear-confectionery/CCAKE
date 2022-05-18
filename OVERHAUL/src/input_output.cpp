@@ -9,11 +9,12 @@
 #include <string>
 #include <vector>
 
+#include "../include/constants.h"
+#include "../include/defaults.h"
+#include "../include/input_output.h"
+#include "../include/particle.h"
 #include "../include/mathdef.h"
 #include "../include/vector.h"
-#include "../include/particle.h"
-#include "../include/input_output.h"
-#include "../include/constants.h"
 
 using namespace constants;
 
@@ -59,39 +60,39 @@ void InputOutput::load_settings_file( string path_to_settings_file )
   {
     string line;
     string ignore = "";
-    string param = "";
-    vector<string> all_parameters;
-
+    string param  = "";
     
-    setting_map values;
-    values.insert( setting_pair("ICtype",     "ICCING") );
-    values.insert( setting_pair("ICoption",   "Default") );
-    values.insert( setting_pair("ICfile",     "initial_conditions/"
-                                              "Iccing_conditions.dat") );
-    values.insert( setting_pair("h",          "0.300000") );
-    values.insert( setting_pair("dt",         "0.05") );
-    values.insert( setting_pair("t0",         "1.100000") );
-    values.insert( setting_pair("EoS_Type",   "Conformal") );
-    values.insert( setting_pair("EoS_Option", "Default") );
-    values.insert( setting_pair("eta",        "constant") );
-    values.insert( setting_pair("etaOpt",     "0.20") );
-    values.insert( setting_pair("shearRelax", "Default") );
-    values.insert( setting_pair("zeta",       "constant") );
-    values.insert( setting_pair("zetaOpt",    "0.005") );
-    values.insert( setting_pair("bulkRelax",  "Default") );
-    values.insert( setting_pair("freezeoutT", "150.000000") );
-    values.insert( setting_pair("freezeout",  "No_Freezeout") );
+    // set default values first
+    setting_map values = get_defaults();
+//    values.insert( setting_pair("ICtype",     "ICCING") );
+//    values.insert( setting_pair("ICoption",   "Default") );
+//    values.insert( setting_pair("ICfile",     "initial_conditions/"
+//                                              "Iccing_conditions.dat") );
+//    values.insert( setting_pair("h",          "0.300000") );
+//    values.insert( setting_pair("dt",         "0.05") );
+//    values.insert( setting_pair("t0",         "1.100000") );
+//    values.insert( setting_pair("EoS_Type",   "Conformal") );
+//    values.insert( setting_pair("EoS_Option", "Default") );
+//    values.insert( setting_pair("eta",        "constant") );
+//    values.insert( setting_pair("etaOpt",     "0.20") );
+//    values.insert( setting_pair("shearRelax", "Default") );
+//    values.insert( setting_pair("zeta",       "constant") );
+//    values.insert( setting_pair("zetaOpt",    "0.005") );
+//    values.insert( setting_pair("bulkRelax",  "Default") );
+//    values.insert( setting_pair("freezeoutT", "150.000000") );
+//    values.insert( setting_pair("freezeout",  "No_Freezeout") );
 
+    // update settings from input file
     while ( getline (infile, line) )
     {
       istringstream iss(line);
       iss >> ignore >> param;
       remove_char(ignore, ':');
 
-      //values.at(ignore) = param;
       set_value(values, ignore, param);
     }
 
+    // store final settings
     settingsPtr->IC_type                = get_value(values, "ICtype");
     settingsPtr->IC_option              = get_value(values, "ICoption");
     settingsPtr->IC_file                = get_value(values, "ICfile");
