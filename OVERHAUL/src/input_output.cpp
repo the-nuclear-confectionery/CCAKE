@@ -355,12 +355,18 @@ void InputOutput::read_in_initial_conditions()
 //------------------------------------------------------------------------------
 void InputOutput::print_system_state()
 {
+  //---------------------------------
   if (settingsPtr->printing_to_txt)
     print_system_state_to_txt();
 
+  //---------------------------------
   if (settingsPtr->printing_to_HDF)
     print_system_state_to_HDF();
 
+  //---------------------------------
+  print_freeze_out();
+
+  //---------------------------------
   // increment timestep index
   n_timesteps_output++;
 
@@ -479,6 +485,46 @@ void InputOutput::print_system_state_to_HDF()
 
   hdf5_file.output_dataset( dataset_names, dataset_units, data, width,
                             n_timesteps_output, systemPtr->t );
+
+  return;
+}
+
+
+
+
+
+void InputOutput::print_freeze_out()
+{
+  string outputfilename = output_directory + "/freeze_out_"
+                          + std::to_string(n_timesteps_output) + ".dat";
+  FO.open( outputfilename.c_str(), ios::out | ios::app );
+
+  if ( fo.divTtemp.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.divT.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.gsub.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.uout.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.swsub.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.bulksub.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.shearsub.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.shear33sub.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.tlist.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.rsub.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.sFO.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.Tfluc.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+
+  for (int i = 0; i < fo.cf; i++)
+    FO << fo.divTtemp[i] << " " << fo.divT[i] << " "
+        << fo.gsub[i] << " " << fo.uout[i] << " "
+        << fo.swsub[i] << " " << fo.bulksub[i] << " " 
+        << fo.shearsub[i].x[0][0] << " "
+        << fo.shearsub[i].x[1][1] << " " 
+        << fo.shearsub[i].x[2][2] << " "
+        << fo.shear33sub[i] << " " 
+        << fo.shearsub[i].x[1][2] << " " 
+        << fo.tlist[i] << " " << fo.rsub[i] << " "
+        << fo.sFO[i] << " " << fo.Tfluc[i] << endl;
+
+  FO.close();
 
   return;
 }
