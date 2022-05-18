@@ -87,8 +87,6 @@ void InputOutput::load_settings_file( string path_to_settings_file )
 //    settingsPtr->Freeze_Out_Type        = all_parameters[paramCount++];
 
 
-    typedef map  <string, string> setting_map;
-    typedef pair <string, string> setting_pair;
     
     setting_map values;
     values.insert( setting_pair("ICtype",     "ICCING") );
@@ -120,22 +118,39 @@ cout << "Setting " << ignore << " to " << param << endl;
       values.at(ignore) = param;
     }
 
-    settingsPtr->IC_type                = values.at("ICtype");
-    settingsPtr->IC_option              = values.at("ICoption");
-    settingsPtr->IC_file                = values.at("ICfile");
-    settingsPtr->h                      = stod(values.at("h"));
-    settingsPtr->dt                     = stod(values.at("dt"));
-    settingsPtr->t0                     = stod(values.at("t0"));
-    settingsPtr->EoS_type               = values.at("EoS_type");
-    settingsPtr->EoS_option             = values.at("EoS_option");
-    settingsPtr->eta                    = values.at("eta");
-    settingsPtr->etaOption              = values.at("etaOption");
-    settingsPtr->shearRelax             = values.at("shearRelax");
-    settingsPtr->zeta                   = values.at("zeta");
-    settingsPtr->zetaOption             = values.at("zetaOption");
-    settingsPtr->bulkRelax              = values.at("bulkRelax");
-    settingsPtr->Freeze_Out_Temperature = stod(values.at("freezeoutT"))/hbarc_MeVfm;
-    settingsPtr->Freeze_Out_Type        = values.at("freezeout");
+//    settingsPtr->IC_type                = values.at("ICtype");
+//    settingsPtr->IC_option              = values.at("ICoption");
+//    settingsPtr->IC_file                = values.at("ICfile");
+//    settingsPtr->h                      = stod(values.at("h"));
+//    settingsPtr->dt                     = stod(values.at("dt"));
+//    settingsPtr->t0                     = stod(values.at("t0"));
+//    settingsPtr->EoS_type               = values.at("EoS_type");
+//    settingsPtr->EoS_option             = values.at("EoS_option");
+//    settingsPtr->eta                    = values.at("eta");
+//    settingsPtr->etaOption              = values.at("etaOption");
+//    settingsPtr->shearRelax             = values.at("shearRelax");
+//    settingsPtr->zeta                   = values.at("zeta");
+//    settingsPtr->zetaOption             = values.at("zetaOption");
+//    settingsPtr->bulkRelax              = values.at("bulkRelax");
+//    settingsPtr->Freeze_Out_Temperature = stod(values.at("freezeoutT"))/hbarc_MeVfm;
+//    settingsPtr->Freeze_Out_Type        = values.at("freezeout");
+
+    settingsPtr->IC_type                = get_value(values, "ICtype");
+    settingsPtr->IC_option              = get_value(values, "ICoption");
+    settingsPtr->IC_file                = get_value(values, "ICfile");
+    settingsPtr->h                      = stod(get_value(values, "h"));
+    settingsPtr->dt                     = stod(get_value(values, "dt"));
+    settingsPtr->t0                     = stod(get_value(values, "t0"));
+    settingsPtr->EoS_type               = get_value(values, "EoS_type");
+    settingsPtr->EoS_option             = get_value(values, "EoS_option");
+    settingsPtr->eta                    = get_value(values, "eta");
+    settingsPtr->etaOption              = get_value(values, "etaOption");
+    settingsPtr->shearRelax             = get_value(values, "shearRelax");
+    settingsPtr->zeta                   = get_value(values, "zeta");
+    settingsPtr->zetaOption             = get_value(values, "zetaOption");
+    settingsPtr->bulkRelax              = get_value(values, "bulkRelax");
+    settingsPtr->Freeze_Out_Temperature = stod(get_value(values, "freezeoutT"))/hbarc_MeVfm;
+    settingsPtr->Freeze_Out_Type        = get_value(values, "freezeout");
 
 
 

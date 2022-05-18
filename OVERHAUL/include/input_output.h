@@ -8,8 +8,10 @@
 #include <cstring>
 #include <fstream>
 #include <iostream>
+#include <map>
 #include <memory>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -18,6 +20,10 @@
 #include "vector.h"
 #include "particle.h"
 #include "system_state.h"
+
+
+typedef map  <string, string> setting_map;
+typedef pair <string, string> setting_pair;
 
 // Forward declaration of friend classes
 class EquationOfState;
@@ -50,6 +56,13 @@ public:
 
   inline void remove_char( std::string & s, char c )
               { s.erase(std::remove(s.begin(), s.end(), c), s.end()); }
+
+  string get_value( setting_map & values, string key )
+  {
+    try { return values.at(key) }
+    catch (const std::out_of_range& oor)
+        { std::cerr << "Out of Range error: " << oor.what() << '\n'; abort(); }
+  }
 
 private:
 
