@@ -59,11 +59,13 @@ public:
 
   void set_value( setting_map & values, const string key, const string value )
   {
-    try { cout << key << " " << value << endl;
+    try { cout << __FUNCTION__ << ": " << key << " " << value << endl;
           auto & tmp = values.at(key);
           tmp = value; }
     catch (const std::out_of_range& oor)
-        { std::cerr << "Invalid key: \"" << key << "\" not found in values!" << endl; }
+        { std::cerr << endl << "Invalid key: \"" << key
+                    << "\" not found in values!" << endl << endl;
+          abort(); }
 /*    catch(const std::runtime_error& re)
 {
     // speciffic handling for runtime_error
