@@ -20,11 +20,13 @@
 #include "mathdef.h"
 #include "vector.h"
 #include "particle.h"
+#include "sph_workstation.h"
 #include "system_state.h"
 
 // Forward declaration of friend classes
 class EquationOfState;
 class Settings;
+class SPHWorkstation;
 class SystemState;
 
 class InputOutput
@@ -39,6 +41,7 @@ public:
   void set_EquationOfStatePtr( EquationOfState * eosPtr_in );
   void set_SettingsPtr( Settings * settingsPtr_in );
   void set_SystemStatePtr( SystemState * systemPtr_in );
+  void set_SPHWorkstationPtr( SPHWorkstation * wsPtr_in );
 
   int n_timesteps_output = 0;
 
@@ -83,7 +86,7 @@ private:
   EquationOfState   * eosPtr      = nullptr;
   Settings          * settingsPtr = nullptr;
   SystemState       * systemPtr   = nullptr;
-
+  SPHWorkstation    * wsPtr       = nullptr;
 
   interface_to_HDF5 hdf5_file;
 

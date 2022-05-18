@@ -10,6 +10,7 @@ BSQHydro::BSQHydro()
   // initialize I/O pointers
   io.set_EquationOfStatePtr( &ws.eos );
   io.set_SettingsPtr( &settings );
+  io.set_SPHWorkstationPtr( &ws );  // this is probably unnecessary
   io.set_SystemStatePtr( &system );
 
   // initialize SPH workstation

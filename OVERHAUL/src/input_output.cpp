@@ -14,6 +14,7 @@
 #include "../include/input_output.h"
 #include "../include/particle.h"
 #include "../include/mathdef.h"
+#include "../include/sph_workstation.h"
 #include "../include/vector.h"
 
 using namespace constants;
@@ -44,6 +45,11 @@ void InputOutput::set_SystemStatePtr( SystemState * systemPtr_in )
   systemPtr = systemPtr_in;
 }
 
+//------------------------------------------------------------------------------
+void InputOutput::set_SPHWorkstationPtr( SPHWorkstation * wsPtr_in )
+{
+  wsPtr = wsPtr_in;
+}
 
 //------------------------------------------------------------------------------
 void InputOutput::set_results_directory( string path_to_results_directory )
@@ -498,6 +504,8 @@ void InputOutput::print_freeze_out()
   string outputfilename = output_directory + "/freeze_out_"
                           + std::to_string(n_timesteps_output) + ".dat";
   FO.open( outputfilename.c_str(), ios::out | ios::app );
+
+  auto & fo = wsPtr->fo;
 
   if ( fo.divTtemp.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
   if ( fo.divT.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
