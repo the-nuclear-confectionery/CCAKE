@@ -88,9 +88,8 @@ void InputOutput::load_settings_file( string path_to_settings_file )
       iss >> ignore >> param;
       remove_char(ignore, ':');
 
-//cout << "Setting " << ignore << " to " << param << endl;
-
-      values.at(ignore) = param;
+      //values.at(ignore) = param;
+      set_value(values, ignore, param);
     }
 
     settingsPtr->IC_type                = get_value(values, "ICtype");
