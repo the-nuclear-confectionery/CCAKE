@@ -57,14 +57,14 @@ public:
   inline void remove_char( std::string & s, char c )
               { s.erase(std::remove(s.begin(), s.end(), c), s.end()); }
 
-  string set_value( setting_map & values, string & key, string & value )
+  string set_value( setting_map & values, const string & key, const string & value )
   {
     try { values.at(key) = value; }
     catch (const std::out_of_range& oor)
         { std::cerr << "Invalid key: \"" << key << "\" not found in values!\n"; abort(); }
   }
 
-  string get_value( setting_map & values, string & key )
+  string get_value( setting_map & values, const string & key )
   {
     try { return values.at(key); }
     catch (const std::out_of_range& oor)
