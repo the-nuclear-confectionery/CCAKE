@@ -61,31 +61,6 @@ void InputOutput::load_settings_file( string path_to_settings_file )
     string ignore = "";
     string param = "";
     vector<string> all_parameters;
-//    while ( getline (infile, line) )
-//    {
-//      istringstream iss(line);
-//      iss >> ignore >> param;
-//      all_parameters.push_back(param);
-//    }
-//
-//    int paramCount = 0;
-//    settingsPtr->IC_type                = all_parameters[paramCount++];
-//    settingsPtr->IC_option              = all_parameters[paramCount++];
-//    settingsPtr->IC_file                = all_parameters[paramCount++];
-//    settingsPtr->h                      = stod(all_parameters[paramCount++]);
-//    settingsPtr->dt                     = stod(all_parameters[paramCount++]);
-//    settingsPtr->t0                     = stod(all_parameters[paramCount++]);
-//    settingsPtr->EoS_type               = all_parameters[paramCount++];
-//    settingsPtr->EoS_option             = all_parameters[paramCount++];
-//    settingsPtr->eta                    = all_parameters[paramCount++];
-//    settingsPtr->etaOption              = all_parameters[paramCount++];
-//    settingsPtr->shearRelax             = all_parameters[paramCount++];
-//    settingsPtr->zeta                   = all_parameters[paramCount++];
-//    settingsPtr->zetaOption             = all_parameters[paramCount++];
-//    settingsPtr->bulkRelax              = all_parameters[paramCount++];
-//    settingsPtr->Freeze_Out_Temperature = stod(all_parameters[paramCount++])/hbarc_MeVfm;
-//    settingsPtr->Freeze_Out_Type        = all_parameters[paramCount++];
-
 
     
     setting_map values;
