@@ -59,7 +59,7 @@ public:
 
   string get_value( setting_map & values, string key )
   {
-    try { return values.at(key) }
+    try { return values.at(key); }
     catch (const std::out_of_range& oor)
         { std::cerr << "Out of Range error: " << oor.what() << '\n'; abort(); }
   }
