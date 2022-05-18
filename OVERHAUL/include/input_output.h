@@ -59,6 +59,11 @@ public:
 
   string set_value( setting_map & values, const string key, const string value )
   {
+    cout << "Check contents:" << endl;
+    for ( auto & it : values )
+      cout << "Set " << it.first << " to be " << it.second << endl;
+    cout << endl;
+
     try { cout << key << " " << value << endl;
           auto & tmp = values.at(key);
           tmp = value; }
