@@ -136,7 +136,7 @@ class FreezeOut
 
 
     //==============================================================================
-    void frzcheck( Particle & p, double tin, int &count, int N )
+    void check_freeze_out_status( Particle & p, double tin, int &count, int N )
     {
       int p_ID = p.ID;
       if ( p.Freeze == 0 )              // if particle has not yet started freezing out

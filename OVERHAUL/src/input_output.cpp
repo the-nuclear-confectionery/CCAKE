@@ -59,8 +59,8 @@ void InputOutput::load_settings_file( string path_to_settings_file )
   if (infile.is_open())
   {
     string line;
-    string ignore = "";
-    string param  = "";
+    string field = "";
+    string value = "";
     
     // set default values first
     setting_map values = parameter_settings::get_defaults();
@@ -69,60 +69,31 @@ void InputOutput::load_settings_file( string path_to_settings_file )
     while ( getline (infile, line) )
     {
       istringstream iss(line);
-      iss >> ignore >> param;
-      remove_char(ignore, ':');
+      iss >> field >> value;
+      remove_char(field, ':');
 
-      set_value(values, ignore, param);
+      set_value(values, field, value);
     }
 
     // store final settings
-    settingsPtr->IC_type                = get_value(values, "ICtype");
-    settingsPtr->IC_option              = get_value(values, "ICoption");
-    settingsPtr->IC_file                = get_value(values, "ICfile");
+    settingsPtr->IC_type                =      get_value(values, "ICtype");
+    settingsPtr->IC_option              =      get_value(values, "ICoption");
+    settingsPtr->IC_file                =      get_value(values, "ICfile");
     settingsPtr->h                      = stod(get_value(values, "h"));
     settingsPtr->dt                     = stod(get_value(values, "dt"));
     settingsPtr->t0                     = stod(get_value(values, "t0"));
-    settingsPtr->EoS_type               = get_value(values, "EoS_Type");
-    settingsPtr->EoS_option             = get_value(values, "EoS_Option");
-    settingsPtr->eta                    = get_value(values, "eta");
+    settingsPtr->EoS_type               =      get_value(values, "EoS_Type");
+    settingsPtr->EoS_option             =      get_value(values, "EoS_Option");
+    settingsPtr->eta                    =      get_value(values, "eta");
     settingsPtr->constant_eta_over_s    = stod(get_value(values, "constant_eta_over_s"));
-    settingsPtr->shearRelax             = get_value(values, "shearRelax");
-    settingsPtr->zeta                   = get_value(values, "zeta");
+    settingsPtr->shearRelax             =      get_value(values, "shearRelax");
+    settingsPtr->zeta                   =      get_value(values, "zeta");
     settingsPtr->constant_zeta_over_s   = stod(get_value(values, "constant_zeta_over_s"));
     settingsPtr->cs2_dependent_zeta_A   = stod(get_value(values, "cs2_dependent_zeta_A"));
     settingsPtr->cs2_dependent_zeta_p   = stod(get_value(values, "cs2_dependent_zeta_p"));
-    settingsPtr->bulkRelax              = get_value(values, "bulkRelax");
+    settingsPtr->bulkRelax              =      get_value(values, "bulkRelax");
     settingsPtr->Freeze_Out_Temperature = stod(get_value(values, "freezeoutT"))/hbarc_MeVfm;
-    settingsPtr->Freeze_Out_Type        = get_value(values, "freezeout");
-
-
-
-
-    cout << endl << endl << "Check input:" << endl;
-    cout << settingsPtr->IC_type << endl;
-    cout << settingsPtr->IC_option << endl;
-    cout << settingsPtr->IC_file << endl;
-    cout << settingsPtr->h << endl;
-    cout << settingsPtr->dt << endl;
-    cout << settingsPtr->t0 << endl;
-    cout << settingsPtr->EoS_type << endl;
-    cout << settingsPtr->EoS_option << endl;
-    cout << settingsPtr->eta << endl;
-    cout << settingsPtr->constant_eta_over_s << endl;
-    cout << settingsPtr->shearRelax << endl;
-    cout << settingsPtr->zeta << endl;
-    cout << settingsPtr->constant_zeta_over_s << endl;
-    cout << settingsPtr->cs2_dependent_zeta_A << endl;
-    cout << settingsPtr->cs2_dependent_zeta_p << endl;
-    cout << settingsPtr->bulkRelax << endl;
-    cout << settingsPtr->Freeze_Out_Temperature << endl;
-    cout << settingsPtr->Freeze_Out_Type << endl;
-
-
-
-if (1) exit(8);
-
-
+    settingsPtr->Freeze_Out_Type        =      get_value(values, "freezeout");
 
 
     //==========================================================================
