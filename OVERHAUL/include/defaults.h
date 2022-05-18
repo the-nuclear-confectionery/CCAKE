@@ -10,7 +10,7 @@ typedef std::pair <std::string, std::string> setting_pair;
 
 namespace parameter_settings
 {
-  setting_map get_defaults()
+  inline setting_map get_defaults()
   {
     setting_map defaults;
 
