@@ -85,12 +85,12 @@ void InputOutput::load_settings_file( string path_to_settings_file )
     settingsPtr->EoS_type               = get_value(values, "EoS_Type");
     settingsPtr->EoS_option             = get_value(values, "EoS_Option");
     settingsPtr->eta                    = get_value(values, "eta");
-    settingsPtr->constant_eta_over_s    = get_value(values, "constant_eta_over_s");
+    settingsPtr->constant_eta_over_s    = stod(get_value(values, "constant_eta_over_s"));
     settingsPtr->shearRelax             = get_value(values, "shearRelax");
     settingsPtr->zeta                   = get_value(values, "zeta");
-    settingsPtr->constant_zeta_over_s   = get_value(values, "constant_zeta_over_s");
-    settingsPtr->cs2_dependent_zeta_A   = get_value(values, "cs2_dependent_zeta_A");
-    settingsPtr->cs2_dependent_zeta_p   = get_value(values, "cs2_dependent_zeta_p");
+    settingsPtr->constant_zeta_over_s   = stod(get_value(values, "constant_zeta_over_s"));
+    settingsPtr->cs2_dependent_zeta_A   = stod(get_value(values, "cs2_dependent_zeta_A"));
+    settingsPtr->cs2_dependent_zeta_p   = stod(get_value(values, "cs2_dependent_zeta_p"));
     settingsPtr->bulkRelax              = get_value(values, "bulkRelax");
     settingsPtr->Freeze_Out_Temperature = stod(get_value(values, "freezeoutT"))/hbarc_MeVfm;
     settingsPtr->Freeze_Out_Type        = get_value(values, "freezeout");
