@@ -48,6 +48,9 @@ public:
   void print_system_state_to_txt();
   void print_system_state_to_HDF();
 
+  inline void remove_char( std::string & s, char c )
+              { s.erase(std::remove(s.begin(), s.end(), c), s.end()); }
+
 private:
 
   string input_directory;
