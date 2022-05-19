@@ -207,6 +207,7 @@ class FreezeOut
           p_frz2.muS     = p.muS();
           p_frz2.muQ     = p.muQ();
           p_frz2.e       = p.e();
+          p_frz2.s       = p.s();
           p_frz2.rhoB    = p.rhoB();
           p_frz2.rhoS    = p.rhoS();
           p_frz2.rhoQ    = p.rhoQ();
@@ -234,6 +235,7 @@ class FreezeOut
           p_frz1.muS     = p.muS();
           p_frz1.muQ     = p.muQ();
           p_frz1.e       = p.e();
+          p_frz1.s       = p.s();
           p_frz1.rhoB    = p.rhoB();
           p_frz1.rhoS    = p.rhoS();
           p_frz1.rhoQ    = p.rhoQ();
@@ -338,6 +340,7 @@ class FreezeOut
           p_frz1.muS     = p.muS();
           p_frz1.muQ     = p.muQ();
           p_frz1.e       = p.e();
+          p_frz1.s       = p.s();
           p_frz1.rhoB    = p.rhoB();
           p_frz1.rhoS    = p.rhoS();
           p_frz1.rhoQ    = p.rhoQ();
@@ -404,6 +407,7 @@ class FreezeOut
           sigsub        = frz1[i].sigma;
           thetasub      = frz1[i].theta;
           Tfluc[j]      = frz1[i].T;             // replace with e
+          sFO[j]        = frz1[i].s;             // replace with e
         }
         else if ( swit == 2 ) // if particle was closer to freeze-out two timesteps ago
         {
@@ -423,6 +427,7 @@ class FreezeOut
           sigsub        = frz2[i].sigma;
           thetasub      = frz2[i].theta;
           Tfluc[j]      = frz2[i].T;           // replace with e
+          sFO[j]        = frz2[i].s;             // replace with e
         }
         else  // this should never happen
         {
@@ -431,7 +436,8 @@ class FreezeOut
 
 
         // COMPUTE NORMALS AFTER THIS POINT
-        sFO[j]       = eosPtr->s_terms_T( Tfluc[j] );  // replace with e, BSQ
+//        sFO[j]       = eosPtr->s_terms_T( Tfluc[j] );  // replace with e, BSQ
+cout << "Comparison: " << eosPtr->s_terms_T( Tfluc[j] ) << "   " << sFO[j] << endl;
         gsub[j]      = sqrt( Norm2(uout[j]) + 1 );
 
 
