@@ -6,6 +6,7 @@
 #include "eom.h"
 #include "eom_default.h"
 #include "evolver.h"
+#include "freeze_out.h"
 #include "kernel.h"
 #include "settings.h"
 #include "stopwatch.h"
