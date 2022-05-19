@@ -188,6 +188,8 @@ class FreezeOut
     ////////////////////////////////////////////////////////////////////////////
     void bsqsvfreezeout(int curfrz)
     {
+cout << "Made it to line " << __LINE__ << endl;
+
       cout << "CHECK BSQSVFREEZEOUT: " << frzc
             << "   " << tau << "   " << taup
             << "   " << taupp << "   " << systemPtr->cfon << endl;

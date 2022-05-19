@@ -515,6 +515,7 @@ void SPHWorkstation::update_freeze_out_lists()
 
 void SPHWorkstation::finalize_freeze_out(int curfrz)
 {
+cout << "Made it to line " << __LINE__ << endl;
   if (systemPtr->cfon==1)
     fo.bsqsvfreezeout( curfrz );
 }
