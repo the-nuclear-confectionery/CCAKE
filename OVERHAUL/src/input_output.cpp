@@ -124,14 +124,14 @@ void InputOutput::load_settings_file( string path_to_settings_file )
       settingsPtr->Freeze_Out_Temperature = 1e-10/hbarc_MeVfm;
 
       // Gubser shear viscosity settings
-      settingsPtr->eta = "constant";
+      settingsPtr->etaMode = "constant";
       if ( settingsPtr->IC_type == "Gubser" )
         settingsPtr->constant_eta_over_s = 0.0;
       else if ( settingsPtr->IC_type == "Gubser_with_shear" )
         settingsPtr->constant_eta_over_s = 0.20;
 
       // Gubser bulk viscosity settings
-      settingsPtr->zeta = "constant";
+      settingsPtr->zetaMode = "constant";
       settingsPtr->constant_zeta_over_s = 0.0;
     }
     else if ( settingsPtr->IC_type == "TECHQM" )
@@ -140,7 +140,7 @@ void InputOutput::load_settings_file( string path_to_settings_file )
     }
 
     // if eta/s == 0 identically, set using_shear to false
-    if ( settingsPtr->eta == "constant" &&
+    if ( settingsPtr->etaMode == "constant" &&
          settingsPtr->constant_eta_over_s < 1e-10 )
       settingsPtr->using_shear  = false;
     else
