@@ -74,10 +74,18 @@ void InputOutput::load_settings_file( string path_to_settings_file )
     // update settings from input file
     while ( getline (infile, line) )
     {
+      // skip whitespace lines
+      if ( line.find_first_not_of(" \t\n\v\f\r") == std::string::npos )
+        continue;
+
       istringstream iss(line);
       iss >> field >> value;
-      remove_char(field, ':');
 
+      // skip commented lines
+      if ( field.front() == comment_character )
+        continue;
+
+      remove_char(field, ':');
       set_value(values, field, value);
     }
 

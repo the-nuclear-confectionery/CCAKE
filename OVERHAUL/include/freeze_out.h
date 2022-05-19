@@ -383,11 +383,17 @@ cout << "Made it to line " << __LINE__ << endl;
     void bsqsvinterpolate(int curfrz)
     {
       cout << "Entered " << __FUNCTION__ << " with " << curfrz << " particles" << endl;
+cout << "Made it to line " << __LINE__ << endl;
       sFO.resize( curfrz, 0 );
+cout << "Made it to line " << __LINE__ << endl;
       Tfluc.resize( curfrz, 0 );
+cout << "Made it to line " << __LINE__ << endl;
       muBfluc.resize( curfrz, 0 );
+cout << "Made it to line " << __LINE__ << endl;
       muSfluc.resize( curfrz, 0 );
+cout << "Made it to line " << __LINE__ << endl;
       muQfluc.resize( curfrz, 0 );
+cout << "Made it to line " << __LINE__ << endl;
       eosname.resize( curfrz, 0 );
 cout << "Made it to line " << __LINE__ << endl;
 
