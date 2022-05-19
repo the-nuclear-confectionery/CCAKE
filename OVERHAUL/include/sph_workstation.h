@@ -77,7 +77,7 @@ public:
     if ( settingsPtr->using_Gubser )
       tc.initialize( "Gubser" );
     else
-      tc.initialize( settingsPtr->etaMode, settingsPtr->shearRelaxMode
+      tc.initialize( settingsPtr->etaMode, settingsPtr->shearRelaxMode,
                      settingsPtr->zetaMode, settingsPtr->bulkRelaxMode );
 
     //----------------------------------------
