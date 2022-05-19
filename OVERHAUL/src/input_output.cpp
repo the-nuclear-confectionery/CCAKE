@@ -376,7 +376,7 @@ void InputOutput::print_system_state()
   // increment timestep index
   n_timesteps_output++;
 
-if (systemPtr->t > 1.5) exit(1);
+//if (systemPtr->t > 1.5) exit(1);
 
   return;
 }
