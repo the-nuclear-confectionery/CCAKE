@@ -51,6 +51,7 @@ class FreezeOut
     // freeze out struct
     struct FRZ
     {
+      string eos_name = "";
       double t = 0.0, s = 0.0, e = 0.0, rhoB = 0.0, rhoS = 0.0, rhoQ = 0.0,
              T = 0.0, muB = 0.0, muS = 0.0, muQ = 0.0, theta = 0.0, bulk = 0.0,
              sigma = 0.0, shear33 = 0.0, inside = 0.0;
@@ -79,6 +80,8 @@ class FreezeOut
     vector<double> tlist;
     vector<double> sFO;         //entropy at freezeout
     vector<double> Tfluc;
+
+    vector<double> eosname;
 
     vector< Vector<double,2> > divT;
     vector< Vector<double,2> > rsub;
@@ -219,6 +222,7 @@ cout << "Made it to line " << __LINE__ << endl;
           p_frz2.shear   = p.hydro.shv;
           p_frz2.shear33 = p.hydro.shv33;
           p_frz2.inside  = p.hydro.inside;
+          p_frz2.eos_name  = p.get_current_eos_name();
         }
 
       }
@@ -247,6 +251,7 @@ cout << "Made it to line " << __LINE__ << endl;
           p_frz1.shear   = p.hydro.shv;
           p_frz1.shear33 = p.hydro.shv33;
           p_frz1.inside  = p.hydro.inside;
+          p_frz1.eos_name  = p.get_current_eos_name();
         }
 
         divTtemp.resize( curfrz );
@@ -356,6 +361,7 @@ cout << "Made it to line " << __LINE__ << endl;
           p_frz1.shear   = p.hydro.shv;
           p_frz1.shear33 = p.hydro.shv33;
           p_frz1.inside  = p.hydro.inside;
+          p_frz1.eos_name  = p.get_current_eos_name();
         }
 
         taupp = taup;
@@ -379,6 +385,7 @@ cout << "Made it to line " << __LINE__ << endl;
       cout << "Entered " << __FUNCTION__ << " with " << curfrz << " particles" << endl;
       sFO.resize( curfrz, 0 );
       Tfluc.resize( curfrz, 0 );
+      eosname.resize( curfrz, 0 );
 
       // for all CURRENTLY FREEZING OUT PARTICLES
       for (int j=0; j<curfrz; j++)
@@ -415,6 +422,7 @@ cout << "Made it to line " << __LINE__ << endl;
           thetasub      = frz1[i].theta;
           Tfluc[j]      = frz1[i].T;             // replace with e
           sFO[j]        = frz1[i].s;             // replace with e
+          eosname[j]    = frz1[i].eos_name;
         }
         else if ( swit == 2 ) // if particle was closer to freeze-out two timesteps ago
         {
@@ -435,6 +443,7 @@ cout << "Made it to line " << __LINE__ << endl;
           thetasub      = frz2[i].theta;
           Tfluc[j]      = frz2[i].T;           // replace with e
           sFO[j]        = frz2[i].s;             // replace with e
+          eosname[j]    = frz2[i].eos_name;
         }
         else  // this should never happen
         {
@@ -444,7 +453,7 @@ cout << "Made it to line " << __LINE__ << endl;
 
         // COMPUTE NORMALS AFTER THIS POINT
 //        sFO[j]       = eosPtr->s_terms_T( Tfluc[j] );  // replace with e, BSQ
-cout << "Comparison: " << eosPtr->s_terms_T( Tfluc[j] ) << "   " << sFO[j] << endl;
+cout << "Comparison: " << eosPtr->s_terms_T( Tfluc[j], eosname[j] ) << "   " << sFO[j] << endl;
         gsub[j]      = sqrt( Norm2(uout[j]) + 1 );
 
 
