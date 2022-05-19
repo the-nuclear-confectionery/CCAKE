@@ -79,9 +79,9 @@ class FreezeOut
     vector<double> shear33sub;
     vector<double> tlist;
     vector<double> sFO;         //entropy at freezeout
-    vector<double> Tfluc;
+    vector<double> Tfluc, muBfluc, muSfluc, muQfluc;
 
-    vector<double> eosname;
+    vector<string> eosname;
 
     vector< Vector<double,2> > divT;
     vector< Vector<double,2> > rsub;
@@ -385,6 +385,9 @@ cout << "Made it to line " << __LINE__ << endl;
       cout << "Entered " << __FUNCTION__ << " with " << curfrz << " particles" << endl;
       sFO.resize( curfrz, 0 );
       Tfluc.resize( curfrz, 0 );
+      muBfluc.resize( curfrz, 0 );
+      muSfluc.resize( curfrz, 0 );
+      muQfluc.resize( curfrz, 0 );
       eosname.resize( curfrz, 0 );
 
       // for all CURRENTLY FREEZING OUT PARTICLES
@@ -421,7 +424,10 @@ cout << "Made it to line " << __LINE__ << endl;
           sigsub        = frz1[i].sigma;
           thetasub      = frz1[i].theta;
           Tfluc[j]      = frz1[i].T;             // replace with e
-          sFO[j]        = frz1[i].s;             // replace with e
+          muBfluc[j]    = frz1[i].muB;
+          muSfluc[j]    = frz1[i].muS;
+          muQfluc[j]    = frz1[i].muQ;
+          sFO[j]        = frz1[i].s;
           eosname[j]    = frz1[i].eos_name;
         }
         else if ( swit == 2 ) // if particle was closer to freeze-out two timesteps ago
@@ -442,6 +448,9 @@ cout << "Made it to line " << __LINE__ << endl;
           sigsub        = frz2[i].sigma;
           thetasub      = frz2[i].theta;
           Tfluc[j]      = frz2[i].T;           // replace with e
+          muBfluc[j]    = frz2[i].muB;
+          muSfluc[j]    = frz2[i].muS;
+          muQfluc[j]    = frz2[i].muQ;
           sFO[j]        = frz2[i].s;             // replace with e
           eosname[j]    = frz2[i].eos_name;
         }
@@ -453,7 +462,8 @@ cout << "Made it to line " << __LINE__ << endl;
 
         // COMPUTE NORMALS AFTER THIS POINT
 //        sFO[j]       = eosPtr->s_terms_T( Tfluc[j] );  // replace with e, BSQ
-cout << "Comparison: " << eosPtr->s_terms_T( Tfluc[j], eosname[j] ) << "   " << sFO[j] << endl;
+cout << "Comparison: " << eosPtr->s_terms_T( Tfluc[j], muBfluc[j], muQfluc[j], muSfluc[j], eosname[j] )
+      << "   " << eosPtr->s_terms_T( Tfluc[j], eosname[j] ) << "   " << sFO[j] << endl;
         gsub[j]      = sqrt( Norm2(uout[j]) + 1 );
 
 

@@ -115,6 +115,7 @@ public:
            {return wfz(Tt, muBin, muQin, muSin, default_eos_name);}
     double wfz(double Tt){return wfz(Tt, default_eos_name);}
     double s_terms_T(double Tt){return s_terms_T(Tt, default_eos_name);}
+
     double efreeze(double TFO, const string & eos_name);
     double sfreeze(double TFO, const string & eos_name);
     double cs2out(double Tt, double muBin, double muQin, double muSin,
@@ -124,6 +125,9 @@ public:
                   const string & eos_name);
     double wfz(double Tt, const string & eos_name);
     double s_terms_T(double Tt, const string & eos_name);
+
+    double s_terms_T( double Tt, double muBin, double muQin, double muSin,
+                      const string & eos_name );
 
     void evaluate_thermodynamics( pEoS_base peos );
 

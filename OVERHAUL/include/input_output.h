@@ -79,6 +79,8 @@ public:
 
 private:
 
+  const char comment_character = '#'; //make it something else if you want
+
   string input_directory;
   string output_directory;
 

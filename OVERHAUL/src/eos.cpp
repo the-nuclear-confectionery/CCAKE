@@ -304,6 +304,15 @@ double EquationOfState::s_terms_T(double Tt, const string & eos_name)
 }
 
 
+double EquationOfState::s_terms_T( double Tt, double muBin,
+                                   double muQin, double muSin,
+                                   const string & eos_name )
+{
+  tbqs(Tt, muBin, muQin, muSin, eos_name);
+  return entrVal;
+}
+
+
 // UNCOMMENTED BY C. PLUMBERG
 void EquationOfState::eosin(std::string type){}
 
