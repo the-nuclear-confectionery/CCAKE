@@ -46,6 +46,7 @@ class TransportCoefficients
     double tau_piGubser();
     double tau_piMinval();
 
+    double constZeta();
     double zeta_DNMR_LeadingMass();
     double NoBulk();
     double cs2_dependent_zeta();
