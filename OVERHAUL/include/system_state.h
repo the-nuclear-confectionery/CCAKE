@@ -10,6 +10,7 @@
 #include "eos_delaunay.h"
 
 #include "eos.h"
+#include "freeze_out.h"
 #include "kernel.h"
 #include "linklist.h"
 #include "matrix.h"

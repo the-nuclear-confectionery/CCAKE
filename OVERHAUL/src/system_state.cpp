@@ -14,6 +14,7 @@ using std::string;
 
 #include "../include/constants.h"
 #include "../include/eos.h"
+#include "../include/freeze_out.h"
 #include "../include/linklist.h"
 #include "../include/particle.h"
 #include "../include/stopwatch.h"
