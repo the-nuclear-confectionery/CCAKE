@@ -92,7 +92,7 @@ void TransportCoefficients::initialize_eta(const string & etaType_in)
   }
   else
   {
-    cout << "Shear viscosity specification not recognized. Now exiting.\n";
+    cout << "Shear viscosity specification " << etaType << " not recognized. Now exiting.\n";
     exit(1);
   }
 }
@@ -131,7 +131,7 @@ void TransportCoefficients::initialize_tau_pi(const string & tau_piType_in)
   }
   else
   {
-    cout << "Tau shear specification not recognized. Now exiting.\n";
+    cout << "Tau shear specification " << tau_piType << " not recognized. Now exiting.\n";
     exit(1);
   }
 }
@@ -166,7 +166,7 @@ void TransportCoefficients::initialize_zeta(const string & zetaType_in)
   }
   else
   {
-    cout << "Bulk viscosity specification not recognized. Now exiting.\n";
+    cout << "Bulk viscosity specification " << zetaType << " not recognized. Now exiting.\n";
     exit(1);
   }
 }
@@ -187,7 +187,7 @@ void TransportCoefficients::initialize_tau_Pi(const string & tau_PiType_in)
   }
   else 
   {
-    cout << "Tau bulk specification not recognized. Now exiting.\n";
+    cout << "Tau bulk specification " << tau_PiType << " not recognized. Now exiting.\n";
     exit(1);   
   }
 }
