@@ -383,27 +383,18 @@ cout << "Made it to line " << __LINE__ << endl;
     void bsqsvinterpolate(int curfrz)
     {
       cout << "Entered " << __FUNCTION__ << " with " << curfrz << " particles" << endl;
-cout << "Made it to line " << __LINE__ << endl;
       sFO.resize( curfrz, 0 );
-cout << "Made it to line " << __LINE__ << endl;
       Tfluc.resize( curfrz, 0 );
-cout << "Made it to line " << __LINE__ << endl;
       muBfluc.resize( curfrz, 0 );
-cout << "Made it to line " << __LINE__ << endl;
       muSfluc.resize( curfrz, 0 );
-cout << "Made it to line " << __LINE__ << endl;
       muQfluc.resize( curfrz, 0 );
-cout << "Made it to line " << __LINE__ << endl;
-      eosname.resize( curfrz, 0 );
-cout << "Made it to line " << __LINE__ << endl;
+      eosname.resize( curfrz );
 
       // for all CURRENTLY FREEZING OUT PARTICLES
       for (int j=0; j<curfrz; j++)
       {
-cout << "Made it to line " << __LINE__ << endl;
         int i    = systemPtr->list[j];
         auto & p = systemPtr->particles[i];
-cout << "Made it to line " << __LINE__ << endl;
 
         // decide whether the particle was closer to freeze out at the previous
         // timestep or the one before that
@@ -413,7 +404,6 @@ cout << "Made it to line " << __LINE__ << endl;
         else
           swit   = 2;
 
-cout << "Made it to line " << __LINE__ << endl;
         double sigsub = 0.0, thetasub = 0.0, inside = 0.0;
         Vector<double,2> gradPsub;
         if ( swit == 1 )  // if particle was closer to freeze-out at last timestep
@@ -422,65 +412,52 @@ cout << "Made it to line " << __LINE__ << endl;
             tlist[j]    = taup;                 // at previous timestep
           else
             tlist[j]    = taup - systemPtr->dt; // otherwise, go back two timestep
-cout << "Made it to line " << __LINE__ << endl;
 
           rsub[j]       = frz1[i].r;
           uout[j]       = frz1[i].u;
           bulksub[j]    = frz1[i].bulk;
           shearsub[j]   = frz1[i].shear;
           shear33sub[j] = frz1[i].shear33;
-cout << "Made it to line " << __LINE__ << endl;
 
           gradPsub      = frz1[i].gradP;
           inside        = frz1[i].inside;
           sigsub        = frz1[i].sigma;
           thetasub      = frz1[i].theta;
           Tfluc[j]      = frz1[i].T;             // replace with e
-cout << "Made it to line " << __LINE__ << endl;
           muBfluc[j]    = frz1[i].muB;
           muSfluc[j]    = frz1[i].muS;
           muQfluc[j]    = frz1[i].muQ;
-cout << "Made it to line " << __LINE__ << endl;
           sFO[j]        = frz1[i].s;
           eosname[j]    = frz1[i].eos_name;
-cout << "Made it to line " << __LINE__ << endl;
         }
         else if ( swit == 2 ) // if particle was closer to freeze-out two timesteps ago
         {
-cout << "Made it to line " << __LINE__ << endl;
           if ( p.btrack != -1 )                   // if particle had neighbors
             tlist[j]    = taupp;                  // two timesteps ago
           else
             tlist[j]    = taupp - systemPtr->dt;  // otherwise, go back three timesteps
-cout << "Made it to line " << __LINE__ << endl;
 
           rsub[j]       = frz2[i].r;
           uout[j]       = frz2[i].u;
           bulksub[j]    = frz2[i].bulk;
           shearsub[j]   = frz2[i].shear;
           shear33sub[j] = frz2[i].shear33;
-cout << "Made it to line " << __LINE__ << endl;
 
           gradPsub      = frz2[i].gradP;
           inside        = frz2[i].inside;
           sigsub        = frz2[i].sigma;
           thetasub      = frz2[i].theta;
-cout << "Made it to line " << __LINE__ << endl;
           Tfluc[j]      = frz2[i].T;           // replace with e
           muBfluc[j]    = frz2[i].muB;
           muSfluc[j]    = frz2[i].muS;
           muQfluc[j]    = frz2[i].muQ;
-cout << "Made it to line " << __LINE__ << endl;
           sFO[j]        = frz2[i].s;             // replace with e
           eosname[j]    = frz2[i].eos_name;
-cout << "Made it to line " << __LINE__ << endl;
         }
         else  // this should never happen
         {
           cout << __PRETTY_FUNCTION__ << ": Not at freeze-out temperature" << endl;
         }
-
-cout << "Made it to line " << __LINE__ << endl;
 
         // COMPUTE NORMALS AFTER THIS POINT
 //        sFO[j]       = eosPtr->s_terms_T( Tfluc[j] );  // replace with e, BSQ
@@ -488,7 +465,6 @@ cout << "Comparison: " << eosPtr->s_terms_T( Tfluc[j], muBfluc[j], muQfluc[j], m
       << "   " << eosPtr->s_terms_T( Tfluc[j], eosname[j] ) << "   " << sFO[j] << endl;
         gsub[j]      = sqrt( Norm2(uout[j]) + 1 );
 
-cout << "Made it to line " << __LINE__ << endl;
 
         sigsub      /= gsub[j]*tlist[j];
         swsub[j]     = p.norm_spec.s/sigsub;
