@@ -146,6 +146,10 @@ void TransportCoefficients::initialize_zeta(const string & zetaType_in)
   {
     zeta = [this]{ return default_zeta(); };
   }
+  else if (zetaType == "constant")
+  {
+    zeta = [this]{ return constZeta(); };
+  }
   else if (zetaType == "DNMR")
   {
     zeta = [this]{ return zeta_DNMR_LeadingMass(); };
@@ -275,6 +279,15 @@ double TransportCoefficients::default_zeta()
 {
   double zeta_over_s = 0.005;
   return therm.s * zeta_over_s;
+}
+
+//===============================
+double TransportCoefficients::constZeta()
+{
+  double zeta_over_s = settingsPtr->constant_zeta_over_s;
+  double w = therm.w;
+  double T = therm.T;
+  return zeta_over_s*(w/T);
 }
 
 //===============================
