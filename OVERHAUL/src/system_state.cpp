@@ -11,7 +11,6 @@
 using std::cout;
 using std::endl;
 using std::string;
-using std::stod;
 
 #include "../include/constants.h"
 #include "../include/eos.h"

@@ -9,11 +9,13 @@
 #include <string>
 #include <vector>
 
-#include "../include/mathdef.h"
-#include "../include/vector.h"
-#include "../include/particle.h"
-#include "../include/input_output.h"
 #include "../include/constants.h"
+#include "../include/defaults.h"
+#include "../include/input_output.h"
+#include "../include/particle.h"
+#include "../include/mathdef.h"
+#include "../include/sph_workstation.h"
+#include "../include/vector.h"
 
 using namespace constants;
 
@@ -43,6 +45,11 @@ void InputOutput::set_SystemStatePtr( SystemState * systemPtr_in )
   systemPtr = systemPtr_in;
 }
 
+//------------------------------------------------------------------------------
+void InputOutput::set_SPHWorkstationPtr( SPHWorkstation * wsPtr_in )
+{
+  wsPtr = wsPtr_in;
+}
 
 //------------------------------------------------------------------------------
 void InputOutput::set_results_directory( string path_to_results_directory )
@@ -58,33 +65,42 @@ void InputOutput::load_settings_file( string path_to_settings_file )
   if (infile.is_open())
   {
     string line;
-    string ignore = "";
-    string param = "";
-    vector<string> all_parameters;
+    string field = "";
+    string value = "";
+    
+    // set default values first
+    setting_map values = parameter_settings::get_defaults();
+
+    // update settings from input file
     while ( getline (infile, line) )
     {
       istringstream iss(line);
-      iss >> ignore >> param;
-      all_parameters.push_back(param);
+      iss >> field >> value;
+      remove_char(field, ':');
+
+      set_value(values, field, value);
     }
 
-    int paramCount = 0;
-    settingsPtr->IC_type                = all_parameters[paramCount++];
-    settingsPtr->IC_option              = all_parameters[paramCount++];
-    settingsPtr->IC_file                = all_parameters[paramCount++];
-    settingsPtr->h                      = stod(all_parameters[paramCount++]);
-    settingsPtr->dt                     = stod(all_parameters[paramCount++]);
-    settingsPtr->t0                     = stod(all_parameters[paramCount++]);
-    settingsPtr->EoS_type               = all_parameters[paramCount++];
-    settingsPtr->EoS_option             = all_parameters[paramCount++];
-    settingsPtr->eta                    = all_parameters[paramCount++];
-    settingsPtr->etaOption              = all_parameters[paramCount++];
-    settingsPtr->shearRelax             = all_parameters[paramCount++];
-    settingsPtr->zeta                   = all_parameters[paramCount++];
-    settingsPtr->zetaOption             = all_parameters[paramCount++];
-    settingsPtr->bulkRelax              = all_parameters[paramCount++];
-    settingsPtr->Freeze_Out_Temperature = stod(all_parameters[paramCount++])/hbarc_MeVfm;
-    settingsPtr->Freeze_Out_Type        = all_parameters[paramCount++];
+    // store final settings
+    settingsPtr->IC_type                =      get_value(values, "ICtype");
+    settingsPtr->IC_option              =      get_value(values, "ICoption");
+    settingsPtr->IC_file                =      get_value(values, "ICfile");
+    settingsPtr->h                      = stod(get_value(values, "h"));
+    settingsPtr->dt                     = stod(get_value(values, "dt"));
+    settingsPtr->t0                     = stod(get_value(values, "t0"));
+    settingsPtr->EoS_type               =      get_value(values, "EoS_Type");
+    settingsPtr->EoS_option             =      get_value(values, "EoS_Option");
+    settingsPtr->eta                    =      get_value(values, "eta");
+    settingsPtr->constant_eta_over_s    = stod(get_value(values, "constant_eta_over_s"));
+    settingsPtr->shearRelax             =      get_value(values, "shearRelax");
+    settingsPtr->zeta                   =      get_value(values, "zeta");
+    settingsPtr->constant_zeta_over_s   = stod(get_value(values, "constant_zeta_over_s"));
+    settingsPtr->cs2_dependent_zeta_A   = stod(get_value(values, "cs2_dependent_zeta_A"));
+    settingsPtr->cs2_dependent_zeta_p   = stod(get_value(values, "cs2_dependent_zeta_p"));
+    settingsPtr->bulkRelax              =      get_value(values, "bulkRelax");
+    settingsPtr->Freeze_Out_Temperature = stod(get_value(values, "freezeoutT"))/hbarc_MeVfm;
+    settingsPtr->Freeze_Out_Type        =      get_value(values, "freezeout");
+
 
     //==========================================================================
     // enforce appropriate settings for Gubser
@@ -110,13 +126,13 @@ void InputOutput::load_settings_file( string path_to_settings_file )
       // Gubser shear viscosity settings
       settingsPtr->eta = "constant";
       if ( settingsPtr->IC_type == "Gubser" )
-        settingsPtr->etaOption = "0.0";
+        settingsPtr->constant_eta_over_s = 0.0;
       else if ( settingsPtr->IC_type == "Gubser_with_shear" )
-        settingsPtr->etaOption = "0.20";
+        settingsPtr->constant_eta_over_s = 0.20;
 
       // Gubser bulk viscosity settings
       settingsPtr->zeta = "constant";
-      settingsPtr->zetaOption = "0.0";
+      settingsPtr->constant_zeta_over_s = 0.0;
     }
     else if ( settingsPtr->IC_type == "TECHQM" )
     {
@@ -124,7 +140,8 @@ void InputOutput::load_settings_file( string path_to_settings_file )
     }
 
     // if eta/s == 0 identically, set using_shear to false
-    if ( settingsPtr->eta == "constant" && stod(settingsPtr->etaOption) < 1e-10 )
+    if ( settingsPtr->eta == "constant" &&
+         settingsPtr->constant_eta_over_s < 1e-10 )
       settingsPtr->using_shear  = false;
     else
       settingsPtr->using_shear  = true;
@@ -344,12 +361,18 @@ void InputOutput::read_in_initial_conditions()
 //------------------------------------------------------------------------------
 void InputOutput::print_system_state()
 {
+  //---------------------------------
   if (settingsPtr->printing_to_txt)
     print_system_state_to_txt();
 
+  //---------------------------------
   if (settingsPtr->printing_to_HDF)
     print_system_state_to_HDF();
 
+  //---------------------------------
+  print_freeze_out();
+
+  //---------------------------------
   // increment timestep index
   n_timesteps_output++;
 
@@ -466,6 +489,48 @@ void InputOutput::print_system_state_to_HDF()
 
   hdf5_file.output_dataset( dataset_names, dataset_units, data, width,
                             n_timesteps_output, systemPtr->t );
+
+  return;
+}
+
+
+
+
+
+void InputOutput::print_freeze_out()
+{
+  string outputfilename = output_directory + "/freeze_out_"
+                          + std::to_string(n_timesteps_output) + ".dat";
+  ofstream FO( outputfilename.c_str(), ios::out | ios::app );
+
+  auto & fo = wsPtr->fo;
+
+  if ( fo.divTtemp.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.divT.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.gsub.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.uout.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.swsub.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.bulksub.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.shearsub.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.shear33sub.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.tlist.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.rsub.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.sFO.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.Tfluc.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+
+  for (int i = 0; i < fo.cf; i++)
+    FO << fo.divTtemp[i] << " " << fo.divT[i] << " "
+        << fo.gsub[i] << " " << fo.uout[i] << " "
+        << fo.swsub[i] << " " << fo.bulksub[i] << " " 
+        << fo.shearsub[i](0,0) << " "
+        << fo.shearsub[i](1,1) << " " 
+        << fo.shearsub[i](2,2) << " "
+        << fo.shear33sub[i] << " " 
+        << fo.shearsub[i](1,2) << " " 
+        << fo.tlist[i] << " " << fo.rsub[i] << " "
+        << fo.sFO[i] << " " << fo.Tfluc[i] << endl;
+
+  FO.close();
 
   return;
 }

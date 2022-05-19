@@ -32,25 +32,41 @@ class Settings
     double h       = 0.0; // SPH kernel scale [fm]
 
     double Freeze_Out_Temperature = 0.0;  // freeze-out temperature (at zero mu)
-//    double efcheck                = 0.0;  // freeze-out energy density
-//    double sfcheck                = 0.0;  // freeze-out entropy density
 
 
     // quantities read in from InputParameters.inp file
     vector<string> headers;
 
-    string IC_type         = "";  // specify initial condition type
-    string IC_option       = "";  // specify option for given initial condition type
-    string IC_file         = "";  // specify option for given initial condition type
-    string EoS_type        = "";  // specify equation of state type
-    string EoS_option      = "";  // specify specific option for EOS
-    string eta             = "";  // specify the shear viscosity type to use
-    string etaOption       = "";  // specify necessary eta options
-    string shearRelax      = "";  // specify which shear relaxation to use
-    string zeta            = "";  // specify the bulk viscosity type to use
-    string zetaOption      = "";  // specify necessary zeta options
-    string bulkRelax       = "";  // specify which bulk relaxation to use
-    string Freeze_Out_Type = "";  // which freeze-out criterion to use
+    //------------------------------------
+    // initial conditions
+    string IC_type                   = "";
+    string IC_option                 = "";
+    string IC_file                   = "";
+
+    //------------------------------------
+    // equation of state
+    string EoS_type                  = "";
+    string EoS_option                = "";
+
+    //------------------------------------
+    // transport coefficients
+    //  - shear quantities
+    string eta                       = "";
+    double constant_eta_over_s       = 0.0;
+    string shearRelax                = "";
+
+    //  - bulk quantities
+    string zeta                      = "";
+    double constant_zeta_over_s      = 0.0;
+    double cs2_dependent_zeta_A      = 0.0;
+    double cs2_dependent_zeta_p      = 0.0;
+    string bulkRelax                 = "";
+
+    //------------------------------------
+    // freeze out
+    string Freeze_Out_Type           = "";
+
+
 
     // allows for explicitly printing extra information about specific particles
     vector<int> particles_to_print;

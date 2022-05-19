@@ -22,9 +22,6 @@ class TransportCoefficients
   private:
     thermodynamic_info therm;
     string etaType, zetaType;
-    string etaOption, zetaOption; /*for the case of interp should we
-                                    read in path and load here or should I/O
-                                    load in directly?? Similar qeustion for EOS..*/
     string tau_piType, tau_PiType;
 
     void initialize_eta(const string & etaType_in);
@@ -51,6 +48,7 @@ class TransportCoefficients
 
     double zeta_DNMR_LeadingMass();
     double NoBulk();
+    double cs2_dependent_zeta();
 
     double tau_Pi_DNMR_LeadingMass();
 

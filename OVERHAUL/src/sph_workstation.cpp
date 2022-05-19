@@ -176,7 +176,7 @@ void SPHWorkstation::initial_smoothing()
     locate_phase_diagram_point_sBSQ( p, smoothed_s_lab, smoothed_rhoB_lab,
                                       smoothed_rhoS_lab, smoothed_rhoQ_lab );
 
-		fo.frzcheck(p, settingsPtr->t0, count1, systemPtr->n_particles);
+		fo.check_freeze_out_status(p, settingsPtr->t0, count1, systemPtr->n_particles);
 	}
 
 	return;
@@ -489,7 +489,7 @@ int SPHWorkstation::do_freezeout_checks()
   {
     // freeze-out checks for all particles
     for ( auto & p : systemPtr->particles )
-      fo.frzcheck( p, systemPtr->t, curfrz, systemPtr->n() );
+      fo.check_freeze_out_status( p, systemPtr->t, curfrz, systemPtr->n() );
 
     // update global quantities accordingly
     systemPtr->number_part += curfrz;

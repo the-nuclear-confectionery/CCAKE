@@ -60,22 +60,22 @@ public:
   // initialize workstation (now includes eos initialization)
   void initialize()
   {
-    //==========================================================================
+    //----------------------------------------
     // set up equation of motion object
     pEoM = std::make_shared<EoM_default>();
     pEoM->set_SettingsPtr( settingsPtr );
 
-    //==========================================================================
+    //----------------------------------------
     // set up equation of state
     eos.set_SettingsPtr( settingsPtr );
     eos.init();
 
-    //==========================================================================
+    //----------------------------------------
     // set up transport coefficients
     tc.set_SettingsPtr( settingsPtr );
     tc.initialize();
 
-    //==========================================================================
+    //----------------------------------------
     // set up freeze out (constant energy density
     fo.set_EquationOfStatePtr( &eos );
     fo.set_SettingsPtr( settingsPtr );
@@ -108,6 +108,7 @@ public:
 
   //============================================================================
   // functions to apply action to all particles
+  //-------------------------------------------
   void smooth_all_particle_fields()
         { Stopwatch sw;
           sw.Start();
@@ -119,12 +120,11 @@ public:
               << " s using " << omp_get_num_threads() << " threads.\n";
         }
 
+  //-------------------------------------------
   void smooth_all_particle_gradients()
         {
           Stopwatch sw;
           sw.Start();
-//          #pragma omp parallel for default(private) \
-//                                   schedule(dynamic)
           for ( auto & p : systemPtr->particles )
             smooth_gradients( p, systemPtr->t );
           sw.Stop();
@@ -133,16 +133,17 @@ public:
               << " s using " << omp_get_num_threads() << " threads.\n";
         }
 
+  //-------------------------------------------
   void update_all_particle_thermodynamics()
         { for ( auto & p : systemPtr->particles )
             calcbsq( p ); }
 
+  //-------------------------------------------
   void update_all_particle_viscosities()
         { for ( auto & p : systemPtr->particles )
             setvisc( p ); }
 
-
-
+  //-------------------------------------------
   void evaluate_all_particle_time_derivatives()
         { for ( auto & p : systemPtr->particles )
           { p.hydro.ID = p.ID;
@@ -150,6 +151,7 @@ public:
             pEoM->evaluate_time_derivatives( p.hydro, p.thermo, p.d_dt_spec );} }
 
 
+  //-------------------------------------------
   int do_freezeout_checks();
   void update_freeze_out_lists();
   void finalize_freeze_out(int curfrz);

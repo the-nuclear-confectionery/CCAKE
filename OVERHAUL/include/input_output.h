@@ -8,20 +8,25 @@
 #include <cstring>
 #include <fstream>
 #include <iostream>
+#include <map>
 #include <memory>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
+#include "defaults.h"
 #include "interface_to_HDF5.h"
 #include "mathdef.h"
 #include "vector.h"
 #include "particle.h"
+#include "sph_workstation.h"
 #include "system_state.h"
 
 // Forward declaration of friend classes
 class EquationOfState;
 class Settings;
+class SPHWorkstation;
 class SystemState;
 
 class InputOutput
@@ -36,6 +41,7 @@ public:
   void set_EquationOfStatePtr( EquationOfState * eosPtr_in );
   void set_SettingsPtr( Settings * settingsPtr_in );
   void set_SystemStatePtr( SystemState * systemPtr_in );
+  void set_SPHWorkstationPtr( SPHWorkstation * wsPtr_in );
 
   int n_timesteps_output = 0;
 
@@ -47,6 +53,29 @@ public:
   void print_system_state();
   void print_system_state_to_txt();
   void print_system_state_to_HDF();
+  void print_freeze_out();
+
+
+  inline void remove_char( std::string & s, char c )
+              { s.erase(std::remove(s.begin(), s.end(), c), s.end()); }
+
+  void set_value( setting_map & values, const string key, const string value )
+  {
+    try { values.at(key) = value; }
+    catch (const std::out_of_range& oor)
+        { std::cerr << endl << "Invalid key: \"" << key
+                    << "\" not found in values!" << endl << endl;
+          abort(); }
+  }
+
+  string get_value( setting_map & values, const string & key )
+  {
+    try { return values.at(key); }
+    catch (const std::out_of_range& oor)
+        { std::cerr << endl << "Invalid key: \"" << key
+                    << "\" not found in values!" << endl << endl;
+          abort(); }
+  }
 
 private:
 
@@ -57,7 +86,7 @@ private:
   EquationOfState   * eosPtr      = nullptr;
   Settings          * settingsPtr = nullptr;
   SystemState       * systemPtr   = nullptr;
-
+  SPHWorkstation    * wsPtr       = nullptr;
 
   interface_to_HDF5 hdf5_file;
 
