@@ -40,7 +40,7 @@ class FreezeOut
 
   private:
     
-    EquationOfState * eosPtr  = nullptr;
+//    EquationOfState * eosPtr  = nullptr;
     Settings * settingsPtr    = nullptr;
     SystemState * systemPtr   = nullptr;
 
@@ -103,7 +103,7 @@ class FreezeOut
     // (must be accessed in system state)
     vector<FRZ> frz2;
 
-    void set_EquationOfStatePtr(EquationOfState * eosPtr_in) { eosPtr = eosPtr_in; }
+//    void set_EquationOfStatePtr(EquationOfState * eosPtr_in) { eosPtr = eosPtr_in; }
     void set_SettingsPtr(Settings * settingsPtr_in) { settingsPtr = settingsPtr_in; }
     void set_SystemStatePtr(SystemState * systemPtr_in) { systemPtr = systemPtr_in; }
 
@@ -461,8 +461,8 @@ cout << "Made it to line " << __LINE__ << endl;
 
         // COMPUTE NORMALS AFTER THIS POINT
 //        sFO[j]       = eosPtr->s_terms_T( Tfluc[j] );  // replace with e, BSQ
-cout << "Comparison: " << eosPtr->s_terms_T( Tfluc[j], muBfluc[j], muQfluc[j], muSfluc[j], eosname[j] )
-      << "   " << eosPtr->s_terms_T( Tfluc[j], eosname[j] ) << "   " << sFO[j] << endl;
+//cout << "Comparison: " << eosPtr->s_terms_T( Tfluc[j], muBfluc[j], muQfluc[j], muSfluc[j], eosname[j] )
+//      << "   " << eosPtr->s_terms_T( Tfluc[j], eosname[j] ) << "   " << sFO[j] << endl;
         gsub[j]      = sqrt( Norm2(uout[j]) + 1 );
 
 
