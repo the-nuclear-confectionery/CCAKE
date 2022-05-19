@@ -40,6 +40,9 @@ private:
   // transport coefficients
   TransportCoefficients tc;
 
+  // freeze out
+  FreezeOut fo;
+
 
 public:
 
@@ -78,7 +81,14 @@ public:
                      settingsPtr->zetaMode, settingsPtr->bulkRelaxMode );
 
     //----------------------------------------
-    // initialize RK evolution
+    // set up freeze out (constant energy density
+    fo.set_EquationOfStatePtr( &eos );
+    fo.set_SettingsPtr( settingsPtr );
+    fo.set_SystemStatePtr( systemPtr );
+    systemPtr->efcheck = eos.efreeze(settingsPtr->Freeze_Out_Temperature);
+    systemPtr->sfcheck = eos.sfreeze(settingsPtr->Freeze_Out_Temperature);
+    fo.initialize( systemPtr->efcheck );
+
     evolver.set_SettingsPtr( settingsPtr );
     evolver.set_SystemStatePtr( systemPtr );
   }

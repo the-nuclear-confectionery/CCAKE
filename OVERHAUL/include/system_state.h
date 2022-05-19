@@ -84,9 +84,6 @@ class SystemState
 
     vector<int> list;
 
-    // freeze out
-    FreezeOut fo;
-
 
 //
 //    //==========================================================================

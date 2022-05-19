@@ -48,14 +48,6 @@ void SystemState::initialize()  // formerly called "manualenter"
     p.efcheck = efcheck;
   }
 
-  //----------------------------------------
-  // set up freeze out (constant energy density)
-  fo.set_SettingsPtr( settingsPtr );
-  fo.set_SystemStatePtr( this );  // shouldn't be necessary, just pass needed quantities in
-  efcheck = eosPtr->efreeze(settingsPtr->Freeze_Out_Temperature);
-  sfcheck = eosPtr->sfreeze(settingsPtr->Freeze_Out_Temperature);
-  fo.initialize( efcheck );
-
   return;
 }
 
