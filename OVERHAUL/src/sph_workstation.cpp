@@ -31,19 +31,25 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 	Stopwatch sw, swTotal;
 	swTotal.Start();
 	long long failCounter = 0;
+
+  if ( VERBOSE > 5 )
+  {
 	cout << "----------------------------------------"
 			"----------------------------------------" << endl;
 	cout << "----------------------------------------"
 			"----------------------------------------" << endl;
+  }
 
     systemPtr->n_particles = systemPtr->particles.size();
     cout << "systemPtr->n_particles = " << systemPtr->n_particles << "\n";
 
     for (int i=0; i<systemPtr->n_particles; i++)
     {
-	cout << "----------------------------------------"
-			"----------------------------------------" << "\n";
-
+  if ( VERBOSE > 5 )
+  {
+      cout << "----------------------------------------"
+          "----------------------------------------" << "\n";
+  }
 
       auto & p = systemPtr->particles[i];
 
@@ -51,20 +57,24 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 		
 		{
 			sw.Start();
+  if ( VERBOSE > 5 )
+  {
 			cout << setprecision(12) << "Doing this particle: "
 					<< p.r(0) << "   " << p.r(1) << "\n";
-
+  }
       // solve for the entropy density
 			p.input.s = locate_phase_diagram_point_eBSQ( p,
                     p.input.e, p.input.rhoB, p.input.rhoS, p.input.rhoQ );
 
 			sw.Stop();
+  if ( VERBOSE > 5 )
+  {
 			string successString = (p.input.s < 0.0) ?
 									"unsuccessfully" : "successfully";
       cout << "Print particle info:\n";
 			cout << "    SPH particle " << i << ", locate_phase_diagram_point_eBSQ: completed "
 					<< successString << " in " << sw.printTime() << "s." << "\n";
-
+  }
 		}
 
 		///////////////////////////////////////////////////////////////////////////
@@ -75,12 +85,15 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 		{
 			// freeze this particle out!
       cout << "This shouldn't have happened!" << endl;
+      failCounter++;
       exit(8);
 			p.Freeze = 4;
 			////////////////////////////////////////////////////////
 		}
 		else
 		{
+  if ( VERBOSE > 5 )
+  {
 			std::cout << "\t --> Solution info: "
                 << p.r(0) << "   " << p.r(1) << "   "
                 << p.get_current_eos_name() << "\n";
@@ -100,6 +113,7 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
                 << p.rhoS() << "   "
                 << p.rhoQ() << "\n";
 			cout << "\t\t - freeze-out status:   " << p.Freeze << "\n";
+  }
 		}
 
     p.hydro.gamma = p.gamcalc();
@@ -109,8 +123,11 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
     p.norm_spec.rhoS *= p.input.rhoS*p.hydro.gamma*settingsPtr->t0; // constant after this
     p.norm_spec.rhoQ *= p.input.rhoQ*p.hydro.gamma*settingsPtr->t0; // constant after this
 
+  if ( VERBOSE > 5 )
+  {
 	cout << "----------------------------------------"
 			"----------------------------------------" << "\n";
+  }
 
 	if (false)
 	{
@@ -122,12 +139,16 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 	}
 
     }
+
+  if ( VERBOSE > 5 )
+  {
 	cout << "----------------------------------------"
 			"----------------------------------------" << endl;
 	cout << "----------------------------------------"
 			"----------------------------------------" << endl;
 	cout << "----------------------------------------"
 			"----------------------------------------" << endl;
+  }
 
 	swTotal.Stop();
 	cout << "Finished function call to " << __FUNCTION__ << "(...) in "
