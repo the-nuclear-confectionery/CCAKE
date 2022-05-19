@@ -258,6 +258,8 @@ class FreezeOut
         tlist.resize( curfrz );
         rsub.resize( curfrz );
 
+cout << "Made it to line " << __LINE__ << endl;
+
         if ( curfrz > 0 )
           bsqsvinterpolate( curfrz );
         else
@@ -319,6 +321,8 @@ class FreezeOut
         tlist.resize( curfrz );
         rsub.resize( curfrz );
 
+cout << "Made it to line " << __LINE__ << endl;
+
         if ( curfrz > 0 )
           bsqsvinterpolate( curfrz );
         else
@@ -370,6 +374,7 @@ class FreezeOut
     // OF FREEZING OUT
     void bsqsvinterpolate(int curfrz)
     {
+      cout << "Entered " << __FUNCTION__ << " with " << curfrz << " particles" << endl;
       sFO.resize( curfrz, 0 );
       Tfluc.resize( curfrz, 0 );
 
