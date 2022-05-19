@@ -90,14 +90,14 @@ void InputOutput::load_settings_file( string path_to_settings_file )
     settingsPtr->t0                     = stod(get_value(values, "t0"));
     settingsPtr->EoS_type               =      get_value(values, "EoS_Type");
     settingsPtr->EoS_option             =      get_value(values, "EoS_Option");
-    settingsPtr->eta                    =      get_value(values, "eta");
+    settingsPtr->etaMode                =      get_value(values, "etaMode");
     settingsPtr->constant_eta_over_s    = stod(get_value(values, "constant_eta_over_s"));
-    settingsPtr->shearRelax             =      get_value(values, "shearRelax");
-    settingsPtr->zeta                   =      get_value(values, "zeta");
+    settingsPtr->shearRelaxMode         =      get_value(values, "shearRelaxMode");
+    settingsPtr->zetaMode               =      get_value(values, "zetaMode");
     settingsPtr->constant_zeta_over_s   = stod(get_value(values, "constant_zeta_over_s"));
     settingsPtr->cs2_dependent_zeta_A   = stod(get_value(values, "cs2_dependent_zeta_A"));
     settingsPtr->cs2_dependent_zeta_p   = stod(get_value(values, "cs2_dependent_zeta_p"));
-    settingsPtr->bulkRelax              =      get_value(values, "bulkRelax");
+    settingsPtr->bulkRelaxMode          =      get_value(values, "bulkRelaxMode");
     settingsPtr->Freeze_Out_Temperature = stod(get_value(values, "freezeoutT"))/hbarc_MeVfm;
     settingsPtr->Freeze_Out_Type        =      get_value(values, "freezeout");
 
@@ -112,12 +112,12 @@ void InputOutput::load_settings_file( string path_to_settings_file )
         settingsPtr->using_Gubser_with_shear = true;
 
       // put a warning check here; probably defer to separate routine eventually
-      if ( settingsPtr->EoS_type != "Conformal" )
+      if ( settingsPtr->EoS_type != "conformal" )
       {
         std::cerr << "WARNING: Gubser initial conditions require a conformal "
                      "equation of state!  Switching to gas of massless gluons"
                      " and 2.5 massless quarks" << std::endl;
-        settingsPtr->EoS_type = "Conformal";
+        settingsPtr->EoS_type = "conformal";
       }
 
       // run Gubser indefinitely
@@ -171,7 +171,7 @@ void InputOutput::set_EoS_type()
   string densities          = EoS_files_location + "/densities.dat";
   string derivatives        = EoS_files_location + "/derivatives.dat";
 
-  if (EoS_option == "Default")
+  if (EoS_option == "default")
   {
     cout << "Running default EoS option for " << EoS_type << endl;
   }

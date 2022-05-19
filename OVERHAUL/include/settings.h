@@ -51,16 +51,16 @@ class Settings
     //------------------------------------
     // transport coefficients
     //  - shear quantities
-    string eta                       = "";
+    string etaMode                   = "";
     double constant_eta_over_s       = 0.0;
-    string shearRelax                = "";
+    string shearRelaxMode            = "";
 
     //  - bulk quantities
-    string zeta                      = "";
+    string zetaMode                  = "";
     double constant_zeta_over_s      = 0.0;
     double cs2_dependent_zeta_A      = 0.0;
     double cs2_dependent_zeta_p      = 0.0;
-    string bulkRelax                 = "";
+    string bulkRelaxMode             = "";
 
     //------------------------------------
     // freeze out

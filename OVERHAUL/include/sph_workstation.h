@@ -73,7 +73,12 @@ public:
     //----------------------------------------
     // set up transport coefficients
     tc.set_SettingsPtr( settingsPtr );
-    tc.initialize();
+    //tc.initialize();  // this just uses the default transport coefficient modes
+    if ( settingsPtr->using_Gubser )
+      tc.initialize( "Gubser" );
+    else
+      tc.initialize( settingsPtr->etaMode, settingsPtr->shearRelaxMode
+                     settingsPtr->zetaMode, settingsPtr->bulkRelaxMode );
 
     //----------------------------------------
     // set up freeze out (constant energy density

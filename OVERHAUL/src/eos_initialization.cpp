@@ -52,7 +52,7 @@ void EquationOfState::init(string quantityFile, string derivFile)
   // THIS IF-CHAIN INITIALIZES THE DEFAULT EOS TO USE
   //============================================================================
   // SET UP CONFORMAL EOS
-  if ( settingsPtr->EoS_type == "Conformal" )
+  if ( settingsPtr->EoS_type == "conformal" )
   {
     std::cout << "Setting up equation of state for Gubser checks" << std::endl;
     const double Nc = 3.0, Nf = 2.5;  // u+d massless, s 'half massless'
@@ -70,7 +70,7 @@ void EquationOfState::init(string quantityFile, string derivFile)
     default_eos_name = "conformal";
   }
   // SET UP CONFORMAL DIAGONAL EOS
-  if ( settingsPtr->EoS_type == "Conformal_Diagonal" )
+  if ( settingsPtr->EoS_type == "conformal_diagonal" )
   {
     std::cout << "Setting DIAGONAL conformal equation of state" << std::endl;
     const double Nc = 3.0, Nf = 2.5;  // u+d massless, s 'half massless'
@@ -247,7 +247,7 @@ void EquationOfState::init(string quantityFile, string derivFile)
     //==========================================================================
     // use diagonal conformal as final fallback (MUST ALWAYS INCLUDE)
     //==========================================================================
-    if ( settingsPtr->EoS_type != "Conformal_Diagonal" )
+    if ( settingsPtr->EoS_type != "conformal_diagonal" )
     {
       std::cout << "Setting DIAGONAL conformal equation of state as FINAL fallback" << std::endl;
       std::cout << "  --> all coefficients matched to p/T^4 at grid limits" << std::endl;
