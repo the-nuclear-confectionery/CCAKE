@@ -101,6 +101,7 @@ namespace formatted_output
   //----------------------------------------------------------------------------
   void announce( string message )
   {
+    cout << "\n\n";
     int max_length = 80;
     string wrapper = string(max_length/2, '<') + string(max_length/2, '>');
     string padded_message = string(6, ' ') + message + string(6, ' ');
@@ -116,6 +117,8 @@ namespace formatted_output
     }
     else
       print_flexible( message, '<', '>' );
+
+    cout << endl;
 
     return;
   }
