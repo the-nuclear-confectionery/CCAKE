@@ -28,8 +28,8 @@ using std::vector;
 int main (int argc, char *argv[])
 {
   // Print the welcome message.
-  //message::welcome();
-  message::guilty_welcome();
+  message::welcome();
+  //message::guilty_welcome();
 
   // Check if proper command-line arguments passed.
   if ( argc < 3 )

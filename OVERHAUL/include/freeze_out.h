@@ -191,11 +191,9 @@ class FreezeOut
     ////////////////////////////////////////////////////////////////////////////
     void bsqsvfreezeout(int curfrz)
     {
-cout << "Made it to line " << __LINE__ << endl;
-
-      cout << "CHECK BSQSVFREEZEOUT: " << frzc
-            << "   " << tau << "   " << taup
-            << "   " << taupp << "   " << systemPtr->cfon << endl;
+//      cout << "CHECK BSQSVFREEZEOUT: " << frzc
+//            << "   " << tau << "   " << taup
+//            << "   " << taupp << "   " << systemPtr->cfon << endl;
 
       if (frzc==0) // true in first timestep only
       {
@@ -265,8 +263,6 @@ cout << "Made it to line " << __LINE__ << endl;
         tlist.resize( curfrz );
         rsub.resize( curfrz );
 
-cout << "Made it to line " << __LINE__ << endl;
-
         if ( curfrz > 0 )
           bsqsvinterpolate( curfrz );
         else
@@ -327,8 +323,6 @@ cout << "Made it to line " << __LINE__ << endl;
         shear33sub.resize( curfrz );
         tlist.resize( curfrz );
         rsub.resize( curfrz );
-
-cout << "Made it to line " << __LINE__ << endl;
 
         if ( curfrz > 0 )
           bsqsvinterpolate( curfrz );

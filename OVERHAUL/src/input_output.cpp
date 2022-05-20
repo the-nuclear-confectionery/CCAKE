@@ -11,6 +11,7 @@
 
 #include "../include/constants.h"
 #include "../include/defaults.h"
+#include "../include/formatted_output.h"
 #include "../include/input_output.h"
 #include "../include/particle.h"
 #include "../include/mathdef.h"
@@ -60,6 +61,8 @@ void InputOutput::set_results_directory( string path_to_results_directory )
 //------------------------------------------------------------------------------
 void InputOutput::load_settings_file( string path_to_settings_file )
 {
+  formatted_output::announce("Reading in input parameter settings");
+
   string Param_file = path_to_settings_file;
   ifstream infile( Param_file.c_str() );
   if (infile.is_open())
@@ -181,12 +184,12 @@ void InputOutput::set_EoS_type()
 
   if (EoS_option == "default")
   {
-    cout << "Running default EoS option for " << EoS_type << endl;
+    cout << "Using default version of " << EoS_type << endl;
   }
   else
   {
-    cout <<"EoS option not recognized for " << EoS_type << ", now exiting." << endl;
-    exit(1);
+    cout << "EoS option not recognized for " << EoS_type << ", now exiting." << endl;
+    abort();
   }
 
   eosPtr->quantity_file = densities;
@@ -198,17 +201,19 @@ void InputOutput::set_EoS_type()
 //------------------------------------------------------------------------------
 void InputOutput::read_in_initial_conditions()
 {
+  formatted_output::announce("Reading in initial conditions for hydrodynamics");
+
   string initial_condition_type = settingsPtr->IC_type;
   int total_header_lines;
   string IC_file = settingsPtr->IC_file;
 
   if (initial_condition_type == "ICCING")
   {
-    cout << "Reading in ICCING initial conditions!" << endl;
+    formatted_output::report("Initial conditions type: ICCING");
     total_header_lines = 1;
 
     ifstream infile(IC_file.c_str());
-    cout << "Initial conditions file: " << IC_file << endl;
+    formatted_output::report("Initial conditions file: " + IC_file);
     if (infile.is_open())
     {
       string line;
