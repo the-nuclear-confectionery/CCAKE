@@ -8,6 +8,11 @@
 
 #include "../include/formatted_output.h"
 
+using std::ceil;
+using std::cout;
+using std::endl;
+using std::floor;
+using std::istringstream;
 using std::string;
 using std::vector;
 
@@ -58,8 +63,8 @@ namespace formatted_output
     cout << string(max_length/2, lc) + string(max_length/2, rc) << "\n";
     int buffer = ( RHbuffer ) ? 2 : 0;
     max_length -= buffer;
-    if ( message.length() <= max_length - 2 )
-      cout << comment_character << " " << message << "\n";
+    if ( message.length() <= max_length - 4 )
+      cout << lc << " " << message << " " << rc << "\n";
     else
     {
       istringstream iss(message);

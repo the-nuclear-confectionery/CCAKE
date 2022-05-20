@@ -9,6 +9,11 @@
 #include <string>
 #include <vector>
 
+using std::ceil;
+using std::cout;
+using std::endl;
+using std::floor;
+using std::istringstream;
 using std::string;
 using std::vector;
 
