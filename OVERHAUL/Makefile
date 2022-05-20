@@ -3,7 +3,8 @@ OBJS = $(OBJDIR)/transport_coefficients.o $(OBJDIR)/main.o $(OBJDIR)/vector.o \
 			 $(OBJDIR)/matrix.o $(OBJDIR)/BSQHydro.o $(OBJDIR)/particle.o $(OBJDIR)/eos.o \
        $(OBJDIR)/system_state.o $(OBJDIR)/linklist.o $(OBJDIR)/eos_delaunay.o \
 			 $(OBJDIR)/kernel.o $(OBJDIR)/sph_workstation.o $(OBJDIR)/input_output.o \
-			 $(OBJDIR)/rootfinder.o $(OBJDIR)/eos_table.o $(OBJDIR)/eos_extension.o
+			 $(OBJDIR)/rootfinder.o $(OBJDIR)/eos_table.o $(OBJDIR)/eos_extension.o \
+			 $(OBJDIR)/formatted_output.o
 			 
 #CC = g++
 CC = h5c++
@@ -67,7 +68,8 @@ $(OBJDIR)/sph_workstation.o: $(SRC)/sph_workstation.cpp $(INCLUDE)/sph_workstati
 $(OBJDIR)/linklist.o: $(SRC)/linklist.cpp $(INCLUDE)/linklist.h $(INCLUDE)/particle.h
 	$(CC) $(CFLAGS) $(SRC)/linklist.cpp -o $@
 
-$(OBJDIR)/input_output.o: $(SRC)/input_output.cpp $(INCLUDE)/input_output.h
+$(OBJDIR)/input_output.o: $(SRC)/input_output.cpp $(INCLUDE)/input_output.h\
+				$(SRC)/formatted_output.cpp $(INCLUDE)/formatted_output.h
 	$(CC) $(CFLAGS) $(SRC)/input_output.cpp -o $@
 	
 $(OBJDIR)/kernel.o: $(SRC)/kernel.cpp $(INCLUDE)/kernel.h
@@ -97,7 +99,9 @@ $(OBJDIR)/eos_delaunay.o: $(SRC)/eos_delaunay.cpp $(INCLUDE)/eos_delaunay.h
 $(OBJDIR)/transport_coefficients.o: $(SRC)/transport_coefficients.cpp $(INCLUDE)/transport_coefficients.h
 	$(CC) $(CFLAGS) $(INCFLAGS) -fpic -c $(SRC)/transport_coefficients.cpp -o $@
 	
-	
+$(OBJDIR)/formatted_output.o: $(SRC)/formatted_output.cpp $(INCLUDE)/formatted_output.h
+	$(CC) $(CFLAGS) $(INCFLAGS) -fpic -c $(SRC)/formatted_output.cpp -o $@
+
 
 
 clean:
