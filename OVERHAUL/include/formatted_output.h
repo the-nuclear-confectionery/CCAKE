@@ -9,6 +9,9 @@
 #include <string>
 #include <vector>
 
+using std::string;
+using std::vector;
+
 namespace formatted_output
 {
   void announce(string message);
