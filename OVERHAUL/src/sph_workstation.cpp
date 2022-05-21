@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cmath>
 #include <memory>
 #include <string>
 
@@ -394,7 +395,7 @@ void SPHWorkstation::process_initial_conditions()
   {
 
     formatted_output::update("Input number of particles: "
-                              + to_string(systemPtr->particles.size());
+                              + to_string(systemPtr->particles.size()));
 
     //==========================================================================
     // impose the energy cut-off before the initial time step of hydro
@@ -409,7 +410,7 @@ void SPHWorkstation::process_initial_conditions()
 
 
     formatted_output::update("Number of particles after e-cutoff: "
-                              + to_string(systemPtr->particles.size());
+                              + to_string(systemPtr->particles.size()));
 
 
 
@@ -428,7 +429,7 @@ void SPHWorkstation::process_initial_conditions()
 
 
     formatted_output::update("Number of particles after solution checks: "
-                              + to_string(systemPtr->particles.size());
+                              + to_string(systemPtr->particles.size()));
 
   }
 
