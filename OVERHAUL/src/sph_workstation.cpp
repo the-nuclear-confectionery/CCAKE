@@ -2,6 +2,7 @@
 #include <memory>
 
 #include "../include/constants.h"
+#include "../include/formatted_output.h"
 #include "../include/sph_workstation.h"
 #include "../include/stopwatch.h"
 
