@@ -117,8 +117,7 @@ void InputOutput::load_settings_file( string path_to_settings_file )
     // check set values
     formatted_output::report("Check parameter settings");
     for ( auto & value : values )
-      formatted_output::update( "set " + to_string(value.first) + " == "
-                                + to_string(value.second) );
+      formatted_output::update( "set " + value.first + " == " + value.second );
 
 
     //==========================================================================
