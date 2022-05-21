@@ -1,13 +1,15 @@
 #include <algorithm>
 #include <memory>
+#include <string>
 
 #include "../include/constants.h"
 #include "../include/formatted_output.h"
 #include "../include/sph_workstation.h"
 #include "../include/stopwatch.h"
 
-using namespace constants;
+using std::to_string;
 
+using namespace constants;
 
 void SPHWorkstation::set_SystemStatePtr( SystemState * systemPtr_in )
 {
