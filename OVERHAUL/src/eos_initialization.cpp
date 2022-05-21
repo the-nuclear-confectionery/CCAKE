@@ -61,10 +61,10 @@ void EquationOfState::init(string quantityFile, string derivFile)
   if ( settingsPtr->EoS_type == "conformal" )
   {
     formatted_output::update("Setting up conformal equation of state");
-    formatted_output::comment(
-      "This conformal equation of state treats all T and mu axes equivalently "
-      "and assumes an ideal gas of massless gluons, \"2.5\" massless quark "
-      "flavors, and Nc = 3 colors.  Quadratic cross-terms are included.");
+    //formatted_output::comment(
+    //  "This conformal equation of state treats all T and mu axes equivalently "
+    //  "and assumes an ideal gas of massless gluons, \"2.5\" massless quark "
+    //  "flavors, and Nc = 3 colors.  Quadratic cross-terms are included.");
 
     const double Nc = 3.0, Nf = 2.5;  // u+d massless, s 'half massless'
     double c  = pi*pi*(2.0*(Nc*Nc-1.0)+(7.0/2.0)*Nc*Nf)/90.0;
@@ -84,11 +84,11 @@ void EquationOfState::init(string quantityFile, string derivFile)
   if ( settingsPtr->EoS_type == "conformal_diagonal" )
   {
     formatted_output::update("Setting diagonal conformal equation of state");
-    formatted_output::comment(
-      "This conformal equation of state treats all T and mu axes equivalently "
-      "and assumes an ideal gas of massless gluons, \"2.5\" massless quark "
-      "flavors, and Nc = 3 colors.  Only quartic (diagonal) terms are "
-      "included.");
+    //formatted_output::comment(
+    //  "This conformal equation of state treats all T and mu axes equivalently "
+    //  "and assumes an ideal gas of massless gluons, \"2.5\" massless quark "
+    //  "flavors, and Nc = 3 colors.  Only quartic (diagonal) terms are "
+    //  "included.");
 
     const double Nc = 3.0, Nf = 2.5;  // u+d massless, s 'half massless'
     double c  = pi*pi*(2.0*(Nc*Nc-1.0)+(7.0/2.0)*Nc*Nf)/90.0;
@@ -99,8 +99,7 @@ void EquationOfState::init(string quantityFile, string derivFile)
     vector<double> tbqs_maxima = { TBQS_INFINITY, TBQS_INFINITY,  TBQS_INFINITY,  TBQS_INFINITY };
 
 
-    formatted_output::update("diagonal conformal fallback equation of state "
-                             "set up with following parameters:");
+    formatted_output::detail("set up with following parameters:");
     formatted_output::detail( "c    = " + to_string(c) );
     formatted_output::detail( "T0   = " + to_string(T0) );
     formatted_output::detail( "muB0 = " + to_string(muB0) );
@@ -140,7 +139,7 @@ void EquationOfState::init(string quantityFile, string derivFile)
     {
       formatted_output::update("setting tanh-modulated \"conformal\" equation "
                                "of state as fallback");
-      formatted_output::comment("all coefficients matched to p/T^4 at grid limits");
+      formatted_output::detail("all coefficients matched to p/T^4 at grid limits");
 
       // pointer to default EoS (first element added above)
       pEoS_base p_default_EoS = chosen_EOSs.front();
@@ -183,8 +182,7 @@ void EquationOfState::init(string quantityFile, string derivFile)
       vector<double> tbqs_minima = { 0.0,          -TBQS_INFINITY, -TBQS_INFINITY, -TBQS_INFINITY };
       vector<double> tbqs_maxima = { TBQS_INFINITY, TBQS_INFINITY,  TBQS_INFINITY,  TBQS_INFINITY };
 
-      formatted_output::update( "tanh-modulated \"conformal\" fallback equation"
-                                " of state set up with following parameters:");
+      formatted_output::detail( "set up with following parameters:");
       formatted_output::detail( "c    = " + to_string(c) );
       formatted_output::detail( "T0   = " + to_string(T0) );
       formatted_output::detail( "muB0 = " + to_string(muB0) );
@@ -247,8 +245,7 @@ void EquationOfState::init(string quantityFile, string derivFile)
       vector<double> tbqs_minima = { 0.0,          -TBQS_INFINITY, -TBQS_INFINITY, -TBQS_INFINITY };
       vector<double> tbqs_maxima = { TBQS_INFINITY, TBQS_INFINITY,  TBQS_INFINITY,  TBQS_INFINITY };
 
-      formatted_output::update("conformal fallback equation of state "
-                               "set up with following parameters:");
+      formatted_output::detail("set up with following parameters:");
       formatted_output::detail( "c    = " + to_string(c) );
       formatted_output::detail( "T0   = " + to_string(T0) );
       formatted_output::detail( "muB0 = " + to_string(muB0) );
@@ -314,8 +311,7 @@ void EquationOfState::init(string quantityFile, string derivFile)
       vector<double> tbqs_minima = { 0.0,          -TBQS_INFINITY, -TBQS_INFINITY, -TBQS_INFINITY };
       vector<double> tbqs_maxima = { TBQS_INFINITY, TBQS_INFINITY,  TBQS_INFINITY,  TBQS_INFINITY };
 
-      formatted_output::update("conformal fallback equation of state "
-                               "set up with following parameters:");
+      formatted_output::detail("set up with following parameters:");
       formatted_output::detail( "c    = " + to_string(c) );
       formatted_output::detail( "T0   = " + to_string(T0) );
       formatted_output::detail( "muB0 = " + to_string(muB0) );

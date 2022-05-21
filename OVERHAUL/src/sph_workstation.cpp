@@ -382,14 +382,16 @@ void SPHWorkstation::smooth_gradients( Particle & pa, double tin )
 ////////////////////////////////////////////////////////////////////////////////
 void SPHWorkstation::process_initial_conditions()
 {
+  formatted_output::report("Processing initial conditions");
+
   //============================================================================
   // IMPOSE ENERGY/CHARGE CUTOFFS TO REGULATE EVENT (NO CUTOFFS FOR GUBSER)
   if ( settingsPtr->IC_type != "Gubser"
         && settingsPtr->IC_type != "Gubser_with_shear")
   {
 
-    std::cout << "Length of particles at line " << __LINE__
-              << " is " << systemPtr->particles.size() << std::endl;
+    formatted_output::update("Input number of particles: "
+                              + to_string(systemPtr->particles.size());
 
     //==========================================================================
     // impose the energy cut-off before the initial time step of hydro
@@ -403,8 +405,8 @@ void SPHWorkstation::process_initial_conditions()
 
 
 
-    std::cout << "Length of particles at line " << __LINE__
-              << " is " << systemPtr->particles.size() << std::endl;
+    formatted_output::update("Number of particles after e-cutoff: "
+                              + to_string(systemPtr->particles.size());
 
 
 
@@ -422,19 +424,10 @@ void SPHWorkstation::process_initial_conditions()
       systemPtr->particles.end() );
 
 
-
-
-    std::cout << "Length of particles at line " << __LINE__
-              << " is " << systemPtr->particles.size() << std::endl;
+    formatted_output::update("Number of particles after solution checks: "
+                              + to_string(systemPtr->particles.size());
 
   }
-
-
-
-  cout << "After e-cutoff and freeze-out: size = " << systemPtr->particles.size() << endl;
-
-//if (1) exit(8);
-
 
   // fill out initial particle information
   //int TMP_particle_count = 0;
@@ -470,17 +463,19 @@ void SPHWorkstation::process_initial_conditions()
 		p.thermo.eos_name = "default";  // uses whatever the default EoS is
 
 		if ( p.input.e > systemPtr->efcheck )	// impose freeze-out check for e, not s
-			p.Freeze=0;
+			p.Freeze = 0;
 		else
 		{
-			p.Freeze=4;
+			p.Freeze = 4;
 			systemPtr->number_part++;
 		}
   }
 
-  cout << "After freezeout (redundant): size = "
-      << systemPtr->particles.size() - systemPtr->number_part << endl;
-  cout << systemPtr->number_part << endl;
+  formatted_output::detail("particles frozen out: "
+                           + to_string(systemPtr->particles.size()
+                                        - systemPtr->number_part) );
+  formatted_output::detail("particles not frozen out: "
+                           + to_string(systemPtr->number_part) );
 
 
   //============================================================================

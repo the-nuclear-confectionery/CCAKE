@@ -128,7 +128,7 @@ void InputOutput::load_settings_file( string path_to_settings_file )
 
     //==========================================================================
     // enforce appropriate settings for Gubser
-    formatted_output::update("\nConsistency checks");
+    formatted_output::update("Impose consistency checks");
     if (   settingsPtr->IC_type == "Gubser"
         || settingsPtr->IC_type == "Gubser_with_shear" )
     {

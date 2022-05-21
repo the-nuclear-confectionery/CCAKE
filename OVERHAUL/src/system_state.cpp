@@ -1,10 +1,10 @@
-#include <iostream>
-#include <iomanip>
-#include <fstream>
-#include <string>
-#include <stdio.h>
-#include <stdlib.h>
 #include <algorithm>
+#include <cstdio>
+#include <cstdlib>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <string>
 #include <sstream>
 
 //using namespace std;
@@ -14,6 +14,7 @@ using std::string;
 
 #include "../include/constants.h"
 #include "../include/eos.h"
+#include "../include/formatted_output.h"
 #include "../include/linklist.h"
 #include "../include/particle.h"
 #include "../include/stopwatch.h"
@@ -22,24 +23,30 @@ using std::string;
 
 using namespace constants;
 
-
 ////////////////////////////////////////////////////////////////////////////////
 void SystemState::set_SettingsPtr(Settings * settingsPtr_in)
 {
   settingsPtr = settingsPtr_in;
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 void SystemState::initialize()  // formerly called "manualenter"
 {
+  formatted_output::report("Initializing system");
+
   n_particles = particles.size();
   t           = settingsPtr->t0;
   h           = settingsPtr->h;
 
-  std::cout << "FO temp. = " << settingsPtr->Freeze_Out_Temperature << " 1/fm\n";
-  std::cout << "efcheck = " << efcheck*hbarc_GeVfm << " GeV/fm^3\n";
-  std::cout << "sfcheck = " << sfcheck << " 1/fm^3\n";
+  formatted_output::update("set freeze out parameters");
+
+  formatted_output::detail("freeze out temperature = "
+                           + to_string(settingsPtr->Freeze_Out_Temperature
+                                        *hbarc_MeVfm) + " MeV");
+  formatted_output::detail("freeze out energy density = "
+                           + to_string(efcheck*hbarc_GeVfm) + " GeV/fm^3");
+  formatted_output::detail("freeze out entropy density = "
+                           + to_string(sfcheck) + " 1/fm^3");
 
   // initialize information for particles
   for (auto & p : particles)
@@ -55,7 +62,7 @@ void SystemState::initialize()  // formerly called "manualenter"
 
 void SystemState::initialize_linklist()
 {
-  cout << "Initial conditions type: " << settingsPtr->IC_type << endl;
+  formatted_output::report("Initialize linklist");
 
   // initialize linklist
   linklist.initialize( &particles, settingsPtr->h );
