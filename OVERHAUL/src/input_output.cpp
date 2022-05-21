@@ -113,6 +113,13 @@ void InputOutput::load_settings_file( string path_to_settings_file )
     settingsPtr->Freeze_Out_Type        =      get_value(values, "freezeout");
 
 
+    // check set values
+    formatted_output::report("Check parameter settings");
+    for ( auto & value : values )
+      formatted_output::update( "set " + to_string(value.first) + " == "
+                                + to_string(it.second) );
+
+
     //==========================================================================
     // enforce appropriate settings for Gubser
     if (   settingsPtr->IC_type == "Gubser"

@@ -21,6 +21,7 @@
 #include "../include/eos_table.h"
 #include "../include/eos_tanh_conformal.h"
 #include "../include/eos_delaunay.h"
+#include "../include/formatted_output.h"
 #include "../include/rootfinder.h"
 
 using namespace constants;
@@ -34,8 +35,12 @@ void EquationOfState::set_SettingsPtr( Settings * settingsPtr_in ) { settingsPtr
 ////////////////////////////////////////////////////////////////////////////////
 void EquationOfState::init()
 {
-  cout << "Attempting read in of EoS from "
-        << quantity_file << " and " << deriv_file << endl;
+  formatted_output::announce("Initializing equation of state");
+
+  formatted_output::report("Reading in equation of state tables");
+  formatted_output::update("Densities file: " + quantity_file);
+  formatted_output::update("Derivatives file: " + deriv_file);
+
   init( quantity_file, deriv_file );
 
   bool do_eos_checks = false;
