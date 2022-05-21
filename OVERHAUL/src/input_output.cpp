@@ -128,7 +128,7 @@ void InputOutput::load_settings_file( string path_to_settings_file )
 
     //==========================================================================
     // enforce appropriate settings for Gubser
-    formatted_output::update("Consistency checks");
+    formatted_output::update("\nConsistency checks");
     if (   settingsPtr->IC_type == "Gubser"
         || settingsPtr->IC_type == "Gubser_with_shear" )
     {
@@ -196,11 +196,7 @@ void InputOutput::set_EoS_type()
   string densities          = EoS_files_location + "/densities.dat";
   string derivatives        = EoS_files_location + "/derivatives.dat";
 
-  if (EoS_option == "default")
-  {
-    cout << "Using default version of " << EoS_type << endl;
-  }
-  else
+  if (EoS_option != "default")
   {
     cerr << "EoS option not recognized for " << EoS_type << ", now exiting." << endl;
     abort();
