@@ -35,11 +35,11 @@ void EquationOfState::set_SettingsPtr( Settings * settingsPtr_in ) { settingsPtr
 ////////////////////////////////////////////////////////////////////////////////
 void EquationOfState::init()
 {
-  formatted_output::announce("Initializing equation of state");
+  formatted_output::report("Initializing equation of state");
 
-  formatted_output::report("Reading in equation of state tables");
-  formatted_output::update("Densities file: " + quantity_file);
-  formatted_output::update("Derivatives file: " + deriv_file);
+  formatted_output::update("Reading in equation of state tables");
+  formatted_output::detail("Densities file: " + quantity_file);
+  formatted_output::detail("Derivatives file: " + deriv_file);
 
   init( quantity_file, deriv_file );
 

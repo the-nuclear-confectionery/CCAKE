@@ -211,7 +211,7 @@ void InputOutput::set_EoS_type()
 //------------------------------------------------------------------------------
 void InputOutput::read_in_initial_conditions()
 {
-  formatted_output::announce("Reading in initial conditions for hydrodynamics");
+  formatted_output::report("Reading in initial conditions for hydrodynamics");
 
   string initial_condition_type = settingsPtr->IC_type;
   int total_header_lines;
@@ -219,11 +219,11 @@ void InputOutput::read_in_initial_conditions()
 
   if (initial_condition_type == "ICCING")
   {
-    formatted_output::report("Initial conditions type: ICCING");
+    formatted_output::update("Initial conditions type: ICCING");
     total_header_lines = 1;
 
     ifstream infile(IC_file.c_str());
-    formatted_output::report("Initial conditions file: " + IC_file);
+    formatted_output::update("Initial conditions file: " + IC_file);
     if (infile.is_open())
     {
       string line;

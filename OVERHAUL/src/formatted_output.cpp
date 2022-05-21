@@ -127,12 +127,14 @@ namespace formatted_output
   //----------------------------------------------------------------------------
   void report(string message)
   {
+    cout << endl;
     print_bullet( message, "-", 2 );
   }
 
   //----------------------------------------------------------------------------
   void update(string message)
   {
+    cout << endl;
     print_bullet( message, "*", 4 );
   }
 
