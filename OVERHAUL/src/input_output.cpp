@@ -23,6 +23,7 @@ using namespace constants;
 using std::endl;
 using std::flush;
 using std::string;
+using std::to_string;
 
 // Constructors and destructors.
 InputOutput::InputOutput(){}
