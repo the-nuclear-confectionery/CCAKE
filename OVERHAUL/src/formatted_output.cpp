@@ -29,7 +29,7 @@ namespace formatted_output
     string indentstring = string(indent, ' ');
 
     if ( message.length() < max_length - indent - bn - 1 )
-      cout << indentstring << b << " " << message << "\n";
+      cout << indentstring << b << " " << message;
     else
     {
       istringstream iss(message);
@@ -128,24 +128,26 @@ namespace formatted_output
   void report(string message)
   {
     print_bullet( message, "-", 2 );
+    cout << endl;
   }
 
   //----------------------------------------------------------------------------
   void update(string message)
   {
     print_bullet( message, "*", 4 );
+    cout << endl;
   }
 
 
   //----------------------------------------------------------------------------
-  void comment(string message)
+  void detail(string message)
   {
     print_bullet( message, "-->", 6 );
   }
 
 
   //----------------------------------------------------------------------------
-  void detail(string message)
+  void comment(string message)
   {
     print_bullet( message, "+", 10 );
   }

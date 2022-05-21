@@ -62,7 +62,9 @@ void InputOutput::set_results_directory( string path_to_results_directory )
 //------------------------------------------------------------------------------
 void InputOutput::load_settings_file( string path_to_settings_file )
 {
-  formatted_output::announce("Reading in input parameter settings");
+  formatted_output::announce("Initializing hydrodynamics");
+
+  formatted_output::report("Reading in input parameter settings");
 
   string Param_file = path_to_settings_file;
   ifstream infile( Param_file.c_str() );
@@ -72,9 +74,11 @@ void InputOutput::load_settings_file( string path_to_settings_file )
     string field = "";
     string value = "";
     
+    //--------------------------------------------------------------------------
     // set default values first
     setting_map values = parameter_settings::get_defaults();
 
+    //--------------------------------------------------------------------------
     // update settings from input file
     while ( getline (infile, line) )
     {
@@ -93,6 +97,7 @@ void InputOutput::load_settings_file( string path_to_settings_file )
       set_value(values, field, value);
     }
 
+    //--------------------------------------------------------------------------
     // store final settings
     settingsPtr->IC_type                =      get_value(values, "ICtype");
     settingsPtr->IC_option              =      get_value(values, "ICoption");
@@ -114,14 +119,16 @@ void InputOutput::load_settings_file( string path_to_settings_file )
     settingsPtr->Freeze_Out_Type        =      get_value(values, "freezeout");
 
 
+    //--------------------------------------------------------------------------
     // check set values
-    formatted_output::report("Check parameter settings");
+    formatted_output::update("Check parameter settings");
     for ( auto & value : values )
-      formatted_output::update( "set " + value.first + " == " + value.second );
+      formatted_output::detail( "set " + value.first + " == " + value.second );
 
 
     //==========================================================================
     // enforce appropriate settings for Gubser
+    formatted_output::update("Consistency checks");
     if (   settingsPtr->IC_type == "Gubser"
         || settingsPtr->IC_type == "Gubser_with_shear" )
     {
@@ -195,7 +202,7 @@ void InputOutput::set_EoS_type()
   }
   else
   {
-    cout << "EoS option not recognized for " << EoS_type << ", now exiting." << endl;
+    cerr << "EoS option not recognized for " << EoS_type << ", now exiting." << endl;
     abort();
   }
 
