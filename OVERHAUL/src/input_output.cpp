@@ -212,10 +212,10 @@ void InputOutput::read_in_initial_conditions()
           Particle p;
           p.r(0)       = x;
           p.r(1)       = y;
-          p.input.e    = eLocal;
-          p.input.rhoB = rhoBLocal;
-          p.input.rhoS = rhoSLocal;
-          p.input.rhoQ = rhoQLocal;
+          p.input.e    = e;
+          p.input.rhoB = rhoB;
+          p.input.rhoS = rhoS;
+          p.input.rhoQ = rhoQ;
           p.u(0)       = ux;
           p.u(1)       = uy;
 
@@ -284,8 +284,8 @@ void InputOutput::read_in_initial_conditions()
       p.input.rhoB = rhoBLocal;
       p.input.rhoS = rhoSLocal;
       p.input.rhoQ = rhoQLocal;
-      p.u(0)       = ux;
-      p.u(1)       = uy;
+      p.hydro.u(0) = ux;
+      p.hydro.u(1) = uy;
 
       systemPtr->particles.push_back( p );
     }
@@ -355,8 +355,8 @@ void InputOutput::read_in_initial_conditions()
         p.r(0)           = x;
         p.r(1)           = y;
         p.input.e        = eLocal;
-        p.u(0)           = ux;
-        p.u(1)           = uy;
+        p.hydro.u(0)     = ux;
+        p.hydro.u(1)     = uy;
         p.hydro.shv(0,0) = 0.0;
         p.hydro.shv(0,1) = 0.0;
         p.hydro.shv(0,2) = 0.0;
