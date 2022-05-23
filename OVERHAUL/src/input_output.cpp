@@ -216,8 +216,8 @@ void InputOutput::read_in_initial_conditions()
           p.input.rhoB = rhoB;
           p.input.rhoS = rhoS;
           p.input.rhoQ = rhoQ;
-          p.u(0)       = ux;
-          p.u(1)       = uy;
+          p.hydro.u(0) = ux;
+          p.hydro.u(1) = uy;
 
           systemPtr->particles.push_back( p );
         }

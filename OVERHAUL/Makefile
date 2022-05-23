@@ -1,10 +1,10 @@
 OBJDIR=obj
-OBJS = $(OBJDIR)/transport_coefficients.o $(OBJDIR)/main.o $(OBJDIR)/vector.o \
+OBJS = $(OBJDIR)/input_output.o $(OBJDIR)/main.o $(OBJDIR)/vector.o \
 			 $(OBJDIR)/matrix.o $(OBJDIR)/BSQHydro.o $(OBJDIR)/particle.o $(OBJDIR)/eos.o \
        $(OBJDIR)/system_state.o $(OBJDIR)/linklist.o $(OBJDIR)/eos_delaunay.o \
-			 $(OBJDIR)/kernel.o $(OBJDIR)/sph_workstation.o $(OBJDIR)/input_output.o \
+			 $(OBJDIR)/kernel.o $(OBJDIR)/sph_workstation.o \
 			 $(OBJDIR)/rootfinder.o $(OBJDIR)/eos_table.o $(OBJDIR)/eos_extension.o \
-			 $(OBJDIR)/formatted_output.o
+			 $(OBJDIR)/formatted_output.o $(OBJDIR)/transport_coefficients.o
 			 
 #CC = g++
 CC = h5c++
