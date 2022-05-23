@@ -62,8 +62,6 @@ void InputOutput::set_results_directory( string path_to_results_directory )
 //------------------------------------------------------------------------------
 void InputOutput::load_settings_file( string path_to_settings_file )
 {
-  formatted_output::announce("Initializing hydrodynamics");
-
   formatted_output::report("Reading in input parameter settings");
 
   string Param_file = path_to_settings_file;

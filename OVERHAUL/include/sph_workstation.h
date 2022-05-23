@@ -190,6 +190,9 @@ public:
   // what it says on the label
   void advance_timestep( double dt, int rk_order )
   {
+    Stopwatch sw;
+    sw.Start();
+
     // turn on freeze-out flag initially
     systemPtr->cfon = 1;
 
@@ -202,6 +205,10 @@ public:
 
     // keep track of how many timesteps have elapsed
     systemPtr->number_of_elapsed_timesteps++;
+
+    sw.Stop();
+    formatted_output::update("finished timestep in "
+                              + to_string(sw.printTime()) + " s");
 
     return;
   }

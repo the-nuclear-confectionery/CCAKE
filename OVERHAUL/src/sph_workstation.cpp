@@ -45,7 +45,7 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
   }
 
     systemPtr->n_particles = systemPtr->particles.size();
-    cout << "systemPtr->n_particles = " << systemPtr->n_particles << "\n";
+    //cout << "systemPtr->n_particles = " << systemPtr->n_particles << "\n";
 
     for (int i=0; i<systemPtr->n_particles; i++)
     {
@@ -155,8 +155,10 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
   }
 
 	swTotal.Stop();
-	cout << "Finished function call to " << __FUNCTION__ << "(...) in "
-			<< swTotal.printTime() << " s." << endl;
+	//cout << "Finished function call to " << __FUNCTION__ << "(...) in "
+	//		<< swTotal.printTime() << " s." << endl;
+  formatted_output::update("finished initializing particle densities in "
+                              + to_string(swTotal.printTime()) + " s");
 
 	if (false)
 	{
@@ -186,8 +188,9 @@ void SPHWorkstation::initial_smoothing()
   smooth_all_particle_fields();
 
 	int count1=0;
-	cout << "----------------------------------------"
-			"----------------------------------------" << endl;
+  if (VERBOSE > 5)
+    cout << "----------------------------------------"
+        "----------------------------------------" << endl;
 
 	for ( auto & p : systemPtr->particles )
 	{

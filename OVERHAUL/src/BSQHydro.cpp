@@ -60,6 +60,9 @@ void BSQHydro::read_in_initial_conditions()
 ////////////////////////////////////////////////////////////////////////////////
 void BSQHydro::initialize_hydrodynamics()
 {
+  formatted_output::announce("Initializing hydrodynamics");
+  Stopwatch sw;
+  sw.Start();
 
   // initialize equation of state
   ws.initialize();
@@ -80,6 +83,10 @@ void BSQHydro::initialize_hydrodynamics()
   // implement initial smoothing required by SPH formalism
   ws.initial_smoothing();
 
+  sw.Stop();
+  formatted_output::report("hydrodynamics initialization finished in "
+                              + to_string(sw.printTime()) + " s");
+
   return;
 }
 
@@ -88,6 +95,8 @@ void BSQHydro::initialize_hydrodynamics()
 void BSQHydro::run()
 {
   formatted_output::announce("Beginning hydrodynamic evolution");
+  Stopwatch sw;
+  sw.Start();
 
   //===================================
   // initialize conserved quantities
@@ -118,6 +127,10 @@ void BSQHydro::run()
     io.print_conservation_status();
     io.print_system_state();
   }
+
+  sw.Stop();
+  formatted_output::summarize("hydrodynamics evolution finished in "
+                              + to_string(sw.printTime()) + " s");
 }
 
 
