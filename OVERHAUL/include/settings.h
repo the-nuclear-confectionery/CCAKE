@@ -99,7 +99,7 @@ class Settings
 
         //------------------------------------
         // run Gubser indefinitely
-        Freeze_Out_Temperature = 1e-10/hbarc_MeVfm;
+        Freeze_Out_Temperature = 1e-10/constants::hbarc_MeVfm;
 
         //------------------------------------
         // Gubser shear viscosity settings
