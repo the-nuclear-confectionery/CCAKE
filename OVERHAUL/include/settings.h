@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 
+#include "constants.h"
 #include "formatted_output.h"
 
 using std::string;
