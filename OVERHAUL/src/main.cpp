@@ -18,6 +18,7 @@
 #include <vector>
 
 #include "../include/BSQHydro.h"
+#include "../include/formatted_output.h"
 #include "../include/welcome.h"
 
 using std::cout;
@@ -47,6 +48,10 @@ int main (int argc, char *argv[])
   // Define and set up the simulation object itself.
   BSQHydro simulation;
   simulation.set_results_directory( path_to_results_directory );
+
+  formatted_output::announce("Loading data");
+
+  // Load file containing parameter settings.
   simulation.load_settings_file( path_to_settings_file );
 
   // Read in initial conditions (type/path defined in path_to_settings_file).
@@ -64,8 +69,7 @@ int main (int argc, char *argv[])
   // Save any relevant output.
   simulation.print_results();
 
-  // Farewell message.
-  std::cout << "Simulation ran successfully!" << std::endl;
+  formatted_output::announce("Hydrodynamic evolution completed successfully");
 
   return 0;
 }

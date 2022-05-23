@@ -129,7 +129,7 @@ void BSQHydro::run()
   }
 
   sw.Stop();
-  formatted_output::summarize("hydrodynamics evolution finished in "
+  formatted_output::summarize("All timesteps finished in "
                               + to_string(sw.printTime()) + " s");
 }
 

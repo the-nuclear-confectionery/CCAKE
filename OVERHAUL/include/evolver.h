@@ -16,7 +16,7 @@ class Evolver
 {
   private:
     
-    Settings * settingsPtr    = nullptr;
+    Settings    * settingsPtr = nullptr;
     SystemState * systemPtr   = nullptr;
 
     int n_particles = -1;
@@ -201,6 +201,7 @@ class Evolver
       ////////////////////////////////////////////
       //    first step
       ////////////////////////////////////////////
+      formatted_output::report("RK(n=4) evolution, step 1");
 
       // compute derivatives
       time_derivatives_functional();
@@ -237,6 +238,7 @@ class Evolver
       ////////////////////////////////////////////
       //    second step
       ////////////////////////////////////////////
+      formatted_output::report("RK(n=4) evolution, step 2");
 
       systemPtr->t = t0 + 0.5*dt;
       time_derivatives_functional();
@@ -271,6 +273,7 @@ class Evolver
       ////////////////////////////////////////////
       //    third step
       ////////////////////////////////////////////
+      formatted_output::report("RK(n=4) evolution, step 3");
 
       time_derivatives_functional();
 
@@ -304,6 +307,7 @@ class Evolver
       ////////////////////////////////////////////
       //    fourth step
       ////////////////////////////////////////////
+      formatted_output::report("RK(n=4) evolution, step 4");
 
       systemPtr->t = t0 + dt;
       time_derivatives_functional();

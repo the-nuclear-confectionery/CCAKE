@@ -563,13 +563,16 @@ void SPHWorkstation::get_time_derivatives()
   update_all_particle_viscosities();
 
   // freeze-out checks here
-  int curfrz = do_freezeout_checks();
+//  int curfrz = do_freezeout_checks();
 
   //Computes gradients to obtain dsigma/dt
   smooth_all_particle_gradients();
 
   //calculate time derivatives needed for equations of motion
   evaluate_all_particle_time_derivatives();
+
+  // move freeze out checks here
+  int curfrz = do_freezeout_checks();
 
   // update freeze out status/lists
   update_freeze_out_lists();

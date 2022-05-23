@@ -21,8 +21,6 @@ LinkList::LinkList()
 
 void LinkList::initialize( vector<Particle> * particlesPtr_in, double h_in )
 {
-  formatted_output::report("Initializing linklist");
-
   h            = h_in;
   particlesPtr = particlesPtr_in;
   n_particles  = particlesPtr->size();

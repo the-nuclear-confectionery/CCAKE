@@ -62,7 +62,7 @@ void SystemState::initialize()  // formerly called "manualenter"
 
 void SystemState::initialize_linklist()
 {
-  formatted_output::report("Initialize linklist");
+  formatted_output::report("Initializing linklist");
 
   // initialize linklist
   linklist.initialize( &particles, settingsPtr->h );

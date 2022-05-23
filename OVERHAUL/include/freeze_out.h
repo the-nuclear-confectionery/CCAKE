@@ -191,10 +191,6 @@ class FreezeOut
     ////////////////////////////////////////////////////////////////////////////
     void bsqsvfreezeout(int curfrz)
     {
-//      cout << "CHECK BSQSVFREEZEOUT: " << frzc
-//            << "   " << tau << "   " << taup
-//            << "   " << taupp << "   " << systemPtr->cfon << endl;
-
       if (frzc==0) // true in first timestep only
       {
         taupp = systemPtr->t;
