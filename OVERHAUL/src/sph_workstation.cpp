@@ -376,9 +376,9 @@ void SPHWorkstation::smooth_gradients( Particle & pa, double tin )
   else if ( ( pa.btrack == 0 )                          // otherwise, if a has no nearest neighbors
             && ( ( pa.T()*hc ) >= 150 )                 // but has T>150 and isn't frozen out,
             && ( pa.Freeze < 4 ) )                      // just print this warning message
-    cout << "Missed " << a << " " << tin << "  "
-         << pa.T()*hc << " "
-         << rdis << " " << systemPtr->cfon <<  endl;
+    cout << boolalpha << "Missed " << a << " "
+         << tin << " " << pa.T()*hc << " "
+         << rdis << " " << systemPtr->do_freeze_out << endl;
 
   return;
 }
@@ -500,37 +500,34 @@ void SPHWorkstation::process_initial_conditions()
 
 
 
-////////////////////////////////////////////////////////////////////////////////
+//==============================================================================
 void SPHWorkstation::freeze_out_particles()
 {
-  //----------------------------------------------------------------------------
+  //---------------------------------------
   // perform freeze out checks
-  int curfrz = 0;
-  if ( systemPtr->cfon == 1 )
-  {
-    for ( auto & p : systemPtr->particles )
-      fo.check_freeze_out_status( p, systemPtr->t, curfrz, systemPtr->n() );
+  int n_freezing_out = 0;
+  for ( auto & p : systemPtr->particles )
+    fo.check_freeze_out_status( p, systemPtr->t, n_freezing_out,
+                                systemPtr->n() );
 
-    // update global quantities accordingly
-    systemPtr->number_part += curfrz;
-    systemPtr->list.resize(curfrz);
-  }
+  //---------------------------------------
+  // update global quantities accordingly
+  systemPtr->number_part += n_freezing_out;
+  systemPtr->list.resize(n_freezing_out);
 
-  //----------------------------------------------------------------------------
+  //---------------------------------------
   // update freeze out status/lists
   int m = 0;
   for ( auto & p : systemPtr->particles )
-    if ( (p.Freeze==3) && (systemPtr->cfon==1) )
+    if ( p.Freeze == 3 )
     {
       systemPtr->list[m++] = p.ID;
       p.Freeze         = 4;
     }
 
-  //----------------------------------------------------------------------------
+  //---------------------------------------
   // finalize frozen out particles
-  if (systemPtr->cfon==1)
-    fo.bsqsvfreezeout( curfrz );
-
+  fo.bsqsvfreezeout( n_freezing_out );
 }
 
 
@@ -562,7 +559,8 @@ void SPHWorkstation::get_time_derivatives()
   evaluate_all_particle_time_derivatives();
 
   // identify and handle particles which have frozen out
-  freeze_out_particles();
+  if ( systemPtr->do_freeze_out )
+    freeze_out_particles();
 
   // check/update conserved quantities
   systemPtr->conservation_energy();

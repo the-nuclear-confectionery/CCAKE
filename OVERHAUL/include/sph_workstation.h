@@ -195,7 +195,7 @@ public:
     sw.Start();
 
     // turn on freeze-out flag initially
-    systemPtr->cfon = 1;
+    systemPtr->do_freeze_out = true;
 
     // use evolver to actually do RK evolution
     // (pass workstation's own time derivatives function as lambda)

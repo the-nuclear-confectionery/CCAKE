@@ -35,7 +35,8 @@ class SystemState
     void set_EquationOfStatePtr( EquationOfState * eosPtr_in );
     void set_SettingsPtr( Settings * settingsPtr_in );
 
-    /* DOUBLES */
+    bool do_freeze_out = true;
+
     double h          = 0.0;
     double t          = 0.0;
     double dt         = 0.0;
@@ -63,14 +64,13 @@ class SystemState
     int number_part = 0;
     int n_particles = 0;
     int rk2         = 0;
-    int cfon        = 1;
 
     int number_of_elapsed_timesteps = 0;
 
 
   private:
-    EquationOfState * eosPtr = nullptr;
-    Settings * settingsPtr   = nullptr;
+    EquationOfState * eosPtr        = nullptr;
+    Settings        * settingsPtr   = nullptr;
 
 
     // the vector of particles

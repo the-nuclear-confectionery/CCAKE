@@ -15,11 +15,9 @@ using std::string;
 //==============================================================================
 // A DICTIONARY FOR CONFUSINGLY NAMED QUANTITIES
 //------------------------------------------------------------------------------
-// cfon   - whether to do FO this timestep (only done once per dt)
 // tau    - current tau
 // taup   - tau of previous timestep
 // taupp  - tau of two timesteps ago
-// curfrz - number of particles currently in process of freezing out
 // Freeze - current freeze out status of particle (0 == freeze-out not begun,
 //                                                 1 == freeze-out begun,
 //                                                 3 == freeze-out basically done,
@@ -358,7 +356,7 @@ class FreezeOut
         taup  = tau;
       }
 
-      systemPtr->cfon = 0;
+      systemPtr->do_freeze_out = false;
     }
 
 
