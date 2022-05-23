@@ -182,6 +182,7 @@ public:
   void calcbsq( Particle & p );
   void setvisc( Particle & p );
 
+  void set_bulk_Pi();
 
   // misc. routine
   double gradPressure_weight(const int a, const int b);

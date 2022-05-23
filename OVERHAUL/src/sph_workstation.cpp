@@ -499,6 +499,20 @@ void SPHWorkstation::process_initial_conditions()
 }
 
 
+// initialize bulk Pi 
+void SPHWorkstation::set_bulk_Pi()
+{
+  double t0 = settingsPtr->t0;
+  if ( settingsPtr->initializing_with_full_Tmunu )
+    for ( auto & p : systemPtr->particles )
+      p.hydro.Bulk = ( p.hydro.varsigma - p.p() )
+                      * p.hydro.gamma * t0 / p.hydro.sigma;
+
+  return;
+}
+
+
+
 
 //==============================================================================
 void SPHWorkstation::freeze_out_particles()

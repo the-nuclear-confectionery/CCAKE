@@ -15,17 +15,19 @@ class Settings
   public:
 
     // default settings
-    bool using_Gubser            = false;
-    bool using_Gubser_with_shear = false;
-    bool using_shear             = false;
+    bool using_Gubser                 = false;
+    bool using_Gubser_with_shear      = false;
+    bool using_shear                  = false;
+    bool initializing_with_full_Tmunu = false;  // whether to initialize Pi from
+                                                // varsigma - p or not
 
-    bool printing_to_txt         = true;
-    bool printing_to_HDF         = true;
+    bool printing_to_txt              = true;
+    bool printing_to_HDF              = true;
 
-    static constexpr int VERBOSE = 5;
+    static constexpr int VERBOSE      = 5;
 
     // maximum upper limit for t
-    static constexpr double tend = 50.02;
+    static constexpr double tend      = 50.02;
     
     // simulation settings
     double t0      = 0.0; // initial timestep

@@ -83,6 +83,10 @@ void BSQHydro::initialize_hydrodynamics()
   // implement initial smoothing required by SPH formalism
   ws.initial_smoothing();
 
+  // if initializing from full Tmunu, absorb non-equilibrium
+  // pressure correction into bulk viscous pressure Pi
+  ws.set_bulk_Pi();
+
   sw.Stop();
   formatted_output::report("hydrodynamics initialization finished in "
                               + to_string(sw.printTime()) + " s");

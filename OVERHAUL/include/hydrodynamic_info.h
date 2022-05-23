@@ -39,6 +39,8 @@ struct hydrodynamic_info
   double dwdsT1          = 0.0;
   double sigl            = 0.0;
 
+  double varsigma        = 0.0; // defined to be p + Pi (pressure + bulk)
+
   // vector members
   Vector<double,2> v;                     // velocity
   Vector<double,2> u;                     // relativistic velocity

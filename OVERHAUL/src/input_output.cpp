@@ -179,7 +179,7 @@ void InputOutput::read_in_initial_conditions()
   int total_header_lines;
   string IC_file = settingsPtr->IC_file;
 
-  //-------------------------------------
+  //----------------------------------------------------------------------------
   if (initial_condition_type == "ICCING")
   {
     total_header_lines = 1;
@@ -234,9 +234,11 @@ void InputOutput::read_in_initial_conditions()
     }
 
   }
+  //----------------------------------------------------------------------------
   else if (initial_condition_type == "Freestream")
   {
     total_header_lines = 1;
+    settingsPtr->initializing_with_full_Tmunu = true;
 
     ifstream infile(IC_file.c_str());
     formatted_output::update("Initial conditions file: " + IC_file);
@@ -248,7 +250,7 @@ void InputOutput::read_in_initial_conditions()
       string line;
       int count_header_lines = 0;
       int count_file_lines   = 0;
-      double x = 0.0, y = 0.0, e = 0.0, u1 = 0.0, u2 = 0.0;
+      double x = 0.0, y = 0.0, e = 0.0, varsigma = 0.0, u1 = 0.0, u2 = 0.0;
 
       double pi00 = 0.0, pi01 = 0.0, pi02 = 0.0, pi10 = 0.0, pi11 = 0.0,
              pi12 = 0.0, pi20 = 0.0, pi21 = 0.0, pi22 = 0.0, pi33 = 0.0;
@@ -269,30 +271,27 @@ void InputOutput::read_in_initial_conditions()
         }
         else
         {
-          iss >> x >> y >> e
+          iss >> x >> y >> e >> varsigma
               >> u1 >> u2
               >> pi00 >> pi01 >> pi02
               >> pi10 >> pi11 >> pi12
               >> pi20 >> pi21 >> pi22;
 
-          e /= hbarc_GeVfm;
-          pi00 /= hbarc_GeVfm;
-          //pi01 /= hbarc_GeVfm;
-          //pi02 /= hbarc_GeVfm;
-          //pi10 /= hbarc_GeVfm;
-          pi11 /= hbarc_GeVfm;
-          pi12 /= hbarc_GeVfm;
-          //pi20 /= hbarc_GeVfm;
-          //pi21 /= hbarc_GeVfm;
-          pi22 /= hbarc_GeVfm;
+          e        /= hbarc_GeVfm;
+          varsigma /= hbarc_GeVfm;
+          pi00     /= hbarc_GeVfm;
+          pi11     /= hbarc_GeVfm;
+          pi12     /= hbarc_GeVfm;
+          pi22     /= hbarc_GeVfm;
 
-          pi33 = (pi00 - pi11 - pi22)/(settingsPtr->t0*settingsPtr->t0);
+          pi33      = (pi00 - pi11 - pi22)/(settingsPtr->t0*settingsPtr->t0);
 
           // initialize particle object
           Particle p;
           p.r(0)           = x;
           p.r(1)           = y;
           p.input.e        = e;
+          p.input.varsigma = varsigma;
           p.hydro.u(0)     = u1;
           p.hydro.u(1)     = u2;
           p.hydro.shv(0,0) = 0.0;
@@ -318,6 +317,7 @@ void InputOutput::read_in_initial_conditions()
       abort();
     }
   }
+  //----------------------------------------------------------------------------
   else if (initial_condition_type == "Gubser")
   {
     // choose initial coordinate system
@@ -377,6 +377,7 @@ void InputOutput::read_in_initial_conditions()
     }
     
   }
+  //----------------------------------------------------------------------------
   else if (initial_condition_type == "Gubser_with_shear")
   { // NOTA BENE: THIS MODE MUST BE LOADED FROM FILE
     // choose initial coordinate system
@@ -461,6 +462,7 @@ void InputOutput::read_in_initial_conditions()
       abort();
     }
   }
+  //----------------------------------------------------------------------------
   else
   {
       std::cerr << "Initial condition type " << initial_condition_type
