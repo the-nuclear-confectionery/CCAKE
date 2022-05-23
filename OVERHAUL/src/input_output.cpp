@@ -243,8 +243,6 @@ void InputOutput::read_in_initial_conditions()
     ifstream infile(IC_file.c_str());
     formatted_output::update("Initial conditions file: " + IC_file);
 
-    ifstream infile(IC_file.c_str());
-    cout << "Initial conditions file: " << IC_file << endl;
     if (infile.is_open())
     {
       string line;
@@ -291,7 +289,7 @@ void InputOutput::read_in_initial_conditions()
           p.r(0)           = x;
           p.r(1)           = y;
           p.input.e        = e;
-          p.input.varsigma = varsigma;
+          p.hydro.varsigma = varsigma;
           p.hydro.u(0)     = u1;
           p.hydro.u(1)     = u2;
           p.hydro.shv(0,0) = 0.0;
