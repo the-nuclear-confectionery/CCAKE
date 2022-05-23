@@ -500,17 +500,14 @@ void SPHWorkstation::process_initial_conditions()
 
 
 
-
-
-
-
 ////////////////////////////////////////////////////////////////////////////////
-int SPHWorkstation::do_freezeout_checks()
+int SPHWorkstation::freeze_out_particles()
 {
+  //----------------------------------------------------------------------------
+  // perform freeze out checks
   int curfrz = 0;
   if ( systemPtr->cfon == 1 )
   {
-    // freeze-out checks for all particles
     for ( auto & p : systemPtr->particles )
       fo.check_freeze_out_status( p, systemPtr->t, curfrz, systemPtr->n() );
 
@@ -518,14 +515,9 @@ int SPHWorkstation::do_freezeout_checks()
     systemPtr->number_part += curfrz;
     systemPtr->list.resize(curfrz);
   }
-  return curfrz;
-}
 
-
-
-////////////////////////////////////////////////////////////////////////////////
-void SPHWorkstation::update_freeze_out_lists()
-{
+  //----------------------------------------------------------------------------
+  // update freeze out status/lists
   int m = 0;
   for ( auto & p : systemPtr->particles )
     if ( (p.Freeze==3) && (systemPtr->cfon==1) )
@@ -533,14 +525,15 @@ void SPHWorkstation::update_freeze_out_lists()
       systemPtr->list[m++] = p.ID;
       p.Freeze         = 4;
     }
-}
 
-
-void SPHWorkstation::finalize_freeze_out(int curfrz)
-{
+  //----------------------------------------------------------------------------
+  // finalize frozen out particles
   if (systemPtr->cfon==1)
     fo.bsqsvfreezeout( curfrz );
+
 }
+
+
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -562,23 +555,14 @@ void SPHWorkstation::get_time_derivatives()
   // update viscosities for all particles
   update_all_particle_viscosities();
 
-  // freeze-out checks here
-//  int curfrz = do_freezeout_checks();
-
   //Computes gradients to obtain dsigma/dt
   smooth_all_particle_gradients();
 
   //calculate time derivatives needed for equations of motion
   evaluate_all_particle_time_derivatives();
 
-  // move freeze out checks here
-  int curfrz = do_freezeout_checks();
-
-  // update freeze out status/lists
-  update_freeze_out_lists();
-
-  // finalize frozen out particles
-  finalize_freeze_out( curfrz );
+  // identify and handle particles which have frozen out
+  freeze_out_particles();
 
   // check/update conserved quantities
   systemPtr->conservation_energy();

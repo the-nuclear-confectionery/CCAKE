@@ -160,9 +160,10 @@ public:
 
 
   //-------------------------------------------
-  int do_freezeout_checks();
-  void update_freeze_out_lists();
-  void finalize_freeze_out(int curfrz);
+  void freeze_out_particles();
+//  int do_freezeout_checks();
+//  void update_freeze_out_lists();
+//  void finalize_freeze_out(int curfrz);
 
 
   //============================================================================
