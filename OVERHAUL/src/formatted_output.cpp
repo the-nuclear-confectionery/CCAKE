@@ -15,6 +15,7 @@ using std::endl;
 using std::floor;
 using std::istringstream;
 using std::string;
+using std::to_string;
 using std::vector;
 
 namespace formatted_output
@@ -28,20 +29,20 @@ namespace formatted_output
     string bpad = string(bn, ' ');
     string indentstring = string(indent, ' ');
 
-    if ( message.length() < max_length - indent - bn - 1 )
-      cout << indentstring << b << " " << message;
+    if ( message.length() < max_length - indent - bn )
+      cout << indentstring << b << message;
     else
     {
       istringstream iss(message);
       string word = "";
-      int current_length = indent + bn + 1;
-      cout << indentstring << b << " ";
+      int current_length = indent + bn;
+      cout << indentstring << b;
       while (iss >> word)
       {
         if (current_length + word.length() > max_length)
         {
           cout << "\n" << indentstring << bpad << " " << word << " ";
-          current_length = word.length() + indent + bn + 2;
+          current_length = word.length() + indent + bn + 1;
         }
         else
         {
@@ -127,35 +128,35 @@ namespace formatted_output
   void summarize(string message)
   {
     cout << endl;
-    print_bullet( message, " ", 0 );
+    print_bullet( message, "", 0 );
   }
 
   //----------------------------------------------------------------------------
   void report(string message)
   {
     cout << endl;
-    print_bullet( message, "-", 2 );
+    print_bullet( message, "- ", 2 );
   }
 
   //----------------------------------------------------------------------------
   void update(string message)
   {
     cout << endl;
-    print_bullet( message, "*", 4 );
+    print_bullet( message, "* ", 4 );
   }
 
 
   //----------------------------------------------------------------------------
   void detail(string message)
   {
-    print_bullet( message, "-->", 6 );
+    print_bullet( message, "--> ", 6 );
   }
 
 
   //----------------------------------------------------------------------------
   void comment(string message)
   {
-    print_bullet( message, "+", 10 );
+    print_bullet( message, "+ ", 10 );
   }
 
   

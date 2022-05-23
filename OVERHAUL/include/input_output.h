@@ -97,14 +97,20 @@ public:
 
   void print_conservation_status()
   {
-      stringstream ss;
-      ss  << "t = "
-          << systemPtr->t      << ": " << scientific        << setw(10)
-          << systemPtr->Eloss  << " "  << systemPtr->E0     << " " 
-          << systemPtr->Etot   << " "  << systemPtr->S      << " " 
-          << systemPtr->Btotal << " "  << systemPtr->Stotal << " "
-          << systemPtr->Qtotal << defaultfloat;
-      formatted_output::summarize(ss.str());
+//    out << setw(12) << setprecision(10) << "t="
+//        << systemPtr->t      << " " << systemPtr->Eloss  << " "
+//        << systemPtr->E0     << " " << systemPtr->Etot   << " "
+//        << systemPtr->S      << " " << systemPtr->Btotal << " "
+//        << systemPtr->Stotal << " " << systemPtr->Qtotal << endl;
+
+    // print energy/entropy and conserved charge totals
+    stringstream ss;
+    ss  << "t = "
+        << systemPtr->t      << ": " << scientific        << setw(10)
+        << systemPtr->Eloss  << " "  << systemPtr->S      << " " 
+        << systemPtr->Btotal << " "  << systemPtr->Stotal << " "
+        << systemPtr->Qtotal << defaultfloat;
+    formatted_output::summarize(ss.str());
   }
 
 };

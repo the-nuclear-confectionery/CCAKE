@@ -15,6 +15,7 @@ using std::endl;
 using std::floor;
 using std::istringstream;
 using std::string;
+using std::to_string;
 using std::vector;
 
 namespace formatted_output

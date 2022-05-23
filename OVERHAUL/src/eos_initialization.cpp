@@ -336,7 +336,7 @@ void EquationOfState::init(string quantityFile, string derivFile)
   // (this step *MUST BE DONE AFTER* chosen EoSs have been set,
   //  and each EoS must have a *UNIQUE NAME*)
   //============================================================================
-  formatted_output::update( "Check order of equations of state" );
+  formatted_output::update( "Check order of equations of state:" );
   for ( auto & chosen_eos : chosen_EOSs )
   {
     formatted_output::detail( chosen_eos->name );
