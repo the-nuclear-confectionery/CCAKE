@@ -109,7 +109,7 @@ public:
           << systemPtr->Eloss  << systemPtr->E0     << systemPtr->Etot
           << systemPtr->S      << systemPtr->Btotal
           << systemPtr->Stotal << systemPtr->Qtotal;
-      formatted_output.summarize(ss.str());
+      formatted_output::summarize(ss.str());
   }
 
 };
