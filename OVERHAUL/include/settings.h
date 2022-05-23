@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+#include "formatted_output.h"
+
 using std::string;
 
 class Settings
@@ -67,14 +69,60 @@ class Settings
     string Freeze_Out_Type           = "";
 
 
-
     // allows for explicitly printing extra information about specific particles
     vector<int> particles_to_print;
+
 
     // make sure that all chosen settings make reasonable sense
     void check_consistency()
     {
-      // put any necessary consistency checks here
+      formatted_output::update("Impose consistency checks");
+
+      //------------------------------------
+      // enforce appropriate settings for Gubser
+      if ( IC_type == "Gubser" || IC_type == "Gubser_with_shear" )
+      {
+        using_Gubser = true;
+        if ( IC_type == "Gubser_with_shear" )
+          using_Gubser_with_shear = true;
+
+        //------------------------------------
+        // put a warning check here
+        if ( EoS_type != "conformal" )
+        {
+          std::cerr << "WARNING: Gubser initial conditions require a conformal "
+                       "equation of state!  Switching to gas of massless gluons"
+                       " and 2.5 massless quarks" << std::endl;
+          EoS_type = "conformal";
+        }
+
+        //------------------------------------
+        // run Gubser indefinitely
+        Freeze_Out_Temperature = 1e-10/hbarc_MeVfm;
+
+        //------------------------------------
+        // Gubser shear viscosity settings
+        etaMode = "constant";
+        if ( IC_type == "Gubser" )
+          constant_eta_over_s = 0.0;
+        else if ( IC_type == "Gubser_with_shear" )
+          constant_eta_over_s = 0.20;
+
+        //------------------------------------
+        // Gubser bulk viscosity settings
+        zetaMode = "constant";
+        constant_zeta_over_s = 0.0;
+      }
+      else if ( IC_type == "TECHQM" )
+      {
+        t0 = 0.6;  //fm/c
+      }
+
+      // if eta/s == 0 identically, set using_shear to false
+      if ( etaMode == "constant" && constant_eta_over_s < 1e-10 )
+        using_shear  = false;
+      else
+        using_shear  = true;
 
       return;
     }

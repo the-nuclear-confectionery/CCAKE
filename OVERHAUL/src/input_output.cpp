@@ -119,63 +119,24 @@ void InputOutput::load_settings_file( string path_to_settings_file )
 
     //--------------------------------------------------------------------------
     // check set values
-    formatted_output::update("Check parameter settings");
+    formatted_output::update("Check parameter settings:");
     for ( auto & value : values )
       formatted_output::detail( "set " + value.first + " == " + value.second );
 
-
-    //==========================================================================
-    // enforce appropriate settings for Gubser
-    formatted_output::update("Impose consistency checks");
-    if (   settingsPtr->IC_type == "Gubser"
-        || settingsPtr->IC_type == "Gubser_with_shear" )
-    {
-      settingsPtr->using_Gubser = true;
-      if ( settingsPtr->IC_type == "Gubser_with_shear" )
-        settingsPtr->using_Gubser_with_shear = true;
-
-      // put a warning check here; probably defer to separate routine eventually
-      if ( settingsPtr->EoS_type != "conformal" )
-      {
-        std::cerr << "WARNING: Gubser initial conditions require a conformal "
-                     "equation of state!  Switching to gas of massless gluons"
-                     " and 2.5 massless quarks" << std::endl;
-        settingsPtr->EoS_type = "conformal";
-      }
-
-      // run Gubser indefinitely
-      settingsPtr->Freeze_Out_Temperature = 1e-10/hbarc_MeVfm;
-
-      // Gubser shear viscosity settings
-      settingsPtr->etaMode = "constant";
-      if ( settingsPtr->IC_type == "Gubser" )
-        settingsPtr->constant_eta_over_s = 0.0;
-      else if ( settingsPtr->IC_type == "Gubser_with_shear" )
-        settingsPtr->constant_eta_over_s = 0.20;
-
-      // Gubser bulk viscosity settings
-      settingsPtr->zetaMode = "constant";
-      settingsPtr->constant_zeta_over_s = 0.0;
-    }
-    else if ( settingsPtr->IC_type == "TECHQM" )
-    {
-      settingsPtr->t0 = 0.6;  //fm/c
-    }
-
-    // if eta/s == 0 identically, set using_shear to false
-    if ( settingsPtr->etaMode == "constant" &&
-         settingsPtr->constant_eta_over_s < 1e-10 )
-      settingsPtr->using_shear  = false;
-    else
-      settingsPtr->using_shear  = true;
-
     infile.close();
   }
+  else
+  {
+    std::cerr << "File " << Param_file << " could not be opened!\n";
+    abort();
+  }
+
+  // make sure that chosen settings make sense
+  settingsPtr->check_consistency();
 
 
   // set particles to print
-//  settingsPtr->particles_to_print
-//    = vector<int>({0});
+  settingsPtr->particles_to_print = vector<int>();
 
 
   // set up HDF5 output file here
@@ -196,7 +157,8 @@ void InputOutput::set_EoS_type()
 
   if (EoS_option != "default")
   {
-    cerr << "EoS option not recognized for " << EoS_type << ", now exiting." << endl;
+    std::cerr << "EoS option not recognized for " << EoS_type
+              << ", now exiting.\n";
     abort();
   }
 
@@ -246,18 +208,28 @@ void InputOutput::read_in_initial_conditions()
           iss >> x >> y >> e >> rhoB >> rhoS >> rhoQ;
           e /= hbarc_GeVfm;
           double ux = 0.0, uy = 0.0;
-          vector<double> fields({x,y,e,rhoB,rhoS,rhoQ,ux,uy});
-          systemPtr->particles.push_back( Particle(fields) );
+
+          Particle p;
+          p.r(0)       = x;
+          p.r(1)       = y;
+          p.input.e    = eLocal;
+          p.input.rhoB = rhoBLocal;
+          p.input.rhoS = rhoSLocal;
+          p.input.rhoQ = rhoQLocal;
+          p.u(0)       = ux;
+          p.u(1)       = uy;
+
+          systemPtr->particles.push_back( p );
         }
       }
+
+      infile.close();
     }
     else
     {
-
-      cout << "Can't open " << IC_file << endl;
-      exit(1);
+      std::cerr << "File " << IC_file << " could not be opened!\n";
+      abort();
     }
-    infile.close();
 
   }
   else if (initial_condition_type == "Gubser")
@@ -305,8 +277,17 @@ void InputOutput::read_in_initial_conditions()
       double cphi = cos(phi), sphi = sin(phi);
       double ux = gammar*vr*cphi, uy = gammar*vr*sphi;
 
-      vector<double> fields({x,y,eLocal,rhoBLocal,rhoSLocal,rhoQLocal,ux,uy});
-      systemPtr->particles.push_back( Particle(fields) );
+      Particle p;
+      p.r(0)       = x;
+      p.r(1)       = y;
+      p.input.e    = eLocal;
+      p.input.rhoB = rhoBLocal;
+      p.input.rhoS = rhoSLocal;
+      p.input.rhoQ = rhoQLocal;
+      p.u(0)       = ux;
+      p.u(1)       = uy;
+
+      systemPtr->particles.push_back( p );
     }
     
   }
@@ -365,16 +346,44 @@ void InputOutput::read_in_initial_conditions()
         pixy    /= hbarc_GeVfm;                           // 1/fm^4
         pietaeta = pizz/(tau0*tau0*hbarc_GeVfm);          // 1/fm^6
 
-        vector<double> fields({ x, y, eLocal, 0.0, 0.0, 0.0, ux, uy,
-                                pixx, piyy, pixy, pietaeta });
-        systemPtr->particles.push_back( Particle(fields) );
+        //vector<double> fields({ x, y, eLocal, 0.0, 0.0, 0.0, ux, uy,
+        //                        pixx, piyy, pixy, pietaeta });
+        //systemPtr->particles.push_back( Particle(fields) );
+
+        // initialize particle object
+        Particle p;
+        p.r(0)           = x;
+        p.r(1)           = y;
+        p.input.e        = eLocal;
+        p.u(0)           = ux;
+        p.u(1)           = uy;
+        p.hydro.shv(0,0) = 0.0;
+        p.hydro.shv(0,1) = 0.0;
+        p.hydro.shv(0,2) = 0.0;
+        p.hydro.shv(1,0) = 0.0;
+        p.hydro.shv(1,1) = pixx;
+        p.hydro.shv(1,2) = pixy;
+        p.hydro.shv(2,0) = 0.0;
+        p.hydro.shv(2,1) = pixy;
+        p.hydro.shv(2,2) = piyy;
+        p.hydro.shv33    = pietaeta;
+
+        systemPtr->particles.push_back( p );
       }
+
+      infile.close();
+    }
+    else
+    {
+      std::cerr << "File " << inputfilename << " could not be opened!\n";
+      abort();
     }
   }
   else
   {
-      cout << "Selected initial condition type not supported." << endl;
-      exit(1);
+      std::cerr << "Initial condition type " << initial_condition_type
+                << " is not supported.\n";
+      abort();
   }
 
 }

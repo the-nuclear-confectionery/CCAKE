@@ -80,7 +80,7 @@ class Particle
 
     // Constructors and destructors.
     Particle();
-    Particle(vector<double> &fields);
+    //Particle(vector<double> &fields);
     
     // copy-constructor
     Particle( const Particle& p );
