@@ -104,8 +104,7 @@ public:
 //        << systemPtr->S      << " " << systemPtr->Btotal << " "
 //        << systemPtr->Stotal << " " << systemPtr->Qtotal << endl;
       stringstream ss;
-      ss << "t = " << systemPtr->t << ":"
-          << setw(10) << noshowpoint << setprecision(8) 
+      ss << "t = " << systemPtr->t << ": " << setw(10)
           << systemPtr->Eloss << " " << systemPtr->E0 << " " 
           << systemPtr->Etot << " " << systemPtr->S << " " 
           << systemPtr->Btotal << " " << systemPtr->Stotal << " "

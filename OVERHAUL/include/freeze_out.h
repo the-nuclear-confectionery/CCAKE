@@ -376,7 +376,7 @@ class FreezeOut
     // OF FREEZING OUT
     void bsqsvinterpolate(int curfrz)
     {
-      cout << "Entered " << __FUNCTION__ << " with " << curfrz << " particles" << endl;
+      //cout << "Entered " << __FUNCTION__ << " with " << curfrz << " particles" << endl;
       sFO.resize( curfrz, 0 );
       Tfluc.resize( curfrz, 0 );
       muBfluc.resize( curfrz, 0 );
