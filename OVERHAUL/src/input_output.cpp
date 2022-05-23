@@ -174,12 +174,14 @@ void InputOutput::read_in_initial_conditions()
   formatted_output::report("Reading in initial conditions for hydrodynamics");
 
   string initial_condition_type = settingsPtr->IC_type;
+  formatted_output::update("Initial conditions type: " + settingsPtr->IC_type);
+
   int total_header_lines;
   string IC_file = settingsPtr->IC_file;
 
+  //-------------------------------------
   if (initial_condition_type == "ICCING")
   {
-    formatted_output::update("Initial conditions type: ICCING");
     total_header_lines = 1;
 
     ifstream infile(IC_file.c_str());
@@ -231,6 +233,90 @@ void InputOutput::read_in_initial_conditions()
       abort();
     }
 
+  }
+  else if (initial_condition_type == "Freestream")
+  {
+    total_header_lines = 1;
+
+    ifstream infile(IC_file.c_str());
+    formatted_output::update("Initial conditions file: " + IC_file);
+
+    ifstream infile(IC_file.c_str());
+    cout << "Initial conditions file: " << IC_file << endl;
+    if (infile.is_open())
+    {
+      string line;
+      int count_header_lines = 0;
+      int count_file_lines   = 0;
+      double x = 0.0, y = 0.0, e = 0.0, u1 = 0.0, u2 = 0.0;
+
+      double pi00 = 0.0, pi01 = 0.0, pi02 = 0.0, pi10 = 0.0, pi11 = 0.0,
+             pi12 = 0.0, pi20 = 0.0, pi21 = 0.0, pi22 = 0.0, pi33 = 0.0;
+      double ignore = 0.0, stepX = 0.0, stepY = 0.0;
+
+      while (getline (infile, line))
+      {
+        istringstream iss(line);
+        if (count_header_lines < total_header_lines)
+        {
+          settingsPtr->headers.push_back(line);
+
+          iss >> ignore >> stepX >> stepY;
+
+          settingsPtr->stepx = stepX;
+          settingsPtr->stepy = stepY;
+          count_header_lines++;
+        }
+        else
+        {
+          iss >> x >> y >> e
+              >> u1 >> u2
+              >> pi00 >> pi01 >> pi02
+              >> pi10 >> pi11 >> pi12
+              >> pi20 >> pi21 >> pi22;
+
+          e /= hbarc_GeVfm;
+          pi00 /= hbarc_GeVfm;
+          //pi01 /= hbarc_GeVfm;
+          //pi02 /= hbarc_GeVfm;
+          //pi10 /= hbarc_GeVfm;
+          pi11 /= hbarc_GeVfm;
+          pi12 /= hbarc_GeVfm;
+          //pi20 /= hbarc_GeVfm;
+          //pi21 /= hbarc_GeVfm;
+          pi22 /= hbarc_GeVfm;
+
+          pi33 = (pi00 - pi11 - pi22)/(settingsPtr->t0*settingsPtr->t0);
+
+          // initialize particle object
+          Particle p;
+          p.r(0)           = x;
+          p.r(1)           = y;
+          p.input.e        = e;
+          p.hydro.u(0)     = u1;
+          p.hydro.u(1)     = u2;
+          p.hydro.shv(0,0) = 0.0;
+          p.hydro.shv(0,1) = 0.0;
+          p.hydro.shv(0,2) = 0.0;
+          p.hydro.shv(1,0) = 0.0;
+          p.hydro.shv(1,1) = pi11;
+          p.hydro.shv(1,2) = pi12;
+          p.hydro.shv(2,0) = 0.0;
+          p.hydro.shv(2,1) = pi12;
+          p.hydro.shv(2,2) = pi22;
+          p.hydro.shv33    = pi33;
+
+          systemPtr->particles.push_back( p );
+        }
+      }
+
+      infile.close();
+    }
+    else
+    {
+      std::cerr << "File " << IC_file << " could not be opened!\n";
+      abort();
+    }
   }
   else if (initial_condition_type == "Gubser")
   {
@@ -345,10 +431,6 @@ void InputOutput::read_in_initial_conditions()
         piyy    /= hbarc_GeVfm;                           // 1/fm^4
         pixy    /= hbarc_GeVfm;                           // 1/fm^4
         pietaeta = pizz/(tau0*tau0*hbarc_GeVfm);          // 1/fm^6
-
-        //vector<double> fields({ x, y, eLocal, 0.0, 0.0, 0.0, ux, uy,
-        //                        pixx, piyy, pixy, pietaeta });
-        //systemPtr->particles.push_back( Particle(fields) );
 
         // initialize particle object
         Particle p;
