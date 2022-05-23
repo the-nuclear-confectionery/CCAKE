@@ -20,11 +20,11 @@ using std::vector;
 namespace formatted_output
 {
   void announce(string message);
+  void summarize(string message);
   void report(string message);
   void update(string message);
   void comment(string message);
   void detail(string message);
-//  void exposit(string message);
 };
 
 #endif

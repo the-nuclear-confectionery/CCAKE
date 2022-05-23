@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "../include/eos.h"
+#include "../include/formatted_output.h"
 #include "../include/kernel.h"
 #include "../include/linklist.h"
 #include "../include/mathdef.h"
@@ -20,6 +21,8 @@ LinkList::LinkList()
 
 void LinkList::initialize( vector<Particle> * particlesPtr_in, double h_in )
 {
+  formatted_output::report("Initializing linklist");
+
   h            = h_in;
   particlesPtr = particlesPtr_in;
   n_particles  = particlesPtr->size();
@@ -37,6 +40,7 @@ void LinkList::initialize( vector<Particle> * particlesPtr_in, double h_in )
 
 void LinkList::reset()
 {
+
   // min and max (x,y) coordinates of all particles
   for ( auto & p : *particlesPtr )
   for ( int j = 0; j < 2;  j++ )
@@ -88,7 +92,6 @@ void LinkList::reset()
   // add vector of neighbors
   Stopwatch sw;
   sw.Start();
-  cout << "t=" << ": setting vector of neighbors...";
   
   all_neighbors.clear();
   all_neighbors.resize(n_particles);
@@ -108,7 +111,8 @@ void LinkList::reset()
     }
   }
   sw.Stop();
-  cout << "done in " << sw.printTime() << " s.\n";
+  formatted_output::update("set vector of neighbors in "
+                            + to_string(sw.printTime()) + " s.");
 
 }
 

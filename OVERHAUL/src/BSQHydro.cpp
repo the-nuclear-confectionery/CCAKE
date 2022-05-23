@@ -1,4 +1,5 @@
 #include "../include/BSQHydro.h"
+#include "../include/formatted_output.h"
 #include "../include/settings.h"
 #include "../include/input_output.h"
 #include "../include/stopwatch.h"
@@ -86,6 +87,8 @@ void BSQHydro::initialize_hydrodynamics()
 ////////////////////////////////////////////////////////////////////////////////
 void BSQHydro::run()
 {
+  formatted_output::announce("Beginning hydrodynamic evolution");
+
   //===================================
   // initialize conserved quantities
   system.conservation_entropy();

@@ -6,6 +6,7 @@
 #include "eom.h"
 #include "eom_default.h"
 #include "evolver.h"
+#include "formatted_output.h"
 #include "freeze_out.h"
 #include "kernel.h"
 #include "settings.h"
@@ -120,9 +121,10 @@ public:
           for ( auto & p : systemPtr->particles )
             smooth_fields(p);
           sw.Stop();
-          cout << "t=" << systemPtr->t << ": finished "
-              << __FUNCTION__ << " in " << sw.printTime()
-              << " s using " << omp_get_num_threads() << " threads.\n";
+          formatted_output::update("finished smoothing particle fields in "
+                                    + to_string(sw.printTime()) + " s using "
+                                    + to_string(omp_get_num_threads())
+                                    + " threads");
         }
 
   //-------------------------------------------
@@ -133,9 +135,10 @@ public:
           for ( auto & p : systemPtr->particles )
             smooth_gradients( p, systemPtr->t );
           sw.Stop();
-          cout << "t=" << systemPtr->t << ": finished "
-              << __FUNCTION__ << " in " << sw.printTime()
-              << " s using " << omp_get_num_threads() << " threads.\n";
+          formatted_output::update("finished smoothing particle gradients in "
+                                    + to_string(sw.printTime()) + " s using "
+                                    + to_string(omp_get_num_threads())
+                                    + " threads");
         }
 
   //-------------------------------------------

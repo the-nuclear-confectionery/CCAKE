@@ -476,10 +476,10 @@ void SPHWorkstation::process_initial_conditions()
   }
 
   formatted_output::detail("particles frozen out: "
+                           + to_string(systemPtr->number_part) );
+  formatted_output::detail("particles not frozen out: "
                            + to_string(systemPtr->particles.size()
                                         - systemPtr->number_part) );
-  formatted_output::detail("particles not frozen out: "
-                           + to_string(systemPtr->number_part) );
 
 
   //============================================================================

@@ -123,6 +123,11 @@ namespace formatted_output
     return;
   }
 
+  //----------------------------------------------------------------------------
+  void summarize(string message)
+  {
+    print_bullet( message, " ", 0 );
+  }
 
   //----------------------------------------------------------------------------
   void report(string message)
