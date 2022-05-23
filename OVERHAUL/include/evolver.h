@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "eos.h"
+#include "formatted_output.h"
 #include "particle.h"
 #include "system_state.h"
 
@@ -104,6 +105,7 @@ class Evolver
       ////////////////////////////////////////////
       //    first step
       ////////////////////////////////////////////
+      formatted_output::report("RK(n=2) evolution, step 1");
 
       // compute derivatives
       time_derivatives_functional();
@@ -132,6 +134,7 @@ class Evolver
       ////////////////////////////////////////////
       //    second step
       ////////////////////////////////////////////
+      formatted_output::report("RK(n=2) evolution, step 2");
 
       // compute derivatives
       time_derivatives_functional();
