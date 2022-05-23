@@ -501,7 +501,7 @@ void SPHWorkstation::process_initial_conditions()
 
 
 ////////////////////////////////////////////////////////////////////////////////
-int SPHWorkstation::freeze_out_particles()
+void SPHWorkstation::freeze_out_particles()
 {
   //----------------------------------------------------------------------------
   // perform freeze out checks
