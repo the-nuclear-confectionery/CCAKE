@@ -106,9 +106,10 @@ public:
       stringstream ss;
       ss << "t = " << systemPtr->t << ":"
           << setw(10) << noshowpoint << setprecision(8) 
-          << systemPtr->Eloss  << systemPtr->E0     << systemPtr->Etot
-          << systemPtr->S      << systemPtr->Btotal
-          << systemPtr->Stotal << systemPtr->Qtotal;
+          << systemPtr->Eloss << " " << systemPtr->E0 << " " 
+          << systemPtr->Etot << " " << systemPtr->S << " " 
+          << systemPtr->Btotal << " " << systemPtr->Stotal << " "
+          << systemPtr->Qtotal;
       formatted_output::summarize(ss.str());
   }
 

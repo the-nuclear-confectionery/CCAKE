@@ -126,6 +126,7 @@ namespace formatted_output
   //----------------------------------------------------------------------------
   void summarize(string message)
   {
+    cout << endl;
     print_bullet( message, " ", 0 );
   }
 
