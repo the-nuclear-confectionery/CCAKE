@@ -86,6 +86,11 @@ void InterpolatorND<D>::load_data( string filename )
 
     infile.close();
   }
+  else
+  {
+    std::cerr << "File " << filename << " could not be opened!\n";
+    abort();
+  }
 }
 
 
