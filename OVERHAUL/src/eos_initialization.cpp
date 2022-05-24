@@ -44,7 +44,7 @@ void EquationOfState::init()
 
   init( quantity_file, deriv_file );
 
-  bool do_eos_checks = false;
+  bool do_eos_checks = true;
   if ( do_eos_checks )
     run_closure_test();
 }
