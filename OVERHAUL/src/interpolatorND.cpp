@@ -70,6 +70,7 @@ void InterpolatorND<D>::load_data( string filename )
       }
     }
 
+    cout << "Test grid integrity" << endl;
     bool crash = false;
     size_t tmpsize = fields[0].size();
     for (auto&field:fields)
@@ -79,7 +80,8 @@ void InterpolatorND<D>::load_data( string filename )
         cout << field.size() << "=!=" << tmpsize << endl;
       }
 
-    if (crash) abort();
+    if (crash) cout << "Failed!" << endl; else cout << "Succeeded!" << endl;
+    abort();
 
     infile.close();
   }
