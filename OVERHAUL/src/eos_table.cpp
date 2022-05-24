@@ -99,56 +99,64 @@ EoS_table::EoS_table( string quantityFile, string derivFile )
 
 void EoS_table::init_grid_ranges_only(string quantityFile, string derivFile)
 {
-	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
-    std::ifstream dataFile;
-    dataFile.open(quantityFile);
+	/*if ( VERBOSE > 10 )*/ std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+  std::ifstream dataFile;
+  dataFile.open(quantityFile);
 
-    double maxMuB        = 0.0;
-    double minMuB        = 0.0;
-    double maxMuQ        = 0.0;
-    double minMuQ        = 0.0;
-    double maxMuS        = 0.0;
-    double minMuS        = 0.0;
-    double maxT          = 0.0;
-    double minT          = 0.0;
-    double tit, muBit, muQit, muSit, pit, entrit, bit, sit, qit, eit, cs2it;
+  double maxMuB        = 0.0;
+  double minMuB        = 0.0;
+  double maxMuQ        = 0.0;
+  double minMuQ        = 0.0;
+  double maxMuS        = 0.0;
+  double minMuS        = 0.0;
+  double maxT          = 0.0;
+  double minT          = 0.0;
+  double tit, muBit, muQit, muSit, pit, entrit, bit, sit, qit, eit, cs2it;
 
-    int count = 0;
+  int count = 0;
+  if ( dataFile.is_open() )
+  {
     while ( dataFile >> tit >> muBit >> muQit >> muSit
                      >> pit >> entrit >> bit >> sit >> qit >> eit >> cs2it )
     {
 
-		// Christopher Plumberg:
-		// put T and mu_i in units of 1/fm
-		tit   /= hbarc_MeVfm;
-		muBit /= hbarc_MeVfm;
-		muSit /= hbarc_MeVfm;
-		muQit /= hbarc_MeVfm;
+      // Christopher Plumberg:
+      // put T and mu_i in units of 1/fm
+      tit   /= hbarc_MeVfm;
+      muBit /= hbarc_MeVfm;
+      muSit /= hbarc_MeVfm;
+      muQit /= hbarc_MeVfm;
 
-    if(count++ == 0)
-    {
-      minT   = tit;
-      maxT   = tit;
-      minMuB = muBit;
-      maxMuB = muBit;     //initialize eos range variables
-      minMuQ = muQit;
-      maxMuQ = muQit;
-      minMuS = muSit;
-      maxMuS = muSit;
+      if(count++ == 0)
+      {
+        minT   = tit;
+        maxT   = tit;
+        minMuB = muBit;
+        maxMuB = muBit;     //initialize eos range variables
+        minMuQ = muQit;
+        maxMuQ = muQit;
+        minMuS = muSit;
+        maxMuS = muSit;
+      }
+          
+      if (count%100000==0) std::cout << "Read in line# " << count << std::endl;
+      
+          if (maxT < tit) maxT = tit;
+          if (minT > tit) minT = tit;
+          if (maxMuB < muBit) maxMuB = muBit;
+          if (minMuB > muBit) minMuB = muBit;
+          if (maxMuQ < muQit) maxMuQ = muQit;
+          if (minMuQ > muQit) minMuQ = muQit;
+          if (maxMuS < muSit) maxMuS = muSit;
+          if (minMuS > muSit) minMuS = muSit;
+          
     }
-        
-		if (count%100000==0) std::cout << "Read in line# " << count << std::endl;
-		
-        if (maxT < tit) maxT = tit;
-        if (minT > tit) minT = tit;
-        if (maxMuB < muBit) maxMuB = muBit;
-        if (minMuB > muBit) minMuB = muBit;
-        if (maxMuQ < muQit) maxMuQ = muQit;
-        if (minMuQ > muQit) minMuQ = muQit;
-        if (maxMuS < muSit) maxMuS = muSit;
-        if (minMuS > muSit) minMuS = muSit;
-        
-	}
+  }
+  else
+  {
+    std::cerr << "File " << dataFile << " could not be opened!\n";
+    abort();
+  }
 
   // initialize grid ranges here
   if ( use_nonconformal_extension )
