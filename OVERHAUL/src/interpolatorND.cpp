@@ -217,6 +217,12 @@ void InterpolatorND<D>::evaluate(
     for (int iDim = 0; iDim < dim; iDim++)
       hypercube_inds[iDim] += hypercube_index[iDim];
 
+    cout << "inds:";
+    for (auto&is:inds) cout << " " << is;
+    cout << endl;
+    cout << "hypercube_inds:";
+    for (auto&his:hypercube_inds) cout << " " << his;
+    cout << endl;
     auto & cell = fields[ indexer( hypercube_inds ) ];
 
     // 
