@@ -70,19 +70,19 @@ void InterpolatorND<D>::load_data( string filename )
       }
     }
 
-    cout << "Test grid integrity" << endl;
-    bool crash = false;
-    size_t tmpsize = fields[0].size();
-    for (auto&field:fields)
-      if (field.size()!=tmpsize)
-      {
-        crash = true;
-        cout << field.size() << "=!=" << tmpsize << endl;
-      }
-
-    if (crash) cout << "Failed!" << endl; else cout << "Succeeded!" << endl;
-    cout << "tmpsize = " << tmpsize << endl;
-    abort();
+//    cout << "Test grid integrity" << endl;
+//    bool crash = false;
+//    size_t tmpsize = fields[0].size();
+//    for (auto&field:fields)
+//      if (field.size()!=tmpsize)
+//      {
+//        crash = true;
+//        cout << field.size() << "=!=" << tmpsize << endl;
+//      }
+//
+//    if (crash) cout << "Failed!" << endl; else cout << "Succeeded!" << endl;
+//    cout << "tmpsize = " << tmpsize << endl;
+//    abort();
 
     infile.close();
   }
@@ -186,10 +186,27 @@ void InterpolatorND<D>::evaluate( const vector<double> & coordinates, vector<dou
     for (auto&his:hypercube_inds) cout << " " << his;
     cout << endl;
     cout << "fields.size() = " << fields.size() << endl;
+    cout << "indexer( hypercube_inds ) = " << indexer( hypercube_inds ) << endl;
     auto & cell = fields[ indexer( hypercube_inds ) ];
 
     cout << "results.size() = " << results.size() << endl;
     cout << "cell.size() = " << cell.size() << endl;
+    if (cell.size() != 17)
+    {
+      cout << "Test grid integrity" << endl;
+      bool crash = false;
+      size_t tmpsize = fields[0].size();
+      for (auto&field:fields)
+        if (field.size()!=tmpsize)
+        {
+          crash = true;
+          cout << field.size() << "=!=" << tmpsize << endl;
+        }
+
+      if (crash) cout << "Failed!" << endl; else cout << "Succeeded!" << endl;
+      cout << "tmpsize = " << tmpsize << endl;
+      abort();
+    }
     // 
     for ( int iField = 0; iField < nFields; iField++ )
       results[iField] += weight * cell[iField];
