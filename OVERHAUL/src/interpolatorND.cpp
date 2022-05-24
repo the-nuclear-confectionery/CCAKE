@@ -81,6 +81,7 @@ void InterpolatorND<D>::load_data( string filename )
       }
 
     if (crash) cout << "Failed!" << endl; else cout << "Succeeded!" << endl;
+    cout << "tmpsize = " << tmpsize << endl;
     abort();
 
     infile.close();
