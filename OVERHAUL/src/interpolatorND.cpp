@@ -179,6 +179,9 @@ void InterpolatorND<D>::evaluate( const vector<double> & coordinates, vector<dou
     for (int iDim = 0; iDim < dim; iDim++)
       hypercube_inds[iDim] += hypercube_index[iDim];
 
+    cout << "NEED TO FIX ISSUES BEFORE USING THIS" << endl;
+    if (1) abort();
+
     cout << "inds:";
     for (auto&is:inds) cout << " " << is;
     cout << endl;

@@ -19,7 +19,7 @@ using namespace constants;
 class EoS_table: public EoS_base
 {
 private:
-  bool debug_mode = false;
+  bool debug_mode = true;
 
   string equation_of_state_table_filename = "";
 
