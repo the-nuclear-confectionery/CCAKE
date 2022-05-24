@@ -171,6 +171,7 @@ void InterpolatorND<D>::evaluate( const vector<double> & coordinates, vector<dou
     cout << "hypercube_inds:";
     for (auto&his:hypercube_inds) cout << " " << his;
     cout << endl;
+    cout << "fields.size() = " << fields.size() << endl;
     auto & cell = fields[ indexer( hypercube_inds ) ];
 
     // 
