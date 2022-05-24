@@ -174,6 +174,8 @@ void InterpolatorND<D>::evaluate( const vector<double> & coordinates, vector<dou
     cout << "fields.size() = " << fields.size() << endl;
     auto & cell = fields[ indexer( hypercube_inds ) ];
 
+    cout << "results.size() = " << results.size() << endl;
+    cout << "cell.size() = " << cell.size() << endl;
     // 
     for ( int iField = 0; iField < nFields; iField++ )
       results[iField] += weight * cell[iField];
