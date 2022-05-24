@@ -1,6 +1,6 @@
 ICtype:                     ICCING
 ICoption:                   default
-ICfile:                     initial_conditions/ICCING_for_Hydro/0_5Centrality/Default/ic_convertedXXX.dat 
+ICfile:                     initial_conditions/ICCING_for_Hydro/0_5Centrality/Default/densitiesXXX.dat 
 h:                          0.300000
 dt:                         0.05
 t0:                         0.600000
