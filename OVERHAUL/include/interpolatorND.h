@@ -65,21 +65,21 @@ class InterpolatorND
 
     inline size_t indexer( vector<int> & indices )
     {
-      cout << "-------" << endl;
-      cout << grid_sizes.size() << " " << indices.size() << endl;
-      cout << "grid_sizes:" << endl;
-      for (auto&gs:grid_sizes) cout << " " << gs;
-      cout << endl << "-------" << endl;
-      for (auto&is:indices) cout << " " << is;
-      cout << endl << "-------" << endl;
+//      cout << "-------" << endl;
+//      cout << grid_sizes.size() << " " << indices.size() << endl;
+//      cout << "grid_sizes:" << endl;
+//      for (auto&gs:grid_sizes) cout << " " << gs;
+//      cout << endl << "-------" << endl;
+//      for (auto&is:indices) cout << " " << is;
+//      cout << endl << "-------" << endl;
       size_t result = indices[0];
       for ( size_t ind = 1; ind < indices.size(); ind++ )
       {
-        cout << ind << " " << grid_sizes.size() << " " << indices.size() << endl;
-        cout << grid_sizes[ind] << endl;
-        cout << indices[ind] << endl;
-        cout << result << endl;
-        cout << "-------" << endl;
+//        cout << ind << " " << grid_sizes.size() << " " << indices.size() << endl;
+//        cout << grid_sizes[ind] << endl;
+//        cout << indices[ind] << endl;
+//        cout << result << endl;
+//        cout << "-------" << endl;
         result = result * grid_sizes[ind] + indices[ind];
       }
 
