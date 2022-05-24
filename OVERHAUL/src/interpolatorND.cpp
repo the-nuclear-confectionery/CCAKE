@@ -70,6 +70,17 @@ void InterpolatorND<D>::load_data( string filename )
       }
     }
 
+    bool crash = false;
+    size_t tmpsize = fields[0].size();
+    for (auto&field:fields)
+      if (field.size()!=tmpsize)
+      {
+        crash = true;
+        cout << field.size() << "=!=" << tmpsize << endl;
+      }
+
+    if (crash) abort();
+
     infile.close();
   }
 }
