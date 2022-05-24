@@ -154,7 +154,7 @@ void EoS_table::init_grid_ranges_only(string quantityFile, string derivFile)
   }
   else
   {
-    std::cerr << "File " << dataFile << " could not be opened!\n";
+    std::cerr << "File " << quantityFile << " could not be opened!\n";
     abort();
   }
 
