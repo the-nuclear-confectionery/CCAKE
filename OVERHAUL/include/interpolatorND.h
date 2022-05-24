@@ -63,11 +63,15 @@ class InterpolatorND
     vector<vector<int> > hypercube_indices;
     vector<vector<double> > grid, grid_points, fields;
 
-    /*inline*/ size_t indexer( vector<int> & indices )
+    inline size_t indexer( vector<int> & indices )
     {
       cout << "-------" << endl;
       cout << grid_sizes.size() << " " << indices.size() << endl;
-      cout << "-------" << endl;
+      cout << "grid_sizes:" << endl;
+      for (auto&gs:grid_sizes) cout << " " << gs;
+      cout << endl << "-------" << endl;
+      for (auto&is:indices) cout << " " << is;
+      cout << endl << "-------" << endl;
       size_t result = indices[0];
       for ( size_t ind = 1; ind < indices.size(); ind++ )
       {
