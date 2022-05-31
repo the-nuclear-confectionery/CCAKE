@@ -146,7 +146,8 @@ void InterpolatorND<D>::initialize_hypercube()
 
 ////////////////////////////////////////////////////////////////////////////////
 template <int D>
-void InterpolatorND<D>::evaluate( const vector<double> & coordinates, vector<double> & results )
+void InterpolatorND<D>::evaluate( const vector<double> & coordinates,
+                                  vector<double> & results )
 {
   const int dim = D;
 
