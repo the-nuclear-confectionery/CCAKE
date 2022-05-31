@@ -423,6 +423,8 @@ bool EquationOfState::rootfinder_update_s(double sin, double Bin, double Sin, do
   bool skipping_EoSs = true;  // start out skipping EoSs by default
   vector<double> result;
 
+string eos_currently_trying = "";
+
   //////////////////////////////////////////////////
   // try each EoS in turn
   for ( const auto & this_eos : chosen_EOSs )
@@ -436,6 +438,8 @@ bool EquationOfState::rootfinder_update_s(double sin, double Bin, double Sin, do
       else
         skipping_EoSs = false;  //stop skipping at this point
     }
+
+eos_currently_trying = this_eos->name;
 
     ////////////////////////////////////////////////
     // try current location
@@ -509,6 +513,7 @@ bool EquationOfState::rootfinder_update_s(double sin, double Bin, double Sin, do
   {
     std::cout << "No solution found!" << std::endl;
     std::cerr << "No solution found!" << std::endl;
+    std::cout << "Last attempted EoS: " << eos_currently_trying << endl;
     std::cout << "Failed to find a solution for (s,B,S,Q) = "
               << sin << "   " << Bin << "   " << Sin << "   " << Qin << std::endl;
     exit(101);
