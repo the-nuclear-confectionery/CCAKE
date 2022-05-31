@@ -45,19 +45,19 @@ class interface_to_HDF5
       // catch any errors
       catch(FileIException error)
       {
-        error.printError();
+        error.printErrorStack();
         abort();
       }
 
       catch(DataSetIException error)
       {
-        error.printError();
+        error.printErrorStack();
         abort();
       }
 
       catch(DataSpaceIException error)
       {
-        error.printError();
+        error.printErrorStack();
         abort();
       }
 
