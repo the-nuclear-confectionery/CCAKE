@@ -16,7 +16,7 @@ class Evolver
 {
   private:
 
-    static constexpr bool REGULATE_LOW_T = true;
+    static constexpr bool REGULATE_LOW_T = false;
 
     
     Settings    * settingsPtr = nullptr;
