@@ -27,7 +27,7 @@ GSLLIBPATH=/projects/jnorhos/local/lib
 EOSLIBPATH=$(realpath ../EoS_BQS_Derivatives/lib)
 CFLAGS = $(WARNINGS) $(OPTIMIZATION) -c -I$(EOSLIBPATH) \
         -I$(GSLPATH) $(DEBUG) $(STANDARD) -fopenmp
-LDFLAGS = -L$(EOSLIBPATH) -lbsqeos -lm -lgsl -lgslcblas -lblas -lstdc++ \
+LDFLAGS = -L$(EOSLIBPATH) -lbsqeos -lm -lgsl -lgslcblas -lstdc++ \
           -L$(GSLLIBPATH) $(DEBUG) $(STANDARD) -fopenmp
 
 #export OMP_NUM_THREADS=`nproc --all`
