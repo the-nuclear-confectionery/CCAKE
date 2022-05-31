@@ -133,8 +133,8 @@ class Evolver
           {
             std::cerr << "WARNING: regulating particle " << p.ID << " at T = "
                       << p.T()*constants::hbarc_MeVfm << " MeV: "
-                      << p.specific.s << " --> " << systemPtr->specific_s0[i] << endl;
-            p.specific.s    = systemPtr->specific_s0[i];
+                      << p.specific.s << " --> " << specific_s0[i] << endl;
+            p.specific.s    = specific_s0[i];
           }
 
 
@@ -173,8 +173,8 @@ class Evolver
           {
             std::cerr << "WARNING: regulating particle " << p.ID << " at T = "
                       << p.T()*constants::hbarc_MeVfm << " MeV: "
-                      << p.specific.s << " --> " << systemPtr->specific_s0[i] << endl;
-            p.specific.s    = systemPtr->specific_s0[i];
+                      << p.specific.s << " --> " << specific_s0[i] << endl;
+            p.specific.s    = specific_s0[i];
           }
 
 
@@ -255,7 +255,7 @@ class Evolver
         // regulate updated results if necessary
         if ( REGULATE_LOW_T && p.specific.s < 0.0
               && p.T() < 50.0/constants::hbarc_MeVfm )
-          p.specific.s    = systemPtr->specific_s0[i];
+          p.specific.s    = specific_s0[i];
       }
 
       E1           = dt*systemPtr->dEz;
@@ -290,7 +290,7 @@ class Evolver
         // regulate updated results if necessary
         if ( REGULATE_LOW_T && p.specific.s < 0.0
               && p.T() < 50.0/constants::hbarc_MeVfm )
-          p.specific.s    = systemPtr->specific_s0[i];
+          p.specific.s    = specific_s0[i];
       }
 
       E2           = dt*systemPtr->dEz;
@@ -325,7 +325,7 @@ class Evolver
         // regulate updated results if necessary
         if ( REGULATE_LOW_T && p.specific.s < 0.0
               && p.T() < 50.0/constants::hbarc_MeVfm )
-          p.specific.s    = systemPtr->specific_s0[i];
+          p.specific.s    = specific_s0[i];
       }
 
       E3           = dt*systemPtr->dEz;
@@ -361,7 +361,7 @@ class Evolver
         // regulate updated results if necessary
         if ( REGULATE_LOW_T && p.specific.s < 0.0
               && p.T() < 50.0/constants::hbarc_MeVfm )
-          p.specific.s    = systemPtr->specific_s0[i];
+          p.specific.s    = specific_s0[i];
       }
 
       E4            = dt*systemPtr->dEz;
