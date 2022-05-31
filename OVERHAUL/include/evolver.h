@@ -134,8 +134,8 @@ class Evolver
             std::cerr << "WARNING: regulating particle " << p.ID << " at e = "
                       << p.e()*constants::hbarc_MeVfm << " MeV/fm^3 "
                       << "(T = " << p.T()*constants::hbarc_MeVfm << " MeV): "
-                      << p.specific.s << " --> " << 0.5*specific_s0[i] << endl;
-            p.specific.s    = 0.5*specific_s0[i];
+                      << p.specific.s << " --> " << 1e-10*specific_s0[i] << endl;
+            p.specific.s    = 1e-10*specific_s0[i];
           }
 
 
@@ -172,10 +172,11 @@ class Evolver
           if ( REGULATE_LOW_T && p.specific.s < 0.0
                 /*&& p.T() < 50.0/constants::hbarc_MeVfm*/ )
           {
-            std::cerr << "WARNING: regulating particle " << p.ID << " at T = "
-                      << p.T()*constants::hbarc_MeVfm << " MeV: "
-                      << p.specific.s << " --> " << 0.5*specific_s0[i] << endl;
-            p.specific.s    = 0.5*specific_s0[i];
+            std::cerr << "WARNING: regulating particle " << p.ID << " at e = "
+                      << p.e()*constants::hbarc_MeVfm << " MeV/fm^3 "
+                      << "(T = " << p.T()*constants::hbarc_MeVfm << " MeV): "
+                      << p.specific.s << " --> " << 1e-10*specific_s0[i] << endl;
+            p.specific.s    = 1e-10*specific_s0[i];
           }
 
 
