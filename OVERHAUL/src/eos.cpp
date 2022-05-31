@@ -487,7 +487,7 @@ eos_currently_trying = this_eos->name;
 
       double point[4] = {result[0], result[1], result[2], result[3]};
       double res[4] = {0.0, 0.0, 0.0, 0.0};
-      conformal_diagonal_EoS->get_sBSQ( point, res )
+      conformal_diagonal_EoS->get_sBSQ( point, res );
  
       cout << "Output is: " << res[0] << "   " << res[1] << "   " << res[2]
           << "   " << res[3] << endl;
