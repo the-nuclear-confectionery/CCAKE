@@ -478,19 +478,19 @@ eos_currently_trying = this_eos->name;
       result = conformal_diagonal_EoS->get_tbqs_seed_from_sBSQ
                                         ( sin, Bin, Sin, Qin );
 
-      cout << "Seed is: " << result[0] * constants::hbarc_MeVfm << "   "
-          << result[1] * constants::hbarc_MeVfm << "   "
-          << result[2] * constants::hbarc_MeVfm << "   "
-          << result[3] * constants::hbarc_MeVfm << endl;
-      cout << "Target is: " << sin << "   " << Bin << "   " << Sin << "   "
-          << Qin << endl;
-
-      double point[4] = {result[0], result[1], result[2], result[3]};
-      double res[4] = {0.0, 0.0, 0.0, 0.0};
-      conformal_diagonal_EoS->get_sBSQ( point, res );
- 
-      cout << "Output is: " << res[0] << "   " << res[1] << "   " << res[2]
-          << "   " << res[3] << endl;
+//      cout << "Seed is: " << result[0] * constants::hbarc_MeVfm << "   "
+//          << result[1] * constants::hbarc_MeVfm << "   "
+//          << result[2] * constants::hbarc_MeVfm << "   "
+//          << result[3] * constants::hbarc_MeVfm << endl;
+//      cout << "Target is: " << sin << "   " << Bin << "   " << Sin << "   "
+//          << Qin << endl;
+//
+//      double point[4] = {result[0], result[1], result[2], result[3]};
+//      double res[4] = {0.0, 0.0, 0.0, 0.0};
+//      conformal_diagonal_EoS->get_sBSQ( point, res );
+// 
+//      cout << "Output is: " << res[0] << "   " << res[1] << "   " << res[2]
+//          << "   " << res[3] << endl;
 
       solution_found = find_root_with_seed( "entropy", sin, Bin, Sin, Qin,
                                             this_eos, result );
