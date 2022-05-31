@@ -621,6 +621,8 @@ double SPHWorkstation::locate_phase_diagram_point_eBSQ(Particle & p, double e_In
 void SPHWorkstation::locate_phase_diagram_point_sBSQ( Particle & p,
                  double s_In, double rhoB_In, double rhoS_In, double rhoQ_In )
 {
+  cout << "Rootfinder for p.ID = " << p.ID << endl;
+
   // default: use particle's current location as initial guess
   eos.tbqs( p.T(), p.muB(), p.muQ(), p.muS(), p.get_current_eos_name() );
 
