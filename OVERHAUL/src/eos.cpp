@@ -391,7 +391,8 @@ bool EquationOfState::find_root_with_seed(
       std::cout << " --> currently trying " << this_eos->name
                 << " EoS for solution..." << std::endl;
       std::cout << "     - point: "
-                << e_or_s_in << "   " << Bin << "   " << Sin << "   " << Qin << std::endl;
+                << e_or_s_in << "   " << Bin << "   " << Sin << "   " << Qin
+                << std::endl;
       std::cout << "     - seed: "
                 << result[0]*hc << "   " << result[1]*hc << "   "
                 << result[2]*hc << "   " << result[3]*hc << std::endl;
@@ -478,23 +479,21 @@ eos_currently_trying = this_eos->name;
       result = conformal_diagonal_EoS->get_tbqs_seed_from_sBSQ
                                         ( sin, Bin, Sin, Qin );
 
-//      cout << "Seed is: " << result[0] * constants::hbarc_MeVfm << "   "
-//          << result[1] * constants::hbarc_MeVfm << "   "
-//          << result[2] * constants::hbarc_MeVfm << "   "
-//          << result[3] * constants::hbarc_MeVfm << endl;
-//      cout << "Target is: " << sin << "   " << Bin << "   " << Sin << "   "
-//          << Qin << endl;
-//
-//      double point[4] = {result[0], result[1], result[2], result[3]};
-//      double res[4] = {0.0, 0.0, 0.0, 0.0};
-//      conformal_diagonal_EoS->get_sBSQ( point, res );
-// 
-//      cout << "Output is: " << res[0] << "   " << res[1] << "   " << res[2]
-//          << "   " << res[3] << endl;
-
       solution_found = find_root_with_seed( "entropy", sin, Bin, Sin, Qin,
                                             this_eos, result );
     }
+
+
+    ////////////////////////////////////////////////
+    // if all else fails and relevant flag is set,
+    // ZERO CHARGE DENSITIES
+    if (zero_unsolvable_charge_densities && !solution_found)
+    {
+      result = vector<double>({1000.0/hc,0.0,0.0,0.0});
+      solution_found = find_root_with_seed( "entropy", sin, 0.0, 0.0, 0.0,
+                                            this_eos, result );
+    }
+
 
 
     ////////////////////////////////////////////////
@@ -508,17 +507,9 @@ eos_currently_trying = this_eos->name;
         std::cout << " --> found a solution with "
                   << this_eos->name << " EoS!" << std::endl;
         std::cout << " --> solution has (s,B,S,Q) = "
-                  << s() << "   " << B() << "   " << S() << "   " << Q() << endl;
+                  << s() << "   " << B() << "   " << S() << "   " << Q()
+                  << std::endl;
       }
-
-//      if (false)
-//      {
-//        const double Nc = 3.0, Nf = 2.5;  // u+d massless, s 'half massless'
-//        double c  = pi*pi*(2.0*(Nc*Nc-1.0)+(7.0/2.0)*Nc*Nf)/90.0;
-//        std::cout << "ROOTFINDER: " << setprecision(16)
-//                  << sin << "   " << s() << "   " << result[0]*hc << "   "
-//                  << hc*pow( sin/(4.0*c), 1.0/3.0 ) << std::endl;
-//      }
       break;
     }
   }
@@ -613,6 +604,16 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
                                             this_eos, result );
     }
 
+    ////////////////////////////////////////////////
+    // if all else fails and relevant flag is set,
+    // ZERO CHARGE DENSITIES
+    if (zero_unsolvable_charge_densities && !solution_found)
+    {
+      result = vector<double>({1000.0/hc,0.0,0.0,0.0});
+      solution_found = find_root_with_seed( "energy", ein, 0.0, 0.0, 0.0,
+                                            this_eos, result );
+    }
+
 
     /////////////////////////////////////////////////////////
     // stop iterating through available EoSs when solution found
@@ -627,16 +628,6 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
         std::cout << " --> solution has (e,B,S,Q) = "
                   << e() << "   " << B() << "   " << S() << "   " << Q() << endl;
       }
-
-//      if (false)
-//      {
-//        const double Nc = 3.0, Nf = 2.5;  // u+d massless, s 'half massless'
-//        double c  = pi*pi*(2.0*(Nc*Nc-1.0)+(7.0/2.0)*Nc*Nf)/90.0;
-//        std::cout << "ROOTFINDER: " << setprecision(16)
-//                  << ein << "   " << e() << "   " << result[0]*hc << "   "
-//                  << hc*pow( ein/(3.0*c), 0.25 ) << std::endl;
-//      }
-
       break;
     }
   }
