@@ -11,7 +11,7 @@ freezeout:                  No_Freezeout
 etaMode:                    constant
 constant_eta_over_s:        0.20
 shearRelaxMode:             default
-zetaMode:                   cs2_dependent
+zetaMode:                   constant
 constant_zeta_over_s:       0.005
 cs2_dependent_zeta_A:       1.67552
 cs2_dependent_zeta_p:       2.0
