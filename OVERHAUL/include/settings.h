@@ -21,7 +21,7 @@ class Settings
     bool initializing_with_full_Tmunu = false;  // whether to initialize Pi from
                                                 // varsigma - p or not
 
-    bool printing_to_txt              = false;
+    bool printing_to_txt              = true;
     bool printing_to_HDF              = true;
 
     static constexpr int VERBOSE      = 5;
