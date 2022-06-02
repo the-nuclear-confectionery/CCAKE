@@ -8,11 +8,11 @@ EoS_Type:                   Houston
 EoS_Option:                 default
 freezeoutT:                 150.000000
 freezeout:                  No_Freezeout
-etaMode:                    default
+etaMode:                    constant
 constant_eta_over_s:        0.00
 shearRelaxMode:             default
-zetaMode:                   default
-constant_zeta_over_s:       0.00
+zetaMode:                   constant
+constant_zeta_over_s:       0.005
 cs2_dependent_zeta_A:       1.67552
 cs2_dependent_zeta_p:       2.0
 bulkRelaxMode:              default
