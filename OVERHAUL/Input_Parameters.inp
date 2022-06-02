@@ -9,10 +9,10 @@ EoS_Option:                 default
 freezeoutT:                 150.000000
 freezeout:                  No_Freezeout
 etaMode:                    default
-constant_eta_over_s:        0.00
+constant_eta_over_s:        0.20
 shearRelaxMode:             default
 zetaMode:                   default
-constant_zeta_over_s:       0.005
+constant_zeta_over_s:       0.0
 cs2_dependent_zeta_A:       1.67552
 cs2_dependent_zeta_p:       2.0
 bulkRelaxMode:              default
