@@ -425,7 +425,7 @@ void SPHWorkstation::process_initial_conditions()
                               + to_string(systemPtr->particles.size()));
 
 
-  if (1) exit(8);
+  //if (1) exit(8);
 
 
 
