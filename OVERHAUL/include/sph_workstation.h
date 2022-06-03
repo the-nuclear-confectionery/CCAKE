@@ -100,6 +100,7 @@ public:
   void reset_pi_tensor();
 
   void process_initial_conditions();
+  void add_buffer();
   void initialize_entropy_and_charge_densities();
   void initial_smoothing();
 

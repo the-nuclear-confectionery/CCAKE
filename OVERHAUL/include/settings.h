@@ -30,13 +30,17 @@ class Settings
     static constexpr double tend      = 50.02;
     
     // simulation settings
-    double t0      = 0.0; // initial timestep
-    double dt      = 0.0; // size of timestep
-    double stepx   = 0.0; // dx [fm]
-    double stepy   = 0.0; // dy [fm]
-    double h       = 0.0; // SPH kernel scale [fm]
+    double t0                         = 0.0; // initial timestep
+    double dt                         = 0.0; // size of timestep
+    double stepx                      = 0.0; // dx [fm]
+    double stepy                      = 0.0; // dy [fm]
+    double xmin                       = 0.0; // minimum x [fm]
+    double ymin                       = 0.0; // minimum y [fm]
+    double h                          = 0.0; // SPH kernel scale [fm]
 
-    double Freeze_Out_Temperature = 0.0;  // freeze-out temperature (at zero mu)
+    double e_cutoff                   = 0.0; // energy density below which
+                                             // particles are removed [GeV/fm^3]
+    double Freeze_Out_Temperature     = 0.0; // freeze-out temp. (at zero mu)
 
 
     // quantities read in from InputParameters.inp file

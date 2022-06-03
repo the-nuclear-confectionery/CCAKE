@@ -100,11 +100,16 @@ void InputOutput::load_settings_file( string path_to_settings_file )
     settingsPtr->IC_type                =      get_value(values, "ICtype");
     settingsPtr->IC_option              =      get_value(values, "ICoption");
     settingsPtr->IC_file                =      get_value(values, "ICfile");
+
     settingsPtr->h                      = stod(get_value(values, "h"));
     settingsPtr->dt                     = stod(get_value(values, "dt"));
     settingsPtr->t0                     = stod(get_value(values, "t0"));
+
+    settingsPtr->e_cutoff               = stod(get_value(values, "e_cutoff"))/hbarc_GeVfm;
+
     settingsPtr->EoS_type               =      get_value(values, "EoS_Type");
     settingsPtr->EoS_option             =      get_value(values, "EoS_Option");
+
     settingsPtr->etaMode                =      get_value(values, "etaMode");
     settingsPtr->constant_eta_over_s    = stod(get_value(values, "constant_eta_over_s"));
     settingsPtr->shearRelaxMode         =      get_value(values, "shearRelaxMode");
@@ -113,6 +118,7 @@ void InputOutput::load_settings_file( string path_to_settings_file )
     settingsPtr->cs2_dependent_zeta_A   = stod(get_value(values, "cs2_dependent_zeta_A"));
     settingsPtr->cs2_dependent_zeta_p   = stod(get_value(values, "cs2_dependent_zeta_p"));
     settingsPtr->bulkRelaxMode          =      get_value(values, "bulkRelaxMode");
+
     settingsPtr->Freeze_Out_Temperature = stod(get_value(values, "freezeoutT"))/hbarc_MeVfm;
     settingsPtr->Freeze_Out_Type        =      get_value(values, "freezeout");
 
@@ -192,7 +198,7 @@ void InputOutput::read_in_initial_conditions()
       int count_header_lines = 0;
       int count_file_lines   = 0;
       double x, y, e, rhoB, rhoS, rhoQ;
-      double ignore, stepX, stepY;
+      double ignore, stepX, stepY, xmin, ymin;
 
       while (getline (infile, line))
       {
@@ -200,9 +206,11 @@ void InputOutput::read_in_initial_conditions()
         if(count_header_lines < total_header_lines)
         {
           settingsPtr->headers.push_back(line);
-          iss >> ignore >> stepX >> stepY;
+          iss >> ignore >> stepX >> stepY >> ignore >> xmin >> ymin;
           settingsPtr->stepx = stepX;
           settingsPtr->stepy = stepY;
+          settingsPtr->xmin  = xmin;
+          settingsPtr->ymin  = ymin;
           count_header_lines++;
         }
         else

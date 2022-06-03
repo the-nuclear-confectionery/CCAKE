@@ -402,17 +402,26 @@ void SPHWorkstation::process_initial_conditions()
 
     //==========================================================================
     // impose the energy cut-off before the initial time step of hydro
-    // the original cut should be 0.15
-    // try this; NOTE THAT THE 0.00301 IS HARDCODED IN FOR NOW
     systemPtr->particles.erase( std::remove_if(
       systemPtr->particles.begin(),
       systemPtr->particles.end(),
-      [](Particle const & p) { return p.input.e <= 0.15 / hbarc_GeVfm; } ),
+      [](Particle const & p) { return p.input.e <= settingsPtr->e_cutoff; } ),
       systemPtr->particles.end() );
 
 
 
     formatted_output::update("Number of particles after e-cutoff: "
+                              + to_string(systemPtr->particles.size()));
+
+
+
+    //==========================================================================
+    // add a buffer of particles around the edge to stabilize evolution in low-
+    // density regions
+    if ( settingsPtr->buffer_event ) add_buffer();
+
+
+    formatted_output::update("Number of particles after buffering: "
                               + to_string(systemPtr->particles.size()));
 
 
@@ -694,4 +703,54 @@ void SPHWorkstation::setvisc( Particle & p )
   p.hydro.stauRelax = tc.tau_pi();
   p.hydro.zeta      = tc.zeta();
   p.hydro.tauRelax  = tc.tau_Pi();
+}
+
+
+
+//==============================================================================
+// currently add a particle to every grid point which doesn't have one yet
+void SPHWorkstation::add_buffer()
+{
+  if ( settingsPtr->IC_type != "ICCING" )
+  {
+    std::cerr << "WARNING: ADDING A BUFFER IS CURRENTLY ONLY DEFINED FOR ICCING"
+                 " INITIAL CONDITIONS" << std::endl;
+    return;
+  }
+
+  constexpr double TINY = 1e-10;
+
+  double xmin = settingsPtr->xmin;
+  double ymin = settingsPtr->ymin;
+  
+  for ( double x0 = xmin; xmin <= -xmin+TINY; x0 += stepx )
+  for ( double y0 = ymin; ymin <= -ymin+TINY; y0 += stepy )
+  {
+    bool particle_already_exists = false;
+    for ( auto & p : systemPtr->particles )
+      if ( abs(p.r(0) - x0) < TINY && abs(p.r(1) - y0) < TINY )
+      {
+        particle_already_exists = true;
+        break;
+      }
+
+    // if particle is not already in grid, then create it
+    if (!particle_already_exists)
+    {
+      Particle p;
+
+      p.r(0)       = x0;
+      p.r(1)       = y0;
+      p.input.e    = settingsPtr->e_cutoff;
+      p.input.rhoB = 0.0;
+      p.input.rhoS = 0.0;
+      p.input.rhoQ = 0.0;
+      p.hydro.u(0) = 0.0;
+      p.hydro.u(1) = 0.0;
+      
+      systemPtr->particles.push_back( p );
+    }
+  }
+
+  return;
 }
