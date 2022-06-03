@@ -214,6 +214,13 @@ class FreezeOut
           p_frz2.shear   = p.hydro.shv;
           p_frz2.shear33 = p.hydro.shv33;
           p_frz2.inside  = p.hydro.inside;
+cout << __FUNCTION__ << ":" << __LINE__ << ": " << endl;
+cout << "check 1" << endl;
+cout << p_frz2.eos_name << endl;
+cout << "check 2" << endl;
+cout << p.get_current_eos_name() << endl;
+cout << "checks passed" << endl;
+cout << __FUNCTION__ << ":" << __LINE__ << ": " << endl;
           p_frz2.eos_name  = p.get_current_eos_name();
         }
 
