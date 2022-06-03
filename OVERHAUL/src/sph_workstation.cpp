@@ -725,7 +725,50 @@ void SPHWorkstation::add_buffer()
   double stepx = settingsPtr->stepx;
   double stepy = settingsPtr->stepy;
   
-  for ( double x0 = xmin; xmin <= -xmin+TINY; x0 += stepx )
+  const int nx = 1 - 2*int(round(xmin/stepx));  // xmin is negative
+  const int ny = 1 - 2*int(round(ymin/stepy));  // xmin is negative
+  bool particle_exists[nx][ny];
+
+  // specify which particles are already in grid
+  for ( auto & p : systemPtr->particles )
+  {
+    int ix = int(round((p.r(0)-xmin)/stepx));
+    int iy = int(round((p.r(1)-ymin)/stepy));
+    particle_exists[ix][iy] = true;
+  }
+
+  // loop over all points to consider,
+  // initialize those not yet in grid
+  for ( int ix0 = 0; ix0 < nx; ix0++ )
+  for ( int iy0 = 0; iy0 < ny; iy0++ )
+  {
+    // don't initialize particles that already exist!
+    if ( particle_exists[ix0][iy0] ) continue;
+
+    double x0 = xmin + ix0*stepx;
+    double y0 = ymin + iy0*stepy;
+
+    Particle p;
+
+    p.r(0)       = x0;
+    p.r(1)       = y0;
+    p.input.e    = settingsPtr->e_cutoff;
+    p.input.rhoB = 0.0;
+    p.input.rhoS = 0.0;
+    p.input.rhoQ = 0.0;
+    p.hydro.u(0) = 0.0;
+    p.hydro.u(1) = 0.0;
+    
+    systemPtr->particles.push_back( p );
+  }
+
+
+
+
+
+
+// this is the dumb slow way, because I'm an idiot
+/*  for ( double x0 = xmin; xmin <= -xmin+TINY; x0 += stepx )
   for ( double y0 = ymin; ymin <= -ymin+TINY; y0 += stepy )
   {
     bool particle_already_exists = false;
@@ -752,7 +795,9 @@ void SPHWorkstation::add_buffer()
       
       systemPtr->particles.push_back( p );
     }
-  }
+  }*/
+
+  if (1) exit(8);
 
   return;
 }
