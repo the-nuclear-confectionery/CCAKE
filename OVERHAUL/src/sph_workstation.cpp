@@ -733,12 +733,18 @@ void SPHWorkstation::add_buffer()
   bool particle_exists[nx][ny];
 
   // specify which particles are already in grid
+  int particle_count = 0;
   for ( auto & p : systemPtr->particles )
   {
     int ix = int(round((p.r(0)-xmin)/stepx));
     int iy = int(round((p.r(1)-ymin)/stepy));
     particle_exists[ix][iy] = true;
+    particle_count++;
   }
+
+  cout << "nx = " << nx << endl;
+  cout << "ny = " << ny << endl;
+  cout << "particle_count = " << particle_count << endl;
 
   // loop over all points to consider,
   // initialize those not yet in grid
