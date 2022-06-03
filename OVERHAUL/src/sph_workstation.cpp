@@ -425,6 +425,9 @@ void SPHWorkstation::process_initial_conditions()
                               + to_string(systemPtr->particles.size()));
 
 
+  if (1) exit(8);
+
+
 
     //==========================================================================
     // cut out particles whose energy density is too small for charge densities
@@ -797,7 +800,6 @@ void SPHWorkstation::add_buffer()
     }
   }*/
 
-  if (1) exit(8);
 
   return;
 }
