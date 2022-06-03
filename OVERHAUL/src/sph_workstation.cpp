@@ -731,6 +731,10 @@ void SPHWorkstation::add_buffer()
   const int nx = 1 - 2*int(round(xmin/stepx));  // xmin is negative
   const int ny = 1 - 2*int(round(ymin/stepy));  // xmin is negative
   bool particle_exists[nx][ny];
+  for ( int ix = 0; ix < nx; ix++ )
+  for ( int iy = 0; iy < ny; iy++ )
+    particle_exists[ix][iy] = false;
+
 
   // specify which particles are already in grid
   int particle_count = 0;
