@@ -24,6 +24,7 @@ namespace parameter_settings
             setting_pair("h",                      "0.300000"),
             setting_pair("dt",                     "0.05"),
             setting_pair("t0",                     "1.100000"),
+            setting_pair("e_cutoff",               "0.00301"),
             setting_pair("EoS_Type",               "conformal"),
             setting_pair("EoS_Option",             "default"),
             setting_pair("etaMode",                "constant"),
