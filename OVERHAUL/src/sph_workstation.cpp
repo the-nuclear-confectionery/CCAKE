@@ -746,13 +746,20 @@ void SPHWorkstation::add_buffer()
   cout << "ny = " << ny << endl;
   cout << "particle_count = " << particle_count << endl;
 
+  int checked_particles = 0;
+  int added_particles = 0;
+
   // loop over all points to consider,
   // initialize those not yet in grid
   for ( int ix0 = 0; ix0 < nx; ix0++ )
   for ( int iy0 = 0; iy0 < ny; iy0++ )
   {
+    checked_particles++;
+
     // don't initialize particles that already exist!
     if ( particle_exists[ix0][iy0] ) continue;
+
+    added_particles++;
 
     double x0 = xmin + ix0*stepx;
     double y0 = ymin + iy0*stepy;
@@ -770,6 +777,10 @@ void SPHWorkstation::add_buffer()
     
     systemPtr->particles.push_back( p );
   }
+
+  cout << "checked_particles = " << checked_particles << endl;
+  cout << "added_particles = " << added_particles << endl;
+
 
 
 
