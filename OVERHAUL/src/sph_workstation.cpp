@@ -407,7 +407,7 @@ void SPHWorkstation::process_initial_conditions()
     systemPtr->particles.erase( std::remove_if(
       systemPtr->particles.begin(),
       systemPtr->particles.end(),
-      [](Particle const & p) { return p.input.e <= 0.00301 / hbarc_GeVfm; } ),
+      [](Particle const & p) { return p.input.e <= 0.15 / hbarc_GeVfm; } ),
       systemPtr->particles.end() );
 
 
@@ -499,6 +499,7 @@ void SPHWorkstation::process_initial_conditions()
 }
 
 
+//==============================================================================
 // initialize bulk Pi 
 void SPHWorkstation::set_bulk_Pi()
 {
@@ -510,8 +511,6 @@ void SPHWorkstation::set_bulk_Pi()
 
   return;
 }
-
-
 
 
 //==============================================================================
