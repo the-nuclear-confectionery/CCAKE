@@ -405,7 +405,7 @@ void SPHWorkstation::process_initial_conditions()
     systemPtr->particles.erase( std::remove_if(
       systemPtr->particles.begin(),
       systemPtr->particles.end(),
-      [](Particle const & p) { return p.input.e <= settingsPtr->e_cutoff; } ),
+      [this](Particle const & p){ return p.input.e <= settingsPtr->e_cutoff; }),
       systemPtr->particles.end() );
 
 
@@ -722,6 +722,8 @@ void SPHWorkstation::add_buffer()
 
   double xmin = settingsPtr->xmin;
   double ymin = settingsPtr->ymin;
+  double stepx = settingsPtr->stepx;
+  double stepy = settingsPtr->stepy;
   
   for ( double x0 = xmin; xmin <= -xmin+TINY; x0 += stepx )
   for ( double y0 = ymin; ymin <= -ymin+TINY; y0 += stepy )
