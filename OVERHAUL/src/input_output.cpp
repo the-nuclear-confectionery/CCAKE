@@ -476,6 +476,48 @@ void InputOutput::read_in_initial_conditions()
       abort();
   }
 
+
+
+
+
+  //============================================================================
+  // IMPOSE ENERGY/CHARGE CUTOFFS TO REGULATE EVENT (NO CUTOFFS FOR GUBSER)
+  if ( settingsPtr->IC_type != "Gubser"
+        && settingsPtr->IC_type != "Gubser_with_shear")
+  {
+
+    formatted_output::update("Input number of particles: "
+                              + to_string(systemPtr->particles.size()));
+
+    //==========================================================================
+    // impose the energy cut-off before the initial time step of hydro
+    systemPtr->particles.erase( std::remove_if(
+      systemPtr->particles.begin(),
+      systemPtr->particles.end(),
+      [this](Particle const & p){ return p.input.e <= settingsPtr->e_cutoff; }),
+      systemPtr->particles.end() );
+
+
+
+    formatted_output::update("Number of particles after e-cutoff: "
+                              + to_string(systemPtr->particles.size()));
+
+
+
+    //==========================================================================
+    // add a buffer of particles around the edge to stabilize evolution in low-
+    // density regions
+    if ( settingsPtr->buffer_event ) add_buffer();
+
+
+    formatted_output::update("Number of particles after buffering: "
+                              + to_string(systemPtr->particles.size()));
+
+  }
+
+
+
+  return;
 }
 
 //------------------------------------------------------------------------------
@@ -617,6 +659,7 @@ void InputOutput::print_system_state_to_HDF()
 
 
 
+//==============================================================================
 void InputOutput::print_freeze_out()
 {
   string outputfilename = output_directory + "/freeze_out_"
@@ -651,6 +694,85 @@ void InputOutput::print_freeze_out()
         << fo.sFO[i] << " " << fo.Tfluc[i] << endl;
 
   FO.close();
+
+  return;
+}
+
+
+//==============================================================================
+// currently add a particle to every grid point which doesn't have one yet
+void InputOutput::add_buffer()
+{
+  if ( settingsPtr->IC_type != "ICCING" )
+  {
+    std::cerr << "WARNING: ADDING A BUFFER IS CURRENTLY ONLY DEFINED FOR ICCING"
+                 " INITIAL CONDITIONS" << std::endl;
+    return;
+  }
+
+  constexpr double TINY = 1e-10;
+
+  double xmin = settingsPtr->xmin;
+  double ymin = settingsPtr->ymin;
+  double stepx = settingsPtr->stepx;
+  double stepy = settingsPtr->stepy;
+  
+  const int nx = 1 - 2*int(round(xmin/stepx));  // xmin is negative
+  const int ny = 1 - 2*int(round(ymin/stepy));  // xmin is negative
+  bool particle_exists[nx][ny];
+  for ( int ix = 0; ix < nx; ix++ )
+  for ( int iy = 0; iy < ny; iy++ )
+    particle_exists[ix][iy] = false;
+
+
+  // specify which particles are already in grid
+  int particle_count = 0;
+  for ( auto & p : systemPtr->particles )
+  {
+    int ix = int(round((p.r(0)-xmin)/stepx));
+    int iy = int(round((p.r(1)-ymin)/stepy));
+    particle_exists[ix][iy] = true;
+    particle_count++;
+  }
+
+  cout << "nx = " << nx << endl;
+  cout << "ny = " << ny << endl;
+  cout << "particle_count = " << particle_count << endl;
+
+  int checked_particles = 0;
+  int added_particles = 0;
+
+  // loop over all points to consider,
+  // initialize those not yet in grid
+  for ( int ix0 = 0; ix0 < nx; ix0++ )
+  for ( int iy0 = 0; iy0 < ny; iy0++ )
+  {
+    checked_particles++;
+
+    // don't initialize particles that already exist!
+    if ( particle_exists[ix0][iy0] ) continue;
+
+    added_particles++;
+
+    double x0 = xmin + ix0*stepx;
+    double y0 = ymin + iy0*stepy;
+
+    Particle p;
+
+    p.r(0)       = x0;
+    p.r(1)       = y0;
+    p.input.e    = settingsPtr->e_cutoff;
+    p.input.rhoB = 0.0;
+    p.input.rhoS = 0.0;
+    p.input.rhoQ = 0.0;
+    p.hydro.u(0) = 0.0;
+    p.hydro.u(1) = 0.0;
+    
+    systemPtr->particles.push_back( p );
+  }
+
+  cout << "checked_particles = " << checked_particles << endl;
+  cout << "added_particles = " << added_particles << endl;
 
   return;
 }
