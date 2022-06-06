@@ -399,22 +399,22 @@ void SPHWorkstation::process_initial_conditions()
 
     formatted_output::update("Input number of particles: "
                               + to_string(systemPtr->particles.size()));
-//
-//    //==========================================================================
-//    // impose the energy cut-off before the initial time step of hydro
-//    systemPtr->particles.erase( std::remove_if(
-//      systemPtr->particles.begin(),
-//      systemPtr->particles.end(),
-//      [this](Particle const & p){ return p.input.e <= settingsPtr->e_cutoff; }),
-//      systemPtr->particles.end() );
-//
-//
-//
-//    formatted_output::update("Number of particles after e-cutoff: "
-//                              + to_string(systemPtr->particles.size()));
-//
-//
-//
+
+    //==========================================================================
+    // impose the energy cut-off before the initial time step of hydro
+    systemPtr->particles.erase( std::remove_if(
+      systemPtr->particles.begin(),
+      systemPtr->particles.end(),
+      [this](Particle const & p){ return p.input.e <= settingsPtr->e_cutoff; }),
+      systemPtr->particles.end() );
+
+
+
+    formatted_output::update("Number of particles after e-cutoff: "
+                              + to_string(systemPtr->particles.size()));
+
+
+
 //    //==========================================================================
 //    // add a buffer of particles around the edge to stabilize evolution in low-
 //    // density regions
@@ -426,7 +426,7 @@ void SPHWorkstation::process_initial_conditions()
 //
 //
 //  //if (1) exit(8);
-//
+
 
 
     //==========================================================================
@@ -622,7 +622,7 @@ double SPHWorkstation::locate_phase_diagram_point_eBSQ( Particle & p,
 {
     eos.set_thermo( p.thermo );
 
-if (p.ID == 45490)
+if (p.print_this_particle)
   cout << "check thermo: " << systemPtr->t << "   "
         << p.thermo.T << "   "
         << p.thermo.muB << "   "
@@ -665,7 +665,7 @@ void SPHWorkstation::locate_phase_diagram_point_sBSQ( Particle & p,
 {
     eos.set_thermo( p.thermo );
 
-if (p.ID == 45490)
+if (p.print_this_particle)
   cout << "check thermo: " << systemPtr->t << "   "
         << p.thermo.T << "   "
         << p.thermo.muB << "   "
