@@ -336,6 +336,7 @@ double TransportCoefficients::cs2_dependent_zeta()
         << th_x << "   "
         << factor << "   "
         << therm.cs2 << "   "
+        << therm.eos_name << "   "
         << A << "   "
         << p << "   "
         << pow((1.0/3.0)-therm.cs2, p) << endl;
