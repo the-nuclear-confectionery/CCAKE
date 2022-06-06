@@ -396,25 +396,25 @@ void SPHWorkstation::process_initial_conditions()
   if ( settingsPtr->IC_type != "Gubser"
         && settingsPtr->IC_type != "Gubser_with_shear")
   {
-//
-//    formatted_output::update("Input number of particles: "
-//                              + to_string(systemPtr->particles.size()));
-//
-//    //==========================================================================
-//    // impose the energy cut-off before the initial time step of hydro
-//    systemPtr->particles.erase( std::remove_if(
-//      systemPtr->particles.begin(),
-//      systemPtr->particles.end(),
-//      [this](Particle const & p){ return p.input.e <= settingsPtr->e_cutoff; }),
-//      systemPtr->particles.end() );
-//
-//
-//
-//    formatted_output::update("Number of particles after e-cutoff: "
-//                              + to_string(systemPtr->particles.size()));
-//
-//
-//
+
+    formatted_output::update("Input number of particles: "
+                              + to_string(systemPtr->particles.size()));
+
+    //==========================================================================
+    // impose the energy cut-off before the initial time step of hydro
+    systemPtr->particles.erase( std::remove_if(
+      systemPtr->particles.begin(),
+      systemPtr->particles.end(),
+      [this](Particle const & p){ return p.input.e <= settingsPtr->e_cutoff; }),
+      systemPtr->particles.end() );
+
+
+
+    formatted_output::update("Number of particles after e-cutoff: "
+                              + to_string(systemPtr->particles.size()));
+
+
+
 //    //==========================================================================
 //    // add a buffer of particles around the edge to stabilize evolution in low-
 //    // density regions
@@ -423,12 +423,12 @@ void SPHWorkstation::process_initial_conditions()
 //
 //    formatted_output::update("Number of particles after buffering: "
 //                              + to_string(systemPtr->particles.size()));
-//
-//
-//  //if (1) exit(8);
-//
-//
-//
+
+
+  //if (1) exit(8);
+
+
+
     //==========================================================================
     // cut out particles whose energy density is too small for charge densities
     // remove particles with no possible solutions

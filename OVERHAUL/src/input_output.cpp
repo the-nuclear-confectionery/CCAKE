@@ -142,7 +142,7 @@ void InputOutput::load_settings_file( string path_to_settings_file )
 
 
   // set particles to print
-  settingsPtr->particles_to_print = vector<int>({76832});
+  settingsPtr->particles_to_print = vector<int>({});
 
 
   // set up HDF5 output file here
@@ -480,40 +480,40 @@ void InputOutput::read_in_initial_conditions()
 
 
 
-  //============================================================================
-  // IMPOSE ENERGY/CHARGE CUTOFFS TO REGULATE EVENT (NO CUTOFFS FOR GUBSER)
-  if ( settingsPtr->IC_type != "Gubser"
-        && settingsPtr->IC_type != "Gubser_with_shear")
-  {
-
-    formatted_output::update("Input number of particles: "
-                              + to_string(systemPtr->particles.size()));
-
-    //==========================================================================
-    // impose the energy cut-off before the initial time step of hydro
-    systemPtr->particles.erase( std::remove_if(
-      systemPtr->particles.begin(),
-      systemPtr->particles.end(),
-      [this](Particle const & p){ return p.input.e <= settingsPtr->e_cutoff; }),
-      systemPtr->particles.end() );
-
-
-
-    formatted_output::update("Number of particles after e-cutoff: "
-                              + to_string(systemPtr->particles.size()));
-
-
-
-    //==========================================================================
-    // add a buffer of particles around the edge to stabilize evolution in low-
-    // density regions
-    if ( settingsPtr->buffer_event ) add_buffer();
-
-
-    formatted_output::update("Number of particles after buffering: "
-                              + to_string(systemPtr->particles.size()));
-
-  }
+//  //============================================================================
+//  // IMPOSE ENERGY/CHARGE CUTOFFS TO REGULATE EVENT (NO CUTOFFS FOR GUBSER)
+//  if ( settingsPtr->IC_type != "Gubser"
+//        && settingsPtr->IC_type != "Gubser_with_shear")
+//  {
+//
+//    formatted_output::update("Input number of particles: "
+//                              + to_string(systemPtr->particles.size()));
+//
+//    //==========================================================================
+//    // impose the energy cut-off before the initial time step of hydro
+//    systemPtr->particles.erase( std::remove_if(
+//      systemPtr->particles.begin(),
+//      systemPtr->particles.end(),
+//      [this](Particle const & p){ return p.input.e <= settingsPtr->e_cutoff; }),
+//      systemPtr->particles.end() );
+//
+//
+//
+//    formatted_output::update("Number of particles after e-cutoff: "
+//                              + to_string(systemPtr->particles.size()));
+//
+//
+//
+//    //==========================================================================
+//    // add a buffer of particles around the edge to stabilize evolution in low-
+//    // density regions
+//    if ( settingsPtr->buffer_event ) add_buffer();
+//
+//
+//    formatted_output::update("Number of particles after buffering: "
+//                              + to_string(systemPtr->particles.size()));
+//
+//  }
 
 
 

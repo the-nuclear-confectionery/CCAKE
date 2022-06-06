@@ -290,9 +290,7 @@ double TransportCoefficients::default_zeta()
 double TransportCoefficients::constZeta()
 {
   double zeta_over_s = settingsPtr->constant_zeta_over_s;
-  double w = therm.w;
-  double T = therm.T;
-  return zeta_over_s*(w/T);
+  return therm.s * zeta_over_s;
 }
 
 //===============================
@@ -310,9 +308,22 @@ double TransportCoefficients::cs2_dependent_zeta()
 {
 //  const double A = 8.0*constants::pi/15.0;
 //  const double p = 2.0;
+
+  //!!!!!  Bulk is too large in low-T regime
+  //!!!!!  ==>> add modulating tanh-factor withclTabCtrl
+  //!!!!!       power-law dependence to suppress
+  const double factor = 1.0;
+  if ( modulate_zeta_with_tanh )
+  {
+    const double T_transition = 150.0, T_scale = 10.0;
+    const double th_x = tanh( ( thermo.T - T_transition ) / T_scale );
+    const double x_p = pow(thermo.T/T_transition, p);
+    factor = 0.5*(1.0 + x_p) + 0.5*(1.0 - x_p)*th_x;
+  }
+
   const double A = settingsPtr->cs2_dependent_zeta_A;
   const double p = settingsPtr->cs2_dependent_zeta_p;
-  return A*pow((1.0/3.0)-therm.cs2, p);
+  return A*factor*pow((1.0/3.0)-therm.cs2, p)*thermo.s;
 }
 
 //==============================================================================
@@ -322,7 +333,10 @@ double TransportCoefficients::cs2_dependent_zeta()
 //===============================
 double TransportCoefficients::default_tau_Pi()
 {
-  return std::max( 5.0*zeta()/(pow((1.0-therm.cs2),2.0)*therm.w), 0.1 );
+  if ( (1.0/3.0-therm.cs2)*(1.0/3.0-therm.cs2) < 1e-10 )
+    return 0.0;
+  else
+    return std::max( 5.0*zeta()/(pow((1.0/3.0-therm.cs2),2.0)*therm.w), 0.1 );
 }
 
 //===============================

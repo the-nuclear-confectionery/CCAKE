@@ -20,8 +20,13 @@ class Settings
     bool using_shear                  = false;
     bool initializing_with_full_Tmunu = false;  // whether to initialize Pi from
                                                 // varsigma - p or not
+
     bool buffer_event                 = true;   // add a buffer around event to
                                                 // stabilize evolution
+
+    bool modulate_zeta_with_tanh      = true;   // forces zeta/s to decrease
+                                                // smoothly to zero below
+                                                // transition temperature
 
     bool printing_to_txt              = true;
     bool printing_to_HDF              = true;
