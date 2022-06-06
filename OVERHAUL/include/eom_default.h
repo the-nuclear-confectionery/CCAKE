@@ -178,7 +178,7 @@ class EoM_default: public EquationsOfMotion
       if ( VERBOSE > 2 && hi.print_particle )
         std::cout << "CHECK d_dt_specific.s: " << hi.ID << "   "
                   << hi.t << "   "
-                  << detasigma_dt << "   "
+                  << d_dt_specific.s << "   "
                   << hi.sigma << "   "
                   << ti.T*constants::hbarc_MeVfm << "   "
                   << hi.bigPI << "   "
