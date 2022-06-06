@@ -393,9 +393,9 @@ void SPHWorkstation::process_initial_conditions()
 
 //  //============================================================================
 //  // IMPOSE ENERGY/CHARGE CUTOFFS TO REGULATE EVENT (NO CUTOFFS FOR GUBSER)
-//  if ( settingsPtr->IC_type != "Gubser"
-//        && settingsPtr->IC_type != "Gubser_with_shear")
-//  {
+  if ( settingsPtr->IC_type != "Gubser"
+        && settingsPtr->IC_type != "Gubser_with_shear")
+  {
 //
 //    formatted_output::update("Input number of particles: "
 //                              + to_string(systemPtr->particles.size()));
@@ -445,7 +445,6 @@ void SPHWorkstation::process_initial_conditions()
 
     formatted_output::update("Number of particles after solution checks: "
                               + to_string(systemPtr->particles.size()));
-
   }
 
   // fill out initial particle information
