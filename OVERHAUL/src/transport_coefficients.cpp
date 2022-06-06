@@ -315,13 +315,13 @@ double TransportCoefficients::cs2_dependent_zeta()
   //!!!!!  Bulk is too large in low-T regime
   //!!!!!  ==>> add modulating tanh-factor with
   //!!!!!       power-law dependence to suppress
-  double factor = 1.0;
+  double factor = 1.0, th_x = 0.0, x_p = 0.0;
   if ( settingsPtr->modulate_zeta_with_tanh )
   {
     const double T_transition = 150.0/constants::hbarc_MeVfm,
                  T_scale      = 10.0/constants::hbarc_MeVfm;
-    const double th_x = tanh( ( therm.T - T_transition ) / T_scale );
-    const double x_p = pow(therm.T/T_transition, p);
+    th_x = tanh( ( therm.T - T_transition ) / T_scale );
+    x_p = pow(therm.T/T_transition, p);
     factor = 0.5*(1.0 + x_p) + 0.5*(1.0 - x_p)*th_x;
   }
 
