@@ -315,7 +315,7 @@ double TransportCoefficients::cs2_dependent_zeta()
   //!!!!!  Bulk is too large in low-T regime
   //!!!!!  ==>> add modulating tanh-factor with
   //!!!!!       power-law dependence to suppress
-  const double factor = 1.0;
+  double factor = 1.0;
   if ( settingsPtr->modulate_zeta_with_tanh )
   {
     const double T_transition = 150.0, T_scale = 10.0;
