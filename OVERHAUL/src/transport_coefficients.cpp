@@ -313,17 +313,17 @@ double TransportCoefficients::cs2_dependent_zeta()
   //!!!!!  ==>> add modulating tanh-factor withclTabCtrl
   //!!!!!       power-law dependence to suppress
   const double factor = 1.0;
-  if ( modulate_zeta_with_tanh )
+  if ( settingsPtr->modulate_zeta_with_tanh )
   {
     const double T_transition = 150.0, T_scale = 10.0;
-    const double th_x = tanh( ( thermo.T - T_transition ) / T_scale );
-    const double x_p = pow(thermo.T/T_transition, p);
+    const double th_x = tanh( ( therm.T - T_transition ) / T_scale );
+    const double x_p = pow(therm.T/T_transition, p);
     factor = 0.5*(1.0 + x_p) + 0.5*(1.0 - x_p)*th_x;
   }
 
   const double A = settingsPtr->cs2_dependent_zeta_A;
   const double p = settingsPtr->cs2_dependent_zeta_p;
-  return A*factor*pow((1.0/3.0)-therm.cs2, p)*thermo.s;
+  return A*factor*pow((1.0/3.0)-therm.cs2, p)*therm.s;
 }
 
 //==============================================================================
