@@ -120,19 +120,19 @@ class EoM_default: public EquationsOfMotion
       if ( VERBOSE > 2 && hi.print_particle )
         std::cout << "CHECK Agam: " << hi.ID << "   "
                   << hi.t << "   "
-                  << hi.g2 << "   "
-                  << hi.g3 << "   "
-                  << hi.gt << "   "
-                  << hi.dwdsT1 << "   "
-                  << hi.sigl << "   "
-                  << hi.gradU << "   "
+                  << ti.w << "   "
+                  << ti.dwds << "   "
+                  << ti.s << "   "
                   << hi.bigPI << "   "
-                  << hi.C << "   "
-                  << hi.eta_o_tau << "   "
-                  << hi.Agam << "   "
-                  << hi.Agam2 << "   "
-                  << hi.Ctot << "   "
-                  << hi.Btot << "\n";
+                  << ti.T << "   "
+                  << hi.zeta << "   "
+                  << hi.tauRelax << "   "
+                  << ti.dwdB << "   "
+                  << ti.rhoB << "   "
+                  << ti.dwdS << "   "
+                  << ti.rhoS << "   "
+                  << ti.dwdQ << "   "
+                  << ti.rhoQ << "\n";
 
       //===============
       // print status
