@@ -109,10 +109,10 @@ class EoM_default: public EquationsOfMotion
                           + hi.bigPI/hi.tauRelax
                           + dwdsT*( hi.gt*hi.shv33 + Bsub_fun(hi) );
 
-      std::cout << "CHECK settingsPtr->using_shear: " << settingsPtr->using_shear << "\n";
-      std::cout << "CHECK hi.setas: " << hi.setas << "\n";
-      std::cout << "CHECK hi.stauRelax: " << hi.stauRelax << "\n";
-      std::cout << "CHECK hi.setas/hi.stauRelax: " << hi.setas/hi.stauRelax << "\n";
+//      std::cout << "CHECK settingsPtr->using_shear: " << settingsPtr->using_shear << "\n";
+//      std::cout << "CHECK hi.setas: " << hi.setas << "\n";
+//      std::cout << "CHECK hi.stauRelax: " << hi.stauRelax << "\n";
+//      std::cout << "CHECK hi.setas/hi.stauRelax: " << hi.setas/hi.stauRelax << "\n";
 
 
       //===============
@@ -228,7 +228,7 @@ class EoM_default: public EquationsOfMotion
                   << hi.bigtheta << "   "
                   << hi.inside << "\n";
 
-if (1) exit(8);
+//if (1) exit(8);
 
       // specific charge per particle does not change with time
       //d_dt_specific.rhoB         = 0.0;
