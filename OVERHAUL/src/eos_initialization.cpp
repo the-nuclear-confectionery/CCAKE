@@ -44,7 +44,7 @@ void EquationOfState::init()
 
   init( quantity_file, deriv_file );
 
-  bool do_eos_checks = false;
+  bool do_eos_checks = true;
   if ( do_eos_checks )
     run_closure_test();
 }
@@ -491,10 +491,10 @@ cout << "=======================================================================
       << "================================================================================\n"
       << "================================================================================\n";
 
-  for (double T0 =  436.982; T0 <= 436.982 + 0.01; T0 += 500.0)
-  for (double muB0 = 0.0; muB0 <= 0.01; muB0 += 500.0)
-  for (double muQ0 = 0.0; muQ0 <= 0.01; muQ0 += 500.0)
-  for (double muS0 = 0.0; muS0 <= 0.01; muS0 += 500.0)
+  for (double T0 =  171.509; T0 <= 171.509 + 0.01; T0 += 500.0)
+  for (double muB0 = -346.013; muB0 <= -346.013+0.01; muB0 += 500.0)
+  for (double muQ0 = -224.7; muQ0 <= -224.7+0.01; muQ0 += 500.0)
+  for (double muS0 = 347.843; muS0 <= 347.843+0.01; muS0 += 500.0)
   {
     std::cout << "GETTING THERMODYNAMICS" << std::endl;
     std::vector<double> point = {T0/hc, muB0/hc, muQ0/hc, muS0/hc};
@@ -507,14 +507,14 @@ cout << "=======================================================================
     std::vector<double> v = get_thermodynamics( point, "table" );
     std::cout << "Check exact: " << T0 << "   " << muB0 << "   "
               << muQ0 << "   "<< muS0 << "   " << v[5] << "   "
-              << v[2] << "   " << v[3] << "   " << v[4] << std::endl;
+              << v[2] << "   " << v[3] << "   " << v[4] << "   " << v[6] << std::endl;
 
     // call with debugging on (uses interpolator)
     std::dynamic_pointer_cast<EoS_table>(table_EoS_object)->set_debug_mode(false);
     v = get_thermodynamics( point, "table" );
     std::cout << "Check interpolant: " << T0 << "   " << muB0 << "   "
               << muQ0 << "   "<< muS0 << "   " << v[5] << "   "
-              << v[2] << "   " << v[3] << "   " << v[4] << std::endl;
+              << v[2] << "   " << v[3] << "   " << v[4] << "   " << v[6] << std::endl;
     
     std::cout << "GOT THERMODYNAMICS" << std::endl;
   }
