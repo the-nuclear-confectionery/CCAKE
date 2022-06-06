@@ -308,9 +308,12 @@ double TransportCoefficients::cs2_dependent_zeta()
 {
 //  const double A = 8.0*constants::pi/15.0;
 //  const double p = 2.0;
+  const double A = settingsPtr->cs2_dependent_zeta_A;
+  const double p = settingsPtr->cs2_dependent_zeta_p;
 
+  //----------------------------------------------
   //!!!!!  Bulk is too large in low-T regime
-  //!!!!!  ==>> add modulating tanh-factor withclTabCtrl
+  //!!!!!  ==>> add modulating tanh-factor with
   //!!!!!       power-law dependence to suppress
   const double factor = 1.0;
   if ( settingsPtr->modulate_zeta_with_tanh )
@@ -321,8 +324,6 @@ double TransportCoefficients::cs2_dependent_zeta()
     factor = 0.5*(1.0 + x_p) + 0.5*(1.0 - x_p)*th_x;
   }
 
-  const double A = settingsPtr->cs2_dependent_zeta_A;
-  const double p = settingsPtr->cs2_dependent_zeta_p;
   return A*factor*pow((1.0/3.0)-therm.cs2, p)*therm.s;
 }
 
