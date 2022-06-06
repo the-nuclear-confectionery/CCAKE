@@ -502,13 +502,13 @@ void EoS_table::get_full_thermo_safe( const double point_in[], double results[] 
     eos_extension::get_nonconformal_extension( point_in, point_projected,
                                                results );
 
-    // option to print results
-    if ( VERBOSE > 8 )
-    {
-      cout << "Thermo:" << endl;
-      for (int i = 0; i < 17; i++)
-        cout << results[i] << endl;
-    }
+  // option to print results
+  if ( VERBOSE > 8 )
+  {
+    cout << "Thermo:" << endl;
+    for (int i = 0; i < 17; i++)
+      cout << results[i] << endl;
+  }
 
 }  
 
