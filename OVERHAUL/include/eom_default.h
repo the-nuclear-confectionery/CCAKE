@@ -246,11 +246,11 @@ class EoM_default: public EquationsOfMotion
                   << hi.t << "   "
                   << hi.dBulk_dt << "   "
                   << hi.zeta << "   "
-                  << hi.sigma << "   "
+                  << ti.s << "   "
+                  << hi.sigma << "   "//OK
+                  << hi.Bulk << "   "//OK
                   << hi.bigtheta << "   "
-                  << hi.Bulk << "   "
-                  << hi.bigtheta << "   "
-                  << hi.tauRelax << "\n";
+                  << hi.tauRelax << "\n";//OK
 
       Matrix <double,2,2> ududt = hi.u*hi.du_dt;
 
