@@ -239,6 +239,18 @@ class EoM_default: public EquationsOfMotion
       // N.B. - ADD EXTRA TERMS FOR BULK EQUATION
       hi.dBulk_dt = ( -hi.zeta/hi.sigma*hi.bigtheta - hi.Bulk/hi.gamma )/hi.tauRelax;
 
+      //===============
+      // print status
+      if ( VERBOSE > 2 && hi.print_particle )
+        std::cout << "CHECK dBulk_dt: " << hi.ID << "   "
+                  << hi.t << "   "
+                  << hi.zeta << "   "
+                  << hi.sigma << "   "
+                  << hi.bigtheta << "   "
+                  << hi.Bulk << "   "
+                  << hi.bigtheta << "   "
+                  << hi.tauRelax << "\n";
+
       Matrix <double,2,2> ududt = hi.u*hi.du_dt;
 
       // N.B. - ADD READABLE TERM NAMES
@@ -247,23 +259,6 @@ class EoM_default: public EquationsOfMotion
                                  - hi.eta_o_tau*( ududt + transpose(ududt) )
                                  + dpidtsub_fun(hi) + hi.sigl*Ipi
                                  - vduk*( ulpi + transpose(ulpi) + (1/hi.gamma)*Ipi );
-//std::cout << "t=CHECK: " << hi.ID << "   "
-//              << hi.t << "   "
-//              << hi.dBulk_dt << "   "
-//              << d_dt_specific.s << "   "
-//              << hi.du_dt << "   "
-//              << hi.dshv_dt << "\n";
-//
-//std::cout << "CHECK dshv_dt: " << hi.ID << "   "
-//              << hi.t << "   "
-//              << hi.dshv_dt << "   "
-//              << - gamt*( hi.pimin + hi.setas*partU ) << "   "
-//              << - hi.eta_o_tau*( ududt + transpose(ududt) ) << "   "
-//              << hi.dpidtsub + hi.sigl*Ipi << "   "
-//              << - vduk*( ulpi + transpose(ulpi) + (1/hi.gamma)*Ipi ) << "\n";
-//
-//if (hi.t > 1.1) exit(8);
-
     }
 
 };
