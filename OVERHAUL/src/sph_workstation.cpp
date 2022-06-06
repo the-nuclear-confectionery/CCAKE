@@ -502,11 +502,17 @@ void SPHWorkstation::process_initial_conditions()
 
   // assign particles IDs
   for ( int i = 0; i < systemPtr->particles.size(); i++ )
-    systemPtr->particles[i].ID = i;
+  {
+    systemPtr->particles[i].ID       = i;
+    systemPtr->particles[i].hydro.ID = i;
+  }
 
   // set particles to print
   for ( int & p : settingsPtr->particles_to_print )
-    systemPtr->particles[p].print_this_particle = true;
+  {
+    systemPtr->particles[p].print_this_particle  = true;
+    systemPtr->particles[p].hydro.print_particle = true;
+  }
 }
 
 

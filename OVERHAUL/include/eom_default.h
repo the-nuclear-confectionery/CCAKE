@@ -12,6 +12,8 @@
 class EoM_default: public EquationsOfMotion
 {
   private:
+    static constexpr int VERBOSE = 3;
+
     Matrix<double,2,2> Imat;
 
   public:
@@ -170,6 +172,18 @@ class EoM_default: public EquationsOfMotion
 
       // time derivative of ``specific entropy density per particle"
       d_dt_specific.s            = 1./hi.sigma/ti.T*( -hi.bigPI*hi.bigtheta + hi.inside );
+
+      //===============
+      // print status
+      if ( VERBOSE > 2 && hi.print_particle )
+        std::cout << "CHECK d_dt_specific.s: " << hi.ID << "   "
+                  << hi.t << "   "
+                  << detasigma_dt << "   "
+                  << hi.sigma << "   "
+                  << ti.T*constants::hbarc_MeVfm << "   "
+                  << hi.bigPI << "   "
+                  << hi.bigtheta << "   "
+                  << hi.inside << "\n";
 
       // specific charge per particle does not change with time
       //d_dt_specific.rhoB         = 0.0;

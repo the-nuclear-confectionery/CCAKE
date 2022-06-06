@@ -22,7 +22,7 @@ friend class InputOutput;
 
 private:
   
-  static constexpr int    VERBOSE        = 0;
+  static constexpr int    VERBOSE        = 3;
   static constexpr double TOLERANCE      = 0.0;
   static constexpr bool   REGULATE_LOW_T = false;
 
