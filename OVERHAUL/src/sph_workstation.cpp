@@ -429,24 +429,24 @@ void SPHWorkstation::process_initial_conditions()
 //
 //
 //
-//    //==========================================================================
-//    // cut out particles whose energy density is too small for charge densities
-//    // remove particles with no possible solutions
-//    systemPtr->particles.erase( std::remove_if(
-//      systemPtr->particles.begin(),
-//      systemPtr->particles.end(),
-//      [this](Particle const & p)  // apply lambda to all particles;
-//        {                         // check if eBSQ combo has real solution
-//          return !(this->eos.eBSQ_has_solution_in_conformal_diagonal(
-//                    p.input.e, p.input.rhoB, p.input.rhoS, p.input.rhoQ ) );
-//        } ),
-//      systemPtr->particles.end() );
-//
-//
-//    formatted_output::update("Number of particles after solution checks: "
-//                              + to_string(systemPtr->particles.size()));
-//
-//  }
+    //==========================================================================
+    // cut out particles whose energy density is too small for charge densities
+    // remove particles with no possible solutions
+    systemPtr->particles.erase( std::remove_if(
+      systemPtr->particles.begin(),
+      systemPtr->particles.end(),
+      [this](Particle const & p)  // apply lambda to all particles;
+        {                         // check if eBSQ combo has real solution
+          return !(this->eos.eBSQ_has_solution_in_conformal_diagonal(
+                    p.input.e, p.input.rhoB, p.input.rhoS, p.input.rhoQ ) );
+        } ),
+      systemPtr->particles.end() );
+
+
+    formatted_output::update("Number of particles after solution checks: "
+                              + to_string(systemPtr->particles.size()));
+
+  }
 
   // fill out initial particle information
   //int TMP_particle_count = 0;
