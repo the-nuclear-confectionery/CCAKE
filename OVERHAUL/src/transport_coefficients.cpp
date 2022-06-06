@@ -318,11 +318,14 @@ double TransportCoefficients::cs2_dependent_zeta()
   double factor = 1.0;
   if ( settingsPtr->modulate_zeta_with_tanh )
   {
-    const double T_transition = 150.0, T_scale = 10.0;
+    const double T_transition = 150.0/constants::hbarc_MeVfm,
+                 T_scale      = 10.0/constants::hbarc_MeVfm;
     const double th_x = tanh( ( therm.T - T_transition ) / T_scale );
     const double x_p = pow(therm.T/T_transition, p);
     factor = 0.5*(1.0 + x_p) + 0.5*(1.0 - x_p)*th_x;
   }
+
+  cout << "Check: " << A*factor*pow((1.0/3.0)-therm.cs2, p)*therm.s << endl;
 
   return A*factor*pow((1.0/3.0)-therm.cs2, p)*therm.s;
 }
