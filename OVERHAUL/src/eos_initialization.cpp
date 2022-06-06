@@ -505,16 +505,22 @@ cout << "=======================================================================
     // call with debugging on (uses static library)
     std::dynamic_pointer_cast<EoS_table>(table_EoS_object)->set_debug_mode(true);
     std::vector<double> v = get_thermodynamics( point, "table" );
-    std::cout << "Check exact: " << T0 << "   " << muB0 << "   "
-              << muQ0 << "   "<< muS0 << "   " << v[5] << "   "
-              << v[2] << "   " << v[3] << "   " << v[4] << "   " << v[6] << std::endl;
+//    std::cout << "Check exact: " << T0 << "   " << muB0 << "   "
+//              << muQ0 << "   "<< muS0 << "   " << v[5] << "   "
+//              << v[2] << "   " << v[3] << "   " << v[4] << "   " << v[6] << std::endl;
+    std::cout << "Check exact:";
+    for (auto&e:v) cout << " " << e;
+    std::cout << std::endl;
 
     // call with debugging on (uses interpolator)
     std::dynamic_pointer_cast<EoS_table>(table_EoS_object)->set_debug_mode(false);
     v = get_thermodynamics( point, "table" );
-    std::cout << "Check interpolant: " << T0 << "   " << muB0 << "   "
-              << muQ0 << "   "<< muS0 << "   " << v[5] << "   "
-              << v[2] << "   " << v[3] << "   " << v[4] << "   " << v[6] << std::endl;
+//    std::cout << "Check interpolant: " << T0 << "   " << muB0 << "   "
+//              << muQ0 << "   "<< muS0 << "   " << v[5] << "   "
+//              << v[2] << "   " << v[3] << "   " << v[4] << "   " << v[6] << std::endl;
+    std::cout << "Check interpolant:";
+    for (auto&e:v) cout << " " << e;
+    std::cout << std::endl;
     
     std::cout << "GOT THERMODYNAMICS" << std::endl;
   }
