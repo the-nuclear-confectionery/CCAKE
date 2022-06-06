@@ -711,15 +711,15 @@ void SPHWorkstation::setvisc( Particle & p )
   p.hydro.stauRelax = tc.tau_pi();
   p.hydro.zeta      = tc.zeta();
   p.hydro.tauRelax  = tc.tau_Pi();
-  if ( p.ID == 0 )
-  {
-    cout << "check thermo: "
-          << p.hydro.setas << "   "
-          << p.hydro.stauRelax << "   "
-          << p.hydro.zeta << "   "
-          << p.hydro.tauRelax << "   "
-          << p.thermo.cs2 << endl;
-  }
+//  if ( p.ID == 0 )
+//  {
+//    cout << "check thermo: "
+//          << p.hydro.setas << "   "
+//          << p.hydro.stauRelax << "   "
+//          << p.hydro.zeta << "   "
+//          << p.hydro.tauRelax << "   "
+//          << p.thermo.cs2 << endl;
+//  }
 }
 
 
