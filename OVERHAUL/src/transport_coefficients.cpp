@@ -337,6 +337,7 @@ double TransportCoefficients::cs2_dependent_zeta()
 //===============================
 double TransportCoefficients::default_tau_Pi()
 {
+cout << "inside check: " << therm.cs2 << "   " << zeta() << "   " << therm.w << endl;
   if ( (1.0/3.0-therm.cs2)*(1.0/3.0-therm.cs2) < 1e-10 )
     return 0.0;
   else
