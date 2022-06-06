@@ -325,7 +325,7 @@ double TransportCoefficients::cs2_dependent_zeta()
     factor = 0.5*(1.0 + x_p) + 0.5*(1.0 - x_p)*th_x;
   }
 
-  cout << "Check: " << A*factor*pow((1.0/3.0)-therm.cs2, p)*therm.s << endl;
+//  cout << "Check: " << A*factor*pow((1.0/3.0)-therm.cs2, p)*therm.s << endl;
 
   return A*factor*pow((1.0/3.0)-therm.cs2, p)*therm.s;
 }

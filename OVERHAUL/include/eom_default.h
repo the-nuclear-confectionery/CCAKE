@@ -185,6 +185,8 @@ class EoM_default: public EquationsOfMotion
                   << hi.bigtheta << "   "
                   << hi.inside << "\n";
 
+if (1) exit(8);
+
       // specific charge per particle does not change with time
       //d_dt_specific.rhoB         = 0.0;
       //d_dt_specific.rhoS         = 0.0;

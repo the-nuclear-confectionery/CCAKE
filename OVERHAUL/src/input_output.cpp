@@ -142,7 +142,7 @@ void InputOutput::load_settings_file( string path_to_settings_file )
 
 
   // set particles to print
-  settingsPtr->particles_to_print = vector<int>({});
+  settingsPtr->particles_to_print = vector<int>({0,58});
 
 
   // set up HDF5 output file here
