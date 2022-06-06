@@ -109,6 +109,24 @@ class EoM_default: public EquationsOfMotion
                           + hi.bigPI/hi.tauRelax
                           + dwdsT*( hi.gt*hi.shv33 + Bsub_fun(hi) );
 
+      //===============
+      // print status
+      if ( VERBOSE > 2 && hi.print_particle )
+        std::cout << "CHECK misc: " << hi.ID << "   "
+                  << hi.t << "   "
+                  << hi.g2 << "   "
+                  << hi.g3 << "   "
+                  << hi.gt << "   "
+                  << hi.dwdsT1 << "   "
+                  << hi.sigl << "   "
+                  << hi.gradU << "   "
+                  << hi.bigPI << "   "
+                  << hi.C << "   "
+                  << hi.eta_o_tau << "   "
+                  << hi.Agam << "   "
+                  << hi.Agam2 << "   "
+                  << hi.Ctot << "   "
+                  << hi.Btot << "\n";
 
 
       // THIS IS THE ORIGINAL PART IN TIME DERIVATIVES
