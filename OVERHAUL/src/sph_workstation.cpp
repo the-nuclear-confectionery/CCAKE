@@ -619,7 +619,24 @@ double SPHWorkstation::locate_phase_diagram_point_eBSQ( Particle & p,
   double sVal = eos.s_out( e_In, rhoB_In, rhoS_In, rhoQ_In, solution_found );
 
   if ( solution_found )
+{
     eos.set_thermo( p.thermo );
+
+if (p.ID == 45490)
+  cout << "check thermo: " << systemPtr->t << "   "
+        << p.thermo.T << "   "
+        << p.thermo.muB << "   "
+        << p.thermo.muS << "   "
+        << p.thermo.muQ << "   "
+        << p.thermo.p << "   "
+        << p.thermo.s << "   "
+        << p.thermo.rhoB << "   "
+        << p.thermo.rhoS << "   "
+        << p.thermo.rhoQ << "   "
+        << p.thermo.e << "   "
+        << p.thermo.cs2 << "   "
+        << p.thermo.eos_name << endl;
+}
 
   return sVal;
 }
@@ -645,8 +662,24 @@ void SPHWorkstation::locate_phase_diagram_point_sBSQ( Particle & p,
   bool update_s_success = eos.update_s( s_In, rhoB_In, rhoS_In, rhoQ_In );
 
   if ( update_s_success )
+{
     eos.set_thermo( p.thermo );
 
+if (p.ID == 45490)
+  cout << "check thermo: " << systemPtr->t << "   "
+        << p.thermo.T << "   "
+        << p.thermo.muB << "   "
+        << p.thermo.muS << "   "
+        << p.thermo.muQ << "   "
+        << p.thermo.p << "   "
+        << p.thermo.s << "   "
+        << p.thermo.rhoB << "   "
+        << p.thermo.rhoS << "   "
+        << p.thermo.rhoQ << "   "
+        << p.thermo.e << "   "
+        << p.thermo.cs2 << "   "
+        << p.thermo.eos_name << endl;
+}
   return;
 }
 
