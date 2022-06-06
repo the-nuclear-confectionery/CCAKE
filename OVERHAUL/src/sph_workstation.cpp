@@ -636,7 +636,7 @@ if (p.print_this_particle)
         << p.thermo.e << "   "
         << p.thermo.cs2 << "   "
         << p.thermo.eos_name << endl;
-if (cs2<0) exit(8);
+if (p.thermo.cs2<0) exit(8);
 }
 
   return sVal;
@@ -680,7 +680,7 @@ if (p.print_this_particle)
         << p.thermo.e << "   "
         << p.thermo.cs2 << "   "
         << p.thermo.eos_name << endl;
-if (cs2<0) exit(8);
+if (p.thermo.cs2<0) exit(8);
 }
   return;
 }
