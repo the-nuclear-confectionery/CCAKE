@@ -244,6 +244,7 @@ class EoM_default: public EquationsOfMotion
       if ( VERBOSE > 2 && hi.print_particle )
         std::cout << "CHECK dBulk_dt: " << hi.ID << "   "
                   << hi.t << "   "
+                  << hi.dBulk_dt << "   "
                   << hi.zeta << "   "
                   << hi.sigma << "   "
                   << hi.bigtheta << "   "
