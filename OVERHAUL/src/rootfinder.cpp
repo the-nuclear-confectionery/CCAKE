@@ -152,6 +152,8 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
             std::function<void(double[], double[])> function_to_evaluate,
             vector<double> & updated_tbqs )
 {
+  return false; // what does this do?
+
   /////////////////////////////////////////////
   // e_or_s_mode == 0: using entropy density //
   // e_or_s_mode == 1: using energy density  //
