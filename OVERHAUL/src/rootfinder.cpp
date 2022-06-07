@@ -176,11 +176,11 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
   rootfinder_parameters p( e_or_s_Given, rhoBGiven, rhoQGiven, rhoSGiven,
                            e_or_s_mode, function_to_evaluate );
 
-  std::cout << __LINE__ << ": " << e_or_s_Given << std::endl;
-  std::cout << __LINE__ << ": " << rhoBGiven << std::endl;
-  std::cout << __LINE__ << ": " << rhoSGiven << std::endl;
-  std::cout << __LINE__ << ": " << rhoQGiven << std::endl;
-  std::cout << __LINE__ << ": " << e_or_s_mode << std::endl;
+//  std::cout << __LINE__ << ": " << e_or_s_Given << std::endl;
+//  std::cout << __LINE__ << ": " << rhoBGiven << std::endl;
+//  std::cout << __LINE__ << ": " << rhoSGiven << std::endl;
+//  std::cout << __LINE__ << ": " << rhoQGiven << std::endl;
+//  std::cout << __LINE__ << ": " << e_or_s_mode << std::endl;
 
   ////////////////////
   // initialize multiroot solver
