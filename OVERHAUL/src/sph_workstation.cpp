@@ -49,14 +49,14 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 
     for (int i=0; i<systemPtr->n_particles; i++)
     {
+      auto & p = systemPtr->particles[i];
+
+
   if ( VERBOSE > 5 || p.print_this_particle )
   {
       cout << "----------------------------------------"
           "----------------------------------------" << "\n";
   }
-
-      auto & p = systemPtr->particles[i];
-
 
 		
 		{
