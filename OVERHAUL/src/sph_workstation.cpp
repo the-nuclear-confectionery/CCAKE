@@ -638,8 +638,8 @@ if (p.print_this_particle)
         << p.thermo.eos_name << endl;
   if (p.thermo.cs2<0)
   {
-    cout << "cs2 was negative!" << endl;
-    abort();
+    cout << __LINE__ << "cs2 was negative!" << endl;
+    exit(8);
   }
 }
 
@@ -686,8 +686,8 @@ if (p.print_this_particle)
         << p.thermo.eos_name << endl;
   if (p.thermo.cs2<0)
   {
-    cout << "cs2 was negative!" << endl;
-    abort();
+    cout << __LINE__ << "cs2 was negative!" << endl;
+    exit(8);
   }
 }
   return;
