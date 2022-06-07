@@ -430,7 +430,7 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
     auto sgn = [](double val){ return (0.0 < val) - (val < 0.0); };
     vector<double> sgns = {1.0, sgn(Bin), sgn(Qin), sgn(Sin)};
     for ( int iTBQS = 0; iTBQS < 4; iTBQS++)
-      if ( tbqsPosition[iTBQS]*tbqsPosition[iTBQS] < TINY )
+      if ( tbqsPosition[iTBQS]*tbqsPosition[iTBQS] < TOLERANCE )
         tbqsPosition[iTBQS]
           = std::min(0.5*tbqs_maxima[iTBQS], 1.0)*sgns[iTBQS];
 
