@@ -542,7 +542,7 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
 
     // perturb down
     number_of_attempts++;
-    if(mus0 - muS10 < maxMuS)
+    if(mus0 - muS10 < minMuS)
       tbqs(t0, mub0, muq0, minMuS + 1);
     else
       tbqs(t0, mub0, muq0, mus0 - muS10);
