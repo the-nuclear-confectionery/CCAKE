@@ -192,6 +192,7 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
   f.params = &p;
   f.f      = &rootfinder_f;
 
+  const gsl_multiroot_fsolver_type *TYPE = gsl_multiroot_fsolver_hybrids;
   solver = gsl_multiroot_fsolver_alloc(TYPE, 4);
   gsl_multiroot_fsolver_set(solver, &f, x);
 

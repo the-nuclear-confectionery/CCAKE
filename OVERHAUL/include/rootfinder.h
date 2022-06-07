@@ -35,7 +35,7 @@ private:
   const double TOLERANCE = 1e-10;
 
   //Rootfinding method used **THIS CAN BE CHANGED DEPENDING ON EOS
-  const gsl_multiroot_fsolver_type *TYPE = gsl_multiroot_fsolver_hybrids;
+//  const gsl_multiroot_fsolver_type *TYPE = gsl_multiroot_fsolver_hybrids;
 //  const gsl_multiroot_fsolver_type *TYPE = gsl_multiroot_fsolver_hybrid;
 //  const gsl_multiroot_fsolver_type *TYPE = gsl_multiroot_fsolver_dnewton;
 
