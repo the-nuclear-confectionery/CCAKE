@@ -29,7 +29,7 @@ double EquationOfState::dq_dmuq()    { return calc_term_4("q","q"); }
 double EquationOfState::dq_dmus()    { return calc_term_4("q","s"); }
 
 double EquationOfState::calc_term_1() {
-	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
     gsl_vector *v = gsl_vector_alloc(3);
     gsl_matrix *m = gsl_matrix_alloc(3,3);
 
@@ -80,7 +80,7 @@ double EquationOfState::calc_term_1() {
 }
 
 double EquationOfState::calc_term_2(string i_char) {
-	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__
 								 << ": i_char = " << i_char << std::endl;
     gsl_vector *a = gsl_vector_alloc(3);
     gsl_matrix *m = gsl_matrix_alloc(3,3);
@@ -158,7 +158,7 @@ double EquationOfState::calc_term_2(string i_char) {
 }
 
 double EquationOfState::calc_term_3(string i_char) {
-	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__
 								 << ": i_char = " << i_char << std::endl;
     gsl_vector *a = gsl_vector_alloc(3);
     gsl_matrix *m = gsl_matrix_alloc(3,3);
@@ -236,7 +236,7 @@ double EquationOfState::calc_term_3(string i_char) {
 }
 
 double EquationOfState::calc_term_4(string j_char, string i_char) {
-	if ( VERBOSE > 1 ) std::cout << "Now in " << __PRETTY_FUNCTION__
+	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__
 								 << ": j_char, i_char = "
 								<< j_char << "   " << i_char << std::endl;
     gsl_vector *a = gsl_vector_alloc(3);
