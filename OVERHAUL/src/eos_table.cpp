@@ -183,7 +183,7 @@ cout << "WARNING: NOT ACTUALLY LOADING EOS TABLE HERE" << endl;
   tbqs_minima_no_ext = {minT, minMuB, minMuQ, minMuS};
   tbqs_maxima_no_ext = {maxT, maxMuB, maxMuQ, maxMuS};
 
-  dataFile.close();
+  //dataFile.close();
 
 	std::cout << "All initializations finished!" << std::endl;
 
