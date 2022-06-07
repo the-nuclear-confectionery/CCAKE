@@ -99,8 +99,7 @@ EoS_table::EoS_table( string quantityFile, string derivFile )
 
 void EoS_table::init_grid_ranges_only(string quantityFile, string derivFile)
 {
-	/*if ( VERBOSE > 10 )*/ std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
-  std::ifstream dataFile;
+  /*std::ifstream dataFile;
   dataFile.open(quantityFile);
 
   double maxMuB        = 0.0;
@@ -156,7 +155,17 @@ void EoS_table::init_grid_ranges_only(string quantityFile, string derivFile)
   {
     std::cerr << "File " << quantityFile << " could not be opened!\n";
     abort();
-  }
+  }*/
+
+cout << "WARNING: NOT ACTUALLY LOADING EOS TABLE HERE" << endl;
+  double maxMuB        = 450.0/hbarc_MeVfm;
+  double minMuB        = -450.0/hbarc_MeVfm;
+  double maxMuQ        = 450.0/hbarc_MeVfm;
+  double minMuQ        = -450.0/hbarc_MeVfm;
+  double maxMuS        = 450.0/hbarc_MeVfm;
+  double minMuS        = -450.0/hbarc_MeVfm;
+  double maxT          = 0.0;
+  double minT          = 1200.0/hbarc_MeVfm;
 
   // initialize grid ranges here
   if ( use_nonconformal_extension )
