@@ -2,8 +2,6 @@
 
 #include "../include/rootfinder.h"
 
-using namespace std;
-
 ////////////////////////////////////////////////////////////////////////////////
 //struct to pass the target (E, rhoB, rhoQ, rhoS) into the rootfinder function
 struct rootfinder_parameters
@@ -71,11 +69,11 @@ cout << "Entered at line = " << __LINE__ << endl;
       // compute densities using passed-in function object
       get_densities( phase_diagram_point, densities_at_point );
 
-//cout << "PD point:";
-//for (int i = 0; i < 4; i++) cout << "   " << phase_diagram_point[i];
-//cout << endl << "Densities:";
-//for (int i = 0; i < 4; i++) cout << "   " << densities_at_point[i];
-//cout << endl;
+cout << "PD point:";
+for (int i = 0; i < 4; i++) cout << "   " << phase_diagram_point[i];
+cout << endl << "Densities:";
+for (int i = 0; i < 4; i++) cout << "   " << densities_at_point[i];
+cout << endl;
 //if (1) exit(1);
 
       // set densities (convert to powers of fm if necessary)
@@ -91,11 +89,11 @@ cout << "Entered at line = " << __LINE__ << endl;
     gsl_vector_set(f, 2, (rhoQ   - rhoQGiven));
     gsl_vector_set(f, 3, (rhoS   - rhoSGiven));
 
-//cout << "e: " << eorEnt << "   " << eorEntGiven << "   " << eorEnt - eorEntGiven << endl;
-//cout << "B: " << rhoB << "   " << rhoBGiven << "   " << rhoB - rhoBGiven << endl;
-//cout << "Q: " << rhoQ << "   " << rhoQGiven << "   " << rhoQ - rhoQGiven << endl;
-//cout << "S: " << rhoS << "   " << rhoSGiven << "   " << rhoS - rhoSGiven << endl
-//      <<"------" << endl;
+cout << "e: " << eorEnt << "   " << eorEntGiven << "   " << eorEnt - eorEntGiven << endl;
+cout << "B: " << rhoB << "   " << rhoBGiven << "   " << rhoB - rhoBGiven << endl;
+cout << "Q: " << rhoQ << "   " << rhoQGiven << "   " << rhoQ - rhoQGiven << endl;
+cout << "S: " << rhoS << "   " << rhoSGiven << "   " << rhoS - rhoSGiven << endl
+      <<"------" << endl;
 //if (1) exit(1);
 
 
@@ -181,11 +179,11 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
   rootfinder_parameters p( e_or_s_Given, rhoBGiven, rhoQGiven, rhoSGiven,
                            e_or_s_mode, function_to_evaluate );
 
-//  std::cout << __LINE__ << ": " << e_or_s_Given << std::endl;
-//  std::cout << __LINE__ << ": " << rhoBGiven << std::endl;
-//  std::cout << __LINE__ << ": " << rhoSGiven << std::endl;
-//  std::cout << __LINE__ << ": " << rhoQGiven << std::endl;
-//  std::cout << __LINE__ << ": " << e_or_s_mode << std::endl;
+  std::cout << __LINE__ << ": " << e_or_s_Given << std::endl;
+  std::cout << __LINE__ << ": " << rhoBGiven << std::endl;
+  std::cout << __LINE__ << ": " << rhoSGiven << std::endl;
+  std::cout << __LINE__ << ": " << rhoQGiven << std::endl;
+  std::cout << __LINE__ << ": " << e_or_s_mode << std::endl;
 
   ////////////////////
   // initialize multiroot solver
@@ -212,6 +210,7 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
       previous_solver_step[iPrev] = gsl_vector_get(solver->x, iPrev);
 
 //    std::cout << "iter = " << iter << "\n";
+std::cout << gsl_vector_get(solver->x, 0) << std::endl;
 
     ++iter;
     status = gsl_multiroot_fsolver_iterate(solver);
