@@ -418,7 +418,7 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
     tbqsPosition = updated_tbqs;
 
 
-    std::cout << "Start of attempt #" << number_of_attempts << "\n";
+    std::cout << "Start of attempt #" << number_of_attempts << " at line " << __LINE__ << "\n";
 
 
     //==========================================================================
@@ -449,7 +449,7 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
       tbqs(t0 + t10, mub0, muq0, mus0);
 
 
-    std::cout << "Start of attempt #" << number_of_attempts << "\n";
+    std::cout << "Start of attempt #" << number_of_attempts << " at line " << __LINE__ << "\n";
 
     if ( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
                        function_to_evaluate, updated_tbqs ) ) 
@@ -463,7 +463,7 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
       tbqs(t0 - t10, mub0, muq0, mus0);
 
 
-    std::cout << "Start of attempt #" << number_of_attempts << "\n";
+    std::cout << "Start of attempt #" << number_of_attempts << " at line " << __LINE__ << "\n";
 
     if ( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
                        function_to_evaluate, updated_tbqs ) ) 
@@ -480,7 +480,7 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
       tbqs(t0, mub0 + muB10, muq0, mus0);
 
 
-    std::cout << "Start of attempt #" << number_of_attempts << "\n";
+    std::cout << "Start of attempt #" << number_of_attempts << " at line " << __LINE__ << "\n";
 
     if( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs ) ) 
@@ -494,7 +494,7 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
       tbqs(t0, mub0 - muB10, muq0, mus0);
 
 
-    std::cout << "Start of attempt #" << number_of_attempts << "\n";
+    std::cout << "Start of attempt #" << number_of_attempts << " at line " << __LINE__ << "\n";
 
     if ( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs ) ) 
@@ -511,7 +511,7 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
       tbqs(t0, mub0, muq0 + muQ10, mus0);
 
 
-    std::cout << "Start of attempt #" << number_of_attempts << "\n";
+    std::cout << "Start of attempt #" << number_of_attempts << " at line " << __LINE__ << "\n";
 
     if( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs ) ) 
@@ -525,7 +525,7 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
       tbqs(t0, mub0, muq0 - muQ10, mus0);
 
 
-    std::cout << "Start of attempt #" << number_of_attempts << "\n";
+    std::cout << "Start of attempt #" << number_of_attempts << " at line " << __LINE__ << "\n";
 
     if( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs ) ) 
@@ -542,7 +542,7 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
       tbqs(t0, mub0, muq0, mus0 + muS10);
 
 
-    std::cout << "Start of attempt #" << number_of_attempts << "\n";
+    std::cout << "Start of attempt #" << number_of_attempts << " at line " << __LINE__ << "\n";
 
     if( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs ) ) 
@@ -556,7 +556,7 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
       tbqs(t0, mub0, muq0, mus0 - muS10);
 
 
-    std::cout << "Start of attempt #" << number_of_attempts << "\n";
+    std::cout << "Start of attempt #" << number_of_attempts << " at line " << __LINE__ << "\n";
 
     if( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs ) ) 
@@ -569,7 +569,7 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
     number_of_attempts++;
 
 
-    std::cout << "Start of attempt #" << number_of_attempts << "\n";
+    std::cout << "Start of attempt #" << number_of_attempts << " at line " << __LINE__ << "\n";
 
     if( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs ) ) 
