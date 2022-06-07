@@ -157,6 +157,7 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
   // e_or_s_mode == 1: using energy density  //
   /////////////////////////////////////////////
 
+  std::cout << "Starting new rootfinder4D call\n";
 
   ////////////////////
   // set initial guess
@@ -417,6 +418,9 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
     tbqsPosition = updated_tbqs;
 
 
+    std::cout << "Start of attempt #" << number_of_attempts << "\n";
+
+
     //==========================================================================
     // try default seed point
     if (rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
@@ -444,6 +448,9 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
     else
       tbqs(t0 + t10, mub0, muq0, mus0);
 
+
+    std::cout << "Start of attempt #" << number_of_attempts << "\n";
+
     if ( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
                        function_to_evaluate, updated_tbqs ) ) 
         return true;
@@ -454,6 +461,9 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
       tbqs(minT + 1, mub0, muq0, mus0);
     else
       tbqs(t0 - t10, mub0, muq0, mus0);
+
+
+    std::cout << "Start of attempt #" << number_of_attempts << "\n";
 
     if ( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
                        function_to_evaluate, updated_tbqs ) ) 
@@ -469,6 +479,9 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
     else
       tbqs(t0, mub0 + muB10, muq0, mus0);
 
+
+    std::cout << "Start of attempt #" << number_of_attempts << "\n";
+
     if( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs ) ) 
         return true;
@@ -479,6 +492,9 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
       tbqs(t0, minMuB + 1, muq0, mus0);
     else
       tbqs(t0, mub0 - muB10, muq0, mus0);
+
+
+    std::cout << "Start of attempt #" << number_of_attempts << "\n";
 
     if ( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs ) ) 
@@ -494,6 +510,9 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
     else
       tbqs(t0, mub0, muq0 + muQ10, mus0);
 
+
+    std::cout << "Start of attempt #" << number_of_attempts << "\n";
+
     if( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs ) ) 
         return true;
@@ -504,6 +523,9 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
       tbqs(t0, mub0, minMuQ + 1, mus0);
     else
       tbqs(t0, mub0, muq0 - muQ10, mus0);
+
+
+    std::cout << "Start of attempt #" << number_of_attempts << "\n";
 
     if( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs ) ) 
@@ -519,6 +541,9 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
     else
       tbqs(t0, mub0, muq0, mus0 + muS10);
 
+
+    std::cout << "Start of attempt #" << number_of_attempts << "\n";
+
     if( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs ) ) 
         return true;
@@ -530,6 +555,9 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
     else
       tbqs(t0, mub0, muq0, mus0 - muS10);
 
+
+    std::cout << "Start of attempt #" << number_of_attempts << "\n";
+
     if( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs ) ) 
         return true;
@@ -539,6 +567,9 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
     tbqs(t0, 0, 0, 0);
 
     number_of_attempts++;
+
+
+    std::cout << "Start of attempt #" << number_of_attempts << "\n";
 
     if( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs ) ) 
