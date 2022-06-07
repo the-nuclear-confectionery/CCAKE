@@ -124,31 +124,31 @@ public:
     // point: (T, muB, muQ, muS)
     const double Tsol   = point[0], muBsol = point[1],
                  muQsol = point[2], muSsol = point[3];
-std::cout << __FUNCTION__ << "::" << __LINE__ << ": " << point[0] << std::endl;
-std::cout << __FUNCTION__ << "::" << __LINE__ << ": " << point[1] << std::endl;
-std::cout << __FUNCTION__ << "::" << __LINE__ << ": " << point[2] << std::endl;
-std::cout << __FUNCTION__ << "::" << __LINE__ << ": " << point[3] << std::endl;
-std::cout << __FUNCTION__ << "::" << __LINE__ << ": " << results[0] << std::endl;
-std::cout << __FUNCTION__ << "::" << __LINE__ << ": " << results[1] << std::endl;
-std::cout << __FUNCTION__ << "::" << __LINE__ << ": " << results[2] << std::endl;
-std::cout << __FUNCTION__ << "::" << __LINE__ << ": " << results[3] << std::endl;
+//std::cout << __FUNCTION__ << "::" << __LINE__ << ": " << point[0] << std::endl;
+//std::cout << __FUNCTION__ << "::" << __LINE__ << ": " << point[1] << std::endl;
+//std::cout << __FUNCTION__ << "::" << __LINE__ << ": " << point[2] << std::endl;
+//std::cout << __FUNCTION__ << "::" << __LINE__ << ": " << point[3] << std::endl;
+//std::cout << __FUNCTION__ << "::" << __LINE__ << ": " << results[0] << std::endl;
+//std::cout << __FUNCTION__ << "::" << __LINE__ << ": " << results[1] << std::endl;
+//std::cout << __FUNCTION__ << "::" << __LINE__ << ": " << results[2] << std::endl;
+//std::cout << __FUNCTION__ << "::" << __LINE__ << ": " << results[3] << std::endl;
     double POut        = p(Tsol, muBsol, muQsol, muSsol);
-std::cout << __FUNCTION__ << "::" << __LINE__ << std::endl;
+//std::cout << __FUNCTION__ << "::" << __LINE__ << std::endl;
     double sOut        = s(Tsol, muBsol, muQsol, muSsol);
-std::cout << __FUNCTION__ << "::" << __LINE__ << std::endl;
+//std::cout << __FUNCTION__ << "::" << __LINE__ << std::endl;
     double BOut        = B(Tsol, muBsol, muQsol, muSsol);
-std::cout << __FUNCTION__ << "::" << __LINE__ << std::endl;
+//std::cout << __FUNCTION__ << "::" << __LINE__ << std::endl;
     double SOut        = S(Tsol, muBsol, muQsol, muSsol);
-std::cout << __FUNCTION__ << "::" << __LINE__ << std::endl;
+//std::cout << __FUNCTION__ << "::" << __LINE__ << std::endl;
     double QOut        = Q(Tsol, muBsol, muQsol, muSsol);
-std::cout << __FUNCTION__ << "::" << __LINE__ << std::endl;
+//std::cout << __FUNCTION__ << "::" << __LINE__ << std::endl;
     double eOut        = (sOut*Tsol + muBsol*BOut + muQsol*QOut + muSsol*SOut) - POut;
-std::cout << __FUNCTION__ << "::" << __LINE__ << std::endl;
+//std::cout << __FUNCTION__ << "::" << __LINE__ << std::endl;
     results[0]         = eOut;
     results[1]         = BOut;
     results[2]         = SOut;
     results[3]         = QOut;
-std::cout << __FUNCTION__ << "::" << __LINE__ << std::endl;
+//std::cout << __FUNCTION__ << "::" << __LINE__ << std::endl;
     return;
   }
 
