@@ -418,15 +418,19 @@ bool EquationOfState::find_root_with_seed(
 
 
 ////////////////////////////////////////////////
-bool EquationOfState::rootfinder_update_s(double sin, double Bin, double Sin, double Qin)
+bool EquationOfState::rootfinder_update_s( double sin, double Bin,
+                                           double Sin, double Qin )
 {
   const double hc = constants::hbarc_MeVfm;
+  
+  // take sign of densities using lambda function
+  auto sgn = [](double val){ return (0.0 < val) - (val < 0.0); };
 
   bool solution_found = false;
   bool skipping_EoSs = true;  // start out skipping EoSs by default
   vector<double> result;
 
-string eos_currently_trying = "";
+  string eos_currently_trying = "";
 
   //////////////////////////////////////////////////
   // try each EoS in turn
@@ -442,12 +446,13 @@ string eos_currently_trying = "";
         skipping_EoSs = false;  //stop skipping at this point
     }
 
-eos_currently_trying = this_eos->name;
+    eos_currently_trying = this_eos->name;
 
     ////////////////////////////////////////////////
     // try current location
     result = tbqsPosition;
-    solution_found = find_root_with_seed( "entropy", sin, Bin, Sin, Qin, this_eos, result );
+    solution_found = find_root_with_seed( "entropy", sin, Bin, Sin, Qin,
+                                          this_eos, result );
 
 
     ////////////////////////////////////////////////
@@ -456,7 +461,8 @@ eos_currently_trying = this_eos->name;
     {
       // try default seed at zero density
       result = vector<double>({tbqsPosition[0],0.0,0.0,0.0});
-      solution_found = find_root_with_seed( "entropy", sin, Bin, Sin, Qin, this_eos, result );
+      solution_found = find_root_with_seed( "entropy", sin, Bin, Sin, Qin,
+                                            this_eos, result );
     }
 
 
@@ -465,8 +471,10 @@ eos_currently_trying = this_eos->name;
     if (!solution_found)
     {
       // try forced seed
-      result = vector<double>({1000.0/hc,0.0,0.0,0.0});
-      solution_found = find_root_with_seed( "entropy", sin, Bin, Sin, Qin, this_eos, result );
+      //result = vector<double>({1000.0/hc,0.0,0.0,0.0});
+      result = vector<double>({1000.0/hc, sgn(Bin), sgn(Qin), sgn(Sin)});
+      solution_found = find_root_with_seed( "entropy", sin, Bin, Sin, Qin,
+                                            this_eos, result );
     }
 
 
@@ -475,11 +483,10 @@ eos_currently_trying = this_eos->name;
     if (!solution_found)
     {
       // try conformal diagonal seed
-      auto conformal_diagonal_EoS = std::dynamic_pointer_cast<EoS_conformal_diagonal>
-                                        ( chosen_EOS_map["conformal_diagonal"] );
+      auto conf_diag_EoS = std::dynamic_pointer_cast<EoS_conformal_diagonal>
+                                  ( chosen_EOS_map["conformal_diagonal"] );
 
-      result = conformal_diagonal_EoS->get_tbqs_seed_from_sBSQ
-                                        ( sin, Bin, Sin, Qin );
+      result = conf_diag_EoS->get_tbqs_seed_from_sBSQ( sin, Bin, Sin, Qin );
 
       solution_found = find_root_with_seed( "entropy", sin, Bin, Sin, Qin,
                                             this_eos, result );
@@ -574,6 +581,9 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
                                           double Qin, bool & solution_found )
 {
   const double hc = constants::hbarc_MeVfm;
+  
+  // take sign of densities using lambda function
+  auto sgn = [](double val){ return (0.0 < val) - (val < 0.0); };
 
   // used for seed value in rootfinder
   vector<double> result;
@@ -586,7 +596,8 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
 
     /////////////////////////////////////////////////////////
     // try forced seed first
-    result = vector<double>({1000.0/hc,0.0,0.0,0.0});
+    //result = vector<double>({1000.0/hc,0.0,0.0,0.0});
+    result = vector<double>({1000.0/hc, sgn(Bin), sgn(Qin), sgn(Sin)});
     solution_found = find_root_with_seed( "energy", ein, Bin, Sin, Qin,
                                           this_eos, result );
 
@@ -596,11 +607,10 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
     if (!solution_found)
     {
       // try conformal diagonal seed
-      auto conformal_diagonal_EoS = std::dynamic_pointer_cast<EoS_conformal_diagonal>
-                                        ( chosen_EOS_map["conformal_diagonal"] );
+      auto conf_diag_EoS = std::dynamic_pointer_cast<EoS_conformal_diagonal>
+                                  ( chosen_EOS_map["conformal_diagonal"] );
 
-      result = conformal_diagonal_EoS->get_tbqs_seed_from_eBSQ
-                                        ( ein, Bin, Sin, Qin );
+      result = conf_diag_EoS->get_tbqs_seed_from_eBSQ( ein, Bin, Sin, Qin );
 
       solution_found = find_root_with_seed( "energy", ein, Bin, Sin, Qin,
                                             this_eos, result );
