@@ -502,37 +502,6 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
         return true;
 
     //==========================================================================
-    // perturb muQ
-
-    // perturb up
-    number_of_attempts++;
-    if (muq0 + muQ10 > maxMuQ)
-      tbqs(t0, mub0, maxMuQ - 1, mus0);
-    else
-      tbqs(t0, mub0, muq0 + muQ10, mus0);
-
-
-    std::cout << "Start of attempt #" << number_of_attempts << " at line " << __LINE__ << "\n";
-
-    if( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
-                      function_to_evaluate, updated_tbqs ) ) 
-        return true;
-
-    // perturb down
-    number_of_attempts++;
-    if(muq0 - muQ10 < minMuQ)
-      tbqs(t0, mub0, minMuQ + 1, mus0);
-    else
-      tbqs(t0, mub0, muq0 - muQ10, mus0);
-
-
-    std::cout << "Start of attempt #" << number_of_attempts << " at line " << __LINE__ << "\n";
-
-    if( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
-                      function_to_evaluate, updated_tbqs ) ) 
-        return true;
-
-    //==========================================================================
     // perturb muS
 
     // perturb up
@@ -555,6 +524,37 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
       tbqs(t0, mub0, muq0, minMuS + 1);
     else
       tbqs(t0, mub0, muq0, mus0 - muS10);
+
+
+    std::cout << "Start of attempt #" << number_of_attempts << " at line " << __LINE__ << "\n";
+
+    if( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
+                      function_to_evaluate, updated_tbqs ) ) 
+        return true;
+
+    //==========================================================================
+    // perturb muQ
+
+    // perturb up
+    number_of_attempts++;
+    if (muq0 + muQ10 > maxMuQ)
+      tbqs(t0, mub0, maxMuQ - 1, mus0);
+    else
+      tbqs(t0, mub0, muq0 + muQ10, mus0);
+
+
+    std::cout << "Start of attempt #" << number_of_attempts << " at line " << __LINE__ << "\n";
+
+    if( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
+                      function_to_evaluate, updated_tbqs ) ) 
+        return true;
+
+    // perturb down
+    number_of_attempts++;
+    if(muq0 - muQ10 < minMuQ)
+      tbqs(t0, mub0, minMuQ + 1, mus0);
+    else
+      tbqs(t0, mub0, muq0 - muQ10, mus0);
 
 
     std::cout << "Start of attempt #" << number_of_attempts << " at line " << __LINE__ << "\n";
