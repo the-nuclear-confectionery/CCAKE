@@ -175,13 +175,13 @@ void EquationOfState::evaluate_thermodynamics( pEoS_base peos )
   dtds    = thermodynamics[15];
   dt2     = thermodynamics[16];
 
-cout << "before" << endl;
-cout << "THERMO DUMP: " << pVal << "   " << entrVal << "   " << BVal << "   "
-      << SVal << "   " << QVal << "   " << eVal << "   " << cs2Val << "   "
-      << db2 << "   " << dq2 << "   " << ds2 << "   " << dbdq << "   "
-      << dbds << "   " << dsdq << "   " << dtdb << "   " << dtdq << "   "
-      << dtds << "   " << dt2 << "   " << peos->name << endl;
-cout << "after" << endl;
+//cout << "before" << endl;
+//cout << "THERMO DUMP: " << pVal << "   " << entrVal << "   " << BVal << "   "
+//      << SVal << "   " << QVal << "   " << eVal << "   " << cs2Val << "   "
+//      << db2 << "   " << dq2 << "   " << ds2 << "   " << dbdq << "   "
+//      << dbds << "   " << dsdq << "   " << dtdb << "   " << dtdq << "   "
+//      << dtds << "   " << dt2 << "   " << peos->name << endl;
+//cout << "after" << endl;
 
 /*if (true) exit(1);*/
 }
