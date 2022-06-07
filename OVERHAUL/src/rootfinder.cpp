@@ -42,6 +42,7 @@ rootfinder_parameters::rootfinder_parameters(
 ////////////////////////////////////////////////////////////////////////////////
 int rootfinder_f(const gsl_vector *x, void *params, gsl_vector *f)
 {
+cout << "Entered at line = " << __LINE__ << endl;
     //x contains the next (T, muB, muS) coordinate to test
     vector<double> tbqsToEval(4);
     tbqsToEval[0] = gsl_vector_get(x,0);
@@ -96,6 +97,7 @@ int rootfinder_f(const gsl_vector *x, void *params, gsl_vector *f)
 //if (1) exit(1);
 
 
+cout << "Exited at line = " << __LINE__ << endl;
     return GSL_SUCCESS;
 }
 
@@ -152,8 +154,6 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
             std::function<void(double[], double[])> function_to_evaluate,
             vector<double> & updated_tbqs )
 {
-  return false; // what does this do?
-
   /////////////////////////////////////////////
   // e_or_s_mode == 0: using entropy density //
   // e_or_s_mode == 1: using energy density  //
@@ -188,11 +188,11 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
   ////////////////////
   // initialize multiroot solver
   gsl_multiroot_fsolver *solver;
-  gsl_multiroot_function f;
+  gsl_multiroot_function f = {&rootfinder_f, 4, &p};
 
-  f.n      = 4;
-  f.params = &p;
-  f.f      = &rootfinder_f;
+  //f.n      = 4;
+  //f.params = &p;
+  //f.f      = &rootfinder_f;
 
   const gsl_multiroot_fsolver_type *TYPE = gsl_multiroot_fsolver_hybrids;
   solver = gsl_multiroot_fsolver_alloc(TYPE, 4);
