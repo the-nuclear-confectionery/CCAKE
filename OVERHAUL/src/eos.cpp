@@ -392,7 +392,7 @@ bool EquationOfState::find_root_with_seed(
     {
       std::cout << " --> currently trying " << this_eos->name
                 << " EoS for solution..." << std::endl;
-      std::cout << "     - point: "
+      std::cout << "     - point(" << e_or_s_mode << "): "
                 << e_or_s_in << "   " << Bin << "   " << Sin << "   " << Qin
                 << std::endl;
       std::cout << "     - seed: "
