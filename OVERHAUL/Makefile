@@ -12,8 +12,14 @@ CC = h5c++
 DEBUG = -g -D_GLIBCXX_CONCEPT_CHECKS -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC
 #DEBUG=-g
 STANDARD= -std=c++11
-WARNINGS= -w -Wall -Wextra -pedantic -Wno-conversion -Wcast-align -Wunused \
-          -Wshadow -Wpointer-arith -Weffc++
+#WARNINGS= -w -Wall -Wextra -pedantic -Wno-conversion -Wcast-align -Wunused \
+#          -Wshadow -Wpointer-arith -Weffc++
+WARNINGS= -ansi -pedantic -Werror -Wall -W \
+          -Wmissing-prototypes -Wstrict-prototypes \
+					-Wconversion -Wshadow -Wpointer-arith \
+					-Wcast-qual -Wcast-align \
+					-Wwrite-strings -Wnested-externs \
+					-fshort-enums -fno-common -Dinline= -g -O2
 OPTIMIZATION=
 #OPTIMIZATION= -Og
 #OPTIMIZATION= -Ofast -s -march=native -mtune=native
