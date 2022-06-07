@@ -9,8 +9,8 @@ OBJS = $(OBJDIR)/input_output.o $(OBJDIR)/main.o $(OBJDIR)/vector.o \
 #CC = g++
 CC = h5c++
 
-#DEBUG = -g -D_GLIBCXX_CONCEPT_CHECKS -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC
-DEBUG=-g
+DEBUG = -g -D_GLIBCXX_CONCEPT_CHECKS -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC
+#DEBUG=-g
 STANDARD= -std=c++11
 WARNINGS= -w -Wall -Wextra -pedantic -Wno-conversion -Wcast-align -Wunused \
           -Wshadow -Wpointer-arith -Weffc++
