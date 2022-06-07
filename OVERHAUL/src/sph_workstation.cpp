@@ -636,7 +636,11 @@ if (p.print_this_particle)
         << p.thermo.e << "   "
         << p.thermo.cs2 << "   "
         << p.thermo.eos_name << endl;
-if (p.thermo.cs2<0) exit(8);
+  if (p.thermo.cs2<0)
+  {
+    cout << "cs2 was negative!" << endl;
+    abort();
+  }
 }
 
   return sVal;
@@ -680,7 +684,11 @@ if (p.print_this_particle)
         << p.thermo.e << "   "
         << p.thermo.cs2 << "   "
         << p.thermo.eos_name << endl;
-if (p.thermo.cs2<0) exit(8);
+  if (p.thermo.cs2<0)
+  {
+    cout << "cs2 was negative!" << endl;
+    abort();
+  }
 }
   return;
 }
