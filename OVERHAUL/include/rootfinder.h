@@ -1,6 +1,8 @@
 #ifndef ROOTFINDER_H
 #define ROOTFINDER_H
 
+using namespace std;
+
 #include <fstream>
 #include <functional>
 #include <iostream>

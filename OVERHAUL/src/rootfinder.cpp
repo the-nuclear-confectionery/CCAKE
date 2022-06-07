@@ -2,6 +2,8 @@
 
 #include "../include/rootfinder.h"
 
+using namespace std;
+
 ////////////////////////////////////////////////////////////////////////////////
 //struct to pass the target (E, rhoB, rhoQ, rhoS) into the rootfinder function
 struct rootfinder_parameters
