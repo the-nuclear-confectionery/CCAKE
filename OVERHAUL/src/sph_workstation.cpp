@@ -623,6 +623,10 @@ double SPHWorkstation::locate_phase_diagram_point_eBSQ( Particle & p,
     eos.set_thermo( p.thermo );
 
 if (p.print_this_particle)
+  cout << "input thermo: " << e_In << "   "
+        << rhoB_In << "   "
+        << rhoS_In << "   "
+        << rhoQ_In << endl;
   cout << "check thermo: " << systemPtr->t << "   "
         << p.thermo.T << "   "
         << p.thermo.muB << "   "

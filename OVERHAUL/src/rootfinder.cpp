@@ -42,7 +42,7 @@ rootfinder_parameters::rootfinder_parameters(
 ////////////////////////////////////////////////////////////////////////////////
 int rootfinder_f(const gsl_vector *x, void *params, gsl_vector *f)
 {
-cout << "Entered at line = " << __LINE__ << endl;
+//cout << "Entered at line = " << __LINE__ << endl;
     //x contains the next (T, muB, muS) coordinate to test
     vector<double> tbqsToEval(4);
     tbqsToEval[0] = gsl_vector_get(x,0);
@@ -97,7 +97,7 @@ cout << "Entered at line = " << __LINE__ << endl;
 //if (1) exit(1);
 
 
-cout << "Exited at line = " << __LINE__ << endl;
+//cout << "Exited at line = " << __LINE__ << endl;
     return GSL_SUCCESS;
 }
 
@@ -159,7 +159,7 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
   // e_or_s_mode == 1: using energy density  //
   /////////////////////////////////////////////
 
-  std::cout << "Starting new rootfinder4D call\n";
+//  std::cout << "Starting new rootfinder4D call\n";
 
   ////////////////////
   // set initial guess
