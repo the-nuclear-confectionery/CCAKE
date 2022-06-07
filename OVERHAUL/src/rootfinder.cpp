@@ -451,6 +451,10 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
 
 
     std::cout << "Start of attempt #" << number_of_attempts << " at line " << __LINE__ << "\n";
+    std::cout << "Check1: " << t0 << "   " << mub0 << "   " << muq0 << "   " << mus0 << "\n";
+    std::cout << "Check2: " << t10 << "   " << muB10 << "   " << muQ10 << "   " << muS10 << "\n";
+    std::cout << "Check3: " << tbqsPosition[0] << "   " << tbqsPosition[1]
+              << "   " << tbqsPosition[2] << "   " << tbqsPosition[3] << "\n";
 
     if ( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
                        function_to_evaluate, updated_tbqs ) ) 
@@ -465,6 +469,10 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
 
 
     std::cout << "Start of attempt #" << number_of_attempts << " at line " << __LINE__ << "\n";
+    std::cout << "Check1: " << t0 << "   " << mub0 << "   " << muq0 << "   " << mus0 << "\n";
+    std::cout << "Check2: " << t10 << "   " << muB10 << "   " << muQ10 << "   " << muS10 << "\n";
+    std::cout << "Check3: " << tbqsPosition[0] << "   " << tbqsPosition[1]
+              << "   " << tbqsPosition[2] << "   " << tbqsPosition[3] << "\n";
 
     if ( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
                        function_to_evaluate, updated_tbqs ) ) 
@@ -482,6 +490,10 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
 
 
     std::cout << "Start of attempt #" << number_of_attempts << " at line " << __LINE__ << "\n";
+    std::cout << "Check1: " << t0 << "   " << mub0 << "   " << muq0 << "   " << mus0 << "\n";
+    std::cout << "Check2: " << t10 << "   " << muB10 << "   " << muQ10 << "   " << muS10 << "\n";
+    std::cout << "Check3: " << tbqsPosition[0] << "   " << tbqsPosition[1]
+              << "   " << tbqsPosition[2] << "   " << tbqsPosition[3] << "\n";
 
     if( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs ) ) 
@@ -496,6 +508,11 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
 
 
     std::cout << "Start of attempt #" << number_of_attempts << " at line " << __LINE__ << "\n";
+    std::cout << "Start of attempt #" << number_of_attempts << " at line " << __LINE__ << "\n";
+    std::cout << "Check1: " << t0 << "   " << mub0 << "   " << muq0 << "   " << mus0 << "\n";
+    std::cout << "Check2: " << t10 << "   " << muB10 << "   " << muQ10 << "   " << muS10 << "\n";
+    std::cout << "Check3: " << tbqsPosition[0] << "   " << tbqsPosition[1]
+              << "   " << tbqsPosition[2] << "   " << tbqsPosition[3] << "\n";
 
     if ( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs ) ) 
@@ -513,6 +530,11 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
 
 
     std::cout << "Start of attempt #" << number_of_attempts << " at line " << __LINE__ << "\n";
+    std::cout << "Start of attempt #" << number_of_attempts << " at line " << __LINE__ << "\n";
+    std::cout << "Check1: " << t0 << "   " << mub0 << "   " << muq0 << "   " << mus0 << "\n";
+    std::cout << "Check2: " << t10 << "   " << muB10 << "   " << muQ10 << "   " << muS10 << "\n";
+    std::cout << "Check3: " << tbqsPosition[0] << "   " << tbqsPosition[1]
+              << "   " << tbqsPosition[2] << "   " << tbqsPosition[3] << "\n";
 
     if( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs ) ) 
@@ -527,6 +549,10 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
 
 
     std::cout << "Start of attempt #" << number_of_attempts << " at line " << __LINE__ << "\n";
+    std::cout << "Check1: " << t0 << "   " << mub0 << "   " << muq0 << "   " << mus0 << "\n";
+    std::cout << "Check2: " << t10 << "   " << muB10 << "   " << muQ10 << "   " << muS10 << "\n";
+    std::cout << "Check3: " << tbqsPosition[0] << "   " << tbqsPosition[1]
+              << "   " << tbqsPosition[2] << "   " << tbqsPosition[3] << "\n";
 
     if( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs ) ) 
@@ -544,6 +570,10 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
 
 
     std::cout << "Start of attempt #" << number_of_attempts << " at line " << __LINE__ << "\n";
+    std::cout << "Check1: " << t0 << "   " << mub0 << "   " << muq0 << "   " << mus0 << "\n";
+    std::cout << "Check2: " << t10 << "   " << muB10 << "   " << muQ10 << "   " << muS10 << "\n";
+    std::cout << "Check3: " << tbqsPosition[0] << "   " << tbqsPosition[1]
+              << "   " << tbqsPosition[2] << "   " << tbqsPosition[3] << "\n";
 
     if( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs ) ) 
@@ -558,6 +588,10 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
 
 
     std::cout << "Start of attempt #" << number_of_attempts << " at line " << __LINE__ << "\n";
+    std::cout << "Check1: " << t0 << "   " << mub0 << "   " << muq0 << "   " << mus0 << "\n";
+    std::cout << "Check2: " << t10 << "   " << muB10 << "   " << muQ10 << "   " << muS10 << "\n";
+    std::cout << "Check3: " << tbqsPosition[0] << "   " << tbqsPosition[1]
+              << "   " << tbqsPosition[2] << "   " << tbqsPosition[3] << "\n";
 
     if( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs ) ) 
@@ -571,6 +605,10 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
 
 
     std::cout << "Start of attempt #" << number_of_attempts << " at line " << __LINE__ << "\n";
+    std::cout << "Check1: " << t0 << "   " << mub0 << "   " << muq0 << "   " << mus0 << "\n";
+    std::cout << "Check2: " << t10 << "   " << muB10 << "   " << muQ10 << "   " << muS10 << "\n";
+    std::cout << "Check3: " << tbqsPosition[0] << "   " << tbqsPosition[1]
+              << "   " << tbqsPosition[2] << "   " << tbqsPosition[3] << "\n";
 
     if( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs ) ) 
