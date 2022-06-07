@@ -400,7 +400,7 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
     else
     {
       std::cerr << "e_or_s = " << e_or_s << " is an invalid choice!\n";
-      exit(8);
+      abort();
     }
 
     int number_of_attempts = 1;
@@ -423,6 +423,14 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
         << updated_tbqs[3]*hbarc_MeVfm << std::endl;
 
     tbqsPosition = updated_tbqs;
+
+
+    // DO NOT USE ZEROS IN SEED VALUES;
+    // INSTEAD, PERTURB BASED ON SIGN OF CORRESPONDING DENSITY
+    auto sgn = [](double val){ return (0.0 < val) - (val < 0.0); };
+    vector<double> sgns = {1.0, sgn(Bin), sgn(Qin), sgn(Sin)};
+    if ( tbqsPosition[iTBQS]*tbqsPosition[iTBQS] < TINY )
+      tbqsPosition[iTBQS] = std::min(0.5*tbqs_maxima[iTBQS], 1.0)*sgns[iTBQS];
 
 
     std::cout << "Start of attempt #" << number_of_attempts << " at line " << __LINE__ << "\n";
@@ -605,12 +613,11 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
 
     //==========================================================================
     //check mu = 0
-    auto sgn = [](double val){ return (0.0 < val) - (val < 0.0); };
 
     // perturb to avoid singular jacobians(?)
-    tbqs( t0, std::min(0.5*maxMuB, 1.0)*sgn(mub0),
-              std::min(0.5*maxMuQ, 1.0)*sgn(muq0),
-              std::min(0.5*maxMuS, 1.0)*sgn(mus0) );
+    tbqs( t0, std::min(0.5*maxMuB, 1.0)*sgn(Bin),
+              std::min(0.5*maxMuQ, 1.0)*sgn(Qin),
+              std::min(0.5*maxMuS, 1.0)*sgn(Sin) );
 
     number_of_attempts++;
 
