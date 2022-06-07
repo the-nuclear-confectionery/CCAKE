@@ -49,7 +49,7 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 
     for (int i=0; i<systemPtr->n_particles; i++)
     {
-  if ( VERBOSE > 5 )
+  if ( VERBOSE > 5 || p.print_this_particle )
   {
       cout << "----------------------------------------"
           "----------------------------------------" << "\n";
@@ -61,7 +61,7 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 		
 		{
 			sw.Start();
-  if ( VERBOSE > 5 )
+  if ( VERBOSE > 5 || p.print_this_particle )
   {
 			cout << setprecision(12) << "Doing this particle: "
 					<< p.r(0) << "   " << p.r(1) << "\n";
@@ -71,7 +71,7 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
                     p.input.e, p.input.rhoB, p.input.rhoS, p.input.rhoQ );
 
 			sw.Stop();
-  if ( VERBOSE > 5 )
+  if ( VERBOSE > 5 || p.print_this_particle )
   {
 			string successString = (p.input.s < 0.0) ?
 									"unsuccessfully" : "successfully";
@@ -96,7 +96,7 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 		}
 		else
 		{
-  if ( VERBOSE > 5 )
+  if ( VERBOSE > 5 || p.print_this_particle )
   {
 			std::cout << "\t --> Solution info: "
                 << p.r(0) << "   " << p.r(1) << "   "
@@ -127,7 +127,7 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
     p.norm_spec.rhoS *= p.input.rhoS*p.hydro.gamma*settingsPtr->t0; // constant after this
     p.norm_spec.rhoQ *= p.input.rhoQ*p.hydro.gamma*settingsPtr->t0; // constant after this
 
-  if ( VERBOSE > 5 )
+  if ( VERBOSE > 5 || p.print_this_particle )
   {
 	cout << "----------------------------------------"
 			"----------------------------------------" << "\n";
