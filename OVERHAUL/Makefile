@@ -15,10 +15,8 @@ STANDARD= -std=c++11
 #WARNINGS= -w -Wall -Wextra -pedantic -Wno-conversion -Wcast-align -Wunused \
 #          -Wshadow -Wpointer-arith -Weffc++
 WARNINGS= -ansi -pedantic -Wall -W \
-          -Wmissing-prototypes -Wstrict-prototypes \
 					-Wconversion -Wshadow -Wpointer-arith \
-					-Wcast-qual -Wcast-align \
-					-Wwrite-strings -Wnested-externs \
+					-Wcast-qual -Wcast-align -Wwrite-strings \
 					-fshort-enums -fno-common -Dinline= -g -O2
 OPTIMIZATION=
 #OPTIMIZATION= -Og
