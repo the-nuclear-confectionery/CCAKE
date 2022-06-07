@@ -1,9 +1,9 @@
 OBJDIR=obj
-OBJS = $(OBJDIR)/input_output.o $(OBJDIR)/main.o $(OBJDIR)/vector.o \
+OBJS = $(OBJDIR)/rootfinder.o $(OBJDIR)/main.o $(OBJDIR)/vector.o \
 			 $(OBJDIR)/matrix.o $(OBJDIR)/BSQHydro.o $(OBJDIR)/particle.o $(OBJDIR)/eos.o \
        $(OBJDIR)/system_state.o $(OBJDIR)/linklist.o $(OBJDIR)/eos_delaunay.o \
-			 $(OBJDIR)/kernel.o $(OBJDIR)/sph_workstation.o \
-			 $(OBJDIR)/rootfinder.o $(OBJDIR)/eos_table.o $(OBJDIR)/eos_extension.o \
+			 $(OBJDIR)/input_output.o $(OBJDIR)/kernel.o $(OBJDIR)/sph_workstation.o \
+			 $(OBJDIR)/eos_table.o $(OBJDIR)/eos_extension.o \
 			 $(OBJDIR)/formatted_output.o $(OBJDIR)/transport_coefficients.o
 			 
 #CC = g++
@@ -14,7 +14,7 @@ DEBUG = -g -D_GLIBCXX_CONCEPT_CHECKS -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC
 STANDARD= -std=c++11
 #WARNINGS= -w -Wall -Wextra -pedantic -Wno-conversion -Wcast-align -Wunused \
 #          -Wshadow -Wpointer-arith -Weffc++
-WARNINGS= -ansi -pedantic -Werror -Wall -W \
+WARNINGS= -ansi -pedantic -Wall -W \
           -Wmissing-prototypes -Wstrict-prototypes \
 					-Wconversion -Wshadow -Wpointer-arith \
 					-Wcast-qual -Wcast-align \
