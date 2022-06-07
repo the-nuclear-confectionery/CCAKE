@@ -124,6 +124,14 @@ public:
     // point: (T, muB, muQ, muS)
     const double Tsol   = point[0], muBsol = point[1],
                  muQsol = point[2], muSsol = point[3];
+std::cout << __FUNCTION__ << "::" << __LINE__ << ": " << point[0] << std::endl;
+std::cout << __FUNCTION__ << "::" << __LINE__ << ": " << point[1] << std::endl;
+std::cout << __FUNCTION__ << "::" << __LINE__ << ": " << point[2] << std::endl;
+std::cout << __FUNCTION__ << "::" << __LINE__ << ": " << point[3] << std::endl;
+std::cout << __FUNCTION__ << "::" << __LINE__ << ": " << results[0] << std::endl;
+std::cout << __FUNCTION__ << "::" << __LINE__ << ": " << results[1] << std::endl;
+std::cout << __FUNCTION__ << "::" << __LINE__ << ": " << results[2] << std::endl;
+std::cout << __FUNCTION__ << "::" << __LINE__ << ": " << results[3] << std::endl;
     double POut        = p(Tsol, muBsol, muQsol, muSsol);
     double sOut        = s(Tsol, muBsol, muQsol, muSsol);
     double BOut        = B(Tsol, muBsol, muQsol, muSsol);

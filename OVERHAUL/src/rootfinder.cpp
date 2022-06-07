@@ -63,7 +63,7 @@ int rootfinder_f(const gsl_vector *x, void *params, gsl_vector *f)
     {
       double phase_diagram_point[4]
               = { tbqsToEval[0], tbqsToEval[1], tbqsToEval[2], tbqsToEval[3] };
-      double densities_at_point[4] = {0.0, 0.0, 0.0, 0.0};
+      double densities_at_point[4] = {-1.0, -1.0, -1.0, -1.0};
 
       // compute densities using passed-in function object
       get_densities( phase_diagram_point, densities_at_point );
