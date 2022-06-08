@@ -626,8 +626,8 @@ if (p.print_this_particle)
   cout << "input thermo: " << e_In << "   "
         << rhoB_In << "   "
         << rhoS_In << "   "
-        << rhoQ_In << endl;
-  cout << "check thermo: " << systemPtr->t << "   "
+        << rhoQ_In << endl
+        << "check thermo: " << systemPtr->t << "   "
         << p.thermo.T << "   "
         << p.thermo.muB << "   "
         << p.thermo.muS << "   "
@@ -675,7 +675,11 @@ void SPHWorkstation::locate_phase_diagram_point_sBSQ( Particle & p,
     eos.set_thermo( p.thermo );
 
 if (p.print_this_particle)
-  cout << "check thermo: " << systemPtr->t << "   "
+  cout << "input thermo: " << s_In << "   "
+        << rhoB_In << "   "
+        << rhoS_In << "   "
+        << rhoQ_In << endl
+        << "check thermo: " << systemPtr->t << "   "
         << p.thermo.T << "   "
         << p.thermo.muB << "   "
         << p.thermo.muS << "   "
