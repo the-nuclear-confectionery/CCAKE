@@ -500,10 +500,10 @@ cout << "=======================================================================
   double muSend   = muSstart;
   double muQend   = muQstart;
 
-  for (double T0   = Tstart;   T0   <= Tend   + 0.01; T0 += 500.0)
+  for (double T0   = Tstart;   T0   <= Tend   + 0.01; T0   += 500.0)
   for (double muB0 = muBstart; muB0 <= muBend + 0.01; muB0 += 500.0)
-  for (double muQ0 = muQstart; muQ0 <= muBend + 0.01; muQ0 += 500.0)
-  for (double muS0 = muSstart; muS0 <= muBend + 0.01; muS0 += 500.0)
+  for (double muQ0 = muQstart; muQ0 <= muQend + 0.01; muQ0 += 500.0)
+  for (double muS0 = muSstart; muS0 <= muSend + 0.01; muS0 += 500.0)
   {
     std::cout << "GETTING THERMODYNAMICS" << std::endl;
     std::vector<double> point = {T0/hc, muB0/hc, muQ0/hc, muS0/hc};
