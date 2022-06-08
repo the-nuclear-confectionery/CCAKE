@@ -827,10 +827,10 @@ double DEntrDTTaylor(double T, double muB, double muQ, double muS){
 
 // Speed of Sound expression.
 double SpSound(double T, double muB, double muQ, double muS){
-//   C1B = BarDensTaylor(T,muB,muS,muQ);
-//   C1Q = ChDensTaylor(T,muB,muS,muQ);
-//   C1S = StrDensTaylor(T,muB,muS,muQ);
-//   C1T = EntrTaylor(T,muB,muS,muQ);
+   C1B = BarDensTaylor(T,muB,muS,muQ);
+   C1Q = ChDensTaylor(T,muB,muS,muQ);
+   C1S = StrDensTaylor(T,muB,muS,muQ);
+   C1T = EntrTaylor(T,muB,muS,muQ);
    
    C2B2 = Chi2BTaylor(T,muB,muS,muQ);   
    C2Q2 = Chi2QTaylor(T,muB,muS,muQ);
@@ -843,10 +843,10 @@ double SpSound(double T, double muB, double muQ, double muS){
    C2TS = DStrDensDTTaylor(T,muB,muS,muQ);
    C2T2 = DEntrDTTaylor(T,muB,muS,muQ);
 
-   C1B = BarDensTaylor(T,muB,muQ,muS);
-   C1Q = ChDensTaylor(T,muB,muQ,muS);
-   C1S = StrDensTaylor(T,muB,muQ,muS);
-   C1T = EntrTaylor(T,muB,muQ,muS);
+//   C1B = BarDensTaylor(T,muB,muQ,muS);
+//   C1Q = ChDensTaylor(T,muB,muQ,muS);
+//   C1S = StrDensTaylor(T,muB,muQ,muS);
+//   C1T = EntrTaylor(T,muB,muQ,muS);
    
 //   C2B2 = Chi2BTaylor(T,muB,muQ,muS);   
 //   C2Q2 = Chi2QTaylor(T,muB,muQ,muS);
