@@ -512,7 +512,7 @@ void EoS_table::get_full_thermo_safe( const double point_in[], double results[] 
                                                results );
 
   // option to print results
-  if ( VERBOSE > 8 )
+  //if ( VERBOSE > 8 )
   {
     cout << "Thermo:" << endl;
     for (int i = 0; i < 17; i++)
