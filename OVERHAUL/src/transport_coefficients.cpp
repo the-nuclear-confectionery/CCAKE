@@ -329,7 +329,6 @@ double TransportCoefficients::cs2_dependent_zeta()
         << A*factor*pow((1.0/3.0)-therm.cs2, p) << endl;
   const double zeta_over_s_local = A*factor*pow((1.0/3.0)-therm.cs2, p);
 
-//  if ( zeta_over_s_local > 1.0 )
   if ( therm.cs2 < 0.0 || therm.cs2 > 1.0 )
   {
     cout << "ERROR: " << zeta_over_s_local << "   "
@@ -352,7 +351,29 @@ double TransportCoefficients::cs2_dependent_zeta()
         << p << "   "
         << pow((1.0/3.0)-therm.cs2, p) << endl;
     //abort();
-}
+  }
+  if ( zeta_over_s_local > 0.1 )
+  {
+    cout << "LARGE ZETA/S: " << zeta_over_s_local << "   "
+        << x_p << "   "
+        << th_x << "   "
+        << factor << ";   "
+        << therm.T << "   "
+        << therm.muB << "   "
+        << therm.muS << "   "
+        << therm.muQ << "   "
+        << therm.p << "   "
+        << therm.s << "   "
+        << therm.rhoB << "   "
+        << therm.rhoS << "   "
+        << therm.rhoQ << "   "
+        << therm.e << "   "
+        << therm.cs2 << "   "
+        << therm.eos_name << "   "
+        << A << "   "
+        << p << "   "
+        << pow((1.0/3.0)-therm.cs2, p) << endl;
+  }
 
   return A*factor*pow((1.0/3.0)-therm.cs2, p)*therm.s;
 }
