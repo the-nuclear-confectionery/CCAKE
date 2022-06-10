@@ -905,11 +905,11 @@ double SpSoundReadable(double T, double muB, double muQ, double muS)
   double C2SS = Chi2STaylor(T,muB,muS,muQ);
   C2BQ = Chi11BQTaylor(T,muB,muS,muQ);
   C2BS = Chi11BSTaylor(T,muB,muS,muQ);
-  C2QS = Chi11QSTaylor(T,muB,muS,muQ);
+  double C2SQ = Chi11QSTaylor(T,muB,muS,muQ);
   C2TB = DBarDensDTTaylor(T,muB,muS,muQ);
   C2TQ = DChDensDTTaylor(T,muB,muS,muQ);
   C2TS = DStrDensDTTaylor(T,muB,muS,muQ);
-  C2T2 = DEntrDTTaylor(T,muB,muS,muQ);
+  double C2TT = DEntrDTTaylor(T,muB,muS,muQ);
 
   double Delta = C2BS*C2BS*C2QQ + C2SQ*C2SQ*C2BB + C2BQ*C2BQ*C2SS
                   - 2.0*C2BQ*C2BS*C2SQ - C2BB*C2SS*C2QQ;
@@ -926,26 +926,12 @@ double SpSoundReadable(double T, double muB, double muQ, double muS)
   double DTBQS = C2BS*C2TQ - C2BQ*C2TS;
   double DTSQB = C2BS*C2TQ - C2SQ*C2TB;
   double DBQQS = C2BQ*C2SQ - C2BS*C2QQ;
-  double DTQQS = C2SQ*C2TQ - C2QQ*C2TS;
-  double DTQQB = C2BQ*C2TQ - C2QQ*C2TB;
   double DTBSQ = C2BQ*C2TS - C2BS*C2TQ;
   double DTQSB = C2BQ*C2TS - C2SQ*C2TB;
   double DBSSQ = C2BS*C2SQ - C2BQ*C2SS;
-  double DTSSQ = C2SQ*C2TS - C2SS*C2TQ;
-  double DTSSB = C2BS*C2TS - C2SS*C2TB;
   double DTQBS = C2SQ*C2TB - C2BQ*C2TS;
   double DTSBQ = C2SQ*C2TB - C2BS*C2TQ;
   double DSBBQ = C2BQ*C2BS - C2BB*C2SQ;
-  double DTBBQ = C2BQ*C2TB - C2BB*C2TQ;
-  double DTBBS = C2BS*C2TB - C2BB*C2TS;
-  double DSQSQ = C2QQ*C2SS - C2SQ*C2SQ;
-  double DBSSQ = C2BS*C2SQ - C2BQ*C2SS;
-  double DBQQS = C2BQ*C2SQ - C2BS*C2QQ;
-  double DBQBQ = C2BB*C2QQ - C2BQ*C2BQ;
-  double DBQQS = C2BQ*C2SQ - C2BS*C2QQ;
-  double DBSQB = C2BQ*C2BS - C2BB*C2SQ;
-  double DBSBS = C2BB*C2SS - C2BS*C2BS;
-  double DBSSQ = C2BS*C2SQ - C2BQ*C2SS;
   double DBSQB = C2BQ*C2BS - C2BB*C2SQ;
 
   double D1 = C2TS*DBQQS + C2TQ*DBSSQ + C2TB*DSQSQ;

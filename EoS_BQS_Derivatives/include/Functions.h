@@ -175,6 +175,7 @@ double DStrDensDTTaylor(double T, double muB, double muQ, double muS);
 double DEntrDTTaylor(double T, double muB, double muQ, double muS);
 
 double SpSound(double T, double muB, double muQ, double muS);
+double SpSoundReadable(double T, double muB, double muQ, double muS);
 
 double P2B2(double T, double muB, double muQ, double muS);
 double P2Q2(double T, double muB, double muQ, double muS);
