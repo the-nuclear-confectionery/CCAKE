@@ -1019,7 +1019,7 @@ double SpSoundReadable(double T, double muB, double muQ, double muS)
   double dpdQ = (C1T*DQ + C1B*MQB + C1S*MQS + C1Q*MQQ)
                 / (C2TQ*DQ + C2BQ*MQB + C2SQ*MQS + C2QQ*MQQ);
 
-  double e_plus_p = C1T + (C1B*muB + C1S*muS + C1Q*muQ)/T;
+  double e_plus_p = C1T*T + C1B*muB + C1S*muS + C1Q*muQ;
 
   printf("v2: %lf %lf %lf %lf\n", dpde, C1B*dpdB/e_plus_p,
                                   C1S*dpdS/e_plus_p, C1Q*dpdQ/e_plus_p);
