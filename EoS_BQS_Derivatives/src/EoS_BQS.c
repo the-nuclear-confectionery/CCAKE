@@ -513,9 +513,9 @@ int main(int argc, char *argv[])
 {
   double T0 = 150.0*exp(-0.1*(4.15*4.15 + 0.05*0.05));
   double muB0 = 200.0, muQ0 = 300.0, muS0 = 400.0;
-  printf("cs2: %15.12f %15.12f\n",
-    SpSound(T0, muB0, muQ0, muS0),
-    SpSoundReadable(T0, muB0, muQ0, muS0) );
+  double cs2_v1 = SpSound(T0, muB0, muQ0, muS0);
+  double cs2_v2 = SpSoundReadable(T0, muB0, muQ0, muS0);
+  printf("cs2: %15.12f %15.12f\n", cs2_v1, cs2_v2 );
 
 	if (1) exit(-1);
 }
