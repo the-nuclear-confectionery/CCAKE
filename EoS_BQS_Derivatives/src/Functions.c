@@ -824,7 +824,7 @@ double DEntrDTTaylor(double T, double muB, double muQ, double muS){
 
 
 
-
+/*
 // Speed of Sound expression.
 double SpSound(double T, double muB, double muQ, double muS){
    C1B = BarDensTaylor(T,muB,muS,muQ);
@@ -929,23 +929,25 @@ double term4 = T*(C1S/(muB*C1B + muQ*C1Q + muS*C1S + T*C1T))*(pow(C2QS,2)*muS*(C
             + C2S2*pow(C2TQ,2) - 2*C2QS*C2TQ*C2TS + C2Q2*pow(C2TS,2)))*T);
 }
 
+*/
+
 double SpSoundReadable(double T, double muB, double muQ, double muS)
 {
-  C1B = BarDensTaylor(T,muB,muS,muQ)*T*T*T;
-  C1Q = ChDensTaylor(T,muB,muS,muQ)*T*T*T;
-  C1S = StrDensTaylor(T,muB,muS,muQ)*T*T*T;
-  C1T = EntrTaylor(T,muB,muS,muQ)*T*T*T;
+  C1B = BarDensTaylor(T,muB,muQ,muS)*T*T*T;
+  C1Q = ChDensTaylor(T,muB,muQ,muS)*T*T*T;
+  C1S = StrDensTaylor(T,muB,muQ,muS)*T*T*T;
+  C1T = EntrTaylor(T,muB,muQ,muS)*T*T*T;
 
-  double C2BB = Chi2BTaylor(T,muB,muS,muQ)*T*T;   
-  double C2QQ = Chi2QTaylor(T,muB,muS,muQ)*T*T;
-  double C2SS = Chi2STaylor(T,muB,muS,muQ)*T*T;
-  C2BQ = Chi11BQTaylor(T,muB,muS,muQ)*T*T;
-  C2BS = Chi11BSTaylor(T,muB,muS,muQ)*T*T;
-  double C2SQ = Chi11QSTaylor(T,muB,muS,muQ)*T*T;
-  C2TB = DBarDensDTTaylor(T,muB,muS,muQ)*T*T;
-  C2TQ = DChDensDTTaylor(T,muB,muS,muQ)*T*T;
-  C2TS = DStrDensDTTaylor(T,muB,muS,muQ)*T*T;
-  double C2TT = DEntrDTTaylor(T,muB,muS,muQ)*T*T;
+  double C2BB = Chi2BTaylor(T,muB,muQ,muS)*T*T;   
+  double C2QQ = Chi2QTaylor(T,muB,muQ,muS)*T*T;
+  double C2SS = Chi2STaylor(T,muB,muQ,muS)*T*T;
+  C2BQ = Chi11BQTaylor(T,muB,muQ,muS)*T*T;
+  C2BS = Chi11BSTaylor(T,muB,muQ,muS)*T*T;
+  double C2SQ = Chi11QSTaylor(T,muB,muQ,muS)*T*T;
+  C2TB = DBarDensDTTaylor(T,muB,muQ,muS)*T*T;
+  C2TQ = DChDensDTTaylor(T,muB,muQ,muS)*T*T;
+  C2TS = DStrDensDTTaylor(T,muB,muQ,muS)*T*T;
+  double C2TT = DEntrDTTaylor(T,muB,muQ,muS)*T*T;
 
   double Delta = C2BS*C2BS*C2QQ + C2SQ*C2SQ*C2BB + C2BQ*C2BQ*C2SS
                   - 2.0*C2BQ*C2BS*C2SQ - C2BB*C2SS*C2QQ;
@@ -1035,42 +1037,42 @@ double SpSoundReadable(double T, double muB, double muQ, double muS)
 
 double P2B2(double T, double muB, double muQ, double muS)
 {   
-   return Chi2BTaylor(T,muB,muS,muQ);
+   return Chi2BTaylor(T,muB,muQ,muS);
 }
 
 double P2Q2(double T, double muB, double muQ, double muS){
-   return Chi2QTaylor(T,muB,muS,muQ);
+   return Chi2QTaylor(T,muB,muQ,muS);
 }
 
 double P2S2(double T, double muB, double muQ, double muS){
-   return Chi2STaylor(T,muB,muS,muQ);
+   return Chi2STaylor(T,muB,muQ,muS);
 }
 
 double P2BQ(double T, double muB, double muQ, double muS){
-   return Chi11BQTaylor(T,muB,muS,muQ);
+   return Chi11BQTaylor(T,muB,muQ,muS);
 }
 
 double P2BS(double T, double muB, double muQ, double muS){
-   return Chi11BSTaylor(T,muB,muS,muQ);
+   return Chi11BSTaylor(T,muB,muQ,muS);
 }
 
 double P2QS(double T, double muB, double muQ, double muS){
-   return Chi11QSTaylor(T,muB,muS,muQ);
+   return Chi11QSTaylor(T,muB,muQ,muS);
 }
 
 double P2TB(double T, double muB, double muQ, double muS){
-   return DBarDensDTTaylor(T,muB,muS,muQ);
+   return DBarDensDTTaylor(T,muB,muQ,muS);
 }
 
 double P2TQ(double T, double muB, double muQ, double muS){
-   return DChDensDTTaylor(T,muB,muS,muQ);
+   return DChDensDTTaylor(T,muB,muQ,muS);
 }
 
 double P2TS(double T, double muB, double muQ, double muS){
-   return DStrDensDTTaylor(T,muB,muS,muQ);
+   return DStrDensDTTaylor(T,muB,muQ,muS);
 }
 
 double P2T2(double T, double muB, double muQ, double muS){
-   return DEntrDTTaylor(T,muB,muS,muQ);
+   return DEntrDTTaylor(T,muB,muQ,muS);
 }
 #undef NRANSI
