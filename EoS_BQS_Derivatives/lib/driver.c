@@ -442,7 +442,8 @@ void get_full_thermo(double point[], double thermodynamics[])
 	thermodynamics[3]  = SOut;
 	thermodynamics[4]  = QOut;
 	thermodynamics[5]  = eOut / 197.3;
-	thermodynamics[6]  = SpSound(Tsol, muBsol, muQsol, muSsol);
+//	thermodynamics[6]  = SpSound(Tsol, muBsol, muQsol, muSsol);
+	thermodynamics[6]  = SpSoundReadable(Tsol, muBsol, muQsol, muSsol);
 				
 	//Second Order Derivatives (prefactor converts to physical susceptibilities in fm^-2)
 	thermodynamics[7]  = Tsol2_by_hc2*P2B2(Tsol, muBsol, muQsol, muSsol);
@@ -541,7 +542,8 @@ void STANDARD_get_full_thermo(double point[], double thermodynamics[])
 	thermodynamics[3]  = SOut;
 	thermodynamics[4]  = QOut;
 	thermodynamics[5]  = eOut / 197.3;
-	thermodynamics[6]  = SpSound(Tsol, muBsol, muQsol, muSsol);
+//	thermodynamics[6]  = SpSound(Tsol, muBsol, muQsol, muSsol);
+	thermodynamics[6]  = SpSoundReadable(Tsol, muBsol, muQsol, muSsol);
 				
 	//Second Order Derivatives (prefactor converts to physical susceptibilities in fm^-2)
 	thermodynamics[7]  = Tsol2_by_hc2*P2B2(Tsol, muBsol, muQsol, muSsol);
