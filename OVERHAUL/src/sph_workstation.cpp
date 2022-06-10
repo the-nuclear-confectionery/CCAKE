@@ -622,7 +622,8 @@ double SPHWorkstation::locate_phase_diagram_point_eBSQ( Particle & p,
 {
     eos.set_thermo( p.thermo );
 
-//if (p.print_this_particle)
+  if (p.thermo.cs2<0)
+  {
   cout << "input thermo: " << e_In << "   "
         << rhoB_In << "   "
         << rhoS_In << "   "
@@ -640,8 +641,6 @@ double SPHWorkstation::locate_phase_diagram_point_eBSQ( Particle & p,
         << p.thermo.e << "   "
         << p.thermo.cs2 << "   "
         << p.thermo.eos_name << endl;
-  if (p.thermo.cs2<0)
-  {
     cout << __LINE__ << "cs2 was negative!" << endl;
     exit(8);
   }
@@ -674,7 +673,8 @@ void SPHWorkstation::locate_phase_diagram_point_sBSQ( Particle & p,
 {
     eos.set_thermo( p.thermo );
 
-//if (p.print_this_particle)
+  if (p.thermo.cs2<0)
+  {
   cout << "input thermo: " << s_In << "   "
         << rhoB_In << "   "
         << rhoS_In << "   "
@@ -692,8 +692,6 @@ void SPHWorkstation::locate_phase_diagram_point_sBSQ( Particle & p,
         << p.thermo.e << "   "
         << p.thermo.cs2 << "   "
         << p.thermo.eos_name << endl;
-  if (p.thermo.cs2<0)
-  {
     cout << __LINE__ << "cs2 was negative!" << endl;
     exit(8);
   }
