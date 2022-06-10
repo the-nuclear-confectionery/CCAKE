@@ -893,10 +893,120 @@ double SpSound(double T, double muB, double muQ, double muS){
             + C2S2*pow(C2TQ,2) - 2*C2QS*C2TQ*C2TS + C2Q2*pow(C2TS,2)))*T);
 }
 
+double SpSoundReadable(double T, double muB, double muQ, double muS)
+{
+  C1B = BarDensTaylor(T,muB,muS,muQ);
+  C1Q = ChDensTaylor(T,muB,muS,muQ);
+  C1S = StrDensTaylor(T,muB,muS,muQ);
+  C1T = EntrTaylor(T,muB,muS,muQ);
+
+  double C2BB = Chi2BTaylor(T,muB,muS,muQ);   
+  double C2QQ = Chi2QTaylor(T,muB,muS,muQ);
+  double C2SS = Chi2STaylor(T,muB,muS,muQ);
+  C2BQ = Chi11BQTaylor(T,muB,muS,muQ);
+  C2BS = Chi11BSTaylor(T,muB,muS,muQ);
+  C2QS = Chi11QSTaylor(T,muB,muS,muQ);
+  C2TB = DBarDensDTTaylor(T,muB,muS,muQ);
+  C2TQ = DChDensDTTaylor(T,muB,muS,muQ);
+  C2TS = DStrDensDTTaylor(T,muB,muS,muQ);
+  C2T2 = DEntrDTTaylor(T,muB,muS,muQ);
+
+  double Delta = C2BS*C2BS*C2QQ + C2SQ*C2SQ*C2BB + C2BQ*C2BQ*C2SS
+                  - 2.0*C2BQ*C2BS*C2SQ - C2BB*C2SS*C2QQ;
+
+  double DTSSQ = C2SQ*C2TS - C2SS*C2TQ;
+  double DTQQS = C2SQ*C2TQ - C2QQ*C2TS;
+  double DSQSQ = C2QQ*C2SS - C2SQ*C2SQ;
+  double DTQQB = C2BQ*C2TQ - C2QQ*C2TB;
+  double DTBBQ = C2BQ*C2TB - C2BB*C2TQ;
+  double DBQBQ = C2BB*C2QQ - C2BQ*C2BQ;
+  double DTSSB = C2BS*C2TS - C2SS*C2TB;
+  double DTBBS = C2BS*C2TB - C2BB*C2TS;
+  double DBSBS = C2BB*C2SS - C2BS*C2BS;
+  double DTBQS = C2BS*C2TQ - C2BQ*C2TS;
+  double DTSQB = C2BS*C2TQ - C2SQ*C2TB;
+  double DBQQS = C2BQ*C2SQ - C2BS*C2QQ;
+  double DTQQS = C2SQ*C2TQ - C2QQ*C2TS;
+  double DTQQB = C2BQ*C2TQ - C2QQ*C2TB;
+  double DTBSQ = C2BQ*C2TS - C2BS*C2TQ;
+  double DTQSB = C2BQ*C2TS - C2SQ*C2TB;
+  double DBSSQ = C2BS*C2SQ - C2BQ*C2SS;
+  double DTSSQ = C2SQ*C2TS - C2SS*C2TQ;
+  double DTSSB = C2BS*C2TS - C2SS*C2TB;
+  double DTQBS = C2SQ*C2TB - C2BQ*C2TS;
+  double DTSBQ = C2SQ*C2TB - C2BS*C2TQ;
+  double DSBBQ = C2BQ*C2BS - C2BB*C2SQ;
+  double DTBBQ = C2BQ*C2TB - C2BB*C2TQ;
+  double DTBBS = C2BS*C2TB - C2BB*C2TS;
+  double DSQSQ = C2QQ*C2SS - C2SQ*C2SQ;
+  double DBSSQ = C2BS*C2SQ - C2BQ*C2SS;
+  double DBQQS = C2BQ*C2SQ - C2BS*C2QQ;
+  double DBQBQ = C2BB*C2QQ - C2BQ*C2BQ;
+  double DBQQS = C2BQ*C2SQ - C2BS*C2QQ;
+  double DBSQB = C2BQ*C2BS - C2BB*C2SQ;
+  double DBSBS = C2BB*C2SS - C2BS*C2BS;
+  double DBSSQ = C2BS*C2SQ - C2BQ*C2SS;
+  double DBSQB = C2BQ*C2BS - C2BB*C2SQ;
+
+  double D1 = C2TS*DBQQS + C2TQ*DBSSQ + C2TB*DSQSQ;
+  double D2 = C2TS*DBQBQ + C2TB*DBQQS + C2TQ*DBSQB;
+  double D3 = C2TQ*DBSBS + C2TS*DBSQB + C2TB*DBSSQ;
+
+  double DBB = C2TT*DSQSQ + C2TS*DTQQS + C2TQ*DTSSQ;
+  double DQQ = C2TT*DBQBQ + C2TQ*DTBBQ + C2TB*DTQQB;
+  double DSS = C2TT*DBSBS + C2TS*DTBBS + C2TB*DTSSB;
+  double DBS = C2TT*DBQQS - 0.5*(C2TS*DTQQB + C2TB*DTQQS) + 0.5*(C2TQ*DTBQS + DTSQB);
+  double DBQ = C2TT*DBSSQ - 0.5*(C2TQ*DTSSB + C2TB*DTSSQ) + 0.5*(C2TS*DTBSQ + DTQSB);
+  double DSQ = C2TT*DSBBQ - 0.5*(C2TS*DTBBQ + C2TQ*DTBBS) + 0.5*(C2TB*DTQBS + DTSBQ);
+
+  double DT = Delta;
+  double DB = Delta * muB - T*D1;
+  double DS = Delta * muS - T*D2;
+  double DQ = Delta * muQ - T*D3;
+
+  double MB = D1;
+  double MS = D2;
+  double MQ = D3;
+  double MBB = T*DBB + muB*D1;
+  double MBS = T*DBS + muB*D2;
+  double MBQ = T*DBQ + muB*D3;
+  double MSB = T*DBS + muS*D1;
+  double MSS = T*DSS + muS*D2;
+  double MSQ = T*DSQ + muS*D3;
+  double MQB = T*DBQ + muQ*D1;
+  double MQS = T*DSQ + muQ*D2;
+  double MQQ = T*DQQ + muQ*D3;
+
+  // Term 1 (dp/de at constant density).
+  double dedT = T*C2TT + muB*C2TB + muS*C2TS + muQ*C2TQ;
+  double dedmuB = T*C2TB + muB*C2BB + muS*C2BS + muQ*C2BQ;
+  double dedmuS = T*C2TS + muB*C2BS + muS*C2SS + muQ*C2SQ;
+  double dedmuQ = T*C2TQ + muB*C2BQ + muS*C2SQ + muQ*C2QQ;
+  double dpde = (C1T*DT + C1B*MB + C1S*MS + C1Q*MQ)
+                / (dedT*DT + dedmuB*MB + dedmuS*MS + dedmuQ*MQ);
+
+  // Term 2 (dp/dB at constant e, S, Q).
+  double dpdB = (C1T*DB + C1B*MBB + C1S*MBS + C1Q*MBQ)
+                / (C2TB*DB + C2BB*MBB + C2BS*MBS + C2BQ*MBQ);
+
+  // Term 3 (dp/dS at constant e, B, Q).
+  double dpdS = (C1T*DS + C1B*MBS + C1S*MSS + C1Q*MSQ)
+                / (C2TS*DS + C2BS*MBS + C2SS*MSS + C2SQ*MSQ);
+
+  // Term 4 (dp/dQ at constant e, B, S).
+  double dpdQ = (C1T*DQ + C1B*MBQ + C1S*MSQ + C1Q*MQQ)
+                / (C2TQ*DQ + C2BQ*MBQ + C2SQ*MSQ + C2QQ*MQQ);
+
+  double e_plus_p = C1T + (C1B*muB + C1S*muS + C1Q*muQ)/T;
+
+  return dpde + (C1B*dpdB + C1S*dpdS + C1Q*dpdQ) / e_plus_p;
+}
+
+
 //Output derivatives
 
-double P2B2(double T, double muB, double muQ, double muS){
-   
+double P2B2(double T, double muB, double muQ, double muS)
+{   
    return Chi2BTaylor(T,muB,muS,muQ);
 }
 
