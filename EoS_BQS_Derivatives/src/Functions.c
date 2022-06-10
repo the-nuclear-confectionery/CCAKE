@@ -1000,7 +1000,7 @@ double SpSoundReadable(double T, double muB, double muQ, double muS)
   double MQQ = T*DQQ + muQ*D3;
 
   // Term 1 (dp/de at constant density).
-  double dedT = T*C2TT + muB*C2TB + muS*C2TS + muQ*C2TQ;
+  double dedT   = T*C2TT + muB*C2TB + muS*C2TS + muQ*C2TQ;
   double dedmuB = T*C2TB + muB*C2BB + muS*C2BS + muQ*C2BQ;
   double dedmuS = T*C2TS + muB*C2BS + muS*C2SS + muQ*C2SQ;
   double dedmuQ = T*C2TQ + muB*C2BQ + muS*C2SQ + muQ*C2QQ;
@@ -1012,12 +1012,12 @@ double SpSoundReadable(double T, double muB, double muQ, double muS)
                 / (C2TB*DB + C2BB*MBB + C2BS*MBS + C2BQ*MBQ);
 
   // Term 3 (dp/dS at constant e, B, Q).
-  double dpdS = (C1T*DS + C1B*MBS + C1S*MSS + C1Q*MSQ)
-                / (C2TS*DS + C2BS*MBS + C2SS*MSS + C2SQ*MSQ);
+  double dpdS = (C1T*DS + C1B*MSB + C1S*MSS + C1Q*MSQ)
+                / (C2TS*DS + C2BS*MSB + C2SS*MSS + C2SQ*MSQ);
 
   // Term 4 (dp/dQ at constant e, B, S).
-  double dpdQ = (C1T*DQ + C1B*MBQ + C1S*MSQ + C1Q*MQQ)
-                / (C2TQ*DQ + C2BQ*MBQ + C2SQ*MSQ + C2QQ*MQQ);
+  double dpdQ = (C1T*DQ + C1B*MQB + C1S*MQS + C1Q*MQQ)
+                / (C2TQ*DQ + C2BQ*MQB + C2SQ*MQS + C2QQ*MQQ);
 
   double e_plus_p = C1T + (C1B*muB + C1S*muS + C1Q*muQ)/T;
 
