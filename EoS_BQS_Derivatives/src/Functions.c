@@ -931,21 +931,21 @@ double term4 = T*(C1S/(muB*C1B + muQ*C1Q + muS*C1S + T*C1T))*(pow(C2QS,2)*muS*(C
 
 double SpSoundReadable(double T, double muB, double muQ, double muS)
 {
-  C1B = BarDensTaylor(T,muB,muS,muQ);
-  C1Q = ChDensTaylor(T,muB,muS,muQ);
-  C1S = StrDensTaylor(T,muB,muS,muQ);
-  C1T = EntrTaylor(T,muB,muS,muQ);
+  C1B = BarDensTaylor(T,muB,muS,muQ)*T*T*T;
+  C1Q = ChDensTaylor(T,muB,muS,muQ)*T*T*T;
+  C1S = StrDensTaylor(T,muB,muS,muQ)*T*T*T;
+  C1T = EntrTaylor(T,muB,muS,muQ)*T*T*T;
 
-  double C2BB = Chi2BTaylor(T,muB,muS,muQ);   
-  double C2QQ = Chi2QTaylor(T,muB,muS,muQ);
-  double C2SS = Chi2STaylor(T,muB,muS,muQ);
-  C2BQ = Chi11BQTaylor(T,muB,muS,muQ);
-  C2BS = Chi11BSTaylor(T,muB,muS,muQ);
-  double C2SQ = Chi11QSTaylor(T,muB,muS,muQ);
-  C2TB = DBarDensDTTaylor(T,muB,muS,muQ);
-  C2TQ = DChDensDTTaylor(T,muB,muS,muQ);
-  C2TS = DStrDensDTTaylor(T,muB,muS,muQ);
-  double C2TT = DEntrDTTaylor(T,muB,muS,muQ);
+  double C2BB = Chi2BTaylor(T,muB,muS,muQ)*T*T;   
+  double C2QQ = Chi2QTaylor(T,muB,muS,muQ)*T*T;
+  double C2SS = Chi2STaylor(T,muB,muS,muQ)*T*T;
+  C2BQ = Chi11BQTaylor(T,muB,muS,muQ)*T*T;
+  C2BS = Chi11BSTaylor(T,muB,muS,muQ)*T*T;
+  double C2SQ = Chi11QSTaylor(T,muB,muS,muQ)*T*T;
+  C2TB = DBarDensDTTaylor(T,muB,muS,muQ)*T*T;
+  C2TQ = DChDensDTTaylor(T,muB,muS,muQ)*T*T;
+  C2TS = DStrDensDTTaylor(T,muB,muS,muQ)*T*T;
+  double C2TT = DEntrDTTaylor(T,muB,muS,muQ)*T*T;
 
   double Delta = C2BS*C2BS*C2QQ + C2SQ*C2SQ*C2BB + C2BQ*C2BQ*C2SS
                   - 2.0*C2BQ*C2BS*C2SQ - C2BB*C2SS*C2QQ;
