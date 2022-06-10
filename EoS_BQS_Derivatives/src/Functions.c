@@ -941,9 +941,9 @@ double SpSoundReadable(double T, double muB, double muQ, double muS)
   double DBB = C2TT*DSQSQ + C2TS*DTQQS + C2TQ*DTSSQ;
   double DQQ = C2TT*DBQBQ + C2TQ*DTBBQ + C2TB*DTQQB;
   double DSS = C2TT*DBSBS + C2TS*DTBBS + C2TB*DTSSB;
-  double DBS = C2TT*DBQQS - 0.5*(C2TS*DTQQB + C2TB*DTQQS) + 0.5*(C2TQ*DTBQS + DTSQB);
-  double DBQ = C2TT*DBSSQ - 0.5*(C2TQ*DTSSB + C2TB*DTSSQ) + 0.5*(C2TS*DTBSQ + DTQSB);
-  double DSQ = C2TT*DSBBQ - 0.5*(C2TS*DTBBQ + C2TQ*DTBBS) + 0.5*(C2TB*DTQBS + DTSBQ);
+  double DBS = C2TT*DBQQS - 0.5*(C2TS*DTQQB + C2TB*DTQQS) + 0.5*C2TQ*(DTBQS + DTSQB);
+  double DBQ = C2TT*DBSSQ - 0.5*(C2TQ*DTSSB + C2TB*DTSSQ) + 0.5*C2TS*(DTBSQ + DTQSB);
+  double DSQ = C2TT*DSBBQ - 0.5*(C2TS*DTBBQ + C2TQ*DTBBS) + 0.5*C2TB*(DTQBS + DTSBQ);
 
   double DT = Delta;
   double DB = Delta * muB - T*D1;
