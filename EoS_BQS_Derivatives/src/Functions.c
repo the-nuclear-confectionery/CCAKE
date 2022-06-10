@@ -975,8 +975,8 @@ double SpSoundReadable(double T, double muB, double muQ, double muS)
   double D3 = C2TQ*DBSBS + C2TS*DBSQB + C2TB*DBSSQ;
 
   double DBB = C2TT*DSQSQ + C2TS*DTQQS + C2TQ*DTSSQ;
-  double DQQ = C2TT*DBQBQ + C2TQ*DTBBQ + C2TB*DTQQB;
-  double DSS = C2TT*DBSBS + C2TS*DTBBS + C2TB*DTSSB;
+  double DSS = C2TT*DBQBQ + C2TQ*DTBBQ + C2TB*DTQQB;
+  double DQQ = C2TT*DBSBS + C2TS*DTBBS + C2TB*DTSSB;
   double DBS = C2TT*DBQQS - 0.5*(C2TS*DTQQB + C2TB*DTQQS) + 0.5*C2TQ*(DTBQS + DTSQB);
   double DBQ = C2TT*DBSSQ - 0.5*(C2TQ*DTSSB + C2TB*DTSSQ) + 0.5*C2TS*(DTBSQ + DTQSB);
   double DSQ = C2TT*DSBBQ - 0.5*(C2TS*DTBBQ + C2TQ*DTBBS) + 0.5*C2TB*(DTQBS + DTSBQ);
@@ -989,12 +989,15 @@ double SpSoundReadable(double T, double muB, double muQ, double muS)
   double MB = D1;
   double MS = D2;
   double MQ = D3;
+
   double MBB = T*DBB + muB*D1;
   double MBS = T*DBS + muB*D2;
   double MBQ = T*DBQ + muB*D3;
+
   double MSB = T*DBS + muS*D1;
   double MSS = T*DSS + muS*D2;
   double MSQ = T*DSQ + muS*D3;
+
   double MQB = T*DBQ + muQ*D1;
   double MQS = T*DSQ + muQ*D2;
   double MQQ = T*DQQ + muQ*D3;
