@@ -559,8 +559,8 @@ void STANDARD_get_full_thermo(double point[], double thermodynamics[])
 	thermodynamics[15] = Tsol2_by_hc2*P2TS(Tsol, muBsol, muQsol, muSsol);
 	thermodynamics[16] = Tsol2_by_hc2*P2T2(Tsol, muBsol, muQsol, muSsol);
 
-  printf("Total dump from full thermo: %lf %lf %lf %lf %lf %lf %lf %lf %lf\n",
-          Tsol, muBsol, muQsol, muSsol, eOut, BOut, SOut, QOut, thermodynamics[6]);
+//  printf("Total dump from full thermo: %lf %lf %lf %lf %lf %lf %lf %lf %lf\n",
+//          Tsol, muBsol, muQsol, muSsol, eOut, BOut, SOut, QOut, thermodynamics[6]);
 
 }
 

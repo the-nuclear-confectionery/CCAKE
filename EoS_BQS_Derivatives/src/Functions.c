@@ -1026,8 +1026,8 @@ double SpSoundReadable(double T, double muB, double muQ, double muS)
 
   double e_plus_p = C1T*T + C1B*muB + C1S*muS + C1Q*muQ;
 
-  printf("v2: %lf %lf %lf %lf\n", dpde, C1B*dpdB/e_plus_p,
-                                  C1S*dpdS/e_plus_p, C1Q*dpdQ/e_plus_p);
+//  printf("v2: %lf %lf %lf %lf\n", dpde, C1B*dpdB/e_plus_p,
+//                                  C1S*dpdS/e_plus_p, C1Q*dpdQ/e_plus_p);
 
   return dpde + (C1B*dpdB + C1S*dpdS + C1Q*dpdQ) / e_plus_p;
 }
