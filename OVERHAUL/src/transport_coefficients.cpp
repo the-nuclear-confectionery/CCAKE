@@ -306,8 +306,6 @@ double TransportCoefficients::NoBulk() { return 0.0; }
 //===============================
 double TransportCoefficients::cs2_dependent_zeta()
 {
-//  const double A = 8.0*constants::pi/15.0;
-//  const double p = 2.0;
   const double A = settingsPtr->cs2_dependent_zeta_A;
   const double p = settingsPtr->cs2_dependent_zeta_p;
 
@@ -325,9 +323,11 @@ double TransportCoefficients::cs2_dependent_zeta()
     factor = 0.5*(1.0 + x_p) + 0.5*(1.0 - x_p)*th_x;
   }
 
-  cout << "Check zeta/s: " << therm.T*hbarc_MeVfm << "   "
-        << A*factor*pow((1.0/3.0)-therm.cs2, p) << endl;
-  const double zeta_over_s_local = A*factor*pow((1.0/3.0)-therm.cs2, p);
+  const double zeta_over_s_local
+                = A * factor * pow((1.0/3.0) - std::min(therm.cs2, 1.0), p);
+  cout << "Check zeta/s: "
+        << therm.T*hbarc_MeVfm << "   "
+        << zeta_over_s_local << endl;
 
   if ( therm.cs2 < 0.0 || therm.cs2 > 1.0 )
   {
@@ -375,7 +375,7 @@ double TransportCoefficients::cs2_dependent_zeta()
         << pow((1.0/3.0)-therm.cs2, p) << endl;
   }
 
-  return A*factor*pow((1.0/3.0)-therm.cs2, p)*therm.s;
+  return zeta_over_s_local*therm.s;
 }
 
 //==============================================================================
