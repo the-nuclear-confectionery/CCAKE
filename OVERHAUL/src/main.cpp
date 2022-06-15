@@ -41,14 +41,25 @@ int main (int argc, char *argv[])
     exit(1);
   }
 
+  //----------------------------------------------
+  formatted_output::announce("Reading in command-line arguments");
+
   // This is where all parameters are initialized.
   string path_to_settings_file     = argv[1];
   string path_to_results_directory = argv[2];
+
+  //----------------------------------------------
+  formatted_output::report( "Input parameters file: "
+                            + path_to_settings_file );
+  formatted_output::report( "All results will be stored in: "
+                            + path_to_results_directory );  
+
 
   // Define and set up the simulation object itself.
   BSQHydro simulation;
   simulation.set_results_directory( path_to_results_directory );
 
+  //----------------------------------------------
   formatted_output::announce("Loading data");
 
   // Load file containing parameter settings.
