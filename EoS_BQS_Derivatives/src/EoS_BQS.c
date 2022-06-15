@@ -621,7 +621,7 @@ int main(int argc, char *argv[])
 							+ muBval/Tval*BarDensVal 
 							+ muQval/Tval*ChDensVal 
 							+ muSval/Tval*StrDensVal;
-					SpSoundVal  = SpSound(Tval, muBval, muQval, muSval);
+					SpSoundVal  = SpSoundReadable(Tval, muBval, muQval, muSval);
 					            
 					//Second Order Derivatives
 					D2PB2 = P2B2(Tval, muBval, muQval, muSval);
