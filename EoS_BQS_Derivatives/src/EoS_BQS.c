@@ -522,7 +522,7 @@ int main(int argc, char *argv[])
 */
 
 
-///*
+/*
 	// add a loop to generate toy initial conditions
 	for (double x0 = -5.0; x0 <= 5.000001; x0 += 0.05)
 	for (double y0 = -5.0; y0 <= 5.000001; y0 += 0.05)
@@ -554,7 +554,7 @@ int main(int argc, char *argv[])
 		}
 	}
 	if (1) exit(-1);
-//*/
+*/
 
 	// for HDF arrays
 	long long gridLength = 0;
@@ -563,7 +563,7 @@ int main(int argc, char *argv[])
 	long long gridEntry  = 0;
 
 	// set T and mu_i ranges
-	const int Tmin = 0, Tmax = 800, DeltaT = 1;
+	const int Tmin = 0, Tmax = 800, DeltaT = 5;
 	const int muBmin = -450, muBmax = 450, DeltamuB = 50;
 	const int muQmin = -450, muQmax = 450, DeltamuQ = 50;
 	const int muSmin = -450, muSmax = 450, DeltamuS = 50;
@@ -610,8 +610,6 @@ int main(int argc, char *argv[])
 						muSval = l+0.5*DeltamuS;
 					}
 					if (Tval>Tmax || muBval > muBmax || muSval > muSmax || muQval > muQmax) continue;
-          double lowT_factor = 1.0;
-					if ( Tval < 1 ) lowT_factor = 0.0;
 
 					//Thermodynamics
 					PressVal    = PressTaylor(Tval, muBval, muQval, muSval);
