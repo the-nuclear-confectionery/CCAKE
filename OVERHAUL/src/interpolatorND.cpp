@@ -161,9 +161,18 @@ void InterpolatorND<D>::evaluate( const vector<double> & coordinates,
     fracs[ic] = 1.0 - modf( (coordinates[ic] - grid_mins[ic])
                             / grid_spacings[ic], &index );
     inds[ic] = static_cast<int>( index );
-    cout << "CHECK: " << ic << "   " << fracs[ic] << "   " << inds[ic] << "   " << index
-        << "   " << coordinates[ic] << "   " << (coordinates[ic] - grid_mins[ic])
-                                                / grid_spacings[ic] << endl;
+//    cout << "CHECK: " << ic << "   " << fracs[ic] << "   " << inds[ic] << "   " << index
+//        << "   " << coordinates[ic] << "   " << (coordinates[ic] - grid_mins[ic])
+//                                                / grid_spacings[ic]
+//        << "   " << 1.0 - fracs[ic] + index << endl;
+
+    // handle special situation where queried point is at the grid maximum
+    if ( inds[ic] + 1 == grid_sizes[ic] )
+    {
+      // reverse interpolation weights along this dimension
+      fracs[ic] = 1.0 - fracs[ic];
+      inds[ic]--;
+    }
   }
 
   //////////////////////////////////////////
@@ -171,7 +180,7 @@ void InterpolatorND<D>::evaluate( const vector<double> & coordinates,
   // all fields interpolated at once
   const int nFields = fields.front().size();
   results = vector<double>(nFields, 0.0);
-  cout << "nFields = " << nFields << endl;
+  //cout << "nFields = " << nFields << endl;
 
   // loop over hypercube indices
   for ( auto & hypercube_index : hypercube_indices )
@@ -185,40 +194,43 @@ void InterpolatorND<D>::evaluate( const vector<double> & coordinates,
     for (int iDim = 0; iDim < dim; iDim++)
       hypercube_inds[iDim] += hypercube_index[iDim];
 
-    cout << "NEED TO FIX ISSUES BEFORE USING THIS" << endl;
-    if (1) abort();
+//    cout << "NEED TO FIX ISSUES BEFORE USING THIS" << endl;
+//    if (1) abort();
 
-    cout << "inds:";
-    for (auto&is:inds) cout << " " << is;
-    cout << endl;
-    cout << "hypercube_inds:";
-    for (auto&his:hypercube_inds) cout << " " << his;
-    cout << endl;
-    cout << "fields.size() = " << fields.size() << endl;
-    cout << "indexer( hypercube_inds ) = " << indexer( hypercube_inds ) << endl;
+    //cout << "inds:";
+    //for (auto&is:inds) cout << " " << is;
+    //cout << endl;
+//    cout << "hypercube_inds:";
+//    for (auto&his:hypercube_inds) cout << " " << his;
+//    cout << endl;
+//    cout << "fields.size() = " << fields.size() << endl;
+//    cout << "indexer( hypercube_inds ) = " << indexer( hypercube_inds ) << endl;
     auto & cell = fields[ indexer( hypercube_inds ) ];
 
-    cout << "results.size() = " << results.size() << endl;
-    cout << "cell.size() = " << cell.size() << endl;
-    if (cell.size() != 17)
-    {
-      cout << "Test grid integrity" << endl;
-      bool crash = false;
-      size_t tmpsize = fields[0].size();
-      for (auto&field:fields)
-        if (field.size()!=tmpsize)
-        {
-          crash = true;
-          cout << field.size() << "=!=" << tmpsize << endl;
-        }
-
-      if (crash) cout << "Failed!" << endl; else cout << "Succeeded!" << endl;
-      cout << "tmpsize = " << tmpsize << endl;
-      abort();
-    }
+    //cout << "results.size() = " << results.size() << endl;
+    //cout << "cell.size() = " << cell.size() << endl;
+//    if (cell.size() != 17)
+//    {
+//      //cout << "Test grid integrity" << endl;
+//      bool crash = false;
+//      size_t tmpsize = fields[0].size();
+//      for (auto&field:fields)
+//        if (field.size()!=tmpsize)
+//        {
+//          crash = true;
+//          cout << field.size() << "=!=" << tmpsize << endl;
+//        }
+//
+//      //if (crash) cout << "Failed!" << endl; else cout << "Succeeded!" << endl;
+//      //cout << "tmpsize = " << tmpsize << endl;
+//      //abort();
+//    }
     // 
     for ( int iField = 0; iField < nFields; iField++ )
+    {
+//      cout << "Check nodes: " << iField << "   " << weight << "   " << cell[iField] << endl;
       results[iField] += weight * cell[iField];
+    }
   }
 }
 
@@ -246,6 +258,14 @@ void InterpolatorND<D>::evaluate(
 //    cout << "CHECK: " << ic << "   " << fracs[ic] << "   " << inds[ic] << "   " << index
 //        << "   " << coordinates[ic] << "   " << (coordinates[ic] - grid_mins[ic])
 //                                                / grid_spacings[ic] << endl;
+
+    // handle special situation where queried point is at the grid maximum
+    if ( inds[ic] + 1 == grid_sizes[ic] )
+    {
+      // reverse interpolation weights along this dimension
+      fracs[ic] = 1.0 - fracs[ic];
+      inds[ic]--;
+    }
   }
 
   //////////////////////////////////////////

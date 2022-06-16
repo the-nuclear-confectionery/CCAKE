@@ -1,5 +1,5 @@
-#ifndef InterpolatorND_H
-#define InterpolatorND_H
+#ifndef INTERPOLATORND_H
+#define INTERPOLATORND_H
 
 #include <map>
 #include <string>
@@ -41,14 +41,11 @@ class InterpolatorND
     // interpolates all fields at once
     void evaluate( const vector<double> & coordinates, vector<double> & results );
 
-    // interpolates only specific fields
-    //void evaluate( const vector<double> & coordinates, vector<double> & results,
-    //               vector<int> & fields_to_interpolate );
-
     // interpolates only specific fields by name
     void evaluate( const vector<double> & coordinates, vector<double> & results,
                    const vector<string> & fields_to_interpolate );
 
+    // Duh.
     vector<double> get_grid_minima() { return grid_mins; }
     vector<double> get_grid_maxima() { return grid_maxs; }
 
