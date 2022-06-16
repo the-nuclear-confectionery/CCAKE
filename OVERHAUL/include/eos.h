@@ -143,6 +143,8 @@ public:
     // use this specifically to make educated guesses for seed values, etc.
 //    EoS_conformal_diagonal conformal_diagonal_EoS;
 
+    pEoS_base & get_default_eos() { return chosen_EOS_map[default_eos_name]; }
+
 private:
 
     ////////////////////////////////////////////////////////////////////////////
