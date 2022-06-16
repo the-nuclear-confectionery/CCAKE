@@ -11,7 +11,8 @@ using namespace std;
 template <int D>
 class InterpolatorND
 {
-  const double NaN_value = std::numeric_limits<double>::quiet_NaN();
+  static constexpr double NaN_value = std::numeric_limits<double>::quiet_NaN();
+
   double fill_value = NaN_value;
 
   public:
