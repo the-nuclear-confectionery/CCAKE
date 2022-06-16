@@ -619,7 +619,7 @@ double SPHWorkstation::locate_phase_diagram_point_eBSQ( Particle & p,
   // (pass in corresponding EoS as well!)
   eos.tbqs( p.T(), p.muB(), p.muQ(), p.muS(), p.get_current_eos_name() );
 
-cout << __FUNCTION__ << "::" << __LINE__ << endl;
+cout << "Finding thermodynamics of particle #" << p.ID << endl;
 
   bool solution_found = false;
   double sVal = eos.s_out( e_In, rhoB_In, rhoS_In, rhoQ_In, solution_found );
