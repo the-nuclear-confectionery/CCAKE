@@ -11,8 +11,10 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 template <int D>
-void InterpolatorND<D>::initialize( string filename )
+void InterpolatorND<D>::initialize( string filename, double fill_value_in )
 {
+  fill_value = fill_value_in;
+
   // need this to iterate systematically over hypercube vertices
   initialize_hypercube();
 
@@ -151,6 +153,8 @@ void InterpolatorND<D>::evaluate( const vector<double> & coordinates,
 {
   const int dim = D;
 
+  bool out_of_range = false;
+
   //////////////////////////////////////////
   // locate coordinate in grid
   vector<int> inds(dim);     // integral coordinate location for containing hypercube
@@ -173,14 +177,23 @@ void InterpolatorND<D>::evaluate( const vector<double> & coordinates,
       fracs[ic] = 1.0 - fracs[ic];
       inds[ic]--;
     }
+
+    // check if this index is out of range
+    if ( inds[ic] < 0 || inds[ic] >= grid_sizes[ic] )
+      out_of_range = true;
   }
 
   //////////////////////////////////////////
-  // compute linear interpolant (assuming 4D thermodynamics for simplicity)
+  // compute linear interpolant
   // all fields interpolated at once
   const int nFields = fields.front().size();
-  results = vector<double>(nFields, 0.0);
-  //cout << "nFields = " << nFields << endl;
+  if ( out_of_range )
+  {
+    results = vector<double>(nFields, fill_value);
+    return;
+  }
+  else
+    results = vector<double>(nFields, 0.0);
 
   // loop over hypercube indices
   for ( auto & hypercube_index : hypercube_indices )
@@ -232,6 +245,7 @@ void InterpolatorND<D>::evaluate( const vector<double> & coordinates,
       results[iField] += weight * cell[iField];
     }
   }
+  return;
 }
 
 
@@ -244,6 +258,8 @@ void InterpolatorND<D>::evaluate(
       const vector<string> & fields_to_interpolate )
 {
   const int dim = D;
+
+  bool out_of_range = false;
 
   //////////////////////////////////////////
   // locate coordinate in grid
@@ -266,13 +282,23 @@ void InterpolatorND<D>::evaluate(
       fracs[ic] = 1.0 - fracs[ic];
       inds[ic]--;
     }
+
+    // check if this index is out of range
+    if ( inds[ic] < 0 || inds[ic] >= grid_sizes[ic] )
+      out_of_range = true;
   }
 
   //////////////////////////////////////////
-  // compute linear interpolant (assuming 4D thermodynamics for simplicity)
+  // compute linear interpolant
   // all fields interpolated at once
   const int nFields = fields_to_interpolate.size();
-  results = vector<double>(nFields, 0.0);
+  if ( out_of_range )
+  {
+    results = vector<double>(nFields, fill_value);
+    return;
+  }
+  else
+    results = vector<double>(nFields, 0.0);
 
   // loop over hypercube indices
   for ( auto & hypercube_index : hypercube_indices )
@@ -301,6 +327,7 @@ void InterpolatorND<D>::evaluate(
     for ( int iField = 0; iField < nFields; iField++ )
       results[iField] += weight * cell[field_names[fields_to_interpolate[iField]]];
   }
+  return;
 }
 
 

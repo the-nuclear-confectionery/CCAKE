@@ -1,6 +1,7 @@
 #ifndef INTERPOLATORND_H
 #define INTERPOLATORND_H
 
+#include <limits>
 #include <map>
 #include <string>
 #include <vector>
@@ -10,11 +11,14 @@ using namespace std;
 template <int D>
 class InterpolatorND
 {
+  const double NaN_value = std::numeric_limits<double>::quiet_NaN();
+  double fill_value = NaN_value;
+
   public:
     InterpolatorND<D>(){}
     ~InterpolatorND<D>(){}
 
-    void initialize( string filename );
+    void initialize( string filename, double fill_value_in = NaN_value );
     void initialize_hypercube();
 
     void set_grid_names( const vector<string> & names )
