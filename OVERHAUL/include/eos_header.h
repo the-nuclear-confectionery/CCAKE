@@ -3,7 +3,7 @@
 
 static constexpr bool use_rootfinder                      = true;
 static constexpr bool use_delaunay                        = !use_rootfinder;
-static constexpr bool use_static_C_library                = true;
+static constexpr bool use_static_C_library                = false;
 //static constexpr bool accept_nearest_neighbor             = false;
 //static constexpr bool discard_unsolvable_charge_densities = false;
 //static constexpr bool use_conformal_as_fallback           = true;
