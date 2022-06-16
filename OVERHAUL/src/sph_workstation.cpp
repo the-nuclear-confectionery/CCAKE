@@ -478,6 +478,7 @@ void SPHWorkstation::process_initial_conditions()
 
     // use max T of default EoS method instead
     p.thermo.T        = (eos.get_default_eos()->tbqs_maxima)[0];
+    cout << "CHECK INITIAL T: " << p.thermo.T*hbarc_MeVfm << endl;
 
 		p.thermo.muB      = 0.0/hbarc_MeVfm;
 		p.thermo.muS      = 0.0/hbarc_MeVfm;
