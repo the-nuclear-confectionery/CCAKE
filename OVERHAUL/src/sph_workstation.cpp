@@ -630,21 +630,21 @@ cout << "Finding thermodynamics of particle #" << p.ID << endl;
 
   if (p.thermo.cs2<0)
   {
-  cout << "input thermo: " << e_In << "   "
+  cout << "input thermo: " << e_In*constants::hbarc_MeVfm << "   "
         << rhoB_In << "   "
         << rhoS_In << "   "
         << rhoQ_In << endl
         << "check thermo: " << systemPtr->t << "   "
-        << p.thermo.T << "   "
-        << p.thermo.muB << "   "
-        << p.thermo.muS << "   "
-        << p.thermo.muQ << "   "
-        << p.thermo.p << "   "
-        << p.thermo.s << "   "
+        << p.thermo.T*constants::hbarc_MeVfm << "   "
+        << p.thermo.muB*constants::hbarc_MeVfm << "   "
+        << p.thermo.muS*constants::hbarc_MeVfm << "   "
+        << p.thermo.muQ*constants::hbarc_MeVfm << "   "
+        << p.thermo.e*constants::hbarc_MeVfm << "   "
         << p.thermo.rhoB << "   "
         << p.thermo.rhoS << "   "
         << p.thermo.rhoQ << "   "
-        << p.thermo.e << "   "
+        << p.thermo.p*constants::hbarc_MeVfm << "   "
+        << p.thermo.s << "   "
         << p.thermo.cs2 << "   "
         << p.thermo.eos_name << endl;
     cout << __LINE__ << "cs2 was negative!" << endl;
