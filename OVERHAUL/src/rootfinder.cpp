@@ -89,11 +89,11 @@ int rootfinder_f(const gsl_vector *x, void *params, gsl_vector *f)
     gsl_vector_set(f, 2, (rhoQ   - rhoQGiven));
     gsl_vector_set(f, 3, (rhoS   - rhoSGiven));
 
-cout << "e: " << eorEnt << "   " << eorEntGiven << "   " << eorEnt - eorEntGiven << endl;
-cout << "B: " << rhoB << "   " << rhoBGiven << "   " << rhoB - rhoBGiven << endl;
-cout << "Q: " << rhoQ << "   " << rhoQGiven << "   " << rhoQ - rhoQGiven << endl;
-cout << "S: " << rhoS << "   " << rhoSGiven << "   " << rhoS - rhoSGiven << endl
-      <<"------" << endl;
+//cout << "e: " << eorEnt << "   " << eorEntGiven << "   " << eorEnt - eorEntGiven << endl;
+//cout << "B: " << rhoB << "   " << rhoBGiven << "   " << rhoB - rhoBGiven << endl;
+//cout << "Q: " << rhoQ << "   " << rhoQGiven << "   " << rhoQ - rhoQGiven << endl;
+//cout << "S: " << rhoS << "   " << rhoSGiven << "   " << rhoS - rhoSGiven << endl
+//      <<"------" << endl;
 //if (1) exit(1);
 
 

@@ -271,9 +271,9 @@ void InterpolatorND<D>::evaluate(
     fracs[ic] = 1.0 - modf( (coordinates[ic] - grid_mins[ic])
                             / grid_spacings[ic], &index );
     inds[ic] = static_cast<int>( index );
-    cout << "CHECK: " << ic << "   " << fracs[ic] << "   " << inds[ic] << "   " << index
-        << "   " << coordinates[ic] << "   " << (coordinates[ic] - grid_mins[ic])
-                                                / grid_spacings[ic] << endl;
+//    cout << "CHECK: " << ic << "   " << fracs[ic] << "   " << inds[ic] << "   " << index
+//        << "   " << coordinates[ic] << "   " << (coordinates[ic] - grid_mins[ic])
+//                                                / grid_spacings[ic] << endl;
 
     // handle special situation where queried point is at the grid maximum
     if ( inds[ic] + 1 == grid_sizes[ic] )
@@ -312,14 +312,14 @@ void InterpolatorND<D>::evaluate(
     for (int iDim = 0; iDim < dim; iDim++)
       hypercube_inds[iDim] += hypercube_index[iDim];
 
-    cout << "inds:";
-    for (auto&is:inds) cout << " " << is;
-    cout << endl;
-    cout << "hypercube_inds:";
-    for (auto&his:hypercube_inds) cout << " " << his;
-    cout << endl;
-    cout << "fields.size() = " << fields.size() << endl;
-    cout << "indexer( hypercube_inds ) = " << indexer( hypercube_inds ) << endl;
+//    cout << "inds:";
+//    for (auto&is:inds) cout << " " << is;
+//    cout << endl;
+//    cout << "hypercube_inds:";
+//    for (auto&his:hypercube_inds) cout << " " << his;
+//    cout << endl;
+//    cout << "fields.size() = " << fields.size() << endl;
+//    cout << "indexer( hypercube_inds ) = " << indexer( hypercube_inds ) << endl;
 
     auto & cell = fields[ indexer( hypercube_inds ) ];
 
