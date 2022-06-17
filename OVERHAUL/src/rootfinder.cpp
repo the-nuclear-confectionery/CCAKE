@@ -209,7 +209,7 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
     for (int iPrev = 0; iPrev < 4; iPrev++)
       previous_solver_step[iPrev] = gsl_vector_get(solver->x, iPrev);
 
-//    std::cout << "iter = " << iter << "\n";
+    std::cout << "iter = " << iter << "\n";
 //std::cout << gsl_vector_get(solver->x, 0) << std::endl;
 //std::cout << gsl_vector_get(solver->x, 1) << std::endl;
 //std::cout << gsl_vector_get(solver->x, 2) << std::endl;
