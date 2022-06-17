@@ -243,7 +243,7 @@ void InterpolatorND<D>::evaluate( const vector<double> & coordinates,
     {
       if (iField==6)
       {
-        for (auto&is:inds) cout << " " << is;
+        for (auto&his:hypercube_inds) cout << " " << his;
         cout << "   " << cell[iField] << endl;
       }
 //      cout << "Check nodes: " << iField << "   " << weight << "   " << cell[iField] << endl;
@@ -263,6 +263,12 @@ void InterpolatorND<D>::evaluate(
       const vector<string> & fields_to_interpolate )
 {
   const int dim = D;
+
+  cout << "-----------------------------------------" << endl;
+  for (auto&coord:coordinates) cout << " " << coord;
+  cout << endl;
+  cout << "-----------------------------------------" << endl;
+
 
   bool out_of_range = false;
 
@@ -333,7 +339,7 @@ void InterpolatorND<D>::evaluate(
     {
       if (iField==6)
       {
-        for (auto&is:inds) cout << " " << is;
+        for (auto&his:hypercube_inds) cout << " " << his;
         cout << "   " << cell[field_names[fields_to_interpolate[iField]]] << endl;
       }
       results[iField] += weight * cell[field_names[fields_to_interpolate[iField]]];
