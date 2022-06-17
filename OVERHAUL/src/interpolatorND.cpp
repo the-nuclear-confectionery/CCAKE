@@ -241,6 +241,11 @@ void InterpolatorND<D>::evaluate( const vector<double> & coordinates,
     // 
     for ( int iField = 0; iField < nFields; iField++ )
     {
+      if (iField==6)
+      {
+        for (auto&is:inds) cout << " " << is;
+        cout << "   " << cell[iField] << endl;
+      }
 //      cout << "Check nodes: " << iField << "   " << weight << "   " << cell[iField] << endl;
       results[iField] += weight * cell[iField];
     }
@@ -325,7 +330,14 @@ void InterpolatorND<D>::evaluate(
 
     // 
     for ( int iField = 0; iField < nFields; iField++ )
+    {
+      if (iField==6)
+      {
+        for (auto&is:inds) cout << " " << is;
+        cout << "   " << cell[field_names[fields_to_interpolate[iField]]] << endl;
+      }
       results[iField] += weight * cell[field_names[fields_to_interpolate[iField]]];
+    }
   }
   return;
 }
