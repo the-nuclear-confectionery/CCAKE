@@ -151,6 +151,14 @@ template <int D>
 void InterpolatorND<D>::evaluate( const vector<double> & coordinates,
                                   vector<double> & results )
 {
+  // if coordinates are nan's, don't bother evaluating!
+  for (auto & c; coordinates)
+    if ( isnan(c) )
+    {
+      results = vector<double>(fields.front().size(), fill_value);
+      return;
+    }
+
   const int dim = D;
 
   bool out_of_range = false;
@@ -179,7 +187,7 @@ void InterpolatorND<D>::evaluate( const vector<double> & coordinates,
     }
 
     // check if this index is out of range
-    if ( inds[ic] < 0 || inds[ic] >= grid_sizes[ic] || isnan(coordinates[ic]) )
+    if ( inds[ic] < 0 || inds[ic] >= grid_sizes[ic] )
       out_of_range = true;
   }
 
@@ -194,6 +202,7 @@ void InterpolatorND<D>::evaluate( const vector<double> & coordinates,
   }
   else
     results = vector<double>(nFields, 0.0);
+
 
   // loop over hypercube indices
   for ( auto & hypercube_index : hypercube_indices )
@@ -262,6 +271,14 @@ void InterpolatorND<D>::evaluate(
       const vector<double> & coordinates, vector<double> & results,
       const vector<string> & fields_to_interpolate )
 {
+  // if coordinates are nan's, don't bother evaluating!
+  for (auto & c; coordinates)
+    if ( isnan(c) )
+    {
+      results = vector<double>(fields_to_interpolate.size(), fill_value);
+      return;
+    }
+
   const int dim = D;
 
 //  cout << "-----------------------------------------" << endl;
@@ -295,7 +312,7 @@ void InterpolatorND<D>::evaluate(
     }
 
     // check if this index is out of range
-    if ( inds[ic] < 0 || inds[ic] >= grid_sizes[ic] || isnan(coordinates[ic]) )
+    if ( inds[ic] < 0 || inds[ic] >= grid_sizes[ic] )
       out_of_range = true;
   }
 
