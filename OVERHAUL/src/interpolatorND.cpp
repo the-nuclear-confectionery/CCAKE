@@ -337,6 +337,11 @@ void InterpolatorND<D>::evaluate(
 //    cout << " " << c;
 //  cout << endl;
 
+  // set field indices here (map is slow)
+  vector<int> field_indices(nFields, -1);
+  for ( int iField = 0; iField < nFields; iField++ )
+    field_indices[iField] = field_names[fields_to_interpolate[iField]];
+
   // loop over hypercube indices
   for ( auto & hypercube_index : hypercube_indices )
   {
@@ -368,7 +373,7 @@ void InterpolatorND<D>::evaluate(
 //        for (auto&his:hypercube_inds) cout << " " << his;
 //        cout << "   " << cell[field_names[fields_to_interpolate[iField]]] << endl;
 //      }
-      results[iField] += weight * cell[field_names[fields_to_interpolate[iField]]];
+      results[iField] += weight * cell[ field_indices[iField] ];
     }
   }
   return;
