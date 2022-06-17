@@ -1,8 +1,6 @@
 #ifndef SPH_WORKSTATION_H
 #define SPH_WORKSTATION_H
 
-#include <omp.h>
-
 #include "eom.h"
 #include "eom_default.h"
 #include "evolver.h"
@@ -83,7 +81,6 @@ public:
 
     //----------------------------------------
     // set up freeze out (constant energy density
-//    fo.set_EquationOfStatePtr( &eos );
     fo.set_SettingsPtr( settingsPtr );
     fo.set_SystemStatePtr( systemPtr );
     systemPtr->efcheck = eos.efreeze(settingsPtr->Freeze_Out_Temperature);
@@ -122,9 +119,7 @@ public:
             smooth_fields(p);
           sw.Stop();
           formatted_output::update("finished smoothing particle fields in "
-                                    + to_string(sw.printTime()) + " s using "
-                                    + to_string(omp_get_num_threads())
-                                    + " threads");
+                                    + to_string(sw.printTime()) + " s.");
         }
 
   //-------------------------------------------
@@ -136,9 +131,7 @@ public:
             smooth_gradients( p, systemPtr->t );
           sw.Stop();
           formatted_output::update("finished smoothing particle gradients in "
-                                    + to_string(sw.printTime()) + " s using "
-                                    + to_string(omp_get_num_threads())
-                                    + " threads");
+                                    + to_string(sw.printTime()) + " s.");
         }
 
   //-------------------------------------------
@@ -200,7 +193,8 @@ public:
 
     // use evolver to actually do RK evolution
     // (pass workstation's own time derivatives function as lambda)
-    evolver.advance_timestep( dt, rk_order, [this]{ this->get_time_derivatives(); } );
+    evolver.advance_timestep( dt, rk_order,
+                              [this]{ this->get_time_derivatives(); } );
 
     // set number of particles which have frozen out
     systemPtr->number_part = systemPtr->get_frozen_out_count();

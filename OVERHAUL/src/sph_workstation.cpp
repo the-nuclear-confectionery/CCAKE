@@ -160,7 +160,7 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
   formatted_output::update("finished initializing particle densities in "
                               + to_string(swTotal.printTime()) + " s");
 
-	if (false)
+	if (true)
 	{
 		cout << "Exiting prematurely from " << __PRETTY_FUNCTION__
 			<< "::" << __LINE__ << "!" << endl;
@@ -621,7 +621,7 @@ void SPHWorkstation::get_time_derivatives()
 double SPHWorkstation::locate_phase_diagram_point_eBSQ( Particle & p,
                  double e_In, double rhoB_In, double rhoS_In, double rhoQ_In )
 {
-cout << "Finding thermodynamics of particle #" << p.ID << endl;
+//cout << "Finding thermodynamics of particle #" << p.ID << endl;
 
   // default: use particle's current location as initial guess
   // (pass in corresponding EoS as well!)
@@ -631,24 +631,41 @@ cout << "Finding thermodynamics of particle #" << p.ID << endl;
   double sVal = eos.s_out( e_In, rhoB_In, rhoS_In, rhoQ_In, solution_found );
 
   if ( solution_found )
-{
-    eos.set_thermo( p.thermo );
-//cout << __FUNCTION__ << "::" << __LINE__ << endl;
-
-  auto approx = [](double a, double b) { return std::abs(a-b)<0.1; };
-
-  bool crash_this_particle = approx(p.thermo.e*constants::hbarc_MeVfm, 3040.99)
-                              && approx(p.thermo.rhoB, 0.649051)
-                              && approx(p.thermo.rhoS, -2.36332)
-                              && approx(p.thermo.rhoQ, -1.29778);
-
-  if (p.thermo.cs2<0 || crash_this_particle)
   {
-  cout << "input thermo: " << e_In*constants::hbarc_MeVfm << "   "
-        << rhoB_In << "   "
-        << rhoS_In << "   "
-        << rhoQ_In << endl
-        << "check thermo: " << systemPtr->t << "   "
+    eos.set_thermo( p.thermo );
+//    cout << __FUNCTION__ << "::" << __LINE__ << endl;
+//
+//    auto approx = [](double a, double b) { return std::abs(a-b)<0.1; };
+//
+//    bool crash_this_particle = approx(p.thermo.e*constants::hbarc_MeVfm, 3040.99)
+//                                && approx(p.thermo.rhoB, 0.649051)
+//                                && approx(p.thermo.rhoS, -2.36332)
+//                                && approx(p.thermo.rhoQ, -1.29778);
+//
+//    if (p.thermo.cs2<0 || crash_this_particle)
+//    {
+//      cout << "input thermo: " << e_In*constants::hbarc_MeVfm << "   "
+//            << rhoB_In << "   "
+//            << rhoS_In << "   "
+//            << rhoQ_In << endl
+//            << "check thermo: " << systemPtr->t << "   "
+//            << p.thermo.T*constants::hbarc_MeVfm << "   "
+//            << p.thermo.muB*constants::hbarc_MeVfm << "   "
+//            << p.thermo.muS*constants::hbarc_MeVfm << "   "
+//            << p.thermo.muQ*constants::hbarc_MeVfm << "   "
+//            << p.thermo.e*constants::hbarc_MeVfm << "   "
+//            << p.thermo.rhoB << "   "
+//            << p.thermo.rhoS << "   "
+//            << p.thermo.rhoQ << "   "
+//            << p.thermo.p*constants::hbarc_MeVfm << "   "
+//            << p.thermo.s << "   "
+//            << p.thermo.cs2 << "   "
+//            << p.thermo.eos_name << endl;
+//      cout << __LINE__ << "cs2 was negative!" << endl;
+//      exit(8);
+//    }
+
+  cout << "check thermo: " << p.ID << "   "
         << p.thermo.T*constants::hbarc_MeVfm << "   "
         << p.thermo.muB*constants::hbarc_MeVfm << "   "
         << p.thermo.muS*constants::hbarc_MeVfm << "   "
@@ -661,10 +678,8 @@ cout << "Finding thermodynamics of particle #" << p.ID << endl;
         << p.thermo.s << "   "
         << p.thermo.cs2 << "   "
         << p.thermo.eos_name << endl;
-    cout << __LINE__ << "cs2 was negative!" << endl;
-    exit(8);
+
   }
-}
 
   return sVal;
 }
