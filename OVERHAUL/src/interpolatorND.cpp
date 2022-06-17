@@ -179,7 +179,7 @@ void InterpolatorND<D>::evaluate( const vector<double> & coordinates,
     }
 
     // check if this index is out of range
-    if ( inds[ic] < 0 || inds[ic] >= grid_sizes[ic] )
+    if ( inds[ic] < 0 || inds[ic] >= grid_sizes[ic] || isnan(coordinates[ic]) )
       out_of_range = true;
   }
 
@@ -295,7 +295,7 @@ void InterpolatorND<D>::evaluate(
     }
 
     // check if this index is out of range
-    if ( inds[ic] < 0 || inds[ic] >= grid_sizes[ic] )
+    if ( inds[ic] < 0 || inds[ic] >= grid_sizes[ic] || isnan(coordinates[ic]) )
       out_of_range = true;
   }
 
