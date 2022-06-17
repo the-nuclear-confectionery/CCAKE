@@ -20,6 +20,7 @@ class EoS_table: public EoS_base
 {
 private:
   bool debug_mode = false;
+  bool using_HDF  = true;
 
   string equation_of_state_table_filename = "";
 

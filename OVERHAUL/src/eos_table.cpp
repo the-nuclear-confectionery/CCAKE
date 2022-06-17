@@ -33,7 +33,11 @@ EoS_table::EoS_table( string quantityFile, string derivFile )
   if (!use_static_C_library)
   {
     // initialize things needed to store eos table from file
-    equation_of_state_table_filename = "./EoS/Houston/default/thermo.dat";
+    if ( using_HDF )
+      equation_of_state_table_filename = "./EoS/Houston/default/thermo.h5";
+    else
+      equation_of_state_table_filename = "./EoS/Houston/default/thermo.dat";
+
     cout << "Initializing EoS from input file(s): "
          << equation_of_state_table_filename << endl;
     equation_of_state_table.initialize( equation_of_state_table_filename );
