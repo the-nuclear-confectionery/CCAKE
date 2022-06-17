@@ -662,7 +662,7 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
     exit(101);
   }
 
-  cout << "Exiting " << __FUNCTION__ << endl;
+//  cout << "Exiting " << __FUNCTION__ << endl;
 
   // this is set in most recent call to tbqs()
   return entrVal;
