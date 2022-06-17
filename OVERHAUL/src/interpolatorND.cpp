@@ -107,7 +107,8 @@ void InterpolatorND<D>::load_data_from_HDF( string filename )
     // quantities are whatever columns are left after getting the grid points
     fields[iRow].resize( nCols - dimension_of_grid );
     for ( int iCol = dimension_of_grid; iCol < nCols; iCol++ )
-      fields[iRow].at( iCol ) = data[ H5_indexer( iRow, iCol ) ];
+      fields[iRow].at( iCol - dimension_of_grid 
+        = data[ H5_indexer( iRow, iCol ) ];
   }
 
   delete [] data;
