@@ -203,6 +203,10 @@ void InterpolatorND<D>::evaluate( const vector<double> & coordinates,
   else
     results = vector<double>(nFields, 0.0);
 
+  cout << "coords:";
+  for (auto & c: coordinates)
+    cout << " " << c;
+  cout << endl;
 
   // loop over hypercube indices
   for ( auto & hypercube_index : hypercube_indices )
@@ -327,6 +331,11 @@ void InterpolatorND<D>::evaluate(
   }
   else
     results = vector<double>(nFields, 0.0);
+
+  cout << "coords:";
+  for (auto & c: coordinates)
+    cout << " " << c;
+  cout << endl;
 
   // loop over hypercube indices
   for ( auto & hypercube_index : hypercube_indices )
