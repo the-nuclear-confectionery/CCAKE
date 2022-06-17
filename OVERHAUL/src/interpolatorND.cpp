@@ -93,7 +93,7 @@ void InterpolatorND<D>::load_data_from_HDF( string filename )
 
   // "grid" holds coordinates of grid points
   grid.resize(dimension_of_grid);
-  for ( int iCol = 0; iCol < dim; iCol++ )
+  for ( int iCol = 0; iCol < dimension_of_grid; iCol++ )
   {
     grid[iCol].resize( nRows );
     for ( size_t iRow = 0; iRow < nRows; iRow++ )
