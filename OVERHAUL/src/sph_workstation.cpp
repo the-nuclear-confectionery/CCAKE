@@ -628,7 +628,7 @@ cout << "Finding thermodynamics of particle #" << p.ID << endl;
 {
     eos.set_thermo( p.thermo );
 
-  if (p.thermo.cs2<0)
+  if (p.thermo.cs2<0 || p.ID == 6151)
   {
   cout << "input thermo: " << e_In*constants::hbarc_MeVfm << "   "
         << rhoB_In << "   "
