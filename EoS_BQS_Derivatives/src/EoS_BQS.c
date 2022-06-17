@@ -235,10 +235,10 @@ int main(int argc, char *argv[])
 	const int muSmin = -450, muSmax = 450, DeltamuS = 50;
 
   // grid dimensions
-  const int nT = (Tmax-Tmin)/DeltaT;
-  const int nmuB = (muBmax-muBmin)/DeltamuB;
-  const int nmuS = (muSmax-muSmin)/DeltamuS;
-  const int nmuQ = (muQmax-muQmin)/DeltamuQ;
+  const int nT   = 1 + (Tmax-Tmin)/DeltaT;
+  const int nmuB = 1 + (muBmax-muBmin)/DeltamuB;
+  const int nmuS = 1 + (muSmax-muSmin)/DeltamuS;
+  const int nmuQ = 1 + (muQmax-muQmin)/DeltamuQ;
 
 	// set HDF array lengths
 	for(i=Tmin;i<=Tmax;i+=DeltaT)
