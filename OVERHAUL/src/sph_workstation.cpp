@@ -38,99 +38,90 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 
   if ( VERBOSE > 5 )
   {
-	cout << "----------------------------------------"
-			"----------------------------------------" << endl;
-	cout << "----------------------------------------"
-			"----------------------------------------" << endl;
+    cout << "----------------------------------------"
+            "----------------------------------------" << "\n";
+    cout << "----------------------------------------"
+            "----------------------------------------" << endl;
   }
 
-    systemPtr->n_particles = systemPtr->particles.size();
-    //cout << "systemPtr->n_particles = " << systemPtr->n_particles << "\n";
+  systemPtr->n_particles = systemPtr->particles.size();
 
-    for (int i=0; i<systemPtr->n_particles; i++)
+  for (auto & p : systemPtr->particles)
+  {
+    // include some print messages for debugging purposes
+    if ( VERBOSE > 5 || p.print_this_particle )
     {
-      auto & p = systemPtr->particles[i];
-
-cout << __FUNCTION__ << "::" << __LINE__ << endl;
-
-
-  if ( VERBOSE > 5 || p.print_this_particle )
-  {
       cout << "----------------------------------------"
-          "----------------------------------------" << "\n";
-  }
+              "----------------------------------------" << "\n";
+    }
 
-		
-		{
-			sw.Start();
-  if ( VERBOSE > 5 || p.print_this_particle )
-  {
-			cout << setprecision(12) << "Doing this particle: "
-					<< p.r(0) << "   " << p.r(1) << "\n";
-  }
-cout << __FUNCTION__ << "::" << __LINE__ << endl;
+    // start timing estimates
+    sw.Start();
+    if ( VERBOSE > 5 || p.print_this_particle )
+    {
+        cout << setprecision(12) << "Doing this particle: "
+            << p.r(0) << "   " << p.r(1) << "\n";
+    }
 
-      // solve for the entropy density
-			p.input.s = locate_phase_diagram_point_eBSQ( p,
-                    p.input.e, p.input.rhoB, p.input.rhoS, p.input.rhoQ );
-
-cout << __FUNCTION__ << "::" << __LINE__ << endl;
+    // solve for the entropy density
+    p.input.s = locate_phase_diagram_point_eBSQ( p,
+                  p.input.e, p.input.rhoB, p.input.rhoS, p.input.rhoQ );
 
 
-			sw.Stop();
-  if ( VERBOSE > 5 || p.print_this_particle )
-  {
-			string successString = (p.input.s < 0.0) ?
-									"unsuccessfully" : "successfully";
-      cout << "Print particle info:\n";
-			cout << "    SPH particle " << i << ", locate_phase_diagram_point_eBSQ: completed "
-					<< successString << " in " << sw.printTime() << "s." << "\n";
-  }
-		}
-cout << __FUNCTION__ << "::" << __LINE__ << endl;
+    // record and print timing estimates
+    sw.Stop();
+    if ( VERBOSE > 5 || p.print_this_particle )
+    {
+        string successString = (p.input.s < 0.0) ?
+                    "unsuccessfully" : "successfully";
+        cout << "Print particle info:\n";
+        cout << "    SPH particle " << p.ID
+              << ", locate_phase_diagram_point_eBSQ: completed "
+              << successString << " in "
+              << sw.printTime() << "s." << "\n";
+    }
 
 
-		///////////////////////////////////////////////////////////////////////////
-		// for now, if we failed to find a real entropy density for this
-		// point, just freeze it out, set its entropy to the freeze-out value,
-		// and continue without setting anything else
-		if (p.input.s < 0.0)
-		{
-			// freeze this particle out!
+    ///////////////////////////////////////////////////////////////////////////
+    // for now, if we failed to find a real entropy density for this
+    // point, just freeze it out, set its entropy to the freeze-out value,
+    // and continue without setting anything else
+    if (p.input.s < 0.0)
+    {
+      // freeze this particle out!
       cout << "This shouldn't have happened!" << endl;
       failCounter++;
       exit(8);
-			p.Freeze = 4;
-			////////////////////////////////////////////////////////
-		}
-		else
-		{
-  if ( VERBOSE > 5 || p.print_this_particle )
-  {
-			std::cout << "\t --> Solution info: "
-                << p.r(0) << "   " << p.r(1) << "   "
-                << p.get_current_eos_name() << "\n";
-			std::cout << "\t\t - phase diagram point (TBQS): "
-                << p.T()*hbarc_MeVfm << "   "
-                << p.muB()*hbarc_MeVfm << "   "
-                << p.muQ()*hbarc_MeVfm << "   "
-                << p.muS()*hbarc_MeVfm << "\n";
-			std::cout << "\t\t - input densities (eBSQ):    "
-                << p.input.e*hbarc_MeVfm << "   "
-                << p.input.rhoB << "   "
-                << p.input.rhoS << "   "
-                << p.input.rhoQ << "\n";
-			cout << "\t\t - output densities (eBSQ):    "
-                << p.e()*hbarc_MeVfm << "   "
-                << p.rhoB() << "   "
-                << p.rhoS() << "   "
-                << p.rhoQ() << "\n";
-			cout << "\t\t - freeze-out status:   " << p.Freeze << "\n";
-  }
-		}
+      p.Freeze = 4;
+      ////////////////////////////////////////////////////////
+    }
+    else
+    {
+      if ( VERBOSE > 5 || p.print_this_particle )
+      {
+          std::cout << "\t --> Solution info: "
+                    << p.r(0) << "   " << p.r(1) << "   "
+                    << p.get_current_eos_name() << "\n";
+          std::cout << "\t\t - phase diagram point (TBQS): "
+                    << p.T()*hbarc_MeVfm << "   "
+                    << p.muB()*hbarc_MeVfm << "   "
+                    << p.muQ()*hbarc_MeVfm << "   "
+                    << p.muS()*hbarc_MeVfm << "\n";
+          std::cout << "\t\t - input densities (eBSQ):    "
+                    << p.input.e*hbarc_MeVfm << "   "
+                    << p.input.rhoB << "   "
+                    << p.input.rhoS << "   "
+                    << p.input.rhoQ << "\n";
+          cout << "\t\t - output densities (eBSQ):    "
+                    << p.e()*hbarc_MeVfm << "   "
+                    << p.rhoB() << "   "
+                    << p.rhoS() << "   "
+                    << p.rhoQ() << "\n";
+          cout << "\t\t - freeze-out status:   " << p.Freeze << "\n";
+      }
+    }
 
-cout << __FUNCTION__ << "::" << __LINE__ << endl;
-
+    // initialize other particle attributes
     p.hydro.gamma = p.gamcalc();
 
     p.norm_spec.s    *= p.input.s*p.hydro.gamma*settingsPtr->t0;	  // constant after this
@@ -138,39 +129,34 @@ cout << __FUNCTION__ << "::" << __LINE__ << endl;
     p.norm_spec.rhoS *= p.input.rhoS*p.hydro.gamma*settingsPtr->t0; // constant after this
     p.norm_spec.rhoQ *= p.input.rhoQ*p.hydro.gamma*settingsPtr->t0; // constant after this
 
-cout << __FUNCTION__ << "::" << __LINE__ << endl;
 
+    if ( VERBOSE > 5 || p.print_this_particle )
+      cout << "----------------------------------------"
+              "----------------------------------------" << "\n";
 
-  if ( VERBOSE > 5 || p.print_this_particle )
-  {
-	cout << "----------------------------------------"
-			"----------------------------------------" << "\n";
-  }
-
-	if (false)
-	{
-		cout << "Exiting prematurely from " << __PRETTY_FUNCTION__
-			<< "::" << __LINE__ << "!" << endl;
-		cerr << "Exiting prematurely from " << __PRETTY_FUNCTION__
-			<< "::" << __LINE__ << "!" << endl;
-		exit(8);
-	}
-
+    // for debugging purposes
+    if (false)
+    {
+      cout << "Exiting prematurely from " << __PRETTY_FUNCTION__
+        << "::" << __LINE__ << "!" << endl;
+      cerr << "Exiting prematurely from " << __PRETTY_FUNCTION__
+        << "::" << __LINE__ << "!" << endl;
+      exit(8);
     }
+
+  }
 
   if ( VERBOSE > 5 )
   {
-	cout << "----------------------------------------"
-			"----------------------------------------" << endl;
-	cout << "----------------------------------------"
-			"----------------------------------------" << endl;
-	cout << "----------------------------------------"
-			"----------------------------------------" << endl;
+    cout << "----------------------------------------"
+            "----------------------------------------" << endl;
+    cout << "----------------------------------------"
+            "----------------------------------------" << endl;
+    cout << "----------------------------------------"
+            "----------------------------------------" << endl;
   }
 
 	swTotal.Stop();
-	//cout << "Finished function call to " << __FUNCTION__ << "(...) in "
-	//		<< swTotal.printTime() << " s." << endl;
   formatted_output::update("finished initializing particle densities in "
                               + to_string(swTotal.printTime()) + " s");
 
@@ -184,7 +170,13 @@ cout << __FUNCTION__ << "::" << __LINE__ << endl;
 	}
 
 
-	if (failCounter > 0) exit(-1);
+	if (failCounter > 0)
+  {
+    cerr << "failcounter = " << failCounter << " > 0!  Aborting." << endl;
+    abort();
+  }
+  else
+    return;
 
 }
 
@@ -629,22 +621,19 @@ void SPHWorkstation::get_time_derivatives()
 double SPHWorkstation::locate_phase_diagram_point_eBSQ( Particle & p,
                  double e_In, double rhoB_In, double rhoS_In, double rhoQ_In )
 {
+cout << "Finding thermodynamics of particle #" << p.ID << endl;
+
   // default: use particle's current location as initial guess
   // (pass in corresponding EoS as well!)
   eos.tbqs( p.T(), p.muB(), p.muQ(), p.muS(), p.get_current_eos_name() );
 
-cout << "Finding thermodynamics of particle #" << p.ID << endl;
-
   bool solution_found = false;
   double sVal = eos.s_out( e_In, rhoB_In, rhoS_In, rhoQ_In, solution_found );
 
-cout << __FUNCTION__ << "::" << __LINE__ << endl;
-
   if ( solution_found )
 {
-cout << __FUNCTION__ << "::" << __LINE__ << endl;
     eos.set_thermo( p.thermo );
-cout << __FUNCTION__ << "::" << __LINE__ << endl;
+//cout << __FUNCTION__ << "::" << __LINE__ << endl;
 
   auto approx = [](double a, double b) { return std::abs(a-b)<0.1; };
 

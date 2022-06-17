@@ -203,10 +203,10 @@ void InterpolatorND<D>::evaluate( const vector<double> & coordinates,
   else
     results = vector<double>(nFields, 0.0);
 
-  cout << "coords:";
-  for (auto & c: coordinates)
-    cout << " " << c;
-  cout << endl;
+//  cout << "coords:";
+//  for (auto & c: coordinates)
+//    cout << " " << c;
+//  cout << endl;
 
   // loop over hypercube indices
   for ( auto & hypercube_index : hypercube_indices )
@@ -254,11 +254,11 @@ void InterpolatorND<D>::evaluate( const vector<double> & coordinates,
     // 
     for ( int iField = 0; iField < nFields; iField++ )
     {
-      if (iField==6)
-      {
-        for (auto&his:hypercube_inds) cout << " " << his;
-        cout << "   " << cell[iField] << endl;
-      }
+//      if (iField==6)
+//      {
+//        for (auto&his:hypercube_inds) cout << " " << his;
+//        cout << "   " << cell[iField] << endl;
+//      }
 //      cout << "Check nodes: " << iField << "   " << weight << "   " << cell[iField] << endl;
       results[iField] += weight * cell[iField];
     }
@@ -332,10 +332,10 @@ void InterpolatorND<D>::evaluate(
   else
     results = vector<double>(nFields, 0.0);
 
-  cout << "coords:";
-  for (auto & c: coordinates)
-    cout << " " << c;
-  cout << endl;
+//  cout << "coords:";
+//  for (auto & c: coordinates)
+//    cout << " " << c;
+//  cout << endl;
 
   // loop over hypercube indices
   for ( auto & hypercube_index : hypercube_indices )
@@ -363,11 +363,11 @@ void InterpolatorND<D>::evaluate(
     // 
     for ( int iField = 0; iField < nFields; iField++ )
     {
-      if (iField==6)
-      {
-        for (auto&his:hypercube_inds) cout << " " << his;
-        cout << "   " << cell[field_names[fields_to_interpolate[iField]]] << endl;
-      }
+//      if (iField==6)
+//      {
+//        for (auto&his:hypercube_inds) cout << " " << his;
+//        cout << "   " << cell[field_names[fields_to_interpolate[iField]]] << endl;
+//      }
       results[iField] += weight * cell[field_names[fields_to_interpolate[iField]]];
     }
   }
