@@ -30,6 +30,27 @@ void InterpolatorND<D>::initialize( string filename, double fill_value_in )
 template <int D>
 void InterpolatorND<D>::load_data( string filename )
 {
+  if ( using_HDF )
+    load_data_from_HDF( filename );
+  else
+    load_data_from_dat( filename );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+template <int D>
+void InterpolatorND<D>::load_data_from_HDF( string filename )
+{
+  cerr << "I don't know how to do read in HDF files yet!" << endl;
+  abort();
+}
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+template <int D>
+void InterpolatorND<D>::load_data_from_dat( string filename )
+{
   ifstream infile( filename.c_str() );
   if (infile.is_open())
   {

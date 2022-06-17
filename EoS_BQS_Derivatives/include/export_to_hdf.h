@@ -55,7 +55,7 @@ void export_thermo_to_HDF( double ** array, char filename[],
 	dims[1]      = gridWidth;
 	dataspace_id = H5Screate_simple(2, dims, NULL);
 
-	dataset_id = H5Dcreate2(file_id, "/EOS", H5T_NATIVE_DOUBLE, dataspace_id, 
+	dataset_id = H5Dcreate2(file_id, "/data", H5T_NATIVE_DOUBLE, dataspace_id, 
                                 H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 
 	status = H5Dwrite(dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, arrayToStore);

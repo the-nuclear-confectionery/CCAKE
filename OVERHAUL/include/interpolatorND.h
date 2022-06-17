@@ -14,6 +14,8 @@ class InterpolatorND
 {
   static constexpr double NaN_value = std::numeric_limits<double>::quiet_NaN();
 
+  bool using_HDF = false;
+
   double fill_value = NaN_value;
 
   public:
@@ -93,6 +95,8 @@ class InterpolatorND
     }
 
     void load_data( string filename );
+    void load_data_from_HDF( string filename );
+    void load_data_from_dat( string filename );
     void construct_interpolant();
 
 };
