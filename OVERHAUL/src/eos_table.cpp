@@ -72,7 +72,7 @@ EoS_table::EoS_table( string quantityFile, string derivFile )
     equation_of_state_table.rescale( "chiTT", "T", 2 );
 
     // if cs2 ever goes negative, set it to zero
-    double zero_negatives = [](double x){return std::max(x,0.0);};
+    auto zero_negatives = [](double x){return std::max(x,0.0);};
     equation_of_state_table.apply_function_to_field( "cs2", zero_negatives );
 
 
