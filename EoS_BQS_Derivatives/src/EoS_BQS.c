@@ -379,8 +379,6 @@ int main(int argc, char *argv[])
 	fclose(All_Therm_Taylor);
   fclose(All_Therm_Der);
 
-  const int thermo_width
-
 	// write to HDF	
 	export_to_HDF( quantityArray,   "quantityFile.h5", gridLength, gridWidth  );
   export_to_HDF( derivativeArray, "derivFile.h5",    gridLength, gridWidthD );
