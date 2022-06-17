@@ -624,9 +624,13 @@ cout << "Finding thermodynamics of particle #" << p.ID << endl;
   bool solution_found = false;
   double sVal = eos.s_out( e_In, rhoB_In, rhoS_In, rhoQ_In, solution_found );
 
+cout << __FUNCTION__ << "::" << __LINE__ << endl;
+
   if ( solution_found )
 {
+cout << __FUNCTION__ << "::" << __LINE__ << endl;
     eos.set_thermo( p.thermo );
+cout << __FUNCTION__ << "::" << __LINE__ << endl;
 
   auto approx = [](double a, double b) { return std::abs(a-b)<0.1; };
 
