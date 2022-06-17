@@ -229,7 +229,7 @@ int main(int argc, char *argv[])
 	long long gridEntry  = 0;
 
 	// set T and mu_i ranges
-	const int Tmin = 0, Tmax = 800, DeltaT = 5;
+	const int Tmin = 0, Tmax = 100, DeltaT = 5;
 	const int muBmin = -450, muBmax = 450, DeltamuB = 50;
 	const int muQmin = -450, muQmax = 450, DeltamuQ = 50;
 	const int muSmin = -450, muSmax = 450, DeltamuS = 50;
