@@ -350,7 +350,9 @@ double TransportCoefficients::cs2_dependent_zeta()
         << A << "   "
         << p << "   "
         << pow((1.0/3.0)-therm.cs2, p) << endl;
-    //abort();
+
+    // do not tolerate this error
+    if ( therm.cs2 < 0.0 ) abort();
   }
   if ( zeta_over_s_local > 0.1 )
   {
