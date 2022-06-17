@@ -264,10 +264,10 @@ void InterpolatorND<D>::evaluate(
 {
   const int dim = D;
 
-  cout << "-----------------------------------------" << endl;
-  for (auto&coord:coordinates) cout << " " << coord;
-  cout << endl;
-  cout << "-----------------------------------------" << endl;
+//  cout << "-----------------------------------------" << endl;
+//  for (auto&coord:coordinates) cout << " " << coord;
+//  cout << endl;
+//  cout << "-----------------------------------------" << endl;
 
 
   bool out_of_range = false;
