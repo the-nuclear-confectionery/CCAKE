@@ -1,6 +1,7 @@
 #ifndef INTERPOLATORND_H
 #define INTERPOLATORND_H
 
+#include <functional>
 #include <limits>
 #include <map>
 #include <string>
@@ -41,6 +42,9 @@ class InterpolatorND
     void rescale_axis( const string & column_to_rescale, double overall_factor );
     void rescale_axes( double overall_factor );
     void rescale_field( const string & column_to_rescale, double overall_factor );
+
+    void apply_function_to_field( const string & column_to_modify,
+                                  std::function<double(double)> f );
     
 
     // interpolates all fields at once

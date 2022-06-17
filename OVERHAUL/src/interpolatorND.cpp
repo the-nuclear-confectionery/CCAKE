@@ -412,3 +412,15 @@ void InterpolatorND<D>::rescale_field( const string & column_to_rescale,
   for ( auto & cell : fields ) cell[column_index_to_rescale] *= overall_factor;
   return;
 }
+
+
+////////////////////////////////////////////////////////////////////////////////
+template <int D>
+void InterpolatorND<D>::apply_function_to_field(
+        const string & column_to_modify, std::function<double(double)> f )
+{
+  int column_index_to_modify = field_names[column_to_modify];
+  for ( auto & cell : fields )
+    cell[column_index_to_modify] = f( cell[column_index_to_modify] );
+  return;
+}
