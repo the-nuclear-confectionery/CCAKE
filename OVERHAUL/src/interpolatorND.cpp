@@ -152,7 +152,7 @@ void InterpolatorND<D>::evaluate( const vector<double> & coordinates,
                                   vector<double> & results )
 {
   // if coordinates are nan's, don't bother evaluating!
-  for (auto & c; coordinates)
+  for (auto & c: coordinates)
     if ( isnan(c) )
     {
       results = vector<double>(fields.front().size(), fill_value);
@@ -272,7 +272,7 @@ void InterpolatorND<D>::evaluate(
       const vector<string> & fields_to_interpolate )
 {
   // if coordinates are nan's, don't bother evaluating!
-  for (auto & c; coordinates)
+  for (auto & c: coordinates)
     if ( isnan(c) )
     {
       results = vector<double>(fields_to_interpolate.size(), fill_value);
