@@ -169,7 +169,7 @@ cout << "WARNING: NOT ACTUALLY LOADING EOS TABLE HERE" << endl;
   double minMuQ        = -450.0/hbarc_MeVfm;
   double maxMuS        = 450.0/hbarc_MeVfm;
   double minMuS        = -450.0/hbarc_MeVfm;
-  double maxT          = 1200.0/hbarc_MeVfm;
+  double maxT          = 800.0/hbarc_MeVfm;
   double minT          = 0.0;
 
   // initialize grid ranges here
