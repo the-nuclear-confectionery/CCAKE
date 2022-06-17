@@ -301,27 +301,36 @@ int main(int argc, char *argv[])
     D2PTS = P2TS(Tval, muBval, muQval, muSval);
     D2PT2 = P2T2(Tval, muBval, muQval, muSval);
     
-    if ( Tval > 1 )
+    if ( Tval < 1 )
     {
-      fprintf(All_Therm_Taylor, "%lf  %lf  %lf  %lf  %3.12f  %3.12f  %3.12f  "
-                                "%3.12f  %3.12f  %3.12f  %3.12f\n",
-              Tval, muBval, muQval, muSval, PressVal, EntrVal, 
-              BarDensVal, StrDensVal, ChDensVal, EnerDensVal, SpSoundVal);
-      fprintf(All_Therm_Der,"%lf  %lf  %lf  %lf  %3.12f  %3.12f %3.12f  %3.12f"
-                            "  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f%  3.12f\n",
-          Tval, muBval, muQval, muSval, D2PB2, D2PQ2, D2PS2, D2PBQ, D2PBS, D2PQS,
-          D2PTB, D2PTQ, D2PTS, D2PT2);
+      PressVal = 0.0;
+      EntrVal = 0.0;
+      BarDensVal = 0.0;
+      StrDensVal = 0.0;
+      ChDensVal = 0.0;
+      EnerDensVal = 0.0;
+      SpSoundVal = 0.5;
+      D2PB2 = 0.0;
+      D2PQ2 = 0.0;
+      D2PS2 = 0.0;
+      D2PBQ = 0.0;
+      D2PBS = 0.0;
+      D2PQS = 0.0;
+      D2PTB = 0.0;
+      D2PTQ = 0.0;
+      D2PTS = 0.0;
+      D2PT2 = 0.0;
     }
-    else
-    {
-      fprintf(All_Therm_Taylor, "%lf  %lf  %lf  %lf  %3.12f  %3.12f  %3.12f  "
-                                "%3.12f  %3.12f  %3.12f  %3.12f\n",
-              Tval, muBval, muQval, muSval, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.5);
-      fprintf(All_Therm_Der,"%lf  %lf  %lf  %lf  %3.12f  %3.12f %3.12f  %3.12f "
-                            " %3.12f  %3.12f  %3.12f  %3.12f  %3.12f%  3.12f\n",
-              Tval, muBval, muQval, muSval, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-              0.0, 0.0, 0.0, 0.0);
-    }
+
+    fprintf(All_Therm_Taylor, "%lf  %lf  %lf  %lf  %3.12f  %3.12f  %3.12f  "
+                              "%3.12f  %3.12f  %3.12f  %3.12f\n",
+            Tval, muBval, muQval, muSval, PressVal, EntrVal, 
+            BarDensVal, StrDensVal, ChDensVal, EnerDensVal, SpSoundVal);
+    fprintf(All_Therm_Der,"%lf  %lf  %lf  %lf  %3.12f  %3.12f %3.12f  %3.12f"
+                          "  %3.12f  %3.12f  %3.12f  %3.12f  %3.12f%  3.12f\n",
+        Tval, muBval, muQval, muSval, D2PB2, D2PQ2, D2PS2, D2PBQ, D2PBS, D2PQS,
+        D2PTB, D2PTQ, D2PTS, D2PT2);
+
 
     quantityArray[gridEntry][0]  = Tval;
     quantityArray[gridEntry][1]  = muBval;

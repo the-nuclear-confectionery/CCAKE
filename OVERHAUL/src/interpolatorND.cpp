@@ -42,6 +42,44 @@ void InterpolatorND<D>::load_data_from_HDF( string filename )
 {
   cerr << "I don't know how to do read in HDF files yet!" << endl;
   abort();
+
+  // Open HDF5 file handle, read only
+  H5File hdf5_file( filename.c_str(), H5F_ACC_RDONLY );
+
+  DataSet     dset       = hdf5_file.openDataSet( "/dimensions" );
+  DataSpace   dspace     = dset.getSpace();
+  H5T_class_t type_class = dset.getTypeClass();
+
+  // get the size of the dataset
+  hsize_t grid_dims[1];
+
+  // Define the memory dataspace
+//  hsize_t dimsm[1];
+//  dimsm[0] = dims[0];
+//  DataSpace memspace (1,dimsm);
+
+
+  // create a vector the same size as the dataset
+  vector<float> data;
+  data.resize(dims[0]);
+  cout<<"Vectsize: "<<data.size()<<endl;
+
+
+  float data_out[65341];
+  for (int i=0;i<65341;i++)
+  {
+    data_out[i]=0;
+  }
+  // pass pointer to the array (or vector) to read function, along with the data type and space.
+  dset.read(data_out, PredType::NATIVE_INT, dspace);           // FAILS
+
+
+  // close the HDF5 file
+  hdf5_file.close();
+
+
+
+
 }
 
 
