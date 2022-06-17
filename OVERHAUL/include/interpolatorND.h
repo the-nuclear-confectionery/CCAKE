@@ -7,6 +7,12 @@
 #include <string>
 #include <vector>
 
+#include "H5Cpp.h"
+
+#ifndef H5_NO_NAMESPACE
+  using namespace H5;
+#endif
+
 using namespace std;
 
 template <int D>
@@ -14,7 +20,7 @@ class InterpolatorND
 {
   static constexpr double NaN_value = std::numeric_limits<double>::quiet_NaN();
 
-  bool using_HDF = false;
+  bool using_HDF = true;
 
   double fill_value = NaN_value;
 

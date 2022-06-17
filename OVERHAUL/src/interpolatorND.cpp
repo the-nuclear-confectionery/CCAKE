@@ -40,8 +40,77 @@ void InterpolatorND<D>::load_data( string filename )
 template <int D>
 void InterpolatorND<D>::load_data_from_HDF( string filename )
 {
-  cerr << "I don't know how to do read in HDF files yet!" << endl;
-  abort();
+  H5File f( filename, H5F_ACC_RDONLY );
+
+  // Reading in grid dimensions first
+  hsize_t grid_dims[1];
+
+  DataSet ds = f.openDataSet( "/dimensions" );
+  DataSpace dspace = ds.getSpace().getSimpleExtentDims(grid_dims, NULL);
+
+  const int dimension_of_grid = grid_dims[0];
+  cout << "Dims: " << dimension_of_grid << endl;
+
+  int grid_dimensions[ dimension_of_grid ];
+  ds.read(grid_dimensions, H5::PredType::NATIVE_INT);
+
+  cout << "Grid dimensions:";
+  for (int iDim = 0; iDim < dimension_of_grid; iDim++)
+    cout << " " << grid_dimensions[iDim];
+  cout << endl;
+
+  // Reading in data grid next
+  hsize_t data_dims[2];
+
+  DataSet ds2 = f.openDataSet( "/data" );
+  DataSpace dspace2 = ds2.getSpace().getSimpleExtentDims(data_dims, NULL);
+
+  const size_t nRows = data_dims[0];
+  const size_t nCols = data_dims[1];
+  cout << "Dims: " << nRows << " " << nCols << endl;
+
+  cout << "Creating data array" << endl;
+
+  double * data = new double [ nRows * nCols ];
+
+  cout << "Created data array" << endl;
+
+  // read in the data
+  ds2.read(data, H5::PredType::NATIVE_DOUBLE);
+
+  // define convenient lambda to index data as 1D array
+  auto H5_indexer = [nCols](size_t i, size_t j) { return i*nCols+j; };
+
+  //============================================================================
+  // FINALLY, need to set interpolator quantities as in load_data_from_dat()
+
+  // check dimensions
+  if ( dimension_of_grid != D )
+  {
+    std::cerr << "Your equation of state table has the wrong dimension!" << std::endl;
+    abort();
+  }
+
+  // "grid" holds coordinates of grid points
+  grid.resize(dimension_of_grid);
+  for ( int iCol = 0; iCol < dim; iCol++ )
+  {
+    grid[iCol].resize( nRows );
+    for ( size_t iRow = 0; iRow < nRows; iRow++ )
+      grid[iCol].at( iRow ) = data[ H5_indexer( iRow, iCol ) ];
+  }
+
+  // "fields" holds all quantities to be interpolated over
+  fields.resize( nRows );
+  for ( size_t iRow = 0; iRow < nRows; iRow++ )
+  {
+    // quantities are whatever columns are left after getting the grid points
+    fields[iRow].resize( nCols - dimension_of_grid );
+    for ( int iCol = dimension_of_grid; iCol < nCols; iCol++ )
+      fields[iRow].at( iCol ) = data[ H5_indexer( iRow, iCol ) ];
+  }
+
+  delete [] data;
 }
 
 
@@ -70,7 +139,7 @@ void InterpolatorND<D>::load_data_from_dat( string filename )
         if ( dim != D )
         {
           std::cerr << "Your equation of state table has the wrong dimension!" << std::endl;
-          exit(1);
+          abort();
         }
         grid.resize(dim);
       }
