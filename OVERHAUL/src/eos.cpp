@@ -516,6 +516,9 @@ bool EquationOfState::rootfinder_update_s( double sin, double Bin,
       {
         std::cout << " --> found a solution with "
                   << this_eos->name << " EoS!" << std::endl;
+        std::cout << " --> solution has (T,muB,muS,muQ) = "
+                  << T() << "   " << muB() << "   " << muS() << "   " << muQ()
+                  << std::endl;
         std::cout << " --> solution has (s,B,S,Q) = "
                   << s() << "   " << B() << "   " << S() << "   " << Q()
                   << std::endl;
@@ -639,8 +642,12 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
       {
         std::cout << " --> found a solution with "
                   << this_eos->name << " EoS!" << std::endl;
+        std::cout << " --> solution has (T,muB,muS,muQ) = "
+                  << T() << "   " << muB() << "   " << muS() << "   " << muQ()
+                  << std::endl;
         std::cout << " --> solution has (e,B,S,Q) = "
-                  << e() << "   " << B() << "   " << S() << "   " << Q() << endl;
+                  << e() << "   " << B() << "   " << S() << "   " << Q()
+                  << std::endl;
       }
       break;
     }
