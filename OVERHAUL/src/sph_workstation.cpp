@@ -51,6 +51,8 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
     {
       auto & p = systemPtr->particles[i];
 
+cout << __FUNCTION__ << "::" << __LINE__ << endl;
+
 
   if ( VERBOSE > 5 || p.print_this_particle )
   {
@@ -66,9 +68,14 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 			cout << setprecision(12) << "Doing this particle: "
 					<< p.r(0) << "   " << p.r(1) << "\n";
   }
+cout << __FUNCTION__ << "::" << __LINE__ << endl;
+
       // solve for the entropy density
 			p.input.s = locate_phase_diagram_point_eBSQ( p,
                     p.input.e, p.input.rhoB, p.input.rhoS, p.input.rhoQ );
+
+cout << __FUNCTION__ << "::" << __LINE__ << endl;
+
 
 			sw.Stop();
   if ( VERBOSE > 5 || p.print_this_particle )
@@ -80,6 +87,8 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 					<< successString << " in " << sw.printTime() << "s." << "\n";
   }
 		}
+cout << __FUNCTION__ << "::" << __LINE__ << endl;
+
 
 		///////////////////////////////////////////////////////////////////////////
 		// for now, if we failed to find a real entropy density for this
@@ -120,12 +129,17 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
   }
 		}
 
+cout << __FUNCTION__ << "::" << __LINE__ << endl;
+
     p.hydro.gamma = p.gamcalc();
 
     p.norm_spec.s    *= p.input.s*p.hydro.gamma*settingsPtr->t0;	  // constant after this
     p.norm_spec.rhoB *= p.input.rhoB*p.hydro.gamma*settingsPtr->t0; // constant after this
     p.norm_spec.rhoS *= p.input.rhoS*p.hydro.gamma*settingsPtr->t0; // constant after this
     p.norm_spec.rhoQ *= p.input.rhoQ*p.hydro.gamma*settingsPtr->t0; // constant after this
+
+cout << __FUNCTION__ << "::" << __LINE__ << endl;
+
 
   if ( VERBOSE > 5 || p.print_this_particle )
   {

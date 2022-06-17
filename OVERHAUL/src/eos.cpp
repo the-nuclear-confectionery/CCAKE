@@ -561,8 +561,6 @@ double EquationOfState::s_out( double ein, double Bin, double Sin,
     exit(1);
   }
 
-cout << __FUNCTION__ << "::" << __LINE__ << endl;
-
   return (result);
 }
 
