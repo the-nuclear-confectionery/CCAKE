@@ -628,7 +628,14 @@ cout << "Finding thermodynamics of particle #" << p.ID << endl;
 {
     eos.set_thermo( p.thermo );
 
-  if (p.thermo.cs2<0 || p.ID == 6151)
+  auto & approx = [](double a, double b) { std::abs(a-b)<0.1 };
+
+  bool crash_this_particle = approx(p.thermo.e*constants::hbarc_MeVfm, 3040.99)
+                              && approx(p.thermo.rhoB, 0.649051)
+                              && approx(p.thermo.rhoS, -2.36332)
+                              && approx(p.thermo.rhoQ, -1.29778);
+
+  if (p.thermo.cs2<0 || crash_this_particle)
   {
   cout << "input thermo: " << e_In*constants::hbarc_MeVfm << "   "
         << rhoB_In << "   "
