@@ -43,12 +43,12 @@ void InterpolatorND<D>::load_data_from_HDF( string filename )
   H5File f( filename, H5F_ACC_RDONLY );
 
   // Reading in grid dimensions first
-  hsize_t grid_dims[1];
+  hsize_t gridsizes_dims[1];
 
   DataSet ds = f.openDataSet( "/dimensions" );
-  DataSpace dspace = ds.getSpace().getSimpleExtentDims(grid_dims, NULL);
+  DataSpace dspace = ds.getSpace().getSimpleExtentDims(gridsizes_dims, NULL);
 
-  const int dimension_of_grid = grid_dims[0];
+  const int dimension_of_grid = gridsizes_dims[0];
   cout << "Dims: " << dimension_of_grid << endl;
 
   int grid_dimensions[ dimension_of_grid ];
@@ -58,6 +58,9 @@ void InterpolatorND<D>::load_data_from_HDF( string filename )
   for (int iDim = 0; iDim < dimension_of_grid; iDim++)
     cout << " " << grid_dimensions[iDim];
   cout << endl;
+
+  // must set grid_sizes for below
+  grid_sizes.assign(grid_dimensions, grid_dimensions + dimension_of_grid);
 
   // Reading in data grid next
   hsize_t data_dims[2];
