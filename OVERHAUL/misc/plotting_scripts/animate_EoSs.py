@@ -47,6 +47,7 @@ def main():
     print('Saving to', out)
     FFwriter = animation.FFMpegWriter(fps=5, extra_args=['-vcodec', 'libx264'])
     ani.save(out, writer=FFwriter)
+    print('Finished everything.')
     #out = "animation.gif" 
     #ani.save(out, writer='imagemagick', fps=10)
 
