@@ -30,7 +30,7 @@ def animate(i):
     y = np.array(frame['y'])[::100]
     #im = plt.scatter(x, y, c = np.array(frame['e']), s = 0.000004,
     #                 cmap = cm.get_cmap('plasma') )
-    im = plt.plot(x, y, 'bo')
+    im = plt.plot(x, y, 'bo', ms = 0.5)
     plt.xlim([-12, 12])
     plt.ylim([-12, 12])
     
