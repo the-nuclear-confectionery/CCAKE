@@ -12,6 +12,8 @@ event = f['Event']
 n_timesteps = min([len(event.keys()),50])
 event_keys = list(event.keys())
 
+fig = plt.figure(figsize=(12,12), dpi=125)
+
 
 def init():
     im = plt.plot(np.array([0.0]), np.array([0.0]), alpha = 0.0)
@@ -22,6 +24,7 @@ def init():
 
 def animate(i):
     print('Plotting frame', i, flush=True)
+    fig.clear()
     frame = event[event_keys[i]]
     x = np.array(frame['x'])[::100]
     y = np.array(frame['y'])[::100]
@@ -41,7 +44,6 @@ def animate(i):
 def main():
 
     # Plot Volume Rendering
-    fig = plt.figure(figsize=(12,12), dpi=125)
     plt.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
     plt.margins(0, 0)
         
