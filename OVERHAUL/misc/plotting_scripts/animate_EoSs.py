@@ -26,11 +26,11 @@ def animate(i):
     print('Plotting frame', i, flush=True)
     fig.clear()
     frame = event[event_keys[i]]
-    x = np.array(frame['x'])[::10]
-    y = np.array(frame['y'])[::10]
+    x = np.array(frame['x'])
+    y = np.array(frame['y'])
     #im = plt.scatter(x, y, c = np.array(frame['e']), s = 0.000004,
     #                 cmap = cm.get_cmap('plasma') )
-    im = plt.plot(x, y, 'bo', ms = 2.5)
+    im = plt.plot(x, y, 'bo', ms = 1)
     plt.xlim([-12, 12])
     plt.ylim([-12, 12])
     
