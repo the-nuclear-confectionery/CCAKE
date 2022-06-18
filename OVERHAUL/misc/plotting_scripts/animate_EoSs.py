@@ -25,7 +25,7 @@ def animate(i):
     frame = event[event_keys[i]]
     x = np.array(frame['x'])
     y = np.array(frame['y'])
-    im = plt.scatter(x, y, colors='blue')
+    im = plt.scatter(x, y)
     
     #plt.imsave(fname='old_animation_frames/frame' + str(i) + '.png', \
     #           arr=image, cmap=chosen_colormap, format='png')
