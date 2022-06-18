@@ -19,7 +19,8 @@ def init():
     y = np.array(frame['y'])
     #im = plt.scatter(x, y)
     im = plt.plot(x, y)
-    return im,
+    #return im,
+    return im
 
 
 def animate(i):
@@ -33,7 +34,8 @@ def animate(i):
     
     #plt.imsave(fname='old_animation_frames/frame' + str(i) + '.png', \
     #           arr=image, cmap=chosen_colormap, format='png')
-    return im,
+    #return im,
+    return im
 
 
 
