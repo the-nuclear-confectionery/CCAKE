@@ -25,7 +25,7 @@ def animate(i):
     frame = event[event_keys[i]]
     x = np.array(frame['x'])
     y = np.array(frame['y'])
-    im = plt.scatter(x, y)
+    im = plt.scatter(x, y, colors='blue')
     
     #plt.imsave(fname='old_animation_frames/frame' + str(i) + '.png', \
     #           arr=image, cmap=chosen_colormap, format='png')
@@ -36,7 +36,7 @@ def animate(i):
 def main():
 
     # Plot Volume Rendering
-    fig = plt.figure(figsize=(1,1), dpi=200)
+    fig = plt.figure(figsize=(5,5), dpi=50)
     plt.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
     plt.margins(0, 0)
         
@@ -46,7 +46,7 @@ def main():
 
     out = "EoS_particle_evolution.mp4"
     print('Saving to', out)
-    FFwriter = animation.FFMpegWriter(fps=5, extra_args=['-vcodec', 'libx264'])
+    FFwriter = animation.FFMpegWriter(fps=10, extra_args=['-vcodec', 'libx264'])
     ani.save(out, writer=FFwriter)
     print('Finished everything.')
     #out = "animation.gif" 
