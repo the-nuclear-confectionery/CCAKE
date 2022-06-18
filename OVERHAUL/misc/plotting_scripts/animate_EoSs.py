@@ -38,7 +38,7 @@ def animate(i):
 def main():
 
     # Plot Volume Rendering
-    fig = plt.figure(figsize=(5,5), dpi=50)
+    fig = plt.figure(figsize=(10,10), dpi=150)
     plt.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
     plt.margins(0, 0)
         
@@ -48,7 +48,7 @@ def main():
 
     out = "EoS_particle_evolution.mp4"
     print('Saving to', out)
-    FFwriter = animation.FFMpegWriter(fps=10, extra_args=['-vcodec', 'libx264'])
+    FFwriter = animation.FFMpegWriter(fps=2, extra_args=['-vcodec', 'libx264'])
     ani.save(out, writer=FFwriter)
     print('Finished everything.')
     #out = "animation.gif" 
