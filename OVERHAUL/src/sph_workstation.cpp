@@ -480,10 +480,10 @@ void SPHWorkstation::process_initial_conditions()
 
 		// make educated initial guess here for this particle's (T, mu_i) coordinates
 		// (improve this in the future)
-		//p.thermo.T        = 1000.0/hbarc_MeVfm;	// rootfinder seems to work better going downhill than "uphill"
+		p.thermo.T        = 1000.0/hbarc_MeVfm;	// rootfinder seems to work better going downhill than "uphill"
 
     // use max T of default EoS method instead
-    p.thermo.T        = (eos.get_default_eos()->tbqs_maxima)[0];
+    //p.thermo.T        = (eos.get_default_eos()->tbqs_maxima)[0];
 
 		p.thermo.muB      = 0.0/hbarc_MeVfm;
 		p.thermo.muS      = 0.0/hbarc_MeVfm;
