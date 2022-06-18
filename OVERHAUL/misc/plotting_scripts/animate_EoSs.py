@@ -52,7 +52,7 @@ def main():
         
     # Do Volume Rendering at Different Viewing Angles
     ani = animation.FuncAnimation(fig, animate, np.arange(n_timesteps), \
-                                  init_func=init, blit=True)
+                                  init_func=init, blit=False)
 
     out = "EoS_particle_evolution.gif"
     print('Saving to', out)
