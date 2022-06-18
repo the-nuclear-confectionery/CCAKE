@@ -25,7 +25,8 @@ def animate(i):
     frame = event[event_keys[i]]
     x = np.array(frame['x'])
     y = np.array(frame['y'])
-    im = plt.scatter(x, y)
+    im = plt.scatter(x, y, c = np.array(frame['e']), s = 0.001,
+                     cmap = cm.get_cmap('inferno', 256) )
     
     #plt.imsave(fname='old_animation_frames/frame' + str(i) + '.png', \
     #           arr=image, cmap=chosen_colormap, format='png')
