@@ -18,9 +18,9 @@ WARNINGS= -w -Wall -Wextra -pedantic -Wno-conversion -Wcast-align -Wunused \
 #					-Wconversion -Wshadow -Wpointer-arith \
 #					-Wcast-qual -Wcast-align -Wwrite-strings \
 #					-fshort-enums -fno-common -Dinline= -g -O2
-#OPTIMIZATION=
+OPTIMIZATION=
 #OPTIMIZATION= -Og
-OPTIMIZATION= -Ofast -s -march=native -mtune=native
+#OPTIMIZATION= -Ofast -s -march=native -mtune=native
 # change to -O3 or -Ofast for production
 
 SRC=$(realpath src)
