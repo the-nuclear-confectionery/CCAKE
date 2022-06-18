@@ -9,7 +9,7 @@ import sys
 
 f = h5py.File(sys.argv[1], 'r')
 event = f['Event']
-n_timesteps = min([len(event.keys()),25])
+n_timesteps = min([len(event.keys()),50])
 event_keys = list(event.keys())
 
 
@@ -23,11 +23,11 @@ def init():
 def animate(i):
     print('Plotting frame', i, flush=True)
     frame = event[event_keys[i]]
-    x = np.array(frame['x'])
-    y = np.array(frame['y'])
+    x = np.array(frame['x'])[::100]
+    y = np.array(frame['y'])[::100]
     #im = plt.scatter(x, y, c = np.array(frame['e']), s = 0.000004,
     #                 cmap = cm.get_cmap('plasma') )
-    im = plt.plot(x, y, 'bo', ms = 0.025)
+    im = plt.plot(x, y, 'bo', ms = 0.05)
     plt.xlim([-12, 12])
     plt.ylim([-12, 12])
     
