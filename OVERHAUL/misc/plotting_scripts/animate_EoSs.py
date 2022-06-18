@@ -50,7 +50,7 @@ def main():
     print('Saving to', out)
     #FFwriter = animation.FFMpegWriter(fps=2, extra_args=['-vcodec', 'libx264'])
     #ani.save(out, writer=FFwriter)
-    ani.save(out, writer='imagemagick', fps=2)
+    ani.save(out, writer='imagemagick', fps=10)
     print('Finished everything.')
 
     return 0
