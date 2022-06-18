@@ -17,7 +17,8 @@ def init():
     frame = event[event_keys[0]]
     x = np.array(frame['x'])
     y = np.array(frame['y'])
-    im = plt.scatter(x, y)
+    #im = plt.scatter(x, y)
+    im = plt.plot(x, y)
     return im,
 
 
