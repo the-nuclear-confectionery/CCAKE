@@ -21,6 +21,7 @@ def init():
 
 
 def animate(i):
+    print('Plotting frame', i)
     frame = event[event_keys[i]]
     x = np.array(frame['x'])
     y = np.array(frame['y'])
@@ -35,7 +36,7 @@ def animate(i):
 def main():
 
     # Plot Volume Rendering
-    fig = plt.figure(figsize=(1,1), dpi=500)
+    fig = plt.figure(figsize=(1,1), dpi=200)
     plt.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
     plt.margins(0, 0)
         
