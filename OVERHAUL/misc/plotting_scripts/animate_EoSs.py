@@ -27,7 +27,7 @@ def animate(i):
     y = np.array(frame['y'])[::100]
     #im = plt.scatter(x, y, c = np.array(frame['e']), s = 0.000004,
     #                 cmap = cm.get_cmap('plasma') )
-    im = plt.plot(x, y, 'bo', ms = 0.05)
+    im = plt.plot(x, y, 'bo', ms = 0.25)
     plt.xlim([-12, 12])
     plt.ylim([-12, 12])
     
@@ -47,7 +47,7 @@ def main():
         
     # Do Volume Rendering at Different Viewing Angles
     ani = animation.FuncAnimation(fig, animate, np.arange(n_timesteps), \
-                                  init_func=init, blit=False)
+                                  init_func=init, blit=True)
 
     out = "EoS_particle_evolution.gif"
     print('Saving to', out)
