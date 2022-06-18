@@ -9,19 +9,14 @@ import sys
 
 f = h5py.File(sys.argv[1], 'r')
 event = f['Event']
-n_timesteps = min([len(event.keys()),1000])
+n_timesteps = min([len(event.keys()),25])
 event_keys = list(event.keys())
 
 
 def init():
-    frame = event[event_keys[0]]
-    x = np.array(frame['x'])
-    y = np.array(frame['y'])
-    #im = plt.scatter(x, y)
-    im = plt.plot(x, y, 'bo', ms = 0.025)
+    im = plt.plot(np.array([0.0]), np.array([0.0]), alpha = 0.0)
     plt.xlim([-12, 12])
     plt.ylim([-12, 12])
-    #return im,
     return im
 
 
