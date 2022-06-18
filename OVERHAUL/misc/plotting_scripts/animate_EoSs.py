@@ -46,13 +46,12 @@ def main():
     ani = animation.FuncAnimation(fig, animate, np.arange(n_timesteps), \
                                   init_func=init, blit=True)
 
-    out = "EoS_particle_evolution.mp4"
+    out = "EoS_particle_evolution.gif"
     print('Saving to', out)
-    FFwriter = animation.FFMpegWriter(fps=2, extra_args=['-vcodec', 'libx264'])
-    ani.save(out, writer=FFwriter)
+    #FFwriter = animation.FFMpegWriter(fps=2, extra_args=['-vcodec', 'libx264'])
+    #ani.save(out, writer=FFwriter)
+    ani.save(out, writer='imagemagick', fps=2)
     print('Finished everything.')
-    #out = "animation.gif" 
-    #ani.save(out, writer='imagemagick', fps=10)
 
     return 0
 
