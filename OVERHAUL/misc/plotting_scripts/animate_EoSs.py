@@ -1,6 +1,7 @@
 import h5py
 import matplotlib
 matplotlib.use('Agg')
+from matplotlib import cm
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import numpy as np
