@@ -22,7 +22,7 @@ def init():
 
 
 def animate(i):
-    print('Plotting frame', i)
+    print('Plotting frame', i, flush=True)
     frame = event[event_keys[i]]
     x = np.array(frame['x'])
     y = np.array(frame['y'])
