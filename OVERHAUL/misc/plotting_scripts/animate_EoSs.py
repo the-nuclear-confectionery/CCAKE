@@ -19,6 +19,8 @@ def init():
     y = np.array(frame['y'])
     #im = plt.scatter(x, y)
     im = plt.plot(x, y, 'bo', ms = 0.025)
+    plt.xlim([-12, 12])
+    plt.ylim([-12, 12])
     #return im,
     return im
 
@@ -31,6 +33,8 @@ def animate(i):
     #im = plt.scatter(x, y, c = np.array(frame['e']), s = 0.000004,
     #                 cmap = cm.get_cmap('plasma') )
     im = plt.plot(x, y, 'bo', ms = 0.025)
+    plt.xlim([-12, 12])
+    plt.ylim([-12, 12])
     
     #plt.imsave(fname='old_animation_frames/frame' + str(i) + '.png', \
     #           arr=image, cmap=chosen_colormap, format='png')
