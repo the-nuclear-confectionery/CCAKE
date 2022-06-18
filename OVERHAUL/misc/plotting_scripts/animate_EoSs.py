@@ -9,7 +9,7 @@ import sys
 
 f = h5py.File(sys.argv[1], 'r')
 event = f['Event']
-n_timesteps = min([len(event.keys()),10])
+n_timesteps = min([len(event.keys()),1000])
 event_keys = list(event.keys())
 
 
