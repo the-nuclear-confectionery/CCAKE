@@ -44,6 +44,7 @@ def main():
                                   init_func=init, blit=True)
 
     out = "EoS_particle_evolution.mp4"
+    print('Saving to', out)
     FFwriter = animation.FFMpegWriter(fps=5, extra_args=['-vcodec', 'libx264'])
     ani.save(out, writer=FFwriter)
     #out = "animation.gif" 
