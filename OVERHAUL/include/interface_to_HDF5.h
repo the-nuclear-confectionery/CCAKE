@@ -147,6 +147,10 @@ class interface_to_HDF5
         string DATASET_NAME = FRAME_NAME + "/labels";
         DataSet dataset = groupFrame.createDataSet( DATASET_NAME.c_str(),
                               PredType::NATIVE_INT, dataspace);
+
+        int label_array[length];
+        for (int i = 0; i < length; i++)
+          label_array[i] = labels[i];
         
         dataset.write(labels, PredType::NATIVE_INT);
       }
