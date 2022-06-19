@@ -102,7 +102,8 @@ class interface_to_HDF5
     void output_dataset( const vector<string> & dataset_names,
                          const vector<string> & dataset_units,
                          const vector<vector<double> > & v, const int width,
-                         const int timestepindex, const double time )
+                         const int timestepindex, const double time,
+                         const vector<int> & labels )
     {
       const int Nfields = v.size();
       const int length = v[0].size();
@@ -118,9 +119,9 @@ class interface_to_HDF5
 
       Group groupFrame(file.createGroup(FRAME_NAME.c_str()));
 
-      // some frames apparently come with a timestamp(?)
       output_double_attribute( groupFrame, time, "Time" );
 
+      // export all datasets
       for (int iDS = 0; iDS < dataset_names.size(); iDS++)
       {
         hsize_t dims[1];
@@ -136,6 +137,22 @@ class interface_to_HDF5
 
         dataset.write(data[iDS], PredType::NATIVE_DOUBLE);
       }
+
+      // export any particle labels as indices (e.g., current eos names)
+      {
+        hsize_t dims[1];
+        dims[0] = length;
+        DataSpace dataspace(1, dims);
+      
+        string DATASET_NAME = FRAME_NAME + "/labels";
+        DataSet dataset = groupFrame.createDataSet( DATASET_NAME.c_str(),
+                              PredType::NATIVE_INT, dataspace);
+        
+        dataset.write(labels, PredType::NATIVE_INT);
+      }
+
+if (1) exit(-1);
+
       return;
     }
 

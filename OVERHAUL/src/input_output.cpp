@@ -640,17 +640,24 @@ void InputOutput::print_system_state_to_HDF()
   vector<string> dataset_names = {"x", "y", "e"};
   vector<string> dataset_units = {"fm", "fm", "MeV/fm^3"};
 
+  std::map<int,string> eos_map = {{0, "table"}, 
+                                  {1, "tanh_conformal"}, 
+                                  {2, "conformal"}, 
+                                  {3, "conformal_diagonal"}}; 
+
   vector<vector<double> > data( dataset_names.size(),
                                 vector<double>(systemPtr->particles.size()) );
+  vector<int> eos_tags(systemPtr->particles.size());
   for (auto & p : systemPtr->particles)
   {
-    data[0][p.ID] = p.r(0);
-    data[1][p.ID] = p.r(1);
-    data[2][p.ID] = p.e()*hbarc_MeVfm;
+    data[0][p.ID]  = p.r(0);
+    data[1][p.ID]  = p.r(1);
+    data[2][p.ID]  = p.e()*hbarc_MeVfm;
+    eos_tags[p.ID] = eos_map[ p.get_current_eos_name() ];
   }
 
   hdf5_file.output_dataset( dataset_names, dataset_units, data, width,
-                            n_timesteps_output, systemPtr->t );
+                            n_timesteps_output, systemPtr->t, eos_tags );
 
   return;
 }
