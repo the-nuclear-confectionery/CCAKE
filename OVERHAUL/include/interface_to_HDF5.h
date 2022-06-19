@@ -152,7 +152,7 @@ class interface_to_HDF5
         for (int i = 0; i < length; i++)
           label_array[i] = labels[i];
         
-        dataset.write(labels, PredType::NATIVE_INT);
+        dataset.write(label_array, PredType::NATIVE_INT);
       }
 
 if (1) exit(-1);
