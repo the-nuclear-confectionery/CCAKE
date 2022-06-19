@@ -155,7 +155,7 @@ class interface_to_HDF5
         dataset.write(label_array, PredType::NATIVE_INT);
       }
 
-if (1) exit(-1);
+//if (1) exit(-1);
 
       return;
     }
