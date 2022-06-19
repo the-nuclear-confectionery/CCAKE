@@ -640,10 +640,10 @@ void InputOutput::print_system_state_to_HDF()
   vector<string> dataset_names = {"x", "y", "e"};
   vector<string> dataset_units = {"fm", "fm", "MeV/fm^3"};
 
-  std::map<int,string> eos_map = {{0, "table"}, 
-                                  {1, "tanh_conformal"}, 
-                                  {2, "conformal"}, 
-                                  {3, "conformal_diagonal"}}; 
+  std::map<string,int> eos_map = {{"table",              0}, 
+                                  {"tanh_conformal",     1}, 
+                                  {"conformal",          2}, 
+                                  {"conformal_diagonal", 3}}; 
 
   vector<vector<double> > data( dataset_names.size(),
                                 vector<double>(systemPtr->particles.size()) );
