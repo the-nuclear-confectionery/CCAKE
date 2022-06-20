@@ -26,11 +26,18 @@ def animate(i):
     print('Plotting frame', i, flush=True)
     fig.clear()
     frame = event[event_keys[i]]
+    table_EOS              = np.where( np.array(frame['labels']) == 0 )
+    tanh_conformal_EOS     = np.where( np.array(frame['labels']) == 1 )
+    conformal_EOS          = np.where( np.array(frame['labels']) == 2 )
+    conformal_diagonal_EOS = np.where( np.array(frame['labels']) == 3 )
     x = np.array(frame['x'])
     y = np.array(frame['y'])
     #im = plt.scatter(x, y, c = np.array(frame['e']), s = 0.000004,
     #                 cmap = cm.get_cmap('plasma') )
-    im = plt.plot(x, y, 'bo', ms = 1)
+    im = plt.plot(x[table_EOS], y[table_EOS], 'o', color='blue', ms = 1)
+    im = plt.plot(x[tanh_conformal_EOS], y[tanh_conformal_EOS], 'o', color='green', ms = 1)
+    im = plt.plot(x[conformal_EOS], y[conformal_EOS], 'o', color='purple', ms = 1)
+    im = plt.plot(x[conformal_diagonal_EOS], y[conformal_diagonal_EOS], 'o', color='red', ms = 1)
     plt.xlim([-12, 12])
     plt.ylim([-12, 12])
     
@@ -51,7 +58,8 @@ def main():
     ani = animation.FuncAnimation(fig, animate, np.arange(n_timesteps), \
                                   init_func=init, blit=True)
 
-    out = "EoS_particle_evolution.gif"
+    #out = "EoS_particle_evolution.gif"
+    out = sys.argv[2]
     print('Saving to', out)
     #FFwriter = animation.FFMpegWriter(fps=2, extra_args=['-vcodec', 'libx264'])
     #ani.save(out, writer=FFwriter)
