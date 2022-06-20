@@ -42,7 +42,7 @@ def animate(i):
     plt.ylim([-12, 12])
     
     if i==0:
-        plt.imsave(fname='frame' + str(i) + '.png', format='png')
+        plt.savefig('frame' + str(i) + '.png', format='png')
     #return im,
     return im
 
