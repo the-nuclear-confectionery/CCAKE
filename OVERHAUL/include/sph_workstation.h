@@ -101,7 +101,7 @@ public:
   void process_initial_conditions();
   void initialize_entropy_and_charge_densities();
   void initial_smoothing();
-
+  void add_buffer(double default_e);
 
   //============================================================================
   // smoothing
@@ -139,12 +139,12 @@ public:
   //-------------------------------------------
   void update_all_particle_thermodynamics()
         { for ( auto & p : systemPtr->particles )
-            calcbsq( p ); }
+            set_phase_diagram_point( p ); }
 
   //-------------------------------------------
   void update_all_particle_viscosities()
         { for ( auto & p : systemPtr->particles )
-            setvisc( p ); }
+            set_transport_coefficients( p ); }
 
   //-------------------------------------------
   void evaluate_all_particle_time_derivatives()
@@ -156,9 +156,6 @@ public:
 
   //-------------------------------------------
   void freeze_out_particles();
-//  int do_freezeout_checks();
-//  void update_freeze_out_lists();
-//  void finalize_freeze_out(int curfrz);
 
 
   //============================================================================
@@ -174,8 +171,8 @@ public:
   void locate_phase_diagram_point_sBSQ(
           Particle & p, double s_In );
 
-  void calcbsq( Particle & p );
-  void setvisc( Particle & p );
+  void set_phase_diagram_point( Particle & p );
+  void set_transport_coefficients( Particle & p );
 
   void set_bulk_Pi();
 

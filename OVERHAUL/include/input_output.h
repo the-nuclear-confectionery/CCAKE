@@ -49,7 +49,6 @@ public:
   void set_EoS_type();
   void set_results_directory( string path_to_results_directory );
   void read_in_initial_conditions();
-  void add_buffer();
 
   void print_system_state();
   void print_system_state_to_txt();
