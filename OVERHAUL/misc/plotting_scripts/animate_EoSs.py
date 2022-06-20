@@ -42,8 +42,7 @@ def animate(i):
     plt.ylim([-12, 12])
     
     if i==0:
-        plt.imsave(fname='frame' + str(i) + '.png', \
-                   arr=image, cmap=chosen_colormap, format='png')
+        plt.imsave(fname='frame' + str(i) + '.png', arr=im, format='png')
     #return im,
     return im
 
