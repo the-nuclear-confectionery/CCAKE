@@ -121,14 +121,10 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
       }
     }
 
-    // initialize other particle attributes
-    p.hydro.gamma = p.gamcalc();
-
     p.norm_spec.s    *= p.input.s*p.hydro.gamma*settingsPtr->t0;	  // constant after this
     p.norm_spec.rhoB *= p.input.rhoB*p.hydro.gamma*settingsPtr->t0; // constant after this
     p.norm_spec.rhoS *= p.input.rhoS*p.hydro.gamma*settingsPtr->t0; // constant after this
     p.norm_spec.rhoQ *= p.input.rhoQ*p.hydro.gamma*settingsPtr->t0; // constant after this
-
 
     if ( VERBOSE > 5 || p.print_this_particle )
       cout << "----------------------------------------"
@@ -453,16 +449,28 @@ void SPHWorkstation::process_initial_conditions()
                               + to_string(systemPtr->particles.size()));
   }
 
+  //============================================================================
+  // TOTAL NUMBER OF PARTICLES FIXED AFTER THIS POINT
+  systemPtr->n_particles = systemPtr->particles.size();
+
+
   // fill out initial particle information
   //int TMP_particle_count = 0;
 	for (auto & p : systemPtr->particles)
   {
+    // make sure each particle is aware of Settings
+    p.set_SettingsPtr( settingsPtr );
+
     // set area element for each SPH particle
     double dA = (settingsPtr->stepx)*(settingsPtr->stepy);
 
     // Set the rest of particle elements using area element
-		//p.u(0)          = 0.0;  // flow must be set in Particle constructor!!!
-		//p.u(1)          = 0.0;  // flow must be set in Particle constructor!!!
+		//p.u(0)          = 0.0;  // flow is set in Particle constructor!!!
+		//p.u(1)          = 0.0;  // flow is set in Particle constructor!!!
+    p.hydro.gamma     = p.gamcalc();
+    p.hydro.g2        = p.hydro.gamma*p.hydro.gamma;
+    p.hydro.g3        = p.hydro.g2*p.hydro.gamma;
+
 
     // normalize all specific densities to 1
 		p.specific.s      = 1.0;
@@ -490,6 +498,7 @@ void SPHWorkstation::process_initial_conditions()
 		p.thermo.muQ      = 0.0/hbarc_MeVfm;
 		p.thermo.eos_name = "default";  // uses whatever the default EoS is
 
+    p.efcheck = systemPtr->efcheck;
 		if ( p.input.e > systemPtr->efcheck )	// impose freeze-out check for e, not s
 			p.Freeze = 0;
 		else
@@ -502,8 +511,12 @@ void SPHWorkstation::process_initial_conditions()
   formatted_output::detail("particles frozen out: "
                            + to_string(systemPtr->number_part) );
   formatted_output::detail("particles not frozen out: "
-                           + to_string(systemPtr->particles.size()
+                           + to_string(systemPtr->n_particles
                                         - systemPtr->number_part) );
+
+
+  // make sure freeze-out vectors, etc. are correct size
+  fo.resize_vectors( systemPtr->n_particles );
 
 
   //============================================================================
@@ -511,7 +524,7 @@ void SPHWorkstation::process_initial_conditions()
   // remaining quantities which depend on this
 
   // assign particles IDs
-  for ( int i = 0; i < systemPtr->particles.size(); i++ )
+  for ( int i = 0; i < systemPtr->n_particles; i++ )
   {
     systemPtr->particles[i].ID       = i;
     systemPtr->particles[i].hydro.ID = i;

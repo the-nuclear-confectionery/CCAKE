@@ -34,9 +34,8 @@ void SystemState::initialize()  // formerly called "manualenter"
 {
   formatted_output::report("Initializing system");
 
-  n_particles = particles.size();
-  t           = settingsPtr->t0;
-  h           = settingsPtr->h;
+  t = settingsPtr->t0;
+  h = settingsPtr->h;
 
   formatted_output::update("set freeze out parameters");
 
@@ -47,13 +46,6 @@ void SystemState::initialize()  // formerly called "manualenter"
                            + to_string(efcheck*hbarc_GeVfm) + " GeV/fm^3");
   formatted_output::detail("freeze out entropy density = "
                            + to_string(sfcheck) + " 1/fm^3");
-
-  // initialize information for particles
-  for (auto & p : particles)
-  {
-    p.set_SettingsPtr( settingsPtr );
-    p.efcheck = efcheck;
-  }
 
   return;
 }
@@ -66,11 +58,6 @@ void SystemState::initialize_linklist()
 
   // initialize linklist
   linklist.initialize( &particles, settingsPtr->h );
-
-  // this should be moved
-  // use a lambda function for convenience
-  for (auto & p : particles)
-    p.hydro.g2 = [](double x){ return x*x; }( p.gamcalc() );
 
   return;
 }

@@ -64,7 +64,7 @@ void BSQHydro::initialize_hydrodynamics()
   Stopwatch sw;
   sw.Start();
 
-  // initialize equation of state
+  // initialize workstation
   ws.initialize();
 
   // initialize system state
@@ -74,7 +74,7 @@ void BSQHydro::initialize_hydrodynamics()
   // filling out initial conditions, and imposing initial freeze-out
   ws.process_initial_conditions();
 
-  // comes after energy cut-off imposed
+  // sets nearest neighbors needed for smoothing
   system.initialize_linklist();
 
   // for each particle, find location in phase diagram

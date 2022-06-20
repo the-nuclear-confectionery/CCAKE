@@ -101,10 +101,10 @@ class FreezeOut
     // (must be accessed in system state)
     vector<FRZ> frz2;
 
-//    void set_EquationOfStatePtr(EquationOfState * eosPtr_in) { eosPtr = eosPtr_in; }
     void set_SettingsPtr(Settings * settingsPtr_in) { settingsPtr = settingsPtr_in; }
     void set_SystemStatePtr(SystemState * systemPtr_in) { systemPtr = systemPtr_in; }
 
+    //==========================================================================
     // set things up
     void initialize( double fo_threshold_in,
                      const string & fo_mode = "constant_energy_density" )
@@ -123,23 +123,32 @@ class FreezeOut
         exit(8);
       }
 
-      // resize vectors to contain all particles
-      frz1.resize( systemPtr->particles.size() );
-      frz2.resize( systemPtr->particles.size() );
-      fback.resize( systemPtr->particles.size() );
-      fback2.resize( systemPtr->particles.size() );
-      fback3.resize( systemPtr->particles.size() );
-      fback4.resize( systemPtr->particles.size() );
+//      // resize vectors to contain all particles
+//      frz1.resize( systemPtr->particles.size() );
+//      frz2.resize( systemPtr->particles.size() );
+//      fback.resize( systemPtr->particles.size() );
+//      fback2.resize( systemPtr->particles.size() );
+//      fback3.resize( systemPtr->particles.size() );
+//      fback4.resize( systemPtr->particles.size() );
     }
 
 
 
+    //==========================================================================
+    void resize_vectors(int number_of_particles)
+    {
+      // resize vectors to contain all particles
+      frz1.resize( number_of_particles );
+      frz2.resize( number_of_particles );
+      fback.resize( number_of_particles );
+      fback2.resize( number_of_particles );
+      fback3.resize( number_of_particles );
+      fback4.resize( number_of_particles );
+    }
 
 
 
-
-
-    //==============================================================================
+    //==========================================================================
     void check_freeze_out_status( Particle & p, double tin, int &count, int N )
     {
       int p_ID = p.ID;

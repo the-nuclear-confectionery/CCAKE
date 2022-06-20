@@ -87,6 +87,8 @@ public:
     systemPtr->sfcheck = eos.sfreeze(settingsPtr->Freeze_Out_Temperature);
     fo.initialize( systemPtr->efcheck );
 
+    //----------------------------------------
+    // set up RK evolver
     evolver.set_SettingsPtr( settingsPtr );
     evolver.set_SystemStatePtr( systemPtr );
   }
