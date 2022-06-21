@@ -418,20 +418,6 @@ void SPHWorkstation::process_initial_conditions()
 
 
     //==========================================================================
-    // add a buffer of particles around the edge to stabilize evolution in low-
-    // density regions
-    if ( settingsPtr->buffer_event ) add_buffer( settingsPtr->e_cutoff );
-
-
-    formatted_output::update("Number of particles after buffering: "
-                              + to_string(systemPtr->particles.size()));
-
-
-  //if (1) exit(8);
-
-
-
-    //==========================================================================
     // cut out particles whose energy density is too small for charge densities
     // remove particles with no possible solutions
     systemPtr->particles.erase( std::remove_if(
@@ -447,6 +433,20 @@ void SPHWorkstation::process_initial_conditions()
 
     formatted_output::update("Number of particles after solution checks: "
                               + to_string(systemPtr->particles.size()));
+
+
+    //==========================================================================
+    // add a buffer of particles around the edge to stabilize evolution in low-
+    // density regions
+    if ( settingsPtr->buffer_event ) add_buffer( settingsPtr->e_cutoff );
+
+
+    formatted_output::update("Number of particles after buffering: "
+                              + to_string(systemPtr->particles.size()));
+
+
+  //if (1) exit(8);
+
   }
 
   //============================================================================
