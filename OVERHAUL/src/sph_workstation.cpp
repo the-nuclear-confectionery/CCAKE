@@ -837,6 +837,26 @@ void SPHWorkstation::add_buffer(double default_e)
   double ymin  = settingsPtr->ymin;
   double stepx = settingsPtr->stepx;
   double stepy = settingsPtr->stepy;
+
+  
+  // find maximum distance from origin first
+  double max_r = -1.0;
+  if ( circular_buffer )
+  {
+    for ( auto & p : systemPtr->particles )
+      max_r = std::max( max_r, Norm(p.r) );
+    max_r *= 1.0 + padding_thickness;
+
+    xmin = -step_x*ceil(max_r/step_x);
+    ymin = -step_y*ceil(max_r/step_y);
+
+    if ( max_r < 0.0 )
+    {
+      cout << "max_r = " << max_r << " cannot be less than zero!" << endl;
+      abort();
+    }
+  }
+  
   
   const int nx = 1 - 2*int(round(xmin/stepx));  // xmin is negative
   const int ny = 1 - 2*int(round(ymin/stepy));  // xmin is negative
@@ -865,6 +885,7 @@ void SPHWorkstation::add_buffer(double default_e)
 
   // loop over all points to consider,
   // initialize those not yet in grid
+  // (if in padded circle, for circular_buffer == true)
   for ( int ix0 = 0; ix0 < nx; ix0++ )
   for ( int iy0 = 0; iy0 < ny; iy0++ )
   {
@@ -873,10 +894,12 @@ void SPHWorkstation::add_buffer(double default_e)
     // don't initialize particles that already exist!
     if ( particle_exists[ix0][iy0] ) continue;
 
-    added_particles++;
-
     double x0 = xmin + ix0*stepx;
     double y0 = ymin + iy0*stepy;
+
+    // if circular_buffer == true,
+    // don't initialize particles outside padded circle!
+    if ( circular_buffer && sqrt(x0*x0+y0*y0) > max_r ) ) continue;
 
     Particle p;
 
@@ -890,6 +913,8 @@ void SPHWorkstation::add_buffer(double default_e)
     p.hydro.u(1) = 0.0;
     
     systemPtr->particles.push_back( p );
+    added_particles++;
+
   }
 
   cout << "checked_particles = " << checked_particles << endl;

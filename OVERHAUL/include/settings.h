@@ -14,24 +14,42 @@ class Settings
 {
   public:
 
-    // default settings
+    //==========================================================================
+    // default/global settings
     bool using_Gubser                 = false;
     bool using_Gubser_with_shear      = false;
     bool using_shear                  = false;
     bool initializing_with_full_Tmunu = false;  // whether to initialize Pi from
                                                 // varsigma - p or not
 
+    //==========================================================================
+    // event buffer settings
     bool buffer_event                 = true;   // add a buffer around event to
                                                 // stabilize evolution
+    bool circular_buffer              = true;   // whether to buffer with entire
+                                                // grid or just circular padding
+    double padding_thickness          = 0.1;    // if circular_buffer == true,
+                                                // buffer_radius specifies the
+                                                // fractional amount of padding
+                                                // to add beyond the point with
+                                                // maximum distance from origin
+    
 
+    //==========================================================================
+    // transport coefficients settings
     bool modulate_zeta_with_tanh      = true;   // forces zeta/s to decrease
                                                 // smoothly to zero below
                                                 // transition temperature
 
+    //==========================================================================
+    // I/O settings
     bool printing_to_txt              = true;
     bool printing_to_HDF              = true;
 
     static constexpr int VERBOSE      = 5;
+
+    //==========================================================================
+    // hydrodynamics settings
 
     // maximum upper limit for t
     static constexpr double tend      = 50.02;
@@ -49,6 +67,9 @@ class Settings
                                              // particles are removed [GeV/fm^3]
     double Freeze_Out_Temperature     = 0.0; // freeze-out temp. (at zero mu)
 
+
+    //==========================================================================
+    // input parameter settings
 
     // quantities read in from InputParameters.inp file
     vector<string> headers;

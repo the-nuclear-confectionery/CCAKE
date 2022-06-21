@@ -325,9 +325,9 @@ double TransportCoefficients::cs2_dependent_zeta()
 
   const double zeta_over_s_local
                 = A * factor * pow((1.0/3.0) - std::min(therm.cs2, 1.0), p);
-  cout << "Check zeta/s: "
-        << therm.T*hbarc_MeVfm << "   "
-        << zeta_over_s_local << endl;
+//  cout << "Check zeta/s: "
+//        << therm.T*hbarc_MeVfm << "   "
+//        << zeta_over_s_local << endl;
 
   if ( therm.cs2 < 0.0 || therm.cs2 > 1.0 )
   {
@@ -352,7 +352,11 @@ double TransportCoefficients::cs2_dependent_zeta()
         << pow((1.0/3.0)-therm.cs2, p) << endl;
 
     // do not tolerate this error
-    if ( therm.cs2 < 0.0 ) abort();
+    if ( therm.cs2 < 0.0 )
+    {
+      cout << "cs2 went negative!" << endl;
+      abort();
+    }
   }
   if ( zeta_over_s_local > 0.1 )
   {
