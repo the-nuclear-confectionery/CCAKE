@@ -841,11 +841,11 @@ void SPHWorkstation::add_buffer(double default_e)
   
   // find maximum distance from origin first
   double max_r = -1.0;
-  if ( circular_buffer )
+  if ( settingsPtr->circular_buffer )
   {
     for ( auto & p : systemPtr->particles )
       max_r = std::max( max_r, Norm(p.r) );
-    max_r *= 1.0 + padding_thickness;
+    max_r *= 1.0 + settingsPtr->padding_thickness;
 
     xmin = -step_x*ceil(max_r/step_x);
     ymin = -step_y*ceil(max_r/step_y);
@@ -899,7 +899,7 @@ void SPHWorkstation::add_buffer(double default_e)
 
     // if circular_buffer == true,
     // don't initialize particles outside padded circle!
-    if ( circular_buffer && sqrt(x0*x0+y0*y0) > max_r ) ) continue;
+    if ( settingsPtr->circular_buffer && sqrt(x0*x0+y0*y0) > max_r ) ) continue;
 
     Particle p;
 
