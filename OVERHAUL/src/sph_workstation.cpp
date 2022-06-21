@@ -721,6 +721,10 @@ void SPHWorkstation::locate_phase_diagram_point_sBSQ( Particle & p,
 {
     eos.set_thermo( p.thermo );
 
+    // do not permit cs2 to be negative if using C library
+    if ( eos.currently_using_static_C_library() )
+      p.thermo.cs2 = std::max( p.thermo.cs2, 0.0001 );
+
   if (p.thermo.cs2<0)
   {
   cout << "input thermo: " << s_In << "   "
@@ -740,7 +744,7 @@ void SPHWorkstation::locate_phase_diagram_point_sBSQ( Particle & p,
         << p.thermo.e << "   "
         << p.thermo.cs2 << "   "
         << p.thermo.eos_name << endl;
-    cout << __LINE__ << "cs2 was negative!" << endl;
+    cout << __LINE__ << ": cs2 was negative!" << endl;
     exit(8);
   }
 }

@@ -26,7 +26,7 @@ class Settings
     // event buffer settings
     bool buffer_event                 = true;   // add a buffer around event to
                                                 // stabilize evolution
-    bool circular_buffer              = true;   // whether to buffer with entire
+    bool circular_buffer              = false;  // whether to buffer with entire
                                                 // grid or just circular padding
     double padding_thickness          = 0.1;    // if circular_buffer == true,
                                                 // buffer_radius specifies the
