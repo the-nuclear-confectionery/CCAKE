@@ -449,7 +449,8 @@ double EquationOfState::calc_term_4(string j_char, string i_char) {
 double EquationOfState::deriv_mult_aTm_1b(gsl_vector* a, gsl_matrix* m, gsl_vector* b)
 {
   gsl_permutation *p = gsl_permutation_alloc(3);
-  int s;
+  gsl_permutation_init(p);
+  int s = -1;
 
   // Compute the LU decomposition of this matrix
   gsl_linalg_LU_decomp(m, p, &s);
