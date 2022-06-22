@@ -678,19 +678,19 @@ double SPHWorkstation::locate_phase_diagram_point_eBSQ( Particle & p,
 //      exit(8);
 //    }
 
-  cout << "check thermo: " << p.ID << "   "
-        << p.thermo.T*constants::hbarc_MeVfm << "   "
-        << p.thermo.muB*constants::hbarc_MeVfm << "   "
-        << p.thermo.muS*constants::hbarc_MeVfm << "   "
-        << p.thermo.muQ*constants::hbarc_MeVfm << "   "
-        << p.thermo.e*constants::hbarc_MeVfm << "   "
-        << p.thermo.rhoB << "   "
-        << p.thermo.rhoS << "   "
-        << p.thermo.rhoQ << "   "
-        << p.thermo.p*constants::hbarc_MeVfm << "   "
-        << p.thermo.s << "   "
-        << p.thermo.cs2 << "   "
-        << p.thermo.eos_name << endl;
+//  cout << "check thermo: " << p.ID << "   "
+//        << p.thermo.T*constants::hbarc_MeVfm << "   "
+//        << p.thermo.muB*constants::hbarc_MeVfm << "   "
+//        << p.thermo.muS*constants::hbarc_MeVfm << "   "
+//        << p.thermo.muQ*constants::hbarc_MeVfm << "   "
+//        << p.thermo.e*constants::hbarc_MeVfm << "   "
+//        << p.thermo.rhoB << "   "
+//        << p.thermo.rhoS << "   "
+//        << p.thermo.rhoQ << "   "
+//        << p.thermo.p*constants::hbarc_MeVfm << "   "
+//        << p.thermo.s << "   "
+//        << p.thermo.cs2 << "   "
+//        << p.thermo.eos_name << endl;
 
   }
 
@@ -722,8 +722,16 @@ void SPHWorkstation::locate_phase_diagram_point_sBSQ( Particle & p,
     eos.set_thermo( p.thermo );
 
     // do not permit cs2 to be negative if using C library
-    if ( eos.currently_using_static_C_library() )
+    // or if using the tanh_conformal EoS
+    if (  ( eos.currently_using_static_C_library()
+            && p.get_current_eos_name() == "table" )
+          || p.get_current_eos_name() == "tanh_conformal" )
+        )
+    {
+      cout << "WARNING: cs2 went negative in eos_type == "
+          << p.get_current_eos_name() << endl;
       p.thermo.cs2 = std::max( p.thermo.cs2, 0.0001 );
+    }
 
   if (p.thermo.cs2<0)
   {
