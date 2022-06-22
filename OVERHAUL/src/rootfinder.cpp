@@ -376,6 +376,7 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
   // memory deallocation
   gsl_multiroot_fsolver_free(solver);
   gsl_vector_free(x);
+  gsl_vector_free(chosen_densities);
 
   return found;
 }
