@@ -728,7 +728,25 @@ void SPHWorkstation::locate_phase_diagram_point_sBSQ( Particle & p,
           || p.get_current_eos_name() == "tanh_conformal" )
     {
       cout << "WARNING: cs2 went negative in eos_type == "
-          << p.get_current_eos_name() << endl;
+          << p.get_current_eos_name() << " for particle " << p.ID << endl;
+  cout << "input thermo: " << s_In << "   "
+        << rhoB_In << "   "
+        << rhoS_In << "   "
+        << rhoQ_In << endl
+        << "check thermo: " << systemPtr->t << "   "
+        << p.thermo.T << "   "
+        << p.thermo.muB << "   "
+        << p.thermo.muS << "   "
+        << p.thermo.muQ << "   "
+        << p.thermo.p << "   "
+        << p.thermo.s << "   "
+        << p.thermo.rhoB << "   "
+        << p.thermo.rhoS << "   "
+        << p.thermo.rhoQ << "   "
+        << p.thermo.e << "   "
+        << p.thermo.cs2 << "   "
+        << p.thermo.eos_name << endl;
+exit(8);
       p.thermo.cs2 = std::max( p.thermo.cs2, 0.0001 );
     }
 
