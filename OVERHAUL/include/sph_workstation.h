@@ -205,6 +205,9 @@ public:
     formatted_output::update("finished timestep in "
                               + to_string(sw.printTime()) + " s");
 
+    if ( systemPtr->number_of_elapsed_timesteps > 10 )
+      exit(-1);
+
     return;
   }
 
