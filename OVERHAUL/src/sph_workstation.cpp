@@ -726,7 +726,6 @@ void SPHWorkstation::locate_phase_diagram_point_sBSQ( Particle & p,
     if (  ( eos.currently_using_static_C_library()
             && p.get_current_eos_name() == "table" )
           || p.get_current_eos_name() == "tanh_conformal" )
-        )
     {
       cout << "WARNING: cs2 went negative in eos_type == "
           << p.get_current_eos_name() << endl;
