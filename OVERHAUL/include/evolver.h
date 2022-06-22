@@ -16,7 +16,8 @@ class Evolver
 {
   private:
 
-    static constexpr bool REGULATE_NEGATIVE_S = false;
+    static constexpr bool REGULATE_NEGATIVE_S = true;
+    static constexpr bool REGULATE_LARGE_S    = true;
 
     
     Settings    * settingsPtr = nullptr;
@@ -128,14 +129,23 @@ class Evolver
 
 
           // regulate updated results if necessary
-          if ( REGULATE_NEGATIVE_S && p.specific.s < 0.0
-                /*&& p.T() < 50.0/constants::hbarc_MeVfm*/ )
+          if ( REGULATE_NEGATIVE_S && p.specific.s < 0.0 )
           {
             std::cerr << "WARNING: regulating particle " << p.ID << " at e = "
                       << p.e()*constants::hbarc_MeVfm << " MeV/fm^3 "
                       << "(T = " << p.T()*constants::hbarc_MeVfm << " MeV): "
                       << p.specific.s << " --> " << 0.5*(specific_s0[i]+1.0) << endl;
             p.specific.s    = 0.5*(specific_s0[i]+1.0);
+          }
+
+          // regulate updated results if necessary
+          if ( REGULATE_LARGE_S && p.specific.s > 10.0*specific_s0[i] )
+          {
+            std::cerr << "WARNING: regulating particle " << p.ID << " at e = "
+                      << p.e()*constants::hbarc_MeVfm << " MeV/fm^3 "
+                      << "(T = " << p.T()*constants::hbarc_MeVfm << " MeV): "
+                      << p.specific.s << " --> " << 2.0*specific_s0[i] << endl;
+            p.specific.s    = 2.0*specific_s0[i];
           }
 
 
@@ -169,8 +179,7 @@ class Evolver
             tmini( ph.shv,    shv0[i]        + dt*ph.dshv_dt );
 
           // regulate updated results if necessary
-          if ( REGULATE_NEGATIVE_S && p.specific.s < 0.0
-                /*&& p.T() < 50.0/constants::hbarc_MeVfm*/ )
+          if ( REGULATE_NEGATIVE_S && p.specific.s < 0.0 )
           {
             std::cerr << "WARNING: regulating particle " << p.ID << " at e = "
                       << p.e()*constants::hbarc_MeVfm << " MeV/fm^3 "
@@ -179,6 +188,15 @@ class Evolver
             p.specific.s    = 0.5*(specific_s0[i]+1.0);
           }
 
+          // regulate updated results if necessary
+          if ( REGULATE_LARGE_S && p.specific.s > 10.0*specific_s0[i] )
+          {
+            std::cerr << "WARNING: regulating particle " << p.ID << " at e = "
+                      << p.e()*constants::hbarc_MeVfm << " MeV/fm^3 "
+                      << "(T = " << p.T()*constants::hbarc_MeVfm << " MeV): "
+                      << p.specific.s << " --> " << 2.0*specific_s0[i] << endl;
+            p.specific.s    = 2.0*specific_s0[i];
+          }
 
           p.contribution_to_total_Ez = particles_E0[i]
                                         + dt*p.contribution_to_total_dEz;
