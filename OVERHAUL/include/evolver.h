@@ -16,8 +16,8 @@ class Evolver
 {
   private:
 
-    static constexpr bool REGULATE_NEGATIVE_S = true;
-    static constexpr bool REGULATE_LARGE_S    = true;
+    static constexpr bool REGULATE_NEGATIVE_S = false;
+    static constexpr bool REGULATE_LARGE_S    = false;
 
     
     Settings    * settingsPtr = nullptr;
