@@ -112,5 +112,10 @@ void LinkList::reset()
   formatted_output::update("set vector of neighbors in "
                             + to_string(sw.printTime()) + " s.");
 
+  long long total_neighbors = 0;
+  for ( auto & a : all_neighbors ) total_neighbors += a.size();
+  formatted_output::update("vector of neighbors contains "
+                            + to_string(total_neighbors) + " neighbors.");
+
 }
 
