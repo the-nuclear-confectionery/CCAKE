@@ -16,7 +16,7 @@ class Evolver
 {
   private:
 
-    static constexpr bool REGULATE_LOW_T = false;
+    static constexpr bool REGULATE_NEGATIVE_S = false;
 
     
     Settings    * settingsPtr = nullptr;
@@ -128,7 +128,7 @@ class Evolver
 
 
           // regulate updated results if necessary
-          if ( REGULATE_LOW_T && p.specific.s < 0.0
+          if ( REGULATE_NEGATIVE_S && p.specific.s < 0.0
                 /*&& p.T() < 50.0/constants::hbarc_MeVfm*/ )
           {
             std::cerr << "WARNING: regulating particle " << p.ID << " at e = "
@@ -169,7 +169,7 @@ class Evolver
             tmini( ph.shv,    shv0[i]        + dt*ph.dshv_dt );
 
           // regulate updated results if necessary
-          if ( REGULATE_LOW_T && p.specific.s < 0.0
+          if ( REGULATE_NEGATIVE_S && p.specific.s < 0.0
                 /*&& p.T() < 50.0/constants::hbarc_MeVfm*/ )
           {
             std::cerr << "WARNING: regulating particle " << p.ID << " at e = "
@@ -255,7 +255,7 @@ class Evolver
         tmini(ph.shv,  shv0[i]        + 0.5*ps.shv1);
 
         // regulate updated results if necessary
-        if ( REGULATE_LOW_T && p.specific.s < 0.0
+        if ( REGULATE_NEGATIVE_S && p.specific.s < 0.0
               && p.T() < 50.0/constants::hbarc_MeVfm )
           p.specific.s    = specific_s0[i];
       }
@@ -290,7 +290,7 @@ class Evolver
         tmini(ph.shv,  shv0[i]        + 0.5*ps.shv2);
 
         // regulate updated results if necessary
-        if ( REGULATE_LOW_T && p.specific.s < 0.0
+        if ( REGULATE_NEGATIVE_S && p.specific.s < 0.0
               && p.T() < 50.0/constants::hbarc_MeVfm )
           p.specific.s    = specific_s0[i];
       }
@@ -325,7 +325,7 @@ class Evolver
         tmini(ph.shv,  shv0[i]        + ps.shv3);
 
         // regulate updated results if necessary
-        if ( REGULATE_LOW_T && p.specific.s < 0.0
+        if ( REGULATE_NEGATIVE_S && p.specific.s < 0.0
               && p.T() < 50.0/constants::hbarc_MeVfm )
           p.specific.s    = specific_s0[i];
       }
@@ -361,7 +361,7 @@ class Evolver
         tmini(ph.shv,  shv0[i]        + w1*ps.shv1 + w2*ps.shv2 + w2*ps.shv3 + w1*ps.shv4);
 
         // regulate updated results if necessary
-        if ( REGULATE_LOW_T && p.specific.s < 0.0
+        if ( REGULATE_NEGATIVE_S && p.specific.s < 0.0
               && p.T() < 50.0/constants::hbarc_MeVfm )
           p.specific.s    = specific_s0[i];
       }
