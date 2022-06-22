@@ -60,6 +60,8 @@ void LinkList::reset()
   for ( int i = 0; i < 2; i++ )
     Size *= size(i);
 
+  formatted_output::update("Size = " + to_string(Size) + ".");
+
 
   //============================================================================
   //dael: relates every particle with its linklist cube
@@ -67,6 +69,8 @@ void LinkList::reset()
 
   for (int j = 0; j < n_particles; j++)
     dael[j] = inv_h*((*particlesPtr)[j].r-min) + (1.0*range)*uni;
+
+  formatted_output::update("dael.size() = " + to_string(dael.size()) + ".");
 
   //============================================================================
   //lead: relates every linklist cube with one of the particles (leader) in it
@@ -85,6 +89,8 @@ void LinkList::reset()
   }
 
 
+  formatted_output::update("lead.size() = " + to_string(lead.size()) + ".");
+  formatted_output::update("link.size() = " + to_string(link.size()) + ".");
 
 
   // add vector of neighbors
