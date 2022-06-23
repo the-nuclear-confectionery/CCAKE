@@ -38,6 +38,9 @@ def animate(i):
     im = plt.plot(x[tanh_conformal_EOS], y[tanh_conformal_EOS], 'o', color='green', ms = 1)
     im = plt.plot(x[conformal_EOS], y[conformal_EOS], 'o', color='purple', ms = 1)
     im = plt.plot(x[conformal_diagonal_EOS], y[conformal_diagonal_EOS], 'o', color='red', ms = 1)
+    if len(sys.argv) > 3:
+        indices = list(map(int,sys.argv[3:]))
+        im = plt.plot(x[indices], y[indices], 'o', color='black', ms = 3)
     plt.xlim([-12, 12])
     plt.ylim([-12, 12])
     
