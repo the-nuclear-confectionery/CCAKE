@@ -106,6 +106,26 @@ public:
       thermo.dwdB = dwdB();
       thermo.dwdS = dwdS();
       thermo.dwdQ = dwdQ();
+
+      if ( print_now )
+        cout << __FUNCTION__ << ": " << thermo.eos_name << "   "
+            << thermo.T << "   "
+            << thermo.muB << "   "
+            << thermo.muS << "   "
+            << thermo.muQ << "   "
+            << thermo.p << "   "
+            << thermo.s << "   "
+            << thermo.rhoB << "   "
+            << thermo.rhoS << "   "
+            << thermo.rhoQ << "   "
+            << thermo.e << "   "
+            << thermo.w << "   "
+            << thermo.A << "   "
+            << thermo.cs2 << "   "
+            << thermo.dwds << "   "
+            << thermo.dwdB << "   "
+            << thermo.dwdS << "   "
+            << thermo.dwdQ << endl;
     }
 
     // call these functions using default EoS if none is specified
