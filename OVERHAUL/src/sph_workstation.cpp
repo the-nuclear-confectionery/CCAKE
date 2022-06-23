@@ -533,6 +533,12 @@ void SPHWorkstation::process_initial_conditions()
   // set particles to print
   for ( int & p : settingsPtr->particles_to_print )
   {
+    if ( p >= systemPtr->n_particles )
+    {
+      std::cerr << "Particle with ID #" << p << " does not exist, so you cannot"
+                   " print it!  Please fix this and re-run." << std::endl;
+      abort();
+    }
     systemPtr->particles[p].print_this_particle  = true;
     systemPtr->particles[p].hydro.print_particle = true;
   }
