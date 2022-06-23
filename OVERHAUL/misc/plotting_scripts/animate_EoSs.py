@@ -39,8 +39,8 @@ def animate(i):
     im = plt.plot(x[conformal_EOS], y[conformal_EOS], 'o', color='purple', ms = 1)
     im = plt.plot(x[conformal_diagonal_EOS], y[conformal_diagonal_EOS], 'o', color='red', ms = 1)
     if len(sys.argv) > 3:
-        indices = list(map(int,sys.argv[3:]))
-        im = plt.plot(x[indices], y[indices], 'o', color='black', ms = 3)
+        extra = list(map(int,sys.argv[3:]))
+        im = plt.plot(x[extra], y[extra], 'o', color='black', ms = 5)
     plt.xlim([-12, 12])
     plt.ylim([-12, 12])
     
@@ -66,7 +66,7 @@ def main():
     print('Saving to', out)
     #FFwriter = animation.FFMpegWriter(fps=2, extra_args=['-vcodec', 'libx264'])
     #ani.save(out, writer=FFwriter)
-    ani.save(out, writer='imagemagick', fps=10)
+    ani.save(out, writer='imagemagick', fps=2)
     print('Finished everything.')
 
     return 0
