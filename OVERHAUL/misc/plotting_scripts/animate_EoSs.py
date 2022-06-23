@@ -36,13 +36,13 @@ def animate(i):
     y = np.array(frame['y'])
     #im = plt.scatter(x, y, c = np.array(frame['e']), s = 0.000004,
     #                 cmap = cm.get_cmap('plasma') )
+    if len(sys.argv) > 3:
+        extra = list(map(int,sys.argv[3:]))
+        im = plt.plot(x[extra], y[extra], 'o', color='black', fillstyle='none', ms = 5)
     im = plt.plot(x[table_EOS], y[table_EOS], 'o', color='blue', ms = 1)
     im = plt.plot(x[tanh_conformal_EOS], y[tanh_conformal_EOS], 'o', color='green', ms = 1)
     im = plt.plot(x[conformal_EOS], y[conformal_EOS], 'o', color='purple', ms = 1)
     im = plt.plot(x[conformal_diagonal_EOS], y[conformal_diagonal_EOS], 'o', color='red', ms = 1)
-    if len(sys.argv) > 3:
-        extra = list(map(int,sys.argv[3:]))
-        im = plt.plot(x[extra], y[extra], 'o', color='black', ms = 5)
     plt.xlim([xmin, xmax])
     plt.ylim([ymin, ymax])
     
