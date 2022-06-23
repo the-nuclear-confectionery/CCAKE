@@ -641,7 +641,19 @@ double SPHWorkstation::locate_phase_diagram_point_eBSQ( Particle & p,
   eos.tbqs( p.T(), p.muB(), p.muQ(), p.muS(), p.get_current_eos_name() );
 
   bool solution_found = false;
-  double sVal = eos.s_out( e_In, rhoB_In, rhoS_In, rhoQ_In, solution_found );
+  if ( p.print_this_particle )
+    cout << "Calling s_out on particle ID #" << p.ID
+          << " (" << p.get_current_eos_name() << ")" << endl
+          << "  --> seed: " << p.T()*constants::hbarc_MeVfm << "   "
+                            << p.muB()*constants::hbarc_MeVfm << "   "
+                            << p.muS()*constants::hbarc_MeVfm << "   "
+                            << p.muQ()*constants::hbarc_MeVfm << endl
+          << "  --> point: " << e_In*constants::hbarc_MeVfm << "   "
+                            << rhoB_In << "   "
+                            << rhoS_In << "   "
+                            << rhoQ_In << endl;
+  double sVal = eos.s_out( e_In, rhoB_In, rhoS_In, rhoQ_In, solution_found,
+                           p.print_this_particle );
 
   if ( solution_found )
   {
@@ -715,6 +727,17 @@ void SPHWorkstation::locate_phase_diagram_point_sBSQ( Particle & p,
   // default: use particle's current location as initial guess
   eos.tbqs( p.T(), p.muB(), p.muQ(), p.muS(), p.get_current_eos_name() );
 
+  if ( p.print_this_particle )
+    cout << "Calling update_s on particle ID #" << p.ID
+          << " (" << p.get_current_eos_name() << ")" << endl
+          << "  --> seed: " << p.T()*constants::hbarc_MeVfm << "   "
+                            << p.muB()*constants::hbarc_MeVfm << "   "
+                            << p.muS()*constants::hbarc_MeVfm << "   "
+                            << p.muQ()*constants::hbarc_MeVfm << endl
+          << "  --> point: " << s_In << "   "
+                            << rhoB_In << "   "
+                            << rhoS_In << "   "
+                            << rhoQ_In << endl;
   bool update_s_success = eos.update_s( s_In, rhoB_In, rhoS_In, rhoQ_In );
 
   if ( update_s_success )

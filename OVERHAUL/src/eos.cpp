@@ -388,7 +388,7 @@ bool EquationOfState::find_root_with_seed(
       pEoS_base this_eos, vector<double> & result )
 {
     const double hc = constants::hbarc_MeVfm;
-    if ( VERBOSE > 2 )
+    if ( VERBOSE > 2 || print_now )
     {
       std::cout << " --> currently trying " << this_eos->name
                 << " EoS for solution..." << std::endl;
@@ -419,8 +419,11 @@ bool EquationOfState::find_root_with_seed(
 
 ////////////////////////////////////////////////
 bool EquationOfState::rootfinder_update_s( double sin, double Bin,
-                                           double Sin, double Qin )
+                                           double Sin, double Qin,
+                                           bool verbose )
 {
+  print_now = verbose;
+
   const double hc = constants::hbarc_MeVfm;
   
   // take sign of densities using lambda function
@@ -514,7 +517,7 @@ bool EquationOfState::rootfinder_update_s( double sin, double Bin,
     {
       tbqs( result, this_eos ); // set thermodynamics using solution
 
-      if ( VERBOSE > 2 )
+      if ( VERBOSE > 2 || print_now )
       {
         std::cout << " --> found a solution with "
                   << this_eos->name << " EoS!" << std::endl;
@@ -550,8 +553,10 @@ bool EquationOfState::rootfinder_update_s( double sin, double Bin,
 double EquationOfState::s_out( double ein, bool & solution_found )
                         { return s_out(ein, 0.0, 0.0, 0.0, solution_found); }
 double EquationOfState::s_out( double ein, double Bin, double Sin,
-                               double Qin, bool & solution_found )
+                               double Qin, bool & solution_found, bool verbose )
 {
+  print_now = verbose;
+
   double result = 0.0;
   if ( use_delaunay )
     result = delaunay_s_out(ein, Bin, Sin, Qin, solution_found);
@@ -642,7 +647,7 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
     {
       tbqs( result, this_eos ); // set thermodynamics using solution
 
-      if ( VERBOSE > 2 )
+      if ( VERBOSE > 2 || print_now )
       {
         std::cout << " --> found a solution with "
                   << this_eos->name << " EoS!" << std::endl;

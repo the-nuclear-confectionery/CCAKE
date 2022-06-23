@@ -32,6 +32,9 @@ class EquationOfState
 friend class InputOutput;
 
 private:
+    bool print_now = false; // convenient way to turn on verbosity
+                            // for only specific particles
+
     string default_eos_name = "";
 
 public:
@@ -131,9 +134,11 @@ public:
 
     void evaluate_thermodynamics( pEoS_base peos );
 
-    bool update_s(double sin, double Bin, double Sin, double Qin);
+    bool update_s( double sin, double Bin, double Sin, double Qin,
+                   bool verbose = false );
     bool update_s(double sin);
-    double s_out(double ein, double Bin, double Sin, double Qin, bool & solution_found);
+    double s_out( double ein, double Bin, double Sin, double Qin,
+                  bool & solution_found, bool verbose = false );
     double s_out(double ein, bool & solution_found);
 
     void set_SettingsPtr( Settings * settingsPtr_in );
