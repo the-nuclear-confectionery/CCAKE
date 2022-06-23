@@ -1,7 +1,7 @@
 ICtype:                     ICCING
 ICoption:                   default
 ICfile:                     SLURM_SCRIPT_IC_PATH 
-h:                          0.500000
+h:                          0.600000
 dt:                         0.05
 t0:                         0.600000
 e_cutoff:                   0.15
