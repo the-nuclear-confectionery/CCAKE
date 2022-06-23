@@ -738,7 +738,8 @@ void SPHWorkstation::locate_phase_diagram_point_sBSQ( Particle & p,
                             << rhoB_In << "   "
                             << rhoS_In << "   "
                             << rhoQ_In << endl;
-  bool update_s_success = eos.update_s( s_In, rhoB_In, rhoS_In, rhoQ_In );
+  bool update_s_success = eos.update_s( s_In, rhoB_In, rhoS_In, rhoQ_In,
+                                        p.print_this_particle );
 
   if ( update_s_success )
 {
