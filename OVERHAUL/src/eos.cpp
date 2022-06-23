@@ -528,7 +528,16 @@ bool EquationOfState::rootfinder_update_s( double sin, double Bin,
                   << s() << "   " << B() << "   " << S() << "   " << Q()
                   << std::endl;
       }
-      break;
+
+      //========================================================================
+      // check if cs2 is going haywire, in which case, don't trust this EoS!
+      // Move on to the next one instead...
+      if ( prohibit_unstable_cs2 && cs2() < 0.0 )
+        continue;
+      else if ( prohibit_acausal_cs2 && cs2() > 1.0 )
+        continue;
+      else
+        break;
     }
   }
 
@@ -658,7 +667,16 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
                   << e() << "   " << B() << "   " << S() << "   " << Q()
                   << std::endl;
       }
-      break;
+
+      //========================================================================
+      // check if cs2 is going haywire, in which case, don't trust this EoS!
+      // Move on to the next one instead...
+      if ( prohibit_unstable_cs2 && cs2() < 0.0 )
+        continue;
+      else if ( prohibit_acausal_cs2 && cs2() > 1.0 )
+        continue;
+      else
+        break;
     }
   }
 

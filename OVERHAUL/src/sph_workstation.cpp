@@ -641,7 +641,7 @@ double SPHWorkstation::locate_phase_diagram_point_eBSQ( Particle & p,
   eos.tbqs( p.T(), p.muB(), p.muQ(), p.muS(), p.get_current_eos_name() );
 
   bool solution_found = false;
-  if ( p.print_this_particle )
+  /*if ( p.print_this_particle )
     cout << "Calling s_out on particle ID #" << p.ID
           << " (" << p.get_current_eos_name() << ")" << endl
           << "  --> seed: " << p.T()*constants::hbarc_MeVfm << "   "
@@ -651,7 +651,7 @@ double SPHWorkstation::locate_phase_diagram_point_eBSQ( Particle & p,
           << "  --> point: " << e_In*constants::hbarc_MeVfm << "   "
                             << rhoB_In << "   "
                             << rhoS_In << "   "
-                            << rhoQ_In << endl;
+                            << rhoQ_In << endl;*/
   double sVal = eos.s_out( e_In, rhoB_In, rhoS_In, rhoQ_In, solution_found,
                            p.print_this_particle );
 
@@ -727,7 +727,7 @@ void SPHWorkstation::locate_phase_diagram_point_sBSQ( Particle & p,
   // default: use particle's current location as initial guess
   eos.tbqs( p.T(), p.muB(), p.muQ(), p.muS(), p.get_current_eos_name() );
 
-  if ( p.print_this_particle )
+  /*if ( p.print_this_particle )
     cout << "Calling update_s on particle ID #" << p.ID
           << " (" << p.get_current_eos_name() << ")" << endl
           << "  --> seed: " << p.T()*constants::hbarc_MeVfm << "   "
@@ -737,7 +737,7 @@ void SPHWorkstation::locate_phase_diagram_point_sBSQ( Particle & p,
           << "  --> point: " << s_In << "   "
                             << rhoB_In << "   "
                             << rhoS_In << "   "
-                            << rhoQ_In << endl;
+                            << rhoQ_In << endl;*/
   bool update_s_success = eos.update_s( s_In, rhoB_In, rhoS_In, rhoQ_In,
                                         p.print_this_particle );
 

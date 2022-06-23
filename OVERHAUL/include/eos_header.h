@@ -11,6 +11,9 @@ static constexpr bool use_nonconformal_extension          = false;
 static constexpr bool use_tanh_conformal                  = true;
 static constexpr bool skip_failed_EoS                     = true;
 static constexpr bool zero_unsolvable_charge_densities    = false;
+static constexpr bool prohibit_unstable_cs2               = true;
+static constexpr bool prohibit_acausal_cs2                = true;
+
 
 static constexpr int VERBOSE = 0;
 static constexpr double TINY = 1e-25;
