@@ -14,11 +14,13 @@ event_keys = list(event.keys())
 
 fig = plt.figure(figsize=(12,12), dpi=125)
 
+xmin, xmax, ymin, ymax = 5, 10, -5, 0
+
 
 def init():
     im = plt.plot(np.array([0.0]), np.array([0.0]), alpha = 0.0)
-    plt.xlim([-12, 12])
-    plt.ylim([-12, 12])
+    plt.xlim([xmin, xmax])
+    plt.ylim([ymin, ymax])
     return im
 
 
@@ -41,8 +43,8 @@ def animate(i):
     if len(sys.argv) > 3:
         extra = list(map(int,sys.argv[3:]))
         im = plt.plot(x[extra], y[extra], 'o', color='black', ms = 5)
-    plt.xlim([-12, 12])
-    plt.ylim([-12, 12])
+    plt.xlim([xmin, xmax])
+    plt.ylim([ymin, ymax])
     
     if i==0:
         plt.savefig('frame' + str(i) + '.png', format='png')
