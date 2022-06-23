@@ -1,6 +1,6 @@
 ICtype:                     ICCING
 ICoption:                   default
-ICfile:                     initial_conditions/ICCING_for_Hydro/0_5Centrality/Kernel/densities6.dat
+ICfile:                     initial_conditions/ICCING_for_Hydro/0_5Centrality/Kernel/densities8.dat
 h:                          0.60
 dt:                         0.05
 t0:                         0.60
