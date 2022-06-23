@@ -350,6 +350,8 @@ bool EquationOfState::update_s(double sin) { return update_s(sin, 0.0, 0.0, 0.0)
 bool EquationOfState::update_s( double sin, double Bin, double Sin, double Qin,
                                 bool verbose )
 {
+  print_now = verbose;
+
   bool success = false;
   if ( use_delaunay )
     success = delaunay_update_s(sin, Bin, Sin, Qin);
@@ -422,8 +424,6 @@ bool EquationOfState::find_root_with_seed(
 bool EquationOfState::rootfinder_update_s( double sin, double Bin,
                                            double Sin, double Qin )
 {
-  print_now = verbose;
-
   const double hc = constants::hbarc_MeVfm;
   
   // take sign of densities using lambda function
