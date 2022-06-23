@@ -347,7 +347,8 @@ double EquationOfState::sfreeze(double T_freeze_out_at_mu_eq_0, const string & e
 ////////////////////////////////////////////////
 // update phase diagram location given (s,B,S,Q)
 bool EquationOfState::update_s(double sin) { return update_s(sin, 0.0, 0.0, 0.0); }
-bool EquationOfState::update_s(double sin, double Bin, double Sin, double Qin)
+bool EquationOfState::update_s( double sin, double Bin, double Sin, double Qin,
+                                bool verbose )
 {
   bool success = false;
   if ( use_delaunay )
@@ -419,8 +420,7 @@ bool EquationOfState::find_root_with_seed(
 
 ////////////////////////////////////////////////
 bool EquationOfState::rootfinder_update_s( double sin, double Bin,
-                                           double Sin, double Qin,
-                                           bool verbose )
+                                           double Sin, double Qin )
 {
   print_now = verbose;
 
