@@ -748,7 +748,6 @@ void SPHWorkstation::locate_phase_diagram_point_sBSQ( Particle & p,
         << p.thermo.e << "   "
         << p.thermo.cs2 << "   "
         << p.thermo.eos_name << endl;
-exit(8);
       p.thermo.cs2 = std::max( p.thermo.cs2, 0.0001 );
       }
     }
