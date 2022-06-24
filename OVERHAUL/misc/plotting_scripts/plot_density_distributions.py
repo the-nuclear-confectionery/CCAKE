@@ -43,6 +43,8 @@ def plot_density_distribution_vs_time():
     
     data = data.reshape([data.size//2,2])
     
+    print(np.amin(data[:,0]), np.amax(data[:,0]))
+    
     # freeze-out cutoff [MeV/fm^3]
     eFO = 266.0
     data = data[ data[:,1] >= eFO ]
@@ -57,7 +59,7 @@ def plot_density_distribution_vs_time():
     print('Plotting...')
     plt.figure(figsize=(width, height), dpi=chosen_dpi)
 
-    plt.pcolormesh(xedges, yedges, H, cmap='inferno')
+    plt.pcolormesh(xedges, yedges, H, cmap='inferno', shading='gouraud')
     
     outfilename = 'e_vs_tau.png'
     plt.savefig(outfilename, dpi=chosen_dpi, bbox_inches='tight', pad_inches = 0)
