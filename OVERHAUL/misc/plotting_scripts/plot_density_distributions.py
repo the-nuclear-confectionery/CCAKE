@@ -39,7 +39,9 @@ def plot_density_distribution_vs_time():
     print('Building data...')
     data = np.stack([frame_to_array(i, 'e') for i in range(n_timesteps)])
     
-    #data = np.swapaxes(data, 0, 1)
+    data = data.reshape([len(data)//2,2])
+    
+    H, yedges, xedges = np.histogram2d(data[:,0], data[:,1])
     
     print(data.shape)
     
@@ -49,21 +51,8 @@ def plot_density_distribution_vs_time():
     print('Plotting...')
     plt.figure(figsize=(width, height), dpi=chosen_dpi)
 
-    for particle in data:
-        r,g,b,a = chosen_colormap((particle[0,0]-minimum)/(maximum-minimum))
-        plt.plot( particle[:,0], particle[:,1], color=(r,g,b), alpha=0.3 )
-        
-    #maxrange = np.amax(np.abs(data[:,:,1]))
-    #plt.xlim([-1.1*maxrange, 1.1*maxrange])
-    #plt.xlabel(r'$\mu_B$ (MeV)')
-    #plt.ylabel(r'$T$ (MeV)')
-    #plt.title(r'Pb+Pb $5.02$ TeV')
-    #norm = Normalize(vmin=minimum, vmax=maximum)
-    #sm = cm.ScalarMappable(cmap=chosen_colormap, norm=norm)
-    #sm.set_array([])
-    #cbar = plt.colorbar(sm)    
-    #cbar.set_label(r'$T_0$ (MeV)', rotation=90)
-
+    ax1.pcolormesh(xedges, yedges, H, cmap='rainbow')
+    
     outfilename = 'T_vs_muB.png'
     plt.savefig(outfilename, dpi=chosen_dpi, bbox_inches='tight', pad_inches = 0)
     print('Saved to ' + outfilename)
