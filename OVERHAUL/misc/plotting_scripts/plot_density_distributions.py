@@ -36,6 +36,7 @@ def frame_to_array(i, quantity):
 #########################################################################################
 def plot_density_distribution_vs_time():
     # Set up
+    print('Building data...')
     data = np.stack([frame_to_array(i, 'e') for i in range(n_timesteps)])
     
     data = np.swapaxes(data, 0, 1)
@@ -45,6 +46,7 @@ def plot_density_distribution_vs_time():
     #####################################
     # T vs. muB figure
     #####################################
+    print('Plotting...')
     plt.figure(figsize=(width, height), dpi=chosen_dpi)
 
     for particle in data:
@@ -70,7 +72,7 @@ def plot_density_distribution_vs_time():
 
 #########################################################################################
 if __name__== "__main__":
-    plot_all_particles(400,1000)
+    plot_density_distribution_vs_time()
 
 
 
