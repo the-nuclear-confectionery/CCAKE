@@ -647,17 +647,6 @@ double SPHWorkstation::locate_phase_diagram_point_eBSQ( Particle & p,
   eos.tbqs( p.T(), p.muB(), p.muQ(), p.muS(), p.get_current_eos_name() );
 
   bool solution_found = false;
-  /*if ( p.print_this_particle )
-    cout << "Calling s_out on particle ID #" << p.ID
-          << " (" << p.get_current_eos_name() << ")" << endl
-          << "  --> seed: " << p.T()*constants::hbarc_MeVfm << "   "
-                            << p.muB()*constants::hbarc_MeVfm << "   "
-                            << p.muS()*constants::hbarc_MeVfm << "   "
-                            << p.muQ()*constants::hbarc_MeVfm << endl
-          << "  --> point: " << e_In*constants::hbarc_MeVfm << "   "
-                            << rhoB_In << "   "
-                            << rhoS_In << "   "
-                            << rhoQ_In << endl;*/
   double sVal = eos.s_out( e_In, rhoB_In, rhoS_In, rhoQ_In, solution_found,
                            p.print_this_particle );
 
@@ -668,17 +657,51 @@ double SPHWorkstation::locate_phase_diagram_point_eBSQ( Particle & p,
 
     eos.set_thermo( p.thermo );
 
+
+    ///*
+    // do not permit cs2 to be negative if using C library
+    // or if using the tanh_conformal EoS
+    if (  ( eos.currently_using_static_C_library()
+            && p.get_current_eos_name() == "table" )
+          || p.get_current_eos_name() == "tanh_conformal" )
+    {
+      if ( p.thermo.cs2 < 0.0 )
+      {
+        cout << "WARNING: cs2 went negative in eos_type == "
+            << p.get_current_eos_name() << " for particle " << p.ID << "\n";
+            << "input thermo: " << s_In << "   "
+            << rhoB_In << "   "
+            << rhoS_In << "   "
+            << rhoQ_In << endl
+            << "check thermo: " << systemPtr->t << "   "
+            << p.thermo.T << "   "
+            << p.thermo.muB << "   "
+            << p.thermo.muS << "   "
+            << p.thermo.muQ << "   "
+            << p.thermo.p << "   "
+            << p.thermo.s << "   "
+            << p.thermo.rhoB << "   "
+            << p.thermo.rhoS << "   "
+            << p.thermo.rhoQ << "   "
+            << p.thermo.e << "   "
+            << p.thermo.cs2 << "   "
+            << p.thermo.eos_name << endl;
+        p.thermo.cs2 = std::max( p.thermo.cs2, 0.0001 );
+      }
+    }
+    //*/
+
     if ( p0.eos_name == p.get_current_eos_name() )
     {
       auto abslogabs = [](double x){ return std::abs(std::log(std::abs(x))); };
-      bool dwds_possibly_unstable = abslogabs(p.dwds()/p0.dwds) > 10.0;
-      bool dwdB_possibly_unstable = abslogabs(p.dwdB()/p0.dwdB) > 10.0;
-      bool dwdS_possibly_unstable = abslogabs(p.dwdS()/p0.dwdS) > 10.0;
-      bool dwdQ_possibly_unstable = abslogabs(p.dwdQ()/p0.dwdQ) > 10.0;
+      bool dwds_possibly_unstable = abslogabs(p.dwds()/p0.dwds) > 100.0;
+      bool dwdB_possibly_unstable = abslogabs(p.dwdB()/p0.dwdB) > 100.0;
+      bool dwdS_possibly_unstable = abslogabs(p.dwdS()/p0.dwdS) > 100.0;
+      bool dwdQ_possibly_unstable = abslogabs(p.dwdQ()/p0.dwdQ) > 100.0;
       if ( dwds_possibly_unstable || dwdB_possibly_unstable
             || dwdS_possibly_unstable || dwdQ_possibly_unstable )
         std::cerr << "WARNING: thermodynamics may be unstable!\n"
-                  << "\t --> particle: " << p.ID << "\n"
+                  << "\t --> particle: " << p.ID << "   " << systemPtr->t << "\n"
                   << "\t --> (before)  " << p0.T << "   " << p0.muB << "   "
                   << p0.muS << "   " << p0.muQ << "\n"
                   << "\t               " << p0.s << "   " << p0.rhoB << "   "
@@ -697,6 +720,32 @@ double SPHWorkstation::locate_phase_diagram_point_eBSQ( Particle & p,
                   << "\t               " << p.p() << "   " << p.e() << "   "
                   << p.cs2() << "   " << std::endl;
     }
+
+
+
+    if (p.cs2()<0)
+    {
+    cout << "input thermo: " << s_In << "   "
+          << rhoB_In << "   "
+          << rhoS_In << "   "
+          << rhoQ_In << endl
+          << "check thermo: " << systemPtr->t << "   "
+          << p.thermo.T << "   "
+          << p.thermo.muB << "   "
+          << p.thermo.muS << "   "
+          << p.thermo.muQ << "   "
+          << p.thermo.p << "   "
+          << p.thermo.s << "   "
+          << p.thermo.rhoB << "   "
+          << p.thermo.rhoS << "   "
+          << p.thermo.rhoQ << "   "
+          << p.thermo.e << "   "
+          << p.thermo.cs2 << "   "
+          << p.thermo.eos_name << endl;
+      cout << __LINE__ << ": cs2 was negative!" << endl;
+      exit(8);
+    }
+
   }
 
   return sVal;
@@ -720,24 +769,17 @@ void SPHWorkstation::locate_phase_diagram_point_sBSQ( Particle & p,
   // default: use particle's current location as initial guess
   eos.tbqs( p.T(), p.muB(), p.muQ(), p.muS(), p.get_current_eos_name() );
 
-  /*if ( p.print_this_particle )
-    cout << "Calling update_s on particle ID #" << p.ID
-          << " (" << p.get_current_eos_name() << ")" << endl
-          << "  --> seed: " << p.T()*constants::hbarc_MeVfm << "   "
-                            << p.muB()*constants::hbarc_MeVfm << "   "
-                            << p.muS()*constants::hbarc_MeVfm << "   "
-                            << p.muQ()*constants::hbarc_MeVfm << endl
-          << "  --> point: " << s_In << "   "
-                            << rhoB_In << "   "
-                            << rhoS_In << "   "
-                            << rhoQ_In << endl;*/
   bool update_s_success = eos.update_s( s_In, rhoB_In, rhoS_In, rhoQ_In,
                                         p.print_this_particle );
 
   if ( update_s_success )
-{
+  {
+    // check that enthalpy derivatives are not crazy
+    thermo p0 = p.thermo;
+
     eos.set_thermo( p.thermo );
 
+    ///*
     // do not permit cs2 to be negative if using C library
     // or if using the tanh_conformal EoS
     if (  ( eos.currently_using_static_C_library()
@@ -746,52 +788,85 @@ void SPHWorkstation::locate_phase_diagram_point_sBSQ( Particle & p,
     {
       if ( p.thermo.cs2 < 0.0 )
       {
-      cout << "WARNING: cs2 went negative in eos_type == "
-          << p.get_current_eos_name() << " for particle " << p.ID << endl;
-  cout << "input thermo: " << s_In << "   "
-        << rhoB_In << "   "
-        << rhoS_In << "   "
-        << rhoQ_In << endl
-        << "check thermo: " << systemPtr->t << "   "
-        << p.thermo.T << "   "
-        << p.thermo.muB << "   "
-        << p.thermo.muS << "   "
-        << p.thermo.muQ << "   "
-        << p.thermo.p << "   "
-        << p.thermo.s << "   "
-        << p.thermo.rhoB << "   "
-        << p.thermo.rhoS << "   "
-        << p.thermo.rhoQ << "   "
-        << p.thermo.e << "   "
-        << p.thermo.cs2 << "   "
-        << p.thermo.eos_name << endl;
-      p.thermo.cs2 = std::max( p.thermo.cs2, 0.0001 );
+        cout << "WARNING: cs2 went negative in eos_type == "
+            << p.get_current_eos_name() << " for particle " << p.ID << "\n";
+            << "input thermo: " << s_In << "   "
+            << rhoB_In << "   "
+            << rhoS_In << "   "
+            << rhoQ_In << endl
+            << "check thermo: " << systemPtr->t << "   "
+            << p.thermo.T << "   "
+            << p.thermo.muB << "   "
+            << p.thermo.muS << "   "
+            << p.thermo.muQ << "   "
+            << p.thermo.p << "   "
+            << p.thermo.s << "   "
+            << p.thermo.rhoB << "   "
+            << p.thermo.rhoS << "   "
+            << p.thermo.rhoQ << "   "
+            << p.thermo.e << "   "
+            << p.thermo.cs2 << "   "
+            << p.thermo.eos_name << endl;
+        p.thermo.cs2 = std::max( p.thermo.cs2, 0.0001 );
       }
     }
+    //*/
 
-  if (p.thermo.cs2<0)
-  {
-  cout << "input thermo: " << s_In << "   "
-        << rhoB_In << "   "
-        << rhoS_In << "   "
-        << rhoQ_In << endl
-        << "check thermo: " << systemPtr->t << "   "
-        << p.thermo.T << "   "
-        << p.thermo.muB << "   "
-        << p.thermo.muS << "   "
-        << p.thermo.muQ << "   "
-        << p.thermo.p << "   "
-        << p.thermo.s << "   "
-        << p.thermo.rhoB << "   "
-        << p.thermo.rhoS << "   "
-        << p.thermo.rhoQ << "   "
-        << p.thermo.e << "   "
-        << p.thermo.cs2 << "   "
-        << p.thermo.eos_name << endl;
-    cout << __LINE__ << ": cs2 was negative!" << endl;
-    exit(8);
+    if ( p0.eos_name == p.get_current_eos_name() )
+    {
+      auto abslogabs = [](double x){ return std::abs(std::log(std::abs(x))); };
+      bool dwds_possibly_unstable = abslogabs(p.dwds()/p0.dwds) > 100.0;
+      bool dwdB_possibly_unstable = abslogabs(p.dwdB()/p0.dwdB) > 100.0;
+      bool dwdS_possibly_unstable = abslogabs(p.dwdS()/p0.dwdS) > 100.0;
+      bool dwdQ_possibly_unstable = abslogabs(p.dwdQ()/p0.dwdQ) > 100.0;
+      if ( dwds_possibly_unstable || dwdB_possibly_unstable
+            || dwdS_possibly_unstable || dwdQ_possibly_unstable )
+        std::cerr << "WARNING: thermodynamics may be unstable!\n"
+                  << "\t --> particle: " << p.ID << "   " << systemPtr->t << "\n"
+                  << "\t --> (before)  " << p0.T << "   " << p0.muB << "   "
+                  << p0.muS << "   " << p0.muQ << "\n"
+                  << "\t               " << p0.s << "   " << p0.rhoB << "   "
+                  << p0.rhoS << "   " << p0.rhoQ << "\n"
+                  << "\t               " << p0.dwds << "   " << p0.dwdB << "   "
+                  << p0.dwdS << "   " << p0.dwdQ << "\n"
+                  << "\t               " << p0.p << "   " << p0.e << "   "
+                  << p0.cs2 << "   " << "\n"
+                  << "\t --> (after)   " << p.T() << "   " << p.muB() << "   "
+                  << p.muS() << "   " << p.muQ() << "\n"
+                  << "\t               " << p.s() << "   " << p.rhoB() << "   "
+                  << p.rhoS() << "   " << p.rhoQ() << "\n"
+                  << "\t               "
+                  << p.dwds() << "   " << p.dwdB() << "   "
+                  << p.dwdS() << "   " << p.dwdQ() << "\n"
+                  << "\t               " << p.p() << "   " << p.e() << "   "
+                  << p.cs2() << "   " << std::endl;
+    }
+
+
+    if (p.thermo.cs2<0)
+    {
+    cout << "input thermo: " << s_In << "   "
+          << rhoB_In << "   "
+          << rhoS_In << "   "
+          << rhoQ_In << endl
+          << "check thermo: " << systemPtr->t << "   "
+          << p.thermo.T << "   "
+          << p.thermo.muB << "   "
+          << p.thermo.muS << "   "
+          << p.thermo.muQ << "   "
+          << p.thermo.p << "   "
+          << p.thermo.s << "   "
+          << p.thermo.rhoB << "   "
+          << p.thermo.rhoS << "   "
+          << p.thermo.rhoQ << "   "
+          << p.thermo.e << "   "
+          << p.thermo.cs2 << "   "
+          << p.thermo.eos_name << endl;
+      cout << __LINE__ << ": cs2 was negative!" << endl;
+      exit(8);
+    }
   }
-}
+
   return;
 }
 
