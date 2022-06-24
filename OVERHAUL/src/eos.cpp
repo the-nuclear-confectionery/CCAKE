@@ -536,6 +536,12 @@ bool EquationOfState::rootfinder_update_s( double sin, double Bin,
         continue;
       else if ( prohibit_acausal_cs2 && cs2() > 1.0 )
         continue;
+//      else if ( restrict_mu_T_ratios && this_eos->name == "table"
+//                && sqrt(muB()*muB()+muS()*muS()+muQ()*muQ()) > 4.0*T() )
+      else if ( restrict_mu_T_ratios && this_eos->name == "table"
+                && std::max( std::abs(muB()), std::abs(muS()), std::abs(muQ()) )
+                    > 3.5*T() )
+        continue;
       else
         break;
     }
@@ -674,6 +680,12 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
       if ( prohibit_unstable_cs2 && cs2() < 0.0 )
         continue;
       else if ( prohibit_acausal_cs2 && cs2() > 1.0 )
+        continue;
+//      else if ( restrict_mu_T_ratios && this_eos->name == "table"
+//                && sqrt(muB()*muB()+muS()*muS()+muQ()*muQ()) > 4.0*T() )
+      else if ( restrict_mu_T_ratios && this_eos->name == "table"
+                && std::max( std::abs(muB()), std::abs(muS()), std::abs(muQ()) )
+                    > 3.5*T() )
         continue;
       else
         break;

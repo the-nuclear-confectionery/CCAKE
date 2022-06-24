@@ -13,6 +13,7 @@ static constexpr bool skip_failed_EoS                     = true;
 static constexpr bool zero_unsolvable_charge_densities    = false;
 static constexpr bool prohibit_unstable_cs2               = true;
 static constexpr bool prohibit_acausal_cs2                = true;
+static constexpr bool restrict_mu_T_ratios                = true;
 
 
 static constexpr int VERBOSE = 0;
