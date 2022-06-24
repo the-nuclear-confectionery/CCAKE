@@ -30,7 +30,7 @@ chosen_dpi = 200
 def frame_to_array(i, quantity):
     frame = event[event_keys[i]]
     q = np.array(frame[quantity])
-    return np.c_[ np.full_like(q, frame['Time']), q ]
+    return np.c_[ np.full_like(q, frame.attrs['Time']), q ]
 
 
 #########################################################################################
