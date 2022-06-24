@@ -49,9 +49,10 @@ def plot_density_distribution_vs_time():
     eFO = 266.0
     data = data[ data[:,1] >= eFO ]
     
-    dt = (np.amax(data[:,0]) - np.amin(data[:,0])) / (n_timesteps - 1)
+    ti, tf = np.amin(data[:,0]), np.amax(data[:,0])
+    dt = (tf - ti) / (n_timesteps - 1.0)
+    print(ti, tf, tf - ti, n_timesteps, dt)
     timebins = np.arange(np.amin(data[:,0])-dt,np.amax(data[:,0])+dt,dt)
-    print(n_timesteps, np.amin(data[:,0])-dt,np.amax(data[:,0])+dt,dt)
     timebins = np.arange(0.55,13.15,0.05)
     timebins = 0.5*(timebins[1:]+timebins[:-1])
     
