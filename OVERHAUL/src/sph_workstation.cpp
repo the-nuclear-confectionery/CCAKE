@@ -815,10 +815,10 @@ void SPHWorkstation::locate_phase_diagram_point_sBSQ( Particle & p,
     if ( p0.eos_name == p.get_current_eos_name() )
     {
       auto abslogabs = [](double x){ return std::abs(std::log(std::abs(x))); };
-      bool dwds_possibly_unstable = abslogabs(p.dwds()/p0.dwds) > 100.0;
-      bool dwdB_possibly_unstable = abslogabs(p.dwdB()/p0.dwdB) > 100.0;
-      bool dwdS_possibly_unstable = abslogabs(p.dwdS()/p0.dwdS) > 100.0;
-      bool dwdQ_possibly_unstable = abslogabs(p.dwdQ()/p0.dwdQ) > 100.0;
+      bool dwds_possibly_unstable = abslogabs((p.dwds()+1e-6)/(p0.dwds+1e-6)) > 1e6;
+      bool dwdB_possibly_unstable = abslogabs((p.dwdB()+1e-6)/(p0.dwdB+1e-6)) > 1e6;
+      bool dwdS_possibly_unstable = abslogabs((p.dwdS()+1e-6)/(p0.dwdS+1e-6)) > 1e6;
+      bool dwdQ_possibly_unstable = abslogabs((p.dwdQ()+1e-6)/(p0.dwdQ+1e-6)) > 1e6;
       if ( dwds_possibly_unstable || dwdB_possibly_unstable
             || dwdS_possibly_unstable || dwdQ_possibly_unstable )
         std::cerr << "WARNING: thermodynamics may be unstable!\n"
