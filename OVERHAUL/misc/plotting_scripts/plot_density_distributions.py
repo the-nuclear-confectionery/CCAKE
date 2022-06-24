@@ -51,6 +51,7 @@ def plot_density_distribution_vs_time():
     
     dt = (np.amax(data[:,0]) - np.amin(data[:,0])) / (n_timesteps - 1)
     timebins = np.arange(np.amin(data[:,0])-dt,np.amax(data[:,0])+dt,dt)
+    print(np.amin(data[:,0])-dt,np.amax(data[:,0])+dt,dt)
     timebins = np.arange(0.55,13.15,0.05)
     timebins = 0.5*(timebins[1:]+timebins[:-1])
     
