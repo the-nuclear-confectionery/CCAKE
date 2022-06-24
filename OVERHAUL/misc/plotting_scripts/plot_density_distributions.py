@@ -50,11 +50,7 @@ def plot_density_distribution_vs_time():
     timebins = 0.5*(timebins[1:]+timebins[:-1])
     
     H, yedges, xedges = np.histogram2d(np.log(data[:,1]), data[:,0], bins=[250,timebins])
-    
-    print(data.shape)
-    print(xedges)
-    print(yedges)
-    
+        
     #####################################
     # T vs. muB figure
     #####################################
