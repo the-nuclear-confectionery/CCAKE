@@ -14,8 +14,8 @@ event_keys = list(event.keys())
 
 fig = plt.figure(figsize=(12,12), dpi=125)
 
-#xmin, xmax, ymin, ymax = 5, 10, -5, 0
-xmin, xmax, ymin, ymax = -12, 12, -12, 12
+xmin, xmax, ymin, ymax = 5, 10, -5, 0
+#xmin, xmax, ymin, ymax = -12, 12, -12, 12
 
 
 def init():
