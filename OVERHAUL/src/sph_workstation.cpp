@@ -653,7 +653,7 @@ double SPHWorkstation::locate_phase_diagram_point_eBSQ( Particle & p,
   if ( solution_found )
   {
     // check that enthalpy derivatives are not crazy
-    thermo p0 = p.thermo;
+    thermodynamic_info p0 = p.thermo;
 
     eos.set_thermo( p.thermo );
 
@@ -668,8 +668,8 @@ double SPHWorkstation::locate_phase_diagram_point_eBSQ( Particle & p,
       if ( p.thermo.cs2 < 0.0 )
       {
         cout << "WARNING: cs2 went negative in eos_type == "
-            << p.get_current_eos_name() << " for particle " << p.ID << "\n";
-            << "input thermo: " << s_In << "   "
+            << p.get_current_eos_name() << " for particle " << p.ID << "\n"
+            << "input thermo: " << e_In << "   "
             << rhoB_In << "   "
             << rhoS_In << "   "
             << rhoQ_In << endl
@@ -725,7 +725,7 @@ double SPHWorkstation::locate_phase_diagram_point_eBSQ( Particle & p,
 
     if (p.cs2()<0)
     {
-    cout << "input thermo: " << s_In << "   "
+    cout << "input thermo: " << e_In << "   "
           << rhoB_In << "   "
           << rhoS_In << "   "
           << rhoQ_In << endl
@@ -775,7 +775,7 @@ void SPHWorkstation::locate_phase_diagram_point_sBSQ( Particle & p,
   if ( update_s_success )
   {
     // check that enthalpy derivatives are not crazy
-    thermo p0 = p.thermo;
+    thermodynamic_info p0 = p.thermo;
 
     eos.set_thermo( p.thermo );
 
@@ -789,7 +789,7 @@ void SPHWorkstation::locate_phase_diagram_point_sBSQ( Particle & p,
       if ( p.thermo.cs2 < 0.0 )
       {
         cout << "WARNING: cs2 went negative in eos_type == "
-            << p.get_current_eos_name() << " for particle " << p.ID << "\n";
+            << p.get_current_eos_name() << " for particle " << p.ID << "\n"
             << "input thermo: " << s_In << "   "
             << rhoB_In << "   "
             << rhoS_In << "   "
