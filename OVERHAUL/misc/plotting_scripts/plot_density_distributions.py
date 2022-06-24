@@ -39,6 +39,8 @@ def plot_density_distribution_vs_time():
     print('Building data...')
     data = np.stack([frame_to_array(i, 'e') for i in range(n_timesteps)])
     
+    print(data.shape)
+    
     data = data.reshape([data.size//2,2])
     
     # freeze-out cutoff [MeV/fm^3]
