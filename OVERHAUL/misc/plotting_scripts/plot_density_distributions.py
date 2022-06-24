@@ -65,7 +65,7 @@ def plot_density_distribution_vs_time():
     plt.figure(figsize=(width, height), dpi=chosen_dpi)
 
     #plt.pcolormesh(xedges, yedges, H, cmap='inferno')
-    plt.imshow(H.T, cmap='inferno', interpolation='bicubic',\
+    plt.imshow(H, cmap='inferno', interpolation='bicubic',\
                extent=[np.amin(xedges),np.amax(xedges),\
                        np.amin(yedges),np.amax(yedges)])
     
