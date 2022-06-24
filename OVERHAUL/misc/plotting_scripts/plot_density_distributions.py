@@ -57,9 +57,9 @@ def plot_density_distribution_vs_time():
     print('Plotting...')
     plt.figure(figsize=(width, height), dpi=chosen_dpi)
 
-    plt.pcolormesh(xedges, yedges, H, cmap='plasma')
+    plt.pcolormesh(xedges, yedges, H, cmap='inferno')
     
-    outfilename = 'T_vs_muB.png'
+    outfilename = 'e_vs_tau.png'
     plt.savefig(outfilename, dpi=chosen_dpi, bbox_inches='tight', pad_inches = 0)
     print('Saved to ' + outfilename)
 
