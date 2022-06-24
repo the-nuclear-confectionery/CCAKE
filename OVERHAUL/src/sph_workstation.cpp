@@ -691,7 +691,7 @@ double SPHWorkstation::locate_phase_diagram_point_eBSQ( Particle & p,
     }
     //*/
 
-    if ( p0.eos_name == p.get_current_eos_name() )
+    /*if ( p0.eos_name == p.get_current_eos_name() )
     {
       auto abslogabs = [](double x){ return std::abs(std::log(std::abs(x))); };
       bool dwds_possibly_unstable = abslogabs(p.dwds()/p0.dwds) > 100.0;
@@ -719,7 +719,7 @@ double SPHWorkstation::locate_phase_diagram_point_eBSQ( Particle & p,
                   << p.dwdS() << "   " << p.dwdQ() << "\n"
                   << "\t               " << p.p() << "   " << p.e() << "   "
                   << p.cs2() << "   " << std::endl;
-    }
+    }*/
 
 
 
