@@ -39,7 +39,7 @@ def plot_density_distribution_vs_time():
     print('Building data...')
     data = np.stack([frame_to_array(i, 'e') for i in range(n_timesteps)])
     
-    data = np.swapaxes(data, 0, 1)
+    #data = np.swapaxes(data, 0, 1)
     
     print(data.shape)
     
