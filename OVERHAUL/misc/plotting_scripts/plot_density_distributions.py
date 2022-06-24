@@ -41,6 +41,10 @@ def plot_density_distribution_vs_time():
     
     data = data.reshape([data.size//2,2])
     
+    # freeze-out cutoff [MeV/fm^3]
+    eFO = 266.0
+    data = data[ data[:,1] >= eF0 ]
+    
     H, yedges, xedges = np.histogram2d(np.log(data[:,1]), data[:,0], bins=[250,n_timesteps])
     
     print(data.shape)
@@ -53,7 +57,7 @@ def plot_density_distribution_vs_time():
     print('Plotting...')
     plt.figure(figsize=(width, height), dpi=chosen_dpi)
 
-    plt.pcolormesh(xedges, yedges, H, cmap=chosen_colormap)
+    plt.pcolormesh(xedges, yedges, H, cmap='plasma')
     
     outfilename = 'T_vs_muB.png'
     plt.savefig(outfilename, dpi=chosen_dpi, bbox_inches='tight', pad_inches = 0)
