@@ -39,7 +39,7 @@ def plot_density_distribution_vs_time():
     print('Building data...')
     data = np.stack([frame_to_array(i, 'e') for i in range(n_timesteps)])
     
-    data = data.reshape([len(data)//2,2])
+    data = data.reshape([data.size//2,2])
     
     H, yedges, xedges = np.histogram2d(data[:,0], data[:,1])
     
