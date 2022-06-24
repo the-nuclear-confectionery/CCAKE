@@ -51,6 +51,7 @@ def plot_density_distribution_vs_time():
     
     dt = (np.amax(data[:,0]) - np.amin(data[:,0])) / (n_timesteps - 1)
     timebins = np.arange(np.amin(data[:,0])-dt,np.amax(data[:,0])+dt,dt)
+    timebins = np.arange(0.5,13.2,0.05)
     timebins = 0.5*(timebins[1:]+timebins[:-1])
     
     H, yedges, xedges = np.histogram2d(np.log(data[:,1]), data[:,0], bins=[250,timebins])
@@ -61,7 +62,7 @@ def plot_density_distribution_vs_time():
     print('Plotting...')
     plt.figure(figsize=(width, height), dpi=chosen_dpi)
 
-    plt.pcolormesh(xedges, yedges, H, cmap='inferno', shading='gouraud')
+    plt.pcolormesh(xedges, yedges, H, cmap='inferno')
     
     outfilename = 'e_vs_tau.png'
     plt.savefig(outfilename, dpi=chosen_dpi, bbox_inches='tight', pad_inches = 0)
