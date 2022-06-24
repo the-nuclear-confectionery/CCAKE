@@ -39,22 +39,22 @@ def plot_density_distribution_vs_time():
     print('Building data...')
     data = np.stack([frame_to_array(i, 'e') for i in range(n_timesteps)])
     
-    print(data.shape)
+    #print(data.shape)
     
     data = data.reshape([data.size//2,2])
     
-    print(np.amin(data[:,0]), np.amax(data[:,0]))
+    #print(np.amin(data[:,0]), np.amax(data[:,0]))
+    
+    ti, tf = np.amin(data[:,0]), np.amax(data[:,0])
+    dt = (tf - ti) / (n_timesteps - 1.0)
+    #print(ti, tf, tf - ti, n_timesteps, dt)
+    timebins = np.arange(ti-dt, tf+dt, dt)
+    #timebins = np.arange(0.55,13.15,0.05)
+    timebins = 0.5*(timebins[1:]+timebins[:-1])
     
     # freeze-out cutoff [MeV/fm^3]
     eFO = 266.0
     data = data[ data[:,1] >= eFO ]
-    
-    ti, tf = np.amin(data[:,0]), np.amax(data[:,0])
-    dt = (tf - ti) / (n_timesteps - 1.0)
-    print(ti, tf, tf - ti, n_timesteps, dt)
-    timebins = np.arange(np.amin(data[:,0])-dt,np.amax(data[:,0])+dt,dt)
-    timebins = np.arange(0.55,13.15,0.05)
-    timebins = 0.5*(timebins[1:]+timebins[:-1])
     
     H, yedges, xedges = np.histogram2d(np.log(data[:,1]), data[:,0], bins=[250,timebins])
         
