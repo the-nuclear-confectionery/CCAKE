@@ -43,7 +43,7 @@ def plot_density_distribution_vs_time():
     
     # freeze-out cutoff [MeV/fm^3]
     eFO = 266.0
-    data = data[ data[:,1] >= eF0 ]
+    data = data[ data[:,1] >= eFO ]
     
     H, yedges, xedges = np.histogram2d(np.log(data[:,1]), data[:,0], bins=[250,n_timesteps])
     
