@@ -56,7 +56,7 @@ def plot_density_distribution_vs_time():
     eFO = 266.0
     data = data[ data[:,1] >= eFO ]
     
-    H, xedges, yedges = np.histogram2d(data[:,0], np.log(data[:,1]), bins=[250,timebins])
+    H, xedges, yedges = np.histogram2d(data[:,0], np.log(data[:,1]), bins=[timebins,250])
         
     #####################################
     # T vs. muB figure
