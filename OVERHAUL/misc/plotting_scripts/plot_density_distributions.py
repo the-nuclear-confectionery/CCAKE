@@ -41,7 +41,7 @@ def plot_density_distribution_vs_time():
     
     data = data.reshape([data.size//2,2])
     
-    H, yedges, xedges = np.histogram2d(np.log(data[:,1]), data[:,0], bins=[100,n_timesteps])
+    H, yedges, xedges = np.histogram2d(data[:,1], data[:,0], bins=[25,n_timesteps])
     
     print(data.shape)
     print(xedges)
