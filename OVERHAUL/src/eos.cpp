@@ -530,8 +530,8 @@ bool EquationOfState::rootfinder_update_s( double sin, double Bin,
       }
 
       //========================================================================
-      // check if cs2 is going haywire, in which case, don't trust this EoS!
-      // Move on to the next one instead...
+      // check if cs2 or the mu/T ratios are going haywire, in which case,
+      // don't trust this EoS!  Move on to the next one instead...
       if ( prohibit_unstable_cs2 && cs2() < 0.0 )
         continue;
       else if ( prohibit_acausal_cs2 && cs2() > 1.0 )
@@ -675,8 +675,8 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
       }
 
       //========================================================================
-      // check if cs2 is going haywire, in which case, don't trust this EoS!
-      // Move on to the next one instead...
+      // check if cs2 or the mu/T ratios are going haywire, in which case,
+      // don't trust this EoS!  Move on to the next one instead...
       if ( prohibit_unstable_cs2 && cs2() < 0.0 )
         continue;
       else if ( prohibit_acausal_cs2 && cs2() > 1.0 )

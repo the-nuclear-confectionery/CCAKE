@@ -663,53 +663,40 @@ double SPHWorkstation::locate_phase_diagram_point_eBSQ( Particle & p,
 
   if ( solution_found )
   {
+    // check that enthalpy derivatives are not crazy
+    thermo p0 = p.thermo;
+
     eos.set_thermo( p.thermo );
-//    cout << __FUNCTION__ << "::" << __LINE__ << endl;
-//
-//    auto approx = [](double a, double b) { return std::abs(a-b)<0.1; };
-//
-//    bool crash_this_particle = approx(p.thermo.e*constants::hbarc_MeVfm, 3040.99)
-//                                && approx(p.thermo.rhoB, 0.649051)
-//                                && approx(p.thermo.rhoS, -2.36332)
-//                                && approx(p.thermo.rhoQ, -1.29778);
-//
-//    if (p.thermo.cs2<0 || crash_this_particle)
-//    {
-//      cout << "input thermo: " << e_In*constants::hbarc_MeVfm << "   "
-//            << rhoB_In << "   "
-//            << rhoS_In << "   "
-//            << rhoQ_In << endl
-//            << "check thermo: " << systemPtr->t << "   "
-//            << p.thermo.T*constants::hbarc_MeVfm << "   "
-//            << p.thermo.muB*constants::hbarc_MeVfm << "   "
-//            << p.thermo.muS*constants::hbarc_MeVfm << "   "
-//            << p.thermo.muQ*constants::hbarc_MeVfm << "   "
-//            << p.thermo.e*constants::hbarc_MeVfm << "   "
-//            << p.thermo.rhoB << "   "
-//            << p.thermo.rhoS << "   "
-//            << p.thermo.rhoQ << "   "
-//            << p.thermo.p*constants::hbarc_MeVfm << "   "
-//            << p.thermo.s << "   "
-//            << p.thermo.cs2 << "   "
-//            << p.thermo.eos_name << endl;
-//      cout << __LINE__ << "cs2 was negative!" << endl;
-//      exit(8);
-//    }
 
-//  cout << "check thermo: " << p.ID << "   "
-//        << p.thermo.T*constants::hbarc_MeVfm << "   "
-//        << p.thermo.muB*constants::hbarc_MeVfm << "   "
-//        << p.thermo.muS*constants::hbarc_MeVfm << "   "
-//        << p.thermo.muQ*constants::hbarc_MeVfm << "   "
-//        << p.thermo.e*constants::hbarc_MeVfm << "   "
-//        << p.thermo.rhoB << "   "
-//        << p.thermo.rhoS << "   "
-//        << p.thermo.rhoQ << "   "
-//        << p.thermo.p*constants::hbarc_MeVfm << "   "
-//        << p.thermo.s << "   "
-//        << p.thermo.cs2 << "   "
-//        << p.thermo.eos_name << endl;
-
+    if ( p0.eos_name == p.get_current_eos_name() )
+    {
+      auto abslogabs = [](double x){ return std::abs(std::log(std::abs(x))); };
+      bool dwds_possibly_unstable = abslogabs(p.dwds()/p0.dwds) > 10.0;
+      bool dwdB_possibly_unstable = abslogabs(p.dwdB()/p0.dwdB) > 10.0;
+      bool dwdS_possibly_unstable = abslogabs(p.dwdS()/p0.dwdS) > 10.0;
+      bool dwdQ_possibly_unstable = abslogabs(p.dwdQ()/p0.dwdQ) > 10.0;
+      if ( dwds_possibly_unstable || dwdB_possibly_unstable
+            || dwdS_possibly_unstable || dwdQ_possibly_unstable )
+        std::cerr << "WARNING: thermodynamics may be unstable!\n"
+                  << "\t --> particle: " << p.ID << "\n"
+                  << "\t --> (before)  " << p0.T << "   " << p0.muB << "   "
+                  << p0.muS << "   " << p0.muQ << "\n"
+                  << "\t               " << p0.s << "   " << p0.rhoB << "   "
+                  << p0.rhoS << "   " << p0.rhoQ << "\n"
+                  << "\t               " << p0.dwds << "   " << p0.dwdB << "   "
+                  << p0.dwdS << "   " << p0.dwdQ << "\n"
+                  << "\t               " << p0.p << "   " << p0.e << "   "
+                  << p0.cs2 << "   " << "\n"
+                  << "\t --> (after)   " << p.T() << "   " << p.muB() << "   "
+                  << p.muS() << "   " << p.muQ() << "\n"
+                  << "\t               " << p.s() << "   " << p.rhoB() << "   "
+                  << p.rhoS() << "   " << p.rhoQ() << "\n"
+                  << "\t               "
+                  << p.dwds() << "   " << p.dwdB() << "   "
+                  << p.dwdS() << "   " << p.dwdQ() << "\n"
+                  << "\t               " << p.p() << "   " << p.e() << "   "
+                  << p.cs2() << "   " << std::endl;
+    }
   }
 
   return sVal;
