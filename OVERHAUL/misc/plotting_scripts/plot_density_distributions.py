@@ -56,7 +56,7 @@ def plot_density_distribution_vs_time():
     eFO = 266.0
     data = data[ data[:,1] >= eFO ]
     
-    H, yedges, xedges = np.histogram2d(np.log(data[:,1]), data[:,0], bins=[250,timebins])
+    H, xedges, yedges = np.histogram2d(data[:,0], np.log(data[:,1]), bins=[250,timebins])
         
     #####################################
     # T vs. muB figure
@@ -65,7 +65,9 @@ def plot_density_distribution_vs_time():
     plt.figure(figsize=(width, height), dpi=chosen_dpi)
 
     #plt.pcolormesh(xedges, yedges, H, cmap='inferno')
-    plt.imshow(H, cmap='inferno', interpolation='bilinear')
+    plt.imshow(H.T, cmap='inferno', interpolation='bicubic',\
+               extent=[np.amin(xedges),np.amax(xedges),\
+                       np.amin(yedges),np.amax(yedges)])
     
     outfilename = 'e_vs_tau.png'
     plt.savefig(outfilename, dpi=chosen_dpi, bbox_inches='tight', pad_inches = 0)
