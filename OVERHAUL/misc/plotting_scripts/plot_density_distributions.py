@@ -64,10 +64,10 @@ def plot_density_distribution_vs_time():
     print('Plotting...')
     plt.figure(figsize=(width, height), dpi=chosen_dpi)
 
-    #plt.pcolormesh(xedges, yedges, H, cmap='inferno')
-    plt.imshow(H, cmap='inferno', interpolation='bicubic',\
-               extent=[np.amin(xedges),np.amax(xedges),\
-                       np.amin(yedges),np.amax(yedges)])
+    plt.pcolormesh(xedges, yedges, H, cmap='inferno')
+    #plt.imshow(H, cmap='inferno', interpolation='bilinear',\
+    #           extent=[np.amin(xedges),np.amax(xedges),\
+    #                   np.amin(yedges),np.amax(yedges)])
     
     outfilename = 'e_vs_tau.png'
     plt.savefig(outfilename, dpi=chosen_dpi, bbox_inches='tight', pad_inches = 0)
