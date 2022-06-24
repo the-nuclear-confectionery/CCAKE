@@ -597,8 +597,11 @@ void InputOutput::print_system_state_to_HDF()
   // get width from maximum possible number of timesteps
   const int width = ceil(log10(ceil(settingsPtr->tend/settingsPtr->dt)));
 
-  vector<string> dataset_names = {"x", "y", "e"};
-  vector<string> dataset_units = {"fm", "fm", "MeV/fm^3"};
+  vector<string> dataset_names = {"x", "y", "T", "muB", "muS", "muQ",
+                                  "e", "s", "B", "S", "Q"};
+  vector<string> dataset_units = {"fm", "fm", "MeV", "MeV", "MeV", "MeV",
+                                  "MeV/fm^3", "1/fm^3", "1/fm^3", "1/fm^3",
+                                  "1/fm^3"};
 
   std::map<string,int> eos_map = {{"table",              0}, 
                                   {"tanh_conformal",     1}, 
@@ -612,7 +615,15 @@ void InputOutput::print_system_state_to_HDF()
   {
     data[0][p.ID]  = p.r(0);
     data[1][p.ID]  = p.r(1);
-    data[2][p.ID]  = p.e()*hbarc_MeVfm;
+    data[2][p.ID]  = p.T()*hbarc_MeVfm;
+    data[3][p.ID]  = p.muB()*hbarc_MeVfm;
+    data[4][p.ID]  = p.muS()*hbarc_MeVfm;
+    data[5][p.ID]  = p.muQ()*hbarc_MeVfm;
+    data[6][p.ID]  = p.e()*hbarc_MeVfm;
+    data[7][p.ID]  = p.s();
+    data[8][p.ID]  = p.rhoB();
+    data[9][p.ID]  = p.rhoS();
+    data[10][p.ID] = p.rhoQ();
     eos_tags[p.ID] = eos_map[ p.get_current_eos_name() ];
   }
 
