@@ -16,7 +16,7 @@ n_timesteps = min([len(event.keys()),1000])
 event_keys = list(event.keys())
 
 # Figure dimensions
-width, height = 6, 4
+width, height = 6, 6
 
 # Axes ranges
 xmin, xmax, ymin, ymax = 2.5, 7.5, -7.5, -2.5
@@ -67,7 +67,7 @@ def plot_density_distribution_vs_time():
     #print(xedges.shape, yedges.shape, H.shape)
 
     #plt.pcolormesh(yedges, xedges, H.T, cmap='inferno')
-    plt.imshow(H, cmap='inferno', interpolation='bilinear',\
+    plt.imshow(H.T, cmap='inferno', interpolation='bilinear',\
                extent=[np.amin(xedges),np.amax(xedges),\
                        np.amin(yedges),np.amax(yedges)])
     
