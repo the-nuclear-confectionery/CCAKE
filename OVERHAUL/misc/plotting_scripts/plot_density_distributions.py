@@ -44,6 +44,8 @@ def plot_density_distribution_vs_time():
     H, yedges, xedges = np.histogram2d(data[:,1], data[:,0], bins=[100,n_timesteps])
     
     print(data.shape)
+    print(xedges)
+    print(yedges)
     
     #####################################
     # T vs. muB figure
