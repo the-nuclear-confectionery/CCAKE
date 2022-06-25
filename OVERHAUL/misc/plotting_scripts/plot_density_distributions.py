@@ -41,7 +41,7 @@ def plot_density_distribution_vs_time(quantity):
     
     #print(data.shape)
     
-    data = data.reshape([data.size//2,2])
+    data = data.reshape([data.size//3,3])
     
     #print(np.amin(data[:,0]), np.amax(data[:,0]))
     
