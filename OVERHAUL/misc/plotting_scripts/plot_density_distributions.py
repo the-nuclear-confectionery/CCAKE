@@ -29,7 +29,6 @@ chosen_dpi = 200
 #########################################################################################
 def frame_to_array(i, quantity):
     frame = event[event_keys[i]]
-    print('Options are',frame.keys())
     q = np.array(frame[quantity])
     return np.c_[ np.full_like(q, frame.attrs['Time']), q, np.array(frame['e']) ]
 
@@ -56,6 +55,9 @@ def plot_density_distribution_vs_time(quantity):
     # freeze-out cutoff [MeV/fm^3]
     eFO = 266.0
     data = data[ data[:,2] >= eFO ]
+    
+    # only look at positive densities, for simplicity
+    data = data[ data[:,1] >= 0.0 ]
     
     H, xedges, yedges = np.histogram2d(data[:,0], np.log(data[:,1]), bins=[timebins,250])
         
