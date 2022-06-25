@@ -30,14 +30,14 @@ chosen_dpi = 200
 def frame_to_array(i, quantity):
     frame = event[event_keys[i]]
     q = np.array(frame[quantity])
-    return np.c_[ np.full_like(q, frame.attrs['Time']), q ]
+    return np.c_[ np.full_like(q, frame.attrs['Time']), q, np.array(frame['e']) ]
 
 
 #########################################################################################
-def plot_density_distribution_vs_time():
+def plot_density_distribution_vs_time(quantity):
     # Set up
     print('Building data...')
-    data = np.stack([frame_to_array(i, 'e') for i in range(n_timesteps)])
+    data = np.stack([frame_to_array(i, quantity) for i in range(n_timesteps)])
     
     #print(data.shape)
     
@@ -54,7 +54,7 @@ def plot_density_distribution_vs_time():
     
     # freeze-out cutoff [MeV/fm^3]
     eFO = 266.0
-    data = data[ data[:,1] >= eFO ]
+    data = data[ data[:,2] >= eFO ]
     
     H, xedges, yedges = np.histogram2d(data[:,0], np.log(data[:,1]), bins=[timebins,250])
         
@@ -71,7 +71,7 @@ def plot_density_distribution_vs_time():
                extent=[np.amin(xedges),np.amax(xedges),\
                        np.amin(yedges),np.amax(yedges)])
     
-    outfilename = 'e_vs_tau.png'
+    outfilename = quantity + '_vs_tau.png'
     plt.savefig(outfilename, dpi=chosen_dpi, bbox_inches='tight', pad_inches = 0)
     print('Saved to ' + outfilename)
 
@@ -79,7 +79,10 @@ def plot_density_distribution_vs_time():
 
 #########################################################################################
 if __name__== "__main__":
-    plot_density_distribution_vs_time()
+    plot_density_distribution_vs_time('e')
+    plot_density_distribution_vs_time('rhoB')
+    plot_density_distribution_vs_time('rhoS')
+    plot_density_distribution_vs_time('rhoQ')
 
 
 
