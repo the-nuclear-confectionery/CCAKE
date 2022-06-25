@@ -4,7 +4,7 @@ ICfile:                     SLURM_SCRIPT_IC_PATH
 h:                          0.600000
 dt:                         0.05
 t0:                         0.600000
-e_cutoff:                   0.05
+e_cutoff:                   0.10
 EoS_Type:                   Houston
 EoS_Option:                 default
 freezeoutT:                 150.000000
