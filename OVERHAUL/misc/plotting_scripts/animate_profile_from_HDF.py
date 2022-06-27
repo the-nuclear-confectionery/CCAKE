@@ -59,7 +59,7 @@ cmap_electric \
 def kernel(r):
     global h, knorm
     q = r/h
-    return np.piecewise(q, [q>=2, 2>=q & q>=1, q<1], \
+    return np.piecewise(q, [q>=2, (2>=q) & (q>=1), q<1], \
                         [lambda q: 0.0, \
                          lambda q: 0.25*knorm*(2.0-q)**3,\
                          lambda q: knorm*(1.0 - 1.5*q**2 + 0.75*q**3)])
@@ -93,7 +93,7 @@ def animate(i):
     x = np.array(frame['x'])
     y = np.array(frame['y'])
     T = np.array(frame['T'])
-    data = np.c_[ x, y, T ].T
+    data = np.c_[ x, y, T ]
     
     print(data.shape)
         
