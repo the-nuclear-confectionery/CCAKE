@@ -25,7 +25,7 @@ ax = fig.add_subplot(111)
 
 xmin, xmax, ymin, ymax = -15, 15, -15, 15
 
-n = 51
+n = 5
 colormap = plt.cm.inferno
 
 data = None
@@ -116,8 +116,7 @@ def animate(i):
     
     extent = xmin, xmax, ymin, ymax
     print(i)
-    print(minimum)
-    print(maximum)
+    print(f.reshape(n, n))
     im = ax.imshow(f.reshape(n, n)+1e-15, cmap=colormap,\
                     norm=LogNorm(vmin=minimum+1e-15, vmax=maximum),\
                     interpolation='bicubic', extent=extent)
