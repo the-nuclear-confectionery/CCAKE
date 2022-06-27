@@ -94,11 +94,13 @@ def animate(i):
     y = np.array(frame['y'])
     T = np.array(frame['T'])
     data = np.c_[ x, y, T ].T
+    
+    print(data.shape)
         
     n = 51
     X, Y = np.meshgrid( np.linspace(xmin, xmax, n), np.linspace(ymin, ymax, n) )
     print(np.c_[ X.flatten(), Y.flatten() ].shape)
-    f = np.array([ evaluate_field(point) for point in np.c_[ X.flatten(), Y.flatten() ].T ])
+    f = np.array([ evaluate_field(point) for point in np.c_[ X.flatten(), Y.flatten() ] ])
     if i==1 or not fixed_maximum:
         maximum = np.amax(np.abs(f))
         minimum = np.amin(f[np.abs(f)>0.0])
