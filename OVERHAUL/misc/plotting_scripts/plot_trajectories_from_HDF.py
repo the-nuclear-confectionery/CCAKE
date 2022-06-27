@@ -47,7 +47,7 @@ def plot_all_particles():
     # Set up
     #####################################
     global selection
-    Tmin, Tmax = 600, 700
+    Tmin, Tmax = 600, 650
     selection = get_selection(Tmin, Tmax)
     data = np.stack([frame_to_array(i, Tmin, Tmax) for i in range(n_timesteps)])
 
