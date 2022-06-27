@@ -75,9 +75,8 @@ def evaluate_field(r):
     neighbors = data[ (r[0]-data[:,0])**2+(r[1]-data[:,1])**2 <= 4.0*h**2 ]
     #for particle in neighbors:
     #    result += particle[2]*kernel(np.sqrt((r[0]-particle[0])**2+(r[1]-particle[1])**2))
-    return np.average( neighbors[:,2], \
-                       weights = kernel( np.sqrt( (r[0]-neighbors[:,0])**2\
-                                                  +(r[1]-neighbors[:,1])**2) ) )
+    weights = kernel( np.sqrt( (r[0]-neighbors[:,0])**2+(r[1]-neighbors[:,1])**2) )
+    return np.sum( neighbors[:,2]*weights ) / (np.sum(weights)+1e-10)
 
 #########################################################################################
 def init():
