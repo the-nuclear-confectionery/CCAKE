@@ -84,7 +84,7 @@ def plot_all_particles():
     cbar = plt.colorbar(sm)    
     cbar.set_label(r'$T_0$ (MeV)', rotation=90)
 
-    outfilename = 'T_vs_muB.png'
+    outfilename = 'T_vs_muB_Tmin'+str(Tmin)+'_Tmax'+str(Tmax)+'.png'
     plt.savefig(outfilename, dpi=chosen_dpi, bbox_inches='tight', pad_inches = 0)
     print('Saved to ' + outfilename)
 
@@ -108,7 +108,7 @@ def plot_all_particles():
     cbar = plt.colorbar(sm)    
     cbar.set_label(r'$T_0$ (MeV)', rotation=90)
 
-    outfilename = 'T_vs_muS.png'
+    outfilename = 'T_vs_muS_Tmin'+str(Tmin)+'_Tmax'+str(Tmax)+'.png'
     plt.savefig(outfilename, dpi=chosen_dpi, bbox_inches='tight', pad_inches = 0)
     print('Saved to ' + outfilename)
 
@@ -132,7 +132,7 @@ def plot_all_particles():
     cbar = plt.colorbar(sm)    
     cbar.set_label(r'$T_0$ (MeV)', rotation=90)
 
-    outfilename = 'T_vs_muQ.png'
+    outfilename = 'T_vs_muQ_Tmin'+str(Tmin)+'_Tmax'+str(Tmax)+'.png'
     plt.savefig(outfilename, dpi=chosen_dpi, bbox_inches='tight', pad_inches = 0)
     print('Saved to ' + outfilename)
 
@@ -157,7 +157,7 @@ def plot_all_particles():
     cbar = plt.colorbar(sm)    
     cbar.set_label(r'$T_0$ (MeV)', rotation=90)
 
-    outfilename = 'muB_vs_muS.png'
+    outfilename = 'muB_vs_muS_Tmin'+str(Tmin)+'_Tmax'+str(Tmax)+'.png'
     plt.savefig(outfilename, dpi=chosen_dpi, bbox_inches='tight', pad_inches = 0)
     print('Saved to ' + outfilename)
 
@@ -182,7 +182,7 @@ def plot_all_particles():
     cbar = plt.colorbar(sm)    
     cbar.set_label(r'$T_0$ (MeV)', rotation=90)
 
-    outfilename = 'muB_vs_muQ.png'
+    outfilename = 'muB_vs_muQ_Tmin'+str(Tmin)+'_Tmax'+str(Tmax)+'.png'
     plt.savefig(outfilename, dpi=chosen_dpi, bbox_inches='tight', pad_inches = 0)
     print('Saved to ' + outfilename)
 
@@ -206,7 +206,7 @@ def plot_all_particles():
     cbar = plt.colorbar(sm)    
     cbar.set_label(r'$T_0$ (MeV)', rotation=90)
 
-    outfilename = 'muS_vs_muQ.png'
+    outfilename = 'muS_vs_muQ_Tmin'+str(Tmin)+'_Tmax'+str(Tmax)+'.png'
     plt.savefig(outfilename, dpi=chosen_dpi, bbox_inches='tight', pad_inches = 0)
     print('Saved to ' + outfilename)
 
