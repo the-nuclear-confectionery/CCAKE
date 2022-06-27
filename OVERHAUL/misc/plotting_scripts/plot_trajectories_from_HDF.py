@@ -30,6 +30,7 @@ selection = None
 
 def get_selection(Tmin, Tmax):
     T0 = np.array(event[event_keys[0]]['T'])
+    print(np.amin(T0),np.amax(T0))
     return np.where( (T0 >= Tmin) & (T0 <= Tmax) )
 
 
