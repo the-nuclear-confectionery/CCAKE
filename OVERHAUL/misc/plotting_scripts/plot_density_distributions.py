@@ -96,7 +96,7 @@ def plot_density_distribution_vs_time(quantity):
     chosen_y_tick_values = space_log_ticks(np.exp(ymin), np.exp(ymax))
     chosen_y_tick_labels \
         = np.array(list(map(lambda y: \
-                   r'$10^y$'.replace('y',str(int(np.log10(y)))) \
+                   r'$10^{y}$'.replace('y',str(int(np.log10(y)))) \
                    if np.isclose(np.log10(y), np.round(np.log10(y))) else '',\
                    chosen_y_tick_values)))
     
