@@ -116,9 +116,9 @@ def plot_density_distribution_vs_time(quantity):
 #########################################################################################
 if __name__== "__main__":
     plot_density_distribution_vs_time('e')
-    #plot_density_distribution_vs_time('B')
-    #plot_density_distribution_vs_time('S')
-    #plot_density_distribution_vs_time('Q')
+    plot_density_distribution_vs_time('B')
+    plot_density_distribution_vs_time('S')
+    plot_density_distribution_vs_time('Q')
 
 
 
