@@ -127,7 +127,7 @@ def animate(i):
     plt.ylim([ymin, ymax])
     
     if i==0:
-        plt.savefig('frame' + str(i) + '.png', format='png')
+        fig.savefig('frame' + str(i) + '.png', format='png')
     
     #return [im]
 
