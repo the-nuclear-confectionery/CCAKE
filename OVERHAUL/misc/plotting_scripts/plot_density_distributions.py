@@ -78,7 +78,7 @@ def plot_density_distribution_vs_time(quantity):
     #plt.pcolormesh(yedges, xedges, H.T, cmap='inferno')
     plt.imshow(H.T, cmap='inferno', interpolation='bicubic', origin='lower',\
                extent=[np.amin(xedges),np.amax(xedges),\
-                       np.exp(np.amin(yedges)),np.exp(np.amax(yedges))])
+                       np.amin(yedges),np.amax(yedges)])
     
     #ax.set_yticks(yedges[::25])
     #ax.set_yticklabels(list(map(str,np.exp(yedges)[::25])))
