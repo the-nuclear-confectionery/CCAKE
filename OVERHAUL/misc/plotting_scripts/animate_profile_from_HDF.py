@@ -90,7 +90,7 @@ def init():
 
 #########################################################################################
 def animate(i):
-    global data, maximum, minimum
+    global data, maximum, minimum, im
     print('Plotting frame', i, flush=True)
     fig.clear()
     frame = event[event_keys[i]]
