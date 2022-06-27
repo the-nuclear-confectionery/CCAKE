@@ -111,6 +111,9 @@ def animate(i):
     print(f.shape)
     
     extent = xmin, xmax, ymin, ymax
+    print(i)
+    print(minimum)
+    print(maximum)
     im = plt.imshow(f.reshape(n, n)+1e-15, cmap=colormap,\
                     norm=LogNorm(vmin=minimum+1e-15, vmax=maximum),\
                     interpolation='bicubic', extent=extent)
