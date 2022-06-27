@@ -26,9 +26,12 @@ chosen_colormap = cm.get_cmap('cool', 256)
 
 chosen_dpi = 200
 
+selection = None
+
 def get_selection(Tmin, Tmax):
     T0 = np.array(event[event_keys[0]]['T'])
     return np.where( (T0 >= Tmin) & (T0 <= Tmax) )
+
 
 def frame_to_array(i, Tmin, Tmax):
     frame = event[event_keys[i]]
@@ -45,8 +48,10 @@ def plot_all_particles():
     #####################################
     # Set up
     #####################################
+    global selection
     Tmin, Tmax = 600, 700
     print(n_timesteps)
+    selection = get_selection(Tmin, Tmax)
     data = [frame_to_array(i, Tmin, Tmax) for i in range(n_timesteps)]
 
     data = np.stack(data)
