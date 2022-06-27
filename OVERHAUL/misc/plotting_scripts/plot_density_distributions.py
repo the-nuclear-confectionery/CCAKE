@@ -26,6 +26,9 @@ chosen_colormap = cm.get_cmap('cool', 256)
 
 chosen_dpi = 200
 
+labels = {'e': r'$e$ (MeV/fm$^3$)', 'B': r'$\rho_B$ (fm$^{-3}$)',
+          'S': r'$\rho_S$ (fm$^{-3}$)', 'Q': r'$\rho_Q$ (fm$^{-3}$)'}
+
 #########################################################################################
 def frame_to_array(i, quantity):
     frame = event[event_keys[i]]
@@ -72,7 +75,10 @@ def plot_density_distribution_vs_time(quantity):
     #plt.pcolormesh(yedges, xedges, H.T, cmap='inferno')
     plt.imshow(H.T, cmap='inferno', interpolation='bicubic', origin='lower',\
                extent=[np.amin(xedges),np.amax(xedges),\
-                       np.amin(yedges),np.amax(yedges)])
+                       np.exp(np.amin(yedges)),np.exp(np.amax(yedges))])
+    
+    plt.xlabel(r'$\tau$ (fm/$c$)')
+    plt.ylabel(labels[quantity])
     
     outfilename = quantity + '_vs_tau.png'
     plt.savefig(outfilename, dpi=chosen_dpi, bbox_inches='tight', pad_inches = 0)
