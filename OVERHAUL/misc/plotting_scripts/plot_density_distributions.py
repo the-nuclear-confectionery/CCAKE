@@ -65,10 +65,10 @@ def plot_density_distribution_vs_time(quantity):
     H, xedges, yedges = np.histogram2d(data[:,0], np.log(data[:,1]), bins=[timebins,250])
         
     #####################################
-    # T vs. muB figure
+    # quantity vs. tau figure
     #####################################
     print('Plotting...')
-    plt.figure(figsize=(width, height), dpi=chosen_dpi)
+    fig, ax = plt.figure(figsize=(width, height), dpi=chosen_dpi)
     
     #print(xedges.shape, yedges.shape, H.shape)
 
@@ -77,8 +77,8 @@ def plot_density_distribution_vs_time(quantity):
                extent=[np.amin(xedges),np.amax(xedges),\
                        np.exp(np.amin(yedges)),np.exp(np.amax(yedges))])
     
-    plt.yticks(yedges[::25])
-    plt.set_yticklabels(list(map(str(np.exp(yedges)[::25]))))
+    ax.yticks(yedges[::25])
+    ax.set_yticklabels(list(map(str(np.exp(yedges)[::25]))))
     
     plt.xlabel(r'$\tau$ (fm/$c$)')
     plt.ylabel(labels[quantity])
