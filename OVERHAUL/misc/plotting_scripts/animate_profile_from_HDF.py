@@ -137,7 +137,7 @@ def main():
         
     #ani = animation.FuncAnimation(fig, animate, np.arange(n_timesteps), \
     #                              init_func=init, blit=True)
-    ani = animation.FuncAnimation(fig, animate, np.arange(n_timesteps), blit=True)
+    ani = animation.FuncAnimation(fig, animate, frames=10)
 
     out = "T_evo.gif"
     #out = sys.argv[2]
