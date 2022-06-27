@@ -33,7 +33,7 @@ def get_selection(Tmin, Tmax):
     T0       = np.array(frame['T'])
     eos_tags = np.array(frame['labels'])
     #print(np.amin(T0),np.amax(T0))
-    return np.where( (T0 >= Tmin) & (T0 <= Tmax) && (eos_tags == 0) )
+    return np.where( (T0 >= Tmin) & (T0 <= Tmax) & (eos_tags == 0) )
 
 
 def frame_to_array(i, Tmin, Tmax):
