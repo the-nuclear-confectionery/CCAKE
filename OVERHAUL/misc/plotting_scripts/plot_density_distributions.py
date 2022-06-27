@@ -97,7 +97,7 @@ def plot_density_distribution_vs_time(quantity):
     ax.set_yticks(np.log(chosen_y_tick_values))  # take log since y axis is log
     chosen_y_tick_labels \
         = list(map(lambda y: \
-                   r'$10^y$'.replace('y',str(y)) \
+                   r'$10^y$'.replace('y',str(int(np.log10(y)))) \
                    if np.isclose(np.log10(y), np.round(np.log10(y))) else '',\
                    chosen_y_tick_values))
     
