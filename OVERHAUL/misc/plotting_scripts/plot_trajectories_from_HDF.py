@@ -26,11 +26,15 @@ chosen_colormap = cm.get_cmap('cool', 256)
 
 chosen_dpi = 200
 
+def get_selection(Tmin, Tmax):
+    T0 = np.array(event[event_keys[0]]['T'])
+    return np.where( (T0 >= Tmin) & (T0 <= Tmax) )
+
 def frame_to_array(i, Tmin, Tmax):
     frame = event[event_keys[i]]
     tau = frame.attrs['Time']
     T = np.array(frame['T'])
-    selection = np.where( (T >= Tmin) & (T <= Tmax) )
+    selection = get_selection(Tmin, Tmax)
     return np.c_[ np.array(frame['muB'])[selection], T[selection] ]
 
 
