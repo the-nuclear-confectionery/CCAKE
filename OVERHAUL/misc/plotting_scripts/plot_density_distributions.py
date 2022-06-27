@@ -80,8 +80,8 @@ def plot_density_distribution_vs_time(quantity):
                extent=[np.amin(xedges),np.amax(xedges),\
                        np.exp(np.amin(yedges)),np.exp(np.amax(yedges))])
     
-    ax.set_yticks(yedges[::25])
-    ax.set_yticklabels(list(map(str,np.exp(yedges)[::25])))
+    #ax.set_yticks(yedges[::25])
+    #ax.set_yticklabels(list(map(str,np.exp(yedges)[::25])))
     
     plt.xlabel(r'$\tau$ (fm/$c$)')
     plt.ylabel(labels[quantity])
