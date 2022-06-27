@@ -120,7 +120,7 @@ def animate(i):
     #im = ax.imshow(f.reshape(n, n)+1e-15, cmap=colormap,\
     #                norm=LogNorm(vmin=minimum+1e-15, vmax=maximum),\
     #                interpolation='bicubic', extent=extent)
-    im = ax.imshow(f.reshape(n, n)+1e-15, cmap=colormap,\
+    im = ax.imshow(f.reshape(n, n)+1e-15, cmap='inferno',\
                     interpolation='bicubic', extent=extent)
     #im.set_data(f.reshape(n, n)+1e-15)
 
