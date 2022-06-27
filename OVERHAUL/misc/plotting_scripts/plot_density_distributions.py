@@ -68,7 +68,10 @@ def plot_density_distribution_vs_time(quantity):
     # quantity vs. tau figure
     #####################################
     print('Plotting...')
-    fig, ax = plt.figure(figsize=(width, height), dpi=chosen_dpi)
+    #fig, ax = plt.figure(figsize=(width, height), dpi=chosen_dpi)
+    fig, ax = plt.subplots()
+    fig.set_size_inches(width, height, forward=True)
+    fig.set_dpi(chosen_dpi)
     
     #print(xedges.shape, yedges.shape, H.shape)
 
