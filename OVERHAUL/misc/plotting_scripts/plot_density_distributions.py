@@ -93,9 +93,12 @@ def plot_density_distribution_vs_time(quantity):
     
     # set y-axis ticks in an aesthetic way
     ymin, ymax = np.amin(yedges), np.amax(yedges)
-    ax.set_yticks(np.log(space_log_ticks(np.exp(ymin), np.exp(ymax))))
+    chosen_y_tick_values = space_log_ticks(np.exp(ymin), np.exp(ymax))
+    ax.set_yticks(np.log(chosen_y_tick_values))  # take log since y axis is log
+    chosen_y_tick_labels = list(map(lambda y: np.isclose(np.log10(y), np.round(np.log10(y))),\
+                                    chosen_y_tick_values))
     
-    #ax.set_yticks(yedges[::50])
+    ax.set_yticklabels(chosen_y_tick_labels)
     #ax.set_yticklabels(list(map(str,np.exp(yedges)[::50])))
     
     plt.xlabel(r'$\tau$ (fm/$c$)')
