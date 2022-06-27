@@ -30,6 +30,17 @@ labels = {'e': r'$e$ (MeV/fm$^3$)', 'B': r'$\rho_B$ (fm$^{-3}$)',
           'S': r'$\rho_S$ (fm$^{-3}$)', 'Q': r'$\rho_Q$ (fm$^{-3}$)'}
 
 #########################################################################################
+def space_log_ticks(xmin, xmax):
+    minTick = int(np.floor(np.log10(xmin)))
+    maxTick = int(np.ceil(np.log10(xmax)))
+    ticks = np.arange(10**minTick,10**(minTick+1),10**minTick)
+    ticks = ticks[ticks >= xmin]
+    for i in range(minTick+1,maxTick):
+        ticks = np.concatenate((ticks, np.arange(10**i,10**(i+1),10**i)))
+    ticks = ticks[ticks <= xmax]
+    return ticks
+
+#########################################################################################
 def frame_to_array(i, quantity):
     frame = event[event_keys[i]]
     q = np.array(frame[quantity])
@@ -82,13 +93,9 @@ def plot_density_distribution_vs_time(quantity):
     
     # set y-axis ticks in an aesthetic way
     ymin, ymax = np.amin(yedges), np.amax(yedges)
-    minTick = int(np.ceil(np.log10(ymin)))
-    maxTick = int(np.ceil(np.log10(ymax)))
-    print(minTick,maxTick)
-    print(list(map(lambda x:10**x, range(minTick,maxTick))))
-    ax.set_yticks(np.log(list(map(lambda x:10**x, range(minTick,maxTick)))))
+    ax.set_yticks(np.log(space_log_ticks(np.exp(ymin), np.exp(ymax))))
     
-    #ax.set_yticks(yedges[::50])
+    ax.set_yticks(yedges[::50])
     #ax.set_yticklabels(list(map(str,np.exp(yedges)[::50])))
     
     plt.xlabel(r'$\tau$ (fm/$c$)')
