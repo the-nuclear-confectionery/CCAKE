@@ -66,9 +66,12 @@ def kernel(r):
 #########################################################################################
 def evaluate_field(r):
     result = 0.0
-    for particle in data:
-        if (r[0]-particle[0])**2+(r[1]-particle[1])**2 <= 4.0*h**2:
-            result += particle[2]*kernel(np.sqrt((r[0]-particle[0])**2+(r[1]-particle[1])**2))
+    #for particle in data:
+    #    if (r[0]-particle[0])**2+(r[1]-particle[1])**2 <= 4.0*h**2:
+    #        result += particle[2]*kernel(np.sqrt((r[0]-particle[0])**2+(r[1]-particle[1])**2))
+    neighbors = data[ (r[0]-data[:,0])**2+(r[1]-data[:,1])**2 <= 4.0*h**2 ]
+    for particle in neighbors:
+        result += particle[2]*kernel(np.sqrt((r[0]-particle[0])**2+(r[1]-particle[1])**2))
     return result
 
 #########################################################################################
@@ -93,7 +96,7 @@ def animate(i):
         
     n = 51
     X, Y = np.meshgrid( np.linspace(xmin, xmax, n), np.linspace(ymin, ymax, n) )
-    f = evaluate_field(np.c_[ X.flatten(), Y.flatten() ].T)
+    f = np.array([ evaluate_field(point) for point in np.c_[ X.flatten(), Y.flatten() ].T ])
     if i==1 or not fixed_maximum:
         maximum = np.amax(np.abs(f))
         minimum = np.amin(f[np.abs(f)>0.0])
