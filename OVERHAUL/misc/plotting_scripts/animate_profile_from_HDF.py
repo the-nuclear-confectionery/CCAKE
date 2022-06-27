@@ -15,7 +15,7 @@ n_timesteps = len(event.keys())
 h = float(sys.argv[2])
 knorm = 10.0/(7.0*np.pi*h*h)
 
-quantity = sys.argv[3]
+#quantity = sys.argv[3]
 
 fig = plt.figure(figsize=(12,12), dpi=125)
 xmin, xmax, ymin, ymax = -15, 15, -15, 15
