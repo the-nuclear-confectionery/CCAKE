@@ -40,7 +40,8 @@ def frame_to_array(i, Tmin, Tmax):
     frame = event[event_keys[i]]
     tau = frame.attrs['Time']
     T = np.array(frame['T'])
-    return np.c_[ np.array(frame['muB'])[selection], T[selection] ]
+    return np.c_[ T[selection], np.array(frame['muB'])[selection],\
+                  np.array(frame['muS'])[selection], np.array(frame['muQ'])[selection] ]
 
 
 #########################################################################################
@@ -69,10 +70,10 @@ def plot_all_particles():
     plt.figure(figsize=(width, height), dpi=chosen_dpi)
 
     for particle in data:
-        r,g,b,a = chosen_colormap((particle[0,1]-minimum)/(maximum-minimum))
-        plt.plot( particle[:,0], particle[:,1], color=(r,g,b), alpha=0.3 )
+        r,g,b,a = chosen_colormap((particle[0,0]-minimum)/(maximum-minimum))
+        plt.plot( particle[:,1], particle[:,0], color=(r,g,b), alpha=0.3 )
         
-    maxrange = np.amax(np.abs(data[:,:,0]))
+    maxrange = np.amax(np.abs(data[:,:,1]))
     plt.xlim([-1.1*maxrange, 1.1*maxrange])
     plt.xlabel(r'$\mu_B$ (MeV)')
     plt.ylabel(r'$T$ (MeV)')
@@ -84,6 +85,128 @@ def plot_all_particles():
     cbar.set_label(r'$T_0$ (MeV)', rotation=90)
 
     outfilename = 'T_vs_muB.png'
+    plt.savefig(outfilename, dpi=chosen_dpi, bbox_inches='tight', pad_inches = 0)
+    print('Saved to ' + outfilename)
+
+    #####################################
+    # T vs. muS figure
+    #####################################
+    plt.figure(figsize=(width, height), dpi=chosen_dpi)
+
+    for particle in data:
+        r,g,b,a = chosen_colormap((particle[0,0]-minimum)/(maximum-minimum))
+        plt.plot( particle[:,2], particle[:,0], color=(r,g,b), alpha=0.3 )
+        
+    maxrange = np.amax(np.abs(data[:,:,2]))
+    plt.xlim([-1.1*maxrange, 1.1*maxrange])
+    plt.xlabel(r'$\mu_S$ (MeV)')
+    plt.ylabel(r'$T$ (MeV)')
+    plt.title(r'Pb+Pb $5.02$ TeV')
+    norm = Normalize(vmin=minimum, vmax=maximum)
+    sm = cm.ScalarMappable(cmap=chosen_colormap, norm=norm)
+    sm.set_array([])
+    cbar = plt.colorbar(sm)    
+    cbar.set_label(r'$T_0$ (MeV)', rotation=90)
+
+    outfilename = 'T_vs_muS.png'
+    plt.savefig(outfilename, dpi=chosen_dpi, bbox_inches='tight', pad_inches = 0)
+    print('Saved to ' + outfilename)
+
+    #####################################
+    # T vs. muQ figure
+    #####################################
+    plt.figure(figsize=(width, height), dpi=chosen_dpi)
+
+    for particle in data:
+        r,g,b,a = chosen_colormap((particle[0,0]-minimum)/(maximum-minimum))
+        plt.plot( particle[:,3], particle[:,0], color=(r,g,b), alpha=0.3 )
+        
+    maxrange = np.amax(np.abs(data[:,:,3]))
+    plt.xlim([-1.1*maxrange, 1.1*maxrange])
+    plt.xlabel(r'$\mu_Q$ (MeV)')
+    plt.ylabel(r'$T$ (MeV)')
+    plt.title(r'Pb+Pb $5.02$ TeV')
+    norm = Normalize(vmin=minimum, vmax=maximum)
+    sm = cm.ScalarMappable(cmap=chosen_colormap, norm=norm)
+    sm.set_array([])
+    cbar = plt.colorbar(sm)    
+    cbar.set_label(r'$T_0$ (MeV)', rotation=90)
+
+    outfilename = 'T_vs_muQ.png'
+    plt.savefig(outfilename, dpi=chosen_dpi, bbox_inches='tight', pad_inches = 0)
+    print('Saved to ' + outfilename)
+
+
+    #####################################
+    # muB vs. muS figure
+    #####################################
+    plt.figure(figsize=(width, height), dpi=chosen_dpi)
+
+    for particle in data:
+        r,g,b,a = chosen_colormap((particle[0,0]-minimum)/(maximum-minimum))
+        plt.plot( particle[:,1], particle[:,2], color=(r,g,b), alpha=0.3 )
+        
+    maxrange = np.amax(np.abs(data[:,:,2]))
+    plt.xlim([-1.1*maxrange, 1.1*maxrange])
+    plt.xlabel(r'$\mu_S$ (MeV)')
+    plt.ylabel(r'$\mu_B$ (MeV)')
+    plt.title(r'Pb+Pb $5.02$ TeV')
+    norm = Normalize(vmin=minimum, vmax=maximum)
+    sm = cm.ScalarMappable(cmap=chosen_colormap, norm=norm)
+    sm.set_array([])
+    cbar = plt.colorbar(sm)    
+    cbar.set_label(r'$T_0$ (MeV)', rotation=90)
+
+    outfilename = 'muB_vs_muS.png'
+    plt.savefig(outfilename, dpi=chosen_dpi, bbox_inches='tight', pad_inches = 0)
+    print('Saved to ' + outfilename)
+
+
+    #####################################
+    # muB vs. muQ figure
+    #####################################
+    plt.figure(figsize=(width, height), dpi=chosen_dpi)
+
+    for particle in data:
+        r,g,b,a = chosen_colormap((particle[0,0]-minimum)/(maximum-minimum))
+        plt.plot( particle[:,1], particle[:,3], color=(r,g,b), alpha=0.3 )
+        
+    maxrange = np.amax(np.abs(data[:,:,3]))
+    plt.xlim([-1.1*maxrange, 1.1*maxrange])
+    plt.xlabel(r'$\mu_Q$ (MeV)')
+    plt.ylabel(r'$\mu_B$ (MeV)')
+    plt.title(r'Pb+Pb $5.02$ TeV')
+    norm = Normalize(vmin=minimum, vmax=maximum)
+    sm = cm.ScalarMappable(cmap=chosen_colormap, norm=norm)
+    sm.set_array([])
+    cbar = plt.colorbar(sm)    
+    cbar.set_label(r'$T_0$ (MeV)', rotation=90)
+
+    outfilename = 'muB_vs_muQ.png'
+    plt.savefig(outfilename, dpi=chosen_dpi, bbox_inches='tight', pad_inches = 0)
+    print('Saved to ' + outfilename)
+
+    #####################################
+    # muS vs. muQ figure
+    #####################################
+    plt.figure(figsize=(width, height), dpi=chosen_dpi)
+
+    for particle in data:
+        r,g,b,a = chosen_colormap((particle[0,0]-minimum)/(maximum-minimum))
+        plt.plot( particle[:,2], particle[:,3], color=(r,g,b), alpha=0.3 )
+        
+    maxrange = np.amax(np.abs(data[:,:,3]))
+    plt.xlim([-1.1*maxrange, 1.1*maxrange])
+    plt.xlabel(r'$\mu_Q$ (MeV)')
+    plt.ylabel(r'$\mu_S$ (MeV)')
+    plt.title(r'Pb+Pb $5.02$ TeV')
+    norm = Normalize(vmin=minimum, vmax=maximum)
+    sm = cm.ScalarMappable(cmap=chosen_colormap, norm=norm)
+    sm.set_array([])
+    cbar = plt.colorbar(sm)    
+    cbar.set_label(r'$T_0$ (MeV)', rotation=90)
+
+    outfilename = 'muS_vs_muQ.png'
     plt.savefig(outfilename, dpi=chosen_dpi, bbox_inches='tight', pad_inches = 0)
     print('Saved to ' + outfilename)
 
