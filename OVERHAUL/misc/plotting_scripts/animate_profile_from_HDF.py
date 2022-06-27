@@ -31,7 +31,7 @@ colormap = plt.cm.inferno
 data = None
 maximum = None
 minimum = None
-im = ax.imshow(np.zeros([n,n]), interpolation='none', aspect='auto', vmin=0, vmax=1)
+im = ax.imshow(np.random.rand(5, 5))
 
 
 #########################################################################################
@@ -82,7 +82,7 @@ def evaluate_field(r):
 
 #########################################################################################
 def init():
-    im.set_data(np.zeros([n,n]))
+    im.set_data(np.random.rand(5, 5))
     plt.xlim([xmin, xmax])
     plt.ylim([ymin, ymax])
     return [im]
