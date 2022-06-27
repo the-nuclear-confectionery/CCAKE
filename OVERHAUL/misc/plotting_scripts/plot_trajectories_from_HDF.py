@@ -28,6 +28,7 @@ chosen_dpi = 200
 
 selection = None
 
+#########################################################################################
 def get_selection(Tmin, Tmax):
     frame    = event[event_keys[0]]
     T0       = np.array(frame['T'])
@@ -36,6 +37,7 @@ def get_selection(Tmin, Tmax):
     return np.where( (T0 >= Tmin) & (T0 <= Tmax) & (eos_tags == 0) )
 
 
+#########################################################################################
 def frame_to_array(i, Tmin, Tmax):
     frame = event[event_keys[i]]
     tau = frame.attrs['Time']
