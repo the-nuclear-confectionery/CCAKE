@@ -66,10 +66,10 @@ def plot_all_particles():
     plt.figure(figsize=(width, height), dpi=chosen_dpi)
 
     for particle in data:
-        r,g,b,a = chosen_colormap((particle[0,0]-minimum)/(maximum-minimum))
+        r,g,b,a = chosen_colormap((particle[0,1]-minimum)/(maximum-minimum))
         plt.plot( particle[:,0], particle[:,1], color=(r,g,b), alpha=0.3 )
         
-    maxrange = np.amax(np.abs(data[:,:,1]))
+    maxrange = np.amax(np.abs(data[:,:,0]))
     plt.xlim([-1.1*maxrange, 1.1*maxrange])
     plt.xlabel(r'$\mu_B$ (MeV)')
     plt.ylabel(r'$T$ (MeV)')
