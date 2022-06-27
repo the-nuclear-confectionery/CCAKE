@@ -85,7 +85,7 @@ def init():
     im.set_data(np.zeros([n,n]))
     plt.xlim([xmin, xmax])
     plt.ylim([ymin, ymax])
-    #return [im]
+    return [im]
 
 
 #########################################################################################
@@ -135,9 +135,9 @@ def main():
 
     plt.margins(0, 0)
         
-    # Do Volume Rendering at Different Viewing Angles
-    ani = animation.FuncAnimation(fig, animate, np.arange(n_timesteps), \
-                                  init_func=init, blit=True)
+    #ani = animation.FuncAnimation(fig, animate, np.arange(n_timesteps), \
+    #                              init_func=init, blit=True)
+    ani = animation.FuncAnimation(fig, animate, np.arange(n_timesteps), blit=True)
 
     out = "T_evo.gif"
     #out = sys.argv[2]
