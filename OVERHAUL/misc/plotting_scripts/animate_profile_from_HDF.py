@@ -118,9 +118,7 @@ def animate(i):
     #im = plt.imshow(f.reshape(n, n)+1e-15, cmap=colormap,\
     #                norm=LogNorm(vmin=minimum+1e-15, vmax=maximum),\
     #                interpolation='bicubic', extent=extent)
-    im.set_data(f.reshape(n, n)+1e-15, cmap=colormap,\
-                norm=LogNorm(vmin=minimum+1e-15, vmax=maximum),\
-                interpolation='bicubic', extent=extent)
+    im.set_data(f.reshape(n, n)+1e-15)
 
     plt.xlim([xmin, xmax])
     plt.ylim([ymin, ymax])
