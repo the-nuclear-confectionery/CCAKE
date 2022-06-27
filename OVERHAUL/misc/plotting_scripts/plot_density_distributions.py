@@ -94,12 +94,18 @@ def plot_density_distribution_vs_time(quantity):
     # set y-axis ticks in an aesthetic way
     ymin, ymax = np.amin(yedges), np.amax(yedges)
     chosen_y_tick_values = space_log_ticks(np.exp(ymin), np.exp(ymax))
-    ax.set_yticks(np.log(chosen_y_tick_values))  # take log since y axis is log
     chosen_y_tick_labels \
         = list(map(lambda y: \
                    r'$10^y$'.replace('y',str(int(np.log10(y)))) \
                    if np.isclose(np.log10(y), np.round(np.log10(y))) else '',\
                    chosen_y_tick_values))
+    
+    isMajor = lambda y: np.isclose(np.log10(y), np.round(np.log10(y))) 
+    #ax.set_yticks(np.log(chosen_y_tick_values))  # take log since y axis is log
+    chosen_major_yticks = chosen_y_tick_values[isMajor(chosen_y_tick_values)]
+    chosen_minor_yticks = chosen_y_tick_values[~isMajor(chosen_y_tick_values)]
+    ax.set_yticks(np.log(chosen_major_yticks))
+    ax.set_yticks(np.log(chosen_minor_yticks), minor=True)
     
     ax.set_yticklabels(chosen_y_tick_labels)
     #ax.set_yticklabels(list(map(str,np.exp(yedges)[::50])))
