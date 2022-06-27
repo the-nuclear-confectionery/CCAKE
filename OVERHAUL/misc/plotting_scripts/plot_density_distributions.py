@@ -107,7 +107,7 @@ def plot_density_distribution_vs_time(quantity):
     ax.set_yticks(np.log(chosen_major_yticks))
     ax.set_yticks(np.log(chosen_minor_yticks), minor=True)
     
-    ax.set_yticklabels(chosen_y_tick_labels[isMajor(chosen_y_tick_values)])
+    ax.set_yticklabels(chosen_y_tick_labels[np.where(isMajor(chosen_y_tick_values))])
     #ax.set_yticklabels(list(map(str,np.exp(yedges)[::50])))
     
     plt.xlabel(r'$\tau$ (fm/$c$)')
