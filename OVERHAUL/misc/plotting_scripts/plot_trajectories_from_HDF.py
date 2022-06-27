@@ -37,9 +37,6 @@ def frame_to_array(i, Tmin, Tmax):
     frame = event[event_keys[i]]
     tau = frame.attrs['Time']
     T = np.array(frame['T'])
-    #print(i,T,flush=True)
-    #selection = get_selection(Tmin, Tmax)
-    #print(i,'got selection',flush=True)
     return np.c_[ np.array(frame['muB'])[selection], T[selection] ]
 
 
@@ -50,17 +47,14 @@ def plot_all_particles():
     #####################################
     global selection
     Tmin, Tmax = 600, 700
-    print(n_timesteps)
     selection = get_selection(Tmin, Tmax)
-    data = [frame_to_array(i, Tmin, Tmax) for i in range(n_timesteps)]
-
-    data = np.stack(data)
+    data = np.stack([frame_to_array(i, Tmin, Tmax) for i in range(n_timesteps)])
 
     data = np.swapaxes(data, 0, 1)
     
     # initial temperatures
-    T0 = event[event_keys[0]]['T']
-    T0 = T0[np.where( (T0 >= Tmin) & (T0 <= Tmax) )]
+    #T0 = event[event_keys[0]]['T']
+    #T0 = T0[np.where( (T0 >= Tmin) & (T0 <= Tmax) )]
     
     minimum, maximum = Tmin, Tmax
     
