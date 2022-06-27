@@ -34,7 +34,7 @@ def frame_to_array(i, Tmin, Tmax):
     frame = event[event_keys[i]]
     tau = frame.attrs['Time']
     T = np.array(frame['T'])
-    print(T)
+    print(i,T)
     selection = get_selection(Tmin, Tmax)
     return np.c_[ np.array(frame['muB'])[selection], T[selection] ]
 
@@ -45,6 +45,7 @@ def plot_all_particles():
     # Set up
     #####################################
     Tmin, Tmax = 600, 700
+    print(n_timesteps)
     data = np.stack([frame_to_array(i, Tmin, Tmax) for i in range(n_timesteps)])
     
     data = np.swapaxes(data, 0, 1)
