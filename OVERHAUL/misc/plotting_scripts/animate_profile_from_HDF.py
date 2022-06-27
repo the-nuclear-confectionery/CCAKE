@@ -64,11 +64,11 @@ def kernel(r):
                          lambda q: knorm*(1.0 - 1.5*q**2 + 0.75*q**3)])
 
 #########################################################################################
-def evaluate_field(x, y):
+def evaluate_field(r):
     result = 0.0
     for particle in data:
-        if (x-particle[0])**2+(y-particle[1])**2 <= 4.0*h**2:
-            result += particle[2]*kernel(np.sqrt((x-particle[0])**2+(y-particle[1])**2))
+        if (r[0]-particle[0])**2+(r[1]-particle[1])**2 <= 4.0*h**2:
+            result += particle[2]*kernel(np.sqrt((r[0]-particle[0])**2+(r[1]-particle[1])**2))
     return result
 
 #########################################################################################
@@ -93,7 +93,7 @@ def animate(i):
         
     n = 51
     X, Y = np.meshgrid( np.linspace(xmin, xmax, n), np.linspace(ymin, ymax, n) )
-    f = evaluate_field(X, Y)
+    f = evaluate_field(np.c_[ X.flatten(), Y.flatten() ].T)
     if i==1 or not fixed_maximum:
         maximum = np.amax(np.abs(f))
         minimum = np.amin(f[np.abs(f)>0.0])
