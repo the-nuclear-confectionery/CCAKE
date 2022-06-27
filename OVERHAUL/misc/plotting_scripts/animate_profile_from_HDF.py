@@ -97,6 +97,7 @@ def animate(i):
         
     n = 51
     X, Y = np.meshgrid( np.linspace(xmin, xmax, n), np.linspace(ymin, ymax, n) )
+    print(np.c_[ X.flatten(), Y.flatten() ].shape)
     f = np.array([ evaluate_field(point) for point in np.c_[ X.flatten(), Y.flatten() ].T ])
     if i==1 or not fixed_maximum:
         maximum = np.amax(np.abs(f))
