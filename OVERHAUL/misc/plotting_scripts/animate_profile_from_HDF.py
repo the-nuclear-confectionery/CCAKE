@@ -7,6 +7,7 @@ import matplotlib.animation as animation
 from matplotlib.colors import LinearSegmentedColormap, LogNorm, SymLogNorm
 import os, sys
 
+fixed_maximum = True
 
 # load arguments
 f = h5.File(sys.argv[1], 'r')
