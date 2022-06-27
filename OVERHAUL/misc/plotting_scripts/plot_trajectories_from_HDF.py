@@ -28,7 +28,7 @@ chosen_dpi = 200
 
 def frame_to_array(i, Tmin, Tmax):
     frame = event[event_keys[i]]
-    tau = frame['Time']
+    tau = frame.attrs['Time']
     T = np.array(frame['T'])
     selection = np.where( (T >= Tmin) & (T <= Tmax) )
     return np.c_[ np.array(frame['muB'])[selection], T[selection] ]
