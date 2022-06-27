@@ -26,6 +26,8 @@ xmin, xmax, ymin, ymax = -15, 15, -15, 15
 colormap = plt.cm.inferno
 
 data = None
+maximum = None
+minimum = None
 
 
 #########################################################################################
@@ -85,7 +87,7 @@ def init():
 
 #########################################################################################
 def animate(i):
-    global data
+    global data, maximum, minimum
     print('Plotting frame', i, flush=True)
     fig.clear()
     frame = event[event_keys[i]]
@@ -101,6 +103,7 @@ def animate(i):
     X, Y = np.meshgrid( np.linspace(xmin, xmax, n), np.linspace(ymin, ymax, n) )
     print(np.c_[ X.flatten(), Y.flatten() ].shape)
     f = np.array([ evaluate_field(point) for point in np.c_[ X.flatten(), Y.flatten() ] ])
+    
     if i==1 or not fixed_maximum:
         maximum = np.amax(np.abs(f))
         minimum = np.amin(f[np.abs(f)>0.0])
