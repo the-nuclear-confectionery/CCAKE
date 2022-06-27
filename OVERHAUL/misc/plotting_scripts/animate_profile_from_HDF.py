@@ -82,7 +82,7 @@ def init():
     im = plt.plot(np.array([0.0]), np.array([0.0]), alpha = 0.0)
     plt.xlim([xmin, xmax])
     plt.ylim([ymin, ymax])
-    return im
+    return im,
 
 
 #########################################################################################
@@ -120,7 +120,7 @@ def animate(i):
     plt.xlim([xmin, xmax])
     plt.ylim([ymin, ymax])
     
-    return im
+    return im,
 
 
 
