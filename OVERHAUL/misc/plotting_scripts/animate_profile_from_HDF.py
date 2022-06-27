@@ -104,7 +104,7 @@ def animate(i):
     print(np.c_[ X.flatten(), Y.flatten() ].shape)
     f = np.array([ evaluate_field(point) for point in np.c_[ X.flatten(), Y.flatten() ] ])
     
-    if i==1 or not fixed_maximum:
+    if i==0 or not fixed_maximum:
         maximum = np.amax(np.abs(f))
         minimum = np.amin(f[np.abs(f)>0.0])
         
