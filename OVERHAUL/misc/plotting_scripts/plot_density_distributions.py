@@ -81,9 +81,9 @@ def plot_density_distribution_vs_time(quantity):
                        np.amin(yedges),np.amax(yedges)])
     
     # set y-axis ticks in an aesthetic way
-    ymin, ymax = np.exp(np.amin(yedges)), np.exp(np.amax(yedges))
-    minTick, maxTick = int(np.ceil(np.log10(ymin))), int(np.ceil(np.log10(ymax)))
-    print(ymin,ymax)
+    ymin, ymax = np.amin(yedges), np.amax(yedges)
+    minTick = int(np.ceil(np.log10(np.exp(ymin))))
+    maxTick = int(np.ceil(np.log10(np.exp(ymax))))
     print(minTick,maxTick)
     print(list(map(lambda x:10**x, range(minTick,maxTick))))
     ax.set_yticks(list(map(lambda x:10**x, range(minTick,maxTick))))
