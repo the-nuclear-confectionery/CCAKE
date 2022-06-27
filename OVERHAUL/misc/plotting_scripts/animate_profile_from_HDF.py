@@ -21,6 +21,8 @@ knorm = 10.0/(7.0*np.pi*h*h)
 #quantity = sys.argv[3]
 
 fig = plt.figure(figsize=(12,12), dpi=125)
+ax = fig.add_subplot(111)
+
 xmin, xmax, ymin, ymax = -15, 15, -15, 15
 
 n = 51
@@ -29,7 +31,7 @@ colormap = plt.cm.inferno
 data = None
 maximum = None
 minimum = None
-im = plt.imshow(np.zeros([n,n]), interpolation='none', aspect='auto', vmin=0, vmax=1)
+im = ax.imshow(np.zeros([n,n]), interpolation='none', aspect='auto', vmin=0, vmax=1)
 
 
 #########################################################################################
@@ -83,7 +85,7 @@ def init():
     im.set_data(np.zeros([n,n]))
     plt.xlim([xmin, xmax])
     plt.ylim([ymin, ymax])
-    return [im]
+    #return [im]
 
 
 #########################################################################################
@@ -116,15 +118,15 @@ def animate(i):
     print(i)
     print(minimum)
     print(maximum)
-    #im = plt.imshow(f.reshape(n, n)+1e-15, cmap=colormap,\
-    #                norm=LogNorm(vmin=minimum+1e-15, vmax=maximum),\
-    #                interpolation='bicubic', extent=extent)
-    im.set_data(f.reshape(n, n)+1e-15)
+    im = plt.imshow(f.reshape(n, n)+1e-15, cmap=colormap,\
+                    norm=LogNorm(vmin=minimum+1e-15, vmax=maximum),\
+                    interpolation='bicubic', extent=extent)
+    #im.set_data(f.reshape(n, n)+1e-15)
 
     plt.xlim([xmin, xmax])
     plt.ylim([ymin, ymax])
     
-    return [im]
+    #return [im]
 
 
 
