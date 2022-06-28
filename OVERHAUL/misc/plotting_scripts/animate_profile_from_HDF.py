@@ -13,7 +13,7 @@ fixed_maximum = True
 f = h5.File(sys.argv[1], 'r')
 event = f['Event']
 event_keys = list(event.keys())
-n_timesteps = min([len(event.keys()),10])
+n_timesteps = min([len(event.keys()),1000])
 
 h = float(sys.argv[2])
 knorm = 10.0/(7.0*np.pi*h*h)
@@ -25,8 +25,7 @@ ax = fig.add_subplot(111)
 
 xmin, xmax, ymin, ymax = -15, 15, -15, 15
 
-#n = int(30/0.06)+1
-n = 11
+n = 51
 colormap = plt.cm.inferno
 
 data = None
@@ -94,8 +93,8 @@ def animate(i):
     global data, maximum, minimum, im, n
     print('Plotting frame', i, flush=True)
     ax.clear()
-    #frame = event[event_keys[i]]
-    frame = event[event_keys[0]]
+    frame = event[event_keys[i]]
+    #frame = event[event_keys[0]]
     tau = frame.attrs['Time']
     x = np.array(frame['x'])
     y = np.array(frame['y'])
@@ -127,17 +126,17 @@ def animate(i):
 
     plt.xlim([xmin, xmax])
     plt.ylim([ymin, ymax])
-    plt.text(0.075, 0.925, r'$n = %(n)5.2f$ fm$/c$'%{'n': n}, \
-            {'color': 'white', 'fontsize': 24}, transform=ax.transAxes,
-            horizontalalignment='left', verticalalignment='top')
-    #plt.text(0.075, 0.925, r'$\tau = %(t)5.2f$ fm$/c$'%{'t': tau}, \
+    #plt.text(0.075, 0.925, r'$n = %(n)5.2f$ fm$/c$'%{'n': n}, \
     #        {'color': 'white', 'fontsize': 24}, transform=ax.transAxes,
     #        horizontalalignment='left', verticalalignment='top')
+    plt.text(0.075, 0.925, r'$\tau = %(t)5.2f$ fm$/c$'%{'t': tau}, \
+            {'color': 'white', 'fontsize': 24}, transform=ax.transAxes,
+            horizontalalignment='left', verticalalignment='top')
     
     #if i==0:
     #    fig.savefig('frame' + str(i) + '.png', format='png')
         
-    n += 10
+    #n += 10
     
     return [im]
 
@@ -155,7 +154,7 @@ def main():
     out = "T_evo.gif"
     #out = sys.argv[2]
     print('Saving to', out)
-    ani.save(out, writer='imagemagick', fps=1)
+    ani.save(out, writer='imagemagick', fps=25)
     print('Finished everything.')
 
     return 0
@@ -163,5 +162,5 @@ def main():
   
 #########################################################################################
 if __name__== "__main__":
-  main()
+    main()
 
