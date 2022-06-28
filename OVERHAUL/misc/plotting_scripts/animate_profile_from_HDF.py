@@ -138,7 +138,7 @@ def animate(i):
     print('Plotting frame', i, flush=True)
     tic = time.perf_counter()
 
-    ax.clear()
+    fig.clear()
     frame = event[event_keys[i]]
     tau = frame.attrs['Time']
     x = np.array(frame['x'])
