@@ -26,11 +26,15 @@ using std::endl;
 using std::string;
 using std::vector;
 
+void exiting() { formatted_output::announce("Summary: hydrodynamic evolution "
+                                            "was unsuccessful"); }
+
 int main (int argc, char *argv[])
 {
   // Print the welcome message.
   message::welcome();
   //message::guilty_welcome();
+
 
   // Check if proper command-line arguments passed.
   if ( argc < 3 )
@@ -41,12 +45,19 @@ int main (int argc, char *argv[])
     exit(1);
   }
 
+
+  // call this function if the code fails after this point
+  std::atexit( exiting );
+
+
   //----------------------------------------------
   formatted_output::announce("Reading in command-line arguments");
+
 
   // This is where all parameters are initialized.
   string path_to_settings_file     = argv[1];
   string path_to_results_directory = argv[2];
+
 
   //----------------------------------------------
   formatted_output::report( "Input parameters file: "
@@ -59,28 +70,38 @@ int main (int argc, char *argv[])
   BSQHydro simulation;
   simulation.set_results_directory( path_to_results_directory );
 
+
   //----------------------------------------------
   formatted_output::announce("Loading data");
+
 
   // Load file containing parameter settings.
   simulation.load_settings_file( path_to_settings_file );
 
+
   // Read in initial conditions (type/path defined in path_to_settings_file).
   simulation.read_in_initial_conditions();
+
 
   // This is where the hydrodynamic simulation is set up and initialized.
   simulation.initialize_hydrodynamics();
 
+
   // Duh.
   simulation.run();
+
 
   // Construct freeze-out surface.
   simulation.find_freeze_out_surface();
 
+
   // Save any relevant output.
   simulation.print_results();
 
-  formatted_output::announce("Hydrodynamic evolution completed successfully");
+
+  // Print success message.
+  formatted_output::announce("Summary: hydrodynamic evolution completed "
+                             "successfully");
 
   return 0;
 }
