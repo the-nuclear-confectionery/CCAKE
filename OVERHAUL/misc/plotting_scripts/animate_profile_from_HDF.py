@@ -137,7 +137,10 @@ def animate(i):
 def main():
 
     plt.margins(0, 0)
-        
+    
+    animate(0)
+    exit 1
+    
     #ani = animation.FuncAnimation(fig, animate, np.arange(n_timesteps), \
     #                              init_func=init, blit=True)
     ani = animation.FuncAnimation(fig, animate, frames=10)
