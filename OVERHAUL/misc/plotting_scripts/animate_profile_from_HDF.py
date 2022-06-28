@@ -132,7 +132,7 @@ def animate(i):
     #if i==0:
     #    fig.savefig('frame' + str(i) + '.png', format='png')
     
-    #return [im]
+    return [im]
 
 
 
