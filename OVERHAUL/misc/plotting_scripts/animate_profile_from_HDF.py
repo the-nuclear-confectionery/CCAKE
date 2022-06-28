@@ -5,7 +5,6 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib.colors import LinearSegmentedColormap, LogNorm, SymLogNorm
-#from scipy.interpolate import CloughTocher2DInterpolator, interp2d, RBFInterpolator
 import os, sys, time
 
 fixed_maximum = True
@@ -14,7 +13,7 @@ fixed_maximum = True
 f = h5.File(sys.argv[1], 'r')
 event = f['Event']
 event_keys = list(event.keys())
-n_timesteps = min([len(event.keys()),5])
+n_timesteps = min([len(event.keys()),10])
 
 h = float(sys.argv[2])
 knorm = 10.0/(7.0*np.pi*h*h)
@@ -142,7 +141,7 @@ def animate(i):
     plt.xlim([xmin, xmax])
     plt.ylim([ymin, ymax])
     plt.text(0.075, 0.925, r'$n = %(n)5.2f$ fm$/c$'%{'n': n}, \
-            {'color': 'white', 'fontsize': 18}, transform=ax.transAxes,
+            {'color': 'white', 'fontsize': 24}, transform=ax.transAxes,
             horizontalalignment='left', verticalalignment='top')
     
     #if i==0:
@@ -166,7 +165,7 @@ def main():
     out = "T_evo.gif"
     #out = sys.argv[2]
     print('Saving to', out)
-    ani.save(out, writer='imagemagick', fps=5)
+    ani.save(out, writer='imagemagick', fps=1)
     print('Finished everything.')
 
     return 0
