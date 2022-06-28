@@ -227,7 +227,7 @@ def main():
                                   init_func=init, blit=True)
         
     FFwriter = animation.FFMpegWriter(fps=25, extra_args=['-vcodec', 'libx264'])
-    ani.save( outfilename, writer=FFwriter )
+    ani.save( outfilename, writer=FFwriter, savefig_kwargs={'bbox_inches' : 'tight'} )
     #savefig_kwargs={'bbox_inches' : 'tight'}
     #{'bbox_extra_artists':(cbar,), 'bbox_inches':'tight'}
 
