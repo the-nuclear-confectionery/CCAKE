@@ -79,10 +79,7 @@ def evaluate_field(r):
     #for particle in neighbors:
     #    result += particle[2]*kernel(np.sqrt((r[0]-particle[0])**2+(r[1]-particle[1])**2))
     weights = kernel( np.sqrt( (r[0]-neighbors[:,0])**2+(r[1]-neighbors[:,1])**2) )
-    if np.sum(weights) < 1e-10:
-        return 0
-    else:
-        return np.sum( neighbors[:,2]*weights ) / (np.sum(weights)+1e-10)
+    return np.sum( neighbors[:,2]*weights ) / (np.sum(weights)+1e-10)
 
 #########################################################################################
 def init():
