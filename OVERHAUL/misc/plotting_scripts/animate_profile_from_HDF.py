@@ -95,26 +95,17 @@ def animate(i):
     print('Plotting frame', i, flush=True)
     ax.clear()
     #frame = event[event_keys[i]]
-    frame = event[event_keys[i]]
+    frame = event[event_keys[0]]
     tau = frame.attrs['Time']
     x = np.array(frame['x'])
     y = np.array(frame['y'])
     T = np.array(frame['T'])
     data = np.c_[ x, y, T ]
     
-    #print('max T =', np.amax(T))
-    
-    #print(data.shape)
-        
     X, Y = np.meshgrid( np.linspace(xmin, xmax, n), np.linspace(ymin, ymax, n) )
-    #print(np.c_[ X.flatten(), Y.flatten() ].shape)
     tic = time.perf_counter()
 
     f = np.array([ evaluate_field(point) for point in np.c_[ X.flatten(), Y.flatten() ] ])
-
-    #interp = CloughTocher2DInterpolator(list(zip(x, y)), T, fill_value = 0.0)
-    #interp = interp2d(x, y, T, fill_value = 0.0)
-    #f = interp(X, Y)
 
     toc = time.perf_counter()
     print(f"Generated field grid in {toc - tic:0.4f} seconds", flush=True)
@@ -123,12 +114,9 @@ def animate(i):
     if i==0 or not fixed_maximum:
         maximum = np.amax(np.abs(f))
         minimum = np.amin(f[np.abs(f)>0.0])
-        
-    #print(f.shape)
+    
     
     extent = xmin, xmax, ymin, ymax
-    #print(i)
-    #print(f.reshape(n, n))
     tic = time.perf_counter()
     im = ax.imshow(f.reshape(n, n)+1e-10, cmap=colormap,\
                     norm=LogNorm(vmin=minimum+1e-15, vmax=maximum),\
@@ -136,13 +124,15 @@ def animate(i):
     toc = time.perf_counter()
     print(f"Generated frame in {toc - tic:0.4f} seconds")
 
-    #im.set_data(f.reshape(n, n)+1e-15)
 
     plt.xlim([xmin, xmax])
     plt.ylim([ymin, ymax])
     plt.text(0.075, 0.925, r'$n = %(n)5.2f$ fm$/c$'%{'n': n}, \
             {'color': 'white', 'fontsize': 24}, transform=ax.transAxes,
             horizontalalignment='left', verticalalignment='top')
+    #plt.text(0.075, 0.925, r'$\tau = %(t)5.2f$ fm$/c$'%{'t': tau}, \
+    #        {'color': 'white', 'fontsize': 24}, transform=ax.transAxes,
+    #        horizontalalignment='left', verticalalignment='top')
     
     #if i==0:
     #    fig.savefig('frame' + str(i) + '.png', format='png')
@@ -165,7 +155,7 @@ def main():
     out = "T_evo.gif"
     #out = sys.argv[2]
     print('Saving to', out)
-    ani.save(out, writer='imagemagick', fps=1)
+    ani.save(out, writer='imagemagick', fps=25)
     print('Finished everything.')
 
     return 0
