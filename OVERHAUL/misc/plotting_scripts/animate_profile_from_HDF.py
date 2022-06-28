@@ -18,7 +18,7 @@ outfilename = sys.argv[4]
 f = h5.File(infilename, 'r')
 event = f['Event']
 event_keys = list(event.keys())
-n_timesteps = min([len(event_keys),10])
+n_timesteps = len(event_keys)
 
 fig = plt.figure(figsize=(12,12), dpi=125)
 ax = fig.add_subplot(111)
@@ -149,8 +149,8 @@ def animate(i):
     tau = frame.attrs['Time']
     x = np.array(frame['x'])
     y = np.array(frame['y'])
-    T = np.array(frame['T'])
-    data = np.c_[ x, y, T ]
+    field = np.array(frame[quantityLabel])
+    data = np.c_[ x, y, field ]
     
     toc = time.perf_counter()
     print(f"Set up frame in {toc - tic:0.4f} seconds", flush=True)
