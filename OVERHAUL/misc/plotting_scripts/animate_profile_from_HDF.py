@@ -18,7 +18,7 @@ outfilename = sys.argv[4]
 f = h5.File(infilename, 'r')
 event = f['Event']
 event_keys = list(event.keys())
-n_timesteps = len(event_keys)
+n_timesteps = min[(len(event_keys),25)]
 
 fig = plt.figure(figsize=(12,12), dpi=125)
 ax = fig.add_subplot(111)
@@ -220,6 +220,7 @@ def animate(i):
 def main():
     global outfilename
     plt.margins(0, 0)
+    fig.subplots_adjust(left=0, bottom=0, right=1, top=1, wspace=None, hspace=None)
     
     ani = animation.FuncAnimation(fig, animate, np.arange(n_timesteps), \
                                   init_func=init, blit=True)
