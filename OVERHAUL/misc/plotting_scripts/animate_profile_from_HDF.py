@@ -5,6 +5,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib.colors import LinearSegmentedColormap, LogNorm, SymLogNorm
+from scipy.interpolate import CloughTocher2DInterpolator
 import os, sys, time
 
 fixed_maximum = True
@@ -118,7 +119,12 @@ def animate(i):
     X, Y = np.meshgrid( np.linspace(xmin, xmax, n), np.linspace(ymin, ymax, n) )
     #print(np.c_[ X.flatten(), Y.flatten() ].shape)
     tic = time.perf_counter()
-    f = np.array([ evaluate_field(point) for point in np.c_[ X.flatten(), Y.flatten() ] ])
+
+    #f = np.array([ evaluate_field(point) for point in np.c_[ X.flatten(), Y.flatten() ] ])
+
+    interp = CloughTocher2DInterpolator(list(zip(x, y)), T)
+    f = interp(X, Y)
+
     toc = time.perf_counter()
     print(f"Generated field grid in {toc - tic:0.4f} seconds", flush=True)
 
