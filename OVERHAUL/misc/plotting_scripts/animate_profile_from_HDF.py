@@ -25,7 +25,7 @@ ax = fig.add_subplot(111)
 
 xmin, xmax, ymin, ymax = -15, 15, -15, 15
 
-n = 5
+n = 51
 colormap = plt.cm.inferno
 
 data = None
