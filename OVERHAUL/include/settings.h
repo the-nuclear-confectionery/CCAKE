@@ -43,7 +43,7 @@ class Settings
 
     //==========================================================================
     // I/O settings
-    bool printing_to_txt              = true;
+    bool printing_to_txt              = false;
     bool printing_to_HDF              = true;
 
     static constexpr int VERBOSE      = 5;
