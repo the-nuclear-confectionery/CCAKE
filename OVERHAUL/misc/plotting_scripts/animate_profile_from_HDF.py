@@ -98,8 +98,8 @@ def evaluate_field(r):
     if np.sum(weights1)+np.sum(weights2) < 1e-10:
         return 0
     else:
-        return (np.sum( neighbors1[:,2]*weights1 ) + np.sum( neighbors2[:,2]*weights12 ))
-                / (np.sum(weights1)+np.sum(weights2)+1e-10)
+        return (np.sum( neighbors1[:,2]*weights1 ) + np.sum( neighbors2[:,2]*weights12 ))\
+               / (np.sum(weights1)+np.sum(weights2)+1e-10)
 
 #########################################################################################
 def init():
