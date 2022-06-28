@@ -139,7 +139,7 @@ def main():
     plt.margins(0, 0)
     
     animate(0)
-    exit 1
+    exit
     
     #ani = animation.FuncAnimation(fig, animate, np.arange(n_timesteps), \
     #                              init_func=init, blit=True)
