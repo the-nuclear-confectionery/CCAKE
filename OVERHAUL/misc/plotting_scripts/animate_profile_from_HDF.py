@@ -155,7 +155,7 @@ def main():
     out = "T_evo.gif"
     #out = sys.argv[2]
     print('Saving to', out)
-    ani.save(out, writer='imagemagick', fps=25)
+    ani.save(out, writer='imagemagick', fps=1)
     print('Finished everything.')
 
     return 0
