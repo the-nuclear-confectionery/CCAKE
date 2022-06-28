@@ -18,7 +18,7 @@ outfilename = sys.argv[4]
 f = h5.File(infilename, 'r')
 event = f['Event']
 event_keys = list(event.keys())
-n_timesteps = min[(len(event_keys),25)]
+n_timesteps = min[(len(event_keys),5)]
 
 fig = plt.figure(figsize=(12,12), dpi=125)
 ax = fig.add_subplot(111)
@@ -107,6 +107,7 @@ use_log_scale                                 \
 data = None
 maximum = None
 minimum = None
+cbar = None
 im = ax.imshow(np.zeros((n,n)))
 
 
@@ -218,12 +219,16 @@ def animate(i):
 
 #########################################################################################
 def main():
-    global outfilename
+    global cbar, outfilename
     plt.margins(0, 0)
     fig.subplots_adjust(left=0, bottom=0, right=1, top=1, wspace=None, hspace=None)
     
     ani = animation.FuncAnimation(fig, animate, np.arange(n_timesteps), \
-                                  init_func=init, blit=True)
+                                  init_func=init, blit=True, \
+                                  savefig_kwargs={bbox_extra_artists:(cbar,), \
+                                                  'bbox_inches':'tight'})
+    
+    #savefig_kwargs={'bbox_inches' : 'tight'}
     
     FFwriter = animation.FFMpegWriter(fps=25, extra_args=['-vcodec', 'libx264'])
     ani.save(outfilename, writer=FFwriter)
