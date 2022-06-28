@@ -13,7 +13,7 @@ fixed_maximum = True
 f = h5.File(sys.argv[1], 'r')
 event = f['Event']
 event_keys = list(event.keys())
-n_timesteps = min([len(event.keys()),10])
+n_timesteps = min([len(event.keys()),1000])
 
 h = float(sys.argv[2])
 knorm = 10.0/(7.0*np.pi*h*h)
@@ -131,7 +131,6 @@ def animate(i):
     
     if i==0:
         fig.savefig('frame' + str(i) + '.png', format='png')
-        print(1/0)
     
     return [im]
 
