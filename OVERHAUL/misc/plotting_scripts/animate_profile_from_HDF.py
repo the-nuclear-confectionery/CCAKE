@@ -5,7 +5,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib.colors import LinearSegmentedColormap, LogNorm, SymLogNorm
-from scipy.interpolate import CloughTocher2DInterpolator
+from scipy.interpolate import CloughTocher2DInterpolator, interp2d
 import os, sys, time
 
 fixed_maximum = True
@@ -122,7 +122,8 @@ def animate(i):
 
     #f = np.array([ evaluate_field(point) for point in np.c_[ X.flatten(), Y.flatten() ] ])
 
-    interp = CloughTocher2DInterpolator(list(zip(x, y)), T, fill_value = 0.0)
+    #interp = CloughTocher2DInterpolator(list(zip(x, y)), T, fill_value = 0.0)
+    interp = interp2d(x, y, T, fill_value = 0.0)
     f = interp(X, Y)
 
     toc = time.perf_counter()
