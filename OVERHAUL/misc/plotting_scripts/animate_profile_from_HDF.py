@@ -224,11 +224,10 @@ def main():
     fig.subplots_adjust(left=0, bottom=0, right=1, top=1, wspace=None, hspace=None)
     
     ani = animation.FuncAnimation(fig, animate, np.arange(n_timesteps), \
-                                  init_func=init, blit=True, \
-                                  {'bbox_extra_artists':(cbar,), \
-                                   'bbox_inches':'tight'})
+                                  init_func=init, blit=True)
     
     #savefig_kwargs={'bbox_inches' : 'tight'}
+    #{'bbox_extra_artists':(cbar,), 'bbox_inches':'tight'}
     
     FFwriter = animation.FFMpegWriter(fps=25, extra_args=['-vcodec', 'libx264'])
     ani.save(outfilename, writer=FFwriter)
