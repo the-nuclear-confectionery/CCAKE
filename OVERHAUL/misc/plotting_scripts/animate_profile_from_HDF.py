@@ -5,7 +5,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib.colors import LinearSegmentedColormap, LogNorm, SymLogNorm
-from scipy.interpolate import CloughTocher2DInterpolator, interp2d, RBFInterpolator
+#from scipy.interpolate import CloughTocher2DInterpolator, interp2d, RBFInterpolator
 import os, sys, time
 
 fixed_maximum = True
