@@ -18,7 +18,7 @@ outfilename = sys.argv[4]
 f = h5.File(infilename, 'r')
 event = f['Event']
 event_keys = list(event.keys())
-n_timesteps = min([len(event_keys),5])
+n_timesteps = len(event_keys)
 
 fig = plt.figure(figsize=(12,9), dpi=125)
 ax = fig.add_subplot(111)
