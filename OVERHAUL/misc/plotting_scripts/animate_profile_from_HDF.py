@@ -124,6 +124,8 @@ def animate(i):
 
     interp = CloughTocher2DInterpolator(list(zip(x, y)), T)
     f = interp(X, Y)
+    print(f)
+    print(1/0)
 
     toc = time.perf_counter()
     print(f"Generated field grid in {toc - tic:0.4f} seconds", flush=True)
