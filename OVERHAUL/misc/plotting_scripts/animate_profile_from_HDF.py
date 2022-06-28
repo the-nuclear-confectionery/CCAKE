@@ -14,7 +14,7 @@ fixed_maximum = True
 f = h5.File(sys.argv[1], 'r')
 event = f['Event']
 event_keys = list(event.keys())
-n_timesteps = min([len(event.keys()),25])
+n_timesteps = min([len(event.keys()),5])
 
 h = float(sys.argv[2])
 knorm = 10.0/(7.0*np.pi*h*h)
@@ -94,7 +94,7 @@ def init():
 def animate(i):
     global data, maximum, minimum, im, n
     print('Plotting frame', i, flush=True)
-    #fig.clear()
+    ax.clear()
     #frame = event[event_keys[i]]
     frame = event[event_keys[i]]
     tau = frame.attrs['Time']
@@ -142,7 +142,7 @@ def animate(i):
     plt.xlim([xmin, xmax])
     plt.ylim([ymin, ymax])
     plt.text(0.075, 0.925, r'$n = %(n)5.2f$ fm$/c$'%{'n': n}, \
-            {'color': 'white', 'fontsize': 12}, transform=ax.transAxes,
+            {'color': 'white', 'fontsize': 18}, transform=ax.transAxes,
             horizontalalignment='left', verticalalignment='top')
     
     #if i==0:
