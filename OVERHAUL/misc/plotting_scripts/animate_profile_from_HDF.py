@@ -225,7 +225,7 @@ def main():
     
     ani = animation.FuncAnimation(fig, animate, np.arange(n_timesteps), \
                                   init_func=init, blit=True, \
-                                  savefig_kwargs={bbox_extra_artists:(cbar,), \
+                                  savefig_kwargs={'bbox_extra_artists':(cbar,), \
                                                   'bbox_inches':'tight'})
     
     #savefig_kwargs={'bbox_inches' : 'tight'}
