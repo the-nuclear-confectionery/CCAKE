@@ -204,10 +204,13 @@ def animate(i):
     plt.text(0.075, 0.925, r'$\tau = %(t)5.2f$ fm$/c$'%{'t': tau}, \
             {'color': 'white', 'fontsize': 24}, transform=ax.transAxes,
             horizontalalignment='left', verticalalignment='top')
-    ax.set_xlabel(r'$x$ (fm)', fontsize=16)
-    ax.set_ylabel(r'$y$ (fm)', fontsize=16)
+    ax.set_xlabel(r'$x$ (fm)', fontsize=20)
+    ax.set_ylabel(r'$y$ (fm)', fontsize=20)
+    ax.tick_params(axis='x', labelsize=16)
+    ax.tick_params(axis='y', labelsize=16)
     cbar = fig.colorbar(im, cax=cax)
-    cbar.set_label(plotLabel, fontsize=16)
+    cbar.set_label(plotLabel, fontsize=20)
+    cbar.ax.tick_params(labelsize=16)
 
     return [im]
 
