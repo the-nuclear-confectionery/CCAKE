@@ -93,8 +93,8 @@ def evaluate_field(r):
     d2 = (r[0]-data[:,0])**2+(r[1]-data[:,1])**2
     neighbors1 = data[ d2 <= h**2 ]
     neighbors2 = data[ (d2 <= 4.0*h**2) & (d2 >= h**2) ]
-    weights1 = kernel( np.sqrt( (r[0]-neighbors1[:,0])**2+(r[1]-neighbors[:,1])**2 )/h )
-    weights2 = kernel( np.sqrt( (r[0]-neighbors2[:,0])**2+(r[1]-neighbors[:,2])**2 )/h )
+    weights1 = kernel( np.sqrt( (r[0]-neighbors1[:,0])**2+(r[1]-neighbors1[:,1])**2 )/h )
+    weights2 = kernel( np.sqrt( (r[0]-neighbors2[:,0])**2+(r[1]-neighbors2[:,2])**2 )/h )
     if np.sum(weights1)+np.sum(weights2) < 1e-10:
         return 0
     else:
