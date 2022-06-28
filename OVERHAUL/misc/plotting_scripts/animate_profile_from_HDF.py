@@ -155,6 +155,11 @@ def main():
     #out = sys.argv[2]
     print('Saving to', out)
     ani.save(out, writer='imagemagick', fps=25)
+
+    out = "T_evo.mp4"
+    FFwriter = animation.FFMpegWriter(fps=25, extra_args=['-vcodec', 'libx264'])
+    ani.save(out, writer=FFwriter)
+
     print('Finished everything.')
 
     return 0

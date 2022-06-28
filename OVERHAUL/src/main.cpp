@@ -26,8 +26,8 @@ using std::endl;
 using std::string;
 using std::vector;
 
-void exiting() { formatted_output::announce("Summary: hydrodynamic evolution "
-                                            "was unsuccessful"); }
+//void exiting() { formatted_output::announce("Summary: hydrodynamic evolution "
+//                                            "was unsuccessful"); }
 
 int main (int argc, char *argv[])
 {
@@ -47,7 +47,7 @@ int main (int argc, char *argv[])
 
 
   // call this function if the code fails after this point
-  std::atexit( exiting );
+  //std::atexit( exiting );
 
 
   //----------------------------------------------
