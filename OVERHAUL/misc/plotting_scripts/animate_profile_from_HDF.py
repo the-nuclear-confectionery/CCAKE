@@ -72,16 +72,34 @@ def kernel(q):
                          lambda q: knorm*(1.0 - 1.5*q**2 + 0.75*q**3)])
 
 #########################################################################################
+def kernel1(q):  # q < 1
+    global knorm
+    return knorm*(1.0 - 1.5*q**2 + 0.75*q**3)
+
+#########################################################################################
+def kernel2(q):  # 2 > q >= 1
+    global knorm
+    return 0.25*knorm*(2.0-q)**3
+
+#########################################################################################
 def evaluate_field(r):
     global h
-    neighbors = data[ (r[0]-data[:,0])**2+(r[1]-data[:,1])**2 <= 4.0*h**2 ]
-    #for particle in neighbors:
-    #    result += particle[2]*kernel(np.sqrt((r[0]-particle[0])**2+(r[1]-particle[1])**2))
-    weights = kernel( np.sqrt( (r[0]-neighbors[:,0])**2+(r[1]-neighbors[:,1])**2)/h )
-    if np.sum(weights) < 1e-10:
+    #neighbors = data[ (r[0]-data[:,0])**2+(r[1]-data[:,1])**2 <= 4.0*h**2 ]
+    #weights = kernel( np.sqrt( (r[0]-neighbors[:,0])**2+(r[1]-neighbors[:,1])**2 )/h )
+    #if np.sum(weights) < 1e-10:
+    #    return 0
+    #else:
+    #    return np.sum( neighbors[:,2]*weights ) / (np.sum(weights)+1e-10)
+    d2 = (r[0]-data[:,0])**2+(r[1]-data[:,1])**2
+    neighbors1 = data[ d2 <= h**2 ]
+    neighbors2 = data[ (d2 <= 4.0*h**2) & (d2 >= h**2) ]
+    weights1 = kernel( np.sqrt( (r[0]-neighbors1[:,0])**2+(r[1]-neighbors[:,1])**2 )/h )
+    weights2 = kernel( np.sqrt( (r[0]-neighbors2[:,0])**2+(r[1]-neighbors[:,2])**2 )/h )
+    if np.sum(weights1)+np.sum(weights2) < 1e-10:
         return 0
     else:
-        return np.sum( neighbors[:,2]*weights ) / (np.sum(weights)+1e-10)
+        return (np.sum( neighbors1[:,2]*weights1 ) + np.sum( neighbors2[:,2]*weights12 ))
+                / (np.sum(weights1)+np.sum(weights2)+1e-10)
 
 #########################################################################################
 def init():
