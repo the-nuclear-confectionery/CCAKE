@@ -122,10 +122,8 @@ def animate(i):
 
     #f = np.array([ evaluate_field(point) for point in np.c_[ X.flatten(), Y.flatten() ] ])
 
-    interp = CloughTocher2DInterpolator(list(zip(x, y)), T)
+    interp = CloughTocher2DInterpolator(list(zip(x, y)), T, fill_value = 0.0)
     f = interp(X, Y)
-    print(f)
-    print(1/0)
 
     toc = time.perf_counter()
     print(f"Generated field grid in {toc - tic:0.4f} seconds", flush=True)
