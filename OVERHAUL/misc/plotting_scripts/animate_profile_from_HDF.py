@@ -20,7 +20,7 @@ event = f['Event']
 event_keys = list(event.keys())
 n_timesteps = min([len(event_keys),5])
 
-fig = plt.figure(figsize=(12,12), dpi=125)
+fig = plt.figure(figsize=(13,10), dpi=125)
 ax = fig.add_subplot(111)
 div = make_axes_locatable(ax)
 cax = div.append_axes('right', '5%', '5%')
@@ -225,13 +225,11 @@ def main():
     
     ani = animation.FuncAnimation(fig, animate, np.arange(n_timesteps), \
                                   init_func=init, blit=True)
-    
+        
+    FFwriter = animation.FFMpegWriter(fps=25, extra_args=['-vcodec', 'libx264'])
+    ani.save( outfilename, writer=FFwriter )
     #savefig_kwargs={'bbox_inches' : 'tight'}
     #{'bbox_extra_artists':(cbar,), 'bbox_inches':'tight'}
-    
-    FFwriter = animation.FFMpegWriter(fps=25, extra_args=['-vcodec', 'libx264'])
-    ani.save( outfilename, writer=FFwriter, \
-              savefig_kwargs={'bbox_extra_artists':(cbar,)})
 
     print('Finished everything.')
 
