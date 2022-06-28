@@ -5,7 +5,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib.colors import LinearSegmentedColormap, LogNorm, SymLogNorm
-from scipy.interpolate import CloughTocher2DInterpolator, interp2d
+from scipy.interpolate import CloughTocher2DInterpolator, interp2d, RBFInterpolator
 import os, sys, time
 
 fixed_maximum = True
@@ -14,7 +14,7 @@ fixed_maximum = True
 f = h5.File(sys.argv[1], 'r')
 event = f['Event']
 event_keys = list(event.keys())
-n_timesteps = min([len(event.keys()),10])
+n_timesteps = min([len(event.keys()),25])
 
 h = float(sys.argv[2])
 knorm = 10.0/(7.0*np.pi*h*h)
@@ -27,7 +27,7 @@ ax = fig.add_subplot(111)
 xmin, xmax, ymin, ymax = -15, 15, -15, 15
 
 #n = int(30/0.06)+1
-n = 101
+n = 11
 colormap = plt.cm.inferno
 
 data = None
@@ -73,16 +73,6 @@ def kernel(q):
                          lambda q: knorm*(1.0 - 1.5*q**2 + 0.75*q**3)])
 
 #########################################################################################
-def kernel1(q):  # q < 1
-    global knorm
-    return knorm*(1.0 - 1.5*q**2 + 0.75*q**3)
-
-#########################################################################################
-def kernel2(q):  # 2 > q >= 1
-    global knorm
-    return 0.25*knorm*(2.0-q)**3
-
-#########################################################################################
 def evaluate_field(r):
     global h
     neighbors = data[ (r[0]-data[:,0])**2+(r[1]-data[:,1])**2 <= 4.0*h**2 ]
@@ -102,9 +92,10 @@ def init():
 
 #########################################################################################
 def animate(i):
-    global data, maximum, minimum, im
+    global data, maximum, minimum, im, n
     print('Plotting frame', i, flush=True)
     #fig.clear()
+    #frame = event[event_keys[i]]
     frame = event[event_keys[i]]
     tau = frame.attrs['Time']
     x = np.array(frame['x'])
@@ -120,11 +111,11 @@ def animate(i):
     #print(np.c_[ X.flatten(), Y.flatten() ].shape)
     tic = time.perf_counter()
 
-    #f = np.array([ evaluate_field(point) for point in np.c_[ X.flatten(), Y.flatten() ] ])
+    f = np.array([ evaluate_field(point) for point in np.c_[ X.flatten(), Y.flatten() ] ])
 
     #interp = CloughTocher2DInterpolator(list(zip(x, y)), T, fill_value = 0.0)
-    interp = interp2d(x, y, T, fill_value = 0.0)
-    f = interp(X, Y)
+    #interp = interp2d(x, y, T, fill_value = 0.0)
+    #f = interp(X, Y)
 
     toc = time.perf_counter()
     print(f"Generated field grid in {toc - tic:0.4f} seconds", flush=True)
@@ -150,9 +141,14 @@ def animate(i):
 
     plt.xlim([xmin, xmax])
     plt.ylim([ymin, ymax])
+    plt.text(0.075, 0.925, r'$n = %(n)5.2f$ fm$/c$'%{'n': n}, \
+            {'color': 'white', 'fontsize': 12}, transform=ax.transAxes,
+            horizontalalignment='left', verticalalignment='top')
     
-    if i==0:
-        fig.savefig('frame' + str(i) + '.png', format='png')
+    #if i==0:
+    #    fig.savefig('frame' + str(i) + '.png', format='png')
+        
+    n += 10
     
     return [im]
 
@@ -170,7 +166,7 @@ def main():
     out = "T_evo.gif"
     #out = sys.argv[2]
     print('Saving to', out)
-    ani.save(out, writer='imagemagick', fps=25)
+    ani.save(out, writer='imagemagick', fps=5)
     print('Finished everything.')
 
     return 0
