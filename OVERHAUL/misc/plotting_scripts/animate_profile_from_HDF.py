@@ -5,7 +5,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib.colors import LinearSegmentedColormap, LogNorm, SymLogNorm
-import os, sys
+import os, sys, time
 
 fixed_maximum = True
 
@@ -13,7 +13,7 @@ fixed_maximum = True
 f = h5.File(sys.argv[1], 'r')
 event = f['Event']
 event_keys = list(event.keys())
-n_timesteps = min([len(event.keys()),1000])
+n_timesteps = min([len(event.keys()),10])
 
 h = float(sys.argv[2])
 knorm = 10.0/(7.0*np.pi*h*h)
@@ -110,7 +110,11 @@ def animate(i):
         
     X, Y = np.meshgrid( np.linspace(xmin, xmax, n), np.linspace(ymin, ymax, n) )
     #print(np.c_[ X.flatten(), Y.flatten() ].shape)
+    tic = time.perf_counter()
     f = np.array([ evaluate_field(point) for point in np.c_[ X.flatten(), Y.flatten() ] ])
+    toc = time.perf_counter()
+    print(f"Generated field grid in {toc - tic:0.4f} seconds")
+
     
     if i==0 or not fixed_maximum:
         maximum = np.amax(np.abs(f))
@@ -121,9 +125,13 @@ def animate(i):
     extent = xmin, xmax, ymin, ymax
     #print(i)
     #print(f.reshape(n, n))
+    tic = time.perf_counter()
     im = ax.imshow(f.reshape(n, n)+1e-10, cmap=colormap,\
                     norm=LogNorm(vmin=minimum+1e-15, vmax=maximum),\
                     interpolation='bicubic', extent=extent)
+    toc = time.perf_counter()
+    print(f"Generated frame in {toc - tic:0.4f} seconds")
+
     #im.set_data(f.reshape(n, n)+1e-15)
 
     plt.xlim([xmin, xmax])
