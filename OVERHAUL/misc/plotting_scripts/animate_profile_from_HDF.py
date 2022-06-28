@@ -65,21 +65,23 @@ cmap_electric \
           (1.000, (1.0, 0.0, 0.000)) ) )
 
 #########################################################################################
-def kernel(r):
-    global h, knorm
-    q = r/h
-    return np.piecewise(q, [q>=2, (q<=2) & (q>=1), q<1], \
-                        [lambda q: 0.0, \
-                         lambda q: 0.25*knorm*(2.0-q)**3,\
+def kernel(q):
+    global knorm
+    return np.piecewise(q, [q>=1, q<1], \
+                        [lambda q: 0.25*knorm*(2.0-q)**3,\
                          lambda q: knorm*(1.0 - 1.5*q**2 + 0.75*q**3)])
 
 #########################################################################################
 def evaluate_field(r):
+    global h
     neighbors = data[ (r[0]-data[:,0])**2+(r[1]-data[:,1])**2 <= 4.0*h**2 ]
     #for particle in neighbors:
     #    result += particle[2]*kernel(np.sqrt((r[0]-particle[0])**2+(r[1]-particle[1])**2))
-    weights = kernel( np.sqrt( (r[0]-neighbors[:,0])**2+(r[1]-neighbors[:,1])**2) )
-    return np.sum( neighbors[:,2]*weights ) / (np.sum(weights)+1e-10)
+    weights = kernel( np.sqrt( (r[0]-neighbors[:,0])**2+(r[1]-neighbors[:,1])**2)/h )
+    if np.sum(weights) < 1e-10:
+        return 0
+    else:
+        return np.sum( neighbors[:,2]*weights ) / (np.sum(weights)+1e-10)
 
 #########################################################################################
 def init():
