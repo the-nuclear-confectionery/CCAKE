@@ -24,7 +24,7 @@ fig = plt.figure(figsize=(12,12), dpi=125)
 ax = fig.add_subplot(111)
 div = make_axes_locatable(ax)
 cax = div.append_axes('right', '5%', '5%')
-xmin, xmax, ymin, ymax = -15, 15, -15, 15
+xmin, xmax, ymin, ymax = -12, 12, -12, 12
 n = 51
 
 knorm = 10.0/(7.0*np.pi*h*h)
@@ -72,9 +72,9 @@ colormap                                              \
 #########################################################################################
 quantityLabel                                 \
     = {"energy_density":              'e',    \
-       "baryon_density":              'rhoB', \
-       "strange_density":             'rhoS', \
-       "electric_density":            'rhoQ', \
+       "baryon_density":              'B', \
+       "strange_density":             'S', \
+       "electric_density":            'Q', \
        "temperature":                 'T',    \
        "baryon_chemical_potential":   'muB',  \
        "strange_chemical_potential":  'muS',  \
