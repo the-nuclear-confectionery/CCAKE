@@ -220,8 +220,8 @@ def animate(i):
 #########################################################################################
 def main():
     global cbar, outfilename
-    plt.margins(0, 0)
-    fig.subplots_adjust(left=0, bottom=0, right=1, top=1, wspace=None, hspace=None)
+    #plt.margins(0, 0)
+    #fig.subplots_adjust(left=0, bottom=0, right=1, top=1, wspace=None, hspace=None)
     
     ani = animation.FuncAnimation(fig, animate, np.arange(n_timesteps), \
                                   init_func=init, blit=True)
