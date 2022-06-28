@@ -100,23 +100,23 @@ def animate(i):
     T = np.array(frame['T'])
     data = np.c_[ x, y, T ]
     
-    print('max T =', np.amax(T))
+    #print('max T =', np.amax(T))
     
-    print(data.shape)
+    #print(data.shape)
         
     X, Y = np.meshgrid( np.linspace(xmin, xmax, n), np.linspace(ymin, ymax, n) )
-    print(np.c_[ X.flatten(), Y.flatten() ].shape)
+    #print(np.c_[ X.flatten(), Y.flatten() ].shape)
     f = np.array([ evaluate_field(point) for point in np.c_[ X.flatten(), Y.flatten() ] ])
     
     if i==0 or not fixed_maximum:
         maximum = np.amax(np.abs(f))
         minimum = np.amin(f[np.abs(f)>0.0])
         
-    print(f.shape)
+    #print(f.shape)
     
     extent = xmin, xmax, ymin, ymax
-    print(i)
-    print(f.reshape(n, n))
+    #print(i)
+    #print(f.reshape(n, n))
     im = ax.imshow(f.reshape(n, n)+1e-15, cmap=colormap,\
                     norm=LogNorm(vmin=minimum+1e-15, vmax=maximum),\
                     interpolation='bicubic', extent=extent)
@@ -125,8 +125,8 @@ def animate(i):
     plt.xlim([xmin, xmax])
     plt.ylim([ymin, ymax])
     
-    if i==0:
-        fig.savefig('frame' + str(i) + '.png', format='png')
+    #if i==0:
+    #    fig.savefig('frame' + str(i) + '.png', format='png')
     
     #return [im]
 
