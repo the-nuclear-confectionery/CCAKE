@@ -168,7 +168,7 @@ def animate(i):
                    "temperature": np.amin(f[np.abs(f)>0.0]), \
                    "baryon_chemical_potential": -maximum, \
                    "strange_chemical_potential": -maximum, \
-                   "electric_chemical_potential": -maximum}[mode]
+                   "electric_chemical_potential": -maximum}[quantity]
     
     
     extent = xmin, xmax, ymin, ymax
