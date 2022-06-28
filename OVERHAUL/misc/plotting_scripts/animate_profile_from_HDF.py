@@ -130,7 +130,7 @@ def animate(i):
     tic = time.perf_counter()
     f = np.array([ evaluate_field(point) for point in np.c_[ X.flatten(), Y.flatten() ] ])
     toc = time.perf_counter()
-    print(f"Generated field grid in {toc - tic:0.4f} seconds")
+    print(f"Generated field grid in {toc - tic:0.4f} seconds", flush=True)
 
     
     if i==0 or not fixed_maximum:
