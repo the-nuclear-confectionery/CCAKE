@@ -21,6 +21,8 @@ n_timesteps = min([len(event_keys),10])
 
 fig = plt.figure(figsize=(12,12), dpi=125)
 ax = fig.add_subplot(111)
+div = make_axes_locatable(ax)
+cax = div.append_axes('right', '5%', '5%')
 xmin, xmax, ymin, ymax = -15, 15, -15, 15
 n = 51
 
@@ -127,6 +129,7 @@ def evaluate_field(r):
 #########################################################################################
 def init():
     im.set_data(np.zeros((n,n)))
+    cb = fig.colorbar(im, cax=cax)
     plt.xlim([xmin, xmax])
     plt.ylim([ymin, ymax])
     return [im]
@@ -138,7 +141,9 @@ def animate(i):
     print('Plotting frame', i, flush=True)
     tic = time.perf_counter()
 
-    fig.clear()
+    #ax.clear()
+    cax.cla()
+
     frame = event[event_keys[i]]
     tau = frame.attrs['Time']
     x = np.array(frame['x'])
@@ -173,10 +178,7 @@ def animate(i):
     
     extent = xmin, xmax, ymin, ymax
     tic = time.perf_counter()
-        
-    #im = ax.imshow(f.reshape(n, n)+1e-10, cmap=colormap,\
-    #                norm=LogNorm(vmin=minimum+1e-15, vmax=maximum),\
-    #                interpolation='bicubic', extent=extent)
+    
     if use_log_scale:
         if quantity == "energy_density" or quantity == "temperature":
             im = ax.imshow(f.reshape(n, n)+1e-10, cmap=colormap,\
@@ -203,7 +205,7 @@ def animate(i):
             horizontalalignment='left', verticalalignment='top')
     ax.set_xlabel(r'$x$ (fm)', fontsize=16)
     ax.set_ylabel(r'$y$ (fm)', fontsize=16)
-    cbar = fig.colorbar(im, ax=ax)
+    cbar = fig.colorbar(im, cax=cax)
     cbar.set_label(plotLabel, fontsize=16)
 
     return [im]
