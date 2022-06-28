@@ -13,7 +13,7 @@ fixed_maximum = True
 f = h5.File(sys.argv[1], 'r')
 event = f['Event']
 event_keys = list(event.keys())
-n_timesteps = len(event.keys())
+n_timesteps = min([len(event.keys()),10])
 
 h = float(sys.argv[2])
 knorm = 10.0/(7.0*np.pi*h*h)
@@ -25,13 +25,13 @@ ax = fig.add_subplot(111)
 
 xmin, xmax, ymin, ymax = -15, 15, -15, 15
 
-n = 5
+n = int(30/0.06)+1
 colormap = plt.cm.inferno
 
 data = None
 maximum = None
 minimum = None
-im = ax.imshow(np.random.rand(5, 5))
+im = ax.imshow(np.zeros((n,n)))
 
 
 #########################################################################################
@@ -85,7 +85,7 @@ def evaluate_field(r):
 
 #########################################################################################
 def init():
-    im.set_data(np.random.rand(5, 5))
+    im.set_data(np.zeros((n,n)))
     plt.xlim([xmin, xmax])
     plt.ylim([ymin, ymax])
     return [im]
@@ -140,9 +140,9 @@ def main():
 
     plt.margins(0, 0)
     
-    #ani = animation.FuncAnimation(fig, animate, np.arange(n_timesteps), \
-    #                              init_func=init, blit=True)
-    ani = animation.FuncAnimation(fig, animate, frames=10)
+    ani = animation.FuncAnimation(fig, animate, np.arange(n_timesteps), \
+                                  init_func=init, blit=True)
+    #ani = animation.FuncAnimation(fig, animate, frames=10)
 
     out = "T_evo.gif"
     #out = sys.argv[2]
