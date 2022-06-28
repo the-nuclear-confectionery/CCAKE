@@ -26,7 +26,7 @@ ax = fig.add_subplot(111)
 xmin, xmax, ymin, ymax = -15, 15, -15, 15
 
 #n = int(30/0.06)+1
-n = 101
+n = 1001
 colormap = plt.cm.inferno
 
 data = None
@@ -129,8 +129,9 @@ def animate(i):
     plt.xlim([xmin, xmax])
     plt.ylim([ymin, ymax])
     
-    #if i==0:
-    #    fig.savefig('frame' + str(i) + '.png', format='png')
+    if i==0:
+        fig.savefig('frame' + str(i) + '.png', format='png')
+        print(1/0)
     
     return [im]
 
