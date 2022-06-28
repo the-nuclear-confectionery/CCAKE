@@ -142,7 +142,7 @@ def animate(i):
     print('Plotting frame', i, flush=True)
     tic = time.perf_counter()
 
-    #ax.clear()
+    ax.clear()
     cax.cla()
 
     frame = event[event_keys[i]]
