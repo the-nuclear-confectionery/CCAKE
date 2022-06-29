@@ -116,8 +116,8 @@ def plot_density_distribution_vs_time(quantity):
     div = make_axes_locatable(ax)
     cax = div.append_axes('right', '5%', '5%')
     cbar = fig.colorbar(im, cax=cax, extend='both')
-    cbar.set_label("Number of cells", fontsize=16)
-    cbar.ax.tick_params(labelsize=14)
+    cbar.set_label("Number of cells")
+    #cbar.ax.tick_params(labelsize=14)
     
     outfilename = quantity + '_vs_tau.png'
     plt.savefig(outfilename, dpi=chosen_dpi, bbox_inches='tight', pad_inches = 0)
