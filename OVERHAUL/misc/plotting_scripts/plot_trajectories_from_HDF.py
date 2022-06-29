@@ -8,6 +8,7 @@ import numpy as np
 import sys
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
+plot_normalized_T = True
 
 # HDF file structure
 f = h5.File(sys.argv[1], 'r')
@@ -58,10 +59,6 @@ def plot_all_particles():
 
     data = np.swapaxes(data, 0, 1)
     
-    # initial temperatures
-    #T0 = event[event_keys[0]]['T']
-    #T0 = T0[np.where( (T0 >= Tmin) & (T0 <= Tmax) )]
-    
     minimum, maximum = Tmin, Tmax
     
     print(data.shape)
@@ -71,14 +68,20 @@ def plot_all_particles():
     #####################################
     plt.figure(figsize=(width, height), dpi=chosen_dpi)
 
-    for particle in data:
-        r,g,b,a = chosen_colormap((particle[0,0]-minimum)/(maximum-minimum))
-        plt.plot( particle[:,1], particle[:,0], color=(r,g,b), alpha=0.3 )
+    if plot_normalized_T:
+        plt.ylabel(r'$T/T_0$ (MeV)')
+        for particle in data:
+            r,g,b,a = chosen_colormap((particle[0,0]-minimum)/(maximum-minimum))
+            plt.plot( particle[:,1], particle[:,0]/particle[0,0], color=(r,g,b), alpha=0.3 )
+    else:
+        plt.ylabel(r'$T$ (MeV)')
+        for particle in data:
+            r,g,b,a = chosen_colormap((particle[0,0]-minimum)/(maximum-minimum))
+            plt.plot( particle[:,1], particle[:,0], color=(r,g,b), alpha=0.3 )
         
     maxrange = np.amax(np.abs(data[:,:,1]))
     plt.xlim([-1.1*maxrange, 1.1*maxrange])
     plt.xlabel(r'$\mu_B$ (MeV)')
-    plt.ylabel(r'$T$ (MeV)')
     plt.title(r'Pb+Pb $5.02$ TeV')
     norm = Normalize(vmin=minimum, vmax=maximum)
     sm = cm.ScalarMappable(cmap=chosen_colormap, norm=norm)
@@ -95,14 +98,20 @@ def plot_all_particles():
     #####################################
     plt.figure(figsize=(width, height), dpi=chosen_dpi)
 
-    for particle in data:
-        r,g,b,a = chosen_colormap((particle[0,0]-minimum)/(maximum-minimum))
-        plt.plot( particle[:,2], particle[:,0], color=(r,g,b), alpha=0.3 )
+    if plot_normalized_T:
+        plt.ylabel(r'$T/T_0$ (MeV)')
+        for particle in data:
+            r,g,b,a = chosen_colormap((particle[0,0]-minimum)/(maximum-minimum))
+            plt.plot( particle[:,2], particle[:,0]/particle[0,0], color=(r,g,b), alpha=0.3 )
+    else:
+        plt.ylabel(r'$T$ (MeV)')
+        for particle in data:
+            r,g,b,a = chosen_colormap((particle[0,0]-minimum)/(maximum-minimum))
+            plt.plot( particle[:,2], particle[:,0], color=(r,g,b), alpha=0.3 )
         
     maxrange = np.amax(np.abs(data[:,:,2]))
     plt.xlim([-1.1*maxrange, 1.1*maxrange])
     plt.xlabel(r'$\mu_S$ (MeV)')
-    plt.ylabel(r'$T$ (MeV)')
     plt.title(r'Pb+Pb $5.02$ TeV')
     norm = Normalize(vmin=minimum, vmax=maximum)
     sm = cm.ScalarMappable(cmap=chosen_colormap, norm=norm)
@@ -119,14 +128,20 @@ def plot_all_particles():
     #####################################
     plt.figure(figsize=(width, height), dpi=chosen_dpi)
 
-    for particle in data:
-        r,g,b,a = chosen_colormap((particle[0,0]-minimum)/(maximum-minimum))
-        plt.plot( particle[:,3], particle[:,0], color=(r,g,b), alpha=0.3 )
+    if plot_normalized_T:
+        plt.ylabel(r'$T/T_0$ (MeV)')
+        for particle in data:
+            r,g,b,a = chosen_colormap((particle[0,0]-minimum)/(maximum-minimum))
+            plt.plot( particle[:,3], particle[:,0]/particle[0,0], color=(r,g,b), alpha=0.3 )
+    else:
+        plt.ylabel(r'$T$ (MeV)')
+        for particle in data:
+            r,g,b,a = chosen_colormap((particle[0,0]-minimum)/(maximum-minimum))
+            plt.plot( particle[:,3], particle[:,0], color=(r,g,b), alpha=0.3 )
         
     maxrange = np.amax(np.abs(data[:,:,3]))
     plt.xlim([-1.1*maxrange, 1.1*maxrange])
     plt.xlabel(r'$\mu_Q$ (MeV)')
-    plt.ylabel(r'$T$ (MeV)')
     plt.title(r'Pb+Pb $5.02$ TeV')
     norm = Normalize(vmin=minimum, vmax=maximum)
     sm = cm.ScalarMappable(cmap=chosen_colormap, norm=norm)

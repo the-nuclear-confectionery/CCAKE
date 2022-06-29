@@ -12,8 +12,8 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 # HDF file structure
 f = h5.File(sys.argv[1], 'r')
 event = f['Event']
-n_timesteps = min([len(event.keys()),1000])
 event_keys = list(event.keys())
+n_timesteps = len(event_keys)
 
 # Figure dimensions
 width, height = 6, 6

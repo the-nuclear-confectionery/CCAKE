@@ -146,6 +146,12 @@ void InputOutput::load_settings_file( string path_to_settings_file )
 
 
   // set up HDF5 output file here
+  vector<double> global_parameters_to_HDF
+                  = vector<double>({ settingsPtr->h,
+                                     settingsPtr->e_cutoff });
+  vector<string> global_parameter_names_to_HDF
+                  = vector<string>({ "h",
+                                     "e_cutoff" });
   hdf5_file.initialize( output_directory + "/system_state.h5" );
 
 

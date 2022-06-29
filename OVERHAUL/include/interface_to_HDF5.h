@@ -28,18 +28,37 @@ class interface_to_HDF5
     interface_to_HDF5(){}
     ~interface_to_HDF5(){}
 
-    void initialize(const std::string & filename)
+    //--------------------------------------------------------------------------
+    void output_double_attribute(Group & group, double value, string name)
+    {
+      hsize_t dims[1]; dims[0] = 1;
+      DataSpace dspace(1, dims);
+      Attribute att = group.createAttribute(name.c_str(), PredType::NATIVE_DOUBLE, dspace );
+      att.write(PredType::NATIVE_DOUBLE, &value);
+
+      return;
+    }
+
+
+    //--------------------------------------------------------------------------
+    void initialize( const std::string & filename,
+                     const vector<double> & parameters,
+                     const vector<string> & parameter_names )
     {
       try
       {
         Exception::dontPrint();
 
-        //const H5std_string FILE_NAME(output_directory + "/system_state.h5");
         const H5std_string FILE_NAME(filename);
         GROUPEVENT_NAME = "/Event";
 
         file = H5File(FILE_NAME, H5F_ACC_TRUNC);
         Group groupEvent(file.createGroup(GROUPEVENT_NAME.c_str()));
+
+        for (int i = 0; i < parameters.size(); i++)
+          output_double_attribute( groupFrame, parameters[i],
+                                               parameter_names[i] );
+
       }
 
       // catch any errors
@@ -74,18 +93,6 @@ class interface_to_HDF5
         return ss.str();
     }
 
-
-
-    //------------------------------------------------------------------------------
-    void output_double_attribute(Group & group, double value, string name)
-    {
-      hsize_t dims[1]; dims[0] = 1;
-      DataSpace dspace(1, dims);
-      Attribute att = group.createAttribute(name.c_str(), PredType::NATIVE_DOUBLE, dspace );
-      att.write(PredType::NATIVE_DOUBLE, &value);
-
-      return;
-    }
 
 
     void set_units(DataSet & ds, const std::string & units)
