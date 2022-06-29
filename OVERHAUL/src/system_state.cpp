@@ -160,3 +160,12 @@ void SystemState::conservation_energy()
 
 
 
+
+
+///////////////////////////////////////
+//void SystemState::compute_eccentricity()
+//{
+//  for ( auto & p : particles )
+//
+//
+//}

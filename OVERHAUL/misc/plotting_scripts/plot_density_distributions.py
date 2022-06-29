@@ -74,6 +74,9 @@ def plot_density_distribution_vs_time(quantity):
     # only look at positive densities, for simplicity
     data = data[ data[:,1] >= 1e-3 ]
     
+    print(data.shape)
+    print(timebins)
+    
     H, xedges, yedges = np.histogram2d(data[:,0], np.log(data[:,1]), \
                                        bins=[timebins,250], density=True)
     H *= len(timebins)
