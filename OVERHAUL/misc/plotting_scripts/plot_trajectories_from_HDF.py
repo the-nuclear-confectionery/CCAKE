@@ -52,6 +52,7 @@ def plot_all_particles():
     #####################################
     # Set up
     #####################################
+    print('Setting up...', flush=True)
     global selection
     Tmin, Tmax = 400, 650
     selection = get_selection(Tmin, Tmax)
@@ -63,6 +64,8 @@ def plot_all_particles():
     
     print(data.shape)
     
+    print('Generating figures...', flush=True)
+
     #####################################
     # T vs. muB figure
     #####################################
