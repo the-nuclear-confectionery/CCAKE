@@ -53,7 +53,8 @@ def plot_density_distribution_vs_time(quantity):
     print('Building data...')
     data = np.stack([frame_to_array(i, quantity) for i in range(n_timesteps)])
     
-    print(data.shape)
+    #print(data.shape)
+    nParticles = (data.shape)[1]
     
     data = data.reshape([data.size//3,3])
     
@@ -74,6 +75,9 @@ def plot_density_distribution_vs_time(quantity):
     data = data[ data[:,1] >= 1e-3 ]
     
     H, xedges, yedges = np.histogram2d(data[:,0], np.log(data[:,1]), bins=[timebins,250])
+    
+    # normalize by number of particles
+    H /= nParticles
         
     #####################################
     # quantity vs. tau figure
@@ -116,7 +120,7 @@ def plot_density_distribution_vs_time(quantity):
     div = make_axes_locatable(ax)
     cax = div.append_axes('right', '2%', '2%')
     cbar = fig.colorbar(im, cax=cax, extend='both')
-    cbar.set_label("Number of cells")
+    cbar.set_label("Fraction of cells")
     #cbar.ax.tick_params(labelsize=14)
     
     outfilename = quantity + '_vs_tau.png'
