@@ -158,7 +158,9 @@ def animate(i):
     toc = time.perf_counter()
     print(f"Set up frame in {toc - tic:0.4f} seconds", flush=True)
 
-    X, Y = np.meshgrid( np.linspace(xmin, xmax, n), np.linspace(ymin, ymax, n) )
+    X, Y = np.meshgrid( np.linspace(xmin, xmax, n), \
+                        np.linspace(ymin, ymax, n), \
+                        indexing='ij' )
     tic = time.perf_counter()
 
     f = np.array([ evaluate_field(point) for point in np.c_[ X.flatten(), Y.flatten() ] ])
