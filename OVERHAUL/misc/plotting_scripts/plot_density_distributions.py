@@ -54,6 +54,7 @@ def plot_density_distribution_vs_time(quantity):
     data = np.stack([frame_to_array(i, quantity) for i in range(n_timesteps)])
     
     #print(data.shape)
+    nTimesteps = (data.shape)[0]
     nParticles = (data.shape)[1]
     
     data = data.reshape([data.size//3,3])
@@ -75,7 +76,9 @@ def plot_density_distribution_vs_time(quantity):
     data = data[ data[:,1] >= 1e-3 ]
     
     print(data.shape)
-    print(timebins)
+    print(len(timebins))
+    print(nTimesteps)
+    print(n_timesteps)
     
     H, xedges, yedges = np.histogram2d(data[:,0], np.log(data[:,1]), \
                                        bins=[timebins,250], density=True)
