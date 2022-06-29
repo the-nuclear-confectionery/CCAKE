@@ -104,6 +104,8 @@ use_log_scale                                 \
 
 
 #########################################################################################
+fontColor = 'white' if quantity == "temperature" else 'black'
+
 data = None
 maximum = None
 minimum = None
@@ -203,7 +205,7 @@ def animate(i):
     plt.xlim([xmin, xmax])
     plt.ylim([ymin, ymax])
     plt.text(0.075, 0.925, r'$\tau = %(t)5.2f$ fm$/c$'%{'t': tau}, \
-            {'color': 'white', 'fontsize': 24}, transform=ax.transAxes,
+            {'color': fontColor, 'fontsize': 24}, transform=ax.transAxes,
             horizontalalignment='left', verticalalignment='top')
     ax.set_xlabel(r'$x$ (fm)', fontsize=24)
     ax.set_ylabel(r'$y$ (fm)', fontsize=24)
