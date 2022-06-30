@@ -109,8 +109,9 @@ class interface_to_HDF5
     void output_dataset( const vector<string> & dataset_names,
                          const vector<string> & dataset_units,
                          const vector<vector<double> > & v, const int width,
-                         const int timestepindex, const double time,
-                         const vector<int> & labels )
+                         const int timestepindex, const vector<int> & labels,
+                         const vector<double> & parameters,
+                         const vector<double> & parameter_names )
     {
       const int Nfields = v.size();
       const int length = v[0].size();
@@ -126,7 +127,10 @@ class interface_to_HDF5
 
       Group groupFrame(file.createGroup(FRAME_NAME.c_str()));
 
-      output_double_attribute( groupFrame, time, "Time" );
+      //output_double_attribute( groupFrame, time, "Time" );
+      for (int i = 0; i < parameters.size(); i++)
+        output_double_attribute( groupFrame, parameters[i],
+                                             parameter_names[i] );
 
       // export all datasets
       for (int iDS = 0; iDS < dataset_names.size(); iDS++)

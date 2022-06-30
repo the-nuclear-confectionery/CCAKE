@@ -103,9 +103,10 @@ void BSQHydro::run()
   sw.Start();
 
   //===================================
-  // initialize conserved quantities
+  // initialize conserved quantities, etc.
   system.conservation_entropy();
   system.conservation_BSQ();
+  system.compute_eccentricities();
 
   //===================================
   // print initialized system and status
@@ -122,9 +123,10 @@ void BSQHydro::run()
     ws.advance_timestep( settings.dt, rk_order );
 
     //===================================
-    // re-compute conserved quantities
+    // re-compute conserved quantities, etc.
     system.conservation_entropy();
     system.conservation_BSQ();
+    system.compute_eccentricities();
 
     //===================================
     // print updated system and status

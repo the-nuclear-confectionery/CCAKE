@@ -84,35 +84,9 @@ class SystemState
 
     vector<int> list;
 
-
-//
-//    //==========================================================================
-//    // MOVE TO THEIR OWN CLASS???
-//    // freeze-out related quantities
-//    int cf            = 0;
-//    int frzc          = 0;
-//    double avgetasig  = 0;
-//    double cs2        = 0;
-//    double tau        = 0;
-//    double taup       = 0;
-//    double taupp      = 0;
-//    double wfz        = 0;
-//
-//    vector<double> divTtemp;
-//    vector<double> gsub;
-//    vector<double> bulksub;
-//    vector<double> swsub;
-//    vector<double> shear33sub;
-//    vector<double> tlist;
-//    vector<double> sFO;         //entropy at freezeout
-//    vector<double> Tfluc;
-//
-//    vector< Vector<double,2> > divT;
-//    vector< Vector<double,2> > rsub;
-//    vector< Vector<double,2> > uout;
-//    vector< Matrix<double,3,3> > shearsub;
-//    //==========================================================================    
-
+    // eccentricities
+    vector<double> timesteps;
+    vector<double> e_2_X, e_2_P;
 
   public:
     // initialize system state, linklist, etc.
@@ -123,6 +97,8 @@ class SystemState
     void conservation_entropy();
     void conservation_energy();
     void conservation_BSQ();
+
+    void compute_eccentricities();
 
     int n(){ return n_particles; }
     double get_particle_T(int id) {return particles[id].T();}

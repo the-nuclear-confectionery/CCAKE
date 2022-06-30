@@ -163,9 +163,23 @@ void SystemState::conservation_energy()
 
 
 ///////////////////////////////////////
-//void SystemState::compute_eccentricity()
-//{
-//  for ( auto & p : particles )
-//
-//
-//}
+void SystemState::compute_eccentricities()
+{
+  double current_e_2_X = 0.0;
+  double current_e_2_P = 0.0;
+  double normalization = 0.0;
+
+  for ( auto & p : particles )
+  {
+    double x   = p.r(0), y   = p.r(1);
+    double u_x = p.u(0), u_y = p.u(1);
+
+    current_e_2_X += p.gamma*p.e()*(y*y-x*x); // extra minus sign on e_2_X
+    current_e_2_P += p.gamma*p.e()*(u_x*u_x-u_y*u_y);
+    normalization += p.gamma*p.e();
+  }
+
+  timesteps.push_back( t );
+  e_2_X.push_back( current_e_2_X/normalization );
+  e_2_P.push_back( current_e_2_P/normalization );
+}

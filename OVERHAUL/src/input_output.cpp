@@ -633,8 +633,12 @@ void InputOutput::print_system_state_to_HDF()
     eos_tags[p.ID] = eos_map[ p.get_current_eos_name() ];
   }
 
+  vector<string> parameter_names = { "Time", "e_2_X", "e_2_P" };
+  vector<double> parameters      = { systemPtr->t, e_2_X.back(), e_2_P.back() };
+
   hdf5_file.output_dataset( dataset_names, dataset_units, data, width,
-                            n_timesteps_output, systemPtr->t, eos_tags );
+                            n_timesteps_output, eos_tags,
+                            parameters, parameter_names );
 
   return;
 }
