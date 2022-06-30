@@ -22,7 +22,7 @@ width, height = 6, 6
 
 
 #########################################################################################
-def frame_to_array(i, quantity):
+def frame_to_array(i):
     frame = event[event_keys[i]]
     return [ frame.attrs['Time'], frame.attrs['e_2_X'], frame.attrs['e_2_P'] ]
 
