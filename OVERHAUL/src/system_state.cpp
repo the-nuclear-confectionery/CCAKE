@@ -171,12 +171,12 @@ void SystemState::compute_eccentricities()
 
   for ( auto & p : particles )
   {
-    double x   = p.r(0), y   = p.r(1);
-    double u_x = p.u(0), u_y = p.u(1);
+    double x   = p.r(0), y         = p.r(1);
+    double u_x = p.hydro.u(0), u_y = p.hydro.u(1);
 
-    current_e_2_X += p.gamma*p.e()*(y*y-x*x); // extra minus sign on e_2_X
-    current_e_2_P += p.gamma*p.e()*(u_x*u_x-u_y*u_y);
-    normalization += p.gamma*p.e();
+    current_e_2_X += p.hydro.gamma*p.e()*(y*y-x*x); // extra minus sign on e_2_X
+    current_e_2_P += p.hydro.gamma*p.e()*(u_x*u_x-u_y*u_y);
+    normalization += p.hydro.gamma*p.e();
   }
 
   timesteps.push_back( t );
