@@ -152,7 +152,9 @@ void InputOutput::load_settings_file( string path_to_settings_file )
   vector<string> global_parameter_names_to_HDF
                   = vector<string>({ "h",
                                      "e_cutoff" });
-  hdf5_file.initialize( output_directory + "/system_state.h5" );
+  hdf5_file.initialize( output_directory + "/system_state.h5",
+                        global_parameters_to_HDF,
+                        global_parameter_names_to_HDF );
 
 
   return;
@@ -634,7 +636,8 @@ void InputOutput::print_system_state_to_HDF()
   }
 
   vector<string> parameter_names = { "Time", "e_2_X", "e_2_P" };
-  vector<double> parameters      = { systemPtr->t, e_2_X.back(), e_2_P.back() };
+  vector<double> parameters      = { systemPtr->t, systemPtr->e_2_X.back(),
+                                                   systemPtr->e_2_P.back() };
 
   hdf5_file.output_dataset( dataset_names, dataset_units, data, width,
                             n_timesteps_output, eos_tags,
