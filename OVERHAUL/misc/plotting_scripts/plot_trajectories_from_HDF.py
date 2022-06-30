@@ -10,8 +10,11 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 plot_normalized_T = True
 
+infilename = sys.argv[1]
+outdirectory = sys.argv[2]
+
 # HDF file structure
-f = h5.File(sys.argv[1], 'r')
+f = h5.File(infilename, 'r')
 event = f['Event']
 n_timesteps = min([len(event.keys()),1000])
 event_keys = list(event.keys())
@@ -92,7 +95,7 @@ def plot_all_particles():
     cbar = plt.colorbar(sm)    
     cbar.set_label(r'$T_0$ (MeV)', rotation=90)
 
-    outfilename = 'T_vs_muB_Tmin'+str(Tmin)+'_Tmax'+str(Tmax)+'.png'
+    outfilename = outdirectory + '/T_vs_muB_Tmin'+str(Tmin)+'_Tmax'+str(Tmax)+'.png'
     plt.savefig(outfilename, dpi=chosen_dpi, bbox_inches='tight', pad_inches = 0)
     print('Saved to ' + outfilename)
 
@@ -122,7 +125,7 @@ def plot_all_particles():
     cbar = plt.colorbar(sm)    
     cbar.set_label(r'$T_0$ (MeV)', rotation=90)
 
-    outfilename = 'T_vs_muS_Tmin'+str(Tmin)+'_Tmax'+str(Tmax)+'.png'
+    outfilename = outdirectory + '/T_vs_muS_Tmin'+str(Tmin)+'_Tmax'+str(Tmax)+'.png'
     plt.savefig(outfilename, dpi=chosen_dpi, bbox_inches='tight', pad_inches = 0)
     print('Saved to ' + outfilename)
 
@@ -152,7 +155,7 @@ def plot_all_particles():
     cbar = plt.colorbar(sm)    
     cbar.set_label(r'$T_0$ (MeV)', rotation=90)
 
-    outfilename = 'T_vs_muQ_Tmin'+str(Tmin)+'_Tmax'+str(Tmax)+'.png'
+    outfilename = outdirectory + '/T_vs_muQ_Tmin'+str(Tmin)+'_Tmax'+str(Tmax)+'.png'
     plt.savefig(outfilename, dpi=chosen_dpi, bbox_inches='tight', pad_inches = 0)
     print('Saved to ' + outfilename)
 
@@ -177,7 +180,7 @@ def plot_all_particles():
     cbar = plt.colorbar(sm)    
     cbar.set_label(r'$T_0$ (MeV)', rotation=90)
 
-    outfilename = 'muB_vs_muS_Tmin'+str(Tmin)+'_Tmax'+str(Tmax)+'.png'
+    outfilename = outdirectory + '/muB_vs_muS_Tmin'+str(Tmin)+'_Tmax'+str(Tmax)+'.png'
     plt.savefig(outfilename, dpi=chosen_dpi, bbox_inches='tight', pad_inches = 0)
     print('Saved to ' + outfilename)
 
@@ -202,7 +205,7 @@ def plot_all_particles():
     cbar = plt.colorbar(sm)    
     cbar.set_label(r'$T_0$ (MeV)', rotation=90)
 
-    outfilename = 'muB_vs_muQ_Tmin'+str(Tmin)+'_Tmax'+str(Tmax)+'.png'
+    outfilename = outdirectory + '/muB_vs_muQ_Tmin'+str(Tmin)+'_Tmax'+str(Tmax)+'.png'
     plt.savefig(outfilename, dpi=chosen_dpi, bbox_inches='tight', pad_inches = 0)
     print('Saved to ' + outfilename)
 
@@ -226,7 +229,7 @@ def plot_all_particles():
     cbar = plt.colorbar(sm)    
     cbar.set_label(r'$T_0$ (MeV)', rotation=90)
 
-    outfilename = 'muS_vs_muQ_Tmin'+str(Tmin)+'_Tmax'+str(Tmax)+'.png'
+    outfilename = outdirectory + '/muS_vs_muQ_Tmin'+str(Tmin)+'_Tmax'+str(Tmax)+'.png'
     plt.savefig(outfilename, dpi=chosen_dpi, bbox_inches='tight', pad_inches = 0)
     print('Saved to ' + outfilename)
 

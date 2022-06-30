@@ -8,9 +8,11 @@ import numpy as np
 import sys
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
+infilename = sys.argv[1]
+outdirectory = sys.argv[2]
 
 # HDF file structure
-f = h5.File(sys.argv[1], 'r')
+f = h5.File(infilename, 'r')
 event = f['Event']
 event_keys = list(event.keys())
 n_timesteps = len(event_keys)
@@ -121,7 +123,7 @@ def plot_density_distribution_vs_time(quantity):
     cbar.set_label("Number of cells")
     #cbar.ax.tick_params(labelsize=14)
     
-    outfilename = quantity + '_vs_tau.png'
+    outfilename = outdirectory + '/' + quantity + '_vs_tau.png'
     plt.savefig(outfilename, dpi=chosen_dpi, bbox_inches='tight', pad_inches = 0)
     print('Saved to ' + outfilename)
 
