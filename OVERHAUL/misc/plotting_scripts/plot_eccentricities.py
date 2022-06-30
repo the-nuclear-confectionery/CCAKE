@@ -47,7 +47,7 @@ def plot_eccentricities_vs_time():
     
     plt.xlabel(r'$\tau$ (fm/$c$)')
         
-    outfilename = outdirectory + '/' + quantity + '_vs_tau.png'
+    outfilename = outdirectory + '/eccentricities_vs_tau.png'
     plt.savefig(outfilename, dpi=chosen_dpi, bbox_inches='tight', pad_inches = 0)
     print('Saved to ' + outfilename)
 
