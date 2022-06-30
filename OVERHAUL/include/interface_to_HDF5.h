@@ -56,7 +56,7 @@ class interface_to_HDF5
         Group groupEvent(file.createGroup(GROUPEVENT_NAME.c_str()));
 
         for (int i = 0; i < parameters.size(); i++)
-          output_double_attribute( groupFrame, parameters[i],
+          output_double_attribute( groupEvent, parameters[i],
                                                parameter_names[i] );
 
       }
