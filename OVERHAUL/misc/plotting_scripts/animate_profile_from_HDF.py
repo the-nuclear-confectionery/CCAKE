@@ -11,14 +11,15 @@ import os, sys, time
 #########################################################################################
 # load arguments
 infilename = sys.argv[1]
-h = float(sys.argv[2])
-quantity = sys.argv[3]
-outfilename = sys.argv[4]
+quantity = sys.argv[2]
+outfilename = sys.argv[3]
 
 f = h5.File(infilename, 'r')
 event = f['Event']
 event_keys = list(event.keys())
 n_timesteps = len(event_keys)
+
+h = event.attrs['h'][0]
 
 fig = plt.figure(figsize=(12,9), dpi=125)
 ax = fig.add_subplot(111)
