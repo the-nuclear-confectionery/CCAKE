@@ -20,6 +20,7 @@ width, height = 6, 6
 # Axes ranges
 #xmin, xmax, ymin, ymax = 2.5, 7.5, -7.5, -2.5
 
+chosen_dpi = 200
 
 #########################################################################################
 def frame_to_array(i):
