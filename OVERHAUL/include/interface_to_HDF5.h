@@ -111,7 +111,7 @@ class interface_to_HDF5
                          const vector<vector<double> > & v, const int width,
                          const int timestepindex, const vector<int> & labels,
                          const vector<double> & parameters,
-                         const vector<double> & parameter_names )
+                         const vector<string> & parameter_names )
     {
       const int Nfields = v.size();
       const int length = v[0].size();
