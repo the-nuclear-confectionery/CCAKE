@@ -185,7 +185,7 @@ void SystemState::compute_e_2_P()
 
     double Txx = e_p_Pi*ux*ux + p_plus_Pi + p.hydro.shv(1,1);
     double Txy = e_p_Pi*ux*uy             + p.hydro.shv(1,2);
-    double Txx = e_p_Pi*uy*uy + p_plus_Pi + p.hydro.shv(2,2);
+    double Tyy = e_p_Pi*uy*uy + p_plus_Pi + p.hydro.shv(2,2);
 
     e_2_P_c += Txx-Tyy;
     e_2_P_s += 2.0*Txy;
