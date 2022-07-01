@@ -46,6 +46,7 @@ def plot_eccentricities_vs_time():
     ax.plot( data[:,0], data[:,2], 'r--', label=r'$\varepsilon_{2,P}$' )
     
     plt.xlabel(r'$\tau$ (fm/$c$)')
+    plt.legend(loc='best')
         
     outfilename = outdirectory + '/eccentricities_vs_tau.png'
     plt.savefig(outfilename, dpi=chosen_dpi, bbox_inches='tight', pad_inches = 0)

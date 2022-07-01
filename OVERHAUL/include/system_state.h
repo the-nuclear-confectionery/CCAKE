@@ -99,6 +99,8 @@ class SystemState
     void conservation_BSQ();
 
     void compute_eccentricities();
+    void compute_e_2_P();
+    void compute_e_2_X();
 
     int n(){ return n_particles; }
     double get_particle_T(int id) {return particles[id].T();}

@@ -165,21 +165,46 @@ void SystemState::conservation_energy()
 ///////////////////////////////////////
 void SystemState::compute_eccentricities()
 {
-  double current_e_2_X = 0.0;
-  double current_e_2_P = 0.0;
-  double normalization = 0.0;
+  timesteps.push_back( t );
+
+  compute_e_2_X();
+  compute_e_2_P();
+}
+
+///////////////////////////////////////
+void SystemState::compute_e_2_P()
+{
+  double e_2_P_c = 0.0, e_2_P_s = 0.0, normalization = 0.0;
 
   for ( auto & p : particles )
   {
-    double x   = p.r(0), y         = p.r(1);
-    double u_x = p.hydro.u(0), u_y = p.hydro.u(1);
+    double ux        = p.hydro.u(0),
+           uy        = p.hydro.u(1);
+    double p_plus_Pi = p.p() + p.hydro.bigPI;
+    double e_p_Pi    = p.e() + p_plus_Pi;
 
-    current_e_2_X += p.hydro.gamma*p.e()*(y*y-x*x); // extra minus sign on e_2_X
-    current_e_2_P += p.hydro.gamma*p.e()*(u_x*u_x-u_y*u_y);
-    normalization += p.hydro.gamma*p.e();
+    double Txx = e_p_Pi*ux*ux + p_plus_Pi + p.hydro.shv(1,1);
+    double Txy = e_p_Pi*ux*uy             + p.hydro.shv(1,2);
+    double Txx = e_p_Pi*uy*uy + p_plus_Pi + p.hydro.shv(2,2);
+
+    e_2_P_c += Txx-Tyy;
+    e_2_P_s += 2.0*Txy;
+    normalization += Txx+Tyy;
   }
+  e_2_P.push_back( sqrt(e_2_P_c*e_2_P_c+e_2_P_s*e_2_P_s)/abs(normalization) );
+}
 
-  timesteps.push_back( t );
-  e_2_X.push_back( current_e_2_X/normalization );
-  e_2_P.push_back( current_e_2_P/normalization );
+///////////////////////////////////////
+void SystemState::compute_e_2_X()
+{
+  double e_2_X_c = 0.0, e_2_X_s = 0.0, normalization = 0.0;
+  for ( auto & p : particles )
+  {
+    double x       = p.r(0),
+           y       = p.r(1);
+    e_2_X_c       += p.hydro.gamma*p.e()*(x*x-y*y);
+    e_2_X_s       += 2.0*p.hydro.gamma*p.e()*x*y;
+    normalization += p.hydro.gamma*p.e()*(x*x+y*y);
+  }
+  e_2_X.push_back( sqrt(e_2_X_c*e_2_X_c+e_2_X_s*e_2_X_s)/abs(normalization) );
 }
