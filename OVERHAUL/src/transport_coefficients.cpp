@@ -127,6 +127,7 @@ void TransportCoefficients::initialize_tau_pi(const string & tau_piType_in)
     }
     if (zetaType != "NoBulk")
     {
+      std::cout << "You have chosen zetaType = " << zetaType << "\n";
       std::cout << "Bulk viscosity must be zero"
                    " for Gubser. Check Input_Parameters.  "
                    " Now exiting.\n";
