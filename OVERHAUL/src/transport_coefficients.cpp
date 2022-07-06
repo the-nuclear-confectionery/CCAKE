@@ -47,14 +47,21 @@ void TransportCoefficients::initialize( const string & etaType_in,
   cout << "Using zetaType_in = " << zetaType_in << endl;
   cout << "Using tau_PiType_in = " << tau_PiType_in << endl;
 
+  // set here (redundant) to ensure checks are passed below
+  etaType    = etaType_in;
+  tau_piType = tau_piType_in;
+  zetaType   = zetaType_in;
+  tau_PiType = tau_PiType_in;
+
+
   // Set shear viscosity
   initialize_eta( etaType_in );
 
-  // Set shear relaxation
-  initialize_tau_pi( tau_piType_in );
-
   // Set bulk viscosity
   initialize_zeta( zetaType_in );
+
+  // Set shear relaxation
+  initialize_tau_pi( tau_piType_in );
 
   // Set bulk relaxation
   initialize_tau_Pi( tau_PiType_in );
