@@ -8,6 +8,7 @@ use_semi_analytic = True
 use_log_scale = False
 
 axisMode = sys.argv[1]
+refDirectory = sys.argv[2]
 
 q  = 1.
 e0 = 1.0
@@ -62,15 +63,15 @@ def rhoQGubser(tau, r):
 #===============================================================================
 def load_semi_analytic_files():
     if axisMode == '0':
-        return np.loadtxt('./ac/Initial_Profile_tau=1fm.dat'),  \
-               np.loadtxt('./ac/y=0_tau=1.2_SemiAnalytic.dat'), \
-               np.loadtxt('./ac/y=0_tau=1.5_SemiAnalytic.dat'), \
-               np.loadtxt('./ac/y=0_tau=2.0_SemiAnalytic.dat')
+        return np.loadtxt(refDirectory+'/ac/Initial_Profile_tau=1fm.dat'),  \
+               np.loadtxt(refDirectory+'/ac/y=0_tau=1.2_SemiAnalytic.dat'), \
+               np.loadtxt(refDirectory+'/ac/y=0_tau=1.5_SemiAnalytic.dat'), \
+               np.loadtxt(refDirectory+'/ac/y=0_tau=2.0_SemiAnalytic.dat')
     else:
-        return np.loadtxt('./ac/Initial_Profile_tau=1fm.dat'),  \
-               np.loadtxt('./ac/y=x_tau=1.2_SemiAnalytic.dat'), \
-               np.loadtxt('./ac/y=x_tau=1.5_SemiAnalytic.dat'), \
-               np.loadtxt('./ac/y=x_tau=2.0_SemiAnalytic.dat')
+        return np.loadtxt(refDirectory+'/ac/Initial_Profile_tau=1fm.dat'),  \
+               np.loadtxt(refDirectory+'/ac/y=x_tau=1.2_SemiAnalytic.dat'), \
+               np.loadtxt(refDirectory+'/ac/y=x_tau=1.5_SemiAnalytic.dat'), \
+               np.loadtxt(refDirectory+'/ac/y=x_tau=2.0_SemiAnalytic.dat')
 
 #===============================================================================
 def plot_slice(ax, hydroOutput, tau, axis, quantity):
@@ -120,7 +121,7 @@ if __name__ == "__main__":
     fig, axs = plt.subplots( ncols=ncols, nrows=nrows, figsize=(5*ncols, 5*nrows) )
 
     # plot hydro output files
-    for checkfile in sys.argv[2:]:
+    for checkfile in sys.argv[3:]:
         # load Gubser check output files produced by hydro code
         # (eventually) use format: x [fm], y [fm], e [1/fm^4], u_x, u_y, ...
         tau = get_time_step(checkfile)
