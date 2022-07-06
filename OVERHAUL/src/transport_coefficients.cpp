@@ -25,7 +25,7 @@ void TransportCoefficients::initialize( const string & mode )
   if ( mode == "default" )
     initialize( "default", "default", "default", "default" );
   else if ( mode == "Gubser" )
-    initialize( "constant", "Gubser", "NoBulk", "default" );
+    initialize( "constant", "Gubser", "constant", "default" );
   else
   {
     std::cout << "TransportCoefficients::mode value = "
@@ -98,10 +98,6 @@ void TransportCoefficients::initialize_eta(const string & etaType_in)
     // execute interpolation
     eta = [this]{ return InterpolantWrapper(); };
   }
-  else if (etaType == "NoShear")
-  {
-    eta = [this]{ return NoShear(); };
-  }
   else
   {
     cout << "Shear viscosity specification " << etaType << " not recognized. Now exiting.\n";
@@ -132,10 +128,11 @@ void TransportCoefficients::initialize_tau_pi(const string & tau_piType_in)
               "Check Input_Parameters.  Now exiting.\n";
       exit(1);
     }
-    if (zetaType != "NoBulk")
+    if (zetaType != "constant" || abs(settingsPtr->constant_zeta_over_s) > 1e-6)
     {
-      std::cout << "You have chosen zetaType = " << zetaType << "\n";
-      std::cout << "Bulk viscosity must be zero"
+      std::cout << "You have chosen zetaType = " << zetaType
+                << " and zeta/s = " << abs(settingsPtr->constant_zeta_over_s) 
+                << ".\n" << "Bulk viscosity must be zero"
                    " for Gubser. Check Input_Parameters.  "
                    " Now exiting.\n";
       exit(1);
@@ -166,10 +163,6 @@ void TransportCoefficients::initialize_zeta(const string & zetaType_in)
   else if (zetaType == "DNMR")
   {
     zeta = [this]{ return zeta_DNMR_LeadingMass(); };
-  }
-  else if (zetaType == "NoBulk")
-  {
-    zeta = [this]{ return NoBulk(); };
   }
   else if (zetaType == "interpolate")
   {
@@ -263,9 +256,6 @@ double TransportCoefficients::LinearMusParam()
 //===============================
 double TransportCoefficients::InterpolantWrapper() { return 0.0; }
 
-//===============================
-double TransportCoefficients::NoShear() { return 0.0; }
-
 
 //==============================================================================
 //==============================================================================
@@ -308,8 +298,6 @@ double TransportCoefficients::zeta_DNMR_LeadingMass()
     return 0.0;
 }
 
-//===============================
-double TransportCoefficients::NoBulk() { return 0.0; }
 
 //===============================
 double TransportCoefficients::cs2_dependent_zeta()
