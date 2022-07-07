@@ -42,16 +42,16 @@ export HDF5_CXXLINKER=$(which g++)
 export HDF5_CLINKER=$(which g++)
 export HDF5_LDFLAGS+=$(LDFLAGS)
 
-.PHONY:	all clean mkobjdir persephone
+.PHONY:	all clean mkobjdir ccake
 
-all:	mkobjdir persephone
+all:	mkobjdir ccake
 	
 mkobjdir:
 	-@mkdir -p $(OBJDIR)
 
-persephone: mkobjdir $(OBJS)
+ccake: mkobjdir $(OBJS)
 	(cd $(EOSLIBPATH); make clean; make)
-	$(CC) -g $(OBJS) -o persephone $(LDFLAGS)
+	$(CC) -g $(OBJS) -o ccake $(LDFLAGS)
 
 $(OBJDIR)/main.o: $(INCLUDE)/vector.h $(INCLUDE)/mathdef.h $(INCLUDE)/particle.h \
         $(INCLUDE)/eos.h $(INCLUDE)/input_output.h $(INCLUDE)/linklist.h \
@@ -110,4 +110,4 @@ $(OBJDIR)/formatted_output.o: $(SRC)/formatted_output.cpp $(INCLUDE)/formatted_o
 
 
 clean:
-	-rm $(OBJDIR)/*.o persephone
+	-rm $(OBJDIR)/*.o ccake

@@ -41,8 +41,8 @@ git log -1 >> \${GIT_SNAPSHOT_FILE}
 # save settings file for reference
 cp \${INPUT_PARAMETERS_FILE} \${RESULTS_DIRECTORY}
 
-./persephone \${INPUT_PARAMETERS_FILE} \${RESULTS_DIRECTORY}
-#echo "Next step: run ./persephone" \${INPUT_PARAMETERS_FILE} \${RESULTS_DIRECTORY}
+./ccake \${INPUT_PARAMETERS_FILE} \${RESULTS_DIRECTORY}
+#echo "Next step: run ./ccake" \${INPUT_PARAMETERS_FILE} \${RESULTS_DIRECTORY}
 
 exit 0
 EOT
