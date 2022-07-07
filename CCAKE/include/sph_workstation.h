@@ -138,8 +138,14 @@ public:
 
   //-------------------------------------------
   void update_all_particle_thermodynamics()
-        { for ( auto & p : systemPtr->particles )
-            set_phase_diagram_point( p ); }
+        {
+          Stopwatch sw;
+          sw.Start();
+          for ( auto & p : systemPtr->particles )
+            set_phase_diagram_point( p );
+          sw.Stop();
+          formatted_output::update("got particle thermodynamics in "
+                                    + to_string(sw.printTime()) + " s."); }
 
   //-------------------------------------------
   void update_all_particle_viscosities()
@@ -148,10 +154,18 @@ public:
 
   //-------------------------------------------
   void evaluate_all_particle_time_derivatives()
-        { for ( auto & p : systemPtr->particles )
-          { p.hydro.ID = p.ID;
+        { 
+          Stopwatch sw;
+          sw.Start();
+          for ( auto & p : systemPtr->particles )
+          {
+            p.hydro.ID = p.ID;
             p.hydro.t  = systemPtr->t;
-            pEoM->evaluate_time_derivatives( p.hydro, p.thermo, p.d_dt_spec );} }
+            pEoM->evaluate_time_derivatives( p.hydro, p.thermo, p.d_dt_spec );
+          }
+          sw.Stop();
+          formatted_output::update("set particle time derivatives in "
+                                    + to_string(sw.printTime()) + " s."); }
 
 
   //-------------------------------------------

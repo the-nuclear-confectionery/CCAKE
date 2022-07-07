@@ -60,7 +60,7 @@ void LinkList::reset()
   for ( int i = 0; i < 2; i++ )
     Size *= size(i);
 
-  formatted_output::update("Size = " + to_string(Size) + ".");
+//  formatted_output::update("Size = " + to_string(Size) + ".");
 
 
   //============================================================================
@@ -70,7 +70,7 @@ void LinkList::reset()
   for (int j = 0; j < n_particles; j++)
     dael[j] = inv_h*((*particlesPtr)[j].r-min) + (1.0*range)*uni;
 
-  formatted_output::update("dael.size() = " + to_string(dael.size()) + ".");
+//  formatted_output::update("dael.size() = " + to_string(dael.size()) + ".");
 
   //============================================================================
   //lead: relates every linklist cube with one of the particles (leader) in it
@@ -89,8 +89,8 @@ void LinkList::reset()
   }
 
 
-  formatted_output::update("lead.size() = " + to_string(lead.size()) + ".");
-  formatted_output::update("link.size() = " + to_string(link.size()) + ".");
+//  formatted_output::update("lead.size() = " + to_string(lead.size()) + ".");
+//  formatted_output::update("link.size() = " + to_string(link.size()) + ".");
 
 
   // add vector of neighbors
@@ -115,13 +115,13 @@ void LinkList::reset()
     }
   }
   sw.Stop();
-  formatted_output::update("set vector of neighbors in "
-                            + to_string(sw.printTime()) + " s.");
+//  formatted_output::update("set vector of neighbors in "
+//                            + to_string(sw.printTime()) + " s.");
 
   long long total_neighbors = 0;
   for ( auto & a : all_neighbors ) total_neighbors += a.size();
-  formatted_output::update("vector of neighbors contains "
-                            + to_string(total_neighbors) + " neighbors.");
+//  formatted_output::update("vector of neighbors contains "
+//                            + to_string(total_neighbors) + " neighbors.");
 
 }
 
