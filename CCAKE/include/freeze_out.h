@@ -202,7 +202,7 @@ class FreezeOut
       {
         taupp = systemPtr->t;
         frzc  = 1;
-cout << "Check sizes: " << frz2.size() << "   " << systemPtr->particles.size() << endl;
+//cout << "Check sizes: " << frz2.size() << "   " << systemPtr->particles.size() << endl;
         for (auto & p : systemPtr->particles)
         {
           auto & p_frz2  = frz2[p.ID];

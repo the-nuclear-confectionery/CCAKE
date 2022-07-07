@@ -42,10 +42,10 @@ void TransportCoefficients::initialize( const string & etaType_in,
                                         const string & zetaType_in,
                                         const string & tau_PiType_in )
 {
-  cout << "Using etaType_in = " << etaType_in << endl;
-  cout << "Using tau_piType_in = " << tau_piType_in << endl;
-  cout << "Using zetaType_in = " << zetaType_in << endl;
-  cout << "Using tau_PiType_in = " << tau_PiType_in << endl;
+//  cout << "Using etaType_in = " << etaType_in << endl;
+//  cout << "Using tau_piType_in = " << tau_piType_in << endl;
+//  cout << "Using zetaType_in = " << zetaType_in << endl;
+//  cout << "Using tau_PiType_in = " << tau_PiType_in << endl;
 
   // set here (redundant) to ensure checks are passed below
   etaType    = etaType_in;

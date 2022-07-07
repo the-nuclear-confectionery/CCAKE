@@ -216,7 +216,7 @@ public:
     systemPtr->number_of_elapsed_timesteps++;
 
     sw.Stop();
-    formatted_output::update("finished timestep in "
+    formatted_output::report("finished timestep in "
                               + to_string(sw.printTime()) + " s");
 
     //if ( systemPtr->number_of_elapsed_timesteps > 1 )

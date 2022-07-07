@@ -424,7 +424,8 @@ void InputOutput::read_in_initial_conditions()
 
     // load input file
     string inputfilename = "./misc/Gubser_checks/ac/Initial_Profile_tau=1fm.dat";
-    cout << "Reading in Gubser initial profile from " << inputfilename << endl;
+    //cout << "Reading in Gubser initial profile from " << inputfilename << endl;
+    formatted_output::update("Initial conditions file: " + inputfilename);
     ifstream infile( inputfilename.c_str() );
 
     if (infile.is_open())
