@@ -219,8 +219,10 @@ public:
     formatted_output::report("finished timestep in "
                               + to_string(sw.printTime()) + " s");
 
-    //if ( systemPtr->number_of_elapsed_timesteps > 1 )
-    //  exit(-1);
+    if ( settingsPtr->max_number_of_timesteps >= 0
+          && systemPtr->number_of_elapsed_timesteps
+              > settingsPtr->max_number_of_timesteps )
+      exit(-1);
 
     return;
   }
