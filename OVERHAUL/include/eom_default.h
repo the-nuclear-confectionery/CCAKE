@@ -22,13 +22,6 @@ class EoM_default: public EquationsOfMotion
 
     std::string name = "";                    // name associated to EoM
 
-    // require all of these to be defined
-    void compute_du_dt(){}
-    void compute_dshv_dt(){}
-    void compute_dspec_s_dt(){}
-    void compute_dBulk_dt(){}
-
-
     //==========================================================================
     Matrix<double,2,2> dpidtsub_fun( hydrodynamic_info & hi )
     {
