@@ -1,0 +1,10 @@
+typeofequations: shear+bulk
+folder: trento/5TeV/shear/pPb
+range(pt,phi): input/gl15.dat input/gq20.dat
+decays: 1
+rangeofevents: 11 11
+freezeouttemp: 0.14
+df_cor_file: input/MHlistall.dat
+range(ptmax,ptstepsize,phisteps): input/ptphipoints2.dat
+hadronl_list: input/resoweak.dat
+had_check: input/pi+.dat
