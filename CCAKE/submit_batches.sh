@@ -23,7 +23,7 @@ SLURM_SCRIPT_IC_PATH=$2/densities\${SLURM_ARRAY_TASK_ID}.dat
 
 echo "Check: SLURM_SCRIPT_IC_PATH="\${SLURM_SCRIPT_IC_PATH}
 
-cat Input_Parameters_generator.inp \
+cat input/Input_Parameters_generator.inp \
   | sed "s:SLURM_SCRIPT_IC_PATH:\${SLURM_SCRIPT_IC_PATH}:g" \
   > \${INPUT_PARAMETERS_FILE}
 

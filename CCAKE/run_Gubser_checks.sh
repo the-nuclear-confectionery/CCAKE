@@ -11,7 +11,7 @@ sbatch <<EOT
 #SBATCH --mem-per-cpu=10250
 #SBATCH --output="$1/job.out"
 
-INPUT_PARAMETERS_FILE=Input_Parameters_Gubser_checks.inp
+INPUT_PARAMETERS_FILE=input/Input_Parameters_Gubser_checks.inp
 
 RESULTS_DIRECTORY=$1
 mkdir -p \${RESULTS_DIRECTORY}
