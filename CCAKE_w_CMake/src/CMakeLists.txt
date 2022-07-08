@@ -1,23 +1,24 @@
 add_library(src OBJECT
 	BSQHydro.cpp
 	eos.cpp
-	eos_delaunay/eos_delaunay.cpp
 	eos_extension.cpp
 	eos_table.cpp
 	equations_of_motion.cpp
+	formatted_output.cpp
 	input_output.cpp
 	kernel.cpp
 	linklist.cpp
+	main.cpp
 	matrix.cpp
-	new_matrix.cpp
-	new_vector.cpp
 	particle.cpp
-	persephone.cpp
 	rootfinder.cpp
 	runge_kutta.cpp
 	sph_workstation.cpp
 	system_state.cpp
+	transport_coefficients.cpp
 	vector.cpp
+
+			 $(OBJDIR)/formatted_output.o $(OBJDIR)/transport_coefficients.o
 )
 
 find_package(GSL)
