@@ -8,7 +8,7 @@ add_library(src OBJECT
 	input_output.cpp
 	kernel.cpp
 	linklist.cpp
-	main.cpp
+	ccake.cpp
 	matrix.cpp
 	particle.cpp
 	rootfinder.cpp
