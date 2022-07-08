@@ -17,8 +17,6 @@ add_library(src OBJECT
 	system_state.cpp
 	transport_coefficients.cpp
 	vector.cpp
-
-			 $(OBJDIR)/formatted_output.o $(OBJDIR)/transport_coefficients.o
 )
 
 find_package(GSL)
