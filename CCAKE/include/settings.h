@@ -51,8 +51,8 @@ class Settings
     //==========================================================================
     // hydrodynamics settings
 
-    // restrict number of timesteps, if desired
-    static constexpr int max_number_of_timesteps = 10;
+    // restrict number of timesteps, if desired (negative means no restriction)
+    static constexpr int max_number_of_timesteps = -1;
 
     // maximum upper limit for t
     static constexpr double tend      = 50.02;
