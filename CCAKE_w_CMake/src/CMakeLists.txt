@@ -24,4 +24,4 @@ find_package(GSL)
 target_link_libraries(src PUBLIC ${GSL_LIBRARIES})
 target_include_directories(src PUBLIC ${GSL_INCLUDE_DIR})
 
-target_include_directories(src PUBLIC .)
+target_include_directories(src PUBLIC ../include)

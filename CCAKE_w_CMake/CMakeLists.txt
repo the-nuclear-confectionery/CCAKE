@@ -11,8 +11,7 @@ list(APPEND CMAKE_PREFIX_PATH "/projects/jnorhos/local")
 add_executable(${PROJECT_NAME} "")
 
 add_subdirectory(src)
-add_subdirectory(include)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE src include)
+target_link_libraries(${PROJECT_NAME} PRIVATE src)
 
 
