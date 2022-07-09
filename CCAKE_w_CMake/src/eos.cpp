@@ -427,7 +427,7 @@ bool EquationOfState::rootfinder_update_s( double sin, double Bin,
   const double hc = constants::hbarc_MeVfm;
   
   // take sign of densities using lambda function
-  double sgn = [](double val){ return (0.0 < val) - (val < 0.0); };
+  double sgn = [](double val) -> double { return (0.0 < val) - (val < 0.0); };
 
   bool solution_found = false;
   bool skipping_EoSs = true;  // start out skipping EoSs by default
@@ -609,7 +609,7 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
   const double hc = constants::hbarc_MeVfm;
   
   // take sign of densities using lambda function
-  double sgn = [](double val){ return (0.0 < val) - (val < 0.0); };
+  double sgn = [](double val) -> double { return (0.0 < val) - (val < 0.0); };
 
   // used for seed value in rootfinder
   vector<double> result;
