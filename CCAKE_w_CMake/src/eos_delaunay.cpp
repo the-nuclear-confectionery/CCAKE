@@ -8,7 +8,6 @@
 #include <string>
 #include <vector>
 
-#include <lib.h>
 #include "../include/eos_delaunay.h"
 #include "../include/kdtree.h"
 

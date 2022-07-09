@@ -5,11 +5,8 @@
 #include <string>
 #include <vector>
 
-// functions calls to static EoS C library
-#include <lib.h>
-#include "eos_delaunay.h"
-
 #include "eos.h"
+#include "eos_delaunay.h"
 #include "kernel.h"
 #include "linklist.h"
 #include "matrix.h"
