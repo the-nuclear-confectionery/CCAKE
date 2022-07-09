@@ -21,4 +21,8 @@ find_package(GSL)
 target_link_libraries(src PUBLIC ${GSL_LIBRARIES})
 target_include_directories(src PUBLIC ${GSL_INCLUDE_DIR})
 
+find_package(HDF5)
+target_link_libraries(src PUBLIC ${HDF5_LIBRARIES})
+target_include_directories(src PUBLIC ${HDF5_INCLUDE_DIR})
+
 target_include_directories(src PUBLIC ../include)
