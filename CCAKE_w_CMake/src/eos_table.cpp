@@ -16,86 +16,71 @@ InterpolatorND<4> EoS_table::equation_of_state_table;
 EoS_table::EoS_table( string quantityFile, string derivFile )
 {
   //////////////////////////////////////////////////////////////////////////////
-  // allow to use static C library instead of table
-  if ( use_static_C_library || debug_mode )
-  {
-    // initialize things needed to use static C library
-    cout << "Initializing EoS C library" << endl;
-    initialize("../EoS_BQS_Derivatives/Coefficients_Parameters.dat");
+  // read in table from file
+  // initialize things needed to store eos table from file
+  if ( using_HDF )
+    equation_of_state_table_filename = "./EoS/Houston/default/thermo.h5";
+  else
+    equation_of_state_table_filename = "./EoS/Houston/default/thermo.dat";
 
-    // load EoS tables, assess grid range
-    std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
-    init_grid_ranges_only(quantityFile, derivFile);
+  cout << "Initializing EoS from input file(s): "
+       << equation_of_state_table_filename << endl;
+  equation_of_state_table.initialize( equation_of_state_table_filename );
+
+  // set names of EoS quantities to interpolate, in order
+  equation_of_state_table.set_grid_names(
+    vector<string>{ "T","muB","muQ","muS" } );
+  equation_of_state_table.set_field_names(
+    vector<string>{ "p","s","B","S","Q","e","cs2",
+                    "chiBB","chiQQ","chiSS","chiBQ","chiBS",
+                    "chiQS","chiTB","chiTQ","chiTS","chiTT" } );
+
+  // finally, all dimensionful quantities should be convert to fm and
+  // all dimensionless quantities need to be rescaled appropriately
+  /*equation_of_state_table.rescale_axis( "T",   1.0/hbarc_MeVfm );
+  equation_of_state_table.rescale_axis( "muB", 1.0/hbarc_MeVfm );
+  equation_of_state_table.rescale_axis( "muQ", 1.0/hbarc_MeVfm );
+  equation_of_state_table.rescale_axis( "muS", 1.0/hbarc_MeVfm );*/
+  equation_of_state_table.rescale_axes( 1.0/hbarc_MeVfm );  // do all axes at once
+
+  equation_of_state_table.rescale( "p",     "T", 4 );
+  equation_of_state_table.rescale( "e",     "T", 4 );
+  equation_of_state_table.rescale( "s",     "T", 3 );
+  equation_of_state_table.rescale( "B",     "T", 3 );
+  equation_of_state_table.rescale( "S",     "T", 3 );
+  equation_of_state_table.rescale( "Q",     "T", 3 );
+  equation_of_state_table.rescale( "chiBB", "T", 2 );
+  equation_of_state_table.rescale( "chiQQ", "T", 2 );
+  equation_of_state_table.rescale( "chiSS", "T", 2 );
+  equation_of_state_table.rescale( "chiBQ", "T", 2 );
+  equation_of_state_table.rescale( "chiBS", "T", 2 );
+  equation_of_state_table.rescale( "chiQS", "T", 2 );
+  equation_of_state_table.rescale( "chiTB", "T", 2 );
+  equation_of_state_table.rescale( "chiTQ", "T", 2 );
+  equation_of_state_table.rescale( "chiTS", "T", 2 );
+  equation_of_state_table.rescale( "chiTT", "T", 2 );
+
+  // if cs2 ever goes negative, set it to zero
+  auto zero_negatives = [](double x){return std::max(x,0.0);};
+  equation_of_state_table.apply_function_to_field( "cs2", zero_negatives );
+
+
+  // set grid ranges
+  if ( use_nonconformal_extension )
+  {
+    tbqs_minima = {0.0,     -TBQS_INFINITY, -TBQS_INFINITY, -TBQS_INFINITY};
+    tbqs_maxima = {TBQS_INFINITY, TBQS_INFINITY,  TBQS_INFINITY,  TBQS_INFINITY};
+  }
+  else
+  {
+    tbqs_minima = equation_of_state_table.get_grid_minima();
+    tbqs_maxima = equation_of_state_table.get_grid_maxima();
   }
 
-  //////////////////////////////////////////////////////////////////////////////
-  // if thermo not from static C library, read in table from file
-  if (!use_static_C_library)
-  {
-    // initialize things needed to store eos table from file
-    if ( using_HDF )
-      equation_of_state_table_filename = "./EoS/Houston/default/thermo.h5";
-    else
-      equation_of_state_table_filename = "./EoS/Houston/default/thermo.dat";
+  // needed when using non-conformal extension to know actual table limits
+  tbqs_minima_no_ext = equation_of_state_table.get_grid_minima();
+  tbqs_maxima_no_ext = equation_of_state_table.get_grid_maxima();
 
-    cout << "Initializing EoS from input file(s): "
-         << equation_of_state_table_filename << endl;
-    equation_of_state_table.initialize( equation_of_state_table_filename );
-
-    // set names of EoS quantities to interpolate, in order
-    equation_of_state_table.set_grid_names(
-      vector<string>{ "T","muB","muQ","muS" } );
-    equation_of_state_table.set_field_names(
-      vector<string>{ "p","s","B","S","Q","e","cs2",
-                      "chiBB","chiQQ","chiSS","chiBQ","chiBS",
-                      "chiQS","chiTB","chiTQ","chiTS","chiTT" } );
-
-    // finally, all dimensionful quantities should be convert to fm and
-    // all dimensionless quantities need to be rescaled appropriately
-    /*equation_of_state_table.rescale_axis( "T",   1.0/hbarc_MeVfm );
-    equation_of_state_table.rescale_axis( "muB", 1.0/hbarc_MeVfm );
-    equation_of_state_table.rescale_axis( "muQ", 1.0/hbarc_MeVfm );
-    equation_of_state_table.rescale_axis( "muS", 1.0/hbarc_MeVfm );*/
-    equation_of_state_table.rescale_axes( 1.0/hbarc_MeVfm );  // do all axes at once
-
-    equation_of_state_table.rescale( "p",     "T", 4 );
-    equation_of_state_table.rescale( "e",     "T", 4 );
-    equation_of_state_table.rescale( "s",     "T", 3 );
-    equation_of_state_table.rescale( "B",     "T", 3 );
-    equation_of_state_table.rescale( "S",     "T", 3 );
-    equation_of_state_table.rescale( "Q",     "T", 3 );
-    equation_of_state_table.rescale( "chiBB", "T", 2 );
-    equation_of_state_table.rescale( "chiQQ", "T", 2 );
-    equation_of_state_table.rescale( "chiSS", "T", 2 );
-    equation_of_state_table.rescale( "chiBQ", "T", 2 );
-    equation_of_state_table.rescale( "chiBS", "T", 2 );
-    equation_of_state_table.rescale( "chiQS", "T", 2 );
-    equation_of_state_table.rescale( "chiTB", "T", 2 );
-    equation_of_state_table.rescale( "chiTQ", "T", 2 );
-    equation_of_state_table.rescale( "chiTS", "T", 2 );
-    equation_of_state_table.rescale( "chiTT", "T", 2 );
-
-    // if cs2 ever goes negative, set it to zero
-    auto zero_negatives = [](double x){return std::max(x,0.0);};
-    equation_of_state_table.apply_function_to_field( "cs2", zero_negatives );
-
-
-    // set grid ranges
-    if ( use_nonconformal_extension )
-    {
-      tbqs_minima = {0.0,     -TBQS_INFINITY, -TBQS_INFINITY, -TBQS_INFINITY};
-      tbqs_maxima = {TBQS_INFINITY, TBQS_INFINITY,  TBQS_INFINITY,  TBQS_INFINITY};
-    }
-    else
-    {
-      tbqs_minima = equation_of_state_table.get_grid_minima();
-      tbqs_maxima = equation_of_state_table.get_grid_maxima();
-    }
-
-    // needed when using non-conformal extension to know actual table limits
-    tbqs_minima_no_ext = equation_of_state_table.get_grid_minima();
-    tbqs_maxima_no_ext = equation_of_state_table.get_grid_maxima();
-  }
 
     // sets EoS type
     name = "table";
@@ -280,9 +265,7 @@ void EoS_table::get_eBSQ_safe( const double point_in[], double results[] )
     //============================================================================
     // MUST USE FULL THERMO TO SET NON-CONFORMAL EXTENSION
     // evaluate the relevant grid point
-    if (use_static_C_library || debug_mode)
-      STANDARD_get_full_thermo( point_projected, results_full );
-    else  // using table itself
+    // using table itself
     {
       // copy C arrays to C++ vectors
       vector<double> v_point(point_projected, point_projected+4);
@@ -324,13 +307,8 @@ void EoS_table::get_eBSQ_safe( const double point_in[], double results[] )
   {
     //============================================================================
     // evaluate the relevant grid point
-    if (use_static_C_library || debug_mode)
-    {
-//      cout << "Computing STANDARD_get_eBSQ_densities" << endl;
-      STANDARD_get_eBSQ_densities(point_projected, results);
-    }
-    else  // using table itself
-      get_eBSQ_densities_from_interpolator(point_projected, results);
+    // using table itself
+    get_eBSQ_densities_from_interpolator(point_projected, results);
   }
 
 }
@@ -389,9 +367,7 @@ void EoS_table::get_sBSQ_safe( const double point_in[], double results[] )
     //============================================================================
     // MUST USE FULL THERMO TO SET NON-CONFORMAL EXTENSION
     // evaluate the relevant grid point
-    if (use_static_C_library || debug_mode)
-      STANDARD_get_full_thermo( point_projected, results_full );
-    else  // using table itself
+    // using table itself
     {
       // copy C arrays to C++ vectors
       vector<double> v_point(point_projected, point_projected+4);
@@ -433,10 +409,8 @@ void EoS_table::get_sBSQ_safe( const double point_in[], double results[] )
   {
     //============================================================================
     // evaluate the relevant grid point
-    if (use_static_C_library || debug_mode) // using static C library
-      STANDARD_get_sBSQ_densities(point_projected, results);
-    else                      // using table itself
-      get_sBSQ_densities_from_interpolator(point_projected, results);
+    // using table itself
+    get_sBSQ_densities_from_interpolator(point_projected, results);
   }
 
 }
@@ -492,9 +466,7 @@ void EoS_table::get_full_thermo_safe( const double point_in[], double results[] 
 
   //============================================================================
   // evaluate the relevant grid point
-  if (use_static_C_library || debug_mode)
-    STANDARD_get_full_thermo( point_projected, results );
-  else  // using table itself
+  // using table itself
   {
     // copy C arrays to C++ vectors
     vector<double> v_point(point_projected, point_projected+4);
