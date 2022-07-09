@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.4)
-project(ccake VERSION 1.0 LANGUAGES CXX)
+project(ccake VERSION 1.0 LANGUAGES CXX C)
+
+#ENABLE_LANGUAGE(C CXX)
 
 # require C++11
 set(CMAKE_CXX_STANDARD 11)
