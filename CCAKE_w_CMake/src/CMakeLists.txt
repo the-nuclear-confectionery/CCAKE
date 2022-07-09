@@ -3,7 +3,6 @@ add_library(src OBJECT
 	eos.cpp
 	eos_extension.cpp
 	eos_table.cpp
-	equations_of_motion.cpp
 	formatted_output.cpp
 	input_output.cpp
 	kernel.cpp
