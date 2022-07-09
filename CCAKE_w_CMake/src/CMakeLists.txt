@@ -11,7 +11,6 @@ add_library(src OBJECT
 	matrix.cpp
 	particle.cpp
 	rootfinder.cpp
-	runge_kutta.cpp
 	sph_workstation.cpp
 	system_state.cpp
 	transport_coefficients.cpp

@@ -428,7 +428,7 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
 
     // DO NOT USE ZEROS IN SEED VALUES;
     // INSTEAD, PERTURB BASED ON SIGN OF CORRESPONDING DENSITY
-    auto sgn = [](double val){ return (0.0 < val) - (val < 0.0); };
+    auto sgn = [](double val) -> double { return (0.0 < val) - (val < 0.0); };
     vector<double> sgns = {1.0, sgn(Bin), sgn(Qin), sgn(Sin)};
     for ( int iTBQS = 0; iTBQS < 4; iTBQS++)
       if ( tbqsPosition[iTBQS]*tbqsPosition[iTBQS] < TOLERANCE )
