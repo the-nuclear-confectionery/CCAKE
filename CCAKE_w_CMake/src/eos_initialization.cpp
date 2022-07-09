@@ -20,7 +20,6 @@
 #include "../include/eos_nonconformal_extension.h"
 #include "../include/eos_table.h"
 #include "../include/eos_tanh_conformal.h"
-#include "../include/eos_delaunay.h"
 #include "../include/formatted_output.h"
 #include "../include/rootfinder.h"
 
@@ -356,13 +355,6 @@ void EquationOfState::init(string quantityFile, string derivFile)
     // initialize Rootfinder ranges
     //rootfinder.set_grid_ranges( minT, maxT, minMuB, maxMuB,
     //                            minMuS, maxMuS, minMuQ, maxMuQ );
-  }
-  else if ( use_delaunay )
-  {
-    // initialize corresponding interpolator for each table
-    formatted_output::update("Initialize Delaunay interpolators");
-    e_delaunay.init(    quantityFile, 0 );	// 0 - energy density
-    entr_delaunay.init( quantityFile, 1 );	// 1 - entropy density
   }
   //============================================================================
 
