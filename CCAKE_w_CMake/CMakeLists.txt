@@ -25,5 +25,5 @@ add_subdirectory(src)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE src)
 
-install(TARGETS ccake DESTINATION "./")
+install(TARGETS ${PROJECT_NAME} DESTINATION bin)
 
