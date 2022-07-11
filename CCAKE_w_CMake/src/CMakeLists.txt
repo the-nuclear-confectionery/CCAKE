@@ -1,5 +1,6 @@
 add_library(src OBJECT
 	BSQHydro.cpp
+	ccake.cpp
 	eos.cpp
 	eos_extension.cpp
 	eos_table.cpp
@@ -7,7 +8,6 @@ add_library(src OBJECT
 	input_output.cpp
 	kernel.cpp
 	linklist.cpp
-	ccake.cpp
 	matrix.cpp
 	particle.cpp
 	rootfinder.cpp
