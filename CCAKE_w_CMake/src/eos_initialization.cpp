@@ -33,7 +33,7 @@ using std::to_string;
 void EquationOfState::set_SettingsPtr( Settings * settingsPtr_in ) { settingsPtr = settingsPtr_in; }
 
 ////////////////////////////////////////////////////////////////////////////////
-EquationOfState::init()
+void EquationOfState::init()
 {
   formatted_output::report("Initializing equation of state");
 
