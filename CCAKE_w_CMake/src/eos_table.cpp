@@ -13,15 +13,15 @@ InterpolatorND<4> EoS_table::equation_of_state_table;
 #include "../include/eos_header.h"
 #include "../include/eos_table.h"
 
-EoS_table::EoS_table( string quantityFile, string derivFile )
+EoS_table::EoS_table( string eos_path )
 {
   //////////////////////////////////////////////////////////////////////////////
   // read in table from file
   // initialize things needed to store eos table from file
   if ( using_HDF )
-    equation_of_state_table_filename = "./EoS/Houston/default/thermo.h5";
+    equation_of_state_table_filename = eos_path + "/thermo.h5";
   else
-    equation_of_state_table_filename = "./EoS/Houston/default/thermo.dat";
+    equation_of_state_table_filename = eos_path + "/thermo.dat";
 
   cout << "Initializing EoS from input file(s): "
        << equation_of_state_table_filename << endl;
@@ -88,101 +88,6 @@ EoS_table::EoS_table( string quantityFile, string derivFile )
 }
 
 
-
-
-
-void EoS_table::init_grid_ranges_only(string quantityFile, string derivFile)
-{
-  /*std::ifstream dataFile;
-  dataFile.open(quantityFile);
-
-  double maxMuB        = 0.0;
-  double minMuB        = 0.0;
-  double maxMuQ        = 0.0;
-  double minMuQ        = 0.0;
-  double maxMuS        = 0.0;
-  double minMuS        = 0.0;
-  double maxT          = 0.0;
-  double minT          = 0.0;
-  double tit, muBit, muQit, muSit, pit, entrit, bit, sit, qit, eit, cs2it;
-
-  int count = 0;
-  if ( dataFile.is_open() )
-  {
-    while ( dataFile >> tit >> muBit >> muQit >> muSit
-                     >> pit >> entrit >> bit >> sit >> qit >> eit >> cs2it )
-    {
-
-      // Christopher Plumberg:
-      // put T and mu_i in units of 1/fm
-      tit   /= hbarc_MeVfm;
-      muBit /= hbarc_MeVfm;
-      muSit /= hbarc_MeVfm;
-      muQit /= hbarc_MeVfm;
-
-      if(count++ == 0)
-      {
-        minT   = tit;
-        maxT   = tit;
-        minMuB = muBit;
-        maxMuB = muBit;     //initialize eos range variables
-        minMuQ = muQit;
-        maxMuQ = muQit;
-        minMuS = muSit;
-        maxMuS = muSit;
-      }
-          
-      if (count%100000==0) std::cout << "Read in line# " << count << std::endl;
-      
-          if (maxT < tit) maxT = tit;
-          if (minT > tit) minT = tit;
-          if (maxMuB < muBit) maxMuB = muBit;
-          if (minMuB > muBit) minMuB = muBit;
-          if (maxMuQ < muQit) maxMuQ = muQit;
-          if (minMuQ > muQit) minMuQ = muQit;
-          if (maxMuS < muSit) maxMuS = muSit;
-          if (minMuS > muSit) minMuS = muSit;
-          
-    }
-  }
-  else
-  {
-    std::cerr << "File " << quantityFile << " could not be opened!\n";
-    abort();
-  }*/
-
-cout << "WARNING: NOT ACTUALLY LOADING EOS TABLE HERE" << endl;
-  double maxMuB        = 450.0/hbarc_MeVfm;
-  double minMuB        = -450.0/hbarc_MeVfm;
-  double maxMuQ        = 450.0/hbarc_MeVfm;
-  double minMuQ        = -450.0/hbarc_MeVfm;
-  double maxMuS        = 450.0/hbarc_MeVfm;
-  double minMuS        = -450.0/hbarc_MeVfm;
-  double maxT          = 800.0/hbarc_MeVfm;
-  double minT          = 0.0;
-
-  // initialize grid ranges here
-  if ( use_nonconformal_extension )
-  {
-    tbqs_minima = {0.0,          -TBQS_INFINITY, -TBQS_INFINITY, -TBQS_INFINITY};
-    tbqs_maxima = {TBQS_INFINITY, TBQS_INFINITY,  TBQS_INFINITY,  TBQS_INFINITY};
-  }
-  else
-  {
-    tbqs_minima = {minT, minMuB, minMuQ, minMuS};
-    tbqs_maxima = {maxT, maxMuB, maxMuQ, maxMuS};
-  }
-
-  // needed when using non-conformal extension to know actual table limits
-  tbqs_minima_no_ext = {minT, minMuB, minMuQ, minMuS};
-  tbqs_maxima_no_ext = {maxT, maxMuB, maxMuQ, maxMuS};
-
-  //dataFile.close();
-
-	std::cout << "All initializations finished!" << std::endl;
-
-  return;
-}
 
 
 ////////////////////////////////////////////////////////////////////////////////

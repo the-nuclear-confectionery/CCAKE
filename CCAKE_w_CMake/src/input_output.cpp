@@ -108,7 +108,7 @@ void InputOutput::load_settings_file( string path_to_settings_file )
     settingsPtr->e_cutoff               = stod(get_value(values, "e_cutoff"))/hbarc_GeVfm;
 
     settingsPtr->EoS_type               =      get_value(values, "EoS_Type");
-    settingsPtr->EoS_option             =      get_value(values, "EoS_Option");
+    settingsPtr->EoS_path               =      get_value(values, "EoS_path");
 
     settingsPtr->etaMode                =      get_value(values, "etaMode");
     settingsPtr->constant_eta_over_s    = stod(get_value(values, "constant_eta_over_s"));
@@ -163,22 +163,7 @@ void InputOutput::load_settings_file( string path_to_settings_file )
 //------------------------------------------------------------------------------
 void InputOutput::set_EoS_type()
 {
-  string EoS_type           = settingsPtr->EoS_type;
-  string EoS_option         = settingsPtr->EoS_option;
-  string EoS_files_location = "EoS/" + EoS_type + "/" + EoS_option;
-  string densities          = EoS_files_location + "/densities.dat";
-  string derivatives        = EoS_files_location + "/derivatives.dat";
-
-  if (EoS_option != "default")
-  {
-    std::cerr << "EoS option not recognized for " << EoS_type
-              << ", now exiting.\n";
-    abort();
-  }
-
-  eosPtr->quantity_file = densities;
-  eosPtr->deriv_file    = derivatives;
-
+  eosPtr->eos_path = "EoS/" + settingsPtr->EoS_path;
   return;
 }
 

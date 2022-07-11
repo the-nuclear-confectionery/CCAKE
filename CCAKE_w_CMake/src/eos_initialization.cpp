@@ -33,15 +33,13 @@ using std::to_string;
 void EquationOfState::set_SettingsPtr( Settings * settingsPtr_in ) { settingsPtr = settingsPtr_in; }
 
 ////////////////////////////////////////////////////////////////////////////////
-void EquationOfState::init()
+EquationOfState::init()
 {
   formatted_output::report("Initializing equation of state");
 
   formatted_output::update("Reading in equation of state tables");
-  formatted_output::detail("Densities file: " + quantity_file);
-  formatted_output::detail("Derivatives file: " + deriv_file);
 
-  init( quantity_file, deriv_file );
+  set_up_chosen_EOSs();
 
   bool do_eos_checks = false;
   if ( do_eos_checks )
@@ -49,7 +47,7 @@ void EquationOfState::init()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void EquationOfState::init(string quantityFile, string derivFile)
+void EquationOfState::set_up_chosen_EOSs()
 {
 	tbqsPosition.resize(4);
 
@@ -113,11 +111,11 @@ void EquationOfState::init(string quantityFile, string derivFile)
     default_eos_name = "conformal_diagonal";
 
   }
-  // SET UP HOUSTON TABLE EOS
-  else if ( settingsPtr->EoS_type == "Houston" )
+  // SET UP TABLE EOS
+  else if ( settingsPtr->EoS_type == "Table" )
   {
     // add EoS to vector
-    chosen_EOSs.push_back( std::make_shared<EoS_table>( quantityFile, derivFile ) );
+    chosen_EOSs.push_back( std::make_shared<EoS_table>( eos_path ) );
     default_eos_name = "table";
   }
   //============================================================================
@@ -127,12 +125,12 @@ void EquationOfState::init(string quantityFile, string derivFile)
 
 
   //============================================================================
-  // FOR TABLE/HOUSTON EOS, define fallbacks if default fails
+  // FOR TABLE EOS, define fallbacks if default fails
   //============================================================================
-  if ( settingsPtr->EoS_type == "Houston" || settingsPtr->EoS_type == "Table" )
+  if ( settingsPtr->EoS_type == "Table" )
   {
     //==========================================================================
-    // use tanh-modulated "conformal" as first fallback for table/Houston EoS
+    // use tanh-modulated "conformal" as first fallback for table EoS
     //==========================================================================
     if ( use_tanh_conformal )
     {
@@ -341,22 +339,6 @@ void EquationOfState::init(string quantityFile, string derivFile)
     formatted_output::detail( chosen_eos->name );
     chosen_EOS_map.insert({{ chosen_eos->name, chosen_eos }});
   }
-
-  
-
-
-
-
-  //============================================================================
-  // set method for locating point in phase diagram
-  //============================================================================
-  if ( use_rootfinder )
-  {
-    // initialize Rootfinder ranges
-    //rootfinder.set_grid_ranges( minT, maxT, minMuB, maxMuB,
-    //                            minMuS, maxMuS, minMuQ, maxMuQ );
-  }
-  //============================================================================
 
 	return;
 }

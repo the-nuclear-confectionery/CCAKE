@@ -23,14 +23,6 @@ using std::vector;
 using std::string;
 
 ////////////////////////////////////////////////////////////////////////////////
-// Constructors
-EquationOfState::EquationOfState(){}
-
-EquationOfState::EquationOfState(string quantityFile, string derivFile)
-{
-    init(quantityFile, derivFile);
-}
-
 
 vector<double> EquationOfState::get_thermodynamics( vector<double> & tbqsIn,
                                                       const string & eos_name )

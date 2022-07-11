@@ -23,8 +23,6 @@ private:
 
   static InterpolatorND<4> equation_of_state_table;
 
-  void init_grid_ranges_only(string quantityFile, string derivFile);
-
   void get_eBSQ_densities_from_interpolator( double point[], double densities[] );
   void get_sBSQ_densities_from_interpolator( double point[], double densities[] );
 
@@ -41,7 +39,7 @@ public:
   virtual ~EoS_table(){}
 
   // constructor from files containing tables
-  EoS_table( string quantityFile, string derivFile );
+  EoS_table( string eos_path );
 
   void get_eBSQ( double point[], double results[] );
   void get_sBSQ( double point[], double results[] );

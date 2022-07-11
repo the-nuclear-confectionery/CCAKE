@@ -41,8 +41,7 @@ public:
     // PUBLIC METHODS
 
     //Constructors:
-    EquationOfState();
-    EquationOfState(string quantityFile, string derivFile);
+    EquationOfState(){}
 
     // object to access appropriate EoS by name
     std::unordered_map<std::string, pEoS_base> chosen_EOS_map;
@@ -50,7 +49,7 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////
     void init();
-    void init(string quantityFile, string derivFile);
+    void set_up_chosen_EOSs();
     bool point_not_in_range( double setT, double setmuB, double setmuQ, double setmuS, pEoS_base peos );
     void tbqs( double setT, double setmuB, double setmuQ, double setmuS, const string & eos_name );
     void tbqs( vector<double> & tbqsIn, const string & eos_name );
@@ -181,8 +180,7 @@ private:
     vector<double> tbqsPosition;
 
     // string to hold input filenames and EoS table
-    string quantity_file = "";
-    string deriv_file    = "";
+    string eos_path         = "";
     string current_eos_name = "";
 
     double pVal          = 0.0;

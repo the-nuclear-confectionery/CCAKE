@@ -86,7 +86,7 @@ class Settings
     //------------------------------------
     // equation of state
     string EoS_type                  = "";
-    string EoS_option                = "";
+    string EoS_path                  = "";
 
     //------------------------------------
     // transport coefficients
