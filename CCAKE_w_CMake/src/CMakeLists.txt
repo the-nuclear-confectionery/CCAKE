@@ -28,5 +28,3 @@ include_directories( ${HDF5_INCLUDE_DIR} )
 target_link_libraries(src PUBLIC ${HDF5_CXX_LIBRARIES})
 
 target_include_directories(src PUBLIC ../include)
-
-install(TARGETS ccake DESTINATION "${dest_dir}")

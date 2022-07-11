@@ -14,7 +14,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 #set(tool_dest "bin")
 #set(include_dest "include/my_library-${MY_LIBRARY_VERSION}")
 #set(main_lib_dest "lib/my_library-${MY_LIBRARY_VERSION}")
-set(dest_dir "./")
+#set(dest_dir "./")
 
 ###############################################################
 list(APPEND CMAKE_PREFIX_PATH "/projects/jnorhos/local")
@@ -25,4 +25,5 @@ add_subdirectory(src)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE src)
 
+install(TARGETS ccake DESTINATION "./")
 
