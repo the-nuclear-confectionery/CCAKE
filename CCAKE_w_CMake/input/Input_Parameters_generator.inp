@@ -5,8 +5,8 @@ h:                          0.500000
 dt:                         0.05
 t0:                         0.600000
 e_cutoff:                   0.15
-EoS_Type:                   Houston
-EoS_Option:                 default
+EoS_Type:                   table
+EoS_Path:                   Houston
 freezeoutT:                 150.000000
 freezeout:                  No_Freezeout
 etaMode:                    constant

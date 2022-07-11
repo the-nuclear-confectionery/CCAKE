@@ -108,7 +108,7 @@ void InputOutput::load_settings_file( string path_to_settings_file )
     settingsPtr->e_cutoff               = stod(get_value(values, "e_cutoff"))/hbarc_GeVfm;
 
     settingsPtr->EoS_type               =      get_value(values, "EoS_Type");
-    settingsPtr->EoS_path               =      get_value(values, "EoS_path");
+    settingsPtr->EoS_path               =      get_value(values, "EoS_Path");
 
     settingsPtr->etaMode                =      get_value(values, "etaMode");
     settingsPtr->constant_eta_over_s    = stod(get_value(values, "constant_eta_over_s"));

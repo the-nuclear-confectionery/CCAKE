@@ -112,7 +112,7 @@ void EquationOfState::set_up_chosen_EOSs()
 
   }
   // SET UP TABLE EOS
-  else if ( settingsPtr->EoS_type == "Table" )
+  else if ( settingsPtr->EoS_type == "table" )
   {
     // add EoS to vector
     chosen_EOSs.push_back( std::make_shared<EoS_table>( eos_path ) );
@@ -127,7 +127,7 @@ void EquationOfState::set_up_chosen_EOSs()
   //============================================================================
   // FOR TABLE EOS, define fallbacks if default fails
   //============================================================================
-  if ( settingsPtr->EoS_type == "Table" )
+  if ( settingsPtr->EoS_type == "table" )
   {
     //==========================================================================
     // use tanh-modulated "conformal" as first fallback for table EoS

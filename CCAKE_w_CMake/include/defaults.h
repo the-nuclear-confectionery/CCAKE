@@ -26,7 +26,7 @@ namespace parameter_settings
             setting_pair("t0",                     "1.100000"),
             setting_pair("e_cutoff",               "0.00301"),
             setting_pair("EoS_Type",               "conformal"),
-            setting_pair("EoS_Option",             "default"),
+            setting_pair("EoS_Path",               "default"),
             setting_pair("etaMode",                "constant"),
             setting_pair("constant_eta_over_s",    "0.20"),
             setting_pair("shearRelaxMode",         "default"),
