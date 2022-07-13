@@ -57,7 +57,7 @@ void welcome()
             "=                         \\____\\____/_/   \\_\\_|\\_\\_____|                       =\n"
             "=                                                                              =\n"
          << "================================================================================\n"
-         << "= Version: " << << ccake_VERSION_MAJOR << "." << ccake_VERSION_MINOR << "\n";
+         << "= Version: " << ccake_VERSION_MAJOR << "." << ccake_VERSION_MINOR << "\n";
          << "================================================================================\n";
     cout << "= Authors:\n";
     cout << "= Christopher Plumberg\n";
