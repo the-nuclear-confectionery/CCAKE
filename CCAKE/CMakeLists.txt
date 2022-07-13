@@ -17,5 +17,5 @@ add_subdirectory(src)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE src)
 
-install(TARGETS ${PROJECT_NAME} DESTINATION CMAKE_SOURCE_DIR)
+install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_SOURCE_DIR})
 
