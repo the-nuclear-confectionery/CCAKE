@@ -332,7 +332,6 @@ double EquationOfState::sfreeze(double T_freeze_out_at_mu_eq_0, const string & e
 ////////////////////////////////////////////////////////////////////////////////
 // FUNCTIONS TO UPDATE LOCATION IN PHASE DIAGRAM AND COMPUTE CORRESPONDING
 // THERMODYNAMICS QUANTITIES NEEDED IN HYDRO
-// USE EITHER ROOTFINDER OR DELAUNAY INTERPOLATION
 
 
 ////////////////////////////////////////////////

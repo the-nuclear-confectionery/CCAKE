@@ -5,11 +5,10 @@
 #include <iterator>
 #include <string>
 
-#include "eos_delaunay.h"
-#include "interpolatorND.h"
 #include "constants.h"
 #include "eos_base.h"
 #include "eos_header.h"
+#include "interpolatorND.h"
 
 using namespace constants;
 

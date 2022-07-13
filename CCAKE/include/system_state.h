@@ -6,7 +6,6 @@
 #include <vector>
 
 #include "eos.h"
-#include "eos_delaunay.h"
 #include "kernel.h"
 #include "linklist.h"
 #include "matrix.h"

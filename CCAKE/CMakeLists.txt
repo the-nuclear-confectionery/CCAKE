@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 ###############################################################
-list(APPEND CMAKE_PREFIX_PATH "/projects/jnorhos/local")
+#list(APPEND CMAKE_PREFIX_PATH "/projects/jnorhos/local")
 
 add_executable(${PROJECT_NAME} "")
 
