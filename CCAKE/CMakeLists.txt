@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 3.4)
 project(ccake VERSION 1.0 LANGUAGES CXX C)
 
 configure_file(config.h.in config.h)
-target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_BINARY_DIR}")
 
 ###############################################################
 # require C++11
@@ -20,5 +19,6 @@ add_subdirectory(src)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE src)
 
-install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_SOURCE_DIR})
+target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_BINARY_DIR}")
 
+install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_SOURCE_DIR})
