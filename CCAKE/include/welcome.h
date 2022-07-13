@@ -3,6 +3,8 @@
 
 #include <string>
 
+#include "config.h"
+
 using std::cout;
 using std::endl;
 
@@ -54,6 +56,8 @@ void welcome()
             "=                        | |__| |___ / ___ \\| . \\| |___                        =\n"
             "=                         \\____\\____/_/   \\_\\_|\\_\\_____|                       =\n"
             "=                                                                              =\n"
+         << "================================================================================\n"
+         << "= Version: " << << ccake_VERSION_MAJOR << "." << ccake_VERSION_MINOR << "\n";
          << "================================================================================\n";
     cout << "= Authors:\n";
     cout << "= Christopher Plumberg\n";

@@ -1,6 +1,7 @@
 ###############################################################
 cmake_minimum_required(VERSION 3.4)
 project(ccake VERSION 1.0 LANGUAGES CXX C)
+configure_file(include/config.h.in include/config.h)
 
 ###############################################################
 # require C++11

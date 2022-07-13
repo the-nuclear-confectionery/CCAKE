@@ -26,14 +26,10 @@ using std::endl;
 using std::string;
 using std::vector;
 
-//void exiting() { formatted_output::announce("Summary: hydrodynamic evolution "
-//                                            "was unsuccessful"); }
-
 int main (int argc, char *argv[])
 {
   // Print the welcome message.
   message::welcome();
-  //message::guilty_welcome();
 
 
   // Check if proper command-line arguments passed.
@@ -44,10 +40,6 @@ int main (int argc, char *argv[])
     std::cerr << "Please cite all our papers." << std::endl;
     exit(1);
   }
-
-
-  // call this function if the code fails after this point
-  //std::atexit( exiting );
 
 
   //----------------------------------------------
@@ -89,14 +81,6 @@ int main (int argc, char *argv[])
 
   // Duh.
   simulation.run();
-
-
-  // Construct freeze-out surface.
-  simulation.find_freeze_out_surface();
-
-
-  // Save any relevant output.
-  simulation.print_results();
 
 
   // Print success message.
