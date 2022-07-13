@@ -2,8 +2,8 @@
 cmake_minimum_required(VERSION 3.4)
 project(ccake VERSION 1.0 LANGUAGES CXX C)
 
-configure_file(config.h.in)
-include_directories(${PROJECT_BINARY_BIN})
+configure_file(config.h.in config.h)
+include_directories(${PROJECT_BINARY_DIR})
 
 ###############################################################
 # require C++11
