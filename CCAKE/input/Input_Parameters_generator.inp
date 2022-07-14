@@ -1,5 +1,4 @@
 ICtype:                     ICCING
-ICoption:                   default
 ICfile:                     SLURM_SCRIPT_IC_PATH 
 h:                          0.500000
 dt:                         0.05

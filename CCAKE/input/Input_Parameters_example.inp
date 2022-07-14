@@ -1,5 +1,4 @@
 ICtype:                     ICCING
-ICoption:                   default
 ICfile:                     initial_conditions/ICCING_example.dat
 h:                          0.30
 dt:                         0.05

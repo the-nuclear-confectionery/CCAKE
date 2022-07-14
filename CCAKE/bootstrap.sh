@@ -11,7 +11,6 @@ mkdir -p ${ICdir}
 ICCINGexample="https://zenodo.org/record/6829000/files/ICCING_example.dat?download=1"
 wget -O ${ICdir}/ICCING_example.dat ${ICCINGexample}
 
-
 #-------------------------------------------------------------------------------
 # set up lattice-based EoS table (text and HDF format)
 mkdir -p ${EoSdir}
@@ -23,6 +22,10 @@ wget -O ${EoSdir}/thermo.h5 ${EoSHDFTable}
 
 
 #-------------------------------------------------------------------------------
+# make all shell scripts executable
+chmod +x *.sh
+
+
+#-------------------------------------------------------------------------------
 # compile with CMake
-mkdir -p build
-( cd build && cmake .. && make && make install )
+./build_all.sh

@@ -1,5 +1,4 @@
 ICtype:                     ICCING
-ICoption:                   default
 ICfile:                     initial_conditions/ICCING_for_Hydro/0_5Centrality/Kernel/densitiesXXX.dat 
 h:                          0.400000
 dt:                         0.05

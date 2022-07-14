@@ -18,7 +18,6 @@ namespace parameter_settings
       default_pairs
         = {
             setting_pair("ICtype",                 "ICCING"),
-            setting_pair("ICoption",               "default"),
             setting_pair("ICfile",                 "initial_conditions/"
                                                    "Iccing_conditions.dat"),
             setting_pair("h",                      "0.300000"),
@@ -37,6 +36,7 @@ namespace parameter_settings
             setting_pair("bulkRelaxMode",          "default"),
             setting_pair("freezeoutT",             "150.000000"),
             setting_pair("freezeout",              "No_Freezeout")
+            setting_pair("Gubser_BSQmode",         "off"),
           };
       
     // build defaults map and return it

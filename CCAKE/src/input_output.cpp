@@ -98,7 +98,7 @@ void InputOutput::load_settings_file( string path_to_settings_file )
     //--------------------------------------------------------------------------
     // store final settings
     settingsPtr->IC_type                =      get_value(values, "ICtype");
-    settingsPtr->IC_option              =      get_value(values, "ICoption");
+    settingsPtr->Gubser_BSQmode         =      get_value(values, "Gubser_BSQmode");
     settingsPtr->IC_file                =      get_value(values, "ICfile");
 
     settingsPtr->h                      = stod(get_value(values, "h"));
@@ -121,6 +121,8 @@ void InputOutput::load_settings_file( string path_to_settings_file )
 
     settingsPtr->Freeze_Out_Temperature = stod(get_value(values, "freezeoutT"))/hbarc_MeVfm;
     settingsPtr->Freeze_Out_Type        =      get_value(values, "freezeout");
+
+    settingsPtr->Gubser_BSQmode         =      get_value(values, "Gubser_BSQmode");
 
 
     //--------------------------------------------------------------------------
@@ -320,7 +322,8 @@ void InputOutput::read_in_initial_conditions()
   else if (initial_condition_type == "Gubser")
   {
     // choose initial coordinate system
-    const bool BSQmode = static_cast<bool>( settingsPtr->IC_option == "BSQ" );
+    const bool BSQmode = static_cast<bool>(
+                            settingsPtr->Gubser_BSQmode == "on" );
 
     // initial time
     const double tau0 = settingsPtr->t0;

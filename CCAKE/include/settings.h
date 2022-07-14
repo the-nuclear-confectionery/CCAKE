@@ -106,6 +106,10 @@ class Settings
     // freeze out
     string Freeze_Out_Type           = "";
 
+    //------------------------------------
+    // Gubser settings
+    string Gubser_BSQmode            = "";
+
 
     // allows for explicitly printing extra information about specific particles
     vector<int> particles_to_print;
