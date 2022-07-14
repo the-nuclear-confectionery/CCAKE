@@ -3,6 +3,7 @@
 
 ICdir=initial_conditions
 EoSdir=EoS/Houston
+ZenodoRecord="https://zenodo.org/record"
 
 #-------------------------------------------------------------------------------
 # set up example ICCING initial conditions
@@ -11,7 +12,7 @@ if [ ! -f ${ICdir}/ICCING_example.dat ]
 then
   mkdir -p ${ICdir}
 
-  ICCINGexample="https://zenodo.org/record/6829000/files/ICCING_example.dat?download=1"
+  ICCINGexample=${ZenodoRecord}"/6829000/files/ICCING_example.dat?download=1"
   wget -O ${ICdir}/ICCING_example.dat ${ICCINGexample}
 fi
 
@@ -21,14 +22,14 @@ fi
 if [ ! -f ${EoSdir}/thermo.dat ]
 then
   mkdir -p ${EoSdir}
-  EoSTXTTable="https://zenodo.org/record/6829115/files/thermo.dat?download=1"
+  EoSTXTTable=${ZenodoRecord}"/6829115/files/thermo.dat?download=1"
   wget -O ${EoSdir}/thermo.dat ${EoSTXTTable}
 fi
 # if HDF file does not exist
 if [ ! -f ${EoSdir}/thermo.h5 ]
 then
   mkdir -p ${EoSdir}
-  EoSHDFTable="https://zenodo.org/record/6829115/files/thermo.h5?download=1"
+  EoSHDFTable=${ZenodoRecord}"/6829115/files/thermo.h5?download=1"
   wget -O ${EoSdir}/thermo.h5 ${EoSHDFTable}
 fi
 
@@ -39,4 +40,4 @@ chmod +x *.sh
 
 #-------------------------------------------------------------------------------
 # compile with CMake
-./build_all.sh "$@"
+./build_all.sh
