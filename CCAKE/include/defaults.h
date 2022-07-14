@@ -35,8 +35,8 @@ namespace parameter_settings
             setting_pair("cs2_dependent_zeta_p",   "2.0"),
             setting_pair("bulkRelaxMode",          "default"),
             setting_pair("freezeoutT",             "150.000000"),
-            setting_pair("freezeout",              "No_Freezeout")
-            setting_pair("Gubser_BSQmode",         "off"),
+            setting_pair("freezeout",              "No_Freezeout"),
+            setting_pair("Gubser_BSQmode",         "off")
           };
       
     // build defaults map and return it
