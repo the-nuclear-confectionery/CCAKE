@@ -47,17 +47,6 @@ add_subdirectory(src)
 
 
 ###############################################################################
-# link now that subdirectory is added
-target_link_libraries(src PUBLIC ${GSL_LIBRARIES})
-target_include_directories(src PUBLIC ${GSL_INCLUDE_DIR})
-
-link_directories( ${HDF5_LIBRARY_DIRS} )
-include_directories( ${HDF5_INCLUDE_DIR} )
-target_link_libraries(src PUBLIC ${HDF5_CXX_LIBRARIES})
-
-
-
-###############################################################################
 # build and install
 target_link_libraries(${PROJECT_NAME} PRIVATE src)
 

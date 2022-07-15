@@ -1,3 +1,4 @@
+###############################################################################
 add_library(src OBJECT
 	BSQHydro.cpp
 	ccake.cpp
@@ -33,5 +34,16 @@ add_library(src OBJECT
 #
 #	target_link_libraries(src PUBLIC ${HDF5_CXX_LIBRARIES})
 #endif()
+
+###############################################################################
+# link to libraries
+target_link_libraries(src PUBLIC ${GSL_LIBRARIES})
+target_include_directories(src PUBLIC ${GSL_INCLUDE_DIR})
+
+link_directories( ${HDF5_LIBRARY_DIRS} )
+include_directories( ${HDF5_INCLUDE_DIR} )
+target_link_libraries(src PUBLIC ${HDF5_CXX_LIBRARIES})
+
+
 
 target_include_directories(src PUBLIC ../include)
