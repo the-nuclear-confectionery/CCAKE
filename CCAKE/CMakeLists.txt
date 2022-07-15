@@ -19,28 +19,19 @@ add_executable(${PROJECT_NAME} "")
 
 
 ###############################################################################
-# find and link GSL libraries
+# find GSL libraries
 find_package(GSL COMPONENTS C CXX REQUIRED)
-target_link_libraries(src PUBLIC ${GSL_LIBRARIES})
-target_include_directories(src PUBLIC ${GSL_INCLUDE_DIR})
 
 ###############################################################################
-# find and link HDF5 libraries
+# find HDF5 libraries
 find_package(HDF5 COMPONENTS CXX)
-if (HDF5_FOUND)
-	link_directories( ${HDF5_LIBRARY_DIRS} )
-	include_directories( ${HDF5_INCLUDE_DIR} )
-
-	target_link_libraries(src PUBLIC ${HDF5_CXX_LIBRARIES})
-endif()
 
 ###############################################################################
 # include useful compiler/linker flags
 if (HDF5_FOUND)
   message(STATUS "HDF5 found!")
   add_definitions( -DHDF5 )
-else()
-  message(STATUS "HDF5 not found!")
+else()  message(STATUS "HDF5 not found!")
 endif()
 
 add_compile_options(
@@ -49,8 +40,20 @@ add_compile_options(
 add_link_options( -lstdc++ )
 
 
-
+###############################################################################
+# add subdirectory
 add_subdirectory(src)
+
+
+###############################################################################
+# link now that subdirectory is added
+target_link_libraries(src PUBLIC ${GSL_LIBRARIES})
+target_include_directories(src PUBLIC ${GSL_INCLUDE_DIR})
+
+link_directories( ${HDF5_LIBRARY_DIRS} )
+include_directories( ${HDF5_INCLUDE_DIR} )
+target_link_libraries(src PUBLIC ${HDF5_CXX_LIBRARIES})
+
 
 
 ###############################################################################
