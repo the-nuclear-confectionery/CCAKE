@@ -22,7 +22,7 @@ add_subdirectory(src)
 # include useful compiler/linker flags
 if (HDF5_FOUND)
   message(STATUS "HDF5 found!")
-  add_definitions( HDF5 )
+  add_definitions( -DHDF5 )
 else()
   message(STATUS "HDF5 not found!")
 endif()
