@@ -18,32 +18,14 @@ add_library(src OBJECT
 	vector.cpp
 )
 
-###############################################################################
-# find and link GSL libraries
-#find_package(GSL COMPONENTS C CXX REQUIRED)
-#target_link_libraries(src PUBLIC ${GSL_LIBRARIES})
-#target_include_directories(src PUBLIC ${GSL_INCLUDE_DIR})
 
 ###############################################################################
-# find and link HDF5 libraries
-#find_package(HDF5 COMPONENTS CXX)
-#if (HDF5_FOUND)
-#	set(HDF5_FOUND ${HDF5_FOUND} PARENT_SCOPE)
-#	link_directories( ${HDF5_LIBRARY_DIRS} )
-#	include_directories( ${HDF5_INCLUDE_DIR} )
-#
-#	target_link_libraries(src PUBLIC ${HDF5_CXX_LIBRARIES})
-#endif()
-
-###############################################################################
-# link to libraries
+# link to libraries and include directories
 target_link_libraries(src PUBLIC ${GSL_LIBRARIES})
 target_include_directories(src PUBLIC ${GSL_INCLUDE_DIR})
 
 link_directories( ${HDF5_LIBRARY_DIRS} )
 include_directories( ${HDF5_INCLUDE_DIR} )
 target_link_libraries(src PUBLIC ${HDF5_CXX_LIBRARIES})
-
-
 
 target_include_directories(src PUBLIC ../include)
