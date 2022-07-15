@@ -42,7 +42,7 @@ namespace formatted_output
         if (current_length + word.length() > max_length)
         {
           cout << "\n" << indentstring << bpad << " " << word << " ";
-          current_length = word.length() + indent + bn + 1;
+          current_length = word.length() + indent + bn + 2;
         }
         else
         {

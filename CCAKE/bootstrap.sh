@@ -37,7 +37,6 @@ fi
 # make all shell scripts executable
 chmod +x *.sh
 
-
 #-------------------------------------------------------------------------------
 # compile with CMake
 ./build_all.sh

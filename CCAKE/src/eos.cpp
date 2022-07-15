@@ -315,10 +315,7 @@ double EquationOfState::A() { return w()-s()*dwds(); }
 // confirm with Jaki
 double EquationOfState::efreeze(double T_freeze_out_at_mu_eq_0, const string & eos_name)
 {
-//  std::cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << ": "
-//            << "using " << eos_name << "!" << std::endl;
   tbqs(T_freeze_out_at_mu_eq_0, 0, 0, 0, eos_name);
-//cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
   return eVal;
 }
 
