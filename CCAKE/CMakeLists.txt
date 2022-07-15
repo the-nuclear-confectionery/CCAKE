@@ -21,8 +21,10 @@ add_subdirectory(src)
 ###############################################################################
 # include useful compiler/linker flags
 if (HDF5_FOUND)
+  message(STATUS "HDF5 found!")
   set(GCC_COVERAGE_COMPILE_FLAGS "-Ofast -s -march=native -mtune=native -DHDF5")
 else()
+  message(STATUS "HDF5 not found!")
   set(GCC_COVERAGE_COMPILE_FLAGS "-Ofast -s -march=native -mtune=native")
 endif()
 set(GCC_COVERAGE_LINK_FLAGS    "-lstdc++")
