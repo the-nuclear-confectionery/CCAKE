@@ -31,6 +31,6 @@ if (HDF5_FOUND)
 	include_directories( ${HDF5_INCLUDE_DIR} )
 
 	target_link_libraries(src PUBLIC ${HDF5_CXX_LIBRARIES})
-#endif()
+endif()
 
 target_include_directories(src PUBLIC ../include)
