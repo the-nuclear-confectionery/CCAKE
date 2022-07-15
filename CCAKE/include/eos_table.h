@@ -38,7 +38,7 @@ public:
   virtual ~EoS_table(){}
 
   // constructor from files containing tables
-  EoS_table( string eos_path );
+  EoS_table( string eos_path, bool using_HDF_in );
 
   void get_eBSQ( double point[], double results[] );
   void get_sBSQ( double point[], double results[] );
