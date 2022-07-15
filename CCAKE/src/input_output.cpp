@@ -149,7 +149,7 @@ void InputOutput::load_settings_file( string path_to_settings_file )
 
   // if HDF was successfully included
   #ifdef HDF5
-    formatted_output::update("HDF5 was successfully included!");
+    formatted_output::update("HDF5 is enabled!");
 
     // set up HDF5 output file here
     vector<double> global_parameters_to_HDF
@@ -162,7 +162,7 @@ void InputOutput::load_settings_file( string path_to_settings_file )
                           global_parameters_to_HDF,
                           global_parameter_names_to_HDF );
   #else
-    formatted_output::update("HDF5 was not included!");
+    formatted_output::update("HDF5 is not enabled!");
   #endif
 
   if (true) abort();  // just for debugging purposes
