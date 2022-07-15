@@ -165,6 +165,8 @@ void InputOutput::load_settings_file( string path_to_settings_file )
     formatted_output::update("HDF5 was not included!");
   #endif
 
+  if (true) abort();  // just for debugging purposes
+
   return;
 }
 
