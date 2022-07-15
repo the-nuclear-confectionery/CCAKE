@@ -22,14 +22,15 @@ add_subdirectory(src)
 # include useful compiler/linker flags
 if (HDF5_FOUND)
   message(STATUS "HDF5 found!")
-  set(GCC_COVERAGE_COMPILE_FLAGS "-Ofast -s -march=native -mtune=native -DHDF5")
+  add_compile_definitions( HDF5 )
 else()
   message(STATUS "HDF5 not found!")
-  set(GCC_COVERAGE_COMPILE_FLAGS "-Ofast -s -march=native -mtune=native")
 endif()
-set(GCC_COVERAGE_LINK_FLAGS    "-lstdc++")
-set(CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS}")
-set(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}")
+
+add_compile_options(
+     -Wall -Werror -Wno-error=maybe-uninitialized
+     -Ofast -s -march=native -mtune=native )
+add_link_options( -lstdc++ )
 
 ###############################################################################
 # build and install
