@@ -36,7 +36,7 @@ namespace parameter_settings
             setting_pair("bulkRelaxMode",          "default"),
             setting_pair("freezeoutT",             "150.000000"),
             setting_pair("freezeout",              "No_Freezeout"),
-            setting_pair("Gubser_BSQmode",         "off")
+            setting_pair("Gubser_BSQmode",         "off"),
             setting_pair("HDF5_mode",              "on")
           };
       
