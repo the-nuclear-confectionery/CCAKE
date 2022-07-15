@@ -25,13 +25,12 @@ target_include_directories(src PUBLIC ${GSL_INCLUDE_DIR})
 
 ###############################################################################
 # find and link HDF5 libraries
-find_package(HDF5 COMPONENTS CXX REQUIRED)
-#find_package(HDF5 COMPONENTS CXX)
-#if (HDF5_FOUND)
-#	link_directories( ${HDF5_LIBRARY_DIRS} )
-#	include_directories( ${HDF5_INCLUDE_DIR} )
-#
-#	target_link_libraries(src PUBLIC ${HDF5_CXX_LIBRARIES})
+find_package(HDF5 COMPONENTS CXX)
+if (HDF5_FOUND)
+	link_directories( ${HDF5_LIBRARY_DIRS} )
+	include_directories( ${HDF5_INCLUDE_DIR} )
+
+	target_link_libraries(src PUBLIC ${HDF5_CXX_LIBRARIES})
 #endif()
 
 target_include_directories(src PUBLIC ../include)

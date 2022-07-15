@@ -15,8 +15,12 @@
 #include <string>
 #include <vector>
 
+// only include HDF headers if HDF libraries were found
+#ifdef HDF5
+  #include "interface_to_HDF5.h"  
+#endif
+
 #include "defaults.h"
-#include "interface_to_HDF5.h"
 #include "mathdef.h"
 #include "vector.h"
 #include "particle.h"
@@ -36,8 +40,6 @@ public:
   InputOutput();
   ~InputOutput();
 
-  int initialize_HDF();
-
   void set_EquationOfStatePtr( EquationOfState * eosPtr_in );
   void set_SettingsPtr( Settings * settingsPtr_in );
   void set_SystemStatePtr( SystemState * systemPtr_in );
@@ -52,8 +54,13 @@ public:
 
   void print_system_state();
   void print_system_state_to_txt();
-  void print_system_state_to_HDF();
   void print_freeze_out();
+
+  // HDF function
+  #ifdef HDF5
+    void print_system_state_to_HDF();
+  #endif
+
 
 
   inline void remove_char( std::string & s, char c )
@@ -90,19 +97,15 @@ private:
   SystemState       * systemPtr   = nullptr;
   SPHWorkstation    * wsPtr       = nullptr;
 
-  interface_to_HDF5 hdf5_file;
-
+  // HDF object
+  #ifdef HDF5
+    interface_to_HDF5 hdf5_file;
+  #endif
 
 public:
 
   void print_conservation_status()
   {
-//    out << setw(12) << setprecision(10) << "t="
-//        << systemPtr->t      << " " << systemPtr->Eloss  << " "
-//        << systemPtr->E0     << " " << systemPtr->Etot   << " "
-//        << systemPtr->S      << " " << systemPtr->Btotal << " "
-//        << systemPtr->Stotal << " " << systemPtr->Qtotal << endl;
-
     // print energy/entropy and conserved charge totals
     stringstream ss;
     ss  << "t = "

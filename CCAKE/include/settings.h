@@ -44,7 +44,7 @@ class Settings
     //==========================================================================
     // I/O settings
     bool printing_to_txt              = true;
-    bool printing_to_HDF              = true;
+    bool printing_to_HDF              = false;
 
     static constexpr int VERBOSE      = 5;
 
@@ -110,6 +110,10 @@ class Settings
     // Gubser settings
     string Gubser_BSQmode            = "";
 
+    //------------------------------------
+    // I/O settings
+    string HDF5_mode                 = "";
+
 
     // allows for explicitly printing extra information about specific particles
     vector<int> particles_to_print;
@@ -165,6 +169,18 @@ class Settings
         using_shear  = false;
       else
         using_shear  = true;
+
+      //------------------------------------
+      // if HDF5 library included correctly,
+      // and if HDF_mode == "on",
+      // adjust setting accordingly
+      #ifdef HDF5
+        if ( HDF5_mode == "on" )
+          printing_to_HDF  = true;
+      // otherwise, turn off HDF printing
+      #else
+        printing_to_HDF  = false;
+      #endif
 
       return;
     }

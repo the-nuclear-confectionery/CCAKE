@@ -11,8 +11,10 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 template <int D>
-void InterpolatorND<D>::initialize( string filename, double fill_value_in )
+void InterpolatorND<D>::initialize( string filename, bool using_HDF_in,
+                                    double fill_value_in )
 {
+  using_HDF  = using_HDF_in;
   fill_value = fill_value_in;
 
   // need this to iterate systematically over hypercube vertices

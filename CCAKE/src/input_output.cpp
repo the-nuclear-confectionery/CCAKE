@@ -147,17 +147,23 @@ void InputOutput::load_settings_file( string path_to_settings_file )
   settingsPtr->particles_to_print = vector<int>({});
 
 
-  // set up HDF5 output file here
-  vector<double> global_parameters_to_HDF
-                  = vector<double>({ settingsPtr->h,
-                                     settingsPtr->e_cutoff });
-  vector<string> global_parameter_names_to_HDF
-                  = vector<string>({ "h",
-                                     "e_cutoff" });
-  hdf5_file.initialize( output_directory + "/system_state.h5",
-                        global_parameters_to_HDF,
-                        global_parameter_names_to_HDF );
+  // if HDF was successfully included
+  #ifdef HDF5
+    formatted_output::update("HDF5 was successfully included!");
 
+    // set up HDF5 output file here
+    vector<double> global_parameters_to_HDF
+                    = vector<double>({ settingsPtr->h,
+                                       settingsPtr->e_cutoff });
+    vector<string> global_parameter_names_to_HDF
+                    = vector<string>({ "h",
+                                       "e_cutoff" });
+    hdf5_file.initialize( output_directory + "/system_state.h5",
+                          global_parameters_to_HDF,
+                          global_parameter_names_to_HDF );
+  #else
+    formatted_output::update("HDF5 was not included!");
+  #endif
 
   return;
 }
@@ -483,8 +489,11 @@ void InputOutput::print_system_state()
     print_system_state_to_txt();
 
   //---------------------------------
+  // if HDF was successfully included
+  #ifdef HDF5
   if (settingsPtr->printing_to_HDF)
     print_system_state_to_HDF();
+  #endif
 
   //---------------------------------
   print_freeze_out();
@@ -586,7 +595,56 @@ void InputOutput::print_system_state_to_txt()
   return;
 }
 
+
+
+
+
+
+//==============================================================================
+void InputOutput::print_freeze_out()
+{
+  string outputfilename = output_directory + "/freeze_out_"
+                          + std::to_string(n_timesteps_output) + ".dat";
+  ofstream FO( outputfilename.c_str(), ios::out | ios::app );
+
+  auto & fo = wsPtr->fo;
+
+  if ( fo.divTtemp.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.divT.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.gsub.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.uout.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.swsub.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.bulksub.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.shearsub.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.shear33sub.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.tlist.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.rsub.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.sFO.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.Tfluc.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+
+  for (int i = 0; i < fo.cf; i++)
+    FO << fo.divTtemp[i] << " " << fo.divT[i] << " "
+        << fo.gsub[i] << " " << fo.uout[i] << " "
+        << fo.swsub[i] << " " << fo.bulksub[i] << " " 
+        << fo.shearsub[i](0,0) << " "
+        << fo.shearsub[i](1,1) << " " 
+        << fo.shearsub[i](2,2) << " "
+        << fo.shear33sub[i] << " " 
+        << fo.shearsub[i](1,2) << " " 
+        << fo.tlist[i] << " " << fo.rsub[i] << " "
+        << fo.sFO[i] << " " << fo.Tfluc[i] << endl;
+
+  FO.close();
+
+  return;
+}
+
+
+
+
 //------------------------------------------------------------------------------
+// if HDF was successfully included
+#ifdef HDF5
 void InputOutput::print_system_state_to_HDF()
 {
   // get width from maximum possible number of timesteps
@@ -632,46 +690,4 @@ void InputOutput::print_system_state_to_HDF()
 
   return;
 }
-
-
-
-
-
-//==============================================================================
-void InputOutput::print_freeze_out()
-{
-  string outputfilename = output_directory + "/freeze_out_"
-                          + std::to_string(n_timesteps_output) + ".dat";
-  ofstream FO( outputfilename.c_str(), ios::out | ios::app );
-
-  auto & fo = wsPtr->fo;
-
-  if ( fo.divTtemp.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
-  if ( fo.divT.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
-  if ( fo.gsub.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
-  if ( fo.uout.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
-  if ( fo.swsub.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
-  if ( fo.bulksub.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
-  if ( fo.shearsub.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
-  if ( fo.shear33sub.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
-  if ( fo.tlist.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
-  if ( fo.rsub.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
-  if ( fo.sFO.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
-  if ( fo.Tfluc.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
-
-  for (int i = 0; i < fo.cf; i++)
-    FO << fo.divTtemp[i] << " " << fo.divT[i] << " "
-        << fo.gsub[i] << " " << fo.uout[i] << " "
-        << fo.swsub[i] << " " << fo.bulksub[i] << " " 
-        << fo.shearsub[i](0,0) << " "
-        << fo.shearsub[i](1,1) << " " 
-        << fo.shearsub[i](2,2) << " "
-        << fo.shear33sub[i] << " " 
-        << fo.shearsub[i](1,2) << " " 
-        << fo.tlist[i] << " " << fo.rsub[i] << " "
-        << fo.sFO[i] << " " << fo.Tfluc[i] << endl;
-
-  FO.close();
-
-  return;
-}
+#endif
