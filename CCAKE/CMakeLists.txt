@@ -35,9 +35,7 @@ else()
   message(STATUS "HDF5 not found!")
 endif()
 
-add_compile_options(
-     -Wall -Werror -Wno-error=maybe-uninitialized
-     -Ofast -s -march=native -mtune=native )
+add_compile_options( -Ofast -s -march=native -mtune=native )
 add_link_options( -lstdc++ )
 
 
