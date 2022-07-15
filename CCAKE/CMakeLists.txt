@@ -31,7 +31,8 @@ find_package(HDF5 COMPONENTS CXX)
 if (HDF5_FOUND)
   message(STATUS "HDF5 found!")
   add_definitions( -DHDF5 )
-else()  message(STATUS "HDF5 not found!")
+else()
+  message(STATUS "HDF5 not found!")
 endif()
 
 add_compile_options(
