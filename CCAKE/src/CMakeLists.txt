@@ -24,8 +24,10 @@ add_library(src OBJECT
 target_link_libraries(src PUBLIC ${GSL_LIBRARIES})
 target_include_directories(src PUBLIC ${GSL_INCLUDE_DIR})
 
-link_directories( ${HDF5_LIBRARY_DIRS} )
-include_directories( ${HDF5_INCLUDE_DIR} )
-target_link_libraries(src PUBLIC ${HDF5_CXX_LIBRARIES})
+if (HDF5_FOUND)
+  link_directories( ${HDF5_LIBRARY_DIRS} )
+  include_directories( ${HDF5_INCLUDE_DIR} )
+  target_link_libraries(src PUBLIC ${HDF5_CXX_LIBRARIES})
+endif()
 
 target_include_directories(src PUBLIC ../include)
