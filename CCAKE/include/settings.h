@@ -177,9 +177,10 @@ class Settings
       #ifdef HDF5
         if ( HDF5_mode == "on" )
           printing_to_HDF  = true;
-      // otherwise, turn off HDF printing
+      // otherwise, turn off HDF printing (and turn on TXT printing)
       #else
         printing_to_HDF  = false;
+        printing_to_txt  = true;
       #endif
 
       return;

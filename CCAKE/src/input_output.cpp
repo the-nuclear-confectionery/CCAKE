@@ -165,7 +165,7 @@ void InputOutput::load_settings_file( string path_to_settings_file )
     formatted_output::update("HDF5 is not enabled!");
   #endif
 
-  if (true) abort();  // just for debugging purposes
+  //if (true) abort();  // just for debugging purposes
 
   return;
 }
