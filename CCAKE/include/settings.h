@@ -171,6 +171,7 @@ class Settings
         using_shear  = true;
 
       cout << "Checking consistency here" << endl;
+      cout << "HDF5_mode = " << HDF5_mode << endl;
 
       //------------------------------------
       // if HDF5 library included correctly,

@@ -123,6 +123,7 @@ void InputOutput::load_settings_file( string path_to_settings_file )
     settingsPtr->Freeze_Out_Type        =      get_value(values, "freezeout");
 
     settingsPtr->Gubser_BSQmode         =      get_value(values, "Gubser_BSQmode");
+    settingsPtr->HDF5_mode              =      get_value(values, "HDF5_mode");
 
 
     //--------------------------------------------------------------------------
