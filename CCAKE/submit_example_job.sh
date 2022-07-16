@@ -10,7 +10,7 @@ sbatch <<EOT
 #SBATCH --output="$RESULTS_DIRECTORY/job.out"
 
 #-------------------------------------------------------------------------------
-# set up input parameters file
+# set up input parameters file save for reference
 INPUT_PARAMETERS_FILE=$RESULTS_DIRECTORY/Input_Parameters.inp
 cp input/Input_Parameters_example.inp \${INPUT_PARAMETERS_FILE}
 
@@ -21,10 +21,6 @@ echo "SHA:" `git rev-parse HEAD` > \${GIT_SNAPSHOT_FILE}
 echo "BRANCH:" `git rev-parse --abbrev-ref HEAD` >> \${GIT_SNAPSHOT_FILE}
 echo "FULL:" >> \${GIT_SNAPSHOT_FILE}
 git log -1 >> \${GIT_SNAPSHOT_FILE}
-
-#-------------------------------------------------------------------------------
-# save settings file for reference
-cp \${INPUT_PARAMETERS_FILE} $RESULTS_DIRECTORY
 
 #-------------------------------------------------------------------------------
 # run the code

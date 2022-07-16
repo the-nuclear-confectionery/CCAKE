@@ -170,15 +170,20 @@ class Settings
       else
         using_shear  = true;
 
+      cout << "Checking consistency here" << endl;
+
       //------------------------------------
       // if HDF5 library included correctly,
       // and if HDF_mode == "on",
       // adjust setting accordingly
       #ifdef HDF5
+        cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
+        cout << "HDF5_mode = " << HDF5_mode << endl;
         if ( HDF5_mode == "on" )
           printing_to_HDF  = true;
       // otherwise, turn off HDF printing (and turn on TXT printing)
       #else
+        cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
         printing_to_HDF  = false;
         printing_to_txt  = true;
       #endif
