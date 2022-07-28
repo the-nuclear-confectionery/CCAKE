@@ -113,6 +113,7 @@ class Settings
     //------------------------------------
     // I/O settings
     string HDF5_mode                 = "";
+    string text_mode                 = "";
 
 
     // allows for explicitly printing extra information about specific particles
@@ -182,12 +183,15 @@ class Settings
         cout << "HDF5_mode = " << HDF5_mode << endl;
         if ( HDF5_mode == "on" )
           printing_to_HDF  = true;
-      // otherwise, turn off HDF printing (and turn on TXT printing)
+      // otherwise, turn off HDF printing
       #else
         cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
         printing_to_HDF  = false;
-        printing_to_txt  = true;
+        //printing_to_txt  = true;
       #endif
+
+      // set printing_to_txt independently
+      printing_to_txt = static_cast<bool>( text_mode == "on" );
 
       return;
     }
