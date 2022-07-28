@@ -669,7 +669,7 @@ void InputOutput::print_system_state_to_HDF()
   vector<vector<double> > data( dataset_names.size(),
                                 vector<double>(systemPtr->particles.size()) );
   vector<vector<int> > int_data( int_dataset_names.size(),
-                                vector<double>(systemPtr->particles.size()) );
+                                vector<int>(systemPtr->particles.size()) );
   vector<int> eos_tags(systemPtr->particles.size());
   for (auto & p : systemPtr->particles)
   {
