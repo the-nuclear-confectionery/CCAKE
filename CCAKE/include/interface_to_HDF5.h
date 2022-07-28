@@ -109,7 +109,7 @@ class interface_to_HDF5
     void output_dataset( const vector<string> & dataset_names,
                          const vector<string> & dataset_units,
                          const vector<vector<double> > & v,
-                         const vector<string> & int dataset_names,
+                         const vector<string> & int_dataset_names,
                          const vector<vector<int> > & int_v, const int width,
                          const int timestepindex, const vector<int> & labels,
                          const vector<double> & parameters,
