@@ -659,6 +659,8 @@ void InputOutput::print_system_state_to_HDF()
                                   "MeV/fm^3", "1/fm^3", "1/fm^3", "1/fm^3",
                                   "1/fm^3"};
 
+  vector<string> int_dataset_names = {"FOstatus"};
+
   std::map<string,int> eos_map = {{"table",              0}, 
                                   {"tanh_conformal",     1}, 
                                   {"conformal",          2}, 
@@ -666,29 +668,35 @@ void InputOutput::print_system_state_to_HDF()
 
   vector<vector<double> > data( dataset_names.size(),
                                 vector<double>(systemPtr->particles.size()) );
+  vector<vector<int> > int_data( int_dataset_names.size(),
+                                vector<double>(systemPtr->particles.size()) );
   vector<int> eos_tags(systemPtr->particles.size());
   for (auto & p : systemPtr->particles)
   {
-    data[0][p.ID]  = p.r(0);
-    data[1][p.ID]  = p.r(1);
-    data[2][p.ID]  = p.T()*hbarc_MeVfm;
-    data[3][p.ID]  = p.muB()*hbarc_MeVfm;
-    data[4][p.ID]  = p.muS()*hbarc_MeVfm;
-    data[5][p.ID]  = p.muQ()*hbarc_MeVfm;
-    data[6][p.ID]  = p.e()*hbarc_MeVfm;
-    data[7][p.ID]  = p.s();
-    data[8][p.ID]  = p.rhoB();
-    data[9][p.ID]  = p.rhoS();
-    data[10][p.ID] = p.rhoQ();
-    eos_tags[p.ID] = eos_map[ p.get_current_eos_name() ];
+    data[0][p.ID]     = p.r(0);
+    data[1][p.ID]     = p.r(1);
+    data[2][p.ID]     = p.T()*hbarc_MeVfm;
+    data[3][p.ID]     = p.muB()*hbarc_MeVfm;
+    data[4][p.ID]     = p.muS()*hbarc_MeVfm;
+    data[5][p.ID]     = p.muQ()*hbarc_MeVfm;
+    data[6][p.ID]     = p.e()*hbarc_MeVfm;
+    data[7][p.ID]     = p.s();
+    data[8][p.ID]     = p.rhoB();
+    data[9][p.ID]     = p.rhoS();
+    data[10][p.ID]    = p.rhoQ();
+
+    int_data[0][p.ID] = p.Freeze;
+
+    eos_tags[p.ID]    = eos_map[ p.get_current_eos_name() ];
   }
 
   vector<string> parameter_names = { "Time", "e_2_X", "e_2_P" };
   vector<double> parameters      = { systemPtr->t, systemPtr->e_2_X.back(),
                                                    systemPtr->e_2_P.back() };
 
-  hdf5_file.output_dataset( dataset_names, dataset_units, data, width,
-                            n_timesteps_output, eos_tags,
+  hdf5_file.output_dataset( dataset_names, dataset_units, data,
+                            int_dataset_names, int_data,
+                            width, n_timesteps_output, eos_tags,
                             parameters, parameter_names );
 
   return;
