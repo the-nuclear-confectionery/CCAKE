@@ -353,31 +353,31 @@ void EquationOfState::set_up_chosen_EOSs()
     {
       const double hc = constants::hbarc_MeVfm;
       //========================================================================
-      for (double T0 = 0.0; T0 <= 1200.01; T0 += 1200.0)
+      for (double T0 = 0.0; T0 <= 1200.01; T0 += 1.0)
       {
-         double muB0 = 0.0, muS0 = 0.0, muQ0 = 0.0;
-         std::vector<double> point = {T0/hc, muB0/hc, muQ0/hc, muS0/hc};
-         std::vector<double> v = get_thermodynamics( point, chosen_eos->name );
-         std::cout << "Check " << chosen_eos->name << ": "
-                   << T0 << "   " << muB0 << "   "
-                   << muQ0 << "   "<< muS0 << "   "
-                   << v[0]*hc*hc*hc*hc/(T0*T0*T0*T0) << "   "
-                   << v[1]*hc*hc*hc/(T0*T0*T0) << "   "
-                   << v[2]*hc*hc*hc/(T0*T0*T0) << "   "
-                   << v[3]*hc*hc*hc/(T0*T0*T0) << "   "
-                   << v[4]*hc*hc*hc/(T0*T0*T0) << "   "
-                   << v[5]*hc*hc*hc*hc/(T0*T0*T0*T0) << "   "
-                   << v[6] << "   "
-                   << v[7]*hc*hc/(T0*T0) << "   "
-                   << v[8]*hc*hc/(T0*T0) << "   "
-                   << v[9]*hc*hc/(T0*T0) << "   "
-                   << v[10]*hc*hc/(T0*T0) << "   "
-                   << v[11]*hc*hc/(T0*T0) << "   "
-                   << v[12]*hc*hc/(T0*T0) << "   "
-                   << v[13]*hc*hc/(T0*T0) << "   "
-                   << v[14]*hc*hc/(T0*T0) << "   "
-                   << v[15]*hc*hc/(T0*T0) << "   "
-                   << v[16]*hc*hc/(T0*T0) << std::endl;
+        double muB0 = 0.0, muS0 = 0.0, muQ0 = 0.0;
+        std::vector<double> point = {max(T0,0.1)/hc, muB0/hc, muQ0/hc, muS0/hc};
+        std::vector<double> v = get_thermodynamics( point, chosen_eos->name );
+        std::cout << "Check " << chosen_eos->name << ": "
+                 << T0 << "   " << muB0 << "   "
+                 << muQ0 << "   "<< muS0 << "   "
+                 << v[0]*hc*hc*hc*hc/(T0*T0*T0*T0) << "   "
+                 << v[1]*hc*hc*hc/(T0*T0*T0) << "   "
+                 << v[2]*hc*hc*hc/(T0*T0*T0) << "   "
+                 << v[3]*hc*hc*hc/(T0*T0*T0) << "   "
+                 << v[4]*hc*hc*hc/(T0*T0*T0) << "   "
+                 << v[5]*hc*hc*hc*hc/(T0*T0*T0*T0) << "   "
+                 << v[6] << "   "
+                 << v[7]*hc*hc/(T0*T0) << "   "
+                 << v[8]*hc*hc/(T0*T0) << "   "
+                 << v[9]*hc*hc/(T0*T0) << "   "
+                 << v[10]*hc*hc/(T0*T0) << "   "
+                 << v[11]*hc*hc/(T0*T0) << "   "
+                 << v[12]*hc*hc/(T0*T0) << "   "
+                 << v[13]*hc*hc/(T0*T0) << "   "
+                 << v[14]*hc*hc/(T0*T0) << "   "
+                 << v[15]*hc*hc/(T0*T0) << "   "
+                 << v[16]*hc*hc/(T0*T0) << std::endl;
        }
        std::cout << std::endl << std::endl << std::endl;
     }
