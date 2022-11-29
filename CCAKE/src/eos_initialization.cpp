@@ -353,7 +353,7 @@ void EquationOfState::set_up_chosen_EOSs()
     {
       const double hc = constants::hbarc_MeVfm;
       //========================================================================
-      for (double T0 = 0.0; T0 <= 1200.01; T0 += 1.0)
+      for (double T0 = 0.0; T0 <= 800.01; T0 += 1.0)
       {
         double muB0 = 0.0, muS0 = 0.0, muQ0 = 0.0;
         std::vector<double> point = {max(T0,0.1)/hc, muB0/hc, muQ0/hc, muS0/hc};
