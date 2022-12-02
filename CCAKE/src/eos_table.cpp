@@ -13,10 +13,8 @@ InterpolatorND<4> EoS_table::equation_of_state_table;
 #include "../include/eos_header.h"
 #include "../include/eos_table.h"
 
-EoS_table::EoS_table( string eos_path, bool using_HDF_in )
+EoS_table::EoS_table( string eos_path )
 {
-  using_HDF = using_HDF_in;
-
   //////////////////////////////////////////////////////////////////////////////
   // read in table from file
   // initialize things needed to store eos table from file
@@ -27,8 +25,7 @@ EoS_table::EoS_table( string eos_path, bool using_HDF_in )
 
   cout << "Initializing EoS from input file(s): "
        << equation_of_state_table_filename << endl;
-  equation_of_state_table.initialize( equation_of_state_table_filename,
-                                      using_HDF );
+  equation_of_state_table.initialize( equation_of_state_table_filename );
 
   // set names of EoS quantities to interpolate, in order
   equation_of_state_table.set_grid_names(

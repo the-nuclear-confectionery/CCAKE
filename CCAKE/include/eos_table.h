@@ -16,7 +16,7 @@ class EoS_table: public EoS_base
 {
 private:
   bool debug_mode = false;
-  bool using_HDF  = false;
+  bool using_HDF  = true;
 
   string equation_of_state_table_filename = "";
 
@@ -38,7 +38,7 @@ public:
   virtual ~EoS_table(){}
 
   // constructor from files containing tables
-  EoS_table( string eos_path, bool using_HDF_in );
+  EoS_table( string eos_path );
 
   void get_eBSQ( double point[], double results[] );
   void get_sBSQ( double point[], double results[] );
