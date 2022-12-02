@@ -123,6 +123,8 @@ void InputOutput::load_settings_file( string path_to_settings_file )
     settingsPtr->Freeze_Out_Type        =      get_value(values, "freezeout");
 
     settingsPtr->Gubser_BSQmode         =      get_value(values, "Gubser_BSQmode");
+    settingsPtr->HDF5_mode              =      get_value(values, "HDF5_mode");
+    settingsPtr->text_mode              =      get_value(values, "text_mode");
 
 
     //--------------------------------------------------------------------------
@@ -147,17 +149,25 @@ void InputOutput::load_settings_file( string path_to_settings_file )
   settingsPtr->particles_to_print = vector<int>({});
 
 
-  // set up HDF5 output file here
-  vector<double> global_parameters_to_HDF
-                  = vector<double>({ settingsPtr->h,
-                                     settingsPtr->e_cutoff });
-  vector<string> global_parameter_names_to_HDF
-                  = vector<string>({ "h",
-                                     "e_cutoff" });
-  hdf5_file.initialize( output_directory + "/system_state.h5",
-                        global_parameters_to_HDF,
-                        global_parameter_names_to_HDF );
+  // if HDF was successfully included
+  #ifdef HDF5
+    formatted_output::update("HDF5 is enabled!");
 
+    // set up HDF5 output file here
+    vector<double> global_parameters_to_HDF
+                    = vector<double>({ settingsPtr->h,
+                                       settingsPtr->e_cutoff });
+    vector<string> global_parameter_names_to_HDF
+                    = vector<string>({ "h",
+                                       "e_cutoff" });
+    hdf5_file.initialize( output_directory + "/system_state.h5",
+                          global_parameters_to_HDF,
+                          global_parameter_names_to_HDF );
+  #else
+    formatted_output::update("HDF5 is not enabled!");
+  #endif
+
+  //if (true) abort();  // just for debugging purposes
 
   return;
 }
@@ -483,8 +493,11 @@ void InputOutput::print_system_state()
     print_system_state_to_txt();
 
   //---------------------------------
+  // if HDF was successfully included
+  #ifdef HDF5
   if (settingsPtr->printing_to_HDF)
     print_system_state_to_HDF();
+  #endif
 
   //---------------------------------
   print_freeze_out();
@@ -586,52 +599,6 @@ void InputOutput::print_system_state_to_txt()
   return;
 }
 
-//------------------------------------------------------------------------------
-void InputOutput::print_system_state_to_HDF()
-{
-  // get width from maximum possible number of timesteps
-  const int width = ceil(log10(ceil(settingsPtr->tend/settingsPtr->dt)));
-
-  vector<string> dataset_names = {"x", "y", "T", "muB", "muS", "muQ",
-                                  "e", "s", "B", "S", "Q"};
-  vector<string> dataset_units = {"fm", "fm", "MeV", "MeV", "MeV", "MeV",
-                                  "MeV/fm^3", "1/fm^3", "1/fm^3", "1/fm^3",
-                                  "1/fm^3"};
-
-  std::map<string,int> eos_map = {{"table",              0}, 
-                                  {"tanh_conformal",     1}, 
-                                  {"conformal",          2}, 
-                                  {"conformal_diagonal", 3}}; 
-
-  vector<vector<double> > data( dataset_names.size(),
-                                vector<double>(systemPtr->particles.size()) );
-  vector<int> eos_tags(systemPtr->particles.size());
-  for (auto & p : systemPtr->particles)
-  {
-    data[0][p.ID]  = p.r(0);
-    data[1][p.ID]  = p.r(1);
-    data[2][p.ID]  = p.T()*hbarc_MeVfm;
-    data[3][p.ID]  = p.muB()*hbarc_MeVfm;
-    data[4][p.ID]  = p.muS()*hbarc_MeVfm;
-    data[5][p.ID]  = p.muQ()*hbarc_MeVfm;
-    data[6][p.ID]  = p.e()*hbarc_MeVfm;
-    data[7][p.ID]  = p.s();
-    data[8][p.ID]  = p.rhoB();
-    data[9][p.ID]  = p.rhoS();
-    data[10][p.ID] = p.rhoQ();
-    eos_tags[p.ID] = eos_map[ p.get_current_eos_name() ];
-  }
-
-  vector<string> parameter_names = { "Time", "e_2_X", "e_2_P" };
-  vector<double> parameters      = { systemPtr->t, systemPtr->e_2_X.back(),
-                                                   systemPtr->e_2_P.back() };
-
-  hdf5_file.output_dataset( dataset_names, dataset_units, data, width,
-                            n_timesteps_output, eos_tags,
-                            parameters, parameter_names );
-
-  return;
-}
 
 
 
@@ -675,3 +642,64 @@ void InputOutput::print_freeze_out()
 
   return;
 }
+
+
+
+
+//------------------------------------------------------------------------------
+// if HDF was successfully included
+#ifdef HDF5
+void InputOutput::print_system_state_to_HDF()
+{
+  // get width from maximum possible number of timesteps
+  const int width = ceil(log10(ceil(settingsPtr->tend/settingsPtr->dt)));
+
+  vector<string> dataset_names = {"x", "y", "T", "muB", "muS", "muQ",
+                                  "e", "s", "B", "S", "Q"};
+  vector<string> dataset_units = {"fm", "fm", "MeV", "MeV", "MeV", "MeV",
+                                  "MeV/fm^3", "1/fm^3", "1/fm^3", "1/fm^3",
+                                  "1/fm^3"};
+
+  vector<string> int_dataset_names = {"FOstatus"};
+
+  std::map<string,int> eos_map = {{"table",              0}, 
+                                  {"tanh_conformal",     1}, 
+                                  {"conformal",          2}, 
+                                  {"conformal_diagonal", 3}}; 
+
+  vector<vector<double> > data( dataset_names.size(),
+                                vector<double>(systemPtr->particles.size()) );
+  vector<vector<int> > int_data( int_dataset_names.size(),
+                                vector<int>(systemPtr->particles.size()) );
+  vector<int> eos_tags(systemPtr->particles.size());
+  for (auto & p : systemPtr->particles)
+  {
+    data[0][p.ID]     = p.r(0);
+    data[1][p.ID]     = p.r(1);
+    data[2][p.ID]     = p.T()*hbarc_MeVfm;
+    data[3][p.ID]     = p.muB()*hbarc_MeVfm;
+    data[4][p.ID]     = p.muS()*hbarc_MeVfm;
+    data[5][p.ID]     = p.muQ()*hbarc_MeVfm;
+    data[6][p.ID]     = p.e()*hbarc_MeVfm;
+    data[7][p.ID]     = p.s();
+    data[8][p.ID]     = p.rhoB();
+    data[9][p.ID]     = p.rhoS();
+    data[10][p.ID]    = p.rhoQ();
+
+    int_data[0][p.ID] = p.Freeze;
+
+    eos_tags[p.ID]    = eos_map[ p.get_current_eos_name() ];
+  }
+
+  vector<string> parameter_names = { "Time", "e_2_X", "e_2_P" };
+  vector<double> parameters      = { systemPtr->t, systemPtr->e_2_X.back(),
+                                                   systemPtr->e_2_P.back() };
+
+  hdf5_file.output_dataset( dataset_names, dataset_units, data,
+                            int_dataset_names, int_data,
+                            width, n_timesteps_output, eos_tags,
+                            parameters, parameter_names );
+
+  return;
+}
+#endif
