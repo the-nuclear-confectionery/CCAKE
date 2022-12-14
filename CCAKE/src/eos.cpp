@@ -442,9 +442,9 @@ bool EquationOfState::rootfinder_update_s( double sin, double Bin,
     if (!solution_found)
     {
       // try forced seed
-//      result = vector<double>({800.0/hc, sgn(Bin), sgn(Qin), sgn(Sin)});
-      result = vector<double>({std::min(2500.0/hc, (this_eos->tbqs_maxima)[0]),
-                                sgn(Bin), sgn(Qin), sgn(Sin)});
+      result = vector<double>({800.0/hc, sgn(Bin), sgn(Qin), sgn(Sin)});
+//      result = vector<double>({std::min(2500.0/hc, (this_eos->tbqs_maxima)[0]),
+//                                sgn(Bin), sgn(Qin), sgn(Sin)});
       solution_found = find_root_with_seed( "entropy", sin, Bin, Sin, Qin,
                                             this_eos, result );
     }
@@ -470,9 +470,9 @@ bool EquationOfState::rootfinder_update_s( double sin, double Bin,
     // ZERO CHARGE DENSITIES
     if (zero_unsolvable_charge_densities && !solution_found)
     {
-//      result = vector<double>({800.0/hc, 0.0, 0.0, 0.0});
-      result = vector<double>({std::min(2500.0/hc, (this_eos->tbqs_maxima)[0]),
-                                0.0, 0.0, 0.0});
+      result = vector<double>({800.0/hc, 0.0, 0.0, 0.0});
+//      result = vector<double>({std::min(2500.0/hc, (this_eos->tbqs_maxima)[0]),
+//                                0.0, 0.0, 0.0});
       solution_found = find_root_with_seed( "entropy", sin, 0.0, 0.0, 0.0,
                                             this_eos, result );
     }
@@ -572,9 +572,9 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
 
     /////////////////////////////////////////////////////////
     // try forced seed first
-//    result = vector<double>({800.0/hc, sgn(Bin), sgn(Qin), sgn(Sin)});
-    result = vector<double>({std::min(2500.0/hc, (this_eos->tbqs_maxima)[0]),
-                                sgn(Bin), sgn(Qin), sgn(Sin)});
+    result = vector<double>({800.0/hc, sgn(Bin), sgn(Qin), sgn(Sin)});
+//    result = vector<double>({std::min(2500.0/hc, (this_eos->tbqs_maxima)[0]),
+//                                sgn(Bin), sgn(Qin), sgn(Sin)});
     solution_found = find_root_with_seed( "energy", ein, Bin, Sin, Qin,
                                           this_eos, result );
 
@@ -598,9 +598,9 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
     // ZERO CHARGE DENSITIES
     if (zero_unsolvable_charge_densities && !solution_found)
     {
-//      result = vector<double>({800.0/hc, 0.0, 0.0, 0.0});
-      result = vector<double>({std::min(2500.0/hc, (this_eos->tbqs_maxima)[0]),
-                                0.0, 0.0, 0.0});
+      result = vector<double>({800.0/hc, 0.0, 0.0, 0.0});
+//      result = vector<double>({std::min(2500.0/hc, (this_eos->tbqs_maxima)[0]),
+//                                0.0, 0.0, 0.0});
       solution_found = find_root_with_seed( "energy", ein, 0.0, 0.0, 0.0,
                                             this_eos, result );
     }

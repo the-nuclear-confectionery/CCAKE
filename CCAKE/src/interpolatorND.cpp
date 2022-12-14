@@ -11,10 +11,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 template <int D>
-void InterpolatorND<D>::initialize( string filename, bool using_HDF_in,
-                                    double fill_value_in )
+void InterpolatorND<D>::initialize( string filename, double fill_value_in )
 {
-  using_HDF  = using_HDF_in;
   fill_value = fill_value_in;
 
   // need this to iterate systematically over hypercube vertices
@@ -32,18 +30,13 @@ void InterpolatorND<D>::initialize( string filename, bool using_HDF_in,
 template <int D>
 void InterpolatorND<D>::load_data( string filename )
 {
-  // if HDF5 libraries were included successfully
-  #ifdef HDF5
-    if ( using_HDF )
-      load_data_from_HDF( filename );
-  #else
+  if ( using_HDF )
+    load_data_from_HDF( filename );
+  else
     load_data_from_dat( filename );
-  #endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// if HDF5 libraries were included successfully
-#ifdef HDF5
 template <int D>
 void InterpolatorND<D>::load_data_from_HDF( string filename )
 {
@@ -123,7 +116,7 @@ void InterpolatorND<D>::load_data_from_HDF( string filename )
 
   delete [] data;
 }
-#endif
+
 
 
 
