@@ -7,10 +7,13 @@
 #include <string>
 #include <vector>
 
-#include "H5Cpp.h"
+// if HDF was successfully included
+#ifdef HDF5
+  #include "H5Cpp.h"
 
-#ifndef H5_NO_NAMESPACE
-  using namespace H5;
+  #ifndef H5_NO_NAMESPACE
+    using namespace H5;
+  #endif
 #endif
 
 using namespace std;
@@ -20,7 +23,7 @@ class InterpolatorND
 {
   static constexpr double NaN_value = std::numeric_limits<double>::quiet_NaN();
 
-  bool using_HDF = true;
+  bool using_HDF = false;
 
   double fill_value = NaN_value;
 
@@ -28,7 +31,8 @@ class InterpolatorND
     InterpolatorND<D>(){}
     ~InterpolatorND<D>(){}
 
-    void initialize( string filename, double fill_value_in = NaN_value );
+    void initialize( string filename, bool using_HDF_in,
+                     double fill_value_in = NaN_value );
     void initialize_hypercube();
 
     void set_grid_names( const vector<string> & names )
@@ -101,8 +105,13 @@ class InterpolatorND
     }
 
     void load_data( string filename );
-    void load_data_from_HDF( string filename );
     void load_data_from_dat( string filename );
+
+  // HDF function
+  #ifdef HDF5
+    void load_data_from_HDF( string filename );
+  #endif
+
     void construct_interpolant();
 
 };
