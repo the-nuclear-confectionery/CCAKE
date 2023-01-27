@@ -71,7 +71,7 @@ void InputOutput::load_settings_file( string path_to_settings_file )
     string line;
     string field = "";
     string value = "";
-    
+
     //--------------------------------------------------------------------------
     // set default values first
     setting_map values = parameter_settings::get_defaults();
@@ -98,7 +98,6 @@ void InputOutput::load_settings_file( string path_to_settings_file )
     //--------------------------------------------------------------------------
     // store final settings
     settingsPtr->IC_type                =      get_value(values, "ICtype");
-    settingsPtr->Gubser_BSQmode         =      get_value(values, "Gubser_BSQmode");
     settingsPtr->IC_file                =      get_value(values, "ICfile");
 
     settingsPtr->h                      = stod(get_value(values, "h"));
@@ -377,7 +376,7 @@ void InputOutput::read_in_initial_conditions()
 
       systemPtr->particles.push_back( p );
     }
-    
+
   }
   //----------------------------------------------------------------------------
   else if (initial_condition_type == "Gubser_with_shear")
@@ -539,9 +538,9 @@ void InputOutput::print_system_state_to_txt()
           << p.s() << " "
           << p.smoothed.s/(p.hydro.gamma*systemPtr->t) << " "
           << p.specific.s << " "
-          << p.hydro.sigma << " " 
+          << p.hydro.sigma << " "
           << p.norm_spec.s << " "
-          << p.hydro.stauRelax << " " 
+          << p.hydro.stauRelax << " "
           << p.hydro.bigtheta << "       "  //20
           << sqrt(     p.hydro.shv(0,0)*p.hydro.shv(0,0)
                   -2.0*p.hydro.shv(0,1)*p.hydro.shv(0,1)
@@ -580,7 +579,7 @@ void InputOutput::print_system_state_to_txt()
   }
 
   out << std::flush;
-  
+
   out.close();
 
   return;
@@ -598,10 +597,10 @@ void InputOutput::print_system_state_to_HDF()
                                   "MeV/fm^3", "1/fm^3", "1/fm^3", "1/fm^3",
                                   "1/fm^3"};
 
-  std::map<string,int> eos_map = {{"table",              0}, 
-                                  {"tanh_conformal",     1}, 
-                                  {"conformal",          2}, 
-                                  {"conformal_diagonal", 3}}; 
+  std::map<string,int> eos_map = {{"table",              0},
+                                  {"tanh_conformal",     1},
+                                  {"conformal",          2},
+                                  {"conformal_diagonal", 3}};
 
   vector<vector<double> > data( dataset_names.size(),
                                 vector<double>(systemPtr->particles.size()) );
@@ -662,12 +661,12 @@ void InputOutput::print_freeze_out()
   for (int i = 0; i < fo.cf; i++)
     FO << fo.divTtemp[i] << " " << fo.divT[i] << " "
         << fo.gsub[i] << " " << fo.uout[i] << " "
-        << fo.swsub[i] << " " << fo.bulksub[i] << " " 
+        << fo.swsub[i] << " " << fo.bulksub[i] << " "
         << fo.shearsub[i](0,0) << " "
-        << fo.shearsub[i](1,1) << " " 
+        << fo.shearsub[i](1,1) << " "
         << fo.shearsub[i](2,2) << " "
-        << fo.shear33sub[i] << " " 
-        << fo.shearsub[i](1,2) << " " 
+        << fo.shear33sub[i] << " "
+        << fo.shearsub[i](1,2) << " "
         << fo.tlist[i] << " " << fo.rsub[i] << " "
         << fo.sFO[i] << " " << fo.Tfluc[i] << endl;
 
