@@ -144,7 +144,30 @@ void InputOutput::load_settings_file( string path_to_settings_file )
 
   // set particles to print
   settingsPtr->particles_to_print = vector<int>({});
+  {
+    ifstream ifile;
+    ifile.open("particles_to_print.dat");
+    // if file exists, read in any particle indices it contains
+    if (ifile.good())
+    {
+      string line = "";
+      while ( getline (ifile, line) )
+      {
+        int particle_index = -1;
+        istringstream iss(line);
+        iss >> particle_index;
+        particles_to_print.push_back( particle_index );
+      }
+    }
+    ifile.close();
 
+    // display particles currently scheduled to be printed
+    if (particles_to_print.size() >= 1)
+    {
+      formatted_output::update("The following particles will be printed:");
+      for ( auto & p : particles_to_print ) formatted_output::detail( p );
+    }
+  }
 
   // set up HDF5 output file here
   vector<double> global_parameters_to_HDF
