@@ -156,16 +156,16 @@ void InputOutput::load_settings_file( string path_to_settings_file )
         int particle_index = -1;
         istringstream iss(line);
         iss >> particle_index;
-        particles_to_print.push_back( particle_index );
+        settingsPtr->particles_to_print.push_back( particle_index );
       }
     }
     ifile.close();
 
     // display particles currently scheduled to be printed
-    if (particles_to_print.size() >= 1)
+    if (settingsPtr->particles_to_print.size() >= 1)
     {
       formatted_output::update("The following particles will be printed:");
-      for ( auto & p : particles_to_print ) formatted_output::detail( p );
+      for ( auto & p : settingsPtr->particles_to_print ) formatted_output::detail( to_string(p) );
     }
   }
 
