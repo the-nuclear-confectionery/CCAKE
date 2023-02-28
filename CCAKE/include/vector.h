@@ -19,10 +19,10 @@ public:
   Vector<T,D>(T x0){for (int i = 0; i < D; i++) x[i] = x0;}
 
   template <class U> Vector<T,D>& operator=(const Vector<U,D>&);
-  Vector<T,D>& operator=(double);
-  Vector<T,D>& operator+=(const Vector<T,D>&);
-  Vector<T,D>& operator-=(const Vector<T,D>&);
-  Vector<T,D>& operator*=(T);
+  template <class U> Vector<T,D>& operator=(U);
+  template <class U> Vector<T,D>& operator+=(const Vector<U,D>&);
+  template <class U> Vector<T,D>& operator-=(const Vector<U,D>&);
+  template <class U> Vector<T,D>& operator*=(U);
   inline T& operator()(const int i)       { return x[i]; }
   inline T  operator()(const int i) const { return x[i]; }
 };
