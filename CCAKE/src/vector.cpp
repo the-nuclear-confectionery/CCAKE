@@ -3,7 +3,7 @@
 
 #include <cmath>
 
-#include "../include/vector.h"
+#include "vector.h"
 
 ///\brief Copy assignment operator for Vector class. Accepts a Vector of type U
 /// and casts it to type T. This is useful, e.g. for converting between Vector
@@ -100,9 +100,15 @@ Vector<T,D> operator+(const Vector<T,D>& a, const Vector<T,D>& b)
 ///\param a vector which will be multiplied by -1.
 ///\return Negative of the input Vector.
 template <class T, int D>
-Vector<T,D> operator-(const Vector<T,D>& a)
+Vector<T,D> operator-(const Vector<T,D>& a) ///\todo: I believe this should be 
+                                            ///avoided. It introduces D 
+                                            ///operations that could be avoided 
+                                            ///by changing the order of 
+                                            ///operations in the final 
+                                            ///expression. If really needed, one
+                                            ///can always multiply by -1 explicitly.
 {
-  return (-1.0)*a;
+  return ((T) -1.0)*a;
 }
 
 ///\brief Difference operator of two Vectors.
