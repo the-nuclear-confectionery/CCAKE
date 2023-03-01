@@ -5,9 +5,25 @@
 #include <vector>
 
 #include "mathdef.h"
+#ifdef DEBUG
+#include <cassert>
+#endif
 
 using namespace std;
 
+
+///\todo There are two things that I leave as suggestion for future work:
+/// 1. We could replace the operator() with the [] operator, which is more
+///    intuitive for the user. However, this would require to run thorough
+///    the code and replace all the occurrences of operator() with [].
+/// 2. There are quite a few instances of type casting in the class.
+///    This is not a problem, but it would be nice to avoid it. It would also
+///    make the class simpler by avoiding the use of template U and even 
+///    possibly imporve build time.
+
+///\todo We should also implement asserts on the dimension of the vectors. These
+/// asserts should be turned off in release mode. A pratcical way to do this is
+/// enclosing them in #ifdef DEBUG ... #endif
 template <class T, int D>
 class Vector
 {
@@ -17,6 +33,13 @@ private:
 public:
   Vector<T,D>(){for (int i = 0; i < D; i++) x[i] = (T)0.0;}
   Vector<T,D>(T x0){for (int i = 0; i < D; i++) x[i] = x0;}
+  Vector<T,D>(std::initializer_list<T> x0){
+    #ifdef DEBUG
+    assert(x0.size() == D);
+    #endif
+    std::copy(x0.begin(), x0.end(), x);
+  }
+
 
   template <class U> Vector<T,D>& operator=(const Vector<U,D>&);
   template <class U> Vector<T,D>& operator=(U);
