@@ -25,6 +25,14 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 ###############################################################
+# Setup debug build
+if(CMAKE_BUILD_TYPE MATCHES Debug)
+  message(STATUS "Debug build.")
+  # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wall -Wextra -Wpedantic -Werror") # <- Beware of -Werror when using this line
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wall")
+endif()
+
+###############################################################
 # add include directories
 include_directories(include)
 
