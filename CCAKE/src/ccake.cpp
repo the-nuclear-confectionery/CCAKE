@@ -21,6 +21,10 @@
 #include "../include/formatted_output.h"
 #include "../include/welcome.h"
 
+#ifdef DEBUG
+#include <fenv.h> 
+#endif
+
 using std::cout;
 using std::endl;
 using std::string;
@@ -28,6 +32,9 @@ using std::vector;
 
 int main (int argc, char *argv[])
 {
+  #ifdef DEBUG
+  feenableexcept(FE_INVALID | FE_OVERFLOW);
+  #endif
   // Print the welcome message.
   message::welcome();
 
