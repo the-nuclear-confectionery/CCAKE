@@ -12,8 +12,20 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 ###############################################################
+# Setup debug build
+if(CMAKE_BUILD_TYPE MATCHES Debug)
+  message(STATUS "Configuring debug build.")
+  set(CMAKE_DEBUG_POSTFIX d)
+  # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb -Wall -Wextra -Wpedantic -Werror") # <- Beware of -Werror when using this line
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb -Wall")
+  add_compile_definitions(DEBUG)
+endif()
+
+###############################################################
 # include useful compiler/linker flags
-set(GCC_COVERAGE_COMPILE_FLAGS "-Ofast -s -march=native -mtune=native")
+if (CMAKE_BUILD_TYPE MATCHES Release )
+  set(GCC_COVERAGE_COMPILE_FLAGS "-Ofast -s -march=native -mtune=native")
+endif()
 set(GCC_COVERAGE_LINK_FLAGS    "-lstdc++")
 set(CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}")
@@ -22,14 +34,6 @@ set(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS
 # set the default build type to Release
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
-endif()
-
-###############################################################
-# Setup debug build
-if(CMAKE_BUILD_TYPE MATCHES Debug)
-  message(STATUS "Debug build.")
-  # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wall -Wextra -Wpedantic -Werror") # <- Beware of -Werror when using this line
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wall")
 endif()
 
 ###############################################################
@@ -67,3 +71,11 @@ if(ENABLE_TESTING)
    include(GoogleTest)
    gtest_discover_tests(vector_test)
 endif()
+
+###############################################################
+# Generate helper script to clean cmake
+add_custom_command(
+  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/clean-cmake.sh
+  COMMAND echo '#!/bin/bash
+  rm -r CMakeCache.txt  CMakeFiles Makefile  ccake cmake_install.cmake  config.h src' > ${CMAKE_CURRENT_BINARY_DIR}/clean-cmake.sh
+)
