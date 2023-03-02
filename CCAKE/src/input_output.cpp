@@ -529,9 +529,6 @@ void InputOutput::read_in_initial_conditions()
             p.input.e    = e;
             p.hydro.u(0) = ux;
             p.hydro.u(1) = uy;
-            cout << p.r(0) << " " << p.r(1) << " "
-                 << p.input.e << " " <<  p.hydro.u(0) << " " << p.hydro.u(1) << endl;
-
             systemPtr->particles.push_back( p );
           }
         }
