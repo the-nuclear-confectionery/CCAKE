@@ -486,6 +486,60 @@ void InputOutput::read_in_initial_conditions()
     }
   }
   //----------------------------------------------------------------------------
+  else if (initial_condition_type == "ccake")
+  {
+    total_header_lines = 1;
+
+    ifstream infile(IC_file.c_str());
+    formatted_output::update("Initial conditions file: " + IC_file);
+    if (infile.is_open())
+    {
+      string line;
+      int count_header_lines = 1;
+      int count_file_lines   = 0;
+      double x, y, eta, e, rhoB, rhoS, rhoQ, ux, uy, ueta, Bulk, pixx, pixy, pixeta, piyy, piyeta, pietaeta;
+      double ignore, stepX, stepY, stepEta, xmin, ymin, etamin;
+
+      while (getline (infile, line))
+      {
+        istringstream iss(line);
+        if(count_header_lines < total_header_lines)
+        {
+          ///\todo Maybe we could store on the header additional info like
+          ///      colliding system (AuAu, PbPb etc), colliding energy, impact parameter, etc.
+          ///      These would then be used as header of the outputs.
+          settingsPtr->headers.push_back(line);
+          iss >> ignore >> stepX >> stepY >> stepEta >> ignore >> xmin >> ymin >> etamin;
+          settingsPtr->stepx = stepX;
+          settingsPtr->stepy = stepY;
+          settingsPtr->stepEta = stepEta;
+          settingsPtr->xmin  = xmin;
+          settingsPtr->ymin  = ymin;
+          settingsPtr->etamin = etamin;
+          count_header_lines++;
+        }
+        else
+        {
+          iss >> x >> y >> eta >> e >> rhoB >> rhoS >> rhoQ >> ux >> uy >> ueta >> Bulk >> pixx >> pixy >> pixeta >> piyy >> piyeta >> pietaeta;
+          if (e > .01){ ;
+            e /= hbarc_GeVfm; // 1/fm^4
+            Particle p;
+            p.r(0)       = x;
+            p.r(1)       = y;
+            p.input.e    = e;
+            p.hydro.u(0) = ux;
+            p.hydro.u(1) = uy;
+            cout << p.r(0) << " " << p.r(1) << " "
+                 << p.input.e << " " <<  p.hydro.u(0) << " " << p.hydro.u(1) << endl;
+
+            systemPtr->particles.push_back( p );
+          }
+        }
+      }
+
+      infile.close();
+    }
+  }
   else
   {
       std::cerr << "Initial condition type " << initial_condition_type
