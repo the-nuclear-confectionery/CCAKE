@@ -9,14 +9,14 @@
 #include <string>
 #include <vector>
 
-#include "../include/constants.h"
-#include "../include/defaults.h"
-#include "../include/formatted_output.h"
-#include "../include/input_output.h"
-#include "../include/particle.h"
-#include "../include/mathdef.h"
-#include "../include/sph_workstation.h"
-#include "../include/vector.h"
+#include "constants.h"
+#include "defaults.h"
+#include "formatted_output.h"
+#include "input_output.h"
+#include "particle.h"
+#include "mathdef.h"
+#include "sph_workstation.h"
+#include "vector.h"
 
 using namespace constants;
 
@@ -491,11 +491,15 @@ void InputOutput::read_in_initial_conditions()
     total_header_lines = 1;
 
     ifstream infile(IC_file.c_str());
+    #ifdef DEBUG
+    ofstream outfile;
+    outfile.open("initial_conditions.dat");
+    #endif
     formatted_output::update("Initial conditions file: " + IC_file);
     if (infile.is_open())
     {
       string line;
-      int count_header_lines = 1;
+      int count_header_lines = 0;
       int count_file_lines   = 0;
       double x, y, eta, e, rhoB, rhoS, rhoQ, ux, uy, ueta, Bulk, pixx, pixy, pixeta, piyy, piyeta, pietaeta;
       double ignore, stepX, stepY, stepEta, xmin, ymin, etamin;
@@ -509,6 +513,7 @@ void InputOutput::read_in_initial_conditions()
           ///      colliding system (AuAu, PbPb etc), colliding energy, impact parameter, etc.
           ///      These would then be used as header of the outputs.
           settingsPtr->headers.push_back(line);
+          iss.ignore(256,'#');
           iss >> ignore >> stepX >> stepY >> stepEta >> ignore >> xmin >> ymin >> etamin;
           settingsPtr->stepx = stepX;
           settingsPtr->stepy = stepY;
@@ -521,20 +526,34 @@ void InputOutput::read_in_initial_conditions()
         else
         {
           iss >> x >> y >> eta >> e >> rhoB >> rhoS >> rhoQ >> ux >> uy >> ueta >> Bulk >> pixx >> pixy >> pixeta >> piyy >> piyeta >> pietaeta;
-          if (e > .01){ ;
+          //if (e > .1){ ;
             e /= hbarc_GeVfm; // 1/fm^4
             Particle p;
             p.r(0)       = x;
             p.r(1)       = y;
             p.input.e    = e;
+            p.input.rhoB = rhoB;
+            p.input.rhoS = rhoS;
+            p.input.rhoQ = rhoQ;
             p.hydro.u(0) = ux;
             p.hydro.u(1) = uy;
             systemPtr->particles.push_back( p );
-          }
+            #ifdef DEBUG
+            outfile << x << " " << y << " " << e*hbarc_GeVfm << " " << rhoB
+                    << " " << rhoS << " " << rhoQ << " " << ux << " " << uy << endl;
+            #endif
+          //}
         }
       }
-
+      #ifdef DEBUG
+      outfile.close();
+      #endif
       infile.close();
+    }
+    else
+    {
+      std::cerr << "File " << IC_file << " could not be opened!" << std::endl;
+      abort();
     }
   }
   else
