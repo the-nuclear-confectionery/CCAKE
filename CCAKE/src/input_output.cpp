@@ -165,7 +165,7 @@ void InputOutput::load_settings_file( string path_to_settings_file )
     if (settingsPtr->particles_to_print.size() >= 1)
     {
       formatted_output::update("The following particles will be printed:");
-      for ( auto & p : particles_to_print ) formatted_output::detail( p );
+      for ( auto & p : settingsPtr->particles_to_print ) formatted_output::detail( p );
     }
   }
 
