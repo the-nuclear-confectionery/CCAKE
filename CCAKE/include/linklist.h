@@ -1,9 +1,9 @@
 #ifndef LINKLIST_H
 #define LINKLIST_H
 
+#include "utilities.h"
 #include "eos.h"
 #include "particle.h"
-
 class LinkList
 {
   public:

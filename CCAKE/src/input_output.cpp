@@ -9,14 +9,14 @@
 #include <string>
 #include <vector>
 
-#include "../include/constants.h"
-#include "../include/defaults.h"
-#include "../include/formatted_output.h"
-#include "../include/input_output.h"
-#include "../include/particle.h"
-#include "../include/mathdef.h"
-#include "../include/sph_workstation.h"
-#include "../include/vector.h"
+#include "constants.h"
+#include "defaults.h"
+#include "formatted_output.h"
+#include "input_output.h"
+#include "particle.h"
+#include "mathdef.h"
+#include "sph_workstation.h"
+#include "vector.h"
 
 using namespace constants;
 
@@ -165,7 +165,7 @@ void InputOutput::load_settings_file( string path_to_settings_file )
     if (settingsPtr->particles_to_print.size() >= 1)
     {
       formatted_output::update("The following particles will be printed:");
-      for ( auto & p : settingsPtr->particles_to_print ) formatted_output::detail( std::to_string(p) );//formatted_output::detail( p );
+      for ( auto & p : settingsPtr->particles_to_print ) formatted_output::detail( to_string(p) );
     }
   }
 
@@ -486,6 +486,76 @@ void InputOutput::read_in_initial_conditions()
     }
   }
   //----------------------------------------------------------------------------
+  else if (initial_condition_type == "ccake")
+  {
+    total_header_lines = 1;
+
+    ifstream infile(IC_file.c_str());
+    #ifdef DEBUG
+    ofstream outfile;
+    outfile.open("initial_conditions.dat");
+    #endif
+    formatted_output::update("Initial conditions file: " + IC_file);
+    if (infile.is_open())
+    {
+      string line;
+      int count_header_lines = 0;
+      int count_file_lines   = 0;
+      double x, y, eta, e, rhoB, rhoS, rhoQ, ux, uy, ueta, Bulk, pixx, pixy, pixeta, piyy, piyeta, pietaeta;
+      double ignore, stepX, stepY, stepEta, xmin, ymin, etamin;
+
+      while (getline (infile, line))
+      {
+        istringstream iss(line);
+        if(count_header_lines < total_header_lines)
+        {
+          ///\todo Maybe we could store on the header additional info like
+          ///      colliding system (AuAu, PbPb etc), colliding energy, impact parameter, etc.
+          ///      These would then be used as header of the outputs.
+          settingsPtr->headers.push_back(line);
+          iss.ignore(256,'#');
+          iss >> ignore >> stepX >> stepY >> stepEta >> ignore >> xmin >> ymin >> etamin;
+          settingsPtr->stepx = stepX;
+          settingsPtr->stepy = stepY;
+          settingsPtr->stepEta = stepEta;
+          settingsPtr->xmin  = xmin;
+          settingsPtr->ymin  = ymin;
+          settingsPtr->etamin = etamin;
+          count_header_lines++;
+        }
+        else
+        {
+          iss >> x >> y >> eta >> e >> rhoB >> rhoS >> rhoQ >> ux >> uy >> ueta >> Bulk >> pixx >> pixy >> pixeta >> piyy >> piyeta >> pietaeta;
+          //if (e > .1){ ;
+            e /= hbarc_GeVfm; // 1/fm^4
+            Particle p;
+            p.r(0)       = x;
+            p.r(1)       = y;
+            p.input.e    = e;
+            p.input.rhoB = rhoB;
+            p.input.rhoS = rhoS;
+            p.input.rhoQ = rhoQ;
+            p.hydro.u(0) = ux;
+            p.hydro.u(1) = uy;
+            systemPtr->particles.push_back( p );
+            #ifdef DEBUG
+            outfile << x << " " << y << " " << e*hbarc_GeVfm << " " << rhoB
+                    << " " << rhoS << " " << rhoQ << " " << ux << " " << uy << endl;
+            #endif
+          //}
+        }
+      }
+      #ifdef DEBUG
+      outfile.close();
+      #endif
+      infile.close();
+    }
+    else
+    {
+      std::cerr << "File " << IC_file << " could not be opened!" << std::endl;
+      abort();
+    }
+  }
   else
   {
       std::cerr << "Initial condition type " << initial_condition_type

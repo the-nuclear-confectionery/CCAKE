@@ -2,15 +2,22 @@
 #include <cstdio>
 #include <vector>
 
-#include "../include/eos.h"
-#include "../include/formatted_output.h"
-#include "../include/kernel.h"
-#include "../include/linklist.h"
-#include "../include/mathdef.h"
-#include "../include/matrix.h"
-#include "../include/particle.h"
-#include "../include/stopwatch.h"
-#include "../include/vector.h"
+#ifdef __linux__
+#include <unistd.h>
+#endif
+
+
+#include "eos.h"
+#include "formatted_output.h"
+#include "kernel.h"
+#include "linklist.h"
+#include "mathdef.h"
+#include "matrix.h"
+#include "particle.h"
+#include "stopwatch.h"
+#include "vector.h"
+
+
 
 LinkList::LinkList()
 {
@@ -110,6 +117,7 @@ void LinkList::reset()
       while( b != -1 )
       {
         pa.push_back( b );
+        Utilities::lack_of_memory_stop();
         b = link[b];
       }
     }
