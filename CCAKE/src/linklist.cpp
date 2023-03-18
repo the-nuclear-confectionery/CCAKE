@@ -28,14 +28,14 @@ LinkList::LinkList()
 
 void LinkList::initialize( vector<Particle> * particlesPtr_in, double h_in )
 {
-  h            = h_in;
+  hT           = h_in;
   particlesPtr = particlesPtr_in;
   n_particles  = particlesPtr->size();
 
   link         = vector<int>(n_particles);
   dael         = vector< Vector<int,2> >(n_particles);
 
-  kernel::set_kernel_parameters( h );
+  kernel::set_kernel_parameters( hT );
 
   // (re)set linklist
   reset();
@@ -57,7 +57,7 @@ void LinkList::reset()
   //evaluate system size [in units of h]
 
   //2*range puts extra boxes on sides of grid
-  double inv_h = 1.0/h;
+  double inv_h = 1.0/hT;
   size       = inv_h*(max-min)+(2.0*range+1.0)*uni;
 
   //Size is the volume

@@ -230,7 +230,7 @@ void SPHWorkstation::smooth_fields(Particle & pa)
   {
     auto & pb       = systemPtr->particles[b];
 
-    double kern     = kernel::kernel( pa.r - pb.r, settingsPtr->h );
+    double kern     = kernel::kernel( pa.r - pb.r, settingsPtr->hT );
     pa.hydro.sigma   += pb.norm_spec.s    * kern;
     pa.smoothed.s    += pb.norm_spec.s    * pb.specific.s    * kern;
     pa.smoothed.rhoB += pb.norm_spec.rhoB * pb.specific.rhoB * kern;
@@ -300,7 +300,7 @@ void SPHWorkstation::smooth_gradients( Particle & pa, double tin )
 
     Vector<double,2> rel_sep = pa.r - pb.r;
     double rel_sep_norm      = Norm( rel_sep );
-    Vector<double,2> gradK   = kernel::gradKernel( rel_sep, rel_sep_norm, settingsPtr->h );
+    Vector<double,2> gradK   = kernel::gradKernel( rel_sep, rel_sep_norm, settingsPtr->hT );
     Vector<double,2> va      = rowp1(0, pah.shv);
     Vector<double,2> vb      = rowp1(0, pbh.shv);
     Matrix<double,2,2> vminia, vminib;
@@ -325,7 +325,7 @@ void SPHWorkstation::smooth_gradients( Particle & pa, double tin )
                 << "   " << gradK << "   " << sigsigK
                 << "   " << pah.sigma << "\n";
 
-    double relative_distance_by_h = rel_sep_norm / settingsPtr->h;
+    double relative_distance_by_h = rel_sep_norm / settingsPtr->hT;
     if ( ( relative_distance_by_h <= 2.0 ) && ( a != b ) )
     {
       if ( pa.btrack != -1 ) pa.btrack++;                   // effectively counts nearest neighbors
@@ -363,7 +363,7 @@ void SPHWorkstation::smooth_gradients( Particle & pa, double tin )
 
       cout << pa.r << endl;
       cout << pb.r << endl;
-      cout << kernel::kernel( pa.r - pb.r, settingsPtr->h ) << endl;
+      cout << kernel::kernel( pa.r - pb.r, settingsPtr->hT ) << endl;
     }
     else if ( isnan( pah.gradP(1) ) )
       cout << "1 " << gradPressure_weight(a, b)
@@ -982,7 +982,7 @@ void SPHWorkstation::add_buffer(double default_e)
   
   
   const int nx = 1 - 2*int(round(xmin/stepx));  // xmin is negative
-  const int ny = 1 - 2*int(round(ymin/stepy));  // xmin is negative
+  const int ny = 1 - 2*int(round(ymin/stepy));  // ymin is negative
   bool particle_exists[nx][ny];
   for ( int ix = 0; ix < nx; ix++ )
   for ( int iy = 0; iy < ny; iy++ )

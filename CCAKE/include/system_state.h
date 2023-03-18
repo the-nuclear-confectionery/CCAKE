@@ -33,7 +33,7 @@ class SystemState
 
     bool do_freeze_out = true;
 
-    double h          = 0.0;
+    double hT          = 0.0;
     double t          = 0.0;
     double dt         = 0.0;
 
@@ -73,7 +73,7 @@ class SystemState
     vector< Particle > particles;
 
     // the linklist specifying nearest neighbors
-    LinkList linklist; 
+    LinkList linklist;
 
     // used to track when a particle fails to find a solution in any EoS
     vector<int> particles_out_of_grid;
@@ -94,6 +94,7 @@ class SystemState
     void conservation_energy();
     void conservation_BSQ();
 
+    //TODO: observables should probably be computed in a separate class
     void compute_eccentricities();
     void compute_e_2_P();
     void compute_e_2_X();

@@ -55,7 +55,7 @@ void EquationOfState::set_up_chosen_EOSs()
   // THIS IF-CHAIN INITIALIZES THE DEFAULT EOS TO USE
   //============================================================================
   // SET UP CONFORMAL EOS
-  if ( settingsPtr->EoS_type == "conformal" )
+  if ( settingsPtr->eos_type == "conformal" )
   {
     formatted_output::update("Setting up conformal equation of state");
     //formatted_output::comment(
@@ -78,7 +78,7 @@ void EquationOfState::set_up_chosen_EOSs()
     default_eos_name = "conformal";
   }
   // SET UP CONFORMAL DIAGONAL EOS
-  if ( settingsPtr->EoS_type == "conformal_diagonal" )
+  if ( settingsPtr->eos_type == "conformal_diagonal" )
   {
     formatted_output::update("Setting diagonal conformal equation of state");
     //formatted_output::comment(
@@ -112,7 +112,7 @@ void EquationOfState::set_up_chosen_EOSs()
 
   }
   // SET UP TABLE EOS
-  else if ( settingsPtr->EoS_type == "table" )
+  else if ( settingsPtr->eos_type == "table" )
   {
     // add EoS to vector
     chosen_EOSs.push_back( std::make_shared<EoS_table>( eos_path ) );
@@ -127,7 +127,7 @@ void EquationOfState::set_up_chosen_EOSs()
   //============================================================================
   // FOR TABLE EOS, define fallbacks if default fails
   //============================================================================
-  if ( settingsPtr->EoS_type == "table" )
+  if ( settingsPtr->eos_type == "table" )
   {
     //==========================================================================
     // use tanh-modulated "conformal" as first fallback for table EoS
@@ -263,7 +263,7 @@ void EquationOfState::set_up_chosen_EOSs()
     //==========================================================================
     // use diagonal conformal as final fallback (MUST ALWAYS INCLUDE)
     //==========================================================================
-    if ( settingsPtr->EoS_type != "conformal_diagonal" )
+    if ( settingsPtr->eos_type != "conformal_diagonal" )
     {
       formatted_output::update("Setting diagonal conformal equation of state "
                                "as final fallback");

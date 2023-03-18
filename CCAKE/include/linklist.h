@@ -22,7 +22,7 @@ class LinkList
     int Size          = 0;
     
     //doubles
-    double h         = 0;
+    double hT         = 0;
 
     //vectors of int
     vector<int> list;

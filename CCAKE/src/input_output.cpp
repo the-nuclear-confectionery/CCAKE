@@ -29,31 +29,38 @@ using std::to_string;
 InputOutput::InputOutput(){}
 InputOutput::~InputOutput(){}
 
-//------------------------------------------------------------------------------
+/// \brief Initializes the equation of state pointer.
+/// \param[in] eosPtr_in Pointer to the equation of state object.
 void InputOutput::set_EquationOfStatePtr( EquationOfState * eosPtr_in )
 {
   eosPtr = eosPtr_in;
 }
 
-//------------------------------------------------------------------------------
+/// \brief Initializes the settings pointer to the object which will store
+/// data read in from the settings file.
+/// \param[in] settingsPtr_in Pointer to the settings object.
 void InputOutput::set_SettingsPtr( Settings * settingsPtr_in )
 {
   settingsPtr = settingsPtr_in;
 }
 
-//------------------------------------------------------------------------------
+/// \brief Initializes the pointer to the object which will store the system
+/// state (particles along their properties).
+/// \param[in] systemPtr_in Pointer to the system state object.
 void InputOutput::set_SystemStatePtr( SystemState * systemPtr_in )
 {
   systemPtr = systemPtr_in;
 }
 
-//------------------------------------------------------------------------------
+/// \brief Initializes the pointer to the object which will store the
+/// workstation object.
 void InputOutput::set_SPHWorkstationPtr( SPHWorkstation * wsPtr_in )
 {
   wsPtr = wsPtr_in;
 }
 
-//------------------------------------------------------------------------------
+/// \brief Sets the path to the results directory.
+/// \param[in] path_to_results_directory Path to the results directory.
 void InputOutput::set_results_directory( string path_to_results_directory )
 {
   output_directory = path_to_results_directory;
@@ -100,14 +107,14 @@ void InputOutput::load_settings_file( string path_to_settings_file )
     settingsPtr->IC_type                =      get_value(values, "ICtype");
     settingsPtr->IC_file                =      get_value(values, "ICfile");
 
-    settingsPtr->h                      = stod(get_value(values, "h"));
+    settingsPtr->hT                     = stod(get_value(values, "h"));
     settingsPtr->dt                     = stod(get_value(values, "dt"));
     settingsPtr->t0                     = stod(get_value(values, "t0"));
 
     settingsPtr->e_cutoff               = stod(get_value(values, "e_cutoff"))/hbarc_GeVfm;
 
-    settingsPtr->EoS_type               =      get_value(values, "EoS_Type");
-    settingsPtr->EoS_path               =      get_value(values, "EoS_Path");
+    settingsPtr->eos_type               =      get_value(values, "EoS_Type");
+    settingsPtr->eos_path               =      get_value(values, "EoS_Path");
 
     settingsPtr->etaMode                =      get_value(values, "etaMode");
     settingsPtr->constant_eta_over_s    = stod(get_value(values, "constant_eta_over_s"));
@@ -171,7 +178,7 @@ void InputOutput::load_settings_file( string path_to_settings_file )
 
   // set up HDF5 output file here
   vector<double> global_parameters_to_HDF
-                  = vector<double>({ settingsPtr->h,
+                  = vector<double>({ settingsPtr->hT,
                                      settingsPtr->e_cutoff });
   vector<string> global_parameter_names_to_HDF
                   = vector<string>({ "h",
@@ -187,7 +194,7 @@ void InputOutput::load_settings_file( string path_to_settings_file )
 //------------------------------------------------------------------------------
 void InputOutput::set_EoS_type()
 {
-  eosPtr->eos_path = "EoS/" + settingsPtr->EoS_path;
+  eosPtr->eos_path = "EoS/" + settingsPtr->eos_path;
   return;
 }
 

@@ -17,9 +17,10 @@
 #include <string>
 #include <vector>
 
-#include "../include/BSQHydro.h"
-#include "../include/formatted_output.h"
-#include "../include/welcome.h"
+#include "input.h"
+#include "BSQHydro.h"
+#include "formatted_output.h"
+#include "welcome.h"
 
 #ifdef DEBUG
 #include <fenv.h> 
@@ -38,16 +39,8 @@ int main (int argc, char *argv[])
   // Print the welcome message.
   message::welcome();
 
-
-  // Check if proper command-line arguments passed.
-  if ( argc < 3 )
-  {
-    std::cerr << "Usage: ./ccake /path/to/settings/file "
-                 "/path/to/results/directory" << std::endl;
-    std::cerr << "Please cite all our papers." << std::endl;
-    exit(1);
-  }
-
+  // Read input arguments.
+  ccake::Input in(argc, argv);
 
   //----------------------------------------------
   formatted_output::announce("Reading in command-line arguments");

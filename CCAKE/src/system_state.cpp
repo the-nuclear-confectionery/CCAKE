@@ -35,7 +35,7 @@ void SystemState::initialize()  // formerly called "manualenter"
   formatted_output::report("Initializing system");
 
   t = settingsPtr->t0;
-  h = settingsPtr->h;
+  hT = settingsPtr->hT;
 
   formatted_output::update("set freeze out parameters");
 
@@ -57,7 +57,7 @@ void SystemState::initialize_linklist()
   formatted_output::report("Initializing linklist");
 
   // initialize linklist
-  linklist.initialize( &particles, settingsPtr->h );
+  linklist.initialize( &particles, settingsPtr->hT );
 
   return;
 }

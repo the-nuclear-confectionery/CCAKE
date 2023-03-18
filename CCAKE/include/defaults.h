@@ -20,7 +20,7 @@ namespace parameter_settings
             setting_pair("ICtype",                 "ICCING"),
             setting_pair("ICfile",                 "initial_conditions/"
                                                    "Iccing_conditions.dat"),
-            setting_pair("h",                      "0.300000"),
+            setting_pair("hT",                      "0.300000"),
             setting_pair("dt",                     "0.05"),
             setting_pair("t0",                     "1.100000"),
             setting_pair("e_cutoff",               "0.00301"),
