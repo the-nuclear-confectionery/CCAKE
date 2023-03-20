@@ -17,6 +17,21 @@ namespace fs = std::filesystem;
 namespace ccake{
 class Input
 {
+/*******************************************************************************
+* The Input class is responsible for parsing the input file and command-line
+* arguments. The constructor receives the command-line arguments, just as the
+* main function does. `argv[1]` is the path to the input file, and `argv[2]` is
+* the path to the results directory.
+*
+* We verify if the input file exists, and if it does, we parse it, initiallizing
+* the settings object. The settings object is created in the heap and stored as
+* a `shared pointer`. You should get ownership of the pointer before destroying
+* the Input object. The settings object can then be shared with the other
+* classes that needs it.
+*
+* We also create the results directory if it does not exist.
+ ******************************************************************************/
+
 private:
   void check_args( int argc, char** argv );
   bool decode_settings(const YAML::Node& node);

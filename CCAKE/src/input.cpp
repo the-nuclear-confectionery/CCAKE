@@ -24,7 +24,8 @@ cc::Input::Input( int argc, char** argv)
                             + results_directory.string() );
 }
 
-/// \brief Check if input arguments are valid
+/// \brief Check if input arguments are valid. If not, print usage and abort.
+/// This creates the output directory if it does not exist.
 /// \param[in] argc Number of command line arguments
 /// \param[in] argv Array of command line arguments
 void cc::Input::check_args( int argc, char** argv )
@@ -56,8 +57,8 @@ void cc::Input::check_args( int argc, char** argv )
 }
 
 
-/// \brief Reads in the settings file. Make sure to initialize the pointer to
-/// the settings object before calling this function.
+/// \brief Parses the settings file. You need to have checked the input
+/// arguments first.
 /// \param[in] path_to_settings_file Path to the settings file.
 void cc::Input::load_settings_file()
 {
@@ -72,6 +73,9 @@ void cc::Input::load_settings_file()
   return;
 }
 
+/// \brief Decodes the settings file.
+/// \param[in] node YAML root node containing the settings file.
+/// \return True if successful, false otherwise.
 bool cc::Input::decode_settings(const YAML::Node& node){
     //TODO: Maybe its possible to coalesce this into a loop?
     //--------------------------------------------------------------------------
