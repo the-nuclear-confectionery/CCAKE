@@ -4,6 +4,8 @@
 
 #include "input.h"
 
+//TODO: Write death tests for the case of missing fields in the input file
+
 namespace fs = std::filesystem;
 #define TOL 1.E-14
 

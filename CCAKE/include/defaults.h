@@ -8,6 +8,37 @@
 typedef std::map  <std::string, std::string> setting_map;
 typedef std::pair <std::string, std::string> setting_pair;
 
+namespace ccake
+{
+  namespace defaults
+  {
+    const bool        input_as_entropy        = false;
+    const double      dt                      = 0.05;
+    const double      hT                      = 0.3;
+    const double      hEta                    = 0.3;
+    const std::string kernel_type             = "cubic_spline";
+    const double      e_cutoff                = 0.15;
+    const bool        buffer_event            = true;
+    const bool        circular_buffer         = true;
+    const double      padding_thickness       = 0.1;
+    const std::string eos_type                = "conformal";
+    const bool        particlization_enabled  = true;
+    const double      Freeze_Out_Temperature  = 150.;
+    const std::string Freeze_Out_Type         = "fixed_T";
+    const bool        baryon_charge_enabled   = true;
+    const bool        strange_charge_enabled  = true;
+    const bool        electric_charge_enabled = true;
+    const std::string etaMode                 = "constant";
+    const double      constant_eta_over_s     = 0.08;
+    const std::string shearRelaxMode          = "default";
+    const std::string zetaMode                = "cs2_dependent";
+    const double      constant_zeta_over_s    = 0.005;
+    const double      cs2_dependent_zeta_A    = 1.67552;  // 8*pi/15
+    const double      cs2_dependent_zeta_p    = 2.0;
+    const std::string bulkRelaxMode           = "default";
+    const bool        modulate_zeta_with_tanh = true;
+  }
+}
 
 namespace parameter_settings
 {
