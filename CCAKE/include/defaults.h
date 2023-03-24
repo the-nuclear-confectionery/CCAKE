@@ -18,11 +18,11 @@ namespace ccake
     const double      hEta                    = 0.3;
     const std::string kernel_type             = "cubic_spline";
     const double      e_cutoff                = 0.15;
-    const bool        buffer_event            = true;
-    const bool        circular_buffer         = true;
+    const bool        buffer_event            = false;
+    const bool        circular_buffer         = false;
     const double      padding_thickness       = 0.1;
     const std::string eos_type                = "conformal";
-    const bool        particlization_enabled  = true;
+    const bool        particlization_enabled  = false;
     const double      Freeze_Out_Temperature  = 150.;
     const std::string Freeze_Out_Type         = "fixed_T";
     const bool        baryon_charge_enabled   = true;
