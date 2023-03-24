@@ -1,64 +1,49 @@
-#include "../include/BSQHydro.h"
-#include "../include/formatted_output.h"
-#include "../include/settings.h"
-#include "../include/input_output.h"
-#include "../include/stopwatch.h"
+#include "BSQHydro.h"
 
-// Constructors and destructors.
-BSQHydro::BSQHydro()
+namespace cc = ccake;
+
+//Template instantiations
+template class cc::BSQHydro<1>;
+template class cc::BSQHydro<2>;
+template class cc::BSQHydro<3>;
+
+/// \brief Constructor for BSQHydro class
+///
+template<unsigned int D>
+cc::BSQHydro<D>::BSQHydro(std::shared_ptr<Settings> settingsPtr_in)
 {
+  //Initialize the settings pointer
+  settingsPtr = settingsPtr_in;
+
 
   // initialize I/O pointers
+  io.set_EoS_type();
   io.set_EquationOfStatePtr( &ws.eos );
-  io.set_SettingsPtr( &settings );
-  io.set_SPHWorkstationPtr( &ws );  // this is probably unnecessary
+  io.set_SettingsPtr( settingsPtr.get() );
+  io.set_SPHWorkstationPtr( &ws );
   io.set_SystemStatePtr( &system );
 
   // initialize SPH workstation
   ws.set_SystemStatePtr( &system );
-  ws.set_SettingsPtr( &settings );
-  
+  ws.set_SettingsPtr( settingsPtr.get() );
+
   // initialize system state
-  system.set_SettingsPtr( &settings );
-  
-  return;
-}
-
-void BSQHydro::load_settings_file( string path_to_settings_file )
-{
-  // sets the settings path in InputOutput,
-  // then loads parameters into Input_parameters struct
-  io.load_settings_file(path_to_settings_file);
-
-  // InputOutput talks to EoS and tells it where to find its tables
-  io.set_EoS_type();
+  system.set_SettingsPtr( settingsPtr.get() );
 
   return;
 }
 
 
-
-void BSQHydro::set_results_directory( string path_to_results_directory )
-{
-  // set the results directory in InputOutput
-  io.set_results_directory(path_to_results_directory);
-  return;
-}
-
-
-
-void BSQHydro::read_in_initial_conditions()
-{
-  // tells InputOutput to talk to system state and set initial system state
+template <unsigned int D>
+void cc::BSQHydro<D>::read_in_initial_conditions(){
+  // tells Output to talk to system state and set initial system state
   io.read_in_initial_conditions();
   return;
 }
 
-
-
-
 ////////////////////////////////////////////////////////////////////////////////
-void BSQHydro::initialize_hydrodynamics()
+template <unsigned int D>
+void cc::BSQHydro<D>::initialize_hydrodynamics()
 {
   formatted_output::announce("Initializing hydrodynamics");
   Stopwatch sw;
@@ -96,7 +81,8 @@ void BSQHydro::initialize_hydrodynamics()
 
 
 ////////////////////////////////////////////////////////////////////////////////
-void BSQHydro::run()
+template <unsigned int D>
+void cc::BSQHydro<D>::run()
 {
   formatted_output::announce("Beginning hydrodynamic evolution");
   Stopwatch sw;
@@ -120,7 +106,7 @@ void BSQHydro::run()
     //===================================
     // workstation advances by given
     // timestep at given RK order
-    ws.advance_timestep( settings.dt, rk_order );
+    ws.advance_timestep( settingsPtr->dt, rk_order );
 
     //===================================
     // re-compute conserved quantities, etc.
@@ -141,8 +127,10 @@ void BSQHydro::run()
 
 
 // not yet defined
-void BSQHydro::find_freeze_out_surface(){}
+template <unsigned int D>
+void cc::BSQHydro<D>::find_freeze_out_surface(){}
 
 
 // not yet defined
-void BSQHydro::print_results(){}
+template <unsigned int D>
+void cc::BSQHydro<D>::print_results(){}

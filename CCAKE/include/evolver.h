@@ -12,6 +12,7 @@
 
 using std::string;
 
+template <unsigned int D>
 class Evolver
 {
   private:
@@ -21,7 +22,7 @@ class Evolver
 
     
     Settings    * settingsPtr = nullptr;
-    SystemState * systemPtr   = nullptr;
+    SystemState<D> * systemPtr   = nullptr;
 
     int n_particles = -1;
 
@@ -38,7 +39,7 @@ class Evolver
   public:
 
     void set_SettingsPtr(Settings * settingsPtr_in) { settingsPtr = settingsPtr_in; }
-    void set_SystemStatePtr(SystemState * systemPtr_in) { systemPtr = systemPtr_in; }
+    void set_SystemStatePtr(SystemState<D> * systemPtr_in) { systemPtr = systemPtr_in; }
 
     //==========================================================================
     void advance_timestep( double dt, int rk_order,
@@ -395,7 +396,5 @@ class Evolver
 
 
 };
-
-typedef std::shared_ptr<Evolver> pEvolver;  // smart pointer to evolver object
 
 #endif

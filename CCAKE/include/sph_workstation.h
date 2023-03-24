@@ -12,26 +12,36 @@
 #include "system_state.h"
 #include "transport_coefficients.h"
 
+
+//forward declare template class
+namespace ccake{
+template <unsigned int D>
+class BSQHydro;
+}
+template <unsigned int D> class Evolver;
+template <unsigned int D> class InputOutput;
+
+template <unsigned int D>
 class SPHWorkstation
 {
-friend class BSQHydro;
-friend class Evolver;
-friend class InputOutput;
+friend class ccake::BSQHydro<D>;
+friend class Evolver<D>;
+friend class InputOutput<D>;
 
 private:
-  
+
   static constexpr int    VERBOSE        = 3;
   static constexpr double TOLERANCE      = 0.0;
   static constexpr bool   REGULATE_LOW_T = false;
 
   Settings        * settingsPtr          = nullptr;
-  SystemState     * systemPtr            = nullptr;
+  SystemState<D>  * systemPtr            = nullptr;
 
   // equations of motion
   pEquationsOfMotion pEoM;
 
   // evolver
-  Evolver evolver;
+  Evolver<D> evolver;
 
   // equation of state
   EquationOfState eos;
@@ -40,7 +50,7 @@ private:
   TransportCoefficients tc;
 
   // freeze out
-  FreezeOut fo;
+  FreezeOut<D> fo;
 
 
 public:
@@ -52,7 +62,7 @@ public:
 
   //============================================================================
   // initialize pointers
-  void set_SystemStatePtr( SystemState * systemPtr_in );
+  void set_SystemStatePtr( SystemState<D> * systemPtr_in );
   void set_SettingsPtr( Settings * settingsPtr_in );
 
   //============================================================================
@@ -154,7 +164,7 @@ public:
 
   //-------------------------------------------
   void evaluate_all_particle_time_derivatives()
-        { 
+        {
           Stopwatch sw;
           sw.Start();
           for ( auto & p : systemPtr->particles )

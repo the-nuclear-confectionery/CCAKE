@@ -12,7 +12,7 @@
 #include "constants.h"
 #include "defaults.h"
 #include "formatted_output.h"
-#include "input_output.h"
+#include "output.h"
 #include "particle.h"
 #include "mathdef.h"
 #include "sph_workstation.h"
@@ -25,13 +25,20 @@ using std::flush;
 using std::string;
 using std::to_string;
 
+//Template instantiations
+template class InputOutput<1>;
+template class InputOutput<2>;
+template class InputOutput<3>;
+
 // Constructors and destructors.
-InputOutput::InputOutput(){}
-InputOutput::~InputOutput(){}
+
+template<unsigned int D> InputOutput<D>::InputOutput(){}
+template<unsigned int D> InputOutput<D>::~InputOutput(){}
 
 /// \brief Initializes the equation of state pointer.
 /// \param[in] eosPtr_in Pointer to the equation of state object.
-void InputOutput::set_EquationOfStatePtr( EquationOfState * eosPtr_in )
+template<unsigned int D>
+void InputOutput<D>::set_EquationOfStatePtr( EquationOfState * eosPtr_in )
 {
   eosPtr = eosPtr_in;
 }
@@ -39,7 +46,8 @@ void InputOutput::set_EquationOfStatePtr( EquationOfState * eosPtr_in )
 /// \brief Initializes the settings pointer to the object which will store
 /// data read in from the settings file.
 /// \param[in] settingsPtr_in Pointer to the settings object.
-void InputOutput::set_SettingsPtr( Settings * settingsPtr_in )
+template<unsigned int D>
+void InputOutput<D>::set_SettingsPtr( Settings * settingsPtr_in )
 {
   settingsPtr = settingsPtr_in;
 }
@@ -47,27 +55,31 @@ void InputOutput::set_SettingsPtr( Settings * settingsPtr_in )
 /// \brief Initializes the pointer to the object which will store the system
 /// state (particles along their properties).
 /// \param[in] systemPtr_in Pointer to the system state object.
-void InputOutput::set_SystemStatePtr( SystemState * systemPtr_in )
+template<unsigned int D>
+void InputOutput<D>::set_SystemStatePtr( SystemState<D> * systemPtr_in )
 {
   systemPtr = systemPtr_in;
 }
 
 /// \brief Initializes the pointer to the object which will store the
 /// workstation object.
-void InputOutput::set_SPHWorkstationPtr( SPHWorkstation * wsPtr_in )
+template<unsigned int D>
+void InputOutput<D>::set_SPHWorkstationPtr( SPHWorkstation<D> * wsPtr_in )
 {
   wsPtr = wsPtr_in;
 }
 
 /// \brief Sets the path to the results directory.
 /// \param[in] path_to_results_directory Path to the results directory.
-void InputOutput::set_results_directory( string path_to_results_directory )
+template<unsigned int D>
+void InputOutput<D>::set_results_directory( string path_to_results_directory )
 {
   output_directory = path_to_results_directory;
 }
 
 //------------------------------------------------------------------------------
-void InputOutput::load_settings_file( string path_to_settings_file )
+template<unsigned int D>
+void InputOutput<D>::load_settings_file( string path_to_settings_file )
 {
   formatted_output::report("Reading in input parameter settings");
 
@@ -192,14 +204,16 @@ void InputOutput::load_settings_file( string path_to_settings_file )
 }
 
 //------------------------------------------------------------------------------
-void InputOutput::set_EoS_type()
+template<unsigned int D>
+void InputOutput<D>::set_EoS_type()
 {
-  eosPtr->eos_path = "EoS/" + settingsPtr->eos_path;
+  eosPtr->set_eos_path( "EoS/" + settingsPtr->eos_path );
   return;
 }
 
 //------------------------------------------------------------------------------
-void InputOutput::read_in_initial_conditions()
+template<unsigned int D>
+void InputOutput<D>::read_in_initial_conditions()
 {
   formatted_output::report("Reading in initial conditions for hydrodynamics");
 
@@ -575,7 +589,8 @@ void InputOutput::read_in_initial_conditions()
 }
 
 //------------------------------------------------------------------------------
-void InputOutput::print_system_state()
+template<unsigned int D>
+void InputOutput<D>::print_system_state()
 {
   //---------------------------------
   if (settingsPtr->printing_to_txt)
@@ -596,7 +611,8 @@ void InputOutput::print_system_state()
 }
 
 //------------------------------------------------------------------------------
-void InputOutput::print_system_state_to_txt()
+template<unsigned int D>
+void InputOutput<D>::print_system_state_to_txt()
 {
   string outputfilename = output_directory + "/system_state_"
                           + std::to_string(n_timesteps_output) + ".dat";
@@ -686,7 +702,8 @@ void InputOutput::print_system_state_to_txt()
 }
 
 //------------------------------------------------------------------------------
-void InputOutput::print_system_state_to_HDF()
+template<unsigned int D>
+void InputOutput<D>::print_system_state_to_HDF()
 {
   // get width from maximum possible number of timesteps
   const int width = ceil(log10(ceil(settingsPtr->tend/settingsPtr->dt)));
@@ -737,7 +754,8 @@ void InputOutput::print_system_state_to_HDF()
 
 
 //==============================================================================
-void InputOutput::print_freeze_out()
+template<unsigned int D>
+void InputOutput<D>::print_freeze_out()
 {
   string outputfilename = output_directory + "/freeze_out_"
                           + std::to_string(n_timesteps_output) + ".dat";

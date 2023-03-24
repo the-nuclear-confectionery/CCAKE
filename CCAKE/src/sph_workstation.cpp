@@ -8,21 +8,30 @@
 #include "../include/sph_workstation.h"
 #include "../include/stopwatch.h"
 
+//Template instantiations
+template class SPHWorkstation<1>;
+template class SPHWorkstation<2>;
+template class SPHWorkstation<3>;
+
 using std::to_string;
 
 using namespace constants;
 
-void SPHWorkstation::set_SystemStatePtr( SystemState * systemPtr_in )
+
+template<unsigned int D>
+void SPHWorkstation<D>::set_SystemStatePtr( SystemState<D> * systemPtr_in )
 {
   systemPtr = systemPtr_in;
 }
 
-void SPHWorkstation::set_SettingsPtr( Settings * settingsPtr_in )
+template<unsigned int D>
+void SPHWorkstation<D>::set_SettingsPtr( Settings * settingsPtr_in )
 {
   settingsPtr = settingsPtr_in;
 }
 
-void SPHWorkstation::reset_pi_tensor()
+template<unsigned int D>
+void SPHWorkstation<D>::reset_pi_tensor()
 {
   for ( auto & p : systemPtr->particles )
     p.reset_pi_tensor(systemPtr->t*systemPtr->t);
@@ -30,7 +39,8 @@ void SPHWorkstation::reset_pi_tensor()
 
 
 ////////////////////////////////////////////////////////////////////////////////
-void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updateIC
+template<unsigned int D>
+void SPHWorkstation<D>::initialize_entropy_and_charge_densities() // formerly updateIC
 {
 	Stopwatch sw, swTotal;
 	swTotal.Start();
@@ -178,7 +188,8 @@ void SPHWorkstation::initialize_entropy_and_charge_densities() // formerly updat
 
 
 //==============================================================================
-void SPHWorkstation::initial_smoothing()
+template<unsigned int D>
+void SPHWorkstation<D>::initial_smoothing()
 {
   // reset linklist to update nearest neighbors
   reset_linklist();
@@ -214,7 +225,8 @@ void SPHWorkstation::initial_smoothing()
 }
 ///////////////////////////////////////////////////////////////////////////////
 // smoothing routines: first smoothing covers all hydrodyanmical fields
-void SPHWorkstation::smooth_fields(Particle & pa)
+template<unsigned int D>
+void SPHWorkstation<D>::smooth_fields(Particle & pa)
 {
   int a = pa.ID;
 
@@ -275,7 +287,8 @@ void SPHWorkstation::smooth_fields(Particle & pa)
 ///////////////////////////////////////////////////////////////////////////////
 //Second smoothing smoothes the gradients after constructing all the fields 
 //and derivatives using the equation of state
-void SPHWorkstation::smooth_gradients( Particle & pa, double tin )
+template<unsigned int D>
+void SPHWorkstation<D>::smooth_gradients( Particle & pa, double tin )
 {
   int a = pa.ID;
 
@@ -389,7 +402,8 @@ void SPHWorkstation::smooth_gradients( Particle & pa, double tin )
 
 
 ////////////////////////////////////////////////////////////////////////////////
-void SPHWorkstation::process_initial_conditions()
+template<unsigned int D>
+void SPHWorkstation<D>::process_initial_conditions()
 {
   formatted_output::report("Processing initial conditions");
 
@@ -547,7 +561,8 @@ void SPHWorkstation::process_initial_conditions()
 
 //==============================================================================
 // initialize bulk Pi 
-void SPHWorkstation::set_bulk_Pi()
+template<unsigned int D>
+void SPHWorkstation<D>::set_bulk_Pi()
 {
   double t0 = settingsPtr->t0;
   if ( settingsPtr->initializing_with_full_Tmunu )
@@ -560,7 +575,8 @@ void SPHWorkstation::set_bulk_Pi()
 
 
 //==============================================================================
-void SPHWorkstation::freeze_out_particles()
+template<unsigned int D>
+void SPHWorkstation<D>::freeze_out_particles()
 {
   //---------------------------------------
   // perform freeze out checks
@@ -593,7 +609,8 @@ void SPHWorkstation::freeze_out_particles()
 
 
 ////////////////////////////////////////////////////////////////////////////////
-void SPHWorkstation::get_time_derivatives()
+template<unsigned int D>
+void SPHWorkstation<D>::get_time_derivatives()
 {
   // reset nearest neighbors
   reset_linklist();
@@ -637,7 +654,8 @@ void SPHWorkstation::get_time_derivatives()
 
 
 ////////////////////////////////////////////////////////////////////////////////
-double SPHWorkstation::locate_phase_diagram_point_eBSQ( Particle & p,
+template<unsigned int D>
+double SPHWorkstation<D>::locate_phase_diagram_point_eBSQ( Particle & p,
                  double e_In, double rhoB_In, double rhoS_In, double rhoQ_In )
 {
 //cout << "Finding thermodynamics of particle #" << p.ID << endl;
@@ -752,7 +770,8 @@ double SPHWorkstation::locate_phase_diagram_point_eBSQ( Particle & p,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-double SPHWorkstation::locate_phase_diagram_point_eBSQ(Particle & p, double e_In)
+template<unsigned int D>
+double SPHWorkstation<D>::locate_phase_diagram_point_eBSQ(Particle & p, double e_In)
                  { return locate_phase_diagram_point_eBSQ( p, e_In, 0.0, 0.0, 0.0 ); }
 
 
@@ -761,7 +780,8 @@ double SPHWorkstation::locate_phase_diagram_point_eBSQ(Particle & p, double e_In
 
 
 ////////////////////////////////////////////////////////////////////////////////
-void SPHWorkstation::locate_phase_diagram_point_sBSQ( Particle & p,
+template<unsigned int D>
+void SPHWorkstation<D>::locate_phase_diagram_point_sBSQ( Particle & p,
                  double s_In, double rhoB_In, double rhoS_In, double rhoQ_In )
 {
 //  cout << "Rootfinder for p.ID = " << p.ID << endl;
@@ -871,14 +891,16 @@ void SPHWorkstation::locate_phase_diagram_point_sBSQ( Particle & p,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void SPHWorkstation::locate_phase_diagram_point_sBSQ(Particle & p, double s_In) // previously update_s
+template<unsigned int D>
+void SPHWorkstation<D>::locate_phase_diagram_point_sBSQ(Particle & p, double s_In) // previously update_s
                { locate_phase_diagram_point_sBSQ( p, s_In, 0.0, 0.0, 0.0 ); }
 
 
 
 ////////////////////////////////////////////////////////////////////////////////
 //  Computes gamma and velocity
-void SPHWorkstation::set_phase_diagram_point(Particle & p)
+template<unsigned int D>
+void SPHWorkstation<D>::set_phase_diagram_point(Particle & p)
 {
   p.hydro.gamma     = p.gamcalc();
   p.hydro.v         = (1.0/p.hydro.gamma)*p.hydro.u;
@@ -893,7 +915,8 @@ void SPHWorkstation::set_phase_diagram_point(Particle & p)
 
 
 ///////////////////////////////////////////////////////////////////////////////////
-double SPHWorkstation::gradPressure_weight(const int a, const int b)
+template<unsigned int D>
+double SPHWorkstation<D>::gradPressure_weight(const int a, const int b)
 {
   auto & pa = systemPtr->particles[a];
   auto & pb = systemPtr->particles[b];
@@ -924,7 +947,8 @@ double SPHWorkstation::gradPressure_weight(const int a, const int b)
 
 
 ////////////////////////////////////////////////////////////////////////////////
-void SPHWorkstation::set_transport_coefficients( Particle & p )
+template<unsigned int D>
+void SPHWorkstation<D>::set_transport_coefficients( Particle & p )
 {
   tc.setTherm( p.thermo );
   p.hydro.setas     = tc.eta();
@@ -945,7 +969,8 @@ void SPHWorkstation::set_transport_coefficients( Particle & p )
 
 //==============================================================================
 // currently add a particle to every grid point which doesn't have one yet
-void SPHWorkstation::add_buffer(double default_e)
+template<unsigned int D>
+void SPHWorkstation<D>::add_buffer(double default_e)
 {
   if ( settingsPtr->IC_type != "ICCING" )
   {

@@ -26,9 +26,10 @@
 // Forward declaration of friend classes
 class EquationOfState;
 class Settings;
-class SPHWorkstation;
-class SystemState;
+template<unsigned int D> class SPHWorkstation;
+template<unsigned int D> class SystemState;
 
+template<unsigned int D>
 class InputOutput
 {
 public:
@@ -40,8 +41,8 @@ public:
 
   void set_EquationOfStatePtr( EquationOfState * eosPtr_in );
   void set_SettingsPtr( Settings * settingsPtr_in );
-  void set_SystemStatePtr( SystemState * systemPtr_in );
-  void set_SPHWorkstationPtr( SPHWorkstation * wsPtr_in );
+  void set_SystemStatePtr( SystemState<D> * systemPtr_in );
+  void set_SPHWorkstationPtr( SPHWorkstation<D> * wsPtr_in );
 
   int n_timesteps_output = 0;
 
@@ -87,8 +88,8 @@ private:
   // these allow I/O to access other objects in BSQHydro
   EquationOfState   * eosPtr      = nullptr;
   Settings          * settingsPtr = nullptr;
-  SystemState       * systemPtr   = nullptr;
-  SPHWorkstation    * wsPtr       = nullptr;
+  SystemState<D>    * systemPtr   = nullptr;
+  SPHWorkstation<D> * wsPtr       = nullptr;
 
   interface_to_HDF5 hdf5_file;
 

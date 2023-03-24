@@ -16,12 +16,19 @@
 using std::string;
 using std::vector;
 
+// forward declaration of SPHWorkstation and Evolver
+template <unsigned int D> class SPHWorkstation;
+template <unsigned int D> class Evolver;
+template <unsigned int D> class FreezeOut;
+template <unsigned int D> class InputOutput;
+
+template <unsigned int D>
 class SystemState
 {
-  friend class InputOutput;
-  friend class SPHWorkstation;
-  friend class Evolver;
-  friend class FreezeOut;
+  friend class InputOutput<D>;
+  friend class SPHWorkstation<D>;
+  friend class Evolver<D>;
+  friend class FreezeOut<D>;
 
   public:
 

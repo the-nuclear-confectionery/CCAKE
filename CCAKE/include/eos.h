@@ -28,7 +28,6 @@ using std::string;
 
 class EquationOfState
 {
-friend class InputOutput;
 
 private:
     bool print_now = false; // convenient way to turn on verbosity
@@ -45,6 +44,9 @@ public:
 
     // object to access appropriate EoS by name
     std::unordered_map<std::string, pEoS_base> chosen_EOS_map;
+
+    // setters
+    inline void set_eos_path( const string & eos_path_in ){eos_path = eos_path_in;};
 
 
     ////////////////////////////////////////////////////////////////////////////
@@ -200,7 +202,7 @@ private:
     double dsdq          = 0.0;
     double dtdb          = 0.0;
     double dtds          = 0.0;
-    double dtdq          = 0.0; //second derivative of pressure wrt i and j 
+    double dtdq          = 0.0; //second derivative of pressure wrt i and j
                                 //where didj =: (d^2p)/(didj) or di2 = (d^2p)/((di)^2)
 
 

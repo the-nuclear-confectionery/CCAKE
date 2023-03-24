@@ -14,56 +14,54 @@
 #include <vector>
 
 #include "constants.h"
-#include "input_output.h"
+#include "output.h"
 #include "system_state.h"
 #include "settings.h"
 #include "kernel.h"
 #include "sph_workstation.h"
+#include "formatted_output.h"
+#include "stopwatch.h"
 
 using std::string;
 using std::vector;
 
+namespace ccake{
+
+template<unsigned int D>
 class BSQHydro
 {
 
 public:
 
-  BSQHydro();
+  BSQHydro() = delete;
+  BSQHydro( std::shared_ptr<Settings> settingsPtr_in );
   ~BSQHydro(){}
 
-  void load_settings_file( string path_to_settings_file );
-  void set_results_directory( string path_to_results_directory );
   void read_in_initial_conditions();
   void initialize_hydrodynamics();
   void run();
   void find_freeze_out_surface();
   void print_results();
 
-
-
 private:
 
-  static constexpr int rk_order = 4;
+  static constexpr int rk_order = 4; //TODO: make this a setting
 
-  string input_directory;
-  string output_directory;
+  string input_directory; ///< Path to directory containing input files
+  string output_directory; ///< Path to directory where output files will be stored
 
+  std::shared_ptr<Settings> settingsPtr; ///< Object containing settings parsed from input file
 
-  // all settings for the hydro simulation
-  Settings settings;
-
-  // input/output
-  InputOutput io;
+  InputOutput<D> io; ///< Input/Output object
 
   // hold freeze-out surface
   //FreezeOutSurface freeze_out_surface;
 
-  // the current state of the hydrodynamic simulation
-  SystemState system;
+  SystemState<D> system; ///< Object containing the SPH System (linked list, particles, etc.)
 
   // the workstation for performing SPH-related actions on the system
-  SPHWorkstation ws;
+  SPHWorkstation<D> ws;
 
 };
-
+}
 #endif

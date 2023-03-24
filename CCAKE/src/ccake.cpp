@@ -23,13 +23,28 @@
 #include "welcome.h"
 
 #ifdef DEBUG
-#include <fenv.h> 
+#include <fenv.h>
 #endif
 
-using std::cout;
-using std::endl;
-using std::string;
-using std::vector;
+namespace cc = ccake;
+
+template<unsigned int D>
+void execute_tasks(std::shared_ptr<Settings> settingsPtr)
+{
+  // Define and set up the simulation object itself.
+  cc::BSQHydro<D> simulation(settingsPtr);
+
+  formatted_output::announce("Loading initial condition.");
+  // Read in initial conditions (type/path defined in path_to_settings_file).
+  simulation.read_in_initial_conditions();
+  formatted_output::announce("Initializing hydrodynamics.");
+  // This is where the hydrodynamic simulation is set up and initialized.;
+  simulation.initialize_hydrodynamics();
+  formatted_output::announce("Running hydrodynamics.");
+  //Executes the main loop of the simulation.
+  simulation.run();
+
+}
 
 int main (int argc, char *argv[])
 {
@@ -39,50 +54,32 @@ int main (int argc, char *argv[])
   // Print the welcome message.
   message::welcome();
 
-  // Read input arguments.
-  ccake::Input in(argc, argv);
-
   //----------------------------------------------
   formatted_output::announce("Reading in command-line arguments");
+  // Read input arguments and parse config file.
+  ccake::Input in(argc, argv);
 
 
-  // This is where all parameters are initialized.
-  string path_to_settings_file     = argv[1];
-  string path_to_results_directory = argv[2];
 
-
-  //----------------------------------------------
-  formatted_output::report( "Input parameters file: "
-                            + path_to_settings_file );
-  formatted_output::report( "All results will be stored in: "
-                            + path_to_results_directory );  
-
-
-  // Define and set up the simulation object itself.
-  BSQHydro simulation;
-  simulation.set_results_directory( path_to_results_directory );
-
-
-  //----------------------------------------------
-  formatted_output::announce("Loading data");
-
-
-  // Load file containing parameter settings.
-  simulation.load_settings_file( path_to_settings_file );
-
-
-  // Read in initial conditions (type/path defined in path_to_settings_file).
-  simulation.read_in_initial_conditions();
-
-
-  // This is where the hydrodynamic simulation is set up and initialized.
-  simulation.initialize_hydrodynamics();
-
-
-  // Duh.
-  simulation.run();
-
-
+  unsigned int D = in.settingsPtr->dim;
+  switch (D)
+  {
+    case 1:
+      formatted_output::announce("Running 1D hydrodynamics");
+      execute_tasks<1>(in.settingsPtr);
+      break;
+    case 2:
+      formatted_output::announce("Running 2D hydrodynamics");
+      execute_tasks<2>(in.settingsPtr);
+      break;
+    case 3:
+      formatted_output::announce("Running 3D hydrodynamics");
+      execute_tasks<3>(in.settingsPtr);
+      break;
+    default:
+      formatted_output::announce("Invalid number of dimensions");
+      exit(EXIT_FAILURE);
+  }
   // Print success message.
   formatted_output::announce("Summary: hydrodynamic evolution completed "
                              "successfully");

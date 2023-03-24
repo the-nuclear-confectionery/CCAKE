@@ -23,14 +23,21 @@ using std::string;
 
 using namespace constants;
 
+//Template instantiations
+template class SystemState<1>;
+template class SystemState<2>;
+template class SystemState<3>;
+
 ////////////////////////////////////////////////////////////////////////////////
-void SystemState::set_SettingsPtr(Settings * settingsPtr_in)
+template<unsigned int D>
+void SystemState<D>::set_SettingsPtr(Settings * settingsPtr_in)
 {
   settingsPtr = settingsPtr_in;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void SystemState::initialize()  // formerly called "manualenter"
+template<unsigned int D>
+void SystemState<D>::initialize()  // formerly called "manualenter"
 {
   formatted_output::report("Initializing system");
 
@@ -52,7 +59,8 @@ void SystemState::initialize()  // formerly called "manualenter"
 
 
 
-void SystemState::initialize_linklist()
+template<unsigned int D>
+void SystemState<D>::initialize_linklist()
 {
   formatted_output::report("Initializing linklist");
 
@@ -71,7 +79,8 @@ void SystemState::initialize_linklist()
 
 
 ///////////////////////////////////////
-void SystemState::conservation_entropy()
+template<unsigned int D>
+void SystemState<D>::conservation_entropy()
 {
   S = 0.0;
   for ( auto & p : particles )
@@ -81,7 +90,8 @@ void SystemState::conservation_entropy()
 }
 
 ///////////////////////////////////////
-void SystemState::conservation_BSQ()
+template<unsigned int D>
+void SystemState<D>::conservation_BSQ()
 {
   // reset
   Btotal = 0.0;
@@ -110,7 +120,8 @@ void SystemState::conservation_BSQ()
 
 
 ///////////////////////////////////////
-void SystemState::conservation_energy()
+template<unsigned int D>
+void SystemState<D>::conservation_energy()
 {
   ///////////////////////////////////////////////
   // don't bother checking energy conservation on
@@ -163,7 +174,8 @@ void SystemState::conservation_energy()
 
 
 ///////////////////////////////////////
-void SystemState::compute_eccentricities()
+template<unsigned int D>
+void SystemState<D>::compute_eccentricities()
 {
   timesteps.push_back( t );
 
@@ -172,7 +184,8 @@ void SystemState::compute_eccentricities()
 }
 
 ///////////////////////////////////////
-void SystemState::compute_e_2_P()
+template<unsigned int D>
+void SystemState<D>::compute_e_2_P()
 {
   double e_2_P_c = 0.0, e_2_P_s = 0.0, normalization = 0.0;
 
@@ -195,7 +208,8 @@ void SystemState::compute_e_2_P()
 }
 
 ///////////////////////////////////////
-void SystemState::compute_e_2_X()
+template<unsigned int D>
+void SystemState<D>::compute_e_2_X()
 {
   double e_2_X_c = 0.0, e_2_X_s = 0.0, normalization = 0.0;
   for ( auto & p : particles )

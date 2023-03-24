@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "eos.h"
-#include "input_output.h"
+#include "output.h"
 #include "particle.h"
 #include "system_state.h"
 
@@ -32,15 +32,16 @@ using std::string;
 // btrack - essentially counts the number of nearest neighbors a particle has
 //==============================================================================
 
+template <unsigned int D>
 class FreezeOut
 {
-  friend class InputOutput;
+  friend class InputOutput<D>;
 
   private:
-    
+
 //    EquationOfState * eosPtr  = nullptr;
     Settings * settingsPtr    = nullptr;
-    SystemState * systemPtr   = nullptr;
+    SystemState<D>* systemPtr = nullptr;
 
     string freeze_out_mode = "constant_energy_density";
 
@@ -85,7 +86,7 @@ class FreezeOut
     vector< Vector<double,2> > rsub;
     vector< Vector<double,2> > uout;
     vector< Matrix<double,3,3> > shearsub;
-    //==========================================================================    
+    //==========================================================================
 
 
     vector<FRZ> frz1;
@@ -102,7 +103,7 @@ class FreezeOut
     vector<FRZ> frz2;
 
     void set_SettingsPtr(Settings * settingsPtr_in) { settingsPtr = settingsPtr_in; }
-    void set_SystemStatePtr(SystemState * systemPtr_in) { systemPtr = systemPtr_in; }
+    void set_SystemStatePtr(SystemState<D> * systemPtr_in) { systemPtr = systemPtr_in; }
 
     //==========================================================================
     // set things up
@@ -521,7 +522,5 @@ class FreezeOut
 
 
 };
-
-typedef std::shared_ptr<FreezeOut> pFreezeOut;  // smart pointer to freeze out object
 
 #endif
