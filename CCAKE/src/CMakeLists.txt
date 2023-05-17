@@ -4,9 +4,7 @@ add_library(src OBJECT
 	eos_extension.cpp
 	eos_table.cpp
 	formatted_output.cpp
-	input_output.cpp
 	kernel.cpp
-	linklist.cpp
 	matrix.cpp
 	particle.cpp
 	rootfinder.cpp
@@ -31,6 +29,11 @@ find_package(HDF5 COMPONENTS CXX REQUIRED)
 link_directories( ${HDF5_LIBRARY_DIRS} )
 include_directories( ${HDF5_INCLUDE_DIR} )
 target_link_libraries(src PUBLIC ${HDF5_CXX_LIBRARIES} )
+
+###############################################################################
+# Include cabana and kokkos libraries
+find_package(Cabana)
+target_link_libraries(src PUBLIC Cabana::cabanacore)
 
 ###############################################################################
 # find and link yaml-cpp libraries

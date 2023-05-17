@@ -3,11 +3,11 @@ cmake_minimum_required(VERSION 3.4)
 project(ccake VERSION 1.0 LANGUAGES CXX C)
 
 configure_file(include/config.h.in config.h)
-include_directories(${PROJECT_BINARY_DIR})
+#include_directories(${PROJECT_BINARY_DIR} /usr/include)
 
 ###############################################################
-# require C++14
-set(CMAKE_CXX_STANDARD 14)
+# require C++17
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -26,8 +26,8 @@ endif()
 if (CMAKE_BUILD_TYPE MATCHES Release )
   set(GCC_COVERAGE_COMPILE_FLAGS "-Ofast -s -march=native -mtune=native")
 endif()
-set(GCC_COVERAGE_LINK_FLAGS    "-lstdc++")
-set(CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS}")
+#set(GCC_COVERAGE_LINK_FLAGS    "-lstdc++")
+set(CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS} -fopenmp")
 set(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}")
 
 ###############################################################
@@ -41,9 +41,12 @@ endif()
 include_directories(include)
 
 ###############################################################
-#list(APPEND CMAKE_PREFIX_PATH "/projects/jnorhos/local")
+# Hack to supress the use of -isystem flags
+set(CMAKE_NO_SYSTEM_FROM_IMPORTED 1)
 
-add_executable(${PROJECT_NAME} "")
+###############################################################
+#list(APPEND CMAKE_PREFIX_PATH "/projects/jnorhos/local")
+add_executable(${PROJECT_NAME} src/ccake.cpp)
 
 add_subdirectory(src)
 
@@ -52,9 +55,9 @@ target_link_libraries(${PROJECT_NAME} PRIVATE src)
 install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_SOURCE_DIR})
 
 ###############################################################
-#Turn on testing with 'cmake -DENABLE_TESTING=ON ..'
-option(ENABLE_TESTING "Enable testing" OFF)
-if(ENABLE_TESTING)
+#Turn on testing with 'cmake -DTESTING=ON ..'
+option(TESTING "Enable testing" OFF)
+if(TESTING)
   # fetch googletest for unit testing
   include(FetchContent)
   FetchContent_Declare(
@@ -66,10 +69,13 @@ if(ENABLE_TESTING)
    FetchContent_MakeAvailable(googletest)
    enable_testing()
    add_executable(vector_test unit_tests/vector_test.cpp)
+   add_executable(input_test unit_tests/input_test.cpp)
    target_link_libraries(vector_test GTest::gtest_main)
+   target_link_libraries(input_test GTest::gtest_main src ${YAML_CPP_LIBRARIES})
 
    include(GoogleTest)
    gtest_discover_tests(vector_test)
+   gtest_discover_tests(input_test)
 endif()
 
 ###############################################################
