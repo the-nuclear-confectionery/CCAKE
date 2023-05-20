@@ -61,8 +61,6 @@ struct hydrodynamic_info
   Vector<double,D> gradBulk;              ///< Gradient of Bulk Viscosity
   Vector<double,D> divshear, gradshear;
 
-
-  // matrix members //TODO:2D only for now. Needs to be generalized to D dimensions
   Matrix<double,D,D> Imat;
   Matrix<double,D,D> gradV, gradU;        // Gradient of velocity needed for shear
   Matrix<double,D,D> uu, pimin, piu, piutot;
@@ -112,6 +110,10 @@ enum hydro_scalar_info
   dwdsT1,
   sigl,
   varsigma,
+  bigtheta,
+  inside,
+  div_u,
+  dBulk_dt,
   NUM_HYDRO_SCALAR_INFO
 };
 #define HYDRO_SCALAR_INFO double[ccake::hydro_info::NUM_HYDRO_SCALAR_INFO]
@@ -123,6 +125,7 @@ enum hydro_vector_info
   gradBulk,
   divshear,
   gradshear,
+  du_dt,
   NUM_HYDRO_VECTOR_INFO
 };
 #define HYDRO_VECTOR_INFO double[ccake::hydro_info::NUM_HYDRO_VECTOR_INFO][3]
