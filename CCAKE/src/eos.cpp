@@ -18,7 +18,7 @@
 #include "../src/eos_initialization.cpp"
 
 using namespace constants;
-
+using namespace ccake;
 using std::vector;
 using std::string;
 

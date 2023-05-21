@@ -10,6 +10,7 @@
 #include <gsl/gsl_linalg.h>
 
 #include "../include/eos.h"
+using namespace ccake;
 
 double EquationOfState::dentr_dt()   { return calc_term_1();        }
 double EquationOfState::dentr_dmub() { return calc_term_2("b");     }

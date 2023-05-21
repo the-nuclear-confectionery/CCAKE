@@ -24,15 +24,25 @@
 #include "../include/rootfinder.h"
 
 using namespace constants;
+using namespace ccake;
 
 using std::vector;
 using std::string;
 using std::to_string;
 
 ////////////////////////////////////////////////////////////////////////////////
-void EquationOfState::set_SettingsPtr( Settings * settingsPtr_in ) { settingsPtr = settingsPtr_in; }
+void EquationOfState::set_SettingsPtr( std::shared_ptr<Settings> settingsPtr_in ) { settingsPtr = settingsPtr_in; }
 
 ////////////////////////////////////////////////////////////////////////////////
+/// @brief Initializes the equation of state.
+/// @details This function initializes the equation of state by setting up the
+/// chosen EOSs and reading in the corresponding equation of state tables if
+/// needed. It also includes an option to run a closure test on the equation
+/// of state.
+///TODO: allow user to request closure test from input file
+/// @return void
+/// @see EquationOfState::set_up_chosen_EOSs()
+/// @see EquationOfState::run_closure_test()
 void EquationOfState::init()
 {
   formatted_output::report("Initializing equation of state");
@@ -41,12 +51,24 @@ void EquationOfState::init()
 
   set_up_chosen_EOSs();
 
-  bool do_eos_checks = false;
+  #ifdef DEBUG
+  bool do_eos_checks = settingsPtr->perform_eos_checks;
   if ( do_eos_checks )
     run_closure_test();
+  #endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+/// @brief Sets up the equation of state based on the settings provided.
+/// @details This function initializes the equation of state based on the
+/// eos_type provided in the settings file. It supports three types of equation
+/// of state: conformal, conformal diagonal, and table.
+/// - conformal: ///TODO: Add description for conformal equation
+/// - conformal diagonal: ///TODO: Add description for conformal equation
+/// - Table: the path to the table in the settings file is used.
+///
+/// The chosen_EOSs vector is populated with the corresponding EOS object based
+/// on the eos_type.
 void EquationOfState::set_up_chosen_EOSs()
 {
 	tbqsPosition.resize(4);
@@ -114,15 +136,11 @@ void EquationOfState::set_up_chosen_EOSs()
   // SET UP TABLE EOS
   else if ( settingsPtr->eos_type == "table" )
   {
+    eos_path = settingsPtr->eos_path;
     // add EoS to vector
     chosen_EOSs.push_back( std::make_shared<EoS_table>( eos_path ) );
     default_eos_name = "table";
   }
-  //============================================================================
-  //============================================================================
-
-
-
 
   //============================================================================
   // FOR TABLE EOS, define fallbacks if default fails
@@ -257,9 +275,6 @@ void EquationOfState::set_up_chosen_EOSs()
 
   }
 
-
-
-
     //==========================================================================
     // use diagonal conformal as final fallback (MUST ALWAYS INCLUDE)
     //==========================================================================
@@ -322,12 +337,6 @@ void EquationOfState::set_up_chosen_EOSs()
 
     }
 
-
-
-
-
-
-
   //============================================================================
   // create a map to access all needed EoSs by name
   // (this step *MUST BE DONE AFTER* chosen EoSs have been set,
@@ -343,12 +352,22 @@ void EquationOfState::set_up_chosen_EOSs()
 	return;
 }
 
-
-
+////////////////////////////////////////////////////////////////////////////////
+/// @brief Runs a closure test on the Equation of State
+/// @details The closure test is made for three different equations of state
+/// (EoSs): /// the "conformal", "conformal_diagonal" and table based EoS. For
+/// each EoS, the unction loops over different values of temperature T and
+/// chemical potentials muB, muS, and muQ. For each set of (T, muB, muS, muQ)
+/// values, it retrieves the thermodynamic quantities using the EoS, and prints
+/// them out. The thermodynamic quantities printed out include: energy density,
+/// pressure, baryon chemical potential, strangeness chemical potential,
+/// electric charge chemical potential, entropy density, speed of sound, and
+/// several other quantities.
+/// @return void
 void EquationOfState::run_closure_test()
 {
   const double hc = constants::hbarc_MeVfm;
-/*
+
   //==========================================================================
   std::cout << "Check conformal EoS:" << std::endl;
   for (double T0   = 0.0;     T0   <= 1200.01; T0   += 1200.0)
@@ -379,10 +398,7 @@ void EquationOfState::run_closure_test()
               << v[16]*hc*hc/(T0*T0) << std::endl;
   }
   std::cout << std::endl << std::endl << std::endl;
-*/
 
-
-/*
   //==========================================================================
   std::cout << "Check conformal_diagonal EoS:" << std::endl;
   for (double T0   = 0.0;     T0   <= 1200.01; T0   += 1200.0)
@@ -414,12 +430,9 @@ void EquationOfState::run_closure_test()
               << v[16]*hc*hc/(T0*T0) << std::endl;
   }
   std::cout << std::endl << std::endl << std::endl;
-*/
 
-/*
   //==========================================================================
   std::cout << "Check non-conformal extension of table EoS:" << std::endl;
-  std::cout << "Made it here" << std::endl;
   double e_In, rhoB_In, rhoS_In, rhoQ_In;
   for (double T0 =  5000.0; T0 <= 5000.01; T0 += 500.0)
   for (double muB0 = 2000.0; muB0 <= 2000.01; muB0 += 500.0)
@@ -459,7 +472,6 @@ cout << "THERMO DUMP: "
     << db2 << "   " << dq2 << "   " << ds2 << "   " << dbdq << "   "
     << dbds << "   " << dsdq << "   " << dtdb << "   " << dtdq << "   "
     << dtds << "   " << dt2 << endl;
-*/
 
 cout << "================================================================================\n"
       << "================================================================================\n"
@@ -509,6 +521,4 @@ cout << "=======================================================================
   }
   std::cout << std::endl << std::endl << std::endl;
 
-
-  exit(11);
 }

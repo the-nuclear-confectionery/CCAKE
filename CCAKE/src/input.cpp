@@ -4,6 +4,7 @@
 #include "input.h"
 
 namespace cc = ccake;
+namespace consts = constants;
 //using namespace ccake;
 
 /// \brief Constructor of the Input class. Parses the input file and sets the
