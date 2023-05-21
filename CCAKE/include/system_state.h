@@ -1,39 +1,37 @@
 #ifndef SYSTEM_STATE_H
 #define SYSTEM_STATE_H
 
+#include <Cabana_Core.hpp>
+
 #include <iostream>
 #include <string>
 #include <vector>
 
+#include "constants.h"
 #include "eos.h"
+#include "formatted_output.h"
 #include "kernel.h"
-#include "linklist.h"
 #include "matrix.h"
 #include "particle.h"
 #include "settings.h"
+#include "stopwatch.h"
 #include "vector.h"
+#include "utilities.h"
 
 using std::string;
 using std::vector;
 
-// forward declaration of SPHWorkstation and Evolver
-template <unsigned int D> class SPHWorkstation;
-template <unsigned int D> class Evolver;
-template <unsigned int D> class FreezeOut;
-template <unsigned int D> class InputOutput;
 
+namespace ccake{
 template <unsigned int D>
 class SystemState
 {
-  friend class InputOutput<D>;
-  friend class SPHWorkstation<D>;
-  friend class Evolver<D>;
-  friend class FreezeOut<D>;
 
   public:
 
-    SystemState(){}
-    ~SystemState(){}
+    SystemState() = delete; ///< Default constructor is deleted. Settings must be passed in.
+    SystemState( shared_ptr<Settings> settingsPtr_in): settingsPtr(settingsPtr_in) {};
+     ~SystemState(){}
 
     void set_EquationOfStatePtr( EquationOfState * eosPtr_in );
     void set_SettingsPtr( Settings * settingsPtr_in );
@@ -71,29 +69,38 @@ class SystemState
     int number_of_elapsed_timesteps = 0;
 
 
+    std::vector<Particle<D>> particles;     ///< Vector of particles
   private:
-    EquationOfState * eosPtr        = nullptr;
-    Settings        * settingsPtr   = nullptr;
+    std::shared_ptr<Settings> settingsPtr;  ///< Pointer to Settings object
+    ////////////////////////////////////////////////////////////////////////////
+    // Cabana data structures (used for parallelization)
+    // These are private and because data should be moved from device to host
+    // before being accessed by the user. This can be implemented in public
+    // methods, if necessarry
+    Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>* simd_policy;                 ///< Policy used to access the particle data
+    Cabana::AoSoA<CabanaParticle, DeviceType, VECTOR_LENGTH> cabana_particles; ///< Particle storage on device
+    ListType neighbour_list; ///< Neighbour list
+    Cabana::LinkedCellList<DeviceType> grid; ///< Grid used to accelerate the search for neighbors
+    Kokkos::RangePolicy<ExecutionSpace> range_policy; ///< Policy used to loop over neighbors
+    //using SerialHost = Kokkos::Device<Kokkos::Serial, Kokkos::HostSpace>;
+    //Cabana::AoSoA<ParticleType, SerialHost, 8> particles_h("particles_h",n_particles); ///Temporary storage on host
+    ////////////////////////////////////////////////////////////////////////////
 
-
-    // the vector of particles
-    vector< Particle > particles;
-
-    // the linklist specifying nearest neighbors
-    LinkList linklist;
 
     // used to track when a particle fails to find a solution in any EoS
-    vector<int> particles_out_of_grid;
+    std::vector<int> particles_out_of_grid;
 
-    vector<int> list;
+    std::vector<int> list;
 
     // eccentricities
-    vector<double> timesteps;
-    vector<double> e_2_X, e_2_P;
+    std::vector<double> timesteps;
+    std::vector<double> e_2_X, e_2_P;
 
   public:
     // initialize system state, linklist, etc.
+    void add_particle( Particle<D> p );
     void initialize();
+    void allocate_cabana_particles();
     void initialize_linklist();
 
     // check conserved quantities
@@ -119,4 +126,10 @@ class SystemState
 
 };
 
+template<unsigned int D>
+inline void SystemState<D>::add_particle( Particle<D> p )
+{
+  particles.push_back(p);
+}
+} // namespace ccake
 #endif
