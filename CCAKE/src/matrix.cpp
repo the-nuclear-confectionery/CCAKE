@@ -230,11 +230,15 @@ Vector<T,D2> operator*(const Vector<T,D1>& a, const Matrix<T,D1,D2>& b)
 } // AOK
 
 
+//TODO: Instead of static assert and an if chain, use a template
+//specialization
 template <class T, int D1>
 double deter(const Matrix<T,D1,D1>& a)
 {
   // these are the only supported options for right now
-  static_assert( D1==2 || D1==3 );
+  static_assert( D1 == 1 || D1==2 || D1==3 );
+  if (D1==1)
+    return a(0,0);
   if (D1==2)
     return a(0,0)*a(1,1)-a(0,1)*a(1,0);
   else if (D1==3)
