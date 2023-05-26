@@ -17,6 +17,7 @@
 #include "stopwatch.h"
 #include "vector.h"
 #include "utilities.h"
+#include "densities.h"
 
 using std::string;
 using std::vector;

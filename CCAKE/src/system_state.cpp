@@ -8,6 +8,7 @@
 #include <sstream>
 
 #include "system_state.h"
+#include "utilities.h"
 
 //using namespace std;
 using std::cout;
@@ -171,6 +172,8 @@ void SystemState<D>::allocate_cabana_particles(){
     host_freeze(iparticle)  = particles[iparticle].Freeze;
   }
   Cabana::deep_copy( cabana_particles, particles_h );
+  simd_policy = new Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, particles.size());
+  range_policy = Kokkos::RangePolicy<ExecutionSpace>(0, particles.size());
 
 }
 
@@ -178,41 +181,17 @@ template<unsigned int D>
 void SystemState<D>::initialize_linklist()
 {
   formatted_output::report("Initializing linklist");
-  double min_pos[D], max_pos[D];
+  double min_pos[3], max_pos[3];
   CREATE_VIEW(device_, cabana_particles);
 
-  cout << "Number of particles: " << n_particles << endl;
-  cout << "min x:.............: " << settingsPtr->xmin << endl;
-  cout << "min y:.............: " << settingsPtr->ymin << endl;
+  min_pos[0] = settingsPtr->xmin;
+  min_pos[1] = settingsPtr->ymin;
+  min_pos[2] = settingsPtr->etamin;
+  for(int idir=D; idir<3; ++idir)
+    min_pos[idir] = -.5;
+  for(int idir=0; idir<3; ++idir)
+    max_pos[idir] = -min_pos[idir];
 
-  //Find max position and minimum position
-  double min_aux = 0;
-  double max_aux = 0;
-  for (int idir=0; idir<D; ++idir){
-    Kokkos::parallel_reduce(n_particles,
-    KOKKOS_CLASS_LAMBDA (const int& iparticle, double& min_aux, double& max_aux ) {
-      double x = device_position(iparticle,0);
-      double y = device_position(iparticle,1);
-      double eps = device_thermo(iparticle, ccake::thermo_info::e);
-      double p = device_position(iparticle,idir);
-      //cout << p << endl;
-      min_aux = min_aux >= p ? p : min_aux;
-      max_aux = max_aux <  p ? p : max_aux;
-    }
-    , min_aux, max_aux);
-    Kokkos::fence();
-    min_pos[idir] = min_aux;
-    max_pos[idir] = max_aux;
-  }
-
-  for(int idir=0; idir<D; ++idir){
-    min_pos[idir] *= 2;
-    max_pos[idir] *= 2;
-  }
-  for(int idir=D; idir<3; ++idir){
-    min_pos[idir] *= 0;
-    max_pos[idir] *= 0;
-  }
 
   double grid_spacing[3] = {2*settingsPtr->hT, 2*settingsPtr->hT, 2*settingsPtr->hEta};
   grid = Cabana::LinkedCellList<DeviceType>(device_position, grid_spacing,
@@ -220,18 +199,49 @@ void SystemState<D>::initialize_linklist()
   Cabana::permute( grid, cabana_particles );
   Kokkos::fence();
 
-  cout << "Grid edges are { ";
-  for(int idir=0; idir<D; ++idir){
-    cout << "("<< min_pos[idir] <<", "<<max_pos[idir] << ") ";
-  }
-  cout << "}" << endl;
+  //Test that the neighbor list is correct
+  
+  double neighborhood_radius = 2*settingsPtr->hT;
+  double cell_ratio = 1.; //neighbour to cell_space ratio
+  ListType verlet_list(  device_position, 0, device_position.size(), 
+                                          neighborhood_radius, cell_ratio, min_pos, max_pos
+                           );
+  #ifdef DEBUG
+  auto first_neighbor_kernel =
+    KOKKOS_LAMBDA( const int i, const int j )
+    {
+        double s = 0;
+        for(int idir=0;idir<D;++idir){
+          s += (device_position(i,idir) - device_position(j,idir))*
+               (device_position(i,idir) - device_position(j,idir));
+        }
+        if (sqrt(s) > 2*settingsPtr->hT){
+          cout << "Particle " << i << " is not a neighbor of particle " << j << endl;
+          std::cout.flush();
+        }         
+    };
+  Kokkos::fence();
+  #endif
+  Cabana::neighbor_parallel_for( range_policy, first_neighbor_kernel, verlet_list,
+                               Cabana::FirstNeighborsTag(),
+                               Cabana::TeamOpTag(), "ex_1st_team" );
+  Kokkos::fence();
 
+  //auto print_parallel_message = KOKKOS_LAMBDA(const int s, const int a){
+  //  printf("Inside Lambda function");
+  //  printf("s = %d, a = %d\n", s, a);
+  //};
+  //Cabana::simd_parallel_for( *simd_policy, print_parallel_message, "calculate rho" );
+
+  
+  #ifdef DEBUG
   std::ofstream fs("validate_ic.txt");
   for (int ipart=0; ipart<n_particles; ++ipart){
     fs << device_position(ipart,0) << " " << device_position(ipart,1)
          << " " << device_thermo(ipart, ccake::thermo_info::e) << endl;
   }
   fs.close();
+  #endif
   return;
 }
 
@@ -240,11 +250,15 @@ void SystemState<D>::initialize_linklist()
 template<unsigned int D>
 void SystemState<D>::conservation_entropy()
 {
+  
+  CREATE_VIEW(device_, cabana_particles);
   S = 0.0;
-  for ( auto & p : particles )
-    S += p.specific.s*p.norm_spec.s;
-
-  //if (linklist.first==1)
+  auto get_total_entropy = KOKKOS_LAMBDA(const int &i, double &S)
+  {
+    S += device_specific_density(i, ccake::densities_info::s)*device_norm_spec(i, ccake::densities_info::s);
+  };
+  Kokkos::parallel_reduce("loop_conservation_entropy",n_particles, get_total_entropy, Kokkos::Sum<double>(S));
+  
   S0 = S;
 }
 
@@ -257,14 +271,22 @@ void SystemState<D>::conservation_BSQ()
   Btotal = 0.0;
   Stotal = 0.0;
   Qtotal = 0.0;
-
-  // sum
-  for ( auto & p : particles )
+  CREATE_VIEW(device_, cabana_particles);
+  auto get_total_B = KOKKOS_LAMBDA(const int &i, double &Btotal)
   {
-    Btotal += p.specific.rhoB*p.norm_spec.rhoB;
-    Stotal += p.specific.rhoS*p.norm_spec.rhoS;
-    Qtotal += p.specific.rhoQ*p.norm_spec.rhoQ;
-  }
+    Btotal += device_specific_density(i, ccake::densities_info::rhoB)*device_norm_spec(i, ccake::densities_info::rhoB);
+  };
+  auto get_total_S = KOKKOS_LAMBDA(const int &i, double &Stotal)
+  {
+    Stotal += device_specific_density(i, ccake::densities_info::rhoS)*device_norm_spec(i, ccake::densities_info::rhoS);
+  };
+  auto get_total_Q = KOKKOS_LAMBDA(const int &i, double &Qtotal)
+  {
+    Qtotal += device_specific_density(i, ccake::densities_info::rhoQ)*device_norm_spec(i, ccake::densities_info::rhoQ);
+  };
+  Kokkos::parallel_reduce("loop_conservation_B",n_particles, get_total_B, Kokkos::Sum<double>(Btotal));
+  Kokkos::parallel_reduce("loop_conservation_S",n_particles, get_total_S, Kokkos::Sum<double>(Stotal));
+  Kokkos::parallel_reduce("loop_conservation_Q",n_particles, get_total_Q, Kokkos::Sum<double>(Qtotal));
 
   // save initial totals
   //if (linklist.first==1)
