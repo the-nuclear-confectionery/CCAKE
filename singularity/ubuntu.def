@@ -3,7 +3,6 @@ From: ubuntu:22.04
 
 %environment
     export LC_ALL=C
-    export PATH=/usr/games:$PATH
 
 %post
     apt-get -y update
