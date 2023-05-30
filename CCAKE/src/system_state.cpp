@@ -221,10 +221,10 @@ void SystemState<D>::initialize_linklist()
         }         
     };
   Kokkos::fence();
-  #endif
   Cabana::neighbor_parallel_for( range_policy, first_neighbor_kernel, verlet_list,
                                Cabana::FirstNeighborsTag(),
                                Cabana::TeamOpTag(), "ex_1st_team" );
+  #endif
   Kokkos::fence();
 
   //auto print_parallel_message = KOKKOS_LAMBDA(const int s, const int a){
