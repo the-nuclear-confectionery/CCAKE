@@ -117,7 +117,9 @@ void LinkList::reset()
       while( b != -1 )
       {
         pa.push_back( b );
+        #ifdef DEBUG
         Utilities::lack_of_memory_stop();
+        #endif
         b = link[b];
       }
     }
