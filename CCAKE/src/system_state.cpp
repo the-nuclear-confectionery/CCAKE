@@ -178,6 +178,28 @@ void SystemState<D>::allocate_cabana_particles(){
 }
 
 template<unsigned int D>
+void SystemState<D>::reset_neighbour_list(){
+  double min_pos[3], max_pos[3];
+  min_pos[0] = settingsPtr->xmin;
+  min_pos[1] = settingsPtr->ymin;
+  min_pos[2] = settingsPtr->etamin;
+  for(int idir=D; idir<3; ++idir)
+    min_pos[idir] = -.5;
+  for(int idir=0; idir<3; ++idir)
+    max_pos[idir] = -min_pos[idir];
+  
+  CREATE_VIEW(device_, cabana_particles);
+
+  Cabana::permute( grid, cabana_particles );
+  double neighborhood_radius = 2*settingsPtr->hT;
+  double cell_ratio = 1.; //neighbour to cell_space ratio
+  neighbour_list = ListType (  device_position, 0, device_position.size(), 
+                                          neighborhood_radius, cell_ratio, min_pos, max_pos
+                           );
+  Kokkos::fence();
+}
+
+template<unsigned int D>
 void SystemState<D>::initialize_linklist()
 {
   formatted_output::report("Initializing linklist");
@@ -196,16 +218,9 @@ void SystemState<D>::initialize_linklist()
   double grid_spacing[3] = {2*settingsPtr->hT, 2*settingsPtr->hT, 2*settingsPtr->hEta};
   grid = Cabana::LinkedCellList<DeviceType>(device_position, grid_spacing,
                                              min_pos, max_pos);
-  Cabana::permute( grid, cabana_particles );
-  Kokkos::fence();
 
+  reset_neighbour_list();
   //Test that the neighbor list is correct
-  
-  double neighborhood_radius = 2*settingsPtr->hT;
-  double cell_ratio = 1.; //neighbour to cell_space ratio
-  ListType verlet_list(  device_position, 0, device_position.size(), 
-                                          neighborhood_radius, cell_ratio, min_pos, max_pos
-                           );
   #ifdef DEBUG
   auto first_neighbor_kernel =
     KOKKOS_LAMBDA( const int i, const int j )
@@ -221,7 +236,7 @@ void SystemState<D>::initialize_linklist()
         }         
     };
   Kokkos::fence();
-  Cabana::neighbor_parallel_for( range_policy, first_neighbor_kernel, verlet_list,
+  Cabana::neighbor_parallel_for( range_policy, first_neighbor_kernel, neighbour_list,
                                Cabana::FirstNeighborsTag(),
                                Cabana::TeamOpTag(), "ex_1st_team" );
   #endif
