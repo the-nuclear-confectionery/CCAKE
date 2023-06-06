@@ -9,14 +9,14 @@
 #include <string>
 #include <vector>
 
-#include "../include/constants.h"
-#include "../include/defaults.h"
-#include "../include/formatted_output.h"
-#include "../include/input_output.h"
-#include "../include/particle.h"
-#include "../include/mathdef.h"
-#include "../include/sph_workstation.h"
-#include "../include/vector.h"
+#include "constants.h"
+#include "defaults.h"
+#include "formatted_output.h"
+#include "input_output.h"
+#include "particle.h"
+#include "mathdef.h"
+#include "sph_workstation.h"
+#include "vector.h"
 
 using namespace constants;
 
@@ -71,7 +71,7 @@ void InputOutput::load_settings_file( string path_to_settings_file )
     string line;
     string field = "";
     string value = "";
-    
+
     //--------------------------------------------------------------------------
     // set default values first
     setting_map values = parameter_settings::get_defaults();
@@ -98,7 +98,6 @@ void InputOutput::load_settings_file( string path_to_settings_file )
     //--------------------------------------------------------------------------
     // store final settings
     settingsPtr->IC_type                =      get_value(values, "ICtype");
-    settingsPtr->Gubser_BSQmode         =      get_value(values, "Gubser_BSQmode");
     settingsPtr->IC_file                =      get_value(values, "ICfile");
 
     settingsPtr->h                      = stod(get_value(values, "h"));
@@ -123,8 +122,6 @@ void InputOutput::load_settings_file( string path_to_settings_file )
     settingsPtr->Freeze_Out_Type        =      get_value(values, "freezeout");
 
     settingsPtr->Gubser_BSQmode         =      get_value(values, "Gubser_BSQmode");
-    settingsPtr->HDF5_mode              =      get_value(values, "HDF5_mode");
-    settingsPtr->text_mode              =      get_value(values, "text_mode");
 
 
     //--------------------------------------------------------------------------
@@ -146,28 +143,43 @@ void InputOutput::load_settings_file( string path_to_settings_file )
 
 
   // set particles to print
-  settingsPtr->particles_to_print = vector<int>({0});
+  settingsPtr->particles_to_print = vector<int>({});
+  {
+    ifstream ifile;
+    ifile.open("particles_to_print.dat");
+    // if file exists, read in any particle indices it contains
+    if (ifile.good())
+    {
+      string line = "";
+      while ( getline (ifile, line) )
+      {
+        int particle_index = -1;
+        istringstream iss(line);
+        iss >> particle_index;
+        settingsPtr->particles_to_print.push_back( particle_index );
+      }
+    }
+    ifile.close();
 
+    // display particles currently scheduled to be printed
+    if (settingsPtr->particles_to_print.size() >= 1)
+    {
+      formatted_output::update("The following particles will be printed:");
+      for ( auto & p : settingsPtr->particles_to_print ) formatted_output::detail( to_string(p) );
+    }
+  }
 
-  // if HDF was successfully included
-  #ifdef HDF5
-    formatted_output::update("HDF5 is enabled!");
+  // set up HDF5 output file here
+  vector<double> global_parameters_to_HDF
+                  = vector<double>({ settingsPtr->h,
+                                     settingsPtr->e_cutoff });
+  vector<string> global_parameter_names_to_HDF
+                  = vector<string>({ "h",
+                                     "e_cutoff" });
+  hdf5_file.initialize( output_directory + "/system_state.h5",
+                        global_parameters_to_HDF,
+                        global_parameter_names_to_HDF );
 
-    // set up HDF5 output file here
-    vector<double> global_parameters_to_HDF
-                    = vector<double>({ settingsPtr->h,
-                                       settingsPtr->e_cutoff });
-    vector<string> global_parameter_names_to_HDF
-                    = vector<string>({ "h",
-                                       "e_cutoff" });
-    hdf5_file.initialize( output_directory + "/system_state.h5",
-                          global_parameters_to_HDF,
-                          global_parameter_names_to_HDF );
-  #else
-    formatted_output::update("HDF5 is not enabled!");
-  #endif
-
-  //if (true) abort();  // just for debugging purposes
 
   return;
 }
@@ -387,7 +399,7 @@ void InputOutput::read_in_initial_conditions()
 
       systemPtr->particles.push_back( p );
     }
-    
+
   }
   //----------------------------------------------------------------------------
   else if (initial_condition_type == "Gubser_with_shear")
@@ -474,6 +486,76 @@ void InputOutput::read_in_initial_conditions()
     }
   }
   //----------------------------------------------------------------------------
+  else if (initial_condition_type == "ccake")
+  {
+    total_header_lines = 1;
+
+    ifstream infile(IC_file.c_str());
+    #ifdef DEBUG
+    ofstream outfile;
+    outfile.open("initial_conditions.dat");
+    #endif
+    formatted_output::update("Initial conditions file: " + IC_file);
+    if (infile.is_open())
+    {
+      string line;
+      int count_header_lines = 0;
+      int count_file_lines   = 0;
+      double x, y, eta, e, rhoB, rhoS, rhoQ, ux, uy, ueta, Bulk, pixx, pixy, pixeta, piyy, piyeta, pietaeta;
+      double ignore, stepX, stepY, stepEta, xmin, ymin, etamin;
+
+      while (getline (infile, line))
+      {
+        istringstream iss(line);
+        if(count_header_lines < total_header_lines)
+        {
+          ///\todo Maybe we could store on the header additional info like
+          ///      colliding system (AuAu, PbPb etc), colliding energy, impact parameter, etc.
+          ///      These would then be used as header of the outputs.
+          settingsPtr->headers.push_back(line);
+          iss.ignore(256,'#');
+          iss >> ignore >> stepX >> stepY >> stepEta >> ignore >> xmin >> ymin >> etamin;
+          settingsPtr->stepx = stepX;
+          settingsPtr->stepy = stepY;
+          settingsPtr->stepEta = stepEta;
+          settingsPtr->xmin  = xmin;
+          settingsPtr->ymin  = ymin;
+          settingsPtr->etamin = etamin;
+          count_header_lines++;
+        }
+        else
+        {
+          iss >> x >> y >> eta >> e >> rhoB >> rhoS >> rhoQ >> ux >> uy >> ueta >> Bulk >> pixx >> pixy >> pixeta >> piyy >> piyeta >> pietaeta;
+          //if (e > .1){ ;
+            e /= hbarc_GeVfm; // 1/fm^4
+            Particle p;
+            p.r(0)       = x;
+            p.r(1)       = y;
+            p.input.e    = e;
+            p.input.rhoB = rhoB;
+            p.input.rhoS = rhoS;
+            p.input.rhoQ = rhoQ;
+            p.hydro.u(0) = ux;
+            p.hydro.u(1) = uy;
+            systemPtr->particles.push_back( p );
+            #ifdef DEBUG
+            outfile << x << " " << y << " " << e*hbarc_GeVfm << " " << rhoB
+                    << " " << rhoS << " " << rhoQ << " " << ux << " " << uy << endl;
+            #endif
+          //}
+        }
+      }
+      #ifdef DEBUG
+      outfile.close();
+      #endif
+      infile.close();
+    }
+    else
+    {
+      std::cerr << "File " << IC_file << " could not be opened!" << std::endl;
+      abort();
+    }
+  }
   else
   {
       std::cerr << "Initial condition type " << initial_condition_type
@@ -493,11 +575,8 @@ void InputOutput::print_system_state()
     print_system_state_to_txt();
 
   //---------------------------------
-  // if HDF was successfully included
-  #ifdef HDF5
   if (settingsPtr->printing_to_HDF)
     print_system_state_to_HDF();
-  #endif
 
   //---------------------------------
   print_freeze_out();
@@ -552,9 +631,9 @@ void InputOutput::print_system_state_to_txt()
           << p.s() << " "
           << p.smoothed.s/(p.hydro.gamma*systemPtr->t) << " "
           << p.specific.s << " "
-          << p.hydro.sigma << " " 
+          << p.hydro.sigma << " "
           << p.norm_spec.s << " "
-          << p.hydro.stauRelax << " " 
+          << p.hydro.stauRelax << " "
           << p.hydro.bigtheta << "       "  //20
           << sqrt(     p.hydro.shv(0,0)*p.hydro.shv(0,0)
                   -2.0*p.hydro.shv(0,1)*p.hydro.shv(0,1)
@@ -593,12 +672,58 @@ void InputOutput::print_system_state_to_txt()
   }
 
   out << std::flush;
-  
+
   out.close();
 
   return;
 }
 
+//------------------------------------------------------------------------------
+void InputOutput::print_system_state_to_HDF()
+{
+  // get width from maximum possible number of timesteps
+  const int width = ceil(log10(ceil(settingsPtr->tend/settingsPtr->dt)));
+
+  vector<string> dataset_names = {"x", "y", "T", "muB", "muS", "muQ",
+                                  "e", "s", "B", "S", "Q"};
+  vector<string> dataset_units = {"fm", "fm", "MeV", "MeV", "MeV", "MeV",
+                                  "MeV/fm^3", "1/fm^3", "1/fm^3", "1/fm^3",
+                                  "1/fm^3"};
+
+  std::map<string,int> eos_map = {{"table",              0},
+                                  {"tanh_conformal",     1},
+                                  {"conformal",          2},
+                                  {"conformal_diagonal", 3}};
+
+  vector<vector<double> > data( dataset_names.size(),
+                                vector<double>(systemPtr->particles.size()) );
+  vector<int> eos_tags(systemPtr->particles.size());
+  for (auto & p : systemPtr->particles)
+  {
+    data[0][p.ID]  = p.r(0);
+    data[1][p.ID]  = p.r(1);
+    data[2][p.ID]  = p.T()*hbarc_MeVfm;
+    data[3][p.ID]  = p.muB()*hbarc_MeVfm;
+    data[4][p.ID]  = p.muS()*hbarc_MeVfm;
+    data[5][p.ID]  = p.muQ()*hbarc_MeVfm;
+    data[6][p.ID]  = p.e()*hbarc_MeVfm;
+    data[7][p.ID]  = p.s();
+    data[8][p.ID]  = p.rhoB();
+    data[9][p.ID]  = p.rhoS();
+    data[10][p.ID] = p.rhoQ();
+    eos_tags[p.ID] = eos_map[ p.get_current_eos_name() ];
+  }
+
+  vector<string> parameter_names = { "Time", "e_2_X", "e_2_P" };
+  vector<double> parameters      = { systemPtr->t, systemPtr->e_2_X.back(),
+                                                   systemPtr->e_2_P.back() };
+
+  hdf5_file.output_dataset( dataset_names, dataset_units, data, width,
+                            n_timesteps_output, eos_tags,
+                            parameters, parameter_names );
+
+  return;
+}
 
 
 
@@ -629,12 +754,12 @@ void InputOutput::print_freeze_out()
   for (int i = 0; i < fo.cf; i++)
     FO << fo.divTtemp[i] << " " << fo.divT[i] << " "
         << fo.gsub[i] << " " << fo.uout[i] << " "
-        << fo.swsub[i] << " " << fo.bulksub[i] << " " 
+        << fo.swsub[i] << " " << fo.bulksub[i] << " "
         << fo.shearsub[i](0,0) << " "
-        << fo.shearsub[i](1,1) << " " 
+        << fo.shearsub[i](1,1) << " "
         << fo.shearsub[i](2,2) << " "
-        << fo.shear33sub[i] << " " 
-        << fo.shearsub[i](1,2) << " " 
+        << fo.shear33sub[i] << " "
+        << fo.shearsub[i](1,2) << " "
         << fo.tlist[i] << " " << fo.rsub[i] << " "
         << fo.sFO[i] << " " << fo.Tfluc[i] << endl;
 
@@ -642,64 +767,3 @@ void InputOutput::print_freeze_out()
 
   return;
 }
-
-
-
-
-//------------------------------------------------------------------------------
-// if HDF was successfully included
-#ifdef HDF5
-void InputOutput::print_system_state_to_HDF()
-{
-  // get width from maximum possible number of timesteps
-  const int width = ceil(log10(ceil(settingsPtr->tend/settingsPtr->dt)));
-
-  vector<string> dataset_names = {"x", "y", "T", "muB", "muS", "muQ",
-                                  "e", "s", "B", "S", "Q"};
-  vector<string> dataset_units = {"fm", "fm", "MeV", "MeV", "MeV", "MeV",
-                                  "MeV/fm^3", "1/fm^3", "1/fm^3", "1/fm^3",
-                                  "1/fm^3"};
-
-  vector<string> int_dataset_names = {"FOstatus"};
-
-  std::map<string,int> eos_map = {{"table",              0}, 
-                                  {"tanh_conformal",     1}, 
-                                  {"conformal",          2}, 
-                                  {"conformal_diagonal", 3}}; 
-
-  vector<vector<double> > data( dataset_names.size(),
-                                vector<double>(systemPtr->particles.size()) );
-  vector<vector<int> > int_data( int_dataset_names.size(),
-                                vector<int>(systemPtr->particles.size()) );
-  vector<int> eos_tags(systemPtr->particles.size());
-  for (auto & p : systemPtr->particles)
-  {
-    data[0][p.ID]     = p.r(0);
-    data[1][p.ID]     = p.r(1);
-    data[2][p.ID]     = p.T()*hbarc_MeVfm;
-    data[3][p.ID]     = p.muB()*hbarc_MeVfm;
-    data[4][p.ID]     = p.muS()*hbarc_MeVfm;
-    data[5][p.ID]     = p.muQ()*hbarc_MeVfm;
-    data[6][p.ID]     = p.e()*hbarc_MeVfm;
-    data[7][p.ID]     = p.s();
-    data[8][p.ID]     = p.rhoB();
-    data[9][p.ID]     = p.rhoS();
-    data[10][p.ID]    = p.rhoQ();
-
-    int_data[0][p.ID] = p.Freeze;
-
-    eos_tags[p.ID]    = eos_map[ p.get_current_eos_name() ];
-  }
-
-  vector<string> parameter_names = { "Time", "e_2_X", "e_2_P" };
-  vector<double> parameters      = { systemPtr->t, systemPtr->e_2_X.back(),
-                                                   systemPtr->e_2_P.back() };
-
-  hdf5_file.output_dataset( dataset_names, dataset_units, data,
-                            int_dataset_names, int_data,
-                            width, n_timesteps_output, eos_tags,
-                            parameters, parameter_names );
-
-  return;
-}
-#endif

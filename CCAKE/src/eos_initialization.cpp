@@ -38,13 +38,13 @@ void EquationOfState::init()
 {
   formatted_output::report("Initializing equation of state");
 
-  formatted_output::update("Setting up chosen equations of state");
+  formatted_output::update("Reading in equation of state tables");
 
   set_up_chosen_EOSs();
 
-//  bool do_eos_checks = false;
-//  if ( do_eos_checks )
-//    run_closure_test();
+  bool do_eos_checks = false;
+  if ( do_eos_checks )
+    run_closure_test();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -60,9 +60,9 @@ void EquationOfState::set_up_chosen_EOSs()
   {
     formatted_output::update("Setting up conformal equation of state");
     //formatted_output::comment(
-    //"This conformal equation of state treats all T and mu axes equivalently "
-    //"and assumes an ideal gas of massless gluons, \"2.5\" massless quark "
-    //"flavors, and Nc = 3 colors.  Quadratic cross-terms are included.");
+    //  "This conformal equation of state treats all T and mu axes equivalently "
+    //  "and assumes an ideal gas of massless gluons, \"2.5\" massless quark "
+    //  "flavors, and Nc = 3 colors.  Quadratic cross-terms are included.");
 
     const double Nc = 3.0, Nf = 2.5;  // u+d massless, s 'half massless'
     double c  = pi*pi*(2.0*(Nc*Nc-1.0)+(7.0/2.0)*Nc*Nf)/90.0;
@@ -85,10 +85,10 @@ void EquationOfState::set_up_chosen_EOSs()
   {
     formatted_output::update("Setting diagonal conformal equation of state");
     //formatted_output::comment(
-    //"This conformal equation of state treats all T and mu axes equivalently "
-    //"and assumes an ideal gas of massless gluons, \"2.5\" massless quark "
-    //"flavors, and Nc = 3 colors.  Only quartic (diagonal) terms are "
-    //"included.");
+    //  "This conformal equation of state treats all T and mu axes equivalently "
+    //  "and assumes an ideal gas of massless gluons, \"2.5\" massless quark "
+    //  "flavors, and Nc = 3 colors.  Only quartic (diagonal) terms are "
+    //  "included.");
 
     const double Nc = 3.0, Nf = 2.5;  // u+d massless, s 'half massless'
     double c  = pi*pi*(2.0*(Nc*Nc-1.0)+(7.0/2.0)*Nc*Nf)/90.0;
@@ -118,8 +118,7 @@ void EquationOfState::set_up_chosen_EOSs()
   else if ( settingsPtr->EoS_type == "table" )
   {
     // add EoS to vector
-    chosen_EOSs.push_back( std::make_shared<EoS_table>(
-                            eos_path, settingsPtr->printing_to_HDF ) );
+    chosen_EOSs.push_back( std::make_shared<EoS_table>( eos_path ) );
     default_eos_name = "table";
   }
   //============================================================================

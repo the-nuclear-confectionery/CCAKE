@@ -36,14 +36,12 @@ namespace parameter_settings
             setting_pair("bulkRelaxMode",          "default"),
             setting_pair("freezeoutT",             "150.000000"),
             setting_pair("freezeout",              "No_Freezeout"),
-            setting_pair("Gubser_BSQmode",         "off"),
-            setting_pair("HDF5_mode",              "on"),
-            setting_pair("text_mode",              "on")
+            setting_pair("Gubser_BSQmode",         "off")
           };
-      
+
     // build defaults map and return it
     setting_map defaults;
-    for ( auto & default_pair : default_pairs) defaults.insert( default_pair );
+    for ( auto & default_pair : default_pairs ) defaults.insert( default_pair );
 
     return defaults;
   }

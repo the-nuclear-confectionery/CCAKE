@@ -44,7 +44,7 @@ class Settings
     //==========================================================================
     // I/O settings
     bool printing_to_txt              = true;
-    bool printing_to_HDF              = false;
+    bool printing_to_HDF              = true;
 
     static constexpr int VERBOSE      = 5;
 
@@ -62,8 +62,10 @@ class Settings
     double dt                         = 0.0; // size of timestep
     double stepx                      = 0.0; // dx [fm]
     double stepy                      = 0.0; // dy [fm]
+    double stepEta                    = 0.0; // d\eta
     double xmin                       = 0.0; // minimum x [fm]
     double ymin                       = 0.0; // minimum y [fm]
+    double etamin                     = 0.0; // minimum eta
     double h                          = 0.0; // SPH kernel scale [fm]
 
     double e_cutoff                   = 0.0; // energy density below which
@@ -109,11 +111,6 @@ class Settings
     //------------------------------------
     // Gubser settings
     string Gubser_BSQmode            = "";
-
-    //------------------------------------
-    // I/O settings
-    string HDF5_mode                 = "";
-    string text_mode                 = "";
 
 
     // allows for explicitly printing extra information about specific particles
@@ -170,28 +167,6 @@ class Settings
         using_shear  = false;
       else
         using_shear  = true;
-
-      cout << "Checking consistency here" << endl;
-      cout << "HDF5_mode = " << HDF5_mode << endl;
-
-      //------------------------------------
-      // if HDF5 library included correctly,
-      // and if HDF_mode == "on",
-      // adjust setting accordingly
-      #ifdef HDF5
-        cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
-        cout << "HDF5_mode = " << HDF5_mode << endl;
-        if ( HDF5_mode == "on" )
-          printing_to_HDF  = true;
-      // otherwise, turn off HDF printing
-      #else
-        cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << endl;
-        printing_to_HDF  = false;
-        //printing_to_txt  = true;
-      #endif
-
-      // set printing_to_txt independently
-      printing_to_txt = static_cast<bool>( text_mode == "on" );
 
       return;
     }

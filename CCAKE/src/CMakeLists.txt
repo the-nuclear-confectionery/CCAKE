@@ -1,4 +1,3 @@
-###############################################################################
 add_library(src OBJECT
 	BSQHydro.cpp
 	ccake.cpp
@@ -12,22 +11,24 @@ add_library(src OBJECT
 	matrix.cpp
 	particle.cpp
 	rootfinder.cpp
+	utilities.cpp
 	sph_workstation.cpp
 	system_state.cpp
 	transport_coefficients.cpp
 	vector.cpp
 )
 
-
 ###############################################################################
-# link to libraries and include directories
+# find and link GSL libraries
+find_package(GSL COMPONENTS C CXX REQUIRED)
 target_link_libraries(src PUBLIC ${GSL_LIBRARIES})
 target_include_directories(src PUBLIC ${GSL_INCLUDE_DIR})
 
-if (HDF5_FOUND)
-  link_directories( ${HDF5_LIBRARY_DIRS} )
-  include_directories( ${HDF5_INCLUDE_DIR} )
-  target_link_libraries(src PUBLIC ${HDF5_CXX_LIBRARIES})
-endif()
+###############################################################################
+# find and link HDF5 libraries
+find_package(HDF5 COMPONENTS CXX REQUIRED)
+link_directories( ${HDF5_LIBRARY_DIRS} )
+include_directories( ${HDF5_INCLUDE_DIR} )
+target_link_libraries(src PUBLIC ${HDF5_CXX_LIBRARIES})
 
 target_include_directories(src PUBLIC ../include)

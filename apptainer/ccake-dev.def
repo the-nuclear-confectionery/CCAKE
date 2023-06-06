@@ -1,0 +1,35 @@
+# Bootstrap: docker
+# From: ubuntu:22.04
+Bootstrap: localimage
+From: ubuntu-dev.sif
+
+%environment
+    export LC_ALL=C
+
+%post
+    # Define environment variables needed for install
+    TRENTOSRC=/usr/local/src/trento
+    echo "================Welcome to CCAKE================"
+    echo "Installing trento"
+    git clone https://github.com/Duke-QCD/trento.git $TRENTOSRC
+    mkdir -p $TRENTOSRC/build
+    cd $TRENTOSRC/build
+    # Remove the -march=haswell flag if you are not running on a haswell or newer CPU
+    cmake -DCMAKE_BUILD_TYPE="Release" \
+          -DCMAKE_CXX_FLAGS="-march=haswell" \
+          -DCMAKE_INSTALL_PREFIX="/usr/local" $TRENTOSRC
+    make -j 4
+    make install
+
+    # QoL for developers
+    chsh -s /usr/bin/zsh root
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+
+%test
+    echo "Include file folder---------------------------------------------------"
+    ls /usr/local/include/**
+    echo "Lib folder------------------------------------------------------------"
+    ls /usr/local/lib/**
+    echo "Bin folder------------------------------------------------------------"
+    ls /usr/local/bin/**
+
