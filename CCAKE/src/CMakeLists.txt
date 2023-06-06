@@ -8,6 +8,7 @@ add_library(src OBJECT
 	matrix.cpp
 	particle.cpp
 	rootfinder.cpp
+	eom_default.cpp
 	sph_workstation.cpp
 	system_state.cpp
 	transport_coefficients.cpp
@@ -18,30 +19,24 @@ add_library(src OBJECT
 
 ###############################################################################
 # find and link GSL libraries
-find_package(GSL COMPONENTS C CXX REQUIRED)
-set (ENV{CPATH} ${GSL_INCLUDE_DIR})
+#set (ENV{CPATH} ${GSL_INCLUDE_DIR})
 target_link_libraries(src PUBLIC ${GSL_LIBRARIES})
 target_include_directories(src PUBLIC ${GSL_INCLUDE_DIR})
 
 ###############################################################################
 # find and link HDF5 libraries
-find_package(HDF5 COMPONENTS CXX REQUIRED)
 link_directories( ${HDF5_LIBRARY_DIRS} )
-include_directories( ${HDF5_INCLUDE_DIR} )
+#include_directories( ${HDF5_INCLUDE_DIR} )
 target_link_libraries(src PUBLIC ${HDF5_CXX_LIBRARIES} )
 
 ###############################################################################
 # Include cabana and kokkos libraries
-find_package(Cabana)
 target_link_libraries(src PUBLIC Cabana::cabanacore)
+target_link_libraries(src PUBLIC Kokkos::kokkos)
 
 ###############################################################################
 # find and link yaml-cpp libraries
 find_package(yaml-cpp REQUIRED)
 link_directories( ${YAML_CPP_LIBRARY_DIRS} )
-include_directories( ${YAML_CPP_INCLUDE_DIR} )
+#include_directories( ${YAML_CPP_INCLUDE_DIR} )
 target_link_libraries(src PUBLIC ${YAML_CPP_LIBRARIES} )
-
-
-
-target_include_directories(src PUBLIC ../include)

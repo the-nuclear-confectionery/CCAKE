@@ -9,39 +9,53 @@
 #include "thermodynamic_info.h"
 #include "vector.h"
 
-class EoM_default: public EquationsOfMotion
+#include <Cabana_Core.hpp>
+
+namespace ccake{
+template<unsigned int D>
+class EoM_default
 {
   private:
     static constexpr int VERBOSE = 3;
-
-    Matrix<double,2,2> Imat;
+    std::shared_ptr<Settings> settingsPtr;
+    Matrix<double,D,D> Imat;
 
   public:
-    EoM_default(){ Imat.identity(); }
-    virtual ~EoM_default(){}
+    EoM_default() = delete;
+    EoM_default( std::shared_ptr<Settings> settingsPtr_in ): settingsPtr(settingsPtr_in) { Imat.identity(); };
+    virtual ~EoM_default(){};
+
+    KOKKOS_INLINE_FUNCTION
+    double gamma_calc(double* u, const double &time_squared);
+    KOKKOS_INLINE_FUNCTION
+    double dot(double* u, double* v, const double &time_squared);
+    KOKKOS_INLINE_FUNCTION
+    double get_shvDD(double* pi_diag, const double &time_squared);
+    KOKKOS_INLINE_FUNCTION
+    double get_distance(double* r1, double* r2, const double &time_squared);
 
     std::string name = "";                    // name associated to EoM
 
     //==========================================================================
-    Matrix<double,2,2> dpidtsub_fun( hydrodynamic_info & hi )
+    Matrix<double,D,D> dpidtsub_fun( hydrodynamic_info<D> & hi )
     {
-      Matrix<double,2,2> vsub;
+      Matrix<double,D,D> vsub;
 
-      for (int i=0; i<=1; i++)
-      for (int j=0; j<=1; j++)
-      for (int k=0; k<=1; k++)
+      for (unsigned int i=0; i<D; i++)
+      for (unsigned int j=0; j<D; j++)
+      for (unsigned int k=0; k<D; k++)
         vsub(i,j) += ( hi.u(i)*hi.pimin(j,k) + hi.u(j)*hi.pimin(i,k) )*hi.du_dt(k);
 
       return vsub;
     }
 
     //==========================================================================
-    double Bsub_fun( hydrodynamic_info & hi )
+    double Bsub_fun( hydrodynamic_info<D> & hi )
     {
       // make sure this quantity is set
       hi.uu = hi.u*hi.u;
 
-      if ( !settingsPtr->using_shear )
+      if ( !this->settingsPtr->using_shear )
         return 0.0;
       else
       {
@@ -52,8 +66,8 @@ class EoM_default: public EquationsOfMotion
         double bsub = 0.0;
         double pig  = hi.shv(0,0)/hi.g2;
 
-        for (int i=0; i<=1; i++)
-        for (int j=0; j<=1; j++)
+        for (unsigned int i=0; i<D; i++)
+        for (unsigned int j=0; j<D; j++)
           bsub += hi.gradU(i,j) * ( hi.pimin(i,j) + pig*hi.uu(j,i)
                                 - ( hi.piu(i,j) + hi.piu(j,i) ) / hi.gamma );
         return bsub;
@@ -61,7 +75,7 @@ class EoM_default: public EquationsOfMotion
     }
 
     //==========================================================================
-    Matrix<double,2,2> Msub_fun( hydrodynamic_info & hi )
+    Matrix<double,D,D> Msub_fun( hydrodynamic_info<D> & hi )
     {
       hi.piu  = rowp1(0,hi.shv)*hi.u;
       return hi.Agam2*hi.uu + hi.Ctot*hi.gamma*Imat - (1+4/3./hi.g2)*hi.piu
@@ -70,7 +84,7 @@ class EoM_default: public EquationsOfMotion
 
     
     //==========================================================================
-    void evaluate_time_derivatives( hydrodynamic_info & hi,
+    void evaluate_time_derivatives( hydrodynamic_info<D> & hi,
                                     thermodynamic_info & ti,
                                     densities & d_dt_specific )
     {
@@ -89,7 +103,7 @@ class EoM_default: public EquationsOfMotion
       hi.bigPI        = hi.Bulk*hi.sigma/hi.gt;
       hi.C            = ti.w + hi.bigPI;
 
-      hi.eta_o_tau    = (settingsPtr->using_shear) ? hi.setas/hi.stauRelax : 0.0;
+      hi.eta_o_tau    = (this->settingsPtr->using_shear) ? hi.setas/hi.stauRelax : 0.0;
 
       hi.Agam         = ti.w - ti.dwds*( ti.s + hi.bigPI/ti.T ) - hi.zeta/hi.tauRelax
                         - ti.dwdB*ti.rhoB - ti.dwdS*ti.rhoS - ti.dwdQ*ti.rhoQ;
@@ -98,7 +112,7 @@ class EoM_default: public EquationsOfMotion
       hi.Ctot         = hi.C + hi.eta_o_tau*(1.0/hi.g2-1.0);
 
 
-      hi.Btot         = ( hi.Agam*hi.gamma + 2.0*hi.eta_o_tau/3.0*hi.gamma )*hi.sigl
+      hi.Btot         = ( hi.Agam*hi.gamma + 2.0*hi.eta_o_tau/3.0*hi.gamma )*hi.sigl ///TODO: 2/3 or 1/3. See Jaki's (Eq. 274)?
                           + hi.bigPI/hi.tauRelax
                           + dwdsT*( hi.gt*hi.shv33 + Bsub_fun(hi) );
 
@@ -149,44 +163,50 @@ class EoM_default: public EquationsOfMotion
 
       // THIS IS THE ORIGINAL PART IN TIME DERIVATIVES
       double gamt = 0.0, pre = 0.0, p1 = 0.0;
-      if ( settingsPtr->using_shear )
+      if ( this->settingsPtr->using_shear )
       {
         gamt = 1.0/hi.gamma/hi.stauRelax;
         pre  = hi.eta_o_tau/hi.gamma;
         p1   = gamt - 4.0/3.0/hi.sigma*hi.dsigma_dt + 1.0/hi.t/3.0;
       }
 
-      Vector<double,2> minshv   = rowp1(0, hi.shv);
-      Matrix <double,2,2> partU = hi.gradU + transpose( hi.gradU );
+      Vector<double,D> minshv   = rowp1(0, hi.shv);
+      Matrix <double,D,D> partU = hi.gradU + transpose( hi.gradU );
 
       // set the Mass and the Force
-      Matrix <double,2,2> M = Msub_fun(hi);
-      Vector<double,2> F    = hi.Btot*hi.u + hi.gradshear
+      Matrix <double,D,D> M = Msub_fun(hi);
+      Vector<double,D> F    = hi.Btot*hi.u + hi.gradshear
                               - ( hi.gradP + hi.gradBulk + hi.divshear );
 
       //===============
       // shear contribution
-      if ( settingsPtr->using_shear )
+      if ( this->settingsPtr->using_shear )
         F += pre*hi.v*partU + p1*minshv;
 
       double det = deter(M);
 
-      Matrix <double,2,2> MI;
-      MI(0,0) =  M(1,1)/det;
-      MI(0,1) = -M(0,1)/det;
-      MI(1,0) = -M(1,0)/det;
-      MI(1,1) =  M(0,0)/det;
+      Matrix <double,D,D> MI;
+      for(unsigned int i=0; i<D; ++i)
+      {
+        MI(i,i) = M(D-1-i,D-1-i)/det;
+        for(unsigned int j=i+1; j<D; ++j){
+          MI(i,j) = -M(i,j)/det;
+          MI(j,i) = -M(j,i)/det;
+        }
+      }
 
       //===============
       // compute acceleration
-      hi.du_dt(0) = F(0) * MI(0,0) + F(1) * MI(0,1);
-      hi.du_dt(1) = F(0) * MI(1,0) + F(1) * MI(1,1);
+      for (unsigned int i=0; i<D; ++i){
+        hi.du_dt(i) = 0;
+        for (unsigned int j=0; j<D; ++j) hi.du_dt(i) += F(j) * MI(i,j);
+      }
 
       //===============
       // define auxiliary variables
       double vduk               = inner( hi.v, hi.du_dt );
-      Matrix <double,2,2> ulpi  = hi.u*colp1(0, hi.shv);
-      Matrix <double,2,2> Ipi   = - 2.0*hi.eta_o_tau/3.0 * ( Imat + hi.uu )
+      Matrix <double,D,D> ulpi  = hi.u*colp1(0, hi.shv);
+      Matrix <double,D,D> Ipi   = - 2.0*hi.eta_o_tau/3.0 * ( Imat + hi.uu )
                                   + 4./3.*hi.pimin;
 
       //===============
@@ -198,11 +218,11 @@ class EoM_default: public EquationsOfMotion
       hi.bigtheta                = hi.div_u*hi.t+hi.gamma;
 
       //===============
-      Matrix <double,2,2> sub   = hi.pimin + (hi.shv(0,0)/hi.g2)*hi.uu
+      Matrix <double,D,D> sub   = hi.pimin + (hi.shv(0,0)/hi.g2)*hi.uu
                                   - 1./hi.gamma*hi.piutot;
 
       //===============
-      if ( settingsPtr->using_shear )
+      if ( this->settingsPtr->using_shear )
         hi.inside                  = hi.t*( inner( -minshv+hi.shv(0,0)*hi.v, hi.du_dt )
                                       - con2(sub, hi.gradU) - hi.gamma*hi.t*hi.shv33 );
 
@@ -245,10 +265,10 @@ class EoM_default: public EquationsOfMotion
                   << hi.bigtheta << "   "
                   << hi.tauRelax << "\n";//OK
 
-      Matrix <double,2,2> ududt = hi.u*hi.du_dt;
+      Matrix <double,D,D> ududt = hi.u*hi.du_dt;
 
       // N.B. - ADD READABLE TERM NAMES
-      if ( settingsPtr->using_shear )
+      if ( this->settingsPtr->using_shear )
         hi.dshv_dt                 = - gamt*( hi.pimin + hi.setas*partU )
                                  - hi.eta_o_tau*( ududt + transpose(ududt) )
                                  + dpidtsub_fun(hi) + hi.sigl*Ipi
@@ -257,5 +277,8 @@ class EoM_default: public EquationsOfMotion
 
 };
 
-
+template class EoM_default<1>;
+template class EoM_default<2>;
+template class EoM_default<3>;
+}
 #endif
