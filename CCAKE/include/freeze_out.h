@@ -10,6 +10,11 @@
 #include "particle.h"
 #include "system_state.h"
 
+namespace ccake
+{
+
+//TODO: This needs to be documented and split in header and
+//source code
 using std::string;
 
 //==============================================================================
@@ -35,13 +40,11 @@ using std::string;
 template <unsigned int D>
 class FreezeOut
 {
-  friend class InputOutput<D>;
-
   private:
 
 //    EquationOfState * eosPtr  = nullptr;
-    Settings * settingsPtr    = nullptr;
-    SystemState<D>* systemPtr = nullptr;
+    std::shared_ptr<Settings> settingsPtr    = nullptr;
+    std::shared_ptr<SystemState<D>> systemPtr = nullptr;
 
     string freeze_out_mode = "constant_energy_density";
 
@@ -102,14 +105,18 @@ class FreezeOut
     // (must be accessed in system state)
     vector<FRZ> frz2;
 
-    void set_SettingsPtr(Settings * settingsPtr_in) { settingsPtr = settingsPtr_in; }
+    //void set_SettingsPtr(Settings * settingsPtr_in) { settingsPtr = settingsPtr_in; }
     void set_SystemStatePtr(SystemState<D> * systemPtr_in) { systemPtr = systemPtr_in; }
 
     //==========================================================================
     // set things up
-    void initialize( double fo_threshold_in,
+    void initialize( std::shared_ptr<Settings> settingsPtr_in,
+                     std::shared_ptr<SystemState<D>> systemPtr_in,
+                     double fo_threshold_in,
                      const string & fo_mode = "constant_energy_density" )
     {
+      settingsPtr = settingsPtr_in;
+      systemPtr = systemPtr_in;
       freeze_out_threshold = fo_threshold_in;
       freeze_out_mode      = fo_mode;
       if ( freeze_out_mode != "constant_energy_density" )
@@ -150,7 +157,7 @@ class FreezeOut
 
 
     //==========================================================================
-    void check_freeze_out_status( Particle & p, double tin, int &count, int N )
+    void check_freeze_out_status( Particle<D> & p, double time_in, int &count, int N )
     {
       int p_ID = p.ID;
       if ( p.Freeze == 0 )              // if particle has not yet started freezing out
@@ -158,7 +165,7 @@ class FreezeOut
         if ( p.e() <= p.efcheck )       //  * if it's energy is below eFO
         {
           p.Freeze = 1;                 //    - start freeze-out
-          frz2[p_ID].t = tin;           //    - note the time as the most distant
+          frz2[p_ID].t = time_in;           //    - note the time as the most distant
         }
       }
       else if ( p.Freeze == 1 )         // otherwise, if freeze-out has begun
@@ -167,18 +174,18 @@ class FreezeOut
         {
           count += 1;                   //    - increment currently freezing out count
           p.Freeze = 3;                 //    - set Freeze = 3
-          frz1[p_ID].t = tin;           //    - note the time as previous
+          frz1[p_ID].t = time_in;           //    - note the time as previous
         }
         else if ( p.e()>frz1[p_ID].e )  //  * otherwise, if the particle's energy
         {                               //    has increased since the previous timestep
           p.Freeze = 1;                 //    - keep Freeze = 1
-          frz2[p_ID].t = tin;           //    - set penultimate time
+          frz2[p_ID].t = time_in;           //    - set penultimate time
         }
         else if( p.e() <= p.efcheck )   //  * otherwise, if e is below eFO
         {
           count += 1;                   //    - increment currently freezing out count
           p.Freeze = 3;                 //    - set Freeze = 3
-          frz1[p_ID].t = tin;           //    - note the time as previous
+          frz1[p_ID].t = time_in;           //    - note the time as previous
         }
         else                            //  * otherwise,
         {
@@ -522,5 +529,6 @@ class FreezeOut
 
 
 };
+}
 
 #endif
