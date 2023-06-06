@@ -14,20 +14,21 @@
 #include <vector>
 
 #include "constants.h"
-#include "output.h"
+//#include "output.h"
 #include "system_state.h"
 #include "settings.h"
 #include "kernel.h"
 #include "sph_workstation.h"
 #include "formatted_output.h"
 #include "stopwatch.h"
+#include "eom_default.h"
 
 using std::string;
 using std::vector;
 
 namespace ccake{
 
-template<unsigned int D>
+template<unsigned int D,template<unsigned int> class TEOM>
 class BSQHydro
 {
 
@@ -39,28 +40,28 @@ public:
 
   void read_in_initial_conditions();
   void initialize_hydrodynamics();
-  void run();
-  void find_freeze_out_surface();
-  void print_results();
+  //void run();
+  //void find_freeze_out_surface();
+  //void print_results();
 
 private:
 
+  //Auxiliary functions to read ICs
+  void read_ICCING();
+  void read_ccake();
+
   static constexpr int rk_order = 4; //TODO: make this a setting
-
-  string input_directory; ///< Path to directory containing input files
-  string output_directory; ///< Path to directory where output files will be stored
-
   std::shared_ptr<Settings> settingsPtr; ///< Object containing settings parsed from input file
-
-  InputOutput<D> io; ///< Input/Output object
+  std::shared_ptr<SystemState<D>> systemPtr; ///< Object containing the SPH System (linked list, particles, etc.)
+  std::shared_ptr<SPHWorkstation<D,TEOM>> wsPtr; ///< Object containing the kernel function and its derivatives
+  //InputOutput<D> io; ///< Input/Output object
 
   // hold freeze-out surface
   //FreezeOutSurface freeze_out_surface;
 
-  SystemState<D> system; ///< Object containing the SPH System (linked list, particles, etc.)
 
   // the workstation for performing SPH-related actions on the system
-  SPHWorkstation<D> ws;
+  //SPHWorkstation<D> ws;
 
 };
 }
