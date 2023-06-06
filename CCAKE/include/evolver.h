@@ -11,7 +11,7 @@
 #include "system_state.h"
 
 using std::string;
-
+namespace ccake{
 template <unsigned int D>
 class Evolver
 {
@@ -21,8 +21,8 @@ class Evolver
     static constexpr bool REGULATE_LARGE_S    = false;
 
     
-    Settings    * settingsPtr = nullptr;
-    SystemState<D> * systemPtr   = nullptr;
+    std::shared_ptr<Settings> settingsPtr;
+    std::shared_ptr<SystemState<D>> systemPtr;
 
     int n_particles = -1;
 
@@ -38,8 +38,12 @@ class Evolver
 
   public:
 
-    void set_SettingsPtr(Settings * settingsPtr_in) { settingsPtr = settingsPtr_in; }
-    void set_SystemStatePtr(SystemState<D> * systemPtr_in) { systemPtr = systemPtr_in; }
+    void initialize(std::shared_ptr<Settings> settingsPtr_in,
+                    std::shared_ptr<SystemState<D>> systemPtr_in)
+    {
+      settingsPtr = settingsPtr_in; systemPtr = systemPtr_in;
+    }
+
 
     //==========================================================================
     void advance_timestep( double dt, int rk_order,
@@ -396,5 +400,5 @@ class Evolver
 
 
 };
-
+}
 #endif
