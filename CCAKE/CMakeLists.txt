@@ -36,19 +36,41 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
 
+
+###############################################################]
+# Find dependencies
+find_package(GSL COMPONENTS C CXX REQUIRED)
+find_package(HDF5 COMPONENTS CXX REQUIRED)
+find_package(yaml-cpp REQUIRED)
+find_package(Cabana REQUIRED)
+find_package(Kokkos REQUIRED)
+
 ###############################################################
 # add include directories
 include_directories(include)
-
+include_directories(${GSL_INCLUDE_DIRS})
+include_directories(${HDF5_INCLUDE_DIRS})
+include_directories(${YAML_CPP_INCLUDE_DIR})
+include_directories(build)
 ###############################################################
 # Hack to supress the use of -isystem flags
 set(CMAKE_NO_SYSTEM_FROM_IMPORTED 1)
 
 ###############################################################
-#list(APPEND CMAKE_PREFIX_PATH "/projects/jnorhos/local")
-add_executable(${PROJECT_NAME} src/ccake.cpp)
+# Create a script to clean cmake
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/clean-cmake.sh "rm -rf CMakeCache.txt  CMakeFiles Makefile  ccake *.cmake  config.h src")
+# Set the permissions to execute for the owner
+execute_process(COMMAND chmod 755 ${CMAKE_CURRENT_BINARY_DIR}/clean-cmake.sh)
+add_custom_target(clean-cmake
+  COMMAND ${CMAKE_CURRENT_BINARY_DIR}/clean-cmake.sh
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+  COMMENT "Cleaning cmake files"
+)
 
+###############################################################
+#list(APPEND CMAKE_PREFIX_PATH "/projects/jnorhos/local")
 add_subdirectory(src)
+add_executable(${PROJECT_NAME} src/ccake.cpp)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE src)
 
@@ -77,11 +99,3 @@ if(TESTING)
    gtest_discover_tests(vector_test)
    gtest_discover_tests(input_test)
 endif()
-
-###############################################################
-# Generate helper script to clean cmake
-add_custom_command(
-  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/clean-cmake.sh
-  COMMAND echo '#!/bin/bash
-  rm -r CMakeCache.txt  CMakeFiles Makefile  ccake cmake_install.cmake  config.h src' > ${CMAKE_CURRENT_BINARY_DIR}/clean-cmake.sh
-)
