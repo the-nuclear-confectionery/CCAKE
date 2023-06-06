@@ -13,6 +13,7 @@
 
 using std::string;
 using std::vector;
+using namespace ccake;
 
 //==============================================================================
 //==============================================================================
@@ -20,7 +21,7 @@ using std::vector;
 
 //===============================
 // batch initialization
-void TransportCoefficients::initialize( const string & mode )
+/*void TransportCoefficients::initialize( const string & mode )
 {
   if ( mode == "default" )
     initialize( "default", "default", "default", "default" );
@@ -32,7 +33,7 @@ void TransportCoefficients::initialize( const string & mode )
               << mode << " not supported!\n";
     exit(8);
   }
-}
+}*/
 
 
 //===============================

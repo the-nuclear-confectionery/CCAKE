@@ -11,7 +11,7 @@
 /// \details This struct is used to store hydrodynamic information for each
 /// particle.
 ///
-/// Beware these information needs to be passed to the cabana AoSoA. To this
+/// NOTE: Beware these information needs to be passed to the cabana AoSoA. To this
 /// end, we define helper macros at the bottom of this file. If one wants to
 /// add a new member to this struct, one needs to add it to the macros as well.
 /// Also, remmember to pass new datamembers to cabana AoSoA in

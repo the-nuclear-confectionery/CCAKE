@@ -25,7 +25,7 @@
 #include "thermodynamic_info.h"
 
 using std::string;
-
+namespace ccake{
 class EquationOfState
 {
 
@@ -160,7 +160,7 @@ public:
                   bool & solution_found, bool verbose = false );
     double s_out(double ein, bool & solution_found);
 
-    void set_SettingsPtr( Settings * settingsPtr_in );
+    void set_SettingsPtr( std::shared_ptr<Settings> settingsPtr_in );
 
     vector<pEoS_base> chosen_EOSs;     // the vector of EoSs to use, in order
 
@@ -176,7 +176,7 @@ private:
     ////////////////////////////////////////////////////////////////////////////
     // PRIVATE MEMBERS
 
-    Settings * settingsPtr = nullptr;
+    std::shared_ptr<Settings> settingsPtr;
 
     //the current position in (T, muB, muQ, muS) initialized by tbqs()
     vector<double> tbqsPosition;
@@ -277,3 +277,4 @@ public:
   }
 
 };
+}

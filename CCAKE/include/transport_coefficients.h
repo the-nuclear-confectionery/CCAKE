@@ -16,6 +16,7 @@
 using std::string;
 using std::vector;
 
+namespace ccake{
 class TransportCoefficients
 {
 
@@ -51,17 +52,16 @@ class TransportCoefficients
 
     double tau_Pi_DNMR_LeadingMass();
 
-    Settings * settingsPtr   = nullptr;
+    std::shared_ptr<Settings> settingsPtr;
 
 
   public:
     TransportCoefficients(){}
     ~TransportCoefficients(){}
 
-    void set_SettingsPtr( Settings * settingsPtr_in ) { settingsPtr = settingsPtr_in; }
+    void set_SettingsPtr( std::shared_ptr<Settings> settingsPtr_in ) { settingsPtr = settingsPtr_in; }
 
     // use this to set combinations of TC parameterizations automatically
-    void initialize( const string & mode = "default" );
     void initialize( const string & etaType_in,  const string & tau_piType_in,
                      const string & zetaType_in, const string & tau_PiType_in );
 
@@ -74,7 +74,7 @@ class TransportCoefficients
     std::function<double()> tau_Pi;
 
 };
-
+}
 
 
 #endif

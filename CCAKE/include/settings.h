@@ -53,6 +53,8 @@ class Settings
     // allows for explicitly printing extra information about specific particles
     vector<int> particles_to_print;
 
+    bool perform_eos_checks           = false; ///< Flag to enable closure tests //TODO: Read its value from YAML file
+
     //==========================================================================
     // input parameter settings
     // quantities read in from InputParameters.inp file

@@ -52,8 +52,8 @@ int main (int argc, char *argv[])
   //feenableexcept(FE_INVALID | FE_OVERFLOW);
   #endif
   // Print the welcome message.
-  message::welcome();
   Kokkos::initialize(argc, argv);
+  message::welcome();
   //----------------------------------------------
   formatted_output::announce("Reading in command-line arguments");
   // Read input arguments and parse config file.
