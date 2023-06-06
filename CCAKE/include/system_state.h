@@ -72,6 +72,8 @@ class SystemState
 
     std::vector<Particle<D>> particles;     ///< Vector of particles
     Cabana::AoSoA<CabanaParticle, DeviceType, VECTOR_LENGTH> cabana_particles; ///< Particle storage on device
+    Kokkos::RangePolicy<ExecutionSpace> range_policy; ///< Policy used to loop over neighbors
+    ListType neighbour_list; ///< Neighbour list
   private:
     std::shared_ptr<Settings> settingsPtr;  ///< Pointer to Settings object
     ////////////////////////////////////////////////////////////////////////////
@@ -80,9 +82,7 @@ class SystemState
     // before being accessed by the user. This can be implemented in public
     // methods, if necessarry
     Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>* simd_policy;                 ///< Policy used to access the particle data
-    ListType neighbour_list; ///< Neighbour list
     Cabana::LinkedCellList<DeviceType> grid; ///< Grid used to accelerate the search for neighbors
-    Kokkos::RangePolicy<ExecutionSpace> range_policy; ///< Policy used to loop over neighbors
     //using SerialHost = Kokkos::Device<Kokkos::Serial, Kokkos::HostSpace>;
     //Cabana::AoSoA<ParticleType, SerialHost, 8> particles_h("particles_h",n_particles); ///Temporary storage on host
     ////////////////////////////////////////////////////////////////////////////
