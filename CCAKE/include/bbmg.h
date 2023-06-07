@@ -100,7 +100,7 @@ void BBMG<D>::initial()
   rho0tot = 0;
   for ( int i = 0; i < systemPtr->particles.size(); ++i )
   {
-    const auto & p = systemPtr->particles[i];
+    auto & p = systemPtr->particles[i];
     double rsub = p.p() / p.T();
     rho0tot    += rsub;
 
@@ -193,7 +193,7 @@ template <int D>
 void BBMG<D>::inter( field &f )
 {
   double den = 0, den2 = 0;
-  for ( const auto & p : systemPtr->particles )
+  for ( auto & p : systemPtr->particles )
   {
     double dx    = p.r(0)-f.r[0];
     double dy    = p.r(1)-f.r[1];
