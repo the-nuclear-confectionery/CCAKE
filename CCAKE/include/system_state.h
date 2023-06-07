@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 
+#include "bbmg.h"
 #include "eos.h"
 #include "kernel.h"
 #include "linklist.h"
@@ -73,7 +74,7 @@ class SystemState
     vector< Particle > particles;
 
     // the linklist specifying nearest neighbors
-    LinkList linklist; 
+    LinkList linklist;
 
     // used to track when a particle fails to find a solution in any EoS
     vector<int> particles_out_of_grid;

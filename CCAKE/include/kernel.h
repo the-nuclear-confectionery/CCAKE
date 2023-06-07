@@ -1,9 +1,8 @@
 #ifndef KERNEL_H
 #define KERNEL_H
 
-#include <stdio.h>
-#include <math.h>
 #include <cmath>
+#include <cstdio>
 #include <vector>
 
 #include "vector.h"

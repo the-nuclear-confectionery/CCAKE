@@ -19,7 +19,7 @@ friend class Evolver;
 friend class InputOutput;
 
 private:
-  
+
   static constexpr int    VERBOSE        = 3;
   static constexpr double TOLERANCE      = 0.0;
   static constexpr bool   REGULATE_LOW_T = false;
@@ -42,6 +42,11 @@ private:
   // freeze out
   FreezeOut fo;
 
+  // BBMG class to propagate gets on top of background
+  // NOTE: DOES NOT CURRENTLY AFFECT EVOLUTION OF THE SYSTEM
+  // class will likely need to be distributed over SPH_WS and system_state
+  // once backreaction is allowed to occur
+  BBMG<2> bbmg;
 
 public:
 
@@ -91,6 +96,10 @@ public:
     // set up RK evolver
     evolver.set_SettingsPtr( settingsPtr );
     evolver.set_SystemStatePtr( systemPtr );
+
+    //----------------------------------------
+    // create and initialize BBMG object
+    bbmg = BBMG( settingsPtr, systemPtr );
   }
 
   //============================================================================
@@ -154,7 +163,7 @@ public:
 
   //-------------------------------------------
   void evaluate_all_particle_time_derivatives()
-        { 
+        {
           Stopwatch sw;
           sw.Start();
           for ( auto & p : systemPtr->particles )
@@ -208,6 +217,9 @@ public:
     // (pass workstation's own time derivatives function as lambda)
     evolver.advance_timestep( dt, rk_order,
                               [this]{ this->get_time_derivatives(); } );
+
+    // propagate jets separately
+    bbmg.propagate();
 
     // set number of particles which have frozen out
     systemPtr->number_part = systemPtr->get_frozen_out_count();
