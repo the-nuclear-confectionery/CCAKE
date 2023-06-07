@@ -18,10 +18,11 @@ using std::vector;
 
 class SystemState
 {
-  friend class InputOutput;
-  friend class SPHWorkstation;
+  friend class BBMG;
   friend class Evolver;
   friend class FreezeOut;
+  friend class InputOutput;
+  friend class SPHWorkstation;
 
   public:
 
