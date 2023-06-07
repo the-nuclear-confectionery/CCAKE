@@ -32,6 +32,9 @@ private:
         double gam, vmag, vang;
     };
 
+    Settings    * settingsPtr = nullptr;
+    SystemState * systemPtr   = nullptr;
+
     int z, a, c;
     double TD;
     double area;
