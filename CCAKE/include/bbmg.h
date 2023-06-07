@@ -56,13 +56,13 @@ private:
     double qft(double p);
 
 public:
-    BBMG<D>(Settings * settingsPtr_in, SystemState * systemPtr_in);
+    BBMG<D>( Settings * settingsPtr_in, SystemState * systemPtr_in );
     void propagate();
 };
 
 
 template <int D>
-BBMG<D>::BBMG(Settings * settingsPtr_in, SystemState * systemPtr_in)
+BBMG<D>::BBMG( Settings * settingsPtr_in, SystemState * systemPtr_in )
   : settingsPtr{ settingsPtr_in },
     systemPtr{ systemPtr_in }
 {
@@ -98,8 +98,9 @@ template <int D>
 void BBMG<D>::initial()
 {
   rho0tot = 0;
-  for ( auto & p : systemPtr->particles )
+  for ( int i = 0; i < systemPtr->particles; ++i )
   {
+    const auto & p = systemPtr->particles[i];
     double rsub = p.p() / p.T();
     rho0tot    += rsub;
 
@@ -192,7 +193,7 @@ template <int D>
 void BBMG<D>::inter( field &f )
 {
   double den = 0, den2 = 0;
-  for ( auto & p : systemPtr->particles )
+  for ( const auto & p : systemPtr->particles )
   {
     double dx    = p.r(0)-f.r[0];
     double dy    = p.r(1)-f.r[1];
