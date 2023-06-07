@@ -16,6 +16,9 @@
 using std::string;
 using std::vector;
 
+// forward declaration
+class BBMG;
+
 class SystemState
 {
   friend class BBMG;
