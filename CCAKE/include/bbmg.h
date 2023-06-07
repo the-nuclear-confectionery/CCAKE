@@ -63,7 +63,7 @@ public:
 
 
 
-BBMG::BBMG( Settings * settingsPtr_in, SystemState * systemPtr_in )
+inline BBMG::BBMG( Settings * settingsPtr_in, SystemState * systemPtr_in )
   : settingsPtr{ settingsPtr_in },
     systemPtr{ systemPtr_in }
 {
@@ -96,7 +96,7 @@ BBMG::BBMG( Settings * settingsPtr_in, SystemState * systemPtr_in )
 
 
 
-void BBMG::initial()
+inline void BBMG::initial()
 {
   rho0tot = 0;
   for ( int i = 0; i < systemPtr->particles.size(); ++i )
@@ -127,16 +127,16 @@ void BBMG::initial()
 
 
 
-double BBMG::flow(field &f) { return f.gam*(1-f.vmag*cos(f.phi-f.vang)); }
+inline double BBMG::flow(field &f) { return f.gam*(1-f.vmag*cos(f.phi-f.vang)); }
 
 
-double BBMG::gft(double p) { return 2*p; }
+inline double BBMG::gft(double p) { return 2*p; }
 
 
-double BBMG::qft(double p) { return 2*p; }
+inline double BBMG::qft(double p) { return 2*p; }
 
 
-double BBMG::efluc()
+inline double BBMG::efluc()
 {
   int random_variable = std::rand()/RAND_MAX;
   double zeta         = random_variable*(q+2.);
@@ -145,7 +145,7 @@ double BBMG::efluc()
 
 
 
-void BBMG::propagate()
+inline void BBMG::propagate()
 {
   double tau  = systemPtr->t + settingsPtr->t0;
   int stillon = 0;
@@ -153,9 +153,10 @@ void BBMG::propagate()
 
   for (int i = 0; i < tot; i++)
   {
-    //propagate x,y position of jet
+    // propagate x,y position of jet
     ff[i].r[0] += vjet * systemPtr->dt * cos(ff[i].phi);
-    ff[i].r[1] += vjet * systemPtr->dt * cos(ff[i].phi);
+    ff[i].r[1] += vjet * systemPtr->dt * sin(ff[i].phi);
+
 
     inter( ff[i] );
 
@@ -191,7 +192,7 @@ void BBMG::propagate()
 }
 
 
-void BBMG::inter( field &f )
+inline void BBMG::inter( field &f )
 {
   double den = 0, den2 = 0;
   for ( auto & p : systemPtr->particles )
