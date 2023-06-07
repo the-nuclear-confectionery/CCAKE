@@ -17,8 +17,7 @@ using std::string;
 using std::vector;
 
 // forward declaration
-template <int D>
-class BBMG<D>;
+class BBMG;
 
 class SystemState
 {

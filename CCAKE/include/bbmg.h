@@ -20,7 +20,7 @@
 
 using namespace std;
 
-template <int D>
+
 class BBMG {
 private:
     struct field  // contains jet's line integral (quantitues needed for integrand)
@@ -56,14 +56,14 @@ private:
     double qft(double p);
 
 public:
-    BBMG<D>(){}
-    BBMG<D>( Settings * settingsPtr_in, SystemState * systemPtr_in );
+    BBMG(){}
+    BBMG( Settings * settingsPtr_in, SystemState * systemPtr_in );
     void propagate();
 };
 
 
-template <int D>
-BBMG<D>::BBMG( Settings * settingsPtr_in, SystemState * systemPtr_in )
+
+BBMG::BBMG( Settings * settingsPtr_in, SystemState * systemPtr_in )
   : settingsPtr{ settingsPtr_in },
     systemPtr{ systemPtr_in }
 {
@@ -95,8 +95,8 @@ BBMG<D>::BBMG( Settings * settingsPtr_in, SystemState * systemPtr_in )
 }
 
 
-template <int D>
-void BBMG<D>::initial()
+
+void BBMG::initial()
 {
   rho0tot = 0;
   for ( int i = 0; i < systemPtr->particles.size(); ++i )
@@ -126,17 +126,17 @@ void BBMG<D>::initial()
 }
 
 
-template <int D>
-double BBMG<D>::flow(field &f) { return f.gam*(1-f.vmag*cos(f.phi-f.vang)); }
 
-template <int D>
-double BBMG<D>::gft(double p) { return 2*p; }
+double BBMG::flow(field &f) { return f.gam*(1-f.vmag*cos(f.phi-f.vang)); }
 
-template <int D>
-double BBMG<D>::qft(double p) { return 2*p; }
 
-template <int D>
-double BBMG<D>::efluc()
+double BBMG::gft(double p) { return 2*p; }
+
+
+double BBMG::qft(double p) { return 2*p; }
+
+
+double BBMG::efluc()
 {
   int random_variable = std::rand()/RAND_MAX;
   double zeta         = random_variable*(q+2.);
@@ -144,8 +144,8 @@ double BBMG<D>::efluc()
 }
 
 
-template <int D>
-void BBMG<D>::propagate()
+
+void BBMG::propagate()
 {
   double tau  = systemPtr->t + settingsPtr->t0;
   int stillon = 0;
@@ -190,8 +190,8 @@ void BBMG<D>::propagate()
   }
 }
 
-template <int D>
-void BBMG<D>::inter( field &f )
+
+void BBMG::inter( field &f )
 {
   double den = 0, den2 = 0;
   for ( auto & p : systemPtr->particles )
