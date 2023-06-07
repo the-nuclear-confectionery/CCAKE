@@ -204,7 +204,7 @@ void BBMG<D>::inter( field &f )
     {
       ++den;
       den2     += p.norm_spec.s;
-      double kk = kernel(rdiff);
+      double kk = kernel::kernel(rdiff);
       f.T      += p.T()*0.06*0.06*kk;
       f.rho    += (p.p()/p.T())*kk;
       f.v[0]   += p.hydro.v(0)*kk;
