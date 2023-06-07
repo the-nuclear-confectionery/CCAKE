@@ -56,6 +56,7 @@ private:
     double qft(double p);
 
 public:
+    BBMG<D>(){}
     BBMG<D>( Settings * settingsPtr_in, SystemState * systemPtr_in );
     void propagate();
 };
