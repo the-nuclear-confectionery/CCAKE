@@ -1,6 +1,7 @@
 #ifndef SPH_WORKSTATION_H
 #define SPH_WORKSTATION_H
 
+#include "bbmg.h"
 #include "eom.h"
 #include "eom_default.h"
 #include "evolver.h"
