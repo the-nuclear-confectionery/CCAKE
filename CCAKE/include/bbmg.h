@@ -77,9 +77,9 @@ BBMG<D>::BBMG(Settings * settingsPtr_in, SystemState * systemPtr_in)
   kappa = 0.17;
   vjet  = 1;
   area  = PI*pow(2.*systemPtr->h,2);
-  rr.resize(systemPtr->n);
+  rr.resize(systemPtr->n());
 
-  for (int i=0; i<15; i++)
+  for (int i = 0; i < 15; i++)
   {
     Rq[i]  = 0;
     Rg[i]  = 0;
@@ -103,14 +103,14 @@ void BBMG<D>::initial()
     double rsub = p.p() / p.T();
     rho0tot    += rsub;
 
-    if (p.T()*constants::hbarc_MeVfm>TD)
+    if ( p.T() * constants::hbarc_MeVfm > TD )
     {
       field sub;
-      sub.r[0] = p.r.x[0];
-      sub.r[1] = p.r.x[1];
+      sub.r[0] = p.r(0);
+      sub.r[1] = p.r(1);
       sub.rho0 = rsub;
       sub.sph  = i;
-      sub.line = 0.5 * pow(systemPtr->t0, z) * pow(sub.rho0, c) * systemPtr->dt; // only if initial flow=0
+      sub.line = 0.5 * pow(settingsPtr->t0, z) * pow(sub.rho0, c) * systemPtr->dt; // only if initial flow=0
 
       for (int j=0; j<14; j++)
       {
@@ -145,7 +145,7 @@ double BBMG<D>::efluc()
 template <int D>
 void BBMG<D>::propagate()
 {
-  double tau  = systemPtr->t + systemPtr->t0;
+  double tau  = systemPtr->t + settingsPtr->t0;
   int stillon = 0;
   int tot     = ff.size();
 
@@ -194,8 +194,8 @@ void BBMG<D>::inter( field &f )
   double den = 0, den2 = 0;
   for ( auto & p : systemPtr->particles )
   {
-    double dx    = p.r.x[0]-f.r[0];
-    double dy    = p.r.x[1]-f.r[1];
+    double dx    = p.r(0)-f.r[0];
+    double dy    = p.r(1)-f.r[1];
 
     double rdiff = sqrt(dx*dx+dy*dy)/systemPtr->h;
 
@@ -203,11 +203,11 @@ void BBMG<D>::inter( field &f )
     {
       ++den;
       den2     += p.norm_spec.s;
-      double kk = kern(rdiff);
+      double kk = kernel(rdiff);
       f.T      += p.T()*0.06*0.06*kk;
       f.rho    += (p.p()/p.T())*kk;
-      f.v[0]   += p.hydro.v.x[0]*kk;
-      f.v[1]   += p.hydro.v.x[1]*kk;
+      f.v[0]   += p.hydro.v(0)*kk;
+      f.v[1]   += p.hydro.v(1)*kk;
 
       cout << dx << " " << dy << " " << p.T()*constants::hbarc_MeVfm << " " << p.hydro.v << endl;
     }
