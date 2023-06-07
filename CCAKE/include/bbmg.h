@@ -98,7 +98,7 @@ template <int D>
 void BBMG<D>::initial()
 {
   rho0tot = 0;
-  for ( int i = 0; i < systemPtr->particles; ++i )
+  for ( int i = 0; i < systemPtr->particles.size(); ++i )
   {
     const auto & p = systemPtr->particles[i];
     double rsub = p.p() / p.T();
