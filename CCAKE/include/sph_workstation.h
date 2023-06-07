@@ -100,7 +100,7 @@ public:
 
     //----------------------------------------
     // create and initialize BBMG object
-    bbmg = BBMG( settingsPtr, systemPtr );
+    bbmg = BBMG<2>( settingsPtr, systemPtr );
   }
 
   //============================================================================
