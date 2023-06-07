@@ -47,7 +47,7 @@ private:
   // NOTE: DOES NOT CURRENTLY AFFECT EVOLUTION OF THE SYSTEM
   // class will likely need to be distributed over SPH_WS and system_state
   // once backreaction is allowed to occur
-  BBMG<2> bbmg;
+  BBMG bbmg;
 
 public:
 
@@ -100,7 +100,7 @@ public:
 
     //----------------------------------------
     // create and initialize BBMG object
-    bbmg = BBMG<2>( settingsPtr, systemPtr );
+    bbmg = BBMG( settingsPtr, systemPtr );
   }
 
   //============================================================================
