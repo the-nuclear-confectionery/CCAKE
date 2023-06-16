@@ -74,7 +74,7 @@ inline BBMG::BBMG( Settings * settingsPtr_in, SystemState * systemPtr_in )
   Cq    = 4./3;
   z     = 1; // path length dependence
   a     = 0; //factor for E
-  c     = 2+z-a; //factor for T
+  c     = (2+z-a)/3; //factor for T
   kappa = 0.17;
   vjet  = 1;
   area  = PI*pow(2.*systemPtr->h,2);
