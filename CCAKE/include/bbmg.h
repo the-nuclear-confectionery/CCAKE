@@ -75,7 +75,7 @@ inline BBMG::BBMG( Settings * settingsPtr_in, SystemState * systemPtr_in )
   z     = 1; // path length dependence
   a     = 0; //factor for E
   c     = (2+z-a)/3; //factor for T
-  kappa = 0.17; // Need to use pointer to get T dependence
+  kappa = 0.17; // Need to use pointer to get T dependence or just use Matt's eqn with the access to ff[i].T
   vjet  = 1;
   area  = PI*pow(2.*systemPtr->h,2);
   rr.resize(systemPtr->n());
@@ -107,7 +107,7 @@ inline void BBMG::initial()
 
     if ( p.T() * constants::hbarc_MeVfm > TD )
     {
-      field sub;
+      field sub; //field of all particles and their info, eventually added to vector ff
       sub.r[0] = p.r(0);
       sub.r[1] = p.r(1);
       sub.rho0 = rsub;
@@ -136,12 +136,12 @@ inline double BBMG::flow(field &f) { return f.gam*(1-f.vmag*cos(f.phi-f.vang)); 
 //inline double BBMG::qft(double p) { return 2*p; }
 
 
-inline double BBMG::efluc()
+/*inline double BBMG::efluc()
 {
   int random_variable = std::rand()/RAND_MAX;
   double zeta         = random_variable*(q+2.);
   return (1.+q) / pow(q+2, 1+q) * pow(q+2.-zeta, q);
-}
+}*/
 
 
 
@@ -158,7 +158,7 @@ inline void BBMG::propagate()
     ff[i].r[1] += vjet * systemPtr->dt * sin(ff[i].phi);
 
 
-    inter( ff[i] );
+    inter( ff[i] ); //interpolation of the field
 
     if ( ( ff[i].on == 1 ) && ( ff[i].T > TD ) )
     {
