@@ -52,8 +52,8 @@ private:
     void inter(field &f); // interpolation
     double flow(field &f);
     double efluc();
-    double gft(double p);
-    double qft(double p);
+    //double gft(double p);
+    //double qft(double p);
 
 public:
     BBMG(){}
@@ -70,12 +70,12 @@ inline BBMG::BBMG( Settings * settingsPtr_in, SystemState * systemPtr_in )
   srand( time( NULL ) );
   TD    = 150;
   q     = 1;
-  Cg    = 3;
-  Cq    = 4./3;
+  Cg    = 3; // Cassimir const gluons
+  Cq    = 4./3; // Cassimir const quarks
   z     = 1; // path length dependence
   a     = 0; //factor for E
   c     = (2+z-a)/3; //factor for T
-  kappa = 0.17;
+  kappa = 0.17; // Need to use pointer to get T dependence
   vjet  = 1;
   area  = PI*pow(2.*systemPtr->h,2);
   rr.resize(systemPtr->n());
@@ -112,7 +112,7 @@ inline void BBMG::initial()
       sub.r[1] = p.r(1);
       sub.rho0 = rsub;
       sub.sph  = i;
-      sub.line = 0.5 * pow(settingsPtr->t0, z) * pow(sub.rho0, c) * systemPtr->dt; // only if initial flow=0
+      sub.line = 0.5 * kappa * pow(settingsPtr->t0, z) * pow(sub.rho0, c) * systemPtr->dt; // only if initial flow=0
 
       for (int j=0; j<14; j++)
       {
@@ -130,10 +130,10 @@ inline void BBMG::initial()
 inline double BBMG::flow(field &f) { return f.gam*(1-f.vmag*cos(f.phi-f.vang)); }
 
 
-inline double BBMG::gft(double p) { return 2*p; }
+//inline double BBMG::gft(double p) { return 2*p; } 
 
 
-inline double BBMG::qft(double p) { return 2*p; }
+//inline double BBMG::qft(double p) { return 2*p; }
 
 
 inline double BBMG::efluc()
