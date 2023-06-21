@@ -38,8 +38,9 @@ private:
     int z, a, c;
     double TD;
     double area;
-    double kappa, vjet;
+    double vjet;
     double Cg, Cq, q;
+    
     double rho0tot; // total density, NOT just T>TD!!!
     double Pfg, Pfq;
 
@@ -52,6 +53,7 @@ private:
     void inter(field &f); // interpolation
     double flow(field &f);
     double efluc();
+    double get_kappa(double T);
     //double gft(double p);
     //double qft(double p);
 
@@ -75,7 +77,7 @@ inline BBMG::BBMG( Settings * settingsPtr_in, SystemState * systemPtr_in )
   z     = 1; // path length dependence
   a     = 0; //factor for E
   c     = (2+z-a)/3; //factor for T
-  kappa = 0.17; // Need to use pointer to get T dependence or just use Matt's eqn with the access to ff[i].T
+   // Need to use pointer to get T dependence or just use Matt's eqn with the access to ff[i].T
   vjet  = 1;
   area  = PI*pow(2.*systemPtr->h,2);
   rr.resize(systemPtr->n());
@@ -113,6 +115,7 @@ inline void BBMG::initial()
       sub.rho0 = rsub;
       sub.sph  = i;
       //sub.T    = p.T()
+      // double kappa = get_kappa(p.T());
       sub.line = 0.5 * kappa * pow(settingsPtr->t0, z) * pow(sub.rho0, c) * systemPtr->dt; // only if initial flow=0
 
       for (int j=0; j<14; j++)
