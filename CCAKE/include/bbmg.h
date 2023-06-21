@@ -112,6 +112,7 @@ inline void BBMG::initial()
       sub.r[1] = p.r(1);
       sub.rho0 = rsub;
       sub.sph  = i;
+      //sub.T    = p.T()
       sub.line = 0.5 * kappa * pow(settingsPtr->t0, z) * pow(sub.rho0, c) * systemPtr->dt; // only if initial flow=0
 
       for (int j=0; j<14; j++)
