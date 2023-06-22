@@ -97,6 +97,9 @@ inline BBMG::BBMG( Settings * settingsPtr_in, SystemState * systemPtr_in )
 }
 
 
+inline double BBMG::get_kappa(double T)
+{ 
+
 
 inline void BBMG::initial()
 {
