@@ -11,6 +11,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <cmath>
 
 #include "constants.h"
 #include "kernel.h"
@@ -99,6 +100,8 @@ inline BBMG::BBMG( Settings * settingsPtr_in, SystemState * systemPtr_in )
 
 inline double BBMG::get_kappa(double T)
 { 
+  return 2.5*exp(-9.22*T) + 0.04;
+}
 
 
 inline void BBMG::initial()
@@ -118,7 +121,7 @@ inline void BBMG::initial()
       sub.rho0 = rsub;
       sub.sph  = i;
       //sub.T    = p.T()
-      // double kappa = get_kappa(p.T());
+      double kappa = get_kappa(p.T());
       sub.line = 0.5 * kappa * pow(settingsPtr->t0, z) * pow(sub.rho0, c) * systemPtr->dt; // only if initial flow=0
 
       for (int j=0; j<14; j++)
@@ -164,7 +167,8 @@ inline void BBMG::propagate()
     ff[i].r[0] += vjet * systemPtr->dt * cos(ff[i].phi);
     ff[i].r[1] += vjet * systemPtr->dt * sin(ff[i].phi);
 
-
+    double kappa = get_kappa(ff[i].T);
+      
     inter( ff[i] ); //interpolation of the field
 
     if ( ( ff[i].on == 1 ) && ( ff[i].T > TD ) )
@@ -175,16 +179,16 @@ inline void BBMG::propagate()
     else
     {
       ff[i].on    = 0;
-      ff[i].line += 0.5 * pow(tau,z) * pow(ff[i].rho, c) * flow(ff[i]) * systemPtr->dt;
-      ff[i].line *= kappa * efluc();
+      ff[i].line += 0.5 * kappa * pow(tau,z) * pow(ff[i].rho, c) * flow(ff[i]) * systemPtr->dt;
+      ff[i].line *= efluc();
 
       double P0g  = Pfg + Cg * pow(Pfg, 1-a) * ff[i].line;
       double P0q  = Pfq + Cq * pow(Pfq, 1-a) * ff[i].line;
 
       int jj      = ff[i].pid;
 
-      Rq[jj]     += pow(P0g/Pfg, 1+a) * ff[i].rho0 * gft(P0g) / gft(Pfg);
-      Rq[jj]     += pow(P0q/Pfq, 1+a) * ff[i].rho0 * qft(P0g) / qft(Pfg);
+      //Rq[jj]     += pow(P0g/Pfg, 1+a) * ff[i].rho0 * gft(P0g) / gft(Pfg);
+      //Rq[jj]     += pow(P0q/Pfq, 1+a) * ff[i].rho0 * qft(P0g) / qft(Pfg);
     }
   }
 
