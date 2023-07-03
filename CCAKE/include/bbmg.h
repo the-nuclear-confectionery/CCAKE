@@ -137,7 +137,7 @@ inline void BBMG::initial()
 
 
 
-inline double BBMG::flow(field &f) { return f.gam*(1-f.vmag*cos(f.phi-f.vang)); }
+//inline double BBMG::flow(field &f) { return f.gam*(1-f.vmag*cos(f.phi-f.vang)); }
 
 
 //inline double BBMG::gft(double p) { return 2*p; } 
@@ -179,8 +179,8 @@ inline void BBMG::propagate()
     else
     {
       ff[i].on    = 0;
-      ff[i].line += 0.5 * kappa * pow(tau,z) * pow(ff[i].rho, c) * flow(ff[i]) * systemPtr->dt;
-      ff[i].line *= efluc();
+      ff[i].line += 0.5 * kappa * pow(tau,z) * pow(ff[i].rho, c) * systemPtr->dt; /* flow(ff[i])*/
+      //ff[i].line *= efluc();
 
       double P0g  = Pfg + Cg * pow(Pfg, 1-a) * ff[i].line;
       double P0q  = Pfq + Cq * pow(Pfq, 1-a) * ff[i].line;
