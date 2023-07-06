@@ -182,8 +182,8 @@ inline void BBMG::propagate()
       ff[i].line += 0.5 * kappa * pow(tau,z) * pow(ff[i].rho, c) * systemPtr->dt; /* flow(ff[i])*/
       //ff[i].line *= efluc();
 
-      double P0g  = Pfg + Cg * pow(Pfg, 1-a) * ff[i].line;
-      double P0q  = Pfq + Cq * pow(Pfq, 1-a) * ff[i].line;
+      double P0g  = Pfg + Cg * ff[i].line; //* pow(Pfg, 1-a)
+      double P0q  = Pfq + Cq * ff[i].line; //* pow(Pfq, 1-a) 
 
       int jj      = ff[i].pid;
 
