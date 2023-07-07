@@ -124,7 +124,7 @@ inline void BBMG::initial()
       double kappa = get_kappa(p.T());
       sub.line = 0.5 * kappa * pow(settingsPtr->t0, z) * pow(sub.rho0, c) * systemPtr->dt; // only if initial flow=0
 
-      for (int j=0; j<14; j++)
+      for (int j=0; j<14; j++) //what is this 14?? figure out
       {
         sub.phi = phi[j];
         sub.pid = j;
