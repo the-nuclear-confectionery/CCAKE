@@ -9,7 +9,7 @@ sbatch <<EOT
 #SBATCH --mem-per-cpu=10250
 
 # the script to run
-SCRIPT=misc/plotting_scripts/plot_density_distributions.py
+SCRIPT=../misc/plotting_scripts/plot_density_distributions.py
 DATAFILE=$1
 OUTDIRECTORY=\$(dirname \${DATAFILE})/plots/density_distributions
 

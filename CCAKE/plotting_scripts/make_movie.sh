@@ -9,7 +9,7 @@ sbatch <<EOT
 #SBATCH --mem-per-cpu=10250
 
 # the script to run
-SCRIPT=misc/plotting_scripts/animate_profile_from_HDF.py
+SCRIPT=../misc/plotting_scripts/animate_profile_from_HDF.py
 DATAFILE=$1
 QUANTITY=$2
 OUTDIRECTORY=\$(dirname \${DATAFILE})/movies

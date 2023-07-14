@@ -9,7 +9,7 @@ sbatch <<EOT
 #SBATCH --mem-per-cpu=10250
 
 # the script to run
-SCRIPT=misc/plotting_scripts/plot_eccentricities.py
+SCRIPT=../misc/plotting_scripts/plot_eccentricities.py
 DATAFILE=$1
 OUTDIRECTORY=\$(dirname \${DATAFILE})/plots/eccentricities
 
