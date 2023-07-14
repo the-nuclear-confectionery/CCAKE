@@ -9,7 +9,7 @@ sbatch <<EOT
 #SBATCH --mem-per-cpu=10250
 
 # the script to run
-SCRIPT=../misc/plotting_scripts/plot_trajectories_from_HDF.py
+SCRIPT=misc/plotting_scripts/plot_trajectories_from_HDF.py
 DATAFILE=$1
 OUTDIRECTORY=\$(dirname \${DATAFILE})/plots/trajectories
 
