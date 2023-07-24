@@ -46,6 +46,18 @@ From: ubuntu-dev.sif
           -D Cabana_ENABLE_EXAMPLES=OFF $CABANASRC
 
     cmake --build . --target install -j
+    TRENTOSRC=/usr/local/src/trento
+    echo "================Welcome to CCAKE================"
+    echo "Installing trento"
+    git clone https://github.com/Duke-QCD/trento.git $TRENTOSRC
+    mkdir -p $TRENTOSRC/build
+    cd $TRENTOSRC/build
+    # Remove the -march=haswell flag if you are not running on a haswell or newer CPU
+    cmake -DCMAKE_BUILD_TYPE="Release" \
+          -DCMAKE_CXX_FLAGS="-march=haswell" \
+          -DCMAKE_INSTALL_PREFIX="/usr/local" $TRENTOSRC
+    make -j 4
+    make install
 
     # QoL for developers
     chsh -s /usr/bin/zsh root
