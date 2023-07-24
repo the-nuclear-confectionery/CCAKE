@@ -40,7 +40,7 @@ public:
 
   void read_in_initial_conditions();
   void initialize_hydrodynamics();
-  //void run();
+  void run();
   //void find_freeze_out_surface();
   //void print_results();
 

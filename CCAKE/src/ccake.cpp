@@ -42,7 +42,7 @@ void execute_tasks(std::shared_ptr<Settings> settingsPtr)
   simulation.initialize_hydrodynamics();
   //formatted_output::announce("Running hydrodynamics.");
   //Executes the main loop of the simulation.
-  //simulation.run();
+  simulation.run();
 
 }
 

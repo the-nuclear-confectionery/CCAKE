@@ -178,51 +178,16 @@ public:
   //void set_transport_coefficients( Particle & p );
 //
   void set_bulk_Pi();
+  bool continue_evolution();
 //
   //// misc. routine
   //double gradPressure_weight(const int a, const int b);
 
 
-  //============================================================================
-  // what it says on the label
-//  void advance_timestep( double dt, int rk_order )
-//  {
-//    Stopwatch sw;
-//    sw.Start();
-//
-//    // turn on freeze-out flag initially
-//    systemPtr->do_freeze_out = true;
-//
-//    // use evolver to actually do RK evolution
-//    // (pass workstation's own time derivatives function as lambda)
-//    evolver.advance_timestep( dt, rk_order,
-//                              [this]{ this->get_time_derivatives(); } );
-//
-//    // set number of particles which have frozen out
-//    systemPtr->number_part = systemPtr->get_frozen_out_count();
-//
-//    // keep track of how many timesteps have elapsed
-//    systemPtr->number_of_elapsed_timesteps++;
-//
-//    sw.Stop();
-//    formatted_output::report("finished timestep in "
-//                              + to_string(sw.printTime()) + " s");
-//
-//    if ( settingsPtr->max_number_of_timesteps >= 0
-//          && systemPtr->number_of_elapsed_timesteps
-//              > settingsPtr->max_number_of_timesteps )
-//      exit(-1);
-//
-//    return;
-//  }
+//============================================================================
+// what it says on the label
+void advance_timestep( double dt, int rk_order );
 
-  //============================================================================
-  // decide whether to continue evolving
-//  bool continue_evolution()
-//  {
-//    return ( systemPtr->t < settingsPtr->tend )
-//            && ( systemPtr->number_part < systemPtr->n() );
-//  }
 };
 
 } // namespace ccake

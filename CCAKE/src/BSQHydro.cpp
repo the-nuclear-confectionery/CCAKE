@@ -308,12 +308,12 @@ void BSQHydro<D,TEOM>::initialize_hydrodynamics()
 
   return;
 }
-/*
+
 
 
 ////////////////////////////////////////////////////////////////////////////////
-template <unsigned int D>
-void BSQHydro<D>::run()
+template<unsigned int D, template<unsigned int> typename TEOM>
+void BSQHydro<D,TEOM>::run()
 {
   formatted_output::announce("Beginning hydrodynamic evolution");
   Stopwatch sw;
@@ -321,42 +321,44 @@ void BSQHydro<D>::run()
 
   //===================================
   // initialize conserved quantities, etc.
-  system.conservation_entropy();
-  system.conservation_BSQ();
-  system.compute_eccentricities();
+  systemPtr->conservation_entropy();
+  systemPtr->conservation_BSQ();
+  systemPtr->compute_eccentricities();
 
+  ///TODO: Implement output of system state
   //===================================
   // print initialized system and status
-  io.print_conservation_status();
-  io.print_system_state();
-
+  //io.print_conservation_status();
+  //io.print_system_state();
+  
   //===================================
   // evolve until simulation terminates
-  while ( ws.continue_evolution() )
+  while ( wsPtr->continue_evolution() )
   {
     //===================================
     // workstation advances by given
     // timestep at given RK order
-    ws.advance_timestep( settingsPtr->dt, rk_order );
+    wsPtr->advance_timestep( settingsPtr->dt, rk_order );
 
     //===================================
     // re-compute conserved quantities, etc.
-    system.conservation_entropy();
-    system.conservation_BSQ();
-    system.compute_eccentricities();
+    systemPtr->conservation_entropy();
+    systemPtr->conservation_BSQ();
+    systemPtr->compute_eccentricities();
 
     //===================================
     // print updated system and status
-    io.print_conservation_status();
-    io.print_system_state();
+    //io.print_conservation_status();
+    //io.print_system_state();
   }
 
   sw.Stop();
   formatted_output::summarize("All timesteps finished in "
                               + to_string(sw.printTime()) + " s");
+  
 }
 
-
+/*
 // not yet defined
 template <unsigned int D>
 void BSQHydro<D>::find_freeze_out_surface(){}

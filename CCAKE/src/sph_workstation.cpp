@@ -996,3 +996,49 @@ void SPHWorkstation<D, TEOM>::add_buffer(double default_e)
 
   return;
 }
+
+//============================================================================
+// decide whether to continue evolving
+template<unsigned int D, template<unsigned int> class TEOM>
+bool SPHWorkstation<D, TEOM>::continue_evolution()
+{
+  std::cout << "t = " << systemPtr->t << std::endl;
+  return ( systemPtr->t < settingsPtr->tend )
+          && ( systemPtr->number_part < systemPtr->n() );
+}
+
+//============================================================================
+// Advance one timestep
+template<unsigned int D, template<unsigned int> class TEOM>
+void SPHWorkstation<D, TEOM>::advance_timestep( double dt, int rk_order )
+{
+  Stopwatch sw;
+  sw.Start();
+  // turn on freeze-out flag initially
+  //systemPtr->do_freeze_out = true; 
+  ///TODO: do_freeze_out should be a flag in the settings file
+  // use evolver to actually do RK evolution
+  // (pass workstation's own time derivatives function as lambda)
+  
+  //Bulk of code evaluation is done below
+  //evolver.advance_timestep( dt, rk_order,
+  //                          [this]{ this->get_time_derivatives(); } );
+  
+  // set number of particles which have frozen out
+  systemPtr->number_part = systemPtr->get_frozen_out_count();
+  // keep track of how many timesteps have elapsed
+  systemPtr->number_of_elapsed_timesteps++;
+
+  //Temp evo increment
+  ///TODO: Do not forget to erase the line below
+  systemPtr->t += dt;
+
+  sw.Stop();
+  formatted_output::report("finished timestep in "
+                            + to_string(sw.printTime()) + " s");
+  if ( settingsPtr->max_number_of_timesteps >= 0
+        && systemPtr->number_of_elapsed_timesteps
+            > settingsPtr->max_number_of_timesteps )
+    exit(-1);
+  return;
+}
