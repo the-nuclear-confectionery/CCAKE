@@ -1021,7 +1021,7 @@ void SPHWorkstation<D, TEOM>::advance_timestep( double dt, int rk_order )
   // (pass workstation's own time derivatives function as lambda)
   
   //Bulk of code evaluation is done below
-  //evolver.advance_timestep( dt, rk_order,
+  //evolver.execute_timestep( dt, rk_order,
   //                          [this]{ this->get_time_derivatives(); } );
   
   // set number of particles which have frozen out

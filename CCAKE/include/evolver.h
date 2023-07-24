@@ -46,7 +46,7 @@ class Evolver
 
 
     //==========================================================================
-    void advance_timestep( double dt, int rk_order,
+    void execute_timestep( double dt, int rk_order,
                             std::function<void(void)>
                             time_derivatives_functional )
     {
