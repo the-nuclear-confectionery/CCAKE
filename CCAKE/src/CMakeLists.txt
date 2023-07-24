@@ -3,6 +3,7 @@ add_library(src OBJECT
 	eos.cpp
 	eos_extension.cpp
 	eos_table.cpp
+	evolver.cpp
 	formatted_output.cpp
 	kernel.cpp
 	matrix.cpp

@@ -52,7 +52,7 @@ void SPHWorkstation<D,TEOM>::initialize()
 
   //----------------------------------------
   // set up RK evolver
-  evolver.initialize( settingsPtr, systemPtr );
+  //evolver.initialize( settingsPtr, systemPtr );
 
 }
 

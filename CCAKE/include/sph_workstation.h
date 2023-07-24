@@ -84,7 +84,9 @@ public:
   SPHWorkstation() = delete; ///< Default constructor is deleted. System state and settings must be passed in.
   SPHWorkstation( shared_ptr<Settings> settingsPtr_in,
                   shared_ptr<SystemState<D>> systemPtr_in )
-    : settingsPtr(settingsPtr_in), systemPtr(systemPtr_in) {}
+    : settingsPtr(settingsPtr_in),
+      systemPtr(systemPtr_in),
+      evolver(Evolver(settingsPtr_in, systemPtr_in)) {}
   ~SPHWorkstation(){}
 
   //============================================================================

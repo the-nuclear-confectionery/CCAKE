@@ -5,13 +5,39 @@
 #include <string>
 #include <vector>
 
+#include <Cabana_Core.hpp>
+
 #include "eos.h"
 #include "formatted_output.h"
 #include "particle.h"
 #include "system_state.h"
+#include "utilities.h"
 
-using std::string;
 namespace ccake{
+
+
+using EvolverCache = Cabana::MemberTypes<double[3][3], // stress-energy tensor
+                                         double[4],    // four-velocity
+                                         double[3],    // position
+                                         double,       // specific_entropy
+                                         double,       // Bulk pressure
+                                         double        // E0
+>;
+
+namespace evolver_cache_info
+{
+enum cache_data
+{
+  stress_energy_tensor,
+  four_velocity,
+  position,
+  specific_entropy,
+  Bulk_pressure,
+  E0
+};
+}
+
+
 template <unsigned int D>
 class Evolver
 {
@@ -26,6 +52,8 @@ class Evolver
 
     int n_particles = -1;
 
+    Cabana::AoSoA<EvolverCache, DeviceType, VECTOR_LENGTH> evolver_cache;
+
     // creating vectors of quantities for RK evolution
     vector<double> specific_s0;
     vector<double> Bulk0;
@@ -38,35 +66,20 @@ class Evolver
 
   public:
 
-    void initialize(std::shared_ptr<Settings> settingsPtr_in,
-                    std::shared_ptr<SystemState<D>> systemPtr_in)
-    {
-      settingsPtr = settingsPtr_in; systemPtr = systemPtr_in;
-    }
+    Evolver() = delete;
+    Evolver(std::shared_ptr<Settings> settingsPtr_in,
+            std::shared_ptr<SystemState<D>> systemPtr_in);
 
 
     //==========================================================================
-    void execute_timestep( double dt, int rk_order,
-                            std::function<void(void)>
-                            time_derivatives_functional )
-    {
-      switch ( rk_order )
-      {
-        case 2:
-          advance_timestep_rk2( dt, time_derivatives_functional );
-          break;
-        case 4:
-          advance_timestep_rk4( dt, time_derivatives_functional );
-          break;
-        default:
-          std::cerr << "Invalid Runge-Kutta order!" << std::endl;
-          exit(8);
-          break;
-      }
-    }
+    void execute_timestep(double dt, int rk_order,
+                          std::function<void(void)> time_derivatives_functional );
 
+};
+}
+#endif
 
-
+/*
 
     //==============================================================================
     // this routine is used to initialize quantities prior to RK evolution
@@ -395,10 +408,4 @@ class Evolver
 
     }
 
-
-
-
-
-};
-}
-#endif
+*/
