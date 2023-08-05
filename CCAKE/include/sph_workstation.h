@@ -16,13 +16,14 @@
 #include "stopwatch.h"
 #include "system_state.h"
 #include "transport_coefficients.h"
+#include "thermodynamic_info.h"
 
 
 
 //forward declare template class
 //namespace ccake{
-//template <unsigned int D>
-//class BSQHydro;
+//template<unsigned int D,template<unsigned int> class TEOM>
+//class BSQHydro
 //}
 //template <unsigned int D> class Evolver;
 //template <unsigned int D> class InputOutput;
@@ -86,8 +87,11 @@ public:
                   shared_ptr<SystemState<D>> systemPtr_in )
     : settingsPtr(settingsPtr_in),
       systemPtr(systemPtr_in),
-      evolver(Evolver(settingsPtr_in, systemPtr_in)) {}
-  ~SPHWorkstation(){}
+      evolver(Evolver(settingsPtr_in, systemPtr_in)),
+      transport_coefficients(settingsPtr_in) {}
+  ~SPHWorkstation(){
+
+  }
 
   //============================================================================
   // initialize pointers
@@ -111,12 +115,14 @@ public:
   void smooth_all_particle_fields(double time_squared);
   //void smooth_gradients( Particle<D> & pa, double tin );
 
-  //void get_time_derivatives();
+  void get_time_derivatives();
 
 
   //============================================================================
   // functions to apply action to all particles
   //-------------------------------------------
+  void update_all_particle_thermodynamics(double time_squared);
+  void update_all_particle_viscosities();
   
   //-------------------------------------------
   //void smooth_all_particle_gradients()
@@ -129,22 +135,6 @@ public:
   //        formatted_output::update("finished smoothing particle gradients in "
   //                                  + to_string(sw.printTime()) + " s.");
   //      }
-
-  //-------------------------------------------
-  //void update_all_particle_thermodynamics()
-  //      {
-  //        Stopwatch sw;
-  //        sw.Start();
-  //        for ( auto & p : systemPtr->particles )
-  //          set_phase_diagram_point( p );
-  //        sw.Stop();
-  //        formatted_output::update("got particle thermodynamics in "
-  //                                  + to_string(sw.printTime()) + " s."); }
-
-  //-------------------------------------------
-  //void update_all_particle_viscosities()
-  //      { for ( auto & p : systemPtr->particles )
-  //          set_transport_coefficients( p ); }
 
   //-------------------------------------------
   //void evaluate_all_particle_time_derivatives()
@@ -171,10 +161,11 @@ public:
   double locate_phase_diagram_point_eBSQ(double e_In,
           double rhoB_In, double rhoS_In, double rhoQ_In );
   double locate_phase_diagram_point_eBSQ(double e_In );
+  //KOKKOS_INLINE_FUNCTION
   void locate_phase_diagram_point_sBSQ(Particle<D> & p, double s_In,
           double rhoB_In, double rhoS_In, double rhoQ_In );
-  void locate_phase_diagram_point_sBSQ(
-          Particle<D> & p, double s_In );
+  //KOKKOS_INLINE_FUNCTION
+  void locate_phase_diagram_point_sBSQ(Particle<D> & p, double s_In );
 
   //void set_phase_diagram_point( Particle & p );
   //void set_transport_coefficients( Particle & p );

@@ -3,69 +3,42 @@
 #include <string>
 #include <vector>
 
-#include "../include/constants.h"
-#include "../include/eos.h"
-#include "../include/kernel.h"
-#include "../include/matrix.h"
-#include "../include/particle.h"
-#include "../include/settings.h"
-#include "../include/transport_coefficients.h"
+#include "constants.h"
+#include "eos.h"
+#include "kernel.h"
+#include "matrix.h"
+#include "particle.h"
+#include "settings.h"
+#include "transport_coefficients.h"
 
 using std::string;
 using std::vector;
 using namespace ccake;
 
-//==============================================================================
-//==============================================================================
-// INITIALIZE THE TRANSPORT COEFFICIENTS
-
-//===============================
-// batch initialization
-/*void TransportCoefficients::initialize( const string & mode )
+/// @brief Constructor for TransportCoefficients class
+/// @param etaType_in String with description of shear viscosity to be used
+/// @param tau_piType_in String with description of shear relaxation time to be used
+/// @param zetaType_in String with description of bulk viscosity to be used
+/// @param tau_PiType_in String with description of bulk relaxation time to be used
+TransportCoefficients::TransportCoefficients(std::shared_ptr<Settings> settingsPtr_in):
+settingsPtr(settingsPtr_in)
 {
-  if ( mode == "default" )
-    initialize( "default", "default", "default", "default" );
-  else if ( mode == "Gubser" )
-    initialize( "constant", "Gubser", "constant", "default" );
-  else
-  {
-    std::cout << "TransportCoefficients::mode value = "
-              << mode << " not supported!\n";
-    exit(8);
-  }
-}*/
-
-
-//===============================
-// explicit (individual) initialization
-void TransportCoefficients::initialize( const string & etaType_in,
-                                        const string & tau_piType_in,
-                                        const string & zetaType_in,
-                                        const string & tau_PiType_in )
-{
-//  cout << "Using etaType_in = " << etaType_in << endl;
-//  cout << "Using tau_piType_in = " << tau_piType_in << endl;
-//  cout << "Using zetaType_in = " << zetaType_in << endl;
-//  cout << "Using tau_PiType_in = " << tau_PiType_in << endl;
-
-  // set here (redundant) to ensure checks are passed below
-  etaType    = etaType_in;
-  tau_piType = tau_piType_in;
-  zetaType   = zetaType_in;
-  tau_PiType = tau_PiType_in;
-
-
+  etaMode = settingsPtr->etaMode;
+  shearRelaxMode = settingsPtr->shearRelaxMode;
+  zetaMode = settingsPtr->zetaMode;
+  bulkRelaxMode = settingsPtr->bulkRelaxMode;
+  
   // Set shear viscosity
-  initialize_eta( etaType_in );
+  initialize_eta( etaMode );
 
   // Set bulk viscosity
-  initialize_zeta( zetaType_in );
+  initialize_zeta( zetaMode );
 
   // Set shear relaxation
-  initialize_tau_pi( tau_piType_in );
+  initialize_tau_pi( shearRelaxMode );
 
   // Set bulk relaxation
-  initialize_tau_Pi( tau_PiType_in );
+  initialize_tau_Pi( bulkRelaxMode );
 }
 
 
@@ -73,35 +46,35 @@ void TransportCoefficients::initialize( const string & etaType_in,
 void TransportCoefficients::initialize_eta(const string & etaType_in)
 {
   // set chosen eta parameterization
-  etaType = etaType_in;
+  etaMode = etaType_in;
 
   // assign corresponding function
-  if (etaType == "default")
+  if (etaMode == "default")
   {
-    eta = [this]{ return default_eta(); };
+    eta = [this](double *therm){ return default_eta(therm); };
   }
-  else if (etaType == "constant")
+  else if (etaMode == "constant")
   {
     eta_T_OV_w_IN = settingsPtr->constant_eta_over_s;
-    eta = [this]{ return constEta(); };
+    eta = [this](double *therm){ return constEta(therm); };
   }
-  else if (etaType == "JakiParam")
+  else if (etaMode == "JakiParam")
   {
-    eta = [this]{ return JakiParam(); };
+    eta = [this](double *therm){ return JakiParam(therm); };
   }
-  else if (etaType == "LinearMus")
+  else if (etaMode == "LinearMus")
   {
-    eta = [this]{ return LinearMusParam(); };
+    eta = [this](double *therm){ return LinearMusParam(therm); };
   }
-  else if (etaType == "interpolate")
+  else if (etaMode == "interpolate")
   {
     //use parameter to find directory of table, then
     // execute interpolation
-    eta = [this]{ return InterpolantWrapper(); };
+    eta = [this](double *therm){ return InterpolantWrapper(therm); };
   }
   else
   {
-    cout << "Shear viscosity specification " << etaType << " not recognized. Now exiting.\n";
+    cout << "Shear viscosity specification " << etaMode << " not recognized. Now exiting.\n";
     exit(1);
   }
 }
@@ -110,39 +83,39 @@ void TransportCoefficients::initialize_eta(const string & etaType_in)
 //==============================================================================
 void TransportCoefficients::initialize_tau_pi(const string & tau_piType_in)
 {
-  tau_piType = tau_piType_in;
+  shearRelaxMode = tau_piType_in;
 
-  if (tau_piType == "default")
+  if (shearRelaxMode == "default")
   {
-    tau_pi = [this]{ return default_tau_pi(); };
+    tau_pi = [this](double *therm){ return default_tau_pi(therm); };
   }
-  else if (tau_piType == "minVal")
+  else if (shearRelaxMode == "minVal")
   {
-    tau_pi = [this]{ return tau_piMinval(); };
+    tau_pi = [this](double *therm){ return tau_piMinval(therm); };
   }
-  else if (tau_piType == "Gubser")
+  else if (shearRelaxMode == "Gubser")
   {
     /* these consistency checks maybe should be done in settings.h? */
-    if (etaType != "constant")
+    if (etaMode != "constant")
     {
       std::cout << "Shear viscosity must be constant for Gubser. "
               "Check Input_Parameters.  Now exiting.\n";
       exit(1);
     }
-    if (zetaType != "constant" || abs(settingsPtr->constant_zeta_over_s) > 1e-6)
+    if (zetaMode != "constant" || abs(settingsPtr->constant_zeta_over_s) > 1e-6)
     {
-      std::cout << "You have chosen zetaType = " << zetaType
+      std::cout << "You have chosen zetaMode = " << zetaMode
                 << " and zeta/s = " << abs(settingsPtr->constant_zeta_over_s) 
                 << ".\n" << "Bulk viscosity must be zero"
                    " for Gubser. Check Input_Parameters.  "
                    " Now exiting.\n";
       exit(1);
     }
-    tau_pi = [this]{ return tau_piGubser(); };
+    tau_pi = [this](double *therm){ return tau_piGubser(therm); };
   }
   else
   {
-    cout << "Tau shear specification " << tau_piType << " not recognized. Now exiting.\n";
+    cout << "Tau shear specification " << shearRelaxMode << " not recognized. Now exiting.\n";
     exit(1);
   }
 }
@@ -151,33 +124,33 @@ void TransportCoefficients::initialize_tau_pi(const string & tau_piType_in)
 //==============================================================================
 void TransportCoefficients::initialize_zeta(const string & zetaType_in)
 {
-  zetaType     = zetaType_in;
+  zetaMode     = zetaType_in;
 
-  if (zetaType == "default")
+  if (zetaMode == "default")
   {
-    zeta = [this]{ return default_zeta(); };
+    zeta = [this](double *therm){ return default_zeta(therm); };
   }
-  else if (zetaType == "constant")
+  else if (zetaMode == "constant")
   {
-    zeta = [this]{ return constZeta(); };
+    zeta = [this](double *therm){ return constZeta(therm); };
   }
-  else if (zetaType == "DNMR")
+  else if (zetaMode == "DNMR")
   {
-    zeta = [this]{ return zeta_DNMR_LeadingMass(); };
+    zeta = [this](double *therm){ return zeta_DNMR_LeadingMass(therm); };
   }
-  else if (zetaType == "interpolate")
+  else if (zetaMode == "interpolate")
   {
     //use parameter to find directory of table, then
     // execute interpolation
-    zeta = [this]{ return InterpolantWrapper(); };
+    zeta = [this](double *therm){ return InterpolantWrapper(therm); };
   }
-  else if (zetaType == "cs2_dependent")
+  else if (zetaMode == "cs2_dependent")
   {
-    zeta = [this]{ return cs2_dependent_zeta(); };
+    zeta = [this](double *therm){ return cs2_dependent_zeta(therm); };
   }
   else
   {
-    cout << "Bulk viscosity specification " << zetaType << " not recognized. Now exiting.\n";
+    cout << "Bulk viscosity specification " << zetaMode << " not recognized. Now exiting.\n";
     exit(1);
   }
 }
@@ -186,53 +159,46 @@ void TransportCoefficients::initialize_zeta(const string & zetaType_in)
 //==============================================================================
 void TransportCoefficients::initialize_tau_Pi(const string & tau_PiType_in)
 {
-  tau_PiType  = tau_PiType_in;
+  bulkRelaxMode  = tau_PiType_in;
 
-  if (tau_PiType == "default")
+  if (bulkRelaxMode == "default")
   {
-    tau_Pi = [this]{ return default_tau_Pi(); };
+    tau_Pi = [this](double *therm){ return default_tau_Pi(therm); };
   }
-  else if (tau_PiType == "DNMR")
+  else if (bulkRelaxMode == "DNMR")
   {
-    tau_Pi = [this]{ return tau_Pi_DNMR_LeadingMass(); };
+    tau_Pi = [this](double *therm){ return tau_Pi_DNMR_LeadingMass(therm); };
   }
   else 
   {
-    cout << "Tau bulk specification " << tau_PiType << " not recognized. Now exiting.\n";
+    cout << "Tau bulk specification " << bulkRelaxMode << " not recognized. Now exiting.\n";
     exit(1);   
   }
 }
 
-
-
-
-//==============================================================================
-//==============================================================================
-// Possible function choices for eta
-
 //===============================
-double TransportCoefficients::default_eta()
+double TransportCoefficients::default_eta(double *therm)
 {
   double eta_over_s = 0.20;
-  return therm.s * eta_over_s;
+  return therm[thermo_info::s] * eta_over_s;
 }
 
 //===============================
-double TransportCoefficients::constEta()
+double TransportCoefficients::constEta(double *therm)
 {
-  double w = therm.w;
-  double T = therm.T;
+  double w = therm[thermo_info::w];
+  double T = therm[thermo_info::T];
   return eta_T_OV_w_IN*(w/T);
 }
 
 //===============================
-double TransportCoefficients::JakiParam()
+double TransportCoefficients::JakiParam(double *therm)
 {
   //picked the easiest one with functional dependence
   // parameters hardcoded for now.. just to see how it works
 
-  double T     = therm.T;
-  double s     = therm.s;
+  double T     = therm[thermo_info::T];
+  double s     = therm[thermo_info::s];
   double TC    = 155.0/hbarc_MeVfm; // 173.9/197.3
   double z     = pow(0.66*T/TC,2);
   double alpha = 33./(12.*PI)*(z-1)/(z*log(z));
@@ -240,22 +206,23 @@ double TransportCoefficients::JakiParam()
 }
 
 //===============================
-double TransportCoefficients::LinearMusParam()
+double TransportCoefficients::LinearMusParam(double *therm)
 {
   // parameters hardcoded for now.. just to see how it works
   double etaBase = 0.08;
   double muSlope = 0.0033;
-  double muB = therm.muB;
-  double muS = therm.muS;
-  double muQ = therm.muQ;
-  double w = therm.w;
-  double T = therm.T;
+  double muB = therm[thermo_info::muB];
+  double muS = therm[thermo_info::muS];
+  double muQ = therm[thermo_info::muQ];
+  double w = therm[thermo_info::w];
+  double T = therm[thermo_info::T];
 
   return (etaBase + muSlope*(muB + muS + muQ))*(w/T);
 }
 
 //===============================
-double TransportCoefficients::InterpolantWrapper() { return 0.0; }
+///TODO: add this in later..
+double TransportCoefficients::InterpolantWrapper(double *therm) { return 0.0; }
 
 
 //==============================================================================
@@ -263,14 +230,17 @@ double TransportCoefficients::InterpolantWrapper() { return 0.0; }
 // Possible function choices for shear relaxation
 
 //===============================
-double TransportCoefficients::default_tau_pi() { return std::max( 5.0*eta()/therm.w, 0.005 ); }
+double TransportCoefficients::default_tau_pi(double *therm) {
+   return std::max( 5.0*eta(therm)/therm[thermo_info::w], 0.005 ); }
 
 //===============================
-double TransportCoefficients::tau_piGubser() { return (5.0*eta())/therm.w; }
+double TransportCoefficients::tau_piGubser(double *therm) {
+   return (5.0*eta(therm))/therm[thermo_info::w];
+   }
 
 //===============================
-double TransportCoefficients::tau_piMinval() { return std::max( (5.0*eta())/therm.w, 0.001 ); }
-
+double TransportCoefficients::tau_piMinval(double *therm) {
+   return std::max( (5.0*eta(therm))/therm[thermo_info::w], 0.001 ); }
 
 
 //==============================================================================
@@ -279,21 +249,21 @@ double TransportCoefficients::tau_piMinval() { return std::max( (5.0*eta())/ther
 
 
 //===============================
-double TransportCoefficients::default_zeta()
+double TransportCoefficients::default_zeta(double *therm)
 {
   double zeta_over_s = 0.005;
-  return therm.s * zeta_over_s;
+  return therm[thermo_info::s] * zeta_over_s;
 }
 
 //===============================
-double TransportCoefficients::constZeta()
+double TransportCoefficients::constZeta(double *therm)
 {
   double zeta_over_s = settingsPtr->constant_zeta_over_s;
-  return therm.s * zeta_over_s;
+  return therm[thermo_info::s] * zeta_over_s;
 }
 
 //===============================
-double TransportCoefficients::zeta_DNMR_LeadingMass()
+double TransportCoefficients::zeta_DNMR_LeadingMass(double *therm)
 {
     //add this in later.. for now no bulk
     return 0.0;
@@ -301,7 +271,7 @@ double TransportCoefficients::zeta_DNMR_LeadingMass()
 
 
 //===============================
-double TransportCoefficients::cs2_dependent_zeta()
+double TransportCoefficients::cs2_dependent_zeta(double *therm)
 {
   const double A = settingsPtr->cs2_dependent_zeta_A;
   const double p = settingsPtr->cs2_dependent_zeta_p;
@@ -315,41 +285,41 @@ double TransportCoefficients::cs2_dependent_zeta()
   {
     const double T_transition = 150.0/constants::hbarc_MeVfm,
                  T_scale      = 10.0/constants::hbarc_MeVfm;
-    th_x = tanh( ( therm.T - T_transition ) / T_scale );
-    x_p = pow(therm.T/T_transition, p);
+    th_x = tanh( ( therm[thermo_info::T] - T_transition ) / T_scale );
+    x_p = pow(therm[thermo_info::T]/T_transition, p);
     factor = 0.5*(1.0 + x_p) + 0.5*(1.0 - x_p)*th_x;
   }
 
   const double zeta_over_s_local
-                = A * factor * pow((1.0/3.0) - std::min(therm.cs2, 1.0), p);
+                = A * factor * pow((1.0/3.0) - std::min(therm[thermo_info::cs2], 1.0), p);
 //  cout << "Check zeta/s: "
 //        << therm.T*hbarc_MeVfm << "   "
 //        << zeta_over_s_local << endl;
 
-  if ( therm.cs2 < 0.0 || therm.cs2 > 1.0 )
+  if ( therm[thermo_info::cs2] < 0.0 || therm[thermo_info::cs2] > 1.0 )
   {
     cout << "ERROR: " << zeta_over_s_local << "   "
         << x_p << "   "
         << th_x << "   "
         << factor << ";   "
-        << therm.T << "   "
-        << therm.muB << "   "
-        << therm.muS << "   "
-        << therm.muQ << "   "
-        << therm.p << "   "
-        << therm.s << "   "
-        << therm.rhoB << "   "
-        << therm.rhoS << "   "
-        << therm.rhoQ << "   "
-        << therm.e << "   "
-        << therm.cs2 << "   "
-        << therm.eos_name << "   "
+        << therm[thermo_info::T] << "   "
+        << therm[thermo_info::muB] << "   "
+        << therm[thermo_info::muS] << "   "
+        << therm[thermo_info::muQ] << "   "
+        << therm[thermo_info::p] << "   "
+        << therm[thermo_info::s] << "   "
+        << therm[thermo_info::rhoB] << "   "
+        << therm[thermo_info::rhoS] << "   "
+        << therm[thermo_info::rhoQ] << "   "
+        << therm[thermo_info::e] << "   "
+        << therm[thermo_info::cs2] << "   "
+        //<< therm.eos_name << "   "
         << A << "   "
         << p << "   "
-        << pow((1.0/3.0)-therm.cs2, p) << endl;
+        << pow((1.0/3.0)-therm[thermo_info::cs2], p) << endl;
 
     // do not tolerate this error
-    if ( therm.cs2 < 0.0 )
+    if ( therm[thermo_info::cs2] < 0.0 )
     {
       cout << "cs2 went negative!" << endl;
       abort();
@@ -361,24 +331,24 @@ double TransportCoefficients::cs2_dependent_zeta()
         << x_p << "   "
         << th_x << "   "
         << factor << ";   "
-        << therm.T << "   "
-        << therm.muB << "   "
-        << therm.muS << "   "
-        << therm.muQ << "   "
-        << therm.p << "   "
-        << therm.s << "   "
-        << therm.rhoB << "   "
-        << therm.rhoS << "   "
-        << therm.rhoQ << "   "
-        << therm.e << "   "
-        << therm.cs2 << "   "
-        << therm.eos_name << "   "
+        << therm[thermo_info::T] << "   "
+        << therm[thermo_info::muB] << "   "
+        << therm[thermo_info::muS] << "   "
+        << therm[thermo_info::muQ] << "   "
+        << therm[thermo_info::p] << "   "
+        << therm[thermo_info::s] << "   "
+        << therm[thermo_info::rhoB] << "   "
+        << therm[thermo_info::rhoS] << "   "
+        << therm[thermo_info::rhoQ] << "   "
+        << therm[thermo_info::e] << "   "
+        << therm[thermo_info::cs2] << "   "
+        //<< therm.eos_name << "   "
         << A << "   "
         << p << "   "
-        << pow((1.0/3.0)-therm.cs2, p) << endl;
+        << pow((1.0/3.0)-therm[thermo_info::cs2], p) << endl;
   }
 
-  return zeta_over_s_local*therm.s;
+  return zeta_over_s_local*therm[thermo_info::s];
 }
 
 //==============================================================================
@@ -386,14 +356,14 @@ double TransportCoefficients::cs2_dependent_zeta()
 // Possible function choices for bulk relaxation
 
 //===============================
-double TransportCoefficients::default_tau_Pi()
+double TransportCoefficients::default_tau_Pi(double *therm)
 {
 //cout << "inside check: " << therm.cs2 << "   " << zeta() << "   " << therm.w << endl;
-  if ( (1.0/3.0-therm.cs2)*(1.0/3.0-therm.cs2) < 1e-10 )
+  if ( (1.0/3.0-therm[thermo_info::cs2])*(1.0/3.0-therm[thermo_info::cs2]) < 1e-10 )
     return 1e10;
   else
-    return std::max( 5.0*zeta()/(pow((1.0/3.0-therm.cs2),2.0)*therm.w), 0.1 );
+    return std::max( 5.0*zeta(therm)/(pow((1.0/3.0-therm[thermo_info::cs2]),2.0)*therm[thermo_info::w]), 0.1 );
 }
 
 //===============================
-double TransportCoefficients::tau_Pi_DNMR_LeadingMass() { return 0.0; }
+double TransportCoefficients::tau_Pi_DNMR_LeadingMass(double *therm) { return 0.0; }
