@@ -33,39 +33,39 @@ class TransportCoefficients
 
     // Chris' defaults
     KOKKOS_INLINE_FUNCTION
-    double default_eta(double *therm);
+    double default_eta(const double *therm);
     KOKKOS_INLINE_FUNCTION
-    double default_tau_pi(double *therm);
+    double default_tau_pi(const double *therm);
     KOKKOS_INLINE_FUNCTION
-    double default_zeta(double *therm);
+    double default_zeta(const double *therm);
     KOKKOS_INLINE_FUNCTION
-    double default_tau_Pi(double *therm);
+    double default_tau_Pi(const double *therm);
 
     // other parmaterizations (not organized yet)
     KOKKOS_INLINE_FUNCTION
-    double constEta(double *therm);
+    double constEta(const double *therm);
     double eta_T_OV_w_IN;
     KOKKOS_INLINE_FUNCTION
-    double JakiParam(double *therm);
+    double JakiParam(const double *therm);
     KOKKOS_INLINE_FUNCTION
-    double LinearMusParam(double *therm);
+    double LinearMusParam(const double *therm);
     KOKKOS_INLINE_FUNCTION
-    double InterpolantWrapper(double *therm);
+    double InterpolantWrapper(const double *therm);
     
     KOKKOS_INLINE_FUNCTION
-    double tau_piGubser(double *therm);
+    double tau_piGubser(const double *therm);
     KOKKOS_INLINE_FUNCTION
-    double tau_piMinval(double *therm);
+    double tau_piMinval(const double *therm);
 
     KOKKOS_INLINE_FUNCTION
-    double constZeta(double *therm);
+    double constZeta(const double *therm);
     KOKKOS_INLINE_FUNCTION
-    double zeta_DNMR_LeadingMass(double *therm);
+    double zeta_DNMR_LeadingMass(const double *therm);
     KOKKOS_INLINE_FUNCTION
-    double cs2_dependent_zeta(double *therm);
+    double cs2_dependent_zeta(const double *therm);
 
     KOKKOS_INLINE_FUNCTION
-    double tau_Pi_DNMR_LeadingMass(double *therm);
+    double tau_Pi_DNMR_LeadingMass(const double *therm);
 
     std::shared_ptr<Settings> settingsPtr;
 
@@ -80,10 +80,10 @@ class TransportCoefficients
     // these functions actually return the needed transport coefficients
     // It always receives an array with a set of particle properties and 
     // an integer with the number of entries in the array
-    std::function<double(double*)> eta;
-    std::function<double(double*)> tau_pi;
-    std::function<double(double*)> zeta;
-    std::function<double(double*)> tau_Pi;
+    std::function<double(const double*)> eta;
+    std::function<double(const double*)> tau_pi;
+    std::function<double(const double*)> zeta;
+    std::function<double(const double*)> tau_Pi;
 
 };
 }

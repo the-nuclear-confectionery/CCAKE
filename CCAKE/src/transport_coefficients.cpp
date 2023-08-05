@@ -51,26 +51,26 @@ void TransportCoefficients::initialize_eta(const string & etaType_in)
   // assign corresponding function
   if (etaMode == "default")
   {
-    eta = [this](double *therm){ return default_eta(therm); };
+    eta = [this](const double *therm){ return default_eta(therm); };
   }
   else if (etaMode == "constant")
   {
     eta_T_OV_w_IN = settingsPtr->constant_eta_over_s;
-    eta = [this](double *therm){ return constEta(therm); };
+    eta = [this](const double *therm){ return constEta(therm); };
   }
   else if (etaMode == "JakiParam")
   {
-    eta = [this](double *therm){ return JakiParam(therm); };
+    eta = [this](const double *therm){ return JakiParam(therm); };
   }
   else if (etaMode == "LinearMus")
   {
-    eta = [this](double *therm){ return LinearMusParam(therm); };
+    eta = [this](const double *therm){ return LinearMusParam(therm); };
   }
   else if (etaMode == "interpolate")
   {
     //use parameter to find directory of table, then
     // execute interpolation
-    eta = [this](double *therm){ return InterpolantWrapper(therm); };
+    eta = [this](const double *therm){ return InterpolantWrapper(therm); };
   }
   else
   {
@@ -87,11 +87,11 @@ void TransportCoefficients::initialize_tau_pi(const string & tau_piType_in)
 
   if (shearRelaxMode == "default")
   {
-    tau_pi = [this](double *therm){ return default_tau_pi(therm); };
+    tau_pi = [this](const double *therm){ return default_tau_pi(therm); };
   }
   else if (shearRelaxMode == "minVal")
   {
-    tau_pi = [this](double *therm){ return tau_piMinval(therm); };
+    tau_pi = [this](const double *therm){ return tau_piMinval(therm); };
   }
   else if (shearRelaxMode == "Gubser")
   {
@@ -111,7 +111,7 @@ void TransportCoefficients::initialize_tau_pi(const string & tau_piType_in)
                    " Now exiting.\n";
       exit(1);
     }
-    tau_pi = [this](double *therm){ return tau_piGubser(therm); };
+    tau_pi = [this](const double *therm){ return tau_piGubser(therm); };
   }
   else
   {
@@ -128,25 +128,25 @@ void TransportCoefficients::initialize_zeta(const string & zetaType_in)
 
   if (zetaMode == "default")
   {
-    zeta = [this](double *therm){ return default_zeta(therm); };
+    zeta = [this](const double *therm){ return default_zeta(therm); };
   }
   else if (zetaMode == "constant")
   {
-    zeta = [this](double *therm){ return constZeta(therm); };
+    zeta = [this](const double *therm){ return constZeta(therm); };
   }
   else if (zetaMode == "DNMR")
   {
-    zeta = [this](double *therm){ return zeta_DNMR_LeadingMass(therm); };
+    zeta = [this](const double *therm){ return zeta_DNMR_LeadingMass(therm); };
   }
   else if (zetaMode == "interpolate")
   {
     //use parameter to find directory of table, then
     // execute interpolation
-    zeta = [this](double *therm){ return InterpolantWrapper(therm); };
+    zeta = [this](const double *therm){ return InterpolantWrapper(therm); };
   }
   else if (zetaMode == "cs2_dependent")
   {
-    zeta = [this](double *therm){ return cs2_dependent_zeta(therm); };
+    zeta = [this](const double *therm){ return cs2_dependent_zeta(therm); };
   }
   else
   {
@@ -163,11 +163,11 @@ void TransportCoefficients::initialize_tau_Pi(const string & tau_PiType_in)
 
   if (bulkRelaxMode == "default")
   {
-    tau_Pi = [this](double *therm){ return default_tau_Pi(therm); };
+    tau_Pi = [this](const double *therm){ return default_tau_Pi(therm); };
   }
   else if (bulkRelaxMode == "DNMR")
   {
-    tau_Pi = [this](double *therm){ return tau_Pi_DNMR_LeadingMass(therm); };
+    tau_Pi = [this](const double *therm){ return tau_Pi_DNMR_LeadingMass(therm); };
   }
   else 
   {
@@ -177,14 +177,14 @@ void TransportCoefficients::initialize_tau_Pi(const string & tau_PiType_in)
 }
 
 //===============================
-double TransportCoefficients::default_eta(double *therm)
+double TransportCoefficients::default_eta(const double *therm)
 {
   double eta_over_s = 0.20;
   return therm[thermo_info::s] * eta_over_s;
 }
 
 //===============================
-double TransportCoefficients::constEta(double *therm)
+double TransportCoefficients::constEta(const double *therm)
 {
   double w = therm[thermo_info::w];
   double T = therm[thermo_info::T];
@@ -192,7 +192,7 @@ double TransportCoefficients::constEta(double *therm)
 }
 
 //===============================
-double TransportCoefficients::JakiParam(double *therm)
+double TransportCoefficients::JakiParam(const double *therm)
 {
   //picked the easiest one with functional dependence
   // parameters hardcoded for now.. just to see how it works
@@ -206,7 +206,7 @@ double TransportCoefficients::JakiParam(double *therm)
 }
 
 //===============================
-double TransportCoefficients::LinearMusParam(double *therm)
+double TransportCoefficients::LinearMusParam(const double *therm)
 {
   // parameters hardcoded for now.. just to see how it works
   double etaBase = 0.08;
@@ -222,7 +222,7 @@ double TransportCoefficients::LinearMusParam(double *therm)
 
 //===============================
 ///TODO: add this in later..
-double TransportCoefficients::InterpolantWrapper(double *therm) { return 0.0; }
+double TransportCoefficients::InterpolantWrapper(const double *therm) { return 0.0; }
 
 
 //==============================================================================
@@ -230,16 +230,16 @@ double TransportCoefficients::InterpolantWrapper(double *therm) { return 0.0; }
 // Possible function choices for shear relaxation
 
 //===============================
-double TransportCoefficients::default_tau_pi(double *therm) {
+double TransportCoefficients::default_tau_pi(const double *therm) {
    return std::max( 5.0*eta(therm)/therm[thermo_info::w], 0.005 ); }
 
 //===============================
-double TransportCoefficients::tau_piGubser(double *therm) {
+double TransportCoefficients::tau_piGubser(const double *therm) {
    return (5.0*eta(therm))/therm[thermo_info::w];
    }
 
 //===============================
-double TransportCoefficients::tau_piMinval(double *therm) {
+double TransportCoefficients::tau_piMinval(const double *therm) {
    return std::max( (5.0*eta(therm))/therm[thermo_info::w], 0.001 ); }
 
 
@@ -249,21 +249,21 @@ double TransportCoefficients::tau_piMinval(double *therm) {
 
 
 //===============================
-double TransportCoefficients::default_zeta(double *therm)
+double TransportCoefficients::default_zeta(const double *therm)
 {
   double zeta_over_s = 0.005;
   return therm[thermo_info::s] * zeta_over_s;
 }
 
 //===============================
-double TransportCoefficients::constZeta(double *therm)
+double TransportCoefficients::constZeta(const double *therm)
 {
   double zeta_over_s = settingsPtr->constant_zeta_over_s;
   return therm[thermo_info::s] * zeta_over_s;
 }
 
 //===============================
-double TransportCoefficients::zeta_DNMR_LeadingMass(double *therm)
+double TransportCoefficients::zeta_DNMR_LeadingMass(const double *therm)
 {
     //add this in later.. for now no bulk
     return 0.0;
@@ -271,7 +271,7 @@ double TransportCoefficients::zeta_DNMR_LeadingMass(double *therm)
 
 
 //===============================
-double TransportCoefficients::cs2_dependent_zeta(double *therm)
+double TransportCoefficients::cs2_dependent_zeta(const double *therm)
 {
   const double A = settingsPtr->cs2_dependent_zeta_A;
   const double p = settingsPtr->cs2_dependent_zeta_p;
@@ -356,7 +356,7 @@ double TransportCoefficients::cs2_dependent_zeta(double *therm)
 // Possible function choices for bulk relaxation
 
 //===============================
-double TransportCoefficients::default_tau_Pi(double *therm)
+double TransportCoefficients::default_tau_Pi(const double *therm)
 {
 //cout << "inside check: " << therm.cs2 << "   " << zeta() << "   " << therm.w << endl;
   if ( (1.0/3.0-therm[thermo_info::cs2])*(1.0/3.0-therm[thermo_info::cs2]) < 1e-10 )
@@ -366,4 +366,4 @@ double TransportCoefficients::default_tau_Pi(double *therm)
 }
 
 //===============================
-double TransportCoefficients::tau_Pi_DNMR_LeadingMass(double *therm) { return 0.0; }
+double TransportCoefficients::tau_Pi_DNMR_LeadingMass(const double *therm) { return 0.0; }
