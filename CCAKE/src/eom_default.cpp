@@ -29,6 +29,17 @@ double EoM_default<2>::dot(double* u, double* v, const double &time_squared) {
   return s;
 }
 
+/// @brief Transforms a scalar from the lab frame to the LRF.
+/// @tparam D 
+/// @param lab The quantity in the lab (computational) frame.
+/// @param gamma Lorentz contraction factor. 
+/// @param time_squared The square of the time where the gamma factor will be computed.
+/// @return The quantity in the fluid LRF (local rest frame).
+template<unsigned int D>
+double EoM_default<D>::get_LRF(const double &lab, const double &gamma, 
+                               const double &time_squared) {
+                                return lab/gamma/time_squared;
+}
 
 /// @brief Computes the inner product of two vectors.
 /// @details This considers only the space components of the vectors. This is the 

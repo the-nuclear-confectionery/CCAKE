@@ -9,7 +9,7 @@
 #include "thermodynamic_info.h"
 #include "vector.h"
 
-#include <Cabana_Core.hpp>
+#include <Kokkos_Macros.hpp>
 
 namespace ccake{
 template<unsigned int D>
@@ -33,6 +33,8 @@ class EoM_default
     double get_shvDD(double* pi_diag, const double &time_squared);
     KOKKOS_INLINE_FUNCTION
     double get_distance(double* r1, double* r2, const double &time_squared);
+    KOKKOS_INLINE_FUNCTION
+    double get_LRF(const double &lab, const double &gamma, const double &time_squared);
 
     std::string name = "";                    // name associated to EoM
 

@@ -1,8 +1,8 @@
 #include "sph_workstation.h"
 
 using namespace constants;
-using namespace ccake;
 
+namespace ccake{
 //Template instantiations
 template class SPHWorkstation<1,EoM_default>;
 template class SPHWorkstation<2,EoM_default>;
@@ -34,9 +34,10 @@ void SPHWorkstation<D,TEOM>::initialize()
 
   //----------------------------------------
   // set up transport coefficients
+
   transport_coefficients.set_SettingsPtr( settingsPtr );
-  transport_coefficients.initialize( settingsPtr->etaMode, settingsPtr->shearRelaxMode,
-                 settingsPtr->zetaMode, settingsPtr->bulkRelaxMode );
+  //transport_coefficients.initialize( settingsPtr->etaMode, settingsPtr->shearRelaxMode,
+  //               settingsPtr->zetaMode, settingsPtr->bulkRelaxMode );
 
   //----------------------------------------
   // set up freeze out (constant energy density)
@@ -643,28 +644,26 @@ void SPHWorkstation<D>::freeze_out_particles()
 }
 
 
-
+*/
 
 ////////////////////////////////////////////////////////////////////////////////
-template<unsigned int D>
-void SPHWorkstation<D>::get_time_derivatives()
+template<unsigned int D, template<unsigned int> class TEOM>
+void SPHWorkstation<D, TEOM>::get_time_derivatives()
 {
+  double t = systemPtr->t;
+  double t2 = t*t;
   // reset nearest neighbors
-  reset_linklist();
-
+  systemPtr->reset_neighbour_list();
   // reset pi tensor to be consistent
   // with all essential symmetries
-  reset_pi_tensor();
-
+  reset_pi_tensor(t2);  
   // smooth all particle fields
-  smooth_all_particle_fields();
-
+  smooth_all_particle_fields(t2);
   // update gamma, velocity, and thermodynamics for all particles
-  update_all_particle_thermodynamics();
-
+  update_all_particle_thermodynamics(t2);
   // update viscosities for all particles
   update_all_particle_viscosities();
-
+/*
   //Computes gradients to obtain dsigma/dt
   smooth_all_particle_gradients();
 
@@ -677,10 +676,105 @@ void SPHWorkstation<D>::get_time_derivatives()
 
   // check/update conserved quantities
   systemPtr->conservation_energy();
-
+  */
   return;
 }
-*/
+
+template<unsigned int D, template<unsigned int> class TEOM>
+void SPHWorkstation<D, TEOM>::update_all_particle_viscosities()
+{
+  CREATE_VIEW(device_, systemPtr->cabana_particles);
+
+  auto set_transport_coefficients = KOKKOS_LAMBDA (const int iparticle ){
+    //transport_coefficients.setTherm( p.thermo );
+    double thermo[thermo_info::NUM_THERMO_INFO];
+    for (int ithermo=0; ithermo < thermo_info::NUM_THERMO_INFO; ++ithermo)
+      thermo[ithermo] = device_thermo(iparticle, ithermo);
+    device_hydro_scalar(iparticle, ccake::hydro_info::setas) = transport_coefficients.eta(thermo);
+    device_hydro_scalar(iparticle, ccake::hydro_info::stauRelax) = transport_coefficients.tau_pi(thermo);
+    device_hydro_scalar(iparticle, ccake::hydro_info::zeta) = transport_coefficients.zeta(thermo);
+    device_hydro_scalar(iparticle, ccake::hydro_info::tauRelax) = transport_coefficients.tau_Pi(thermo);
+  };
+
+  Kokkos::parallel_for( "set_transport_coefficients", systemPtr->n_particles, set_transport_coefficients );
+
+}
+  
+
+////////////////////////////////////////////////////////////////////////////////
+template<unsigned int D, template<unsigned int> class TEOM>
+void SPHWorkstation<D, TEOM>::update_all_particle_thermodynamics(double time_squared)
+{
+  Stopwatch sw;
+  sw.Start();
+
+  CREATE_VIEW(device_, systemPtr->cabana_particles);
+
+  auto update_thermo = KOKKOS_CLASS_LAMBDA(const int iparticle){
+    double u[D];
+    for (int idir = 0; idir < D; ++idir)
+      u[idir] = device_hydro_vector(iparticle, ccake::hydro_info::u, idir);
+    
+    double gamma = EoMPtr->gamma_calc(u,time_squared);
+    device_hydro_scalar(iparticle, ccake::hydro_info::gamma) = gamma;
+    for (int idir = 0; idir < D; ++idir)
+      device_hydro_vector(iparticle, ccake::hydro_info::v, idir) = u[idir]/gamma;
+
+
+    double s_LRF = EoMPtr->get_LRF(device_smoothed(iparticle, densities_info::s), gamma, time_squared);
+    double rhoB_LRF = EoMPtr->get_LRF(device_smoothed(iparticle, densities_info::rhoB), gamma, time_squared);
+    double rhoQ_LRF = EoMPtr->get_LRF(device_smoothed(iparticle, densities_info::rhoQ), gamma, time_squared);
+    double rhoS_LRF = EoMPtr->get_LRF(device_smoothed(iparticle, densities_info::rhoS), gamma, time_squared);
+
+    #ifndef DEBUG
+    #error "STOP RIGHT THERE!!! THIS CODE IS USING CONFORMAL EOS! It is not ready for production yet!"
+    #error "This is hard coded and was done to facilitate parallelism implementation."
+    #error "If you want to use it in production with realistic EOS, you need to implement calls to the EoS properly."
+    #endif
+
+    // Conformal EoS override
+    double static const C = 0.2281360133; // See Aguiar et al. (2001) for details
+    double eVal = 3*C*std::pow(s_LRF,4./3.);
+    double sVal = s_LRF;
+    double TVal = 4*C*std::pow(sVal,1./3.);
+    double wVal = 4*eVal/3.;
+    double pVal = eVal/3.;
+    double cs2Val = 1./3.;
+    double dwdsVal = 4*C*TVal;
+    double AVal = wVal-sVal*dwdsVal;
+    
+    device_thermo(iparticle, ccake::densities_info::s ) =   sVal;
+    device_thermo(iparticle, ccake::densities_info::e ) =   eVal;
+    device_thermo(iparticle, ccake::thermo_info::T ) =   TVal;
+    device_thermo(iparticle, ccake::thermo_info::muB ) =   0;
+    device_thermo(iparticle, ccake::thermo_info::muS ) =   0;
+    device_thermo(iparticle, ccake::thermo_info::muQ ) =   0;
+    device_thermo(iparticle, ccake::thermo_info::s ) =   sVal;
+    device_thermo(iparticle, ccake::thermo_info::p ) =   pVal;
+    device_thermo(iparticle, ccake::thermo_info::cs2 )  = cs2Val;
+    device_thermo(iparticle, ccake::thermo_info::w ) =   wVal;
+    device_thermo(iparticle, ccake::thermo_info::A ) =   AVal;
+    device_thermo(iparticle, ccake::thermo_info::dwds ) = dwdsVal;
+    device_thermo(iparticle, ccake::thermo_info::dwdB ) =   0;
+    device_thermo(iparticle, ccake::thermo_info::dwdS ) =   0;
+    device_thermo(iparticle, ccake::thermo_info::dwdQ ) =   0;
+
+    //locate_phase_diagram_point_sBSQ(s_LRF, rhoB_LRF, rhoS_LRF, rhoQ_LRF );
+
+    
+  };
+  Kokkos::parallel_for( "update_thermo", systemPtr->n_particles, update_thermo );
+  Kokkos::fence();
+  //Cabana::simd_parallel_for( systemPtr->simd_policy, 
+  //                            update_thermo, "update_thermo" );
+  
+  
+  sw.Stop();
+  formatted_output::update("got particle thermodynamics in "
+                            + to_string(sw.printTime()) + " s.");
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 template<unsigned int D, template<unsigned int> class TEOM>
 double SPHWorkstation<D,TEOM>::locate_phase_diagram_point_eBSQ( 
@@ -711,6 +805,8 @@ void SPHWorkstation<D,TEOM>::locate_phase_diagram_point_sBSQ( Particle<D> & p,
                  double s_In, double rhoB_In, double rhoS_In, double rhoQ_In )
 {
 //  cout << "Rootfinder for p.ID = " << p.ID << endl;
+  cout << "ERROR: This function is not ready and should not be called! Aborting" << std::endl;
+  abort();
 
   // default: use particle's current location as initial guess
   eos.tbqs( p.T(), p.muB(), p.muQ(), p.muS(), p.get_current_eos_name() );
@@ -829,12 +925,12 @@ template<unsigned int D>
 void SPHWorkstation<D>::set_phase_diagram_point(Particle & p)
 {
   p.hydro.gamma     = p.gamcalc();
-  p.hydro.v         = (1.0/p.hydro.gamma)*p.hydro.u;
-  double s_lab      = p.smoothed.s/p.hydro.gamma/systemPtr->t;
-  double rhoB_lab   = p.smoothed.rhoB/p.hydro.gamma/systemPtr->t;
-  double rhoS_lab   = p.smoothed.rhoS/p.hydro.gamma/systemPtr->t;
-  double rhoQ_lab   = p.smoothed.rhoQ/p.hydro.gamma/systemPtr->t;
-	locate_phase_diagram_point_sBSQ( p, s_lab, rhoB_lab, rhoS_lab, rhoQ_lab );
+p.hydro.v         = (1.0/p.hydro.gamma)*p.hydro.u;
+double s_lab      = p.smoothed.s/p.hydro.gamma/systemPtr->t;
+double rhoB_lab   = p.smoothed.rhoB/p.hydro.gamma/systemPtr->t;
+double rhoS_lab   = p.smoothed.rhoS/p.hydro.gamma/systemPtr->t;
+double rhoQ_lab   = p.smoothed.rhoQ/p.hydro.gamma/systemPtr->t;
+locate_phase_diagram_point_sBSQ( p, s_lab, rhoB_lab, rhoS_lab, rhoQ_lab );
 }
 
 
@@ -867,30 +963,6 @@ double SPHWorkstation<D>::gradPressure_weight(const int a, const int b)
           + pa.p() / (pa.hydro.sigma*pb.hydro.sigma) - innerp );
 }
 
-
-
-
-
-
-////////////////////////////////////////////////////////////////////////////////
-template<unsigned int D>
-void SPHWorkstation<D>::set_transport_coefficients( Particle & p )
-{
-  transport_coefficients.setTherm( p.thermo );
-  p.hydro.setas     = transport_coefficients.eta();
-  p.hydro.stauRelax = transport_coefficients.tau_pi();
-  p.hydro.zeta      = transport_coefficients.zeta();
-  p.hydro.tauRelax  = transport_coefficients.tau_Pi();
-//  if ( p.ID == 0 )
-//  {
-//    cout << "check thermo: "
-//          << p.hydro.setas << "   "
-//          << p.hydro.stauRelax << "   "
-//          << p.hydro.zeta << "   "
-//          << p.hydro.tauRelax << "   "
-//          << p.thermo.cs2 << endl;
-//  }
-}
 
 */
 //==============================================================================
@@ -1025,7 +1097,7 @@ void SPHWorkstation<D, TEOM>::advance_timestep( double dt, int rk_order )
   //                          [this]{ this->get_time_derivatives(); } );
   
   // set number of particles which have frozen out
-  systemPtr->number_part = systemPtr->get_frozen_out_count();
+  //systemPtr->number_part = systemPtr->get_frozen_out_count();
   // keep track of how many timesteps have elapsed
   systemPtr->number_of_elapsed_timesteps++;
 
@@ -1042,3 +1114,4 @@ void SPHWorkstation<D, TEOM>::advance_timestep( double dt, int rk_order )
     exit(-1);
   return;
 }
+};
