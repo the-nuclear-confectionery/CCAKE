@@ -120,16 +120,16 @@ class Settings
     //------------------------------------
     // transport coefficients
     //  - shear quantities
-    string etaMode              = "";
+    string etaMode              = "";    ///< Choose parametrization for eta/s
     double constant_eta_over_s  = 0.0;
-    string shearRelaxMode       = "";
+    string shearRelaxMode       = "";    ///< Choose parametrization for relaxation time of shear mode
 
     //  - bulk quantities
-    string zetaMode             = "";
+    string zetaMode             = "";    ///< Choose parametrization for zeta/s
     double constant_zeta_over_s = 0.0;
     double cs2_dependent_zeta_A = 0.0;
     double cs2_dependent_zeta_p = 0.0;
-    string bulkRelaxMode        = "";
+    string bulkRelaxMode        = "";   ///< Choose parametrization for relaxation time of bulk mode
     bool modulate_zeta_with_tanh = true;   // forces zeta/s to decrease
                                            // smoothly to zero below
                                            // transition temperature
@@ -140,46 +140,14 @@ class Settings
 
 
     // make sure that all chosen settings make reasonable sense
+    ///TODO: Check these are correct
     void check_consistency()
     {
       formatted_output::update("Impose consistency checks");
 
       //------------------------------------
       // enforce appropriate settings for Gubser
-      if ( IC_type == "Gubser" || IC_type == "Gubser_with_shear" )
-      {
-        using_Gubser = true;
-        if ( IC_type == "Gubser_with_shear" )
-          using_Gubser_with_shear = true;
-
-        //------------------------------------
-        // put a warning check here
-        if ( eos_type != "conformal" )
-        {
-          std::cerr << "WARNING: Gubser initial conditions require a conformal "
-                       "equation of state!  Switching to gas of massless gluons"
-                       " and 2.5 massless quarks" << std::endl;
-          eos_type = "conformal";
-        }
-
-        //------------------------------------
-        // run Gubser indefinitely
-        Freeze_Out_Temperature = 1e-10/constants::hbarc_MeVfm;
-
-        //------------------------------------
-        // Gubser shear viscosity settings
-        etaMode = "constant";
-        if ( IC_type == "Gubser" )
-          constant_eta_over_s = 0.0;
-        else if ( IC_type == "Gubser_with_shear" )
-          constant_eta_over_s = 0.20;
-
-        //------------------------------------
-        // Gubser bulk viscosity settings
-        zetaMode = "constant";
-        constant_zeta_over_s = 0.0;
-      }
-      else if ( IC_type == "TECHQM" )
+      if ( IC_type == "TECHQM" )
       {
         t0 = 0.6;  //fm/c
       }
