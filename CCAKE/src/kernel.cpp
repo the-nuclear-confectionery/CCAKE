@@ -1,7 +1,4 @@
-#include <iomanip>
-
-#include "../include/constants.h"
-#include "../include/kernel.h"
+#include "kernel.h"
 
 using namespace constants;
 
@@ -54,31 +51,52 @@ namespace kernel
     return knorm*(1 - 1.5*qq + 0.75*q*qq);
   }
 
-
-  Vector<double,2> gradKernel( const Vector<double,2> & a, double r, double h )
+  /// @brief Calculates the gradient of the kernel function
+  /// @tparam D The dimensionality of the simulation
+  /// @param rel_dist The relative distance between two particles
+  /// @param r Norm of the relative distance
+  /// @param h SPH smoothing length
+  /// @param grad The array to store the gradient of the kernel
+  template<>
+  void gradKernel<2>(double const* rel_dist, double r, double h, double* grad )
   {
     double q = r/h;
 
     if ( q >= 2.0 )
-      return Vector<double,2>();
+    {
+      for (int idir=0; idir<2; idir++)
+        grad[idir] = 0.0;
+      return;
+    }
     if ( q >= 1.0 )
-      return (kgrad/r)*(2.0-q)*(2.0-q)*a;
-
-    return kgrad2*( -3.0+2.25*q )*a;
+    {
+      for (int idir=0; idir<2; idir++)
+        grad[idir] = (kgrad/r)*(2.0-q)*(2.0-q)*rel_dist[idir];
+      return;
+    }
+    for (int idir=0; idir<2; idir++)
+        grad[idir] = kgrad2*( -3.0+2.25*q )*rel_dist[idir];
+    return;
   }
+template<>
+  void gradKernel<1>(double const* rel_dist, double r, double h, double* grad )
+  {}
 
+template<>
+  void gradKernel<3>(double const* rel_dist, double r, double h, double* grad )
+  {}
 
-  Vector<double,2> gradKernel( const Vector<double,2> & a, double h )
-  {
-    double r = Norm(a);
-    double q = r/h;
-
-    if ( q >= 2.0 )
-      return Vector<double,2>();
-    if ( q >= 1.0 )
-      return (kgrad/r)*(2.0-q)*(2.0-q)*a;
-
-    return kgrad2*( -3.0+2.25*q )*a;
-  }
-
+//  Vector<double,2> gradKernel( const Vector<double,2> & a, double h )
+//  {
+//    double r = Norm(a);
+//    double q = r/h;
+//
+//    if ( q >= 2.0 )
+//      return Vector<double,2>();
+//    if ( q >= 1.0 )
+//      return (kgrad/r)*(2.0-q)*(2.0-q)*a;
+//
+//    return kgrad2*( -3.0+2.25*q )*a;
+//  }
+//
 }
