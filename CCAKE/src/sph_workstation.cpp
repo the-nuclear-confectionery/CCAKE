@@ -363,122 +363,182 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
 
 ///////////////////////////////////////////////////////////////////////////////
 // smoothing routines: first smoothing covers all hydrodyanmical fields
-/*
+
 
 ///////////////////////////////////////////////////////////////////////////////
 //Second smoothing smoothes the gradients after constructing all the fields 
 //and derivatives using the equation of state
-template<unsigned int D>
-void SPHWorkstation<D>::smooth_gradients( Particle & pa, double tin )
+template<unsigned int D, template<unsigned int> class TEOM>
+void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
 {
-  int a = pa.ID;
+  Stopwatch sw;
+  sw.Start();
+  double hT = settingsPtr->hT;
+  CREATE_VIEW(device_, systemPtr->cabana_particles);
 
-  auto & pah = pa.hydro;
-
-  pah.gradP     = 0.0;
-  pah.gradBulk  = 0.0;
-  pah.gradV     = 0.0;
-  pah.gradshear = 0.0;
-  pah.divshear  = 0.0;
-
-  if ( pa.btrack != -1 ) pa.btrack = 0;
-
-  double rdis = 0;
-
-  auto & a_neighbors = systemPtr->linklist.all_neighbors[a];
-
-  for ( int b : a_neighbors )
-  {
-    auto & pb                = systemPtr->particles[b];
-    auto & pbh               = pb.hydro;
-
-    Vector<double,2> rel_sep = pa.r - pb.r;
-    double rel_sep_norm      = Norm( rel_sep );
-    Vector<double,2> gradK   = kernel::gradKernel( rel_sep, rel_sep_norm, settingsPtr->hT );
-    Vector<double,2> va      = rowp1(0, pah.shv);
-    Vector<double,2> vb      = rowp1(0, pbh.shv);
-    Matrix<double,2,2> vminia, vminib;
-    mini(vminia, pah.shv);
-    mini(vminib, pbh.shv);
-
-    double sigsqra           = 1.0/(pah.sigma*pah.sigma);
-    double sigsqrb           = 1.0/(pbh.sigma*pbh.sigma);
-    Vector<double,2> sigsigK = pb.norm_spec.s * pah.sigma * gradK;
-
-    pah.gradP                += ( sigsqrb*pb.p() + sigsqra*pa.p() ) * sigsigK;
-
-    //===============
-    // print status
-    if ( VERBOSE > 2 && pa.print_this_particle )
-      std::cout << "CHECK grads: " << tin << "   "
-                << pah.gradP << "   " << a << "   " << b << "   "
-                << sigsqra << "   " << sigsqrb
-                << "   " << pa.p() << "   " << pb.p()
-                << "   " << pa.get_current_eos_name()
-                << "   " << pb.get_current_eos_name()
-                << "   " << gradK << "   " << sigsigK
-                << "   " << pah.sigma << "\n";
-
-    double relative_distance_by_h = rel_sep_norm / settingsPtr->hT;
-    if ( ( relative_distance_by_h <= 2.0 ) && ( a != b ) )
-    {
-      if ( pa.btrack != -1 ) pa.btrack++;                   // effectively counts nearest neighbors
-      if ( pa.btrack ==  1 ) rdis = relative_distance_by_h;
+  //Reset gradients
+  auto reset_gradients = KOKKOS_LAMBDA(const int iparticle){
+    for (int idir=0; idir < D; ++idir){
+      device_hydro_vector(iparticle,ccake::hydro_info::gradP, idir) = 0.0;
+      device_hydro_vector(iparticle,ccake::hydro_info::gradBulk, idir) = 0.0; 
+      device_hydro_vector(iparticle,ccake::hydro_info::gradV, idir) = 0.0;
+      device_hydro_vector(iparticle,ccake::hydro_info::gradshear, idir) = 0.0;
+      device_hydro_vector(iparticle,ccake::hydro_info::divshear, idir) = 0.0;
     }
 
-    pah.gradBulk             += ( pbh.Bulk/pbh.sigma/pbh.gamma
-                                + pah.Bulk/pah.sigma/pah.gamma)/tin*sigsigK;
-    pah.gradV                += (pb.norm_spec.s/pah.sigma)*( pbh.v -  pah.v )*gradK;
+    int btrack = device_btrack(iparticle);
+    if ( btrack != -1 ) btrack = 0;
+    device_btrack(iparticle) = btrack;
+  };
+  Kokkos::parallel_for("reset_gradients", systemPtr->n_particles, reset_gradients);
+  Kokkos::fence();
 
-    //===============
-    // print status
-    if ( VERBOSE > 2 && pa.print_this_particle )
-        std::cout << "CHECK gradV: " << tin << "   " << a << "   " << b << "   "
-                  << pb.norm_spec.s/pah.sigma << "   " << pbh.v -  pah.v
-                  << "   " << gradK << "   " << pah.gradV << "\n";
+  auto smooth_gradients = KOKKOS_LAMBDA(const int iparticle, const int jparticle )
+  {
+    //Cache quantities locally
+    double sigma_a        = device_hydro_scalar(iparticle, ccake::hydro_info::sigma);
+    double sigma_b        = device_hydro_scalar(jparticle, ccake::hydro_info::sigma);
+    double entropy_norm_b = device_norm_spec(jparticle, ccake::densities_info::s);
+    double sigsqra        = 1.0/(sigma_a*sigma_a);
+    double sigsqrb        = 1.0/(sigma_b*sigma_b);
+    double pressure_a     = device_thermo(iparticle, ccake::thermo_info::p);
+    double pressure_b     = device_thermo(jparticle, ccake::thermo_info::p);
+    double energy_a       = device_thermo(iparticle, ccake::densities_info::e);
+    double energy_b       = device_thermo(jparticle, ccake::densities_info::e);
+    double bulk_a         = device_hydro_scalar(iparticle, ccake::hydro_info::Bulk);
+    double bulk_b         = device_hydro_scalar(jparticle, ccake::hydro_info::Bulk);
+    double gamma_a        = device_hydro_scalar(iparticle, ccake::hydro_info::gamma);
+    double gamma_b        = device_hydro_scalar(jparticle, ccake::hydro_info::gamma);
+    int pa_btrack         = device_btrack(iparticle);
+    int pb_btrack         = device_btrack(jparticle);
+   
+
+    //Auxiliary local variables
+    double rel_sep[D]; // cache for relative separation
+    double pos_a[D]; // cache for position of particle a
+    double pos_b[D]; // cache for position of particle b
+    double vel_a[D], vel_b[D]; // cache for velocity of particles a and b
+    double ua[D], ub[D]; // cache for fluid four-velocity of particles a and b
+    double va[D], vb[D];
+    double sigsigK[D];
+    double vminia[D][D], vminib[D][D];
+    //double pa_qmom[D], pb_qmom[D], qmom_difference[D]; //<Only for pressure weight
+
+    //Initialize vectors and matrices for cache and auxiliary variables 
+    for (int idir = 0; idir < D; ++idir){
+      pos_a[idir] = device_position(iparticle,idir);
+      pos_b[idir] = device_position(jparticle,idir);
+      rel_sep[idir] = pos_a[idir] - pos_b[idir];
+      va[idir] = device_hydro_spacetime_matrix(iparticle, ccake::hydro_info::shv, 0, idir+1);
+      vb[idir] = device_hydro_spacetime_matrix(jparticle, ccake::hydro_info::shv, 0, idir+1);
+      vel_a[idir] = device_hydro_vector(iparticle, ccake::hydro_info::v, idir);
+      vel_b[idir] = device_hydro_vector(jparticle, ccake::hydro_info::v, idir);
+      ua[idir] = device_hydro_vector(iparticle, ccake::hydro_info::u, idir);
+      ub[idir] = device_hydro_vector(jparticle, ccake::hydro_info::u, idir);
+      //pa_qmom[idir] = ((energy_a+pressure_a)*gamma_a/sigma_a)*ua[idir]; //< Only for pressure weight
+      //pb_qmom[idir] = ((energy_b+pressure_b)*gamma_b/sigma_b)*ub[idir]; //< Only for pressure weight
+      //qmom_difference[idir] = pa_qmom[idir] - pb_qmom[idir]; //< Only for pressure weight
+      for (int jdir=0; jdir<D; jdir++){
+        vminia[idir][jdir] = device_hydro_spacetime_matrix(iparticle, ccake::hydro_info::shv, idir+1, jdir+1);
+        vminib[idir][jdir] = device_hydro_spacetime_matrix(jparticle, ccake::hydro_info::shv, idir+1, jdir+1);
+      }
+    }
+
+    //Compute kernel gradients
+    double rel_sep_norm = EoMPtr->get_distance(pos_a,pos_b,time_squared); 
+    double gradK[D];
+    kernel::gradKernel<D>( rel_sep, rel_sep_norm, hT, gradK );
+    
+    //Get gradients of vectors
+    for (int idir=0; idir<D; idir++){
+      sigsigK[idir] = entropy_norm_b*sigma_a * gradK[idir];
+      double gradP = (sigsqrb*pressure_b + sigsqra*pressure_a)*sigsigK[idir];
+      double gradBulk = (bulk_b/sigma_b/gamma_b+bulk_a/sigma_a/gamma_a)/sqrt(time_squared)*sigsigK[idir];
+      double gradV = (entropy_norm_b/sigma_a)*( vel_b[idir] - vel_a[idir] )*gradK[idir];
+      Kokkos::atomic_add( &device_hydro_vector(iparticle, ccake::hydro_info::gradP, idir), gradP);
+      Kokkos::atomic_add( &device_hydro_vector(iparticle, ccake::hydro_info::gradV, idir), gradV);
+      Kokkos::atomic_add( &device_hydro_vector(iparticle, ccake::hydro_info::gradBulk, idir), gradBulk);
+    }
+
+    ///Counts nearest neighbors btrack
+    double relative_distance_by_h = rel_sep_norm / hT;
+    if ( ( relative_distance_by_h <= 2.0 ) && ( iparticle != jparticle ) && ( pa_btrack != -1 ) )
+      Kokkos::atomic_add( &device_btrack(iparticle), 1 ); // effectively counts nearest neighbors
 
     //===============
     // add shear terms
     if ( settingsPtr->using_shear )
     {
-      pah.gradshear            += inner(sigsigK, pah.v)*( sigsqrb*vb + sigsqra*va );
-      pah.divshear             += sigsqrb*sigsigK*transpose(vminib)
-                                  + sigsqra*sigsigK*transpose(vminia);
+      double va_dot_gradK = EoMPtr->dot(va,gradK,time_squared);
+      double aux_a[D];
+      double aux_b[D];
+      for(int idir=0; idir<D; ++idir){
+        aux_a[idir]=0; aux_b[idir]=0;
+      }
+      ///TODO: This is right for (2+1)D. Need to check for (3+1)D and (1+1)D
+      for(int idir=0; idir<D; ++idir){
+        for(int jdir=0; jdir<D; ++jdir){
+          aux_a[idir] += vminia[idir][jdir]*sigsigK[jdir];
+          aux_b[idir] += vminib[idir][jdir]*sigsigK[jdir];
+        }
+      }
+      for(int idir=0; idir<D; ++idir){
+        Kokkos::atomic_add( &device_hydro_vector(iparticle, ccake::hydro_info::gradshear, idir), 
+                             va_dot_gradK*(sigsqrb*vb[idir]+sigsqra*va[idir]) );
+        Kokkos::atomic_add( &device_hydro_vector(iparticle, ccake::hydro_info::divshear, idir), 
+                            sigsqrb*aux_b[idir]+sigsqra*aux_a[idir] );
+      }
+    
+      
     }
+    //Computes gradP weights - Seems relevant only if pressure is NaN
+    //double alpha_q    = 1.0;
+    //double v_signal_q = sqrt(1.0/3.0);
+    //double innerp = EoMPtr->dot( rel_sep, qmom_difference, time_squared );
+    //double innerr = EoMPtr->dot( rel_sep, rel_sep, time_squared );
+    //innerp = 2.0*alpha_q*v_signal_q
+    //      / ( sigma_a/gamma_a + sigma_b/gamma_b )
+    //      / sqrt(innerr) * innerp;
+//
+    //if ( innerp > 0.0 || iparticle == jparticle ) innerp = 0.0;
+    //double pressureWeight = entropy_norm_b*sigma_a
+    //                        * ( pressure_b / (sigma_b*sigma_b)
+    //                          + pressure_a / (sigma_a*sigma_b) - innerp );
 
-    //===============
-    // check for nan pressure gradients
-    if ( isnan( pah.gradP(0) ) )
-    {
-      cout << "gradP stopped working" << endl;
-      cout << systemPtr->t <<" "  << pah.gradP << " " << a << " " << b << endl;
-      cout << pb.norm_spec.s << " " << pah.sigma << " " << pb.p() << endl;
-      cout << systemPtr->linklist.Size << " " << pb.s() << " " << pa.s() << endl;
+  };
+  Cabana::neighbor_parallel_for( systemPtr->range_policy, smooth_gradients, systemPtr->neighbour_list, Cabana::FirstNeighborsTag(),
+                                   Cabana::TeamOpTag(), "smooth_gradients");
+  Kokkos::fence();
+  
+  double hc = constants::hbarc_MeVfm;
+  auto freeze_out_step = KOKKOS_LAMBDA(const int iparticle){
+    int btrack = device_btrack(iparticle);
+    double temperature = device_thermo(iparticle, ccake::thermo_info::T)*hc;
+    if (( btrack == 1 ) && ( temperature >= 150.0 )) {
+      //fo.frz2[pa.ID].t=tin;   // If particle a has only one nearest neighbor (and T>150) set penultimate timestep;
+    } ///< TODO: Implement freeze out corrections. Actually I think this is not the best place to implement it
+    else if ( (btrack = 0) && (temperature >= 150.0) 
+            //&& pa.Freeze < 4
+    ){
+      // otherwise, if a has no nearest neighbors
+        // but has T>150 and isn't frozen out,
+        // just print this warning message
 
-      cout << pa.r << endl;
-      cout << pb.r << endl;
-      cout << kernel::kernel( pa.r - pb.r, settingsPtr->hT ) << endl;
+        //cout << boolalpha << "Missed " << a << " "
+         //<< tin << " " << pa.T()*hc << " "
+         //<< rdis << " " << systemPtr->do_freeze_out << endl;
     }
-    else if ( isnan( pah.gradP(1) ) )
-      cout << "1 " << gradPressure_weight(a, b)
-           << " " << a << " " << b << endl;
-  }
+  };
 
-  const double hc = constants::hbarc_MeVfm;
-
-  if ( ( pa.btrack == 1 )                               // if particle a has only
-            && ( ( pa.T()*hc ) >= 150 ) )               // one nearest neighbor (and T>150),
-    freeze_out.frz2[pa.ID].t=tin;                               // set penultimate timestep;
-  else if ( ( pa.btrack == 0 )                          // otherwise, if a has no nearest neighbors
-            && ( ( pa.T()*hc ) >= 150 )                 // but has T>150 and isn't frozen out,
-            && ( pa.Freeze < 4 ) )                      // just print this warning message
-    cout << boolalpha << "Missed " << a << " "
-         << tin << " " << pa.T()*hc << " "
-         << rdis << " " << systemPtr->do_freeze_out << endl;
-
+  ///TODO: When implemented freeze-out, uncomment this
+  //Kokkos::parallel_for("freeze_out_step", systemPtr->n_particles, freeze_out_step);
+  //Kokkos::fence();
+  std::cout << "smooth_all_particle_gradients finished."<< std::endl;
+  std::cout << "----------------------------------------"
+            "----------------------------------------" << std::endl;
+  std::cout << std::flush;
   return;
 }
-*/
 
 ////////////////////////////////////////////////////////////////////////////////
 ///\brief Loop over all particles and prepare them for initialization
@@ -663,10 +723,9 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives()
   update_all_particle_thermodynamics(t2);
   // update viscosities for all particles
   update_all_particle_viscosities();
-/*
   //Computes gradients to obtain dsigma/dt
-  smooth_all_particle_gradients();
-
+  smooth_all_particle_gradients(t2);
+/*
   //calculate time derivatives needed for equations of motion
   evaluate_all_particle_time_derivatives();
 
@@ -699,7 +758,7 @@ void SPHWorkstation<D, TEOM>::update_all_particle_viscosities()
   Kokkos::parallel_for( "set_transport_coefficients", systemPtr->n_particles, set_transport_coefficients );
 
 }
-  
+
 
 ////////////////////////////////////////////////////////////////////////////////
 template<unsigned int D, template<unsigned int> class TEOM>
@@ -1093,8 +1152,8 @@ void SPHWorkstation<D, TEOM>::advance_timestep( double dt, int rk_order )
   // (pass workstation's own time derivatives function as lambda)
   
   //Bulk of code evaluation is done below
-  //evolver.execute_timestep( dt, rk_order,
-  //                          [this]{ this->get_time_derivatives(); } );
+  evolver.execute_timestep( dt, rk_order,
+                            [this]{ this->get_time_derivatives(); } );
   
   // set number of particles which have frozen out
   //systemPtr->number_part = systemPtr->get_frozen_out_count();

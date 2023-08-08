@@ -113,6 +113,7 @@ public:
   //============================================================================
   // smoothing
   void smooth_all_particle_fields(double time_squared);
+  void smooth_all_particle_gradients(double time_squared);
   //void smooth_gradients( Particle<D> & pa, double tin );
 
   void get_time_derivatives();
@@ -124,18 +125,6 @@ public:
   void update_all_particle_thermodynamics(double time_squared);
   void update_all_particle_viscosities();
   
-  //-------------------------------------------
-  //void smooth_all_particle_gradients()
-  //      {
-  //        Stopwatch sw;
-  //        sw.Start();
-  //        for ( auto & p : systemPtr->particles )
-  //          smooth_gradients( p, systemPtr->t );
-  //        sw.Stop();
-  //        formatted_output::update("finished smoothing particle gradients in "
-  //                                  + to_string(sw.printTime()) + " s.");
-  //      }
-
   //-------------------------------------------
   //void evaluate_all_particle_time_derivatives()
   //      {
