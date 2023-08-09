@@ -31,9 +31,15 @@ link_directories( ${HDF5_LIBRARY_DIRS} )
 target_link_libraries(src PUBLIC ${HDF5_CXX_LIBRARIES} )
 
 ###############################################################################
+# If we are using nvc++ compiler, we need to link against the CUDA libraries
+if (CMAKE_CXX_COMPILER_ID STREQUAL "NVIDIA")
+	target_link_libraries(src PUBLIC ${CUDA_LIBRARIES})
+endif()
+
+###############################################################################
 # Include cabana and kokkos libraries
-target_link_libraries(src PUBLIC Cabana::cabanacore)
 target_link_libraries(src PUBLIC Kokkos::kokkos)
+target_link_libraries(src PUBLIC Cabana::cabanacore)
 
 ###############################################################################
 # find and link yaml-cpp libraries

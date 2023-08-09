@@ -7,7 +7,7 @@
 #include <cmath>
 #include <vector>
 
-#include <Kokkos_Macros.hpp>
+#include <Cabana_Core.hpp>
 
 #include "vector.h"
 #include "matrix.h"
@@ -18,9 +18,10 @@ namespace kernel
 {
   extern double knorm, knorm2, kgrad, kgrad2;
 
-  void set_kernel_parameters( double hT );
-  double kernel( double q );
-  double kernel( const Vector<double,2> & a, double hT );
+  //void set_kernel_parameters( double hT );
+  template<unsigned int D>
+  KOKKOS_INLINE_FUNCTION
+  double kernel(double distance, const double hT );
   template<unsigned int D>
   KOKKOS_INLINE_FUNCTION
   void gradKernel(double const* rel_dist, double r, double h, double* grad );

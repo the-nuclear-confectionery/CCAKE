@@ -1,14 +1,3 @@
-#include <cmath>
-#include <functional>
-#include <string>
-#include <vector>
-
-#include "constants.h"
-#include "eos.h"
-#include "kernel.h"
-#include "matrix.h"
-#include "particle.h"
-#include "settings.h"
 #include "transport_coefficients.h"
 
 using std::string;
@@ -295,8 +284,9 @@ double TransportCoefficients::cs2_dependent_zeta(const double *therm)
 //  cout << "Check zeta/s: "
 //        << therm.T*hbarc_MeVfm << "   "
 //        << zeta_over_s_local << endl;
-
-  if ( therm[thermo_info::cs2] < 0.0 || therm[thermo_info::cs2] > 1.0 )
+  #ifdef DEBUG
+  #ifndef __CUDDACC__
+   if ( therm[thermo_info::cs2] < 0.0 || therm[thermo_info::cs2] > 1.0 )
   {
     cout << "ERROR: " << zeta_over_s_local << "   "
         << x_p << "   "
@@ -347,6 +337,8 @@ double TransportCoefficients::cs2_dependent_zeta(const double *therm)
         << p << "   "
         << pow((1.0/3.0)-therm[thermo_info::cs2], p) << endl;
   }
+  #endif
+  #endif
 
   return zeta_over_s_local*therm[thermo_info::s];
 }

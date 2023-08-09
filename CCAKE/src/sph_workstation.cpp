@@ -261,6 +261,7 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
   sw.Start();
 
   CREATE_VIEW(device_, systemPtr->cabana_particles);
+  double hT = settingsPtr->hT;
 
   //Reset smoothed fields
   auto reset_fields = KOKKOS_CLASS_LAMBDA(const int iparticle)
@@ -283,7 +284,7 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
       r2[idir] = device_position(jparticle,idir);
     }
     double distance = EoMPtr->get_distance(r1,r2,time_squared);
-    double kern = kernel::kernel(distance,settingsPtr->hT);
+    double kern = kernel::kernel<D>(distance,hT);
 
     //Update sigma (reference density)
     Kokkos::atomic_add( &device_hydro_scalar(iparticle, ccake::hydro_info::sigma), device_norm_spec(jparticle, ccake::densities_info::s)*kern);

@@ -17,8 +17,14 @@ if(CMAKE_BUILD_TYPE MATCHES Debug)
   message(STATUS "Configuring debug build.")
   set(CMAKE_DEBUG_POSTFIX d)
   # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb -Wall -Wextra -Wpedantic -Werror") # <- Beware of -Werror when using this line
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb -Wall")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb ")
   add_compile_definitions(DEBUG)
+endif()
+
+if (CMAKE_CXX_COMPILER_ID STREQUAL "NVIDIA")
+  # Compiler is nvc++ - We are targeting GPU
+  find_package(CUDA REQUIRED)
+  include_directories(${CUDA_INCLUDE_DIRS})
 endif()
 
 ###############################################################
@@ -42,8 +48,8 @@ endif()
 find_package(GSL COMPONENTS C CXX REQUIRED)
 find_package(HDF5 COMPONENTS CXX REQUIRED)
 find_package(yaml-cpp REQUIRED)
-find_package(Cabana REQUIRED)
 find_package(Kokkos REQUIRED)
+find_package(Cabana REQUIRED)
 
 ###############################################################
 # add include directories
