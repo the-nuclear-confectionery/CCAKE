@@ -54,7 +54,7 @@ void SystemState<D>::allocate_cabana_particles(){
   CREATE_VIEW(host_, particles_h);
   CREATE_VIEW(device_, cabana_particles);
 
-    //Fill host arrays
+  //Fill host arrays
   for (int iparticle=0; iparticle < n_particles; ++iparticle){
     //Copy hydro space matrix
     for (int i=0; i<D; ++i)
@@ -177,6 +177,15 @@ void SystemState<D>::allocate_cabana_particles(){
 
 }
 
+/// @brief Reset the neighbour list
+/// @details This function should be called after the particles have been moved.
+/// Beware that this operation is very expensive and calls to this function should
+/// be minimized. It is also a good candidate for optimization. In a 11th Gen 
+/// Intel Core i7-11370H running under WSL 2, using the  apptainer images, the 
+/// inclusion of single call to this function in the main loop increased the 
+/// execution time by ~1s (in a trento event generated with 
+/// `trento --grid-max 10 --grid-step .1 Pb Pb --b-max=3 --random-seed=42`)
+/// @tparam D 
 template<unsigned int D>
 void SystemState<D>::reset_neighbour_list(){
   double min_pos[3], max_pos[3];
@@ -222,6 +231,7 @@ void SystemState<D>::initialize_linklist()
   reset_neighbour_list();
   //Test that the neighbor list is correct
   #ifdef DEBUG
+  #ifndef __CUDACC__
   auto first_neighbor_kernel =
     KOKKOS_LAMBDA( const int i, const int j )
     {
@@ -240,6 +250,7 @@ void SystemState<D>::initialize_linklist()
                                Cabana::FirstNeighborsTag(),
                                Cabana::TeamOpTag(), "ex_1st_team" );
   #endif
+  #endif
   Kokkos::fence();
 
   //auto print_parallel_message = KOKKOS_LAMBDA(const int s, const int a){
@@ -250,12 +261,14 @@ void SystemState<D>::initialize_linklist()
 
   
   #ifdef DEBUG
+  #ifndef __CUDACC__
   std::ofstream fs("validate_ic.txt");
   for (int ipart=0; ipart<n_particles; ++ipart){
     fs << device_position(ipart,0) << " " << device_position(ipart,1)
          << " " << device_thermo(ipart, ccake::thermo_info::e) << endl;
   }
   fs.close();
+  #endif
   #endif
   return;
 }

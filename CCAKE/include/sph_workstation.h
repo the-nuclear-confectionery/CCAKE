@@ -5,6 +5,8 @@
 #include <memory>
 #include <string>
 
+#include <Cabana_Core.hpp>
+
 #include "constants.h"
 //#include "eom.h"
 #include "eom_default.h"

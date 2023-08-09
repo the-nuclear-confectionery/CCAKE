@@ -6,14 +6,15 @@
 #include <string>
 #include <vector>
 
+#include <Cabana_Core.hpp>
+
 #include "eos.h"
 #include "kernel.h"
 #include "matrix.h"
 #include "particle.h"
 #include "settings.h"
 #include "thermodynamic_info.h"
-
-#include "Kokkos_Macros.hpp"
+#include "constants.h"
 
 using std::string;
 using std::vector;
