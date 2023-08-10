@@ -379,12 +379,14 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
 
   //Reset gradients
   auto reset_gradients = KOKKOS_LAMBDA(const int iparticle){
-    for (int idir=0; idir < D; ++idir){
+    for (int idir=0; idir < D; ++idir)
+    {
       device_hydro_vector(iparticle,ccake::hydro_info::gradP, idir) = 0.0;
       device_hydro_vector(iparticle,ccake::hydro_info::gradBulk, idir) = 0.0; 
-      device_hydro_vector(iparticle,ccake::hydro_info::gradV, idir) = 0.0;
       device_hydro_vector(iparticle,ccake::hydro_info::gradshear, idir) = 0.0;
       device_hydro_vector(iparticle,ccake::hydro_info::divshear, idir) = 0.0;
+      for (int jdir=0; jdir < D; ++jdir)
+        device_hydro_space_matrix(iparticle,ccake::hydro_info::gradV, idir, jdir) = 0.0;
     }
 
     int btrack = device_btrack(iparticle);
@@ -455,9 +457,12 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
       sigsigK[idir] = entropy_norm_b*sigma_a * gradK[idir];
       double gradP = (sigsqrb*pressure_b + sigsqra*pressure_a)*sigsigK[idir];
       double gradBulk = (bulk_b/sigma_b/gamma_b+bulk_a/sigma_a/gamma_a)/sqrt(time_squared)*sigsigK[idir];
-      double gradV = (entropy_norm_b/sigma_a)*( vel_b[idir] - vel_a[idir] )*gradK[idir];
+      for (int jdir=0; jdir<D; jdir++)
+      {
+        double gradV = (entropy_norm_b/sigma_a)*( vel_b[idir] - vel_a[idir] )*gradK[jdir];
+        Kokkos::atomic_add( &device_hydro_vector(iparticle, ccake::hydro_info::gradV, idir, jdir), gradV);
+      }
       Kokkos::atomic_add( &device_hydro_vector(iparticle, ccake::hydro_info::gradP, idir), gradP);
-      Kokkos::atomic_add( &device_hydro_vector(iparticle, ccake::hydro_info::gradV, idir), gradV);
       Kokkos::atomic_add( &device_hydro_vector(iparticle, ccake::hydro_info::gradBulk, idir), gradBulk);
     }
 
