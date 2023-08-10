@@ -66,7 +66,7 @@ class EoM_default
         hi.piu         = rowp1(0,hi.shv)*hi.u;
         hi.piutot      = hi.piu+transpose(hi.piu);
         double bsub = 0.0;
-        double pig  = hi.shv(0,0)/hi.g2;
+        double pig  = hi.shv(0,0)/hi.gamma_squared;
 
         for (unsigned int i=0; i<D; i++)
         for (unsigned int j=0; j<D; j++)
@@ -80,7 +80,7 @@ class EoM_default
     Matrix<double,D,D> Msub_fun( hydrodynamic_info<D> & hi )
     {
       hi.piu  = rowp1(0,hi.shv)*hi.u;
-      return hi.Agam2*hi.uu + hi.Ctot*hi.gamma*Imat - (1+4/3./hi.g2)*hi.piu
+      return hi.Agam2*hi.uu + hi.Ctot*hi.gamma*Imat - (1+4/3./hi.gamma_squared)*hi.piu
               + hi.dwdsT1*transpose(hi.piu) + hi.gamma*hi.pimin;
     }
 
@@ -90,19 +90,20 @@ class EoM_default
                                     thermodynamic_info & ti,
                                     densities & d_dt_specific )
     {
+
       // PREVIOUSLY DONE IN UPDATE_DSIGMA_DT
       hi.dsigma_dt = -hi.sigma * ( hi.gradV(0,0) + hi.gradV(1,1) );
 
 
       // PREVIOUSLY DONE IN UPDATE_FLUID_VARIABLES
-      hi.g2           = hi.gamma*hi.gamma;
-      hi.g3           = hi.gamma*hi.g2;
-      hi.gt           = hi.gamma*hi.t;
+      hi.gamma_squared           = hi.gamma*hi.gamma;
+      hi.gamma_cube           = hi.gamma*hi.gamma_squared;
+      hi.gamma_tau           = hi.gamma*hi.t;
       double dwdsT    = ti.dwds/ti.T;
       hi.dwdsT1       = 1 - ti.dwds/ti.T;
       hi.sigl         = hi.dsigma_dt/hi.sigma - 1/hi.t;
-      hi.gradU        = hi.gamma*hi.gradV+hi.g3*(hi.v*(hi.v*hi.gradV));
-      hi.bigPI        = hi.Bulk*hi.sigma/hi.gt;
+      hi.gradU        = hi.gamma*hi.gradV+hi.gamma_cube*(hi.v*(hi.v*hi.gradV));
+      hi.bigPI        = hi.Bulk*hi.sigma/hi.gamma_tau;
       hi.C            = ti.w + hi.bigPI;
 
       hi.eta_o_tau    = (this->settingsPtr->using_shear) ? hi.setas/hi.stauRelax : 0.0;
@@ -111,12 +112,12 @@ class EoM_default
                         - ti.dwdB*ti.rhoB - ti.dwdS*ti.rhoS - ti.dwdQ*ti.rhoQ;
 
       hi.Agam2        = ( hi.Agam - hi.eta_o_tau/3.0 - hi.dwdsT1*hi.shv(0,0) ) / hi.gamma;
-      hi.Ctot         = hi.C + hi.eta_o_tau*(1.0/hi.g2-1.0);
+      hi.Ctot         = hi.C + hi.eta_o_tau*(1.0/hi.gamma_squared-1.0);
 
 
       hi.Btot         = ( hi.Agam*hi.gamma + 2.0*hi.eta_o_tau/3.0*hi.gamma )*hi.sigl ///TODO: 2/3 or 1/3. See Jaki's (Eq. 274)?
                           + hi.bigPI/hi.tauRelax
-                          + dwdsT*( hi.gt*hi.shv33 + Bsub_fun(hi) );
+                          + dwdsT*( hi.gamma_tau*hi.shv33 + Bsub_fun(hi) );
 
 //      std::cout << "CHECK settingsPtr->using_shear: " << settingsPtr->using_shear << "\n";
 //      std::cout << "CHECK hi.setas: " << hi.setas << "\n";
@@ -148,9 +149,9 @@ class EoM_default
       if ( VERBOSE > 2 && hi.print_particle )
         std::cout << "CHECK misc: " << hi.ID << "   "
                   << hi.t << "   "
-                  << hi.g2 << "   "
+                  << hi.gamma_squared << "   "
                   << hi.g3 << "   "
-                  << hi.gt << "   "
+                  << hi.gamma_tau << "   "
                   << hi.dwdsT1 << "   "
                   << hi.sigl << "   "
                   << hi.gradU << "   "
@@ -220,7 +221,7 @@ class EoM_default
       hi.bigtheta                = hi.div_u*hi.t+hi.gamma;
 
       //===============
-      Matrix <double,D,D> sub   = hi.pimin + (hi.shv(0,0)/hi.g2)*hi.uu
+      Matrix <double,D,D> sub   = hi.pimin + (hi.shv(0,0)/hi.gamma_squared)*hi.uu
                                   - 1./hi.gamma*hi.piutot;
 
       //===============

@@ -44,9 +44,9 @@ struct hydrodynamic_info
   double sigma           = 0.0; ///< especific volume
   double dsigma_dt       = 0.0; ///< derivative of especific volume
 
-  double g2              = 0.0; ///< gamma^2
-  double g3              = 0.0; ///< gamma^3
-  double gt              = 0.0; ///< gamma*tau
+  double gamma_squared              = 0.0; ///< gamma^2
+  double gamma_cube              = 0.0; ///< gamma^3
+  double gamma_tau              = 0.0; ///< gamma*tau
   double eta_o_tau       = 0.0; ///< shear visc coeff eta/tau/2 \\\TODO: check this
   double dwdsT1          = 0.0; ///< 1 -  (1/T) dw/ds
   double sigl            = 0.0; ///< (1/sigma^*) d sigma^*/dt - 1/tau
@@ -103,9 +103,9 @@ enum hydro_scalar_info
   Btot,
   sigma,
   dsigma_dt,
-  g2,
-  g3,
-  gt,
+  gamma_squared,
+  gamma_cube,
+  gamma_tau,
   eta_o_tau,
   dwdsT1,
   sigl,

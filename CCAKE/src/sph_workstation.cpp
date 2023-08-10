@@ -569,8 +569,8 @@ void SPHWorkstation<D, TEOM>::process_initial_conditions()
 		//p.u(0)          = 0.0;  // flow is set in Particle constructor!!!
 		//p.u(1)          = 0.0;  // flow is set in Particle constructor!!!
     p.hydro.gamma     = p.gamcalc();
-    p.hydro.g2        = p.hydro.gamma*p.hydro.gamma;
-    p.hydro.g3        = p.hydro.g2*p.hydro.gamma;
+    p.hydro.gamma_squared        = p.hydro.gamma*p.hydro.gamma;
+    p.hydro.gamma_cube        = p.hydro.gamma_squared*p.hydro.gamma;
 
 
     // normalize all specific densities to 1

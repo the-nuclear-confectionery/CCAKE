@@ -89,9 +89,9 @@ void SystemState<D>::allocate_cabana_particles(){
     host_hydro_scalar(iparticle, ccake::hydro_info::Btot) = particles[iparticle].hydro.Btot;
     host_hydro_scalar(iparticle, ccake::hydro_info::sigma) = particles[iparticle].hydro.sigma;
     host_hydro_scalar(iparticle, ccake::hydro_info::dsigma_dt) = particles[iparticle].hydro.dsigma_dt;
-    host_hydro_scalar(iparticle, ccake::hydro_info::g2) = particles[iparticle].hydro.g2;
-    host_hydro_scalar(iparticle, ccake::hydro_info::g3) = particles[iparticle].hydro.g3;
-    host_hydro_scalar(iparticle, ccake::hydro_info::gt) = particles[iparticle].hydro.gt;
+    host_hydro_scalar(iparticle, ccake::hydro_info::gamma_squared) = particles[iparticle].hydro.gamma_squared;
+    host_hydro_scalar(iparticle, ccake::hydro_info::gamma_cube) = particles[iparticle].hydro.gamma_cube;
+    host_hydro_scalar(iparticle, ccake::hydro_info::gamma_tau) = particles[iparticle].hydro.gamma_tau;
     host_hydro_scalar(iparticle, ccake::hydro_info::eta_o_tau) = particles[iparticle].hydro.eta_o_tau;
     host_hydro_scalar(iparticle, ccake::hydro_info::dwdsT1) = particles[iparticle].hydro.dwdsT1;
     host_hydro_scalar(iparticle, ccake::hydro_info::sigl) = particles[iparticle].hydro.sigl;
@@ -344,7 +344,7 @@ void SystemState<D>::conservation_energy()
     for ( auto & p : particles )
     {
       p.contribution_to_total_E
-         = ( p.hydro.C*p.hydro.g2 - p.p() - p.hydro.bigPI + p.hydro.shv(0,0) )
+         = ( p.hydro.C*p.hydro.gamma_squared - p.p() - p.hydro.bigPI + p.hydro.shv(0,0) )
            * p.norm_spec.s * t / p.hydro.sigma;
       E += p.contribution_to_total_E;
     }
