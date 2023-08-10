@@ -285,7 +285,7 @@ double TransportCoefficients::cs2_dependent_zeta(const double *therm)
 //        << therm.T*hbarc_MeVfm << "   "
 //        << zeta_over_s_local << endl;
   #ifdef DEBUG
-  #ifndef __CUDDACC__
+  #ifndef __CUDACC__
    if ( therm[thermo_info::cs2] < 0.0 || therm[thermo_info::cs2] > 1.0 )
   {
     cout << "ERROR: " << zeta_over_s_local << "   "
