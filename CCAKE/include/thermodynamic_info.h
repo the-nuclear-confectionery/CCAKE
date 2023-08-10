@@ -1,7 +1,6 @@
 #ifndef THERMODYNAMIC_INFO_H
 #define THERMODYNAMIC_INFO_H
 
-#include "Cabana_AoSoA.hpp"
 namespace ccake{
 
 /// \brief struct to hold thermodynamic info of the particle.
