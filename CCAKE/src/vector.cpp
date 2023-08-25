@@ -30,8 +30,7 @@ Vector<T,D>& Vector<T,D>::operator=(const Vector<U,D> & a)
 ///\param a Value to set all elements of this Vector to.
 ///\return Reference to this Vector.
 template <class T, int D>
-template <class U>
-Vector<T,D>& Vector<T,D>::operator=(U a)
+Vector<T,D>& Vector<T,D>::operator=(double a)
 {
   for (int i = 0; i < D; i++) x[i] = (T)a;
   return *this;
@@ -44,10 +43,9 @@ Vector<T,D>& Vector<T,D>::operator=(U a)
 ///\param a Vector to add.
 ///\return Reference to this Vector.
 template <class T, int D>
-template <class U>
-Vector<T,D>& Vector<T,D>::operator+=(const Vector<U,D> & a)
+Vector<T,D>& Vector<T,D>::operator+=(const Vector<T,D> & a)
 {
-  for (int i = 0; i < D; i++) x[i] += (T)a(i);
+  for (int i = 0; i < D; i++) x[i] += a(i);
   return *this;
 }
 
@@ -58,10 +56,9 @@ Vector<T,D>& Vector<T,D>::operator+=(const Vector<U,D> & a)
 ///\param a Vector to subtract.
 ///\return Reference to this Vector.
 template <class T, int D>
-template <class U>
-Vector<T,D>& Vector<T,D>::operator-=(const Vector<U,D> & a)
+Vector<T,D>& Vector<T,D>::operator-=(const Vector<T,D> & a)
 {
-  for (int i = 0; i < D; i++) x[i] -= (T)a(i);
+  for (int i = 0; i < D; i++) x[i] -= a(i);
   return *this;
 }
 
@@ -73,10 +70,9 @@ Vector<T,D>& Vector<T,D>::operator-=(const Vector<U,D> & a)
 ///\param a Value to multiply this Vector by.
 ///\return Reference to this Vector.
 template <class T, int D>
-template <class U>
-Vector<T,D>& Vector<T,D>::operator*=(U a)
+Vector<T,D>& Vector<T,D>::operator*=(T l)
 {
-  for (int i = 0; i < D; i++) x[i] *= (T)a;
+  for (int i = 0; i < D; i++) x[i] *= l;
   return *this;
 }
 
@@ -100,15 +96,9 @@ Vector<T,D> operator+(const Vector<T,D>& a, const Vector<T,D>& b)
 ///\param a vector which will be multiplied by -1.
 ///\return Negative of the input Vector.
 template <class T, int D>
-Vector<T,D> operator-(const Vector<T,D>& a) ///\todo: I believe this should be 
-                                            ///avoided. It introduces D 
-                                            ///operations that could be avoided 
-                                            ///by changing the order of 
-                                            ///operations in the final 
-                                            ///expression. If really needed, one
-                                            ///can always multiply by -1 explicitly.
+Vector<T,D> operator-(const Vector<T,D>& a)
 {
-  return ((T) -1.0)*a;
+  return (-1.0)*a;
 }
 
 ///\brief Difference operator of two Vectors.
@@ -147,7 +137,9 @@ Vector<T,D> operator*(T l, const Vector<T,D>& a)
 template <class T, int D>
 double Norm(const Vector<T,D>& a)
 {
-  return sqrt(Norm2(a));
+  double t = 0;
+  for (int i = 0; i < D; i++) t += a(i)*a(i);
+  return sqrt(t);
 }
 
 /// \brief Gets the squared norm of a Vector.

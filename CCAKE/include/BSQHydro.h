@@ -43,7 +43,7 @@ public:
 
 private:
 
-  static constexpr int rk_order = 4;
+  static constexpr int rk_order = 2;
 
   string input_directory;
   string output_directory;

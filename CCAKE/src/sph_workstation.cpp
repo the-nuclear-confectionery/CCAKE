@@ -282,6 +282,7 @@ void SPHWorkstation::smooth_gradients( Particle & pa, double tin )
   auto & pah = pa.hydro;
 
   pah.gradP     = 0.0;
+  pah.gradE     = 0.0; //added for FO
   pah.gradBulk  = 0.0;
   pah.gradV     = 0.0;
   pah.gradshear = 0.0;
@@ -312,14 +313,17 @@ void SPHWorkstation::smooth_gradients( Particle & pa, double tin )
     Vector<double,2> sigsigK = pb.norm_spec.s * pah.sigma * gradK;
 
     pah.gradP                += ( sigsqrb*pb.p() + sigsqra*pa.p() ) * sigsigK;
+	pah.gradE                += ( sigsqrb*pb.e() + sigsqra*pa.e() ) * sigsigK;
 
     //===============
     // print status
     if ( VERBOSE > 2 && pa.print_this_particle )
       std::cout << "CHECK grads: " << tin << "   "
                 << pah.gradP << "   " << a << "   " << b << "   "
+				        << pah.gradE << "   " << a << "   " << b << "   "
                 << sigsqra << "   " << sigsqrb
                 << "   " << pa.p() << "   " << pb.p()
+				        << "   " << pa.e() << "   " << pb.e()
                 << "   " << pa.get_current_eos_name()
                 << "   " << pb.get_current_eos_name()
                 << "   " << gradK << "   " << sigsigK
@@ -368,8 +372,27 @@ void SPHWorkstation::smooth_gradients( Particle & pa, double tin )
     else if ( isnan( pah.gradP(1) ) )
       cout << "1 " << gradPressure_weight(a, b)
            << " " << a << " " << b << endl;
-  }
+  
 
+    //===============
+    // check for nan Energy gradients
+    if ( isnan( pah.gradE(0) ) )
+    {
+      cout << "gradE stopped working" << endl;
+      cout << systemPtr->t <<" "  << pah.gradE << " " << a << " " << b << endl;
+      cout << pb.norm_spec.s << " " << pah.sigma << " " << pb.e() << endl;
+      cout << systemPtr->linklist.Size << " " << pb.s() << " " << pa.s() << endl;
+
+      cout << pa.r << endl;
+      cout << pb.r << endl;
+      cout << kernel::kernel( pa.r - pb.r, settingsPtr->h ) << endl;
+    }
+    else if ( isnan( pah.gradE(1) ) )
+      cout << "1 " << gradEnergy_weight(a, b)
+           << " " << a << " " << b << endl;
+  }
+  
+  
   const double hc = constants::hbarc_MeVfm;
 
   if ( ( pa.btrack == 1 )                               // if particle a has only
@@ -918,9 +941,30 @@ double SPHWorkstation::gradPressure_weight(const int a, const int b)
           + pa.p() / (pa.hydro.sigma*pb.hydro.sigma) - innerp );
 }
 
+double SPHWorkstation::gradEnergy_weight(const int a, const int b)
+{
+  auto & pa = systemPtr->particles[a];
+  auto & pb = systemPtr->particles[b];
+
+  Vector<double,2> pa_qmom = ( (pa.e()+pa.p())*pa.hydro.gamma/pa.hydro.sigma )*pa.hydro.u;
+  Vector<double,2> pb_qmom = ( (pb.e()+pb.p())*pb.hydro.gamma/pb.hydro.sigma )*pb.hydro.u;
 
 
+  double alpha_q    = 1.0;
+  double v_signal_q = sqrt(1.0/3.0);
 
+  double innerp = inner( pa.r - pb.r, pa_qmom - pb_qmom );
+  double innerr = inner( pa.r - pb.r, pa.r    - pb.r    );
+  innerp = 2.0*alpha_q*v_signal_q
+          / ( pa.hydro.sigma/pa.hydro.gamma + pb.hydro.sigma/pb.hydro.gamma )
+          / sqrt(innerr) * innerp;
+
+  if ( innerp > 0.0 || a == b ) innerp = 0.0;
+
+  return pb.norm_spec.s * pa.hydro.sigma
+        * ( pb.e() / (pb.hydro.sigma*pb.hydro.sigma)
+          + pa.e() / (pa.hydro.sigma*pb.hydro.sigma) - innerp );
+}
 
 
 ////////////////////////////////////////////////////////////////////////////////
