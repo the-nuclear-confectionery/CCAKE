@@ -17,18 +17,18 @@ namespace ccake{
 
 
 using EvolverCache = Cabana::MemberTypes<double[3][3], // stress-energy tensor
-                                         double[4],    // four-velocity
+                                         double[3],    // four-velocity
                                          double[3],    // position
                                          double,       // specific_entropy
-                                         double,       // Bulk pressure
-                                         double        // E0
+                                         double//,       // Bulk pressure
+                                         //double        // E0
 >;
 
 namespace evolver_cache_info
 {
 enum cache_data
 {
-  stress_energy_tensor,
+  viscous_shear,
   four_velocity,
   position,
   specific_entropy,
@@ -74,6 +74,9 @@ class Evolver
     //==========================================================================
     void execute_timestep(double dt, int rk_order,
                           std::function<void(void)> time_derivatives_functional );
+    void set_current_timestep_quantities();
+    void advance_timestep_rk2( double dt,
+                               std::function<void(void)> time_derivatives_functional );
 
 };
 }
@@ -81,156 +84,15 @@ class Evolver
 
 /*
 
-    //==============================================================================
-    // this routine is used to initialize quantities prior to RK evolution
-    void set_current_timestep_quantities()
-    {
-      // set number of particles
-      n_particles = systemPtr->particles.size();
 
-      // store quantities at current timestep
-      specific_s0.resize(n_particles);
-      Bulk0.resize(n_particles);
-      particles_E0.resize(n_particles);
-      u0.resize(n_particles);
-      r0.resize(n_particles);
-      shv0.resize(n_particles);
-
-      for (int i = 0; i < n_particles; ++i)
-      {
-        auto & p = systemPtr->particles[i];
-
-        u0[i]          = p.hydro.u;
-        r0[i]          = p.r;
-        specific_s0[i] = p.specific.s;
-        Bulk0[i]       = p.hydro.Bulk;
-        mini( shv0[i], p.hydro.shv );
-
-        particles_E0[i] = p.contribution_to_total_Ez;
-      }
-    }
+    
 
 
 
 
-    //==========================================================================
-    void advance_timestep_rk2( double dt, std::function<void(void)>
-                                          time_derivatives_functional )
-    {
-      systemPtr->rk2 = 1;
-      double t0      = systemPtr->t;
-      double E0      = systemPtr->Ez;
+    
 
-      // initialize quantities at current time step
-      set_current_timestep_quantities();
-
-      ////////////////////////////////////////////
-      //    first step
-      ////////////////////////////////////////////
-      formatted_output::report("RK(n=2) evolution, step 1");
-
-      // compute derivatives
-      time_derivatives_functional();
-
-      // update quantities
-      {
-        for (int i = 0; i < n_particles; i++)
-        {
-          auto & p    = systemPtr->particles[i];
-          auto & ph   = p.hydro;
-
-          p.r = r0[i] + 0.5*dt*ph.v;
-          ph.u            = u0[i]          + 0.5*dt*ph.du_dt;
-          p.specific.s    = specific_s0[i] + 0.5*dt*p.d_dt_spec.s;
-          ph.Bulk         = Bulk0[i]       + 0.5*dt*ph.dBulk_dt;
-          tmini( ph.shv,    shv0[i]        + 0.5*dt*ph.dshv_dt );
-
-
-          // regulate updated results if necessary
-          if ( REGULATE_NEGATIVE_S && p.specific.s < 0.0 )
-          {
-            std::cerr << "WARNING: regulating particle " << p.ID << " at e = "
-                      << p.e()*constants::hbarc_MeVfm << " MeV/fm^3 "
-                      << "(T = " << p.T()*constants::hbarc_MeVfm << " MeV): "
-                      << p.specific.s << " --> " << 0.5*(specific_s0[i]+1.0) << endl;
-            p.specific.s    = 0.5*(specific_s0[i]+1.0);
-          }
-
-          // regulate updated results if necessary
-          if ( REGULATE_LARGE_S && p.specific.s > 10.0*specific_s0[i] )
-          {
-            std::cerr << "WARNING: regulating particle " << p.ID << " at e = "
-                      << p.e()*constants::hbarc_MeVfm << " MeV/fm^3 "
-                      << "(T = " << p.T()*constants::hbarc_MeVfm << " MeV): "
-                      << p.specific.s << " --> " << 2.0*specific_s0[i] << endl;
-            p.specific.s    = 2.0*specific_s0[i];
-          }
-
-
-          p.contribution_to_total_Ez = particles_E0[i]
-                                        + 0.5*dt*p.contribution_to_total_dEz;
-        }
-      }
-
-      systemPtr->Ez = E0 + 0.5*dt*systemPtr->dEz;
-      systemPtr->t  = t0 + 0.5*dt;
-
-      ////////////////////////////////////////////
-      //    second step
-      ////////////////////////////////////////////
-      formatted_output::report("RK(n=2) evolution, step 2");
-
-      // compute derivatives
-      time_derivatives_functional();
-
-      // update quantities
-      {
-        for (int i = 0; i < n_particles; i++)
-        {
-          auto & p    = systemPtr->particles[i];
-          auto & ph   = p.hydro;
-
-          p.r = r0[i] + dt*ph.v;
-            ph.u            = u0[i]          + dt*ph.du_dt;
-            p.specific.s    = specific_s0[i] + dt*p.d_dt_spec.s;
-            ph.Bulk         = Bulk0[i]       + dt*ph.dBulk_dt;
-            tmini( ph.shv,    shv0[i]        + dt*ph.dshv_dt );
-
-          // regulate updated results if necessary
-          if ( REGULATE_NEGATIVE_S && p.specific.s < 0.0 )
-          {
-            std::cerr << "WARNING: regulating particle " << p.ID << " at e = "
-                      << p.e()*constants::hbarc_MeVfm << " MeV/fm^3 "
-                      << "(T = " << p.T()*constants::hbarc_MeVfm << " MeV): "
-                      << p.specific.s << " --> " << 0.5*(specific_s0[i]+1.0) << endl;
-            p.specific.s    = 0.5*(specific_s0[i]+1.0);
-          }
-
-          // regulate updated results if necessary
-          if ( REGULATE_LARGE_S && p.specific.s > 10.0*specific_s0[i] )
-          {
-            std::cerr << "WARNING: regulating particle " << p.ID << " at e = "
-                      << p.e()*constants::hbarc_MeVfm << " MeV/fm^3 "
-                      << "(T = " << p.T()*constants::hbarc_MeVfm << " MeV): "
-                      << p.specific.s << " --> " << 2.0*specific_s0[i] << endl;
-            p.specific.s    = 2.0*specific_s0[i];
-          }
-
-          p.contribution_to_total_Ez = particles_E0[i]
-                                        + dt*p.contribution_to_total_dEz;
-
-    //cout << "CHECK energies: " << i << "   " << t0+dt << "   "
-    //      << p.r << "   " << p.e() << "   "
-    //      << particles_E0[i] << "   "
-    //      << p.contribution_to_total_E << endl;
-        }
-      }
-
-      systemPtr->Ez = E0 + dt*systemPtr->dEz;
-      systemPtr->t  = t0 + dt;
-
-      return;
-    }
+    
 
 
 

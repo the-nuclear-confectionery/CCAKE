@@ -1176,10 +1176,6 @@ void SPHWorkstation<D, TEOM>::advance_timestep( double dt, int rk_order )
   // keep track of how many timesteps have elapsed
   systemPtr->number_of_elapsed_timesteps++;
 
-  //Temp evo increment
-  ///TODO: Do not forget to erase the line below
-  systemPtr->t += dt;
-
   sw.Stop();
   formatted_output::report("finished timestep in "
                             + to_string(sw.printTime()) + " s");

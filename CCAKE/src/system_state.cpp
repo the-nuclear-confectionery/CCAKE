@@ -281,11 +281,11 @@ void SystemState<D>::conservation_entropy()
   
   CREATE_VIEW(device_, cabana_particles);
   S = 0.0;
-  auto get_total_entropy = KOKKOS_LAMBDA(const int &i, double &S)
+  auto get_total_entropy = KOKKOS_LAMBDA(const int i, double &local_S)
   {
-    S += device_specific_density(i, ccake::densities_info::s)*device_norm_spec(i, ccake::densities_info::s);
+    local_S += device_specific_density(i, ccake::densities_info::s)*device_norm_spec(i, ccake::densities_info::s);
   };
-  Kokkos::parallel_reduce("loop_conservation_entropy",n_particles, get_total_entropy, Kokkos::Sum<double>(S));
+  Kokkos::parallel_reduce("loop_conservation_entropy",n_particles, get_total_entropy, S);
   
   S0 = S;
 }
