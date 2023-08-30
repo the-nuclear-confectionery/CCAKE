@@ -126,22 +126,8 @@ public:
   //-------------------------------------------
   void update_all_particle_thermodynamics(double time_squared);
   void update_all_particle_viscosities();
+  void evaluate_all_particle_time_derivatives();
   
-  //-------------------------------------------
-  //void evaluate_all_particle_time_derivatives()
-  //      {
-  //        Stopwatch sw;
-  //        sw.Start();
-  //        for ( auto & p : systemPtr->particles )
-  //        {
-  //          p.hydro.ID = p.ID;
-  //          p.hydro.t  = systemPtr->t;
-  //          EoMPtr->evaluate_time_derivatives( p.hydro, p.thermo, p.d_dt_spec );
-  //        }
-  //        sw.Stop();
-  //        formatted_output::update("set particle time derivatives in "
-  //                                  + to_string(sw.printTime()) + " s."); }
-
 
   //-------------------------------------------
   //void freeze_out_particles();

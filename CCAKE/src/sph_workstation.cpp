@@ -460,7 +460,7 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
       for (int jdir=0; jdir<D; jdir++)
       {
         double gradV = (entropy_norm_b/sigma_a)*( vel_b[idir] - vel_a[idir] )*gradK[jdir];
-        Kokkos::atomic_add( &device_hydro_vector(iparticle, ccake::hydro_info::gradV, idir, jdir), gradV);
+        Kokkos::atomic_add( &device_hydro_space_matrix(iparticle, ccake::hydro_info::gradV, idir, jdir), gradV);
       }
       Kokkos::atomic_add( &device_hydro_vector(iparticle, ccake::hydro_info::gradP, idir), gradP);
       Kokkos::atomic_add( &device_hydro_vector(iparticle, ccake::hydro_info::gradBulk, idir), gradBulk);
@@ -731,10 +731,10 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives()
   update_all_particle_viscosities();
   //Computes gradients to obtain dsigma/dt
   smooth_all_particle_gradients(t2);
-/*
+
   //calculate time derivatives needed for equations of motion
   evaluate_all_particle_time_derivatives();
-
+/*
   // identify and handle particles which have frozen out
   if ( systemPtr->do_freeze_out )
     freeze_out_particles();
@@ -765,6 +765,16 @@ void SPHWorkstation<D, TEOM>::update_all_particle_viscosities()
 
 }
 
+template<unsigned int D, template<unsigned int> class TEOM>
+void SPHWorkstation<D, TEOM>::evaluate_all_particle_time_derivatives()
+{
+    Stopwatch sw;
+    sw.Start();
+    EoMPtr->evaluate_time_derivatives( systemPtr->cabana_particles );
+    sw.Stop();
+    formatted_output::update("set particle time derivatives in "
+                              + to_string(sw.printTime()) + " s."); 
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 template<unsigned int D, template<unsigned int> class TEOM>
