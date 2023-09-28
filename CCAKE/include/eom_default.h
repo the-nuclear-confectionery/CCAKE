@@ -230,8 +230,24 @@ class EoM_default: public EquationsOfMotion
 
 
       // N.B. - ADD EXTRA TERMS FOR BULK EQUATION
-      hi.dBulk_dt = ( -hi.zeta/hi.sigma*hi.bigtheta - hi.Bulk/hi.gamma )/hi.tauRelax;
-
+	  
+	  
+	  
+	  //formulating simple setup for Beta_Bulk derivative   
+      hi.finite_diff_cs2   =  (ti.cs2 - hi.prev_cs2)/0.05; // Asadek
+	  hi.finite_diff_T   =  (ti.T - hi.prev_T)/0.05; // Asadek
+	  hi.finite_diff_w   =  (ti.w - hi.prev_w)/0.05; // Asadek
+	  //hi.fd_cs2        =  (ti.cs2 - hi.sudo_cs2);//Asadek
+	  hi.dBeta_dt      = 0.5*((-hi.finite_diff_T/(ti.T*ti.T))*(1/ti.w)*(1/((1/3-ti.cs2)*(1/3-ti.cs2))))
+	                   + 0.5*((-hi.finite_diff_w/(ti.w*ti.w))*(1/ti.T)*(1/((1/3-ti.cs2)*(1/3-ti.cs2))))
+					   + 0.5*((4*ti.cs2*hi.finite_diff_cs2*(1/((1/3-ti.cs2)*(1/3-ti.cs2)*(1/3-ti.cs2))))*(1/ti.T)*(1/ti.w));//Asadek 
+	  
+	  
+	  //Bulk evolution equation
+      hi.dBulk_dt      = ( -hi.zeta/hi.sigma*hi.bigtheta - hi.Bulk/hi.gamma )/hi.tauRelax;//w/out hi.dBeta_dt
+      //hi.dBulk_dt      = (( -hi.zeta/hi.sigma*hi.bigtheta - hi.Bulk/hi.gamma )/hi.tauRelax)
+	  //                   - (((hi.dBeta_dt*hi.zeta*ti.T)/(2*hi.tauRelax))*hi.Bulk/hi.gamma);//+hi.dBeta_dt
+	  
       //===============
       // print status
       if ( VERBOSE > 2 && hi.print_particle )

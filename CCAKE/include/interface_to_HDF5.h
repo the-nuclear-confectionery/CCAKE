@@ -115,11 +115,11 @@ class interface_to_HDF5
     {
       const int Nfields = v.size();
       const int length = v[0].size();
-
-      // double data[Nfields][length];
-      // for (int i = 0; i < Nfields; i++)
-      // for (int j = 0; j < length;  j++)	// skip x and y coordinates
-      //   data[i][j] = v[i][j];
+      
+      double data[Nfields][length];
+      for (int i = 0; i < Nfields; i++)
+      for (int j = 0; j < length;  j++)	// skip x and y coordinates
+        data[i][j] = v[i][j];
 
 
       string FRAME_NAME = GROUPEVENT_NAME + "/Frame_"
@@ -138,16 +138,15 @@ class interface_to_HDF5
         hsize_t dims[1];
         dims[0] = length;
         DataSpace dataspace(1, dims);
-
+      
         string DATASET_NAME = FRAME_NAME + "/" + dataset_names[iDS];
         DataSet dataset = groupFrame.createDataSet( DATASET_NAME.c_str(),
                               PredType::NATIVE_DOUBLE, dataspace);
-
+        
         // specify units
         set_units( dataset, dataset_units[iDS] );
 
-        // dataset.write(data[iDS], PredType::NATIVE_DOUBLE);
-        dataset.write(v[iDS].data(), PredType::NATIVE_DOUBLE);
+        dataset.write(data[iDS], PredType::NATIVE_DOUBLE);
       }
 
       // export any particle labels as indices (e.g., current eos names)
@@ -155,17 +154,16 @@ class interface_to_HDF5
         hsize_t dims[1];
         dims[0] = length;
         DataSpace dataspace(1, dims);
-
+      
         string DATASET_NAME = FRAME_NAME + "/labels";
         DataSet dataset = groupFrame.createDataSet( DATASET_NAME.c_str(),
                               PredType::NATIVE_INT, dataspace);
 
-        // int label_array[length];
-        // for (int i = 0; i < length; i++)
-        //   label_array[i] = labels[i];
-        //
-        // dataset.write(label_array, PredType::NATIVE_INT);
-        dataset.write(labels.data(), PredType::NATIVE_INT);
+        int label_array[length];
+        for (int i = 0; i < length; i++)
+          label_array[i] = labels[i];
+        
+        dataset.write(label_array, PredType::NATIVE_INT);
       }
 
 //if (1) exit(-1);

@@ -30,18 +30,18 @@ namespace parameter_settings
             setting_pair("constant_eta_over_s",    "0.20"),
             setting_pair("shearRelaxMode",         "default"),
             setting_pair("zetaMode",               "constant"),
-            setting_pair("constant_zeta_over_s",   "0.005"),
-            setting_pair("cs2_dependent_zeta_A",   "1.67552"),  // 8*pi/15
-            setting_pair("cs2_dependent_zeta_p",   "2.0"),
+            setting_pair("constant_zeta_over_s",   "0"),
+            setting_pair("cs2_dependent_zeta_A",   "0"),
+            setting_pair("cs2_dependent_zeta_p",   "0"),
             setting_pair("bulkRelaxMode",          "default"),
             setting_pair("freezeoutT",             "150.000000"),
             setting_pair("freezeout",              "No_Freezeout"),
             setting_pair("Gubser_BSQmode",         "off")
           };
-
+      
     // build defaults map and return it
     setting_map defaults;
-    for ( auto & default_pair : default_pairs ) defaults.insert( default_pair );
+    for ( auto & default_pair : default_pairs) defaults.insert( default_pair );
 
     return defaults;
   }

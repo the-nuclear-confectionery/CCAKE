@@ -53,8 +53,10 @@ public:
   void print_system_state();
   void print_system_state_to_txt();
   void print_system_state_to_HDF();
-  void print_freeze_out();
-
+  void print_freeze_out_T();
+  void print_freeze_out_e();
+  void print_eccentricity_to_txt();
+  //void print_energyloss_jet_to_txt();
 
   inline void remove_char( std::string & s, char c )
               { s.erase(std::remove(s.begin(), s.end(), c), s.end()); }

@@ -4,6 +4,7 @@
 #include "utilities.h"
 #include "eos.h"
 #include "particle.h"
+
 class LinkList
 {
   public:
