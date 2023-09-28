@@ -19,8 +19,16 @@
 5. Inside the container, navigate to `/CCake`, create a build directory and
    execute `cmake ..` and `make -j`. This will compile the code.
 
-> Note: The `/CCake` directory is mounted from the host machine. Any changes
-> made to the code in the host machine is immediately reflected in the container.
+> Note: To build the image, one needs to have administrative privileges. Hence,
+> one cannot build the image in a cluster. The workaround is to build the image
+> in your local computer (steps 1 through 3) and copy the resulting ccake.sif
+> file to the ./apptainer folder of the repository in the targeted cluster.
+> Then you can proceed with steps 4 and 5.
+>
+> Some clusters have a zero tolerance with regards to processes running on the
+> login nodes. It is then advisable to execute the `run.sh` as a single core
+> interactive job. For example, in UIUC CampusCluster, this command would be
+> `srun -c 1 -n 1 -t 4:00:00 -p qgp --pty ./run.sh`
 
 ## Development
 
@@ -54,3 +62,6 @@ Also, make sure that `remote.SSH.enableRemoteCommand` and
 to under Remote Explorer in the Activity Bar and open `ccake-localhost`.
 From there, you can open the cloned repository folder. If a password
 is requested, it is the same as your user's password in the host system.
+
+> Note: The `/CCake` directory is mounted from the host machine. Any changes
+> made to the code in the host machine is immediately reflected in the container.
