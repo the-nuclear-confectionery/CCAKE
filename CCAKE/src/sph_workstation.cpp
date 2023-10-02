@@ -161,11 +161,14 @@ void SPHWorkstation<D, TEOM>::initialize_entropy_and_charge_densities()
 
   systemPtr->n_particles = systemPtr->particles.size();
 
-  #ifndef DEBUG
-  #error "STOP RIGHT THERE!!! THIS CODE IS USING CONFORMAL EOS! It is not ready for production yet!"
-  #error "This is hard coded and was done to facilitate parallelism implementation."
-  #error "If you want to use it in production with realistic EOS, you need to implement calls to the EoS properly."
-  #endif
+  //Compute thermal properties
+  systemPtr->copy_device_to_host();
+  ///\TODO: Trivially parallelizable via openmp. This should be done.
+  for (auto & p : systemPtr->particles){
+    p.input.s = locate_phase_diagram_point_eBSQ( p,
+                  p.input.e, p.input.rhoB, p.input.rhoS, p.input.rhoQ );
+  }
+  systemPtr->copy_host_to_device();
 
   double t0 = settingsPtr->t0;
   // loop over all particles
@@ -173,54 +176,20 @@ void SPHWorkstation<D, TEOM>::initialize_entropy_and_charge_densities()
   auto init_particles = KOKKOS_LAMBDA(const int iparticle)
   {
     double e_input = device_input(iparticle, densities_info::e);
+    double s_input = device_input(iparticle, densities_info::s);
     double rhoB_input = device_input(iparticle, densities_info::rhoB);
     double rhoS_input = device_input(iparticle, densities_info::rhoS);
     double rhoQ_input = device_input(iparticle, densities_info::rhoQ);
 
-    ///------------------------------------------------------------------------------------------
-    ///TODO: implement calls to EOS here. Using conformal EOS for now.
-    // We are forcibly using a conformal EOS for now. A proper EOS will be implemented later.
-    // Example on what this should look like:
-    // ```
-    // double s_input = locate_phase_diagram_point_eBSQ(e_input, rhoB_input, rhoS_input, rhoQ_input);
-    // ```
-    // Now, update the particle's thermodynamic quantities
-
-    double static const C = 0.2281360133; // See Aguiar et al. (2001) for details
-    double sVal = std::pow(e_input/(3*C),3./4.);
-    double TVal = 4*C*std::pow(sVal,1./3.);
-    double wVal = 4*e_input/3.;
-    double pVal = e_input/3.;
-    double cs2Val = 1./3.;
-    double dwdsVal = 4*C*TVal;
-    double AVal = wVal-sVal*dwdsVal;
-    
-    device_input(iparticle, ccake::densities_info::s ) =   sVal;
-    device_thermo(iparticle, ccake::densities_info::s ) =   sVal;
-    device_thermo(iparticle, ccake::densities_info::e ) =   e_input;
-    device_thermo(iparticle, ccake::thermo_info::T ) =   TVal;
-    device_thermo(iparticle, ccake::thermo_info::muB ) =   0;
-    device_thermo(iparticle, ccake::thermo_info::muS ) =   0;
-    device_thermo(iparticle, ccake::thermo_info::muQ ) =   0;
-    device_thermo(iparticle, ccake::thermo_info::s ) =   sVal;
-    device_thermo(iparticle, ccake::thermo_info::p ) =   pVal;
-    device_thermo(iparticle, ccake::thermo_info::cs2 )  = cs2Val;
-    device_thermo(iparticle, ccake::thermo_info::w ) =   wVal;
-    device_thermo(iparticle, ccake::thermo_info::A ) =   AVal;
-    device_thermo(iparticle, ccake::thermo_info::dwds ) = dwdsVal;
-    device_thermo(iparticle, ccake::thermo_info::dwdB ) =   0;
-    device_thermo(iparticle, ccake::thermo_info::dwdS ) =   0;
-    device_thermo(iparticle, ccake::thermo_info::dwdQ ) =   0;
-
     double gamma = device_hydro_scalar(iparticle, ccake::hydro_info::gamma);
 
     device_norm_spec(iparticle, ccake::densities_info::e )    *= e_input*gamma*t0;    // constant after this
-    device_norm_spec(iparticle, ccake::densities_info::s )    *= sVal*gamma*t0;       // constant after this
+    device_norm_spec(iparticle, ccake::densities_info::s )    *= s_input*gamma*t0;       // constant after this
     device_norm_spec(iparticle, ccake::densities_info::rhoB ) *= rhoB_input*gamma*t0; // constant after this
     device_norm_spec(iparticle, ccake::densities_info::rhoS ) *= rhoS_input*gamma*t0; // constant after this
     device_norm_spec(iparticle, ccake::densities_info::rhoQ ) *= rhoQ_input*gamma*t0; // constant after this
 
-    if (sVal < 0.0)
+    if (s_input < 0.0)
       device_freeze(iparticle) = 4;
     
     ///------------------------------------------------------------------------------------------
@@ -303,51 +272,7 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
                                    Cabana::TeamOpTag(), "smooth fields");
   Kokkos::fence();
 
-  double t0 = sqrt(time_squared);
-  auto update_densities_lab = KOKKOS_LAMBDA(int iparticle){
-    double u0 = device_hydro_scalar(iparticle, ccake::hydro_info::gamma);
-    double smoothed_s_lab    = device_hydro_scalar(iparticle, ccake::hydro_info::sigma)/u0/t0;
-    double smoothed_rhoB_lab = device_smoothed(iparticle, ccake::densities_info::rhoB)/u0/t0;
-    double smoothed_rhoS_lab = device_smoothed(iparticle, ccake::densities_info::rhoS)/u0/t0;
-    double smoothed_rhoQ_lab = device_smoothed(iparticle, ccake::densities_info::rhoQ)/u0/t0;
-
-    // UNCOMMENT THIS AND DOCUMENT OUTPUT AS REFERENCE
-    ///\todo: For now, we can't use the eos class on the device, so we are going to use conformal eos
-    //locate_phase_diagram_point_sBSQ( p, smoothed_s_lab, smoothed_rhoB_lab,
-    //                                  smoothed_rhoS_lab, smoothed_rhoQ_lab );
-
-    double static const C = 0.2281360133; // See Aguiar et al. (2001) for details
-    double eVal = 3*C*std::pow(smoothed_s_lab,4./3.);
-    double sVal = smoothed_s_lab;
-    double TVal = 4*C*std::pow(sVal,1./3.);
-    double wVal = 4*eVal/3.;
-    double pVal = eVal/3.;
-    double cs2Val = 1./3.;
-    double dwdsVal = 4*C*TVal;
-    double AVal = wVal-sVal*dwdsVal;
-    
-    device_thermo(iparticle, ccake::densities_info::s ) =   sVal;
-    device_thermo(iparticle, ccake::densities_info::e ) =   eVal;
-    device_thermo(iparticle, ccake::thermo_info::T ) =   TVal;
-    device_thermo(iparticle, ccake::thermo_info::muB ) =   0;
-    device_thermo(iparticle, ccake::thermo_info::muS ) =   0;
-    device_thermo(iparticle, ccake::thermo_info::muQ ) =   0;
-    device_thermo(iparticle, ccake::thermo_info::s ) =   sVal;
-    device_thermo(iparticle, ccake::thermo_info::p ) =   pVal;
-    device_thermo(iparticle, ccake::thermo_info::cs2 )  = cs2Val;
-    device_thermo(iparticle, ccake::thermo_info::w ) =   wVal;
-    device_thermo(iparticle, ccake::thermo_info::A ) =   AVal;
-    device_thermo(iparticle, ccake::thermo_info::dwds ) = dwdsVal;
-    device_thermo(iparticle, ccake::thermo_info::dwdB ) =   0;
-    device_thermo(iparticle, ccake::thermo_info::dwdS ) =   0;
-    device_thermo(iparticle, ccake::thermo_info::dwdQ ) =   0;
-
-    ///\todo: Freeze out will need to be done on device and this is a beast of its own
-	  //fo.check_freeze_out_status(p, settingsPtr->t0, count1, systemPtr->n_particles); 
-
-  };
-
-  Kokkos::parallel_for("update densities lab", systemPtr->n_particles, update_densities_lab);
+  update_all_particle_thermodynamics(time_squared);
 
   sw.Stop();
   formatted_output::update("finished smoothing particle fields in "
@@ -358,7 +283,113 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
 }
 
 //------------------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
+template<unsigned int D, template<unsigned int> class TEOM>
+void SPHWorkstation<D,TEOM>::locate_phase_diagram_point_sBSQ( Particle<D> & p,
+                 double s_In, double rhoB_In, double rhoS_In, double rhoQ_In )
+{
 
+  // default: use particle's current location as initial guess
+  eos.tbqs( p.T(), p.muB(), p.muQ(), p.muS(), p.get_current_eos_name() );
+
+  bool update_s_success = eos.update_s( s_In, rhoB_In, rhoS_In, rhoQ_In,
+                                        p.print_this_particle );
+
+  if ( update_s_success )
+  {
+    // check that enthalpy derivatives are not crazy
+    thermodynamic_info p0 = p.thermo;
+
+    eos.set_thermo( p.thermo );
+
+    // do not permit cs2 to be negative if using C library
+    // or if using the tanh_conformal EoS
+    if (  ( eos.currently_using_static_C_library()
+            && p.get_current_eos_name() == "table" )
+          || p.get_current_eos_name() == "tanh_conformal" )
+    {
+      if ( p.thermo.cs2 < 0.0 )
+      {
+        cout << "WARNING: cs2 went negative in eos_type == "
+            << p.get_current_eos_name() << " for particle " << p.ID << "\n"
+            << "input thermo: " << s_In << "   "
+            << rhoB_In << "   "
+            << rhoS_In << "   "
+            << rhoQ_In << endl
+            << "check thermo: " << systemPtr->t << "   "
+            << p.thermo.T << "   "
+            << p.thermo.muB << "   "
+            << p.thermo.muS << "   "
+            << p.thermo.muQ << "   "
+            << p.thermo.p << "   "
+            << p.thermo.s << "   "
+            << p.thermo.rhoB << "   "
+            << p.thermo.rhoS << "   "
+            << p.thermo.rhoQ << "   "
+            << p.thermo.e << "   "
+            << p.thermo.cs2 << "   "
+            << p.thermo.eos_name << endl;
+        p.thermo.cs2 = std::max( p.thermo.cs2, 0.0001 );
+      }
+    }
+    
+    if ( p0.eos_name == p.get_current_eos_name() )
+    {
+      auto abslogabs = [](double x){ return std::abs(std::log(std::abs(x))); };
+      bool dwds_possibly_unstable = abslogabs((p.dwds()+1e-6)/(p0.dwds+1e-6)) > 1e6;
+      bool dwdB_possibly_unstable = abslogabs((p.dwdB()+1e-6)/(p0.dwdB+1e-6)) > 1e6;
+      bool dwdS_possibly_unstable = abslogabs((p.dwdS()+1e-6)/(p0.dwdS+1e-6)) > 1e6;
+      bool dwdQ_possibly_unstable = abslogabs((p.dwdQ()+1e-6)/(p0.dwdQ+1e-6)) > 1e6;
+      if ( dwds_possibly_unstable || dwdB_possibly_unstable
+            || dwdS_possibly_unstable || dwdQ_possibly_unstable )
+        std::cerr << "WARNING: thermodynamics may be unstable!\n"
+                  << "\t --> particle: " << p.ID << "   " << systemPtr->t << "\n"
+                  << "\t --> (before)  " << p0.T << "   " << p0.muB << "   "
+                  << p0.muS << "   " << p0.muQ << "\n"
+                  << "\t               " << p0.s << "   " << p0.rhoB << "   "
+                  << p0.rhoS << "   " << p0.rhoQ << "\n"
+                  << "\t               " << p0.dwds << "   " << p0.dwdB << "   "
+                  << p0.dwdS << "   " << p0.dwdQ << "\n"
+                  << "\t               " << p0.p << "   " << p0.e << "   "
+                  << p0.cs2 << "   " << "\n"
+                  << "\t --> (after)   " << p.T() << "   " << p.muB() << "   "
+                  << p.muS() << "   " << p.muQ() << "\n"
+                  << "\t               " << p.s() << "   " << p.rhoB() << "   "
+                  << p.rhoS() << "   " << p.rhoQ() << "\n"
+                  << "\t               "
+                  << p.dwds() << "   " << p.dwdB() << "   "
+                  << p.dwdS() << "   " << p.dwdQ() << "\n"
+                  << "\t               " << p.p() << "   " << p.e() << "   "
+                  << p.cs2() << "   " << std::endl;
+    }
+
+
+    if (p.thermo.cs2<0)
+    {
+    cout << "input thermo: " << s_In << "   "
+          << rhoB_In << "   "
+          << rhoS_In << "   "
+          << rhoQ_In << endl
+          << "check thermo: " << systemPtr->t << "   "
+          << p.thermo.T << "   "
+          << p.thermo.muB << "   "
+          << p.thermo.muS << "   "
+          << p.thermo.muQ << "   "
+          << p.thermo.p << "   "
+          << p.thermo.s << "   "
+          << p.thermo.rhoB << "   "
+          << p.thermo.rhoS << "   "
+          << p.thermo.rhoQ << "   "
+          << p.thermo.e << "   "
+          << p.thermo.cs2 << "   "
+          << p.thermo.eos_name << endl;
+      cout << __LINE__ << ": cs2 was negative!" << endl;
+      exit(8);
+    }
+  }
+
+  return;
+}
 
 
 
@@ -783,67 +814,22 @@ void SPHWorkstation<D, TEOM>::update_all_particle_thermodynamics(double time_squ
   Stopwatch sw;
   sw.Start();
 
-  CREATE_VIEW(device_, systemPtr->cabana_particles);
-
-  auto update_thermo = KOKKOS_CLASS_LAMBDA(const int iparticle){
+  systemPtr->copy_device_to_host();
+  ///TODO: This seems trivially parallelizable with openMP. It should be implemented.
+  for ( auto & p : systemPtr->particles ){
     double u[D];
     for (int idir = 0; idir < D; ++idir)
-      u[idir] = device_hydro_vector(iparticle, ccake::hydro_info::u, idir);
-    
-    double gamma = EoMPtr->gamma_calc(u,time_squared);
-    device_hydro_scalar(iparticle, ccake::hydro_info::gamma) = gamma;
-    for (int idir = 0; idir < D; ++idir)
-      device_hydro_vector(iparticle, ccake::hydro_info::v, idir) = u[idir]/gamma;
-
-
-    double s_LRF = EoMPtr->get_LRF(device_smoothed(iparticle, densities_info::s), gamma, time_squared);
-    double rhoB_LRF = EoMPtr->get_LRF(device_smoothed(iparticle, densities_info::rhoB), gamma, time_squared);
-    double rhoQ_LRF = EoMPtr->get_LRF(device_smoothed(iparticle, densities_info::rhoQ), gamma, time_squared);
-    double rhoS_LRF = EoMPtr->get_LRF(device_smoothed(iparticle, densities_info::rhoS), gamma, time_squared);
-
-    #ifndef DEBUG
-    #error "STOP RIGHT THERE!!! THIS CODE IS USING CONFORMAL EOS! It is not ready for production yet!"
-    #error "This is hard coded and was done to facilitate parallelism implementation."
-    #error "If you want to use it in production with realistic EOS, you need to implement calls to the EoS properly."
-    #endif
-
-    // Conformal EoS override
-    double static const C = 0.2281360133; // See Aguiar et al. (2001) for details
-    double eVal = 3*C*std::pow(s_LRF,4./3.);
-    double sVal = s_LRF;
-    double TVal = 4*C*std::pow(sVal,1./3.);
-    double wVal = 4*eVal/3.;
-    double pVal = eVal/3.;
-    double cs2Val = 1./3.;
-    double dwdsVal = 4*C*TVal;
-    double AVal = wVal-sVal*dwdsVal;
-    
-    device_thermo(iparticle, ccake::densities_info::s ) =   sVal;
-    device_thermo(iparticle, ccake::densities_info::e ) =   eVal;
-    device_thermo(iparticle, ccake::thermo_info::T ) =   TVal;
-    device_thermo(iparticle, ccake::thermo_info::muB ) =   0;
-    device_thermo(iparticle, ccake::thermo_info::muS ) =   0;
-    device_thermo(iparticle, ccake::thermo_info::muQ ) =   0;
-    device_thermo(iparticle, ccake::thermo_info::s ) =   sVal;
-    device_thermo(iparticle, ccake::thermo_info::p ) =   pVal;
-    device_thermo(iparticle, ccake::thermo_info::cs2 )  = cs2Val;
-    device_thermo(iparticle, ccake::thermo_info::w ) =   wVal;
-    device_thermo(iparticle, ccake::thermo_info::A ) =   AVal;
-    device_thermo(iparticle, ccake::thermo_info::dwds ) = dwdsVal;
-    device_thermo(iparticle, ccake::thermo_info::dwdB ) =   0;
-    device_thermo(iparticle, ccake::thermo_info::dwdS ) =   0;
-    device_thermo(iparticle, ccake::thermo_info::dwdQ ) =   0;
-
-    //locate_phase_diagram_point_sBSQ(s_LRF, rhoB_LRF, rhoS_LRF, rhoQ_LRF );
-
-    
-  };
-  Kokkos::parallel_for( "update_thermo", systemPtr->n_particles, update_thermo );
-  Kokkos::fence();
-  //Cabana::simd_parallel_for( systemPtr->simd_policy, 
-  //                            update_thermo, "update_thermo" );
-  
-  
+      u[idir] = p.hydro.u(idir);
+    p.hydro.gamma     = EoMPtr->gamma_calc(u,time_squared);
+    p.hydro.v         = (1.0/p.hydro.gamma)*p.hydro.u;
+    double s_LRF      = EoMPtr->get_LRF(p.smoothed.s, p.hydro.gamma, time_squared);
+    double rhoB_LRF   = EoMPtr->get_LRF(p.smoothed.rhoB, p.hydro.gamma, time_squared);
+    double rhoS_LRF   = EoMPtr->get_LRF(p.smoothed.rhoS, p.hydro.gamma, time_squared);
+    double rhoQ_LRF   = EoMPtr->get_LRF(p.smoothed.rhoQ, p.hydro.gamma, time_squared);
+	  locate_phase_diagram_point_sBSQ( p, s_LRF, rhoB_LRF , rhoS_LRF, rhoQ_LRF );
+  }
+  systemPtr->copy_host_to_device();
+   
   sw.Stop();
   formatted_output::update("got particle thermodynamics in "
                             + to_string(sw.printTime()) + " s.");
@@ -852,49 +838,26 @@ void SPHWorkstation<D, TEOM>::update_all_particle_thermodynamics(double time_squ
 
 ////////////////////////////////////////////////////////////////////////////////
 template<unsigned int D, template<unsigned int> class TEOM>
-double SPHWorkstation<D,TEOM>::locate_phase_diagram_point_eBSQ( 
+double SPHWorkstation<D, TEOM>::locate_phase_diagram_point_eBSQ( Particle<D> & p,
                  double e_In, double rhoB_In, double rhoS_In, double rhoQ_In )
 {
-
-  #ifndef DEBUG
-  #error "STOP RIGHT THERE!!! THIS CODE IS USING CONFORMAL EOS! It is not ready for production yet!"
-  #error "This is hard coded and was done to facilitate parallelism implementation."
-  #error "If you want to use it in production with realistic EOS, you need to implement calls to the EoS properly."
-  #endif
-
-  double static const C = 3*0.2281360133; // See Aguiar et al. (2001) for details
-  double sVal = std::pow(e_In/C,3./4.);
-  
-
-  return sVal;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-template<unsigned int D, template<unsigned int> class TEOM>
-double SPHWorkstation<D,TEOM>::locate_phase_diagram_point_eBSQ(double e_In)
-                 { return locate_phase_diagram_point_eBSQ( e_In, 0.0, 0.0, 0.0 ); }
-
-////////////////////////////////////////////////////////////////////////////////
-template<unsigned int D, template<unsigned int> class TEOM>
-void SPHWorkstation<D,TEOM>::locate_phase_diagram_point_sBSQ( Particle<D> & p,
-                 double s_In, double rhoB_In, double rhoS_In, double rhoQ_In )
-{
-//  cout << "Rootfinder for p.ID = " << p.ID << endl;
-  cout << "ERROR: This function is not ready and should not be called! Aborting" << std::endl;
-  abort();
+//cout << "Finding thermodynamics of particle #" << p.ID << endl;
 
   // default: use particle's current location as initial guess
+  // (pass in corresponding EoS as well!)
   eos.tbqs( p.T(), p.muB(), p.muQ(), p.muS(), p.get_current_eos_name() );
 
-  bool update_s_success = eos.update_s( s_In, rhoB_In, rhoS_In, rhoQ_In,
-                                        p.print_this_particle );
+  bool solution_found = false;
+  double sVal = eos.s_out( e_In, rhoB_In, rhoS_In, rhoQ_In, solution_found,
+                           p.print_this_particle );
 
-  if ( update_s_success )
+  if ( solution_found )
   {
     // check that enthalpy derivatives are not crazy
     thermodynamic_info p0 = p.thermo;
 
     eos.set_thermo( p.thermo );
+
 
     ///*
     // do not permit cs2 to be negative if using C library
@@ -907,7 +870,7 @@ void SPHWorkstation<D,TEOM>::locate_phase_diagram_point_sBSQ( Particle<D> & p,
       {
         cout << "WARNING: cs2 went negative in eos_type == "
             << p.get_current_eos_name() << " for particle " << p.ID << "\n"
-            << "input thermo: " << s_In << "   "
+            << "input thermo: " << e_In << "   "
             << rhoB_In << "   "
             << rhoS_In << "   "
             << rhoQ_In << endl
@@ -927,42 +890,10 @@ void SPHWorkstation<D,TEOM>::locate_phase_diagram_point_sBSQ( Particle<D> & p,
         p.thermo.cs2 = std::max( p.thermo.cs2, 0.0001 );
       }
     }
-    //*/
-
-    if ( p0.eos_name == p.get_current_eos_name() )
+   
+    if (p.cs2()<0)
     {
-      auto abslogabs = [](double x){ return std::abs(std::log(std::abs(x))); };
-      bool dwds_possibly_unstable = abslogabs((p.dwds()+1e-6)/(p0.dwds+1e-6)) > 1e6;
-      bool dwdB_possibly_unstable = abslogabs((p.dwdB()+1e-6)/(p0.dwdB+1e-6)) > 1e6;
-      bool dwdS_possibly_unstable = abslogabs((p.dwdS()+1e-6)/(p0.dwdS+1e-6)) > 1e6;
-      bool dwdQ_possibly_unstable = abslogabs((p.dwdQ()+1e-6)/(p0.dwdQ+1e-6)) > 1e6;
-      if ( dwds_possibly_unstable || dwdB_possibly_unstable
-            || dwdS_possibly_unstable || dwdQ_possibly_unstable )
-        std::cerr << "WARNING: thermodynamics may be unstable!\n"
-                  << "\t --> particle: " << p.ID << "   " << systemPtr->t << "\n"
-                  << "\t --> (before)  " << p0.T << "   " << p0.muB << "   "
-                  << p0.muS << "   " << p0.muQ << "\n"
-                  << "\t               " << p0.s << "   " << p0.rhoB << "   "
-                  << p0.rhoS << "   " << p0.rhoQ << "\n"
-                  << "\t               " << p0.dwds << "   " << p0.dwdB << "   "
-                  << p0.dwdS << "   " << p0.dwdQ << "\n"
-                  << "\t               " << p0.p << "   " << p0.e << "   "
-                  << p0.cs2 << "   " << "\n"
-                  << "\t --> (after)   " << p.T() << "   " << p.muB() << "   "
-                  << p.muS() << "   " << p.muQ() << "\n"
-                  << "\t               " << p.s() << "   " << p.rhoB() << "   "
-                  << p.rhoS() << "   " << p.rhoQ() << "\n"
-                  << "\t               "
-                  << p.dwds() << "   " << p.dwdB() << "   "
-                  << p.dwdS() << "   " << p.dwdQ() << "\n"
-                  << "\t               " << p.p() << "   " << p.e() << "   "
-                  << p.cs2() << "   " << std::endl;
-    }
-
-
-    if (p.thermo.cs2<0)
-    {
-    cout << "input thermo: " << s_In << "   "
+    cout << "input thermo: " << e_In << "   "
           << rhoB_In << "   "
           << rhoS_In << "   "
           << rhoQ_In << endl
@@ -982,10 +913,15 @@ void SPHWorkstation<D,TEOM>::locate_phase_diagram_point_sBSQ( Particle<D> & p,
       cout << __LINE__ << ": cs2 was negative!" << endl;
       exit(8);
     }
+
   }
 
-  return;
+  return sVal;
 }
+
+template<unsigned int D, template<unsigned int> class TEOM>
+double SPHWorkstation<D, TEOM>::locate_phase_diagram_point_eBSQ(Particle<D> & p, double e_In)
+                 { return locate_phase_diagram_point_eBSQ( p, e_In, 0.0, 0.0, 0.0 ); }
 
 ////////////////////////////////////////////////////////////////////////////////
 template<unsigned int D, template<unsigned int> class TEOM>
@@ -993,21 +929,6 @@ void SPHWorkstation<D,TEOM>::locate_phase_diagram_point_sBSQ(Particle<D> & p, do
                { locate_phase_diagram_point_sBSQ(p, s_In, 0.0, 0.0, 0.0 ); }
 
 /*
-
-////////////////////////////////////////////////////////////////////////////////
-//  Computes gamma and velocity
-template<unsigned int D>
-void SPHWorkstation<D>::set_phase_diagram_point(Particle & p)
-{
-  p.hydro.gamma     = p.gamcalc();
-p.hydro.v         = (1.0/p.hydro.gamma)*p.hydro.u;
-double s_lab      = p.smoothed.s/p.hydro.gamma/systemPtr->t;
-double rhoB_lab   = p.smoothed.rhoB/p.hydro.gamma/systemPtr->t;
-double rhoS_lab   = p.smoothed.rhoS/p.hydro.gamma/systemPtr->t;
-double rhoQ_lab   = p.smoothed.rhoQ/p.hydro.gamma/systemPtr->t;
-locate_phase_diagram_point_sBSQ( p, s_lab, rhoB_lab, rhoS_lab, rhoQ_lab );
-}
-
 
 
 

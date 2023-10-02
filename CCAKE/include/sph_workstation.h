@@ -135,9 +135,9 @@ public:
 
   //============================================================================
   // routines to edit particles directly
-  double locate_phase_diagram_point_eBSQ(double e_In,
-          double rhoB_In, double rhoS_In, double rhoQ_In );
-  double locate_phase_diagram_point_eBSQ(double e_In );
+  double locate_phase_diagram_point_eBSQ( Particle<D> & p,
+                 double e_In, double rhoB_In, double rhoS_In, double rhoQ_In );
+  double locate_phase_diagram_point_eBSQ(Particle<D> & p, double e_In);
   //KOKKOS_INLINE_FUNCTION
   void locate_phase_diagram_point_sBSQ(Particle<D> & p, double s_In,
           double rhoB_In, double rhoS_In, double rhoQ_In );
