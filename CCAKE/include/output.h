@@ -30,12 +30,12 @@ template<unsigned int D> class SPHWorkstation;
 template<unsigned int D> class SystemState;
 
 template<unsigned int D>
-class InputOutput
+class Output
 {
 public:
 
-  InputOutput();
-  ~InputOutput();
+  Output();
+  ~Output();
 
   int initialize_HDF();
 

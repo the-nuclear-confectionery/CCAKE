@@ -26,19 +26,19 @@ using std::string;
 using std::to_string;
 
 //Template instantiations
-template class InputOutput<1>;
-template class InputOutput<2>;
-template class InputOutput<3>;
+template class Output<1>;
+template class Output<2>;
+template class Output<3>;
 
 // Constructors and destructors.
 
-template<unsigned int D> InputOutput<D>::InputOutput(){}
-template<unsigned int D> InputOutput<D>::~InputOutput(){}
+template<unsigned int D> Output<D>::Output(){}
+template<unsigned int D> Output<D>::~Output(){}
 
 /// \brief Initializes the equation of state pointer.
 /// \param[in] eosPtr_in Pointer to the equation of state object.
 template<unsigned int D>
-void InputOutput<D>::set_EquationOfStatePtr( EquationOfState * eosPtr_in )
+void Output<D>::set_EquationOfStatePtr( EquationOfState * eosPtr_in )
 {
   eosPtr = eosPtr_in;
 }
@@ -47,7 +47,7 @@ void InputOutput<D>::set_EquationOfStatePtr( EquationOfState * eosPtr_in )
 /// data read in from the settings file.
 /// \param[in] settingsPtr_in Pointer to the settings object.
 template<unsigned int D>
-void InputOutput<D>::set_SettingsPtr( Settings * settingsPtr_in )
+void Output<D>::set_SettingsPtr( Settings * settingsPtr_in )
 {
   settingsPtr = settingsPtr_in;
 }
@@ -56,7 +56,7 @@ void InputOutput<D>::set_SettingsPtr( Settings * settingsPtr_in )
 /// state (particles along their properties).
 /// \param[in] systemPtr_in Pointer to the system state object.
 template<unsigned int D>
-void InputOutput<D>::set_SystemStatePtr( SystemState<D> * systemPtr_in )
+void Output<D>::set_SystemStatePtr( SystemState<D> * systemPtr_in )
 {
   systemPtr = systemPtr_in;
 }
@@ -64,7 +64,7 @@ void InputOutput<D>::set_SystemStatePtr( SystemState<D> * systemPtr_in )
 /// \brief Initializes the pointer to the object which will store the
 /// workstation object.
 template<unsigned int D>
-void InputOutput<D>::set_SPHWorkstationPtr( SPHWorkstation<D> * wsPtr_in )
+void Output<D>::set_SPHWorkstationPtr( SPHWorkstation<D> * wsPtr_in )
 {
   wsPtr = wsPtr_in;
 }
@@ -72,14 +72,14 @@ void InputOutput<D>::set_SPHWorkstationPtr( SPHWorkstation<D> * wsPtr_in )
 /// \brief Sets the path to the results directory.
 /// \param[in] path_to_results_directory Path to the results directory.
 template<unsigned int D>
-void InputOutput<D>::set_results_directory( string path_to_results_directory )
+void Output<D>::set_results_directory( string path_to_results_directory )
 {
   output_directory = path_to_results_directory;
 }
 
 //------------------------------------------------------------------------------
 template<unsigned int D>
-void InputOutput<D>::load_settings_file( string path_to_settings_file )
+void Output<D>::load_settings_file( string path_to_settings_file )
 {
   formatted_output::report("Reading in input parameter settings");
 
@@ -216,7 +216,7 @@ void InputOutput<D>::load_settings_file( string path_to_settings_file )
 
 //------------------------------------------------------------------------------
 template<unsigned int D>
-void InputOutput<D>::read_in_initial_conditions()
+void Output<D>::read_in_initial_conditions()
 {
   formatted_output::report("Reading in initial conditions for hydrodynamics");
 
@@ -593,7 +593,7 @@ void InputOutput<D>::read_in_initial_conditions()
 
 //------------------------------------------------------------------------------
 template<unsigned int D>
-void InputOutput<D>::print_system_state()
+void Output<D>::print_system_state()
 {
   //---------------------------------
   if (settingsPtr->printing_to_txt)
@@ -615,7 +615,7 @@ void InputOutput<D>::print_system_state()
 
 //------------------------------------------------------------------------------
 template<unsigned int D>
-void InputOutput<D>::print_system_state_to_txt()
+void Output<D>::print_system_state_to_txt()
 {
   string outputfilename = output_directory + "/system_state_"
                           + std::to_string(n_timesteps_output) + ".dat";
@@ -706,7 +706,7 @@ void InputOutput<D>::print_system_state_to_txt()
 
 //------------------------------------------------------------------------------
 template<unsigned int D>
-void InputOutput<D>::print_system_state_to_HDF()
+void Output<D>::print_system_state_to_HDF()
 {
   // get width from maximum possible number of timesteps
   const int width = ceil(log10(ceil(settingsPtr->tend/settingsPtr->dt)));
@@ -758,7 +758,7 @@ void InputOutput<D>::print_system_state_to_HDF()
 
 //==============================================================================
 template<unsigned int D>
-void InputOutput<D>::print_freeze_out()
+void Output<D>::print_freeze_out()
 {
   string outputfilename = output_directory + "/freeze_out_"
                           + std::to_string(n_timesteps_output) + ".dat";
