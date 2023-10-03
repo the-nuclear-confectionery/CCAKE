@@ -22,13 +22,6 @@
 
 
 
-//forward declare template class
-//namespace ccake{
-//template<unsigned int D,template<unsigned int> class TEOM>
-//class BSQHydro
-//}
-//template <unsigned int D> class Evolver;
-//template <unsigned int D> class InputOutput;
 
 namespace ccake
 {
