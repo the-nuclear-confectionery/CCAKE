@@ -24,7 +24,7 @@ class Settings
 
     //==========================================================================
     // event buffer settings
-    bool buffer_event                 = false;   // add a buffer around event to
+    bool buffer_event                 = true;   // add a buffer around event to
                                                 // stabilize evolution
     bool circular_buffer              = true;   // whether to buffer with entire
                                                 // grid or just circular padding
@@ -44,9 +44,9 @@ class Settings
     //==========================================================================
     // I/O settings
     bool printing_to_txt              = true;
-    bool printing_to_HDF              = false;
+    bool printing_to_HDF              = true;
 
-    static constexpr int VERBOSE      = 0;
+    static constexpr int VERBOSE      = 5;
 
     //==========================================================================
     // hydrodynamics settings
@@ -62,8 +62,10 @@ class Settings
     double dt                         = 0.0; // size of timestep
     double stepx                      = 0.0; // dx [fm]
     double stepy                      = 0.0; // dy [fm]
+    double stepEta                    = 0.0; // d\eta
     double xmin                       = 0.0; // minimum x [fm]
     double ymin                       = 0.0; // minimum y [fm]
+    double etamin                     = 0.0; // minimum eta
     double h                          = 0.0; // SPH kernel scale [fm]
 
     double e_cutoff                   = 0.0; // energy density below which

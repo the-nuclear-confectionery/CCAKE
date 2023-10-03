@@ -46,7 +46,6 @@ struct hydrodynamic_info
   Vector<double,2> u;                     // relativistic velocity
 
   Vector<double,2> gradP;                 // Gradient of Pressure
-  Vector<double,2> gradE;                 // Gradient of Energy, added for purpose of FO
   Vector<double,2> gradBulk;              // Gradient of Bulk Viscosity
   Vector<double,2> divshear, gradshear;
 
@@ -66,17 +65,7 @@ struct hydrodynamic_info
 
 
   // derivatives
-  //double dcs2_dt          = 0.0; //implement time dervative of cs2 in EoM Asadek
-  double prev_cs2           = 0.0; // Asadek
-  double prev_T             = 0.0; // Asadek
-  double prev_w             = 0.0; // Asadek
-  //double curr_cs2         = 0.0; // Asadek
-  double finite_diff_cs2    = 0.0; // Asadek
-  double finite_diff_T      = 0.0; // Asadek
-  double finite_diff_w      = 0.0; // Asadek
-  double dBeta_dt           = 0.0; //implement time dervative of cs2 in EoM Asadek
-  double dBulk_dt           = 0.0;
- 
+  double dBulk_dt        = 0.0;
 
   Vector<double, 2> du_dt;
   Matrix<double, 2, 2> dshv_dt;
