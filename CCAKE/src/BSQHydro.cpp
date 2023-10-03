@@ -25,14 +25,10 @@ BSQHydro<D,TEOM>::BSQHydro(std::shared_ptr<Settings> settingsPtr_in)
   systemPtr = std::make_shared<SystemState<D>>(settingsPtr);
 
   //Initialize the workstation
-  wsPtr = std::make_shared<SPHWorkstation<D,TEOM>>(settingsPtr,systemPtr); //TODO: If ever new EoM are implemented,
+  wsPtr = std::make_shared<SPHWorkstation<D,TEOM>>(settingsPtr,systemPtr); //\TODO: If ever new EoM are implemented,
                                         // a switch case should be added here.
-  // initialize I/O pointers
-  //io.set_EquationOfStatePtr( &ws.eos );
-  //io.set_SettingsPtr( settingsPtr.get() );
-  //io.set_SPHWorkstationPtr( &ws );
-  //io.set_SystemStatePtr( &system );
-  //io.set_EoS_type();
+  
+  outPtr = std::make_shared<Output<D>>(settingsPtr,systemPtr);
 
   return;
 }
@@ -305,7 +301,6 @@ void BSQHydro<D,TEOM>::initialize_hydrodynamics()
   sw.Stop();
   formatted_output::report("hydrodynamics initialization finished in "
                               + to_string(sw.printTime()) + " s");
-
   return;
 }
 
@@ -325,11 +320,10 @@ void BSQHydro<D,TEOM>::run()
   systemPtr->conservation_BSQ();
   systemPtr->compute_eccentricities();
 
-  ///TODO: Implement output of system state
   //===================================
   // print initialized system and status
-  //io.print_conservation_status();
-  //io.print_system_state();
+  outPtr->print_conservation_status();
+  outPtr->print_system_state();
   
   //===================================
   // evolve until simulation terminates
@@ -348,8 +342,8 @@ void BSQHydro<D,TEOM>::run()
 
     //===================================
     // print updated system and status
-    //io.print_conservation_status();
-    //io.print_system_state();
+    outPtr->print_conservation_status();
+    outPtr->print_system_state();
   }
 
   sw.Stop();

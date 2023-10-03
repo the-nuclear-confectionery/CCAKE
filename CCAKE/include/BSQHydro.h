@@ -14,7 +14,7 @@
 #include <vector>
 
 #include "constants.h"
-//#include "output.h"
+#include "output.h"
 #include "system_state.h"
 #include "settings.h"
 #include "kernel.h"
@@ -54,7 +54,7 @@ private:
   std::shared_ptr<Settings> settingsPtr; ///< Object containing settings parsed from input file
   std::shared_ptr<SystemState<D>> systemPtr; ///< Object containing the SPH System (linked list, particles, etc.)
   std::shared_ptr<SPHWorkstation<D,TEOM>> wsPtr; ///< Object containing the kernel function and its derivatives
-  //InputOutput<D> io; ///< Input/Output object
+  std::shared_ptr<Output<D>> outPtr; ///< Input/Output object
 
   // hold freeze-out surface
   //FreezeOutSurface freeze_out_surface;
