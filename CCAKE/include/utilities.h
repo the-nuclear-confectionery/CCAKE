@@ -12,7 +12,11 @@
 #define VECTOR_LENGTH 32 ///< The length of the vector used in the Cabana library
 /// Choose between CPU or GPU execution
 #ifdef __CUDACC__
-using MemorySpace = Kokkos::CudaSpace;
+    #ifdef DEBUG
+        using MemorySpace = Kokkos::CudaUVMSpace; //Use managed space if debugging the code - Should we keep this for final release?
+    #else
+        using MemorySpace = Kokkos::CudaSpace;
+    #endif
 using ExecutionSpace = Kokkos::Cuda;
 #else
 using MemorySpace = Kokkos::HostSpace;
