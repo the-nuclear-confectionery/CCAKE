@@ -38,7 +38,7 @@ class FreezeOut
 
   private:
     
-    EquationOfState * eosPtr  = nullptr;
+//    EquationOfState * eosPtr  = nullptr;
     Settings * settingsPtr    = nullptr;
     SystemState * systemPtr   = nullptr;
 
@@ -52,11 +52,9 @@ class FreezeOut
       string eos_name = "";
       double t = 0.0, s = 0.0, e = 0.0, rhoB = 0.0, rhoS = 0.0, rhoQ = 0.0,
              T = 0.0, muB = 0.0, muS = 0.0, muQ = 0.0, theta = 0.0, bulk = 0.0,
-             sigma = 0.0, shear33 = 0.0, inside = 0.0; 
-      Vector<double,2> r, u, gradP, gradE; // added gradE for FO
+             sigma = 0.0, shear33 = 0.0, inside = 0.0;
+      Vector<double,2> r, u, gradP;
       Matrix<double,3,3> shear;
-      double wfz = 0.0;//these should be functions
-	    double cs2fz = 0.0;//these should be functions
     };
 
 
@@ -66,31 +64,24 @@ class FreezeOut
     int cf            = 0;
     int frzc          = 0;
     double avgetasig  = 0;
-    
+    double cs2        = 0;
     double tau        = 0;
     double taup       = 0;
     double taupp      = 0;
-    
-	
+    double wfz        = 0;
+
     vector<double> divTtemp;
-	  vector<double> divEener;
-	  vector<double> divPpress;//switching to e
-	
     vector<double> gsub;
     vector<double> bulksub;
     vector<double> swsub;
     vector<double> shear33sub;
     vector<double> tlist;
     vector<double> sFO;         //entropy at freezeout
-    vector<double> Tfluc, efluc, muBfluc, muSfluc, muQfluc;
+    vector<double> Tfluc, muBfluc, muSfluc, muQfluc;
 
     vector<string> eosname;
-    vector<double> cs2fzfluc;
-	  vector<double> wfzfluc;
-	
+
     vector< Vector<double,2> > divT;
-	  vector< Vector<double,2> > divE;
-	  vector< Vector<double,2> > divP;//switching to e
     vector< Vector<double,2> > rsub;
     vector< Vector<double,2> > uout;
     vector< Matrix<double,3,3> > shearsub;
@@ -109,11 +100,9 @@ class FreezeOut
     // for some dumb reason, this needs to be public
     // (must be accessed in system state)
     vector<FRZ> frz2;
-	
-    void set_eosPtr(EquationOfState * eosPtr_in) { eosPtr = eosPtr_in; }
+
     void set_SettingsPtr(Settings * settingsPtr_in) { settingsPtr = settingsPtr_in; }
     void set_SystemStatePtr(SystemState * systemPtr_in) { systemPtr = systemPtr_in; }
-	
 
     //==========================================================================
     // set things up
@@ -197,8 +186,16 @@ class FreezeOut
       }
 
     }
-	
- ////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+    ////////////////////////////////////////////////////////////////////////////
     void bsqsvfreezeout(int curfrz)
     {
       if (frzc==0) // true in first timestep only
@@ -224,7 +221,6 @@ class FreezeOut
           p_frz2.bulk    = p.hydro.bigPI;
           p_frz2.theta   = p.hydro.div_u + p.hydro.gamma/systemPtr->t;
           p_frz2.gradP   = p.hydro.gradP;
-		      p_frz2.gradE   = p.hydro.gradE;//added for FO
           p_frz2.shear   = p.hydro.shv;
           p_frz2.shear33 = p.hydro.shv33;
           p_frz2.inside  = p.hydro.inside;
@@ -236,8 +232,6 @@ class FreezeOut
 //cout << "checks passed" << endl;
 //cout << __FUNCTION__ << ":" << __LINE__ << ": " << endl;
           p_frz2.eos_name  = p.get_current_eos_name();
-		      p_frz2.wfz       = p.thermo.w;
-		      p_frz2.cs2fz       = p.thermo.cs2;
         }
 
       }
@@ -263,21 +257,14 @@ class FreezeOut
           p_frz1.bulk    = p.hydro.bigPI;
           p_frz1.theta   = p.hydro.div_u + p.hydro.gamma/systemPtr->t;
           p_frz1.gradP   = p.hydro.gradP;
-		      p_frz1.gradE   = p.hydro.gradE;//added for FO
           p_frz1.shear   = p.hydro.shv;
           p_frz1.shear33 = p.hydro.shv33;
           p_frz1.inside  = p.hydro.inside;
           p_frz1.eos_name  = p.get_current_eos_name();
-		      p_frz1.wfz       = p.thermo.w;
-		      p_frz1.cs2fz       = p.thermo.cs2;
         }
 
         divTtemp.resize( curfrz );
-		    divEener.resize( curfrz );
         divT.resize( curfrz );
-		    divE.resize( curfrz );
-		    divPpress.resize( curfrz );//switching to e
-        divP.resize( curfrz );
         gsub.resize( curfrz );
         uout.resize( curfrz );
         swsub.resize( curfrz );
@@ -286,8 +273,6 @@ class FreezeOut
         shear33sub.resize( curfrz );
         tlist.resize( curfrz );
         rsub.resize( curfrz );
-		    wfzfluc.resize( curfrz );
-		    cs2fzfluc.resize( curfrz );
 
         if ( curfrz > 0 )
           bsqsvinterpolate( curfrz );
@@ -315,7 +300,7 @@ class FreezeOut
               if ( fback[p_ID].gradP(0) != 0 )            // if particle still had neighbors
               {                                           // at the previous timestep,
                 frz2[p_ID] = fback2[p_ID];                // REUSE last two timesteps
-                frz1[p_ID] = fback[p_ID];                 // for freeze out interpolation (Should I modify this for gradE as well?)
+                frz1[p_ID] = fback[p_ID];                 // for freeze out interpolation
               }
               else
               {
@@ -341,10 +326,6 @@ class FreezeOut
         // resize vectors
         divTtemp.resize( curfrz );
         divT.resize( curfrz );
-		    divEener.resize( curfrz );
-        divE.resize( curfrz );
-		    divPpress.resize( curfrz );//switching to e
-        divP.resize( curfrz );
         gsub.resize( curfrz );
         uout.resize( curfrz );
         swsub.resize( curfrz );
@@ -353,8 +334,6 @@ class FreezeOut
         shear33sub.resize( curfrz );
         tlist.resize( curfrz );
         rsub.resize( curfrz );
-		    wfzfluc.resize(curfrz );
-	      cs2fzfluc.resize(curfrz );
 
         if ( curfrz > 0 )
           bsqsvinterpolate( curfrz );
@@ -369,36 +348,39 @@ class FreezeOut
           auto & p_frz2  = frz2[p.ID];
           p_frz2         = p_frz1;  // reset snapshots appropriately
 
-          p_frz1.r         = p.r;
-          p_frz1.u         = p.hydro.u;
-          p_frz1.sigma     = p.hydro.sigma;
-          p_frz1.T         = p.T();
-          p_frz1.muB       = p.muB();
-          p_frz1.muS       = p.muS();
-          p_frz1.muQ       = p.muQ();
-          p_frz1.e         = p.e();
-          p_frz1.s         = p.s();
-          p_frz1.rhoB      = p.rhoB();
-          p_frz1.rhoS      = p.rhoS();
-          p_frz1.rhoQ      = p.rhoQ();
-          p_frz1.bulk      = p.hydro.bigPI ;
-          p_frz1.theta     = p.hydro.div_u+p.hydro.gamma/systemPtr->t;
-          p_frz1.gradP     = p.hydro.gradP;
-		      p_frz1.gradE     = p.hydro.gradE;//added for FO
-          p_frz1.shear     = p.hydro.shv;
-          p_frz1.shear33   = p.hydro.shv33;
-          p_frz1.inside    = p.hydro.inside;
+          p_frz1.r       = p.r;
+          p_frz1.u       = p.hydro.u;
+          p_frz1.sigma   = p.hydro.sigma;
+          p_frz1.T       = p.T();
+          p_frz1.muB     = p.muB();
+          p_frz1.muS     = p.muS();
+          p_frz1.muQ     = p.muQ();
+          p_frz1.e       = p.e();
+          p_frz1.s       = p.s();
+          p_frz1.rhoB    = p.rhoB();
+          p_frz1.rhoS    = p.rhoS();
+          p_frz1.rhoQ    = p.rhoQ();
+          p_frz1.bulk    = p.hydro.bigPI ;
+          p_frz1.theta   = p.hydro.div_u+p.hydro.gamma/systemPtr->t;
+          p_frz1.gradP   = p.hydro.gradP;
+          p_frz1.shear   = p.hydro.shv;
+          p_frz1.shear33 = p.hydro.shv33;
+          p_frz1.inside  = p.hydro.inside;
           p_frz1.eos_name  = p.get_current_eos_name();
-		      p_frz1.wfz       = p.thermo.w;
-		      p_frz1.cs2fz     = p.thermo.cs2;
         }
-		
+
         taupp = taup;
         taup  = tau;
       }
 
       systemPtr->do_freeze_out = false;
     }
+
+
+
+
+
+
 
     //==========================================================================
     // THIS FUNCTION APPLIES ONLY TO PARTICLES WHICH ARE CURRENTLY IN THE PROCESS
@@ -408,13 +390,10 @@ class FreezeOut
       //cout << "Entered " << __FUNCTION__ << " with " << curfrz << " particles" << endl;
       sFO.resize( curfrz, 0 );
       Tfluc.resize( curfrz, 0 );
-	    efluc.resize( curfrz, 0 );//switching to e
       muBfluc.resize( curfrz, 0 );
       muSfluc.resize( curfrz, 0 );
       muQfluc.resize( curfrz, 0 );
       eosname.resize( curfrz );
-	    wfzfluc.resize(curfrz, 0);
-	    cs2fzfluc.resize(curfrz, 0);
 
       // for all CURRENTLY FREEZING OUT PARTICLES
       for (int j=0; j<curfrz; j++)
@@ -432,7 +411,6 @@ class FreezeOut
 
         double sigsub = 0.0, thetasub = 0.0, inside = 0.0;
         Vector<double,2> gradPsub;
-		    Vector<double,2> gradEsub;//added for FO
         if ( swit == 1 )  // if particle was closer to freeze-out at last timestep
         {
           if ( p.btrack != -1 )                 // if particle had neighbors
@@ -447,7 +425,6 @@ class FreezeOut
           shear33sub[j] = frz1[i].shear33;
 
           gradPsub      = frz1[i].gradP;
-		      gradEsub      = frz1[i].gradE;//added for FO
           inside        = frz1[i].inside;
           sigsub        = frz1[i].sigma;
           thetasub      = frz1[i].theta;
@@ -455,11 +432,8 @@ class FreezeOut
           muBfluc[j]    = frz1[i].muB;
           muSfluc[j]    = frz1[i].muS;
           muQfluc[j]    = frz1[i].muQ;
-		      efluc[j]      = frz1[i].e;     //added e here and left Tfluc as well
           sFO[j]        = frz1[i].s;
           eosname[j]    = frz1[i].eos_name;
-		      wfzfluc[j]    = frz1[i].wfz;
-		      cs2fzfluc[j]  = frz1[i].cs2fz;
         }
         else if ( swit == 2 ) // if particle was closer to freeze-out two timesteps ago
         {
@@ -475,7 +449,6 @@ class FreezeOut
           shear33sub[j] = frz2[i].shear33;
 
           gradPsub      = frz2[i].gradP;
-		      gradEsub      = frz2[i].gradE;
           inside        = frz2[i].inside;
           sigsub        = frz2[i].sigma;
           thetasub      = frz2[i].theta;
@@ -483,59 +456,35 @@ class FreezeOut
           muBfluc[j]    = frz2[i].muB;
           muSfluc[j]    = frz2[i].muS;
           muQfluc[j]    = frz2[i].muQ;
-          sFO[j]        = frz2[i].s;		  // replace with e
-		      efluc[j]      = frz2[i].e;          //reading efluc here
+          sFO[j]        = frz2[i].s;             // replace with e
           eosname[j]    = frz2[i].eos_name;
-		      wfzfluc[j]    = frz2[i].wfz;
-		      cs2fzfluc[j]  = frz2[i].cs2fz;
         }
         else  // this should never happen
         {
           cout << __PRETTY_FUNCTION__ << ": Not at freeze-out temperature" << endl;
         }
 
-
-	
-		//cs2fz2[j]   = eosPtr->cs2out(frz2[j].T,frz2[j].muB,frz2[j].muS,frz2[j].muQ);
-	    //wfz2[j]   = eosPtr->wfz(frz2[j].T,frz2[j].muB,frz2[j].muS,frz2[j].muQ); 
-		
-
         // COMPUTE NORMALS AFTER THIS POINT
-        //sFO[j]       = eosPtr->s_terms_T( Tfluc[j] );  // replace with e, BSQ
-        //cout << "Comparison: " << eosPtr->s_terms_T( Tfluc[j], muBfluc[j], muQfluc[j], muSfluc[j], eosname[j] )
-            //<< "   " << eosPtr->s_terms_T( Tfluc[j], eosname[j] ) << "   " << sFO[j] << endl;
-        gsub[j]      = sqrt( Norm2(uout[j]) + 1 );//\gamma
+//        sFO[j]       = eosPtr->s_terms_T( Tfluc[j] );  // replace with e, BSQ
+//cout << "Comparison: " << eosPtr->s_terms_T( Tfluc[j], muBfluc[j], muQfluc[j], muSfluc[j], eosname[j] )
+//      << "   " << eosPtr->s_terms_T( Tfluc[j], eosname[j] ) << "   " << sFO[j] << endl;
+        gsub[j]      = sqrt( Norm2(uout[j]) + 1 );
 
 
         sigsub      /= gsub[j]*tlist[j];
-        swsub[j]     = p.norm_spec.s/sigsub; //here need to find out what 1/\gamma s is?
+        swsub[j]     = p.norm_spec.s/sigsub;
 
-        divT[j]      = (1.0/sFO[j])*gradPsub;//\partial_\mu T= \partial_\mu P/s. 
-		    //For the case with no charge\partial_\mu E= \partial_\mu P/cs2
-		    divP[j]      =  gradPsub; //attempting the switch to De here.
-		    divE[j]      =  gradEsub;//added for FO		
+        divT[j]      = (1.0/sFO[j])*gradPsub;
         divTtemp[j]  = -(1.0/(gsub[j]*sFO[j]))
-                          *( cs2fzfluc[j] * (wfzfluc[j]+bulksub[j]) * thetasub
-                            - cs2fzfluc[j]*inside+inner(uout[j], gradPsub) );//\partial_\tau T: Eq C4 in arXiv.1406.3333
-		    divPpress[j] = -(1.0/(gsub[j]))
-                          *( cs2fzfluc[j] * (wfzfluc[j]+bulksub[j]) * thetasub
-                            - cs2fzfluc[j]*inside+inner(uout[j], gradPsub) );//\partial_\tau P: Eq C3 in arXiv.1406.3333
-		    divEener[j]  =  -(1.0/gsub[j])*(((wfzfluc[j] + bulksub[j]) * thetasub) - inside + inner(uout[j], gradEsub));
-                            				
-        //divEenergy[j] = - (1.0/(gsub[j]))((wfzfluc[j]+bulksub[j]) * thetasub - inside);//De -> \partial_\tau e: Eq C2 in arXiv.1406.3333							
-    
-	//THIS NEEDS TO BE RESET
+                          *( cs2 * (wfz+bulksub[j]) * thetasub
+                            - cs2*inside+inner(uout[j], gradPsub) );
+    //THIS NEEDS TO BE RESET
 
 
-        double insub = divTtemp[j]*divTtemp[j] - Norm2(divT[j]); 
-		    double norm  = -sqrt(abs(insub));
+        double insub = divTtemp[j]*divTtemp[j] - Norm2(divT[j]);
+        double norm  = -sqrt(abs(insub));
         divTtemp[j] /= norm;
         divT[j]      = (1.0/norm)*divT[j];
-		
-		    double insubE = divEener[j]*divEener[j] - Norm2(divE[j]); 
-		    double normE  = -sqrt(abs(insubE));
-        divEener[j] /= norm;
-        divE[j]      = (1.0/norm)*divE[j];
 
 
         if ( divTtemp[j] == 1 )

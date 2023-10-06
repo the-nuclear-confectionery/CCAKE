@@ -28,9 +28,6 @@ class Evolver
     // creating vectors of quantities for RK evolution
     vector<double> specific_s0;
     vector<double> Bulk0;
-	  vector<double> prev_cs20; //Asadek
-	  vector<double> prev_T0; //Asadek
-	  vector<double> prev_w0; //Asadek
     vector<double> particles_E0;
 
     vector< Vector<double,2> > u0;
@@ -76,10 +73,7 @@ class Evolver
       // store quantities at current timestep
       specific_s0.resize(n_particles);
       Bulk0.resize(n_particles);
-	    prev_cs20.resize(n_particles);//store current time steps values of cs2 to be used in the next time step Asadek
-      prev_T0.resize(n_particles);
-	    prev_w0.resize(n_particles);
-	    particles_E0.resize(n_particles);
+      particles_E0.resize(n_particles);
       u0.resize(n_particles);
       r0.resize(n_particles);
       shv0.resize(n_particles);
@@ -92,10 +86,7 @@ class Evolver
         r0[i]          = p.r;
         specific_s0[i] = p.specific.s;
         Bulk0[i]       = p.hydro.Bulk;
-		    prev_cs20[i]   = p.thermo.cs2;//sets all sph particles speed of sound from current time step Asadek   
-        prev_T0[i]   = p.thermo.T;
-		    prev_w0[i]   = p.thermo.w;
-		mini( shv0[i], p.hydro.shv );
+        mini( shv0[i], p.hydro.shv );
 
         particles_E0[i] = p.contribution_to_total_Ez;
       }
@@ -134,9 +125,6 @@ class Evolver
           ph.u            = u0[i]          + 0.5*dt*ph.du_dt;
           p.specific.s    = specific_s0[i] + 0.5*dt*p.d_dt_spec.s;
           ph.Bulk         = Bulk0[i]       + 0.5*dt*ph.dBulk_dt;
-		      ph.prev_cs2     = prev_cs20[i]; // Asadek
-		      ph.prev_T       = prev_T0[i]; // Asadek
-		      ph.prev_w       = prev_w0[i]; // Asadek
           tmini( ph.shv,    shv0[i]        + 0.5*dt*ph.dshv_dt );
 
 
@@ -188,9 +176,6 @@ class Evolver
             ph.u            = u0[i]          + dt*ph.du_dt;
             p.specific.s    = specific_s0[i] + dt*p.d_dt_spec.s;
             ph.Bulk         = Bulk0[i]       + dt*ph.dBulk_dt;
-			      ph.prev_cs2     = prev_cs20[i];       //Asadek
-			      ph.prev_T       = prev_T0[i];        //Asadek
-			      ph.prev_w       = prev_w0[i];       //Asadek
             tmini( ph.shv,    shv0[i]        + dt*ph.dshv_dt );
 
           // regulate updated results if necessary
