@@ -52,7 +52,7 @@ private:
 
     void initial();
     void inter(field &f); // interpolation
-    double flow(field &f);
+    //double flow(field &f);
     double efluc();
     double get_kappa(double T);
     //double gft(double p);
@@ -173,7 +173,7 @@ inline void BBMG::propagate()
 
     if ( ( ff[i].on == 1 ) && ( ff[i].T > TD ) )
     {
-      ff[i].line += pow(tau, z) * pow(ff[i].rho, c) * flow(ff[i]) * systemPtr->dt;
+      ff[i].line += pow(tau, z) * pow(ff[i].rho, c) * systemPtr->dt; // * flow(ff[i])
       stillon++;
     }
     else
