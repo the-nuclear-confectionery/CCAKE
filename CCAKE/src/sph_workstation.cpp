@@ -1,4 +1,5 @@
 #include "sph_workstation.h"
+#include "kernel.cpp"
 
 using namespace constants;
 
@@ -71,7 +72,7 @@ template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D, TEOM>::reset_pi_tensor(double time_squared)
 {
   CREATE_VIEW(device_, systemPtr->cabana_particles);
-  auto reset_pi_tensor_lambda  = KOKKOS_LAMBDA(const unsigned int iparticle)
+  auto reset_pi_tensor_lambda  = KOKKOS_LAMBDA(const int is, const int ia)
   {
     double u[D]; // Cache for fluid velocity
     double pi_space[D][D]; //Cache for pi^{ij}
@@ -81,10 +82,10 @@ void SPHWorkstation<D, TEOM>::reset_pi_tensor(double time_squared)
 
     //Retrieve information from the particle to local variables
     for( unsigned int idir=0; idir<D; idir++ ){
-      u[idir] = device_hydro_vector(iparticle, ccake::hydro_info::u, idir);
-      pi_diag[idir+1] = device_hydro_spacetime_matrix(iparticle, ccake::hydro_info::shv, idir+1, idir+1);
+      u[idir] = device_hydro_vector.access(is, ia, ccake::hydro_info::u, idir);
+      pi_diag[idir+1] = device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::shv, idir+1, idir+1);
       for( unsigned int jdir=0; jdir<D; jdir++ )
-        pi_space[idir][jdir] = device_hydro_spacetime_matrix(iparticle, ccake::hydro_info::shv, idir+1, jdir+1);
+        pi_space[idir][jdir] = device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::shv, idir+1, jdir+1);
     }
     
     //Computes the gamma factor
@@ -107,30 +108,30 @@ void SPHWorkstation<D, TEOM>::reset_pi_tensor(double time_squared)
 
     
     //Set the values of the pi tensor
-    device_hydro_spacetime_matrix(iparticle, ccake::hydro_info::shv, 0, 0) = pi_diag[0]; //pi^{00}
-    device_hydro_scalar(iparticle, ccake::hydro_info::shv33) = pi33;  //pi^{33}
+    device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::shv, 0, 0) = pi_diag[0]; //pi^{00}
+    device_hydro_scalar.access(is, ia, ccake::hydro_info::shv33) = pi33;  //pi^{33}
     for( unsigned int idir=1; idir<D+1; idir++ ){
-      device_hydro_spacetime_matrix(iparticle, ccake::hydro_info::shv, 0, idir) = pi_time_vector[idir-1]; //pi^{0i}
-      device_hydro_spacetime_matrix(iparticle, ccake::hydro_info::shv, idir, 0) = pi_time_vector[idir-1]; //pi^{i0}
-      device_hydro_spacetime_matrix(iparticle, ccake::hydro_info::shv, idir, idir) = pi_diag[idir]; //pi^{ii}
+      device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::shv, 0, idir) = pi_time_vector[idir-1]; //pi^{0i}
+      device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::shv, idir, 0) = pi_time_vector[idir-1]; //pi^{i0}
+      device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::shv, idir, idir) = pi_diag[idir-1]; //pi^{ii}
       for (unsigned int jdir=idir+1; jdir<D+1; jdir++){
-        device_hydro_spacetime_matrix(iparticle, ccake::hydro_info::shv, idir, jdir) = pi_space[idir-1][jdir-1]; //pi^{ij}
-        device_hydro_spacetime_matrix(iparticle, ccake::hydro_info::shv, jdir, idir) = pi_space[idir-1][jdir-1]; //pi^{ji}
+        device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::shv, idir, jdir) = pi_space[idir-1][jdir-1]; //pi^{ij}
+        device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::shv, jdir, idir) = pi_space[idir-1][jdir-1]; //pi^{ji}
       }
     }
     //Set values of pi^{ij} and u^i u^j tensors
     for( unsigned int idir=0; idir<D; idir++ )
     for( unsigned int jdir=0; jdir<D; jdir++ )
     {
-      device_hydro_space_matrix(iparticle, ccake::hydro_info::pimin, idir, jdir) = pi_space[idir][jdir]; //pi^{ij}
-      device_hydro_space_matrix(iparticle, ccake::hydro_info::uu, jdir, idir) = pi_space[idir][jdir]; //pi^{ji}
+      device_hydro_space_matrix.access(is, ia, ccake::hydro_info::pimin, idir, jdir) = pi_space[idir][jdir]; //pi^{ij}
+      device_hydro_space_matrix.access(is, ia, ccake::hydro_info::uu, jdir, idir) = pi_space[idir][jdir]; //pi^{ji}
     }
     //Update gamma factor
-    device_hydro_scalar(iparticle, ccake::hydro_info::gamma) = u0;
+    device_hydro_scalar.access(is, ia, ccake::hydro_info::gamma) = u0;
   };
 
-
-  Kokkos::parallel_for("reset_pi_tensor", systemPtr->n_particles, reset_pi_tensor_lambda);
+  Cabana::simd_parallel_for(*(systemPtr->simd_policy), reset_pi_tensor_lambda, "reset_pi_tensor");
+  Kokkos::fence();
 
 };
 
@@ -196,7 +197,7 @@ void SPHWorkstation<D, TEOM>::initialize_entropy_and_charge_densities()
   };
 
   Kokkos::parallel_for("init_particles", systemPtr->n_particles, init_particles);
-
+  
 
 	swTotal.Stop();
   formatted_output::update("finished initializing particle densities in "
@@ -218,7 +219,7 @@ void SPHWorkstation<D,TEOM>::initial_smoothing()
 
   // smooth fields over particles
   smooth_all_particle_fields(t_squared);
-  
+    
 }
 
 //==============================================================================
@@ -233,28 +234,27 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
   double hT = settingsPtr->hT;
 
   //Reset smoothed fields
-  auto reset_fields = KOKKOS_CLASS_LAMBDA(const int iparticle)
+  auto reset_fields = KOKKOS_LAMBDA(const int is, const int ia) //First index for loop over struct, second for loop over array
   {
-    device_smoothed(iparticle, ccake::densities_info::s) = 0.0;
-    device_smoothed(iparticle, ccake::densities_info::rhoB) = 0.0;
-    device_smoothed(iparticle, ccake::densities_info::rhoS) = 0.0;
-    device_smoothed(iparticle, ccake::densities_info::rhoQ) = 0.0;
-    device_hydro_scalar(iparticle, ccake::hydro_info::sigma) = 0.0;
-    
+    device_smoothed.access(is, ia, ccake::densities_info::s) = 0.0;
+    device_smoothed.access(is, ia, ccake::densities_info::rhoB) = 0.0;
+    device_smoothed.access(is, ia, ccake::densities_info::rhoS) = 0.0;
+    device_smoothed.access(is, ia, ccake::densities_info::rhoQ) = 0.0;
+    device_hydro_scalar.access(is, ia, ccake::hydro_info::sigma) = 0.0;
   };
-  Kokkos::parallel_for("reset_fields", systemPtr->n_particles, reset_fields);
+  Cabana::simd_parallel_for( *(systemPtr->simd_policy), reset_fields, "reset_fields" );
   Kokkos::fence();
-
-  auto smooth_fields = KOKKOS_LAMBDA(const int iparticle, const int jparticle ){
+  
+  auto smooth_fields = KOKKOS_CLASS_LAMBDA(const int iparticle, const int jparticle ){
     
     double r1[D] ,r2[D]; // cache for positions of particles 1 and 2
     for (int idir = 0; idir < D; ++idir){
       r1[idir] = device_position(iparticle,idir);
       r2[idir] = device_position(jparticle,idir);
     }
-    double distance = EoMPtr->get_distance(r1,r2,time_squared);
-    double kern = kernel::kernel<D>(distance,hT);
-
+    double distance = SPHkernel<D>::distance(r1,r2);
+    double kern = SPHkernel<D>::kernel(distance,hT);
+    
     //Update sigma (reference density)
     Kokkos::atomic_add( &device_hydro_scalar(iparticle, ccake::hydro_info::sigma), device_norm_spec(jparticle, ccake::densities_info::s)*kern);
     ////Update entropy density
@@ -268,12 +268,13 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
                           device_norm_spec(jparticle, ccake::densities_info::rhoQ)*device_specific_density(jparticle, ccake::densities_info::rhoQ)*kern);
   };
      
-  Cabana::neighbor_parallel_for( systemPtr->range_policy, smooth_fields, systemPtr->neighbour_list, Cabana::FirstNeighborsTag(),
-                                   Cabana::TeamOpTag(), "smooth fields");
+  Cabana::neighbor_parallel_for( systemPtr->range_policy, smooth_fields, 
+                                 systemPtr->neighbour_list, Cabana::FirstNeighborsTag(),
+                                 Cabana::TeamOpTag(), "smooth_fields_kernel");
   Kokkos::fence();
 
   update_all_particle_thermodynamics(time_squared);
-
+  
   sw.Stop();
   formatted_output::update("finished smoothing particle fields in "
                             + to_string(sw.printTime()) + " s.");
@@ -479,9 +480,9 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
     }
 
     //Compute kernel gradients
-    double rel_sep_norm = EoMPtr->get_distance(pos_a,pos_b,time_squared); 
+    double rel_sep_norm = SPHkernel<D>::distance(pos_a,pos_b); 
     double gradK[D];
-    kernel::gradKernel<D>( rel_sep, rel_sep_norm, hT, gradK );
+    SPHkernel<D>::gradKernel( rel_sep, rel_sep_norm, hT, gradK );
     
     //Get gradients of vectors
     for (int idir=0; idir<D; idir++){
@@ -554,7 +555,7 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
     if (( btrack == 1 ) && ( temperature >= 150.0 )) {
       //fo.frz2[pa.ID].t=tin;   // If particle a has only one nearest neighbor (and T>150) set penultimate timestep;
     } ///< TODO: Implement freeze out corrections. Actually I think this is not the best place to implement it
-    else if ( (btrack = 0) && (temperature >= 150.0) 
+    else if ( (btrack == 0) && (temperature >= 150.0) 
             //&& pa.Freeze < 4
     ){
       // otherwise, if a has no nearest neighbors
@@ -756,8 +757,6 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives()
   reset_pi_tensor(t2);  
   // smooth all particle fields
   smooth_all_particle_fields(t2);
-  // update gamma, velocity, and thermodynamics for all particles
-  update_all_particle_thermodynamics(t2);
   // update viscosities for all particles
   update_all_particle_viscosities();
   //Computes gradients to obtain dsigma/dt

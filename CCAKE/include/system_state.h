@@ -72,17 +72,17 @@ class SystemState
 
     std::vector<Particle<D>> particles;     ///< Vector of particles
     Cabana::AoSoA<CabanaParticle, DeviceType, VECTOR_LENGTH> cabana_particles; ///< Particle storage on device
-    Kokkos::RangePolicy<ExecutionSpace> range_policy; ///< Policy used to loop over neighbors
     ListType neighbour_list; ///< Neighbour list
+    Kokkos::RangePolicy<ExecutionSpace> range_policy; ///< Policy used to loop over neighbors
+    Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>* simd_policy;                 ///< Policy used to access the particle data
   private:
     std::shared_ptr<Settings> settingsPtr;  ///< Pointer to Settings object
     ////////////////////////////////////////////////////////////////////////////
     // Cabana data structures (used for parallelization)
     // These are private and because data should be moved from device to host
     // before being accessed by the user. This can be implemented in public
-    // methods, if necessarry
-    Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>* simd_policy;                 ///< Policy used to access the particle data
-    Cabana::LinkedCellList<DeviceType> grid; ///< Grid used to accelerate the search for neighbors
+    // methods, if necessary
+    //Cabana::LinkedCellList<DeviceType> grid; ///< Grid used to accelerate the search for neighbors //< I think this may not be necessary
     //using SerialHost = Kokkos::Device<Kokkos::Serial, Kokkos::HostSpace>;
     //Cabana::AoSoA<ParticleType, SerialHost, 8> particles_h("particles_h",n_particles); ///Temporary storage on host
     ////////////////////////////////////////////////////////////////////////////
@@ -120,13 +120,29 @@ class SystemState
     int n(){ return n_particles; }
     double get_particle_T(int id) {return particles[id].T();}
     double get_particle_Freeze(int id) {return particles[id].Freeze;}
-    int get_frozen_out_count()
-    {
-      int total_frz_out = 0;
-      for ( auto & p : particles)
-        if (p.Freeze == 4) total_frz_out++;
-      return total_frz_out;
-    }
+    void print_neighbors(){
+    //Loop of neighbors, showing them
+    #ifdef DEBUG
+      //for ( std::size_t i = 0; i < cabana_particles.size(); ++i )
+      std::cout << "System has " << cabana_particles.size() << "particles" << std::endl;
+      for ( std::size_t i = 11478; i < 11479; ++i )
+      {
+        int num_n = Cabana::NeighborList<ListType>::numNeighbor( neighbour_list, i );
+        std::cout << "Particle " << i << " # neighbor = " << num_n << std::endl;
+        //for ( int j = 0; j < num_n; ++j )
+        //  std::cout << "    neighbor " << j << " = "
+        //            << Cabana::NeighborList<ListType>::getNeighbor( neighbour_list, i, j )
+        //            << std::endl;
+      }
+    #endif
+    };
+    //int get_frozen_out_count()
+    //{
+    //  int total_frz_out = 0;
+    //  for ( auto & p : particles)
+    //    if (p.Freeze == 4) total_frz_out++;
+    //  return total_frz_out;
+    //}
 
 };
 

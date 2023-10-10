@@ -123,22 +123,6 @@ double EoM_default<2>::get_shvDD(double* pi_diag, const double &time_squared){
     return s;
 }
 
-/// @brief Get the distance between two particles.
-/// @details This is the default implementation of the distance calculation between two
-/// particles. This is done in Milne coordinates.
-/// @param x1 The position of the first particle.
-/// @param x2 The position of the second particle.
-/// @param time_squared The square of the time where the distance will be computed.
-/// @return The distance between the two particles.
-template<unsigned int D>
-double EoM_default<D>::get_distance(double* x1, double* x2, const double &time_squared){
-    double s = 0;
-    for (unsigned int i=0; i<D-1; i++)
-        s += (x1[i]-x2[i])*(x1[i]-x2[i]);
-    s += (x1[D-1]-x2[D-1])*(x1[D-1]-x2[D-1])*time_squared;
-    return sqrt(s);
-}
-
 template<unsigned int D>
 void EoM_default<D>::evaluate_time_derivatives( Cabana::AoSoA<CabanaParticle, DeviceType, VECTOR_LENGTH> &particles )
 {
