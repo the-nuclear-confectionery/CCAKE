@@ -13,7 +13,7 @@
 #include "evolver.h"
 #include "formatted_output.h"
 #include "freeze_out.h"
-//#include "kernel.h"
+#include "kernel.h"
 #include "settings.h"
 #include "stopwatch.h"
 #include "system_state.h"
