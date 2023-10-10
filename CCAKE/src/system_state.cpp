@@ -43,17 +43,25 @@ void SystemState<D>::initialize()  // formerly called "manualenter"
 
 template<unsigned int D>
 void SystemState<D>::allocate_cabana_particles(){
+    formatted_output::detail("Initializing device memory");
+    ///Allocate memory for the particles
+    cabana_particles = Cabana::AoSoA<CabanaParticle, DeviceType, VECTOR_LENGTH>("particles", n_particles);
+    copy_host_to_device();    
+    simd_policy = new Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, particles.size());
+    range_policy = Kokkos::RangePolicy<ExecutionSpace>(0, particles.size());
+}
 
-  ///Allocate memory for the particles
-  cabana_particles = Cabana::AoSoA<CabanaParticle, DeviceType, VECTOR_LENGTH>("particles", n_particles);
+
+
+template<unsigned int D>
+void SystemState<D>::copy_host_to_device(){
+
   using SerialHost = Kokkos::Device<Kokkos::Serial, Kokkos::HostSpace>;
   //Auxiliary AoSoA for copying particles from/to host
   Cabana::AoSoA<CabanaParticle, SerialHost, 8> particles_h("particles_h",n_particles);
   formatted_output::detail("Initializing device memory");
   //Create vies to particles
   CREATE_VIEW(host_, particles_h);
-  CREATE_VIEW(device_, cabana_particles);
-
   //Fill host arrays
   for (int iparticle=0; iparticle < n_particles; ++iparticle){
     //Copy hydro space matrix
@@ -89,9 +97,9 @@ void SystemState<D>::allocate_cabana_particles(){
     host_hydro_scalar(iparticle, ccake::hydro_info::Btot) = particles[iparticle].hydro.Btot;
     host_hydro_scalar(iparticle, ccake::hydro_info::sigma) = particles[iparticle].hydro.sigma;
     host_hydro_scalar(iparticle, ccake::hydro_info::dsigma_dt) = particles[iparticle].hydro.dsigma_dt;
-    host_hydro_scalar(iparticle, ccake::hydro_info::g2) = particles[iparticle].hydro.g2;
-    host_hydro_scalar(iparticle, ccake::hydro_info::g3) = particles[iparticle].hydro.g3;
-    host_hydro_scalar(iparticle, ccake::hydro_info::gt) = particles[iparticle].hydro.gt;
+    host_hydro_scalar(iparticle, ccake::hydro_info::gamma_squared) = particles[iparticle].hydro.gamma_squared;
+    host_hydro_scalar(iparticle, ccake::hydro_info::gamma_cube) = particles[iparticle].hydro.gamma_cube;
+    host_hydro_scalar(iparticle, ccake::hydro_info::gamma_tau) = particles[iparticle].hydro.gamma_tau;
     host_hydro_scalar(iparticle, ccake::hydro_info::eta_o_tau) = particles[iparticle].hydro.eta_o_tau;
     host_hydro_scalar(iparticle, ccake::hydro_info::dwdsT1) = particles[iparticle].hydro.dwdsT1;
     host_hydro_scalar(iparticle, ccake::hydro_info::sigl) = particles[iparticle].hydro.sigl;
@@ -172,10 +180,143 @@ void SystemState<D>::allocate_cabana_particles(){
     host_freeze(iparticle)  = particles[iparticle].Freeze;
   }
   Cabana::deep_copy( cabana_particles, particles_h );
-  simd_policy = new Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, particles.size());
-  range_policy = Kokkos::RangePolicy<ExecutionSpace>(0, particles.size());
 
 }
+
+/// @brief Takes the data out of the device memory (managed by cabana) and 
+/// back to particle data structure
+/// @details This function is expensive computationally  and its use should
+/// be avoided if possible. It creates a temporary AoSoA in host memory space
+/// and mirrors the device memory. Just then it populates the particles structure
+template<unsigned int D>
+void SystemState<D>::copy_device_to_host(){
+
+  using SerialHost = Kokkos::Device<Kokkos::Serial, Kokkos::HostSpace>;
+  //Auxiliary AoSoA for copying particles from/to host
+  Cabana::AoSoA<CabanaParticle, SerialHost, 8> particles_h("particles_h",n_particles);
+  CREATE_VIEW(host_, particles_h);
+  Cabana::deep_copy(particles_h, cabana_particles); // Copy is performed here. This is a slow operation.
+  
+  for (int iparticle=0; iparticle < n_particles; ++iparticle){
+    //Copy hydro space matrix
+    for (int i=0; i<D; ++i)
+    for (int j=0; j<D; ++j){
+      particles[iparticle].hydro.Imat(i,j) = host_hydro_space_matrix(iparticle, ccake::hydro_info::Imat, i, j);
+      particles[iparticle].hydro.gradV(i,j) = host_hydro_space_matrix(iparticle, ccake::hydro_info::gradV, i, j);
+      particles[iparticle].hydro.gradU(i,j) = host_hydro_space_matrix(iparticle, ccake::hydro_info::gradU, i, j);
+      particles[iparticle].hydro.uu(i,j) = host_hydro_space_matrix(iparticle, ccake::hydro_info::uu, i, j);
+      particles[iparticle].hydro.pimin(i,j) = host_hydro_space_matrix(iparticle, ccake::hydro_info::pimin, i, j);
+      particles[iparticle].hydro.piu(i,j) = host_hydro_space_matrix(iparticle, ccake::hydro_info::piu, i, j);
+      particles[iparticle].hydro.pimin(i,j) = host_hydro_space_matrix(iparticle, ccake::hydro_info::pimin, i, j);
+      particles[iparticle].hydro.piutot(i,j) = host_hydro_space_matrix(iparticle, ccake::hydro_info::piutot, i, j);
+      particles[iparticle].hydro.shv1(i,j) = host_hydro_space_matrix(iparticle, ccake::hydro_info::shv1, i, j);
+      particles[iparticle].hydro.shv2(i,j) = host_hydro_space_matrix(iparticle, ccake::hydro_info::shv2, i, j);
+      particles[iparticle].hydro.shv3(i,j) = host_hydro_space_matrix(iparticle, ccake::hydro_info::shv3, i, j);
+      particles[iparticle].hydro.shv4(i,j) = host_hydro_space_matrix(iparticle, ccake::hydro_info::shv4, i, j);
+      particles[iparticle].hydro.dshv_dt(i,j) = host_hydro_space_matrix(iparticle, ccake::hydro_info::dshv_dt, i, j);
+    }
+    particles[iparticle].hydro.t = host_hydro_scalar(iparticle, ccake::hydro_info::t);
+    particles[iparticle].hydro.Agam = host_hydro_scalar(iparticle, ccake::hydro_info::Agam);
+    particles[iparticle].hydro.Agam2 = host_hydro_scalar(iparticle, ccake::hydro_info::Agam2);
+    particles[iparticle].hydro.shv33 = host_hydro_scalar(iparticle, ccake::hydro_info::shv33);
+    particles[iparticle].hydro.gamma = host_hydro_scalar(iparticle, ccake::hydro_info::gamma);
+    particles[iparticle].hydro.Bulk = host_hydro_scalar(iparticle, ccake::hydro_info::Bulk);
+    particles[iparticle].hydro.bigPI = host_hydro_scalar(iparticle, ccake::hydro_info::bigPI);
+    particles[iparticle].hydro.C = host_hydro_scalar(iparticle, ccake::hydro_info::C);
+    particles[iparticle].hydro.tauRelax = host_hydro_scalar(iparticle, ccake::hydro_info::tauRelax);
+    particles[iparticle].hydro.stauRelax = host_hydro_scalar(iparticle, ccake::hydro_info::stauRelax);
+    particles[iparticle].hydro.zeta = host_hydro_scalar(iparticle, ccake::hydro_info::zeta);
+    particles[iparticle].hydro.setas = host_hydro_scalar(iparticle, ccake::hydro_info::setas);
+    particles[iparticle].hydro.Ctot = host_hydro_scalar(iparticle, ccake::hydro_info::Ctot);
+    particles[iparticle].hydro.Btot = host_hydro_scalar(iparticle, ccake::hydro_info::Btot);
+    particles[iparticle].hydro.sigma = host_hydro_scalar(iparticle, ccake::hydro_info::sigma);
+    particles[iparticle].hydro.dsigma_dt = host_hydro_scalar(iparticle, ccake::hydro_info::dsigma_dt);
+    particles[iparticle].hydro.gamma_squared = host_hydro_scalar(iparticle, ccake::hydro_info::gamma_squared);
+    particles[iparticle].hydro.gamma_cube = host_hydro_scalar(iparticle, ccake::hydro_info::gamma_cube);
+    particles[iparticle].hydro.gamma_tau = host_hydro_scalar(iparticle, ccake::hydro_info::gamma_tau);
+    particles[iparticle].hydro.eta_o_tau = host_hydro_scalar(iparticle, ccake::hydro_info::eta_o_tau);
+    particles[iparticle].hydro.dwdsT1 = host_hydro_scalar(iparticle, ccake::hydro_info::dwdsT1);
+    particles[iparticle].hydro.sigl = host_hydro_scalar(iparticle, ccake::hydro_info::sigl);
+    particles[iparticle].hydro.varsigma = host_hydro_scalar(iparticle, ccake::hydro_info::varsigma);
+    particles[iparticle].hydro.bigtheta = host_hydro_scalar(iparticle, ccake::hydro_info::bigtheta);
+    particles[iparticle].hydro.inside = host_hydro_scalar(iparticle, ccake::hydro_info::inside);
+    particles[iparticle].hydro.div_u = host_hydro_scalar(iparticle, ccake::hydro_info::div_u);
+    particles[iparticle].hydro.dBulk_dt = host_hydro_scalar(iparticle, ccake::hydro_info::dBulk_dt);
+    for (int i=0; i<D; i++){
+      particles[iparticle].hydro.v(i) = host_hydro_vector(iparticle, ccake::hydro_info::v,i);
+      particles[iparticle].hydro.u(i) = host_hydro_vector(iparticle, ccake::hydro_info::u,i);
+      particles[iparticle].hydro.gradP(i) = host_hydro_vector(iparticle, ccake::hydro_info::gradP,i);
+      particles[iparticle].hydro.gradBulk(i) = host_hydro_vector(iparticle, ccake::hydro_info::gradBulk,i);
+      particles[iparticle].hydro.divshear(i) = host_hydro_vector(iparticle, ccake::hydro_info::divshear,i);
+      particles[iparticle].hydro.gradshear(i) = host_hydro_vector(iparticle, ccake::hydro_info::gradshear,i);
+      particles[iparticle].hydro.du_dt(i) = host_hydro_vector(iparticle, ccake::hydro_info::du_dt,i);
+      
+      particles[iparticle].r(i) = host_position(iparticle, i);
+    }
+    particles[iparticle].thermo.T = host_thermo(iparticle, ccake::thermo_info::T);
+    particles[iparticle].thermo.muB = host_thermo(iparticle, ccake::thermo_info::muB);
+    particles[iparticle].thermo.muS = host_thermo(iparticle, ccake::thermo_info::muS);
+    particles[iparticle].thermo.muQ = host_thermo(iparticle, ccake::thermo_info::muQ);
+    particles[iparticle].thermo.e = host_thermo(iparticle, ccake::thermo_info::e);
+    particles[iparticle].thermo.s = host_thermo(iparticle, ccake::thermo_info::s);
+    particles[iparticle].thermo.rhoB = host_thermo(iparticle, ccake::thermo_info::rhoB);
+    particles[iparticle].thermo.rhoS = host_thermo(iparticle, ccake::thermo_info::rhoS);
+    particles[iparticle].thermo.rhoQ = host_thermo(iparticle, ccake::thermo_info::rhoQ);
+    particles[iparticle].thermo.p = host_thermo(iparticle, ccake::thermo_info::p);
+    particles[iparticle].thermo.cs2 = host_thermo(iparticle, ccake::thermo_info::cs2);
+    particles[iparticle].thermo.w = host_thermo(iparticle, ccake::thermo_info::w);
+    particles[iparticle].thermo.A = host_thermo(iparticle, ccake::thermo_info::A);
+    particles[iparticle].thermo.dwds = host_thermo(iparticle, ccake::thermo_info::dwds);
+    particles[iparticle].thermo.dwdB = host_thermo(iparticle, ccake::thermo_info::dwdB);
+    particles[iparticle].thermo.dwdS = host_thermo(iparticle, ccake::thermo_info::dwdS);
+    particles[iparticle].thermo.dwdQ = host_thermo(iparticle, ccake::thermo_info::dwdQ);
+
+    for (int i=0; i<D+1; i++)
+    for (int j=0; j<D+1; j++)
+      particles[iparticle].hydro.shv(i,j) = host_hydro_spacetime_matrix(iparticle, ccake::hydro_info::shv, i, j);
+      
+    particles[iparticle].input.e = host_input(iparticle, ccake::densities_info::e);
+    particles[iparticle].input.s = host_input(iparticle, ccake::densities_info::s);
+    particles[iparticle].input.rhoB = host_input(iparticle, ccake::densities_info::rhoB);
+    particles[iparticle].input.rhoS = host_input(iparticle, ccake::densities_info::rhoS);
+    particles[iparticle].input.rhoQ = host_input(iparticle, ccake::densities_info::rhoQ);
+
+    particles[iparticle].smoothed.e = host_smoothed(iparticle, ccake::densities_info::e);
+    particles[iparticle].smoothed.s = host_smoothed(iparticle, ccake::densities_info::s);
+    particles[iparticle].smoothed.rhoB = host_smoothed(iparticle, ccake::densities_info::rhoB);
+    particles[iparticle].smoothed.rhoS = host_smoothed(iparticle, ccake::densities_info::rhoS);
+    particles[iparticle].smoothed.rhoQ = host_smoothed(iparticle, ccake::densities_info::rhoQ);
+    
+    particles[iparticle].specific.e = host_specific_density(iparticle, ccake::densities_info::e);
+    particles[iparticle].specific.s = host_specific_density(iparticle, ccake::densities_info::s);
+    particles[iparticle].specific.rhoB = host_specific_density(iparticle, ccake::densities_info::rhoB);
+    particles[iparticle].specific.rhoS = host_specific_density(iparticle, ccake::densities_info::rhoS);
+    particles[iparticle].specific.rhoQ = host_specific_density(iparticle, ccake::densities_info::rhoQ);
+    
+    particles[iparticle].d_dt_spec.e = host_d_dt_spec(iparticle, ccake::densities_info::e);
+    particles[iparticle].d_dt_spec.s = host_d_dt_spec(iparticle, ccake::densities_info::s);
+    particles[iparticle].d_dt_spec.rhoB = host_d_dt_spec(iparticle, ccake::densities_info::rhoB);
+    particles[iparticle].d_dt_spec.rhoS = host_d_dt_spec(iparticle, ccake::densities_info::rhoS);
+    particles[iparticle].d_dt_spec.rhoQ = host_d_dt_spec(iparticle, ccake::densities_info::rhoQ);
+    
+    particles[iparticle].norm_spec.e = host_norm_spec(iparticle, ccake::densities_info::e);
+    particles[iparticle].norm_spec.s = host_norm_spec(iparticle, ccake::densities_info::s);
+    particles[iparticle].norm_spec.rhoB = host_norm_spec(iparticle, ccake::densities_info::rhoB);
+    particles[iparticle].norm_spec.rhoS = host_norm_spec(iparticle, ccake::densities_info::rhoS);
+    particles[iparticle].norm_spec.rhoQ = host_norm_spec(iparticle, ccake::densities_info::rhoQ);
+    
+    particles[iparticle].efcheck = host_efcheck(iparticle);
+    particles[iparticle].contribution_to_total_E = host_contribution_to_total_E(iparticle);
+    particles[iparticle].contribution_to_total_dEz = host_contribution_to_total_dEz(iparticle);
+    particles[iparticle].contribution_to_total_Ez = host_contribution_to_total_Ez(iparticle);
+    particles[iparticle].ID = host_id(iparticle);
+    particles[iparticle].btrack = host_btrack(iparticle);
+    particles[iparticle].Freeze = host_freeze(iparticle);
+  }
+
+}
+
+
 
 /// @brief Reset the neighbour list
 /// @details This function should be called after the particles have been moved.
@@ -281,11 +422,11 @@ void SystemState<D>::conservation_entropy()
   
   CREATE_VIEW(device_, cabana_particles);
   S = 0.0;
-  auto get_total_entropy = KOKKOS_LAMBDA(const int &i, double &S)
+  auto get_total_entropy = KOKKOS_LAMBDA(const int i, double &local_S)
   {
-    S += device_specific_density(i, ccake::densities_info::s)*device_norm_spec(i, ccake::densities_info::s);
+    local_S += device_specific_density(i, ccake::densities_info::s)*device_norm_spec(i, ccake::densities_info::s);
   };
-  Kokkos::parallel_reduce("loop_conservation_entropy",n_particles, get_total_entropy, Kokkos::Sum<double>(S));
+  Kokkos::parallel_reduce("loop_conservation_entropy",n_particles, get_total_entropy, S);
   
   S0 = S;
 }
@@ -344,7 +485,7 @@ void SystemState<D>::conservation_energy()
     for ( auto & p : particles )
     {
       p.contribution_to_total_E
-         = ( p.hydro.C*p.hydro.g2 - p.p() - p.hydro.bigPI + p.hydro.shv(0,0) )
+         = ( p.hydro.C*p.hydro.gamma_squared - p.p() - p.hydro.bigPI + p.hydro.shv(0,0) )
            * p.norm_spec.s * t / p.hydro.sigma;
       E += p.contribution_to_total_E;
     }

@@ -29,6 +29,7 @@ class Settings
     // I/O settings
     bool printing_to_txt              = true;
     bool printing_to_HDF              = true;
+    fs::path results_directory        = "";
 
     static constexpr int VERBOSE      = 5;
 

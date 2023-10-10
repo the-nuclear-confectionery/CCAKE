@@ -13,6 +13,7 @@ namespace consts = constants;
 /// \param[in] argv Array of command line arguments
 cc::Input::Input( int argc, char** argv)
 {
+  settingsPtr = std::make_shared<Settings>();
   check_args( argc, argv ); //Will abort execution if arguments are invalid
   load_settings_file();
   ////read_in_initial_conditions();
@@ -54,6 +55,7 @@ void cc::Input::check_args( int argc, char** argv )
   {
     fs::create_directory(results_directory);
   }
+  settingsPtr->results_directory = results_directory;
 
 }
 
@@ -64,7 +66,6 @@ void cc::Input::check_args( int argc, char** argv )
 void cc::Input::load_settings_file()
 {
   formatted_output::report("Reading in input parameter settings");
-  settingsPtr = std::make_shared<Settings>();
   YAML::Node input_file = YAML::LoadFile(settings_file_path.string());
   if ( !decode_settings(input_file) )
   {

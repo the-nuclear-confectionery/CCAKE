@@ -81,6 +81,7 @@ int main (int argc, char *argv[])
   // Print success message.
   formatted_output::announce("Summary: hydrodynamic evolution completed "
                              "successfully");
+  Kokkos::finalize();
 
   return 0;
 }

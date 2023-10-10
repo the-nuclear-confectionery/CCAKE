@@ -16,6 +16,7 @@ add_library(src OBJECT
 	vector.cpp
 	utilities.cpp
 	input.cpp
+	output.cpp
 )
 
 ###############################################################################

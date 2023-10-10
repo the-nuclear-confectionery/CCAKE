@@ -48,6 +48,7 @@ void EquationOfState::init()
   formatted_output::report("Initializing equation of state");
 
   formatted_output::update("Reading in equation of state tables");
+  eos_path = settingsPtr->eos_path; ///\TODO: Is it really necessary?
 
   set_up_chosen_EOSs();
 

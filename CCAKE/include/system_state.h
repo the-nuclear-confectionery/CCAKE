@@ -102,6 +102,8 @@ class SystemState
     void add_particle( Particle<D> p );
     void initialize();
     void allocate_cabana_particles();
+    void copy_device_to_host();
+    void copy_host_to_device();
     void initialize_linklist();
     void reset_neighbour_list();
 
