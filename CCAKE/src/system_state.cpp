@@ -10,11 +10,6 @@
 #include "system_state.h"
 #include "utilities.h"
 
-//using namespace std;
-using std::cout;
-using std::endl;
-using std::string;
-
 using namespace constants;
 using namespace ccake;
 
@@ -196,7 +191,7 @@ void SystemState<D>::copy_device_to_host(){
   Cabana::AoSoA<CabanaParticle, SerialHost, 8> particles_h("particles_h",n_particles);
   CREATE_VIEW(host_, particles_h);
   Cabana::deep_copy(particles_h, cabana_particles); // Copy is performed here. This is a slow operation.
-  
+
   for (int iparticle=0; iparticle < n_particles; ++iparticle){
     int id = host_id(iparticle);
     //Copy hydro space matrix
@@ -323,7 +318,7 @@ void SystemState<D>::copy_device_to_host(){
 /// @details This function should be called after the particles have been moved.
 /// Beware that this operation is very expensive and calls to this function should
 /// be minimized. It is also a good candidate for optimization. In a 11th Gen 
-/// Intel Core i7-11370H running under WSL 2, using the  apptainer images, the 
+/// Intel Core i7-11370H running under WSL 2, using the apptainer images, the 
 /// inclusion of single call to this function in the main loop increased the 
 /// execution time by ~1s (in a trento event generated with 
 /// `trento --grid-max 10 --grid-step .1 Pb Pb --b-max=3 --random-seed=42`)
@@ -335,13 +330,13 @@ void SystemState<D>::reset_neighbour_list(){
   min_pos[1] = settingsPtr->ymin;
   min_pos[2] = settingsPtr->etamin;
   for(int idir=D; idir<3; ++idir)
-    min_pos[idir] = -.5;
+    min_pos[idir] *= 1.5; //Grid must be 50% bigger ///TODO: Allow this to be an optional input parameter
   for(int idir=0; idir<3; ++idir)
     max_pos[idir] = -min_pos[idir];
   
   CREATE_VIEW(device_, cabana_particles);
 
-  Cabana::permute( grid, cabana_particles );
+  //Cabana::permute( grid, cabana_particles );
   double neighborhood_radius = 2*settingsPtr->hT;
   double cell_ratio = 1.; //neighbour to cell_space ratio
   neighbour_list = ListType (  device_position, 0, device_position.size(), 
@@ -354,24 +349,10 @@ template<unsigned int D>
 void SystemState<D>::initialize_linklist()
 {
   formatted_output::report("Initializing linklist");
-  double min_pos[3], max_pos[3];
-  CREATE_VIEW(device_, cabana_particles);
-
-  min_pos[0] = settingsPtr->xmin;
-  min_pos[1] = settingsPtr->ymin;
-  min_pos[2] = settingsPtr->etamin;
-  for(int idir=D; idir<3; ++idir)
-    min_pos[idir] = -.5;
-  for(int idir=0; idir<3; ++idir)
-    max_pos[idir] = -min_pos[idir];
-
-
-  double grid_spacing[3] = {2*settingsPtr->hT, 2*settingsPtr->hT, 2*settingsPtr->hEta};
-  grid = Cabana::LinkedCellList<DeviceType>(device_position, grid_spacing,
-                                             min_pos, max_pos);
 
   reset_neighbour_list();
   //Test that the neighbor list is correct
+  /*
   #ifdef DEBUG
   #ifndef __CUDACC__
   auto first_neighbor_kernel =
@@ -410,8 +391,8 @@ void SystemState<D>::initialize_linklist()
          << " " << device_thermo(ipart, ccake::thermo_info::e) << endl;
   }
   fs.close();
-  #endif
-  #endif
+  //#endif
+  #endif*/
   return;
 }
 
