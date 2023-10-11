@@ -74,43 +74,43 @@ void Output<D>::print_system_state_to_txt()
   int iParticle = 0;
   
   for ( auto & p : systemPtr->particles )
-    out << iParticle++ << " "
-        << systemPtr->t << " "
-        << p.r << " "
-        << p.p() << " "
-        << p.T()*hbarc_MeVfm << " "
-        << p.muB()*hbarc_MeVfm << " "
-        << p.muS()*hbarc_MeVfm << " "
-        << p.muQ()*hbarc_MeVfm << " "
-        << p.e()*hbarc_MeVfm << "       " //10
-        << p.rhoB() << " "
-        << p.rhoS() << " "
-        << p.rhoQ() << " "
-        << p.s() << " "
-        << p.smoothed.s/(p.hydro.gamma*systemPtr->t) << " "
-        << p.specific.s << " "
-        << p.hydro.sigma << " "
-        << p.norm_spec.s << " "
-        << p.hydro.stauRelax << " "
-        << p.hydro.bigtheta << "       "  //20
+    out << iParticle++ << " " //0
+        << systemPtr->t << " " //1
+        << p.r          //2,3
+        << p.p() << " "       //4
+        << p.T()*hbarc_MeVfm << " " //5
+        << p.muB()*hbarc_MeVfm << " " //6
+        << p.muS()*hbarc_MeVfm << " " //7
+        << p.muQ()*hbarc_MeVfm << " " //8
+        << p.e()*hbarc_MeVfm << " " //9
+        << p.rhoB() << " " //10
+        << p.rhoS() << " " //11
+        << p.rhoQ() << " " //12
+        << p.s() << " " //13
+        << p.smoothed.s/(p.hydro.gamma*systemPtr->t) << " " //14
+        << p.specific.s << " " //15
+        << p.hydro.sigma << " " //16
+        << p.norm_spec.s << " " //17
+        << p.hydro.stauRelax << " " //18
+        << p.hydro.bigtheta << " "  //19
         << sqrt(     p.hydro.shv(0,0)*p.hydro.shv(0,0)
                 -2.0*p.hydro.shv(0,1)*p.hydro.shv(0,1)
                 -2.0*p.hydro.shv(0,2)*p.hydro.shv(0,2)
                 +    p.hydro.shv(1,1)*p.hydro.shv(1,1)
                 +    p.hydro.shv(2,2)*p.hydro.shv(2,2)
                 +2.0*p.hydro.shv(1,2)*p.hydro.shv(1,2)
-                +pow(systemPtr->t,4.0)*p.hydro.shv33*p.hydro.shv33 ) << " "
-        << p.hydro.stauRelax/systemPtr->t * p.hydro.bigtheta << " "
-        << p.hydro.shv(0,0) << " "
-        << p.hydro.shv(1,1) << " "
-        << p.hydro.shv(2,2) << " "
-        << p.hydro.shv(1,2) << " "
-        << pow(systemPtr->t,2.0)*p.hydro.shv33 << " "
-        << p.hydro.u(0)/p.hydro.gamma << " "  //28
-        << p.hydro.u(1)/p.hydro.gamma << " "
-        << p.hydro.gamma << "       "
-        << p.Freeze << " "
-        << p.get_current_eos_name() << "\n";
+                +pow(systemPtr->t,4.0)*p.hydro.shv33*p.hydro.shv33 ) << " " //20
+        << p.hydro.stauRelax/systemPtr->t * p.hydro.bigtheta << " " //21
+        << p.hydro.shv(0,0) << " " //22
+        << p.hydro.shv(1,1) << " " //23
+        << p.hydro.shv(2,2) << " " //24
+        << p.hydro.shv(1,2) << " " //25
+        << pow(systemPtr->t,2.0)*p.hydro.shv33 << " " //26
+        << p.hydro.u(0)/p.hydro.gamma << " "  //27
+        << p.hydro.u(1)/p.hydro.gamma << " " //28
+        << p.hydro.gamma << " " //29
+        << p.Freeze << " " //30
+        << p.get_current_eos_name() << "\n"; //31
 
   out << std::flush;
 
