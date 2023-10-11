@@ -131,7 +131,7 @@ void TransportCoefficients::initialize_tau_pi(const string & tau_piType_in)
     if (zetaType != "constant" || abs(settingsPtr->constant_zeta_over_s) > 1e-6)
     {
       std::cout << "You have chosen zetaType = " << zetaType
-                << " and zeta/s = " << abs(settingsPtr->constant_zeta_over_s) 
+                << " and zeta/s = " << abs(settingsPtr->constant_zeta_over_s)
                 << ".\n" << "Bulk viscosity must be zero"
                    " for Gubser. Check Input_Parameters.  "
                    " Now exiting.\n";
@@ -195,10 +195,10 @@ void TransportCoefficients::initialize_tau_Pi(const string & tau_PiType_in)
   {
     tau_Pi = [this]{ return tau_Pi_DNMR_LeadingMass(); };
   }
-  else 
+  else
   {
     cout << "Tau bulk specification " << tau_PiType << " not recognized. Now exiting.\n";
-    exit(1);   
+    exit(1);
   }
 }
 
@@ -388,10 +388,12 @@ double TransportCoefficients::cs2_dependent_zeta()
 double TransportCoefficients::default_tau_Pi()
 {
 //cout << "inside check: " << therm.cs2 << "   " << zeta() << "   " << therm.w << endl;
-  if ( (1.0/3.0-therm.cs2)*(1.0/3.0-therm.cs2) < 1e-10 )
+  const double p = settingsPtr->cs2_dependent_zeta_p;
+  const causal_cs2 = std::min(therm.cs2, 1.0);
+  if ( pow((1.0/3.0-causal_cs2), p) < 1e-10 )
     return 1e10;
   else
-    return std::max( 5.0*zeta()/(pow((1.0/3.0-therm.cs2),2.0)*therm.w), 0.1 );
+    return std::max( 5.0*zeta()/( pow((1.0/3.0-causal_cs2), p)*therm.w ), 0.1 );
 }
 
 //===============================
