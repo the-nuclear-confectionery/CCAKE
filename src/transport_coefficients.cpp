@@ -389,7 +389,7 @@ double TransportCoefficients::default_tau_Pi()
 {
 //cout << "inside check: " << therm.cs2 << "   " << zeta() << "   " << therm.w << endl;
   const double p = settingsPtr->cs2_dependent_zeta_p;
-  const causal_cs2 = std::min(therm.cs2, 1.0);
+  const double causal_cs2 = std::min(therm.cs2, 1.0);
   if ( pow((1.0/3.0-causal_cs2), p) < 1e-10 )
     return 1e10;
   else
