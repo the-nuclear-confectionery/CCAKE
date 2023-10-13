@@ -146,6 +146,7 @@ class interface_to_HDF5
         // specify units
         set_units( dataset, dataset_units[iDS] );
 
+        // dataset.write(data[iDS], PredType::NATIVE_DOUBLE);
         dataset.write(v[iDS].data(), PredType::NATIVE_DOUBLE);
       }
 
@@ -159,6 +160,11 @@ class interface_to_HDF5
         DataSet dataset = groupFrame.createDataSet( DATASET_NAME.c_str(),
                               PredType::NATIVE_INT, dataspace);
 
+        // int label_array[length];
+        // for (int i = 0; i < length; i++)
+        //   label_array[i] = labels[i];
+        //
+        // dataset.write(label_array, PredType::NATIVE_INT);
         dataset.write(labels.data(), PredType::NATIVE_INT);
       }
 
