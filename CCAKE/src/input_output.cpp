@@ -144,30 +144,7 @@ void InputOutput::load_settings_file( string path_to_settings_file )
 
   // set particles to print
   settingsPtr->particles_to_print = vector<int>({});
-  {
-    ifstream ifile;
-    ifile.open("particles_to_print.dat");
-    // if file exists, read in any particle indices it contains
-    if (ifile.good())
-    {
-      string line = "";
-      while ( getline (ifile, line) )
-      {
-        int particle_index = -1;
-        istringstream iss(line);
-        iss >> particle_index;
-        settingsPtr->particles_to_print.push_back( particle_index );
-      }
-    }
-    ifile.close();
 
-    // display particles currently scheduled to be printed
-    if (settingsPtr->particles_to_print.size() >= 1)
-    {
-      formatted_output::update("The following particles will be printed:");
-      for ( auto & p : settingsPtr->particles_to_print ) formatted_output::detail( to_string(p) );
-    }
-  }
 
   // set up HDF5 output file here
   vector<double> global_parameters_to_HDF
@@ -243,6 +220,60 @@ void InputOutput::read_in_initial_conditions()
           p.input.rhoB = rhoB;
           p.input.rhoS = rhoS;
           p.input.rhoQ = rhoQ;
+          p.hydro.u(0) = ux;
+          p.hydro.u(1) = uy;
+
+          systemPtr->particles.push_back( p );
+        }
+      }
+
+      infile.close();
+    }
+    else
+    {
+      std::cerr << "File " << IC_file << " could not be opened!\n";
+      abort();
+    }
+
+  } 
+//----------------------------------------------------------------------------
+  else if (initial_condition_type == "TRENTO")
+  {
+    total_header_lines = 0;
+
+    ifstream infile(IC_file.c_str());
+    formatted_output::update("Initial conditions file: " + IC_file);
+    if (infile.is_open())
+    {
+      string line;
+      int count_header_lines = 0;
+      int count_file_lines   = 0;
+      double x, y, e;
+      double ignore, stepX, stepY, xmin, ymin;
+
+      while (getline (infile, line))
+      {
+        istringstream iss(line);
+        if(count_header_lines < total_header_lines)
+        {
+          settingsPtr->headers.push_back(line);
+          iss >> ignore >> stepX >> stepY >> ignore >> xmin >> ymin;
+          settingsPtr->stepx = stepX;
+          settingsPtr->stepy = stepY;
+          settingsPtr->xmin  = xmin;
+          settingsPtr->ymin  = ymin;
+          count_header_lines++;
+        }
+        else
+        {
+          iss >> x >> y >> e;
+          e /= hbarc_GeVfm;
+          double ux = 0.0, uy = 0.0;
+
+          Particle p;
+          p.r(0)       = x;
+          p.r(1)       = y;
+          p.input.e    = e;
           p.hydro.u(0) = ux;
           p.hydro.u(1) = uy;
 
@@ -573,14 +604,17 @@ void InputOutput::print_system_state()
   //---------------------------------
   if (settingsPtr->printing_to_txt)
     print_system_state_to_txt();
-
+    //print_freeze_out_T();
+    print_freeze_out_e();
+    print_eccentricity_to_txt();
   //---------------------------------
   if (settingsPtr->printing_to_HDF)
     print_system_state_to_HDF();
 
   //---------------------------------
-  print_freeze_out();
-
+  //print_freeze_out_T();
+  //print_freeze_out_e();
+  //print_eccentricity_to_txt();
   //---------------------------------
   // increment timestep index
   n_timesteps_output++;
@@ -621,20 +655,32 @@ void InputOutput::print_system_state_to_txt()
           << p.r << " "
           << p.p() << " "
           << p.T()*hbarc_MeVfm << " "
+		      //<< p.hydro.prev_T*hbarc_MeVfm << " "
+		      //<< p.hydro.curr_temp << " "
+		      //<< p.hydro.finite_diff_T*hbarc_MeVfm << "     "
           << p.muB()*hbarc_MeVfm << " "
           << p.muS()*hbarc_MeVfm << " "
           << p.muQ()*hbarc_MeVfm << " "
-          << p.e()*hbarc_MeVfm << "       " //10
+          << p.e()*hbarc_MeVfm << "       " //12
+		      << p.cs2() << " "
+		      //<< p.hydro.prev_cs2 << " "
+		      //<< p.hydro.curr_cs2 << " "
+		      //<< p.hydro.finite_diff_cs2 << "     "//15
+		      << p.w()*hbarc_MeVfm << " "
+		      //<< p.hydro.prev_w*hbarc_MeVfm << " "
+		      //<< p.hydro.curr_cs2 << " "
+		      //<< p.hydro.finite_diff_w*hbarc_MeVfm << "     "//18
+		      //<< p.hydro.dBeta_dt<< "      "//19
           << p.rhoB() << " "
           << p.rhoS() << " "
           << p.rhoQ() << " "
-          << p.s() << " "
-          << p.smoothed.s/(p.hydro.gamma*systemPtr->t) << " "
-          << p.specific.s << " "
-          << p.hydro.sigma << " "
-          << p.norm_spec.s << " "
-          << p.hydro.stauRelax << " "
-          << p.hydro.bigtheta << "       "  //20
+          //<< p.s() << " "
+          //<< p.smoothed.s/(p.hydro.gamma*systemPtr->t) << " "
+          //<< p.specific.s << " "
+          //<< p.hydro.sigma << " " 
+          //<< p.norm_spec.s << " "
+          << p.hydro.stauRelax << " " 
+          << p.hydro.bigtheta << "       "  //24
           << sqrt(     p.hydro.shv(0,0)*p.hydro.shv(0,0)
                   -2.0*p.hydro.shv(0,1)*p.hydro.shv(0,1)
                   -2.0*p.hydro.shv(0,2)*p.hydro.shv(0,2)
@@ -642,32 +688,34 @@ void InputOutput::print_system_state_to_txt()
                   +    p.hydro.shv(2,2)*p.hydro.shv(2,2)
                   +2.0*p.hydro.shv(1,2)*p.hydro.shv(1,2)
                   +pow(systemPtr->t,4.0)*p.hydro.shv33*p.hydro.shv33 ) << " "
-          << p.hydro.stauRelax/systemPtr->t * p.hydro.bigtheta << " "
+          //<< p.hydro.stauRelax/systemPtr->t * p.hydro.bigtheta << " "
           << p.hydro.shv(0,0) << " "
           << p.hydro.shv(1,1) << " "
           << p.hydro.shv(2,2) << " "
           << p.hydro.shv(1,2) << " "
           << pow(systemPtr->t,2.0)*p.hydro.shv33 << " "
-          << p.hydro.u(0)/p.hydro.gamma << " "  //28
-          << p.hydro.u(1)/p.hydro.gamma << " "
-          << p.hydro.gamma << "       "
+          //<< p.hydro.u(0)/p.hydro.gamma << " "  //28
+          //<< p.hydro.u(1)/p.hydro.gamma << " "
+          << p.hydro.gamma << "       "//31
           << p.Freeze << " "
-          /*<< p.hydro.bigPI << " "     //32
+          << p.hydro.bigPI << " "     //32
           << p.hydro.tauRelax << " "
           << p.hydro.Bulk << " "
-          << p.hydro.dBulk_dt << " "
+          //<< p.hydro.dBulk_dt << " "
           << p.hydro.zeta << " "
-          << p.hydro.dsigma_dt << " "
-          << p.hydro.div_u << " "       //38
-          << p.hydro.du_dt << "       "
-          << p.hydro.gradV << "       "
-          << p.hydro.gradU << "       "
-          << p.hydro.gradBulk << "       "
-          << p.hydro.gradshear << "       "
-          << p.hydro.divshear << "   "
-          << p.contribution_to_total_E << "   "
-          << p.contribution_to_total_Ez << "   "*/
-          << p.get_current_eos_name() << "\n";
+          //<< p.hydro.dsigma_dt << " "
+          //<< p.hydro.div_u << " "       //38
+          //<< p.hydro.du_dt << "       "
+          //<< p.hydro.gradV << "       "
+          //<< p.hydro.gradU << "       "
+		      << p.hydro.gradP << "       "//39
+		      << p.hydro.gradE << "       "//41
+          << p.hydro.gradBulk << "       "//43
+          << p.hydro.gradshear << "       "//45
+          << p.hydro.divshear << "   "//47
+          << p.contribution_to_total_E << "   "//48
+          << p.contribution_to_total_Ez << "   "//49
+          << p.get_current_eos_name() << "\n";//50
 
   }
 
@@ -725,14 +773,67 @@ void InputOutput::print_system_state_to_HDF()
   return;
 }
 
-
-
-
-
 //==============================================================================
-void InputOutput::print_freeze_out()
+void InputOutput::print_freeze_out_e()
 {
-  string outputfilename = output_directory + "/freeze_out_"
+  string outputfilename = output_directory + "/freeze_out_e_"
+                          + std::to_string(n_timesteps_output) + ".dat";
+  ofstream FO( outputfilename.c_str(), ios::out | ios::app );
+
+  auto & fo = wsPtr->fo;
+
+  if ( fo.divEener.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.divE.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.gsub.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.uout.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.swsub.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.bulksub.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.shearsub.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.shear33sub.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.tlist.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.rsub.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.sFO.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.Tfluc.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.efluc.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.muBfluc.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.muSfluc.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.muQfluc.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.eosname.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.wfzfluc.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.cs2fzfluc.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+
+  for (int i = 0; i < fo.cf; i++)
+     FO << fo.divEener[i] << " "
+        << fo.divE[i] << "     "
+        << fo.gsub[i] << " "
+        << fo.uout[i] << " "
+        << fo.swsub[i] << "     "
+        << fo.bulksub[i] << "     " 
+        << fo.shearsub[i](0,0) << " "
+        << fo.shearsub[i](1,1) << " " 
+        << fo.shearsub[i](2,2) << " "
+        << fo.shear33sub[i] << " " 
+        << fo.shearsub[i](1,2) << "    " 
+        << fo.tlist[i] << " "
+        << fo.rsub[i] << " "
+        << fo.sFO[i] << "    " 
+        << fo.efluc[i] << " "
+		<< fo.Tfluc[i] << " "
+        << fo.muBfluc[i] << " "
+        << fo.muSfluc[i] << " "
+        << fo.muQfluc[i] << " "
+        << fo.eosname[i] << " "
+		<< fo.wfzfluc[i] << " "
+		<< fo.cs2fzfluc[i] << endl;
+        
+  FO.close();
+
+  return;
+}
+//==============================================================================
+void InputOutput::print_freeze_out_T()
+{
+  string outputfilename = output_directory + "/freeze_out_T_"
                           + std::to_string(n_timesteps_output) + ".dat";
   ofstream FO( outputfilename.c_str(), ios::out | ios::app );
 
@@ -749,21 +850,57 @@ void InputOutput::print_freeze_out()
   if ( fo.tlist.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
   if ( fo.rsub.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
   if ( fo.sFO.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.efluc.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
   if ( fo.Tfluc.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.muBfluc.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.muSfluc.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.muQfluc.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.eosname.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.wfzfluc.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
+  if ( fo.cs2fzfluc.size() != fo.cf ) cout << "WARNING: WRONG SIZE" << endl;
 
   for (int i = 0; i < fo.cf; i++)
-    FO << fo.divTtemp[i] << " " << fo.divT[i] << " "
-        << fo.gsub[i] << " " << fo.uout[i] << " "
-        << fo.swsub[i] << " " << fo.bulksub[i] << " "
+     FO << fo.divTtemp[i] << " "
+        << fo.divT[i] << " "
+		<< fo.gsub[i] << " "
+        << fo.uout[i] << " "
+        << fo.swsub[i] << " "//vol in readin from SPH
+        << fo.bulksub[i] << " " 
         << fo.shearsub[i](0,0) << " "
-        << fo.shearsub[i](1,1) << " "
+        << fo.shearsub[i](1,1) << " " 
         << fo.shearsub[i](2,2) << " "
-        << fo.shear33sub[i] << " "
-        << fo.shearsub[i](1,2) << " "
-        << fo.tlist[i] << " " << fo.rsub[i] << " "
-        << fo.sFO[i] << " " << fo.Tfluc[i] << endl;
-
+        << fo.shear33sub[i] << " " 
+        << fo.shearsub[i](1,2) << " " 
+        << fo.tlist[i] << " "
+        << fo.rsub[i] << " "
+        << fo.sFO[i] << " " 
+        << fo.efluc[i] << " "
+		    << fo.Tfluc[i] << " "
+        << fo.muBfluc[i] << " "
+        << fo.muSfluc[i] << " "
+		    << fo.muQfluc[i] << " "
+        << fo.eosname[i] << " "
+		    << fo.wfzfluc[i] << " "
+		    << fo.cs2fzfluc[i] << endl;
+		
+        
   FO.close();
+
+  return;
+}
+//============================================================================
+void InputOutput::print_eccentricity_to_txt()
+{
+  string outputfilename = output_directory + "/eccentricity_" 
+                          + std::to_string(n_timesteps_output) + ".dat";
+  ofstream out( outputfilename.c_str() );
+  out << systemPtr->t << " "
+      << systemPtr-> e_2_X.back() << " "
+      << systemPtr-> e_2_P.back() << "\n";
+
+  out  << std::flush;
+  
+  out.close();
 
   return;
 }

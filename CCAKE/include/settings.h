@@ -24,7 +24,7 @@ class Settings
 
     //==========================================================================
     // event buffer settings
-    bool buffer_event                 = true;   // add a buffer around event to
+    bool buffer_event                 = false;   // add a buffer around event to
                                                 // stabilize evolution
     bool circular_buffer              = true;   // whether to buffer with entire
                                                 // grid or just circular padding
@@ -46,7 +46,7 @@ class Settings
     bool printing_to_txt              = true;
     bool printing_to_HDF              = true;
 
-    static constexpr int VERBOSE      = 5;
+    static constexpr int VERBOSE      = 0;
 
     //==========================================================================
     // hydrodynamics settings

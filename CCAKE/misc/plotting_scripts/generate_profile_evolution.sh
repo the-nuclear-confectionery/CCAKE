@@ -4,7 +4,7 @@ maxFrames=150
 framesPerSecond=30
 
 resultsDirectory=results
-physicalProfileStem=physical_quantities
+physicalProfileStem=system_state_
 insuffix=".dat"
 outsuffix=".png"
 moviesDirectory=short_movies
