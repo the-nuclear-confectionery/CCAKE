@@ -189,10 +189,10 @@ public:
   void set_transport_coefficients( Particle & p );
 
   void set_bulk_Pi();
-
+  void set_dcs2_dt();//intialize dcs2_dt at first time step
   // misc. routine
   double gradPressure_weight(const int a, const int b);
-
+  double gradEnergy_weight(const int a, const int b);
 
   //============================================================================
   // what it says on the label
