@@ -77,6 +77,7 @@ class Evolver
     void set_current_timestep_quantities();
     void advance_timestep_rk2( double dt,
                                std::function<void(void)> time_derivatives_functional );
+    void allocate_cache();
 
 };
 }

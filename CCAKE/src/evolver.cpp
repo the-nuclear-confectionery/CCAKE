@@ -11,15 +11,17 @@ template <unsigned int D>
 Evolver<D>::Evolver(std::shared_ptr<Settings> settingsPtr_in,
                     std::shared_ptr<SystemState<D>> systemPtr_in)
                  : settingsPtr(settingsPtr_in), 
-                   systemPtr(systemPtr_in){
+                   systemPtr(systemPtr_in){};
 
+template <unsigned int D>
+void Evolver<D>::allocate_cache()
+{
     n_particles = systemPtr->n_particles;
     
     //Allocate on device memory for the system state before
     //evolution begins.
     evolver_cache = Cabana::AoSoA<EvolverCache, DeviceType, VECTOR_LENGTH>("cache", n_particles);
-    
-};
+}
 
 template <unsigned int D>
 void Evolver<D>::execute_timestep(double dt, int rk_order,
@@ -58,23 +60,22 @@ void Evolver<D>::set_current_timestep_quantities()
   auto s = Cabana::slice<evolver_cache_info::specific_entropy>(evolver_cache);
   auto Bulk = Cabana::slice<evolver_cache_info::Bulk_pressure>(evolver_cache);
   //auto E0 = Cabana::slice<evolver_cache_info::E0>(evolver_cache);
-
-  for (int iparticle = 0; iparticle < n_particles; ++iparticle)
+  auto fill_cache = KOKKOS_LAMBDA (const int is, const int ia)
   {
-    
     for (int i=1; i<D+1; i++)
     for (int j=1; j<D+1; j++)
-      shv(iparticle,i-1,j-1) = device_hydro_spacetime_matrix(iparticle, hydro_info::shv, i, j);
+      shv.access(is, ia,i-1,j-1) = device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, i, j);
 
     for(int idir = 0; idir < D; ++idir)
     {
-      u(iparticle,idir) = device_hydro_vector(iparticle, ccake::hydro_info::u,idir);
-      r(iparticle,idir) = device_position(iparticle, idir);
+      u.access(is, ia, idir) = device_hydro_vector.access(is, ia, ccake::hydro_info::u,idir);
+      r.access(is, ia, idir) = device_position.access(is, ia, idir);
     }
-    s(iparticle) = device_specific_density(iparticle, densities_info::s);
-    Bulk(iparticle) = device_hydro_scalar(iparticle, hydro_info::Bulk);
+    s.access(is, ia) = device_specific_density.access(is, ia, densities_info::s);
+    Bulk.access(is, ia) = device_hydro_scalar.access(is, ia, hydro_info::Bulk);
     //E0(iparticle) = device_contribution_to_total_E(iparticle);
-  }
+  };
+  Cabana::simd_parallel_for(*(systemPtr->simd_policy), fill_cache, "fill_cache");
 }
 
 //==========================================================================
@@ -82,7 +83,6 @@ template <unsigned int D>
 void Evolver<D>:: advance_timestep_rk2( double dt, 
                                         std::function<void(void)> time_derivatives_functional )
 {
-      systemPtr->rk2 = 1;
       double t0      = systemPtr->t;
       //double E0      = systemPtr->Ez;
       Kokkos::View<int, MemorySpace> E0("E0");
@@ -195,5 +195,4 @@ void Evolver<D>:: advance_timestep_rk2( double dt,
 
 
       return;
-    }
-
+}

@@ -1,5 +1,8 @@
 #include "sph_workstation.h"
+//The cpp below needs to be included for the Kokkos lambda to be
+//properly compiled in the GPU
 #include "kernel.cpp"
+#include "eom_default.cpp"
 
 using namespace constants;
 
@@ -71,7 +74,7 @@ void SPHWorkstation<D,TEOM>::initialize()
 template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D, TEOM>::reset_pi_tensor(double time_squared)
 {
-  CREATE_VIEW(device_, systemPtr->cabana_particles);
+    CREATE_VIEW(device_, systemPtr->cabana_particles);
   auto reset_pi_tensor_lambda  = KOKKOS_LAMBDA(const int is, const int ia)
   {
     double u[D]; // Cache for fluid velocity
@@ -197,6 +200,9 @@ void SPHWorkstation<D, TEOM>::initialize_entropy_and_charge_densities()
   };
 
   Kokkos::parallel_for("init_particles", systemPtr->n_particles, init_particles);
+
+  //Allocate cache for evolver
+  evolver.allocate_cache();
   
 
 	swTotal.Stop();
@@ -224,6 +230,13 @@ void SPHWorkstation<D,TEOM>::initial_smoothing()
 
 //==============================================================================
 
+///@brief Smooth all SPH fields
+///@details This function updates the densities s, rhoB, rhoB, rhoS and sigma
+///(auxiliary density) by performing the smoothing procedure. At its end, it
+///takes the opportunity to update the remaining thermodynamic quantities
+///(energy density, pressure, chemical potentials, temperature and speed of
+/// sound squared). The routine that triggers the update of thermo quantities
+/// will also update gamma and the non-relativistic velocity
 template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
 {
@@ -688,7 +701,6 @@ void SPHWorkstation<D, TEOM>::process_initial_conditions()
 template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D, TEOM>::set_bulk_Pi()
 {
-  systemPtr->copy_device_to_host();
 
   if ( settingsPtr->initializing_with_full_Tmunu ){
     double t0 = settingsPtr->t0;
@@ -758,7 +770,7 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives()
   // reset pi tensor to be consistent
   // with all essential symmetries
   reset_pi_tensor(t2);  
-  // smooth all particle fields
+  // smooth all particle fields - s, rhoB, rhoQ and rhoS and sigma
   smooth_all_particle_fields(t2);
   // update viscosities for all particles
   update_all_particle_viscosities();

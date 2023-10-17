@@ -316,8 +316,8 @@ void BSQHydro<D,TEOM>::run()
 
   //===================================
   // initialize conserved quantities, etc.
-  systemPtr->conservation_entropy();
-  systemPtr->conservation_BSQ();
+  systemPtr->conservation_entropy(true);
+  systemPtr->conservation_BSQ(true);
   systemPtr->compute_eccentricities();
 
   //===================================

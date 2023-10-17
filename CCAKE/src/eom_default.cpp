@@ -8,8 +8,9 @@ using namespace ccake;
 /// velocity, and that the metric is Milne.
 /// @param u The velocity vector (space components only).
 /// @param time_squared The square of the time where the gamma factor will be computed.
-/// @return 
+/// @return the value of gamma
 template<unsigned int D>
+KOKKOS_INLINE_FUNCTION
 double EoM_default<D>::gamma_calc(double *u, const double &time_squared) {
     return sqrt(1.0+dot(u,u,time_squared));
 }
@@ -22,6 +23,7 @@ double EoM_default<D>::gamma_calc(double *u, const double &time_squared) {
 /// @param time_squared The square of the time where the gamma factor will be computed
 /// @return u^i v^i
 template<>
+KOKKOS_INLINE_FUNCTION
 double EoM_default<2>::dot(double *v, double *u, const double &time_squared) {
   double s = 0;
   for (unsigned int i=0; i<2; i++)
@@ -50,6 +52,7 @@ double EoM_default<D>::get_LRF(const double &lab, const double &gamma,
 /// @param time_squared The square of the time where the gamma factor will be computed
 /// @return u^i v^i
 template<unsigned int D>
+KOKKOS_INLINE_FUNCTION
 double EoM_default<D>::dot(double *v, double *u, const double &time_squared) {
   double s = 0;
   for (unsigned int i=0; i<D-1; i++)
