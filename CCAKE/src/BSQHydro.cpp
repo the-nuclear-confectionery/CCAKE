@@ -228,22 +228,44 @@ void BSQHydro<D,TEOM>::read_ccake()
         iss >> x >> y >> eta >> e >> rhoB >> rhoS >> rhoQ >> ux >> uy >> ueta >> Bulk >> pixx >> pixy >> pixeta >> piyy >> piyeta >> pietaeta;
         e /= hbarc_GeVfm; // 1/fm^4
         Particle<D> p;
-        p.r(0)       = x;
-        p.hydro.u(0) = ux;
-        if (D >= 2)
+        switch (D)
         {
-          p.r(1)       = y;
-          p.hydro.u(1) = uy;
-        }
-        else if (D == 3)
-        {
-          p.r(2)       = eta;
-          p.hydro.u(2) = ueta;
+          case 1:
+            p.r(0) = eta;
+            p.hydro.u(0) = ueta;
+            p.hydro.shv(1,1) = pietaeta;
+            break;
+          case 2:
+            p.r(0) = x;
+            p.r(1) = y;
+            p.hydro.u(0) = ux;
+            p.hydro.u(1) = uy;
+            p.hydro.shv(1,1) = pixx;
+            p.hydro.shv(1,2) = pixy;
+            p.hydro.shv(2,1) = pixy;
+            p.hydro.shv(2,2) = piyy;
+          case 3:
+            p.r(0) = x;
+            p.r(1) = y;
+            p.r(2) = eta;
+            p.hydro.u(0) = ux;
+            p.hydro.u(1) = uy;
+            p.hydro.u(2) = ueta;
+            p.hydro.shv(1,1) = pixx;
+            p.hydro.shv(1,2) = pixy;
+            p.hydro.shv(1,3) = pixeta;
+            p.hydro.shv(2,1) = pixy;
+            p.hydro.shv(3,1) = pixeta;
+            p.hydro.shv(2,2) = piyy;
+            p.hydro.shv(2,3) = piyeta;
+            p.hydro.shv(3,2) = piyeta;
+            p.hydro.shv(3,3) = pietaeta;
         }
         p.input.e    = e;
         p.input.rhoB = rhoB;
         p.input.rhoS = rhoS;
         p.input.rhoQ = rhoQ;
+        p.hydro.Bulk = Bulk;
         systemPtr->add_particle( p );
         #ifdef DEBUG
         outfile << x << " " << y << " " << e*hbarc_GeVfm << " " << rhoB
