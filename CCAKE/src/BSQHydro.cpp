@@ -261,6 +261,7 @@ void BSQHydro<D,TEOM>::read_ccake()
             p.hydro.shv(3,2) = piyeta;
             p.hydro.shv(3,3) = pietaeta;
         }
+        p.hydro.shv33 = pietaeta;
         p.input.e    = e;
         p.input.rhoB = rhoB;
         p.input.rhoS = rhoS;

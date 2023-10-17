@@ -92,27 +92,26 @@ void SPHWorkstation<D, TEOM>::reset_pi_tensor(double time_squared)
     }
     
     //Computes the gamma factor
-    double u0 = EoMPtr->gamma_calc(u,time_squared);
+    double u0 = TEOM<D>::gamma_calc(u,time_squared);
     
     //Computes pi^{0i} = u_j pi^{ij}/gamma (obtained from the requirement u_\mu pi^{\mu i} = 0)
     for( unsigned int idir=0; idir<D; idir++ )
-      pi_time_vector[idir] = EoMPtr->dot(pi_space[idir],u,time_squared)/u0;
+      pi_time_vector[idir] = TEOM<D>::dot(pi_space[idir],u,time_squared)/u0;
 
     //Set the shear tensor pi^{0 0} = pi^{0j} u_j /gamma (from the requirement u_\mu pi^{\mu 0} = 0)
     //This is equivalent to pi^{i j} u^i u^j /gamma^2
-    pi00 = EoMPtr->dot(pi_time_vector,u,time_squared)/u0;
+    pi00 = TEOM<D>::dot(pi_time_vector,u,time_squared)/u0;
     pi_diag[0] = pi00;
 
     //Lastly, we need to ensure that the tensor is traceless. We do this by setting
-    //the value of the last component pi^{33} = pi^{00}-pi^{11}-pi^{22}
-    double pi33 = EoMPtr->get_shvDD(pi_diag, time_squared);
+    //the value of the last component pi^{33} = (pi^{00}-pi^{11}-pi^{22})/tau^22
+    double pi33 = TEOM<D>::get_shvDD(pi_diag, time_squared);
     if( D != 2 )
       pi_diag[D] = pi33;
 
     
     //Set the values of the pi tensor
     device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::shv, 0, 0) = pi_diag[0]; //pi^{00}
-    device_hydro_scalar.access(is, ia, ccake::hydro_info::shv33) = pi33;  //pi^{33}
     for( unsigned int idir=1; idir<D+1; idir++ ){
       device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::shv, 0, idir) = pi_time_vector[idir-1]; //pi^{0i}
       device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::shv, idir, 0) = pi_time_vector[idir-1]; //pi^{i0}
@@ -131,6 +130,7 @@ void SPHWorkstation<D, TEOM>::reset_pi_tensor(double time_squared)
     }
     //Update gamma factor
     device_hydro_scalar.access(is, ia, ccake::hydro_info::gamma) = u0;
+    device_hydro_scalar.access(is, ia, ccake::hydro_info::shv33) = pi33;
   };
 
   Cabana::simd_parallel_for(*(systemPtr->simd_policy), reset_pi_tensor_lambda, "reset_pi_tensor");

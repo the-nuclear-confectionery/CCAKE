@@ -329,7 +329,7 @@ void SystemState<D>::reset_neighbour_list(){
   min_pos[0] = settingsPtr->xmin;
   min_pos[1] = settingsPtr->ymin;
   min_pos[2] = settingsPtr->etamin;
-  for(int idir=D; idir<3; ++idir)
+  for(int idir=0; idir<3; ++idir)
     min_pos[idir] *= 1.5; //Grid must be 50% bigger ///TODO: Allow this to be an optional input parameter
   for(int idir=0; idir<3; ++idir)
     max_pos[idir] = -min_pos[idir];

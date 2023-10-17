@@ -1,6 +1,10 @@
 #include "eom_default.h"
 
-using namespace ccake;
+namespace ccake{
+  template class EoM_default<1>;
+  template class EoM_default<2>;
+  template class EoM_default<3>;
+
 
 /// @brief Calculates the gamma factor = u^0.
 /// @details This is the default implementation of the gamma factor calculation.
@@ -10,9 +14,9 @@ using namespace ccake;
 /// @param time_squared The square of the time where the gamma factor will be computed.
 /// @return the value of gamma
 template<unsigned int D>
-KOKKOS_INLINE_FUNCTION
+KOKKOS_FUNCTION
 double EoM_default<D>::gamma_calc(double *u, const double &time_squared) {
-    return sqrt(1.0+dot(u,u,time_squared));
+    return sqrt(1.0+EoM_default<D>::dot(u,u,time_squared));
 }
 
 /// @brief Computes the inner product of two vectors.
@@ -23,7 +27,7 @@ double EoM_default<D>::gamma_calc(double *u, const double &time_squared) {
 /// @param time_squared The square of the time where the gamma factor will be computed
 /// @return u^i v^i
 template<>
-KOKKOS_INLINE_FUNCTION
+KOKKOS_FUNCTION
 double EoM_default<2>::dot(double *v, double *u, const double &time_squared) {
   double s = 0;
   for (unsigned int i=0; i<2; i++)
@@ -52,7 +56,7 @@ double EoM_default<D>::get_LRF(const double &lab, const double &gamma,
 /// @param time_squared The square of the time where the gamma factor will be computed
 /// @return u^i v^i
 template<unsigned int D>
-KOKKOS_INLINE_FUNCTION
+KOKKOS_FUNCTION
 double EoM_default<D>::dot(double *v, double *u, const double &time_squared) {
   double s = 0;
   for (unsigned int i=0; i<D-1; i++)
@@ -69,6 +73,7 @@ double EoM_default<D>::dot(double *v, double *u, const double &time_squared) {
 /// @param time_squared The square of the time where the gamma factor will be computed
 /// @param x Vector where the result will be stored
 template<unsigned int D>
+KOKKOS_FUNCTION
 void EoM_default<D>::dot(double (*v)[D],double (*T)[D][D], const double &time_squared, double (*x)[D]) {
   for (unsigned int j=0; j<D; j++){
     (*x)[j] = 0;
@@ -87,6 +92,7 @@ void EoM_default<D>::dot(double (*v)[D],double (*T)[D][D], const double &time_sq
 /// @param time_squared The square of the time where the gamma factor will be computed
 /// @param x Vector where the result will be stored
 template<>
+KOKKOS_FUNCTION
 void EoM_default<2>::dot(double (*v)[2],double (*T)[2][2], const double &time_squared, double (*x)[2]) {
   for (unsigned int j=0; j<2; j++){
     (*x)[j] = 0;
@@ -103,6 +109,7 @@ void EoM_default<2>::dot(double (*v)[2],double (*T)[2][2], const double &time_sq
 /// @param pi_diag A D+1 dimensional array containing the diagonal elements of the shear tensor.
 /// @return pi^{DD} = pi^{00} - \sum_{i=1}^{D-1} pi^{ii}/tau^2
 template<unsigned int D>
+KOKKOS_FUNCTION
 double EoM_default<D>::get_shvDD(double* pi_diag, const double &time_squared){
     double s = pi_diag[0];
     for (unsigned int i=1; i<D; i++)
@@ -118,6 +125,7 @@ double EoM_default<D>::get_shvDD(double* pi_diag, const double &time_squared){
 /// @return pi^{33} = pi^{00} - \sum_{i=1}^{D} pi^{ii}/\tau^2
 /// \todo I may be wrong about this implementation. It is worth to double check.
 template<>
+KOKKOS_FUNCTION
 double EoM_default<2>::get_shvDD(double* pi_diag, const double &time_squared){
     double s = pi_diag[0];
     for (unsigned int i=1; i<3; i++)
@@ -127,6 +135,7 @@ double EoM_default<2>::get_shvDD(double* pi_diag, const double &time_squared){
 }
 
 template<unsigned int D>
+KOKKOS_FUNCTION
 void EoM_default<D>::evaluate_time_derivatives( Cabana::AoSoA<CabanaParticle, DeviceType, VECTOR_LENGTH> &particles )
 {
   CREATE_VIEW( device_, particles );
@@ -382,4 +391,5 @@ void EoM_default<D>::evaluate_time_derivatives( Cabana::AoSoA<CabanaParticle, De
 
   Kokkos::parallel_for( "single_particle_update", particles.size(),
                         single_particle_update );
+}
 }

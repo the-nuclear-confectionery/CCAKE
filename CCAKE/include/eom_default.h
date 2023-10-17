@@ -27,23 +27,22 @@ class EoM_default
     EoM_default( std::shared_ptr<Settings> settingsPtr_in ): settingsPtr(settingsPtr_in) { Imat.identity(); };
     virtual ~EoM_default(){};
 
-    KOKKOS_INLINE_FUNCTION
-    double gamma_calc(double* u, const double &time_squared);
-    KOKKOS_INLINE_FUNCTION
-    double dot(double* v, double* u, const double &time_squared);
-    KOKKOS_INLINE_FUNCTION
-    void dot(double (*v)[D], double (*T)[D][D], const double &time_squared, 
+    KOKKOS_FUNCTION
+    static double gamma_calc(double* u, const double &time_squared);
+    KOKKOS_FUNCTION
+    static double dot(double* v, double* u, const double &time_squared);
+    KOKKOS_FUNCTION
+    static void dot(double (*v)[D], double (*T)[D][D], const double &time_squared,
               double (*result)[D]);
-    KOKKOS_INLINE_FUNCTION
-    double get_shvDD(double* pi_diag, const double &time_squared);
-    KOKKOS_INLINE_FUNCTION
-    double get_distance(double* r1, double* r2, const double &time_squared);
-    KOKKOS_INLINE_FUNCTION
-    double get_LRF(const double &lab, const double &gamma, const double &time_squared);
+    KOKKOS_FUNCTION
+    static double get_shvDD(double* pi_diag, const double &time_squared);
+    KOKKOS_FUNCTION
+    static double get_LRF(const double &lab, const double &gamma, const double &time_squared);
 
-  	void evaluate_time_derivatives( Cabana::AoSoA<CabanaParticle, DeviceType, VECTOR_LENGTH> &particles );
+    KOKKOS_FUNCTION
+    static void evaluate_time_derivatives( Cabana::AoSoA<CabanaParticle, DeviceType, VECTOR_LENGTH> &particles );
     
-    std::string name = "";                    // name associated to EoM
+    std::string name = "Israel-Stewart";                    // name associated to EoM
 
     //==========================================================================
     Matrix<double,D,D> dpidtsub_fun( hydrodynamic_info<D> & hi )
@@ -96,9 +95,5 @@ class EoM_default
     
     
 };
-
-template class EoM_default<1>;
-template class EoM_default<2>;
-template class EoM_default<3>;
 }
 #endif
