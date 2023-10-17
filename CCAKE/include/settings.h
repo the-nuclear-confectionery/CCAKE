@@ -27,8 +27,9 @@ class Settings
                                                 // varsigma - p or not
     //==========================================================================
     // I/O settings
-    bool printing_to_txt              = true;
-    bool printing_to_HDF              = true;
+    bool txt_evolution              = false;
+    bool hdf_evolution              = false;
+    bool print_conservation_status  = true;
     fs::path results_directory        = "";
 
     static constexpr int VERBOSE      = 5;

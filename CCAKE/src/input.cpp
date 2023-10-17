@@ -346,6 +346,29 @@ bool cc::Input::decode_settings(const YAML::Node& node){
       formatted_output::report("This is an optional parameter. Setting to default value.");
       settingsPtr->modulate_zeta_with_tanh = cc::defaults::modulate_zeta_with_tanh;
     }
+
+    //Output node
+    try{
+      settingsPtr->print_conservation_status = node["output"]["print_conservation_state"].as<bool>();
+    } catch (...){
+      formatted_output::detail("WARNING: Could not read print_conservation_state!");
+      formatted_output::detail("This is an optional parameter. Setting to default value.");
+      settingsPtr->print_conservation_status = cc::defaults::print_conservation_status;
+    }
+    try{
+      settingsPtr->hdf_evolution = node["output"]["hdf_evolution"].as<bool>();
+    } catch (...){
+      formatted_output::detail("WARNING: Could not read output/hdf_evolution!");
+      formatted_output::detail("This is an optional parameter. Setting to default value.");
+      settingsPtr->hdf_evolution = cc::defaults::hdf_evolution;
+    }
+    try{
+      settingsPtr->txt_evolution = node["output"]["txt_evolution"].as<bool>();
+    } catch (...){
+      formatted_output::detail("WARNING: Could not read output/txt_evolution!");
+      formatted_output::detail("This is an optional parameter. Setting to default value.");
+      settingsPtr->txt_evolution = cc::defaults::txt_evolution;
+    }
     return true;
 }
 

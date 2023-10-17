@@ -399,7 +399,7 @@ void SystemState<D>::initialize_linklist()
 ///////////////////////////////////////
 //TODO: Parallelize with Kokkos::parallel_reduce
 template<unsigned int D>
-void SystemState<D>::conservation_entropy()
+void SystemState<D>::conservation_entropy(bool first_iteration)
 {
   
   CREATE_VIEW(device_, cabana_particles);
@@ -409,14 +409,13 @@ void SystemState<D>::conservation_entropy()
     local_S += device_specific_density(i, ccake::densities_info::s)*device_norm_spec(i, ccake::densities_info::s);
   };
   Kokkos::parallel_reduce("loop_conservation_entropy",n_particles, get_total_entropy, S);
-  
-  S0 = S;
+  if (first_iteration) S0 = S;
 }
 
 ///////////////////////////////////////
 //TODO: Parallelize with Kokkos::parallel_reduce
 template<unsigned int D>
-void SystemState<D>::conservation_BSQ()
+void SystemState<D>::conservation_BSQ(bool first_iteration)
 {
   // reset
   Btotal = 0.0;
@@ -440,7 +439,7 @@ void SystemState<D>::conservation_BSQ()
   Kokkos::parallel_reduce("loop_conservation_Q",n_particles, get_total_Q, Kokkos::Sum<double>(Qtotal));
 
   // save initial totals
-  //if (linklist.first==1)
+  if (first_iteration)
   {
     Btotal0 = Btotal;
     Stotal0 = Stotal;
@@ -455,7 +454,7 @@ void SystemState<D>::conservation_BSQ()
 ///////////////////////////////////////
 //TODO: Parallelize with Kokkos::parallel_reduce
 template<unsigned int D>
-void SystemState<D>::conservation_energy()
+void SystemState<D>::conservation_energy(bool first_iteration)
 {
   ///////////////////////////////////////////////
   // don't bother checking energy conservation on

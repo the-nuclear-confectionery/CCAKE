@@ -688,22 +688,25 @@ void SPHWorkstation<D, TEOM>::process_initial_conditions()
 template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D, TEOM>::set_bulk_Pi()
 {
+  systemPtr->copy_device_to_host();
+
   if ( settingsPtr->initializing_with_full_Tmunu ){
     double t0 = settingsPtr->t0;
     CREATE_VIEW( device_, systemPtr->cabana_particles);
 
-    auto set_bulk = KOKKOS_LAMBDA( const int iparticle )
+    auto set_bulk = KOKKOS_LAMBDA( const int is, const int ia )
     {
-      double varsigma = device_hydro_scalar(iparticle, ccake::hydro_info::varsigma);
-      double p = device_thermo(iparticle, ccake::thermo_info::p);
-      double u0 = device_hydro_scalar(iparticle, ccake::hydro_info::gamma);
-      double sigma = device_hydro_scalar(iparticle, ccake::hydro_info::sigma);
+      double varsigma = device_hydro_scalar.access(is, ia, ccake::hydro_info::varsigma);
+      double p = device_thermo.access(is, ia, ccake::thermo_info::p);
+      double u0 = device_hydro_scalar.access(is, ia, ccake::hydro_info::gamma);
+      double sigma = device_hydro_scalar.access(is, ia, ccake::hydro_info::sigma);
 
-      device_hydro_scalar(iparticle, ccake::hydro_info::Bulk) = (varsigma - p)
+      device_hydro_scalar.access(is, ia, ccake::hydro_info::Bulk) = (varsigma - p)
                       * u0 * t0 / sigma;
     };
-
-    Kokkos::parallel_for( "set_bulk_Pi", systemPtr->n_particles, set_bulk );
+    Cabana::simd_parallel_for( *(systemPtr->simd_policy), set_bulk, "set_bulk_Pi_kernel");
+    systemPtr->copy_device_to_host();
+    //Kokkos::parallel_for( "set_bulk_Pi", systemPtr->n_particles, set_bulk );
     Kokkos::fence();
   }
   return;

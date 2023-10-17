@@ -6,9 +6,9 @@ initial_conditions:
   dimension: 2 # (1+1)D, (2+1)D or (3+1)D simulation
   input_as_entropy: false # if false, input will be interpreted as energy density
 parameters:
-  dt: 0.05 # time-step of the simulation in fm/c
-  h_T:  0.100000  # Smothing parameter inside kernel, in the transverse direction (in fm)
-  h_eta:  0.100000  # Smothing parameter inside kernel in the longitudinal direction
+  dt: 0.01 # time-step of the simulation in fm/c
+  h_T:  0.100000  # Smoothing parameter inside kernel, in the transverse direction (in fm)
+  h_eta:  0.100000  # Smoothing parameter inside kernel in the longitudinal direction
   kernel_type: "cubic_spline" # Kernel type. Possible values are: ["cubic_spline"]
   energy_cutoff: 0.15 # GeV/fm^3 - Particles with less than this energy will be deleted before starting the evolution
   buffer_particles:
@@ -17,7 +17,7 @@ parameters:
     padding_thickness: .1 # if circular buffer is true, specifies the fractional amount
                           # of padding to add beyond the point with maximum distance from origin
 eos:
-  type: "conformal" # Possible values are: ["table", "conformal"]
+  type: "conformal_diagonal" # Possible values are: ["table", "conformal"]
   path: "EoS/Houston" # If type is "table", the path to the equation of state table.
 particlization:
   enabled: false # Set to true to output particlization hypersurface
@@ -40,3 +40,7 @@ hydro:
       relaxation_mode: "default"
       modulate_with_tanh: false #If true, will modulate the bulk viscosity
                                #with a tanh function below transition temperature
+output:
+  print_conservation_state: true
+  hdf_evolution: false
+  txt_evolution: true

@@ -43,14 +43,14 @@ class SystemState
     double t          = 0.0;
     double dt         = 0.0;
 
-    double S          = 0.0;
-    double S0         = 0.0;
-    double Btotal     = 0.0;
-    double Btotal0    = 0.0;
-    double Stotal     = 0.0;
-    double Stotal0    = 0.0;
-    double Qtotal     = 0.0;
-    double Qtotal0    = 0.0;
+    double S          = 0.0; ///<Total entropy
+    double S0         = 0.0; ///<Initial total entropy
+    double Btotal     = 0.0; ///<Total baryon charge
+    double Btotal0    = 0.0; ///<Initial total baryon charge
+    double Stotal     = 0.0; ///<Total strangeness charge
+    double Stotal0    = 0.0; ///<Initial total strangeness charge
+    double Qtotal     = 0.0; ///<Total electric charge
+    double Qtotal0    = 0.0; ///<Initial total electric charge
 
     double E          = 0.0;
     double Ez         = 0.0;
@@ -108,9 +108,9 @@ class SystemState
     void reset_neighbour_list();
 
     // check conserved quantities
-    void conservation_entropy();
-    void conservation_energy();
-    void conservation_BSQ();
+    void conservation_entropy(bool first_iteration=false);
+    void conservation_energy(bool first_iteration=false);
+    void conservation_BSQ(bool first_iteration=false);
 
     //TODO: observables should probably be computed in a separate class
     void compute_eccentricities();

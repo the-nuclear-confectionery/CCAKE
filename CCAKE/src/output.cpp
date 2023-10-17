@@ -45,11 +45,11 @@ void Output<D>::print_system_state()
 {
   systemPtr->copy_device_to_host();
   //---------------------------------
-  if (settingsPtr->printing_to_txt)
+  if (settingsPtr->txt_evolution)
     print_system_state_to_txt();
 
   //---------------------------------
-  if (settingsPtr->printing_to_HDF)
+  if (settingsPtr->hdf_evolution)
     print_system_state_to_HDF();
 
   //---------------------------------

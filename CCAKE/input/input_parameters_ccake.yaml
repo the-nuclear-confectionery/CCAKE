@@ -18,7 +18,7 @@ parameters:
                           # of padding to add beyond the point with maximum distance from origin
 eos:
   type: "table" # Possible values are: ["table", "conformal"]
-  path: "Houston" # If type is "table", the path to the equation of state table.
+  path: "EoS/Houston" # If type is "table", the path to the equation of state table.
 particlization:
   enabled: false # Set to true to output particlization hypersurface
   type: "fixed_T" # Possible values are: ["fixed_T"]
@@ -40,3 +40,7 @@ hydro:
       relaxation_mode: "default"
       modulate_with_tanh: true #If true, will modulate the bulk viscosity
                                #with a tanh function below transition temperature
+output:
+  print_conservation_state: true
+  hdf_evolution: false
+  txt_evolution: true

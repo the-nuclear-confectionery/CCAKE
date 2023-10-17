@@ -37,6 +37,9 @@ namespace ccake
     const double      cs2_dependent_zeta_p    = 2.0;
     const std::string bulkRelaxMode           = "default";
     const bool        modulate_zeta_with_tanh = true;
+    const bool        print_conservation_status = true;
+    const bool        hdf_evolution            = false;
+    const bool        txt_evolution            = false;
   }
 }
 
