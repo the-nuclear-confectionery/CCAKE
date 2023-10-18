@@ -1,204 +1,218 @@
+#ifndef TRANSPORT_COEFFICIENTS_CPP
+#define TRANSPORT_COEFFICIENTS_CPP
 #include "transport_coefficients.h"
 
-using std::string;
-using std::vector;
-using namespace ccake;
+namespace ccake{
+namespace transport_coefficients{
 
-/// @brief Constructor for TransportCoefficients class
-/// @param etaType_in String with description of shear viscosity to be used
-/// @param tau_piType_in String with description of shear relaxation time to be used
-/// @param zetaType_in String with description of bulk viscosity to be used
-/// @param tau_PiType_in String with description of bulk relaxation time to be used
-TransportCoefficients::TransportCoefficients(std::shared_ptr<Settings> settingsPtr_in):
-settingsPtr(settingsPtr_in)
+KOKKOS_INLINE_FUNCTION
+parameters setup_parameters(std::shared_ptr<Settings> settingsPtr)
 {
-  etaMode = settingsPtr->etaMode;
-  shearRelaxMode = settingsPtr->shearRelaxMode;
-  zetaMode = settingsPtr->zetaMode;
-  bulkRelaxMode = settingsPtr->bulkRelaxMode;
-  
-  // Set shear viscosity
-  initialize_eta( etaMode );
-
-  // Set bulk viscosity
-  initialize_zeta( zetaMode );
-
-  // Set shear relaxation
-  initialize_tau_pi( shearRelaxMode );
-
-  // Set bulk relaxation
-  initialize_tau_Pi( bulkRelaxMode );
-}
-
-
-//==============================================================================
-void TransportCoefficients::initialize_eta(const string & etaType_in)
-{
-  // set chosen eta parameterization
-  etaMode = etaType_in;
-
-  // assign corresponding function
+  std::string etaMode = settingsPtr->etaMode;
+  parameters params;
   if (etaMode == "default")
   {
-    eta = [this](const double *therm){ return default_eta(therm); };
-  }
-  else if (etaMode == "constant")
+    params.shear_mode = SHEAR_DEFAULT;
+  } else if (etaMode == "JakiParam")
   {
-    eta_T_OV_w_IN = settingsPtr->constant_eta_over_s;
-    eta = [this](const double *therm){ return constEta(therm); };
+    params.shear_mode = SHEAR_JAKI;
   }
-  else if (etaMode == "JakiParam")
+  else if ( etaMode == "constant" )
   {
-    eta = [this](const double *therm){ return JakiParam(therm); };
+      params.shear_mode = SHEAR_CONST;
   }
-  else if (etaMode == "LinearMus")
+  else if ( etaMode == "LinearMus" )
   {
-    eta = [this](const double *therm){ return LinearMusParam(therm); };
+    params.shear_mode = SHEAR_LINEAR_MUS;
   }
-  else if (etaMode == "interpolate")
+  else if ( etaMode == "interpolate" )
   {
-    //use parameter to find directory of table, then
-    // execute interpolation
-    eta = [this](const double *therm){ return InterpolantWrapper(therm); };
+    params.shear_mode = SHEAR_INTERPOLATOR;
   }
-  else
-  {
-    cout << "Shear viscosity specification " << etaMode << " not recognized. Now exiting.\n";
-    exit(1);
-  }
-}
 
-
-//==============================================================================
-void TransportCoefficients::initialize_tau_pi(const string & tau_piType_in)
-{
-  shearRelaxMode = tau_piType_in;
-
+  std::string shearRelaxMode = settingsPtr->shearRelaxMode;
   if (shearRelaxMode == "default")
   {
-    tau_pi = [this](const double *therm){ return default_tau_pi(therm); };
+    params.shear_relaxation_mode = TAU_PI_SHEAR_DEFAULT;
   }
   else if (shearRelaxMode == "minVal")
   {
-    tau_pi = [this](const double *therm){ return tau_piMinval(therm); };
+    params.shear_relaxation_mode = TAU_PI_SHEAR_MINVAL;
   }
   else if (shearRelaxMode == "Gubser")
   {
-    /* these consistency checks maybe should be done in settings.h? */
-    if (etaMode != "constant")
-    {
-      std::cout << "Shear viscosity must be constant for Gubser. "
-              "Check Input_Parameters.  Now exiting.\n";
-      exit(1);
-    }
-    if (zetaMode != "constant" || abs(settingsPtr->constant_zeta_over_s) > 1e-6)
-    {
-      std::cout << "You have chosen zetaMode = " << zetaMode
-                << " and zeta/s = " << abs(settingsPtr->constant_zeta_over_s) 
-                << ".\n" << "Bulk viscosity must be zero"
-                   " for Gubser. Check Input_Parameters.  "
-                   " Now exiting.\n";
-      exit(1);
-    }
-    tau_pi = [this](const double *therm){ return tau_piGubser(therm); };
+    params.shear_relaxation_mode = TAU_PI_SHEAR_GUBSER;
   }
-  else
-  {
-    cout << "Tau shear specification " << shearRelaxMode << " not recognized. Now exiting.\n";
-    exit(1);
-  }
-}
 
-
-//==============================================================================
-void TransportCoefficients::initialize_zeta(const string & zetaType_in)
-{
-  zetaMode     = zetaType_in;
-
+  std::string zetaMode = settingsPtr->zetaMode;
   if (zetaMode == "default")
   {
-    zeta = [this](const double *therm){ return default_zeta(therm); };
+    params.zeta_mode = ZETA_DEFAULT;
   }
   else if (zetaMode == "constant")
   {
-    zeta = [this](const double *therm){ return constZeta(therm); };
+    params.zeta_mode = ZETA_CONSTANT;
   }
   else if (zetaMode == "DNMR")
   {
-    zeta = [this](const double *therm){ return zeta_DNMR_LeadingMass(therm); };
+    params.zeta_mode = ZETA_DNMR;
   }
-  else if (zetaMode == "interpolate")
-  {
-    //use parameter to find directory of table, then
-    // execute interpolation
-    zeta = [this](const double *therm){ return InterpolantWrapper(therm); };
+  else if (zetaMode == "interpolate"){
+    params.zeta_mode = ZETA_INTERPOLATE;
   }
-  else if (zetaMode == "cs2_dependent")
-  {
-    zeta = [this](const double *therm){ return cs2_dependent_zeta(therm); };
+  else if (zetaMode == "cs2_dependent"){
+    params.zeta_mode = ZETA_CS2_DEPENDENT;
   }
-  else
-  {
-    cout << "Bulk viscosity specification " << zetaMode << " not recognized. Now exiting.\n";
-    exit(1);
-  }
-}
 
-
-//==============================================================================
-void TransportCoefficients::initialize_tau_Pi(const string & tau_PiType_in)
-{
-  bulkRelaxMode  = tau_PiType_in;
-
+  std::string bulkRelaxMode = settingsPtr->bulkRelaxMode;
   if (bulkRelaxMode == "default")
   {
-    tau_Pi = [this](const double *therm){ return default_tau_Pi(therm); };
+    params.bulk_relaxation_mode = TAU_PI_BULK_DEFAULT;
   }
-  else if (bulkRelaxMode == "DNMR")
+  else if(bulkRelaxMode == "DNMR")
   {
-    tau_Pi = [this](const double *therm){ return tau_Pi_DNMR_LeadingMass(therm); };
+    params.bulk_relaxation_mode = TAU_PI_BULK_DNMR;
   }
-  else 
+
+  params.constant_eta_over_s = settingsPtr->constant_eta_over_s;
+  params.constant_zeta_over_s = settingsPtr->constant_zeta_over_s;
+  params.cs2_dependent_zeta_A = settingsPtr->cs2_dependent_zeta_A;
+  params.cs2_dependent_zeta_p = settingsPtr->cs2_dependent_zeta_p;
+  params.modulate_zeta_with_tanh = settingsPtr->modulate_zeta_with_tanh;
+
+}
+
+KOKKOS_INLINE_FUNCTION
+double eta(const double* thermo, parameters params)
+{
+  int eta_mode = params.shear_mode;
+  switch (eta_mode)
   {
-    cout << "Tau bulk specification " << bulkRelaxMode << " not recognized. Now exiting.\n";
-    exit(1);   
+  case SHEAR_DEFAULT:
+    return default_eta(thermo);
+    break;
+  case SHEAR_CONST:
+    return constEta(thermo, params);
+    break;
+  case SHEAR_JAKI:
+    return JakiParam(thermo);
+    break;
+  case SHEAR_LINEAR_MUS:
+    return LinearMusParam(thermo, params);
+    break;
+  case SHEAR_INTERPOLATOR:
+    return InterpolantWrapper(thermo);
+    break;
+  default:
+    return default_eta(thermo);
+    break;
   }
 }
 
+KOKKOS_INLINE_FUNCTION
+double tau_pi(const double* thermo, parameters params)
+{
+  int tau_pi_mode = params.shear_relaxation_mode;
+  switch (tau_pi_mode)
+  {
+  case TAU_PI_SHEAR_DEFAULT:
+    return default_tau_pi(thermo, params);
+    break;
+  case TAU_PI_SHEAR_GUBSER:
+    return tau_piGubser(thermo, params);
+    break;
+  case TAU_PI_SHEAR_MINVAL:
+    return tau_piMinval(thermo, params);
+    break;
+  default:
+    return default_tau_pi(thermo, params);
+    break;
+  }
+}
+
+KOKKOS_INLINE_FUNCTION
+double zeta(const double* thermo, parameters params)
+{
+  int zeta_mode = params.zeta_mode;
+  switch (zeta_mode)
+  {
+  case ZETA_DEFAULT:
+    return default_zeta(thermo);
+    break;
+  case ZETA_CONSTANT:
+    return constZeta(thermo, params);
+    break;
+  case ZETA_DNMR:
+    return zeta_DNMR_LeadingMass(thermo);
+    break;
+  case ZETA_CS2_DEPENDENT:
+    return cs2_dependent_zeta(thermo, params);
+    break;
+  default:
+    return default_zeta(thermo);
+    break;
+  }
+}
+
+KOKKOS_INLINE_FUNCTION
+double tau_Pi(const double* thermo, parameters params)
+{
+  int tau_Pi_mode = params.bulk_relaxation_mode;
+  switch (tau_Pi_mode)
+  {
+  case TAU_PI_BULK_DEFAULT:
+    return default_tau_Pi(thermo,params);
+    break;
+  case TAU_PI_BULK_DNMR:
+    return tau_Pi_DNMR_LeadingMass(thermo);
+    break;
+  default:
+    return default_tau_Pi(thermo,params);
+    break;
+  }
+}
+
+
 //===============================
-double TransportCoefficients::default_eta(const double *therm)
+KOKKOS_INLINE_FUNCTION
+double default_eta(const double *therm)
 {
   double eta_over_s = 0.20;
   return therm[thermo_info::s] * eta_over_s;
 }
 
 //===============================
-double TransportCoefficients::constEta(const double *therm)
+KOKKOS_INLINE_FUNCTION
+double constEta(const double *therm, const parameters params)
 {
   double w = therm[thermo_info::w];
   double T = therm[thermo_info::T];
-  return eta_T_OV_w_IN*(w/T);
+  return params.constant_eta_over_s*(w/T);
 }
 
 //===============================
-double TransportCoefficients::JakiParam(const double *therm)
+KOKKOS_INLINE_FUNCTION
+double JakiParam(const double *therm)
 {
   //picked the easiest one with functional dependence
-  // parameters hardcoded for now.. just to see how it works
+  //parameters hardcoded for now. just to see how it works
+  ///TODO: Create interface for changing parameters
 
   double T     = therm[thermo_info::T];
   double s     = therm[thermo_info::s];
   double TC    = 155.0/hbarc_MeVfm; // 173.9/197.3
   double z     = pow(0.66*T/TC,2);
-  double alpha = 33./(12.*PI)*(z-1)/(z*log(z));
+  double alpha = 33./(12.*M_PI)*(z-1)/(z*log(z));
   return s*(0.0416762/pow(alpha,1.6)+ 0.0388977/pow(T,5.1) );
 }
 
 //===============================
-double TransportCoefficients::LinearMusParam(const double *therm)
+KOKKOS_INLINE_FUNCTION
+double LinearMusParam(const double *therm, const parameters params)
 {
   // parameters hardcoded for now.. just to see how it works
-  double etaBase = 0.08;
+  ///TODO: Create interface for changing parameters. For now, use constant eta/s as base viscosity
+  double etaBase = params.constant_eta_over_s;
   double muSlope = 0.0033;
   double muB = therm[thermo_info::muB];
   double muS = therm[thermo_info::muS];
@@ -211,7 +225,8 @@ double TransportCoefficients::LinearMusParam(const double *therm)
 
 //===============================
 ///TODO: add this in later..
-double TransportCoefficients::InterpolantWrapper(const double *therm) { return 0.0; }
+KOKKOS_INLINE_FUNCTION
+double InterpolantWrapper(const double *therm) { return 0.0; }
 
 
 //==============================================================================
@@ -219,17 +234,20 @@ double TransportCoefficients::InterpolantWrapper(const double *therm) { return 0
 // Possible function choices for shear relaxation
 
 //===============================
-double TransportCoefficients::default_tau_pi(const double *therm) {
-   return std::max( 5.0*eta(therm)/therm[thermo_info::w], 0.005 ); }
+KOKKOS_INLINE_FUNCTION
+double default_tau_pi(const double *therm, const parameters params) {
+   return std::max( 5.0*eta(therm,params)/therm[thermo_info::w], 0.005 ); }
 
 //===============================
-double TransportCoefficients::tau_piGubser(const double *therm) {
-   return (5.0*eta(therm))/therm[thermo_info::w];
+KOKKOS_INLINE_FUNCTION
+double tau_piGubser(const double *therm, const parameters params) {
+   return (5.0*eta(therm,params))/therm[thermo_info::w];
    }
 
 //===============================
-double TransportCoefficients::tau_piMinval(const double *therm) {
-   return std::max( (5.0*eta(therm))/therm[thermo_info::w], 0.001 ); }
+KOKKOS_INLINE_FUNCTION
+double tau_piMinval(const double *therm, const parameters params) {
+   return std::max( (5.0*eta(therm,params))/therm[thermo_info::w], 0.001 ); }
 
 
 //==============================================================================
@@ -238,39 +256,42 @@ double TransportCoefficients::tau_piMinval(const double *therm) {
 
 
 //===============================
-double TransportCoefficients::default_zeta(const double *therm)
+KOKKOS_INLINE_FUNCTION
+double default_zeta(const double *therm)
 {
   double zeta_over_s = 0.005;
   return therm[thermo_info::s] * zeta_over_s;
 }
 
 //===============================
-double TransportCoefficients::constZeta(const double *therm)
+KOKKOS_INLINE_FUNCTION
+double constZeta(const double *therm, const parameters params)
 {
-  double zeta_over_s = settingsPtr->constant_zeta_over_s;
+  double zeta_over_s = params.constant_zeta_over_s;
   return therm[thermo_info::s] * zeta_over_s;
 }
 
 //===============================
-double TransportCoefficients::zeta_DNMR_LeadingMass(const double *therm)
+KOKKOS_INLINE_FUNCTION
+double zeta_DNMR_LeadingMass(const double *therm)
 {
     //add this in later.. for now no bulk
     return 0.0;
 }
 
-
 //===============================
-double TransportCoefficients::cs2_dependent_zeta(const double *therm)
+KOKKOS_INLINE_FUNCTION
+double cs2_dependent_zeta(const double *therm, const parameters params)
 {
-  const double A = settingsPtr->cs2_dependent_zeta_A;
-  const double p = settingsPtr->cs2_dependent_zeta_p;
+  const double A = params.cs2_dependent_zeta_A;
+  const double p = params.cs2_dependent_zeta_p;
 
   //----------------------------------------------
   //!!!!!  Bulk is too large in low-T regime
   //!!!!!  ==>> add modulating tanh-factor with
   //!!!!!       power-law dependence to suppress
   double factor = 1.0, th_x = 0.0, x_p = 0.0;
-  if ( settingsPtr->modulate_zeta_with_tanh )
+  if ( params.modulate_zeta_with_tanh )
   {
     const double T_transition = 150.0/constants::hbarc_MeVfm,
                  T_scale      = 10.0/constants::hbarc_MeVfm;
@@ -281,9 +302,6 @@ double TransportCoefficients::cs2_dependent_zeta(const double *therm)
 
   const double zeta_over_s_local
                 = A * factor * pow((1.0/3.0) - std::min(therm[thermo_info::cs2], 1.0), p);
-//  cout << "Check zeta/s: "
-//        << therm.T*hbarc_MeVfm << "   "
-//        << zeta_over_s_local << endl;
   #ifdef DEBUG
   #ifndef __CUDACC__
    if ( therm[thermo_info::cs2] < 0.0 || therm[thermo_info::cs2] > 1.0 )
@@ -348,14 +366,17 @@ double TransportCoefficients::cs2_dependent_zeta(const double *therm)
 // Possible function choices for bulk relaxation
 
 //===============================
-double TransportCoefficients::default_tau_Pi(const double *therm)
+KOKKOS_INLINE_FUNCTION
+double default_tau_Pi(const double *therm, const parameters params)
 {
-//cout << "inside check: " << therm.cs2 << "   " << zeta() << "   " << therm.w << endl;
   if ( (1.0/3.0-therm[thermo_info::cs2])*(1.0/3.0-therm[thermo_info::cs2]) < 1e-10 )
     return 1e10;
   else
-    return std::max( 5.0*zeta(therm)/(pow((1.0/3.0-therm[thermo_info::cs2]),2.0)*therm[thermo_info::w]), 0.1 );
+    return std::max( 5.0*zeta(therm,params)/(pow((1.0/3.0-therm[thermo_info::cs2]),2.0)*therm[thermo_info::w]), 0.1 );
 }
 
 //===============================
-double TransportCoefficients::tau_Pi_DNMR_LeadingMass(const double *therm) { return 0.0; }
+KOKKOS_INLINE_FUNCTION
+double tau_Pi_DNMR_LeadingMass(const double *therm) { return 0.0; }
+}}
+#endif

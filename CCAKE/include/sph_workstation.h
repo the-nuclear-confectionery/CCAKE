@@ -65,8 +65,8 @@ private:
   // equation of state
   EquationOfState eos;
 
-  // transport coefficients
-  TransportCoefficients transport_coefficients;
+  // transport coefficients parameters
+  transport_coefficients::parameters transp_coeff_params;
 
   // freeze out
   FreezeOut<D> freeze_out;
@@ -82,8 +82,7 @@ public:
                   shared_ptr<SystemState<D>> systemPtr_in )
     : settingsPtr(settingsPtr_in),
       systemPtr(systemPtr_in),
-      evolver(Evolver(settingsPtr_in, systemPtr_in)),
-      transport_coefficients(settingsPtr_in) {}
+      evolver(Evolver(settingsPtr_in, systemPtr_in)) {}
   ~SPHWorkstation(){
 
   }

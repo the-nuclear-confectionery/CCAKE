@@ -2,92 +2,96 @@
 #define TRANSPORT_COEFFICIENTS_H
 
 #include <cmath>
-#include <functional>
 #include <string>
-#include <vector>
 
 #include <Cabana_Core.hpp>
 
 #include "eos.h"
-#include "kernel.h"
-#include "matrix.h"
-#include "particle.h"
 #include "settings.h"
 #include "thermodynamic_info.h"
 #include "constants.h"
 
-using std::string;
-using std::vector;
-
 namespace ccake{
-class TransportCoefficients
-{
+namespace transport_coefficients{
+  enum {
+    SHEAR_DEFAULT,
+    SHEAR_CONST,
+    SHEAR_JAKI,
+    SHEAR_LINEAR_MUS,
+    SHEAR_INTERPOLATOR
+  };
+  enum {
+    TAU_PI_SHEAR_DEFAULT,
+    TAU_PI_SHEAR_MINVAL,
+    TAU_PI_SHEAR_GUBSER,
+  };
+  enum {
+    ZETA_DEFAULT,
+    ZETA_CONSTANT,
+    ZETA_DNMR,
+    ZETA_INTERPOLATE,
+    ZETA_CS2_DEPENDENT
+  };
+  enum {
+    TAU_PI_BULK_DEFAULT,
+    TAU_PI_BULK_DNMR
+  };
 
-  private:
-    string etaMode, zetaMode;
-    string shearRelaxMode, bulkRelaxMode;
+  struct parameters
+  {
+    int shear_mode, zeta_mode, shear_relaxation_mode, bulk_relaxation_mode;
+    double constant_eta_over_s, constant_zeta_over_s;
+    double cs2_dependent_zeta_A, cs2_dependent_zeta_p;
+    bool modulate_zeta_with_tanh;
+  };
 
-    void initialize_eta(const string & etaMode_in);
-    void initialize_tau_pi(const string & shearRelaxMode_in);
-    void initialize_zeta(const string & zetaMode_in);
-    void initialize_tau_Pi(const string & bulkRelaxMode_in);
+  KOKKOS_INLINE_FUNCTION
+  parameters setup_parameters(std::shared_ptr<Settings> settingsPtr);
+  KOKKOS_INLINE_FUNCTION
+  double eta(const double* thermo, parameters params);
+  KOKKOS_INLINE_FUNCTION
+  double tau_pi(const double* thermo, parameters params);
+  KOKKOS_INLINE_FUNCTION
+  double zeta(const double* thermo, parameters params);
+  KOKKOS_INLINE_FUNCTION
+  double tau_Pi(const double* thermo, parameters params);
 
-    // Chris' defaults
-    KOKKOS_INLINE_FUNCTION
-    double default_eta(const double *therm);
-    KOKKOS_INLINE_FUNCTION
-    double default_tau_pi(const double *therm);
-    KOKKOS_INLINE_FUNCTION
-    double default_zeta(const double *therm);
-    KOKKOS_INLINE_FUNCTION
-    double default_tau_Pi(const double *therm);
+  // Chris' defaults
+  KOKKOS_INLINE_FUNCTION
+  double default_eta(const double *therm);
+  KOKKOS_INLINE_FUNCTION
+  double default_tau_pi(const double *therm, const parameters params);
+  KOKKOS_INLINE_FUNCTION
+  double default_zeta(const double *therm);
+  KOKKOS_INLINE_FUNCTION
+  double default_tau_Pi(const double *therm, const parameters params);
 
-    // other parmaterizations (not organized yet)
-    KOKKOS_INLINE_FUNCTION
-    double constEta(const double *therm);
-    double eta_T_OV_w_IN;
-    KOKKOS_INLINE_FUNCTION
-    double JakiParam(const double *therm);
-    KOKKOS_INLINE_FUNCTION
-    double LinearMusParam(const double *therm);
-    KOKKOS_INLINE_FUNCTION
-    double InterpolantWrapper(const double *therm);
+  // other parmaterizations (not organized yet)
+  KOKKOS_INLINE_FUNCTION
+  double constEta(const double *therm, const parameters params);
+  KOKKOS_INLINE_FUNCTION
+  double JakiParam(const double *therm);
+  KOKKOS_INLINE_FUNCTION
+  double LinearMusParam(const double *therm, const parameters params);
+  KOKKOS_INLINE_FUNCTION
+  double InterpolantWrapper(const double *therm);
     
-    KOKKOS_INLINE_FUNCTION
-    double tau_piGubser(const double *therm);
-    KOKKOS_INLINE_FUNCTION
-    double tau_piMinval(const double *therm);
+  KOKKOS_INLINE_FUNCTION
+  double tau_piGubser(const double *therm, const parameters params);
+  KOKKOS_INLINE_FUNCTION
+  double tau_piMinval(const double *therm, const parameters params);
 
-    KOKKOS_INLINE_FUNCTION
-    double constZeta(const double *therm);
-    KOKKOS_INLINE_FUNCTION
-    double zeta_DNMR_LeadingMass(const double *therm);
-    KOKKOS_INLINE_FUNCTION
-    double cs2_dependent_zeta(const double *therm);
+  KOKKOS_INLINE_FUNCTION
+  double constZeta(const double *therm, const parameters params);
+  KOKKOS_INLINE_FUNCTION
+  double zeta_DNMR_LeadingMass(const double *therm);
+  KOKKOS_INLINE_FUNCTION
+  double cs2_dependent_zeta(const double *therm, const parameters params);
 
-    KOKKOS_INLINE_FUNCTION
-    double tau_Pi_DNMR_LeadingMass(const double *therm);
+  KOKKOS_INLINE_FUNCTION
+  double tau_Pi_DNMR_LeadingMass(const double *therm);
 
-    std::shared_ptr<Settings> settingsPtr;
-
-
-  public:
-    TransportCoefficients() = delete; ///< Default constructor is deleted. Settings must be passed in.
-    TransportCoefficients(std::shared_ptr<Settings> settingsPtr_in);
-    ~TransportCoefficients(){}
-
-    void set_SettingsPtr( std::shared_ptr<Settings> settingsPtr_in ) { settingsPtr = settingsPtr_in; }
-
-    // these functions actually return the needed transport coefficients
-    // It always receives an array with a set of particle properties and 
-    // an integer with the number of entries in the array
-    std::function<double(const double*)> eta;
-    std::function<double(const double*)> tau_pi;
-    std::function<double(const double*)> zeta;
-    std::function<double(const double*)> tau_Pi;
-
-};
-}
+}}
 
 
 #endif

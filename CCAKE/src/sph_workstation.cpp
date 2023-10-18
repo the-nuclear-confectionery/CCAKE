@@ -3,8 +3,10 @@
 //properly compiled in the GPU
 #include "kernel.cpp"
 #include "eom_default.cpp"
+#include "transport_coefficients.cpp"
 
 using namespace constants;
+namespace tc = ccake::transport_coefficients;
 
 namespace ccake{
 //Template instantiations
@@ -38,10 +40,7 @@ void SPHWorkstation<D,TEOM>::initialize()
 
   //----------------------------------------
   // set up transport coefficients
-
-  transport_coefficients.set_SettingsPtr( settingsPtr );
-  //transport_coefficients.initialize( settingsPtr->etaMode, settingsPtr->shearRelaxMode,
-  //               settingsPtr->zetaMode, settingsPtr->bulkRelaxMode );
+  transp_coeff_params = tc::setup_parameters(settingsPtr);
 
   //----------------------------------------
   // set up freeze out (constant energy density)
@@ -773,12 +772,24 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives()
   // smooth all particle fields - s, rhoB, rhoQ and rhoS and sigma
   smooth_all_particle_fields(t2);
   // update viscosities for all particles
+  #ifdef DEBUG
+  systemPtr->copy_device_to_host();
+  #endif
   update_all_particle_viscosities();
+  #ifdef DEBUG
+  systemPtr->copy_device_to_host();
+  #endif
   //Computes gradients to obtain dsigma/dt
   smooth_all_particle_gradients(t2);
+  #ifdef DEBUG
+  systemPtr->copy_device_to_host();
+  #endif
 
   //calculate time derivatives needed for equations of motion
   evaluate_all_particle_time_derivatives();
+  #ifdef DEBUG
+  systemPtr->copy_device_to_host();
+  #endif
 /*
   // identify and handle particles which have frozen out
   if ( systemPtr->do_freeze_out )
@@ -795,19 +806,21 @@ void SPHWorkstation<D, TEOM>::update_all_particle_viscosities()
 {
   CREATE_VIEW(device_, systemPtr->cabana_particles);
 
-  auto set_transport_coefficients = KOKKOS_LAMBDA (const int iparticle ){
-    //transport_coefficients.setTherm( p.thermo );
+  auto set_transport_coefficients = KOKKOS_CLASS_LAMBDA(const int is, const int ia ){
     double thermo[thermo_info::NUM_THERMO_INFO];
     for (int ithermo=0; ithermo < thermo_info::NUM_THERMO_INFO; ++ithermo)
-      thermo[ithermo] = device_thermo(iparticle, ithermo);
-    device_hydro_scalar(iparticle, ccake::hydro_info::setas) = transport_coefficients.eta(thermo);
-    device_hydro_scalar(iparticle, ccake::hydro_info::stauRelax) = transport_coefficients.tau_pi(thermo);
-    device_hydro_scalar(iparticle, ccake::hydro_info::zeta) = transport_coefficients.zeta(thermo);
-    device_hydro_scalar(iparticle, ccake::hydro_info::tauRelax) = transport_coefficients.tau_Pi(thermo);
+      thermo[ithermo] = device_thermo.access(is, ia, ithermo);
+    device_hydro_scalar.access(is, ia, ccake::hydro_info::setas)
+      = tc::eta(thermo, this->transp_coeff_params );
+    device_hydro_scalar.access(is, ia, ccake::hydro_info::stauRelax)
+      = tc::tau_pi(thermo,this->transp_coeff_params);
+    device_hydro_scalar.access(is, ia, ccake::hydro_info::zeta)
+      = tc::zeta(thermo, this->transp_coeff_params);
+    device_hydro_scalar.access(is, ia, ccake::hydro_info::tauRelax)
+      = tc::tau_Pi(thermo, this->transp_coeff_params);
   };
-
-  Kokkos::parallel_for( "set_transport_coefficients", systemPtr->n_particles, set_transport_coefficients );
-
+  Cabana::simd_parallel_for(*(systemPtr->simd_policy),set_transport_coefficients, "set_transport_coefficients");
+  Kokkos::fence();
 }
 
 template<unsigned int D, template<unsigned int> class TEOM>
