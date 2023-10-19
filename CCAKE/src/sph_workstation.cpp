@@ -16,7 +16,7 @@ template class SPHWorkstation<3,EoM_default>;
 
 /// @brief Initialize the several components of the SPHWorkstation.
 /// @details This function will initialize the several components of the
-// SPHWorkstation. It will create and initialize the equation of motion 
+// SPHWorkstation. It will create and initialize the equation of motion
 /// object, initialize the system state, create and initialize transport
 /// coefficients, create and initialize the freeze out object, and create
 /// and initialize the Runge-Kutta evolver.
@@ -68,7 +68,7 @@ void SPHWorkstation<D,TEOM>::initialize()
 /// of the tensor. From $u_\mu \pi^{\mu 0}$ one can compute the component $\pi^{00}$.
 /// Lastly, the component $pi^{33}$ can be computed from the tracelessness condition.
 /// The remaining components are computed from the symmetry condition.
-/// @tparam D 
+/// @tparam D
 /// @param time_squared The square of the time step whwere the shear tensor is being computed.
 template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D, TEOM>::reset_pi_tensor(double time_squared)
@@ -89,10 +89,10 @@ void SPHWorkstation<D, TEOM>::reset_pi_tensor(double time_squared)
       for( unsigned int jdir=0; jdir<D; jdir++ )
         pi_space[idir][jdir] = device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::shv, idir+1, jdir+1);
     }
-    
+
     //Computes the gamma factor
     double u0 = TEOM<D>::gamma_calc(u,time_squared);
-    
+
     //Computes pi^{0i} = u_j pi^{ij}/gamma (obtained from the requirement u_\mu pi^{\mu i} = 0)
     for( unsigned int idir=0; idir<D; idir++ )
       pi_time_vector[idir] = TEOM<D>::dot(pi_space[idir],u,time_squared)/u0;
@@ -108,7 +108,7 @@ void SPHWorkstation<D, TEOM>::reset_pi_tensor(double time_squared)
     if( D != 2 )
       pi_diag[D] = pi33;
 
-    
+
     //Set the values of the pi tensor
     device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::shv, 0, 0) = pi_diag[0]; //pi^{00}
     for( unsigned int idir=1; idir<D+1; idir++ ){
@@ -143,7 +143,7 @@ void SPHWorkstation<D, TEOM>::reset_pi_tensor(double time_squared)
 ///\details This function sets up the entropy density using the initial energy
 ///         density and the initial charge densities. It also sets up all other
 ///         thermodynamic variables.
-///         
+///
 ///         The norm_spec densities are also updated here.
 ///\todo This function is not yet implemented for realistic EoS.
 
@@ -194,7 +194,7 @@ void SPHWorkstation<D, TEOM>::initialize_entropy_and_charge_densities()
 
     if (s_input < 0.0)
       device_freeze(iparticle) = 4;
-    
+
     ///------------------------------------------------------------------------------------------
   };
 
@@ -202,7 +202,7 @@ void SPHWorkstation<D, TEOM>::initialize_entropy_and_charge_densities()
 
   //Allocate cache for evolver
   evolver.allocate_cache();
-  
+
 
 	swTotal.Stop();
   formatted_output::update("finished initializing particle densities in "
@@ -224,7 +224,7 @@ void SPHWorkstation<D,TEOM>::initial_smoothing()
 
   // smooth fields over particles
   smooth_all_particle_fields(t_squared);
-    
+
 }
 
 //==============================================================================
@@ -256,9 +256,9 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
   };
   Cabana::simd_parallel_for( *(systemPtr->simd_policy), reset_fields, "reset_fields" );
   Kokkos::fence();
-  
+
   auto smooth_fields = KOKKOS_CLASS_LAMBDA(const int iparticle, const int jparticle ){
-    
+
     double r1[D] ,r2[D]; // cache for positions of particles 1 and 2
     for (int idir = 0; idir < D; ++idir){
       r1[idir] = device_position(iparticle,idir);
@@ -266,33 +266,31 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
     }
     double distance = SPHkernel<D>::distance(r1,r2);
     double kern = SPHkernel<D>::kernel(distance,hT);
-    
+
     //Update sigma (reference density)
     Kokkos::atomic_add( &device_hydro_scalar(iparticle, ccake::hydro_info::sigma), device_norm_spec(jparticle, ccake::densities_info::s)*kern);
     ////Update entropy density
-    Kokkos::atomic_add( &device_smoothed(iparticle, ccake::densities_info::s), 
+    Kokkos::atomic_add( &device_smoothed(iparticle, ccake::densities_info::s),
                          device_norm_spec(jparticle, ccake::densities_info::s)*device_specific_density(jparticle, ccake::densities_info::s)*kern);
-    Kokkos::atomic_add( &device_smoothed(iparticle, ccake::densities_info::rhoB), 
+    Kokkos::atomic_add( &device_smoothed(iparticle, ccake::densities_info::rhoB),
                           device_norm_spec(jparticle, ccake::densities_info::rhoB)*device_specific_density(jparticle, ccake::densities_info::rhoB)*kern);
     Kokkos::atomic_add( &device_smoothed(iparticle, ccake::densities_info::rhoS),
                           device_norm_spec(jparticle, ccake::densities_info::rhoS)*device_specific_density(jparticle, ccake::densities_info::rhoS)*kern);
     Kokkos::atomic_add( &device_smoothed(iparticle, ccake::densities_info::rhoQ),
                           device_norm_spec(jparticle, ccake::densities_info::rhoQ)*device_specific_density(jparticle, ccake::densities_info::rhoQ)*kern);
   };
-     
-  Cabana::neighbor_parallel_for( systemPtr->range_policy, smooth_fields, 
+
+  Cabana::neighbor_parallel_for( systemPtr->range_policy, smooth_fields,
                                  systemPtr->neighbour_list, Cabana::FirstNeighborsTag(),
                                  Cabana::TeamOpTag(), "smooth_fields_kernel");
   Kokkos::fence();
 
   update_all_particle_thermodynamics(time_squared);
-  
+
   sw.Stop();
   formatted_output::update("finished smoothing particle fields in "
                             + to_string(sw.printTime()) + " s.");
 
-
-                  
 }
 
 //------------------------------------------------------------------------------
@@ -345,7 +343,7 @@ void SPHWorkstation<D,TEOM>::locate_phase_diagram_point_sBSQ( Particle<D> & p,
         p.thermo.cs2 = std::max( p.thermo.cs2, 0.0001 );
       }
     }
-    
+
     if ( p0.eos_name == p.get_current_eos_name() )
     {
       auto abslogabs = [](double x){ return std::abs(std::log(std::abs(x))); };
@@ -411,7 +409,7 @@ void SPHWorkstation<D,TEOM>::locate_phase_diagram_point_sBSQ( Particle<D> & p,
 
 
 ///////////////////////////////////////////////////////////////////////////////
-//Second smoothing smoothes the gradients after constructing all the fields 
+//Second smoothing smoothes the gradients after constructing all the fields
 //and derivatives using the equation of state
 template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
@@ -426,7 +424,7 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
     for (int idir=0; idir < D; ++idir)
     {
       device_hydro_vector(iparticle,ccake::hydro_info::gradP, idir) = 0.0;
-      device_hydro_vector(iparticle,ccake::hydro_info::gradBulk, idir) = 0.0; 
+      device_hydro_vector(iparticle,ccake::hydro_info::gradBulk, idir) = 0.0;
       device_hydro_vector(iparticle,ccake::hydro_info::gradshear, idir) = 0.0;
       device_hydro_vector(iparticle,ccake::hydro_info::divshear, idir) = 0.0;
       for (int jdir=0; jdir < D; ++jdir)
@@ -559,7 +557,7 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
   Cabana::neighbor_parallel_for( systemPtr->range_policy, smooth_gradients, systemPtr->neighbour_list, Cabana::FirstNeighborsTag(),
                                    Cabana::TeamOpTag(), "smooth_gradients");
   Kokkos::fence();
-  
+
   double hc = constants::hbarc_MeVfm;
   auto freeze_out_step = KOKKOS_LAMBDA(const int iparticle){
     int btrack = device_btrack(iparticle);
@@ -567,7 +565,7 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
     if (( btrack == 1 ) && ( temperature >= 150.0 )) {
       //fo.frz2[pa.ID].t=tin;   // If particle a has only one nearest neighbor (and T>150) set penultimate timestep;
     } ///< TODO: Implement freeze out corrections. Actually I think this is not the best place to implement it
-    else if ( (btrack == 0) && (temperature >= 150.0) 
+    else if ( (btrack == 0) && (temperature >= 150.0)
             //&& pa.Freeze < 4
     ){
       // otherwise, if a has no nearest neighbors
@@ -696,7 +694,7 @@ void SPHWorkstation<D, TEOM>::process_initial_conditions()
 
 
 //==============================================================================
-// initialize bulk Pi 
+// initialize bulk Pi
 template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D, TEOM>::set_bulk_Pi()
 {
@@ -768,17 +766,11 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives()
   systemPtr->reset_neighbour_list();
   // reset pi tensor to be consistent
   // with all essential symmetries
-  reset_pi_tensor(t2);  
+  reset_pi_tensor(t2);
   // smooth all particle fields - s, rhoB, rhoQ and rhoS and sigma
   smooth_all_particle_fields(t2);
   // update viscosities for all particles
-  #ifdef DEBUG
-  systemPtr->copy_device_to_host();
-  #endif
   update_all_particle_viscosities();
-  #ifdef DEBUG
-  systemPtr->copy_device_to_host();
-  #endif
   //Computes gradients to obtain dsigma/dt
   smooth_all_particle_gradients(t2);
   #ifdef DEBUG
@@ -831,7 +823,7 @@ void SPHWorkstation<D, TEOM>::evaluate_all_particle_time_derivatives()
     EoMPtr->evaluate_time_derivatives( systemPtr->cabana_particles );
     sw.Stop();
     formatted_output::update("set particle time derivatives in "
-                              + to_string(sw.printTime()) + " s."); 
+                              + to_string(sw.printTime()) + " s.");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -856,7 +848,7 @@ void SPHWorkstation<D, TEOM>::update_all_particle_thermodynamics(double time_squ
 	  locate_phase_diagram_point_sBSQ( p, s_LRF, rhoB_LRF , rhoS_LRF, rhoQ_LRF );
   }
   systemPtr->copy_host_to_device();
-   
+
   sw.Stop();
   formatted_output::update("got particle thermodynamics in "
                             + to_string(sw.printTime()) + " s.");
@@ -917,7 +909,7 @@ double SPHWorkstation<D, TEOM>::locate_phase_diagram_point_eBSQ( Particle<D> & p
         p.thermo.cs2 = std::max( p.thermo.cs2, 0.0001 );
       }
     }
-   
+
     if (p.cs2()<0)
     {
     cout << "input thermo: " << e_In << "   "
@@ -1007,7 +999,7 @@ void SPHWorkstation<D, TEOM>::add_buffer(double default_e)
   double stepx = settingsPtr->stepx;
   double stepy = settingsPtr->stepy;
 
-  
+
   // find maximum distance from origin first
   double max_r = -1.0;
   if ( settingsPtr->circular_buffer )
@@ -1025,8 +1017,8 @@ void SPHWorkstation<D, TEOM>::add_buffer(double default_e)
       abort();
     }
   }
-  
-  
+
+
   const int nx = 1 - 2*int(round(xmin/stepx));  // xmin is negative
   const int ny = 1 - 2*int(round(ymin/stepy));  // ymin is negative
   bool particle_exists[nx][ny];
@@ -1110,15 +1102,15 @@ void SPHWorkstation<D, TEOM>::advance_timestep( double dt, int rk_order )
   Stopwatch sw;
   sw.Start();
   // turn on freeze-out flag initially
-  //systemPtr->do_freeze_out = true; 
+  //systemPtr->do_freeze_out = true;
   ///TODO: do_freeze_out should be a flag in the settings file
   // use evolver to actually do RK evolution
   // (pass workstation's own time derivatives function as lambda)
-  
+
   //Bulk of code evaluation is done below
   evolver.execute_timestep( dt, rk_order,
                             [this]{ this->get_time_derivatives(); } );
-  
+
   // set number of particles which have frozen out
   //systemPtr->number_part = systemPtr->get_frozen_out_count();
   // keep track of how many timesteps have elapsed
