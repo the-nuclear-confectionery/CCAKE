@@ -93,11 +93,11 @@ void SPHWorkstation<D, TEOM>::reset_pi_tensor(double time_squared)
     //Computes the gamma factor
     double u0 = TEOM<D>::gamma_calc(u,time_squared);
 
-    //Computes pi^{0i} = u_j pi^{ij}/gamma (obtained from the requirement u_\mu pi^{\mu i} = 0)
+    //Computes pi^{0i} = - u_j pi^{ij}/gamma (obtained from the requirement u_\mu pi^{\mu i} = 0)
     for( unsigned int idir=0; idir<D; idir++ )
       pi_time_vector[idir] = TEOM<D>::dot(pi_space[idir],u,time_squared)/u0;
 
-    //Set the shear tensor pi^{0 0} = pi^{0j} u_j /gamma (from the requirement u_\mu pi^{\mu 0} = 0)
+    //Set the shear tensor pi^{0 0} = - pi^{0j} u_j /gamma (from the requirement u_\mu pi^{\mu 0} = 0)
     //This is equivalent to pi^{i j} u^i u^j /gamma^2
     pi00 = TEOM<D>::dot(pi_time_vector,u,time_squared)/u0;
     pi_diag[0] = pi00;
@@ -114,7 +114,7 @@ void SPHWorkstation<D, TEOM>::reset_pi_tensor(double time_squared)
     for( unsigned int idir=1; idir<D+1; idir++ ){
       device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::shv, 0, idir) = pi_time_vector[idir-1]; //pi^{0i}
       device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::shv, idir, 0) = pi_time_vector[idir-1]; //pi^{i0}
-      device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::shv, idir, idir) = pi_diag[idir-1]; //pi^{ii}
+      device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::shv, idir, idir) = pi_diag[idir]; //pi^{ii}
       for (unsigned int jdir=idir+1; jdir<D+1; jdir++){
         device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::shv, idir, jdir) = pi_space[idir-1][jdir-1]; //pi^{ij}
         device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::shv, jdir, idir) = pi_space[idir-1][jdir-1]; //pi^{ji}
