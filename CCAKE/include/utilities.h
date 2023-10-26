@@ -13,7 +13,7 @@
 /// Choose between CPU or GPU execution
 #ifdef __CUDACC__
     #ifdef DEBUG
-        using MemorySpace = Kokkos::CudaUVMSpace; //Use managed space if debugging the code - Should we keep this for final release?
+        using MemorySpace = Kokkos::CudaSpace; //Use managed space if debugging the code - Should we keep this for final release?
     #else
         using MemorySpace = Kokkos::CudaSpace;
     #endif
@@ -24,18 +24,19 @@ using ExecutionSpace = Kokkos::OpenMP;
 #endif
 
 using DeviceType = Kokkos::Device<ExecutionSpace, MemorySpace>;
+using HostType = Kokkos::Device<Kokkos::OpenMP, Kokkos::HostSpace>;
 
 /// Alias for the particle list
 using ListAlgorithm = Cabana::FullNeighborTag;
 using ListLayout = Cabana::VerletLayoutCSR; ///< There are other options for the list layout. //TODO: Check which one is the best
-using ListType = Cabana::VerletList<MemorySpace, ListAlgorithm, ListLayout>;
+using ListType = Cabana::VerletList<MemorySpace, ListAlgorithm, ListLayout,Cabana::TeamOpTag>;
 
 namespace Utilities
 {
     static unsigned long get_free_memory();
     static unsigned long get_total_memory();
     static void lack_of_memory_stop();
-    
+
     template<unsigned int D>
     KOKKOS_INLINE_FUNCTION
     void inverse(double (*A)[D][D], double (*Ainv)[D][D]);
