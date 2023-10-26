@@ -41,8 +41,8 @@ struct hydrodynamic_info
   double Ctot            = 0.0; ///< See Jaki's notes, Eq. (270)
   double Btot            = 0.0; ///< See Jaki's notes, Eq. (274)
 
-  double sigma           = 0.0; ///< especific volume
-  double dsigma_dt       = 0.0; ///< derivative of especific volume
+  double sigma           = 0.0; ///< specific volume
+  double dsigma_dt       = 0.0; ///< derivative of specific volume
 
   double gamma_squared              = 0.0; ///< gamma^2
   double gamma_cube              = 0.0; ///< gamma^3

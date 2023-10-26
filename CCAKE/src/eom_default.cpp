@@ -20,8 +20,9 @@ double EoM_default<D>::gamma_calc(double *u, const double &time_squared) {
 }
 
 /// @brief Computes the inner product of two vectors.
-/// @details This considers only the space components of the vectors. This is the 
-/// implementation for the special case D=2.
+/// @details This considers only the space components of the vectors. This is the
+/// implementation for the special case D=2. IMPORTANT: We are not carrying the
+/// metric signal here, that is, we are evaluating -v_j u^j.
 /// @param u The first vector
 /// @param v The second vector
 /// @param time_squared The square of the time where the gamma factor will be computed
@@ -36,21 +37,22 @@ double EoM_default<2>::dot(double *v, double *u, const double &time_squared) {
 }
 
 /// @brief Transforms a scalar from the lab frame to the LRF.
-/// @tparam D 
+/// @tparam D
 /// @param lab The quantity in the lab (computational) frame.
-/// @param gamma Lorentz contraction factor. 
+/// @param gamma Lorentz contraction factor.
 /// @param time_squared The square of the time where the gamma factor will be computed.
 /// @return The quantity in the fluid LRF (local rest frame).
 template<unsigned int D>
-double EoM_default<D>::get_LRF(const double &lab, const double &gamma, 
+double EoM_default<D>::get_LRF(const double &lab, const double &gamma,
                                const double &time_squared) {
                                 return lab/gamma/time_squared;
 }
 
 /// @brief Computes the inner product of two vectors.
-/// @details This considers only the space components of the vectors. This is the 
+/// @details This considers only the space components of the vectors. This is the
 /// general case. It assumes that the last component of the velocity vector is the
-/// longitudinal velocity.
+/// longitudinal velocity. IMPORTANT: We are not carrying the metric signal here, that
+/// is, we are evaluating -v_j u^j.
 /// @param u The first vector
 /// @param v The second vector
 /// @param time_squared The square of the time where the gamma factor will be computed
@@ -103,7 +105,7 @@ void EoM_default<2>::dot(double (*v)[2],double (*T)[2][2], const double &time_sq
 }
 
 /// @brief Ensures that the shear tensor will be traceless.
-/// @details This is the default implementation of the traceless condition. The last 
+/// @details This is the default implementation of the traceless condition. The last
 /// component is assumed to be the longitudinal one and is modified as to ensure the tensor
 /// is traceless.
 /// @param pi_diag A D+1 dimensional array containing the diagonal elements of the shear tensor.
@@ -281,7 +283,7 @@ void EoM_default<D>::evaluate_time_derivatives( Cabana::AoSoA<CabanaParticle, De
       for (int idir=0; idir<D; idir++)
         F[idir] += pre*aux_vector[idir] + p1*minshv[idir];
 
-      
+
       Utilities::inverse<D>(&M,&M_inverse);
 
       //===============
@@ -307,7 +309,7 @@ void EoM_default<D>::evaluate_time_derivatives( Cabana::AoSoA<CabanaParticle, De
         for (int jdir=0; jdir<D; jdir++)
           sub[idir][jdir] = pimin[idir][jdir] + (shv[0][0]/gamma_squared)*uu[idir][jdir]
                             - piutot[idir][jdir]/gamma;
-          
+
       }
       double aux = 0.;
       for (int idir=0; idir<D; idir++)
@@ -315,7 +317,7 @@ void EoM_default<D>::evaluate_time_derivatives( Cabana::AoSoA<CabanaParticle, De
       double inside = t*dot( aux_vector, du_dt, t_squared ) - aux - gamma*t*shv33;
 
       double d_dt_specific_s = 1./sigma/Temperature*( -bigPi*bigtheta + inside );
-      
+
 
       //formulating simple setup for Beta_Bulk derivative  //WMS: I don't know what is this
       //hi.finite_diff_cs2 = (ti.cs2 - hi.prev_cs2)/0.05; // Asadek
@@ -323,7 +325,7 @@ void EoM_default<D>::evaluate_time_derivatives( Cabana::AoSoA<CabanaParticle, De
 	    //hi.finite_diff_w   = (ti.w - hi.prev_w)/0.05;     // Asadek
 	    //hi.dBeta_dt        = 0.5*((-hi.finite_diff_T/(ti.T*ti.T))*(1/ti.w)*(1/((1/3-ti.cs2)*(1/3-ti.cs2))))
 	    //                   + 0.5*((-hi.finite_diff_w/(ti.w*ti.w))*(1/ti.T)*(1/((1/3-ti.cs2)*(1/3-ti.cs2))))
-			//	          	     + 0.5*((4*ti.cs2*hi.finite_diff_cs2*(1/((1/3-ti.cs2)*(1/3-ti.cs2)*(1/3-ti.cs2))))*(1/ti.T)*(1/ti.w));//Asadek 
+			//	          	     + 0.5*((4*ti.cs2*hi.finite_diff_cs2*(1/((1/3-ti.cs2)*(1/3-ti.cs2)*(1/3-ti.cs2))))*(1/ti.T)*(1/ti.w));//Asadek
 
       double dBulk_dt = -(zeta*bigtheta/sigma + Bulk/gamma)/tauRelax;
 
@@ -335,7 +337,7 @@ void EoM_default<D>::evaluate_time_derivatives( Cabana::AoSoA<CabanaParticle, De
       for (int jdir=0;jdir<D;++jdir){
         double Imat = idir == jdir ? 1 : 0;
         ulpi[idir][jdir] = u[idir]*shv[0][jdir];
-        Ipi[idir][jdir] = - 2.*eta_o_tau*(Imat + uu[idir][jdir] )/3. 
+        Ipi[idir][jdir] = - 2.*eta_o_tau*(Imat + uu[idir][jdir] )/3.
                           + 4.*pimin[idir][jdir]/3.;
         ududt[idir][jdir] = u[idir]*du_dt[jdir];
         vsub[idir][jdir] = 0;
@@ -354,9 +356,9 @@ void EoM_default<D>::evaluate_time_derivatives( Cabana::AoSoA<CabanaParticle, De
                               - eta_o_tau*( ududt[idir][jdir] + ududt[jdir][idir] )
                               + vsub[idir][jdir] + sigl*Ipi[idir][jdir]
                               - vduk*( ulpi[idir][jdir] + ulpi[jdir][idir] + Ipi[idir][jdir]/gamma );
-      
+
     //OK UNTIL ABOVE HERE
-    
+
     //3) Update the particle data
     ///TODO: Do I really need to update all of these?
     device_hydro_scalar(iparticle, ccake::hydro_info::dsigma_dt) = dsigma_dt;

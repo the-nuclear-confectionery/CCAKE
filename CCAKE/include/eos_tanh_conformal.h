@@ -244,7 +244,6 @@ public:
 
     ////////////////////////////////////////////////////////////////////////////
 
-    const double hc = constants::hbarc_MeVfm;
     double T = point[0], muB = point[1], muQ = point[2], muS = point[3];
 
     double C1T = results[1]/(T*T*T);

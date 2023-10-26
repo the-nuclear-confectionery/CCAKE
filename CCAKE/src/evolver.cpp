@@ -10,14 +10,14 @@ template class Evolver<3>;
 template <unsigned int D>
 Evolver<D>::Evolver(std::shared_ptr<Settings> settingsPtr_in,
                     std::shared_ptr<SystemState<D>> systemPtr_in)
-                 : settingsPtr(settingsPtr_in), 
+                 : settingsPtr(settingsPtr_in),
                    systemPtr(systemPtr_in){};
 
 template <unsigned int D>
 void Evolver<D>::allocate_cache()
 {
     n_particles = systemPtr->n_particles;
-    
+
     //Allocate on device memory for the system state before
     //evolution begins.
     evolver_cache = Cabana::AoSoA<EvolverCache, DeviceType, VECTOR_LENGTH>("cache", n_particles);
@@ -80,7 +80,7 @@ void Evolver<D>::set_current_timestep_quantities()
 
 //==========================================================================
 template <unsigned int D>
-void Evolver<D>:: advance_timestep_rk2( double dt, 
+void Evolver<D>:: advance_timestep_rk2( double dt,
                                         std::function<void(void)> time_derivatives_functional )
 {
       double t0      = systemPtr->t;
@@ -91,7 +91,7 @@ void Evolver<D>:: advance_timestep_rk2( double dt,
       Kokkos::deep_copy(E, systemPtr->Ez);
       // initialize quantities at current time step
       set_current_timestep_quantities();
- 
+
       ////////////////////////////////////////////
       //    first step
       ////////////////////////////////////////////
@@ -114,13 +114,13 @@ void Evolver<D>:: advance_timestep_rk2( double dt,
           device_position(iparticle, idir) = r0(iparticle,idir) + 0.5*dt*device_hydro_vector(iparticle, hydro_info::v, idir);
           device_hydro_vector(iparticle, hydro_info::u, idir) = u0(iparticle,idir) + 0.5*dt*device_hydro_vector(iparticle, hydro_info::du_dt, idir);
           for (int jdir=0; jdir<D; ++jdir){
-            device_hydro_spacetime_matrix(iparticle, hydro_info::shv, idir+1, jdir+1) 
+            device_hydro_spacetime_matrix(iparticle, hydro_info::shv, idir+1, jdir+1)
               = shv0(iparticle,idir,jdir) + 0.5*dt*device_hydro_space_matrix(iparticle, hydro_info::dshv_dt, idir, jdir);
           }
         }
         device_specific_density(iparticle, densities_info::s) = s0(iparticle) + 0.5*dt*device_d_dt_spec(iparticle, densities_info::s);
         device_hydro_scalar(iparticle, hydro_info::Bulk) = Bulk0(iparticle) + 0.5*dt*device_hydro_scalar(iparticle, hydro_info::dBulk_dt);
-        
+
         // regulate negative entropy if necessary
         if ( REGULATE_NEGATIVE_S && device_specific_density(iparticle, densities_info::s) < 0.0 )
         {
@@ -139,7 +139,7 @@ void Evolver<D>:: advance_timestep_rk2( double dt,
       Kokkos::fence();
       //systemPtr->Ez = E0 + 0.5*dt*systemPtr->dEz;
       systemPtr->t  = t0 + 0.5*dt;
-      
+
       //Update hydro time on device
       Kokkos::parallel_for("update_hydro_time", n_particles, KOKKOS_CLASS_LAMBDA(int iparticle){
         device_hydro_scalar(iparticle,ccake::hydro_info::t) = systemPtr->t;
@@ -159,7 +159,7 @@ void Evolver<D>:: advance_timestep_rk2( double dt,
           device_position(iparticle, idir) = r0(iparticle,idir) + dt*device_hydro_vector(iparticle, hydro_info::v, idir);
           device_hydro_vector(iparticle, hydro_info::u, idir) = u0(iparticle,idir) + dt*device_hydro_vector(iparticle, hydro_info::du_dt, idir);
           for (int jdir=0; jdir<D; ++jdir){
-            device_hydro_spacetime_matrix(iparticle, hydro_info::shv, idir+1, jdir+1) 
+            device_hydro_spacetime_matrix(iparticle, hydro_info::shv, idir+1, jdir+1)
               = shv0(iparticle,idir,jdir) + dt*device_hydro_space_matrix(iparticle, hydro_info::dshv_dt, idir, jdir);
           }
         }
@@ -167,7 +167,7 @@ void Evolver<D>:: advance_timestep_rk2( double dt,
         device_hydro_scalar(iparticle, hydro_info::Bulk) = Bulk0(iparticle) + dt*device_hydro_scalar(iparticle, hydro_info::dBulk_dt);
 
 
-        
+
         // regulate negative entropy if necessary
         if ( REGULATE_NEGATIVE_S && device_specific_density(iparticle, densities_info::s) < 0.0 )
         {
@@ -186,7 +186,7 @@ void Evolver<D>:: advance_timestep_rk2( double dt,
       Kokkos::fence();
       //systemPtr->Ez = E0 + dt*systemPtr->dEz;
       systemPtr->t  = t0 + dt;
-      
+
       //Update hydro time on device
       Kokkos::parallel_for("update_hydro_time", n_particles, KOKKOS_CLASS_LAMBDA(int iparticle){
         device_hydro_scalar(iparticle,ccake::hydro_info::t) = systemPtr->t;

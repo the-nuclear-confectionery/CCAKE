@@ -41,12 +41,10 @@ void SystemState<D>::allocate_cabana_particles(){
     formatted_output::detail("Initializing device memory");
     ///Allocate memory for the particles
     cabana_particles = Cabana::AoSoA<CabanaParticle, DeviceType, VECTOR_LENGTH>("particles", n_particles);
-    copy_host_to_device();    
+    copy_host_to_device();
     simd_policy = new Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, particles.size());
     range_policy = Kokkos::RangePolicy<ExecutionSpace>(0, particles.size());
 }
-
-
 
 template<unsigned int D>
 void SystemState<D>::copy_host_to_device(){
@@ -178,7 +176,7 @@ void SystemState<D>::copy_host_to_device(){
 
 }
 
-/// @brief Takes the data out of the device memory (managed by cabana) and 
+/// @brief Takes the data out of the device memory (managed by cabana) and
 /// back to particle data structure
 /// @details This function is expensive computationally  and its use should
 /// be avoided if possible. It creates a temporary AoSoA in host memory space
@@ -246,7 +244,7 @@ void SystemState<D>::copy_device_to_host(){
       particles[id].hydro.divshear(i) = host_hydro_vector(iparticle, ccake::hydro_info::divshear,i);
       particles[id].hydro.gradshear(i) = host_hydro_vector(iparticle, ccake::hydro_info::gradshear,i);
       particles[id].hydro.du_dt(i) = host_hydro_vector(iparticle, ccake::hydro_info::du_dt,i);
-      
+
       particles[id].r(i) = host_position(iparticle, i);
     }
     particles[id].thermo.T = host_thermo(iparticle, ccake::thermo_info::T);
@@ -270,7 +268,7 @@ void SystemState<D>::copy_device_to_host(){
     for (int i=0; i<D+1; i++)
     for (int j=0; j<D+1; j++)
       particles[id].hydro.shv(i,j) = host_hydro_spacetime_matrix(iparticle, ccake::hydro_info::shv, i, j);
-      
+
     particles[id].input.e = host_input(iparticle, ccake::densities_info::e);
     particles[id].input.s = host_input(iparticle, ccake::densities_info::s);
     particles[id].input.rhoB = host_input(iparticle, ccake::densities_info::rhoB);
@@ -282,25 +280,25 @@ void SystemState<D>::copy_device_to_host(){
     particles[id].smoothed.rhoB = host_smoothed(iparticle, ccake::densities_info::rhoB);
     particles[id].smoothed.rhoS = host_smoothed(iparticle, ccake::densities_info::rhoS);
     particles[id].smoothed.rhoQ = host_smoothed(iparticle, ccake::densities_info::rhoQ);
-    
+
     particles[id].specific.e = host_specific_density(iparticle, ccake::densities_info::e);
     particles[id].specific.s = host_specific_density(iparticle, ccake::densities_info::s);
     particles[id].specific.rhoB = host_specific_density(iparticle, ccake::densities_info::rhoB);
     particles[id].specific.rhoS = host_specific_density(iparticle, ccake::densities_info::rhoS);
     particles[id].specific.rhoQ = host_specific_density(iparticle, ccake::densities_info::rhoQ);
-    
+
     particles[id].d_dt_spec.e = host_d_dt_spec(iparticle, ccake::densities_info::e);
     particles[id].d_dt_spec.s = host_d_dt_spec(iparticle, ccake::densities_info::s);
     particles[id].d_dt_spec.rhoB = host_d_dt_spec(iparticle, ccake::densities_info::rhoB);
     particles[id].d_dt_spec.rhoS = host_d_dt_spec(iparticle, ccake::densities_info::rhoS);
     particles[id].d_dt_spec.rhoQ = host_d_dt_spec(iparticle, ccake::densities_info::rhoQ);
-    
+
     particles[id].norm_spec.e = host_norm_spec(iparticle, ccake::densities_info::e);
     particles[id].norm_spec.s = host_norm_spec(iparticle, ccake::densities_info::s);
     particles[id].norm_spec.rhoB = host_norm_spec(iparticle, ccake::densities_info::rhoB);
     particles[id].norm_spec.rhoS = host_norm_spec(iparticle, ccake::densities_info::rhoS);
     particles[id].norm_spec.rhoQ = host_norm_spec(iparticle, ccake::densities_info::rhoQ);
-    
+
     particles[id].efcheck = host_efcheck(iparticle);
     particles[id].contribution_to_total_E = host_contribution_to_total_E(iparticle);
     particles[id].contribution_to_total_dEz = host_contribution_to_total_dEz(iparticle);
@@ -312,17 +310,15 @@ void SystemState<D>::copy_device_to_host(){
 
 }
 
-
-
 /// @brief Reset the neighbour list
 /// @details This function should be called after the particles have been moved.
 /// Beware that this operation is very expensive and calls to this function should
-/// be minimized. It is also a good candidate for optimization. In a 11th Gen 
-/// Intel Core i7-11370H running under WSL 2, using the apptainer images, the 
-/// inclusion of single call to this function in the main loop increased the 
-/// execution time by ~1s (in a trento event generated with 
+/// be minimized. It is also a good candidate for optimization. In a 11th Gen
+/// Intel Core i7-11370H running under WSL 2, using the apptainer images, the
+/// inclusion of single call to this function in the main loop increased the
+/// execution time by ~1s (in a trento event generated with
 /// `trento --grid-max 10 --grid-step .1 Pb Pb --b-max=3 --random-seed=42`)
-/// @tparam D 
+/// @tparam D
 template<unsigned int D>
 void SystemState<D>::reset_neighbour_list(){
   double min_pos[3], max_pos[3];
@@ -333,13 +329,13 @@ void SystemState<D>::reset_neighbour_list(){
     min_pos[idir] *= 1.5; //Grid must be 50% bigger ///TODO: Allow this to be an optional input parameter
   for(int idir=0; idir<3; ++idir)
     max_pos[idir] = -min_pos[idir];
-  
+
   CREATE_VIEW(device_, cabana_particles);
 
   //Cabana::permute( grid, cabana_particles );
   double neighborhood_radius = 2*settingsPtr->hT;
   double cell_ratio = 1.; //neighbour to cell_space ratio
-  neighbour_list = ListType (  device_position, 0, device_position.size(), 
+  neighbour_list = ListType (  device_position, 0, device_position.size(),
                                           neighborhood_radius, cell_ratio, min_pos, max_pos
                            );
   Kokkos::fence();
@@ -401,7 +397,7 @@ void SystemState<D>::initialize_linklist()
 template<unsigned int D>
 void SystemState<D>::conservation_entropy(bool first_iteration)
 {
-  
+
   CREATE_VIEW(device_, cabana_particles);
   S = 0.0;
   auto get_total_entropy = KOKKOS_LAMBDA(const int i, double &local_S)
