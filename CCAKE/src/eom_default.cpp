@@ -104,6 +104,42 @@ void EoM_default<2>::dot(double (*v)[2],double (*T)[2][2], const double &time_sq
   }
 }
 
+/// @brief Contracts all indices of 2 rank 2 contravariant tensors
+/// @details Computes $ a = M^{ij}g_{ij}T^{ij}
+/// @param M The first vector
+/// @param T The second vector
+/// @param time_squared The square of the time where the gamma factor will be computed
+/// @return A double with the result of the contraction
+template<>
+KOKKOS_FUNCTION
+double EoM_default<2>::full_contraction(double M[2][2], double T[2][2], const double &time_squared) {
+  double r = 0;
+  for (unsigned int i=0; i<2; i++)
+  for (unsigned int j=0; j<2; j++)
+    r = -M[i][j]*T[i][j];
+  return r;
+}
+
+/// @brief Contracts all indices of 2 rank 2 contravariant tensors
+/// @details Computes $ a = M^{ij}g_{ij}T^{ij}
+/// @param M The first vector
+/// @param T The second vector
+/// @param time_squared The square of the time where the gamma factor will be computed
+/// @return A double with the result of the contraction
+template<unsigned int D>
+KOKKOS_FUNCTION
+double EoM_default<D>::full_contraction(double M[D][D], double T[D][D], const double &time_squared) {
+  double r = 0;
+  for (unsigned int i=0; i<D-1; i++){
+    for (unsigned int j=0; j<D-1; j++)
+      r = - M[i][j]*T[i][j];
+    r -= M[D-1][i]*T[D-1][i];
+    r -= M[i][D-1]*T[i][D-1];
+  }
+  r -= M[D-1][D-1]*T[D-1][D-1];
+  return r;
+}
+
 /// @brief Ensures that the shear tensor will be traceless.
 /// @details This is the default implementation of the traceless condition. The last
 /// component is assumed to be the longitudinal one and is modified as to ensure the tensor
@@ -193,7 +229,7 @@ void EoM_default<D>::evaluate_time_derivatives( Cabana::AoSoA<CabanaParticle, De
       for (unsigned int idir=0; idir<D+1; idir++)
       for (unsigned int jdir=0; jdir<D+1; jdir++)
           shv[idir][jdir] = device_hydro_spacetime_matrix(iparticle, ccake::hydro_info::shv, idir, jdir);
-      
+
       //Will be filled later
       double aux_vector[D];
       double F[D];
@@ -205,6 +241,7 @@ void EoM_default<D>::evaluate_time_derivatives( Cabana::AoSoA<CabanaParticle, De
       double piutot[D][D];
       double M[D][D];
       double M_inverse[D][D];
+      double Ipi[D][D];
       double sub[D][D];
       double dshv_dt[D][D];
 
@@ -232,6 +269,7 @@ void EoM_default<D>::evaluate_time_derivatives( Cabana::AoSoA<CabanaParticle, De
       for (int idir=0; idir<D; idir++)
       for (int jdir=0; jdir<D; jdir++){
         M[idir][jdir] = 0;
+        Ipi[idir][jdir] = 0;
         uu[idir][jdir] = u[idir]*u[jdir];
         gradU[idir][jdir] = gamma*gradV[jdir][idir] - gamma_cube*aux_vector[idir]*v[jdir];
         pi_u[idir][jdir] = shv[0][idir+1]*u[jdir];
@@ -255,15 +293,6 @@ void EoM_default<D>::evaluate_time_derivatives( Cabana::AoSoA<CabanaParticle, De
                       + bigPi/tauRelax
                       + dwdsT*( gamma_tau*shv33 + bsub );
 
-      double gamt = 0.0, pre = 0.0, p1 = 0.0;
-      ///TODO: Wrap next 3 lines in if statement
-      //if ( this->settingsPtr->using_shear )
-      //{
-        gamt = 1.0/gamma/stauRelax;
-        pre  = eta_o_tau/gamma;
-        p1   = gamt - 4.0/3.0/sigma*dsigma_dt + 1.0/t/3.0;
-      //}
-
       // set the Mass and the Force
       for (int idir=0; idir<D; idir++){
         M[idir][idir] = Ctot;
@@ -277,11 +306,16 @@ void EoM_default<D>::evaluate_time_derivatives( Cabana::AoSoA<CabanaParticle, De
 
       //===============
       // shear contribution
+      double gamt = 0.0, pre = 0.0, p1 = 0.0;
       ///TODO: Wrap on if for shear
       //if ( this->settingsPtr->using_shear )
-      dot(&v, &partU, t_squared, &aux_vector);
-      for (int idir=0; idir<D; idir++)
-        F[idir] += pre*aux_vector[idir] + p1*minshv[idir];
+        gamt = 1.0/gamma/stauRelax;
+        pre  = eta_o_tau/gamma;
+        p1   = gamt - 4.0/3.0/sigma*dsigma_dt + 1.0/t/3.0;
+      //}
+        dot(&v, &partU, t_squared, &aux_vector);
+        for (int idir=0; idir<D; idir++)
+          F[idir] += p1*minshv[idir]-pre*aux_vector[idir];
 
 
       Utilities::inverse<D>(&M,&M_inverse);
@@ -305,19 +339,16 @@ void EoM_default<D>::evaluate_time_derivatives( Cabana::AoSoA<CabanaParticle, De
 
       //===============
       for (int idir=0; idir<D; idir++){
-        aux_vector[idir] = minshv[idir] - shv[0][0]*v[idir];
+        aux_vector[idir] = shv[0][0]*v[idir] - minshv[idir];
         for (int jdir=0; jdir<D; jdir++)
           sub[idir][jdir] = pimin[idir][jdir] + (shv[0][0]/gamma_squared)*uu[idir][jdir]
                             - piutot[idir][jdir]/gamma;
-
       }
+      //TODO: Fill inside only if shear is on
       double aux = 0.;
-      for (int idir=0; idir<D; idir++)
-        aux += sub[idir][idir]*gradU[idir][idir];
-      double inside = t*dot( aux_vector, du_dt, t_squared ) - aux - gamma*t*shv33;
 
+      double inside = t*( dot( aux_vector, du_dt, t_squared ) - gamma*t*shv33+full_contraction(sub,gradU,t_squared) );
       double d_dt_specific_s = 1./sigma/Temperature*( -bigPi*bigtheta + inside );
-
 
       //formulating simple setup for Beta_Bulk derivative  //WMS: I don't know what is this
       //hi.finite_diff_cs2 = (ti.cs2 - hi.prev_cs2)/0.05; // Asadek
@@ -331,19 +362,22 @@ void EoM_default<D>::evaluate_time_derivatives( Cabana::AoSoA<CabanaParticle, De
 
       //===============
       // define auxiliary variables
+      ///TODO: Write in terms of contractions
       double vduk = dot(v, du_dt, t_squared);
-      double ulpi[D][D], Ipi[D][D], ududt[D][D], vsub[D][D];
-      for (int idir=0;idir<D;++idir)
-      for (int jdir=0;jdir<D;++jdir){
-        double Imat = idir == jdir ? 1 : 0;
-        ulpi[idir][jdir] = u[idir]*shv[0][jdir];
-        Ipi[idir][jdir] = - 2.*eta_o_tau*(Imat + uu[idir][jdir] )/3.
-                          + 4.*pimin[idir][jdir]/3.;
-        ududt[idir][jdir] = u[idir]*du_dt[jdir];
-        vsub[idir][jdir] = 0;
-        for (int kdir=0;kdir<D;++kdir)
-          vsub[idir][jdir] += (u[idir]*pimin[jdir][kdir]
-                           + u[jdir]*pimin[idir][kdir])*du_dt[kdir];
+      double ulpi[D][D], ududt[D][D], vsub[D][D];
+      for (int idir=0;idir<D;++idir){
+        Ipi[idir][idir] = -2.*eta_o_tau/3.;
+        for (int jdir=0;jdir<D;++jdir){
+
+          ulpi[idir][jdir] = u[idir]*shv[0][jdir];
+          Ipi[idir][jdir] += - 2.*eta_o_tau*uu[idir][jdir]/3.
+                            + 4.*pimin[idir][jdir]/3.;
+          ududt[idir][jdir] = u[idir]*du_dt[jdir];
+          vsub[idir][jdir] = 0;
+          for (int kdir=0;kdir<D;++kdir)
+            vsub[idir][jdir] += (u[idir]*pimin[jdir][kdir]
+                             + u[jdir]*pimin[idir][kdir])*du_dt[kdir];
+        }
       }
 
       //===============
@@ -356,8 +390,6 @@ void EoM_default<D>::evaluate_time_derivatives( Cabana::AoSoA<CabanaParticle, De
                               - eta_o_tau*( ududt[idir][jdir] + ududt[jdir][idir] )
                               + vsub[idir][jdir] + sigl*Ipi[idir][jdir]
                               - vduk*( ulpi[idir][jdir] + ulpi[jdir][idir] + Ipi[idir][jdir]/gamma );
-
-    //OK UNTIL ABOVE HERE
 
     //3) Update the particle data
     ///TODO: Do I really need to update all of these?

@@ -38,6 +38,8 @@ class EoM_default
     static double get_shvDD(double* pi_diag, const double &time_squared);
     KOKKOS_FUNCTION
     static double get_LRF(const double &lab, const double &gamma, const double &time_squared);
+    KOKKOS_FUNCTION
+    static double full_contraction(double M[D][D], double T[D][D], const double &time_squared);
 
     static void evaluate_time_derivatives( Cabana::AoSoA<CabanaParticle, DeviceType, VECTOR_LENGTH> &particles , double t_in);
 
