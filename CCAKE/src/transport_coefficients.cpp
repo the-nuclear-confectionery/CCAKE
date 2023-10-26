@@ -80,6 +80,8 @@ parameters setup_parameters(std::shared_ptr<Settings> settingsPtr)
   params.cs2_dependent_zeta_p = settingsPtr->cs2_dependent_zeta_p;
   params.modulate_zeta_with_tanh = settingsPtr->modulate_zeta_with_tanh;
 
+  return params;
+
 }
 
 KOKKOS_INLINE_FUNCTION
