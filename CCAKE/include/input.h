@@ -6,6 +6,7 @@
 #include <filesystem>
 
 #include <yaml-cpp/yaml.h>
+#include <Kokkos_Core.hpp>
 
 #include "settings.h"
 #include "defaults.h"

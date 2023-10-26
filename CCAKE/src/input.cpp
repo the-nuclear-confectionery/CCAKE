@@ -47,6 +47,7 @@ void cc::Input::check_args( int argc, char** argv )
   if ( !fs::exists(settings_file_path) )
   {
       std::cout << "Error: " << settings_file_path << " does not exist!" << endl;
+      Kokkos::finalize();
       exit(EXIT_FAILURE);
   }
 
@@ -140,7 +141,7 @@ bool cc::Input::decode_settings(const YAML::Node& node){
       formatted_output::report("This is an optional parameter. Setting to default value.");
       settingsPtr->hT = cc::defaults::hT;
     }
-    
+
     try {
       settingsPtr->hEta = node["parameters"]["h_eta"].as<double>();
     } catch (...) {
