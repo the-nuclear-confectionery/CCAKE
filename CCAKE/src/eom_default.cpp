@@ -78,9 +78,9 @@ void EoM_default<D>::dot(double (*v)[D],double (*T)[D][D], const double &time_sq
   for (unsigned int j=0; j<D; j++){
     (*x)[j] = 0;
     for (unsigned int i=0; i<D-1; i++){
-      (*x)[j]+= (*v)[i]*(*T)[i][j];
+      (*x)[j]-= (*v)[i]*(*T)[i][j];
     }
-    (*x)[j] += (*v)[D-1]*(*T)[D-1][j]*time_squared;
+    (*x)[j] -= (*v)[D-1]*(*T)[D-1][j]*time_squared;
   }
 }
 
@@ -97,7 +97,7 @@ void EoM_default<2>::dot(double (*v)[2],double (*T)[2][2], const double &time_sq
   for (unsigned int j=0; j<2; j++){
     (*x)[j] = 0;
     for (unsigned int i=0; i<2; i++){
-      (*x)[j]+= (*v)[i]*(*T)[i][j];
+      (*x)[j]-= (*v)[i]*(*T)[i][j];
     }
   }
 }
@@ -135,16 +135,17 @@ double EoM_default<2>::get_shvDD(double* pi_diag, const double &time_squared){
 }
 
 template<unsigned int D>
-KOKKOS_FUNCTION
-void EoM_default<D>::evaluate_time_derivatives( Cabana::AoSoA<CabanaParticle, DeviceType, VECTOR_LENGTH> &particles )
+void EoM_default<D>::evaluate_time_derivatives( Cabana::AoSoA<CabanaParticle, DeviceType, VECTOR_LENGTH> &particles,
+                                                double t_in )
 {
   CREATE_VIEW( device_, particles );
-  auto single_particle_update = KOKKOS_LAMBDA(int const iparticle){
+  double t = t_in;
+  auto single_particle_update = KOKKOS_LAMBDA(int const iparticle)
+  {
 
       //1) Cache locally the particle data
       double sigma = device_hydro_scalar(iparticle, ccake::hydro_info::sigma);
       double gamma = device_hydro_scalar(iparticle, ccake::hydro_info::gamma);
-      double t = device_hydro_scalar(iparticle, ccake::hydro_info::t);
       double t_squared = t*t;
       double Temperature = device_thermo(iparticle, ccake::thermo_info::T);
       double dwds = device_thermo(iparticle, ccake::thermo_info::dwds);
@@ -207,7 +208,9 @@ void EoM_default<D>::evaluate_time_derivatives( Cabana::AoSoA<CabanaParticle, De
 
 
       //2) Perform computations
-      double dsigma_dt = -(gradV[0][0]+gradV[1][1])*sigma;
+      double dsigma_dt = 0;
+      for(int idir=0;idir<D;++idir) dsigma_dt += gradV[idir][idir];
+      dsigma_dt *= -sigma;
       double gamma_squared = gamma*gamma;
       double gamma_cube = gamma*gamma_squared;
       double gamma_tau = gamma*t;
@@ -216,38 +219,35 @@ void EoM_default<D>::evaluate_time_derivatives( Cabana::AoSoA<CabanaParticle, De
       double sigl = dsigma_dt/sigma - 1/t;
       double bigPi = Bulk*sigma/gamma_tau;
       double C = w + bigPi;
-      
+
+      double eta_o_tau = setas/stauRelax; ///TODO: 0 if shear is off.
+      double Agam = w - dwds*(s+bigPi/Temperature) - zeta/tauRelax
+                    - dwdB*rhoB - dwdS*rhoS - dwdQ*rhoQ;
+      double Agam2 = (Agam - eta_o_tau/3.0 - dwdsT1*shv[0][0] ) / gamma;
+      double Ctot  = C + eta_o_tau*(1/gamma_squared-1);
 
       dot(&v, &gradV, t_squared, &aux_vector);
       for (int idir=0; idir<D; idir++)
       for (int jdir=0; jdir<D; jdir++){
+        M[idir][jdir] = 0;
         uu[idir][jdir] = u[idir]*u[jdir];
-        gradU[idir][jdir] = gamma*gradV[idir][jdir] + gamma_cube*aux_vector[idir]*v[jdir];
+        gradU[idir][jdir] = gamma*gradV[jdir][idir] - gamma_cube*aux_vector[idir]*v[jdir];
         pi_u[idir][jdir] = shv[0][idir+1]*u[jdir];
         pimin[idir][jdir] = shv[idir+1][jdir+1];
       }
       for (int idir=0; idir<D; idir++)
       for (int jdir=0; jdir<D; jdir++){
-        piutot[idir][jdir] = pi_u[idir][jdir] + pi_u[jdir][idir];	
+        piutot[idir][jdir] = pi_u[idir][jdir] + pi_u[jdir][idir];
         partU[idir][jdir] = gradU[idir][jdir] + gradU[jdir][idir];
       }
-      
+
       double bsub = 0;
       for (int idir=0; idir<D; idir++)
       for (int jdir=0; jdir<D; jdir++)
-        bsub += gradU[idir][jdir]*( pimin[idir][jdir] 
-                                    + uu[idir][jdir]*shv[0][0]/gamma_squared 
+        bsub -= gradU[idir][jdir]*( pimin[idir][jdir]
+                                    + uu[idir][jdir]*shv[0][0]/gamma_squared
                                     - piutot[idir][jdir]/gamma );
-      
-      
-      //eta_o_tau
-      ///TODO: Disable if shear is not used - Equivalent o setting shear to 0?
-      double eta_o_tau = setas/stauRelax;
 
-      double Agam = w - dwds*(s + bigPi/Temperature) - zeta/tauRelax
-                      - dwdB*rhoB - dwdS*rhoS - dwdQ*rhoQ; 
-      double Agam2 = ( Agam - eta_o_tau/3.0 - dwdsT1*shv[0][0] ) / gamma;
-      double Ctot = C + eta_o_tau*(1.0/gamma_squared-1.0);
 
       double Btot = ( Agam*gamma + 2.0*eta_o_tau/3.0*gamma )*sigl ///TODO: 2/3 or 1/3. See Jaki's (Eq. 274)?
                       + bigPi/tauRelax
@@ -264,9 +264,9 @@ void EoM_default<D>::evaluate_time_derivatives( Cabana::AoSoA<CabanaParticle, De
 
       // set the Mass and the Force
       for (int idir=0; idir<D; idir++){
+        M[idir][idir] = Ctot;
         for (int jdir=0; jdir<D; jdir++){
-          double Imat = idir == jdir ? 1.0 : 0.0;
-          M[idir][jdir] = -Agam2*uu[idir][jdir] + Ctot*Imat
+          M[idir][jdir] += Agam2*uu[idir][jdir]
                           -(1+4./3./gamma_squared)*pi_u[idir][jdir]
                           + dwdsT1*pi_u[jdir][idir] + gamma*pimin[idir][jdir];
         }
@@ -384,7 +384,8 @@ void EoM_default<D>::evaluate_time_derivatives( Cabana::AoSoA<CabanaParticle, De
       device_hydro_vector(iparticle, ccake::hydro_info::du_dt, idir) = du_dt[idir];
       for (int jdir=0; jdir<D; jdir++){
         device_hydro_space_matrix(iparticle, ccake::hydro_info::gradU, idir, jdir) = gradU[idir][jdir];
-        device_hydro_space_matrix(iparticle, ccake::hydro_info::dshv_dt, idir, jdir) = dshv_dt[idir][jdir];  
+        device_hydro_space_matrix(iparticle, ccake::hydro_info::dshv_dt, idir, jdir) = dshv_dt[idir][jdir];
+        device_hydro_space_matrix(iparticle, ccake::hydro_info::piu, idir, jdir) = pi_u[idir][jdir];
       }
     }
   };

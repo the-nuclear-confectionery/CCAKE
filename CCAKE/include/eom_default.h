@@ -39,11 +39,10 @@ class EoM_default
     KOKKOS_FUNCTION
     static double get_LRF(const double &lab, const double &gamma, const double &time_squared);
 
-    KOKKOS_FUNCTION
-    static void evaluate_time_derivatives( Cabana::AoSoA<CabanaParticle, DeviceType, VECTOR_LENGTH> &particles );
-    
-    std::string name = "Israel-Stewart";                    // name associated to EoM
+    static void evaluate_time_derivatives( Cabana::AoSoA<CabanaParticle, DeviceType, VECTOR_LENGTH> &particles , double t_in);
 
+    std::string name = "Israel-Stewart";                    // name associated to EoM
+    /*
     //==========================================================================
     Matrix<double,D,D> dpidtsub_fun( hydrodynamic_info<D> & hi )
     {
@@ -90,10 +89,9 @@ class EoM_default
               + hi.dwdsT1*transpose(hi.piu) + hi.gamma*hi.pimin;
     }
 
-    
+
     //==========================================================================
-    
-    
+    */
 };
 }
 #endif

@@ -26,10 +26,6 @@ template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D,TEOM>::initialize()
 {
   //----------------------------------------
-  // set up equation of motion object
-  EoMPtr = std::make_shared<TEOM<D>>(settingsPtr);
-
-  //----------------------------------------
   // set up system state
   systemPtr->initialize();
 
@@ -778,7 +774,7 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives()
   #endif
 
   //calculate time derivatives needed for equations of motion
-  evaluate_all_particle_time_derivatives();
+  TEOM<D>::evaluate_time_derivatives( systemPtr->cabana_particles, t );
   #ifdef DEBUG
   systemPtr->copy_device_to_host();
   #endif
@@ -815,17 +811,6 @@ void SPHWorkstation<D, TEOM>::update_all_particle_viscosities()
   Kokkos::fence();
 }
 
-template<unsigned int D, template<unsigned int> class TEOM>
-void SPHWorkstation<D, TEOM>::evaluate_all_particle_time_derivatives()
-{
-    Stopwatch sw;
-    sw.Start();
-    EoMPtr->evaluate_time_derivatives( systemPtr->cabana_particles );
-    sw.Stop();
-    formatted_output::update("set particle time derivatives in "
-                              + to_string(sw.printTime()) + " s.");
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D, TEOM>::update_all_particle_thermodynamics(double time_squared)
@@ -839,12 +824,12 @@ void SPHWorkstation<D, TEOM>::update_all_particle_thermodynamics(double time_squ
     double u[D];
     for (int idir = 0; idir < D; ++idir)
       u[idir] = p.hydro.u(idir);
-    p.hydro.gamma     = EoMPtr->gamma_calc(u,time_squared);
+    p.hydro.gamma     = TEOM<D>::gamma_calc(u,time_squared);
     p.hydro.v         = (1.0/p.hydro.gamma)*p.hydro.u;
-    double s_LRF      = EoMPtr->get_LRF(p.smoothed.s, p.hydro.gamma, time_squared);
-    double rhoB_LRF   = EoMPtr->get_LRF(p.smoothed.rhoB, p.hydro.gamma, time_squared);
-    double rhoS_LRF   = EoMPtr->get_LRF(p.smoothed.rhoS, p.hydro.gamma, time_squared);
-    double rhoQ_LRF   = EoMPtr->get_LRF(p.smoothed.rhoQ, p.hydro.gamma, time_squared);
+    double s_LRF      = TEOM<D>::get_LRF(p.smoothed.s, p.hydro.gamma, t);
+    double rhoB_LRF   = TEOM<D>::get_LRF(p.smoothed.rhoB, p.hydro.gamma, t);
+    double rhoS_LRF   = TEOM<D>::get_LRF(p.smoothed.rhoS, p.hydro.gamma, t);
+    double rhoQ_LRF   = TEOM<D>::get_LRF(p.smoothed.rhoQ, p.hydro.gamma, t);
 	  locate_phase_diagram_point_sBSQ( p, s_LRF, rhoB_LRF , rhoS_LRF, rhoQ_LRF );
   }
   systemPtr->copy_host_to_device();

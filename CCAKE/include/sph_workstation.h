@@ -57,8 +57,6 @@ private:
 
   std::shared_ptr<Settings> settingsPtr; ///< Object containing settings parsed from input file
   std::shared_ptr<SystemState<D>> systemPtr; ///< Object containing the SPH System (linked list, particles, etc.)
-  std::shared_ptr<TEOM<D>> EoMPtr; ///< Equations of motion object
-
   // evolver
   Evolver<D> evolver;
 
@@ -118,8 +116,6 @@ public:
   //-------------------------------------------
   void update_all_particle_thermodynamics(double time_squared);
   void update_all_particle_viscosities();
-  void evaluate_all_particle_time_derivatives();
-  
 
   //-------------------------------------------
   //void freeze_out_particles();
