@@ -281,10 +281,16 @@ bool cc::Input::decode_settings(const YAML::Node& node){
     if (settingsPtr->etaMode == "constant"){
       try{
         settingsPtr->constant_eta_over_s = node["hydro"]["viscous_parameters"]["shear"]["constant_eta_over_s"].as<double>();
+        settingsPtr->using_shear = true;
       } catch (...) {
         formatted_output::report("WARNING: Could not read viscous_parameters shear constant_eta_over_s!");
         formatted_output::report("This is an optional parameter. Setting to default value.");
         settingsPtr->constant_eta_over_s = cc::defaults::constant_eta_over_s;
+        settingsPtr->using_shear = true;
+      }
+      if (settingsPtr->constant_eta_over_s <= 1.E-3 ){
+        formatted_output::report("Small or negative eta/s value supplied. Disabling shear evolution");
+        settingsPtr->using_shear = false;
       }
     }
 
