@@ -210,6 +210,8 @@ void SPHWorkstation<D, TEOM>::initialize_entropy_and_charge_densities()
 template<unsigned int D,  template<unsigned int> class TEOM>
 void SPHWorkstation<D,TEOM>::initial_smoothing()
 {
+  Stopwatch sw;
+  sw.Start();
   double t_squared = pow(settingsPtr->t0,2);
 
   //Creates the list of neighbours for each particle
@@ -220,6 +222,9 @@ void SPHWorkstation<D,TEOM>::initial_smoothing()
 
   // smooth fields over particles
   smooth_all_particle_fields(t_squared);
+  sw.Stop();
+  formatted_output::update("Finished initial smoothing "
+                            + to_string(sw.printTime()) + " s.");
 
 }
 
@@ -235,8 +240,6 @@ void SPHWorkstation<D,TEOM>::initial_smoothing()
 template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
 {
-  Stopwatch sw;
-  sw.Start();
 
   CREATE_VIEW(device_, systemPtr->cabana_particles);
   double hT = settingsPtr->hT;
@@ -282,10 +285,6 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
   Kokkos::fence();
 
   update_all_particle_thermodynamics(time_squared);
-
-  sw.Stop();
-  formatted_output::update("finished smoothing particle fields in "
-                            + to_string(sw.printTime()) + " s.");
 
 }
 
@@ -410,8 +409,6 @@ void SPHWorkstation<D,TEOM>::locate_phase_diagram_point_sBSQ( Particle<D> & p,
 template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
 {
-  Stopwatch sw;
-  sw.Start();
   double hT = settingsPtr->hT;
   CREATE_VIEW(device_, systemPtr->cabana_particles);
 
@@ -577,9 +574,6 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
   ///TODO: When implemented freeze-out, uncomment this
   //Kokkos::parallel_for("freeze_out_step", systemPtr->n_particles, freeze_out_step);
   //Kokkos::fence();
-  std::cout << "smooth_all_particle_gradients finished."<< std::endl;
-  std::cout << "----------------------------------------"
-            "----------------------------------------" << std::endl;
   std::cout << std::flush;
   return;
 }
@@ -756,8 +750,13 @@ void SPHWorkstation<D>::freeze_out_particles()
 template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D, TEOM>::get_time_derivatives()
 {
+  Stopwatch sw;
+  sw.Start();
+
   double t = systemPtr->t;
   double t2 = t*t;
+
+
   // reset nearest neighbors
   systemPtr->reset_neighbour_list();
   // reset pi tensor to be consistent
@@ -769,15 +768,12 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives()
   update_all_particle_viscosities();
   //Computes gradients to obtain dsigma/dt
   smooth_all_particle_gradients(t2);
-  #ifdef DEBUG
-  systemPtr->copy_device_to_host();
-  #endif
-
   //calculate time derivatives needed for equations of motion
   TEOM<D>::evaluate_time_derivatives( systemPtr->cabana_particles, t );
-  #ifdef DEBUG
-  systemPtr->copy_device_to_host();
-  #endif
+
+  sw.Stop();
+  formatted_output::update("Finished computing time derivatives in "
+                            + to_string(sw.printTime()) + " s.");
 /*
   // identify and handle particles which have frozen out
   if ( systemPtr->do_freeze_out )
@@ -817,6 +813,7 @@ void SPHWorkstation<D, TEOM>::update_all_particle_thermodynamics(double time_squ
 {
   Stopwatch sw;
   sw.Start();
+  double t = systemPtr->t;
 
   systemPtr->copy_device_to_host();
   ///TODO: This seems trivially parallelizable with openMP. It should be implemented.
