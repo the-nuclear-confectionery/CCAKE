@@ -15,7 +15,7 @@ namespace ccake{
 /// @return the value of gamma
 template<unsigned int D>
 KOKKOS_FUNCTION
-double EoM_default<D>::gamma_calc(double *u, const double &time_squared) {
+double EoM_default<D>::gamma_calc(double u[D], const double &time_squared) {
     return sqrt(1.0+EoM_default<D>::dot(u,u,time_squared));
 }
 
@@ -29,7 +29,7 @@ double EoM_default<D>::gamma_calc(double *u, const double &time_squared) {
 /// @return u^i v^i
 template<>
 KOKKOS_FUNCTION
-double EoM_default<2>::dot(double *v, double *u, const double &time_squared) {
+double EoM_default<2>::dot(double v[2], double u[2], const double &time_squared) {
   double s = 0;
   for (unsigned int i=0; i<2; i++)
     s+= u[i]*v[i];
@@ -59,7 +59,7 @@ double EoM_default<D>::get_LRF(const double &lab, const double &gamma,
 /// @return u^i v^i
 template<unsigned int D>
 KOKKOS_FUNCTION
-double EoM_default<D>::dot(double *v, double *u, const double &time_squared) {
+double EoM_default<D>::dot(double v[D], double u[D], const double &time_squared) {
   double s = 0;
   for (unsigned int i=0; i<D-1; i++)
     s+= u[i]*v[i];
@@ -76,13 +76,13 @@ double EoM_default<D>::dot(double *v, double *u, const double &time_squared) {
 /// @param x Vector where the result will be stored
 template<unsigned int D>
 KOKKOS_FUNCTION
-void EoM_default<D>::dot(double (*v)[D],double (*T)[D][D], const double &time_squared, double (*x)[D]) {
+void EoM_default<D>::dot(double v[D],double T[D][D], const double &time_squared, double *x) {
   for (unsigned int j=0; j<D; j++){
-    (*x)[j] = 0;
+    x[j] = 0;
     for (unsigned int i=0; i<D-1; i++){
-      (*x)[j]-= (*v)[i]*(*T)[i][j];
+      x[j]-= v[i]*T[i][j];
     }
-    (*x)[j] -= (*v)[D-1]*(*T)[D-1][j]*time_squared;
+    x[j] -= v[D-1]*T[D-1][j]*time_squared;
   }
 }
 
@@ -95,11 +95,11 @@ void EoM_default<D>::dot(double (*v)[D],double (*T)[D][D], const double &time_sq
 /// @param x Vector where the result will be stored
 template<>
 KOKKOS_FUNCTION
-void EoM_default<2>::dot(double (*v)[2],double (*T)[2][2], const double &time_squared, double (*x)[2]) {
+void EoM_default<2>::dot(double v[2],double T[2][2], const double &time_squared, double *x) {
   for (unsigned int j=0; j<2; j++){
-    (*x)[j] = 0;
+    x[j] = 0;
     for (unsigned int i=0; i<2; i++){
-      (*x)[j]-= (*v)[i]*(*T)[i][j];
+      x[j]-= v[i]*T[i][j];
     }
   }
 }
@@ -265,7 +265,7 @@ void EoM_default<D>::evaluate_time_derivatives( Cabana::AoSoA<CabanaParticle, De
       double Agam2 = (Agam - eta_o_tau/3.0 - dwdsT1*shv[0][0] ) / gamma;
       double Ctot  = C + eta_o_tau*(1/gamma_squared-1);
 
-      dot(&v, &gradV, t_squared, &aux_vector);
+      dot(v, gradV, t_squared, aux_vector);
       for (int idir=0; idir<D; idir++)
       for (int jdir=0; jdir<D; jdir++){
         M[idir][jdir] = 0;
@@ -299,7 +299,7 @@ void EoM_default<D>::evaluate_time_derivatives( Cabana::AoSoA<CabanaParticle, De
         for (int jdir=0; jdir<D; jdir++){
           M[idir][jdir] += Agam2*uu[idir][jdir]
                           -(1+4./3./gamma_squared)*pi_u[idir][jdir]
-                          + dwdsT1*pi_u[jdir][idir] + gamma*pimin[idir][jdir];
+                          + dwdsT1*pi_u[jdir][idir] + gamma*pimin[idir][jdir]; 
         }
         F[idir] = Btot*u[idir] + gradshear[idir] - ( gradP[idir] + gradBulk[idir] + divshear[idir] );
       }
@@ -313,7 +313,7 @@ void EoM_default<D>::evaluate_time_derivatives( Cabana::AoSoA<CabanaParticle, De
         pre  = eta_o_tau/gamma;
         p1   = gamt - 4.0/3.0/sigma*dsigma_dt + 1.0/t/3.0;
       //}
-        dot(&v, &partU, t_squared, &aux_vector);
+        dot(v, partU, t_squared, aux_vector);
         for (int idir=0; idir<D; idir++)
           F[idir] += p1*minshv[idir]-pre*aux_vector[idir];
 

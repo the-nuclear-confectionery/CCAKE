@@ -28,12 +28,12 @@ class EoM_default
     virtual ~EoM_default(){};
 
     KOKKOS_FUNCTION
-    static double gamma_calc(double* u, const double &time_squared);
+    static double gamma_calc(double u[D], const double &time_squared);
     KOKKOS_FUNCTION
-    static double dot(double* v, double* u, const double &time_squared);
+    static double dot(double v[D], double u[D], const double &time_squared);
     KOKKOS_FUNCTION
-    static void dot(double (*v)[D], double (*T)[D][D], const double &time_squared,
-              double (*result)[D]);
+    static void dot(double v[D], double T[D][D], const double &time_squared,
+              double *result);
     KOKKOS_FUNCTION
     static double get_shvDD(double* pi_diag, const double &time_squared);
     KOKKOS_FUNCTION
