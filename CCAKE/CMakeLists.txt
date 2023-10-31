@@ -1,5 +1,5 @@
 ###############################################################
-cmake_minimum_required(VERSION 3.4)
+cmake_minimum_required(VERSION 3.5)
 project(ccake VERSION 1.0 LANGUAGES CXX C)
 
 configure_file(include/config.h.in config.h)
@@ -17,21 +17,22 @@ if(CMAKE_BUILD_TYPE MATCHES Debug)
   message(STATUS "Configuring debug build.")
   set(CMAKE_DEBUG_POSTFIX d)
   # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb -Wall -Wextra -Wpedantic -Werror") # <- Beware of -Werror when using this line
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb ")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb")
   add_compile_definitions(DEBUG)
 endif()
 
-if (CMAKE_CXX_COMPILER_ID STREQUAL "NVIDIA")
-  # Compiler is nvc++ - We are targeting GPU
-  find_package(CUDA REQUIRED)
-  include_directories(${CUDA_INCLUDE_DIRS})
+option(USE_CUDA "Enable compilation for NVIDIA GPUs" OFF)
+if(USE_CUDA)
+  enable_language(CUDA)
+  set(CMAKE_CUDA_SEPARABLE_COMPILATION "ON")
+  set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --Xcudafe --display_error_number=0")
 endif()
 
 ###############################################################
 # include useful compiler/linker flags
-if (CMAKE_BUILD_TYPE MATCHES Release )
-  set(GCC_COVERAGE_COMPILE_FLAGS "-Ofast -s -march=native -mtune=native")
-endif()
+#if (CMAKE_BUILD_TYPE MATCHES Release )
+#  set(GCC_COVERAGE_COMPILE_FLAGS "${CMAKE_CXX_FLAGS} -Ofast -s -march=native -mtune=native")
+#endif()
 #set(GCC_COVERAGE_LINK_FLAGS    "-lstdc++")
 set(CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS} -fopenmp")
 set(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}")
@@ -43,7 +44,7 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 
-###############################################################]
+###############################################################
 # Find dependencies
 find_package(GSL COMPONENTS C CXX REQUIRED)
 find_package(HDF5 COMPONENTS CXX REQUIRED)
