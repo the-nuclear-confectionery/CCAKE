@@ -350,6 +350,7 @@ void BSQHydro<D,TEOM>::run()
   
   //===================================
   // evolve until simulation terminates
+  int istep=0;
   while ( wsPtr->continue_evolution() )
   {
     //===================================
@@ -363,10 +364,11 @@ void BSQHydro<D,TEOM>::run()
     systemPtr->conservation_BSQ();
     systemPtr->compute_eccentricities();
 
+    istep++;
     //===================================
     // print updated system and status
     outPtr->print_conservation_status();
-    outPtr->print_system_state();
+    if (istep%10 == 0) outPtr->print_system_state();
   }
 
   sw.Stop();
