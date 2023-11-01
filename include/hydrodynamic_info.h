@@ -17,6 +17,7 @@ struct hydrodynamic_info
   double Agam            = 0.0;
   double Agam2           = 0.0;
   double shv33           = 0.0;
+  double shear_tensor_sigma_33 = 0.0;
 
   double gamma           = 0.0; // Lorentz factor
   double Bulk            = 0.0; // Bulk Viscosity weight
@@ -25,7 +26,7 @@ struct hydrodynamic_info
   double tauRelax        = 0.0; // Bulk Relaxation time
   double stauRelax       = 0.0; // Shear Relxation time
   double zeta            = 0.0; // bulk coefficient
-  double setas           = 0.0; 
+  double setas           = 0.0;
   double Ctot            = 0.0;
   double Btot            = 0.0;
 
@@ -41,6 +42,9 @@ struct hydrodynamic_info
 
   double varsigma        = 0.0; // defined to be p + Pi (pressure + bulk)
 
+  double Knudsen_bulk    = 0.0; // bulk Knudsen number
+  double Knudsen_shear   = 0.0; // shear Knudsen number
+
   // vector members
   Vector<double,2> v;                     // velocity
   Vector<double,2> u;                     // relativistic velocity
@@ -54,8 +58,8 @@ struct hydrodynamic_info
   // matrix members
   Matrix<double,2,2> Imat;
   Matrix<double,2,2> gradV, gradU;        // Gradient of velocity needed for shear
-  Matrix<double,2,2> uu, pimin, piu, piutot;
-  Matrix<double,3,3> shv;
+  Matrix<double,2,2> uu, pimin, piu, piutot, shear_tensor_sigma_ij;
+  Matrix<double,3,3> shv, shear_tensor_sigma_munu;
   Matrix<double,2,2> shv1, shv2, shv3, shv4;
 
 
@@ -76,7 +80,7 @@ struct hydrodynamic_info
   double finite_diff_w      = 0.0; // Asadek
   double dBeta_dt           = 0.0; //implement time dervative of cs2 in EoM Asadek
   double dBulk_dt           = 0.0;
- 
+
 
   Vector<double, 2> du_dt;
   Matrix<double, 2, 2> dshv_dt;

@@ -235,7 +235,7 @@ void InputOutput::read_in_initial_conditions()
       abort();
     }
 
-  } 
+  }
 //----------------------------------------------------------------------------
   else if (initial_condition_type == "TRENTO")
   {
@@ -677,9 +677,9 @@ void InputOutput::print_system_state_to_txt()
           //<< p.s() << " "
           //<< p.smoothed.s/(p.hydro.gamma*systemPtr->t) << " "
           //<< p.specific.s << " "
-          //<< p.hydro.sigma << " " 
+          //<< p.hydro.sigma << " "
           //<< p.norm_spec.s << " "
-          << p.hydro.stauRelax << " " 
+          << p.hydro.stauRelax << " "
           << p.hydro.bigtheta << "       "  //24
           << sqrt(     p.hydro.shv(0,0)*p.hydro.shv(0,0)
                   -2.0*p.hydro.shv(0,1)*p.hydro.shv(0,1)
@@ -733,10 +733,10 @@ void InputOutput::print_system_state_to_HDF()
   const int width = ceil(log10(ceil(settingsPtr->tend/settingsPtr->dt)));
 
   vector<string> dataset_names = {"x", "y", "T", "muB", "muS", "muQ",
-                                  "e", "s", "B", "S", "Q"};
+                                  "e", "s", "B", "S", "Q", "Kn_bulk", "Kn_shear"};
   vector<string> dataset_units = {"fm", "fm", "MeV", "MeV", "MeV", "MeV",
                                   "MeV/fm^3", "1/fm^3", "1/fm^3", "1/fm^3",
-                                  "1/fm^3"};
+                                  "1/fm^3", "", ""};
 
   std::map<string,int> eos_map = {{"table",              0},
                                   {"tanh_conformal",     1},
@@ -759,6 +759,8 @@ void InputOutput::print_system_state_to_HDF()
     data[8][p.ID]  = p.rhoB();
     data[9][p.ID]  = p.rhoS();
     data[10][p.ID] = p.rhoQ();
+    data[11][p.ID] = p.Kn_bulk();
+    data[12][p.ID] = p.Kn_shear();
     eos_tags[p.ID] = eos_map[ p.get_current_eos_name() ];
   }
 
@@ -808,15 +810,15 @@ void InputOutput::print_freeze_out_e()
         << fo.gsub[i] << " "
         << fo.uout[i] << " "
         << fo.swsub[i] << "     "
-        << fo.bulksub[i] << "     " 
+        << fo.bulksub[i] << "     "
         << fo.shearsub[i](0,0) << " "
-        << fo.shearsub[i](1,1) << " " 
+        << fo.shearsub[i](1,1) << " "
         << fo.shearsub[i](2,2) << " "
-        << fo.shear33sub[i] << " " 
-        << fo.shearsub[i](1,2) << "    " 
+        << fo.shear33sub[i] << " "
+        << fo.shearsub[i](1,2) << "    "
         << fo.tlist[i] << " "
         << fo.rsub[i] << " "
-        << fo.sFO[i] << "    " 
+        << fo.sFO[i] << "    "
         << fo.efluc[i] << " "
 		<< fo.Tfluc[i] << " "
         << fo.muBfluc[i] << " "
@@ -825,7 +827,7 @@ void InputOutput::print_freeze_out_e()
         << fo.eosname[i] << " "
 		<< fo.wfzfluc[i] << " "
 		<< fo.cs2fzfluc[i] << endl;
-        
+
   FO.close();
 
   return;
@@ -865,15 +867,15 @@ void InputOutput::print_freeze_out_T()
 		<< fo.gsub[i] << " "
         << fo.uout[i] << " "
         << fo.swsub[i] << " "//vol in readin from SPH
-        << fo.bulksub[i] << " " 
+        << fo.bulksub[i] << " "
         << fo.shearsub[i](0,0) << " "
-        << fo.shearsub[i](1,1) << " " 
+        << fo.shearsub[i](1,1) << " "
         << fo.shearsub[i](2,2) << " "
-        << fo.shear33sub[i] << " " 
-        << fo.shearsub[i](1,2) << " " 
+        << fo.shear33sub[i] << " "
+        << fo.shearsub[i](1,2) << " "
         << fo.tlist[i] << " "
         << fo.rsub[i] << " "
-        << fo.sFO[i] << " " 
+        << fo.sFO[i] << " "
         << fo.efluc[i] << " "
 		    << fo.Tfluc[i] << " "
         << fo.muBfluc[i] << " "
@@ -882,8 +884,8 @@ void InputOutput::print_freeze_out_T()
         << fo.eosname[i] << " "
 		    << fo.wfzfluc[i] << " "
 		    << fo.cs2fzfluc[i] << endl;
-		
-        
+
+
   FO.close();
 
   return;
@@ -891,7 +893,7 @@ void InputOutput::print_freeze_out_T()
 //============================================================================
 void InputOutput::print_eccentricity_to_txt()
 {
-  string outputfilename = output_directory + "/eccentricity_" 
+  string outputfilename = output_directory + "/eccentricity_"
                           + std::to_string(n_timesteps_output) + ".dat";
   ofstream out( outputfilename.c_str() );
   out << systemPtr->t << " "
@@ -899,7 +901,7 @@ void InputOutput::print_eccentricity_to_txt()
       << systemPtr-> e_2_P.back() << "\n";
 
   out  << std::flush;
-  
+
   out.close();
 
   return;

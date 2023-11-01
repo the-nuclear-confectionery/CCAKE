@@ -80,7 +80,7 @@ class Particle
 
     // Constructors and destructors.
     Particle();
-    
+
     // copy-constructor
     Particle( const Particle& p );
    ~Particle(){}
@@ -112,6 +112,9 @@ class Particle
     double dwdB() { return thermo.dwdB; }
     double dwdS() { return thermo.dwdS; }
     double dwdQ() { return thermo.dwdQ; }
+
+    double Kn_bulk()  { return hydro.Knudsen_bulk; }
+    double Kn_shear() { return hydro.Knudsen_shear; }
 
     string get_current_eos_name() { return thermo.eos_name; }
 

@@ -18,3 +18,4 @@ bin/**
 *results*/*
 docs/*
 ccake
+*.h5

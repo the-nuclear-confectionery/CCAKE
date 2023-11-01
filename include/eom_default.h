@@ -68,7 +68,142 @@ class EoM_default: public EquationsOfMotion
               + hi.dwdsT1*transpose(hi.piu) + hi.gamma*hi.pimin;
     }
 
-    
+
+    //==========================================================================
+    void set_shear_tensor( hydrodynamic_info & hi )
+    {
+      const double time = hi.t;
+      const double gamma = hi.gamma;
+      Vector <double,3> u3; //first 3 components of u^\mu
+      u3(0) = gamma;
+      u3(1) = hi.u(0);
+      u3(2) = hi.u(1);
+
+      // const auto & du_dt = -hi.du_dt; //lower single spatial index
+      Vector <double,3> du_dt;
+      du_dt(1) = -hi.du_dt(0);
+      du_dt(2) = -hi.du_dt(1);
+      du_dt(0) = -(u3(1)*du_dt(1) + u3(2)*du_dt(2))/gamma;
+      const double theta = hi.div_u + gamma/time;
+      const auto & gradU = -hi.gradU; //lower single spatial index
+
+      /*Matrix <double,3,3> sigma_tilde;
+      sigma_tilde(0,0) = 2.0*du_dt(0) - (2.0/3.0)*theta;
+      sigma_tilde(0,1) = du_dt(1)-(u3(1)*gradU(0,0)+u3(2)*gradU(1,0))/gamma;
+      sigma_tilde(0,2) = du_dt(2)-(u3(1)*gradU(0,1)+u3(2)*gradU(1,1))/gamma;
+      // sigma_tilde(0,1) = du_dt(1)-(u3(1)*gradU(0,0)+u3(2)*gradU(0,1))/gamma;
+      // sigma_tilde(0,2) = du_dt(2)-(u3(1)*gradU(1,0)+u3(2)*gradU(1,1))/gamma;
+      sigma_tilde(1,0) = sigma_tilde(0,1);
+      sigma_tilde(2,0) = sigma_tilde(0,2);
+      sigma_tilde(1,1) = 2.0*gradU(0,0) + (2.0/3.0)*theta;
+      sigma_tilde(2,2) = 2.0*gradU(1,1) + (2.0/3.0)*theta;
+      sigma_tilde(1,2) = gradU(0,1) + gradU(1,0);
+      sigma_tilde(2,1) = sigma_tilde(1,2);
+
+      double ua_ub_stab = inner(u3, sigma_tilde * u3);  // u_\eta == 0 so no sigma[3,3] component
+
+    bool print_and_quit = true && time > 0.60;
+    const double sigma_tilde_33 = (2.0/3.0)*time*time*theta-2.0*time*gamma;
+
+    if (print_and_quit)
+    {
+      cout << setprecision(10) << "Step 0: " << theta << "  " << hi.bigtheta/time << "  " << hi.t << endl;
+      // cout << "hi.dsigma_dt = " << hi.dsigma_dt << "  "
+      //      << -hi.sigma * ( hi.gradV(0,0) + hi.gradV(1,1) ) << endl;
+      cout << "ua_ub_stab = " << ua_ub_stab << endl;
+      cout << "check ua_ub_stab: " << -2.0*hi.bigtheta/(3.0*time) << endl;
+      cout << "u3 = " << u3 << endl;
+      cout << "du_dt = " << du_dt << endl;
+      cout << "gradU = " << gradU << endl;
+      cout << "sigma_tilde = " << sigma_tilde << endl;
+      cout << "Step 1: " << sigma_tilde_33 << endl;
+    }
+
+      // calculate transverse components of sigma itself
+      Matrix <double,3,3> sigma_trans = sigma_tilde;
+      double u_dot_sig_x = u3(0)*sigma_tilde(1,0) + u3(1)*sigma_tilde(1,1) + u3(2)*sigma_tilde(1,2);
+      double u_dot_sig_y = u3(0)*sigma_tilde(2,0) + u3(1)*sigma_tilde(2,1) + u3(2)*sigma_tilde(2,2);
+      sigma_trans(1,1) += 2.0*u3(1)*u_dot_sig_x + u3(1)*u3(1)*ua_ub_stab;
+      sigma_trans(1,2) += u3(1)*u_dot_sig_y + u3(2)*u_dot_sig_x + u3(1)*u3(2)*ua_ub_stab;
+      sigma_trans(2,2) += 2.0*u3(2)*u_dot_sig_y + u3(2)*u3(2)*ua_ub_stab;
+      sigma_trans(2,1) = sigma_trans(1,2);
+
+      hi.shear_tensor_sigma_munu = sigma_trans;*/
+
+      //========================================================================
+      // SET MINIMAL NUMBER OF TRANSVERSE COMPONENTS FIRST
+      //------------------------------------------------------------------------
+      hi.shear_tensor_sigma_munu(1,1) = gradU(0,0) + gamma*u3(1)*du_dt(1)
+                                     + (1.0/3.0)*(1.0+u3(1)*u3(1))*theta;
+      //------------------------------------------------------------------------
+      hi.shear_tensor_sigma_munu(1,2) = 0.5*( gradU(0,1) + gradU(1,0)
+                                     + gamma*(u3(1)*du_dt(2)+u3(2)*du_dt(1)) )
+                                     + (1.0/3.0)*u3(1)*u3(2)*theta;
+      //------------------------------------------------------------------------
+      hi.shear_tensor_sigma_munu(2,2) = gradU(1,1) + gamma*u3(2)*du_dt(2)
+                                     + (1.0/3.0)*(1.0+u3(2)*u3(2))*theta;
+      //========================================================================
+
+
+      hi.shear_tensor_sigma_munu(2,1) = hi.shear_tensor_sigma_munu(1,2);
+      hi.shear_tensor_sigma_munu(0,1) = inner(hi.u, colp1(1,hi.shear_tensor_sigma_munu))/gamma;
+      hi.shear_tensor_sigma_munu(0,2) = inner(hi.u, colp1(2,hi.shear_tensor_sigma_munu))/gamma;
+      hi.shear_tensor_sigma_munu(1,0) = hi.shear_tensor_sigma_munu(0,1);
+      hi.shear_tensor_sigma_munu(2,0) = hi.shear_tensor_sigma_munu(0,2);
+
+      mini(hi.shear_tensor_sigma_ij, hi.shear_tensor_sigma_munu);
+      hi.uu       = hi.u*hi.u;
+      hi.shear_tensor_sigma_munu(0,0) = con(hi.uu, hi.shear_tensor_sigma_ij)/(gamma*gamma);
+      hi.shear_tensor_sigma_33    = ( hi.shear_tensor_sigma_munu(0,0) -
+                                         hi.shear_tensor_sigma_munu(1,1) -
+                                         hi.shear_tensor_sigma_munu(2,2) )/(time*time);
+
+    if (false && time > 0.60)
+    {
+      cout << setprecision(10) << "Step 2: " << time*time*time*time*hi.shear_tensor_sigma_33 << endl << endl;
+      for (int i = 0; i < 4; i++)
+      {
+        for (int j = 0; j < 4; j++)
+        {
+          if (i < 3)
+          {
+            if (j==3) cout << 0 << "\n";
+            else cout << hi.shear_tensor_sigma_munu(i,j) << "  ";
+          }
+          else if (i==3)
+          {
+            if (j<3) cout << 0 << "  ";
+            else cout << /*time*time**/hi.shear_tensor_sigma_33 << "\n\n";
+          }
+        }
+      }
+
+      // signs correspond to appropriate upper/lower indices
+      /*double check_sigma_xx = 2.0*gradU(0,0) + 2.0*gamma*u3(1)*du_dt(1) + (2.0/3.0)*(1.0+u3(1)*u3(1))*theta;
+      double check_sigma_xy = gradU(0,1) + gradU(1,0) + gamma*(u3(1)*du_dt(2)+u3(2)*du_dt(1))
+                               + (2.0/3.0)*u3(1)*u3(2)*theta;
+      double check_sigma_yy = 2.0*gradU(1,1) + 2.0*gamma*u3(2)*du_dt(2) + (2.0/3.0)*(1.0+u3(2)*u3(2))*theta;
+      cout << endl << endl;
+      cout << "sigma_xx = " << hi.shear_tensor_sigma_munu(1,1) << endl;
+      cout << "sigma_xx terms: " << sigma_tilde(1,1) << "  " << 2.0*u3(1)*u_dot_sig_x
+           << "  " << u3(1)*u3(1)*ua_ub_stab << endl;
+      cout << "check_sigma_xx = " << check_sigma_xx << endl;
+      cout << "check_sigma_xx terms: " << 2.0*gradU(0,0) << "  "
+           << 2.0*gamma*u3(1)*du_dt(1) << "  " << (2.0/3.0)*theta
+           << "  " << (2.0/3.0)*u3(1)*u3(1)*theta << endl;
+      cout << endl << endl;
+      cout << "sigma_xy = " << hi.shear_tensor_sigma_munu(1,2) << endl;
+      cout << "sigma_xy terms: " << sigma_tilde(1,2) << "  " << u3(1)*u_dot_sig_y << "  " << u3(2)*u_dot_sig_x
+           << "  " << u3(1)*u3(2)*ua_ub_stab << endl;
+      cout << "check_sigma_xy = " << check_sigma_xy << endl;
+      cout << endl << endl;
+      cout << "sigma_yy = " << hi.shear_tensor_sigma_munu(2,2) << endl;
+      cout << "check_sigma_yy = " << check_sigma_yy << endl;*/
+      abort();
+}
+    }
+
+
     //==========================================================================
     void evaluate_time_derivatives( hydrodynamic_info & hi,
                                     thermodynamic_info & ti,
@@ -194,8 +329,33 @@ class EoM_default: public EquationsOfMotion
       hi.div_u                   = (1./ hi.gamma)*inner( hi.u, hi.du_dt)
                                     - ( hi.gamma/ hi.sigma ) * hi.dsigma_dt;
       //===============
-      // "covariant" divergence
+      // "covariant" divergence (multiplied by Milne coordinate hi.t == tau)
       hi.bigtheta                = hi.div_u*hi.t+hi.gamma;
+
+      //===============
+      // shear tensor \sigma^{\mu\nu}
+      set_shear_tensor( hi );
+
+      //===============
+      // shear and bulk Knudsen numbers
+      hi.Knudsen_bulk            = hi.tauRelax * hi.bigtheta;
+      hi.Knudsen_shear           = hi.stauRelax
+                                   * sqrt(
+                                       hi.shear_tensor_sigma_munu(0,0)
+                                        *hi.shear_tensor_sigma_munu(0,0)
+                                    -2.0*hi.shear_tensor_sigma_munu(0,1)
+                                     *hi.shear_tensor_sigma_munu(0,1)
+                                    -2.0*hi.shear_tensor_sigma_munu(0,2)
+                                     *hi.shear_tensor_sigma_munu(0,2)
+                                    +    hi.shear_tensor_sigma_munu(1,1)
+                                     *hi.shear_tensor_sigma_munu(1,1)
+                                    +    hi.shear_tensor_sigma_munu(2,2)
+                                     *hi.shear_tensor_sigma_munu(2,2)
+                                    +2.0*hi.shear_tensor_sigma_munu(1,2)
+                                     *hi.shear_tensor_sigma_munu(1,2)
+                                    +pow(hi.t,4.0)*hi.shear_tensor_sigma_33
+                                     *hi.shear_tensor_sigma_33
+                                  );
 
       //===============
       Matrix <double,2,2> sub   = hi.pimin + (hi.shv(0,0)/hi.g2)*hi.uu
@@ -203,8 +363,19 @@ class EoM_default: public EquationsOfMotion
 
       //===============
       if ( settingsPtr->using_shear )
+      {
         hi.inside                  = hi.t*( inner( -minshv+hi.shv(0,0)*hi.v, hi.du_dt )
                                       - con2(sub, hi.gradU) - hi.gamma*hi.t*hi.shv33 );
+//         double pimunu_sigmamunu
+//           = hi.shv(0,0)*hi.shear_tensor_sigma_munu(0,0)
+//             -2.0*hi.shv(0,1)*hi.shear_tensor_sigma_munu(0,1)
+//             -2.0*hi.shv(0,2)*hi.shear_tensor_sigma_munu(0,2)
+//             +    hi.shv(1,1)*hi.shear_tensor_sigma_munu(1,1)
+//             +    hi.shv(2,2)*hi.shear_tensor_sigma_munu(2,2)
+//             +2.0*hi.shv(1,2)*hi.shear_tensor_sigma_munu(1,2)
+//             +pow(hi.t,4.0)*hi.shv33*hi.shear_tensor_sigma_33;
+// cout << "compare: " << hi.inside/hi.t << "   " << pimunu_sigmamunu << "   " << hi.t*pimunu_sigmamunu/hi.inside << "\n";
+      }
 
       // time derivative of ``specific entropy density per particle"
       d_dt_specific.s            = 1./hi.sigma/ti.T*( -hi.bigPI*hi.bigtheta + hi.inside );
@@ -230,24 +401,24 @@ class EoM_default: public EquationsOfMotion
 
 
       // N.B. - ADD EXTRA TERMS FOR BULK EQUATION
-	  
-	  
-	  
-	  //formulating simple setup for Beta_Bulk derivative   
+
+
+
+	  //formulating simple setup for Beta_Bulk derivative
       hi.finite_diff_cs2   =  (ti.cs2 - hi.prev_cs2)/0.05; // Asadek
 	  hi.finite_diff_T   =  (ti.T - hi.prev_T)/0.05; // Asadek
 	  hi.finite_diff_w   =  (ti.w - hi.prev_w)/0.05; // Asadek
 	  //hi.fd_cs2        =  (ti.cs2 - hi.sudo_cs2);//Asadek
 	  hi.dBeta_dt      = 0.5*((-hi.finite_diff_T/(ti.T*ti.T))*(1/ti.w)*(1/((1/3-ti.cs2)*(1/3-ti.cs2))))
 	                   + 0.5*((-hi.finite_diff_w/(ti.w*ti.w))*(1/ti.T)*(1/((1/3-ti.cs2)*(1/3-ti.cs2))))
-					   + 0.5*((4*ti.cs2*hi.finite_diff_cs2*(1/((1/3-ti.cs2)*(1/3-ti.cs2)*(1/3-ti.cs2))))*(1/ti.T)*(1/ti.w));//Asadek 
-	  
-	  
+					   + 0.5*((4*ti.cs2*hi.finite_diff_cs2*(1/((1/3-ti.cs2)*(1/3-ti.cs2)*(1/3-ti.cs2))))*(1/ti.T)*(1/ti.w));//Asadek
+
+
 	  //Bulk evolution equation
       hi.dBulk_dt      = ( -hi.zeta/hi.sigma*hi.bigtheta - hi.Bulk/hi.gamma )/hi.tauRelax;//w/out hi.dBeta_dt
       //hi.dBulk_dt      = (( -hi.zeta/hi.sigma*hi.bigtheta - hi.Bulk/hi.gamma )/hi.tauRelax)
 	  //                   - (((hi.dBeta_dt*hi.zeta*ti.T)/(2*hi.tauRelax))*hi.Bulk/hi.gamma);//+hi.dBeta_dt
-	  
+
       //===============
       // print status
       if ( VERBOSE > 2 && hi.print_particle )
