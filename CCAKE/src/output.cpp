@@ -76,6 +76,8 @@ void Output<D>::print_system_state_to_txt()
   for ( auto & p : systemPtr->particles )
     out << iParticle++ << " " //0
         << systemPtr->t << " " //1
+//        << std::setw(8) 
+        << std::setprecision(6) << std::scientific
         << p.r          //2,3
         << p.p() << " "       //4
         << p.T()*hbarc_MeVfm << " " //5
