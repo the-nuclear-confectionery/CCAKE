@@ -238,7 +238,7 @@ double InterpolantWrapper(const double *therm) { return 0.0; }
 //===============================
 KOKKOS_INLINE_FUNCTION
 double default_tau_pi(const double *therm, const parameters params) {
-   return std::max( 5.0*eta(therm,params)/therm[thermo_info::w], 0.005 ); }
+   return Kokkos::max( 5.0*eta(therm,params)/therm[thermo_info::w], 0.005 ); }
 
 //===============================
 KOKKOS_INLINE_FUNCTION
@@ -249,7 +249,7 @@ double tau_piGubser(const double *therm, const parameters params) {
 //===============================
 KOKKOS_INLINE_FUNCTION
 double tau_piMinval(const double *therm, const parameters params) {
-   return std::max( (5.0*eta(therm,params))/therm[thermo_info::w], 0.001 ); }
+   return Kokkos::max( (5.0*eta(therm,params))/therm[thermo_info::w], 0.001 ); }
 
 
 //==============================================================================
@@ -303,7 +303,7 @@ double cs2_dependent_zeta(const double *therm, const parameters params)
   }
 
   const double zeta_over_s_local
-                = A * factor * pow((1.0/3.0) - std::min(therm[thermo_info::cs2], 1.0), p);
+                = A * factor * pow((1.0/3.0) - Kokkos::min(therm[thermo_info::cs2], 1.0), p);
   #ifdef DEBUG
   #ifndef __CUDACC__
    if ( therm[thermo_info::cs2] < 0.0 || therm[thermo_info::cs2] > 1.0 )
@@ -371,10 +371,12 @@ double cs2_dependent_zeta(const double *therm, const parameters params)
 KOKKOS_INLINE_FUNCTION
 double default_tau_Pi(const double *therm, const parameters params)
 {
-  if ( (1.0/3.0-therm[thermo_info::cs2])*(1.0/3.0-therm[thermo_info::cs2]) < 1e-10 )
+  double p = params.cs2_dependent_zeta_p;
+  const double causal_cs2 = therm[thermo_info::cs2] > 1 ? 1 : therm[thermo_info::cs2];
+  if ( pow((1.0/3.0-causal_cs2), p) < 1e-10 )
     return 1e10;
   else
-    return std::max( 5.0*zeta(therm,params)/(pow((1.0/3.0-therm[thermo_info::cs2]),2.0)*therm[thermo_info::w]), 0.1 );
+    return Kokkos::max( 5.0*zeta(therm,params)/( pow((1.0/3.0-causal_cs2), p)*therm[thermo_info::w] ), 0.1 );
 }
 
 //===============================
