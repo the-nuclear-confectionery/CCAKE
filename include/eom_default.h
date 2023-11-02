@@ -338,7 +338,7 @@ class EoM_default: public EquationsOfMotion
 
       //===============
       // shear and bulk Knudsen numbers
-      hi.Knudsen_bulk            = hi.tauRelax * hi.bigtheta;
+      hi.Knudsen_bulk            = hi.tauRelax * hi.bigtheta / hi.t;
       hi.Knudsen_shear           = hi.stauRelax
                                    * sqrt(
                                        hi.shear_tensor_sigma_munu(0,0)
