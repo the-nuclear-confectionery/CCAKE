@@ -21,26 +21,18 @@ def write_header(stepx, stepy, stepEta, xmin, ymin, etamin):
 
 def main():
     check_input()
-    stepx = .05
-    stepy = .05
+    stepx = .01
+    stepy = .01
     xmax = 5
     ymax = 5
     xmin = -xmax
     ymin = -ymax
-
-    # Gubser parameters
-    q     = 1.0 # 1/fm
-    e0    = 9126.0*np.pi*np.pi/3125.0 # 1/fm^4
-                                      # use this normalization to compare with semi-
-                                      # analytic calculation in Phys. Rev. C 91, 014903
-    rhoB0 = 0.0 # 1/fm^3
-    rhoQ0 = 0.0 # 1/fm^3
-    rhoS0 = 0.0 # 1/fm^3
-    
+    hbarc = 0.1973269804 
     # scale for conformal EoS
     Nc    = 3.0 # three colors
     Nf    = 2.5 # u+d massless, s 'half massless'
-    cpLoc = np.pi*np.pi*(2.0*(Nc*Nc-1.0)+(7.0/2.0)*Nc*Nf)/90.0
+    cpLoc = np.pi*np.pi*(2.0*(Nc*Nc-1.0)+(7.0/2.0)*Nc*Nf)/90.0 #In units of fm^-4
+    T0   = hbarc # T0 = 1 fm^-1 = .197 GeV
 
     f = open(sys.argv[1], "r")
     lines = f.readlines()
@@ -53,17 +45,17 @@ def main():
             continue
         else:
             data = line.split()
-            x = data[0]
-            y = data[1]
-            TLocal = float(data[2])
+            x = data[0] #fm
+            y = data[1] #fm
+            TLocal = float(data[2]) # GeV
             ux = data[3]
             uy = data[4]
-            pixx = data[5]
-            pixy = data[6]
-            piyy = data[7]
-            pizz = data[8]
+            pixx = data[5] #Gev/fm^3
+            piyy = data[6] #Gev/fm^3
+            pixy = data[7] #Gev/fm^3
+            pizz = data[8] #Gev/fm^5
 
-            eps = 3.0*cpLoc*TLocal*TLocal*TLocal*TLocal
+            eps = hbarc*3.0*cpLoc*TLocal*TLocal*TLocal*TLocal/T0**4
 
             f.write(f"{x} {y} 0 {eps} 0 0 0 {ux} {uy} 0 0 {pixx} {pixy} 0 {piyy} 0 {pizz}\n")
     f.close()
