@@ -81,9 +81,8 @@ public:
     : settingsPtr(settingsPtr_in),
       systemPtr(systemPtr_in),
       evolver(Evolver(settingsPtr_in, systemPtr_in)) {}
-  ~SPHWorkstation(){
-
-  }
+  KOKKOS_FUNCTION
+  ~SPHWorkstation(){}
 
   //============================================================================
   // initialize pointers
@@ -114,7 +113,7 @@ public:
   //============================================================================
   // functions to apply action to all particles
   //-------------------------------------------
-  void update_all_particle_thermodynamics(double time_squared);
+  void update_all_particle_thermodynamics();
   void update_all_particle_viscosities();
 
   //-------------------------------------------

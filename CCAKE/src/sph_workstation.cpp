@@ -121,7 +121,7 @@ void SPHWorkstation<D, TEOM>::reset_pi_tensor(double time_squared)
     for( unsigned int jdir=0; jdir<D; jdir++ )
     {
       device_hydro_space_matrix.access(is, ia, ccake::hydro_info::pimin, idir, jdir) = pi_space[idir][jdir]; //pi^{ij}
-      device_hydro_space_matrix.access(is, ia, ccake::hydro_info::uu, jdir, idir) = pi_space[idir][jdir]; //pi^{ji}
+      device_hydro_space_matrix.access(is, ia, ccake::hydro_info::uu, jdir, idir) = u[idir]*u[jdir]; //pi^{ji}
     }
     //Update gamma factor
     device_hydro_scalar.access(is, ia, ccake::hydro_info::gamma) = u0;
@@ -295,7 +295,7 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
                                  Cabana::TeamOpTag(), "smooth_fields_kernel");
   Kokkos::fence();
 
-  update_all_particle_thermodynamics(time_squared);
+  update_all_particle_thermodynamics();
 
 }
 
@@ -423,6 +423,8 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
   double hT = settingsPtr->hT;
   CREATE_VIEW(device_, systemPtr->cabana_particles);
 
+  double t = systemPtr->t;
+  bool using_shear = settingsPtr->using_shear;
   //Reset gradients
   auto reset_gradients = KOKKOS_LAMBDA(const int iparticle){
     for (int idir=0; idir < D; ++idir)
@@ -443,7 +445,6 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
   Kokkos::fence();
 
   ///particle_a is the one that will be updated. Particle b is its neighbors.
-  bool using_shear = settingsPtr->using_shear;
   auto smooth_gradients = KOKKOS_LAMBDA(const int particle_a, const int particle_b )
   {
     //Cache quantities locally
@@ -827,6 +828,7 @@ void SPHWorkstation<D, TEOM>::update_all_particle_thermodynamics(double time_squ
   Stopwatch sw;
   sw.Start();
   double t = systemPtr->t;
+  double t2 = t*t;
 
   systemPtr->copy_device_to_host();
   ///TODO: This seems trivially parallelizable with openMP. It should be implemented.
@@ -834,7 +836,7 @@ void SPHWorkstation<D, TEOM>::update_all_particle_thermodynamics(double time_squ
     double u[D];
     for (int idir = 0; idir < D; ++idir)
       u[idir] = p.hydro.u(idir);
-    p.hydro.gamma     = TEOM<D>::gamma_calc(u,time_squared);
+    p.hydro.gamma     = TEOM<D>::gamma_calc(u,t2);
     p.hydro.v         = (1.0/p.hydro.gamma)*p.hydro.u;
     double s_LRF      = TEOM<D>::get_LRF(p.smoothed.s, p.hydro.gamma, t);
     double rhoB_LRF   = TEOM<D>::get_LRF(p.smoothed.rhoB, p.hydro.gamma, t);
