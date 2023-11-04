@@ -179,21 +179,30 @@ void SPHWorkstation<D, TEOM>::initialize_entropy_and_charge_densities()
     double rhoB_input = device_input(iparticle, densities_info::rhoB);
     double rhoS_input = device_input(iparticle, densities_info::rhoS);
     double rhoQ_input = device_input(iparticle, densities_info::rhoQ);
+    double gamma = device_hydro_scalar(iparticle, hydro_info::gamma);
+    double e_norm_spec = device_norm_spec(iparticle, densities_info::e);
+    double s_norm_spec = device_norm_spec(iparticle, densities_info::s);
+    double rhoB_norm_spec = device_norm_spec(iparticle, densities_info::rhoB);
+    double rhoS_norm_spec = device_norm_spec(iparticle, densities_info::rhoS);
+    double rhoQ_norm_spec = device_norm_spec(iparticle, densities_info::rhoQ);
 
-    double gamma = device_hydro_scalar(iparticle, ccake::hydro_info::gamma);
+    e_norm_spec *= e_input*gamma*t0;
+    s_norm_spec *= s_input*gamma*t0;
+    rhoB_norm_spec *= rhoB_input*gamma*t0;
+    rhoS_norm_spec *= rhoS_input*gamma*t0;
+    rhoQ_norm_spec *= rhoQ_input*gamma*t0;
 
-    device_norm_spec(iparticle, ccake::densities_info::e )    *= e_input*gamma*t0;    // constant after this
-    device_norm_spec(iparticle, ccake::densities_info::s )    *= s_input*gamma*t0;       // constant after this
-    device_norm_spec(iparticle, ccake::densities_info::rhoB ) *= rhoB_input*gamma*t0; // constant after this
-    device_norm_spec(iparticle, ccake::densities_info::rhoS ) *= rhoS_input*gamma*t0; // constant after this
-    device_norm_spec(iparticle, ccake::densities_info::rhoQ ) *= rhoQ_input*gamma*t0; // constant after this
+    device_norm_spec(iparticle, ccake::densities_info::e )    = e_norm_spec;    // constant after this
+    device_norm_spec(iparticle, ccake::densities_info::s )    = s_norm_spec;    // constant after this
+    device_norm_spec(iparticle, ccake::densities_info::rhoB ) = rhoB_norm_spec; // constant after this
+    device_norm_spec(iparticle, ccake::densities_info::rhoS ) = rhoS_norm_spec; // constant after this
+    device_norm_spec(iparticle, ccake::densities_info::rhoQ ) = rhoQ_norm_spec; // constant after this
 
     if (s_input < 0.0)
       device_freeze(iparticle) = 4;
 
     ///------------------------------------------------------------------------------------------
   };
-
   Kokkos::parallel_for("init_particles", systemPtr->n_particles, init_particles);
 
   //Allocate cache for evolver
@@ -215,7 +224,7 @@ void SPHWorkstation<D,TEOM>::initial_smoothing()
   double t_squared = pow(settingsPtr->t0,2);
 
   //Creates the list of neighbours for each particle
-  systemPtr->reset_neighbour_list();
+  //systemPtr->reset_neighbour_list(); //Needless. This was already done
 
   //Computes not independent components of the shear tensor
   reset_pi_tensor(t_squared);
@@ -244,19 +253,21 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
   CREATE_VIEW(device_, systemPtr->cabana_particles);
   double hT = settingsPtr->hT;
 
-  //Reset smoothed fields
+  //Reset smoothed fields. Initializes using the contribution of the particle to the density evaluated 
+  //on top of itself because the loop over the neighbour particles does not include the particle itself.
+  double kern0 = SPHkernel<D>::kernel(0,hT); //The value of the Kernel evaluated on top of the particle
   auto reset_fields = KOKKOS_LAMBDA(const int is, const int ia) //First index for loop over struct, second for loop over array
   {
-    device_smoothed.access(is, ia, ccake::densities_info::s) = 0.0;
-    device_smoothed.access(is, ia, ccake::densities_info::rhoB) = 0.0;
-    device_smoothed.access(is, ia, ccake::densities_info::rhoS) = 0.0;
-    device_smoothed.access(is, ia, ccake::densities_info::rhoQ) = 0.0;
-    device_hydro_scalar.access(is, ia, ccake::hydro_info::sigma) = 0.0;
+    device_smoothed.access(is, ia, densities_info::s)    = device_norm_spec.access(is, ia, densities_info::s)*   device_specific_density.access(is, ia, densities_info::s)*kern0;
+    device_smoothed.access(is, ia, densities_info::rhoB) = device_norm_spec.access(is, ia, densities_info::rhoB)*device_specific_density.access(is, ia, densities_info::rhoB)*kern0;
+    device_smoothed.access(is, ia, densities_info::rhoQ) = device_norm_spec.access(is, ia, densities_info::rhoQ)*device_specific_density.access(is, ia, densities_info::rhoQ)*kern0;
+    device_smoothed.access(is, ia, densities_info::rhoS) = device_norm_spec.access(is, ia, densities_info::rhoS)*device_specific_density.access(is, ia, densities_info::rhoS)*kern0;
+    device_smoothed.access(is, ia, hydro_info::sigma)    = device_norm_spec.access(is, ia, densities_info::s)*kern0;
   };
   Cabana::simd_parallel_for( *(systemPtr->simd_policy), reset_fields, "reset_fields" );
   Kokkos::fence();
 
-  auto smooth_fields = KOKKOS_CLASS_LAMBDA(const int iparticle, const int jparticle ){
+  auto smooth_fields = KOKKOS_LAMBDA(const int iparticle, const int jparticle ){
 
     double r1[D] ,r2[D]; // cache for positions of particles 1 and 2
     for (int idir = 0; idir < D; ++idir){
@@ -593,6 +604,8 @@ void SPHWorkstation<D, TEOM>::process_initial_conditions()
   //============================================================================
   // TOTAL NUMBER OF PARTICLES FIXED AFTER THIS POINT
   systemPtr->n_particles = systemPtr->particles.size();
+  double t = settingsPtr->t0;
+  double t2 = t*t;
 
   // fill out initial particle information
   //int TMP_particle_count = 0;
@@ -603,9 +616,9 @@ void SPHWorkstation<D, TEOM>::process_initial_conditions()
     double dA = (settingsPtr->stepx)*(settingsPtr->stepy);
 
     // Set the rest of particle elements using area element
-		//p.u(0)          = 0.0;  // flow is set in Particle constructor!!!
-		//p.u(1)          = 0.0;  // flow is set in Particle constructor!!!
-    p.hydro.gamma     = p.gamcalc();
+    double u[D];
+    for (int i=0; i<D;++i) u[i] = p.hydro.u(i);
+    p.hydro.gamma     = TEOM<D>::gamma_calc(u,t2) ;
     p.hydro.gamma_squared        = p.hydro.gamma*p.hydro.gamma;
     p.hydro.gamma_cube        = p.hydro.gamma_squared*p.hydro.gamma;
 
