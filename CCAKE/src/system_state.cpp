@@ -105,6 +105,7 @@ void SystemState<D>::copy_host_to_device(){
       host_hydro_vector(iparticle, ccake::hydro_info::v,i) = particles[iparticle].hydro.v(i);
       host_hydro_vector(iparticle, ccake::hydro_info::u,i) = particles[iparticle].hydro.u(i);
       host_hydro_vector(iparticle, ccake::hydro_info::gradP,i) = particles[iparticle].hydro.gradP(i);
+      host_hydro_vector(iparticle, ccake::hydro_info::gradE,i) = particles[iparticle].hydro.gradE(i);
       host_hydro_vector(iparticle, ccake::hydro_info::gradBulk,i) = particles[iparticle].hydro.gradBulk(i);
       host_hydro_vector(iparticle, ccake::hydro_info::divshear,i) = particles[iparticle].hydro.divshear(i);
       host_hydro_vector(iparticle, ccake::hydro_info::gradshear,i) = particles[iparticle].hydro.gradshear(i);
@@ -240,6 +241,7 @@ void SystemState<D>::copy_device_to_host(){
       particles[id].hydro.v(i) = host_hydro_vector(iparticle, ccake::hydro_info::v,i);
       particles[id].hydro.u(i) = host_hydro_vector(iparticle, ccake::hydro_info::u,i);
       particles[id].hydro.gradP(i) = host_hydro_vector(iparticle, ccake::hydro_info::gradP,i);
+      particles[id].hydro.gradE(i) = host_hydro_vector(iparticle, ccake::hydro_info::gradE,i);
       particles[id].hydro.gradBulk(i) = host_hydro_vector(iparticle, ccake::hydro_info::gradBulk,i);
       particles[id].hydro.divshear(i) = host_hydro_vector(iparticle, ccake::hydro_info::divshear,i);
       particles[id].hydro.gradshear(i) = host_hydro_vector(iparticle, ccake::hydro_info::gradshear,i);

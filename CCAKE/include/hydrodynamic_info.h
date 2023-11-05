@@ -58,6 +58,7 @@ struct hydrodynamic_info
   Vector<double,D> u;                     ///< relativistic velocity
 
   Vector<double,D> gradP;                 ///< Gradient of Pressure
+  Vector<double,D> gradE;                 ///< Gradient of Energy
   Vector<double,D> gradBulk;              ///< Gradient of Bulk Viscosity
   Vector<double,D> divshear, gradshear;
 
@@ -122,6 +123,7 @@ enum hydro_vector_info
   v,
   u,
   gradP,
+  gradE,
   gradBulk,
   divshear,
   gradshear,
