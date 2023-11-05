@@ -158,8 +158,6 @@ void SPHWorkstation<D, TEOM>::initialize_entropy_and_charge_densities()
             "----------------------------------------" << endl;
   }
 
-  systemPtr->n_particles = systemPtr->particles.size();
-
   //Compute thermal properties
   systemPtr->copy_device_to_host();
   ///\TODO: Trivially parallelizable via openmp. This should be done.
@@ -231,6 +229,8 @@ void SPHWorkstation<D,TEOM>::initial_smoothing()
 
   // smooth fields over particles
   smooth_all_particle_fields(t_squared);
+  // Update particle thermodynamic properties
+  update_all_particle_thermodynamics();
   sw.Stop();
   formatted_output::update("Finished initial smoothing "
                             + to_string(sw.printTime()) + " s.");
@@ -294,8 +294,6 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
                                  systemPtr->neighbour_list, Cabana::FirstNeighborsTag(),
                                  Cabana::TeamOpTag(), "smooth_fields_kernel");
   Kokkos::fence();
-
-  update_all_particle_thermodynamics();
 
 }
 
@@ -778,6 +776,8 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives()
   reset_pi_tensor(t2);
   // smooth all particle fields - s, rhoB, rhoQ and rhoS and sigma
   smooth_all_particle_fields(t2);
+  // Update particle thermodynamic properties
+  update_all_particle_thermodynamics();
   // update viscosities for all particles
   update_all_particle_viscosities();
   //Computes gradients to obtain dsigma/dt
