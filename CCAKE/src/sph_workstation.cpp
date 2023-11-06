@@ -262,7 +262,7 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
     device_smoothed.access(is, ia, densities_info::rhoB) = device_norm_spec.access(is, ia, densities_info::rhoB)*device_specific_density.access(is, ia, densities_info::rhoB)*kern0;
     device_smoothed.access(is, ia, densities_info::rhoQ) = device_norm_spec.access(is, ia, densities_info::rhoQ)*device_specific_density.access(is, ia, densities_info::rhoQ)*kern0;
     device_smoothed.access(is, ia, densities_info::rhoS) = device_norm_spec.access(is, ia, densities_info::rhoS)*device_specific_density.access(is, ia, densities_info::rhoS)*kern0;
-    device_smoothed.access(is, ia, hydro_info::sigma)    = device_norm_spec.access(is, ia, densities_info::s)*kern0;
+    device_hydro_scalar.access(is, ia, hydro_info::sigma)    = device_norm_spec.access(is, ia, densities_info::s)*kern0;
   };
   Cabana::simd_parallel_for( *(systemPtr->simd_policy), reset_fields, "reset_fields" );
   Kokkos::fence();
@@ -423,23 +423,24 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
 
   double t = systemPtr->t;
   bool using_shear = settingsPtr->using_shear;
-  //Reset gradients
-  auto reset_gradients = KOKKOS_LAMBDA(const int iparticle){
+  //Reset gradients - No need to take into account self interaction, since gradient of Kernel for r = 0 is zero
+  auto reset_gradients = KOKKOS_LAMBDA(const int is, const int ia){
     for (int idir=0; idir < D; ++idir)
     {
-      device_hydro_vector(iparticle,ccake::hydro_info::gradP, idir) = 0.0;
-      device_hydro_vector(iparticle,ccake::hydro_info::gradBulk, idir) = 0.0;
-      device_hydro_vector(iparticle,ccake::hydro_info::gradshear, idir) = 0.0;
-      device_hydro_vector(iparticle,ccake::hydro_info::divshear, idir) = 0.0;
+      device_hydro_vector.access(is, ia, ccake::hydro_info::gradP, idir) = 0.0;
+      device_hydro_vector.access(is, ia, ccake::hydro_info::gradBulk, idir) = 0.0;
+      device_hydro_vector.access(is, ia, ccake::hydro_info::gradshear, idir) = 0.0;
+      device_hydro_vector.access(is, ia, ccake::hydro_info::divshear, idir) = 0.0;
+      device_hydro_vector.access(is, ia, ccake::hydro_info::gradE,idir)  = 0.0;
       for (int jdir=0; jdir < D; ++jdir)
-        device_hydro_space_matrix(iparticle,ccake::hydro_info::gradV, idir, jdir) = 0.0;
+        device_hydro_space_matrix.access(is, ia,ccake::hydro_info::gradV, idir, jdir) = 0.0;
     }
 
-    int btrack = device_btrack(iparticle);
+    int btrack = device_btrack.access(is, ia);
     if ( btrack != -1 ) btrack = 0;
-    device_btrack(iparticle) = btrack;
+    device_btrack.access(is, ia) = btrack;
   };
-  Kokkos::parallel_for("reset_gradients", systemPtr->n_particles, reset_gradients);
+  Cabana::simd_parallel_for(*(systemPtr->simd_policy),reset_gradients, "reset_gradients");
   Kokkos::fence();
 
   ///particle_a is the one that will be updated. Particle b is its neighbors.
