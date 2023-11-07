@@ -41,6 +41,7 @@ class EoM_default
     KOKKOS_FUNCTION
     static double full_contraction(double M[D][D], double T[D][D], const double &time_squared);
 
+    static void reset_pi_tensor(std::shared_ptr<SystemState<D>> sysPtr);
     static void evaluate_time_derivatives( Cabana::AoSoA<CabanaParticle, DeviceType, VECTOR_LENGTH> &particles , double t_in);
 
     std::string name = "Israel-Stewart";                    // name associated to EoM

@@ -5,6 +5,118 @@ namespace ccake{
   template class EoM_default<2>;
   template class EoM_default<3>;
 
+template<unsigned int D>
+void EoM_default<D>::reset_pi_tensor(std::shared_ptr<SystemState<D>> sysPtr){
+  double t2 = (sysPtr->t)*(sysPtr->t);
+  CREATE_VIEW(device_,sysPtr->cabana_particles)
+
+  #ifdef DEBUG
+   auto particles_host =
+        Cabana::create_mirror_view_and_copy( Kokkos::HostSpace(), sysPtr->cabana_particles);
+  auto h_matrix_view =  Cabana::slice<particle_info::hydro_space_matrix_info>(particles_host);
+  auto h_vec_view =  Cabana::slice<particle_info::hydro_vector_info>(particles_host);
+  auto h_scalar_view =  Cabana::slice<particle_info::hydro_scalar_info>(particles_host);
+  auto h_spacetime_matrix_view =  Cabana::slice<particle_info::hydro_spacetime_matrix_info>(particles_host);
+  Kokkos::fence();
+  
+  //Print hydro scalars for a particle in the midfle of the event
+  int c=110000;
+  //Scalars
+  cout << "---- Before regularization of shear ----" << std::endl;
+  cout << "tt\ttx\tty\txt\txx\txy\tyt\tyx\tyy" << endl;
+  for(int i=0; i<D+1; ++i)
+  for(int j=0; j<D+1; ++j) std::cout << h_spacetime_matrix_view(c,hydro_info::shv, i, j) << " ";
+  cout << endl;
+  #endif
+  ///TODO: Needs checking for 1+1 and 3+1 cases
+  auto kokkos_ensure_consistency = KOKKOS_LAMBDA(const int is, int ia) 
+  {
+    //Declare caches
+    milne::Vector<double,D> u;
+    milne::Matrix<double,D+1,D+1> shv;
+
+    for(int idir=0; idir<D; ++idir) u(idir) = device_hydro_vector.access(is, ia, hydro_info::u, idir);
+    for(int idir=0; idir<D+1; ++idir)
+    for(int jdir=0; jdir<D+1; ++jdir)
+      shv(idir,jdir) = device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir, jdir);
+
+    //computations
+    double gamma = Kokkos::sqrt(1+milne::inner(u,u));
+    //pi^{0i} = \pi^{ij}u_j/gamma
+    milne::Vector<double,D> u_cov = u;
+    u_cov.make_covariant(t2);
+    for(int idir=1; idir<D+1; ++idir){
+      milne::Vector<double,D> colp1_shv;
+      for(int jdir=1; jdir<D+1; ++jdir) colp1_shv(jdir-1) = shv(idir,jdir);
+      shv(0,idir) = 1./gamma*milne::inner(u,colp1_shv);
+    } 
+    
+    //Simmetrizes
+    for( int i=0; i<D+1; i++ )
+    for( int j=i+1; j<D+1; j++ )
+      shv(j,i) = shv(i,j);
+    
+    milne::Matrix<double,D,D> pimin, uu;
+    for( int idir=0; idir<D; idir++ )
+    for( int jdir=0; jdir<D; jdir++ ){
+      pimin(idir,jdir) = shv(idir+1,jdir+1);
+      uu(idir,jdir) = u(idir)*u(jdir);
+    }
+
+    //Fill data into cabana data structure before proceeding
+    for(int idir=0; idir<D; ++idir)
+    for(int jdir=0; jdir<D; ++jdir)
+    {
+      device_hydro_space_matrix.access(is, ia, hydro_info::uu, idir, jdir) = uu(idir,jdir);
+      device_hydro_space_matrix.access(is, ia, hydro_info::pimin, idir, jdir) = pimin(idir,jdir);
+    }
+
+    uu.make_covariant(0,t2);
+    uu.make_covariant(1,t2);
+    
+    //pi^00 = u_i u_j pi^{ij}/gamma^2
+    shv(0,0) = 1./gamma/gamma*milne::con(uu,pimin);
+  
+    //pi^33 = (pi^00 - pi^11 - pi^22)/t2
+    double shv33 = shv(0,0);
+    switch (D)
+    {
+    case 2:
+      shv33 = (shv(0,0) - shv(1,1) - shv(2,2))/t2;
+      break;
+    case 3:
+      shv33 = (shv(0,0) - shv(1,1) - shv(2,2))/t2;
+      shv(3,3) = shv33;
+      break;
+    default:
+      shv33 = shv(0,0)/t2;
+      shv(1,1) = shv33;
+      break;
+    }
+    
+
+    //Return shv
+    for(int idir=0; idir<D+1; ++idir)
+    for(int jdir=0; jdir<D+1; ++jdir)
+      device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir, jdir) = shv(idir,jdir) ;
+    
+  };
+    //Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace> simd_policy(0, particles.size());
+  Cabana::simd_parallel_for(*(sysPtr->simd_policy),kokkos_ensure_consistency,"kokkos_ensure_consistency");
+  Kokkos::fence();
+  #ifdef DEBUG
+  Cabana::deep_copy( particles_host, sysPtr->cabana_particles);
+   Kokkos::fence();
+  
+  //Print hydro scalars for a particle in the midfle of the event
+  //Scalars
+  cout << "---- After regularization of shear ----" << std::endl;
+  cout << "tt\ttx\tty\txt\txx\txy\tyt\tyx\tyy" << endl;
+  for(int i=0; i<D+1; ++i)
+  for(int j=0; j<D+1; ++j) std::cout << h_spacetime_matrix_view(c,hydro_info::shv, i, j) << " ";
+  cout << endl;
+  #endif
+}
 
 /// @brief Calculates the gamma factor = u^0.
 /// @details This is the default implementation of the gamma factor calculation.

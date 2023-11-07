@@ -69,68 +69,7 @@ void SPHWorkstation<D,TEOM>::initialize()
 template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D, TEOM>::reset_pi_tensor(double time_squared)
 {
-    CREATE_VIEW(device_, systemPtr->cabana_particles);
-  auto reset_pi_tensor_lambda  = KOKKOS_LAMBDA(const int is, const int ia)
-  {
-    double u[D]; // Cache for fluid velocity
-    double pi_space[D][D]; //Cache for pi^{ij}
-    double pi_time_vector[D]; //Cache for the components pi^{0i}
-    double pi00; //Cache for pi^{00}
-    double pi_diag[D+1]; //Cache for the diagonal components of pi tensor
-
-    //Retrieve information from the particle to local variables
-    for( unsigned int idir=0; idir<D; idir++ ){
-      u[idir] = device_hydro_vector.access(is, ia, ccake::hydro_info::u, idir);
-      pi_diag[idir+1] = device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::shv, idir+1, idir+1);
-      for( unsigned int jdir=0; jdir<D; jdir++ )
-        pi_space[idir][jdir] = device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::shv, idir+1, jdir+1);
-    }
-
-    //Computes the gamma factor
-    double u0 = TEOM<D>::gamma_calc(u,time_squared);
-
-    //Computes pi^{0i} = - u_j pi^{ij}/gamma (obtained from the requirement u_\mu pi^{\mu i} = 0)
-    for( unsigned int idir=0; idir<D; idir++ )
-      pi_time_vector[idir] = TEOM<D>::dot(pi_space[idir],u,time_squared)/u0;
-
-    //Set the shear tensor pi^{0 0} = - pi^{0j} u_j /gamma (from the requirement u_\mu pi^{\mu 0} = 0)
-    //This is equivalent to pi^{i j} u^i u^j /gamma^2
-    pi00 = TEOM<D>::dot(pi_time_vector,u,time_squared)/u0;
-    pi_diag[0] = pi00;
-
-    //Lastly, we need to ensure that the tensor is traceless. We do this by setting
-    //the value of the last component pi^{33} = (pi^{00}-pi^{11}-pi^{22})/tau^22
-    double pi33 = TEOM<D>::get_shvDD(pi_diag, time_squared);
-    if( D != 2 )
-      pi_diag[D] = pi33;
-
-
-    //Set the values of the pi tensor
-    device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::shv, 0, 0) = pi_diag[0]; //pi^{00}
-    for( unsigned int idir=1; idir<D+1; idir++ ){
-      device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::shv, 0, idir) = pi_time_vector[idir-1]; //pi^{0i}
-      device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::shv, idir, 0) = pi_time_vector[idir-1]; //pi^{i0}
-      device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::shv, idir, idir) = pi_diag[idir]; //pi^{ii}
-      for (unsigned int jdir=idir+1; jdir<D+1; jdir++){
-        device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::shv, idir, jdir) = pi_space[idir-1][jdir-1]; //pi^{ij}
-        device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::shv, jdir, idir) = pi_space[idir-1][jdir-1]; //pi^{ji}
-      }
-    }
-    //Set values of pi^{ij} and u^i u^j tensors
-    for( unsigned int idir=0; idir<D; idir++ )
-    for( unsigned int jdir=0; jdir<D; jdir++ )
-    {
-      device_hydro_space_matrix.access(is, ia, ccake::hydro_info::pimin, idir, jdir) = pi_space[idir][jdir]; //pi^{ij}
-      device_hydro_space_matrix.access(is, ia, ccake::hydro_info::uu, jdir, idir) = u[idir]*u[jdir]; //pi^{ji}
-    }
-    //Update gamma factor
-    device_hydro_scalar.access(is, ia, ccake::hydro_info::gamma) = u0;
-    device_hydro_scalar.access(is, ia, ccake::hydro_info::shv33) = pi33;
-  };
-
-  Cabana::simd_parallel_for(*(systemPtr->simd_policy), reset_pi_tensor_lambda, "reset_pi_tensor");
-  Kokkos::fence();
-
+  TEOM<D>::reset_pi_tensor(systemPtr);
 };
 
 
