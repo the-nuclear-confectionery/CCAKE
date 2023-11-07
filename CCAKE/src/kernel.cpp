@@ -80,7 +80,7 @@ void SPHkernel<D>::gradKernel(double const* rel_dist, double r, double h, double
     return;
   }
   for (int idir=0; idir<2; idir++)
-      grad[idir] = norm_grad2*( 1.5*q - 2 )*rel_dist[idir];
+      grad[idir] = norm_grad2*( 1.5*q - 2 )*rel_dist[idir]/h;
   return;
 }  
 
