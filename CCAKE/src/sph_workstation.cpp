@@ -425,7 +425,7 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
     gradP = (sigsqrb*pressure_b + sigsqra*pressure_a ) * sigsigK;
     gradE = (sigsqrb*energy_b + sigsqra*energy_a ) * sigsigK;
     gradBulk = (Bulk_b/sigma_b/gamma_b + Bulk_a/sigma_a/gamma_a)/t*sigsigK;
-    gradV    = (norm_spec_s_b/sigma_a)*( v_a -  v_b )*gradK;
+    gradV    = (norm_spec_s_b/sigma_a)*( v_b -  v_a )*gradK;
 
     if (using_shear){
       milne::Matrix<double,D+1,D+1> shv_a, shv_b;
