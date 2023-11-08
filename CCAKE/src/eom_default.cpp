@@ -6,7 +6,8 @@ namespace ccake{
   template class EoM_default<3>;
 
 template<unsigned int D>
-void EoM_default<D>::reset_pi_tensor(std::shared_ptr<SystemState<D>> sysPtr){
+void EoM_default<D>::reset_pi_tensor(std::shared_ptr<SystemState<D>> sysPtr)
+{
   double t2 = (sysPtr->t)*(sysPtr->t);
   CREATE_VIEW(device_,sysPtr->cabana_particles)
 
@@ -127,24 +128,29 @@ void EoM_default<D>::reset_pi_tensor(std::shared_ptr<SystemState<D>> sysPtr){
 /// @param time_squared The square of the time where the gamma factor will be computed.
 /// @return the value of gamma
 template<unsigned int D> KOKKOS_FUNCTION
-double EoM_default<D>::gamma_calc(double u[D], const double &time_squared) {
-    return sqrt(1.0+EoM_default<D>::dot(u,u,time_squared));
+double EoM_default<D>::gamma_calc(double u[D], const double &time_squared)
+{
+    double dot_u = 0;
+    for (unsigned int i=0; i<D-1; i++)
+      dot_u+= u[i]*u[i];
+    dot_u += time_squared*u[D-1]*u[D-1];
+    return sqrt(1.0+dot_u);
 }
 
-/// @brief Computes the inner product of two vectors.
-/// @details This considers only the space components of the vectors. This is the
-/// implementation for the special case D=2. IMPORTANT: We are not carrying the
-/// metric signal here, that is, we are evaluating -v_j u^j.
-/// @param u The first vector
-/// @param v The second vector
-/// @param time_squared The square of the time where the gamma factor will be computed
-/// @return u^i v^i
+/// @brief Calculates the gamma factor = u^0.
+/// @details This is the default implementation of the gamma factor calculation.
+/// It assumes that the last component of the velocity vector is the longitudinal
+/// velocity, and that the metric is Milne.
+/// @param u The velocity vector (space components only).
+/// @param time_squared The square of the time where the gamma factor will be computed.
+/// @return the value of gamma
 template<> KOKKOS_FUNCTION
-double EoM_default<2>::dot(double v[2], double u[2], const double &time_squared) {
-  double s = 0;
-  for (unsigned int i=0; i<2; i++)
-    s+= u[i]*v[i];
-  return s;
+double EoM_default<2>::gamma_calc(double u[2], const double &time_squared)
+{
+    double dot_u = 0;
+    for (unsigned int i=0; i<2; i++)
+      dot_u += u[i]*u[i];
+    return sqrt(1.0+dot_u);
 }
 
 /// @brief Transforms a scalar from the lab frame to the LRF.
@@ -155,132 +161,9 @@ double EoM_default<2>::dot(double v[2], double u[2], const double &time_squared)
 /// @return The quantity in the fluid LRF (local rest frame).
 template<unsigned int D> KOKKOS_FUNCTION
 double EoM_default<D>::get_LRF(const double &lab, const double &gamma,
-                               const double &t) {
+                               const double &t)
+{
                                 return lab/gamma/t;
-}
-
-/// @brief Computes the inner product of two vectors.
-/// @details This considers only the space components of the vectors. This is the
-/// general case. It assumes that the last component of the velocity vector is the
-/// longitudinal velocity. IMPORTANT: We are not carrying the metric signal here, that
-/// is, we are evaluating -v_j u^j.
-/// @param u The first vector
-/// @param v The second vector
-/// @param time_squared The square of the time where the gamma factor will be computed
-/// @return u^i v^i
-template<unsigned int D>
-KOKKOS_FUNCTION
-double EoM_default<D>::dot(double v[D], double u[D], const double &time_squared) {
-  double s = 0;
-  for (unsigned int i=0; i<D-1; i++)
-    s+= u[i]*v[i];
-  s += u[D-1]*v[D-1]*time_squared;
-  return s;
-}
-
-/// @brief Contracts a vector with a vector (LHS contraction).
-/// @details We are assuming a contraction in the form x^j = v_i T^{i j}. Bear in
-/// mind that we are considering only the space components.
-/// @param v The vector
-/// @param T The tensor
-/// @param time_squared The square of the time where the gamma factor will be computed
-/// @param x Vector where the result will be stored
-template<unsigned int D>
-KOKKOS_FUNCTION
-void EoM_default<D>::dot(double v[D],double T[D][D], const double &time_squared, double *x) {
-  for (unsigned int j=0; j<D; j++){
-    x[j] = 0;
-    for (unsigned int i=0; i<D-1; i++){
-      x[j]-= v[i]*T[i][j];
-    }
-    x[j] -= v[D-1]*T[D-1][j]*time_squared;
-  }
-}
-
-/// @brief Contracts a vector with a vector (LHS contraction).
-/// @details We are assuming a contraction in the form x^j = v_i T^{i j}. Bear in
-/// mind that we are considering only the space components.
-/// @param v The vector
-/// @param T The tensor
-/// @param time_squared The square of the time where the gamma factor will be computed
-/// @param x Vector where the result will be stored
-template<>
-KOKKOS_FUNCTION
-void EoM_default<2>::dot(double v[2],double T[2][2], const double &time_squared, double *x) {
-  for (unsigned int j=0; j<2; j++){
-    x[j] = 0;
-    for (unsigned int i=0; i<2; i++){
-      x[j]-= v[i]*T[i][j];
-    }
-  }
-}
-
-/// @brief Contracts all indices of 2 rank 2 contravariant tensors
-/// @details Computes $ a = M^{ij}g_{ij}T^{ij}
-/// @param M The first vector
-/// @param T The second vector
-/// @param time_squared The square of the time where the gamma factor will be computed
-/// @return A double with the result of the contraction
-template<>
-KOKKOS_FUNCTION
-double EoM_default<2>::full_contraction(double M[2][2], double T[2][2], const double &time_squared) {
-  double r = 0;
-  for (unsigned int i=0; i<2; i++)
-  for (unsigned int j=0; j<2; j++)
-    r = -M[i][j]*T[i][j];
-  return r;
-}
-
-/// @brief Contracts all indices of 2 rank 2 contravariant tensors
-/// @details Computes $ a = M^{ij}g_{ij}T^{ij}
-/// @param M The first vector
-/// @param T The second vector
-/// @param time_squared The square of the time where the gamma factor will be computed
-/// @return A double with the result of the contraction
-template<unsigned int D>
-KOKKOS_FUNCTION
-double EoM_default<D>::full_contraction(double M[D][D], double T[D][D], const double &time_squared) {
-  double r = 0;
-  for (unsigned int i=0; i<D-1; i++){
-    for (unsigned int j=0; j<D-1; j++)
-      r = - M[i][j]*T[i][j];
-    r -= M[D-1][i]*T[D-1][i];
-    r -= M[i][D-1]*T[i][D-1];
-  }
-  r -= M[D-1][D-1]*T[D-1][D-1];
-  return r;
-}
-
-/// @brief Ensures that the shear tensor will be traceless.
-/// @details This is the default implementation of the traceless condition. The last
-/// component is assumed to be the longitudinal one and is modified as to ensure the tensor
-/// is traceless.
-/// @param pi_diag A D+1 dimensional array containing the diagonal elements of the shear tensor.
-/// @return pi^{DD} = pi^{00} - \sum_{i=1}^{D-1} pi^{ii}/tau^2
-template<unsigned int D>
-KOKKOS_FUNCTION
-double EoM_default<D>::get_shvDD(double* pi_diag, const double &time_squared){
-    double s = pi_diag[0];
-    for (unsigned int i=1; i<D; i++)
-        s -= pi_diag[i];
-    s /= time_squared;
-    return s;
-}
-
-/// @brief Ensures that the shear tensor will be traceless.
-/// @details This is the implementation for the special case (2+1)D. It assumes the existence of
-/// a longitudinal component. We are using Milne coordinates.
-/// @param pi_diag A D+1 dimensional array containing the diagonal elements of the shear tensor.
-/// @return pi^{33} = pi^{00} - \sum_{i=1}^{D} pi^{ii}/\tau^2
-/// \todo I may be wrong about this implementation. It is worth to double check.
-template<>
-KOKKOS_FUNCTION
-double EoM_default<2>::get_shvDD(double* pi_diag, const double &time_squared){
-    double s = pi_diag[0];
-    for (unsigned int i=1; i<3; i++)
-        s -= pi_diag[i];
-    s /= time_squared;
-    return s;
 }
 
 template<unsigned int D>
