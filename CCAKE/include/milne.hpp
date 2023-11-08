@@ -627,5 +627,33 @@ void tmini( Matrix<T,D1,D2>& b, const Matrix<T,D1-1,D2-1>& a )
     b(i+1,j+1) = (T)a(i,j);
 } // AOK
 
+template <class T, int D> KOKKOS_INLINE_FUNCTION
+T tr( const Matrix<T,D,D>& a,T t2)
+{
+  double s = 0.0;
+  for (int i = 0; i < D-1; i++)
+    s += a(i,i);
+  s += a(D-1,D-1)*t2;
+  return s;
+} // AOK
+
+template <> KOKKOS_INLINE_FUNCTION
+double tr( const Matrix<double,2,2>& a,double t2)
+{
+  double s = 0.0;
+  for (int i = 0; i < 2; i++)
+    s += a(i,i);
+  return s;
+} // AOK
+
+template <> KOKKOS_INLINE_FUNCTION
+float tr( const Matrix<float,2,2>& a,float t2)
+{
+  float s = 0.0;
+  for (int i = 0; i < 2; i++)
+    s += a(i,i);
+  return s;
+} // AOK
+
 }}
 #endif

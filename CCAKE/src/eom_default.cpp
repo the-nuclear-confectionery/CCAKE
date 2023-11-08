@@ -20,13 +20,13 @@ void EoM_default<D>::reset_pi_tensor(std::shared_ptr<SystemState<D>> sysPtr){
   Kokkos::fence();
   
   //Print hydro scalars for a particle in the midfle of the event
-  int c=110000;
+  int c=11000;
   //Scalars
   cout << "---- Before regularization of shear ----" << std::endl;
-  cout << "tt\ttx\tty\txt\txx\txy\tyt\tyx\tyy" << endl;
-  for(int i=0; i<D+1; ++i)
-  for(int j=0; j<D+1; ++j) std::cout << h_spacetime_matrix_view(c,hydro_info::shv, i, j) << " ";
-  cout << endl;
+  for(int i=0; i<D+1; ++i){
+    for(int j=0; j<D+1; ++j) std::cout << h_spacetime_matrix_view(c,hydro_info::shv, i, j) << " ";
+    cout << endl;
+  }
   #endif
   ///TODO: Needs checking for 1+1 and 3+1 cases
   auto kokkos_ensure_consistency = KOKKOS_LAMBDA(const int is, int ia) 
@@ -106,15 +106,16 @@ void EoM_default<D>::reset_pi_tensor(std::shared_ptr<SystemState<D>> sysPtr){
   Kokkos::fence();
   #ifdef DEBUG
   Cabana::deep_copy( particles_host, sysPtr->cabana_particles);
-   Kokkos::fence();
+  Kokkos::fence();
   
   //Print hydro scalars for a particle in the midfle of the event
   //Scalars
   cout << "---- After regularization of shear ----" << std::endl;
   cout << "tt\ttx\tty\txt\txx\txy\tyt\tyx\tyy" << endl;
-  for(int i=0; i<D+1; ++i)
-  for(int j=0; j<D+1; ++j) std::cout << h_spacetime_matrix_view(c,hydro_info::shv, i, j) << " ";
-  cout << endl;
+  for(int i=0; i<D+1; ++i){
+    for(int j=0; j<D+1; ++j) std::cout << h_spacetime_matrix_view(c,hydro_info::shv, j, i) << " ";
+    cout << endl;
+  }
   #endif
 }
 
@@ -125,8 +126,7 @@ void EoM_default<D>::reset_pi_tensor(std::shared_ptr<SystemState<D>> sysPtr){
 /// @param u The velocity vector (space components only).
 /// @param time_squared The square of the time where the gamma factor will be computed.
 /// @return the value of gamma
-template<unsigned int D>
-KOKKOS_FUNCTION
+template<unsigned int D> KOKKOS_FUNCTION
 double EoM_default<D>::gamma_calc(double u[D], const double &time_squared) {
     return sqrt(1.0+EoM_default<D>::dot(u,u,time_squared));
 }
@@ -139,8 +139,7 @@ double EoM_default<D>::gamma_calc(double u[D], const double &time_squared) {
 /// @param v The second vector
 /// @param time_squared The square of the time where the gamma factor will be computed
 /// @return u^i v^i
-template<>
-KOKKOS_FUNCTION
+template<> KOKKOS_FUNCTION
 double EoM_default<2>::dot(double v[2], double u[2], const double &time_squared) {
   double s = 0;
   for (unsigned int i=0; i<2; i++)
@@ -154,10 +153,10 @@ double EoM_default<2>::dot(double v[2], double u[2], const double &time_squared)
 /// @param gamma Lorentz contraction factor.
 /// @param time_squared The square of the time where the gamma factor will be computed.
 /// @return The quantity in the fluid LRF (local rest frame).
-template<unsigned int D>
+template<unsigned int D> KOKKOS_FUNCTION
 double EoM_default<D>::get_LRF(const double &lab, const double &gamma,
-                               const double &time_squared) {
-                                return lab/gamma/time_squared;
+                               const double &t) {
+                                return lab/gamma/t;
 }
 
 /// @brief Computes the inner product of two vectors.
@@ -285,11 +284,373 @@ double EoM_default<2>::get_shvDD(double* pi_diag, const double &time_squared){
 }
 
 template<unsigned int D>
-void EoM_default<D>::evaluate_time_derivatives( Cabana::AoSoA<CabanaParticle, DeviceType, VECTOR_LENGTH> &particles,
-                                                double t_in )
+void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> sysPtr)
 {
-  CREATE_VIEW( device_, particles );
-  double t = t_in;
+  double t = (sysPtr->t);
+  double t2 = (sysPtr->t);
+  CREATE_VIEW(device_,sysPtr->cabana_particles);
+  bool using_shear = true; ///TODO: This should be retrieved from the input parameters
+  
+  #ifdef DEBUG
+  
+  auto d_M = Cabana::AoSoA< Cabana::MemberTypes<double[D][D]>, DeviceType, VECTOR_LENGTH>("d_M",sysPtr->cabana_particles.size()) ;
+  auto dM = Cabana::slice<0>(d_M);
+  auto h_M = Cabana::AoSoA< Cabana::MemberTypes<double[D][D]>, HostType, VECTOR_LENGTH>("d_M",sysPtr->cabana_particles.size()) ;
+  auto hM = Cabana::slice<0>(h_M);
+  #endif
+  
+  auto fill_auxiliary_variables = KOKKOS_LAMBDA(int const is, int const ia){
+
+    double gamma = device_hydro_scalar.access(is, ia, hydro_info::gamma);
+    double dwds = device_thermo.access(is, ia, thermo_info::dwds);
+    double dwdB = device_thermo.access(is, ia, thermo_info::dwdB);
+    double dwdQ = device_thermo.access(is, ia, thermo_info::dwdQ);
+    double dwdS = device_thermo.access(is, ia, thermo_info::dwdS);
+    double T = device_thermo.access(is, ia, thermo_info::T);
+    double w = device_thermo.access(is, ia, thermo_info::w);
+    double s = device_thermo.access(is, ia, thermo_info::s);
+    double rhoB = device_thermo.access(is, ia, thermo_info::rhoB);
+    double rhoQ = device_thermo.access(is, ia, thermo_info::rhoQ);
+    double rhoS = device_thermo.access(is, ia, thermo_info::rhoS);
+    double sigma = device_hydro_scalar.access(is, ia, hydro_info::sigma);
+    double Bulk = device_hydro_scalar.access(is, ia, hydro_info::Bulk);
+    double setas = device_hydro_scalar.access(is, ia, hydro_info::setas);
+    double stauRelax = device_hydro_scalar.access(is, ia, hydro_info::stauRelax);
+    double tauRelax = device_hydro_scalar.access(is, ia, hydro_info::tauRelax);
+    double zeta = device_hydro_scalar.access(is, ia, hydro_info::zeta);
+    double shv00 = device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, 0,0);
+
+    milne::Matrix<double,D,D> gradV;
+    for(int idir=0; idir<D; ++idir)
+    for(int jdir=0; jdir<D; ++jdir)
+      gradV(idir,jdir) = device_hydro_space_matrix.access(is, ia, hydro_info::gradV, idir, jdir);
+
+    
+    double dsigma_dt = -sigma * milne::tr(gradV,t2); //Ok
+    double g2        = gamma*gamma; //Ok
+    double gt        = gamma*t; //Ok
+    double dwdsT1    = 1 - dwds/T; //Ok
+    double bigPI     = Bulk*sigma/gt; //Ok
+    double C         = w + bigPI;
+
+    double eta_o_tau = using_shear ? setas/stauRelax : 0.0; //Ok
+
+    double Agam      = w - dwds*( s + bigPI/T ) - zeta/tauRelax
+                     - dwdB*rhoB - dwdS*rhoS - dwdQ*rhoQ;
+
+    device_hydro_scalar.access(is, ia, hydro_info::dsigma_dt)     = dsigma_dt;
+    device_hydro_scalar.access(is, ia, hydro_info::gamma_squared) = g2;
+    device_hydro_scalar.access(is, ia, hydro_info::gamma_cube)    = gamma*g2;
+    device_hydro_scalar.access(is, ia, hydro_info::gamma_tau)     = gt;
+    device_hydro_scalar.access(is, ia, hydro_info::dwdsT1)        = dwdsT1;
+    device_hydro_scalar.access(is, ia, hydro_info::sigl)          = dsigma_dt/sigma - 1/t;
+    device_hydro_scalar.access(is, ia, hydro_info::bigPI)         = bigPI;
+    device_hydro_scalar.access(is, ia, hydro_info::C)             = C;
+    device_hydro_scalar.access(is, ia, hydro_info::eta_o_tau)     = eta_o_tau;
+    device_hydro_scalar.access(is, ia, hydro_info::Agam)          = Agam;
+    device_hydro_scalar.access(is, ia, hydro_info::Agam2)         = ( Agam - eta_o_tau/3.0 - dwdsT1*shv00 ) / gamma;
+    device_hydro_scalar.access(is, ia, hydro_info::Ctot)          = C + eta_o_tau*(1.0/g2-1.0);
+  };
+
+  Cabana::simd_parallel_for(*(sysPtr->simd_policy), fill_auxiliary_variables, "fill_auxiliary_variables");
+  Kokkos::fence();
+
+  auto fill_Btot = KOKKOS_LAMBDA(const int is, const int ia){
+    auto bsub = 0;
+    double gamma = device_hydro_scalar.access(is, ia, hydro_info::gamma);
+    double Agam = device_hydro_scalar.access(is, ia, hydro_info::Agam);
+    double Agam2 = device_hydro_scalar.access(is, ia, hydro_info::Agam2);
+    double eta_o_tau = device_hydro_scalar.access(is, ia, hydro_info::eta_o_tau);
+    double sigl = device_hydro_scalar.access(is, ia, hydro_info::sigl);
+    double bigPI = device_hydro_scalar.access(is, ia, hydro_info::bigPI);
+    double tauRelax = device_hydro_scalar.access(is, ia, hydro_info::tauRelax);
+    double dwdsT1 = device_hydro_scalar.access(is, ia, hydro_info::dwdsT1);
+    double gt = device_hydro_scalar.access(is, ia, hydro_info::gamma_tau);
+    double shv33 = device_hydro_scalar.access(is, ia, hydro_info::shv33);
+    if (using_shear){
+        
+      milne::Vector<double,D> v, u; //Already filled
+      milne::Matrix<double,D+1,D+1> shv; //Already filled 
+      milne::Matrix<double,D,D> gradV, uu, pimin; //Already filled
+      milne::Matrix<double,D,D> piu, piutot, gradU; //Filled only if shear is enabled
+        
+      for(int idir=0; idir<D; ++idir){
+        v(idir) = device_hydro_vector.access(is, ia, hydro_info::v, idir);
+        u(idir) = device_hydro_vector.access(is, ia, hydro_info::u, idir);
+        for(int jdir=0; jdir<D; ++jdir){
+          pimin(idir, jdir) = device_hydro_space_matrix.access(is, ia, hydro_info::pimin, idir, jdir );
+          uu(idir, jdir) = device_hydro_space_matrix.access(is, ia, hydro_info::uu, idir, jdir );
+          gradV(idir, jdir) = device_hydro_space_matrix.access(is, ia, hydro_info::gradV, idir, jdir );
+        }
+      }
+      for(int idir=0; idir<D+1; ++idir)
+      for(int jdir=0; jdir<D+1; ++jdir)
+        shv(idir,jdir) = device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir, jdir );
+      double g2 = device_hydro_scalar.access(is, ia, hydro_info::gamma_squared);
+      double g3 = device_hydro_scalar.access(is, ia, hydro_info::gamma_cube);
+
+
+      piu         = milne::rowp1(0,shv)*u;
+      piutot      = piu + milne::transpose(piu);
+      double pig  = shv(0,0)/g2;
+
+      gradU        = gamma*gradV+g3*(v*(v*gradV));
+      for (int i=0; i<=1; i++)
+      for (int j=0; j<=1; j++)
+        bsub += gradU(i,j) * ( pimin(i,j) + pig*uu(j,i)
+                          - ( piu(i,j) + piu(j,i) ) /gamma );
+      //Fill cache arrays
+      for(int idir=0; idir<D; ++idir)
+      for(int jdir=0; jdir<D; ++jdir){
+        device_hydro_space_matrix.access(is, ia, hydro_info::gradU, idir, jdir) = gradU(idir, jdir);
+        device_hydro_space_matrix.access(is, ia, hydro_info::piu, idir, jdir) = piu(idir, jdir);
+        device_hydro_space_matrix.access(is, ia, hydro_info::piutot, idir, jdir) = piutot(idir, jdir);
+      }
+    }
+    double dwdsT = 1-dwdsT1;
+    device_hydro_scalar.access(is, ia, hydro_info::Btot) = 
+      ( Agam*gamma + 2.0*eta_o_tau/3.0*gamma )*sigl + bigPI/tauRelax + dwdsT*( gt*shv33 + bsub );
+  };
+  
+  Cabana::simd_parallel_for(*(sysPtr->simd_policy), fill_Btot, "fill_Btot");
+  Kokkos::fence();
+
+  auto compute_velocity_derivative = KOKKOS_LAMBDA(const int is, const int ia){
+          // THIS IS THE ORIGINAL PART IN TIME DERIVATIVES
+      
+      double gamma = device_hydro_scalar.access(is, ia, hydro_info::gamma);
+
+      double Agam2 = device_hydro_scalar.access(is, ia, hydro_info::Agam2);
+      double Ctot = device_hydro_scalar.access(is, ia, hydro_info::Ctot);
+      double g2 = device_hydro_scalar.access(is, ia, hydro_info::gamma_squared);
+      double dwdsT1 = device_hydro_scalar.access(is, ia, hydro_info::dwdsT1);
+      double Btot = device_hydro_scalar.access(is, ia, hydro_info::Btot);
+      milne::Vector<double,D> u, gradshear, gradP, gradBulk, divshear;
+      milne::Matrix<double,D,D> gradU,uu,piu, pimin;
+      milne::Matrix<double,D+1,D+1> shv;
+      for(int idir=0; idir<D; ++idir){
+        for(int jdir=0; jdir<D; ++jdir){
+          gradU(idir,jdir) = device_hydro_space_matrix.access(is, ia, hydro_info::gradU, idir, jdir);
+          uu(idir,jdir) = device_hydro_space_matrix.access(is, ia, hydro_info::uu, idir, jdir);
+          piu(idir,jdir) = device_hydro_space_matrix.access(is, ia, hydro_info::piu, idir, jdir);
+          pimin(idir,jdir) = device_hydro_space_matrix.access(is, ia, hydro_info::pimin, idir, jdir);
+          shv(idir+1,jdir+1) = device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir+1, jdir+1);
+        }
+        u(idir) = device_hydro_vector.access(is, ia, hydro_info::u, idir);
+        gradP(idir) = device_hydro_vector.access(is, ia, hydro_info::gradP, idir);
+        gradBulk(idir) = device_hydro_vector.access(is, ia, hydro_info::gradBulk, idir);
+        divshear(idir) = device_hydro_vector.access(is, ia, hydro_info::divshear, idir);
+        gradshear(idir) = device_hydro_vector.access(is, ia, hydro_info::gradshear, idir);
+        shv(0,idir+1) = device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, 0, idir+1);
+        shv(idir+1,0) = device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir+1, 0);
+      }
+      shv(0,0) = device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, 0, 0);
+      
+
+      // set the Mass and the Force
+      milne::Matrix <double,D,D> M = Agam2*uu - (1+4/3./g2)*piu
+              + dwdsT1*transpose(piu) + gamma*pimin;
+      for(int idir=0; idir<D; ++idir) M(idir, idir) += Ctot*gamma;
+
+      milne::Vector<double,D> F    = Btot*u + gradshear
+                              - ( gradP + gradBulk + divshear );
+
+      if ( using_shear )
+      {
+        double stauRelax = device_hydro_scalar.access(is, ia, hydro_info::stauRelax);
+        double eta_o_tau = device_hydro_scalar.access(is, ia, hydro_info::eta_o_tau);
+        double sigma = device_hydro_scalar.access(is, ia, hydro_info::sigma);
+        double dsigma_dt = device_hydro_scalar.access(is, ia, hydro_info::dsigma_dt);
+        milne::Vector<double, D> v;
+        for(int idir=0; idir<D; ++idir)
+          v(idir) = device_hydro_vector.access(is, ia, hydro_info::v, idir);
+        double gamt = 1.0/gamma/stauRelax;
+        double pre  = eta_o_tau/gamma;
+        double p1   = gamt - 4.0/3.0/sigma*dsigma_dt + 1.0/t/3.0;
+        milne::Matrix <double,D,D> partU = gradU + milne::transpose( gradU );
+        milne::Vector<double,D> minshv   = milne::rowp1(0, shv);
+        F += pre*v*partU + p1*minshv;
+      }
+      
+      milne::Matrix<double,D,D> MI = milne::inverse(M);
+      milne::Vector<double,D> du_dt = F*MI;
+      for(int idir=0; idir<D; ++idir) device_hydro_vector.access(is,ia,hydro_info::du_dt, idir) = du_dt(idir);
+  };
+  Cabana::simd_parallel_for(*(sysPtr->simd_policy), compute_velocity_derivative, "compute_velocity_derivative");
+  Kokkos::fence();
+  #ifdef DEBUG
+  auto particles_host =
+        Cabana::create_mirror_view_and_copy( Kokkos::HostSpace(), sysPtr->cabana_particles);
+  auto h_matrix_view =  Cabana::slice<particle_info::hydro_space_matrix_info>(particles_host);
+  auto h_vec_view =  Cabana::slice<particle_info::hydro_vector_info>(particles_host);
+  auto h_scalar_view =  Cabana::slice<particle_info::hydro_scalar_info>(particles_host);
+  auto h_spacetime_matrix_view =  Cabana::slice<particle_info::hydro_spacetime_matrix_info>(particles_host);
+  auto h_ID =  Cabana::slice<particle_info::id>(particles_host);
+  auto h_pos =  Cabana::slice<particle_info::position>(particles_host);
+  Cabana::deep_copy(h_M,d_M);
+
+  //Print hydro scalars for a particle in the midfle of the event
+  int c=11000;
+  //Scalars
+  cout << "---- Hydro Info Scalars ----" << std::endl;
+  cout << "particle_id..: " << h_ID(c) << std::endl;
+  cout << "position.....: " << h_pos(c,0) << " " << h_pos(c,1) << std::endl;
+  cout << "dsigma_dt....: " << h_scalar_view(c,hydro_info::dsigma_dt) << std::endl;
+  cout << "gamma........: " << h_scalar_view(c,hydro_info::gamma)  << std::endl;
+  cout << "gamma squared: " << h_scalar_view(c,hydro_info::gamma_squared)  << std::endl;
+  cout << "gamma cube...: " << h_scalar_view(c,hydro_info::gamma_cube)  << std::endl;
+  cout << "gamma tau....: " << h_scalar_view(c,hydro_info::gamma_tau)  << std::endl;
+  cout << "dwdsT1.......: " << h_scalar_view(c,hydro_info::dwdsT1) << std::endl;
+  cout << "sigl.........: " << h_scalar_view(c,hydro_info::sigl) << std::endl;
+  cout << "bigPI........: " << h_scalar_view(c,hydro_info::bigPI) << std::endl;
+  cout << "eta_o_tau....: " << h_scalar_view(c,hydro_info::eta_o_tau) << std::endl;
+  cout << "Agam.........: " << h_scalar_view(c,hydro_info::Agam)  << std::endl;
+  cout << "Agam2........: " << h_scalar_view(c,hydro_info::Agam2) << std::endl;
+  cout << "C............: " << h_scalar_view(c,hydro_info::C) << std::endl;
+  cout << "Ctot.........: " << h_scalar_view(c,hydro_info::Ctot) << std::endl;
+  cout << "Btot.........: " << h_scalar_view(c,hydro_info::Btot) << std::endl;
+  cout << "u............: ";
+  for(int j=0;  j<D; ++j)
+    cout << h_vec_view(c,hydro_info::u, j) << " ";
+  cout << endl;
+  cout << "du_dt........: ";
+  for(int j=0;  j<D; ++j)
+    cout << h_vec_view(c,hydro_info::du_dt, j) << " ";
+  cout << endl;
+  cout << "shv........: " << endl;
+  for(int j=0;  j<D+1; ++j){
+    for(int i=0;  i<D+1; ++i)
+      cout << h_spacetime_matrix_view(c,hydro_info::shv, i, j) << " ";
+    cout << endl;
+  }
+  cout << "gradU........: " << endl;
+  for(int j=0;  j<D; ++j){
+    for(int i=0;  i<D; ++i)
+      cout << h_matrix_view(c,hydro_info::gradU, i, j) << " ";
+    cout << endl;
+  }
+  cout << "gradV........: " << endl;
+  for(int j=0;  j<D; ++j){
+    for(int i=0;  i<D; ++i)
+      cout << h_matrix_view(c,hydro_info::gradV, i, j) << " ";
+    cout << endl;
+  }
+  cout << "piu........: " << endl;
+  for(int j=0;  j<D; ++j){
+    for(int i=0;  i<D; ++i)
+      cout << h_matrix_view(c,hydro_info::piu, i, j) << " ";
+    cout << endl;
+  }
+  cout << "piutot.....: " << endl;
+  for(int j=0;  j<D; ++j){
+    for(int i=0;  i<D; ++i)
+      cout << h_matrix_view(c,hydro_info::piu, i, j) << " ";
+    cout << endl;
+  }
+
+  #endif
+}
+/*
+    double Bsub    = 0;
+    if ( using_shear )
+    {
+      milne::Matrix<double,D+1,D+1> shv;
+      for (int i=0; i<=1; i++)
+      for (int j=0; j<=1; j++){
+        
+      }
+
+      milne::Matrix<double,D,D> gradU = gamma*gradV+g3*(v*(v*gradV));
+      // these quantities will all be zero without shear
+      milne::Matrix<double,D,D> piu  = milne::rowp1(0,shv)*u;
+      milne::Matrix<double,D,D> piutot = piu+milne::transpose(piu);
+      double pig  = shv(0,0)/g2;
+
+      for (int i=0; i<=1; i++)
+      for (int j=0; j<=1; j++)
+        Bsub += gradU(i,j) * ( pimin(i,j) + pig*uu(j,i)
+             - ( piu(i,j) + piu(j,i) ) / gamma );
+        //Initialize shear dependent variables, if necessary
+
+      }
+
+      double Btot    = ( Agam*gamma + 2.0*eta_o_tau/3.0*gamma )*sigl
+                          + bigPI/tauRelax
+                          + dwdsT*( gt*shv33 + Bsub );
+  }
+
+  auto update_velocity = KOKKOS_LAMBDA(int const i, int const is){
+    
+    
+    //Load caches
+    double gamma, g2;
+    gamma = device_hydro_scalar(is, ia, hydro_info::gamma);
+    g2 = gamma*gamma;
+
+    milne::Matrix<double,D,D> pimin, uu;
+    for(int idir=0; idir<D; ++idir)
+    for(int jdir=0; jdir<D; ++jdir){
+      pimin(idir, jdir) = device_hydro_space_matrix.access(is, ia, hydro_info::pimin, idir, jdir);
+      uu(idir, jdir) = device_hydro_space_matrix.access(is, ia, hydro_info::uu, idir, jdir);
+    }
+    for(int idir=0; idir<D; ++idir)
+    for(int jdir=0; jdir<D; ++jdir){
+      pimin(idir, jdir) = device_hydro_space_matrix.access(is, ia, hydro_info::pimin, idir, jdir);
+      uu(idir, jdir) = device_hydro_space_matrix.access(is, ia, hydro_info::uu, idir, jdir);
+    }
+
+
+    milne::Matrix<double,D,D> piu = rowp1(0,shv)*u;
+    milne::Matrix <double,D,D> M = Agam2*uu - (1+4/3./g2)*piu
+              + dwdsT1*milne::transpose(piu) + gamma*pimin;
+    for(int idir=0, idir<D; ++idir) M(idir,idir) += Ctot*gamma;
+
+    milne::Matrix<double,D,D> MInverse = milne::inverse(M);
+    milne::Vector<double,D> du_dt;
+    du_dt = F*MInverse;
+
+    //TODO:
+    //- Compute:
+    // F
+    // MInverse - Ok
+    // M - Ok
+    // Agam2
+    // uu - Ok
+    // g2 - Ok
+    // piu
+    // dwdsT1
+    // gamma - Ok
+    // pimin - Ok
+    // shv
+    // u
+
+
+    
+    for(int idir=0; idir<D; ++idir)
+      device_hydro_vector.access(is, ia, hydro_info::du_dt, idir) = du_dt(idir);
+    for(int idir=0; idir<D; ++idir)
+    for(int jdir=0; jdir<D; ++jdir){
+      device_hydro_space_matrix.access(is, ia, hydro_info::piu, idir, jdir) = piu(idir, jdir);
+    }
+    
+  }
+  #ifdef DEBUG
+  //Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace> simd_policy(0, particles.size());
+  //Cabana::simd_parallel_for(simd_policy,single_particle_update,"single_particle_update");
+  int c = 110000;
+  auto particles_host =
+        Cabana::create_mirror_view_and_copy( Kokkos::HostSpace(), particles);
+  auto h_matrix_view =  Cabana::slice<particle_info::hydro_space_matrix_info>(particles_host);
+  auto h_vec_view =  Cabana::slice<particle_info::hydro_vector_info>(particles_host);
+  auto h_scalar_view =  Cabana::slice<particle_info::hydro_scalar_info>(particles_host);
+  auto h_spacetime_matrix_view =  Cabana::slice<particle_info::hydro_spacetime_matrix_info>(particles_host);
+  Cabana::deep_copy(h_M,d_M);
+
+  cout << "du_dt: " << h_vec_view(c,device_hydro::du_dt,0) <<" " <<h_vec_view(c,device_hydro::du_dt,1) << endl;
+  
+  #endif
+  
+
   auto single_particle_update = KOKKOS_LAMBDA(int const iparticle)
   {
 
@@ -314,70 +675,101 @@ void EoM_default<D>::evaluate_time_derivatives( Cabana::AoSoA<CabanaParticle, De
       double rhoQ = device_thermo(iparticle, ccake::thermo_info::rhoQ);
       double shv33 = device_hydro_scalar(iparticle, ccake::hydro_info::shv33);
 
-
-      double gradV[D][D];
-      double v[D];
-      double shv[D+1][D+1];
-      double u[D];
-      double minshv[D];
-      double gradshear[D];
-      double gradP[D];
-      double gradBulk[D];
-      double divshear[D];
-      double du_dt[D];
+      milne::Vector<double,D> v, u, gradshear, gradP, gradBulk, divshear, du_dt;
+      milne::Matrix<double, D, D> gradV,uu,pimin;
+      milne::Matrix<double, D+1, D+1> shv;
 
       for (unsigned int idir=0; idir<D; idir++){
-        v[idir] = device_hydro_vector(iparticle, ccake::hydro_info::v, idir);
-        u[idir] = device_hydro_vector(iparticle, ccake::hydro_info::u, idir);
-        minshv[idir] = device_hydro_spacetime_matrix(iparticle, ccake::hydro_info::shv, 0, idir+1);
-        gradshear[idir] = device_hydro_vector(iparticle, ccake::hydro_info::gradshear, idir);
-        gradP[idir] = device_hydro_vector(iparticle, ccake::hydro_info::gradP, idir);
-        gradBulk[idir] = device_hydro_vector(iparticle, ccake::hydro_info::gradBulk, idir);
-        divshear[idir] = device_hydro_vector(iparticle, ccake::hydro_info::divshear, idir);
-        du_dt[idir] = 0.;
-        for (unsigned int jdir=0; jdir<D; jdir++)
-          gradV[idir][jdir] = device_hydro_space_matrix(iparticle, ccake::hydro_info::gradV, idir, jdir);
+        v(idir) = device_hydro_vector(iparticle, ccake::hydro_info::v, idir);
+        u(idir) = device_hydro_vector(iparticle, ccake::hydro_info::u, idir);
+        //minshv(idir) = device_hydro_spacetime_matrix(iparticle, ccake::hydro_info::shv, 0, idir+1);
+        gradshear(idir) = device_hydro_vector(iparticle, ccake::hydro_info::gradshear, idir);
+        gradP(idir) = device_hydro_vector(iparticle, ccake::hydro_info::gradP, idir);
+        gradBulk(idir) = device_hydro_vector(iparticle, ccake::hydro_info::gradBulk, idir);
+        divshear(idir) = device_hydro_vector(iparticle, ccake::hydro_info::divshear, idir);
+        du_dt(idir) = 0.;
+        for (unsigned int jdir=0; jdir<D; jdir++){
+          gradV(idir,jdir) = device_hydro_space_matrix(iparticle, ccake::hydro_info::gradV, idir, jdir);
+          //Load quiantities computed in reset pi tensor 
+          uu(idir,jdir)= device_hydro_space_matrix(iparticle, ccake::hydro_info::uu, idir, jdir);
+          pimin(idir,jdir)= device_hydro_space_matrix(iparticle, ccake::hydro_info::pimin, idir, jdir);
+        }
       }
       for (unsigned int idir=0; idir<D+1; idir++)
       for (unsigned int jdir=0; jdir<D+1; jdir++)
-          shv[idir][jdir] = device_hydro_spacetime_matrix(iparticle, ccake::hydro_info::shv, idir, jdir);
-
-      //Will be filled later
-      double aux_vector[D];
-      double F[D];
-      double gradU[D][D];
-      double partU[D][D];
-      double uu[D][D];
-      double pi_u[D][D];
-      double pimin[D][D];
-      double piutot[D][D];
-      double M[D][D];
-      double M_inverse[D][D];
-      double Ipi[D][D];
-      double sub[D][D];
-      double dshv_dt[D][D];
+          shv(idir,jdir) = device_hydro_spacetime_matrix(iparticle, ccake::hydro_info::shv, idir, jdir);
 
 
-      //2) Perform computations
-      double dsigma_dt = 0;
-      for(int idir=0;idir<D;++idir) dsigma_dt += gradV[idir][idir];
-      dsigma_dt *= -sigma;
+
+      //2) Perform computations - Minimal changes when compared to CCAKE-v1 //For now, 2D only
+      double dsigma_dt = -sigma * ( gradV(0,0) + gradV(1,1) );
+      //double dsigma_dt = 0;
+      //for(int idir=0;idir<D;++idir) dsigma_dt += gradV[idir][idir];
+      //dsigma_dt *= -sigma; //3D version?
       double gamma_squared = gamma*gamma;
       double gamma_cube = gamma*gamma_squared;
       double gamma_tau = gamma*t;
       double dwdsT    = dwds/Temperature;
       double dwdsT1 = 1.0 - dwdsT;
       double sigl = dsigma_dt/sigma - 1/t;
+      milne::Matrix<double, D, D> gradU = gamma*gradV+gamma_cube*(v*(v*gradV));
       double bigPi = Bulk*sigma/gamma_tau;
       double C = w + bigPi;
 
-      double eta_o_tau = setas/stauRelax; ///TODO: 0 if shear is off.
+      double eta_o_tau    = using_shear ? setas/stauRelax : 0.0;
+
       double Agam = w - dwds*(s+bigPi/Temperature) - zeta/tauRelax
                     - dwdB*rhoB - dwdS*rhoS - dwdQ*rhoQ;
-      double Agam2 = (Agam - eta_o_tau/3.0 - dwdsT1*shv[0][0] ) / gamma;
-      double Ctot  = C + eta_o_tau*(1/gamma_squared-1);
+      double Agam2 = (Agam - eta_o_tau/3.0 - dwdsT1*shv(0,0) ) / gamma;
+      double Ctot  = C + eta_o_tau*(1./gamma_squared-1.);
 
-      dot(v, gradV, t_squared, aux_vector);
+      //Previously in bsub function
+      double bsub = 0;
+      milne::Vector<double,D> minshv   = milne::rowp1(0, shv);
+      milne::Matrix<double,D,D> piu, piutot;
+      if (using_shear){
+        piu    = minshv*u;
+        piutot = piu+milne::transpose(piu);
+        double pig  = shv(0,0)/gamma_squared;
+        for (int i=0; i<D; i++)
+        for (int j=0; j<D; j++)
+          bsub += gradU(i,j) * ( pimin(i,j) + pig*uu(j,i)
+                - piutot(i,j)  / gamma );
+      }
+
+      double Btot = ( Agam*gamma + 2.0*eta_o_tau/3.0*gamma )*sigl
+                          + bigPi/tauRelax
+                          + dwdsT*( gamma_tau*shv33 + bsub );
+
+      double gamt = 0.0, pre = 0.0, p1 = 0.0;
+      if ( using_shear )
+      {
+        gamt = 1.0/gamma/stauRelax;
+        pre  = eta_o_tau/gamma;
+        p1   = gamt - 4.0/3.0/sigma*dsigma_dt + 1.0/t/3.0;
+      }
+
+      milne::Matrix <double,D,D> partU = gradU + milne::transpose( gradU );
+
+      milne::Matrix<double, D, D> M = Agam2*uu - (1+4/3./gamma_squared)*piu
+              + dwdsT1*transpose(piu) + gamma*pimin;
+      
+      for (int idir=0; idir<D; idir++) M(idir,idir) += Ctot*gamma;
+
+      milne::Vector<double,D> F  = Btot*u - gradP 
+                                  //+ gradshear - ( gradBulk + divshear )
+                                  ;
+      if ( using_shear )
+        F += pre*v*partU + p1*minshv;
+
+      
+      #ifdef DEBUG
+      for (int idir=0; idir<D; idir++) 
+      for (int jdir=0; jdir<D; jdir++) dM(iparticle,idir,jdir) = M(idir,jdir);
+      #endif
+      milne::Matrix<double, D, D> MInverse = milne::inverse(M);
+      du_dt = F*MInverse;
+      /*dot(v, gradV, t_squared, aux_vector);
       for (int idir=0; idir<D; idir++)
       for (int jdir=0; jdir<D; jdir++){
         M[idir][jdir] = 0;
@@ -464,11 +856,11 @@ void EoM_default<D>::evaluate_time_derivatives( Cabana::AoSoA<CabanaParticle, De
 
       //formulating simple setup for Beta_Bulk derivative  //WMS: I don't know what is this
       //hi.finite_diff_cs2 = (ti.cs2 - hi.prev_cs2)/0.05; // Asadek
-	    //hi.finite_diff_T   = (ti.T - hi.prev_T)/0.05;     // Asadek
+	    //hi.finite_diff_T   = (Temperature - hi.prev_T)/0.05;     // Asadek
 	    //hi.finite_diff_w   = (ti.w - hi.prev_w)/0.05;     // Asadek
-	    //hi.dBeta_dt        = 0.5*((-hi.finite_diff_T/(ti.T*ti.T))*(1/ti.w)*(1/((1/3-ti.cs2)*(1/3-ti.cs2))))
-	    //                   + 0.5*((-hi.finite_diff_w/(ti.w*ti.w))*(1/ti.T)*(1/((1/3-ti.cs2)*(1/3-ti.cs2))))
-			//	          	     + 0.5*((4*ti.cs2*hi.finite_diff_cs2*(1/((1/3-ti.cs2)*(1/3-ti.cs2)*(1/3-ti.cs2))))*(1/ti.T)*(1/ti.w));//Asadek
+	    //hi.dBeta_dt        = 0.5*((-hi.finite_diff_T/(Temperature*Temperature))*(1/ti.w)*(1/((1/3-ti.cs2)*(1/3-ti.cs2))))
+	    //                   + 0.5*((-hi.finite_diff_w/(ti.w*ti.w))*(1/Temperature)*(1/((1/3-ti.cs2)*(1/3-ti.cs2))))
+			//	          	     + 0.5*((4*ti.cs2*hi.finite_diff_cs2*(1/((1/3-ti.cs2)*(1/3-ti.cs2)*(1/3-ti.cs2))))*(1/Temperature)*(1/ti.w));//Asadek
 
       double dBulk_dt = -(zeta*bigtheta/sigma + Bulk/gamma)/tauRelax;
 
@@ -505,6 +897,7 @@ void EoM_default<D>::evaluate_time_derivatives( Cabana::AoSoA<CabanaParticle, De
 
     //3) Update the particle data
     ///TODO: Do I really need to update all of these?
+    /
     device_hydro_scalar(iparticle, ccake::hydro_info::dsigma_dt) = dsigma_dt;
     device_hydro_scalar(iparticle, ccake::hydro_info::gamma_squared) = gamma_squared;
     device_hydro_scalar(iparticle, ccake::hydro_info::gamma_cube) = gamma_cube;
@@ -518,25 +911,112 @@ void EoM_default<D>::evaluate_time_derivatives( Cabana::AoSoA<CabanaParticle, De
     device_hydro_scalar(iparticle, ccake::hydro_info::Agam2) = Agam2;
     device_hydro_scalar(iparticle, ccake::hydro_info::Ctot) = Ctot;
     device_hydro_scalar(iparticle, ccake::hydro_info::Btot) = Btot;
-    device_hydro_scalar(iparticle, ccake::hydro_info::div_u) = div_u;
-    device_hydro_scalar(iparticle, ccake::hydro_info::bigtheta) = bigtheta;
-    device_hydro_scalar(iparticle, ccake::hydro_info::inside) = inside;
-    device_hydro_scalar(iparticle, ccake::hydro_info::dBulk_dt) = dBulk_dt;
-    device_d_dt_spec(iparticle, ccake::densities_info::s) = d_dt_specific_s;
+    // device_hydro_scalar(iparticle, ccake::hydro_info::div_u) = div_u;
+    // device_hydro_scalar(iparticle, ccake::hydro_info::bigtheta) = bigtheta;
+    // device_hydro_scalar(iparticle, ccake::hydro_info::inside) = inside;
+    // device_hydro_scalar(iparticle, ccake::hydro_info::dBulk_dt) = dBulk_dt;
+    // device_d_dt_spec(iparticle, ccake::densities_info::s) = d_dt_specific_s;
 
 
-
+    
     for (int idir=0; idir<D; idir++){
-      device_hydro_vector(iparticle, ccake::hydro_info::du_dt, idir) = du_dt[idir];
+      device_hydro_vector(iparticle, ccake::hydro_info::du_dt, idir) = du_dt(idir);
       for (int jdir=0; jdir<D; jdir++){
-        device_hydro_space_matrix(iparticle, ccake::hydro_info::gradU, idir, jdir) = gradU[idir][jdir];
-        device_hydro_space_matrix(iparticle, ccake::hydro_info::dshv_dt, idir, jdir) = dshv_dt[idir][jdir];
-        device_hydro_space_matrix(iparticle, ccake::hydro_info::piu, idir, jdir) = pi_u[idir][jdir];
+        device_hydro_space_matrix(iparticle, ccake::hydro_info::gradU, idir, jdir) = gradU(idir,jdir);
+        device_hydro_space_matrix(iparticle, ccake::hydro_info::dshv_dt, idir, jdir) = 0;//dshv_dt[idir][jdir];
+        device_hydro_space_matrix(iparticle, ccake::hydro_info::piu, idir, jdir) = piu(idir,jdir);
+        device_hydro_space_matrix(iparticle, ccake::hydro_info::piutot, idir, jdir) = piutot(idir,jdir);
       }
     }
+    
   };
 
+  formatted_output::report("Start computing the derivatives");
   Kokkos::parallel_for( "single_particle_update", particles.size(),
                         single_particle_update );
-}
+  Kokkos::fence();
+  formatted_output::report("Finish computing the derivatives");
+  #ifdef DEBUG_VERBOSE
+  //Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace> simd_policy(0, particles.size());
+  //Cabana::simd_parallel_for(simd_policy,single_particle_update,"single_particle_update");
+  auto particles_host =
+        Cabana::create_mirror_view_and_copy( Kokkos::HostSpace(), particles);
+  auto h_matrix_view =  Cabana::slice<particle_info::hydro_space_matrix_info>(particles_host);
+  auto h_vec_view =  Cabana::slice<particle_info::hydro_vector_info>(particles_host);
+  auto h_scalar_view =  Cabana::slice<particle_info::hydro_scalar_info>(particles_host);
+  auto h_spacetime_matrix_view =  Cabana::slice<particle_info::hydro_spacetime_matrix_info>(particles_host);
+  Cabana::deep_copy(h_M,d_M);
+
+  //Print hydro scalars for a particle in the midfle of the event
+  int c=19000;
+  //Scalars
+  cout << "---- Hydro Info Scalars ----" << std::endl;
+  cout << "gamma........: " << h_scalar_view(c,hydro_info::gamma)  << std::endl;
+  cout << "Agam.........: " << h_scalar_view(c,hydro_info::Agam)  << std::endl;
+  cout << "Agam2........: " << h_scalar_view(c,hydro_info::Agam2) << std::endl;
+  cout << "Btot.........: " << h_scalar_view(c,hydro_info::Btot) << std::endl;
+  cout << "Ctot.........: " << h_scalar_view(c,hydro_info::Ctot) << std::endl;
+  cout << "C............: " << h_scalar_view(c,hydro_info::C) << std::endl;
+  cout << "dsigma_dt....: " << h_scalar_view(c,hydro_info::dsigma_dt) << std::endl;
+  cout << "gamma_squared: " << h_scalar_view(c,hydro_info::gamma_squared) << std::endl;
+  cout << "gamma_cube...: " << h_scalar_view(c,hydro_info::gamma_cube) << std::endl;
+  cout << "sigl.........: " << h_scalar_view(c,hydro_info::sigl) << std::endl;
+  cout << "bigPI........: " << h_scalar_view(c,hydro_info::bigPI) << std::endl;
+  cout << "eta_o_tau....: " << h_scalar_view(c,hydro_info::eta_o_tau) << std::endl;
+  cout << "dwdsT1.......: " << h_scalar_view(c,hydro_info::dwdsT1) << std::endl;
+  cout << "gamma_tau....: " << h_scalar_view(c,hydro_info::gamma_tau) << std::endl;
+  cout << "sigma........: " << h_scalar_view(c,hydro_info::sigma) << std::endl;
+  cout << "shv33........: " << h_scalar_view(c,hydro_info::shv33) << std::endl;
+  cout << "---- Hydro Info Vectors ----" << std::endl;
+  cout << "u............: ";
+  for(int i=0; i<D; ++i) std::cout << h_vec_view(c,hydro_info::u, i) << " ";
+  std::cout << std::endl;
+  cout << "du_dt........: ";
+  for(int i=0; i<D; ++i) std::cout << h_vec_view(c,hydro_info::du_dt, i) << " ";
+  std::cout << std::endl;
+
+  cout << "---- Hydro Info Matrices ----" << std::endl;
+  cout << "gradV........: ";
+  for(int i=0; i<D; ++i)
+  for(int j=0; j<D; ++j) std::cout << h_matrix_view(c,hydro_info::gradV, i, j) << " ";
+  std::cout << std::endl;
+  cout << "gradU........: ";
+  for(int i=0; i<D; ++i)
+  for(int j=0; j<D; ++j) std::cout << h_matrix_view(c,hydro_info::gradU, i, j) << " ";
+  std::cout << std::endl;
+  cout << "piu........: ";
+  for(int i=0; i<D; ++i)
+  for(int j=0; j<D; ++j) std::cout << h_matrix_view(c,hydro_info::piu, i, j) << " ";
+  std::cout << std::endl;
+  cout << "pimin........: ";
+  for(int i=0; i<D; ++i)
+  for(int j=0; j<D; ++j) std::cout << h_matrix_view(c,hydro_info::pimin, i, j) << " ";
+  std::cout << std::endl;
+  cout << "uu..........: ";
+  for(int i=0; i<D; ++i)
+  for(int j=0; j<D; ++j) std::cout << h_matrix_view(c,hydro_info::uu, i, j) << " ";
+  std::cout << std::endl;
+  cout << "piu.........: ";
+  for(int i=0; i<D; ++i)
+  for(int j=0; j<D; ++j) std::cout << h_matrix_view(c,hydro_info::piu, i, j) << " ";
+  std::cout << std::endl;
+    cout << "piutot....: ";
+  for(int i=0; i<D; ++i)
+  for(int j=0; j<D; ++j) std::cout << h_matrix_view(c,hydro_info::piutot, i, j) << " ";
+  std::cout << std::endl;
+  cout << "---- Shear Matrix ----" << std::endl;
+  for(int i=0; i<D+1; ++i)
+  for(int j=0; j<D+1; ++j) std::cout << h_spacetime_matrix_view(c,hydro_info::shv, i, j) << " ";
+  std::cout << std::endl;
+  
+
+  std::cout << "+++++++++++++Mass Matrix++++++++++" << endl;
+  for(int i=0; i<D; ++i){
+    for(int j=0; j<D; ++j)
+      std::cout <<  hM(c,i,j) << " ";
+  }
+  std::cout << std::endl;
+  std::cout << "++++++++++++++++++++++++++++++++++" << endl;
+  #endif
+}*/
 }
