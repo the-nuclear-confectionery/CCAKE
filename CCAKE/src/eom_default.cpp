@@ -209,14 +209,14 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
       gradV(idir,jdir) = device_hydro_space_matrix.access(is, ia, hydro_info::gradV, idir, jdir);
 
     
-    double dsigma_dt = -sigma * milne::tr(gradV,t2); //Ok
-    double g2        = gamma*gamma; //Ok
-    double gt        = gamma*t; //Ok
-    double dwdsT1    = 1 - dwds/T; //Ok
-    double bigPI     = Bulk*sigma/gt; //Ok
+    double dsigma_dt = -sigma * milne::tr(gradV,t2);
+    double g2        = gamma*gamma;
+    double gt        = gamma*t;
+    double dwdsT1    = 1 - dwds/T;
+    double bigPI     = Bulk*sigma/gt;
     double C         = w + bigPI;
 
-    double eta_o_tau = using_shear ? setas/stauRelax : 0.0; //Ok
+    double eta_o_tau = using_shear ? setas/stauRelax : 0.0;
 
     double Agam      = w - dwds*( s + bigPI/T ) - zeta/tauRelax
                      - dwdB*rhoB - dwdS*rhoS - dwdQ*rhoQ;
@@ -397,11 +397,6 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
       pimin(idir,jdir) = device_hydro_space_matrix.access(is, ia, hydro_info::pimin, idir, jdir);
       piutot(idir,jdir) = device_hydro_space_matrix.access(is, ia, hydro_info::piutot, idir, jdir);
     }
-    double vduk = milne::inner( v, du_dt );
-    
-    milne::Matrix <double,D,D> ulpi  = u*milne::colp1(0, shv);
-    milne::Matrix <double,D,D> Ipi   = - 2.0*eta_o_tau/3.0 * uu + 4./3.*pimin;
-    for(int idir=0; idir<D; ++idir) Ipi(idir, idir) -= 2.0*eta_o_tau/3.0;
 
     //===============
     // "coordinate" divergence
@@ -418,7 +413,7 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
     device_hydro_scalar.access(is, ia, hydro_info::div_u) = div_u;
     device_hydro_scalar.access(is, ia, hydro_info::bigtheta) = bigtheta;
     device_hydro_scalar.access(is, ia, hydro_info::dBulk_dt) = dBulk_dt;
-    device_norm_spec.access(is, ia, densities_info::s) = d_dt_specific_s;
+    device_d_dt_spec.access(is, ia, densities_info::s) = d_dt_specific_s;
 
 	  //formulating simple setup for Beta_Bulk derivative   
     ///TODO: Implement this
