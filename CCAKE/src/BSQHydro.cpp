@@ -227,6 +227,13 @@ void BSQHydro<D,TEOM>::read_ccake()
       {
         iss >> x >> y >> eta >> e >> rhoB >> rhoS >> rhoQ >> ux >> uy >> ueta >> Bulk >> pixx >> pixy >> pixeta >> piyy >> piyeta >> pietaeta;
         e /= hbarc_GeVfm; // 1/fm^4
+        pixx /= hbarc_GeVfm; // 1/fm^4
+        pixy /= hbarc_GeVfm; // 1/fm^4
+        pixeta /= hbarc_GeVfm; // 1/fm^5
+        piyy /= hbarc_GeVfm; // 1/fm^4
+        piyeta /= hbarc_GeVfm; // 1/fm^5
+        pietaeta /= hbarc_GeVfm; // 1/fm^6
+        Bulk /= hbarc_GeVfm; // 1/fm^4
         Particle<D> p;
         switch (D)
         {
@@ -282,6 +289,7 @@ void BSQHydro<D,TEOM>::read_ccake()
   else
   {
     std::cerr << "File " << IC_file << " could not be opened!" << std::endl;
+    Kokkos::finalize();
     abort();
   }
 }
@@ -360,14 +368,14 @@ void BSQHydro<D,TEOM>::run()
 
     //===================================
     // re-compute conserved quantities, etc.
-    systemPtr->conservation_entropy();
-    systemPtr->conservation_BSQ();
-    systemPtr->compute_eccentricities();
+    //systemPtr->conservation_entropy();
+    //systemPtr->conservation_BSQ();
+    //systemPtr->compute_eccentricities();
 
     istep++;
     //===================================
     // print updated system and status
-    outPtr->print_conservation_status();
+    //outPtr->print_conservation_status();
     if (istep%10 == 0) outPtr->print_system_state();
   }
 
