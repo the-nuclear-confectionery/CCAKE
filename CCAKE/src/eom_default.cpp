@@ -433,6 +433,83 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
   Cabana::simd_parallel_for(*(sysPtr->simd_policy), compute_bulk_derivative, "compute_bulk_derivative");
   Kokkos::fence();
 
+  if (using_shear){
+    auto compute_shear_derivative = KOKKOS_LAMBDA(const int is, const int ia)
+    {
+      double gamma = device_hydro_scalar.access(is, ia, hydro_info::gamma);
+      double stauRelax = device_hydro_scalar.access(is, ia, hydro_info::stauRelax);
+      double setas = device_hydro_scalar.access(is, ia, hydro_info::setas);
+      double eta_o_tau = device_hydro_scalar.access(is, ia, hydro_info::eta_o_tau);
+      double sigl = device_hydro_scalar.access(is, ia, hydro_info::sigl);
+      double g2 = device_hydro_scalar.access(is, ia, hydro_info::gamma_squared);
+      double shv33 = device_hydro_scalar.access(is, ia, hydro_info::shv33);
+      double sigma = device_hydro_scalar.access(is, ia, hydro_info::sigma);
+      double T = device_thermo.access(is, ia, thermo_info::T);
+      
+      milne::Matrix<double,D,D> pimin, gradU, uu, piutot;
+      for(int idir=0; idir<D; ++idir)
+      for(int jdir=0; jdir<D; ++jdir){
+        pimin(idir,jdir) = device_hydro_space_matrix.access(is, ia, hydro_info::pimin, idir, jdir);
+        uu(idir,jdir) = device_hydro_space_matrix.access(is, ia, hydro_info::uu, idir, jdir);
+        gradU(idir,jdir) = device_hydro_space_matrix.access(is, ia, hydro_info::gradU, idir, jdir);
+        piutot(idir,jdir) = device_hydro_space_matrix.access(is, ia, hydro_info::piutot, idir, jdir);
+      }
+
+      milne::Vector<double,D> v, du_dt, u;
+      for(int idir=0; idir<D; ++idir){
+        du_dt(idir) = device_hydro_vector.access(is, ia, hydro_info::du_dt, idir);
+        u(idir) = device_hydro_vector.access(is, ia, hydro_info::u, idir);
+        v(idir) = device_hydro_vector.access(is, ia, hydro_info::v, idir);
+      }
+
+      milne::Matrix<double,D+1,D+1> shv;
+      for(int idir=0; idir<D+1; ++idir)
+      for(int jdir=0; jdir<D+1; ++jdir)
+        shv(idir, jdir) = device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir, jdir);
+
+      
+      milne::Matrix<double,D,D> partU = gradU+milne::transpose(gradU);
+      milne::Matrix<double,D,D> ududt = u*du_dt;
+      double gamt = 1.0/gamma/stauRelax;
+      double vduk = milne::inner(v, du_dt);
+      milne::Matrix <double,D,D> ulpi  = u*milne::colp1(0, shv);
+      milne::Matrix <double,D,D> Ipi   = - 2.0*eta_o_tau/3.0 * uu + 4./3.*pimin;
+      for(int idir=0; idir<D; ++idir) Ipi(idir, idir) -= 2.0*eta_o_tau/3.0;
+
+      milne::Matrix <double,D,D> dpidtsub;
+
+      for (int i=0; i<D; i++)
+      for (int j=0; j<D; j++)
+      for (int k=0; k<D; k++)
+        dpidtsub(i,j) += ( u(i)*pimin(j,k) + u(j)*pimin(i,k) )*du_dt(k);
+
+
+      milne::Matrix <double,D,D> dshv_dt = - gamt*( pimin + setas*partU ) 
+                                 - eta_o_tau*( ududt + milne::transpose(ududt) )
+                                 + dpidtsub + sigl*Ipi
+                                 - vduk*( ulpi + milne::transpose(ulpi) + (1/gamma)*Ipi );
+      
+      milne::Matrix<double,D,D> sub = pimin + (shv(0,0)/g2)*uu
+                                  - 1./gamma*piutot;
+      milne::Vector<double,D> minshv = milne::rowp1(0, shv);
+      double inside = t*( milne::inner( shv(0,0)*v-minshv, du_dt )
+                                      - milne::con2(sub, gradU) - gamma*t*shv33 );
+
+      // time derivative of ``specific entropy density per particle"
+      double d_dt_specific_s = 1./sigma/T*inside;
+      device_hydro_scalar.access(is, ia, hydro_info::inside) = inside;
+      Kokkos::atomic_add( &device_d_dt_spec.access(is, ia, densities_info::s),d_dt_specific_s);
+      for(int idir=0; idir<D; ++idir)
+      for(int jdir=0; jdir<D; ++jdir){
+        device_hydro_space_matrix.access(is, ia, hydro_info::dshv_dt, idir, jdir) = dshv_dt(idir, jdir);
+
+      }
+
+    };
+    Cabana::simd_parallel_for(*(sysPtr->simd_policy), compute_shear_derivative, "compute_shear_derivative");
+    Kokkos::fence();
+  }
+
   #ifdef DEBUG
   auto particles_host =
         Cabana::create_mirror_view_and_copy( Kokkos::HostSpace(), sysPtr->cabana_particles);
