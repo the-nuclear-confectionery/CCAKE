@@ -364,6 +364,75 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
   };
   Cabana::simd_parallel_for(*(sysPtr->simd_policy), compute_velocity_derivative, "compute_velocity_derivative");
   Kokkos::fence();
+
+  auto compute_bulk_derivative = KOKKOS_LAMBDA(const int is, const int ia){
+
+    double eta_o_tau = device_hydro_scalar.access(is, ia, hydro_info::eta_o_tau);
+    double sigma = device_hydro_scalar.access(is, ia, hydro_info::sigma);
+    double dsigma_dt = device_hydro_scalar.access(is, ia, hydro_info::dsigma_dt);
+    double g2 = device_hydro_scalar.access(is, ia, hydro_info::gamma_squared);
+    double T = device_thermo.access(is, ia, thermo_info::T);
+    double bigPI = device_hydro_scalar.access(is, ia, hydro_info::bigPI);
+    double zeta = device_hydro_scalar.access(is, ia, hydro_info::zeta);
+    double Bulk = device_hydro_scalar.access(is, ia, hydro_info::Bulk);
+    double tauRelax = device_hydro_scalar.access(is, ia, hydro_info::tauRelax);
+    double gamma = device_hydro_scalar.access(is, ia, hydro_info::gamma);
+
+    milne::Vector<double,D> v, du_dt, u;
+    for(int idir=0; idir<D; ++idir){
+      v(idir) = device_hydro_vector.access(is, ia, hydro_info::v, idir);
+      du_dt(idir) = device_hydro_vector.access(is, ia, hydro_info::du_dt, idir);
+      u(idir) = device_hydro_vector.access(is, ia, hydro_info::u, idir);
+    }
+    milne::Matrix<double,D+1,D+1> shv;
+    for(int idir=0; idir<D+1; ++idir)
+    for(int jdir=0; jdir<D+1; ++jdir)
+      shv(idir, jdir) = device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir, jdir);
+
+    milne::Matrix<double,D,D> uu, pimin, piutot;
+    for(int idir=0; idir<D; ++idir)
+    for(int jdir=0; jdir<D; ++jdir)
+    {
+      uu(idir,jdir) = device_hydro_space_matrix.access(is, ia, hydro_info::uu, idir, jdir);
+      pimin(idir,jdir) = device_hydro_space_matrix.access(is, ia, hydro_info::pimin, idir, jdir);
+      piutot(idir,jdir) = device_hydro_space_matrix.access(is, ia, hydro_info::piutot, idir, jdir);
+    }
+    double vduk = milne::inner( v, du_dt );
+    
+    milne::Matrix <double,D,D> ulpi  = u*milne::colp1(0, shv);
+    milne::Matrix <double,D,D> Ipi   = - 2.0*eta_o_tau/3.0 * uu + 4./3.*pimin;
+    for(int idir=0; idir<D; ++idir) Ipi(idir, idir) -= 2.0*eta_o_tau/3.0;
+
+    //===============
+    // "coordinate" divergence
+    double div_u = (1./gamma)*inner(u, du_dt) - ( gamma/ sigma ) * dsigma_dt;
+    //===============
+    // "covariant" divergence
+    double bigtheta = div_u*t+gamma;
+
+    // time derivative of ``specific entropy density per particle"
+    double d_dt_specific_s = 1./sigma/T*(-bigPI*bigtheta);
+	  //Bulk evolution equation
+    double dBulk_dt = ( -zeta/sigma*bigtheta - Bulk/gamma )/tauRelax;//w/out hi.dBeta_dt
+
+    device_hydro_scalar.access(is, ia, hydro_info::div_u) = div_u;
+    device_hydro_scalar.access(is, ia, hydro_info::bigtheta) = bigtheta;
+    device_hydro_scalar.access(is, ia, hydro_info::dBulk_dt) = dBulk_dt;
+    device_norm_spec.access(is, ia, densities_info::s) = d_dt_specific_s;
+
+	  //formulating simple setup for Beta_Bulk derivative   
+    ///TODO: Implement this
+    //hi.finite_diff_cs2   =  (ti.cs2 - hi.prev_cs2)/0.05; // Asadek
+	  //hi.finite_diff_T   =  (ti.T - hi.prev_T)/0.05; // Asadek
+	  //hi.finite_diff_w   =  (ti.w - hi.prev_w)/0.05; // Asadek
+	  //hi.dBeta_dt      = 0.5*((-hi.finite_diff_T/(ti.T*ti.T))*(1/ti.w)*(1/((1/3-ti.cs2)*(1/3-ti.cs2))))
+	  //                 + 0.5*((-hi.finite_diff_w/(ti.w*ti.w))*(1/ti.T)*(1/((1/3-ti.cs2)*(1/3-ti.cs2))))
+		//			   + 0.5*((4*ti.cs2*hi.finite_diff_cs2*(1/((1/3-ti.cs2)*(1/3-ti.cs2)*(1/3-ti.cs2))))*(1/ti.T)*(1/ti.w));//Asadek 
+
+  };
+  Cabana::simd_parallel_for(*(sysPtr->simd_policy), compute_bulk_derivative, "compute_bulk_derivative");
+  Kokkos::fence();
+
   #ifdef DEBUG
   auto particles_host =
         Cabana::create_mirror_view_and_copy( Kokkos::HostSpace(), sysPtr->cabana_particles);
