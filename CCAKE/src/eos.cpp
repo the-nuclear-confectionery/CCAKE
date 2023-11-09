@@ -522,7 +522,9 @@ bool EquationOfState::rootfinder_update_s( double sin, double Bin,
     std::cout << "Last attempted EoS: " << eos_currently_trying << endl;
     std::cout << "Failed to find a solution for (s,B,S,Q) = "
               << sin << "   " << Bin << "   " << Sin << "   " << Qin << std::endl;
-    exit(101);
+    std::stringstream ss;
+    ss << "(s,B,S,Q) = " << sin << "   " << Bin << "   " << Sin << "   " << Qin;
+    throw std::invalid_argument(ss.str());
   }
 
   return solution_found;
@@ -648,7 +650,9 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
     std::cerr << "No solution found!" << std::endl;
     std::cout << "Failed to find a solution for (e,B,S,Q) = "
               << ein << "   " << Bin << "   " << Sin << "   " << Qin << std::endl;
-    exit(101);
+    std::stringstream ss;
+    ss << "(e,B,S,Q) = " << ein << "   " << Bin << "   " << Sin << "   " << Qin;
+    throw std::invalid_argument(ss.str());
   }
 
 //  cout << "Exiting " << __FUNCTION__ << endl;

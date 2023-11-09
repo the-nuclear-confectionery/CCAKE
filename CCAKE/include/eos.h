@@ -7,6 +7,8 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <stdexcept>
+#include <sstream>
 
 #include <gsl/gsl_multiroots.h>
 #include <gsl/gsl_vector.h>

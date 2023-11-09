@@ -742,7 +742,21 @@ void SPHWorkstation<D, TEOM>::update_all_particle_thermodynamics(double time_squ
     double rhoB_LRF   = TEOM<D>::get_LRF(p.smoothed.rhoB, p.hydro.gamma, t);
     double rhoS_LRF   = TEOM<D>::get_LRF(p.smoothed.rhoS, p.hydro.gamma, t);
     double rhoQ_LRF   = TEOM<D>::get_LRF(p.smoothed.rhoQ, p.hydro.gamma, t);
-	  locate_phase_diagram_point_sBSQ( p, s_LRF, rhoB_LRF , rhoS_LRF, rhoQ_LRF );
+    try
+    {
+	    locate_phase_diagram_point_sBSQ( p, s_LRF, rhoB_LRF , rhoS_LRF, rhoQ_LRF );
+    }
+    catch(const std::exception& e)
+    {
+      std::cerr << e.what() << '\n';
+      cout << "r: " << p.r << endl;
+      cout << "s: " << p.smoothed.s << endl;
+      cout << "gamma: " << p.hydro.gamma << endl;
+      cout << "u: " << p.hydro.u << endl;
+      Kokkos::finalize();
+      exit(404);
+    }
+    
   }
   systemPtr->copy_host_to_device();
 
