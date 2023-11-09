@@ -100,6 +100,14 @@ void EoM_default<D>::reset_pi_tensor(std::shared_ptr<SystemState<D>> sysPtr)
     for(int idir=0; idir<D+1; ++idir)
     for(int jdir=0; jdir<D+1; ++jdir)
       device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir, jdir) = shv(idir,jdir) ;
+
+    //Updates gamma and velocities
+    device_hydro_scalar.access(is,ia, hydro_info::gamma) = gamma;
+    for(int idir=0; idir<D; ++idir) device_hydro_vector.access(is, ia, hydro_info::v, idir) = u(idir)/gamma;
+
+    
+
+
     
   };
     //Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace> simd_policy(0, particles.size());
@@ -298,7 +306,8 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
   Cabana::simd_parallel_for(*(sysPtr->simd_policy), fill_Btot, "fill_Btot");
   Kokkos::fence();
 
-  auto compute_velocity_derivative = KOKKOS_LAMBDA(const int is, const int ia){
+  auto compute_velocity_derivative = KOKKOS_LAMBDA(const int is, const int ia)
+  {
           // THIS IS THE ORIGINAL PART IN TIME DERIVATIVES
       
       double gamma = device_hydro_scalar.access(is, ia, hydro_info::gamma);
@@ -350,10 +359,7 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
         double gamt = 1.0/gamma/stauRelax;
         double pre  = eta_o_tau/gamma;
         double p1   = gamt - 4.0/3.0/sigma*dsigma_dt + 1.0/t/3.0;
-        milne::Matrix <double,D,D> partU;
-        for (int i=0; i<=1; i++)
-        for (int j=0; j<=1; j++)
-          partU(i,j) = gradU(i,j) + gradU(j,i);
+        milne::Matrix <double,D,D> partU = gradU+milne::transpose(gradU);
         milne::Vector<double,D> minshv = milne::rowp1(0, shv);
         F += pre*v*partU + p1*minshv;
       }
@@ -365,7 +371,8 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
   Cabana::simd_parallel_for(*(sysPtr->simd_policy), compute_velocity_derivative, "compute_velocity_derivative");
   Kokkos::fence();
 
-  auto compute_bulk_derivative = KOKKOS_LAMBDA(const int is, const int ia){
+  auto compute_bulk_derivative = KOKKOS_LAMBDA(const int is, const int ia)
+  {
 
     double eta_o_tau = device_hydro_scalar.access(is, ia, hydro_info::eta_o_tau);
     double sigma = device_hydro_scalar.access(is, ia, hydro_info::sigma);
