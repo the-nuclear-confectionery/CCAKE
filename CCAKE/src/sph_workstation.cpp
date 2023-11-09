@@ -197,11 +197,11 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
   double kern0 = SPHkernel<D>::kernel(0,hT); //The value of the Kernel evaluated on top of the particle
   auto reset_fields = KOKKOS_LAMBDA(const int is, const int ia) //First index for loop over struct, second for loop over array
   {
-    device_smoothed.access(is, ia, densities_info::s)    = device_norm_spec.access(is, ia, densities_info::s)*   device_specific_density.access(is, ia, densities_info::s)*kern0;
-    device_smoothed.access(is, ia, densities_info::rhoB) = device_norm_spec.access(is, ia, densities_info::rhoB)*device_specific_density.access(is, ia, densities_info::rhoB)*kern0;
-    device_smoothed.access(is, ia, densities_info::rhoQ) = device_norm_spec.access(is, ia, densities_info::rhoQ)*device_specific_density.access(is, ia, densities_info::rhoQ)*kern0;
-    device_smoothed.access(is, ia, densities_info::rhoS) = device_norm_spec.access(is, ia, densities_info::rhoS)*device_specific_density.access(is, ia, densities_info::rhoS)*kern0;
-    device_hydro_scalar.access(is, ia, hydro_info::sigma)    = device_norm_spec.access(is, ia, densities_info::s)*kern0;
+    device_smoothed.access(is, ia, densities_info::s)     = device_norm_spec.access(is, ia, densities_info::s)*   device_specific_density.access(is, ia, densities_info::s)*kern0;
+    device_smoothed.access(is, ia, densities_info::rhoB)  = device_norm_spec.access(is, ia, densities_info::rhoB)*device_specific_density.access(is, ia, densities_info::rhoB)*kern0;
+    device_smoothed.access(is, ia, densities_info::rhoQ)  = device_norm_spec.access(is, ia, densities_info::rhoQ)*device_specific_density.access(is, ia, densities_info::rhoQ)*kern0;
+    device_smoothed.access(is, ia, densities_info::rhoS)  = device_norm_spec.access(is, ia, densities_info::rhoS)*device_specific_density.access(is, ia, densities_info::rhoS)*kern0;
+    device_hydro_scalar.access(is, ia, hydro_info::sigma) = device_norm_spec.access(is, ia, densities_info::s)*kern0;
   };
   Cabana::simd_parallel_for( *(systemPtr->simd_policy), reset_fields, "reset_fields" );
   Kokkos::fence();
@@ -683,7 +683,7 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives()
   //Computes gradients to obtain dsigma/dt
   smooth_all_particle_gradients(t2);
   //calculate time derivatives needed for equations of motion
-  TEOM<D>::evaluate_time_derivatives( systemPtr->cabana_particles, t );
+  TEOM<D>::evaluate_time_derivatives( systemPtr );
 
   sw.Stop();
   formatted_output::update("Finished computing time derivatives in "
@@ -723,7 +723,7 @@ void SPHWorkstation<D, TEOM>::update_all_particle_viscosities()
 
 ////////////////////////////////////////////////////////////////////////////////
 template<unsigned int D, template<unsigned int> class TEOM>
-void SPHWorkstation<D, TEOM>::update_all_particle_thermodynamics(double time_squared)
+void SPHWorkstation<D, TEOM>::update_all_particle_thermodynamics()
 {
   Stopwatch sw;
   sw.Start();
@@ -902,8 +902,6 @@ void SPHWorkstation<D, TEOM>::add_buffer(double default_e)
                  " INITIAL CONDITIONS.  NO BUFFER ADDED." << std::endl;
     return;
   }
-
-  constexpr double TINY = 1e-10;
 
   double xmin  = settingsPtr->xmin;
   double ymin  = settingsPtr->ymin;
