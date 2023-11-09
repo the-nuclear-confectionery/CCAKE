@@ -21,8 +21,8 @@ def write_header(stepx, stepy, stepEta, xmin, ymin, etamin):
 
 def main():
     check_input()
-    stepx = .01
-    stepy = .01
+    stepx = .02
+    stepy = .02
     xmax = 5
     ymax = 5
     xmin = -xmax
@@ -47,7 +47,7 @@ def main():
             data = line.split()
             x = data[0] #fm
             y = data[1] #fm
-            TLocal = float(data[2]) # GeV
+            TLocal = float(data[2])# GeV - Multiply by 0.465259/0.159168 to match the old normalization
             ux = data[3]
             uy = data[4]
             pixx = data[5] #Gev/fm^3
