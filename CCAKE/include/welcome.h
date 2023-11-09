@@ -91,9 +91,9 @@ void welcome()
     cout << "Travis Dore" << endl;
     cout << "Dekrayat Almaalol" << endl;
     cout << "Jaquelyn Noronha-Hostler" << endl;
-    cout << "Nikolas Cruz Camacho" << endl;
     cout << "Lydia Spychalla" << endl;
-    cout << "Jordi Salinas San Martin" << endl << endl;
+    cout << "Jordi Salinas San Martin" << endl ;
+    cout << "Willian M. Serenone"<< endl << endl ;
     cout << "-------------------------------------------------------------------------------------"
          << endl << endl;
 

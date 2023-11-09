@@ -655,5 +655,15 @@ float tr( const Matrix<float,2,2>& a,float t2)
   return s;
 } // AOK
 
+template <class T, int D1, int D2> KOKKOS_FUNCTION
+double con2(const Matrix<T,D1,D2>& a, const Matrix<T,D1,D2>& b)
+{
+  double t = 0.0;
+  for (int i = 0; i < D2; i++)
+  for (int j = 0; j < D1; j++)
+    t += a(i,j)*b(i,j);
+  return t;
+} // AOK
+
 }}
 #endif

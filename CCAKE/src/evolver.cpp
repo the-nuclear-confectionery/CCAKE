@@ -32,11 +32,12 @@ void Evolver<D>::execute_timestep(double dt, int rk_order,
       {
         case 2:
           advance_timestep_rk2( dt, time_derivatives_functional );
-          cout << "RK2" << endl;
           break;
-//        case 4:
-//          advance_timestep_rk4( dt, time_derivatives_functional );
-//          break;
+        case 4:
+          cout << "RK4 Not implemented" << std::endl;
+          Kokkos::finalize();
+          exit(-42);
+          break;
         default:
           std::cerr << "Invalid Runge-Kutta order!" << std::endl;
           exit(8);
@@ -62,9 +63,9 @@ void Evolver<D>::set_current_timestep_quantities()
   //auto E0 = Cabana::slice<evolver_cache_info::E0>(evolver_cache);
   auto fill_cache = KOKKOS_LAMBDA (const int is, const int ia)
   {
-    for (int i=1; i<D+1; i++)
-    for (int j=1; j<D+1; j++)
-      shv.access(is, ia,i-1,j-1) = device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, i, j);
+    for (int i=0; i<D+1; i++)
+    for (int j=0; j<D+1; j++)
+      shv.access(is, ia,i,j) = device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, i, j);
 
     for(int idir = 0; idir < D; ++idir)
     {
@@ -99,54 +100,79 @@ void Evolver<D>:: advance_timestep_rk2( double dt,
 
       // compute derivatives
       time_derivatives_functional();
-      double t;
 
   	  //Create views for the device
       CREATE_VIEW(device_, systemPtr->cabana_particles);
-      auto shv0 = Cabana::slice<evolver_cache_info::viscous_shear>(evolver_cache);
-      auto u0 = Cabana::slice<evolver_cache_info::four_velocity>(evolver_cache);
-      auto r0 = Cabana::slice<evolver_cache_info::position>(evolver_cache);
-      auto s0 = Cabana::slice<evolver_cache_info::specific_entropy>(evolver_cache);
-      auto Bulk0 = Cabana::slice<evolver_cache_info::Bulk_pressure>(evolver_cache);
+      auto slice_shv0 = Cabana::slice<evolver_cache_info::viscous_shear>(evolver_cache);
+      auto slice_u0 = Cabana::slice<evolver_cache_info::four_velocity>(evolver_cache);
+      auto slice_r0 = Cabana::slice<evolver_cache_info::position>(evolver_cache);
+      auto slice_s0 = Cabana::slice<evolver_cache_info::specific_entropy>(evolver_cache);
+      auto slice_Bulk0 = Cabana::slice<evolver_cache_info::Bulk_pressure>(evolver_cache);
       //auto E0 = Cabana::slice<evolver_cache_info::E0>(evolver_cache);
 
       auto update_rk2_step1 = KOKKOS_CLASS_LAMBDA(const int is, const int ia){
+        
+        //Cache previous step
+        double specific_s0 = slice_s0.access(is, ia);
+        double Bulk0 = slice_Bulk0.access(is, ia);
+        milne::Matrix<double, D+1, D+1> shv0;
+        milne::Vector<double, D> r0, u0;
+        for(int idir=0; idir<D; ++idir){
+          r0(idir) = slice_r0.access(is, ia, idir);
+          u0(idir) = slice_u0.access(is, ia, idir);
+        }
+        for(int idir=1; idir<D+1; ++idir)
+        for(int jdir=1; jdir<D+1; ++jdir)
+          shv0(idir, jdir) = slice_shv0.access(is, ia, idir, jdir);
+        
+        //Cache derivatives
+        double dBulk_dt = device_hydro_scalar.access(is,ia,hydro_info::dBulk_dt);
+        double d_dt_specific_s = device_d_dt_spec.access(is, ia, densities_info::s);
+        milne::Vector<double, D> du_dt, v;
+        for(int idir=0; idir<D; ++idir){
+          du_dt(idir) = device_hydro_vector.access(is, ia, hydro_info::du_dt, idir);
+          v(idir) = device_hydro_vector.access(is, ia, hydro_info::v, idir);
+        }
+        milne::Matrix<double, D, D> dshv_dt;
+        for(int idir=0; idir<D; ++idir)
+        for(int jdir=0; jdir<D; ++jdir)
+          dshv_dt(idir, jdir) = device_hydro_space_matrix.access(is, ia, hydro_info::dshv_dt, idir, jdir);
 
+        //Compute updated quantities
+        double specific_s = specific_s0 + .5*dt*d_dt_specific_s;
+        double Bulk = Bulk0 + .5*dt*dBulk_dt;
+        milne::Vector<double,D> r = r0 + .5*dt*v;
+        milne::Vector<double,D> u = u0 + .5*dt*du_dt;
+        milne::Matrix<double,D,D> shv;
+        for(int idir=1; idir<D+1; ++idir)
+        for(int jdir=1; jdir<D+1; ++jdir)
+          shv(idir,jdir) = shv0(idir,jdir) + .5*dt*dshv_dt(idir-1, jdir-1);
+
+        //Regulate negative entropy in edges
+        if ( specific_s < 0.0 && specific_s0 < 5.E-1 ) specific_s = .5*(specific_s0+1);
+        
+        // regulate updated results if necessary
+        if ( REGULATE_LARGE_S && specific_s > 10.0*specific_s0 ) specific_s = 2.0*specific_s0;
+
+        //Update in memory
+        device_specific_density.access(is, ia, densities_info::s) = specific_s;
+        device_hydro_scalar.access(is, ia, hydro_info::Bulk) = Bulk;
         for (int idir=0; idir<D; ++idir){
-          device_position.access(is, ia, idir) = r0.access(is, ia,idir) + 0.5*dt*device_hydro_vector.access(is, ia, hydro_info::v, idir);
-          device_hydro_vector.access(is, ia, hydro_info::u, idir) = u0.access(is, ia,idir);// + 0.5*dt*device_hydro_vector.access(is, ia, hydro_info::du_dt, idir);
-          for (int jdir=0; jdir<D; ++jdir){
-            device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir+1, jdir+1)
-              = shv0.access(is, ia,idir,jdir) + 0.5*dt*device_hydro_space_matrix.access(is, ia, hydro_info::dshv_dt, idir, jdir);
-          }
+          device_position.access(is, ia, idir) = r(idir);
+          device_hydro_vector.access(is, ia, hydro_info::u, idir) = u(idir);
+          for (int jdir=1; jdir<D; ++jdir)
+            device_hydro_space_matrix.access(is, ia, hydro_info::shv, idir, jdir) = shv(idir,jdir);
         }
-        device_specific_density.access(is, ia, densities_info::s) = s0.access(is, ia) + 0.5*dt*device_d_dt_spec.access(is, ia, densities_info::s);
-        device_hydro_scalar.access(is, ia, hydro_info::Bulk) = Bulk0.access(is, ia) + 0.5*dt*device_hydro_scalar.access(is, ia, hydro_info::dBulk_dt);
-
-        // regulate negative entropy if necessary
-        if ( REGULATE_NEGATIVE_S && device_specific_density.access(is, ia, densities_info::s) < 0.0 )
-        {
-          device_specific_density.access(is, ia, densities_info::s) = 0.5*(s0.access(is, ia)+1.0);
-        }
-
-        // regulate large entropy if necessary
-        if ( REGULATE_LARGE_S && device_specific_density.access(is, ia,densities_info::s) > 10.0*s0.access(is, ia) )
-        {
-          device_specific_density.access(is, ia, densities_info::s) = 2.0*s0.access(is, ia);
-        }
-
-          device_contribution_to_total_Ez.access(is, ia) = E0() + 0.5*dt*device_contribution_to_total_dEz.access(is, ia);
       };
       Cabana::simd_parallel_for(*(systemPtr->simd_policy), update_rk2_step1, "update_rk2_step1");
       Kokkos::fence();
-      //systemPtr->Ez = E0 + 0.5*dt*systemPtr->dEz;
+      
       systemPtr->t  = t0 + 0.5*dt;
-
       //Update hydro time on device
-      t = systemPtr->t;
+      double t = systemPtr->t;
       Cabana::simd_parallel_for(*(systemPtr->simd_policy), KOKKOS_CLASS_LAMBDA(const int is, const int ia)
       {
-        device_hydro_scalar.access(is, ia,ccake::hydro_info::t) = t;
+        device_hydro_scalar.access(is, ia, ccake::hydro_info::t) = t;
       }, "update_hydro_time_step1");
       Kokkos::fence();
 
@@ -159,41 +185,61 @@ void Evolver<D>:: advance_timestep_rk2( double dt,
       time_derivatives_functional();
 
       auto update_rk2_step2 = KOKKOS_CLASS_LAMBDA(const int is, const int ia){
+        
+        //Cache previous step
+        double specific_s0 = slice_s0.access(is, ia);
+        double Bulk0 = slice_Bulk0.access(is, ia);
+        milne::Matrix<double, D+1, D+1> shv0;
+        milne::Vector<double, D> r0, u0;
+        for(int idir=0; idir<D; ++idir){
+          r0(idir) = slice_r0.access(is, ia, idir);
+          u0(idir) = slice_u0.access(is, ia, idir);
+        }
+        for(int idir=1; idir<D+1; ++idir)
+        for(int jdir=1; jdir<D+1; ++jdir)
+          shv0(idir, jdir) = slice_shv0.access(is, ia, idir, jdir);
+        
+        //Cache derivatives
+        double dBulk_dt = device_hydro_scalar.access(is,ia,hydro_info::dBulk_dt);
+        double d_dt_specific_s = device_d_dt_spec.access(is, ia, densities_info::s);
+        milne::Vector<double, D> du_dt, v;
+        for(int idir=0; idir<D; ++idir){
+          du_dt(idir) = device_hydro_vector.access(is, ia, hydro_info::du_dt, idir);
+          v(idir) = device_hydro_vector.access(is, ia, hydro_info::v, idir);
+        }
+        milne::Matrix<double, D, D> dshv_dt;
+        for(int idir=0; idir<D; ++idir)
+        for(int jdir=0; jdir<D; ++jdir)
+          dshv_dt(idir, jdir) = device_hydro_space_matrix.access(is, ia, hydro_info::dshv_dt, idir, jdir);
 
+        //Compute updated quantities
+        double specific_s = specific_s0 + dt*d_dt_specific_s;
+        double Bulk = Bulk0 + dt*dBulk_dt;
+        milne::Vector<double,D> r = r0 + dt*v;
+        milne::Vector<double,D> u = u0 + dt*du_dt;
+        milne::Matrix<double,D,D> shv;
+        for(int idir=1; idir<D+1; ++idir)
+        for(int jdir=1; jdir<D+1; ++jdir)
+          shv(idir,jdir) = shv0(idir,jdir) + dt*dshv_dt(idir-1, jdir-1);
 
+        //Regulate negative entropy in edges
+        if ( specific_s < 0.0 && specific_s0 < 5.E-1 ) specific_s = .5*(specific_s0+1);
+        
+        // regulate updated results if necessary
+        if ( REGULATE_LARGE_S && specific_s > 10.0*specific_s0 ) specific_s = 2.0*specific_s0;
 
+        //Update in memory
+        device_specific_density.access(is, ia, densities_info::s) = specific_s;
+        device_hydro_scalar.access(is, ia, hydro_info::Bulk) = Bulk;
         for (int idir=0; idir<D; ++idir){
-          device_position.access(is, ia, idir) = r0.access(is, ia,idir) + dt*device_hydro_vector.access(is, ia, hydro_info::v, idir);
-          device_hydro_vector.access(is, ia, hydro_info::u, idir) = u0.access(is, ia,idir) + dt*device_hydro_vector.access(is, ia, hydro_info::du_dt, idir);
-          device_hydro_vector.access(is, ia, hydro_info::u, idir) = device_hydro_vector.access(is, ia, hydro_info::du_dt, idir);
-          for (int jdir=0; jdir<D; ++jdir){
-            device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir+1, jdir+1)
-              = shv0.access(is, ia,idir,jdir) + dt*device_hydro_space_matrix.access(is, ia, hydro_info::dshv_dt, idir, jdir);
-          }
+          device_position.access(is, ia, idir) = r(idir);
+          device_hydro_vector.access(is, ia, hydro_info::u, idir) = u(idir);
+          for (int jdir=1; jdir<D; ++jdir)
+            device_hydro_space_matrix.access(is, ia, hydro_info::shv, idir, jdir) = shv(idir,jdir);
         }
-        device_specific_density.access(is, ia, densities_info::s) = s0.access(is, ia) + dt*device_d_dt_spec.access(is, ia, densities_info::s);
-        device_hydro_scalar.access(is, ia, hydro_info::Bulk) = Bulk0.access(is, ia) + dt*device_hydro_scalar.access(is, ia, hydro_info::dBulk_dt);
-
-
-
-        // regulate negative entropy if necessary
-        if ( REGULATE_NEGATIVE_S && device_specific_density.access(is, ia, densities_info::s) < 0.0 )
-        {
-          device_specific_density.access(is, ia, densities_info::s) = 0.5*(s0.access(is, ia)+1.0);
-        }
-
-        // regulate large entropy if necessary
-        if ( REGULATE_LARGE_S && device_specific_density.access(is, ia,densities_info::s) > 10.0*s0.access(is, ia) )
-        {
-          device_specific_density.access(is, ia, densities_info::s) = 2.0*s0.access(is, ia);
-        }
-
-          device_contribution_to_total_Ez.access(is, ia) = E0() + dt*device_contribution_to_total_dEz.access(is, ia);
       };
-
       Cabana::simd_parallel_for(*(systemPtr->simd_policy), update_rk2_step2, "update_rk2_step2");
       Kokkos::fence();
-      //systemPtr->Ez = E0 + dt*systemPtr->dEz;
       systemPtr->t  = t0 + dt;
 
       //Update hydro time on device

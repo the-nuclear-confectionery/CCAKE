@@ -12,11 +12,12 @@
 #include "particle.h"
 #include "system_state.h"
 #include "utilities.h"
+#include "milne.hpp"
 
 namespace ccake{
 
 
-using EvolverCache = Cabana::MemberTypes<double[3][3], // stress-energy tensor
+using EvolverCache = Cabana::MemberTypes<double[4][4], // stress-energy tensor
                                          double[3],    // four-velocity
                                          double[3],    // position
                                          double,       // specific_entropy
