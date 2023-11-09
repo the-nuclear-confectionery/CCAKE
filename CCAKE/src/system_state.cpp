@@ -52,7 +52,9 @@ void SystemState<D>::copy_host_to_device(){
   using SerialHost = Kokkos::Device<Kokkos::Serial, Kokkos::HostSpace>;
   //Auxiliary AoSoA for copying particles from/to host
   Cabana::AoSoA<CabanaParticle, SerialHost, 8> particles_h("particles_h",n_particles);
-  formatted_output::detail("Initializing device memory");
+  #ifdef DEBUG
+  formatted_output::detail("Copying data from host to device");
+  #endif
   //Create vies to particles
   CREATE_VIEW(host_, particles_h);
   //Fill host arrays
@@ -174,6 +176,7 @@ void SystemState<D>::copy_host_to_device(){
     host_freeze(iparticle)  = particles[iparticle].Freeze;
   }
   Cabana::deep_copy( cabana_particles, particles_h );
+  Kokkos::fence();
 
 }
 
@@ -189,8 +192,11 @@ void SystemState<D>::copy_device_to_host(){
   //Auxiliary AoSoA for copying particles from/to host
   Cabana::AoSoA<CabanaParticle, SerialHost, 8> particles_h("particles_h",n_particles);
   CREATE_VIEW(host_, particles_h);
+  #ifdef DEBUG
+  formatted_output::detail("Copying data from device to host");
+  #endif
   Cabana::deep_copy(particles_h, cabana_particles); // Copy is performed here. This is a slow operation.
-
+  Kokkos::fence();
   for (int iparticle=0; iparticle < n_particles; ++iparticle){
     int id = host_id(iparticle);
     //Copy hydro space matrix
@@ -349,48 +355,6 @@ void SystemState<D>::initialize_linklist()
   formatted_output::report("Initializing linklist");
 
   reset_neighbour_list();
-  //Test that the neighbor list is correct
-  /*
-  #ifdef DEBUG
-  #ifndef __CUDACC__
-  auto first_neighbor_kernel =
-    KOKKOS_LAMBDA( const int i, const int j )
-    {
-        double s = 0;
-        for(int idir=0;idir<D;++idir){
-          s += (device_position(i,idir) - device_position(j,idir))*
-               (device_position(i,idir) - device_position(j,idir));
-        }
-        if (sqrt(s) > 2*settingsPtr->hT){
-          cout << "Particle " << i << " is not a neighbor of particle " << j << endl;
-          std::cout.flush();
-        }         
-    };
-  Kokkos::fence();
-  Cabana::neighbor_parallel_for( range_policy, first_neighbor_kernel, neighbour_list,
-                               Cabana::FirstNeighborsTag(),
-                               Cabana::TeamOpTag(), "ex_1st_team" );
-  #endif
-  #endif
-  Kokkos::fence();
-
-  //auto print_parallel_message = KOKKOS_LAMBDA(const int s, const int a){
-  //  printf("Inside Lambda function");
-  //  printf("s = %d, a = %d\n", s, a);
-  //};
-  //Cabana::simd_parallel_for( *simd_policy, print_parallel_message, "calculate rho" );
-
-  
-  #ifdef DEBUG
-  #ifndef __CUDACC__
-  std::ofstream fs("validate_ic.txt");
-  for (int ipart=0; ipart<n_particles; ++ipart){
-    fs << device_position(ipart,0) << " " << device_position(ipart,1)
-         << " " << device_thermo(ipart, ccake::thermo_info::e) << endl;
-  }
-  fs.close();
-  //#endif
-  #endif*/
   return;
 }
 
