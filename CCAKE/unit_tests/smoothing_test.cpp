@@ -144,4 +144,30 @@ TEST(SmoothingTest, Smooth2D){
     << "specific: " << sysPtr->particles[3].specific.rhoS << endl
     << "smoothed: " << sysPtr->particles[3].smoothed.rhoS << endl;
 
+    EXPECT_LT( fabs(sysPtr->particles[0].hydro.sigma - 20./7./M_PI), TOL) << "Test failed! Reporting values used: " << endl
+    << "Particle 1: -------" << endl
+    << "r: " << sysPtr->particles[0].r << endl
+    << "norm_spec: " << sysPtr->particles[0].norm_spec.s << endl
+    << "specific: " << sysPtr->particles[0].specific.s << endl
+    << "smoothed: " << sysPtr->particles[0].smoothed.s << endl
+    << "sigma: " << sysPtr->particles[0].hydro.sigma << endl
+    << "Particle 2: -------" << endl
+    << "r: " << sysPtr->particles[1].r << endl
+    << "norm_spec: " << sysPtr->particles[1].norm_spec.s << endl
+    << "specific: " << sysPtr->particles[1].specific.s << endl
+    << "smoothed: " << sysPtr->particles[1].smoothed.s << endl
+    << "sigma: " << sysPtr->particles[1].hydro.sigma << endl
+    << "Particle 3: -------" << endl
+    << "r: " << sysPtr->particles[2].r << endl
+    << "norm_spec: " << sysPtr->particles[2].norm_spec.s << endl
+    << "specific: " << sysPtr->particles[2].specific.s << endl
+    << "smoothed: " << sysPtr->particles[2].smoothed.s << endl
+    << "sigma: " << sysPtr->particles[2].hydro.sigma << endl
+    << "Particle 4: -------" << endl
+    << "r: " << sysPtr->particles[3].r << endl
+    << "norm_spec: " << sysPtr->particles[3].norm_spec.s << endl
+    << "specific: " << sysPtr->particles[3].specific.s << endl
+    << "smoothed: " << sysPtr->particles[3].smoothed.s << endl
+    << "sigma: " << sysPtr->particles[3].hydro.sigma << endl;
+
 }
