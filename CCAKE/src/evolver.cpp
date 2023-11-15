@@ -161,7 +161,7 @@ void Evolver<D>:: advance_timestep_rk2( double dt,
           device_position.access(is, ia, idir) = r(idir);
           device_hydro_vector.access(is, ia, hydro_info::u, idir) = u(idir);
           for (int jdir=1; jdir<D; ++jdir)
-            device_hydro_space_matrix.access(is, ia, hydro_info::shv, idir, jdir) = shv(idir,jdir);
+            device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir, jdir) = shv(idir,jdir);
         }
       };
       Cabana::simd_parallel_for(*(systemPtr->simd_policy), update_rk2_step1, "update_rk2_step1");
@@ -235,7 +235,7 @@ void Evolver<D>:: advance_timestep_rk2( double dt,
           device_position.access(is, ia, idir) = r(idir);
           device_hydro_vector.access(is, ia, hydro_info::u, idir) = u(idir);
           for (int jdir=1; jdir<D; ++jdir)
-            device_hydro_space_matrix.access(is, ia, hydro_info::shv, idir, jdir) = shv(idir,jdir);
+            device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir, jdir) = shv(idir,jdir);
         }
       };
       Cabana::simd_parallel_for(*(systemPtr->simd_policy), update_rk2_step2, "update_rk2_step2");
