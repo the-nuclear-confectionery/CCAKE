@@ -41,21 +41,24 @@ void EoM_default<D>::reset_pi_tensor(std::shared_ptr<SystemState<D>> sysPtr)
     for(int jdir=0; jdir<D+1; ++jdir)
       shv(idir,jdir) = device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir, jdir);
 
-    //computations
-    double gamma = Kokkos::sqrt(1+milne::inner(u,u));
-    //pi^{0i} = \pi^{ij}u_j/gamma
+    //Symmetrizes space part
+    for( int i=1; i<D+1; i++ )
+    for( int j=i+1; j<D+1; j++ )
+      shv(j,i) = shv(i,j);
+
+    //pi^{0i} = -\pi^{ij}u_j/gamma = \pi^{ij}u^j/gamma
     milne::Vector<double,D> u_cov = u;
     u_cov.make_covariant(t2);
+    double gamma = Kokkos::sqrt(1+milne::inner(u_cov,u));
     for(int idir=1; idir<D+1; ++idir){
       milne::Vector<double,D> colp1_shv;
       for(int jdir=1; jdir<D+1; ++jdir) colp1_shv(jdir-1) = shv(idir,jdir);
-      shv(0,idir) = 1./gamma*milne::inner(u,colp1_shv);
+      shv(0,idir) = 1./gamma*milne::inner(u_cov,colp1_shv);
     } 
     
-    //Simmetrizes
-    for( int i=0; i<D+1; i++ )
-    for( int j=i+1; j<D+1; j++ )
-      shv(j,i) = shv(i,j);
+    //Symmetrizes time part
+    for( int i=1; i<D+1; i++ )
+      shv(i,0) = shv(0,i);
     
     milne::Matrix<double,D,D> pimin, uu;
     for( int idir=0; idir<D; idir++ )
@@ -75,7 +78,7 @@ void EoM_default<D>::reset_pi_tensor(std::shared_ptr<SystemState<D>> sysPtr)
     uu.make_covariant(0,t2);
     uu.make_covariant(1,t2);
     
-    //pi^00 = u_i u_j pi^{ij}/gamma^2
+    //pi^00 = - u_i u_j pi^{ij}/gamma^2 = - u^i u^j pi^{ij}/gamma^2 
     shv(0,0) = 1./gamma/gamma*milne::con(uu,pimin);
   
     //pi^33 = (pi^00 - pi^11 - pi^22)/t2
@@ -100,7 +103,7 @@ void EoM_default<D>::reset_pi_tensor(std::shared_ptr<SystemState<D>> sysPtr)
     for(int idir=0; idir<D+1; ++idir)
     for(int jdir=0; jdir<D+1; ++jdir)
       device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir, jdir) = shv(idir,jdir) ;
-
+    device_hydro_scalar.access(is, ia, hydro_info::shv33) = shv33;
     //Updates gamma and velocities
     device_hydro_scalar.access(is,ia, hydro_info::gamma) = gamma;
     for(int idir=0; idir<D; ++idir) device_hydro_vector.access(is, ia, hydro_info::v, idir) = u(idir)/gamma;
