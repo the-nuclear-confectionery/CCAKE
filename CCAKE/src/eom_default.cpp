@@ -366,9 +366,9 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
         milne::Vector<double,D> minshv = milne::rowp1(0, shv);
         F += pre*v*partU + p1*minshv;
       }
-      
+
       milne::Matrix<double,D,D> MI = milne::inverse(M);
-      milne::Vector<double,D> du_dt = F*MI;
+      milne::Vector<double,D> du_dt = MI*F;
       for(int idir=0; idir<D; ++idir) device_hydro_vector.access(is,ia,hydro_info::du_dt, idir) = du_dt(idir);
   };
   Cabana::simd_parallel_for(*(sysPtr->simd_policy), compute_velocity_derivative, "compute_velocity_derivative");
