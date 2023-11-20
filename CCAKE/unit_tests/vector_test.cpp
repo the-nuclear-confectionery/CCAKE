@@ -5,15 +5,15 @@
 
 TEST( VectorTest, Assignment1D )
 {
-  Vector<int,3> a = {1};
-  Vector<int,3> b = a;
+  Vector<int,1> a = {1};
+  Vector<int,1> b = a;
   EXPECT_EQ( a(0), b(0) );
 }
 
 TEST( VectorTest, Assignment2D )
 {
-  Vector<int,3> a2 = {2,3};
-  Vector<int,3> b2 = a2;
+  Vector<int,2> a2 = {2,3};
+  Vector<int,2> b2 = a2;
   EXPECT_EQ( a2(0), b2(0) );
   EXPECT_EQ( a2(1), b2(1) );
 }

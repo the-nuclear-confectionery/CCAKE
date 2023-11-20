@@ -118,13 +118,7 @@ TEST (InputDeathTest, Constructor){
   for(int i=0; i < 3; i++) {
     man_args[i] = fake_args[i].data();
   }
-
-  //ccake::Input in(fake_args.size(), man_args);
   EXPECT_EXIT( ccake::Input(fake_args.size(), man_args) , testing::ExitedWithCode(EXIT_FAILURE), ".*");
-
-
-  //fs::remove("sample_input.yaml");
-
 
 }
 
@@ -181,3 +175,12 @@ sample_input.close();
 }
 
 
+int main(int argc, char* argv[]) {
+ 
+    // Initialize Kokkos
+    Kokkos::ScopeGuard guard(argc, argv);
+
+    // Run the tests
+    testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
+}
