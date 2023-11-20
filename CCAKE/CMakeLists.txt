@@ -86,7 +86,7 @@ install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_SOURCE_DIR})
 ###############################################################
 #Turn on testing with 'cmake -DTESTING=ON ..'
 option(TESTING "Enable testing" OFF)
-if(TESTING)
+if(ENABLE_TESTING)
   # fetch googletest for unit testing
   include(FetchContent)
   FetchContent_Declare(
@@ -102,15 +102,18 @@ if(TESTING)
    add_executable(kernel_test unit_tests/kernel_test.cpp)
    add_executable(smoothing_test unit_tests/smoothing_test.cpp)
    add_executable(grad_smoothing_test unit_tests/grad_smoothing_test.cpp)
+   add_executable(eom_default_test unit_tests/eom_default_test.cpp)
    target_link_libraries(vector_test GTest::gtest_main)
    target_link_libraries(input_test GTest::gtest_main src ${YAML_CPP_LIBRARIES})
    target_link_libraries(kernel_test GTest::gtest_main src ${YAML_CPP_LIBRARIES})
    target_link_libraries(smoothing_test GTest::gtest_main src ${YAML_CPP_LIBRARIES})
    target_link_libraries(grad_smoothing_test GTest::gtest_main src ${YAML_CPP_LIBRARIES})
+   target_link_libraries(eom_default_test GTest::gtest_main src ${YAML_CPP_LIBRARIES})
 
    include(GoogleTest)
    gtest_discover_tests(vector_test)
    gtest_discover_tests(input_test)
    gtest_discover_tests(kernel_test)
    gtest_discover_tests(grad_smoothing_test)
+   gtest_discover_tests(eom_default_test)
 endif()
