@@ -144,9 +144,9 @@ void Evolver<D>:: advance_timestep_rk2( double dt,
         milne::Vector<double,D> r = r0 + .5*dt*v;
         milne::Vector<double,D> u = u0 + .5*dt*du_dt;
         milne::Matrix<double,D,D> shv;
-        for(int idir=1; idir<D+1; ++idir)
-        for(int jdir=1; jdir<D+1; ++jdir)
-          shv(idir,jdir) = shv0(idir,jdir) + .5*dt*dshv_dt(idir-1, jdir-1);
+        for(int idir=0; idir<D; ++idir)
+        for(int jdir=0; jdir<D; ++jdir)
+          shv(idir,jdir) = shv0(idir+1,jdir+1) + dt*dshv_dt(idir, jdir);
 
         //Regulate negative entropy in edges
         if ( specific_s < 0.0 && specific_s0 < 5.E-1 ) specific_s = .5*(specific_s0+1);
@@ -163,7 +163,7 @@ void Evolver<D>:: advance_timestep_rk2( double dt,
         }
         for (int idir=1; idir<D+1; ++idir)
         for (int jdir=1; jdir<D+1; ++jdir)
-            device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir, jdir) = shv(idir,jdir);
+            device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir, jdir) = shv(idir-1,jdir-1);
       };
       Cabana::simd_parallel_for(*(systemPtr->simd_policy), update_rk2_step1, "update_rk2_step1");
       Kokkos::fence();
@@ -219,9 +219,9 @@ void Evolver<D>:: advance_timestep_rk2( double dt,
         milne::Vector<double,D> r = r0 + dt*v;
         milne::Vector<double,D> u = u0 + dt*du_dt;
         milne::Matrix<double,D,D> shv;
-        for(int idir=1; idir<D+1; ++idir)
-        for(int jdir=1; jdir<D+1; ++jdir)
-          shv(idir,jdir) = shv0(idir,jdir) + dt*dshv_dt(idir-1, jdir-1);
+        for(int idir=0; idir<D; ++idir)
+        for(int jdir=0; jdir<D; ++jdir)
+          shv(idir,jdir) = shv0(idir+1,jdir+1) + dt*dshv_dt(idir, jdir);
 
         //Regulate negative entropy in edges
         if ( specific_s < 0.0 && specific_s0 < 5.E-1 ) specific_s = .5*(specific_s0+1);
@@ -238,7 +238,7 @@ void Evolver<D>:: advance_timestep_rk2( double dt,
         }
         for (int idir=1; idir<D+1; ++idir)
         for (int jdir=1; jdir<D+1; ++jdir)
-            device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir, jdir) = shv(idir,jdir);
+            device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir, jdir) = shv(idir-1,jdir-1);
       };
       Cabana::simd_parallel_for(*(systemPtr->simd_policy), update_rk2_step2, "update_rk2_step2");
       Kokkos::fence();
