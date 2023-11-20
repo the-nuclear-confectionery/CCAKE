@@ -11,24 +11,6 @@ void EoM_default<D>::reset_pi_tensor(std::shared_ptr<SystemState<D>> sysPtr)
   double t2 = (sysPtr->t)*(sysPtr->t);
   CREATE_VIEW(device_,sysPtr->cabana_particles)
 
-  #ifdef DEBUG
-   auto particles_host =
-        Cabana::create_mirror_view_and_copy( Kokkos::HostSpace(), sysPtr->cabana_particles);
-  auto h_matrix_view =  Cabana::slice<particle_info::hydro_space_matrix_info>(particles_host);
-  auto h_vec_view =  Cabana::slice<particle_info::hydro_vector_info>(particles_host);
-  auto h_scalar_view =  Cabana::slice<particle_info::hydro_scalar_info>(particles_host);
-  auto h_spacetime_matrix_view =  Cabana::slice<particle_info::hydro_spacetime_matrix_info>(particles_host);
-  Kokkos::fence();
-  
-  //Print hydro scalars for a particle in the midfle of the event
-  int c=11000;
-  //Scalars
-  cout << "---- Before regularization of shear ----" << std::endl;
-  for(int i=0; i<D+1; ++i){
-    for(int j=0; j<D+1; ++j) std::cout << h_spacetime_matrix_view(c,hydro_info::shv, i, j) << " ";
-    cout << endl;
-  }
-  #endif
   ///TODO: Needs checking for 1+1 and 3+1 cases
   auto kokkos_ensure_consistency = KOKKOS_LAMBDA(const int is, int ia) 
   {
@@ -116,19 +98,6 @@ void EoM_default<D>::reset_pi_tensor(std::shared_ptr<SystemState<D>> sysPtr)
     //Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace> simd_policy(0, particles.size());
   Cabana::simd_parallel_for(*(sysPtr->simd_policy),kokkos_ensure_consistency,"kokkos_ensure_consistency");
   Kokkos::fence();
-  #ifdef DEBUG
-  Cabana::deep_copy( particles_host, sysPtr->cabana_particles);
-  Kokkos::fence();
-  
-  //Print hydro scalars for a particle in the midfle of the event
-  //Scalars
-  cout << "---- After regularization of shear ----" << std::endl;
-  cout << "tt\ttx\tty\txt\txx\txy\tyt\tyx\tyy" << endl;
-  for(int i=0; i<D+1; ++i){
-    for(int j=0; j<D+1; ++j) std::cout << h_spacetime_matrix_view(c,hydro_info::shv, j, i) << " ";
-    cout << endl;
-  }
-  #endif
 }
 
 /// @brief Calculates the gamma factor = u^0.
@@ -184,15 +153,7 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
   double t2 = (sysPtr->t);
   CREATE_VIEW(device_,sysPtr->cabana_particles);
   bool using_shear = true; ///TODO: This should be retrieved from the input parameters
-  
-  #ifdef DEBUG
-  
-  auto d_M = Cabana::AoSoA< Cabana::MemberTypes<double[D][D]>, DeviceType, VECTOR_LENGTH>("d_M",sysPtr->cabana_particles.size()) ;
-  auto dM = Cabana::slice<0>(d_M);
-  auto h_M = Cabana::AoSoA< Cabana::MemberTypes<double[D][D]>, HostType, VECTOR_LENGTH>("d_M",sysPtr->cabana_particles.size()) ;
-  auto hM = Cabana::slice<0>(h_M);
-  #endif
-  
+
   auto fill_auxiliary_variables = KOKKOS_LAMBDA(int const is, int const ia){
 
     double gamma = device_hydro_scalar.access(is, ia, hydro_info::gamma);
@@ -514,82 +475,5 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
     Cabana::simd_parallel_for(*(sysPtr->simd_policy), compute_shear_derivative, "compute_shear_derivative");
     Kokkos::fence();
   }
-
-  #ifdef DEBUG
-  auto particles_host =
-        Cabana::create_mirror_view_and_copy( Kokkos::HostSpace(), sysPtr->cabana_particles);
-  auto h_matrix_view =  Cabana::slice<particle_info::hydro_space_matrix_info>(particles_host);
-  auto h_vec_view =  Cabana::slice<particle_info::hydro_vector_info>(particles_host);
-  auto h_scalar_view =  Cabana::slice<particle_info::hydro_scalar_info>(particles_host);
-  auto h_spacetime_matrix_view =  Cabana::slice<particle_info::hydro_spacetime_matrix_info>(particles_host);
-  auto h_ID =  Cabana::slice<particle_info::id>(particles_host);
-  auto h_pos =  Cabana::slice<particle_info::position>(particles_host);
-  Cabana::deep_copy(h_M,d_M);
-
-  //Print hydro scalars for a particle in the midfle of the event
-  int c=11000;
-  //Scalars
-  cout << "---- Hydro Info Scalars ----" << std::endl;
-  cout << "particle_id..: " << h_ID(c) << std::endl;
-  cout << "position.....: " << h_pos(c,0) << " " << h_pos(c,1) << std::endl;
-  cout << "dsigma_dt....: " << h_scalar_view(c,hydro_info::dsigma_dt) << std::endl;
-  cout << "gamma........: " << h_scalar_view(c,hydro_info::gamma)  << std::endl;
-  cout << "gamma squared: " << h_scalar_view(c,hydro_info::gamma_squared)  << std::endl;
-  cout << "gamma cube...: " << h_scalar_view(c,hydro_info::gamma_cube)  << std::endl;
-  cout << "gamma tau....: " << h_scalar_view(c,hydro_info::gamma_tau)  << std::endl;
-  cout << "dwdsT1.......: " << h_scalar_view(c,hydro_info::dwdsT1) << std::endl;
-  cout << "sigl.........: " << h_scalar_view(c,hydro_info::sigl) << std::endl;
-  cout << "bigPI........: " << h_scalar_view(c,hydro_info::bigPI) << std::endl;
-  cout << "eta_o_tau....: " << h_scalar_view(c,hydro_info::eta_o_tau) << std::endl;
-  cout << "Agam.........: " << h_scalar_view(c,hydro_info::Agam)  << std::endl;
-  cout << "Agam2........: " << h_scalar_view(c,hydro_info::Agam2) << std::endl;
-  cout << "C............: " << h_scalar_view(c,hydro_info::C) << std::endl;
-  cout << "Ctot.........: " << h_scalar_view(c,hydro_info::Ctot) << std::endl;
-  cout << "Btot.........: " << h_scalar_view(c,hydro_info::Btot) << std::endl;
-  cout << "u............: ";
-  for(int j=0;  j<D; ++j)
-    cout << h_vec_view(c,hydro_info::u, j) << " ";
-  cout << endl;
-  cout << "du_dt........: ";
-  for(int j=0;  j<D; ++j)
-    cout << h_vec_view(c,hydro_info::du_dt, j) << " ";
-  cout << endl;
-  cout << "shv........: " << endl;
-  for(int j=0;  j<D+1; ++j){
-    for(int i=0;  i<D+1; ++i)
-      cout << h_spacetime_matrix_view(c,hydro_info::shv, i, j) << " ";
-    cout << endl;
-  }
-  cout << "gradU........: " << endl;
-  for(int j=0;  j<D; ++j){
-    for(int i=0;  i<D; ++i)
-      cout << h_matrix_view(c,hydro_info::gradU, i, j) << " ";
-    cout << endl;
-  }
-  cout << "gradV........: " << endl;
-  for(int j=0;  j<D; ++j){
-    for(int i=0;  i<D; ++i)
-      cout << h_matrix_view(c,hydro_info::gradV, i, j) << " ";
-    cout << endl;
-  }
-  cout << "piu........: " << endl;
-  for(int j=0;  j<D; ++j){
-    for(int i=0;  i<D; ++i)
-      cout << h_matrix_view(c,hydro_info::piu, i, j) << " ";
-    cout << endl;
-  }
-  cout << "piutot.....: " << endl;
-  for(int j=0;  j<D; ++j){
-    for(int i=0;  i<D; ++i)
-      cout << h_matrix_view(c,hydro_info::piutot, i, j) << " ";
-    cout << endl;
-  }
-  cout << "pimin......: " << endl;
-  for(int j=0;  j<D; ++j){
-    for(int i=0;  i<D; ++i)
-      cout << h_matrix_view(c,hydro_info::pimin, i, j) << " ";
-    cout << endl;
-  }
-  #endif
 }
 }

@@ -749,10 +749,8 @@ void SPHWorkstation<D, TEOM>::update_all_particle_thermodynamics()
     catch(const std::exception& e)
     {
       std::cerr << e.what() << '\n';
-      cout << "r: " << p.r << endl;
-      cout << "s: " << p.smoothed.s << endl;
-      cout << "gamma: " << p.hydro.gamma << endl;
-      cout << "u: " << p.hydro.u << endl;
+      cout << "---------------- t = " << systemPtr->t << "fm/c" << endl
+           << p;
       Kokkos::finalize();
       exit(404);
     }

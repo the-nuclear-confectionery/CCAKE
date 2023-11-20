@@ -230,4 +230,99 @@ class Particle
 
 };
 }
+
+template<unsigned int D>
+inline ostream& operator<<( ostream& os, const ccake::Particle<D>& p ){
+  os << "ID.............: " << p.ID << endl;
+  os << "r..............: " << p.r << endl;
+  os << "input.s........: " << p.input.s << endl;
+  os << "input.e........: " << p.input.e << endl;
+  os << "input.rhoB.....: " << p.input.rhoB << endl;
+  os << "input.rhoQ.....: " << p.input.rhoQ << endl;
+  os << "input.rhoS.....: " << p.input.rhoS << endl;
+  os << "smoothed.s.....: " << p.smoothed.s << endl;
+  os << "smoothed.e.....: " << p.smoothed.e << endl;
+  os << "smoothed.rhoB..: " << p.smoothed.rhoB << endl;
+  os << "smoothed.rhoQ..: " << p.smoothed.rhoQ << endl;
+  os << "smoothed.rhoS..: " << p.smoothed.rhoS << endl;
+  os << "specific.s.....: " << p.specific.s << endl;
+  os << "specific.e.....: " << p.specific.e << endl;
+  os << "specific.rhoB..: " << p.specific.rhoB << endl;
+  os << "specific.rhoQ..: " << p.specific.rhoQ << endl;
+  os << "specific.rhoS..: " << p.specific.rhoS << endl;
+  os << "d_dt_spec.s....: " << p.d_dt_spec.s << endl;
+  os << "d_dt_spec.e....: " << p.d_dt_spec.e << endl;
+  os << "d_dt_spec.rhoB.: " << p.d_dt_spec.rhoB << endl;
+  os << "d_dt_spec.rhoQ.: " << p.d_dt_spec.rhoQ << endl;
+  os << "d_dt_spec.rhoS.: " << p.d_dt_spec.rhoS << endl;
+  os << "norm_spec.s....: " << p.norm_spec.s << endl;
+  os << "norm_spec.e....: " << p.norm_spec.e << endl;
+  os << "norm_spec.rhoB.: " << p.norm_spec.rhoB << endl;
+  os << "norm_spec.rhoQ.: " << p.norm_spec.rhoQ << endl;
+  os << "norm_spec.rhoS.: " << p.norm_spec.rhoS << endl;
+  os << "thermo.T.......: " << p.thermo.T << endl;
+  os << "thermo.muB.....: " << p.thermo.muB << endl;
+  os << "thermo.muQ.....: " << p.thermo.muQ << endl;
+  os << "thermo.muS.....: " << p.thermo.muS << endl;
+  os << "thermo.e.......: " << p.thermo.e << endl;
+  os << "thermo.s.......: " << p.thermo.s << endl;
+  os << "thermo.rhoB....: " << p.thermo.rhoB << endl;
+  os << "thermo.rhoQ....: " << p.thermo.rhoQ << endl;
+  os << "thermo.rhoS....: " << p.thermo.rhoS << endl;
+  os << "thermo.p.......: " << p.thermo.p << endl;
+  os << "thermo.cs2.....: " << p.thermo.cs2 << endl;
+  os << "thermo.w.......: " << p.thermo.w << endl;
+  os << "thermo.A.......: " << p.thermo.A << endl;
+  os << "thermo.dwds....: " << p.thermo.dwds << endl;
+  os << "thermo.dwdB....: " << p.thermo.dwdB << endl;
+  os << "thermo.dwdQ....: " << p.thermo.dwdQ << endl;
+  os << "thermo.dwdS....: " << p.thermo.dwdS << endl;
+  os << "hydro.t........: " << p.hydro.t << endl;
+  os << "hydro.Agam.....: " << p.hydro.Agam << endl;
+  os << "hydro.Agam2....: " << p.hydro.Agam2 << endl;
+  os << "hydro.shv33....: " << p.hydro.shv33 << endl;
+  os << "hydro.gamma....: " << p.hydro.gamma << endl;
+  os << "hydro.Bulk.....: " << p.hydro.Bulk << endl;
+  os << "hydro.bigPI....: " << p.hydro.bigPI << endl;
+  os << "hydro.C........: " << p.hydro.C << endl;
+  os << "hydro.tauRelax.: " << p.hydro.tauRelax << endl;
+  os << "hydro.stauRelax: " << p.hydro.stauRelax << endl;
+  os << "hydro.zeta.....: " << p.hydro.zeta << endl;
+  os << "hydro.Ctot.....: " << p.hydro.Ctot << endl;
+  os << "hydro.Btot.....: " << p.hydro.Btot << endl;
+  os << "hydro.sigma....: " << p.hydro.sigma << endl;
+  os << "hydro.dsigma_dt: " << p.hydro.dsigma_dt << endl;
+  os << "hydro.g2.......: " << p.hydro.gamma_squared << endl;
+  os << "hydro.g3.......: " << p.hydro.gamma_cube << endl;
+  os << "hydro.eta_o_tau: " << p.hydro.eta_o_tau << endl;
+  os << "hydro.dwdsT1...: " << p.hydro.dwdsT1 << endl;
+  os << "hydro.sigl.....: " << p.hydro.sigl << endl;
+  os << "hydro.varsigma.: " << p.hydro.varsigma << endl;
+  os << "hydro.v........: " << p.hydro.v << endl;
+  os << "hydro.u........: " << p.hydro.u << endl;
+  os << "hydro.gradP....: " << p.hydro.gradP << endl;
+  os << "hydro.gradE....: " << p.hydro.gradE << endl;
+  os << "hydro.gradBulk.: " << p.hydro.gradBulk << endl;
+  os << "hydro.divshear.: " << p.hydro.divshear << endl;
+  os << "hydro.gradshear: " << p.hydro.gradshear << endl;
+  os << "hydro.Imat.....: " << p.hydro.Imat << endl;
+  os << "hydro.gradV....: " << p.hydro.gradV << endl;
+  os << "hydro.gradU....: " << p.hydro.gradU << endl;
+  os << "hydro.uu.......: " << p.hydro.uu << endl;
+  os << "hydro.pimin....: " << p.hydro.pimin << endl;
+  os << "hydro.piu......: " << p.hydro.piu << endl;
+  os << "hydro.piutot...: " << p.hydro.piutot << endl;
+  os << "hydro.shv......: " << p.hydro.shv << endl;
+  os << "hydro.shv1.....: " << p.hydro.shv1 << endl;
+  os << "hydro.shv2.....: " << p.hydro.shv2 << endl;
+  os << "hydro.shv3.....: " << p.hydro.shv3 << endl;
+  os << "hydro.bigtheta.: " << p.hydro.bigtheta << endl;
+  os << "hydro.inside...: " << p.hydro.inside << endl;
+  os << "hydro.div_u....: " << p.hydro.div_u << endl;
+  os << "hydro.du_dt....: " << p.hydro.du_dt << endl;
+  os << "hydro.dshv_dt..: " << p.hydro.dshv_dt << endl;
+     
+  return os;
+}
+
 #endif
