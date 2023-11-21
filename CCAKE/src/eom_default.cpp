@@ -251,8 +251,8 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
       double pig  = shv(0,0)/g2;
 
       gradU        = gamma*gradV+g3*(v*(v*gradV));
-      for (int i=0; i<=1; i++)
-      for (int j=0; j<=1; j++)
+      for (int i=0; i<D; i++)
+      for (int j=0; j<D; j++)
         bsub = bsub + gradU(i,j) * ( pimin(i,j) + pig*uu(j,i) - piutot(i,j)/gamma );
       //Fill cache arrays
       for(int idir=0; idir<D; ++idir)
