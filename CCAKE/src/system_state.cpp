@@ -42,8 +42,6 @@ void SystemState<D>::allocate_cabana_particles(){
     ///Allocate memory for the particles
     cabana_particles = Cabana::AoSoA<CabanaParticle, DeviceType, VECTOR_LENGTH>("particles", n_particles);
     copy_host_to_device();
-    simd_policy = new Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, particles.size());
-    range_policy = Kokkos::RangePolicy<ExecutionSpace>(0, particles.size());
 }
 
 template<unsigned int D>

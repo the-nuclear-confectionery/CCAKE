@@ -10,6 +10,7 @@ void EoM_default<D>::reset_pi_tensor(std::shared_ptr<SystemState<D>> sysPtr)
 {
   double t2 = (sysPtr->t)*(sysPtr->t);
   CREATE_VIEW(device_,sysPtr->cabana_particles)
+  auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, sysPtr->cabana_particles.size());
 
   ///TODO: Needs checking for 1+1 and 3+1 cases
   auto kokkos_ensure_consistency = KOKKOS_LAMBDA(const int is, int ia) 
@@ -95,8 +96,7 @@ void EoM_default<D>::reset_pi_tensor(std::shared_ptr<SystemState<D>> sysPtr)
 
     
   };
-    //Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace> simd_policy(0, particles.size());
-  Cabana::simd_parallel_for(*(sysPtr->simd_policy),kokkos_ensure_consistency,"kokkos_ensure_consistency");
+  Cabana::simd_parallel_for(simd_policy,kokkos_ensure_consistency,"kokkos_ensure_consistency");
   Kokkos::fence();
 }
 
@@ -150,9 +150,10 @@ template<unsigned int D>
 void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> sysPtr)
 {
   double t = (sysPtr->t);
-  double t2 = (sysPtr->t);
+  double t2 = t*t;
   CREATE_VIEW(device_,sysPtr->cabana_particles);
   bool using_shear = true; ///TODO: This should be retrieved from the input parameters
+  auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, sysPtr->cabana_particles.size());
 
   auto fill_auxiliary_variables = KOKKOS_LAMBDA(int const is, int const ia){
 
@@ -207,7 +208,7 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
     device_hydro_scalar.access(is, ia, hydro_info::Ctot)          = C + eta_o_tau*(1.0/g2-1.0);
   };
 
-  Cabana::simd_parallel_for(*(sysPtr->simd_policy), fill_auxiliary_variables, "fill_auxiliary_variables");
+  Cabana::simd_parallel_for(simd_policy, fill_auxiliary_variables, "fill_auxiliary_variables");
   Kokkos::fence();
 
   auto fill_Btot = KOKKOS_LAMBDA(const int is, const int ia){
@@ -267,7 +268,7 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
       ( Agam*gamma + 2.0*eta_o_tau/3.0*gamma )*sigl + bigPI/tauRelax + dwdsT*( gt*shv33 + bsub );
   };
   
-  Cabana::simd_parallel_for(*(sysPtr->simd_policy), fill_Btot, "fill_Btot");
+  Cabana::simd_parallel_for(simd_policy, fill_Btot, "fill_Btot");
   Kokkos::fence();
 
   auto compute_velocity_derivative = KOKKOS_LAMBDA(const int is, const int ia)
@@ -332,7 +333,7 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
       milne::Vector<double,D> du_dt = MI*F;
       for(int idir=0; idir<D; ++idir) device_hydro_vector.access(is,ia,hydro_info::du_dt, idir) = du_dt(idir);
   };
-  Cabana::simd_parallel_for(*(sysPtr->simd_policy), compute_velocity_derivative, "compute_velocity_derivative");
+  Cabana::simd_parallel_for(simd_policy, compute_velocity_derivative, "compute_velocity_derivative");
   Kokkos::fence();
 
   auto compute_bulk_derivative = KOKKOS_LAMBDA(const int is, const int ia)
@@ -396,7 +397,7 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
 		//			   + 0.5*((4*ti.cs2*hi.finite_diff_cs2*(1/((1/3-ti.cs2)*(1/3-ti.cs2)*(1/3-ti.cs2))))*(1/ti.T)*(1/ti.w));//Asadek 
 
   };
-  Cabana::simd_parallel_for(*(sysPtr->simd_policy), compute_bulk_derivative, "compute_bulk_derivative");
+  Cabana::simd_parallel_for(simd_policy, compute_bulk_derivative, "compute_bulk_derivative");
   Kokkos::fence();
 
   if (using_shear){
@@ -464,7 +465,7 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
       // time derivative of ``specific entropy density per particle"
       double d_dt_specific_s = 1./sigma/T*inside;
       device_hydro_scalar.access(is, ia, hydro_info::inside) = inside;
-      Kokkos::atomic_add( &device_d_dt_spec.access(is, ia, densities_info::s),d_dt_specific_s);
+      device_d_dt_spec.access(is, ia, densities_info::s) += d_dt_specific_s;
       for(int idir=0; idir<D; ++idir)
       for(int jdir=0; jdir<D; ++jdir){
         device_hydro_space_matrix.access(is, ia, hydro_info::dshv_dt, idir, jdir) = dshv_dt(idir, jdir);
@@ -472,7 +473,7 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
       }
 
     };
-    Cabana::simd_parallel_for(*(sysPtr->simd_policy), compute_shear_derivative, "compute_shear_derivative");
+    Cabana::simd_parallel_for(simd_policy, compute_shear_derivative, "compute_shear_derivative");
     Kokkos::fence();
   }
 }

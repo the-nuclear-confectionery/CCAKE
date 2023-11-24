@@ -190,6 +190,7 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
 {
 
   CREATE_VIEW(device_, systemPtr->cabana_particles);
+  auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
   double hT = settingsPtr->hT;
 
   //Reset smoothed fields. Initializes using the contribution of the particle to the density evaluated 
@@ -203,7 +204,7 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
     device_smoothed.access(is, ia, densities_info::rhoS)  = device_norm_spec.access(is, ia, densities_info::rhoS)*device_specific_density.access(is, ia, densities_info::rhoS)*kern0;
     device_hydro_scalar.access(is, ia, hydro_info::sigma) = device_norm_spec.access(is, ia, densities_info::s)*kern0;
   };
-  Cabana::simd_parallel_for( *(systemPtr->simd_policy), reset_fields, "reset_fields" );
+  Cabana::simd_parallel_for( simd_policy, reset_fields, "reset_fields" );
   Kokkos::fence();
 
   auto smooth_fields = KOKKOS_LAMBDA(const int iparticle, const int jparticle ){
@@ -229,7 +230,8 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
                           device_norm_spec(jparticle, ccake::densities_info::rhoQ)*device_specific_density(jparticle, ccake::densities_info::rhoQ)*kern);
   };
 
-  Cabana::neighbor_parallel_for( systemPtr->range_policy, smooth_fields,
+  auto range_policy = Kokkos::RangePolicy<ExecutionSpace>(0, systemPtr->cabana_particles.size());
+  Cabana::neighbor_parallel_for( range_policy, smooth_fields,
                                  systemPtr->neighbour_list, Cabana::FirstNeighborsTag(),
                                  Cabana::TeamOpTag(), "smooth_fields_kernel");
   Kokkos::fence();
@@ -360,6 +362,7 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
   double hT = settingsPtr->hT;
   double t = systemPtr->t;
   bool using_shear = settingsPtr->using_shear;
+  auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
 
   CREATE_VIEW(device_, systemPtr->cabana_particles);
   //Reset gradients - No need to take into account self interaction, since gradient of Kernel for r = 0 is zero
@@ -379,7 +382,7 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
     if ( btrack != -1 ) btrack = 0;
     device_btrack.access(is, ia) = btrack;
   };
-  Cabana::simd_parallel_for(*(systemPtr->simd_policy),reset_gradients, "reset_gradients");
+  Cabana::simd_parallel_for(simd_policy,reset_gradients, "reset_gradients");
   Kokkos::fence();
 
   ///particle_a is the one that will be updated. Particle b is its neighbors.
@@ -456,7 +459,8 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
         Kokkos::atomic_add(&device_hydro_space_matrix(particle_a, hydro_info::gradV, idir, jdir), gradV(idir, jdir));
     }
   };
-   Cabana::neighbor_parallel_for(systemPtr->range_policy, smooth_gradients,
+  auto range_policy = Kokkos::RangePolicy<ExecutionSpace>(0, systemPtr->cabana_particles.size());
+  Cabana::neighbor_parallel_for(range_policy, smooth_gradients,
                                  systemPtr->neighbour_list, Cabana::FirstNeighborsTag(),
                                  Cabana::TeamOpTag(), "smooth_gradients_kernel");
   Kokkos::fence();
@@ -600,7 +604,7 @@ void SPHWorkstation<D, TEOM>::process_initial_conditions()
 template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D, TEOM>::set_bulk_Pi()
 {
-
+  auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
   if ( settingsPtr->initializing_with_full_Tmunu ){
     double t0 = settingsPtr->t0;
     CREATE_VIEW( device_, systemPtr->cabana_particles);
@@ -615,7 +619,7 @@ void SPHWorkstation<D, TEOM>::set_bulk_Pi()
       device_hydro_scalar.access(is, ia, ccake::hydro_info::Bulk) = (varsigma - p)
                       * u0 * t0 / sigma;
     };
-    Cabana::simd_parallel_for( *(systemPtr->simd_policy), set_bulk, "set_bulk_Pi_kernel");
+    Cabana::simd_parallel_for( simd_policy, set_bulk, "set_bulk_Pi_kernel");
     systemPtr->copy_device_to_host();
     //Kokkos::parallel_for( "set_bulk_Pi", systemPtr->n_particles, set_bulk );
     Kokkos::fence();
@@ -703,6 +707,7 @@ template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D, TEOM>::update_all_particle_viscosities()
 {
   CREATE_VIEW(device_, systemPtr->cabana_particles);
+  auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
 
   auto set_transport_coefficients = KOKKOS_CLASS_LAMBDA(const int is, const int ia ){
     double thermo[thermo_info::NUM_THERMO_INFO];
@@ -717,7 +722,7 @@ void SPHWorkstation<D, TEOM>::update_all_particle_viscosities()
     device_hydro_scalar.access(is, ia, ccake::hydro_info::tauRelax)
       = tc::tau_Pi(thermo, this->transp_coeff_params);
   };
-  Cabana::simd_parallel_for(*(systemPtr->simd_policy),set_transport_coefficients, "set_transport_coefficients");
+  Cabana::simd_parallel_for(simd_policy,set_transport_coefficients, "set_transport_coefficients");
   Kokkos::fence();
 }
 
@@ -751,6 +756,7 @@ void SPHWorkstation<D, TEOM>::update_all_particle_thermodynamics()
       std::cerr << e.what() << '\n';
       cout << "---------------- t = " << systemPtr->t << "fm/c" << endl
            << p;
+      systemPtr->print_neighbors(p.ID);
       Kokkos::finalize();
       exit(404);
     }

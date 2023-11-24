@@ -54,6 +54,7 @@ void Evolver<D>::set_current_timestep_quantities()
 {
 
   CREATE_VIEW(device_, systemPtr->cabana_particles);
+  auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
 
   auto shv = Cabana::slice<evolver_cache_info::viscous_shear>(evolver_cache);
   auto u = Cabana::slice<evolver_cache_info::four_velocity>(evolver_cache);
@@ -124,7 +125,7 @@ void Evolver<D>:: advance_timestep_rk2( double dt,
         for(int idir=1; idir<D+1; ++idir)
         for(int jdir=1; jdir<D+1; ++jdir)
           shv0(idir, jdir) = slice_shv0.access(is, ia, idir, jdir);
-        
+
         //Cache derivatives
         double dBulk_dt = device_hydro_scalar.access(is,ia,hydro_info::dBulk_dt);
         double d_dt_specific_s = device_d_dt_spec.access(is, ia, densities_info::s);
@@ -150,7 +151,7 @@ void Evolver<D>:: advance_timestep_rk2( double dt,
 
         //Regulate negative entropy in edges
         if ( specific_s < 0.0 && specific_s0 < 5.E-1 ) specific_s = .5*(specific_s0+1);
-        
+
         // regulate updated results if necessary
         if ( REGULATE_LARGE_S && specific_s > 10.0*specific_s0 ) specific_s = 2.0*specific_s0;
 
@@ -165,13 +166,13 @@ void Evolver<D>:: advance_timestep_rk2( double dt,
         for (int jdir=1; jdir<D+1; ++jdir)
             device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir, jdir) = shv(idir-1,jdir-1);
       };
-      Cabana::simd_parallel_for(*(systemPtr->simd_policy), update_rk2_step1, "update_rk2_step1");
+      Cabana::simd_parallel_for(simd_policy, update_rk2_step1, "update_rk2_step1");
       Kokkos::fence();
-      
+
       systemPtr->t  = t0 + 0.5*dt;
       //Update hydro time on device
       double t = systemPtr->t;
-      Cabana::simd_parallel_for(*(systemPtr->simd_policy), KOKKOS_CLASS_LAMBDA(const int is, const int ia)
+      Cabana::simd_parallel_for(simd_policy, KOKKOS_CLASS_LAMBDA(const int is, const int ia)
       {
         device_hydro_scalar.access(is, ia, ccake::hydro_info::t) = t;
       }, "update_hydro_time_step1");
@@ -199,7 +200,7 @@ void Evolver<D>:: advance_timestep_rk2( double dt,
         for(int idir=1; idir<D+1; ++idir)
         for(int jdir=1; jdir<D+1; ++jdir)
           shv0(idir, jdir) = slice_shv0.access(is, ia, idir, jdir);
-        
+
         //Cache derivatives
         double dBulk_dt = device_hydro_scalar.access(is,ia,hydro_info::dBulk_dt);
         double d_dt_specific_s = device_d_dt_spec.access(is, ia, densities_info::s);
@@ -240,13 +241,13 @@ void Evolver<D>:: advance_timestep_rk2( double dt,
         for (int jdir=1; jdir<D+1; ++jdir)
             device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir, jdir) = shv(idir-1,jdir-1);
       };
-      Cabana::simd_parallel_for(*(systemPtr->simd_policy), update_rk2_step2, "update_rk2_step2");
+      Cabana::simd_parallel_for(simd_policy, update_rk2_step2, "update_rk2_step2");
       Kokkos::fence();
       systemPtr->t  = t0 + dt;
 
       //Update hydro time on device
       t = systemPtr->t;
-      Cabana::simd_parallel_for(*(systemPtr->simd_policy), KOKKOS_CLASS_LAMBDA(const int is, const int ia)
+      Cabana::simd_parallel_for(simd_policy, KOKKOS_CLASS_LAMBDA(const int is, const int ia)
       {
         device_hydro_scalar.access(is, ia,ccake::hydro_info::t) = t;
       }, "update_hydro_time_step2");
