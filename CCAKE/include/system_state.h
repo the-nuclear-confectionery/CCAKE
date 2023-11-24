@@ -117,21 +117,18 @@ class SystemState
     int n(){ return n_particles; }
     double get_particle_T(int id) {return particles[id].T();}
     double get_particle_Freeze(int id) {return particles[id].Freeze;}
-    void print_neighbors(){
+    void print_neighbors(int idx){
     //Loop of neighbors, showing them
-    #ifdef DEBUG
-      //for ( std::size_t i = 0; i < cabana_particles.size(); ++i )
-      std::cout << "System has " << cabana_particles.size() << "particles" << std::endl;
-      for ( std::size_t i = 11478; i < 11479; ++i )
-      {
-        int num_n = Cabana::NeighborList<ListType>::numNeighbor( neighbour_list, i );
-        std::cout << "Particle " << i << " # neighbor = " << num_n << std::endl;
-        //for ( int j = 0; j < num_n; ++j )
-        //  std::cout << "    neighbor " << j << " = "
-        //            << Cabana::NeighborList<ListType>::getNeighbor( neighbour_list, i, j )
-        //            << std::endl;
-      }
-    #endif
+      CREATE_VIEW(device_,cabana_particles)
+        std::cout << "System has " << cabana_particles.size() << " particles" << std::endl;
+        int num_n = Cabana::NeighborList<ListType>::numNeighbor( neighbour_list, idx );
+        std::cout << "Particle " << idx << " # neighbor = " << num_n << std::endl;
+        for ( int j = 0; j < num_n; ++j ){
+          int neighIdx = Cabana::NeighborList<ListType>::getNeighbor( neighbour_list, idx, j );
+          std::cout << "    neighbor " << j << " = "
+                    << neighIdx  << ", specific_density.s: " << device_specific_density(neighIdx, ccake::densities_info::s)
+                    << ", norm_spec.s: " << device_norm_spec(neighIdx, ccake::densities_info::s) << std::endl;
+                }
     };
     //int get_frozen_out_count()
     //{
