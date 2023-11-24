@@ -49,7 +49,7 @@ void SystemState<D>::copy_host_to_device(){
 
   using SerialHost = Kokkos::Device<Kokkos::Serial, Kokkos::HostSpace>;
   //Auxiliary AoSoA for copying particles from/to host
-  Cabana::AoSoA<CabanaParticle, SerialHost, 8> particles_h("particles_h",n_particles);
+  Cabana::AoSoA<ccake::CabanaParticle, SerialHost, 8> particles_h("particles_h",n_particles);
   #ifdef DEBUG
   formatted_output::detail("Copying data from host to device");
   #endif
@@ -188,15 +188,13 @@ void SystemState<D>::copy_host_to_device(){
 template<unsigned int D>
 void SystemState<D>::copy_device_to_host(){
 
-  using SerialHost = Kokkos::Device<Kokkos::Serial, Kokkos::HostSpace>;
-  //Auxiliary AoSoA for copying particles from/to host
-  Cabana::AoSoA<CabanaParticle, SerialHost, 8> particles_h("particles_h",n_particles);
-  CREATE_VIEW(host_, particles_h);
   #ifdef DEBUG
   formatted_output::detail("Copying data from device to host");
   #endif
-  Cabana::deep_copy(particles_h, cabana_particles); // Copy is performed here. This is a slow operation.
+  //Auxiliary AoSoA for copying particles from/to host
+  auto particles_h = Cabana::create_mirror_view_and_copy(Kokkos::HostSpace(), cabana_particles);
   Kokkos::fence();
+  CREATE_VIEW(host_, particles_h);
   for (int iparticle=0; iparticle < n_particles; ++iparticle){
     int id = host_id(iparticle);
     //Copy hydro space matrix
