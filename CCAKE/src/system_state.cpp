@@ -327,18 +327,21 @@ void SystemState<D>::copy_device_to_host(){
 /// @tparam D
 template<unsigned int D>
 void SystemState<D>::reset_neighbour_list(){
-  double min_pos[3], max_pos[3];
+  double min_pos[3], max_pos[3], delta[3];
   min_pos[0] = settingsPtr->xmin;
   min_pos[1] = settingsPtr->ymin;
   min_pos[2] = settingsPtr->etamin;
   for(int idir=0; idir<3; ++idir)
-    min_pos[idir] *= 1.5; //Grid must be 50% bigger ///TODO: Allow this to be an optional input parameter
+    min_pos[idir] *= 2.; //Grid must be 100% bigger ///TODO: Allow this to be an optional input parameter
   for(int idir=0; idir<3; ++idir)
     max_pos[idir] = -min_pos[idir];
+  for(int idir=0; idir<3; ++idir)
+    delta[idir] = 2.*settingsPtr->hT;
 
   CREATE_VIEW(device_, cabana_particles);
 
-  //Cabana::permute( grid, cabana_particles );
+  //Cabana::LinkedCellList<DeviceType> cell_list(device_position, delta, min_pos, max_pos);
+  //Cabana::permute( cell_list, cabana_particles ); ///TODO: Enabling may result in potential performance gain. Needs testing.
   double neighborhood_radius = 2*settingsPtr->hT;
   double cell_ratio = 1.; //neighbour to cell_space ratio
   neighbour_list = ListType (  device_position, 0, device_position.size(),
