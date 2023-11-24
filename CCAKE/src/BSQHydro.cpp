@@ -316,11 +316,11 @@ void BSQHydro<D,TEOM>::initialize_hydrodynamics()
   // allocate memory for particles in device
   systemPtr->allocate_cabana_particles();
 
-  // Create linked list data structure
-  systemPtr->initialize_linklist();
-  
   // for each particle, find location in phase diagram
   wsPtr->initialize_entropy_and_charge_densities();
+
+  // Create linked list data structure
+  systemPtr->initialize_linklist();
 
   // implement initial smoothing required by SPH formalism
   wsPtr->initial_smoothing();
@@ -376,7 +376,8 @@ void BSQHydro<D,TEOM>::run()
     //===================================
     // print updated system and status
     //outPtr->print_conservation_status();
-    if (istep%10 == 0) outPtr->print_system_state();
+    if (istep%100 == 0) outPtr->print_system_state();
+    if (istep==1000) break;
   }
 
   sw.Stop();
