@@ -194,6 +194,7 @@ void Evolver<D>:: advance_timestep_rk2( double dt,
       ////////////////////////////////////////////
       formatted_output::report("RK(n=2) evolution, step 2");
 
+      set_current_timestep_quantities();
       // compute derivatives
       time_derivatives_functional();
 
