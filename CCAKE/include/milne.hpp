@@ -61,7 +61,7 @@ private:
   T x[D1*D2];
   int status[2] = {1,1}; ///< Stores if the matrix indices are covariant or contravariant. All contravariant by default.
                          ///TODO: I think this may not be necessary
-  KOKKOS_FUNCTION int index(const int i, const int j) const { return i*D2+j; };
+  KOKKOS_INLINE_FUNCTION int index(const int i, const int j) const { return i*D2+j; };
 public:
   KOKKOS_FUNCTION Matrix<T,D1,D2>() {for (int i=0; i<D1*D2; i++) x[i] = 0;};
   KOKKOS_FUNCTION Matrix<T,D1,D2>(T x0) {for (int i = 0; i < D1*D2; i++) x[i] = x0;};
@@ -634,6 +634,7 @@ T tr( const Matrix<T,D,D>& a,T t2)
   for (int i = 0; i < D-1; i++)
     s += a(i,i);
   s += a(D-1,D-1)*t2;
+  exit(8);
   return s;
 } // AOK
 
@@ -646,14 +647,6 @@ double tr( const Matrix<double,2,2>& a,double t2)
   return s;
 } // AOK
 
-template <> KOKKOS_INLINE_FUNCTION
-float tr( const Matrix<float,2,2>& a,float t2)
-{
-  float s = 0.0;
-  for (int i = 0; i < 2; i++)
-    s += a(i,i);
-  return s;
-} // AOK
 
 template <class T, int D1, int D2> KOKKOS_FUNCTION
 double con2(const Matrix<T,D1,D2>& a, const Matrix<T,D1,D2>& b)

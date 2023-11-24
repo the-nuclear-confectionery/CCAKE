@@ -11,7 +11,6 @@
 #include "eos.h"
 #include "formatted_output.h"
 #include "kernel.h"
-#include "matrix.h"
 #include "particle.h"
 #include "settings.h"
 #include "stopwatch.h"
@@ -73,8 +72,6 @@ class SystemState
     std::vector<Particle<D>> particles;     ///< Vector of particles
     Cabana::AoSoA<CabanaParticle, DeviceType, VECTOR_LENGTH> cabana_particles; ///< Particle storage on device
     ListType neighbour_list; ///< Neighbour list
-    Kokkos::RangePolicy<ExecutionSpace> range_policy; ///< Policy used to loop over neighbors
-    Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>* simd_policy;                 ///< Policy used to access the particle data
   private:
     std::shared_ptr<Settings> settingsPtr;  ///< Pointer to Settings object
     ////////////////////////////////////////////////////////////////////////////
