@@ -113,6 +113,8 @@ void SystemState<D>::copy_host_to_device(){
 
       host_position(iparticle, i) = particles[iparticle].r(i);
     }
+    for (int i=D; i<3; i++) host_position(iparticle, i) = 0;
+
     host_thermo(iparticle, ccake::thermo_info::T) = particles[iparticle].thermo.T;
     host_thermo(iparticle, ccake::thermo_info::muB) = particles[iparticle].thermo.muB;
     host_thermo(iparticle, ccake::thermo_info::muS) = particles[iparticle].thermo.muS;

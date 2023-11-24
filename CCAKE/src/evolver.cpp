@@ -77,7 +77,7 @@ void Evolver<D>::set_current_timestep_quantities()
     Bulk.access(is, ia) = device_hydro_scalar.access(is, ia, hydro_info::Bulk);
     //E0.access(is, ia) = device_contribution_to_total_E.access(is, ia);
   };
-  Cabana::simd_parallel_for(*(systemPtr->simd_policy), fill_cache, "fill_cache");
+  Cabana::simd_parallel_for(simd_policy, fill_cache, "fill_cache");
 }
 
 //==========================================================================
@@ -93,6 +93,7 @@ void Evolver<D>:: advance_timestep_rk2( double dt,
       Kokkos::deep_copy(E, systemPtr->Ez);
       // initialize quantities at current time step
       set_current_timestep_quantities();
+      auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
 
       ////////////////////////////////////////////
       //    first step
@@ -165,6 +166,16 @@ void Evolver<D>:: advance_timestep_rk2( double dt,
         for (int idir=1; idir<D+1; ++idir)
         for (int jdir=1; jdir<D+1; ++jdir)
             device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir, jdir) = shv(idir-1,jdir-1);
+
+        //Enforce zero values for components greater than dimension D
+        for (int idir=D; idir<3; ++idir){
+          Kokkos::atomic_assign(&device_position.access(is, ia, idir) , 0.0);
+          Kokkos::atomic_assign(&device_hydro_vector.access(is, ia, hydro_info::u, idir) , 0.0);
+          for (int jdir=0; jdir<4; ++jdir){
+            Kokkos::atomic_assign(&device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir+1, jdir), 0.0);
+            Kokkos::atomic_assign(&device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, jdir, idir+1), 0.0);
+          }
+        }
       };
       Cabana::simd_parallel_for(simd_policy, update_rk2_step1, "update_rk2_step1");
       Kokkos::fence();
@@ -240,6 +251,16 @@ void Evolver<D>:: advance_timestep_rk2( double dt,
         for (int idir=1; idir<D+1; ++idir)
         for (int jdir=1; jdir<D+1; ++jdir)
             device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir, jdir) = shv(idir-1,jdir-1);
+
+        //Enforce zero values for components greater than dimension D
+        for (int idir=D; idir<3; ++idir){
+          Kokkos::atomic_assign(&device_position.access(is, ia, idir) , 0.0);
+          Kokkos::atomic_assign(&device_hydro_vector.access(is, ia, hydro_info::u, idir) , 0.0);
+          for (int jdir=0; jdir<4; ++jdir){
+            Kokkos::atomic_assign(&device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir+1, jdir), 0.0);
+            Kokkos::atomic_assign(&device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, jdir, idir+1), 0.0);
+          }
+        }
       };
       Cabana::simd_parallel_for(simd_policy, update_rk2_step2, "update_rk2_step2");
       Kokkos::fence();
