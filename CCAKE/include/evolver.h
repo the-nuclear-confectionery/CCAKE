@@ -65,6 +65,9 @@ class Evolver
 
     vector< Matrix <double,2,2> > shv0;
 
+    void advance_timestep_rk2( double dt,
+                               std::function<void(void)> time_derivatives_functional );
+
   public:
 
     Evolver() = delete;
@@ -76,9 +79,8 @@ class Evolver
     void execute_timestep(double dt, int rk_order,
                           std::function<void(void)> time_derivatives_functional );
     void set_current_timestep_quantities();
-    void advance_timestep_rk2( double dt,
-                               std::function<void(void)> time_derivatives_functional );
     void allocate_cache();
+    void step_rk(double dt, double t0, std::function<void(void)> time_derivatives_functional );
 
 };
 }
