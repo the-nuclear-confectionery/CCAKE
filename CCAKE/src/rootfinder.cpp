@@ -50,9 +50,7 @@ int rootfinder_f(const gsl_vector *x, void *params, gsl_vector *f)
     tbqsToEval[2] = gsl_vector_get(x,2);	// can be a BSpline evaluation point
     tbqsToEval[3] = gsl_vector_get(x,3);
 
-    int e_or_entr_mode;
     double eorEntGiven, rhoBGiven, rhoQGiven, rhoSGiven, eorEnt, rhoB, rhoQ, rhoS;
-    e_or_entr_mode  = ((rootfinder_parameters*)params)->e_or_entr_mode;
     eorEntGiven     = ((rootfinder_parameters*)params)->eorEntGiven;
     rhoBGiven       = ((rootfinder_parameters*)params)->rhoBGiven;
     rhoQGiven       = ((rootfinder_parameters*)params)->rhoQGiven;
@@ -200,14 +198,11 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 
   int status;
   size_t iter = 0;
-  double previous_solver_step[4];
 
   ////////////////////
   // Loop.
   do
   {
-    for (int iPrev = 0; iPrev < 4; iPrev++)
-      previous_solver_step[iPrev] = gsl_vector_get(solver->x, iPrev);
 
 //    std::cout << "iter = " << iter << "\n";
 //std::cout << gsl_vector_get(solver->x, 0) << std::endl;
