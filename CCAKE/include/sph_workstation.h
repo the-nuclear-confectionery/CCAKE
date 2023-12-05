@@ -66,12 +66,14 @@ private:
   // transport coefficients parameters
   transport_coefficients::parameters transp_coeff_params;
 
-  // freeze out
-  FreezeOut<D> freeze_out;
 
   void add_buffer(double default_e);
-
 public:
+
+  // freeze out
+  std::shared_ptr<FreezeOut<D>> freezePtr;
+  void setup_freeze_out(){freezePtr = std::make_shared<FreezeOut<D>>(settingsPtr, systemPtr);}
+  void freeze_out_particles();
 
   //============================================================================
   // Constructors/destructors
@@ -83,11 +85,6 @@ public:
       evolver(Evolver(settingsPtr_in, systemPtr_in)) {}
   KOKKOS_FUNCTION
   ~SPHWorkstation(){}
-
-  //============================================================================
-  // initialize pointers
-  //void set_SystemStatePtr( SystemState<D> * systemPtr_in );
-  //void set_SettingsPtr( Settings * settingsPtr_in );
 
   //============================================================================
   // initialize workstation (now includes eos initialization)
@@ -105,20 +102,13 @@ public:
   // smoothing
   void smooth_all_particle_fields(double time_squared);
   void smooth_all_particle_gradients(double time_squared);
-  //void smooth_gradients( Particle<D> & pa, double tin );
-
-  void get_time_derivatives();
-
 
   //============================================================================
   // functions to apply action to all particles
   //-------------------------------------------
   void update_all_particle_thermodynamics();
   void update_all_particle_viscosities();
-
-  //-------------------------------------------
-  //void freeze_out_particles();
-
+  void get_time_derivatives();
 
   //============================================================================
   // routines to edit particles directly
@@ -131,23 +121,11 @@ public:
   //KOKKOS_INLINE_FUNCTION
   void locate_phase_diagram_point_sBSQ(Particle<D> & p, double s_In );
 
-  //void set_phase_diagram_point( Particle & p );
-  //void set_transport_coefficients( Particle & p );
-//
   void set_bulk_Pi();
   bool continue_evolution();
-//
-  //// misc. routine
-  //double gradPressure_weight(const int a, const int b);
-
-
-//============================================================================
-// what it says on the label
-void advance_timestep( double dt, int rk_order );
+  void advance_timestep( double dt, int rk_order );
 
 };
 
 } // namespace ccake
-
-
 #endif

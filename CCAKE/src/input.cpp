@@ -232,14 +232,6 @@ bool cc::Input::decode_settings(const YAML::Node& node){
         formatted_output::report("This is an optional parameter. Setting to default value.");
         settingsPtr->Freeze_Out_Temperature = cc::defaults::Freeze_Out_Temperature;
       }
-
-      try {
-        settingsPtr->Freeze_Out_Type = node["particlization"]["type"].as<string>();
-      } catch (...) {
-        formatted_output::report("WARNING: Could not read particlization type!");
-        formatted_output::report("This is an optional parameter. Setting to default value.");
-        settingsPtr->Freeze_Out_Type = cc::defaults::Freeze_Out_Type;
-      }
     }
 
     //--------------------------------------------------------------------------

@@ -62,18 +62,13 @@ class SystemState
     double sfcheck    = 0.0;
 
    /* INTS */
-    int number_part = 0;
+    int number_part_fo = 0;
     int n_particles = 0;
-    int rk2         = 0;
 
     int number_of_elapsed_timesteps = 0;
 
 
     std::vector<Particle<D>> particles;     ///< Vector of particles
-    Cabana::AoSoA<CabanaParticle, DeviceType, VECTOR_LENGTH> cabana_particles; ///< Particle storage on device
-    ListType neighbour_list; ///< Neighbour list
-  private:
-    std::shared_ptr<Settings> settingsPtr;  ///< Pointer to Settings object
     ////////////////////////////////////////////////////////////////////////////
     // Cabana data structures (used for parallelization)
     // These are private and because data should be moved from device to host
@@ -83,12 +78,10 @@ class SystemState
     //using SerialHost = Kokkos::Device<Kokkos::Serial, Kokkos::HostSpace>;
     //Cabana::AoSoA<ParticleType, SerialHost, 8> particles_h("particles_h",n_particles); ///Temporary storage on host
     ////////////////////////////////////////////////////////////////////////////
-
-
-    // used to track when a particle fails to find a solution in any EoS
-    std::vector<int> particles_out_of_grid;
-
-    std::vector<int> list;
+    Cabana::AoSoA<CabanaParticle, DeviceType, VECTOR_LENGTH> cabana_particles; ///< Particle storage on device
+    ListType neighbour_list; ///< Neighbour list
+  private:
+    std::shared_ptr<Settings> settingsPtr;  ///< Pointer to Settings object
 
     // eccentricities
     std::vector<double> timesteps;

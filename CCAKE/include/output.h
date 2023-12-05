@@ -1,5 +1,5 @@
-#ifndef INPUT_OUTPUT_H
-#define INPUT_OUTPUT_H
+#ifndef OUTPUT_H
+#define OUTPUT_H
 
 #include <algorithm>
 #include <cmath>
@@ -26,6 +26,7 @@
 #include "particle.h"
 #include "system_state.h"
 #include "vector.h"
+#include "freeze_out.h"
 
 namespace ccake{
 template<unsigned int D>
@@ -39,8 +40,9 @@ public:
 
   void set_results_directory( string path_to_results_directory );
   void print_system_state();
-  //void print_freeze_out();
+  void print_freeze_out(std::shared_ptr<FreezeOut<D>> freeze_out);
   void print_conservation_status();
+  std::string get_freeze_out_filename(){return output_directory + "/freeze_out.dat";}
 
 
 private:
@@ -53,14 +55,13 @@ private:
   // these allow I/O to access other objects in BSQHydro
   std::shared_ptr<Settings> settingsPtr = nullptr;
   std::shared_ptr<SystemState<D>> systemPtr   = nullptr;
-  
+
   interface_to_HDF5 hdf5_file;
 
   void print_system_state_to_txt();
   void print_system_state_to_HDF();
 
-};
-}
+};}
 
 
 #endif

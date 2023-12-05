@@ -306,9 +306,6 @@ void BSQHydro<D,TEOM>::initialize_hydrodynamics()
   // initialize workstation
   wsPtr->initialize();
 
-  // initialize system state
-  systemPtr->initialize();
-
   // trim initial conditions with low-energy density cut-off,
   // filling out initial conditions, and imposing initial freeze-out
   wsPtr->process_initial_conditions();
@@ -321,6 +318,9 @@ void BSQHydro<D,TEOM>::initialize_hydrodynamics()
 
   // Create linked list data structure
   systemPtr->initialize_linklist();
+
+  //Setup freeze-out
+  wsPtr->setup_freeze_out();
 
   // implement initial smoothing required by SPH formalism
   wsPtr->initial_smoothing();
@@ -359,6 +359,28 @@ void BSQHydro<D,TEOM>::run()
   //===================================
   // evolve until simulation terminates
   int istep=0;
+  #ifdef DEBUG
+  std::ofstream file;
+  file.open("probe.dbg", std::ios::out | std::ios::trunc);
+  if (file.is_open()) {
+    file << "" ;
+    file.close();
+  }
+  file.open("probe2.dbg", std::ios::out | std::ios::trunc);
+  if (file.is_open()) {
+    file << "" ;
+    file.close();
+  }
+  #endif
+  // Reset freeze-out file if performing freeze-out
+  if (systemPtr->do_freeze_out) {
+    std::ofstream fo_file;
+    fo_file.open(outPtr->get_freeze_out_filename(), std::ios::out | std::ios::trunc);
+    if (fo_file.is_open()) {
+      fo_file << "" ;
+      fo_file.close();
+    }
+  }
   while ( wsPtr->continue_evolution() )
   {
     //===================================
@@ -376,8 +398,13 @@ void BSQHydro<D,TEOM>::run()
     //===================================
     // print updated system and status
     //outPtr->print_conservation_status();
-    if (istep%100 == 0) outPtr->print_system_state();
-    if (istep==1000) break;
+    if (istep%10 == 0) outPtr->print_system_state();
+    if (istep==2000) break;
+
+    if(systemPtr->do_freeze_out){
+      outPtr->print_freeze_out(wsPtr->freezePtr);
+      if (systemPtr->number_part_fo == systemPtr->n_particles) break; // all particles have frozen out. Break evolution.
+    }
   }
 
   sw.Stop();

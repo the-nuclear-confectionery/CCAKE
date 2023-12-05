@@ -22,8 +22,8 @@ namespace ccake
     const bool        circular_buffer         = false;
     const double      padding_thickness       = 0.1;
     const std::string eos_type                = "conformal";
-    const bool        particlization_enabled  = false;
-    const double      Freeze_Out_Temperature  = 150.;
+    const bool        particlization_enabled  = true;
+    const double      Freeze_Out_Temperature  = 150.; // MeV
     const std::string Freeze_Out_Type         = "fixed_T";
     const bool        baryon_charge_enabled   = true;
     const bool        strange_charge_enabled  = true;

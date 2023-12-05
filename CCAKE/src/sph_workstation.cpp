@@ -39,20 +39,13 @@ void SPHWorkstation<D,TEOM>::initialize()
   transp_coeff_params = tc::setup_parameters(settingsPtr);
 
   //----------------------------------------
-  // set up freeze out (constant energy density)
-
-  systemPtr->efcheck = eos.efreeze(settingsPtr->Freeze_Out_Temperature);
-  systemPtr->sfcheck = eos.sfreeze(settingsPtr->Freeze_Out_Temperature);
+  // set up freeze out  at constant energy density
+  formatted_output::report("Setting up freeze out");
+  formatted_output::detail("Freeze out temperature = "
+                             + to_string(settingsPtr->Freeze_Out_Temperature) + " MeV");
+  systemPtr->efcheck = eos.efreeze(settingsPtr->Freeze_Out_Temperature/hbarc_MeVfm); //Factor 1000 to convert to MeV from GeV
   formatted_output::detail("freeze out energy density = "
                            + to_string(systemPtr->efcheck*hbarc_GeVfm) + " GeV/fm^3");
-  formatted_output::detail("freeze out entropy density = "
-                           + to_string(systemPtr->sfcheck) + " 1/fm^3");
-
-  freeze_out.initialize( settingsPtr, systemPtr, systemPtr->efcheck );
-
-  //----------------------------------------
-  // set up RK evolver
-  //evolver.initialize( settingsPtr, systemPtr );
 
 }
 
@@ -89,20 +82,13 @@ void SPHWorkstation<D, TEOM>::initialize_entropy_and_charge_densities()
 	swTotal.Start();
 	long long failCounter = 0;
 
-  if ( VERBOSE > 5 )
-  {
-    cout << "----------------------------------------"
-            "----------------------------------------" << "\n";
-    cout << "----------------------------------------"
-            "----------------------------------------" << endl;
-  }
-
   //Compute thermal properties
   systemPtr->copy_device_to_host();
   ///\TODO: Trivially parallelizable via openmp. This should be done.
   for (auto & p : systemPtr->particles){
     p.input.s = locate_phase_diagram_point_eBSQ( p,
                   p.input.e, p.input.rhoB, p.input.rhoS, p.input.rhoQ );
+    p.efcheck = systemPtr->efcheck;
   }
   systemPtr->copy_host_to_device();
 
@@ -170,6 +156,9 @@ void SPHWorkstation<D,TEOM>::initial_smoothing()
   smooth_all_particle_fields(t_squared);
   // Update particle thermodynamic properties
   update_all_particle_thermodynamics();
+  //Performs the initial freeze-out
+  int count1=0;
+  freezePtr->check_freeze_out_status(count1);
   sw.Stop();
   formatted_output::update("Finished initial smoothing "
                             + to_string(sw.printTime()) + " s.");
@@ -377,10 +366,6 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
       for (int jdir=0; jdir < D; ++jdir)
         device_hydro_space_matrix.access(is, ia,ccake::hydro_info::gradV, idir, jdir) = 0.0;
     }
-
-    int btrack = device_btrack.access(is, ia);
-    if ( btrack != -1 ) btrack = 0;
-    device_btrack.access(is, ia) = btrack;
   };
   Cabana::simd_parallel_for(simd_policy,reset_gradients, "reset_gradients");
   Kokkos::fence();
@@ -464,31 +449,6 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
                                  systemPtr->neighbour_list, Cabana::FirstNeighborsTag(),
                                  Cabana::TeamOpTag(), "smooth_gradients_kernel");
   Kokkos::fence();
-
-  double hc = constants::hbarc_MeVfm;
-  auto freeze_out_step = KOKKOS_LAMBDA(const int iparticle){
-    int btrack = device_btrack(iparticle);
-    double temperature = device_thermo(iparticle, ccake::thermo_info::T)*hc;
-    if (( btrack == 1 ) && ( temperature >= 150.0 )) {
-      //fo.frz2[pa.ID].t=tin;   // If particle a has only one nearest neighbor (and T>150) set penultimate timestep;
-    } ///< TODO: Implement freeze out corrections. Actually I think this is not the best place to implement it
-    else if ( (btrack == 0) && (temperature >= 150.0)
-            //&& pa.Freeze < 4
-    ){
-      // otherwise, if a has no nearest neighbors
-        // but has T>150 and isn't frozen out,
-        // just print this warning message
-
-        //cout << boolalpha << "Missed " << a << " "
-         //<< tin << " " << pa.T()*hc << " "
-         //<< rdis << " " << systemPtr->do_freeze_out << endl;
-    }
-  };
-
-  ///TODO: When implemented freeze-out, uncomment this
-  //Kokkos::parallel_for("freeze_out_step", systemPtr->n_particles, freeze_out_step);
-  //Kokkos::fence();
-  std::cout << std::flush;
   return;
 }
 
@@ -558,20 +518,15 @@ void SPHWorkstation<D, TEOM>::process_initial_conditions()
 		else
 		{
 			p.Freeze = 4;
-			systemPtr->number_part++;
+			systemPtr->number_part_fo++;
 		}
   }
 
-  formatted_output::detail("particles frozen out: "
-                           + to_string(systemPtr->number_part) );
+ formatted_output::detail("particles frozen out: "
+                           + to_string(systemPtr->number_part_fo) );
   formatted_output::detail("particles not frozen out: "
                            + to_string(systemPtr->n_particles
-                                        - systemPtr->number_part) );
-
-
-  // make sure freeze-out vectors, etc. are correct size
-  freeze_out.resize_vectors( systemPtr->n_particles );
-
+                                        - systemPtr->number_part_fo) );
 
   //============================================================================
   // with particles vector now fully initialized, specify or initialize any
@@ -627,40 +582,19 @@ void SPHWorkstation<D, TEOM>::set_bulk_Pi()
   return;
 }
 
-/*
 //==============================================================================
-template<unsigned int D>
-void SPHWorkstation<D>::freeze_out_particles()
+template<unsigned int D, template<unsigned int> class TEOM>
+void SPHWorkstation<D,TEOM>::freeze_out_particles()
 {
   //---------------------------------------
   // perform freeze out checks
   int n_freezing_out = 0;
-  for ( auto & p : systemPtr->particles )
-    freeze_out.check_freeze_out_status( p, systemPtr->t, n_freezing_out,
-                                systemPtr->n() );
-
-  //---------------------------------------
-  // update global quantities accordingly
-  systemPtr->number_part += n_freezing_out;
-  systemPtr->list.resize(n_freezing_out);
-
-  //---------------------------------------
-  // update freeze out status/lists
-  int m = 0;
-  for ( auto & p : systemPtr->particles )
-    if ( p.Freeze == 3 )
-    {
-      systemPtr->list[m++] = p.ID;
-      p.Freeze         = 4;
-    }
+  freezePtr->check_freeze_out_status( n_freezing_out );
 
   //---------------------------------------
   // finalize frozen out particles
-  freeze_out.bsqsvfreezeout( n_freezing_out );
+  freezePtr->bsqsvfreezeout( n_freezing_out );
 }
-
-
-*/
 
 ////////////////////////////////////////////////////////////////////////////////
 template<unsigned int D, template<unsigned int> class TEOM>
@@ -672,6 +606,29 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives()
   double t = systemPtr->t;
   double t2 = t*t;
 
+  #ifdef DEBUG
+  systemPtr->copy_device_to_host();
+  std::ofstream file;
+  file.open("probe.dbg", std::ios::app);
+  if (file.is_open()) {
+    auto & p =  systemPtr->particles[0];
+    file << p.ID << " " << std::setprecision(5) << systemPtr->t << " " << std::setprecision(15) << p.specific.s << " " << p.r << std::endl;
+    file << "\t" << std::setprecision(15) << p.hydro.inside << " " << p.hydro.du_dt << " " << p.hydro.shv(0,0) 
+    << endl;
+    file.close();
+  }
+
+  // reset nearest neighbors
+  bool fail = false;
+  for(auto & p: systemPtr->particles){
+    if (p.specific.s < 0){
+        cout << "Negative entropy in particle " << p.ID << " Before reset_neighbour_list " << endl;
+        fail = true;
+        //cout << p << endl;
+    }
+  }
+  if (fail) exit(8);
+  #endif
 
   // reset nearest neighbors
   systemPtr->reset_neighbour_list();
@@ -689,17 +646,24 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives()
   //calculate time derivatives needed for equations of motion
   TEOM<D>::evaluate_time_derivatives( systemPtr );
 
+  #ifdef DEBUG
+  systemPtr->copy_device_to_host();
+  file.open("probe2.dbg", std::ios::app);
+  if (file.is_open()) {
+    auto & p =  systemPtr->particles[0];
+    file << p.ID << " " << std::setprecision(5) << systemPtr->t << " " << std::setprecision(15) << p.r ; //Particle info
+    file << " " << p.smoothed.s << p.hydro.sigma << " " << p.btrack; //Smoothing info
+    file << " " << p.hydro.gradP << " " << p.hydro.gradE << " " << p.hydro.gradBulk << " " << p.hydro.gradV << " " << p.hydro.gradshear << " " << p.hydro.divshear; //gradient info
+    file << endl;
+    file.close();
+  }
+  #endif
+
   sw.Stop();
   formatted_output::update("Finished computing time derivatives in "
                             + to_string(sw.printTime()) + " s.");
-/*
-  // identify and handle particles which have frozen out
-  if ( systemPtr->do_freeze_out )
-    freeze_out_particles();
-
   // check/update conserved quantities
-  systemPtr->conservation_energy();
-  */
+  //systemPtr->conservation_energy();
   return;
 }
 
@@ -765,7 +729,7 @@ void SPHWorkstation<D, TEOM>::update_all_particle_thermodynamics()
   systemPtr->copy_host_to_device();
 
   sw.Stop();
-  formatted_output::update("got particle thermodynamics in "
+  formatted_output::detail("Got particle thermodynamics in "
                             + to_string(sw.printTime()) + " s.");
 }
 
@@ -863,9 +827,6 @@ void SPHWorkstation<D,TEOM>::locate_phase_diagram_point_sBSQ(Particle<D> & p, do
                { locate_phase_diagram_point_sBSQ(p, s_In, 0.0, 0.0, 0.0 ); }
 
 /*
-
-
-
 ///////////////////////////////////////////////////////////////////////////////////
 template<unsigned int D>
 double SPHWorkstation<D>::gradPressure_weight(const int a, const int b)
@@ -892,9 +853,8 @@ double SPHWorkstation<D>::gradPressure_weight(const int a, const int b)
         * ( pb.p() / (pb.hydro.sigma*pb.hydro.sigma)
           + pa.p() / (pa.hydro.sigma*pb.hydro.sigma) - innerp );
 }
-
-
 */
+
 //==============================================================================
 // currently add a particle to every grid point which doesn't have one yet
 template<unsigned int D, template<unsigned int> class TEOM>
@@ -1004,7 +964,7 @@ bool SPHWorkstation<D, TEOM>::continue_evolution()
 {
   std::cout << "t = " << systemPtr->t << std::endl;
   return ( systemPtr->t < settingsPtr->tend )
-          && ( systemPtr->number_part < systemPtr->n() );
+          && ( systemPtr->number_part_fo < systemPtr->n_particles );
 }
 
 //============================================================================
@@ -1014,9 +974,6 @@ void SPHWorkstation<D, TEOM>::advance_timestep( double dt, int rk_order )
 {
   Stopwatch sw;
   sw.Start();
-  // turn on freeze-out flag initially
-  //systemPtr->do_freeze_out = true;
-  ///TODO: do_freeze_out should be a flag in the settings file
   // use evolver to actually do RK evolution
   // (pass workstation's own time derivatives function as lambda)
 
@@ -1024,13 +981,16 @@ void SPHWorkstation<D, TEOM>::advance_timestep( double dt, int rk_order )
   evolver.execute_timestep( dt, rk_order,
                             [this]{ this->get_time_derivatives(); } );
 
+  // Perform freeze out
+  if ( systemPtr->do_freeze_out ) freeze_out_particles();
+
   // set number of particles which have frozen out
   //systemPtr->number_part = systemPtr->get_frozen_out_count();
   // keep track of how many timesteps have elapsed
   systemPtr->number_of_elapsed_timesteps++;
 
   sw.Stop();
-  formatted_output::report("finished timestep in "
+  formatted_output::detail("finished timestep in "
                             + to_string(sw.printTime()) + " s");
   if ( settingsPtr->max_number_of_timesteps >= 0
         && systemPtr->number_of_elapsed_timesteps

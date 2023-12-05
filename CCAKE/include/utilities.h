@@ -15,7 +15,7 @@
     #ifdef DEBUG
         using MemorySpace = Kokkos::CudaUVMSpace; //Use managed space if debugging the code - Should we keep this for final release?
     #else
-        using MemorySpace = Kokkos::CudaSpace;
+        using MemorySpace = Kokkos::CudaUVMSpace;
     #endif
 using ExecutionSpace = Kokkos::Cuda;
 #else

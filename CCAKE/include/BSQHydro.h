@@ -41,8 +41,6 @@ public:
   void read_in_initial_conditions();
   void initialize_hydrodynamics();
   void run();
-  //void find_freeze_out_surface();
-  //void print_results();
 
 private:
 
@@ -55,14 +53,6 @@ private:
   std::shared_ptr<SystemState<D>> systemPtr; ///< Object containing the SPH System (linked list, particles, etc.)
   std::shared_ptr<SPHWorkstation<D,TEOM>> wsPtr; ///< Object containing the kernel function and its derivatives
   std::shared_ptr<Output<D>> outPtr; ///< Input/Output object
-
-  // hold freeze-out surface
-  //FreezeOutSurface freeze_out_surface;
-
-
-  // the workstation for performing SPH-related actions on the system
-  //SPHWorkstation<D> ws;
-
 };
 }
 #endif

@@ -101,9 +101,8 @@ class Settings
 
     //------------------------------------
     // Particlization settings
-    bool particlization_enabled = false;  ///< whether to use the "old" or "new"
+    bool particlization_enabled = true;   ///< whether to use the "old" or "new"
                                           ///  particlization scheme
-    string Freeze_Out_Type      = "";     ///< Type of freeze-out ("fixed_T") //TODO: Implement other types (e.g., fixed energy and fixed tau)
     double Freeze_Out_Temperature = 0.0;  ///< freeze-out temp. (at zero mu)
 
     //------------------------------------
@@ -136,10 +135,6 @@ class Settings
                                            // smoothly to zero below
                                            // transition temperature
 
-    //------------------------------------
-    // Gubser settings
-    string Gubser_BSQmode            = ""; //TODO: Remove this
-
 
     // make sure that all chosen settings make reasonable sense
     ///TODO: Check these are correct
@@ -147,19 +142,11 @@ class Settings
     {
       formatted_output::update("Impose consistency checks");
 
-      //------------------------------------
-      // enforce appropriate settings for Gubser
-      if ( IC_type == "TECHQM" )
-      {
-        t0 = 0.6;  //fm/c
-      }
-
       // if eta/s == 0 identically, set using_shear to false
       if ( etaMode == "constant" && constant_eta_over_s < 1e-10 )
         using_shear  = false;
       else
         using_shear  = true;
-
       return;
     }
 

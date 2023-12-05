@@ -27,12 +27,7 @@ void SystemState<D>::initialize()  // formerly called "manualenter"
 
   t = settingsPtr->t0;
   hT = settingsPtr->hT;
-
-  formatted_output::update("set freeze out parameters");
-
-  formatted_output::detail("freeze out temperature = "
-                           + to_string(settingsPtr->Freeze_Out_Temperature
-                                        *hbarc_MeVfm) + " MeV");
+  do_freeze_out = settingsPtr->particlization_enabled;
   return;
 }
 
@@ -348,6 +343,19 @@ void SystemState<D>::reset_neighbour_list(){
                                           neighborhood_radius, cell_ratio, min_pos, max_pos
                            );
   Kokkos::fence();
+
+  //Update the number of neighbours
+
+
+  ///TODO: Requires UVM, which is not good for performance
+  ///Need a way to call Cabana::NeighborList::numNeighbor directly from GPU
+  ///without seg fault
+  for (int i=0; i<n_particles; ++i)
+    device_btrack(i) = device_btrack(i) == -1 ? -1 : Cabana::NeighborList<ListType>::numNeighbor( neighbour_list, i );
+
+  #ifdef DEBUG
+  print_neighbors(0);
+  #endif
 }
 
 template<unsigned int D>
@@ -422,8 +430,8 @@ void SystemState<D>::conservation_energy(bool first_iteration)
   ///////////////////////////////////////////////
   // don't bother checking energy conservation on
   // intermediate RK steps
-  if ( rk2 == 1 )
-  {
+  //if ( rk2 == 1 )
+  //{
     // calculate total energy (T^{00})
     E = 0.0;
     for ( auto & p : particles )
@@ -446,8 +454,8 @@ void SystemState<D>::conservation_energy(bool first_iteration)
     // updated subsequently during RK integration
     Etot  = E + Ez;
     Eloss = (E0-Etot)/E0*100;
-    rk2   = 0;
-  }
+    //rk2   = 0;
+  //}
 
   ///////////////////////////////////////////////
   // this enters the RK routine and should be

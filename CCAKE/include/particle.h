@@ -97,8 +97,10 @@ enum particle_data{
 
 
 //Macro to concatenate variable names
-#define CONCAT_(a, b) a##b
-#define CONCAT(a, b) CONCAT_(a, b)
+#ifndef CONCAT
+  #define CONCAT_(a, b) a##b
+  #define CONCAT(a, b) CONCAT_(a, b)
+#endif
 
 //Helper macros for creating views
 #define CREATE_VIEW(prefix,cabana_aosoa) \

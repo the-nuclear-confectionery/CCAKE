@@ -53,9 +53,6 @@ void Output<D>::print_system_state()
     print_system_state_to_HDF();
 
   //---------------------------------
-  //print_freeze_out();
-
-  //---------------------------------
   // increment timestep index
   n_timesteps_output++;
 
@@ -72,11 +69,11 @@ void Output<D>::print_system_state_to_txt()
 
   out << systemPtr->t << "\n";
   int iParticle = 0;
-  
+
   for ( auto & p : systemPtr->particles )
     out << iParticle++ << " " //0
         << systemPtr->t << " " //1
-//        << std::setw(8) 
+//        << std::setw(8)
         << std::setprecision(6) << std::scientific
         << p.r          //2,3
         << p.p() << " "       //4
@@ -177,7 +174,7 @@ void Output<D>::print_conservation_status()
     stringstream ss;
     ss  << "t = "
         << systemPtr->t      << ": " << scientific        << setw(10)
-        << systemPtr->Eloss  << " "  << systemPtr->S      << " " 
+        << systemPtr->Eloss  << " "  << systemPtr->S      << " "
         << systemPtr->Btotal << " "  << systemPtr->Stotal << " "
         << systemPtr->Qtotal << defaultfloat;
     formatted_output::summarize(ss.str());
@@ -185,41 +182,39 @@ void Output<D>::print_conservation_status()
 
 
 //==============================================================================
-/*template<unsigned int D>
-void Output<D>::print_freeze_out()
+template<unsigned int D>
+void Output<D>::print_freeze_out(std::shared_ptr<FreezeOut<D>> freeze_out)
 {
-  string outputfilename = output_directory + "/freeze_out_"
-                          + std::to_string(n_timesteps_output) + ".dat";
-  ofstream FO( outputfilename.c_str(), ios::out | ios::app );
+  string outputfilename = output_directory + "/freeze_out.dat";
+  ofstream FO( outputfilename.c_str(), ios::app );
 
-  auto & freeze_out = wsPtr->freeze_out;
-
-  if ( freeze_out.divTtemp.size() != freeze_out.cf ) cout << "WARNING: WRONG SIZE" << endl;
-  if ( freeze_out.divT.size() != freeze_out.cf ) cout << "WARNING: WRONG SIZE" << endl;
-  if ( freeze_out.gsub.size() != freeze_out.cf ) cout << "WARNING: WRONG SIZE" << endl;
-  if ( freeze_out.uout.size() != freeze_out.cf ) cout << "WARNING: WRONG SIZE" << endl;
-  if ( freeze_out.swsub.size() != freeze_out.cf ) cout << "WARNING: WRONG SIZE" << endl;
-  if ( freeze_out.bulksub.size() != freeze_out.cf ) cout << "WARNING: WRONG SIZE" << endl;
-  if ( freeze_out.shearsub.size() != freeze_out.cf ) cout << "WARNING: WRONG SIZE" << endl;
-  if ( freeze_out.shear33sub.size() != freeze_out.cf ) cout << "WARNING: WRONG SIZE" << endl;
-  if ( freeze_out.tlist.size() != freeze_out.cf ) cout << "WARNING: WRONG SIZE" << endl;
-  if ( freeze_out.rsub.size() != freeze_out.cf ) cout << "WARNING: WRONG SIZE" << endl;
-  if ( freeze_out.sFO.size() != freeze_out.cf ) cout << "WARNING: WRONG SIZE" << endl;
-  if ( freeze_out.Tfluc.size() != freeze_out.cf ) cout << "WARNING: WRONG SIZE" << endl;
-
-  for (int i = 0; i < freeze_out.cf; i++)
-    FO << freeze_out.divTtemp[i] << " " << freeze_out.divT[i] << " "
-        << freeze_out.gsub[i] << " " << freeze_out.uout[i] << " "
-        << freeze_out.swsub[i] << " " << freeze_out.bulksub[i] << " "
-        << freeze_out.shearsub[i](0,0) << " "
-        << freeze_out.shearsub[i](1,1) << " "
-        << freeze_out.shearsub[i](2,2) << " "
-        << freeze_out.shear33sub[i] << " "
-        << freeze_out.shearsub[i](1,2) << " "
-        << freeze_out.tlist[i] << " " << freeze_out.rsub[i] << " "
-        << freeze_out.sFO[i] << " " << freeze_out.Tfluc[i] << endl;
-
+  //Copy data to host
+  auto FOResults = Cabana::create_mirror_view_and_copy(Kokkos::HostSpace(),
+                                                        freeze_out->results);
+  int count=0;
+  FRZ_RESULTS_VIEW(result_, FOResults)
+  for (int i = 0; i < FOResults.size(); i++){
+    if (!result_print(i)) continue;
+    FO << result_divTtemp(i) << " ";
+    for(int idir = 0; idir < D; idir++)
+      FO << result_divT(i, idir) << " ";
+    FO << result_gsub(i) << " ";
+    for(int idir = 0; idir < D; idir++)
+      FO << result_uout(i, idir) << " ";
+    FO << result_swsub(i) << " " << result_bulksub(i) << " "
+       << result_shearsub(i, 0,0) << " "
+       << result_shearsub(i, 1,1) << " "
+       << result_shearsub(i, 2,2) << " "
+       << result_shear33sub(i) << " "
+       << result_shearsub(i,1,2) << " "
+       << result_tlist(i) << " ";
+    for(int idir = 0; idir < D; idir++)
+        FO << result_rsub(i, idir) << " ";
+    FO << result_sFO(i) << " " << result_Tfluc(i) << endl;
+    count++;
+  }
+  formatted_output::detail("Printed " + std::to_string(count) + " freeze-out particles.");
   FO.close();
 
   return;
-}*/
+}
