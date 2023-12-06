@@ -20,9 +20,9 @@ eos:
   type: "conformal" # Possible values are: ["table", "tanh_conformal", "conformal", "conformal_diagonal"]
   path: "EoS/Houston" # If type is "table", the path to the equation of state table.
 particlization:
-  enabled: false # Set to true to output particlization hypersurface
+  enabled: true # set to true to output particlization hypersurface
   type: "fixed_T" # Possible values are: ["fixed_T"]
-  T: 150.00000 # Temperature of the particlization hypersurface (in MeV)
+  T: 153.334025 # Temperature of the particlization hypersurface (in MeV) # T = 153.334025 MeV corresponds to eps = 1.0 GeV/fm^3 for the conformal EoS
 hydro:
   baryon_charge_enabled: true # Set to false to disable baryon charge evolution
   strange_charge_enabled: true # Set to false to disable strange charge evolution

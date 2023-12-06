@@ -225,8 +225,8 @@ class FreezeOut
         frz2_sigma.access(is, ia) = device_hydro_scalar.access(is, ia, ccake::hydro_info::sigma);
         frz2_shear33.access(is, ia) = device_hydro_scalar.access(is, ia, ccake::hydro_info::shv33);
         frz2_inside.access(is, ia) = device_hydro_scalar.access(is, ia, ccake::hydro_info::inside);
-        frz2_wfz.access(is, ia) = device_hydro_scalar.access(is, ia, ccake::thermo_info::w);
-        frz2_cs2fz.access(is, ia) = device_hydro_scalar.access(is, ia, ccake::thermo_info::cs2);
+        frz2_wfz.access(is, ia) = device_thermo.access(is, ia, ccake::thermo_info::w);
+        frz2_cs2fz.access(is, ia) = device_thermo.access(is, ia, ccake::thermo_info::cs2);
       };
       auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
       Cabana::simd_parallel_for(simd_policy, setup_frz2_first_timestep, "setup_frz2_first_timestep");
@@ -264,8 +264,8 @@ class FreezeOut
         frz1_sigma.access(is, ia) = device_hydro_scalar.access(is, ia, ccake::hydro_info::sigma);
         frz1_shear33.access(is, ia) = device_hydro_scalar.access(is, ia, ccake::hydro_info::shv33);
         frz1_inside.access(is, ia) = device_hydro_scalar.access(is, ia, ccake::hydro_info::inside);
-        frz1_wfz.access(is, ia) = device_hydro_scalar.access(is, ia, ccake::thermo_info::w);
-        frz1_cs2fz.access(is, ia) = device_hydro_scalar.access(is, ia, ccake::thermo_info::cs2);
+        frz1_wfz.access(is, ia) = device_thermo.access(is, ia, ccake::thermo_info::w);
+        frz1_cs2fz.access(is, ia) = device_thermo.access(is, ia, ccake::thermo_info::cs2);
       };
       auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
       Cabana::simd_parallel_for(simd_policy, setup_frz1_first_timestep, "setup_frz1_first_timestep");
@@ -536,8 +536,8 @@ class FreezeOut
           frz1_sigma.access(is, ia) = device_hydro_scalar.access(is, ia, ccake::hydro_info::sigma);
           frz1_shear33.access(is, ia) = device_hydro_scalar.access(is, ia, ccake::hydro_info::shv33);
           frz1_inside.access(is, ia) = device_hydro_scalar.access(is, ia, ccake::hydro_info::inside);
-          frz1_wfz.access(is, ia) = device_hydro_scalar.access(is, ia, ccake::thermo_info::w);
-          frz1_cs2fz.access(is, ia) = device_hydro_scalar.access(is, ia, ccake::thermo_info::cs2);
+          frz1_wfz.access(is, ia) = device_thermo.access(is, ia, ccake::thermo_info::w);
+          frz1_cs2fz.access(is, ia) = device_thermo.access(is, ia, ccake::thermo_info::cs2);
         };
         Cabana::simd_parallel_for(simd_policy, setup_next_step, "setup_next_step");
 
@@ -684,6 +684,7 @@ class FreezeOut
           double normE  = -Kokkos::sqrt(Kokkos::fabs(insubE));
           normE = Kokkos::fabs(normE) > 1.E-14 ? normE : 1.E-14;
           results_divEener.access(is,ia) /= normE;
+          for(int idir=0;idir<D;++idir) results_divE.access(is,ia,idir) /= normE;
 
           results_sFO.access(is,ia) *= Kokkos::pow(results_Tfluc.access(is,ia)*constants::hbarc_GeVfm, 3);
           results_Tfluc.access(is,ia) *= constants::hbarc_GeVfm;
