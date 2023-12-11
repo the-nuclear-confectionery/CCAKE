@@ -63,6 +63,7 @@ void welcome()
     cout << "= Christopher Plumberg\n";
     cout << "= Travis Dore\n";
     cout << "= Dekrayat Almaalol\n";
+    cout << "= Débora Mroczek\n";
     cout << "= Jaquelyn Noronha-Hostler\n";
     cout << "= Lydia Spychalla\n";
     cout << "= Jordi Salinas San Martin\n";
