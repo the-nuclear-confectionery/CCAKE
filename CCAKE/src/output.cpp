@@ -195,13 +195,14 @@ void Output<D>::print_freeze_out(std::shared_ptr<FreezeOut<D>> freeze_out)
   FRZ_RESULTS_VIEW(result_, FOResults)
   for (int i = 0; i < FOResults.size(); i++){
     if (!result_print(i)) continue;
-    FO << result_divTtemp(i) << " ";
+    FO << result_divEener(i) << " ";
     for(int idir = 0; idir < D; idir++)
-      FO << result_divT(i, idir) << " ";
+      FO << result_divE(i, idir) << " ";
     FO << result_gsub(i) << " ";
     for(int idir = 0; idir < D; idir++)
       FO << result_uout(i, idir) << " ";
-    FO << result_swsub(i) << " " << result_bulksub(i) << " "
+    FO << result_swsub(i) << " "
+       << result_bulksub(i) << " "
        << result_shearsub(i, 0,0) << " "
        << result_shearsub(i, 1,1) << " "
        << result_shearsub(i, 2,2) << " "
@@ -210,7 +211,15 @@ void Output<D>::print_freeze_out(std::shared_ptr<FreezeOut<D>> freeze_out)
        << result_tlist(i) << " ";
     for(int idir = 0; idir < D; idir++)
         FO << result_rsub(i, idir) << " ";
-    FO << result_sFO(i) << " " << result_Tfluc(i) << endl;
+    FO << result_sFO(i) << " "
+       << result_Efluc(i) << " "
+       << result_Tfluc(i) << " "
+       << result_muBfluc(i) << " "
+       << result_muSfluc(i) << " "
+       << result_muQfluc(i) << " "
+       << result_wfzfluc(i) << " "
+       << result_cs2fzfluc(i) <<
+       endl;
     count++;
   }
   formatted_output::detail("Printed " + std::to_string(count) + " freeze-out particles.");
