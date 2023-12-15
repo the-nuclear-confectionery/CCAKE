@@ -33,7 +33,9 @@ void SPHWorkstation<D,TEOM>::initialize()
   // set up equation of state
   eos.set_SettingsPtr( settingsPtr );
   eos.init();
-
+  #ifndef ONLINE_INVERTER
+  eos_interpolatorPtr = std::make_shared<EoS_Interpolator>("eos.dat"); ///TODO: The path should be in the config file;
+  #endif
   //----------------------------------------
   // set up transport coefficients
   transp_coeff_params = tc::setup_parameters(settingsPtr);
@@ -146,12 +148,8 @@ void SPHWorkstation<D,TEOM>::initial_smoothing()
   sw.Start();
   double t_squared = pow(settingsPtr->t0,2);
 
-  //Creates the list of neighbours for each particle
-  //systemPtr->reset_neighbour_list(); //Needless. This was already done
-
   //Computes not independent components of the shear tensor
   reset_pi_tensor(t_squared);
-
   // smooth fields over particles
   smooth_all_particle_fields(t_squared);
   // Update particle thermodynamic properties
@@ -223,6 +221,27 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
   Cabana::neighbor_parallel_for( range_policy, smooth_fields,
                                  systemPtr->neighbour_list, Cabana::FirstNeighborsTag(),
                                  Cabana::TeamOpTag(), "smooth_fields_kernel");
+
+  Kokkos::fence();
+  double t = systemPtr->t;
+  auto update_input_thermodynamics = KOKKOS_LAMBDA(const int is, const int ia){
+    double s = device_smoothed.access(is, ia, densities_info::s);
+    double rhoB = device_smoothed.access(is, ia, densities_info::rhoB);
+    double rhoS = device_smoothed.access(is, ia, densities_info::rhoS);
+    double rhoQ = device_smoothed.access(is, ia, densities_info::rhoQ);
+    double gamma = device_hydro_scalar.access(is, ia, hydro_info::gamma);
+
+    s = TEOM<D>::get_LRF(s, gamma, t);
+    rhoB = TEOM<D>::get_LRF(rhoB, gamma, t);
+    rhoS = TEOM<D>::get_LRF(rhoS, gamma, t);
+    rhoQ = TEOM<D>::get_LRF(rhoQ, gamma, t);
+
+    device_thermo.access(is, ia, thermo_info::s) = s;
+    device_thermo.access(is, ia, thermo_info::rhoB) = rhoB;
+    device_thermo.access(is, ia, thermo_info::rhoS) = rhoS;
+    device_thermo.access(is, ia, thermo_info::rhoQ) = rhoQ;
+  };
+  Cabana::simd_parallel_for( simd_policy, update_input_thermodynamics, "update_input_thermodynamics" );
   Kokkos::fence();
 
 }
@@ -575,8 +594,6 @@ void SPHWorkstation<D, TEOM>::set_bulk_Pi()
                       * u0 * t0 / sigma;
     };
     Cabana::simd_parallel_for( simd_policy, set_bulk, "set_bulk_Pi_kernel");
-    systemPtr->copy_device_to_host();
-    //Kokkos::parallel_for( "set_bulk_Pi", systemPtr->n_particles, set_bulk );
     Kokkos::fence();
   }
   return;
@@ -637,13 +654,13 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives()
   reset_pi_tensor(t2);
   // smooth all particle fields - s, rhoB, rhoQ and rhoS and sigma
   smooth_all_particle_fields(t2);
-  // Update particle thermodynamic properties
+    // Update particle thermodynamic properties
   update_all_particle_thermodynamics();
-  // update viscosities for all particles
+    // update viscosities for all particles
   update_all_particle_viscosities();
-  //Computes gradients to obtain dsigma/dt
+    //Computes gradients to obtain dsigma/dt
   smooth_all_particle_gradients(t2);
-  //calculate time derivatives needed for equations of motion
+    //calculate time derivatives needed for equations of motion
   TEOM<D>::evaluate_time_derivatives( systemPtr );
 
   #ifdef DEBUG
@@ -688,7 +705,7 @@ void SPHWorkstation<D, TEOM>::update_all_particle_viscosities()
   };
   Cabana::simd_parallel_for(simd_policy,set_transport_coefficients, "set_transport_coefficients");
   Kokkos::fence();
-}
+  }
 
 ////////////////////////////////////////////////////////////////////////////////
 template<unsigned int D, template<unsigned int> class TEOM>
@@ -699,18 +716,14 @@ void SPHWorkstation<D, TEOM>::update_all_particle_thermodynamics()
   double t = systemPtr->t;
   double t2 = t*t;
 
+  #ifdef ONLINE_INVERTER
   systemPtr->copy_device_to_host();
   ///TODO: This seems trivially parallelizable with openMP. It should be implemented.
   for ( auto & p : systemPtr->particles ){
-    double u[D];
-    for (int idir = 0; idir < D; ++idir)
-      u[idir] = p.hydro.u(idir);
-    p.hydro.gamma     = TEOM<D>::gamma_calc(u,t2);
-    p.hydro.v         = (1.0/p.hydro.gamma)*p.hydro.u;
-    double s_LRF      = TEOM<D>::get_LRF(p.smoothed.s, p.hydro.gamma, t);
-    double rhoB_LRF   = TEOM<D>::get_LRF(p.smoothed.rhoB, p.hydro.gamma, t);
-    double rhoS_LRF   = TEOM<D>::get_LRF(p.smoothed.rhoS, p.hydro.gamma, t);
-    double rhoQ_LRF   = TEOM<D>::get_LRF(p.smoothed.rhoQ, p.hydro.gamma, t);
+    double s_LRF      = p.thermo.s;
+    double rhoB_LRF   = p.thermo.rhoB;
+    double rhoS_LRF   = p.thermo.rhoS;
+    double rhoQ_LRF   = p.thermo.rhoQ;
     try
     {
 	    locate_phase_diagram_point_sBSQ( p, s_LRF, rhoB_LRF , rhoS_LRF, rhoQ_LRF );
@@ -724,9 +737,15 @@ void SPHWorkstation<D, TEOM>::update_all_particle_thermodynamics()
       Kokkos::finalize();
       exit(404);
     }
-    
   }
   systemPtr->copy_host_to_device();
+  #else
+    eos_interpolatorPtr->fill_thermodynamics(systemPtr->cabana_particles, t);
+    #ifdef DEBUG
+    systemPtr->copy_device_to_host();
+    #endif
+  #endif
+
 
   sw.Stop();
   formatted_output::detail("Got particle thermodynamics in "

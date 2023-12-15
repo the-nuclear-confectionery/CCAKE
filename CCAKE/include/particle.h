@@ -104,24 +104,24 @@ enum particle_data{
 
 //Helper macros for creating views
 #define CREATE_VIEW(prefix,cabana_aosoa) \
-  auto CONCAT(prefix,hydro_space_matrix) = Cabana::slice<particle_info::hydro_space_matrix_info>(cabana_aosoa); \
-  auto CONCAT(prefix,hydro_scalar) = Cabana::slice<particle_info::hydro_scalar_info>(cabana_aosoa); \
-  auto CONCAT(prefix,hydro_vector) = Cabana::slice<particle_info::hydro_vector_info>(cabana_aosoa); \
-  auto CONCAT(prefix,thermo) = Cabana::slice<particle_info::thermo_scalar_info>(cabana_aosoa); \
-  auto CONCAT(prefix,hydro_spacetime_matrix) = Cabana::slice<particle_info::hydro_spacetime_matrix_info>(cabana_aosoa); \
-  auto CONCAT(prefix,input) = Cabana::slice<particle_info::input_density>(cabana_aosoa); \
-  auto CONCAT(prefix,smoothed) = Cabana::slice<particle_info::smoothed_density>(cabana_aosoa); \
-  auto CONCAT(prefix,specific_density) = Cabana::slice<particle_info::specific_density>(cabana_aosoa); \
-  auto CONCAT(prefix,d_dt_spec) = Cabana::slice<particle_info::d_dt_spec_density>(cabana_aosoa); \
-  auto CONCAT(prefix,norm_spec) = Cabana::slice<particle_info::norm_spec_density>(cabana_aosoa); \
-  auto CONCAT(prefix,position) = Cabana::slice<particle_info::position>(cabana_aosoa); \
-  auto CONCAT(prefix,efcheck) = Cabana::slice<particle_info::efcheck>(cabana_aosoa); \
-  auto CONCAT(prefix,contribution_to_total_E) = Cabana::slice<particle_info::contribution_to_total_E>(cabana_aosoa); \
-  auto CONCAT(prefix,contribution_to_total_dEz) = Cabana::slice<particle_info::contribution_to_total_dEz>(cabana_aosoa); \
-  auto CONCAT(prefix,contribution_to_total_Ez) = Cabana::slice<particle_info::contribution_to_total_Ez>(cabana_aosoa); \
-  auto CONCAT(prefix,id) = Cabana::slice<particle_info::id>(cabana_aosoa); \
-  auto CONCAT(prefix,btrack) = Cabana::slice<particle_info::btrack>(cabana_aosoa); \
-  auto CONCAT(prefix,freeze) = Cabana::slice<particle_info::freeze>(cabana_aosoa);
+  auto CONCAT(prefix,hydro_space_matrix) = Cabana::slice<ccake::particle_info::hydro_space_matrix_info>(cabana_aosoa); \
+  auto CONCAT(prefix,hydro_scalar) = Cabana::slice<ccake::particle_info::hydro_scalar_info>(cabana_aosoa); \
+  auto CONCAT(prefix,hydro_vector) = Cabana::slice<ccake::particle_info::hydro_vector_info>(cabana_aosoa); \
+  auto CONCAT(prefix,thermo) = Cabana::slice<ccake::particle_info::thermo_scalar_info>(cabana_aosoa); \
+  auto CONCAT(prefix,hydro_spacetime_matrix) = Cabana::slice<ccake::particle_info::hydro_spacetime_matrix_info>(cabana_aosoa); \
+  auto CONCAT(prefix,input) = Cabana::slice<ccake::particle_info::input_density>(cabana_aosoa); \
+  auto CONCAT(prefix,smoothed) = Cabana::slice<ccake::particle_info::smoothed_density>(cabana_aosoa); \
+  auto CONCAT(prefix,specific_density) = Cabana::slice<ccake::particle_info::specific_density>(cabana_aosoa); \
+  auto CONCAT(prefix,d_dt_spec) = Cabana::slice<ccake::particle_info::d_dt_spec_density>(cabana_aosoa); \
+  auto CONCAT(prefix,norm_spec) = Cabana::slice<ccake::particle_info::norm_spec_density>(cabana_aosoa); \
+  auto CONCAT(prefix,position) = Cabana::slice<ccake::particle_info::position>(cabana_aosoa); \
+  auto CONCAT(prefix,efcheck) = Cabana::slice<ccake::particle_info::efcheck>(cabana_aosoa); \
+  auto CONCAT(prefix,contribution_to_total_E) = Cabana::slice<ccake::particle_info::contribution_to_total_E>(cabana_aosoa); \
+  auto CONCAT(prefix,contribution_to_total_dEz) = Cabana::slice<ccake::particle_info::contribution_to_total_dEz>(cabana_aosoa); \
+  auto CONCAT(prefix,contribution_to_total_Ez) = Cabana::slice<ccake::particle_info::contribution_to_total_Ez>(cabana_aosoa); \
+  auto CONCAT(prefix,id) = Cabana::slice<ccake::particle_info::id>(cabana_aosoa); \
+  auto CONCAT(prefix,btrack) = Cabana::slice<ccake::particle_info::btrack>(cabana_aosoa); \
+  auto CONCAT(prefix,freeze) = Cabana::slice<ccake::particle_info::freeze>(cabana_aosoa);
 
 template<unsigned int D>
 class Particle

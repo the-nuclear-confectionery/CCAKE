@@ -65,7 +65,7 @@ set(CMAKE_NO_SYSTEM_FROM_IMPORTED 1)
 
 ###############################################################
 # Create a script to clean cmake
-file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/clean-cmake.sh "rm -rf CMakeCache.txt  CMakeFiles Makefile  ccake *.cmake  config.h src")
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/clean-cmake.sh "rm -rf CMakeCache.txt  CMakeFiles Makefile  ccake *.cmake  config.h src *_test")
 # Set the permissions to execute for the owner
 execute_process(COMMAND chmod 755 ${CMAKE_CURRENT_BINARY_DIR}/clean-cmake.sh)
 add_custom_target(clean-cmake
@@ -78,8 +78,10 @@ add_custom_target(clean-cmake
 #list(APPEND CMAKE_PREFIX_PATH "/projects/jnorhos/local")
 add_subdirectory(src)
 add_executable(${PROJECT_NAME} src/ccake.cpp)
+add_executable(generate_eos_table utilities/generate_eos_table.cpp)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE src)
+target_link_libraries(generate_eos_table PRIVATE src)
 
 install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_SOURCE_DIR})
 
@@ -104,6 +106,7 @@ if(ENABLE_TESTING)
    add_executable(grad_smoothing_test unit_tests/grad_smoothing_test.cpp)
    add_executable(eom_default_test unit_tests/eom_default_test.cpp)
    add_executable(evolver_test unit_tests/evolver_test.cpp)
+   add_executable(eos_interpolator_test unit_tests/eos_interpolator_test.cpp)
    target_link_libraries(vector_test GTest::gtest_main)
    target_link_libraries(input_test GTest::gtest_main src ${YAML_CPP_LIBRARIES})
    target_link_libraries(kernel_test GTest::gtest_main src ${YAML_CPP_LIBRARIES})
@@ -111,6 +114,7 @@ if(ENABLE_TESTING)
    target_link_libraries(grad_smoothing_test GTest::gtest_main src ${YAML_CPP_LIBRARIES})
    target_link_libraries(eom_default_test GTest::gtest_main src ${YAML_CPP_LIBRARIES})
    target_link_libraries(evolver_test GTest::gtest_main src ${YAML_CPP_LIBRARIES})
+   target_link_libraries(eos_interpolator_test GTest::gtest_main src ${YAML_CPP_LIBRARIES})
 
    include(GoogleTest)
    gtest_discover_tests(vector_test)
@@ -119,4 +123,5 @@ if(ENABLE_TESTING)
    gtest_discover_tests(grad_smoothing_test)
    gtest_discover_tests(eom_default_test)
    gtest_discover_tests(evolver_test)
+   gtest_discover_tests(eos_interpolator_test)
 endif()
