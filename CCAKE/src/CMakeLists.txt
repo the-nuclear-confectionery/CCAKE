@@ -1,6 +1,7 @@
 add_library(src OBJECT
 	BSQHydro.cpp
 	eos.cpp
+	eos_interpolator.cpp
 	eos_extension.cpp
 	eos_table.cpp
 	evolver.cpp
