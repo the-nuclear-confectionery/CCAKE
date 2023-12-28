@@ -313,12 +313,8 @@ void SystemState<D>::copy_device_to_host(){
 
 /// @brief Reset the neighbour list
 /// @details This function should be called after the particles have been moved.
-/// Beware that this operation is very expensive and calls to this function should
-/// be minimized. It is also a good candidate for optimization. In a 11th Gen
-/// Intel Core i7-11370H running under WSL 2, using the apptainer images, the
-/// inclusion of single call to this function in the main loop increased the
-/// execution time by ~1s (in a trento event generated with
-/// `trento --grid-max 10 --grid-step .1 Pb Pb --b-max=3 --random-seed=42`)
+/// Beware that this operation is expensive and calls to this function should
+/// be minimized. It is also a good candidate for optimization.
 /// @tparam D
 template<unsigned int D>
 void SystemState<D>::reset_neighbour_list(){
@@ -331,7 +327,7 @@ void SystemState<D>::reset_neighbour_list(){
 
   //Cabana needs a 3D grid. We set the remaining dimensions to be a single cell
   double neighborhood_radius = 2*settingsPtr->hT;
-  for(int idir=D; idir<3; ++idir) min_pos[idir] = neighborhood_radius;
+  for(int idir=D; idir<3; ++idir) min_pos[idir] = -neighborhood_radius;
   for(int idir=0; idir<3; ++idir)
     max_pos[idir] = -min_pos[idir];
   for(int idir=0; idir<3; ++idir)
