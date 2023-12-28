@@ -328,16 +328,18 @@ void SystemState<D>::reset_neighbour_list(){
   min_pos[2] = settingsPtr->etamin;
   for(int idir=0; idir<3; ++idir)
     min_pos[idir] *= 2.; //Grid must be 100% bigger ///TODO: Allow this to be an optional input parameter
+
+  //Cabana needs a 3D grid. We set the remaining dimensions to be a single cell
+  double neighborhood_radius = 2*settingsPtr->hT;
+  for(int idir=D; idir<3; ++idir) min_pos[idir] = neighborhood_radius;
   for(int idir=0; idir<3; ++idir)
     max_pos[idir] = -min_pos[idir];
   for(int idir=0; idir<3; ++idir)
     delta[idir] = 2.*settingsPtr->hT;
 
   CREATE_VIEW(device_, cabana_particles);
-
   //Cabana::LinkedCellList<DeviceType> cell_list(device_position, delta, min_pos, max_pos);
   //Cabana::permute( cell_list, cabana_particles ); ///TODO: Enabling may result in potential performance gain. Needs testing.
-  double neighborhood_radius = 2*settingsPtr->hT;
   double cell_ratio = 1.; //neighbour to cell_space ratio
   neighbour_list = ListType (  device_position, 0, device_position.size(),
                                           neighborhood_radius, cell_ratio, min_pos, max_pos
