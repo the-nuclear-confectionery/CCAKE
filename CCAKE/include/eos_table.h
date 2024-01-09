@@ -20,7 +20,7 @@ private:
 
   string equation_of_state_table_filename = "";
 
-  static InterpolatorND<4> equation_of_state_table;
+  std::shared_ptr<InterpolatorND<4>> equation_of_state_table;
 
   void get_eBSQ_densities_from_interpolator( double point[], double densities[] );
   void get_sBSQ_densities_from_interpolator( double point[], double densities[] );
