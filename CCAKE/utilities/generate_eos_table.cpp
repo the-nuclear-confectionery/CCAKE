@@ -13,10 +13,10 @@
 #include "stopwatch.h"
 
 
-//#define ENABLE_TEST1
-#define ENABLE_TEST2
-#define SKIP_EOS_TABLE_GENERATION
-//#define SAVE_DOMAIN
+//m#define ENABLE_TEST1
+//#define ENABLE_TEST2
+//#define SKIP_EOS_TABLE_GENERATION
+#define SAVE_DOMAIN
 
 int main(int argc, char** argv){
 
@@ -28,38 +28,48 @@ int main(int argc, char** argv){
     std::shared_ptr<Settings> settings = std::make_shared<Settings>();
 
     //Setup EoS
-    settings->eos_type = "conformal_diagonal"; // "table", "tanh_conformal", "conformal" or "conformal_diagonal"
-    settings->eos_path = "EoS/Houston/thermo.dat"; //Only if table
+    //settings->eos_type = "conformal"; // "table", "tanh_conformal", "conformal" or "conformal_diagonal"
+    settings->eos_type = "table"; // "table", "tanh_conformal", "conformal" or "conformal_diagonal"
+    settings->eos_path = "EoS/Houston"; //Only if table
 
+    //Cannot be initialized in parallel to avoid simultaneous access to HDF5 file
     for(int i=0; i<nthreads; ++i){
       eos[i].set_SettingsPtr(settings);
       eos[i].init();
       idx_a[i] = 0;
     }
-    //eos.set_SettingsPtr(settings);
-    //eos.init();
 
 
     //Setup grid
-    const double s_min = 0.0000;
-    const double B_min = 0.0000;
-    const double S_min = 0.0000;
-    const double Q_min = 0.0000;
+    const double s_min = 0.0001;
+    const double B_min = 0.0001;
+    const double S_min = 0.0001;
+    const double Q_min = 0.0001;
 
-    const double s_max = 100.0;
-    const double B_max = .01;
-    const double S_max = .01;
-    const double Q_max = .01;
-    //const int Ns = 40000000+1;
-    const int Ns = 1000+1;
-    const int NB = 50+1;
-    const int NQ = 50+1;
-    const int NS = 50+1;
+    //Limits obtained by looking at a sample of 100 iccing events
+    const double s_max = 70.0;
+    const double B_max = 5.0;
+    const double S_max = 7.0;
+    const double Q_max = 8.6;
+    //Values suitable for conformal EoS
+    //const int Ns = 40000+1;
+    //const int NB = 1+1;
+    //const int NQ = 1+1;
+    //const int NS = 1+1;
+    const int Ns = 31+1;
+    const int NB = 31+1;
+    const int NQ = 31+1;
+    const int NS = 31+1;
     const double ds = (s_max-s_min)/(Ns-1);
     const double dB = (B_max-B_min)/(NB-1);
     const double dS = (S_max-s_min)/(NS-1);
     const double dQ = (Q_max-Q_min)/(NQ-1);
 
+    //Estimate final size of EoS table
+    const long Nsize = Ns*NB*NS*NQ;
+    const long Nbytes = Nsize*sizeof(double)*11; //11 thermodynamic quantities stored
+    const double NbytesGB = Nbytes/1024./1024./1024.;
+    cout << "EoS table size: " << std::setprecision(4) << NbytesGB << " GB" << endl;
     int idx=0;
     #ifndef SKIP_EOS_TABLE_GENERATION
     //Write header to HDF5 file
@@ -167,7 +177,7 @@ int main(int argc, char** argv){
     start = std::chrono::system_clock::now();
 
     int ith=0;
-    #pragma omp parallel for collapse(4) private(ith,idx)
+    #pragma omp parallel for collapse(4) schedule(dynamic) private(ith,idx)
     for (int is=0; is<Ns;++is)
     for (int iB=0; iB<NB;++iB)
     for (int iS=0; iS<NS;++iS)
@@ -181,7 +191,7 @@ int main(int argc, char** argv){
         double rhoB_In = B_min+iB*dB;
         double rhoS_In = S_min+iS*dS;
         double rhoQ_In = Q_min+iQ*dQ;
-        double T = 800./197.;
+        double T = 750./197.;
         double muB = 0.0;
         double muQ = 0.0;
         double muS = 0.0;
@@ -214,7 +224,7 @@ int main(int argc, char** argv){
         (*dwdQ_array)[idx] = thermo.dwdQ;
 
         //Get end time
-        if(ith==0 && idx_a[0]%10000==0){
+        if(ith==0 && idx_a[0]%100==0){
             #pragma omp critical
             {
               int idx_s=0;
