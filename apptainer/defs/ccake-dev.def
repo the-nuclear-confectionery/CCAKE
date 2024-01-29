@@ -1,5 +1,5 @@
 Bootstrap: localimage
-From: ccake.sif
+From: images/ccake.sif
 
 %environment
     export LC_ALL=C

@@ -1,7 +1,5 @@
-# Bootstrap: docker
-# From: ubuntu:22.04
 Bootstrap: localimage
-From: ubuntu.sif
+From: images/ubuntu.sif
 
 %environment
     export LC_ALL=C

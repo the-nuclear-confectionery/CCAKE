@@ -5,15 +5,16 @@ all: images/ubuntu.sif images/ccake.sif	 ../CCAKE/EoS/Houston/thermo.h5 images/c
 # ==================================
 # Recipes with example runs
 # ==================================
-run-gubser:
+
+run-gubser: images/ccake.sif ../CCAKE/build/ccake
 	singularity exec --bind ../CCAKE:/CCAKE images/ccake.sif bash -c " \
 	cd /CCAKE/build ; \
-	mkdir -p initial_condition ; \
+	mkdir -p initial_conditions ; \
 	../utilities/gubser_ic_converter.py ../misc/Gubser_checks/ac/Initial_Profile_tau=1fm.dat initial_conditions/gubser_tau_1.0.dat ; \
 	./ccake ../input/input_parameters_gubser_checks.yaml output_gubser ; \
 	../plotting_scripts/plot_gubser.py ../misc/Gubser_checks/ac output_gubser gubser.png ;"
 
-run-trento:
+run-trento: images/ccake.sif ../CCAKE/build/ccake
 	singularity exec --bind ../CCAKE:/CCAKE images/ccake.sif bash -c " \
 	cd /CCAKE/build ; \
 	mkdir -p initial_conditions ; \
@@ -29,26 +30,29 @@ run-trento:
 images/ubuntu.sif: defs/ubuntu.def 
 	singularity build --fakeroot $@ $<
 
-images/ccake.sif: defs/ccake.def
-	singularity build --fakeroot $@ $<
+images/ccake.sif: defs/ccake.def images/ubuntu.sif
+	singularity build --fakeroot $@ defs/ccake.def
 
-images/ccake-dev.sif: defs/ccake-dev.def
-	singularity build --fakeroot $@ $<
+images/ccake-dev.sif: defs/ccake-dev.def images/ccake.sif
+	singularity build --fakeroot $@ defs/ccake-dev.def
 
 # ==================================
 # Recipes for compiling
 # ==================================
-build-release: images/ccake.sif
+../CCAKE/build/ccake: images/ccake.sif
 	mkdir -p ../CCAKE/build; \
 	singularity exec --bind ../CCAKE:/CCAKE images/ccake.sif bash -c "cd /CCAKE/build ; cmake .. ; make -j";
 	cd ../CCAKE/build; \
 	ln -sf ../EoS ./
 
-build-debug: images/ccake-dev.sif
+../CCAKE/build-debug/ccake: images/ccake-dev.sif
 	mkdir -p ../CCAKE/build-debug
 	singularity exec --bind ../CCAKE:/CCAKE images/ccake-dev.sif bash -c "cd /CCAKE/build-debug ; cmake -DCMAKE_BUILD_TYPE='Debug' .. ; make -j"
 	cd ../CCAKE/build-debug; \
 	ln -sf ../EoS ./
+
+build-release: ../CCAKE/build/ccake
+build-debug: ../CCAKE/build-debug/ccake
 
 ../CCAKE/EoS/Houston/thermo.h5:
 	mkdir -p ../CCAKE/EoS/Houston
