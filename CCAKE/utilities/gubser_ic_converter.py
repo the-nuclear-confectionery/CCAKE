@@ -21,8 +21,8 @@ def write_header(stepx, stepy, stepEta, xmin, ymin, etamin):
 
 def main():
     check_input()
-    stepx = .02
-    stepy = .02
+    stepx = .05
+    stepy = .05
     xmax = 5
     ymax = 5
     xmin = -xmax
