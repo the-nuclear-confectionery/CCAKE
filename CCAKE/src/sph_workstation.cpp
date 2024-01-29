@@ -5,6 +5,7 @@
 #include "eom_default.cpp"
 #include "transport_coefficients.cpp"
 
+#define ONLINE_INVERTER
 using namespace constants;
 namespace tc = ccake::transport_coefficients;
 
