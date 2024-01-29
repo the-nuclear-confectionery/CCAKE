@@ -47,8 +47,7 @@ From: ubuntu.sif
           -D Cabana_ENABLE_EXAMPLES=OFF $CABANASRC
 
     cmake --build . --target install -j
-    TRENTOSRC=/usr/local/src/cabana
-    echo "================Welcome to CCAKE================"
+    TRENTOSRC=/usr/local/src/trento
     echo "Installing trento"
     git clone https://github.com/Duke-QCD/trento.git $TRENTOSRC
     mkdir -p $TRENTOSRC/build
