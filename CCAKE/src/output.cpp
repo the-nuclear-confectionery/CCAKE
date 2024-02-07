@@ -104,9 +104,9 @@ void Output<D>::print_system_state_to_txt()
         << p.hydro.shv(1,1) << " " //23
         << p.hydro.shv(2,2) << " " //24
         << p.hydro.shv(1,2) << " " //25
-        << pow(systemPtr->t,2.0)*p.hydro.shv33 << " " //26
-        << p.hydro.u(0)/p.hydro.gamma << " "  //27
-        << p.hydro.u(1)/p.hydro.gamma << " " //28
+        << pow(systemPtr->t,2.0)*p.hydro.shv33 << " "; //26
+        for (int idir=0; idir<D; idir++)
+          out << p.hydro.u(idir)/p.hydro.gamma << " "; //27,28 (in 2+1)
         << p.hydro.gamma << " " //29
         << p.Freeze << " " //30
         << p.get_current_eos_name() << "\n"; //31
