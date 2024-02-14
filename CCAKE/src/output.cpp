@@ -70,7 +70,7 @@ void Output<D>::print_system_state_to_txt()
   out << systemPtr->t << "\n";
   int iParticle = 0;
 
-  for ( auto & p : systemPtr->particles )
+  for ( auto & p : systemPtr->particles ){
     out << iParticle++ << " " //0
         << systemPtr->t << " " //1
 //        << std::setw(8)
@@ -107,9 +107,10 @@ void Output<D>::print_system_state_to_txt()
         << pow(systemPtr->t,2.0)*p.hydro.shv33 << " "; //26
         for (int idir=0; idir<D; idir++)
           out << p.hydro.u(idir)/p.hydro.gamma << " "; //27,28 (in 2+1)
-        << p.hydro.gamma << " " //29
+        out << p.hydro.gamma << " " //29
         << p.Freeze << " " //30
         << p.get_current_eos_name() << "\n"; //31
+  }
 
   out << std::flush;
 

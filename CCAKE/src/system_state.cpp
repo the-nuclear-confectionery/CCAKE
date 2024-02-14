@@ -319,9 +319,20 @@ void SystemState<D>::copy_device_to_host(){
 template<unsigned int D>
 void SystemState<D>::reset_neighbour_list(){
   double min_pos[3], max_pos[3], delta[3];
-  min_pos[0] = settingsPtr->xmin;
-  min_pos[1] = settingsPtr->ymin;
-  min_pos[2] = settingsPtr->etamin;
+  switch (D)
+  {
+    case 1:
+      min_pos[0] = settingsPtr->etamin;
+      min_pos[1] = settingsPtr->xmin;
+      min_pos[2] = settingsPtr->ymin;
+      break;
+    default:
+      min_pos[0] = settingsPtr->xmin;
+      min_pos[1] = settingsPtr->ymin;
+      min_pos[2] = settingsPtr->etamin;
+      break;
+  }
+
   for(int idir=0; idir<3; ++idir)
     min_pos[idir] *= 2.; //Grid must be 100% bigger ///TODO: Allow this to be an optional input parameter
 
