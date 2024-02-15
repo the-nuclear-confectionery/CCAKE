@@ -5,7 +5,7 @@ From: images/ccake.sif
     export LC_ALL=C
 
 %post
-    
+    apt-get update -y
     apt-get install -y gdb curl zsh openssh-server bash
     #sed -i 's/#PasswordAuthentication.*/PasswordAuthentication yes/' /etc/ssh/sshd_config
     #sed -i 's/#PubkeyAuthetication.*/PubkeyAuthetication yes/' /etc/ssh/sshd_config
