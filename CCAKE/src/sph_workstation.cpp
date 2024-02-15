@@ -420,7 +420,7 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
     double Bulk_b         = device_hydro_scalar(particle_b, hydro_info::Bulk);
     double gamma_a        = device_hydro_scalar(particle_a, hydro_info::gamma);
     double gamma_b        = device_hydro_scalar(particle_b, hydro_info::gamma);
-    
+
     milne::Vector<double,D> gradK, sigsigK, gradP, gradE, v_a, v_b, gradBulk, gradshear, divshear;
     milne::Matrix<double, D, D> gradV;
     for(int idir=0; idir<D; ++idir){

@@ -634,7 +634,6 @@ T tr( const Matrix<T,D,D>& a,T t2)
   for (int i = 0; i < D-1; i++)
     s += a(i,i);
   s += a(D-1,D-1)*t2;
-  exit(8);
   return s;
 } // AOK
 

@@ -69,17 +69,17 @@ void SPHkernel<D>::gradKernel(double const* rel_dist, double r, double h, double
 
   if ( q >= 2.0 )
   {
-    for (int idir=0; idir<2; idir++)
+    for (int idir=0; idir<D; idir++)
       grad[idir] = 0.0;
     return;
   }
   if ( q >= 1.0 )
   {
-    for (int idir=0; idir<2; idir++)
+    for (int idir=0; idir<D; idir++)
       grad[idir] = (norm_grad/r)*(2.0-q)*(2.0-q)*rel_dist[idir];
     return;
   }
-  for (int idir=0; idir<2; idir++)
+  for (int idir=0; idir<D; idir++)
       grad[idir] = norm_grad2*( 1.5*q - 2 )*rel_dist[idir]/h;
   return;
 }  
