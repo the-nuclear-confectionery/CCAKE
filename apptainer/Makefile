@@ -1,10 +1,17 @@
 all: images/ubuntu.sif images/ccake.sif	 ../CCAKE/EoS/Houston/thermo.h5 images/ccake-dev.sif build-release build-debug
 
-.PHONY: build-release build-debug run-gubser
+.PHONY: build-release build-debug run-long
 
 # ==================================
 # Recipes with example runs
 # ==================================
+
+run-long: images/ccake.sif ../CCAKE/build/ccake
+	singularity exec --bind ../CCAKE:/CCAKE images/ccake.sif bash -c " \
+        cd /CCAKE/build ; \
+        mkdir -p initial_conditions ; \
+        ./ccake ../my_tests/config_long.yaml output_long ; \
+        ../my_tests/plot_long.py ../my_tests/long_data output_long long.png ;"
 
 run-gubser: images/ccake.sif ../CCAKE/build/ccake
 	singularity exec --bind ../CCAKE:/CCAKE images/ccake.sif bash -c " \
