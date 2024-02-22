@@ -27,11 +27,22 @@ using std::string;
 using std::vector;
 
 namespace ccake{
-
+/// @class BSQHydro
+/// @brief Shell class responsible for setting up and running the hydrodynamic
+/// simulation.
+///
+/// This class is responsible for setting up and running the hydrodynamic
+/// simulation. It is the main class that is called from the main function of
+/// the code. It is responsible for reading in the initial conditions, setting
+/// up the hydrodynamic simulation, and running the main loop of the simulation.
+///
+/// @todo Reader functions, such as BSQHydro::read_ICCING and 
+/// BSQHydro::read_ccake, should be moved to the Input class.
+/// @tparam D Dimensionality of the simulation
+/// @tparam TEOM Template for the equations of motion to be used
 template<unsigned int D,template<unsigned int> class TEOM>
 class BSQHydro
 {
-
 public:
 
   BSQHydro() = delete;
@@ -48,11 +59,11 @@ private:
   void read_ICCING();
   void read_ccake();
 
-  static constexpr int rk_order = 2; ///TODO: make this a setting
-  std::shared_ptr<Settings> settingsPtr; ///< Object containing settings parsed from input file
-  std::shared_ptr<SystemState<D>> systemPtr; ///< Object containing the SPH System (linked list, particles, etc.)
-  std::shared_ptr<SPHWorkstation<D,TEOM>> wsPtr; ///< Object containing the kernel function and its derivatives
-  std::shared_ptr<Output<D>> outPtr; ///< Input/Output object
+  static constexpr int rk_order = 2; ///< Runge-Kutta order @todo: make this an input in the settings file
+  std::shared_ptr<Settings> settingsPtr; ///< Settings object containing configuration parsed from input file
+  std::shared_ptr<SystemState<D>> systemPtr; ///< SystemState object containing the SPH System (linked list, particles, etc.)
+  std::shared_ptr<SPHWorkstation<D,TEOM>> wsPtr; ///< SPHWorkstation object with the functions executed in the main loop
+  std::shared_ptr<Output<D>> outPtr; ///< Output object
 };
 }
 #endif

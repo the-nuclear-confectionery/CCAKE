@@ -16,11 +16,12 @@ template class SPHWorkstation<2,EoM_default>;
 template class SPHWorkstation<3,EoM_default>;
 
 /// @brief Initialize the several components of the SPHWorkstation.
-/// @details This function will initialize the several components of the
-// SPHWorkstation. It will create and initialize the equation of motion
-/// object, initialize the system state, create and initialize transport
-/// coefficients, create and initialize the freeze out object, and create
-/// and initialize the Runge-Kutta evolver.
+/// @details SPHWorstation needs to load and initiualize a few objects before 
+/// it can work. Those are
+/// - The equation of state
+/// - The system state (containing the SPH particles)
+/// - The transport coefficients
+/// - The freeze out energy density
 /// @tparam D The dimensionality of the simulation.
 /// @tparam TEOM The equation of motion class to be used in the simulation.
 template<unsigned int D, template<unsigned int> class TEOM>
@@ -53,15 +54,21 @@ void SPHWorkstation<D,TEOM>::initialize()
 }
 
 
-/// @brief This function will ensure that the shear tensor has the correct properties.
-/// @details This function will ensure that the shear tensor has the correct properties.
-/// The desired properties are that it is traceless, symmetric and orthogonal to the
-/// fluid velocity. From $u_\mu \pi^{\mu i}$ one can compute the components $\pi^{0i}$.
-/// of the tensor. From $u_\mu \pi^{\mu 0}$ one can compute the component $\pi^{00}$.
-/// Lastly, the component $pi^{33}$ can be computed from the tracelessness condition.
-/// The remaining components are computed from the symmetry condition.
-/// @tparam D
-/// @param time_squared The square of the time step whwere the shear tensor is being computed.
+/// @brief This function will ensure that the shear tensor has the correct
+/// properties.
+/// @details This function will ensure that the shear tensor has the correct
+/// properties. The desired properties are that it is traceless, symmetric and 
+/// orthogonal to the fluid velocity. That is, we want to ensure that 
+/// \f$\pi^{\mu \nu} = \pi^{\nu \mu}\f$, \f$u_\mu \pi^{\mu \nu} = 0\f$ and
+/// \f$\pi^\mu_\mu = 0\f$. Because this depends on the metric tensor being used,
+/// a simple call to the reset_pi_tensor function is not enough. This function
+/// should be implemented in the templates TEOM equation of motion class.
+/// @todo We do not need the time_squared parameter here. We should remove it.
+/// @tparam D The dimensionality of the simulation.
+/// @tparam TEOM The equation of motion class to be used in the simulation. Must
+/// have a reset_pi_tensor function.
+/// @param time_squared The square of the time step where the shear tensor is 
+/// being computed.
 template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D, TEOM>::reset_pi_tensor(double time_squared)
 {
@@ -69,15 +76,28 @@ void SPHWorkstation<D, TEOM>::reset_pi_tensor(double time_squared)
 };
 
 
-////////////////////////////////////////////////////////////////////////////////
-///\brief Set up entropy density and other thermodynamic variables
-///\details This function sets up the entropy density using the initial energy
-///         density and the initial charge densities. It also sets up all other
-///         thermodynamic variables.
+/// @brief Set up entropy density and other thermodynamic variables
+/// @details This function sets up the entropy density using the initial energy
+/// density and the initial charge densities via the equation of state. It also
+/// sets up all other thermodynamic variables. The norm_spec densities are also
+/// updated here.
 ///
-///         The norm_spec densities are also updated here.
-///\todo This function is not yet implemented for realistic EoS.
-
+/// norm_spec densities are are defined as
+/// \f[
+/// \rho_{\text{norm_spec}} = \rho_{\text{input}} \gamma t_0
+/// \f]
+/// where \f$\rho_{\text{input}}\f$ is the input density, \f$\gamma\f$ is the
+/// Lorentz factor and \f$t_0\f$ is the initial time.
+/// @todo At the moment, the equation of state functions do not support running
+/// in device. Because of this, a copy of the particle data is made to the host
+/// and the equation of state is run on the host. Then the data is copied back
+/// to the device. This is can be a performance bottleneck, specially for large
+/// simulations. The equation of state functions should be modified to run on
+/// the device.
+/// @todo The formula for the norm_spec densities is not general. An 
+/// implementation inside the TEOM class should be used instead.
+/// @tparam D The dimensionality of the simulation.
+/// @tparam TEOM The equation of motion class to be used in the simulation.
 template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D, TEOM>::initialize_entropy_and_charge_densities()
 {
@@ -87,7 +107,6 @@ void SPHWorkstation<D, TEOM>::initialize_entropy_and_charge_densities()
 
   //Compute thermal properties
   systemPtr->copy_device_to_host();
-  ///\TODO: Trivially parallelizable via openmp. This should be done.
   for (auto & p : systemPtr->particles){
     p.input.s = locate_phase_diagram_point_eBSQ( p,
                   p.input.e, p.input.rhoB, p.input.rhoS, p.input.rhoQ );
@@ -127,7 +146,6 @@ void SPHWorkstation<D, TEOM>::initialize_entropy_and_charge_densities()
     if (s_input < 0.0)
       device_freeze(iparticle) = 4;
 
-    ///------------------------------------------------------------------------------------------
   };
   Kokkos::parallel_for("init_particles", systemPtr->n_particles, init_particles);
 
@@ -141,7 +159,23 @@ void SPHWorkstation<D, TEOM>::initialize_entropy_and_charge_densities()
 
 }
 
-//==============================================================================
+/// @brief Smooth all SPH fields
+/// @details This function updates the densities \f$s\f$, \f$\rho_B\f$, 
+/// \f$rho_Q\f$, \f$\rho_S\f$ and \f$\sigma\f$ Iauxiliary density) by performing
+/// the smoothing procedure. At its end, it
+/// takes the opportunity to update the remaining thermodynamic quantities
+/// (energy density, pressure, chemical potentials, temperature and speed of
+/// sound squared). The routine that triggers the update of thermo quantities
+/// will also update gamma and the non-relativistic velocity. At the end, it 
+/// also computes the freeze out status of the particles. In this function, we
+/// also take the opportunity to enforce the constraints for the shear viscous
+/// tensor.
+/// @see reset_pi_tensor
+/// @see smooth_all_particle_fields
+/// @see update_all_particle_thermodynamics
+/// @see FreezeOut::check_freeze_out_status
+/// @tparam D The dimensionality of the simulation.
+/// @tparam TEOM The equation of motion class to be used in the simulation.
 template<unsigned int D,  template<unsigned int> class TEOM>
 void SPHWorkstation<D,TEOM>::initial_smoothing()
 {
@@ -164,15 +198,29 @@ void SPHWorkstation<D,TEOM>::initial_smoothing()
 
 }
 
-//==============================================================================
-
 ///@brief Smooth all SPH fields
-///@details This function updates the densities s, rhoB, rhoB, rhoS and sigma
-///(auxiliary density) by performing the smoothing procedure. At its end, it
-///takes the opportunity to update the remaining thermodynamic quantities
-///(energy density, pressure, chemical potentials, temperature and speed of
-/// sound squared). The routine that triggers the update of thermo quantities
-/// will also update gamma and the non-relativistic velocity
+///@details This function updates the densities \f$s\f$, \f$\rho_B\f$, 
+/// \f$\rho_Q\f$, \f$\rho_S\f$ and \f$\sigma\f$ (auxiliary density) by 
+/// performing the smoothing procedure. At its end, it takes the opportunity to
+/// update the remaining thermodynamic quantities (energy density, pressure, 
+/// chemical potentials, temperature and speed of  sound squared). The routine 
+/// that triggers the update of thermo quantities will also update gamma and 
+/// the non-relativistic velocity
+///
+/// The computation of the smoothed fields is done using the following formula:
+/// \f[
+/// \rho_{\text{smoothed},\,i} = \sum_{j = \text{nearest neighbors}} 
+/// \rho_{\text{norm_spec},\,i} \rho_{\text{spec},\,j} W_{ij}
+/// \f]
+/// where \f$\rho_{\text{norm_spec},\,i}\f$ is the normalized specific density
+/// of particle \f$i\f$, \f$\rho_{\text{spec},\,j}\f$ is the specific density
+/// of particle \f$j\f$ and \f$W_{ij}\f$ is the kernel function evaluated at
+/// the distance between particles \f$i\f$ and \f$j\f$. The list of nearest
+/// neighbors over which the sum is performed includes the particle \f$i\f$
+/// itself.
+/// @tparam D The dimensionality of the simulation.
+/// @tparam TEOM The equation of motion class to be used in the simulation.
+/// @param time_squared The square of the current time step.
 template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
 {
@@ -247,8 +295,21 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
 
 }
 
-//------------------------------------------------------------------------------
-////////////////////////////////////////////////////////////////////////////////
+/// @brief Shell function to update thermodynamic particle properties.
+/// @details This will updated Particle<D>::thermo for the input partiucle,
+/// assuming the smoothed fields \f$s\f$, \f$\rho_B\f$, \f$\rho_S\f$, 
+/// \f$\rho_Q\f$ are known.
+///
+/// @todo I am not an expert in the EoS part of the code. Someone, please 
+/// comnplement this documentation.
+/// @tparam D The dimensionality of the simulation.
+/// @tparam TEOM The equation of motion class to be used in the simulation.
+/// @param p The particle for which the thermodynamic properties are to be
+/// updated.
+/// @param s_In The entropy density of the particle.
+/// @param rhoB_In The baryon density of the particle.
+/// @param rhoS_In The strangeness density of the particle.
+/// @param rhoQ_In The electric charge density of the particle.
 template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D,TEOM>::locate_phase_diagram_point_sBSQ( Particle<D> & p,
                  double s_In, double rhoB_In, double rhoS_In, double rhoQ_In )
@@ -356,15 +417,56 @@ void SPHWorkstation<D,TEOM>::locate_phase_diagram_point_sBSQ( Particle<D> & p,
   return;
 }
 
-
-
-///////////////////////////////////////////////////////////////////////////////
-// smoothing routines: first smoothing covers all hydrodyanmical fields
-
-
-///////////////////////////////////////////////////////////////////////////////
-//Second smoothing smoothes the gradients after constructing all the fields
-//and derivatives using the equation of state
+/// @brief Computes all the gradients necessary for the hydrodynamic evolution.
+/// @details This function computes the gradients which are necessary for 
+/// evaluating the time derivatives of the hydrodynamic fields. The gradients
+/// computed are `gradP`, `gradE`, `gradBulk`, `gradV`, `gradshear` and 
+/// `divshear`. The expression for these are, respectivelly:
+/// \f[\begin{align*}
+/// \partial_i P_a & = \sum_{
+///                    \substack{ b=\text{Nearest} \\ \text{neighbors}}
+///                   }
+/// \sigma_a^* s_{\text{norm_spec},\,b} \left( \frac{P_b}{{\sigma_b^*}^2} +
+/// \frac{P_a}{{\sigma_a^*}^2} \right) \partial_{i,\,a} W(\vec r_a - \vec r_b,\,h) \\
+/// \partial_i E_a & = \sum_{
+///                    \substack{ b=\text{Nearest} \\ \text{neighbors}}
+///                   }
+/// \sigma_a^* s_{\text{norm_spec},\,b} \left( \frac{E_b}{{\sigma_b^*}^2} +
+/// \frac{E_a}{{\sigma_a^*}^2} \right)
+/// \partial_{i,\,a} W(\vec r_a - \vec r_b,\,h) \\
+/// \partial_i \Pi_a & = \sum_{
+///                    \substack{ b=\text{Nearest} \\ \text{neighbors}}
+///                   }
+/// \frac{\sigma_a^* s_{\text{norm_spec},\,b}}{t}
+/// \left( \frac{\tilde\Pi_a}{\gamma_a {\sigma_a^*}} + 
+///        \frac{\tilde\Pi_b}{\gamma {\sigma_b^*}} \right) 
+/// \partial_{i,\,a} W(\vec r_a - \vec r_b,\,h) \\
+/// \partial_j v^i_a & = \sum_{
+///                    \substack{ b=\text{Nearest} \\ \text{neighbors}}
+///                   }
+/// \frac{s_{\text{norm_spec},\,b}}{\sigma_a^*}(v_b^i-v_a^i)
+/// \partial_{j,\,a} W(\vec r_a - \vec r_b,\,h) \\
+/// v^j\partial_j\pi^{0i}_a & = \sum_{
+///                    \substack{ b=\text{Nearest} \\ \text{neighbors}}
+///                   }
+/// s_{\text{norm_spec},\,b} \sigma_a^* 
+/// \left[\frac{\pi^{0i}_b}{{\sigma^*_b}^2}
+///       +\frac{\pi^{0i}_a}{{\sigma^*_a}^2} \right]
+/// v^j_a \partial_{j,\,a} W(\vec{r}_a-\vec{r}_b,h) \\
+/// \partial_j\pi^{ij}_a & = \sum_{
+///                    \substack{ b=\text{Nearest} \\ \text{neighbors}}
+///                   }
+/// s_{\text{norm_spec},\,b} \sigma_a^* \left[
+/// \frac{\pi^{ij}_a}{{\sigma^*_a}^2}+\frac{\pi^{ij}_b}{{\sigma^*_b}^2}\right]
+/// \partial_{j,\,a} W(\vec{r}_a-\vec{r}_b,h)
+/// \end{align*}\f]
+/// @todo Notice the denominator of `gradBulk` could use the replacement
+/// \f$\sigma = \sigma^* \gamma t\f$ and
+/// we would have a more general expression. Time should not be a parameter of
+/// the function.
+/// @tparam D The dimensionality of the simulation.
+/// @tparam TEOM The equation of motion class to be used in the simulation.
+/// @param time_squared The square of the current time step.
 template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
 {
@@ -392,7 +494,7 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
 
   ///particle_a is the one that will be updated. Particle b is its neighbors.
   auto smooth_gradients = KOKKOS_LAMBDA(const int particle_a, const int particle_b )
-  {  
+  {
     //Compute kernel gradient
     double rel_sep[D], pos_a[D], pos_b[D]; // cache for relative separation
     for (int idir = 0; idir < D; ++idir){
@@ -403,10 +505,7 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
     double rel_sep_norm = SPHkernel<D>::distance(pos_a,pos_b);
     double gradK_aux[D];
     ccake::SPHkernel<D>::gradKernel( rel_sep, rel_sep_norm, hT, gradK_aux );
-    
-    //
-    ////Pressure gradient calculation
-    //milne::Vector<double, D> gradP;
+
     double pressure_a     = device_thermo(particle_a, thermo_info::p);
     double pressure_b     = device_thermo(particle_b, thermo_info::p);
     double energy_a       = device_thermo(particle_a, thermo_info::e);
@@ -472,13 +571,26 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
   return;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-///\brief Loop over all particles and prepare them for initialization
+/// @brief Loop over all particles and initialize them
+/// @details This function loops over all particles and initializes quantities
+/// that do not depend on the initial conditions. These are
+/// - The lorentz factor \f$\gamma\f$.
+/// - The square of the lorentz factor \f$\gamma^2\f$.
+/// - The cube of the lorentz factor \f$\gamma^3\f$.
+/// - The specific densities \f$\rho_{\text{spec}}\f$, which are set to 1.
+/// - The normalized specific densities \f$\rho_{\text{norm_spec}}\f$, which are
+/// set to the volume assigned to the particle.
+/// - The bulk pressure, which is set to 0.
+/// - Initial guesses for the temperature and chemical potentials 
+/// (800, 0, 0 ,0) MeV.
+/// - The freeze out status, which is set to 4 if the energy density is below
+/// the freeze out check, and 0 otherwise.
 ///
-///\details This function loops over all particles and prepares them for
-///         initialization. This includes computing gamma factor, defining
-///         normalization of norm_spec density and setup of reference density
-///         for each particle.
+/// @note The volume assigned to each particle is assumed to be the grid step in
+/// the initial conditions, as specified in the initial condition header.
+/// @note Freeze out 4 means the particle is frozen out. 0 means it is not.
+/// @tparam D The dimensionality of the simulation.
+/// @tparam TEOM The equation of motion class to be used in the simulation.
 template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D, TEOM>::process_initial_conditions()
 {
@@ -494,9 +606,6 @@ void SPHWorkstation<D, TEOM>::process_initial_conditions()
   //int TMP_particle_count = 0;
 	for (auto & p : systemPtr->particles)
   {
-
-    // set area element for each SPH particle
-    double dA = (settingsPtr->stepx)*(settingsPtr->stepy);
 
     // Set the rest of particle elements using area element
     double u[D];
@@ -574,8 +683,12 @@ void SPHWorkstation<D, TEOM>::process_initial_conditions()
 }
 
 
-//==============================================================================
-// initialize bulk Pi
+/// @brief Sets the bulk pressure \f$\Pi\f$ to carry the trace of the
+/// energy-momentum tensor.
+/// @todo The math here is not clear to me, and the documentation is not
+/// sufficient. Someone should complement this documentation.
+/// @tparam D The dimensionality of the simulation.
+/// @tparam TEOM The equation of motion class to be used in the simulation.
 template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D, TEOM>::set_bulk_Pi()
 {
@@ -600,7 +713,17 @@ void SPHWorkstation<D, TEOM>::set_bulk_Pi()
   return;
 }
 
-//==============================================================================
+/// @brief Shell function for performing the freeze out procedure.
+/// @details This function performs the freeze out procedure, which is
+/// implemented in the FreezeOut class. The first step is to check which is to 
+/// update which particles are to be frozen out by looking at the freeze out
+/// energy density, their current energy density and their crrent status. Once
+/// the particles to be frozen out are identified, the computation of the freeze
+/// out hypersurface is performed.
+/// @see FreezeOut::check_freeze_out_status
+/// @see FreezeOut::bsqsvfreezeout
+/// @tparam D The dimensionality of the simulation.
+/// @tparam TEOM The equation of motion class to be used in the simulation.
 template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D,TEOM>::freeze_out_particles()
 {
@@ -614,7 +737,28 @@ void SPHWorkstation<D,TEOM>::freeze_out_particles()
   freezePtr->bsqsvfreezeout( n_freezing_out );
 }
 
-////////////////////////////////////////////////////////////////////////////////
+/// @brief Shell function to obtain the time derivatives of each quantity.
+/// @details This function is a shell function to obtain the time derivatives of
+/// each hydrodynamic quantity that needs to be evolved. The steps are the 
+/// folloing:
+/// - Reset the nearest neighbors list, since the particles moved in the last 
+/// time step.
+/// - Reset the shear viscous tensor to be consistent with all symmetries.
+/// - Smooth all particle extensive fields, such as the entropy density etc
+/// - Update all particle thermodynamic properties (temperature, pressure etc)
+/// - Update transport coefficients, such as the shear and bulk viscosities and
+/// the relaxation times.
+/// - Compute the gradients necessary for the hydrodynamic evolution.
+/// - Invoke the equation of motion class to evaluate the time derivatives.
+/// @note The TEOM class, which is a template parameter of this class, should 
+/// contain a method called `evaluate_time_derivatives` which takes a pointer to
+/// the SystemState as an argument.
+/// @see SystemState::reset_neighbour_list
+/// @see SPHWorkstation::reset_pi_tensor
+/// @see SPHWorkstation::smooth_all_particle_fields
+/// @see SPHWorkstation::update_all_particle_thermodynamics
+/// @see SPHWorkstation::update_all_particle_viscosities
+/// @see SPHWorkstation::smooth_all_particle_gradients
 template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D, TEOM>::get_time_derivatives()
 {
@@ -685,6 +829,14 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives()
   return;
 }
 
+/// @brief Updates the transport coefficients for all particles.
+/// @see transport_coefficients::eta
+/// @see transport_coefficients::tau_pi
+/// @see transport_coefficients::zeta
+/// @see transport_coefficients::tau_Pi
+/// @see SPHWorkstation::transp_coeff_params
+/// @tparam D The dimensionality of the simulation.
+/// @tparam TEOM The equation of motion class to be used in the simulation.
 template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D, TEOM>::update_all_particle_viscosities()
 {
@@ -708,7 +860,18 @@ void SPHWorkstation<D, TEOM>::update_all_particle_viscosities()
   Kokkos::fence();
   }
 
-////////////////////////////////////////////////////////////////////////////////
+/// @brief Update the thermodynamic properties of all particles.
+/// @details This function uses the Equation of State to update all the
+/// thermodynamic properties of the particles.
+/// @todo At the moment, the equation of state functions do not support running
+/// in device. Because of this, a copy of the particle data is made to the host
+/// and the equation of state is run on the host. Then the data is copied back
+/// to the device. This is can be a performance bottleneck, specially for large
+/// simulations. The equation of state functions should be modified to run on
+/// the device. An interpolator of pre-inverted EoS tables is implemented in
+/// experimental status.
+/// @tparam D The dimensionality of the simulation.
+/// @tparam TEOM The equation of motion class to be used in the simulation.
 template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D, TEOM>::update_all_particle_thermodynamics()
 {
@@ -719,7 +882,6 @@ void SPHWorkstation<D, TEOM>::update_all_particle_thermodynamics()
 
   #ifdef ONLINE_INVERTER
   systemPtr->copy_device_to_host();
-  ///TODO: This seems trivially parallelizable with openMP. It should be implemented.
   for ( auto & p : systemPtr->particles ){
     double s_LRF      = p.thermo.s;
     double rhoB_LRF   = p.thermo.rhoB;
@@ -754,7 +916,22 @@ void SPHWorkstation<D, TEOM>::update_all_particle_thermodynamics()
 }
 
 
-////////////////////////////////////////////////////////////////////////////////
+/// @brief Shell function to update thermodynamic particle properties.
+/// @details This will updated Particle<D>::thermo for the input particle,
+/// assuming the smoothed fields \f$\varepsilon\f$, \f$\rho_B\f$, \f$\rho_S\f$, 
+/// \f$\rho_Q\f$ are known.
+///
+/// @todo I am not an expert in the EoS part of the code. Someone, please 
+/// comnplement this documentation.
+/// @tparam D The dimensionality of the simulation.
+/// @tparam TEOM The equation of motion class to be used in the simulation.
+/// @param p The particle for which the thermodynamic properties are to be
+/// updated.
+/// @param e_In The energy density of the particle.
+/// @param rhoB_In The baryon density of the particle.
+/// @param rhoS_In The strangeness density of the particle.
+/// @param rhoQ_In The electric charge density of the particle.
+/// @return The entropy density of the particle.
 template<unsigned int D, template<unsigned int> class TEOM>
 double SPHWorkstation<D, TEOM>::locate_phase_diagram_point_eBSQ( Particle<D> & p,
                  double e_In, double rhoB_In, double rhoS_In, double rhoQ_In )
@@ -837,11 +1014,23 @@ double SPHWorkstation<D, TEOM>::locate_phase_diagram_point_eBSQ( Particle<D> & p
   return sVal;
 }
 
+/// @brief Shell function to update thermodynamic particle properties.
+/// @details This will updated Particle<D>::thermo for the input particle,
+/// assuming the smoothed field \f$\varepsilon\f$is known. The charge densities
+/// are assumed to be zero.
+/// @tparam D The dimensionality of the simulation.
+/// @tparam TEOM The equation of motion class to be used in the simulation.
+/// @return The entropy density of the particle.
 template<unsigned int D, template<unsigned int> class TEOM>
 double SPHWorkstation<D, TEOM>::locate_phase_diagram_point_eBSQ(Particle<D> & p, double e_In)
                  { return locate_phase_diagram_point_eBSQ( p, e_In, 0.0, 0.0, 0.0 ); }
 
-////////////////////////////////////////////////////////////////////////////////
+/// @brief Shell function to update thermodynamic particle properties.
+/// @details This will updated Particle<D>::thermo for the input particle,
+/// assuming the smoothed field \f$s\f$ is known. The charge densities
+/// are assumed to be zero.
+/// @tparam D The dimensionality of the simulation.
+/// @tparam TEOM The equation of motion class to be used in the simulation.
 template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D,TEOM>::locate_phase_diagram_point_sBSQ(Particle<D> & p, double s_In) // previously update_s
                { locate_phase_diagram_point_sBSQ(p, s_In, 0.0, 0.0, 0.0 ); }
@@ -977,8 +1166,11 @@ void SPHWorkstation<D, TEOM>::add_buffer(double default_e)
   return;
 }
 
-//============================================================================
-// decide whether to continue evolving
+/// @brief Decides if the simulation should continue evolving.
+/// @todo This function should be aware if we have freeze out turned on or off.
+/// @tparam D Dimensionality of the simulation.
+/// @tparam TEOM The equation of motion class to be used in the simulation.
+/// @return `true` if the simulation should continue, `false` otherwise.
 template<unsigned int D, template<unsigned int> class TEOM>
 bool SPHWorkstation<D, TEOM>::continue_evolution()
 {
@@ -987,15 +1179,27 @@ bool SPHWorkstation<D, TEOM>::continue_evolution()
           && ( systemPtr->number_part_fo < systemPtr->n_particles );
 }
 
-//============================================================================
-// Advance one timestep
+/// @brief Resets advance the simulation one timestep.
+/// @details This function advances the simulation one timestep. For each
+/// time step, the following operations are performed:
+/// - Call the evolver to execute the timestep. The get_time_derivatives 
+/// function will be passed to the evolver and is its responsability to call it
+/// according to the method used.
+/// - Perform the freeze out procedure if the freeze out flag is set.
+/// - A safeguard is placed to stop the simulation if the maximum number of
+/// timesteps is reached.
+/// @todo The criteria to stop the simulation seems to be scattered in the code.
+/// It should be centralized in a single place. I am of the opinion that it 
+/// should be in the BSQHydro::run function.
+/// @param dt The size of the timestep.
+/// @param rk_order The order of the Runge-Kutta method to be used.
+/// @tparam D The dimensionality of the simulation.
+/// @tparam TEOM The equation of motion class to be used in the simulation.
 template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D, TEOM>::advance_timestep( double dt, int rk_order )
 {
   Stopwatch sw;
   sw.Start();
-  // use evolver to actually do RK evolution
-  // (pass workstation's own time derivatives function as lambda)
 
   //Bulk of code evaluation is done below
   evolver.execute_timestep( dt, rk_order,

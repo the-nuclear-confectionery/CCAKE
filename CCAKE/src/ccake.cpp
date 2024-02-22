@@ -28,6 +28,16 @@
 
 namespace cc = ccake;
 
+/// @brief Common tasks to be executed in 1+1D, 2+1D and 3+1D hydrodynamics.
+/// @details This function is responsible for invoking the main tasks defined
+/// in the BSQHydro class. It is responsible for reading in the initial 
+/// conditions, set up the simulation and run the main loop of the simulation.
+/// @note If the option to choose the equations of motion are added, this 
+/// function should be modified to accept a template parameter for it. The
+/// switch case in the main function should also be modified to call this
+/// function with the appropriate template parameter.
+/// @tparam D The number of spatial dimensions.
+/// @param settingsPtr
 template<unsigned int D>
 void execute_tasks(std::shared_ptr<Settings> settingsPtr)
 {
