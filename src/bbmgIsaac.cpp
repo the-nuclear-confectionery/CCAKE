@@ -27,30 +27,31 @@ BBMG::BBMG( Settings * settingsPtr_in, SystemState * systemPtr_in )
     systemPtr{ systemPtr_in }
 {
   srand( time( NULL ) );
-  TD    = 150;// Decoherence temperature in MeV
-  q     = 1;// Fluctuation parameter, subject to change
-  Cg    = 3; // Cassimir const gluons
-  Cq    = 4./3; // Cassimir const quarks
-  z     = 1; // path length dependence
-  a     = 0; //Initial jet energy dependence
-  c     = (2+z-a)/3; //medium temperature dependence
-   // Need to use pointer to get T dependence or just use Matt's eqn with the access to ff[i].T
+  Freezeout_Temp    = 150;// Decoherence temperature in MeV
+  Cg                = 3; // Cassimir const gluons
+  Cq                = 4./3; // Cassimir const quarks
+  // All next quantities are part of the BBMG parameters
+  q                 = 1;// Fluctuation parameter, subject to change
+  z                 = 1; // path length dependence
+  a                 = 0; //Initial jet energy dependence
+  c                 = (2+z-a)/3; //medium temperature dependence
+  
+  //===============================================
   vjet  = 1;
+  // area is taken from parameter h read in from input parameters file
   area  = PI*pow(2.*systemPtr->h,2);
   rr.resize(systemPtr->n());
 
   for (int i = 0; i < 15; i++)
-  {
+  { // Not sure what this for yet but the quantities aren't even calculated
     Rq[i]  = 0;
     Rg[i]  = 0;
     phi[i] = i*PI/7;
   }
-
+  //Setting final energy as a start point for the integration
   Pfg = 10;
   Pfq = 10;
 
-  //call to complete initialization
-  //initial();
 }
 
 
@@ -66,22 +67,22 @@ void BBMG::initial()
   for ( int i = 0; i < systemPtr->particles.size(); ++i )
   {
     auto & p = systemPtr->particles[i];
-    double rsub = p.p() / p.T();
+    //Density from pressure over temperature
+    double rsub = p.p() / p.T(); 
     rho0tot    += rsub;
-    //cout << "p.T is " << p.T()*constants::hbarc_MeVfm << " and TD is " << TD << endl;
-    if ( p.T() * constants::hbarc_MeVfm > TD )
+    if ( p.T() * constants::hbarc_MeVfm > Freezeout_Temp )
     {
-      field sub; //field of all particles and their info, eventually turned into vector ff for calculations
-      sub.r[0] = p.r(0);
+      field sph_particle; //field of all sph particles where we take necessary line integral info
+      sph_particle.r[0] = p.r(0);
       //cout << "Positions (x) of each particle in the grid is " << p.r(0) << "\n";
-      sub.r[1] = p.r(1);
-      sub.rho0 = rsub; //Density left in terms of femtometers
-      sub.sph  = i;
-      sub.T    = p.T() * constants::hbarc_MeVfm;
+      sph_particle.r[1] = p.r(1);
+      sph_particle.rho0 = rsub; //Density left in terms of femtometers
+      sph_particle.sph  = i;
+      sph_particle.T    = p.T() * constants::hbarc_MeVfm;
       cout << endl << "This is the value of sub.T for each particle: " << sub.T << endl;
       
       double kappa = get_kappa(p.T() * constants::hbarc_MeVfm);
-      sub.line = 0.5 * kappa * pow(settingsPtr->t0, z) * pow(sub.rho0, c) * systemPtr->dt; // only if initial flow=0
+      sph_particle.line = 0.5 * kappa * pow(settingsPtr->t0, z) * pow(sph_particle.rho0, c) * systemPtr->dt; // only if initial flow=0
 
       for (int j=0; j<14; j++) //initializes jets at each point in grid space, over 14 directions
       {
@@ -89,7 +90,7 @@ void BBMG::initial()
         sub.pid = j;
         sub.on  = 1;
       }
-      ff.push_back(sub);
+      full_sph_field.push_back(sph_particle);
     }
   }
 }
@@ -112,39 +113,43 @@ double BBMG::efluc()
   return (1.+q) / pow(q+2, 1+q) * pow(q+2.-zeta, q);
 }
 
+void BBMG::initialize_Delaunay()
+{
+
+}
 
 void BBMG::propagate()
 {
   double tau  = systemPtr->t + settingsPtr->t0;
   int stillon = 0;
-  int tot     = ff.size();
+  int tot     = full_sph_field.size();
   double P0g = 0, P0q = 0;
   for (int i = 0; i < tot; i++)
   {
-    // propagate x,y position of jet
-    ff[i].r[0] += vjet * systemPtr->dt * cos(ff[i].phi);
-    ff[i].r[1] += vjet * systemPtr->dt * sin(ff[i].phi);
+    // propagate x,y position of jet on top of sph particles
+    full_sph_field[i].r[0] += vjet * systemPtr->dt * cos(full_sph_field[i].phi);
+    full_sph_field[i].r[1] += vjet * systemPtr->dt * sin(full_sph_field[i].phi);
 
-    double kappa = get_kappa(ff[i].T);
+    double kappa = get_kappa(full_sph_field[i].T);
       
-    inter( ff[i] ); //interpolation of the field
-    cout << "ff[i].T is: " << ff[i].T << "\n"; //for some reason, still higher than expected. still checking how interpolation is working
-    if ( ( ff[i].on == 1 ) && ( ff[i].T > TD ) )
+    inter( full_sph_field[i] ); //interpolation of the field
+    cout << "Interpolated field temp is: " << full_sph_field[i].T << "\n"; //for some reason, still higher than expected. still checking how interpolation is working
+    if ( ( full_sph_field[i].on == 1 ) && ( full_sph_field[i].T > Freezeout_Temp ) )
     {
-      ff[i].line += pow(tau, z) * pow(ff[i].rho, c) * systemPtr->dt; // * flow(ff[i])
+      full_sph_field[i].line += pow(tau, z) * pow(full_sph_field[i].rho, c) * systemPtr->dt; // * flow(ff[i])
       stillon++;
     }
-    else
+    else //This comes in when we drop below freezeout temp, as .on should never go to 0 on its own
     {
-      ff[i].on    = 0;
-      ff[i].line += 0.5 * kappa * pow(tau,z) * pow(ff[i].rho, c) * systemPtr->dt; /* flow(ff[i])*/
+      full_sph_field[i].on    = 0;
+      full_sph_field[i].line += 0.5 * kappa * pow(tau,z) * pow(full_sph_field[i].rho, c) * systemPtr->dt; /* flow(ff[i])*/
       //ff[i].line *= efluc();
 
-      P0g  = Pfg + Cg * ff[i].line; //* pow(Pfg, 1-a)
-      P0q  = Pfq + Cq * ff[i].line; //* pow(Pfq, 1-a) 
+      P0g  = Pfg + Cg * full_sph_field[i].line; //* pow(Pfg, 1-a)
+      P0q  = Pfq + Cq * full_sph_field[i].line; //* pow(Pfq, 1-a) 
       cout << "This is the value of P0g: " << P0g << "This is the value of P0q: " << P0q << endl;
 
-      int jj      = ff[i].pid;
+      int jj      = full_sph_field[i].pid;
       //Rq[jj]     += pow(P0g/Pfg, 1+a) * ff[i].rho0 * gft(P0g) / gft(Pfg);
       //Rq[jj]     += pow(P0q/Pfq, 1+a) * ff[i].rho0 * qft(P0g) / qft(Pfg); 
     }
@@ -182,15 +187,17 @@ void BBMG::inter( field &f ) //How are f.T and others working here? It seems to 
     {
       ++den;
       den2     += p.norm_spec.s;
-      double kk = kernel::kernel(rdiff); //In order to call this, shouldn't I be including kernel.cpp instead of kernel.h?"
+      double kern = kernel::kernel(rdiff); //In order to call this, shouldn't I be including kernel.cpp instead of kernel.h?"
       double gridx = settingsPtr->stepx;
       double gridy = settingsPtr->stepy;
       //f.T      += p.T()*constants::hbarc_MeVfm*0.06*0.06*kk; //Here I changed the hardcoded grid size to a read in of the default grid from settings.
-      f.T      += p.T()*constants::hbarc_MeVfm*gridx*gridy*kk; //Interpolation seemingly done in fm instead of MeV? After correcting with the constants list, almost correct
+      f.T      += p.T()*constants::hbarc_MeVfm*gridx*gridy*kern*den2; //Interpolation seemingly done in fm instead of MeV? After correcting with the constants list, almost correct
       //cout << "Interpolated temp value is " << f.T << "\n";
-      f.rho    += (p.p()/p.T())*kk;
-      f.v[0]   += p.hydro.v(0)*kk;
-      f.v[1]   += p.hydro.v(1)*kk;
+      f.rho    += (p.p()/p.T())*kern*den2;
+      f.v[0]   += p.hydro.v(0)*kern*den2;
+      f.v[1]   += p.hydro.v(1)*kern*den2;
+      //By following the style of sph workstation, I have included den2 as the normalization factor with the kernel function
+
 
       //cout << dx << " " << dy << " " << p.T()*constants::hbarc_MeVfm << " " << p.hydro.v << endl;
     }
@@ -198,6 +205,7 @@ void BBMG::inter( field &f ) //How are f.T and others working here? It seems to 
 
   double fac = den / area;
   //f.T       *= constants::hbarc_MeVfm;
+  f.T       /= fac;
   f.rho     /= fac;
   f.v[0]    /= fac;
   f.v[1]    /= fac;
