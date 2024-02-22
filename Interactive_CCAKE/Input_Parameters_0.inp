@@ -1,0 +1,17 @@
+ICtype:                     ICCING
+ICfile:                     ICCING_example.dat
+h:                          0.30
+dt:                         0.05
+t0:                         0.60
+e_cutoff:                   0.15
+EoS_Type:                   table
+EoS_Path:                   Houston
+freezeoutT:                 150.000000
+freezeout:                  No_Freezeout
+etaMode:                    constant
+constant_eta_over_s:        0.05
+shearRelaxMode:             default
+zetaMode:                   cs2_dependent
+cs2_dependent_zeta_A:       1.67552
+cs2_dependent_zeta_p:       2.0
+bulkRelaxMode:              default

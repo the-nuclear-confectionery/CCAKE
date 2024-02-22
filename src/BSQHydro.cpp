@@ -87,6 +87,9 @@ void BSQHydro::initialize_hydrodynamics()
   // pressure correction into bulk viscous pressure Pi
   ws.set_bulk_Pi();
 
+  // starts jets from particle temperature and densities
+  ws.initialize_jets_bbmg();
+
   sw.Stop();
   formatted_output::report("hydrodynamics initialization finished in "
                               + to_string(sw.printTime()) + " s");
