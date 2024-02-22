@@ -1,7 +1,7 @@
 #ifndef SPH_WORKSTATION_H
 #define SPH_WORKSTATION_H
 
-#include "bbmg.h"
+#include "bbmgheader.h"
 #include "eom.h"
 #include "eom_default.h"
 #include "evolver.h"
@@ -100,8 +100,9 @@ public:
 
     //----------------------------------------
     // create and initialize BBMG object
+    cout << "Made it to line = " << __LINE__ << endl;
     bbmg = BBMG( settingsPtr, systemPtr );
-  }
+    }
 
   //============================================================================
   // routines for resetting quantities
@@ -112,6 +113,10 @@ public:
   void initialize_entropy_and_charge_densities();
   void initial_smoothing();
   void add_buffer(double default_e);
+  void initialize_jets_bbmg()
+	{ bbmg.initial();
+	  //abort(); 
+	  }
 
   //============================================================================
   // smoothing
@@ -153,6 +158,7 @@ public:
           sw.Start();
           for ( auto & p : systemPtr->particles )
             set_phase_diagram_point( p );
+	  //New update for thermo in bbmg
           sw.Stop();
           formatted_output::update("got particle thermodynamics in "
                                     + to_string(sw.printTime()) + " s."); }
@@ -220,6 +226,7 @@ public:
                               [this]{ this->get_time_derivatives(); } );
 
     // propagate jets separately
+    cout << "Starting the bbmg propagation printout" << endl;
     bbmg.propagate();
 
     // set number of particles which have frozen out
