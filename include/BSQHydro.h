@@ -19,6 +19,7 @@
 #include "settings.h"
 #include "kernel.h"
 #include "sph_workstation.h"
+#include "bbmgheader.h"
 
 using std::string;
 using std::vector;

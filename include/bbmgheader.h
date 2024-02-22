@@ -17,13 +17,14 @@
 #include "particle.h"
 #include "settings.h"
 #include "system_state.h"
+#include "table_delaunay.h"
 
 //using namespace std;
 
 
 class BBMG {
 private:
-    struct field  // contains jet's line integral (quantitues needed for integrand)
+    struct field  // All fetched info for jet initialization and propagation
     {
         int sph, on;
         double rho, rho0, T, v[2];
@@ -36,18 +37,18 @@ private:
     SystemState * systemPtr   = nullptr;
 
     int z, a, c;
-    double TD;
+    double Freezeout_Temp;
     double area;
-    double vjet;
+    double vjet; // Taken to be c for jets
     double Cg, Cq, q;
     
-    double rho0tot; // total density, NOT just T>TD!!!
+    double rho0tot; // total density, NOT just T>Freezeout_Temp!!!
     double Pfg, Pfq;
 
     double phi[15];
     double Rq[15], Rg[15];
     vector<double> rr;
-    vector<field> ff;
+    vector<field> full_sph_field;
 
     void inter(field &f); // interpolation
     double efluc();
