@@ -8,10 +8,9 @@ template class BSQHydro<2,EoM_default>;
 template class BSQHydro<3,EoM_default>;
 
 /// @brief Constructor for the BSQHydro class.
-/// @details This constructor initializes a BSQHydro object
-/// with the given settings pointer. It also creates a
-/// system state object and initializes the SPH workstation with the
-/// given settings and system state.
+/// @details This constructor initializes a BSQHydro object with the given
+/// settings pointer. It also creates a system state object and initializes the
+/// SPH workstation with the given settings and system state.
 /// @tparam D Dimensionality of the system.
 /// @tparam TEOM Template for the Equation of Motion.
 /// @param settingsPtr_in Shared pointer to the Settings object.
@@ -34,8 +33,7 @@ BSQHydro<D,TEOM>::BSQHydro(std::shared_ptr<Settings> settingsPtr_in)
 }
 
 
-
-/// @brief Reads in initial conditions from a file
+/// @brief Shell function to call appropriate initial conditions readers
 /// @details Reads in initial conditions from a file. The file format
 /// is determined by the initial condition type specified in the
 /// settings input. Currently supported types are:
@@ -140,6 +138,8 @@ void BSQHydro<2,EoM_default>::read_ICCING()
 /// This is the general template for reading ICCING files. Since ICCING
 /// currently is 2D only, ww abort execution if the non-specialized function is,
 /// called.
+/// @tparam D The number of spatial dimensions.
+/// @tparam TEOM The equation of motion used in the simulation.
 template<unsigned int D, template<unsigned int> typename TEOM>
 void BSQHydro<D,TEOM>::read_ICCING()
 {
@@ -155,11 +155,12 @@ void BSQHydro<D,TEOM>::read_ICCING()
 ///
 /// The first line is a header that contains information about the grid used to
 /// generate the IC. It must start with a '#' character. It is expected to have
-/// eight space-separated values. The first and fifth values are ignored, while
-/// the second, third, and fourth values are the step sizes in the x, y, and eta
-/// dimensions, respectively. The sixth, seventh, and eighth values are the
-/// minimum values in the x, y, and eta dimensions, respectively. A valid header
-/// would look like this:
+/// eight space-separated values. The first and fifth values are ignored by
+/// ccake. These can be used by the IC generator to store additional
+/// information. The second, third, and fourth values are the step sizes in the
+/// x, y, and eta dimensions, respectively. The sixth, seventh, and eighth
+/// values are the minimum values in the x, y, and eta dimensions, respectively.
+/// A valid header would look like this:
 ///
 /// #0 0.1 0.1 0.1 0 -10.0 -10.0 -0.5
 ///
@@ -167,22 +168,30 @@ void BSQHydro<D,TEOM>::read_ICCING()
 /// line represents the properties of a single particle. The order of the
 /// properties in each line should be as follows:
 ///
-/// $x$ $y$ $\eta_s$ $\vareepsilon$ $\rho_B$ $\rho_S$ $\rho_Q$ $u^x$ $u^y$ $u^{\eta}$ $\Pi$ $\pi^{xx}$ $\pi^{xy}$ $\pi^{x\eta}$ $\pi^{yy}$ $\pi^{y\eta}$ $\pi^{\eta\eta}$
+/// \f$x\f$ \f$y\f$ \f$\eta_s\f$ \f$\varepsilon\f$ \f$\rho_B\f$ \f$\rho_S\f$
+/// \f$\rho_Q\f$ \f$u^x\f$ \f$u^y\f$ \f$u^{\eta}\f$ \f$\Pi\f$ \f$\pi^{xx}\f$
+/// \f$\pi^{xy}\f$ \f$\pi^{x\eta}\f$ \f$\pi^{yy}\f$ \f$\pi^{y\eta}\f$
+/// \f$\pi^{\eta\eta}\f$
 ///
 /// where:
 ///
-/// - $x$, $y$ and $\eta_s$ are the spatial coordinates of the particle in the
-///   $x$, $y$ and $\eta_s$ directions, respectively.
-/// - $\vareepsilon$ is the energy density of the particle in units of GeV/fm$^3$.
-/// - $\rho_B$, $\rho_S$ and $\rho_Q$ are the baryon, strangeness, and electric
-///   charge densities of the particle, respectively. All densities are in units
-///   of 1/fm$^3$.
-/// - $u^x$ $u^y$ $u^{\eta}$ are the fluid velocity components in the $x$, $y$
-///   and $\eta_s$ directions, respectively.
-/// - $\Pi$ is the bulk pressure of the fluid in units of GeV/fm$^3$.
-/// - $\pi^{xx}$, $\pi^{xy}$, $\pi^{x\eta}$, $\pi^{yy}$, $\pi^{y\eta}$,
-///   $\pi^{\eta\eta}$ are the components of the shear tensor of the fluid.
+/// - \f$x\f$, \f$y\f$ and \f$\eta_s\f$ are the spatial coordinates of the
+/// particle in the \f$x\f$, \f$y\f$ and \f$\eta_s\f$ directions, respectively.
+/// - \f$\varepsilon\f$ is the energy density of the particle in units of 
+/// GeV/fm\f$^3\f$.
+/// - \f$\rho_B\f$, \f$\rho_S\f$ and \f$\rho_Q\f$ are the baryon, strangeness,
+/// and electric charge densities of the particle, respectively. All densities 
+/// are in units of 1/fm\f$^3\f$.
+/// - \f$u^x\f$ \f$u^y\f$ \f$u^{\eta}\f$ are the fluid velocity components in 
+/// the \f$x\f$, \f$y\f$ and \f$\eta_s\f$ directions, respectively.
+/// - \f$\Pi\f$ is the bulk pressure of the fluid in units of GeV/fm\f$^3\f$.
+/// - \f$\pi^{xx}\f$, \f$\pi^{xy}\f$, \f$\pi^{x\eta}\f$, \f$\pi^{yy}\f$,
+/// \f$\pi^{y\eta}\f$, \f$\pi^{\eta\eta}\f$ are the components of the shear
+/// tensor of the fluid.
 ///
+/// @todo A suggestion is to add to the header additional info like
+/// colliding system (AuAu, PbPb etc), colliding energy, impact 
+/// parameter, etc. These would then be used as header of the outputs.
 /// @tparam D The number of spatial dimensions.
 /// @tparam TEOM The equation of motion used in the simulation.
 template<unsigned int D, template<unsigned int> typename TEOM>
@@ -209,9 +218,6 @@ void BSQHydro<D,TEOM>::read_ccake()
       istringstream iss(line);
       if(count_header_lines < total_header_lines)
       {
-        ///\todo Maybe we could store on the header additional info like
-        ///      colliding system (AuAu, PbPb etc), colliding energy, impact parameter, etc.
-        ///      These would then be used as header of the outputs.
         settingsPtr->headers.push_back(line);
         iss.ignore(256,'#');
         iss >> ignore >> stepX >> stepY >> stepEta >> ignore >> xmin >> ymin >> etamin;
@@ -295,7 +301,27 @@ void BSQHydro<D,TEOM>::read_ccake()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-///
+/// @brief Shell function to initialize the hydrodynamics.
+/// @details This function initializes the hydrodynamics by performing the 
+/// following steps
+/// - Initializing the workstation.
+/// - Processing the initial conditions.
+/// - Allocating memory for particles in the device.
+/// - Finding the location of each particle in the phase diagram.
+/// - Creating the linked list data structure.
+/// - Setting up freeze-out procedure.
+/// - Implementing initial smoothing required by the SPH formalism.
+/// - Absorbing non-equilibrium pressure correction into bulk viscous pressure.
+/// @see SPHWorkstation::initialize
+/// @see SPHWorkstation::process_initial_conditions
+/// @see SPHWorkstation::allocate_cabana_particles
+/// @see SPHWorkstation::initialize_entropy_and_charge_densities
+/// @see SPHWorkstation::initialize_linklist
+/// @see SPHWorkstation::setup_freeze_out
+/// @see SPHWorkstation::initial_smoothing
+/// @see SPHWorkstation::set_bulk_Pi
+/// @tparam D The number of spatial dimensions.
+/// @tparam TEOM The equation of motion used in the simulation.
 template<unsigned int D, template<unsigned int> typename TEOM>
 void BSQHydro<D,TEOM>::initialize_hydrodynamics()
 {
@@ -335,9 +361,16 @@ void BSQHydro<D,TEOM>::initialize_hydrodynamics()
   return;
 }
 
-
-
-////////////////////////////////////////////////////////////////////////////////
+/// @brief Shell function to run the hydrodynamic evolution.
+/// @details This function advances the hydrodynamic evolution by calling the
+/// advance_timestep function of the workstation. It also computes the
+/// conserved quantities, the eccentricities, and controls printing
+/// of the system state, conservation status, and freeze-out surface.
+/// @see SPHWorkstation::advance_timestep
+/// @see output::print_system_state
+/// @see output::print_freeze_out
+/// @tparam D The number of spatial dimensions.
+/// @tparam TEOM The equation of motion used in the simulation.
 template<unsigned int D, template<unsigned int> typename TEOM>
 void BSQHydro<D,TEOM>::run()
 {
@@ -355,7 +388,7 @@ void BSQHydro<D,TEOM>::run()
   // print initialized system and status
   outPtr->print_conservation_status();
   outPtr->print_system_state();
-  
+
   //===================================
   // evolve until simulation terminates
   int istep=0;
@@ -410,15 +443,4 @@ void BSQHydro<D,TEOM>::run()
   sw.Stop();
   formatted_output::summarize("All timesteps finished in "
                               + to_string(sw.printTime()) + " s");
-  
 }
-
-/*
-// not yet defined
-template <unsigned int D>
-void BSQHydro<D>::find_freeze_out_surface(){}
-
-
-// not yet defined
-template <unsigned int D>
-void BSQHydro<D>::print_results(){}*/

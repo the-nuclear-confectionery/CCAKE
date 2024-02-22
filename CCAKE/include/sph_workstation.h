@@ -29,27 +29,30 @@
 
 namespace ccake
 {
-
+/// @class SPHWorkstation	
 /// @brief A class to hold the SPH system and perform SPH operations.
 /// @details This class holds the SPH system of particles and performs the loops
-/// over the particles to calculate the SPH quantities. It also contains the
-/// equations of motion and the evolver. The class is templated on the
-/// dimensionality of the simulation and the equation of motion class to be
-/// used. To use a different equation of motion, the user must create a new
-/// class similar to the default equation of motion class (eom_default.h) and
-/// pass it as the second template argument to the SPHWorkstation class.
+/// over the particles to calculate the SPH quantities. It also is responsible 
+/// for invoking the evolver and handle to it equations of motion. The class is
+/// templated on the dimensionality of the simulation and the equation of motion
+/// class to be used. To use a different equation of motion, a new class 
+/// must be created and should be passed as the `TEOM` template argument.
 ///
-/// Creating an EoM class that inherits from the default is not supported and
-/// disencouraged, since it will require in each function call, at runtime,
-/// for the process to decide which equation of motion to use, potentially
-/// slowing down the code. It's the user responsibility to make sure that their
-/// own EoM class implements all the functions required by the SPHWorkstation.
+/// The functions the EoM class denoted in this document as (`TEOM`) are:
+/// - `TEOM( std::shared_ptr<Settings> settingsPtr_in )`
+/// - `KOKKOS_FUNCTION static double gamma_calc(double u[D], const double &time_squared)`
+/// - `KOKKOS_FUNCTION static double get_LRF(const double &lab, const double &gamma, const double &time_squared)`
+/// - `static void reset_pi_tensor(std::shared_ptr<SystemState<D>> sysPtr)`
+/// - `static void evaluate_time_derivatives( std::shared_ptr<SystemState<D>> sysPtr)`
 ///
-/// The functions the Eom class must implement are:
-/// - constructor: must receive a pointer to the Settings object as input
+/// @note Creating an EoM class that inherits from a base class is not supported.
+/// Besides a potential slow down coming from additional memory access that
+/// must be done to access virtual functions, in some plataforms (such as GPUs)
+/// this is not supported, compromising the portability of the code. For this
+/// reason, the template architecture was chosen.
 ///
-/// @tparam TEOM is the equation of motion class to be used in the simulation.
 /// @tparam D Is the dimensionality of the simulation.
+/// @tparam TEOM is the equation of motion class to be used in the simulation.
 template <unsigned int D, template<unsigned int> class TEOM>
 class SPHWorkstation
 {
