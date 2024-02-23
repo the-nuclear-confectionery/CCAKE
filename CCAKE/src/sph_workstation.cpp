@@ -103,7 +103,6 @@ void SPHWorkstation<D, TEOM>::initialize_entropy_and_charge_densities()
 {
 	Stopwatch sw, swTotal;
 	swTotal.Start();
-	long long failCounter = 0;
 
   //Compute thermal properties
   systemPtr->copy_device_to_host();
@@ -601,6 +600,24 @@ void SPHWorkstation<D, TEOM>::process_initial_conditions()
   systemPtr->n_particles = systemPtr->particles.size();
   double t = settingsPtr->t0;
   double t2 = t*t;
+
+  double dA = 1;
+  switch (D)
+  {
+  case 1:
+    dA = settingsPtr->stepEta;
+    break;
+  case 2:
+    dA = settingsPtr->stepx*settingsPtr->stepy;
+    break;
+  case 3:
+    dA = settingsPtr->stepx*settingsPtr->stepy*settingsPtr->stepEta;
+    break;
+  default:
+    std::cerr << "Invalid dimensionality!" << std::endl;
+    abort();
+    break;
+  }
 
   // fill out initial particle information
   //int TMP_particle_count = 0;
