@@ -128,9 +128,13 @@ void EoM_default<D>::reset_pi_tensor(std::shared_ptr<SystemState<D>> sysPtr)
 /// in the simulations, so we enforce the absence of shear viscous tensor.
 /// @tparam D The number of spatial dimensions.
 /// @param sysPtr A pointer to an object of class SystemState.
-void EoM_default<>::reset_pi_tensor(std::shared_ptr<SystemState<1>> sysPtr){
-  auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, sysPtr->cabana_particles.size());
+template<>
+void EoM_default<1>::reset_pi_tensor(std::shared_ptr<SystemState<1>> sysPtr)
+{
+  double t2 = (sysPtr->t)*(sysPtr->t);
   CREATE_VIEW(device_,sysPtr->cabana_particles);
+  auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, sysPtr->cabana_particles.size());
+
   auto set_shear_zero = KOKKOS_LAMBDA(const int is, const int ia){
     device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, 0, 0) = 0.0;
     device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, 0, 1) = 0.0;
@@ -138,7 +142,9 @@ void EoM_default<>::reset_pi_tensor(std::shared_ptr<SystemState<1>> sysPtr){
     device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, 1, 1) = 0.0;
     device_hydro_scalar.access(is, ia, hydro_info::shv33) = 0.0;
 
-    milne::Vector<double,D> u_cov = u;
+    milne::Vector<double,1> u;
+    for(int idir=0; idir<1; ++idir) u(idir) = device_hydro_vector.access(is, ia, hydro_info::u, idir);
+    milne::Vector<double,1> u_cov = u;
     u_cov.make_covariant(t2); //Transforms u^i to -u_i
     double gamma = Kokkos::sqrt(1+milne::inner(u_cov,u)); //Calculates gamma = \sqrt{1+u^i u_i}
 
@@ -304,7 +310,7 @@ double EoM_default<D>::get_LRF(const double &lab, const double &gamma,
 /// @tparam D The number of spatial dimensions.
 /// @param sysPtr A pointer to the object of class SystemState.
 template<unsigned int D>
-static void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> sysPtr)
+void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> sysPtr)
 {
   double t = (sysPtr->t);
   double t2 = t*t;
