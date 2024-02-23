@@ -318,7 +318,7 @@ void SystemState<D>::copy_device_to_host(){
 /// @tparam D
 template<unsigned int D>
 void SystemState<D>::reset_neighbour_list(){
-  double min_pos[3], max_pos[3], delta[3];
+  double min_pos[3], max_pos[3];
   switch (D)
   {
     case 1:
@@ -338,14 +338,11 @@ void SystemState<D>::reset_neighbour_list(){
 
   //Cabana needs a 3D grid. We set the remaining dimensions to be a single cell
   double neighborhood_radius = 2*settingsPtr->hT;
-  for(int idir=D; idir<3; ++idir) min_pos[idir] = -neighborhood_radius;
+  for(int idir=D; idir<3; ++idir) min_pos[idir] = -settingsPtr->hT;
   for(int idir=0; idir<3; ++idir)
     max_pos[idir] = -min_pos[idir];
-  for(int idir=0; idir<3; ++idir)
-    delta[idir] = 2.*settingsPtr->hT;
 
   CREATE_VIEW(device_, cabana_particles);
-  //Cabana::LinkedCellList<DeviceType> cell_list(device_position, delta, min_pos, max_pos);
   //Cabana::permute( cell_list, cabana_particles ); ///TODO: Enabling may result in potential performance gain. Needs testing.
   double cell_ratio = 1.; //neighbour to cell_space ratio
   neighbour_list = ListType (  device_position, 0, device_position.size(),
@@ -354,7 +351,6 @@ void SystemState<D>::reset_neighbour_list(){
   Kokkos::fence();
 
   //Update the number of neighbours
-
 
   ///TODO: Requires UVM, which is not good for performance
   ///Need a way to call Cabana::NeighborList::numNeighbor directly from GPU
