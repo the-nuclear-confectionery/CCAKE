@@ -80,14 +80,21 @@ private:
   void add_buffer(double default_e);
 public:
 
-  // freeze out
-  std::shared_ptr<FreezeOut<D>> freezePtr;
-  void setup_freeze_out(){freezePtr = std::make_shared<FreezeOut<D>>(settingsPtr, systemPtr);}
+  std::shared_ptr<FreezeOut<D>> freezePtr; ///< Object storing the freeze out data
+  /// @brief Set up the freeze out object.
+  void setup_freeze_out(){
+    freezePtr = std::make_shared<FreezeOut<D>>(settingsPtr, systemPtr);}
   void freeze_out_particles();
 
   //============================================================================
   // Constructors/destructors
   SPHWorkstation() = delete; ///< Default constructor is deleted. System state and settings must be passed in.
+  /// @brief Constructor for SPHWorkstation.
+  /// @details This constructor initializes the SPHWorkstation object with the
+  /// settings and system state objects. It also initializes the evolver object
+  /// with the same settings and system state objects.
+  /// @param settingsPtr_in A shared pointer to the settings object.
+  /// @param systemPtr_in A shared pointer to the system state object.
   SPHWorkstation( shared_ptr<Settings> settingsPtr_in,
                   shared_ptr<SystemState<D>> systemPtr_in )
     : settingsPtr(settingsPtr_in),
