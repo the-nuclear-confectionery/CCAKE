@@ -25,9 +25,7 @@ template<unsigned int D>
 class EoM_default
 {
   private:
-    static constexpr int VERBOSE = 3;
     std::shared_ptr<Settings> settingsPtr;
-    Matrix<double,D,D> Imat;
 
   public:
     EoM_default() = delete;
@@ -42,7 +40,7 @@ class EoM_default
     static void reset_pi_tensor(std::shared_ptr<SystemState<D>> sysPtr);
     static void evaluate_time_derivatives( std::shared_ptr<SystemState<D>> sysPtr);
 
-    std::string name = "Israel-Stewart";                    // name associated to EoM
+    std::string name = "Israel-Stewart"; ///< name associated to EoM
 };
 }
 #endif
