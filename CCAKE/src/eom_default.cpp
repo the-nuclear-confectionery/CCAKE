@@ -1,10 +1,32 @@
 #include "eom_default.h"
 
-namespace ccake{
-  template class EoM_default<1>;
-  template class EoM_default<2>;
-  template class EoM_default<3>;
+/// @file eom_default.cpp
+/// @brief Implementation of the default equations of motion for the 
+/// hydrodynamic evolution.
 
+using namespace ccake;
+
+template class EoM_default<1>;
+template class EoM_default<2>;
+template class EoM_default<3>;
+
+/// @brief Enforces the constraints for the shear viscous tensor \f$ \pi^{\mu\nu} \f$.
+/// @details Enforces the constraints  \f$\pi^{\mu\nu}u_\nu = 0 \f$,
+/// \f$\pi^\mu_\mu = 0 \f$ and \f$ \pi^{\mu\nu} = \pi^{\nu\mu} \f$.
+/// We assume that the components \f$ \pi^{xx} \f$, \f$ \pi^{xy} \f$,
+/// \f$ \pi^{x\eta} \f$, \f$ \pi^{yy} \f$ and \f$ \pi^{y\eta} \f$ are computed
+/// during evolution (for 2+1D simulations, \f$ \pi^{x\eta} \f$ and 
+/// \f$ \pi^{y\eta} \f$ are assumed to be zero).
+/// \f[\begin{align*}
+/// \pi^{0i} & = -\pi^{ij}u_j/\gamma \\
+/// \pi^{00} & = u_i u_j \pi^{ij}/\gamma^2 \\
+/// \end{align*}\f]
+///
+/// We also take the opportunity to update the gamma factor and the velocity
+/// vector, as well the matrices \f$u^i u^j\f$ and cache variable
+/// `pimin` = \f$\pi^{ij}\f$.
+/// @tparam D The number of spatial dimensions.
+/// @param sysPtr A pointer to an object of class SystemState.
 template<unsigned int D>
 void EoM_default<D>::reset_pi_tensor(std::shared_ptr<SystemState<D>> sysPtr)
 {
@@ -12,7 +34,6 @@ void EoM_default<D>::reset_pi_tensor(std::shared_ptr<SystemState<D>> sysPtr)
   CREATE_VIEW(device_,sysPtr->cabana_particles)
   auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, sysPtr->cabana_particles.size());
 
-  ///TODO: Needs checking for 1+1 and 3+1 cases
   auto kokkos_ensure_consistency = KOKKOS_LAMBDA(const int is, int ia) 
   {
     //Declare caches
@@ -31,18 +52,19 @@ void EoM_default<D>::reset_pi_tensor(std::shared_ptr<SystemState<D>> sysPtr)
 
     //pi^{0i} = -\pi^{ij}u_j/gamma = \pi^{ij}u^j/gamma
     milne::Vector<double,D> u_cov = u;
-    u_cov.make_covariant(t2);
-    double gamma = Kokkos::sqrt(1+milne::inner(u_cov,u));
+    u_cov.make_covariant(t2); //Transforms u^i to -u_i
+    double gamma = Kokkos::sqrt(1+milne::inner(u_cov,u)); //Calculates gamma = \sqrt{1+u^i u_i}
     for(int idir=1; idir<D+1; ++idir){
       milne::Vector<double,D> colp1_shv;
       for(int jdir=1; jdir<D+1; ++jdir) colp1_shv(jdir-1) = shv(idir,jdir);
-      shv(0,idir) = 1./gamma*milne::inner(u_cov,colp1_shv);
-    } 
-    
+      shv(0,idir) = 1./gamma*milne::inner(u_cov,colp1_shv); //Computes \pi^{0i} = -\pi^{ij}u_j/gamma
+    }
+
     //Symmetrizes time part
     for( int i=1; i<D+1; i++ )
       shv(i,0) = shv(0,i);
-    
+
+    //Build pi^ij and u^i*u^j
     milne::Matrix<double,D,D> pimin, uu;
     for( int idir=0; idir<D; idir++ )
     for( int jdir=0; jdir<D; jdir++ ){
@@ -58,12 +80,13 @@ void EoM_default<D>::reset_pi_tensor(std::shared_ptr<SystemState<D>> sysPtr)
       device_hydro_space_matrix.access(is, ia, hydro_info::pimin, idir, jdir) = pimin(idir,jdir);
     }
 
+    //Transform vector into covariant form, that is u^i*u_j -> u_i*u_j
     uu.make_covariant(0,t2);
     uu.make_covariant(1,t2);
-    
-    //pi^00 = - u_i u_j pi^{ij}/gamma^2 = - u^i u^j pi^{ij}/gamma^2 
+
+    //pi^00 = u_i u_j pi^{ij}/gamma^2
     shv(0,0) = 1./gamma/gamma*milne::con(uu,pimin);
-  
+
     //pi^33 = (pi^00 - pi^11 - pi^22)/t2
     double shv33 = shv(0,0);
     switch (D)
@@ -80,7 +103,6 @@ void EoM_default<D>::reset_pi_tensor(std::shared_ptr<SystemState<D>> sysPtr)
       shv(1,1) = shv33;
       break;
     }
-    
 
     //Return shv
     for(int idir=0; idir<D+1; ++idir)
@@ -91,22 +113,54 @@ void EoM_default<D>::reset_pi_tensor(std::shared_ptr<SystemState<D>> sysPtr)
     device_hydro_scalar.access(is,ia, hydro_info::gamma) = gamma;
     for(int idir=0; idir<D; ++idir) device_hydro_vector.access(is, ia, hydro_info::v, idir) = u(idir)/gamma;
 
-    
-
-
-    
   };
   Cabana::simd_parallel_for(simd_policy,kokkos_ensure_consistency,"kokkos_ensure_consistency");
   Kokkos::fence();
 }
 
-/// @brief Calculates the gamma factor = u^0.
-/// @details This is the default implementation of the gamma factor calculation.
-/// It assumes that the last component of the velocity vector is the longitudinal
-/// velocity, and that the metric is Milne.
+/// @brief Enforces the constraints for the shear viscous tensor \f$ \pi^{\mu\nu} \f$.
+/// @details In the (1+1)D scenario, we have 3 independent components of the 
+/// shear tensor, \f$ \pi^{00} \f$, \f$ \pi^{01} \f$ and \f$ \pi^{11} \f$. The 
+/// constraints gives us fully
+/// determined expressions for the components of the shear tensor. By solving
+/// the constraints, we get that either \f$ \pi^{\mu\nu} = 0 \f$ or the fluid
+/// is moving at the speed of light. We do not foresee the second case to happen
+/// in the simulations, so we enforce the absence of shear viscous tensor.
+/// @tparam D The number of spatial dimensions.
+/// @param sysPtr A pointer to an object of class SystemState.
+void EoM_default<>::reset_pi_tensor(std::shared_ptr<SystemState<1>> sysPtr){
+  auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, sysPtr->cabana_particles.size());
+  CREATE_VIEW(device_,sysPtr->cabana_particles);
+  auto set_shear_zero = KOKKOS_LAMBDA(const int is, const int ia){
+    device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, 0, 0) = 0.0;
+    device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, 0, 1) = 0.0;
+    device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, 1, 0) = 0.0;
+    device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, 1, 1) = 0.0;
+    device_hydro_scalar.access(is, ia, hydro_info::shv33) = 0.0;
+
+    milne::Vector<double,D> u_cov = u;
+    u_cov.make_covariant(t2); //Transforms u^i to -u_i
+    double gamma = Kokkos::sqrt(1+milne::inner(u_cov,u)); //Calculates gamma = \sqrt{1+u^i u_i}
+
+    //Build pi^ij and u^i*u^j
+    device_hydro_space_matrix.access(is, ia, hydro_info::uu, 0, 0) = u(0)*u(0);
+    device_hydro_space_matrix.access(is, ia, hydro_info::pimin, 0, 0) = 0;
+    ///Updates gamma and velocities
+    device_hydro_scalar.access(is,ia, hydro_info::gamma) = gamma;
+    device_hydro_vector.access(is, ia, hydro_info::v, 0) = u(0)/gamma;
+  };
+  Cabana::simd_parallel_for(simd_policy,set_shear_zero,"set_shear_zero");
+  Kokkos::fence();
+}
+
+/// @brief Calculates the Lorentz contraction factor \f$ \gamma = u^0\f$.
+/// @details Calculates the Lorentz contraction factor \f$ \gamma \f$ in the
+/// general case. This assumes that the last component of the velocity vector is
+/// the longitudinal velocity. The expression is
+/// \f[ \gamma = \sqrt{1 + \sum_{i=1}^{D-1} u_i^2 + \tau^2 u_D^2} \f]
 /// @param u The velocity vector (space components only).
 /// @param time_squared The square of the time where the gamma factor will be computed.
-/// @return the value of gamma
+/// @return The value of \f$ \gamma \f$.
 template<unsigned int D> KOKKOS_FUNCTION
 double EoM_default<D>::gamma_calc(double u[D], const double &time_squared)
 {
@@ -117,13 +171,14 @@ double EoM_default<D>::gamma_calc(double u[D], const double &time_squared)
     return sqrt(1.0+dot_u);
 }
 
-/// @brief Calculates the gamma factor = u^0.
-/// @details This is the default implementation of the gamma factor calculation.
-/// It assumes that the last component of the velocity vector is the longitudinal
-/// velocity, and that the metric is Milne.
+/// @brief Calculates the Lorentz contraction factor \f$ \gamma = u^0\f$ for 2D 
+/// simulations.
+/// @details Calculates the Lorenz contraction factor \f$ \gamma \f$. The 
+/// expression is
+/// \f[ \gamma = \sqrt{1 + \sum_{i=1}^{D-1} u_i^2 \f]
 /// @param u The velocity vector (space components only).
 /// @param time_squared The square of the time where the gamma factor will be computed.
-/// @return the value of gamma
+/// @return The value of \f$ \gamma \f$.
 template<> KOKKOS_FUNCTION
 double EoM_default<2>::gamma_calc(double u[2], const double &time_squared)
 {
@@ -133,8 +188,10 @@ double EoM_default<2>::gamma_calc(double u[2], const double &time_squared)
     return sqrt(1.0+dot_u);
 }
 
-/// @brief Transforms a scalar from the lab frame to the LRF.
-/// @tparam D
+
+/// @brief Transforms a scalar from the lab frame to the Local Rest Frame (LRF).
+/// @details The expression implemented here is \f[ \frac{lab}{\gamma \tau} \f]
+/// @tparam D The number of spatial dimensions.
 /// @param lab The quantity in the lab (computational) frame.
 /// @param gamma Lorentz contraction factor.
 /// @param time_squared The square of the time where the gamma factor will be computed.
@@ -146,8 +203,108 @@ double EoM_default<D>::get_LRF(const double &lab, const double &gamma,
                                 return lab/gamma/t;
 }
 
+/// @brief Evaluates the time derivatives of the hydrodynamic variables.
+/// @details The expressions that is expected to be computed here are for
+/// \f$du^i/d\tau\f$, \f$ds/d\tau\f$, \f$d\pi^{ij}/d\tau\f$ and d\Pi/d\tau.
+/// This function is broken down in the following steps:
+/// - `fill_auxiliary_variables`
+/// - `fill_Btot`
+/// - `compute_velocity_derivative`
+/// - `compute_bulk_derivative`
+/// - `compute_shear_derivative`
+/// We give an overview of the expressions that are computed in each step.
+/// Some of the quantities are computed only if we enable the shear viscosity
+/// tensor. These are set to zero if shear viscosity is not enabled. We will
+/// annotate these quantities with a "\f$^*\f$".
+/// ## `fill_auxiliary_variables`
+///
+/// The first lambda function fills the cache variables that are used later.
+/// The table below shows the quantities that are computed in this step.
+/// | Variable    | Expression | Variable | Expression |
+/// |-------------|------------|----------|------------|
+/// | `dsigma_dt` | \f[\frac{d\sigma}{d\tau} = -\sigma \partial_i v^i \f] | `eta_o_tau`\f$^*\f$ | \f[\frac{\eta}{\tau_{\pi}}\f] |
+/// | `g2 = gamma_squared` | \f[\gamma^2 \f]                              | `Agam`      | \f[\begin{align*} A_\gamma = w - \frac{\partial w}{\partial s}\left(s + \frac{\Pi}{T} \right) - \frac{\zeta}{\tau_{\Pi}} - \frac{dw}{d\rho_B}\rho_B - \frac{dw}{d\rho_S}\rho_S - \frac{dw}{d\rho_Q}\rho_Q \end{align*}\f]
+/// | `gamma_cube`| \f[\gamma^3 \f]                                       | `sigl`      | \f[ \frac{1}{\tau}\frac{d\sigma}{d\tau} - \frac{1}{\tau} \f] |
+/// | `gt`        | \f[\gamma\tau \f]                                     | `Agam2`     | \f[ A_{\gamma,\,2} = \frac{1}{\gamma}\left[A_\gamma - \frac{\eta}{3\tau_\pi} - \pi^{00}\left(1 - \frac{\partial  w}{\partial s}\frac{1}{T}\right)\right] \f]|
+/// | `dwdsT1`    | \f[1 - \frac{\partial  w}{\partial s}\frac{1}{T} \f]  | `C`         | \f[w + \Pi \f] |
+/// | `bigPI`     | \f[ \Pi = \frac{\tilde \Pi\sigma}{\gamma\tau} \f]     | `Ctot`      | \f[C_{\text{tot}}  = C + \frac{\eta}{\tau_\pi}\left(\frac{1}{\gamma^2}-1\right)\f]  |
+/// \f$^*\f$ = Only computed if shear viscosity is enabled.
+/// ## `fill_Btot`
+///
+/// The second lambda function fills the cache variable `Btot`. If shear is 
+/// enabled, the expression fill other cache variables as well
+/// | Variable         | Expression                       | Variable | Expression |
+/// |------------------|----------------------------------|------------------|------------|
+/// | `piu`\f$^*\f$    | \f[\pi^{0i}u^j \f]               | `gradU`\f$^*\f$  |  \f[\partial_i u^j = \gamma \partial_i v^j + \gamma^3 v^i v^k \partial_k v^j \f] |
+/// | `piutot`\f$^*\f$ | \f[\pi^{0i}u^j + \pi^{0j}u^i \f] | `bsub`\f$^*\f$   |  \f[b = \sum_{i=1}^D \sum_{j=1}^D \partial_i u^j \left(\pi^{ij} + \frac{\pi^{00}}{\gamma^2} u^i u^j - \frac{\pi^{0i}u^j+\pi^{0j}u^i}{\gamma}\right) \f] |
+/// | `pig`\f$^*\f$    | \f[\frac{\pi^{00}}{\gamma^2} \f] | `Btot`           |  \f[B = \left(A\gamma + \frac{2}{3}\frac{\eta}{\tau_\pi}\right)\left(\frac{1}{\tau}\frac{d\sigma}{d\tau}-\frac{1}{\tau}\right) + \frac{\Pi}{\tau_\Pi} +\frac{1}{T}\frac{\partial w}{\partial s} (\gamma \tau \pi^{33}+b) \f]  |
+/// \f$^*\f$ = Only computed if shear viscosity is enabled.
+///
+/// ## `compute_velocity_derivative`
+///
+/// The third lambda function computes the time derivative of the velocity 
+/// vector. To this end, it computes a vector $F^i$ and a matrix $M_{ij}$.
+/// The derivative is obtained by solving the equation
+/// \f[ M^{ij}\frac{du^j}{d\tau} = F^i \f]
+///
+/// The expressions being computed are
+/// | Variable         | Expression | Variable | Expression    |
+/// |------------------|---------------------------------------|--------------|------------|
+/// | `gamt`\f$^*\f$   | \f[\frac{1}{\gamma \tau_\pi}\f]       | `p1`\f$^*\f$ | \f[p_1 = \frac{1}{\gamma \tau_\pi} - \frac{4}{3 \sigma}\frac{d\sigma}{d\tau} + \frac{1}{3\tau}\f] |
+/// | `pre`\f$^*\f$    | \f[\frac{\eta}{\gamma \tau_\pi}\f]    | `M`          | \f[M^{ij} = A_{\gamma,\,2} u^i u^j - \left[1+\frac{4}{3\gamma^2}\pi^{0i}u^j+\left(1-\frac{1}{T}\frac{\partial w}{\partial s}\right)\right]\pi^{0j}u^i + \gamma \pi^{ij} + \delta^{ij} \gamma C_{\text{tot}} \f] |
+/// | `partU`\f$^*\f$  | \f[\partial_i u^j + \partial_j u^i\f] | `F`          | \f[F^i = B u^i + v^j\partial_j v^i - \partial_i P - \partial_i \Pi - \partial_j\pi^{ij} + \frac{\eta}{\gamma \tau} v^k (\partial_k u^i + \partial_i u^k) + p_1 \pi^{0i} \f] |
+/// | `minshv`\f$^*\f$ | \f[\pi^{0i}\f]                        | | |
+/// \f$^*\f$ = Only computed if shear viscosity is enabled.
+///
+/// ## `compute_bulk_derivative`
+///
+/// The fourth lambda function computes the time derivative of the bulk pressure.
+/// As usual, we also fill a number of cache variables as well. We list the
+/// expressions below
+/// | Variable          | Expression | Variable | Expression    |
+/// |-------------------|-----------------------------------------------------------------|----------  |------------|
+/// | `div_u`           | \f[\partial_i u^i  = \frac{1}{\gamma}u_i \frac{du^i}{d\tau} \f] | `bigtheta` | \f [\theta = \tau \partial_i u^i + \gamma \f] |
+/// | `d_dt_specific_s` | \f[\frac{ds^*}{d\tau} -\frac{\Pi\Theta}{\sigma T} \f]           | `dBulk_dt` | \f[\frac{d\Pi}{d\tau} = -\frac{\zeta}{\tau_\Pi \sigma \Theta} - \frac{\tilde \Pi}{\gamma\tau_\Pi} \f] |
+///
+/// ## `compute_shear_derivative`
+///
+/// The fifth lambda function computes the time derivative of the shear tensor.
+/// It is executed only if shear viscosity is enabled. The expressions being
+/// computed are
+/// | Variable          | Expression | Variable          | Expression |
+/// |-------------------|------------|-------------------|------------|
+/// | `partU`           | \f[ U^{ij} = \partial_i u^j + \partial_j u^i\f] | `ududt`| \f[ u^i \frac{du^j}{d\tau}\f] |
+/// | `vduk`            | \f[ v^k \frac{du^k}{d\tau}\f]                   | `ulpi` | \f[ u^i\pi^{0j}\f] |
+/// | `Ipi`             | \f[ I_\pi = -\frac{2}{3} \frac{\eta}{\tau_\pi} (u^i u^j+\delta^{ij}) + \frac{4}{3} \pi^{ij} \f] | | |
+///
+/// | Variable          | Expression |
+/// |-------------------|------------|
+/// | `dshv_dt`         | \f[ \frac{d\pi^{ij}}{d\tau} = -\frac{1}{\gamma \tau_\pi} (\pi^{ij} + \eta U^{ij}) - \frac{\eta}{\tau_\pi}\left(u^i \frac{du^j}{d\tau} + u^j \frac{du^i}{d\tau}\right) + I_\pi\left(\frac{1}{\tau}\frac{d\sigma}{d\tau}-\frac{1}{\tau}\right) - v^k \frac{du^k}{d\tau} (u^i \pi^{0j} + u^j \pi^{0i} + I_\pi/\gamma) + (u^i \pi^{jk} + u^j \pi^{ik})\frac{du^k}{d\tau} \f] |
+///
+/// We also add the contribution of the shear viscosity to the time derivative 
+/// of specific entropy. This is given by
+///
+/// \f[ \frac{ds^*}{d\tau} += \tau (\pi^{00} v^k - \pi^{0k})\frac{du^k}{d\tau} 
+/// -\left(\pi^{ij} + \frac{\pi^{00}}{\gamma^2} u^i u^j 
+///      - \frac{\pi^{0i}u^j+\pi^{0j}u^i}{\gamma}\right)\partial_i u^j 
+/// -\gamma\tau \pi^{33}\f]
+///
+/// @todo There are several quantities that are considered particle properties
+/// but I believe are just cache variables used during the computation. These
+/// should be moved to an AoSoA declared in the EoM class and filled here. This
+/// will make the code more readable, easier to maintain and will allow for 
+/// faster data movement between device and host.
+/// @todo These equations of motion are specific for the transverse plane. We
+/// need to review this to make sure that the equations are correct for the
+/// longitudinal direction as well. A step in this direction is to make sure
+/// that the equations are written in a covariant way and then implement them
+/// in the code. Later, we can look for missing terms (Christoffel symbols) in 
+/// the equations.
+/// @todo We also need to include the expresions for the Beta_Bulk derivative.
+/// @tparam D The number of spatial dimensions.
+/// @param sysPtr A pointer to the object of class SystemState.
 template<unsigned int D>
-void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> sysPtr)
+static void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> sysPtr)
 {
   double t = (sysPtr->t);
   double t2 = t*t;
@@ -224,12 +381,12 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
     double gt = device_hydro_scalar.access(is, ia, hydro_info::gamma_tau);
     double shv33 = device_hydro_scalar.access(is, ia, hydro_info::shv33);
     if (using_shear){
-        
+
       milne::Vector<double,D> v, u; //Already filled
       milne::Matrix<double,D+1,D+1> shv; //Already filled 
       milne::Matrix<double,D,D> gradV, uu, pimin; //Already filled
       milne::Matrix<double,D,D> piu, piutot, gradU; //Filled only if shear is enabled
-        
+
       for(int idir=0; idir<D; ++idir){
         v(idir) = device_hydro_vector.access(is, ia, hydro_info::v, idir);
         u(idir) = device_hydro_vector.access(is, ia, hydro_info::u, idir);
@@ -245,10 +402,9 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
       double g2 = device_hydro_scalar.access(is, ia, hydro_info::gamma_squared);
       double g3 = device_hydro_scalar.access(is, ia, hydro_info::gamma_cube);
 
-
       piu    = milne::rowp1(0,shv)*u;
       piutot = piu + milne::transpose(piu);
-     
+
       double pig  = shv(0,0)/g2;
 
       gradU        = gamma*gradV+g3*(v*(v*gradV));
@@ -267,14 +423,14 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
     device_hydro_scalar.access(is, ia, hydro_info::Btot) = 
       ( Agam*gamma + 2.0*eta_o_tau/3.0*gamma )*sigl + bigPI/tauRelax + dwdsT*( gt*shv33 + bsub );
   };
-  
+
   Cabana::simd_parallel_for(simd_policy, fill_Btot, "fill_Btot");
   Kokkos::fence();
 
   auto compute_velocity_derivative = KOKKOS_LAMBDA(const int is, const int ia)
   {
           // THIS IS THE ORIGINAL PART IN TIME DERIVATIVES
-      
+
       double gamma = device_hydro_scalar.access(is, ia, hydro_info::gamma);
 
       double Agam2 = device_hydro_scalar.access(is, ia, hydro_info::Agam2);
@@ -302,7 +458,6 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
         shv(idir+1,0) = device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir+1, 0);
       }
       shv(0,0) = device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, 0, 0);
-      
 
       // set the Mass and the Force
       milne::Matrix <double,D,D> M = Agam2*uu - (1+4/3./g2)*piu
@@ -387,7 +542,7 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
     device_hydro_scalar.access(is, ia, hydro_info::dBulk_dt) = dBulk_dt;
     device_d_dt_spec.access(is, ia, densities_info::s) = d_dt_specific_s;
 
-	  //formulating simple setup for Beta_Bulk derivative   
+	  //formulating simple setup for Beta_Bulk derivative
     ///TODO: Implement this
     //hi.finite_diff_cs2   =  (ti.cs2 - hi.prev_cs2)/0.05; // Asadek
 	  //hi.finite_diff_T   =  (ti.T - hi.prev_T)/0.05; // Asadek
@@ -412,7 +567,7 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
       double shv33 = device_hydro_scalar.access(is, ia, hydro_info::shv33);
       double sigma = device_hydro_scalar.access(is, ia, hydro_info::sigma);
       double T = device_thermo.access(is, ia, thermo_info::T);
-      
+
       milne::Matrix<double,D,D> pimin, gradU, uu, piutot;
       for(int idir=0; idir<D; ++idir)
       for(int jdir=0; jdir<D; ++jdir){
@@ -434,7 +589,7 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
       for(int jdir=0; jdir<D+1; ++jdir)
         shv(idir, jdir) = device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir, jdir);
 
-      
+
       milne::Matrix<double,D,D> partU = gradU+milne::transpose(gradU);
       milne::Matrix<double,D,D> ududt = u*du_dt;
       double gamt = 1.0/gamma/stauRelax;
@@ -455,7 +610,7 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
                                  - eta_o_tau*( ududt + milne::transpose(ududt) )
                                  + dpidtsub + sigl*Ipi
                                  - vduk*( ulpi + milne::transpose(ulpi) + (1/gamma)*Ipi );
-      
+
       milne::Matrix<double,D,D> sub = pimin + (shv(0,0)/g2)*uu
                                   - 1./gamma*piutot;
       milne::Vector<double,D> minshv = milne::rowp1(0, shv);
@@ -476,5 +631,4 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
     Cabana::simd_parallel_for(simd_policy, compute_shear_derivative, "compute_shear_derivative");
     Kokkos::fence();
   }
-}
 }
