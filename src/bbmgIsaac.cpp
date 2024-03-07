@@ -204,11 +204,11 @@ void BBMG::inter( field &f ) //How are f.T and others working here? It seems to 
       double gridx = settingsPtr->stepx;
       double gridy = settingsPtr->stepy;
       //f.T      += p.T()*constants::hbarc_MeVfm*0.06*0.06*kk; //Here I changed the hardcoded grid size to a read in of the default grid from settings.
-      f.T      += p.T()*constants::hbarc_MeVfm*gridx*gridy*kern*den2; // After correcting with the constants list, almost correct
-      //cout << "Interpolated temp value is " << f.T << "\n";
-      f.rho    += (p.p()/p.T())*kern*den2;
-      f.v[0]   += p.hydro.v(0)*kern*den2;
-      f.v[1]   += p.hydro.v(1)*kern*den2;
+      f.T      += p.T()*constants::hbarc_MeVfm*gridx*gridy*kern; // After correcting with the constants list, almost correct
+      cout << "Interpolated temp value is " << f.T << "\n";
+      f.rho    += (p.p()/p.T())*kern;
+      f.v[0]   += p.hydro.v(0)*kern;
+      f.v[1]   += p.hydro.v(1)*kern;
       //By following the style of sph workstation, I have included den2 as the normalization factor with the kernel function
 
 
@@ -216,15 +216,15 @@ void BBMG::inter( field &f ) //How are f.T and others working here? It seems to 
     }
   }
 
-  double fac = den / area; //may need to move these inside the if statement?? including these returns 0 for integral quantities
+  double fac = den / area; //may need to move these inside the for loop?? including these returns 0 for all quantities below
   //f.T       *= constants::hbarc_MeVfm;
   //f.T       /= fac;
   //f.rho     /= fac;
-  f.v[0]    /= fac;
-  f.v[1]    /= fac;
-  f.vmag     = sqrt( f.v[0]*f.v[0] + f.v[1]*f.v[1] );
-  f.vang     = atan2( f.v[1], f.v[0] );
-  f.gam      = 1.0 / sqrt( f.vmag*f.vmag + 1.0 );
+  //f.v[0]    /= fac;
+  //f.v[1]    /= fac;
+  //f.vmag     = sqrt( f.v[0]*f.v[0] + f.v[1]*f.v[1] );
+  //f.vang     = atan2( f.v[1], f.v[0] );
+  //f.gam      = 1.0 / sqrt( f.vmag*f.vmag + 1.0 );
 }
 
 
