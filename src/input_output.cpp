@@ -579,7 +579,7 @@ void InputOutput::print_system_state()
     print_system_state_to_HDF();
 
   //---------------------------------
-  print_freeze_out();
+  print_freeze_out(); //grep for this command to structure jet initial state output function
 
   //---------------------------------
   // increment timestep index
@@ -598,8 +598,8 @@ void InputOutput::print_system_state_to_txt()
   out << systemPtr->t << "\n";
   int iParticle = 0;
   if ( settingsPtr->using_Gubser )
-    for ( auto & p : systemPtr->particles )
-    {
+    for ( auto & p : systemPtr->particles ) //For BBMG check which settings using then copy the proper version of this if statement
+    { // For BBMG, will need r, T, maybe others for the future
       out << p.r << " "
           << p.T() << " "
           << p.e() << " "

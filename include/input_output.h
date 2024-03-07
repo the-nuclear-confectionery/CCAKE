@@ -15,6 +15,7 @@
 #include <string>
 #include <vector>
 
+#include "bbmgheader.h"
 #include "defaults.h"
 #include "interface_to_HDF5.h"
 #include "mathdef.h"
@@ -28,6 +29,7 @@ class EquationOfState;
 class Settings;
 class SPHWorkstation;
 class SystemState;
+class BBMG; //included this class as to get bbmg objects for print out, i.e. phi
 
 class InputOutput
 {
@@ -89,6 +91,7 @@ private:
   Settings          * settingsPtr = nullptr;
   SystemState       * systemPtr   = nullptr;
   SPHWorkstation    * wsPtr       = nullptr;
+  BBMG              * bbmgPtr     = nullptr; //added this in for pointer to bbmg objects
 
   interface_to_HDF5 hdf5_file;
 

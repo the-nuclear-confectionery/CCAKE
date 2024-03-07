@@ -79,16 +79,16 @@ void BBMG::initial()
       sph_particle.rho0 = rsub; //Density left in terms of femtometers
       sph_particle.sph  = i;
       sph_particle.T    = p.T() * constants::hbarc_MeVfm;
-      cout << endl << "This is the value of sub.T for each particle: " << sub.T << endl;
+      cout << endl << "Initial temps of non frozen-out sph particles in MeV is " << sph_particle.T << endl;
       
       double kappa = get_kappa(p.T() * constants::hbarc_MeVfm);
       sph_particle.line = 0.5 * kappa * pow(settingsPtr->t0, z) * pow(sph_particle.rho0, c) * systemPtr->dt; // only if initial flow=0
 
       for (int j=0; j<14; j++) //initializes jets at each point in grid space, over 14 directions
       {
-        sub.phi = phi[j];
-        sub.pid = j;
-        sub.on  = 1;
+        sph_particle.phi = phi[j];
+        sph_particle.pid = j;
+        sph_particle.on  = 1;
       }
       full_sph_field.push_back(sph_particle);
     }
@@ -113,10 +113,11 @@ double BBMG::efluc()
   return (1.+q) / pow(q+2, 1+q) * pow(q+2.-zeta, q);
 }
 
-void BBMG::initialize_Delaunay()
+//Delaunay triangulation if needed
+/*void BBMG::initialize_Delaunay()
 {
 
-}
+}*/
 
 void BBMG::propagate()
 {
@@ -130,10 +131,11 @@ void BBMG::propagate()
     full_sph_field[i].r[0] += vjet * systemPtr->dt * cos(full_sph_field[i].phi);
     full_sph_field[i].r[1] += vjet * systemPtr->dt * sin(full_sph_field[i].phi);
 
+
     double kappa = get_kappa(full_sph_field[i].T);
       
     inter( full_sph_field[i] ); //interpolation of the field
-    cout << "Interpolated field temp is: " << full_sph_field[i].T << "\n"; //for some reason, still higher than expected. still checking how interpolation is working
+    cout << "Interpolated field temp is: " << full_sph_field[i].T << "\n"; //Now this is providing 0 as a result for all, creating no line integral
     if ( ( full_sph_field[i].on == 1 ) && ( full_sph_field[i].T > Freezeout_Temp ) )
     {
       full_sph_field[i].line += pow(tau, z) * pow(full_sph_field[i].rho, c) * systemPtr->dt; // * flow(ff[i])
@@ -147,8 +149,11 @@ void BBMG::propagate()
 
       P0g  = Pfg + Cg * full_sph_field[i].line; //* pow(Pfg, 1-a)
       P0q  = Pfq + Cq * full_sph_field[i].line; //* pow(Pfq, 1-a) 
-      cout << "This is the value of P0g: " << P0g << "This is the value of P0q: " << P0q << endl;
-
+      if ( P0g > 10 || P0q > 10 )
+      {
+        cout << "This is the value of P0g: " << P0g << "This is the value of P0q: " << P0q << endl;
+        abort();
+      }
       int jj      = full_sph_field[i].pid;
       //Rq[jj]     += pow(P0g/Pfg, 1+a) * ff[i].rho0 * gft(P0g) / gft(Pfg);
       //Rq[jj]     += pow(P0q/Pfq, 1+a) * ff[i].rho0 * qft(P0g) / qft(Pfg); 
@@ -178,20 +183,28 @@ void BBMG::inter( field &f ) //How are f.T and others working here? It seems to 
   for ( auto & p : systemPtr->particles )
   {
     double dx    = p.r(0)-f.r[0];
-    //cout << "X position from f.r is " << f.r[0] << "\n";
+    //cout << "X position from f.r is " << f.r[0] << "\n" << "X position from p.r is " << p.r(0) << "\n";
+    //cout << "dx is: " << dx << "\n";
     double dy    = p.r(1)-f.r[1];
+    //cout << "Y position from f.r is " << f.r[1] << "\n" << "Y position from p.r is " << p.r(1) << "\n";
+    //cout << "dy is: " << dy << "\n";
 
     double rdiff = sqrt(dx*dx+dy*dy)/systemPtr->h;
+    //cout << "Distance used in kernel interpolation is: " << rdiff << "\n";  Returning values WAY above 2
+    
 
     if (rdiff<2)
     {
+      //cout << "Distance used in kernel interpolation is: " << rdiff << "\n";
       ++den;
       den2     += p.norm_spec.s;
+      //cout << "Checking normalization since interpolation gave 0 " << den2 << "\n";
       double kern = kernel::kernel(rdiff); //In order to call this, shouldn't I be including kernel.cpp instead of kernel.h?"
+      //cout << "Value from kernel function is (if 0, rdiff is greater than 2): " << kern << endl << endl;
       double gridx = settingsPtr->stepx;
       double gridy = settingsPtr->stepy;
       //f.T      += p.T()*constants::hbarc_MeVfm*0.06*0.06*kk; //Here I changed the hardcoded grid size to a read in of the default grid from settings.
-      f.T      += p.T()*constants::hbarc_MeVfm*gridx*gridy*kern*den2; //Interpolation seemingly done in fm instead of MeV? After correcting with the constants list, almost correct
+      f.T      += p.T()*constants::hbarc_MeVfm*gridx*gridy*kern*den2; // After correcting with the constants list, almost correct
       //cout << "Interpolated temp value is " << f.T << "\n";
       f.rho    += (p.p()/p.T())*kern*den2;
       f.v[0]   += p.hydro.v(0)*kern*den2;
@@ -203,10 +216,10 @@ void BBMG::inter( field &f ) //How are f.T and others working here? It seems to 
     }
   }
 
-  double fac = den / area;
+  double fac = den / area; //may need to move these inside the if statement?? including these returns 0 for integral quantities
   //f.T       *= constants::hbarc_MeVfm;
-  f.T       /= fac;
-  f.rho     /= fac;
+  //f.T       /= fac;
+  //f.rho     /= fac;
   f.v[0]    /= fac;
   f.v[1]    /= fac;
   f.vmag     = sqrt( f.v[0]*f.v[0] + f.v[1]*f.v[1] );
