@@ -1,0 +1,88 @@
+// See for instructions: https://www.visual-paradigm.com/tutorials/flowchart-tutorial/
+digraph BSQHydro {
+    rankdir=TB;
+    label="BSQHydro";
+    node [shape=rectangle, style=filled, color=lightblue];
+    start [shape=invhouse,label="From execute_tasks<D>"];
+    return [shape=invhouse,label="To execute_tasks<D>"];
+    //Public functions
+    BSQHydro[label="+BSQHydro<D, TEOM>( std::shared_ptr<Settings> settingsPtr_in )"];
+    read_in_initial_conditions [label="+read_in_initial_conditions(): void"];
+    initialize_hydrodynamics [label="+initialize_hydrodynamics(): void"];
+    run [label="+run(): void"];
+    //Private functions
+    read_ICCING [label="-read_ICCING(): void"];
+    read_ccake [label="-read_ccake(): void"];
+    //Private datamembers
+    settingsPtr [shape=ellipse,label="-settingsPtr: std::shared_ptr<Settings>"];
+    systemPtr [shape=ellipse,label="-systemPtr: std::shared_ptr<System<D>>"];
+    wsPtr [shape=ellipse,label="-wsPtr: std::shared_ptr<SPHWorkstation<D, TEOM>>"];
+    outPtr [shape=ellipse,label="-outPtr: std::shared_ptr<Output<D>>"];
+    print_fo[label="outPtr->print_freeze_out(wsPtr->freezePtr);"]
+
+    //Descriptive nodes
+    fill_system [label="Fill system with particles"];
+    setup_conservation[label="Initialize conserved quantities"]
+    print_system_state[label="outPtr->print_conservation_status();
+                               outPtr->print_system_state();"]
+
+    //Decision nodes
+    node [shape=diamond]
+    ic_type [label="settingsPtr->IC_type"]
+    continue_evolution [label="Reached maximum time step or all particles frozen"]
+    wsPtr_do_fo [label="systemPtr->do_freeze_out"]
+
+
+    //External nodes
+    node[shape=invhouse]
+    wsPtr_initialize [label="SPHWorkstation<D,TEOM>::initialize()"];
+    wsPtr_proc_IC [label="SPHWorkstation<D,TEOM>::process_initial_conditions()"];
+    systemPtr_alloc_cabana [label="SystemState<D>::allocate_cabana_particles()"];
+    wsPtr_init_link_list[label="SPHWorkstation<D,TEOM>::initialize_linklist()"];
+    wsPtr_setup_fo[label="SPHWorkstation<D,TEOM>::setup_freeze_out()"];
+    wsPtr_init_smoot[label="SPHWorkstation<D,TEOM>::initial_smoothing()"];
+    wsPtr_set_Pi[label="SPHWorkstation<D,TEOM>::set_bulk_Pi()"];
+    wsPtr_advance_timestep[label="SPHWorkstation<D,TEOM>::advance_timestep( settingsPtr->dt, rk_order )"];
+    
+
+
+
+    //Connections - Constructor flow
+    start -> BSQHydro;
+    BSQHydro -> settingsPtr [label="sets", style=dashed];
+    settingsPtr -> systemPtr[label="creates", style=dashed];
+    systemPtr -> wsPtr[label="creates", style=dashed];
+    wsPtr -> outPtr[label="creates", style=dashed];
+    outPtr -> return;
+    //Connections - read_in_initial_conditions flow
+    start -> read_in_initial_conditions ;
+    read_in_initial_conditions -> ic_type;
+    ic_type -> read_ICCING [label="ICCING"];
+    ic_type -> read_ccake [label="ccake"];
+    read_ICCING -> fill_system;
+    read_ccake->fill_system;
+    fill_system -> return;
+    //Connections - initialize_hydrodynamics flow
+    start -> initialize_hydrodynamics;
+    initialize_hydrodynamics -> wsPtr_initialize;
+    wsPtr_initialize -> wsPtr_proc_IC;
+    wsPtr_proc_IC -> systemPtr_alloc_cabana;
+    systemPtr_alloc_cabana -> wsPtr_init_link_list;
+    wsPtr_init_link_list -> wsPtr_setup_fo;
+    wsPtr_setup_fo -> wsPtr_init_smoot;
+    wsPtr_init_smoot -> wsPtr_set_Pi;
+    wsPtr_set_Pi -> return;
+    //Connections - run flow
+    start -> run;
+    run ->setup_conservation;
+    setup_conservation -> print_system_state;
+    print_system_state -> continue_evolution;
+    continue_evolution -> wsPtr_advance_timestep[label="no"];
+    wsPtr_advance_timestep -> wsPtr_do_fo;
+    wsPtr_do_fo -> print_fo [label="yes"];
+    wsPtr_do_fo -> continue_evolution [label="no"]
+    print_fo -> continue_evolution;
+    continue_evolution -> return [label="yes"];
+
+
+}

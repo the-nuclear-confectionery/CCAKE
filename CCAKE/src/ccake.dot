@@ -1,0 +1,41 @@
+// See for instructions: https://www.visual-paradigm.com/tutorials/flowchart-tutorial/
+digraph CCAKE {
+    rankdir=TB;
+    label="CCAKE";
+    node [shape=rectangle, style=filled, color=lightblue];
+    subgraph cluster_main {
+        label="main";
+        start [shape=rectangle, style="filled, rounded", label="Start"];
+        main;
+        argc [shape=parallelogram];
+        argv [shape=parallelogram];
+        in [shape=record,label="in|<f1> Class: Input"];
+        switchD [shape=diamond, label="switch (settingsPtr->D)"];
+        end [shape=rectangle, style="filled, rounded", label="End"];
+        end_fail [shape=rectangle, style="filled, rounded", label="EXIT_FAILURE"];
+        Input [shape=invhouse,label="Input Constructor"]
+    }
+    subgraph cluster_execute_tasks{
+        node[shape=invhouse]
+        label="execute_tasks<D>"
+        bsqhydro[shape=record,label="simulation|<f1> Class: BSQHydro"]
+        BSQHydro [label="+BSQHydro(std::shared_ptr<Settings> settingsPtr_in)"]
+        read_in_initial_conditions[label="+read_in_initial_conditions(): void"]
+        initialize_hydrodynamics[label="+initialize_hydrodynamics(): void"]
+        run[label="+run(): void"]
+    }
+    // subgraph cluster_BSQHydro{
+        // label="BSQHydro"
+    // }
+
+    start->main
+    main->argc
+    main->argv
+    argc->in
+    argv->in
+    in->Input
+    Input->switchD
+    switchD->bsqhydro[label="D = 1 || D = 2 || D = 3"]
+    switchD->end_fail[label="D invalid"]
+    bsqhydro->BSQHydro->read_in_initial_conditions->initialize_hydrodynamics->run->end
+}

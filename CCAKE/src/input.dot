@@ -1,0 +1,45 @@
+// See for instructions: https://www.visual-paradigm.com/tutorials/flowchart-tutorial/
+digraph Input {
+    rankdir=TB;
+    label="Input";
+    node [shape=rectangle, style=filled, color=lightblue];
+    start [shape=invhouse,label="From main"];
+    Input[label="+Input( int argc, char** argv )"];
+    end [shape=rectangle,style="filled,rounded", label="EXIT_FAILURE"];
+    settingsPtr [shape=ellipse,label="+settingsPtr: std::shared_ptr<Settings>"]
+    ToMain [shape=invhouse,label="To main"]
+    SettingsInitSuccess [shape=diamond,label="Initialization successful"]
+    NumArgs [shape=diamond,label="argc == 3"]
+    PrintUsage [shape=rectangle,label="Print Usage Message"]
+
+    check_args [label="-check_args( int argc, char** argv ): void"];
+    decode_settings [label="-decode_settings(const YAML::Node& node): bool"];
+    load_settings_file [label="-load_settings_file(): void"];
+    set_output_directory [label="-set_output_directory(std::string path_to_results_directory): void"];
+
+    argv1 [shape=diamond, label="argv[1]"];
+    argv2 [shape=diamond, label="argv[2]"];
+
+    settings_file_path  [shape=ellipse,label="-settings_file_path: filesystem::path"]
+    results_directory  [shape=ellipse,label="-results_directory: filesystem::path"]
+
+    start -> Input
+    Input -> settingsPtr [label="creates",style="dashed"]
+    settingsPtr -> check_args
+    check_args -> NumArgs
+    NumArgs -> argv1 [label="true"]
+    NumArgs -> PrintUsage [label="false"]
+    PrintUsage -> end
+    check_args -> argv1
+    settings_file_path -> argv2
+    argv1 -> settings_file_path [label="argv[1] file exists, sets",style="dashed"]
+    argv1 -> end [label="argv[1] doesn't exists"]
+    argv2 -> results_directory [label="argv[2] folder exists, sets",style="dashed"]
+    argv2 -> "Create folder" [label="argv[2] folder doesn't exists"]
+    "Create folder" -> results_directory[label="sets",style="dashed"]
+    results_directory -> load_settings_file
+    load_settings_file -> decode_settings
+    decode_settings -> settingsPtr [label="Initializes settingsPtr",style="dashed"]
+    decode_settings-> SettingsInitSuccess -> ToMain
+    SettingsInitSuccess -> end [label="Initialization failed"]
+}
