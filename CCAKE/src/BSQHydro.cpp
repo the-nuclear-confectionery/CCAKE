@@ -26,7 +26,7 @@ BSQHydro<D,TEOM>::BSQHydro(std::shared_ptr<Settings> settingsPtr_in)
   //Initialize the workstation
   wsPtr = std::make_shared<SPHWorkstation<D,TEOM>>(settingsPtr,systemPtr); //\TODO: If ever new EoM are implemented,
                                         // a switch case should be added here.
-  
+
   outPtr = std::make_shared<Output<D>>(settingsPtr,systemPtr);
 
   return;
@@ -48,8 +48,6 @@ void BSQHydro<D,TEOM>::read_in_initial_conditions(){
 
   string initial_condition_type = settingsPtr->IC_type;
   formatted_output::update("Initial conditions type: " + settingsPtr->IC_type);
-
-  string IC_file = settingsPtr->IC_file;
 
   //----------------------------------------------------------------------------
   if (initial_condition_type == "ICCING")
@@ -282,8 +280,8 @@ void BSQHydro<D,TEOM>::read_ccake()
         p.hydro.Bulk = Bulk;
         systemPtr->add_particle( p );
         #ifdef DEBUG
-        outfile << x << " " << y << " " << e*hbarc_GeVfm << " " << rhoB
-                << " " << rhoS << " " << rhoQ << " " << ux << " " << uy << endl;
+        outfile << x << " " << y << " " << eta << " " << e*hbarc_GeVfm << " " << rhoB
+                << " " << rhoS << " " << rhoQ << " " << ux << " " << uy << " " << ueta << endl;
         #endif
       }
     }
@@ -358,6 +356,27 @@ void BSQHydro<D,TEOM>::initialize_hydrodynamics()
   sw.Stop();
   formatted_output::report("hydrodynamics initialization finished in "
                               + to_string(sw.printTime()) + " s");
+  #ifdef DEBUG
+  systemPtr->copy_device_to_host();
+  std::ofstream thermo_file;
+  thermo_file.open("initial_thermo.dat");
+  for (auto & p : systemPtr->particles){
+    //Print initial conditions
+    for (int i = 0; i < D; i++) thermo_file << p.r(i) << " ";
+    thermo_file << p.thermo.e << " " << p.thermo.rhoB << " " << p.thermo.rhoS 
+                << " " << p.thermo.rhoQ << " ";
+    for (int i = 0; i < D; i++) thermo_file << p.hydro.u(i) << " ";
+    thermo_file << p.hydro.Bulk << " ";
+    for(int i = 0; i < D; i++){
+      for(int j = i; j < D; j++){
+        thermo_file << p.hydro.shv(i,j) << " ";
+      }
+    }
+    thermo_file << p.hydro.shv33 << " " << std::endl;
+  }
+  thermo_file.close();
+  #endif
+
   return;
 }
 
