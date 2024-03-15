@@ -75,7 +75,7 @@ void Output<D>::print_system_state_to_txt()
         << systemPtr->t << " " //1
 //        << std::setw(8)
         << std::setprecision(6) << std::scientific
-        << p.r          //2,3
+        << p.r          //2,3 (in 2D)
         << p.p() << " "       //4
         << p.T()*hbarc_MeVfm << " " //5
         << p.muB()*hbarc_MeVfm << " " //6

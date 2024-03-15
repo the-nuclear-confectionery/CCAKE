@@ -7,12 +7,23 @@ template class Evolver<1>;
 template class Evolver<2>;
 template class Evolver<3>;
 
+/// @brief Create object responsible for controlling hydro evolution.
+/// @details This constructor sets up the evolver object with pointers to
+/// the Settings and SystemState objects.
+/// @tparam D The number of spatial dimensions.
+/// @param settingsPtr_in Settings smart pointer.
+/// @param systemPtr_in SystemState smart pointer.
 template <unsigned int D>
 Evolver<D>::Evolver(std::shared_ptr<Settings> settingsPtr_in,
                     std::shared_ptr<SystemState<D>> systemPtr_in)
                  : settingsPtr(settingsPtr_in),
                    systemPtr(systemPtr_in){};
 
+/// @brief Allocate memory for the cache used for the Evolver.
+/// @details The evolver needs to store a small amount of information of 
+/// the previous state of the system. This function allocates memory for
+/// this cache.
+/// @tparam D The number of spatial dimensions.
 template <unsigned int D>
 void Evolver<D>::allocate_cache()
 {
@@ -23,6 +34,20 @@ void Evolver<D>::allocate_cache()
     evolver_cache = Cabana::AoSoA<EvolverCache, DeviceType, VECTOR_LENGTH>("cache", n_particles);
 }
 
+/// @brief Function to decide which algorith to use for the evolution.
+/// @details This function is responsible for deciding which algorithm to use
+/// for the evolution of the hydrodynamic system.
+/// @note At the moment, only the Runge-Kutta 2nd order algorithm is 
+/// implemented. Additional algorithms could be added here.
+/// @todo Instead of using a switch case, a map could be used to store the
+/// algorithms and their names. This would allow for easier addition of new
+/// algorithms.
+/// @todo Instead of relying in the rk_order argument, we should use the
+/// settingsPtr to decide which algorithm to use.
+/// @tparam D The number of spatial dimensions.
+/// @param dt 
+/// @param rk_order 
+/// @param time_derivatives_functional 
 template <unsigned int D>
 void Evolver<D>::execute_timestep(double dt, int rk_order,
                                   std::function<void(void)> time_derivatives_functional )
@@ -47,8 +72,11 @@ void Evolver<D>::execute_timestep(double dt, int rk_order,
 
 }
 
-//==============================================================================
-// this routine is used to initialize quantities prior to RK evolution
+/// @brief Fills the cache with the quantities at the current time step.
+/// @details This function is responsible for filling the cache with the
+/// quantities at the current time step, before we modify them while we
+/// evolve the system.
+/// @tparam D The number of spatial dimensions.
 template <unsigned int D>
 void Evolver<D>::set_current_timestep_quantities()
 {
@@ -168,7 +196,7 @@ void Evolver<D>::step_rk(double dt, double t0, std::function<void(void)> time_de
 template <unsigned int D>
 void Evolver<D>::advance_timestep_rk2( double dt,
                                         std::function<void(void)> time_derivatives_functional )
-{   
+{
       //double E0      = systemPtr->Ez;
       //Kokkos::View<int, MemorySpace> E0("E0");
       //Kokkos::View<int, MemorySpace> E("E");

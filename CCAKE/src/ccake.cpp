@@ -6,8 +6,6 @@
 // Purpose: Run boost-invariant event-by-event hydrodynamics with conserved BSQ
 //          charges using the smoothed particle hydrodynamics (SPH) formalism
 //============================================================================//
-#include <algorithm>
-#include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
