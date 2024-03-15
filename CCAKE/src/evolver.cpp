@@ -20,7 +20,7 @@ Evolver<D>::Evolver(std::shared_ptr<Settings> settingsPtr_in,
                    systemPtr(systemPtr_in){};
 
 /// @brief Allocate memory for the cache used for the Evolver.
-/// @details The evolver needs to store a small amount of information of 
+/// @details The evolver needs to store a small amount of information of
 /// the previous state of the system. This function allocates memory for
 /// this cache.
 /// @tparam D The number of spatial dimensions.
@@ -37,7 +37,7 @@ void Evolver<D>::allocate_cache()
 /// @brief Function to decide which algorith to use for the evolution.
 /// @details This function is responsible for deciding which algorithm to use
 /// for the evolution of the hydrodynamic system.
-/// @note At the moment, only the Runge-Kutta 2nd order algorithm is 
+/// @note At the moment, only the Runge-Kutta 2nd order algorithm is
 /// implemented. Additional algorithms could be added here.
 /// @todo Instead of using a switch case, a map could be used to store the
 /// algorithms and their names. This would allow for easier addition of new
@@ -45,9 +45,9 @@ void Evolver<D>::allocate_cache()
 /// @todo Instead of relying in the rk_order argument, we should use the
 /// settingsPtr to decide which algorithm to use.
 /// @tparam D The number of spatial dimensions.
-/// @param dt 
-/// @param rk_order 
-/// @param time_derivatives_functional 
+/// @param dt
+/// @param rk_order
+/// @param time_derivatives_functional
 template <unsigned int D>
 void Evolver<D>::execute_timestep(double dt, int rk_order,
                                   std::function<void(void)> time_derivatives_functional )
@@ -111,10 +111,10 @@ void Evolver<D>::set_current_timestep_quantities()
 //==========================================================================
 template <unsigned int D>
 void Evolver<D>::step_rk(double dt, double t0, std::function<void(void)> time_derivatives_functional ){
-  
+
   time_derivatives_functional();
   auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
-  
+
   //Create views for the device
   CREATE_VIEW(device_, systemPtr->cabana_particles);
   auto slice_shv0 = Cabana::slice<evolver_cache_info::viscous_shear>(evolver_cache);
@@ -123,7 +123,7 @@ void Evolver<D>::step_rk(double dt, double t0, std::function<void(void)> time_de
   auto slice_s0 = Cabana::slice<evolver_cache_info::specific_entropy>(evolver_cache);
   auto slice_Bulk0 = Cabana::slice<evolver_cache_info::Bulk_pressure>(evolver_cache);
 
-  auto update_rk2_step = KOKKOS_LAMBDA(const int is, const int ia){  
+  auto update_rk2_step = KOKKOS_LAMBDA(const int is, const int ia){
     //Cache previous step values
     double specific_s0 = slice_s0.access(is, ia);
     double Bulk0 = slice_Bulk0.access(is, ia);
@@ -161,6 +161,14 @@ void Evolver<D>::step_rk(double dt, double t0, std::function<void(void)> time_de
       shv(idir,jdir)          = shv0(idir+1,jdir+1) + dt*dshv_dt(idir, jdir);
 
     //Update in memory
+    int freeze = device_freeze.access(is, ia); //Check if the cell is frozen
+    if (specific_s < 0.0 && freeze > 3){ //If frozen, we do not want to crash because of negative entropy
+      specific_s = 1.e-3; //Enforce positivity
+    } else if (specific_s < 0.0){ //Else, something went terribly wrong
+      formatted_output::detail("Negative entropy density");
+      exit(EXIT_FAILURE);
+    }
+
     device_specific_density.access(is, ia, densities_info::s) = specific_s;
     device_hydro_scalar.access(is, ia, hydro_info::Bulk) = Bulk;
     for (int idir=0; idir<D; ++idir){
