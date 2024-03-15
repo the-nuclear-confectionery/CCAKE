@@ -36,6 +36,18 @@ private:
                             // for only specific particles
 
     string default_eos_name = "";
+    void init_conformal(const double c, const double T0,
+                   const double muB0, const double muQ0,
+                   const double muS0);
+    void init_conformal_diagonal(const double c, const double T0,
+                             const double muB0, const double muQ0, 
+                             const double muS0);
+    void init_cosh_conformal(const double c, const double T0,
+                        const double muB0, const double muQ0, 
+                        const double muS0);
+    void init_tanh_conformal(const double c, const double T0,
+                         const double muB0, const double muQ0, 
+                         const double muS0, const double Tc, const double Ts);
 
 public:
     ////////////////////////////////////////////////////////////////////////////
