@@ -49,8 +49,11 @@ private:
   //eos_thermo_nonconst T, muB, muQ, muS, e, p, cs2, dw_ds, dw_dB, dw_dQ, dw_dS;
 
   //Parameters of the grid in each dimension
-  double s_max, ds, B_max, dB, Q_max, dQ, S_max, dS;
-  int Ns, NB, NQ, NS;
+  double s_min, s_max, ds,
+         B_min, B_max, dB,
+         S_min, S_max, dS,
+         Q_min, Q_max, dQ;
+  int Ns, NB, NS, NQ;
 
   KOKKOS_FUNCTION
   double interpolate4D(int idx[], double pos[], int ivar) const;
