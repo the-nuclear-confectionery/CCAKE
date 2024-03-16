@@ -17,19 +17,31 @@ EoS_Interpolator::EoS_Interpolator(fs::path path_to_eos_table)
       exit(1);
     }
     ///Retrieve the table information from the attributes
+    H5::Attribute s_min_attr = eos_file.openAttribute("s_min");
     H5::Attribute s_max_attr = eos_file.openAttribute("s_max");
     H5::Attribute ds_attr = eos_file.openAttribute("ds");
+    H5::Attribute B_min_attr = eos_file.openAttribute("rhoB_min");
     H5::Attribute B_max_attr = eos_file.openAttribute("rhoB_max");
     H5::Attribute dB_attr = eos_file.openAttribute("drhoB");
+    H5::Attribute S_min_attr = eos_file.openAttribute("rhoS_min");
+    H5::Attribute S_max_attr = eos_file.openAttribute("rhoS_max");
+    H5::Attribute dS_attr = eos_file.openAttribute("drhoS");
+    H5::Attribute Q_min_attr = eos_file.openAttribute("rhoQ_min");
     H5::Attribute Q_max_attr = eos_file.openAttribute("rhoQ_max");
     H5::Attribute dQ_attr = eos_file.openAttribute("drhoQ");
     H5::Attribute S_max_attr = eos_file.openAttribute("rhoS_max");
     H5::Attribute dS_attr = eos_file.openAttribute("drhoS");
 
+    s_min_attr.read(H5::PredType::NATIVE_DOUBLE, &s_min);
     s_max_attr.read(H5::PredType::NATIVE_DOUBLE, &s_max);
     ds_attr.read(H5::PredType::NATIVE_DOUBLE, &ds);
+    B_min_attr.read(H5::PredType::NATIVE_DOUBLE, &B_min);
     B_max_attr.read(H5::PredType::NATIVE_DOUBLE, &B_max);
     dB_attr.read(H5::PredType::NATIVE_DOUBLE, &dB);
+    S_min_attr.read(H5::PredType::NATIVE_DOUBLE, &S_min);
+    S_max_attr.read(H5::PredType::NATIVE_DOUBLE, &S_max);
+    dS_attr.read(H5::PredType::NATIVE_DOUBLE, &dS);
+    Q_min_attr.read(H5::PredType::NATIVE_DOUBLE, &Q_min);
     Q_max_attr.read(H5::PredType::NATIVE_DOUBLE, &Q_max);
     dQ_attr.read(H5::PredType::NATIVE_DOUBLE, &dQ);
     S_max_attr.read(H5::PredType::NATIVE_DOUBLE, &S_max);
@@ -38,12 +50,14 @@ EoS_Interpolator::EoS_Interpolator(fs::path path_to_eos_table)
     //Retrieve the axis information from the attributes
     H5::Attribute sAxis_attr = eos_file.openAttribute("s_Axis");
     H5::Attribute rhoBAxis_attr = eos_file.openAttribute("rhoB_Axis");
+    H5::Attribute rhoSAxis_attr = eos_file.openAttribute("rhoS_Axis");
     H5::Attribute rhoQAxis_attr = eos_file.openAttribute("rhoQ_Axis");
     H5::Attribute rhoSAxis_attr = eos_file.openAttribute("rhoS_Axis");
 
     int s_Axis, rhoB_Axis, rhoQ_Axis, rhoS_Axis;
     sAxis_attr.read(H5::PredType::NATIVE_INT, &s_Axis);
     rhoBAxis_attr.read(H5::PredType::NATIVE_INT, &rhoB_Axis);
+    rhoSAxis_attr.read(H5::PredType::NATIVE_INT, &rhoS_Axis);
     rhoQAxis_attr.read(H5::PredType::NATIVE_INT, &rhoQ_Axis);
     rhoSAxis_attr.read(H5::PredType::NATIVE_INT, &rhoS_Axis);
 
@@ -55,6 +69,7 @@ EoS_Interpolator::EoS_Interpolator(fs::path path_to_eos_table)
     T_dataspace.getSimpleExtentDims(T_dims_out, NULL);
     Ns = T_dims_out[s_Axis];
     NB = T_dims_out[rhoB_Axis];
+    NS = T_dims_out[rhoS_Axis];
     NQ = T_dims_out[rhoQ_Axis];
     NS = T_dims_out[rhoS_Axis];
     //T_dataset.close();
@@ -64,6 +79,9 @@ EoS_Interpolator::EoS_Interpolator(fs::path path_to_eos_table)
     formatted_output::detail("B_max = " + std::to_string(B_max)
                             + ", dB = " + std::to_string(dB)
                             + ", NB = " + std::to_string(NB));
+    formatted_output::detail("S_max = " + std::to_string(S_max)
+                            + ", dS = " + std::to_string(dS)
+                            + ", NS = " + std::to_string(NS));
     formatted_output::detail("Q_max = " + std::to_string(Q_max)
                             + ", dQ = " + std::to_string(dQ)
                             + ", NQ = " + std::to_string(NQ));
@@ -99,17 +117,17 @@ EoS_Interpolator::EoS_Interpolator(fs::path path_to_eos_table)
     // auto dw_dS_host = Kokkos::create_mirror_view(dw_dS);
 
 
-    eos_vars[ccake::eos_variables::T] = eos_thermo_nonconst("T", Ns, NB, NQ, NS);
-    eos_vars[ccake::eos_variables::muB] = eos_thermo_nonconst("muB", Ns, NB, NQ, NS);
-    eos_vars[ccake::eos_variables::muQ] = eos_thermo_nonconst("muQ", Ns, NB, NQ, NS);
-    eos_vars[ccake::eos_variables::muS] = eos_thermo_nonconst("muS", Ns, NB, NQ, NS);
-    eos_vars[ccake::eos_variables::e] = eos_thermo_nonconst("e", Ns, NB, NQ, NS);
-    eos_vars[ccake::eos_variables::p] = eos_thermo_nonconst("p", Ns, NB, NQ, NS);
-    eos_vars[ccake::eos_variables::cs2] = eos_thermo_nonconst("cs2", Ns, NB, NQ, NS);
-    eos_vars[ccake::eos_variables::dw_ds] = eos_thermo_nonconst("dw_ds", Ns, NB, NQ, NS);
-    eos_vars[ccake::eos_variables::dw_dB] = eos_thermo_nonconst("dw_dB", Ns, NB, NQ, NS);
-    eos_vars[ccake::eos_variables::dw_dQ] = eos_thermo_nonconst("dw_dQ", Ns, NB, NQ, NS);
-    eos_vars[ccake::eos_variables::dw_dS] = eos_thermo_nonconst("dw_dS", Ns, NB, NQ, NS);
+    eos_vars[ccake::eos_variables::T] = eos_thermo_nonconst("T", Ns, NB, NS, NQ);
+    eos_vars[ccake::eos_variables::muB] = eos_thermo_nonconst("muB", Ns, NB, NS, NQ);
+    eos_vars[ccake::eos_variables::muQ] = eos_thermo_nonconst("muQ", Ns, NB, NS, NQ);
+    eos_vars[ccake::eos_variables::muS] = eos_thermo_nonconst("muS", Ns, NB, NS, NQ);
+    eos_vars[ccake::eos_variables::e] = eos_thermo_nonconst("e", Ns, NB, NS, NQ);
+    eos_vars[ccake::eos_variables::p] = eos_thermo_nonconst("p", Ns, NB, NS, NQ);
+    eos_vars[ccake::eos_variables::cs2] = eos_thermo_nonconst("cs2", Ns, NB, NS, NQ);
+    eos_vars[ccake::eos_variables::dw_ds] = eos_thermo_nonconst("dw_ds", Ns, NB, NS, NQ);
+    eos_vars[ccake::eos_variables::dw_dB] = eos_thermo_nonconst("dw_dB", Ns, NB, NS, NQ);
+    eos_vars[ccake::eos_variables::dw_dQ] = eos_thermo_nonconst("dw_dQ", Ns, NB, NS, NQ);
+    eos_vars[ccake::eos_variables::dw_dS] = eos_thermo_nonconst("dw_dS", Ns, NB, NS, NQ);
 
     auto T_host = Kokkos::create_mirror_view(eos_vars[ccake::eos_variables::T]);
     auto muB_host = Kokkos::create_mirror_view(eos_vars[ccake::eos_variables::muB]);
@@ -168,8 +186,8 @@ EoS_Interpolator::EoS_Interpolator(fs::path path_to_eos_table)
     {
       int is = i/(NB*NQ*NS);
       int iB = (i - is*NB*NQ*NS)/(NQ*NS);
-      int iQ = (i - is*NB*NQ*NS - iB*NQ*NS)/NS;
-      int iS = i - is*NB*NQ*NS - iB*NQ*NS - iQ*NS;
+      int iS = (i - is*NB*NS*NQ - iB*NS*NQ)/NQ;
+      int iQ = i - is*NB*NS*NQ - iB*NS*NQ - iS*NQ;
 
       T_host(is, iB, iS, iQ) = T_buffer[i];
       muB_host(is, iB, iS, iQ) = muB_buffer[i];
@@ -180,6 +198,7 @@ EoS_Interpolator::EoS_Interpolator(fs::path path_to_eos_table)
       cs2_host(is, iB, iS, iQ) = cs2_buffer[i];
       dw_ds_host(is, iB, iS, iQ) = dw_ds_buffer[i];
       dw_dB_host(is, iB, iS, iQ) = dw_dB_buffer[i];
+      dw_dS_host(is, iB, iS, iQ) = dw_dS_buffer[i];
       dw_dQ_host(is, iB, iS, iQ) = dw_dQ_buffer[i];
       dw_dS_host(is, iB, iS, iQ) = dw_dS_buffer[i];
     }
@@ -295,10 +314,10 @@ double EoS_Interpolator::interpolate4D(int idx [], double pos[], int ivar ) cons
   }
   ///Creates a vector x which lies in the unit hypercube
   double x[4];
-  x[0] = (pos[0] - idx[0]*ds)/ds;
-  x[1] = (pos[1] - idx[1]*dB)/dB;
-  x[2] = (pos[2] - idx[2]*dS)/dS;
-  x[3] = (pos[3] - idx[3]*dQ)/dQ;
+  x[0] = (pos[0] - s_min - idx[0]*ds)/ds;
+  x[1] = (pos[1] - B_min - idx[1]*dB)/dB;
+  x[2] = (pos[2] - S_min - idx[2]*dS)/dS;
+  x[3] = (pos[3] - Q_min - idx[3]*dQ)/dQ;
 
   //Asserts that we are in the unit hypercube
   #ifdef DEBUG
