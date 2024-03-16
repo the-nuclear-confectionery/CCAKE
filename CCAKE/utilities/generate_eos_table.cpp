@@ -12,6 +12,26 @@
 #include "eos_interpolator.h"
 #include "stopwatch.h"
 
+namespace fs = std::filesystem;
+
+int check_args(int argc, char** argv){
+  //Usage: ./generate_eos_table <nthreads> <eos_type> <eos_path> <output_file>
+  if (argc != 5){
+    std::cerr << "Usage: " << argv[0] <<
+    " <nthreads> <eos_type> <eos_path> <output_file>" << std::endl;
+    std::cerr << "nthreads: number of threads to use" << std::endl;
+    std::cerr << "eos_type: 'table', 'tanh_conformal', 'conformal' or 'conformal_diagonal'" << std::endl;
+    std::cerr << "eos_path: path to EoS table" << std::endl;
+    std::cerr << "output_file: name of the output file" << std::endl;
+    return 1;
+  } else {
+    std::cout << "Number of threads: " << argv[1] << std::endl;
+    std::cout << "EoS type.........: " << argv[2] << std::endl;
+    std::cout << "EoS path.........: " << argv[3] << std::endl;
+    std::cout << "Output file......: " << argv[4] << std::endl;
+    return 0;
+  }
+}
 
 //m#define ENABLE_TEST1
 //#define ENABLE_TEST2
@@ -20,17 +40,24 @@
 
 int main(int argc, char** argv){
 
-    //Get number of threads
-    const int nthreads = omp_get_max_threads();
+    if (check_args(argc, argv) != 0) return 1;
+    //Set number of threads
+    int nthreads = atoi(argv[1]);
+    omp_set_num_threads(nthreads);
+
+    fs::path output_file = argv[4];
+    if (fs::exists(output_file)){
+      std::cerr << "Output file " << output_file << " already exists!" << std::endl;
+      return 1;
+    }
 
     ccake::EquationOfState eos[nthreads];
     int idx_a[nthreads];
     std::shared_ptr<Settings> settings = std::make_shared<Settings>();
 
     //Setup EoS
-    //settings->eos_type = "conformal"; // "table", "tanh_conformal", "conformal" or "conformal_diagonal"
-    settings->eos_type = "table"; // "table", "tanh_conformal", "conformal" or "conformal_diagonal"
-    settings->eos_path = "EoS/Houston"; //Only if table
+    settings->eos_type = argv[2]; // "table", "tanh_conformal", "conformal" or "conformal_diagonal"
+    settings->eos_path = argv[3]; //Only if table
 
     //Cannot be initialized in parallel to avoid simultaneous access to HDF5 file
     for(int i=0; i<nthreads; ++i){
@@ -39,24 +66,20 @@ int main(int argc, char** argv){
       idx_a[i] = 0;
     }
 
-
+    //==========================================================================
     //Setup grid
-    const double s_min = 0.0001;
-    const double B_min = 0.0001;
-    const double S_min = 0.0001;
-    const double Q_min = 0.0001;
+    //==========================================================================
+    const double s_min = 0.001;
+    const double B_min = 0.001;
+    const double S_min = 0.001;
+    const double Q_min = 0.001;
 
     //Limits obtained by looking at a sample of 100 iccing events
     const double s_max = 70.0;
     const double B_max = 5.0;
     const double S_max = 7.0;
     const double Q_max = 8.6;
-    //Values suitable for conformal EoS
-    //const int Ns = 40000+1;
-    //const int NB = 1+1;
-    //const int NQ = 1+1;
-    //const int NS = 1+1;
-    const int Ns = 31+1;
+    const int Ns = 63+1;
     const int NB = 31+1;
     const int NQ = 31+1;
     const int NS = 31+1;
@@ -65,15 +88,20 @@ int main(int argc, char** argv){
     const double dS = (S_max-s_min)/(NS-1);
     const double dQ = (Q_max-Q_min)/(NQ-1);
 
+    //==========================================================================
     //Estimate final size of EoS table
+    //==========================================================================
     const long Nsize = Ns*NB*NS*NQ;
     const long Nbytes = Nsize*sizeof(double)*11; //11 thermodynamic quantities stored
     const double NbytesGB = Nbytes/1024./1024./1024.;
     cout << "EoS table size: " << std::setprecision(4) << NbytesGB << " GB" << endl;
     int idx=0;
-    #ifndef SKIP_EOS_TABLE_GENERATION
-    //Write header to HDF5 file
-    H5::H5File eos_h5_file("eos_table.h5", H5F_ACC_TRUNC); //Open file in binary mode
+
+    //==========================================================================
+    //Prepare HDF5 file
+    //==========================================================================
+
+    H5::H5File eos_h5_file(output_file.string() , H5F_ACC_TRUNC); //Open file in binary mode
     if (eos_h5_file.getId() < 0){
       std::cerr << "File 'eos_table.h5' could not be opened!\n";
       abort();
@@ -101,7 +129,9 @@ int main(int argc, char** argv){
     H5::DataSet dwdS_dataset = eos_h5_file.createDataSet("dwdS", H5::PredType::NATIVE_DOUBLE, table_dataspace);
     H5::DataSet eos_type_dataset = eos_h5_file.createDataSet("eos_type", H5::PredType::NATIVE_INT, table_dataspace);
 
-    ///Create attributes
+    //==========================================================================
+    //Write header to HDF5 file as attributes
+    //==========================================================================
     H5::DataSpace scalar_type(H5S_SCALAR);
     H5::Attribute smin_attr = eos_h5_file.createAttribute("s_min", H5::PredType::NATIVE_DOUBLE, scalar_type);
     H5::Attribute smax_attr = eos_h5_file.createAttribute("s_max", H5::PredType::NATIVE_DOUBLE, scalar_type);
@@ -154,12 +184,17 @@ int main(int argc, char** argv){
     //std::string eos_names[4] = {"table", "tanh_conformal", "conformal", "conformal_diagonal"};
     //eos_names_attr.write(strtype, eos_names);
 
-    //Storage for EoS table
+    //==========================================================================
+    //Create memory storage for results
+    //==========================================================================
     const int N = Ns*NB*NS*NQ;
-    std::array<double, N>* s_array = new std::array<double, N>; //Let us manage this, since we want to free it as soon as possible
+    //Create at heap to avoid stack overflow and to release as soon as possible
+    #ifdef SAVE_DOMAIN
+    std::array<double, N>* s_array = new std::array<double, N>;
     std::array<double, N>* rhoB_array = new std::array<double, N>;
     std::array<double, N>* rhoQ_array = new std::array<double, N>;
     std::array<double, N>* rhoS_array = new std::array<double, N>;
+    #endif
     std::array<double, N>* T_array = new std::array<double, N>;
     std::array<double, N>* muB_array = new std::array<double, N>;
     std::array<double, N>* muQ_array = new std::array<double, N>;
@@ -171,6 +206,10 @@ int main(int argc, char** argv){
     std::array<double, N>* dwdB_array = new std::array<double, N>;
     std::array<double, N>* dwdS_array = new std::array<double, N>;
     std::array<double, N>* dwdQ_array = new std::array<double, N>;
+
+    //==========================================================================
+    //Main loop
+    //==========================================================================
 
     //Get start time
     std::chrono::time_point<std::chrono::system_clock> start, end;
@@ -224,7 +263,7 @@ int main(int argc, char** argv){
         (*dwdQ_array)[idx] = thermo.dwdQ;
 
         //Get end time
-        if(ith==0 && idx_a[0]%100==0){
+        if(ith==0 && idx_a[0]%1000==0){
             #pragma omp critical
             {
               int idx_s=0;
@@ -240,8 +279,9 @@ int main(int argc, char** argv){
     end = std::chrono::system_clock::now();
     cout << "EoS table generation: 100% done. Time elapsed: " << std::chrono::duration<double>(end-start).count() << "s" << endl;
 
-
-    //Write to file
+    //==========================================================================
+    //Write to HDF5 file
+    //==========================================================================
     #ifdef SAVE_DOMAIN
     s_dataset.write(s_array->data(), H5::PredType::NATIVE_DOUBLE);
     rhoB_dataset.write(rhoB_array->data(), H5::PredType::NATIVE_DOUBLE);
@@ -260,8 +300,13 @@ int main(int argc, char** argv){
     dwdS_dataset.write(dwdS_array->data(), H5::PredType::NATIVE_DOUBLE);
     dwdQ_dataset.write(dwdQ_array->data(), H5::PredType::NATIVE_DOUBLE);
 
-    delete s_array, rhoB_array, rhoQ_array, rhoS_array,
-           T_array, muB_array, muQ_array, muS_array,
+    //==========================================================================
+    //Close HDF5 file and release memory
+    //==========================================================================
+    #ifdef SAVE_DOMAIN
+    delete s_array, rhoB_array, rhoQ_array, rhoS_array;
+    #endif
+    delete T_array, muB_array, muQ_array, muS_array,
            e_array, p_array, cs2_array,
            dwds_array, dwdB_array, dwdQ_array, dwdS_array; //Free memory
     eos_h5_file.close();
