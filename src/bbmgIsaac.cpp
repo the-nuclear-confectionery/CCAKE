@@ -81,7 +81,7 @@ void BBMG::initial()
       sph_particle.T    = p.T() * constants::hbarc_MeVfm;
       cout << endl << "Initial temps of non frozen-out sph particles in MeV is " << sph_particle.T << endl;
       
-      double kappa = get_kappa(p.T() * constants::hbarc_MeVfm);
+      double kappa = get_kappa(sph_particle.T);
       sph_particle.line = 0.5 * kappa * pow(settingsPtr->t0, z) * pow(sph_particle.rho0, c) * systemPtr->dt; // only if initial flow=0
 
       for (int j=0; j<14; j++) //initializes jets at each point in grid space, over 14 directions
@@ -171,7 +171,7 @@ void BBMG::propagate()
 }
 
 
-void BBMG::inter( field &f ) //How are f.T and others working here? It seems to be rewriting sub.T from above?
+void BBMG::inter( field &f ) 
 {
   /*if (initial_condition_type == "ICCING")
   {
