@@ -135,7 +135,7 @@ void BBMG::propagate()
     double kappa = get_kappa(full_sph_field[i].T);
       
     inter( full_sph_field[i] ); //interpolation of the field
-    cout << "Interpolated field temp is: " << full_sph_field[i].T << "\n"; //Now this is providing 0 as a result for all, creating no line integral
+    cout << "Interpolated field temp is: " << full_sph_field[i].T << "\n";
     if ( ( full_sph_field[i].on == 1 ) && ( full_sph_field[i].T > Freezeout_Temp ) )
     {
       full_sph_field[i].line += pow(tau, z) * pow(full_sph_field[i].rho, c) * systemPtr->dt; // * flow(ff[i])
@@ -205,7 +205,7 @@ void BBMG::inter( field &f )
       double gridy = settingsPtr->stepy;
       //f.T      += p.T()*constants::hbarc_MeVfm*0.06*0.06*kk; //Here I changed the hardcoded grid size to a read in of the default grid from settings.
       f.T      += p.T()*constants::hbarc_MeVfm*gridx*gridy*kern; // After correcting with the constants list, almost correct
-      cout << "Interpolated temp value is " << f.T << "\n";
+      //cout << "Interpolated temp value is " << f.T << "\n";
       f.rho    += (p.p()/p.T())*kern;
       f.v[0]   += p.hydro.v(0)*kern;
       f.v[1]   += p.hydro.v(1)*kern;
