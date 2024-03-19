@@ -40,23 +40,45 @@ enum eos_variables_enum{
   };
 }
 
+#define NTBL_s 5
+#define NTBL_B 4
+#define NTBL_S 4
+#define NTBL_Q 4
+
 class EoS_Interpolator{
 
 private:
   //eos_thermo *eos_vars[eos_variables::NUM_EOS_VARIABLES];
   eos_thermo_kind *eos_type;
-  eos_thermo_nonconst eos_vars[eos_variables::NUM_EOS_VARIABLES];
+  eos_thermo_nonconst eos_vars[NTBL_s][NTBL_B][NTBL_S][NTBL_Q][eos_variables::NUM_EOS_VARIABLES];
   //eos_thermo_nonconst T, muB, muQ, muS, e, p, cs2, dw_ds, dw_dB, dw_dQ, dw_dS;
 
-  //Parameters of the grid in each dimension
-  double s_min, s_max, ds,
-         B_min, B_max, dB,
-         S_min, S_max, dS,
-         Q_min, Q_max, dQ;
-  int Ns, NB, NS, NQ;
+  //HDF5 file
+  H5::H5File eos_file;
+
+  struct table_attributes{
+    double min, max, step;
+    int N;
+  };
+
+  table_attributes s_attr[NTBL_s][NTBL_B][NTBL_S][NTBL_Q],
+                   B_attr[NTBL_s][NTBL_B][NTBL_S][NTBL_Q],
+                   S_attr[NTBL_s][NTBL_B][NTBL_S][NTBL_Q],
+                   Q_attr[NTBL_s][NTBL_B][NTBL_S][NTBL_Q];
+
+
+  void load_table(std::initializer_list<int> exponents);
+  void load_header(std::initializer_list<int> exponents);
 
   KOKKOS_FUNCTION
-  double interpolate4D(int idx[], double pos[], int ivar) const;
+  double interpolate1D(double x, double x0, double x1,
+                                 double y0, double y1) const;
+
+  KOKKOS_FUNCTION
+  double interpolate4D(int idx[], double pos[], int tble[], int ivar) const;
+  KOKKOS_FUNCTION
+  double interpolate4D_slow(int idx[], double pos[], int ivar) const;
+
 
 public:
   EoS_Interpolator() = delete;
