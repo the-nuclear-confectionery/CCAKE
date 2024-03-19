@@ -254,20 +254,20 @@ void EoS_Interpolator::fill_thermodynamics(Cabana::AoSoA<CabanaParticle,
   CREATE_VIEW(device_,particles)
   auto interpolate = KOKKOS_CLASS_LAMBDA(const int is, const int ia){
     //Compute the entropy and charge densities in the particles' rest frame
-    double s = device_thermo.access(is, ia, ccake::thermo_info::s);
-    double rhoB = Kokkos::fabs(device_thermo.access(is, ia, ccake::thermo_info::rhoB));
-    double rhoS = Kokkos::fabs(device_thermo.access(is, ia, ccake::thermo_info::rhoS));
-    double rhoQ = Kokkos::fabs(device_thermo.access(is, ia, ccake::thermo_info::rhoQ));
+    double s = Kokkos::max(.001,device_thermo.access(is, ia, ccake::thermo_info::s));
+    double rhoB = Kokkos::max(.001,Kokkos::fabs(device_thermo.access(is, ia, ccake::thermo_info::rhoB)));
+    double rhoS = Kokkos::max(.001,Kokkos::fabs(device_thermo.access(is, ia, ccake::thermo_info::rhoS)));
+    double rhoQ = Kokkos::max(.001,Kokkos::fabs(device_thermo.access(is, ia, ccake::thermo_info::rhoQ)));
 
     //Needs to find which table to use by finding the exponents of the independent variables
     auto get_exponent = [](double x){
       int ie = (int) Kokkos::floor(Kokkos::log10(Kokkos::fabs(x)) + 3);
       return Kokkos::max(ie, 0);
     };
-    int ts = get_exponent(s);
-    int tB = get_exponent(rhoB);
-    int tS = get_exponent(rhoS);
-    int tQ = get_exponent(rhoQ);
+    int ts = Kokkos::min(get_exponent(s),4);
+    int tB = Kokkos::min(get_exponent(rhoB),3);
+    int tS = Kokkos::min(get_exponent(rhoS),3);
+    int tQ = Kokkos::min(get_exponent(rhoQ),3);
 
     int tble[4] = {ts, tB, tS, tQ};
 
