@@ -197,7 +197,7 @@ void BBMG::inter( field &f )
     if (rdiff<2)
     {
       //cout << "Distance used in kernel interpolation is: " << rdiff << "\n";
-      ++den;
+      den++;
       den2     += p.norm_spec.s;
       //cout << "Checking normalization since interpolation gave 0 " << den2 << "\n";
       double kern = kernel::kernel(rdiff); //In order to call this, shouldn't I be including kernel.cpp instead of kernel.h?"
