@@ -204,11 +204,13 @@ void BBMG::inter( field &f )
       double gridx = settingsPtr->stepx;
       double gridy = settingsPtr->stepy;
       //f.T      += p.T()*constants::hbarc_MeVfm*0.06*0.06*kk; //Here I changed the hardcoded grid size to a read in of the default grid from settings.
-      f.T      += p.T()*constants::hbarc_MeVfm*gridx*gridy*kern; // After correcting with the constants list, almost correct
+      // In all quantities below, I have just changed += to only =, as I feel it is just adding to the temperatures and not decreasing down to the freeze out I need in propagate
+      f.T      = p.T()*constants::hbarc_MeVfm*gridx*gridy*kern; // After correcting with the constants list, almost correct --------- WHY IS THIS += AND NOT JUST =
       //cout << "Interpolated temp value is " << f.T << "\n";
-      f.rho    += (p.p()/p.T())*kern;
-      f.v[0]   += p.hydro.v(0)*kern;
-      f.v[1]   += p.hydro.v(1)*kern;
+      f.rho    = (p.p()/p.T())*kern;
+      f.v[0]   = p.hydro.v(0)*kern;
+      cout << "X velocity is: " << f.v[0] << endl;
+      f.v[1]   = p.hydro.v(1)*kern;
       //By following the style of sph workstation, I have included den2 as the normalization factor with the kernel function
 
 
