@@ -135,7 +135,7 @@ void BBMG::propagate()
     double kappa = get_kappa(full_sph_field[i].T);
       
     inter( full_sph_field[i] ); //interpolation of the field
-    //cout << "Interpolated field temp is: " << full_sph_field[i].T << "\n";
+    cout << "Interpolated field temp is: " << full_sph_field[i].T << "\n";
     if ( ( full_sph_field[i].on == 1 ) && ( full_sph_field[i].T > Freezeout_Temp ) )
     {
       full_sph_field[i].line += pow(tau, z) * pow(full_sph_field[i].rho, c) * systemPtr->dt; // * flow(ff[i])
@@ -195,7 +195,7 @@ void BBMG::inter( field &f )
 
     if (rdiff<2)
     {
-      cout << "Distance used in kernel interpolation is: " << rdiff << "\n";
+      //cout << "Distance used in kernel interpolation is: " << rdiff << "\n";
       ++den;
       den2     += p.norm_spec.s;
       //cout << "Checking normalization since interpolation gave 0 " << den2 << "\n";
@@ -209,7 +209,7 @@ void BBMG::inter( field &f )
       //cout << "Interpolated temp value is " << f.T << "\n";
       f.rho    = (p.p()/p.T())*kern;
       f.v[0]   = p.hydro.v(0)*kern;
-      cout << "X velocity is: " << f.v[0] << endl;
+      //cout << "X velocity is: " << f.v[0] << endl; This is fine for now, not seemingly above 1
       f.v[1]   = p.hydro.v(1)*kern;
       //By following the style of sph workstation, I have included den2 as the normalization factor with the kernel function
 
