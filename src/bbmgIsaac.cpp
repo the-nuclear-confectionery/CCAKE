@@ -79,7 +79,7 @@ void BBMG::initial()
       sph_particle.rho0 = rsub; //Density left in terms of femtometers
       sph_particle.sph  = i;
       sph_particle.T    = p.T() * constants::hbarc_MeVfm;
-      cout << endl << "Initial temps of non frozen-out sph particles in MeV is " << sph_particle.T << endl;
+      //cout << endl << "Initial temps of non frozen-out sph particles in MeV is " << sph_particle.T << endl; This is working just fine
       
       double kappa = get_kappa(sph_particle.T);
       sph_particle.line = 0.5 * kappa * pow(settingsPtr->t0, z) * pow(sph_particle.rho0, c) * systemPtr->dt; // only if initial flow=0
@@ -180,6 +180,7 @@ void BBMG::inter( field &f )
   {
   }*/
   double den = 0, den2 = 0;
+  double fac = den / area;
   for ( auto & p : systemPtr->particles )
   {
     double dx    = p.r(0)-f.r[0];
@@ -205,7 +206,7 @@ void BBMG::inter( field &f )
       double gridy = settingsPtr->stepy;
       //f.T      += p.T()*constants::hbarc_MeVfm*0.06*0.06*kk; //Here I changed the hardcoded grid size to a read in of the default grid from settings.
       // In all quantities below, I have just changed += to only =, as I feel it is just adding to the temperatures and not decreasing down to the freeze out I need in propagate
-      f.T      = p.T()*constants::hbarc_MeVfm*gridx*gridy*kern; // After correcting with the constants list, almost correct --------- WHY IS THIS += AND NOT JUST =
+      f.T      += p.T()*constants::hbarc_MeVfm*gridx*gridy*kern; // After correcting with the constants list, almost correct --------- WHY IS THIS += AND NOT JUST =
       cout << "Interpolated temp value is " << f.T << "\n";
       if (f.T > 900)
       {abort();}
@@ -217,10 +218,14 @@ void BBMG::inter( field &f )
 
 
       //cout << dx << " " << dy << " " << p.T()*constants::hbarc_MeVfm << " " << p.hydro.v << endl;
+      
+      cout << "Value of normalization (?) " << fac << endl;
     }
+    f.T /= fac;
+    cout << "Interpolated temp value after factorization is " << f.T << "\n"; //Trying to find if this fixes the issue of temperatures flying above the initial temps
   }
 
-  double fac = den / area; //may need to move these inside the for loop?? including these returns 0 for all quantities below
+  //double fac = den / area; //may need to move these inside the for loop?? including these returns 0 for all quantities below
   //f.T       *= constants::hbarc_MeVfm;
   //f.T       /= fac;
   //f.rho     /= fac;
