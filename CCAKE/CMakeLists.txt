@@ -79,9 +79,11 @@ add_custom_target(clean-cmake
 add_subdirectory(src)
 add_executable(${PROJECT_NAME} src/ccake.cpp)
 add_executable(generate_eos_table utilities/generate_eos_table.cpp)
+add_executable(validate_interpolator utilities/validate_interpolator.cpp)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE src)
-target_link_libraries(generate_eos_table PRIVATE src)
+target_link_libraries(generate_eos_table PRIVATE eos)
+target_link_libraries(validate_interpolator PRIVATE src)
 
 install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_SOURCE_DIR})
 

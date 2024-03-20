@@ -20,17 +20,23 @@ add_library(src OBJECT
 	output.cpp
 )
 
+add_library(eos OBJECT eos.cpp eos_extension.cpp eos_table.cpp rootfinder.cpp formatted_output.cpp)
+
 ###############################################################################
 # find and link GSL libraries
 #set (ENV{CPATH} ${GSL_INCLUDE_DIR})
 target_link_libraries(src PUBLIC ${GSL_LIBRARIES})
 target_include_directories(src PUBLIC ${GSL_INCLUDE_DIR})
+target_link_libraries(eos PUBLIC ${GSL_LIBRARIES})
+target_include_directories(eos PUBLIC ${GSL_INCLUDE_DIR})
+
 
 ###############################################################################
 # find and link HDF5 libraries
 link_directories( ${HDF5_LIBRARY_DIRS} )
 #include_directories( ${HDF5_INCLUDE_DIR} )
 target_link_libraries(src PUBLIC ${HDF5_CXX_LIBRARIES} )
+target_link_libraries(eos PUBLIC ${HDF5_CXX_LIBRARIES} )
 
 ###############################################################################
 # Include cabana and kokkos libraries
