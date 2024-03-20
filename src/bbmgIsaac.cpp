@@ -207,7 +207,8 @@ void BBMG::inter( field &f )
       // In all quantities below, I have just changed += to only =, as I feel it is just adding to the temperatures and not decreasing down to the freeze out I need in propagate
       f.T      += p.T()*constants::hbarc_MeVfm*gridx*gridy*kern; // After correcting with the constants list, almost correct --------- WHY IS THIS += AND NOT JUST =
       cout << "Interpolated temp value is " << f.T << "\n";
-      abort();
+      if (f.T > 900)
+      {abort();}
       f.rho    += (p.p()/p.T())*kern;
       f.v[0]   += p.hydro.v(0)*kern;
       //cout << "X velocity is: " << f.v[0] << endl; This is fine for now, not seemingly above 1
