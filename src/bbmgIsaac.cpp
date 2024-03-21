@@ -137,8 +137,6 @@ void BBMG::propagate()
     cout << "This is the value of our kappa coupling: " << kappa << endl;
     cout << "This is checking if tau is working properly: " << tau << endl;
     cout << "This is checking if the density is coming out positive: " << full_sph_field[i].rho0 << endl;
-    abort();
-
     inter( full_sph_field[i] ); //interpolation of the field
     //cout << "Interpolated field temp is: " << full_sph_field[i].T << "\n";
     //abort();
