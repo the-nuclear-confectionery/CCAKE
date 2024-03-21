@@ -83,7 +83,7 @@ void BBMG::initial()
       //cout << endl << "Initial temps of non frozen-out sph particles in MeV is " << sph_particle.T << endl; This is working just fine
       
       double kappa = get_kappa(sph_particle.T);
-      sph_particle.line = 0.5 * kappa * pow(settingsPtr->t0, z) * pow(sph_particle.rho0, c) * systemPtr->dt; // only if initial flow=0
+      sph_particle.line = 0.5 * kappa * pow(settingsPtr->t0, z) * pow(sph_particle.rho0, c) * settingsPtr->dt; // only if initial flow=0
 
       for (int j=0; j<14; j++) //initializes jets at each point in grid space, over 14 directions
       {
@@ -129,8 +129,8 @@ void BBMG::propagate()
   for (int i = 0; i < tot; i++)
   {
     // propagate x,y position of jet on top of sph particles
-    full_sph_field[i].r[0] += vjet * systemPtr->dt * cos(full_sph_field[i].phi);
-    full_sph_field[i].r[1] += vjet * systemPtr->dt * sin(full_sph_field[i].phi);
+    full_sph_field[i].r[0] += vjet * settingsPtr->dt * cos(full_sph_field[i].phi);
+    full_sph_field[i].r[1] += vjet * settingsPtr->dt * sin(full_sph_field[i].phi);
 
 
     double kappa = get_kappa(full_sph_field[i].T);
@@ -144,16 +144,16 @@ void BBMG::propagate()
     
     if ( ( full_sph_field[i].on == 1 ) && ( full_sph_field[i].T > Freezeout_Temp ) )
     {
-      full_sph_field[i].line += pow(tau, z) * pow(full_sph_field[i].rho0, c) * systemPtr->dt; // * flow(ff[i])
+      full_sph_field[i].line += pow(tau, z) * pow(full_sph_field[i].rho0, c) * settingsPtr->dt; // * flow(ff[i])
       cout << "Checking the values of the line integration: " << full_sph_field[i].line << endl;
       stillon++;
     }
     else //This comes in when we drop below freezeout temp, as .on should never go to 0 on its own
     {
       full_sph_field[i].on    = 0;
-      full_sph_field[i].line += 0.5 * kappa * pow(tau,z) * pow(full_sph_field[i].rho0, c) * systemPtr->dt; /* flow(ff[i])*/
+      full_sph_field[i].line += 0.5 * kappa * pow(tau,z) * pow(full_sph_field[i].rho0, c) * settingsPtr->dt; /* flow(ff[i])*/
       //ff[i].line *= efluc();
-      cout << "Hard Check on all values: " << kappa << " " << tau << " " << full_sph_field[i].rho0 << " " << systemPtr->dt << endl;
+      cout << "Hard Check on all values: " << kappa << " " << tau << " " << full_sph_field[i].rho0 << " " << settingsPtr->dt << endl;
       cout << "Hard Check on all the bbmg exponenets: " << z << " " << c << endl;
       cout << "Hard Check on full quantities: " << pow(tau, z) << " " << pow(full_sph_field[i].rho0, c) << endl;
       cout << "Checking values of line integration AFTER the jets hit FO Temperature: " << full_sph_field[i].line << endl;
