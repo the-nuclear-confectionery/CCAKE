@@ -134,7 +134,7 @@ void BBMG::propagate()
 
 
     double kappa = get_kappa(full_sph_field[i].T);
-    cout << "This is the value of our kappa coupling: " << kappa << endl;
+    //cout << "This is the value of our kappa coupling: " << kappa << endl;
     cout << "This is checking if tau is working properly: " << tau << endl;
     cout << "This is checking if the density is coming out positive: " << full_sph_field[i].rho0 << endl;
     inter( full_sph_field[i] ); //interpolation of the field
@@ -145,7 +145,7 @@ void BBMG::propagate()
     if ( ( full_sph_field[i].on == 1 ) && ( full_sph_field[i].T > Freezeout_Temp ) )
     {
       full_sph_field[i].line += pow(tau, z) * pow(full_sph_field[i].rho0, c) * systemPtr->dt; // * flow(ff[i])
-      //cout << "Checking the values of the line integration: " << full_sph_field[i].line << endl;
+      cout << "Checking the values of the line integration: " << full_sph_field[i].line << endl;
       stillon++;
     }
     else //This comes in when we drop below freezeout temp, as .on should never go to 0 on its own
@@ -153,7 +153,8 @@ void BBMG::propagate()
       full_sph_field[i].on    = 0;
       full_sph_field[i].line += 0.5 * kappa * pow(tau,z) * pow(full_sph_field[i].rho0, c) * systemPtr->dt; /* flow(ff[i])*/
       //ff[i].line *= efluc();
-
+      cout << "Checking values of line integration AFTER the jets hit FO Temperature: " << full_sph_field[i].line << endl;
+      abort();
       P0g  = Pfg + Cg * full_sph_field[i].line; //* pow(Pfg, 1-a)
       P0q  = Pfq + Cq * full_sph_field[i].line; //* pow(Pfq, 1-a) 
       cout << "P0g: " << P0g << "MeV, P0q: " << P0q << "MeV" << endl;
