@@ -69,7 +69,7 @@ void BBMG::initial()
     auto & p = systemPtr->particles[i];
     //Density from pressure over temperature
     double rsub = p.p() / p.T();
-    cout << "Pressures from particle list: " << p.p() << endl << "Temperatures from particle list: " << p.T() << endl;
+    //cout << "Pressures from particle list: " << p.p() << endl << "Temperatures from particle list: " << p.T() << endl;
     rho0tot    += rsub;
     if ( p.T() * constants::hbarc_MeVfm > Freezeout_Temp )
     {
@@ -136,7 +136,7 @@ void BBMG::propagate()
     double kappa = get_kappa(full_sph_field[i].T);
     cout << "This is the value of our kappa coupling: " << kappa << endl;
     cout << "This is checking if tau is working properly: " << tau << endl;
-    cout << "This is checking if the density is coming out positive: " << full_sph_field[i].rho << endl;
+    cout << "This is checking if the density is coming out positive: " << full_sph_field[i].rho0 << endl;
     abort();
 
     inter( full_sph_field[i] ); //interpolation of the field
@@ -146,14 +146,14 @@ void BBMG::propagate()
     
     if ( ( full_sph_field[i].on == 1 ) && ( full_sph_field[i].T > Freezeout_Temp ) )
     {
-      full_sph_field[i].line += pow(tau, z) * pow(full_sph_field[i].rho, c) * systemPtr->dt; // * flow(ff[i])
+      full_sph_field[i].line += pow(tau, z) * pow(full_sph_field[i].rho0, c) * systemPtr->dt; // * flow(ff[i])
       //cout << "Checking the values of the line integration: " << full_sph_field[i].line << endl;
       stillon++;
     }
     else //This comes in when we drop below freezeout temp, as .on should never go to 0 on its own
     {
       full_sph_field[i].on    = 0;
-      full_sph_field[i].line += 0.5 * kappa * pow(tau,z) * pow(full_sph_field[i].rho, c) * systemPtr->dt; /* flow(ff[i])*/
+      full_sph_field[i].line += 0.5 * kappa * pow(tau,z) * pow(full_sph_field[i].rho0, c) * systemPtr->dt; /* flow(ff[i])*/
       //ff[i].line *= efluc();
 
       P0g  = Pfg + Cg * full_sph_field[i].line; //* pow(Pfg, 1-a)
