@@ -68,7 +68,8 @@ void BBMG::initial()
   {
     auto & p = systemPtr->particles[i];
     //Density from pressure over temperature
-    double rsub = p.p() / p.T(); 
+    double rsub = p.p() / p.T();
+    cout << "Pressures from particle list: " << p.p() << endl << "Temperatures from particle list: " << p.T() << endl;
     rho0tot    += rsub;
     if ( p.T() * constants::hbarc_MeVfm > Freezeout_Temp )
     {

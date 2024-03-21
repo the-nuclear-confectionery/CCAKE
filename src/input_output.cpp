@@ -53,6 +53,12 @@ void InputOutput::set_SPHWorkstationPtr( SPHWorkstation * wsPtr_in )
   wsPtr = wsPtr_in;
 }
 
+//-----------------------------------------------------------------------------
+void InputOutput::set_BBMGPtr ( BBMG * bbmgPtr_in)
+{
+  bbmgPtr = bbmgPtr_in;
+}
+
 //------------------------------------------------------------------------------
 void InputOutput::set_results_directory( string path_to_results_directory )
 {
@@ -613,7 +619,7 @@ void InputOutput::print_system_state_to_txt()
           << p.rhoS() << " "
           << p.rhoQ() << "\n";
       }
-  else
+  else //This is what I got from system_state_0 and made my plot from, must follow this if statement for BBMG!!!!!!!!!!!!
   {
     for ( auto & p : systemPtr->particles )
       out << iParticle++ << " "
@@ -676,6 +682,16 @@ void InputOutput::print_system_state_to_txt()
   out.close();
 
   return;
+}
+
+//------------------------------------------------------------------------------
+void InputOutput::print_jet_state_to_txt()
+{
+  string jet_output_filename = output_directory + "/jet_state_" + std::to_string(n_timesteps_output) + ".dat";
+  ofstream out( jet_output_filename.c_str() );
+
+  for (auto & b : bbmgPtr->)//I think i wanna call the objects here jets, like how we have particles in the other function
+
 }
 
 //------------------------------------------------------------------------------

@@ -44,6 +44,7 @@ public:
   void set_SettingsPtr( Settings * settingsPtr_in );
   void set_SystemStatePtr( SystemState * systemPtr_in );
   void set_SPHWorkstationPtr( SPHWorkstation * wsPtr_in );
+  void set_BBMGPtr( BBMG * bbmgPtr_in);
 
   int n_timesteps_output = 0;
 
@@ -54,6 +55,7 @@ public:
 
   void print_system_state();
   void print_system_state_to_txt();
+  void print_jet_state_to_txt();
   void print_system_state_to_HDF();
   void print_freeze_out();
 
