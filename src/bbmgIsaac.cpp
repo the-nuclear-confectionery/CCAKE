@@ -154,6 +154,8 @@ void BBMG::propagate()
       full_sph_field[i].line += 0.5 * kappa * pow(tau,z) * pow(full_sph_field[i].rho0, c) * systemPtr->dt; /* flow(ff[i])*/
       //ff[i].line *= efluc();
       cout << "Hard Check on all values: " << kappa << " " << tau << " " << full_sph_field[i].rho0 << " " systemPtr->dt << endl;
+      cout << "Hard Check on all the bbmg exponenets: " << z << " " << c << endl;
+      cout << "Hard Check on full quantities: " << pow(tau, z) << " " << pow(full_sph_field[i].rho0, c) << endl;
       cout << "Checking values of line integration AFTER the jets hit FO Temperature: " << full_sph_field[i].line << endl;
       abort();
       P0g  = Pfg + Cg * full_sph_field[i].line; //* pow(Pfg, 1-a)
