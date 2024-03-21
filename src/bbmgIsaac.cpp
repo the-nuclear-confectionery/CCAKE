@@ -222,7 +222,6 @@ void BBMG::inter( field &f )
 
       //cout << dx << " " << dy << " " << p.T()*constants::hbarc_MeVfm << " " << p.hydro.v << endl;
       
-      cout << "Value of normalization (?) " << fac << endl;
     }
   }
   //This fac quantity seems to be fools gold, every time I have used it I get either 0's or no values at all
