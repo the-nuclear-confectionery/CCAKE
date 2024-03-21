@@ -164,7 +164,6 @@ void BBMG::propagate()
       if ( P0g > 10000 || P0q > 10000 ) 
       {
         cout << "This is the value of P0g: " << P0g << "This is the value of P0q: " << P0q << endl;
-        abort();
       }
       int jj      = full_sph_field[i].pid;
       //Rq[jj]     += pow(P0g/Pfg, 1+a) * ff[i].rho0 * gft(P0g) / gft(Pfg);
