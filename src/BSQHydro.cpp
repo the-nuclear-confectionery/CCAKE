@@ -25,11 +25,12 @@ BSQHydro::BSQHydro()
 }
 
 void BSQHydro::load_settings_file( string path_to_settings_file )
-{
+{ 
   // sets the settings path in InputOutput,
   // then loads parameters into Input_parameters struct
+  cout << "system.dt = " << system.dt << " at line = " <<  __LINE__  << endl;
   io.load_settings_file(path_to_settings_file);
-
+  cout << "system.dt = " << system.dt << " at line = " <<  __LINE__  << endl;
   // InputOutput talks to EoS and tells it where to find its tables
   io.set_EoS_type();
 
