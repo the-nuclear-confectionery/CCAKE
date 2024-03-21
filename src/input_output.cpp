@@ -685,14 +685,14 @@ void InputOutput::print_system_state_to_txt()
 }
 
 //------------------------------------------------------------------------------
-void InputOutput::print_jet_state_to_txt()
+/*void InputOutput::print_jet_state_to_txt()
 {
   string jet_output_filename = output_directory + "/jet_state_" + std::to_string(n_timesteps_output) + ".dat";
   ofstream out( jet_output_filename.c_str() );
 
   for (auto & b : bbmgPtr->)//I think i wanna call the objects here jets, like how we have particles in the other function
 
-}
+}*/
 
 //------------------------------------------------------------------------------
 void InputOutput::print_system_state_to_HDF()
