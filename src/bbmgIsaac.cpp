@@ -153,6 +153,7 @@ void BBMG::propagate()
       P0g  = Pfg + Cg * full_sph_field[i].line; //* pow(Pfg, 1-a)
       P0q  = Pfq + Cq * full_sph_field[i].line; //* pow(Pfq, 1-a) 
       if ( P0g > 10000 || P0q > 10000 )
+      cout << "P0g: " << P0g << "MeV, P0q: " << P0q << "MeV" << endl; 
       {
         cout << "This is the value of P0g: " << P0g << "This is the value of P0q: " << P0q << endl;
         abort();
