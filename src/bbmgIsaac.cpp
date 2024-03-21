@@ -182,8 +182,12 @@ void BBMG::inter( field &f )
   else
   {
   }*/
+  double norm = 0;
   double den = 0, den2 = 0;
-  double fac = den / area;
+  f.T    = 0;
+  f.rho  = 0;
+  f.v[0] = 0;
+  f.v[1] = 0;
   for ( auto & p : systemPtr->particles )
   {
     double dx    = p.r(0)-f.r[0];
@@ -202,14 +206,12 @@ void BBMG::inter( field &f )
       //cout << "Distance used in kernel interpolation is: " << rdiff << "\n";
       den++;
       den2     += p.norm_spec.s;
-      //cout << "Checking normalization since interpolation gave 0 " << den2 << "\n";
       double kern = kernel::kernel(rdiff); //In order to call this, shouldn't I be including kernel.cpp instead of kernel.h?"
-      //cout << "Value from kernel function is (if 0, rdiff is greater than 2): " << kern << endl << endl;
+      norm         += kern;
       double gridx = settingsPtr->stepx;
       double gridy = settingsPtr->stepy;
       //f.T      += p.T()*constants::hbarc_MeVfm*0.06*0.06*kk; //Here I changed the hardcoded grid size to a read in of the default grid from settings.
-      // In all quantities below, I have just changed += to only =, as I feel it is just adding to the temperatures and not decreasing down to the freeze out I need in propagate
-      f.T      += p.T()*constants::hbarc_MeVfm*gridx*gridy*kern; // After correcting with the constants list, almost correct --------- WHY IS THIS += AND NOT JUST =
+      f.T      += p.T()*constants::hbarc_MeVfm*kern; // After correcting with the constants list, almost correct --------- WHY IS THIS += AND NOT JUST =
       cout << "Interpolated temp value is " << f.T << "\n";
       /*if (f.T > 900)
       {abort();}*/
@@ -225,15 +227,15 @@ void BBMG::inter( field &f )
     }
   }
   //This fac quantity seems to be fools gold, every time I have used it I get either 0's or no values at all
-  //double fac = den / area; //may need to move these inside the for loop?? including these returns 0 for all quantities below
+ //may need to move these inside the for loop?? including these returns 0 for all quantities below
   //f.T       *= constants::hbarc_MeVfm;
-  //f.T       /= fac;
-  //f.rho     /= fac;
-  //f.v[0]    /= fac;
-  //f.v[1]    /= fac;
-  //f.vmag     = sqrt( f.v[0]*f.v[0] + f.v[1]*f.v[1] );
-  //f.vang     = atan2( f.v[1], f.v[0] );
-  //f.gam      = 1.0 / sqrt( f.vmag*f.vmag + 1.0 );
+  f.T       /= norm;
+  f.rho     /= norm;
+  f.v[0]    /= norm;
+  f.v[1]    /= norm;
+  f.vmag     = sqrt( f.v[0]*f.v[0] + f.v[1]*f.v[1] );
+  f.vang     = atan2( f.v[1], f.v[0] );
+  f.gam      = 1.0 / sqrt( f.vmag*f.vmag + 1.0 );
 }
 
 
