@@ -133,7 +133,11 @@ void BBMG::propagate()
 
 
     double kappa = get_kappa(full_sph_field[i].T);
-      
+    cout << "This is the value of our kappa coupling: " << kappa << endl;
+    cout << "This is checking if tau is working properly: " << tau << endl;
+    cout << "This is checking if the density is coming out positive: " << full_sph_field[i].rho << endl;
+    abort();
+
     inter( full_sph_field[i] ); //interpolation of the field
     //cout << "Interpolated field temp is: " << full_sph_field[i].T << "\n";
     //abort();
@@ -142,7 +146,7 @@ void BBMG::propagate()
     if ( ( full_sph_field[i].on == 1 ) && ( full_sph_field[i].T > Freezeout_Temp ) )
     {
       full_sph_field[i].line += pow(tau, z) * pow(full_sph_field[i].rho, c) * systemPtr->dt; // * flow(ff[i])
-      cout << "Checking the values of the line integration: " << full_sph_field[i].line << endl;
+      //cout << "Checking the values of the line integration: " << full_sph_field[i].line << endl;
       stillon++;
     }
     else //This comes in when we drop below freezeout temp, as .on should never go to 0 on its own
