@@ -39,7 +39,7 @@ class SystemState
 
     double h          = 0.0;
     double t          = 0.0;
-    double dt         = 0.0;
+    //double dt         = 0.0;
 
     double S          = 0.0;
     double S0         = 0.0;
