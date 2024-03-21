@@ -142,6 +142,7 @@ void BBMG::propagate()
     if ( ( full_sph_field[i].on == 1 ) && ( full_sph_field[i].T > Freezeout_Temp ) )
     {
       full_sph_field[i].line += pow(tau, z) * pow(full_sph_field[i].rho, c) * systemPtr->dt; // * flow(ff[i])
+      cout << "Checking the values of the line integration: " << full_sph_field[i].line << endl;
       stillon++;
     }
     else //This comes in when we drop below freezeout temp, as .on should never go to 0 on its own
