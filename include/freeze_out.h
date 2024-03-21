@@ -416,7 +416,7 @@ class FreezeOut
           if ( p.btrack != -1 )                 // if particle had neighbors
             tlist[j]    = taup;                 // at previous timestep
           else
-            tlist[j]    = taup - systemPtr->dt; // otherwise, go back two timestep
+            tlist[j]    = taup - settingsPtr->dt; // otherwise, go back two timestep
 
           rsub[j]       = frz1[i].r;
           uout[j]       = frz1[i].u;
@@ -440,7 +440,7 @@ class FreezeOut
           if ( p.btrack != -1 )                   // if particle had neighbors
             tlist[j]    = taupp;                  // two timesteps ago
           else
-            tlist[j]    = taupp - systemPtr->dt;  // otherwise, go back three timesteps
+            tlist[j]    = taupp - settingsPtr->dt;  // otherwise, go back three timesteps
 
           rsub[j]       = frz2[i].r;
           uout[j]       = frz2[i].u;
