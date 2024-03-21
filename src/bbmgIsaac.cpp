@@ -49,8 +49,8 @@ BBMG::BBMG( Settings * settingsPtr_in, SystemState * systemPtr_in )
     phi[i] = i*PI/7;
   }
   //Setting final energy as a start point for the integration
-  Pfg = 10;
-  Pfq = 10;
+  Pfg = 10000;
+  Pfq = 10000;
 
 }
 
@@ -135,8 +135,8 @@ void BBMG::propagate()
     double kappa = get_kappa(full_sph_field[i].T);
       
     inter( full_sph_field[i] ); //interpolation of the field
-    cout << "Interpolated field temp is: " << full_sph_field[i].T << "\n";
-    abort();
+    //cout << "Interpolated field temp is: " << full_sph_field[i].T << "\n";
+    //abort();
 
     
     if ( ( full_sph_field[i].on == 1 ) && ( full_sph_field[i].T > Freezeout_Temp ) )
@@ -152,7 +152,7 @@ void BBMG::propagate()
 
       P0g  = Pfg + Cg * full_sph_field[i].line; //* pow(Pfg, 1-a)
       P0q  = Pfq + Cq * full_sph_field[i].line; //* pow(Pfq, 1-a) 
-      if ( P0g > 10 || P0q > 10 )
+      if ( P0g > 10000 || P0q > 10000 )
       {
         cout << "This is the value of P0g: " << P0g << "This is the value of P0q: " << P0q << endl;
         abort();
@@ -212,7 +212,7 @@ void BBMG::inter( field &f )
       double gridy = settingsPtr->stepy;
       //f.T      += p.T()*constants::hbarc_MeVfm*0.06*0.06*kk; //Here I changed the hardcoded grid size to a read in of the default grid from settings.
       f.T      += p.T()*constants::hbarc_MeVfm*kern; // After correcting with the constants list, almost correct --------- WHY IS THIS += AND NOT JUST =
-      cout << "Interpolated temp value is " << f.T << "\n";
+      //cout << "Interpolated temp value is " << f.T << "\n";
       /*if (f.T > 900)
       {abort();}*/
       f.rho    += (p.p()/p.T())*kern;
