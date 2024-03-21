@@ -65,29 +65,37 @@ void BSQHydro::initialize_hydrodynamics()
   sw.Start();
 
   // initialize workstation
+  cout << "system.dt = " << system.dt << " at line = " <<  __LINE__  << endl;
   ws.initialize();
 
   // initialize system state
+  cout << "system.dt = " << system.dt << " at line = " <<  __LINE__  << endl;
   system.initialize();
 
   // trim initial conditions with low-energy density cut-off,
   // filling out initial conditions, and imposing initial freeze-out
+  cout << "system.dt = " << system.dt << " at line = " <<  __LINE__  << endl;
   ws.process_initial_conditions();
 
   // sets nearest neighbors needed for smoothing
+  cout << "system.dt = " << system.dt << " at line = " <<  __LINE__  << endl;
   system.initialize_linklist();
 
   // for each particle, find location in phase diagram
+  cout << "system.dt = " << system.dt << " at line = " <<  __LINE__  << endl;
   ws.initialize_entropy_and_charge_densities();
 
   // implement initial smoothing required by SPH formalism
+  cout << "system.dt = " << system.dt << " at line = " <<  __LINE__  << endl;
   ws.initial_smoothing();
 
   // if initializing from full Tmunu, absorb non-equilibrium
   // pressure correction into bulk viscous pressure Pi
+  cout << "system.dt = " << system.dt << " at line = " <<  __LINE__  << endl;
   ws.set_bulk_Pi();
 
   // starts jets from particle temperature and densities
+  cout << "system.dt = " << system.dt << " at line = " <<  __LINE__  << endl;
   ws.initialize_jets_bbmg();
 
   sw.Stop();
