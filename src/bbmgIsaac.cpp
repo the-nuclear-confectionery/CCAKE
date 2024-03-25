@@ -242,6 +242,10 @@ void BBMG::inter( field &f )
   f.v[0]    /= norm;
   f.v[1]    /= norm;
   f.vmag     = sqrt( f.v[0]*f.v[0] + f.v[1]*f.v[1] );
+  if (f.vmag>1)
+  {
+    cout << "The magnitude of the velocity returned something greater than c, something is wrong"
+  }
   f.vang     = atan2( f.v[1], f.v[0] );
   f.gam      = 1.0 / sqrt( f.vmag*f.vmag + 1.0 );
 }
