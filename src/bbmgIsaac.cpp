@@ -48,9 +48,9 @@ BBMG::BBMG( Settings * settingsPtr_in, SystemState * systemPtr_in )
     Rg[i]  = 0;
     phi[i] = i*PI/7;
   }
-  //Setting final energy as a start point for the integration
-  Pfg = 10000;
-  Pfq = 10000;
+  //Setting final energy as a start point for the integration; NOTE this is and will be calculated in femtometers, not GeV
+  Pfg = 10;
+  Pfq = 10;
 
 }
 
@@ -80,9 +80,9 @@ void BBMG::initial()
       sph_particle.rho0 = rsub; //Density left in terms of femtometers
       sph_particle.sph  = i;
       sph_particle.T    = p.T() * constants::hbarc_MeVfm;
-      //cout << endl << "Initial temps of non frozen-out sph particles in MeV is " << sph_particle.T << endl; This is working just fine
       
-      double kappa = get_kappa(sph_particle.T);
+      double kappa = get_kappa(sph_particle.T / 1000);
+      cout << "This is kappa value in initial function" << endl;
       sph_particle.line = 0.5 * kappa * pow(settingsPtr->t0, z) * pow(sph_particle.rho0, c) * settingsPtr->dt; // only if initial flow=0
 
       for (int j=0; j<14; j++) //initializes jets at each point in grid space, over 14 directions
@@ -133,19 +133,14 @@ void BBMG::propagate()
     full_sph_field[i].r[1] += vjet * settingsPtr->dt * sin(full_sph_field[i].phi);
 
 
-    double kappa = get_kappa(full_sph_field[i].T);
-    //cout << "This is the value of our kappa coupling: " << kappa << endl;
-    cout << "This is checking if tau is working properly: " << tau << endl;
-    cout << "This is checking if the density is coming out positive: " << full_sph_field[i].rho0 << endl;
+    //double kappa = get_kappa(full_sph_field[i].T / 1000); moved this down to after the interpolation
     inter( full_sph_field[i] ); //interpolation of the field
-    //cout << "Interpolated field temp is: " << full_sph_field[i].T << "\n";
-    //abort();
-
+    double kappa = get_kappa(full_sph_field[i].T / 1000);
     
     if ( ( full_sph_field[i].on == 1 ) && ( full_sph_field[i].T > Freezeout_Temp ) )
     {
       full_sph_field[i].line += pow(tau, z) * pow(full_sph_field[i].rho0, c) * settingsPtr->dt; // * flow(ff[i])
-      cout << "Checking the values of the line integration: " << full_sph_field[i].line << endl;
+      //cout << "Checking the values of the line integration: " << full_sph_field[i].line << endl;
       stillon++;
     }
     else //This comes in when we drop below freezeout temp, as .on should never go to 0 on its own
@@ -153,18 +148,11 @@ void BBMG::propagate()
       full_sph_field[i].on    = 0;
       full_sph_field[i].line += 0.5 * kappa * pow(tau,z) * pow(full_sph_field[i].rho0, c) * settingsPtr->dt; /* flow(ff[i])*/
       //ff[i].line *= efluc();
-      //cout << "Hard Check on all values: " << kappa << " " << tau << " " << full_sph_field[i].rho0 << " " << settingsPtr->dt << endl;
-      //cout << "Hard Check on all the bbmg exponenets: " << z << " " << c << endl;
-      //cout << "Hard Check on full quantities: " << pow(tau, z) << " " << pow(full_sph_field[i].rho0, c) << endl;
-      //cout << "Checking values of line integration AFTER the jets hit FO Temperature: " << full_sph_field[i].line << endl;
 
       P0g  = Pfg + Cg * full_sph_field[i].line; //* pow(Pfg, 1-a)
       P0q  = Pfq + Cq * full_sph_field[i].line; //* pow(Pfq, 1-a) 
-      cout << "P0g: " << P0g << "MeV, P0q: " << P0q << "MeV" << endl;
-      if ( P0g > 10000 || P0q > 10000 ) 
-      {
-        cout << "This is the value of P0g: " << P0g << "This is the value of P0q: " << P0q << endl;
-      }
+      cout << "P0g: " << P0g << " 1/fm, P0q: " << P0q << " 1/fm" << endl;
+
       int jj      = full_sph_field[i].pid;
       //Rq[jj]     += pow(P0g/Pfg, 1+a) * ff[i].rho0 * gft(P0g) / gft(Pfg);
       //Rq[jj]     += pow(P0q/Pfq, 1+a) * ff[i].rho0 * qft(P0g) / qft(Pfg); 
@@ -244,7 +232,8 @@ void BBMG::inter( field &f )
   f.vmag     = sqrt( f.v[0]*f.v[0] + f.v[1]*f.v[1] );
   if (f.vmag>1)
   {
-    cout << "The magnitude of the velocity returned something greater than c, something is wrong"
+    cout << "The magnitude of the velocity returned something greater than c, something is wrong. ABORTING" << endl;
+    abort();
   }
   f.vang     = atan2( f.v[1], f.v[0] );
   f.gam      = 1.0 / sqrt( f.vmag*f.vmag + 1.0 );
