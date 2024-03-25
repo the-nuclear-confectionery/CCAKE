@@ -23,6 +23,14 @@ using std::vector;
 
 
 namespace ccake{
+/// @class SystemState
+/// @brief A class to hold the state of the system.
+/// @details This class holds the state of the system, including the particles,
+/// the equation of state, the settings, the time, the timestep, the total
+/// entropy, energy, baryon charge, strangeness, electric charge, etc. It also
+/// holds the Cabana data structures used for parallelization.
+/// @todo: Computation of eccentricities and total energy needs to be implemented
+/// in parallel (using Kokkos and Cabana)
 template <unsigned int D>
 class SystemState
 {
@@ -38,9 +46,7 @@ class SystemState
 
     bool do_freeze_out = true;
 
-    double hT          = 0.0;
     double t          = 0.0;
-    double dt         = 0.0;
 
     double S          = 0.0; ///<Total entropy
     double S0         = 0.0; ///<Initial total entropy
@@ -123,13 +129,6 @@ class SystemState
                     << ", norm_spec.s: " << device_norm_spec(neighIdx, ccake::densities_info::s) << std::endl;
                 }
     };
-    //int get_frozen_out_count()
-    //{
-    //  int total_frz_out = 0;
-    //  for ( auto & p : particles)
-    //    if (p.Freeze == 4) total_frz_out++;
-    //  return total_frz_out;
-    //}
 
 };
 

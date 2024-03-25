@@ -138,48 +138,27 @@ class Particle
     // MEMBERS
     bool print_this_particle         = false;
 
-    int ID                           = -1;
-    int btrack                       = 0;
-    int Freeze                       = 0;
+    int ID                           = -1; ///< Particle ID
+    int btrack                       = 0;  ///< Backtrack flag (number of neighbors)
+    int Freeze                       = 0;  ///< Freeze flag
 
     double efcheck                   = 0.0;
-    double contribution_to_total_E   = 0.0;
+    double contribution_to_total_E   = 0.0; ///< Contribution to total energy
     double contribution_to_total_dEz = 0.0;
     double contribution_to_total_Ez  = 0.0;
 
-    Vector<double,D> r;       // transverse position
+    Vector<double,D> r;       ///< Particle position
 
     //==========================================================================
     // different combinations of densities
-    densities input     = {}; // these densities are read in initially and
-                              // have physical units ~1/fm^3;
-                              // entropy component previously called "s_an"
-                              //================================================
-    densities smoothed  = {}; // these are the smoothed (propagated) densities
-                              // which have units ~/1/fm^2;
-                              // entropy component previously called "eta"
-                              //================================================
-    densities specific  = {}; // these are the densities "per particle" which
-                              // are effectively dimensionless;
-                              // entropy component previously called "eta_sigma"
-                              //================================================
-    densities d_dt_spec = {}; // these are the TIME DERIVATIVES of the specific
-                              // densities above;
-                              // entropy component previously called "detasigma_dt"
-                              //================================================
-    densities norm_spec = {}; // gives the normalizations of each of the
-                              // specific densities above, can choose different
-                              // values for different densities by convenience;
-                              // entropy component previously called "sigmaweight"
-                              //================================================
+    densities input     = {}; ///< These densities are read in initially and have physical units ~1/fm^3
+    densities smoothed  = {}; ///< These are the smoothed (propagated) densities which have units ~/1/fm^2;
+    densities specific  = {}; ///< These are the densities "per particle" which are effectively dimensionless;
+    densities d_dt_spec = {}; ///< These are the time derivatives of the specific densities
+    densities norm_spec = {}; ///< Gives the normalizations of the specific densities. Can choose different values for different densities by convenience;
 
-    // structs for hydrodynamic and thermodynamic information
-    hydrodynamic_info<D> hydro  = {};
-    thermodynamic_info thermo = {};
-
-
-    //==========================================================================
-    // FUNCTIONS AND ROUTINES
+    hydrodynamic_info<D> hydro  = {}; ///< Hydrodynamic information
+    thermodynamic_info thermo = {}; ///< Thermodynamic information
 
     // Constructors and destructors.
     Particle();
@@ -218,21 +197,16 @@ class Particle
 
     string get_current_eos_name() { return thermo.eos_name; }
 
-    //==========================================================================
-    // getter functions for hydrodynamic information
-    //...
-    //...add these later...
-    //...
-
-
-
-    // rename these functions and their arguments
-    void reset_pi_tensor(double tin2);
-    double gamcalc();
-
 };
 }
 
+/// @brief Overload the << operator for the Particle class
+/// @details This allows for printing the contents of a Particle object to an
+/// ostream object (typically for streaming to standard output or a file).
+/// @tparam D The dimensionality of the simulation
+/// @param os ostream object
+/// @param p particle object
+/// @return ostream object
 template<unsigned int D>
 inline ostream& operator<<( ostream& os, const ccake::Particle<D>& p ){
   os << "ID.............: " << p.ID << endl;
@@ -323,7 +297,6 @@ inline ostream& operator<<( ostream& os, const ccake::Particle<D>& p ){
   os << "hydro.div_u....: " << p.hydro.div_u << endl;
   os << "hydro.du_dt....: " << p.hydro.du_dt << endl;
   os << "hydro.dshv_dt..: " << p.hydro.dshv_dt << endl;
-     
   return os;
 }
 

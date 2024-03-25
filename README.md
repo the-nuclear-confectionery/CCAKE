@@ -18,8 +18,8 @@ If you want to build locally with GPU support, follow the instructions below.
 ## 1.1 Requirements
 
 - Nvidia GPU (tested with RTX 3050 Laptop)
-    * In theory, AMD and Intel GPUs should work as well. But they are not tested and the
-    instructions below will need to be adapted to them.
+    * In theory, AMD and Intel GPUs should work as well with minimal
+    adaptations.
 - Nvidia HPC SDK 22.11 (More recent versions should work, but are not tested)
 - CMake 3.4 or higher
 

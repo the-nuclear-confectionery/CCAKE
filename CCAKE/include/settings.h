@@ -12,14 +12,20 @@
 using std::string;
 namespace fs = std::filesystem;
 
+/// @class Settings
+/// @brief A class to hold the settings of the simulation.
+/// @details This class holds the settings of the simulation, such as the
+/// initial conditions, the equation of state, the transport coefficients etc
+/// The settings are read from a YAML file and stored in this class.
+/// @todo Many options are hardcoded and should be read from the YAML file.
+/// Others are not used anymore. Others yet are only set, but functionality
+/// never implemented. A major cleanup is needed.
 class Settings
 {
   public:
 
     //==========================================================================
     // default/global settings
-    bool using_Gubser                 = false;  //TODO: Remove this
-    bool using_Gubser_with_shear      = false;  //TODO: Remove this
     bool using_shear                  = false;  //TODO: Whatever to use shear or
                                                 // not should be decided by the
                                                 // eta mode, not here
@@ -64,9 +70,7 @@ class Settings
 
     //------------------------------------
     // initial conditions
-    string IC_type              = "";    ///< Type of initial conditions
-                                         ///  ("ccake", "iccing", "hdf5 )
-                                         //TODO: Implement hdf5 reader
+    string IC_type              = "";    ///< Type of initial conditions ("ccake", "iccing")
     string IC_option            = "";    ///< Deprecated. Replaced by the enabling
                                          ///  disabling B, S or Q charges in hydro conf
                                          ///  //TODO: Remove this

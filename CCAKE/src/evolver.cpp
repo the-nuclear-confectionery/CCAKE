@@ -200,7 +200,11 @@ void Evolver<D>::step_rk(double dt, double t0, std::function<void(void)> time_de
   Kokkos::fence();
 }
 
-
+/// @brief Evolve the system using a second order Runge-Kutta algorithm.
+/// @tparam D The number of spatial dimensions.
+/// @param dt The time step to be used in the evolution.
+/// @param time_derivatives_functional A functional that computes the time
+/// derivatives of the system.
 template <unsigned int D>
 void Evolver<D>::advance_timestep_rk2( double dt,
                                         std::function<void(void)> time_derivatives_functional )

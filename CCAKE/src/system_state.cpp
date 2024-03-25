@@ -19,18 +19,20 @@ template class SystemState<2>;
 template class SystemState<3>;
 
 
-////////////////////////////////////////////////////////////////////////////////
+/// @brief Initializes the system state.
+/// @details Time is set to the initial state and smoothing lenght stored from
+/// the settings.
+/// @tparam D
 template<unsigned int D>
 void SystemState<D>::initialize()  // formerly called "manualenter"
 {
   formatted_output::report("Initializing system");
-
   t = settingsPtr->t0;
-  hT = settingsPtr->hT;
-  do_freeze_out = settingsPtr->particlization_enabled;
   return;
 }
 
+/// @brief Allocates memory in device for the particles and copies the data.
+/// @see copy_host_to_device
 template<unsigned int D>
 void SystemState<D>::allocate_cabana_particles(){
     formatted_output::detail("Initializing device memory");
@@ -39,6 +41,12 @@ void SystemState<D>::allocate_cabana_particles(){
     copy_host_to_device();
 }
 
+/// @brief Copies all the data from the array of particles to the AoSoA in device memory.
+/// @tparam D The dimensionality of the simulation
+/// @details This function creates an auxiliary AoSoA in host memory space and
+/// fills it with the data from the particles array. Then it copies the data to
+/// the device memory using a deep copy. Beware that this function is expensive
+/// computationally and should be used only if strictly necessary.
 template<unsigned int D>
 void SystemState<D>::copy_host_to_device(){
 
@@ -175,11 +183,12 @@ void SystemState<D>::copy_host_to_device(){
 
 }
 
-/// @brief Takes the data out of the device memory (managed by cabana) and
-/// back to particle data structure
-/// @details This function is expensive computationally  and its use should
-/// be avoided if possible. It creates a temporary AoSoA in host memory space
-/// and mirrors the device memory. Just then it populates the particles structure
+/// @brief Takes the data out of the AoSoA in device memory back to particle
+/// data structure
+/// @details This function creates a temporary AoSoA in host memory space and
+/// mirrors the device memory. Just then it populates the particles arrays with
+/// the data from the host AoSoA. Beware that this process is expensive and
+/// should be used only if strictly necessary.
 template<unsigned int D>
 void SystemState<D>::copy_device_to_host(){
 
@@ -312,10 +321,25 @@ void SystemState<D>::copy_device_to_host(){
 }
 
 /// @brief Reset the neighbour list
-/// @details This function should be called after the particles have been moved.
-/// Beware that this operation is expensive and calls to this function should
-/// be minimized. It is also a good candidate for optimization.
-/// @tparam D
+/// @details This function should be called after the particles have been moved,
+/// since neighbour list is based on the position of the particles. Computation
+/// of nearest neighbor is done using an auxiliary grid to help find the
+/// neighbours. The grid is defined as twice as the initial domain size. If the
+/// particles are moved outside this domain, the grid should be updated or
+/// a segmentation fault may occur.
+///
+/// Beware that finding nearest neighbor is an expensive operation and should be
+/// be minimized. This makes it also a good candidate for optimization.
+/// @todo We need to implement a way to update the grid when the particles are
+/// moved outside the initial domain. Notice that the current setup incurs in
+/// many empty cells which could cause a performance hit.
+/// @todo To get the number of nearest neighbors, we need to use UVM memory.
+/// This means an implicit copy from device memory to host memory is happening.
+/// I don't know how bad this is affecting performance and should be further
+/// investigated. Ideally, I would be happier if we could just get completelly
+/// rid of UVM memory, since implicit copies could be introduced in other parts
+/// of the code without us noticing.
+/// @tparam D The dimensionality of the simulation
 template<unsigned int D>
 void SystemState<D>::reset_neighbour_list(){
   double min_pos[3], max_pos[3];
@@ -351,10 +375,6 @@ void SystemState<D>::reset_neighbour_list(){
   Kokkos::fence();
 
   //Update the number of neighbours
-
-  ///TODO: Requires UVM, which is not good for performance
-  ///Need a way to call Cabana::NeighborList::numNeighbor directly from GPU
-  ///without seg fault
   for (int i=0; i<n_particles; ++i)
     device_btrack(i) = device_btrack(i) == -1 ? -1 : Cabana::NeighborList<ListType>::numNeighbor( neighbour_list, i );
 
@@ -363,6 +383,11 @@ void SystemState<D>::reset_neighbour_list(){
   #endif
 }
 
+/// @brief Entry point for computing neighbor list. Name kept for compatibility.
+/// @details This function is a wrapper for the actual computation of the
+/// neighbour list. It is called by the main loop and should be called after the
+/// particles have been moved.
+/// @see reset_neighbour_list
 template<unsigned int D>
 void SystemState<D>::initialize_linklist()
 {
@@ -372,8 +397,9 @@ void SystemState<D>::initialize_linklist()
   return;
 }
 
-///////////////////////////////////////
-//TODO: Parallelize with Kokkos::parallel_reduce
+/// @brief Computes total entropy
+/// @tparam D The dimensionality of the simulation
+/// @param first_iteration true if it is the first iteration
 template<unsigned int D>
 void SystemState<D>::conservation_entropy(bool first_iteration)
 {
@@ -388,8 +414,9 @@ void SystemState<D>::conservation_entropy(bool first_iteration)
   if (first_iteration) S0 = S;
 }
 
-///////////////////////////////////////
-//TODO: Parallelize with Kokkos::parallel_reduce
+/// @brief Computes total Baryon, Strangeness and Electric charge
+/// @tparam D The dimensionality of the simulation
+/// @param first_iteration true if it is the first iteration
 template<unsigned int D>
 void SystemState<D>::conservation_BSQ(bool first_iteration)
 {

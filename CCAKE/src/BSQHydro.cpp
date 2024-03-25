@@ -451,12 +451,7 @@ void BSQHydro<D,TEOM>::run()
     // print updated system and status
     //outPtr->print_conservation_status();
     if (istep%10 == 0) outPtr->print_system_state();
-    if (istep==2000) break;
 
-    if(systemPtr->do_freeze_out){
-      outPtr->print_freeze_out(wsPtr->freezePtr);
-      if (systemPtr->number_part_fo == systemPtr->n_particles) break; // all particles have frozen out. Break evolution.
-    }
   }
 
   sw.Stop();

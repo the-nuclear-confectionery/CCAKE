@@ -3,9 +3,14 @@
 
 namespace ccake{
 
-/// \brief struct to hold thermodynamic info of the particle.
-
-/// NOTE: Beware these information needs to be passed to the cabana AoSoA. To this
+/// @brief struct to hold thermodynamic info of the particle.
+/// @details This struct holds the thermodynamic information of the particle.
+/// those are: temperature, chemical potentials, energy density, 
+/// entropy density, baryon density, strangeness density, electric charge 
+/// density, pressure, speed of sound, enthalpy, and the derivatives of the
+/// enthalpy with respect to the entropy density, baryon density, strangeness
+/// density, and electric charge density.
+/// @note: Beware these information needs to be passed to the cabana AoSoA. To this
 /// end, we define helper macros at the bottom of this file. If one wants to
 /// add a new member to this struct, one needs to add it to the macros as well.
 /// Also, remmember to pass new datamembers to cabana AoSoA in

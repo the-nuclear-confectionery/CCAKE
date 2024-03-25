@@ -6,18 +6,20 @@
 #include "matrix.h"
 #include "vector.h"
 
-/// \brief Strut to store hydrodynamic information
-/// \tparam D Dimensionality of the problem
-/// \details This struct is used to store hydrodynamic information for each
-/// particle.
-///
-/// NOTE: Beware these information needs to be passed to the cabana AoSoA. To this
+
+namespace ccake
+{
+/// @brief Strut to store hydrodynamic information
+/// @tparam D Dimensionality of the problem
+/// @details This struct is used to store hydrodynamic information for each
+/// particle. How these quantities are calculated is up to the user. For a
+/// typical reference, see the documentation of the EoM_default class.
+/// @see EoM_default
+/// @note Beware these information needs to be passed to the cabana AoSoA. To this
 /// end, we define helper macros at the bottom of this file. If one wants to
 /// add a new member to this struct, one needs to add it to the macros as well.
 /// Also, remmember to pass new datamembers to cabana AoSoA in
 /// `SystemState::allocate_cababa_particles()`
-namespace ccake
-{
 template<unsigned int D>
 struct hydrodynamic_info
 {
@@ -44,9 +46,9 @@ struct hydrodynamic_info
   double sigma           = 0.0; ///< specific volume
   double dsigma_dt       = 0.0; ///< derivative of specific volume
 
-  double gamma_squared              = 0.0; ///< gamma^2
-  double gamma_cube              = 0.0; ///< gamma^3
-  double gamma_tau              = 0.0; ///< gamma*tau
+  double gamma_squared   = 0.0; ///< gamma^2
+  double gamma_cube      = 0.0; ///< gamma^3
+  double gamma_tau       = 0.0; ///< gamma*tau
   double eta_o_tau       = 0.0; ///< shear visc coeff eta/tau/2 \\\TODO: check this
   double dwdsT1          = 0.0; ///< 1 -  (1/T) dw/ds
   double sigl            = 0.0; ///< (1/sigma^*) d sigma^*/dt - 1/tau

@@ -6,6 +6,11 @@
 #include <Cabana_Core.hpp>
 
 namespace ccake{
+/// @class SPHkernel
+/// @brief A class containing static functions for the SPH kernels.
+/// @details This class provides methods for calculating the SPH kernel and
+/// its gradient, as well as calculating the distance between two points.
+/// @tparam D The dimension of the space.
 template<unsigned int D>
 class SPHkernel
 {
@@ -14,12 +19,10 @@ private:
 
 public:
 
-  //void set_kernel_parameters( double hT );
   KOKKOS_FUNCTION static double kernel(double distance, double hT );
-  KOKKOS_FUNCTION static void gradKernel(double const* rel_dist, double r, double h, double* grad);
+  KOKKOS_FUNCTION static void gradKernel(double const* rel_dist, double r,
+                                         double h, double* grad);
   KOKKOS_FUNCTION static double distance(const double* r1, const double* r2);
-  //template<unsigned int D>
-  //double *gradKernel( const double *a, double r, double hT );
 };
 }
 #endif

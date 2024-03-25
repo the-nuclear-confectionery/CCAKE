@@ -38,7 +38,13 @@ enum cache_data
 };
 }
 
-
+/// @class Evolver
+/// @brief Class responsible for evolving the hydrodynamic system in time
+/// @details This class is responsible for evolving the hydrodynamic system
+/// in time. Variables to be evolved are specific entropy, space components
+/// of four-velocity, position, bulk pressure, and the transverse components
+/// of the viscous shear tensor.
+/// @tparam D
 template <unsigned int D>
 class Evolver
 {
@@ -47,7 +53,7 @@ class Evolver
     static constexpr bool REGULATE_NEGATIVE_S = false;
     static constexpr bool REGULATE_LARGE_S    = false;
 
-    
+
     std::shared_ptr<Settings> settingsPtr;
     std::shared_ptr<SystemState<D>> systemPtr;
 
@@ -87,18 +93,6 @@ class Evolver
 #endif
 
 /*
-
-
-    
-
-
-
-
-    
-
-    
-
-
 
     //==========================================================================
     void advance_timestep_rk4( double dt, std::function<void(void)>

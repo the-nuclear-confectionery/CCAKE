@@ -62,7 +62,7 @@ private:
   static constexpr double TOLERANCE      = 0.0;
   static constexpr bool   REGULATE_LOW_T = false;
 
-  std::shared_ptr<Settings> settingsPtr; ///< Object containing settings parsed from input file
+  std::shared_ptr<Settings> settingsPtr;     ///< Object containing settings parsed from input file
   std::shared_ptr<SystemState<D>> systemPtr; ///< Object containing the SPH System (linked list, particles, etc.)
   // evolver
   Evolver<D> evolver;
@@ -70,11 +70,10 @@ private:
   // equation of state
   EquationOfState eos;
   #ifndef ONLINE_INVERTER
-  std::shared_ptr<EoS_Interpolator> eos_interpolatorPtr;
+  std::shared_ptr<EoS_Interpolator> eos_interpolatorPtr; ///< Object to interpolate the EoS
   #endif
 
-  // transport coefficients parameters
-  transport_coefficients::parameters transp_coeff_params;
+  transport_coefficients::parameters transp_coeff_params; ///< Transport coefficients parameters
 
 
   void add_buffer(double default_e);

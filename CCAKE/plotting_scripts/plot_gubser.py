@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 import pandas as pd
 import numpy as np
 
-time_list=['1.', '1.2', '1.4',]# '1.7', '2.', '2.2' ]
+time_list=['1.']#, '1.2', '1.4',]# '1.7', '2.', '2.2' ]
 dpi=300
 fig, ax = plt.subplots(2,3,figsize=np.array([1920,1920*2/3])/dpi, sharex=True,gridspec_kw={'wspace':.5})
 

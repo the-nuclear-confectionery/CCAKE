@@ -11,6 +11,12 @@ template class Output<3>;
 
 // Constructors and destructors.
 
+/// @brief Constructor for the Output class.
+/// @details This constructor initializes the Output class with the pointers to
+/// the Settings and SystemState objects. It also initializes the hdf5 file
+/// if the hdf_evolution flag is set to true in the settings object.
+/// @param[in] settingsPtr_in Pointer to the settings object.
+/// @param[in] sys_in Pointer to the system state object.
 template<unsigned int D>
 Output<D>::Output( std::shared_ptr<Settings> settingsPtr_in,
                    std::shared_ptr<SystemState<D>> sys_in ):
@@ -23,7 +29,10 @@ Output<D>::Output( std::shared_ptr<Settings> settingsPtr_in,
                   = vector<string>({ "h",
                                      "e_cutoff" });
   output_directory = settingsPtr->results_directory;
-  hdf5_file.initialize( output_directory + "/system_state.h5",
+  if (settingsPtr->txt_evolution)
+    formatted_output::detail("WARNING: Output to txt enabled. Large files will be produced.");
+  if (settingsPtr->hdf_evolution)
+    hdf5_file.initialize( output_directory + "/system_state.h5",
                         global_parameters_to_HDF,
                         global_parameter_names_to_HDF );
 }
@@ -31,7 +40,7 @@ Output<D>::Output( std::shared_ptr<Settings> settingsPtr_in,
 template<unsigned int D> Output<D>::~Output(){}
 
 
-/// \brief Sets the path to the results directory.
+/// @brief Sets the path to the results directory.
 /// \param[in] path_to_results_directory Path to the results directory.
 template<unsigned int D>
 void Output<D>::set_results_directory( string path_to_results_directory )
@@ -59,7 +68,22 @@ void Output<D>::print_system_state()
   return;
 }
 
-//------------------------------------------------------------------------------
+/// @brief Print the system state to a text file.
+/// @details This function prints the system state to a text file. There is a 
+/// single initial line with the current time of the simulation. Then, each
+/// particle is printed in a separate line. The columns are:
+/// Particle ID, time, position, pressure, temperature, 
+/// chemical potentials, energy density, baryon density, 
+/// strangeness density, electric charge density, entropy density,
+/// smoothed entropy density, specific entropy, sigma, norm_spec of entropy,
+/// shear relaxation time, bigtheta, \f$\sqrt{\pi{\mu\nu}\pi^{\mu\nu}}\f$,
+/// \f$\tau_{\pi}\Theta/\pi\f$, \f$\pi^{\tau\tau}\f$, \f$\pi^{xx}\f$,
+/// \f$\pi^{yy}\f$, \f$\tau^2\pi^{\eta\eta}\f$, the fluid velocity, 
+/// the Lorentz factor \f$\gamma\f$, the freeze-out flag, and the EOS name.
+/// When relevant, quantities are converted to MeV and MeV/fm\f$^{3}\f$.
+/// @tparam D The dimensionality of the simulation.
+/// @todo: This needs to be updated to deal with other dimensions than 2+1D 
+/// simulations, specially for the shear tensor.
 template<unsigned int D>
 void Output<D>::print_system_state_to_txt()
 {
@@ -119,7 +143,24 @@ void Output<D>::print_system_state_to_txt()
   return;
 }
 
-//------------------------------------------------------------------------------
+/// @brief Outputs data of the system state to an HDF5 file.
+/// @tparam D The dimensionality of the simulation.
+/// @details This function outputs the data of the system state to an HDF5 file.
+/// The data is stored in datasets with the following names:
+/// - x: x-coordinate of the particle.
+/// - y: y-coordinate of the particle.
+/// - T: Temperature of the particle.
+/// - muB: Baryon chemical potential of the particle.
+/// - muS: Strangeness chemical potential of the particle.
+/// - muQ: Electric charge chemical potential of the particle.
+/// - e: Energy density of the particle.
+/// - s: Entropy density of the particle.
+/// - B: Baryon density of the particle.
+/// - S: Strangeness density of the particle.
+/// - Q: Electric charge density of the particle.
+/// The data is stored in the datasets in the order of the particles.
+/// The units of the data are stored in the dataset attributes.
+/// @todo: This needs to be adapated for other dimensions than 2+1D simulations.
 template<unsigned int D>
 void Output<D>::print_system_state_to_HDF()
 {
@@ -168,7 +209,8 @@ void Output<D>::print_system_state_to_HDF()
   return;
 }
 
-
+/// @brief Prints the conservation status of the system.
+/// @tparam D The dimensionality of the simulation.
 template<unsigned int D>
 void Output<D>::print_conservation_status()
 {
@@ -182,7 +224,10 @@ void Output<D>::print_conservation_status()
 }
 
 
-//==============================================================================
+/// @brief Prints the freeze-out particles to a text file.
+/// @tparam D The dimensionality of the simulation.
+/// @param[in] freeze_out Pointer to the freeze-out object.
+/// @todo We need to understand the meaning of the quantities printed here.
 template<unsigned int D>
 void Output<D>::print_freeze_out(std::shared_ptr<FreezeOut<D>> freeze_out)
 {

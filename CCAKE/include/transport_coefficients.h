@@ -75,7 +75,7 @@ namespace transport_coefficients{
   double LinearMusParam(const double *therm, const parameters params);
   KOKKOS_INLINE_FUNCTION
   double InterpolantWrapper(const double *therm);
-    
+
   KOKKOS_INLINE_FUNCTION
   double tau_piGubser(const double *therm, const parameters params);
   KOKKOS_INLINE_FUNCTION

@@ -7,18 +7,19 @@ namespace cc = ccake;
 namespace consts = constants;
 //using namespace ccake;
 
-/// \brief Constructor of the Input class. Parses the input file and sets the
+/// @brief Constructor of the Input class. Parses the input file and sets the
 /// values of the settings object.
-/// \param[in] argc Number of command line arguments
-/// \param[in] argv Array of command line arguments
+/// @details This constructor initializes the Input object by creating a
+/// shared pointer to a Settings object, checking the command line arguments
+/// for validity, loading the settings file, and reporting the input parameters
+/// file path and the results directory.
+/// @param[in] argc Number of command line arguments
+/// @param[in] argv Array of command line arguments
 cc::Input::Input( int argc, char** argv)
 {
   settingsPtr = std::make_shared<Settings>();
   check_args( argc, argv ); //Will abort execution if arguments are invalid
   load_settings_file();
-  ////read_in_initial_conditions();
-  ////validate_input();
-
 
   formatted_output::report( "Input parameters file: "
                             + settings_file_path.string() );
@@ -26,10 +27,11 @@ cc::Input::Input( int argc, char** argv)
                             + results_directory.string() );
 }
 
-/// \brief Check if input arguments are valid. If not, print usage and abort.
+/// @brief Checks the command line arguments passed to the program.
+/// @details Check if input arguments are valid. If not, print usage and abort.
 /// This creates the output directory if it does not exist.
-/// \param[in] argc Number of command line arguments
-/// \param[in] argv Array of command line arguments
+/// @param[in] argc Number of command line arguments
+/// @param[in] argv Array of command line arguments
 void cc::Input::check_args( int argc, char** argv )
 {
   //Check if right number of arguments were fed in. If not, print usage
@@ -61,9 +63,13 @@ void cc::Input::check_args( int argc, char** argv )
 }
 
 
-/// \brief Parses the settings file. You need to have checked the input
+/// @brief Parses the settings file. You need to have checked the input
 /// arguments first.
-/// \param[in] path_to_settings_file Path to the settings file.
+/// @details It reads in the input parameter settings from a YAML file specified
+/// by `settings_file_path`. It uses the YAML-CPP library to parse the file and
+/// decode the settings. If the settings file cannot be decoded, an error 
+/// message is reported and the program exits with failure.
+/// @param[in] path_to_settings_file Path to the settings file.
 void cc::Input::load_settings_file()
 {
   formatted_output::report("Reading in input parameter settings");
@@ -76,11 +82,14 @@ void cc::Input::load_settings_file()
   return;
 }
 
-/// \brief Decodes the settings file.
-/// \param[in] node YAML root node containing the settings file.
-/// \return True if successful, false otherwise.
+/// @brief Decodes the settings file.
+/// @details Decodes the settings from a YAML node and updates the corresponding
+//// variables in the `settingsPtr` object.
+/// @param[in] node YAML root node containing the settings file.
+/// @return True if successful, false otherwise.
+/// TODO: Maybe its possible to coalesce this into a loop?
 bool cc::Input::decode_settings(const YAML::Node& node){
-    //TODO: Maybe its possible to coalesce this into a loop?
+
     //--------------------------------------------------------------------------
     //Initial conditions node
     try{

@@ -29,6 +29,8 @@
 #include "freeze_out.h"
 
 namespace ccake{
+/// @brief  Class to handle output of the hydrodynamic simulation
+/// @tparam D Dimensionality of the system
 template<unsigned int D>
 class Output
 {

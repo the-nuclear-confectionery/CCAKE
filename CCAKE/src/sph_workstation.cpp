@@ -5,7 +5,7 @@
 #include "eom_default.cpp"
 #include "transport_coefficients.cpp"
 
-#define ONLINE_INVERTER
+//#define ONLINE_INVERTER ///todo: This should be in the config file. For now, comment, uncomment it to choose eos method to be used
 using namespace constants;
 namespace tc = ccake::transport_coefficients;
 
@@ -36,7 +36,7 @@ void SPHWorkstation<D,TEOM>::initialize()
   eos.set_SettingsPtr( settingsPtr );
   eos.init();
   #ifndef ONLINE_INVERTER
-  eos_interpolatorPtr = std::make_shared<EoS_Interpolator>("eos.dat"); ///TODO: The path should be in the config file;
+  eos_interpolatorPtr = std::make_shared<EoS_Interpolator>("eos_conformal_small.h5"); ///TODO: The path should be in the config file;
   #endif
   //----------------------------------------
   // set up transport coefficients
@@ -1052,37 +1052,15 @@ template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D,TEOM>::locate_phase_diagram_point_sBSQ(Particle<D> & p, double s_In) // previously update_s
                { locate_phase_diagram_point_sBSQ(p, s_In, 0.0, 0.0, 0.0 ); }
 
-/*
-///////////////////////////////////////////////////////////////////////////////////
-template<unsigned int D>
-double SPHWorkstation<D>::gradPressure_weight(const int a, const int b)
-{
-  auto & pa = systemPtr->particles[a];
-  auto & pb = systemPtr->particles[b];
 
-  Vector<double,2> pa_qmom = ( (pa.e()+pa.p())*pa.hydro.gamma/pa.hydro.sigma )*pa.hydro.u;
-  Vector<double,2> pb_qmom = ( (pb.e()+pb.p())*pb.hydro.gamma/pb.hydro.sigma )*pb.hydro.u;
-
-
-  double alpha_q    = 1.0;
-  double v_signal_q = sqrt(1.0/3.0);
-
-  double innerp = inner( pa.r - pb.r, pa_qmom - pb_qmom );
-  double innerr = inner( pa.r - pb.r, pa.r    - pb.r    );
-  innerp = 2.0*alpha_q*v_signal_q
-          / ( pa.hydro.sigma/pa.hydro.gamma + pb.hydro.sigma/pb.hydro.gamma )
-          / sqrt(innerr) * innerp;
-
-  if ( innerp > 0.0 || a == b ) innerp = 0.0;
-
-  return pb.norm_spec.s * pa.hydro.sigma
-        * ( pb.p() / (pb.hydro.sigma*pb.hydro.sigma)
-          + pa.p() / (pa.hydro.sigma*pb.hydro.sigma) - innerp );
-}
-*/
-
-//==============================================================================
-// currently add a particle to every grid point which doesn't have one yet
+/// @brief Add a buffer of particles to the simulation.
+/// @details This function adds a buffer of particles to the simulation. 
+/// At the moment, this function is only implemented for the ICCING initial
+/// conditions.
+///
+/// The buffer particles are added with a small energy density, and are placed
+/// in the grid points where particles are absent.
+/// @todo Details of this function still needs to be documented.
 template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D, TEOM>::add_buffer(double default_e)
 {
@@ -1184,7 +1162,10 @@ void SPHWorkstation<D, TEOM>::add_buffer(double default_e)
 }
 
 /// @brief Decides if the simulation should continue evolving.
-/// @todo This function should be aware if we have freeze out turned on or off.
+/// @details This function decides if the simulation should continue evolving.
+/// The criteria to stop the simulation are:
+/// - If all particles have frozen out, if the freeze out flag is set.
+/// - If the simulation goes above the maximum time set in the settings.
 /// @tparam D Dimensionality of the simulation.
 /// @tparam TEOM The equation of motion class to be used in the simulation.
 /// @return `true` if the simulation should continue, `false` otherwise.
@@ -1192,21 +1173,26 @@ template<unsigned int D, template<unsigned int> class TEOM>
 bool SPHWorkstation<D, TEOM>::continue_evolution()
 {
   std::cout << "t = " << systemPtr->t << std::endl;
-  return ( systemPtr->t < settingsPtr->tend )
-          && ( systemPtr->number_part_fo < systemPtr->n_particles );
+
+  bool keep_going =  true;
+  if(systemPtr->do_freeze_out)
+    keep_going = (systemPtr->number_part_fo != systemPtr->n_particles); // all particles have frozen out. Break evolution.keep_going
+
+  keep_going = keep_going && (systemPtr->t <= settingsPtr->tend); // time is up. Break evolution.
+  return keep_going;
 }
 
 /// @brief Resets advance the simulation one timestep.
 /// @details This function advances the simulation one timestep. For each
 /// time step, the following operations are performed:
-/// - Call the evolver to execute the timestep. The get_time_derivatives 
+/// - Call the evolver to execute the timestep. The get_time_derivatives
 /// function will be passed to the evolver and is its responsability to call it
 /// according to the method used.
 /// - Perform the freeze out procedure if the freeze out flag is set.
 /// - A safeguard is placed to stop the simulation if the maximum number of
 /// timesteps is reached.
 /// @todo The criteria to stop the simulation seems to be scattered in the code.
-/// It should be centralized in a single place. I am of the opinion that it 
+/// It should be centralized in a single place. I am of the opinion that it
 /// should be in the BSQHydro::run function.
 /// @param dt The size of the timestep.
 /// @param rk_order The order of the Runge-Kutta method to be used.

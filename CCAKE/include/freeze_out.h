@@ -154,28 +154,35 @@ class FreezeOut
     std::shared_ptr<SystemState<D>> systemPtr = nullptr;
 
     // freeze out structures
-    freeze_array frz1; //< freeze out snapshots at last time step
-    freeze_array frz2; //< freeze out snapshots at penultime time step
-    freeze_array fback;  //< Backup sbapshots for cases of few neighbors
-    freeze_array fback2; //< Backup sbapshots for cases of few neighbors
-    freeze_array fback3; //< Backup sbapshots for cases of few neighbors
-    freeze_array fback4; //< Backup sbapshots for cases of few neighbors
-    mask_type mask;
+    freeze_array frz1;   ///< freeze out snapshots at last time step
+    freeze_array frz2;   ///< freeze out snapshots at penultime time step
+    freeze_array fback;  ///< Backup snapshots for cases of few neighbors
+    freeze_array fback2; ///< Backup snapshots for cases of few neighbors
+    freeze_array fback3; ///< Backup snapshots for cases of few neighbors
+    freeze_array fback4; ///< Backup snapshots for cases of few neighbors
+    mask_type mask;      ///< Mask for tagging particles which should not be copied from one snapshot to another
 
     //==========================================================================
     // freeze-out related quantities
     int cf            = 0;
     int frzc          = 0;
     double cs2        = 0;
-    double tau        = 0;
-    double taup       = 0;
-    double taupp      = 0;
-    double wfz        = 0;
+    double tau        = 0; ///< Current time step
+    double taup       = 0; ///< Previous time step
+    double taupp      = 0; ///< Time step before previous
+    double wfz        = 0; 
 
 
     vector<string> eosname;
     //==========================================================================
 
+    /// @brief Initializes the freeze_out object with the given settings and system state.
+    /// @details Access to the SystemState object and Settings objects are
+    /// provided by storing them as shared pointers, which are initialized here.
+    /// Memory on device is also allocated for several freeze out arrays used
+    /// as cache.
+    /// @param settingsPtr_in A shared pointer to the Settings object.
+    /// @param systemPtr_in A shared pointer to the SystemState object.
     void initialize( std::shared_ptr<Settings> settingsPtr_in,
                      std::shared_ptr<SystemState<D>> systemPtr_in)
     {
@@ -192,7 +199,12 @@ class FreezeOut
     };
 
   public:
-    freeze_results results; //< freeze out results
+    freeze_results results; ///< freeze out results
+
+    /// @brief Freeze-out procedure performed in the first time step
+    /// @details This function is called in the first time step to set up the
+    /// freeze-out snapshots at the first time step. This will fill the frz2
+    /// array with the current state of the particles.
     void freezeout_first_time_step(){
 
       taupp = systemPtr->t;
@@ -233,6 +245,10 @@ class FreezeOut
 
     };
 
+    /// @brief Freeze-out procedure performed in the second time step
+    /// @details This function is called in the second time step to set up the
+    /// freeze-out snapshots at the second time step. This will fill the frz1
+    /// array with the current state of the particles.
     void freezeout_second_time_step(){
       taup = systemPtr->t;
       frzc = 2;
@@ -271,6 +287,13 @@ class FreezeOut
       Cabana::simd_parallel_for(simd_policy, setup_frz1_first_timestep, "setup_frz1_first_timestep");
     }
 
+    /// @brief Freeze-out procedure performed from the third time step onwards
+    /// @details This function is used to update the snapshots of the freeze-out
+    /// procedure from the third time step onwards. However, before the data
+    /// movement, a mask is filled which will be used by the shift_snapshot 
+    /// function to decide which particles should not be copied from one 
+    /// snapshot to another.
+    /// @see shift_snapshot
     void freeze_out_evo(){
       CREATE_VIEW(device_, systemPtr->cabana_particles);
       FRZ_VIEW(fback_, fback);
@@ -327,6 +350,11 @@ class FreezeOut
       Kokkos::fence();
     }
 
+    /// @brief Copy the contents of one freeze out snapshot to another
+    /// @details This function copies the contents of one freeze out snapshot to
+    /// another. Particles which are tagged in the mask are not copied though.
+    /// @param frz_dest Destination freeze out snapshot
+    /// @param frz_src Source freeze out snapshot
     void shift_snapshot(freeze_array&  frz_dest, freeze_array& frz_src)
     {
       FRZ_VIEW(frz_dest_, frz_dest);
@@ -370,14 +398,33 @@ class FreezeOut
     //==========================================================================
     //Constructor
     FreezeOut() = delete;
+    /// @brief Default constructor
+    /// @see initialize
+    /// @param settingsPtr_in 
+    /// @param systemPtr_in 
     FreezeOut( std::shared_ptr<Settings> settingsPtr_in,
                std::shared_ptr<SystemState<D>> systemPtr_in)
     {
       initialize( settingsPtr_in, systemPtr_in );
     };
 
-    //==========================================================================
-    void  check_freeze_out_status( int& count )
+    /// @brief Checks the freeze-out status of particles and updates the count of particles freezing out.
+    /// @details The freeze-out procedure is as follows:
+    /// - If the energy of a particle is below the freeze-out energy and
+    /// the freeze-out has not yet begun (status 1), the particle is marked as 
+    /// starting to freeze out by changing its status to 1.
+    /// - If the particle started freezing out in the previous time step 
+    /// (status 1), the following may happen
+    ///   * If the particle has no neighbors or if its energy still below the 
+    ///     freeze-out energy, the particle is marked as frozen out by updating
+    ///     its status to 3.
+    ///   * If the particle has neighbors and its energy has increased since the
+    ///     previous time step, the particle is still a candidate to freeze out
+    ///     and its status is kept as 1.
+    ///   * If all the above is false, then the particle is not ready to freeze
+    ///     out and its status is set to 0.
+    /// @param count [in, out] The count of particles freezing out.
+    void check_freeze_out_status( int& count )
     {
       double time_in = systemPtr->t;
       double efcheck = systemPtr->efcheck;
@@ -466,7 +513,11 @@ class FreezeOut
       Kokkos::fence();
     }
 
-    ////////////////////////////////////////////////////////////////////////////
+    /// @brief Shell function to control the freeze-out procedure.
+    /// @details This function controls the freeze-out procedure. It controls
+    /// the caches of freeze-out snapshots, and calls the interpolator function
+    /// to interpolate the freeze-out quantities between the snapshots.
+    /// @param curfrz
     void bsqsvfreezeout(int curfrz)
     {
       if (frzc==0) // true in first timestep only
@@ -546,9 +597,13 @@ class FreezeOut
       }
     }
 
-    //==========================================================================
-    // THIS FUNCTION APPLIES ONLY TO PARTICLES WHICH ARE CURRENTLY IN THE PROCESS
-    // OF FREEZING OUT
+    /// @brief Interpolates the freeze-out quantities between the snapshots
+    /// @details This function interpolates the freeze-out quantities between the
+    /// snapshots. It decides which snapshot to use for the interpolation based
+    /// on the distance of the particle to the freeze-out energy. The function
+    /// then interpolates the freeze-out quantities between the snapshots. Only
+    /// particles which are currently freezing out (status = 4) are interpolated.
+    /// @param curfrz
     void bsqsvinterpolate(int curfrz)
     {
 
@@ -581,7 +636,7 @@ class FreezeOut
         results_print(iparticle) = false;
       };
 
-      double dt = systemPtr->dt;
+      double dt = settingsPtr->dt;
       // for all CURRENTLY FREEZING OUT PARTICLES
       CREATE_VIEW(device_, systemPtr->cabana_particles);
       auto interpolate = KOKKOS_CLASS_LAMBDA(const int is, const int ia){
