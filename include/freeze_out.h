@@ -481,7 +481,7 @@ class FreezeOut
       Kokkos::fence();
       systemPtr->number_part_fo += count;
       //Copy aux to host to make freeze report
-      #ifdef DEBUG
+      #ifdef DEBUG_SLOW
       auto h_particles = Cabana::create_mirror_view_and_copy(Kokkos::HostSpace(), systemPtr->cabana_particles);
       CREATE_VIEW(h_, h_particles);
 
@@ -613,7 +613,7 @@ class FreezeOut
       FRZ_VIEW(frz2_, frz2);
       FRZ_RESULTS_VIEW(results_, results);
 
-      #ifdef DEBUG
+      #ifdef DEBUG_SLOW
       auto h_particles = Cabana::create_mirror_view_and_copy(Kokkos::HostSpace(), systemPtr->cabana_particles);
       CREATE_VIEW(h_, h_particles);
 
@@ -752,7 +752,7 @@ class FreezeOut
       auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
       Cabana::simd_parallel_for(simd_policy, interpolate, "interpolate");
       Kokkos::fence();
-      #ifdef DEBUG
+      #ifdef DEBUG_SLOW
       Cabana::deep_copy(h_freeze, device_freeze);
       count_status3 = 0;
       count_status4 = 0;

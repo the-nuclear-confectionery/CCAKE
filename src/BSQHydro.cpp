@@ -356,7 +356,7 @@ void BSQHydro<D,TEOM>::initialize_hydrodynamics()
   sw.Stop();
   formatted_output::report("hydrodynamics initialization finished in "
                               + to_string(sw.printTime()) + " s");
-  #ifdef DEBUG
+  #ifdef DEBUG_SLOW
   systemPtr->copy_device_to_host();
   std::ofstream thermo_file;
   thermo_file.open("initial_thermo.dat");

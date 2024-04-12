@@ -785,7 +785,7 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives()
   double t = systemPtr->t;
   double t2 = t*t;
 
-  #ifdef DEBUG
+  #ifdef DEBUG_SLOW
   systemPtr->copy_device_to_host();
   std::ofstream file;
   file.open("probe.dbg", std::ios::app);
@@ -825,7 +825,7 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives()
     //calculate time derivatives needed for equations of motion
   TEOM<D>::evaluate_time_derivatives( systemPtr );
 
-  #ifdef DEBUG
+  #ifdef DEBUG_SLOW
   systemPtr->copy_device_to_host();
   file.open("probe2.dbg", std::ios::app);
   if (file.is_open()) {
@@ -921,7 +921,7 @@ void SPHWorkstation<D, TEOM>::update_all_particle_thermodynamics()
   systemPtr->copy_host_to_device();
   #else
     eos_interpolatorPtr->fill_thermodynamics(systemPtr->cabana_particles, t);
-    #ifdef DEBUG
+    #ifdef DEBUG_SLOW
     systemPtr->copy_device_to_host();
     #endif
   #endif
