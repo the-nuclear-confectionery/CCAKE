@@ -1175,10 +1175,10 @@ bool SPHWorkstation<D, TEOM>::continue_evolution()
   std::cout << "t = " << systemPtr->t << std::endl;
 
   bool keep_going =  true;
-  if(systemPtr->do_freeze_out)
-    keep_going = (systemPtr->number_part_fo != systemPtr->n_particles); // all particles have frozen out. Break evolution.keep_going
+  if(settingsPtr->particlization_enabled )
+    keep_going = (systemPtr->number_part_fo != systemPtr->n_particles); // all particles have frozen out. Break evolution.
 
-  keep_going = keep_going && (systemPtr->t <= settingsPtr->tend); // time is up. Break evolution.
+  keep_going = keep_going && (systemPtr->t <= settingsPtr->max_tau); // time is up. Break evolution.
   return keep_going;
 }
 
@@ -1209,7 +1209,7 @@ void SPHWorkstation<D, TEOM>::advance_timestep( double dt, int rk_order )
                             [this]{ this->get_time_derivatives(); } );
 
   // Perform freeze out
-  if ( systemPtr->do_freeze_out ) freeze_out_particles();
+  if ( settingsPtr->particlization_enabled ) freeze_out_particles();
 
   // set number of particles which have frozen out
   //systemPtr->number_part = systemPtr->get_frozen_out_count();
@@ -1219,10 +1219,6 @@ void SPHWorkstation<D, TEOM>::advance_timestep( double dt, int rk_order )
   sw.Stop();
   formatted_output::detail("finished timestep in "
                             + to_string(sw.printTime()) + " s");
-  if ( settingsPtr->max_number_of_timesteps >= 0
-        && systemPtr->number_of_elapsed_timesteps
-            > settingsPtr->max_number_of_timesteps )
-    exit(-1);
   return;
 }
 };

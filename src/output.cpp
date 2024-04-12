@@ -165,7 +165,7 @@ template<unsigned int D>
 void Output<D>::print_system_state_to_HDF()
 {
   // get width from maximum possible number of timesteps
-  const int width = ceil(log10(ceil(settingsPtr->tend/settingsPtr->dt)));
+  const int width = ceil(log10(ceil(settingsPtr->max_tau/settingsPtr->dt)));
 
   vector<string> dataset_names = {"x", "y", "T", "muB", "muS", "muQ",
                                   "e", "s", "B", "S", "Q"};

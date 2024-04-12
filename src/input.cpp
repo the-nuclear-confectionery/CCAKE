@@ -144,6 +144,14 @@ bool cc::Input::decode_settings(const YAML::Node& node){
     }
 
     try {
+      settingsPtr->max_tau = node["parameters"]["max_tau"].as<double>();
+    } catch (...) {
+      formatted_output::report("WARNING: Could not read parameters/max_tau");
+      formatted_output::report("This is an optional parameter. Setting to default value.");
+      settingsPtr->max_tau = cc::defaults::max_tau;
+    }
+
+    try {
       settingsPtr->hT = node["parameters"]["h_T"].as<double>();
     } catch (...) {
       formatted_output::report("WARNING: Could not read parameters h_T!");

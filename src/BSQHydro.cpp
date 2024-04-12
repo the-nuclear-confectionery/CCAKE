@@ -425,7 +425,7 @@ void BSQHydro<D,TEOM>::run()
   }
   #endif
   // Reset freeze-out file if performing freeze-out
-  if (systemPtr->do_freeze_out) {
+  if (settingsPtr->particlization_enabled) {
     std::ofstream fo_file;
     fo_file.open(outPtr->get_freeze_out_filename(), std::ios::out | std::ios::trunc);
     if (fo_file.is_open()) {
@@ -451,6 +451,7 @@ void BSQHydro<D,TEOM>::run()
     // print updated system and status
     //outPtr->print_conservation_status();
     if (istep%10 == 0) outPtr->print_system_state();
+    if (settingsPtr->particlization_enabled) outPtr->print_freeze_out(wsPtr->freezePtr);
 
   }
 

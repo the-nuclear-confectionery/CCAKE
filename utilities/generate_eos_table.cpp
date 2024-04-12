@@ -200,7 +200,7 @@ class Inverter{
       for (int j=0; j<4; ++j){
         x_min[j] = pow(10., exponent[j]);
         x_max[j] = pow(10., exponent[j]+1);
-        N[j] = 10;
+        N[j] = 20;
         dx[j] = x_max[j]/N[j];
       }
       range_set = true;
