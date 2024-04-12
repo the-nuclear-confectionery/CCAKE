@@ -148,9 +148,6 @@ class Inverter{
       rhoQAxis_attr.write(H5::PredType::NATIVE_INT, &axis);
     }
 
-    void main_loop(int nthreads){
-
-    }
   public:
     Inverter() = delete;
     /// @brief Create an inverter object
