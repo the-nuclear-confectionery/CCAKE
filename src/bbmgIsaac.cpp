@@ -133,20 +133,23 @@ void BBMG::propagate()
     full_sph_field[i].r[1] += vjet * settingsPtr->dt * sin(full_sph_field[i].phi);
 
 
-    //double kappa = get_kappa(full_sph_field[i].T / 1000); moved this down to after the interpolation
     inter( full_sph_field[i] ); //interpolation of the field
-    double kappa = get_kappa(full_sph_field[i].T / 1000);
+    double kappa = get_kappa(full_sph_field[i].T / 1000); //The /1000 here is to move temps from MeV to GeV to follow Barbara's plot, same as above
     
     if ( ( full_sph_field[i].on == 1 ) && ( full_sph_field[i].T > Freezeout_Temp ) )
     {
       full_sph_field[i].line += pow(tau, z) * pow(full_sph_field[i].rho0, c) * settingsPtr->dt; // * flow(ff[i])
-      //cout << "Checking the values of the line integration: " << full_sph_field[i].line << endl;
+      
+
       stillon++;
     }
     else //This comes in when we drop below freezeout temp, as .on should never go to 0 on its own
     {
       full_sph_field[i].on    = 0;
-      full_sph_field[i].line += 0.5 * kappa * pow(tau,z) * pow(full_sph_field[i].rho0, c) * settingsPtr->dt; /* flow(ff[i])*/
+      //full_sph_field[i].line += 0.5 * kappa * pow(tau,z) * pow(full_sph_field[i].rho0, c) * settingsPtr->dt; /* flow(ff[i])*/
+      // Commented above out as it is still adding to the line integral, after the partons should be out of the qgp; setting to 0
+      full_sph_field[i].line += 0;
+
       //ff[i].line *= efluc();
 
       P0g  = Pfg + Cg * full_sph_field[i].line; //* pow(Pfg, 1-a)
