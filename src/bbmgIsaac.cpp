@@ -82,7 +82,7 @@ void BBMG::initial()
       sph_particle.T    = p.T() * constants::hbarc_MeVfm;
       
       double kappa = get_kappa(sph_particle.T / 1000);
-      cout << "This is kappa value in initial function" << endl;
+      
       sph_particle.line = 0.5 * kappa * pow(settingsPtr->t0, z) * pow(sph_particle.rho0, c) * settingsPtr->dt; // only if initial flow=0
 
       for (int j=0; j<14; j++) //initializes jets at each point in grid space, over 14 directions
@@ -138,9 +138,10 @@ void BBMG::propagate()
     
     if ( ( full_sph_field[i].on == 1 ) && ( full_sph_field[i].T > Freezeout_Temp ) )
     {
-      full_sph_field[i].line += pow(tau, z) * pow(full_sph_field[i].rho0, c) * settingsPtr->dt; // * flow(ff[i])
+      full_sph_field[i].line += pow(tau, z) * pow(full_sph_field[i].rho0, c) * settingsPtr->dt * flow(full_sph_field[i]);
       
-
+      cout << "This is the value of the flow factor being multiplied: " << flow(full_sph_field[i]) << endl;
+      
       stillon++;
     }
     else //This comes in when we drop below freezeout temp, as .on should never go to 0 on its own
