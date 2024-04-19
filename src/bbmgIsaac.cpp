@@ -48,9 +48,12 @@ BBMG::BBMG( Settings * settingsPtr_in, SystemState * systemPtr_in )
     Rg[i]  = 0;
     phi[i] = i*PI/7;
   }
-  //Setting final energy as a start point for the integration; NOTE this is and will be calculated in femtometers, not GeV
+  //Setting final energy as a start point for the integration; This is starting in GeV
   Pfg = 10;
   Pfq = 10;
+
+  Pfg /= constants::hbarc_GeVfm; //Converting into femtometers
+  Pfq /= constants::hbarc_GeVfm;
 
 }
 
@@ -153,9 +156,9 @@ void BBMG::propagate()
 
       //ff[i].line *= efluc();
 
-      P0g  = Pfg + Cg * full_sph_field[i].line; //* pow(Pfg, 1-a)
-      P0q  = Pfq + Cq * full_sph_field[i].line; //* pow(Pfq, 1-a) 
-      cout << "P0g: " << P0g << " 1/fm, P0q: " << P0q << " 1/fm" << endl;
+      P0g  = (Pfg + Cg * full_sph_field[i].line) * constants::hbarc_GeVfm; //* pow(Pfg, 1-a)
+      P0q  = (Pfq + Cq * full_sph_field[i].line) * constants::hbarc_GeVfm; //* pow(Pfq, 1-a) 
+      cout << "P0g: " << P0g << " GeV, P0q: " << P0q << " GeV" << endl;
 
       int jj      = full_sph_field[i].pid;
       //Rq[jj]     += pow(P0g/Pfg, 1+a) * ff[i].rho0 * gft(P0g) / gft(Pfg);
@@ -240,7 +243,7 @@ void BBMG::inter( field &f )
     abort();
   }
   f.vang     = atan2( f.v[1], f.v[0] );
-  f.gam      = 1.0 / sqrt( f.vmag*f.vmag + 1.0 );
+  f.gam      = 1.0 / sqrt( 1.0 - f.vmag*f.vmag );
 }
 
 
