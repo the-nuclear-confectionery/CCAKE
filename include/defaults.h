@@ -12,6 +12,7 @@ namespace ccake
 {
   namespace defaults
   {
+    const double      max_tau                 = 20.;
     const bool        input_as_entropy        = false;
     const double      dt                      = 0.05;
     const double      hT                      = 0.3;

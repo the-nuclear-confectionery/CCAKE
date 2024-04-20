@@ -44,8 +44,6 @@ class SystemState
     void set_EquationOfStatePtr( EquationOfState * eosPtr_in );
     void set_SettingsPtr( Settings * settingsPtr_in );
 
-    bool do_freeze_out = true;
-
     double t          = 0.0;
 
     double S          = 0.0; ///<Total entropy

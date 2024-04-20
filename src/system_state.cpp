@@ -27,6 +27,7 @@ template<unsigned int D>
 void SystemState<D>::initialize()  // formerly called "manualenter"
 {
   formatted_output::report("Initializing system");
+  number_of_elapsed_timesteps = 0;
   t = settingsPtr->t0;
   return;
 }

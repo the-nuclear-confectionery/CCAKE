@@ -410,7 +410,6 @@ void BSQHydro<D,TEOM>::run()
 
   //===================================
   // evolve until simulation terminates
-  int istep=0;
   #ifdef DEBUG
   std::ofstream file;
   file.open("probe.dbg", std::ios::out | std::ios::trunc);
@@ -446,11 +445,10 @@ void BSQHydro<D,TEOM>::run()
     //systemPtr->conservation_BSQ();
     //systemPtr->compute_eccentricities();
 
-    istep++;
     //===================================
     // print updated system and status
     //outPtr->print_conservation_status();
-    if (istep%10 == 0) outPtr->print_system_state();
+    if (systemPtr->number_of_elapsed_timesteps%100 == 0) outPtr->print_system_state();
     if (settingsPtr->particlization_enabled) outPtr->print_freeze_out(wsPtr->freezePtr);
 
   }
