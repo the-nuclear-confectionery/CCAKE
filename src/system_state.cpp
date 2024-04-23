@@ -376,13 +376,9 @@ void SystemState<D>::reset_neighbour_list(){
   Kokkos::fence();
 
   //Update the number of neighbours
-<<<<<<< HEAD:CCAKE/src/system_state.cpp
-
   ///TODO: Requires UVM, which is not good for performance
   ///Need a way to call Cabana::NeighborList::numNeighbor directly from GPU
   ///without seg fault
-=======
->>>>>>> origin/CCake-v2:src/system_state.cpp
   for (int i=0; i<n_particles; ++i)
     device_btrack(i) = device_btrack(i) == -1 ? -1 : Cabana::NeighborList<ListType>::numNeighbor( neighbour_list, i );
 

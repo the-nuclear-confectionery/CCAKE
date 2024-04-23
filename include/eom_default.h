@@ -17,11 +17,7 @@
 namespace ccake{
 /// @class EoM_default
 /// @brief Default equations of motion for the hydrodynamic evolution.
-<<<<<<< HEAD:CCAKE/include/eom_default.h
 /// @details This class contains the default equations of motion 
-=======
-/// @details This class contains the default equations of motion
->>>>>>> origin/CCake-v2:include/eom_default.h
 /// (Israel-Stewart) for the hydrodynamic evolution.
 /// @tparam D The number of spatial dimensions.
 template<unsigned int D>
