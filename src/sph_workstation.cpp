@@ -30,7 +30,7 @@ void SPHWorkstation<D,TEOM>::initialize()
 {
   //----------------------------------------
   // set up system state
-  systemPtr->initialize();initialize_entropy_and_charge_densities()
+  systemPtr->initialize();
 
   //----------------------------------------
   // set up equation of state
