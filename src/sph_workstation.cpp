@@ -30,7 +30,7 @@ void SPHWorkstation<D,TEOM>::initialize()
 {
   //----------------------------------------
   // set up system state
-  systemPtr->initialize();
+  systemPtr->initialize();initialize_entropy_and_charge_densities()
 
   //----------------------------------------
   // set up equation of state
@@ -111,6 +111,7 @@ void SPHWorkstation<D, TEOM>::initialize_entropy_and_charge_densities()
     p.input.s = locate_phase_diagram_point_eBSQ( p,
                   p.input.e, p.input.rhoB, p.input.rhoS, p.input.rhoQ );
     p.efcheck = systemPtr->efcheck;
+    //PRINT CONVERTED VALUES
   }
   systemPtr->copy_host_to_device();
 
@@ -136,6 +137,10 @@ void SPHWorkstation<D, TEOM>::initialize_entropy_and_charge_densities()
     rhoB_norm_spec *= rhoB_input*gamma*t0;
     rhoS_norm_spec *= rhoS_input*gamma*t0;
     rhoQ_norm_spec *= rhoQ_input*gamma*t0;
+
+    //Why are we switching between the frames? 
+    //Also, reprint. 
+    //Also, plot s vs eta and e vs eta
 
     device_norm_spec(iparticle, ccake::densities_info::e )    = e_norm_spec;    // constant after this
     device_norm_spec(iparticle, ccake::densities_info::s )    = s_norm_spec;    // constant after this

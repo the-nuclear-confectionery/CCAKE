@@ -198,6 +198,9 @@ void BSQHydro<D,TEOM>::read_ccake()
   int total_header_lines = 1;
   string IC_file = settingsPtr->IC_file;
 
+  //create output file for read initial conditions
+  ofstream outfile;
+  outfile.open("read_ics.dat")
   ifstream infile(IC_file.c_str());
   #ifdef DEBUG
   ofstream outfile;
@@ -283,8 +286,13 @@ void BSQHydro<D,TEOM>::read_ccake()
         outfile << x << " " << y << " " << eta << " " << e*hbarc_GeVfm << " " << rhoB
                 << " " << rhoS << " " << rhoQ << " " << ux << " " << uy << " " << ueta << endl;
         #endif
+        outfile << x << " " << y << " " << eta << " " << e*hbarc_GeVfm << " " << rhoB
+                << " " << rhoS << " " << rhoQ << " " << ux << " " << uy << " " << ueta << endl;
       }
     }
+    outfile.close();
+    std::cout << "Outfile 'read_ics.dat' has been successfully created." << std::endl;
+    abort();
     #ifdef DEBUG
     outfile.close();
     #endif

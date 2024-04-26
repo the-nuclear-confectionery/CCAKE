@@ -13,11 +13,13 @@ template<> const double SPHkernel<1>::knorm2 = 1./6.;  ///< Kernel normalization
 template<> const double SPHkernel<1>::kgrad  = -1./2.; ///< Kernel gradient normalization for \f$ 1 < q < 2 \f$
 template<> const double SPHkernel<1>::kgrad2 = 1.;     ///< Kernel gradient normalization for \f$ q < 1 \f$
 
+//2D normalizations
 template<> const double SPHkernel<2>::knorm  = 10./(7*M_PI);    ///< Kernel normalization for \f$ q < 1 \f$
 template<> const double SPHkernel<2>::knorm2 = 5./(14.*M_PI);   ///< Kernel normalization for \f$ 1 < q < 2 \f$
 template<> const double SPHkernel<2>::kgrad  = -15./(14.*M_PI); ///< Kernel gradient normalization for \f$ 1 < q < 2 \f$
 template<> const double SPHkernel<2>::kgrad2 = 15./(7.*M_PI);   ///< Kernel gradient normalization for \f$ q < 1 \f$
 
+//3D normalizations
 template<> const double SPHkernel<3>::knorm  = 1./M_PI;       ///< Kernel normalization for \f$ q < 1 \f$
 template<> const double SPHkernel<3>::knorm2 = 1./(4*M_PI);   ///< Kernel normalization for \f$ 1 < q < 2 \f$
 template<> const double SPHkernel<3>::kgrad  = -3./(4.*M_PI); ///< Kernel gradient normalization for \f$ 1 < q < 2 \f$
