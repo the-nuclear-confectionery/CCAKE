@@ -200,7 +200,7 @@ void BSQHydro<D,TEOM>::read_ccake()
 
   //create output file for read initial conditions
   ofstream outfile;
-  outfile.open("read_ics.dat")
+  outfile.open("read_ics.dat");
   ifstream infile(IC_file.c_str());
   #ifdef DEBUG
   ofstream outfile;
