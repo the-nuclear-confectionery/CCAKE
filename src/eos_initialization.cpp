@@ -348,6 +348,38 @@ void EquationOfState::set_up_chosen_EOSs()
 void EquationOfState::run_closure_test()
 {
   const double hc = constants::hbarc_MeVfm;
+
+  //==========================================================================
+  std::cout << "Check table EoS:" << std::endl;
+  const double DeltaT = 5.0;
+  const double DeltamuB = 50.0;
+  const double DeltamuS = 50.0;
+  const double DeltamuQ = 50.0;
+
+  const bool stagger_grid = true;
+  const double T_min   = stagger_grid ?    0.0 + 0.5*DeltaT   :    0.0;
+  const double muB_min = stagger_grid ? -450.0 + 0.5*DeltamuB : -450.0;
+  const double muS_min = stagger_grid ? -450.0 + 0.5*DeltamuS : -450.0;
+  const double muQ_min = stagger_grid ? -450.0 + 0.5*DeltamuQ : -450.0;
+
+  for (double T0   = T_min;   T0   <= 800.01; T0   += DeltaT)
+  for (double muB0 = muB_min; muB0 <= 450.01; muB0 += DeltamuB)
+  for (double muS0 = muS_min; muS0 <= 450.01; muS0 += DeltamuS)
+  for (double muQ0 = muQ_min; muQ0 <= 450.01; muQ0 += DeltamuQ)
+  {
+    std::vector<double> point = {T0/hc, muB0/hc, muQ0/hc, muS0/hc};
+    std::vector<double> v = get_thermodynamics( point, "table" );
+    std::cout << setprecision(12)
+              << "Check table: " << T0 << "   " << muB0 << "   "
+              << muQ0 << "   "<< muS0 << "   "
+              << v[0]*hc*hc*hc*hc/(T0*T0*T0*T0+1e-10) << "  "   // P/T^4
+              << v[6] << "\n";                                  // c_s^2
+
+  }
+  std::cout << std::endl << std::endl << std::endl;
+
+
+
 /*
   //==========================================================================
   std::cout << "Check conformal EoS:" << std::endl;
@@ -461,6 +493,7 @@ cout << "THERMO DUMP: "
     << dtds << "   " << dt2 << endl;
 */
 
+/*
 cout << "================================================================================\n"
       << "================================================================================\n"
       << "================================================================================\n";
@@ -504,11 +537,11 @@ cout << "=======================================================================
     std::cout << "Check interpolant:";
     for (auto&e:v) cout << " " << e;
     std::cout << std::endl;
-    
+
     std::cout << "GOT THERMODYNAMICS" << std::endl;
   }
   std::cout << std::endl << std::endl << std::endl;
-
+*/
 
   exit(11);
 }
