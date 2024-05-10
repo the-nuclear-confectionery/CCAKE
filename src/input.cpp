@@ -88,6 +88,7 @@ void cc::Input::load_settings_file()
 /// @param[in] node YAML root node containing the settings file.
 /// @return True if successful, false otherwise.
 /// TODO: Maybe its possible to coalesce this into a loop?
+/// TODO: Review wording of error messages.
 bool cc::Input::decode_settings(const YAML::Node& node){
 
     //--------------------------------------------------------------------------
@@ -214,6 +215,25 @@ bool cc::Input::decode_settings(const YAML::Node& node){
     //--------------------------------------------------------------------------
     //eos node
     try {
+      settingsPtr->online_inverter_enabled = node["eos"]["online_inverter_enabled"].as<bool>();
+    } catch (...) {
+      formatted_output::report("WARNING: Could not Could not read node eos/online_inverter_enabled!");
+      formatted_output::report("This is an optional parameter. Setting to default value.");
+      settingsPtr->online_inverter_enabled = cc::defaults::online_inverter_enabled;
+    }
+    if (!settingsPtr->online_inverter_enabled){
+      try{
+        cout << node["eos"]["preinverted_eos_path"].as<std::string>() << endl;
+        settingsPtr->preinverted_eos_path = fs::path(node["eos"]["preinverted_eos_path"].as<std::string>());
+
+      } catch (...) {
+        formatted_output::report("ERROR: Could not read node eos/preinverted_eos_path!");
+        formatted_output::report("This is a mandatory parameter for offline inverter. Aborting execution.");
+        return false;
+      }
+    }
+
+    try {
       settingsPtr->eos_type = node["eos"]["type"].as<std::string>();
     } catch (...) {
       formatted_output::detail("ERROR: Could not read eos type!");
@@ -275,6 +295,23 @@ bool cc::Input::decode_settings(const YAML::Node& node){
       formatted_output::report("WARNING: Could not read hydro electric_charge_enabled!");
       formatted_output::report("This is an optional parameter. Setting to default value.");
       settingsPtr->electric_charge_enabled = cc::defaults::electric_charge_enabled;
+    }
+
+    try {
+      settingsPtr->regulate_dissipative_terms = node["hydro"]["dissipative_terms_regulator"]["enabled"].as<bool>();
+    } catch (...) {
+      formatted_output::report("WARNING: Could not read regulate_dissipative_terms!");
+      formatted_output::report("This is an optional parameter. Setting to default value.");
+      settingsPtr->regulate_dissipative_terms = cc::defaults::regulate_dissipative_terms;
+    }
+    if (settingsPtr->regulate_dissipative_terms){
+      try {
+        settingsPtr->regulator_threshold = node["hydro"]["dissipative_terms_regulator"]["threshold"].as<bool>();
+      } catch (...) {
+        formatted_output::report("WARNING: Could not read regulator_threshold!");
+        formatted_output::report("This is an optional parameter. Setting to default value.");
+        settingsPtr->regulator_threshold = cc::defaults::regulator_threshold;
+      }
     }
     //--------------------------------------------------------------------------
     //viscous_parameters subnode

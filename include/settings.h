@@ -26,9 +26,7 @@ class Settings
 
     //==========================================================================
     // default/global settings
-    bool using_shear                  = false;  //TODO: Whatever to use shear or
-                                                // not should be decided by the
-                                                // eta mode, not here
+    bool using_shear                  = false;
     bool initializing_with_full_Tmunu = false;  // whether to initialize Pi from
                                                 // varsigma - p or not
     //==========================================================================
@@ -37,11 +35,16 @@ class Settings
     bool hdf_evolution              = false;
     bool print_conservation_status  = true;
     fs::path results_directory        = "";
-
     static constexpr int VERBOSE      = 5;
 
     //==========================================================================
     // hydrodynamics settings
+    bool regulate_dissipative_terms = false; ///< Whether to regulate the
+                                              // magnitude of dissipative terms
+                                              // (shear and bulk)
+    double regulator_threshold = 1.0;         ///< Threshold for the
+                                              // Reynolds number to regulate
+                                              // dissipative terms
 
     // maximum upper limit for t
     double max_tau = 20;
@@ -110,6 +113,8 @@ class Settings
     // equation of state
     string eos_type             = "";     ///< Type of equation of state ("conformal" or "table")
     string eos_path             = "";     ///< If "table", path to the equation of state file
+    bool   online_inverter_enabled = false;
+    fs::path preinverted_eos_path;       ///< Path to the preinverted EOS file
 
     //------------------------------------
     // hydrodynamics configuration

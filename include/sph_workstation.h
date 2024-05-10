@@ -108,8 +108,7 @@ public:
 
   //============================================================================
   // routines for resetting quantities
-  void reset_pi_tensor(double time_squared);
-
+  void regulator();
   void process_initial_conditions();
   void initialize_entropy_and_charge_densities();
   void initial_smoothing();

@@ -160,15 +160,6 @@ void Evolver<D>::step_rk(double dt, double t0, std::function<void(void)> time_de
     for(int jdir=0; jdir<D; ++jdir)
       shv(idir,jdir)          = shv0(idir+1,jdir+1) + dt*dshv_dt(idir, jdir);
 
-    //Update in memory
-    int freeze = device_freeze.access(is, ia); //Check if the cell is frozen
-    if (specific_s < 0.0 && freeze > 3){ //If frozen, we do not want to crash because of negative entropy
-      specific_s = 1.e-3; //Enforce positivity
-    } else if (specific_s < 0.0){ //Else, something went terribly wrong
-      formatted_output::detail("Negative entropy density");
-      exit(EXIT_FAILURE);
-    }
-
     device_specific_density.access(is, ia, densities_info::s) = specific_s;
     device_hydro_scalar.access(is, ia, hydro_info::Bulk) = Bulk;
     for (int idir=0; idir<D; ++idir){
@@ -228,6 +219,5 @@ void Evolver<D>::advance_timestep_rk2( double dt,
       ////////////////////////////////////////////
       formatted_output::report("RK(n=2) evolution, step 2");
       step_rk(dt, t0, time_derivatives_functional);
-
       return;
 }

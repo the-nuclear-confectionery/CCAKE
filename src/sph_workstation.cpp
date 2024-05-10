@@ -5,7 +5,6 @@
 #include "eom_default.cpp"
 #include "transport_coefficients.cpp"
 
-//#define ONLINE_INVERTER ///todo: This should be in the config file. For now, comment, uncomment it to choose eos method to be used
 using namespace constants;
 namespace tc = ccake::transport_coefficients;
 
@@ -35,9 +34,10 @@ void SPHWorkstation<D,TEOM>::initialize()
   // set up equation of state
   eos.set_SettingsPtr( settingsPtr );
   eos.init();
-  #ifndef ONLINE_INVERTER
-  eos_interpolatorPtr = std::make_shared<EoS_Interpolator>("eos_conformal_small.h5"); ///TODO: The path should be in the config file;
-  #endif
+  if (!settingsPtr->online_inverter_enabled)
+    eos_interpolatorPtr = std::make_shared<EoS_Interpolator>(
+      settingsPtr->preinverted_eos_path);
+
   //----------------------------------------
   // set up transport coefficients
   transp_coeff_params = tc::setup_parameters(settingsPtr);
@@ -48,33 +48,13 @@ void SPHWorkstation<D,TEOM>::initialize()
   formatted_output::detail("Freeze out temperature = "
                              + to_string(settingsPtr->Freeze_Out_Temperature) + " MeV");
   systemPtr->efcheck = eos.efreeze(settingsPtr->Freeze_Out_Temperature/hbarc_MeVfm); //Factor 1000 to convert to MeV from GeV
+  if (systemPtr->efcheck < 1.0e-6)
+    systemPtr->efcheck = eos.efreeze(150/hbarc_MeVfm); //If the freeze out energy density is not set, we need one as criteria to
+                                                       //ignore stability in the edges.
   formatted_output::detail("freeze out energy density = "
                            + to_string(systemPtr->efcheck*hbarc_GeVfm) + " GeV/fm^3");
 
 }
-
-
-/// @brief This function will ensure that the shear tensor has the correct
-/// properties.
-/// @details This function will ensure that the shear tensor has the correct
-/// properties. The desired properties are that it is traceless, symmetric and
-/// orthogonal to the fluid velocity. That is, we want to ensure that
-/// \f$\pi^{\mu \nu} = \pi^{\nu \mu}\f$, \f$u_\mu \pi^{\mu \nu} = 0\f$ and
-/// \f$\pi^\mu_\mu = 0\f$. Because this depends on the metric tensor being used,
-/// a simple call to the reset_pi_tensor function is not enough. This function
-/// should be implemented in the templates TEOM equation of motion class.
-/// @todo We do not need the time_squared parameter here. We should remove it.
-/// @tparam D The dimensionality of the simulation.
-/// @tparam TEOM The equation of motion class to be used in the simulation. Must
-/// have a reset_pi_tensor function.
-/// @param time_squared The square of the time step where the shear tensor is
-/// being computed.
-template<unsigned int D, template<unsigned int> class TEOM>
-void SPHWorkstation<D, TEOM>::reset_pi_tensor(double time_squared)
-{
-  TEOM<D>::reset_pi_tensor(systemPtr);
-};
-
 
 /// @brief Set up entropy density and other thermodynamic variables
 /// @details This function sets up the entropy density using the initial energy
@@ -183,7 +163,7 @@ void SPHWorkstation<D,TEOM>::initial_smoothing()
   double t_squared = pow(settingsPtr->t0,2);
 
   //Computes not independent components of the shear tensor
-  reset_pi_tensor(t_squared);
+  TEOM<D>::reset_pi_tensor(systemPtr);
   // smooth fields over particles
   smooth_all_particle_fields(t_squared);
   // Update particle thermodynamic properties
@@ -810,9 +790,8 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives()
 
   // reset nearest neighbors
   systemPtr->reset_neighbour_list();
-  // reset pi tensor to be consistent
-  // with all essential symmetries
-  reset_pi_tensor(t2);
+  // Regulate the viscous terms
+  regulator();
   // smooth all particle fields - s, rhoB, rhoQ and rhoS and sigma
   smooth_all_particle_fields(t2);
     // Update particle thermodynamic properties
@@ -896,7 +875,8 @@ void SPHWorkstation<D, TEOM>::update_all_particle_thermodynamics()
   double t = systemPtr->t;
   double t2 = t*t;
 
-  #ifdef ONLINE_INVERTER
+  if (settingsPtr->online_inverter_enabled){
+
   systemPtr->copy_device_to_host();
   for ( auto & p : systemPtr->particles ){
     double s_LRF      = p.thermo.s;
@@ -918,12 +898,12 @@ void SPHWorkstation<D, TEOM>::update_all_particle_thermodynamics()
     }
   }
   systemPtr->copy_host_to_device();
-  #else
+  } else {
     eos_interpolatorPtr->fill_thermodynamics(systemPtr->cabana_particles, t);
     #ifdef DEBUG_SLOW
     systemPtr->copy_device_to_host();
     #endif
-  #endif
+  }
 
 
   sw.Stop();
@@ -1220,4 +1200,140 @@ void SPHWorkstation<D, TEOM>::advance_timestep( double dt, int rk_order )
                             + to_string(sw.printTime()) + " s");
   return;
 }
-};
+
+///@brief Function to regulate negative specific entropy.
+///@details This function is responsible for regulating hydrodynamic evolution,
+// ensuring that some constraints are always met. Those are
+/// - The viscous shear tensor is traceless and orthogonal to the velocity.
+/// - The viscous bulk pressure and shear viscous tensor are regulated to
+/// prevent the Reynolds number from being too high. A user-specifiable
+/// threshold is used to decide when to regulate the viscous terms. The
+/// dampening of the viscous terms is done by multiplying them by
+/// \f$\frac{\text{Reynolds threshold}}{1+\text{Reynolds threshold}}\f$.
+/// - We avoid negative specific entropy. We only do so if the particle is
+/// below the freeze-out energy density. If this criteria is met, we freeze the
+/// particle out and set its entropy to zero.
+///@tparam D The number of spatial dimensions.
+///@param reset_pi A functional that ensures that the viscous shear tensor is
+/// traceless and orthogonal to the velocity.
+template <unsigned int D, template<unsigned int> class TEOM>
+void SPHWorkstation<D, TEOM>::regulator(){
+
+  TEOM<D>::reset_pi_tensor(systemPtr);
+
+  if (!settingsPtr->regulate_dissipative_terms) return;
+
+  CREATE_VIEW(device_, systemPtr->cabana_particles);
+  auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
+
+  double eFO = systemPtr->efcheck;
+  double t = systemPtr->t;
+  double t4 = t*t*t*t;
+  double t2 = t*t;
+  double Reynolds_threshold = settingsPtr->regulator_threshold;
+  // double dampening = max(1., Reynolds_threshold);
+
+  //Simplified management of freeze-out status if we disabled particlization.
+  if ( !settingsPtr->particlization_enabled ){
+    //Do simplified check of freeze-out if we disabled particlization
+    auto simple_freeze = KOKKOS_LAMBDA(const int is, const int ia){
+      double epsilon = device_thermo.access(is, ia, ccake::thermo_info::e);
+      double freeze = device_freeze.access(is, ia);
+      if (epsilon < eFO && freeze == 0){
+        device_freeze.access(is, ia) = 1;
+      } else if (epsilon > eFO && freeze != 4){
+        device_freeze.access(is, ia) = 0;
+      } else if (epsilon < eFO && freeze == 1){
+        device_freeze.access(is, ia) = 4;
+      }
+    };
+    Cabana::simd_parallel_for(simd_policy, simple_freeze, "simple_freeze");
+    Kokkos::fence();
+  }
+
+  auto regulate_reynolds = KOKKOS_LAMBDA(const int is, const int ia){
+    //Loading variables
+    double u0 = device_hydro_scalar.access(is, ia, hydro_info::gamma);
+    double e = device_thermo.access(is, ia, ccake::thermo_info::e);
+    double p = device_thermo.access(is, ia, ccake::thermo_info::p);
+    double u[D];
+    for (int idir=0; idir<D; ++idir)
+      u[idir] = device_hydro_vector.access(is, ia, hydro_info::u, idir);
+    double Bulk = device_hydro_scalar.access(is, ia, hydro_info::Bulk);
+    double pi[D+1][D+1];
+    for (int idir=0; idir<D+1; ++idir)
+    for (int jdir=0; jdir<D+1; ++jdir)
+      pi[idir][jdir] = device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir, jdir);
+    double shv33 = device_hydro_scalar.access(is, ia, hydro_info::shv33);
+
+    double R_shear = pi[0][0]*pi[0][0];
+
+    // //Space diagonal components contributions
+    for (int idir=0; idir<D; ++idir)
+      R_shear += pi[idir+1][idir+1]*pi[idir+1][idir+1];
+    if (D == 3){
+      R_shear += pi[D][D]*pi[D][D]*t4;
+    }else if (D == 2 || D == 1){
+      R_shear += shv33*shv33*t4;
+    }
+
+    //Off-diagonal time components contributions
+    for (int idir=0; idir<D; ++idir)
+      R_shear -= 2.*pi[0][idir+1]*pi[0][idir+1];
+    if (D == 3)
+      R_shear -= 2.*pi[0][3]*pi[0][3]*t2;
+
+    // //Off-diagonal space components contributions
+    for (int idir=0; idir<D; ++idir)
+    for (int jdir=idir+1; jdir<D; ++jdir)
+      R_shear += 2.*pi[idir+1][jdir+1]*pi[idir+1][jdir+1];
+    if (D == 3)
+      for (int idir=0; idir<D; ++idir)
+        R_shear += 2.*pi[idir+1][3]*pi[idir+1][3]*t2;
+
+    R_shear = Kokkos::sqrtf(R_shear)/p;
+    double R_bulk = Kokkos::fabs(Bulk)/p;
+
+    //Regulate if necessary
+    double dampening = 0;
+    if (R_shear > Reynolds_threshold){
+      for (int idir=0; idir<D+1; ++idir)
+      for (int jdir=0; jdir<D+1; ++jdir){
+        dampening = Reynolds_threshold/R_shear;
+        device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir, jdir) =
+          device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir, jdir)*dampening;
+        device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, jdir, idir) =
+          device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir, jdir);
+      }
+    }
+
+    if (R_bulk > Reynolds_threshold){
+      dampening = Reynolds_threshold/R_bulk;
+      device_hydro_scalar.access(is, ia, hydro_info::Bulk) = Bulk*dampening;
+    }
+
+  };
+  if(settingsPtr->regulate_dissipative_terms){
+    Cabana::simd_parallel_for(simd_policy, regulate_reynolds, "regulate_reynolds");
+    Kokkos::fence();
+    TEOM<D>::reset_pi_tensor(systemPtr);
+    Kokkos::fence();
+  }
+
+
+  auto regulate = KOKKOS_LAMBDA(const int is, const int ia){
+    //Enforce minimum value for specific entropy
+    int freeze = device_freeze.access(is, ia); //Check if the cell is frozen
+    double specific_s = device_specific_density.access(is, ia, densities_info::s);
+    if (specific_s < 0.0 && freeze > 0){ //If frozen, we do not want to crash because of negative entropy
+      device_specific_density.access(is, ia, densities_info::s) = 1.e-3; //Enforce positivity
+    } else if (specific_s < 0.0){
+      exit(EXIT_FAILURE);
+    }
+  };
+  Cabana::simd_parallel_for(simd_policy, regulate, "regulate");
+  Kokkos::fence();
+  TEOM<D>::reset_pi_tensor(systemPtr);
+}
+
+}; //namespace ccake

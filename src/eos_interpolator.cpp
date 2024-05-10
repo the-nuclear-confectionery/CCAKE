@@ -295,12 +295,18 @@ void EoS_Interpolator::fill_thermodynamics(Cabana::AoSoA<CabanaParticle,
     double Q_min = Q_attr[ts][tB][tS][tQ].min;
     double dQ = Q_attr[ts][tB][tS][tQ].step;
 
+    int Ns = s_attr[ts][tB][tS][tQ].N;
+    int NB = B_attr[ts][tB][tS][tQ].N;
+    int NS = S_attr[ts][tB][tS][tQ].N;
+    int NQ = Q_attr[ts][tB][tS][tQ].N;
+
+
     //Find the indices of the nearest neighbors in the table
     int idx[4];
-    idx[0] = Kokkos::min((int) Kokkos::floor((s-s_min)/ds),s_attr[ts][tB][tS][tQ].N-1);
-    idx[1] = Kokkos::min((int) Kokkos::floor((rhoB-B_min)/dB),B_attr[ts][tB][tS][tQ].N-1);
-    idx[2] = Kokkos::min((int) Kokkos::floor((rhoS-S_min)/dS),S_attr[ts][tB][tS][tQ].N-1);
-    idx[3] = Kokkos::min((int) Kokkos::floor((rhoQ-Q_min)/dQ),Q_attr[ts][tB][tS][tQ].N-1);
+    idx[0] = Kokkos::max(0,Kokkos::min( (int) Kokkos::floor((s-s_min)/ds),Ns-2));
+    idx[1] = Kokkos::max(0,Kokkos::min( (int) Kokkos::floor((rhoB-B_min)/dB),NB-2));
+    idx[2] = Kokkos::max(0,Kokkos::min( (int) Kokkos::floor((rhoS-S_min)/dS),NS-2));
+    idx[3] = Kokkos::max(0,Kokkos::min( (int) Kokkos::floor((rhoQ-Q_min)/dQ),NQ-2));
 
     double pos[4];
     pos[0] = s;
