@@ -306,7 +306,7 @@ bool cc::Input::decode_settings(const YAML::Node& node){
     }
     if (settingsPtr->regulate_dissipative_terms){
       try {
-        settingsPtr->regulator_threshold = node["hydro"]["dissipative_terms_regulator"]["threshold"].as<bool>();
+        settingsPtr->regulator_threshold = node["hydro"]["dissipative_terms_regulator"]["threshold"].as<double>();
       } catch (...) {
         formatted_output::report("WARNING: Could not read regulator_threshold!");
         formatted_output::report("This is an optional parameter. Setting to default value.");

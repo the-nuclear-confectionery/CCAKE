@@ -1253,12 +1253,7 @@ void SPHWorkstation<D, TEOM>::regulator(){
 
   auto regulate_reynolds = KOKKOS_LAMBDA(const int is, const int ia){
     //Loading variables
-    double u0 = device_hydro_scalar.access(is, ia, hydro_info::gamma);
-    double e = device_thermo.access(is, ia, ccake::thermo_info::e);
     double p = device_thermo.access(is, ia, ccake::thermo_info::p);
-    double u[D];
-    for (int idir=0; idir<D; ++idir)
-      u[idir] = device_hydro_vector.access(is, ia, hydro_info::u, idir);
     double Bulk = device_hydro_scalar.access(is, ia, hydro_info::Bulk);
     double pi[D+1][D+1];
     for (int idir=0; idir<D+1; ++idir)
@@ -1272,8 +1267,8 @@ void SPHWorkstation<D, TEOM>::regulator(){
     for (int idir=0; idir<D; ++idir)
       R_shear += pi[idir+1][idir+1]*pi[idir+1][idir+1];
     if (D == 3){
-      R_shear += pi[D][D]*pi[D][D]*t4;
-    }else if (D == 2 || D == 1){
+      R_shear += pi[D][D]*pi[D][D]*(t4-1);
+    } else if (D == 2 || D == 1){
       R_shear += shv33*shv33*t4;
     }
 
@@ -1281,7 +1276,7 @@ void SPHWorkstation<D, TEOM>::regulator(){
     for (int idir=0; idir<D; ++idir)
       R_shear -= 2.*pi[0][idir+1]*pi[0][idir+1];
     if (D == 3)
-      R_shear -= 2.*pi[0][3]*pi[0][3]*t2;
+      R_shear -= 2.*pi[0][3]*pi[0][3]*(t2-1);
 
     // //Off-diagonal space components contributions
     for (int idir=0; idir<D; ++idir)
@@ -1289,7 +1284,7 @@ void SPHWorkstation<D, TEOM>::regulator(){
       R_shear += 2.*pi[idir+1][jdir+1]*pi[idir+1][jdir+1];
     if (D == 3)
       for (int idir=0; idir<D; ++idir)
-        R_shear += 2.*pi[idir+1][3]*pi[idir+1][3]*t2;
+        R_shear += 2.*pi[idir+1][3]*pi[idir+1][3]*(t2-1);
 
     R_shear = Kokkos::sqrtf(R_shear)/p;
     double R_bulk = Kokkos::fabs(Bulk)/p;
@@ -1297,14 +1292,16 @@ void SPHWorkstation<D, TEOM>::regulator(){
     //Regulate if necessary
     double dampening = 0;
     if (R_shear > Reynolds_threshold){
-      for (int idir=0; idir<D+1; ++idir)
-      for (int jdir=0; jdir<D+1; ++jdir){
-        dampening = Reynolds_threshold/R_shear;
-        device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir, jdir) =
-          device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir, jdir)*dampening;
-        device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, jdir, idir) =
-          device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir, jdir);
+      dampening = Reynolds_threshold/R_shear;
+      if (dampening > 1.){
+        cout << "Dampening does not dampens" << endl;
+        exit(EXIT_FAILURE);
       }
+      for (int idir=0; idir<D+1; ++idir)
+      for (int jdir=0; jdir<D+1; ++jdir)
+        device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir, jdir) =
+          pi[idir][jdir]*dampening;
+      device_hydro_scalar.access(is, ia, hydro_info::shv33) = shv33*dampening;
     }
 
     if (R_bulk > Reynolds_threshold){
@@ -1316,24 +1313,8 @@ void SPHWorkstation<D, TEOM>::regulator(){
   if(settingsPtr->regulate_dissipative_terms){
     Cabana::simd_parallel_for(simd_policy, regulate_reynolds, "regulate_reynolds");
     Kokkos::fence();
-    TEOM<D>::reset_pi_tensor(systemPtr);
-    Kokkos::fence();
   }
 
-
-  auto regulate = KOKKOS_LAMBDA(const int is, const int ia){
-    //Enforce minimum value for specific entropy
-    int freeze = device_freeze.access(is, ia); //Check if the cell is frozen
-    double specific_s = device_specific_density.access(is, ia, densities_info::s);
-    if (specific_s < 0.0 && freeze > 0){ //If frozen, we do not want to crash because of negative entropy
-      device_specific_density.access(is, ia, densities_info::s) = 1.e-3; //Enforce positivity
-    } else if (specific_s < 0.0){
-      exit(EXIT_FAILURE);
-    }
-  };
-  Cabana::simd_parallel_for(simd_policy, regulate, "regulate");
-  Kokkos::fence();
-  TEOM<D>::reset_pi_tensor(systemPtr);
 }
 
 }; //namespace ccake

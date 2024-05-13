@@ -438,6 +438,7 @@ void BSQHydro<D,TEOM>::run()
     // workstation advances by given
     // timestep at given RK order
     wsPtr->advance_timestep( settingsPtr->dt, rk_order );
+    wsPtr->regulator();
 
     //===================================
     // re-compute conserved quantities, etc.
