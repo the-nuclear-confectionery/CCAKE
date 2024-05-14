@@ -235,11 +235,16 @@ void SPHWorkstation<D,TEOM>::initial_smoothing()
 template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
 {
-
   CREATE_VIEW(device_, systemPtr->cabana_particles);
   auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
   double hT = settingsPtr->hT;
   double t = systemPtr->t;
+
+  //creating outfile to for kernal function output
+  /*ofstream outfile;
+  std::fname = "kernel_" + std::to_string(hT) + ".dat";
+  outfile.open(fname);*/
+
   //Reset smoothed fields. Initializes using the contribution of the particle to the density evaluated
   //on top of itself because the loop over the neighbour particles does not include the particle itself.
   double kern0 = SPHkernel<D>::kernel(0,hT); //The value of the Kernel evaluated on top of the particle
@@ -263,6 +268,10 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
     }
     double distance = SPHkernel<D>::distance(r1,r2);
     double kern = SPHkernel<D>::kernel(distance,hT);
+
+    //outputting kernel function to the outfile "kernel_{hT}.dat"
+    /*outfile << kern << distance << endl;
+    outfile.close();*/
 
     //Update sigma (reference density)
     Kokkos::atomic_add( &device_hydro_scalar(iparticle, ccake::hydro_info::sigma), device_norm_spec(jparticle, ccake::densities_info::s)*kern);

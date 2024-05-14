@@ -343,6 +343,10 @@ void SystemState<D>::copy_device_to_host(){
 /// @tparam D The dimensionality of the simulation
 template<unsigned int D>
 void SystemState<D>::reset_neighbour_list(){
+  //Outfile for cabana particle neighbors
+  /*ofstream outfile;
+  outfile.open("neighbors.dat")*/
+
   double min_pos[3], max_pos[3];
   switch (D)
   {
@@ -379,9 +383,17 @@ void SystemState<D>::reset_neighbour_list(){
   ///TODO: Requires UVM, which is not good for performance
   ///Need a way to call Cabana::NeighborList::numNeighbor directly from GPU
   ///without seg fault
-  for (int i=0; i<n_particles; ++i)
+  for (int i=0; i<n_particles; ++i) {
     device_btrack(i) = device_btrack(i) == -1 ? -1 : Cabana::NeighborList<ListType>::numNeighbor( neighbour_list, i );
-
+    /*if (Cabana::NeighborList<ListType>::numNeighbor( neighbour_list, i ) < 5) {
+      std::cout << "The particle " << i << " was found with less than 5 neighbors" << std::endl;
+      abort();
+    }*/
+  }
+  print_neighbors(950);
+  print_neighbors(975);
+  print_neighbors(1000);
+  print_neighbors(1025);
   #ifdef DEBUG
   print_neighbors(0);
   #endif

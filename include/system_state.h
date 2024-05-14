@@ -119,6 +119,7 @@ class SystemState
       CREATE_VIEW(device_,cabana_particles)
         std::cout << "System has " << cabana_particles.size() << " particles" << std::endl;
         int num_n = Cabana::NeighborList<ListType>::numNeighbor( neighbour_list, idx );
+	//if (num_n << 5) abort();
         std::cout << "Particle " << idx << " # neighbor = " << num_n << std::endl;
         for ( int j = 0; j < num_n; ++j ){
           int neighIdx = Cabana::NeighborList<ListType>::getNeighbor( neighbour_list, idx, j );
