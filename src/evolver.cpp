@@ -189,6 +189,21 @@ void Evolver<D>::step_rk(double dt, double t0, std::function<void(void)> time_de
     device_hydro_scalar.access(is, ia,ccake::hydro_info::t) = t;
   }, "update_hydro_time_step");
   Kokkos::fence();
+
+  if (settingsPtr->regulate_dissipative_terms ){
+    auto regulate = KOKKOS_LAMBDA(const int is, const int ia){
+      //Enforce minimum value for specific entropy
+      int freeze = device_freeze.access(is, ia); //Check if the cell is frozen
+      double specific_s = device_specific_density.access(is, ia, densities_info::s);
+      if (specific_s < 0.0 && freeze > 0){ //If frozen, we do not want to crash because of negative entropy
+        device_specific_density.access(is, ia, densities_info::s) = 1.e-3; //Enforce positivity
+      } else if (specific_s < 0.0){
+        exit(EXIT_FAILURE);
+      }
+    };
+    Cabana::simd_parallel_for(simd_policy, regulate, "regulate");
+    Kokkos::fence();
+  }
 }
 
 /// @brief Evolve the system using a second order Runge-Kutta algorithm.
@@ -211,13 +226,11 @@ void Evolver<D>::advance_timestep_rk2( double dt,
       ////////////////////////////////////////////
       //    first step
       ////////////////////////////////////////////
-      formatted_output::report("RK(n=2) evolution, step 1");
       step_rk(.5*dt, t0, time_derivatives_functional);
 
       ////////////////////////////////////////////
       //    second step
       ////////////////////////////////////////////
-      formatted_output::report("RK(n=2) evolution, step 2");
       step_rk(dt, t0, time_derivatives_functional);
       return;
 }
