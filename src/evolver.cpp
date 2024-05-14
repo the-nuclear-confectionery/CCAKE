@@ -226,13 +226,11 @@ void Evolver<D>::advance_timestep_rk2( double dt,
       ////////////////////////////////////////////
       //    first step
       ////////////////////////////////////////////
-      formatted_output::report("RK(n=2) evolution, step 1");
       step_rk(.5*dt, t0, time_derivatives_functional);
 
       ////////////////////////////////////////////
       //    second step
       ////////////////////////////////////////////
-      formatted_output::report("RK(n=2) evolution, step 2");
       step_rk(dt, t0, time_derivatives_functional);
       return;
 }

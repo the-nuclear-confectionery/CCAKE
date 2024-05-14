@@ -432,8 +432,11 @@ void BSQHydro<D,TEOM>::run()
       fo_file.close();
     }
   }
+  double total_time = 0.0;
   while ( wsPtr->continue_evolution() )
   {
+    Stopwatch sw_loop;
+    sw_loop.Start();
     //===================================
     // workstation advances by given
     // timestep at given RK order
@@ -449,9 +452,18 @@ void BSQHydro<D,TEOM>::run()
     //===================================
     // print updated system and status
     //outPtr->print_conservation_status();
-    if (systemPtr->number_of_elapsed_timesteps%100 == 0) outPtr->print_system_state();
     if (settingsPtr->particlization_enabled) outPtr->print_freeze_out(wsPtr->freezePtr);
-
+    if (systemPtr->number_of_elapsed_timesteps%100 == 0){
+      outPtr->print_system_state();
+      sw_loop.Stop();
+      total_time += sw_loop.printTime();
+      formatted_output::summarize("Saving timestep "+ to_string(systemPtr->number_of_elapsed_timesteps)
+        + ". tau =  " + to_string(systemPtr->t) + " fm/c. Elapsed time: " + to_string(total_time) + " s");
+      formatted_output::update("Average performace: " + to_string(systemPtr->number_of_elapsed_timesteps/total_time) + " timesteps/s");
+    } else {
+      sw_loop.Stop();
+      total_time += sw_loop.printTime();
+    }
   }
 
   sw.Stop();

@@ -758,9 +758,6 @@ void SPHWorkstation<D,TEOM>::freeze_out_particles()
 template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D, TEOM>::get_time_derivatives()
 {
-  Stopwatch sw;
-  sw.Start();
-
   double t = systemPtr->t;
   double t2 = t*t;
 
@@ -790,8 +787,6 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives()
 
   // reset nearest neighbors
   systemPtr->reset_neighbour_list();
-  // Regulate the viscous terms
-  regulator();
   // smooth all particle fields - s, rhoB, rhoQ and rhoS and sigma
   smooth_all_particle_fields(t2);
     // Update particle thermodynamic properties
@@ -815,10 +810,6 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives()
     file.close();
   }
   #endif
-
-  sw.Stop();
-  formatted_output::update("Finished computing time derivatives in "
-                            + to_string(sw.printTime()) + " s.");
   // check/update conserved quantities
   //systemPtr->conservation_energy();
   return;
@@ -870,8 +861,6 @@ void SPHWorkstation<D, TEOM>::update_all_particle_viscosities()
 template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D, TEOM>::update_all_particle_thermodynamics()
 {
-  Stopwatch sw;
-  sw.Start();
   double t = systemPtr->t;
   double t2 = t*t;
 
@@ -904,11 +893,6 @@ void SPHWorkstation<D, TEOM>::update_all_particle_thermodynamics()
     systemPtr->copy_device_to_host();
     #endif
   }
-
-
-  sw.Stop();
-  formatted_output::detail("Got particle thermodynamics in "
-                            + to_string(sw.printTime()) + " s.");
 }
 
 
@@ -1151,8 +1135,6 @@ void SPHWorkstation<D, TEOM>::add_buffer(double default_e)
 template<unsigned int D, template<unsigned int> class TEOM>
 bool SPHWorkstation<D, TEOM>::continue_evolution()
 {
-  std::cout << "t = " << systemPtr->t << std::endl;
-
   bool keep_going =  true;
   if(settingsPtr->particlization_enabled )
     keep_going = (systemPtr->number_part_fo != systemPtr->n_particles); // all particles have frozen out. Break evolution.
@@ -1180,9 +1162,6 @@ bool SPHWorkstation<D, TEOM>::continue_evolution()
 template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D, TEOM>::advance_timestep( double dt, int rk_order )
 {
-  Stopwatch sw;
-  sw.Start();
-
   //Bulk of code evaluation is done below
   evolver.execute_timestep( dt, rk_order,
                             [this]{ this->get_time_derivatives(); } );
@@ -1195,9 +1174,6 @@ void SPHWorkstation<D, TEOM>::advance_timestep( double dt, int rk_order )
   // keep track of how many timesteps have elapsed
   systemPtr->number_of_elapsed_timesteps++;
 
-  sw.Stop();
-  formatted_output::detail("finished timestep in "
-                            + to_string(sw.printTime()) + " s");
   return;
 }
 
