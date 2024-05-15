@@ -64,8 +64,10 @@ void welcome()
     cout << "= Travis Dore\n";
     cout << "= Dekrayat Almaalol\n";
     cout << "= Jaquelyn Noronha-Hostler\n";
-    cout << "= Lydia Spychalla\n";
+    cout << "= Willian Matioli Serenone\n";
     cout << "= Jordi Salinas San Martin\n";
+    cout << "= Lydia Spychalla\n";
+    cout << "= Débora Mroczek\n";
     cout << "================================================================================" << endl;
 
   }
@@ -87,13 +89,14 @@ void welcome()
     cout << "-------------------------------------------------------------------------------------"
          << endl;
     cout << "Authors: " << endl;
-    cout << "Christopher Plumberg" << endl;
-    cout << "Travis Dore" << endl;
-    cout << "Dekrayat Almaalol" << endl;
-    cout << "Jaquelyn Noronha-Hostler" << endl;
-    cout << "Nikolas Cruz Camacho" << endl;
-    cout << "Lydia Spychalla" << endl;
-    cout << "Jordi Salinas San Martin" << endl << endl;
+    cout << "= Christopher Plumberg\n";
+    cout << "= Travis Dore\n";
+    cout << "= Dekrayat Almaalol\n";
+    cout << "= Jaquelyn Noronha-Hostler\n";
+    cout << "= Willian Matioli Serenone\n";
+    cout << "= Jordi Salinas San Martin\n";
+    cout << "= Lydia Spychalla\n";
+    cout << "= Débora Mroczek\n";
     cout << "-------------------------------------------------------------------------------------"
          << endl << endl;
 
