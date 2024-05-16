@@ -1,9 +1,9 @@
 # CCAKE
 
-CCAKE is a relativistic viscous hydrodynamic code with 3 conserved charges 
-(baryon number, strangeness, and electric charge) that uses Smoothed Particle 
-Hydrodynamics. CCAKE can make state-of-the-art predictions for heavy-ion 
-collisions. It uses the 4D lattice QCD equation of state with T, baryon, 
+CCAKE is a relativistic viscous hydrodynamic code with 3 conserved charges
+(baryon number, strangeness, and electric charge) that uses Smoothed Particle
+Hydrodynamics. CCAKE can make state-of-the-art predictions for heavy-ion
+collisions. It uses the 4D lattice QCD equation of state with T, baryon,
 strangeness, and electric charge that is coupled to the PDG16+ particle
 list.
 
@@ -11,7 +11,7 @@ If you use this code in your research, please remember to cite us.
 
 ## 1. Apptainer (Singularity) usage
 
-It is recommended to use the apptainer (former singularity) to execute the code. 
+It is recommended to use the apptainer (former singularity) to execute the code.
 You can find out instructions in [here](apptainer/README.md).
 
 ## 2. Compiling from source instructions
@@ -32,33 +32,34 @@ To compile `ccake`, you need to have the following dependencies installed:
 > cluster and don't have root access), you can use either compile the
 > dependencies from source or use a virtual environment (recommended). HPC
 > clusters may also offer them as loadable modules.
->
-> To use the virtual environment, you need to have
-> [`mamba`](https://mamba.readthedocs.io/en/latest/) installed. Then, run
-> `mamba env create -f environment.yml` to create the environment. To activate
-> it, run `conda activate ccake`. To deactivate it, run `conda deactivate`.
 
 ### 2.2. Compiling
 
-The recommended way to compile is by using the `build_all.sh` script. You can
+The recommended way to compile is by sourcing the `bootstrap.sh` script. You can
 manually compile the project by following the steps below.
 
 1. Create a build directory and enter it: `mkdir build && cd build`
 2. Configure the build with `cmake ..`
-3. Build with `make -jN` where `N` is the number of cores you want to use. For 
+3. Build with `make -jN` where `N` is the number of cores you want to use. For
    a personal computer, `N=4` is a good choice.
+4. Download the EoS with:
+```bash
+mkdir -p EoS/Houston && \
+wget -O EoS/Houston/thermo.dat https://zenodo.org/record/6829115/files/thermo.dat?download=1 && \
+wget -O EoS/Houston/thermo.h5 https://zenodo.org/record/6829115/files/thermo.h5?download=1
+```
 
 ## 3. Usage
 
 Make sure that in your working directory, a copy or a symlink of the folder
 `EoS` is present. Create an output directory and then run `ccake` as
 `ccake path/to/input-file path/to/output-directory`. For example, if you are
-in the project root directory, you can run
-`build/bin/ccake input/input/Input_Parameters_ccake.inp output`.
+in the project root directory and wants to run a Gubser test, you can use the
+command `mkdir -p output && ./ccake input/Input_Parameters_Gubser_checks.inp output`.
 
 ## 4. Reporting bugs and getting help
 
-If you are facing some problem or found some bug, feel free to open an 
+If you are facing some problem or found some bug, feel free to open an
 [issue](https://github.com/the-nuclear-confectionery/CCAKE/issues) or create
 a pull request.
 
