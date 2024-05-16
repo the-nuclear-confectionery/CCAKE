@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
 singularity build --fakeroot ccake.sif ccake.def
-#singularity instance start ccake.sif ccake
+singularity run --fakeroot --cleanenv --no-home -B ../:/CCAKE ccake.sif \
+bash -c "cd /CCAKE && source bootstrap.sh"
