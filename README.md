@@ -7,7 +7,7 @@ collisions. It uses the 4D lattice QCD equation of state with T, baryon,
 strangeness, and electric charge that is coupled to the PDG16+ particle
 list.
 
-If you use this code in your research, please remember to cite us.
+If you use this code in your research, please remember to cite us: [arXiv:2405.09648](https://arxiv.org/abs/2405.09648).
 
 ## 1. Apptainer (Singularity) usage
 
