@@ -60,8 +60,10 @@ public:
     BBMG( Settings * settingsPtr_in, SystemState * systemPtr_in );
     void propagate();
     double flow(field &f);
-    double qft(double p);
-    double gft(double p);
+    double qftLHC(double x);
+    double gftLHC(double x);
+    double fragFuncPiq(double x, double y);
+    double fragFuncPig(double x, double y);
 
     void initial();
 };

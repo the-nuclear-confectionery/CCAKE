@@ -31,7 +31,7 @@ BBMG::BBMG( Settings * settingsPtr_in, SystemState * systemPtr_in )
   Cg                = 3; // Cassimir const gluons
   Cq                = 4./3; // Cassimir const quarks
   // All next quantities are part of the BBMG parameters
-  q                 = 1;// Fluctuation parameter, subject to change
+  q                 = 0; // Fluctuation parameter, subject to change
   z                 = 1; // path length dependence
   a                 = 0; //Initial jet energy dependence
   c                 = (2+z-a)/3; //medium temperature dependence
@@ -42,7 +42,7 @@ BBMG::BBMG( Settings * settingsPtr_in, SystemState * systemPtr_in )
   area  = PI*pow(2.*systemPtr->h,2);
   rr.resize(systemPtr->n());
 
-  for (int i = 0; i < 15; i++)
+  for (int i = 0; i < 14; i++)
   { // Not sure what this for yet but the quantities aren't even calculated
     Rq[i]  = 0;
     Rg[i]  = 0;
@@ -104,10 +104,10 @@ void BBMG::initial()
 double BBMG::flow(field &f) { return f.gam*(1-f.vmag*cos(f.phi-f.vang)); }
 
 
-double BBMG::gft(double p) { return 2*p; } 
+double BBMG::gftLHC(double x) { return exp(6.874017911786442 - 0.26596588700706614*pow(log(x),0.6654825884427571) - 2.677705869879314*pow(log(x),0.8020502598676339) - 2.4735502984532656*pow(log(x),0.8069542250600515) - 0.36687832133337656*pow(log(x),2.070179064516989)); } 
 
 
-double BBMG::qft(double p) { return 2*p; }
+double BBMG::qftLHC(double x) { return exp(2.9903871818687286 - 2.0117432145703114*pow(log(x),1.0384884086567516) - 1.9187151702604879*pow(log(x),1.039887584824982) - 0.15503714201000543*pow(log(x),1.0586516925018519) - 0.15384778823017106*pow(log(x),2.0829849720841573)); }
 
 
 double BBMG::efluc()
@@ -116,6 +116,35 @@ double BBMG::efluc()
   double zeta         = random_variable*(q+2.);
   return (1.+q) / pow(q+2, 1+q) * pow(q+2.-zeta, q);
 }
+
+//KKP Fragmentation function at leading order for pions from quarks
+double BBMG::fragFuncPiq(double x, double y)
+{
+  double lambda   = 0.088;
+  double mu0      = 2;
+  double sbar     = log(log(y/lambda)/log(mu0/lambda));
+  double N        = 0.54610 - 0.22946*pow(sbar,1) - 0.22594*pow(sbar,2) + 0.21119*pow(sbar,3);
+  double alpha    = -1.46616 - 0.45404*pow(sbar,1) - 0.12684*pow(sbar,2) + 0.27646*pow(sbar,3);
+  double beta     = 1.01864 + 0.95367*pow(sbar,1) - 1.09835*pow(sbar,2) + 0.74657*pow(sbar,3);
+  double gamma    = -0.01877*pow(sbar,1) + 0.02949*pow(sbar,2);
+  double D        = N*pow(x,alpha)*pow(1-x,beta)*(1+gamma/x);
+  return D;
+}
+
+//KKP Fragmentation function at leading order for pions from gluons
+double BBMG::fragFuncPig(double x, double y)
+{
+  double lambda   = 0.088;
+  double mu0      = 2;
+  double sbar     = log(log(y/lambda)/log(mu0/lambda));
+  double N        = 6.04510 - 6.61523*pow(sbar,1) - 1.64978*pow(sbar,2) + 2.68223*pow(sbar,3);
+  double alpha    = -0.71378 + 0.14705*pow(sbar,1) - 1.08423*pow(sbar,2) - 0.43182*pow(sbar,3);
+  double beta     = 2.92133 + 1.48429*pow(sbar,1) + 1.32887*pow(sbar,2) - 1.78696*pow(sbar,3);
+  double gamma    = 0.23086*pow(sbar,1) - 0.29182*pow(sbar,2);
+  double D        = N*pow(x,alpha)*pow(1-x,beta)*(1+gamma/x);
+  return D;
+}
+
 
 //Delaunay triangulation if needed
 /*void BBMG::initialize_Delaunay()
@@ -143,8 +172,8 @@ void BBMG::propagate()
     {
       full_sph_field[i].line += pow(tau, z) * pow(full_sph_field[i].rho0, c) * settingsPtr->dt * flow(full_sph_field[i]);
       
-      cout << "This is the value of the flow factor being multiplied: " << flow(full_sph_field[i]) << endl;
-      
+      //cout << "This is the value of the flow factor being multiplied: " << flow(full_sph_field[i]) << endl;
+      cout << "Checking if rho0 is updated at each time step: " << full_sph_field[1003].rho0 << endl;
       stillon++;
     }
     else //This comes in when we drop below freezeout temp, as .on should never go to 0 on its own
@@ -155,12 +184,13 @@ void BBMG::propagate()
       full_sph_field[i].line += 0;
 
       //ff[i].line *= efluc();
-
-      P0g  = (Pfg + Cg * full_sph_field[i].line) * constants::hbarc_GeVfm; //* pow(Pfg, 1-a)
+      // Could add in fluctuations as a multiplicative factor in the next line, like the unit converter
+      P0g  = (Pfg + Cg * full_sph_field[i].line) * constants::hbarc_GeVfm; //* pow(Pfg, 1-a) 
       P0q  = (Pfq + Cq * full_sph_field[i].line) * constants::hbarc_GeVfm; //* pow(Pfq, 1-a) 
-      cout << "P0g: " << P0g << " GeV, P0q: " << P0q << " GeV" << endl;
+      //cout << "P0g: " << P0g << " GeV, P0q: " << P0q << " GeV" << endl;
 
       int jj      = full_sph_field[i].pid;
+      
       //Rq[jj]     += pow(P0g/Pfg, 1+a) * ff[i].rho0 * gft(P0g) / gft(Pfg);
       //Rq[jj]     += pow(P0q/Pfq, 1+a) * ff[i].rho0 * qft(P0g) / qft(Pfg); 
     }
@@ -216,8 +246,6 @@ void BBMG::inter( field &f )
       //f.T      += p.T()*constants::hbarc_MeVfm*0.06*0.06*kk; //Here I changed the hardcoded grid size to a read in of the default grid from settings.
       f.T      += p.T()*constants::hbarc_MeVfm*kern; // After correcting with the constants list, almost correct --------- WHY IS THIS += AND NOT JUST =
       //cout << "Interpolated temp value is " << f.T << "\n";
-      /*if (f.T > 900)
-      {abort();}*/
       f.rho    += (p.p()/p.T())*kern;
       f.v[0]   += p.hydro.v(0)*kern;
       //cout << "X velocity is: " << f.v[0] << endl; This is fine for now, not seemingly above 1
@@ -229,8 +257,6 @@ void BBMG::inter( field &f )
       
     }
   }
-  //This fac quantity seems to be fools gold, every time I have used it I get either 0's or no values at all
- //may need to move these inside the for loop?? including these returns 0 for all quantities below
   //f.T       *= constants::hbarc_MeVfm;
   f.T       /= norm;
   f.rho     /= norm;
