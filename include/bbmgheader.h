@@ -18,6 +18,7 @@
 #include "settings.h"
 #include "system_state.h"
 #include "table_delaunay.h"
+#include "thermodynamic_info.h"
 
 //using namespace std;
 
