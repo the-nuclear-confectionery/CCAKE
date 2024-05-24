@@ -72,7 +72,7 @@ void BBMG::initial()
     auto & p = systemPtr->particles[i];
     //Density from pressure over temperature
     double rsub = p.p() / p.T();
-    //cout << "Pressures from particle list: " << p.p() << endl << "Temperatures from particle list: " << p.T() << endl;
+    cout << "Pressures from particle list: " << p.p() << endl << "Temperatures from particle list: " << p.T() << endl << "Ratio is: " << rsub << endl;
     rho0tot    += rsub;
     if ( p.T() * constants::hbarc_MeVfm > Freezeout_Temp )
     {
@@ -170,10 +170,10 @@ void BBMG::propagate()
     
     if ( ( full_sph_field[i].on == 1 ) && ( full_sph_field[i].T > Freezeout_Temp ) )
     {
-      full_sph_field[i].line += pow(tau, z) * pow(full_sph_field[i].rho0, c) * settingsPtr->dt * flow(full_sph_field[i]);
+      full_sph_field[i].line += pow(tau, z) * pow(full_sph_field[i].rho, c) * settingsPtr->dt * flow(full_sph_field[i]);
       
       //cout << "This is the value of the flow factor being multiplied: " << flow(full_sph_field[i]) << endl;
-      cout << "Checking if rho0 is updated at each time step: " << full_sph_field[1003].rho0 << endl;
+      cout << "Checking if rho0 is updated at each time step: " << full_sph_field[1003].rho << endl;
       stillon++;
     }
     else //This comes in when we drop below freezeout temp, as .on should never go to 0 on its own
@@ -239,12 +239,12 @@ void BBMG::inter( field &f )
       //cout << "Distance used in kernel interpolation is: " << rdiff << "\n";
       den++;
       den2     += p.norm_spec.s;
-      double kern = kernel::kernel(rdiff); //In order to call this, shouldn't I be including kernel.cpp instead of kernel.h?"
+      double kern = kernel::kernel(rdiff);
       norm         += kern;
       double gridx = settingsPtr->stepx;
       double gridy = settingsPtr->stepy;
       //f.T      += p.T()*constants::hbarc_MeVfm*0.06*0.06*kk; //Here I changed the hardcoded grid size to a read in of the default grid from settings.
-      f.T      += p.T()*constants::hbarc_MeVfm*kern; // After correcting with the constants list, almost correct --------- WHY IS THIS += AND NOT JUST =
+      f.T      += p.T()*constants::hbarc_MeVfm*kern;
       //cout << "Interpolated temp value is " << f.T << "\n";
       f.rho    += (p.p()/p.T())*kern;
       f.v[0]   += p.hydro.v(0)*kern;
