@@ -47,7 +47,7 @@ private:
     double Pfg, Pfq;
 
     double phi[15];
-    double Rq[15], Rg[15];
+    double Rjetq[15], Rjetg[15];
     vector<double> rr;
     vector<field> full_sph_field;
 

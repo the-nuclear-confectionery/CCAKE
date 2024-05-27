@@ -189,8 +189,8 @@ void BBMG::propagate()
 
       int jj      = full_sph_field[i].pid;
       cout << "Value jj is taking: " << jj << endl;
-      Rjetg[jj]     += pow(P0g/Pfg, 1+a) * gft(P0g) / gft(Pfg);
-      Rjetq[jj]     += pow(P0q/Pfq, 1+a) * qft(P0g) / qft(Pfg); 
+      Rjetg[jj]     += pow(P0g/Pfg, 1+a) * gftLHC(P0g) / gftLHC(Pfg);
+      Rjetq[jj]     += pow(P0q/Pfq, 1+a) * qftLHC(P0g) / qftLHC(Pfg); 
 
     }
   }
