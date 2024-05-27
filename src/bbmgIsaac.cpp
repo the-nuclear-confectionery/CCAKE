@@ -44,8 +44,8 @@ BBMG::BBMG( Settings * settingsPtr_in, SystemState * systemPtr_in )
 
   for (int i = 0; i < 14; i++)
   { // Not sure what this for yet but the quantities aren't even calculated
-    Rq[i]  = 0;
-    Rg[i]  = 0;
+    Rjetq[i]  = 0;
+    Rjetg[i]  = 0;
     phi[i] = i*PI/7;
   }
   //Setting final energy as a start point for the integration; This is starting in GeV
@@ -172,7 +172,6 @@ void BBMG::propagate()
       full_sph_field[i].line += pow(tau, z) * pow(full_sph_field[i].rho, c) * settingsPtr->dt * flow(full_sph_field[i]);
       
       //cout << "This is the value of the flow factor being multiplied: " << flow(full_sph_field[i]) << endl;
-      cout << "Checking if rho is updated at each time step: " << full_sph_field[1003].rho  << endl;
       stillon++;
     }
     else //This comes in when we drop below freezeout temp, as .on should never go to 0 on its own
@@ -189,9 +188,10 @@ void BBMG::propagate()
       //cout << "P0g: " << P0g << " GeV, P0q: " << P0q << " GeV" << endl;
 
       int jj      = full_sph_field[i].pid;
-      
-      //Rq[jj]     += pow(P0g/Pfg, 1+a) * ff[i].rho0 * gft(P0g) / gft(Pfg);
-      //Rq[jj]     += pow(P0q/Pfq, 1+a) * ff[i].rho0 * qft(P0g) / qft(Pfg); 
+      cout << "Value jj is taking: " << jj << endl;
+      Rjetg[jj]     += pow(P0g/Pfg, 1+a) * gft(P0g) / gft(Pfg);
+      Rjetq[jj]     += pow(P0q/Pfq, 1+a) * qft(P0g) / qft(Pfg); 
+
     }
   }
 
@@ -199,8 +199,9 @@ void BBMG::propagate()
   {
     for (int j=0; j<14; j++)
     {
-      Rq[j] /= rho0tot;
-      Rg[j] /= rho0tot;
+      //What is going on here???
+      Rjetq[j] /= rho0tot;
+      Rjetg[j] /= rho0tot;
     }
   }
 }
