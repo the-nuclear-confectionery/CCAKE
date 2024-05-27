@@ -72,7 +72,6 @@ void BBMG::initial()
     auto & p = systemPtr->particles[i];
     //Density from pressure over temperature
     double rsub = p.p() / p.T();
-    cout << "Pressures from particle list: " << p.p() << endl << "Temperatures from particle list: " << p.T() << endl << "Ratio is: " << rsub << endl;
     rho0tot    += rsub;
     if ( p.T() * constants::hbarc_MeVfm > Freezeout_Temp )
     {
@@ -173,7 +172,7 @@ void BBMG::propagate()
       full_sph_field[i].line += pow(tau, z) * pow(full_sph_field[i].rho, c) * settingsPtr->dt * flow(full_sph_field[i]);
       
       //cout << "This is the value of the flow factor being multiplied: " << flow(full_sph_field[i]) << endl;
-      cout << "Checking if rho0 is updated at each time step: " << full_sph_field[1003].rho << endl;
+      cout << "Checking if rho is updated at each time step: " << full_sph_field[1003].rho  << endl;
       stillon++;
     }
     else //This comes in when we drop below freezeout temp, as .on should never go to 0 on its own
@@ -248,9 +247,8 @@ void BBMG::inter( field &f )
       //cout << "Interpolated temp value is " << f.T << "\n";
       f.rho    += (p.p()/p.T())*kern;
       f.v[0]   += p.hydro.v(0)*kern;
-      //cout << "X velocity is: " << f.v[0] << endl; This is fine for now, not seemingly above 1
       f.v[1]   += p.hydro.v(1)*kern;
-      //By following the style of sph workstation, I have included den2 as the normalization factor with the kernel function
+      
 
 
       //cout << dx << " " << dy << " " << p.T()*constants::hbarc_MeVfm << " " << p.hydro.v << endl;
