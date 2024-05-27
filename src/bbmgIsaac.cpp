@@ -91,6 +91,7 @@ void BBMG::initial()
       {
         sph_particle.phi = phi[j];
         sph_particle.pid = j;
+        cout << "if this is not changing through 14 values we have an issue" << sph_particle.pid << endl;
         sph_particle.on  = 1;
       }
       full_sph_field.push_back(sph_particle);
@@ -188,7 +189,7 @@ void BBMG::propagate()
       //cout << "P0g: " << P0g << " GeV, P0q: " << P0q << " GeV" << endl;
 
       int jj      = full_sph_field[i].pid;
-      cout << "Value jj is taking: " << jj << endl;
+      //cout << "Value jj is taking: " << jj << endl;
       Rjetg[jj]     += pow(P0g/Pfg, 1+a) * gftLHC(P0g) / gftLHC(Pfg);
       Rjetq[jj]     += pow(P0q/Pfq, 1+a) * qftLHC(P0g) / qftLHC(Pfg); 
 
