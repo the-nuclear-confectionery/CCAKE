@@ -43,7 +43,7 @@ BBMG::BBMG( Settings * settingsPtr_in, SystemState * systemPtr_in )
   rr.resize(systemPtr->n());
 
   for (int i = 0; i < 14; i++)
-  { // Not sure what this for yet but the quantities aren't even calculated
+  {
     Rjetq[i]  = 0;
     Rjetg[i]  = 0;
     phi[i] = i*PI/7;
@@ -162,7 +162,7 @@ void BBMG::propagate()
     // propagate x,y position of jet on top of sph particles
     full_sph_field[i].r[0] += vjet * settingsPtr->dt * cos(full_sph_field[i].phi);
     full_sph_field[i].r[1] += vjet * settingsPtr->dt * sin(full_sph_field[i].phi);
-
+    cout << "pid checking first: " << full_sph_field[i].pid << endl;
 
     inter( full_sph_field[i] ); //interpolation of the field
     double kappa = get_kappa(full_sph_field[i].T / 1000); //The /1000 here is to move temps from MeV to GeV to follow Barbara's plot, same as above
@@ -170,7 +170,7 @@ void BBMG::propagate()
     if ( ( full_sph_field[i].on == 1 ) && ( full_sph_field[i].T > Freezeout_Temp ) )
     {
       full_sph_field[i].line += pow(tau, z) * pow(full_sph_field[i].rho, c) * settingsPtr->dt * flow(full_sph_field[i]);
-      
+      cout << "pid checking second: " << full_sph_field[i].pid << endl;
       //cout << "This is the value of the flow factor being multiplied: " << flow(full_sph_field[i]) << endl;
       stillon++;
     }
@@ -180,7 +180,6 @@ void BBMG::propagate()
       //full_sph_field[i].line += 0.5 * kappa * pow(tau,z) * pow(full_sph_field[i].rho0, c) * settingsPtr->dt; /* flow(ff[i])*/
       // Commented above out as it is still adding to the line integral, after the partons should be out of the qgp; setting to 0
       full_sph_field[i].line += 0;
-      cout << "Checking if particle pid is still different after going through this: " << full_sph_field[i].pid << endl;
       //ff[i].line *= efluc();
       // Could add in fluctuations as a multiplicative factor in the next line, like the unit converter
       P0g  = (Pfg + Cg * full_sph_field[i].line) * constants::hbarc_GeVfm; //* pow(Pfg, 1-a) 
