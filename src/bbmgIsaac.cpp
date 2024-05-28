@@ -91,7 +91,6 @@ void BBMG::initial()
       {
         sph_particle.phi = phi[j];
         sph_particle.pid = j;
-        cout << "if this is not changing through 14 values we have an issue" << sph_particle.pid << endl;
         sph_particle.on  = 1;
       }
       full_sph_field.push_back(sph_particle);
@@ -181,7 +180,7 @@ void BBMG::propagate()
       //full_sph_field[i].line += 0.5 * kappa * pow(tau,z) * pow(full_sph_field[i].rho0, c) * settingsPtr->dt; /* flow(ff[i])*/
       // Commented above out as it is still adding to the line integral, after the partons should be out of the qgp; setting to 0
       full_sph_field[i].line += 0;
-
+      cout << "Checking if particle pid is still different after going through this: " << full_sph_field[i].pid << endl;
       //ff[i].line *= efluc();
       // Could add in fluctuations as a multiplicative factor in the next line, like the unit converter
       P0g  = (Pfg + Cg * full_sph_field[i].line) * constants::hbarc_GeVfm; //* pow(Pfg, 1-a) 
