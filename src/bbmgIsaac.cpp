@@ -87,13 +87,16 @@ void BBMG::initial()
       
       sph_particle.line = 0.5 * kappa * pow(settingsPtr->t0, z) * pow(sph_particle.rho0, c) * settingsPtr->dt; // only if initial flow=0
 
+      // I think this for loop is the issue
       for (int j=0; j<14; j++) //initializes jets at each point in grid space, over 14 directions
       {
         sph_particle.phi = phi[j];
         sph_particle.pid = j;
         sph_particle.on  = 1;
+        full_sph_field.push_back(sph_particle); // Attempting...
       }
-      full_sph_field.push_back(sph_particle);
+      // Would putting this vector pushback inside for loop fix everything?
+      //full_sph_field.push_back(sph_particle);
     }
   }
 }
