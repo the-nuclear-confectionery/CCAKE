@@ -95,7 +95,8 @@ void BBMG::initial()
         sph_particle.on  = 1;
         full_sph_field.push_back(sph_particle); // Attempting...
       }
-      // Would putting this vector pushback inside for loop fix everything?
+      // Would putting this vector pushback inside for loop fix everything? 
+      // Seems to have fixed, leaving note here for now to know where I screwed up if it's actually wrong
       //full_sph_field.push_back(sph_particle);
     }
   }
@@ -165,7 +166,7 @@ void BBMG::propagate()
     // propagate x,y position of jet on top of sph particles
     full_sph_field[i].r[0] += vjet * settingsPtr->dt * cos(full_sph_field[i].phi);
     full_sph_field[i].r[1] += vjet * settingsPtr->dt * sin(full_sph_field[i].phi);
-    cout << "pid checking first: " << full_sph_field[i].pid << endl;
+    //cout << "pid checking first: " << full_sph_field[i].pid << endl;
 
     inter( full_sph_field[i] ); //interpolation of the field
     double kappa = get_kappa(full_sph_field[i].T / 1000); //The /1000 here is to move temps from MeV to GeV to follow Barbara's plot, same as above
@@ -173,7 +174,7 @@ void BBMG::propagate()
     if ( ( full_sph_field[i].on == 1 ) && ( full_sph_field[i].T > Freezeout_Temp ) )
     {
       full_sph_field[i].line += pow(tau, z) * pow(full_sph_field[i].rho, c) * settingsPtr->dt * flow(full_sph_field[i]);
-      cout << "pid checking second: " << full_sph_field[i].pid << endl;
+      //cout << "pid checking second: " << full_sph_field[i].pid << endl;
       //cout << "This is the value of the flow factor being multiplied: " << flow(full_sph_field[i]) << endl;
       stillon++;
     }
@@ -187,12 +188,12 @@ void BBMG::propagate()
       // Could add in fluctuations as a multiplicative factor in the next line, like the unit converter
       P0g  = (Pfg + Cg * full_sph_field[i].line) * constants::hbarc_GeVfm; //* pow(Pfg, 1-a) 
       P0q  = (Pfq + Cq * full_sph_field[i].line) * constants::hbarc_GeVfm; //* pow(Pfq, 1-a) 
-      //cout << "P0g: " << P0g << " GeV, P0q: " << P0q << " GeV" << endl;
+      cout << "P0g: " << P0g << " GeV, P0q: " << P0q << " GeV" << endl;
 
       int jj      = full_sph_field[i].pid;
       //cout << "Value jj is taking: " << jj << endl;
-      Rjetg[jj]     += pow(P0g/Pfg, 1+a) * gftLHC(P0g) / gftLHC(Pfg);
-      Rjetq[jj]     += pow(P0q/Pfq, 1+a) * qftLHC(P0g) / qftLHC(Pfg); 
+      //Rjetg[jj]     += pow(P0g/Pfg, 1+a) * gftLHC(P0g) / gftLHC(Pfg);
+      //Rjetq[jj]     += pow(P0q/Pfq, 1+a) * qftLHC(P0g) / qftLHC(Pfg); 
 
     }
   }
