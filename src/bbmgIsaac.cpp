@@ -93,7 +93,7 @@ void BBMG::initial()
         sph_particle.phi = phi[j];
         sph_particle.pid = j;
         sph_particle.on  = 1;
-        full_sph_field.push_back(sph_particle); // Attempting...
+        jetInfo.push_back(sph_particle); // Attempting...
       }
       // Would putting this vector pushback inside for loop fix everything? 
       // Seems to have fixed, leaving note here for now to know where I screwed up if it's actually wrong
@@ -159,38 +159,39 @@ void BBMG::propagate()
 {
   double tau  = systemPtr->t + settingsPtr->t0;
   int stillon = 0;
-  int tot     = full_sph_field.size();
+  int tot     = jetInfo.size();
   double P0g = 0, P0q = 0;
-  for (int i = 0; i < tot; i++)
+  // for (int i = 0; i < tot; i++)
+  for (auto& jetPropagation : jetInfo)
   {
     // propagate x,y position of jet on top of sph particles
-    full_sph_field[i].r[0] += vjet * settingsPtr->dt * cos(full_sph_field[i].phi);
-    full_sph_field[i].r[1] += vjet * settingsPtr->dt * sin(full_sph_field[i].phi);
-    //cout << "pid checking first: " << full_sph_field[i].pid << endl;
+    jetPropagation.r[0] += vjet * settingsPtr->dt * cos(jetPropagation.phi);
+    jetPropagation.r[1] += vjet * settingsPtr->dt * sin(jetPropagation.phi);
+    //cout << "pid checking first: " << jetPropagation.pid << endl;
 
-    inter( full_sph_field[i] ); //interpolation of the field
-    double kappa = get_kappa(full_sph_field[i].T / 1000); //The /1000 here is to move temps from MeV to GeV to follow Barbara's plot, same as above
+    inter( jetPropagation ); //interpolation of the field
+    double kappa = get_kappa(jetPropagation.T / 1000); //The /1000 here is to move temps from MeV to GeV to follow Barbara's plot, same as above
     
-    if ( ( full_sph_field[i].on == 1 ) && ( full_sph_field[i].T > Freezeout_Temp ) )
+    if ( ( jetPropagation.on == 1 ) && ( jetPropagation.T > Freezeout_Temp ) )
     {
-      full_sph_field[i].line += pow(tau, z) * pow(full_sph_field[i].rho, c) * settingsPtr->dt * flow(full_sph_field[i]);
-      //cout << "pid checking second: " << full_sph_field[i].pid << endl;
-      //cout << "This is the value of the flow factor being multiplied: " << flow(full_sph_field[i]) << endl;
+      jetPropagation.line += pow(tau, z) * pow(jetPropagation.rho, c) * settingsPtr->dt * flow(jetPropagation);
+      //cout << "pid checking second: " << jetPropagation.pid << endl;
+      //cout << "This is the value of the flow factor being multiplied: " << flow(jetPropagation) << endl;
       stillon++;
     }
     else //This comes in when we drop below freezeout temp, as .on should never go to 0 on its own
     {
-      full_sph_field[i].on    = 0;
-      //full_sph_field[i].line += 0.5 * kappa * pow(tau,z) * pow(full_sph_field[i].rho0, c) * settingsPtr->dt; /* flow(ff[i])*/
+      jetPropagation.on    = 0;
+      //jetPropagation.line += 0.5 * kappa * pow(tau,z) * pow(jetPropagation.rho0, c) * settingsPtr->dt; /* flow(ff[i])*/
       // Commented above out as it is still adding to the line integral, after the partons should be out of the qgp; setting to 0
-      full_sph_field[i].line += 0;
+      jetPropagation.line += 0;
       //ff[i].line *= efluc();
       // Could add in fluctuations as a multiplicative factor in the next line, like the unit converter
-      P0g  = (Pfg + Cg * full_sph_field[i].line) * constants::hbarc_GeVfm; //* pow(Pfg, 1-a) 
-      P0q  = (Pfq + Cq * full_sph_field[i].line) * constants::hbarc_GeVfm; //* pow(Pfq, 1-a) 
+      P0g  = (Pfg + Cg * jetPropagation.line) * constants::hbarc_GeVfm; //* pow(Pfg, 1-a) 
+      P0q  = (Pfq + Cq * jetPropagation.line) * constants::hbarc_GeVfm; //* pow(Pfq, 1-a) 
       cout << "P0g: " << P0g << " GeV, P0q: " << P0q << " GeV" << endl;
 
-      int jj      = full_sph_field[i].pid;
+      int jj      = jetPropagation.pid;
       //cout << "Value jj is taking: " << jj << endl;
       //Rjetg[jj]     += pow(P0g/Pfg, 1+a) * gftLHC(P0g) / gftLHC(Pfg);
       //Rjetq[jj]     += pow(P0q/Pfq, 1+a) * qftLHC(P0g) / qftLHC(Pfg); 

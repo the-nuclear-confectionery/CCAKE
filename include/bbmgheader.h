@@ -49,7 +49,7 @@ private:
     double phi[15];
     double Rjetq[15], Rjetg[15];
     vector<double> rr;
-    vector<field> full_sph_field;
+    vector<field> jetInfo;
 
     void inter(field &f); // interpolation
     double efluc();
