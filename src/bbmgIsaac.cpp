@@ -189,10 +189,9 @@ void BBMG::propagate()
       // Could add in fluctuations as a multiplicative factor in the next line, like the unit converter
       P0g  = (Pfg + Cg * jetPropagation.line) * constants::hbarc_GeVfm; //* pow(Pfg, 1-a) 
       P0q  = (Pfq + Cq * jetPropagation.line) * constants::hbarc_GeVfm; //* pow(Pfq, 1-a) 
-      cout << "P0g: " << P0g << " GeV, P0q: " << P0q << " GeV" << endl;
 
       int jj      = jetPropagation.pid;
-      //cout << "Value jj is taking: " << jj << endl;
+      cout << "Value jj is taking: " << jj << endl;
       //Rjetg[jj]     += pow(P0g/Pfg, 1+a) * gftLHC(P0g) / gftLHC(Pfg);
       //Rjetq[jj]     += pow(P0q/Pfq, 1+a) * qftLHC(P0g) / qftLHC(Pfg); 
 
