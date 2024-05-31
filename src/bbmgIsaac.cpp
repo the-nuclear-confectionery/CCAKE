@@ -196,6 +196,7 @@ void BBMG::propagate()
       Rjetg[jj]     += pow(P0g/Pfg, 1+a) * gftLHC(P0g) / gftLHC(Pfg);
       Rjetq[jj]     += pow(P0q/Pfq, 1+a) * qftLHC(P0g) / qftLHC(Pfg); 
 
+      stillon = 0;
     }
   }
 

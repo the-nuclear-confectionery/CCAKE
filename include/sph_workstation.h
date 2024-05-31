@@ -100,7 +100,7 @@ public:
 
     //----------------------------------------
     // create and initialize BBMG object
-    cout << "Made it to line = " << __LINE__ << endl;
+    //cout << "Made it to line = " << __LINE__ << endl;
     bbmg = BBMG( settingsPtr, systemPtr );
     }
 
