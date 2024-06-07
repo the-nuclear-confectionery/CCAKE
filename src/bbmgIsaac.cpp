@@ -42,6 +42,10 @@ BBMG::BBMG( Settings * settingsPtr_in, SystemState * systemPtr_in )
   area  = PI*pow(2.*systemPtr->h,2);
   rr.resize(systemPtr->n());
 
+  gridx = settingsPtr->stepx;
+  gridy = settingsPtr->stepy;
+  cout << "Gridx and gridy are " << gridx << "," << gridy << endl << endl;
+
   for (int i = 0; i < 14; i++)
   {
     Rjetq[i]  = 0;
@@ -251,9 +255,6 @@ void BBMG::inter( field &f )
       den2     += p.norm_spec.s;
       double kern = kernel::kernel(rdiff);
       norm         += kern;
-      double gridx = settingsPtr->stepx;
-      double gridy = settingsPtr->stepy;
-      cout << "Gridx and gridy are " << gridx << "," << gridy << endl;
       //f.T      += p.T()*constants::hbarc_MeVfm*0.06*0.06*kk; //Here I changed the hardcoded grid size to a read in of the default grid from settings.
       f.T      += p.T()*constants::hbarc_MeVfm*kern;
       //cout << "Interpolated temp value is " << f.T << "\n";

@@ -42,6 +42,7 @@ private:
     double area;
     double vjet; // Taken to be c for jets
     double Cg, Cq, q;
+    double gridx, gridy;
     
     double rho0tot; // total density, NOT just T>Freezeout_Temp!!!
     double Pfg, Pfq;
@@ -50,6 +51,9 @@ private:
     double Rjetq[15], Rjetg[15];
     vector<double> rr;
     vector<field> jetInfo;
+    vector<double> RAAq;
+    vector<double> RAAg; 
+
 
     void inter(field &f); // interpolation
     double efluc();
