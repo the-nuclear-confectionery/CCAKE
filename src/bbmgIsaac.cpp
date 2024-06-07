@@ -201,8 +201,10 @@ void BBMG::propagate()
       Rjetg[jj]     += pow(P0g/Pfg, 1+a) * gftLHC(P0g) / gftLHC(Pfg);
       //cout << "Rjetg[1] value, no averaging yet just seeing how it is summed: " << Rjetg[1] << endl;
       Rjetq[jj]     += pow(P0q/Pfq, 1+a) * qftLHC(P0q) / qftLHC(Pfq); 
-
-      double Rjetnorm;
+      
+      cout << jetPropagation.rho0 << "This is the checking of if the averaging gets overloaded" << endl;
+      double Rjetnorm += jetPropagation.rho0;
+      cout << Rjetnorm << "This is checking Rjetnorm" << endl;
       stillon = 0;
     }
   }
