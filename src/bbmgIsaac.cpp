@@ -165,6 +165,7 @@ void BBMG::propagate()
   int stillon = 0;
   int tot     = jetInfo.size();
   double P0g = 0, P0q = 0;
+  double Rjetnorm = 0;
   // for (int i = 0; i < tot; i++)
   for (auto& jetPropagation : jetInfo)
   {
@@ -203,7 +204,7 @@ void BBMG::propagate()
       Rjetq[jj]     += pow(P0q/Pfq, 1+a) * qftLHC(P0q) / qftLHC(Pfq); 
       
       cout << jetPropagation.rho0 << "This is the checking of if the averaging gets overloaded" << endl;
-      double Rjetnorm += jetPropagation.rho0;
+      Rjetnorm += jetPropagation.rho0;
       cout << Rjetnorm << "This is checking Rjetnorm" << endl;
       stillon = 0;
     }
