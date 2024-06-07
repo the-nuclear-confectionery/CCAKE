@@ -189,20 +189,21 @@ void BBMG::propagate()
       // Could add in fluctuations as a multiplicative factor in the next line, like the unit converter
       P0g  = (Pfg + Cg * jetPropagation.line) * constants::hbarc_GeVfm; //* pow(Pfg, 1-a) 
       P0q  = (Pfq + Cq * jetPropagation.line) * constants::hbarc_GeVfm; //* pow(Pfq, 1-a) 
-      cout << "Initial quark jet energy is: " << P0q << " GeV " << endl << "Initial gluon jet energy is: " << P0g << " GeV" << endl;
+      //cout << "Initial quark jet energy is: " << P0q << " GeV " << endl << "Initial gluon jet energy is: " << P0g << " GeV" << endl;
 
       int jj      = jetPropagation.pid;
       // Is this how RAA should be calculated?? I think it should be more individual
       // Want to make Rjet a vector and have each individual value taken care of here
       Rjetg[jj]     += pow(P0g/Pfg, 1+a) * gftLHC(P0g) / gftLHC(Pfg);
-      cout << "Rjetg[1] value, no averaging yet just seeing how it is summed: " << Rjetg[1] << endl;
+      //cout << "Rjetg[1] value, no averaging yet just seeing how it is summed: " << Rjetg[1] << endl;
       Rjetq[jj]     += pow(P0q/Pfq, 1+a) * qftLHC(P0q) / qftLHC(Pfq); 
 
+      double Rjetnorm;
       stillon = 0;
     }
   }
 
-  /*if ( stillon == 0 )
+  if ( stillon == 0 )
   {
     for (int j=0; j<14; j++)
     {
@@ -212,7 +213,7 @@ void BBMG::propagate()
       //cout << "The calculated quark jet RAA for " << j << " is: " << Rjetq[j] << endl;
       //cout << "The calculated gluon jet RAA for " << j << " is: " << Rjetg[j] << endl;
     }
-  }*/
+  }
 }
 
 
@@ -252,6 +253,7 @@ void BBMG::inter( field &f )
       norm         += kern;
       double gridx = settingsPtr->stepx;
       double gridy = settingsPtr->stepy;
+      cout << "Gridx and gridy are " << gridx << "," << gridy << endl;
       //f.T      += p.T()*constants::hbarc_MeVfm*0.06*0.06*kk; //Here I changed the hardcoded grid size to a read in of the default grid from settings.
       f.T      += p.T()*constants::hbarc_MeVfm*kern;
       //cout << "Interpolated temp value is " << f.T << "\n";
