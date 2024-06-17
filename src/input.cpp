@@ -3,9 +3,149 @@
 
 #include "input.h"
 
+#include <cmath>
+#include <iostream>
+#include <functional>
+#include <vector>
+
 namespace cc = ccake;
 namespace consts = constants;
 //using namespace ccake;
+
+
+/// @brief a list of keys expected in the input YAML files
+#define EXPECTED_KEYS  \
+  "initial_conditions",  \
+    "type", "file", "t0", "dimension", "input_as_entropy",  \
+  "parameters", \
+    "dt", "max_tau", "h_T", "h_eta", "kernel_type", "energy_cutoff",  \
+    "buffer_particles", \
+      "enabled", "circular", "padding_thickness",  \
+  "eos", \
+    "online_inverter_enabled", "preinverted_eos_path", "type", "path",  \
+  "particlization", \
+    "enabled", "type", "T",  \
+  "hydro",  \
+    "baryon_charge_enabled", "strange_charge_enabled", "electric_charge_enabled", \
+    "dissipative_terms_regulator", \
+      "enabled", "threshold",  \
+    "viscous_parameters", \
+      "shear", \
+        "mode", "constant_eta_over_s", "relaxation_mode",  \
+      "bulk", \
+        "mode", "constant_zeta_over_s", "cs2_dependent_zeta_A", "cs2_dependent_zeta_p",  \
+        "relaxation_mode", "modulate_with_tanh", \
+  "output", \
+    "print_conservation_state", "hdf_evolution", "txt_evolution" \
+
+
+/// @brief Utility function that calculates the distance between two words. 
+/// Used to detect yaml parameters that are similar enough.
+/// @detail The Levenstein distance calculates how different two words are and takes
+/// into account insertions, deletions, and substitutions. 
+/// This function returns the word closest (distance < 2) to the key in the `expected_keys` list
+/// @param[in] a A string
+/// @param[in] b A string
+/// @return The distance between the words
+static int levenshtein_distance(const std::string& a, const std::string& b)
+{
+  if (a.size() == 0) return b.size();
+  else if (b.size() == 0) return a.size();
+  else if (a[0] == b[0]) return levenshtein_distance(a.substr(1), b.substr(1));
+  else return 1 + std::min(
+    levenshtein_distance(a, b.substr(1)), 
+    std::min(levenshtein_distance(a.substr(1), b),
+             levenshtein_distance(a.substr(1), b.substr(1))));
+}
+
+/// @brief Utility function that checks whether a provided key from the input YAML files
+/// is valid or not.
+/// @detail This utility function uses the Levenshtein distance measure to determine if 
+/// key found in the user-provided input YAML file corresponds to an expected key. In the
+/// event that a key is missing a letter, entered a typo or transposed two letters, 
+/// the user is notified and execution of the program terminates. Should the key found in 
+/// the input YAML file not fall within these criteria, it is reported to the user as 
+/// ignored and the program procedes
+/// @param[in] key_in The key from the input YAML file
+/// @param[in,out] expected_keys A vector of the keys expected in the input YAML file
+/// @param[in] \optional max_distance The maximum separation two words can have using 
+/// the Levenshtein measure. Default is 2
+/// @return A boolean: true indicates a perfect match or no match at all; false indicates 
+/// a match was found within the maximal separation
+static bool check_key(const std::string& key_in, std::vector<std::string>& expected_keys, int max_distance=2)
+{
+  if (key_in.size() < 3) return true;
+  for (auto itr = expected_keys.begin(); itr != expected_keys.end(); ++itr) 
+  {
+    if (int c = levenshtein_distance(key_in, *itr); c <= max_distance) 
+    {
+      if (c == 0) 
+      {
+        expected_keys.erase(itr);
+        return true;
+      }
+      std::string message = "Found key `" + key_in + "`. Did you mean `" + *itr + "`?";
+      formatted_output::announce(message);
+      expected_keys.erase(itr);
+      return false;
+    }
+  }
+    formatted_output::announce("`" + key_in + "` did not match any expected keys. Ignoring."); 
+    return true;
+}
+
+
+/// @brief Utility class for recursively traversing YAML::Nodes's in input YAML file for
+/// input parsing.
+/// @detail This utility class implements a recursive function that is used to traverse
+/// the input YAML document and determine if all the keys provided correspond to ones that 
+/// are expected. Its constructor takes no arguments
+/// It stores a vector of visited nodes, a vector of expected keys and a boolean indicating 
+/// whether or not the YAML input file is valid
+class ValidateYAMLVisitor {
+public:
+  explicit ValidateYAMLVisitor()
+    : m_seen{}
+    , m_expected_keys{ EXPECTED_KEYS }
+    , m_valid{ true }
+  {}
+
+  /// @detail The operator overload that checks the current YAML::Node layer for keys.
+  /// It is called recursively on daughter nodes. To ensure that the nodes do not cycle, 
+  /// leading to infinite recursion, the current node is pushed to the visited nodes vector.
+  /// Those nodes that have already been visited will not be visited again.
+  /// @param[in] current The current YAML::Node being processed
+  void operator()(const YAML::Node& current)
+  {
+    m_seen.push_back(current);
+    if (current.IsMap())
+    {
+      for (const auto& pair : current)
+      {
+        m_valid &= check_key(pair.first.as<std::string>(), m_expected_keys);
+        descend(pair.second);
+      }
+    }
+  }
+
+  /// @brief The accessor functions that returns true if the input YAML file is valid
+  bool is_valid() const { return m_valid; }
+
+private:
+  /// @breif Checks if the \p target YAML::Node has already been processed, and processes
+  /// it if it hasn't been
+  void descend(const YAML::Node& target)
+  {
+    if (std::find(m_seen.begin(), m_seen.end(), target) == m_seen.end())
+        (*this)(target);
+  }
+
+private:
+    std::vector<YAML::Node> m_seen;
+    std::vector<std::string> m_expected_keys;
+    bool m_valid;
+};
+
 
 /// @brief Constructor of the Input class. Parses the input file and sets the
 /// values of the settings object.
@@ -62,6 +202,23 @@ void cc::Input::check_args( int argc, char** argv )
 
 }
 
+/// @brief Check if user-provided input YAML file contains expected keys
+/// @detail Function terminated program is the user-provided input YAML file contains
+/// keys that are mispelled.
+/// @param[in] input_file The path to the input file
+/// @return A valid yaml node
+YAML::Node cc::Input::validate_input_file(const string& input_file)
+{
+  YAML::Node input_yaml = YAML::LoadFile(input_file);
+  ValidateYAMLVisitor visitor;
+  visitor(input_yaml);
+  if ( !visitor.is_valid() )
+  {
+    formatted_output::report("Error: Please check spelling mistakes in input file!");
+    exit(EXIT_FAILURE);
+  }
+  return input_yaml;
+}
 
 /// @brief Parses the settings file. You need to have checked the input
 /// arguments first.
@@ -73,8 +230,9 @@ void cc::Input::check_args( int argc, char** argv )
 void cc::Input::load_settings_file()
 {
   formatted_output::report("Reading in input parameter settings");
-  YAML::Node input_file = YAML::LoadFile(settings_file_path.string());
-  if ( !decode_settings(input_file) )
+  // YAML::Node input_file = YAML::LoadFile(settings_file_path.string());
+  // if ( !decode_settings(input_file) )
+  if ( !decode_settings(validate_input_file(settings_file_path.string())) )
   {
     formatted_output::report("Error: Could not decode settings file!");
     exit(EXIT_FAILURE);
