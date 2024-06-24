@@ -197,28 +197,25 @@ void BBMG::propagate()
       //cout << "Initial quark jet energy is: " << P0q << " GeV " << endl << "Initial gluon jet energy is: " << P0g << " GeV" << endl;
 
       int jj      = jetPropagation.pid;
-      // Is this how RAA should be calculated?? I think it should be more individual
-      // Want to make Rjet a vector and have each individual value taken care of here
-      Rjetg[jj]     += pow(P0g/Pfg, 1+a) * gftLHC(P0g) / gftLHC(Pfg);
-      //cout << "Rjetg[1] value, no averaging yet just seeing how it is summed: " << Rjetg[1] << endl;
-      Rjetq[jj]     += pow(P0q/Pfq, 1+a) * qftLHC(P0q) / qftLHC(Pfq); 
       
-      cout << jetPropagation.rho0 << "This is the checking of if the averaging gets overloaded" << endl;
-      Rjetnorm += jetPropagation.rho0;
-      cout << Rjetnorm << "This is checking Rjetnorm" << endl;
+      //Following Barbara's format here from Rjet_g3 or Rjet_q3 to _g11/_q11
+      Rjetg[jj]     += (pow(P0g/Pfg, 1+a) * gftLHC(P0g) / gftLHC(Pfg)) * jetPropagation.rho0 * gridx*gridy;
+      Rjetq[jj]     += (pow(P0q/Pfq, 1+a) * qftLHC(P0q) / qftLHC(Pfq)) * jetPropagation.rho0 * gridx*gridy; 
+      
+      Rjetnorm += jetPropagation.rho0 * gridx*gridy;
       stillon = 0;
     }
   }
-
+    // TAKE THESE OUT OF THE LOOP !!!!!!!!!!!!!!!!!
   if ( stillon == 0 )
   {
     for (int j=0; j<14; j++)
     {
-      //What is going on here???
-      Rjetq[j] /= rho0tot;
-      Rjetg[j] /= rho0tot;
-      //cout << "The calculated quark jet RAA for " << j << " is: " << Rjetq[j] << endl;
-      //cout << "The calculated gluon jet RAA for " << j << " is: " << Rjetg[j] << endl;
+      //There is an experimental reason to be calculating this way
+      Rjetq[j] /= Rjetnorm;
+      Rjetg[j] /= Rjetnorm;
+      cout << "The averaged quark jet RAA for " << j << " is: " << Rjetq[j] << endl;
+      cout << "The averaged gluon jet RAA for " << j << " is: " << Rjetg[j] << endl;
     }
   }
 }
