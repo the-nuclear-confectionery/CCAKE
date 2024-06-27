@@ -131,6 +131,32 @@ void SPHWorkstation<D, TEOM>::initialize_entropy_and_charge_densities()
     double rhoB_norm_spec = device_norm_spec(iparticle, densities_info::rhoB);
     double rhoS_norm_spec = device_norm_spec(iparticle, densities_info::rhoS);
     double rhoQ_norm_spec = device_norm_spec(iparticle, densities_info::rhoQ);
+    
+    #ifdef DEBUG_SLOW
+    //systemPtr->copy_device_to_host();
+    //std::ofstream thermo_file;
+    //thermo_file.open("initial_thermo.dat");
+    //thermo_file << "eta thermo.e(GeV/fm^3) input.e(GeV/fm^3) thermo.s(fm^-3)" << std::endl;
+    for (auto & p : systemPtr->particles){
+    //Print initial conditions
+      for (int i = 0; i < D; i++) {
+	if (p.r(i) > -9.91) getchar();
+          std::cout << p.r(i) << " " <<  e_input*hbarc_GeVfm << "   " << p.input.e*hbarc_GeVfm << " " << p.input.s << " " << s_input << "   " << std::endl;
+    	}
+	//thermo_file << p.thermo.e*hbarc_GeVfm << " " << p.input.e*hbarc_GeVfm << " " << p.thermo.s << " " << p.thermo.rhoB << " " << p.thermo.rhoS
+    //            << " " << p.thermo.rhoQ << " ";
+    //for (int i = 0; i < D; i++) thermo_file << p.hydro.u(i) << " ";
+    //thermo_file << p.hydro.Bulk << " ";
+    //for(int i = 0; i < D; i++){
+    //  for(int j = i; j < D; j++){
+    //    thermo_file << p.hydro.shv(i,j) << " ";
+    //  }
+    //}
+    //thermo_file << p.hydro.shv33 << " " << std::endl;
+    }
+    //thermo_file.close();
+    exit(1);
+    #endif
 
     e_norm_spec *= e_input*gamma*t0;
     s_norm_spec *= s_input*gamma*t0;
@@ -190,10 +216,47 @@ void SPHWorkstation<D,TEOM>::initial_smoothing()
 
   //Computes not independent components of the shear tensor
   reset_pi_tensor(t_squared);
+
+  /*#ifdef DEBUG
+  std::cout << "initial_smoothing() --> reset_p_tensor()" << std::endl;
+  for (auto & p : systemPtr->particles){
+    if(p.r(0) > -0.05 && p.r(0) < 0.05){
+      std::cout << "eta=  " << p.r(0) << "   ";
+      std::cout << "thermo.e=   " << p.thermo.e*hbarc_GeVfm << "   input.e=   " << p.input.e*hbarc_GeVfm << \
+              "   thermo.s=   " << p.thermo.s << "   input.s=   " << p.input.s << "   " << std::endl;
+    }
+  }
+  #endif*/
+
   // smooth fields over particles
   smooth_all_particle_fields(t_squared);
+
+  /* #ifdef DEBUG
+  std::cout << "initial_smoothing() --> smooth_all_particle_fields()" << std::endl;
+  for (auto & p : systemPtr->particles){
+    if(p.r(0) > -0.05 && p.r(0) < 0.05){
+      std::cout << "eta=  " << p.r(0) << "   ";
+      std::cout << "thermo.e=   " << p.thermo.e*hbarc_GeVfm << "   input.e=   " << p.input.e*hbarc_GeVfm << \
+              "   thermo.s=   " << p.thermo.s << "   input.s=   " << p.input.s << "   " << std::endl;
+    }
+  }
+  #endif */
+
   // Update particle thermodynamic properties
   update_all_particle_thermodynamics();
+
+  /* #ifdef DEBUG
+  std::cout << "initial_smoothing() --> update_all_particle_thermodynamics()" << std::endl;
+  for (auto & p : systemPtr->particles){
+    if(p.r(0) > -0.05 && p.r(0) < 0.05){
+      std::cout << "eta=  " << p.r(0) << "   ";
+      std::cout << "thermo.e=   " << p.thermo.e*hbarc_GeVfm << "   input.e=   " << p.input.e*hbarc_GeVfm << \
+              "   thermo.s=   " << p.thermo.s << "   input.s=   " << p.input.s << "   " << std::endl;
+    }
+  }
+  exit(1);
+  #endif */
+
   //Performs the initial freeze-out
   int count1=0;
   freezePtr->check_freeze_out_status(count1);
@@ -624,13 +687,13 @@ void SPHWorkstation<D, TEOM>::process_initial_conditions()
   switch (D)
   {
   case 1:
-    dA = settingsPtr->stepEta;
+    dA = t*settingsPtr->stepEta;
     break;
   case 2:
     dA = settingsPtr->stepx*settingsPtr->stepy;
     break;
   case 3:
-    dA = settingsPtr->stepx*settingsPtr->stepy*settingsPtr->stepEta;
+    dA = t*settingsPtr->stepx*settingsPtr->stepy*settingsPtr->stepEta;
     break;
   default:
     std::cerr << "Invalid dimensionality!" << std::endl;
@@ -915,6 +978,16 @@ void SPHWorkstation<D, TEOM>::update_all_particle_thermodynamics()
   sw.Start();
   double t = systemPtr->t;
   double t2 = t*t;
+  #ifdef DEBUG
+  std::cout << "update_all_thermodynamics() before copying back and forth" << std::endl;
+  for (auto & p : systemPtr->particles){
+    if(p.r(0) > -0.05 && p.r(0) < 0.05){
+      std::cout << "eta=  " << p.r(0) << "   ";
+      std::cout << "  temp=  " << p.thermo.T << "  thermo.e=   " << p.thermo.e*hbarc_GeVfm << "   input.e=   " << p.input.e*hbarc_GeVfm << \
+              "   thermo.s=   " << p.thermo.s << "   input.s=   " << p.input.s << "   " << std::endl;
+    }
+  }
+  #endif
 
   #ifdef ONLINE_INVERTER
   systemPtr->copy_device_to_host();
@@ -923,6 +996,19 @@ void SPHWorkstation<D, TEOM>::update_all_particle_thermodynamics()
     double rhoB_LRF   = p.thermo.rhoB;
     double rhoS_LRF   = p.thermo.rhoS;
     double rhoQ_LRF   = p.thermo.rhoQ;
+    double pos = p.r(0);
+    double e_thermo = p.thermo.e;
+    double e_input = p.input.e;
+    double s_input = p.input.s;
+    double T = p.thermo.T;
+    #ifdef DEBUG
+    if(pos > -0.05 && pos < 0.05){
+      std::cout << "before locate_sBSQ" << std::endl;
+      std::cout << "eta=  " << pos << "   ";
+      std::cout << "  temp=  " << T << "   thermo.e=   " << e_thermo*hbarc_GeVfm << "   input.e   " << e_input*hbarc_GeVfm << \
+	      "   thermo.s=   " << s_LRF << "  input.s   " << s_input << " " << std::endl;
+    }
+    #endif
     try
     {
 	    locate_phase_diagram_point_sBSQ( p, s_LRF, rhoB_LRF , rhoS_LRF, rhoQ_LRF );
@@ -936,6 +1022,14 @@ void SPHWorkstation<D, TEOM>::update_all_particle_thermodynamics()
       Kokkos::finalize();
       exit(404);
     }
+    #ifdef DEBUG
+    if(pos > -0.05 && pos < 0.05){
+      std::cout << "after locate_sBSQ" << std::endl;
+      std::cout << "eta=  " << pos << "   ";
+      std::cout << "  temp=  " << T << "   thermo.e=   " << e_thermo*hbarc_GeVfm << "   input.e   " << e_input*hbarc_GeVfm << \
+              "   thermo.s=   " << s_LRF << "  input.s   " << s_input << " " << std::endl;
+    }
+    #endif    
   }
   systemPtr->copy_host_to_device();
   #else
@@ -943,6 +1037,17 @@ void SPHWorkstation<D, TEOM>::update_all_particle_thermodynamics()
     #ifdef DEBUG_SLOW
     systemPtr->copy_device_to_host();
     #endif
+  #endif
+  #ifdef DEBUG
+  std::cout << "update_all_thermodynamics() after locate_sBSQ and copying back and forth" << std::endl;
+  for (auto & p : systemPtr->particles){
+    if(p.r(0) > -0.05 && p.r(0) < 0.05){
+      std::cout << "eta=  " << p.r(0) << "   ";
+      std::cout << "  temp=  " << p.thermo.T << "   thermo.e=   " << p.thermo.e*hbarc_GeVfm << "   input.e=   " << p.input.e*hbarc_GeVfm << \
+              "   thermo.s=   " << p.thermo.s << "   input.s=   " << p.input.s << "   " << std::endl;
+    }
+  }
+  exit(1);
   #endif
 
 

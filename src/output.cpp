@@ -87,10 +87,13 @@ void Output<D>::print_system_state()
 template<unsigned int D>
 void Output<D>::print_system_state_to_txt()
 {
+  if (n_timesteps_output > 15) {
+    std::cout << "Exiting at tau = " <<  systemPtr->t << std::endl;
+    exit(1);
+  }
   string outputfilename = output_directory + "/system_state_"
                           + std::to_string(n_timesteps_output) + ".dat";
   ofstream out( outputfilename.c_str() );
-
   out << systemPtr->t << "\n";
   int iParticle = 0;
 

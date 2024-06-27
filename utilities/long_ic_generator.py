@@ -13,7 +13,7 @@ def init_cond(tau):
     ymin = -ymax
     etamax = 10
     etamin = -etamax
-    eps0 = 1000
+    eps0 = 10
     etas = np.arange(-10,10.01,0.01).round(3)
     #etas = np.array([num + 0.005 for num in etass])
     c_sq = 1/3
@@ -24,13 +24,15 @@ def init_cond(tau):
     u = np.zeros(len(etas))
     c1 = (1 - c_sq**2) / (4 * c_sq)
     c2 = (1 + c_sq)**2 / (4 * c_sq)
+    hbarc_G = 0.1973269804
     fname=f"../long_data/ic_long_tau_{tau}.dat"
     with open(fname, "w") as f:
         f.write(f"#0 {stepx} {stepy} {stepeta} 0 {xmin} {ymin} {etamin}\n")
         for eta in etas:
-            eps = eps0 * (t0/tau0 + a*tau/tau0 * np.exp(eta))**(c1/a**2 - c2) * (t0/tau0 + tau/(a*tau0) * np.exp(-eta))**(c1*a**2 - c2)
+            eps = eps0 / hbarc_G**3 * (t0/tau0 + a*tau/tau0 * np.exp(eta))**(c1/a**2 - c2) * (t0/tau0 + tau/(a*tau0) * np.exp(-eta))**(c1*a**2 - c2)
             u = 0.5 / tau * (np.sqrt((t0*np.exp(-eta)+tau*a) / t0*np.exp(eta)+(tau/a)) - np.sqrt((t0*np.exp(eta)+(tau/a) / t0*np.exp(-eta)+tau*a)))
-            f.write(f"0 0 {eta} {eps} 0 0 0 0 0 {u} 0 0 0 0 0 0 0\n")
+            eta_shift = eta + 2.0
+            f.write(f"0 0 {eta_shift} {eps} 0 0 0 0 0 {u} 0 0 0 0 0 0 0\n")
         f.close()
     print(f'Initial conditions were successfully generated for tau = {tau}')
 

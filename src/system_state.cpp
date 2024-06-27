@@ -390,10 +390,10 @@ void SystemState<D>::reset_neighbour_list(){
       abort();
     }*/
   }
-  print_neighbors(950);
-  print_neighbors(975);
-  print_neighbors(1000);
-  print_neighbors(1025);
+  //print_neighbors(950);
+  //print_neighbors(975);
+  //print_neighbors(1000);
+  //print_neighbors(1025);
   #ifdef DEBUG
   print_neighbors(0);
   #endif

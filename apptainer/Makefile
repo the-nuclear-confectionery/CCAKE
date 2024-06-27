@@ -11,6 +11,10 @@ run-long: images/ccake.sif ../build/ccake
         cd /CCAKE/build ; \
         ./ccake ../config/config_long.yaml output_long ;"
 
+run-bjorken: images/ccake.sif ../build/ccake
+	singularity exec --cleanenv --bind ../:/CCAKE images/ccake.sif bash -c " \
+	cd /CCAKE/build ; \
+	./ccake ../config/config_bjorken.yaml output_bjorken ;"
 
 run-long-debug: images/ccake-dev.sif ../build-debug/ccake
 	singularity exec --cleanenv --bind ../:/CCAKE images/ccake-dev.sif bash -c " \
