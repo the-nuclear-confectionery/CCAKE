@@ -169,7 +169,7 @@ void BBMG::propagate()
   for (auto& jetPropagation : jetInfo)
   {
     // propagate x,y position of jet on top of sph particles
-    jetPropagation.r[0] += vjet * settingsPtr->dt * cos(jetPropagation.phi);
+    jetPropagation.r[0] += vjet * settingsPtr->dt * cos(jetPropagation.phi); //Flow is not here to alter the direction of the jet
     jetPropagation.r[1] += vjet * settingsPtr->dt * sin(jetPropagation.phi);
     //cout << "pid checking first: " << jetPropagation.pid << endl;
 
@@ -213,6 +213,7 @@ void BBMG::propagate()
       //There is an experimental reason to be calculating this way
       Rjetq[j] /= Rjetnorm;
       Rjetg[j] /= Rjetnorm;
+      cout << "Checking Barbara's Rjet12" << Rjetnorm << endl;
       cout << "The averaged quark jet RAA for " << j << " is: " << Rjetq[j] << endl;
       cout << "The averaged gluon jet RAA for " << j << " is: " << Rjetg[j] << endl;
     }
