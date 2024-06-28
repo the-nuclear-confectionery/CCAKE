@@ -95,7 +95,7 @@ void BBMG::initial()
       {
         sph_particle.phi = phi[j];
         sph_particle.pid = j;
-        sph_particle.on  = 1;
+        //sph_particle.on  = 1;
         jetInfo.push_back(sph_particle); // Attempting...
       }
       // Would putting this vector pushback inside for loop fix everything? 
@@ -161,7 +161,7 @@ double BBMG::fragFuncPig(double x, double y)
 void BBMG::propagate()
 {
   double tau  = systemPtr->t + settingsPtr->t0;
-  int stillon = 0;
+  //int stillon = 0;
   int tot     = jetInfo.size();
   double P0g = 0, P0q = 0;
   double Rjetnorm = 0;
@@ -176,16 +176,16 @@ void BBMG::propagate()
     inter( jetPropagation ); //interpolation of the field
     double kappa = get_kappa(jetPropagation.T / 1000); //The /1000 here is to move temps from MeV to GeV to follow Barbara's plot, same as above
     
-    if ( ( jetPropagation.on == 1 ) && ( jetPropagation.T > Freezeout_Temp ) )
+    if ( /*( jetPropagation.on == 1 ) &&*/  jetPropagation.T > Freezeout_Temp ) 
     {
       jetPropagation.line += pow(tau, z) * pow(jetPropagation.rho, c) * settingsPtr->dt * flow(jetPropagation);
       //cout << "pid checking second: " << jetPropagation.pid << endl;
       //cout << "This is the value of the flow factor being multiplied: " << flow(jetPropagation) << endl;
-      stillon++;
+      //stillon++;
     }
     else //This comes in when we drop below freezeout temp, as .on should never go to 0 on its own
     {
-      jetPropagation.on    = 0;
+      //jetPropagation.on    = 0;
       //jetPropagation.line += 0.5 * kappa * pow(tau,z) * pow(jetPropagation.rho0, c) * settingsPtr->dt; /* flow(ff[i])*/
       // Commented above out as it is still adding to the line integral, after the partons should be out of the qgp; setting to 0
       jetPropagation.line += 0;
@@ -202,21 +202,18 @@ void BBMG::propagate()
       Rjetq[jj]     += (pow(P0q/Pfq, 1+a) * qftLHC(P0q) / qftLHC(Pfq)) * jetPropagation.rho0 * gridx*gridy; 
       
       Rjetnorm += jetPropagation.rho0 * gridx*gridy;
-      stillon = 0;
+      //stillon = 0;
     }
   }
-    // TAKE THESE OUT OF THE LOOP !!!!!!!!!!!!!!!!!
-  if ( stillon == 0 )
+  
+  for (int j=0; j<14; j++)
   {
-    for (int j=0; j<14; j++)
-    {
-      //There is an experimental reason to be calculating this way
-      Rjetq[j] /= Rjetnorm;
-      Rjetg[j] /= Rjetnorm;
-      cout << "Checking Barbara's Rjet12" << Rjetnorm << endl;
-      cout << "The averaged quark jet RAA for " << j << " is: " << Rjetq[j] << endl;
-      cout << "The averaged gluon jet RAA for " << j << " is: " << Rjetg[j] << endl;
-    }
+    //There is an experimental reason to be calculating this way
+    Rjetq[j] /= Rjetnorm;
+    Rjetg[j] /= Rjetnorm;
+    //cout << "Checking Barbara's Rjet12" << Rjetnorm << endl;
+    cout << "The averaged quark jet RAA for " << j << " is: " << Rjetq[j] << endl;
+    cout << "The averaged gluon jet RAA for " << j << " is: " << Rjetg[j] << endl;
   }
 }
 
@@ -276,7 +273,7 @@ void BBMG::inter( field &f )
   f.vmag     = sqrt( f.v[0]*f.v[0] + f.v[1]*f.v[1] );
   if (f.vmag>1)
   {
-    cout << "The magnitude of the velocity returned something greater than c, something is wrong. ABORTING" << endl;
+    cout << "The magnitude of the velocity returned greater than c, something is wrong. ABORTING" << endl;
     abort();
   }
   f.vang     = atan2( f.v[1], f.v[0] );
