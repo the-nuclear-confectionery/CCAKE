@@ -69,6 +69,10 @@ public:
     double gftLHC(double x);
     double fragFuncPiq(double x, double y);
     double fragFuncPig(double x, double y);
+    double int1(double x);
+    double int2(double x);
+    double int3(double x);
+    double int4(double x);
 
     void initial();
 };

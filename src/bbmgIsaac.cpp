@@ -90,8 +90,8 @@ void BBMG::initial()
       double kappa = get_kappa(sph_particle.T / 1000);
       
       sph_particle.line = 0.5 * kappa * pow(settingsPtr->t0, z) * pow(sph_particle.rho0, c) * settingsPtr->dt; // only if initial flow=0
-
-      for (int j=0; j<14; j++) //initializes jets at each point in grid space, over 14 directions
+      //jetInfo.resize(14);
+      for (int j=0; j<2; j++) //initializes jets at each point in grid space, over 14 directions
       {
         sph_particle.phi = phi[j];
         sph_particle.pid = j;
@@ -110,11 +110,12 @@ void BBMG::initial()
 double BBMG::flow(field &f) { return f.gam*(1-f.vmag*cos(f.phi-f.vang)); }
 
 
-double BBMG::gftLHC(double x) { return exp(6.874017911786442 - 0.26596588700706614*pow(log(x),0.6654825884427571) - 2.677705869879314*pow(log(x),0.8020502598676339) - 2.4735502984532656*pow(log(x),0.8069542250600515) - 0.36687832133337656*pow(log(x),2.070179064516989)); } 
+//double BBMG::gftLHC(double x) { return exp(6.874017911786442 - 0.26596588700706614*pow(log(x),0.6654825884427571) - 2.677705869879314*pow(log(x),0.8020502598676339) - 2.4735502984532656*pow(log(x),0.8069542250600515) - 0.36687832133337656*pow(log(x),2.070179064516989)); } 
+double BBMG::gftLHC(double x) { return 1;} 
 
 
-double BBMG::qftLHC(double x) { return exp(2.9903871818687286 - 2.0117432145703114*pow(log(x),1.0384884086567516) - 1.9187151702604879*pow(log(x),1.039887584824982) - 0.15503714201000543*pow(log(x),1.0586516925018519) - 0.15384778823017106*pow(log(x),2.0829849720841573)); }
-
+//double BBMG::qftLHC(double x) { return exp(2.9903871818687286 - 2.0117432145703114*pow(log(x),1.0384884086567516) - 1.9187151702604879*pow(log(x),1.039887584824982) - 0.15503714201000543*pow(log(x),1.0586516925018519) - 0.15384778823017106*pow(log(x),2.0829849720841573)); }
+double BBMG::qftLHC(double x) { return 1;}
 
 double BBMG::efluc()
 {
@@ -205,8 +206,8 @@ void BBMG::propagate()
       //stillon = 0;
     }
   }
-  
-  for (int j=0; j<14; j++)
+
+  for (int j=0; j<2; j++)
   {
     //There is an experimental reason to be calculating this way
     Rjetq[j] /= Rjetnorm;
@@ -215,6 +216,41 @@ void BBMG::propagate()
     cout << "The averaged quark jet RAA for " << j << " is: " << Rjetq[j] << endl;
     cout << "The averaged gluon jet RAA for " << j << " is: " << Rjetg[j] << endl;
   }
+}
+
+
+double BBMG::int1(double x)
+{
+  double p_pi_int = Pfg/x;
+  double integrand1 = 1/x * gftLHC(p_pi_int) * Rjetg[j] * fragFuncPig(x, p_pi_int);
+  // CONTINUE WRITING INTEGRATION FUNCTIONS
+  // The returned values should be arrays for pion RAA calculation
+
+  return integrand1;
+}
+
+double BBMG::int2(double x)
+{
+  double p_pi_int = Pfq/x;
+  double integrand2 = 1/x * qftLHC(p_pi_int) * Rjetq[j] * fragFuncPiq(x, p_pi_int);
+
+  return integrand2;
+}
+
+double BBMG::int3(double x)
+{
+  double p_pi_int = Pfg/x;
+  double integrand3 = 1/x * gftLHC(p_pi_int) * fragFuncPig(x, p_pi_int);
+
+  return integrand3;
+}
+
+double BBMG::int4(double x)
+{
+  double p_pi_int = Pfq/x;
+  double integrand4 = 1/x * qftLHC(p_pi_int) * fragFuncPiq(x, p_pi_int);
+
+  return integrand4;
 }
 
 
