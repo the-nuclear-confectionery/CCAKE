@@ -329,7 +329,7 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
       r1[idir] = device_position(iparticle,idir);
       r2[idir] = device_position(jparticle,idir);
     }
-    double distance = SPHkernel<D>::distance(r1,r2);
+    double distance = SPHkernel<D>::distance(r1,r2, t);
     double kern = SPHkernel<D>::kernel(distance,hT);
 
     //outputting kernel function to the outfile "kernel_{hT}.dat"
@@ -398,6 +398,17 @@ void SPHWorkstation<D,TEOM>::locate_phase_diagram_point_sBSQ( Particle<D> & p,
 {
 
   // default: use particle's current location as initial guess
+  #ifdef DEBUG_SLOW
+  std::cout << "In locate_phase_diagram_point_sBSQ" << std::endl;
+  for (auto & p : systemPtr->particles){
+    if(p.r(0) > -0.01 && p.r(0) < 0.01){
+      std::cout << "eta=  " << p.r(0) << "   ";
+      std::cout << "  temp=  " << p.thermo.T << "  thermo.e=   " << p.thermo.e*hbarc_GeVfm << "   input.e=   " << p.input.e*hbarc_GeVfm << \
+              "   thermo.s=   " << p.thermo.s << "   input.s=   " << p.input.s << "   " << std::endl;
+    }
+  }
+  #endif
+
   eos.tbqs( p.T(), p.muB(), p.muQ(), p.muS(), p.get_current_eos_name() );
 
   bool update_s_success = eos.update_s( s_In, rhoB_In, rhoS_In, rhoQ_In,
@@ -495,6 +506,17 @@ void SPHWorkstation<D,TEOM>::locate_phase_diagram_point_sBSQ( Particle<D> & p,
       exit(8);
     }
   }
+  #ifdef DEBUG_SLOW
+  std::cout << "End of locate_phase_diagram_point_sBSQ" << std::endl;
+  for (auto & p : systemPtr->particles){
+    if(p.r(0) > -0.02 && p.r(0) < 0.02){
+      std::cout << "eta=  " << p.r(0) << "   ";
+      std::cout << "  temp=  " << p.thermo.T << "  thermo.e=   " << p.thermo.e*hbarc_GeVfm << "   input.e=   " << p.input.e*hbarc_GeVfm << \
+              "   thermo.s=   " << p.thermo.s << "   input.s=   " << p.input.s << "   " << \
+              "   eos:   " << p.thermo.eos_name << std::endl;
+    }
+  }
+  #endif
 
   return;
 }
@@ -584,7 +606,7 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
       pos_b[idir] = device_position(particle_b,idir);
       rel_sep[idir] = pos_a[idir] - pos_b[idir];
     }
-    double rel_sep_norm = SPHkernel<D>::distance(pos_a,pos_b);
+    double rel_sep_norm = SPHkernel<D>::distance(pos_a,pos_b, t);
     double gradK_aux[D];
     ccake::SPHkernel<D>::gradKernel( rel_sep, rel_sep_norm, hT, gradK_aux );
 
@@ -978,10 +1000,10 @@ void SPHWorkstation<D, TEOM>::update_all_particle_thermodynamics()
   sw.Start();
   double t = systemPtr->t;
   double t2 = t*t;
-  #ifdef DEBUG
+  #ifdef DEBUG_SLOW
   std::cout << "update_all_thermodynamics() before copying back and forth" << std::endl;
   for (auto & p : systemPtr->particles){
-    if(p.r(0) > -0.05 && p.r(0) < 0.05){
+    if(p.r(0) > -0.02 && p.r(0) < 0.02){
       std::cout << "eta=  " << p.r(0) << "   ";
       std::cout << "  temp=  " << p.thermo.T << "  thermo.e=   " << p.thermo.e*hbarc_GeVfm << "   input.e=   " << p.input.e*hbarc_GeVfm << \
               "   thermo.s=   " << p.thermo.s << "   input.s=   " << p.input.s << "   " << std::endl;
@@ -1002,11 +1024,11 @@ void SPHWorkstation<D, TEOM>::update_all_particle_thermodynamics()
     double s_input = p.input.s;
     double T = p.thermo.T;
     #ifdef DEBUG
-    if(pos > -0.05 && pos < 0.05){
+    if(pos > -0.01 && pos < 0.01){
       std::cout << "before locate_sBSQ" << std::endl;
       std::cout << "eta=  " << pos << "   ";
-      std::cout << "  temp=  " << T << "   thermo.e=   " << e_thermo*hbarc_GeVfm << "   input.e   " << e_input*hbarc_GeVfm << \
-	      "   thermo.s=   " << s_LRF << "  input.s   " << s_input << " " << std::endl;
+      std::cout << "  temp=  " << T << "   thermo.e=   " << p.e()*hbarc_GeVfm << "   input.e   " << e_input*hbarc_GeVfm << \
+	      "   thermo.s=   " << p.s() << "  input.s   " << s_input << " " << std::endl;
     }
     #endif
     try
@@ -1023,11 +1045,11 @@ void SPHWorkstation<D, TEOM>::update_all_particle_thermodynamics()
       exit(404);
     }
     #ifdef DEBUG
-    if(pos > -0.05 && pos < 0.05){
+    if(pos > -0.01 && pos < 0.01){
       std::cout << "after locate_sBSQ" << std::endl;
       std::cout << "eta=  " << pos << "   ";
-      std::cout << "  temp=  " << T << "   thermo.e=   " << e_thermo*hbarc_GeVfm << "   input.e   " << e_input*hbarc_GeVfm << \
-              "   thermo.s=   " << s_LRF << "  input.s   " << s_input << " " << std::endl;
+      std::cout << "  temp=  " << T << "   thermo.e=   " << p.e()*hbarc_GeVfm << "   input.e   " << e_input*hbarc_GeVfm << \
+              "   thermo.s=   " << p.s() << "  input.s   " << s_input << " " << std::endl;
     }
     #endif    
   }
@@ -1041,7 +1063,7 @@ void SPHWorkstation<D, TEOM>::update_all_particle_thermodynamics()
   #ifdef DEBUG
   std::cout << "update_all_thermodynamics() after locate_sBSQ and copying back and forth" << std::endl;
   for (auto & p : systemPtr->particles){
-    if(p.r(0) > -0.05 && p.r(0) < 0.05){
+    if(p.r(0) > -0.01 && p.r(0) < 0.01){
       std::cout << "eta=  " << p.r(0) << "   ";
       std::cout << "  temp=  " << p.thermo.T << "   thermo.e=   " << p.thermo.e*hbarc_GeVfm << "   input.e=   " << p.input.e*hbarc_GeVfm << \
               "   thermo.s=   " << p.thermo.s << "   input.s=   " << p.input.s << "   " << std::endl;

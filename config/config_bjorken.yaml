@@ -7,7 +7,7 @@ initial_conditions:
   input_as_entropy: false # if false, input will be interpreted as energy density
 parameters:
   dt: 0.001 # time-step of the simulation in fm/c
-  h_T:  0.05  # Smothing parameter inside kernel, in the transverse direction (in fm)
+  h_T:  0.3  # Smothing parameter inside kernel, in the transverse direction (in fm)
   h_eta:  0.1  # Smothing parameter inside kernel in the longitudinal direction
   kernel_type: "cubic_spline" # Kernel type. Possible values are: ["cubic_spline"]
   energy_cutoff: 0.15 # GeV/fm^3 - Particles with less than this energy will be deleted before starting the evolution

@@ -1,6 +1,6 @@
 all: images/ubuntu.sif images/ccake.sif  ../EoS/Houston/thermo.h5 images/ccake-dev.sif build-release build-debug
   
-.PHONY: build-release build-debug run-gubser build-gpu run-trento
+.PHONY: build-release build-debug run-gubser build-gpu run-trento run-bjorken
 
 # ==================================
 # Recipes with example runs
@@ -13,8 +13,13 @@ run-long: images/ccake.sif ../build/ccake
 
 run-bjorken: images/ccake.sif ../build/ccake
 	singularity exec --cleanenv --bind ../:/CCAKE images/ccake.sif bash -c " \
-	cd /CCAKE/build ; \
+        cd /CCAKE/build ; \
 	./ccake ../config/config_bjorken.yaml output_bjorken ;"
+
+run-bjorken-db: images/ccake-dev.sif ../build-debug/ccake
+	singularity exec --cleanenv --bind ../:/CCAKE images/ccake-dev.sif bash -c " \
+        cd /CCAKE/build-debug ; \
+        ./ccake ../config/config_bjorken.yaml output_bjorken ;"
 
 run-long-debug: images/ccake-dev.sif ../build-debug/ccake
 	singularity exec --cleanenv --bind ../:/CCAKE images/ccake-dev.sif bash -c " \
@@ -28,6 +33,13 @@ run-gubser: images/ccake.sif ../build/ccake
         ../utilities/gubser_ic_converter.py ../misc/Gubser_checks/ac/Initial_Profile_tau=1fm.dat initial_conditions/gubser_tau_1.0.dat ; \
         ./ccake ../input/input_parameters_gubser_checks.yaml output_gubser ; \
         ../plotting_scripts/plot_gubser.py ../misc/Gubser_checks/ac output_gubser gubser.png ;"
+
+run-gubser-db: images/ccake.sif ../build-debug/ccake
+	singularity exec --cleanenv --bind ../:/CCAKE images/ccake-dev.sif bash -c " \
+        cd /CCAKE/build-debug ; \
+        mkdir -p initial_conditions ; \
+        ../utilities/gubser_ic_converter.py ../misc/Gubser_checks/ac/Initial_Profile_tau=1fm.dat initial_conditions/gubser_tau_1.0.dat ; \
+        ./ccake ../input/input_parameters_gubser_checks.yaml output_gubser ; "
 
 run-trento: images/ccake.sif ../build/ccake ../EoS/Houston/thermo.h5
 	singularity exec --cleanenv --bind ../:/CCAKE images/ccake.sif bash -c " \

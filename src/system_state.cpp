@@ -77,6 +77,13 @@ void SystemState<D>::copy_host_to_device(){
       host_hydro_space_matrix(iparticle, ccake::hydro_info::shv3, i, j) = particles[iparticle].hydro.shv3(i,j);
       host_hydro_space_matrix(iparticle, ccake::hydro_info::shv4, i, j) = particles[iparticle].hydro.shv4(i,j);
       host_hydro_space_matrix(iparticle, ccake::hydro_info::dshv_dt, i, j) = particles[iparticle].hydro.dshv_dt(i,j);
+      #ifdef DEBUG_SLOW
+      //Couting to check values
+      if (iparticle > 998 and iparticle < 1002) {
+        std::cout << "gradV: " << particles[iparticle].hydro.gradV(i,j) << \
+	" gradU:" << particles[iparticle].hydro.gradU(i,j) << " uu " << particles[iparticle].hydro.gradV(i,j) << std::endl;
+      }
+      #endif
     }
     host_hydro_scalar(iparticle, ccake::hydro_info::t) = particles[iparticle].hydro.t;
     host_hydro_scalar(iparticle, ccake::hydro_info::Agam) = particles[iparticle].hydro.Agam;
@@ -105,6 +112,8 @@ void SystemState<D>::copy_host_to_device(){
     host_hydro_scalar(iparticle, ccake::hydro_info::inside) = particles[iparticle].hydro.inside;
     host_hydro_scalar(iparticle, ccake::hydro_info::div_u) = particles[iparticle].hydro.div_u;
     host_hydro_scalar(iparticle, ccake::hydro_info::dBulk_dt) = particles[iparticle].hydro.dBulk_dt;
+
+
     for (int i=0; i<D; i++){
       host_hydro_vector(iparticle, ccake::hydro_info::v,i) = particles[iparticle].hydro.v(i);
       host_hydro_vector(iparticle, ccake::hydro_info::u,i) = particles[iparticle].hydro.u(i);
@@ -136,6 +145,14 @@ void SystemState<D>::copy_host_to_device(){
     host_thermo(iparticle, ccake::thermo_info::dwdB) = particles[iparticle].thermo.dwdB;
     host_thermo(iparticle, ccake::thermo_info::dwdS) = particles[iparticle].thermo.dwdS;
     host_thermo(iparticle, ccake::thermo_info::dwdQ) = particles[iparticle].thermo.dwdQ;
+    #ifdef DEBUG_SLOW
+    //Couting to check values
+    if (iparticle > 998 and iparticle < 1002) {
+      std::cout << " t " << particles[iparticle].hydro.t << " gamma " << particles[iparticle].hydro.gamma << \
+              " sigma " << particles[iparticle].hydro.sigma << " T " << particles[iparticle].thermo.T \
+	     << " thermo.e " << particles[iparticle].thermo.e << " thermo.s " << particles[iparticle].thermo.s << std::endl;
+    }
+    #endif
 
     for (int i=0; i<D+1; i++)
     for (int j=0; j<D+1; j++)
@@ -152,6 +169,12 @@ void SystemState<D>::copy_host_to_device(){
     host_smoothed(iparticle, ccake::densities_info::rhoB) = particles[iparticle].smoothed.rhoB;
     host_smoothed(iparticle, ccake::densities_info::rhoS) = particles[iparticle].smoothed.rhoS;
     host_smoothed(iparticle, ccake::densities_info::rhoQ) = particles[iparticle].smoothed.rhoQ;
+    #ifdef DEBUG_SLOW
+    //Couting to check values
+    if (iparticle > 998 and iparticle < 1002) {
+      std::cout << " smoothed.e " << particles[iparticle].smoothed.e << " smoothed.s " << particles[iparticle].smoothed.s << std::endl;
+			      }
+    #endif
 
     host_specific_density(iparticle, ccake::densities_info::e) = particles[iparticle].specific.e;
     host_specific_density(iparticle, ccake::densities_info::s) = particles[iparticle].specific.s;
@@ -394,7 +417,7 @@ void SystemState<D>::reset_neighbour_list(){
   //print_neighbors(975);
   //print_neighbors(1000);
   //print_neighbors(1025);
-  #ifdef DEBUG
+  #ifdef DEBUG_SLOW
   print_neighbors(0);
   #endif
 }

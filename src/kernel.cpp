@@ -53,28 +53,31 @@ double SPHkernel<D>::kernel(double distance, double hT )
 /// @param r1 The coordinates of the first point.
 /// @param r2 The coordinates of the second point.
 /// @return The Euclidean distance between the two points.
-template<unsigned int D>
-KOKKOS_INLINE_FUNCTION
-/*
+
+template<> KOKKOS_INLINE_FUNCTION
 double SPHkernel<1>::distance(const double* r1, const double* r2, int t)
 {
   double d=0;
+  int D = 1;
   double diff = r1[D-1] - r2[D-1];
-  d = diff*diff*t;
+  d = diff*diff*t*t;
   return sqrt(d);
 }
 
+/*
 double SPHkernel<3>::distance(const double* r1, const double* r2, int t)
   for (int idir=0; idir<D-1; ++idir){
     double diff = r1[idir]-r2[idir];
     d += diff*diff;
   }
-  d += (r1[D-1] - r2[D-1])*(r1[D-1] - r2[D-1])*t
+  d += (r1[D-1] - r2[D-1])*(r1[D-1] - r2[D-1])*t*t
   return sqrt(d);
 }
 */
+template<unsigned int D>
+KOKKOS_INLINE_FUNCTION
 
-double SPHkernel<D>::distance(const double* r1, const double* r2)
+double SPHkernel<D>::distance(const double* r1, const double* r2, int t)
 {
   double d=0;
   for (int idir=0; idir<D; ++idir){
