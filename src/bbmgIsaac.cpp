@@ -219,7 +219,7 @@ void BBMG::propagate()
 }
 
 
-double BBMG::int1(double x)
+/*double BBMG::int1(double x)
 {
   double p_pi_int = Pfg/x;
   double integrand1 = 1/x * gftLHC(p_pi_int) * Rjetg[j] * fragFuncPig(x, p_pi_int);
@@ -251,7 +251,7 @@ double BBMG::int4(double x)
   double integrand4 = 1/x * qftLHC(p_pi_int) * fragFuncPiq(x, p_pi_int);
 
   return integrand4;
-}
+}*/
 
 
 void BBMG::inter( field &f ) 
