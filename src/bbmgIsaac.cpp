@@ -170,11 +170,11 @@ void BBMG::propagate()
   double g0Pfg = gftLHC(Pfg);
   double g0Pfq = qftLHC(Pfq);
   // for (int i = 0; i < tot; i++)
-  jetInfo.erase( std::remove_if(
+  /*jetInfo.erase( std::remove_if(
       jetInfo.begin(),
       jetInfo.end(),
       [this]( auto& jetPropagation ){ return jetPropagation.T <= Freezeout_Temp; }),
-      jetInfo.end() );
+      jetInfo.end() );*/
 
   for (auto& jetPropagation : jetInfo)
   {
