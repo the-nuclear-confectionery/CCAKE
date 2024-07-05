@@ -169,6 +169,12 @@ void BBMG::propagate()
   double g0Pfg = gftLHC(Pfg);
   double g0Pfq = qftLHC(Pfq);
   // for (int i = 0; i < tot; i++)
+  jetInfo.erase( std::remove_if(
+      jetInfo.begin(),
+      jetInfo.end(),
+      [this]( auto& jetPropagation ){ return jetPropagation.T <= Freezeout_Temp; }),
+      jetInfo.end() );
+
   for (auto& jetPropagation : jetInfo)
   {
     // propagate x,y position of jet on top of sph particles
@@ -179,6 +185,14 @@ void BBMG::propagate()
     inter( jetPropagation ); //interpolation of the field
     double kappa = get_kappa(jetPropagation.T / 1000); //The /1000 here is to move temps from MeV to GeV to follow Barbara's plot, same as above
     
+
+    /*if ( jetPropagation.T > Freezeout_Temp )
+    {
+      int count = 0;
+      count++;
+      cout << "This is how many are still active: " << count
+    }*/
+
     if ( /*( jetPropagation.on == 1 ) &&*/  jetPropagation.T > Freezeout_Temp ) 
     {
       jetPropagation.line += pow(tau, z) * pow(jetPropagation.rho, c) * settingsPtr->dt * flow(jetPropagation);
