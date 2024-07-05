@@ -14,6 +14,9 @@ namespace consts = constants;
 
 
 /// @brief a list of keys expected in the input YAML files
+/// @details a list of the keys, nested by indentation, that are expected for the configuation 
+/// file. Any new keys that are added to the configuration file should be added to this macro,
+/// with the appropriate identation for nested keys.
 #define EXPECTED_KEYS  \
   "initial_conditions",  \
     "type", "file", "t0", "dimension", "input_as_entropy",  \
