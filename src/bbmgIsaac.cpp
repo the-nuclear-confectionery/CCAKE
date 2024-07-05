@@ -91,7 +91,7 @@ void BBMG::initial()
       
       sph_particle.line = 0.5 * kappa * pow(settingsPtr->t0, z) * pow(sph_particle.rho0, c) * settingsPtr->dt; // only if initial flow=0
       //jetInfo.resize(14);
-      for (int j=0; j<14; j++) //initializes jets at each point in grid space, over 14 directions
+      for (int j=0; j<2; j++) //initializes jets at each point in grid space, over 14 directions
       {
         sph_particle.phi = phi[j];
         sph_particle.pid = j;
@@ -164,6 +164,7 @@ void BBMG::propagate()
   double tau  = systemPtr->t + settingsPtr->t0;
   //int stillon = 0;
   int tot     = jetInfo.size();
+  int countyes, countno;
   double P0g = 0, P0q = 0;
   double Rjetnorm = 0;
   double g0Pfg = gftLHC(Pfg);
@@ -196,6 +197,7 @@ void BBMG::propagate()
     if ( /*( jetPropagation.on == 1 ) &&*/  jetPropagation.T > Freezeout_Temp ) 
     {
       jetPropagation.line += pow(tau, z) * pow(jetPropagation.rho, c) * settingsPtr->dt * flow(jetPropagation);
+      countyes++;
       //cout << "pid checking second: " << jetPropagation.pid << endl;
       //cout << "This is the value of the flow factor being multiplied: " << flow(jetPropagation) << endl;
       //stillon++;
@@ -206,6 +208,7 @@ void BBMG::propagate()
       //jetPropagation.line += 0.5 * kappa * pow(tau,z) * pow(jetPropagation.rho0, c) * settingsPtr->dt; /* flow(ff[i])*/
       // Commented above out as it is still adding to the line integral, after the partons should be out of the qgp; setting to 0
       jetPropagation.line += 0;
+      countno++;
       //ff[i].line *= efluc();
       // Could add in fluctuations as a multiplicative factor in the next line, like the unit converter
       P0g  = (Pfg + Cg * jetPropagation.line) * constants::hbarc_GeVfm; //* pow(Pfg, 1-a) 
@@ -223,7 +226,7 @@ void BBMG::propagate()
     }
   }
 
-  for (int j=0; j<14; j++)
+  for (int j=0; j<2; j++)
   {
     //There is an experimental reason to be calculating this way
     Rjetq[j] /= Rjetnorm;
@@ -232,6 +235,7 @@ void BBMG::propagate()
     cout << "The averaged quark jet RAA for " << j << " is: " << Rjetq[j] << endl;
     cout << "The averaged gluon jet RAA for " << j << " is: " << Rjetg[j] << endl;
   }
+  cout << "Frozen out jets: " << countno << endl << "Still going jets: " << countyes << endl;
 }
 
 
