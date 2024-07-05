@@ -164,6 +164,7 @@ void BBMG::propagate()
   double tau  = systemPtr->t + settingsPtr->t0;
   //int stillon = 0;
   int tot     = jetInfo.size();
+  cout << "How many jets we have: " << tot << endl;
   int countyes = 0, countno = 0;
   double P0g = 0, P0q = 0;
   double Rjetnorm = 0;
