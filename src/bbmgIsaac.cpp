@@ -89,9 +89,9 @@ void BBMG::initial()
       
       double kappa = get_kappa(sph_particle.T / 1000);
       
-      sph_particle.line = 0.5 * kappa * pow(settingsPtr->t0, z) * pow(sph_particle.rho0, c) * settingsPtr->dt; // only if initial flow=0
+      sph_particle.line = 0.5 * kappa * exp(z*log(settingsPtr->t0)) * exp(c*log(sph_particle.rho0)) * settingsPtr->dt; // only if initial flow=0
       //jetInfo.resize(14);
-      for (int j=0; j<2; j++) //initializes jets at each point in grid space, over 14 directions
+      for (int j=0; j<14; j++) //initializes jets at each point in grid space, over 14 directions
       {
         sph_particle.phi = phi[j];
         sph_particle.pid = j;
@@ -130,11 +130,13 @@ double BBMG::fragFuncPiq(double x, double y)
   double lambda   = 0.088;
   double mu0      = 2;
   double sbar     = log(log(y/lambda)/log(mu0/lambda));
-  double N        = 0.54610 - 0.22946*pow(sbar,1) - 0.22594*pow(sbar,2) + 0.21119*pow(sbar,3);
-  double alpha    = -1.46616 - 0.45404*pow(sbar,1) - 0.12684*pow(sbar,2) + 0.27646*pow(sbar,3);
-  double beta     = 1.01864 + 0.95367*pow(sbar,1) - 1.09835*pow(sbar,2) + 0.74657*pow(sbar,3);
-  double gamma    = -0.01877*pow(sbar,1) + 0.02949*pow(sbar,2);
-  double D        = N*pow(x,alpha)*pow(1-x,beta)*(1+gamma/x);
+  double sbar2    = sbar * sbar;
+  double sbar3    = sbar2 * sbar;
+  double N        = 0.54610 - 0.22946*sbar - 0.22594*sbar2 + 0.21119*sbar3;
+  double alpha    = -1.46616 - 0.45404*sbar - 0.12684*sbar2 + 0.27646*sbar3;
+  double beta     = 1.01864 + 0.95367*sbar - 1.09835*sbar2 + 0.74657*sbar3;
+  double gamma    = -0.01877*sbar + 0.02949*sbar2;
+  double D        = N*exp(alpha*log(x))*exp(beta*log(1-x))*(1+gamma/x);
   return D;
 }
 
@@ -144,11 +146,13 @@ double BBMG::fragFuncPig(double x, double y)
   double lambda   = 0.088;
   double mu0      = 2;
   double sbar     = log(log(y/lambda)/log(mu0/lambda));
-  double N        = 6.04510 - 6.61523*pow(sbar,1) - 1.64978*pow(sbar,2) + 2.68223*pow(sbar,3);
-  double alpha    = -0.71378 + 0.14705*pow(sbar,1) - 1.08423*pow(sbar,2) - 0.43182*pow(sbar,3);
-  double beta     = 2.92133 + 1.48429*pow(sbar,1) + 1.32887*pow(sbar,2) - 1.78696*pow(sbar,3);
-  double gamma    = 0.23086*pow(sbar,1) - 0.29182*pow(sbar,2);
-  double D        = N*pow(x,alpha)*pow(1-x,beta)*(1+gamma/x);
+  double sbar2    = sbar * sbar;
+  double sbar3    = sbar2 * sbar;
+  double N        = 6.04510 - 6.61523*sbar - 1.64978*sbar2 + 2.68223*sbar3;
+  double alpha    = -0.71378 + 0.14705*sbar - 1.08423*sbar2 - 0.43182*sbar3;
+  double beta     = 2.92133 + 1.48429*sbar + 1.32887*sbar2 - 1.78696*sbar3;
+  double gamma    = 0.23086*sbar - 0.29182*sbar2;
+  double D        = N*exp(alpha*log(x))*exp(beta*log(1-x))*(1+gamma/x);
   return D;
 }
 
@@ -171,11 +175,11 @@ void BBMG::propagate()
   double g0Pfg = gftLHC(Pfg);
   double g0Pfq = qftLHC(Pfq);
   // for (int i = 0; i < tot; i++)
-  /*jetInfo.erase( std::remove_if(
+  jetInfo.erase( std::remove_if(
       jetInfo.begin(),
       jetInfo.end(),
       [this]( auto& jetPropagation ){ return jetPropagation.T <= Freezeout_Temp; }),
-      jetInfo.end() );*/
+      jetInfo.end() );
 
   for (auto& jetPropagation : jetInfo)
   {
@@ -188,16 +192,9 @@ void BBMG::propagate()
     double kappa = get_kappa(jetPropagation.T / 1000); //The /1000 here is to move temps from MeV to GeV to follow Barbara's plot, same as above
     
 
-    /*if ( jetPropagation.T > Freezeout_Temp )
-    {
-      int count = 0;
-      count++;
-      cout << "This is how many are still active: " << count
-    }*/
-
     if ( /*( jetPropagation.on == 1 ) &&*/  jetPropagation.T > Freezeout_Temp ) 
     {
-      jetPropagation.line += pow(tau, z) * pow(jetPropagation.rho, c) * settingsPtr->dt * flow(jetPropagation);
+      jetPropagation.line += exp(z*log(tau)) * exp(c*log(jetPropagation.rho)) * settingsPtr->dt * flow(jetPropagation);
       countyes++;
       //cout << "pid checking second: " << jetPropagation.pid << endl;
       //cout << "This is the value of the flow factor being multiplied: " << flow(jetPropagation) << endl;
@@ -219,15 +216,15 @@ void BBMG::propagate()
       int jj      = jetPropagation.pid;
       
       //Following Barbara's format here from Rjet_g3 or Rjet_q3 to _g11/_q11
-      Rjetg[jj]     += (pow(P0g/Pfg, 1+a) * gftLHC(P0g) / g0Pfg) * jetPropagation.rho0 * gridx*gridy;
-      Rjetq[jj]     += (pow(P0q/Pfq, 1+a) * qftLHC(P0q) / g0Pfq) * jetPropagation.rho0 * gridx*gridy; 
+      Rjetg[jj]     += (exp((1+a)*log(P0g/Pfg)) * gftLHC(P0g) / g0Pfg) * jetPropagation.rho0 * gridx*gridy;
+      Rjetq[jj]     += (exp((1+a)*log(P0g/Pfg)) * qftLHC(P0q) / g0Pfq) * jetPropagation.rho0 * gridx*gridy; 
       
       Rjetnorm += jetPropagation.rho0 * gridx*gridy;
       //stillon = 0;
     }
   }
 
-  for (int j=0; j<2; j++)
+  for (int j=0; j<14; j++)
   {
     //There is an experimental reason to be calculating this way
     Rjetq[j] /= Rjetnorm;
