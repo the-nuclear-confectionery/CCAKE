@@ -164,7 +164,7 @@ void BBMG::propagate()
   double tau  = systemPtr->t + settingsPtr->t0;
   //int stillon = 0;
   int tot     = jetInfo.size();
-  int countyes, countno;
+  int countyes = 0, countno = 0;
   double P0g = 0, P0q = 0;
   double Rjetnorm = 0;
   double g0Pfg = gftLHC(Pfg);
