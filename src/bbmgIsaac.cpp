@@ -166,6 +166,8 @@ void BBMG::propagate()
   int tot     = jetInfo.size();
   double P0g = 0, P0q = 0;
   double Rjetnorm = 0;
+  double g0Pfg = gftLHC(Pfg);
+  double g0Pfq = qftLHC(Pfq);
   // for (int i = 0; i < tot; i++)
   for (auto& jetPropagation : jetInfo)
   {
@@ -199,8 +201,8 @@ void BBMG::propagate()
       int jj      = jetPropagation.pid;
       
       //Following Barbara's format here from Rjet_g3 or Rjet_q3 to _g11/_q11
-      Rjetg[jj]     += (pow(P0g/Pfg, 1+a) * gftLHC(P0g) / gftLHC(Pfg)) * jetPropagation.rho0 * gridx*gridy;
-      Rjetq[jj]     += (pow(P0q/Pfq, 1+a) * qftLHC(P0q) / qftLHC(Pfq)) * jetPropagation.rho0 * gridx*gridy; 
+      Rjetg[jj]     += (pow(P0g/Pfg, 1+a) * gftLHC(P0g) / g0Pfg) * jetPropagation.rho0 * gridx*gridy;
+      Rjetq[jj]     += (pow(P0q/Pfq, 1+a) * qftLHC(P0q) / g0Pfq) * jetPropagation.rho0 * gridx*gridy; 
       
       Rjetnorm += jetPropagation.rho0 * gridx*gridy;
       //stillon = 0;
