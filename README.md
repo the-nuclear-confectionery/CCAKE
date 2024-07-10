@@ -48,7 +48,7 @@ KOKKOSSRC=<path/to/kokkos_src>
 PREFIX=/opt/local
 ```
 > **Note**: If you exit the terminal, you will need to set these variables again.
-- Clone the Kokkos repository: `git clone https://github.com/ECP-copa/Cabana.git $CABANASRC`
+- Clone the Kokkos repository: `git clone git@github.com:kokkos/kokkos.git`
 - Checkout to version 4.1.0: `git checkout 4.1.00`
 - Create a build folder inside the Kokkos folder: `mkdir -p $KOKKOSSRC/build && cd $KOKKOSSRC/build`
 - Edit `$KOKKOSSRC/bin/nvcc_wrapper` according to your architecture. Most likely, you will need to replace `sm_70` by `sm_80` or `sm_86` (according to the architecture being targeted).
