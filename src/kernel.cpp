@@ -47,6 +47,22 @@ double SPHkernel<D>::kernel(double distance, double hT )
   return norm*(1 - 1.5*qq + 0.75*q*qq);
 }
 
+// template<unsigned int D>
+// KOKKOS_INLINE_FUNCTION
+// double SPHkernel<D>::kernelEta(double distance, double hT )
+// {
+//   double norm       = knorm/Kokkos::pow(hT,2);
+//   double norm2      = knorm2/Kokkos::pow(hT,2);
+//   double q = distance/hT;
+//   if ( q >= 2.0 )
+//     return 0.0;
+//   if ( q >= 1.0 )
+//     return norm2*(2.0-q)*(2.0-q)*(2.0-q);
+
+//   double qq=q*q;
+//   return norm*(1 - 1.5*qq + 0.75*q*qq);
+// }
+
 /// @brief Calculates the Euclidean distance between two points.
 /// @details This function calculates the Euclidean distance between two points
 /// in D-dimensional space.
@@ -59,7 +75,10 @@ double SPHkernel<1>::distance(const double* r1, const double* r2, int t)
 {
   double d=0;
   int D = 1;
+  // double z1 = t * (exp(2*r1[D-1]) - 1) / sqrt(2*exp(4*r1[D-1]) + 2);
+  // double z2 = t * (exp(2*r2[D-1]) - 1) / sqrt(2*exp(4*r2[D-1]) + 2);
   double diff = r1[D-1] - r2[D-1];
+  // double diff = z1 - z2;
   d = diff*diff*t*t;
   return sqrt(d);
 }
