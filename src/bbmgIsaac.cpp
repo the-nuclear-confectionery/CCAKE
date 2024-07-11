@@ -110,12 +110,26 @@ void BBMG::initial()
 double BBMG::flow(field &f) { return f.gam*(1-f.vmag*cos(f.phi-f.vang)); }
 
 
-//double BBMG::gftLHC(double x) { return exp(6.874017911786442 - 0.26596588700706614*pow(log(x),0.6654825884427571) - 2.677705869879314*pow(log(x),0.8020502598676339) - 2.4735502984532656*pow(log(x),0.8069542250600515) - 0.36687832133337656*pow(log(x),2.070179064516989)); } 
-double BBMG::gftLHC(double x) { return 1;} 
+double BBMG::gftLHC(double x) 
+{ 
+  double logx = log(x);
+  double loglogx = log(logx);
+  return exp(6.874017911786442 
+            - 0.26596588700706614*exp(0.6654825884427571*loglogx) - 2.677705869879314*exp(0.8020502598676339*loglogx) 
+            - 2.4735502984532656*exp(0.8069542250600515*loglogx) - 0.36687832133337656*exp(2.070179064516989*loglogx)); 
+}
+//double BBMG::gftLHC(double x) { return 1;} 
 
 
-//double BBMG::qftLHC(double x) { return exp(2.9903871818687286 - 2.0117432145703114*pow(log(x),1.0384884086567516) - 1.9187151702604879*pow(log(x),1.039887584824982) - 0.15503714201000543*pow(log(x),1.0586516925018519) - 0.15384778823017106*pow(log(x),2.0829849720841573)); }
-double BBMG::qftLHC(double x) { return 1;}
+double BBMG::qftLHC(double x) 
+{ 
+  double logx = log(x);
+  double loglogx = log(logx);
+  return exp(2.9903871818687286 
+          - 2.0117432145703114*exp(1.0384884086567516*loglogx) - 1.9187151702604879*exp(1.039887584824982*loglogx)
+          - 0.15503714201000543*exp(1.0586516925018519*loglogx) - 0.15384778823017106*exp(2.0829849720841573*loglogx));
+}
+//double BBMG::qftLHC(double x) { return 1;}
 
 double BBMG::efluc()
 {
@@ -196,7 +210,7 @@ void BBMG::propagate()
     {
       jetPropagation.line += exp(z*log(tau)) * exp(c*log(jetPropagation.rho)) * settingsPtr->dt * flow(jetPropagation);
       countyes++;
-      //cout << "pid checking second: " << jetPropagation.pid << endl;
+      cout << "Jet directions still going: " << jetPropagation.phi << endl;
       //cout << "This is the value of the flow factor being multiplied: " << flow(jetPropagation) << endl;
       //stillon++;
     }
@@ -217,7 +231,7 @@ void BBMG::propagate()
       
       //Following Barbara's format here from Rjet_g3 or Rjet_q3 to _g11/_q11
       Rjetg[jj]     += (exp((1+a)*log(P0g/Pfg)) * gftLHC(P0g) / g0Pfg) * jetPropagation.rho0 * gridx*gridy;
-      Rjetq[jj]     += (exp((1+a)*log(P0g/Pfg)) * qftLHC(P0q) / g0Pfq) * jetPropagation.rho0 * gridx*gridy; 
+      Rjetq[jj]     += (exp((1+a)*log(P0q/Pfq)) * qftLHC(P0q) / g0Pfq) * jetPropagation.rho0 * gridx*gridy; 
       
       Rjetnorm += jetPropagation.rho0 * gridx*gridy;
       //stillon = 0;
@@ -253,7 +267,7 @@ double BBMG::int2(double x)
   double integrand2 = 1/x * qftLHC(p_pi_int) * Rjetq[j] * fragFuncPiq(x, p_pi_int);
 
   return integrand2;
-}
+}*/
 
 double BBMG::int3(double x)
 {
@@ -269,7 +283,7 @@ double BBMG::int4(double x)
   double integrand4 = 1/x * qftLHC(p_pi_int) * fragFuncPiq(x, p_pi_int);
 
   return integrand4;
-}*/
+}
 
 
 void BBMG::inter( field &f ) 
