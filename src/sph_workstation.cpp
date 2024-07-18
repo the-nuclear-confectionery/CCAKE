@@ -240,7 +240,7 @@ void SPHWorkstation::smooth_fields(Particle & pa)
     //===============
     // print status
     if ( ( VERBOSE > 2 && pa.print_this_particle )
-          || pa.smoothed.s < 0 || isnan( pa.smoothed.s ) )
+          || pa.smoothed.s < 0 || std::isnan( pa.smoothed.s ) )
       std::cout << __FUNCTION__ << "(SPH particle == " << a << "): "
                 << systemPtr->t << "   "
                 << b << "   " << pa.r
@@ -260,7 +260,7 @@ void SPHWorkstation::smooth_fields(Particle & pa)
   }
 
   // check if particle has gone nan or negative entropy
-  if ( (pa.smoothed.s<0) || isnan(pa.smoothed.s) )
+  if ( (pa.smoothed.s<0) || std::isnan(pa.smoothed.s) )
   {
     std::cout << pa.ID <<  " has invalid entropy "
               << pa.T()*hbarc << " " << pa.smoothed.s << endl;
@@ -273,7 +273,7 @@ void SPHWorkstation::smooth_fields(Particle & pa)
 
 
 ///////////////////////////////////////////////////////////////////////////////
-//Second smoothing smoothes the gradients after constructing all the fields 
+//Second smoothing smoothes the gradients after constructing all the fields
 //and derivatives using the equation of state
 void SPHWorkstation::smooth_gradients( Particle & pa, double tin )
 {
@@ -358,7 +358,7 @@ void SPHWorkstation::smooth_gradients( Particle & pa, double tin )
 
     //===============
     // check for nan pressure gradients
-    if ( isnan( pah.gradP(0) ) )
+    if ( std::isnan( pah.gradP(0) ) )
     {
       cout << "gradP stopped working" << endl;
       cout << systemPtr->t <<" "  << pah.gradP << " " << a << " " << b << endl;
@@ -369,14 +369,14 @@ void SPHWorkstation::smooth_gradients( Particle & pa, double tin )
       cout << pb.r << endl;
       cout << kernel::kernel( pa.r - pb.r, settingsPtr->h ) << endl;
     }
-    else if ( isnan( pah.gradP(1) ) )
+    else if ( std::isnan( pah.gradP(1) ) )
       cout << "1 " << gradPressure_weight(a, b)
            << " " << a << " " << b << endl;
-  
+
 
     //===============
     // check for nan Energy gradients
-    if ( isnan( pah.gradE(0) ) )
+    if ( std::isnan( pah.gradE(0) ) )
     {
       cout << "gradE stopped working" << endl;
       cout << systemPtr->t <<" "  << pah.gradE << " " << a << " " << b << endl;
@@ -387,7 +387,7 @@ void SPHWorkstation::smooth_gradients( Particle & pa, double tin )
       cout << pb.r << endl;
       cout << kernel::kernel( pa.r - pb.r, settingsPtr->h ) << endl;
     }
-    else if ( isnan( pah.gradE(1) ) )
+    else if ( std::isnan( pah.gradE(1) ) )
       cout << "1 " << gradEnergy_weight(a, b)
            << " " << a << " " << b << endl;
   }
@@ -568,7 +568,7 @@ void SPHWorkstation::process_initial_conditions()
 
 
 //==============================================================================
-// initialize bulk Pi 
+// initialize bulk Pi
 void SPHWorkstation::set_bulk_Pi()
 {
   double t0 = settingsPtr->t0;
@@ -1004,7 +1004,7 @@ void SPHWorkstation::add_buffer(double default_e)
   double stepx = settingsPtr->stepx;
   double stepy = settingsPtr->stepy;
 
-  
+
   // find maximum distance from origin first
   double max_r = -1.0;
   if ( settingsPtr->circular_buffer )
@@ -1022,8 +1022,8 @@ void SPHWorkstation::add_buffer(double default_e)
       abort();
     }
   }
-  
-  
+
+
   const int nx = 1 - 2*int(round(xmin/stepx));  // xmin is negative
   const int ny = 1 - 2*int(round(ymin/stepy));  // xmin is negative
   bool particle_exists[nx][ny];
@@ -1077,7 +1077,7 @@ void SPHWorkstation::add_buffer(double default_e)
     p.input.rhoQ = 0.0;
     p.hydro.u(0) = 0.0;
     p.hydro.u(1) = 0.0;
-    
+
     systemPtr->particles.push_back( p );
     added_particles++;
 

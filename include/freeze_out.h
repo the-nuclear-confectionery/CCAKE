@@ -37,7 +37,7 @@ class FreezeOut
   friend class InputOutput;
 
   private:
-    
+
     EquationOfState * eosPtr  = nullptr;
     Settings * settingsPtr    = nullptr;
     SystemState * systemPtr   = nullptr;
@@ -52,7 +52,7 @@ class FreezeOut
       string eos_name = "";
       double t = 0.0, s = 0.0, e = 0.0, rhoB = 0.0, rhoS = 0.0, rhoQ = 0.0,
              T = 0.0, muB = 0.0, muS = 0.0, muQ = 0.0, theta = 0.0, bulk = 0.0,
-             sigma = 0.0, shear33 = 0.0, inside = 0.0; 
+             sigma = 0.0, shear33 = 0.0, inside = 0.0;
       Vector<double,2> r, u, gradP, gradE; // added gradE for FO
       Matrix<double,3,3> shear;
       double wfz = 0.0;//these should be functions
@@ -66,16 +66,16 @@ class FreezeOut
     int cf            = 0;
     int frzc          = 0;
     double avgetasig  = 0;
-    
+
     double tau        = 0;
     double taup       = 0;
     double taupp      = 0;
-    
-	
+
+
     vector<double> divTtemp;
 	  vector<double> divEener;
 	  vector<double> divPpress;//switching to e
-	
+
     vector<double> gsub;
     vector<double> bulksub;
     vector<double> swsub;
@@ -87,14 +87,14 @@ class FreezeOut
     vector<string> eosname;
     vector<double> cs2fzfluc;
 	  vector<double> wfzfluc;
-	
+
     vector< Vector<double,2> > divT;
 	  vector< Vector<double,2> > divE;
 	  vector< Vector<double,2> > divP;//switching to e
     vector< Vector<double,2> > rsub;
     vector< Vector<double,2> > uout;
     vector< Matrix<double,3,3> > shearsub;
-    //==========================================================================    
+    //==========================================================================
 
 
     vector<FRZ> frz1;
@@ -109,11 +109,11 @@ class FreezeOut
     // for some dumb reason, this needs to be public
     // (must be accessed in system state)
     vector<FRZ> frz2;
-	
+
     void set_eosPtr(EquationOfState * eosPtr_in) { eosPtr = eosPtr_in; }
     void set_SettingsPtr(Settings * settingsPtr_in) { settingsPtr = settingsPtr_in; }
     void set_SystemStatePtr(SystemState * systemPtr_in) { systemPtr = systemPtr_in; }
-	
+
 
     //==========================================================================
     // set things up
@@ -197,7 +197,7 @@ class FreezeOut
       }
 
     }
-	
+
  ////////////////////////////////////////////////////////////////////////////
     void bsqsvfreezeout(int curfrz)
     {
@@ -392,7 +392,7 @@ class FreezeOut
 		      p_frz1.wfz       = p.thermo.w;
 		      p_frz1.cs2fz     = p.thermo.cs2;
         }
-		
+
         taupp = taup;
         taup  = tau;
       }
@@ -495,10 +495,10 @@ class FreezeOut
         }
 
 
-	
+
 		//cs2fz2[j]   = eosPtr->cs2out(frz2[j].T,frz2[j].muB,frz2[j].muS,frz2[j].muQ);
-	    //wfz2[j]   = eosPtr->wfz(frz2[j].T,frz2[j].muB,frz2[j].muS,frz2[j].muQ); 
-		
+	    //wfz2[j]   = eosPtr->wfz(frz2[j].T,frz2[j].muB,frz2[j].muS,frz2[j].muQ);
+
 
         // COMPUTE NORMALS AFTER THIS POINT
         //sFO[j]       = eosPtr->s_terms_T( Tfluc[j] );  // replace with e, BSQ
@@ -510,10 +510,10 @@ class FreezeOut
         sigsub      /= gsub[j]*tlist[j];
         swsub[j]     = p.norm_spec.s/sigsub; //here need to find out what 1/\gamma s is?
 
-        divT[j]      = (1.0/sFO[j])*gradPsub;//\partial_\mu T= \partial_\mu P/s. 
+        divT[j]      = (1.0/sFO[j])*gradPsub;//\partial_\mu T= \partial_\mu P/s.
 		    //For the case with no charge\partial_\mu E= \partial_\mu P/cs2
 		    divP[j]      =  gradPsub; //attempting the switch to De here.
-		    divE[j]      =  gradEsub;//added for FO		
+		    divE[j]      =  gradEsub;//added for FO
         divTtemp[j]  = -(1.0/(gsub[j]*sFO[j]))
                           *( cs2fzfluc[j] * (wfzfluc[j]+bulksub[j]) * thetasub
                             - cs2fzfluc[j]*inside+inner(uout[j], gradPsub) );//\partial_\tau T: Eq C4 in arXiv.1406.3333
@@ -521,18 +521,18 @@ class FreezeOut
                           *( cs2fzfluc[j] * (wfzfluc[j]+bulksub[j]) * thetasub
                             - cs2fzfluc[j]*inside+inner(uout[j], gradPsub) );//\partial_\tau P: Eq C3 in arXiv.1406.3333
 		    divEener[j]  =  -(1.0/gsub[j])*(((wfzfluc[j] + bulksub[j]) * thetasub) - inside + inner(uout[j], gradEsub));
-                            				
-        //divEenergy[j] = - (1.0/(gsub[j]))((wfzfluc[j]+bulksub[j]) * thetasub - inside);//De -> \partial_\tau e: Eq C2 in arXiv.1406.3333							
-    
+
+        //divEenergy[j] = - (1.0/(gsub[j]))((wfzfluc[j]+bulksub[j]) * thetasub - inside);//De -> \partial_\tau e: Eq C2 in arXiv.1406.3333
+
 	//THIS NEEDS TO BE RESET
 
 
-        double insub = divTtemp[j]*divTtemp[j] - Norm2(divT[j]); 
+        double insub = divTtemp[j]*divTtemp[j] - Norm2(divT[j]);
 		    double norm  = -sqrt(abs(insub));
         divTtemp[j] /= norm;
         divT[j]      = (1.0/norm)*divT[j];
-		
-		    double insubE = divEener[j]*divEener[j] - Norm2(divE[j]); 
+
+		    double insubE = divEener[j]*divEener[j] - Norm2(divE[j]);
 		    double normE  = -sqrt(abs(insubE));
         divEener[j] /= norm;
         divE[j]      = (1.0/norm)*divE[j];
@@ -551,7 +551,7 @@ class FreezeOut
 
         avgetasig += sFO[j]/sigsub;
 
-        if(isnan(divTtemp[j]))
+        if(std::isnan(divTtemp[j]))
         {
           cout << "divtemp" << endl;
           cout << divTtemp[j] << " " << divT[j] << " " << norm << endl;

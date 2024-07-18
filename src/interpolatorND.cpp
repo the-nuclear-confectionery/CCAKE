@@ -247,7 +247,7 @@ void InterpolatorND<D>::evaluate( const vector<double> & coordinates,
 {
   // if coordinates are nan's, don't bother evaluating!
   for (auto & c: coordinates)
-    if ( isnan(c) )
+    if ( std::isnan(c) )
     {
       results = vector<double>(fields.front().size(), fill_value);
       return;
@@ -345,7 +345,7 @@ void InterpolatorND<D>::evaluate( const vector<double> & coordinates,
 //      //cout << "tmpsize = " << tmpsize << endl;
 //      //abort();
 //    }
-    // 
+    //
     for ( int iField = 0; iField < nFields; iField++ )
     {
 //      if (iField==6)
@@ -371,7 +371,7 @@ void InterpolatorND<D>::evaluate(
 {
   // if coordinates are nan's, don't bother evaluating!
   for (auto & c: coordinates)
-    if ( isnan(c) )
+    if ( std::isnan(c) )
     {
       results = vector<double>(fields_to_interpolate.size(), fill_value);
       return;
@@ -459,7 +459,7 @@ void InterpolatorND<D>::evaluate(
 
     auto & cell = fields[ indexer( hypercube_inds ) ];
 
-    // 
+    //
     for ( int iField = 0; iField < nFields; iField++ )
     {
 //      if (iField==6)
