@@ -65,7 +65,7 @@ template <class T, int D1, int D2>
 Matrix<T,D1,D2>& Matrix<T,D1,D2>::operator*=(const Matrix<T,D2,D1>& b)
 {
   //only works for matrices with the same dimensions
-  static_assert(D1 == D2);
+  static_assert(D1 == D2, "Matrix must be square!");
 
   if (true)
   {
@@ -128,7 +128,7 @@ Matrix<T,D1,D2> operator*(T l, const Matrix<T,D1,D2>& a)
 template <class T, int D1, int D2>
 Matrix<T,D1,D2>& Matrix<T,D1,D2>::identity()
 {
-  static_assert( D1 == D2 );
+  static_assert( D1 == D2, "Identity matrix must be square!" );
 //  if (D1!=D2) cout << "Error: not true identity matrix!" << endl;
 
   for (int i=0; i<D1; i++)
@@ -164,7 +164,7 @@ Matrix<T,D2,D1> transpose(const Matrix<T,D1,D2>& a)
 template <class T, int D1, int D2, int Da2, int Db1>
 Matrix<T,D1,D2> operator*(const Matrix<T,D1,Da2>& a, const Matrix<T,Db1,D2>& b)
 {
-  static_assert( Da2 == Db1 );
+  static_assert( Da2 == Db1, "Matrix multiplication dimensions must match!" );
 
   Matrix<T,D1,D2> t;
   for (int i=0; i<D1; i++)
@@ -234,7 +234,8 @@ template <class T, int D1>
 double deter(const Matrix<T,D1,D1>& a)
 {
   // these are the only supported options for right now
-  static_assert( D1==2 || D1==3 );
+  static_assert( D1==2 || D1==3,
+                 "Determinant can only be evaluated for D=2 or D=3!" );
   if (D1==2)
     return a(0,0)*a(1,1)-a(0,1)*a(1,0);
   else if (D1==3)
