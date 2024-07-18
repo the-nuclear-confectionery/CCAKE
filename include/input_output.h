@@ -109,9 +109,9 @@ public:
     stringstream ss;
     ss  << "t = "
         << systemPtr->t      << ": " << scientific        << setw(10)
-        << systemPtr->Eloss  << " "  << systemPtr->S      << " " 
+        << systemPtr->Eloss  << " "  << systemPtr->S      << " "
         << systemPtr->Btotal << " "  << systemPtr->Stotal << " "
-        << systemPtr->Qtotal << defaultfloat;
+        << systemPtr->Qtotal << std::defaultfloat;
     formatted_output::summarize(ss.str());
   }
 
