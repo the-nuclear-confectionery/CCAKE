@@ -2,6 +2,7 @@ add_library(src OBJECT
 	BSQHydro.cpp
 	ccake.cpp
 	eos.cpp
+    eos_conformal_diagonal.cpp
 	eos_extension.cpp
 	eos_table.cpp
 	formatted_output.cpp
