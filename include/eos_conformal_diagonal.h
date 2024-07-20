@@ -17,13 +17,13 @@ private:
 
   double c, T0, muB0, muS0, muQ0;
   static constexpr double four_thirds = 4.0/3.0;
-  static constexpr double two_to_two_thirds = pow(2.0, 2.0/3.0);
+  static double two_to_two_thirds;
 
   inline double sgn(double val) { return (0.0 < val) - (val < 0.0); }
 
 public:
   // default constructor/destructor
-  EoS_conformal_diagonal(){std::cout << "In default constructor!\n"; abort();}
+  EoS_conformal_diagonal() = default;
   virtual ~EoS_conformal_diagonal(){}
 
   EoS_conformal_diagonal( const double c_in,
@@ -205,5 +205,6 @@ public:
   }
   
 };
+
 
 #endif
