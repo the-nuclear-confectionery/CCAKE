@@ -1,4 +1,6 @@
 #include "eom_default.h"
+// #include <fstream>
+// #include <iostream>
 
 /// @file eom_default.cpp
 /// @brief Implementation of the default equations of motion for the 
@@ -310,12 +312,16 @@ double EoM_default<D>::get_LRF(const double &lab, const double &gamma,
 /// @tparam D The number of spatial dimensions.
 /// @param sysPtr A pointer to the object of class SystemState.
 template<unsigned int D>
-void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> sysPtr)
+void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> sysPtr, std::shared_ptr<Settings> settingsPtr)
 {
+  // #ifdef DEBUG
+  // ofstream outfile;
+  // outfile.open("gradients.dat");
+  // #endif
   double t = (sysPtr->t);
   double t2 = t*t;
   CREATE_VIEW(device_,sysPtr->cabana_particles);
-  bool using_shear = true; ///TODO: This should be retrieved from the input parameters
+  bool using_shear = settingsPtr->using_shear; 
   auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, sysPtr->cabana_particles.size());
 
   auto fill_auxiliary_variables = KOKKOS_LAMBDA(int const is, int const ia){
@@ -493,6 +499,18 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
       milne::Matrix<double,D,D> MI = milne::inverse(M);
       milne::Vector<double,D> du_dt = MI*F;
       for(int idir=0; idir<D; ++idir) device_hydro_vector.access(is,ia,hydro_info::du_dt, idir) = du_dt(idir);
+
+      #ifdef DEBUG
+      double pos = device_position.access(is, ia, 0);
+      if (pos < 7.52 && pos > 7.48) {
+	std::cout << t << " " << pos << " " << \
+        device_hydro_scalar.access(is, ia, hydro_info::gamma)*device_hydro_space_matrix.access(is, ia, hydro_info::gradV, 0, 0) \
+        << " " << device_hydro_vector.access(is, ia, hydro_info::u, 0) << " " <<  gradP(0) << std::endl;
+      }
+      if (t >= 1.2){
+        exit(1);
+      }
+      #endif
   };
   Cabana::simd_parallel_for(simd_policy, compute_velocity_derivative, "compute_velocity_derivative");
   Kokkos::fence();
@@ -636,5 +654,6 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
     };
     Cabana::simd_parallel_for(simd_policy, compute_shear_derivative, "compute_shear_derivative");
     Kokkos::fence();
+
   }
 }

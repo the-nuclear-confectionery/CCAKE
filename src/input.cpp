@@ -287,7 +287,12 @@ bool cc::Input::decode_settings(const YAML::Node& node){
       settingsPtr->etaMode = cc::defaults::etaMode;
     }
 
-    if (settingsPtr->etaMode == "constant"){
+    if (settingsPtr->etaMode == "disabled"){
+      formatted_output::report("Shear evolution is disabled");
+      settingsPtr->using_shear = false;
+    }
+
+    else if (settingsPtr->etaMode == "constant"){
       try{
         settingsPtr->constant_eta_over_s = node["hydro"]["viscous_parameters"]["shear"]["constant_eta_over_s"].as<double>();
         settingsPtr->using_shear = true;

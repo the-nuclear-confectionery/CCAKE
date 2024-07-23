@@ -386,7 +386,7 @@ void SystemState<D>::reset_neighbour_list(){
   }
 
   for(int idir=0; idir<3; ++idir)
-    min_pos[idir] *= 3.; //Grid must be 100% bigger ///TODO: Allow this to be an optional input parameter
+    min_pos[idir] *= 2.; //Grid must be 100% bigger ///TODO: Allow this to be an optional input parameter
 
   //Cabana needs a 3D grid. We set the remaining dimensions to be a single cell
   double neighborhood_radius = 2*settingsPtr->hT;
