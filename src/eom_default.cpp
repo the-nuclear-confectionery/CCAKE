@@ -392,8 +392,7 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
     double dwdsT1 = device_hydro_scalar.access(is, ia, hydro_info::dwdsT1);
     double gt = device_hydro_scalar.access(is, ia, hydro_info::gamma_tau);
     double shv33 = device_hydro_scalar.access(is, ia, hydro_info::shv33);
-    // if (using_shear){
-    if(true){
+    if (using_shear){
 
       milne::Vector<double,D> v, u; //Already filled
       milne::Matrix<double,D+1,D+1> shv; //Already filled 
