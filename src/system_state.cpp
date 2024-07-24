@@ -495,53 +495,50 @@ void SystemState<D>::conservation_BSQ(bool first_iteration)
 
 ///////////////////////////////////////
 //TODO: Parallelize with Kokkos::parallel_reduce
+
+
 template<unsigned int D>
 void SystemState<D>::conservation_energy(bool first_iteration)
 {
   ///////////////////////////////////////////////
   // don't bother checking energy conservation on
   // intermediate RK steps
-  //if ( rk2 == 1 )
-  //{
-    // calculate total energy (T^{00})
-    E = 0.0;
-    for ( auto & p : particles )
-    {
-      p.contribution_to_total_E
-         = ( p.hydro.C*p.hydro.gamma_squared - p.p() - p.hydro.bigPI + p.hydro.shv(0,0) )
-           * p.norm_spec.s * t / p.hydro.sigma;
-      E += p.contribution_to_total_E;
-    }
-
-    // store initial total energy
-    // for checking subsequent energy loss
-    //if (linklist.first==1)
-    {
-      //linklist.first = 0;
-      E0             = E;
-    }
-
-    // Ez is initially set to zero,
-    // updated subsequently during RK integration
-    Etot  = E + Ez;
-    Eloss = (E0-Etot)/E0*100;
-    //rk2   = 0;
-  //}
-
-  ///////////////////////////////////////////////
-  // this enters the RK routine and should be
-  // done for intermediate steps as well;
-  // this gives the longitudinal energy flux (~T^{\eta\eta})
-  dEz = 0.0;
-  double t2 = t*t;
-  for ( auto & p : particles )
+  // calculate total energy (T^{00})
+  double t = t;
+  CREATE_VIEW(device_, cabana_particles);
+  E = 0.0;
+  auto get_total_energy = KOKKOS_LAMBDA(const int i, double &local_E)
   {
-    p.contribution_to_total_dEz
-         = ( p.p() + p.hydro.bigPI + p.hydro.shv33*t2 )
-           * p.norm_spec.s / p.hydro.sigma;
-    dEz += p.contribution_to_total_dEz;
-  }
+    double w = device_thermo(i, ccake::thermo_info::w);
+    double dE = device_contribution_to_total_E(i);
+    double p = device_thermo(i, ccake::thermo_info::p);  
+    double norm_spec = device_norm_spec(i, ccake::densities_info::s);
+    double sigma = device_hydro_scalar(i, ccake::hydro_info::sigma);
+    double bigPI = device_hydro_scalar(i, ccake::hydro_info::bigPI);
+    double shv00 = device_hydro_spacetime_matrix(i, ccake::hydro_info::shv, 0,0);
+    double gamma = device_hydro_scalar(i, ccake::hydro_info::gamma);
+    double g2 = gamma*gamma;
 
+    double C = w + bigPI;
+    
+    local_E += (C * g2 - p - bigPI + shv00) * norm_spec * t / sigma;
+  };
+  Kokkos::parallel_reduce("loop_conservation_energy",n_particles, get_total_energy, E);
+  Kokkos::fence();
+  
+  if (first_iteration) E0 = E;
+  //calculate Ez
+
+  Ez = 0.0;
+  auto get_total_Ez = KOKKOS_LAMBDA(const int i, double &local_Ez)
+  {
+    local_Ez += device_contribution_to_total_Ez(i);
+  };
+  Kokkos::parallel_reduce("loop_conservation_Ez",n_particles, get_total_Ez, Ez);
+  Kokkos::fence();
+
+  Etot  = E + Ez;
+  Eloss = (E0-Etot)/E0*100;
 }
 
 ///////////////////////////////////////

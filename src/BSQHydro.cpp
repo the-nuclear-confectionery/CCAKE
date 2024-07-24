@@ -536,13 +536,13 @@ void BSQHydro<D,TEOM>::run()
 
     //===================================
     // re-compute conserved quantities, etc.
-    //systemPtr->conservation_entropy();
-    //systemPtr->conservation_BSQ();
-    //systemPtr->compute_eccentricities();
+    systemPtr->conservation_entropy();
+    systemPtr->conservation_BSQ();
+    systemPtr->compute_eccentricities();
 
     //===================================
     // print updated system and status
-    //outPtr->print_conservation_status();
+    outPtr->print_conservation_status();
     if (systemPtr->number_of_elapsed_timesteps%10 == 0) outPtr->print_system_state();
     if (settingsPtr->particlization_enabled) outPtr->print_freeze_out(wsPtr->freezePtr);
 

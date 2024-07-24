@@ -6,13 +6,13 @@ initial_conditions:
   dimension: 1 # (1+1)D, (2+1)D or (3+1)D simulation
   input_as_entropy: false # if false, input will be interpreted as energy density
 parameters:
-  dt: 0.001 # time-step of the simulation in fm/c
-  h_T:  0.1  # Smothing parameter inside kernel, in the transverse direction (in fm)
+  dt: 0.01 # time-step of the simulation in fm/c
+  h_T: 0.5  # Smothing parameter inside kernel, in the transverse direction (in fm)
   h_eta:  0.1  # Smothing parameter inside kernel in the longitudinal direction
   kernel_type: "cubic_spline" # Kernel type. Possible values are: ["cubic_spline"]
   energy_cutoff: 0.15 # GeV/fm^3 - Particles with less than this energy will be deleted before starting the evolution
   buffer_particles:
-    enabled: false # Set to true to include buffer particles. May help stability.
+    enabled: true # Set to true to include buffer particles. May help stability.
     circular: true # whether to buffer with entire grid or just circular padding.
     padding_thickness: .1 # if circular buffer is true, specifies the fractional amount
 eos:
@@ -28,7 +28,7 @@ hydro:
   electric_charge_enabled: false # Set to false to disable electric charge evolution
   viscous_parameters:
     shear:
-      mode: "constant" # Possible values are: ["constant", "disabled"]
+      mode: "disabled" # Possible values are: ["constant", "disabled"]
       constant_eta_over_s: 0.0 # Value of the constant shear viscosity
       relaxation_mode: "default" # How shear relaxation coeffiecient is computed. Possible values are: ["default"]
     bulk:

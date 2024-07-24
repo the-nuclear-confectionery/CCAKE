@@ -23,7 +23,7 @@ def init_cond(tau):
         f.write(f"#0 {stepx} {stepy} {stepeta} 0 {xmin} {ymin} {etamin}\n")
         for eta in etas:
             eps = eps0 * (tau0 / tau)**(4/3)
-            u_eta = 5
+            u_eta = 0
             f.write(f"0 0 {eta} {eps} 0 0 0 0 0 {u_eta} 0 0 0 0 0 0 0\n")
         print(f'Initial conditions were successfully generated for tau = {tau}')
         f.close()

@@ -392,7 +392,8 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
     double dwdsT1 = device_hydro_scalar.access(is, ia, hydro_info::dwdsT1);
     double gt = device_hydro_scalar.access(is, ia, hydro_info::gamma_tau);
     double shv33 = device_hydro_scalar.access(is, ia, hydro_info::shv33);
-    if (using_shear){
+    // if (using_shear){
+    if(true){
 
       milne::Vector<double,D> v, u; //Already filled
       milne::Matrix<double,D+1,D+1> shv; //Already filled 
@@ -503,8 +504,8 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
       #ifdef DEBUG
       double pos = device_position.access(is, ia, 0);
       if (pos < 7.52 && pos > 7.48) {
-	std::cout << t << " " << pos << " " << \
-        device_hydro_scalar.access(is, ia, hydro_info::gamma)*device_hydro_space_matrix.access(is, ia, hydro_info::gradV, 0, 0) \
+	      std::cout << t << " " << pos << " " << \
+        device_hydro_vector.access(is, ia, hydro_info::du_dt, 0) \
         << " " << device_hydro_vector.access(is, ia, hydro_info::u, 0) << " " <<  gradP(0) << std::endl;
       }
       if (t >= 1.2){
@@ -653,6 +654,37 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
 
     };
     Cabana::simd_parallel_for(simd_policy, compute_shear_derivative, "compute_shear_derivative");
+    Kokkos::fence();
+
+    // computing dEz_dt
+    auto compute_Ez_derivative = KOKKOS_LAMBDA(const int is, const int ia)
+    {
+      double bigPI = device_hydro_scalar.access(is, ia, hydro_info::bigPI);
+      double shv33 = device_hydro_scalar.access(is, ia, hydro_info::shv33);
+      double sigma = device_hydro_scalar.access(is, ia, hydro_info::sigma);
+      double norm_spec = device_norm_spec.access(is, ia, densities_info::s);
+      double p = device_thermo.access(is, ia, thermo_info::p);  
+      double e = device_smoothed.access(is, ia, densities_info::e);
+      milne::Vector<double,D> u;
+      for(int idir=0; idir<D; ++idir){
+        u(idir) = device_hydro_vector.access(is, ia, hydro_info::u, idir);
+      }
+      double u3 = 0;
+      if (D==1){
+        u3 = u(0); // eta flow velocity
+      }
+      else if (D == 3){
+        u3 = u(2);  
+      }
+      else if (D == 2){
+        u3 = 0;
+      }
+
+      double dEz = 0;
+      dEz = ((e + p + bigPI)*u3*u3 + (p + bigPI)/t2 + shv33 ) * norm_spec * t2 / sigma;
+      device_contribution_to_total_dEz.access(is, ia) = dEz;
+    };
+    Cabana::simd_parallel_for(simd_policy, compute_Ez_derivative, "compute_Ez_derivative");
     Kokkos::fence();
 
   }

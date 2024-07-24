@@ -21,8 +21,8 @@ using EvolverCache = Cabana::MemberTypes<double[4][4], // stress-energy tensor
                                          double[3],    // four-velocity
                                          double[3],    // position
                                          double,       // specific_entropy
-                                         double//,       // Bulk pressure
-                                         //double        // E0
+                                         double,       // Bulk pressure
+                                         double        // E0 = Ez
 >;
 
 namespace evolver_cache_info

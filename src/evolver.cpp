@@ -89,7 +89,8 @@ void Evolver<D>::set_current_timestep_quantities()
   auto r = Cabana::slice<evolver_cache_info::position>(evolver_cache);
   auto s = Cabana::slice<evolver_cache_info::specific_entropy>(evolver_cache);
   auto Bulk = Cabana::slice<evolver_cache_info::Bulk_pressure>(evolver_cache);
-  //auto E0 = Cabana::slice<evolver_cache_info::E0>(evolver_cache);
+  auto E0 = Cabana::slice<evolver_cache_info::E0>(evolver_cache);
+
   auto fill_cache = KOKKOS_LAMBDA (const int is, const int ia)
   {
     for (int i=0; i<D+1; i++)
@@ -103,7 +104,7 @@ void Evolver<D>::set_current_timestep_quantities()
     }
     s.access(is, ia) = device_specific_density.access(is, ia, densities_info::s);
     Bulk.access(is, ia) = device_hydro_scalar.access(is, ia, hydro_info::Bulk);
-    //E0.access(is, ia) = device_contribution_to_total_E.access(is, ia);
+    E0.access(is, ia) = device_contribution_to_total_Ez.access(is, ia);
   };
   Cabana::simd_parallel_for(simd_policy, fill_cache, "fill_cache");
 }
@@ -122,11 +123,13 @@ void Evolver<D>::step_rk(double dt, double t0, std::function<void(void)> time_de
   auto slice_r0 = Cabana::slice<evolver_cache_info::position>(evolver_cache);
   auto slice_s0 = Cabana::slice<evolver_cache_info::specific_entropy>(evolver_cache);
   auto slice_Bulk0 = Cabana::slice<evolver_cache_info::Bulk_pressure>(evolver_cache);
+  auto slice_E0 = Cabana::slice<evolver_cache_info::E0>(evolver_cache);
 
   auto update_rk2_step = KOKKOS_LAMBDA(const int is, const int ia){
     //Cache previous step values
     double specific_s0 = slice_s0.access(is, ia);
     double Bulk0 = slice_Bulk0.access(is, ia);
+    double particles_E0 = slice_E0.access(is, ia);
     milne::Matrix<double, D+1, D+1> shv0;
     milne::Vector<double, D> r0, u0;
     for(int idir=0; idir<D; ++idir){
@@ -140,6 +143,7 @@ void Evolver<D>::step_rk(double dt, double t0, std::function<void(void)> time_de
     //Cache derivatives
     double dBulk_dt = device_hydro_scalar.access(is,ia,hydro_info::dBulk_dt);
     double d_dt_specific_s = device_d_dt_spec.access(is, ia, densities_info::s);
+    double dEz_dt = device_contribution_to_total_dEz.access(is,ia);
     milne::Vector<double, D> du_dt, v;
     for(int idir=0; idir<D; ++idir){
       du_dt(idir) = device_hydro_vector.access(is, ia, hydro_info::du_dt, idir);
@@ -153,6 +157,7 @@ void Evolver<D>::step_rk(double dt, double t0, std::function<void(void)> time_de
     //Compute updated quantities
     double specific_s         = specific_s0         + dt*d_dt_specific_s;
     double Bulk               = Bulk0               + dt*dBulk_dt;
+    double particles_Ez       = particles_E0        + dt*dEz_dt;
     milne::Vector<double,D> r = r0                  + dt*v;
     milne::Vector<double,D> u = u0                  + dt*du_dt;
     milne::Matrix<double,D,D> shv;
@@ -171,6 +176,7 @@ void Evolver<D>::step_rk(double dt, double t0, std::function<void(void)> time_de
 
     device_specific_density.access(is, ia, densities_info::s) = specific_s;
     device_hydro_scalar.access(is, ia, hydro_info::Bulk) = Bulk;
+    device_contribution_to_total_Ez.access(is, ia) = particles_Ez;
     for (int idir=0; idir<D; ++idir){
       device_position.access(is, ia, idir) = r(idir);
       device_hydro_vector.access(is, ia, hydro_info::u, idir) = u(idir);
@@ -209,11 +215,12 @@ template <unsigned int D>
 void Evolver<D>::advance_timestep_rk2( double dt,
                                         std::function<void(void)> time_derivatives_functional )
 {
-      //double E0      = systemPtr->Ez;
-      //Kokkos::View<int, MemorySpace> E0("E0");
-      //Kokkos::View<int, MemorySpace> E("E");
-      //Kokkos::deep_copy(E0, systemPtr->Ez);
-      //Kokkos::deep_copy(E, systemPtr->Ez);
+      // double E0      = systemPtr->Ez;
+      // double E1 = 0.0, E2 = 0.0;
+      // Kokkos::View<int, MemorySpace> E0("E0");
+      // Kokkos::View<int, MemorySpace> E("E");
+      // Kokkos::deep_copy(E0, systemPtr->Ez);
+      // Kokkos::deep_copy(E, systemPtr->Ez);
       // initialize quantities at current time step
       set_current_timestep_quantities();
       double t0      = systemPtr->t;
@@ -222,12 +229,16 @@ void Evolver<D>::advance_timestep_rk2( double dt,
       ////////////////////////////////////////////
       formatted_output::report("RK(n=2) evolution, step 1");
       step_rk(.5*dt, t0, time_derivatives_functional);
+      // E1   = dt*systemPtr->dEz;
 
       ////////////////////////////////////////////
       //    second step
       ////////////////////////////////////////////
       formatted_output::report("RK(n=2) evolution, step 2");
       step_rk(dt, t0, time_derivatives_functional);
+      // E2   = dt*systemPtr->dEz;
+      // constexpr double w1 = 1.0/6.0, w2 = 1.0/3.0;
+      // systemPtr->Ez = E0 + w1*E1 + w2*E2;
 
       return;
 }
