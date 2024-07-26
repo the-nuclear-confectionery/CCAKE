@@ -87,7 +87,10 @@ void Output<D>::print_system_state()
 template<unsigned int D>
 void Output<D>::print_system_state_to_txt()
 {
-  if (n_timesteps_output > 15) exit(1);
+  if (n_timesteps_output > 30) {
+    std::cout << "Terminating after the 30th timestep" << std::endl;
+    exit(1);
+  }
   string outputfilename = output_directory + "/system_state_"
                           + std::to_string(n_timesteps_output) + ".dat";
   ofstream out( outputfilename.c_str() );
@@ -213,7 +216,7 @@ void Output<D>::print_system_state_to_HDF()
 /// @tparam D The dimensionality of the simulation.
 template<unsigned int D>
 void Output<D>::print_conservation_status()
-{
+{   
     stringstream ss;
     ss  << "t = "
         << systemPtr->t      << ": " << scientific        << setw(10)

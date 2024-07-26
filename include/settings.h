@@ -82,6 +82,7 @@ class Settings
     double dt                   = 0.0;   ///< size of timestep
     double hT                   = 0.0;   ///< SPH kernel scale in transverse direction [fm]
     double hEta                 = 0.0;   ///< SPH kernel scale in longitudinal direction
+    int rk_order                = 2;     /// Runge-Kutta order
     std::string kernel_type     = "";    ///< Which SPH kernel to use (cubic, quartic, quintic).
                                          ///  Currently only cubic is supported
                                          //TODO: Implement other kernels

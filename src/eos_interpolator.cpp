@@ -360,9 +360,9 @@ double EoS_Interpolator::interpolate4D(int idx [], double pos[],
   x[3] = (pos[3] - Q_min - idx[3]*dQ)/dQ;
 
   //Asserts that we are in the unit hypercube
-  #ifdef DEBUG
-  //for(int i = 0; i < 4; i++) assert(x[i] >= 0 && x[i] <= 1);
-  #endif
+  // #ifdef DEBUG
+  // //for(int i = 0; i < 4; i++) assert(x[i] >= 0 && x[i] <= 1);
+  // #endif
   auto bit = [](int i, int k){return (k >> i) & 1;};
   double phi[16]; //A function phi for each vertex of the hypercube
   double theta[16]; //The value to be interpolates in each point of the hypercube

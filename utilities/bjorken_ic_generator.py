@@ -3,7 +3,7 @@ import pandas as pd
 import sys
 
 def init_cond(tau):
-    stepeta = 0.1
+    stepeta = 0.01
     stepx = 0.1
     stepy = 0.1
     xmax = 0.1
@@ -14,7 +14,7 @@ def init_cond(tau):
     etamin = -etamax
     hbarc_G = 0.1973269804
     eps0 = 10 / hbarc_G**3
-    etas = np.arange(-10,10.1,0.1).round(3)
+    etas = np.arange(-10,10.1,stepeta).round(3)
     tau0 = 1
     u_eta = 0
     u_tau = 1

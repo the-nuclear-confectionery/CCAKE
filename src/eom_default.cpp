@@ -500,7 +500,7 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
       milne::Vector<double,D> du_dt = MI*F;
       for(int idir=0; idir<D; ++idir) device_hydro_vector.access(is,ia,hydro_info::du_dt, idir) = du_dt(idir);
 
-      #ifdef DEBUG
+      #ifdef DEBUG_SLOW
       double pos = device_position.access(is, ia, 0);
       if (pos < 7.52 && pos > 7.48) {
 	      std::cout << t << " " << pos << " " << \
@@ -508,6 +508,7 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
         << " " << device_hydro_vector.access(is, ia, hydro_info::u, 0) << " " <<  gradP(0) << std::endl;
       }
       if (t >= 1.2){
+        std::cout << "Terminating at tau = 1.2" << std::endl;
         exit(1);
       }
       #endif

@@ -60,6 +60,8 @@ class Evolver
     int n_particles = -1;
 
     Cabana::AoSoA<EvolverCache, DeviceType, VECTOR_LENGTH> evolver_cache;
+    Cabana::AoSoA<EvolverCache, DeviceType, VECTOR_LENGTH> k;
+
 
     // creating vectors of quantities for RK evolution
     vector<double> specific_s0;
@@ -73,6 +75,9 @@ class Evolver
 
     void advance_timestep_rk2( double dt,
                                std::function<void(void)> time_derivatives_functional );
+    void advance_timestep_rk4( double dt,
+                               std::function<void(void)> time_derivatives_functional );
+
 
   public:
 
@@ -85,8 +90,11 @@ class Evolver
     void execute_timestep(double dt, int rk_order,
                           std::function<void(void)> time_derivatives_functional );
     void set_current_timestep_quantities();
+    void update_k(int n);
     void allocate_cache();
+    void allocate_k_values();
     void step_rk(double dt, double t0, std::function<void(void)> time_derivatives_functional );
+    void update_rk4(double dt);
 
 };
 }

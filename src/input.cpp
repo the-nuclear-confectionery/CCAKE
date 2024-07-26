@@ -168,6 +168,14 @@ bool cc::Input::decode_settings(const YAML::Node& node){
     }
 
     try {
+      settingsPtr->rk_order = node["parameters"]["rk_order"].as<int>();
+    } catch (...) {
+      formatted_output::report("WARNING: Could not read parameters rk_order!");
+      formatted_output::report("This is an optional parameter. Setting to default value of 2.");
+      settingsPtr->rk_order = cc::defaults::rk_order;
+    }
+    
+    try {
       settingsPtr->kernel_type = node["parameters"]["kernel_type"].as<std::string>();
     } catch (...){
       formatted_output::report("WARNING: Could not read parameters kernel_type!");

@@ -17,6 +17,7 @@ namespace ccake
     const double      dt                      = 0.05;
     const double      hT                      = 0.3;
     const double      hEta                    = 0.3;
+    const int         rk_order                = 2;
     const std::string kernel_type             = "cubic_spline";
     const double      e_cutoff                = 0.15;
     const bool        buffer_event            = false;
@@ -56,6 +57,8 @@ namespace parameter_settings
             setting_pair("ICfile",                 "initial_conditions/"
                                                    "Iccing_conditions.dat"),
             setting_pair("hT",                      "0.300000"),
+            setting_pair("heta",                    "0.1"),
+            setting_pair("rk_order",                "2"),
             setting_pair("dt",                     "0.05"),
             setting_pair("t0",                     "1.100000"),
             setting_pair("e_cutoff",               "0.00301"),

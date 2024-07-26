@@ -492,6 +492,10 @@ void BSQHydro<D,TEOM>::run()
   Stopwatch sw;
   sw.Start();
 
+  #ifdef DEBUG
+  std::ofstream outfile;
+  outfile.open("conservation.dat");
+  #endif
   //===================================
   // initialize conserved quantities, etc.
   systemPtr->conservation_entropy(true);
@@ -501,6 +505,9 @@ void BSQHydro<D,TEOM>::run()
   //===================================
   // print initialized system and status
   outPtr->print_conservation_status();
+  #ifdef DEBUG
+  outfile << systemPtr->t << " " << systemPtr->Eloss << " " << systemPtr->S << endl;
+  #endif
   outPtr->print_system_state();
 
   //===================================
@@ -532,7 +539,7 @@ void BSQHydro<D,TEOM>::run()
     //===================================
     // workstation advances by given
     // timestep at given RK order
-    wsPtr->advance_timestep( settingsPtr->dt, rk_order );
+    wsPtr->advance_timestep( settingsPtr->dt, settingsPtr->rk_order );
 
     //===================================
     // re-compute conserved quantities, etc.
@@ -543,10 +550,16 @@ void BSQHydro<D,TEOM>::run()
     //===================================
     // print updated system and status
     outPtr->print_conservation_status();
-    if (systemPtr->number_of_elapsed_timesteps%10 == 0) outPtr->print_system_state();
+    #ifdef DEBUG
+    outfile << systemPtr->t << " " << systemPtr->Eloss << " " << systemPtr->S << endl;
+    #endif
+    if (systemPtr->number_of_elapsed_timesteps%100 == 0) outPtr->print_system_state();
     if (settingsPtr->particlization_enabled) outPtr->print_freeze_out(wsPtr->freezePtr);
 
   }
+  #ifdef DEBUG
+  outfile.close();
+  #endif
 
   sw.Stop();
   formatted_output::summarize("All timesteps finished in "
