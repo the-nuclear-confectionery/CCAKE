@@ -189,6 +189,8 @@ void BBMG::propagate()
   double g0Pfg = gftLHC(Pfg);
   double g0Pfq = qftLHC(Pfq);
   // for (int i = 0; i < tot; i++)
+  // Since this is in place, get rid of the if statement and figure out how to print information
+  // now that we can use system state and freeze out as examples to shift jets from one to the next.
   jetInfo.erase( std::remove_if(
       jetInfo.begin(),
       jetInfo.end(),
