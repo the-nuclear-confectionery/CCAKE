@@ -213,7 +213,7 @@ void BBMG::propagate()
 
         // Erase the removed elements from the source vector
         jetInfo.erase(new_end, jetInfo.end());
-    }
+    
   
   
   /*jetInfo.erase( std::remove_if(
@@ -279,7 +279,7 @@ void BBMG::propagate()
   cout << "Frozen out jets: " << countno << endl << "Still going jets: " << countyes << endl;
 */}
 
-
+}
 
 /*double BBMG::int1(double x)
 {
