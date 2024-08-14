@@ -685,7 +685,7 @@ void InputOutput::print_system_state_to_txt()
 }
 
 //------------------------------------------------------------------------------
-void InputOutput::print_jet_state_to_txt()
+/*void InputOutput::print_jet_state_to_txt()
 {
   string jet_output_filename = output_directory + "/jet_state_" + std::to_string(n_timesteps_output) + ".dat";
   ofstream out( jet_output_filename.c_str() );
@@ -695,7 +695,8 @@ void InputOutput::print_jet_state_to_txt()
       out << iJet++ << " "
           << systemPtr->t << " "
           << b.line << " " //Go through and check which jetPropagation variables we want to use and print out
-          << b.
+          << b.r[0] << " "
+          << b.r[1] << " "
 
 
   out << std::flush;
@@ -705,7 +706,7 @@ void InputOutput::print_jet_state_to_txt()
   return;
 
   
-}
+}*/
 
 //------------------------------------------------------------------------------
 void InputOutput::print_system_state_to_HDF()

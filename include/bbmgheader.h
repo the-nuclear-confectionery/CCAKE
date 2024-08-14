@@ -51,6 +51,7 @@ private:
     double Rjetq[15], Rjetg[15];
     vector<double> rr;
     vector<field> jetInfo;
+    vector<field> jetFreezeOut;
     vector<double> RAAq;
     vector<double> RAAg; 
 
