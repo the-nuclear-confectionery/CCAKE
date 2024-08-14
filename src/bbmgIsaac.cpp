@@ -197,7 +197,7 @@ void BBMG::propagate()
   // now that we can use system state and freeze out as examples to shift jets from one to the next.
   
   // Define the condition for moving elements
-    auto condition = [this](const JetPropagation& jetPropagation) {
+    auto condition = [this](auto& jetPropagation) {
             return jetPropagation.T <= Freezeout_Temp;
         };
 
