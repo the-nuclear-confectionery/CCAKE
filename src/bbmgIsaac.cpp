@@ -40,7 +40,6 @@ BBMG::BBMG( Settings * settingsPtr_in, SystemState * systemPtr_in )
   vjet  = 1;
   // area is taken from parameter h read in from input parameters file
   area  = PI*pow(2.*systemPtr->h,2);
-  rr.resize(systemPtr->n());
 
   gridx = settingsPtr->stepx;
   gridy = settingsPtr->stepy;
@@ -108,6 +107,11 @@ void BBMG::initial()
 
 
 double BBMG::flow(field &f) { return f.gam*(1-f.vmag*cos(f.phi-f.vang)); }
+
+
+
+// G0s and PDFs can be removed from here and will be dealt with in post processing
+
 
 
 double BBMG::gftLHC(double x) 
@@ -191,11 +195,32 @@ void BBMG::propagate()
   // for (int i = 0; i < tot; i++)
   // Since this is in place, get rid of the if statement and figure out how to print information
   // now that we can use system state and freeze out as examples to shift jets from one to the next.
-  jetInfo.erase( std::remove_if(
+  
+  // Define the condition for moving elements
+    auto condition = [this](const JetPropagation& jetPropagation) {
+            return jetPropagation.T <= Freezeout_Temp;
+        };
+
+        // Use std::remove_if with a lambda that captures 'condition'
+        auto new_end = std::remove_if(jetInfo.begin(), jetInfo.end(),
+            [this, &condition](JetPropagation& jetPropagation) {
+                if (condition(jetPropagation)) {
+                    jetFreezeOut.push_back(std::move(jetPropagation));
+                    return true; // Mark element for removal
+                }
+                return false; // Keep element
+            });
+
+        // Erase the removed elements from the source vector
+        jetInfo.erase(new_end, jetInfo.end());
+    }
+  
+  
+  /*jetInfo.erase( std::remove_if(
       jetInfo.begin(),
       jetInfo.end(),
       [this]( auto& jetPropagation ){ return jetPropagation.T <= Freezeout_Temp; }),
-      jetInfo.end() );
+      jetInfo.end() );*/
 
   for (auto& jetPropagation : jetInfo)
   {
@@ -204,23 +229,25 @@ void BBMG::propagate()
     jetPropagation.r[1] += vjet * settingsPtr->dt * sin(jetPropagation.phi);
     //cout << "pid checking first: " << jetPropagation.pid << endl;
 
-    inter( jetPropagation ); //interpolation of the field
+    //Move interpolation to the end of this function !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    
     double kappa = get_kappa(jetPropagation.T / 1000); //The /1000 here is to move temps from MeV to GeV to follow Barbara's plot, same as above
     
 
-    if ( /*( jetPropagation.on == 1 ) &&*/  jetPropagation.T > Freezeout_Temp ) 
-    {
+    //if ( /*( jetPropagation.on == 1 ) &&*/  jetPropagation.T > Freezeout_Temp ) //Can remove the if statement soon, as removal takes care of the issue 
+    //{
       jetPropagation.line += exp(z*log(tau)) * exp(c*log(jetPropagation.rho)) * settingsPtr->dt * flow(jetPropagation);
       countyes++;
       cout << "Jet directions still going: " << jetPropagation.phi << endl;
+      inter( jetPropagation ); //interpolation of the area around the jet
+
+
       //cout << "This is the value of the flow factor being multiplied: " << flow(jetPropagation) << endl;
       //stillon++;
-    }
-    else //This comes in when we drop below freezeout temp, as .on should never go to 0 on its own
+    //}
+/*    else //This comes in when we drop below freezeout temp, as .on should never go to 0 on its own
     {
-      //jetPropagation.on    = 0;
-      //jetPropagation.line += 0.5 * kappa * pow(tau,z) * pow(jetPropagation.rho0, c) * settingsPtr->dt; /* flow(ff[i])*/
-      // Commented above out as it is still adding to the line integral, after the partons should be out of the qgp; setting to 0
+
       jetPropagation.line += 0;
       countno++;
       //ff[i].line *= efluc();
@@ -250,7 +277,8 @@ void BBMG::propagate()
     cout << "The averaged gluon jet RAA for " << j << " is: " << Rjetg[j] << endl;
   }
   cout << "Frozen out jets: " << countno << endl << "Still going jets: " << countyes << endl;
-}
+*/}
+
 
 
 /*double BBMG::int1(double x)
