@@ -90,7 +90,7 @@ void BBMG::initial()
       
       sph_particle.line = 0.5 * kappa * exp(z*log(settingsPtr->t0)) * exp(c*log(sph_particle.rho0)) * settingsPtr->dt; // only if initial flow=0
       //jetInfo.resize(14);
-      for (int j=0; j<14; j++) //initializes jets at each point in grid space, over 14 directions
+      for (int j=0; j<2; j++) //initializes jets at each point in grid space, over 14 directions
       {
         sph_particle.phi = phi[j];
         sph_particle.pid = j;
