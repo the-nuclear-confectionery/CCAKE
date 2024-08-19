@@ -213,10 +213,15 @@ void BBMG::propagate()
         // Erase the removed elements from the source vector
         jetInfo.erase(new_end, jetInfo.end());
     int tot     = jetInfo.size();
-    cout << "How many jets we have: " << tot << endl;
+    //cout << "How many jets we have: " << tot << endl;
     int totFreeze = jetFreezeOut.size();
-    cout << "How many jets froze out this timestep: " << totFreeze << endl;
-  
+    //cout << "How many jets froze out this timestep: " << totFreeze << endl;
+
+    for (int i = 0; i < totFreeze; i++ )
+    {
+      cout << "Temp from freeze out vector: " << jetFreezeOut.T << endl 
+           << "Line integral calculated for freeze out vector: " << jetFreezeOut.line << endl;
+    }
   
   /*jetInfo.erase( std::remove_if(
       jetInfo.begin(),
