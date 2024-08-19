@@ -95,11 +95,9 @@ void BBMG::initial()
         sph_particle.phi = phi[j];
         sph_particle.pid = j;
         //sph_particle.on  = 1;
-        jetInfo.push_back(sph_particle); // Attempting...
+        jetInfo.push_back(sph_particle);
       }
-      // Would putting this vector pushback inside for loop fix everything? 
-      // Seems to have fixed, leaving note here for now to know where I screwed up if it's actually wrong
-      //full_sph_field.push_back(sph_particle);
+
     }
   }
 }
@@ -196,7 +194,7 @@ void BBMG::propagate()
   // now that we can use system state and freeze out as examples to shift jets from one to the next.
   
   // Define the condition for moving elements
-    auto condition = [this](auto& jetPropagation) {
+/*    auto condition = [this](auto& jetPropagation) {
             return jetPropagation.T <= Freezeout_Temp;
         };
 
@@ -222,7 +220,9 @@ void BBMG::propagate()
       cout << "Temp from freeze out vector: " << jetFreezeOut.T << endl 
            << "Line integral calculated for freeze out vector: " << jetFreezeOut.line << endl;
     }
-  
+  */
+
+
   /*jetInfo.erase( std::remove_if(
       jetInfo.begin(),
       jetInfo.end(),
@@ -247,6 +247,33 @@ void BBMG::propagate()
       countyes++;
       //cout << "Jet directions still going: " << jetPropagation.phi << endl;
       inter( jetPropagation ); //interpolation of the area around the jet
+
+        auto condition = [this](auto& jetPropagation) {
+            return jetPropagation.T <= Freezeout_Temp;
+        };
+
+        // Use std::remove_if with a lambda that captures 'condition'
+        auto new_end = std::remove_if(jetInfo.begin(), jetInfo.end(),
+            [this, &condition](auto& jetPropagation) {
+                if (condition(jetPropagation)) {
+                    jetFreezeOut.push_back(std::move(jetPropagation));
+                    return true; // Mark element for removal
+                }
+                return false; // Keep element
+            });
+
+        // Erase the removed elements from the source vector
+        jetInfo.erase(new_end, jetInfo.end());
+    int tot     = jetInfo.size();
+    //cout << "How many jets we have: " << tot << endl;
+    int totFreeze = jetFreezeOut.size();
+    //cout << "How many jets froze out this timestep: " << totFreeze << endl;
+
+    for (int i = 0; i < totFreeze; i++ )
+    {
+      cout << "Temp from freeze out vector: " << jetFreezeOut.T << endl 
+           << "Line integral calculated for freeze out vector: " << jetFreezeOut.line << endl;
+    }
 
 
       //cout << "This is the value of the flow factor being multiplied: " << flow(jetPropagation) << endl;
@@ -287,6 +314,13 @@ void BBMG::propagate()
 */}
 
 }
+
+/*void BBMG::printingFrozenJets()
+{
+  for(auto& )
+  jetFreezeOut
+}*/
+
 
 /*double BBMG::int1(double x)
 {
