@@ -247,7 +247,7 @@ void BBMG::propagate()
       countyes++;
       //cout << "Jet directions still going: " << jetPropagation.phi << endl;
       inter( jetPropagation ); //interpolation of the area around the jet
-
+  }
         auto condition = [this](auto& jetPropagation) {
             return jetPropagation.T <= Freezeout_Temp;
         };
@@ -262,6 +262,13 @@ void BBMG::propagate()
                 return false; // Keep element
             });
 
+
+        for(auto& frozenJets : jetFreezeOut)
+        {
+          cout << "Temperature: " << frozenJets.T << endl << "Line Integral: " << frozenJets.line << endl;
+        }
+
+
         // Erase the removed elements from the source vector
         jetInfo.erase(new_end, jetInfo.end());
     int tot     = jetInfo.size();
@@ -269,11 +276,11 @@ void BBMG::propagate()
     int totFreeze = jetFreezeOut.size();
     //cout << "How many jets froze out this timestep: " << totFreeze << endl;
 
-    for (int i = 0; i < totFreeze; i++ )
+    /*for (int i = 0; i < totFreeze; i++ )
     {
       cout << "Temp from freeze out vector: " << jetFreezeOut.T << endl 
            << "Line integral calculated for freeze out vector: " << jetFreezeOut.line << endl;
-    }
+    }*/
 
 
       //cout << "This is the value of the flow factor being multiplied: " << flow(jetPropagation) << endl;
@@ -311,7 +318,7 @@ void BBMG::propagate()
     cout << "The averaged gluon jet RAA for " << j << " is: " << Rjetg[j] << endl;
   }
   cout << "Frozen out jets: " << countno << endl << "Still going jets: " << countyes << endl;
-*/}
+*/
 
 }
 
