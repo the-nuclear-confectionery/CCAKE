@@ -243,7 +243,7 @@ void BBMG::propagate()
 
     //if ( /*( jetPropagation.on == 1 ) &&*/  jetPropagation.T > Freezeout_Temp ) //Can remove the if statement soon, as removal takes care of the issue 
     //{
-      jetPropagation.line += exp(z*log(tau)) * exp(c*log(jetPropagation.rho)) * settingsPtr->dt * flow(jetPropagation);
+      jetPropagation.line += kappa * exp(z*log(tau)) * exp(c*log(jetPropagation.rho)) * settingsPtr->dt * flow(jetPropagation);
       countyes++;
       //cout << "Jet directions still going: " << jetPropagation.phi << endl;
       inter( jetPropagation ); //interpolation of the area around the jet
@@ -265,7 +265,8 @@ void BBMG::propagate()
 
         for(auto& frozenJets : jetFreezeOut)
         {
-          cout << "Temperature: " << frozenJets.T << endl << "Line Integral: " << frozenJets.line << endl;
+          //cout << "Temperature: " << frozenJets.T << endl << "Line Integral: " << frozenJets.line << endl;
+          cout << frozenJets.T << " " << frozenJets.line << " " << frozenJets.rho0 << endl; // add in anything else needed
         }
 
 
