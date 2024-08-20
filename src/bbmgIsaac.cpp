@@ -266,7 +266,8 @@ void BBMG::propagate()
         for(auto& frozenJets : jetFreezeOut)
         {
           //cout << "Temperature: " << frozenJets.T << endl << "Line Integral: " << frozenJets.line << endl;
-          cout << frozenJets.T << " " << frozenJets.line << " " << frozenJets.rho0 << endl; // add in anything else needed
+          cout << frozenJets.T << " " << frozenJets.line << " " 
+               << frozenJets.rho0 << " " << frozenJets.pid << endl; // add in anything else needed
         }
 
 
