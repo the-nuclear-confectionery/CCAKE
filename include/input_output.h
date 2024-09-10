@@ -55,7 +55,7 @@ public:
 
   void print_system_state();
   void print_system_state_to_txt();
-  void print_jet_state_to_txt();
+  void print_jet_freeze_to_txt();
   void print_system_state_to_HDF();
   void print_freeze_out();
 
