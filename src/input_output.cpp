@@ -587,6 +587,8 @@ void InputOutput::print_system_state()
   //---------------------------------
   print_freeze_out(); //grep for this command to structure jet initial state output function
 
+  print_jet_freeze_to_txt();
+
   //---------------------------------
   // increment timestep index
   n_timesteps_output++;
@@ -685,18 +687,22 @@ void InputOutput::print_system_state_to_txt()
 }
 
 //------------------------------------------------------------------------------
-/*void InputOutput::print_jet_state_to_txt()
+void InputOutput::print_jet_freeze_to_txt()
 {
   string jet_output_filename = output_directory + "/jet_state_" + std::to_string(n_timesteps_output) + ".dat";
   ofstream out( jet_output_filename.c_str() );
   out << systemPtr->t << "\n";
   int iJet = 0;
-  for (auto & b : bbmgPtr->jetPropagation)//I think i wanna call the objects here jets, like how we have particles in the other function
+  for (auto & jets : bbmgPtr->jetFreezeOut)//I think i wanna call the objects here jets, like how we have particles in the other function
       out << iJet++ << " "
           << systemPtr->t << " "
-          << b.line << " " //Go through and check which jetPropagation variables we want to use and print out
-          << b.r[0] << " "
-          << b.r[1] << " "
+          << jets.T
+          << jets.line << " " //Go through and check which jetPropagation variables we want to use and print out
+          << jets.rho0 << " " 
+          << jets.pid << " "
+          << jets.r[0] << " "
+          << jets.r[1] << " " << "\n";
+
 
 
   out << std::flush;
@@ -706,7 +712,7 @@ void InputOutput::print_system_state_to_txt()
   return;
 
   
-}*/
+}
 
 //------------------------------------------------------------------------------
 void InputOutput::print_system_state_to_HDF()
