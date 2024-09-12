@@ -123,8 +123,6 @@ void BBMG::propagate()
   int countyes = 0, countno = 0;
   double P0g = 0, P0q = 0;
   double Rjetnorm = 0;
-  double g0Pfg = gftLHC(Pfg);
-  double g0Pfq = qftLHC(Pfq);
 
   for (auto& jetPropagation : jetInfo)
   {
