@@ -33,7 +33,7 @@ private:
         int sph, on;
         double rho, rho0, T, v[2];
         double r[2], phi, line;
-        int pid, phimax;
+        int pid;
         double gam, vmag, vang;
     };
 
@@ -50,6 +50,8 @@ private:
     double rho0tot; // total density, NOT just T>Freezeout_Temp!!!
     double Pfg, Pfq;
 
+
+    int phimax;
     double phi[15];
     double Rjetq[15], Rjetg[15];
     vector<double> rr;
