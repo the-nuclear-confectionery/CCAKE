@@ -33,7 +33,7 @@ private:
         int sph, on;
         double rho, rho0, T, v[2];
         double r[2], phi, line;
-        int pid;
+        int pid, phimax;
         double gam, vmag, vang;
     };
 

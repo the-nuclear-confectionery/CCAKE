@@ -35,6 +35,7 @@ BBMG::BBMG( Settings * settingsPtr_in, SystemState * systemPtr_in )
   z                 = 1; // path length dependence
   a                 = 0; //Initial jet energy dependence
   c                 = (2+z-a)/3; //medium temperature dependence
+  phimax            = 14;
   
   //===============================================
   vjet  = 1;
@@ -45,7 +46,7 @@ BBMG::BBMG( Settings * settingsPtr_in, SystemState * systemPtr_in )
   gridy = settingsPtr->stepy;
   cout << "Gridx and gridy are " << gridx << "," << gridy << endl << endl;
 
-  for (int i = 0; i < 14; i++)
+  for (int i = 0; i < phimax; i++)
   {
     Rjetq[i]  = 0;
     Rjetg[i]  = 0;
@@ -90,7 +91,7 @@ void BBMG::initial()
       
       sph_particle.line = 0.5 * kappa * exp(z*log(settingsPtr->t0)) * exp(c*log(sph_particle.rho0)) * settingsPtr->dt; // only if initial flow=0
       //jetInfo.resize(14);
-      for (int j=0; j<2; j++) //initializes jets at each point in grid space, over 14 directions
+      for (int j=0; j<phimax; j++) //initializes jets at each point in grid space, over 14 directions
       {
         sph_particle.phi = phi[j];
         sph_particle.pid = j;
@@ -106,33 +107,6 @@ void BBMG::initial()
 
 double BBMG::flow(field &f) { return f.gam*(1-f.vmag*cos(f.phi-f.vang)); }
 
-
-
-// G0s and PDFs can be removed from here and will be dealt with in post processing
-
-
-
-double BBMG::gftLHC(double x) 
-{ 
-  double logx = log(x);
-  double loglogx = log(logx);
-  return exp(6.874017911786442 
-            - 0.26596588700706614*exp(0.6654825884427571*loglogx) - 2.677705869879314*exp(0.8020502598676339*loglogx) 
-            - 2.4735502984532656*exp(0.8069542250600515*loglogx) - 0.36687832133337656*exp(2.070179064516989*loglogx)); 
-}
-//double BBMG::gftLHC(double x) { return 1;} 
-
-
-double BBMG::qftLHC(double x) 
-{ 
-  double logx = log(x);
-  double loglogx = log(logx);
-  return exp(2.9903871818687286 
-          - 2.0117432145703114*exp(1.0384884086567516*loglogx) - 1.9187151702604879*exp(1.039887584824982*loglogx)
-          - 0.15503714201000543*exp(1.0586516925018519*loglogx) - 0.15384778823017106*exp(2.0829849720841573*loglogx));
-}
-//double BBMG::qftLHC(double x) { return 1;}
-
 double BBMG::efluc()
 {
   int random_variable = std::rand()/RAND_MAX;
@@ -140,44 +114,6 @@ double BBMG::efluc()
   return (1.+q) / pow(q+2, 1+q) * pow(q+2.-zeta, q);
 }
 
-//KKP Fragmentation function at leading order for pions from quarks
-double BBMG::fragFuncPiq(double x, double y)
-{
-  double lambda   = 0.088;
-  double mu0      = 2;
-  double sbar     = log(log(y/lambda)/log(mu0/lambda));
-  double sbar2    = sbar * sbar;
-  double sbar3    = sbar2 * sbar;
-  double N        = 0.54610 - 0.22946*sbar - 0.22594*sbar2 + 0.21119*sbar3;
-  double alpha    = -1.46616 - 0.45404*sbar - 0.12684*sbar2 + 0.27646*sbar3;
-  double beta     = 1.01864 + 0.95367*sbar - 1.09835*sbar2 + 0.74657*sbar3;
-  double gamma    = -0.01877*sbar + 0.02949*sbar2;
-  double D        = N*exp(alpha*log(x))*exp(beta*log(1-x))*(1+gamma/x);
-  return D;
-}
-
-//KKP Fragmentation function at leading order for pions from gluons
-double BBMG::fragFuncPig(double x, double y)
-{
-  double lambda   = 0.088;
-  double mu0      = 2;
-  double sbar     = log(log(y/lambda)/log(mu0/lambda));
-  double sbar2    = sbar * sbar;
-  double sbar3    = sbar2 * sbar;
-  double N        = 6.04510 - 6.61523*sbar - 1.64978*sbar2 + 2.68223*sbar3;
-  double alpha    = -0.71378 + 0.14705*sbar - 1.08423*sbar2 - 0.43182*sbar3;
-  double beta     = 2.92133 + 1.48429*sbar + 1.32887*sbar2 - 1.78696*sbar3;
-  double gamma    = 0.23086*sbar - 0.29182*sbar2;
-  double D        = N*exp(alpha*log(x))*exp(beta*log(1-x))*(1+gamma/x);
-  return D;
-}
-
-
-//Delaunay triangulation if needed
-/*void BBMG::initialize_Delaunay()
-{
-
-}*/
 
 void BBMG::propagate()
 {
@@ -189,45 +125,6 @@ void BBMG::propagate()
   double Rjetnorm = 0;
   double g0Pfg = gftLHC(Pfg);
   double g0Pfq = qftLHC(Pfq);
-  // for (int i = 0; i < tot; i++)
-  // Since this is in place, get rid of the if statement and figure out how to print information
-  // now that we can use system state and freeze out as examples to shift jets from one to the next.
-  
-  // Define the condition for moving elements
-/*    auto condition = [this](auto& jetPropagation) {
-            return jetPropagation.T <= Freezeout_Temp;
-        };
-
-        // Use std::remove_if with a lambda that captures 'condition'
-        auto new_end = std::remove_if(jetInfo.begin(), jetInfo.end(),
-            [this, &condition](auto& jetPropagation) {
-                if (condition(jetPropagation)) {
-                    jetFreezeOut.push_back(std::move(jetPropagation));
-                    return true; // Mark element for removal
-                }
-                return false; // Keep element
-            });
-
-        // Erase the removed elements from the source vector
-        jetInfo.erase(new_end, jetInfo.end());
-    int tot     = jetInfo.size();
-    //cout << "How many jets we have: " << tot << endl;
-    int totFreeze = jetFreezeOut.size();
-    //cout << "How many jets froze out this timestep: " << totFreeze << endl;
-
-    for (int i = 0; i < totFreeze; i++ )
-    {
-      cout << "Temp from freeze out vector: " << jetFreezeOut.T << endl 
-           << "Line integral calculated for freeze out vector: " << jetFreezeOut.line << endl;
-    }
-  */
-
-
-  /*jetInfo.erase( std::remove_if(
-      jetInfo.begin(),
-      jetInfo.end(),
-      [this]( auto& jetPropagation ){ return jetPropagation.T <= Freezeout_Temp; }),
-      jetInfo.end() );*/
 
   for (auto& jetPropagation : jetInfo)
   {
@@ -324,46 +221,10 @@ void BBMG::propagate()
 
 }
 
-/*void BBMG::printingFrozenJets()
-{
-  for(auto& )
-  jetFreezeOut
-}*/
 
 
-/*double BBMG::int1(double x)
-{
-  double p_pi_int = Pfg/x;
-  double integrand1 = 1/x * gftLHC(p_pi_int) * Rjetg[j] * fragFuncPig(x, p_pi_int);
-  // CONTINUE WRITING INTEGRATION FUNCTIONS
-  // The returned values should be arrays for pion RAA calculation
 
-  return integrand1;
-}
 
-double BBMG::int2(double x)
-{
-  double p_pi_int = Pfq/x;
-  double integrand2 = 1/x * qftLHC(p_pi_int) * Rjetq[j] * fragFuncPiq(x, p_pi_int);
-
-  return integrand2;
-}*/
-
-double BBMG::int3(double x)
-{
-  double p_pi_int = Pfg/x;
-  double integrand3 = 1/x * gftLHC(p_pi_int) * fragFuncPig(x, p_pi_int);
-
-  return integrand3;
-}
-
-double BBMG::int4(double x)
-{
-  double p_pi_int = Pfq/x;
-  double integrand4 = 1/x * qftLHC(p_pi_int) * fragFuncPiq(x, p_pi_int);
-
-  return integrand4;
-}
 
 
 void BBMG::inter( field &f ) 
