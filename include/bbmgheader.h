@@ -24,6 +24,9 @@
 
 
 class BBMG {
+
+friend class InputOutput;
+
 private:
     struct field  // All fetched info for jet initialization and propagation
     {
