@@ -51,7 +51,7 @@ private:
     double Pfg, Pfq;
 
 
-    const int phimax;
+    static int phimax;
     double phi[phimax];
     //double Rjetq[phimax], Rjetg[phimax];
     //vector<double> rr;
