@@ -35,7 +35,7 @@ BBMG::BBMG( Settings * settingsPtr_in, SystemState * systemPtr_in )
   z                 = 1; // path length dependence
   a                 = 0; //Initial jet energy dependence
   c                 = (2+z-a)/3; //medium temperature dependence
-  phimax            = 14;
+  //phimax            = 14;
   
   //===============================================
   vjet  = 1;
