@@ -698,6 +698,7 @@ void InputOutput::print_jet_freeze_to_txt()
   cout << "Made it to line " << __LINE__ << endl;
   int iJet = 0;
   cout << "Made it to line " << __LINE__ << endl;
+  cout << "(bbmgPtr->jetFreezeOut).size() = " << (bbmgPtr->jetFreezeOut).size() << endl;
   for (auto & jets : bbmgPtr->jetFreezeOut)//I think i wanna call the objects here jets, like how we have particles in the other function
       {cout << "Made it to line " << __LINE__ << endl;
       out << iJet++ << " ";
