@@ -151,7 +151,8 @@ void BBMG::propagate()
         auto new_end = std::remove_if(jetInfo.begin(), jetInfo.end(),
             [this, &condition](auto& jetPropagation) {
                 if (condition(jetPropagation)) {
-                    jetFreezeOut.push_back(std::move(jetPropagation));
+                    jetFreezeOut.push_back(jetPropagation);
+                    //jetFreezeOut.push_back(std::move(jetPropagation));
                     return true; // Mark element for removal
                 }
                 return false; // Keep element
