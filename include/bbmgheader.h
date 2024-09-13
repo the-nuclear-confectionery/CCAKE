@@ -52,13 +52,13 @@ private:
 
 
     int phimax;
-    double phi[15];
-    double Rjetq[15], Rjetg[15];
-    vector<double> rr;
+    double phi[phimax];
+    //double Rjetq[phimax], Rjetg[phimax];
+    //vector<double> rr;
     vector<field> jetInfo;
     vector<field> jetFreezeOut;
-    vector<double> RAAq;
-    vector<double> RAAg; 
+    //vector<double> RAAq;
+    //vector<double> RAAg; 
 
 
     void inter(field &f); // interpolation

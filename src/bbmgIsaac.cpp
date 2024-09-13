@@ -44,12 +44,12 @@ BBMG::BBMG( Settings * settingsPtr_in, SystemState * systemPtr_in )
 
   gridx = settingsPtr->stepx;
   gridy = settingsPtr->stepy;
-  cout << "Gridx and gridy are " << gridx << "," << gridy << endl << endl;
+  //cout << "Gridx and gridy are " << gridx << "," << gridy << endl << endl;
 
   for (int i = 0; i < phimax; i++)
   {
-    Rjetq[i]  = 0;
-    Rjetg[i]  = 0;
+    //Rjetq[i]  = 0;
+    //Rjetg[i]  = 0;
     phi[i] = i*PI/7;
   }
   //Setting final energy as a start point for the integration; This is starting in GeV
