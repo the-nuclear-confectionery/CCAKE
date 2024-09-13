@@ -21,6 +21,7 @@
 #include "sph_workstation.h"
 #include "bbmgheader.h"
 
+
 using std::string;
 using std::vector;
 
@@ -64,6 +65,8 @@ private:
 
   // the workstation for performing SPH-related actions on the system
   SPHWorkstation ws;
+
+  BBMG bbmg;
 
 };
 
