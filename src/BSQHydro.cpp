@@ -13,6 +13,7 @@ BSQHydro::BSQHydro()
   io.set_SettingsPtr( &settings );
   io.set_SPHWorkstationPtr( &ws );  // this is probably unnecessary
   io.set_SystemStatePtr( &system );
+  io.set_BBMGPtr( &bbmg );
 
   // initialize SPH workstation
   ws.set_SystemStatePtr( &system );
