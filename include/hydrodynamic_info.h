@@ -67,6 +67,7 @@ struct hydrodynamic_info
   double bigtheta        = 0.0;
   double inside          = 0.0;
   double div_u           = 0.0;
+  double scalar_expansion_rate = 0.0;
 
 
   // derivatives

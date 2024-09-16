@@ -382,8 +382,8 @@ void InputOutput::read_in_initial_conditions()
     const double tau0 = settingsPtr->t0;
 
     // set Gubser profile parameters
-    const double q     = 1.0;                   // 1/fm
-    const double e0    = 1.0;                   // 1/fm^4
+    const double q     = 1.0/4.3;                   // 1/fm
+    const double e0    = 880.0;                   // 1/fm^4
     const double rhoB0 = (BSQmode) ? 0.5 : 0.0; // 1/fm^3
     const double rhoQ0 = (BSQmode) ? 0.5 : 0.0; // 1/fm^3
     const double rhoS0 = (BSQmode) ? 0.5 : 0.0; // 1/fm^3
@@ -391,11 +391,11 @@ void InputOutput::read_in_initial_conditions()
     // GRID GENERATION IN CARTESIAN COORDINATES
     // set grid step size for test
     const double TINY  = 1e-10;
-    const double dx    = 0.025, dy = 0.025;
+    const double dx    = 0.01, dy = 0.01;
     settingsPtr->stepx = dx;
     settingsPtr->stepy = dy;
-    const double xmin  = -5.0, xmax = 5.0+dx*TINY;
-    const double ymin  = -5.0, ymax = 5.0+dy*TINY;
+    const double xmin  = -6.0, xmax = 6.0+dx*TINY;
+    const double ymin  = -6.0, ymax = 6.0+dy*TINY;
 
     // generate initial profile in (r,phi)
     double q2 = q*q, q4 = q2*q2, t2 = tau0*tau0, t3 = t2*tau0, t4 = t3*tau0;
@@ -645,7 +645,8 @@ void InputOutput::print_system_state_to_txt()
           << pow(systemPtr->t,2.0)*p.hydro.shv33 << " "
           << p.rhoB() << " "
           << p.rhoS() << " "
-          << p.rhoQ() << "\n";
+          << p.rhoQ() << " "
+          << p.hydro.scalar_expansion_rate << "\n";
       }
   else
   {
@@ -733,10 +734,10 @@ void InputOutput::print_system_state_to_HDF()
   const int width = ceil(log10(ceil(settingsPtr->tend/settingsPtr->dt)));
 
   vector<string> dataset_names = {"x", "y", "T", "muB", "muS", "muQ",
-                                  "e", "s", "B", "S", "Q", "Kn_bulk", "Kn_shear"};
+                                  "e", "s", "B", "S", "Q", "theta", "Kn_bulk", "Kn_shear"};
   vector<string> dataset_units = {"fm", "fm", "MeV", "MeV", "MeV", "MeV",
                                   "MeV/fm^3", "1/fm^3", "1/fm^3", "1/fm^3",
-                                  "1/fm^3", "", ""};
+                                  "1/fm^3", "1/fm", "", ""};
 
   std::map<string,int> eos_map = {{"table",              0},
                                   {"tanh_conformal",     1},
@@ -759,8 +760,9 @@ void InputOutput::print_system_state_to_HDF()
     data[8][p.ID]  = p.rhoB();
     data[9][p.ID]  = p.rhoS();
     data[10][p.ID] = p.rhoQ();
-    data[11][p.ID] = p.Kn_bulk();
-    data[12][p.ID] = p.Kn_shear();
+    data[11][p.ID] = p.hydro.scalar_expansion_rate;
+    data[12][p.ID] = p.Kn_bulk();
+    data[13][p.ID] = p.Kn_shear();
     eos_tags[p.ID] = eos_map[ p.get_current_eos_name() ];
   }
 

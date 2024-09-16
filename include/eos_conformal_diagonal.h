@@ -84,7 +84,7 @@ public:
     double cp = c*T0*T0*T0*T0;  // c dimensionless, cp - 1/fm^4
 		return cp*x;
 	}
-	
+
 	double s(double T, double muB, double muQ, double muS)
 	{
     double cp = c*T0*T0*T0*T0;  // c dimensionless, cp - 1/fm^4
@@ -124,11 +124,11 @@ public:
     double cp = c*T0*T0*T0*T0;  // c dimensionless, cp - 1/fm^4
 		return 12.0*cp*muS*muS/(muS0*muS0*muS0*muS0);
 	}
-	
+
 	double P2BQ(double T, double muB, double muQ, double muS) { return TINY; }
 	double P2BS(double T, double muB, double muQ, double muS) { return TINY; }
 	double P2QS(double T, double muB, double muQ, double muS) { return TINY; }
-	
+
 	double P2TB(double T, double muB, double muQ, double muS) { return TINY; }
 	double P2TQ(double T, double muB, double muQ, double muS) { return TINY; }
 	double P2TS(double T, double muB, double muQ, double muS) { return TINY; }
@@ -203,7 +203,7 @@ public:
     results[15] = P2TS(Tsol, muBsol, muQsol, muSsol);
     results[16] = P2T2(Tsol, muBsol, muQsol, muSsol);
   }
-  
+
 };
 
 #endif

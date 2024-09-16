@@ -33,7 +33,7 @@ class Settings
                                                 // fractional amount of padding
                                                 // to add beyond the point with
                                                 // maximum distance from origin
-    
+
 
     //==========================================================================
     // transport coefficients settings
@@ -55,8 +55,8 @@ class Settings
     static constexpr int max_number_of_timesteps = -1;
 
     // maximum upper limit for t
-    static constexpr double tend      = 50.02;
-    
+    static constexpr double tend      = 1.25;
+
     // simulation settings
     double t0                         = 0.0; // initial timestep
     double dt                         = 0.0; // size of timestep
@@ -142,7 +142,8 @@ class Settings
 
         //------------------------------------
         // run Gubser indefinitely
-        Freeze_Out_Temperature = 1e-10/constants::hbarc_MeVfm;
+        // Freeze_Out_Temperature = 1e-10/constants::hbarc_MeVfm;
+        Freeze_Out_Temperature = 130./constants::hbarc_MeVfm;
 
         //------------------------------------
         // Gubser shear viscosity settings

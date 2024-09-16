@@ -331,6 +331,7 @@ class EoM_default: public EquationsOfMotion
       //===============
       // "covariant" divergence (multiplied by Milne coordinate hi.t == tau)
       hi.bigtheta                = hi.div_u*hi.t+hi.gamma;
+      hi.scalar_expansion_rate   = hi.bigtheta / hi.t;
 
       //===============
       // shear tensor \sigma^{\mu\nu}
