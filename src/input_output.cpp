@@ -696,6 +696,11 @@ void InputOutput::print_jet_freeze_to_txt()
   cout << "Made it to line " << __LINE__ << endl;
   out << systemPtr->t << "\n";
   cout << "Made it to line " << __LINE__ << endl;
+
+  cout << "c value: " << bbmgPtr->c << endl;
+
+  cout << "Pfg value " << bbmgPtr->Pfg << endl;
+
   cout << "(bbmgPtr->jetInfo).size() = " << (bbmgPtr->jetInfo).size() << endl;
   int iJet = 0;
   cout << "Made it to line " << __LINE__ << endl;
