@@ -699,23 +699,23 @@ void InputOutput::print_jet_freeze_to_txt()
   int iJet = 0;
   cout << "Made it to line " << __LINE__ << endl;
   cout << "(bbmgPtr->jetFreezeOut).size() = " << (bbmgPtr->jetFreezeOut).size() << endl;
-  for (auto & jets : bbmgPtr->jetFreezeOut)//I think i wanna call the objects here jets, like how we have particles in the other function
-      cout << "Made it to line " << __LINE__ << endl;
-      out << iJet++ << " ";
-      cout << "line = " << __LINE__ << endl;
-      out << systemPtr->t << " ";
-      cout << "line = " << __LINE__ << endl;
-      out << jets.T << " ";
-      cout << "line = " << __LINE__ << endl;
-      out << jets.line << " ";
-      cout << "line = " << __LINE__ << endl; //Go through and check which jetPropagation variables we want to use and print out
-      out << jets.rho0 << " ";
-      cout << "line = " << __LINE__ << endl; 
-      out << jets.pid << " ";
-      cout << "line = " << __LINE__ << endl;
-      out << jets.r[0] << " ";
-      cout << "line = " << __LINE__ << endl;
-      out << jets.r[1] << " " << "\n";
+  for ( auto & jets : bbmgPtr->jetFreezeOut )//I think i wanna call the objects here jets, like how we have particles in the other function
+        cout << "Made it to line " << __LINE__ << endl;
+        out << iJet++ << " ";
+        cout << "line = " << __LINE__ << endl;
+        out << systemPtr->t << " ";
+        cout << "line = " << __LINE__ << endl;
+        out << jets.T << " ";
+        cout << "line = " << __LINE__ << endl;
+        out << jets.line << " ";
+        cout << "line = " << __LINE__ << endl; //Go through and check which jetPropagation variables we want to use and print out
+        out << jets.rho0 << " ";
+        cout << "line = " << __LINE__ << endl; 
+        out << jets.pid << " ";
+        cout << "line = " << __LINE__ << endl;
+        out << jets.r[0] << " ";
+        cout << "line = " << __LINE__ << endl;
+        out << jets.r[1] << " " << "\n";
       
 
 
