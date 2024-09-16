@@ -1,0 +1,228 @@
+import h5py as h5
+import numpy as np
+#matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+from matplotlib.colors import LinearSegmentedColormap, LogNorm, SymLogNorm
+import sys, time
+
+#########################################################################################
+# load arguments
+infilename = sys.argv[1]
+quantity = sys.argv[2]
+outfilename = sys.argv[3]
+
+f = h5.File(infilename, 'r')
+event = f['Event']
+event_keys = list(event.keys())
+n_timesteps = len(event_keys)
+
+h = event.attrs['h'][0]
+
+fig = plt.figure(figsize=(6,6), dpi=125)
+ax = fig.add_subplot(111)
+div = make_axes_locatable(ax)
+cax = div.append_axes('right', '5%', '5%')
+taumin, taumax, xmin, xmax, ymin, ymax = event[event_keys[0]].attrs['Time'], event[event_keys[-1]].attrs['Time'], -12, 12, -12, 12
+n = 251
+
+knorm = 10.0/(7.0*np.pi*h*h)
+
+#########################################################################################
+cmap_energy \
+    = LinearSegmentedColormap.from_list( 'energy',\
+        ( (0.000, (1.000, 1.000, 1.000)),\
+          (0.500, (0.6392156862745098, 0.45098039215686275, 0.3176470588235294)),\
+          (1.000, (0.23137254901960785, 0.1607843137254902, 0.11372549019607843)) ) ) 
+
+#########################################################################################
+cmap_baryon \
+    = LinearSegmentedColormap.from_list( 'baryon',\
+        ( (0.000, (0.0, 0.5764705882352941, 0.5764705882352941)),\
+          (0.500, (1.000, 1.000, 1.000)),\
+          (1.000, (0.9568627450980393, 0.47843137254901963, 0.000)) ) )
+
+#########################################################################################
+cmap_strange \
+    = LinearSegmentedColormap.from_list( 'strange',\
+        ( (0.000, (0.5019607843137255, 0.0, 1.0)),\
+          (0.500, (1.000, 1.000, 1.000)),\
+          (1.000, (0.0, 0.5019607843137255, 0.000)) ) )
+
+#########################################################################################
+cmap_electric \
+    = LinearSegmentedColormap.from_list( 'electric',\
+        ( (0.000, (0.0, 0.0, 1.0)),\
+          (0.500, (1.000, 1.000, 1.000)),\
+          (1.000, (1.0, 0.0, 0.000)) ) )
+
+#########################################################################################
+colormap                                              \
+    = {"energy_density":              cmap_energy,    \
+       "baryon_density":              cmap_baryon,    \
+       "strange_density":             cmap_strange,   \
+       "electric_density":            cmap_electric,  \
+       "temperature":                 plt.cm.inferno, \
+       "baryon_chemical_potential":   cmap_baryon,    \
+       "strange_chemical_potential":  cmap_strange,   \
+       "electric_chemical_potential": cmap_electric}[quantity]
+
+#########################################################################################
+quantityLabel                                 \
+    = {"energy_density":              'e',    \
+       "baryon_density":              'B', \
+       "strange_density":             'S', \
+       "electric_density":            'Q', \
+       "temperature":                 'T',    \
+       "baryon_chemical_potential":   'muB',  \
+       "strange_chemical_potential":  'muS',  \
+       "electric_chemical_potential": 'muQ'}[quantity]
+    
+#########################################################################################
+plotLabel                                                      \
+    = {"energy_density":              r'$e$ (MeV/fm$^3$)',     \
+       "baryon_density":              r'$\rho_B$ (fm$^{-3}$)', \
+       "strange_density":             r'$\rho_S$ (fm$^{-3}$)', \
+       "electric_density":            r'$\rho_Q$ (fm$^{-3}$)', \
+       "temperature":                 r'$T$ (MeV)',            \
+       "baryon_chemical_potential":   r'$\mu_B$ (MeV)',        \
+       "strange_chemical_potential":  r'$\mu_S$ (MeV)',        \
+       "electric_chemical_potential": r'$\mu_Q$ (MeV)'}[quantity]
+
+#########################################################################################
+use_log_scale                                 \
+    = {"energy_density":              True,   \
+       "baryon_density":              True,   \
+       "strange_density":             True,   \
+       "electric_density":            True,   \
+       "temperature":                 False,  \
+       "baryon_chemical_potential":   False,  \
+       "strange_chemical_potential":  False,  \
+       "electric_chemical_potential": False}[quantity]
+
+
+#########################################################################################
+fontColor = 'white' if quantity == "temperature" else 'black'
+
+maximum = None
+minimum = None
+cbar = None
+
+
+#########################################################################################
+def kernel(q):
+    global knorm
+    return np.piecewise(q, [q>=1, q<1], \
+                        [lambda q: 0.25*knorm*(2.0-q)**3,\
+                         lambda q: knorm*(1.0 - 1.5*q**2 + 0.75*q**3)])
+
+#########################################################################################
+def evaluate_field(data, r):
+    global h
+    neighbors = data[ (r[0]-data[:,0])**2+(r[1]-data[:,1])**2 <= 4.0*h**2 ]
+    weights = kernel( np.sqrt( (r[0]-neighbors[:,0])**2+(r[1]-neighbors[:,1])**2 )/h )
+    if np.sum(weights) < 1e-10:
+        return 0
+    else:
+        return np.sum( neighbors[:,2]*weights ) / (np.sum(weights)+1e-10)
+
+
+#########################################################################################
+def get_timestep_slice(quantityLabel, i):
+    frame = event[event_keys[i]]
+    tau = frame.attrs['Time']
+    x = np.array(frame['x'])
+    y = np.array(frame['y'])
+    data = np.c_[ x, y, np.array(frame[quantityLabel]) ]
+    grid = np.linspace(xmin, xmax, n)
+    f = np.array([ evaluate_field(data, [point, 0.0]) for point in grid ])
+    return np.c_[ grid, np.full(n, tau), f ]
+
+
+#########################################################################################
+def plot_slice():
+    #global maximum, minimum, im, n
+    tic = time.perf_counter()
+
+    ax.clear()
+    cax.cla()
+
+    print('Constructing array...')
+    data = np.array([get_timestep_slice(quantityLabel, i) for i in range(n_timesteps)])
+    f = data[:,:,2]
+    print('Finished')
+    
+    toc = time.perf_counter()
+    print(f"Generated field grid in {toc - tic:0.4f} seconds", flush=True)
+
+    #f = data[:,:,2]
+    #if i==0 or not fixed_maximum:
+    #    maximum = np.amax(np.abs(f))
+    #    minimum = {"energy_density": np.amin(f[np.abs(f)>0.0]), \
+    #               "baryon_density": -maximum, \
+    #               "strange_density": -maximum, \
+    #               "electric_density": -maximum, \
+    #               "temperature": np.amin(f[np.abs(f)>0.0]), \
+    #               "baryon_chemical_potential": -maximum, \
+    #               "strange_chemical_potential": -maximum, \
+    #               "electric_chemical_potential": -maximum}[quantity]
+    
+    maximum = np.amax(np.abs(f))
+    minimum = np.amin(f[np.abs(f)>0.0])
+    
+    extent = xmin, xmax, taumin, taumax
+    tic = time.perf_counter()
+    
+    interpolation = 'bicubic'
+    
+    if use_log_scale:
+        if quantity == "energy_density" or quantity == "temperature":
+            im = ax.imshow(f+1e-10, cmap=colormap, norm=LogNorm(vmin=minimum+1e-15, vmax=maximum), aspect='auto',\
+                           interpolation=interpolation, extent=extent, origin='lower', interpolation_stage='rgba')
+        else:
+            # set range around zero to be linear instead of logarithmic
+            linthresh = 0.01*np.amax(np.abs(f))
+            im = ax.imshow(f, cmap=colormap, norm=SymLogNorm(linthresh, vmin=minimum, vmax=maximum), aspect='auto',\
+                           interpolation=interpolation, extent=extent, origin='lower', interpolation_stage='rgba')
+    else:
+        im = ax.imshow(f, cmap=colormap, vmin=minimum, vmax=maximum, origin='lower', aspect='auto',\
+                       interpolation=interpolation, extent=extent, interpolation_stage='rgba')
+
+    im2 = ax.contour(data[:,:,0], data[:,:,1], data[:,:,2], levels=[155.0], colors='white', linestyles='dashed')
+
+    toc = time.perf_counter()
+    print(f"Generated frame in {toc - tic:0.4f} seconds")
+
+    plt.xlim([xmin, xmax])
+    plt.ylim([ymin, ymax])
+    #plt.text(0.075, 0.925, r'$\tau = %(t)5.2f$ fm$/c$'%{'t': tau}, \
+    #        {'color': fontColor, 'fontsize': 24}, transform=ax.transAxes,
+    #        horizontalalignment='left', verticalalignment='top')
+    ax.set_xlabel(r'$x$ (fm)', fontsize=24)
+    ax.set_ylabel(r'$\tau$ (fm$/c$)', fontsize=24)
+    ax.tick_params(axis='x', labelsize=20)
+    ax.tick_params(axis='y', labelsize=20)
+    cbar = fig.colorbar(im, cax=cax)
+    cbar.set_label(plotLabel, fontsize=24)
+    cbar.ax.tick_params(labelsize=20)
+
+    #plt.show()
+    plt.savefig(outfilename, bbox_inches='tight', pad_inches = 0)
+    print('Saved to ' + outfilename)
+
+
+
+
+#########################################################################################
+def main():
+    plot_slice()
+
+    print('Finished everything.')
+
+    return 0
+
+  
+#########################################################################################
+if __name__== "__main__":
+    main()
+
