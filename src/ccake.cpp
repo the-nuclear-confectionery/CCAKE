@@ -36,12 +36,10 @@ int main (int argc, char *argv[])
   //feenableexcept(FE_INVALID | FE_OVERFLOW);
   #endif
   // Print the welcome message.
-  cout << "Made it to line " << __LINE__ << endl;
   message::welcome();
 
 
   // Check if proper command-line arguments passed.
-  cout << "Made it to line " << __LINE__ << endl;
   if ( argc < 3 )
   {
     std::cerr << "Usage: ./ccake /path/to/settings/file "
@@ -50,19 +48,15 @@ int main (int argc, char *argv[])
     exit(1);
   }
 
-  cout << "Made it to line " << __LINE__ << endl;
   //----------------------------------------------
   formatted_output::announce("Reading in command-line arguments");
-  cout << "Made it to line " << __LINE__ << endl;
-
+   
   // This is where all parameters are initialized.
-  cout << "Made it to line " << __LINE__ << endl;
+   
   string path_to_settings_file     = argv[1];
   string path_to_results_directory = argv[2];
 
-
-  //----------------------------------------------
-  cout << "Made it to line " << __LINE__ << endl;
+  //----------------------------------------------   
   formatted_output::report( "Input parameters file: "
                             + path_to_settings_file );
   formatted_output::report( "All results will be stored in: "
@@ -70,33 +64,27 @@ int main (int argc, char *argv[])
 
 
   // Define and set up the simulation object itself.
-  cout << "Made it to line " << __LINE__ << endl;
   BSQHydro simulation;
   simulation.set_results_directory( path_to_results_directory );
 
 
   //----------------------------------------------
-  cout << "Made it to line " << __LINE__ << endl;
   formatted_output::announce("Loading data");
 
 
   // Load file containing parameter settings.
-  cout << "Made it to line " << __LINE__ << endl;
   simulation.load_settings_file( path_to_settings_file );
 
 
   // Read in initial conditions (type/path defined in path_to_settings_file).
-  cout << "Made it to line " << __LINE__ << endl;
   simulation.read_in_initial_conditions();
 
 
   // This is where the hydrodynamic simulation is set up and initialized.
-  cout << "Made it to line " << __LINE__ << endl;
   simulation.initialize_hydrodynamics();
 
 
   // Duh.
-  cout << "Made it to line " << __LINE__ << endl;
   simulation.run();
 
 
