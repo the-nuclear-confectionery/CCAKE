@@ -117,7 +117,7 @@ double BBMG::efluc()
 
 void BBMG::propagate()
 {
-  double tau  = systemPtr->t// + settingsPtr->t0;
+  double tau  = systemPtr->t;// + settingsPtr->t0;
   //int stillon = 0;
 
   int countyes = 0, countno = 0;
