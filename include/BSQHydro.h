@@ -66,8 +66,6 @@ private:
   // the workstation for performing SPH-related actions on the system
   SPHWorkstation ws;
 
-  BBMG bbmg;
-
 };
 
 #endif
