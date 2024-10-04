@@ -12,7 +12,7 @@ fig, ax = plt.subplots(2,figsize=np.array([1920,1920*2/3])/dpi, sharex=True,grid
 def read_sol(analytic_sol_folder):
     for t in time_list:
         inp_path = os.path.join(analytic_sol_folder,'ic_long_tau_'+t+'.dat')
-        col_names=['x', 'y', 'eta', 'eps', 'rhoB', 'rhoS', 'rhoQ', 'ux', 'uy', 'ueta','Bulk', 'Pixx', 'Pixy', 'Pixeta' 'Piyy', 'Piyeta', 'Pietaeta','extra']
+        col_names=['x', 'y', 'eta', 'eps', 'rhoB', 'rhoS', 'rhoQ', 'ux', 'uy', 'ueta','Bulk', 'Pixx', 'Pixy', 'Pixeta', 'Piyy', 'Piyeta', 'Pietaeta','extra']
         df = pd.read_table(inp_path, names=col_names, sep=" ", header=0)
         ax[0].plot(df['eta'],df['ueta'],label=r'$\tau = '+t+r'$ fm/c',color='blue')
         ax[1].plot(df['eta'],df['eps'],label=r'$\tau = '+t+r'$ fm/c',color='blue')
@@ -37,10 +37,10 @@ def read_sim(sim_result_folder):
         ax[0].legend()
         ax[1].legend()
     
-    ax[0].set_ylabel(r"$u^{eta}$")
-    ax[1].set_ylabel(r"$eps$")
-    ax[0].set_xlabel("eta")
-    ax[1].set_xlabel("eta")
+    ax[0].set_ylabel(r"$u^{\eta}$")
+    ax[1].set_ylabel(r"${\epsilon}$")
+    ax[0].set_xlabel(r"${\eta}$")
+    ax[1].set_xlabel(r"${\eta}$")
 
 #    ax[0].set_xlim(-4.8,4.8)
 #    ax[1].set_xlim(-4.8,4.8)
