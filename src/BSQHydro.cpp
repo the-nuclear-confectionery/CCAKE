@@ -281,12 +281,16 @@ void BSQHydro<D,TEOM>::read_ccake()
         systemPtr->add_particle( p );
         #ifdef DEBUG
         outfile << x << " " << y << " " << eta << " " << e*hbarc_GeVfm << " " << rhoB
-                << " " << rhoS << " " << rhoQ << " " << ux << " " << uy << " " << ueta << endl;
+                << " " << rhoS << " " << rhoQ << " " << ux << " " << uy << " " << ueta << " " << Bulk
+                << " " << pixx << " " << pixy << " " << pixeta << " " << piyy << " " << piyeta << " "
+                << pietaeta << endl;
         #endif
       }
     }
     #ifdef DEBUG
     outfile.close();
+    std::cout << "Initial Conditions read-in file generated." << std::endl;
+    exit(1);
     #endif
     infile.close();
   }
@@ -492,9 +496,9 @@ void BSQHydro<D,TEOM>::run()
   Stopwatch sw;
   sw.Start();
 
-  #ifdef DEBUG
-  std::ofstream outfile;
-  outfile.open("conservation.dat");
+  #ifdef DEBUG_SLOW
+  std::ofstream confile;
+  confile.open("conservation.dat");
   #endif
   //===================================
   // initialize conserved quantities, etc.
@@ -505,14 +509,14 @@ void BSQHydro<D,TEOM>::run()
   //===================================
   // print initialized system and status
   outPtr->print_conservation_status();
-  #ifdef DEBUG
-  outfile << systemPtr->t << " " << systemPtr->Eloss << " " << systemPtr->S << endl;
+  #ifdef DEBUG_SLOW
+  confile << systemPtr->t << " " << systemPtr->Eloss << " " << systemPtr->S << endl;
   #endif
   outPtr->print_system_state();
 
   //===================================
   // evolve until simulation terminates
-  #ifdef DEBUG
+  #ifdef DEBUG_SLOW
   std::ofstream file;
   file.open("probe.dbg", std::ios::out | std::ios::trunc);
   if (file.is_open()) {
@@ -550,18 +554,26 @@ void BSQHydro<D,TEOM>::run()
     //===================================
     // print updated system and status
     outPtr->print_conservation_status();
-    #ifdef DEBUG
-    outfile << systemPtr->t << " " << systemPtr->Eloss << " " << systemPtr->S << endl;
+    #ifdef DEBUG_SLOW
+    confile << systemPtr->t << " " << systemPtr->Eloss << " " << systemPtr->S << endl;
     #endif
     if (systemPtr->number_of_elapsed_timesteps%100 == 0) outPtr->print_system_state();
     if (settingsPtr->particlization_enabled) outPtr->print_freeze_out(wsPtr->freezePtr);
 
   }
-  #ifdef DEBUG
-  outfile.close();
+  #ifdef DEBUG_SLOW
+  confile.close();
   #endif
 
   sw.Stop();
   formatted_output::summarize("All timesteps finished in "
                               + to_string(sw.printTime()) + " s");
+  formatted_output::summarize("Number of timesteps executed "
+                              + to_string(systemPtr->number_of_elapsed_timesteps));
+  string output_directory = settingsPtr->results_directory;
+  string outfile = output_directory + "/time.dat";
+  ofstream out( outfile.c_str() );
+  out << to_string(sw.printTime()) << " " << to_string(systemPtr->number_of_elapsed_timesteps)<< "\n";
+  out << std::flush;
+  out.close();
 }

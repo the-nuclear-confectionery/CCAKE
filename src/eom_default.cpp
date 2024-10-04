@@ -346,12 +346,16 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
     double shv00 = device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, 0,0);
 
     milne::Matrix<double,D,D> gradV;
-    for(int idir=0; idir<D; ++idir)
-    for(int jdir=0; jdir<D; ++jdir)
+    for(int idir=0; idir<D; ++idir){
+    for(int jdir=0; jdir<D; ++jdir){
       gradV(idir,jdir) = device_hydro_space_matrix.access(is, ia, hydro_info::gradV, idir, jdir);
-
+      }
+    }
     
-    double dsigma_dt = -sigma * milne::tr(gradV,t2);
+    double divV = 0.;
+    for(int idir=0; idir<D; ++idir) divV += gradV(idir,idir);
+        
+    double dsigma_dt = -sigma * divV;
     double g2        = gamma*gamma;
     double gt        = gamma*t;
     double dwdsT1    = 1 - dwds/T;
@@ -362,7 +366,6 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
 
     double Agam      = w - dwds*( s + bigPI/T ) - zeta/tauRelax
                      - dwdB*rhoB - dwdS*rhoS - dwdQ*rhoQ;
-
     device_hydro_scalar.access(is, ia, hydro_info::dsigma_dt)     = dsigma_dt;
     device_hydro_scalar.access(is, ia, hydro_info::gamma_squared) = g2;
     device_hydro_scalar.access(is, ia, hydro_info::gamma_cube)    = gamma*g2;
@@ -382,6 +385,7 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
 
   auto fill_Btot = KOKKOS_LAMBDA(const int is, const int ia){
     double bsub = 0;
+    double ueta = device_hydro_vector.access(is, ia, hydro_info::u, D-1);
     double gamma = device_hydro_scalar.access(is, ia, hydro_info::gamma);
     double Agam = device_hydro_scalar.access(is, ia, hydro_info::Agam);
     double Agam2 = device_hydro_scalar.access(is, ia, hydro_info::Agam2);
@@ -432,6 +436,9 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
       }
     }
     double dwdsT = 1-dwdsT1;
+    if (D!=2){
+      sigl += -t*ueta*ueta/gamma/gamma;
+    }
     device_hydro_scalar.access(is, ia, hydro_info::Btot) = 
       ( Agam*gamma + 2.0*eta_o_tau/3.0*gamma )*sigl + bigPI/tauRelax + dwdsT*( gt*shv33 + bsub );
   };
@@ -444,7 +451,7 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
           // THIS IS THE ORIGINAL PART IN TIME DERIVATIVES
 
       double gamma = device_hydro_scalar.access(is, ia, hydro_info::gamma);
-
+      double w = device_thermo.access(is, ia, thermo_info::w);
       double Agam2 = device_hydro_scalar.access(is, ia, hydro_info::Agam2);
       double Ctot = device_hydro_scalar.access(is, ia, hydro_info::Ctot);
       double g2 = device_hydro_scalar.access(is, ia, hydro_info::gamma_squared);
@@ -472,12 +479,24 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
       shv(0,0) = device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, 0, 0);
 
       // set the Mass and the Force
+      //If D!=2, Agam2*uu*t2
+      if(D!=2){
+        Agam2 *= t2;
+      }
       milne::Matrix <double,D,D> M = Agam2*uu - (1+4/3./g2)*piu
               + dwdsT1*transpose(piu) + gamma*pimin;
       for(int idir=0; idir<D; ++idir) M(idir, idir) += Ctot*gamma;
 
-      milne::Vector<double,D> F    = Btot*u + gradshear
-                              - ( gradP + gradBulk + divshear );
+      // if D!=2, need -2.*w*gamma*u(D-1)/t  -(gradP(D-1) + gradBulk(D-1))/t
+      milne::Vector<double,D> F    = Btot*u + gradshear - divshear;
+      if (D==2){
+        for(int idir=0; idir<D; ++idir) F(idir) -= gradP(idir) + gradBulk(idir);
+      }
+      else{
+        for(int idir=0; idir<D-1; ++idir) F(idir) -= gradP(idir) + gradBulk(idir);
+        F(D-1) -= 2.*w*gamma*u(D-1)/t  + (gradP(D-1) + gradBulk(D-1))/t2;
+      }
+      
 
       if ( using_shear )
       {

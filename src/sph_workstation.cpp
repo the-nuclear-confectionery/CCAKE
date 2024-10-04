@@ -329,7 +329,7 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
       r1[idir] = device_position(iparticle,idir);
       r2[idir] = device_position(jparticle,idir);
     }
-    double distance = SPHkernel<D>::distance(r1,r2, t);
+    double distance = SPHkernel<D>::distance(r1,r2);
     double kern = SPHkernel<D>::kernel(distance,hT);
 
     //outputting kernel function to the outfile "kernel_{hT}.dat"
@@ -601,12 +601,21 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
   {
     //Compute kernel gradient
     double rel_sep[D], pos_a[D], pos_b[D]; // cache for relative separation
-    for (int idir = 0; idir < D; ++idir){
-      pos_a[idir] = device_position(particle_a,idir);
-      pos_b[idir] = device_position(particle_b,idir);
-      rel_sep[idir] = pos_a[idir] - pos_b[idir];
+    if (D==2){
+      for (int idir = 0; idir < D; ++idir){
+        pos_a[idir] = device_position(particle_a,idir);
+        pos_b[idir] = device_position(particle_b,idir);
+        rel_sep[idir] = pos_a[idir] - pos_b[idir];
+      } 
     }
-    double rel_sep_norm = SPHkernel<D>::distance(pos_a,pos_b, t);
+    else {
+      for (int idir = 0; idir < D; ++idir){
+        pos_a[idir] = device_position(particle_a,idir);
+        pos_b[idir] = device_position(particle_b,idir);
+        rel_sep[idir] = pos_a[idir] - pos_b[idir];
+      } 
+    }
+    double rel_sep_norm = SPHkernel<D>::distance(pos_a,pos_b);
     double gradK_aux[D];
     ccake::SPHkernel<D>::gradKernel( rel_sep, rel_sep_norm, hT, gradK_aux );
 
