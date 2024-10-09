@@ -24,7 +24,7 @@ class Settings
 
     //==========================================================================
     // event buffer settings
-    bool buffer_event                 = false;   // add a buffer around event to
+    bool buffer_event                 = true;   // add a buffer around event to
                                                 // stabilize evolution
     bool circular_buffer              = true;   // whether to buffer with entire
                                                 // grid or just circular padding
@@ -33,7 +33,7 @@ class Settings
                                                 // fractional amount of padding
                                                 // to add beyond the point with
                                                 // maximum distance from origin
-    
+
 
     //==========================================================================
     // transport coefficients settings
@@ -56,7 +56,7 @@ class Settings
 
     // maximum upper limit for t
     static constexpr double tend      = 50.02;
-    
+
     // simulation settings
     double t0                         = 0.0; // initial timestep
     double dt                         = 0.0; // size of timestep
