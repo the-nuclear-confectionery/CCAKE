@@ -700,6 +700,7 @@ double tr( const Matrix<double,2,2>& a,double t2)
   return s;
 } // AOK
 
+// matrix multiplication as AB^T
 
 template <class T, int D1, int D2> KOKKOS_FUNCTION
 double con2(const Matrix<T,D1,D2>& a, const Matrix<T,D1,D2>& b)

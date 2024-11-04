@@ -435,12 +435,32 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
         device_hydro_space_matrix.access(is, ia, hydro_info::piutot, idir, jdir) = piutot(idir, jdir);
       }
     }
+    milne::Vector<double,D> u;
+    milne::Matrix<double,D+1,D+1> shv;
+      for(int idir=0; idir<D; ++idir){
+        for(int jdir=0; jdir<D; ++jdir){
+          shv(idir+1,jdir+1) = device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir+1, jdir+1);
+        }
+        u(idir) = device_hydro_vector.access(is, ia, hydro_info::u, idir);
+        shv(idir+1,0) = device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir+1, 0);
+      }
+    shv(0,0) = device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, 0, 0);
+    milne::Vector<double,D> minshv = milne::rowp1(0, shv);
+    milne::Vector<double,D> u_cov = u;
+    u_cov.make_covariant(t2);
+
     double dwdsT = 1-dwdsT1;
     if (D!=2){
-      sigl += -t*ueta*ueta/gamma/gamma;
+      sigl += t*u_cov(D-1)*u_cov(D-1)/gamma/gamma/t2/t;
     }
     device_hydro_scalar.access(is, ia, hydro_info::Btot) = 
       ( Agam*gamma + 2.0*eta_o_tau/3.0*gamma )*sigl + bigPI/tauRelax + dwdsT*( gt*shv33 + bsub );
+    
+    
+    if (D!=2) {
+      device_hydro_scalar.access(is, ia, hydro_info::Btot) += 
+        dwdsT*( shv(0,0)*u_cov(D-1)*u_cov(D-1)/gt/t2 + 2*minshv(D-1)*u_cov(D-1)/t);
+    }
   };
 
   Cabana::simd_parallel_for(simd_policy, fill_Btot, "fill_Btot");
@@ -658,8 +678,15 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
       milne::Matrix<double,D,D> sub = pimin + (shv(0,0)/g2)*uu
                                   - 1./gamma*piutot;
       milne::Vector<double,D> minshv = milne::rowp1(0, shv);
-      double inside = t*( milne::inner( shv(0,0)*v-minshv, du_dt )
-                                      - milne::con2(sub, gradU) - gamma*t*shv33 );
+
+      milne::Vector<double,D> u_cov = u;
+      u_cov.make_covariant(t2);
+
+      double inside = t*( milne::inner( shv(0,0)*v-minshv, du_dt ) 
+                                      - milne::con2(sub, gradU) - gamma*t*shv33);
+      if (D!=2){
+        inside += t*(shv(0,0)*u_cov(D-1)*u_cov(D-1)/gamma/t2/t + 2*u_cov(D-1)*minshv(D-1)/t);
+      }
 
       // time derivative of ``specific entropy density per particle"
       double d_dt_specific_s = 1./sigma/T*inside;

@@ -6,22 +6,51 @@ all: images/ubuntu.sif images/ccake.sif  ../EoS/Houston/thermo.h5 images/ccake-d
 # Recipes with example runs
 # ==================================
 
+run-test: images/ccake.sif ../build/ccake
+	singularity exec --cleanenv --bind ../:/CCAKE images/ccake.sif bash -c " \
+	g++ -I/usr/include/hdf5/serial/ \
+	test_hdf5.cpp -lhdf5_cpp -lhdf5 -o test_hdf5 ; \
+	./test_hdf5 ;"
+
+run-inverter: images/ccake.sif ../build/ccake
+	singularity exec --cleanenv --bind ../:/CCAKE images/ccake.sif bash -c " \
+        cd /CCAKE/utilities ; \
+	g++ -I../include -I/sw/spack/delta-2022-03/apps/anaconda3/2021.05-gcc-11.2.0-ievmolz/pkgs/hdf5-1.10.4-hb1b8bf9_0/include -fopenmp generate_eos_table.cpp -o generate_eos_table ../src/*.cpp  -lhdf5_cpp -lhdf5; \
+        ./generate_eos_table 32 'conformal' 'EoS/Houston' 'inverted_eos' ;"
+
+run-visc-gubser: images/ccake.sif ../build/ccake
+	singularity exec --cleanenv --bind ../:/CCAKE images/ccake.sif bash -c " \
+        cd /CCAKE/build ; \
+        mkdir -p initial_conditions ; \
+        ./ccake ../input/config_visc_gubser.yaml $(OUTPUT_DIR) ;"
+
+run-visc-gubser-db: images/ccake-dev.sif ../build-debug/ccake
+	export OMP_NUM_THREADS=64; \
+	singularity exec --cleanenv --bind ../:/CCAKE images/ccake-dev.sif bash -c " \
+        cd /CCAKE/build-debug ; \
+        mkdir -p initial_conditions ; \
+        ./ccake ../input/config_visc_gubser.yaml out_visc_gubser ;"
+
 run-long: images/ccake.sif ../build/ccake
+	export OMP_NUM_THREADS=64; \
 	singularity exec --cleanenv --bind ../:/CCAKE images/ccake.sif bash -c " \
         cd /CCAKE/build ; \
         ./ccake ../config/config_long.yaml output_long ;"
 
 run-bjorken: images/ccake.sif ../build/ccake
+	export OMP_NUM_THREADS=64; \
 	singularity exec --cleanenv --bind ../:/CCAKE images/ccake.sif bash -c " \
         cd /CCAKE/build ; \
 	./ccake ../config/config_bjorken.yaml output_bjorken ;"
 
 run-bjorken-db: images/ccake-dev.sif ../build-debug/ccake
+	export OMP_NUM_THREADS=64; \
 	singularity exec --cleanenv --bind ../:/CCAKE images/ccake-dev.sif bash -c " \
         cd /CCAKE/build-debug ; \
         ./ccake ../config/config_bjorken.yaml output_bjorken ;"
 
 run-long-debug: images/ccake-dev.sif ../build-debug/ccake
+	export OMP_NUM_THREADS=64; \
 	singularity exec --cleanenv --bind ../:/CCAKE images/ccake-dev.sif bash -c " \
         cd /CCAKE/build-debug ; \
         ./ccake ../config/config_long.yaml output_long ;"
@@ -35,6 +64,7 @@ run-gubser: images/ccake.sif ../build/ccake
         ../plotting_scripts/plot_gubser.py ../misc/Gubser_checks/ac output_gubser gubser.png ;"
 
 run-gubser-db: images/ccake.sif ../build-debug/ccake
+	export OMP_NUM_THREADS=64; \
 	singularity exec --cleanenv --bind ../:/CCAKE images/ccake-dev.sif bash -c " \
         cd /CCAKE/build-debug ; \
         mkdir -p initial_conditions ; \

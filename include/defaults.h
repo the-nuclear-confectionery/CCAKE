@@ -11,7 +11,8 @@ typedef std::pair <std::string, std::string> setting_pair;
 namespace ccake
 {
   namespace defaults
-  {
+  { 
+    const bool        online_inverter_enabled  = false;
     const double      max_tau                 = 20.;
     const bool        input_as_entropy        = false;
     const double      dt                      = 0.05;

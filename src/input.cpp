@@ -222,10 +222,29 @@ bool cc::Input::decode_settings(const YAML::Node& node){
     //--------------------------------------------------------------------------
     //eos node
     try {
+      settingsPtr->online_inverter_enabled = node["eos"]["online_inverter_enabled"].as<bool>();
+    } catch (...) {
+      formatted_output::report("WARNING: Could not Could not read node eos/online_inverter_enabled!");
+      formatted_output::report("Online_inverted_enabled is an optional parameter. Setting to default value.");
+      settingsPtr->online_inverter_enabled = cc::defaults::online_inverter_enabled;
+    }
+    if (!settingsPtr->online_inverter_enabled){
+      try{
+        cout << node["eos"]["preinverted_eos_path"].as<std::string>() << endl;
+        settingsPtr->preinverted_eos_path = fs::path(node["eos"]["preinverted_eos_path"].as<std::string>());
+
+      } catch (...) {
+        formatted_output::report("ERROR: Could not read node eos/preinverted_eos_path!");
+        formatted_output::report("Preinverted EoS Path is a mandatory parameter for offline inverter. Aborting execution.");
+        return false;
+      }
+    }
+    
+    try {
       settingsPtr->eos_type = node["eos"]["type"].as<std::string>();
     } catch (...) {
       formatted_output::detail("ERROR: Could not read eos type!");
-      formatted_output::detail("This is an optional parameter. Setting to default value.");
+      formatted_output::detail("EoS type is an optional parameter. Setting to default value.");
       settingsPtr->eos_type = cc::defaults::eos_type;
     }
 
@@ -234,7 +253,7 @@ bool cc::Input::decode_settings(const YAML::Node& node){
         settingsPtr->eos_path = fs::path(node["eos"]["path"].as<std::string>());
       } catch (...) {
         formatted_output::report("ERROR: Could not read eos path!");
-        formatted_output::report("This is a mandatory parameter for table eos. Aborting execution,");
+        formatted_output::report("EoS path is a mandatory parameter for table eos. Aborting execution,");
         return false;
       }
     }

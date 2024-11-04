@@ -5,7 +5,7 @@
 #include "eom_default.cpp"
 #include "transport_coefficients.cpp"
 
-#define ONLINE_INVERTER ///todo: This should be in the config file. For now, comment, uncomment it to choose eos method to be used
+// #define ONLINE_INVERTER ///todo: This should be in the config file. For now, comment, uncomment it to choose eos method to be used
 using namespace constants;
 namespace tc = ccake::transport_coefficients;
 
@@ -37,7 +37,9 @@ void SPHWorkstation<D,TEOM>::initialize()
   eos.set_SettingsPtr( settingsPtr );
   eos.init();
   #ifndef ONLINE_INVERTER
-  eos_interpolatorPtr = std::make_shared<EoS_Interpolator>("eos_conformal_small.h5"); ///TODO: The path should be in the config file;
+  eos_interpolatorPtr = std::make_shared<EoS_Interpolator>(
+      settingsPtr->preinverted_eos_path);
+ ///TODO: The path should be in the config file;
   #endif
   //----------------------------------------
   // set up transport coefficients

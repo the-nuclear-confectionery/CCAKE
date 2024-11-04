@@ -496,10 +496,10 @@ void BSQHydro<D,TEOM>::run()
   Stopwatch sw;
   sw.Start();
 
-  #ifdef DEBUG_SLOW
+  // #ifdef DEBUG_SLOW
   std::ofstream confile;
   confile.open("conservation.dat");
-  #endif
+  // #endif
   //===================================
   // initialize conserved quantities, etc.
   systemPtr->conservation_entropy(true);
@@ -509,9 +509,9 @@ void BSQHydro<D,TEOM>::run()
   //===================================
   // print initialized system and status
   outPtr->print_conservation_status();
-  #ifdef DEBUG_SLOW
+  // #ifdef DEBUG_SLOW
   confile << systemPtr->t << " " << systemPtr->Eloss << " " << systemPtr->S << endl;
-  #endif
+  // #endif
   outPtr->print_system_state();
 
   //===================================
@@ -554,16 +554,17 @@ void BSQHydro<D,TEOM>::run()
     //===================================
     // print updated system and status
     outPtr->print_conservation_status();
-    #ifdef DEBUG_SLOW
+    // #ifdef DEBUG_SLOW
     confile << systemPtr->t << " " << systemPtr->Eloss << " " << systemPtr->S << endl;
-    #endif
+    // #endif
+    // float lim = 1 / settingsPtr->dt * 10;
     if (systemPtr->number_of_elapsed_timesteps%100 == 0) outPtr->print_system_state();
     if (settingsPtr->particlization_enabled) outPtr->print_freeze_out(wsPtr->freezePtr);
 
   }
-  #ifdef DEBUG_SLOW
+  // #ifdef DEBUG_SLOW
   confile.close();
-  #endif
+  // #endif
 
   sw.Stop();
   formatted_output::summarize("All timesteps finished in "

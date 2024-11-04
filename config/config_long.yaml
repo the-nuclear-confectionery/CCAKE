@@ -9,14 +9,16 @@ parameters:
   dt: 0.001 # time-step of the simulation in fm/c
   h_T: 0.1  # Smothing parameter inside kernel, in the transverse direction (in fm)
   h_eta:  0.1  # Smothing parameter inside kernel in the longitudinal direction
-  rk_order: 4  # Runge-Kutta order
+  rk_order: 2  # Runge-Kutta order
   kernel_type: "cubic_spline" # Kernel type. Possible values are: ["cubic_spline"]
-  energy_cutoff: 0.15 # GeV/fm^3 - Particles with less than this energy will be deleted before starting the evolution
+  energy_cutoff: 0 # GeV/fm^3 - Particles with less than this energy will be deleted before starting the evolution
   buffer_particles:
     enabled: true # Set to true to include buffer particles. May help stability.
     circular: true # whether to buffer with entire grid or just circular padding.
     padding_thickness: .1 # if circular buffer is true, specifies the fractional amount
 eos:
+  online_inverter_enabled: true
+  preinverted_eos_path: "EoS/Houston/thermo.h5"
   type: "conformal" # Possible values are: ["table", "conformal"]
   path: "EoS/Houston" # If type is "table", the path to the equation of state table.
 particlization:
@@ -29,8 +31,8 @@ hydro:
   electric_charge_enabled: false # Set to false to disable electric charge evolution
   viscous_parameters:
     shear:
-      mode: "disabled" # Possible values are: ["constant", "disabled"]
-      constant_eta_over_s: 0.0 # Value of the constant shear viscosity
+      mode: "constant" # Possible values are: ["constant", "disabled"]
+      constant_eta_over_s: 0.2 # Value of the constant shear viscosity
       relaxation_mode: "default" # How shear relaxation coeffiecient is computed. Possible values are: ["default"]
     bulk:
       mode: "constant"
