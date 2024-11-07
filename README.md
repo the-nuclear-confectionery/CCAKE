@@ -25,7 +25,7 @@ If you want to build locally with GPU support, follow the instructions below.
 
 ## 1.2 Installing dependencies.
 
-### 1.2.1 Download and install Nvidia HPC SDK 22.11
+### 1.2.1 Download and install Nvidia HPC SDK 22.11 (Skip for installation on Delta)
 - Choose a place where you have written permissions. In a local machine, `/opt` may be a good choice
 (It may be necessary to use `sudo chown -R $USER:$USER /opt` to give yourself permissions to write there)
 - Download the Nvidia HPC SDK 22.11 from https://developer.nvidia.com/hpc-sdk
