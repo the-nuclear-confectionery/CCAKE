@@ -67,7 +67,7 @@ cmake -DCMAKE_INSTALL_PREFIX=$PREFIX \
       -DKokkos_ENABLE_TESTS=Off \
       -DKokkos_ARCH_AMPERE86=On $KOKKOSSRC
 ```
-> **Note**: Depending on your GPU architecture, you may need to change the `Kokkos_ARCH_AMPERE86` flag.
+> **Note**: Depending on your GPU architecture, you may need to change the `Kokkos_ARCH_AMPERE86` flag. For Delta, use `Kokkos_ARCH_AMPERE80`.
 8. Build and install: `cmake --build . --target install -j`
 ### 1.2.3 Download and install Cabana
 - Assuming you installed the SDK in `/opt`, create a "local" folder inside it. Kokkos will be installed there.
