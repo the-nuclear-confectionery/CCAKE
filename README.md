@@ -95,23 +95,23 @@ cmake -D CMAKE_BUILD_TYPE="Debug" \
 
 **Note:**
 If using Cabana 0.5.0, there may be linkage issues. In that case, use 
-'''bash
+```bash
 if(NOT TARGET Cabana::cabanacore)
   find_package(Cabana)
 endif()
-'''
+```
 ### 1.3 Build CCAKE
 **Note:**
 If installing on Delta, will have to explicity install gsl and yaml first.
-- For gsl, use the command ' module load gsl/2.7.1'.
+- For gsl, use the command 'module load gsl/2.7.1'.
 - For yaml, clone using 'git clone https://github.com/jbeder/yaml-cpp.git'. Then,
-'''bash
+```bash
 mkdir build
 cd build
 cmake -DCMAKE_INSTALL_PREFIX=$HOME ..
 make
 make install 
-'''
+```
 
 - Create a build folder:  `mkdir CCAKE/build && cd CCAKE/build`
 - Configure CCAKE: `cmake -DCMAKE_PREFIX_PATH=/opt/local -DCMAKE_BUILD_TYPE="Debug" .. && make -j`
