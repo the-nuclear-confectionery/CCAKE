@@ -1,6 +1,6 @@
 all: images/ubuntu.sif images/ccake.sif  ../EoS/Houston/thermo.h5 images/ccake-dev.sif build-release build-debug
   
-.PHONY: build-release build-debug run-gubser build-gpu run-trento run-bjorken
+.PHONY: build-release build-debug run-gubser build-gpu run-trento
 
 # ==================================
 # Recipes with example runs
@@ -13,10 +13,12 @@ run-test: images/ccake.sif ../build/ccake
 	./test_hdf5 ;"
 
 run-inverter: images/ccake.sif ../build/ccake
-	singularity exec --cleanenv --bind ../:/CCAKE images/ccake.sif bash -c " \
-        cd /CCAKE/utilities ; \
-	g++ -I../include -I/sw/spack/delta-2022-03/apps/anaconda3/2021.05-gcc-11.2.0-ievmolz/pkgs/hdf5-1.10.4-hb1b8bf9_0/include -fopenmp generate_eos_table.cpp -o generate_eos_table ../src/*.cpp  -lhdf5_cpp -lhdf5; \
-        ./generate_eos_table 32 'conformal' 'EoS/Houston' 'inverted_eos' ;"
+	singularity exec --cleanenv \
+        --bind /sw/spack/delta-2022-03/apps/anaconda3/2021.05-gcc-11.2.0-ievmolz/pkgs:/external_pkgs \
+        --bind ../:/CCAKE \
+        images/ccake.sif bash -c " \
+		cd /CCAKE/build ; \
+        ./generate_eos_table 64 'conformal' 'EoS/Houston' 'inverted_eos.h5' ;"
 
 run-visc-gubser: images/ccake.sif ../build/ccake
 	singularity exec --cleanenv --bind ../:/CCAKE images/ccake.sif bash -c " \
@@ -146,7 +148,7 @@ images/ccake-gpu.sif: defs/ccake-gpu.def images/nvhpc.sif
 # ==================================
 ../build/ccake: images/ccake.sif ../src/* ../include/*
 	mkdir -p ../build; \
-        singularity exec --cleanenv --bind ../:/CCAKE images/ccake.sif bash -c "cd /CCAKE/build ; cmake .. ; make -j";
+        singularity exec --cleanenv --bind ../:/CCAKE images/ccake.sif bash -c "cd /CCAKE/build ; cmake .. -DHDF5_DIR=/external_pkgs/hdf5-1.10.4-hb1b8bf9_0/lib/cmake/hdf5; make -j";
 	cd ../build; \
         ln -sf ../EoS ./
 
