@@ -40,6 +40,15 @@ endif()
 # add include directories
 include_directories(include)
 
+
+##############################################################
+find_package(OpenMP)
+if (OpenMP_CXX_FOUND)
+  set(OpenMP_CXX_FLAGS "-fopenmp")
+endif()
+
+
+
 ###############################################################
 #list(APPEND CMAKE_PREFIX_PATH "/projects/jnorhos/local")
 
@@ -48,6 +57,7 @@ add_executable(${PROJECT_NAME} "")
 add_subdirectory(src)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE src)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 
 install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_SOURCE_DIR})
 
