@@ -40,7 +40,7 @@ BBMG::BBMG( Settings * settingsPtr_in, SystemState * systemPtr_in )
   //===============================================
   vjet  = 1;
   // area is taken from parameter h read in from input parameters file
-  area  = PI*pow(2.*systemPtr->h,2);
+  //area  = PI*pow(2.*systemPtr->h,2);
 
   gridx = settingsPtr->stepx;
   gridy = settingsPtr->stepy;
@@ -121,7 +121,6 @@ void BBMG::propagate()
   //int stillon = 0;
 
   int countyes = 0, countno = 0;
-  double P0g = 0, P0q = 0;
   double Rjetnorm = 0;
 
   for (auto& jetPropagation : jetInfo)
@@ -174,55 +173,7 @@ void BBMG::propagate()
     int totFreeze = jetFreezeOut.size();
     cout << "How many jets froze out this timestep: " << totFreeze << endl;
 
-    /*for (int i = 0; i < totFreeze; i++ )
-    {
-      cout << "Temp from freeze out vector: " << jetFreezeOut.T << endl 
-           << "Line integral calculated for freeze out vector: " << jetFreezeOut.line << endl;
-    }*/
-
-
-      //cout << "This is the value of the flow factor being multiplied: " << flow(jetPropagation) << endl;
-      //stillon++;
-    //}
-/*    else //This comes in when we drop below freezeout temp, as .on should never go to 0 on its own
-    {
-
-      jetPropagation.line += 0;
-      countno++;
-      //ff[i].line *= efluc();
-      // Could add in fluctuations as a multiplicative factor in the next line, like the unit converter
-      P0g  = (Pfg + Cg * jetPropagation.line) * constants::hbarc_GeVfm; //* pow(Pfg, 1-a) 
-      P0q  = (Pfq + Cq * jetPropagation.line) * constants::hbarc_GeVfm; //* pow(Pfq, 1-a) 
-      //cout << "Initial quark jet energy is: " << P0q << " GeV " << endl << "Initial gluon jet energy is: " << P0g << " GeV" << endl;
-
-      int jj      = jetPropagation.pid;
-      
-      //Following Barbara's format here from Rjet_g3 or Rjet_q3 to _g11/_q11
-      Rjetg[jj]     += (exp((1+a)*log(P0g/Pfg)) * gftLHC(P0g) / g0Pfg) * jetPropagation.rho0 * gridx*gridy;
-      Rjetq[jj]     += (exp((1+a)*log(P0q/Pfq)) * qftLHC(P0q) / g0Pfq) * jetPropagation.rho0 * gridx*gridy; 
-      
-      Rjetnorm += jetPropagation.rho0 * gridx*gridy;
-      //stillon = 0;
-    }
-  }
-
-  for (int j=0; j<14; j++)
-  {
-    //There is an experimental reason to be calculating this way
-    Rjetq[j] /= Rjetnorm;
-    Rjetg[j] /= Rjetnorm;
-    //cout << "Checking Barbara's Rjet12" << Rjetnorm << endl;
-    cout << "The averaged quark jet RAA for " << j << " is: " << Rjetq[j] << endl;
-    cout << "The averaged gluon jet RAA for " << j << " is: " << Rjetg[j] << endl;
-  }
-  cout << "Frozen out jets: " << countno << endl << "Still going jets: " << countyes << endl;
-*/
-
 }
-
-
-
-
 
 
 
