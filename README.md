@@ -108,7 +108,7 @@ If installing on Delta, will have to explicity install gsl and yaml first.
 ```bash
 mkdir build
 cd build
-cmake -DCMAKE_INSTALL_PREFIX=$HOME ..
+cmake -DCMAKE_PREFIX_PATH=$PREFIX  -DHDF5_DIR=/external_pkgs/hdf5-1.10.4-hb1b8bf9_0/lib/cmake/hdf5 ..
 make
 make install 
 ```
