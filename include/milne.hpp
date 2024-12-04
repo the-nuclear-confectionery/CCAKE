@@ -6,6 +6,11 @@
 namespace ccake{
 namespace milne{
 
+///Structs for index contraction
+struct FirstIndex {};
+struct SecondIndex {};
+
+
 /// @brief A class representing a vector in D-dimensional space.
 /// @tparam T The type of the vector components.
 /// @tparam D The dimension of the vector.
@@ -84,13 +89,22 @@ public:
   /// In all other cases, the last component is assumed to carry the metric
   /// factor $\f\tau^2\f$.
   /// @param t2 The scaling factor.
-  KOKKOS_FUNCTION void make_covariant(double t2) {x[D-1] *= t2;status-=2;};
+  KOKKOS_FUNCTION void make_covariant(double t2){
+    for (int i = 0; i < D-1; i++) x[i] *= -1;
+    x[D-1] *= -t2;
+    status-=2;
+  };
+                                                
 
   /// Make the vector contravariant.
   /// @details This performs the inverse operation of make_covariant.
   /// @see make_covariant
   /// @param t2 The scaling factor.
-  KOKKOS_FUNCTION void make_contravariant(double t2){x[D-1] /= t2;status+=2;};
+  KOKKOS_FUNCTION void make_contravariant(double t2){
+    for (int i = 0; i < D-1; i++) x[i] *= -1;
+    x[D-1] *= -1./t2;
+    status+=2;
+  };
 
   /// @brief Set the covariance of the vector.
   /// @details A value of 1 means the vector is contravariant, while a value
@@ -238,15 +252,22 @@ Vector<T,D2>    operator* ( const Vector<T,D1>& a, const Matrix<T,D1,D2>& b );
 
 //==============================================================================
 // Auxiliary operations
-/// @brief Calculate the inner product of two vectors
+/// @brief Contract two vectors
 /// @details The inner product is calculated as the sum of the products of the
 /// corresponding components of the two vectors, i.e.
-/// \f$a\cdot b = \sum_i a_i b_i\f$.
+/// \f$a\cdot b = \sum_i a_i b_i\f$. One should be covariant and the other
+/// contravariant.
 /// @tparam T The type of the vector components
 /// @tparam D The dimension of the vectors
 /// @return The inner product of the two vectors
 template <class T, int D> KOKKOS_FUNCTION
-double inner( const Vector<T,D>& a , const Vector<T,D>& b);
+double contract( const Vector<T,D>& a , const Vector<T,D>& b){
+    double result = 0.0;
+    for (int i = 0; i < D; ++i) {
+        result += a(i) * b(i);
+    }
+    return result;
+}
 
 /// @brief Calculate the transpose of a matrix
 /// @tparam T The type of the matrix elements
@@ -330,17 +351,17 @@ Vector<T,D>& Vector<T,D>::operator*=(U a)
 //Dimension 2 is special in the sense we do not distinguish
 //between covariant and contravariant components
 template <> KOKKOS_INLINE_FUNCTION
-void Vector<double,2>::make_covariant(double t2) {status-=2;};
+void Vector<double,2>::make_covariant(double t2) {for (int i=0; i<2; ++i) x[i] *= -1.;status-=2;};
 template <> KOKKOS_INLINE_FUNCTION
-void Vector<float,2>::make_covariant(double t2) {status-=2;};
+void Vector<float,2>::make_covariant(double t2) {for (int i=0; i<2; ++i) x[i] *= -1.;status-=2;};
 template <> KOKKOS_INLINE_FUNCTION
-void Vector<int,2>::make_covariant(double t2) {status-=2;};
+void Vector<int,2>::make_covariant(double t2) {for (int i=0; i<2; ++i) x[i] *= -1;status-=2;};
 template <> KOKKOS_INLINE_FUNCTION
-void Vector<double,2>::make_contravariant(double t2) {status+=2;};
+void Vector<double,2>::make_contravariant(double t2) {for (int i=0; i<2; ++i) x[i] /= -1.;status+=2;};
 template <> KOKKOS_INLINE_FUNCTION
-void Vector<float,2>::make_contravariant(double t2) {status+=2;};
+void Vector<float,2>::make_contravariant(double t2) {for (int i=0; i<2; ++i) x[i] /= -1.;status+=2;};
 template <> KOKKOS_INLINE_FUNCTION
-void Vector<int,2>::make_contravariant(double t2) {status+=2;};
+void Vector<int,2>::make_contravariant(double t2) {for (int i=0; i<2; ++i) x[i] /= -1;status+=2;};
 
 //================================================================
 //Implementations of the Matrix class
@@ -400,12 +421,30 @@ template <class T, int D1, int D2> KOKKOS_FUNCTION
 void Matrix<T,D1,D2>::make_covariant(int slot, double t2){
   status[slot]-=2;
   switch (slot){
-    case 0: ///Lower first index. Array becomes M_i^{\,j} = g_ik M^{kj} = tau^2 M^{3j}\delta_i^3
-      for (int i=0; i<D1; ++i) x[index(D1-1,i)] *= t2;
+    case 0: ///Lower first index.
+
+      // lower the components except the components M_3^i
+      // M_i^j = g_{ik} M^{kj} for i=1,2 ; j=1,2,3
+      for (int i=0; i<D1-1; ++i){
+        for (int j=0; j<D2; ++j){
+          x[index(i,j)] *= -1.;
+        }
+      }
+      // M_3^j = g_{33} M^{3j} , j=1,2,3
+      for (int j=0; j<D2; ++j) x[index(D1-1,j)] *= -t2;
       break;
     case 1:
-      for (int i=0; i<D2; ++i) x[index(i,D2-1)] *= t2;
+      // lower the components except the components M_i^3
+      // M_j^i = g_{jk} M^{ki} for i=1,2,3 ; j=1,2
+      for (int i=0; i<D1; ++i){
+        for (int j=0; j<D2-1; ++j){
+          x[index(i,j)] *= -1.;
+        }
+      }
+      // M_i^3 = g_{33} M^{i3}
+      for (int i=0; i<D1; ++i) x[index(i,D2-1)] *= -t2;
       break;
+
     default:
       break;
   }
@@ -415,12 +454,30 @@ template <class T, int D1, int D2> KOKKOS_FUNCTION
 void Matrix<T,D1,D2>::make_contravariant(int slot, double t2){
   status[slot]+=2;
   switch (slot){
-    case 0:
-      for (int i=0; i<D1; ++i) x[index(D1-1,i)] /= t2;
+    case 0: ///Lower first index.
+
+      // rise the components except the components M^3_i
+      // M^i_j = g^{ik} M_{kj} for i=1,2 ; j=1,2,3
+      for (int i=0; i<D1-1; ++i){
+        for (int j=0; j<D2; ++j){
+          x[index(i,j)] *= -1.;
+        }
+      }
+      // M^3_j = g^{33} M_{3j} , j=1,2,3
+      for (int j=0; j<D2; ++j) x[index(D1-1,j)] *= -1./t2;
       break;
     case 1:
-      for (int i=0; i<D2; ++i) x[index(i,D2-1)] /= t2;
+      // rise the components except the components M^i_3
+      // M^j_i = g^{jk} M_{ki} for i=1,2,3 ; j=1,2
+      for (int i=0; i<D1; ++i){
+        for (int j=0; j<D2-1; ++j){
+          x[index(i,j)] *= -1.;
+        }
+      }
+      // M^i_3 = g^{33} M_{i3}
+      for (int i=0; i<D1; ++i) x[index(i,D2-1)] *= -1./t2;
       break;
+
     default:
       break;
   }
@@ -430,27 +487,122 @@ void Matrix<T,D1,D2>::make_contravariant(int slot, double t2){
 
 template <> KOKKOS_INLINE_FUNCTION
 void Matrix<double,2,2>::make_contravariant(int slot, double t2){
+  for (int i=0; i<2; ++i) x[i] *= -1;
   status[slot]+=2;
 }
 template <> KOKKOS_INLINE_FUNCTION
 void Matrix<float,2,2>::make_contravariant(int slot, double t2){
+  for (int i=0; i<2; ++i) x[i] *= -1;
   status[slot]+=2;
 }
 template <> KOKKOS_INLINE_FUNCTION
 void Matrix<int,2,2>::make_contravariant(int slot, double t2){
+  for (int i=0; i<2; ++i) x[i] *= -1;
   status[slot]+=2;
 }
 template <> KOKKOS_INLINE_FUNCTION
 void Matrix<double,2,2>::make_covariant(int slot, double t2){
+  for (int i=0; i<2; ++i) x[i] *= -1;
   status[slot]-=2;
 }
 template <> KOKKOS_INLINE_FUNCTION
 void Matrix<float,2,2>::make_covariant(int slot, double t2){
+  for (int i=0; i<2; ++i) x[i] *= -1;
   status[slot]-=2;
 }
 template <> KOKKOS_INLINE_FUNCTION
 void Matrix<int,2,2>::make_covariant(int slot, double t2){
+  for (int i=0; i<2; ++i) x[i] *= -1;
   status[slot]-=2;
+}
+
+/// templates for 4x4 matrices, used for shear, so only double is needed
+template <> KOKKOS_INLINE_FUNCTION
+void Matrix<double,4,4>::make_covariant(int slot, double t2){
+  status[slot]-=2;
+  switch (slot){
+    case 0: ///Lower first index.
+      //not necessary, but imporve readability
+      x[index(0,0)] *=1.; 
+
+      // lower the components except the components M_3^i
+      // M_i^j = g_{ik} M^{kj} for i= 1,2 ; j=0,1,2,3
+      for (int i=1; i<3; ++i){
+        for (int j=0; j<4; ++j){
+          x[index(i,j)] *= -1.;
+        }
+      }
+
+      // M_3^i = g_{33} M^{3i} , j=0,1,2,3
+      for (int j=0; j<4; ++j) x[index(3,j)] *= -t2;
+      // M_0^i = g_{00} M^{0i} , j=0,1,2,3
+      for (int j=0; j<4; ++j) x[index(0,j)] *= 1.; //not necessary, but imporve readability
+
+      break;
+    case 1:
+      //not necessary, but imporve readability
+      x[index(0,0)] *=1.; 
+
+      // lower the components except the components M_i^3
+      // M_i^j = g_{jk} M^{ki} for i=0,1,2,3 ; j=1,2
+      for (int i=0; i<4; ++i){
+        for (int j=1; j<4-1; ++j){
+          x[index(i,j)] *= -1.;
+        }
+      }
+      // M_i^3 = g_{33} M^{i3} , i=0,1,2,3
+      for (int i=0; i<4; ++i) x[index(i,3)] *= -t2;
+      // M_i^0 = g_{00} M^{i0} , i=0,1,2,3
+      for (int i=0; i<4; ++i) x[index(i,0)] *= 1.; //not necessary, but imporve readability
+      break;
+
+    default:
+      break;
+  }
+}
+
+template <> KOKKOS_INLINE_FUNCTION
+void Matrix<double,4,4>::make_contravariant(int slot, double t2){
+  status[slot]+=2;
+  switch (slot){
+    case 0: ///Rise first index.
+      //not necessary, but imporve readability
+      x[index(0,0)] *=1.; 
+
+      // Rise the components except the components M^3_i
+      // M^i_j = g^{ik} M_{kj} for i= 1,2 ; j=0,1,2,3
+      for (int i=1; i<3; ++i){
+        for (int j=0; j<4; ++j){
+          x[index(i,j)] *= -1.;
+        }
+      }
+
+      // M^3_i = g^{33} M_{3i} , j=0,1,2,3
+      for (int j=0; j<4; ++j) x[index(3,j)] *= -1./t2;
+      // M^0_i = g^{00} M_{0i} , j=0,1,2,3
+      for (int j=0; j<4; ++j) x[index(0,j)] *= 1.; //not necessary, but imporve readability
+
+      break;
+    case 1:
+      //not necessary, but imporve readability
+      x[index(0,0)] *=1.; 
+
+      // Rise the components except the components M_i^3
+      // M^i_j = g^{jk} M_{ki} for i=0,1,2,3 ; j=1,2
+      for (int i=0; i<4; ++i){
+        for (int j=1; j<4-1; ++j){
+          x[index(i,j)] *= -1.;
+        }
+      }
+      // M^i_3 = g^{33} M_{i3} , i=0,1,2,3
+      for (int i=0; i<4; ++i) x[index(i,3)] *= -1./t2;
+      // M^i_0 = g^{00} M_{i0} , i=0,1,2,3
+      for (int i=0; i<4; ++i) x[index(i,0)] *= 1.; //not necessary, but imporve readability
+      break;
+
+    default:
+      break;
+  }
 }
 
 //================================================================
@@ -477,6 +629,14 @@ Vector<T,D> operator*(T l, const Vector<T,D>& a)
 {
   Vector<T,D> t;
   for (int i = 0; i < D; i++) t(i) = l*a(i);
+  return t;
+}
+
+template <class T, int D> KOKKOS_FUNCTION
+Vector<T,D> operator/(const Vector<T,D>& a, T scalar)
+{
+  Vector<T,D> t;
+  for (int i = 0; i < D; i++) t(i) = a(i) / scalar;
   return t;
 }
 
@@ -576,13 +736,14 @@ Matrix<T,D1,D2> operator* ( const Vector<T,D1>& a, const Vector<T,D2>& b )
 //================================================================
 //Implementations of auxiliary operations
 //================================================================
+/*
 template <class T, int D> KOKKOS_FUNCTION
 double inner (const Vector<T,D>& a, const Vector<T,D>& b)
 {
   double t = 0;
   for (int i = 0; i < D; i++) t += a(i)*b(i);
   return t;
-}
+}*/
 
 template <class T, int D1, int D2> KOKKOS_FUNCTION
 Matrix<T,D2,D1> transpose(const Matrix<T,D1,D2>& a)
@@ -653,15 +814,6 @@ void mini( Matrix<T,D1-1,D2-1> &b, const Matrix<T,D1,D2>& a)
     b(i-1,j-1) = (T)a(i,j);
 } // AOK
 
-template <class T, int D1, int D2> KOKKOS_FUNCTION
-double con( const Matrix<T,D1,D2>& a, const Matrix<T,D1,D2>& b )
-{
-  double t = 0.0;
-  for (int i = 0; i < D2; i++)
-  for (int j = 0; j < D1; j++)
-    t += a(j,i)*b(j,i);
-  return t;
-} // AOK
 
 // takes spatial components of l^{th} row in space-time tensor (Matrix a)
 template <class T, int D1, int D2> KOKKOS_FUNCTION
@@ -710,6 +862,338 @@ double con2(const Matrix<T,D1,D2>& a, const Matrix<T,D1,D2>& b)
     t += a(i,j)*b(i,j);
   return t;
 } // AOK
+
+template <class T, int D1, int D2> KOKKOS_FUNCTION
+double contract( Vector<T,D1> a, Vector<T,D2> b )
+{
+  double t = 0.0;
+  //usefull for fixed dimension vectors 
+  //that need to be contracted with variable dimension vectors
+  int min_d = (D1 <= D2) ? D1 : D2; 
+  for (int i = 0; i < min_d; i++)
+    t += a(i)*b(i);
+  return t;
+} // AOK
+
+template <class T, int D1, int D2> KOKKOS_FUNCTION
+double contract( const Matrix<T,D1,D2>& a, const Matrix<T,D1,D2>& b )
+{
+  double t = 0.0;
+  for (int i = 0; i < D2; i++)
+  for (int j = 0; j < D1; j++)
+    t += a(j,i)*b(j,i);
+  return t;
+} // AOK
+
+
+template <class T, int D1, int D2> KOKKOS_FUNCTION
+Vector<T,D2> contract(const Matrix<T,D1,D2>& a, const Vector<T,D1>& b, FirstIndex) {
+  Vector<T,D2> t;
+  for (int j = 0; j < D2; j++) {
+    t(j) = 0;  // Initialize each element to zero
+    for (int i = 0; i < D1; i++) {
+      t(j) += a(i, j) * b(i);
+    }
+  }
+  return t;
+}
+
+template <class T, int D1, int D2> KOKKOS_FUNCTION
+Vector<T,D1> contract(const Matrix<T,D1,D2>& a, const Vector<T,D2>& b, SecondIndex) {
+  Vector<T,D1> t;
+  for (int i = 0; i < D1; i++) {
+    t(i) = 0;  // Initialize each element to zero
+    for (int j = 0; j < D2; j++) {
+      t(i) += a(i, j) * b(j);
+    }
+  }
+  return t;
+}
+
+template <class T, int D1, int D2> KOKKOS_FUNCTION
+Matrix<T,D2,D2> contract( const Matrix<T,D1,D2>& a, const Matrix<T,D1,D2>& b,FirstIndex, FirstIndex){
+  
+  Matrix<T,D2,D2> t;
+  for (int i = 0; i < D2; i++)
+  for (int j = 0; j < D2; j++)
+  for (int k = 0; k < D1; k++)
+    t(i,j) += a(k,i)*b(k,j);
+  return t;
+}
+
+template <class T, int D1, int D2> KOKKOS_FUNCTION
+Matrix<T,D1,D1> contract( const Matrix<T,D1,D2>& a, const Matrix<T,D1,D2>& b,SecondIndex, SecondIndex){
+  
+  Matrix<T,D1,D1> t;
+  for (int i = 0; i < D1; i++)
+  for (int j = 0; j < D1; j++)
+  for (int k = 0; k < D2; k++)
+    t(i,j) += a(i,k)*b(j,k);
+  return t;
+}
+
+template <class T, int D> KOKKOS_FUNCTION
+Matrix<T,D,D> contract( const Matrix<T,D,D>& a, const Matrix<T,D,D>& b,FirstIndex, SecondIndex){
+    
+    Matrix<T,D,D> t;
+    for (int i = 0; i < D; i++)
+    for (int j = 0; j < D; j++)
+    for (int k = 0; k < D; k++)
+      t(i,j) += a(i,k)*b(k,j);
+    return t;
+}
+
+template <class T, int D> KOKKOS_FUNCTION
+Matrix<T,D,D> contract( const Matrix<T,D,D>& a, const Matrix<T,D,D>& b,SecondIndex, FirstIndex){
+    
+    Matrix<T,D,D> t;
+    for (int i = 0; i < D; i++)
+    for (int j = 0; j < D; j++)
+    for (int k = 0; k < D; k++)
+      t(i,j) += a(k,i)*b(j,k);
+    return t;
+}
+
+
+
+
+
+  
+
+template <class T, int D1, int D2> KOKKOS_FUNCTION
+Matrix<T,D1,D2> outer( const Vector<T,D1>& a, const Vector<T,D2>& b )
+{
+  Matrix<T,D1,D2> t;
+  for (int i = 0; i < D1; i++)
+  for (int j = 0; j < D2; j++)
+    t(i,j) = a(i)*b(j);
+  return t;
+} 
+
+
+template <class T, int D> KOKKOS_FUNCTION
+Vector<T,D+1> add_time_component(const Vector<T,D>& a, double a0)
+{
+  Vector<T,D+1> t1;
+  t1(0) = a0;
+  for (int i = 1; i < D+1; i++) t1(i) = a(i);
+  return t1;
+} 
+
+
+template <class T, int D> KOKKOS_FUNCTION
+Vector<T,D-1> remove_time_component(const Vector<T,D>& a)
+{
+  Vector<T,D-1> t1;
+  for (int i = 0; i < D-1; i++) t1(i) = a(i+1);
+  return t1;
+} 
+
+
+template <class T, int D1, int D2> KOKKOS_FUNCTION
+Matrix<T,D1+1,D2+1> add_time_component(const Matrix<T,D1,D2>& a, const Vector<T,D1>& a0)
+{
+  Matrix<T,D1+1,D2+1> t1;
+  t1(0,0) = a0(0);
+  for (int i = 1; i < D1+1; i++)
+  for (int j = 1; j < D2+1; j++)
+    t1(i,j) = a(i-1,j-1);
+  return t1;
+}
+
+/*
+template <class T, int D1, int D2> KOKKOS_FUNCTION
+Matrix<T,D1,D2+1> add_time_column(const Matrix<T,D1,D2>& a, const Vector<T,D1>& a0)
+{
+  Matrix<T,D1,D2+1> t1;
+  for (int i = 0; i < D1; i++)
+  for (int j = 0; j < D2; j++)
+    t1(i,j+1) = a(i,j);
+  for (int i = 0; i < D1; i++)
+    t1(i,0) = a0(i);
+}
+
+template <class T, int D1, int D2> KOKKOS_FUNCTION
+Matrix<T,D1+1,D2> add_time_row(const Matrix<T,D1,D2>& a, const Vector<T,D2>& a0)
+{
+  Matrix<T,D1+1,D2> t1;
+  for (int i = 0; i < D1; i++)
+  for (int j = 0; j < D2; j++)
+    t1(i+1,j) = a(i,j);
+  for (int j = 0; j < D2; j++)
+    t1(0,j) = a0(j);
+  return t1;
+}
+
+
+
+template <class T, int D1, int D2> KOKKOS_FUNCTION
+Matrix<T,D1-1,D2-1> remove_time_component(const Matrix<T,D1,D2>& a)
+{
+  Matrix<T,D1-1,D2-1> t1;
+  for (int i = 0; i < D1-1; i++)
+  for (int j = 0; j < D2-1; j++)
+    t1(i,j) = a(i+1,j+1);
+  return t1;
+}
+
+template <class T, int D1, int D2> KOKKOS_FUNCTION
+Matrix<T,D1-1,D2> remove_time_row(const Matrix<T,D1,D2>& a)
+{
+  Matrix<T,D1-1,D2> t1;
+  for (int i = 0; i < D1-1; i++)
+  for (int j = 0; j < D2; j++)
+    t1(i,j) = a(i+1,j);
+  return t1;
+}
+
+template <class T, int D1, int D2> KOKKOS_FUNCTION
+Matrix<T,D1,D2-1> remove_time_column(const Matrix<T,D1,D2>& a)
+{
+  Matrix<T,D1,D2-1> t1;
+  for (int i = 0; i < D1; i++)
+  for (int j = 0; j < D2-1; j++)
+    t1(i,j) = a(i,j+1);
+  return t1;
+}*/
+////////////////////////////////////////////////////////////////
+// Metric tensor operations
+////////////////////////////////////////////////////////////////
+
+///@brief Dirac delta to check if the eta direction is being used
+template <int D>
+KOKKOS_INLINE_FUNCTION
+Vector<double,D> delta_i_eta(){
+    Vector<double,D> v;
+    for (int i=0; i<D-1; ++i) v(i) = 0.;
+    v(D-1) = 1.;
+    return v;
+}
+
+template <>
+KOKKOS_INLINE_FUNCTION
+Vector<double,2> delta_i_eta<2>(){
+    Vector<double,2> v;
+    for (int i=0; i<2; ++i) v(i) = 0.;
+    return v;
+}
+
+template <int D>
+KOKKOS_INLINE_FUNCTION
+Vector<double,D+1> get_cov_metric_diagonal(double t){
+    Vector<double,D+1> v;
+    v(0) = 1.;
+    for (int i=1; i<D; ++i) v(i) = -1.;
+    v(D) = -t*t;
+    return v;
+}
+
+template <>
+KOKKOS_INLINE_FUNCTION
+Vector<double,3> get_cov_metric_diagonal<2>(double t){
+    Vector<double,3> v;
+    v(0) = 1.;
+    v(1) = -1.;
+    v(2) = -1.; 
+    return v;
+}
+
+template<int D>
+KOKKOS_INLINE_FUNCTION
+Vector<double,D+1> get_contra_metric_diagonal(double t){
+    Vector<double,D+1> v;
+    v(0) = 1.;
+    for (int i=1; i<D; ++i) v(i) = -1.;
+    v(D) = -1./t/t;
+    return v;
+}
+
+template<>
+KOKKOS_INLINE_FUNCTION
+Vector<double,3> get_contra_metric_diagonal<2>(double t){
+    Vector<double,3> v;
+    v(0) = 1.;
+    v(1) = -1.;
+    v(2) = -1./t/t;
+    return v;
+}
+
+///@brief 3D matrix for to deal with shear aux quantities
+template <class T, int D1, int D2, int D3>
+class Matrix3D{
+private:
+    T x[D1 * D2 * D3]; ///< Linearized storage for the matrix elements
+    KOKKOS_INLINE_FUNCTION int index(const int i, const int j, const int k) const { return i * D2 * D3 + j * D3 + k; }
+
+public:
+    /// @brief Default constructor. Initializes all elements to zero
+    KOKKOS_FUNCTION Matrix3D() { for (int i = 0; i < D1 * D2 * D3; i++) x[i] = 0; }
+
+    /// @brief Constructor with same initial value for all components
+    /// @param x0 The initial value for all elements of the matrix
+    KOKKOS_FUNCTION Matrix3D(T x0) { for (int i = 0; i < D1 * D2 * D3; i++) x[i] = x0; }
+
+    /// @brief Overload of the call operator to access the components of the matrix.
+    /// @param i The first index
+    /// @param j The second index
+    /// @param k The third index
+    /// @return The element at the specified indices
+    KOKKOS_FUNCTION T operator()(const int i, const int j, const int k) const { return x[index(i, j, k)]; }
+
+    /// @brief Overload of the call operator to access the components of the matrix.
+    /// @param i The first index
+    /// @param j The second index
+    /// @param k The third index
+    /// @return A reference to the element at the specified indices
+    KOKKOS_FUNCTION T& operator()(const int i, const int j, const int k) { return x[index(i, j, k)]; }
+
+    /// @brief Addition assignment operator
+    /// @param a The matrix to add
+    /// @return A reference to the modified matrix
+    KOKKOS_FUNCTION Matrix3D<T, D1, D2, D3>& operator+=(const Matrix3D<T, D1, D2, D3>& a) {
+        for (int i = 0; i < D1 * D2 * D3; i++) x[i] += a.x[i];
+        return *this;
+    }
+
+    /// @brief Subtraction assignment operator
+    /// @param a The matrix to subtract
+    /// @return A reference to the modified matrix
+    KOKKOS_FUNCTION Matrix3D<T, D1, D2, D3>& operator-=(const Matrix3D<T, D1, D2, D3>& a) {
+        for (int i = 0; i < D1 * D2 * D3; i++) x[i] -= a.x[i];
+        return *this;
+    }
+
+    /// @brief Scalar multiplication assignment operator
+    /// @param scalar The scalar value to multiply with
+    /// @return A reference to the modified matrix
+    KOKKOS_FUNCTION Matrix3D<T, D1, D2, D3>& operator*=(T scalar) {
+        for (int i = 0; i < D1 * D2 * D3; i++) x[i] *= scalar;
+        return *this;
+    }
+};
+
+// Overloaded operators for Matrix3D
+
+template <class T, int D1, int D2, int D3> KOKKOS_FUNCTION
+Matrix3D<T, D1, D2, D3> operator+(const Matrix3D<T, D1, D2, D3>& a, const Matrix3D<T, D1, D2, D3>& b) {
+    Matrix3D<T, D1, D2, D3> t;
+    for (int i = 0; i < D1 * D2 * D3; i++) t(i) = a(i) + b(i);
+    return t;
+}
+
+template <class T, int D1, int D2, int D3> KOKKOS_FUNCTION
+Matrix3D<T, D1, D2, D3> operator-(const Matrix3D<T, D1, D2, D3>& a, const Matrix3D<T, D1, D2, D3>& b) {
+    Matrix3D<T, D1, D2, D3> t;
+    for (int i = 0; i < D1 * D2 * D3; i++) t(i) = a(i) - b(i);
+    return t;
+}
+
+template <class T, int D1, int D2, int D3> KOKKOS_FUNCTION
+Matrix3D<T, D1, D2, D3> operator*(T scalar, const Matrix3D<T, D1, D2, D3>& a) {
+    Matrix3D<T, D1, D2, D3> t;
+    for (int i = 0; i < D1 * D2 * D3; i++) t(i) = scalar * a(i);
+    return t;
+}
 
 }}
 #endif
