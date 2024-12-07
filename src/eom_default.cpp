@@ -490,7 +490,9 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
   };
   Cabana::simd_parallel_for(simd_policy, compute_velocity_derivative, "compute_velocity_derivative");
   Kokkos::fence();
-  //Calculate the derivatives and quantities that depends on du/dt
+  //Calculate the derivatives and quantities that depends on du/dt:
+  //dS/dt, dN_{B,S,Q}/dt, dbigbulk/dt,d_big_shv/dt, theta and shv_nabla_u
+  //using the MRF formalism and the previously calculated du/dt
   auto compute_derivatives = KOKKOS_LAMBDA(const int is, const int ia)
   {
 
@@ -643,22 +645,27 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
 /// @brief Calculate the MRs for the shear tensor
 /// @details This function calculates all the MRFs necessary
 //  when we have shear. This includes the MRFs that appear
-/// in the four-acceleration equation  and the MRFs used
-/// in the evolution of the shear tensor.
+/// in the four-acceleration equation  M_0i_shear, R_0i_shear
+/// F_0i_shear, the MRFs used for calculating the entropy
+/// production (from shv_nabla_u = \pi^{ij} \nabla_i u_j)
+/// M_shv_nabla_u, F_shv_nabla_u, and the MRFs used for the
+/// extensive shear tensor evolution M_big_shear, R_big_shear,
+/// and F_big_shear.
 /// @param sysPtr A shared pointer to the system state
 template <unsigned int D>
 void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr)
 {
   double t = (sysPtr->t);
   double t2 = t*t;
-  //auxiliary 
+  //auxiliary metric variables
   milne::Vector<double,D> delta_i_eta = milne::delta_i_eta<D>();
   milne::Vector<double,4> contra_metric_diag = milne::get_contra_metric_diagonal<3>(t);
+
   CREATE_VIEW(device_,sysPtr->cabana_particles);
   auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, sysPtr->cabana_particles.size());
-
   auto compute_MRF_shear = KOKKOS_LAMBDA(const int is, const int ia)
   {
+    //read relevant quantities
     double sigma = device_hydro_scalar.access(is, ia, hydro_info::sigma);
     double gamma = device_hydro_scalar.access(is, ia, hydro_info::gamma);
     double eta_pi = device_hydro_scalar.access(is, ia, hydro_info::eta_pi);
@@ -672,14 +679,18 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr)
     double tilde_delta = delta_pipi - tau_pi;
     double bulk = device_hydro_scalar.access(is, ia, hydro_info::bulk);
 
+    //declare caches
     milne::Vector<double,D> u, u_cov, M_shv_nabla_u ,F_0i_shear;
     milne::Vector<double,D> v, grad_u0;
+    //use fixed size u (ux, uy, ueta) to avoid unnecessary specializations
     milne::Vector<double,3> fixed_size_u, fixed_size_u_cov;
+    milne::Matrix<double,D,3> R_0i_shear;
     milne::Matrix<double,2,3> F_big_shear;
     milne::Matrix<double,D,D> gradV, grad_uj, M_0i_shear;
     milne::Matrix<double,4,4> shv_hybrid, shv, shv_cov;
-    milne::Matrix<double,3,3> shv2;
     milne::Matrix3D<double,2,3,D> M_big_shear;
+    milne::Matrix3D<double, 2, 3, 3> R_big_shear;
+    //fill caches
     for(int idir=0; idir<D; ++idir){
       u(idir) = device_hydro_vector.access(is, ia, hydro_info::u, idir);
       fixed_size_u(idir) = u(idir);
@@ -727,6 +738,8 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr)
     milne::Matrix3D<double, 2, 3, D> M_domega;
     milne::Matrix3D<double, 2, 3, D> M_dsigma;
 
+
+    //calculate aux quantities
     double divV = 0;
     for(int idir=0; idir<D; ++idir){
       divV += device_hydro_space_matrix.access(is, ia, hydro_info::gradV, idir, idir);
@@ -745,13 +758,13 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr)
     }
 
     grad_u0 = -1.*milne::contract(grad_uj,u_cov,milne::SecondIndex())/gamma;
-
     milne::Vector<double,D> grad_u0_contra = grad_u0;
     grad_u0_contra.make_contravariant(t2);
 
     milne::Matrix<double,D,D> contra_grad_uj;
     contra_grad_uj = grad_uj;
     contra_grad_uj.make_contravariant(0, t2);
+    // use fixed size grad_uj to avoid unnecessary specializations
     milne::Matrix<double,3,3> contra_grad_uj_3d;
     for(int idir=0; idir<D; ++idir){
       for(int jdir=0; jdir<D; ++jdir){
@@ -764,25 +777,12 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr)
         contra_grad_uj_3d(idir,jdir) = 0.0;
       }
     }
-
-    double F_shv_nabla_u = 0.0;
-    // Accumulate directly into F_shv_nabla_u
-    for (int idir = 0; idir < D; ++idir) {
-        for (int jdir = 0; jdir < D; ++jdir) {
-            F_shv_nabla_u += (shv_hybrid(idir + 1, jdir + 1) 
-                             - v(idir) * shv_hybrid(0, jdir + 1)) * grad_uj(idir, jdir);
-        }
-        F_shv_nabla_u += (shv_hybrid(idir + 1, 0) - v(idir) * shv_hybrid(0, 0)) * grad_u0(idir);
+    milne::Vector<double,4> shear0mu_aux;
+    for(int idir=0; idir<4; ++idir){
+      shear0mu_aux(idir) = shv_hybrid(0,idir);
     }
-
-    // Add the remaining terms
-    F_shv_nabla_u += +shv_hybrid(3,3)*gamma/t + shv_hybrid(0,0)*geometric_factor
-            +(t*shv_hybrid(3,0)+shv_hybrid(0,3)/t)*u(D-1)*delta_i_eta(D-1);
-            
-    //stores the results
-    device_hydro_scalar.access(is, ia, hydro_info::F_shv_nabla_u) = F_shv_nabla_u;
     
-    //aux vectors and matrices
+    //aux vectors and matrices for the four-acceleration equation
     for(int idir=0; idir<D; ++idir){
       F_i0_sigma(idir) =  -(milne::contract(grad_uj,v,milne::FirstIndex())(idir)
                           -grad_u0_contra(idir))/2.
@@ -810,33 +810,34 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr)
       F_i0_D(idir) += delta_i_eta(idir)*(u(D-1)*shv(0,0)/t
                       + gamma*shv(3,0)/t);
     }
-
-
-    //fill F vectors for shear viscosity
-    milne::Vector<double,4> shear0mu_aux;
-    for(int idir=0; idir<4; ++idir){
-      shear0mu_aux(idir) = shv_hybrid(0,idir);
+  
+    //calculate M and F for shv_nabla_u = \pi^{ij} \nabla_i u_j
+    double F_shv_nabla_u = 0.0;
+    for (int idir = 0; idir < D; ++idir) {
+      M_shv_nabla_u(idir) = shv_hybrid(0,idir+1) - shv_hybrid(0,0)*u_cov(idir)/gamma;
+      device_hydro_vector.access(is, ia, hydro_info::M_shv_nabla_u, idir) = M_shv_nabla_u(idir);
+      for (int jdir = 0; jdir < D; ++jdir) {
+          F_shv_nabla_u += (shv_hybrid(idir + 1, jdir + 1) 
+                           - v(idir) * shv_hybrid(0, jdir + 1)) * grad_uj(idir, jdir);
+      }
+      F_shv_nabla_u += (shv_hybrid(idir + 1, 0) - v(idir) * shv_hybrid(0, 0)) * grad_u0(idir);
     }
-
-
+    F_shv_nabla_u += +shv_hybrid(3,3)*gamma/t + shv_hybrid(0,0)*geometric_factor
+            +(t*shv_hybrid(3,0)+shv_hybrid(0,3)/t)*u(D-1)*delta_i_eta(D-1);
+    device_hydro_scalar.access(is, ia, hydro_info::F_shv_nabla_u) = F_shv_nabla_u;
+    //calculate the MRFs that will be used in the four-acceleration equation
     for(int idir=0; idir<D; ++idir){
       F_0i_shear(idir) = (-shv(idir+1,0)
-                          -tau_pi*F_i0_D(idir)
-                          -delta_pipi*F_i0_dd(idir)
-                          -a*2.*tau_pi*F_i0_domega(idir) 
-                          -a*tau_pipi*F_i0_dsigma(idir)
-                          +(2.*eta_pi+a*lambda_piPi*bulk)*F_i0_sigma(idir)
-                          +a*phi6*bulk*shv(idir+1,0)
-                          +a*phi7*(milne::contract(shv, shear0mu_aux, milne::SecondIndex())(idir+1)
-                          +gamma*u(idir)*milne::contract(shv_cov,shv)/3.))/(tau_pi*gamma);
+                    -tau_pi*F_i0_D(idir)
+                    -delta_pipi*F_i0_dd(idir)
+                    -a*2.*tau_pi*F_i0_domega(idir) 
+                    -a*tau_pipi*F_i0_dsigma(idir)
+                    +(2.*eta_pi+a*lambda_piPi*bulk)*F_i0_sigma(idir)
+                    +a*phi6*bulk*shv(idir+1,0)
+                    +a*phi7*(milne::contract(shv, shear0mu_aux, milne::SecondIndex())(idir+1)
+                    +gamma*u(idir)*milne::contract(shv_cov,shv)/3.))/(tau_pi*gamma);
       //stores the results 
       device_hydro_vector.access(is, ia, hydro_info::F_0i_shear, idir) = F_0i_shear(idir);
-    }    
-    
-
-    //fill M matrices for shear viscosity
-    for(int idir=0; idir<D; ++idir){
-      M_shv_nabla_u(idir) = shv_hybrid(0,idir+1) - shv_hybrid(0,0)*u_cov(idir)/gamma;
       for(int jdir=0; jdir<D; ++jdir){
         M_0i_shear(idir,jdir) = (-tau_pi*M_i0_D(idir,jdir)
                                 -delta_pipi*M_i0_dd(idir,jdir)
@@ -846,12 +847,15 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr)
         //stores the results
         device_hydro_space_matrix.access(is, ia, hydro_info::M_0i_shear, idir, jdir) = M_0i_shear(idir,jdir);
       }
-      //stores the results
-      device_hydro_vector.access(is, ia, hydro_info::M_shv_nabla_u, idir) = M_shv_nabla_u(idir);
-    }
-
-
-
+      //calculate the Rs
+      for(int icharge=0; icharge<3; ++icharge){
+        //TODO: change this when using diffusion coupling
+        R_0i_shear(idir,icharge) = 0.0;
+        device_hydro_space_matrix.access(is, ia, hydro_info::R_0i_shear, idir, icharge) = R_0i_shear(idir,icharge);
+      }
+    }    
+  
+    //calculate the aux MRFs that will be used in the evolution of the shear tensor
     for(int idir=0; idir<2; ++idir){
       for(int jdir=idir; jdir<3; ++jdir){
         F_D(idir,jdir) = gamma*geometric_factor*(fixed_size_u(idir)*shv_hybrid(jdir+1,0)
@@ -876,13 +880,14 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr)
         //diagonal i = k terms
         M_sigma(idir,jdir,idir) += -gamma*fixed_size_u(jdir)/2.;
       }
-      for(int jdir = idir; jdir<2; ++jdir){
-        //j=k, skipping j=3 
+      //diagonal j=k terms
+      for(int jdir = idir; jdir<D; ++jdir){
+        //j=k , since k<D , we only loop until j<D
         M_sigma(idir,jdir,jdir) += -gamma*fixed_size_u(idir)/2.; 
       }
 
 
-      //diagonal j terms
+      //diagonal i=j terms
       for(int kdir=0; kdir<D; ++kdir){
         //j=i
         M_sigma(idir,idir,kdir) += contra_metric_diag(idir+1)*fixed_size_u_cov(kdir)/(gamma*3.);
@@ -894,9 +899,6 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr)
       F_sigma(idir,idir) += -contra_metric_diag(idir+1)*(geometric_factor+gamma/t+gamma*divV)/3.;
       F_sigma(idir,2) += -fixed_size_u(idir)*fixed_size_u(D-1)*fixed_size_u(D-1)*t/2. 
                          -fixed_size_u(idir)*fixed_size_u(D-1)*gamma/t;
-      if constexpr(D==3){
-        M_sigma(idir,2,2) += -gamma*fixed_size_u(idir)/2.; 
-      }
 
     }
 
@@ -911,19 +913,24 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr)
                                 +a*phi6*bulk*shv(idir+1,jdir+1)
                                 +a*phi7*(milne::contract(shv,shv_hybrid,milne::SecondIndex(),milne::SecondIndex())(idir,jdir)
                                 +fixed_size_u(idir)*fixed_size_u(jdir)*milne::contract(shv,shv_cov)/3.))/(sigma*tau_pi*gamma);
-        //std::cout << "F_big_shear(" << idir << "," << jdir << ") = " << F_big_shear(idir,jdir) << std::endl;
-
 
         for(int kdir=0; kdir<D; ++kdir){
-          M_big_shear(idir,jdir,kdir) = -(tau_pi*(M_D(idir,jdir,kdir)
-                                      +tilde_delta*M_delta(idir,jdir,kdir)/tau_pi
-                                      +2.*a*M_domega(idir,jdir,kdir))
-                                      +a*tau_pipi*M_dsigma(idir,jdir,kdir)
-                                      -(2.*eta_pi+a*lambda_piPi*bulk)*M_sigma(idir,jdir,kdir))/(sigma*tau_pi*gamma);
+          M_big_shear(idir,jdir,kdir) =(-tau_pi*M_D(idir,jdir,kdir)
+                                        -tilde_delta*M_delta(idir,jdir,kdir)
+                                        -2.*a*M_domega(idir,jdir,kdir)
+                                        -a*tau_pipi*M_dsigma(idir,jdir,kdir)
+                                        +(2.*eta_pi+a*lambda_piPi*bulk)*M_sigma(idir,jdir,kdir))/(sigma*tau_pi*gamma);
           //saves the results 
           int linear_index = jdir * D + kdir;
           device_hydro_shear_aux_matrix.access(is, ia, hydro_info::M_big_shear, idir, linear_index) = M_big_shear(idir,jdir,kdir);
-        }
+          }
+        //calculate the Rs
+        for(int icharge=0; icharge<3; ++icharge){
+          //TODO: change this when using diffusion coupling
+          R_big_shear(idir,jdir,icharge) = 0.0;
+          int linear_index = jdir * 3 + icharge;
+          device_hydro_shear_aux_matrix.access(is, ia, hydro_info::R_big_shear, idir, linear_index) = R_big_shear(idir,jdir,icharge);
+          }
       }
       F_big_shear(idir,idir) += a*phi7*(-contra_metric_diag(idir+1)*milne::contract(shv,shv_cov))/(3.*tau_pi*gamma*sigma);
       //saves the results
@@ -931,29 +938,6 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr)
         device_hydro_shear_aux_vector.access(is, ia, hydro_info::F_big_shear, idir, jdir) = F_big_shear(idir,jdir);
       }              
     }   
-
-    //calculate R matrices 
-    milne::Matrix<double,D,3> R_0i_shear;
-    for(int idir=0; idir<D; ++idir){
-      for(int icharge=0; icharge<3; ++icharge){
-        R_0i_shear(idir,icharge) = 0.0;
-      }
-    }
-    //stores R matrix
-    for(int idir=0; idir<D; ++idir){
-      for(int icharge=0; icharge<3; ++icharge){
-        device_hydro_space_matrix.access(is, ia, hydro_info::R_0i_shear, idir, icharge) = R_0i_shear(idir,icharge);
-      }
-    } 
-    for(int idir=0; idir<2; ++idir){
-      for(int jdir=idir; jdir<3; ++jdir){
-        for(int icharge=0; icharge<3; ++icharge){
-          int linear_index = jdir * 3 + icharge;
-          device_hydro_shear_aux_matrix.access(is, ia, hydro_info::R_big_shear, idir, linear_index) =0.;
-        }
-      }
-    }
-    
   };
   Cabana::simd_parallel_for(simd_policy, compute_MRF_shear, "compute_MRF_shear");
   Kokkos::fence();
