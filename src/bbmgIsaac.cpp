@@ -12,6 +12,7 @@
 #include <string>
 #include <vector>
 #include <cmath>
+#include <omp.h>
 
 #include "../include/constants.h"
 #include "../include/bbmgheader.h"
@@ -123,6 +124,7 @@ void BBMG::propagate()
   int countyes = 0, countno = 0;
   double Rjetnorm = 0;
 
+  #pragma omp parallel for schedule(guided)
   for (auto& jetPropagation : jetInfo)
   {
     // propagate x,y position of jet on top of sph particles
