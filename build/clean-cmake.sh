@@ -1,1 +1,0 @@
-rm -rf CMakeCache.txt  CMakeFiles Makefile  ccake *.cmake  config.h src *_test
