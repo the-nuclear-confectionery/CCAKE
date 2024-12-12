@@ -35,10 +35,10 @@ class EoM_default
     static double gamma_calc(double u[D], const double &time_squared);
     KOKKOS_FUNCTION
     static double get_LRF(const double &lab, const double &gamma, const double &time_squared);
-
+    static void update_velocity(std::shared_ptr<SystemState<D>> sysPtr);
     static void reset_pi_tensor(std::shared_ptr<SystemState<D>> sysPtr);
     static void evaluate_time_derivatives( std::shared_ptr<SystemState<D>> sysPtr, std::shared_ptr<Settings> settingsPtr);
-
+    static void calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr);
     std::string name = "Israel-Stewart"; ///< name associated to EoM
 };
 }

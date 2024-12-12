@@ -286,6 +286,58 @@ void tmini( Matrix<T,D1,D2>& b, const Matrix<T,D1-1,D2-1>& a )
   for (int i = 0; i < (D1-1); i++)
     b(i+1,j+1) = (T)a(i,j);
 } // AOK
+//==============================================================================
+// Implementations of the Matrix3D class
+//==============================================================================
+
+template <class T, int D1, int D2, int D3>
+Matrix3D<T, D1, D2, D3>& Matrix3D<T, D1, D2, D3>::operator+=(const Matrix3D<T, D1, D2, D3>& a)
+{
+  for (int i = 0; i < D1 * D2 * D3; i++) x[i] += a.x[i];
+  return *this;
+}
+
+template <class T, int D1, int D2, int D3>
+Matrix3D<T, D1, D2, D3>& Matrix3D<T, D1, D2, D3>::operator-=(const Matrix3D<T, D1, D2, D3>& a)
+{
+  for (int i = 0; i < D1 * D2 * D3; i++) x[i] -= a.x[i];
+  return *this;
+}
+
+template <class T, int D1, int D2, int D3>
+Matrix3D<T, D1, D2, D3>& Matrix3D<T, D1, D2, D3>::operator*=(T scalar)
+{
+  for (int i = 0; i < D1 * D2 * D3; i++) x[i] *= scalar;
+  return *this;
+}
+
+//==============================================================================
+// Implementations of the overloaded operator functions
+//==============================================================================
+
+template <class T, int D1, int D2, int D3>
+Matrix3D<T, D1, D2, D3> operator+(const Matrix3D<T, D1, D2, D3>& a, const Matrix3D<T, D1, D2, D3>& b)
+{
+  Matrix3D<T, D1, D2, D3> t;
+  for (int i = 0; i < D1 * D2 * D3; i++) t(i) = a(i) + b(i);
+  return t;
+}
+
+template <class T, int D1, int D2, int D3>
+Matrix3D<T, D1, D2, D3> operator-(const Matrix3D<T, D1, D2, D3>& a, const Matrix3D<T, D1, D2, D3>& b)
+{
+  Matrix3D<T, D1, D2, D3> t;
+  for (int i = 0; i < D1 * D2 * D3; i++) t(i) = a(i) - b(i);
+  return t;
+}
+
+template <class T, int D1, int D2, int D3>
+Matrix3D<T, D1, D2, D3> operator*(T scalar, const Matrix3D<T, D1, D2, D3>& a)
+{
+  Matrix3D<T, D1, D2, D3> t;
+  for (int i = 0; i < D1 * D2 * D3; i++) t(i) = scalar * a(i);
+  return t;
+}
 
 
 #endif

@@ -76,6 +76,17 @@ void SPHWorkstation<D, TEOM>::reset_pi_tensor(double time_squared)
   TEOM<D>::reset_pi_tensor(systemPtr);
 };
 
+// @brief calculate gamma and velocties
+/// @details This function calculates the Lorentz contraction factor \f$ \gamma \f$ 
+/// and the fluid velocity \f$ v \f$ from the fluid four velocity \f$ u \f$.
+/// @tparam D The dimensionality of the simulation.
+/// @tparam TEOM The equation of motion class to be used in the simulation.
+template<unsigned int D, template<unsigned int> class TEOM>
+void SPHWorkstation<D, TEOM>::calculate_gamma_and_velocities()
+{
+ TEOM<D>::update_velocity(systemPtr);
+};
+
 
 /// @brief Set up entropy density and other thermodynamic variables
 /// @details This function sets up the entropy density using the initial energy
@@ -118,6 +129,9 @@ void SPHWorkstation<D, TEOM>::initialize_entropy_and_charge_densities()
   double t0 = settingsPtr->t0;
   // loop over all particles
   CREATE_VIEW(device_, systemPtr->cabana_particles);
+  //calculate initial volumes
+  calculate_intial_volume(t0*t0);
+
   auto init_particles = KOKKOS_LAMBDA(const int iparticle)
   {
     double e_input = device_input(iparticle, densities_info::e);
@@ -131,7 +145,7 @@ void SPHWorkstation<D, TEOM>::initialize_entropy_and_charge_densities()
     double rhoB_norm_spec = device_norm_spec(iparticle, densities_info::rhoB);
     double rhoS_norm_spec = device_norm_spec(iparticle, densities_info::rhoS);
     double rhoQ_norm_spec = device_norm_spec(iparticle, densities_info::rhoQ);
-    
+    double sigma = device_hydro_scalar(iparticle, hydro_info::sigma);
     #ifdef DEBUG_SLOW
     //systemPtr->copy_device_to_host();
     //std::ofstream thermo_file;
@@ -158,28 +172,25 @@ void SPHWorkstation<D, TEOM>::initialize_entropy_and_charge_densities()
     exit(1);
     #endif
 
-    e_norm_spec *= e_input*gamma*t0;
-    s_norm_spec *= s_input*gamma*t0;
-    rhoB_norm_spec *= rhoB_input*gamma*t0;
-    rhoS_norm_spec *= rhoS_input*gamma*t0;
-    rhoQ_norm_spec *= rhoQ_input*gamma*t0;
-
     //Why are we switching between the frames? 
     //Also, reprint. 
     //Also, plot s vs eta and e vs eta
 
-    device_norm_spec(iparticle, ccake::densities_info::e )    = e_norm_spec;    // constant after this
-    device_norm_spec(iparticle, ccake::densities_info::s )    = s_norm_spec;    // constant after this
-    device_norm_spec(iparticle, ccake::densities_info::rhoB ) = rhoB_norm_spec; // constant after this
-    device_norm_spec(iparticle, ccake::densities_info::rhoS ) = rhoS_norm_spec; // constant after this
-    device_norm_spec(iparticle, ccake::densities_info::rhoQ ) = rhoQ_norm_spec; // constant after this
-
+    device_norm_spec(iparticle, ccake::densities_info::e )    = 1;    // constant after this
+    device_norm_spec(iparticle, ccake::densities_info::s )    = 1;    // constant after this
+    device_norm_spec(iparticle, ccake::densities_info::rhoB ) = 1; // constant after this
+    device_norm_spec(iparticle, ccake::densities_info::rhoS ) = 1; // constant after this
+    device_norm_spec(iparticle, ccake::densities_info::rhoQ ) = 1; // constant after this
+    device_specific_density(iparticle, ccake::densities_info::e )    = e_input/sigma;
+    device_specific_density(iparticle, ccake::densities_info::s )    = s_input/sigma;
+    device_specific_density(iparticle, ccake::densities_info::rhoB ) = rhoB_input/sigma;
+    device_specific_density(iparticle, ccake::densities_info::rhoS ) = rhoS_input/sigma;
+    device_specific_density(iparticle, ccake::densities_info::rhoQ ) = rhoQ_input/sigma;
     if (s_input < 0.0)
       device_freeze(iparticle) = 4;
 
   };
   Kokkos::parallel_for("init_particles", systemPtr->n_particles, init_particles);
-
   //Allocate cache for evolver
   evolver.allocate_cache();
 
@@ -192,7 +203,7 @@ void SPHWorkstation<D, TEOM>::initialize_entropy_and_charge_densities()
 
 /// @brief Smooth all SPH fields
 /// @details This function updates the densities \f$s\f$, \f$\rho_B\f$, 
-/// \f$rho_Q\f$, \f$\rho_S\f$ and \f$\sigma\f$ Iauxiliary density) by performing
+/// \f$rho_Q\f$, \f$\rho_S\f$ and \f$\sigma_star\f$ Iauxiliary density) by performing
 /// the smoothing procedure. At its end, it
 /// takes the opportunity to update the remaining thermodynamic quantities
 /// (energy density, pressure, chemical potentials, temperature and speed of
@@ -213,10 +224,8 @@ void SPHWorkstation<D,TEOM>::initial_smoothing()
   Stopwatch sw;
   sw.Start();
   double t_squared = pow(settingsPtr->t0,2);
-
-  //Computes not independent components of the shear tensor
-  reset_pi_tensor(t_squared);
-
+  // calculate gamma and velocities
+  calculate_gamma_and_velocities();
   /*#ifdef DEBUG
   std::cout << "initial_smoothing() --> reset_p_tensor()" << std::endl;
   for (auto & p : systemPtr->particles){
@@ -227,10 +236,10 @@ void SPHWorkstation<D,TEOM>::initial_smoothing()
     }
   }
   #endif*/
-
   // smooth fields over particles
   smooth_all_particle_fields(t_squared);
-
+  //calculate specific/extensive shear tensor
+  calculate_big_shv();
   /* #ifdef DEBUG
   std::cout << "initial_smoothing() --> smooth_all_particle_fields()" << std::endl;
   for (auto & p : systemPtr->particles){
@@ -241,7 +250,8 @@ void SPHWorkstation<D,TEOM>::initial_smoothing()
     }
   }
   #endif */
-
+  //Computes not independent components of the shear tensor
+  reset_pi_tensor(t_squared);
   // Update particle thermodynamic properties
   update_all_particle_thermodynamics();
 
@@ -268,7 +278,7 @@ void SPHWorkstation<D,TEOM>::initial_smoothing()
 
 ///@brief Smooth all SPH fields
 ///@details This function updates the densities \f$s\f$, \f$\rho_B\f$, 
-/// \f$\rho_Q\f$, \f$\rho_S\f$ and \f$\sigma\f$ (auxiliary density) by 
+/// \f$\rho_Q\f$, \f$\rho_S\f$ and \f$\sigma_star\f$ (auxiliary density) by 
 /// performing the smoothing procedure. At its end, it takes the opportunity to
 /// update the remaining thermodynamic quantities (energy density, pressure, 
 /// chemical potentials, temperature and speed of  sound squared). The routine 
@@ -317,7 +327,7 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
     device_smoothed.access(is, ia, densities_info::rhoB)  = device_norm_spec.access(is, ia, densities_info::rhoB)*device_specific_density.access(is, ia, densities_info::rhoB)*kern0;
     device_smoothed.access(is, ia, densities_info::rhoQ)  = device_norm_spec.access(is, ia, densities_info::rhoQ)*device_specific_density.access(is, ia, densities_info::rhoQ)*kern0;
     device_smoothed.access(is, ia, densities_info::rhoS)  = device_norm_spec.access(is, ia, densities_info::rhoS)*device_specific_density.access(is, ia, densities_info::rhoS)*kern0;
-    device_hydro_scalar.access(is, ia, hydro_info::sigma) = device_norm_spec.access(is, ia, densities_info::s)*kern0;
+    device_hydro_scalar.access(is, ia, hydro_info::sigma_star) = device_norm_spec.access(is, ia, densities_info::s)*kern0;
   };
   Cabana::simd_parallel_for( simd_policy, reset_fields, "reset_fields" );
   Kokkos::fence();
@@ -336,8 +346,8 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
     /*outfile << kern << distance << endl;
     outfile.close();*/
 
-    //Update sigma (reference density)
-    Kokkos::atomic_add( &device_hydro_scalar(iparticle, ccake::hydro_info::sigma), device_norm_spec(jparticle, ccake::densities_info::s)*kern);
+    //Update sigma_star (reference density)
+    Kokkos::atomic_add( &device_hydro_scalar(iparticle, ccake::hydro_info::sigma_star), device_norm_spec(jparticle, ccake::densities_info::s)*kern);
     ////Update entropy density
     Kokkos::atomic_add( &device_smoothed(iparticle, ccake::densities_info::s),
                          device_norm_spec(jparticle, ccake::densities_info::s)*device_specific_density(jparticle, ccake::densities_info::s)*kern);
@@ -361,12 +371,14 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
     double rhoS = device_smoothed.access(is, ia, densities_info::rhoS);
     double rhoQ = device_smoothed.access(is, ia, densities_info::rhoQ);
     double gamma = device_hydro_scalar.access(is, ia, hydro_info::gamma);
+    double sigma_star = device_hydro_scalar.access(is, ia, hydro_info::sigma_star);
 
+    double sigma  = TEOM<D>::get_LRF(sigma_star, gamma, t);
     s = TEOM<D>::get_LRF(s, gamma, t);
     rhoB = TEOM<D>::get_LRF(rhoB, gamma, t);
     rhoS = TEOM<D>::get_LRF(rhoS, gamma, t);
     rhoQ = TEOM<D>::get_LRF(rhoQ, gamma, t);
-
+    device_hydro_scalar.access(is, ia, hydro_info::sigma) = sigma;
     device_thermo.access(is, ia, thermo_info::s) = s;
     device_thermo.access(is, ia, thermo_info::rhoB) = rhoB;
     device_thermo.access(is, ia, thermo_info::rhoS) = rhoS;
@@ -376,6 +388,69 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
   Kokkos::fence();
 
 }
+
+
+
+template<unsigned int D, template<unsigned int> class TEOM>
+void SPHWorkstation<D, TEOM>::calculate_intial_volume(double time_squared)
+{
+  CREATE_VIEW(device_, systemPtr->cabana_particles);
+  auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
+  double hT = settingsPtr->hT;
+  double t = systemPtr->t;
+
+  //creating outfile to for kernal function output
+  /*ofstream outfile;
+  std::fname = "kernel_" + std::to_string(hT) + ".dat";
+  outfile.open(fname);*/
+
+  //Reset smoothed fields. Initializes using the contribution of the particle to the density evaluated
+  //on top of itself because the loop over the neighbour particles does not include the particle itself.
+  double kern0 = SPHkernel<D>::kernel(0,hT); //The value of the Kernel evaluated on top of the particle
+  auto reset_fields = KOKKOS_LAMBDA(const int is, const int ia) //First index for loop over struct, second for loop over array
+  {
+    device_hydro_scalar.access(is, ia, hydro_info::sigma_star) = kern0;
+  };
+  Cabana::simd_parallel_for( simd_policy, reset_fields, "reset_fields" );
+  Kokkos::fence();
+
+  auto smooth_fields = KOKKOS_LAMBDA(const int iparticle, const int jparticle ){
+
+    double r1[D] ,r2[D]; // cache for positions of particles 1 and 2
+    for (int idir = 0; idir < D; ++idir){
+      r1[idir] = device_position(iparticle,idir);
+      r2[idir] = device_position(jparticle,idir);
+    }
+    double distance = SPHkernel<D>::distance(r1,r2, t);
+    double kern = SPHkernel<D>::kernel(distance,hT);
+
+    //outputting kernel function to the outfile "kernel_{hT}.dat"
+    /*outfile << kern << distance << endl;
+    outfile.close();*/
+
+    //Update sigma_star (reference density)
+    Kokkos::atomic_add( &device_hydro_scalar(iparticle, ccake::hydro_info::sigma_star), device_norm_spec(jparticle, ccake::densities_info::s)*kern);
+  };
+
+  auto range_policy = Kokkos::RangePolicy<ExecutionSpace>(0, systemPtr->cabana_particles.size());
+  Cabana::neighbor_parallel_for( range_policy, smooth_fields,
+                                 systemPtr->neighbour_list, Cabana::FirstNeighborsTag(),
+                                 Cabana::TeamOpTag(), "smooth_fields_kernel");
+
+  Kokkos::fence();
+  auto update_sigma = KOKKOS_LAMBDA(const int is, const int ia){
+    double gamma = device_hydro_scalar.access(is, ia, hydro_info::gamma);
+    double sigma_star = device_hydro_scalar.access(is, ia, hydro_info::sigma_star);
+
+    double sigma  = TEOM<D>::get_LRF(sigma_star, gamma, t);
+    device_hydro_scalar.access(is, ia, hydro_info::sigma) = sigma;
+
+  };
+  Cabana::simd_parallel_for( simd_policy, update_sigma, "update_input_thermodynamics" );
+  Kokkos::fence();
+
+}
+
 
 /// @brief Shell function to update thermodynamic particle properties.
 /// @details This will updated Particle<D>::thermo for the input partiucle,
@@ -530,38 +605,38 @@ void SPHWorkstation<D,TEOM>::locate_phase_diagram_point_sBSQ( Particle<D> & p,
 /// \partial_i P_a & = \sum_{
 ///                    \substack{ b=\text{Nearest} \\ \text{neighbors}}
 ///                   }
-/// \sigma_a^* s_{\text{norm_spec},\,b} \left( \frac{P_b}{{\sigma_b^*}^2} +
-/// \frac{P_a}{{\sigma_a^*}^2} \right) \partial_{i,\,a} W(\vec r_a - \vec r_b,\,h) \\
+/// \sigma_star_a^* s_{\text{norm_spec},\,b} \left( \frac{P_b}{{\sigma_star_b^*}^2} +
+/// \frac{P_a}{{\sigma_star_a^*}^2} \right) \partial_{i,\,a} W(\vec r_a - \vec r_b,\,h) \\
 /// \partial_i E_a & = \sum_{
 ///                    \substack{ b=\text{Nearest} \\ \text{neighbors}}
 ///                   }
-/// \sigma_a^* s_{\text{norm_spec},\,b} \left( \frac{E_b}{{\sigma_b^*}^2} +
-/// \frac{E_a}{{\sigma_a^*}^2} \right)
+/// \sigma_star_a^* s_{\text{norm_spec},\,b} \left( \frac{E_b}{{\sigma_star_b^*}^2} +
+/// \frac{E_a}{{\sigma_star_a^*}^2} \right)
 /// \partial_{i,\,a} W(\vec r_a - \vec r_b,\,h) \\
 /// \partial_i \Pi_a & = \sum_{
 ///                    \substack{ b=\text{Nearest} \\ \text{neighbors}}
 ///                   }
-/// \frac{\sigma_a^* s_{\text{norm_spec},\,b}}{t}
-/// \left( \frac{\tilde\Pi_a}{\gamma_a {\sigma_a^*}} +
-///        \frac{\tilde\Pi_b}{\gamma {\sigma_b^*}} \right)
+/// \frac{\sigma_star_a^* s_{\text{norm_spec},\,b}}{t}
+/// \left( \frac{\tilde\Pi_a}{\gamma_a {\sigma_star_a^*}} +
+///        \frac{\tilde\Pi_b}{\gamma {\sigma_star_b^*}} \right)
 /// \partial_{i,\,a} W(\vec r_a - \vec r_b,\,h) \\
 /// \partial_j v^i_a & = \sum_{
 ///                    \substack{ b=\text{Nearest} \\ \text{neighbors}}
 ///                   }
-/// \frac{s_{\text{norm_spec},\,b}}{\sigma_a^*}(v_b^i-v_a^i)
+/// \frac{s_{\text{norm_spec},\,b}}{\sigma_star_a^*}(v_b^i-v_a^i)
 /// \partial_{j,\,a} W(\vec r_a - \vec r_b,\,h) \\
 /// v^j\partial_j\pi^{0i}_a & = \sum_{
 ///                    \substack{ b=\text{Nearest} \\ \text{neighbors}}
 ///                   }
-/// s_{\text{norm_spec},\,b} \sigma_a^*
-/// \left[\frac{\pi^{0i}_b}{{\sigma^*_b}^2}
-///       +\frac{\pi^{0i}_a}{{\sigma^*_a}^2} \right]
+/// s_{\text{norm_spec},\,b} \sigma_star_a^*
+/// \left[\frac{\pi^{0i}_b}{{\sigma_star^*_b}^2}
+///       +\frac{\pi^{0i}_a}{{\sigma_star^*_a}^2} \right]
 /// v^j_a \partial_{j,\,a} W(\vec{r}_a-\vec{r}_b,h) \\
 /// \partial_j\pi^{ij}_a & = \sum_{
 ///                    \substack{ b=\text{Nearest} \\ \text{neighbors}}
 ///                   }
-/// s_{\text{norm_spec},\,b} \sigma_a^* \left[
-/// \frac{\pi^{ij}_a}{{\sigma^*_a}^2}+\frac{\pi^{ij}_b}{{\sigma^*_b}^2}\right]
+/// s_{\text{norm_spec},\,b} \sigma_star_a^* \left[
+/// \frac{\pi^{ij}_a}{{\sigma_star^*_a}^2}+\frac{\pi^{ij}_b}{{\sigma_star^*_b}^2}\right]
 /// \partial_{j,\,a} W(\vec{r}_a-\vec{r}_b,h)
 /// \end{align*}\f]
 /// @todo Notice the denominator of `gradBulk` could use the replacement
@@ -614,13 +689,13 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
     double pressure_b     = device_thermo(particle_b, thermo_info::p);
     double energy_a       = device_thermo(particle_a, thermo_info::e);
     double energy_b       = device_thermo(particle_b, thermo_info::e);
-    double sigma_a        = device_hydro_scalar(particle_a, hydro_info::sigma);
-    double sigma_b        = device_hydro_scalar(particle_b, hydro_info::sigma);
-    double sigsqra        = 1.0/(sigma_a*sigma_a);
-    double sigsqrb        = 1.0/(sigma_b*sigma_b);
+    double sigma_star_a        = device_hydro_scalar(particle_a, hydro_info::sigma_star);
+    double sigma_star_b        = device_hydro_scalar(particle_b, hydro_info::sigma_star);
+    double sigsqra        = 1.0/(sigma_star_a*sigma_star_a);
+    double sigsqrb        = 1.0/(sigma_star_b*sigma_star_b);
     double norm_spec_s_b  = device_norm_spec(particle_b, densities_info::s);
-    double Bulk_a         = device_hydro_scalar(particle_a, hydro_info::Bulk);
-    double Bulk_b         = device_hydro_scalar(particle_b, hydro_info::Bulk);
+    double bulk_a         = device_hydro_scalar(particle_a, hydro_info::bulk);
+    double bulk_b         = device_hydro_scalar(particle_b, hydro_info::bulk);
     double gamma_a        = device_hydro_scalar(particle_a, hydro_info::gamma);
     double gamma_b        = device_hydro_scalar(particle_b, hydro_info::gamma);
 
@@ -632,28 +707,47 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
       v_b(idir) = device_hydro_vector(particle_b, hydro_info::v, idir);
     };
 
-    sigsigK = norm_spec_s_b * sigma_a * gradK;
+    sigsigK = norm_spec_s_b * sigma_star_a * gradK;
     gradP = (sigsqrb*pressure_b + sigsqra*pressure_a ) * sigsigK;
-    gradE = (sigsqrb*energy_b + sigsqra*energy_a ) * sigsigK;
-    gradBulk = (Bulk_b/sigma_b/gamma_b + Bulk_a/sigma_a/gamma_a)/t*sigsigK;
-    gradV    = (norm_spec_s_b/sigma_a)*( v_b -  v_a )*gradK;
+    gradE = (norm_spec_s_b/sigma_star_a)*( energy_b-energy_a )*gradK;
+    //gradE = (sigsqrb*energy_b + sigsqra*energy_a ) * sigsigK;
+    gradBulk = (bulk_b/sigma_star_b/sigma_star_b + bulk_a/sigma_star_a/sigma_star_a)*sigsigK;
+    //gradV    = (norm_spec_s_b/sigma_star_a)*( v_b -  v_a )*gradK;
+    for(int idir=0; idir<D; ++idir)
+    for(int jdir=0; jdir<D; ++jdir)
+      gradV(idir,jdir) = (norm_spec_s_b/sigma_star_a)*( v_b(jdir) -  v_a(jdir) )*gradK(idir);
+
 
     if (using_shear){
-      milne::Matrix<double,D+1,D+1> shv_a, shv_b;
-      for(int idir=0; idir<D+1;++idir)
-      for(int jdir=0; jdir<D+1;++jdir){
-        shv_a(idir,jdir) = device_hydro_spacetime_matrix(particle_a, hydro_info::shv, idir, jdir);
-        shv_b(idir,jdir) = device_hydro_spacetime_matrix(particle_b, hydro_info::shv, idir, jdir);
-      }
-      milne::Vector<double,D> shv_0i_a  = milne::rowp1(0, shv_a);
-      milne::Vector<double,D> shv_0i_b  = milne::rowp1(0, shv_b);
+      if (D > 1) {
+        milne::Matrix<double,D+1,D+1> shv_a, shv_b;
+        for(int idir=0; idir<D+1;++idir)
+        for(int jdir=0; jdir<D+1;++jdir){
+          shv_a(idir,jdir) = device_hydro_spacetime_matrix(particle_a, hydro_info::shv, idir, jdir);
+          shv_b(idir,jdir) = device_hydro_spacetime_matrix(particle_b, hydro_info::shv, idir, jdir);
+        }
+        milne::Vector<double,D> shv_0i_a  = milne::rowp1(0, shv_a);
+        milne::Vector<double,D> shv_0i_b  = milne::rowp1(0, shv_b);
 
-      milne::Matrix<double,D,D> vminia, vminib;
-      milne::mini(vminia, shv_a);
-      milne::mini(vminib, shv_b);
-      gradshear = inner(sigsigK, v_a)*( sigsqrb*shv_0i_b + sigsqra*shv_0i_a );
-      divshear  = sigsqrb*sigsigK*milne::transpose(vminib)
-                + sigsqra*sigsigK*milne::transpose(vminia);
+        milne::Matrix<double,D,D> vminia, vminib;
+        milne::mini(vminia, shv_a);
+        milne::mini(vminib, shv_b);
+        gradshear = milne::contract(sigsigK, v_a)*( sigsqrb*shv_0i_b + sigsqra*shv_0i_a );
+        divshear  = sigsqrb*sigsigK*milne::transpose(vminib)
+                  + sigsqra*sigsigK*milne::transpose(vminia);
+      }
+      else{
+        double shv_0i_a  = device_hydro_spacetime_matrix(particle_a, hydro_info::shv, 0, 3);
+        double shv_0i_b  = device_hydro_spacetime_matrix(particle_b, hydro_info::shv, 0, 3);
+        milne::Matrix<double,D,D> vminia, vminib;
+        vminia(0,0) = device_hydro_spacetime_matrix(particle_a, hydro_info::shv, 3, 3);
+        vminib(0,0) = device_hydro_spacetime_matrix(particle_b, hydro_info::shv, 3, 3);
+        gradshear = milne::contract(sigsigK, v_a)*( sigsqrb*shv_0i_b + sigsqra*shv_0i_a );
+        ///\todo do we need this transpose here?
+        divshear  = sigsqrb*sigsigK*vminib
+                  + sigsqra*sigsigK*vminia;        
+      }
+
     }
 
     //Accumulate
@@ -732,8 +826,7 @@ void SPHWorkstation<D, TEOM>::process_initial_conditions()
     double u[D];
     for (int i=0; i<D;++i) u[i] = p.hydro.u(i);
     p.hydro.gamma     = TEOM<D>::gamma_calc(u,t2) ;
-    p.hydro.gamma_squared        = p.hydro.gamma*p.hydro.gamma;
-    p.hydro.gamma_cube        = p.hydro.gamma_squared*p.hydro.gamma;
+
 
 
     // normalize all specific densities to 1
@@ -743,12 +836,12 @@ void SPHWorkstation<D, TEOM>::process_initial_conditions()
 		p.specific.rhoQ   = 1.0;
 
     // normalization of each density include transverse area element dA
-		p.norm_spec.s     = dA;
-		p.norm_spec.rhoB  = dA;
-		p.norm_spec.rhoS  = dA;
-		p.norm_spec.rhoQ  = dA;
+		p.norm_spec.s     = 1.0;
+		p.norm_spec.rhoB  = 1.0;
+		p.norm_spec.rhoS  = 1.0;
+		p.norm_spec.rhoQ  = 1.0;
 
-		p.hydro.Bulk      = 0.0;
+		p.hydro.bulk      = 0.0;
 
 		// make educated initial guess here for this particle's (T, mu_i) coordinates
 		// (improve this in the future)
@@ -823,16 +916,48 @@ void SPHWorkstation<D, TEOM>::set_bulk_Pi()
       double varsigma = device_hydro_scalar.access(is, ia, ccake::hydro_info::varsigma);
       double p = device_thermo.access(is, ia, ccake::thermo_info::p);
       double u0 = device_hydro_scalar.access(is, ia, ccake::hydro_info::gamma);
-      double sigma = device_hydro_scalar.access(is, ia, ccake::hydro_info::sigma);
+      double sigma_star = device_hydro_scalar.access(is, ia, ccake::hydro_info::sigma_star);
 
-      device_hydro_scalar.access(is, ia, ccake::hydro_info::Bulk) = (varsigma - p)
-                      * u0 * t0 / sigma;
+      //device_hydro_scalar.access(is, ia, ccake::hydro_info::bigBulk) = (varsigma - p)
+      //                * u0 * t0 / sigma_star;
+      device_hydro_scalar.access(is, ia, ccake::hydro_info::bigBulk) = 0.0;
+
     };
     Cabana::simd_parallel_for( simd_policy, set_bulk, "set_bulk_Pi_kernel");
     Kokkos::fence();
   }
   return;
 }
+
+/// @brief Calculate the extensive shear used for evolution of the shear tensor.
+/// @details This function calculates the extensive shear tensor, which is used
+/// for the evolution of the shear tensor. The extensive shear tensor is given by
+/// \f[\tilde{pi}^{\mu\nu} = \frac{\pi^\mu\nu}{\sigma} = \gamma_0 tau_0 \frac{\pi^\mu\nu}{\sigma*}\f]
+/// @tparam D The dimensionality of the simulation.
+/// @tparam TEOM The equation of motion class to be used in the simulation.
+template<unsigned int D, template<unsigned int> class TEOM>
+void SPHWorkstation<D, TEOM>::calculate_big_shv()
+{
+  auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
+  CREATE_VIEW( device_, systemPtr->cabana_particles);
+  double t0 = settingsPtr->t0;
+  auto calculate_shear = KOKKOS_LAMBDA( const int is, const int ia )
+  {
+    double sigma_star = device_hydro_scalar.access(is, ia, ccake::hydro_info::sigma_star);
+    double u0 = device_hydro_scalar.access(is, ia, ccake::hydro_info::gamma);
+    for (int idir=0; idir<2; ++idir)
+    for (int jdir=idir; jdir<3; ++jdir)
+    {
+      double shv = device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::shv, idir+1, jdir+1);
+      //shv = 0.;
+      device_hydro_shear_aux_vector.access(is, ia, ccake::hydro_info::bigshv, idir, jdir) = shv * u0 * t0 / sigma_star;
+      //std::cout << "shv = " << shv << "  bigshv = " << device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::bigshv, idir, jdir) << std::endl;
+    }
+  };
+  Cabana::simd_parallel_for( simd_policy, calculate_shear, "calculate_extensive_shear_kernel");
+  Kokkos::fence();
+}
+
 
 /// @brief Shell function for performing the freeze out procedure.
 /// @details This function performs the freeze out procedure, which is
@@ -915,16 +1040,18 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives()
 
   // reset nearest neighbors
   systemPtr->reset_neighbour_list();
-  // reset pi tensor to be consistent
-  // with all essential symmetries
-  reset_pi_tensor(t2);
+  // calcuate gamma and velocities
+  calculate_gamma_and_velocities();
   // smooth all particle fields - s, rhoB, rhoQ and rhoS and sigma
   smooth_all_particle_fields(t2);
     // Update particle thermodynamic properties
   update_all_particle_thermodynamics();
+  // reset pi tensor to be consistent
+  // with all essential symmetries
+  reset_pi_tensor(t2);
     // update viscosities for all particles
   update_all_particle_viscosities();
-    //Computes gradients to obtain dsigma/dt
+    //Computes gradients to obtain dsigma_star/dt
   smooth_all_particle_gradients(t2);
     //calculate time derivatives needed for equations of motion
   TEOM<D>::evaluate_time_derivatives( systemPtr, settingsPtr );
@@ -935,7 +1062,7 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives()
   if (file.is_open()) {
     auto & p =  systemPtr->particles[0];
     file << p.ID << " " << std::setprecision(5) << systemPtr->t << " " << std::setprecision(15) << p.r ; //Particle info
-    file << " " << p.smoothed.s << p.hydro.sigma << " " << p.btrack; //Smoothing info
+    file << " " << p.smoothed.s << p.hydro.sigma_star << " " << p.btrack; //Smoothing info
     file << " " << p.hydro.gradP << " " << p.hydro.gradE << " " << p.hydro.gradBulk << " " << p.hydro.gradV << " " << p.hydro.gradshear << " " << p.hydro.divshear; //gradient info
     file << endl;
     file.close();
@@ -968,14 +1095,33 @@ void SPHWorkstation<D, TEOM>::update_all_particle_viscosities()
     double thermo[thermo_info::NUM_THERMO_INFO];
     for (int ithermo=0; ithermo < thermo_info::NUM_THERMO_INFO; ++ithermo)
       thermo[ithermo] = device_thermo.access(is, ia, ithermo);
-    device_hydro_scalar.access(is, ia, ccake::hydro_info::setas)
+    device_hydro_scalar.access(is, ia, ccake::hydro_info::eta_pi)
       = tc::eta(thermo, this->transp_coeff_params );
-    device_hydro_scalar.access(is, ia, ccake::hydro_info::stauRelax)
+    device_hydro_scalar.access(is, ia, ccake::hydro_info::tau_pi)
       = tc::tau_pi(thermo,this->transp_coeff_params);
-    device_hydro_scalar.access(is, ia, ccake::hydro_info::zeta)
+    device_hydro_scalar.access(is, ia, ccake::hydro_info::zeta_Pi)
       = tc::zeta(thermo, this->transp_coeff_params);
-    device_hydro_scalar.access(is, ia, ccake::hydro_info::tauRelax)
+    device_hydro_scalar.access(is, ia, ccake::hydro_info::tau_Pi)
       = tc::tau_Pi(thermo, this->transp_coeff_params);
+    ///@todo: Read the coefficients instead of hardcoding them
+    device_hydro_scalar.access(is, ia, ccake::hydro_info::delta_PiPi)
+      = tc::tau_Pi(thermo, this->transp_coeff_params);
+    device_hydro_scalar.access(is, ia, ccake::hydro_info::delta_pipi)
+      = 4.*tc::tau_pi(thermo, this->transp_coeff_params)/3.;
+    device_hydro_scalar.access(is, ia, ccake::hydro_info::lambda_piPi)
+      = 0.;
+    device_hydro_scalar.access(is, ia, ccake::hydro_info::lambda_Pipi)
+      = 0.;
+    device_hydro_scalar.access(is, ia, ccake::hydro_info::phi1)
+      = 0.;
+    device_hydro_scalar.access(is, ia, ccake::hydro_info::phi3)
+      = 0.;
+    device_hydro_scalar.access(is, ia, ccake::hydro_info::phi6)
+      = 0.;
+    device_hydro_scalar.access(is, ia, ccake::hydro_info::phi7)
+      = 0.;
+    device_hydro_scalar.access(is, ia, ccake::hydro_info::tau_pipi)
+      = 0.;
   };
   Cabana::simd_parallel_for(simd_policy,set_transport_coefficients, "set_transport_coefficients");
   Kokkos::fence();
@@ -1368,4 +1514,122 @@ void SPHWorkstation<D, TEOM>::advance_timestep( double dt, int rk_order )
                             + to_string(sw.printTime()) + " s");
   return;
 }
-};
+
+
+///@brief Function to regulate negative specific entropy.
+///@details This function is responsible for regulating hydrodynamic evolution,
+// ensuring that some constraints are always met. Those are
+/// - The viscous shear tensor is traceless and orthogonal to the velocity.
+/// - The viscous bulk pressure and shear viscous tensor are regulated to
+/// prevent the Reynolds number from being too high. A user-specifiable
+/// threshold is used to decide when to regulate the viscous terms. The
+/// dampening of the viscous terms is done by multiplying them by
+/// \f$\frac{\text{Reynolds threshold}}{1+\text{Reynolds threshold}}\f$.
+/// - We avoid negative specific entropy. We only do so if the particle is
+/// below the freeze-out energy density. If this criteria is met, we freeze the
+/// particle out and set its entropy to zero.
+///@tparam D The number of spatial dimensions.
+///@param reset_pi A functional that ensures that the viscous shear tensor is
+/// traceless and orthogonal to the velocity.
+//template <unsigned int D, template<unsigned int> class TEOM>
+//void SPHWorkstation<D, TEOM>::regulator(){
+//
+//  TEOM<D>::reset_pi_tensor(systemPtr);
+//
+//  if (!settingsPtr->regulate_dissipative_terms) return;
+//
+//  CREATE_VIEW(device_, systemPtr->cabana_particles);
+//  auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
+//
+//  double eFO = systemPtr->efcheck;
+//  double t = systemPtr->t;
+//  double t4 = t*t*t*t;
+//  double t2 = t*t;
+//  double Reynolds_threshold = settingsPtr->regulator_threshold;
+//  // double dampening = max(1., Reynolds_threshold);
+//
+//  //Simplified management of freeze-out status if we disabled particlization.
+//  if ( !settingsPtr->particlization_enabled ){
+//    //Do simplified check of freeze-out if we disabled particlization
+//    auto simple_freeze = KOKKOS_LAMBDA(const int is, const int ia){
+//      double epsilon = device_thermo.access(is, ia, ccake::thermo_info::e);
+//      double freeze = device_freeze.access(is, ia);
+//      if (epsilon < eFO && freeze == 0){
+//        device_freeze.access(is, ia) = 1;
+//      } else if (epsilon > eFO && freeze != 4){
+//        device_freeze.access(is, ia) = 0;
+//      } else if (epsilon < eFO && freeze == 1){
+//        device_freeze.access(is, ia) = 4;
+//      }
+//    };
+//    Cabana::simd_parallel_for(simd_policy, simple_freeze, "simple_freeze");
+//    Kokkos::fence();
+//  }
+//
+//  auto regulate_reynolds = KOKKOS_LAMBDA(const int is, const int ia){
+//    //Loading variables
+//    double p = device_thermo.access(is, ia, ccake::thermo_info::p);
+//    double Bulk = device_hydro_scalar.access(is, ia, hydro_info::bigBulk);
+//    double pi[D+1][D+1];
+//    for (int idir=0; idir<D+1; ++idir)
+//    for (int jdir=0; jdir<D+1; ++jdir)
+//      pi[idir][jdir] = device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir, jdir);
+//    double shv33 = device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv,3,3);
+//
+//    double R_shear = pi[0][0]*pi[0][0];
+//
+//    // //Space diagonal components contributions
+//    for (int idir=0; idir<D; ++idir)
+//      R_shear += pi[idir+1][idir+1]*pi[idir+1][idir+1];
+//    if (D == 3){
+//      R_shear += pi[D][D]*pi[D][D]*(t4-1);
+//    } else if (D == 2 || D == 1){
+//      R_shear += shv33*shv33*t4;
+//    }
+//
+//    //Off-diagonal time components contributions
+//    for (int idir=0; idir<D; ++idir)
+//      R_shear -= 2.*pi[0][idir+1]*pi[0][idir+1];
+//    if (D == 3)
+//      R_shear -= 2.*pi[0][3]*pi[0][3]*(t2-1);
+//
+//    // //Off-diagonal space components contributions
+//    for (int idir=0; idir<D; ++idir)
+//    for (int jdir=idir+1; jdir<D; ++jdir)
+//      R_shear += 2.*pi[idir+1][jdir+1]*pi[idir+1][jdir+1];
+//    if (D == 3)
+//      for (int idir=0; idir<D; ++idir)
+//        R_shear += 2.*pi[idir+1][3]*pi[idir+1][3]*(t2-1);
+//
+//    R_shear = Kokkos::sqrtf(R_shear)/p;
+//    double R_bulk = Kokkos::fabs(Bulk)/p;
+//
+//    //Regulate if necessary
+//    double dampening = 0;
+//    if (R_shear > Reynolds_threshold){
+//      dampening = Reynolds_threshold/R_shear;
+//      if (dampening > 1.){
+//        cout << "Dampening does not dampens" << endl;
+//        exit(EXIT_FAILURE);
+//      }
+//      for (int idir=0; idir<D+1; ++idir)
+//      for (int jdir=0; jdir<D+1; ++jdir)
+//        device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir, jdir) =
+//          pi[idir][jdir]*dampening;
+//      device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv,3,3) = shv33*dampening;
+//    }
+//
+//    if (R_bulk > Reynolds_threshold){
+//      dampening = Reynolds_threshold/R_bulk;
+//      device_hydro_scalar.access(is, ia, hydro_info::bigBulk) = Bulk*dampening;
+//    }
+//
+//  };
+//  if(settingsPtr->regulate_dissipative_terms){
+//    Cabana::simd_parallel_for(simd_policy, regulate_reynolds, "regulate_reynolds");
+//    Kokkos::fence();
+//  }
+//
+//}
+
+}; //namespace ccake

@@ -487,32 +487,61 @@ void Matrix<T,D1,D2>::make_contravariant(int slot, double t2){
 
 template <> KOKKOS_INLINE_FUNCTION
 void Matrix<double,2,2>::make_contravariant(int slot, double t2){
-  for (int i=0; i<2; ++i) x[i] *= -1;
+  for (int i=0; i<2; ++i){
+    for (int j=0; j<2; ++j){
+      x[index(i,j)] *= -1;
+    }
+  }
   status[slot]+=2;
 }
+
 template <> KOKKOS_INLINE_FUNCTION
 void Matrix<float,2,2>::make_contravariant(int slot, double t2){
-  for (int i=0; i<2; ++i) x[i] *= -1;
+  for (int i=0; i<2; ++i){
+    for (int j=0; j<2; ++j){
+      x[index(i,j)] *= -1;
+    }
+  }
   status[slot]+=2;
 }
+
 template <> KOKKOS_INLINE_FUNCTION
 void Matrix<int,2,2>::make_contravariant(int slot, double t2){
-  for (int i=0; i<2; ++i) x[i] *= -1;
+  for (int i=0; i<2; ++i){
+    for (int j=0; j<2; ++j){
+      x[index(i,j)] *= -1;
+    }
+  }
   status[slot]+=2;
 }
+
 template <> KOKKOS_INLINE_FUNCTION
 void Matrix<double,2,2>::make_covariant(int slot, double t2){
-  for (int i=0; i<2; ++i) x[i] *= -1;
+  for (int i=0; i<2; ++i){
+    for (int j=0; j<2; ++j){
+      x[index(i,j)] *= -1;
+    }
+  }
   status[slot]-=2;
 }
+
 template <> KOKKOS_INLINE_FUNCTION
 void Matrix<float,2,2>::make_covariant(int slot, double t2){
-  for (int i=0; i<2; ++i) x[i] *= -1;
+  for (int i=0; i<2; ++i){
+    for (int j=0; j<2; ++j){
+      x[index(i,j)] *= -1;
+    }
+  }
   status[slot]-=2;
 }
+
 template <> KOKKOS_INLINE_FUNCTION
 void Matrix<int,2,2>::make_covariant(int slot, double t2){
-  for (int i=0; i<2; ++i) x[i] *= -1;
+  for (int i=0; i<2; ++i){
+    for (int j=0; j<2; ++j){
+      x[index(i,j)] *= -1;
+    }
+  }
   status[slot]-=2;
 }
 

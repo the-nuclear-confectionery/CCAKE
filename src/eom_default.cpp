@@ -188,6 +188,7 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
   auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, sysPtr->cabana_particles.size());
   //calculate the M,R,F matrices due to shear, when using shear
   if(using_shear){
+    std::cout << "Calculating MRF shear" << std::endl;
     calculate_MRF_shear(sysPtr);
   }
    auto fill_auxiliary_variables = KOKKOS_LAMBDA(int const is, int const ia){
@@ -222,7 +223,6 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
     double lambda_Pipi = device_hydro_scalar.access(is, ia, hydro_info::lambda_Pipi);
     //auxiliary zeta tilde to control IR or DNMR
     double zeta_tilde  = zeta +  a*(delta_PiPi - tau_Pi)*bulk;
-    
     //declare caches
     milne::Vector<double,D> v, u, grad_u0, u_cov;
     milne::Vector<double,D> M_big_bulk_aux, M_shv_nabla_u, M_big_entropy;
@@ -274,6 +274,9 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
     for(int idir=0; idir<D; ++idir){
       M_big_bulk_aux(idir) = (zeta_tilde*u_cov(idir)/gamma)/(sigma*gamma*tau_Pi);
       M_big_entropy(idir) = (bulk*u_cov(idir)/gamma)/(sigma*gamma*T);
+      //if(M_big_entropy(idir) > 1e-10){
+      //  std::cout << "M_big_entropy: " << M_big_entropy(idir) << std::endl;
+      //}
     };
     //fill R matrices
     for(int icharge=0; icharge<3; ++icharge){
@@ -291,9 +294,13 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
     //fill F matrices
     F_big_bulk = -(zeta_tilde*(gamma*divV + gamma/t + geometric_factor)
                   +bulk  - a*phi1*bulk*bulk);
+    F_big_bulk =0.0;
     F_big_entropy = ( -bulk*(gamma*divV + gamma/t + geometric_factor)
                     + gamma*j0_ext
                     +milne::contract(u_cov,j_ext))/(sigma*gamma*T);
+    //if(F_big_entropy > 1e-10){
+    //  std::cout << "F_big_entropy: " << F_big_entropy << std::endl;
+    //}
     for(int icharge=0; icharge<3; ++icharge){
       F_big_N(icharge) = rho_ext(icharge);
     }    
@@ -548,6 +555,9 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
     double d_dt_specific_s = milne::contract(M_big_entropy,du_dt)
                             +device_hydro_scalar.access(is, ia, hydro_info::F_big_entropy)
                             +milne::contract(R_big_entropy,dN_dt);
+    //if(d_dt_specific_s > 1e-10){
+    //  std::cout << "d_dt_specific_s: " << d_dt_specific_s << std::endl;
+    //}
 	  //time derivative of the extensive bulk pressure
     double dbigBulk_dt = milne::contract(M_big_bulk,du_dt)
                     +device_hydro_scalar.access(is, ia, hydro_info::F_big_bulk)
@@ -623,13 +633,13 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
         u(idir) = device_hydro_vector.access(is, ia, hydro_info::u, idir);
       }
       double u3 = 0;
-      if constexpr(D==1){
+      if (D==1){
         u3 = u(0); // eta flow velocity
       }
-      else if constexpr(D == 3){
+      else if (D == 3){
         u3 = u(2);  
       }
-      else if constexpr(D == 2){
+      else if (D == 2){
         u3 = 0;
       }
 
@@ -878,15 +888,19 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr)
           M_dsigma(idir,jdir,kdir) = 0.0;
         }
         //diagonal i = k terms
-        M_sigma(idir,jdir,idir) += -gamma*fixed_size_u(jdir)/2.;
+        //the if avoids the case when i>k (for D=1)
+        if (D==1){
+          M_sigma(0,jdir,0) += -gamma*fixed_size_u(jdir)/2.;
+        }
+        else{
+          M_sigma(idir,jdir,idir) += -gamma*fixed_size_u(jdir)/2.;
+        }
       }
       //diagonal j=k terms
       for(int jdir = idir; jdir<D; ++jdir){
         //j=k , since k<D , we only loop until j<D
         M_sigma(idir,jdir,jdir) += -gamma*fixed_size_u(idir)/2.; 
       }
-
-
       //diagonal i=j terms
       for(int kdir=0; kdir<D; ++kdir){
         //j=i

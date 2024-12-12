@@ -96,6 +96,40 @@ template <class T, int D1, int D2>
 template <class T, int D1, int D2>
   void tmini(   Matrix<T,D1,D2>& b, const Matrix<T,D1-1,D2-1>& a );
 
+/// @brief 3D version of matrix implementation
+template <class T, int D1, int D2, int D3>
+class Matrix3D
+{
+private:
+  T x[D1 * D2 * D3];
+  inline int index(const int i, const int j, const int k) const { return i * D2 * D3 + j * D3 + k; }
+public:
+  Matrix3D<T, D1, D2, D3>() { for (int i = 0; i < D1 * D2 * D3; i++) x[i] = 0; }
+  Matrix3D<T, D1, D2, D3>(T x0) { for (int i = 0; i < D1 * D2 * D3; i++) x[i] = x0; }
+
+  Matrix3D<T, D1, D2, D3>& operator+=(const Matrix3D<T, D1, D2, D3>&);
+  Matrix3D<T, D1, D2, D3>& operator-=(const Matrix3D<T, D1, D2, D3>&);
+  Matrix3D<T, D1, D2, D3>& operator*=(T);
+  inline T& operator()(const int i, const int j, const int k) { return x[index(i, j, k)]; }
+  inline T operator()(const int i, const int j, const int k) const { return x[index(i, j, k)]; }
+};
+
+//==============================================================================
+// overloaded operator functions
+//==============================
+// sum two matrices
+template <class T, int D1, int D2, int D3>
+Matrix3D<T, D1, D2, D3> operator+(const Matrix3D<T, D1, D2, D3>&, const Matrix3D<T, D1, D2, D3>&);
+//==============================
+// subtract two matrices
+template <class T, int D1, int D2, int D3>
+Matrix3D<T, D1, D2, D3> operator-(const Matrix3D<T, D1, D2, D3>&, const Matrix3D<T, D1, D2, D3>&);
+//==============================
+// multiply matrix by scalar
+template <class T, int D1, int D2, int D3>
+Matrix3D<T, D1, D2, D3> operator*(T, const Matrix3D<T, D1, D2, D3>&);
+
+
 #include "../src/matrix.cpp"
 
 #endif

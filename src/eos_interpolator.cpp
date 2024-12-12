@@ -15,7 +15,7 @@ EoS_Interpolator::EoS_Interpolator(fs::path path_to_eos_table)
 {
   if (fs::exists(path_to_eos_table))
   {
-
+    std::cout << "Loading EoS table from " << path_to_eos_table << std::endl;
     //Open hdf5 file for reading
     try{
       eos_file = H5::H5File(path_to_eos_table.string(), H5F_ACC_RDONLY);

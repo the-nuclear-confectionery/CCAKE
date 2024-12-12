@@ -75,7 +75,7 @@ void Output<D>::print_system_state()
 /// Particle ID, time, position, pressure, temperature, 
 /// chemical potentials, energy density, baryon density, 
 /// strangeness density, electric charge density, entropy density,
-/// smoothed entropy density, specific entropy, sigma, norm_spec of entropy,
+/// smoothed entropy density, specific entropy, sigma_star, norm_spec of entropy,
 /// shear relaxation time, bigtheta, \f$\sqrt{\pi{\mu\nu}\pi^{\mu\nu}}\f$,
 /// \f$\tau_{\pi}\Theta/\pi\f$, \f$\pi^{\tau\tau}\f$, \f$\pi^{xx}\f$,
 /// \f$\pi^{yy}\f$, \f$\tau^2\pi^{\eta\eta}\f$, the fluid velocity, 
@@ -87,10 +87,10 @@ void Output<D>::print_system_state()
 template<unsigned int D>
 void Output<D>::print_system_state_to_txt()
 {
-  if (n_timesteps_output > 30) {
-    std::cout << "Terminating after the 30th timestep" << std::endl;
-    exit(1);
-  }
+  //if (n_timesteps_output > 30) {
+  //  std::cout << "Terminating after the 30th timestep" << std::endl;
+  //  exit(1);
+  //}
   string outputfilename = output_directory + "/system_state_"
                           + std::to_string(n_timesteps_output) + ".dat";
   ofstream out( outputfilename.c_str() );
@@ -115,25 +115,25 @@ void Output<D>::print_system_state_to_txt()
         << p.s() << " " //13
         << p.smoothed.s/(p.hydro.gamma*systemPtr->t) << " " //14
         << p.specific.s << " " //15
-        << p.hydro.sigma << " " //16
+        << p.hydro.sigma_star << " " //16
         << p.norm_spec.s << " " //17
-        << p.hydro.stauRelax << " " //18
-        << p.hydro.bigtheta << " "  //19
+        << p.hydro.tau_pi << " " //18
+        << p.hydro.theta << " "  //19
         << sqrt(     p.hydro.shv(0,0)*p.hydro.shv(0,0)
                 -2.0*p.hydro.shv(0,1)*p.hydro.shv(0,1)
                 -2.0*p.hydro.shv(0,2)*p.hydro.shv(0,2)
                 +    p.hydro.shv(1,1)*p.hydro.shv(1,1)
                 +    p.hydro.shv(2,2)*p.hydro.shv(2,2)
                 +2.0*p.hydro.shv(1,2)*p.hydro.shv(1,2)
-                +pow(systemPtr->t,4.0)*p.hydro.shv33*p.hydro.shv33 ) << " " //20
-        << p.hydro.stauRelax/systemPtr->t * p.hydro.bigtheta << " " //21
+                +pow(systemPtr->t,4.0)*p.hydro.shv(3,3)*p.hydro.shv(3,3) ) << " " //20
+        << p.hydro.tau_pi/systemPtr->t * p.hydro.theta << " " //21
         << p.hydro.shv(0,0) << " " //22
         << p.hydro.shv(1,1) << " " //23
         << p.hydro.shv(2,2) << " " //24
         << p.hydro.shv(1,2) << " " //25
-        << pow(systemPtr->t,2.0)*p.hydro.shv33 << " "; //26
+        << pow(systemPtr->t,2.0)*p.hydro.shv(3,3) << " "; //26
         for (int idir=0; idir<D; idir++)
-          out << p.hydro.u(idir)/p.hydro.gamma << " "; //27,28 (in 2+1)
+          out << p.hydro.u(idir) << " "; //27,28 (in 2+1)
         out << p.hydro.gamma << " " //29
         << p.Freeze << " " //30
         << p.get_current_eos_name() << "\n"; //31

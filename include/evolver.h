@@ -21,6 +21,9 @@ using EvolverCache = Cabana::MemberTypes<double[4][4], // stress-energy tensor
                                          double[3],    // four-velocity
                                          double[3],    // position
                                          double,       // specific_entropy
+                                         double,       // specific_baryon
+                                         double,       // specific_strangeness
+                                         double,       // specific_electric
                                          double,       // Bulk pressure
                                          double        // E0 = Ez
 >;
@@ -29,11 +32,14 @@ namespace evolver_cache_info
 {
 enum cache_data
 {
-  viscous_shear,
+  big_shear,
   four_velocity,
   position,
   specific_entropy,
-  Bulk_pressure,
+  specific_baryon,
+  specific_strangeness,
+  specific_electric,
+  big_bulk,
   E0
 };
 }

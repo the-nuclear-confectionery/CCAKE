@@ -27,61 +27,85 @@ struct hydrodynamic_info
 
   int ID                 = -1;  ///< for debugging purposes only
   double t               = 0.0; ///< current time in hydro simulation
-
-  double Agam            = 0.0; ///< Agam = A ///TODO: check this
-  double Agam2           = 0.0; ///< Agam2 = -Atot ///TODO: check this
-  double shv33           = 0.0; ///< shear viscosity pi^33 (or pi_33) ///TODO: check this
-
+  double a               = 0.0; ///< 0 for IR, 1 for DNMR
   double gamma           = 0.0; ///< Lorentz factor
-  double Bulk            = 0.0; ///< Bulk Viscosity weight ///TODO: what is this?
-  double bigPI           = 0.0; ///< total bulk viscosity
-  double C               = 0.0;
-  double tauRelax        = 0.0; ///< Bulk Relaxation time
-  double stauRelax       = 0.0; ///< Shear Relxation time
-  double zeta            = 0.0; ///< bulk coefficient
-  double setas           = 0.0; ///< half Shear coefficient eta ///TODO: check this
-  double Ctot            = 0.0; ///< See Jaki's notes, Eq. (270)
-  double Btot            = 0.0; ///< See Jaki's notes, Eq. (274)
-
+  double theta           = 0.0; ///< expansion rate nabla_mu u^mu
+  double bulk            = 0.0; ///< total bulk viscosity
+  double bigBulk         = 0.0; ///< extensive bulk viscosity
+  double tau_Pi          = 0.0; ///< Bulk Relaxation time
+  double tau_pi          = 0.0; ///< Shear Relxation time
+  double delta_PiPi      = 0.0; ///< bulk delta transport coefficient
+  double delta_pipi      = 0.0; ///< shear delta transport coefficient
+  double lambda_Pipi     = 0.0; ///< bulk-shear lambda transport coefficient
+  double lambda_piPi     = 0.0; ///< shear-bulk lambda transport coefficient
+  double tau_pipi        = 0.0; ///< shear relaxation time
+  double phi1            = 0.0; ///< bulk phi1 transport coefficient
+  double phi3            = 0.0; ///< bulk phi3 transport coefficient
+  double phi6            = 0.0; ///< shear phi6 transport coefficient
+  double phi7            = 0.0; ///< shear phi7 transport coefficient
+  double zeta_Pi         = 0.0; ///< bulk coefficient
+  double eta_pi          = 0.0; ///< shear coefficient
+  double sigma_star      = 0.0; ///< specific volume in computational frame
   double sigma           = 0.0; ///< specific volume
-  double dsigma_dt       = 0.0; ///< derivative of specific volume
+  double shv_nabla_u     = 0.0; ///< pi_mu_nu nabla^mu u^nu = pi^mu_nu sigma^mu_nu
 
-  double gamma_squared   = 0.0; ///< gamma^2
-  double gamma_cube      = 0.0; ///< gamma^3
-  double gamma_tau       = 0.0; ///< gamma*tau
-  double eta_o_tau       = 0.0; ///< shear visc coeff eta/tau/2 \\\TODO: check this
-  double dwdsT1          = 0.0; ///< 1 -  (1/T) dw/ds
-  double sigl            = 0.0; ///< (1/sigma^*) d sigma^*/dt - 1/tau
+  double varsigma        = 0.0; ///< defined to be p + Pi (pressure + bulk) 
+  double rho_Q_ext       = 0.0; ///< external charge density
+  double rho_S_ext       = 0.0; ///< external strangeness density
+  double rho_B_ext       = 0.0; ///< external baryon density
 
-  double varsigma        = 0.0; ///< defined to be p + Pi (pressure + bulk)
 
   // vector members
   Vector<double,D> v;                     ///< velocity
   Vector<double,D> u;                     ///< relativistic velocity
+  Vector<double,D> j_ext;                 ///< external current
 
   Vector<double,D> gradP;                 ///< Gradient of Pressure
   Vector<double,D> gradE;                 ///< Gradient of Energy
   Vector<double,D> gradBulk;              ///< Gradient of Bulk Viscosity
   Vector<double,D> divshear, gradshear;
 
+
   Matrix<double,D,D> Imat;
   Matrix<double,D,D> gradV, gradU;        // Gradient of velocity needed for shear
-  Matrix<double,D,D> uu, pimin, piu, piutot;
-  Matrix<double,D+1,D+1> shv;
-  Matrix<double,D,D> shv1, shv2, shv3, shv4;
+  Matrix<double,4,4> shv;
 
+  // Auxiliary M matrices
+  Vector<double,D> M_big_bulk;
+  Vector<double,D> M_shv_nabla_u;
+  Vector<double,D> M_big_entropy;
+  Matrix<double,D,D> M_u;
+  //one for each conserved charge (baryon, strangeness, electric charge)
+  Matrix<double,D,3> M_big_N;
+  //one for each independent component of the shear tensor, linearized index
+  Matrix<double,2,3*D> M_big_shear;
+  Matrix<double,2,3*3> R_big_shear;
 
-  // quantities (possibly?) set in EoM classes
-  double bigtheta        = 0.0;
-  double inside          = 0.0;
-  double div_u           = 0.0;
+  // Auxiliary R matrices
+  Vector<double,3> R_big_entropy;
+  Vector<double,3> R_big_bulk;
+  Matrix<double,3,3> R_big_N;
+  Matrix<double,D,3> R_0i_shear;
+  Matrix<double,D,D> M_0i_shear;
+  Matrix<double,D,3> R_u;
+
+  // auxiliary F vectors
+  double F_big_bulk;
+  double F_shv_nabla_u;
+  double F_big_entropy;
+  Vector<double,D> F_u;
+  Vector<double,D> F_0i_shear;
+  //one for each conserved charge (baryon, strangeness, electric charge)
+  Vector<double,3> F_big_N;
+  //one for each independent component of the shear tensor
+  Matrix<double,2,3> F_big_shear;
+  Matrix<double,2,3> bigshv;
 
 
   // derivatives
-  double dBulk_dt        = 0.0;
-
+  double dbigBulk_dt        = 0.0;
   Vector<double, D> du_dt;
-  Matrix<double, D, D> dshv_dt;
+  Matrix<double, 2, 3> d_bigshv_dt;
 
 };
 
@@ -91,32 +115,36 @@ namespace hydro_info
 enum hydro_scalar_info
 {
   t,
-  Agam,
-  Agam2,
-  shv33,
-  gamma,
-  Bulk,
-  bigPI,
-  C,
-  tauRelax,
-  stauRelax,
-  zeta,
-  setas,
-  Ctot,
-  Btot,
+  bulk,
+  bigBulk,
+  a,
+  rho_Q_ext,
+  rho_S_ext,
+  rho_B_ext,
+  tau_Pi,
+  tau_pi,
+  zeta_Pi,
+  sigma_star,
   sigma,
-  dsigma_dt,
-  gamma_squared,
-  gamma_cube,
-  gamma_tau,
-  eta_o_tau,
-  dwdsT1,
-  sigl,
+  gamma,
+  theta,
+  delta_PiPi,
+  delta_pipi,
+  lambda_Pipi,
+  phi1,
+  phi3,
+  phi6,
+  phi7,
+  eta_pi,
+  tau_pipi,
+  lambda_piPi,
   varsigma,
-  bigtheta,
-  inside,
   div_u,
-  dBulk_dt,
+  dbigBulk_dt,
+  F_big_bulk,
+  F_shv_nabla_u,
+  F_big_entropy,
+  shv_nabla_u,
   NUM_HYDRO_SCALAR_INFO
 };
 #define HYDRO_SCALAR_INFO double[ccake::hydro_info::NUM_HYDRO_SCALAR_INFO]
@@ -129,6 +157,15 @@ enum hydro_vector_info
   gradBulk,
   divshear,
   gradshear,
+  M_big_bulk,
+  M_shv_nabla_u,
+  M_big_entropy,
+  R_big_entropy,
+  R_big_bulk,
+  F_u,
+  F_big_N,
+  F_0i_shear,
+  j_ext,
   du_dt,
   NUM_HYDRO_VECTOR_INFO
 };
@@ -137,16 +174,12 @@ enum hydro_space_matrix_info
 {
   Imat,
   gradV,
-  gradU,
-  uu,
-  pimin,
-  piu,
-  piutot,
-  shv1,
-  shv2,
-  shv3,
-  shv4,
-  dshv_dt,
+  M_u,
+  M_big_N,
+  R_big_N,
+  R_u,
+  R_0i_shear,
+  M_0i_shear,
   NUM_HYDRO_SPACE_MATRIX_INFO
 };
 #define HYDRO_SPACE_MATRIX_INFO double[ccake::hydro_info::NUM_HYDRO_SPACE_MATRIX_INFO][3][3]
@@ -156,6 +189,22 @@ enum hydro_spacetime_matrix_info
   NUM_HYDRO_SPACETIME_MATRIX_INFO
 };
 #define HYDRO_SPACETIME_MATRIX_INFO double[ccake::hydro_info::NUM_HYDRO_SPACETIME_MATRIX_INFO][4][4]
+enum hydro_shear_aux_vector_info
+{
+  F_big_shear,
+  bigshv,
+  d_bigshv_dt,
+  NUM_HYDRO_SHEAR_AUX_VECTOR_INFO
+};
+#define HYDRO_SHEAR_AUX_VECTOR_INFO double[ccake::hydro_info::NUM_HYDRO_SHEAR_AUX_VECTOR_INFO][2][3]
+enum hydro_shear_aux_matrix_info
+{
+  M_big_shear,
+  R_big_shear,
+  NUM_HYDRO_SHEAR_AUX_MATRIX_INFO
+};
+#define HYDRO_SHEAR_AUX_MATRIX_INFO double[ccake::hydro_info::NUM_HYDRO_SHEAR_AUX_MATRIX_INFO][2][9]
+
 
 }}
 

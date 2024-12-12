@@ -28,11 +28,11 @@ hydro:
   electric_charge_enabled: false # Set to false to disable electric charge evolution
   viscous_parameters:
     shear:
-      mode: "constant" # Possible values are: ["constant", "disabled"]
+      mode: "disabled" # Possible values are: ["constant", "disabled"]
       constant_eta_over_s: 0.0 # Value of the constant shear viscosity
       relaxation_mode: "default" # How shear relaxation coeffiecient is computed. Possible values are: ["default"]
     bulk:
-      mode: "constant"
+      mode: "disabled"
       constant_zeta_over_s: 0.0
       cs2_dependent_zeta_A: 0.0
       cs2_dependent_zeta_p: 0.0

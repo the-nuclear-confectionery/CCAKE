@@ -37,6 +37,5 @@ Particle<D>::Particle( const Particle<D>& p )
   input.rhoQ    = p.input.rhoQ;
   hydro.u       = p.hydro.u;
   hydro.shv     = p.hydro.shv;
-  hydro.shv33   = p.hydro.shv33;
   input.s       = p.input.s;
 }

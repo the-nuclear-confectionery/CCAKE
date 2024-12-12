@@ -52,9 +52,11 @@ namespace ccake {
 /// are needed for the evolution. A cleanup may be necessary in the future.
 
 using CabanaParticle = Cabana::MemberTypes<
-                                        HYDRO_SPACE_MATRIX_INFO, //117 doubles
-                                        HYDRO_SCALAR_INFO,       //23 doubles
-                                        HYDRO_VECTOR_INFO,       //18 doubles
+                                        HYDRO_SPACE_MATRIX_INFO, //72 doubles
+                                        HYDRO_VECTOR_INFO,       //51 doubles
+                                        HYDRO_SHEAR_AUX_VECTOR_INFO, // 32 doubles
+                                        HYDRO_SCALAR_INFO,       //31 doubles
+                                        HYDRO_SHEAR_AUX_MATRIX_INFO, // 21 doubles
                                         THERMO_SCALAR_INFO,      //17 doubles
                                         HYDRO_SPACETIME_MATRIX_INFO, // 16 doubles
                                         DENSITY_INFO,            // 5 doubles - INPUT
@@ -75,8 +77,10 @@ namespace particle_info
 {
 enum particle_data{
   hydro_space_matrix_info,
-  hydro_scalar_info,
   hydro_vector_info,
+  hydro_shear_aux_vector_info,
+  hydro_scalar_info,
+  hydro_shear_aux_matrix_info,
   thermo_scalar_info,
   hydro_spacetime_matrix_info,
   input_density,
@@ -105,8 +109,10 @@ enum particle_data{
 //Helper macros for creating views
 #define CREATE_VIEW(prefix,cabana_aosoa) \
   auto CONCAT(prefix,hydro_space_matrix) = Cabana::slice<ccake::particle_info::hydro_space_matrix_info>(cabana_aosoa); \
-  auto CONCAT(prefix,hydro_scalar) = Cabana::slice<ccake::particle_info::hydro_scalar_info>(cabana_aosoa); \
   auto CONCAT(prefix,hydro_vector) = Cabana::slice<ccake::particle_info::hydro_vector_info>(cabana_aosoa); \
+  auto CONCAT(prefix,hydro_shear_aux_matrix) = Cabana::slice<ccake::particle_info::hydro_shear_aux_matrix_info>(cabana_aosoa); \
+  auto CONCAT(prefix,hydro_scalar) = Cabana::slice<ccake::particle_info::hydro_scalar_info>(cabana_aosoa); \
+  auto CONCAT(prefix,hydro_shear_aux_vector) = Cabana::slice<ccake::particle_info::hydro_shear_aux_vector_info>(cabana_aosoa); \
   auto CONCAT(prefix,thermo) = Cabana::slice<ccake::particle_info::thermo_scalar_info>(cabana_aosoa); \
   auto CONCAT(prefix,hydro_spacetime_matrix) = Cabana::slice<ccake::particle_info::hydro_spacetime_matrix_info>(cabana_aosoa); \
   auto CONCAT(prefix,input) = Cabana::slice<ccake::particle_info::input_density>(cabana_aosoa); \
@@ -254,49 +260,61 @@ inline ostream& operator<<( ostream& os, const ccake::Particle<D>& p ){
   os << "thermo.dwdQ....: " << p.thermo.dwdQ << endl;
   os << "thermo.dwdS....: " << p.thermo.dwdS << endl;
   os << "hydro.t........: " << p.hydro.t << endl;
-  os << "hydro.Agam.....: " << p.hydro.Agam << endl;
-  os << "hydro.Agam2....: " << p.hydro.Agam2 << endl;
-  os << "hydro.shv33....: " << p.hydro.shv33 << endl;
   os << "hydro.gamma....: " << p.hydro.gamma << endl;
-  os << "hydro.Bulk.....: " << p.hydro.Bulk << endl;
-  os << "hydro.bigPI....: " << p.hydro.bigPI << endl;
-  os << "hydro.C........: " << p.hydro.C << endl;
-  os << "hydro.tauRelax.: " << p.hydro.tauRelax << endl;
-  os << "hydro.stauRelax: " << p.hydro.stauRelax << endl;
-  os << "hydro.zeta.....: " << p.hydro.zeta << endl;
-  os << "hydro.Ctot.....: " << p.hydro.Ctot << endl;
-  os << "hydro.Btot.....: " << p.hydro.Btot << endl;
-  os << "hydro.sigma....: " << p.hydro.sigma << endl;
-  os << "hydro.dsigma_dt: " << p.hydro.dsigma_dt << endl;
-  os << "hydro.g2.......: " << p.hydro.gamma_squared << endl;
-  os << "hydro.g3.......: " << p.hydro.gamma_cube << endl;
-  os << "hydro.eta_o_tau: " << p.hydro.eta_o_tau << endl;
-  os << "hydro.dwdsT1...: " << p.hydro.dwdsT1 << endl;
-  os << "hydro.sigl.....: " << p.hydro.sigl << endl;
-  os << "hydro.varsigma.: " << p.hydro.varsigma << endl;
+  os << "hydro.theta....: " << p.hydro.theta << endl;
   os << "hydro.v........: " << p.hydro.v << endl;
   os << "hydro.u........: " << p.hydro.u << endl;
+  os << "hydro.rho_Q_ext: " << p.hydro.rho_Q_ext << endl;
+  os << "hydro.rho_S_ext: " << p.hydro.rho_S_ext << endl;
+  os << "hydro.rho_B_ext: " << p.hydro.rho_B_ext << endl;
   os << "hydro.gradP....: " << p.hydro.gradP << endl;
   os << "hydro.gradE....: " << p.hydro.gradE << endl;
   os << "hydro.gradBulk.: " << p.hydro.gradBulk << endl;
   os << "hydro.divshear.: " << p.hydro.divshear << endl;
   os << "hydro.gradshear: " << p.hydro.gradshear << endl;
-  os << "hydro.Imat.....: " << p.hydro.Imat << endl;
-  os << "hydro.gradV....: " << p.hydro.gradV << endl;
-  os << "hydro.gradU....: " << p.hydro.gradU << endl;
-  os << "hydro.uu.......: " << p.hydro.uu << endl;
-  os << "hydro.pimin....: " << p.hydro.pimin << endl;
-  os << "hydro.piu......: " << p.hydro.piu << endl;
-  os << "hydro.piutot...: " << p.hydro.piutot << endl;
-  os << "hydro.shv......: " << p.hydro.shv << endl;
-  os << "hydro.shv1.....: " << p.hydro.shv1 << endl;
-  os << "hydro.shv2.....: " << p.hydro.shv2 << endl;
-  os << "hydro.shv3.....: " << p.hydro.shv3 << endl;
-  os << "hydro.bigtheta.: " << p.hydro.bigtheta << endl;
-  os << "hydro.inside...: " << p.hydro.inside << endl;
-  os << "hydro.div_u....: " << p.hydro.div_u << endl;
-  os << "hydro.du_dt....: " << p.hydro.du_dt << endl;
-  os << "hydro.dshv_dt..: " << p.hydro.dshv_dt << endl;
+  os << "hydro.M_big_bulk: " << p.hydro.M_big_bulk << endl;
+  os << "hydro.M_shv_nabla_u: " << p.hydro.M_shv_nabla_u << endl;
+  os << "hydro.M_big_entropy: " << p.hydro.M_big_entropy << endl;
+  os << "hydro.R_big_entropy.: " << p.hydro.R_big_entropy << endl;
+  os << "hydro.R_big_bulk...: " << p.hydro.R_big_bulk << endl;
+  os << "hydro.F_u.....: " << p.hydro.F_u << endl;
+  os << "hydro.M_u.....: " << p.hydro.M_u << endl;
+  os << "hydro.F_big_N: " << p.hydro.F_big_N << endl;
+  os << "hydro.F_0i_shear: " << p.hydro.F_0i_shear << endl;
+  os << "hydro.M_0i_shear: " << p.hydro.M_0i_shear << endl;
+  os << "hydro.F_big_entropy.....: " << p.hydro.F_big_entropy << endl;
+  os << "hydro.shv_nabla_u: " << p.hydro.shv_nabla_u << endl;
+  os << "hydro.bulk....: " << p.hydro.bulk << endl;
+  os << "hydro.bigBulk.: " << p.hydro.bigBulk << endl;
+  os << "hydro.tau_Pi..: " << p.hydro.tau_Pi << endl;
+  os << "hydro.tau_pi..: " << p.hydro.tau_pi << endl;
+  os << "hydro.delta_PiPi: " << p.hydro.delta_PiPi << endl;
+  os << "hydro.delta_pipi: " << p.hydro.delta_pipi << endl;
+  os << "hydro.lambda_Pipi: " << p.hydro.lambda_Pipi << endl;
+  os << "hydro.varsigma.: " << p.hydro.varsigma << endl;
+  os << "hydro.phi1....: " << p.hydro.phi1 << endl;
+  os << "hydro.phi3....: " << p.hydro.phi3 << endl;
+  os << "hydro.phi6....: " << p.hydro.phi6 << endl;
+  os << "hydro.phi7....: " << p.hydro.phi7 << endl;
+  os << "hydro.eta_pi..: " << p.hydro.eta_pi << endl;
+  os << "hydro.tau_pipi: " << p.hydro.tau_pipi << endl;
+  os << "hydro.zeta_Pi....: " << p.hydro.zeta_Pi << endl;
+  os << "hydro.sigma_star: " << p.hydro.sigma_star << endl;
+  os << "hydro.sigma...: " << p.hydro.sigma << endl;
+  os << "hydro.dbigBulk_dt: " << p.hydro.dbigBulk_dt << endl;
+  os << "hydro.F_big_bulk: " << p.hydro.F_big_bulk << endl;
+  os << "hydro.F_shv_nabla_u: " << p.hydro.F_shv_nabla_u << endl;
+  os << "hydro.F_big_entropy.....: " << p.hydro.F_big_entropy << endl;
+  os << "hydro.F_big_N.: " << p.hydro.F_big_N << endl;
+  os << "hydro.F_u.....: " << p.hydro.F_u << endl;
+  os << "hydro.F_big_N.: " << p.hydro.F_big_N << endl;
+  os << "hydro.du_dt...: " << p.hydro.du_dt << endl;
+  os << "hydro.d_bigshv_dt.: " << p.hydro.d_bigshv_dt << endl;
+  os << "hydro.shv.....: " << p.hydro.shv << endl;
+  os << "hydro.bigshv..: " << p.hydro.bigshv << endl;
+  os << "hydro.F_big_shear: " << p.hydro.F_big_shear << endl;
+  os << "hydro.M_big_shear: " << p.hydro.M_big_shear << endl;
+  os << "hydro.R_big_shear: " << p.hydro.R_big_shear << endl;
   return os;
 }
 

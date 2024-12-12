@@ -9,12 +9,12 @@ parameters:
   dt: 0.001 # time-step of the simulation in fm/c
   h_T: 0.1  # Smothing parameter inside kernel, in the transverse direction (in fm)
   h_eta:  0.1  # Smothing parameter inside kernel in the longitudinal direction
-  rk_order: 4  # Runge-Kutta order
+  rk_order: 2  # Runge-Kutta order
   kernel_type: "cubic_spline" # Kernel type. Possible values are: ["cubic_spline"]
-  energy_cutoff: 0.15 # GeV/fm^3 - Particles with less than this energy will be deleted before starting the evolution
+  energy_cutoff: 0.0 # GeV/fm^3 - Particles with less than this energy will be deleted before starting the evolution
   buffer_particles:
-    enabled: true # Set to true to include buffer particles. May help stability.
-    circular: true # whether to buffer with entire grid or just circular padding.
+    enabled: false # Set to true to include buffer particles. May help stability.
+    circular: false # whether to buffer with entire grid or just circular padding.
     padding_thickness: .1 # if circular buffer is true, specifies the fractional amount
 eos:
   type: "conformal" # Possible values are: ["table", "conformal"]

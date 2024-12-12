@@ -79,7 +79,7 @@ double SPHkernel<1>::distance(const double* r1, const double* r2, int t)
   // double z2 = t * (exp(2*r2[D-1]) - 1) / sqrt(2*exp(4*r2[D-1]) + 2);
   double diff = r1[D-1] - r2[D-1];
   // double diff = z1 - z2;
-  d = diff*diff*t*t;
+  d = diff*diff;
   return sqrt(d);
 }
 

@@ -208,9 +208,10 @@ void BSQHydro<D,TEOM>::read_ccake()
   {
     string line;
     int count_header_lines = 0;
-    double x, y, eta, e, rhoB, rhoS, rhoQ, ux, uy, ueta, Bulk, pixx, pixy, pixeta, piyy, piyeta, pietaeta;
+    double x, y, eta, e, rhoB, rhoS, rhoQ, ux, uy, ueta, bulk, pixx, pixy, pixeta, piyy, piyeta, pietaeta;
     double ignore, stepX, stepY, stepEta, xmin, ymin, etamin;
-
+    double max_e = 0.0;
+    double min_e = 1e6;
     while (getline (infile, line))
     {
       istringstream iss(line);
@@ -229,22 +230,35 @@ void BSQHydro<D,TEOM>::read_ccake()
       }
       else
       {
-        iss >> x >> y >> eta >> e >> rhoB >> rhoS >> rhoQ >> ux >> uy >> ueta >> Bulk >> pixx >> pixy >> pixeta >> piyy >> piyeta >> pietaeta;
+        iss >> x >> y >> eta >> e >> rhoB >> rhoS >> rhoQ >> ux >> uy >> ueta >> bulk >> pixx >> pixy >> pixeta >> piyy >> piyeta >> pietaeta;
         e /= hbarc_GeVfm; // 1/fm^4
+        //print the maximum and minimum values of the energy density
+        //first find the maximum and minimum values of the energy density
+
+        if (e > max_e) max_e = e;
+        if (e < min_e) min_e = e;
         pixx /= hbarc_GeVfm; // 1/fm^4
         pixy /= hbarc_GeVfm; // 1/fm^4
         pixeta /= hbarc_GeVfm; // 1/fm^5
         piyy /= hbarc_GeVfm; // 1/fm^4
         piyeta /= hbarc_GeVfm; // 1/fm^5
         pietaeta /= hbarc_GeVfm; // 1/fm^6
-        Bulk /= hbarc_GeVfm; // 1/fm^4
+        bulk /= hbarc_GeVfm; // 1/fm^4
         Particle<D> p;
         switch (D)
         {
           case 1:
             p.r(0) = eta;
             p.hydro.u(0) = ueta;
-            p.hydro.shv(1,1) = pietaeta;
+            p.hydro.shv(1,1) = pixx;
+            p.hydro.shv(1,2) = pixy;
+            p.hydro.shv(1,3) = pixeta;
+            p.hydro.shv(2,1) = pixy;
+            p.hydro.shv(3,1) = pixeta;
+            p.hydro.shv(2,2) = piyy;
+            p.hydro.shv(2,3) = piyeta;
+            p.hydro.shv(3,2) = piyeta;
+            p.hydro.shv(3,3) = pietaeta;
             break;
           case 2:
             p.r(0) = x;
@@ -253,8 +267,13 @@ void BSQHydro<D,TEOM>::read_ccake()
             p.hydro.u(1) = uy;
             p.hydro.shv(1,1) = pixx;
             p.hydro.shv(1,2) = pixy;
+            p.hydro.shv(1,3) = pixeta;
             p.hydro.shv(2,1) = pixy;
+            p.hydro.shv(3,1) = pixeta;
             p.hydro.shv(2,2) = piyy;
+            p.hydro.shv(2,3) = piyeta;
+            p.hydro.shv(3,2) = piyeta;
+            p.hydro.shv(3,3) = pietaeta;
           case 3:
             p.r(0) = x;
             p.r(1) = y;
@@ -272,12 +291,11 @@ void BSQHydro<D,TEOM>::read_ccake()
             p.hydro.shv(3,2) = piyeta;
             p.hydro.shv(3,3) = pietaeta;
         }
-        p.hydro.shv33 = pietaeta;
         p.input.e    = e;
         p.input.rhoB = rhoB;
         p.input.rhoS = rhoS;
         p.input.rhoQ = rhoQ;
-        p.hydro.Bulk = Bulk;
+        p.hydro.bulk = bulk;
         systemPtr->add_particle( p );
         #ifdef DEBUG
         outfile << x << " " << y << " " << eta << " " << e*hbarc_GeVfm << " " << rhoB
@@ -285,6 +303,8 @@ void BSQHydro<D,TEOM>::read_ccake()
         #endif
       }
     }
+    std::cout << "Maximum energy density: " << max_e*hbarc_GeVfm << " GeV/fm^3" << std::endl;
+    std::cout << "Minimum energy density: " << min_e*hbarc_GeVfm << " GeV/fm^3" << std::endl;
     #ifdef DEBUG
     outfile.close();
     #endif
@@ -366,6 +386,8 @@ void BSQHydro<D,TEOM>::initialize_hydrodynamics()
   }
   #endif*/
 
+  // Create linked list data structure
+  systemPtr->initialize_linklist();
   // for each particle, find location in phase diagram
   wsPtr->initialize_entropy_and_charge_densities();
   /*#ifdef DEBUG
@@ -379,8 +401,6 @@ void BSQHydro<D,TEOM>::initialize_hydrodynamics()
   }
   #endif*/
 
-  // Create linked list data structure
-  systemPtr->initialize_linklist();
   /*#ifdef DEBUG
   std::cout << "initialize_linklist()" << std::endl;
   for (auto & p : systemPtr->particles){
@@ -404,7 +424,7 @@ void BSQHydro<D,TEOM>::initialize_hydrodynamics()
     }
   }
   #endif*/
-
+  wsPtr->calculate_gamma_and_velocities();
   // implement initial smoothing required by SPH formalism
   wsPtr->initial_smoothing();
   /*#ifdef DEBUG
@@ -421,6 +441,8 @@ void BSQHydro<D,TEOM>::initialize_hydrodynamics()
   // if initializing from full Tmunu, absorb non-equilibrium
   // pressure correction into bulk viscous pressure Pi
   wsPtr->set_bulk_Pi();
+  //calculate specific/extensive shear tensor
+  wsPtr->calculate_big_shv();
   /*#ifdef DEBUG
   std::cout << "set_bulk_Pi()" << std::endl;
   for (auto & p : systemPtr->particles){
@@ -540,6 +562,7 @@ void BSQHydro<D,TEOM>::run()
     // workstation advances by given
     // timestep at given RK order
     wsPtr->advance_timestep( settingsPtr->dt, settingsPtr->rk_order );
+    //wsPtr->regulator();
 
     //===================================
     // re-compute conserved quantities, etc.

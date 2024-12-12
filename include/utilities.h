@@ -46,7 +46,7 @@ template<>
 KOKKOS_INLINE_FUNCTION
 void Utilities::inverse<1>(double (*A)[1][1], double (*Ainv)[1][1])
 {
-    (*Ainv)[0][0] = 1/(*A)[1][1];
+    (*Ainv)[0][0] = 1/(*A)[0][0];
 }
 
 template<>

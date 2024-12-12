@@ -109,13 +109,15 @@ public:
   //============================================================================
   // routines for resetting quantities
   void reset_pi_tensor(double time_squared);
-
+  void calculate_gamma_and_velocities();
+  //void regulator();
   void process_initial_conditions();
   void initialize_entropy_and_charge_densities();
   void initial_smoothing();
 
   //============================================================================
   // smoothing
+  void calculate_intial_volume(double time_squared);
   void smooth_all_particle_fields(double time_squared);
   void smooth_all_particle_gradients(double time_squared);
 
@@ -138,8 +140,10 @@ public:
   void locate_phase_diagram_point_sBSQ(Particle<D> & p, double s_In );
 
   void set_bulk_Pi();
+  void calculate_big_shv();
   bool continue_evolution();
   void advance_timestep( double dt, int rk_order );
+  
 
 };
 
