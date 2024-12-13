@@ -285,7 +285,7 @@ inline ostream& operator<<( ostream& os, const ccake::Particle<D>& p ){
   os << "hydro.delta_PiPi: " << p.hydro.delta_PiPi << endl;
   os << "hydro.delta_pipi: " << p.hydro.delta_pipi << endl;
   os << "hydro.lambda_Pipi: " << p.hydro.lambda_Pipi << endl;
-  os << "hydro.varsigma.: " << p.hydro.varsigma << endl;
+  os << "hydro.tmunu_trace.: " << p.hydro.tmunu_trace << endl;
   os << "hydro.phi1....: " << p.hydro.phi1 << endl;
   os << "hydro.phi3....: " << p.hydro.phi3 << endl;
   os << "hydro.phi6....: " << p.hydro.phi6 << endl;

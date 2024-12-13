@@ -100,7 +100,7 @@ void SystemState<D>::copy_host_to_device(){
     host_hydro_scalar(iparticle, ccake::hydro_info::eta_pi) = particles[iparticle].hydro.eta_pi;
     host_hydro_scalar(iparticle, ccake::hydro_info::tau_pipi) = particles[iparticle].hydro.tau_pipi;
     host_hydro_scalar(iparticle, ccake::hydro_info::lambda_piPi) = particles[iparticle].hydro.lambda_piPi;
-    host_hydro_scalar(iparticle, ccake::hydro_info::varsigma) = particles[iparticle].hydro.varsigma;
+    host_hydro_scalar(iparticle, ccake::hydro_info::tmunu_trace) = particles[iparticle].hydro.tmunu_trace;
     host_hydro_scalar(iparticle, ccake::hydro_info::d_extensive_bulk_dt) = particles[iparticle].hydro.d_extensive_bulk_dt;
     host_hydro_scalar(iparticle, ccake::hydro_info::F_extensive_bulk) = particles[iparticle].hydro.F_extensive_bulk;
     host_hydro_scalar(iparticle, ccake::hydro_info::F_shv_nabla_u) = particles[iparticle].hydro.F_shv_nabla_u;
@@ -288,7 +288,7 @@ void SystemState<D>::copy_device_to_host(){
     particles[id].hydro.eta_pi = host_hydro_scalar(iparticle, ccake::hydro_info::eta_pi);
     particles[id].hydro.tau_pipi = host_hydro_scalar(iparticle, ccake::hydro_info::tau_pipi);
     particles[id].hydro.lambda_piPi = host_hydro_scalar(iparticle, ccake::hydro_info::lambda_piPi);
-    particles[id].hydro.varsigma = host_hydro_scalar(iparticle, ccake::hydro_info::varsigma);
+    particles[id].hydro.tmunu_trace = host_hydro_scalar(iparticle, ccake::hydro_info::tmunu_trace);
     particles[id].hydro.d_extensive_bulk_dt = host_hydro_scalar(iparticle, ccake::hydro_info::d_extensive_bulk_dt);
     particles[id].hydro.F_extensive_bulk = host_hydro_scalar(iparticle, ccake::hydro_info::F_extensive_bulk);
     particles[id].hydro.F_shv_nabla_u = host_hydro_scalar(iparticle, ccake::hydro_info::F_shv_nabla_u);

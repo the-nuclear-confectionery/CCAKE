@@ -30,7 +30,7 @@ class Settings
                                                 // not should be decided by the
                                                 // eta mode, not here
     bool initializing_with_full_Tmunu = false;  // whether to initialize Pi from
-                                                // varsigma - p or not
+                                                // tmunu_trace - p or not
     //==========================================================================
     // I/O settings
     bool txt_evolution              = false;

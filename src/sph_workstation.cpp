@@ -907,12 +907,12 @@ void SPHWorkstation<D, TEOM>::set_bulk_Pi()
 
     auto set_bulk = KOKKOS_LAMBDA( const int is, const int ia )
     {
-      double varsigma = device_hydro_scalar.access(is, ia, ccake::hydro_info::varsigma);
+      double tmunu_trace = device_hydro_scalar.access(is, ia, ccake::hydro_info::tmunu_trace);
       double p = device_thermo.access(is, ia, ccake::thermo_info::p);
       double u0 = device_hydro_scalar.access(is, ia, ccake::hydro_info::gamma);
       double sigma_lab = device_hydro_scalar.access(is, ia, ccake::hydro_info::sigma_lab);
 
-      //device_hydro_scalar.access(is, ia, ccake::hydro_info::extensive_bulk) = (varsigma - p)
+      //device_hydro_scalar.access(is, ia, ccake::hydro_info::extensive_bulk) = (tmunu_trace - p)
       //                * u0 * t0 / sigma_lab;
       device_hydro_scalar.access(is, ia, ccake::hydro_info::extensive_bulk) = 0.0;
 

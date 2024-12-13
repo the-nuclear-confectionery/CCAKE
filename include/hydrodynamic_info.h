@@ -31,7 +31,7 @@ struct hydrodynamic_info
   double gamma           = 0.0; ///< Lorentz factor
   double theta           = 0.0; ///< expansion rate nabla_mu u^mu
   double bulk            = 0.0; ///< total bulk viscosity
-  double extensive_bulk         = 0.0; ///< extensive bulk viscosity
+  double extensive_bulk  = 0.0; ///< extensive bulk viscosity
   double tau_Pi          = 0.0; ///< Bulk Relaxation time
   double tau_pi          = 0.0; ///< Shear Relxation time
   double delta_PiPi      = 0.0; ///< bulk delta transport coefficient
@@ -45,11 +45,11 @@ struct hydrodynamic_info
   double phi7            = 0.0; ///< shear phi7 transport coefficient
   double zeta_Pi         = 0.0; ///< bulk coefficient
   double eta_pi          = 0.0; ///< shear coefficient
-  double sigma_lab      = 0.0; ///< specific volume in computational frame
+  double sigma_lab       = 0.0; ///< specific volume in computational frame
   double sigma           = 0.0; ///< specific volume
   double shv_nabla_u     = 0.0; ///< pi_mu_nu nabla^mu u^nu = pi^mu_nu sigma^mu_nu
 
-  double varsigma        = 0.0; ///< defined to be p + Pi (pressure + bulk) 
+  double tmunu_trace     = 0.0; ///< defined to be (pressure + bulk) 
   double rho_Q_ext       = 0.0; ///< external charge density
   double rho_S_ext       = 0.0; ///< external strangeness density
   double rho_B_ext       = 0.0; ///< external baryon density
@@ -137,7 +137,7 @@ enum hydro_scalar_info
   eta_pi,
   tau_pipi,
   lambda_piPi,
-  varsigma,
+  tmunu_trace,
   div_u,
   d_extensive_bulk_dt,
   F_extensive_bulk,
