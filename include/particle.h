@@ -61,9 +61,9 @@ using CabanaParticle = Cabana::MemberTypes<
                                         HYDRO_SPACETIME_MATRIX_INFO, // 16 doubles
                                         DENSITY_INFO,            // 5 doubles - INPUT
                                         DENSITY_INFO,            // 5 doubles - SMOOTHED
-                                        DENSITY_INFO,            // 5 doubles - SPECIFIC
-                                        DENSITY_INFO,            // 5 doubles - D_DT_SPEC
-                                        DENSITY_INFO,            // 5 doubles - NORM_SPEC
+                                        DENSITY_INFO,            // 5 doubles - extensive
+                                        DENSITY_INFO,            // 5 doubles - d_dt_extensive
+                                        DENSITY_INFO,            // 5 doubles - sph_mass
                                         double[3], // position
                                         double,     // efcheck
                                         double,     // contribution_to_total_E
@@ -85,9 +85,9 @@ enum particle_data{
   hydro_spacetime_matrix_info,
   input_density,
   smoothed_density,
-  specific_density,
-  d_dt_spec_density,
-  norm_spec_density,
+  extensive,
+  d_dt_extensive_density,
+  sph_mass_density,
   position,
   efcheck,
   contribution_to_total_E,
@@ -117,9 +117,9 @@ enum particle_data{
   auto CONCAT(prefix,hydro_spacetime_matrix) = Cabana::slice<ccake::particle_info::hydro_spacetime_matrix_info>(cabana_aosoa); \
   auto CONCAT(prefix,input) = Cabana::slice<ccake::particle_info::input_density>(cabana_aosoa); \
   auto CONCAT(prefix,smoothed) = Cabana::slice<ccake::particle_info::smoothed_density>(cabana_aosoa); \
-  auto CONCAT(prefix,specific_density) = Cabana::slice<ccake::particle_info::specific_density>(cabana_aosoa); \
-  auto CONCAT(prefix,d_dt_spec) = Cabana::slice<ccake::particle_info::d_dt_spec_density>(cabana_aosoa); \
-  auto CONCAT(prefix,norm_spec) = Cabana::slice<ccake::particle_info::norm_spec_density>(cabana_aosoa); \
+  auto CONCAT(prefix,extensive) = Cabana::slice<ccake::particle_info::extensive>(cabana_aosoa); \
+  auto CONCAT(prefix,d_dt_extensive) = Cabana::slice<ccake::particle_info::d_dt_extensive_density>(cabana_aosoa); \
+  auto CONCAT(prefix,sph_mass) = Cabana::slice<ccake::particle_info::sph_mass_density>(cabana_aosoa); \
   auto CONCAT(prefix,position) = Cabana::slice<ccake::particle_info::position>(cabana_aosoa); \
   auto CONCAT(prefix,efcheck) = Cabana::slice<ccake::particle_info::efcheck>(cabana_aosoa); \
   auto CONCAT(prefix,contribution_to_total_E) = Cabana::slice<ccake::particle_info::contribution_to_total_E>(cabana_aosoa); \
@@ -159,9 +159,9 @@ class Particle
     // different combinations of densities
     densities input     = {}; ///< These densities are read in initially and have physical units ~1/fm^3
     densities smoothed  = {}; ///< These are the smoothed (propagated) densities which have units ~/1/fm^2;
-    densities specific  = {}; ///< These are the densities "per particle" which are effectively dimensionless;
-    densities d_dt_spec = {}; ///< These are the time derivatives of the specific densities
-    densities norm_spec = {}; ///< Gives the normalizations of the specific densities. Can choose different values for different densities by convenience;
+    densities extensive  = {}; ///< These are the densities "per particle" which are effectively dimensionless;
+    densities d_dt_extensive = {}; ///< These are the time derivatives of the extensive densities
+    densities sph_mass = {}; ///< Gives the normalizations of the extensive densities. Can choose different values for different densities by convenience;
 
     hydrodynamic_info<D> hydro  = {}; ///< Hydrodynamic information
     thermodynamic_info thermo = {}; ///< Thermodynamic information
@@ -194,7 +194,6 @@ class Particle
     double rhoS() { return thermo.rhoS; }
     double rhoQ() { return thermo.rhoQ; }
     double w()    { return thermo.w;    }
-    double A()    { return thermo.A;    }
     double cs2()  { return thermo.cs2;  }
     double dwds() { return thermo.dwds; }
     double dwdB() { return thermo.dwdB; }
@@ -223,25 +222,21 @@ inline ostream& operator<<( ostream& os, const ccake::Particle<D>& p ){
   os << "input.rhoQ.....: " << p.input.rhoQ << endl;
   os << "input.rhoS.....: " << p.input.rhoS << endl;
   os << "smoothed.s.....: " << p.smoothed.s << endl;
-  os << "smoothed.e.....: " << p.smoothed.e << endl;
   os << "smoothed.rhoB..: " << p.smoothed.rhoB << endl;
   os << "smoothed.rhoQ..: " << p.smoothed.rhoQ << endl;
   os << "smoothed.rhoS..: " << p.smoothed.rhoS << endl;
-  os << "specific.s.....: " << p.specific.s << endl;
-  os << "specific.e.....: " << p.specific.e << endl;
-  os << "specific.rhoB..: " << p.specific.rhoB << endl;
-  os << "specific.rhoQ..: " << p.specific.rhoQ << endl;
-  os << "specific.rhoS..: " << p.specific.rhoS << endl;
-  os << "d_dt_spec.s....: " << p.d_dt_spec.s << endl;
-  os << "d_dt_spec.e....: " << p.d_dt_spec.e << endl;
-  os << "d_dt_spec.rhoB.: " << p.d_dt_spec.rhoB << endl;
-  os << "d_dt_spec.rhoQ.: " << p.d_dt_spec.rhoQ << endl;
-  os << "d_dt_spec.rhoS.: " << p.d_dt_spec.rhoS << endl;
-  os << "norm_spec.s....: " << p.norm_spec.s << endl;
-  os << "norm_spec.e....: " << p.norm_spec.e << endl;
-  os << "norm_spec.rhoB.: " << p.norm_spec.rhoB << endl;
-  os << "norm_spec.rhoQ.: " << p.norm_spec.rhoQ << endl;
-  os << "norm_spec.rhoS.: " << p.norm_spec.rhoS << endl;
+  os << "extensive.s.....: " << p.extensive.s << endl;
+  os << "extensive.rhoB..: " << p.extensive.rhoB << endl;
+  os << "extensive.rhoQ..: " << p.extensive.rhoQ << endl;
+  os << "extensive.rhoS..: " << p.extensive.rhoS << endl;
+  os << "d_dt_extensive.s....: " << p.d_dt_extensive.s << endl;
+  os << "d_dt_extensive.rhoB.: " << p.d_dt_extensive.rhoB << endl;
+  os << "d_dt_extensive.rhoQ.: " << p.d_dt_extensive.rhoQ << endl;
+  os << "d_dt_extensive.rhoS.: " << p.d_dt_extensive.rhoS << endl;
+  os << "sph_mass.s....: " << p.sph_mass.s << endl;
+  os << "sph_mass.rhoB.: " << p.sph_mass.rhoB << endl;
+  os << "sph_mass.rhoQ.: " << p.sph_mass.rhoQ << endl;
+  os << "sph_mass.rhoS.: " << p.sph_mass.rhoS << endl;
   os << "thermo.T.......: " << p.thermo.T << endl;
   os << "thermo.muB.....: " << p.thermo.muB << endl;
   os << "thermo.muQ.....: " << p.thermo.muQ << endl;
@@ -254,7 +249,6 @@ inline ostream& operator<<( ostream& os, const ccake::Particle<D>& p ){
   os << "thermo.p.......: " << p.thermo.p << endl;
   os << "thermo.cs2.....: " << p.thermo.cs2 << endl;
   os << "thermo.w.......: " << p.thermo.w << endl;
-  os << "thermo.A.......: " << p.thermo.A << endl;
   os << "thermo.dwds....: " << p.thermo.dwds << endl;
   os << "thermo.dwdB....: " << p.thermo.dwdB << endl;
   os << "thermo.dwdQ....: " << p.thermo.dwdQ << endl;
@@ -272,20 +266,20 @@ inline ostream& operator<<( ostream& os, const ccake::Particle<D>& p ){
   os << "hydro.gradBulk.: " << p.hydro.gradBulk << endl;
   os << "hydro.divshear.: " << p.hydro.divshear << endl;
   os << "hydro.gradshear: " << p.hydro.gradshear << endl;
-  os << "hydro.M_big_bulk: " << p.hydro.M_big_bulk << endl;
+  os << "hydro.M_extensive_bulk: " << p.hydro.M_extensive_bulk << endl;
   os << "hydro.M_shv_nabla_u: " << p.hydro.M_shv_nabla_u << endl;
-  os << "hydro.M_big_entropy: " << p.hydro.M_big_entropy << endl;
-  os << "hydro.R_big_entropy.: " << p.hydro.R_big_entropy << endl;
-  os << "hydro.R_big_bulk...: " << p.hydro.R_big_bulk << endl;
+  os << "hydro.M_extensive_entropy: " << p.hydro.M_extensive_entropy << endl;
+  os << "hydro.R_extensive_entropy.: " << p.hydro.R_extensive_entropy << endl;
+  os << "hydro.R_extensive_bulk...: " << p.hydro.R_extensive_bulk << endl;
   os << "hydro.F_u.....: " << p.hydro.F_u << endl;
   os << "hydro.M_u.....: " << p.hydro.M_u << endl;
-  os << "hydro.F_big_N: " << p.hydro.F_big_N << endl;
+  os << "hydro.F_extensive_N: " << p.hydro.F_extensive_N << endl;
   os << "hydro.F_0i_shear: " << p.hydro.F_0i_shear << endl;
   os << "hydro.M_0i_shear: " << p.hydro.M_0i_shear << endl;
-  os << "hydro.F_big_entropy.....: " << p.hydro.F_big_entropy << endl;
+  os << "hydro.F_extensive_entropy.....: " << p.hydro.F_extensive_entropy << endl;
   os << "hydro.shv_nabla_u: " << p.hydro.shv_nabla_u << endl;
   os << "hydro.bulk....: " << p.hydro.bulk << endl;
-  os << "hydro.bigBulk.: " << p.hydro.bigBulk << endl;
+  os << "hydro.extensive_bulk.: " << p.hydro.extensive_bulk << endl;
   os << "hydro.tau_Pi..: " << p.hydro.tau_Pi << endl;
   os << "hydro.tau_pi..: " << p.hydro.tau_pi << endl;
   os << "hydro.delta_PiPi: " << p.hydro.delta_PiPi << endl;
@@ -299,22 +293,22 @@ inline ostream& operator<<( ostream& os, const ccake::Particle<D>& p ){
   os << "hydro.eta_pi..: " << p.hydro.eta_pi << endl;
   os << "hydro.tau_pipi: " << p.hydro.tau_pipi << endl;
   os << "hydro.zeta_Pi....: " << p.hydro.zeta_Pi << endl;
-  os << "hydro.sigma_star: " << p.hydro.sigma_star << endl;
+  os << "hydro.sigma_lab: " << p.hydro.sigma_lab << endl;
   os << "hydro.sigma...: " << p.hydro.sigma << endl;
-  os << "hydro.dbigBulk_dt: " << p.hydro.dbigBulk_dt << endl;
-  os << "hydro.F_big_bulk: " << p.hydro.F_big_bulk << endl;
+  os << "hydro.d_extensive_bulk_dt: " << p.hydro.d_extensive_bulk_dt << endl;
+  os << "hydro.F_extensive_bulk: " << p.hydro.F_extensive_bulk << endl;
   os << "hydro.F_shv_nabla_u: " << p.hydro.F_shv_nabla_u << endl;
-  os << "hydro.F_big_entropy.....: " << p.hydro.F_big_entropy << endl;
-  os << "hydro.F_big_N.: " << p.hydro.F_big_N << endl;
+  os << "hydro.F_extensive_entropy.....: " << p.hydro.F_extensive_entropy << endl;
+  os << "hydro.F_extensive_N.: " << p.hydro.F_extensive_N << endl;
   os << "hydro.F_u.....: " << p.hydro.F_u << endl;
-  os << "hydro.F_big_N.: " << p.hydro.F_big_N << endl;
+  os << "hydro.F_extensive_N.: " << p.hydro.F_extensive_N << endl;
   os << "hydro.du_dt...: " << p.hydro.du_dt << endl;
-  os << "hydro.d_bigshv_dt.: " << p.hydro.d_bigshv_dt << endl;
+  os << "hydro.d_extensive_shv_dt.: " << p.hydro.d_extensive_shv_dt << endl;
   os << "hydro.shv.....: " << p.hydro.shv << endl;
-  os << "hydro.bigshv..: " << p.hydro.bigshv << endl;
-  os << "hydro.F_big_shear: " << p.hydro.F_big_shear << endl;
-  os << "hydro.M_big_shear: " << p.hydro.M_big_shear << endl;
-  os << "hydro.R_big_shear: " << p.hydro.R_big_shear << endl;
+  os << "hydro.extensive_shv..: " << p.hydro.extensive_shv << endl;
+  os << "hydro.F_extensive_shear: " << p.hydro.F_extensive_shear << endl;
+  os << "hydro.M_extensive_shear: " << p.hydro.M_extensive_shear << endl;
+  os << "hydro.R_extensive_shear: " << p.hydro.R_extensive_shear << endl;
   return os;
 }
 

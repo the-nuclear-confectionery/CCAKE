@@ -24,7 +24,7 @@ def read_sim(sim_result_folder):
     for t in time_list:
         col_names=['id','tau', 'eta', 'p', 'T', 'muB', 'muS', 'muQ', 'eps', 'rhoB',
                    'rhoS', 'rhoQ', 's', 'smoothed_s', 'specific_s', 'sigma',
-                   'norm_spec_s', 'stauRelax', 'bigtheta', "??", "??2",
+                   'sph_mass_s', 'stauRelax', 'bigtheta', "??", "??2",
                    'shv00', 'shv11', 'shv22', 'hydro_shv12', 't^2 shv33', 
                    'v_eta', 'gamma', 'freeze', 'eos_name']
         idx = int(np.round((float(t)-1)/dt)/10)

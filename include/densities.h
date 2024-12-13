@@ -14,8 +14,8 @@ namespace ccake
 {
 struct densities
 {
-  double e    = 0.0;
   double s    = 0.0;
+  double e    = 0.0;
   double rhoB = 0.0;
   double rhoS = 0.0;
   double rhoQ = 0.0;
@@ -23,8 +23,8 @@ struct densities
 
 namespace densities_info{
   enum density_info{
-    e,
     s,
+    e,
     rhoB,
     rhoS,
     rhoQ,

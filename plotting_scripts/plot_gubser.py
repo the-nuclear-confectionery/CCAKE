@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 import pandas as pd
 import numpy as np
 
-time_list=['1.']#, '1.2', '1.4',]# '1.7', '2.', '2.2' ]
+time_list=['1.', '1.2']#, '1.4',]# '1.7', '2.', '2.2' ]
 dpi=300
 fig, ax = plt.subplots(2,3,figsize=np.array([1920,1920*2/3])/dpi, sharex=True,gridspec_kw={'wspace':.5})
 
@@ -23,19 +23,19 @@ def read_sol(analytic_sol_folder):
         
 
 def read_sim(sim_result_folder):
-    dt=.001
+    dt=1
     for t in time_list:
         col_names=['id','t','x', 'y', 'p','T','muB','muS','muQ','e',
                    'rhoB','rhoS','rhoQ','s','s_smoothed','s_specific',
                    'sigma','spec_s','stauRelax','bigTheta','??',
                    '??2','pi00','pi11','pi22','pi12','t2pi33','v1','v2',
                    'gamma','frz','eos']
-        idx = int(np.round((float(t)-1)/dt)/10)
+        idx = int(np.round((float(t)-1)/dt)*10)
         inp_path = os.path.join(sim_result_folder,f'system_state_{idx}.dat')
         df = pd.read_table(inp_path,
                            names=col_names,sep=' ',header=0)
-        df['u1'] = df.loc[:,'v1']*df.loc[:,'gamma']
-        df['u2'] = df.loc[:,'v2']*df.loc[:,'gamma']
+        df['u1'] = df.loc[:,'v1']
+        df['u2'] = df.loc[:,'v2']
         df_query = df.query(f"abs(y) < 1.5e-2")
         ax[0][0].plot(df_query['x'],df_query['T']/1000,label=r'$\tau = '+t+r'$ fm/c',color='red',ls='--')
         ax[0][1].plot(df_query['x'],df_query['u1'],label=r'$\tau = '+t+r'$ fm/c',color='red',ls='--')

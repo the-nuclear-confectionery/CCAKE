@@ -75,7 +75,7 @@ void Output<D>::print_system_state()
 /// Particle ID, time, position, pressure, temperature, 
 /// chemical potentials, energy density, baryon density, 
 /// strangeness density, electric charge density, entropy density,
-/// smoothed entropy density, specific entropy, sigma_star, norm_spec of entropy,
+/// smoothed entropy density, extensive entropy, sigma_lab, sph_mass of entropy,
 /// shear relaxation time, bigtheta, \f$\sqrt{\pi{\mu\nu}\pi^{\mu\nu}}\f$,
 /// \f$\tau_{\pi}\Theta/\pi\f$, \f$\pi^{\tau\tau}\f$, \f$\pi^{xx}\f$,
 /// \f$\pi^{yy}\f$, \f$\tau^2\pi^{\eta\eta}\f$, the fluid velocity, 
@@ -114,9 +114,9 @@ void Output<D>::print_system_state_to_txt()
         << p.rhoQ() << " " //12
         << p.s() << " " //13
         << p.smoothed.s/(p.hydro.gamma*systemPtr->t) << " " //14
-        << p.specific.s << " " //15
-        << p.hydro.sigma_star << " " //16
-        << p.norm_spec.s << " " //17
+        << p.extensive.s << " " //15
+        << p.hydro.sigma_lab << " " //16
+        << p.sph_mass.s << " " //17
         << p.hydro.tau_pi << " " //18
         << p.hydro.theta << " "  //19
         << sqrt(     p.hydro.shv(0,0)*p.hydro.shv(0,0)

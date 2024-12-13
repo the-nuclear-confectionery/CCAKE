@@ -763,7 +763,7 @@ the values of ",
  " and ",
  Cell[BoxData[
   RowBox[{
-   SubscriptBox["O", "norm_spec"], " "}]],ExpressionUUID->
+   SubscriptBox["O", "sph_mass"], " "}]],ExpressionUUID->
   "3f825f54-3523-48bf-81c0-bda0523def10"],
  ", we will use the following values\n",
  Cell[BoxData[{
@@ -778,19 +778,19 @@ the values of ",
   "aafe833a-c458-40cc-8549-e676c8f07ed1"],
  "\n",
  Cell[BoxData[
-  SubscriptBox["O", "norm_spec"]],ExpressionUUID->
+  SubscriptBox["O", "sph_mass"]],ExpressionUUID->
   "59abc05d-83e8-4762-9d25-1fcd6a935fd3"],
  " = 1/2\n",
  Cell[BoxData[
-  SubscriptBox["O", "norm_spec"]],ExpressionUUID->
+  SubscriptBox["O", "sph_mass"]],ExpressionUUID->
   "3151a079-b746-4042-bcab-bf907224c6e1"],
  " = 2/3\n",
  Cell[BoxData[
-  SubscriptBox["O", "norm_spec"]],ExpressionUUID->
+  SubscriptBox["O", "sph_mass"]],ExpressionUUID->
   "98ae4fc5-7769-4975-8ea8-ccf92cd4b859"],
  " = 3/4\n",
  Cell[BoxData[
-  SubscriptBox["O", "norm_spec"]],ExpressionUUID->
+  SubscriptBox["O", "sph_mass"]],ExpressionUUID->
   "16105e02-93ce-4098-9550-75f31c7eb2ab"],
  " = 4/5\n\nThis choice guarantees that the product of the two quantities \
 should be 1, 2, 3, 4\n\nI will use h=1/2 as before. For the positions, they \
@@ -1312,7 +1312,7 @@ Cell[BoxData[
 Cell[CellGroupData[{
 
 Cell[BoxData[
- RowBox[{"bigPI", "=", 
+ RowBox[{"extensivePI", "=", 
   RowBox[{"Bulk", "*", 
    RowBox[{"\[Sigma]", "/", "gt"}]}]}]], "Input",
  CellChangeTimes->{{3.9092265322354717`*^9, 3.909226557874672*^9}},
@@ -1330,7 +1330,7 @@ Cell[CellGroupData[{
 
 Cell[BoxData[
  RowBox[{"c", "=", 
-  RowBox[{"w", "+", "bigPI"}]}]], "Input",
+  RowBox[{"w", "+", "extensivePI"}]}]], "Input",
  CellChangeTimes->{{3.909226559184249*^9, 3.909226576845169*^9}},
  CellLabel->"In[51]:=",ExpressionUUID->"e283d5f3-44ea-4e17-9ec5-db8c7f24f527"],
 
@@ -1368,7 +1368,7 @@ Cell[BoxData[{
     RowBox[{"dwds", "*", 
      RowBox[{"(", 
       RowBox[{"s", "+", 
-       RowBox[{"bigPI", "/", "T"}]}], ")"}]}], "-", 
+       RowBox[{"extensivePI", "/", "T"}]}], ")"}]}], "-", 
     RowBox[{"zeta", "/", "tauRelax"}], "-", 
     RowBox[{"dwdB", "*", "rhoB"}], "-", 
     RowBox[{"dwdQ", "*", "rhoQ"}], "-", 
@@ -1661,7 +1661,7 @@ Cell[BoxData[{
         RowBox[{"Agam", "*", "gamma"}], "+", 
         RowBox[{"2", "*", "etaOtau", "*", 
          RowBox[{"gamma", "/", "3"}]}]}], ")"}], "sigl"}], "+", 
-     RowBox[{"bigPI", "/", "tauRelax"}], "+", 
+     RowBox[{"extensivePI", "/", "tauRelax"}], "+", 
      RowBox[{
       RowBox[{"(", 
        RowBox[{"1", "-", "dwdsT1"}], ")"}], "*", 
@@ -1864,12 +1864,12 @@ Cell[CellGroupData[{
 
 Cell[BoxData[{
  RowBox[{
-  RowBox[{"bigtheta", "=", 
+  RowBox[{"extensivetheta", "=", 
    RowBox[{
     RowBox[{"divU", "*", "\[Tau]"}], "+", "gamma"}]}], 
   ";"}], "\[IndentingNewLine]", 
  RowBox[{"N", "[", 
-  RowBox[{"bigtheta", ",", "17"}], "]"}]}], "Input",
+  RowBox[{"extensivetheta", ",", "17"}], "]"}]}], "Input",
  CellChangeTimes->{
   3.909234344639039*^9, {3.909234457312131*^9, 3.909234486960992*^9}, {
    3.909245504477702*^9, 3.909245516550474*^9}},
@@ -2012,15 +2012,15 @@ Cell[BoxData[
 Cell[CellGroupData[{
 
 Cell[BoxData[{
- RowBox[{"ddtspecifics", "=", 
+ RowBox[{"ddtextensives", "=", 
   RowBox[{"FullSimplify", "[", 
    FractionBox[
     RowBox[{"(", 
      RowBox[{"inside", "-", 
-      RowBox[{"bigPI", "*", "bigtheta"}]}], ")"}], 
+      RowBox[{"extensivePI", "*", "extensivetheta"}]}], ")"}], 
     RowBox[{"\[Sigma]", "*", "T"}]], "]"}]}], "\[IndentingNewLine]", 
  RowBox[{"N", "[", 
-  RowBox[{"ddtspecifics", ",", "17"}], "]"}]}], "Input",
+  RowBox[{"ddtextensives", ",", "17"}], "]"}]}], "Input",
  CellChangeTimes->{{3.90924430755378*^9, 3.9092443366816397`*^9}, {
   3.9094845563778687`*^9, 3.909484635613369*^9}, {3.909484718037571*^9, 
   3.909484719626215*^9}},
@@ -2093,7 +2093,7 @@ Cell[BoxData[{
      RowBox[{
       RowBox[{"-", 
        FractionBox[
-        RowBox[{"zeta", "*", "bigtheta"}], "\[Sigma]"]}], "-", 
+        RowBox[{"zeta", "*", "extensivetheta"}], "\[Sigma]"]}], "-", 
       FractionBox["Bulk", "gamma"]}], ")"}], "/", "tauRelax"}], 
    "]"}]}], "\[IndentingNewLine]", 
  RowBox[{"N", "[", 

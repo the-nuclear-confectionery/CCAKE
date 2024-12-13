@@ -20,10 +20,10 @@ namespace ccake{
 using EvolverCache = Cabana::MemberTypes<double[4][4], // stress-energy tensor
                                          double[3],    // four-velocity
                                          double[3],    // position
-                                         double,       // specific_entropy
-                                         double,       // specific_baryon
-                                         double,       // specific_strangeness
-                                         double,       // specific_electric
+                                         double,       // extensive_entropy
+                                         double,       // extensive_baryon
+                                         double,       // extensive_strangeness
+                                         double,       // extensive_electric
                                          double,       // Bulk pressure
                                          double        // E0 = Ez
 >;
@@ -32,14 +32,14 @@ namespace evolver_cache_info
 {
 enum cache_data
 {
-  big_shear,
+  extensive_shear,
   four_velocity,
   position,
-  specific_entropy,
-  specific_baryon,
-  specific_strangeness,
-  specific_electric,
-  big_bulk,
+  extensive_entropy,
+  extensive_baryon,
+  extensive_strangeness,
+  extensive_electric,
+  extensive_bulk,
   E0
 };
 }
@@ -47,7 +47,7 @@ enum cache_data
 /// @class Evolver
 /// @brief Class responsible for evolving the hydrodynamic system in time
 /// @details This class is responsible for evolving the hydrodynamic system
-/// in time. Variables to be evolved are specific entropy, space components
+/// in time. Variables to be evolved are extensive entropy, space components
 /// of four-velocity, position, bulk pressure, and the transverse components
 /// of the viscous shear tensor.
 /// @tparam D
@@ -70,7 +70,7 @@ class Evolver
 
 
     // creating vectors of quantities for RK evolution
-    vector<double> specific_s0;
+    vector<double> extensive_s0;
     vector<double> Bulk0;
     vector<double> particles_E0;
 
@@ -153,21 +153,21 @@ class Evolver
         // store increments
         ps.k1        = dt*ph.du_dt;
         ps.r1        = dt*ph.v;
-        ps.ets1      = dt*p.d_dt_spec.s;
+        ps.ets1      = dt*p.d_dt_extensive.s;
         ps.b1        = dt*ph.dBulk_dt;
         ps.shv1      = dt*ph.dshv_dt;
 
         // implement increments with appropriate coefficients
         ph.u         = u0[i]          + 0.5*ps.k1;
         p.r          = r0[i]          + 0.5*ps.r1;
-        p.specific.s = specific_s0[i] + 0.5*ps.ets1;
+        p.extensive.s = extensive_s0[i] + 0.5*ps.ets1;
         ph.Bulk      = Bulk0[i]       + 0.5*ps.b1;
         tmini(ph.shv,  shv0[i]        + 0.5*ps.shv1);
 
         // regulate updated results if necessary
-        if ( REGULATE_NEGATIVE_S && p.specific.s < 0.0
+        if ( REGULATE_NEGATIVE_S && p.extensive.s < 0.0
               && p.T() < 50.0/constants::hbarc_MeVfm )
-          p.specific.s    = specific_s0[i];
+          p.extensive.s    = extensive_s0[i];
       }
 
       E1           = dt*systemPtr->dEz;
@@ -189,20 +189,20 @@ class Evolver
 
         ps.k2        = dt*ph.du_dt;
         ps.r2        = dt*ph.v;
-        ps.ets2      = dt*p.d_dt_spec.s;
+        ps.ets2      = dt*p.d_dt_extensive.s;
         ps.b2        = dt*ph.dBulk_dt;
         ps.shv2      = dt*ph.dshv_dt;
 
         ph.u         = u0[i]          + 0.5*ps.k2;
         p.r          = r0[i]          + 0.5*ps.r2;
-        p.specific.s = specific_s0[i] + 0.5*ps.ets2;
+        p.extensive.s = extensive_s0[i] + 0.5*ps.ets2;
         ph.Bulk      = Bulk0[i]       + 0.5*ps.b2;
         tmini(ph.shv,  shv0[i]        + 0.5*ps.shv2);
 
         // regulate updated results if necessary
-        if ( REGULATE_NEGATIVE_S && p.specific.s < 0.0
+        if ( REGULATE_NEGATIVE_S && p.extensive.s < 0.0
               && p.T() < 50.0/constants::hbarc_MeVfm )
-          p.specific.s    = specific_s0[i];
+          p.extensive.s    = extensive_s0[i];
       }
 
       E2           = dt*systemPtr->dEz;
@@ -223,21 +223,21 @@ class Evolver
 
         ps.k3        = dt*ph.du_dt;
         ps.r3        = dt*ph.v;
-        ps.ets3      = dt*p.d_dt_spec.s;
+        ps.ets3      = dt*p.d_dt_extensive.s;
         ps.b3        = dt*ph.dBulk_dt;
         ps.shv3      = dt*ph.dshv_dt;
 
 
         ph.u         = u0[i]          + ps.k3;
         p.r          = r0[i]          + ps.r3;
-        p.specific.s = specific_s0[i] + ps.ets3;
+        p.extensive.s = extensive_s0[i] + ps.ets3;
         ph.Bulk      = Bulk0[i]       + ps.b3;
         tmini(ph.shv,  shv0[i]        + ps.shv3);
 
         // regulate updated results if necessary
-        if ( REGULATE_NEGATIVE_S && p.specific.s < 0.0
+        if ( REGULATE_NEGATIVE_S && p.extensive.s < 0.0
               && p.T() < 50.0/constants::hbarc_MeVfm )
-          p.specific.s    = specific_s0[i];
+          p.extensive.s    = extensive_s0[i];
       }
 
       E3           = dt*systemPtr->dEz;
@@ -259,21 +259,21 @@ class Evolver
 
         ps.k4        = dt*ph.du_dt;
         ps.r4        = dt*ph.v;
-        ps.ets4      = dt*p.d_dt_spec.s;
+        ps.ets4      = dt*p.d_dt_extensive.s;
         ps.b4        = dt*ph.dBulk_dt;
         ps.shv4      = dt*ph.dshv_dt;
 
         // sum the weighted steps into yf and return the final y values
         ph.u         = u0[i]          + w1*ps.k1   + w2*ps.k2   + w2*ps.k3   + w1*ps.k4;
         p.r          = r0[i]          + w1*ps.r1   + w2*ps.r2   + w2*ps.r3   + w1*ps.r4;
-        p.specific.s = specific_s0[i] + w1*ps.ets1 + w2*ps.ets2 + w2*ps.ets3 + w1*ps.ets4;
+        p.extensive.s = extensive_s0[i] + w1*ps.ets1 + w2*ps.ets2 + w2*ps.ets3 + w1*ps.ets4;
         ph.Bulk      = Bulk0[i]       + w1*ps.b1   + w2*ps.b2   + w2*ps.b3   + w1*ps.b4;
         tmini(ph.shv,  shv0[i]        + w1*ps.shv1 + w2*ps.shv2 + w2*ps.shv3 + w1*ps.shv4);
 
         // regulate updated results if necessary
-        if ( REGULATE_NEGATIVE_S && p.specific.s < 0.0
+        if ( REGULATE_NEGATIVE_S && p.extensive.s < 0.0
               && p.T() < 50.0/constants::hbarc_MeVfm )
-          p.specific.s    = specific_s0[i];
+          p.extensive.s    = extensive_s0[i];
       }
 
       E4            = dt*systemPtr->dEz;

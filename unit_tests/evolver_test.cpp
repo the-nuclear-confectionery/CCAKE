@@ -54,7 +54,7 @@ TEST(evolver, test_rk2){
     p->hydro.v(1) = 4./sqrt(26.);
 
     //Initial entropy
-    p->specific.s = 2.;
+    p->extensive.s = 2.;
     
     //Initial Bulk
     p->hydro.Bulk = 6.;
@@ -75,7 +75,7 @@ TEST(evolver, test_rk2){
     p->hydro.du_dt(0) = 9./2.;
     p->hydro.du_dt(1) = 7./2.;
 
-    p->d_dt_spec.s = 5./2.;
+    p->d_dt_extensive.s = 5./2.;
     p->hydro.dBulk_dt = 3./2.;
 
     p->hydro.dshv_dt(0,0) = M_PI;
@@ -93,7 +93,7 @@ TEST(evolver, test_rk2){
     double const expected_u0 = 3 + dt*9./2.;
     double const expected_u1 = 4 + dt*7./2.;
 
-    double const expected_specific_s = 2. + dt*5./2.;
+    double const expected_extensive_s = 2. + dt*5./2.;
     double const expected_Bulk = 6. + dt*3./2.;
     double const expected_shv11 = 3. + dt*M_PI;
     double const expected_shv12 = 4. + dt*2*M_PI;
@@ -112,7 +112,7 @@ TEST(evolver, test_rk2){
     ASSERT_DOUBLE_EQ(p->r(1), expected_r1);
     ASSERT_DOUBLE_EQ(p->hydro.u(0), expected_u0);
     ASSERT_DOUBLE_EQ(p->hydro.u(1), expected_u1);
-    ASSERT_DOUBLE_EQ(p->specific.s, expected_specific_s);
+    ASSERT_DOUBLE_EQ(p->extensive.s, expected_extensive_s);
     ASSERT_DOUBLE_EQ(p->hydro.Bulk, expected_Bulk);
     
     ASSERT_DOUBLE_EQ(p->hydro.shv(1,1), expected_shv11);

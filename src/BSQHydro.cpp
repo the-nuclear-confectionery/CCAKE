@@ -108,7 +108,6 @@ void BSQHydro<2,EoM_default>::read_ICCING()
         Particle<2> p;
         p.r(0)       = x;
         p.r(1)       = y;
-        p.input.e    = e;
         p.input.rhoB = rhoB;
         p.input.rhoS = rhoS;
         p.input.rhoQ = rhoQ;
@@ -441,8 +440,8 @@ void BSQHydro<D,TEOM>::initialize_hydrodynamics()
   // if initializing from full Tmunu, absorb non-equilibrium
   // pressure correction into bulk viscous pressure Pi
   wsPtr->set_bulk_Pi();
-  //calculate specific/extensive shear tensor
-  wsPtr->calculate_big_shv();
+  //calculate extensive shear tensor
+  wsPtr->calculate_extensive_shv();
   /*#ifdef DEBUG
   std::cout << "set_bulk_Pi()" << std::endl;
   for (auto & p : systemPtr->particles){

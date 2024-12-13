@@ -117,7 +117,7 @@ public:
 
   //============================================================================
   // smoothing
-  void calculate_intial_volume(double time_squared);
+  void calculate_intial_sigma(double time_squared);
   void smooth_all_particle_fields(double time_squared);
   void smooth_all_particle_gradients(double time_squared);
 
@@ -140,7 +140,7 @@ public:
   void locate_phase_diagram_point_sBSQ(Particle<D> & p, double s_In );
 
   void set_bulk_Pi();
-  void calculate_big_shv();
+  void calculate_extensive_shv();
   bool continue_evolution();
   void advance_timestep( double dt, int rk_order );
   

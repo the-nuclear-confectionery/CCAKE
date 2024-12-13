@@ -141,7 +141,7 @@ TEST(eom_default, test_time_derivative){
     double expected_dwdsT1 = -1;
     double expected_dsigma_dt = -6;
     double expected_sigl = -3.5;
-    double expected_bigPI = 3.*sqrt(2/13.0);
+    double expected_bulk = 3.*sqrt(2/13.0);
     double expected_C = M_PI/2.+3.*sqrt(2/13.0);
     double expected_eta_o_tau = 2./3.;
     double expected_Agam = -328.-6.*sqrt(2./13.)-13.*M_PI/2.;
@@ -153,7 +153,7 @@ TEST(eom_default, test_time_derivative){
     double expected_du_dt0=-9.1234319302411276;
     double expected_du_dt1=-16.259788577386033;
     double expected_inside = -15.534563014702962;
-    double expected_d_dt_specific_s = -4.7377394923567692;
+    double expected_d_dt_extensive_s = -4.7377394923567692;
     double expected_dBulk_dt = 0.36555469870526137;
     double expected_dshv_dt00 = -86.251382196576950;
     double expected_dshv_dt01 = -85.958565490964447;
@@ -178,7 +178,7 @@ TEST(eom_default, test_time_derivative){
     double expected_piutot10 = 98.*sqrt(2./13.);
     double expected_piutot11 = 128.*sqrt(2./13.);
     double expected_div_u = -2.825925663130984;
-    double expected_bigtheta = -0.55283181266918218;
+    double expected_extensivetheta = -0.55283181266918218;
     
     
     
@@ -220,7 +220,7 @@ TEST(eom_default, test_time_derivative){
     ASSERT_DOUBLE_EQ(systemPtr->particles[0].hydro.dwdsT1, expected_dwdsT1);
     ASSERT_DOUBLE_EQ(systemPtr->particles[0].hydro.dsigma_dt, expected_dsigma_dt);
     ASSERT_DOUBLE_EQ(systemPtr->particles[0].hydro.sigl, expected_sigl);
-    ASSERT_DOUBLE_EQ(systemPtr->particles[0].hydro.bigPI, expected_bigPI);
+    ASSERT_DOUBLE_EQ(systemPtr->particles[0].hydro.extensivePI, expected_bulk);
     ASSERT_DOUBLE_EQ(systemPtr->particles[0].hydro.C, expected_C);
     ASSERT_DOUBLE_EQ(systemPtr->particles[0].hydro.eta_o_tau, expected_eta_o_tau);
     ASSERT_DOUBLE_EQ(systemPtr->particles[0].hydro.Agam, expected_Agam);
@@ -251,10 +251,10 @@ TEST(eom_default, test_time_derivative){
     ASSERT_LE( fabs(systemPtr->particles[0].hydro.du_dt(1)/expected_du_dt1 - 1), TOL) ;
     
     ASSERT_LE( fabs(systemPtr->particles[0].hydro.div_u/expected_div_u - 1), TOL) ;
-    ASSERT_LE( fabs(systemPtr->particles[0].hydro.bigtheta/expected_bigtheta - 1), TOL) ;
+    ASSERT_LE( fabs(systemPtr->particles[0].hydro.extensivetheta/expected_extensivetheta - 1), TOL) ;
     ASSERT_LE( fabs(systemPtr->particles[0].hydro.inside/expected_inside - 1), TOL) ;
 
-    ASSERT_LE( fabs(systemPtr->particles[0].d_dt_spec.s/expected_d_dt_specific_s - 1), TOL) ;
+    ASSERT_LE( fabs(systemPtr->particles[0].d_dt_extensive.s/expected_d_dt_extensive_s - 1), TOL) ;
     ASSERT_LE( fabs(systemPtr->particles[0].hydro.dBulk_dt/expected_dBulk_dt - 1), TOL) ;
 
     ASSERT_LE( fabs(systemPtr->particles[0].hydro.dshv_dt(0,0)/expected_dshv_dt00 - 1), TOL) ;

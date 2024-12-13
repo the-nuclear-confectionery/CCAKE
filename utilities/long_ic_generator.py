@@ -1,6 +1,5 @@
 
 import numpy as np
-import pandas as pd
 import sys
 
 def init_cond(tau):
@@ -28,7 +27,7 @@ def init_cond(tau):
     with open(fname, "w") as f:
         f.write(f"#0 {stepx} {stepy} {stepeta} 0 {xmin} {ymin} {etamin}\n")
         for eta in etas:
-            eps = eps0 / hbarc_G**3 * (t0/tau0 + a*tau/tau0 * np.exp(eta))**c * (t0/tau0 + tau/(a*tau0) * np.exp(-eta))**c
+            eps = eps0 * (t0/tau0 + a*tau/tau0 * np.exp(eta))**c * (t0/tau0 + tau/(a*tau0) * np.exp(-eta))**c
             u = 0.5 / tau * (np.sqrt((t0*np.exp(-eta)+tau*a) / (t0*np.exp(eta)+(tau/a))) - np.sqrt((t0*np.exp(eta)+(tau/a)) / (t0*np.exp(-eta)+tau*a)))
             #eta_shift = eta + 2.0
             f.write(f"0 0 {eta} {eps} 0 0 0 0 0 {u} 0 0 0 0 0 0 0\n")

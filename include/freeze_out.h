@@ -26,7 +26,7 @@ namespace ccake
                                   double, double, double, // t, s, e
                                   double, double, double, // rhoB, rhoS, rhoQ
                                   double, double, double, double, // T, muB, muS, muQ
-                                  double, double, double, // theta, bulk, sigma_star
+                                  double, double, double, // theta, bulk, sigma_lab
                                   double, double, // shear33, shv_nabla_u
                                   double, double // wfz, cs2fz
                                   >; // 41*8 = 328 bytes per particle. 100K Particles = 32.8 MB
@@ -47,7 +47,7 @@ namespace ccake
       t, s, e,
       rhoB, rhoS, rhoQ,
       T, muB, muS, muQ,
-      theta, bulk, sigma_star,
+      theta, bulk, sigma_lab,
       shear33, shv_nabla_u,
       wfz, cs2fz
     };
@@ -89,7 +89,7 @@ namespace ccake
   auto CONCAT(prefix, muQ) = Cabana::slice<FRZ_enum::muQ>(FRZ_aosoa); \
   auto CONCAT(prefix, theta) = Cabana::slice<FRZ_enum::theta>(FRZ_aosoa); \
   auto CONCAT(prefix, bulk) = Cabana::slice<FRZ_enum::bulk>(FRZ_aosoa); \
-  auto CONCAT(prefix, sigma_star) = Cabana::slice<FRZ_enum::sigma_star>(FRZ_aosoa); \
+  auto CONCAT(prefix, sigma_lab) = Cabana::slice<FRZ_enum::sigma_lab>(FRZ_aosoa); \
   auto CONCAT(prefix, shear33) = Cabana::slice<FRZ_enum::shear33>(FRZ_aosoa); \
   auto CONCAT(prefix, shv_nabla_u) = Cabana::slice<FRZ_enum::shv_nabla_u>(FRZ_aosoa); \
   auto CONCAT(prefix, wfz) = Cabana::slice<FRZ_enum::wfz>(FRZ_aosoa); \
@@ -234,7 +234,7 @@ class FreezeOut
         frz2_muS.access(is, ia)  = device_thermo.access(is, ia, ccake::thermo_info::muS);
         frz2_muQ.access(is, ia)  = device_thermo.access(is, ia, ccake::thermo_info::muQ);
         frz2_theta.access(is, ia) = device_hydro_scalar.access(is, ia, ccake::hydro_info::theta);
-        frz2_sigma_star.access(is, ia) = device_hydro_scalar.access(is, ia, ccake::hydro_info::sigma_star);
+        frz2_sigma_lab.access(is, ia) = device_hydro_scalar.access(is, ia, ccake::hydro_info::sigma_lab);
         frz2_shear33.access(is, ia) = device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::shv, 3, 3);
         frz2_shv_nabla_u.access(is, ia) = device_hydro_scalar.access(is, ia, ccake::hydro_info::shv_nabla_u);
         frz2_wfz.access(is, ia) = device_thermo.access(is, ia, ccake::thermo_info::w);
@@ -277,7 +277,7 @@ class FreezeOut
         frz1_muQ.access(is, ia)  = device_thermo.access(is, ia, ccake::thermo_info::muQ);
         frz1_theta.access(is, ia) = device_hydro_scalar.access(is, ia, ccake::hydro_info::theta);
         frz1_bulk.access(is, ia) = device_hydro_scalar.access(is, ia, ccake::hydro_info::bulk);
-        frz1_sigma_star.access(is, ia) = device_hydro_scalar.access(is, ia, ccake::hydro_info::sigma_star);
+        frz1_sigma_lab.access(is, ia) = device_hydro_scalar.access(is, ia, ccake::hydro_info::sigma_lab);
         frz1_shear33.access(is, ia) = device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::shv, 3, 3);
         frz1_shv_nabla_u.access(is, ia) = device_hydro_scalar.access(is, ia, ccake::hydro_info::shv_nabla_u);
         frz1_wfz.access(is, ia) = device_thermo.access(is, ia, ccake::thermo_info::w);
@@ -384,7 +384,7 @@ class FreezeOut
           frz_dest_muQ.access(is, ia) = frz_src_muQ.access(is, ia);
           frz_dest_theta.access(is, ia) = frz_src_theta.access(is, ia);
           frz_dest_bulk.access(is, ia) = frz_src_bulk.access(is, ia);
-          frz_dest_sigma_star.access(is, ia) = frz_src_sigma_star.access(is, ia);
+          frz_dest_sigma_lab.access(is, ia) = frz_src_sigma_lab.access(is, ia);
           frz_dest_shear33.access(is, ia) = frz_src_shear33.access(is, ia);
           frz_dest_shv_nabla_u.access(is, ia) = frz_src_shv_nabla_u.access(is, ia);
           frz_dest_wfz.access(is, ia) = frz_src_wfz.access(is, ia);
@@ -584,7 +584,7 @@ class FreezeOut
           frz1_muQ.access(is, ia) = device_thermo.access(is, ia, ccake::thermo_info::muQ);
           frz1_theta.access(is, ia) = device_hydro_scalar.access(is, ia, ccake::hydro_info::theta);
           frz1_bulk.access(is, ia) = device_hydro_scalar.access(is, ia, ccake::hydro_info::bulk);
-          frz1_sigma_star.access(is, ia) = device_hydro_scalar.access(is, ia, ccake::hydro_info::sigma_star);
+          frz1_sigma_lab.access(is, ia) = device_hydro_scalar.access(is, ia, ccake::hydro_info::sigma_lab);
           frz1_shear33.access(is, ia) = device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::shv, 3, 3);
           frz1_shv_nabla_u.access(is, ia) = device_hydro_scalar.access(is, ia, ccake::hydro_info::shv_nabla_u);
           frz1_wfz.access(is, ia) = device_thermo.access(is, ia, ccake::thermo_info::w);
@@ -673,7 +673,7 @@ class FreezeOut
             results_bulksub.access(is,ia) = frz1_bulk.access(is,ia);
             results_thetasub.access(is,ia) = frz1_theta.access(is,ia);
             shv_nabla_u = frz1_shv_nabla_u.access(is,ia)*results_tlist.access(is,ia);
-            sigsub = frz1_sigma_star.access(is,ia);
+            sigsub = frz1_sigma_lab.access(is,ia);
             results_shear33sub.access(is,ia) = frz1_shear33.access(is,ia);
             results_Efluc.access(is,ia) = frz1_e.access(is,ia);
             results_Tfluc.access(is,ia) = frz1_T.access(is,ia);
@@ -705,7 +705,7 @@ class FreezeOut
             results_bulksub.access(is,ia) = frz2_bulk.access(is,ia);
             results_thetasub.access(is,ia) = frz2_theta.access(is,ia);
             shv_nabla_u = frz2_shv_nabla_u.access(is,ia)*results_tlist.access(is,ia);
-            sigsub = frz2_sigma_star.access(is,ia);
+            sigsub = frz2_sigma_lab.access(is,ia);
             results_shear33sub.access(is,ia) = frz2_shear33.access(is,ia);
             results_Efluc.access(is,ia) = frz2_e.access(is,ia);
             results_Tfluc.access(is,ia) = frz2_T.access(is,ia);
@@ -722,7 +722,7 @@ class FreezeOut
           for (int idir=0; idir<D; ++idir) norm2 += results_uout.access(is,ia,idir)*uout_cov(idir);
           results_gsub.access(is,ia) = Kokkos::sqrt( -norm2 + 1 );
           sigsub /= results_gsub.access(is,ia)*results_tlist.access(is,ia);
-          results_swsub.access(is,ia) = device_norm_spec.access(is, ia, ccake::densities_info::s)/sigsub;
+          results_swsub.access(is,ia) = device_sph_mass.access(is, ia, ccake::densities_info::s)/sigsub;
           for(int idir=0;idir<D;++idir){
             results_divT.access(is,ia,idir) = (1.0/results_sFO.access(is,ia))*gradPsub(idir);//\partial_\mu T= \partial_\mu P/s.
             results_divP.access(is, ia, idir) = gradPsub(idir);

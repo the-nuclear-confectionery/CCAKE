@@ -124,8 +124,8 @@ class SystemState
         for ( int j = 0; j < num_n; ++j ){
           int neighIdx = Cabana::NeighborList<ListType>::getNeighbor( neighbour_list, idx, j );
           std::cout << "    neighbor " << j << " = "
-                    << neighIdx  << ", specific_density.s: " << device_specific_density(neighIdx, ccake::densities_info::s)
-                    << ", norm_spec.s: " << device_norm_spec(neighIdx, ccake::densities_info::s) << std::endl;
+                    << neighIdx  << ", extensive.s: " << device_extensive(neighIdx, ccake::densities_info::s)
+                    << ", sph_mass.s: " << device_sph_mass(neighIdx, ccake::densities_info::s) << std::endl;
                 }
     };
 

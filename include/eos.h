@@ -113,7 +113,6 @@ public:
       thermo.rhoQ = Q();
       thermo.e    = e();
       thermo.w    = w();
-      thermo.A    = A();
       thermo.cs2  = cs2();
       thermo.dwds = dwds();
       thermo.dwdB = dwdB();
@@ -133,7 +132,6 @@ public:
             << thermo.rhoQ << "   "
             << thermo.e << "   "
             << thermo.w << "   "
-            << thermo.A << "   "
             << thermo.cs2 << "   "
             << thermo.dwds << "   "
             << thermo.dwdB << "   "

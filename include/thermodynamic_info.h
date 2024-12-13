@@ -22,7 +22,7 @@ struct thermodynamic_info
 
   double T    = 0.0, muB  = 0.0, muS  = 0.0, muQ  = 0.0;
   double e    = 0.0, s    = 0.0, rhoB = 0.0, rhoS = 0.0, rhoQ = 0.0,
-         p    = 0.0, cs2  = 0.0, w    = 0.0, A    = 0.0;
+         p    = 0.0, cs2  = 0.0, w    = 0.0;
   double dwds = 0.0, dwdB = 0.0, dwdS = 0.0, dwdQ = 0.0;
 
 };
@@ -41,7 +41,6 @@ namespace thermo_info{
     p,
     cs2,
     w,
-    A,
     dwds,
     dwdB,
     dwdS,

@@ -322,8 +322,6 @@ void EoS_Interpolator::fill_thermodynamics(Cabana::AoSoA<CabanaParticle,
 
     device_thermo.access(is, ia, ccake::thermo_info::w) = device_thermo.access(is, ia, ccake::thermo_info::e)
                                                         + device_thermo.access(is, ia, ccake::thermo_info::p);
-    device_thermo.access(is, ia, ccake::thermo_info::A) = device_thermo.access(is, ia, ccake::thermo_info::w)
-                                                         -s*device_thermo.access(is, ia, ccake::thermo_info::dwds);
   };
   Cabana::SimdPolicy<VECTOR_LENGTH, ExecutionSpace> simd_policy(0, particles.size());
   Cabana::simd_parallel_for(simd_policy, interpolate, "interpolate");

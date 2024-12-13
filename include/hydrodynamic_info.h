@@ -31,7 +31,7 @@ struct hydrodynamic_info
   double gamma           = 0.0; ///< Lorentz factor
   double theta           = 0.0; ///< expansion rate nabla_mu u^mu
   double bulk            = 0.0; ///< total bulk viscosity
-  double bigBulk         = 0.0; ///< extensive bulk viscosity
+  double extensive_bulk         = 0.0; ///< extensive bulk viscosity
   double tau_Pi          = 0.0; ///< Bulk Relaxation time
   double tau_pi          = 0.0; ///< Shear Relxation time
   double delta_PiPi      = 0.0; ///< bulk delta transport coefficient
@@ -45,7 +45,7 @@ struct hydrodynamic_info
   double phi7            = 0.0; ///< shear phi7 transport coefficient
   double zeta_Pi         = 0.0; ///< bulk coefficient
   double eta_pi          = 0.0; ///< shear coefficient
-  double sigma_star      = 0.0; ///< specific volume in computational frame
+  double sigma_lab      = 0.0; ///< specific volume in computational frame
   double sigma           = 0.0; ///< specific volume
   double shv_nabla_u     = 0.0; ///< pi_mu_nu nabla^mu u^nu = pi^mu_nu sigma^mu_nu
 
@@ -66,46 +66,45 @@ struct hydrodynamic_info
   Vector<double,D> divshear, gradshear;
 
 
-  Matrix<double,D,D> Imat;
   Matrix<double,D,D> gradV, gradU;        // Gradient of velocity needed for shear
   Matrix<double,4,4> shv;
 
   // Auxiliary M matrices
-  Vector<double,D> M_big_bulk;
+  Vector<double,D> M_extensive_bulk;
   Vector<double,D> M_shv_nabla_u;
-  Vector<double,D> M_big_entropy;
+  Vector<double,D> M_extensive_entropy;
   Matrix<double,D,D> M_u;
   //one for each conserved charge (baryon, strangeness, electric charge)
-  Matrix<double,D,3> M_big_N;
+  Matrix<double,D,3> M_extensive_N;
   //one for each independent component of the shear tensor, linearized index
-  Matrix<double,2,3*D> M_big_shear;
-  Matrix<double,2,3*3> R_big_shear;
+  Matrix<double,2,3*D> M_extensive_shear;
+  Matrix<double,2,3*3> R_extensive_shear;
 
   // Auxiliary R matrices
-  Vector<double,3> R_big_entropy;
-  Vector<double,3> R_big_bulk;
-  Matrix<double,3,3> R_big_N;
+  Vector<double,3> R_extensive_entropy;
+  Vector<double,3> R_extensive_bulk;
+  Matrix<double,3,3> R_extensive_N;
   Matrix<double,D,3> R_0i_shear;
   Matrix<double,D,D> M_0i_shear;
   Matrix<double,D,3> R_u;
 
   // auxiliary F vectors
-  double F_big_bulk;
+  double F_extensive_bulk;
   double F_shv_nabla_u;
-  double F_big_entropy;
+  double F_extensive_entropy;
   Vector<double,D> F_u;
   Vector<double,D> F_0i_shear;
   //one for each conserved charge (baryon, strangeness, electric charge)
-  Vector<double,3> F_big_N;
+  Vector<double,3> F_extensive_N;
   //one for each independent component of the shear tensor
-  Matrix<double,2,3> F_big_shear;
-  Matrix<double,2,3> bigshv;
+  Matrix<double,2,3> F_extensive_shear;
+  Matrix<double,2,3> extensive_shv;
 
 
   // derivatives
-  double dbigBulk_dt        = 0.0;
+  double d_extensive_bulk_dt        = 0.0;
   Vector<double, D> du_dt;
-  Matrix<double, 2, 3> d_bigshv_dt;
+  Matrix<double, 2, 3> d_extensive_shv_dt;
 
 };
 
@@ -116,7 +115,7 @@ enum hydro_scalar_info
 {
   t,
   bulk,
-  bigBulk,
+  extensive_bulk,
   a,
   rho_Q_ext,
   rho_S_ext,
@@ -124,7 +123,7 @@ enum hydro_scalar_info
   tau_Pi,
   tau_pi,
   zeta_Pi,
-  sigma_star,
+  sigma_lab,
   sigma,
   gamma,
   theta,
@@ -140,10 +139,10 @@ enum hydro_scalar_info
   lambda_piPi,
   varsigma,
   div_u,
-  dbigBulk_dt,
-  F_big_bulk,
+  d_extensive_bulk_dt,
+  F_extensive_bulk,
   F_shv_nabla_u,
-  F_big_entropy,
+  F_extensive_entropy,
   shv_nabla_u,
   NUM_HYDRO_SCALAR_INFO
 };
@@ -157,13 +156,13 @@ enum hydro_vector_info
   gradBulk,
   divshear,
   gradshear,
-  M_big_bulk,
+  M_extensive_bulk,
   M_shv_nabla_u,
-  M_big_entropy,
-  R_big_entropy,
-  R_big_bulk,
+  M_extensive_entropy,
+  R_extensive_entropy,
+  R_extensive_bulk,
   F_u,
-  F_big_N,
+  F_extensive_N,
   F_0i_shear,
   j_ext,
   du_dt,
@@ -172,11 +171,10 @@ enum hydro_vector_info
 #define HYDRO_VECTOR_INFO double[ccake::hydro_info::NUM_HYDRO_VECTOR_INFO][3]
 enum hydro_space_matrix_info
 {
-  Imat,
   gradV,
   M_u,
-  M_big_N,
-  R_big_N,
+  M_extensive_N,
+  R_extensive_N,
   R_u,
   R_0i_shear,
   M_0i_shear,
@@ -191,16 +189,16 @@ enum hydro_spacetime_matrix_info
 #define HYDRO_SPACETIME_MATRIX_INFO double[ccake::hydro_info::NUM_HYDRO_SPACETIME_MATRIX_INFO][4][4]
 enum hydro_shear_aux_vector_info
 {
-  F_big_shear,
-  bigshv,
-  d_bigshv_dt,
+  F_extensive_shear,
+  extensive_shv,
+  d_extensive_shv_dt,
   NUM_HYDRO_SHEAR_AUX_VECTOR_INFO
 };
 #define HYDRO_SHEAR_AUX_VECTOR_INFO double[ccake::hydro_info::NUM_HYDRO_SHEAR_AUX_VECTOR_INFO][2][3]
 enum hydro_shear_aux_matrix_info
 {
-  M_big_shear,
-  R_big_shear,
+  M_extensive_shear,
+  R_extensive_shear,
   NUM_HYDRO_SHEAR_AUX_MATRIX_INFO
 };
 #define HYDRO_SHEAR_AUX_MATRIX_INFO double[ccake::hydro_info::NUM_HYDRO_SHEAR_AUX_MATRIX_INFO][2][9]
