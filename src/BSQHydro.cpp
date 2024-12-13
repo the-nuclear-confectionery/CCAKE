@@ -108,6 +108,7 @@ void BSQHydro<2,EoM_default>::read_ICCING()
         Particle<2> p;
         p.r(0)       = x;
         p.r(1)       = y;
+        p.input.e    = e;
         p.input.rhoB = rhoB;
         p.input.rhoS = rhoS;
         p.input.rhoQ = rhoQ;
