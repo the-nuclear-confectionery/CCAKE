@@ -126,8 +126,8 @@ images/ccake-gpu.sif: defs/ccake-gpu.def images/nvhpc.sif
 	cd ../build-debug; \
         ln -sf ../EoS ./
 
-build-release: ../build/ccake
-build-debug: ../build-debug/ccake
+build-release: ../build/ccake ../EoS/Houston/thermo.h5
+build-debug: ../build-debug/ccake ../EoS/Houston/thermo.h5
 
 ../EoS/Houston/thermo.h5:
 	mkdir -p ../EoS/Houston
