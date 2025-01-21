@@ -1,7 +1,7 @@
 ---
 initial_conditions:
   type: "ICCING" # Possible values are: ["ccake", "ICCING", "hdf5"]
-  file: "initial_conditions/iccing.dat" # Path to the initial conditions file
+  file: "../initial_conditions/ICCING_example.dat" # Path to the initial conditions file
   t0: 0.600000 # tau0 = \sqrt(t^2-z^2) in fm/c. Must match the value for initial condition file.
   dimension: 2 # (1+1)D, (2+1)D or (3+1)D simulation
   input_as_entropy: false # if false, input will be interpreted as energy density
@@ -30,11 +30,11 @@ hydro:
   viscous_parameters:
     shear:
       mode: "constant" # Possible values are: ["constant", "disabled"]
-      constant_eta_over_s: 0.20 # Value of the constant shear viscosity
+      constant_eta_over_s: 0.08 # Value of the constant shear viscosity
       relaxation_mode: "default" # How shear relaxation coeffiecient is computed. Possible values are: ["default"]
     bulk:
-      mode: "cs2_dependent"
-      constant_zeta_over_s: 0.1
+      mode: "constant"
+      constant_zeta_over_s: 0.0
       cs2_dependent_zeta_A: 1.67552
       cs2_dependent_zeta_p: 2.0
       relaxation_mode: "default"
