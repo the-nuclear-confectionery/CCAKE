@@ -140,7 +140,8 @@ void BBMG::initial()
             sph_particle.line = 0.5 * kappa * exp(z * log(settingsPtr->t0)) * exp(c * log(sph_particle.rho0)) * settingsPtr->dt; // only if initial flow=0
             //jetInfo.resize(14);
             //for (int j = 0; j < phimax; j++) //initializes jets at each point in grid space, over 14 directions
-            std::uniform_int_distribution<> phidist(0, phimax - 1);
+            //std::uniform_int_distribution<> phidist(0, phimax - 1);
+            int phidist = rand() % phimax;
             for (int j = 0; j < back_to_back; j++)
             {
                 sph_particle.phi = phi[phidist] + j * PI;
