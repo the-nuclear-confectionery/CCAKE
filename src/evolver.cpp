@@ -151,7 +151,7 @@ void Evolver<D>::set_current_timestep_quantities()
     rhoB.access(is, ia) = device_extensive.access(is, ia, densities_info::rhoB);
     rhoS.access(is, ia) = device_extensive.access(is, ia, densities_info::rhoS); 
     rhoQ.access(is, ia) = device_extensive.access(is, ia, densities_info::rhoQ);
-    E0.access(is, ia) = device_contribution_to_total_E.access(is, ia);
+    E0.access(is, ia) = device_contribution_to_total_Ez.access(is, ia);
   };
   Cabana::simd_parallel_for(simd_policy, fill_cache, "fill_cache");
 }
@@ -163,7 +163,6 @@ void Evolver<D>::update_k(int n)
   std::map<int, double> w = {{1, 1/6.0}, {2, 2/6.0}, {3, 2/6.0}, {4, 1/6.0}};
   CREATE_VIEW(device_, systemPtr->cabana_particles);
   auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
-
   auto d_extensive_shv_dt = Cabana::slice<evolver_cache_info::extensive_shear>(k);
   auto du_dt = Cabana::slice<evolver_cache_info::four_velocity>(k);
   auto dr_dt = Cabana::slice<evolver_cache_info::position>(k);
@@ -190,7 +189,7 @@ void Evolver<D>::update_k(int n)
     Kokkos::atomic_add(&dNe_dt.access(is, ia), w.at(n)*device_d_dt_extensive.access(is, ia, densities_info::rhoQ));
     Kokkos::atomic_add(&ds_dt.access(is, ia), w.at(n)*device_d_dt_extensive.access(is, ia, densities_info::s));
     Kokkos::atomic_add(&d_extensive_bulk_dt.access(is, ia), w.at(n)*device_hydro_scalar.access(is, ia, hydro_info::d_extensive_bulk_dt));
-    Kokkos::atomic_add(&dE0_dt.access(is, ia), w.at(n)*device_contribution_to_total_Ez.access(is, ia));
+    Kokkos::atomic_add(&dE0_dt.access(is, ia), w.at(n)*device_contribution_to_total_dEz.access(is, ia));
   };
   Cabana::simd_parallel_for(simd_policy, update_k_cache, "update_k_cache");
   Kokkos::fence();
@@ -256,9 +255,9 @@ void Evolver<D>::update_rk4(double dt){
         
         //Sum everything up
         double extensive_s        = extensive_s0         + dt*ks;
-        double speific_rhoB      = extensive_rhob0      + dt*k_rhoB;
-        double speific_rhoS      = extensive_rhos0      + dt*k_rhoS;
-        double speific_rhoQ      = extensive_rhoQ0      + dt*k_rhoQ;
+        double extensive_rhoB      = extensive_rhob0      + dt*k_rhoB;
+        double extensive_rhoS      = extensive_rhos0      + dt*k_rhoS;
+        double extensive_rhoQ      = extensive_rhoQ0      + dt*k_rhoQ;
         double bulk               = extensive_bulk0               + dt*kextensive_bulk;
         double particles_Ez       = particles_E0        + dt*kE0;
         milne::Vector<double,D> r = r0                  + dt*kr;
@@ -280,9 +279,9 @@ void Evolver<D>::update_rk4(double dt){
         }
 
         device_extensive.access(is, ia, densities_info::s) = extensive_s;
-        device_extensive.access(is, ia, densities_info::rhoB) = speific_rhoB;
-        device_extensive.access(is, ia, densities_info::rhoS) = speific_rhoS;
-        device_extensive.access(is, ia, densities_info::rhoQ) = speific_rhoQ;
+        device_extensive.access(is, ia, densities_info::rhoB) = extensive_rhoB;
+        device_extensive.access(is, ia, densities_info::rhoS) = extensive_rhoS;
+        device_extensive.access(is, ia, densities_info::rhoQ) = extensive_rhoQ;
         device_hydro_scalar.access(is, ia, hydro_info::bulk) = bulk;
         device_contribution_to_total_Ez.access(is, ia) = particles_Ez;
         for (int idir=0; idir<D; ++idir){
@@ -330,7 +329,7 @@ void Evolver<D>::step_rk(double dt, double t0, std::function<void(void)> time_de
     double rhoB0 = slice_rhoB0.access(is, ia);
     double rhoS0 = slice_rhoS0.access(is, ia);
     double rhoQ0 = slice_rhoQ0.access(is, ia);
-    double particles_E0 = slice_E0.access(is, ia);
+    double particles_Ez0 = slice_E0.access(is, ia);
     milne::Matrix<double, 2, 3> extensive_shv0;
     milne::Vector<double, D> r0, u0;
     for(int idir=0; idir<D; ++idir){
@@ -345,6 +344,7 @@ void Evolver<D>::step_rk(double dt, double t0, std::function<void(void)> time_de
     double d_extensive_bulk_dt = device_hydro_scalar.access(is,ia,hydro_info::d_extensive_bulk_dt);
     double d_dt_extensive_s = device_d_dt_extensive.access(is, ia, densities_info::s);
     double dEz_dt = device_contribution_to_total_dEz.access(is,ia);
+    //std::cout << "dEz_dt = " << dEz_dt << std::endl;
     double d_dt_extensive_rhoB = device_d_dt_extensive.access(is, ia, densities_info::rhoB);
     double d_dt_extensive_rhoS = device_d_dt_extensive.access(is, ia, densities_info::rhoS);
     double d_dt_extensive_rhoQ = device_d_dt_extensive.access(is, ia, densities_info::rhoQ);
@@ -366,6 +366,7 @@ void Evolver<D>::step_rk(double dt, double t0, std::function<void(void)> time_de
     double rhoB                 = rhoB0                 + dt*d_dt_extensive_rhoB;
     double rhoS                 = rhoS0                 + dt*d_dt_extensive_rhoS;
     double rhoQ                 = rhoQ0                 + dt*d_dt_extensive_rhoQ;
+    double particles_Ez         = particles_Ez0        + dt*dEz_dt;
     milne::Vector<double,D> r = r0                  + dt*v;
     milne::Vector<double,D> u = u0                  + dt*du_dt;
     milne::Matrix<double,2,3> extensive_shv;
@@ -391,6 +392,7 @@ void Evolver<D>::step_rk(double dt, double t0, std::function<void(void)> time_de
     device_extensive.access(is, ia, densities_info::rhoB) = rhoB;
     device_extensive.access(is, ia, densities_info::rhoS) = rhoS;
     device_extensive.access(is, ia, densities_info::rhoQ) = rhoQ;
+    device_contribution_to_total_Ez.access(is, ia) = particles_Ez;
     for (int idir=0; idir<D; ++idir){
       device_position.access(is, ia, idir) = r(idir);
       device_hydro_vector.access(is, ia, hydro_info::u, idir) = u(idir);

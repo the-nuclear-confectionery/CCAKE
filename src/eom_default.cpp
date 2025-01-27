@@ -188,7 +188,6 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
   auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, sysPtr->cabana_particles.size());
   //calculate the M,R,F matrices due to shear, when using shear
   if(using_shear){
-    std::cout << "Calculating MRF shear" << std::endl;
     calculate_MRF_shear(sysPtr);
   }
    auto fill_auxiliary_variables = KOKKOS_LAMBDA(int const is, int const ia){
@@ -221,10 +220,14 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
     double phi1 = device_hydro_scalar.access(is, ia, hydro_info::phi1);
     double phi3 = device_hydro_scalar.access(is, ia, hydro_info::phi3);
     double lambda_Pipi = device_hydro_scalar.access(is, ia, hydro_info::lambda_Pipi);
+    double j0_ext = device_hydro_scalar.access(is, ia, hydro_info::j0_ext);
+    double rhoQ_ext = device_hydro_scalar.access(is, ia, hydro_info::rho_Q_ext);
+    double rhoS_ext = device_hydro_scalar.access(is, ia, hydro_info::rho_S_ext);
+    double rhoB_ext = device_hydro_scalar.access(is, ia, hydro_info::rho_B_ext);
     //auxiliary zeta tilde to control IR or DNMR
     double zeta_tilde  = zeta +  a*(delta_PiPi - tau_Pi)*bulk;
     //declare caches
-    milne::Vector<double,D> v, u, grad_u0, u_cov;
+    milne::Vector<double,D> v, u, grad_u0, u_cov, j_ext;
     milne::Vector<double,D> M_extensive_bulk_aux, M_shv_nabla_u, M_extensive_entropy;
     milne::Vector<double,3> R_extensive_entropy, R_extensive_bulk, F_extensive_N;
     milne::Matrix<double,D,D> gradV, grad_uj;
@@ -234,6 +237,7 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
     for(int idir=0; idir<D; ++idir){  
       u(idir) = device_hydro_vector.access(is, ia, hydro_info::u, idir);
       v(idir) = device_hydro_vector.access(is, ia, hydro_info::v, idir);
+      j_ext(idir) = device_hydro_vector.access(is, ia, hydro_info::j_ext, idir);
     }
     for(int idir=0; idir<4; ++idir)
     for(int jdir=0; jdir<4; ++jdir)
@@ -255,20 +259,18 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
       }
     }
     double geometric_factor = delta_i_eta(D-1)*u(D-1)*u(D-1)*t/gamma;
-    double rhoQ_ext = 0.;
-    double rhoS_ext = 0.;
-    double rhoB_ext = 0.;
+
     //auxiliary array to store muB, muS, muQ
     milne::Vector<double,3> mu_vec = {muB, muS, muQ};
     //auxiliary array to store rho_ext
     milne::Vector<double,3> rho_ext = {rhoB_ext, rhoS_ext, rhoQ_ext};
 
     
-    double j0_ext =0.;
-    milne::Vector<double,D> j_ext;
-    for(int idir=0; idir<D; ++idir){
-      j_ext(idir) = 0.;
-    }
+    //double j0_ext =0.;
+    //milne::Vector<double,D> j_ext;
+    //for(int idir=0; idir<D; ++idir){
+    //  j_ext(idir) = 0.;
+    //}
 
     //fill M matrices
     for(int idir=0; idir<D; ++idir){
@@ -298,9 +300,8 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
     F_extensive_entropy = ( -bulk*(gamma*divV + gamma/t + geometric_factor)
                     + gamma*j0_ext
                     +milne::contract(u_cov,j_ext))/(sigma*gamma*T);
-    //if(F_extensive_entropy > 1e-10){
-    //  std::cout << "F_extensive_entropy: " << F_extensive_entropy << std::endl;
-    //}
+
+
     for(int icharge=0; icharge<3; ++icharge){
       F_extensive_N(icharge) = rho_ext(icharge);
     }    
@@ -359,6 +360,7 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
       double F_extensive_bulk = device_hydro_scalar.access(is, ia, hydro_info::F_extensive_bulk);
       double F_extensive_entropy = device_hydro_scalar.access(is, ia, hydro_info::F_extensive_entropy);
       double tau_Pi = device_hydro_scalar.access(is, ia, hydro_info::tau_Pi);
+      double j0_ext = device_hydro_scalar.access(is, ia, hydro_info::j_ext);
 
       //declare caches
       double divV = 0;
@@ -585,24 +587,30 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
     //calculate the extensive shear tensor derivative
     if(using_shear){
       milne::Matrix<double,2,3> d_extensive_shv_dt;
+      milne::Matrix<double,2,3> sigma_tensor;
       for(int idir=0; idir<2; ++idir){
         for(int jdir=idir; jdir<3; ++jdir){
           double M_du_aux = 0.;
           double R_dn_aux = 0.;
+          double Msigma_du_aux = 0.;
           for(int kdir=0; kdir<D; ++kdir){
             int linear_index_M = jdir * D + kdir;
             M_du_aux += device_hydro_shear_aux_matrix.access(is, ia, hydro_info::M_extensive_shear, idir,linear_index_M)*du_dt(kdir);
-            
+            Msigma_du_aux += device_hydro_shear_aux_matrix.access(is, ia, hydro_info::M_sigma_tensor, idir,linear_index_M)*du_dt(kdir);
           }
           for(int icharge=0; icharge<3; ++icharge){
-            int linear_index_R = jdir * 3 + icharge;
+            int linear_index_R = jdir * 3 + icharge;  
             R_dn_aux += device_hydro_shear_aux_matrix.access(is, ia, hydro_info::R_extensive_shear, idir, linear_index_R)*dN_dt(icharge);
           }
           d_extensive_shv_dt(idir,jdir) = M_du_aux 
                                   + device_hydro_shear_aux_vector.access(is, ia, hydro_info::F_extensive_shear, idir, jdir);
-           device_hydro_shear_aux_vector.access(is, ia, hydro_info::d_extensive_shv_dt, idir,jdir) = d_extensive_shv_dt(idir,jdir);
+          device_hydro_shear_aux_vector.access(is, ia, hydro_info::d_extensive_shv_dt, idir,jdir) = d_extensive_shv_dt(idir,jdir);
+          sigma_tensor(idir,jdir) = Msigma_du_aux 
+                                 + device_hydro_shear_aux_vector.access(is, ia, hydro_info::F_sigma_tensor, idir, jdir);
+          device_hydro_spacetime_matrix.access(is, ia, hydro_info::sigma_tensor, idir+1,jdir+1) = sigma_tensor(idir,jdir);
         }
       }
+      
     }
 
 
@@ -618,7 +626,6 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
   };
   Cabana::simd_parallel_for(simd_policy, compute_derivatives, "compute_derivatives");
   Kokkos::fence();
-
       // computing dEz_dt
   auto compute_Ez_derivative = KOKKOS_LAMBDA(const int is, const int ia)
     {
@@ -628,11 +635,14 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
       double sph_mass = device_sph_mass.access(is, ia, densities_info::s);
       double p = device_thermo.access(is, ia, thermo_info::p);  
       double e = device_thermo.access(is, ia, thermo_info::e);
+      double sigma = device_hydro_scalar.access(is, ia, hydro_info::sigma);
       milne::Vector<double,D> u;
       for(int idir=0; idir<D; ++idir){
         u(idir) = device_hydro_vector.access(is, ia, hydro_info::u, idir);
       }
-      double u3 = 0;
+
+      milne::Vector<double,4> contra_metric_diag = milne::get_contra_metric_diagonal<3>(t);
+            double u3 = 0;
       if (D==1){
         u3 = u(0); // eta flow velocity
       }
@@ -645,10 +655,17 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
 
       double dEz = 0;
       dEz = ((e + p + bulk)*u3*u3 + (p + bulk)/t2 + shv33 ) * sph_mass * t2 / sigma_lab;
+      //double dEz = 0;
+      //dEz = (p/t2) * sph_mass* t2  / sigma_lab;
       device_contribution_to_total_dEz.access(is, ia) = dEz;
     };
     Cabana::simd_parallel_for(simd_policy, compute_Ez_derivative, "compute_Ez_derivative");
     Kokkos::fence();
+
+    // if using shear calculate shear knudsen number
+    if(using_shear){
+    compute_hydro_numbers(sysPtr);
+    }
   };
 
 
@@ -937,6 +954,7 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr)
           //saves the results 
           int linear_index = jdir * D + kdir;
           device_hydro_shear_aux_matrix.access(is, ia, hydro_info::M_extensive_shear, idir, linear_index) = M_extensive_shear(idir,jdir,kdir);
+          device_hydro_shear_aux_matrix.access(is, ia, hydro_info::M_sigma_tensor, idir, linear_index) = M_sigma(idir,jdir,kdir);
           }
         //calculate the Rs
         for(int icharge=0; icharge<3; ++icharge){
@@ -950,10 +968,139 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr)
       //saves the results
       for(int jdir=idir; jdir<3; ++jdir){
         device_hydro_shear_aux_vector.access(is, ia, hydro_info::F_extensive_shear, idir, jdir) = F_extensive_shear(idir,jdir);
+        device_hydro_shear_aux_vector.access(is, ia, hydro_info::F_sigma_tensor, idir, jdir) = F_sigma(idir,jdir);
       }              
     }   
   };
   Cabana::simd_parallel_for(simd_policy, compute_MRF_shear, "compute_MRF_shear");
+  Kokkos::fence();
+};
+
+
+/// @brief Calculate the knudsen number
+/// @details This function calculates the knudsen number
+/// for each particle in the system. The knudsen number
+/// is defined as for the shear tensor as
+/// Kn = tau_pi * abs(sigma_mu_nu sigma^{mu nu}) 
+/// @param sysPtr A shared pointer to the system state
+template <unsigned int D>
+void EoM_default<D>::compute_hydro_numbers(std::shared_ptr<SystemState<D>> sysPtr)
+{
+  double t = (sysPtr->t);
+  double t2 = t*t;
+  //auxiliary metric variables
+  milne::Vector<double,D> delta_i_eta = milne::delta_i_eta<D>();
+  milne::Vector<double,4> contra_metric_diag = milne::get_contra_metric_diagonal<3>(t);
+
+  CREATE_VIEW(device_,sysPtr->cabana_particles);
+  auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, sysPtr->cabana_particles.size());
+  auto caus = KOKKOS_LAMBDA(const int is, const int ia)
+  {
+    //read relevant quantities
+    double gamma = device_hydro_scalar.access(is, ia, hydro_info::gamma);
+    double eta_pi = device_hydro_scalar.access(is, ia, hydro_info::eta_pi);
+    double phi6 = device_hydro_scalar.access(is, ia, hydro_info::phi6);
+    double phi7 = device_hydro_scalar.access(is, ia, hydro_info::phi7);
+    double lambda_piPi = device_hydro_scalar.access(is, ia, hydro_info::lambda_piPi);
+    double zeta_Pi = device_hydro_scalar.access(is, ia, hydro_info::zeta_Pi);
+    double tau_Pi = device_hydro_scalar.access(is, ia, hydro_info::tau_Pi);
+    double delta_PiPi = device_hydro_scalar.access(is, ia, hydro_info::delta_PiPi);
+    double phi1 = device_hydro_scalar.access(is, ia, hydro_info::phi1);
+    double phi3 = device_hydro_scalar.access(is, ia, hydro_info::phi3);
+    double lambda_Pipi = device_hydro_scalar.access(is, ia, hydro_info::lambda_Pipi);
+    double tau_pipi = device_hydro_scalar.access(is, ia, hydro_info::tau_pipi);
+    double a= device_hydro_scalar.access(is, ia, hydro_info::a);
+    double delta_pipi = device_hydro_scalar.access(is, ia, hydro_info::delta_pipi);
+    double tau_pi = device_hydro_scalar.access(is, ia, hydro_info::tau_pi);
+    double delta_Pi = device_hydro_scalar.access(is, ia, hydro_info::delta_PiPi);
+    double bulk = device_hydro_scalar.access(is, ia, hydro_info::bulk);
+    double theta = device_hydro_scalar.access(is, ia, hydro_info::theta);
+    double pressure = device_thermo.access(is, ia, thermo_info::p);
+    //declare caches
+    milne::Vector<double,D> u, u_cov;
+    //use fixed size u (ux, uy, ueta) to avoid unnecessary specializations
+    milne::Vector<double,3> fixed_size_u, fixed_size_u_cov;
+    milne::Matrix<double,4,4> shv, shv_hybrid, shv_cov;
+    //fill caches
+    for(int idir=0; idir<D; ++idir){
+      u(idir) = device_hydro_vector.access(is, ia, hydro_info::u, idir);
+      fixed_size_u(idir) = u(idir);
+
+    }
+    //fill remaning dimensions
+    for(int idir=D; idir<3; ++idir){
+      fixed_size_u(idir) = 0.0;
+    }
+
+    for(int idir=0; idir<4; ++idir){
+    for(int jdir=0; jdir<4; ++jdir){
+      shv(idir,jdir) = device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir, jdir);
+    }}
+    u_cov = u;
+    u_cov.make_covariant(t2);
+    fixed_size_u_cov = fixed_size_u;
+    fixed_size_u_cov.make_covariant(t2);
+    shv_hybrid = shv;
+    shv_hybrid.make_covariant(1, t2);
+    shv_cov = shv_hybrid;
+    shv_cov.make_covariant(0, t2);
+
+
+    //calculate the knudsen number
+    milne::Matrix<double, 4, 4> sigma_tensor;
+    for(int idir=0; idir<2; ++idir){
+      for(int jdir=idir; jdir<3; ++jdir){
+        sigma_tensor(idir,jdir) = device_hydro_spacetime_matrix.access(is, ia, hydro_info::sigma_tensor, idir+1,jdir+1);
+      }
+    }
+    //calculate the other components of the matrix
+    //Symmetrizes space part
+    
+    for( int i=1; i<4; i++ )
+    for( int j=i+1; j<4; j++ )
+      sigma_tensor(j,i) = sigma_tensor(i,j);
+
+    //pi^{0i} = -\pi^{ij}u_j/gamma 
+    for(int idir=1; idir<D+1; ++idir){
+      milne::Vector<double,D> sigma_tensor_i;
+      for(int jdir=1; jdir<D+1; ++jdir) sigma_tensor_i(jdir-1) = sigma_tensor(idir,jdir);
+      sigma_tensor(0,idir) = -1.*milne::contract(u_cov,sigma_tensor_i)/gamma; 
+    }
+
+    //Symmetrizes time part
+    for( int i=1; i<4; i++ )
+      sigma_tensor(i,0) = sigma_tensor(0,i);
+
+
+    //pi^00 = u_i u_j pi^{ij}/gamma^2
+    sigma_tensor(0,0) =( fixed_size_u_cov(0)*fixed_size_u_cov(0)*sigma_tensor(1,1) 
+                + fixed_size_u_cov(1)*fixed_size_u_cov(1)*sigma_tensor(2,2)
+                + 2.*fixed_size_u_cov(1)*fixed_size_u_cov(0)*sigma_tensor(2,1) 
+                + 2.*fixed_size_u_cov(2)*fixed_size_u_cov(0)*sigma_tensor(3,1) 
+                + 2.*fixed_size_u_cov(2)*fixed_size_u_cov(1)*sigma_tensor(3,2)
+                - fixed_size_u_cov(2)*fixed_size_u_cov(2)*(sigma_tensor(1,1)+sigma_tensor(2,2))/t2
+              )/(gamma*gamma-fixed_size_u_cov(2)*fixed_size_u_cov(2)/(t2));
+
+
+    //pi^33 = (pi^00 - pi^11 - pi^22)/t^2
+    sigma_tensor(3,3) = (sigma_tensor(0,0) - sigma_tensor(1,1) - sigma_tensor(2,2))/t2;
+
+    milne::Matrix<double, 4, 4> sigma_hybrid = sigma_tensor;
+    sigma_hybrid.make_covariant(1, t2);
+    milne::Matrix<double, 4, 4> sigma_cov = sigma_hybrid;
+    sigma_cov.make_covariant(0, t2);
+    double sigma_norm = milne::contract(sigma_tensor, sigma_cov);
+    double shear_knudsen_number = tau_pi * sqrt(abs(sigma_norm));
+    device_hydro_scalar.access(is, ia, hydro_info::shear_knudsen) = shear_knudsen_number;
+
+    device_hydro_scalar.access(is, ia, hydro_info::bulk_knudsen) = tau_Pi*abs(theta);
+
+    double shv_magnitude = sqrt(abs(milne::contract(shv,shv_cov)));
+    device_hydro_scalar.access(is, ia, hydro_info::inverse_reynolds_shear) = shv_magnitude/pressure;
+    device_hydro_scalar.access(is, ia, hydro_info::inverse_reynolds_bulk) = abs(bulk)/pressure;
+    
+  };
+  Cabana::simd_parallel_for(simd_policy, caus, "compute_MRF_shear");
   Kokkos::fence();
 };
     

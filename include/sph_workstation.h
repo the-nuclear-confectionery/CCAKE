@@ -10,6 +10,7 @@
 #include "constants.h"
 //#include "eom.h"
 #include "eom_default.h"
+#include "eom_cartesian.h"
 #include "evolver.h"
 #include "formatted_output.h"
 #include "freeze_out.h"
@@ -61,7 +62,8 @@ private:
   static constexpr int    VERBOSE        = 3;
   static constexpr double TOLERANCE      = 0.0;
   static constexpr bool   REGULATE_LOW_T = false;
-
+  double total_energy_loss = 0.0;
+  bool hit = false; ///< Flag to check if the source has hit
   std::shared_ptr<Settings> settingsPtr;     ///< Object containing settings parsed from input file
   std::shared_ptr<SystemState<D>> systemPtr; ///< Object containing the SPH System (linked list, particles, etc.)
   // evolver
