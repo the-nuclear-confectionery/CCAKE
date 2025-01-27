@@ -13,6 +13,7 @@
 #include <vector>
 #include <cmath>
 #include <omp.h>
+#include <random>
 
 #include "../include/constants.h"
 #include "../include/bbmgheader.h"
