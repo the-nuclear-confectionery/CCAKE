@@ -110,7 +110,7 @@ void BBMG::initial()
 {
     rho0tot = 0;
     auto& p = systemPtr->particles;
-    int back_to_back = 2
+    int back_to_back = 2;
     std::random_device rd; // For true randomness
     std::mt19937 gen(rd()); // Mersenne Twister generator
     std::uniform_int_distribution<> dis(0, p.size() - 1); // Distribute over the valid range
