@@ -23,7 +23,7 @@ public:
   // KOKKOS_FUNCTION static double kernelEta(double distance, double hT );
   KOKKOS_FUNCTION static void gradKernel(double const* rel_dist, double r,
                                          double h, double* grad);
-  KOKKOS_FUNCTION static double distance(const double* r1, const double* r2, int t);
+  KOKKOS_FUNCTION static double distance(const double* r1, const double* r2);
 };
 }
 #endif

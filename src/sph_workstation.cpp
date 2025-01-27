@@ -3,6 +3,7 @@
 //properly compiled in the GPU
 #include "kernel.cpp"
 #include "eom_default.cpp"
+#include "eom_cartesian.cpp"
 #include "transport_coefficients.cpp"
 
 #define ONLINE_INVERTER ///todo: This should be in the config file. For now, comment, uncomment it to choose eos method to be used
@@ -14,6 +15,9 @@ namespace ccake{
 template class SPHWorkstation<1,EoM_default>;
 template class SPHWorkstation<2,EoM_default>;
 template class SPHWorkstation<3,EoM_default>;
+template class SPHWorkstation<1,EoM_cartesian>;
+template class SPHWorkstation<2,EoM_cartesian>;
+template class SPHWorkstation<3,EoM_cartesian>;
 
 /// @brief Initialize the several components of the SPHWorkstation.
 /// @details SPHWorstation needs to load and initiualize a few objects before 
@@ -128,7 +132,7 @@ void SPHWorkstation<D, TEOM>::initialize_entropy_and_charge_densities()
   // loop over all particles
   CREATE_VIEW(device_, systemPtr->cabana_particles);
   //calculate initial volumes
-  calculate_intial_sigma(t0*t0);
+  calculate_intial_sigma(t0);
 
   auto init_particles = KOKKOS_LAMBDA(const int iparticle)
   {
@@ -185,8 +189,10 @@ void SPHWorkstation<D, TEOM>::initialize_entropy_and_charge_densities()
 
   };
   Kokkos::parallel_for("init_particles", systemPtr->n_particles, init_particles);
+  Kokkos::fence();
   //Allocate cache for evolver
   evolver.allocate_cache();
+
 
 
 	swTotal.Stop();
@@ -248,6 +254,9 @@ void SPHWorkstation<D,TEOM>::initial_smoothing()
   reset_pi_tensor(t_squared);
   // Update particle thermodynamic properties
   update_all_particle_thermodynamics();
+  //std::cout << "check initial conservation" << std::endl;
+  systemPtr->conservation_energy(true,settingsPtr->t0);
+  //std::cout << "check initial conservation done" << std::endl;
 
   /* #ifdef DEBUG
   std::cout << "initial_smoothing() --> update_all_particle_thermodynamics()" << std::endl;
@@ -333,7 +342,7 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
       r1[idir] = device_position(iparticle,idir);
       r2[idir] = device_position(jparticle,idir);
     }
-    double distance = SPHkernel<D>::distance(r1,r2, t);
+    double distance = SPHkernel<D>::distance(r1,r2);
     double kern = SPHkernel<D>::kernel(distance,hT);
 
     //outputting kernel function to the outfile "kernel_{hT}.dat"
@@ -386,13 +395,11 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
 
 
 template<unsigned int D, template<unsigned int> class TEOM>
-void SPHWorkstation<D, TEOM>::calculate_intial_sigma(double time_squared)
+void SPHWorkstation<D, TEOM>::calculate_intial_sigma(double t)
 {
   CREATE_VIEW(device_, systemPtr->cabana_particles);
   auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
   double hT = settingsPtr->hT;
-  double t = systemPtr->t;
-
   //creating outfile to for kernal function output
   /*ofstream outfile;
   std::fname = "kernel_" + std::to_string(hT) + ".dat";
@@ -403,7 +410,7 @@ void SPHWorkstation<D, TEOM>::calculate_intial_sigma(double time_squared)
   double kern0 = SPHkernel<D>::kernel(0,hT); //The value of the Kernel evaluated on top of the particle
   auto reset_fields = KOKKOS_LAMBDA(const int is, const int ia) //First index for loop over struct, second for loop over array
   {
-    device_hydro_scalar.access(is, ia, hydro_info::sigma_lab) = kern0;
+    device_hydro_scalar.access(is, ia, hydro_info::sigma_lab) = device_sph_mass.access(is, ia, densities_info::s)*kern0;
   };
   Cabana::simd_parallel_for( simd_policy, reset_fields, "reset_fields" );
   Kokkos::fence();
@@ -415,7 +422,7 @@ void SPHWorkstation<D, TEOM>::calculate_intial_sigma(double time_squared)
       r1[idir] = device_position(iparticle,idir);
       r2[idir] = device_position(jparticle,idir);
     }
-    double distance = SPHkernel<D>::distance(r1,r2, t);
+    double distance = SPHkernel<D>::distance(r1,r2);
     double kern = SPHkernel<D>::kernel(distance,hT);
 
     //outputting kernel function to the outfile "kernel_{hT}.dat"
@@ -675,7 +682,7 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
       pos_b[idir] = device_position(particle_b,idir);
       rel_sep[idir] = pos_a[idir] - pos_b[idir];
     }
-    double rel_sep_norm = SPHkernel<D>::distance(pos_a,pos_b, t);
+    double rel_sep_norm = SPHkernel<D>::distance(pos_a,pos_b);
     double gradK_aux[D];
     ccake::SPHkernel<D>::gradKernel( rel_sep, rel_sep_norm, hT, gradK_aux );
 
@@ -909,11 +916,10 @@ void SPHWorkstation<D, TEOM>::set_bulk_Pi()
     {
       double tmunu_trace = device_hydro_scalar.access(is, ia, ccake::hydro_info::tmunu_trace);
       double p = device_thermo.access(is, ia, ccake::thermo_info::p);
-      double u0 = device_hydro_scalar.access(is, ia, ccake::hydro_info::gamma);
+      double gamma = device_hydro_scalar.access(is, ia, ccake::hydro_info::gamma);
       double sigma_lab = device_hydro_scalar.access(is, ia, ccake::hydro_info::sigma_lab);
-
-      //device_hydro_scalar.access(is, ia, ccake::hydro_info::extensive_bulk) = (tmunu_trace - p)
-      //                * u0 * t0 / sigma_lab;
+      double sigma  = TEOM<D>::get_LRF(sigma_lab, gamma, t0);
+      //device_hydro_scalar.access(is, ia, ccake::hydro_info::extensive_bulk) = (tmunu_trace - p)*sigma;
       device_hydro_scalar.access(is, ia, ccake::hydro_info::extensive_bulk) = 0.0;
 
     };
@@ -1043,6 +1049,8 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives()
   // reset pi tensor to be consistent
   // with all essential symmetries
   reset_pi_tensor(t2);
+  //add source terms to the energy momentum tensor
+  //add_source();
     // update viscosities for all particles
   update_all_particle_viscosities();
     //Computes gradients to obtain dsigma_lab/dt
@@ -1067,7 +1075,8 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives()
   formatted_output::update("Finished computing time derivatives in "
                             + to_string(sw.printTime()) + " s.");
   // check/update conserved quantities
-  //systemPtr->conservation_energy();
+  if (settingsPtr->print_conservation_status )
+    systemPtr->conservation_energy(false,t);
   return;
 }
 

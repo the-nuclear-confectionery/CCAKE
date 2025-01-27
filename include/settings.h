@@ -36,6 +36,7 @@ class Settings
     bool txt_evolution              = false;
     bool hdf_evolution              = false;
     bool print_conservation_status  = true;
+    bool calculate_observables       = false;
     fs::path results_directory        = "";
 
     static constexpr int VERBOSE      = 5;
@@ -44,7 +45,7 @@ class Settings
     // hydrodynamics settings
 
     // maximum upper limit for t
-    double max_tau = 20;
+    double max_tau = 50.;
 
     // simulation settings
     double stepx                      = 0.0; // dx [fm]
@@ -68,6 +69,7 @@ class Settings
     //------------------------------------
     // initial conditions
     string IC_type              = "";    ///< Type of initial conditions ("ccake", "iccing")
+    string coordinate_system     = "hyperbolic"; ///< Coordinate system used in the initial conditions
     string IC_option            = "";    ///< Deprecated. Replaced by the enabling
                                          ///  disabling B, S or Q charges in hydro conf
                                          ///  //TODO: Remove this

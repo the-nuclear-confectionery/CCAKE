@@ -101,42 +101,48 @@ void Output<D>::print_system_state_to_txt()
     out << iParticle++ << " " //0
         << systemPtr->t << " " //1
 //        << std::setw(8)
-        << std::setprecision(6) << std::scientific
-        << p.r          //2,3 (in 2D)
-        << p.p() << " "       //4
-        << p.T()*hbarc_MeVfm << " " //5
-        << p.muB()*hbarc_MeVfm << " " //6
-        << p.muS()*hbarc_MeVfm << " " //7
-        << p.muQ()*hbarc_MeVfm << " " //8
-        << p.e()*hbarc_MeVfm << " " //9
-        << p.rhoB() << " " //10
-        << p.rhoS() << " " //11
-        << p.rhoQ() << " " //12
-        << p.s() << " " //13
-        << p.smoothed.s/(p.hydro.gamma*systemPtr->t) << " " //14
-        << p.extensive.s << " " //15
-        << p.hydro.sigma_lab << " " //16
-        << p.sph_mass.s << " " //17
+        << std::setprecision(6) << std::scientific;
+        //2,3,4
+        for (int idir=0; idir<D; idir++)
+          out << p.r(idir) << " " ;
+        for (int idir=D; idir<3; idir++)
+          out << 0.0 << " ";
+        out << p.p()*hbarc_GeVfm << " "       //5
+        << p.T()*hbarc_GeVfm << " " //6
+        << p.muB()*hbarc_GeVfm << " " //7
+        << p.muS()*hbarc_GeVfm << " " //8
+        << p.muQ()*hbarc_GeVfm << " " //9
+        << p.e()*hbarc_GeVfm << " " //10
+        << p.rhoB() << " " //11
+        << p.rhoS() << " " //12
+        << p.rhoQ() << " " //13
+        << p.s() << " " //14
+        << p.hydro.eta_pi << " " //15
+        << p.hydro.zeta_Pi << " " //16
+        << p.hydro.tau_Pi << " " //17
         << p.hydro.tau_pi << " " //18
         << p.hydro.theta << " "  //19
-        << sqrt(     p.hydro.shv(0,0)*p.hydro.shv(0,0)
-                -2.0*p.hydro.shv(0,1)*p.hydro.shv(0,1)
-                -2.0*p.hydro.shv(0,2)*p.hydro.shv(0,2)
-                +    p.hydro.shv(1,1)*p.hydro.shv(1,1)
-                +    p.hydro.shv(2,2)*p.hydro.shv(2,2)
-                +2.0*p.hydro.shv(1,2)*p.hydro.shv(1,2)
-                +pow(systemPtr->t,4.0)*p.hydro.shv(3,3)*p.hydro.shv(3,3) ) << " " //20
-        << p.hydro.tau_pi/systemPtr->t * p.hydro.theta << " " //21
-        << p.hydro.shv(0,0) << " " //22
-        << p.hydro.shv(1,1) << " " //23
-        << p.hydro.shv(2,2) << " " //24
-        << p.hydro.shv(1,2) << " " //25
-        << pow(systemPtr->t,2.0)*p.hydro.shv(3,3) << " "; //26
+        << p.hydro.inverse_reynolds_shear << " " //20
+        << p.hydro.inverse_reynolds_bulk << " " //21
+        << p.hydro.shear_knudsen << " " //22
+        << p.hydro.bulk_knudsen << " " //23
+        << p.hydro.shv(0,0) << " " //24
+        << p.hydro.shv(1,1) << " " //25
+        << p.hydro.shv(2,2) << " " //26
+        << p.hydro.shv(0,1) << " " //27
+        << p.hydro.shv(0,2) << " " //28
+        << p.hydro.shv(1,2) << " " //29
+        << p.hydro.shv(1,3) << " " //30
+        << p.hydro.shv(2,3) << " " //31
+        << p.hydro.shv(3,3) << " "; //32
+        //33,34, 35
         for (int idir=0; idir<D; idir++)
-          out << p.hydro.u(idir) << " "; //27,28 (in 2+1)
-        out << p.hydro.gamma << " " //29
-        << p.Freeze << " " //30
-        << p.get_current_eos_name() << "\n"; //31
+          out << p.hydro.u(idir) << " ";
+        for (int idir=D; idir<3; idir++)
+          out << 0.0 << " ";
+        out << p.hydro.gamma << " " //36
+        << p.Freeze << " " //37
+        << p.get_current_eos_name() << "\n"; //38
   }
 
   out << std::flush;
@@ -257,8 +263,61 @@ void Output<D>::print_freeze_out(std::shared_ptr<FreezeOut<D>> freeze_out)
        << result_shearsub(i, 2,2) << " "
        << result_shear33sub(i) << " "
        << result_shearsub(i,1,2) << " "
+       << result_shearsub(i,1,3) << " "
+       << result_shearsub(i,2,3) << " "
        << result_tlist(i) << " ";
     for(int idir = 0; idir < D; idir++)
+        FO << result_rsub(i, idir) << " ";
+    FO << result_sFO(i) << " "
+       << result_Efluc(i) << " "
+       << result_Tfluc(i) << " "
+       << result_muBfluc(i) << " "
+       << result_muSfluc(i) << " "
+       << result_muQfluc(i) << " "
+       << result_wfzfluc(i) << " "
+       << result_cs2fzfluc(i) <<
+       endl;
+    count++;
+  }
+  formatted_output::detail("Printed " + std::to_string(count) + " freeze-out particles.");
+  FO.close();
+
+  return;
+}
+
+
+/// @brief Prints the freeze-out particles to a text file.
+/// @tparam D The dimensionality of the simulation.
+/// @param[in] freeze_out Pointer to the freeze-out object.
+/// @todo We need to understand the meaning of the quantities printed here.
+template<>
+void Output<2>::print_freeze_out(std::shared_ptr<FreezeOut<2>> freeze_out)
+{
+  string outputfilename = output_directory + "/freeze_out.dat";
+  ofstream FO( outputfilename.c_str(), ios::app );
+
+  //Copy data to host
+  auto FOResults = Cabana::create_mirror_view_and_copy(Kokkos::HostSpace(),
+                                                        freeze_out->results);
+  int count=0;
+  FRZ_RESULTS_VIEW(result_, FOResults)
+  for (int i = 0; i < FOResults.size(); i++){
+    if (!result_print(i)) continue;
+    FO << result_divEener(i) << " ";
+    for(int idir = 0; idir < 3; idir++)
+      FO << result_divE(i, idir) << " ";
+    FO << result_gsub(i) << " ";
+    for(int idir = 0; idir < 2; idir++)
+      FO << result_uout(i, idir) << " ";
+    FO << result_swsub(i) << " "
+       << result_bulksub(i) << " "
+       << result_shearsub(i, 0,0) << " "
+       << result_shearsub(i, 1,1) << " "
+       << result_shearsub(i, 2,2) << " "
+       << result_shear33sub(i) << " "
+       << result_shearsub(i,1,2) << " "
+       << result_tlist(i) << " ";
+    for(int idir = 0; idir < 2; idir++)
         FO << result_rsub(i, idir) << " ";
     FO << result_sFO(i) << " "
        << result_Efluc(i) << " "

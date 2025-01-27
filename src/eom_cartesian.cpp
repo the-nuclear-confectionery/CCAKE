@@ -1,0 +1,1181 @@
+#include "eom_cartesian.h"
+// #include <fstream>
+// #include <iostream>
+
+/// @file EoM_cartesian.cpp
+/// @brief Implementation of the default equations of motion for the 
+/// hydrodynamic evolution.
+
+using namespace ccake;
+
+template class EoM_cartesian<1>;
+template class EoM_cartesian<2>;
+template class EoM_cartesian<3>;
+
+/// @brief Update gamma and v
+/// @tparam D The number of spatial dimensions.
+template<unsigned int D>
+void EoM_cartesian<D>::update_velocity(std::shared_ptr<SystemState<D>> sysPtr)
+{
+  CREATE_VIEW(device_, sysPtr->cabana_particles)
+  auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH, ExecutionSpace>(0, sysPtr->cabana_particles.size());
+  double t =  (sysPtr->t);
+  double t2 = t*t;
+  auto update_gammas = KOKKOS_LAMBDA(const int is, int ia) 
+  {
+    cartesian::Vector<double,D> u;
+    for(int idir=0; idir<D; ++idir) u(idir) = device_hydro_vector.access(is, ia, hydro_info::u, idir);
+    cartesian::Vector<double,D> u_cov = u;
+    //Updates gamma and velocities, and sigma 
+    u_cov.make_covariant(t2); //Transforms u^i to -u_i
+    double gamma = Kokkos::sqrt(1-cartesian::contract(u_cov,u)); //Calculates gamma = \sqrt{1-u^i u_i}
+    device_hydro_scalar.access(is,ia, hydro_info::gamma) = gamma;
+    for(int idir=0; idir<D; ++idir) device_hydro_vector.access(is, ia, hydro_info::v, idir) = u(idir)/gamma;
+  };
+
+  Cabana::simd_parallel_for(simd_policy, update_gammas, "update_gamma_sigma_kernel");
+  Kokkos::fence();
+}
+
+
+/// @brief Enforces the constraints for the shear viscous tensor \f$ \pi^{\mu\nu} \f$.
+/// @details Calculate the shear viscous tensor \f$ \pi^{\mu\nu} \f$ and the bulk viscous pressure
+/// \f$ \Pi \f$ from the extensive (called extensive) shear tensor \f$ \pi^{ij} \f$ 
+//  and the extensive(extensive) bulk pressure \f$ \Pi \f$
+/// It also enforces the constraints  \f$\pi^{\mu\nu}u_\nu = 0 \f$,
+/// \f$\pi^\mu_\mu = 0 \f$ and \f$ \pi^{\mu\nu} = \pi^{\nu\mu} \f$.
+/// We assume that the components \f$ \pi^{xx} \f$, \f$ \pi^{xy} \f$,
+/// \f$ \pi^{x\eta} \f$, \f$ \pi^{yy} \f$ and \f$ \pi^{y\eta} \f$ are computed
+/// during evolution 
+/// \f[\begin{align*}
+/// \pi^{0i} & = -\pi^{ij}u_j/\gamma \\
+/// \pi^{00} & = u_i u_j \pi^{ij}/\gamma^2 \\
+/// \end{align*}\f]
+/// @tparam D The number of spatial dimensions.
+/// @param sysPtr A pointer to an object of class SystemState.
+template<unsigned int D>
+void EoM_cartesian<D>::reset_pi_tensor(std::shared_ptr<SystemState<D>> sysPtr)
+{
+  double t =  (sysPtr->t);
+  double t2 = t*t;
+  CREATE_VIEW(device_,sysPtr->cabana_particles)
+  auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, sysPtr->cabana_particles.size());
+
+  auto kokkos_ensure_consistency = KOKKOS_LAMBDA(const int is, int ia) 
+  { 
+    //read relevant quantities
+    double gamma = device_hydro_scalar.access(is,ia, hydro_info::gamma);
+    double sigma = device_hydro_scalar.access(is, ia, hydro_info::sigma);
+    double extensive_bulk = device_hydro_scalar.access(is, ia, hydro_info::extensive_bulk);
+    //Declare caches
+    cartesian::Matrix<double,4,4> shv;
+    cartesian::Vector<double,D> u;
+    cartesian::Vector<double,3> fixed_size_u, fixed_size_u_cov;
+    //fill caches
+    for(int idir=0; idir<D; ++idir){
+      u(idir) = device_hydro_vector.access(is, ia, hydro_info::u, idir);
+      fixed_size_u(idir) = u(idir);
+    }
+    for(int idir=D; idir<3; ++idir){
+      fixed_size_u(idir) = 0.0;
+    }
+    cartesian::Vector<double,D> u_cov = u;
+    u_cov.make_covariant(t2); //Transforms u^i to u_i
+    fixed_size_u_cov = fixed_size_u;
+    fixed_size_u_cov.make_covariant(t2); //Transforms fu^i to fu_i
+
+
+    //compute bulk from extensive bulk 
+    device_hydro_scalar.access(is, ia, hydro_info::bulk) = extensive_bulk*sigma;
+
+    //compute shear from extensive shear
+    for(int idir=0; idir<2; ++idir)
+    for(int jdir=idir; jdir<3; ++jdir)
+      shv(idir+1,jdir+1) = device_hydro_shear_aux_vector.access(is, ia, hydro_info::extensive_shv, idir, jdir)*sigma;
+
+
+
+    //Symmetrizes space part
+    for( int i=1; i<4; i++ )
+    for( int j=i+1; j<4; j++ )
+      shv(j,i) = shv(i,j);
+
+    //pi^{0i} = -\pi^{ij}u_j/gamma 
+    for(int idir=1; idir<D+1; ++idir){
+      cartesian::Vector<double,D> shv_i;
+      for(int jdir=1; jdir<D+1; ++jdir) shv_i(jdir-1) = shv(idir,jdir);
+      shv(0,idir) = -1.*cartesian::contract(u_cov,shv_i)/gamma; 
+    }
+
+    //Symmetrizes time part
+    for( int i=1; i<4; i++ )
+      shv(i,0) = shv(0,i);
+
+
+    //pi^00 = u_i u_j pi^{ij}/gamma^2
+    shv(0,0) =( fixed_size_u_cov(0)*fixed_size_u_cov(0)*shv(1,1) 
+                + fixed_size_u_cov(1)*fixed_size_u_cov(1)*shv(2,2)
+                + 2.*fixed_size_u_cov(1)*fixed_size_u_cov(0)*shv(2,1) 
+                + 2.*fixed_size_u_cov(2)*fixed_size_u_cov(0)*shv(3,1) 
+                + 2.*fixed_size_u_cov(2)*fixed_size_u_cov(1)*shv(3,2)
+                - fixed_size_u_cov(2)*fixed_size_u_cov(2)*(shv(1,1)+shv(2,2))
+              )/(gamma*gamma-fixed_size_u_cov(2)*fixed_size_u_cov(2));
+
+
+    //pi^33 = (pi^00 - pi^11 - pi^22)/t^2
+    shv(3,3) = (shv(0,0) - shv(1,1) - shv(2,2));
+
+    //Return shv
+    for(int idir=0; idir<4; ++idir)
+    for(int jdir=0; jdir<4; ++jdir)
+      device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir, jdir) = shv(idir,jdir) ;
+
+ 
+  };
+  Cabana::simd_parallel_for(simd_policy,kokkos_ensure_consistency,"kokkos_ensure_consistency");
+  Kokkos::fence();
+}
+
+/// @brief Calculates the Lorentz contraction factor \f$ \gamma = u^0\f$.
+/// @details Calculates the Lorentz contraction factor \f$ \gamma \f$ in the
+/// general case. 
+/// @param u The velocity vector (space components only).
+/// @param time_squared The square of the time where the gamma factor will be computed.
+/// @return The value of \f$ \gamma \f$.
+template<unsigned int D> KOKKOS_FUNCTION
+double EoM_cartesian<D>::gamma_calc(double u_vec[D], const double &time_squared)
+{
+    cartesian::Vector<double,D> u,u_cov;
+    for (unsigned int i=0; i<D; i++) u(i) = u_vec[i];
+    u_cov = u;
+    u_cov.make_covariant(time_squared);
+    double gamma = Kokkos::sqrt(1-cartesian::contract(u_cov,u));
+    return gamma;
+}
+
+/// @brief Transforms a scalar from the lab frame to the Local Rest Frame (LRF).
+/// @details The expression implemented here is \f[ \frac{lab}{\gamma \tau} \f]
+/// @tparam D The number of spatial dimensions.
+/// @param lab The quantity in the lab (computational) frame.
+/// @param gamma Lorentz contraction factor.
+/// @param time_squared The square of the time where the gamma factor will be computed.
+/// @return The quantity in the fluid LRF (local rest frame).
+template<unsigned int D> KOKKOS_FUNCTION
+double EoM_cartesian<D>::get_LRF(const double &lab, const double &gamma,
+                               const double &t)
+{
+                                return lab/gamma;
+}
+
+/// @brief Calculates the time derivatives of the hydrodynamic variables.
+/// @details Calculates the time derivatives of the hydrodynamic variables
+/// using the MRF formalism. 
+/// @tparam D The number of spatial dimensions.
+/// @param sysPtr A pointer to an object of class SystemState
+/// @param settingsPtr A pointer to an object of class Settings
+template<unsigned int D>
+void EoM_cartesian<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> sysPtr, std::shared_ptr<Settings> settingsPtr)
+{
+  // #ifdef DEBUG
+  // ofstream outfile;
+  // outfile.open("gradients.dat");
+  // #endif
+  double t = (sysPtr->t);
+  double t2 = t*t;
+  cartesian::Vector<double,D> delta_i_eta = cartesian::delta_i_eta<D>();
+  CREATE_VIEW(device_,sysPtr->cabana_particles);
+  bool using_shear = settingsPtr->using_shear; 
+  auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, sysPtr->cabana_particles.size());
+  //calculate the M,R,F matrices due to shear, when using shear
+  if(using_shear){
+    calculate_MRF_shear(sysPtr);
+  }
+   auto fill_auxiliary_variables = KOKKOS_LAMBDA(int const is, int const ia){
+    //read relevant quantities
+    double gamma = device_hydro_scalar.access(is, ia, hydro_info::gamma);
+    double dwds = device_thermo.access(is, ia, thermo_info::dwds);
+    double dwdB = device_thermo.access(is, ia, thermo_info::dwdB);
+    double dwdQ = device_thermo.access(is, ia, thermo_info::dwdQ);
+    double dwdS = device_thermo.access(is, ia, thermo_info::dwdS);
+    double T = device_thermo.access(is, ia, thermo_info::T);
+    double w = device_thermo.access(is, ia, thermo_info::w);
+    double s = device_thermo.access(is, ia, thermo_info::s);
+    double rhoB = device_thermo.access(is, ia, thermo_info::rhoB);
+    double rhoQ = device_thermo.access(is, ia, thermo_info::rhoQ);
+    double rhoS = device_thermo.access(is, ia, thermo_info::rhoS);
+    double muB = device_thermo.access(is, ia, thermo_info::muB);
+    double muQ = device_thermo.access(is, ia, thermo_info::muQ);
+    double muS = device_thermo.access(is, ia, thermo_info::muS);
+    double sigma_lab = device_hydro_scalar.access(is, ia, hydro_info::sigma_lab);
+    double bulk = device_hydro_scalar.access(is, ia, hydro_info::bulk);
+    double zeta = device_hydro_scalar.access(is, ia, hydro_info::zeta_Pi);
+    double tau_Pi = device_hydro_scalar.access(is, ia, hydro_info::tau_Pi);
+    double tau_pi = device_hydro_scalar.access(is, ia, hydro_info::tau_pi );
+    double delta_PiPi = device_hydro_scalar.access(is, ia, hydro_info::delta_PiPi);
+    double a = device_hydro_scalar.access(is, ia, hydro_info::a);
+    double F_extensive_bulk = device_hydro_scalar.access(is, ia, hydro_info::F_extensive_bulk);
+    double F_shv_nabla_u = device_hydro_scalar.access(is, ia, hydro_info::F_shv_nabla_u);
+    double F_extensive_entropy = device_hydro_scalar.access(is, ia, hydro_info::F_extensive_entropy);
+    double sigma = device_hydro_scalar.access(is, ia, hydro_info::sigma);
+    double phi1 = device_hydro_scalar.access(is, ia, hydro_info::phi1);
+    double phi3 = device_hydro_scalar.access(is, ia, hydro_info::phi3);
+    double lambda_Pipi = device_hydro_scalar.access(is, ia, hydro_info::lambda_Pipi);
+    double j0_ext = device_hydro_scalar.access(is, ia, hydro_info::j0_ext);
+    double rhoQ_ext = device_hydro_scalar.access(is, ia, hydro_info::rho_Q_ext);
+    double rhoS_ext = device_hydro_scalar.access(is, ia, hydro_info::rho_S_ext);
+    double rhoB_ext = device_hydro_scalar.access(is, ia, hydro_info::rho_B_ext);
+    //auxiliary zeta tilde to control IR or DNMR
+    double zeta_tilde  = zeta +  a*(delta_PiPi - tau_Pi)*bulk;
+    //declare caches
+    cartesian::Vector<double,D> v, u, grad_u0, u_cov, j_ext;
+    cartesian::Vector<double,D> M_extensive_bulk_aux, M_shv_nabla_u, M_extensive_entropy;
+    cartesian::Vector<double,3> R_extensive_entropy, R_extensive_bulk, F_extensive_N;
+    cartesian::Matrix<double,D,D> gradV, grad_uj;
+    cartesian::Matrix<double,3,3> R_extensive_N;
+    cartesian::Matrix<double,4,4> shv, shv_hybrid, shv_cov;
+    //fill caches
+    for(int idir=0; idir<D; ++idir){  
+      u(idir) = device_hydro_vector.access(is, ia, hydro_info::u, idir);
+      v(idir) = device_hydro_vector.access(is, ia, hydro_info::v, idir);
+      j_ext(idir) = device_hydro_vector.access(is, ia, hydro_info::j_ext, idir);
+    }
+    for(int idir=0; idir<4; ++idir)
+    for(int jdir=0; jdir<4; ++jdir)
+      shv(idir,jdir) = device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir, jdir);
+    u_cov = u; 
+    u_cov.make_covariant(t2); 
+    shv_hybrid = shv;
+    //shv_hybrid = \pi^\mu_\nu
+    shv_hybrid.make_covariant(1, t2); 
+    shv_cov = shv_hybrid; 
+    //shv_cov = \pi_{\mu\nu}
+    shv_cov.make_covariant(0, t2);  
+
+    double divV = 0;
+    for(int idir=0; idir<D; ++idir){
+      divV += device_hydro_space_matrix.access(is, ia, hydro_info::gradV, idir, idir);
+    for(int jdir=0; jdir<D; ++jdir){
+      gradV(idir,jdir) = device_hydro_space_matrix.access(is, ia, hydro_info::gradV, idir, jdir);
+      }
+    }
+    double geometric_factor = 0.;
+
+    //auxiliary array to store muB, muS, muQ
+    cartesian::Vector<double,3> mu_vec = {muB, muS, muQ};
+    //auxiliary array to store rho_ext
+    cartesian::Vector<double,3> rho_ext = {rhoB_ext, rhoS_ext, rhoQ_ext};
+
+    
+    //double j0_ext =0.;
+    //cartesian::Vector<double,D> j_ext;
+    //for(int idir=0; idir<D; ++idir){
+    //  j_ext(idir) = 0.;
+    //}
+
+    //fill M matrices
+    for(int idir=0; idir<D; ++idir){
+      M_extensive_bulk_aux(idir) = (zeta_tilde*u_cov(idir)/gamma)/(sigma*gamma*tau_Pi);
+      M_extensive_entropy(idir) = (bulk*u_cov(idir)/gamma)/(sigma*gamma*T);
+      //if(M_extensive_entropy(idir) > 1e-10){
+      //  std::cout << "M_extensive_entropy: " << M_extensive_entropy(idir) << std::endl;
+      //}
+    };
+    //fill R matrices
+    for(int icharge=0; icharge<3; ++icharge){
+      R_extensive_entropy(icharge) = -gamma*sigma*mu_vec(icharge);
+      
+      R_extensive_bulk(icharge) = 0.0;
+      for(int jcharge=0; jcharge<3; ++jcharge){
+        R_extensive_N(icharge,jcharge) = 0.0;
+      }
+      R_extensive_N(icharge,icharge) += gamma*sigma;
+    }
+    
+    
+  
+    //fill F matrices
+    F_extensive_bulk = -(zeta_tilde*(gamma*divV )
+                  +bulk  - a*phi1*bulk*bulk);
+    F_extensive_bulk =0.0;
+    F_extensive_entropy = ( -bulk*(gamma*divV )
+                    + gamma*j0_ext
+                    +cartesian::contract(u_cov,j_ext))/(sigma*gamma*T);
+
+
+    if(F_extensive_entropy > 1e-10){
+    //std::cout << "F_extensive_entropy: " << F_extensive_entropy << std::endl;
+    //std::cout << "umujmu: " << cartesian::contract(u_cov,j_ext) + gamma*j0_ext << std::endl;
+    //std::cout << "j0_ext: " << j0_ext << std::endl;
+    }
+    for(int icharge=0; icharge<3; ++icharge){
+      F_extensive_N(icharge) = rho_ext(icharge);
+    }    
+    if(using_shear){ 
+      //add contribution from shear MRFs
+      double F_shv_nabla_u = device_hydro_scalar.access(is, ia, hydro_info::F_shv_nabla_u);
+      F_extensive_entropy += F_shv_nabla_u/(sigma*gamma*T);
+      F_extensive_bulk += -(- a*lambda_Pipi*F_shv_nabla_u
+                      - a*phi3*cartesian::contract(shv_cov,shv))/(sigma*gamma*tau_Pi);
+      cartesian::Vector<double,D> M_shv_nabla_u;
+      for(int idir=0; idir<D; ++idir){
+        M_shv_nabla_u(idir) =  device_hydro_vector.access(is, ia, hydro_info::M_shv_nabla_u,idir);
+        M_extensive_bulk_aux(idir) += a*lambda_Pipi*M_shv_nabla_u(idir)/(sigma*gamma*tau_Pi);
+        M_extensive_entropy(idir) += M_shv_nabla_u(idir)/(sigma*gamma*T);
+      }
+    }
+
+    //stores the results
+    device_hydro_scalar.access(is, ia, hydro_info::F_extensive_bulk) = F_extensive_bulk;
+    device_hydro_scalar.access(is, ia, hydro_info::F_shv_nabla_u) = F_shv_nabla_u;
+    device_hydro_scalar.access(is, ia, hydro_info::F_extensive_entropy) = F_extensive_entropy;
+    for(int idir=0; idir<D; ++idir){
+      device_hydro_vector.access(is, ia, hydro_info::M_extensive_bulk, idir) = M_extensive_bulk_aux(idir);
+      device_hydro_vector.access(is, ia, hydro_info::M_extensive_entropy, idir) = M_extensive_entropy(idir);
+    }
+    for(int icharge=0; icharge<3; ++icharge){
+      device_hydro_vector.access(is, ia, hydro_info::R_extensive_entropy, icharge) = R_extensive_entropy(icharge);
+      device_hydro_vector.access(is, ia, hydro_info::F_extensive_N, icharge) = F_extensive_N(icharge);
+      device_hydro_vector.access(is, ia, hydro_info::R_extensive_bulk,icharge) = R_extensive_bulk(icharge);
+      for(int jcharge=0; jcharge<3; ++jcharge){
+        device_hydro_space_matrix.access(is, ia, hydro_info::R_extensive_N, icharge, jcharge) = R_extensive_N(icharge,jcharge);
+      }
+    }
+   
+  };
+
+  Cabana::simd_parallel_for(simd_policy, fill_auxiliary_variables, "fill_auxiliary_variables");
+  Kokkos::fence();
+  //calculate du/dt
+  auto compute_velocity_derivative = KOKKOS_LAMBDA(const int is, const int ia)
+  { 
+      //read relevant quantities
+      double gamma = device_hydro_scalar.access(is, ia, hydro_info::gamma);
+      double extensive_bulk = device_hydro_scalar.access(is, ia,hydro_info::extensive_bulk );
+      double bulk = device_hydro_scalar.access(is, ia,hydro_info::bulk );
+      double sigma = device_hydro_scalar.access(is, ia, hydro_info::sigma);
+      double w = device_thermo.access(is, ia, thermo_info::w);
+      double s = device_thermo.access(is, ia, thermo_info::s);
+      double dwds = device_thermo.access(is, ia, thermo_info::dwds);
+      double rhob = device_thermo.access(is, ia, thermo_info::rhoB);
+      double rhos = device_thermo.access(is, ia, thermo_info::rhoS);
+      double rhoq = device_thermo.access(is, ia, thermo_info::rhoQ);
+      double dwdrhoB = device_thermo.access(is, ia, thermo_info::dwdB);
+      double dwdrhoS = device_thermo.access(is, ia, thermo_info::dwdS); 
+      double dwdrhoQ = device_thermo.access(is, ia, thermo_info::dwdQ);
+      double F_extensive_bulk = device_hydro_scalar.access(is, ia, hydro_info::F_extensive_bulk);
+      double F_extensive_entropy = device_hydro_scalar.access(is, ia, hydro_info::F_extensive_entropy);
+      double tau_Pi = device_hydro_scalar.access(is, ia, hydro_info::tau_Pi);
+      double j0_ext = device_hydro_scalar.access(is, ia, hydro_info::j_ext);
+
+      //declare caches
+      double divV = 0;
+      cartesian::Vector<double,D> u, gradshear, gradP, gradBulk, divshear;
+      cartesian::Vector<double,D> M_bulk, M_S, M_extensive_bulk;
+      cartesian::Vector<double,D> F_0i_shear, j_ext; 
+      cartesian:: Vector<double,D> gradP_contra, gradBulk_contra, u_cov;
+      cartesian::Matrix<double,D,D>  M_0i_shear, gradV;
+      cartesian::Vector<double,3> R_S,R_extensive_bulk, rhoVec, dwdrhoVec, F_extensive_N;
+      cartesian::Matrix<double,D,3> R_0i_shear,M_extensive_N;
+      cartesian::Matrix<double,4,4> shv;
+      cartesian::Matrix<double,3,3> R_extensive_N;
+      //fill caches
+      for(int idir=0; idir<D; ++idir){
+        u(idir) = device_hydro_vector.access(is, ia, hydro_info::u, idir);
+        gradP(idir) = device_hydro_vector.access(is, ia, hydro_info::gradP, idir);
+        gradBulk(idir) = device_hydro_vector.access(is, ia, hydro_info::gradBulk, idir);
+        divshear(idir) = device_hydro_vector.access(is, ia, hydro_info::divshear, idir);
+        gradshear(idir) = device_hydro_vector.access(is, ia, hydro_info::gradshear, idir);
+        M_extensive_bulk(idir) = device_hydro_vector.access(is, ia, hydro_info::M_extensive_bulk, idir);
+        M_S(idir) = device_hydro_vector.access(is, ia, hydro_info::M_extensive_entropy, idir);
+        F_0i_shear(idir) = device_hydro_vector.access(is, ia, hydro_info::F_0i_shear, idir);
+        j_ext(idir) = device_hydro_vector.access(is, ia, hydro_info::j_ext, idir);
+        divV += device_hydro_space_matrix.access(is, ia, hydro_info::gradV, idir, idir);
+        for(int  jdir=0; jdir<D; ++jdir){
+          M_0i_shear(idir,jdir) = device_hydro_space_matrix.access(is, ia, hydro_info::M_0i_shear, idir, jdir);
+        }
+      }
+      for(int idir=0; idir<4; ++idir)
+      for(int jdir=0; jdir<4; ++jdir)
+        shv(idir,jdir) = device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir, jdir);
+      for(int icharge=0; icharge<3; ++icharge){
+        R_S(icharge) = device_hydro_vector.access(is, ia, hydro_info::R_extensive_entropy, icharge);
+        R_extensive_bulk(icharge) = device_hydro_vector.access(is, ia, hydro_info::R_extensive_bulk, icharge);
+        F_extensive_N(icharge) = device_hydro_vector.access(is, ia, hydro_info::F_extensive_N, icharge);
+        for(int idir=0; idir<D; ++idir){
+          R_0i_shear(idir,icharge) = device_hydro_space_matrix.access(is, ia, hydro_info::R_0i_shear, idir, icharge);
+          M_extensive_N(idir,icharge) = device_hydro_space_matrix.access(is, ia, hydro_info::M_extensive_N, idir, icharge);
+        }
+        for(int jcharge=0; jcharge<3; ++jcharge){
+         R_extensive_N(icharge,jcharge) = device_hydro_space_matrix.access(is, ia, hydro_info::R_extensive_N, icharge, jcharge);
+       }
+      }
+      u_cov = u;
+      gradP_contra = gradP;
+      gradBulk_contra = gradBulk;
+      gradP_contra.make_contravariant(t2);
+      gradBulk_contra.make_contravariant(t2);
+      u_cov.make_covariant(t2);
+
+      //declare auxiliary variables
+      double geometric_factor = 0.; 
+      rhoVec = {rhob, rhos, rhoq};
+      dwdrhoVec = {dwdrhoB, dwdrhoS, dwdrhoQ};
+
+      //calculate the aux MRFs from the entalphy derivative
+      cartesian::Vector<double,D> M_w = (s*dwds/gamma
+                                    +cartesian::contract(rhoVec,dwdrhoVec)/gamma)*u_cov/gamma
+                                    +sigma*dwds*M_S;
+      cartesian::Vector<double,3> R_w = sigma*dwdrhoVec 
+                                    +sigma*dwds*R_S;
+      double F_w = -(s*dwds/gamma
+                    +cartesian::contract(rhoVec,dwdrhoVec)/gamma)*(gamma*divV)
+                    +sigma*dwds*F_extensive_entropy;
+
+      //convert the extensive MRFs to the intensive ones
+      double F_bulk = F_extensive_bulk - bulk*(gamma*divV)/gamma;
+      M_bulk = M_extensive_bulk + bulk*u_cov/(gamma*gamma*tau_Pi);                         
+
+
+
+      // set the MFs for the four-acceleration
+      cartesian::Matrix <double,D,D> M_u;
+      for(int idir=0; idir<D; ++idir){
+        for(int jdir=0; jdir<D; ++jdir){
+          M_u(idir,jdir) = u(idir)*gamma*(M_extensive_bulk(jdir) + M_w(jdir))
+                          -u(idir)*u_cov(jdir)*(w+bulk)/gamma;
+        }
+        M_u(idir,idir) += gamma*(w+bulk);
+      }
+      cartesian::Vector<double,D> F_u = j_ext + (gradP_contra + gradBulk_contra)
+                                  -gamma*(F_w+F_bulk)*u
+                                  -(w+bulk)*(gamma*divV )*u;
+      
+                                 
+      cartesian::Matrix<double,D,3> R_u;
+      for(int idir=0; idir<D; ++idir){
+        for(int icharge=0; icharge<3; ++icharge){
+          R_u(idir,icharge) = -u(idir)*gamma*(R_w(icharge) + R_extensive_bulk(icharge));
+        }
+      }
+      //add the contribution from the shear MRFs
+      if ( using_shear )
+      { //std::cout << "Hi shear" << std::endl;
+        for(int idir=0; idir<D; ++idir){
+          F_u(idir) +=  -divshear(idir) + gradshear(idir) -F_0i_shear(idir);
+          for(int icharge=0; icharge<3; ++icharge){
+            R_u(idir,icharge) += -R_0i_shear(idir,icharge);
+          }
+          for(int jdir=0; jdir<D; ++jdir){
+            M_u(idir,jdir) += M_0i_shear(idir,jdir);
+          }
+        }
+      }
+    
+    //aux MRFs 
+     cartesian::Matrix<double,D,D> aux_MR;
+     cartesian::Vector<double,D> aux_FR;
+     cartesian::Matrix<double,3,3> RI = cartesian::inverse(R_extensive_N);
+
+     for(int idir=0; idir<D; ++idir){
+       aux_FR(idir) = 0.0;
+       for(int jdir=0; jdir<D; ++jdir){
+          aux_MR(idir,jdir) = 0.0;
+          for(int icharge=0; icharge<3; ++icharge){
+            for(int jcharge=0; jcharge<3; ++jcharge){
+              aux_MR(idir,jdir) += R_u(idir,icharge)*RI(icharge,jcharge)*M_extensive_N(jdir,jcharge);
+            }
+          }
+          for(int icharge=0; icharge<3; ++icharge){
+            for(int jcharge=0; jcharge<3; ++jcharge){
+              aux_FR(idir) += R_u(idir,icharge)*RI(icharge,jcharge)*F_extensive_N(jcharge);
+            }
+          }
+        }
+      };
+
+      /// @brief 
+      //cartesian::Matrix<double,D,D> MI = cartesian::inverse(M_u-aux_MR);
+      //cartesian::Vector<double,D> du_dt = MI*(F_u+aux_FR);
+      cartesian::Matrix<double,D,D> MI = cartesian::inverse(M_u-aux_MR);
+      cartesian::Vector<double,D> du_dt = MI*(F_u+aux_FR);
+      for(int idir=0; idir<D; ++idir) device_hydro_vector.access(is,ia,hydro_info::du_dt, idir) = du_dt(idir);
+  };
+  Cabana::simd_parallel_for(simd_policy, compute_velocity_derivative, "compute_velocity_derivative");
+  Kokkos::fence();
+  //Calculate the derivatives and quantities that depends on du/dt:
+  //dS/dt, dN_{B,S,Q}/dt, dextensive_bulk/dt,d_extensive_shv/dt, theta and shv_nabla_u
+  //using the MRF formalism and the previously calculated du/dt
+  auto compute_derivatives = KOKKOS_LAMBDA(const int is, const int ia)
+  {
+
+    //read relevant quantities
+    double bulk = device_hydro_scalar.access(is, ia, hydro_info::bulk);
+    double gamma = device_hydro_scalar.access(is, ia, hydro_info::gamma);
+    double divV = 0;
+    
+    //declare caches
+    cartesian::Vector<double,D> v, du_dt, u,u_cov;
+    cartesian::Vector<double,D> M_extensive_entropy, M_extensive_bulk;
+    cartesian::Vector<double,3> F_extensive_N, R_extensive_entropy, R_extensive_bulk;
+    cartesian::Matrix<double,4,4> shv;
+    //fill caches
+    for(int idir=0; idir<D; ++idir){
+      v(idir) = device_hydro_vector.access(is, ia, hydro_info::v, idir);
+      du_dt(idir) = device_hydro_vector.access(is, ia, hydro_info::du_dt, idir);
+      u(idir) = device_hydro_vector.access(is, ia, hydro_info::u, idir);
+      divV += device_hydro_space_matrix.access(is, ia, hydro_info::gradV, idir, idir);
+      M_extensive_entropy(idir) = device_hydro_vector.access(is, ia, hydro_info::M_extensive_entropy, idir);
+      M_extensive_bulk(idir) = device_hydro_vector.access(is, ia, hydro_info::M_extensive_bulk, idir);
+    }
+    for(int icharge=0; icharge<3; ++icharge){
+      F_extensive_N(icharge) = device_hydro_vector.access(is, ia, hydro_info::F_extensive_N, icharge);
+      R_extensive_entropy(icharge) = device_hydro_vector.access(is, ia, hydro_info::R_extensive_entropy, icharge);
+      R_extensive_bulk(icharge) = device_hydro_vector.access(is, ia, hydro_info::R_extensive_bulk, icharge);
+    }
+    for(int idir=0; idir<4; ++idir)
+    for(int jdir=0; jdir<4; ++jdir)
+      shv(idir, jdir) = device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir, jdir);
+    double geometric_factor = 0.;
+    u_cov = u;
+    u_cov.make_covariant(t2);
+
+    //Calculate the extensive charges derivatives
+    cartesian::Vector<double,3> MU_aux;
+    for(int icharge=0; icharge<3; ++icharge){
+      MU_aux(icharge) = 0.;
+      for(int idir=0; idir<D; ++idir){
+        MU_aux(icharge) +=device_hydro_space_matrix.access(is, ia, hydro_info::M_extensive_N, idir, icharge)*du_dt(idir);
+      }
+    }
+    cartesian::Matrix<double,3,3> R_N_inv;
+    for(int icharge=0; icharge<3; ++icharge){
+      for(int jcharge=0; jcharge<3; ++jcharge){
+        R_N_inv(icharge,jcharge) = device_hydro_space_matrix.access(is, ia, hydro_info::R_extensive_N, icharge, jcharge);
+      }
+    }
+    R_N_inv = cartesian::inverse(R_N_inv); 
+    cartesian::Vector<double,3> dN_dt = R_N_inv*(F_extensive_N + MU_aux);
+
+    // time derivative of ``extensive (extensive) entropy density per particle"
+    double d_dt_extensive_s = cartesian::contract(M_extensive_entropy,du_dt)
+                            +device_hydro_scalar.access(is, ia, hydro_info::F_extensive_entropy)
+                            +cartesian::contract(R_extensive_entropy,dN_dt);
+    //if(d_dt_extensive_s > 1e-10){
+    //  std::cout << "d_dt_extensive_s: " << d_dt_extensive_s << std::endl;
+    //}
+	  //time derivative of the extensive bulk pressure
+    double d_extensive_bulk_dt = cartesian::contract(M_extensive_bulk,du_dt)
+                    +device_hydro_scalar.access(is, ia, hydro_info::F_extensive_bulk)
+                    +cartesian::contract(R_extensive_bulk,dN_dt);
+    //calculate the shv_nabla_u = \pi^{ij} \nabla_i u_j
+    cartesian::Vector<double,D> M_shv_nabla_u; 
+    for(int idir=0; idir<D; ++idir){
+      M_shv_nabla_u(idir) = device_hydro_vector.access(is, ia, hydro_info::M_shv_nabla_u, idir);
+    }
+    double shv_nabla_u = cartesian::contract(M_shv_nabla_u,du_dt)
+                        +device_hydro_scalar.access(is, ia, hydro_info::F_shv_nabla_u);
+
+    //theta equation
+    double theta = -1.*cartesian::contract(u_cov,du_dt)/gamma + gamma*divV ;
+
+    //stores the results
+    device_hydro_scalar.access(is, ia, hydro_info::d_extensive_bulk_dt) = d_extensive_bulk_dt;
+    device_hydro_scalar.access(is, ia, hydro_info::theta) = theta;
+    device_hydro_scalar.access(is, ia, hydro_info::shv_nabla_u) = shv_nabla_u;
+    device_d_dt_extensive.access(is, ia, densities_info::s) = d_dt_extensive_s;
+    device_d_dt_extensive.access(is, ia, densities_info::rhoB) = dN_dt(0);
+    device_d_dt_extensive.access(is, ia, densities_info::rhoS) = dN_dt(1);
+    device_d_dt_extensive.access(is, ia, densities_info::rhoQ) = dN_dt(2);
+    
+    //calculate the extensive shear tensor derivative
+    if(using_shear){
+      cartesian::Matrix<double,2,3> d_extensive_shv_dt;
+      for(int idir=0; idir<2; ++idir){
+        for(int jdir=idir; jdir<3; ++jdir){
+          double M_du_aux = 0.;
+          double R_dn_aux = 0.;
+          for(int kdir=0; kdir<D; ++kdir){
+            int linear_index_M = jdir * D + kdir;
+            M_du_aux += device_hydro_shear_aux_matrix.access(is, ia, hydro_info::M_extensive_shear, idir,linear_index_M)*du_dt(kdir);
+            
+          }
+          for(int icharge=0; icharge<3; ++icharge){
+            int linear_index_R = jdir * 3 + icharge;  
+            R_dn_aux += device_hydro_shear_aux_matrix.access(is, ia, hydro_info::R_extensive_shear, idir, linear_index_R)*dN_dt(icharge);
+          }
+          d_extensive_shv_dt(idir,jdir) = M_du_aux 
+                                  + device_hydro_shear_aux_vector.access(is, ia, hydro_info::F_extensive_shear, idir, jdir);
+           device_hydro_shear_aux_vector.access(is, ia, hydro_info::d_extensive_shv_dt, idir,jdir) = d_extensive_shv_dt(idir,jdir);
+        }
+      }
+      
+    }
+
+
+	  //formulating simple setup for Beta_Bulk derivative
+    ///TODO: Implement this
+    //hi.finite_diff_cs2   =  (ti.cs2 - hi.prev_cs2)/0.05; // Asadek
+	  //hi.finite_diff_T   =  (ti.T - hi.prev_T)/0.05; // Asadek
+	  //hi.finite_diff_w   =  (ti.w - hi.prev_w)/0.05; // Asadek
+	  //hi.dBeta_dt      = 0.5*((-hi.finite_diff_T/(ti.T*ti.T))*(1/ti.w)*(1/((1/3-ti.cs2)*(1/3-ti.cs2))))
+	  //                 + 0.5*((-hi.finite_diff_w/(ti.w*ti.w))*(1/ti.T)*(1/((1/3-ti.cs2)*(1/3-ti.cs2))))
+		//			   + 0.5*((4*ti.cs2*hi.finite_diff_cs2*(1/((1/3-ti.cs2)*(1/3-ti.cs2)*(1/3-ti.cs2))))*(1/ti.T)*(1/ti.w));//Asadek 
+
+  };
+  Cabana::simd_parallel_for(simd_policy, compute_derivatives, "compute_derivatives");
+  Kokkos::fence();
+      // computing dEz_dt
+  auto compute_Ez_derivative = KOKKOS_LAMBDA(const int is, const int ia)
+    {
+      double bulk = device_hydro_scalar.access(is, ia, hydro_info::bulk);
+      double shv33 = device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv,3,3);
+      double sigma_lab = device_hydro_scalar.access(is, ia, hydro_info::sigma_lab);
+      double sph_mass = device_sph_mass.access(is, ia, densities_info::s);
+      double p = device_thermo.access(is, ia, thermo_info::p);  
+      double e = device_thermo.access(is, ia, thermo_info::e);
+      double sigma = device_hydro_scalar.access(is, ia, hydro_info::sigma);
+      cartesian::Vector<double,D> u;
+      for(int idir=0; idir<D; ++idir){
+        u(idir) = device_hydro_vector.access(is, ia, hydro_info::u, idir);
+      }
+
+      cartesian::Vector<double,4> contra_metric_diag = cartesian::get_contra_metric_diagonal<3>(t);
+            double u3 = 0;
+      if (D==1){
+        u3 = u(0); // eta flow velocity
+      }
+      else if (D == 3){
+        u3 = u(2);  
+      }
+      else if (D == 2){
+        u3 = 0;
+      }
+
+      double dEz = 0;
+      dEz = ((e + p + bulk)*u3*u3 + (p + bulk) + shv33 ) * sph_mass / sigma_lab;
+      //double dEz = 0;
+      //dEz = (p/t2) * sph_mass* t2  / sigma_lab;
+      device_contribution_to_total_dEz.access(is, ia) = dEz;
+    };
+    Cabana::simd_parallel_for(simd_policy, compute_Ez_derivative, "compute_Ez_derivative");
+    Kokkos::fence();
+
+    // if using shear calculate shear knudsen number
+    if(using_shear){
+    compute_hydro_numbers(sysPtr);
+    }
+  };
+
+
+/// @brief Calculate the MRs for the shear tensor
+/// @details This function calculates all the MRFs necessary
+//  when we have shear. This includes the MRFs that appear
+/// in the four-acceleration equation  M_0i_shear, R_0i_shear
+/// F_0i_shear, the MRFs used for calculating the entropy
+/// production (from shv_nabla_u = \pi^{ij} \nabla_i u_j)
+/// M_shv_nabla_u, F_shv_nabla_u, and the MRFs used for the
+/// extensive shear tensor evolution M_extensive_shear, R_extensive_shear,
+/// and F_extensive_shear.
+/// @param sysPtr A shared pointer to the system state
+template <unsigned int D>
+void EoM_cartesian<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr)
+{
+  double t = (sysPtr->t);
+  double t2 = t*t;
+  //auxiliary metric variables
+  cartesian::Vector<double,D> delta_i_eta = cartesian::delta_i_eta<D>();
+  cartesian::Vector<double,4> contra_metric_diag = cartesian::get_contra_metric_diagonal<3>(t);
+
+  CREATE_VIEW(device_,sysPtr->cabana_particles);
+  auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, sysPtr->cabana_particles.size());
+  auto compute_MRF_shear = KOKKOS_LAMBDA(const int is, const int ia)
+  {
+    //read relevant quantities
+    double sigma = device_hydro_scalar.access(is, ia, hydro_info::sigma);
+    double gamma = device_hydro_scalar.access(is, ia, hydro_info::gamma);
+    double eta_pi = device_hydro_scalar.access(is, ia, hydro_info::eta_pi);
+    double phi6 = device_hydro_scalar.access(is, ia, hydro_info::phi6);
+    double phi7 = device_hydro_scalar.access(is, ia, hydro_info::phi7);
+    double lambda_piPi = device_hydro_scalar.access(is, ia, hydro_info::lambda_piPi);
+    double tau_pipi = device_hydro_scalar.access(is, ia, hydro_info::tau_pipi);
+    double a= device_hydro_scalar.access(is, ia, hydro_info::a);
+    double delta_pipi = device_hydro_scalar.access(is, ia, hydro_info::delta_pipi);
+    double tau_pi = device_hydro_scalar.access(is, ia, hydro_info::tau_pi);
+    double tilde_delta = delta_pipi - tau_pi;
+    double bulk = device_hydro_scalar.access(is, ia, hydro_info::bulk);
+
+    //declare caches
+    cartesian::Vector<double,D> u, u_cov, M_shv_nabla_u ,F_0i_shear;
+    cartesian::Vector<double,D> v, grad_u0;
+    //use fixed size u (ux, uy, ueta) to avoid unnecessary specializations
+    cartesian::Vector<double,3> fixed_size_u, fixed_size_u_cov;
+    cartesian::Matrix<double,D,3> R_0i_shear;
+    cartesian::Matrix<double,2,3> F_extensive_shear;
+    cartesian::Matrix<double,D,D> gradV, grad_uj, M_0i_shear;
+    cartesian::Matrix<double,4,4> shv_hybrid, shv, shv_cov;
+    cartesian::Matrix3D<double,2,3,D> M_extensive_shear;
+    cartesian::Matrix3D<double, 2, 3, 3> R_extensive_shear;
+    //fill caches
+    for(int idir=0; idir<D; ++idir){
+      u(idir) = device_hydro_vector.access(is, ia, hydro_info::u, idir);
+      fixed_size_u(idir) = u(idir);
+      v(idir) = device_hydro_vector.access(is, ia, hydro_info::v, idir);
+    }
+    //fill remaning dimensions
+    for(int idir=D; idir<3; ++idir){
+      fixed_size_u(idir) = 0.0;
+    }
+
+    for(int idir=0; idir<4; ++idir)
+    for(int jdir=0; jdir<4; ++jdir)
+      shv(idir,jdir) = device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir, jdir);
+    u_cov = u;
+    u_cov.make_covariant(t2);
+    fixed_size_u_cov = fixed_size_u;
+    fixed_size_u_cov.make_covariant(t2);
+    double geometric_factor = 0.;
+    shv_hybrid = shv;
+    shv_hybrid.make_covariant(1, t2);
+
+    shv_cov = shv_hybrid;
+    shv_cov.make_covariant(0, t2);
+
+    //initialize the auxiliary Ms and Fs
+    cartesian::Vector<double,D> F_i0_sigma;
+    cartesian::Vector<double,D> F_i0_D;
+    cartesian::Vector<double,D> F_i0_domega;
+    cartesian::Vector<double,D> F_i0_dsigma;
+    cartesian::Vector<double,D> F_i0_dd;
+    cartesian::Matrix<double,D,D> M_i0_sigma;
+    cartesian::Matrix<double,D,D> M_i0_D;
+    cartesian::Matrix<double,D,D> M_i0_domega;
+    cartesian::Matrix<double,D,D> M_i0_dsigma;
+    cartesian::Matrix<double,D,D> M_i0_dd;
+
+    cartesian::Matrix<double, 2, 3> F_D;
+    cartesian::Matrix<double, 2, 3> F_sigma;
+    cartesian::Matrix<double, 2, 3> F_delta;
+    cartesian::Matrix<double, 2, 3> F_domega;
+    cartesian::Matrix<double, 2, 3> F_dsigma;
+    cartesian::Matrix3D<double, 2, 3, D> M_D;
+    cartesian::Matrix3D<double, 2, 3, D> M_sigma;
+    cartesian::Matrix3D<double, 2, 3, D> M_delta;
+    cartesian::Matrix3D<double, 2, 3, D> M_domega;
+    cartesian::Matrix3D<double, 2, 3, D> M_dsigma;
+
+
+    //calculate aux quantities
+    double divV = 0;
+    for(int idir=0; idir<D; ++idir){
+      divV += device_hydro_space_matrix.access(is, ia, hydro_info::gradV, idir, idir);
+    for(int jdir=0; jdir<D; ++jdir){
+      gradV(idir,jdir) = device_hydro_space_matrix.access(is, ia, hydro_info::gradV, idir, jdir);
+      }
+    }
+
+    for (int idir=0; idir<D; ++idir){
+      for (int jdir=0; jdir<D; ++jdir){
+        grad_uj(idir,jdir) = gamma*gradV(idir,jdir);
+        for (int kdir=0; kdir<D; ++kdir){
+          grad_uj(idir,jdir) += -gamma*u(jdir)*u_cov(kdir)*gradV(idir,kdir);
+        }
+      }
+    }
+
+    grad_u0 = -1.*cartesian::contract(grad_uj,u_cov,cartesian::SecondIndex())/gamma;
+    cartesian::Vector<double,D> grad_u0_contra = grad_u0;
+    grad_u0_contra.make_contravariant(t2);
+
+    cartesian::Matrix<double,D,D> contra_grad_uj;
+    contra_grad_uj = grad_uj;
+    contra_grad_uj.make_contravariant(0, t2);
+    // use fixed size grad_uj to avoid unnecessary specializations
+    cartesian::Matrix<double,3,3> contra_grad_uj_3d;
+    for(int idir=0; idir<D; ++idir){
+      for(int jdir=0; jdir<D; ++jdir){
+        contra_grad_uj_3d(idir,jdir) = contra_grad_uj(idir,jdir);
+      }
+    }
+    //fill remaning dimensions
+    for(int idir=D; idir<3; ++idir){
+      for(int jdir=0; jdir<3; ++jdir){
+        contra_grad_uj_3d(idir,jdir) = 0.0;
+      }
+    }
+    cartesian::Vector<double,4> shear0mu_aux;
+    for(int idir=0; idir<4; ++idir){
+      shear0mu_aux(idir) = shv_hybrid(0,idir);
+    }
+    
+    //aux vectors and matrices for the four-acceleration equation
+    for(int idir=0; idir<D; ++idir){
+      F_i0_sigma(idir) =  -(cartesian::contract(grad_uj,v,cartesian::FirstIndex())(idir)
+                          -grad_u0_contra(idir))/2.
+                          +u(idir)*gamma*(gamma*divV)/3.;
+      F_i0_D(idir) = 0.0;
+      F_i0_domega(idir) = 0.0;
+      F_i0_dsigma(idir) = 0.0;
+      F_i0_dd(idir) = shv(idir+1,0)*(gamma*divV);
+      for(int jdir=0; jdir<D; ++jdir){
+        M_i0_sigma(idir,jdir) = u(idir)*u_cov(jdir)/(2.*3.);
+        M_i0_D(idir,jdir) = gamma*u(idir)*(shv_hybrid(0,jdir+1)-shv_hybrid(0,0)*u_cov(jdir)/gamma)
+                            +gamma*gamma*(shv_hybrid(idir+1,jdir+1)-shv_hybrid(idir+1,0)*u_cov(jdir)/gamma);
+        M_i0_domega(idir,jdir) = 0.0;
+        M_i0_dsigma(idir,jdir) = 0.0;
+        M_i0_dd(idir,jdir) = -shv(idir+1,0)*u_cov(jdir)/gamma;
+      }
+      //diagonal terms
+      M_i0_sigma(idir,idir) += (1.-gamma*gamma)/2.;
+      //metric only terms
+      F_i0_sigma(idir) += 0.;
+      F_i0_D(idir) += 0.;
+    }
+  
+    //calculate M and F for shv_nabla_u = \pi^{ij} \nabla_i u_j
+    double F_shv_nabla_u = 0.0;
+    for (int idir = 0; idir < D; ++idir) {
+      M_shv_nabla_u(idir) = shv_hybrid(0,idir+1) - shv_hybrid(0,0)*u_cov(idir)/gamma;
+      device_hydro_vector.access(is, ia, hydro_info::M_shv_nabla_u, idir) = M_shv_nabla_u(idir);
+      for (int jdir = 0; jdir < D; ++jdir) {
+          F_shv_nabla_u += (shv_hybrid(idir + 1, jdir + 1) 
+                           - v(idir) * shv_hybrid(0, jdir + 1)) * grad_uj(idir, jdir);
+      }
+      F_shv_nabla_u += (shv_hybrid(idir + 1, 0) - v(idir) * shv_hybrid(0, 0)) * grad_u0(idir);
+    }
+    device_hydro_scalar.access(is, ia, hydro_info::F_shv_nabla_u) = F_shv_nabla_u;
+    //calculate the MRFs that will be used in the four-acceleration equation
+    for(int idir=0; idir<D; ++idir){
+      F_0i_shear(idir) = (-shv(idir+1,0)
+                    -tau_pi*F_i0_D(idir)
+                    -delta_pipi*F_i0_dd(idir)
+                    -a*2.*tau_pi*F_i0_domega(idir) 
+                    -a*tau_pipi*F_i0_dsigma(idir)
+                    +(2.*eta_pi+a*lambda_piPi*bulk)*F_i0_sigma(idir)
+                    +a*phi6*bulk*shv(idir+1,0)
+                    +a*phi7*(cartesian::contract(shv, shear0mu_aux, cartesian::SecondIndex())(idir+1)
+                    +gamma*u(idir)*cartesian::contract(shv_cov,shv)/3.))/(tau_pi*gamma);
+      //stores the results 
+      device_hydro_vector.access(is, ia, hydro_info::F_0i_shear, idir) = F_0i_shear(idir);
+      for(int jdir=0; jdir<D; ++jdir){
+        M_0i_shear(idir,jdir) = (-tau_pi*M_i0_D(idir,jdir)
+                                -delta_pipi*M_i0_dd(idir,jdir)
+                                -2.*a*M_i0_domega(idir,jdir)
+                                +a*tau_pipi*M_i0_dsigma(idir,jdir)
+                                +(2.*eta_pi+a*lambda_piPi*bulk)*M_i0_sigma(idir,jdir))/(tau_pi*gamma);
+        //stores the results
+        device_hydro_space_matrix.access(is, ia, hydro_info::M_0i_shear, idir, jdir) = M_0i_shear(idir,jdir);
+      }
+      //calculate the Rs
+      for(int icharge=0; icharge<3; ++icharge){
+        //TODO: change this when using diffusion coupling
+        R_0i_shear(idir,icharge) = 0.0;
+        device_hydro_space_matrix.access(is, ia, hydro_info::R_0i_shear, idir, icharge) = R_0i_shear(idir,icharge);
+      }
+    }    
+  
+    //calculate the aux MRFs that will be used in the evolution of the shear tensor
+    for(int idir=0; idir<2; ++idir){
+      for(int jdir=idir; jdir<3; ++jdir){
+        F_D(idir,jdir) = 0.;
+                
+        F_sigma(idir,jdir) = contra_grad_uj_3d(idir,jdir)/2. + contra_grad_uj_3d(jdir,idir)/2.
+                  +fixed_size_u(idir)*fixed_size_u(jdir)*(gamma*divV)/3.;         
+        F_delta(idir,jdir) = shv(idir+1,jdir+1)*(gamma*divV);
+        F_domega(idir,jdir) = 0.0;
+        F_dsigma(idir,jdir) = 0.0;                
+
+        for(int kdir=0; kdir<D; ++kdir){
+          M_D(idir,jdir,kdir) = gamma*(fixed_size_u(idir)*shv_hybrid(jdir+1,kdir+1)
+                                      -fixed_size_u(idir)*shv_hybrid(jdir+1,0)*fixed_size_u_cov(kdir)/gamma
+                                      +fixed_size_u(jdir)*shv_hybrid(idir+1,kdir+1)
+                                      -fixed_size_u(jdir)*shv_hybrid(idir+1,0)*fixed_size_u_cov(kdir)/gamma);
+          M_sigma(idir,jdir,kdir) = -fixed_size_u(idir)*fixed_size_u(jdir)*fixed_size_u_cov(kdir)/(3.*gamma);
+          M_delta(idir,jdir,kdir) = -shv(idir+1,jdir+1)*fixed_size_u_cov(kdir)/gamma;
+          M_domega(idir,jdir,kdir) = 0.0;
+          M_dsigma(idir,jdir,kdir) = 0.0;
+        }
+        //diagonal i = k terms
+        //the if avoids the case when i>k (for D=1)
+        if (D==1){
+          M_sigma(0,jdir,0) += -gamma*fixed_size_u(jdir)/2.;
+        }
+        else{
+          M_sigma(idir,jdir,idir) += -gamma*fixed_size_u(jdir)/2.;
+        }
+      }
+      //diagonal j=k terms
+      for(int jdir = idir; jdir<D; ++jdir){
+        //j=k , since k<D , we only loop until j<D
+        M_sigma(idir,jdir,jdir) += -gamma*fixed_size_u(idir)/2.; 
+      }
+      //diagonal i=j terms
+      for(int kdir=0; kdir<D; ++kdir){
+        //j=i
+        M_sigma(idir,idir,kdir) += contra_metric_diag(idir+1)*fixed_size_u_cov(kdir)/(gamma*3.);
+      }
+      
+      //diagonal and metric terms for F
+      F_sigma(idir,idir) += -contra_metric_diag(idir+1)*(gamma*divV)/3.;
+
+    }
+
+    for(int idir=0; idir<2; ++idir){
+      for(int jdir=idir; jdir<3; ++jdir){
+        F_extensive_shear(idir,jdir) = (-shv(idir+1,jdir+1) 
+                                -tilde_delta*F_delta(idir,jdir)
+                                -tau_pi*F_D(idir,jdir)
+                                -a*2.*tau_pi*F_domega(idir,jdir)
+                                -a*tau_pipi*F_dsigma(idir,jdir)
+                                +(2.*eta_pi+a*lambda_piPi*bulk)*F_sigma(idir,jdir)
+                                +a*phi6*bulk*shv(idir+1,jdir+1)
+                                +a*phi7*(cartesian::contract(shv,shv_hybrid,cartesian::SecondIndex(),cartesian::SecondIndex())(idir,jdir)
+                                +fixed_size_u(idir)*fixed_size_u(jdir)*cartesian::contract(shv,shv_cov)/3.))/(sigma*tau_pi*gamma);
+
+        for(int kdir=0; kdir<D; ++kdir){
+          M_extensive_shear(idir,jdir,kdir) =(-tau_pi*M_D(idir,jdir,kdir)
+                                        -tilde_delta*M_delta(idir,jdir,kdir)
+                                        -2.*a*M_domega(idir,jdir,kdir)
+                                        -a*tau_pipi*M_dsigma(idir,jdir,kdir)
+                                        +(2.*eta_pi+a*lambda_piPi*bulk)*M_sigma(idir,jdir,kdir))/(sigma*tau_pi*gamma);
+          //saves the results 
+          int linear_index = jdir * D + kdir;
+          device_hydro_shear_aux_matrix.access(is, ia, hydro_info::M_extensive_shear, idir, linear_index) = M_extensive_shear(idir,jdir,kdir);
+          }
+        //calculate the Rs
+        for(int icharge=0; icharge<3; ++icharge){
+          //TODO: change this when using diffusion coupling
+          R_extensive_shear(idir,jdir,icharge) = 0.0;
+          int linear_index = jdir * 3 + icharge;
+          device_hydro_shear_aux_matrix.access(is, ia, hydro_info::R_extensive_shear, idir, linear_index) = R_extensive_shear(idir,jdir,icharge);
+          }
+      }
+      F_extensive_shear(idir,idir) += a*phi7*(-contra_metric_diag(idir+1)*cartesian::contract(shv,shv_cov))/(3.*tau_pi*gamma*sigma);
+      //saves the results
+      for(int jdir=idir; jdir<3; ++jdir){
+        device_hydro_shear_aux_vector.access(is, ia, hydro_info::F_extensive_shear, idir, jdir) = F_extensive_shear(idir,jdir);
+      }              
+    }   
+  };
+  Cabana::simd_parallel_for(simd_policy, compute_MRF_shear, "compute_MRF_shear");
+  Kokkos::fence();
+};
+
+
+/// @brief Calculate the knudsen number
+/// @details This function calculates the knudsen number
+/// for each particle in the system. The knudsen number
+/// is defined as for the shear tensor as
+/// Kn = tau_pi * abs(sigma_mu_nu sigma^{mu nu}) 
+/// @param sysPtr A shared pointer to the system state
+template <unsigned int D>
+void EoM_cartesian<D>::compute_hydro_numbers(std::shared_ptr<SystemState<D>> sysPtr)
+{
+  double t = (sysPtr->t);
+  double t2 = t*t;
+  //auxiliary metric variables
+  cartesian::Vector<double,D> delta_i_eta = cartesian::delta_i_eta<D>();
+  cartesian::Vector<double,4> contra_metric_diag = cartesian::get_contra_metric_diagonal<3>(t);
+
+  CREATE_VIEW(device_,sysPtr->cabana_particles);
+  auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, sysPtr->cabana_particles.size());
+  auto compute_knud = KOKKOS_LAMBDA(const int is, const int ia)
+  {
+    //read relevant quantities
+    double sigma = device_hydro_scalar.access(is, ia, hydro_info::sigma);
+    double gamma = device_hydro_scalar.access(is, ia, hydro_info::gamma);
+    double eta_pi = device_hydro_scalar.access(is, ia, hydro_info::eta_pi);
+    double phi6 = device_hydro_scalar.access(is, ia, hydro_info::phi6);
+    double phi7 = device_hydro_scalar.access(is, ia, hydro_info::phi7);
+    double lambda_piPi = device_hydro_scalar.access(is, ia, hydro_info::lambda_piPi);
+    double tau_pipi = device_hydro_scalar.access(is, ia, hydro_info::tau_pipi);
+    double a= device_hydro_scalar.access(is, ia, hydro_info::a);
+    double delta_pipi = device_hydro_scalar.access(is, ia, hydro_info::delta_pipi);
+    double tau_pi = device_hydro_scalar.access(is, ia, hydro_info::tau_pi);
+    double tilde_delta = delta_pipi - tau_pi;
+    double bulk = device_hydro_scalar.access(is, ia, hydro_info::bulk);
+
+    //declare caches
+    cartesian::Vector<double,D> u, u_cov, M_shv_nabla_u ,F_0i_shear;
+    cartesian::Vector<double,D> v, grad_u0;
+    cartesian::Vector<double,D> du_dt;
+    //use fixed size u (ux, uy, ueta) to avoid unnecessary specializations
+    cartesian::Vector<double,3> fixed_size_u, fixed_size_u_cov;
+    cartesian::Matrix<double,D,3> R_0i_shear;
+    cartesian::Matrix<double,2,3> F_extensive_shear;
+    cartesian::Matrix<double,D,D> gradV, grad_uj, M_0i_shear;
+    cartesian::Matrix<double,4,4> shv_hybrid, shv, shv_cov;
+    cartesian::Matrix3D<double,2,3,D> M_extensive_shear;
+    cartesian::Matrix3D<double, 2, 3, 3> R_extensive_shear;
+    //fill caches
+    for(int idir=0; idir<D; ++idir){
+      u(idir) = device_hydro_vector.access(is, ia, hydro_info::u, idir);
+      fixed_size_u(idir) = u(idir);
+      v(idir) = device_hydro_vector.access(is, ia, hydro_info::v, idir);
+      du_dt(idir) = device_hydro_vector.access(is, ia, hydro_info::du_dt, idir);
+    }
+    //fill remaning dimensions
+    for(int idir=D; idir<3; ++idir){
+      fixed_size_u(idir) = 0.0;
+    }
+
+    for(int idir=0; idir<4; ++idir)
+    for(int jdir=0; jdir<4; ++jdir)
+      shv(idir,jdir) = device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir, jdir);
+    u_cov = u;
+    u_cov.make_covariant(t2);
+    fixed_size_u_cov = fixed_size_u;
+    fixed_size_u_cov.make_covariant(t2);
+    double geometric_factor = 0.;
+    shv_hybrid = shv;
+    shv_hybrid.make_covariant(1, t2);
+
+    shv_cov = shv_hybrid;
+    shv_cov.make_covariant(0, t2);
+
+
+    cartesian::Matrix<double, 4, 4> F_sigma;
+    cartesian::Matrix3D<double, 4, 4, D> M_sigma;
+
+
+    //calculate aux quantities
+    double divV = 0;
+    for(int idir=0; idir<D; ++idir){
+      divV += device_hydro_space_matrix.access(is, ia, hydro_info::gradV, idir, idir);
+    for(int jdir=0; jdir<D; ++jdir){
+      gradV(idir,jdir) = device_hydro_space_matrix.access(is, ia, hydro_info::gradV, idir, jdir);
+      }
+    }
+
+    for (int idir=0; idir<D; ++idir){
+      for (int jdir=0; jdir<D; ++jdir){
+        grad_uj(idir,jdir) = gamma*gradV(idir,jdir);
+        for (int kdir=0; kdir<D; ++kdir){
+          grad_uj(idir,jdir) += -gamma*u(jdir)*u_cov(kdir)*gradV(idir,kdir);
+        }
+      }
+    }
+
+    grad_u0 = -1.*cartesian::contract(grad_uj,u_cov,cartesian::SecondIndex())/gamma;
+    cartesian::Vector<double,D> grad_u0_contra = grad_u0;
+    grad_u0_contra.make_contravariant(t2);
+
+    cartesian::Matrix<double,D,D> contra_grad_uj;
+    contra_grad_uj = grad_uj;
+    contra_grad_uj.make_contravariant(0, t2);
+    // use fixed size grad_uj to avoid unnecessary specializations
+    cartesian::Matrix<double,3,3> contra_grad_uj_3d;
+    for(int idir=0; idir<D; ++idir){
+      for(int jdir=0; jdir<D; ++jdir){
+        contra_grad_uj_3d(idir,jdir) = contra_grad_uj(idir,jdir);
+      }
+    }
+    //fill remaning dimensions
+    for(int idir=D; idir<3; ++idir){
+      for(int jdir=0; jdir<3; ++jdir){
+        contra_grad_uj_3d(idir,jdir) = 0.0;
+      }
+    }
+    cartesian::Vector<double,4> shear0mu_aux;
+    for(int idir=0; idir<4; ++idir){
+      shear0mu_aux(idir) = shv_hybrid(0,idir);
+    }
+    
+  
+    //calculate the aux MRFs that will be used in the evolution of the shear tensor
+    for(int idir=0; idir<2; ++idir){
+      for(int jdir=idir; jdir<3; ++jdir){
+                
+        F_sigma(idir,jdir) = contra_grad_uj_3d(idir,jdir)/2. + contra_grad_uj_3d(jdir,idir)/2.
+                  +fixed_size_u(idir)*fixed_size_u(jdir)*(gamma*divV)/3.;                      
+
+        for(int kdir=0; kdir<D; ++kdir){
+          M_sigma(idir,jdir,kdir) = -fixed_size_u(idir)*fixed_size_u(jdir)*fixed_size_u_cov(kdir)/(3.*gamma);
+        }
+        //diagonal i = k terms
+        //the if avoids the case when i>k (for D=1)
+        if (D==1){
+          M_sigma(0,jdir,0) += -gamma*fixed_size_u(jdir)/2.;
+        }
+        else{
+          M_sigma(idir,jdir,idir) += -gamma*fixed_size_u(jdir)/2.;
+        }
+      }
+      //diagonal j=k terms
+      for(int jdir = idir; jdir<D; ++jdir){
+        //j=k , since k<D , we only loop until j<D
+        M_sigma(idir,jdir,jdir) += -gamma*fixed_size_u(idir)/2.; 
+      }
+      //diagonal i=j terms
+      for(int kdir=0; kdir<D; ++kdir){
+        //j=i
+        M_sigma(idir,idir,kdir) += contra_metric_diag(idir+1)*fixed_size_u_cov(kdir)/(gamma*3.);
+      }
+      
+      F_sigma(idir,idir) += -contra_metric_diag(idir+1)*(gamma*divV)/3.;
+
+    }
+
+    //calculate the knudsen number
+    cartesian::Matrix<double, 4, 4> sigma_matrix;
+    for(int idir=0; idir<2; ++idir){
+      for(int jdir=idir; jdir<3; ++jdir){
+        double aux = 0;
+        for(int kdir=0; kdir<D; ++kdir){
+          aux += M_sigma(idir,jdir,kdir)*du_dt(kdir);
+        }
+        sigma_matrix(idir,jdir) = aux + F_sigma(idir,jdir);
+      }
+    }
+    //calculate the other components of the matrix
+    //Symmetrizes space part
+    
+    for( int i=1; i<4; i++ )
+    for( int j=i+1; j<4; j++ )
+      sigma_matrix(j,i) = sigma_matrix(i,j);
+
+    //pi^{0i} = -\pi^{ij}u_j/gamma 
+    for(int idir=1; idir<D+1; ++idir){
+      cartesian::Vector<double,D> sigma_matrix_i;
+      for(int jdir=1; jdir<D+1; ++jdir) sigma_matrix_i(jdir-1) = sigma_matrix(idir,jdir);
+      sigma_matrix(0,idir) = -1.*cartesian::contract(u_cov,sigma_matrix_i)/gamma; 
+    }
+
+    //Symmetrizes time part
+    for( int i=1; i<4; i++ )
+      sigma_matrix(i,0) = sigma_matrix(0,i);
+
+
+    //pi^00 = u_i u_j pi^{ij}/gamma^2
+    sigma_matrix(0,0) =( fixed_size_u_cov(0)*fixed_size_u_cov(0)*sigma_matrix(1,1) 
+                + fixed_size_u_cov(1)*fixed_size_u_cov(1)*sigma_matrix(2,2)
+                + 2.*fixed_size_u_cov(1)*fixed_size_u_cov(0)*sigma_matrix(2,1) 
+                + 2.*fixed_size_u_cov(2)*fixed_size_u_cov(0)*sigma_matrix(3,1) 
+                + 2.*fixed_size_u_cov(2)*fixed_size_u_cov(1)*sigma_matrix(3,2)
+                - fixed_size_u_cov(2)*fixed_size_u_cov(2)*(sigma_matrix(1,1)+sigma_matrix(2,2))
+              )/(gamma*gamma-fixed_size_u_cov(2)*fixed_size_u_cov(2));
+
+
+    //pi^33 = (pi^00 - pi^11 - pi^22)/t^2
+    sigma_matrix(3,3) = (sigma_matrix(0,0) - sigma_matrix(1,1) - sigma_matrix(2,2));
+
+    cartesian::Matrix<double, 4, 4> sigma_hybrid = sigma_matrix;
+    sigma_hybrid.make_covariant(1, t2);
+    cartesian::Matrix<double, 4, 4> sigma_cov = sigma_hybrid;
+    sigma_cov.make_covariant(0, t2);
+    double sigma_norm = cartesian::contract(sigma_matrix, sigma_cov);
+    double knudsen_number = tau_pi * sqrt(abs(sigma_norm));
+    device_hydro_scalar.access(is, ia, hydro_info::shear_knudsen) = knudsen_number;
+    
+  };
+  Cabana::simd_parallel_for(simd_policy, compute_knud, "compute_MRF_shear");
+  Kokkos::fence();
+};
+    
+
+
+
+   
+   
+   
+   
+   

@@ -126,6 +126,14 @@ bool cc::Input::decode_settings(const YAML::Node& node){
     }
 
     try {
+      settingsPtr->coordinate_system = node["initial_conditions"]["coordinate_system"].as<std::string>();
+    } catch (...) {
+      formatted_output::report("WARNING: Could not read initial condition coordinate_system!");
+      formatted_output::report("This is an optional parameter. Setting to default value.");
+      settingsPtr->coordinate_system = cc::defaults::coordinate_system;
+    }
+
+    try {
       settingsPtr->input_as_entropy = node["initial_conditions"]["input_as_entropy"].as<bool>();
     } catch (...) {
       formatted_output::report("WARNING: Could not read initial condition input_as_entropy!");
@@ -383,6 +391,13 @@ bool cc::Input::decode_settings(const YAML::Node& node){
       formatted_output::detail("WARNING: Could not read print_conservation_state!");
       formatted_output::detail("This is an optional parameter. Setting to default value.");
       settingsPtr->print_conservation_status = cc::defaults::print_conservation_status;
+    }
+    try{
+      settingsPtr->calculate_observables = node["output"]["calculate_observables"].as<bool>();
+    } catch (...){
+      formatted_output::detail("WARNING: Could not read output/calculate_observables!");
+      formatted_output::detail("This is an optional parameter. Setting to default value.");
+      settingsPtr->calculate_observables = cc::defaults::calculate_observables;
     }
     try{
       settingsPtr->hdf_evolution = node["output"]["hdf_evolution"].as<bool>();

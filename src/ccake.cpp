@@ -40,17 +40,38 @@ template<unsigned int D>
 void execute_tasks(std::shared_ptr<Settings> settingsPtr)
 {
   // Define and set up the simulation object itself.
-  cc::BSQHydro<D,cc::EoM_default> simulation(settingsPtr); //TODO: make EoM a setting
-                                                       // and a switch case selection.
+  string coordinate_system = settingsPtr->coordinate_system;
 
-  formatted_output::announce("Loading initial condition.");
-  // Read in initial conditions (type/path defined in path_to_settings_file).
-  simulation.read_in_initial_conditions();
-  // This is where the hydrodynamic simulation is set up and initialized.;
-  simulation.initialize_hydrodynamics();
-  //formatted_output::announce("Running hydrodynamics.");
-  //Executes the main loop of the simulation.
-  simulation.run();
+
+
+  if (coordinate_system == "cartesian")
+  {
+    cc::BSQHydro<D,cc::EoM_cartesian> simulation(settingsPtr);
+    formatted_output::announce("Loading initial condition.");
+    formatted_output::announce("Using Cartesian coordinates.");
+    // Read in initial conditions (type/path defined in path_to_settings_file).
+    simulation.read_in_initial_conditions();
+    // This is where the hydrodynamic simulation is set up and initialized.;
+    simulation.initialize_hydrodynamics();
+    //formatted_output::announce("Running hydrodynamics.");
+    //Executes the main loop of the simulation.
+    simulation.run();
+  }
+  else if (coordinate_system == "hyperbolic")
+  {
+    cc::BSQHydro<D,cc::EoM_default> simulation(settingsPtr);
+    formatted_output::announce("Loading initial condition.");
+    formatted_output::announce("Using hyperbolic coordinates.");
+    // Read in initial conditions (type/path defined in path_to_settings_file).
+    simulation.read_in_initial_conditions();
+    // This is where the hydrodynamic simulation is set up and initialized.;
+    simulation.initialize_hydrodynamics();
+    //formatted_output::announce("Running hydrodynamics.");
+    //Executes the main loop of the simulation.
+    simulation.run();
+  }
+
+
 
 }
 

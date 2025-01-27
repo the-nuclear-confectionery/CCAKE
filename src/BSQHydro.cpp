@@ -6,6 +6,9 @@ using namespace ccake;
 template class BSQHydro<1,EoM_default>;
 template class BSQHydro<2,EoM_default>;
 template class BSQHydro<3,EoM_default>;
+template class BSQHydro<1,EoM_cartesian>;
+template class BSQHydro<2,EoM_cartesian>;
+template class BSQHydro<3,EoM_cartesian>;
 
 /// @brief Constructor for the BSQHydro class.
 /// @details This constructor initializes a BSQHydro object with the given
@@ -24,8 +27,7 @@ BSQHydro<D,TEOM>::BSQHydro(std::shared_ptr<Settings> settingsPtr_in)
   systemPtr = std::make_shared<SystemState<D>>(settingsPtr);
 
   //Initialize the workstation
-  wsPtr = std::make_shared<SPHWorkstation<D,TEOM>>(settingsPtr,systemPtr); //\TODO: If ever new EoM are implemented,
-                                        // a switch case should be added here.
+  wsPtr = std::make_shared<SPHWorkstation<D,TEOM>>(settingsPtr,systemPtr); 
 
   outPtr = std::make_shared<Output<D>>(settingsPtr,systemPtr);
 
@@ -114,8 +116,7 @@ void BSQHydro<2,EoM_default>::read_ICCING()
         p.input.rhoQ = rhoQ;
         p.hydro.u(0) = ux;
         p.hydro.u(1) = uy;
-
-        systemPtr->add_particle( p );
+        if(e > settingsPtr->e_cutoff) systemPtr->add_particle( p );
       }
     }
     infile.close();
@@ -520,13 +521,16 @@ void BSQHydro<D,TEOM>::run()
   #endif
   //===================================
   // initialize conserved quantities, etc.
-  systemPtr->conservation_entropy(true);
-  systemPtr->conservation_BSQ(true);
-  systemPtr->compute_eccentricities();
+  if (settingsPtr->print_conservation_status) {
+    systemPtr->conservation_entropy(true);
+    systemPtr->conservation_BSQ(true);
+  }
+  if (settingsPtr->calculate_observables) systemPtr->compute_eccentricities();
+
 
   //===================================
   // print initialized system and status
-  outPtr->print_conservation_status();
+  if (settingsPtr->print_conservation_status) outPtr->print_conservation_status();
   #ifdef DEBUG
   outfile << systemPtr->t << " " << systemPtr->Eloss << " " << systemPtr->S << endl;
   #endif
@@ -566,17 +570,20 @@ void BSQHydro<D,TEOM>::run()
 
     //===================================
     // re-compute conserved quantities, etc.
-    systemPtr->conservation_entropy();
-    systemPtr->conservation_BSQ();
-    systemPtr->compute_eccentricities();
+    if (settingsPtr->print_conservation_status){
+      systemPtr->conservation_entropy();
+      systemPtr->conservation_BSQ();
+    }
+    if (settingsPtr->calculate_observables) systemPtr->compute_eccentricities();
 
     //===================================
     // print updated system and status
-    outPtr->print_conservation_status();
+    if (settingsPtr->print_conservation_status) outPtr->print_conservation_status();
     #ifdef DEBUG
     outfile << systemPtr->t << " " << systemPtr->Eloss << " " << systemPtr->S << endl;
     #endif
     if (systemPtr->number_of_elapsed_timesteps%100 == 0) outPtr->print_system_state();
+    //if (settingsPtr->hdf_evolution || settingsPtr->txt_evolution) outPtr->print_system_state();
     if (settingsPtr->particlization_enabled) outPtr->print_freeze_out(wsPtr->freezePtr);
 
   }

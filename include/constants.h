@@ -8,6 +8,7 @@ namespace constants
 {
   constexpr double pi          = 3.1415926535897932384626433;
   constexpr double twopi       = 2.0*pi;
+  constexpr double electric_charge =  0.30282212077;
 
   //constexpr double hbarc_GeVfm = 0.1973269804593;
   //constexpr double hbarc_MeVfm = 197.3269804593;

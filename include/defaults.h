@@ -12,7 +12,7 @@ namespace ccake
 {
   namespace defaults
   {
-    const double      max_tau                 = 20.;
+    const double      max_tau                 = 50.;
     const bool        input_as_entropy        = false;
     const double      dt                      = 0.05;
     const double      hT                      = 0.3;
@@ -24,6 +24,7 @@ namespace ccake
     const bool        circular_buffer         = false;
     const double      padding_thickness       = 0.1;
     const std::string eos_type                = "conformal";
+    const std::string coordinate_system        = "hyperbolic";
     const bool        particlization_enabled  = true;
     const double      Freeze_Out_Temperature  = 150.; // MeV
     const std::string Freeze_Out_Type         = "fixed_T";
@@ -40,6 +41,7 @@ namespace ccake
     const std::string bulkRelaxMode           = "default";
     const bool        modulate_zeta_with_tanh = true;
     const bool        print_conservation_status = true;
+    const bool        calculate_observables        = false;
     const bool        hdf_evolution            = false;
     const bool        txt_evolution            = false;
   }

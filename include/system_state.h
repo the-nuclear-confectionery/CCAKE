@@ -61,6 +61,8 @@ class SystemState
     double Eloss      = 0.0;
     double dEz        = 0.0;
     double Etot       = 0.0;
+    double Ejet       = 0.0;
+    double Ejet0      = 0.0;
 
     double efcheck    = 0.0;
     double sfcheck    = 0.0;
@@ -103,7 +105,7 @@ class SystemState
 
     // check conserved quantities
     void conservation_entropy(bool first_iteration=false);
-    void conservation_energy(bool first_iteration=false);
+    void conservation_energy(bool first_iteration=false,double t = 1.0);
     void conservation_BSQ(bool first_iteration=false);
 
     //TODO: observables should probably be computed in a separate class

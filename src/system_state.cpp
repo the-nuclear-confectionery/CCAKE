@@ -106,8 +106,12 @@ void SystemState<D>::copy_host_to_device(){
     host_hydro_scalar(iparticle, ccake::hydro_info::F_shv_nabla_u) = particles[iparticle].hydro.F_shv_nabla_u;
     host_hydro_scalar(iparticle, ccake::hydro_info::F_extensive_entropy) = particles[iparticle].hydro.F_extensive_entropy;
     host_hydro_scalar(iparticle, ccake::hydro_info::shv_nabla_u) = particles[iparticle].hydro.shv_nabla_u;
-
-
+    host_hydro_scalar(iparticle, ccake::hydro_info::j0_ext) = particles[iparticle].hydro.j0_ext;
+    host_hydro_scalar(iparticle, ccake::hydro_info::shear_knudsen) = particles[iparticle].hydro.shear_knudsen;
+    host_hydro_scalar(iparticle, ccake::hydro_info::bulk_knudsen) = particles[iparticle].hydro.bulk_knudsen;
+    host_hydro_scalar(iparticle, ccake::hydro_info::inverse_reynolds_shear) = particles[iparticle].hydro.inverse_reynolds_shear;
+    host_hydro_scalar(iparticle, ccake::hydro_info::inverse_reynolds_bulk) = particles[iparticle].hydro.inverse_reynolds_bulk;
+  
     
 
     // Copy hydro vector quantities
@@ -172,19 +176,24 @@ void SystemState<D>::copy_host_to_device(){
     #endif
 
   // Copy hydro spacetime matrix
-    for (int i = 0; i < 4; ++i)
-        for (int j = 0; j < 4; ++j)
+    for (int i = 0; i < 4; ++i){
+        for (int j = 0; j < 4; ++j){
             host_hydro_spacetime_matrix(iparticle, ccake::hydro_info::shv, i, j) = particles[iparticle].hydro.shv(i, j);
+            host_hydro_spacetime_matrix(iparticle, ccake::hydro_info::sigma_tensor, i, j) = particles[iparticle].hydro.sigma_tensor(i, j);
+      }
+    }
 
     // Copy hydro shear auxiliary vectors and matrices
     for (int i = 0; i < 2; ++i) {
         for (int j = i; j < 3; ++j) {
             host_hydro_shear_aux_vector(iparticle, ccake::hydro_info::F_extensive_shear, i, j) = particles[iparticle].hydro.F_extensive_shear(i, j);
+            host_hydro_shear_aux_vector(iparticle, ccake::hydro_info::F_sigma_tensor, i, j) = particles[iparticle].hydro.F_sigma_tensor(i, j);
             host_hydro_shear_aux_vector(iparticle, ccake::hydro_info::d_extensive_shv_dt, i, j) = particles[iparticle].hydro.d_extensive_shv_dt(i, j);
             host_hydro_shear_aux_vector(iparticle, ccake::hydro_info::extensive_shv, i, j) = particles[iparticle].hydro.extensive_shv(i, j);
             for (int k = 0; k < D; ++k) {
                 int linear_index = j * D + i;
                 host_hydro_shear_aux_matrix(iparticle, ccake::hydro_info::M_extensive_shear, i, linear_index) = particles[iparticle].hydro.M_extensive_shear(i, linear_index);
+                host_hydro_shear_aux_matrix(iparticle, ccake::hydro_info::M_sigma_tensor, i, linear_index) = particles[iparticle].hydro.M_sigma_tensor(i, linear_index);
             }
             for (int k = 0; k < 3; ++k) {
                 int linear_index = j * 3 + i;
@@ -294,6 +303,11 @@ void SystemState<D>::copy_device_to_host(){
     particles[id].hydro.F_shv_nabla_u = host_hydro_scalar(iparticle, ccake::hydro_info::F_shv_nabla_u);
     particles[id].hydro.F_extensive_entropy = host_hydro_scalar(iparticle, ccake::hydro_info::F_extensive_entropy);
     particles[id].hydro.shv_nabla_u = host_hydro_scalar(iparticle, ccake::hydro_info::shv_nabla_u);
+    particles[id].hydro.j0_ext = host_hydro_scalar(iparticle, ccake::hydro_info::j0_ext);
+    particles[id].hydro.shear_knudsen = host_hydro_scalar(iparticle, ccake::hydro_info::shear_knudsen);
+    particles[id].hydro.bulk_knudsen = host_hydro_scalar(iparticle, ccake::hydro_info::bulk_knudsen);
+    particles[id].hydro.inverse_reynolds_shear = host_hydro_scalar(iparticle, ccake::hydro_info::inverse_reynolds_shear);
+    particles[id].hydro.inverse_reynolds_bulk = host_hydro_scalar(iparticle, ccake::hydro_info::inverse_reynolds_bulk);
 
     for (int i=0; i<D; i++){
       particles[id].hydro.v(i) = host_hydro_vector(iparticle, ccake::hydro_info::v,i);
@@ -342,16 +356,20 @@ void SystemState<D>::copy_device_to_host(){
     particles[id].thermo.dwdS = host_thermo(iparticle, ccake::thermo_info::dwdS);
     particles[id].thermo.dwdQ = host_thermo(iparticle, ccake::thermo_info::dwdQ);
 
-    for (int i=0; i<4; i++)
-    for (int j=0; j<4; j++)
+    for (int i=0; i<4; i++){
+    for (int j=0; j<4; j++){
       particles[id].hydro.shv(i,j) = host_hydro_spacetime_matrix(iparticle, ccake::hydro_info::shv, i, j);
+      particles[id].hydro.sigma_tensor(i,j) = host_hydro_spacetime_matrix(iparticle, ccake::hydro_info::sigma_tensor, i, j);
+    }}
     for (int i=0; i<2; i++){
       for (int j=i; j<3; j++){
         particles[id].hydro.F_extensive_shear(i,j) = host_hydro_shear_aux_vector(iparticle, ccake::hydro_info::F_extensive_shear, i, j);
+        particles[id].hydro.F_sigma_tensor(i,j) = host_hydro_shear_aux_vector(iparticle, ccake::hydro_info::F_sigma_tensor, i, j);
         particles[id].hydro.d_extensive_shv_dt(i,j) = host_hydro_shear_aux_vector(iparticle, ccake::hydro_info::d_extensive_shv_dt, i, j);
         particles[id].hydro.extensive_shv(i,j) = host_hydro_shear_aux_vector(iparticle, ccake::hydro_info::extensive_shv, i, j);
         for (int k=0; k<D; k++){
           int linear_index = j * D + k;
+          particles[id].hydro.M_sigma_tensor(i,linear_index) = host_hydro_shear_aux_matrix(iparticle, ccake::hydro_info::M_sigma_tensor, i, linear_index);
           particles[id].hydro.M_extensive_shear(i,linear_index) = host_hydro_shear_aux_matrix(iparticle, ccake::hydro_info::M_extensive_shear, i, linear_index);
         }
         for (int k=0; k<3; k++){
@@ -460,19 +478,13 @@ void SystemState<D>::reset_neighbour_list(){
 
   //Update the number of neighbours
   ///TODO: Requires UVM, which is not good for performance
+  /// Maybe this paralle for fix it?
   ///Need a way to call Cabana::NeighborList::numNeighbor directly from GPU
   ///without seg fault
-  for (int i=0; i<n_particles; ++i) {
-    device_btrack(i) = device_btrack(i) == -1 ? -1 : Cabana::NeighborList<ListType>::numNeighbor( neighbour_list, i );
-    /*if (Cabana::NeighborList<ListType>::numNeighbor( neighbour_list, i ) < 5) {
-      std::cout << "The particle " << i << " was found with less than 5 neighbors" << std::endl;
-      abort();
-    }*/
-  }
-  //print_neighbors(950);
-  //print_neighbors(975);
-  //print_neighbors(1000);
-  //print_neighbors(1025);
+  Kokkos::parallel_for("UpdateNeighbors", Kokkos::RangePolicy<>(0, n_particles), KOKKOS_LAMBDA(int i) {
+    device_btrack(i) = (device_btrack(i) == -1) ? -1 
+                      : Cabana::NeighborList<ListType>::numNeighbor(neighbour_list, i);
+  });
   #ifdef DEBUG_SLOW
   print_neighbors(0);
   #endif
@@ -547,20 +559,18 @@ void SystemState<D>::conservation_BSQ(bool first_iteration)
 }
 
 
-
-
 ///////////////////////////////////////
 //TODO: Parallelize with Kokkos::parallel_reduce
 
 
 template<unsigned int D>
-void SystemState<D>::conservation_energy(bool first_iteration)
+void SystemState<D>::conservation_energy(bool first_iteration, double t)
 {
   ///////////////////////////////////////////////
   // don't bother checking energy conservation on
   // intermediate RK steps
   // calculate total energy (T^{00})
-  double t = t;
+
   CREATE_VIEW(device_, cabana_particles);
   E = 0.0;
   auto get_total_energy = KOKKOS_LAMBDA(const int i, double &local_E)
@@ -573,6 +583,7 @@ void SystemState<D>::conservation_energy(bool first_iteration)
     double bulk = device_hydro_scalar(i, ccake::hydro_info::bulk);
     double shv00 = device_hydro_spacetime_matrix(i, ccake::hydro_info::shv, 0,0);
     double gamma = device_hydro_scalar(i, ccake::hydro_info::gamma);
+    double sigma = device_hydro_scalar(i, ccake::hydro_info::sigma);
     double g2 = gamma*gamma;
 
     double C = w + bulk;
@@ -583,8 +594,8 @@ void SystemState<D>::conservation_energy(bool first_iteration)
   Kokkos::fence();
   
   if (first_iteration) E0 = E;
-  //calculate Ez
 
+  //calculate Ez
   Ez = 0.0;
   auto get_total_Ez = KOKKOS_LAMBDA(const int i, double &local_Ez)
   {
@@ -592,7 +603,6 @@ void SystemState<D>::conservation_energy(bool first_iteration)
   };
   Kokkos::parallel_reduce("loop_conservation_Ez",n_particles, get_total_Ez, Ez);
   Kokkos::fence();
-
   Etot  = E + Ez;
   Eloss = (E0-Etot)/E0*100;
 }

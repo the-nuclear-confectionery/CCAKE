@@ -11,6 +11,7 @@ add_library(src OBJECT
 	particle.cpp
 	rootfinder.cpp
 	eom_default.cpp
+	eom_cartesian.cpp
 	sph_workstation.cpp
 	system_state.cpp
 	transport_coefficients.cpp

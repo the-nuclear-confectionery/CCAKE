@@ -666,13 +666,13 @@ class FreezeOut
               gradPsub_contra(idir) = frz1_gradP.access(is,ia,idir);
               gradEsub_contra(idir) = frz1_gradE.access(is,ia,idir);
             }
-            double t2 = results_tlist.access(is,ia)*results_tlist.access(is,ia);
+            double t2 = results_tlist.access(is,ia);
             uout_cov.make_covariant(t2);
             gradPsub_contra.make_contravariant(t2);
             gradEsub_contra.make_contravariant(t2);
             results_bulksub.access(is,ia) = frz1_bulk.access(is,ia);
             results_thetasub.access(is,ia) = frz1_theta.access(is,ia);
-            shv_nabla_u = frz1_shv_nabla_u.access(is,ia)*results_tlist.access(is,ia);
+            shv_nabla_u = frz1_shv_nabla_u.access(is,ia);
             sigsub = frz1_sigma_lab.access(is,ia);
             results_shear33sub.access(is,ia) = frz1_shear33.access(is,ia);
             results_Efluc.access(is,ia) = frz1_e.access(is,ia);
@@ -698,13 +698,13 @@ class FreezeOut
               gradPsub_contra(idir) = frz2_gradP.access(is,ia,idir);
               gradEsub_contra(idir) = frz2_gradE.access(is,ia,idir);
             }
-            double t2 = results_tlist.access(is,ia)*results_tlist.access(is,ia);
+            double t2 = results_tlist.access(is,ia);
             uout_cov.make_covariant(t2);
             gradPsub_contra.make_contravariant(t2);
             gradEsub_contra.make_contravariant(t2);
             results_bulksub.access(is,ia) = frz2_bulk.access(is,ia);
             results_thetasub.access(is,ia) = frz2_theta.access(is,ia);
-            shv_nabla_u = frz2_shv_nabla_u.access(is,ia)*results_tlist.access(is,ia);
+            shv_nabla_u = frz2_shv_nabla_u.access(is,ia);
             sigsub = frz2_sigma_lab.access(is,ia);
             results_shear33sub.access(is,ia) = frz2_shear33.access(is,ia);
             results_Efluc.access(is,ia) = frz2_e.access(is,ia);

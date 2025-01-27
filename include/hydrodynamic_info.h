@@ -26,6 +26,7 @@ struct hydrodynamic_info
   bool print_particle    = false;
 
   int ID                 = -1;  ///< for debugging purposes only
+  int causality          = 0;  ///< -1 for acausal, 0 for inderminate, 1 for causal
   double t               = 0.0; ///< current time in hydro simulation
   double a               = 0.0; ///< 0 for IR, 1 for DNMR
   double gamma           = 0.0; ///< Lorentz factor
@@ -48,11 +49,16 @@ struct hydrodynamic_info
   double sigma_lab       = 0.0; ///< specific volume in computational frame
   double sigma           = 0.0; ///< specific volume
   double shv_nabla_u     = 0.0; ///< pi_mu_nu nabla^mu u^nu = pi^mu_nu sigma^mu_nu
+  double shear_knudsen   = 0.0; ///< Knudsen number
+  double inverse_reynolds_shear = 0.0; ///< inverse Reynolds number
+  double bulk_knudsen   = 0.0; ///< Knudsen number
+  double inverse_reynolds_bulk = 0.0; ///< inverse Reynolds number
 
   double tmunu_trace     = 0.0; ///< defined to be (pressure + bulk) 
   double rho_Q_ext       = 0.0; ///< external charge density
   double rho_S_ext       = 0.0; ///< external strangeness density
   double rho_B_ext       = 0.0; ///< external baryon density
+  double j0_ext          = 0.0; ///< external charge current
 
 
   // vector members
@@ -68,6 +74,7 @@ struct hydrodynamic_info
 
   Matrix<double,D,D> gradV, gradU;        // Gradient of velocity needed for shear
   Matrix<double,4,4> shv;
+  Matrix<double,4,4> sigma_tensor;
 
   // Auxiliary M matrices
   Vector<double,D> M_extensive_bulk;
@@ -78,6 +85,7 @@ struct hydrodynamic_info
   Matrix<double,D,3> M_extensive_N;
   //one for each independent component of the shear tensor, linearized index
   Matrix<double,2,3*D> M_extensive_shear;
+  Matrix<double,2,3*D> M_sigma_tensor;
   Matrix<double,2,3*3> R_extensive_shear;
 
   // Auxiliary R matrices
@@ -99,6 +107,7 @@ struct hydrodynamic_info
   //one for each independent component of the shear tensor
   Matrix<double,2,3> F_extensive_shear;
   Matrix<double,2,3> extensive_shv;
+  Matrix<double,2,3> F_sigma_tensor;
 
 
   // derivatives
@@ -144,6 +153,11 @@ enum hydro_scalar_info
   F_shv_nabla_u,
   F_extensive_entropy,
   shv_nabla_u,
+  j0_ext,
+  shear_knudsen,
+  bulk_knudsen,
+  inverse_reynolds_shear,
+  inverse_reynolds_bulk,
   NUM_HYDRO_SCALAR_INFO
 };
 #define HYDRO_SCALAR_INFO double[ccake::hydro_info::NUM_HYDRO_SCALAR_INFO]
@@ -184,12 +198,14 @@ enum hydro_space_matrix_info
 enum hydro_spacetime_matrix_info
 {
   shv,
+  sigma_tensor,
   NUM_HYDRO_SPACETIME_MATRIX_INFO
 };
 #define HYDRO_SPACETIME_MATRIX_INFO double[ccake::hydro_info::NUM_HYDRO_SPACETIME_MATRIX_INFO][4][4]
 enum hydro_shear_aux_vector_info
 {
   F_extensive_shear,
+  F_sigma_tensor,
   extensive_shv,
   d_extensive_shv_dt,
   NUM_HYDRO_SHEAR_AUX_VECTOR_INFO
@@ -198,6 +214,7 @@ enum hydro_shear_aux_vector_info
 enum hydro_shear_aux_matrix_info
 {
   M_extensive_shear,
+  M_sigma_tensor,
   R_extensive_shear,
   NUM_HYDRO_SHEAR_AUX_MATRIX_INFO
 };
