@@ -114,7 +114,7 @@ void BBMG::initial()
     std::random_device rd; // For true randomness
     std::mt19937 gen(rd()); // Mersenne Twister generator
     std::uniform_int_distribution<> dis(0, p.size() - 1); // Distribute over the valid range
-    for (int i = 0; i < 300000; ++i)
+    for (int i = 0; i < 45770; ++i)
     {
         
 
