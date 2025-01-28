@@ -110,11 +110,20 @@ void BBMG::initial()
 {
     rho0tot = 0;
     auto& p = systemPtr->particles;
+    for (auto& particle : p)
+    {
+      if (particle.T() * constants::hbarc_MeVfm > Freezeout_Temp)
+      {
+        p_safe.push_back(particle);
+      }
+    }
+
+
     int back_to_back = 2;
     std::random_device rd; // For true randomness
     std::mt19937 gen(rd()); // Mersenne Twister generator
-    std::uniform_int_distribution<> dis(0, p.size() - 1); // Distribute over the valid range
-    for (int i = 0; i < 45770; ++i)
+    std::uniform_int_distribution<> dis(0, p_safe.size() - 1); // Distribute over the valid range
+    for (int i = 0; i < 300000; ++i)
     {
         
 
@@ -122,32 +131,29 @@ void BBMG::initial()
 
         
         //Density from pressure over temperature
-        double rsub = p[random_sph_particle].p() / p[random_sph_particle].T();
+        double rsub = p_safe[random_sph_particle].p() / p_safe[random_sph_particle].T();
 
-        rho0tot += rsub;
-        if (p[random_sph_particle].T() * constants::hbarc_MeVfm > Freezeout_Temp)
+        //rho0tot += rsub;
+        field sph_particle; //field of all sph particles where we take necessary line integral info
+        sph_particle.r[0] = p_safe[random_sph_particle].r(0);
+        //cout << "Positions (x) of each particle in the grid is " << p.r(0) << "\n";
+        sph_particle.r[1] = p_safe[random_sph_particle].r(1);
+        sph_particle.rho0 = rsub; //Density left in terms of femtometers
+        //sph_particle.sph = i;
+        sph_particle.T = p_safe[random_sph_particle].T() * constants::hbarc_MeVfm;
+
+        double kappa = get_kappa(sph_particle.T / 1000);
+
+        sph_particle.line = 0.5 * kappa * exp(z * log(settingsPtr->t0)) * exp(c * log(sph_particle.rho0)) * settingsPtr->dt; // only if initial flow=0
+        //jetInfo.resize(14);
+        //for (int j = 0; j < phimax; j++) //initializes jets at each point in grid space, over 14 directions
+        //std::uniform_int_distribution<> phidist(0, phimax - 1);
+        int phidist = rand() % phimax;
+        for (int j = 0; j < back_to_back; j++)
         {
-            field sph_particle; //field of all sph particles where we take necessary line integral info
-            sph_particle.r[0] = p[random_sph_particle].r(0);
-            //cout << "Positions (x) of each particle in the grid is " << p.r(0) << "\n";
-            sph_particle.r[1] = p[random_sph_particle].r(1);
-            sph_particle.rho0 = rsub; //Density left in terms of femtometers
-            //sph_particle.sph = i;
-            sph_particle.T = p[random_sph_particle].T() * constants::hbarc_MeVfm;
-
-            double kappa = get_kappa(sph_particle.T / 1000);
-
-            sph_particle.line = 0.5 * kappa * exp(z * log(settingsPtr->t0)) * exp(c * log(sph_particle.rho0)) * settingsPtr->dt; // only if initial flow=0
-            //jetInfo.resize(14);
-            //for (int j = 0; j < phimax; j++) //initializes jets at each point in grid space, over 14 directions
-            //std::uniform_int_distribution<> phidist(0, phimax - 1);
-            int phidist = rand() % phimax;
-            for (int j = 0; j < back_to_back; j++)
-            {
-                sph_particle.phi = phi[phidist] + j * PI;
-                sph_particle.pid = phidist + phimax * j;
-                jetInfo.push_back(sph_particle);
-            }
+            sph_particle.phi = phi[phidist] + j * PI;
+            sph_particle.pid = phidist + phimax * j;
+            jetInfo.push_back(sph_particle);
         }
     }
 }

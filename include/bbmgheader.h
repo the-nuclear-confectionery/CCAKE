@@ -55,6 +55,7 @@ private:
     double phi[phimax];
     //double Rjetq[phimax], Rjetg[phimax];
     //vector<double> rr;
+    vector<Particle> p_safe; // Vector to only take all sph particles from particle vector above freeze out temperature
     vector<field> jetInfo;
     vector<field> jetFreezeOut;
     //vector<double> RAAq;
