@@ -12,6 +12,7 @@ namespace ccake
 {
   namespace defaults
   {
+    const bool        online_inverter_enabled  = false;
     const double      max_tau                 = 50.;
     const bool        input_as_entropy        = false;
     const double      dt                      = 0.05;

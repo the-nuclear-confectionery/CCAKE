@@ -17,6 +17,8 @@ parameters:
     circular: false # whether to buffer with entire grid or just circular padding.
     padding_thickness: .1 # if circular buffer is true, specifies the fractional amount
 eos:
+  online_inverter_enabled: true # Uses preinverted eos if set to "false"
+  preinverted_eos_path: "inverted_eos.h5" # Preinverted eos file name
   type: "conformal" # Possible values are: ["table", "conformal"]
   path: "EoS/Houston" # If type is "table", the path to the equation of state table.
 particlization:
