@@ -118,6 +118,9 @@ void BBMG::initial()
       }
     }
 
+    cout << "This is the full vector p_safe: " << p_safe << endl;
+
+    abort();
 
     int back_to_back = 2;
     std::random_device rd; // For true randomness
@@ -128,7 +131,6 @@ void BBMG::initial()
         
 
         int random_sph_particle = dis(gen);
-
         
         //Density from pressure over temperature
         double rsub = p_safe[random_sph_particle].p() / p_safe[random_sph_particle].T();
