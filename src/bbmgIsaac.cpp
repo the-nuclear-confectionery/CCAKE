@@ -124,7 +124,7 @@ void BBMG::initial()
 
     cout << "Size of the sph particles vector: " << p.size() << endl << "--------------------------------" << endl;
     auto sph_condition = [this](auto& particle) {
-    return particle.T() <= Freezeout_Temp;
+    return particle.T() * constants::hbarc_MeVfm <= Freezeout_Temp;
     };
 
     // Use std::remove_if with a lambda that captures 'condition'
