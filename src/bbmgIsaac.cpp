@@ -150,7 +150,7 @@ void BBMG::initial()
         //Density from pressure over temperature
         double rsub = p[random_sph_particle].p() / p[random_sph_particle].T();
         cout << "Pressure is: " << p[random_sph_particle].p() << " Temperature is: " << p[random_sph_particle].T() << " rho is: " << rsub << endl;
-        abort();
+        //abort();
         //rho0tot += rsub;
         field sph_particle; //field of all sph particles where we take necessary line integral info
         sph_particle.r[0] = p[random_sph_particle].r(0);
