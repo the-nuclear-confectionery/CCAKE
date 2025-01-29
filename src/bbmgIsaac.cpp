@@ -114,13 +114,18 @@ void BBMG::initial()
     {
       if (particle.T() * constants::hbarc_MeVfm > Freezeout_Temp)
       {
+        cout << "This is the pressure: " << particle.p() << endl << "This is the temperature: " << endl;
         p_safe.push_back(particle);
+
+        //cout << "This is the full vector p_safe: " << p_safe << endl;
+
+        abort();
       }
     }
 
-    cout << "This is the full vector p_safe: " << p_safe << endl;
+    
 
-    abort();
+  
 
     int back_to_back = 2;
     std::random_device rd; // For true randomness
