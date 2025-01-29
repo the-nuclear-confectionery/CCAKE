@@ -110,7 +110,7 @@ void BBMG::initial()
 {
     rho0tot = 0;
     auto& p = systemPtr->particles;
-    for (auto& particle : p)
+/*    for (auto& particle : p)
     {
       if (particle.T() * constants::hbarc_MeVfm > Freezeout_Temp)
       {
@@ -120,14 +120,23 @@ void BBMG::initial()
         
       }
     }
+*/  
 
-    for (int i = 0; i < p_safe.size(); i++)
-    {
-      cout << p_safe[i].p() << endl;
-      abort();
-    }
+    cout << "Size of the sph particles vector: " << p.size();
+    auto sph_condition = [this](auto& particle) {
+    return particle.T() <= Freezeout_Temp;
+    };
 
+    // Use std::remove_if with a lambda that captures 'condition'
+    auto new_sph_end = std::remove_if(p.begin(), p.end(),
+        [this, &sph_condition](auto& particle) {
+              return sph_condition(particle); // Keep element
+        });
+    p.erase(new_sph_end, p.end());
+
+    cout << "Size of the sph particles vector after removing below FO: " << p.size();
   
+    abort();
 
     int back_to_back = 2;
     std::random_device rd; // For true randomness
