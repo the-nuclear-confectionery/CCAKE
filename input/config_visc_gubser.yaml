@@ -1,14 +1,15 @@
 ---
 initial_conditions:
   type: "ccake" # Possible values are: ["ccake", "iccing", "hdf5"]
-  file: "../utilities/ic.dat" # Path to the initial conditions file
-  t0: 0.600000 # tau0 = \sqrt(t^2-z^2) in fm/c. Must match the value for initial condition file.
+  file: "../ics/init_cond.dat" # Path to the initial conditions file
+  t0: 1.000000 # tau0 = \sqrt(t^2-z^2) in fm/c. Must match the value for initial condition file.
   dimension: 2 # (1+1)D, (2+1)D or (3+1)D simulation
   input_as_entropy: false # if false, input will be interpreted as energy density
 parameters:
-  dt: 0.05 # time-step of the simulation in fm/c
-  h_T:  0.500000  # Smothing parameter inside kernel, in the transverse direction (in fm)
-  h_eta:  0.500000  # Smothing parameter inside kernel in the longitudinal direction
+  dt: 0.001 # time-step of the simulation in fm/c
+  h_T:  0.100000  # Smoothing parameter inside kernel, in the transverse direction (in fm)
+  h_eta:  0.100000  # Smoothing parameter inside kernel in the longitudinal direction
+  rk_order: 2
   kernel_type: "cubic_spline" # Kernel type. Possible values are: ["cubic_spline"]
   energy_cutoff: 0.15 # GeV/fm^3 - Particles with less than this energy will be deleted before starting the evolution
   buffer_particles:
@@ -17,12 +18,14 @@ parameters:
     padding_thickness: .1 # if circular buffer is true, specifies the fractional amount
                           # of padding to add beyond the point with maximum distance from origin
 eos:
-  type: "table" # Possible values are: ["table", "conformal"]
+  online_interter_enabled: false
+  preinverted_eos_path: "inverted_eos.h5"
+  type: "conformal" # Possible values are: ["table", "tanh_conformal", "conformal", "conformal_diagonal"]
   path: "EoS/Houston" # If type is "table", the path to the equation of state table.
 particlization:
-  enabled: true # Set to true to output particlization hypersurface
+  enabled: true # set to true to output particlization hypersurface
   type: "fixed_T" # Possible values are: ["fixed_T"]
-  T: 150.00000 # Temperature of the particlization hypersurface (in MeV)
+  T: 153.334025 # Temperature of the particlization hypersurface (in MeV) # T = 153.334025 MeV corresponds to eps = 1.0 GeV/fm^3 for the conformal EoS
 hydro:
   baryon_charge_enabled: true # Set to false to disable baryon charge evolution
   strange_charge_enabled: true # Set to false to disable strange charge evolution
@@ -33,14 +36,15 @@ hydro:
       constant_eta_over_s: 0.20 # Value of the constant shear viscosity
       relaxation_mode: "default" # How shear relaxation coeffiecient is computed. Possible values are: ["default"]
     bulk:
-      mode: "cs2_dependent"
+      mode: "constant"
       constant_zeta_over_s: 0.0
       cs2_dependent_zeta_A: 1.67552
       cs2_dependent_zeta_p: 2.0
       relaxation_mode: "default"
-      modulate_with_tanh: true #If true, will modulate the bulk viscosity
+      modulate_with_tanh: false #If true, will modulate the bulk viscosity
                                #with a tanh function below transition temperature
 output:
   print_conservation_state: true
   hdf_evolution: false
   txt_evolution: true
+

@@ -14,7 +14,14 @@ run-long: images/ccake.sif ../build/ccake
 run-iccing: images/ccake.sif ../build/ccake
 	singularity exec --cleanenv --bind ../:/CCAKE images/ccake.sif bash -c " \
         cd /CCAKE/build ; \
-	./ccake ../input/input_parameters_iccing.yaml output_iccing ;"
+	./ccake ../input/input_parameters_ccake.yaml output_test ;"
+
+run-visc-gubser: images/ccake.sif ../build/ccake
+	export OMP_NUM_THREADS=32
+	singularity exec --cleanenv --bind ../:/CCAKE images/ccake.sif bash -c " \
+        cd /CCAKE/build ; \
+        mkdir -p initial_conditions ; \
+        ./ccake ../input/config_visc_gubser.yaml out_vg ;"
 
 run-bjorken: images/ccake.sif ../build/ccake
 	singularity exec --cleanenv --bind ../:/CCAKE images/ccake.sif bash -c " \
