@@ -117,13 +117,15 @@ void BBMG::initial()
         cout << "This is the pressure: " << particle.p() << endl << "This is the temperature: " << endl;
         p_safe.push_back(particle);
 
-        //cout << "This is the full vector p_safe: " << p_safe << endl;
-
-        abort();
+        
       }
     }
 
-    
+    for (int i = 0; i < p_safe.size(); i++)
+    {
+      cout << p_safe[i].p() << endl;
+      abort();
+    }
 
   
 
