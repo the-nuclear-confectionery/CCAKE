@@ -113,6 +113,8 @@ class Settings
     // equation of state
     string eos_type             = "";     ///< Type of equation of state ("conformal" or "table")
     string eos_path             = "";     ///< If "table", path to the equation of state file
+    bool online_inverter_enabled = false;
+    fs::path preinverted_eos_path;       ///< Path to the preinverted EOS file
 
     //------------------------------------
     // hydrodynamics configuration

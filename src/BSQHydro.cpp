@@ -350,126 +350,38 @@ void BSQHydro<D,TEOM>::initialize_hydrodynamics()
 
   // initialize workstation
   wsPtr->initialize();
-  /*#ifdef DEBUG
-  std::cout << "initialize()" << std::endl;
-  for (auto & p : systemPtr->particles){
-    if(p.r(0) > -0.05 && p.r(0) < 0.05){  
-      std::cout << "eta=  " << p.r(0) << "   "; 
-      std::cout << "thermo.e=   " << p.thermo.e*hbarc_GeVfm << "   input.e=   " << p.input.e*hbarc_GeVfm << \
-	      "   thermo.s=   " << p.thermo.s << "   input.s=   " << p.input.s << "   " << std::endl;
-    }
-  }  
-  #endif*/
+
   // trim initial conditions with low-energy density cut-off,
   // filling out initial conditions, and imposing initial freeze-out
   wsPtr->process_initial_conditions();
-  /*#ifdef DEBUG
-  std::cout << "process_initial_conditions" << std::endl;
-  for (auto & p : systemPtr->particles){
-    if(p.r(0) > -0.05 && p.r(0) < 0.05){  
-      std::cout << "eta=  " << p.r(0) << "   ";
-      std::cout << "thermo.e=   " << p.thermo.e*hbarc_GeVfm << "   input.e=   " << p.input.e*hbarc_GeVfm << \
-              "   thermo.s=   " << p.thermo.s << "   input.s=   " << p.input.s << "   " << std::endl;
-    }
-  }
-  #endif*/
+
 
   // allocate memory for particles in device
   systemPtr->allocate_cabana_particles();
-  /*#ifdef DEBUG
-  std::cout << "allocate_cabana_particles" << std::endl;
-  for (auto & p : systemPtr->particles){
-    if(p.r(0) > -0.05 && p.r(0) < 0.05){  
-      std::cout << "eta=  " << p.r(0) << "   ";
-      std::cout << "thermo.e=   " << p.thermo.e*hbarc_GeVfm << "   input.e=   " << p.input.e*hbarc_GeVfm << \
-              "   thermo.s=   " << p.thermo.s << "   input.s=   " << p.input.s << "   " << std::endl;
-    }
-  }
-  #endif*/
+  
 
   // Create linked list data structure
   systemPtr->initialize_linklist();
   // for each particle, find location in phase diagram
   wsPtr->initialize_entropy_and_charge_densities();
-  /*#ifdef DEBUG
-  std::cout << "initialize_entropy_and_charge_densities()" << std::endl;
-  for (auto & p : systemPtr->particles){
-    if(p.r(0) > -0.05 && p.r(0) < 0.05){  
-      std::cout << "eta=  " << p.r(0) << "   ";
-      std::cout << "thermo.e=   " << p.thermo.e*hbarc_GeVfm << "   input.e=   " << p.input.e*hbarc_GeVfm << \
-              "   thermo.s=   " << p.thermo.s << "   input.s=   " << p.input.s << "   " << std::endl;
-    }
-  }
-  #endif*/
-
-  /*#ifdef DEBUG
-  std::cout << "initialize_linklist()" << std::endl;
-  for (auto & p : systemPtr->particles){
-    if(p.r(0) > -0.05 && p.r(0) < 0.05){  
-      std::cout << "eta=  " << p.r(0) << "   ";
-      std::cout << "thermo.e=   " << p.thermo.e*hbarc_GeVfm << "   input.e=   " << p.input.e*hbarc_GeVfm << \
-              "   thermo.s=   " << p.thermo.s << "   input.s=   " << p.input.s << "   " << std::endl;
-    }
-  }
-  #endif*/
 
   //Setup freeze-out
   wsPtr->setup_freeze_out();
-  /*#ifdef DEBUG
-  std::cout << "setup_freeze_out()" << std::endl;
-  for (auto & p : systemPtr->particles){
-    if(p.r(0) > -0.05 && p.r(0) < 0.05){
-      std::cout << "eta=  " << p.r(0) << "   ";
-      std::cout << "thermo.e=   " << p.thermo.e*hbarc_GeVfm << "   input.e=   " << p.input.e*hbarc_GeVfm << \
-              "   thermo.s=   " << p.thermo.s << "   input.s=   " << p.input.s << "   " << std::endl;
-    }
-  }
-  #endif*/
+
   wsPtr->calculate_gamma_and_velocities();
   // implement initial smoothing required by SPH formalism
   wsPtr->initial_smoothing();
-  /*#ifdef DEBUG
-  std::cout << "initial_smoothing()" << std::endl;
-  for (auto & p : systemPtr->particles){
-    if(p.r(0) > -0.05 && p.r(0) < 0.05){  
-      std::cout << "eta=  " << p.r(0) << "   ";
-      std::cout << "thermo.e=   " << p.thermo.e*hbarc_GeVfm << "   input.e=   " << p.input.e*hbarc_GeVfm << \
-              "   thermo.s=   " << p.thermo.s << "   input.s=   " << p.input.s << "   " << std::endl;
-    }
-  }
-  #endif*/
 
   // if initializing from full Tmunu, absorb non-equilibrium
   // pressure correction into bulk viscous pressure Pi
   wsPtr->set_bulk_Pi();
   //calculate extensive shear tensor
   wsPtr->calculate_extensive_shv();
-  /*#ifdef DEBUG
-  std::cout << "set_bulk_Pi()" << std::endl;
-  for (auto & p : systemPtr->particles){
-    if(p.r(0) > -0.05 && p.r(0) < 0.05){
-      std::cout << "eta=  " << p.r(0) << "   ";
-      std::cout << "thermo.e=   " << p.thermo.e*hbarc_GeVfm << "   input.e=   " << p.input.e*hbarc_GeVfm << \
-              "   thermo.s=   " << p.thermo.s << "   input.s=   " << p.input.s << "   " << std::endl;
-    }
-  }
-  exit(1);
-  #endif*/
+
   sw.Stop();
   formatted_output::report("hydrodynamics initialization finished in "
                               + to_string(sw.printTime()) + " s");
   
-  /* #ifdef DEBUG
-  std::cout << "update_all_thermodynamics() before copying back and forth" << std::endl;
-  for (auto & p : systemPtr->particles){
-    if(p.r(0) > -0.05 && p.r(0) < 0.05){
-      std::cout << "eta=  " << p.r(0) << "   ";
-      std::cout << "  temp=  " << p.thermo.T << "  thermo.e=   " << p.thermo.e*hbarc_GeVfm << "   input.e=   " << p.input.e*hbarc_GeVfm << \
-              "   thermo.s=   " << p.thermo.s << "   input.s=   " << p.input.s << "   " << std::endl;
-    }
-  }
-  exit(1);
-  #endif*/
 
   #ifdef DEBUG_SLOW
   systemPtr->copy_device_to_host();

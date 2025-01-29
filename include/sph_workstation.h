@@ -20,10 +20,7 @@
 #include "system_state.h"
 #include "transport_coefficients.h"
 #include "thermodynamic_info.h"
-//#define ONLINE_INVERTER
-#ifndef ONLINE_INVERTER
 #include "eos_interpolator.h"
-#endif
 
 
 
@@ -71,9 +68,7 @@ private:
 
   // equation of state
   EquationOfState eos;
-  #ifndef ONLINE_INVERTER
   std::shared_ptr<EoS_Interpolator> eos_interpolatorPtr; ///< Object to interpolate the EoS
-  #endif
 
   transport_coefficients::parameters transp_coeff_params; ///< Transport coefficients parameters
 

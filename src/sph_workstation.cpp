@@ -40,9 +40,9 @@ void SPHWorkstation<D,TEOM>::initialize()
   // set up equation of state
   eos.set_SettingsPtr( settingsPtr );
   eos.init();
-  #ifndef ONLINE_INVERTER
-  eos_interpolatorPtr = std::make_shared<EoS_Interpolator>("eos_conformal_small.h5"); ///TODO: The path should be in the config file;
-  #endif
+  if(!settingsPtr->online_inverter_enabled)
+    eos_interpolatorPtr = std::make_shared<EoS_Interpolator>(
+          settingsPtr->preinverted_eos_path);
   //----------------------------------------
   // set up transport coefficients
   transp_coeff_params = tc::setup_parameters(settingsPtr);
@@ -146,35 +146,7 @@ void SPHWorkstation<D, TEOM>::initialize_entropy_and_charge_densities()
     double rhoS_sph_mass = device_sph_mass(iparticle, densities_info::rhoS);
     double rhoQ_sph_mass = device_sph_mass(iparticle, densities_info::rhoQ);
     double sigma = device_hydro_scalar(iparticle, hydro_info::sigma);
-    #ifdef DEBUG_SLOW
-    //systemPtr->copy_device_to_host();
-    //std::ofstream thermo_file;
-    //thermo_file.open("initial_thermo.dat");
-    //thermo_file << "eta thermo.e(GeV/fm^3) input.e(GeV/fm^3) thermo.s(fm^-3)" << std::endl;
-    for (auto & p : systemPtr->particles){
-    //Print initial conditions
-      for (int i = 0; i < D; i++) {
-	if (p.r(i) > -9.91) getchar();
-          std::cout << p.r(i) << " " <<  e_input*hbarc_GeVfm << "   " << p.input.e*hbarc_GeVfm << " " << p.input.s << " " << s_input << "   " << std::endl;
-    	}
-	//thermo_file << p.thermo.e*hbarc_GeVfm << " " << p.input.e*hbarc_GeVfm << " " << p.thermo.s << " " << p.thermo.rhoB << " " << p.thermo.rhoS
-    //            << " " << p.thermo.rhoQ << " ";
-    //for (int i = 0; i < D; i++) thermo_file << p.hydro.u(i) << " ";
-    //thermo_file << p.hydro.Bulk << " ";
-    //for(int i = 0; i < D; i++){
-    //  for(int j = i; j < D; j++){
-    //    thermo_file << p.hydro.shv(i,j) << " ";
-    //  }
-    //}
-    //thermo_file << p.hydro.shv33 << " " << std::endl;
-    }
-    //thermo_file.close();
-    exit(1);
-    #endif
 
-    //Why are we switching between the frames? 
-    //Also, reprint. 
-    //Also, plot s vs eta and e vs eta
 
     device_sph_mass(iparticle, ccake::densities_info::s )    = 1;    // constant after this
     device_sph_mass(iparticle, ccake::densities_info::rhoB ) = 1; // constant after this
@@ -1159,8 +1131,13 @@ void SPHWorkstation<D, TEOM>::update_all_particle_thermodynamics()
     }
   }
   #endif
-
-  #ifdef ONLINE_INVERTER
+  if(!settingsPtr->online_inverter_enabled){
+    eos_interpolatorPtr->fill_thermodynamics(systemPtr->cabana_particles, t);
+    #ifdef DEBUG_SLOW
+    systemPtr->copy_device_to_host();
+    #endif
+  }
+  else{
   systemPtr->copy_device_to_host();
   for ( auto & p : systemPtr->particles ){
     double s_LRF      = p.thermo.s;
@@ -1172,14 +1149,6 @@ void SPHWorkstation<D, TEOM>::update_all_particle_thermodynamics()
     double e_input = p.input.e;
     double s_input = p.input.s;
     double T = p.thermo.T;
-    // #ifdef DEBUG
-    // if(pos > -0.01 && pos < 0.01){
-    //   std::cout << "before locate_sBSQ" << std::endl;
-    //   std::cout << "eta=  " << pos << "   ";
-    //   std::cout << "  temp=  " << T << "   thermo.e=   " << p.e()*hbarc_GeVfm << "   input.e   " << e_input*hbarc_GeVfm << \
-	  //     "   thermo.s=   " << p.s() << "  input.s   " << s_input << " " << std::endl;
-    // }
-    // #endif
     try
     {
 	    locate_phase_diagram_point_sBSQ( p, s_LRF, rhoB_LRF , rhoS_LRF, rhoQ_LRF );
@@ -1192,34 +1161,10 @@ void SPHWorkstation<D, TEOM>::update_all_particle_thermodynamics()
       systemPtr->print_neighbors(p.ID);
       Kokkos::finalize();
       exit(404);
-    }
-    // #ifdef DEBUG
-    // if(pos > -0.01 && pos < 0.01){
-    //   std::cout << "after locate_sBSQ" << std::endl;
-    //   std::cout << "eta=  " << pos << "   ";
-    //   std::cout << "  temp=  " << T << "   thermo.e=   " << p.e()*hbarc_GeVfm << "   input.e   " << e_input*hbarc_GeVfm << \
-    //           "   thermo.s=   " << p.s() << "  input.s   " << s_input << " " << std::endl;
-    // }
-    // #endif    
+    }  
   }
   systemPtr->copy_host_to_device();
-  #else
-    eos_interpolatorPtr->fill_thermodynamics(systemPtr->cabana_particles, t);
-    #ifdef DEBUG_SLOW
-    systemPtr->copy_device_to_host();
-    #endif
-  #endif
-  // #ifdef DEBUG
-  // std::cout << "update_all_thermodynamics() after locate_sBSQ and copying back and forth" << std::endl;
-  // for (auto & p : systemPtr->particles){
-  //   if(p.r(0) > -0.01 && p.r(0) < 0.01){
-  //     std::cout << "eta=  " << p.r(0) << "   ";
-  //     std::cout << "  temp=  " << p.thermo.T << "   thermo.e=   " << p.thermo.e*hbarc_GeVfm << "   input.e=   " << p.input.e*hbarc_GeVfm << \
-  //             "   thermo.s=   " << p.thermo.s << "   input.s=   " << p.input.s << "   " << std::endl;
-  //   }
-  // }
-  // exit(1);
-  // #endif
+  }
 
 
   sw.Stop();
