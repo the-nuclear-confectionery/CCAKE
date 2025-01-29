@@ -122,7 +122,7 @@ void BBMG::initial()
     }
 */  
 
-    cout << "Size of the sph particles vector: " << p.size();
+    cout << "Size of the sph particles vector: " << p.size() << endl << "--------------------------------" << endl;
     auto sph_condition = [this](auto& particle) {
     return particle.T() <= Freezeout_Temp;
     };
@@ -134,7 +134,7 @@ void BBMG::initial()
         });
     p.erase(new_sph_end, p.end());
 
-    cout << "Size of the sph particles vector after removing below FO: " << p.size();
+    cout << "Size of the sph particles vector after removing below FO: " << p.size() << endl << "-----------------------------------" << endl;
   
     abort();
 
