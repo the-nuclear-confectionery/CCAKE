@@ -122,17 +122,19 @@ void BBMG::initial()
     }
 */  
 
+  auto& p_bbmg = p;
+
     //cout << "Size of the sph particles vector: " << p.size() << endl << "--------------------------------" << endl; //Produces a vector of the same size, as expected
     auto sph_condition = [this](auto& particle) {
     return particle.T() * constants::hbarc_MeVfm <= Freezeout_Temp;
     };
 
     // Use std::remove_if with a lambda that captures 'condition'
-    auto new_sph_end = std::remove_if(p.begin(), p.end(),
+    auto new_sph_end = std::remove_if(p_bbmg.begin(), p_bbmg.end(),
         [this, &sph_condition](auto& particle) {
               return sph_condition(particle); // Keep element
         });
-    p.erase(new_sph_end, p.end());
+    p_bbmg.erase(new_sph_end, p_bbmg.end());
 
     //cout << "Size of the sph particles vector after removing below FO: " << p.size() << endl << "-----------------------------------" << endl; //Produces a vector slightly smaller than the particles above freeze out listed on log file...
   
@@ -148,17 +150,17 @@ void BBMG::initial()
         int random_sph_particle = dis(gen);
         
         //Density from pressure over temperature
-        double rsub = p[random_sph_particle].p() / p[random_sph_particle].T();
-        cout << "Pressure is: " << p[random_sph_particle].p() << " Temperature is: " << p[random_sph_particle].T() << " rho is: " << rsub << endl;
+        double rsub = p_bbmg[random_sph_particle].p() / p_bbmg[random_sph_particle].T();
+        //cout << "Pressure is: " << p[random_sph_particle].p() << " Temperature is: " << p[random_sph_particle].T() << " rho is: " << rsub << endl;
         //abort();
         //rho0tot += rsub;
         field sph_particle; //field of all sph particles where we take necessary line integral info
-        sph_particle.r[0] = p[random_sph_particle].r(0);
+        sph_particle.r[0] = p_bbmg[random_sph_particle].r(0);
         //cout << "Positions (x) of each particle in the grid is " << p.r(0) << "\n";
-        sph_particle.r[1] = p[random_sph_particle].r(1);
+        sph_particle.r[1] = p_bbmg[random_sph_particle].r(1);
         sph_particle.rho0 = rsub; //Density left in terms of femtometers
         //sph_particle.sph = i;
-        sph_particle.T = p[random_sph_particle].T() * constants::hbarc_MeVfm;
+        sph_particle.T = p_bbmg[random_sph_particle].T() * constants::hbarc_MeVfm;
 
         double kappa = get_kappa(sph_particle.T / 1000);
 
