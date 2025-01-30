@@ -122,8 +122,8 @@ void BBMG::initial()
     }
 */  
 
-  auto& p_bbmg = p;
-
+    auto& p_bbmg = p;
+    /*
     //cout << "Size of the sph particles vector: " << p.size() << endl << "--------------------------------" << endl; //Produces a vector of the same size, as expected
     auto sph_condition = [this](auto& particle) {
     return particle.T() * constants::hbarc_MeVfm <= Freezeout_Temp;
@@ -135,7 +135,7 @@ void BBMG::initial()
               return sph_condition(particle); // Keep element
         });
     p_bbmg.erase(new_sph_end, p_bbmg.end());
-
+    */
     //cout << "Size of the sph particles vector after removing below FO: " << p.size() << endl << "-----------------------------------" << endl; //Produces a vector slightly smaller than the particles above freeze out listed on log file...
   
 
