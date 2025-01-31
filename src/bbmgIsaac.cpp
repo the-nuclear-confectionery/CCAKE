@@ -124,7 +124,7 @@ void BBMG::initial()
 
 
 
-    auto p_bbmg = p; // !!!!!!!!!!!!!!!!!MAYBE REMOVE THE AMPERSAND -- checking
+    vector<Particle>  p_bbmg = p; // !!!!!!!!!!!!!!!!!MAYBE REMOVE THE AMPERSAND -- checking
     
     for (auto& particle : p_bbmg) {
     cout << "Temperature: " << particle.T() * constants::hbarc_MeVfm << endl;
