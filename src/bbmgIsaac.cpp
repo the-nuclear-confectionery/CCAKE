@@ -122,6 +122,11 @@ void BBMG::initial()
     }
 */  
 
+    for (auto& particle : p) {
+    cout << "Temperature: " << particle.T() * constants::hbarc_MeVfm << endl;
+    }
+    abort();
+
     auto p_bbmg = p; // !!!!!!!!!!!!!!!!!MAYBE REMOVE THE AMPERSAND -- checking
     
     cout << "Size of the sph particles vector: " << p_bbmg.size() << endl << "--------------------------------" << endl; //Produces a vector of the same size, as expected
