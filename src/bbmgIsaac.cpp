@@ -124,12 +124,17 @@ void BBMG::initial()
 
 
 
-    vector<Particle>  p_bbmg = p; // !!!!!!!!!!!!!!!!!MAYBE REMOVE THE AMPERSAND -- checking
+    vector<Particle>  p_bbmg; //= p; // !!!!!!!!!!!!!!!!!MAYBE REMOVE THE AMPERSAND -- checking
     
-    for (auto& particle : p_bbmg) {
-    cout << "Temperature: " << particle.T() * constants::hbarc_MeVfm << endl;
+    for (auto& particle : p)
+    {
+      p_bbmg.push_back(particle);
     }
-    abort();
+
+    /*for (auto& particle : p_bbmg) {
+      cout << "Temperature: " << particle.T() * constants::hbarc_MeVfm << endl;
+    }
+    abort();*/
 
 
     cout << "Size of the sph particles vector: " << p_bbmg.size() << endl << "--------------------------------" << endl; //Produces a vector of the same size, as expected
@@ -145,7 +150,7 @@ void BBMG::initial()
     p_bbmg.erase(new_sph_end, p_bbmg.end());
     
     cout << "Size of the sph particles vector after removing below FO: " << p_bbmg.size() << endl << "-----------------------------------" << endl; //Produces a vector slightly smaller than the particles above freeze out listed on log file...
-  
+    abort();
 
     int back_to_back = 2;
     std::random_device rd; // For true randomness
