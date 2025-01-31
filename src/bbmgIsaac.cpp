@@ -124,7 +124,7 @@ void BBMG::initial()
 
     auto p_bbmg = p; // !!!!!!!!!!!!!!!!!MAYBE REMOVE THE AMPERSAND -- checking
     
-    //cout << "Size of the sph particles vector: " << p.size() << endl << "--------------------------------" << endl; //Produces a vector of the same size, as expected
+    cout << "Size of the sph particles vector: " << p_bbmg.size() << endl << "--------------------------------" << endl; //Produces a vector of the same size, as expected
     auto sph_condition = [this](auto& particle) {
     return particle.T() * constants::hbarc_MeVfm <= Freezeout_Temp;
     };
@@ -136,7 +136,7 @@ void BBMG::initial()
         });
     p_bbmg.erase(new_sph_end, p_bbmg.end());
     
-    //cout << "Size of the sph particles vector after removing below FO: " << p.size() << endl << "-----------------------------------" << endl; //Produces a vector slightly smaller than the particles above freeze out listed on log file...
+    cout << "Size of the sph particles vector after removing below FO: " << p_bbmg.size() << endl << "-----------------------------------" << endl; //Produces a vector slightly smaller than the particles above freeze out listed on log file...
   
 
     int back_to_back = 2;
