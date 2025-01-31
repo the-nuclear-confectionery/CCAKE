@@ -304,7 +304,7 @@ void Output<2>::print_freeze_out(std::shared_ptr<FreezeOut<2>> freeze_out)
   for (int i = 0; i < FOResults.size(); i++){
     if (!result_print(i)) continue;
     FO << result_divEener(i) << " ";
-    for(int idir = 0; idir < 3; idir++)
+    for(int idir = 0; idir < 2; idir++)
       FO << result_divE(i, idir) << " ";
     FO << result_gsub(i) << " ";
     for(int idir = 0; idir < 2; idir++)
