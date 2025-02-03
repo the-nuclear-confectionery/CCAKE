@@ -126,7 +126,7 @@ void BBMG::initial()
 
     vector<Particle>  p_bbmg; //= p; // !!!!!!!!!!!!!!!!!MAYBE REMOVE THE AMPERSAND -- checking
     
-    for (auto& particle : p)
+    for (auto particle : p)
     {
       p_bbmg.push_back(particle);
     }
