@@ -149,17 +149,17 @@ void BBMG::initial()
         int random_sph_particle = dis(gen);
         
         //Density from pressure over temperature
-        double rsub = p_bbmg[random_sph_particle].p() / p_bbmg[random_sph_particle].T();
+        double rsub = p[random_sph_particle].p() / p[random_sph_particle].T();
         //cout << "Pressure is: " << p[random_sph_particle].p() << " Temperature is: " << p[random_sph_particle].T() << " rho is: " << rsub << endl;
         //abort();
         //rho0tot += rsub;
         field sph_particle; //field of all sph particles where we take necessary line integral info
-        sph_particle.r[0] = p_bbmg[random_sph_particle].r(0);
+        sph_particle.r[0] = p[random_sph_particle].r(0);
         //cout << "Positions (x) of each particle in the grid is " << p.r(0) << "\n";
-        sph_particle.r[1] = p_bbmg[random_sph_particle].r(1);
+        sph_particle.r[1] = p[random_sph_particle].r(1);
         sph_particle.rho0 = rsub; //Density left in terms of femtometers
         //sph_particle.sph = i;
-        sph_particle.T = p_bbmg[random_sph_particle].T() * constants::hbarc_MeVfm;
+        sph_particle.T = p[random_sph_particle].T() * constants::hbarc_MeVfm;
 
         double kappa = get_kappa(sph_particle.T / 1000);
 
