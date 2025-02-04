@@ -145,7 +145,8 @@ void BBMG::initial()
     // Use std::remove_if with a lambda that captures 'condition'
     auto new_sph_end = std::remove_if(p_bbmg.begin(), p_bbmg.end(),
         [this, &sph_condition](auto& particle) {
-              return sph_condition(particle); // Keep element
+              //return sph_condition(particle); // Keep element
+              return particle.T() * constants::hbarc_MeVfm <= Freezeout_Temp; // Correct condition: Remove particles below Freezeout_Temp
         });
     p_bbmg.erase(new_sph_end, p_bbmg.end());
     
