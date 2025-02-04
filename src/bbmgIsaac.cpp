@@ -109,54 +109,39 @@ void BBMG::initial()
 void BBMG::initial()
 {
     rho0tot = 0;
-    auto& p = systemPtr->particles;
-/*    for (auto& particle : p)
-    {
-      if (particle.T() * constants::hbarc_MeVfm > Freezeout_Temp)
-      {
-        cout << "This is the pressure: " << particle.p() << endl << "This is the temperature: " << endl;
-        p_safe.push_back(particle);
+    auto p = systemPtr->particles;
 
-        
-      }
-    }
-*/  
-
-
-
-    vector<Particle>  p_bbmg; //= p; // !!!!!!!!!!!!!!!!!MAYBE REMOVE THE AMPERSAND -- checking
+    /*vector<Particle>  p_bbmg; //= p; // !!!!!!!!!!!!!!!!!MAYBE REMOVE THE AMPERSAND -- checking
     
     for (auto particle : p)
     {
       p_bbmg.push_back(particle);
     }
+    */
 
-    /*for (auto& particle : p_bbmg) {
-      cout << "Temperature: " << particle.T() * constants::hbarc_MeVfm << endl;
-    }
-    abort();*/
-
-
-    cout << "Size of the sph particles vector: " << p_bbmg.size() << endl << "--------------------------------" << endl; //Produces a vector of the same size, as expected
-    auto sph_condition = [this](auto& particle) {
+    //cout << "Size of the sph particles vector: " << p.size() << endl << "--------------------------------" << endl; //Produces a vector of the same size, as expected
+    /*auto sph_condition = [this](auto& particle) {
     return particle.T() * constants::hbarc_MeVfm <= Freezeout_Temp;
-    };
+    };*/
 
-    // Use std::remove_if with a lambda that captures 'condition'
-    auto new_sph_end = std::remove_if(p_bbmg.begin(), p_bbmg.end(),
-        [this, &sph_condition](auto& particle) {
-              //return sph_condition(particle); // Keep element
-              return particle.T() * constants::hbarc_MeVfm <= Freezeout_Temp; // Correct condition: Remove particles below Freezeout_Temp
+    cout << "Size of the sph particles vector: " << p.size() << endl << "--------------------------------" << endl;
+
+    auto new_sph_end = std::remove_if(p.begin(), p.end(),
+        [this](auto& particle) {
+           // Directly checking the condition here
+            return particle.T() * constants::hbarc_MeVfm <= Freezeout_Temp; // Remove particles below Freezeout_Temp
         });
-    p_bbmg.erase(new_sph_end, p_bbmg.end());
-    
-    cout << "Size of the sph particles vector after removing below FO: " << p_bbmg.size() << endl << "-----------------------------------" << endl; //Produces a vector slightly smaller than the particles above freeze out listed on log file...
+
+    // Erase the particles that were removed by std::remove_if
+    p.erase(new_sph_end, p.end());
+
+    cout << "Size of the sph particles vector after removing below FO: " << p.size() << endl << "-----------------------------------" << endl;
     abort();
 
     int back_to_back = 2;
     std::random_device rd; // For true randomness
     std::mt19937 gen(rd()); // Mersenne Twister generator
-    std::uniform_int_distribution<> dis(0, p_bbmg.size() - 1); // Distribute over the valid range
+    std::uniform_int_distribution<> dis(0, p.size() - 1); // Distribute over the valid range
     for (int i = 0; i < 300000; ++i)
     {
         
