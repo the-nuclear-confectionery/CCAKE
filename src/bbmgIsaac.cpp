@@ -69,15 +69,13 @@ double BBMG::get_kappa(double T) //This is taken from one plot we found of Barba
   return 2.5*exp(-9.22*T) + 0.04;
 }
 
- 
+/* 
 void BBMG::initial()
 { 
   rho0tot = 0;
   for ( int i = 0; i < systemPtr->particles.size(); ++i )
   {
     auto & p = systemPtr->particles[i];
-    cout << p.T() << endl;
-    abort();
     //Density from pressure over temperature
     double rsub = p.p() / p.T();
     rho0tot    += rsub;
@@ -106,25 +104,29 @@ void BBMG::initial()
     }
   }
 }
+*/
 
-
-/*void BBMG::initial()
+void BBMG::initial()
 {
     rho0tot = 0;
     auto p = systemPtr->particles;
+    for (auto particle : p)
+    {
+      cout << particle.T() << endl;
+    }
 
-    vector<Particle>  p_bbmg; //= p; // !!!!!!!!!!!!!!!!!MAYBE REMOVE THE AMPERSAND -- checking
+    //vector<Particle>  p_bbmg; //= p; // !!!!!!!!!!!!!!!!!MAYBE REMOVE THE AMPERSAND -- checking
     
     /*for (auto particle : p)
     {
       p_bbmg.push_back(particle);
-    }
+    }*/
     // COMMENT THIS BLOCK ABOVE OUT
 
-    //cout << "Size of the sph particles vector: " << p.size() << endl << "--------------------------------" << endl; //Produces a vector of the same size, as expected
+    /*cout << "Size of the sph particles vector: " << p.size() << endl << "--------------------------------" << endl; //Produces a vector of the same size, as expected
     auto sph_condition = [this](auto& particle) {
     return particle.T() * constants::hbarc_MeVfm <= Freezeout_Temp;
-    };
+    };*/
 
     cout << "Size of the sph particles vector: " << p.size() << endl << "--------------------------------" << endl;
 
@@ -182,7 +184,7 @@ void BBMG::initial()
             jetInfo.push_back(sph_particle);
         }
     }
-}*/
+}
 
 
 double BBMG::flow(field &f) { return f.gam*(1-f.vmag*cos(f.phi-f.vang)); }
