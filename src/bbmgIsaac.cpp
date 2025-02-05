@@ -109,11 +109,12 @@ void BBMG::initial()
 void BBMG::initial()
 {
     rho0tot = 0;
-    auto p = systemPtr->particles;
+    auto& p = systemPtr->particles;
     for (auto particle : p)
     {
       cout << particle.T() << endl;
     }
+    abort();
 
     //vector<Particle>  p_bbmg; //= p; // !!!!!!!!!!!!!!!!!MAYBE REMOVE THE AMPERSAND -- checking
     
