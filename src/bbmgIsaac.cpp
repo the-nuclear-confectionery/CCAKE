@@ -109,7 +109,7 @@ void BBMG::initial()
 void BBMG::initial()
 {
     rho0tot = 0;
-    auto p = systemPtr->particles;
+    auto& p = systemPtr->particles;
 
     /*vector<Particle>  p_bbmg; //= p; // !!!!!!!!!!!!!!!!!MAYBE REMOVE THE AMPERSAND -- checking
     
