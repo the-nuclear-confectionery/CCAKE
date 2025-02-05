@@ -132,6 +132,11 @@ void BBMG::initial()
             return particle.T() * constants::hbarc_MeVfm <= Freezeout_Temp; // Remove particles below Freezeout_Temp
         });
 
+    for (auto particle : p)
+    {
+      cout << particle.T() * constants::hbarc_MeVfm << endl;
+    }
+
     // Erase the particles that were removed by std::remove_if
     p.erase(new_sph_end, p.end());
 
