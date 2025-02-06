@@ -120,7 +120,7 @@ void BBMG::initial()
       }
     }
 
-    for (auto particle : p_bbmg)
+    for (auto& particle : p_bbmg)
     {
       cout << particle.T() << endl;
     }
