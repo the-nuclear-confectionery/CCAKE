@@ -115,13 +115,14 @@ void BBMG::initial()
       auto & p = systemPtr->particles[i];
       if (p.T() * constants::hbarc_MeVfm >= Freezeout_Temp)
       {
+        cout << p.T() << endl;
         p_bbmg.push_back(p);
       }
     }
 
     for (auto particle : p_bbmg)
     {
-      cout << particle.T();
+      cout << particle.T() << endl;
     }
     abort();
 
