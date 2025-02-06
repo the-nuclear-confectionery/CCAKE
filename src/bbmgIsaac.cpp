@@ -109,12 +109,28 @@ void BBMG::initial()
 void BBMG::initial()
 {
     rho0tot = 0;
-    auto& p = systemPtr->particles;
+    vector<Particle>  p_bbmg;
+    for ( int i = 0; i < systemPtr->particles.size(); ++i )
+    {
+      auto & p = systemPtr->particles[i];
+      if (p.T() * constants::hbarc_MeVfm >= Freezeout_Temp)
+      {
+        p_bbmg.push_back(p);
+      }
+    }
+
+    for (auto particle : p_bbmg)
+    {
+      cout << particle.T();
+    }
+    abort();
+
+    /*auto& p = systemPtr->particles;
     for (auto particle : p)
     {
       cout << particle.T() << endl;
     }
-    abort();
+    abort();*/
 
     //vector<Particle>  p_bbmg; //= p; // !!!!!!!!!!!!!!!!!MAYBE REMOVE THE AMPERSAND -- checking
     
@@ -136,11 +152,6 @@ void BBMG::initial()
            // Directly checking the condition here
             return particle.T() * constants::hbarc_MeVfm <= Freezeout_Temp; // Remove particles below Freezeout_Temp
         });
-
-    for (auto particle : p)
-    {
-      cout << particle.T() * constants::hbarc_MeVfm << endl;
-    }
 
     // Erase the particles that were removed by std::remove_if
     p.erase(new_sph_end, p.end());
