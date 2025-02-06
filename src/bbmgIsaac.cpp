@@ -145,7 +145,7 @@ void BBMG::initial()
     return particle.T() * constants::hbarc_MeVfm <= Freezeout_Temp;
     };*/
 
-    cout << "Size of the sph particles vector: " << p.size() << endl << "--------------------------------" << endl;
+    /*cout << "Size of the sph particles vector: " << p.size() << endl << "--------------------------------" << endl;
 
     auto new_sph_end = std::remove_if(p.begin(), p.end(),
         [this](auto particle) {
@@ -157,7 +157,7 @@ void BBMG::initial()
     p.erase(new_sph_end, p.end());
 
     cout << "Size of the sph particles vector after removing below FO: " << p.size() << endl << "-----------------------------------" << endl;
-    abort();
+    abort();*/
 
     int back_to_back = 2;
     std::random_device rd; // For true randomness
