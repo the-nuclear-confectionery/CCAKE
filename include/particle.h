@@ -82,7 +82,7 @@ class Particle
     Particle();
     
     // copy-constructor
-    //Particle( const Particle& p );
+    Particle( const Particle& p );
    ~Particle(){}
 
     bool operator==( const Particle & ) const;
