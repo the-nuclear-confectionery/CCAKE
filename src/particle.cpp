@@ -17,7 +17,7 @@ Particle::Particle() { input.s = 0.0; }
 
 //==============================================================================
 // Copy constructor
-Particle::Particle( const Particle& p )
+/*Particle::Particle( const Particle& p )
 {
   r             = p.r;
   input.e       = p.input.e;
@@ -28,7 +28,7 @@ Particle::Particle( const Particle& p )
   hydro.shv     = p.hydro.shv;
   hydro.shv33   = p.hydro.shv33;
   input.s       = p.input.s;
-}
+}*/
 
 //==============================================================================
 double Particle::gamcalc() { return sqrt( Norm2(hydro.u) + 1.0 ); }
