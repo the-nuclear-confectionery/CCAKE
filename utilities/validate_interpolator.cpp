@@ -9,7 +9,7 @@
 /// correct
 /// 2. Evaluate the EoS at random points and prints the maximum errors found
 /// during the interpolation (for T, muB, muS, muQ and P)
-
+#define H5_USE_18_API
 #include <memory>
 #include <filesystem>
 
