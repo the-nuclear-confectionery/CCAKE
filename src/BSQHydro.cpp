@@ -297,7 +297,7 @@ void BSQHydro<D,TEOM>::read_ccake()
         p.input.rhoS = rhoS;
         p.input.rhoQ = rhoQ;
         p.hydro.bulk = bulk;
-        systemPtr->add_particle( p );
+        if(e > settingsPtr->e_cutoff) systemPtr->add_particle( p );
         #ifdef DEBUG
         outfile << x << " " << y << " " << eta << " " << e*hbarc_GeVfm << " " << rhoB
                 << " " << rhoS << " " << rhoQ << " " << ux << " " << uy << " " << ueta << endl;
