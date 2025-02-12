@@ -213,6 +213,7 @@ void BSQHydro<D,TEOM>::read_ccake()
     double ignore, stepX, stepY, stepEta, xmin, ymin, etamin;
     double max_e = 0.0;
     double min_e = 1e6;
+    double s=0.0; //for input as entropy
     while (getline (infile, line))
     {
       istringstream iss(line);
@@ -231,13 +232,15 @@ void BSQHydro<D,TEOM>::read_ccake()
       }
       else
       {
-        iss >> x >> y >> eta >> e >> rhoB >> rhoS >> rhoQ >> ux >> uy >> ueta >> bulk >> pixx >> pixy >> pixeta >> piyy >> piyeta >> pietaeta;
-        e /= hbarc_GeVfm; // 1/fm^4
-        //print the maximum and minimum values of the energy density
-        //first find the maximum and minimum values of the energy density
+        if(settingsPtr->input_as_entropy==true){
+          //convert the input to entropy density
+          iss >> x >> y >> eta >> s >> rhoB >> rhoS >> rhoQ >> ux >> uy >> ueta >> bulk >> pixx >> pixy >> pixeta >> piyy >> piyeta >> pietaeta;
+        }
+        else{
+          iss >> x >> y >> eta >> e >> rhoB >> rhoS >> rhoQ >> ux >> uy >> ueta >> bulk >> pixx >> pixy >> pixeta >> piyy >> piyeta >> pietaeta;
+          e /= hbarc_GeVfm; // 1/fm^4
+        }
 
-        if (e > max_e) max_e = e;
-        if (e < min_e) min_e = e;
         pixx /= hbarc_GeVfm; // 1/fm^4
         pixy /= hbarc_GeVfm; // 1/fm^4
         pixeta /= hbarc_GeVfm; // 1/fm^5
@@ -292,20 +295,29 @@ void BSQHydro<D,TEOM>::read_ccake()
             p.hydro.shv(3,2) = piyeta;
             p.hydro.shv(3,3) = pietaeta;
         }
-        p.input.e    = e;
+        if(settingsPtr->input_as_entropy==true){
+          p.input.s = s;
+        }
+        else{
+          p.input.e = e;
+        }
         p.input.rhoB = rhoB;
         p.input.rhoS = rhoS;
         p.input.rhoQ = rhoQ;
         p.hydro.bulk = bulk;
-        if(e > settingsPtr->e_cutoff) systemPtr->add_particle( p );
+        if(settingsPtr->input_as_entropy==true){
+          if(s > settingsPtr->e_cutoff) systemPtr->add_particle( p );
+        }
+        else{
+          if(e > settingsPtr->e_cutoff) systemPtr->add_particle( p );
+        }
+        
         #ifdef DEBUG
         outfile << x << " " << y << " " << eta << " " << e*hbarc_GeVfm << " " << rhoB
                 << " " << rhoS << " " << rhoQ << " " << ux << " " << uy << " " << ueta << endl;
         #endif
       }
     }
-    std::cout << "Maximum energy density: " << max_e*hbarc_GeVfm << " GeV/fm^3" << std::endl;
-    std::cout << "Minimum energy density: " << min_e*hbarc_GeVfm << " GeV/fm^3" << std::endl;
     #ifdef DEBUG
     outfile.close();
     #endif

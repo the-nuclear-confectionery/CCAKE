@@ -120,12 +120,42 @@ void SPHWorkstation<D, TEOM>::initialize_entropy_and_charge_densities()
 
   //Compute thermal properties
   systemPtr->copy_device_to_host();
-  for (auto & p : systemPtr->particles){
-    p.input.s = locate_phase_diagram_point_eBSQ( p,
-                  p.input.e, p.input.rhoB, p.input.rhoS, p.input.rhoQ );
-    p.efcheck = systemPtr->efcheck;
-    //PRINT CONVERTED VALUES
+  if(settingsPtr->input_as_entropy==true){
+    for (auto & p : systemPtr->particles){
+      locate_phase_diagram_point_sBSQ( p,
+                    p.input.s, p.input.rhoB, p.input.rhoS, p.input.rhoQ );
+      p.input.e = p.thermo.e;
+      p.efcheck = systemPtr->efcheck;
+      if ( p.input.e > systemPtr->efcheck )	p.Freeze = 0;
+		  else
+		    {
+		    	p.Freeze = 4;
+		    	systemPtr->number_part_fo++;
+		    }
+    }
   }
+  else{
+    for (auto & p : systemPtr->particles){
+      p.input.s = locate_phase_diagram_point_eBSQ( p,
+                    p.input.e, p.input.rhoB, p.input.rhoS, p.input.rhoQ );
+      p.efcheck = systemPtr->efcheck;
+      if ( p.input.e > systemPtr->efcheck )	p.Freeze = 0;
+		  else
+		    {
+		    	p.Freeze = 4;
+		    	systemPtr->number_part_fo++;
+		    }
+    }
+  }
+  
+  formatted_output::detail("particles frozen out: "
+                           + to_string(systemPtr->number_part_fo) );
+  formatted_output::detail("particles not frozen out: "
+                           + to_string(systemPtr->n_particles
+                                        - systemPtr->number_part_fo) );
+
+
+
   systemPtr->copy_host_to_device();
 
   double t0 = settingsPtr->t0;
@@ -829,20 +859,20 @@ void SPHWorkstation<D, TEOM>::process_initial_conditions()
 		p.thermo.eos_name = "default";  // uses whatever the default EoS is
 
     p.efcheck = systemPtr->efcheck;
-		if ( p.input.e > systemPtr->efcheck )	// impose freeze-out check for e, not s
-			p.Freeze = 0;
-		else
-		{
-			p.Freeze = 4;
-			systemPtr->number_part_fo++;
-		}
+		//if ( p.input.e > systemPtr->efcheck )	// impose freeze-out check for e, not s
+		//	p.Freeze = 0;
+		//else
+		//{
+		//	p.Freeze = 4;
+		//	systemPtr->number_part_fo++;
+		//}
   }
 
- formatted_output::detail("particles frozen out: "
-                           + to_string(systemPtr->number_part_fo) );
-  formatted_output::detail("particles not frozen out: "
-                           + to_string(systemPtr->n_particles
-                                        - systemPtr->number_part_fo) );
+  //formatted_output::detail("particles frozen out: "
+  //                         + to_string(systemPtr->number_part_fo) );
+  //formatted_output::detail("particles not frozen out: "
+  //                         + to_string(systemPtr->n_particles
+  //                                      - systemPtr->number_part_fo) );
 
   //============================================================================
   // with particles vector now fully initialized, specify or initialize any
