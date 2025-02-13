@@ -1493,6 +1493,178 @@ void SPHWorkstation<D, TEOM>::advance_timestep( double dt, int rk_order )
   return;
 }
 
+///@brief Reads in the external sources and define the external 
+///currents for the hydrodynamic evolution.
+///@details This function reads in the external sources and defines the
+///external currents for the hydrodynamic evolution. The external sources
+///are read from the external_sources file, but for now are hardcoded.
+///@tparam D The number of spatial dimensions.
+///@param t The current time of the simulation.
+template<unsigned int D, template<unsigned int> class TEOM>
+void SPHWorkstation<D, TEOM>::add_source()
+{
+  CREATE_VIEW(device_, systemPtr->cabana_particles);
+  auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
+  double hT = settingsPtr->hT;
+  double t = systemPtr->t;
+  double dt = settingsPtr->dt;
+  double n_particles = systemPtr->cabana_particles.size();
+  double source_energy = 300.*GeVtofm;
+  double source_rhob = 1./3.;
+  double source_rhos = 0.0;
+  double source_rhoq = 2.*(electric_charge)/3.;
+  milne::Vector<double,D> source_momentum;
+  double jet_position_1[D];
+  jet_position_1[0] = +(t-0.6);
+  jet_position_1[1] = 0;
+  //jet_position_1[2] = 0.0;
+  double jet_position_2[D];
+  jet_position_2[0] = -(t-0.6);
+  jet_position_2[1] = 0;
+  //jet_position_2[2] = 0.0;
+  //30 degrees in radians
+  double jet_angle = 45.*pi/180.;
+  
+  double source_entropy1 = 0.0;
+  auto get_source_entropy1 = KOKKOS_LAMBDA(const int i, double &local_source_entropy)
+  {
+    double r[D];
+    for (int idir=0; idir<D; ++idir)
+      r[idir] = device_position(i, idir);
+    double d1 = SPHkernel<D>::distance(r,jet_position_1);
+    double kern1 = SPHkernel<D>::kernel(d1,hT);
+
+    local_source_entropy += device_sph_mass(i, densities_info::s)
+          *device_thermo(i, ccake::thermo_info::s)
+          *kern1/device_hydro_scalar(i, ccake::hydro_info::sigma_lab);
+  };
+  Kokkos::parallel_reduce("source_entropy",n_particles, get_source_entropy1, source_entropy1);
+  Kokkos::fence();
+  std::cout << "source_entropy1 = " << source_entropy1 << std::endl;
+  double source_entropy2 = 0.;
+  auto get_source_entropy2 = KOKKOS_LAMBDA(const int i, double &local_source_entropy)
+  {
+    double r[D];
+    for (int idir=0; idir<D; ++idir)
+      r[idir] = device_position(i, idir);
+    double d2 = SPHkernel<D>::distance(r,jet_position_2);
+    double kern2 = SPHkernel<D>::kernel(d2,hT);
+
+    local_source_entropy += device_sph_mass(i, densities_info::s)
+          *device_thermo(i, ccake::thermo_info::s)
+          *kern2/device_hydro_scalar(i, ccake::hydro_info::sigma_lab);
+  };
+  Kokkos::parallel_reduce("source_entropy",n_particles, get_source_entropy2, source_entropy2);
+  Kokkos::fence();
+
+double s0 = 200.0;
+double x_threshold = 0.3;
+//half cone opening lenght calculated using the jet angle
+double opening_length1 = std::max(jet_position_1[0] * tan(jet_angle), x_threshold);
+double opening_length2 = std::max(jet_position_2[0] * tan(jet_angle), x_threshold);
+// if jet_position_1[0] * tan(jet_angle) > x_threshold
+if (jet_position_1[0] * tan(jet_angle) > x_threshold)
+  std::cout << "opening_length1 = " << opening_length1 << " x_threshold = " << x_threshold << std::endl;
+
+auto add_source_terms = KOKKOS_LAMBDA(const int is, const int ia) {
+    double r[D];
+    for (int idir = 0; idir < D; ++idir)
+        r[idir] = device_position.access(is, ia, idir);
+
+    double dx1,dy1,dx2,dy2;
+    dx1 = abs(r[0] - jet_position_1[0]);
+    dy1 =abs(r[1] - jet_position_1[1]);
+    dx2 = abs(r[0] - jet_position_2[0]);
+    dy2 =abs(r[1] - jet_position_2[1]);
+    double d1 = sqrt(dx1*dx1 + dy1*dy1);
+    double d2 = sqrt(dx2*dx2 + dy2*dy2);
+    // 
+
+    // Check if the particle is within the jet's influence
+    bool in_cone_1 = d1 < x_threshold;
+    bool in_cone_2 = d2 < x_threshold;
+    //reset sources
+    device_hydro_scalar.access(is, ia, ccake::hydro_info::j0_ext) = 0.0;
+    for (int idir=0; idir<D; ++idir)
+      device_hydro_vector.access(is, ia, ccake::hydro_info::j_ext,idir) = 0.0;
+
+    // Gaussian kernel
+  if (in_cone_1) {
+      double sigma_x = x_threshold;
+      double sigma_y = x_threshold;
+      double Eloss1 = source_energy * source_entropy1/s0;
+      //two 1D splines
+      double kernel1 = SPHkernel<2>::kernel(d1, sigma_x);
+      device_hydro_scalar.access(is, ia, ccake::hydro_info::j0_ext) += Eloss1 * kernel1 / t / 1.;
+      device_hydro_vector.access(is, ia, ccake::hydro_info::j_ext, 0) += Eloss1 * kernel1 / t / 1.;
+      //std::cout << "in cone 1" << std::endl;
+      //std::cout << "dx1 = " << dx1 << " dy1 = " << dy1 << std::endl;
+      //std::cout << "opening_length1 = " << opening_length1 << " x_threshold = " << x_threshold << std::endl;
+      //std::cout << "Eloss1 = " << Eloss1 << " kernel1 = " << kernel1 << std::endl;
+  }
+  if (in_cone_2) {
+        double sigma_x = x_threshold;
+        double sigma_y = x_threshold;
+        double Eloss2 = source_energy * source_entropy2/s0;
+        //two 1D splines
+        double kernel2 = SPHkernel<2>::kernel(d2, sigma_x);
+        //device_hydro_scalar.access(is, ia, ccake::hydro_info::j0_ext) += Eloss2 * kernel2 / t / 1.;
+        //device_hydro_vector.access(is, ia, ccake::hydro_info::j_ext, 0) += -Eloss2 * kernel2 / t / 1.;
+        //std::cout << "in cone 2" << std::endl;
+        //std::cout << "dx2 = " << dx2 << " dy2 = " << dy2 << std::endl;
+        //std::cout << "opening_length2 = " << opening_length2 << " x_threshold = " << x_threshold << std::endl;
+        //std::cout << "Eloss2 = " << Eloss2 << " kernel2 = " << kernel2 << std::endl;
+  }
+
+
+////only accounts for the source1 in the x direction
+//    double r[D];
+//    //reset sources 
+//    device_hydro_scalar.access(is, ia, ccake::hydro_info::j0_ext) = 0.0;
+//    for (int idir=0; idir<D; ++idir)
+//      device_hydro_vector.access(is, ia, ccake::hydro_info::j_ext,idir) = 0.0;
+//
+//
+//    for (int idir = 0; idir < D; ++idir)
+//        r[idir] = device_position.access(is, ia, idir);
+//
+//    double d1 = SPHkernel<D>::distance(r,jet_position_1);
+//    double h_source= 0.5;
+//    double kern1 = SPHkernel<D>::kernel(d1,h_source);
+//    double Eloss1 = source_energy * source_entropy1/s0;
+//    if (d1 < 2.*h_source){
+//      device_hydro_scalar.access(is, ia, ccake::hydro_info::j0_ext) += Eloss1 * kern1 / t / 0.01;
+//      device_hydro_vector.access(is, ia, ccake::hydro_info::j_ext, 0) += Eloss1 * kern1 / t /0.01;
+//    }
+//    double d2 = SPHkernel<D>::distance(r,jet_position_2);
+//    double kern2 = SPHkernel<D>::kernel(d2,h_source);
+//    double Eloss2 = source_energy * source_entropy2/s0;
+//    if (d2 < 2.*h_source){
+//      device_hydro_scalar.access(is, ia, ccake::hydro_info::j0_ext) += Eloss2 * kern2 / t / 0.01;
+//      device_hydro_vector.access(is, ia, ccake::hydro_info::j_ext, 0) += -Eloss2 * kern2 / t / 0.01;
+//    }
+//
+  };
+
+  Cabana::simd_parallel_for(simd_policy,add_source_terms, "add_source");
+  Kokkos::fence();
+  
+  //calculate total energy loss with parallel reduce
+  //auto get_total_energy_loss = KOKKOS_LAMBDA(const int i, double &local_total_energy_loss)
+  //{
+  //  double sph_mass = device_sph_mass(i, densities_info::s);
+  //  double sigma = device_hydro_scalar(i, ccake::hydro_info::sigma);
+  //  double j0_ext = device_hydro_scalar(i, ccake::hydro_info::j0_ext);
+  //  local_total_energy_loss += sph_mass* j0_ext/sigma;
+  //
+  //};
+  //Kokkos::parallel_reduce("total_energy_loss",n_particles, get_total_energy_loss, total_energy_loss);
+  //Kokkos::fence();
+  //std::cout << "total_energy_loss = " << total_energy_loss*(1./GeVtofm) << " GeV " << std::endl;
+};
+
+
+
 
 ///@brief Function to regulate negative extensive entropy.
 ///@details This function is responsible for regulating hydrodynamic evolution,
