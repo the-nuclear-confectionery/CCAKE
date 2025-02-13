@@ -115,6 +115,7 @@ public:
   void initialize_entropy_and_charge_densities();
   void initial_smoothing();
   void initialize_jets_bbmg();
+  void add_source();
 
   //============================================================================
   // smoothing
