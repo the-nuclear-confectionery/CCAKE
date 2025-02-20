@@ -700,6 +700,7 @@ void InputOutput::print_jet_freeze_to_txt()
        {
         out << iJet++ << " ";
         out << systemPtr->t << " ";
+        out << bbmgPtr->rho0tot << " ";
         out << jets.T << " ";
         out << jets.line << " ";
         out << jets.rho0 << " ";
