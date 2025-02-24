@@ -577,12 +577,12 @@ void InputOutput::read_in_initial_conditions()
 void InputOutput::print_system_state()
 {
   //---------------------------------
-  if (settingsPtr->printing_to_txt)
-    print_system_state_to_txt();
+  //if (settingsPtr->printing_to_txt)
+  //  print_system_state_to_txt();
 
   //---------------------------------
-  if (settingsPtr->printing_to_HDF)
-    print_system_state_to_HDF();
+  //if (settingsPtr->printing_to_HDF)
+  //  print_system_state_to_HDF();
 
   //---------------------------------
   print_freeze_out(); //grep for this command to structure jet initial state output function
@@ -701,7 +701,7 @@ void InputOutput::print_jet_freeze_to_txt()
         out << iJet++ << " ";
         out << systemPtr->t << " ";
         out << bbmgPtr->rho0tot << " ";
-        out << jets.T << " ";
+        out << jets.T0 << " "; //Changed from T to T0 for new output
         out << jets.line << " ";
         out << jets.rho0 << " ";
         out << jets.pid << " ";
