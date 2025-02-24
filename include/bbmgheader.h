@@ -35,6 +35,7 @@ private:
         double r[2], phi, line;
         int pid;
         double gam, vmag, vang;
+        double T0;
     };
 
     Settings    * settingsPtr = nullptr;

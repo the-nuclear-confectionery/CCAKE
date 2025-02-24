@@ -145,7 +145,9 @@ void BBMG::initial()
         sph_particle.rho0 = rsub; //Density left in terms of femtometers
         //sph_particle.sph = i;
         sph_particle.T = p_bbmg[random_sph_particle].T() * constants::hbarc_MeVfm;
-
+        sph_particle.T0 = p_bbmg[random_sph_particle].T() * constants::hbarc_MeVfm;
+        //The above line is to create histograms to compare with initial temperature distribution
+        
         double kappa = get_kappa(sph_particle.T / 1000);
 
         sph_particle.line = 0.5 * kappa * exp(z * log(settingsPtr->t0)) * exp(c * log(sph_particle.rho0)) * settingsPtr->dt; // only if initial flow=0
