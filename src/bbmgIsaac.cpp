@@ -183,7 +183,7 @@ void BBMG::propagate()
   int countyes = 0, countno = 0;
   double Rjetnorm = 0;
 
-  #pragma omp parallel for schedule(guided)
+  #pragma omp parallel for schedule(auto)
   for (auto& jetPropagation : jetInfo)
   {
     // propagate x,y position of jet on top of sph particles
@@ -219,21 +219,21 @@ void BBMG::propagate()
             });
 
 
-        for(auto& frozenJets : jetFreezeOut)
+        /*for(auto& frozenJets : jetFreezeOut)
         {
           //cout << "Temperature: " << frozenJets.T << endl << "Line Integral: " << frozenJets.line << endl;
           cout << frozenJets.T << " " << frozenJets.line << " " 
                << frozenJets.rho0 << " " << frozenJets.pid << endl; // add in anything else needed
-        }
+        }*/
 
 
         // Erase the removed elements from the source vector
         jetInfo.erase(new_end, jetInfo.end());
-    int tot     = jetInfo.size();
+    /*int tot     = jetInfo.size();
     cout << "How many jets we have: " << tot << endl;
     int totFreeze = jetFreezeOut.size();
     cout << "How many jets froze out this timestep: " << totFreeze << endl;
-
+    */
 }
 
 
@@ -252,6 +252,7 @@ void BBMG::inter( field &f )
   f.rho  = 0;
   f.v[0] = 0;
   f.v[1] = 0;
+  #pragma omp parallel for schedule(auto)
   for ( auto & p : systemPtr->particles )
   {
     double dx    = p.r(0)-f.r[0];

@@ -587,7 +587,8 @@ void InputOutput::print_system_state()
   //---------------------------------
   print_freeze_out(); //grep for this command to structure jet initial state output function
 
-  print_jet_freeze_to_txt();
+  if (systemPtr->n_particles == systemPtr->number_part)
+    {print_jet_freeze_to_txt();}
 
   //---------------------------------
   // increment timestep index
