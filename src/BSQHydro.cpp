@@ -193,6 +193,7 @@ void BSQHydro<D,TEOM>::read_ICCING()
 /// parameter, etc. These would then be used as header of the outputs.
 /// @tparam D The number of spatial dimensions.
 /// @tparam TEOM The equation of motion used in the simulation.
+template<unsigned int D, template<unsigned int> typename TEOM>
 void BSQHydro<D,TEOM>::read_ccake()
 {
   int total_header_lines = 1;
@@ -339,7 +340,7 @@ void BSQHydro<D,TEOM>::read_ccake()
   }
 }
 
-////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 /// @brief Shell function to initialize the hydrodynamics.
 /// @details This function initializes the hydrodynamics by performing the 
 /// following steps
