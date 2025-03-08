@@ -193,7 +193,6 @@ void BSQHydro<D,TEOM>::read_ICCING()
 /// parameter, etc. These would then be used as header of the outputs.
 /// @tparam D The number of spatial dimensions.
 /// @tparam TEOM The equation of motion used in the simulation.
-template<unsigned int D, template<unsigned int> typename TEOM>
 void BSQHydro<D,TEOM>::read_ccake()
 {
   int total_header_lines = 1;
@@ -205,6 +204,11 @@ void BSQHydro<D,TEOM>::read_ccake()
   outfile.open("initial_conditions.dat");
   #endif
   formatted_output::update("Initial conditions file: " + IC_file);
+  if(settingsPtr->input_as_entropy==true){
+    if(settingsPtr->e_cutoff > 0.0){
+      std::cout<< "Using entropy as input, using ideal pion gas for e_cutoff" << std::endl;
+    }
+  }
   if (infile.is_open())
   {
     string line;
@@ -306,7 +310,11 @@ void BSQHydro<D,TEOM>::read_ccake()
         p.input.rhoQ = rhoQ;
         p.hydro.bulk = bulk;
         if(settingsPtr->input_as_entropy==true){
-          if(s > settingsPtr->e_cutoff) systemPtr->add_particle( p );
+          
+          //C = g_pi * pi^2 / (90) 
+          double C = 3.0 * pow(M_PI,2.) / (90.0);
+          double e_check = (3.*C)*pow(1./(4.*C),4./3.) * pow(s,4./3.);
+          if(e_check > settingsPtr->e_cutoff) systemPtr->add_particle( p );
         }
         else{
           if(e > settingsPtr->e_cutoff) systemPtr->add_particle( p );
@@ -331,7 +339,7 @@ void BSQHydro<D,TEOM>::read_ccake()
   }
 }
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
 /// @brief Shell function to initialize the hydrodynamics.
 /// @details This function initializes the hydrodynamics by performing the 
 /// following steps
