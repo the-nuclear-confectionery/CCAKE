@@ -1317,10 +1317,24 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr,
         //the if avoids the case when i>k (for D=1)
         ueta = fixed_size_u(2);
         if (D==1){
+          ueta = fixed_size_u(0);
           M_sigma(0,jdir,0) += -gamma*fixed_size_u(jdir)/2.;
         }
         else{
           M_sigma(idir,jdir,idir) += -gamma*fixed_size_u(jdir)/2.;
+          ueta = fixed_size_u(2);
+        }
+        if(D!=2){
+          F_dsigma(idir,jdir) += (fixed_size_u(2)*fixed_size_u(2)*t*(fixed_size_u(idir)*shv_hybrid(jdir+1,0)
+                +fixed_size_u(jdir)*shv_hybrid(idir+1,0))
+                +2.*gamma*fixed_size_u(2)*(fixed_size_u(idir)*shv_hybrid(jdir+1,3)
+                +fixed_size_u(jdir)*shv_hybrid(idir+1,3))/t)/4.;
+
+          F_domega(idir,jdir) += (fixed_size_u(2)*fixed_size_u(2)*t*(fixed_size_u(idir)*shv_hybrid(jdir+1,0)
+                +fixed_size_u(jdir)*shv_hybrid(idir+1,0))
+                +2.*gamma*fixed_size_u(2)*(fixed_size_u(idir)*shv_hybrid(jdir+1,3)
+                +fixed_size_u(jdir)*shv_hybrid(idir+1,3))/t)/4.;
+          
         }
         if(D!=2){
           F_dsigma(idir,jdir) += (fixed_size_u(2)*fixed_size_u(2)*t*(fixed_size_u(idir)*shv_hybrid(jdir+1,0)
