@@ -37,6 +37,7 @@ class Settings
     bool hdf_evolution              = false;
     bool print_conservation_status  = true;
     bool calculate_observables       = false;
+    bool check_causality            = false;
     fs::path results_directory        = "";
 
     static constexpr int VERBOSE      = 5;
