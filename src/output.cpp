@@ -142,7 +142,8 @@ void Output<D>::print_system_state_to_txt()
           out << 0.0 << " ";
         out << p.hydro.gamma << " " //36
         << p.Freeze << " " //37
-        << p.get_current_eos_name() << "\n"; //38
+        << p.get_current_eos_name() << " " //38
+        << p.hydro.causality << " " << "\n";
   }
 
   out << std::flush;

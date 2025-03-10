@@ -11,6 +11,9 @@
 #include "cartesian.hpp"
 #include "system_state.h"
 
+#include <gsl/gsl_complex.h>
+#include <gsl/gsl_eigen.h>
+
 #include <Cabana_Core.hpp>
 
 #include <memory>
@@ -40,6 +43,7 @@ class EoM_cartesian
     static void evaluate_time_derivatives( std::shared_ptr<SystemState<D>> sysPtr, std::shared_ptr<Settings> settingsPtr);
     static void calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr);
     static void compute_hydro_numbers(std::shared_ptr<SystemState<D>> sysPtr);
+    static void check_causality(std::shared_ptr<SystemState<D>> sysPtr);
     std::string name = "Cartesian"; ///< name associated to EoM
 };
 }

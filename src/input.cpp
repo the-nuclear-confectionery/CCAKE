@@ -431,6 +431,13 @@ bool cc::Input::decode_settings(const YAML::Node& node){
       formatted_output::detail("This is an optional parameter. Setting to default value.");
       settingsPtr->txt_evolution = cc::defaults::txt_evolution;
     }
+    try{
+      settingsPtr->check_causality = node["output"]["check_causality"].as<bool>();
+    } catch (...){
+      formatted_output::detail("WARNING: Could not read output/check_causality!");
+      formatted_output::detail("This is an optional parameter. Setting to default value.");
+      settingsPtr->check_causality = cc::defaults::check_causality;
+    }
     return true;
 }
 
