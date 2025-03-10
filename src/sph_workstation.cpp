@@ -1060,6 +1060,12 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives()
     //calculate time derivatives needed for equations of motion
   TEOM<D>::evaluate_time_derivatives( systemPtr, settingsPtr );
 
+  // check for causality
+  if (settingsPtr->check_causality)
+  {
+    TEOM<D>::check_causality(systemPtr);
+  }
+
   #ifdef DEBUG_SLOW
   systemPtr->copy_device_to_host();
   file.open("probe2.dbg", std::ios::app);

@@ -77,6 +77,7 @@ void SystemState<D>::copy_host_to_device(){
       #endif
     }
     host_hydro_scalar(iparticle, ccake::hydro_info::t) = particles[iparticle].hydro.t;
+    host_hydro_scalar(iparticle, ccake::hydro_info::causality) = particles[iparticle].hydro.causality;
     host_hydro_scalar(iparticle, ccake::hydro_info::bulk) = particles[iparticle].hydro.bulk;
     host_hydro_scalar(iparticle, ccake::hydro_info::extensive_bulk) = particles[iparticle].hydro.extensive_bulk;
     host_hydro_scalar(iparticle, ccake::hydro_info::a) = particles[iparticle].hydro.a;
@@ -274,6 +275,7 @@ void SystemState<D>::copy_device_to_host(){
       particles[id].hydro.M_0i_shear(i,j) = host_hydro_space_matrix(iparticle, ccake::hydro_info::M_0i_shear, i, j);
     }
     particles[id].hydro.t = host_hydro_scalar(iparticle, ccake::hydro_info::t);
+    particles[id].hydro.causality = host_hydro_scalar(iparticle, ccake::hydro_info::causality);
     particles[id].hydro.bulk = host_hydro_scalar(iparticle, ccake::hydro_info::bulk);
     particles[id].hydro.extensive_bulk = host_hydro_scalar(iparticle, ccake::hydro_info::extensive_bulk);
     particles[id].hydro.a = host_hydro_scalar(iparticle, ccake::hydro_info::a);

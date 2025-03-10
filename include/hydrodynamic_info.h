@@ -123,6 +123,7 @@ namespace hydro_info
 enum hydro_scalar_info
 {
   t,
+  causality,
   bulk,
   extensive_bulk,
   a,
