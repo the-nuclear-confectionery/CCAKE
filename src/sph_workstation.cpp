@@ -649,6 +649,7 @@ void SPHWorkstation<D,TEOM>::locate_phase_diagram_point_sBSQ( Particle<D> & p,
 /// @tparam D The dimensionality of the simulation.
 /// @tparam TEOM The equation of motion class to be used in the simulation.
 /// @param time_squared The square of the current time step.
+/// Cartesian specializations at end of file 
 template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
 {
@@ -1615,5 +1616,331 @@ void SPHWorkstation<D, TEOM>::advance_timestep( double dt, int rk_order )
 //  }
 //
 //}
+
+
+template<>
+void SPHWorkstation<3, EoM_cartesian>::smooth_all_particle_gradients(double time_squared)
+{
+  double hT = settingsPtr->hT;
+  double t = systemPtr->t;
+  bool using_shear = settingsPtr->using_shear;
+  auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
+
+  CREATE_VIEW(device_, systemPtr->cabana_particles);
+  //Reset gradients - No need to take into account self interaction, since gradient of Kernel for r = 0 is zero
+  auto reset_gradients = KOKKOS_LAMBDA(const int is, const int ia){
+    for (int idir=0; idir < 3; ++idir)
+    {
+      device_hydro_vector.access(is, ia, ccake::hydro_info::gradP, idir) = 0.0;
+      device_hydro_vector.access(is, ia, ccake::hydro_info::gradBulk, idir) = 0.0;
+      device_hydro_vector.access(is, ia, ccake::hydro_info::gradshear, idir) = 0.0;
+      device_hydro_vector.access(is, ia, ccake::hydro_info::divshear, idir) = 0.0;
+      device_hydro_vector.access(is, ia, ccake::hydro_info::gradE,idir)  = 0.0;
+      for (int jdir=0; jdir < 3; ++jdir)
+        device_hydro_space_matrix.access(is, ia,ccake::hydro_info::gradV, idir, jdir) = 0.0;
+    }
+  };
+  Cabana::simd_parallel_for(simd_policy,reset_gradients, "reset_gradients");
+  Kokkos::fence();
+
+  ///particle_a is the one that will be updated. Particle b is its neighbors.
+  auto smooth_gradients = KOKKOS_LAMBDA(const int particle_a, const int particle_b )
+  {
+    //Compute kernel gradient
+    double rel_sep[3], pos_a[3], pos_b[3]; // cache for relative separation
+    for (int idir = 0; idir < 3; ++idir){
+      pos_a[idir] = device_position(particle_a,idir);
+      pos_b[idir] = device_position(particle_b,idir);
+      rel_sep[idir] = pos_a[idir] - pos_b[idir];
+    }
+    double rel_sep_norm = SPHkernel<3>::distance(pos_a,pos_b);
+    double gradK_aux[3];
+    ccake::SPHkernel<3>::gradKernel( rel_sep, rel_sep_norm, hT, gradK_aux );
+
+    double pressure_a     = device_thermo(particle_a, thermo_info::p);
+    double pressure_b     = device_thermo(particle_b, thermo_info::p);
+    double energy_a       = device_thermo(particle_a, thermo_info::e);
+    double energy_b       = device_thermo(particle_b, thermo_info::e);
+    double sigma_lab_a        = device_hydro_scalar(particle_a, hydro_info::sigma_lab);
+    double sigma_lab_b        = device_hydro_scalar(particle_b, hydro_info::sigma_lab);
+    double sigsqra        = 1.0/(sigma_lab_a*sigma_lab_a);
+    double sigsqrb        = 1.0/(sigma_lab_b*sigma_lab_b);
+    double sph_mass_s_b  = device_sph_mass(particle_b, densities_info::s);
+    double bulk_a         = device_hydro_scalar(particle_a, hydro_info::bulk);
+    double bulk_b         = device_hydro_scalar(particle_b, hydro_info::bulk);
+    double gamma_a        = device_hydro_scalar(particle_a, hydro_info::gamma);
+    double gamma_b        = device_hydro_scalar(particle_b, hydro_info::gamma);
+
+    cartesian::Vector<double,3> gradK, sigsigK, gradP, gradE, v_a, v_b, gradBulk, gradshear, divshear;
+    cartesian::Matrix<double, 3, 3> gradV;
+    for(int idir=0; idir<3; ++idir){
+      gradK(idir) = gradK_aux[idir];
+      v_a(idir) = device_hydro_vector(particle_a, hydro_info::v, idir);
+      v_b(idir) = device_hydro_vector(particle_b, hydro_info::v, idir);
+    };
+
+    sigsigK = sph_mass_s_b * sigma_lab_a * gradK;
+    gradP = (sigsqrb*pressure_b + sigsqra*pressure_a ) * sigsigK;
+    gradE = (sph_mass_s_b/sigma_lab_a)*( energy_b-energy_a )*gradK;
+    //gradE = (sigsqrb*energy_b + sigsqra*energy_a ) * sigsigK;
+    gradBulk = (bulk_b/sigma_lab_b/sigma_lab_b + bulk_a/sigma_lab_a/sigma_lab_a)*sigsigK;
+    //gradV    = (sph_mass_s_b/sigma_lab_a)*( v_b -  v_a )*gradK;
+    for(int idir=0; idir<3; ++idir)
+    for(int jdir=0; jdir<3; ++jdir)
+      gradV(idir,jdir) = (sph_mass_s_b/sigma_lab_a)*( v_b(jdir) -  v_a(jdir) )*gradK(idir);
+
+
+    if (using_shear){
+        cartesian::Matrix<double,4,4> shv_a, shv_b;
+        for(int idir=0; idir<4;++idir)
+        for(int jdir=0; jdir<4;++jdir){
+          shv_a(idir,jdir) = device_hydro_spacetime_matrix(particle_a, hydro_info::shv, idir, jdir);
+          shv_b(idir,jdir) = device_hydro_spacetime_matrix(particle_b, hydro_info::shv, idir, jdir);
+        }
+        cartesian::Vector<double,3> shv_0i_a  = cartesian::rowp1(0, shv_a);
+        cartesian::Vector<double,3> shv_0i_b  = cartesian::rowp1(0, shv_b);
+
+        cartesian::Matrix<double,3,3> vminia, vminib;
+        cartesian::mini(vminia, shv_a);
+        cartesian::mini(vminib, shv_b);
+        gradshear = cartesian::contract(sigsigK, v_a)*( sigsqrb*shv_0i_b + sigsqra*shv_0i_a );
+        divshear  = sigsqrb*sigsigK*cartesian::transpose(vminib)
+                  + sigsqra*sigsigK*cartesian::transpose(vminia);
+    }
+
+    //Accumulate
+    for(int idir=0; idir<3; ++idir) {
+      Kokkos::atomic_add(&device_hydro_vector(particle_a, hydro_info::gradP, idir), gradP(idir));
+      Kokkos::atomic_add(&device_hydro_vector(particle_a, hydro_info::gradE, idir), gradE(idir));
+      Kokkos::atomic_add(&device_hydro_vector(particle_a, hydro_info::gradBulk, idir), gradBulk(idir));
+      Kokkos::atomic_add(&device_hydro_vector(particle_a, hydro_info::gradshear, idir), gradshear(idir));
+      Kokkos::atomic_add(&device_hydro_vector(particle_a, hydro_info::divshear, idir), divshear(idir));
+      for(int jdir=0; jdir<3; ++jdir)
+        Kokkos::atomic_add(&device_hydro_space_matrix(particle_a, hydro_info::gradV, idir, jdir), gradV(idir, jdir));
+    }
+  };
+  auto range_policy = Kokkos::RangePolicy<ExecutionSpace>(0, systemPtr->cabana_particles.size());
+  Cabana::neighbor_parallel_for(range_policy, smooth_gradients,
+                                 systemPtr->neighbour_list, Cabana::FirstNeighborsTag(),
+                                 Cabana::TeamOpTag(), "smooth_gradients_kernel");
+  Kokkos::fence();
+  return;
+}
+
+
+
+template<>
+void SPHWorkstation<2, EoM_cartesian>::smooth_all_particle_gradients(double time_squared)
+{
+  double hT = settingsPtr->hT;
+  double t = systemPtr->t;
+  bool using_shear = settingsPtr->using_shear;
+  auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
+
+  CREATE_VIEW(device_, systemPtr->cabana_particles);
+  //Reset gradients - No need to take into account self interaction, since gradient of Kernel for r = 0 is zero
+  auto reset_gradients = KOKKOS_LAMBDA(const int is, const int ia){
+    for (int idir=0; idir < 2; ++idir)
+    {
+      device_hydro_vector.access(is, ia, ccake::hydro_info::gradP, idir) = 0.0;
+      device_hydro_vector.access(is, ia, ccake::hydro_info::gradBulk, idir) = 0.0;
+      device_hydro_vector.access(is, ia, ccake::hydro_info::gradshear, idir) = 0.0;
+      device_hydro_vector.access(is, ia, ccake::hydro_info::divshear, idir) = 0.0;
+      device_hydro_vector.access(is, ia, ccake::hydro_info::gradE,idir)  = 0.0;
+      for (int jdir=0; jdir < 2; ++jdir)
+        device_hydro_space_matrix.access(is, ia,ccake::hydro_info::gradV, idir, jdir) = 0.0;
+    }
+  };
+  Cabana::simd_parallel_for(simd_policy,reset_gradients, "reset_gradients");
+  Kokkos::fence();
+
+  ///particle_a is the one that will be updated. Particle b is its neighbors.
+  auto smooth_gradients = KOKKOS_LAMBDA(const int particle_a, const int particle_b )
+  {
+    //Compute kernel gradient
+    double rel_sep[2], pos_a[2], pos_b[2]; // cache for relative separation
+    for (int idir = 0; idir < 2; ++idir){
+      pos_a[idir] = device_position(particle_a,idir);
+      pos_b[idir] = device_position(particle_b,idir);
+      rel_sep[idir] = pos_a[idir] - pos_b[idir];
+    }
+    double rel_sep_norm = SPHkernel<2>::distance(pos_a,pos_b);
+    double gradK_aux[2];
+    ccake::SPHkernel<2>::gradKernel( rel_sep, rel_sep_norm, hT, gradK_aux );
+
+    double pressure_a     = device_thermo(particle_a, thermo_info::p);
+    double pressure_b     = device_thermo(particle_b, thermo_info::p);
+    double energy_a       = device_thermo(particle_a, thermo_info::e);
+    double energy_b       = device_thermo(particle_b, thermo_info::e);
+    double sigma_lab_a        = device_hydro_scalar(particle_a, hydro_info::sigma_lab);
+    double sigma_lab_b        = device_hydro_scalar(particle_b, hydro_info::sigma_lab);
+    double sigsqra        = 1.0/(sigma_lab_a*sigma_lab_a);
+    double sigsqrb        = 1.0/(sigma_lab_b*sigma_lab_b);
+    double sph_mass_s_b  = device_sph_mass(particle_b, densities_info::s);
+    double bulk_a         = device_hydro_scalar(particle_a, hydro_info::bulk);
+    double bulk_b         = device_hydro_scalar(particle_b, hydro_info::bulk);
+    double gamma_a        = device_hydro_scalar(particle_a, hydro_info::gamma);
+    double gamma_b        = device_hydro_scalar(particle_b, hydro_info::gamma);
+
+    cartesian::Vector<double,2> gradK, sigsigK, gradP, gradE, v_a, v_b, gradBulk, gradshear, divshear;
+    cartesian::Matrix<double, 2, 2> gradV;
+    for(int idir=0; idir<2; ++idir){
+      gradK(idir) = gradK_aux[idir];
+      v_a(idir) = device_hydro_vector(particle_a, hydro_info::v, idir);
+      v_b(idir) = device_hydro_vector(particle_b, hydro_info::v, idir);
+    };
+
+    sigsigK = sph_mass_s_b * sigma_lab_a * gradK;
+    gradP = (sigsqrb*pressure_b + sigsqra*pressure_a ) * sigsigK;
+    gradE = (sph_mass_s_b/sigma_lab_a)*( energy_b-energy_a )*gradK;
+    //gradE = (sigsqrb*energy_b + sigsqra*energy_a ) * sigsigK;
+    gradBulk = (bulk_b/sigma_lab_b/sigma_lab_b + bulk_a/sigma_lab_a/sigma_lab_a)*sigsigK;
+    //gradV    = (sph_mass_s_b/sigma_lab_a)*( v_b -  v_a )*gradK;
+    for(int idir=0; idir<2; ++idir)
+    for(int jdir=0; jdir<2; ++jdir)
+      gradV(idir,jdir) = (sph_mass_s_b/sigma_lab_a)*( v_b(jdir) -  v_a(jdir) )*gradK(idir);
+
+
+    if (using_shear){
+        cartesian::Matrix<double,3,3> shv_a, shv_b;
+        for(int idir=0; idir<3;++idir)
+        for(int jdir=0; jdir<3;++jdir){
+          shv_a(idir,jdir) = device_hydro_spacetime_matrix(particle_a, hydro_info::shv, idir, jdir);
+          shv_b(idir,jdir) = device_hydro_spacetime_matrix(particle_b, hydro_info::shv, idir, jdir);
+        }
+        cartesian::Vector<double,2> shv_0i_a  = cartesian::rowp1(0, shv_a);
+        cartesian::Vector<double,2> shv_0i_b  = cartesian::rowp1(0, shv_b);
+
+        cartesian::Matrix<double,2,2> vminia, vminib;
+        cartesian::mini(vminia, shv_a);
+        cartesian::mini(vminib, shv_b);
+        gradshear = cartesian::contract(sigsigK, v_a)*( sigsqrb*shv_0i_b + sigsqra*shv_0i_a );
+        divshear  = sigsqrb*sigsigK*cartesian::transpose(vminib)
+                  + sigsqra*sigsigK*cartesian::transpose(vminia);
+    }
+
+    //Accumulate
+    for(int idir=0; idir<2; ++idir) {
+      Kokkos::atomic_add(&device_hydro_vector(particle_a, hydro_info::gradP, idir), gradP(idir));
+      Kokkos::atomic_add(&device_hydro_vector(particle_a, hydro_info::gradE, idir), gradE(idir));
+      Kokkos::atomic_add(&device_hydro_vector(particle_a, hydro_info::gradBulk, idir), gradBulk(idir));
+      Kokkos::atomic_add(&device_hydro_vector(particle_a, hydro_info::gradshear, idir), gradshear(idir));
+      Kokkos::atomic_add(&device_hydro_vector(particle_a, hydro_info::divshear, idir), divshear(idir));
+      for(int jdir=0; jdir<2; ++jdir)
+        Kokkos::atomic_add(&device_hydro_space_matrix(particle_a, hydro_info::gradV, idir, jdir), gradV(idir, jdir));
+    }
+  };
+  auto range_policy = Kokkos::RangePolicy<ExecutionSpace>(0, systemPtr->cabana_particles.size());
+  Cabana::neighbor_parallel_for(range_policy, smooth_gradients,
+                                 systemPtr->neighbour_list, Cabana::FirstNeighborsTag(),
+                                 Cabana::TeamOpTag(), "smooth_gradients_kernel");
+  Kokkos::fence();
+  return;
+}
+
+
+
+template<>
+void SPHWorkstation<1, EoM_cartesian>::smooth_all_particle_gradients(double time_squared)
+{
+  double hT = settingsPtr->hT;
+  double t = systemPtr->t;
+  bool using_shear = settingsPtr->using_shear;
+  auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
+
+  CREATE_VIEW(device_, systemPtr->cabana_particles);
+  //Reset gradients - No need to take into account self interaction, since gradient of Kernel for r = 0 is zero
+  auto reset_gradients = KOKKOS_LAMBDA(const int is, const int ia){
+    for (int idir=0; idir < 1; ++idir)
+    {
+      device_hydro_vector.access(is, ia, ccake::hydro_info::gradP, idir) = 0.0;
+      device_hydro_vector.access(is, ia, ccake::hydro_info::gradBulk, idir) = 0.0;
+      device_hydro_vector.access(is, ia, ccake::hydro_info::gradshear, idir) = 0.0;
+      device_hydro_vector.access(is, ia, ccake::hydro_info::divshear, idir) = 0.0;
+      device_hydro_vector.access(is, ia, ccake::hydro_info::gradE,idir)  = 0.0;
+      for (int jdir=0; jdir < 1; ++jdir)
+        device_hydro_space_matrix.access(is, ia,ccake::hydro_info::gradV, idir, jdir) = 0.0;
+    }
+  };
+  Cabana::simd_parallel_for(simd_policy,reset_gradients, "reset_gradients");
+  Kokkos::fence();
+
+  ///particle_a is the one that will be updated. Particle b is its neighbors.
+  auto smooth_gradients = KOKKOS_LAMBDA(const int particle_a, const int particle_b )
+  {
+    //Compute kernel gradient
+    double rel_sep[1], pos_a[1], pos_b[1]; // cache for relative separation
+    for (int idir = 0; idir < 1; ++idir){
+      pos_a[idir] = device_position(particle_a,idir);
+      pos_b[idir] = device_position(particle_b,idir);
+      rel_sep[idir] = pos_a[idir] - pos_b[idir];
+    }
+    double rel_sep_norm = SPHkernel<1>::distance(pos_a,pos_b);
+    double gradK_aux[1];
+    ccake::SPHkernel<1>::gradKernel( rel_sep, rel_sep_norm, hT, gradK_aux );
+
+    double pressure_a     = device_thermo(particle_a, thermo_info::p);
+    double pressure_b     = device_thermo(particle_b, thermo_info::p);
+    double energy_a       = device_thermo(particle_a, thermo_info::e);
+    double energy_b       = device_thermo(particle_b, thermo_info::e);
+    double sigma_lab_a        = device_hydro_scalar(particle_a, hydro_info::sigma_lab);
+    double sigma_lab_b        = device_hydro_scalar(particle_b, hydro_info::sigma_lab);
+    double sigsqra        = 1.0/(sigma_lab_a*sigma_lab_a);
+    double sigsqrb        = 1.0/(sigma_lab_b*sigma_lab_b);
+    double sph_mass_s_b  = device_sph_mass(particle_b, densities_info::s);
+    double bulk_a         = device_hydro_scalar(particle_a, hydro_info::bulk);
+    double bulk_b         = device_hydro_scalar(particle_b, hydro_info::bulk);
+    double gamma_a        = device_hydro_scalar(particle_a, hydro_info::gamma);
+    double gamma_b        = device_hydro_scalar(particle_b, hydro_info::gamma);
+
+    cartesian::Vector<double,1> gradK, sigsigK, gradP, gradE, v_a, v_b, gradBulk, gradshear, divshear;
+    cartesian::Matrix<double, 1, 1> gradV;
+    for(int idir=0; idir<1; ++idir){
+      gradK(idir) = gradK_aux[idir];
+      v_a(idir) = device_hydro_vector(particle_a, hydro_info::v, idir);
+      v_b(idir) = device_hydro_vector(particle_b, hydro_info::v, idir);
+    };
+
+    sigsigK = sph_mass_s_b * sigma_lab_a * gradK;
+    gradP = (sigsqrb*pressure_b + sigsqra*pressure_a ) * sigsigK;
+    gradE = (sph_mass_s_b/sigma_lab_a)*( energy_b-energy_a )*gradK;
+    //gradE = (sigsqrb*energy_b + sigsqra*energy_a ) * sigsigK;
+    gradBulk = (bulk_b/sigma_lab_b/sigma_lab_b + bulk_a/sigma_lab_a/sigma_lab_a)*sigsigK;
+    //gradV    = (sph_mass_s_b/sigma_lab_a)*( v_b -  v_a )*gradK;
+    for(int idir=0; idir<1; ++idir)
+    for(int jdir=0; jdir<1; ++jdir)
+      gradV(idir,jdir) = (sph_mass_s_b/sigma_lab_a)*( v_b(jdir) -  v_a(jdir) )*gradK(idir);
+
+
+    if (using_shear){
+        double shv_0i_a  = device_hydro_spacetime_matrix(particle_a, hydro_info::shv, 0, 3);
+        double shv_0i_b  = device_hydro_spacetime_matrix(particle_b, hydro_info::shv, 0, 3);
+        cartesian::Matrix<double,1,1> vminia, vminib;
+        vminia(0,0) = device_hydro_spacetime_matrix(particle_a, hydro_info::shv, 3, 3);
+        vminib(0,0) = device_hydro_spacetime_matrix(particle_b, hydro_info::shv, 3, 3);
+        gradshear = cartesian::contract(sigsigK, v_a)*( sigsqrb*shv_0i_b + sigsqra*shv_0i_a );
+        ///\todo do we need this transpose here?
+        divshear  = sigsqrb*sigsigK*vminib
+                  + sigsqra*sigsigK*vminia;  
+    }
+
+    //Accumulate
+    for(int idir=0; idir<1; ++idir) {
+      Kokkos::atomic_add(&device_hydro_vector(particle_a, hydro_info::gradP, idir), gradP(idir));
+      Kokkos::atomic_add(&device_hydro_vector(particle_a, hydro_info::gradE, idir), gradE(idir));
+      Kokkos::atomic_add(&device_hydro_vector(particle_a, hydro_info::gradBulk, idir), gradBulk(idir));
+      Kokkos::atomic_add(&device_hydro_vector(particle_a, hydro_info::gradshear, idir), gradshear(idir));
+      Kokkos::atomic_add(&device_hydro_vector(particle_a, hydro_info::divshear, idir), divshear(idir));
+      for(int jdir=0; jdir<1; ++jdir)
+        Kokkos::atomic_add(&device_hydro_space_matrix(particle_a, hydro_info::gradV, idir, jdir), gradV(idir, jdir));
+    }
+  };
+  auto range_policy = Kokkos::RangePolicy<ExecutionSpace>(0, systemPtr->cabana_particles.size());
+  Cabana::neighbor_parallel_for(range_policy, smooth_gradients,
+                                 systemPtr->neighbour_list, Cabana::FirstNeighborsTag(),
+                                 Cabana::TeamOpTag(), "smooth_gradients_kernel");
+  Kokkos::fence();
+  return;
+}
 
 }; //namespace ccake
