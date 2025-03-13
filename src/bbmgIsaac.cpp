@@ -37,6 +37,7 @@ BBMG::BBMG( Settings * settingsPtr_in, SystemState * systemPtr_in )
   z                 = 1; // path length dependence
   a                 = 0; //Initial jet energy dependence
   c                 = (2+z-a)/3; //medium temperature dependence
+  num_jets          = 30000; // Number of jets per event for oversampling
   //phimax            = 14;
   
   //===============================================
@@ -127,7 +128,7 @@ void BBMG::initial()
     std::random_device rd; // For true randomness
     std::mt19937 gen(rd()); // Mersenne Twister generator
     std::uniform_int_distribution<> dis(0, p_bbmg.size() - 1); // Distribute over the valid range
-    for (int i = 0; i < 300000; ++i)
+    for (int i = 0; i < num_jets; ++i)
     {
         
 
