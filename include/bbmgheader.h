@@ -42,6 +42,7 @@ private:
     SystemState * systemPtr   = nullptr;
 
     int z, a, c;
+    int num_jets;
     double Freezeout_Temp;
     double area;
     double vjet; // Taken to be c for jets
