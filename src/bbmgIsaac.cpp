@@ -37,7 +37,7 @@ BBMG::BBMG( Settings * settingsPtr_in, SystemState * systemPtr_in )
   z                 = 1; // path length dependence
   a                 = 0; //Initial jet energy dependence
   c                 = (2+z-a)/3; //medium temperature dependence
-  num_jets          = 30000; // Number of jets per event for oversampling
+  int num_jets      = 30000; // Number of jets per event for oversampling
   //phimax            = 14;
   
   //===============================================
