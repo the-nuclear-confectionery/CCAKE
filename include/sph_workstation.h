@@ -21,8 +21,7 @@
 #include "transport_coefficients.h"
 #include "thermodynamic_info.h"
 #include "eos_interpolator.h"
-
-
+#include "source.h"
 
 
 namespace ccake
@@ -81,6 +80,11 @@ public:
   void setup_freeze_out(){
     freezePtr = std::make_shared<FreezeOut<D>>(settingsPtr, systemPtr);}
   void freeze_out_particles();
+
+  std::shared_ptr<Source<D>> sourcePtr; ///< Object storing the source term data
+  void setup_source_terms(){
+    sourcePtr = std::make_shared<Source<D>>(settingsPtr, systemPtr);
+  }
 
   //============================================================================
   // Constructors/destructors

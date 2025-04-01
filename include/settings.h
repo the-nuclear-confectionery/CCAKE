@@ -142,7 +142,14 @@ class Settings
                                            // smoothly to zero below
                                            // transition temperature
 
+    //  - source terms
 
+    string source_type           = "";    ///< Choose source term type for shear
+    bool baryon_source         = false;  ///< Whether to include baryon source term
+    bool strangeness_source    = false;  ///< Whether to include strangeness source term
+    bool electric_source       = false;  ///< Whether to include electric source term
+    double smearing_radius     = 0.0;   ///< Smearing radius for source terms
+    string source_input_file   = "";    ///< Path to the source term file
     // make sure that all chosen settings make reasonable sense
     ///TODO: Check these are correct
     void check_consistency()

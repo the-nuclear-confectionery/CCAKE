@@ -318,9 +318,9 @@ void BSQHydro<D,TEOM>::read_ccake()
           if(e_check > settingsPtr->e_cutoff) systemPtr->add_particle( p );
         }
         else{
-          if(e > settingsPtr->e_cutoff) systemPtr->add_particle( p );
+            if(e > settingsPtr->e_cutoff) systemPtr->add_particle( p );
         }
-        
+
         #ifdef DEBUG
         outfile << x << " " << y << " " << eta << " " << e*hbarc_GeVfm << " " << rhoB
                 << " " << rhoS << " " << rhoQ << " " << ux << " " << uy << " " << ueta << endl;
@@ -389,6 +389,11 @@ void BSQHydro<D,TEOM>::initialize_hydrodynamics()
   //Setup freeze-out
   wsPtr->setup_freeze_out();
 
+  //if using source terms set them up
+  if(settingsPtr->source_type != "none"){
+    wsPtr->setup_source_terms();
+  }
+  
   wsPtr->calculate_gamma_and_velocities();
   // implement initial smoothing required by SPH formalism
   wsPtr->initial_smoothing();

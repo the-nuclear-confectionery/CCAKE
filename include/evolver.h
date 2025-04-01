@@ -13,6 +13,7 @@
 #include "system_state.h"
 #include "utilities.h"
 #include "milne.hpp"
+#include "cartesian.hpp"
 
 namespace ccake{
 
@@ -74,10 +75,10 @@ class Evolver
     vector<double> Bulk0;
     vector<double> particles_E0;
 
-    vector< Vector<double,2> > u0;
-    vector< Vector<double,2> > r0;
+    vector< Vector<double,D> > u0;
+    vector< Vector<double,D> > r0;
 
-    vector< Matrix <double,2,2> > shv0;
+    vector< Matrix <double,4,4> > shv0;
 
     void advance_timestep_rk2( double dt,
                                std::function<void(void)> time_derivatives_functional );

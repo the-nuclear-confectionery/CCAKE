@@ -41,6 +41,12 @@ namespace ccake
     const double      cs2_dependent_zeta_p    = 2.0;
     const std::string bulkRelaxMode           = "default";
     const bool        modulate_zeta_with_tanh = true;
+    const std::string source_type            = "none";
+    const bool        baryon_source           = false;
+    const bool        strangeness_source      = false;
+    const bool        electric_source           = false;
+    const double      smearing_radius        = 0.5;
+    const std::string source_input_file   = "none";
     const bool        print_conservation_status = true;
     const bool        calculate_observables        = false;
     const bool        hdf_evolution            = false;

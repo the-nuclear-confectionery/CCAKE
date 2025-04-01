@@ -667,7 +667,7 @@ class FreezeOut
               gradPsub_contra(idir) = frz1_gradP.access(is,ia,idir);
               gradEsub_contra(idir) = frz1_gradE.access(is,ia,idir);
             }
-            double t2 = results_tlist.access(is,ia);
+            double t2 = results_tlist.access(is,ia)*results_tlist.access(is,ia);
             // make covariant and contravariant vectors, by creating new ones depending on the eom
             if(settingsPtr->coordinate_system == "cartesian"){
               cartesian::Vector<double,D> c_gradPsub, c_gradEsub;
@@ -744,7 +744,7 @@ class FreezeOut
               gradPsub_contra(idir) = frz2_gradP.access(is,ia,idir);
               gradEsub_contra(idir) = frz2_gradE.access(is,ia,idir);
             }
-            double t2 = results_tlist.access(is,ia);
+            double t2 = results_tlist.access(is,ia) * results_tlist.access(is,ia);
             
             // make covariant and contravariant vectors, by creating new ones depending on the eom
             if(settingsPtr->coordinate_system == "cartesian"){
@@ -813,7 +813,14 @@ class FreezeOut
           double norm2 = 0.0;
           for (int idir=0; idir<D; ++idir) norm2 += results_uout.access(is,ia,idir)*uout_cov(idir);
           results_gsub.access(is,ia) = Kokkos::sqrt( -norm2 + 1 );
-          sigsub /= results_gsub.access(is,ia)*results_tlist.access(is,ia);
+          //check for cartesian coordinates
+          if(settingsPtr->coordinate_system == "cartesian"){
+            sigsub /= results_gsub.access(is,ia);
+          }
+          else if(settingsPtr->coordinate_system == "hyperbolic"){
+            sigsub /= results_gsub.access(is,ia)*results_tlist.access(is,ia);
+          }
+         
           results_swsub.access(is,ia) = device_sph_mass.access(is, ia, ccake::densities_info::s)/sigsub;
           for(int idir=0;idir<D;++idir){
             results_divT.access(is,ia,idir) = (1.0/results_sFO.access(is,ia))*gradPsub(idir);//\partial_\mu T= \partial_\mu P/s.
