@@ -3,7 +3,7 @@ import pandas as pd
 import sys
 
 def init_cond(tau):
-    stepeta = 0.01
+    stepeta = 0.001
     stepx = 0.1
     stepy = 0.1
     xmax = 0.1
@@ -13,18 +13,18 @@ def init_cond(tau):
     etamax = 10
     etamin = -etamax
     hbarc_G = 0.1973269804
-    eps0 = 10 / hbarc_G**3
-    etas = np.arange(-10,10.1,stepeta).round(3)
-    tau0 = 1
+    eps0 = 10
+    etas = np.arange(-1.,1.001,stepeta).round(3)
+    tau0 = 0
     u_eta = 0
     u_tau = 1
     fp = f"../bjorken/bjorken_tau_{tau}.dat"
     with open(fp, "w") as f:
         f.write(f"#0 {stepx} {stepy} {stepeta} 0 {xmin} {ymin} {etamin}\n")
         for eta in etas:
-            eps = eps0 * (tau0 / tau)**(4/3)
+            #eps = eps0 * (tau0 / tau)**(4/3)
             u_eta = 0
-            f.write(f"0 0 {eta} {eps} 0 0 0 0 0 {u_eta} 0 0 0 0 0 0 0\n")
+            f.write(f"0 0 {eta} {eps0} 0 0 0 0 0 {u_eta} 0 0 0 0 0 0 0\n")
         print(f'Initial conditions were successfully generated for tau = {tau}')
         f.close()
 

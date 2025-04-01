@@ -61,6 +61,12 @@ namespace ccake
                                               0.0, 0.0, 0.0,
                                               0.0, 0.0, 0.0};
     const std::string relaxation_mode = "default";
+    const std::string source_type            = "none";
+    const bool        baryon_source           = false;
+    const bool        strangeness_source      = false;
+    const bool        electric_source           = false;
+    const double      smearing_radius        = 0.5;
+    const std::string source_input_file   = "none";
     const bool        print_conservation_status = true;
     const bool        calculate_observables        = false;
     const bool        get_neighbors             = false;

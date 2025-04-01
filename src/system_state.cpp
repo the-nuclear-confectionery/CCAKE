@@ -595,7 +595,11 @@ void SystemState<D>::reset_neighbour_list(){
 
   for(int idir=0; idir<3; ++idir)
     min_pos[idir] *= 2.; //Grid must be 100% extensiveger ///TODO: Allow this to be an optional input parameter
-
+  if (settingsPtr->coordinate_system == "cartesian"){
+    //extend the grid 
+    for(int idir=0; idir<3; ++idir)
+      min_pos[idir] *= 3.;
+  }
   //Cabana needs a 3D grid. We set the remaining dimensions to be a single cell
   double neighborhood_radius = 2*h;
   for(int idir=D; idir<3; ++idir) min_pos[idir] = -h;
@@ -617,10 +621,13 @@ void SystemState<D>::reset_neighbour_list(){
   /// Maybe this paralle for fix it?
   ///Need a way to call Cabana::NeighborList::numNeighbor directly from GPU
   ///without seg fault
-  Kokkos::parallel_for("UpdateNeighbors", Kokkos::RangePolicy<>(0, n_particles), KOKKOS_LAMBDA(int i) {
-    device_btrack(i) = (device_btrack(i) == -1) ? -1 
-                      : Cabana::NeighborList<ListType>::numNeighbor(neighbour_list, i);
-  });
+  for (int i=0; i<n_particles; ++i) {
+    device_btrack(i) = device_btrack(i) == -1 ? -1 : Cabana::NeighborList<ListType>::numNeighbor( neighbour_list, i );
+    /*if (Cabana::NeighborList<ListType>::numNeighbor( neighbour_list, i ) < 5) {
+      std::cout << "The particle " << i << " was found with less than 5 neighbors" << std::endl;
+      abort();
+    }*/
+  }
   #ifdef DEBUG_SLOW
   print_neighbors(0);
   #endif

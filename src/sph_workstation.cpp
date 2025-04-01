@@ -377,6 +377,16 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
                           device_sph_mass(jparticle, ccake::densities_info::rhoS)*device_extensive(jparticle, ccake::densities_info::rhoS)*kern);
     Kokkos::atomic_add( &device_smoothed(iparticle, ccake::densities_info::rhoQ),
                           device_sph_mass(jparticle, ccake::densities_info::rhoQ)*device_extensive(jparticle, ccake::densities_info::rhoQ)*kern);
+    //update particle j using symmetry
+    //Kokkos::atomic_add( &device_hydro_scalar(jparticle, ccake::hydro_info::sigma_lab), device_sph_mass(iparticle, ccake::densities_info::s)*kern);
+    //Kokkos::atomic_add( &device_smoothed(jparticle, ccake::densities_info::s),
+    //                     device_sph_mass(iparticle, ccake::densities_info::s)*device_extensive(iparticle, ccake::densities_info::s)*kern);
+    //Kokkos::atomic_add( &device_smoothed(jparticle, ccake::densities_info::rhoB),
+    //                      device_sph_mass(iparticle, ccake::densities_info::rhoB)*device_extensive(iparticle, ccake::densities_info::rhoB)*kern);
+    //Kokkos::atomic_add( &device_smoothed(jparticle, ccake::densities_info::rhoS),
+    //                      device_sph_mass(iparticle, ccake::densities_info::rhoS)*device_extensive(iparticle, ccake::densities_info::rhoS)*kern);                 
+    //Kokkos::atomic_add( &device_smoothed(jparticle, ccake::densities_info::rhoQ),
+    //                      device_sph_mass(iparticle, ccake::densities_info::rhoQ)*device_extensive(iparticle, ccake::densities_info::rhoQ)*kern);
   };
 
   auto range_policy = Kokkos::RangePolicy<ExecutionSpace>(0, systemPtr->cabana_particles.size());
@@ -406,6 +416,7 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
   };
   Cabana::simd_parallel_for( simd_policy, update_input_thermodynamics, "update_input_thermodynamics" );
   Kokkos::fence();
+
 
 }
 
@@ -450,6 +461,8 @@ void SPHWorkstation<D, TEOM>::calculate_intial_sigma(double t)
 
     //Update sigma_lab (reference density)
     Kokkos::atomic_add( &device_hydro_scalar(iparticle, ccake::hydro_info::sigma_lab), device_sph_mass(jparticle, ccake::densities_info::s)*kern);
+    //Update using symmetry
+    //Kokkos::atomic_add( &device_hydro_scalar(jparticle, ccake::hydro_info::sigma_lab), device_sph_mass(iparticle, ccake::densities_info::s)*kern);
   };
 
   auto range_policy = Kokkos::RangePolicy<ExecutionSpace>(0, systemPtr->cabana_particles.size());
@@ -727,13 +740,15 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
     double sigsqra        = 1.0/(sigma_lab_a*sigma_lab_a);
     double sigsqrb        = 1.0/(sigma_lab_b*sigma_lab_b);
     double sph_mass_s_b  = device_sph_mass(particle_b, densities_info::s);
+    double sph_mass_s_a  = device_sph_mass(particle_a, densities_info::s);
     double bulk_a         = device_hydro_scalar(particle_a, hydro_info::bulk);
     double bulk_b         = device_hydro_scalar(particle_b, hydro_info::bulk);
     double gamma_a        = device_hydro_scalar(particle_a, hydro_info::gamma);
     double gamma_b        = device_hydro_scalar(particle_b, hydro_info::gamma);
 
     milne::Vector<double,D> gradK, sigsigK, gradP, gradE, v_a, v_b, gradBulk, gradshear, divshear;
-    milne::Matrix<double, D, D> gradV;
+    milne::Vector<double,D> gradKb, sigsigKb, gradPb, gradEb, v_ba, v_ab, gradBulkb, gradshearb, divshearb;
+    milne::Matrix<double, D, D> gradV, gradVb;
     for(int idir=0; idir<D; ++idir){
       gradK(idir) = gradK_aux[idir];
       v_a(idir) = device_hydro_vector(particle_a, hydro_info::v, idir);
@@ -741,14 +756,21 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
     };
 
     sigsigK = sph_mass_s_b * sigma_lab_a * gradK;
+    sigsigKb = sph_mass_s_a * sigma_lab_b * gradK;
     gradP = (sigsqrb*pressure_b + sigsqra*pressure_a ) * sigsigK;
+    gradPb = - (sigsqrb*pressure_b + sigsqra*pressure_a ) * sigsigKb;
     gradE = (sph_mass_s_b/sigma_lab_a)*( energy_b-energy_a )*gradK;
+    gradEb = -(sph_mass_s_a/sigma_lab_b)*( energy_a-energy_b )*gradK;
     //gradE = (sigsqrb*energy_b + sigsqra*energy_a ) * sigsigK;
     gradBulk = (bulk_b/sigma_lab_b/sigma_lab_b + bulk_a/sigma_lab_a/sigma_lab_a)*sigsigK;
+    gradBulkb = -(bulk_b/sigma_lab_b/sigma_lab_b + bulk_a/sigma_lab_a/sigma_lab_a)*sigsigKb;
     //gradV    = (sph_mass_s_b/sigma_lab_a)*( v_b -  v_a )*gradK;
-    for(int idir=0; idir<D; ++idir)
-    for(int jdir=0; jdir<D; ++jdir)
+    for(int idir=0; idir<D; ++idir){
+    for(int jdir=0; jdir<D; ++jdir){
       gradV(idir,jdir) = (sph_mass_s_b/sigma_lab_a)*( v_b(jdir) -  v_a(jdir) )*gradK(idir);
+      gradVb(idir,jdir) = -(sph_mass_s_a/sigma_lab_b)*( v_a(jdir) -  v_b(jdir) )*gradK(idir);
+    }
+    }
 
 
     if (using_shear){
@@ -766,8 +788,11 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
         milne::mini(vminia, shv_a);
         milne::mini(vminib, shv_b);
         gradshear = milne::contract(sigsigK, v_a)*( sigsqrb*shv_0i_b + sigsqra*shv_0i_a );
+        gradshearb =-1.*milne::contract(sigsigKb, v_b)*( sigsqrb*shv_0i_b + sigsqra*shv_0i_a );
         divshear  = sigsqrb*sigsigK*milne::transpose(vminib)
                   + sigsqra*sigsigK*milne::transpose(vminia);
+        divshearb  = -1.*(sigsqrb*sigsigKb*milne::transpose(vminib)
+                   + sigsqra*sigsigKb*milne::transpose(vminia));
       }
       else{
         double shv_0i_a  = device_hydro_spacetime_matrix(particle_a, hydro_info::shv, 0, 3);
@@ -776,11 +801,73 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
         vminia(0,0) = device_hydro_spacetime_matrix(particle_a, hydro_info::shv, 3, 3);
         vminib(0,0) = device_hydro_spacetime_matrix(particle_b, hydro_info::shv, 3, 3);
         gradshear = milne::contract(sigsigK, v_a)*( sigsqrb*shv_0i_b + sigsqra*shv_0i_a );
+        gradshearb = -1.*milne::contract(sigsigKb, v_b)*( sigsqrb*shv_0i_b + sigsqra*shv_0i_a );
         ///\todo do we need this transpose here?
         divshear  = sigsqrb*sigsigK*vminib
-                  + sigsqra*sigsigK*vminia;        
+                  + sigsqra*sigsigK*vminia;
+        divshearb  = -1.*(sigsqrb*sigsigKb*vminib
+                   + sigsqra*sigsigKb*vminia);        
       }
 
+    }
+    if(using_diffusion){
+      milne::Vector<double,3> alpha_vec_a;
+      milne::Vector<double,3> alpha_vec_b;
+      milne::Vector<double,3> diff_a0;
+      milne::Vector<double,3> diff_b0;
+      milne::Vector<double,3> div_qa, grad_qa;
+      milne::Matrix<double,D,3> grad_alpha_a;
+      alpha_vec_a(0) = device_thermo(particle_a, thermo_info::muB)/device_thermo(particle_a, thermo_info::T);
+      alpha_vec_a(1) = device_thermo(particle_a, thermo_info::muS)/device_thermo(particle_a, thermo_info::T);
+      alpha_vec_a(2) = device_thermo(particle_a, thermo_info::muQ)/device_thermo(particle_a, thermo_info::T);
+      alpha_vec_b(0) = device_thermo(particle_b, thermo_info::muB)/device_thermo(particle_b, thermo_info::T);
+      alpha_vec_b(1) = device_thermo(particle_b, thermo_info::muS)/device_thermo(particle_b, thermo_info::T);
+      alpha_vec_b(2) = device_thermo(particle_b, thermo_info::muQ)/device_thermo(particle_b, thermo_info::T);
+      if(D>1){
+        milne::Matrix<double,3,D> diff_a;
+        milne::Matrix<double,3,D> diff_b;
+        for(int icharge=0; icharge<3; ++icharge){
+          diff_a0(icharge) = device_hydro_diffusion(particle_a, hydro_info::diffusion,icharge, 0);
+          diff_b0(icharge) = device_hydro_diffusion(particle_b, hydro_info::diffusion,icharge, 0);
+          for(int idir=0; idir<D; ++idir){
+            diff_a(icharge,idir) = device_hydro_diffusion(particle_a, hydro_info::diffusion, icharge,idir+1);
+            diff_b(icharge,idir) = device_hydro_diffusion(particle_b, hydro_info::diffusion, icharge,idir+1);
+          }
+        }
+        grad_qa = milne::contract(sigsigK, v_a)*( sigsqrb*diff_b0 + sigsqra*diff_a0 );
+        for(int jcharge=0; jcharge<3; ++jcharge){  
+          div_qa(jcharge) = 0.0;
+          for(int idir=0; idir<D; ++idir){
+            div_qa(jcharge) += sigsqrb*sigsigK(idir)*diff_b(jcharge,idir)
+                                + sigsqra*sigsigK(idir)*diff_a(jcharge,idir);
+            grad_alpha_a(idir,jcharge) = (sph_mass_s_b/sigma_lab_a)*( alpha_vec_b(jcharge) -  alpha_vec_a(jcharge) )*gradK(idir);
+          }
+        }
+      }
+      else{
+        milne::Vector<double,3> diff_a;
+        milne::Vector<double,3> diff_b;
+        for(int icharge=0; icharge<3; ++icharge){
+          diff_a0(icharge) = device_hydro_diffusion(particle_a, hydro_info::diffusion, icharge,0);
+          diff_b0(icharge) = device_hydro_diffusion(particle_b, hydro_info::diffusion, icharge,0);
+          diff_a(icharge) = device_hydro_diffusion(particle_a, hydro_info::diffusion,icharge,3);
+          diff_b(icharge) = device_hydro_diffusion(particle_b, hydro_info::diffusion,icharge,3);
+        }
+        grad_qa = milne::contract(sigsigK, v_a)*( sigsqrb*diff_b0 + sigsqra*diff_a0 );
+        for(int jcharge=0; jcharge<3; ++jcharge){  
+          div_qa(jcharge) += sigsqrb*sigsigK(0)*diff_b(jcharge)
+                              + sigsqra*sigsigK(0)*diff_a(jcharge);
+          grad_alpha_a(0,jcharge) = (sph_mass_s_b/sigma_lab_a)*( alpha_vec_b(jcharge) -  alpha_vec_a(jcharge) )*gradK(0);
+        }
+      }
+      //Accumulate diffusion quantities
+      for(int icharge=0; icharge<3; ++icharge){
+        Kokkos::atomic_add(&device_hydro_vector(particle_a, hydro_info::div_qa, icharge), div_qa(icharge));
+        Kokkos::atomic_add(&device_hydro_vector(particle_a, hydro_info::grad_qa, icharge), grad_qa(icharge));
+        for(int idir=0; idir<D; ++idir){
+          Kokkos::atomic_add(&device_hydro_space_matrix(particle_a, hydro_info::grad_alpha_a, idir, icharge), grad_alpha_a(idir,icharge));
+        }
+      }
     }
     if(using_diffusion){
       milne::Vector<double,3> alpha_vec_a;
@@ -849,8 +936,15 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
       Kokkos::atomic_add(&device_hydro_vector(particle_a, hydro_info::gradBulk, idir), gradBulk(idir));
       Kokkos::atomic_add(&device_hydro_vector(particle_a, hydro_info::gradshear, idir), gradshear(idir));
       Kokkos::atomic_add(&device_hydro_vector(particle_a, hydro_info::divshear, idir), divshear(idir));
-      for(int jdir=0; jdir<D; ++jdir)
+      //Kokkos::atomic_add(&device_hydro_vector(particle_b, hydro_info::gradP, idir), gradPb(idir));
+      //Kokkos::atomic_add(&device_hydro_vector(particle_b, hydro_info::gradE, idir), gradEb(idir));
+      //Kokkos::atomic_add(&device_hydro_vector(particle_b, hydro_info::gradBulk, idir), gradBulkb(idir));
+      //Kokkos::atomic_add(&device_hydro_vector(particle_b, hydro_info::gradshear, idir), gradshearb(idir));
+      //Kokkos::atomic_add(&device_hydro_vector(particle_b, hydro_info::divshear, idir), divshearb(idir));
+      for(int jdir=0; jdir<D; ++jdir){
         Kokkos::atomic_add(&device_hydro_space_matrix(particle_a, hydro_info::gradV, idir, jdir), gradV(idir, jdir));
+        //Kokkos::atomic_add(&device_hydro_space_matrix(particle_b, hydro_info::gradV, idir, jdir), gradVb(idir, jdir));
+      }
     }
   };
   auto range_policy = Kokkos::RangePolicy<ExecutionSpace>(0, systemPtr->cabana_particles.size());
@@ -1159,6 +1253,7 @@ template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D, TEOM>::get_time_derivatives()
 {
   Stopwatch sw;
+  Stopwatch sw2;
   sw.Start();
 
   double t = systemPtr->t;
@@ -1189,28 +1284,57 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives()
   #endif
 
   // reset nearest neighbors
+  sw2 = Stopwatch();
+  sw2.Start();
   systemPtr->reset_neighbour_list();
   //cout << "Left reset neighor list: " << endl;
   // calcuate gamma and velocities
+  sw2 = Stopwatch();
+  sw2.Start();
   calculate_gamma_and_velocities();
   //cout << "Left Calculate gamma and velocities" << endl;
   // smooth all particle fields - s, rhoB, rhoQ and rhoS and sigma
+  sw2 = Stopwatch();
+  sw2.Start();
   smooth_all_particle_fields(t2);
   //cout << "Left smooth particle fields: " << endl;
     // Update particle thermodynamic properties
+  sw2 = Stopwatch();
+  sw2.Start();
   update_all_particle_thermodynamics();
   //cout << "Left update particle thermo: " << endl;
   // reset pi tensor to be consistent
   // with all essential symmetries
+  sw2 = Stopwatch();
+  sw2.Start();
   reset_pi_tensor(t2);
+  sw2.Stop();
+  formatted_output::update("Finished resetting pi tensor in "
+                            + to_string(sw2.printTime()) + " s.");
   //add source terms to the energy momentum tensor
   //add_source();
+  if (settingsPtr->source_type != "none") sourcePtr->add_source();
     // update viscosities for all particles
+  sw2 = Stopwatch();
+  sw2.Start();  
   update_all_particle_viscosities();
+  sw2.Stop();
+  formatted_output::update("Finished updating all particle viscosities in "
+                            + to_string(sw2.printTime()) + " s.");
     //Computes gradients to obtain dsigma_lab/dt
+  sw2 = Stopwatch();
+  sw2.Start();
   smooth_all_particle_gradients(t2);
+  sw2.Stop();
+  formatted_output::update("Finished smoothing all particle gradients in "
+                            + to_string(sw2.printTime()) + " s.");
     //calculate time derivatives needed for equations of motion
+  sw2 = Stopwatch();
+  sw2.Start();
   TEOM<D>::evaluate_time_derivatives( systemPtr, settingsPtr );
+  sw2.Stop();
+  formatted_output::update("Finished EoM evaluation in "
+                            + to_string(sw2.printTime()) + " s.");
 
   // check for causality
   if (settingsPtr->check_causality)
