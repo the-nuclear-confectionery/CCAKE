@@ -141,7 +141,22 @@ public:
     while (infile >> pid >> px >> py >> pz >> mass >> x >> y >> z >> t >> dummy1 >> dummy2 >> dummy3)
     {
       // Check if time is greater than t0
-      if (t > settingsPtr->t0)
+      double x0 = t;
+      if (settingsPtr->coordinate_system == "hyperbolic")
+      {
+        // only add particles in the light cone
+        if (t*t < z*z)
+        {
+          // Skip this entry, as it is outside the light cone in hyperbolic coordinates
+          std::cout << "Skipping source entry with t^2 < z^2 at t = " << t << " and z = " << z << std::endl;
+          continue;
+        }
+        double tau = std::sqrt(t*t - z*z);
+        double eta_s = 0.5 * std::log((t + z) / (t - z));
+        x0 = tau; // Use tau for the comparison in hyperbolic coordinates
+
+      }
+      if (x0 > settingsPtr->t0)
       {
         px_vec.push_back(px);
         py_vec.push_back(py);
@@ -180,7 +195,7 @@ public:
       double E = std::sqrt(px*px + py*py + pz*pz + mass*mass);
 
       // Transform if hyperbolic and z² > t²
-      if (settingsPtr->coordinate_system == "hyperbolic" && z*z > t*t)
+      if (settingsPtr->coordinate_system == "hyperbolic")
       {
         double tau = std::sqrt(t*t - z*z);
         double eta_s = 0.5 * std::log((t + z) / (t - z));
@@ -244,11 +259,11 @@ public:
       s_position(i, 1) = y;
       s_position(i, 2) = z;
 
-      s_momentum(i, 0) = px;
-      s_momentum(i, 1) = py;
-      s_momentum(i, 2) = pz;
+      s_momentum(i, 0) = px/hbarc_GeVfm; // convert to GeV/fm (if needed, otherwise just use 1.0)
+      s_momentum(i, 1) = py/hbarc_GeVfm; // convert to GeV/fm (if needed, otherwise just use 1.0)
+      s_momentum(i, 2) = pz/hbarc_GeVfm; // convert to GeV/fm (if needed, otherwise just use 1.0)
 
-      s_energy(i) = E;
+      s_energy(i) = E/hbarc_GeVfm;
       s_mass(i) = mass;
       s_baryon_charge(i) = baryon_charge;
       s_strangeness_charge(i) = strangeness_charge;
@@ -265,7 +280,7 @@ public:
                 << "Baryon Charge: " << baryon_charge << ", "
                 << "Strangeness Charge: " << strangeness_charge << ", "
                 << "Electric Charge: " << electric_charge << ", "
-                << "Time: " << t_vec[i]  << ", "
+                << "Time: " << t  << ", "
                 << "PID: "  << pid_vec[i]  << std::endl;
     }
   }
@@ -302,7 +317,7 @@ public:
     for (std::size_t is = 0; is < n_sources; ++is)
     {
       double t_src = s_time(is);
-
+      double dt = t - t_prev; // Time step size, used to determine if source is in the current timestep window
       // Only act if source is within this timestep window
       if (t_src > t_prev && t_src <= t)
       {
@@ -321,7 +336,7 @@ public:
         double src_baryon = s_baryon_charge(is) * weight;
         double src_strangeness = s_strangeness_charge(is) * weight;
         double src_charge = s_electric_charge(is) * weight;
-
+        double normalization = 1.; // IC normalization factor
         auto deposit_source = KOKKOS_LAMBDA(const int is, const int ia)
         {
           double r[D];
@@ -337,18 +352,18 @@ public:
             if(settingsPtr->coordinate_system == "hyperbolic")
               kern /= t;
             // Reset accumulation if needed
-            device_hydro_scalar.access(is, ia, ccake::hydro_info::j0_ext) += src_energy * kern ;
+            device_hydro_scalar.access(is, ia, ccake::hydro_info::j0_ext) += normalization * src_energy * kern /dt; // right units of Energy/time
 
 
 
             for (int idir = 0; idir < D; ++idir)
             {
-              device_hydro_vector.access(is, ia, ccake::hydro_info::j_ext, idir) += src_mom[idir] * kern ;
+              device_hydro_vector.access(is, ia, ccake::hydro_info::j_ext, idir) +=normalization * src_mom[idir] * kern / dt; // right units of Momentum/time
             }
             // Optionally deposit charges
-            if (settingsPtr->baryon_source) device_hydro_scalar.access(is, ia, ccake::hydro_info::rho_B_ext) += src_baryon * kern ;
-            if (settingsPtr->strangeness_source) device_hydro_scalar.access(is, ia, ccake::hydro_info::rho_S_ext) += src_strangeness * kern ;
-            if (settingsPtr->electric_source) device_hydro_scalar.access(is, ia, ccake::hydro_info::rho_Q_ext) += src_charge * kern * electric_charge;
+            // if (settingsPtr->baryon_source) device_hydro_scalar.access(is, ia, ccake::hydro_info::rho_B_ext) += src_baryon * kern ;
+            // if (settingsPtr->strangeness_source) device_hydro_scalar.access(is, ia, ccake::hydro_info::rho_S_ext) += src_strangeness * kern ;
+            // if (settingsPtr->electric_source) device_hydro_scalar.access(is, ia, ccake::hydro_info::rho_Q_ext) += src_charge * kern * electric_charge;
           }
         };
 
