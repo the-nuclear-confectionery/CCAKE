@@ -120,9 +120,11 @@ void BBMG::initial()
 
         //This is the quantity I am not sure of including
         rho0tot += p.p()/p.T();
-
+        
       }
     }
+    cout << "This is the size of the particle list to choose from" << p_bbmg.size() << endl;
+    abort();
 
     int back_to_back = 2;
     std::random_device rd; // For true randomness
