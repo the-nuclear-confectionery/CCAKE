@@ -123,8 +123,6 @@ void BBMG::initial()
         
       }
     }
-    cout << "This is the size of the particle list to choose from" << p_bbmg.size() << endl;
-    abort();
 
     int back_to_back = 2;
     std::random_device rd; // For true randomness
