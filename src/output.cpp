@@ -69,20 +69,20 @@ void Output<D>::print_system_state()
 }
 
 /// @brief Print the system state to a text file.
-/// @details This function prints the system state to a text file. There is a 
+/// @details This function prints the system state to a text file. There is a
 /// single initial line with the current time of the simulation. Then, each
 /// particle is printed in a separate line. The columns are:
-/// Particle ID, time, position, pressure, temperature, 
-/// chemical potentials, energy density, baryon density, 
+/// Particle ID, time, position, pressure, temperature,
+/// chemical potentials, energy density, baryon density,
 /// strangeness density, electric charge density, entropy density,
 /// smoothed entropy density, extensive entropy, sigma_lab, sph_mass of entropy,
 /// shear relaxation time, bigtheta, \f$\sqrt{\pi{\mu\nu}\pi^{\mu\nu}}\f$,
 /// \f$\tau_{\pi}\Theta/\pi\f$, \f$\pi^{\tau\tau}\f$, \f$\pi^{xx}\f$,
-/// \f$\pi^{yy}\f$, \f$\tau^2\pi^{\eta\eta}\f$, the fluid velocity, 
+/// \f$\pi^{yy}\f$, \f$\tau^2\pi^{\eta\eta}\f$, the fluid velocity,
 /// the Lorentz factor \f$\gamma\f$, the freeze-out flag, and the EOS name.
 /// When relevant, quantities are converted to MeV and MeV/fm\f$^{3}\f$.
 /// @tparam D The dimensionality of the simulation.
-/// @todo: This needs to be updated to deal with other dimensions than 2+1D 
+/// @todo: This needs to be updated to deal with other dimensions than 2+1D
 /// simulations, specially for the shear tensor.
 template<unsigned int D>
 void Output<D>::print_system_state_to_txt()
@@ -178,10 +178,10 @@ void Output<D>::print_system_state_to_HDF()
   const int width = ceil(log10(ceil(settingsPtr->max_tau/settingsPtr->dt)));
 
   vector<string> dataset_names = {"x", "y", "T", "muB", "muS", "muQ",
-                                  "e", "s", "B", "S", "Q"};
+                                  "e", "s", "B", "S", "Q", "ux", "uy"};
   vector<string> dataset_units = {"fm", "fm", "MeV", "MeV", "MeV", "MeV",
                                   "MeV/fm^3", "1/fm^3", "1/fm^3", "1/fm^3",
-                                  "1/fm^3"};
+                                  "1/fm^3", "dimensionless", "dimensionless"};
 
   std::map<string,int> eos_map = {{"table",              0},
                                   {"tanh_conformal",     1},
@@ -204,6 +204,8 @@ void Output<D>::print_system_state_to_HDF()
     data[8][p.ID]  = p.rhoB();
     data[9][p.ID]  = p.rhoS();
     data[10][p.ID] = p.rhoQ();
+    data[11][p.ID]  = p.hydro.u(0);
+    data1210][p.ID] = p.hydro.u(1);
     eos_tags[p.ID] = eos_map[ p.get_current_eos_name() ];
   }
 
@@ -223,7 +225,7 @@ void Output<D>::print_system_state_to_HDF()
 /// @tparam D The dimensionality of the simulation.
 template<unsigned int D>
 void Output<D>::print_conservation_status()
-{   
+{
     stringstream ss;
     ss  << "t = "
         << systemPtr->t      << ": " << scientific        << setw(10)
