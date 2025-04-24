@@ -6,6 +6,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+// #include <Cabana_Experimental_NeighborList.hpp>
 
 #include "system_state.h"
 #include "utilities.h"
@@ -444,7 +445,8 @@ void SystemState<D>::reset_neighbour_list(){
   //Outfile for cabana particle neighbors
   /*ofstream outfile;
   outfile.open("neighbors.dat")*/
-
+  std::array<double, 3> cell_size;
+  double neighborhood_radius;
   double min_pos[3], max_pos[3];
   switch (D)
   {
@@ -452,20 +454,41 @@ void SystemState<D>::reset_neighbour_list(){
       min_pos[0] = settingsPtr->etamin;
       min_pos[1] = settingsPtr->xmin;
       min_pos[2] = settingsPtr->ymin;
+      cell_size = { 2.0 * settingsPtr->hEta, 1.0, 1.0 }; 
+      neighborhood_radius = 2 * settingsPtr->hEta;
       break;
-    default:
+    case 2:
       min_pos[0] = settingsPtr->xmin;
       min_pos[1] = settingsPtr->ymin;
       min_pos[2] = settingsPtr->etamin;
+      cell_size = { 2.0 * settingsPtr->hT, 1.0, 1.0 }; 
+      neighborhood_radius = 2 * settingsPtr->hT;
       break;
+    case 3:
+      min_pos[0] = settingsPtr->xmin;
+      min_pos[1] = settingsPtr->ymin;
+      min_pos[2] = settingsPtr->etamin;
+      cell_size = {
+        2.0 * settingsPtr->hT,     // x
+        2.0 * settingsPtr->hT,     // y
+        2.0 * settingsPtr->hEta    // eta
+      };
+      neighborhood_radius = std::sqrt(
+        std::pow(2.0 * settingsPtr->hT, 2) + std::pow(2.0 * settingsPtr->hT, 2) + std::pow(2.0 * settingsPtr->hEta, 2)
+      );
+      break;
+    default:
+      std::cerr << "Error: Dimension not supported" << std::endl;
+      exit(1);
   }
 
   for(int idir=0; idir<3; ++idir)
     min_pos[idir] *= 2.; //Grid must be 100% extensiveger ///TODO: Allow this to be an optional input parameter
 
   //Cabana needs a 3D grid. We set the remaining dimensions to be a single cell
-  double neighborhood_radius = 2*settingsPtr->hT;
-  for(int idir=D; idir<3; ++idir) min_pos[idir] = -settingsPtr->hT;
+  for(int idir=D; idir<3; ++idir)
+    min_pos[idir] = (idir == 2) ? -settingsPtr->hEta : -settingsPtr->hT;
+
   for(int idir=0; idir<3; ++idir)
     max_pos[idir] = -min_pos[idir];
 
@@ -473,10 +496,66 @@ void SystemState<D>::reset_neighbour_list(){
   //Enabling change the order of the particles in the AoSoA. This may be a problem.
   //Cabana::permute( cell_list, cabana_particles ); 
   double cell_ratio = 1.; //neighbour to cell_space ratio
-  neighbour_list = ListType (  device_position, 0, device_position.size(),
-                                          neighborhood_radius, cell_ratio, min_pos, max_pos
-                           );
+  // neighbour_list = ListType (  device_position, 0, device_position.size(),
+  //                                         neighborhood_radius, cell_size, min_pos, max_pos
+  //                          );
+  neighbour_list = Cabana::Experimental::createVerletList<
+    Cabana::FullNeighborTag, Cabana::VerletLayout2D, Cabana::TeamOpTag>(
+    device_position,
+    0,
+    device_position.size(),
+    neighborhood_radius,
+    cell_size.data(),   // now accepted
+    min_pos,
+    max_pos
+  );
   Kokkos::fence();
+  // double min_pos[3], max_pos[3];
+  // double h;
+  // switch (D)
+  // {
+  //   case 1:
+  //     min_pos[0] = settingsPtr->etamin;
+  //     min_pos[1] = settingsPtr->xmin;
+  //     min_pos[2] = settingsPtr->ymin;
+  //     h = settingsPtr->hEta;
+  //     break;
+  //   case 2:
+  //     min_pos[0] = settingsPtr->xmin;
+  //     min_pos[1] = settingsPtr->ymin;
+  //     min_pos[2] = settingsPtr->etamin;
+  //     h = settingsPtr->hT;
+  //     break;
+  //   case 3:
+  //     min_pos[0] = settingsPtr->xmin;
+  //     min_pos[1] = settingsPtr->ymin;
+  //     min_pos[2] = settingsPtr->etamin;
+  //     h = std::max(settingsPtr->hT, settingsPtr->hEta); 
+  //     break;
+  //   default:
+  //     std::cerr << "Error: Dimension not supported" << std::endl;
+  //     exit(1);
+  // }
+
+
+  // for(int idir=0; idir<3; ++idir)
+  //   min_pos[idir] *= 2.; //Grid must be 100% extensiveger ///TODO: Allow this to be an optional input parameter
+
+  // //Cabana needs a 3D grid. We set the remaining dimensions to be a single cell
+  // double neighborhood_radius = 2*h;
+  // for(int idir=D; idir<3; ++idir) min_pos[idir] = -h;
+  // for(int idir=0; idir<3; ++idir)
+  //   max_pos[idir] = -min_pos[idir];
+
+  // CREATE_VIEW(device_, cabana_particles);
+  // //Enabling change the order of the particles in the AoSoA. This may be a problem.
+  // //Cabana::permute( cell_list, cabana_particles ); 
+  // double cell_ratio = 1.; //neighbour to cell_space ratio
+  // neighbour_list = ListType (  device_position, 0, device_position.size(),
+  //                                         neighborhood_radius, cell_ratio, min_pos, max_pos
+  //                          );
+  // Kokkos::fence();
+
 
   //Update the number of neighbours
   ///TODO: Requires UVM, which is not good for performance

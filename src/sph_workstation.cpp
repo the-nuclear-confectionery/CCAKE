@@ -5,6 +5,7 @@
 #include "eom_default.cpp"
 #include "eom_cartesian.cpp"
 #include "transport_coefficients.cpp"
+#include <type_traits>
 
 #define ONLINE_INVERTER ///todo: This should be in the config file. For now, comment, uncomment it to choose eos method to be used
 using namespace constants;
@@ -316,6 +317,7 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
   CREATE_VIEW(device_, systemPtr->cabana_particles);
   auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
   double hT = settingsPtr->hT;
+  double hEta = settingsPtr->hEta;
   double t = systemPtr->t;
 
   //creating outfile to for kernal function output
@@ -325,7 +327,17 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
 
   //Reset smoothed fields. Initializes using the contribution of the particle to the density evaluated
   //on top of itself because the loop over the neighbour particles does not include the particle itself.
-  double kern0 = SPHkernel<D>::kernel(0,hT); //The value of the Kernel evaluated on top of the particle
+  double kern0;
+  if constexpr (std::is_same<TEOM<1>, EoM_default<1>>::value){
+    kern0 = SPHkernel<D>::kernel(0,hEta); //The value of the Kernel evaluated on top of the particle
+  }
+  else if constexpr (std::is_same<TEOM<3>, EoM_default<3>>::value){
+    kern0 = SPHkernel<2>::kernel(0,hT)*SPHkernel<1>::kernel(0,hEta); //The value of the Kernel evaluated on top of the particle
+  }
+  else {
+    kern0 = SPHkernel<D>::kernel(0,hT); //The value of the Kernel evaluated on top of the particle
+  }
+  
   auto reset_fields = KOKKOS_LAMBDA(const int is, const int ia) //First index for loop over struct, second for loop over array
   {
     device_smoothed.access(is, ia, densities_info::s)     = device_sph_mass.access(is, ia, densities_info::s)*   device_extensive.access(is, ia, densities_info::s)*kern0;
@@ -338,14 +350,40 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
   Kokkos::fence();
 
   auto smooth_fields = KOKKOS_LAMBDA(const int iparticle, const int jparticle ){
-
-    double r1[D] ,r2[D]; // cache for positions of particles 1 and 2
-    for (int idir = 0; idir < D; ++idir){
-      r1[idir] = device_position(iparticle,idir);
-      r2[idir] = device_position(jparticle,idir);
+    double kern;
+    if constexpr (std::is_same<TEOM<1>, EoM_default<1>>::value){
+      double r1[D] ,r2[D]; // cache for positions of particles 1 and 2
+      for (int idir = 0; idir < D; ++idir){
+        r1[idir] = device_position(iparticle,idir);
+        r2[idir] = device_position(jparticle,idir);
+      }
+      double distance = SPHkernel<D>::distance(r1,r2);
+      kern = SPHkernel<D>::kernel(distance,hEta);
     }
-    double distance = SPHkernel<D>::distance(r1,r2);
-    double kern = SPHkernel<D>::kernel(distance,hT);
+    else if constexpr (std::is_same<TEOM<3>, EoM_default<3>>::value){
+      double r1[D-1] ,r2[D-1];
+      double eta1[1], eta2[1]; // cache for positions of particles 1 and 2
+      for (int idir = 0; idir < D-1; ++idir){
+        r1[idir] = device_position(iparticle,idir);
+        r2[idir] = device_position(jparticle,idir);
+      }
+      eta1[0] = device_position(iparticle,2);
+      eta2[0] = device_position(jparticle,2);
+      double distanceT = SPHkernel<2>::distance(r1,r2);
+      double distanceEta = SPHkernel<1>::distance(eta1,eta2);
+      double kernT = SPHkernel<2>::kernel(distanceT,hT);
+      double kernEta = SPHkernel<1>::kernel(distanceEta,hEta);
+      kern = kernT*kernEta;
+    }
+    else {
+      double r1[D] ,r2[D]; // cache for positions of particles 1 and 2
+      for (int idir = 0; idir < D; ++idir){
+        r1[idir] = device_position(iparticle,idir);
+        r2[idir] = device_position(jparticle,idir);
+      }
+      double distance = SPHkernel<D>::distance(r1,r2);
+      kern = SPHkernel<D>::kernel(distance,hT);
+    }
 
     //outputting kernel function to the outfile "kernel_{hT}.dat"
     /*outfile << kern << distance << endl;
@@ -402,6 +440,8 @@ void SPHWorkstation<D, TEOM>::calculate_intial_sigma(double t)
   CREATE_VIEW(device_, systemPtr->cabana_particles);
   auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
   double hT = settingsPtr->hT;
+  double hEta = settingsPtr->hEta;
+
   //creating outfile to for kernal function output
   /*ofstream outfile;
   std::fname = "kernel_" + std::to_string(hT) + ".dat";
@@ -409,7 +449,16 @@ void SPHWorkstation<D, TEOM>::calculate_intial_sigma(double t)
 
   //Reset smoothed fields. Initializes using the contribution of the particle to the density evaluated
   //on top of itself because the loop over the neighbour particles does not include the particle itself.
-  double kern0 = SPHkernel<D>::kernel(0,hT); //The value of the Kernel evaluated on top of the particle
+  double kern0;
+  if constexpr (std::is_same<TEOM<1>, EoM_default<1>>::value){
+    kern0 = SPHkernel<D>::kernel(0,hEta); //The value of the Kernel evaluated on top of the particle
+  }
+  else if constexpr (std::is_same<TEOM<3>, EoM_default<3>>::value){
+    kern0 = SPHkernel<2>::kernel(0,hT)*SPHkernel<1>::kernel(0,hEta); //The value of the Kernel evaluated on top of the particle
+  }
+  else {
+    kern0 = SPHkernel<D>::kernel(0,hT); //The value of the Kernel evaluated on top of the particle
+  }
   auto reset_fields = KOKKOS_LAMBDA(const int is, const int ia) //First index for loop over struct, second for loop over array
   {
     device_hydro_scalar.access(is, ia, hydro_info::sigma_lab) = device_sph_mass.access(is, ia, densities_info::s)*kern0;
@@ -418,14 +467,39 @@ void SPHWorkstation<D, TEOM>::calculate_intial_sigma(double t)
   Kokkos::fence();
 
   auto smooth_fields = KOKKOS_LAMBDA(const int iparticle, const int jparticle ){
-
-    double r1[D] ,r2[D]; // cache for positions of particles 1 and 2
-    for (int idir = 0; idir < D; ++idir){
-      r1[idir] = device_position(iparticle,idir);
-      r2[idir] = device_position(jparticle,idir);
+    double kern;
+    if constexpr (std::is_same<TEOM<1>, EoM_default<1>>::value){
+      double r1[D] ,r2[D]; // cache for positions of particles 1 and 2
+      for (int idir = 0; idir < D; ++idir){
+        r1[idir] = device_position(iparticle,idir);
+        r2[idir] = device_position(jparticle,idir);
+      }
+      double distance = SPHkernel<D>::distance(r1,r2);
+      kern = SPHkernel<D>::kernel(distance,hEta);
     }
-    double distance = SPHkernel<D>::distance(r1,r2);
-    double kern = SPHkernel<D>::kernel(distance,hT);
+    else if constexpr (std::is_same<TEOM<3>, EoM_default<3>>::value){
+      double r1[D-1] ,r2[D-1], eta1[1], eta2[1]; // cache for positions of particles 1 and 2
+      for (int idir = 0; idir < D-1; ++idir){
+        r1[idir] = device_position(iparticle,idir);
+        r2[idir] = device_position(jparticle,idir);
+      }
+      eta1 = device_position(iparticle,2);
+      eta2 = device_position(jparticle,2);
+      double distanceT = SPHkernel<2>::distance(r1,r2);
+      double distanceEta = SPHkernel<1>::distance(eta1,eta2);
+      double kernT = SPHkernel<2>::kernel(distanceT,hT);
+      double kernEta = SPHkernel<1>::kernel(distanceEta,hEta);
+      kern = kernT*kernEta;
+    }
+    else {
+      double r1[D] ,r2[D]; // cache for positions of particles 1 and 2
+      for (int idir = 0; idir < D; ++idir){
+        r1[idir] = device_position(iparticle,idir);
+        r2[idir] = device_position(jparticle,idir);
+      }
+      double distance = SPHkernel<D>::distance(r1,r2);
+      kern = SPHkernel<D>::kernel(distance,hT);
+    }
 
     //outputting kernel function to the outfile "kernel_{hT}.dat"
     /*outfile << kern << distance << endl;
@@ -650,10 +724,13 @@ void SPHWorkstation<D,TEOM>::locate_phase_diagram_point_sBSQ( Particle<D> & p,
 /// @tparam TEOM The equation of motion class to be used in the simulation.
 /// @param time_squared The square of the current time step.
 /// Cartesian specializations at end of file 
+
+
 template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
 {
   double hT = settingsPtr->hT;
+  double hEta = settingsPtr->hEta;
   double t = systemPtr->t;
   bool using_shear = settingsPtr->using_shear;
   auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
@@ -678,16 +755,53 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
   ///particle_a is the one that will be updated. Particle b is its neighbors.
   auto smooth_gradients = KOKKOS_LAMBDA(const int particle_a, const int particle_b )
   {
-    //Compute kernel gradient
-    double rel_sep[D], pos_a[D], pos_b[D]; // cache for relative separation
-    for (int idir = 0; idir < D; ++idir){
-      pos_a[idir] = device_position(particle_a,idir);
-      pos_b[idir] = device_position(particle_b,idir);
-      rel_sep[idir] = pos_a[idir] - pos_b[idir];
+    double gradK_aux[D]; // cache for gradient of kernel
+    //Compute kernel gradient based on coordinate type and dimensionsionality
+    if (D == 3){
+      double rel_sep_T[D-1], rel_sep_Eta[1], pos_a[D-1], pos_b[D-1]; // cache for relative separation
+      double eta_a[1], eta_b[1]; // cache for relative separation
+      for (int idir = 0; idir < D-1; ++idir){
+        pos_a[idir] = device_position(particle_a,idir);
+        pos_b[idir] = device_position(particle_b,idir);
+        rel_sep_T[idir] = pos_a[idir] - pos_b[idir];
+      }
+      eta_a[0] = device_position(particle_a,2);
+      eta_b[0] = device_position(particle_b,2);
+      rel_sep_Eta[0] = eta_a[0] - eta_b[0];
+      double rel_sep_norm_T = SPHkernel<2>::distance(pos_a,pos_b);
+      double rel_sep_norm_Eta = SPHkernel<1>::distance(eta_a,eta_b);
+      double gradK_aux_T[2], gradK_aux_Eta[1];
+      ccake::SPHkernel<2>::gradKernel( rel_sep_T, rel_sep_norm_T, hT, gradK_aux_T );
+      ccake::SPHkernel<1>::gradKernel( rel_sep_Eta, rel_sep_norm_Eta, hEta, gradK_aux_Eta );
+      double kern_T = SPHkernel<2>::kernel(rel_sep_norm_T, hT);
+      double kern_eta = SPHkernel<1>::kernel(rel_sep_norm_Eta, hEta);
+      // 3D grad kernel from 1 and 2 D components
+      gradK_aux[0] = gradK_aux_T[0] * kern_eta;
+      gradK_aux[1] = gradK_aux_T[1] * kern_eta;
+      gradK_aux[2] = kern_T * gradK_aux_Eta[0];
     }
-    double rel_sep_norm = SPHkernel<D>::distance(pos_a,pos_b);
-    double gradK_aux[D];
-    ccake::SPHkernel<D>::gradKernel( rel_sep, rel_sep_norm, hT, gradK_aux );
+
+    else if (D == 1){
+      double rel_sep[D], pos_a[D], pos_b[D]; // cache for relative separation
+      for (int idir = 0; idir < D; ++idir){
+        pos_a[idir] = device_position(particle_a,idir);
+        pos_b[idir] = device_position(particle_b,idir);
+        rel_sep[idir] = pos_a[idir] - pos_b[idir];
+      }
+      double rel_sep_norm = SPHkernel<D>::distance(pos_a,pos_b);
+      ccake::SPHkernel<D>::gradKernel( rel_sep, rel_sep_norm, hEta, gradK_aux );
+    }
+
+    else {
+      double rel_sep[D], pos_a[D], pos_b[D]; // cache for relative separation
+      for (int idir = 0; idir < D; ++idir){
+        pos_a[idir] = device_position(particle_a,idir);
+        pos_b[idir] = device_position(particle_b,idir);
+        rel_sep[idir] = pos_a[idir] - pos_b[idir];
+      }
+      double rel_sep_norm = SPHkernel<D>::distance(pos_a,pos_b);
+      ccake::SPHkernel<D>::gradKernel( rel_sep, rel_sep_norm, hT, gradK_aux );      
+    }
 
     double pressure_a     = device_thermo(particle_a, thermo_info::p);
     double pressure_b     = device_thermo(particle_b, thermo_info::p);
