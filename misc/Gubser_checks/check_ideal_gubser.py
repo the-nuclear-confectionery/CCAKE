@@ -81,8 +81,8 @@ def plot_slice(ax, hydroOutput, tau, axis, quantity):
     c = cols[quantity]
     print('quantity=',quantity)
     print('c=',c)
-        #cf   = [TGubser, eGubser, urGubser, urGubser][c]
-        cf   = [None, None, TGubser, eGubser][c]
+    #cf   = [TGubser, eGubser, urGubser, urGubser][c]
+    cf   = [None, None, TGubser, eGubser][c]
     if axis == '0':
         yEqAxisData = hydroOutput[np.where( np.abs(hydroOutput[:,1]) < 1e-6 )]
         ax.plot( yEqAxisData[:,0], yEqAxisData[:,c], 'r-' )
