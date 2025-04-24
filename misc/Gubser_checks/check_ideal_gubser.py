@@ -18,7 +18,7 @@ n_timesteps = min([len(event.keys()),1000])
 event_keys = list(event.keys())
 
 q  = 1.
-e0 = 1.0
+e0 = 80.
 
 Nc = 3.
 Nf = 2.5
@@ -87,6 +87,8 @@ def plot_slice(ax, hydroOutput, tau, axis, quantity):
         yEqAxisData = hydroOutput[np.where( np.abs(hydroOutput[:,1]) < 1e-6 )]
         ax.plot( yEqAxisData[:,0], yEqAxisData[:,c], 'r-' )
         xpts = np.linspace(np.amin(yEqAxisData[:,0]), np.amax(yEqAxisData[:,0]), 1001)
+        print('Grid center: ',yEqAxisData[np.where( np.abs(yEqAxisData[:,0]) < 1e-6 )])
+        print('Analytic center: ',cf(tau, 0.0))
         ax.plot( xpts, cf(tau, xpts), 'b:' )
     elif axis == 'x':
         yeqxData = hydroOutput[np.where( np.isclose( hydroOutput[:,0], hydroOutput[:,1] ) )]
