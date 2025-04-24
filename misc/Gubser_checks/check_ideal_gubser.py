@@ -125,7 +125,7 @@ if __name__ == "__main__":
 
         #exit(1)
         #hydroOutput = np.loadtxt( checkfile, skiprows=1 )
-        hydroOutput = np.c_[ x, y, T, e, ux, uy ]
+        hydroOutput = np.c_[ x, y, T, e ]
 
         # plot comparison along y==0 slice
         for i, ax in enumerate(axs.ravel()):
