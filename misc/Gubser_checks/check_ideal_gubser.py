@@ -81,19 +81,17 @@ def plot_slice(ax, hydroOutput, tau, axis, quantity):
     c = cols[quantity]
     print('quantity=',quantity)
     print('c=',c)
+        #cf   = [TGubser, eGubser, urGubser, urGubser][c]
+        cf   = [None, None, TGubser, eGubser][c]
     if axis == '0':
         yEqAxisData = hydroOutput[np.where( np.abs(hydroOutput[:,1]) < 1e-6 )]
         ax.plot( yEqAxisData[:,0], yEqAxisData[:,c], 'r-' )
-        #cf   = [TGubser, eGubser, urGubser, urGubser][c]
-        cf   = [TGubser, eGubser][c]
         xpts = np.linspace(np.amin(yEqAxisData[:,0]), np.amax(yEqAxisData[:,0]), 1001)
         ax.plot( xpts, cf(tau, xpts), 'b:' )
     elif axis == 'x':
         yeqxData = hydroOutput[np.where( np.isclose( hydroOutput[:,0], hydroOutput[:,1] ) )]
         rpts = np.sqrt(yeqxData[:,0]**2 + yeqxData[:,1]**2)
         ax.plot( rpts, yeqxData[:,c], 'r-' )
-        #cf   = [TGubser, eGubser, urGubser, urGubser][c]
-        cf   = [TGubser, eGubser][c]
         rpts = np.linspace(0.0, np.amax(rpts), 1001)
         ax.plot( rpts, cf(tau, rpts), 'b:' )
     
