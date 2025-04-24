@@ -143,6 +143,6 @@ if __name__ == "__main__":
                 ax.set_ylim([-2.0, 2.0])
             #ax.ylabel(r'$e$ (fm$^{-4}$)')
             
-    #plt.show()
-    plt.savefig('./yeq' + axisMode + '_slice_tau=' + tau + '.pdf')
+            #plt.show()
+            plt.savefig('./yeq' + axisMode + '_slice_tau=' + str(tau) + '.pdf')
     
