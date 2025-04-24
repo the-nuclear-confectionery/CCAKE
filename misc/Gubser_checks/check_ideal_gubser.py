@@ -102,7 +102,7 @@ if __name__ == "__main__":
     # set up figure
     toPlot = ['T', 'e']
     
-    ncols = 3
+    ncols = len(toPlot)
     nrows = 1
     fig, axs = plt.subplots( ncols=ncols, nrows=nrows, figsize=(5*ncols, 5*nrows) )
 
