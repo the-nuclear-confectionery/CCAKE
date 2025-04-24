@@ -24,7 +24,8 @@ Nc = 3.
 Nf = 2.5
 cp = (2.*(Nc**2-1.) + 3.5*Nc*Nf)*np.pi**2/90.
 
-quantities = ['T','e','ux','uy']
+#quantities = ['T','e','ux','uy']
+quantities = ['T','e']
 cols = dict(zip(quantities,range(2,len(quantities)+2)))
 
 
@@ -80,14 +81,16 @@ def plot_slice(ax, hydroOutput, tau, axis, quantity):
     if axis == '0':
         yEqAxisData = hydroOutput[np.where( np.abs(hydroOutput[:,1]) < 1e-6 )]
         ax.plot( yEqAxisData[:,0], yEqAxisData[:,c], 'r-' )
-        cf   = [TGubser, eGubser, urGubser, urGubser][c]
+        #cf   = [TGubser, eGubser, urGubser, urGubser][c]
+        cf   = [TGubser, eGubser][c]
         xpts = np.linspace(np.amin(yEqAxisData[:,0]), np.amax(yEqAxisData[:,0]), 1001)
         ax.plot( xpts, cf(tau, xpts), 'b:' )
     elif axis == 'x':
         yeqxData = hydroOutput[np.where( np.isclose( hydroOutput[:,0], hydroOutput[:,1] ) )]
         rpts = np.sqrt(yeqxData[:,0]**2 + yeqxData[:,1]**2)
         ax.plot( rpts, yeqxData[:,c], 'r-' )
-        cf   = [TGubser, eGubser, urGubser, urGubser][c]
+        #cf   = [TGubser, eGubser, urGubser, urGubser][c]
+        cf   = [TGubser, eGubser][c]
         rpts = np.linspace(0.0, np.amax(rpts), 1001)
         ax.plot( rpts, cf(tau, rpts), 'b:' )
     
@@ -96,7 +99,7 @@ def plot_slice(ax, hydroOutput, tau, axis, quantity):
 if __name__ == "__main__":
 
     # set up figure
-    toPlot = ['T', 'e', 'ux']
+    toPlot = ['T', 'e']
     
     ncols = 3
     nrows = 1
@@ -117,8 +120,8 @@ if __name__ == "__main__":
         y = np.array(frame['y'])
         T = np.array(frame['T'])
         e = np.array(frame['e'])
-        ux = np.array(frame['ux'])
-        uy = np.array(frame['uy'])
+        #ux = np.array(frame['ux'])
+        #uy = np.array(frame['uy'])
 
         #exit(1)
         #hydroOutput = np.loadtxt( checkfile, skiprows=1 )
