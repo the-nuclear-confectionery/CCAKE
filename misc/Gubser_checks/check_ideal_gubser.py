@@ -114,7 +114,7 @@ if __name__ == "__main__":
         print('tau=', tau)
 
         print(frame.keys())
-        exit(1)
+        #exit(1)
 
         x = np.array(frame['x'])
         y = np.array(frame['y'])
