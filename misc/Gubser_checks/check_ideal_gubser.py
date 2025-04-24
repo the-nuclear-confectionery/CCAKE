@@ -27,6 +27,7 @@ cp = (2.*(Nc**2-1.) + 3.5*Nc*Nf)*np.pi**2/90.
 #quantities = ['T','e','ux','uy']
 quantities = ['T','e']
 cols = dict(zip(quantities,range(2,len(quantities)+2)))
+print('cols=',cols)
 
 
 #===============================================================================
@@ -78,6 +79,8 @@ def urGubser(tau, r):
 def plot_slice(ax, hydroOutput, tau, axis, quantity):
     # c : column of quantity to plot in array
     c = cols[quantity]
+    print('quantity=',quantity)
+    print('c=',c)
     if axis == '0':
         yEqAxisData = hydroOutput[np.where( np.abs(hydroOutput[:,1]) < 1e-6 )]
         ax.plot( yEqAxisData[:,0], yEqAxisData[:,c], 'r-' )
