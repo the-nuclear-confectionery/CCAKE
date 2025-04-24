@@ -18,7 +18,7 @@ n_timesteps = min([len(event.keys()),1000])
 event_keys = list(event.keys())
 
 q  = 1.
-e0 = 80./0.19733
+e0 = 80.*197.33 # MeV/fm^3
 
 Nc = 3.
 Nf = 2.5
