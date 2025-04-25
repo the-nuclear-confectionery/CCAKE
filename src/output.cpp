@@ -204,8 +204,8 @@ void Output<D>::print_system_state_to_HDF()
     data[8][p.ID]  = p.rhoB();
     data[9][p.ID]  = p.rhoS();
     data[10][p.ID] = p.rhoQ();
-    data[11][p.ID]  = p.hydro.u(0);
-    data1210][p.ID] = p.hydro.u(1);
+    data[11][p.ID] = p.hydro.u(0);
+    data[12][p.ID] = p.hydro.u(1);
     eos_tags[p.ID] = eos_map[ p.get_current_eos_name() ];
   }
 
