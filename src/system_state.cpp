@@ -454,14 +454,12 @@ void SystemState<D>::reset_neighbour_list(){
       min_pos[0] = settingsPtr->etamin;
       min_pos[1] = settingsPtr->xmin;
       min_pos[2] = settingsPtr->ymin;
-      cell_size = { 2.0 * settingsPtr->hEta, 1.0, 1.0 }; 
       neighborhood_radius = 2 * settingsPtr->hEta;
       break;
     case 2:
       min_pos[0] = settingsPtr->xmin;
       min_pos[1] = settingsPtr->ymin;
       min_pos[2] = settingsPtr->etamin;
-      cell_size = { 2.0 * settingsPtr->hT, 1.0, 1.0 }; 
       neighborhood_radius = 2 * settingsPtr->hT;
       break;
     case 3:
@@ -495,11 +493,8 @@ void SystemState<D>::reset_neighbour_list(){
   CREATE_VIEW(device_, cabana_particles);
   //Enabling change the order of the particles in the AoSoA. This may be a problem.
   //Cabana::permute( cell_list, cabana_particles ); 
-  double cell_ratio = 1.; //neighbour to cell_space ratio
-  // neighbour_list = ListType (  device_position, 0, device_position.size(),
-  //                                         neighborhood_radius, cell_size, min_pos, max_pos
-  //                          );
-  neighbour_list = Cabana::Experimental::createVerletList<
+  if (D == 3) {
+    neighbour_list = Cabana::Experimental::createVerletList<
     Cabana::FullNeighborTag, Cabana::VerletLayout2D, Cabana::TeamOpTag>(
     device_position,
     0,
@@ -509,6 +504,14 @@ void SystemState<D>::reset_neighbour_list(){
     min_pos,
     max_pos
   );
+  }
+  else {
+    double cell_ratio = 1.; //neighbour to cell_space ratio
+    neighbour_list = ListType (  device_position, 0, device_position.size(),
+                                          neighborhood_radius, cell_size, min_pos, max_pos
+                           );
+  }
+  
   Kokkos::fence();
   // double min_pos[3], max_pos[3];
   // double h;
