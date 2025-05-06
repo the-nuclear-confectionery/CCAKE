@@ -255,6 +255,164 @@ double EquationOfState::dwdQ()
 }
 
 
+double EquationOfState::dalpha_Bds()
+{
+  double charge_terms	= 0.0;
+  if ( abs(BVal)>TINY )
+  {
+    charge_terms += 1/T()/dentr_dmub();
+  }
+  return  -muB()/T()/T()/dentr_dt() + charge_terms;
+}
+
+double EquationOfState::dalpha_Sds()
+{
+  double charge_terms	= 0.0;
+  if ( abs(SVal)>TINY )
+  {
+    charge_terms += 1/T()/dentr_dmus();
+  }
+
+  return -muS()/T()/T()/dentr_dt() + charge_terms;
+}
+
+double EquationOfState::dalpha_Qds()
+{
+  double charge_terms	= 0.0;
+  if ( abs(QVal)>TINY )
+  {
+    charge_terms += 1/T()/dentr_dmuq();
+  }
+
+  return -muQ()/T()/T()/dentr_dt() + charge_terms;
+}
+
+
+double EquationOfState::dalpha_BdB()
+{
+  double charge_terms	= 0.0;
+  if ( abs(BVal)>TINY )
+  {
+    charge_terms += 1/T()/db_dmub() -muB()/T()/T()/db_dt();
+  }
+  return charge_terms;
+}
+
+double EquationOfState::dalpha_SdB()
+{
+  double charge_terms	= 0.0;
+  if ( abs(BVal)>TINY )
+  {
+    charge_terms += -muS()/T()/T()/db_dt();
+    if ( abs(SVal)>TINY )
+    {
+      charge_terms += 1/T()/db_dmus(); 
+    }
+  }
+
+
+  return charge_terms;
+}
+
+double EquationOfState::dalpha_QdB()
+{
+  double charge_terms	= 0.0;
+  if ( abs(BVal)>TINY )
+  {
+    charge_terms += -muQ()/T()/T()/db_dt();
+    if ( abs(QVal)>TINY )
+    {
+      charge_terms +=  1/T()/db_dmuq();
+    }
+  }
+  return charge_terms;
+}
+
+double EquationOfState::dalpha_BdS()
+{
+  double charge_terms	= 0.0;
+  if ( abs(SVal)>TINY )
+  {
+    charge_terms += -muB()/T()/T()/ds_dt();
+    if ( abs(BVal)>TINY )
+    {
+      charge_terms += 1/T()/ds_dmub();
+    }
+  }
+  return charge_terms;
+}
+
+double EquationOfState::dalpha_SdS()
+{
+  double charge_terms	= 0.0;
+  if ( abs(SVal)>TINY )
+  {
+    charge_terms += -muS()/T()/T()/ds_dt();
+    if ( abs(SVal)>TINY )
+    {
+      charge_terms += 1/T()/ds_dmus();
+    }
+  }
+  return charge_terms;
+}
+
+double EquationOfState::dalpha_QdS()
+{
+  double charge_terms	= 0.0;
+  if ( abs(SVal)>TINY )
+  {
+    charge_terms += -muQ()/T()/T()/ds_dt();
+    if ( abs(QVal)>TINY )
+    {
+      charge_terms += 1/T()/ds_dmuq();
+    }
+  }
+  return charge_terms;
+}
+
+double EquationOfState::dalpha_BdQ()
+{
+  double charge_terms	= 0.0;
+  if ( abs(QVal)>TINY )
+  {
+    charge_terms += -muB()/T()/T()/dq_dt();
+    if ( abs(BVal)>TINY )
+    {
+      charge_terms += 1/T()/dq_dmub();
+    }
+  }
+  return charge_terms;
+}
+
+double EquationOfState::dalpha_SdQ()
+{
+  double charge_terms	= 0.0;
+  if ( abs(QVal)>TINY )
+  {
+    charge_terms += -muS()/T()/T()/dq_dt();
+    if ( abs(SVal)>TINY )
+    {
+      charge_terms += 1/T()/dq_dmus();
+    }
+  }
+  return charge_terms;
+}
+
+double EquationOfState::dalpha_QdQ()
+{
+  double charge_terms	= 0.0;
+  if ( abs(QVal)>TINY )
+  {
+    charge_terms += -muQ()/T()/T()/dq_dt();
+    if ( abs(QVal)>TINY )
+    {
+      charge_terms += 1/T()/dq_dmuq();
+    }
+  }
+  return charge_terms;
+}
+
+
 double EquationOfState::cs2out(double Tt, const string & eos_name)
 {  //return cs2 given t and mu's=0
 //  std::cout << __PRETTY_FUNCTION__ << "::" << __LINE__ << ": "
@@ -518,6 +676,7 @@ bool EquationOfState::rootfinder_update_s( double sin, double Bin,
   if (!solution_found)
   {
     std::cout << "No solution found!" << std::endl;
+    std::cout << "Last attempted EoS: " << eos_currently_trying << endl;
     std::cerr << "No solution found!" << std::endl;
     std::cout << "Last attempted EoS: " << eos_currently_trying << endl;
     std::cout << "Failed to find a solution for (s,B,S,Q) = "
@@ -559,7 +718,7 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
                                           double Qin, bool & solution_found )
 {
   const double hc = constants::hbarc_MeVfm;
-  
+  std::string eos_type;
   // take sign of densities using lambda function
   auto sgn = [](double val) -> double { return (0.0 < val) - (val < 0.0); };
 
@@ -571,7 +730,8 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
   // try each EoS in turn
   for ( const auto & this_eos : chosen_EOSs )
   {
-
+    //assign eos type string
+    eos_type = this_eos->name;
     /////////////////////////////////////////////////////////
     // try forced seed first
     result = vector<double>({800.0/hc, sgn(Bin), sgn(Qin), sgn(Sin)});
@@ -646,8 +806,12 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
 
   if (!solution_found)
   {
+    //check this eos type
     std::cout << "No solution found!" << std::endl;
     std::cerr << "No solution found!" << std::endl;
+    bool test = eBSQ_has_solution_in_conformal_diagonal(ein, Bin, Sin, Qin);
+    std::cout << "Conformal diagonal EoS should have sol: " << test << std::endl;
+    std::cout << "Last attempted EoS: " << eos_type << endl;
     std::cout << "Failed to find a solution for (e,B,S,Q) = "
               << ein << "   " << Bin << "   " << Sin << "   " << Qin << std::endl;
     std::stringstream ss;

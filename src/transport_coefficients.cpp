@@ -74,11 +74,22 @@ parameters setup_parameters(std::shared_ptr<Settings> settingsPtr)
     params.bulk_relaxation_mode = TAU_PI_BULK_DNMR;
   }
 
+  std::string diffusionMode = settingsPtr->diffusionMode;
+  if (diffusionMode == "default")
+  {
+    params.diffusion_mode = KAPPA_DEFAULT;
+  }
+  else if (diffusionMode == "DNMR")
+  {
+    params.diffusion_mode = KAPPA_DNMR;
+  }
+
   params.constant_eta_over_s = settingsPtr->constant_eta_over_s;
   params.constant_zeta_over_s = settingsPtr->constant_zeta_over_s;
   params.cs2_dependent_zeta_A = settingsPtr->cs2_dependent_zeta_A;
   params.cs2_dependent_zeta_p = settingsPtr->cs2_dependent_zeta_p;
   params.modulate_zeta_with_tanh = settingsPtr->modulate_zeta_with_tanh;
+  params.kappa_matrix = settingsPtr->kappa_matrix;
 
   return params;
 
@@ -170,6 +181,44 @@ double tau_Pi(const double* thermo, parameters params)
     break;
   default:
     return default_tau_Pi(thermo,params);
+    break;
+  }
+}
+
+KOKKOS_INLINE_FUNCTION
+Matrix<double, 3, 3> kappa(const double* thermo, parameters params)
+{
+  int diffusion_mode = params.diffusion_mode;
+  switch (diffusion_mode)
+  {
+  case KAPPA_DEFAULT:
+    return default_kappa(thermo, params);
+    break;
+  case KAPPA_DNMR:
+    return Matrix<double, 3, 3>{0.0};
+    std::cout << "DNMR kappa not implemented yet" << std::endl;
+    break;
+  default:
+    return default_kappa(thermo, params);
+    break;
+  }
+}
+
+KOKKOS_INLINE_FUNCTION
+Matrix<double, 3, 3> tauq(const double* thermo, parameters params)
+{
+  int diffusion_mode = params.diffusion_mode;
+  switch (diffusion_mode)
+  {
+  case KAPPA_DEFAULT:
+    return default_tauq(thermo, params);
+    break;
+  case KAPPA_DNMR:
+    return Matrix<double, 3, 3>{0.0};
+    std::cout << "DNMR tauq not implemented yet" << std::endl;
+    break;
+  default:
+    return default_tauq(thermo, params);
     break;
   }
 }
@@ -382,5 +431,61 @@ double default_tau_Pi(const double *therm, const parameters params)
 //===============================
 KOKKOS_INLINE_FUNCTION
 double tau_Pi_DNMR_LeadingMass(const double *therm) { return 0.0; }
+
+
+//===============================
+// Diffusion parameters
+KOKKOS_INLINE_FUNCTION
+Matrix<double, 3, 3> default_kappa(const double *therm, const parameters params)
+{
+  Matrix<double, 3, 3> kappa_matrix;
+  double T = therm[thermo_info::T];
+  //construct sqrt(ni nj)/sqrt(mu_i mu_j) matrix (checking if the potential is not zero)
+  double rhoQ = therm[thermo_info::rhoQ];
+  double rhoS = therm[thermo_info::rhoS];
+  double rhoB = therm[thermo_info::rhoB];
+  Vector<double, 3> rho= {rhoB, rhoS, rhoQ};
+  double muQ = therm[thermo_info::muQ];
+  double muS = therm[thermo_info::muS];
+  double muB = therm[thermo_info::muB];
+  Vector<double, 3> mu= {muB, muS, muQ};
+
+  Matrix<double, 3, 3> ni_nj;
+  for (int i = 0; i < 3; ++i)
+    for (int j = 0; j < 3; ++j)
+      if (sqrt(abs(mu(i) * mu(j))) < TINY)
+        ni_nj(i, j) = 0.0;
+      else
+        ni_nj(i, j) = sqrt(abs(rho(i) * rho(j))) / sqrt(abs(mu(i) * mu(j)));
+  
+
+  for (int i = 0; i < 3; ++i)
+    for (int j = 0; j < 3; ++j)
+      //kappa_matrix(i, j) = params.kappa_matrix[i][j]*ni_nj(i, j);
+      kappa_matrix(i, j) = params.kappa_matrix[i][j]*(T*T);
+      
+  return kappa_matrix;
+}
+
+
+//from PhysRevD.101.076007 
+KOKKOS_INLINE_FUNCTION
+Matrix<double, 3, 3> default_tauq(const double *therm, const parameters params)
+{
+  Matrix<double, 3, 3> tauq_matrix;
+  double T = therm[thermo_info::T];
+  double ntot = therm[thermo_info::rhoB] + therm[thermo_info::rhoS] + therm[thermo_info::rhoQ];
+  for (int i = 0; i < 3; ++i){
+    for (int j = 0; j < 3; ++j) tauq_matrix(i, j) = 0.0;
+    
+  }
+  //add diagonal terms
+  for (int i = 0; i < 3; ++i){
+    tauq_matrix(i, i) += 0.2/T;
+  }
+      
+  return tauq_matrix;
+};
+
 }}
 #endif

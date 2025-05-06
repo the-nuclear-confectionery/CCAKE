@@ -401,7 +401,32 @@ bool cc::Input::decode_settings(const YAML::Node& node){
       formatted_output::report("This is an optional parameter. Setting to default value.");
       settingsPtr->modulate_zeta_with_tanh = cc::defaults::modulate_zeta_with_tanh;
     }
-
+    try{
+      settingsPtr->diffusionMode = node["hydro"]["viscous_parameters"]["diffusion"]["mode"].as<std::string>();
+      
+    } catch (...) {
+      formatted_output::report("WARNING: Could not read viscous_parameters diffusion relaxation_mode!");
+      formatted_output::report("This is an optional parameter. Setting to default value.");
+      settingsPtr->diffusionMode = cc::defaults::diffusionMode;
+    }
+    if(settingsPtr->diffusionMode != "default"){
+      settingsPtr->using_diffusion = false;
+    }
+    else{
+      settingsPtr->using_diffusion = true;
+    }
+    try {
+      auto mat = node["hydro"]["viscous_parameters"]["diffusion"]["kappa_matrix"];
+      for (size_t i = 0; i < 3; ++i) {
+        for (size_t j = 0; j < 3; ++j) {
+          settingsPtr->kappa_matrix[i][j] = mat[i][j].as<double>();
+        }
+      }
+    } catch (...) {
+      formatted_output::report("WARNING: Could not read hydro/viscous_parameters/kappa_matrix!");
+      formatted_output::report("This is an optional parameter. Setting to identity matrix.");
+      settingsPtr->kappa_matrix = cc::defaults::kappa_matrix;
+    }
     //Output node
     try{
       settingsPtr->print_conservation_status = node["output"]["print_conservation_state"].as<bool>();

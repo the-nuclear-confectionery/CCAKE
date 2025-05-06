@@ -52,13 +52,15 @@ namespace ccake {
 /// are needed for the evolution. A cleanup may be necessary in the future.
 
 using CabanaParticle = Cabana::MemberTypes<
-                                        HYDRO_SPACE_MATRIX_INFO, //72 doubles
-                                        HYDRO_VECTOR_INFO,       //51 doubles
+                                        HYDRO_SPACE_MATRIX_INFO, //207 doubles
+                                        HYDRO_VECTOR_INFO,       //60 doubles
+                                        HYDRO_DIFFUSION_AUX_MATRIX_INFO, // 54 doubles
+                                        HYDRO_SCALAR_INFO,       //37 doubles
                                         HYDRO_SHEAR_AUX_VECTOR_INFO, // 32 doubles
-                                        HYDRO_SCALAR_INFO,       //31 doubles
                                         HYDRO_SHEAR_AUX_MATRIX_INFO, // 21 doubles
                                         THERMO_SCALAR_INFO,      //17 doubles
                                         HYDRO_SPACETIME_MATRIX_INFO, // 16 doubles
+                                        HYDRO_DIFFUSION_INFO,    // 12 doubles
                                         DENSITY_INFO,            // 5 doubles - INPUT
                                         DENSITY_INFO,            // 5 doubles - SMOOTHED
                                         DENSITY_INFO,            // 5 doubles - extensive
@@ -78,11 +80,13 @@ namespace particle_info
 enum particle_data{
   hydro_space_matrix_info,
   hydro_vector_info,
-  hydro_shear_aux_vector_info,
+  hydro_diffusion_aux_matrix_info,
   hydro_scalar_info,
+  hydro_shear_aux_vector_info,
   hydro_shear_aux_matrix_info,
   thermo_scalar_info,
   hydro_spacetime_matrix_info,
+  hydro_diffusion_info,
   input_density,
   smoothed_density,
   extensive,
@@ -110,11 +114,13 @@ enum particle_data{
 #define CREATE_VIEW(prefix,cabana_aosoa) \
   auto CONCAT(prefix,hydro_space_matrix) = Cabana::slice<ccake::particle_info::hydro_space_matrix_info>(cabana_aosoa); \
   auto CONCAT(prefix,hydro_vector) = Cabana::slice<ccake::particle_info::hydro_vector_info>(cabana_aosoa); \
-  auto CONCAT(prefix,hydro_shear_aux_matrix) = Cabana::slice<ccake::particle_info::hydro_shear_aux_matrix_info>(cabana_aosoa); \
+  auto CONCAT(prefix,hydro_diffusion_aux_matrix) = Cabana::slice<ccake::particle_info::hydro_diffusion_aux_matrix_info>(cabana_aosoa); \
   auto CONCAT(prefix,hydro_scalar) = Cabana::slice<ccake::particle_info::hydro_scalar_info>(cabana_aosoa); \
   auto CONCAT(prefix,hydro_shear_aux_vector) = Cabana::slice<ccake::particle_info::hydro_shear_aux_vector_info>(cabana_aosoa); \
+  auto CONCAT(prefix,hydro_shear_aux_matrix) = Cabana::slice<ccake::particle_info::hydro_shear_aux_matrix_info>(cabana_aosoa); \
   auto CONCAT(prefix,thermo) = Cabana::slice<ccake::particle_info::thermo_scalar_info>(cabana_aosoa); \
   auto CONCAT(prefix,hydro_spacetime_matrix) = Cabana::slice<ccake::particle_info::hydro_spacetime_matrix_info>(cabana_aosoa); \
+  auto CONCAT(prefix,hydro_diffusion) = Cabana::slice<ccake::particle_info::hydro_diffusion_info>(cabana_aosoa); \
   auto CONCAT(prefix,input) = Cabana::slice<ccake::particle_info::input_density>(cabana_aosoa); \
   auto CONCAT(prefix,smoothed) = Cabana::slice<ccake::particle_info::smoothed_density>(cabana_aosoa); \
   auto CONCAT(prefix,extensive) = Cabana::slice<ccake::particle_info::extensive>(cabana_aosoa); \
@@ -199,6 +205,19 @@ class Particle
     double dwdB() { return thermo.dwdB; }
     double dwdS() { return thermo.dwdS; }
     double dwdQ() { return thermo.dwdQ; }
+    double dalpha_Bds() { return thermo.dalpha_Bds; }
+    double dalpha_Qds() { return thermo.dalpha_Qds; }
+    double dalpha_Sds() { return thermo.dalpha_Sds; }
+    double dalpha_BdB() { return thermo.dalpha_BdB; }
+    double dalpha_QdB() { return thermo.dalpha_QdB; }
+    double dalpha_SdB() { return thermo.dalpha_SdB; }
+    double dalpha_BdS() { return thermo.dalpha_BdS; }
+    double dalpha_QdS() { return thermo.dalpha_QdS; }
+    double dalpha_SdS() { return thermo.dalpha_SdS; }
+    double dalpha_BdQ() { return thermo.dalpha_BdQ; }
+    double dalpha_QdQ() { return thermo.dalpha_QdQ; }
+    double dalpha_SdQ() { return thermo.dalpha_SdQ; }
+
 
     string get_current_eos_name() { return thermo.eos_name; }
 

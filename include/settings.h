@@ -29,6 +29,9 @@ class Settings
     bool using_shear                  = false;  //TODO: Whatever to use shear or
                                                 // not should be decided by the
                                                 // eta mode, not here
+    bool using_diffusion              = false;  //TODO: Whatever to use diffusion or
+                                                // not should be decided by the
+                                                // eta mode, not here
     bool initializing_with_full_Tmunu = false;  // whether to initialize Pi from
                                                 // tmunu_trace - p or not
     //==========================================================================
@@ -141,6 +144,12 @@ class Settings
     bool modulate_zeta_with_tanh = true;   // forces zeta/s to decrease
                                            // smoothly to zero below
                                            // transition temperature
+    // -- diffusion quantities
+    string diffusionMode        = "";   ///< Choose parametrization for diffusion
+    std::array<std::array<double, 3>, 3> kappa_matrix = {{{0.0, 0.0, 0.0},
+                                                          {0.0, 0.0, 0.0},
+                                                          {0.0, 0.0, 0.0}}};
+    
 
 
     // make sure that all chosen settings make reasonable sense
@@ -154,6 +163,12 @@ class Settings
         using_shear  = false;
       else
         using_shear  = true;
+      std::cout << "diffusionMode: " << diffusionMode << std::endl;
+      if( diffusionMode != "disabled"){
+        using_diffusion = true;
+        std::cout << "using_diffusion: " << using_diffusion << std::endl;}
+      else
+        using_diffusion = false;
       return;
     }
 

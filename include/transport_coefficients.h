@@ -10,6 +10,7 @@
 #include "settings.h"
 #include "thermodynamic_info.h"
 #include "constants.h"
+#include "matrix.h"
 
 namespace ccake{
 namespace transport_coefficients{
@@ -36,12 +37,22 @@ namespace transport_coefficients{
     TAU_PI_BULK_DEFAULT,
     TAU_PI_BULK_DNMR
   };
+  enum {
+    KAPPA_DEFAULT,
+    KAPPA_DNMR
+  };
+  enum {
+    TAU_Q_DEFAULT,
+    TAU_Q_DNMR
+  };
 
   struct parameters
   {
-    int shear_mode, zeta_mode, shear_relaxation_mode, bulk_relaxation_mode;
+    int shear_mode, zeta_mode, shear_relaxation_mode, bulk_relaxation_mode, diffusion_mode;
     double constant_eta_over_s, constant_zeta_over_s;
     double cs2_dependent_zeta_A, cs2_dependent_zeta_p;
+    std::array<std::array<double, 3>, 3> kappa_matrix,
+                                         tauq_matrix;
     bool modulate_zeta_with_tanh;
   };
 
@@ -65,6 +76,12 @@ namespace transport_coefficients{
   double default_zeta(const double *therm);
   KOKKOS_INLINE_FUNCTION
   double default_tau_Pi(const double *therm, const parameters params);
+
+  // diffusion
+  KOKKOS_INLINE_FUNCTION
+  Matrix<double, 3, 3> default_kappa(const double *therm, const parameters params);
+  KOKKOS_INLINE_FUNCTION
+  Matrix<double, 3, 3> default_tauq(const double *therm, const parameters params);
 
   // other parmaterizations (not organized yet)
   KOKKOS_INLINE_FUNCTION

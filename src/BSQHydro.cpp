@@ -398,6 +398,8 @@ void BSQHydro<D,TEOM>::initialize_hydrodynamics()
   wsPtr->set_bulk_Pi();
   //calculate extensive shear tensor
   wsPtr->calculate_extensive_shv();
+  // calculate initial diffusion 
+  wsPtr->set_diffusion();
 
   sw.Stop();
   formatted_output::report("hydrodynamics initialization finished in "
@@ -515,7 +517,8 @@ void BSQHydro<D,TEOM>::run()
     #ifdef DEBUG
     outfile << systemPtr->t << " " << systemPtr->Eloss << " " << systemPtr->S << endl;
     #endif
-    if (systemPtr->number_of_elapsed_timesteps%100 == 0) outPtr->print_system_state();
+    if (systemPtr->number_of_elapsed_timesteps%20 == 0) 
+    //outPtr->print_system_state();
     //if (settingsPtr->hdf_evolution || settingsPtr->txt_evolution) outPtr->print_system_state();
     if (settingsPtr->particlization_enabled) outPtr->print_freeze_out(wsPtr->freezePtr);
 

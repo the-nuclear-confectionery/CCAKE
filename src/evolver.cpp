@@ -43,6 +43,7 @@ void Evolver<D>::allocate_k_values()
 //   k3 = Cabana::AoSoA<EvolverCache, DeviceType, VECTOR_LENGTH>("k1", n_particles);
 //   k4 = Cabana::AoSoA<EvolverCache, DeviceType, VECTOR_LENGTH>("k1", n_particles);
   auto kextensive_shv = Cabana::slice<evolver_cache_info::extensive_shear>(k);
+  auto kextensive_diffusion = Cabana::slice<evolver_cache_info::extensive_diffusion>(k);
   auto ku = Cabana::slice<evolver_cache_info::four_velocity>(k);
   auto kr = Cabana::slice<evolver_cache_info::position>(k);
   auto ks = Cabana::slice<evolver_cache_info::extensive_entropy>(k);
@@ -59,6 +60,10 @@ void Evolver<D>::allocate_k_values()
       for (int i=0; i<2; i++)
       for (int j=i; j<3; j++)
         kextensive_shv.access(is, ia,i,j) = 0;
+      for (int i=0; i<3; i++)
+      for (int j=0; j<3; j++)
+        kextensive_diffusion.access(is, ia,i,j) = 0;
+
       for(int idir = 0; idir < D; ++idir)
       {
         ku.access(is, ia, idir) = 0;
@@ -124,6 +129,7 @@ void Evolver<D>::set_current_timestep_quantities()
   auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
 
   auto extensive_shv = Cabana::slice<evolver_cache_info::extensive_shear>(evolver_cache);
+  auto extensive_diffusion = Cabana::slice<evolver_cache_info::extensive_diffusion>(evolver_cache);
   auto u = Cabana::slice<evolver_cache_info::four_velocity>(evolver_cache);
   auto r = Cabana::slice<evolver_cache_info::position>(evolver_cache);
   auto s = Cabana::slice<evolver_cache_info::extensive_entropy>(evolver_cache);
@@ -139,6 +145,11 @@ void Evolver<D>::set_current_timestep_quantities()
     for (int j=i; j<3; j++){
       extensive_shv.access(is, ia,i,j) = device_hydro_shear_aux_vector.access(is, ia, hydro_info::extensive_shv, i, j);
       //std::cout << "extensive_shv: " << extensive_shv.access(is, ia,i,j) << std::endl;
+    }}
+    for (int i=0; i<3; i++){
+    for (int j=0; j<3; j++){
+      extensive_diffusion.access(is, ia,i,j) = device_hydro_space_matrix.access(is, ia, hydro_info::extensive_diffusion, i, j);
+      //std::cout << "extensive_diffusion: " << device_hydro_shear_aux_vector.access(is, ia, hydro_info::extensive_diffusion, i, j) << std::endl;
     }}
 
     for(int idir = 0; idir < D; ++idir)
@@ -164,6 +175,7 @@ void Evolver<D>::update_k(int n)
   CREATE_VIEW(device_, systemPtr->cabana_particles);
   auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
   auto d_extensive_shv_dt = Cabana::slice<evolver_cache_info::extensive_shear>(k);
+  auto d_extensive_q_dt = Cabana::slice<evolver_cache_info::extensive_diffusion>(k);
   auto du_dt = Cabana::slice<evolver_cache_info::four_velocity>(k);
   auto dr_dt = Cabana::slice<evolver_cache_info::position>(k);
   auto dNb_dt = Cabana::slice<evolver_cache_info::extensive_baryon>(k);
@@ -178,6 +190,10 @@ void Evolver<D>::update_k(int n)
     for (int i=0; i<2; i++)
     for (int j=i; j<3; j++)
       Kokkos::atomic_add(&d_extensive_shv_dt.access(is, ia,i,j), w.at(n)*device_hydro_shear_aux_vector.access(is, ia, hydro_info::d_extensive_shv_dt, i, j));
+
+    for (int i=0; i<3; i++)
+    for (int j=0; j<3; j++)
+      Kokkos::atomic_add(&d_extensive_q_dt.access(is, ia,i,j), w.at(n)*device_hydro_space_matrix.access(is, ia, hydro_info::d_extensive_q_dt, i, j));
 
     for(int idir = 0; idir < D; ++idir)
     {
@@ -202,6 +218,7 @@ void Evolver<D>::update_rk4(double dt){
   //Create views for the device
       CREATE_VIEW(device_, systemPtr->cabana_particles);
       auto slice_extensive_shv0 = Cabana::slice<evolver_cache_info::extensive_shear>(evolver_cache);
+      auto slice_extensive_diffusion0 = Cabana::slice<evolver_cache_info::extensive_diffusion>(evolver_cache);
       auto slice_u0 = Cabana::slice<evolver_cache_info::four_velocity>(evolver_cache);
       auto slice_r0 = Cabana::slice<evolver_cache_info::position>(evolver_cache);
       auto slice_rhoB0 = Cabana::slice<evolver_cache_info::extensive_baryon>(evolver_cache);
@@ -212,6 +229,7 @@ void Evolver<D>::update_rk4(double dt){
       auto slice_E0 = Cabana::slice<evolver_cache_info::E0>(evolver_cache);
       //k<var> corresponds to w1k1 + 2*w2k2 + 2*w3k3 + w4k4 in RK4
       auto slice_kextensive_shv = Cabana::slice<evolver_cache_info::extensive_shear>(k);
+      auto slice_kextensive_diffusion = Cabana::slice<evolver_cache_info::extensive_diffusion>(k);
       auto slice_ku = Cabana::slice<evolver_cache_info::four_velocity>(k);
       auto slice_kr = Cabana::slice<evolver_cache_info::position>(k);
       auto slice_krhoB = Cabana::slice<evolver_cache_info::extensive_baryon>(k);
@@ -239,6 +257,7 @@ void Evolver<D>::update_rk4(double dt){
         double kE0 = slice_kE0.access(is, ia);
 
         milne::Matrix<double, 2, 3> extensive_shv0, kextensive_shv;
+        milne::Matrix<double, 3, 3> extensive_diffusion0, kextensive_diffusion;
         milne::Vector<double, D> r0, kr, u0, ku;
         for(int idir=0; idir<D; ++idir){
           r0(idir) = slice_r0.access(is, ia, idir);
@@ -252,6 +271,13 @@ void Evolver<D>::update_rk4(double dt){
             kextensive_shv(idir, jdir) = slice_kextensive_shv.access(is, ia, idir, jdir);
           }
         }
+        for(int idir=0; idir<3; ++idir){
+          for(int jdir=0; jdir<3; ++jdir){
+            extensive_diffusion0(idir, jdir) = slice_extensive_diffusion0.access(is, ia, idir, jdir);
+            kextensive_diffusion(idir, jdir) = slice_kextensive_diffusion.access(is, ia, idir, jdir);
+          }
+        }
+        
         
         //Sum everything up
         double extensive_s        = extensive_s0         + dt*ks;
@@ -263,9 +289,15 @@ void Evolver<D>::update_rk4(double dt){
         milne::Vector<double,D> r = r0                  + dt*kr;
         milne::Vector<double,D> u = u0                  + dt*ku;
         milne::Matrix<double,2,3> extensive_shv;
+        milne::Matrix<double,3,3> extensive_diffusion;
         for(int idir=0; idir<2; ++idir){
         for(int jdir=idir; jdir<3; ++jdir){
           extensive_shv(idir,jdir)          = extensive_shv0(idir,jdir) + dt*kextensive_shv(idir, jdir);
+        }
+        }
+        for(int idir=0; idir<3; ++idir){
+        for(int jdir=0; jdir<3; ++jdir){
+          extensive_diffusion(idir,jdir)    = extensive_diffusion0(idir,jdir) + dt*kextensive_diffusion(idir, jdir);
         }
         }
 
@@ -292,6 +324,10 @@ void Evolver<D>::update_rk4(double dt){
         for (int jdir=idir; jdir<3; ++jdir)
             device_hydro_shear_aux_vector.access(is, ia, hydro_info::extensive_shv, idir, jdir) = extensive_shv(idir,jdir);
 
+        for (int idir=0; idir<3; ++idir)
+        for (int jdir=0; jdir<3; ++jdir)
+            device_hydro_space_matrix.access(is, ia, hydro_info::extensive_diffusion, idir, jdir) = extensive_diffusion(idir,jdir);
+
         //Enforce zero values for components greater than dimension D
         for (int idir=D; idir<3; ++idir){
           Kokkos::atomic_store(&device_position.access(is, ia, idir) , 0.0);
@@ -313,6 +349,7 @@ void Evolver<D>::step_rk(double dt, double t0, std::function<void(void)> time_de
   //Create views for the device
   CREATE_VIEW(device_, systemPtr->cabana_particles);
   auto slice_extensive_shv0 = Cabana::slice<evolver_cache_info::extensive_shear>(evolver_cache);
+  auto slice_extensive_diffusion0 = Cabana::slice<evolver_cache_info::extensive_diffusion>(evolver_cache);
   auto slice_u0 = Cabana::slice<evolver_cache_info::four_velocity>(evolver_cache);
   auto slice_r0 = Cabana::slice<evolver_cache_info::position>(evolver_cache);
   auto slice_s0 = Cabana::slice<evolver_cache_info::extensive_entropy>(evolver_cache);
@@ -331,6 +368,7 @@ void Evolver<D>::step_rk(double dt, double t0, std::function<void(void)> time_de
     double rhoQ0 = slice_rhoQ0.access(is, ia);
     double particles_Ez0 = slice_E0.access(is, ia);
     milne::Matrix<double, 2, 3> extensive_shv0;
+    milne::Matrix<double, 3, 3> extensive_diffusion0;
     milne::Vector<double, D> r0, u0;
     for(int idir=0; idir<D; ++idir){
       r0(idir) = slice_r0.access(is, ia, idir);
@@ -339,6 +377,10 @@ void Evolver<D>::step_rk(double dt, double t0, std::function<void(void)> time_de
     for(int idir=0; idir<2; ++idir)
     for(int jdir=idir; jdir<3; ++jdir)
       extensive_shv0(idir, jdir) = slice_extensive_shv0.access(is, ia, idir, jdir);
+
+    for(int idir=0; idir<3; ++idir)
+    for(int jdir=0; jdir<3; ++jdir)
+      extensive_diffusion0(idir, jdir) = slice_extensive_diffusion0.access(is, ia, idir, jdir);
 
     //Cache derivatives
     double d_extensive_bulk_dt = device_hydro_scalar.access(is,ia,hydro_info::d_extensive_bulk_dt);
@@ -359,6 +401,12 @@ void Evolver<D>::step_rk(double dt, double t0, std::function<void(void)> time_de
       d_extensive_shv_dt(idir, jdir) = device_hydro_shear_aux_vector.access(is, ia, hydro_info::d_extensive_shv_dt, idir, jdir);
     }
     }
+    milne::Matrix<double, 3, 3> d_extensive_diffusion_dt;
+    for(int idir=0; idir<3; ++idir){
+    for(int jdir=0; jdir<3; ++jdir){
+      d_extensive_diffusion_dt(idir, jdir) = device_hydro_space_matrix.access(is, ia, hydro_info::d_extensive_q_dt, idir, jdir);
+    }
+    }
 
     //Compute updated quantities
     double extensive_s         = extensive_s0         + dt*d_dt_extensive_s;
@@ -370,12 +418,19 @@ void Evolver<D>::step_rk(double dt, double t0, std::function<void(void)> time_de
     milne::Vector<double,D> r = r0                  + dt*v;
     milne::Vector<double,D> u = u0                  + dt*du_dt;
     milne::Matrix<double,2,3> extensive_shv;
+    milne::Matrix<double,3,3> extensive_diffusion;
     for(int idir=0; idir<2; ++idir){
     for(int jdir=idir; jdir<3; ++jdir){
       extensive_shv(idir,jdir)          = extensive_shv0(idir,jdir) + dt*d_extensive_shv_dt(idir, jdir);
       //std::cout << "extensive_shv(" << idir << "," << jdir << ") = " << extensive_shv(idir,jdir) << std::endl;
       //std::cout << "extensive_shv0(" << idir << "," << jdir << ") = " << extensive_shv0(idir,jdir) << std::endl;
       //std::cout << "d_extensive_shv_dt(" << idir << "," << jdir << ") = " << d_extensive_shv_dt(idir,jdir) << std::endl;
+    }
+    }
+    for(int idir=0; idir<3; ++idir){
+    for(int jdir=0; jdir<3; ++jdir){
+      extensive_diffusion(idir,jdir)    = extensive_diffusion0(idir,jdir) + dt*d_extensive_diffusion_dt(idir, jdir);
+      //std::cout << "extensive_diffusion(" << idir << "," << jdir << ") = " << extensive_diffusion(idir,jdir) << std::endl;
     }
     }
     //Update in memory
@@ -400,6 +455,10 @@ void Evolver<D>::step_rk(double dt, double t0, std::function<void(void)> time_de
     for (int idir=0; idir<2; ++idir)
     for (int jdir=idir; jdir<3; ++jdir)
         device_hydro_shear_aux_vector.access(is, ia, hydro_info::extensive_shv, idir, jdir) = extensive_shv(idir,jdir);
+    
+    for (int idir=0; idir<3; ++idir)
+    for (int jdir=0; jdir<3; ++jdir)
+        device_hydro_space_matrix.access(is, ia, hydro_info::extensive_diffusion, idir, jdir) = extensive_diffusion(idir,jdir);
 
 
     //Enforce zero values for components greater than dimension D

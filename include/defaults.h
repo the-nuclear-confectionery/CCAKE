@@ -41,6 +41,11 @@ namespace ccake
     const double      cs2_dependent_zeta_p    = 2.0;
     const std::string bulkRelaxMode           = "default";
     const bool        modulate_zeta_with_tanh = true;
+    const std::string diffusionMode           = "disabled";
+    const std::array<std::array<double, 3>, 3> 
+                              kappa_matrix = {0.0, 0.0, 0.0,
+                                              0.0, 0.0, 0.0,
+                                              0.0, 0.0, 0.0};
     const bool        print_conservation_status = true;
     const bool        calculate_observables        = false;
     const bool        hdf_evolution            = false;
@@ -76,6 +81,7 @@ namespace parameter_settings
             setting_pair("cs2_dependent_zeta_A",   "1.67552"),  // 8*pi/15
             setting_pair("cs2_dependent_zeta_p",   "2.0"),
             setting_pair("bulkRelaxMode",          "default"),
+            setting_pair("diffusionMode",          "disabled"),
             setting_pair("freezeoutT",             "150.000000"),
             setting_pair("freezeout",              "No_Freezeout"),
             setting_pair("Gubser_BSQmode",         "off")

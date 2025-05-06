@@ -8,6 +8,15 @@ hydro:
   electric_charge_enabled: true
   strange_charge_enabled: true
   viscous_parameters:
+    diffusion:
+      mode: default
+      kappa_matrix:
+      #- [0.0345, 0.0, 0]
+      #- [0.0, 0.063, 0]
+      #- [0, 0 , 0.1036]      
+      #- [0.0345, 0.0, -0.0345]
+      #- [0.0, 0.063, 0.0105]
+      #- [-0.0345, 0.0105, 0.1036]
     bulk:
       constant_zeta_over_s: 0.0
       cs2_dependent_zeta_A: 1.67552
@@ -16,13 +25,14 @@ hydro:
       modulate_with_tanh: false
       relaxation_mode: default
     shear:
-      constant_eta_over_s: 0.16
+      constant_eta_over_s: 0.0
       mode: constant
       relaxation_mode: default
+
 initial_conditions:
   coordinate_system: hyperbolic
   dimension: 2
-  file: /u/kpala/git_repos/test/test_chain/results_input_entropy/event_25/iccing/densities0.dat
+  file: /u/kpala/git_repos/test/test_chain/test_diff/event_31/iccing/densities0.dat
   input_as_entropy: false
   t0: 0.6
   type: ICCING

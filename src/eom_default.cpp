@@ -79,6 +79,11 @@ void EoM_default<D>::reset_pi_tensor(std::shared_ptr<SystemState<D>> sysPtr)
     for(int idir=D; idir<3; ++idir){
       fixed_size_u(idir) = 0.0;
     }
+    if (D==1) {
+      fixed_size_u(2) = u(0);
+      fixed_size_u(0) = 0.0;
+    }
+
     milne::Vector<double,D> u_cov = u;
     u_cov.make_covariant(t2); //Transforms u^i to u_i
     fixed_size_u_cov = fixed_size_u;
@@ -129,6 +134,34 @@ void EoM_default<D>::reset_pi_tensor(std::shared_ptr<SystemState<D>> sysPtr)
     for(int idir=0; idir<4; ++idir)
     for(int jdir=0; jdir<4; ++jdir)
       device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir, jdir) = shv(idir,jdir) ;
+
+    //diffusion
+    milne::Matrix<double,3,4> q_matrix;
+    for(int icharge=0; icharge<3; ++icharge){
+      for(int idir=0; idir<3; ++idir){
+        q_matrix(icharge,idir+1) = device_hydro_space_matrix.access(is, ia, hydro_info::extensive_diffusion, icharge, idir)*sigma;
+        //if(q_matrix(icharge,idir+1) > 1e-10){
+        //  std::cout << "q_matrix(" << icharge << "," << idir+1 << ") = " << q_matrix(icharge,idir+1) << std::endl;
+        //  std::cout << "extensive_diffusion(" << icharge << "," << idir << ") = " << device_hydro_space_matrix.access(is, ia, hydro_info::extensive_diffusion, icharge, idir) << std::endl;
+        //}
+     }
+    }
+
+    // use q0 = - q^i u_i/u_0
+    for(int icharge=0; icharge<3; ++icharge){
+      double q0 = 0.;
+      for(int idir=0; idir<3; ++idir){
+        q0 += -q_matrix(icharge,idir+1)*fixed_size_u_cov(idir)/gamma;
+      }
+      q_matrix(icharge,0) = q0;
+    }
+
+    //store the q matrix
+    for(int icharge=0; icharge<3; ++icharge)
+    for(int idir=0; idir<4; ++idir)
+      device_hydro_diffusion.access(is, ia, hydro_info::diffusion, icharge, idir) = q_matrix(icharge,idir);
+
+    
 
  
   };
@@ -185,6 +218,7 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
   milne::Vector<double,D> delta_i_eta = milne::delta_i_eta<D>();
   CREATE_VIEW(device_,sysPtr->cabana_particles);
   bool using_shear = settingsPtr->using_shear; 
+  bool using_diffusion = settingsPtr->using_diffusion;
   auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, sysPtr->cabana_particles.size());
   //calculate the M,R,F matrices due to shear, when using shear
   if(using_shear){
@@ -221,9 +255,6 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
     double phi3 = device_hydro_scalar.access(is, ia, hydro_info::phi3);
     double lambda_Pipi = device_hydro_scalar.access(is, ia, hydro_info::lambda_Pipi);
     double j0_ext = device_hydro_scalar.access(is, ia, hydro_info::j0_ext);
-    double rhoQ_ext = device_hydro_scalar.access(is, ia, hydro_info::rho_Q_ext);
-    double rhoS_ext = device_hydro_scalar.access(is, ia, hydro_info::rho_S_ext);
-    double rhoB_ext = device_hydro_scalar.access(is, ia, hydro_info::rho_B_ext);
     //auxiliary zeta tilde to control IR or DNMR
     double zeta_tilde  = zeta +  a*(delta_PiPi - tau_Pi)*bulk;
     //declare caches
@@ -231,8 +262,10 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
     milne::Vector<double,D> M_extensive_bulk_aux, M_shv_nabla_u, M_extensive_entropy;
     milne::Vector<double,3> R_extensive_entropy, R_extensive_bulk, F_extensive_N;
     milne::Matrix<double,D,D> gradV, grad_uj;
-    milne::Matrix<double,3,3> R_extensive_N;
+
     milne::Matrix<double,4,4> shv, shv_hybrid, shv_cov;
+
+
     //fill caches
     for(int idir=0; idir<D; ++idir){  
       u(idir) = device_hydro_vector.access(is, ia, hydro_info::u, idir);
@@ -263,14 +296,8 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
     //auxiliary array to store muB, muS, muQ
     milne::Vector<double,3> mu_vec = {muB, muS, muQ};
     //auxiliary array to store rho_ext
-    milne::Vector<double,3> rho_ext = {rhoB_ext, rhoS_ext, rhoQ_ext};
-
     
-    //double j0_ext =0.;
-    //milne::Vector<double,D> j_ext;
-    //for(int idir=0; idir<D; ++idir){
-    //  j_ext(idir) = 0.;
-    //}
+
 
     //fill M matrices
     for(int idir=0; idir<D; ++idir){
@@ -282,29 +309,24 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
     };
     //fill R matrices
     for(int icharge=0; icharge<3; ++icharge){
-      R_extensive_entropy(icharge) = -gamma*sigma*mu_vec(icharge);
+      R_extensive_entropy(icharge) = -mu_vec(icharge)/T;
       
       R_extensive_bulk(icharge) = 0.0;
-      for(int jcharge=0; jcharge<3; ++jcharge){
-        R_extensive_N(icharge,jcharge) = 0.0;
-      }
-      R_extensive_N(icharge,icharge) += gamma*sigma;
+
     }
     
-    
-  
+
     //fill F matrices
     F_extensive_bulk = -(zeta_tilde*(gamma*divV + gamma/t + geometric_factor)
                   +bulk  - a*phi1*bulk*bulk);
+
+    ///\todo: Check bulk initialization 
     F_extensive_bulk =0.0;
     F_extensive_entropy = ( -bulk*(gamma*divV + gamma/t + geometric_factor)
                     + gamma*j0_ext
                     +milne::contract(u_cov,j_ext))/(sigma*gamma*T);
 
 
-    for(int icharge=0; icharge<3; ++icharge){
-      F_extensive_N(icharge) = rho_ext(icharge);
-    }    
     if(using_shear){ 
       //add contribution from shear MRFs
       double F_shv_nabla_u = device_hydro_scalar.access(is, ia, hydro_info::F_shv_nabla_u);
@@ -331,15 +353,106 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
       device_hydro_vector.access(is, ia, hydro_info::R_extensive_entropy, icharge) = R_extensive_entropy(icharge);
       device_hydro_vector.access(is, ia, hydro_info::F_extensive_N, icharge) = F_extensive_N(icharge);
       device_hydro_vector.access(is, ia, hydro_info::R_extensive_bulk,icharge) = R_extensive_bulk(icharge);
-      for(int jcharge=0; jcharge<3; ++jcharge){
-        device_hydro_space_matrix.access(is, ia, hydro_info::R_extensive_N, icharge, jcharge) = R_extensive_N(icharge,jcharge);
-      }
     }
-   
-  };
 
+
+  };
   Cabana::simd_parallel_for(simd_policy, fill_auxiliary_variables, "fill_auxiliary_variables");
   Kokkos::fence();
+  if(using_diffusion){
+    //calculate the diffusion terms
+    calculate_MRF_diffusion(sysPtr);
+  }
+  //update charge quantities
+  auto compute_charge_derivative = KOKKOS_LAMBDA(const int is, const int ia)
+  {
+    //read relevant quantities
+    double gamma = device_hydro_scalar.access(is, ia, hydro_info::gamma);
+    double sigma = device_hydro_scalar.access(is, ia, hydro_info::sigma);
+    double rhoB = device_thermo.access(is, ia, thermo_info::rhoB);
+    double rhoQ = device_thermo.access(is, ia, thermo_info::rhoQ);
+    double rhoS = device_thermo.access(is, ia, thermo_info::rhoS);
+    double muB = device_thermo.access(is, ia, thermo_info::muB);
+    double muQ = device_thermo.access(is, ia, thermo_info::muQ);
+    double muS = device_thermo.access(is, ia, thermo_info::muS);
+    double j0_ext = device_hydro_scalar.access(is, ia, hydro_info::j0_ext);
+    double rhoQ_ext = device_hydro_scalar.access(is, ia, hydro_info::rho_Q_ext);
+    double rhoS_ext = device_hydro_scalar.access(is, ia, hydro_info::rho_S_ext);
+    double rhoB_ext = device_hydro_scalar.access(is, ia, hydro_info::rho_B_ext);
+
+    //declare caches
+    milne::Vector<double,3> rho_ext;
+    rho_ext = {rhoB_ext, rhoS_ext, rhoQ_ext};
+    milne::Vector<double,3> grad_qa, div_qa;
+    milne::Vector<double,3> F_extensive_N;
+    milne::Matrix<double,3,4> q;
+    milne::Matrix<double,D,3> M_extensive_N;
+    milne::Matrix<double,3,3> R_extensive_N;
+    
+    //fill caches
+    for(int icharge=0; icharge<3; ++icharge){
+      for(int idir=0; idir<4; ++idir){
+        q(icharge,idir) = device_hydro_diffusion.access(is, ia, hydro_info::diffusion, icharge, idir);
+      }
+      grad_qa(icharge) = device_hydro_vector.access(is, ia, hydro_info::grad_qa, icharge);
+      div_qa(icharge) = device_hydro_vector.access(is, ia, hydro_info::div_qa, icharge);
+    }
+   //fill R matrices
+    for(int icharge=0; icharge<3; ++icharge){
+      for(int jcharge=0; jcharge<3; ++jcharge){
+        R_extensive_N(icharge,jcharge) = 0.0;
+      }
+    }
+
+   for(int icharge=0; icharge<3; ++icharge){
+
+     R_extensive_N(icharge,icharge) += gamma*sigma;
+     F_extensive_N(icharge) = rho_ext(icharge);
+   }  
+
+   for(int idir=0; idir<D; ++idir){
+     for(int icharge=0; icharge<3; ++icharge){
+       M_extensive_N(idir,icharge) = 0.0;
+     }
+   }
+   
+
+   //calculate diffusion
+   if(using_diffusion){
+    for(int idir=0; idir<D; ++idir){
+      for(int icharge=0; icharge<3; ++icharge){
+        M_extensive_N(idir,icharge) += -device_hydro_space_matrix.access(is, ia, hydro_info::M_q0_j_a, idir, icharge);
+      }
+    }
+    for(int icharge=0; icharge<3; ++icharge){
+      for(int jcharge=0; jcharge<3; ++jcharge){
+        R_extensive_N(icharge,jcharge) += -device_hydro_space_matrix.access(is, ia, hydro_info::R_q0_a_b, icharge, jcharge);
+      }
+      F_extensive_N(icharge) += -device_hydro_vector.access(is, ia, hydro_info::F_q0_a, icharge)
+                                 + grad_qa(icharge) -div_qa(icharge)- q(icharge,0)/t;
+      //std::cout << "F_extensive_N(" << icharge << ") = " << F_extensive_N(icharge) << std::endl;
+      //std::cout << "grad_qa(" << icharge << ") = " << grad_qa(icharge) << std::endl;
+      //std::cout << "div_qa(" << icharge << ") = " << div_qa(icharge) << std::endl;
+      //std::cout << "q(" << icharge << ",0) = " << q(icharge,0) << std::endl;
+    }
+   }
+
+   //store charge related quantities    
+   for(int icharge=0; icharge<3; ++icharge){
+     device_hydro_vector.access(is, ia, hydro_info::F_extensive_N, icharge) = F_extensive_N(icharge);
+     for(int jcharge=0; jcharge<3; ++jcharge){
+       device_hydro_space_matrix.access(is, ia, hydro_info::R_extensive_N, icharge, jcharge) = R_extensive_N(icharge,jcharge);
+     }
+     for(int idir=0; idir<D; ++idir){
+       device_hydro_space_matrix.access(is, ia, hydro_info::M_extensive_N, idir, icharge) = M_extensive_N(idir,icharge);
+     }
+   }
+  };
+  Cabana::simd_parallel_for(simd_policy, compute_charge_derivative, "compute_charge_derivative");
+  Kokkos::fence();
+
+
+
   //calculate du/dt
   auto compute_velocity_derivative = KOKKOS_LAMBDA(const int is, const int ia)
   { 
@@ -450,7 +563,7 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
       milne::Matrix<double,D,3> R_u;
       for(int idir=0; idir<D; ++idir){
         for(int icharge=0; icharge<3; ++icharge){
-          R_u(idir,icharge) = -u(idir)*gamma*(R_w(icharge) + R_extensive_bulk(icharge));
+          R_u(idir,icharge) = -u(idir)*gamma*(R_w(icharge) + R_extensive_bulk(icharge)*sigma);
         }
       }
       //add the contribution from the shear MRFs
@@ -460,7 +573,7 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
           F_u(idir) +=  -shv(idir+1,0)/t - 2.*delta_i_eta(idir)*shv(0,3)/t 
                         -divshear(idir) + gradshear(idir) -F_0i_shear(idir);
           for(int icharge=0; icharge<3; ++icharge){
-            R_u(idir,icharge) += -R_0i_shear(idir,icharge);
+            R_u(idir,icharge) += -R_0i_shear(idir,icharge)*sigma;
           }
           for(int jdir=0; jdir<D; ++jdir){
             M_u(idir,jdir) += M_0i_shear(idir,jdir);
@@ -472,22 +585,26 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
      milne::Matrix<double,D,D> aux_MR;
      milne::Vector<double,D> aux_FR;
      milne::Matrix<double,3,3> RI = milne::inverse(R_extensive_N);
+     //print RI
+     //std::cout << "   = "  << RI(1,0) << " " << RI(1,1) << " " << RI(1,2) << std::endl;
+     //std::cout << "RI = "  << RI(0,0) << " " << RI(0,1) << " " << RI(0,2) << std::endl;
+     //std::cout << "   = "  << RI(2,0) << " " << RI(2,1) << " " << RI(2,2) << std::endl;
 
      for(int idir=0; idir<D; ++idir){
-       aux_FR(idir) = 0.0;
-       for(int jdir=0; jdir<D; ++jdir){
-          aux_MR(idir,jdir) = 0.0;
-          for(int icharge=0; icharge<3; ++icharge){
-            for(int jcharge=0; jcharge<3; ++jcharge){
-              aux_MR(idir,jdir) += R_u(idir,icharge)*RI(icharge,jcharge)*M_extensive_N(jdir,jcharge);
-            }
+      aux_FR(idir) = 0.0;
+      for(int jdir=0; jdir<D; ++jdir){
+         aux_MR(idir,jdir) = 0.0;
+         for(int icharge=0; icharge<3; ++icharge){
+           for(int jcharge=0; jcharge<3; ++jcharge){
+             aux_MR(idir,jdir) += R_u(idir,icharge)*RI(icharge,jcharge)*M_extensive_N(jdir,jcharge);
+           }
+         }
+       }
+      for(int icharge=0; icharge<3; ++icharge){
+          for(int jcharge=0; jcharge<3; ++jcharge){
+            aux_FR(idir) += R_u(idir,icharge)*RI(icharge,jcharge)*F_extensive_N(jcharge);
           }
-          for(int icharge=0; icharge<3; ++icharge){
-            for(int jcharge=0; jcharge<3; ++jcharge){
-              aux_FR(idir) += R_u(idir,icharge)*RI(icharge,jcharge)*F_extensive_N(jcharge);
-            }
-          }
-        }
+       }       
       };
 
       /// @brief 
@@ -515,6 +632,12 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
     milne::Vector<double,D> M_extensive_entropy, M_extensive_bulk;
     milne::Vector<double,3> F_extensive_N, R_extensive_entropy, R_extensive_bulk;
     milne::Matrix<double,4,4> shv;
+
+    milne::Matrix<double,3,3> d_extensive_q_dt;
+    milne::Matrix<double,3,3> F_q_ib;
+    milne::Matrix3D<double,3,3,3> M_q_ibj;
+    milne::Matrix3D<double,3,3,3> R_q_ibc;
+
     //fill caches
     for(int idir=0; idir<D; ++idir){
       v(idir) = device_hydro_vector.access(is, ia, hydro_info::v, idir);
@@ -536,6 +659,23 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
     u_cov = u;
     u_cov.make_covariant(t2);
 
+    for(int idir=0; idir<3; ++idir){
+      for(int icharge=0; icharge<3; ++icharge){
+        F_q_ib(idir,icharge) = device_hydro_space_matrix.access(is, ia, hydro_info::F_extensive_diffusion_ib, idir, icharge);
+        for(int jdir=0; jdir<3; ++jdir){
+          int linear_index = icharge * 3 + jdir;
+          M_q_ibj(idir,icharge,jdir) = device_hydro_diffusion_aux_matrix.access(is, ia, hydro_info::M_extensive_diffusion_ibj, idir, linear_index);
+        }
+        for(int jcharge=0; jcharge<3; ++jcharge){
+          int linear_index = icharge * 3 + jcharge;   
+          R_q_ibc(idir,icharge,jcharge) =device_hydro_diffusion_aux_matrix.access(is, ia, hydro_info::R_extensive_diffusion_ibc, idir, linear_index);
+        }
+      }
+    }
+
+
+
+
     //Calculate the extensive charges derivatives
     milne::Vector<double,3> MU_aux;
     for(int icharge=0; icharge<3; ++icharge){
@@ -551,13 +691,69 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
       }
     }
     R_N_inv = milne::inverse(R_N_inv); 
-    milne::Vector<double,3> dN_dt = R_N_inv*(F_extensive_N + MU_aux);
+
+    //std::cout << "F_extensive_N: " << F_extensive_N(0) << " " << F_extensive_N(1) << " " << F_extensive_N(2) << std::endl;
+    //std::cout << "MU_aux: " << MU_aux(0) << " " << MU_aux(1) << " " << MU_aux(2) << std::endl;
+
+    milne::Vector<double,3> dN_dt;// = R_N_inv*(F_extensive_N + MU_aux);
+    for(int icharge=0; icharge<3; ++icharge){
+      dN_dt(icharge) = 0.;
+      for(int jcharge=0; jcharge<3; ++jcharge){
+        dN_dt(icharge) += R_N_inv(icharge,jcharge)*(F_extensive_N(jcharge) + MU_aux(jcharge));
+      }
+    }
+
+    //std::cout << "dN_dt: " << dN_dt(0) << " " << dN_dt(1) << " " << dN_dt(2) << std::endl;
+
+    if(using_diffusion){
+      //calculate the time derivative of the extensive diffusion
+      for(int idir=0; idir<3; ++idir){
+        for(int icharge=0; icharge<3; ++icharge){
+          d_extensive_q_dt(icharge,idir) = F_q_ib(idir,icharge);
+          for(int jdir=0; jdir<D; ++jdir){
+            d_extensive_q_dt(icharge,idir) += M_q_ibj(idir,icharge,jdir)*du_dt(jdir);
+          }
+          for(int jcharge=0; jcharge<3; ++jcharge){
+            d_extensive_q_dt(icharge,idir) += R_q_ibc(idir,icharge,jcharge)*dN_dt(jcharge);
+            //std::cout << "d_extensive_q_dt: " << d_extensive_q_dt(icharge,idir) << std::endl;
+            
+          }
+          //std::cout << "d_extensive_q_dt: " << d_extensive_q_dt(icharge,idir) << std::endl;
+          
+        }
+        
+      }
+      //store the time derivative of the extensive diffusion
+      for(int idir=0; idir<3; ++idir){
+        for(int icharge=0; icharge<3; ++icharge){
+          device_hydro_space_matrix.access(is, ia, hydro_info::d_extensive_q_dt, icharge, idir) = d_extensive_q_dt(icharge,idir);
+          //device_hydro_space_matrix.access(is, ia, hydro_info::d_extensive_q_dt, idir, icharge) = 0;
+        }
+      }
+    }
+
+
+
 
     // time derivative of ``extensive (extensive) entropy density per particle"
     double d_dt_extensive_s = milne::contract(M_extensive_entropy,du_dt)
                             +device_hydro_scalar.access(is, ia, hydro_info::F_extensive_entropy)
                             +milne::contract(R_extensive_entropy,dN_dt);
-    //if(d_dt_extensive_s > 1e-10){
+    //if  R_extensive_entropy * dN_dt is negaive, print
+    //if(d_dt_extensive_s < 0){
+    //  std::cout << "d_dt_extensive_s: " << d_dt_extensive_s << std::endl;
+    //  std::cout << "R_extensive_entropy: " << R_extensive_entropy(0) << " " << R_extensive_entropy(1) << " " << R_extensive_entropy(2) << std::endl;
+    //  std::cout << "dN_dt: " << dN_dt(0) << " " << dN_dt(1) << " " << dN_dt(2) << std::endl;
+    //  std::cout << "R*DN: " << milne::contract(R_extensive_entropy,dN_dt) << std::endl;
+    //}
+
+    //std::cout << "d_dt_extensive_s: " << d_dt_extensive_s << std::endl;
+    //std::cout << "F_extensive_entropy: " << device_hydro_scalar.access(is, ia, hydro_info::F_extensive_entropy) << std::endl;
+    //std::cout << "M_extensive_entropy: " << M_extensive_entropy(0) << " " << M_extensive_entropy(1) << " " << M_extensive_entropy(2) << std::endl;
+    //std::cout << "R_extensive_entropy: " << R_extensive_entropy(0) << " " << R_extensive_entropy(1) << " " << R_extensive_entropy(2) << std::endl;
+    //std::cout << "milne::contract(R_extensive_entropy,dN_dt)" << milne::contract(R_extensive_entropy,dN_dt) << std::endl;
+    //std::cout << "milne::contract(M_extensive_entropy,du_dt)" << milne::contract(M_extensive_entropy,du_dt) << std::endl;
+    ////if(d_dt_extensive_s > 1e-10){
     //  std::cout << "d_dt_extensive_s: " << d_dt_extensive_s << std::endl;
     //}
 	  //time derivative of the extensive bulk pressure
@@ -612,6 +808,7 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
       }
       
     }
+    
 
 
 	  //formulating simple setup for Beta_Bulk derivative
@@ -727,6 +924,10 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr)
     //fill remaning dimensions
     for(int idir=D; idir<3; ++idir){
       fixed_size_u(idir) = 0.0;
+    }
+    if (D==1) {
+      fixed_size_u(2) = u(0);
+      fixed_size_u(0) = 0.0;
     }
 
     for(int idir=0; idir<4; ++idir)
@@ -907,13 +1108,12 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr)
         }
         //diagonal i = k terms
         //the if avoids the case when i>k (for D=1)
+        ueta = fixed_size_u(2);
         if (D==1){
-          ueta = fixed_size_u(0);
           M_sigma(0,jdir,0) += -gamma*fixed_size_u(jdir)/2.;
         }
         else{
           M_sigma(idir,jdir,idir) += -gamma*fixed_size_u(jdir)/2.;
-          ueta = fixed_size_u(2);
         }
       }
       //diagonal j=k terms
@@ -978,6 +1178,416 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr)
   Cabana::simd_parallel_for(simd_policy, compute_MRF_shear, "compute_MRF_shear");
   Kokkos::fence();
 };
+
+
+template <unsigned int D>
+void EoM_default<D>::calculate_MRF_diffusion(std::shared_ptr<SystemState<D>> sysPtr)
+{
+
+  double t = (sysPtr->t);
+  double t2 = t*t;
+  //auxiliary metric variables
+  milne::Vector<double,D> delta_i_eta = milne::delta_i_eta<D>();
+  milne::Vector<double,3> full_delta_i_eta = milne::delta_i_eta<3>();
+  milne::Vector<double,4> contra_metric_diag = milne::get_contra_metric_diagonal<3>(t);
+  //std::cout<<"Starting metric variables"<<std::endl;
+  CREATE_VIEW(device_,sysPtr->cabana_particles);
+  auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, sysPtr->cabana_particles.size());
+  auto compute_MRF_diffusion = KOKKOS_LAMBDA(const int is, const int ia)
+  {
+    double sigma = device_hydro_scalar.access(is, ia, hydro_info::sigma);
+    double gamma = device_hydro_scalar.access(is, ia, hydro_info::gamma);
+    double a= device_hydro_scalar.access(is, ia, hydro_info::a);
+    double s = device_thermo.access(is, ia, thermo_info::s);
+    double rhoB = device_thermo.access(is, ia, thermo_info::rhoB);
+    double rhoS = device_thermo.access(is, ia, thermo_info::rhoS);
+    double rhoQ = device_thermo.access(is, ia, thermo_info::rhoQ);
+    double F_S = device_hydro_scalar.access(is, ia, hydro_info::F_extensive_entropy);
+    double dalpha_Bds = device_thermo.access(is, ia, thermo_info::dalpha_Bds);
+    double dalpha_Sds = device_thermo.access(is, ia, thermo_info::dalpha_Sds);
+    double dalpha_Qds = device_thermo.access(is, ia, thermo_info::dalpha_Qds);
+    double dalpha_BdB = device_thermo.access(is, ia, thermo_info::dalpha_BdB);
+    double dalpha_SdB = device_thermo.access(is, ia, thermo_info::dalpha_SdB);
+    double dalpha_QdB = device_thermo.access(is, ia, thermo_info::dalpha_QdB);
+    double dalpha_BdS = device_thermo.access(is, ia, thermo_info::dalpha_BdS);
+    double dalpha_SdS = device_thermo.access(is, ia, thermo_info::dalpha_SdS);
+    double dalpha_QdS = device_thermo.access(is, ia, thermo_info::dalpha_QdS);
+    double dalpha_BdQ = device_thermo.access(is, ia, thermo_info::dalpha_BdQ);
+    double dalpha_SdQ = device_thermo.access(is, ia, thermo_info::dalpha_SdQ);
+    double dalpha_QdQ = device_thermo.access(is, ia, thermo_info::dalpha_QdQ);
+
+    //declare caches  
+    double ueta = 0;
+    double divV = 0;
+    double extensive_entropy = s;
+    milne::Vector<double,3> extensive_rho = {rhoB, rhoS, rhoQ};
+    milne::Vector<double,D> u, u_cov;
+    //fixed size
+    milne::Vector<double,3> M_S;
+
+    milne::Vector<double,3> R_S;
+    milne::Vector<double,3> fixed_size_u;
+    milne::Vector<double,3> div_qa; 
+    milne::Vector<double,3> grad_qa; 
+    milne::Matrix<double,3,3> grad_alpha_a;  
+    milne::Matrix<double, 3, 3>  tau_q; 
+    milne::Matrix<double, 3, 3>  kappa_q;
+    milne::Matrix<double,3,4> q;
+
+    //fill by hand
+    milne::Vector<double,3> dalpha_i_ds = {dalpha_Bds, dalpha_Sds, dalpha_Qds};
+    milne::Matrix<double, 3, 3> dalpha_i_drho_j;
+    dalpha_i_drho_j(0,0) = dalpha_BdB;  dalpha_i_drho_j(0,1) = dalpha_BdS;  dalpha_i_drho_j(0,2) = dalpha_BdQ;
+    dalpha_i_drho_j(1,0) = dalpha_SdB;  dalpha_i_drho_j(1,1) = dalpha_SdS;  dalpha_i_drho_j(1,2) = dalpha_SdQ;
+    dalpha_i_drho_j(2,0) = dalpha_QdB;  dalpha_i_drho_j(2,1) = dalpha_QdS;  dalpha_i_drho_j(2,2) = dalpha_QdQ;
+    //print the matrix
+
+    
+  
+
+    //quantites to be filled
+
+    milne::Vector<double,3> F_0_D_b;
+    milne::Vector<double,3> F_0_alpha_b;
+    milne::Vector<double,3> A_0_alpha_b;    
+    milne::Matrix<double,3,3> R_0_alpha_bc;
+    milne::Matrix<double,3,D> M_0_alpha_bj;
+    milne::Matrix<double,3,D> M_0_D_bj;
+
+    //0 quantites final
+    milne::Vector<double,3> F_0_q_b;
+    milne::Matrix<double,3,3> R_0_q_bc;
+    milne::Matrix<double,3,D> M_0_q_bj;
+
+
+    milne::Matrix<double,3,3> F_alpha_ib;
+    milne::Matrix<double,3,3> F_D_ib;
+    milne::Matrix<double,3,3> A_alpha_ib;
+    milne::Matrix3D<double,3,3,3> M_D_ibj;
+    milne::Matrix3D<double,3,3,3> M_alpha_ibj;
+    milne::Matrix3D<double,3,3,3> R_alpha_ibc;
+
+    //final quantities
+    milne::Matrix<double,3,3> F_q_ib;
+    milne::Matrix3D<double,3,3,3> M_q_ibj;
+    milne::Matrix3D<double,3,3,3> R_q_ibc;
+
+    //fill caches
+    for(int idir=0; idir<D; ++idir){
+      M_S(idir) = device_hydro_vector.access(is, ia, hydro_info::M_extensive_entropy, idir);
+      u(idir) = device_hydro_vector.access(is, ia, hydro_info::u, idir);
+      fixed_size_u(idir) = u(idir);
+      divV += device_hydro_space_matrix.access(is, ia, hydro_info::gradV, idir, idir);
+      for(int icharge=0; icharge<3; ++icharge){
+        grad_alpha_a(idir,icharge) = device_hydro_space_matrix.access(is, ia, hydro_info::grad_alpha_a, idir, icharge);
+      }
+    }
+    //fill remaning dimensions
+    for(int idir=D; idir<3; ++idir){
+      M_S(idir) = 0.0; //needed for simplicity
+      fixed_size_u(idir) = 0.0;
+      for(int icharge=0; icharge<3; ++icharge){
+        grad_alpha_a(idir,icharge) = 0.0;
+      }
+    }
+    //print grad_alpha matrix
+
+    for(int icharge=0; icharge<3; ++icharge){
+      R_S(icharge) = device_hydro_vector.access(is, ia, hydro_info::R_extensive_entropy, icharge);
+      div_qa(icharge) = device_hydro_vector.access(is, ia, hydro_info::div_qa, icharge);
+      grad_qa(icharge) = device_hydro_vector.access(is, ia, hydro_info::grad_qa, icharge);
+      for(int jcharge=0; jcharge<3; ++jcharge){
+        tau_q(icharge,jcharge) = device_hydro_space_matrix.access(is, ia, hydro_info::tau_q, icharge, jcharge);
+        kappa_q(icharge,jcharge) = device_hydro_space_matrix.access(is, ia, hydro_info::kappa_q, icharge, jcharge);
+        //std::cout<<"tau_q("<<icharge<<","<<jcharge<<") = "<<tau_q(icharge,jcharge)<<std::endl;
+        //std::cout<<"kappa_q("<<icharge<<","<<jcharge<<") = "<<kappa_q(icharge,jcharge)<<std::endl;
+      }
+      //fill diffusion
+      for(int idir=0; idir<4; ++idir){
+        q(icharge,idir) = device_hydro_diffusion.access(is, ia, hydro_info::diffusion, icharge, idir);
+      }
+    }
+    //print kappa_q
+    //std::cout<<"kappa_q = "<<kappa_q<<std::endl;
+
+
+    milne::Matrix<double,3,4> q_cov;
+    //aux diffusion for each charge (only space part)
+    milne::Vector<double,3> q_cov_aux_b;
+    milne::Vector<double,3> q_cov_aux_q;
+    milne::Vector<double,3> q_cov_aux_s;
+    for(int idir=0; idir<3; ++idir){
+      q_cov_aux_b(idir) = device_hydro_diffusion.access(is, ia, hydro_info::diffusion, 0, idir+1);
+      q_cov_aux_s(idir) = device_hydro_diffusion.access(is, ia, hydro_info::diffusion, 1, idir+1);
+      q_cov_aux_q(idir) = device_hydro_diffusion.access(is, ia, hydro_info::diffusion, 2, idir+1);
+    }
+    q_cov_aux_b.make_covariant(t2);
+    q_cov_aux_s.make_covariant(t2);
+    q_cov_aux_q.make_covariant(t2);
+    //reconstruct the diffusion matrix
+    for(int idir=0; idir<3; ++idir){
+      q_cov(0,idir+1) = q_cov_aux_b(idir);
+      q_cov(1,idir+1) = q_cov_aux_s(idir);
+      q_cov(2,idir+1) = q_cov_aux_q(idir);
+    }
+    q_cov(0,0) = q(0,0);
+    q_cov(1,0) = q(1,0);
+    q_cov(2,0) = q(2,0);
+    //print q and qcov
+
+
+    //calculate aux quantities
+    u_cov = u;
+    u_cov.make_covariant(t2);
+    double geometric_factor = delta_i_eta(D-1)*u(D-1)*u(D-1)*t/gamma;
+    
+    //fixed size u cov
+    milne::Vector<double,3> fixed_size_u_cov = fixed_size_u;
+    fixed_size_u_cov.make_covariant(t2);
+
+
+    //invert the relaxation time matrix
+    milne::Matrix<double,3,3> inv_tau_q = milne::inverse(tau_q);
+    milne::Matrix<double,3,3> inv_tau_tau;
+    milne::Matrix<double,3,3> inv_tau_kappa;
+    for(int icharge=0; icharge<3; ++icharge){
+      for(int jcharge=0; jcharge<3; ++jcharge){
+        inv_tau_tau(icharge,jcharge) = 0.0;
+        inv_tau_kappa(icharge,jcharge) = 0.0;
+        for(int kcharge=0; kcharge<3; ++kcharge){
+          inv_tau_tau(icharge,jcharge) += inv_tau_q(icharge,kcharge)*tau_q(kcharge,jcharge);
+          inv_tau_kappa(icharge,jcharge) += inv_tau_q(icharge,kcharge)*kappa_q(kcharge,jcharge);
+        }
+      }
+    }
+    //put zero to inv_tau_kappa
+    //for(int icharge=0; icharge<3; ++icharge){
+    //  for(int jcharge=0; jcharge<3; ++jcharge){
+    //    inv_tau_kappa(icharge,jcharge) = 0.0;
+    //  }
+    //}
+    //print ALL used variables
+    //if(t != 0.6){
+    //  std::cout<<"sigma "<<sigma<<std::endl;
+    //  std::cout<<"gamma "<<gamma<<std::endl;
+    //  std::cout<<"geometric_factor "<<geometric_factor<<std::endl;
+    //  std::cout<<"q: "<<q(0,0)<<" "<<q(1,0)<<" "<<q(2,0)<<std::endl;
+    //  std::cout<<" : "<<q(0,1)<<" "<<q(1,1)<<" "<<q(2,1)<<std::endl;
+    //  std::cout<<" : "<<q(0,2)<<" "<<q(1,2)<<" "<<q(2,2)<<std::endl;
+    //  std::cout<<" : "<<q(0,3)<<" "<<q(1,3)<<" "<<q(2,3)<<std::endl;
+    //  std::cout<<"q_cov: "<<q_cov(0,0)<<" "<<q_cov(1,0)<<" "<<q_cov(2,0)<<std::endl;
+    //  std::cout<<"     : "<<q_cov(0,1)<<" "<<q_cov(1,1)<<" "<<q_cov(2,1)<<std::endl;
+    //  std::cout<<"     : "<<q_cov(0,2)<<" "<<q_cov(1,2)<<" "<<q_cov(2,2)<<std::endl;
+    //  std::cout<<"     : "<<q_cov(0,3)<<" "<<q_cov(1,3)<<" "<<q_cov(2,3)<<std::endl;
+    //  std::cout<<"u: "<<u(0)<<" "<<u(1)<<" "<<u(2) <<std::endl;
+    //  std::cout<<"u_cov: "<<u_cov(0)<<" "<<u_cov(1)<<" "<<u_cov(2) <<std::endl;
+    //  std::cout<<"fixed_size_u: "<<fixed_size_u(0)<<" "<<fixed_size_u(1)<<" "<<fixed_size_u(2) <<  fixed_size_u(3) <<std::endl;
+    //  std::cout<<"fixed_size_u_cov: "<<fixed_size_u_cov(0)<<" "<<fixed_size_u_cov(1)<<" "<<fixed_size_u_cov(2) <<  fixed_size_u_cov(3) <<std::endl;
+    //  std::cout<<"M_S: "<<M_S(0)<<" "<<M_S(1)<<" "<<M_S(2) <<std::endl;
+    //  std::cout<<"R_S: "<<R_S(0)<<" "<<R_S(1)<<" "<<R_S(2) <<std::endl;
+    //  std::cout<< "F_S "<<F_S<<std::endl;
+    //  std::cout<< "dalpha_i_ds "<<dalpha_i_ds(0)<<" "<<dalpha_i_ds(1)<<" "<<dalpha_i_ds(2)<<std::endl;
+    //  std::cout<< "dalpha_i_drho_j :"<<dalpha_i_drho_j(0,0)<<" "<<dalpha_i_drho_j(0,1)<<" "<<dalpha_i_drho_j(0,2)<<std::endl;
+    //  std::cout<< " : "<<dalpha_i_drho_j(1,0)<<" "<<dalpha_i_drho_j(1,1)<<" "<<dalpha_i_drho_j(1,2)<<std::endl;
+    //  std::cout<< " : "<<dalpha_i_drho_j(2,0)<<" "<<dalpha_i_drho_j(2,1)<<" "<<dalpha_i_drho_j(2,2)<<std::endl;
+    //  std::cout<< "tau_q: "<<tau_q(0,0)<<" "<<tau_q(0,1)<<" "<<tau_q(0,2)<<std::endl;
+    //  std::cout<< " : "<<tau_q(1,0)<<" "<<tau_q(1,1)<<" "<<tau_q(1,2)<<std::endl;
+    //  std::cout<< " : "<<tau_q(2,0)<<" "<<tau_q(2,1)<<" "<<tau_q(2,2)<<std::endl;
+    //  std::cout<< "kappa_q: "<<kappa_q(0,0)<<" "<<kappa_q(0,1)<<" "<<kappa_q(0,2)<<std::endl;
+    //  std::cout<< " : "<<kappa_q(1,0)<<" "<<kappa_q(1,1)<<" "<<kappa_q(1,2)<<std::endl;
+    //  std::cout<< " : "<<kappa_q(2,0)<<" "<<kappa_q(2,1)<<" "<<kappa_q(2,2)<<std::endl;
+    //  std::cout<< "inv_tau_tau: "<<inv_tau_tau(0,0)<<" "<<inv_tau_tau(0,1)<<" "<<inv_tau_tau(0,2)<<std::endl;
+    //  std::cout<< " : "<<inv_tau_tau(1,0)<<" "<<inv_tau_tau(1,1)<<" "<<inv_tau_tau(1,2)<<std::endl;
+    //  std::cout<< " : "<<inv_tau_tau(2,0)<<" "<<inv_tau_tau(2,1)<<" "<<inv_tau_tau(2,2)<<std::endl;
+    //  std::cout<< "inv_tau_kappa: "<<inv_tau_kappa(0,0)<<" "<<inv_tau_kappa(0,1)<<" "<<inv_tau_kappa(0,2)<<std::endl;
+    //  std::cout<< " : "<<inv_tau_kappa(1,0)<<" "<<inv_tau_kappa(1,1)<<" "<<inv_tau_kappa(1,2)<<std::endl;
+    //  std::cout<< " : "<<inv_tau_kappa(2,0)<<" "<<inv_tau_kappa(2,1)<<" "<<inv_tau_kappa(2,2)<<std::endl;
+    //  std::cout<< "divV "<<divV<<std::endl;
+    //  std::cout<< "extensive_entropy "<<extensive_entropy<<std::endl;
+    //  std::cout<< "extensive_rho "<<extensive_rho(0)<<" "<<extensive_rho(1)<<" "<<extensive_rho(2)<<std::endl;
+    //  std::cout<< "grad_alpha_a "<<grad_alpha_a(0,0)<<" "<<grad_alpha_a(0,1)<<" "<<grad_alpha_a(0,2)<<std::endl;
+    //  std::cout<< " : "<<grad_alpha_a(1,0)<<" "<<grad_alpha_a(1,1)<<" "<<grad_alpha_a(1,2)<<std::endl;
+    //  std::cout<< " : "<<grad_alpha_a(2,0)<<" "<<grad_alpha_a(2,1)<<" "<<grad_alpha_a(2,2)<<std::endl;
+    //  std::cout<< "Contra metric diag "<<contra_metric_diag(0)<<" "<<contra_metric_diag(1)<<" "<<contra_metric_diag(2)<<std::endl;
+    //  std::cout<< "delta_i_eta "<<delta_i_eta(0)<<" "<<delta_i_eta(1)<<" "<<delta_i_eta(2)<<std::endl;
+    //}
+
+    //fill the zero matrix
+    for(int icharge=0; icharge<3; ++icharge){
+      F_0_D_b(icharge) = gamma*gamma*geometric_factor*q(icharge,0)
+                        +2.*gamma*gamma*q_cov(icharge,3)*fixed_size_u_cov(2)/t
+                        +t*gamma*q_cov(icharge,0)*fixed_size_u_cov(2)*fixed_size_u_cov(2)
+                        +t*fixed_size_u(2)*q(icharge,3);
+
+      F_0_alpha_b(icharge) = (1.-gamma*gamma)*sigma*dalpha_i_ds(icharge)*F_S;
+
+      A_0_alpha_b(icharge) = -(1.-gamma*gamma)*dalpha_i_ds(icharge)*extensive_entropy/gamma;
+
+
+      for(int idir=0; idir<D; ++idir){
+        M_0_D_bj(icharge,idir) = gamma*gamma*(q_cov(icharge,idir+1)
+                                 -q_cov(icharge,0)*u_cov(idir)/gamma);
+        M_0_alpha_bj(icharge,idir) = (1.-gamma*gamma)*sigma*dalpha_i_ds(icharge)
+                                      *M_S(idir);
+        F_0_alpha_b(icharge) +=  -grad_alpha_a(idir,icharge)*u(idir)/gamma;
+
+      }
+
+      for(int jcharge=0; jcharge<3; ++jcharge){
+        R_0_alpha_bc(icharge,jcharge) = (1.-gamma*gamma)*sigma*(
+                                        dalpha_i_ds(icharge)*R_S(jcharge)
+                                        +dalpha_i_drho_j(icharge,jcharge));
+        A_0_alpha_b(icharge) += -(1.-gamma*gamma)*dalpha_i_drho_j(icharge,jcharge)
+                                        *extensive_rho(jcharge)/gamma;
+      }
+
+
+    } 
+  
+    //fill quantities
+    for(int icharge=0; icharge<3; ++icharge){    
+      F_0_q_b(icharge) =  0.0;
+      for(int idir=0; idir<D; ++idir){
+        M_0_q_bj(icharge,idir) = 0;
+        for(int jcharge=0; jcharge<3; ++jcharge){ 
+          M_0_q_bj(icharge,idir) += (-inv_tau_tau(icharge,jcharge)*M_0_D_bj(jcharge,idir)
+                                    +inv_tau_kappa(icharge,jcharge)*M_0_alpha_bj(jcharge,idir)
+                                    -inv_tau_kappa(icharge,jcharge)*A_0_alpha_b(jcharge)*u_cov(idir)/gamma)/(gamma)
+                                    +inv_tau_tau(icharge,jcharge)*q(jcharge,0)*u_cov(idir)/gamma/gamma;
+        }
+      }
+      for(int jcharge=0; jcharge<3; ++jcharge){
+        F_0_q_b(icharge) += (-inv_tau_tau(icharge,jcharge)*F_0_D_b(jcharge)
+                              -inv_tau_q(icharge,jcharge)*q(jcharge,0)
+                              +inv_tau_kappa(icharge,jcharge)*F_0_alpha_b(jcharge)
+                              +inv_tau_kappa(icharge,jcharge)*A_0_alpha_b(jcharge)*(gamma*divV+geometric_factor+gamma/t)
+                              )/(gamma)
+                            -inv_tau_tau(icharge,jcharge)*q(jcharge,0)*(gamma*divV+geometric_factor+gamma/t)/gamma;
+        //std::cout<<"inv_tau_tau("<<icharge<<","<<jcharge<<") "<<inv_tau_tau(icharge,jcharge)<<std::endl;
+        //std::cout<<"inv_tau_q("<<icharge<<","<<jcharge<<") "<<inv_tau_q(icharge,jcharge)<<std::endl;
+        //std::cout<<"inv_tau_kappa("<<icharge<<","<<jcharge<<") "<<inv_tau_kappa(icharge,jcharge)<<std::endl;
+
+        R_0_q_bc(icharge,jcharge) = 0.0;
+        for(int kcharge=0; kcharge<3; ++kcharge){
+          R_0_q_bc(icharge,jcharge) += inv_tau_kappa(icharge,kcharge)*R_0_alpha_bc(kcharge,jcharge)/(gamma);
+        }
+      }
+
+    }
+    //store the results
+    for(int icharge=0; icharge<3; ++icharge){
+      device_hydro_vector.access(is, ia, hydro_info::F_q0_a, icharge) = F_0_q_b(icharge);
+      //std::cout<<"F_0_q_b "<<F_0_q_b(icharge)<<std::endl;
+      for(int jcharge=0; jcharge<3; ++jcharge){
+        device_hydro_space_matrix.access(is, ia, hydro_info::R_q0_a_b, icharge, jcharge) = R_0_q_bc(icharge,jcharge);
+        //std::cout<<"R_0_q_bc("<<icharge<<","<<jcharge<<") "<<R_0_q_bc(icharge,jcharge)<<std::endl;
+      }
+      for(int idir=0; idir<D; ++idir){
+        device_hydro_space_matrix.access(is, ia, hydro_info::M_q0_j_a, idir, icharge) = M_0_q_bj(icharge,idir);
+        //std::cout<<"M_0_q_bj("<<icharge<<","<<idir<<") "<<M_0_q_bj(icharge,idir)<<std::endl;
+      }
+    }
+
+    //shift the indices if D=1
+    if (D==1) {
+      fixed_size_u(2) = u(0);
+      fixed_size_u(0) = 0.0;
+      fixed_size_u_cov(2) = u_cov(0);
+      fixed_size_u_cov(0) = 0.0;
+      double M_aux = M_S(0);
+      M_S(2) = M_aux;
+      M_S(0) = 0.0;
+      for(int icharge=0; icharge<3; ++icharge){
+        double grad_alpha_aux = grad_alpha_a(0,icharge);
+        grad_alpha_a(2,icharge) = grad_alpha_aux;
+        grad_alpha_a(0,icharge) = 0.0;
+      }
+    }
+
+
+    for(int idir=0; idir<3; ++idir){
+      for(int icharge=0; icharge<3; ++icharge){
+
+        F_D_ib(idir,icharge) = fixed_size_u(idir)*gamma*q(icharge,0)*geometric_factor
+                          +2.*fixed_size_u(idir)*q_cov(icharge,3)*fixed_size_u_cov(2)*gamma/t;
+                          +t*fixed_size_u(idir)*q_cov(icharge,0)*fixed_size_u_cov(2)*fixed_size_u_cov(2)
+                          +full_delta_i_eta(idir)*(fixed_size_u(2)*q(icharge,0)+gamma*q(icharge,3))/t;
+        F_alpha_ib(idir,icharge) = -fixed_size_u(idir)*gamma*sigma*dalpha_i_ds(icharge)*F_S
+                                   +contra_metric_diag(idir+1)*grad_alpha_a(idir,icharge);
+        
+        A_alpha_ib(idir,icharge) = fixed_size_u(idir)*dalpha_i_ds(icharge)*extensive_entropy;
+
+        for(int jdir=0; jdir<3; ++jdir){
+          M_D_ibj(idir,icharge,jdir) = fixed_size_u(idir)*gamma*(q_cov(icharge,jdir+1) 
+                                               -q_cov(icharge,0)*fixed_size_u_cov(jdir)/gamma);
+          M_alpha_ibj(idir,icharge,jdir) = -fixed_size_u(idir)*gamma*sigma*dalpha_i_ds(icharge)
+                                            *M_S(jdir);
+        }
+        for(int jcharge=0; jcharge<3; ++jcharge){
+          R_alpha_ibc(idir,icharge,jcharge) = -fixed_size_u(idir)*gamma*sigma*(
+                                            dalpha_i_ds(icharge)*R_S(jcharge)
+                                            +dalpha_i_drho_j(icharge,jcharge));
+          A_alpha_ib(idir,icharge) += fixed_size_u(idir)*dalpha_i_drho_j(icharge,jcharge)
+                                            *extensive_rho(jcharge); 
+                                            
+        }
+      }
+    }
+
+    //fill the final quantities
+    for(int idir=0; idir<3; ++idir){
+      for(int icharge=0; icharge<3; ++icharge){
+        F_q_ib(idir,icharge) = 0.0;
+        for(int jcharge=0; jcharge<3; ++jcharge){
+          F_q_ib(idir,icharge) += (-inv_tau_tau(icharge,jcharge)*F_D_ib(idir,jcharge)
+                                  -inv_tau_q(icharge,jcharge)*q(jcharge,idir+1)
+                                  +inv_tau_kappa(icharge,jcharge)*F_alpha_ib(idir,jcharge)
+                                  +inv_tau_kappa(icharge,jcharge)*A_alpha_ib(idir,jcharge)*(gamma*divV+geometric_factor+gamma/t)
+                                  )/(gamma*sigma);
+
+
+          R_q_ibc(idir,icharge,jcharge) = 0.0;
+          for(int kcharge=0; kcharge<3; ++kcharge){
+            R_q_ibc(idir,icharge,jcharge) += inv_tau_kappa(icharge,kcharge)*R_alpha_ibc(idir,kcharge,jcharge)/(gamma*sigma);
+          }
+        }
+        for(int jdir=0; jdir<3; ++jdir){
+          M_q_ibj(idir,icharge,jdir) = 0.0;
+          for(int jcharge=0; jcharge<3; ++jcharge){
+            M_q_ibj(idir,icharge,jdir) += (-inv_tau_tau(icharge,jcharge)*M_D_ibj(idir,jcharge,jdir)
+                                          +inv_tau_kappa(icharge,jcharge)*M_alpha_ibj(idir,jcharge,jdir)
+                                          -inv_tau_kappa(icharge,jcharge)*A_alpha_ib(idir,jcharge)*fixed_size_u_cov(jdir)/gamma)/(gamma*sigma);
+          }
+        }
+       
+      }
+    }
+    //store the results
+    for(int idir=0; idir<3; ++idir){
+      for(int icharge=0; icharge<3; ++icharge){
+        device_hydro_space_matrix.access(is, ia, hydro_info::F_extensive_diffusion_ib, idir, icharge) = F_q_ib(idir,icharge);
+        //print components
+        //std::cout<<"F_q_ib("<<idir<<","<<icharge<<") = "<<F_q_ib(idir,icharge)<<std::endl;
+        for(int jdir=0; jdir<3; ++jdir){
+          int linear_index = icharge * 3 + jdir;
+          device_hydro_diffusion_aux_matrix.access(is, ia, hydro_info::M_extensive_diffusion_ibj, idir, linear_index) = M_q_ibj(idir,icharge,jdir);
+          //std::cout<<"M_q_ibj("<<idir<<","<<icharge<<","<<jdir<<") = "<<M_q_ibj(idir,icharge,jdir)<<std::endl;
+        }
+        for(int jcharge=0; jcharge<3; ++jcharge){
+          int linear_index = icharge * 3 + jcharge;
+          device_hydro_diffusion_aux_matrix.access(is, ia, hydro_info::R_extensive_diffusion_ibc, idir, linear_index) = R_q_ibc(idir,icharge,jcharge);
+          //std::cout<<"R_q_ibc("<<idir<<","<<icharge<<","<<jcharge<<") = "<<R_q_ibc(idir,icharge,jcharge)<<std::endl;
+        }
+      }
+    }
+
+
+  };
+  Cabana::simd_parallel_for(simd_policy, compute_MRF_diffusion, "compute_MRF_diffusion");
+  Kokkos::fence();
+};
+
+
 
 
 /// @brief Calculate the knudsen number
@@ -1103,20 +1713,13 @@ void EoM_default<D>::compute_hydro_numbers(std::shared_ptr<SystemState<D>> sysPt
     device_hydro_scalar.access(is, ia, hydro_info::inverse_reynolds_bulk) = abs(bulk)/pressure;
     
   };
-  Cabana::simd_parallel_for(simd_policy, caus, "compute_MRF_shear");
+  Cabana::simd_parallel_for(simd_policy, caus, "compute_knu_and_rey");
   Kokkos::fence();
 };
     
 
 
 
-   
-   
-   
-   
-   
-   
-   
    
 /// @brief Checks causality conditions in the hydrodynamic evolution.
 /// @details Computes the eigenvalues of the shear tensor \(\pi^{\mu\nu}\) and verifies 

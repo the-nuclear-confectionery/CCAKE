@@ -138,6 +138,7 @@ public:
 
   void set_bulk_Pi();
   void calculate_extensive_shv();
+  void set_diffusion();
   bool continue_evolution();
   void advance_timestep( double dt, int rk_order );
   

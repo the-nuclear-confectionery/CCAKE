@@ -60,6 +60,18 @@ struct hydrodynamic_info
   double rho_B_ext       = 0.0; ///< external baryon density
   double j0_ext          = 0.0; ///< external charge current
 
+  Matrix<double, 3, 3>  tau_q; ///< diffusion relaxation time matrix
+  Matrix<double, 3, 3>  kappa_q; ///< diffusion coefficient matrix
+  Matrix<double, 3, 3>  delta_qq; ///< diffusion delta matrix
+  Matrix<double, 3, 3>  l_qpi; ///< diffusion lqpi matrix
+  Matrix<double, 3, 3>  l_qPi; ///< diffusion lqPi matrix
+  Matrix<double, 3, 3>  tau_qpi; ///< diffusion tau_qpi matrix
+  Matrix<double, 3, 3>  tau_qPi; ///< diffusion tau_qPi matrix
+  Matrix<double, 3, 3>  lambda_qq; ///< diffusion lambda_qq matrix
+  Matrix<double, 3, 3>  lambda_qpi; ///< diffusion lambda_qpi matrix
+  Matrix<double, 3, 3>  lambda_qPi; ///< diffusion lambda_qPi matrix
+  Matrix<double, 3, 3>  phi_4; ///< diffusion phi_4 matrix
+  Matrix<double, 3, 3>  phi_5; ///< diffusion phi_5 matrix
 
   // vector members
   Vector<double,D> v;                     ///< velocity
@@ -71,22 +83,38 @@ struct hydrodynamic_info
   Vector<double,D> gradBulk;              ///< Gradient of Bulk Viscosity
   Vector<double,D> divshear, gradshear;
 
+  Vector<double,3> div_qa; ///< divergence of diffusion current
+  Vector<double,3> grad_qa; ///< gradient of diffusion current
+  
+ 
+
 
   Matrix<double,D,D> gradV, gradU;        // Gradient of velocity needed for shear
+  Matrix<double,D,3> grad_alpha_a;        // Gradient of mu needed for diffusion
   Matrix<double,4,4> shv;
   Matrix<double,4,4> sigma_tensor;
+  //diffusion
+  Matrix<double,3,4> diffusion;
+  Matrix<double,3,3> extensive_diffusion;         // charge density matrix
 
   // Auxiliary M matrices
   Vector<double,D> M_extensive_bulk;
   Vector<double,D> M_shv_nabla_u;
   Vector<double,D> M_extensive_entropy;
   Matrix<double,D,D> M_u;
+  
+  Matrix<double,D,3> M_q0_j_a;
+
+
   //one for each conserved charge (baryon, strangeness, electric charge)
   Matrix<double,D,3> M_extensive_N;
+  Matrix<double,3,3> d_extensive_q_dt;
   //one for each independent component of the shear tensor, linearized index
   Matrix<double,2,3*D> M_extensive_shear;
   Matrix<double,2,3*D> M_sigma_tensor;
   Matrix<double,2,3*3> R_extensive_shear;
+  //diffusion, linearized index
+  Matrix<double,3,3*3> M_extensive_diffusion_ibj;
 
   // Auxiliary R matrices
   Vector<double,3> R_extensive_entropy;
@@ -96,18 +124,29 @@ struct hydrodynamic_info
   Matrix<double,D,D> M_0i_shear;
   Matrix<double,D,3> R_u;
 
+  Matrix<double,3,3> R_q0_a_b;
+
+  //diffusionm, linearized index
+  Matrix<double,3,3*3> R_extensive_diffusion_ibc;
+
   // auxiliary F vectors
   double F_extensive_bulk;
   double F_shv_nabla_u;
   double F_extensive_entropy;
   Vector<double,D> F_u;
   Vector<double,D> F_0i_shear;
+
+  Vector<double,3> F_q0_a;
+
+
   //one for each conserved charge (baryon, strangeness, electric charge)
   Vector<double,3> F_extensive_N;
   //one for each independent component of the shear tensor
   Matrix<double,2,3> F_extensive_shear;
   Matrix<double,2,3> extensive_shv;
   Matrix<double,2,3> F_sigma_tensor;
+  //diffusion
+  Matrix<double,3,3> F_extensive_diffusion_ib;
 
 
   // derivatives
@@ -171,6 +210,8 @@ enum hydro_vector_info
   gradBulk,
   divshear,
   gradshear,
+  div_qa,
+  grad_qa,
   M_extensive_bulk,
   M_shv_nabla_u,
   M_extensive_entropy,
@@ -181,21 +222,46 @@ enum hydro_vector_info
   F_0i_shear,
   j_ext,
   du_dt,
+  F_q0_a,
   NUM_HYDRO_VECTOR_INFO
 };
 #define HYDRO_VECTOR_INFO double[ccake::hydro_info::NUM_HYDRO_VECTOR_INFO][3]
 enum hydro_space_matrix_info
 {
   gradV,
+  grad_alpha_a,
   M_u,
   M_extensive_N,
   R_extensive_N,
   R_u,
   R_0i_shear,
   M_0i_shear,
+  tau_q,
+  kappa_q,
+  delta_qq,
+  l_qpi,
+  l_qPi,
+  tau_qpi,
+  tau_qPi,
+  lambda_qq,
+  lambda_qpi,
+  lambda_qPi,
+  phi_4,
+  phi_5,
+  M_q0_j_a,
+  R_q0_a_b,
+  F_extensive_diffusion_ib,
+  d_extensive_q_dt,
+  extensive_diffusion,
   NUM_HYDRO_SPACE_MATRIX_INFO
 };
 #define HYDRO_SPACE_MATRIX_INFO double[ccake::hydro_info::NUM_HYDRO_SPACE_MATRIX_INFO][3][3]
+enum hydro_diffusion_info
+{
+  diffusion,
+  NUM_HYDRO_DIFFUSION_INFO
+};
+#define HYDRO_DIFFUSION_INFO double[ccake::hydro_info::NUM_HYDRO_DIFFUSION_INFO][3][4]
 enum hydro_spacetime_matrix_info
 {
   shv,
@@ -220,7 +286,13 @@ enum hydro_shear_aux_matrix_info
   NUM_HYDRO_SHEAR_AUX_MATRIX_INFO
 };
 #define HYDRO_SHEAR_AUX_MATRIX_INFO double[ccake::hydro_info::NUM_HYDRO_SHEAR_AUX_MATRIX_INFO][2][9]
-
+enum hydro_diffusion_aux_vector_info
+{
+  M_extensive_diffusion_ibj,
+  R_extensive_diffusion_ibc,
+  NUM_HYDRO_DIFFUSION_AUX_MATRIX_INFO
+};
+#define HYDRO_DIFFUSION_AUX_MATRIX_INFO double[ccake::hydro_info::NUM_HYDRO_DIFFUSION_AUX_MATRIX_INFO][3][9]
 
 }}
 

@@ -94,6 +94,19 @@ public:
     double dwdS();
     double dwdQ();
 
+    double dalpha_Bds();
+    double dalpha_BdB();
+    double dalpha_BdS();
+    double dalpha_BdQ();
+    double dalpha_Sds();
+    double dalpha_SdB();
+    double dalpha_SdS();
+    double dalpha_SdQ();
+    double dalpha_Qds();
+    double dalpha_QdB();
+    double dalpha_QdS();
+    double dalpha_QdQ();
+
     void eosin(std::string type);
     double A();
 
@@ -118,7 +131,18 @@ public:
       thermo.dwdB = dwdB();
       thermo.dwdS = dwdS();
       thermo.dwdQ = dwdQ();
-
+      thermo.dalpha_Bds = dalpha_Bds();
+      thermo.dalpha_BdB = dalpha_BdB();
+      thermo.dalpha_BdS = dalpha_BdS();
+      thermo.dalpha_BdQ = dalpha_BdQ();
+      thermo.dalpha_Sds = dalpha_Sds();
+      thermo.dalpha_SdB = dalpha_SdB();
+      thermo.dalpha_SdS = dalpha_SdS();
+      thermo.dalpha_SdQ = dalpha_SdQ();
+      thermo.dalpha_Qds = dalpha_Qds();
+      thermo.dalpha_QdB = dalpha_QdB();
+      thermo.dalpha_QdS = dalpha_QdS();
+      thermo.dalpha_QdQ = dalpha_QdQ();
       if ( print_now )
         cout << __FUNCTION__ << ": " << thermo.eos_name << "   "
             << thermo.T << "   "

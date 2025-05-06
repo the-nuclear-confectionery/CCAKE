@@ -18,6 +18,7 @@ namespace ccake{
 
 
 using EvolverCache = Cabana::MemberTypes<double[4][4], // stress-energy tensor
+                                         double[3][4], // diffusion 
                                          double[3],    // four-velocity
                                          double[3],    // position
                                          double,       // extensive_entropy
@@ -33,6 +34,7 @@ namespace evolver_cache_info
 enum cache_data
 {
   extensive_shear,
+  extensive_diffusion,
   four_velocity,
   position,
   extensive_entropy,
@@ -71,13 +73,21 @@ class Evolver
 
     // creating vectors of quantities for RK evolution
     vector<double> extensive_s0;
+    vector<double> extensive_rhoB0;
+    vector<double> extensive_rhoS0;
+    vector<double> extensive_rhoQ0;
+
+    vector<double> rhoB0;
+    vector<double> rhoS0;
+    vector<double> rhoQ0;
+    
     vector<double> Bulk0;
     vector<double> particles_E0;
 
-    vector< Vector<double,2> > u0;
-    vector< Vector<double,2> > r0;
-
-    vector< Matrix <double,2,2> > shv0;
+    vector< Vector<double,D> > u0;
+    vector< Vector<double,D> > r0;
+    vector< Matrix<double,3,4> > diffusion0;
+    vector< Matrix <double,4,4> > shv0;
 
     void advance_timestep_rk2( double dt,
                                std::function<void(void)> time_derivatives_functional );
