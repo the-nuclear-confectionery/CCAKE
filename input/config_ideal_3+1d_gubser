@@ -1,7 +1,7 @@
 ---
 initial_conditions:
   type: "ccake" # Possible values are: ["ccake", "iccing", "hdf5"]
-  file: "/home/cplumber/test_chain/models/CCAKE/initial_conditions/ideal_gubser.dat" # Path to the initial conditions file
+  file: "/home/cplumber/test_chain/models/CCAKE/initial_conditions/ideal_3+1d_gubser.dat" # Path to the initial conditions file
   t0: 1.000000 # tau0 = \sqrt(t^2-z^2) in fm/c. Must match the value for initial condition file.
   dimension: 3 # (1+1)D, (2+1)D or (3+1)D simulation
   input_as_entropy: false # if false, input will be interpreted as energy density
