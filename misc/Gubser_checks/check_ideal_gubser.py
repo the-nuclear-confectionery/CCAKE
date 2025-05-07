@@ -68,7 +68,7 @@ def uyGubser_yeqx(tau, r):
 def plot_slice(ax, hydroOutput, tau, axis, quantity):
     # c : column of quantity to plot in array
     c = cols[quantity]
-    print('quantity=',quantity)
+    print('quantity =',quantity)
     print('c =',c)
     if axis == '0':
         cf   = [TGubser, eGubser, uxGubser_yeq0, uyGubser_yeq0][c]
@@ -77,6 +77,8 @@ def plot_slice(ax, hydroOutput, tau, axis, quantity):
         xpts = np.linspace(np.amin(yEqAxisData[:,0]), np.amax(yEqAxisData[:,0]), 1001)
         print('Grid center: ',yEqAxisData[np.where( np.abs(yEqAxisData[:,0]) < 1e-6 )])
         print('Analytic center: ',cf(tau, 0.0))
+        print('xpts: ',xpts)
+        print('cf(tau, xpts): ',cf(tau, xpts))
         ax.plot( xpts, cf(tau, xpts), 'b:' )
     elif axis == 'x':
         cf   = [TGubser, eGubser, uxGubser_yeqx, uyGubser_yeqx][c]
@@ -103,7 +105,7 @@ if __name__ == "__main__":
         # (eventually) use format: x [fm], y [fm], e [1/fm^4], u_x, u_y, ...
         frame = event[timestep]
         tau = frame.attrs['Time'][0]
-        print('tau=', tau)
+        print('tau =', tau)
 
         print(frame.keys())
         #exit(1)
