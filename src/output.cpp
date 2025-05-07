@@ -177,11 +177,14 @@ void Output<D>::print_system_state_to_HDF()
   // get width from maximum possible number of timesteps
   const int width = ceil(log10(ceil(settingsPtr->max_tau/settingsPtr->dt)));
 
-  vector<string> dataset_names = {"x", "y", "T", "muB", "muS", "muQ",
-                                  "e", "s", "B", "S", "Q", "ux", "uy"};
-  vector<string> dataset_units = {"fm", "fm", "MeV", "MeV", "MeV", "MeV",
+  vector<string> dataset_names = {"x", "y", "eta", "ux", "uy", "ueta",
+                                  "T", "muB", "muS", "muQ",
+																	"e", "s", "B", "S", "Q"};
+  vector<string> dataset_units = {"fm", "fm", "dimensionless",
+																	"dimensionless", "dimensionless", "1/fm"
+																	"MeV", "MeV", "MeV", "MeV",
                                   "MeV/fm^3", "1/fm^3", "1/fm^3", "1/fm^3",
-                                  "1/fm^3", "dimensionless", "dimensionless"};
+                                  "1/fm^3"};
 
   std::map<string,int> eos_map = {{"table",              0},
                                   {"tanh_conformal",     1},
@@ -193,19 +196,42 @@ void Output<D>::print_system_state_to_HDF()
   vector<int> eos_tags(systemPtr->particles.size());
   for (auto & p : systemPtr->particles)
   {
-    data[0][p.ID]  = p.r(0);
-    data[1][p.ID]  = p.r(1);
-    data[2][p.ID]  = p.T()*hbarc_MeVfm;
-    data[3][p.ID]  = p.muB()*hbarc_MeVfm;
-    data[4][p.ID]  = p.muS()*hbarc_MeVfm;
-    data[5][p.ID]  = p.muQ()*hbarc_MeVfm;
-    data[6][p.ID]  = p.e()*hbarc_MeVfm;
-    data[7][p.ID]  = p.s();
-    data[8][p.ID]  = p.rhoB();
-    data[9][p.ID]  = p.rhoS();
-    data[10][p.ID] = p.rhoQ();
-    data[11][p.ID] = p.hydro.u(0);
-    data[12][p.ID] = p.hydro.u(1);
+		switch (D)
+		{
+      case 1:
+		    data[0][p.ID] = 0.0;
+		    data[1][p.ID] = 0.0;
+		    data[2][p.ID] = p.r(0);
+		    data[3][p.ID] = 0.0;
+		    data[4][p.ID] = 0.0;
+		    data[5][p.ID] = p.hydro.u(0);
+				break;
+      case 2:
+		    data[0][p.ID] = p.r(0);
+		    data[1][p.ID] = p.r(1);
+		    data[2][p.ID] = 0.0;
+		    data[3][p.ID] = p.hydro.u(0);
+		    data[4][p.ID] = p.hydro.u(1);
+		    data[5][p.ID] = 0.0;
+				break;
+      case 3:
+		    data[0][p.ID] = p.r(0);
+		    data[1][p.ID] = p.r(1);
+		    data[2][p.ID] = p.r(2);
+		    data[3][p.ID] = p.hydro.u(0);
+		    data[4][p.ID] = p.hydro.u(1);
+		    data[5][p.ID] = p.hydro.u(2);
+				break;
+		}
+    data[6][p.ID]  = p.T()*hbarc_MeVfm;
+    data[7][p.ID]  = p.muB()*hbarc_MeVfm;
+    data[8][p.ID]  = p.muS()*hbarc_MeVfm;
+    data[9][p.ID]  = p.muQ()*hbarc_MeVfm;
+    data[10][p.ID] = p.e()*hbarc_MeVfm;
+    data[11][p.ID] = p.s();
+    data[12][p.ID] = p.rhoB();
+    data[13][p.ID] = p.rhoS();
+    data[14][p.ID] = p.rhoQ();
     eos_tags[p.ID] = eos_map[ p.get_current_eos_name() ];
   }
 

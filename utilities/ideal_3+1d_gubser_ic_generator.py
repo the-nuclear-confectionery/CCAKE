@@ -14,22 +14,48 @@ def write_header(stepx, stepy, stepEta, xmin, ymin, etamin):
     f.write(f"#0 {stepx} {stepy} {stepEta} 0 {xmin} {ymin} {etamin}\n")
     return f
 
-
+t0 = 0.5 # amount of temporal shift
 tau0 = 1.0
 eps0 = 80
 n0 = 1.0
 q = 1.0
 
+#==============================================================================
 # Define Gubser model functions
-def eps_a(r):
-    return (eps0 / tau0**(4./3.)) * (2 * q)**(8./3.) / \
-           (1 + 2 * q**2 * (tau0**2 + r**2) + (q**2 * (tau0**2 - r**2))**2)**(4./3.)
-def kappa(r):
-    return np.arctanh(2 * q**2 * tau0 * r / (1 + (q * tau0)**2 + (q * r)**2))
-def velocity_x(x, r):
-    return np.sinh(kappa(r)) * x / r if r != 0 else 0
-def velocity_y(y, r):
-    return np.sinh(kappa(r)) * y / r if r != 0 else 0
+def taup(tau, eta):
+    return np.sqrt(tau**2 + 2.*t0*tau*np.cosh(eta)+t0**2)
+#==============================================================================
+def etap(tau, eta):
+    return np.arctanh( tau * np.sinh(eta) / (tau * np.cosh(eta) + t0) )
+#==============================================================================
+def eps_a(tau, r):
+    return (eps0 / tau**(4./3.)) * (2 * q)**(8./3.) / \
+           (1 + 2 * q**2 * (tau**2 + r**2) + (q**2 * (tau**2 - r**2))**2)**(4./3.)
+#==============================================================================
+def kappa(tau, r):
+    return np.arctanh(2 * q**2 * tau * r / (1 + (q * tau)**2 + (q * r)**2))
+#==============================================================================
+def rho(tau,r):
+    return np.arcsinh( (q**2 * (tau**2 - r**2) - 1.) / (2. * q * tau) )
+#==============================================================================
+def velocity_tau(tau, r):
+    return np.cosh(kappa(tau, r))
+#==============================================================================
+def velocity_x(tau, x, r):
+    return np.sinh(kappa(tau, r)) * x / r if r != 0 else 0
+#==============================================================================
+def velocity_y(tau, y, r):
+    return np.sinh(kappa(tau, r)) * y / r if r != 0 else 0
+#==============================================================================
+def shifted_velocity_x(tau, x, r, eta):
+    return velocity_x(taup(tau, eta), x, r)
+#==============================================================================
+def shifted_velocity_y(tau, y, r, eta):
+    return velocity_y(taup(tau, eta), y, r)
+#==============================================================================
+def shifted_velocity_eta(tau, r, eta):
+    return -velocity_tau(taup(tau, eta), r) * ( t0 * np.sinh(eta) / (tau * taup(tau, eta)) )
+#==============================================================================
 
 def main():
     check_input()
