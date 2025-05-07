@@ -138,6 +138,6 @@ if __name__ == "__main__":
             #ax.ylabel(r'$e$ (fm$^{-4}$)')
             
         #plt.show()
-        if np.isclose( tau, float(int(tau)) ):
+        if np.isclose( tau, float(int(tau)), atol=1e-04 ):
             plt.savefig('./yeq' + axisMode + '_slice_tau=' + f"{tau:.2f}" + '.pdf')
     
