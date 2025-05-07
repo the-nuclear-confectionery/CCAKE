@@ -181,7 +181,7 @@ void Output<D>::print_system_state_to_HDF()
                                   "T", "muB", "muS", "muQ",
 																	"e", "s", "B", "S", "Q"};
   vector<string> dataset_units = {"fm", "fm", "dimensionless",
-																	"dimensionless", "dimensionless", "1/fm"
+																	"dimensionless", "dimensionless", "1/fm",
 																	"MeV", "MeV", "MeV", "MeV",
                                   "MeV/fm^3", "1/fm^3", "1/fm^3", "1/fm^3",
                                   "1/fm^3"};
@@ -190,6 +190,9 @@ void Output<D>::print_system_state_to_HDF()
                                   {"tanh_conformal",     1},
                                   {"conformal",          2},
                                   {"conformal_diagonal", 3}};
+
+	// cout << "dataset_names.size() = " << dataset_names.size() << endl;
+	// cout << "dataset_units.size() = " << dataset_units.size() << endl;
 
   vector<vector<double> > data( dataset_names.size(),
                                 vector<double>(systemPtr->particles.size()) );
