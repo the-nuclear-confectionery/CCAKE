@@ -98,6 +98,8 @@ if __name__ == "__main__":
     ncols = 2
     nrows = 2
     fig, axs = plt.subplots( ncols=ncols, nrows=nrows, figsize=(5*ncols, 5*nrows) )
+    
+    tau = 0.0
 
     # plot hydro output files
     for timestep in event_keys:
@@ -136,6 +138,6 @@ if __name__ == "__main__":
                 ax.set_ylim([-2.0, 2.0])
             #ax.ylabel(r'$e$ (fm$^{-4}$)')
             
-        #plt.show()
-        plt.savefig('./yeq' + axisMode + '_slice_tau=' + f"{tau:.2f}" + '.pdf')
+    #plt.show()
+    plt.savefig('./yeq' + axisMode + '_slice_tau=' + f"{tau:.2f}" + '.pdf')
     
