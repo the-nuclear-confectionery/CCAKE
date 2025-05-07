@@ -88,10 +88,10 @@ def main():
         for y in np.arange(ymin, ymax+stepy, stepy):
             for eta in np.arange(etamin, etamax+stepeta, stepeta):
                 r    = np.sqrt(float(x)**2 + float(y)**2)
-                ux   = shifted_velocity_x(tau, float(x), r, eta)
-                uy   = shifted_velocity_y(tau, float(y), r, eta)
-                ueta = shifted_velocity_eta(tau, r, eta)
-                eps  = shifted_eps(tau, r, eta)
+                ux   = shifted_velocity_x(tau0, float(x), r, eta)
+                uy   = shifted_velocity_y(tau0, float(y), r, eta)
+                ueta = shifted_velocity_eta(tau0, r, eta)
+                eps  = shifted_eps(tau0, r, eta)
                 pixx = 0.
                 piyy = 0.
                 pixy = 0.
