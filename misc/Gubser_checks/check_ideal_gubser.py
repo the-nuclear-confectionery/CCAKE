@@ -24,8 +24,8 @@ Nc = 3.
 Nf = 2.5
 cp = (2.*(Nc**2-1.) + 3.5*Nc*Nf)*np.pi**2/90.
 
-#quantities = ['T','e','ux','uy']
-quantities = ['T','e']
+quantities = ['T','e','ux','uy']
+#quantities = ['T','e']
 cols = dict(zip(quantities,range(2,len(quantities)+2)))
 print('cols=',cols)
 
@@ -72,8 +72,21 @@ def urGubser(tau, r):
 #    selection = get_selection(Tmin, Tmax)
 #    data = np.stack([frame_to_array(i, Tmin, Tmax) for i in range(n_timesteps)])
 
+#===============================================================================
+def uxGubser_yeq0(tau, r):
+    return urGubser(tau, r)
 
+#===============================================================================
+def uyGubser_yeq0(tau, r):
+    return 0.0
 
+#===============================================================================
+def uxGubser_yeqx(tau, r):
+    return urGubser(tau, r)/np.sqrt(2.0)
+
+#===============================================================================
+def uyGubser_yeqx(tau, r):
+    return urGubser(tau, r)/np.sqrt(2.0)
 
 #===============================================================================
 def plot_slice(ax, hydroOutput, tau, axis, quantity):
@@ -81,9 +94,8 @@ def plot_slice(ax, hydroOutput, tau, axis, quantity):
     c = cols[quantity]
     print('quantity=',quantity)
     print('c=',c)
-    #cf   = [TGubser, eGubser, urGubser, urGubser][c]
-    cf   = [None, None, TGubser, eGubser][c]
     if axis == '0':
+        cf   = [TGubser, eGubser, uxGubser_yeq0, uyGubser_yeq0][c]
         yEqAxisData = hydroOutput[np.where( np.abs(hydroOutput[:,1]) < 1e-6 )]
         ax.plot( yEqAxisData[:,0], yEqAxisData[:,c], 'r-' )
         xpts = np.linspace(np.amin(yEqAxisData[:,0]), np.amax(yEqAxisData[:,0]), 1001)
@@ -91,6 +103,7 @@ def plot_slice(ax, hydroOutput, tau, axis, quantity):
         print('Analytic center: ',cf(tau, 0.0))
         ax.plot( xpts, cf(tau, xpts), 'b:' )
     elif axis == 'x':
+        cf   = [TGubser, eGubser, uxGubser_yeqx, uyGubser_yeqx][c]
         yeqxData = hydroOutput[np.where( np.isclose( hydroOutput[:,0], hydroOutput[:,1] ) )]
         rpts = np.sqrt(yeqxData[:,0]**2 + yeqxData[:,1]**2)
         ax.plot( rpts, yeqxData[:,c], 'r-' )
@@ -102,10 +115,10 @@ def plot_slice(ax, hydroOutput, tau, axis, quantity):
 if __name__ == "__main__":
 
     # set up figure
-    toPlot = ['T', 'e']
+    toPlot = ['T', 'e', 'ux', 'uy']
     
-    ncols = len(toPlot)
-    nrows = 1
+    ncols = 2
+    nrows = 2
     fig, axs = plt.subplots( ncols=ncols, nrows=nrows, figsize=(5*ncols, 5*nrows) )
 
     # plot hydro output files
@@ -123,12 +136,12 @@ if __name__ == "__main__":
         y = np.array(frame['y'])
         T = np.array(frame['T'])
         e = np.array(frame['e'])
-        #ux = np.array(frame['ux'])
-        #uy = np.array(frame['uy'])
+        ux = np.array(frame['ux'])
+        uy = np.array(frame['uy'])
 
         #exit(1)
         #hydroOutput = np.loadtxt( checkfile, skiprows=1 )
-        hydroOutput = np.c_[ x, y, T, e ]
+        hydroOutput = np.c_[ x, y, T, e, ux, uy ]
 
         # plot comparison along y==0 slice
         for i, ax in enumerate(axs.ravel()):
