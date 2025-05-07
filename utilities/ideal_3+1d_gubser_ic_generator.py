@@ -64,10 +64,10 @@ def main():
     check_input()
     stepx = .025
     stepy = .025
-    stepeta = 0.01
+    stepeta = 0.1
     xmax = 5
     ymax = 5
-    etamax = 10
+    etamax = 5
     xmin = -xmax
     ymin = -ymax
     etamin = -etamax
@@ -86,8 +86,8 @@ def main():
 
     for x in np.arange(xmin, xmax+stepx, stepx):
         for y in np.arange(ymin, ymax+stepy, stepy):
+            r = np.sqrt(float(x)**2 + float(y)**2)
             for eta in np.arange(etamin, etamax+stepeta, stepeta):
-                r    = np.sqrt(float(x)**2 + float(y)**2)
                 ux   = shifted_velocity_x(tau0, float(x), r, eta)
                 uy   = shifted_velocity_y(tau0, float(y), r, eta)
                 ueta = shifted_velocity_eta(tau0, r, eta)
