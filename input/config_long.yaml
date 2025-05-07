@@ -44,5 +44,5 @@ hydro:
                                #with a tanh function below transition temperature
 output:
   print_conservation_state: true
-  hdf_evolution: false
-  txt_evolution: true
+  hdf_evolution: true
+  txt_evolution: false
