@@ -47,6 +47,9 @@ def velocity_x(tau, x, r):
 def velocity_y(tau, y, r):
     return np.sinh(kappa(tau, r)) * y / r if r != 0 else 0
 #==============================================================================
+def shifted_eps(tau, r, eta):
+    return eps_a(taup(tau, eta), r)
+#==============================================================================
 def shifted_velocity_x(tau, x, r, eta):
     return velocity_x(taup(tau, eta), x, r)
 #==============================================================================
@@ -61,10 +64,13 @@ def main():
     check_input()
     stepx = .025
     stepy = .025
+    stepeta = 0.01
     xmax = 5
     ymax = 5
+    etamax = 10
     xmin = -xmax
     ymin = -ymax
+    etamin = -etamax
     hbarc = 0.1973269804 
     # scale for conformal EoS
     Nc    = 3.0 # three colors
@@ -76,21 +82,23 @@ def main():
     #lines = f.readlines()
     #f.close()
 
-    f = write_header(stepx, stepy, .1, xmin, ymin, -.1)
+    f = write_header(stepx, stepy, stepeta, xmin, ymin, etamin)
 
-    for x in np.arange(xmin, xmax, stepx):
-        for y in np.arange(ymin, ymax, stepy):
-            r = np.sqrt(float(x)**2 + float(y)**2)
-            ux = velocity_x(float(x), r)
-            uy = velocity_y(float(y), r)
-            eps = eps_a(r)
-            pixx = 0.
-            piyy = 0.
-            pixy = 0.
-            pizz = 0.
-            #print(eps)
-            
-            f.write(f"{x} {y} 0 {eps} 0 0 0 {ux} {uy} 0 0 {pixx} {pixy} 0 {piyy} 0 {pizz}\n")
+    for x in np.arange(xmin, xmax+stepx, stepx):
+        for y in np.arange(ymin, ymax+stepy, stepy):
+            for eta in np.arange(etamin, etamax+stepeta, stepeta):
+                r    = np.sqrt(float(x)**2 + float(y)**2)
+                ux   = shifted_velocity_x(tau, float(x), r, eta)
+                uy   = shifted_velocity_y(tau, float(y), r, eta)
+                ueta = shifted_velocity_eta(tau, r, eta)
+                eps  = shifted_eps(tau, r, eta)
+                pixx = 0.
+                piyy = 0.
+                pixy = 0.
+                pizz = 0.
+                #print(eps)
+                
+                f.write(f"{x} {y} {eta} {eps} 0 0 0 {ux} {uy} {ueta} 0 {pixx} {pixy} 0 {piyy} 0 {pizz}\n")
 
     f.close()
 
