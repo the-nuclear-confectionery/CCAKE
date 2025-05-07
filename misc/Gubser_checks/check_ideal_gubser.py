@@ -139,8 +139,8 @@ if __name__ == "__main__":
             
         #plt.show()
         print("tau = ", tau)
-        print("float(int(tau)) = ", float(int(tau)))
+        print("float(int(tau)) = ", np.round(tau))
         print("np.isclose( tau, float(int(tau)), atol=1e-04 ) = ", np.isclose( tau, float(int(tau)), atol=1e-04 ))
-        if np.isclose( tau, float(int(tau)), atol=1e-04 ):
+        if np.isclose( tau, np.round(tau), atol=1e-04 ):
             plt.savefig('./yeq' + axisMode + '_slice_tau=' + f"{tau:.2f}" + '.pdf')
     
