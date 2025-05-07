@@ -517,9 +517,11 @@ void BSQHydro<D,TEOM>::run()
     #ifdef DEBUG
     outfile << systemPtr->t << " " << systemPtr->Eloss << " " << systemPtr->S << endl;
     #endif
-    if (systemPtr->number_of_elapsed_timesteps%20 == 0) 
     //outPtr->print_system_state();
-    //if (settingsPtr->hdf_evolution || settingsPtr->txt_evolution) outPtr->print_system_state();
+    if (settingsPtr->hdf_evolution || settingsPtr->txt_evolution) 
+    {
+      if (systemPtr->number_of_elapsed_timesteps%100 == 0) outPtr->print_system_state();
+    }
     if (settingsPtr->particlization_enabled) outPtr->print_freeze_out(wsPtr->freezePtr);
 
   }

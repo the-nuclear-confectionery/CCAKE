@@ -667,7 +667,7 @@ class FreezeOut
               gradPsub_contra(idir) = frz1_gradP.access(is,ia,idir);
               gradEsub_contra(idir) = frz1_gradE.access(is,ia,idir);
             }
-            double t2 = results_tlist.access(is,ia);
+            double t2 = results_tlist.access(is,ia)*results_tlist.access(is,ia);
             // make covariant and contravariant vectors, by creating new ones depending on the eom
             if(settingsPtr->coordinate_system == "cartesian"){
               cartesian::Vector<double,D> c_gradPsub, c_gradEsub;
@@ -744,7 +744,7 @@ class FreezeOut
               gradPsub_contra(idir) = frz2_gradP.access(is,ia,idir);
               gradEsub_contra(idir) = frz2_gradE.access(is,ia,idir);
             }
-            double t2 = results_tlist.access(is,ia);
+            double t2 = results_tlist.access(is,ia)*results_tlist.access(is,ia);
             
             // make covariant and contravariant vectors, by creating new ones depending on the eom
             if(settingsPtr->coordinate_system == "cartesian"){
