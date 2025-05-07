@@ -6,6 +6,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+// #include <Cabana_Experimental_NeighborList.hpp>
 
 #include "system_state.h"
 #include "utilities.h"
@@ -559,26 +560,39 @@ void SystemState<D>::reset_neighbour_list(){
   outfile.open("neighbors.dat")*/
 
   double min_pos[3], max_pos[3];
+  double h;
   switch (D)
   {
     case 1:
       min_pos[0] = settingsPtr->etamin;
       min_pos[1] = settingsPtr->xmin;
       min_pos[2] = settingsPtr->ymin;
+      h = settingsPtr->hEta;
       break;
-    default:
+    case 2:
       min_pos[0] = settingsPtr->xmin;
       min_pos[1] = settingsPtr->ymin;
       min_pos[2] = settingsPtr->etamin;
+      h = settingsPtr->hT;
       break;
+    case 3:
+      min_pos[0] = settingsPtr->xmin;
+      min_pos[1] = settingsPtr->ymin;
+      min_pos[2] = settingsPtr->etamin;
+      h = std::max(settingsPtr->hT, settingsPtr->hEta); 
+      break;
+    default:
+      std::cerr << "Error: Dimension not supported" << std::endl;
+      exit(1);
   }
+
 
   for(int idir=0; idir<3; ++idir)
     min_pos[idir] *= 2.; //Grid must be 100% extensiveger ///TODO: Allow this to be an optional input parameter
 
   //Cabana needs a 3D grid. We set the remaining dimensions to be a single cell
-  double neighborhood_radius = 2*settingsPtr->hT;
-  for(int idir=D; idir<3; ++idir) min_pos[idir] = -settingsPtr->hT;
+  double neighborhood_radius = 2*h;
+  for(int idir=D; idir<3; ++idir) min_pos[idir] = -h;
   for(int idir=0; idir<3; ++idir)
     max_pos[idir] = -min_pos[idir];
 
@@ -590,6 +604,7 @@ void SystemState<D>::reset_neighbour_list(){
                                           neighborhood_radius, cell_ratio, min_pos, max_pos
                            );
   Kokkos::fence();
+
 
   //Update the number of neighbours
   ///TODO: Requires UVM, which is not good for performance

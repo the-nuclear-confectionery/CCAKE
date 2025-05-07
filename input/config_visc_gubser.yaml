@@ -18,7 +18,7 @@ parameters:
     padding_thickness: .1 # if circular buffer is true, specifies the fractional amount
                           # of padding to add beyond the point with maximum distance from origin
 eos:
-  online_interter_enabled: false
+  online_inverter_enabled: false
   preinverted_eos_path: "inverted_eos.h5"
   type: "conformal" # Possible values are: ["table", "tanh_conformal", "conformal", "conformal_diagonal"]
   path: "EoS/Houston" # If type is "table", the path to the equation of state table.
