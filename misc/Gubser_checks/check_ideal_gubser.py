@@ -17,8 +17,9 @@ event = f['Event']
 n_timesteps = min([len(event.keys()),1000])
 event_keys = list(event.keys())
 
+hbarc = 197.33 # MeV*fm
 q  = 1.
-e0 = 80000.0 # maybe these are the right units?
+e0 = 80000.0 # units of MeV/fm^3 (cf. ideal_2+1d_gubser_ic_generator.py script)
 
 Nc = 3.
 Nf = 2.5
@@ -38,11 +39,7 @@ def eGubser(tau, r):
 
 #===============================================================================
 def TGubser(tau, r):
-    return ( eGubser(tau, r) / (3.*cp) )**0.25
-
-#===============================================================================
-def eFromT(T):
-    return 3.*cp*T**4
+    return hbarc*( eGubser(tau, r) / (3.*cp*hbarc) )**0.25
 
 #===============================================================================
 def urGubser(tau, r):
@@ -75,10 +72,10 @@ def plot_slice(ax, hydroOutput, tau, axis, quantity):
         yEqAxisData = hydroOutput[np.where( np.abs(hydroOutput[:,1]) < 1e-6 )]
         ax.plot( yEqAxisData[:,0], yEqAxisData[:,c], 'r-' )
         xpts = np.linspace(np.amin(yEqAxisData[:,0]), np.amax(yEqAxisData[:,0]), 1001)
-        print('Grid center: ',yEqAxisData[np.where( np.abs(yEqAxisData[:,0]) < 1e-6 )])
-        print('Analytic center: ',cf(tau, 0.0))
-        print('xpts: ',xpts)
-        print('cf(tau, xpts): ',cf(tau, xpts))
+        #print('Grid center: ',yEqAxisData[np.where( np.abs(yEqAxisData[:,0]) < 1e-6 )])
+        #print('Analytic center: ',cf(tau, 0.0))
+        #print('xpts: ',xpts)
+        #print('cf(tau, xpts): ',cf(tau, xpts))
         ax.plot( xpts, cf(tau, xpts), 'b:' )
     elif axis == 'x':
         cf   = [None, None, TGubser, eGubser, uxGubser_yeqx, uyGubser_yeqx][c]
@@ -100,6 +97,8 @@ if __name__ == "__main__":
     fig, axs = plt.subplots( ncols=ncols, nrows=nrows, figsize=(5*ncols, 5*nrows) )
     
     tau = 0.0
+    
+    use_log_scale = True
 
     # plot hydro output files
     for timestep in event_keys:
@@ -138,6 +137,7 @@ if __name__ == "__main__":
                 ax.set_ylim([-2.0, 2.0])
             #ax.ylabel(r'$e$ (fm$^{-4}$)')
             
-    #plt.show()
-    plt.savefig('./yeq' + axisMode + '_slice_tau=' + f"{tau:.2f}" + '.pdf')
+        #plt.show()
+        if np.isclose( tau, float(int(tau)) ):
+            plt.savefig('./yeq' + axisMode + '_slice_tau=' + f"{tau:.2f}" + '.pdf')
     
