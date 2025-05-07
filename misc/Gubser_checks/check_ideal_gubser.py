@@ -49,30 +49,6 @@ def urGubser(tau, r):
     return 2.0*q**2*r*tau / np.sqrt( 1. + 2.*q**2*(tau**2 + r**2) + q**4*(tau**2 - r**2)**2 )
 
 #===============================================================================
-#def get_selection(Tmin, Tmax):
-#    frame    = event[event_keys[0]]
-#    return np.where( (T0 >= Tmin) & (T0 <= Tmax) & (eos_tags == 0) )
-
-
-#===============================================================================
-#def frame_to_array(i, Tmin, Tmax):
-#    frame = event[event_keys[i]]
-#    tau = frame.attrs['Time']
-#    T = np.array(frame['T'])
-#    return np.c_[ T[selection], np.array(frame['muB'])[selection],\
-#                  np.array(frame['muS'])[selection], np.array(frame['muQ'])[selection] ]
-
-
-#===============================================================================
-#def plot_all_particles():
-#    # Set up
-#    print('Setting up...', flush=True)
-#    global selection
-#    Tmin, Tmax = 400, 650
-#    selection = get_selection(Tmin, Tmax)
-#    data = np.stack([frame_to_array(i, Tmin, Tmax) for i in range(n_timesteps)])
-
-#===============================================================================
 def uxGubser_yeq0(tau, r):
     return urGubser(tau, r)
 
@@ -93,7 +69,7 @@ def plot_slice(ax, hydroOutput, tau, axis, quantity):
     # c : column of quantity to plot in array
     c = cols[quantity]
     print('quantity=',quantity)
-    print('c=',c)
+    print('c =',c)
     if axis == '0':
         cf   = [TGubser, eGubser, uxGubser_yeq0, uyGubser_yeq0][c]
         yEqAxisData = hydroOutput[np.where( np.abs(hydroOutput[:,1]) < 1e-6 )]
@@ -126,7 +102,7 @@ if __name__ == "__main__":
         # load Gubser check output files produced by hydro code
         # (eventually) use format: x [fm], y [fm], e [1/fm^4], u_x, u_y, ...
         frame = event[timestep]
-        tau = frame.attrs['Time']
+        tau = frame.attrs['Time'][0]
         print('tau=', tau)
 
         print(frame.keys())
@@ -158,6 +134,6 @@ if __name__ == "__main__":
                 ax.set_ylim([-2.0, 2.0])
             #ax.ylabel(r'$e$ (fm$^{-4}$)')
             
-            #plt.show()
-            plt.savefig('./yeq' + axisMode + '_slice_tau=' + str(tau) + '.pdf')
+        #plt.show()
+        plt.savefig('./yeq' + axisMode + '_slice_tau=' + str(tau) + '.pdf')
     
