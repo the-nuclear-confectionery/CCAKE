@@ -311,7 +311,12 @@ void Output<D>::print_freeze_out(std::shared_ptr<FreezeOut<D>> freeze_out)
        endl;
     count++;
   }
-  formatted_output::detail("Printed " + std::to_string(count) + " freeze-out particles.");
+  formatted_output::detail("Printed " + std::to_string(count)
+														+ " freeze-out particles.");
+  formatted_output::detail("Current running total of "
+														+ std::to_string(systemPtr->number_part_fo)
+														+ " freeze-out particles.");
+
   FO.close();
 
   return;
