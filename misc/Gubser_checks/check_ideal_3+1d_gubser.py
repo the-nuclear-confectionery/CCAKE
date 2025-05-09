@@ -102,7 +102,7 @@ if __name__ == "__main__":
 
         x = np.array(frame['x'])
         y = np.array(frame['y'])
-        y = np.array(frame['eta'])
+        eta = np.array(frame['eta'])
         e = np.array(frame['e'])
         ux = np.array(frame['ux'])
         uy = np.array(frame['uy'])
