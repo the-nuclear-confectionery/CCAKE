@@ -324,7 +324,7 @@ void Output<D>::print_freeze_out(std::shared_ptr<FreezeOut<D>> freeze_out)
 																	- systemPtr->number_part_fo_at_t0;
 	int total_not_frozen_out_at_t0 = systemPtr->n_particles
 																		- systemPtr->number_part_fo_at_t0;
-	double relative_pc = 100.0 * static_cast<double>(count_frozen_out_since_t0);
+	double relative_pc = 100.0 * static_cast<double>(count_frozen_out_since_t0)
 												/ static_cast<double>(total_not_frozen_out_at_t0);
   formatted_output::detail("Currently " + std::to_string(relative_pc)
 														+ "% of all particles initially unfrozen out now "
