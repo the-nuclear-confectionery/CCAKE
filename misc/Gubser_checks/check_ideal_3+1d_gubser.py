@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sys
 
-use_log_scale = True
+use_log_scale = False
 
 infilename = sys.argv[1]
 outdirectory = sys.argv[2]
@@ -70,8 +70,10 @@ def plot_slice(ax, hydroOutput, tau, axis, quantity):
     print('quantity =',quantity)
     print('c =',c)
     cf   = [None, None, None, shifted_eGubser, shifted_urGubser, shifted_uetaGubser][c]
-    sliceData = hydroOutput[np.where( (np.isclose(hydroOutput[:,1], 0.0)) \
-                                      & (np.isclose(hydroOutput[:,2], eta0)) )] # y == 0 ===>>> r == x
+    print(sliceData.shape)
+    
+    sliceData = hydroOutput[np.where( (np.isclose(hydroOutput[:,1], 0.0, atol=1e-4)) \
+                                      & (np.isclose(hydroOutput[:,2], eta0, atol=1e-2)) )] # y == 0 ===>>> r == x
     ax.plot( sliceData[:,0], sliceData[:,c], 'r-' )
     xpts = np.linspace(np.amin(sliceData[:,0]), np.amax(sliceData[:,0]), 1001)
     ax.plot( xpts, cf(tau, xpts, eta0), 'b:' )
@@ -105,7 +107,6 @@ if __name__ == "__main__":
         eta = np.array(frame['eta'])
         e = np.array(frame['e'])
         ux = np.array(frame['ux'])
-        uy = np.array(frame['uy'])
         ueta = np.array(frame['ueta'])
 
         #exit(1)
@@ -118,7 +119,7 @@ if __name__ == "__main__":
                 ax.set_yscale('log')
             plot_slice( ax, hydroOutput, tau, axisMode, toPlot[i] )
             ax.set_xlim([-4.5, 4.5])
-            ax.set_xlabel(r'$r$ (fm)')
+            ax.set_xlabel(r'$x$ (fm)')
             if toPlot[i] == 'ur':
                 ax.set_ylim([-3.0, 3.0])
             #ax.ylabel(r'$e$ (fm$^{-4}$)')
