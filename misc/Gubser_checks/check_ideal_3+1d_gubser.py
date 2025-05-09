@@ -74,7 +74,7 @@ def plot_slice(ax, hydroOutput, tau, axis, quantity):
                                       & (np.isclose(hydroOutput[:,2], eta0)) )] # y == 0 ===>>> r == x
     ax.plot( sliceData[:,0], sliceData[:,c], 'r-' )
     xpts = np.linspace(np.amin(sliceData[:,0]), np.amax(sliceData[:,0]), 1001)
-    ax.plot( xpts, cf(tau, xpts), 'b:' )
+    ax.plot( xpts, cf(tau, xpts, eta0), 'b:' )
     
 
 #===============================================================================
