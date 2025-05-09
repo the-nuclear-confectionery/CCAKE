@@ -315,7 +315,25 @@ void Output<D>::print_freeze_out(std::shared_ptr<FreezeOut<D>> freeze_out)
 														+ " freeze-out particles.");
   formatted_output::detail("Current running total of "
 														+ std::to_string(systemPtr->number_part_fo)
-														+ " freeze-out particles.");
+														+ " === " +  + "% freeze-out particles.");
+	double total_pc = 100.0 * static_cast<double>(systemPtr->number_part_fo)
+										/ static_cast<double>(systemPtr->number_part_fo_at_t0);
+  formatted_output::detail("Currently " + std::to_string(total_pc)
+														+ "% of all particles are frozen out.");
+	int count_frozen_out_since_t0 = systemPtr->number_part_fo
+																	- systemPtr->number_part_fo_at_t0;
+	int total_not_frozen_out_at_t0 = systemPtr->n_particles
+																		- systemPtr->number_part_fo_at_t0;
+	double relative_pc = 100.0 * static_cast<double>(count_frozen_out_since_t0);
+												/ static_cast<double>(total_not_frozen_out_at_t0);
+  formatted_output::detail("Currently " + std::to_string(relative_pc)
+														+ "% of all particles initially unfrozen out now "
+															"frozen out.");
+
+
+  formatted_output::detail("Currently " + std::to_string(total_pc)
+														+ "% of all particles are frozen out.");
+
 
   FO.close();
 

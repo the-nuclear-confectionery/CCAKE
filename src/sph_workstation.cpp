@@ -20,7 +20,7 @@ template class SPHWorkstation<2,EoM_cartesian>;
 template class SPHWorkstation<3,EoM_cartesian>;
 
 /// @brief Initialize the several components of the SPHWorkstation.
-/// @details SPHWorstation needs to load and initiualize a few objects before 
+/// @details SPHWorstation needs to load and initiualize a few objects before
 /// @details SPHWorstation needs to load and initiualize a few objects before
 /// it can work. Those are
 /// - The equation of state
@@ -62,8 +62,8 @@ void SPHWorkstation<D,TEOM>::initialize()
 /// @brief This function will ensure that the shear tensor has the correct
 /// properties.
 /// @details This function will ensure that the shear tensor has the correct
-/// properties. The desired properties are that it is traceless, symmetric and 
-/// orthogonal to the fluid velocity. That is, we want to ensure that 
+/// properties. The desired properties are that it is traceless, symmetric and
+/// orthogonal to the fluid velocity. That is, we want to ensure that
 /// \f$\pi^{\mu \nu} = \pi^{\nu \mu}\f$, \f$u_\mu \pi^{\mu \nu} = 0\f$ and
 /// \f$\pi^\mu_\mu = 0\f$. Because this depends on the metric tensor being used,
 /// a simple call to the reset_pi_tensor function is not enough. This function
@@ -81,7 +81,7 @@ void SPHWorkstation<D, TEOM>::reset_pi_tensor(double time_squared)
 };
 
 // @brief calculate gamma and velocties
-/// @details This function calculates the Lorentz contraction factor \f$ \gamma \f$ 
+/// @details This function calculates the Lorentz contraction factor \f$ \gamma \f$
 /// and the fluid velocity \f$ v \f$ from the fluid four velocity \f$ u \f$.
 /// @tparam D The dimensionality of the simulation.
 /// @tparam TEOM The equation of motion class to be used in the simulation.
@@ -147,13 +147,16 @@ void SPHWorkstation<D, TEOM>::initialize_entropy_and_charge_densities()
 		    }
     }
   }
-  
+
   formatted_output::detail("particles frozen out: "
                            + to_string(systemPtr->number_part_fo) );
   formatted_output::detail("particles not frozen out: "
                            + to_string(systemPtr->n_particles
                                         - systemPtr->number_part_fo) );
 
+	// save this to help track progress toward total freeze-out
+	// (makes it easier to give more informative progress messages)
+	systemPtr->number_part_fo_at_t0 = systemPtr->number_part_fo;
 
 
   systemPtr->copy_host_to_device();
@@ -204,13 +207,13 @@ void SPHWorkstation<D, TEOM>::initialize_entropy_and_charge_densities()
 }
 
 /// @brief Smooth all SPH fields
-/// @details This function updates the densities \f$s\f$, \f$\rho_B\f$, 
+/// @details This function updates the densities \f$s\f$, \f$\rho_B\f$,
 /// \f$rho_Q\f$, \f$\rho_S\f$ and \f$\sigma_lab\f$ Iauxiliary density) by performing
 /// the smoothing procedure. At its end, it
 /// takes the opportunity to update the remaining thermodynamic quantities
 /// (energy density, pressure, chemical potentials, temperature and speed of
 /// sound squared). The routine that triggers the update of thermo quantities
-/// will also update gamma and the non-relativistic velocity. At the end, it 
+/// will also update gamma and the non-relativistic velocity. At the end, it
 /// also computes the freeze out status of the particles. In this function, we
 /// also take the opportunity to enforce the constraints for the shear viscous
 /// tensor.
@@ -282,12 +285,12 @@ void SPHWorkstation<D,TEOM>::initial_smoothing()
 }
 
 ///@brief Smooth all SPH fields
-///@details This function updates the densities \f$s\f$, \f$\rho_B\f$, 
-/// \f$\rho_Q\f$, \f$\rho_S\f$ and \f$\sigma_lab\f$ (auxiliary density) by 
+///@details This function updates the densities \f$s\f$, \f$\rho_B\f$,
+/// \f$\rho_Q\f$, \f$\rho_S\f$ and \f$\sigma_lab\f$ (auxiliary density) by
 /// performing the smoothing procedure. At its end, it takes the opportunity to
-/// update the remaining thermodynamic quantities (energy density, pressure, 
-/// chemical potentials, temperature and speed of  sound squared). The routine 
-/// that triggers the update of thermo quantities will also update gamma and 
+/// update the remaining thermodynamic quantities (energy density, pressure,
+/// chemical potentials, temperature and speed of  sound squared). The routine
+/// that triggers the update of thermo quantities will also update gamma and
 ///@details This function updates the densities \f$s\f$, \f$\rho_B\f$,
 /// \f$\rho_Q\f$, \f$\rho_S\f$ and \f$\sigma\f$ (auxiliary density) by
 /// performing the smoothing procedure. At its end, it takes the opportunity to
@@ -457,7 +460,7 @@ void SPHWorkstation<D, TEOM>::calculate_intial_sigma(double t)
 
 /// @brief Shell function to update thermodynamic particle properties.
 /// @details This will updated Particle<D>::thermo for the input partiucle,
-/// assuming the smoothed fields \f$s\f$, \f$\rho_B\f$, \f$\rho_S\f$, 
+/// assuming the smoothed fields \f$s\f$, \f$\rho_B\f$, \f$\rho_S\f$,
 /// \f$\rho_Q\f$ are known.
 ///
 /// @todo I am not an expert in the EoS part of the code. Someone, please
@@ -649,7 +652,7 @@ void SPHWorkstation<D,TEOM>::locate_phase_diagram_point_sBSQ( Particle<D> & p,
 /// @tparam D The dimensionality of the simulation.
 /// @tparam TEOM The equation of motion class to be used in the simulation.
 /// @param time_squared The square of the current time step.
-/// Cartesian specializations at end of file 
+/// Cartesian specializations at end of file
 template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
 {
@@ -749,7 +752,7 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
         gradshear = milne::contract(sigsigK, v_a)*( sigsqrb*shv_0i_b + sigsqra*shv_0i_a );
         ///\todo do we need this transpose here?
         divshear  = sigsqrb*sigsigK*vminib
-                  + sigsqra*sigsigK*vminia;        
+                  + sigsqra*sigsigK*vminia;
       }
 
     }
@@ -783,7 +786,7 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
 /// - The normalized extensive densities \f$\rho_{\text{sph_mass}}\f$, which are
 /// set to the volume assigned to the particle.
 /// - The bulk pressure, which is set to 0.
-/// - Initial guesses for the temperature and chemical potentials 
+/// - Initial guesses for the temperature and chemical potentials
 /// - Initial guesses for the temperature and chemical potentials
 /// (800, 0, 0 ,0) MeV.
 /// - The freeze out status, which is set to 4 if the energy density is below
@@ -988,7 +991,7 @@ void SPHWorkstation<D,TEOM>::freeze_out_particles()
 
 /// @brief Shell function to obtain the time derivatives of each quantity.
 /// @details This function is a shell function to obtain the time derivatives of
-/// each hydrodynamic quantity that needs to be evolved. The steps are the 
+/// each hydrodynamic quantity that needs to be evolved. The steps are the
 /// folloing:
 /// - Reset the nearest neighbors list, since the particles moved in the last
 /// time step.
@@ -1198,7 +1201,7 @@ void SPHWorkstation<D, TEOM>::update_all_particle_thermodynamics()
       systemPtr->print_neighbors(p.ID);
       Kokkos::finalize();
       exit(404);
-    }  
+    }
   }
   systemPtr->copy_host_to_device();
   }
@@ -1212,7 +1215,7 @@ void SPHWorkstation<D, TEOM>::update_all_particle_thermodynamics()
 
 /// @brief Shell function to update thermodynamic particle properties.
 /// @details This will updated Particle<D>::thermo for the input particle,
-/// assuming the smoothed fields \f$\varepsilon\f$, \f$\rho_B\f$, \f$\rho_S\f$, 
+/// assuming the smoothed fields \f$\varepsilon\f$, \f$\rho_B\f$, \f$\rho_S\f$,
 /// \f$\rho_Q\f$ are known.
 ///
 /// @todo I am not an expert in the EoS part of the code. Someone, please
@@ -1921,7 +1924,7 @@ void SPHWorkstation<1, EoM_cartesian>::smooth_all_particle_gradients(double time
         gradshear = cartesian::contract(sigsigK, v_a)*( sigsqrb*shv_0i_b + sigsqra*shv_0i_a );
         ///\todo do we need this transpose here?
         divshear  = sigsqrb*sigsigK*vminib
-                  + sigsqra*sigsigK*vminia;  
+                  + sigsqra*sigsigK*vminia;
     }
 
     //Accumulate

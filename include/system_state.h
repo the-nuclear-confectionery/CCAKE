@@ -69,6 +69,7 @@ class SystemState
 
    /* INTS */
     int number_part_fo = 0;
+    int number_part_fo_at_t0 = 0;
     int n_particles = 0;
 
     int number_of_elapsed_timesteps = 0;
