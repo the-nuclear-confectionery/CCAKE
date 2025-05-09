@@ -57,7 +57,7 @@ def utauGubser(tau, r):
 def shifted_eGubser(tau, r, eta):
     return eGubser(taup(tau, eta), r)
 #==============================================================================
-def shifted_urGubser(tau, x, r, eta):
+def shifted_urGubser(tau, r, eta):
     return urGubser(taup(tau, eta), r)
 #==============================================================================
 def shifted_uetaGubser(tau, r, eta):
