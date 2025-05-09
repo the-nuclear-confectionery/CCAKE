@@ -29,7 +29,7 @@ Nf = 2.5
 cp = (2.*(Nc**2-1.) + 3.5*Nc*Nf)*np.pi**2/90.
 
 quantities = ['e','ur','ueta']
-cols = dict(zip(quantities,range(2,len(quantities)+2)))
+cols = dict(zip(quantities,range(3,len(quantities)+3)))
 print('cols=',cols)
 
 
