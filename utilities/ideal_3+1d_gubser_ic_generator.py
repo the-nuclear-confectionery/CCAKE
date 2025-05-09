@@ -64,10 +64,10 @@ def main():
     check_input()
     stepx = 0.1
     stepy = 0.1
-    stepeta = 0.1
+    stepeta = 0.025
     xmax = 5
     ymax = 5
-    etamax = 5
+    etamax = 2
     xmin = -xmax
     ymin = -ymax
     etamin = -etamax
