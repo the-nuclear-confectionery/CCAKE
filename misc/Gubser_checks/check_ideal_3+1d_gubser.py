@@ -70,7 +70,6 @@ def plot_slice(ax, hydroOutput, tau, axis, quantity):
     print('quantity =',quantity)
     print('c =',c)
     cf   = [None, None, None, shifted_eGubser, shifted_urGubser, shifted_uetaGubser][c]
-    print(sliceData.shape)
     
     sliceData = hydroOutput[np.where( (np.isclose(hydroOutput[:,1], 0.0, atol=1e-4)) \
                                       & (np.isclose(hydroOutput[:,2], eta0, atol=1e-2)) )] # y == 0 ===>>> r == x
