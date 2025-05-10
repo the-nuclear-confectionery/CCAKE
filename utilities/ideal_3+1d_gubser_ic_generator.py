@@ -62,8 +62,8 @@ def shifted_velocity_eta(tau, r, eta):
 
 def main():
     check_input()
-    stepx = 0.1
-    stepy = 0.1
+    stepx = 0.05
+    stepy = 0.05
     stepeta = 0.025
     xmax = 5
     ymax = 5
