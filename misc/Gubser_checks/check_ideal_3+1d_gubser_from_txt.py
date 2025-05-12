@@ -101,34 +101,36 @@ def evaluate_field(r):
     if np.sum(weights) < 1e-10:
         return 0
     else:
-        return np.sum( neighbors[:,3]*weights ) / (np.sum(weights)+1e-10)
+        return np.sum( neighbors[:,3:]*weights ) / (np.sum(weights)+1e-10)
 
 #===============================================================================
-def plot_slice(ax, hydroOutput, tau, axis, quantity):
+#def plot_slice(ax, hydroOutput, tau, axis, quantity):
+#    # c : column of quantity to plot in array
+#    # commented version plots particles directly
+#    c = cols[quantity]
+#    print('quantity =',quantity)
+#    print('c =',c)
+#    cf   = [None, None, None, shifted_eGubser, shifted_urGubser, shifted_uetaGubser][c]
+#    
+#    sliceData = hydroOutput[np.where( (np.isclose(hydroOutput[:,1], 0.0, atol=1e-2)) \
+#                                      & (np.isclose(hydroOutput[:,2], eta0, atol=1e-2)) )] # y == 0 ===>>> r == x
+#    if quantity == 'e':
+#        sliceData[:,c] *= 1000. # GeV --> MeV
+#    ax.plot( sliceData[:,0], sliceData[:,c], 'r-' )
+#    xpts = np.linspace(np.amin(sliceData[:,0]), np.amax(sliceData[:,0]), 1001)
+#    ax.plot( xpts, cf(tau, xpts, eta0), 'b:' )
+    
+#===============================================================================
+def plot_slice(ax, f, tau, axis, quantity):
     # c : column of quantity to plot in array
-    # commented version plots particles directly
-    '''c = cols[quantity]
-    print('quantity =',quantity)
-    print('c =',c)
-    cf   = [None, None, None, shifted_eGubser, shifted_urGubser, shifted_uetaGubser][c]
-    
-    sliceData = hydroOutput[np.where( (np.isclose(hydroOutput[:,1], 0.0, atol=1e-2)) \
-                                      & (np.isclose(hydroOutput[:,2], eta0, atol=1e-2)) )] # y == 0 ===>>> r == x
-    if quantity == 'e':
-        sliceData[:,c] *= 1000. # GeV --> MeV
-    ax.plot( sliceData[:,0], sliceData[:,c], 'r-' )
-    xpts = np.linspace(np.amin(sliceData[:,0]), np.amax(sliceData[:,0]), 1001)
-    ax.plot( xpts, cf(tau, xpts, eta0), 'b:' )'''
-    
     # version below plots interpolated fields
     c = cols[quantity]
     print('quantity =',quantity)
     print('c =',c)
-    cf   = [None, None, None, shifted_eGubser, shifted_urGubser, shifted_uetaGubser][c]    
-    #f = np.array([ evaluate_field(point) for point in grid3D ])
-    #if quantity == 'e':
-    #    f[:,c] *= 1000. # GeV --> MeV
-    #ax.plot( f[:,0], f[:,c], 'r-' )
+    cf = [None, None, None, shifted_eGubser, shifted_urGubser, shifted_uetaGubser][c]    
+    if quantity == 'e':
+        f[:,c] *= 1000. # GeV --> MeV
+    ax.plot( f[:,0], f[:,c], 'r-' )
     ax.plot( xGrid, cf(tau, xGrid, eta0), 'b:' )
 
     
@@ -156,12 +158,18 @@ if __name__ == "__main__":
         print('Loading', infilename)
         hydroOutput = np.loadtxt(infilename, skiprows=1, usecols=(2, 3, 4, 10, 33, 35))
         print('\t - finished.')
+        
+        # interpolate on regular grid
+        print('Smoothing fields')
+        f = np.array([ evaluate_field(point) for point in grid3D ])
+        print('\t - finished.')
+        print('\t - f.shape =', f.shape)
 
         # plot comparison along y==0 slice
         for i, ax in enumerate(axs.ravel()):
             if use_log_scale and ['T','e'].count(toPlot[i]) > 0:
                 ax.set_yscale('log')
-            plot_slice( ax, hydroOutput, tau, axisMode, toPlot[i] )
+            plot_slice( ax, f, tau, axisMode, toPlot[i] )
             ax.set_xlim([-4.5, 4.5])
             ax.set_xlabel(r'$x$ (fm)')
             if toPlot[i] == 'ur':
