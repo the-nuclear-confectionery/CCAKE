@@ -106,14 +106,16 @@ if __name__ == "__main__":
         tau = get_time_step(infilename)
         print('tau =', tau)
 
-        x = np.array(frame['x'])
-        y = np.array(frame['y'])
-        eta = np.array(frame['eta'])
-        e = np.array(frame['e'])
-        ux = np.array(frame['ux'])
-        ueta = np.array(frame['ueta'])
+        #x = np.array(frame['x'])
+        #y = np.array(frame['y'])
+        #eta = np.array(frame['eta'])
+        #e = np.array(frame['e'])
+        #ux = np.array(frame['ux'])
+        #ueta = np.array(frame['ueta'])
         
+        print('Loading', infilename)
         hydroOutput = np.loadtxt(infilename, skiprows=1, usecols=(2, 3, 4, 10, 33, 35))
+        print('\t - finished.')
 
         # plot comparison along y==0 slice
         for i, ax in enumerate(axs.ravel()):
