@@ -34,6 +34,15 @@ Nc = 3.
 Nf = 2.5
 cp = (2.*(Nc**2-1.) + 3.5*Nc*Nf)*np.pi**2/90.
 
+h = 0.1  # 3D cubic spline smoothing scale
+knorm  = 1./(np.pi*h**3)
+
+# points at which to compare exact and numerical solutions
+xGrid = np.linspace(-5.0, 5.0, 1001)
+yGrid = 0.0*xGrid
+etaGrid = eta0 + 0.0*xGrid
+grid3D = np.c_[ xGrid, yGrid, etaGrid ]
+
 quantities = ['e','ur','ueta']
 cols = dict(zip(quantities,range(3,len(quantities)+3)))
 print('cols=',cols)
@@ -70,9 +79,35 @@ def shifted_uetaGubser(tau, r, eta):
     return -utauGubser(taup(tau, eta), r) * ( t0 * np.sinh(eta) / (tau * taup(tau, eta)) )
 #==============================================================================
 #===============================================================================
+def get_time_step(filename):
+    return float((open(filename)).readline()) # first line is header containing just timestep
+
+#===============================================================================
+def kernel(q):
+    global knorm
+    return np.piecewise(q, [q>=1, q<1], \
+                        [lambda q: 0.25*knorm*(2.0-q)**3,\
+                         lambda q: knorm*(1.0 - 1.5*q**2 + 0.75*q**3)])
+
+#===============================================================================
+def evaluate_field(r):
+    global h, hydroOutput
+    neighbors = hydroOutput[ ( r[0]-hydroOutput[:,0])**2 \
+                             +(r[1]-hydroOutput[:,1])**2 \
+                             +(r[2]-hydroOutput[:,2])**2 <= 4.0*h**2 ]
+    weights = kernel( np.sqrt( ( r[0]-neighbors[:,0])**2 \
+                               +(r[1]-neighbors[:,1])**2 \
+                               +(r[2]-neighbors[:,2])**2 )/h )
+    if np.sum(weights) < 1e-10:
+        return 0
+    else:
+        return np.sum( neighbors[:,3]*weights ) / (np.sum(weights)+1e-10)
+
+#===============================================================================
 def plot_slice(ax, hydroOutput, tau, axis, quantity):
     # c : column of quantity to plot in array
-    c = cols[quantity]
+    # commented version plots particles directly
+    '''c = cols[quantity]
     print('quantity =',quantity)
     print('c =',c)
     cf   = [None, None, None, shifted_eGubser, shifted_urGubser, shifted_uetaGubser][c]
@@ -83,11 +118,21 @@ def plot_slice(ax, hydroOutput, tau, axis, quantity):
         sliceData[:,c] *= 1000. # GeV --> MeV
     ax.plot( sliceData[:,0], sliceData[:,c], 'r-' )
     xpts = np.linspace(np.amin(sliceData[:,0]), np.amax(sliceData[:,0]), 1001)
-    ax.plot( xpts, cf(tau, xpts, eta0), 'b:' )
+    ax.plot( xpts, cf(tau, xpts, eta0), 'b:' )'''
     
-#===============================================================================
-def get_time_step(filename):
-    return float((open(filename)).readline()) # first line is header containing just timestep
+    # version below plots interpolated fields
+    c = cols[quantity]
+    print('quantity =',quantity)
+    print('c =',c)
+    cf   = [None, None, None, shifted_eGubser, shifted_urGubser, shifted_uetaGubser][c]    
+    f = np.array([ evaluate_field(point) for point in grid3D ])
+    if quantity == 'e':
+        f[:,c] *= 1000. # GeV --> MeV
+    ax.plot( f[:,0], f[:,c], 'r-' )
+    ax.plot( xGrid, cf(tau, xGrid, eta0), 'b:' )
+
+    
+
 
 #===============================================================================
 if __name__ == "__main__":
@@ -107,13 +152,6 @@ if __name__ == "__main__":
         # (eventually) use format: x [fm], y [fm], e [1/fm^4], u_x, u_y, ...
         tau = get_time_step(infilename)
         print('tau =', tau)
-
-        #x = np.array(frame['x'])
-        #y = np.array(frame['y'])
-        #eta = np.array(frame['eta'])
-        #e = np.array(frame['e'])
-        #ux = np.array(frame['ux'])
-        #ueta = np.array(frame['ueta'])
         
         print('Loading', infilename)
         hydroOutput = np.loadtxt(infilename, skiprows=1, usecols=(2, 3, 4, 10, 33, 35))
