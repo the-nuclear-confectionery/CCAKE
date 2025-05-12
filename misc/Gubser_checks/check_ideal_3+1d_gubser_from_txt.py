@@ -101,7 +101,7 @@ def evaluate_field(r):
     if np.sum(weights) < 1e-10:
         return 0
     else:
-        return np.sum( neighbors[:,3:]*weights[:, np.newaxis] ) / (np.sum(weights[:, np.newaxis])+1e-10)
+        return np.sum( neighbors[:,3:]*weights[:, np.newaxis] ) / (np.sum(weights)+1e-10)
 
 #===============================================================================
 #def plot_slice(ax, hydroOutput, tau, axis, quantity):
@@ -158,6 +158,12 @@ if __name__ == "__main__":
         print('Loading', infilename)
         hydroOutput = np.loadtxt(infilename, skiprows=1, usecols=(2, 3, 4, 10, 33, 35))
         print('\t - finished.')
+        
+        print('Eliminating irrelevant particles to save time')
+        hydroOutput = hydroOutput[np.where( (np.isclose(hydroOutput[:,1], 0.0, atol=2.01*h)) \
+                                          & (np.isclose(hydroOutput[:,2], eta0, atol=2.01*h)) )] # y == 0 ===>>> r == x
+        print('\t - finished.')
+
         
         # interpolate on regular grid
         print('Smoothing fields')
