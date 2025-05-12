@@ -101,7 +101,7 @@ def evaluate_field(r):
     if np.sum(weights) < 1e-10:
         return 0
     else:
-        return np.sum( neighbors[:,3:]*weights[:, np.newaxis], axis=0 ) / (np.sum(weights)+1e-10)
+        return np.sum( neighbors*weights[:, np.newaxis], axis=0 ) / (np.sum(weights)+1e-10)
 
 #===============================================================================
 #def plot_slice(ax, hydroOutput, tau, axis, quantity):
