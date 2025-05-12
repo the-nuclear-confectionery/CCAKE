@@ -132,7 +132,7 @@ if __name__ == "__main__":
     print("tau = ", tau)
     print("float(int(tau)) = ", np.round(tau))
     print("np.isclose( tau, float(int(tau)), atol=1e-04 ) = ", np.isclose( tau, float(int(tau)), atol=1e-04 ))
-    if np.isclose( tau, np.round(tau), atol=1e-04 ):
+    if np.isclose( tau, np.round(tau, decimals=1), atol=1e-04 ):
         plt.savefig(outdirectory + '/yeq' + axisMode \
                                  + '_slice_tau=' + f"{tau:.2f}" \
                                  + '_eta=' + f"{eta0:.2f}" + '.pdf')
