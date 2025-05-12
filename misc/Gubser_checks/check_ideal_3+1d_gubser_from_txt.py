@@ -79,6 +79,8 @@ def plot_slice(ax, hydroOutput, tau, axis, quantity):
     
     sliceData = hydroOutput[np.where( (np.isclose(hydroOutput[:,1], 0.0, atol=1e-2)) \
                                       & (np.isclose(hydroOutput[:,2], eta0, atol=5e-2)) )] # y == 0 ===>>> r == x
+    if quantity == 'e':
+        sliceData[:,c] *= 1000. # GeV --> MeV
     ax.plot( sliceData[:,0], sliceData[:,c], 'r-' )
     xpts = np.linspace(np.amin(sliceData[:,0]), np.amax(sliceData[:,0]), 1001)
     ax.plot( xpts, cf(tau, xpts, eta0), 'b:' )
