@@ -101,7 +101,7 @@ def evaluate_field(r):
     if np.sum(weights) < 1e-10:
         return 0
     else:
-        return np.sum( neighbors[:,3:]*weights[:, np.newaxis] ) / (np.sum(weights)+1e-10)
+        return np.sum( neighbors[:,3:]*weights[:, np.newaxis], axis=0 ) / (np.sum(weights)+1e-10)
 
 #===============================================================================
 #def plot_slice(ax, hydroOutput, tau, axis, quantity):
@@ -160,8 +160,8 @@ if __name__ == "__main__":
         print('\t - finished.')
         
         print('Eliminating irrelevant particles to save time')
-        hydroOutput = hydroOutput[np.where( (np.isclose(hydroOutput[:,1], 0.0, atol=2.01*h)) \
-                                          & (np.isclose(hydroOutput[:,2], eta0, atol=2.01*h)) )] # y == 0 ===>>> r == x
+        hydroOutput = hydroOutput[np.where( (np.isclose(hydroOutput[:,1], 0.0, atol=3.0*h)) \
+                                          & (np.isclose(hydroOutput[:,2], eta0, atol=3.0*h)) )] # y == 0 ===>>> r == x
         print('\t - finished.')
 
         
