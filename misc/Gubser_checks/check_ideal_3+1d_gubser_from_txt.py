@@ -125,10 +125,10 @@ def plot_slice(ax, hydroOutput, tau, axis, quantity):
     print('quantity =',quantity)
     print('c =',c)
     cf   = [None, None, None, shifted_eGubser, shifted_urGubser, shifted_uetaGubser][c]    
-    f = np.array([ evaluate_field(point) for point in grid3D ])
-    if quantity == 'e':
-        f[:,c] *= 1000. # GeV --> MeV
-    ax.plot( f[:,0], f[:,c], 'r-' )
+    #f = np.array([ evaluate_field(point) for point in grid3D ])
+    #if quantity == 'e':
+    #    f[:,c] *= 1000. # GeV --> MeV
+    #ax.plot( f[:,0], f[:,c], 'r-' )
     ax.plot( xGrid, cf(tau, xGrid, eta0), 'b:' )
 
     
