@@ -46,6 +46,8 @@ custom_colors = ['#FF5F05', '#FF8C42', '#13294B', '#009FD4', '#8FC1DE', '#707372
 cmap = ListedColormap(custom_colors)
 
 from matplotlib import rc
+plt.rcParams.update(plt.rcParamsDefault)
+
 rc('font', **{'family': 'serif', 'serif': ['Computer Modern Roman']})
 rc('text', usetex=True)
 
