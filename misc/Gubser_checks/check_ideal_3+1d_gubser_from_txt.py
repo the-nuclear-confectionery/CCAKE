@@ -224,7 +224,8 @@ if __name__ == "__main__":
                 ax.set_ylim([-500.0, 17500.0])
                 ax.set_ylabel(r"$\varepsilon$ (MeV/fm$^{3}$)")
             else:
-
+                print('Invalid plot quantity!')
+                exit(1)
             
     #plt.show()
     print("tau = ", tau)
