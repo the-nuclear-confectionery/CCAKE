@@ -6,7 +6,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import seaborn
 import sys
-seaborn.set(style='ticks')
+'''seaborn.set(style='ticks')
 params = {
      'axes.labelsize': 22,
      'axes.titlesize': 20,
@@ -31,11 +31,25 @@ params = {
      "savefig.edgecolor":"white",
       "text.usetex": False ,
     'figure.figsize': [9, 6],
-    'figure.max_open_warning': 0
+    'figure.max_open_warning': 0,
+    'axes.unicode_minus' : False
      }
 plt.rcParams.update(params)
 colors = ["#FA5896","#BBBBBB","#9CFFFB" ,"#0077BB", "darkorange","#F6EE63","#C57AFF","yellow","green","navy"]
-c3 =  ["#FF5F05", "#13294B", "#009FD4", "#8FC1DE", "#707372"]
+c3 =  ["#FF5F05", "#13294B", "#009FD4", "#8FC1DE", "#707372"]'''
+
+custom_colors = ['#FF5F05', '#FF8C42', '#13294B', '#009FD4', '#8FC1DE', '#707372']
+cmap = ListedColormap(custom_colors)
+
+from matplotlib import rc
+rc('font', **{'family': 'serif', 'serif': ['Computer Modern Roman']})
+rc('text', usetex=True)
+
+
+plt.rcParams.update({
+    "text.usetex": True,
+    "text.latex.preamble": r'\usepackage{amsmath}'
+    })
 
 #========================
 # my stuff below this line
@@ -166,8 +180,8 @@ def plot_slice(ax, f, tau, axis, quantity, iFile):
         f[:,c] *= 1000. # GeV --> MeV
     #ax.plot( f[:,0], f[:,c], 'r-' )
     #ax.plot( xGrid, cf(tau, xGrid, eta0), 'b:' )
-    ax.plot( f[:,0], f[:,c], alpha=1, color=c3[iFile], ls="dashed", lw=5.5, dash_capstyle='round')
-    ax.plot( xGrid, cf(tau, xGrid, eta0), lw=8, color=c3[iFile], alpha=0.4 )
+    ax.plot( f[:,0], f[:,c], alpha=1, color=c3[iFile], ls="dashed", lw=2.5, dash_capstyle='round')
+    ax.plot( xGrid, cf(tau, xGrid, eta0), lw=3, color=c3[iFile], alpha=0.4 )
    
 
 
@@ -199,6 +213,8 @@ if __name__ == "__main__":
                                           & (np.isclose(hydroOutput[:,2], eta0, atol=3.0*h)) )] # y == 0 ===>>> r == x
         print('\t - finished.')
 
+        print('Center cell:', tau, hydroOutput[np.where( (np.isclose(hydroOutput[:,0], 0.0, atol=1e-3)) \
+                                          & (np.isclose(hydroOutput[:,1], 0.0, atol=1e-3)) )])
         
         # interpolate on regular grid
         print('Smoothing fields')
@@ -211,13 +227,13 @@ if __name__ == "__main__":
             #if use_log_scale and ['T','e'].count(toPlot[i]) > 0:
             #    ax.set_yscale('log')
             plot_slice( ax, f, tau, axisMode, toPlot[i], iFile )
-            ax.set_xlim([-4.5, 4.5])
+            ax.set_xlim([0.0, 4.5])
             ax.set_xlabel(r'$x$ (fm)')
             if toPlot[i] == 'ur':
-                ax.set_ylim([-3.0, 3.0])
-                ax.set_ylabel(r"$u^r$)")
+                ax.set_ylim([0.0, 3.0])
+                ax.set_ylabel(r"$u^r$")
             elif toPlot[i] == 'ueta':
-                ax.set_ylim([-0.75, 0.0])
+                ax.set_ylim([-0.75, 0.05])
                 ax.set_ylabel(r"$u^\eta$ (fm$^{-1}$)")
             elif toPlot[i] == 'e':
                 #ax.ylabel(r'$e$ (fm$^{-4}$)')
