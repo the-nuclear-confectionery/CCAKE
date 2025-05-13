@@ -166,8 +166,8 @@ def plot_slice(ax, f, tau, axis, quantity, iFile):
         f[:,c] *= 1000. # GeV --> MeV
     #ax.plot( f[:,0], f[:,c], 'r-' )
     #ax.plot( xGrid, cf(tau, xGrid, eta0), 'b:' )
-    ax.plot( f[:,0], f[:,c], alpha=1, color=colors[iFile], ls="dashed", lw=5.5, dash_capstyle='round')
-    ax.plot( xGrid, cf(tau, xGrid, eta0), lw=8, color=colors[i], alpha=0.4 )
+    ax.plot( f[:,0], f[:,c], alpha=1, color=c3[iFile], ls="dashed", lw=5.5, dash_capstyle='round')
+    ax.plot( xGrid, cf(tau, xGrid, eta0), lw=8, color=c3[i], alpha=0.4 )
    
 
 
