@@ -55,6 +55,32 @@ plt.rcParams.update({
     "text.latex.preamble": r'\usepackage{amsmath}'
     })
 
+def costumize_axis(ax: plt.Axes, x_title: str, y_title: str,
+                   no_xnums: bool = False):
+    ax.set_xlabel(x_title, fontsize=30)
+    ax.set_ylabel(y_title, fontsize=30)
+    if no_xnums:
+        ax.tick_params(axis='x', labelsize=0, top=True)
+        ax.tick_params(axis='y', labelsize=18, right=True)
+    else:
+        ax.tick_params(axis='both', labelsize=18, top=True, right=True)
+    ax.tick_params(axis='both', which='major', direction='in', length=8)
+    ax.xaxis.set_minor_locator(tck.AutoMinorLocator())
+    ax.yaxis.set_minor_locator(tck.AutoMinorLocator())
+    ax.tick_params(axis='both', which='minor',
+                   direction='in', length=4, top=True, right=True)
+    return ax
+
+def beautify():
+    for key in ax.keys():
+        if key == 'cbar':
+            continue
+        myplt.costumize_axis(ax=ax[key],
+                             x_title=r'$r$ [fm]',
+                             y_title=ylabels[key])
+        ax[key].set_xlim(0, 4.5)
+
+
 #========================
 # my stuff below this line
 use_log_scale = False
@@ -184,8 +210,8 @@ def plot_slice(ax, f, tau, axis, quantity, iFile):
         f[:,c] *= 1000. # GeV --> MeV
     #ax.plot( f[:,0], f[:,c], 'r-' )
     #ax.plot( xGrid, cf(tau, xGrid, eta0), 'b:' )
-    ax.plot( f[:,0], f[:,c], alpha=1, color=cmap[iFile], ls="dashed", lw=2.5, dash_capstyle='round')
-    ax.plot( xGrid, cf(tau, xGrid, eta0), lw=3, color=cmap[iFile], alpha=0.4 )
+    ax.plot( f[:,0], f[:,c], alpha=1, color=cmap(iFile), ls="dashed", lw=2.5, dash_capstyle='round')
+    ax.plot( xGrid, cf(tau, xGrid, eta0), lw=3, color=cmap(iFile), alpha=0.4 )
    
 
 
