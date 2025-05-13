@@ -184,8 +184,8 @@ def plot_slice(ax, f, tau, axis, quantity, iFile):
         f[:,c] *= 1000. # GeV --> MeV
     #ax.plot( f[:,0], f[:,c], 'r-' )
     #ax.plot( xGrid, cf(tau, xGrid, eta0), 'b:' )
-    ax.plot( f[:,0], f[:,c], alpha=1, color=c3[iFile], ls="dashed", lw=2.5, dash_capstyle='round')
-    ax.plot( xGrid, cf(tau, xGrid, eta0), lw=3, color=c3[iFile], alpha=0.4 )
+    ax.plot( f[:,0], f[:,c], alpha=1, color=cmap[iFile], ls="dashed", lw=2.5, dash_capstyle='round')
+    ax.plot( xGrid, cf(tau, xGrid, eta0), lw=3, color=cmap[iFile], alpha=0.4 )
    
 
 
@@ -234,17 +234,17 @@ if __name__ == "__main__":
             #    ax.set_yscale('log')
             plot_slice( ax, f, tau, axisMode, toPlot[i], iFile )
             ax.set_xlim([0.0, 4.5])
-            ax.set_xlabel(r'$x$ (fm)')
+            ax.set_xlabel(r'$x$ [fm]')
             if toPlot[i] == 'ur':
                 ax.set_ylim([0.0, 3.0])
                 ax.set_ylabel(r"$u^r$")
             elif toPlot[i] == 'ueta':
                 ax.set_ylim([-0.75, 0.05])
-                ax.set_ylabel(r"$u^\eta$ (fm$^{-1}$)")
+                ax.set_ylabel(r"$u^\eta$ [fm$^{-1}$]")
             elif toPlot[i] == 'e':
                 #ax.ylabel(r'$e$ (fm$^{-4}$)')
                 ax.set_ylim([-500.0, 17500.0])
-                ax.set_ylabel(r"$\varepsilon$ (MeV/fm$^{3}$)")
+                ax.set_ylabel(r'$\mathcal E$ [MeV/fm$^3$]')
             else:
                 print('Invalid plot quantity!')
                 exit(1)
