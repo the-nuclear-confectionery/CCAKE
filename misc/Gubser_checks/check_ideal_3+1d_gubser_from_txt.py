@@ -38,6 +38,10 @@ plt.rcParams.update(params)
 colors = ["#FA5896","#BBBBBB","#9CFFFB" ,"#0077BB", "darkorange","#F6EE63","#C57AFF","yellow","green","navy"]
 c3 =  ["#FF5F05", "#13294B", "#009FD4", "#8FC1DE", "#707372"]'''
 
+import matplotlib.ticker as tck
+from matplotlib.colors import ListedColormap
+
+
 custom_colors = ['#FF5F05', '#FF8C42', '#13294B', '#009FD4', '#8FC1DE', '#707372']
 cmap = ListedColormap(custom_colors)
 
@@ -196,12 +200,14 @@ if __name__ == "__main__":
     fig, axs = plt.subplots( ncols=ncols, nrows=nrows, figsize=(5*ncols, 5*nrows) )
     
     tau = 0.0
+    taus = np.array([])
     
     # plot hydro output files
     for iFile, infilename in enumerate(infilenames):
         # load Gubser check output files produced by hydro code
         # (eventually) use format: x [fm], y [fm], e [1/fm^4], u_x, u_y, ...
         tau = get_time_step(infilename)
+        taus = np.append(taus, tau)
         print('tau =', tau)
         
         print('Loading', infilename)
