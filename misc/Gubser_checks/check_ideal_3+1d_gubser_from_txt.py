@@ -1,10 +1,44 @@
 import h5py as h5
+import pandas as pd
+import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-import numpy as np
+import seaborn
 import sys
+seaborn.set(style='ticks')
+params = {
+     'axes.labelsize': 22,
+     'axes.titlesize': 20,
+     'font.size': 18,
+     'legend.fontsize': 15,
+     "axes.labelcolor": "black",
+     "xtick.color" : "black",
+      "ytick.color" : "black",
+     'xtick.labelsize': 18,
+     'ytick.labelsize':18,
+     'axes.edgecolor' : "black",
+     'axes.titlecolor': "black",
+     'legend.edgecolor': "white",
+     'legend.facecolor': "white",
+     "legend.labelcolor": "black",
+     "patch.facecolor" : "white",
+     "patch.edgecolor" : "white",
+     'axes.facecolor':"white",
+     "savefig.facecolor" :"white",
+     "axes.spines.top" : True,
+     "axes.spines.right" : True,
+     "savefig.edgecolor":"white",
+      "text.usetex": False ,
+    'figure.figsize': [9, 6],
+    'figure.max_open_warning': 0
+     }
+plt.rcParams.update(params)
+colors = ["#FA5896","#BBBBBB","#9CFFFB" ,"#0077BB", "darkorange","#F6EE63","#C57AFF","yellow","green","navy"]
+c3 =  ["#FF5F05", "#13294B", "#009FD4", "#8FC1DE", "#707372"]
 
+#========================
+# my stuff below this line
 use_log_scale = False
 
 #infilename = sys.argv[1]
@@ -121,7 +155,7 @@ def evaluate_field(r):
 #    ax.plot( xpts, cf(tau, xpts, eta0), 'b:' )
     
 #===============================================================================
-def plot_slice(ax, f, tau, axis, quantity):
+def plot_slice(ax, f, tau, axis, quantity, iFile):
     # c : column of quantity to plot in array
     # version below plots interpolated fields
     c = cols[quantity]
@@ -130,10 +164,11 @@ def plot_slice(ax, f, tau, axis, quantity):
     cf = [None, None, None, shifted_eGubser, shifted_urGubser, shifted_uetaGubser][c]    
     if quantity == 'e':
         f[:,c] *= 1000. # GeV --> MeV
-    ax.plot( f[:,0], f[:,c], 'r-' )
-    ax.plot( xGrid, cf(tau, xGrid, eta0), 'b:' )
-
-    
+    #ax.plot( f[:,0], f[:,c], 'r-' )
+    #ax.plot( xGrid, cf(tau, xGrid, eta0), 'b:' )
+    ax.plot( f[:,0], f[:,c], alpha=1, color=colors[iFile], ls="dashed", lw=5.5, dash_capstyle='round')
+    ax.plot( xGrid, cf(tau, xGrid, eta0), lw=8, color=colors[i], alpha=0.4 )
+   
 
 
 #===============================================================================
@@ -149,7 +184,7 @@ if __name__ == "__main__":
     tau = 0.0
     
     # plot hydro output files
-    for infilename in infilenames:
+    for iFile, infilename in enumerate(infilenames):
         # load Gubser check output files produced by hydro code
         # (eventually) use format: x [fm], y [fm], e [1/fm^4], u_x, u_y, ...
         tau = get_time_step(infilename)
@@ -175,7 +210,7 @@ if __name__ == "__main__":
         for i, ax in enumerate(axs.ravel()):
             if use_log_scale and ['T','e'].count(toPlot[i]) > 0:
                 ax.set_yscale('log')
-            plot_slice( ax, f, tau, axisMode, toPlot[i] )
+            plot_slice( ax, f, tau, axisMode, toPlot[i], iFile )
             ax.set_xlim([-4.5, 4.5])
             ax.set_xlabel(r'$x$ (fm)')
             if toPlot[i] == 'ur':
