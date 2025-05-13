@@ -167,7 +167,7 @@ def plot_slice(ax, f, tau, axis, quantity, iFile):
     #ax.plot( f[:,0], f[:,c], 'r-' )
     #ax.plot( xGrid, cf(tau, xGrid, eta0), 'b:' )
     ax.plot( f[:,0], f[:,c], alpha=1, color=c3[iFile], ls="dashed", lw=5.5, dash_capstyle='round')
-    ax.plot( xGrid, cf(tau, xGrid, eta0), lw=8, color=c3[i], alpha=0.4 )
+    ax.plot( xGrid, cf(tau, xGrid, eta0), lw=8, color=c3[iFile], alpha=0.4 )
    
 
 
@@ -208,22 +208,32 @@ if __name__ == "__main__":
 
         # plot comparison along y==0 slice
         for i, ax in enumerate(axs.ravel()):
-            if use_log_scale and ['T','e'].count(toPlot[i]) > 0:
-                ax.set_yscale('log')
+            #if use_log_scale and ['T','e'].count(toPlot[i]) > 0:
+            #    ax.set_yscale('log')
             plot_slice( ax, f, tau, axisMode, toPlot[i], iFile )
             ax.set_xlim([-4.5, 4.5])
             ax.set_xlabel(r'$x$ (fm)')
             if toPlot[i] == 'ur':
                 ax.set_ylim([-3.0, 3.0])
-            #ax.ylabel(r'$e$ (fm$^{-4}$)')
+                ax.set_ylabel(r"$u^r$)")
+            elif toPlot[i] == 'ueta':
+                ax.set_ylim([-0.75, 0.0])
+                ax.set_ylabel(r"$u^\eta$ (fm$^{-1}$)")
+            elif toPlot[i] == 'e':
+                #ax.ylabel(r'$e$ (fm$^{-4}$)')
+                ax.set_ylim([-500.0, 17500.0])
+                ax.set_ylabel(r"$\varepsilon$ (MeV/fm$^{3}$)")
+            else:
+
             
     #plt.show()
     print("tau = ", tau)
     print("float(int(tau)) = ", np.round(tau))
     print("np.isclose( tau, float(int(tau)), atol=1e-04 ) = ", np.isclose( tau, float(int(tau)), atol=1e-04 ))
-    #if np.isclose( tau, np.round(tau, decimals=1), atol=1e-04 ):
+    plt.tight_layout()
     plt.savefig(outdirectory + '/yeq' + axisMode \
                                  + '_slice_tau=' + f"{tau:.2f}" \
-                                 + '_eta=' + f"{eta0:.2f}" + '.pdf')
+                                 + '_eta=' + f"{eta0:.2f}" + '.pdf', \
+                dpi=300, bbox_inches="tight")
     
 
