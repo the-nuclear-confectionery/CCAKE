@@ -196,6 +196,8 @@ void BBMG::propagate()
     
     double kappa = get_kappa(jetPropagation.T / 1000); //The /1000 here is to move temps from MeV to GeV to follow Barbara's plot, same as above
     
+    cout << jetPropagation.rho0 << "vs. " << jetPropagation.rho << endl;
+    abort();
 
     //if ( /*( jetPropagation.on == 1 ) &&*/  jetPropagation.T > Freezeout_Temp ) //Can remove the if statement soon, as removal takes care of the issue 
     //{
