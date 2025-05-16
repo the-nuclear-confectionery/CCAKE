@@ -7,6 +7,7 @@ initial_conditions:
   input_as_entropy: false # if false, input will be interpreted as energy density
 parameters:
   dt: 0.001 # time-step of the simulation in fm/c
+  max_tau: 2.0 # maximum time of the simulation in fm/c
   h_T:  0.100000  # Smoothing parameter inside kernel, in the transverse direction (in fm)
   h_eta:  0.100000  # Smoothing parameter inside kernel in the longitudinal direction
   rk_order: 2
