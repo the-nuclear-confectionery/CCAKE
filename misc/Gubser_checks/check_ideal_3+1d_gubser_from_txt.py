@@ -1,5 +1,5 @@
 import h5py as h5
-import pandas as pd
+#import pandas as pd
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')
@@ -73,14 +73,20 @@ def costumize_axis(ax: plt.Axes, x_title: str, y_title: str,
                    direction='in', length=4, top=True, right=True)
     return ax
 
-def beautify():
-    for key in ax.keys():
+def beautify(axs):
+    ylabels = {'e': r'$\mathcal E$ [MeV/fm$^3$]',
+               'ur': r'$u^r$',
+               'ueta': r'$u^\eta$ [1/fm]',
+               'e2': r'$\mathcal E$ [MeV/fm$^3$]',
+               'ur2': r'$u^r$',
+               'ueta2': r'$u^\eta$ [1/fm]'}
+    for key in axs.keys():
         if key == 'cbar':
             continue
-        myplt.costumize_axis(ax=ax[key],
-                             x_title=r'$r$ [fm]',
-                             y_title=ylabels[key])
-        ax[key].set_xlim(0, 4.5)
+        costumize_axis(ax=axs[key],
+                       x_title=r'$r$ [fm]',
+                       y_title=ylabels[key])
+        axs[key].set_xlim(0, 4.5)
 
 
 #========================
@@ -225,7 +231,12 @@ if __name__ == "__main__":
     
     ncols = 3
     nrows = 1
-    fig, axs = plt.subplots( ncols=ncols, nrows=nrows, figsize=(5*ncols, 5*nrows) )
+    #fig, axs = plt.subplots( ncols=ncols, nrows=nrows, figsize=(5*ncols, 5*nrows) )
+    fig, axs = plt.subplot_mosaic([['e', 'ur', 'ueta'],
+                                   ['e', 'ur', 'ueta']],
+                             width_ratios=[1, 1, 1],
+                             figsize=np.array([7 * 3, 7 * 2]),
+                             constrained_layout=True)
     
     tau = 0.0
     taus = np.array([])
@@ -248,7 +259,8 @@ if __name__ == "__main__":
         print('\t - finished.')
 
         print('Center cell:', tau, hydroOutput[np.where( (np.isclose(hydroOutput[:,0], 0.0, atol=1e-3)) \
-                                          & (np.isclose(hydroOutput[:,1], 0.0, atol=1e-3)) )])
+                                                         & (np.isclose(hydroOutput[:,1], 0.0, atol=1e-3)) \
+                                                         & (np.isclose(hydroOutput[:,2], eta0, atol=5e-2)))])
         
         # interpolate on regular grid
         print('Smoothing fields')
@@ -256,8 +268,8 @@ if __name__ == "__main__":
         print('\t - finished.')
         print('\t - f.shape =', f.shape)
 
-        # plot comparison along y==0 slice
-        for i, ax in enumerate(axs.ravel()):
+        # plot comparison along y==0 && eta==eta0 slice
+        for i, ax in enumerate(axs.values()):
             #if use_log_scale and ['T','e'].count(toPlot[i]) > 0:
             #    ax.set_yscale('log')
             plot_slice( ax, f, tau, axisMode, toPlot[i], iFile )
@@ -276,7 +288,9 @@ if __name__ == "__main__":
             else:
                 print('Invalid plot quantity!')
                 exit(1)
-            
+    
+    beautify(axs)
+    
     #plt.show()
     print("tau = ", tau)
     print("float(int(tau)) = ", np.round(tau))
