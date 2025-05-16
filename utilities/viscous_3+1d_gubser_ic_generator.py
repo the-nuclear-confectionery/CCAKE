@@ -15,16 +15,16 @@ def write_header(stepx, stepy, stepEta, xmin, ymin, etamin):
     return f
 
 hbarc = 0.19733
-t0 = 0.5 # amount of temporal shift
+t0 = 0.0 # amount of temporal shift
 tau0 = 1.0
 eps0 = 80 # GeV/fm^3
-T0 = eps0**0.25/hbarc
-n0 = 1.0
+shearOVERs = 0.134  # i.e., specific shear viscosity (eta/s)
 q = 1.0
 fs = 11.0
 
-# viscous parameter
-H0 = 1.0
+# derived parameters
+H0 = 4.0*fs**0.25*shearOVERs/3.0
+T0 = eps0**0.25/hbarc
 
 #==============================================================================
 # Define Gubser model functions
@@ -68,6 +68,32 @@ def shifted_velocity_y(tau, y, r, eta):
 def shifted_velocity_eta(tau, r, eta):
     return -velocity_tau(taup(tau, eta), r) * ( t0 * np.sinh(eta) / (tau * taup(tau, eta)) )
 #==============================================================================
+#def jacobian(tau, r, eta):
+#    return np.array([[(tau+t0*np.cosh(eta))/taup(tau,eta), t0*tau*np.sinh(eta)/taup(tau,eta)],
+#                     [t0*tau*np.sinh(eta)/taup(tau,eta)**2, tau*(tau+t0*np.cosh(eta))/taup(tau,eta)**2]])
+#==============================================================================
+def jacobian(tau, eta):
+    c, s, tp = np.cosh(eta), np.sinh(eta), taup(tau,eta)
+    return np.array([[(tau+t0*c)/tp,  0, 0,      -t0*s],
+                     [0,              1, 0,          0],
+                     [0,              0, 1,          0],
+                     [-t0*s/(tau*tp), 0, 0, 1+t0*c/tau]]).T
+#==============================================================================
+def pimunu(tau, x, y, r):
+    shear = H0*eps_a(tau, r)**0.75
+    prefactor = 2.*shear*np.tanh(rho(tau, r))/(3.*tau**4) # N.B. - missing minus sign relative to 2503.XXXXX
+    ux = velocity_x(tau, x, r)
+    uy = velocity_y(tau, y, r)
+    utau = velocity_tau(tau, r)
+    return prefactor * np.array([[ux**2+uy**2, ux*utau, uy*utau,           0],
+                                 [ux*utau,     1+ux**2,   ux*uy,           0],
+                                 [uy*utau,       ux*uy, 1+uy**2,           0],
+                                 [0,                  0,       0, -2./tau**2]])
+#==============================================================================
+def shifted_pimunu(tau, x, y, r, eta):
+    j = jacobian(tau, eta)
+    return j.T @ pimunu(taup(tau,eta), x, y, r) @ j
+#==============================================================================
 
 def main():
     #print('eps_a(1,0) =', eps_a(1.0,0.0))
@@ -79,9 +105,9 @@ def main():
     stepx = 0.05
     stepy = 0.05
     stepeta = 0.025
-    xmax = 5
-    ymax = 5
-    etamax = 2
+    xmax = 5.0
+    ymax = 5.0
+    etamax = 2.0
     xmin = -xmax
     ymin = -ymax
     etamin = -etamax
@@ -95,24 +121,39 @@ def main():
     #f = open(sys.argv[1], "r")
     #lines = f.readlines()
     #f.close()
-
+    
     f = write_header(stepx, stepy, stepeta, xmin, ymin, etamin)
 
     for x in np.arange(xmin, xmax+stepx, stepx):
         for y in np.arange(ymin, ymax+stepy, stepy):
             r = np.sqrt(float(x)**2 + float(y)**2)
             for eta in np.arange(etamin, etamax+stepeta, stepeta):
-                ux   = shifted_velocity_x(tau0, float(x), r, eta)
-                uy   = shifted_velocity_y(tau0, float(y), r, eta)
-                ueta = shifted_velocity_eta(tau0, r, eta)
-                eps  = shifted_eps(tau0, r, eta)
-                pixx = 0.
-                piyy = 0.
-                pixy = 0.
-                pizz = 0.
+                ux       = shifted_velocity_x(tau0, float(x), r, eta)
+                uy       = shifted_velocity_y(tau0, float(y), r, eta)
+                ueta     = shifted_velocity_eta(tau0, r, eta)
+                eps      = shifted_eps(tau0, r, eta)
+                piM      = shifted_pimunu(tau0, x, y, r, eta)
+                pixx     = piM[1,1]
+                piyy     = piM[2,2]
+                pixy     = piM[1,2]
+                pixeta   = piM[1,3]
+                piyeta   = piM[2,3]
+                pietaeta = piM[3,3]
+                #utau = np.sqrt(1.0+ux**2+uy**2+(tau0*ueta)**2)
+                #print('----------------------------------------')
+                #np.set_printoptions(precision=8)
+                #print('u =',utau,ux,uy,tau0**2*ueta)
+                #print('pi =',piM)
+                #if True:
+                #    exit(1)
+                #print('tr(pi) =',piM[0,0]-piM[1,1]-piM[2,2]-tau0**2*piM[3,3])
+                #print('u*pi(0) =',utau*piM[0,0]-ux*piM[0,1]-uy*piM[0,2]-tau0**2*ueta*piM[0,3])
+                #print('u*pi(1) =',utau*piM[1,0]-ux*piM[1,1]-uy*piM[1,2]-tau0**2*ueta*piM[1,3])
+                #print('u*pi(2) =',utau*piM[2,0]-ux*piM[2,1]-uy*piM[2,2]-tau0**2*ueta*piM[2,3])
+                #print('u*pi(3) =',utau*piM[3,0]-ux*piM[3,1]-uy*piM[3,2]-tau0**2*ueta*piM[3,3])
                 #print(eps)
                 
-                f.write(f"{x} {y} {eta} {eps} 0 0 0 {ux} {uy} {ueta} 0 {pixx} {pixy} 0 {piyy} 0 {pizz}\n")
+                f.write(f"{x} {y} {eta} {eps} 0 0 0 {ux} {uy} {ueta} 0 {pixx} {pixy} {pixeta} {piyy} {piyeta} {pietaeta}\n")
 
     f.close()
 
