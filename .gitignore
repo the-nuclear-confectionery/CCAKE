@@ -21,3 +21,4 @@ docs/*
 ccake
 EoS
 build*
+*.h5
