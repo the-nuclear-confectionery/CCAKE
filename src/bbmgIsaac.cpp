@@ -153,6 +153,9 @@ void BBMG::initial()
 
         sph_particle.line = 0.5 * kappa * exp(z * log(settingsPtr->t0)) * exp(c * log(sph_particle.rho0)) * settingsPtr->dt; // only if initial flow=0
         //jetInfo.resize(14);
+
+        cout << "Checking time requirement: " << settingsPtr->t0 << endl;
+
         //for (int j = 0; j < phimax; j++) //initializes jets at each point in grid space, over 14 directions
         //std::uniform_int_distribution<> phidist(0, phimax - 1);
         int phidist = rand() % phimax;
@@ -196,6 +199,8 @@ void BBMG::propagate()
     
     double kappa = get_kappa(jetPropagation.T / 1000); //The /1000 here is to move temps from MeV to GeV to follow Barbara's plot, same as above
     
+    cout << "Checking time requirement: " << tau << endl;
+
     cout << jetPropagation.rho0 << "vs. " << jetPropagation.rho << endl;
     abort();
 
