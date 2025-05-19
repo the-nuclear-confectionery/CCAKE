@@ -154,8 +154,6 @@ void BBMG::initial()
         sph_particle.line = 0.5 * kappa * exp(z * log(settingsPtr->t0)) * exp(c * log(sph_particle.rho0)) * settingsPtr->dt; // only if initial flow=0
         //jetInfo.resize(14);
 
-        cout << "Checking time requirement: " << settingsPtr->t0 << endl;
-
         //for (int j = 0; j < phimax; j++) //initializes jets at each point in grid space, over 14 directions
         //std::uniform_int_distribution<> phidist(0, phimax - 1);
         int phidist = rand() % phimax;
@@ -194,22 +192,17 @@ void BBMG::propagate()
     jetPropagation.r[0] += vjet * settingsPtr->dt * cos(jetPropagation.phi); //Flow is not here to alter the direction of the jet
     jetPropagation.r[1] += vjet * settingsPtr->dt * sin(jetPropagation.phi);
     //cout << "pid checking first: " << jetPropagation.pid << endl;
-
+    inter( jetPropagation ); //interpolation of the area around the jet
+    //Comment below is incorrect I think
     //Move interpolation to the end of this function !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     
     double kappa = get_kappa(jetPropagation.T / 1000); //The /1000 here is to move temps from MeV to GeV to follow Barbara's plot, same as above
-    
-    cout << "Checking time requirement: " << tau << endl;
-
-    cout << jetPropagation.rho0 << "vs. " << jetPropagation.rho << endl;
-    abort();
 
     //if ( /*( jetPropagation.on == 1 ) &&*/  jetPropagation.T > Freezeout_Temp ) //Can remove the if statement soon, as removal takes care of the issue 
     //{
       jetPropagation.line += kappa * exp(z*log(tau)) * exp(c*log(jetPropagation.rho)) * settingsPtr->dt * flow(jetPropagation);
       countyes++;
       //cout << "Jet directions still going: " << jetPropagation.phi << endl;
-      inter( jetPropagation ); //interpolation of the area around the jet
   }
         auto condition = [this](auto& jetPropagation) {
             return jetPropagation.T <= Freezeout_Temp;
