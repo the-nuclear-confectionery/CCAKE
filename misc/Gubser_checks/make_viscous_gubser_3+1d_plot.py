@@ -41,7 +41,7 @@ plt.rcParams.update({
 
 dpi = 150
 fig, ax = plt.subplot_mosaic([['e_at_eta0', 'ur_at_eta0', 'ueta_at_eta0', 'cbar'],
-                              ['e_at_eta1', 'ur_at_eta1', 'ueta_at_eta1', 'cbar']],
+                              ['pixx_at_eta0', 'piyy_at_eta0', 'pietaeta_at_eta0', 'cbar']],
                              width_ratios=[1, 1, 1, 0.1],
                              figsize=np.array([7 * 3, 7 * 2]),
                              constrained_layout=True)
@@ -62,11 +62,19 @@ use_log_scale = False
 #n_timesteps = min([len(infilenames),1000])
 n_timesteps = len(time_list)
 
+
 hbarc = 197.33 # MeV*fm
 t0 = 0.5 # amount of temporal shift
 q  = 1.
 e0 = 80000.0 # units of MeV*fm (cf. ideal_2+1d_gubser_ic_generator.py script)
 e0 *= 0.001  # convert to units of GeV*fm
+
+shearOVERs = 0.134  # i.e., specific shear viscosity (eta/s)
+fs = 11.0
+
+# derived parameters
+H0 = 4.0*fs**0.25*shearOVERs/3.0
+T0 = e0**0.25/hbarc
 
 Nc = 3.
 Nf = 2.5
@@ -110,6 +118,12 @@ def TGubser(tau, r):
 #===============================================================================
 def urGubser(tau, r):
     return 2.0*q**2*r*tau / np.sqrt( 1. + 2.*q**2*(tau**2 + r**2) + q**4*(tau**2 - r**2)**2 )
+#==============================================================================
+def velocity_x(tau, x, r):
+    return urGubser(tau, r) * x / r if r != 0 else 0
+#==============================================================================
+def velocity_y(tau, y, r):
+    return urGubser(tau, r) * y / r if r != 0 else 0
 #===============================================================================
 def utauGubser(tau, r):
     return np.sqrt(1.0 + urGubser(tau, r)**2)
@@ -122,6 +136,28 @@ def shifted_urGubser(tau, r, eta):
 #==============================================================================
 def shifted_uetaGubser(tau, r, eta):
     return -utauGubser(taup(tau, eta), r) * ( t0 * np.sinh(eta) / (tau * taup(tau, eta)) )
+#==============================================================================
+def jacobian(tau, eta):
+    c, s, tp = np.cosh(eta), np.sinh(eta), taup(tau,eta)
+    return np.array([[(tau+t0*c)/tp,  0, 0,      -t0*s],
+                     [0,              1, 0,          0],
+                     [0,              0, 1,          0],
+                     [-t0*s/(tau*tp), 0, 0, 1+t0*c/tau]]).T
+#==============================================================================
+def pimunu(tau, x, y, r):
+    shear = H0*eps_a(tau, r)**0.75
+    prefactor = 2.*shear*np.tanh(rho(tau, r))/(3.*tau**4) # N.B. - missing minus sign relative to 2503.XXXXX
+    ux = velocity_x(tau, x, r)
+    uy = velocity_y(tau, y, r)
+    utau = velocity_tau(tau, r)
+    return prefactor * np.array([[ux**2+uy**2, ux*utau, uy*utau,           0],
+                                 [ux*utau,     1+ux**2,   ux*uy,           0],
+                                 [uy*utau,       ux*uy, 1+uy**2,           0],
+                                 [0,                  0,       0, -2./tau**2]])
+#==============================================================================
+def shifted_pimunuGubser(tau, x, y, r, eta):
+    j = jacobian(tau, eta)
+    return j.T @ pimunu(taup(tau,eta), x, y, r) @ j
 #==============================================================================
 #===============================================================================
 def get_time_step(filename):
@@ -167,16 +203,21 @@ def plot_analytic_sol():
         cf = {'e_at_eta0': shifted_eGubser,
                'ur_at_eta0': shifted_urGubser,
                'ueta_at_eta0': shifted_uetaGubser,
-               'e_at_eta1': shifted_eGubser,
-               'ur_at_eta1': shifted_urGubser,
-               'ueta_at_eta1': shifted_uetaGubser}
+               'pixx_at_eta0': shifted_eGubser,
+               'piyy_at_eta0': shifted_eGubser,
+               'pietaeta_at_eta0': shifted_eGubser}
 
         analytic_style = {'ls': '-', 'lw': 7, 'alpha': 0.4}
 
         for key in ['e_at_eta0', 'ur_at_eta0', 'ueta_at_eta0']:
             ax[key].plot( xGrid, cf[key](tau, xGrid, eta0), color=cmap(ii), **analytic_style)
-        for key in ['e_at_eta1', 'ur_at_eta1', 'ueta_at_eta1']:
-            ax[key].plot( xGrid, cf[key](tau, xGrid, eta1), color=cmap(ii), **analytic_style)
+            
+        piM = shifted_pimunuGubser(tau, xGrid, 0.0, xGrid, eta0)
+        print(piM.shape)
+        if True:
+            exit(1)
+        for key in ['pixx_at_eta0', 'piyy_at_eta0', 'pietaeta_at_eta0']:
+            ax[key].plot( xGrid, cf[key](tau, xGrid, eta0), color=cmap(ii), **analytic_style)
             
 
 
@@ -223,7 +264,7 @@ def read_sim(sim_result_folder):
         print(inp_path)
         
         print('Loading', inp_path)
-        hydroOutput = np.loadtxt(inp_path, skiprows=1, usecols=(2, 3, 4, 10, 33, 35))
+        hydroOutput = np.loadtxt(inp_path, skiprows=1, usecols=(2, 3, 4, 10, 33, 35, 25, 26, 32))
         print('\t - finished.')
         
         #print('\t - hydroOutput.shape =', hydroOutput.shape)
@@ -231,8 +272,8 @@ def read_sim(sim_result_folder):
         print('Eliminating irrelevant particles to save time')
         hydroOutput_at_eta0 = hydroOutput[np.where( (np.isclose(hydroOutput[:,1], 0.0, atol=3.0*h)) \
                                                     & (np.isclose(hydroOutput[:,2], eta0, atol=3.0*h)) )] # y == 0 ===>>> r == x
-        hydroOutput_at_eta1 = hydroOutput[np.where( (np.isclose(hydroOutput[:,1], 0.0, atol=3.0*h)) \
-                                                    & (np.isclose(hydroOutput[:,2], eta1, atol=3.0*h)) )] # y == 0 ===>>> r == x
+        #hydroOutput_at_eta1 = hydroOutput[np.where( (np.isclose(hydroOutput[:,1], 0.0, atol=3.0*h)) \
+        #                                            & (np.isclose(hydroOutput[:,2], eta1, atol=3.0*h)) )] # y == 0 ===>>> r == x
         print('\t - finished.')
         #print('\t - hydroOutput.shape =', hydroOutput.shape)
         #print('\t - hydroOutput_at_eta0.shape =', hydroOutput_at_eta0.shape)
@@ -243,7 +284,7 @@ def read_sim(sim_result_folder):
         # interpolate on regular grid
         print('Smoothing fields')
         f0 = np.array([ evaluate_field(hydroOutput_at_eta0, point) for point in np.c_[ xGrid, yGrid, eta0 + etaGrid ] ])
-        f1 = np.array([ evaluate_field(hydroOutput_at_eta1, point) for point in np.c_[ xGrid, yGrid, eta1 + etaGrid ] ])
+        #f1 = np.array([ evaluate_field(hydroOutput_at_eta1, point) for point in np.c_[ xGrid, yGrid, eta1 + etaGrid ] ])
         print('\t - finished.')
         #print('\t - f0.shape =', f0.shape)
         #print('\t - f1.shape =', f1.shape)
@@ -261,9 +302,12 @@ def read_sim(sim_result_folder):
         ax['e_at_eta0'].plot(   f0[:,0], f0[:,3], **sim_style)
         ax['ur_at_eta0'].plot(  f0[:,0], f0[:,4], **sim_style)
         ax['ueta_at_eta0'].plot(f0[:,0], f0[:,5], **sim_style)
-        ax['e_at_eta1'].plot(   f1[:,0], f1[:,3], **sim_style)
-        ax['ur_at_eta1'].plot(  f1[:,0], f1[:,4], **sim_style)
-        ax['ueta_at_eta1'].plot(f1[:,0], f1[:,5], **sim_style)
+        ax['pixx_at_eta0'].plot(   f0[:,0], f0[:,6], **sim_style)
+        ax['piyy_at_eta0'].plot(  f0[:,0], f0[:,7], **sim_style)
+        ax['pietaeta_at_eta0'].plot(f0[:,0], f0[:,8], **sim_style)
+        #ax['e_at_eta1'].plot(   f1[:,0], f1[:,3], **sim_style)
+        #ax['ur_at_eta1'].plot(  f1[:,0], f1[:,4], **sim_style)
+        #ax['ueta_at_eta1'].plot(f1[:,0], f1[:,5], **sim_style)
 
 
 
@@ -278,9 +322,9 @@ def beautify():
     ylabels = {'e_at_eta0': r'$\varepsilon_\text{sG}$ [GeV/fm$^3$]',
                'ur_at_eta0': r'$u^r_\text{sG}$',
                'ueta_at_eta0': r'$u^\eta_\text{sG}$ [1/fm]',
-               'e_at_eta1': r'$\varepsilon_\text{sG}$ [GeV/fm$^3$]',
-               'ur_at_eta1': r'$u^r_\text{sG}$',
-               'ueta_at_eta1': r'$u^\eta_\text{sG}$ [1/fm]'}
+               'pixx_at_eta0': r'$\pi_{xx,\text{sG}}$ [GeV/fm$^3$]',
+               'piyy_at_eta0': r'$\pi_{yy,_\text{sG}} [GeV/fm$^3$]$',
+               'pietaeta_at_eta0': r'$\pi_{\eta\eta,_\text{sG}}$ [GeV/fm$^5$]'}
     for key in ax.keys():
         if key == 'cbar':
             continue
@@ -318,11 +362,11 @@ def beautify():
     ax['ur_at_eta0'].plot([], [], **style1, label='CCAKE', color=cmap(0))
 
     ax['e_at_eta0'].set_ylim(-0.5, 17.5)
-    ax['e_at_eta1'].set_ylim(-0.5, 17.5)
     ax['ur_at_eta0'].set_ylim(0,3.0)
-    ax['ur_at_eta1'].set_ylim(0,3.0)
     ax['ueta_at_eta0'].set_ylim(-0.75, 0.05)
-    ax['ueta_at_eta1'].set_ylim(-0.75, 0.05)
+    ax['pixx_at_eta0'].set_ylim(-1.0, 1.0)
+    ax['piyy_at_eta0'].set_ylim(-1.0, 1.0)
+    ax['pietaeta_at_eta0'].set_ylim(-1.0, 1.0)
 
     for name, label in zip(ylabels.keys(),
                            ['a', 'b', 'c', 'd', 'e', 'f']):
@@ -346,15 +390,15 @@ def beautify():
         horizontalalignment='center',
     )
 
-    ax['e_at_eta1'].text(
-        0.8,
-        0.5,
-        r'$\eta = 1$',
-        transform=ax['e_at_eta1'].transAxes,
-        fontsize=30,
-        #bbox={'boxstyle': 'round', 'facecolor': 'white'},
-        horizontalalignment='center',
-    )
+    #ax['e_at_eta1'].text(
+    #    0.8,
+    #    0.5,
+    #    r'$\eta = 1$',
+    #    transform=ax['e_at_eta1'].transAxes,
+    #    fontsize=30,
+    #    #bbox={'boxstyle': 'round', 'facecolor': 'white'},
+    #    horizontalalignment='center',
+    #)
 
     ax['ur_at_eta0'].legend(loc='upper center', fontsize=18)
 
@@ -363,7 +407,7 @@ if __name__ == '__main__':
     #analytical_folder = sys.argv[1]
     #simulation_folder1 = sys.argv[2]
     plot_analytic_sol()
-    read_sim('./')
+    read_sim('/mnt/c/Users/cplumber/Downloads/files/tmp/TMP_V1_results_3_1d_viscous_Gubser/V1_results_3+1d_viscous_Gubser/')
     beautify()
 
     #if (len(sys.argv) < 5):

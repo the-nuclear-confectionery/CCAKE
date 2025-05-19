@@ -2,6 +2,7 @@
 
 import sys
 import numpy as np
+from scipy.special import hyp2f1
 
 def check_input():
     if len(sys.argv) != 2:
@@ -26,6 +27,8 @@ fs = 11.0
 H0 = 4.0*fs**0.25*shearOVERs/3.0
 T0 = eps0**0.25/hbarc
 
+H0_by_9T0 = H0 / (9.0*T0)
+
 #==============================================================================
 # Define Gubser model functions
 #==============================================================================
@@ -42,7 +45,9 @@ def etap(tau, eta):
     return np.arctanh( tau * np.sinh(eta) / (tau * np.cosh(eta) + t0) )
 #==============================================================================
 def T_a(tau, r):
-    return (hbarc/(tau * fs**0.25)) * ( T0 / np.cosh(rho(tau, r))**(2./3.) )
+    s = np.sinh(rho(tau,r))
+    return (hbarc/(tau * fs**0.25)) * ( T0 / np.cosh(rho(tau, r))**(2./3.) ) \
+            * ( 1.0 + H0_by_9T0 * s**3 * hyp2f1(3./2., 7./6., 5./2., -s**2) )
 #==============================================================================
 def eps_a(tau, r):
     return fs*T_a(tau, r)**4
