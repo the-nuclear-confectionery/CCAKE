@@ -149,7 +149,7 @@ def jacobian(tau, eta):
 #==============================================================================
 def pimunu(tau, x, y, r):
     shear = H0*eGubser(tau, r)**0.75
-    prefactor = 0.001*hbarc*2.*shear*np.tanh(rho(tau, r))/(3.*tau**4) # N.B. - missing minus sign relative to 2503.XXXXX
+    prefactor = 2.*shear*np.tanh(rho(tau, r))/(3.*tau**4) # N.B. - missing minus sign relative to 2503.XXXXX
     ux = velocity_x(tau, x, r)
     uy = velocity_y(tau, y, r)
     utau = utauGubser(tau, r)
@@ -310,9 +310,9 @@ def read_sim(sim_result_folder):
         ax['e_at_eta0'].plot(   f0[:,0], f0[:,3], **sim_style)
         ax['ur_at_eta0'].plot(  f0[:,0], f0[:,4], **sim_style)
         ax['ueta_at_eta0'].plot(f0[:,0], f0[:,5], **sim_style)
-        ax['pixx_at_eta0'].plot(   f0[:,0], f0[:,6], **sim_style)
-        ax['piyy_at_eta0'].plot(  f0[:,0], f0[:,7], **sim_style)
-        ax['pietaeta_at_eta0'].plot(f0[:,0], f0[:,8], **sim_style)
+        ax['pixx_at_eta0'].plot(   f0[:,0], 0.001*hbarc*f0[:,6], **sim_style)
+        ax['piyy_at_eta0'].plot(  f0[:,0], 0.001*hbarc*f0[:,7], **sim_style)
+        ax['pietaeta_at_eta0'].plot(f0[:,0], 0.001*hbarc*f0[:,8], **sim_style)
         #ax['e_at_eta1'].plot(   f1[:,0], f1[:,3], **sim_style)
         #ax['ur_at_eta1'].plot(  f1[:,0], f1[:,4], **sim_style)
         #ax['ueta_at_eta1'].plot(f1[:,0], f1[:,5], **sim_style)
