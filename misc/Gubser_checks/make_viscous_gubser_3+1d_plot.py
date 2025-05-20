@@ -211,6 +211,7 @@ def plot_analytic_sol():
 
         for key in ['e_at_eta0', 'ur_at_eta0', 'ueta_at_eta0']:
             ax[key].plot( xGrid, cf[key](tau, xGrid, eta0), color=cmap(ii), **analytic_style)
+            print(cf[key](tau, xGrid, eta0).shape)
             
         piM = shifted_pimunuGubser(tau, xGrid, 0.0, xGrid, eta0)
         print(piM.shape)
