@@ -331,7 +331,7 @@ def beautify():
                'ur_at_eta0': r'$u^r_\text{sG}$',
                'ueta_at_eta0': r'$u^\eta_\text{sG}$ [1/fm]',
                'pixx_at_eta0': r'$\pi_{xx,\text{sG}}$ [GeV/fm$^3$]',
-               'piyy_at_eta0': r'$\pi_{yy,_\text{sG}} [GeV/fm$^3$]$',
+               'piyy_at_eta0': r'$\pi_{yy,_\text{sG}}$ [GeV/fm$^3$]',
                'pietaeta_at_eta0': r'$\pi_{\eta\eta,_\text{sG}}$ [GeV/fm$^5$]'}
     for key in ax.keys():
         if key == 'cbar':
