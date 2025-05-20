@@ -415,7 +415,7 @@ if __name__ == '__main__':
     #analytical_folder = sys.argv[1]
     #simulation_folder1 = sys.argv[2]
     plot_analytic_sol()
-    read_sim('/mnt/c/Users/cplumber/Downloads/files/tmp/TMP_V1_results_3_1d_viscous_Gubser/V1_results_3+1d_viscous_Gubser/')
+    read_sim('./V1_results_3+1d_viscous_Gubser/')
     beautify()
 
     #if (len(sys.argv) < 5):
