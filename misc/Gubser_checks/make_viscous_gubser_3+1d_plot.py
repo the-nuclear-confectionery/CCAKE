@@ -216,7 +216,8 @@ def plot_analytic_sol():
             ax[key].plot( xGrid, cf[key](tau, xGrid, eta0), color=cmap(ii), **analytic_style)
             print(cf[key](tau, xGrid, eta0).shape)
             
-        piM = shifted_pimunuGubser(tau, xGrid, 0.0, xGrid, eta0)
+        #piM = shifted_pimunuGubser(tau, xGrid, 0.0, xGrid, eta0)
+        piM = np.array([shifted_pimunuGubser(tau, x, 0.0, x, eta0) for x in xGrid])
         print(piM.shape)
         if True:
             exit(1)
