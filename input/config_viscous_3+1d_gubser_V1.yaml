@@ -7,7 +7,7 @@ initial_conditions:
   input_as_entropy: false # if false, input will be interpreted as energy density
 parameters:
   dt: 0.001 # time-step of the simulation in fm/c
-  max_tau: 2.0 # maximum time of the simulation in fm/c
+  max_tau: 1.1 # maximum time of the simulation in fm/c
   h_T:  0.100000  # Smoothing parameter inside kernel, in the transverse direction (in fm)
   h_eta:  0.100000  # Smoothing parameter inside kernel in the longitudinal direction
   rk_order: 2
@@ -33,9 +33,9 @@ hydro:
   electric_charge_enabled: false # Set to false to disable electric charge evolution
   viscous_parameters:
     shear:
-      mode: "constant" # Possible values are: ["constant", "disabled"]
+      mode: "default" # Possible values are: ["constant", "disabled"]
       constant_eta_over_s: 0.134 # Value of the constant shear viscosity
-      relaxation_mode: "default" # How shear relaxation coeffiecient is computed. Possible values are: ["default"]
+      relaxation_mode: "Gubser" # How shear relaxation coeffiecient is computed. Possible values are: ["default"]
     bulk:
       mode: "constant"
       constant_zeta_over_s: 0.0
