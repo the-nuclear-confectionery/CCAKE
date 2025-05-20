@@ -219,10 +219,13 @@ def plot_analytic_sol():
         #piM = shifted_pimunuGubser(tau, xGrid, 0.0, xGrid, eta0)
         piM = np.array([shifted_pimunuGubser(tau, x, 0.0, x, eta0) for x in xGrid])
         print(piM.shape)
-        if True:
-            exit(1)
-        for key in ['pixx_at_eta0', 'piyy_at_eta0', 'pietaeta_at_eta0']:
-            ax[key].plot( xGrid, cf[key](tau, xGrid, eta0), color=cmap(ii), **analytic_style)
+        #if True:
+        #    exit(1)
+        #for key in ['pixx_at_eta0', 'piyy_at_eta0', 'pietaeta_at_eta0']:
+        #    ax[key].plot( xGrid, cf[key](tau, xGrid, eta0), color=cmap(ii), **analytic_style)
+        ax['pixx_at_eta0'].plot( xGrid, piM[:,1,1], color=cmap(ii), **analytic_style)
+        ax['piyy_at_eta0'].plot( xGrid, piM[:,2,2], color=cmap(ii), **analytic_style)
+        ax['pietaeta_at_eta0'].plot( xGrid, piM[:,3,3], color=cmap(ii), **analytic_style)
             
 
 
