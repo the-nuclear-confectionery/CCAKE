@@ -123,10 +123,10 @@ def urGubser(tau, r):
     return 2.0*q**2*r*tau / np.sqrt( 1. + 2.*q**2*(tau**2 + r**2) + q**4*(tau**2 - r**2)**2 )
 #==============================================================================
 def velocity_x(tau, x, r):
-    return urGubser(tau, r) * x / r if r != 0 else 0
+    return 2.0*q**2*x*tau / np.sqrt( 1. + 2.*q**2*(tau**2 + r**2) + q**4*(tau**2 - r**2)**2 )
 #==============================================================================
 def velocity_y(tau, y, r):
-    return urGubser(tau, r) * y / r if r != 0 else 0
+    return 2.0*q**2*y*tau / np.sqrt( 1. + 2.*q**2*(tau**2 + r**2) + q**4*(tau**2 - r**2)**2 )
 #===============================================================================
 def utauGubser(tau, r):
     return np.sqrt(1.0 + urGubser(tau, r)**2)
