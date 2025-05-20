@@ -152,7 +152,7 @@ def pimunu(tau, x, y, r):
     prefactor = 2.*shear*np.tanh(rho(tau, r))/(3.*tau**4) # N.B. - missing minus sign relative to 2503.XXXXX
     ux = velocity_x(tau, x, r)
     uy = velocity_y(tau, y, r)
-    utau = velocity_tau(tau, r)
+    utau = utauGubser(tau, r)
     return prefactor * np.array([[ux**2+uy**2, ux*utau, uy*utau,           0],
                                  [ux*utau,     1+ux**2,   ux*uy,           0],
                                  [uy*utau,       ux*uy, 1+uy**2,           0],
