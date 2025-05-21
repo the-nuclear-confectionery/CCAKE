@@ -385,9 +385,9 @@ def beautify():
     ax['e_at_eta0'].set_ylim(-0.5, 17.5)
     ax['ur_at_eta0'].set_ylim(0,3.0)
     ax['ueta_at_eta0'].set_ylim(-0.75, 0.05)
-    ax['pixx_at_eta0'].set_ylim(-1.0, 1.0)
-    ax['piyy_at_eta0'].set_ylim(-1.0, 1.0)
-    ax['pietaeta_at_eta0'].set_ylim(-1.0, 1.0)
+    ax['pixx_at_eta0'].set_ylim(-0.01, 0.01)
+    ax['piyy_at_eta0'].set_ylim(-0.01, 0.01)
+    ax['pietaeta_at_eta0'].set_ylim(-0.01, 0.01)
 
     for name, label in zip(ylabels.keys(),
                            ['a', 'b', 'c', 'd', 'e', 'f']):
