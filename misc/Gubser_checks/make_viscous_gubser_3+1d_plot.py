@@ -64,7 +64,7 @@ use_log_scale = False
 n_timesteps = len(time_list)
 
 
-hbarc = 197.33 # MeV*fm
+hbarc = 0.1973269804              # GeV*fm
 t0 = 0.5 # amount of temporal shift
 q  = 1.
 e0 = 80000.0 # units of MeV*fm (cf. ideal_2+1d_gubser_ic_generator.py script)
@@ -323,9 +323,9 @@ def read_sim(sim_result_folder):
         ax['e_at_eta0'].plot(   f0[:,0], f0[:,3], **sim_style)
         ax['ur_at_eta0'].plot(  f0[:,0], f0[:,4], **sim_style)
         ax['ueta_at_eta0'].plot(f0[:,0], f0[:,5], **sim_style)
-        ax['pixx_at_eta0'].plot(   f0[:,0], 0.001*hbarc*f0[:,6], **sim_style)
-        ax['piyy_at_eta0'].plot(  f0[:,0], 0.001*hbarc*f0[:,7], **sim_style)
-        ax['pietaeta_at_eta0'].plot(f0[:,0], 0.001*hbarc*f0[:,8], **sim_style)
+        ax['pixx_at_eta0'].plot(   f0[:,0], hbarc*f0[:,6], **sim_style)
+        ax['piyy_at_eta0'].plot(  f0[:,0], hbarc*f0[:,7], **sim_style)
+        ax['pietaeta_at_eta0'].plot(f0[:,0], hbarc*f0[:,8], **sim_style)
         #ax['e_at_eta1'].plot(   f1[:,0], f1[:,3], **sim_style)
         #ax['ur_at_eta1'].plot(  f1[:,0], f1[:,4], **sim_style)
         #ax['ueta_at_eta1'].plot(f1[:,0], f1[:,5], **sim_style)
