@@ -15,17 +15,17 @@ def write_header(stepx, stepy, stepEta, xmin, ymin, etamin):
     f.write(f"#0 {stepx} {stepy} {stepEta} 0 {xmin} {ymin} {etamin}\n")
     return f
 
-hbarc = 0.19733
-t0 = 0.5 # amount of temporal shift
-tau0 = 1.0
-eps0 = 80 # GeV/fm^3
-shearOVERs = 0.134  # i.e., specific shear viscosity (eta/s)
-q = 1.0
-fs = 11.0
+hbarc = 0.1973269804              # GeV*fm
+t0 = 0.5                          # fm (amount of temporal shift)
+tau0 = 1.0                        # fm
+eps0 = 80                         # (GeV*fm)^4
+shearOVERs = 0.134                # i.e., specific shear viscosity (eta/s)
+q = 1.0                           # 1/fm
+fs = 11.0                         # dimensionless
 
 # derived parameters
-H0 = 4.0*fs**0.25*shearOVERs/3.0
-T0 = eps0**0.25/hbarc
+H0 = 4.0*fs**0.25*shearOVERs/3.0  # dimensionless
+T0 = 0.25*eps0**0.25*fs**0.75     # dimensionless
 
 H0_by_9T0 = H0 / (9.0*T0)
 
@@ -50,7 +50,7 @@ def T_a(tau, r):
             * ( 1.0 + H0_by_9T0 * s**3 * hyp2f1(3./2., 7./6., 5./2., -s**2) )
 #==============================================================================
 def eps_a(tau, r):
-    return fs*T_a(tau, r)**4
+    return fs*T_a(tau, r)**4/hbarc**3
 #==============================================================================
 def velocity_tau(tau, r):
     return np.cosh(kappa(tau, r))
@@ -85,7 +85,7 @@ def jacobian(tau, eta):
                      [-t0*s/(tau*tp), 0, 0, 1+t0*c/tau]]).T
 #==============================================================================
 def pimunu(tau, x, y, r):
-    shear = H0*eps_a(tau, r)**0.75
+    shear = H0*(hbarc**3*eps_a(tau, r))**0.75
     prefactor = 2.*shear*np.tanh(rho(tau, r))/(3.*tau**4) # N.B. - missing minus sign relative to 2503.XXXXX
     ux = velocity_x(tau, x, r)
     uy = velocity_y(tau, y, r)
