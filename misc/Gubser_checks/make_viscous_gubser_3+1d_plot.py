@@ -5,6 +5,7 @@ from matplotlib import pyplot as plt
 import pandas as pd
 import numpy as np
 import logging
+from scipy.special import hyp2f1
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 #from variable_conversions import HBARC  # noqa
