@@ -162,7 +162,7 @@ def jacobian(tau, eta):
 def pimunu(tau, x, y, r):
     #shear = H0*eGubser(tau, r)**0.75
     shear = H0*(hbarc**3*eps_a(tau, r))**0.75
-    prefactor = 2.*shear*np.tanh(rho(tau, r))/(3.*tau**4) # N.B. - missing minus sign relative to 2503.XXXXX
+    prefactor = 4.*shear*np.tanh(rho(tau, r))/(3.*tau*hbarc**2) # N.B. - missing minus sign and fixed power of tau relative to 2503.XXXXX
     ux = velocity_x(tau, x, r)
     uy = velocity_y(tau, y, r)
     utau = utauGubser(tau, r)
