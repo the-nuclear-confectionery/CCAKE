@@ -77,6 +77,8 @@ fs = 11.0
 H0 = 4.0*fs**0.25*shearOVERs/3.0
 T0 = 0.25*e0**0.25*fs**0.75     # dimensionless
 
+H0_by_9T0 = H0 / (9.0*T0)
+
 Nc = 3.
 Nf = 2.5
 cp = (2.*(Nc**2-1.) + 3.5*Nc*Nf)*np.pi**2/90.
