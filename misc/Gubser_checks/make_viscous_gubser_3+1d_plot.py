@@ -140,7 +140,8 @@ def utauGubser(tau, r):
     return np.sqrt(1.0 + urGubser(tau, r)**2)
 #==============================================================================
 def shifted_eGubser(tau, r, eta):
-    return eGubser(taup(tau, eta), r)
+    #return eGubser(taup(tau, eta), r)
+    return eps_a(taup(tau, eta), r)
 #==============================================================================
 def shifted_urGubser(tau, r, eta):
     return urGubser(taup(tau, eta), r)
