@@ -28,7 +28,7 @@ plot_index = 1
 
 #time_list = np.arange(1.00, 1.50, 0.1)  # Use this to focus on before FO
 #time_list=['1.00', '1.10', '1.20','1.30', '1.40', '1.50']# Use this to focus on before FO
-time_list=['1.00', '1.10']# Use this to focus on before FO
+time_list=['1.00', '1.10', '1.20']# Use this to focus on before FO
 filter_criteria = 'abs(phi - 3.141592653589793/4.) < 1.e-2'
 
 # cmap = myplt.get_cmap(len(time_list), 'cividis')
@@ -74,7 +74,7 @@ fs = 11.0
 
 # derived parameters
 H0 = 4.0*fs**0.25*shearOVERs/3.0
-T0 = e0**0.25/hbarc
+T0 = 0.25*e0**0.25*fs**0.75     # dimensionless
 
 Nc = 3.
 Nf = 2.5
@@ -111,13 +111,21 @@ def etap(tau, eta):
 def rho(tau,r):
     return np.arcsinh( (q**2 * (tau**2 - r**2) - 1.) / (2. * q * tau) )
 #==============================================================================
-def eGubser(tau, r):
-    return (e0/tau**4)*( (2.*q*tau)**(8./3.)
-                        / ( 1. + 2.*q**2*(tau**2 + r**2) + q**4*(tau**2 - r**2)**2 )**(4./3.)
-                         )
+#def eGubser(tau, r):
+#    return (e0/tau**4)*( (2.*q*tau)**(8./3.)
+#                        / ( 1. + 2.*q**2*(tau**2 + r**2) + q**4*(tau**2 - r**2)**2 )**(4./3.)
+#                         )
 #===============================================================================
-def TGubser(tau, r):
-    return hbarc*( eGubser(tau, r) / (3.*cp*hbarc) )**0.25
+#def TGubser(tau, r):
+#    return hbarc*( eGubser(tau, r) / (3.*cp*hbarc) )**0.25
+#==============================================================================
+def T_a(tau, r):
+    s = np.sinh(rho(tau,r))
+    return (hbarc/(tau * fs**0.25)) * ( T0 / np.cosh(rho(tau, r))**(2./3.) ) \
+            * ( 1.0 + H0_by_9T0 * s**3 * hyp2f1(3./2., 7./6., 5./2., -s**2) )
+#==============================================================================
+def eps_a(tau, r):
+    return fs*T_a(tau, r)**4/hbarc**3
 #===============================================================================
 def urGubser(tau, r):
     return 2.0*q**2*r*tau / np.sqrt( 1. + 2.*q**2*(tau**2 + r**2) + q**4*(tau**2 - r**2)**2 )
@@ -148,7 +156,8 @@ def jacobian(tau, eta):
                      [-t0*s/(tau*tp), 0, 0, 1+t0*c/tau]]).T
 #==============================================================================
 def pimunu(tau, x, y, r):
-    shear = H0*eGubser(tau, r)**0.75
+    #shear = H0*eGubser(tau, r)**0.75
+    shear = H0*(hbarc**3*eps_a(tau, r))**0.75
     prefactor = 2.*shear*np.tanh(rho(tau, r))/(3.*tau**4) # N.B. - missing minus sign relative to 2503.XXXXX
     ux = velocity_x(tau, x, r)
     uy = velocity_y(tau, y, r)
