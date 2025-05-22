@@ -42,6 +42,7 @@ namespace transport_coefficients{
   {
     int shear_mode, zeta_mode, shear_relaxation_mode, bulk_relaxation_mode;
     double constant_eta_over_s, constant_zeta_over_s;
+    double constant_tau_pi;
     double cs2_dependent_zeta_A, cs2_dependent_zeta_p;
     bool modulate_zeta_with_tanh;
   };
