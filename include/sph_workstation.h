@@ -128,7 +128,7 @@ public:
   //-------------------------------------------
   void update_all_particle_thermodynamics();
   void update_all_particle_viscosities();
-  void get_time_derivatives();
+  void get_time_derivatives(double dt);
 
   //============================================================================
   // routines to edit particles directly
