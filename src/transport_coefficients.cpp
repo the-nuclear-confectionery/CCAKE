@@ -462,7 +462,7 @@ Matrix<double, 3, 3> default_kappa(const double *therm, const parameters params)
   for (int i = 0; i < 3; ++i)
     for (int j = 0; j < 3; ++j)
       //kappa_matrix(i, j) = params.kappa_matrix[i][j]*ni_nj(i, j);
-      kappa_matrix(i, j) = params.kappa_matrix[i][j]*(T*T);
+      kappa_matrix(i, j) = params.kappa_matrix[i][j]*(T*T)/0.716;
       
   return kappa_matrix;
 }
@@ -479,6 +479,7 @@ Matrix<double, 3, 3> default_tauq(const double *therm, const parameters params)
     for (int j = 0; j < 3; ++j) tauq_matrix(i, j) = 0.0;
     
   }
+
   //add diagonal terms
   for (int i = 0; i < 3; ++i){
     tauq_matrix(i, i) += 0.2/T;

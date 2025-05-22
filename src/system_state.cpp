@@ -717,8 +717,12 @@ void SystemState<D>::conservation_energy(bool first_iteration, double t)
     double g2 = gamma*gamma;
 
     double C = w + bulk;
+
+    double sqrt_minusg = 1.0;
+    if (settingsPtr->coordinate_system =="hyperbolic")
+      sqrt_minusg = t;
     
-    local_E += (C * g2 - p - bulk + shv00) * sph_mass * t / sigma_lab;
+    local_E += (C * g2 - p - bulk + shv00)* sph_mass * sqrt_minusg / sigma_lab;
   };
   Kokkos::parallel_reduce("loop_conservation_energy",n_particles, get_total_energy, E);
   Kokkos::fence();
@@ -733,8 +737,12 @@ void SystemState<D>::conservation_energy(bool first_iteration, double t)
   };
   Kokkos::parallel_reduce("loop_conservation_Ez",n_particles, get_total_Ez, Ez);
   Kokkos::fence();
-  Etot  = E + Ez;
-  Eloss = (E0-Etot)/E0*100;
+  std::cout << "Ez: " << Ez << std::endl;
+  Etot  = E+Ez;
+  std::cout << "Etot: " << Etot << std::endl;
+  std::cout << "E: " << E << std::endl;
+  std::cout << "E0: " << E0 << std::endl;
+  Eloss = ((E0-Etot)/E0)*100;
 }
 
 ///////////////////////////////////////

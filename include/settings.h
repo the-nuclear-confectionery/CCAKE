@@ -140,6 +140,8 @@ class Settings
     double constant_zeta_over_s = 0.0;
     double cs2_dependent_zeta_A = 0.0;
     double cs2_dependent_zeta_p = 0.0;
+    bool bulk_from_trace        = false; ///< Whether to use the trace of Tmunu to
+                                          ///  calculate the bulk viscosity
     string bulkRelaxMode        = "";   ///< Choose parametrization for relaxation time of bulk mode
     bool modulate_zeta_with_tanh = true;   // forces zeta/s to decrease
                                            // smoothly to zero below
@@ -149,7 +151,8 @@ class Settings
     std::array<std::array<double, 3>, 3> kappa_matrix = {{{0.0, 0.0, 0.0},
                                                           {0.0, 0.0, 0.0},
                                                           {0.0, 0.0, 0.0}}};
-    
+    bool input_initial_diffusion = false; ///< Whether to use the initial diffusion
+                                          ///  coefficients from the input file
 
 
     // make sure that all chosen settings make reasonable sense

@@ -808,7 +808,7 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
   {
     //check this eos type
     std::cout << "No solution found!" << std::endl;
-    std::cerr << "No solution found!" << std::endl;
+    //std::cerr << "No solution found!" << std::endl;
     bool test = eBSQ_has_solution_in_conformal_diagonal(ein, Bin, Sin, Qin);
     std::cout << "Conformal diagonal EoS should have sol: " << test << std::endl;
     std::cout << "Last attempted EoS: " << eos_type << endl;
@@ -816,7 +816,7 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
               << ein << "   " << Bin << "   " << Sin << "   " << Qin << std::endl;
     std::stringstream ss;
     ss << "(e,B,S,Q) = " << ein << "   " << Bin << "   " << Sin << "   " << Qin;
-    throw std::invalid_argument(ss.str());
+    //throw std::invalid_argument(ss.str());
   }
 
 //  cout << "Exiting " << __FUNCTION__ << endl;

@@ -352,6 +352,14 @@ bool cc::Input::decode_settings(const YAML::Node& node){
 
     //bulk subsubnode
     try {
+      settingsPtr->bulk_from_trace = node["hydro"]["viscous_parameters"]["bulk"]["bulk_from_trace"].as<bool>();
+      std::cout << "bulk_from_trace: " << settingsPtr->bulk_from_trace << std::endl;
+    } catch (...) {
+      formatted_output::report("WARNING: Could not read viscous_parameters bulk_from_trace!");
+      formatted_output::report("This is an optional parameter. Setting to default value.");
+      settingsPtr->bulk_from_trace = cc::defaults::bulk_from_trace;
+    }
+    try {
       settingsPtr->zetaMode = node["hydro"]["viscous_parameters"]["bulk"]["mode"].as<std::string>();
     } catch (...) {
       formatted_output::report("WARNING: Could not read viscous_parameters bulk mode!");
@@ -426,6 +434,13 @@ bool cc::Input::decode_settings(const YAML::Node& node){
       formatted_output::report("WARNING: Could not read hydro/viscous_parameters/kappa_matrix!");
       formatted_output::report("This is an optional parameter. Setting to identity matrix.");
       settingsPtr->kappa_matrix = cc::defaults::kappa_matrix;
+    }
+    try{
+      settingsPtr->input_initial_diffusion = node["hydro"]["viscous_parameters"]["diffusion"]["input_initial_diffusion"].as<bool>();
+    } catch (...) {
+      formatted_output::report("WARNING: Could not read hydro/viscous_parameters/input_initial_diffusion!");
+      formatted_output::report("This is an optional parameter. Setting to default value.");
+      settingsPtr->input_initial_diffusion = cc::defaults::input_initial_diffusion;
     }
     //Output node
     try{

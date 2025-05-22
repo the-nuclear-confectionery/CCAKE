@@ -311,6 +311,7 @@ void Evolver<D>::update_rk4(double dt){
         }
 
         device_extensive.access(is, ia, densities_info::s) = extensive_s;
+        device_hydro_scalar.access(is, ia, hydro_info::extensive_bulk) = bulk;
         device_extensive.access(is, ia, densities_info::rhoB) = extensive_rhoB;
         device_extensive.access(is, ia, densities_info::rhoS) = extensive_rhoS;
         device_extensive.access(is, ia, densities_info::rhoQ) = extensive_rhoQ;
@@ -386,7 +387,6 @@ void Evolver<D>::step_rk(double dt, double t0, std::function<void(void)> time_de
     double d_extensive_bulk_dt = device_hydro_scalar.access(is,ia,hydro_info::d_extensive_bulk_dt);
     double d_dt_extensive_s = device_d_dt_extensive.access(is, ia, densities_info::s);
     double dEz_dt = device_contribution_to_total_dEz.access(is,ia);
-    //std::cout << "dEz_dt = " << dEz_dt << std::endl;
     double d_dt_extensive_rhoB = device_d_dt_extensive.access(is, ia, densities_info::rhoB);
     double d_dt_extensive_rhoS = device_d_dt_extensive.access(is, ia, densities_info::rhoS);
     double d_dt_extensive_rhoQ = device_d_dt_extensive.access(is, ia, densities_info::rhoQ);

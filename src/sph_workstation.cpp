@@ -127,7 +127,7 @@ void SPHWorkstation<D, TEOM>::initialize_entropy_and_charge_densities()
                     p.input.s, p.input.rhoB, p.input.rhoS, p.input.rhoQ );
       p.input.e = p.thermo.e;
       p.efcheck = systemPtr->efcheck;
-      if ( p.input.e > systemPtr->efcheck )	p.Freeze = 0;
+      if ( p.input.e > systemPtr->efcheck && p.Freeze!=4 )	p.Freeze = 0;
 		  else
 		    {
 		    	p.Freeze = 4;
@@ -140,7 +140,7 @@ void SPHWorkstation<D, TEOM>::initialize_entropy_and_charge_densities()
       p.input.s = locate_phase_diagram_point_eBSQ( p,
                     p.input.e, p.input.rhoB, p.input.rhoS, p.input.rhoQ );
       p.efcheck = systemPtr->efcheck;
-      if ( p.input.e > systemPtr->efcheck )	p.Freeze = 0;
+      if ( p.input.e > systemPtr->efcheck && p.Freeze!=4 )	p.Freeze = 0;
 		  else
 		    {
 		    	p.Freeze = 4;
@@ -243,6 +243,7 @@ void SPHWorkstation<D,TEOM>::initial_smoothing()
   smooth_all_particle_fields(t_squared);
   //calculate extensive/extensive shear tensor
   calculate_extensive_shv();
+  set_bulk_Pi();
 
   //calculate initial diffusion
   set_diffusion();
@@ -1029,7 +1030,7 @@ void SPHWorkstation<D, TEOM>::process_initial_conditions()
 		p.sph_mass.rhoS  = 1.0;
 		p.sph_mass.rhoQ  = 1.0;
 
-		p.hydro.bulk      = 0.0;
+		//p.hydro.bulk      = 0.0;
 
 		// make educated initial guess here for this particle's (T, mu_i) coordinates
 		// (improve this in the future)
@@ -1095,25 +1096,26 @@ template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D, TEOM>::set_bulk_Pi()
 {
   auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
-  if ( settingsPtr->initializing_with_full_Tmunu ){
+  if ( settingsPtr->bulk_from_trace ){
     double t0 = settingsPtr->t0;
     CREATE_VIEW( device_, systemPtr->cabana_particles);
 
     auto set_bulk = KOKKOS_LAMBDA( const int is, const int ia )
     {
-      double tmunu_trace = device_hydro_scalar.access(is, ia, ccake::hydro_info::tmunu_trace);
+      //double tmunu_trace = device_hydro_scalar.access(is, ia, ccake::hydro_info::tmunu_trace);
+      //trace stored in the bulk variable 
+      double tmunu_trace = device_hydro_scalar.access(is, ia, ccake::hydro_info::bulk);
       double p = device_thermo.access(is, ia, ccake::thermo_info::p);
       double gamma = device_hydro_scalar.access(is, ia, ccake::hydro_info::gamma);
       double sigma_lab = device_hydro_scalar.access(is, ia, ccake::hydro_info::sigma_lab);
       double sigma  = TEOM<D>::get_LRF(sigma_lab, gamma, t0);
-      //device_hydro_scalar.access(is, ia, ccake::hydro_info::extensive_bulk) = (tmunu_trace - p)/sigma;
-      device_hydro_scalar.access(is, ia, ccake::hydro_info::extensive_bulk) = 0.0;
+      device_hydro_scalar.access(is, ia, ccake::hydro_info::extensive_bulk) = (tmunu_trace - p)/sigma;
+      //device_hydro_scalar.access(is, ia, ccake::hydro_info::extensive_bulk) = 0.0;
 
     };
     Cabana::simd_parallel_for( simd_policy, set_bulk, "set_bulk_Pi_kernel");
     Kokkos::fence();
   }
-  return;
 }
 
 /// @brief Calculate the extensive shear used for evolution of the shear tensor.
@@ -1130,14 +1132,14 @@ void SPHWorkstation<D, TEOM>::calculate_extensive_shv()
   double t0 = settingsPtr->t0;
   auto calculate_shear = KOKKOS_LAMBDA( const int is, const int ia )
   {
-    double sigma_lab = device_hydro_scalar.access(is, ia, ccake::hydro_info::sigma_lab);
+    double sigma = device_hydro_scalar.access(is, ia, ccake::hydro_info::sigma);
     double u0 = device_hydro_scalar.access(is, ia, ccake::hydro_info::gamma);
     for (int idir=0; idir<2; ++idir)
     for (int jdir=idir; jdir<3; ++jdir)
     {
       double shv = device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::shv, idir+1, jdir+1);
       //shv = 0.;
-      device_hydro_shear_aux_vector.access(is, ia, ccake::hydro_info::extensive_shv, idir, jdir) = shv * u0 * t0 / sigma_lab;
+      device_hydro_shear_aux_vector.access(is, ia, ccake::hydro_info::extensive_shv, idir, jdir) = shv /sigma;
       //std::cout << "shv = " << shv << "  extensive_shv = " << device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::extensive_shv, idir, jdir) << std::endl;
     }
   };
@@ -1479,6 +1481,7 @@ double SPHWorkstation<D, TEOM>::locate_phase_diagram_point_eBSQ( Particle<D> & p
 {
 //cout << "Finding thermodynamics of particle #" << p.ID << endl;
 
+
   // default: use particle's current location as initial guess
   // (pass in corresponding EoS as well!)
   eos.tbqs( p.T(), p.muB(), p.muQ(), p.muS(), p.get_current_eos_name() );
@@ -1551,7 +1554,31 @@ double SPHWorkstation<D, TEOM>::locate_phase_diagram_point_eBSQ( Particle<D> & p
     }
 
   }
+  else
+  {
+    // if we didn't find a solution, set the particle to be frozen out
+    p.Freeze = 4;
+    bool solution_found2 = false;
+    systemPtr->number_part_fo++;
+    cout << "WARNING: could not find solution for particle " << p.ID << "with (e,B,S,Q)" 
+         << " = (" << e_In << "," << rhoB_In << "," << rhoS_In << "," << rhoQ_In << ")" << endl;
+    cout << "Setting charges to zero and freezing out particle." << endl;
+    p.thermo.rhoB = 0.0;
+    p.thermo.rhoS = 0.0;
+    p.thermo.rhoQ = 0.0;
+    //run again the EoS to get the entropy density
+    sVal = eos.s_out( e_In, 0.0, 0.0, 0.0, solution_found2,
+                      p.print_this_particle );
+    thermodynamic_info p0 = p.thermo;
+    eos.set_thermo( p.thermo );
+    if ( !solution_found2 )
+    {
+      cout << "WARNING: could not find solution for particle " << p.ID << "even at zero charge!" << endl;
+      //kill code
+      throw std::runtime_error("Could not find solution for particle even at zero charge!");
+    }
 
+  }
   return sVal;
 }
 

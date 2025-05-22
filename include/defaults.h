@@ -42,6 +42,7 @@ namespace ccake
     const std::string bulkRelaxMode           = "default";
     const bool        modulate_zeta_with_tanh = true;
     const std::string diffusionMode           = "disabled";
+    const bool        input_initial_diffusion = false;
     const std::array<std::array<double, 3>, 3> 
                               kappa_matrix = {0.0, 0.0, 0.0,
                                               0.0, 0.0, 0.0,
@@ -51,6 +52,7 @@ namespace ccake
     const bool        hdf_evolution            = false;
     const bool        txt_evolution            = false;
     const bool        check_causality         = false;
+    const bool        bulk_from_trace       = false;
   }
 }
 
