@@ -67,7 +67,7 @@ void cc::Input::check_args( int argc, char** argv )
 /// arguments first.
 /// @details It reads in the input parameter settings from a YAML file specified
 /// by `settings_file_path`. It uses the YAML-CPP library to parse the file and
-/// decode the settings. If the settings file cannot be decoded, an error 
+/// decode the settings. If the settings file cannot be decoded, an error
 /// message is reported and the program exits with failure.
 /// @param[in] path_to_settings_file Path to the settings file.
 void cc::Input::load_settings_file()
@@ -182,7 +182,7 @@ bool cc::Input::decode_settings(const YAML::Node& node){
       formatted_output::report("This is an optional parameter. Setting to default value of 2.");
       settingsPtr->rk_order = cc::defaults::rk_order;
     }
-    
+
     try {
       settingsPtr->kernel_type = node["parameters"]["kernel_type"].as<std::string>();
     } catch (...){
@@ -348,6 +348,14 @@ bool cc::Input::decode_settings(const YAML::Node& node){
       formatted_output::report("WARNING: Could not read viscous_parameters shear relaxation_mode!");
       formatted_output::report("This is an optional parameter. Setting to default value.");
       settingsPtr->shearRelaxMode = cc::defaults::shearRelaxMode;
+    }
+
+    try {
+      settingsPtr->constant_tau_pi = node["hydro"]["viscous_parameters"]["shear"]["constant_tau_pi"].as<std::string>();
+    } catch (...) {
+      formatted_output::report("WARNING: Could not read viscous_parameters shear constant_tau_pi!");
+      formatted_output::report("This is an optional parameter. Setting to default value.");
+      settingsPtr->constant_tau_pi = cc::defaults::constant_tau_pi;
     }
 
     //bulk subsubnode

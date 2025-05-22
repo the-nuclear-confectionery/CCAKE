@@ -35,6 +35,7 @@ namespace ccake
     const std::string etaMode                 = "constant";
     const double      constant_eta_over_s     = 0.08;
     const std::string shearRelaxMode          = "default";
+    const double      constant_tau_pi         = 0.001;
     const std::string zetaMode                = "cs2_dependent";
     const double      constant_zeta_over_s    = 0.005;
     const double      cs2_dependent_zeta_A    = 1.67552;  // 8*pi/15
@@ -71,6 +72,7 @@ namespace parameter_settings
             setting_pair("etaMode",                "constant"),
             setting_pair("constant_eta_over_s",    "0.20"),
             setting_pair("shearRelaxMode",         "default"),
+            setting_pair("constant_tau_pi",        "0.001"),
             setting_pair("zetaMode",               "constant"),
             setting_pair("constant_zeta_over_s",   "0.005"),
             setting_pair("cs2_dependent_zeta_A",   "1.67552"),  // 8*pi/15

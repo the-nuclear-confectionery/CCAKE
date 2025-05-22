@@ -43,6 +43,10 @@ parameters setup_parameters(std::shared_ptr<Settings> settingsPtr)
   {
     params.shear_relaxation_mode = TAU_PI_SHEAR_GUBSER;
   }
+  else if (shearRelaxMode == "constant")
+  {
+    params.shear_relaxation_mode = TAU_PI_SHEAR_CONSTANT;
+  }
 
   std::string zetaMode = settingsPtr->zetaMode;
   if (zetaMode == "default")
@@ -125,6 +129,9 @@ double tau_pi(const double* thermo, parameters params)
     break;
   case TAU_PI_SHEAR_MINVAL:
     return tau_piMinval(thermo, params);
+    break;
+  case TAU_PI_SHEAR_CONSTANT:
+    return tau_piConstant(thermo, params);
     break;
   default:
     return default_tau_pi(thermo, params);
@@ -250,6 +257,11 @@ double tau_piGubser(const double *therm, const parameters params) {
 KOKKOS_INLINE_FUNCTION
 double tau_piMinval(const double *therm, const parameters params) {
    return Kokkos::max( (5.0*eta(therm,params))/therm[thermo_info::w], 0.001 ); }
+
+//===============================
+KOKKOS_INLINE_FUNCTION
+double tau_piConstant(const double *therm, const parameters params) {
+   return params.constant_tau_pi; }
 
 
 //==============================================================================

@@ -131,6 +131,7 @@ class Settings
     string etaMode              = "";    ///< Choose parametrization for eta/s
     double constant_eta_over_s  = 0.0;
     string shearRelaxMode       = "";    ///< Choose parametrization for relaxation time of shear mode
+    double constant_tau_pi      = 0.0;    ///< Choose default value for (constant) relaxation time of shear mode
 
     //  - bulk quantities
     string zetaMode             = "";    ///< Choose parametrization for zeta/s

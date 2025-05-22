@@ -24,6 +24,7 @@ namespace transport_coefficients{
     TAU_PI_SHEAR_DEFAULT,
     TAU_PI_SHEAR_MINVAL,
     TAU_PI_SHEAR_GUBSER,
+    TAU_PI_SHEAR_CONSTANT
   };
   enum {
     ZETA_DEFAULT,
