@@ -1250,7 +1250,7 @@ void SPHWorkstation<D,TEOM>::freeze_out_particles()
 /// @see SPHWorkstation::update_all_particle_viscosities
 /// @see SPHWorkstation::smooth_all_particle_gradients
 template<unsigned int D, template<unsigned int> class TEOM>
-void SPHWorkstation<D, TEOM>::get_time_derivatives()
+void SPHWorkstation<D, TEOM>::get_time_derivatives(double dt)
 {
   Stopwatch sw;
   Stopwatch sw2;
@@ -1313,7 +1313,7 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives()
                             + to_string(sw2.printTime()) + " s.");
   //add source terms to the energy momentum tensor
   //add_source();
-  if (settingsPtr->source_type != "none") sourcePtr->add_source();
+  if (settingsPtr->source_type != "none") sourcePtr->add_source(dt);
     // update viscosities for all particles
   sw2 = Stopwatch();
   sw2.Start();  
@@ -1820,7 +1820,7 @@ void SPHWorkstation<D, TEOM>::advance_timestep( double dt, int rk_order )
 
   //Bulk of code evaluation is done below
   evolver.execute_timestep( dt, rk_order,
-                            [this]{ this->get_time_derivatives(); } );
+                            [this,dt]{ this->get_time_derivatives(dt); } );
   //cout << "Starting jet propagate: " << endl;
   bbmg.propagate();
   //cout << "Finished jet propagate: " << endl;
