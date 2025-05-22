@@ -82,6 +82,9 @@ namespace transport_coefficients{
   double tau_piGubser(const double *therm, const parameters params);
   KOKKOS_INLINE_FUNCTION
   double tau_piMinval(const double *therm, const parameters params);
+  KOKKOS_INLINE_FUNCTION
+  double tau_piConstant(const double *therm, const parameters params);
+
 
   KOKKOS_INLINE_FUNCTION
   double constZeta(const double *therm, const parameters params);
