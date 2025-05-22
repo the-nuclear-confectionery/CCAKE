@@ -199,7 +199,7 @@ def evaluate_field(data, r):
         return np.pad(r, (0, neighbors.shape[1] - 3), 'constant')
     else:
         return np.sum( neighbors*weights[:, np.newaxis], axis=0 ) / (np.sum(weights)+1e-10)
-    
+
 #==============================================================================
 #==============================================================================
 #==============================================================================
@@ -214,7 +214,7 @@ def plot_analytic_sol():
     for ii, t in enumerate(time_list):
         if ii % plot_index != 0:
             continue
-        
+
         tau = float(t)
         cf = {'e_at_eta0': shifted_eGubser,
                'ur_at_eta0': shifted_urGubser,
@@ -228,7 +228,7 @@ def plot_analytic_sol():
         for key in ['e_at_eta0', 'ur_at_eta0', 'ueta_at_eta0']:
             ax[key].plot( xGrid, cf[key](tau, xGrid, eta0), color=cmap(ii), **analytic_style)
             print(cf[key](tau, xGrid, eta0).shape)
-            
+
         #piM = shifted_pimunuGubser(tau, xGrid, 0.0, xGrid, eta0)
         piM = np.array([shifted_pimunuGubser(tau, x, 0.0, x, eta0) for x in xGrid])
         print(piM.shape)
@@ -239,7 +239,7 @@ def plot_analytic_sol():
         ax['pixx_at_eta0'].plot( xGrid, piM[:,1,1], color=cmap(ii), **analytic_style)
         ax['piyy_at_eta0'].plot( xGrid, piM[:,2,2], color=cmap(ii), **analytic_style)
         ax['pietaeta_at_eta0'].plot( xGrid, piM[:,3,3], color=cmap(ii), **analytic_style)
-            
+
 
 
 def read_sim(sim_result_folder):
@@ -283,11 +283,11 @@ def read_sim(sim_result_folder):
         idx = int(np.round((float(t) - 1) / dt) / 100)
         inp_path = os.path.join(sim_result_folder, f'system_state_{idx}.dat')
         print(inp_path)
-        
+
         print('Loading', inp_path)
         hydroOutput = np.loadtxt(inp_path, skiprows=1, usecols=(2, 3, 4, 10, 33, 35, 25, 26, 32))
         print('\t - finished.')
-        
+
         #print('\t - hydroOutput.shape =', hydroOutput.shape)
 
         print('Eliminating irrelevant particles to save time')
@@ -301,7 +301,7 @@ def read_sim(sim_result_folder):
         #print('\t - hydroOutput_at_eta1.shape =', hydroOutput_at_eta1.shape)
         #print(hydroOutput_at_eta0)
         #print(hydroOutput_at_eta1)
-        
+
         # interpolate on regular grid
         print('Smoothing fields')
         f0 = np.array([ evaluate_field(hydroOutput_at_eta0, point) for point in np.c_[ xGrid, yGrid, eta0 + etaGrid ] ])
@@ -311,15 +311,15 @@ def read_sim(sim_result_folder):
         #print('\t - f1.shape =', f1.shape)
         #print(f0)
         #print(f1)
-        
+
         #if True:
         #    exit(1)
-        
+
         #print(f0[f0[:,0] > 0, 3])
         #print(f1[f1[:,0] > 0, 3])
 
         sim_style = {'color': cmap(ii), 'ls': ':', 'lw': 2.5}
-        
+
         ax['e_at_eta0'].plot(   f0[:,0], f0[:,3], **sim_style)
         ax['ur_at_eta0'].plot(  f0[:,0], f0[:,4], **sim_style)
         ax['ueta_at_eta0'].plot(f0[:,0], f0[:,5], **sim_style)
