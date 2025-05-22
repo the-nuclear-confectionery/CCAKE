@@ -65,7 +65,7 @@ n_timesteps = len(time_list)
 
 
 hbarc = 0.1973269804              # GeV*fm
-t0 = 0.5 # amount of temporal shift
+t0 = 0.0 # amount of temporal shift
 q  = 1.
 e0 = 80000.0 # units of MeV*fm (cf. ideal_2+1d_gubser_ic_generator.py script)
 e0 *= 0.001  # convert to units of GeV*fm

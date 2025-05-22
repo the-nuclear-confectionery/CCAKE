@@ -16,7 +16,7 @@ def write_header(stepx, stepy, stepEta, xmin, ymin, etamin):
     return f
 
 hbarc = 0.1973269804              # GeV*fm
-t0 = 0.5                          # fm (amount of temporal shift)
+t0 = 0.0                          # fm (amount of temporal shift)
 tau0 = 1.0                        # fm
 eps0 = 80                         # (GeV*fm)^4
 shearOVERs = 0.134                # i.e., specific shear viscosity (eta/s)
