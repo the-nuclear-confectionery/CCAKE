@@ -351,7 +351,7 @@ bool cc::Input::decode_settings(const YAML::Node& node){
     }
 
     try {
-      settingsPtr->constant_tau_pi = node["hydro"]["viscous_parameters"]["shear"]["constant_tau_pi"].as<std::string>();
+      settingsPtr->constant_tau_pi = node["hydro"]["viscous_parameters"]["shear"]["constant_tau_pi"].as<double>();
     } catch (...) {
       formatted_output::report("WARNING: Could not read viscous_parameters shear constant_tau_pi!");
       formatted_output::report("This is an optional parameter. Setting to default value.");
