@@ -326,7 +326,7 @@ def read_sim(sim_result_folder):
         ax['pixx_at_eta0'].plot(   f0[:,0], hbarc*f0[:,6], **sim_style)
         ax['piyy_at_eta0'].plot(  f0[:,0], hbarc*f0[:,7], **sim_style)
         ax['pietaeta_at_eta0'].plot(f0[:,0], hbarc*f0[:,8], **sim_style)
-        print('Center:',f0[np.abs(f0[:,0])<1e-2])
+        print('Center:',f0[np.abs(f0[:,0])<1e-4])
         #ax['e_at_eta1'].plot(   f1[:,0], f1[:,3], **sim_style)
         #ax['ur_at_eta1'].plot(  f1[:,0], f1[:,4], **sim_style)
         #ax['ueta_at_eta1'].plot(f1[:,0], f1[:,5], **sim_style)
