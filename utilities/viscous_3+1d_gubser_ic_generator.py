@@ -114,8 +114,8 @@ def main():
        
     
     check_input()
-    stepx = 0.05
-    stepy = 0.05
+    stepx = 0.025
+    stepy = 0.025
     stepeta = 0.025
     xmax = 5.0
     ymax = 5.0

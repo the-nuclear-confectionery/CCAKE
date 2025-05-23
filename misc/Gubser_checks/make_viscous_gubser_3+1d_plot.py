@@ -294,8 +294,8 @@ def read_sim(sim_result_folder):
                                      & (np.isclose(hydroOutput[:,2], 0.0, atol=1e-3)))])
 
         print('Eliminating irrelevant particles to save time')
-        hydroOutput_at_eta0 = hydroOutput[np.where( (np.isclose(hydroOutput[:,1], 0.0, atol=2.0*h)) \
-                                                    & (np.isclose(hydroOutput[:,2], eta0, atol=2.0*h)) )] # y == 0 ===>>> r == x
+        hydroOutput_at_eta0 = hydroOutput[np.where( (np.isclose(hydroOutput[:,1], 0.0, atol=3.0*h)) \
+                                                    & (np.isclose(hydroOutput[:,2], eta0, atol=3.0*h)) )] # y == 0 ===>>> r == x
         #hydroOutput_at_eta1 = hydroOutput[np.where( (np.isclose(hydroOutput[:,1], 0.0, atol=3.0*h)) \
         #                                            & (np.isclose(hydroOutput[:,2], eta1, atol=3.0*h)) )] # y == 0 ===>>> r == x
         print('\t - finished.')
