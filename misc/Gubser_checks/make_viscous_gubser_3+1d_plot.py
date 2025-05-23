@@ -289,6 +289,7 @@ def read_sim(sim_result_folder):
         print('\t - finished.')
 
         #print('\t - hydroOutput.shape =', hydroOutput.shape)
+        print(hydroOutput[3252281])
 
         print('Eliminating irrelevant particles to save time')
         hydroOutput_at_eta0 = hydroOutput[np.where( (np.isclose(hydroOutput[:,1], 0.0, atol=3.0*h)) \
