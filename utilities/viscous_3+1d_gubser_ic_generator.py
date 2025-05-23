@@ -134,10 +134,10 @@ def main():
     #lines = f.readlines()
     #f.close()
     
-    if True:
-        for tau in np.arange(1.0, 1.2, 0.001):
-            print('tau =', tau, ':', shifted_pimunu(tau, 0.0, 0.0, 0.0, 0.0)[1,1])
-        exit(1)
+    #if True:
+    #    for tau in np.arange(1.0, 1.2, 0.001):
+    #        print('tau =', tau, ':', shifted_pimunu(tau, 0.0, 0.0, 0.0, 0.0)[1,1])
+    #    exit(1)
     
     f = write_header(stepx, stepy, stepeta, xmin, ymin, etamin)
 
