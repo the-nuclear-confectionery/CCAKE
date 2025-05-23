@@ -382,12 +382,12 @@ def beautify():
         # edgecolors=cmap(0))
     ax['ur_at_eta0'].plot([], [], **style1, label='CCAKE', color=cmap(0))
 
-    ax['e_at_eta0'].set_ylim(-0.5, 17.5)
+    ax['e_at_eta0'].set_ylim(-0.5, 100.0)
     ax['ur_at_eta0'].set_ylim(0,3.0)
     ax['ueta_at_eta0'].set_ylim(-0.75, 0.05)
-    ax['pixx_at_eta0'].set_ylim(-1.0, 1.0)
-    ax['piyy_at_eta0'].set_ylim(-1.0, 1.0)
-    ax['pietaeta_at_eta0'].set_ylim(-1.0, 1.0)
+    ax['pixx_at_eta0'].set_ylim(-5.0, 5.0)
+    ax['piyy_at_eta0'].set_ylim(-5.0, 5.0)
+    ax['pietaeta_at_eta0'].set_ylim(-5.0, 5.0)
 
     for name, label in zip(ylabels.keys(),
                            ['a', 'b', 'c', 'd', 'e', 'f']):
