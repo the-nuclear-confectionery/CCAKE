@@ -21,13 +21,20 @@ tau0 = 1.0                        # fm
 eps0 = 80                         # (GeV*fm)^4
 shearOVERs = 0.134                # i.e., specific shear viscosity (eta/s)
 q = 1.0                           # 1/fm
-fs = 11.0                         # dimensionless
+
+
+Nc = 3.
+Nf = 2.5
+cp = (2.*(Nc**2-1.) + 3.5*Nc*Nf)*np.pi**2/90.
+#fs = 11.0                         # dimensionless
+fs = cp                         # dimensionless
 
 # derived parameters
 H0 = 4.0*fs**0.25*shearOVERs/3.0  # dimensionless
 T0 = 0.25*eps0**0.25*fs**0.75     # dimensionless
 
 H0_by_9T0 = H0 / (9.0*T0)
+
 
 #==============================================================================
 # Define Gubser model functions
@@ -116,16 +123,21 @@ def main():
     xmin = -xmax
     ymin = -ymax
     etamin = -etamax
-    hbarc = 0.1973269804 
+    #hbarc = 0.1973269804 
     # scale for conformal EoS
-    Nc    = 3.0 # three colors
-    Nf    = 2.5 # u+d massless, s 'half massless'
-    cpLoc = np.pi*np.pi*(2.0*(Nc*Nc-1.0)+(7.0/2.0)*Nc*Nf)/90.0 #In units of fm^-4
-    T0   = hbarc # T0 = 1 fm^-1 = .197 GeV
+    #Nc    = 3.0 # three colors
+    #Nf    = 2.5 # u+d massless, s 'half massless'
+    #cpLoc = np.pi*np.pi*(2.0*(Nc*Nc-1.0)+(7.0/2.0)*Nc*Nf)/90.0 #In units of fm^-4
+    #T0   = hbarc # T0 = 1 fm^-1 = .197 GeV
 
     #f = open(sys.argv[1], "r")
     #lines = f.readlines()
     #f.close()
+    
+    if True:
+        for tau in np.arange(1.0, 1.2, 0.001):
+            print('tau =', tau, ':', shifted_pimunu(tau, 0.0, 0.0, 0.0, 0.0)[1,1])
+        exit(1)
     
     f = write_header(stepx, stepy, stepeta, xmin, ymin, etamin)
 
