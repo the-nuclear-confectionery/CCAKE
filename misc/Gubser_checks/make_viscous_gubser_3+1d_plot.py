@@ -71,17 +71,17 @@ e0 = 80000.0 # units of MeV*fm (cf. ideal_2+1d_gubser_ic_generator.py script)
 e0 *= 0.001  # convert to units of GeV*fm
 
 shearOVERs = 0.134  # i.e., specific shear viscosity (eta/s)
-fs = 11.0
+Nc = 3.
+Nf = 2.5
+cp = (2.*(Nc**2-1.) + 3.5*Nc*Nf)*np.pi**2/90.
+#fs = 11.0                         # dimensionless
+fs = cp                         # dimensionless
 
 # derived parameters
 H0 = 4.0*fs**0.25*shearOVERs/3.0
 T0 = 0.25*e0**0.25*fs**0.75     # dimensionless
 
 H0_by_9T0 = H0 / (9.0*T0)
-
-Nc = 3.
-Nf = 2.5
-cp = (2.*(Nc**2-1.) + 3.5*Nc*Nf)*np.pi**2/90.
 
 h = 0.1  # 3D cubic spline smoothing scale
 knorm  = 1./(np.pi*h**3)
