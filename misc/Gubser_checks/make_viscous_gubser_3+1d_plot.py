@@ -29,7 +29,7 @@ plot_index = 1
 
 #time_list = np.arange(1.00, 1.50, 0.1)  # Use this to focus on before FO
 #time_list=['1.00', '1.10', '1.20','1.30', '1.40', '1.50']# Use this to focus on before FO
-time_list=['1.00', '1.10', '1.20']# Use this to focus on before FO
+time_list=['1.00', '1.10']# Use this to focus on before FO
 filter_criteria = 'abs(phi - 3.141592653589793/4.) < 1.e-2'
 
 # cmap = myplt.get_cmap(len(time_list), 'cividis')
