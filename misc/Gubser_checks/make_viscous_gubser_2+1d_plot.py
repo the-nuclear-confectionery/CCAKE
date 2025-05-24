@@ -188,12 +188,12 @@ def plot_analytic_sol():
             continue
 
         tau = float(t)
-        cf = {'e_at_eta0': eGubser,
+        cf = {'e_at_eta0': eps_a,
                'ur_at_eta0': urGubser,
                'ueta_at_eta0': uetaGubser,
-               'pixx_at_eta0': eGubser,
-               'piyy_at_eta0': eGubser,
-               'pietaeta_at_eta0': eGubser}
+               'pixx_at_eta0': eps_a,
+               'piyy_at_eta0': eps_a,
+               'pietaeta_at_eta0': eps_a}
 
         analytic_style = {'ls': '-', 'lw': 7, 'alpha': 0.4}
 
