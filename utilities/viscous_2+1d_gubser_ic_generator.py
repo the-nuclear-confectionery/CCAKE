@@ -130,7 +130,7 @@ def main():
             #print('u*pi(3) =',utau*piM[3,0]-ux*piM[3,1]-uy*piM[3,2]-tau0**2*ueta*piM[3,3])
             #print(eps)
             
-            f.write(f"{x} {y} 0 {eps} 0 0 0 {ux} {uy} {ueta} 0 {pixx} {pixy} {pixeta} {piyy} {piyeta} {pietaeta}\n")
+            f.write(f"{x} {y} 0 {eps} 0 0 0 {ux} {uy} 0 0 {pixx} {pixy} {pixeta} {piyy} {piyeta} {pietaeta}\n")
 
     f.close()
 
