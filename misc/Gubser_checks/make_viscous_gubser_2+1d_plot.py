@@ -188,12 +188,12 @@ def plot_analytic_sol():
             continue
 
         tau = float(t)
-        cf = {'e_at_eta0': shifted_eGubser,
-               'ur_at_eta0': shifted_urGubser,
-               'ueta_at_eta0': shifted_uetaGubser,
-               'pixx_at_eta0': shifted_eGubser,
-               'piyy_at_eta0': shifted_eGubser,
-               'pietaeta_at_eta0': shifted_eGubser}
+        cf = {'e_at_eta0': eGubser,
+               'ur_at_eta0': urGubser,
+               'ueta_at_eta0': uetaGubser,
+               'pixx_at_eta0': eGubser,
+               'piyy_at_eta0': eGubser,
+               'pietaeta_at_eta0': eGubser}
 
         analytic_style = {'ls': '-', 'lw': 7, 'alpha': 0.4}
 
@@ -410,4 +410,4 @@ if __name__ == '__main__':
     #    fig.savefig('inverter_comparison.pdf')
     #else:
     #    fig.savefig(sys.argv[3])
-    fig.savefig('tmp.pdf')
+    fig.savefig('tmp_2_1d.pdf')
