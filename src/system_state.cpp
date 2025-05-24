@@ -274,7 +274,6 @@ void SystemState<D>::copy_device_to_host(){
       particles[id].hydro.R_0i_shear(i,j) = host_hydro_space_matrix(iparticle, ccake::hydro_info::R_0i_shear, i, j);
       particles[id].hydro.M_0i_shear(i,j) = host_hydro_space_matrix(iparticle, ccake::hydro_info::M_0i_shear, i, j);
     }
-    std::cout << "Made it to " << __PRETTY_FUNCTION__ << ":: line = " << __LINE__ << std::endl;
     particles[id].hydro.t = host_hydro_scalar(iparticle, ccake::hydro_info::t);
     particles[id].hydro.causality = host_hydro_scalar(iparticle, ccake::hydro_info::causality);
     particles[id].hydro.bulk = host_hydro_scalar(iparticle, ccake::hydro_info::bulk);
@@ -312,7 +311,6 @@ void SystemState<D>::copy_device_to_host(){
     particles[id].hydro.inverse_reynolds_shear = host_hydro_scalar(iparticle, ccake::hydro_info::inverse_reynolds_shear);
     particles[id].hydro.inverse_reynolds_bulk = host_hydro_scalar(iparticle, ccake::hydro_info::inverse_reynolds_bulk);
 
-    std::cout << "Made it to " << __PRETTY_FUNCTION__ << ":: line = " << __LINE__ << std::endl;
     for (int i=0; i<D; i++){
       particles[id].hydro.v(i) = host_hydro_vector(iparticle, ccake::hydro_info::v,i);
       particles[id].hydro.u(i) = host_hydro_vector(iparticle, ccake::hydro_info::u,i);
@@ -330,7 +328,6 @@ void SystemState<D>::copy_device_to_host(){
       particles[id].hydro.j_ext(i) = host_hydro_vector(iparticle, ccake::hydro_info::j_ext,i);
       particles[id].r(i) = host_position(iparticle, i);
     }
-    std::cout << "Made it to " << __PRETTY_FUNCTION__ << ":: line = " << __LINE__ << std::endl;
 
     //charges
     for(int i=0; i<3; ++i){
@@ -345,7 +342,6 @@ void SystemState<D>::copy_device_to_host(){
       }
     }
 
-    std::cout << "Made it to " << __PRETTY_FUNCTION__ << ":: line = " << __LINE__ << std::endl;
     particles[id].thermo.T = host_thermo(iparticle, ccake::thermo_info::T);
     particles[id].thermo.muB = host_thermo(iparticle, ccake::thermo_info::muB);
     particles[id].thermo.muS = host_thermo(iparticle, ccake::thermo_info::muS);
