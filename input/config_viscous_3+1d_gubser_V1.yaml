@@ -8,8 +8,8 @@ initial_conditions:
 parameters:
   dt: 0.001 # time-step of the simulation in fm/c
   max_tau: 1.2 # maximum time of the simulation in fm/c
-  h_T:  0.100000  # Smoothing parameter inside kernel, in the transverse direction (in fm)
-  h_eta:  0.100000  # Smoothing parameter inside kernel in the longitudinal direction
+  h_T:  0.050000  # Smoothing parameter inside kernel, in the transverse direction (in fm)
+  h_eta:  0.050000  # Smoothing parameter inside kernel in the longitudinal direction
   rk_order: 2
   kernel_type: "cubic_spline" # Kernel type. Possible values are: ["cubic_spline"]
   energy_cutoff: 0.15 # GeV/fm^3 - Particles with less than this energy will be deleted before starting the evolution
