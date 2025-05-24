@@ -200,9 +200,9 @@ def plot_analytic_sol():
 
         analytic_style = {'ls': '-', 'lw': 7, 'alpha': 0.4}
 
-        for key in ['e_at_eta0', 'ur_at_eta0', 'ueta_at_eta0']:
+        for key in ['e_at_eta0', 'ur_at_eta0', 'ur_at_eta0']:
             ax[key].plot( xGrid, cf[key](tau, xGrid), color=cmap(ii), **analytic_style)
-            print(cf[key](tau, xGrid).shape)
+            print(key, ':', cf[key](tau, xGrid).shape)
 
         piM = np.array([pimunuGubser(tau, x, 0.0, x) for x in xGrid])
         print(piM.shape)
