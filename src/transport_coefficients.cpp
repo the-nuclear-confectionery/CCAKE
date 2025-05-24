@@ -186,7 +186,7 @@ double tau_Pi(const double* thermo, parameters params)
 KOKKOS_INLINE_FUNCTION
 double default_eta(const double *therm)
 {
-  double eta_over_s = 0.20;
+  double eta_over_s = 0.134;
   return therm[thermo_info::s] * eta_over_s;
 }
 
