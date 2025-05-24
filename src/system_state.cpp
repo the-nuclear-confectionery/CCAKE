@@ -359,7 +359,6 @@ void SystemState<D>::copy_device_to_host(){
     particles[id].thermo.dwdS = host_thermo(iparticle, ccake::thermo_info::dwdS);
     particles[id].thermo.dwdQ = host_thermo(iparticle, ccake::thermo_info::dwdQ);
 
-    std::cout << "Made it to " << __PRETTY_FUNCTION__ << ":: line = " << __LINE__ << std::endl;
     for (int i=0; i<4; i++){
     for (int j=0; j<4; j++){
       particles[id].hydro.shv(i,j) = host_hydro_spacetime_matrix(iparticle, ccake::hydro_info::shv, i, j);
@@ -384,38 +383,32 @@ void SystemState<D>::copy_device_to_host(){
     }
 
 
-    std::cout << "Made it to " << __PRETTY_FUNCTION__ << ":: line = " << __LINE__ << std::endl;
 
     particles[id].input.s = host_input(iparticle, ccake::densities_info::s);
     particles[id].input.rhoB = host_input(iparticle, ccake::densities_info::rhoB);
     particles[id].input.rhoS = host_input(iparticle, ccake::densities_info::rhoS);
     particles[id].input.rhoQ = host_input(iparticle, ccake::densities_info::rhoQ);
 
-    std::cout << "Made it to " << __PRETTY_FUNCTION__ << ":: line = " << __LINE__ << std::endl;
     particles[id].smoothed.s = host_smoothed(iparticle, ccake::densities_info::s);
     particles[id].smoothed.rhoB = host_smoothed(iparticle, ccake::densities_info::rhoB);
     particles[id].smoothed.rhoS = host_smoothed(iparticle, ccake::densities_info::rhoS);
     particles[id].smoothed.rhoQ = host_smoothed(iparticle, ccake::densities_info::rhoQ);
 
-    std::cout << "Made it to " << __PRETTY_FUNCTION__ << ":: line = " << __LINE__ << std::endl;
     particles[id].extensive.s = host_extensive(iparticle, ccake::densities_info::s);
     particles[id].extensive.rhoB = host_extensive(iparticle, ccake::densities_info::rhoB);
     particles[id].extensive.rhoS = host_extensive(iparticle, ccake::densities_info::rhoS);
     particles[id].extensive.rhoQ = host_extensive(iparticle, ccake::densities_info::rhoQ);
 
-    std::cout << "Made it to " << __PRETTY_FUNCTION__ << ":: line = " << __LINE__ << std::endl;
     particles[id].d_dt_extensive.s = host_d_dt_extensive(iparticle, ccake::densities_info::s);
     particles[id].d_dt_extensive.rhoB = host_d_dt_extensive(iparticle, ccake::densities_info::rhoB);
     particles[id].d_dt_extensive.rhoS = host_d_dt_extensive(iparticle, ccake::densities_info::rhoS);
     particles[id].d_dt_extensive.rhoQ = host_d_dt_extensive(iparticle, ccake::densities_info::rhoQ);
 
-    std::cout << "Made it to " << __PRETTY_FUNCTION__ << ":: line = " << __LINE__ << std::endl;
     particles[id].sph_mass.s = host_sph_mass(iparticle, ccake::densities_info::s);
     particles[id].sph_mass.rhoB = host_sph_mass(iparticle, ccake::densities_info::rhoB);
     particles[id].sph_mass.rhoS = host_sph_mass(iparticle, ccake::densities_info::rhoS);
     particles[id].sph_mass.rhoQ = host_sph_mass(iparticle, ccake::densities_info::rhoQ);
 
-    std::cout << "Made it to " << __PRETTY_FUNCTION__ << ":: line = " << __LINE__ << std::endl;
     particles[id].efcheck = host_efcheck(iparticle);
     particles[id].contribution_to_total_E = host_contribution_to_total_E(iparticle);
     particles[id].contribution_to_total_dEz = host_contribution_to_total_dEz(iparticle);
