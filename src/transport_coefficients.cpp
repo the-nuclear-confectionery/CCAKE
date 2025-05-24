@@ -195,7 +195,7 @@ KOKKOS_INLINE_FUNCTION
 double constEta(const double *therm, const parameters params)
 {
   double w = therm[thermo_info::w];
-  double T = therm[thermo_info::T];
+  double T = therm[thermo_info::T] + 1e-100;
   return params.constant_eta_over_s*(w/T);
 }
 
