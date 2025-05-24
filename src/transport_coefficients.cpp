@@ -187,6 +187,8 @@ KOKKOS_INLINE_FUNCTION
 double default_eta(const double *therm)
 {
   double eta_over_s = 0.134;
+  std::cout << "line = " << __LINE__ << ": s = " << therm[thermo_info::s] << std::endl;
+  if (true) exit(1);
   return therm[thermo_info::s] * eta_over_s;
 }
 
@@ -196,6 +198,9 @@ double constEta(const double *therm, const parameters params)
 {
   double w = therm[thermo_info::w];
   double T = therm[thermo_info::T] + 1e-100;
+  std::cout << "line = " << __LINE__ << ": w = " << therm[thermo_info::w] << std::endl;
+  std::cout << "line = " << __LINE__ << ": T = " << therm[thermo_info::T] << std::endl;
+  if (true) exit(1);
   return params.constant_eta_over_s*(w/T);
 }
 
