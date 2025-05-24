@@ -29,7 +29,7 @@ public:
 
 private:
 
-  const int VERBOSE = 0;
+  const int VERBOSE = 10;
   const int STEPS = 1000;
   const double TOLERANCE = 1e-10;
 
@@ -52,7 +52,7 @@ private:
             vector<double> & updated_tbqs );
 
 public:
-  
+
   bool find_root( const string & e_or_s, double ein_or_sin,
                   double Bin, double Sin, double Qin,
                   std::function<void(double[], double[])> function_to_evaluate,
