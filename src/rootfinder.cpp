@@ -157,7 +157,7 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
   // e_or_s_mode == 1: using energy density  //
   /////////////////////////////////////////////
 
- std::cout << "Starting new rootfinder4D call\n";
+ std::cout << __LINE__ << ": " << "Starting new rootfinder4D call\n";
 
   ////////////////////
   // set initial guess
@@ -204,14 +204,16 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
   do
   {
 
-   std::cout << "iter = " << iter << "\n";
-std::cout << gsl_vector_get(solver->x, 0) << "\n";
-std::cout << gsl_vector_get(solver->x, 1) << "\n";
-std::cout << gsl_vector_get(solver->x, 2) << "\n";
-std::cout << gsl_vector_get(solver->x, 3) << "\n\n";
+   std::cout << __LINE__ << ": " << "iter = " << iter << "\n";
+std::cout << __LINE__ << ": " << gsl_vector_get(solver->x, 0) << "\n";
+std::cout << __LINE__ << ": " << gsl_vector_get(solver->x, 1) << "\n";
+std::cout << __LINE__ << ": " << gsl_vector_get(solver->x, 2) << "\n";
+std::cout << __LINE__ << ": " << gsl_vector_get(solver->x, 3) << "\n\n";
 
     ++iter;
     status = gsl_multiroot_fsolver_iterate(solver);
+
+    std::cout << __LINE__ << ": " << "finished iter = " << iter << "\n";
 
     if ( status )
     {
@@ -351,7 +353,7 @@ std::cout << gsl_vector_get(solver->x, 3) << "\n\n";
     found = false;
   }
 
- std::cout << "Check: " << iter << "   " << steps << "   " << status << "\n";
+ std::cout << __LINE__ << ": " << "Check: " << iter << "   " << steps << "   " << status << "\n";
 
 
   // if so, return the solution
