@@ -157,7 +157,7 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
   // e_or_s_mode == 1: using energy density  //
   /////////////////////////////////////////////
 
-//  std::cout << "Starting new rootfinder4D call\n";
+ std::cout << "Starting new rootfinder4D call\n";
 
   ////////////////////
   // set initial guess
@@ -177,11 +177,11 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
   rootfinder_parameters p( e_or_s_Given, rhoBGiven, rhoQGiven, rhoSGiven,
                            e_or_s_mode, function_to_evaluate );
 
-//  std::cout << __LINE__ << ": " << e_or_s_Given << std::endl;
-//  std::cout << __LINE__ << ": " << rhoBGiven << std::endl;
-//  std::cout << __LINE__ << ": " << rhoSGiven << std::endl;
-//  std::cout << __LINE__ << ": " << rhoQGiven << std::endl;
-//  std::cout << __LINE__ << ": " << e_or_s_mode << std::endl;
+ std::cout << __LINE__ << ": " << e_or_s_Given << "\n";
+ std::cout << __LINE__ << ": " << rhoBGiven << "\n";
+ std::cout << __LINE__ << ": " << rhoSGiven << "\n";
+ std::cout << __LINE__ << ": " << rhoQGiven << "\n";
+ std::cout << __LINE__ << ": " << e_or_s_mode << "\n";
 
   ////////////////////
   // initialize multiroot solver
@@ -204,11 +204,11 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
   do
   {
 
-//    std::cout << "iter = " << iter << "\n";
-//std::cout << gsl_vector_get(solver->x, 0) << std::endl;
-//std::cout << gsl_vector_get(solver->x, 1) << std::endl;
-//std::cout << gsl_vector_get(solver->x, 2) << std::endl;
-//std::cout << gsl_vector_get(solver->x, 3) << std::endl << std::endl;
+   std::cout << "iter = " << iter << "\n";
+std::cout << gsl_vector_get(solver->x, 0) << "\n";
+std::cout << gsl_vector_get(solver->x, 1) << "\n";
+std::cout << gsl_vector_get(solver->x, 2) << "\n";
+std::cout << gsl_vector_get(solver->x, 3) << "\n\n";
 
     ++iter;
     status = gsl_multiroot_fsolver_iterate(solver);
@@ -351,7 +351,7 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
     found = false;
   }
 
-//  std::cout << "Check: " << iter << "   " << steps << "   " << status << "\n";
+ std::cout << "Check: " << iter << "   " << steps << "   " << status << "\n";
 
 
   // if so, return the solution
