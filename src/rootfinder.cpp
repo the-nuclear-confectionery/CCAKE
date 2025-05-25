@@ -357,6 +357,7 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
   // if so, return the solution
   if ( found )
   {
+    std::cout << "Got result!  returning...\n";
     //DON'T NEED TO UPDATE TBQSPOSITION
     /*tbqs( gsl_vector_get(solver->x, 0),
           gsl_vector_get(solver->x, 1),
@@ -367,6 +368,9 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
     for (int iTBQS = 0; iTBQS < 4; iTBQS++)
       updated_tbqs[iTBQS] = gsl_vector_get(solver->x, iTBQS);
   }
+  else
+    std::cout << "Failed!  returning...\n";
+
 
   // memory deallocation
   gsl_multiroot_fsolver_free(solver);
