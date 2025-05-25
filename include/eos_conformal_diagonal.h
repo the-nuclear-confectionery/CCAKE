@@ -17,7 +17,7 @@ private:
 
   double c, T0, muB0, muS0, muQ0;
   static constexpr double four_thirds = 4.0/3.0;
-  static constexpr double two_to_two_thirds = 1.5874010519681994748; //pow(2.0, 2.0/3.0); 
+  static constexpr double two_to_two_thirds = 1.5874010519681994748; //pow(2.0, 2.0/3.0);
 
   inline double sgn(double val) { return (0.0 < val) - (val < 0.0); }
 
@@ -84,7 +84,7 @@ public:
     double cp = c*T0*T0*T0*T0;  // c dimensionless, cp - 1/fm^4
 		return cp*x;
 	}
-	
+
 	double s(double T, double muB, double muQ, double muS)
 	{
     double cp = c*T0*T0*T0*T0;  // c dimensionless, cp - 1/fm^4
@@ -124,11 +124,11 @@ public:
     double cp = c*T0*T0*T0*T0;  // c dimensionless, cp - 1/fm^4
 		return 12.0*cp*muS*muS/(muS0*muS0*muS0*muS0);
 	}
-	
+
 	double P2BQ(double T, double muB, double muQ, double muS) { return TINY; }
 	double P2BS(double T, double muB, double muQ, double muS) { return TINY; }
 	double P2QS(double T, double muB, double muQ, double muS) { return TINY; }
-	
+
 	double P2TB(double T, double muB, double muQ, double muS) { return TINY; }
 	double P2TQ(double T, double muB, double muQ, double muS) { return TINY; }
 	double P2TS(double T, double muB, double muQ, double muS) { return TINY; }
@@ -141,15 +141,16 @@ public:
 
   void get_eBSQ( double point[], double results[] )
   {
+    std::cout << "Entering " << __FUNCTION__ << "\n";
     // point: (T, muB, muQ, muS)
     const double Tsol  = point[0],
       muBsol           = point[1],
       muQsol           = point[2],
       muSsol           = point[3];
-//std::cout << "LINE: " << __LINE__ << "   " << point[0] << "\n";
-//std::cout << "LINE: " << __LINE__ << "   " << point[1] << "\n";
-//std::cout << "LINE: " << __LINE__ << "   " << point[2] << "\n";
-//std::cout << "LINE: " << __LINE__ << "   " << point[3] << "\n";
+std::cout << "LINE: " << __LINE__ << "   " << point[0] << "\n";
+std::cout << "LINE: " << __LINE__ << "   " << point[1] << "\n";
+std::cout << "LINE: " << __LINE__ << "   " << point[2] << "\n";
+std::cout << "LINE: " << __LINE__ << "   " << point[3] << "\n";
     double POut        = p(Tsol, muBsol, muQsol, muSsol);
     double sOut        = s(Tsol, muBsol, muQsol, muSsol);
     double BOut        = B(Tsol, muBsol, muQsol, muSsol);
@@ -160,20 +161,24 @@ public:
     results[1]         = BOut;
     results[2]         = SOut;
     results[3]         = QOut;
-//std::cout << "LINE: " << __LINE__ << "\n";
+std::cout << "LINE: " << __LINE__ << "\n";
+std::cout << "Exiting " << __FUNCTION__ << "\n";
   }
 
   void get_sBSQ( double point[], double results[] )
   {
+    std::cout << "Entering " << __FUNCTION__ << "\n";
     // point: (T, muB, muQ, muS)
     results[0] = s( point[0], point[1], point[2], point[3] );
     results[1] = B( point[0], point[1], point[2], point[3] );
     results[2] = S( point[0], point[1], point[2], point[3] );
     results[3] = Q( point[0], point[1], point[2], point[3] );
+    std::cout << "Exiting " << __FUNCTION__ << "\n";
   }
 
   void get_full_thermo( double point[], double results[] )
   {
+    std::cout << "Entering " << __FUNCTION__ << "\n";
     // point: (T, muB, muQ, muS)
     const double Tsol   = point[0], muBsol = point[1],
                  muQsol = point[2], muSsol = point[3];
@@ -202,8 +207,9 @@ public:
     results[14] = P2TQ(Tsol, muBsol, muQsol, muSsol);
     results[15] = P2TS(Tsol, muBsol, muQsol, muSsol);
     results[16] = P2T2(Tsol, muBsol, muQsol, muSsol);
+    std::cout << "Exiting " << __FUNCTION__ << "\n";
   }
-  
+
 };
 
 #endif
