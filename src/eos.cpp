@@ -47,7 +47,7 @@ bool EquationOfState::point_not_in_range(
   const auto & tbqs_maxs = peos->tbqs_maxima;
 
   if(setT < tbqs_mins[0] || setT > tbqs_maxs[0])
-  { 
+  {
     std::cout << "T = " << setT
       << " is out of (" << peos->name << ") range."
          " Valid values are between ["
@@ -371,6 +371,8 @@ bool EquationOfState::find_root_with_seed(
                 << result[2]*hc << "   " << result[3]*hc << std::endl;
     }
 
+    std::cout << "Current EoS: " << this_eos->name << "\n";
+
     // if not energy, do entropy
     if ( e_or_s_mode != "energy" )
       return rootfinder.find_root(
@@ -393,7 +395,7 @@ bool EquationOfState::rootfinder_update_s( double sin, double Bin,
                                            double Sin, double Qin )
 {
   const double hc = constants::hbarc_MeVfm;
-  
+
   // take sign of densities using lambda function
   auto sgn = [](double val) -> double { return (0.0 < val) - (val < 0.0); };
 
@@ -559,7 +561,7 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
                                           double Qin, bool & solution_found )
 {
   const double hc = constants::hbarc_MeVfm;
-  
+
   // take sign of densities using lambda function
   auto sgn = [](double val) -> double { return (0.0 < val) - (val < 0.0); };
 
@@ -662,4 +664,3 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
 
 }
 ////////////////////////////////////////////////////////////////////////////////
-
