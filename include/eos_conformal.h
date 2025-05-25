@@ -25,7 +25,7 @@ public:
                  const std::vector<double> & tbqs_maxima_in,
                  const std::string & name_in = "conformal")
     { c = c_in; T0 = T0_in; muB0 = muB0_in; muS0 = muS0_in; muQ0 = muQ0_in;
-      tbqs_minima = tbqs_minima_in; tbqs_maxima = tbqs_maxima_in; 
+      tbqs_minima = tbqs_minima_in; tbqs_maxima = tbqs_maxima_in;
       tbqs_minima_no_ext = tbqs_minima_in; tbqs_maxima_no_ext = tbqs_maxima_in;
       name = name_in; }
 
@@ -37,7 +37,7 @@ public:
     double cp = c*T0*T0*T0*T0;  // c dimensionless, cp - 1/fm^4
 		return cp*x*x;
 	}
-	
+
 	double s(double T, double muB, double muQ, double muS)
 	{
 		double x = (T/T0)*(T/T0) + (muB/muB0)*(muB/muB0)
@@ -91,7 +91,7 @@ public:
     double cp = c*T0*T0*T0*T0;  // c dimensionless, cp - 1/fm^4
 		return cp*(8.0*muS*muS/(muS0*muS0*muS0*muS0) + 4.0*x/(muS0*muS0));
 	}
-	
+
 	double P2BQ(double T, double muB, double muQ, double muS)
       { double cp = c*T0*T0*T0*T0;  // c dimensionless, cp - 1/fm^4
         return (8.0*cp*muB*muQ/(muB0*muB0*muQ0*muQ0)); }
@@ -101,7 +101,7 @@ public:
 	double P2QS(double T, double muB, double muQ, double muS)
 			{ double cp = c*T0*T0*T0*T0;  // c dimensionless, cp - 1/fm^4
         return (8.0*cp*muS*muQ/(muS0*muS0*muQ0*muQ0)); }
-	
+
 	double P2TB(double T, double muB, double muQ, double muS)
 			{ double cp = c*T0*T0*T0*T0;  // c dimensionless, cp - 1/fm^4
         return (8.0*cp*T*muB/(T0*T0*muB0*muB0)); }
@@ -121,48 +121,55 @@ public:
 
   void get_eBSQ( double point[], double results[] )
   {
+    std::cout << "Entering " << __FUNCTION__ << "\n";
+
     // point: (T, muB, muQ, muS)
     const double Tsol   = point[0], muBsol = point[1],
                  muQsol = point[2], muSsol = point[3];
-//std::cout << __FUNCTION__ << "::" << __LINE__ << ": " << point[0] << std::endl;
-//std::cout << __FUNCTION__ << "::" << __LINE__ << ": " << point[1] << std::endl;
-//std::cout << __FUNCTION__ << "::" << __LINE__ << ": " << point[2] << std::endl;
-//std::cout << __FUNCTION__ << "::" << __LINE__ << ": " << point[3] << std::endl;
-//std::cout << __FUNCTION__ << "::" << __LINE__ << ": " << results[0] << std::endl;
-//std::cout << __FUNCTION__ << "::" << __LINE__ << ": " << results[1] << std::endl;
-//std::cout << __FUNCTION__ << "::" << __LINE__ << ": " << results[2] << std::endl;
-//std::cout << __FUNCTION__ << "::" << __LINE__ << ": " << results[3] << std::endl;
+std::cout << __FUNCTION__ << "::" << __LINE__ << ": " << point[0] << "\n";
+std::cout << __FUNCTION__ << "::" << __LINE__ << ": " << point[1] << "\n";
+std::cout << __FUNCTION__ << "::" << __LINE__ << ": " << point[2] << "\n";
+std::cout << __FUNCTION__ << "::" << __LINE__ << ": " << point[3] << "\n";
+std::cout << __FUNCTION__ << "::" << __LINE__ << ": " << results[0] << "\n";
+std::cout << __FUNCTION__ << "::" << __LINE__ << ": " << results[1] << "\n";
+std::cout << __FUNCTION__ << "::" << __LINE__ << ": " << results[2] << "\n";
+std::cout << __FUNCTION__ << "::" << __LINE__ << ": " << results[3] << "\n";
     double POut        = p(Tsol, muBsol, muQsol, muSsol);
-//std::cout << __FUNCTION__ << "::" << __LINE__ << std::endl;
+std::cout << __FUNCTION__ << "::" << __LINE__ << "\n";
     double sOut        = s(Tsol, muBsol, muQsol, muSsol);
-//std::cout << __FUNCTION__ << "::" << __LINE__ << std::endl;
+std::cout << __FUNCTION__ << "::" << __LINE__ << "\n";
     double BOut        = B(Tsol, muBsol, muQsol, muSsol);
-//std::cout << __FUNCTION__ << "::" << __LINE__ << std::endl;
+std::cout << __FUNCTION__ << "::" << __LINE__ << "\n";
     double SOut        = S(Tsol, muBsol, muQsol, muSsol);
-//std::cout << __FUNCTION__ << "::" << __LINE__ << std::endl;
+std::cout << __FUNCTION__ << "::" << __LINE__ << "\n";
     double QOut        = Q(Tsol, muBsol, muQsol, muSsol);
-//std::cout << __FUNCTION__ << "::" << __LINE__ << std::endl;
+std::cout << __FUNCTION__ << "::" << __LINE__ << "\n";
     double eOut        = (sOut*Tsol + muBsol*BOut + muQsol*QOut + muSsol*SOut) - POut;
-//std::cout << __FUNCTION__ << "::" << __LINE__ << std::endl;
+std::cout << __FUNCTION__ << "::" << __LINE__ << "\n";
     results[0]         = eOut;
     results[1]         = BOut;
     results[2]         = SOut;
     results[3]         = QOut;
-//std::cout << __FUNCTION__ << "::" << __LINE__ << std::endl;
+std::cout << __FUNCTION__ << "::" << __LINE__ << "\n";
+std::cout << "Exiting " << __FUNCTION__ << "\n";
+
     return;
   }
 
   void get_sBSQ( double point[], double results[] )
   {
+    std::cout << "Entering " << __FUNCTION__ << "\n";
     // point: (T, muB, muQ, muS)
     results[0] = s( point[0], point[1], point[2], point[3] );
     results[1] = B( point[0], point[1], point[2], point[3] );
     results[2] = S( point[0], point[1], point[2], point[3] );
     results[3] = Q( point[0], point[1], point[2], point[3] );
+    std::cout << "Exiting " << __FUNCTION__ << "\n";
   }
 
   void get_full_thermo( double point[], double results[] )
   {
+    std::cout << "Entering " << __FUNCTION__ << "\n";
     // point: (T, muB, muQ, muS)
     const double Tsol   = point[0], muBsol = point[1],
                  muQsol = point[2], muSsol = point[3];
@@ -191,8 +198,11 @@ public:
     results[14] = P2TQ(Tsol, muBsol, muQsol, muSsol);
     results[15] = P2TS(Tsol, muBsol, muQsol, muSsol);
     results[16] = P2T2(Tsol, muBsol, muQsol, muSsol);
+
+    std::cout << "Exiting " << __FUNCTION__ << "\n";
+
   }
-  
+
 };
 
 #endif

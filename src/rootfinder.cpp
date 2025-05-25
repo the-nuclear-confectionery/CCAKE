@@ -95,7 +95,7 @@ std::cout << "S: " << rhoS << "   " << rhoSGiven << "   " << rhoS - rhoSGiven <<
 //if (1) exit(1);
 
 
-//cout << "Exited at line = " << __LINE__ << endl;
+std::cout << "Exited at line = " << __LINE__ << "\n";
     return GSL_SUCCESS;
 }
 
