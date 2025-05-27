@@ -36,7 +36,7 @@ hydro:
       mode: "constant" # Possible values are: ["constant", "disabled"]
       constant_eta_over_s: 0.134 # Value of the constant shear viscosity
       relaxation_mode: "constant" # How shear relaxation coeffiecient is computed. Possible values are: ["default"]
-      constant_tau_pi: 0.001 # How shear relaxation coeffiecient is computed. Possible values are: ["default"]
+      constant_tau_pi: 0.000001 # How shear relaxation coeffiecient is computed. Possible values are: ["default"]
     bulk:
       mode: "constant"
       constant_zeta_over_s: 0.0
