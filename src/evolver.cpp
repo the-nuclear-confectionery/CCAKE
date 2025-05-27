@@ -307,18 +307,18 @@ void Evolver<D>::update_rk4(double dt){
 template <unsigned int D>
 void Evolver<D>::step_rk(double dt, double t0, std::function<void(void)> time_derivatives_functional ){
 
-  std::cout << "===========================================================================\n";
-  std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
-  std::cout << systemPtr->particles[0] << std::endl;
-  systemPtr->print_neighbors(0);
+  // std::cout << "===========================================================================\n";
+  // std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
+  // std::cout << systemPtr->particles[0] << std::endl;
+  // systemPtr->print_neighbors(0);
 
   time_derivatives_functional();
   auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
 
-  std::cout << "===========================================================================\n";
-  std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
-  std::cout << systemPtr->particles[0] << std::endl;
-  systemPtr->print_neighbors(0);
+  // std::cout << "===========================================================================\n";
+  // std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
+  // std::cout << systemPtr->particles[0] << std::endl;
+  // systemPtr->print_neighbors(0);
 
 
   //Create views for the device
@@ -437,10 +437,10 @@ void Evolver<D>::step_rk(double dt, double t0, std::function<void(void)> time_de
   Cabana::simd_parallel_for(simd_policy, update_rk2_step, "update_rk2_step");
   Kokkos::fence();
 
-  std::cout << "===========================================================================\n";
-  std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
-  std::cout << systemPtr->particles[0] << std::endl;
-  systemPtr->print_neighbors(0);
+  // std::cout << "===========================================================================\n";
+  // std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
+  // std::cout << systemPtr->particles[0] << std::endl;
+  // systemPtr->print_neighbors(0);
 
   systemPtr->t  = t0 + dt;
   double t = systemPtr->t;
@@ -470,10 +470,10 @@ void Evolver<D>::advance_timestep_rk2( double dt,
       step_rk(.5*dt, t0, time_derivatives_functional);
       // E1   = dt*systemPtr->dEz;
 
-  std::cout << "===========================================================================\n";
-  std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
-  std::cout << systemPtr->particles[0] << std::endl;
-  systemPtr->print_neighbors(0);
+  // std::cout << "===========================================================================\n";
+  // std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
+  // std::cout << systemPtr->particles[0] << std::endl;
+  // systemPtr->print_neighbors(0);
 
       ////////////////////////////////////////////
       //    second step
@@ -484,10 +484,10 @@ void Evolver<D>::advance_timestep_rk2( double dt,
       // constexpr double w1 = 1.0/6.0, w2 = 1.0/3.0;
       // systemPtr->Ez = E0 + w1*E1 + w2*E2;
 
-  std::cout << "===========================================================================\n";
-  std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
-  std::cout << systemPtr->particles[0] << std::endl;
-  systemPtr->print_neighbors(0);
+  // std::cout << "===========================================================================\n";
+  // std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
+  // std::cout << systemPtr->particles[0] << std::endl;
+  // systemPtr->print_neighbors(0);
 
 
       return;
