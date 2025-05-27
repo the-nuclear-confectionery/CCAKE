@@ -513,9 +513,9 @@ if (std::isnan(du_dt(0)))
   for(int idir=0; idir<D; ++idir)
   for(int jdir=0; jdir<D; ++jdir)
     std::cout <<"\t" << idir << " " << jdir << " " << MI(idir,jdir) << " "
-              << M_u(idir,jdir) << " " << M_0i_shear(idir,jdir)
+              << M_u(idir,jdir) << " " << M_0i_shear(idir,jdir) << " " <<
               << u(idir)*gamma*(M_extensive_bulk(jdir) + M_w(jdir))
-              << " " << -u(idir)*u_cov(jdir)*(w+bulk)/gamma;
+              << " " << -u(idir)*u_cov(jdir)*(w+bulk)/gamma << "\n";
 
   std::cout <<"\t Scalar: " << gamma*(w+bulk) << "\n";
 
@@ -961,6 +961,21 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr)
                     +a*phi6*bulk*shv(idir+1,0)
                     +a*phi7*(milne::contract(shv, shear0mu_aux, milne::SecondIndex())(idir+1)
                     +gamma*u(idir)*milne::contract(shv_cov,shv)/3.))/(tau_pi*gamma);
+if (std::isnan(F_0i_shear(idir)) || std::isinf(F_0i_shear(idir)))
+{
+  std::cout << "F_0i_shear:\n"
+            << -shv(idir+1,0) << " "
+            << -tau_pi*F_i0_D(idir) << " "
+            << -delta_pipi*F_i0_dd(idir) << " "
+            << -a*2.*tau_pi*F_i0_domega(idir) << " "
+            << -a*tau_pipi*F_i0_dsigma(idir) << " "
+            << +(2.*eta_pi+a*lambda_piPi*bulk)*F_i0_sigma(idir) << " "
+            << +a*phi6*bulk*shv(idir+1,0) << " "
+            << +a*phi7*(milne::contract(shv, shear0mu_aux, milne::SecondIndex())(idir+1) << " "
+            << +gamma*u(idir)*milne::contract(shv_cov,shv)/3.) << " "
+            << tau_pi*gamma << "\n";
+  exit(1);
+}
       //stores the results
       device_hydro_vector.access(is, ia, hydro_info::F_0i_shear, idir) = F_0i_shear(idir);
       for(int jdir=0; jdir<D; ++jdir){
