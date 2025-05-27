@@ -344,10 +344,10 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
 
   };
 
-  std::cout << "===========================================================================\n";
-  std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
-  std::cout << sysPtr->particles[0] << std::endl;
-  sysPtr->print_neighbors(0);
+  // std::cout << "===========================================================================\n";
+  // std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
+  // std::cout << sysPtr->particles[0] << std::endl;
+  // sysPtr->print_neighbors(0);
 
 
   Cabana::simd_parallel_for(simd_policy, fill_auxiliary_variables, "fill_auxiliary_variables");
@@ -512,11 +512,22 @@ if (std::isnan(du_dt(0)))
   std::cout << "Matrices:\n";
   for(int idir=0; idir<D; ++idir)
   for(int jdir=0; jdir<D; ++jdir)
-    std::cout <<"\t" << idir << " " << jdir << " " << MI(idir,jdir) << " " << M_u(idir,jdir) << " " << aux_MR(idir,jdir) << "\n";
+    std::cout <<"\t" << idir << " " << jdir << " " << MI(idir,jdir) << " "
+              << M_u(idir,jdir) << " " << M_0i_shear(idir,jdir)
+              << u(idir)*gamma*(M_extensive_bulk(jdir) << " " << M_w(jdir))
+              << " " << -u(idir)*u_cov(jdir)*(w+bulk)/gamma;
+  }
+  std::cout <<"\t Scalar: " << gamma*(w+bulk) << "\n";
 
-  std::cout << "Vectors:\n";
+milne::Vector<double,D> F_u_LOCAL = j_ext + (gradP_contra + gradBulk_contra)
+                            -gamma*(F_w+F_bulk)*u
+                            -(w+bulk)*(gamma*divV + gamma/t + geometric_factor)*u
+                            -2.*(w+bulk)*gamma*u(D-1)*delta_i_eta/t;  std::cout << "Vectors:\n";
   for(int idir=0; idir<D; ++idir)
-    std::cout <<"\t" << idir << " " << F_u(idir) << " " << aux_FR(idir) << "\n";
+    std::cout << "\t" << idir << " " << F_u(idir) << " " << -shv(idir+1,0)/t << " "
+              << - 2.*delta_i_eta(idir)*shv(0,3)/t
+              << " " << -divshear(idir) << " " << gradshear(idir) << " " << -F_0i_shear(idir)
+              << " " << F_u_LOCAL(idir) << "\n";
 
   exit(1);
 }
