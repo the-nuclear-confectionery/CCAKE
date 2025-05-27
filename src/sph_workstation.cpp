@@ -241,8 +241,17 @@ void SPHWorkstation<D,TEOM>::initial_smoothing()
     }
   }
   #endif*/
+  std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
+  std::cout << systemPtr->particles[0] << std::endl;
+  systemPtr->print_neighbors(0);
+
   // smooth fields over particles
   smooth_all_particle_fields(t_squared);
+
+  std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
+  std::cout << systemPtr->particles[0] << std::endl;
+  systemPtr->print_neighbors(0);
+
   //calculate extensive/extensive shear tensor
   calculate_extensive_shv();
   /* #ifdef DEBUG
@@ -326,6 +335,11 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
   std::fname = "kernel_" + std::to_string(hT) + ".dat";
   outfile.open(fname);*/
 
+  std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
+  std::cout << systemPtr->particles[0] << std::endl;
+  systemPtr->print_neighbors(0);
+
+
   //Reset smoothed fields. Initializes using the contribution of the particle to the density evaluated
   //on top of itself because the loop over the neighbour particles does not include the particle itself.
   double kern0 = SPHkernel<D>::kernel(0,hT); //The value of the Kernel evaluated on top of the particle
@@ -339,6 +353,10 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
   };
   Cabana::simd_parallel_for( simd_policy, reset_fields, "reset_fields" );
   Kokkos::fence();
+
+  std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
+  std::cout << systemPtr->particles[0] << std::endl;
+  systemPtr->print_neighbors(0);
 
   auto smooth_fields = KOKKOS_LAMBDA(const int iparticle, const int jparticle ){
 
@@ -354,17 +372,9 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
     /*outfile << kern << distance << endl;
     outfile.close();*/
 
-if (iparticle == 0 || jparticle == 0)
-{
-  std::cout << "SPH OUTPUT:\n";
-  std::cout << "\t" << iparticle << std::endl;
-  std::cout << "\t" << jparticle << std::endl;
-  std::cout << "\t" << distance << std::endl;
-  std::cout << "\t" << kern << std::endl;
-  std::cout << "\t" << device_sph_mass(jparticle, ccake::densities_info::s) << std::endl;
-  std::cout << "\t" << device_extensive(jparticle, ccake::densities_info::s) << std::endl;
-  std::cout << "\t" << device_smoothed(iparticle, ccake::densities_info::s) << std::endl;
-}
+  std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
+  std::cout << systemPtr->particles[0] << std::endl;
+  systemPtr->print_neighbors(0);
 
     //Update sigma_lab (reference density)
     Kokkos::atomic_add( &device_hydro_scalar(iparticle, ccake::hydro_info::sigma_lab), device_sph_mass(jparticle, ccake::densities_info::s)*kern);
@@ -1056,25 +1066,69 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives()
   if (fail) exit(8);
   #endif
 
+  std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
+  std::cout << systemPtr->particles[0] << std::endl;
+  systemPtr->print_neighbors(0);
+
   // reset nearest neighbors
   systemPtr->reset_neighbour_list();
+
+  std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
+  std::cout << systemPtr->particles[0] << std::endl;
+  systemPtr->print_neighbors(0);
+
   // calcuate gamma and velocities
   calculate_gamma_and_velocities();
+
+  std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
+  std::cout << systemPtr->particles[0] << std::endl;
+  systemPtr->print_neighbors(0);
+
   // smooth all particle fields - s, rhoB, rhoQ and rhoS and sigma
   smooth_all_particle_fields(t2);
+
+  std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
+  std::cout << systemPtr->particles[0] << std::endl;
+  systemPtr->print_neighbors(0);
+
     // Update particle thermodynamic properties
   update_all_particle_thermodynamics();
+
+  std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
+  std::cout << systemPtr->particles[0] << std::endl;
+  systemPtr->print_neighbors(0);
+
   // reset pi tensor to be consistent
   // with all essential symmetries
   reset_pi_tensor(t2);
+
+  std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
+  std::cout << systemPtr->particles[0] << std::endl;
+  systemPtr->print_neighbors(0);
+
   //add source terms to the energy momentum tensor
   //add_source();
     // update viscosities for all particles
   update_all_particle_viscosities();
+
+  std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
+  std::cout << systemPtr->particles[0] << std::endl;
+  systemPtr->print_neighbors(0);
+
     //Computes gradients to obtain dsigma_lab/dt
   smooth_all_particle_gradients(t2);
+
+  std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
+  std::cout << systemPtr->particles[0] << std::endl;
+  systemPtr->print_neighbors(0);
+
     //calculate time derivatives needed for equations of motion
   TEOM<D>::evaluate_time_derivatives( systemPtr, settingsPtr );
+
+  std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
+  std::cout << systemPtr->particles[0] << std::endl;
+  systemPtr->print_neighbors(0);
+
 
   // check for causality
   if (settingsPtr->check_causality)
