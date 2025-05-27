@@ -85,6 +85,7 @@ std::cout << "CHECK: working with shearRelaxMode = " << shearRelaxMode << "\n";
   params.cs2_dependent_zeta_A = settingsPtr->cs2_dependent_zeta_A;
   params.cs2_dependent_zeta_p = settingsPtr->cs2_dependent_zeta_p;
   params.modulate_zeta_with_tanh = settingsPtr->modulate_zeta_with_tanh;
+  params.constant_tau_pi = settingsPtr->constant_tau_pi;
 
   return params;
 
