@@ -513,7 +513,7 @@ if (std::isnan(du_dt(0)))
   for(int idir=0; idir<D; ++idir)
   for(int jdir=0; jdir<D; ++jdir)
     std::cout <<"\t" << idir << " " << jdir << " " << MI(idir,jdir) << " "
-              << M_u(idir,jdir) << " " << M_0i_shear(idir,jdir) << " " <<
+              << M_u(idir,jdir) << " " << M_0i_shear(idir,jdir) << " "
               << u(idir)*gamma*(M_extensive_bulk(jdir) + M_w(jdir))
               << " " << -u(idir)*u_cov(jdir)*(w+bulk)/gamma << "\n";
 
