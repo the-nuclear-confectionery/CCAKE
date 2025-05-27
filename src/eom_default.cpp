@@ -971,8 +971,8 @@ if (std::isnan(F_0i_shear(idir)) || std::isinf(F_0i_shear(idir)))
             << -a*tau_pipi*F_i0_dsigma(idir) << " "
             << +(2.*eta_pi+a*lambda_piPi*bulk)*F_i0_sigma(idir) << " "
             << +a*phi6*bulk*shv(idir+1,0) << " "
-            << +a*phi7*(milne::contract(shv, shear0mu_aux, milne::SecondIndex())(idir+1) << " "
-            << +gamma*u(idir)*milne::contract(shv_cov,shv)/3.) << " "
+            << +a*phi7*(milne::contract(shv, shear0mu_aux, milne::SecondIndex())(idir+1)
+                        +gamma*u(idir)*milne::contract(shv_cov,shv)/3.) << " "
             << tau_pi*gamma << "\n";
   exit(1);
 }
