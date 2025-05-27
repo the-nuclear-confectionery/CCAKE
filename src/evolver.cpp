@@ -67,7 +67,7 @@ void Evolver<D>::allocate_k_values()
       ks.access(is, ia) = 0;
       krhoB.access(is, ia) = 0;
       krhoS.access(is, ia) = 0;
-      krhoQ.access(is, ia) = 0;      
+      krhoQ.access(is, ia) = 0;
       kextensive_bulk.access(is, ia) = 0;
       kE0.access(is, ia) = 0;
     };
@@ -149,7 +149,7 @@ void Evolver<D>::set_current_timestep_quantities()
     s.access(is, ia) = device_extensive.access(is, ia, densities_info::s);
     extensive_bulk.access(is, ia) = device_hydro_scalar.access(is, ia, hydro_info::extensive_bulk);
     rhoB.access(is, ia) = device_extensive.access(is, ia, densities_info::rhoB);
-    rhoS.access(is, ia) = device_extensive.access(is, ia, densities_info::rhoS); 
+    rhoS.access(is, ia) = device_extensive.access(is, ia, densities_info::rhoS);
     rhoQ.access(is, ia) = device_extensive.access(is, ia, densities_info::rhoQ);
     E0.access(is, ia) = device_contribution_to_total_Ez.access(is, ia);
   };
@@ -252,7 +252,7 @@ void Evolver<D>::update_rk4(double dt){
             kextensive_shv(idir, jdir) = slice_kextensive_shv.access(is, ia, idir, jdir);
           }
         }
-        
+
         //Sum everything up
         double extensive_s        = extensive_s0         + dt*ks;
         double extensive_rhoB      = extensive_rhob0      + dt*k_rhoB;
@@ -307,8 +307,19 @@ void Evolver<D>::update_rk4(double dt){
 template <unsigned int D>
 void Evolver<D>::step_rk(double dt, double t0, std::function<void(void)> time_derivatives_functional ){
 
+  std::cout << "===========================================================================\n";
+  std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
+  std::cout << sysPtr->particles[0] << std::endl;
+  sysPtr->print_neighbors(0);
+
   time_derivatives_functional();
   auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
+
+  std::cout << "===========================================================================\n";
+  std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
+  std::cout << sysPtr->particles[0] << std::endl;
+  sysPtr->print_neighbors(0);
+
 
   //Create views for the device
   CREATE_VIEW(device_, systemPtr->cabana_particles);
@@ -410,6 +421,12 @@ void Evolver<D>::step_rk(double dt, double t0, std::function<void(void)> time_de
   };
   Cabana::simd_parallel_for(simd_policy, update_rk2_step, "update_rk2_step");
   Kokkos::fence();
+
+  std::cout << "===========================================================================\n";
+  std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
+  std::cout << sysPtr->particles[0] << std::endl;
+  sysPtr->print_neighbors(0);
+
   systemPtr->t  = t0 + dt;
   double t = systemPtr->t;
   Cabana::simd_parallel_for(simd_policy, KOKKOS_LAMBDA(const int is, const int ia)
@@ -438,6 +455,11 @@ void Evolver<D>::advance_timestep_rk2( double dt,
       step_rk(.5*dt, t0, time_derivatives_functional);
       // E1   = dt*systemPtr->dEz;
 
+  std::cout << "===========================================================================\n";
+  std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
+  std::cout << sysPtr->particles[0] << std::endl;
+  sysPtr->print_neighbors(0);
+
       ////////////////////////////////////////////
       //    second step
       ////////////////////////////////////////////
@@ -446,6 +468,12 @@ void Evolver<D>::advance_timestep_rk2( double dt,
       // E2   = dt*systemPtr->dEz;
       // constexpr double w1 = 1.0/6.0, w2 = 1.0/3.0;
       // systemPtr->Ez = E0 + w1*E1 + w2*E2;
+
+  std::cout << "===========================================================================\n";
+  std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
+  std::cout << sysPtr->particles[0] << std::endl;
+  sysPtr->print_neighbors(0);
+
 
       return;
 }
@@ -463,7 +491,7 @@ void Evolver<D>::advance_timestep_rk4( double dt,
       ////////////////////////////////////////////
       formatted_output::report("RK(n=4) evolution, step 1");
       step_rk(.5*dt, t0, time_derivatives_functional);
-      
+
 
       ////////////////////////////////////////////
       //    second step
@@ -493,4 +521,3 @@ void Evolver<D>::advance_timestep_rk4( double dt,
 
       return;
 }
-
