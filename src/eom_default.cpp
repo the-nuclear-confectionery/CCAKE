@@ -516,13 +516,14 @@ if (std::isnan(du_dt(0)))
               << M_u(idir,jdir) << " " << M_0i_shear(idir,jdir)
               << u(idir)*gamma*(M_extensive_bulk(jdir) + M_w(jdir))
               << " " << -u(idir)*u_cov(jdir)*(w+bulk)/gamma;
-  }
+
   std::cout <<"\t Scalar: " << gamma*(w+bulk) << "\n";
 
 milne::Vector<double,D> F_u_LOCAL = j_ext + (gradP_contra + gradBulk_contra)
                             -gamma*(F_w+F_bulk)*u
                             -(w+bulk)*(gamma*divV + gamma/t + geometric_factor)*u
-                            -2.*(w+bulk)*gamma*u(D-1)*delta_i_eta/t;  std::cout << "Vectors:\n";
+                            -2.*(w+bulk)*gamma*u(D-1)*delta_i_eta/t;
+  std::cout << "Vectors:\n";
   for(int idir=0; idir<D; ++idir)
     std::cout << "\t" << idir << " " << F_u(idir) << " " << -shv(idir+1,0)/t << " "
               << - 2.*delta_i_eta(idir)*shv(0,3)/t
