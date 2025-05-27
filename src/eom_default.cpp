@@ -507,15 +507,28 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
       //milne::Vector<double,D> du_dt = MI*(F_u+aux_FR);
       milne::Matrix<double,D,D> MI = milne::inverse(M_u-aux_MR);
       milne::Vector<double,D> du_dt = MI*(F_u+aux_FR);
+if (std::isnan(du_dt(0)))
+{
+  std::cout << "Matrices:\n";
+  for(int idir=0; idir<D; ++idir)
+  for(int jdir=0; jdir<D; ++jdir)
+    std::cout <<"\t" << idir << " " << jdir << " " << MI(idir,jdir) << " " << M_u(idir,jdir) << " " << aux_MR(idir,jdir) << "\n";
+
+  std::cout << "Vectors:\n";
+  for(int idir=0; idir<D; ++idir)
+    std::cout <<"\t" << idir << " " << F_u(idir) << " " << aux_FR(idir) << "\n";
+
+  exit(1);
+}
       for(int idir=0; idir<D; ++idir) device_hydro_vector.access(is,ia,hydro_info::du_dt, idir) = du_dt(idir);
   };
   Cabana::simd_parallel_for(simd_policy, compute_velocity_derivative, "compute_velocity_derivative");
   Kokkos::fence();
 
-  std::cout << "===========================================================================\n";
-  std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
-  std::cout << sysPtr->particles[0] << std::endl;
-  sysPtr->print_neighbors(0);
+  // std::cout << "===========================================================================\n";
+  // std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
+  // std::cout << sysPtr->particles[0] << std::endl;
+  // sysPtr->print_neighbors(0);
 
 
   //Calculate the derivatives and quantities that depends on du/dt:
