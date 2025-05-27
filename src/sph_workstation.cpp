@@ -50,8 +50,11 @@ std::cout << "CHECK: SETTING UP PARAMETERS" << __LINE__ << "\n";
 
 if (true)
 {
-  std::cout << "CHECK" << __LINE__ << ": " << tc::tau_pi(thermo,this->transp_coeff_params) << "\n";
-  exit(1);
+  std::cout << "CHECK" << __LINE__ << ": " << transp_coeff_params->shear_mode << "\n";
+  std::cout << "CHECK" << __LINE__ << ": " << transp_coeff_params->shear_relaxation_mode << "\n";
+  std::cout << "CHECK" << __LINE__ << ": " << transp_coeff_params->constant_eta_over_s << "\n";
+  std::cout << "CHECK" << __LINE__ << ": " << transp_coeff_params->constant_tau_pi << "\n";
+  // exit(1);
 }
 
 
@@ -1206,6 +1209,7 @@ void SPHWorkstation<D, TEOM>::update_all_particle_viscosities()
       = tc::tau_pi(thermo,this->transp_coeff_params);
 if (true)
 {
+  std::cout << "CHECK" << __LINE__ << ": " << tc::eta(thermo, this->transp_coeff_params ) << "\n";
   std::cout << "CHECK" << __LINE__ << ": " << tc::tau_pi(thermo,this->transp_coeff_params) << "\n";
   exit(1);
 }
