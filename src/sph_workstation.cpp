@@ -48,6 +48,13 @@ void SPHWorkstation<D,TEOM>::initialize()
 std::cout << "CHECK: SETTING UP PARAMETERS" << __LINE__ << "\n";
   transp_coeff_params = tc::setup_parameters(settingsPtr);
 
+if (true)
+{
+  std::cout << "CHECK" << __LINE__ << ": " << tc::tau_pi(thermo,this->transp_coeff_params) << "\n";
+  exit(1);
+}
+
+
   //----------------------------------------
   // set up freeze out  at constant energy density
   formatted_output::report("Setting up freeze out");
@@ -1199,7 +1206,7 @@ void SPHWorkstation<D, TEOM>::update_all_particle_viscosities()
       = tc::tau_pi(thermo,this->transp_coeff_params);
 if (true)
 {
-  std::cout << "CHECK: " << tc::tau_pi(thermo,this->transp_coeff_params) << "\n";
+  std::cout << "CHECK" << __LINE__ << ": " << tc::tau_pi(thermo,this->transp_coeff_params) << "\n";
   exit(1);
 }
     device_hydro_scalar.access(is, ia, ccake::hydro_info::zeta_Pi)
