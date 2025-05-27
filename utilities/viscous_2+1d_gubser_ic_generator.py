@@ -34,6 +34,8 @@ T0 = 0.25*eps0**0.25*fs**0.75     # dimensionless
 
 H0_by_9T0 = H0 / (9.0*T0)
 
+print(q, fs, H0, T0, tau0)
+
 
 #==============================================================================
 # Define Gubser model functions
