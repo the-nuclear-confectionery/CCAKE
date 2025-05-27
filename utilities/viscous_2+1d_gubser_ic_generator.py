@@ -17,9 +17,9 @@ def write_header(stepx, stepy, stepEta, xmin, ymin, etamin):
 
 hbarc = 0.1973269804              # GeV*fm
 tau0 = 1.0                        # fm
-eps0 = 80                         # (GeV*fm)^4
+eps0 = 175                         # (GeV*fm)^4
 shearOVERs = 0.134                # i.e., specific shear viscosity (eta/s)
-q = 1.0                           # 1/fm
+q = 1.0/4.3                           # 1/fm
 
 
 Nc = 3.
