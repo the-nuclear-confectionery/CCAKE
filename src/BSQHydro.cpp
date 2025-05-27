@@ -27,7 +27,7 @@ BSQHydro<D,TEOM>::BSQHydro(std::shared_ptr<Settings> settingsPtr_in)
   systemPtr = std::make_shared<SystemState<D>>(settingsPtr);
 
   //Initialize the workstation
-  wsPtr = std::make_shared<SPHWorkstation<D,TEOM>>(settingsPtr,systemPtr); 
+  wsPtr = std::make_shared<SPHWorkstation<D,TEOM>>(settingsPtr,systemPtr);
 
   outPtr = std::make_shared<Output<D>>(settingsPtr,systemPtr);
 
@@ -60,6 +60,9 @@ void BSQHydro<D,TEOM>::read_in_initial_conditions(){
   {
     read_ccake();
   }
+
+  // print info about 0th particle
+  settingsPtr->particles_to_print.push_back( 0 );
 
   return;
 }
@@ -176,12 +179,12 @@ void BSQHydro<D,TEOM>::read_ICCING()
 ///
 /// - \f$x\f$, \f$y\f$ and \f$\eta_s\f$ are the spatial coordinates of the
 /// particle in the \f$x\f$, \f$y\f$ and \f$\eta_s\f$ directions, respectively.
-/// - \f$\varepsilon\f$ is the energy density of the particle in units of 
+/// - \f$\varepsilon\f$ is the energy density of the particle in units of
 /// GeV/fm\f$^3\f$.
 /// - \f$\rho_B\f$, \f$\rho_S\f$ and \f$\rho_Q\f$ are the baryon, strangeness,
-/// and electric charge densities of the particle, respectively. All densities 
+/// and electric charge densities of the particle, respectively. All densities
 /// are in units of 1/fm\f$^3\f$.
-/// - \f$u^x\f$ \f$u^y\f$ \f$u^{\eta}\f$ are the fluid velocity components in 
+/// - \f$u^x\f$ \f$u^y\f$ \f$u^{\eta}\f$ are the fluid velocity components in
 /// the \f$x\f$, \f$y\f$ and \f$\eta_s\f$ directions, respectively.
 /// - \f$\Pi\f$ is the bulk pressure of the fluid in units of GeV/fm\f$^3\f$.
 /// - \f$\pi^{xx}\f$, \f$\pi^{xy}\f$, \f$\pi^{x\eta}\f$, \f$\pi^{yy}\f$,
@@ -189,7 +192,7 @@ void BSQHydro<D,TEOM>::read_ICCING()
 /// tensor of the fluid.
 ///
 /// @todo A suggestion is to add to the header additional info like
-/// colliding system (AuAu, PbPb etc), colliding energy, impact 
+/// colliding system (AuAu, PbPb etc), colliding energy, impact
 /// parameter, etc. These would then be used as header of the outputs.
 /// @tparam D The number of spatial dimensions.
 /// @tparam TEOM The equation of motion used in the simulation.
@@ -311,8 +314,8 @@ void BSQHydro<D,TEOM>::read_ccake()
         p.input.rhoQ = rhoQ;
         p.hydro.bulk = bulk;
         if(settingsPtr->input_as_entropy==true){
-          
-          //C = g_pi * pi^2 / (90) 
+
+          //C = g_pi * pi^2 / (90)
           double C = 3.0 * pow(M_PI,2.) / (90.0);
           double e_check = (3.*C)*pow(1./(4.*C),4./3.) * pow(s,4./3.);
           if(e_check > settingsPtr->e_cutoff) systemPtr->add_particle( p );
@@ -320,7 +323,7 @@ void BSQHydro<D,TEOM>::read_ccake()
         else{
           if(e > settingsPtr->e_cutoff) systemPtr->add_particle( p );
         }
-        
+
         #ifdef DEBUG
         outfile << x << " " << y << " " << eta << " " << e*hbarc_GeVfm << " " << rhoB
                 << " " << rhoS << " " << rhoQ << " " << ux << " " << uy << " " << ueta << endl;
@@ -342,7 +345,7 @@ void BSQHydro<D,TEOM>::read_ccake()
 
 ////////////////////////////////////////////////////////////////////////////////
 /// @brief Shell function to initialize the hydrodynamics.
-/// @details This function initializes the hydrodynamics by performing the 
+/// @details This function initializes the hydrodynamics by performing the
 /// following steps
 /// - Initializing the workstation.
 /// - Processing the initial conditions.
@@ -379,7 +382,7 @@ void BSQHydro<D,TEOM>::initialize_hydrodynamics()
 
   // allocate memory for particles in device
   systemPtr->allocate_cabana_particles();
-  
+
 
   // Create linked list data structure
   systemPtr->initialize_linklist();
@@ -402,7 +405,7 @@ void BSQHydro<D,TEOM>::initialize_hydrodynamics()
   sw.Stop();
   formatted_output::report("hydrodynamics initialization finished in "
                               + to_string(sw.printTime()) + " s");
-  
+
 
   #ifdef DEBUG_SLOW
   systemPtr->copy_device_to_host();
@@ -413,7 +416,7 @@ void BSQHydro<D,TEOM>::initialize_hydrodynamics()
     //Print initial conditions
     for (int i = 0; i < D; i++) thermo_file << p.r(i) << " ";
     thermo_file << p.thermo.e*hbarc_GeVfm << " " << p.input.e*hbarc_GeVfm << " " << p.thermo.s << " " << p.input.s << " " << std::endl;
-    //thermo_file << p.thermo.e*hbarc_GeVfm << " " << p.input.e*hbarc_GeVfm << " " << p.thermo.s << " " << p.thermo.rhoB << " " << p.thermo.rhoS 
+    //thermo_file << p.thermo.e*hbarc_GeVfm << " " << p.input.e*hbarc_GeVfm << " " << p.thermo.s << " " << p.thermo.rhoB << " " << p.thermo.rhoS
     //            << " " << p.thermo.rhoQ << " ";
     //for (int i = 0; i < D; i++) thermo_file << p.hydro.u(i) << " ";
     //thermo_file << p.hydro.Bulk << " ";
