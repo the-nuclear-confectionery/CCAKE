@@ -371,7 +371,7 @@ bool EquationOfState::find_root_with_seed(
                 << result[2]*hc << "   " << result[3]*hc << std::endl;
     }
 
-    std::cout << "Current EoS: " << this_eos->name << "\n";
+    // std::cout << "Current EoS: " << this_eos->name << "\n";
 
     // if not energy, do entropy
     if ( e_or_s_mode != "energy" )
