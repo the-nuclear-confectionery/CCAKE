@@ -309,16 +309,16 @@ void Evolver<D>::step_rk(double dt, double t0, std::function<void(void)> time_de
 
   std::cout << "===========================================================================\n";
   std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
-  std::cout << sysPtr->particles[0] << std::endl;
-  sysPtr->print_neighbors(0);
+  std::cout << systemPtr->particles[0] << std::endl;
+  systemPtr->print_neighbors(0);
 
   time_derivatives_functional();
   auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
 
   std::cout << "===========================================================================\n";
   std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
-  std::cout << sysPtr->particles[0] << std::endl;
-  sysPtr->print_neighbors(0);
+  std::cout << systemPtr->particles[0] << std::endl;
+  systemPtr->print_neighbors(0);
 
 
   //Create views for the device
@@ -424,8 +424,8 @@ void Evolver<D>::step_rk(double dt, double t0, std::function<void(void)> time_de
 
   std::cout << "===========================================================================\n";
   std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
-  std::cout << sysPtr->particles[0] << std::endl;
-  sysPtr->print_neighbors(0);
+  std::cout << systemPtr->particles[0] << std::endl;
+  systemPtr->print_neighbors(0);
 
   systemPtr->t  = t0 + dt;
   double t = systemPtr->t;
@@ -457,8 +457,8 @@ void Evolver<D>::advance_timestep_rk2( double dt,
 
   std::cout << "===========================================================================\n";
   std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
-  std::cout << sysPtr->particles[0] << std::endl;
-  sysPtr->print_neighbors(0);
+  std::cout << systemPtr->particles[0] << std::endl;
+  systemPtr->print_neighbors(0);
 
       ////////////////////////////////////////////
       //    second step
@@ -471,8 +471,8 @@ void Evolver<D>::advance_timestep_rk2( double dt,
 
   std::cout << "===========================================================================\n";
   std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
-  std::cout << sysPtr->particles[0] << std::endl;
-  sysPtr->print_neighbors(0);
+  std::cout << systemPtr->particles[0] << std::endl;
+  systemPtr->print_neighbors(0);
 
 
       return;
