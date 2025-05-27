@@ -26,6 +26,7 @@ Nc = 3.
 Nf = 2.5
 cp = (2.*(Nc**2-1.) + 3.5*Nc*Nf)*np.pi**2/90.
 fs = cp                         # dimensionless
+fs = 11.0
 
 # derived parameters
 H0 = 4.0*fs**0.25*shearOVERs/3.0  # dimensionless

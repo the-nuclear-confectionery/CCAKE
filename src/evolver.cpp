@@ -277,6 +277,11 @@ void Evolver<D>::update_rk4(double dt){
           formatted_output::detail("Negative entropy density");
           exit(EXIT_FAILURE);
         }
+        else if (std::isnan(extensive_s))
+        {
+          formatted_output::detail("Invalid entropy density");
+          exit(EXIT_FAILURE);
+        }
 
         device_extensive.access(is, ia, densities_info::s) = extensive_s;
         device_extensive.access(is, ia, densities_info::rhoB) = extensive_rhoB;
@@ -407,7 +412,7 @@ void Evolver<D>::step_rk(double dt, double t0, std::function<void(void)> time_de
       formatted_output::detail("Negative entropy density");
       exit(EXIT_FAILURE);
     }
-    if (std::isnan(extensive_s))
+    else if (std::isnan(extensive_s))
     {
       formatted_output::detail("Invalid entropy density");
       exit(EXIT_FAILURE);

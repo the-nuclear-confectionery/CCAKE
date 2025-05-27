@@ -21,7 +21,7 @@ parameters:
 eos:
   online_inverter_enabled: true
   preinverted_eos_path: "inverted_eos.h5"
-  type: "conformal" # Possible values are: ["table", "tanh_conformal", "conformal", "conformal_diagonal"]
+  type: "Gubser_NS_conformal" # Possible values are: ["table", "tanh_conformal", "conformal", "conformal_diagonal"]
   path: "EoS/Houston" # If type is "table", the path to the equation of state table.
 particlization:
   enabled: true # set to true to output particlization hypersurface

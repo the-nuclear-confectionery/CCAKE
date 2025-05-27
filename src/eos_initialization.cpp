@@ -81,7 +81,7 @@ void EquationOfState::init()
 /// @return void
 /// @see EquationOfState::set_up_chosen_EOSs()
 void EquationOfState::init_conformal(const double c, const double T0,
-                                     const double muB0, const double muQ0, 
+                                     const double muB0, const double muQ0,
                                      const double muS0){
     formatted_output::update("Setting up conformal equation of state");
     //formatted_output::comment(
@@ -129,7 +129,7 @@ void EquationOfState::init_conformal(const double c, const double T0,
 /// @return void
 /// @see EquationOfState::set_up_chosen_EOSs()
 void EquationOfState::init_conformal_diagonal(const double c, const double T0,
-                             const double muB0, const double muQ0, 
+                             const double muB0, const double muQ0,
                              const double muS0){
     formatted_output::update("Setting diagonal conformal equation of state");
     //formatted_output::comment(
@@ -146,7 +146,7 @@ void EquationOfState::init_conformal_diagonal(const double c, const double T0,
     chosen_EOSs.push_back( std::make_shared<EoS_conformal_diagonal>(
                             c, T0, muB0, muS0, muQ0,
                             tbqs_minima, tbqs_maxima, "conformal_diagonal" ) );
-    
+
     formatted_output::detail("Set up conformal diagonal with following parameters:");
     formatted_output::detail( "c    = " + to_string(c) );
     formatted_output::detail( "T0   = " + to_string(T0) );
@@ -157,12 +157,12 @@ void EquationOfState::init_conformal_diagonal(const double c, const double T0,
 
 ////////////////////////////////////////////////////////////////////////////////
 /// @brief Initializes the conformal diagonal equation of state.
-/// @details This function initializes the tanh modulated "conformal" equation 
-/// of state by setting up the corresponding EOS object and adding it to the 
+/// @details This function initializes the tanh modulated "conformal" equation
+/// of state by setting up the corresponding EOS object and adding it to the
 /// chosen_EOSs vector. The expression for this equation of state is given
 /// by \f{equation}{
 /// p(T,\mu_B, \mu_Q, \mu_S)
-///         = c T_0^4 \tanh\left(\frac{T-T_c}{T_s}\right) 
+///         = c T_0^4 \tanh\left(\frac{T-T_c}{T_s}\right)
 ///         \times \left[ \left( \frac{T}{T_0} \right)^2
 ///          +\sum_{X=B,S,Q} \left( \frac{\mu_X}{\mu_{X,0}} \right)^2 \right]^2
 /// \f}
@@ -179,7 +179,7 @@ void EquationOfState::init_conformal_diagonal(const double c, const double T0,
 /// @return void
 /// @see EquationOfState::set_up_chosen_EOSs()
 void EquationOfState::init_tanh_conformal(const double c, const double T0,
-                         const double muB0, const double muQ0, 
+                         const double muB0, const double muQ0,
                          const double muS0, const double Tc, const double Ts)
 {
       formatted_output::update("setting tanh-modulated \"conformal\" equation "
@@ -225,6 +225,13 @@ void EquationOfState::set_up_chosen_EOSs()
   {
     const double Nc = 3.0, Nf = 2.5;  // u+d massless, s 'half massless'
     double c  = pi*pi*(2.0*(Nc*Nc-1.0)+(7.0/2.0)*Nc*Nf)/90.0;
+    double T0 = 1.0, muB0 = 1.0, muQ0 = 1.0, muS0 = 1.0; // trivial scales
+    init_conformal(c, T0, muB0, muQ0, muS0);
+    init_conformal_diagonal(c, T0, muB0, muQ0, muS0);
+    default_eos_name = "conformal";
+  } else if ( settingsPtr->eos_type == "Gubser_NS_conformal" )
+  {
+    double c  = 11.0;
     double T0 = 1.0, muB0 = 1.0, muQ0 = 1.0, muS0 = 1.0; // trivial scales
     init_conformal(c, T0, muB0, muQ0, muS0);
     init_conformal_diagonal(c, T0, muB0, muQ0, muS0);
@@ -326,7 +333,7 @@ void EquationOfState::set_up_chosen_EOSs()
       std::vector<double> maxima = p_default_EoS->get_tbqs_maxima_no_ext();
       double muBmax =    maxima[1];
       double muQmax =    maxima[2];
-      double muSmax =    maxima[3]; 
+      double muSmax =    maxima[3];
 
 	    double TmaxIni   = settingsPtr->Freeze_Out_Temperature/constants::hbarc_MeVfm;
 	    double Tmax      = 1.1 * TmaxIni;
@@ -369,7 +376,7 @@ void EquationOfState::set_up_chosen_EOSs()
       //double Tmax   = maxima[0];
       double muBmax =  maxima[1];
       double muQmax =  maxima[2];
-      double muSmax =  maxima[3]; 
+      double muSmax =  maxima[3];
 
 	    double TmaxIni   = settingsPtr->Freeze_Out_Temperature/constants::hbarc_MeVfm;
 	    double Tmax      = 1.1 * TmaxIni;
@@ -578,7 +585,7 @@ cout << "=======================================================================
     std::cout << "Check interpolant:";
     for (auto&e:v) cout << " " << e;
     std::cout << std::endl;
-    
+
     std::cout << "GOT THERMODYNAMICS" << std::endl;
   }
   std::cout << std::endl << std::endl << std::endl;
