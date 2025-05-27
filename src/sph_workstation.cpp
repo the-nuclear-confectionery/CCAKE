@@ -50,10 +50,10 @@ std::cout << "CHECK: SETTING UP PARAMETERS" << __LINE__ << "\n";
 
 if (true)
 {
-  std::cout << "CHECK" << __LINE__ << ": " << transp_coeff_params->shear_mode << "\n";
-  std::cout << "CHECK" << __LINE__ << ": " << transp_coeff_params->shear_relaxation_mode << "\n";
-  std::cout << "CHECK" << __LINE__ << ": " << transp_coeff_params->constant_eta_over_s << "\n";
-  std::cout << "CHECK" << __LINE__ << ": " << transp_coeff_params->constant_tau_pi << "\n";
+  std::cout << "CHECK" << __LINE__ << ": " << transp_coeff_params.shear_mode << "\n";
+  std::cout << "CHECK" << __LINE__ << ": " << transp_coeff_params.shear_relaxation_mode << "\n";
+  std::cout << "CHECK" << __LINE__ << ": " << transp_coeff_params.constant_eta_over_s << "\n";
+  std::cout << "CHECK" << __LINE__ << ": " << transp_coeff_params.constant_tau_pi << "\n";
   // exit(1);
 }
 
