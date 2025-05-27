@@ -286,6 +286,12 @@ void Evolver<D>::update_rk4(double dt){
           exit(EXIT_FAILURE);
         }
 
+if (69166 == device_id.access(is, ia))
+{
+          std::cout << systemPtr->particles[failed_id] << std::endl;
+          systemPtr->print_neighbors(failed_id);
+}
+
         device_extensive.access(is, ia, densities_info::s) = extensive_s;
         device_extensive.access(is, ia, densities_info::rhoB) = extensive_rhoB;
         device_extensive.access(is, ia, densities_info::rhoS) = extensive_rhoS;
@@ -423,6 +429,13 @@ void Evolver<D>::step_rk(double dt, double t0, std::function<void(void)> time_de
       formatted_output::detail("Invalid entropy density");
       exit(EXIT_FAILURE);
     }
+
+if (69166 == device_id.access(is, ia))
+{
+          std::cout << systemPtr->particles[failed_id] << std::endl;
+          systemPtr->print_neighbors(failed_id);
+}
+
 
     device_extensive.access(is, ia, densities_info::s) = extensive_s;
     device_hydro_scalar.access(is, ia, hydro_info::extensive_bulk) = extensive_bulk;

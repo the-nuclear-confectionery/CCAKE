@@ -62,7 +62,7 @@ void BSQHydro<D,TEOM>::read_in_initial_conditions(){
   }
 
   // print info about 0th particle
-  settingsPtr->particles_to_print.push_back( 0 );
+  // settingsPtr->particles_to_print.push_back( 0 );
 
   return;
 }
