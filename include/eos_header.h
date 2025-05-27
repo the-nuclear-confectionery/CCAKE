@@ -12,7 +12,7 @@ static constexpr bool prohibit_acausal_cs2                = true;
 static constexpr bool restrict_mu_T_ratios                = true;
 
 
-static constexpr int VERBOSE = 3;
+static constexpr int VERBOSE = 0;
 static constexpr double TINY = 1e-25;
 static constexpr double TBQS_INFINITY = 1e10;  // indefinitely large limits for EoS
 
