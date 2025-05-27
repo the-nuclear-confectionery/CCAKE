@@ -354,6 +354,18 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
     /*outfile << kern << distance << endl;
     outfile.close();*/
 
+if (iparticle == 0 || jparticle == 0)
+{
+  std::cout << "SPH OUTPUT:\n";
+  std::cout << "\t" << iparticle << std::endl;
+  std::cout << "\t" << jparticle << std::endl;
+  std::cout << "\t" << distance << std::endl;
+  std::cout << "\t" << kern << std::endl;
+  std::cout << "\t" << device_sph_mass(jparticle, ccake::densities_info::s) << std::endl;
+  std::cout << "\t" << device_extensive(jparticle, ccake::densities_info::s) << std::endl;
+  std::cout << "\t" << device_smoothed(iparticle, ccake::densities_info::s << std::endl;
+}
+
     //Update sigma_lab (reference density)
     Kokkos::atomic_add( &device_hydro_scalar(iparticle, ccake::hydro_info::sigma_lab), device_sph_mass(jparticle, ccake::densities_info::s)*kern);
     ////Update entropy density

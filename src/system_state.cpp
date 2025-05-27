@@ -219,6 +219,12 @@ void SystemState<D>::copy_host_to_device(){
 			      }
     #endif
 
+    if (iparticle == 0)
+      std::cout << __FUNCTION__  << "::" << __LINE__
+                << " smoothed.e " << particles[iparticle].smoothed.e
+                << " smoothed.s " << particles[iparticle].smoothed.s
+                << std::endl;
+
     host_extensive(iparticle, ccake::densities_info::s) = particles[iparticle].extensive.s;
     host_extensive(iparticle, ccake::densities_info::rhoB) = particles[iparticle].extensive.rhoB;
     host_extensive(iparticle, ccake::densities_info::rhoS) = particles[iparticle].extensive.rhoS;
@@ -382,7 +388,15 @@ void SystemState<D>::copy_device_to_host(){
       }
     }
 
-
+if (id==0)
+{
+std::cout << "Check entropies BEFORE:" << std::endl;
+std::cout << "\t" << particles[id].input.s << std::endl;
+std::cout << "\t" << particles[id].smoothed.s << std::endl;
+std::cout << "\t" << particles[id].extensive.s << std::endl;
+std::cout << "\t" << particles[id].d_dt_extensive.s << std::endl;
+std::cout << "\t" << particles[id].sph_mass.s << std::endl;
+}
 
     particles[id].input.s = host_input(iparticle, ccake::densities_info::s);
     particles[id].input.rhoB = host_input(iparticle, ccake::densities_info::rhoB);
@@ -411,7 +425,7 @@ void SystemState<D>::copy_device_to_host(){
 
 if (id==0)
 {
-std::cout << "Check entropies here:" << std::endl;
+std::cout << "Check entropies AFTER:" << std::endl;
 std::cout << "\t" << particles[id].input.s << std::endl;
 std::cout << "\t" << particles[id].smoothed.s << std::endl;
 std::cout << "\t" << particles[id].extensive.s << std::endl;
