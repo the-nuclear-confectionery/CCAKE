@@ -275,6 +275,7 @@ void Evolver<D>::update_rk4(double dt){
           extensive_s = 1.e-3; //Enforce positivity
         } else if (extensive_s < 0.0){ //Else, something went terribly wrong
           formatted_output::detail("Negative entropy density");
+          std::cout << "Failed particle had ID = " << device_ID.access(is, ia) << std::endl;
           exit(EXIT_FAILURE);
         }
         else if (std::isnan(extensive_s))
