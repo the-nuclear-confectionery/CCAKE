@@ -286,10 +286,10 @@ void Evolver<D>::update_rk4(double dt){
           exit(EXIT_FAILURE);
         }
 
-if (69166 == device_id.access(is, ia))
+if (79999 == device_id.access(is, ia))
 {
-          std::cout << systemPtr->particles[69166] << std::endl;
-          systemPtr->print_neighbors(69166);
+          std::cout << systemPtr->particles[79999] << std::endl;
+          systemPtr->print_neighbors(79999);
 }
 
         device_extensive.access(is, ia, densities_info::s) = extensive_s;
@@ -430,10 +430,10 @@ void Evolver<D>::step_rk(double dt, double t0, std::function<void(void)> time_de
       exit(EXIT_FAILURE);
     }
 
-if (69166 == device_id.access(is, ia))
+if (79999 == device_id.access(is, ia))
 {
-          std::cout << systemPtr->particles[69166] << std::endl;
-          systemPtr->print_neighbors(69166);
+          std::cout << systemPtr->particles[79999] << std::endl;
+          systemPtr->print_neighbors(79999);
 }
 
 
