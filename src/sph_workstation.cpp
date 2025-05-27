@@ -372,9 +372,12 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
     /*outfile << kern << distance << endl;
     outfile.close();*/
 
+if (iparticle == 0 || jparticle == 0)
+{
   std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
   std::cout << systemPtr->particles[0] << std::endl;
   systemPtr->print_neighbors(0);
+}
 
     //Update sigma_lab (reference density)
     Kokkos::atomic_add( &device_hydro_scalar(iparticle, ccake::hydro_info::sigma_lab), device_sph_mass(jparticle, ccake::densities_info::s)*kern);
