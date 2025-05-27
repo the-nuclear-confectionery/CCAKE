@@ -588,10 +588,10 @@ if (std::isnan(d_dt_extensive_s))
   std::cout << milne::contract(R_extensive_entropy,dN_dt) << std::endl;
   for(int idir=0; idir<D; ++idir)
     std::cout << "\t"
-              << M_extensive_entropy(iDir) << "  "
-              << du_dt(iDir) << "  "
-              << R_extensive_entropy(iDir) << "  "
-              << dN_dt(iDir) << std::endl;
+              << M_extensive_entropy(idir) << "  "
+              << du_dt(idir) << "  "
+              << R_extensive_entropy(idir) << "  "
+              << dN_dt(idir) << std::endl;
 
   std::cout << "Crashing!!\n";
   exit(1);
