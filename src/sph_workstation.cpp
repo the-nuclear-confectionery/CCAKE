@@ -363,7 +363,7 @@ if (iparticle == 0 || jparticle == 0)
   std::cout << "\t" << kern << std::endl;
   std::cout << "\t" << device_sph_mass(jparticle, ccake::densities_info::s) << std::endl;
   std::cout << "\t" << device_extensive(jparticle, ccake::densities_info::s) << std::endl;
-  std::cout << "\t" << device_smoothed(iparticle, ccake::densities_info::s << std::endl;
+  std::cout << "\t" << device_smoothed(iparticle, ccake::densities_info::s) << std::endl;
 }
 
     //Update sigma_lab (reference density)
