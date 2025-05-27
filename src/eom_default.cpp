@@ -610,8 +610,8 @@ if (std::isnan(d_dt_extensive_s))
 {
   std::cout << "===========================================================================\n";
   std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
-  std::cout << systemPtr->particles[0] << std::endl;
-  systemPtr->print_neighbors(0);
+  std::cout << sysPtr->particles[0] << std::endl;
+  sysPtr->print_neighbors(0);
 
   std::cout << "Should have already crashed!!\n";
   exit(1);
@@ -630,8 +630,8 @@ if (std::isnan(d_dt_extensive_s))
 {
   std::cout << "===========================================================================\n";
   std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
-  std::cout << systemPtr->particles[0] << std::endl;
-  systemPtr->print_neighbors(0);
+  std::cout << sysPtr->particles[0] << std::endl;
+  sysPtr->print_neighbors(0);
 
   std::cout << "Should have already crashed!!\n";
   exit(1);
