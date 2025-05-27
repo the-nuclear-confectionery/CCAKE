@@ -42,7 +42,7 @@ rootfinder_parameters::rootfinder_parameters(
 ////////////////////////////////////////////////////////////////////////////////
 int rootfinder_f(const gsl_vector *x, void *params, gsl_vector *f)
 {
-std::cout << "Entered at line = " << __LINE__ << "\n";
+// std::cout << "Entered at line = " << __LINE__ << "\n";
     //x contains the next (T, muB, muS) coordinate to test
     vector<double> tbqsToEval(4);
     tbqsToEval[0] = gsl_vector_get(x,0);
@@ -67,11 +67,11 @@ std::cout << "Entered at line = " << __LINE__ << "\n";
       // compute densities using passed-in function object
       get_densities( phase_diagram_point, densities_at_point );
 
-std::cout << "PD point:";
-for (int i = 0; i < 4; i++) std::cout << "   " << phase_diagram_point[i];
-std::cout << "\n" << "Densities:";
-for (int i = 0; i < 4; i++) std::cout << "   " << densities_at_point[i];
-std::cout << "\n";
+// std::cout << "PD point:";
+// for (int i = 0; i < 4; i++) std::cout << "   " << phase_diagram_point[i];
+// std::cout << "\n" << "Densities:";
+// for (int i = 0; i < 4; i++) std::cout << "   " << densities_at_point[i];
+// std::cout << "\n";
 //if (1) exit(1);
 
       // set densities (convert to powers of fm if necessary)
@@ -87,15 +87,15 @@ std::cout << "\n";
     gsl_vector_set(f, 2, (rhoQ   - rhoQGiven));
     gsl_vector_set(f, 3, (rhoS   - rhoSGiven));
 
-std::cout << "e: " << eorEnt << "   " << eorEntGiven << "   " << eorEnt - eorEntGiven << "\n";
-std::cout << "B: " << rhoB << "   " << rhoBGiven << "   " << rhoB - rhoBGiven << "\n";
-std::cout << "Q: " << rhoQ << "   " << rhoQGiven << "   " << rhoQ - rhoQGiven << "\n";
-std::cout << "S: " << rhoS << "   " << rhoSGiven << "   " << rhoS - rhoSGiven << "\n"
-     <<"------" << "\n";
+// std::cout << "e: " << eorEnt << "   " << eorEntGiven << "   " << eorEnt - eorEntGiven << "\n";
+// std::cout << "B: " << rhoB << "   " << rhoBGiven << "   " << rhoB - rhoBGiven << "\n";
+// std::cout << "Q: " << rhoQ << "   " << rhoQGiven << "   " << rhoQ - rhoQGiven << "\n";
+// std::cout << "S: " << rhoS << "   " << rhoSGiven << "   " << rhoS - rhoSGiven << "\n"
+//      <<"------" << "\n";
 //if (1) exit(1);
 
 
-std::cout << "Exited at line = " << __LINE__ << "\n";
+// std::cout << "Exited at line = " << __LINE__ << "\n";
     return GSL_SUCCESS;
 }
 
@@ -157,7 +157,7 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
   // e_or_s_mode == 1: using energy density  //
   /////////////////////////////////////////////
 
- std::cout << __LINE__ << ": " << "Starting new rootfinder4D call\n";
+ // std::cout << __LINE__ << ": " << "Starting new rootfinder4D call\n";
 
   ////////////////////
   // set initial guess
@@ -177,11 +177,11 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
   rootfinder_parameters p( e_or_s_Given, rhoBGiven, rhoQGiven, rhoSGiven,
                            e_or_s_mode, function_to_evaluate );
 
- std::cout << __LINE__ << ": " << e_or_s_Given << "\n";
- std::cout << __LINE__ << ": " << rhoBGiven << "\n";
- std::cout << __LINE__ << ": " << rhoSGiven << "\n";
- std::cout << __LINE__ << ": " << rhoQGiven << "\n";
- std::cout << __LINE__ << ": " << e_or_s_mode << "\n";
+ // std::cout << __LINE__ << ": " << e_or_s_Given << "\n";
+ // std::cout << __LINE__ << ": " << rhoBGiven << "\n";
+ // std::cout << __LINE__ << ": " << rhoSGiven << "\n";
+ // std::cout << __LINE__ << ": " << rhoQGiven << "\n";
+ // std::cout << __LINE__ << ": " << e_or_s_mode << "\n";
 
   ////////////////////
   // initialize multiroot solver
@@ -204,16 +204,16 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
   do
   {
 
-   std::cout << __LINE__ << ": " << "iter = " << iter << "\n";
-std::cout << __LINE__ << ": " << gsl_vector_get(solver->x, 0) << "\n";
-std::cout << __LINE__ << ": " << gsl_vector_get(solver->x, 1) << "\n";
-std::cout << __LINE__ << ": " << gsl_vector_get(solver->x, 2) << "\n";
-std::cout << __LINE__ << ": " << gsl_vector_get(solver->x, 3) << "\n\n";
+//    std::cout << __LINE__ << ": " << "iter = " << iter << "\n";
+// std::cout << __LINE__ << ": " << gsl_vector_get(solver->x, 0) << "\n";
+// std::cout << __LINE__ << ": " << gsl_vector_get(solver->x, 1) << "\n";
+// std::cout << __LINE__ << ": " << gsl_vector_get(solver->x, 2) << "\n";
+// std::cout << __LINE__ << ": " << gsl_vector_get(solver->x, 3) << "\n\n";
 
     ++iter;
     status = gsl_multiroot_fsolver_iterate(solver);
 
-    std::cout << __LINE__ << ": " << "finished iter = " << iter << "\n";
+    // std::cout << __LINE__ << ": " << "finished iter = " << iter << "\n";
 
     if ( status )
     {
@@ -353,13 +353,13 @@ std::cout << __LINE__ << ": " << gsl_vector_get(solver->x, 3) << "\n\n";
     found = false;
   }
 
- std::cout << __LINE__ << ": " << "Check: " << iter << "   " << steps << "   " << status << "\n";
+ // std::cout << __LINE__ << ": " << "Check: " << iter << "   " << steps << "   " << status << "\n";
 
 
   // if so, return the solution
   if ( found )
   {
-    std::cout << "Got result!  returning...\n";
+    // std::cout << "Got result!  returning...\n";
     //DON'T NEED TO UPDATE TBQSPOSITION
     /*tbqs( gsl_vector_get(solver->x, 0),
           gsl_vector_get(solver->x, 1),
@@ -370,8 +370,8 @@ std::cout << __LINE__ << ": " << gsl_vector_get(solver->x, 3) << "\n\n";
     for (int iTBQS = 0; iTBQS < 4; iTBQS++)
       updated_tbqs[iTBQS] = gsl_vector_get(solver->x, iTBQS);
   }
-  else
-    std::cout << "Failed!  returning...\n";
+  // else
+  //   std::cout << "Failed!  returning...\n";
 
 
   // memory deallocation
@@ -437,9 +437,9 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
           = std::min(0.5*tbqs_maxima[iTBQS], 1.0)*sgns[iTBQS];
 
 
-   std::cout << "Start of attempt #" << number_of_attempts << " at line " << __LINE__ << "\n";
-   std::cout << "Check3: " << tbqsPosition[0] << "   " << tbqsPosition[1]
-             << "   " << tbqsPosition[2] << "   " << tbqsPosition[3] << "\n";
+   // std::cout << "Start of attempt #" << number_of_attempts << " at line " << __LINE__ << "\n";
+   // std::cout << "Check3: " << tbqsPosition[0] << "   " << tbqsPosition[1]
+   //           << "   " << tbqsPosition[2] << "   " << tbqsPosition[3] << "\n";
 
 
     //==========================================================================
@@ -470,11 +470,11 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
       tbqs(t0 + t10, mub0, muq0, mus0);
 
 
-   std::cout << "Start of attempt #" << number_of_attempts << " at line " << __LINE__ << "\n";
-   std::cout << "Check1: " << t0 << "   " << mub0 << "   " << muq0 << "   " << mus0 << "\n";
-   std::cout << "Check2: " << t10 << "   " << muB10 << "   " << muQ10 << "   " << muS10 << "\n";
-   std::cout << "Check3: " << tbqsPosition[0] << "   " << tbqsPosition[1]
-             << "   " << tbqsPosition[2] << "   " << tbqsPosition[3] << "\n";
+   // std::cout << "Start of attempt #" << number_of_attempts << " at line " << __LINE__ << "\n";
+   // std::cout << "Check1: " << t0 << "   " << mub0 << "   " << muq0 << "   " << mus0 << "\n";
+   // std::cout << "Check2: " << t10 << "   " << muB10 << "   " << muQ10 << "   " << muS10 << "\n";
+   // std::cout << "Check3: " << tbqsPosition[0] << "   " << tbqsPosition[1]
+   //           << "   " << tbqsPosition[2] << "   " << tbqsPosition[3] << "\n";
 
     if ( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
                        function_to_evaluate, updated_tbqs ) )
@@ -488,11 +488,11 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
       tbqs(t0 - t10, mub0, muq0, mus0);
 
 
-   std::cout << "Start of attempt #" << number_of_attempts << " at line " << __LINE__ << "\n";
-   std::cout << "Check1: " << t0 << "   " << mub0 << "   " << muq0 << "   " << mus0 << "\n";
-   std::cout << "Check2: " << t10 << "   " << muB10 << "   " << muQ10 << "   " << muS10 << "\n";
-   std::cout << "Check3: " << tbqsPosition[0] << "   " << tbqsPosition[1]
-             << "   " << tbqsPosition[2] << "   " << tbqsPosition[3] << "\n";
+   // std::cout << "Start of attempt #" << number_of_attempts << " at line " << __LINE__ << "\n";
+   // std::cout << "Check1: " << t0 << "   " << mub0 << "   " << muq0 << "   " << mus0 << "\n";
+   // std::cout << "Check2: " << t10 << "   " << muB10 << "   " << muQ10 << "   " << muS10 << "\n";
+   // std::cout << "Check3: " << tbqsPosition[0] << "   " << tbqsPosition[1]
+   //           << "   " << tbqsPosition[2] << "   " << tbqsPosition[3] << "\n";
 
     if ( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
                        function_to_evaluate, updated_tbqs ) )
@@ -509,11 +509,11 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
       tbqs(t0, mub0 + muB10, muq0, mus0);
 
 
-   std::cout << "Start of attempt #" << number_of_attempts << " at line " << __LINE__ << "\n";
-   std::cout << "Check1: " << t0 << "   " << mub0 << "   " << muq0 << "   " << mus0 << "\n";
-   std::cout << "Check2: " << t10 << "   " << muB10 << "   " << muQ10 << "   " << muS10 << "\n";
-   std::cout << "Check3: " << tbqsPosition[0] << "   " << tbqsPosition[1]
-             << "   " << tbqsPosition[2] << "   " << tbqsPosition[3] << "\n";
+   // std::cout << "Start of attempt #" << number_of_attempts << " at line " << __LINE__ << "\n";
+   // std::cout << "Check1: " << t0 << "   " << mub0 << "   " << muq0 << "   " << mus0 << "\n";
+   // std::cout << "Check2: " << t10 << "   " << muB10 << "   " << muQ10 << "   " << muS10 << "\n";
+   // std::cout << "Check3: " << tbqsPosition[0] << "   " << tbqsPosition[1]
+   //           << "   " << tbqsPosition[2] << "   " << tbqsPosition[3] << "\n";
 
     if( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs ) )
@@ -527,11 +527,11 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
       tbqs(t0, mub0 - muB10, muq0, mus0);
 
 
-   std::cout << "Start of attempt #" << number_of_attempts << " at line " << __LINE__ << "\n";
-   std::cout << "Check1: " << t0 << "   " << mub0 << "   " << muq0 << "   " << mus0 << "\n";
-   std::cout << "Check2: " << t10 << "   " << muB10 << "   " << muQ10 << "   " << muS10 << "\n";
-   std::cout << "Check3: " << tbqsPosition[0] << "   " << tbqsPosition[1]
-             << "   " << tbqsPosition[2] << "   " << tbqsPosition[3] << "\n";
+   // std::cout << "Start of attempt #" << number_of_attempts << " at line " << __LINE__ << "\n";
+   // std::cout << "Check1: " << t0 << "   " << mub0 << "   " << muq0 << "   " << mus0 << "\n";
+   // std::cout << "Check2: " << t10 << "   " << muB10 << "   " << muQ10 << "   " << muS10 << "\n";
+   // std::cout << "Check3: " << tbqsPosition[0] << "   " << tbqsPosition[1]
+   //           << "   " << tbqsPosition[2] << "   " << tbqsPosition[3] << "\n";
 
     if ( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs ) )
@@ -548,11 +548,11 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
       tbqs(t0, mub0, muq0, mus0 + muS10);
 
 
-   std::cout << "Start of attempt #" << number_of_attempts << " at line " << __LINE__ << "\n";
-   std::cout << "Check1: " << t0 << "   " << mub0 << "   " << muq0 << "   " << mus0 << "\n";
-   std::cout << "Check2: " << t10 << "   " << muB10 << "   " << muQ10 << "   " << muS10 << "\n";
-   std::cout << "Check3: " << tbqsPosition[0] << "   " << tbqsPosition[1]
-             << "   " << tbqsPosition[2] << "   " << tbqsPosition[3] << "\n";
+   // std::cout << "Start of attempt #" << number_of_attempts << " at line " << __LINE__ << "\n";
+   // std::cout << "Check1: " << t0 << "   " << mub0 << "   " << muq0 << "   " << mus0 << "\n";
+   // std::cout << "Check2: " << t10 << "   " << muB10 << "   " << muQ10 << "   " << muS10 << "\n";
+   // std::cout << "Check3: " << tbqsPosition[0] << "   " << tbqsPosition[1]
+   //           << "   " << tbqsPosition[2] << "   " << tbqsPosition[3] << "\n";
 
     if( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs ) )
@@ -566,11 +566,11 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
       tbqs(t0, mub0, muq0, mus0 - muS10);
 
 
-   std::cout << "Start of attempt #" << number_of_attempts << " at line " << __LINE__ << "\n";
-   std::cout << "Check1: " << t0 << "   " << mub0 << "   " << muq0 << "   " << mus0 << "\n";
-   std::cout << "Check2: " << t10 << "   " << muB10 << "   " << muQ10 << "   " << muS10 << "\n";
-   std::cout << "Check3: " << tbqsPosition[0] << "   " << tbqsPosition[1]
-             << "   " << tbqsPosition[2] << "   " << tbqsPosition[3] << "\n";
+   // std::cout << "Start of attempt #" << number_of_attempts << " at line " << __LINE__ << "\n";
+   // std::cout << "Check1: " << t0 << "   " << mub0 << "   " << muq0 << "   " << mus0 << "\n";
+   // std::cout << "Check2: " << t10 << "   " << muB10 << "   " << muQ10 << "   " << muS10 << "\n";
+   // std::cout << "Check3: " << tbqsPosition[0] << "   " << tbqsPosition[1]
+   //           << "   " << tbqsPosition[2] << "   " << tbqsPosition[3] << "\n";
 
     if( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs ) )
@@ -587,11 +587,11 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
       tbqs(t0, mub0, muq0 + muQ10, mus0);
 
 
-   std::cout << "Start of attempt #" << number_of_attempts << " at line " << __LINE__ << "\n";
-   std::cout << "Check1: " << t0 << "   " << mub0 << "   " << muq0 << "   " << mus0 << "\n";
-   std::cout << "Check2: " << t10 << "   " << muB10 << "   " << muQ10 << "   " << muS10 << "\n";
-   std::cout << "Check3: " << tbqsPosition[0] << "   " << tbqsPosition[1]
-             << "   " << tbqsPosition[2] << "   " << tbqsPosition[3] << "\n";
+   // std::cout << "Start of attempt #" << number_of_attempts << " at line " << __LINE__ << "\n";
+   // std::cout << "Check1: " << t0 << "   " << mub0 << "   " << muq0 << "   " << mus0 << "\n";
+   // std::cout << "Check2: " << t10 << "   " << muB10 << "   " << muQ10 << "   " << muS10 << "\n";
+   // std::cout << "Check3: " << tbqsPosition[0] << "   " << tbqsPosition[1]
+   //           << "   " << tbqsPosition[2] << "   " << tbqsPosition[3] << "\n";
 
     if( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs ) )
@@ -605,11 +605,11 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
       tbqs(t0, mub0, muq0 - muQ10, mus0);
 
 
-   std::cout << "Start of attempt #" << number_of_attempts << " at line " << __LINE__ << "\n";
-   std::cout << "Check1: " << t0 << "   " << mub0 << "   " << muq0 << "   " << mus0 << "\n";
-   std::cout << "Check2: " << t10 << "   " << muB10 << "   " << muQ10 << "   " << muS10 << "\n";
-   std::cout << "Check3: " << tbqsPosition[0] << "   " << tbqsPosition[1]
-             << "   " << tbqsPosition[2] << "   " << tbqsPosition[3] << "\n";
+   // std::cout << "Start of attempt #" << number_of_attempts << " at line " << __LINE__ << "\n";
+   // std::cout << "Check1: " << t0 << "   " << mub0 << "   " << muq0 << "   " << mus0 << "\n";
+   // std::cout << "Check2: " << t10 << "   " << muB10 << "   " << muQ10 << "   " << muS10 << "\n";
+   // std::cout << "Check3: " << tbqsPosition[0] << "   " << tbqsPosition[1]
+   //           << "   " << tbqsPosition[2] << "   " << tbqsPosition[3] << "\n";
 
     if( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs ) )
@@ -626,11 +626,11 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
     number_of_attempts++;
 
 
-   std::cout << "Start of attempt #" << number_of_attempts << " at line " << __LINE__ << "\n";
-   std::cout << "Check1: " << t0 << "   " << mub0 << "   " << muq0 << "   " << mus0 << "\n";
-   std::cout << "Check2: " << t10 << "   " << muB10 << "   " << muQ10 << "   " << muS10 << "\n";
-   std::cout << "Check3: " << tbqsPosition[0] << "   " << tbqsPosition[1]
-             << "   " << tbqsPosition[2] << "   " << tbqsPosition[3] << "\n";
+   // std::cout << "Start of attempt #" << number_of_attempts << " at line " << __LINE__ << "\n";
+   // std::cout << "Check1: " << t0 << "   " << mub0 << "   " << muq0 << "   " << mus0 << "\n";
+   // std::cout << "Check2: " << t10 << "   " << muB10 << "   " << muQ10 << "   " << muS10 << "\n";
+   // std::cout << "Check3: " << tbqsPosition[0] << "   " << tbqsPosition[1]
+   //           << "   " << tbqsPosition[2] << "   " << tbqsPosition[3] << "\n";
 
     if( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs ) )

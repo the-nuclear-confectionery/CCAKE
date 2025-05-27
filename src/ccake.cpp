@@ -78,7 +78,7 @@ void execute_tasks(std::shared_ptr<Settings> settingsPtr)
 int main (int argc, char *argv[])
 {
   #ifdef DEBUG
-  feenableexcept(FE_INVALID | FE_OVERFLOW);
+  // feenableexcept(FE_INVALID | FE_OVERFLOW);
   #endif
   // Print the welcome message.
   Kokkos::initialize(argc, argv);

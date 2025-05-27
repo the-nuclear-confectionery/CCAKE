@@ -141,16 +141,16 @@ public:
 
   void get_eBSQ( double point[], double results[] )
   {
-    std::cout << "Entering " << __FUNCTION__ << "\n";
+    // std::cout << "Entering " << __FUNCTION__ << "\n";
     // point: (T, muB, muQ, muS)
     const double Tsol  = point[0],
       muBsol           = point[1],
       muQsol           = point[2],
       muSsol           = point[3];
-std::cout << "LINE: " << __LINE__ << "   " << point[0] << "\n";
-std::cout << "LINE: " << __LINE__ << "   " << point[1] << "\n";
-std::cout << "LINE: " << __LINE__ << "   " << point[2] << "\n";
-std::cout << "LINE: " << __LINE__ << "   " << point[3] << "\n";
+// std::cout << "LINE: " << __LINE__ << "   " << point[0] << "\n";
+// std::cout << "LINE: " << __LINE__ << "   " << point[1] << "\n";
+// std::cout << "LINE: " << __LINE__ << "   " << point[2] << "\n";
+// std::cout << "LINE: " << __LINE__ << "   " << point[3] << "\n";
     double POut        = p(Tsol, muBsol, muQsol, muSsol);
     double sOut        = s(Tsol, muBsol, muQsol, muSsol);
     double BOut        = B(Tsol, muBsol, muQsol, muSsol);
@@ -161,24 +161,24 @@ std::cout << "LINE: " << __LINE__ << "   " << point[3] << "\n";
     results[1]         = BOut;
     results[2]         = SOut;
     results[3]         = QOut;
-std::cout << "LINE: " << __LINE__ << "\n";
-std::cout << "Exiting " << __FUNCTION__ << "\n";
+// std::cout << "LINE: " << __LINE__ << "\n";
+// std::cout << "Exiting " << __FUNCTION__ << "\n";
   }
 
   void get_sBSQ( double point[], double results[] )
   {
-    std::cout << "Entering " << __FUNCTION__ << "\n";
+    // std::cout << "Entering " << __FUNCTION__ << "\n";
     // point: (T, muB, muQ, muS)
     results[0] = s( point[0], point[1], point[2], point[3] );
     results[1] = B( point[0], point[1], point[2], point[3] );
     results[2] = S( point[0], point[1], point[2], point[3] );
     results[3] = Q( point[0], point[1], point[2], point[3] );
-    std::cout << "Exiting " << __FUNCTION__ << "\n";
+    // std::cout << "Exiting " << __FUNCTION__ << "\n";
   }
 
   void get_full_thermo( double point[], double results[] )
   {
-    std::cout << "Entering " << __FUNCTION__ << "\n";
+    // std::cout << "Entering " << __FUNCTION__ << "\n";
     // point: (T, muB, muQ, muS)
     const double Tsol   = point[0], muBsol = point[1],
                  muQsol = point[2], muSsol = point[3];
@@ -207,7 +207,7 @@ std::cout << "Exiting " << __FUNCTION__ << "\n";
     results[14] = P2TQ(Tsol, muBsol, muQsol, muSsol);
     results[15] = P2TS(Tsol, muBsol, muQsol, muSsol);
     results[16] = P2T2(Tsol, muBsol, muQsol, muSsol);
-    std::cout << "Exiting " << __FUNCTION__ << "\n";
+    // std::cout << "Exiting " << __FUNCTION__ << "\n";
   }
 
 };
