@@ -586,6 +586,10 @@ if (std::isnan(d_dt_extensive_s))
   std::cout << milne::contract(M_extensive_entropy,du_dt) << std::endl;
   std::cout << device_hydro_scalar.access(is, ia, hydro_info::F_extensive_entropy) << std::endl;
   std::cout << milne::contract(R_extensive_entropy,dN_dt) << std::endl;
+  std::cout << M_extensive_entropy << std::endl;
+  std::cout << du_dt << std::endl;
+  std::cout << R_extensive_entropy << std::endl;
+  std::cout << dN_dt << std::endl;
 
   std::cout << "Crashing!!\n";
   exit(1);
