@@ -1196,6 +1196,11 @@ void SPHWorkstation<D, TEOM>::update_all_particle_viscosities()
       = tc::eta(thermo, this->transp_coeff_params );
     device_hydro_scalar.access(is, ia, ccake::hydro_info::tau_pi)
       = tc::tau_pi(thermo,this->transp_coeff_params);
+if (true)
+{
+  std::cout << "CHECK: " << tc::tau_pi(thermo,this->transp_coeff_params) << "\n";
+  exit(1);
+}
     device_hydro_scalar.access(is, ia, ccake::hydro_info::zeta_Pi)
       = tc::zeta(thermo, this->transp_coeff_params);
     device_hydro_scalar.access(is, ia, ccake::hydro_info::tau_Pi)
