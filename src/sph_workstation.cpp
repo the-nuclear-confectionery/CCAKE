@@ -1035,8 +1035,8 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives()
   // reset nearest neighbors
   bool fail = false;
   for(auto & p: systemPtr->particles){
-    if (p.extensive.s < 0){
-        cout << "Negative entropy in particle " << p.ID << " Before reset_neighbour_list " << endl;
+    if (p.extensive.s < 0 || std::isnan(p.extensive.s)){
+        cout << "Invalid entropy in particle " << p.ID << " Before reset_neighbour_list " << endl;
         fail = true;
         //cout << p << endl;
     }

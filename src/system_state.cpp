@@ -409,6 +409,17 @@ void SystemState<D>::copy_device_to_host(){
     particles[id].sph_mass.rhoS = host_sph_mass(iparticle, ccake::densities_info::rhoS);
     particles[id].sph_mass.rhoQ = host_sph_mass(iparticle, ccake::densities_info::rhoQ);
 
+if (id==0)
+{
+std::cout << "Check entropies here:" << std::endl;
+std::cout << "\t" << particles[id].input.s << std::endl;
+std::cout << "\t" << particles[id].smoothed.s << std::endl;
+std::cout << "\t" << particles[id].extensive.s << std::endl;
+std::cout << "\t" << particles[id].d_dt_extensive.s << std::endl;
+std::cout << "\t" << particles[id].sph_mass.s << std::endl;
+}
+
+
     particles[id].efcheck = host_efcheck(iparticle);
     particles[id].contribution_to_total_E = host_contribution_to_total_E(iparticle);
     particles[id].contribution_to_total_dEz = host_contribution_to_total_dEz(iparticle);
