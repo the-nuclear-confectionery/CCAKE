@@ -388,15 +388,15 @@ void SystemState<D>::copy_device_to_host(){
       }
     }
 
-if (id==0)
-{
-std::cout << "Check entropies BEFORE:" << std::endl;
-std::cout << "\t" << particles[id].input.s << std::endl;
-std::cout << "\t" << particles[id].smoothed.s << std::endl;
-std::cout << "\t" << particles[id].extensive.s << std::endl;
-std::cout << "\t" << particles[id].d_dt_extensive.s << std::endl;
-std::cout << "\t" << particles[id].sph_mass.s << std::endl;
-}
+// if (id==0)
+// {
+// std::cout << "Check entropies BEFORE:" << std::endl;
+// std::cout << "\t" << particles[id].input.s << std::endl;
+// std::cout << "\t" << particles[id].smoothed.s << std::endl;
+// std::cout << "\t" << particles[id].extensive.s << std::endl;
+// std::cout << "\t" << particles[id].d_dt_extensive.s << std::endl;
+// std::cout << "\t" << particles[id].sph_mass.s << std::endl;
+// }
 
     particles[id].input.s = host_input(iparticle, ccake::densities_info::s);
     particles[id].input.rhoB = host_input(iparticle, ccake::densities_info::rhoB);
@@ -423,15 +423,15 @@ std::cout << "\t" << particles[id].sph_mass.s << std::endl;
     particles[id].sph_mass.rhoS = host_sph_mass(iparticle, ccake::densities_info::rhoS);
     particles[id].sph_mass.rhoQ = host_sph_mass(iparticle, ccake::densities_info::rhoQ);
 
-if (id==0)
-{
-std::cout << "Check entropies AFTER:" << std::endl;
-std::cout << "\t" << particles[id].input.s << std::endl;
-std::cout << "\t" << particles[id].smoothed.s << std::endl;
-std::cout << "\t" << particles[id].extensive.s << std::endl;
-std::cout << "\t" << particles[id].d_dt_extensive.s << std::endl;
-std::cout << "\t" << particles[id].sph_mass.s << std::endl;
-}
+// if (id==0)
+// {
+// std::cout << "Check entropies AFTER:" << std::endl;
+// std::cout << "\t" << particles[id].input.s << std::endl;
+// std::cout << "\t" << particles[id].smoothed.s << std::endl;
+// std::cout << "\t" << particles[id].extensive.s << std::endl;
+// std::cout << "\t" << particles[id].d_dt_extensive.s << std::endl;
+// std::cout << "\t" << particles[id].sph_mass.s << std::endl;
+// }
 
 
     particles[id].efcheck = host_efcheck(iparticle);

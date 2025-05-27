@@ -9,7 +9,7 @@ KOKKOS_INLINE_FUNCTION
 parameters setup_parameters(std::shared_ptr<Settings> settingsPtr)
 {
   std::string etaMode = settingsPtr->etaMode;
-std::cout << "CHECK: working with etaMode = " << etaMode << "\n";
+// std::cout << "CHECK: working with etaMode = " << etaMode << "\n";
   parameters params;
   if (etaMode == "default")
   {
@@ -32,7 +32,7 @@ std::cout << "CHECK: working with etaMode = " << etaMode << "\n";
   }
 
   std::string shearRelaxMode = settingsPtr->shearRelaxMode;
-std::cout << "CHECK: working with shearRelaxMode = " << shearRelaxMode << "\n";
+// std::cout << "CHECK: working with shearRelaxMode = " << shearRelaxMode << "\n";
   if (shearRelaxMode == "default")
   {
     params.shear_relaxation_mode = TAU_PI_SHEAR_DEFAULT;
