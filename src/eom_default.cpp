@@ -3,7 +3,7 @@
 // #include <iostream>
 
 /// @file eom_default.cpp
-/// @brief Implementation of the default equations of motion for the 
+/// @brief Implementation of the default equations of motion for the
 /// hydrodynamic evolution.
 
 using namespace ccake;
@@ -21,12 +21,12 @@ void EoM_default<D>::update_velocity(std::shared_ptr<SystemState<D>> sysPtr)
   auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH, ExecutionSpace>(0, sysPtr->cabana_particles.size());
   double t =  (sysPtr->t);
   double t2 = t*t;
-  auto update_gammas = KOKKOS_LAMBDA(const int is, int ia) 
+  auto update_gammas = KOKKOS_LAMBDA(const int is, int ia)
   {
     milne::Vector<double,D> u;
     for(int idir=0; idir<D; ++idir) u(idir) = device_hydro_vector.access(is, ia, hydro_info::u, idir);
     milne::Vector<double,D> u_cov = u;
-    //Updates gamma and velocities, and sigma 
+    //Updates gamma and velocities, and sigma
     u_cov.make_covariant(t2); //Transforms u^i to -u_i
     double gamma = Kokkos::sqrt(1-milne::contract(u_cov,u)); //Calculates gamma = \sqrt{1-u^i u_i}
     device_hydro_scalar.access(is,ia, hydro_info::gamma) = gamma;
@@ -40,13 +40,13 @@ void EoM_default<D>::update_velocity(std::shared_ptr<SystemState<D>> sysPtr)
 
 /// @brief Enforces the constraints for the shear viscous tensor \f$ \pi^{\mu\nu} \f$.
 /// @details Calculate the shear viscous tensor \f$ \pi^{\mu\nu} \f$ and the bulk viscous pressure
-/// \f$ \Pi \f$ from the extensive (called extensive) shear tensor \f$ \pi^{ij} \f$ 
+/// \f$ \Pi \f$ from the extensive (called extensive) shear tensor \f$ \pi^{ij} \f$
 //  and the extensive(extensive) bulk pressure \f$ \Pi \f$
 /// It also enforces the constraints  \f$\pi^{\mu\nu}u_\nu = 0 \f$,
 /// \f$\pi^\mu_\mu = 0 \f$ and \f$ \pi^{\mu\nu} = \pi^{\nu\mu} \f$.
 /// We assume that the components \f$ \pi^{xx} \f$, \f$ \pi^{xy} \f$,
 /// \f$ \pi^{x\eta} \f$, \f$ \pi^{yy} \f$ and \f$ \pi^{y\eta} \f$ are computed
-/// during evolution 
+/// during evolution
 /// \f[\begin{align*}
 /// \pi^{0i} & = -\pi^{ij}u_j/\gamma \\
 /// \pi^{00} & = u_i u_j \pi^{ij}/\gamma^2 \\
@@ -61,8 +61,8 @@ void EoM_default<D>::reset_pi_tensor(std::shared_ptr<SystemState<D>> sysPtr)
   CREATE_VIEW(device_,sysPtr->cabana_particles)
   auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, sysPtr->cabana_particles.size());
 
-  auto kokkos_ensure_consistency = KOKKOS_LAMBDA(const int is, int ia) 
-  { 
+  auto kokkos_ensure_consistency = KOKKOS_LAMBDA(const int is, int ia)
+  {
     //read relevant quantities
     double gamma = device_hydro_scalar.access(is,ia, hydro_info::gamma);
     double sigma = device_hydro_scalar.access(is, ia, hydro_info::sigma);
@@ -85,7 +85,7 @@ void EoM_default<D>::reset_pi_tensor(std::shared_ptr<SystemState<D>> sysPtr)
     fixed_size_u_cov.make_covariant(t2); //Transforms fu^i to fu_i
 
 
-    //compute bulk from extensive bulk 
+    //compute bulk from extensive bulk
     device_hydro_scalar.access(is, ia, hydro_info::bulk) = extensive_bulk*sigma;
 
     //compute shear from extensive shear
@@ -100,11 +100,11 @@ void EoM_default<D>::reset_pi_tensor(std::shared_ptr<SystemState<D>> sysPtr)
     for( int j=i+1; j<4; j++ )
       shv(j,i) = shv(i,j);
 
-    //pi^{0i} = -\pi^{ij}u_j/gamma 
+    //pi^{0i} = -\pi^{ij}u_j/gamma
     for(int idir=1; idir<D+1; ++idir){
       milne::Vector<double,D> shv_i;
       for(int jdir=1; jdir<D+1; ++jdir) shv_i(jdir-1) = shv(idir,jdir);
-      shv(0,idir) = -1.*milne::contract(u_cov,shv_i)/gamma; 
+      shv(0,idir) = -1.*milne::contract(u_cov,shv_i)/gamma;
     }
 
     //Symmetrizes time part
@@ -113,10 +113,10 @@ void EoM_default<D>::reset_pi_tensor(std::shared_ptr<SystemState<D>> sysPtr)
 
 
     //pi^00 = u_i u_j pi^{ij}/gamma^2
-    shv(0,0) =( fixed_size_u_cov(0)*fixed_size_u_cov(0)*shv(1,1) 
+    shv(0,0) =( fixed_size_u_cov(0)*fixed_size_u_cov(0)*shv(1,1)
                 + fixed_size_u_cov(1)*fixed_size_u_cov(1)*shv(2,2)
-                + 2.*fixed_size_u_cov(1)*fixed_size_u_cov(0)*shv(2,1) 
-                + 2.*fixed_size_u_cov(2)*fixed_size_u_cov(0)*shv(3,1) 
+                + 2.*fixed_size_u_cov(1)*fixed_size_u_cov(0)*shv(2,1)
+                + 2.*fixed_size_u_cov(2)*fixed_size_u_cov(0)*shv(3,1)
                 + 2.*fixed_size_u_cov(2)*fixed_size_u_cov(1)*shv(3,2)
                 - fixed_size_u_cov(2)*fixed_size_u_cov(2)*(shv(1,1)+shv(2,2))/t2
               )/(gamma*gamma-fixed_size_u_cov(2)*fixed_size_u_cov(2)/(t2));
@@ -130,7 +130,7 @@ void EoM_default<D>::reset_pi_tensor(std::shared_ptr<SystemState<D>> sysPtr)
     for(int jdir=0; jdir<4; ++jdir)
       device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir, jdir) = shv(idir,jdir) ;
 
- 
+
   };
   Cabana::simd_parallel_for(simd_policy,kokkos_ensure_consistency,"kokkos_ensure_consistency");
   Kokkos::fence();
@@ -138,7 +138,7 @@ void EoM_default<D>::reset_pi_tensor(std::shared_ptr<SystemState<D>> sysPtr)
 
 /// @brief Calculates the Lorentz contraction factor \f$ \gamma = u^0\f$.
 /// @details Calculates the Lorentz contraction factor \f$ \gamma \f$ in the
-/// general case. 
+/// general case.
 /// @param u The velocity vector (space components only).
 /// @param time_squared The square of the time where the gamma factor will be computed.
 /// @return The value of \f$ \gamma \f$.
@@ -169,7 +169,7 @@ double EoM_default<D>::get_LRF(const double &lab, const double &gamma,
 
 /// @brief Calculates the time derivatives of the hydrodynamic variables.
 /// @details Calculates the time derivatives of the hydrodynamic variables
-/// using the MRF formalism. 
+/// using the MRF formalism.
 /// @tparam D The number of spatial dimensions.
 /// @param sysPtr A pointer to an object of class SystemState
 /// @param settingsPtr A pointer to an object of class Settings
@@ -180,11 +180,17 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
   // ofstream outfile;
   // outfile.open("gradients.dat");
   // #endif
+
+  std::cout << "===========================================================================\n";
+  std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
+  std::cout << sysPtr->particles[0] << std::endl;
+  sysPtr->print_neighbors(0);
+
   double t = (sysPtr->t);
   double t2 = t*t;
   milne::Vector<double,D> delta_i_eta = milne::delta_i_eta<D>();
   CREATE_VIEW(device_,sysPtr->cabana_particles);
-  bool using_shear = settingsPtr->using_shear; 
+  bool using_shear = settingsPtr->using_shear;
   auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, sysPtr->cabana_particles.size());
   //calculate the M,R,F matrices due to shear, when using shear
   if(using_shear){
@@ -234,7 +240,7 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
     milne::Matrix<double,3,3> R_extensive_N;
     milne::Matrix<double,4,4> shv, shv_hybrid, shv_cov;
     //fill caches
-    for(int idir=0; idir<D; ++idir){  
+    for(int idir=0; idir<D; ++idir){
       u(idir) = device_hydro_vector.access(is, ia, hydro_info::u, idir);
       v(idir) = device_hydro_vector.access(is, ia, hydro_info::v, idir);
       j_ext(idir) = device_hydro_vector.access(is, ia, hydro_info::j_ext, idir);
@@ -242,14 +248,14 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
     for(int idir=0; idir<4; ++idir)
     for(int jdir=0; jdir<4; ++jdir)
       shv(idir,jdir) = device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir, jdir);
-    u_cov = u; 
-    u_cov.make_covariant(t2); 
+    u_cov = u;
+    u_cov.make_covariant(t2);
     shv_hybrid = shv;
     //shv_hybrid = \pi^\mu_\nu
-    shv_hybrid.make_covariant(1, t2); 
-    shv_cov = shv_hybrid; 
+    shv_hybrid.make_covariant(1, t2);
+    shv_cov = shv_hybrid;
     //shv_cov = \pi_{\mu\nu}
-    shv_cov.make_covariant(0, t2);  
+    shv_cov.make_covariant(0, t2);
 
     double divV = 0;
     for(int idir=0; idir<D; ++idir){
@@ -265,7 +271,7 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
     //auxiliary array to store rho_ext
     milne::Vector<double,3> rho_ext = {rhoB_ext, rhoS_ext, rhoQ_ext};
 
-    
+
     //double j0_ext =0.;
     //milne::Vector<double,D> j_ext;
     //for(int idir=0; idir<D; ++idir){
@@ -283,16 +289,16 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
     //fill R matrices
     for(int icharge=0; icharge<3; ++icharge){
       R_extensive_entropy(icharge) = -gamma*sigma*mu_vec(icharge);
-      
+
       R_extensive_bulk(icharge) = 0.0;
       for(int jcharge=0; jcharge<3; ++jcharge){
         R_extensive_N(icharge,jcharge) = 0.0;
       }
       R_extensive_N(icharge,icharge) += gamma*sigma;
     }
-    
-    
-  
+
+
+
     //fill F matrices
     F_extensive_bulk = -(zeta_tilde*(gamma*divV + gamma/t + geometric_factor)
                   +bulk  - a*phi1*bulk*bulk);
@@ -304,8 +310,8 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
 
     for(int icharge=0; icharge<3; ++icharge){
       F_extensive_N(icharge) = rho_ext(icharge);
-    }    
-    if(using_shear){ 
+    }
+    if(using_shear){
       //add contribution from shear MRFs
       double F_shv_nabla_u = device_hydro_scalar.access(is, ia, hydro_info::F_shv_nabla_u);
       F_extensive_entropy += F_shv_nabla_u/(sigma*gamma*T);
@@ -335,14 +341,20 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
         device_hydro_space_matrix.access(is, ia, hydro_info::R_extensive_N, icharge, jcharge) = R_extensive_N(icharge,jcharge);
       }
     }
-   
+
   };
+
+  std::cout << "===========================================================================\n";
+  std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
+  std::cout << sysPtr->particles[0] << std::endl;
+  sysPtr->print_neighbors(0);
+
 
   Cabana::simd_parallel_for(simd_policy, fill_auxiliary_variables, "fill_auxiliary_variables");
   Kokkos::fence();
   //calculate du/dt
   auto compute_velocity_derivative = KOKKOS_LAMBDA(const int is, const int ia)
-  { 
+  {
       //read relevant quantities
       double gamma = device_hydro_scalar.access(is, ia, hydro_info::gamma);
       double extensive_bulk = device_hydro_scalar.access(is, ia,hydro_info::extensive_bulk );
@@ -355,7 +367,7 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
       double rhos = device_thermo.access(is, ia, thermo_info::rhoS);
       double rhoq = device_thermo.access(is, ia, thermo_info::rhoQ);
       double dwdrhoB = device_thermo.access(is, ia, thermo_info::dwdB);
-      double dwdrhoS = device_thermo.access(is, ia, thermo_info::dwdS); 
+      double dwdrhoS = device_thermo.access(is, ia, thermo_info::dwdS);
       double dwdrhoQ = device_thermo.access(is, ia, thermo_info::dwdQ);
       double F_extensive_bulk = device_hydro_scalar.access(is, ia, hydro_info::F_extensive_bulk);
       double F_extensive_entropy = device_hydro_scalar.access(is, ia, hydro_info::F_extensive_entropy);
@@ -366,7 +378,7 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
       double divV = 0;
       milne::Vector<double,D> u, gradshear, gradP, gradBulk, divshear;
       milne::Vector<double,D> M_bulk, M_S, M_extensive_bulk;
-      milne::Vector<double,D> F_0i_shear, j_ext; 
+      milne::Vector<double,D> F_0i_shear, j_ext;
       milne:: Vector<double,D> gradP_contra, gradBulk_contra, u_cov;
       milne::Matrix<double,D,D>  M_0i_shear, gradV;
       milne::Vector<double,3> R_S,R_extensive_bulk, rhoVec, dwdrhoVec, F_extensive_N;
@@ -412,7 +424,7 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
       u_cov.make_covariant(t2);
 
       //declare auxiliary variables
-      double geometric_factor = delta_i_eta(D-1)*u(D-1)*u(D-1)*t/gamma;   
+      double geometric_factor = delta_i_eta(D-1)*u(D-1)*u(D-1)*t/gamma;
       rhoVec = {rhob, rhos, rhoq};
       dwdrhoVec = {dwdrhoB, dwdrhoS, dwdrhoQ};
 
@@ -420,7 +432,7 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
       milne::Vector<double,D> M_w = (s*dwds/gamma
                                     +milne::contract(rhoVec,dwdrhoVec)/gamma)*u_cov/gamma
                                     +sigma*dwds*M_S;
-      milne::Vector<double,3> R_w = sigma*dwdrhoVec 
+      milne::Vector<double,3> R_w = sigma*dwdrhoVec
                                     +sigma*dwds*R_S;
       double F_w = -(s*dwds/gamma
                     +milne::contract(rhoVec,dwdrhoVec)/gamma)*(geometric_factor+ gamma/t + gamma*divV)
@@ -428,7 +440,7 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
 
       //convert the extensive MRFs to the intensive ones
       double F_bulk = F_extensive_bulk - bulk*(gamma*divV + gamma/t + geometric_factor)/gamma;
-      M_bulk = M_extensive_bulk + bulk*u_cov/(gamma*gamma*tau_Pi);                         
+      M_bulk = M_extensive_bulk + bulk*u_cov/(gamma*gamma*tau_Pi);
 
 
 
@@ -445,8 +457,8 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
                                   -gamma*(F_w+F_bulk)*u
                                   -(w+bulk)*(gamma*divV + gamma/t + geometric_factor)*u
                                   -2.*(w+bulk)*gamma*u(D-1)*delta_i_eta/t;
-      
-                                 
+
+
       milne::Matrix<double,D,3> R_u;
       for(int idir=0; idir<D; ++idir){
         for(int icharge=0; icharge<3; ++icharge){
@@ -457,7 +469,7 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
       if ( using_shear )
       { //std::cout << "Hi shear" << std::endl;
         for(int idir=0; idir<D; ++idir){
-          F_u(idir) +=  -shv(idir+1,0)/t - 2.*delta_i_eta(idir)*shv(0,3)/t 
+          F_u(idir) +=  -shv(idir+1,0)/t - 2.*delta_i_eta(idir)*shv(0,3)/t
                         -divshear(idir) + gradshear(idir) -F_0i_shear(idir);
           for(int icharge=0; icharge<3; ++icharge){
             R_u(idir,icharge) += -R_0i_shear(idir,icharge);
@@ -467,8 +479,8 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
           }
         }
       }
-    
-    //aux MRFs 
+
+    //aux MRFs
      milne::Matrix<double,D,D> aux_MR;
      milne::Vector<double,D> aux_FR;
      milne::Matrix<double,3,3> RI = milne::inverse(R_extensive_N);
@@ -490,7 +502,7 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
         }
       };
 
-      /// @brief 
+      /// @brief
       //milne::Matrix<double,D,D> MI = milne::inverse(M_u-aux_MR);
       //milne::Vector<double,D> du_dt = MI*(F_u+aux_FR);
       milne::Matrix<double,D,D> MI = milne::inverse(M_u-aux_MR);
@@ -499,6 +511,13 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
   };
   Cabana::simd_parallel_for(simd_policy, compute_velocity_derivative, "compute_velocity_derivative");
   Kokkos::fence();
+
+  std::cout << "===========================================================================\n";
+  std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
+  std::cout << sysPtr->particles[0] << std::endl;
+  sysPtr->print_neighbors(0);
+
+
   //Calculate the derivatives and quantities that depends on du/dt:
   //dS/dt, dN_{B,S,Q}/dt, dextensive_bulk/dt,d_extensive_shv/dt, theta and shv_nabla_u
   //using the MRF formalism and the previously calculated du/dt
@@ -509,7 +528,7 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
     double bulk = device_hydro_scalar.access(is, ia, hydro_info::bulk);
     double gamma = device_hydro_scalar.access(is, ia, hydro_info::gamma);
     double divV = 0;
-    
+
     //declare caches
     milne::Vector<double,D> v, du_dt, u,u_cov;
     milne::Vector<double,D> M_extensive_entropy, M_extensive_bulk;
@@ -550,7 +569,7 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
         R_N_inv(icharge,jcharge) = device_hydro_space_matrix.access(is, ia, hydro_info::R_extensive_N, icharge, jcharge);
       }
     }
-    R_N_inv = milne::inverse(R_N_inv); 
+    R_N_inv = milne::inverse(R_N_inv);
     milne::Vector<double,3> dN_dt = R_N_inv*(F_extensive_N + MU_aux);
 
     // time derivative of ``extensive (extensive) entropy density per particle"
@@ -565,7 +584,7 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
                     +device_hydro_scalar.access(is, ia, hydro_info::F_extensive_bulk)
                     +milne::contract(R_extensive_bulk,dN_dt);
     //calculate the shv_nabla_u = \pi^{ij} \nabla_i u_j
-    milne::Vector<double,D> M_shv_nabla_u; 
+    milne::Vector<double,D> M_shv_nabla_u;
     for(int idir=0; idir<D; ++idir){
       M_shv_nabla_u(idir) = device_hydro_vector.access(is, ia, hydro_info::M_shv_nabla_u, idir);
     }
@@ -583,7 +602,7 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
     device_d_dt_extensive.access(is, ia, densities_info::rhoB) = dN_dt(0);
     device_d_dt_extensive.access(is, ia, densities_info::rhoS) = dN_dt(1);
     device_d_dt_extensive.access(is, ia, densities_info::rhoQ) = dN_dt(2);
-    
+
     //calculate the extensive shear tensor derivative
     if(using_shear){
       milne::Matrix<double,2,3> d_extensive_shv_dt;
@@ -599,18 +618,18 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
             Msigma_du_aux += device_hydro_shear_aux_matrix.access(is, ia, hydro_info::M_sigma_tensor, idir,linear_index_M)*du_dt(kdir);
           }
           for(int icharge=0; icharge<3; ++icharge){
-            int linear_index_R = jdir * 3 + icharge;  
+            int linear_index_R = jdir * 3 + icharge;
             R_dn_aux += device_hydro_shear_aux_matrix.access(is, ia, hydro_info::R_extensive_shear, idir, linear_index_R)*dN_dt(icharge);
           }
-          d_extensive_shv_dt(idir,jdir) = M_du_aux 
+          d_extensive_shv_dt(idir,jdir) = M_du_aux
                                   + device_hydro_shear_aux_vector.access(is, ia, hydro_info::F_extensive_shear, idir, jdir);
           device_hydro_shear_aux_vector.access(is, ia, hydro_info::d_extensive_shv_dt, idir,jdir) = d_extensive_shv_dt(idir,jdir);
-          sigma_tensor(idir,jdir) = Msigma_du_aux 
+          sigma_tensor(idir,jdir) = Msigma_du_aux
                                  + device_hydro_shear_aux_vector.access(is, ia, hydro_info::F_sigma_tensor, idir, jdir);
           device_hydro_spacetime_matrix.access(is, ia, hydro_info::sigma_tensor, idir+1,jdir+1) = sigma_tensor(idir,jdir);
         }
       }
-      
+
     }
 
 
@@ -621,11 +640,18 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
 	  //hi.finite_diff_w   =  (ti.w - hi.prev_w)/0.05; // Asadek
 	  //hi.dBeta_dt      = 0.5*((-hi.finite_diff_T/(ti.T*ti.T))*(1/ti.w)*(1/((1/3-ti.cs2)*(1/3-ti.cs2))))
 	  //                 + 0.5*((-hi.finite_diff_w/(ti.w*ti.w))*(1/ti.T)*(1/((1/3-ti.cs2)*(1/3-ti.cs2))))
-		//			   + 0.5*((4*ti.cs2*hi.finite_diff_cs2*(1/((1/3-ti.cs2)*(1/3-ti.cs2)*(1/3-ti.cs2))))*(1/ti.T)*(1/ti.w));//Asadek 
+		//			   + 0.5*((4*ti.cs2*hi.finite_diff_cs2*(1/((1/3-ti.cs2)*(1/3-ti.cs2)*(1/3-ti.cs2))))*(1/ti.T)*(1/ti.w));//Asadek
 
   };
   Cabana::simd_parallel_for(simd_policy, compute_derivatives, "compute_derivatives");
   Kokkos::fence();
+
+  std::cout << "===========================================================================\n";
+  std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
+  std::cout << sysPtr->particles[0] << std::endl;
+  sysPtr->print_neighbors(0);
+
+
       // computing dEz_dt
   auto compute_Ez_derivative = KOKKOS_LAMBDA(const int is, const int ia)
     {
@@ -633,7 +659,7 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
       double shv33 = device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv,3,3);
       double sigma_lab = device_hydro_scalar.access(is, ia, hydro_info::sigma_lab);
       double sph_mass = device_sph_mass.access(is, ia, densities_info::s);
-      double p = device_thermo.access(is, ia, thermo_info::p);  
+      double p = device_thermo.access(is, ia, thermo_info::p);
       double e = device_thermo.access(is, ia, thermo_info::e);
       double sigma = device_hydro_scalar.access(is, ia, hydro_info::sigma);
       milne::Vector<double,D> u;
@@ -647,7 +673,7 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
         u3 = u(0); // eta flow velocity
       }
       else if (D == 3){
-        u3 = u(2);  
+        u3 = u(2);
       }
       else if (D == 2){
         u3 = 0;
@@ -666,6 +692,13 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
     if(using_shear){
     compute_hydro_numbers(sysPtr);
     }
+
+  std::cout << "===========================================================================\n";
+  std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
+  std::cout << sysPtr->particles[0] << std::endl;
+  sysPtr->print_neighbors(0);
+
+
   };
 
 
@@ -809,7 +842,7 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr)
     for(int idir=0; idir<4; ++idir){
       shear0mu_aux(idir) = shv_hybrid(0,idir);
     }
-    
+
     //aux vectors and matrices for the four-acceleration equation
     for(int idir=0; idir<D; ++idir){
       F_i0_sigma(idir) =  -(milne::contract(grad_uj,v,milne::FirstIndex())(idir)
@@ -838,14 +871,14 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr)
       F_i0_D(idir) += delta_i_eta(idir)*(u(D-1)*shv(0,0)/t
                       + gamma*shv(3,0)/t);
     }
-  
+
     //calculate M and F for shv_nabla_u = \pi^{ij} \nabla_i u_j
     double F_shv_nabla_u = 0.0;
     for (int idir = 0; idir < D; ++idir) {
       M_shv_nabla_u(idir) = shv_hybrid(0,idir+1) - shv_hybrid(0,0)*u_cov(idir)/gamma;
       device_hydro_vector.access(is, ia, hydro_info::M_shv_nabla_u, idir) = M_shv_nabla_u(idir);
       for (int jdir = 0; jdir < D; ++jdir) {
-          F_shv_nabla_u += (shv_hybrid(idir + 1, jdir + 1) 
+          F_shv_nabla_u += (shv_hybrid(idir + 1, jdir + 1)
                            - v(idir) * shv_hybrid(0, jdir + 1)) * grad_uj(idir, jdir);
       }
       F_shv_nabla_u += (shv_hybrid(idir + 1, 0) - v(idir) * shv_hybrid(0, 0)) * grad_u0(idir);
@@ -858,13 +891,13 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr)
       F_0i_shear(idir) = (-shv(idir+1,0)
                     -tau_pi*F_i0_D(idir)
                     -delta_pipi*F_i0_dd(idir)
-                    -a*2.*tau_pi*F_i0_domega(idir) 
+                    -a*2.*tau_pi*F_i0_domega(idir)
                     -a*tau_pipi*F_i0_dsigma(idir)
                     +(2.*eta_pi+a*lambda_piPi*bulk)*F_i0_sigma(idir)
                     +a*phi6*bulk*shv(idir+1,0)
                     +a*phi7*(milne::contract(shv, shear0mu_aux, milne::SecondIndex())(idir+1)
                     +gamma*u(idir)*milne::contract(shv_cov,shv)/3.))/(tau_pi*gamma);
-      //stores the results 
+      //stores the results
       device_hydro_vector.access(is, ia, hydro_info::F_0i_shear, idir) = F_0i_shear(idir);
       for(int jdir=0; jdir<D; ++jdir){
         M_0i_shear(idir,jdir) = (-tau_pi*M_i0_D(idir,jdir)
@@ -881,19 +914,19 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr)
         R_0i_shear(idir,icharge) = 0.0;
         device_hydro_space_matrix.access(is, ia, hydro_info::R_0i_shear, idir, icharge) = R_0i_shear(idir,icharge);
       }
-    }    
-  
+    }
+
     //calculate the aux MRFs that will be used in the evolution of the shear tensor
     for(int idir=0; idir<2; ++idir){
       for(int jdir=idir; jdir<3; ++jdir){
         F_D(idir,jdir) = gamma*geometric_factor*(fixed_size_u(idir)*shv_hybrid(jdir+1,0)
                   +fixed_size_u(jdir)*shv_hybrid(idir+1,0));
-                
+
         F_sigma(idir,jdir) = contra_grad_uj_3d(idir,jdir)/2. + contra_grad_uj_3d(jdir,idir)/2.
-                  +fixed_size_u(idir)*fixed_size_u(jdir)*(geometric_factor+gamma/t+gamma*divV)/3.;         
+                  +fixed_size_u(idir)*fixed_size_u(jdir)*(geometric_factor+gamma/t+gamma*divV)/3.;
         F_delta(idir,jdir) = shv(idir+1,jdir+1)*(geometric_factor+gamma/t+gamma*divV);
         F_domega(idir,jdir) = 0.0;
-        F_dsigma(idir,jdir) = 0.0;                
+        F_dsigma(idir,jdir) = 0.0;
 
         for(int kdir=0; kdir<D; ++kdir){
           M_D(idir,jdir,kdir) = gamma*(fixed_size_u(idir)*shv_hybrid(jdir+1,kdir+1)
@@ -919,26 +952,26 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr)
       //diagonal j=k terms
       for(int jdir = idir; jdir<D; ++jdir){
         //j=k , since k<D , we only loop until j<D
-        M_sigma(idir,jdir,jdir) += -gamma*fixed_size_u(idir)/2.; 
+        M_sigma(idir,jdir,jdir) += -gamma*fixed_size_u(idir)/2.;
       }
       //diagonal i=j terms
       for(int kdir=0; kdir<D; ++kdir){
         //j=i
         M_sigma(idir,idir,kdir) += contra_metric_diag(idir+1)*fixed_size_u_cov(kdir)/(gamma*3.);
       }
-      
+
       //diagonal and metric terms for F
-      F_D(idir,2) += gamma*shv(3,idir+1)/t 
-                     +ueta*shv(0,idir+1)/t; 
+      F_D(idir,2) += gamma*shv(3,idir+1)/t
+                     +ueta*shv(0,idir+1)/t;
       F_sigma(idir,idir) += -contra_metric_diag(idir+1)*(geometric_factor+gamma/t+gamma*divV)/3.;
-      F_sigma(idir,2) += -fixed_size_u(idir)*ueta*ueta*t/2. 
+      F_sigma(idir,2) += -fixed_size_u(idir)*ueta*ueta*t/2.
                          -fixed_size_u(idir)*ueta*gamma/t;
 
     }
 
     for(int idir=0; idir<2; ++idir){
       for(int jdir=idir; jdir<3; ++jdir){
-        F_extensive_shear(idir,jdir) = (-shv(idir+1,jdir+1) 
+        F_extensive_shear(idir,jdir) = (-shv(idir+1,jdir+1)
                                 -tilde_delta*F_delta(idir,jdir)
                                 -tau_pi*F_D(idir,jdir)
                                 -a*2.*tau_pi*F_domega(idir,jdir)
@@ -954,7 +987,7 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr)
                                         -2.*a*M_domega(idir,jdir,kdir)
                                         -a*tau_pipi*M_dsigma(idir,jdir,kdir)
                                         +(2.*eta_pi+a*lambda_piPi*bulk)*M_sigma(idir,jdir,kdir))/(sigma*tau_pi*gamma);
-          //saves the results 
+          //saves the results
           int linear_index = jdir * D + kdir;
           device_hydro_shear_aux_matrix.access(is, ia, hydro_info::M_extensive_shear, idir, linear_index) = M_extensive_shear(idir,jdir,kdir);
           device_hydro_shear_aux_matrix.access(is, ia, hydro_info::M_sigma_tensor, idir, linear_index) = M_sigma(idir,jdir,kdir);
@@ -972,8 +1005,8 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr)
       for(int jdir=idir; jdir<3; ++jdir){
         device_hydro_shear_aux_vector.access(is, ia, hydro_info::F_extensive_shear, idir, jdir) = F_extensive_shear(idir,jdir);
         device_hydro_shear_aux_vector.access(is, ia, hydro_info::F_sigma_tensor, idir, jdir) = F_sigma(idir,jdir);
-      }              
-    }   
+      }
+    }
   };
   Cabana::simd_parallel_for(simd_policy, compute_MRF_shear, "compute_MRF_shear");
   Kokkos::fence();
@@ -984,7 +1017,7 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr)
 /// @details This function calculates the knudsen number
 /// for each particle in the system. The knudsen number
 /// is defined as for the shear tensor as
-/// Kn = tau_pi * abs(sigma_mu_nu sigma^{mu nu}) 
+/// Kn = tau_pi * abs(sigma_mu_nu sigma^{mu nu})
 /// @param sysPtr A shared pointer to the system state
 template <unsigned int D>
 void EoM_default<D>::compute_hydro_numbers(std::shared_ptr<SystemState<D>> sysPtr)
@@ -1058,16 +1091,16 @@ void EoM_default<D>::compute_hydro_numbers(std::shared_ptr<SystemState<D>> sysPt
     }
     //calculate the other components of the matrix
     //Symmetrizes space part
-    
+
     for( int i=1; i<4; i++ )
     for( int j=i+1; j<4; j++ )
       sigma_tensor(j,i) = sigma_tensor(i,j);
 
-    //pi^{0i} = -\pi^{ij}u_j/gamma 
+    //pi^{0i} = -\pi^{ij}u_j/gamma
     for(int idir=1; idir<D+1; ++idir){
       milne::Vector<double,D> sigma_tensor_i;
       for(int jdir=1; jdir<D+1; ++jdir) sigma_tensor_i(jdir-1) = sigma_tensor(idir,jdir);
-      sigma_tensor(0,idir) = -1.*milne::contract(u_cov,sigma_tensor_i)/gamma; 
+      sigma_tensor(0,idir) = -1.*milne::contract(u_cov,sigma_tensor_i)/gamma;
     }
 
     //Symmetrizes time part
@@ -1076,10 +1109,10 @@ void EoM_default<D>::compute_hydro_numbers(std::shared_ptr<SystemState<D>> sysPt
 
 
     //pi^00 = u_i u_j pi^{ij}/gamma^2
-    sigma_tensor(0,0) =( fixed_size_u_cov(0)*fixed_size_u_cov(0)*sigma_tensor(1,1) 
+    sigma_tensor(0,0) =( fixed_size_u_cov(0)*fixed_size_u_cov(0)*sigma_tensor(1,1)
                 + fixed_size_u_cov(1)*fixed_size_u_cov(1)*sigma_tensor(2,2)
-                + 2.*fixed_size_u_cov(1)*fixed_size_u_cov(0)*sigma_tensor(2,1) 
-                + 2.*fixed_size_u_cov(2)*fixed_size_u_cov(0)*sigma_tensor(3,1) 
+                + 2.*fixed_size_u_cov(1)*fixed_size_u_cov(0)*sigma_tensor(2,1)
+                + 2.*fixed_size_u_cov(2)*fixed_size_u_cov(0)*sigma_tensor(3,1)
                 + 2.*fixed_size_u_cov(2)*fixed_size_u_cov(1)*sigma_tensor(3,2)
                 - fixed_size_u_cov(2)*fixed_size_u_cov(2)*(sigma_tensor(1,1)+sigma_tensor(2,2))/t2
               )/(gamma*gamma-fixed_size_u_cov(2)*fixed_size_u_cov(2)/(t2));
@@ -1101,25 +1134,25 @@ void EoM_default<D>::compute_hydro_numbers(std::shared_ptr<SystemState<D>> sysPt
     double shv_magnitude = sqrt(abs(milne::contract(shv,shv_cov)));
     device_hydro_scalar.access(is, ia, hydro_info::inverse_reynolds_shear) = shv_magnitude/pressure;
     device_hydro_scalar.access(is, ia, hydro_info::inverse_reynolds_bulk) = abs(bulk)/pressure;
-    
+
   };
   Cabana::simd_parallel_for(simd_policy, caus, "compute_MRF_shear");
   Kokkos::fence();
 };
-    
 
 
 
-   
-   
-   
-   
-   
-   
-   
-   
+
+
+
+
+
+
+
+
+
 /// @brief Checks causality conditions in the hydrodynamic evolution.
-/// @details Computes the eigenvalues of the shear tensor \(\pi^{\mu\nu}\) and verifies 
+/// @details Computes the eigenvalues of the shear tensor \(\pi^{\mu\nu}\) and verifies
 /// necessary and sufficient conditions for causality using the most general formulation.
 /// Stores the results in device_hydro_scalar.
 /// @param sysPtr A shared pointer to the system state.
@@ -1147,15 +1180,15 @@ void EoM_default<D>::check_causality(std::shared_ptr<SystemState<D>> sysPtr)
         //m[12] =  t2*shv_hybrid(0, 3); m[13] =  t2*shv_hybrid(1,3); m[14] =  t2*shv_hybrid(2,3); m[15] =  t2*shv_hybrid(3, 3);
       	gsl_vector_complex *eval = gsl_vector_complex_alloc(4);
       	gsl_matrix_complex *evec = gsl_matrix_complex_alloc(4, 4);
-      
+
       	gsl_matrix_view mat = gsl_matrix_view_array(m, 4, 4);
       	gsl_eigen_nonsymmv_workspace *w = gsl_eigen_nonsymmv_alloc(4);
       	int success = gsl_eigen_nonsymmv (&mat.matrix, eval, evec, w);
       	gsl_eigen_nonsymmv_free(w);
-      
+
       	// sort by magnitude first
       	gsl_eigen_nonsymmv_sort(eval, evec, GSL_EIGEN_SORT_ABS_ASC);
-      
+
       	// check eigensystem
       	/*if (true)
       	for (int i = 0; i < 4; i++)
@@ -1164,7 +1197,7 @@ void EoM_default<D>::check_causality(std::shared_ptr<SystemState<D>> sysPtr)
                  = gsl_vector_complex_get (eval, i);
               gsl_vector_complex_view evec_i
                  = gsl_matrix_complex_column (evec, i);
-      
+
               printf ("eigenvalue = %g + %gi\n",
                       GSL_REAL(eval_i), GSL_IMAG(eval_i));
               printf ("eigenvector = \n");
@@ -1175,56 +1208,56 @@ void EoM_default<D>::check_causality(std::shared_ptr<SystemState<D>> sysPtr)
                   printf("%g + %gi\n", GSL_REAL(z), GSL_IMAG(z));
                 }
             }*/
-         
-         
-         
+
+
+
       	for ( int elem = 0; elem < 4; elem++ )
       		if ( abs(GSL_IMAG(gsl_vector_complex_get(eval, elem)))
       				> 0.01*abs(GSL_REAL(gsl_vector_complex_get(eval, elem))) )
       		{
       			return false;
       		}
-      
+
       	Lambda_0 = GSL_REAL(gsl_vector_complex_get(eval, 0));
       	double ratio = abs(Lambda_0 / (abs(GSL_REAL(gsl_vector_complex_get(eval, 3)))+eps));
-      
+
       	/*cout << "Check #1 here: "
       		<< GSL_REAL(gsl_vector_complex_get(eval, 0)) << "   "
       		<< GSL_REAL(gsl_vector_complex_get(eval, 1)) << "   "
       		<< GSL_REAL(gsl_vector_complex_get(eval, 2)) << "   "
       		<< GSL_REAL(gsl_vector_complex_get(eval, 3)) << endl;*/
-      
+
       	// sort by value next
       	gsl_eigen_nonsymmv_sort(eval, evec, GSL_EIGEN_SORT_VAL_ASC);
-      
+
       	/*cout << "Check #2 here: "
       		<< GSL_REAL(gsl_vector_complex_get(eval, 0)) << "   "
       		<< GSL_REAL(gsl_vector_complex_get(eval, 1)) << "   "
       		<< GSL_REAL(gsl_vector_complex_get(eval, 2)) << "   "
       		<< GSL_REAL(gsl_vector_complex_get(eval, 3)) << endl;*/
-      
+
       	double tmp0 = GSL_REAL(gsl_vector_complex_get(eval, 0));
       	double tmp1 = GSL_REAL(gsl_vector_complex_get(eval, 1));
       	double tmp2 = GSL_REAL(gsl_vector_complex_get(eval, 2));
       	double tmp3 = GSL_REAL(gsl_vector_complex_get(eval, 3));
-      
-      
+
+
       	// sort eval by values
       	//Lambda_0 = 0.0;
       	Lambda_1 = tmp0;
       	Lambda_2 = ( abs(tmp1) > abs(tmp2) ) ? tmp1 : tmp2;
       	Lambda_3 = tmp3;
-      
+
       	if ( ratio > 0.01 )
       	{
       		success++;
       	}
       	//else
       	//	cerr << "Found zero eigenvalue with ratio = " << ratio << endl;
-      
+
       	gsl_vector_complex_free(eval);
       	gsl_matrix_complex_free(evec);
-      
+
       	//return ( ( success == 0 ) and ( ratio <= epsilon ) );
       	return ( success == 0 );
     };
@@ -1232,7 +1265,7 @@ void EoM_default<D>::check_causality(std::shared_ptr<SystemState<D>> sysPtr)
 
     auto causality_check = KOKKOS_LAMBDA(const int is, const int ia)
     {
-        double e, p, Pi, eta, zeta, tau_pi, tau_Pi, delta_PiPi, lambda_Pipi, delta_pipi, lambda_piPi, cs2, 
+        double e, p, Pi, eta, zeta, tau_pi, tau_Pi, delta_PiPi, lambda_Pipi, delta_pipi, lambda_piPi, cs2,
                tau_pipi;
         double Lambda_0, Lambda_1, Lambda_2, Lambda_3;
 
@@ -1260,7 +1293,7 @@ void EoM_default<D>::check_causality(std::shared_ptr<SystemState<D>> sysPtr)
         }
         milne::Matrix<double, 4, 4> shv_hybrid = shv;
         shv_hybrid.make_covariant(0, t2);
-        //shv_mu^nu 
+        //shv_mu^nu
 
         int causality_result;
 
@@ -1335,14 +1368,14 @@ void EoM_default<D>::check_causality(std::shared_ptr<SystemState<D>> sysPtr)
         if (!necessary_conditions)
         {
           causality_result = -1; //not causal
-            
+
         }
         else{
             // Condition 5a
             bool condition5a =
-            (e + p + Pi - fabs(Lambda_1)) - (1.0 / (2. * tau_pi)) * (2. * eta + lambda_piPi * Pi) - 
+            (e + p + Pi - fabs(Lambda_1)) - (1.0 / (2. * tau_pi)) * (2. * eta + lambda_piPi * Pi) -
             (tau_pipi / (2. * tau_pi)) * Lambda_3 >= 0;
-            
+
             bool condition5b =
             (2. * eta + lambda_piPi * Pi) - tau_pipi * fabs(Lambda_1) > 0;
             bool condition5c =
@@ -1352,38 +1385,38 @@ void EoM_default<D>::check_causality(std::shared_ptr<SystemState<D>> sysPtr)
             // Condition 5e
             bool condition5e =
             (1.0 / (3. * tau_pi)) * (4. * eta + 2. * lambda_piPi * Pi + (3. * delta_pipi + tau_pipi) * Lambda_3) +
-            (zeta + delta_PiPi * Pi + lambda_Pipi * Lambda_3) / tau_Pi + 
-            fabs(Lambda_1) + Lambda_3 * cs2 + 
-            ( (12. * delta_pipi - tau_pipi) / (12. * tau_pi) ) * 
-            ( (lambda_Pipi / tau_Pi + cs2 - tau_pipi / (12. * tau_pi)) * pow(Lambda_3 + fabs(Lambda_1), 2.) ) / 
-            ( (e + p + Pi - fabs(Lambda_1)) - (1.0 / (2. * tau_pi)) * (2. * eta + lambda_piPi * Pi) - (tau_pipi / (2. * tau_pi)) * Lambda_3 ) 
-            <= (e + p + Pi) * (1. - cs2); 
+            (zeta + delta_PiPi * Pi + lambda_Pipi * Lambda_3) / tau_Pi +
+            fabs(Lambda_1) + Lambda_3 * cs2 +
+            ( (12. * delta_pipi - tau_pipi) / (12. * tau_pi) ) *
+            ( (lambda_Pipi / tau_Pi + cs2 - tau_pipi / (12. * tau_pi)) * pow(Lambda_3 + fabs(Lambda_1), 2.) ) /
+            ( (e + p + Pi - fabs(Lambda_1)) - (1.0 / (2. * tau_pi)) * (2. * eta + lambda_piPi * Pi) - (tau_pipi / (2. * tau_pi)) * Lambda_3 )
+            <= (e + p + Pi) * (1. - cs2);
 
             // Condition 5f
             bool condition5f =
-            (1.0 / (6. * tau_pi)) * (2. * eta + lambda_piPi * Pi + (tau_pipi - 6. * delta_pipi) * fabs(Lambda_1)) + 
-            (zeta + delta_PiPi * Pi - lambda_Pipi * fabs(Lambda_1)) / tau_Pi + 
+            (1.0 / (6. * tau_pi)) * (2. * eta + lambda_piPi * Pi + (tau_pipi - 6. * delta_pipi) * fabs(Lambda_1)) +
+            (zeta + delta_PiPi * Pi - lambda_Pipi * fabs(Lambda_1)) / tau_Pi +
             (e + p + Pi - fabs(Lambda_1)) * cs2 >= 0;
 
             // Condition 5g
             bool condition5g =
-            1. >= ( (12. * delta_pipi - tau_pipi) / (12. * tau_pi) ) * 
+            1. >= ( (12. * delta_pipi - tau_pipi) / (12. * tau_pi) ) *
             ( (lambda_Pipi / tau_Pi + cs2 - tau_pipi / (12. * tau_pi)) * pow(Lambda_3 + fabs(Lambda_1), 2.) ) /
             pow( (1.0 / (2. * tau_pi)) * (2 * eta + lambda_piPi * Pi) - (tau_pipi / (2. * tau_pi)) * fabs(Lambda_1), 2. );
-            
+
 
             bool condition5h =
-            (1.0 / (3. * tau_pi)) * (4. * eta + 2. * lambda_piPi * Pi - (3 * delta_pipi + tau_pipi) * fabs(Lambda_1)) + 
-            (zeta + delta_PiPi * Pi - lambda_Pipi * fabs(Lambda_1)) / tau_Pi + 
-            (e + p + Pi - fabs(Lambda_1)) * cs2 >= 
-            ( (e + p + Pi + Lambda_2) * (e + p + Pi + Lambda_3) ) / 
-            ( 3. * (e + p + Pi - fabs(Lambda_1)) ) * 
+            (1.0 / (3. * tau_pi)) * (4. * eta + 2. * lambda_piPi * Pi - (3 * delta_pipi + tau_pipi) * fabs(Lambda_1)) +
+            (zeta + delta_PiPi * Pi - lambda_Pipi * fabs(Lambda_1)) / tau_Pi +
+            (e + p + Pi - fabs(Lambda_1)) * cs2 >=
+            ( (e + p + Pi + Lambda_2) * (e + p + Pi + Lambda_3) ) /
+            ( 3. * (e + p + Pi - fabs(Lambda_1)) ) *
             ( 1. + 2. * ( (1.0 / (2. * tau_pi)) * (2. * eta + lambda_piPi * Pi) + (tau_pipi / (2. * tau_pi)) * Lambda_3 ) /
             ( e + p + Pi - fabs(Lambda_1) ) );
 
             //condition5h = true; // Temporarily set to true for testing
 
-            bool sufficient_conditions = 
+            bool sufficient_conditions =
                 (condition5a && condition5b && condition5c && condition5d && condition5e && condition5f && condition5g && condition5h);
             causality_result = sufficient_conditions ? 1 : 0; // 1: Causal, 0: Not determined
             //std::cout << "Causality result for particle " << ia << ": " << causality_result << std::endl;
@@ -1408,7 +1441,3 @@ void EoM_default<D>::check_causality(std::shared_ptr<SystemState<D>> sysPtr)
     Cabana::simd_parallel_for(simd_policy, causality_check, "check_causality_conditions");
     Kokkos::fence();
 }
-
-
-
-       

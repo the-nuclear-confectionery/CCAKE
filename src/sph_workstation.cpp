@@ -241,6 +241,7 @@ void SPHWorkstation<D,TEOM>::initial_smoothing()
     }
   }
   #endif*/
+  std::cout << "===========================================================================\n";
   std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
   std::cout << systemPtr->particles[0] << std::endl;
   systemPtr->print_neighbors(0);
@@ -248,6 +249,7 @@ void SPHWorkstation<D,TEOM>::initial_smoothing()
   // smooth fields over particles
   smooth_all_particle_fields(t_squared);
 
+  std::cout << "===========================================================================\n";
   std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
   std::cout << systemPtr->particles[0] << std::endl;
   systemPtr->print_neighbors(0);
@@ -335,6 +337,7 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
   std::fname = "kernel_" + std::to_string(hT) + ".dat";
   outfile.open(fname);*/
 
+  std::cout << "===========================================================================\n";
   std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
   std::cout << systemPtr->particles[0] << std::endl;
   systemPtr->print_neighbors(0);
@@ -354,6 +357,7 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
   Cabana::simd_parallel_for( simd_policy, reset_fields, "reset_fields" );
   Kokkos::fence();
 
+  std::cout << "===========================================================================\n";
   std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
   std::cout << systemPtr->particles[0] << std::endl;
   systemPtr->print_neighbors(0);
@@ -372,12 +376,12 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
     /*outfile << kern << distance << endl;
     outfile.close();*/
 
-if (iparticle == 0 || jparticle == 0)
-{
-  std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
-  std::cout << systemPtr->particles[0] << std::endl;
-  systemPtr->print_neighbors(0);
-}
+// if (iparticle == 0 || jparticle == 0)
+// {
+//   std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
+//   std::cout << systemPtr->particles[0] << std::endl;
+//   systemPtr->print_neighbors(0);
+// }
 
     //Update sigma_lab (reference density)
     Kokkos::atomic_add( &device_hydro_scalar(iparticle, ccake::hydro_info::sigma_lab), device_sph_mass(jparticle, ccake::densities_info::s)*kern);
@@ -1069,6 +1073,7 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives()
   if (fail) exit(8);
   #endif
 
+  std::cout << "===========================================================================\n";
   std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
   std::cout << systemPtr->particles[0] << std::endl;
   systemPtr->print_neighbors(0);
@@ -1076,6 +1081,7 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives()
   // reset nearest neighbors
   systemPtr->reset_neighbour_list();
 
+  std::cout << "===========================================================================\n";
   std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
   std::cout << systemPtr->particles[0] << std::endl;
   systemPtr->print_neighbors(0);
@@ -1083,6 +1089,7 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives()
   // calcuate gamma and velocities
   calculate_gamma_and_velocities();
 
+  std::cout << "===========================================================================\n";
   std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
   std::cout << systemPtr->particles[0] << std::endl;
   systemPtr->print_neighbors(0);
@@ -1090,6 +1097,7 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives()
   // smooth all particle fields - s, rhoB, rhoQ and rhoS and sigma
   smooth_all_particle_fields(t2);
 
+  std::cout << "===========================================================================\n";
   std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
   std::cout << systemPtr->particles[0] << std::endl;
   systemPtr->print_neighbors(0);
@@ -1097,6 +1105,7 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives()
     // Update particle thermodynamic properties
   update_all_particle_thermodynamics();
 
+  std::cout << "===========================================================================\n";
   std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
   std::cout << systemPtr->particles[0] << std::endl;
   systemPtr->print_neighbors(0);
@@ -1105,6 +1114,7 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives()
   // with all essential symmetries
   reset_pi_tensor(t2);
 
+  std::cout << "===========================================================================\n";
   std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
   std::cout << systemPtr->particles[0] << std::endl;
   systemPtr->print_neighbors(0);
@@ -1114,6 +1124,7 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives()
     // update viscosities for all particles
   update_all_particle_viscosities();
 
+  std::cout << "===========================================================================\n";
   std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
   std::cout << systemPtr->particles[0] << std::endl;
   systemPtr->print_neighbors(0);
@@ -1121,6 +1132,7 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives()
     //Computes gradients to obtain dsigma_lab/dt
   smooth_all_particle_gradients(t2);
 
+  std::cout << "===========================================================================\n";
   std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
   std::cout << systemPtr->particles[0] << std::endl;
   systemPtr->print_neighbors(0);
@@ -1128,6 +1140,7 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives()
     //calculate time derivatives needed for equations of motion
   TEOM<D>::evaluate_time_derivatives( systemPtr, settingsPtr );
 
+  std::cout << "===========================================================================\n";
   std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
   std::cout << systemPtr->particles[0] << std::endl;
   systemPtr->print_neighbors(0);
