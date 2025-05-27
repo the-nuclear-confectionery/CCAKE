@@ -579,6 +579,18 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
     //if(d_dt_extensive_s > 1e-10){
     //  std::cout << "d_dt_extensive_s: " << d_dt_extensive_s << std::endl;
     //}
+if (std::isnan(d_dt_extensive_s))
+{
+  std::cout << "===========================================================================\n";
+  std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
+  std::cout << milne::contract(M_extensive_entropy,du_dt) << std::endl;
+  std::cout << device_hydro_scalar.access(is, ia, hydro_info::F_extensive_entropy) << std::endl;
+  std::cout << milne::contract(R_extensive_entropy,dN_dt) << std::endl;
+
+  std::cout << "Crashing!!\n";
+  exit(1);
+}
+
 	  //time derivative of the extensive bulk pressure
     double d_extensive_bulk_dt = milne::contract(M_extensive_bulk,du_dt)
                     +device_hydro_scalar.access(is, ia, hydro_info::F_extensive_bulk)
@@ -594,6 +606,17 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
     //theta equation
     double theta = -1.*milne::contract(u_cov,du_dt)/gamma + gamma*divV + gamma/t + geometric_factor;
 
+if (std::isnan(d_dt_extensive_s))
+{
+  std::cout << "===========================================================================\n";
+  std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
+  std::cout << systemPtr->particles[0] << std::endl;
+  systemPtr->print_neighbors(0);
+
+  std::cout << "Should have already crashed!!\n";
+  exit(1);
+}
+
     //stores the results
     device_hydro_scalar.access(is, ia, hydro_info::d_extensive_bulk_dt) = d_extensive_bulk_dt;
     device_hydro_scalar.access(is, ia, hydro_info::theta) = theta;
@@ -603,6 +626,16 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
     device_d_dt_extensive.access(is, ia, densities_info::rhoS) = dN_dt(1);
     device_d_dt_extensive.access(is, ia, densities_info::rhoQ) = dN_dt(2);
 
+if (std::isnan(d_dt_extensive_s))
+{
+  std::cout << "===========================================================================\n";
+  std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
+  std::cout << systemPtr->particles[0] << std::endl;
+  systemPtr->print_neighbors(0);
+
+  std::cout << "Should have already crashed!!\n";
+  exit(1);
+}
     //calculate the extensive shear tensor derivative
     if(using_shear){
       milne::Matrix<double,2,3> d_extensive_shv_dt;

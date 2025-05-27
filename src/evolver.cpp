@@ -354,16 +354,16 @@ void Evolver<D>::step_rk(double dt, double t0, std::function<void(void)> time_de
     //Cache derivatives
     double d_extensive_bulk_dt = device_hydro_scalar.access(is,ia,hydro_info::d_extensive_bulk_dt);
     double d_dt_extensive_s = device_d_dt_extensive.access(is, ia, densities_info::s);
-if (std::isnan(d_dt_extensive_s))
-{
-  std::cout << "===========================================================================\n";
-  std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
-  std::cout << systemPtr->particles[0] << std::endl;
-  systemPtr->print_neighbors(0);
-
-  std::cout << "Should have already crashed!!\n";
-  exit(1);
-}
+// if (std::isnan(d_dt_extensive_s))
+// {
+//   std::cout << "===========================================================================\n";
+//   std::cout << "Particle #0 at " << __FUNCTION__ << "::" << __LINE__ << ":\n";
+//   std::cout << systemPtr->particles[0] << std::endl;
+//   systemPtr->print_neighbors(0);
+//
+//   std::cout << "Should have already crashed!!\n";
+//   exit(1);
+// }
     double dEz_dt = device_contribution_to_total_dEz.access(is,ia);
     //std::cout << "dEz_dt = " << dEz_dt << std::endl;
     double d_dt_extensive_rhoB = device_d_dt_extensive.access(is, ia, densities_info::rhoB);
