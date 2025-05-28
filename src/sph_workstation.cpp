@@ -339,13 +339,34 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
 
   auto smooth_fields = KOKKOS_LAMBDA(const int iparticle, const int jparticle ){
 
-    double r1[D] ,r2[D]; // cache for positions of particles 1 and 2
-    for (int idir = 0; idir < D; ++idir){
-      r1[idir] = device_position(iparticle,idir);
-      r2[idir] = device_position(jparticle,idir);
+    double r1[D] ,r2[D],dr[D]; // cache for positions of particles 1 and 2
+    const double box_half = settingsPtr->etamin;
+    const double box_size = 2.0 * box_half;  // = 20.0
+    for (int idir = 0; idir < D; ++idir) {
+        r1[idir] = device_position(iparticle, idir);
+        r2[idir] = device_position(jparticle, idir);
+
+        // Compute displacement with PBC for box 
+        dr[idir] = r2[idir] - r1[idir];
+        if (dr[idir] > box_half) {
+            dr[idir] -= box_size;
+        } else if (dr[idir] < - box_half) {
+            dr[idir] += box_size;
+        }
     }
-    double distance = SPHkernel<D>::distance(r1,r2);
-    double kern = SPHkernel<D>::kernel(distance,hT);
+    
+    // Compute Euclidean distance using corrected displacement
+    double distance_per = 0.0;
+    for (int idir = 0; idir < D; ++idir) {
+        double component = dr[idir] * dr[idir];
+        //printf("idir %d: dr=%.6f, component=%.6f\n", idir, dr[idir], component);
+        distance_per += component;
+    }
+    //printf("distance squared before sqrt = %.6f\n", distance_per);
+    distance_per = std::sqrt(distance_per);
+    //printf("distance after sqrt = %.6f\n", distance_per);
+    //double distance = SPHkernel<D>::distance(r1,r2);
+    double kern = SPHkernel<D>::kernel(distance_per,hT);
 
     //outputting kernel function to the outfile "kernel_{hT}.dat"
     /*outfile << kern << distance << endl;
@@ -420,19 +441,50 @@ void SPHWorkstation<D, TEOM>::calculate_intial_sigma(double t)
   auto smooth_fields = KOKKOS_LAMBDA(const int iparticle, const int jparticle ){
 
     double r1[D] ,r2[D]; // cache for positions of particles 1 and 2
+    double dr[D];  // displacement vector with PBC
     for (int idir = 0; idir < D; ++idir){
       r1[idir] = device_position(iparticle,idir);
       r2[idir] = device_position(jparticle,idir);
     }
-    double distance = SPHkernel<D>::distance(r1,r2);
-    double kern = SPHkernel<D>::kernel(distance,hT);
+    const double box_half = settingsPtr->etamin;
+    const double box_size = 2.0 * box_half;  // = 2x etamin
 
+    for (int idir = 0; idir < D; ++idir) {
+        r1[idir] = device_position(iparticle, idir);
+        r2[idir] = device_position(jparticle, idir);
+
+        // Compute displacement with PBC for box in [-etamin, etamin]
+        dr[idir] = r2[idir] - r1[idir];
+        if (dr[idir] > box_half) {
+            dr[idir] -= box_size;
+        } else if (dr[idir] < - box_half) {
+            dr[idir] += box_size;
+        }
+    }
+
+    // Compute Euclidean distance using corrected displacement
+    double distance_per = 0.0;
+    for (int idir = 0; idir < D; ++idir) {
+        double component = dr[idir] * dr[idir];
+        //printf("idir %d: dr=%.6f, component=%.6f\n", idir, dr[idir], component);
+        distance_per += component;
+    }
+    //printf("distance squared before sqrt = %.6f\n", distance_per);
+    distance_per = std::sqrt(distance_per);
+    //printf("distance after sqrt = %.6f\n", distance_per);
+    //double distance = SPHkernel<D>::distance(r1,r2);
+    double kern = SPHkernel<D>::kernel(distance_per,hT);
+    //printf("distance after sqrt = %.6f\n", distance_per);
     //outputting kernel function to the outfile "kernel_{hT}.dat"
     /*outfile << kern << distance << endl;
     outfile.close();*/
 
     //Update sigma_lab (reference density)
+    //printf(" r1 = %.2f, r2 = %.2f, dr = %.2f, dist = %.6f\n", r1[1], r2[1], dr[1], distance_per);
     Kokkos::atomic_add( &device_hydro_scalar(iparticle, ccake::hydro_info::sigma_lab), device_sph_mass(jparticle, ccake::densities_info::s)*kern);
+    
+
+    
   };
 
   auto range_policy = Kokkos::RangePolicy<ExecutionSpace>(0, systemPtr->cabana_particles.size());

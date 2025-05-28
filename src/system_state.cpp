@@ -470,14 +470,26 @@ void SystemState<D>::reset_neighbour_list(){
     max_pos[idir] = -min_pos[idir];
 
   CREATE_VIEW(device_, cabana_particles);
+  
+  //box_length = Kokkos::View<double[3], Kokkos::DefaultExecutionSpace>("box_length");
+  //auto box_length_host = Kokkos::create_mirror_view(box_length);
+
+  // Compute box lengths
+  //for (int i = 0; i < 3; ++i)
+    //  box_length_host(i) = max_pos[i] - min_pos[i];
+
+  //Kokkos::deep_copy(box_length, box_length_host);
+  
   //Enabling change the order of the particles in the AoSoA. This may be a problem.
   //Cabana::permute( cell_list, cabana_particles ); 
   double cell_ratio = 1.; //neighbour to cell_space ratio
+  //bool periodic[3] = {true, true, true}; // <- Periodic in all directions
   neighbour_list = ListType (  device_position, 0, device_position.size(),
                                           neighborhood_radius, cell_ratio, min_pos, max_pos
                            );
   Kokkos::fence();
 
+    
   //Update the number of neighbours
   ///TODO: Requires UVM, which is not good for performance
   /// Maybe this paralle for fix it?

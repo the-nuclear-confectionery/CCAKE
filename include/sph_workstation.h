@@ -72,7 +72,7 @@ private:
 
   transport_coefficients::parameters transp_coeff_params; ///< Transport coefficients parameters
 
-
+  //Kokkos::View<double[3], Kokkos::DefaultExecutionSpace> box_length;
   void add_buffer(double default_e);
 public:
 
@@ -140,7 +140,6 @@ public:
   void calculate_extensive_shv();
   bool continue_evolution();
   void advance_timestep( double dt, int rk_order );
-  
 
 };
 
