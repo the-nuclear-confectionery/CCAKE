@@ -32,6 +32,8 @@ class Settings
     bool using_diffusion              = false;  //TODO: Whatever to use diffusion or
                                                 // not should be decided by the
                                                 // eta mode, not here
+    bool using_vorticity             = false;  // whether to use vorticity in the shear
+                                                // relaxation time calculation
     bool initializing_with_full_Tmunu = false;  // whether to initialize Pi from
                                                 // tmunu_trace - p or not
     //==========================================================================
@@ -134,7 +136,15 @@ class Settings
     string etaMode              = "";    ///< Choose parametrization for eta/s
     double constant_eta_over_s  = 0.0;
     string shearRelaxMode       = "";    ///< Choose parametrization for relaxation time of shear mode
-
+    bool use_vorticity          = false; ///< Whether to use vorticity in the shear
+                                          ///  relaxation time calculation
+    //  - delta pi/pi quantities
+    string delta_pipi_mode      = "";    ///< Choose parametrization for delta pi/pi
+    string tau_pipi_mode        = "";    ///< Choose parametrization for tau pi/pi
+    string lambda_piPi_mode     = "";    ///< Choose parametrization for lambda pi/pi
+    string phi6_mode            = "";    ///< Choose parametrization for phi6/pi  
+    string phi7_mode            = "";    ///< Choose parametrization for phi7/pi
+    bool input_initial_shear    = false;
     //  - bulk quantities
     string zetaMode             = "";    ///< Choose parametrization for zeta/s
     double constant_zeta_over_s = 0.0;
@@ -146,13 +156,19 @@ class Settings
     bool modulate_zeta_with_tanh = true;   // forces zeta/s to decrease
                                            // smoothly to zero below
                                            // transition temperature
+    //  - other transport coefficients
+    string delta_PiPi_mode    = "";   ///< Choose parametrization for delta Pi/Pi
+    string lambda_Pipi_mode   = "";   ///< Choose parametrization for lambda Pi/Pi
+    string phi1_mode          = "";   ///< Choose parametrization for phi1/Pi
+    string phi3_mode          = "";   ///< Choose parametrization for phi3/Pi
     // -- diffusion quantities
     string diffusionMode        = "";   ///< Choose parametrization for diffusion
-    std::array<std::array<double, 3>, 3> kappa_matrix = {{{0.0, 0.0, 0.0},
+    std::array<std::array<double, 3>, 3> constant_kappa_over_T2 = {{{0.0, 0.0, 0.0},
                                                           {0.0, 0.0, 0.0},
                                                           {0.0, 0.0, 0.0}}};
     bool input_initial_diffusion = false; ///< Whether to use the initial diffusion
                                           ///  coefficients from the input file
+    string diffusionRelaxMode = "default"; ///< Choose parametrization for diffusion relaxation time
 
 
     // make sure that all chosen settings make reasonable sense
@@ -172,6 +188,12 @@ class Settings
         std::cout << "using_diffusion: " << using_diffusion << std::endl;}
       else
         using_diffusion = false;
+      if ( use_vorticity == true){
+        using_vorticity = true;
+      }
+      else
+        using_vorticity = false;
+
       return;
     }
 

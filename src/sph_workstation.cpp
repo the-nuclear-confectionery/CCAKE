@@ -1096,9 +1096,10 @@ template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D, TEOM>::set_bulk_Pi()
 {
   auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
+  double t0 = settingsPtr->t0;
+  CREATE_VIEW( device_, systemPtr->cabana_particles);
   if ( settingsPtr->bulk_from_trace ){
-    double t0 = settingsPtr->t0;
-    CREATE_VIEW( device_, systemPtr->cabana_particles);
+
 
     auto set_bulk = KOKKOS_LAMBDA( const int is, const int ia )
     {
@@ -1114,6 +1115,16 @@ void SPHWorkstation<D, TEOM>::set_bulk_Pi()
 
     };
     Cabana::simd_parallel_for( simd_policy, set_bulk, "set_bulk_Pi_kernel");
+    Kokkos::fence();
+  }
+  else {
+    // if not using trace, set bulk to zero
+    auto set_zero_bulk = KOKKOS_LAMBDA( const int is, const int ia )
+    {
+      device_hydro_scalar.access(is, ia, ccake::hydro_info::extensive_bulk) = 0.0;
+      device_hydro_scalar.access(is, ia, ccake::hydro_info::bulk) = 0.0;
+    };
+    Cabana::simd_parallel_for( simd_policy, set_zero_bulk, "set_zero_bulk_Pi_kernel");
     Kokkos::fence();
   }
 }
@@ -1139,12 +1150,31 @@ void SPHWorkstation<D, TEOM>::calculate_extensive_shv()
     {
       double shv = device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::shv, idir+1, jdir+1);
       //shv = 0.;
-      device_hydro_shear_aux_vector.access(is, ia, ccake::hydro_info::extensive_shv, idir, jdir) = shv /sigma;
+      if(settingsPtr->input_initial_shear){
+        device_hydro_shear_aux_vector.access(is, ia, ccake::hydro_info::extensive_shv, idir, jdir) = shv /sigma;
+      }
+      else{
+        device_hydro_shear_aux_vector.access(is, ia, ccake::hydro_info::extensive_shv, idir, jdir) = 0.0;
+      }
       //std::cout << "shv = " << shv << "  extensive_shv = " << device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::extensive_shv, idir, jdir) << std::endl;
     }
   };
   Cabana::simd_parallel_for( simd_policy, calculate_shear, "calculate_extensive_shear_kernel");
   Kokkos::fence();
+  //set regular shear to zero if input_initial_shear is false
+  if (!settingsPtr->input_initial_shear){
+    auto set_zero_shear = KOKKOS_LAMBDA( const int is, const int ia )
+    {
+      for (int idir=0; idir<4; ++idir)
+      for (int jdir=0; jdir<4; ++jdir)
+      {
+        device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::shv, idir, jdir) = 0.0;
+      }
+    };
+    Cabana::simd_parallel_for( simd_policy, set_zero_shear, "set_zero_shear_kernel");
+    Kokkos::fence();
+  }
+
 }
 
 
@@ -1329,25 +1359,24 @@ void SPHWorkstation<D, TEOM>::update_all_particle_viscosities()
       = tc::zeta(thermo, this->transp_coeff_params);
     device_hydro_scalar.access(is, ia, ccake::hydro_info::tau_Pi)
       = tc::tau_Pi(thermo, this->transp_coeff_params);
-    ///@todo: Read the coefficients instead of hardcoding them
     device_hydro_scalar.access(is, ia, ccake::hydro_info::delta_PiPi)
-      = tc::tau_Pi(thermo, this->transp_coeff_params);
+      = tc::delta_PiPi(thermo, this->transp_coeff_params);
     device_hydro_scalar.access(is, ia, ccake::hydro_info::delta_pipi)
-      = 4.*tc::tau_pi(thermo, this->transp_coeff_params)/3.;
+      = tc::delta_pipi(thermo, this->transp_coeff_params);
     device_hydro_scalar.access(is, ia, ccake::hydro_info::lambda_piPi)
-      = 0.;
+      = tc::lambda_piPi(thermo, this->transp_coeff_params);
     device_hydro_scalar.access(is, ia, ccake::hydro_info::lambda_Pipi)
-      = 0.;
+      = tc::lambda_Pipi(thermo, this->transp_coeff_params);
     device_hydro_scalar.access(is, ia, ccake::hydro_info::phi1)
-      = 0.;
+      = tc::phi1(thermo, this->transp_coeff_params);
     device_hydro_scalar.access(is, ia, ccake::hydro_info::phi3)
-      = 0.;
+      = tc::phi3(thermo, this->transp_coeff_params);
     device_hydro_scalar.access(is, ia, ccake::hydro_info::phi6)
-      = 0.;
+      = tc::phi6(thermo, this->transp_coeff_params);
     device_hydro_scalar.access(is, ia, ccake::hydro_info::phi7)
-      = 0.;
+      = tc::phi7(thermo, this->transp_coeff_params);
     device_hydro_scalar.access(is, ia, ccake::hydro_info::tau_pipi)
-      = 0.;
+      = tc::tau_pipi(thermo, this->transp_coeff_params);
     //diffusion coefficient
     Matrix<double, 3, 3> kappa = tc::kappa(thermo, this->transp_coeff_params);
     Matrix<double, 3, 3> tauq = tc::tauq(thermo, this->transp_coeff_params);

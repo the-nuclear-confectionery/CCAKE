@@ -35,18 +35,31 @@ namespace ccake
     const std::string etaMode                 = "constant";
     const double      constant_eta_over_s     = 0.08;
     const std::string shearRelaxMode          = "default";
+    const bool        input_initial_shear = false;
+    const bool        use_vorticity        = false;
+    const std::string delta_pipi_mode         = "israel-stewart";
+    const std::string tau_pipi_mode          = "disabled";
+    const std::string lambda_piPi_mode      = "disabled";
+    const std::string phi6_mode             = "disabled";
+    const std::string phi7_mode             = "disabled";
     const std::string zetaMode                = "cs2_dependent";
     const double      constant_zeta_over_s    = 0.005;
     const double      cs2_dependent_zeta_A    = 1.67552;  // 8*pi/15
     const double      cs2_dependent_zeta_p    = 2.0;
     const std::string bulkRelaxMode           = "default";
     const bool        modulate_zeta_with_tanh = true;
+    const bool        delta_PiPi_mode       = "israel-stewart";
+    const bool        lambda_Pipi_mode     = "disabled";
+    const bool        phi1_mode          = "disabled";
+    const bool        phi3_mode          = "disabled";
     const std::string diffusionMode           = "disabled";
+    const std::string diffusionRelaxMode     = "default";
     const bool        input_initial_diffusion = false;
     const std::array<std::array<double, 3>, 3> 
-                              kappa_matrix = {0.0, 0.0, 0.0,
+                              constant_kappa_over_T2 = {0.0, 0.0, 0.0,
                                               0.0, 0.0, 0.0,
                                               0.0, 0.0, 0.0};
+    const std::string relaxation_mode = "default";
     const bool        print_conservation_status = true;
     const bool        calculate_observables        = false;
     const bool        hdf_evolution            = false;

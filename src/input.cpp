@@ -349,6 +349,58 @@ bool cc::Input::decode_settings(const YAML::Node& node){
       formatted_output::report("This is an optional parameter. Setting to default value.");
       settingsPtr->shearRelaxMode = cc::defaults::shearRelaxMode;
     }
+    try {
+      settingsPtr->use_vorticity = node["hydro"]["viscous_parameters"]["shear"]["use_vorticity"].as<bool>();
+    } catch (...) {
+      formatted_output::report("WARNING: Could not read viscous_parameters shear use_vorticity!");
+      formatted_output::report("This is an optional parameter. Setting to default value.");
+      settingsPtr->use_vorticity = cc::defaults::use_vorticity;
+    } 
+    try {
+      settingsPtr->delta_pipi_mode = node["hydro"]["viscous_parameters"]["shear"]["delta_pipi_mode"].as<std::string>();
+    } catch (...) {
+      formatted_output::report("WARNING: Could not read viscous_parameters shear delta_pipi_mode!");
+      formatted_output::report("This is an optional parameter. Setting to default value.");
+      settingsPtr->delta_pipi_mode = cc::defaults::delta_pipi_mode;
+    }
+    try {
+      settingsPtr->tau_pipi_mode = node["hydro"]["viscous_parameters"]["shear"]["tau_pipi_mode"].as<std::string>();
+    } catch (...) {
+      formatted_output::report("WARNING: Could not read viscous_parameters shear tau_pipi_mode!");
+      formatted_output::report("This is an optional parameter. Setting to default value.");
+      settingsPtr->tau_pipi_mode = cc::defaults::tau_pipi_mode;
+    }
+    try {
+      settingsPtr->lambda_piPi_mode = node["hydro"]["viscous_parameters"]["shear"]["lambda_piPi_mode"].as<std::string>();
+    } catch (...) {
+      formatted_output::report("WARNING: Could not read viscous_parameters shear lambda_piPi_mode!");
+      formatted_output::report("This is an optional parameter. Setting to default value.");
+      settingsPtr->lambda_piPi_mode = cc::defaults::lambda_piPi_mode;
+    }
+    try {
+      settingsPtr->phi6_mode = node["hydro"]["viscous_parameters"]["shear"]["phi6_mode"].as<std::string>();
+    } catch (...) {
+      formatted_output::report("WARNING: Could not read viscous_parameters shear phi6_mode!");
+      formatted_output::report("This is an optional parameter. Setting to default value.");
+      settingsPtr->phi6_mode = cc::defaults::phi6_mode;
+    }
+    try {
+      settingsPtr->phi7_mode = node["hydro"]["viscous_parameters"]["shear"]["phi7_mode"].as<std::string>();
+    } catch (...) {
+      formatted_output::report("WARNING: Could not read viscous_parameters shear phi7_mode!");
+      formatted_output::report("This is an optional parameter. Setting to default value.");
+      settingsPtr->phi7_mode = cc::defaults::phi7_mode;
+    }
+    try {
+      settingsPtr->input_initial_shear = node["hydro"]["viscous_parameters"]["shear"]["input_initial_shear"].as<bool>();
+    } catch (...) {
+      formatted_output::report("WARNING: Could not read viscous_parameters shear input_initial_shear!");
+      formatted_output::report("This is an optional parameter. Setting to default value.");
+      settingsPtr->input_initial_shear = cc::defaults::input_initial_shear;
+    }
+
+    //--------------------------------------------------------------------------
+
 
     //bulk subsubnode
     try {
@@ -409,6 +461,37 @@ bool cc::Input::decode_settings(const YAML::Node& node){
       formatted_output::report("This is an optional parameter. Setting to default value.");
       settingsPtr->modulate_zeta_with_tanh = cc::defaults::modulate_zeta_with_tanh;
     }
+    try {
+      settingsPtr->delta_PiPi_mode = node["hydro"]["viscous_parameters"]["bulk"]["delta_PiPi_mode"].as<std::string>();
+    } catch (...) {
+      formatted_output::report("WARNING: Could not read viscous_parameters bulk delta_PiPi_mode!");
+      formatted_output::report("This is an optional parameter. Setting to default value.");
+      settingsPtr->delta_PiPi_mode = cc::defaults::delta_PiPi_mode;
+    }
+    try {
+      settingsPtr->lambda_Pipi_mode = node["hydro"]["viscous_parameters"]["bulk"]["lambda_Pipi_mode"].as<std::string>();
+    } catch (...) {
+      formatted_output::report("WARNING: Could not read viscous_parameters bulk lambda_Pipi_mode!");
+      formatted_output::report("This is an optional parameter. Setting to default value.");
+      settingsPtr->lambda_Pipi_mode = cc::defaults::lambda_Pipi_mode;
+    }
+    try {
+      settingsPtr->phi1_mode = node["hydro"]["viscous_parameters"]["bulk"]["phi1_mode"].as<std::string>();
+    } catch (...) {
+      formatted_output::report("WARNING: Could not read viscous_parameters bulk phi1_mode!");
+      formatted_output::report("This is an optional parameter. Setting to default value.");
+      settingsPtr->phi1_mode = cc::defaults::phi1_mode;
+    }
+    try {
+      settingsPtr->phi3_mode = node["hydro"]["viscous_parameters"]["bulk"]["phi3_mode"].as<std::string>();
+    } catch (...) {
+      formatted_output::report("WARNING: Could not read viscous_parameters bulk phi3_mode!");
+      formatted_output::report("This is an optional parameter. Setting to default value.");
+      settingsPtr->phi3_mode = cc::defaults::phi3_mode;
+    }
+
+
+    //--------------------------------------------------------------------------
     try{
       settingsPtr->diffusionMode = node["hydro"]["viscous_parameters"]["diffusion"]["mode"].as<std::string>();
       
@@ -417,23 +500,23 @@ bool cc::Input::decode_settings(const YAML::Node& node){
       formatted_output::report("This is an optional parameter. Setting to default value.");
       settingsPtr->diffusionMode = cc::defaults::diffusionMode;
     }
-    if(settingsPtr->diffusionMode != "default"){
+    if(settingsPtr->diffusionMode == "disabled"){
       settingsPtr->using_diffusion = false;
     }
     else{
       settingsPtr->using_diffusion = true;
     }
     try {
-      auto mat = node["hydro"]["viscous_parameters"]["diffusion"]["kappa_matrix"];
+      auto mat = node["hydro"]["viscous_parameters"]["diffusion"]["constant_kappa_over_T2"];
       for (size_t i = 0; i < 3; ++i) {
         for (size_t j = 0; j < 3; ++j) {
-          settingsPtr->kappa_matrix[i][j] = mat[i][j].as<double>();
+          settingsPtr->constant_kappa_over_T2[i][j] = mat[i][j].as<double>();
         }
       }
     } catch (...) {
-      formatted_output::report("WARNING: Could not read hydro/viscous_parameters/kappa_matrix!");
+      formatted_output::report("WARNING: Could not read hydro/viscous_parameters/constant_kappa_over_T2!");
       formatted_output::report("This is an optional parameter. Setting to identity matrix.");
-      settingsPtr->kappa_matrix = cc::defaults::kappa_matrix;
+      settingsPtr->constant_kappa_over_T2 = cc::defaults::constant_kappa_over_T2;
     }
     try{
       settingsPtr->input_initial_diffusion = node["hydro"]["viscous_parameters"]["diffusion"]["input_initial_diffusion"].as<bool>();
@@ -442,6 +525,14 @@ bool cc::Input::decode_settings(const YAML::Node& node){
       formatted_output::report("This is an optional parameter. Setting to default value.");
       settingsPtr->input_initial_diffusion = cc::defaults::input_initial_diffusion;
     }
+    try{
+      settingsPtr->diffusionRelaxMode = node["hydro"]["viscous_parameters"]["diffusion"]["relaxation_mode"].as<std::string>();
+    } catch (...) {
+      formatted_output::report("WARNING: Could not read hydro/viscous_parameters/diffusion relaxation_mode!");
+      formatted_output::report("This is an optional parameter. Setting to default value.");
+      settingsPtr->diffusionRelaxMode = cc::defaults::diffusionRelaxMode;
+    }
+
     //Output node
     try{
       settingsPtr->print_conservation_status = node["output"]["print_conservation_state"].as<bool>();

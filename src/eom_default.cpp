@@ -105,18 +105,6 @@ void EoM_default<D>::reset_pi_tensor(std::shared_ptr<SystemState<D>> sysPtr)
     for( int j=i+1; j<4; j++ )
       shv(j,i) = shv(i,j);
 
-    //pi^{0i} = -\pi^{ij}u_j/gamma 
-    for(int idir=1; idir<D+1; ++idir){
-      milne::Vector<double,D> shv_i;
-      for(int jdir=1; jdir<D+1; ++jdir) shv_i(jdir-1) = shv(idir,jdir);
-      shv(0,idir) = -1.*milne::contract(u_cov,shv_i)/gamma; 
-    }
-
-    //Symmetrizes time part
-    for( int i=1; i<4; i++ )
-      shv(i,0) = shv(0,i);
-
-
     //pi^00 = u_i u_j pi^{ij}/gamma^2
     shv(0,0) =( fixed_size_u_cov(0)*fixed_size_u_cov(0)*shv(1,1) 
                 + fixed_size_u_cov(1)*fixed_size_u_cov(1)*shv(2,2)
@@ -129,6 +117,20 @@ void EoM_default<D>::reset_pi_tensor(std::shared_ptr<SystemState<D>> sysPtr)
 
     //pi^33 = (pi^00 - pi^11 - pi^22)/t^2
     shv(3,3) = (shv(0,0) - shv(1,1) - shv(2,2))/t2;
+
+    //pi^{0i} = -\pi^{ij}u_j/gamma 
+    milne::Vector<double,4> pi0;
+    for(int idir=0; idir<3; ++idir){
+      pi0(idir+1) = 0.;
+      for(int jdir=0; jdir<3; ++jdir){
+        pi0(idir+1) += -shv(idir+1,jdir+1)*fixed_size_u_cov(jdir)/gamma;
+      }
+      shv(0,idir+1) = pi0(idir+1);
+    }
+
+    //Symmetrizes time part
+    for( int i=1; i<4; i++ )
+      shv(i,0) = shv(0,i);
 
     //Return shv
     for(int idir=0; idir<4; ++idir)
@@ -219,10 +221,11 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
   CREATE_VIEW(device_,sysPtr->cabana_particles);
   bool using_shear = settingsPtr->using_shear; 
   bool using_diffusion = settingsPtr->using_diffusion;
+  bool using_vorticity = settingsPtr->using_vorticity;
   auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, sysPtr->cabana_particles.size());
   //calculate the M,R,F matrices due to shear, when using shear
   if(using_shear){
-    calculate_MRF_shear(sysPtr);
+    calculate_MRF_shear(sysPtr, using_vorticity);
   }
    auto fill_auxiliary_variables = KOKKOS_LAMBDA(int const is, int const ia){
     //read relevant quantities
@@ -246,7 +249,6 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
     double tau_Pi = device_hydro_scalar.access(is, ia, hydro_info::tau_Pi);
     double tau_pi = device_hydro_scalar.access(is, ia, hydro_info::tau_pi );
     double delta_PiPi = device_hydro_scalar.access(is, ia, hydro_info::delta_PiPi);
-    double a = device_hydro_scalar.access(is, ia, hydro_info::a);
     double F_extensive_bulk = device_hydro_scalar.access(is, ia, hydro_info::F_extensive_bulk);
     double F_shv_nabla_u = device_hydro_scalar.access(is, ia, hydro_info::F_shv_nabla_u);
     double F_extensive_entropy = device_hydro_scalar.access(is, ia, hydro_info::F_extensive_entropy);
@@ -256,7 +258,7 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
     double lambda_Pipi = device_hydro_scalar.access(is, ia, hydro_info::lambda_Pipi);
     double j0_ext = device_hydro_scalar.access(is, ia, hydro_info::j0_ext);
     //auxiliary zeta tilde to control IR or DNMR
-    double zeta_tilde  = zeta +  a*(delta_PiPi - tau_Pi)*bulk;
+    double zeta_tilde  = zeta + (delta_PiPi - tau_Pi)*bulk;
     //declare caches
     milne::Vector<double,D> v, u, grad_u0, u_cov, j_ext;
     milne::Vector<double,D> M_extensive_bulk_aux, M_shv_nabla_u, M_extensive_entropy;
@@ -318,7 +320,7 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
 
     //fill F matrices
     F_extensive_bulk = -(zeta_tilde*(gamma*divV + gamma/t + geometric_factor)
-                  +bulk  - a*phi1*bulk*bulk)/(sigma*gamma*tau_Pi);
+                  +bulk  - phi1*bulk*bulk)/(sigma*gamma*tau_Pi);
 
     ///\todo: Check bulk initialization 
     //F_extensive_bulk =0.0;
@@ -331,12 +333,12 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
       //add contribution from shear MRFs
       double F_shv_nabla_u = device_hydro_scalar.access(is, ia, hydro_info::F_shv_nabla_u);
       F_extensive_entropy += F_shv_nabla_u/(sigma*gamma*T);
-      F_extensive_bulk += -(- a*lambda_Pipi*F_shv_nabla_u
-                      - a*phi3*milne::contract(shv_cov,shv))/(sigma*gamma*tau_Pi);
+      F_extensive_bulk += -(- lambda_Pipi*F_shv_nabla_u
+                      - phi3*milne::contract(shv_cov,shv))/(sigma*gamma*tau_Pi);
       milne::Vector<double,D> M_shv_nabla_u;
       for(int idir=0; idir<D; ++idir){
         M_shv_nabla_u(idir) =  device_hydro_vector.access(is, ia, hydro_info::M_shv_nabla_u,idir);
-        M_extensive_bulk_aux(idir) += a*lambda_Pipi*M_shv_nabla_u(idir)/(sigma*gamma*tau_Pi);
+        M_extensive_bulk_aux(idir) += lambda_Pipi*M_shv_nabla_u(idir)/(sigma*gamma*tau_Pi);
         M_extensive_entropy(idir) += M_shv_nabla_u(idir)/(sigma*gamma*T);
       }
     }
@@ -540,8 +542,8 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
                     +sigma*dwds*F_extensive_entropy;
 
       //convert the extensive MRFs to the intensive ones
-      double F_bulk = F_extensive_bulk - bulk*(gamma*divV + gamma/t + geometric_factor)/gamma;
-      M_bulk = M_extensive_bulk + bulk*u_cov/(gamma*gamma*tau_Pi);                         
+      double F_bulk = sigma*F_extensive_bulk - bulk*(gamma*divV + gamma/t + geometric_factor)/gamma;
+      M_bulk = sigma*M_extensive_bulk + bulk*u_cov/(gamma*gamma);                         
 
 
 
@@ -879,10 +881,15 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
 /// and F_extensive_shear.
 /// @param sysPtr A shared pointer to the system state
 template <unsigned int D>
-void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr)
+void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr,bool using_vorticity)
 {
   double t = (sysPtr->t);
   double t2 = t*t;
+  double use_vort = 0.;
+  //check use_vorticity_term
+  if (using_vorticity){
+    use_vort = 1.;
+  }
   //auxiliary metric variables
   milne::Vector<double,D> delta_i_eta = milne::delta_i_eta<D>();
   milne::Vector<double,4> contra_metric_diag = milne::get_contra_metric_diagonal<3>(t);
@@ -899,7 +906,6 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr)
     double phi7 = device_hydro_scalar.access(is, ia, hydro_info::phi7);
     double lambda_piPi = device_hydro_scalar.access(is, ia, hydro_info::lambda_piPi);
     double tau_pipi = device_hydro_scalar.access(is, ia, hydro_info::tau_pipi);
-    double a= device_hydro_scalar.access(is, ia, hydro_info::a);
     double delta_pipi = device_hydro_scalar.access(is, ia, hydro_info::delta_pipi);
     double tau_pi = device_hydro_scalar.access(is, ia, hydro_info::tau_pi);
     double tilde_delta = delta_pipi - tau_pi;
@@ -1163,20 +1169,20 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr)
       F_0i_shear(idir) = (-shv(idir+1,0)
                     -tau_pi*F_i0_D(idir)
                     -delta_pipi*F_i0_dd(idir)
-                    -a*2.*tau_pi*F_i0_domega(idir) 
-                    -a*tau_pipi*F_i0_dsigma(idir)
-                    +(2.*eta_pi+a*lambda_piPi*bulk)*F_i0_sigma(idir)
-                    +a*phi6*bulk*shv(idir+1,0)
-                    +a*phi7*(milne::contract(shv, shear0mu_aux, milne::SecondIndex())(idir+1)
+                    -2.*tau_pi*F_i0_domega(idir)*use_vort 
+                    -tau_pipi*F_i0_dsigma(idir)
+                    +(2.*eta_pi+lambda_piPi*bulk)*F_i0_sigma(idir)
+                    +phi6*bulk*shv(idir+1,0)
+                    +phi7*(milne::contract(shv, shear0mu_aux, milne::SecondIndex())(idir+1)
                     +gamma*u(idir)*milne::contract(shv_cov,shv)/3.))/(tau_pi*gamma);
       //stores the results 
       device_hydro_vector.access(is, ia, hydro_info::F_0i_shear, idir) = F_0i_shear(idir);
       for(int jdir=0; jdir<D; ++jdir){
         M_0i_shear(idir,jdir) = (-tau_pi*M_i0_D(idir,jdir)
                                 -delta_pipi*M_i0_dd(idir,jdir)
-                                -2.*a*M_i0_domega(idir,jdir)
-                                +a*tau_pipi*M_i0_dsigma(idir,jdir)
-                                +(2.*eta_pi+a*lambda_piPi*bulk)*M_i0_sigma(idir,jdir))/(tau_pi*gamma);
+                                -2.*M_i0_domega(idir,jdir)*use_vort
+                                +tau_pipi*M_i0_dsigma(idir,jdir)
+                                +(2.*eta_pi+lambda_piPi*bulk)*M_i0_sigma(idir,jdir))/(tau_pi*gamma);
         //stores the results
         device_hydro_space_matrix.access(is, ia, hydro_info::M_0i_shear, idir, jdir) = M_0i_shear(idir,jdir);
       }
@@ -1342,19 +1348,19 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr)
         F_extensive_shear(idir,jdir) = (-shv(idir+1,jdir+1) 
                                 -tilde_delta*F_delta(idir,jdir)
                                 -tau_pi*F_D(idir,jdir)
-                                -a*2.*tau_pi*F_domega(idir,jdir)
-                                -a*tau_pipi*F_dsigma(idir,jdir)
-                                +(2.*eta_pi+a*lambda_piPi*bulk)*F_sigma(idir,jdir)
-                                +a*phi6*bulk*shv(idir+1,jdir+1)
-                                +a*phi7*(milne::contract(shv,shv_hybrid,milne::SecondIndex(),milne::SecondIndex())(idir,jdir)
+                                -2.*tau_pi*F_domega(idir,jdir)*use_vort
+                                -tau_pipi*F_dsigma(idir,jdir)
+                                +(2.*eta_pi+lambda_piPi*bulk)*F_sigma(idir,jdir)
+                                +phi6*bulk*shv(idir+1,jdir+1)
+                                +phi7*(milne::contract(shv,shv_hybrid,milne::SecondIndex(),milne::SecondIndex())(idir,jdir)
                                 +fixed_size_u(idir)*fixed_size_u(jdir)*milne::contract(shv,shv_cov)/3.))/(sigma*tau_pi*gamma);
 
         for(int kdir=0; kdir<D; ++kdir){
           M_extensive_shear(idir,jdir,kdir) =(-tau_pi*M_D(idir,jdir,kdir)
                                         -tilde_delta*M_delta(idir,jdir,kdir)
-                                        -2.*a*M_domega(idir,jdir,kdir)
-                                        -a*tau_pipi*M_dsigma(idir,jdir,kdir)
-                                        +(2.*eta_pi+a*lambda_piPi*bulk)*M_sigma(idir,jdir,kdir))/(sigma*tau_pi*gamma);
+                                        -2.*tau_pi*M_domega(idir,jdir,kdir)*use_vort
+                                        -tau_pipi*M_dsigma(idir,jdir,kdir)
+                                        +(2.*eta_pi+lambda_piPi*bulk)*M_sigma(idir,jdir,kdir))/(sigma*tau_pi*gamma);
           //saves the results 
           int linear_index = jdir * D + kdir;
           device_hydro_shear_aux_matrix.access(is, ia, hydro_info::M_extensive_shear, idir, linear_index) = M_extensive_shear(idir,jdir,kdir);
@@ -1368,7 +1374,7 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr)
           device_hydro_shear_aux_matrix.access(is, ia, hydro_info::R_extensive_shear, idir, linear_index) = R_extensive_shear(idir,jdir,icharge);
           }
       }
-      F_extensive_shear(idir,idir) += a*phi7*(-contra_metric_diag(idir+1)*milne::contract(shv,shv_cov))/(3.*tau_pi*gamma*sigma);
+      F_extensive_shear(idir,idir) += phi7*(-contra_metric_diag(idir+1)*milne::contract(shv,shv_cov))/(3.*tau_pi*gamma*sigma);
       //saves the results
       for(int jdir=idir; jdir<3; ++jdir){
         device_hydro_shear_aux_vector.access(is, ia, hydro_info::F_extensive_shear, idir, jdir) = F_extensive_shear(idir,jdir);
@@ -1398,7 +1404,6 @@ void EoM_default<D>::calculate_MRF_diffusion(std::shared_ptr<SystemState<D>> sys
   {
     double sigma = device_hydro_scalar.access(is, ia, hydro_info::sigma);
     double gamma = device_hydro_scalar.access(is, ia, hydro_info::gamma);
-    double a= device_hydro_scalar.access(is, ia, hydro_info::a);
     double s = device_thermo.access(is, ia, thermo_info::s);
     double rhoB = device_thermo.access(is, ia, thermo_info::rhoB);
     double rhoS = device_thermo.access(is, ia, thermo_info::rhoS);
@@ -1823,7 +1828,6 @@ void EoM_default<D>::compute_hydro_numbers(std::shared_ptr<SystemState<D>> sysPt
     double phi3 = device_hydro_scalar.access(is, ia, hydro_info::phi3);
     double lambda_Pipi = device_hydro_scalar.access(is, ia, hydro_info::lambda_Pipi);
     double tau_pipi = device_hydro_scalar.access(is, ia, hydro_info::tau_pipi);
-    double a= device_hydro_scalar.access(is, ia, hydro_info::a);
     double delta_pipi = device_hydro_scalar.access(is, ia, hydro_info::delta_pipi);
     double tau_pi = device_hydro_scalar.access(is, ia, hydro_info::tau_pi);
     double delta_Pi = device_hydro_scalar.access(is, ia, hydro_info::delta_PiPi);
