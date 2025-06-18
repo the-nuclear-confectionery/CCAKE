@@ -46,3 +46,4 @@ output:
   print_conservation_state: true
   hdf_evolution: false
   txt_evolution: true
+  calculate_observables: true

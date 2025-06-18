@@ -5,7 +5,6 @@
 #include "eom_default.cpp"
 #include "eom_cartesian.cpp"
 #include "transport_coefficients.cpp"
-#include <type_traits>
 
 #define ONLINE_INVERTER ///todo: This should be in the config file. For now, comment, uncomment it to choose eos method to be used
 using namespace constants;
@@ -127,7 +126,7 @@ void SPHWorkstation<D, TEOM>::initialize_entropy_and_charge_densities()
                     p.input.s, p.input.rhoB, p.input.rhoS, p.input.rhoQ );
       p.input.e = p.thermo.e;
       p.efcheck = systemPtr->efcheck;
-      if ( p.input.e > systemPtr->efcheck && p.Freeze!=4 )	p.Freeze = 0;
+      if ( p.input.e > systemPtr->efcheck )	p.Freeze = 0;
 		  else
 		    {
 		    	p.Freeze = 4;
@@ -140,7 +139,7 @@ void SPHWorkstation<D, TEOM>::initialize_entropy_and_charge_densities()
       p.input.s = locate_phase_diagram_point_eBSQ( p,
                     p.input.e, p.input.rhoB, p.input.rhoS, p.input.rhoQ );
       p.efcheck = systemPtr->efcheck;
-      if ( p.input.e > systemPtr->efcheck && p.Freeze!=4 )	p.Freeze = 0;
+      if ( p.input.e > systemPtr->efcheck )	p.Freeze = 0;
 		  else
 		    {
 		    	p.Freeze = 4;
@@ -243,10 +242,6 @@ void SPHWorkstation<D,TEOM>::initial_smoothing()
   smooth_all_particle_fields(t_squared);
   //calculate extensive/extensive shear tensor
   calculate_extensive_shv();
-  set_bulk_Pi();
-
-  //calculate initial diffusion
-  set_diffusion();
   /* #ifdef DEBUG
   std::cout << "initial_smoothing() --> smooth_all_particle_fields()" << std::endl;
   for (auto & p : systemPtr->particles){
@@ -321,7 +316,6 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
   CREATE_VIEW(device_, systemPtr->cabana_particles);
   auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
   double hT = settingsPtr->hT;
-  double hEta = settingsPtr->hEta;
   double t = systemPtr->t;
 
   //creating outfile to for kernal function output
@@ -331,17 +325,7 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
 
   //Reset smoothed fields. Initializes using the contribution of the particle to the density evaluated
   //on top of itself because the loop over the neighbour particles does not include the particle itself.
-  double kern0;
-  if constexpr (std::is_same<TEOM<1>, EoM_default<1>>::value){
-    kern0 = SPHkernel<D>::kernel(0,hEta); //The value of the Kernel evaluated on top of the particle
-  }
-  else if constexpr (std::is_same<TEOM<3>, EoM_default<3>>::value){
-    kern0 = SPHkernel<2>::kernel(0,hT)*SPHkernel<1>::kernel(0,hEta); //The value of the Kernel evaluated on top of the particle
-  }
-  else {
-    kern0 = SPHkernel<D>::kernel(0,hT); //The value of the Kernel evaluated on top of the particle
-  }
-  
+  double kern0 = SPHkernel<D>::kernel(0,hT); //The value of the Kernel evaluated on top of the particle
   auto reset_fields = KOKKOS_LAMBDA(const int is, const int ia) //First index for loop over struct, second for loop over array
   {
     device_smoothed.access(is, ia, densities_info::s)     = device_sph_mass.access(is, ia, densities_info::s)*   device_extensive.access(is, ia, densities_info::s)*kern0;
@@ -354,40 +338,14 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
   Kokkos::fence();
 
   auto smooth_fields = KOKKOS_LAMBDA(const int iparticle, const int jparticle ){
-    double kern;
-    if constexpr (std::is_same<TEOM<1>, EoM_default<1>>::value){
-      double r1[D] ,r2[D]; // cache for positions of particles 1 and 2
-      for (int idir = 0; idir < D; ++idir){
-        r1[idir] = device_position(iparticle,idir);
-        r2[idir] = device_position(jparticle,idir);
-      }
-      double distance = SPHkernel<D>::distance(r1,r2);
-      kern = SPHkernel<D>::kernel(distance,hEta);
+
+    double r1[D] ,r2[D]; // cache for positions of particles 1 and 2
+    for (int idir = 0; idir < D; ++idir){
+      r1[idir] = device_position(iparticle,idir);
+      r2[idir] = device_position(jparticle,idir);
     }
-    else if constexpr (std::is_same<TEOM<3>, EoM_default<3>>::value){
-      double r1[D-1] ,r2[D-1];
-      double eta1[1], eta2[1]; // cache for positions of particles 1 and 2
-      for (int idir = 0; idir < D-1; ++idir){
-        r1[idir] = device_position(iparticle,idir);
-        r2[idir] = device_position(jparticle,idir);
-      }
-      eta1[0] = device_position(iparticle,2);
-      eta2[0] = device_position(jparticle,2);
-      double distanceT = SPHkernel<2>::distance(r1,r2);
-      double distanceEta = SPHkernel<1>::distance(eta1,eta2);
-      double kernT = SPHkernel<2>::kernel(distanceT,hT);
-      double kernEta = SPHkernel<1>::kernel(distanceEta,hEta);
-      kern = kernT*kernEta;
-    }
-    else {
-      double r1[D] ,r2[D]; // cache for positions of particles 1 and 2
-      for (int idir = 0; idir < D; ++idir){
-        r1[idir] = device_position(iparticle,idir);
-        r2[idir] = device_position(jparticle,idir);
-      }
-      double distance = SPHkernel<D>::distance(r1,r2);
-      kern = SPHkernel<D>::kernel(distance,hT);
-    }
+    double distance = SPHkernel<D>::distance(r1,r2);
+    double kern = SPHkernel<D>::kernel(distance,hT);
 
     //outputting kernel function to the outfile "kernel_{hT}.dat"
     /*outfile << kern << distance << endl;
@@ -444,8 +402,6 @@ void SPHWorkstation<D, TEOM>::calculate_intial_sigma(double t)
   CREATE_VIEW(device_, systemPtr->cabana_particles);
   auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
   double hT = settingsPtr->hT;
-  double hEta = settingsPtr->hEta;
-
   //creating outfile to for kernal function output
   /*ofstream outfile;
   std::fname = "kernel_" + std::to_string(hT) + ".dat";
@@ -453,16 +409,7 @@ void SPHWorkstation<D, TEOM>::calculate_intial_sigma(double t)
 
   //Reset smoothed fields. Initializes using the contribution of the particle to the density evaluated
   //on top of itself because the loop over the neighbour particles does not include the particle itself.
-  double kern0;
-  if constexpr (std::is_same<TEOM<1>, EoM_default<1>>::value){
-    kern0 = SPHkernel<D>::kernel(0,hEta); //The value of the Kernel evaluated on top of the particle
-  }
-  else if constexpr (std::is_same<TEOM<3>, EoM_default<3>>::value){
-    kern0 = SPHkernel<2>::kernel(0,hT)*SPHkernel<1>::kernel(0,hEta); //The value of the Kernel evaluated on top of the particle
-  }
-  else {
-    kern0 = SPHkernel<D>::kernel(0,hT); //The value of the Kernel evaluated on top of the particle
-  }
+  double kern0 = SPHkernel<D>::kernel(0,hT); //The value of the Kernel evaluated on top of the particle
   auto reset_fields = KOKKOS_LAMBDA(const int is, const int ia) //First index for loop over struct, second for loop over array
   {
     device_hydro_scalar.access(is, ia, hydro_info::sigma_lab) = device_sph_mass.access(is, ia, densities_info::s)*kern0;
@@ -471,39 +418,14 @@ void SPHWorkstation<D, TEOM>::calculate_intial_sigma(double t)
   Kokkos::fence();
 
   auto smooth_fields = KOKKOS_LAMBDA(const int iparticle, const int jparticle ){
-    double kern;
-    if constexpr (std::is_same<TEOM<1>, EoM_default<1>>::value){
-      double r1[D] ,r2[D]; // cache for positions of particles 1 and 2
-      for (int idir = 0; idir < D; ++idir){
-        r1[idir] = device_position(iparticle,idir);
-        r2[idir] = device_position(jparticle,idir);
-      }
-      double distance = SPHkernel<D>::distance(r1,r2);
-      kern = SPHkernel<D>::kernel(distance,hEta);
+
+    double r1[D] ,r2[D]; // cache for positions of particles 1 and 2
+    for (int idir = 0; idir < D; ++idir){
+      r1[idir] = device_position(iparticle,idir);
+      r2[idir] = device_position(jparticle,idir);
     }
-    else if constexpr (std::is_same<TEOM<3>, EoM_default<3>>::value){
-      double r1[D-1] ,r2[D-1], eta1[1], eta2[1]; // cache for positions of particles 1 and 2
-      for (int idir = 0; idir < D-1; ++idir){
-        r1[idir] = device_position(iparticle,idir);
-        r2[idir] = device_position(jparticle,idir);
-      }
-      eta1 = device_position(iparticle,2);
-      eta2 = device_position(jparticle,2);
-      double distanceT = SPHkernel<2>::distance(r1,r2);
-      double distanceEta = SPHkernel<1>::distance(eta1,eta2);
-      double kernT = SPHkernel<2>::kernel(distanceT,hT);
-      double kernEta = SPHkernel<1>::kernel(distanceEta,hEta);
-      kern = kernT*kernEta;
-    }
-    else {
-      double r1[D] ,r2[D]; // cache for positions of particles 1 and 2
-      for (int idir = 0; idir < D; ++idir){
-        r1[idir] = device_position(iparticle,idir);
-        r2[idir] = device_position(jparticle,idir);
-      }
-      double distance = SPHkernel<D>::distance(r1,r2);
-      kern = SPHkernel<D>::kernel(distance,hT);
-    }
+    double distance = SPHkernel<D>::distance(r1,r2);
+    double kern = SPHkernel<D>::kernel(distance,hT);
 
     //outputting kernel function to the outfile "kernel_{hT}.dat"
     /*outfile << kern << distance << endl;
@@ -728,16 +650,12 @@ void SPHWorkstation<D,TEOM>::locate_phase_diagram_point_sBSQ( Particle<D> & p,
 /// @tparam TEOM The equation of motion class to be used in the simulation.
 /// @param time_squared The square of the current time step.
 /// Cartesian specializations at end of file 
-
-
 template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
 {
   double hT = settingsPtr->hT;
-  double hEta = settingsPtr->hEta;
   double t = systemPtr->t;
   bool using_shear = settingsPtr->using_shear;
-  bool using_diffusion = settingsPtr->using_diffusion;
   auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
 
   CREATE_VIEW(device_, systemPtr->cabana_particles);
@@ -752,15 +670,7 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
       device_hydro_vector.access(is, ia, ccake::hydro_info::gradE,idir)  = 0.0;
       for (int jdir=0; jdir < D; ++jdir)
         device_hydro_space_matrix.access(is, ia,ccake::hydro_info::gradV, idir, jdir) = 0.0;
-       
     }
-    for(int icharge=0; icharge<3; ++icharge){
-      device_hydro_vector.access(is, ia, ccake::hydro_info::div_qa, icharge) = 0.0;
-      device_hydro_vector.access(is, ia, ccake::hydro_info::grad_qa, icharge) = 0.0;  
-      for(int jdir=0; jdir < D; ++jdir)
-        device_hydro_space_matrix.access(is, ia, ccake::hydro_info::grad_alpha_a, jdir, icharge) = 0.0;
-    }
-
   };
   Cabana::simd_parallel_for(simd_policy,reset_gradients, "reset_gradients");
   Kokkos::fence();
@@ -768,53 +678,16 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
   ///particle_a is the one that will be updated. Particle b is its neighbors.
   auto smooth_gradients = KOKKOS_LAMBDA(const int particle_a, const int particle_b )
   {
-    double gradK_aux[D]; // cache for gradient of kernel
-    //Compute kernel gradient based on coordinate type and dimensionsionality
-    if (D == 3){
-      double rel_sep_T[D-1], rel_sep_Eta[1], pos_a[D-1], pos_b[D-1]; // cache for relative separation
-      double eta_a[1], eta_b[1]; // cache for relative separation
-      for (int idir = 0; idir < D-1; ++idir){
-        pos_a[idir] = device_position(particle_a,idir);
-        pos_b[idir] = device_position(particle_b,idir);
-        rel_sep_T[idir] = pos_a[idir] - pos_b[idir];
-      }
-      eta_a[0] = device_position(particle_a,2);
-      eta_b[0] = device_position(particle_b,2);
-      rel_sep_Eta[0] = eta_a[0] - eta_b[0];
-      double rel_sep_norm_T = SPHkernel<2>::distance(pos_a,pos_b);
-      double rel_sep_norm_Eta = SPHkernel<1>::distance(eta_a,eta_b);
-      double gradK_aux_T[2], gradK_aux_Eta[1];
-      ccake::SPHkernel<2>::gradKernel( rel_sep_T, rel_sep_norm_T, hT, gradK_aux_T );
-      ccake::SPHkernel<1>::gradKernel( rel_sep_Eta, rel_sep_norm_Eta, hEta, gradK_aux_Eta );
-      double kern_T = SPHkernel<2>::kernel(rel_sep_norm_T, hT);
-      double kern_eta = SPHkernel<1>::kernel(rel_sep_norm_Eta, hEta);
-      // 3D grad kernel from 1 and 2 D components
-      gradK_aux[0] = gradK_aux_T[0] * kern_eta;
-      gradK_aux[1] = gradK_aux_T[1] * kern_eta;
-      gradK_aux[2] = kern_T * gradK_aux_Eta[0];
+    //Compute kernel gradient
+    double rel_sep[D], pos_a[D], pos_b[D]; // cache for relative separation
+    for (int idir = 0; idir < D; ++idir){
+      pos_a[idir] = device_position(particle_a,idir);
+      pos_b[idir] = device_position(particle_b,idir);
+      rel_sep[idir] = pos_a[idir] - pos_b[idir];
     }
-
-    else if (D == 1){
-      double rel_sep[D], pos_a[D], pos_b[D]; // cache for relative separation
-      for (int idir = 0; idir < D; ++idir){
-        pos_a[idir] = device_position(particle_a,idir);
-        pos_b[idir] = device_position(particle_b,idir);
-        rel_sep[idir] = pos_a[idir] - pos_b[idir];
-      }
-      double rel_sep_norm = SPHkernel<D>::distance(pos_a,pos_b);
-      ccake::SPHkernel<D>::gradKernel( rel_sep, rel_sep_norm, hEta, gradK_aux );
-    }
-
-    else {
-      double rel_sep[D], pos_a[D], pos_b[D]; // cache for relative separation
-      for (int idir = 0; idir < D; ++idir){
-        pos_a[idir] = device_position(particle_a,idir);
-        pos_b[idir] = device_position(particle_b,idir);
-        rel_sep[idir] = pos_a[idir] - pos_b[idir];
-      }
-      double rel_sep_norm = SPHkernel<D>::distance(pos_a,pos_b);
-      ccake::SPHkernel<D>::gradKernel( rel_sep, rel_sep_norm, hT, gradK_aux );      
-    }
+    double rel_sep_norm = SPHkernel<D>::distance(pos_a,pos_b);
+    double gradK_aux[D];
+    ccake::SPHkernel<D>::gradKernel( rel_sep, rel_sep_norm, hT, gradK_aux );
 
     double pressure_a     = device_thermo(particle_a, thermo_info::p);
     double pressure_b     = device_thermo(particle_b, thermo_info::p);
@@ -880,65 +753,7 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
       }
 
     }
-    if(using_diffusion){
-      milne::Vector<double,3> alpha_vec_a;
-      milne::Vector<double,3> alpha_vec_b;
-      milne::Vector<double,3> diff_a0;
-      milne::Vector<double,3> diff_b0;
-      milne::Vector<double,3> div_qa, grad_qa;
-      milne::Matrix<double,D,3> grad_alpha_a;
-      alpha_vec_a(0) = device_thermo(particle_a, thermo_info::muB)/device_thermo(particle_a, thermo_info::T);
-      alpha_vec_a(1) = device_thermo(particle_a, thermo_info::muS)/device_thermo(particle_a, thermo_info::T);
-      alpha_vec_a(2) = device_thermo(particle_a, thermo_info::muQ)/device_thermo(particle_a, thermo_info::T);
-      alpha_vec_b(0) = device_thermo(particle_b, thermo_info::muB)/device_thermo(particle_b, thermo_info::T);
-      alpha_vec_b(1) = device_thermo(particle_b, thermo_info::muS)/device_thermo(particle_b, thermo_info::T);
-      alpha_vec_b(2) = device_thermo(particle_b, thermo_info::muQ)/device_thermo(particle_b, thermo_info::T);
-      if(D>1){
-        milne::Matrix<double,3,D> diff_a;
-        milne::Matrix<double,3,D> diff_b;
-        for(int icharge=0; icharge<3; ++icharge){
-          diff_a0(icharge) = device_hydro_diffusion(particle_a, hydro_info::diffusion,icharge, 0);
-          diff_b0(icharge) = device_hydro_diffusion(particle_b, hydro_info::diffusion,icharge, 0);
-          for(int idir=0; idir<D; ++idir){
-            diff_a(icharge,idir) = device_hydro_diffusion(particle_a, hydro_info::diffusion, icharge,idir+1);
-            diff_b(icharge,idir) = device_hydro_diffusion(particle_b, hydro_info::diffusion, icharge,idir+1);
-          }
-        }
-        grad_qa = milne::contract(sigsigK, v_a)*( sigsqrb*diff_b0 + sigsqra*diff_a0 );
-        for(int jcharge=0; jcharge<3; ++jcharge){  
-          div_qa(jcharge) = 0.0;
-          for(int idir=0; idir<D; ++idir){
-            div_qa(jcharge) += sigsqrb*sigsigK(idir)*diff_b(jcharge,idir)
-                                + sigsqra*sigsigK(idir)*diff_a(jcharge,idir);
-            grad_alpha_a(idir,jcharge) = (sph_mass_s_b/sigma_lab_a)*( alpha_vec_b(jcharge) -  alpha_vec_a(jcharge) )*gradK(idir);
-          }
-        }
-      }
-      else{
-        milne::Vector<double,3> diff_a;
-        milne::Vector<double,3> diff_b;
-        for(int icharge=0; icharge<3; ++icharge){
-          diff_a0(icharge) = device_hydro_diffusion(particle_a, hydro_info::diffusion, icharge,0);
-          diff_b0(icharge) = device_hydro_diffusion(particle_b, hydro_info::diffusion, icharge,0);
-          diff_a(icharge) = device_hydro_diffusion(particle_a, hydro_info::diffusion,icharge,3);
-          diff_b(icharge) = device_hydro_diffusion(particle_b, hydro_info::diffusion,icharge,3);
-        }
-        grad_qa = milne::contract(sigsigK, v_a)*( sigsqrb*diff_b0 + sigsqra*diff_a0 );
-        for(int jcharge=0; jcharge<3; ++jcharge){  
-          div_qa(jcharge) += sigsqrb*sigsigK(0)*diff_b(jcharge)
-                              + sigsqra*sigsigK(0)*diff_a(jcharge);
-          grad_alpha_a(0,jcharge) = (sph_mass_s_b/sigma_lab_a)*( alpha_vec_b(jcharge) -  alpha_vec_a(jcharge) )*gradK(0);
-        }
-      }
-      //Accumulate diffusion quantities
-      for(int icharge=0; icharge<3; ++icharge){
-        Kokkos::atomic_add(&device_hydro_vector(particle_a, hydro_info::div_qa, icharge), div_qa(icharge));
-        Kokkos::atomic_add(&device_hydro_vector(particle_a, hydro_info::grad_qa, icharge), grad_qa(icharge));
-        for(int idir=0; idir<D; ++idir){
-          Kokkos::atomic_add(&device_hydro_space_matrix(particle_a, hydro_info::grad_alpha_a, idir, icharge), grad_alpha_a(idir,icharge));
-        }
-      }
-    }
+
     //Accumulate
     for(int idir=0; idir<D; ++idir) {
       Kokkos::atomic_add(&device_hydro_vector(particle_a, hydro_info::gradP, idir), gradP(idir));
@@ -1030,7 +845,7 @@ void SPHWorkstation<D, TEOM>::process_initial_conditions()
 		p.sph_mass.rhoS  = 1.0;
 		p.sph_mass.rhoQ  = 1.0;
 
-		//p.hydro.bulk      = 0.0;
+		p.hydro.bulk      = 0.0;
 
 		// make educated initial guess here for this particle's (T, mu_i) coordinates
 		// (improve this in the future)
@@ -1096,26 +911,25 @@ template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D, TEOM>::set_bulk_Pi()
 {
   auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
-  if ( settingsPtr->bulk_from_trace ){
+  if ( settingsPtr->initializing_with_full_Tmunu ){
     double t0 = settingsPtr->t0;
     CREATE_VIEW( device_, systemPtr->cabana_particles);
 
     auto set_bulk = KOKKOS_LAMBDA( const int is, const int ia )
     {
-      //double tmunu_trace = device_hydro_scalar.access(is, ia, ccake::hydro_info::tmunu_trace);
-      //trace stored in the bulk variable 
-      double tmunu_trace = device_hydro_scalar.access(is, ia, ccake::hydro_info::bulk);
+      double tmunu_trace = device_hydro_scalar.access(is, ia, ccake::hydro_info::tmunu_trace);
       double p = device_thermo.access(is, ia, ccake::thermo_info::p);
       double gamma = device_hydro_scalar.access(is, ia, ccake::hydro_info::gamma);
       double sigma_lab = device_hydro_scalar.access(is, ia, ccake::hydro_info::sigma_lab);
       double sigma  = TEOM<D>::get_LRF(sigma_lab, gamma, t0);
-      device_hydro_scalar.access(is, ia, ccake::hydro_info::extensive_bulk) = (tmunu_trace - p)/sigma;
-      //device_hydro_scalar.access(is, ia, ccake::hydro_info::extensive_bulk) = 0.0;
+      //device_hydro_scalar.access(is, ia, ccake::hydro_info::extensive_bulk) = (tmunu_trace - p)*sigma;
+      device_hydro_scalar.access(is, ia, ccake::hydro_info::extensive_bulk) = 0.0;
 
     };
     Cabana::simd_parallel_for( simd_policy, set_bulk, "set_bulk_Pi_kernel");
     Kokkos::fence();
   }
+  return;
 }
 
 /// @brief Calculate the extensive shear used for evolution of the shear tensor.
@@ -1132,46 +946,18 @@ void SPHWorkstation<D, TEOM>::calculate_extensive_shv()
   double t0 = settingsPtr->t0;
   auto calculate_shear = KOKKOS_LAMBDA( const int is, const int ia )
   {
-    double sigma = device_hydro_scalar.access(is, ia, ccake::hydro_info::sigma);
+    double sigma_lab = device_hydro_scalar.access(is, ia, ccake::hydro_info::sigma_lab);
     double u0 = device_hydro_scalar.access(is, ia, ccake::hydro_info::gamma);
     for (int idir=0; idir<2; ++idir)
     for (int jdir=idir; jdir<3; ++jdir)
     {
       double shv = device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::shv, idir+1, jdir+1);
       //shv = 0.;
-      device_hydro_shear_aux_vector.access(is, ia, ccake::hydro_info::extensive_shv, idir, jdir) = shv /sigma;
+      device_hydro_shear_aux_vector.access(is, ia, ccake::hydro_info::extensive_shv, idir, jdir) = shv * u0 * t0 / sigma_lab;
       //std::cout << "shv = " << shv << "  extensive_shv = " << device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::extensive_shv, idir, jdir) << std::endl;
     }
   };
   Cabana::simd_parallel_for( simd_policy, calculate_shear, "calculate_extensive_shear_kernel");
-  Kokkos::fence();
-}
-
-
-
-/// @brief Set diffusion
-/// @details This function sets the diffusion vector for each particle.
-/// @tparam D The dimensionality of the simulation.
-/// @tparam TEOM The equation of motion class to be used in the simulation.
-template<unsigned int D, template<unsigned int> class TEOM>
-void SPHWorkstation<D, TEOM>::set_diffusion()
-{
-  auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
-  CREATE_VIEW( device_, systemPtr->cabana_particles);
-  double t0 = settingsPtr->t0;
-  auto set_diffusion = KOKKOS_LAMBDA( const int is, const int ia )
-  {
-    double sigma = device_hydro_scalar.access(is, ia, ccake::hydro_info::sigma);
-    for (int idir=0; idir<3; ++idir)
-    {
-      for(int icharge=0; icharge<3; ++icharge)
-      {
-        //device_hydro_space_matrix.access(is, ia, ccake::hydro_info::extensive_diffusion, idir) = device_hydro_vector.access(is, ia, ccake::hydro_info::diffusion, icharge ,idir+1)/sigma;
-        device_hydro_space_matrix.access(is, ia, ccake::hydro_info::extensive_diffusion,icharge, idir) = 0.0;
-      }
-    }
-  };
-  Cabana::simd_parallel_for( simd_policy, set_diffusion, "set_diffusion_kernel");
   Kokkos::fence();
 }
 
@@ -1348,41 +1134,6 @@ void SPHWorkstation<D, TEOM>::update_all_particle_viscosities()
       = 0.;
     device_hydro_scalar.access(is, ia, ccake::hydro_info::tau_pipi)
       = 0.;
-    //diffusion coefficient
-    Matrix<double, 3, 3> kappa = tc::kappa(thermo, this->transp_coeff_params);
-    Matrix<double, 3, 3> tauq = tc::tauq(thermo, this->transp_coeff_params);
-    for (int icharge=0; icharge<3; ++icharge){
-      for (int jcharge=0; jcharge<3; ++jcharge){
-        device_hydro_space_matrix.access(is, ia, ccake::hydro_info::kappa_q,icharge,jcharge)
-          = kappa(icharge,jcharge);
-        device_hydro_space_matrix.access(is, ia, ccake::hydro_info::tau_q,icharge,jcharge)
-          = tauq(icharge,jcharge);
-        ///\todo: Implement selection based on method, right now using IR
-        device_hydro_space_matrix.access(is, ia, ccake::hydro_info::delta_qq,icharge,jcharge)
-          = tauq(icharge,jcharge);
-        //set the others to zero
-        device_hydro_space_matrix.access(is, ia, ccake::hydro_info::l_qpi,icharge,jcharge)
-          = 0.;
-        device_hydro_space_matrix.access(is, ia, ccake::hydro_info::l_qPi,icharge,jcharge)
-          = 0.;
-        device_hydro_space_matrix.access(is, ia, ccake::hydro_info::tau_qpi,icharge,jcharge)
-          = 0.;
-        device_hydro_space_matrix.access(is, ia, ccake::hydro_info::tau_qPi,icharge,jcharge)
-          = 0.;
-        device_hydro_space_matrix.access(is, ia, ccake::hydro_info::lambda_qq,icharge,jcharge)
-          = 0.;
-        device_hydro_space_matrix.access(is, ia, ccake::hydro_info::lambda_qpi,icharge,jcharge)
-          = 0.;
-        device_hydro_space_matrix.access(is, ia, ccake::hydro_info::lambda_qPi,icharge,jcharge)
-          = 0.;
-        device_hydro_space_matrix.access(is, ia, ccake::hydro_info::phi_4,icharge,jcharge)
-          = 0.;
-        device_hydro_space_matrix.access(is, ia, ccake::hydro_info::phi_5,icharge,jcharge)
-          = 0.;
-      }
-    }
-
-
   };
   Cabana::simd_parallel_for(simd_policy,set_transport_coefficients, "set_transport_coefficients");
   Kokkos::fence();
@@ -1481,7 +1232,6 @@ double SPHWorkstation<D, TEOM>::locate_phase_diagram_point_eBSQ( Particle<D> & p
 {
 //cout << "Finding thermodynamics of particle #" << p.ID << endl;
 
-
   // default: use particle's current location as initial guess
   // (pass in corresponding EoS as well!)
   eos.tbqs( p.T(), p.muB(), p.muQ(), p.muS(), p.get_current_eos_name() );
@@ -1554,31 +1304,7 @@ double SPHWorkstation<D, TEOM>::locate_phase_diagram_point_eBSQ( Particle<D> & p
     }
 
   }
-  else
-  {
-    // if we didn't find a solution, set the particle to be frozen out
-    p.Freeze = 4;
-    bool solution_found2 = false;
-    systemPtr->number_part_fo++;
-    cout << "WARNING: could not find solution for particle " << p.ID << "with (e,B,S,Q)" 
-         << " = (" << e_In << "," << rhoB_In << "," << rhoS_In << "," << rhoQ_In << ")" << endl;
-    cout << "Setting charges to zero and freezing out particle." << endl;
-    p.thermo.rhoB = 0.0;
-    p.thermo.rhoS = 0.0;
-    p.thermo.rhoQ = 0.0;
-    //run again the EoS to get the entropy density
-    sVal = eos.s_out( e_In, 0.0, 0.0, 0.0, solution_found2,
-                      p.print_this_particle );
-    thermodynamic_info p0 = p.thermo;
-    eos.set_thermo( p.thermo );
-    if ( !solution_found2 )
-    {
-      cout << "WARNING: could not find solution for particle " << p.ID << "even at zero charge!" << endl;
-      //kill code
-      throw std::runtime_error("Could not find solution for particle even at zero charge!");
-    }
 
-  }
   return sVal;
 }
 

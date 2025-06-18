@@ -6,7 +6,6 @@
 #include <iostream>
 #include <string>
 #include <sstream>
-// #include <Cabana_Experimental_NeighborList.hpp>
 
 #include "system_state.h"
 #include "utilities.h"
@@ -579,7 +578,8 @@ void SystemState<D>::reset_neighbour_list(){
       min_pos[0] = settingsPtr->xmin;
       min_pos[1] = settingsPtr->ymin;
       min_pos[2] = settingsPtr->etamin;
-      h = std::max(settingsPtr->hT, settingsPtr->hEta); 
+      // h = std::max(settingsPtr->hT, settingsPtr->hEta); 
+      h = settingsPtr->hT;
       break;
     default:
       std::cerr << "Error: Dimension not supported" << std::endl;
@@ -745,54 +745,292 @@ void SystemState<D>::conservation_energy(bool first_iteration, double t)
   Eloss = ((E0-Etot)/E0)*100;
 }
 
-///////////////////////////////////////
+// ///////////////////////////////////////
+// template<unsigned int D>
+// void SystemState<D>::compute_eccentricities()
+// {
+//   timesteps.push_back( t );
+//   // compute_e_2_X(slice);
+//   // compute_e_2_P(slice);
+//   std::vector<double> eta_slices = {-8.0, -4.0, 0.0, 4.0, 8.0}
+
+//   if (e_2_P_history_by_slice.empty()) {
+//     size_t n_slices = eta_slices.size();
+//     e_2_P_history_by_slice.resize(n_slices);
+//     count_P_history_by_slice.resize(n_slices);
+//   }
+
+//   for (size_t i = 0; i < eta_slices.size(); ++i) {
+//     auto [ecc, cnt] = compute_e_2_P(eta_slices[i]);
+//     e_2_P_history_by_slice[i].push_back(ecc);
+//     count_P_history_by_slice[i].push_back(cnt);
+//   }
+
+
+// }
+
 template<unsigned int D>
 void SystemState<D>::compute_eccentricities()
 {
-  timesteps.push_back( t );
+  timesteps.push_back(t);  
+  eta_slices = {-8.0, -4.0, 0.0, 4.0, 8.0};
+  // Initialize per-slice storage on first call
+  if (e_2_P_history_by_slice.empty()) {
+    size_t n_slices = eta_slices.size();
+    e_2_P_history_by_slice.resize(n_slices);
+    count_P_history_by_slice.resize(n_slices);
+    e_2_X_history_by_slice.resize(n_slices);
+    count_X_history_by_slice.resize(n_slices);
+  }
 
-  compute_e_2_X();
-  compute_e_2_P();
+  for (size_t i = 0; i < eta_slices.size(); ++i) {
+    double eta_center = eta_slices[i];
+
+    auto [e2P, cntP] = compute_e_2_P(eta_center);
+    e_2_P_history_by_slice[i].push_back(e2P);
+    count_P_history_by_slice[i].push_back(cntP);
+
+    auto [e2X, cntX] = compute_e_2_X(eta_center);
+    e_2_X_history_by_slice[i].push_back(e2X);
+    count_X_history_by_slice[i].push_back(cntX);
+  }
 }
+
 
 ///////////////////////////////////////
 //TODO: Use Cabana for paralelism
+// template<unsigned int D>
+// void SystemState<D>::compute_e_2_P(double slice)
+// {
+//   double e_2_P = 0.0;
+//   int count_P = 0;
+
+//   CREATE_VIEW(device_, cabana_particles);
+
+//   Kokkos::View<double> numerator("e2P_num");
+//   Kokkos::View<double> denominator("e2P_den");
+//   Kokkos::View<int> count("e2P_count");
+
+//   using policy2D = Kokkos::MDRangePolicy<Kokkos::Rank<2>>;
+//   policy2D policy({0, 0}, {static_cast<int>(cabana_particles.size()), VECTOR_LENGTH});
+
+//   Kokkos::parallel_for("compute_e2P", policy, KOKKOS_LAMBDA(const int is, const int ia) {
+//     double eta = device_position.access(is, ia, 2);
+//     if (abs(eta - slice) <= 0.2) {
+//       double p     = device_thermo.access(is, ia, thermo_info::p);
+//       double bulk  = device_hydro_scalar.access(is, ia, hydro_info::bulk);
+//       double e     = device_thermo.access(is, ia, thermo_info::e);
+//       double p_Pi  = p + bulk;
+//       double e_P_Pi = e + p_Pi;
+
+//       milne::Vector<double, D> u;
+//       for (int idir = 0; idir < D; ++idir)
+//         u(idir) = device_hydro_vector.access(is, ia, hydro_info::u, idir);
+
+//       milne::Matrix<double, D+1, D+1> shv;
+//       for (int idir = 0; idir < D+1; ++idir)
+//         for (int jdir = 0; jdir < D+1; ++jdir)
+//           shv(idir, jdir) = device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir, jdir);
+
+//       double Txx = e_P_Pi * u(0) * u(0) + p_Pi + shv(1,1);
+//       double Txy = e_P_Pi * u(0) * u(1) + shv(1,2);
+//       double Tyy = e_P_Pi * u(1) * u(1) + p_Pi + shv(2,2);
+
+//       double delta = Txx - Tyy;
+//       double twoxy = 2.0 * Txy;
+
+//       Kokkos::atomic_add(&numerator(), delta * delta + twoxy * twoxy);
+//       Kokkos::atomic_add(&denominator(), Txx + Tyy);
+//       Kokkos::atomic_add(&count(), 1);
+//     }
+//   });
+
+//   // Copy to host and compute result
+//   auto n_host = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(), numerator);
+//   auto d_host = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(), denominator);
+//   auto c_host = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(), count);
+
+//   if (c_host() > 0 && d_host() > 0.0) {
+//     e_2_P = std::sqrt(n_host() / c_host()) / (d_host() / c_host());
+//   }
+
+//   count_P = c_host();
+//   e_2_P_history.push_back(e_2_P);
+//   count_P_history.push_back(count_P);
+// }
+
+
+
+
+// ///////////////////////////////////////
+// // template<unsigned int D>
+// //TODO: Use Cabana for paralelism
+// // void SystemState<D>::compute_e_2_X(double slice)
+// // {
+// //   double e_2_X_c = 0.0, e_2_X_s = 0.0, normalization = 0.0;
+// //   for ( auto & p : particles )
+// //   {
+// //     if (abs(eta) <= 0.2) 
+// //     {
+// //       double x       = p.r(0),
+// //              y       = p.r(1);
+// //       e_2_X_c       += p.hydro.gamma*p.e()*(x*x-y*y);
+// //       e_2_X_s       += 2.0*p.hydro.gamma*p.e()*x*y;
+// //       normalization += p.hydro.gamma*p.e()*(x*x+y*y);
+// //     }
+// //     e_2_X.push_back( sqrt(e_2_X_c*e_2_X_c+e_2_X_s*e_2_X_s)/abs(normalization) );
+
+// //   } 
+// // }
+
+// template<unsigned int D>
+// void SystemState<D>::compute_e_2_X(double slice)
+// {
+//   double e_2_X = 0.0;
+//   int count_X = 0;
+
+//   CREATE_VIEW(device_, cabana_particles);
+
+//   Kokkos::View<double> c_sum("e2X_c");
+//   Kokkos::View<double> s_sum("e2X_s");
+//   Kokkos::View<double> norm_sum("e2X_norm");
+//   Kokkos::View<int> count("e2X_count");
+
+//   using policy2D = Kokkos::MDRangePolicy<Kokkos::Rank<2>>;
+//   policy2D policy({0, 0}, {static_cast<int>(cabana_particles.size()), VECTOR_LENGTH});
+
+//   Kokkos::parallel_for("compute_e2X", policy, KOKKOS_LAMBDA(const int is, const int ia) {
+//     double eta = device_position.access(is, ia, 2);
+//     if (abs(eta - slice) <= 0.2) {
+//       double x = device_position.access(is, ia, 0);;
+//       double y = device_position.access(is, ia, 1);;
+//       double e = device_thermo.access(is, ia, thermo_info::e);
+//       double gamma = device_hydro_scalar.access(is, ia, hydro_info::gamma);
+//       double weight = gamma * e;
+
+//       Kokkos::atomic_add(&c_sum(), weight * (x * x - y * y));
+//       Kokkos::atomic_add(&s_sum(), weight * (2.0 * x * y));
+//       Kokkos::atomic_add(&norm_sum(), weight * (x * x + y * y));
+//       Kokkos::atomic_add(&count(), 1);
+//     }
+//   });
+
+//   // Copy to host and compute result
+//   auto c_host = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(), c_sum);
+//   auto s_host = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(), s_sum);
+//   auto norm_host = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(), norm_sum);
+//   auto count_host = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(), count);
+
+//   if (count_host() > 0 && norm_host() > 0.0) {
+//     e_2_X = std::sqrt(c_host() * c_host() + s_host() * s_host()) / std::abs(norm_host());
+//   }
+
+//   count_X = count_host();
+//   e_2_X_history.push_back(e_2_X);
+//   count_X_history.push_back(count_X);
+// }
+
+
 template<unsigned int D>
-void SystemState<D>::compute_e_2_P()
+std::pair<double, int> SystemState<D>::compute_e_2_P(double slice)
 {
-  double e_2_P_c = 0.0, e_2_P_s = 0.0, normalization = 0.0;
+  double e_2_P = 0.0;
+  int count_P = 0;
 
-  for ( auto & p : particles )
-  {
-    double ux        = p.hydro.u(0),
-           uy        = p.hydro.u(1);
-    double p_plus_Pi = p.p() + p.hydro.bulk;
-    double e_p_Pi    = p.e() + p_plus_Pi;
+  CREATE_VIEW(device_, cabana_particles);
 
-    double Txx = e_p_Pi*ux*ux + p_plus_Pi + p.hydro.shv(1,1);
-    double Txy = e_p_Pi*ux*uy             + p.hydro.shv(1,2);
-    double Tyy = e_p_Pi*uy*uy + p_plus_Pi + p.hydro.shv(2,2);
+  Kokkos::View<double> numerator("e2P_num");
+  Kokkos::View<double> denominator("e2P_den");
+  Kokkos::View<int> count("e2P_count");
 
-    e_2_P_c += Txx-Tyy;
-    e_2_P_s += 2.0*Txy;
-    normalization += Txx+Tyy;
+  using policy2D = Kokkos::MDRangePolicy<Kokkos::Rank<2>>;
+  policy2D policy({0, 0}, {static_cast<int>(cabana_particles.size()), VECTOR_LENGTH});
+
+  Kokkos::parallel_for("compute_e2P", policy, KOKKOS_LAMBDA(const int is, const int ia) {
+    double eta = device_position.access(is, ia, 2);
+    if (abs(eta - slice) <= 0.2) {
+      double p     = device_thermo.access(is, ia, thermo_info::p);
+      double bulk  = device_hydro_scalar.access(is, ia, hydro_info::bulk);
+      double e     = device_thermo.access(is, ia, thermo_info::e);
+      double p_Pi  = p + bulk;
+      double e_P_Pi = e + p_Pi;
+
+      milne::Vector<double, D> u;
+      for (int idir = 0; idir < D; ++idir)
+        u(idir) = device_hydro_vector.access(is, ia, hydro_info::u, idir);
+
+      milne::Matrix<double, D+1, D+1> shv;
+      for (int idir = 0; idir < D+1; ++idir)
+        for (int jdir = 0; jdir < D+1; ++jdir)
+          shv(idir, jdir) = device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir, jdir);
+
+      double Txx = e_P_Pi * u(0) * u(0) + p_Pi + shv(1,1);
+      double Txy = e_P_Pi * u(0) * u(1) + shv(1,2);
+      double Tyy = e_P_Pi * u(1) * u(1) + p_Pi + shv(2,2);
+
+      double delta = Txx - Tyy;
+      double twoxy = 2.0 * Txy;
+
+      Kokkos::atomic_add(&numerator(), delta * delta + twoxy * twoxy);
+      Kokkos::atomic_add(&denominator(), Txx + Tyy);
+      Kokkos::atomic_add(&count(), 1);
+    }
+  });
+
+  auto n_host = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(), numerator);
+  auto d_host = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(), denominator);
+  auto c_host = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(), count);
+
+  if (c_host() > 0 && d_host() > 0.0) {
+    e_2_P = std::sqrt(n_host() / c_host()) / (d_host() / c_host());
   }
-  e_2_P.push_back( sqrt(e_2_P_c*e_2_P_c+e_2_P_s*e_2_P_s)/abs(normalization) );
+
+  return {e_2_P, c_host()};
 }
 
-///////////////////////////////////////
+
 template<unsigned int D>
-//TODO: Use Cabana for paralelism
-void SystemState<D>::compute_e_2_X()
+std::pair<double, int> SystemState<D>::compute_e_2_X(double slice)
 {
-  double e_2_X_c = 0.0, e_2_X_s = 0.0, normalization = 0.0;
-  for ( auto & p : particles )
-  {
-    double x       = p.r(0),
-           y       = p.r(1);
-    e_2_X_c       += p.hydro.gamma*p.e()*(x*x-y*y);
-    e_2_X_s       += 2.0*p.hydro.gamma*p.e()*x*y;
-    normalization += p.hydro.gamma*p.e()*(x*x+y*y);
+  double e_2_X = 0.0;
+  int count_X = 0;
+
+  CREATE_VIEW(device_, cabana_particles);
+
+  Kokkos::View<double> c_sum("e2X_c");
+  Kokkos::View<double> s_sum("e2X_s");
+  Kokkos::View<double> norm_sum("e2X_norm");
+  Kokkos::View<int> count("e2X_count");
+
+  using policy2D = Kokkos::MDRangePolicy<Kokkos::Rank<2>>;
+  policy2D policy({0, 0}, {static_cast<int>(cabana_particles.size()), VECTOR_LENGTH});
+
+  Kokkos::parallel_for("compute_e2X", policy, KOKKOS_LAMBDA(const int is, const int ia) {
+    double eta = device_position.access(is, ia, 2);
+    if (abs(eta - slice) <= 0.2) {
+      double x = device_position.access(is, ia, 0);
+      double y = device_position.access(is, ia, 1);
+      double e = device_thermo.access(is, ia, thermo_info::e);
+      double gamma = device_hydro_scalar.access(is, ia, hydro_info::gamma);
+      double weight = gamma * e;
+
+      Kokkos::atomic_add(&c_sum(), weight * (x * x - y * y));
+      Kokkos::atomic_add(&s_sum(), weight * (2.0 * x * y));
+      Kokkos::atomic_add(&norm_sum(), weight * (x * x + y * y));
+      Kokkos::atomic_add(&count(), 1);
+    }
+  });
+
+  auto c_host = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(), c_sum);
+  auto s_host = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(), s_sum);
+  auto norm_host = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(), norm_sum);
+  auto count_host = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(), count);
+
+  if (count_host() > 0 && norm_host() > 0.0) {
+    e_2_X = std::sqrt(c_host() * c_host() + s_host() * s_host()) / std::abs(norm_host());
   }
-  e_2_X.push_back( sqrt(e_2_X_c*e_2_X_c+e_2_X_s*e_2_X_s)/abs(normalization) );
+
+  return {e_2_X, count_host()};
 }
+
+

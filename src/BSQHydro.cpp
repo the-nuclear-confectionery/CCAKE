@@ -302,15 +302,15 @@ void BSQHydro<D,TEOM>::read_ccake()
             p.hydro.u(0) = ux;
             p.hydro.u(1) = uy;
             p.hydro.u(2) = ueta;
-            p.hydro.shv(1,1) = pixx;
-            p.hydro.shv(1,2) = pixy;
-            p.hydro.shv(1,3) = pixeta;
-            p.hydro.shv(2,1) = pixy;
-            p.hydro.shv(3,1) = pixeta;
-            p.hydro.shv(2,2) = piyy;
-            p.hydro.shv(2,3) = piyeta;
-            p.hydro.shv(3,2) = piyeta;
-            p.hydro.shv(3,3) = pietaeta;
+            p.hydro.shv(1,1) = 0.; //pixx;
+            p.hydro.shv(1,2) = 0.; //pixy;
+            p.hydro.shv(1,3) = 0.; //pixeta;
+            p.hydro.shv(2,1) = 0.; //pixy;
+            p.hydro.shv(3,1) = 0.; //pixeta;
+            p.hydro.shv(2,2) = 0.; //piyy;
+            p.hydro.shv(2,3) = 0.; // piyeta;
+            p.hydro.shv(3,2) = 0.; //piyeta;
+            p.hydro.shv(3,3) = 0.; //pietaeta;
         }
         if(settingsPtr->input_as_entropy==true){
           p.input.s = s;
@@ -318,9 +318,13 @@ void BSQHydro<D,TEOM>::read_ccake()
         else{
           p.input.e = e;
         }
-        p.input.rhoB = rhoB;
-        p.input.rhoS = rhoS;
-        p.input.rhoQ = rhoQ;
+        (settingsPtr->baryon_charge_enabled) ? p.input.rhoB = rhoB : p.input.rhoB = 0.0;
+        (settingsPtr->strange_charge_enabled) ? p.input.rhoS = rhoS : p.input.rhoS = 0.0;
+        (settingsPtr->electric_charge_enabled) ? p.input.rhoQ = rhoQ : p.input.rhoQ = 0.0;
+  
+        // p.input.rhoB = rhoB;
+        // p.input.rhoS = rhoS;
+        // p.input.rhoQ = rhoQ;
         p.hydro.bulk = bulk;
         if(settingsPtr->input_initial_diffusion){
           p.hydro.diffusion(0,0) = qB0;
@@ -492,27 +496,37 @@ void BSQHydro<D,TEOM>::run()
   formatted_output::announce("Beginning hydrodynamic evolution");
   Stopwatch sw;
   sw.Start();
+  // TODO: Use ifdef DEBUG for debugging insteaed of having yaml options for regular builds (???)
 
-  #ifdef DEBUG
+  // #ifdef DEBUG
+  string out_dir = settingsPtr->results_directory;
+
   std::ofstream outfile;
-  outfile.open("conservation.dat");
-  #endif
+  string cons_path = out_dir + "/conservation.dat";
+  outfile.open(cons_path.c_str());
+  // #endif
   //===================================
   // initialize conserved quantities, etc.
   if (settingsPtr->print_conservation_status) {
     systemPtr->conservation_entropy(true);
     systemPtr->conservation_BSQ(true);
+    outfile << "t" << " " << "Eloss" << " " << "S" << " " << "Btotal" << " " \
+          << "Stotal" << " " << "Qtotal" << endl;
   }
   if (settingsPtr->calculate_observables) systemPtr->compute_eccentricities();
 
 
   //===================================
   // print initialized system and status
-  if (settingsPtr->print_conservation_status) outPtr->print_conservation_status();
-  #ifdef DEBUG
-  outfile << systemPtr->t << " " << systemPtr->Eloss << " " << systemPtr->S << endl;
-  #endif
-  outPtr->print_system_state();
+  if (settingsPtr->print_conservation_status) {
+    outPtr->print_conservation_status();
+    outfile << systemPtr->t << " " << systemPtr->Eloss << " " << systemPtr->S << \
+      " " << systemPtr->Btotal << " " << systemPtr->Stotal << " " << systemPtr->Qtotal << endl;
+  }
+  if (settingsPtr->hdf_evolution || settingsPtr->txt_evolution) 
+    {
+      outPtr->print_system_state();
+    }
 
   //===================================
   // evolve until simulation terminates
@@ -551,16 +565,13 @@ void BSQHydro<D,TEOM>::run()
     if (settingsPtr->print_conservation_status){
       systemPtr->conservation_entropy();
       systemPtr->conservation_BSQ();
+      outPtr->print_conservation_status();
+      outfile << systemPtr->t << " " << systemPtr->Eloss << " " << systemPtr->S << \
+      " " << systemPtr->Btotal << " " << systemPtr->Stotal << " " << systemPtr->Qtotal << endl;
     }
     if (settingsPtr->calculate_observables) systemPtr->compute_eccentricities();
 
     //===================================
-    // print updated system and status
-    if (settingsPtr->print_conservation_status) outPtr->print_conservation_status();
-    #ifdef DEBUG
-    outfile << systemPtr->t << " " << systemPtr->Eloss << " " << systemPtr->S << endl;
-    #endif
-    //outPtr->print_system_state();
     if (settingsPtr->hdf_evolution || settingsPtr->txt_evolution) 
     {
       outPtr->print_system_state();
@@ -568,9 +579,23 @@ void BSQHydro<D,TEOM>::run()
     if (settingsPtr->particlization_enabled) outPtr->print_freeze_out(wsPtr->freezePtr);
 
   }
-  #ifdef DEBUG
+  // #ifdef DEBUG
   outfile.close();
-  #endif
+  // #endif
+  if (settingsPtr->calculate_observables) {
+    std::ofstream outfile;
+    for (int j = 0; j < systemPtr->eta_slices.size(); ++j){
+      string ecc_path = out_dir + "/eccentricities_" + std::to_string(systemPtr->eta_slices[j]) + ".dat";
+      outfile.open(ecc_path.c_str());
+      outfile << "t " << "e_2_X " << "e_2_P " << endl;
+      for (int i = 0; i < systemPtr->timesteps.size(); ++i)
+      {
+        outfile << systemPtr->timesteps[i] << " " << systemPtr->e_2_X_history_by_slice[j][i] \
+        << " " << systemPtr->e_2_X_history_by_slice[j][i] << endl;
+      }
+      outfile.close();
+    }
+  }
 
   sw.Stop();
   formatted_output::summarize("All timesteps finished in "

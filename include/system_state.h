@@ -17,6 +17,7 @@
 #include "vector.h"
 #include "utilities.h"
 #include "densities.h"
+#include "milne.hpp"
 
 using std::string;
 using std::vector;
@@ -64,6 +65,11 @@ class SystemState
     double Ejet       = 0.0;
     double Ejet0      = 0.0;
 
+    // double e_2_P      = 0.0;
+    // double e_2_X      = 0.0;
+    // int count_X       = 0;
+    // int count_P       = 0;
+
     double efcheck    = 0.0;
     double sfcheck    = 0.0;
 
@@ -86,12 +92,21 @@ class SystemState
     ////////////////////////////////////////////////////////////////////////////
     Cabana::AoSoA<CabanaParticle, DeviceType, VECTOR_LENGTH> cabana_particles; ///< Particle storage on device
     ListType neighbour_list; ///< Neighbour list
+    std::vector<double> timesteps;
+    std::vector<std::vector<double>> e_2_P_history_by_slice, e_2_X_history_by_slice;
+    std::vector<std::vector<int>> count_P_history_by_slice, count_X_history_by_slice;
+    std::vector<double> eta_slices;
   private:
     std::shared_ptr<Settings> settingsPtr;  ///< Pointer to Settings object
 
     // eccentricities
-    std::vector<double> timesteps;
-    std::vector<double> e_2_X, e_2_P;
+    // std::vector<double> timesteps;
+    // // std::vector<double> e_2_X_history, e_2_P_history;
+    // std::vector<std::vector<double>> e_2_P_history_by_slice, e_2_X_history_by_slice;
+    // std::vector<std::vector<int>> count_P_history_by_slice, count_X_history_by_slice;
+    // std::vector<double> eta_slices;
+    // std::vector<int> count_X_history, count_P_history;
+
 
   public:
     // initialize system state, linklist, etc.
@@ -110,8 +125,10 @@ class SystemState
 
     //TODO: observables should probably be computed in a separate class
     void compute_eccentricities();
-    void compute_e_2_P();
-    void compute_e_2_X();
+    // void compute_e_2_P(double slice);
+    // void compute_e_2_X(double slice);
+    std::pair<double, int> compute_e_2_P(double slice);
+    std::pair<double, int> compute_e_2_X(double slice);
 
     int n(){ return n_particles; }
     double get_particle_T(int id) {return particles[id].T();}
