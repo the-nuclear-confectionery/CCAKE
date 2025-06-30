@@ -1,8 +1,8 @@
 ---
 eos:
   online_inverter_enabled: false
-  path: EoS/Houston
-  preinverted_eos_path: inverted_eos.h5
+  path: /u/surkhab2/CCAKE/build/EoS/Houston
+  preinverted_eos_path: /u/surkhab2/CCAKE/build/inverted_eos.h5
   type: table
 hydro:
   baryon_charge_enabled: false
@@ -23,12 +23,12 @@ hydro:
 initial_conditions:
   coordinate_system: hyperbolic
   dimension: 3
-  file: /u/surkhab2/AMPTGenesis/ics/ic19_0.1.dat
+  file: /u/surkhab2/AMPTGenesis/ics/ics_19p6/x_p1_eta_p13.dat
   input_as_entropy: false
   t0: 1.0
   type: ccake
 output:
-  calculate_observables: false
+  calculate_observables: true
   hdf_evolution: false
   print_conservation_state: true
   txt_evolution: false
@@ -39,8 +39,8 @@ parameters:
     padding_thickness: 0.1
   dt: 0.05
   energy_cutoff: 0.15
-  h_T: 0.35
-  h_eta: 0.35
+  h_T: 0.2
+  h_eta: 0.2
   kernel_type: cubic_spline
   max_tau: 30.0
   rk_order: 2

@@ -1,4 +1,5 @@
 #include "BSQHydro.h"
+#include <sstream>
 
 using namespace ccake;
 
@@ -584,14 +585,19 @@ void BSQHydro<D,TEOM>::run()
   // #endif
   if (settingsPtr->calculate_observables) {
     std::ofstream outfile;
+    std::ostringstream eta_stream;
     for (int j = 0; j < systemPtr->eta_slices.size(); ++j){
-      string ecc_path = out_dir + "/eccentricities_" + std::to_string(systemPtr->eta_slices[j]) + ".dat";
+      eta_stream << std::fixed << std::setprecision(1) << systemPtr->eta_slices[j];
+      string ecc_path = out_dir + "/eccentricities_" + eta_stream.str() + ".dat";
       outfile.open(ecc_path.c_str());
-      outfile << "t " << "e_2_X " << "e_2_P " << endl;
+      outfile << "t " << "e_2_X " << "e_2_P " << "count_X " << "count_P " << endl;
       for (int i = 0; i < systemPtr->timesteps.size(); ++i)
       {
-        outfile << systemPtr->timesteps[i] << " " << systemPtr->e_2_X_history_by_slice[j][i] \
-        << " " << systemPtr->e_2_X_history_by_slice[j][i] << endl;
+        outfile << systemPtr->timesteps[i] << " " \
+        << systemPtr->e_2_X_history_by_slice[j][i] << " " \
+        << systemPtr->e_2_P_history_by_slice[j][i] << " " \
+        << systemPtr->count_X_history_by_slice[j][i] << " " \
+        << systemPtr->count_P_history_by_slice[j][i] << endl;
       }
       outfile.close();
     }
