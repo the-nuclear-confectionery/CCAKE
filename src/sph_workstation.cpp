@@ -939,6 +939,7 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
         }
       }
     }
+
     //Accumulate
     for(int idir=0; idir<D; ++idir) {
       Kokkos::atomic_add(&device_hydro_vector(particle_a, hydro_info::gradP, idir), gradP(idir));
@@ -1196,8 +1197,8 @@ void SPHWorkstation<D, TEOM>::set_diffusion()
     {
       for(int icharge=0; icharge<3; ++icharge)
       {
-        //device_hydro_space_matrix.access(is, ia, ccake::hydro_info::extensive_diffusion, idir) = device_hydro_vector.access(is, ia, ccake::hydro_info::diffusion, icharge ,idir+1)/sigma;
-        device_hydro_space_matrix.access(is, ia, ccake::hydro_info::extensive_diffusion,icharge, idir) = 0.0;
+        device_hydro_space_matrix.access(is, ia, ccake::hydro_info::extensive_diffusion,icharge, idir) = device_hydro_diffusion.access(is, ia, ccake::hydro_info::diffusion, icharge ,idir+1)/sigma;
+        //device_hydro_space_matrix.access(is, ia, ccake::hydro_info::extensive_diffusion,icharge, idir) = 0.0;
       }
     }
   };

@@ -9,6 +9,7 @@
 // #include <Cabana_Experimental_NeighborList.hpp>
 
 #include "system_state.h"
+#include "milne.hpp"
 #include "utilities.h"
 
 using namespace constants;
@@ -661,18 +662,59 @@ void SystemState<D>::conservation_BSQ(bool first_iteration)
   Btotal = 0.0;
   Stotal = 0.0;
   Qtotal = 0.0;
+  bool using_diffusion = settingsPtr->using_diffusion;
   CREATE_VIEW(device_, cabana_particles);
   auto get_total_B = KOKKOS_LAMBDA(const int &i, double &Btotal)
   {
-    Btotal += device_extensive(i, ccake::densities_info::rhoB)*device_sph_mass(i, ccake::densities_info::rhoB);
+    double gamma = device_hydro_scalar(i, ccake::hydro_info::gamma);
+    double sigma = device_hydro_scalar(i, ccake::hydro_info::sigma);
+    double qb0 = device_hydro_diffusion(i, ccake::hydro_info::diffusion, 0, 0);
+    double rhob = device_thermo(i, ccake::thermo_info::rhoB);
+    double extensive_qb0 = qb0 * device_sph_mass(i, ccake::densities_info::rhoB)/ sigma / gamma;
+    double extensive_qb02 = 0.0;
+    milne::Vector<double, 3> fixed_size_u_cov;
+    milne::Vector<double, 3> fixed_size_u;
+    milne::Vector<double, D> u;
+    for(int idir=0; idir<D; ++idir)
+    {
+      u(idir) = device_hydro_vector(i, ccake::hydro_info::u, idir);
+      fixed_size_u(idir) = device_hydro_vector(i, ccake::hydro_info::u, idir);
+    }
+    for(int idir=D; idir<3; ++idir){
+      fixed_size_u(idir) = 0.0;
+    }
+    if (D==1) {
+      fixed_size_u(2) = u(0);
+      fixed_size_u(0) = 0.0;
+    }
+    fixed_size_u_cov = fixed_size_u;
+    fixed_size_u_cov.make_covariant(t*t);
+
+
+    for(int idir=0; idir<3; ++idir)
+    {
+      extensive_qb02 += device_hydro_space_matrix(i, ccake::hydro_info::extensive_diffusion, idir, 0) * fixed_size_u_cov(idir)/gamma;
+    }
+
+    Btotal += device_extensive(i, ccake::densities_info::rhoB)*device_sph_mass(i, ccake::densities_info::rhoB) + extensive_qb0*device_sph_mass(i, ccake::densities_info::rhoB)/gamma;
   };
   auto get_total_S = KOKKOS_LAMBDA(const int &i, double &Stotal)
   {
-    Stotal += device_extensive(i, ccake::densities_info::rhoS)*device_sph_mass(i, ccake::densities_info::rhoS);
+    double gamma = device_hydro_scalar(i, ccake::hydro_info::gamma);
+    double sigma = device_hydro_scalar(i, ccake::hydro_info::sigma);
+    double qs0 = device_hydro_diffusion(i, ccake::hydro_info::diffusion, 1, 0);
+    double extensive_qs0 =  qs0 * device_sph_mass(i, ccake::densities_info::s)/ sigma / gamma;
+    Stotal += device_extensive(i, ccake::densities_info::rhoS)*device_sph_mass(i, ccake::densities_info::rhoS)
+              + (extensive_qs0);
   };
   auto get_total_Q = KOKKOS_LAMBDA(const int &i, double &Qtotal)
   {
-    Qtotal += device_extensive(i, ccake::densities_info::rhoQ)*device_sph_mass(i, ccake::densities_info::rhoQ);
+    double gamma = device_hydro_scalar(i, ccake::hydro_info::gamma);
+    double sigma = device_hydro_scalar(i, ccake::hydro_info::sigma);
+    double qQ0 = device_hydro_diffusion(i, ccake::hydro_info::diffusion, 2, 0);
+    double extensive_qQ0 =  qQ0 * device_sph_mass(i, ccake::densities_info::s)/ sigma /gamma;
+    Qtotal +=device_extensive(i, ccake::densities_info::rhoQ)*device_sph_mass(i, ccake::densities_info::rhoQ)
+              + (extensive_qQ0);
   };
   Kokkos::parallel_reduce("loop_conservation_B",n_particles, get_total_B, Kokkos::Sum<double>(Btotal));
   Kokkos::parallel_reduce("loop_conservation_S",n_particles, get_total_S, Kokkos::Sum<double>(Stotal));

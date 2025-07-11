@@ -224,13 +224,30 @@ void Output<D>::print_system_state_to_HDF()
 template<unsigned int D>
 void Output<D>::print_conservation_status()
 {   
+    double Bdiff = (systemPtr->Btotal - systemPtr->Btotal0)/ systemPtr->Btotal0 * 100.0;
+    double Sdiff = (systemPtr->Stotal - systemPtr->Stotal0)/ systemPtr->Stotal0 * 100.0;
+    double Qdiff = (systemPtr->Qtotal - systemPtr->Qtotal0)/ systemPtr->Qtotal0 * 100.0;
     stringstream ss;
+    //ss  << "t = "
+    //    << systemPtr->t      << ": " << scientific        << setw(10)
+    //    << systemPtr->Eloss  << " "  << systemPtr->S      << " "
+    //    << systemPtr->Btotal << " "  << systemPtr->Stotal << " "
+    //    << systemPtr->Qtotal << defaultfloat;
     ss  << "t = "
-        << systemPtr->t      << ": " << scientific        << setw(10)
+        << systemPtr->t      << ": " << std::scientific << std::setprecision(6)
         << systemPtr->Eloss  << " "  << systemPtr->S      << " "
-        << systemPtr->Btotal << " "  << systemPtr->Stotal << " "
-        << systemPtr->Qtotal << defaultfloat;
+        << Bdiff  << " "  << Sdiff << " "
+        << Qdiff  << " "  << std::defaultfloat;
     formatted_output::summarize(ss.str());
+    stringstream sss;
+    sss << "Btotal = "
+        << systemPtr->Btotal << " "
+        << "Stotal = "
+        << systemPtr->Stotal << " "
+        << "Qtotal = "
+        << systemPtr->Qtotal << " " << std::defaultfloat;
+    formatted_output::summarize(sss.str());
+
 }
 
 
