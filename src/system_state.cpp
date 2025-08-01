@@ -745,7 +745,7 @@ template<unsigned int D>
 void SystemState<D>::compute_eccentricities()
 {
   timesteps.push_back(t);  
-  eta_slices = {-4.5, -4.0, -3.0, -2.0, -1.0, 0.0, 1.0, 2.0, 3.0, 4.0, 4.5};
+  eta_slices = {-4.5, -4.0, -3.5, -3.0, -2.5, -2.0, -1.5, -1.0, -0.5, 0.0, 0.5, 1.0, 2.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5};
   // Initialize per-slice storage on first call
   if (e_2_P_history_by_slice.empty()) {
     size_t n_slices = eta_slices.size();
@@ -757,19 +757,7 @@ void SystemState<D>::compute_eccentricities()
 
   for (size_t i = 0; i < eta_slices.size(); ++i) {
     double eta_center = eta_slices[i];
-
-    std::cout << "Computing e_2_P for time t = " << std::fixed << std::setprecision(1) << t << std::endl;
-    // auto [e2P, cntP] = compute_e_2_P(eta_center);
-    // e_2_P_history_by_slice[i].push_back(e2P);
-    // count_P_history_by_slice[i].push_back(cntP);
-
     compute_e_2_P(eta_center, i);
-
-    std::cout << "Computing e_2_X for time t = " << std::fixed << std::setprecision(1) << t << std::endl;
-    // auto [e2X, cntX] = compute_e_2_X(eta_center);
-    // e_2_X_history_by_slice[i].push_back(e2X);
-    // count_X_history_by_slice[i].push_back(cntX);
-
     compute_e_2_X(eta_center, i);
   }
 }
@@ -777,8 +765,6 @@ void SystemState<D>::compute_eccentricities()
 template<unsigned int D>
 void SystemState<D>::compute_e_2_P(double slice, int i)
 {
-  // double e_2_P = 0.0;
-  // int count_P = 0;
 
   CREATE_VIEW(device_, cabana_particles);
 
@@ -786,9 +772,6 @@ void SystemState<D>::compute_e_2_P(double slice, int i)
   Kokkos::View<double, DeviceType> s_sum("e2P_s");
   Kokkos::View<double, DeviceType> denominator("e2P_den");
   Kokkos::View<int, DeviceType> count("e2P_count");
-
-  // using policy2D = Kokkos::MDRangePolicy<Kokkos::Rank<2>>;
-  // policy2D policy({0, 0}, {static_cast<int>(cabana_particles.size()), VECTOR_LENGTH});
 
   Kokkos::parallel_for("compute_e2P", Kokkos::RangePolicy<ExecutionSpace>(0, cabana_particles.size()),
    KOKKOS_LAMBDA(const int part) {
@@ -813,9 +796,6 @@ void SystemState<D>::compute_e_2_P(double slice, int i)
       double Txy = e_P_Pi * u(0) * u(1) + shv(1,2);
       double Tyy = e_P_Pi * u(1) * u(1) + p_Pi + shv(2,2);
 
-      // double delta = Txx - Tyy;
-      // double twoxy = 2.0 * Txy;
-
       Kokkos::atomic_add(&c_sum(), Txx - Tyy);
       Kokkos::atomic_add(&s_sum(), 2.0 * Txy);
       Kokkos::atomic_add(&denominator(), Txx + Tyy);
@@ -838,8 +818,6 @@ void SystemState<D>::compute_e_2_P(double slice, int i)
 template<unsigned int D>
 void SystemState<D>::compute_e_2_X(double slice, int i)
 {
-  // double e_2_X = 0.0;
-  // int count_X = 0;
 
   CREATE_VIEW(device_, cabana_particles);
 
@@ -847,9 +825,6 @@ void SystemState<D>::compute_e_2_X(double slice, int i)
   Kokkos::View<double, DeviceType> s_sum("e2X_s");
   Kokkos::View<double, DeviceType> norm_sum("e2X_norm");
   Kokkos::View<int, DeviceType> count("e2X_count");
-
-  using policy2D = Kokkos::MDRangePolicy<Kokkos::Rank<2>>;
-  // policy2D policy({0, 0}, {static_cast<int>(cabana_particles.size()), VECTOR_LENGTH});
 
   Kokkos::parallel_for("compute_e2X", Kokkos::RangePolicy<ExecutionSpace>(0, cabana_particles.size()),
    KOKKOS_LAMBDA(const int p) {
@@ -873,10 +848,8 @@ void SystemState<D>::compute_e_2_X(double slice, int i)
   auto norm_host = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(), norm_sum);
   auto count_host = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(), count);
 
-  // if (count_host() > 0 && norm_host() > 0.0) {
   double e_2_X = std::sqrt(c_host() * c_host() + s_host() * s_host()) / std::abs(norm_host());
-
-  // return {e_2_X, count_host()};
+  
   e_2_X_history_by_slice[i].push_back(e_2_X);
   count_X_history_by_slice[i].push_back(count_host());
 }

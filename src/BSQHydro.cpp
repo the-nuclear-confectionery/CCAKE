@@ -516,7 +516,6 @@ void BSQHydro<D,TEOM>::run()
   }
   if (settingsPtr->calculate_observables) systemPtr->compute_eccentricities();
 
-
   //===================================
   // print initialized system and status
   if (settingsPtr->print_conservation_status) {
@@ -528,6 +527,21 @@ void BSQHydro<D,TEOM>::run()
     {
       outPtr->print_system_state();
     }
+  std::ofstream outfile_neighbors;
+  int idx = 20000;
+  std::string n_path = out_dir + "/neighbors_" + std::to_string(idx) + ".dat";
+  outfile_neighbors.open(n_path.c_str());
+  outfile_neighbors << "idx = " << idx << endl;
+  outfile_neighbors << "t" << " " << "#neighbors" << " " << "x" << " " << "y" << " " << "eta" << endl;
+  if(settingsPtr->get_neighbors){
+    std::vector<std::array<double, 4>> result;
+    result = systemPtr->get_particle_data(idx);
+    outfile_neighbors << systemPtr->t << " "
+                  << result[0][0] << " "
+                  << result[0][1] << " "
+                  << result[0][2] << " "
+                  << result[0][3] << std::endl;
+  }
 
   //===================================
   // evolve until simulation terminates
@@ -579,14 +593,28 @@ void BSQHydro<D,TEOM>::run()
     }
     if (settingsPtr->particlization_enabled) outPtr->print_freeze_out(wsPtr->freezePtr);
 
+    if(settingsPtr->get_neighbors){
+    std::vector<std::array<double, 4>> result;
+    result = systemPtr->get_particle_data(idx);
+    outfile_neighbors << systemPtr->t << " "
+                  << result[0][0] << " "
+                  << result[0][1] << " "
+                  << result[0][2] << " "
+                  << result[0][3] << std::endl;
+  }
+
   }
   // #ifdef DEBUG
   outfile.close();
+  outfile_neighbors.close();
   // #endif
+
+  //===================================
+  // print observables
   if (settingsPtr->calculate_observables) {
     std::ofstream outfile;
-    std::ostringstream eta_stream;
     for (int j = 0; j < systemPtr->eta_slices.size(); ++j){
+      std::ostringstream eta_stream;
       eta_stream << std::fixed << std::setprecision(1) << systemPtr->eta_slices[j];
       string ecc_path = out_dir + "/eccentricities_" + eta_stream.str() + ".dat";
       outfile.open(ecc_path.c_str());

@@ -6,6 +6,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <array>
 
 #include "constants.h"
 #include "eos.h"
@@ -147,6 +148,25 @@ class SystemState
                     << ", sph_mass.s: " << device_sph_mass(neighIdx, ccake::densities_info::s) << std::endl;
                 }
     };
+
+    std::vector<std::array<double, 4>> get_particle_data(int idx){
+      CREATE_VIEW(device_, cabana_particles);
+      int num_neighbors = Cabana::NeighborList<ListType>::numNeighbor(neighbour_list, idx);
+      std::vector<std::array<double, 4>> result;
+      result.reserve(1);
+      result.push_back({
+          static_cast<double>(num_neighbors),         // number of neighbors
+          device_position(idx, 0),                    // x
+          device_position(idx, 1),                    // y
+          device_position(idx, 2)                     // eta
+      });
+
+      return result;
+    };
+
+    // };
+
+
 
 };
 
