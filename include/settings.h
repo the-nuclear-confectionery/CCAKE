@@ -38,6 +38,7 @@ class Settings
     // I/O settings
     bool txt_evolution              = false;
     bool hdf_evolution              = false;
+    bool jet_print_out              = false;
     bool print_conservation_status  = true;
     bool calculate_observables       = false;
     bool check_causality            = false;

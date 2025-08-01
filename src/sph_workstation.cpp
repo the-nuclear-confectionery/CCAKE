@@ -57,6 +57,7 @@ void SPHWorkstation<D,TEOM>::initialize()
   formatted_output::detail("freeze out energy density = "
                            + to_string(systemPtr->efcheck*hbarc_GeVfm) + " GeV/fm^3");
 
+  bbmg = BBMG<D>( settingsPtr, systemPtr ); // Initialize the BBMG object
 }
 
 
@@ -283,6 +284,18 @@ void SPHWorkstation<D,TEOM>::initial_smoothing()
   formatted_output::update("Finished initial smoothing "
                             + to_string(sw.printTime()) + " s.");
 
+}
+
+// Hardcoded Equations of Motion and Dimensionality
+// Give template later
+///\@todo: Give this function a template
+
+//template <>
+//void SPHWorkstation<2, EoM_default>::initialize_jets_bbmg()
+template<unsigned int D, template<unsigned int> class TEOM>
+void SPHWorkstation<D, TEOM>::initialize_jets_bbmg()
+{
+  bbmg.initial();
 }
 
 ///@brief Smooth all SPH fields
@@ -1732,6 +1745,8 @@ void SPHWorkstation<D, TEOM>::advance_timestep( double dt, int rk_order )
   //Bulk of code evaluation is done below
   evolver.execute_timestep( dt, rk_order,
                             [this]{ this->get_time_derivatives(); } );
+  
+  bbmg.propagate();
 
   // Perform freeze out
   if ( settingsPtr->particlization_enabled ) freeze_out_particles();
@@ -2191,3 +2206,4 @@ void SPHWorkstation<1, EoM_cartesian>::smooth_all_particle_gradients(double time
 }
 
 }; //namespace ccake
+

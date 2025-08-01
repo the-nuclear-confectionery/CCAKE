@@ -26,10 +26,13 @@ BSQHydro<D,TEOM>::BSQHydro(std::shared_ptr<Settings> settingsPtr_in)
   //Create the system state object - Necessary for reading in initial conditions
   systemPtr = std::make_shared<SystemState<D>>(settingsPtr);
 
+  bbmgPtr = std::make_shared<BBMG<D>>(settingsPtr,systemPtr);
+
   //Initialize the workstation
   wsPtr = std::make_shared<SPHWorkstation<D,TEOM>>(settingsPtr,systemPtr); 
 
-  outPtr = std::make_shared<Output<D>>(settingsPtr,systemPtr);
+  //outPtr = std::make_shared<Output<D>>(settingsPtr,systemPtr);
+  outPtr = std::make_shared<Output<D,TEOM>>(settingsPtr,systemPtr,wsPtr);
 
   return;
 }
@@ -306,9 +309,9 @@ void BSQHydro<D,TEOM>::read_ccake()
         else{
           p.input.e = e;
         }
-        p.input.rhoB = rhoB;
-        p.input.rhoS = rhoS;
-        p.input.rhoQ = rhoQ;
+        (settingsPtr->baryon_charge_enabled) ? p.input.rhoB = rhoB : p.input.rhoB = 0.0;
+        (settingsPtr->strange_charge_enabled) ? p.input.rhoS = rhoS : p.input.rhoS = 0.0;
+        (settingsPtr->electric_charge_enabled) ? p.input.rhoQ = rhoQ : p.input.rhoQ = 0.0;
         p.hydro.bulk = bulk;
         if(settingsPtr->input_as_entropy==true){
           
@@ -396,8 +399,12 @@ void BSQHydro<D,TEOM>::initialize_hydrodynamics()
   // if initializing from full Tmunu, absorb non-equilibrium
   // pressure correction into bulk viscous pressure Pi
   wsPtr->set_bulk_Pi();
+  // initializing jets from particle temperatures and densities
+  wsPtr->initialize_jets_bbmg();
+
   //calculate extensive shear tensor
   wsPtr->calculate_extensive_shv();
+
   // calculate initial diffusion 
   wsPtr->set_diffusion();
 
@@ -462,7 +469,6 @@ void BSQHydro<D,TEOM>::run()
   }
   if (settingsPtr->calculate_observables) systemPtr->compute_eccentricities();
 
-
   //===================================
   // print initialized system and status
   if (settingsPtr->print_conservation_status) outPtr->print_conservation_status();
@@ -518,9 +524,10 @@ void BSQHydro<D,TEOM>::run()
     outfile << systemPtr->t << " " << systemPtr->Eloss << " " << systemPtr->S << endl;
     #endif
     //outPtr->print_system_state();
-    if (settingsPtr->hdf_evolution || settingsPtr->txt_evolution) 
+    if (settingsPtr->hdf_evolution || settingsPtr->txt_evolution || settingsPtr->jet_print_out) 
     {
-      if (systemPtr->number_of_elapsed_timesteps%100 == 0) outPtr->print_system_state();
+      //if (systemPtr->number_of_elapsed_timesteps%100 == 0) outPtr->print_system_state();
+      outPtr->print_system_state();
     }
     if (settingsPtr->particlization_enabled) outPtr->print_freeze_out(wsPtr->freezePtr);
 

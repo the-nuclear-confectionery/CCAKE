@@ -1,13 +1,13 @@
 ---
 initial_conditions:
-  type: "ccake" # Possible values are: ["ccake", "iccing", "hdf5"]
-  file: "../ICs/init_conditions_1.00.txt" # Path to the initial conditions file
-  t0: 1.000000 # tau0 = \sqrt(t^2-z^2) in fm/c. Must match the value for initial condition file.
+  type: "ICCING" # Possible values are: ["ccake", "iccing", "hdf5"]
+  file: "../ICs/densities0.dat" # Path to the initial conditions file
+  t0: 0.600000 # tau0 = \sqrt(t^2-z^2) in fm/c. Must match the value for initial condition file.
   dimension: 2 # (1+1)D, (2+1)D or (3+1)D simulation
   input_as_entropy: false # if false, input will be interpreted as energy density
 parameters:
-  dt: 0.001 # time-step of the simulation in fm/c
-  h_T:  0.100000  # Smoothing parameter inside kernel, in the transverse direction (in fm)
+  dt: 0.05 # time-step of the simulation in fm/c
+  h_T:  0.300000  # Smoothing parameter inside kernel, in the transverse direction (in fm)
   h_eta:  0.100000  # Smoothing parameter inside kernel in the longitudinal direction
   rk_order: 2
   kernel_type: "cubic_spline" # Kernel type. Possible values are: ["cubic_spline"]
@@ -20,7 +20,7 @@ parameters:
 eos:
   online_inverter_enabled: true
   preinverted_eos_path: "inverted_eos.h5"
-  type: "conformal" # Possible values are: ["table", "tanh_conformal", "conformal", "conformal_diagonal"]
+  type: "table" # Possible values are: ["table", "tanh_conformal", "conformal", "conformal_diagonal"]
   path: "EoS/Houston" # If type is "table", the path to the equation of state table.
 particlization:
   enabled: true # set to true to output particlization hypersurface
@@ -32,7 +32,7 @@ hydro:
   electric_charge_enabled: false # Set to false to disable electric charge evolution
   viscous_parameters:
     shear:
-      mode: "constant" # Possible values are: ["constant", "disabled"]
+      mode: "disabled" # Possible values are: ["constant", "disabled"]
       constant_eta_over_s: 0.10 # Value of the constant shear viscosity
       relaxation_mode: "default" # How shear relaxation coeffiecient is computed. Possible values are: ["default"]
     bulk:
@@ -47,4 +47,5 @@ output:
   print_conservation_state: true
   hdf_evolution: false
   txt_evolution: true
+  jet_print_out: true
 

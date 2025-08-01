@@ -5,9 +5,12 @@ using namespace ccake;
 
 
 //Template instantiations
-template class Output<1>;
-template class Output<2>;
-template class Output<3>;
+template class Output<1, EoM_default>;
+template class Output<2, EoM_default>;
+template class Output<3, EoM_default>;
+template class Output<1, EoM_cartesian>;
+template class Output<2, EoM_cartesian>;
+template class Output<3, EoM_cartesian>;
 
 // Constructors and destructors.
 
@@ -17,10 +20,70 @@ template class Output<3>;
 /// if the hdf_evolution flag is set to true in the settings object.
 /// @param[in] settingsPtr_in Pointer to the settings object.
 /// @param[in] sys_in Pointer to the system state object.
+/// @param[in] bbmg_in Pointer to the bbmg object.
+template<unsigned int D, template<unsigned int> class TEOM>
+Output<D,TEOM>::Output(std::shared_ptr<Settings> settingsPtr_in,
+       std::shared_ptr<SystemState<D>> sys_in,
+        std::shared_ptr<SPHWorkstation<D,TEOM>> ws_in)
+    : settingsPtr(settingsPtr_in),
+      systemPtr(sys_in),
+      wsPtr(ws_in)
+{
+    std::vector<double> global_parameters_to_HDF = {
+        settingsPtr->hT,
+        settingsPtr->e_cutoff
+    };
+    std::vector<std::string> global_parameter_names_to_HDF = {
+        "h",
+        "e_cutoff"
+    };
+    output_directory = settingsPtr->results_directory;
+    if (settingsPtr->txt_evolution)
+        formatted_output::detail("WARNING: Output to txt enabled. Large files will be produced.");
+    if (settingsPtr->hdf_evolution)
+        hdf5_file.initialize(output_directory + "/system_state.h5",
+                             global_parameters_to_HDF,
+                             global_parameter_names_to_HDF);
+}
+
+/*// For D == 2 only
 template<unsigned int D>
+Output<D>::Output(std::shared_ptr<Settings> settingsPtr_in,
+                  std::shared_ptr<SystemState<D>> sys_in,
+                  std::shared_ptr<BBMG<D>> bbmg_in)
+    : settingsPtr(settingsPtr_in),
+      systemPtr(sys_in),
+      bbmgPtr(bbmg_in)
+{
+    //static_assert(D == 2, "This constructor is only available for D == 2");
+
+    std::vector<double> global_parameters_to_HDF = {
+        settingsPtr->hT,
+        settingsPtr->e_cutoff
+    };
+    std::vector<std::string> global_parameter_names_to_HDF = {
+        "h",
+        "e_cutoff"
+    };
+    output_directory = settingsPtr->results_directory;
+    if (settingsPtr->txt_evolution)
+        formatted_output::detail("WARNING: Output to txt enabled. Large files will be produced.");
+    if (settingsPtr->hdf_evolution)
+        hdf5_file.initialize(output_directory + "/system_state.h5",
+                             global_parameters_to_HDF,
+                             global_parameter_names_to_HDF);
+}
+*/
+
+/*Output<D>::Output( std::shared_ptr<Settings> settingsPtr_in,
+                   std::shared_ptr<SystemState<D>> sys_in):
+                   settingsPtr(settingsPtr_in), systemPtr(sys_in), bbmgPtr(nullptr)
+
+
 Output<D>::Output( std::shared_ptr<Settings> settingsPtr_in,
-                   std::shared_ptr<SystemState<D>> sys_in ):
-                   settingsPtr(settingsPtr_in), systemPtr(sys_in)
+                   std::shared_ptr<SystemState<D>> sys_in,
+                   std::shared_ptr<BBMG<D>> bbmg_in ):
+                   settingsPtr(settingsPtr_in), systemPtr(sys_in), bbmgPtr(bbmg_in)
 {
   vector<double> global_parameters_to_HDF
                   = vector<double>({ settingsPtr->hT,
@@ -35,22 +98,22 @@ Output<D>::Output( std::shared_ptr<Settings> settingsPtr_in,
     hdf5_file.initialize( output_directory + "/system_state.h5",
                         global_parameters_to_HDF,
                         global_parameter_names_to_HDF );
-}
+}*/
 
-template<unsigned int D> Output<D>::~Output(){}
+template<unsigned int D, template<unsigned int> class TEOM> Output<D,TEOM>::~Output(){}
 
 
 /// @brief Sets the path to the results directory.
 /// \param[in] path_to_results_directory Path to the results directory.
-template<unsigned int D>
-void Output<D>::set_results_directory( string path_to_results_directory )
+template<unsigned int D, template<unsigned int> class TEOM>
+void Output<D,TEOM>::set_results_directory( string path_to_results_directory )
 {
   output_directory = path_to_results_directory;
 }
 
 //------------------------------------------------------------------------------
-template<unsigned int D>
-void Output<D>::print_system_state()
+template<unsigned int D, template<unsigned int> class TEOM>
+void Output<D,TEOM>::print_system_state()
 {
   systemPtr->copy_device_to_host();
   //---------------------------------
@@ -60,7 +123,18 @@ void Output<D>::print_system_state()
   //---------------------------------
   if (settingsPtr->hdf_evolution)
     print_system_state_to_HDF();
-
+  
+  if(settingsPtr->jet_print_out){
+    if (systemPtr->n_particles == systemPtr->number_part_fo)
+      {
+      cout << systemPtr->n_particles << " is number of total particles; " << systemPtr->number_part_fo << " is number of part. frozen out. " << endl << "------------------------------------------------------" << endl;
+    //cout << "printing random things from bbmg class" << bbmgPtr->jetInfo_host[1].T << endl;
+      cout << "Copy device to host for jets executing..." << endl;
+      wsPtr->bbmg.copy_device_to_host_BBMG();
+      cout << "Print function for jets executing..." << endl;
+      print_jet_freeze_to_txt();
+      }
+  }
   //---------------------------------
   // increment timestep index
   n_timesteps_output++;
@@ -84,8 +158,8 @@ void Output<D>::print_system_state()
 /// @tparam D The dimensionality of the simulation.
 /// @todo: This needs to be updated to deal with other dimensions than 2+1D 
 /// simulations, specially for the shear tensor.
-template<unsigned int D>
-void Output<D>::print_system_state_to_txt()
+template<unsigned int D, template<unsigned int> class TEOM>
+void Output<D,TEOM>::print_system_state_to_txt()
 {
   //if (n_timesteps_output > 30) {
   //  std::cout << "Terminating after the 30th timestep" << std::endl;
@@ -153,6 +227,46 @@ void Output<D>::print_system_state_to_txt()
   return;
 }
 
+/// @brief Outputs data from the uncoupled jet system to a dat file
+/// @details This function outputs all necessary jet information for post processing. Each jet
+/// is its own row, while each column is its own variable for that jet. The columns are as
+/// follows: Index, time, BBMG line integral, initial density of each jet, angle the jet 
+/// started, x position, and y position. All quantities are left in terms of fm and will be 
+/// converted to MeV when necessary in post processing.
+template<unsigned int D, template<unsigned int> class TEOM>
+void Output<D,TEOM>::print_jet_freeze_to_txt()
+{
+  string jet_output_filename = output_directory + "/jet_state_" + std::to_string(n_timesteps_output) + ".dat";
+  ofstream out( jet_output_filename.c_str() );
+  // out << systemPtr->t << "\n";
+
+  //cout << "(bbmgPtr->jetInfo).size() = " << (bbmgPtr->jetInfo).size() << endl;
+  int iJet = 0;
+  //cout << "(bbmgPtr->jetFreezeOut).size() = " << (bbmgPtr->jetFreezeOut).size() << endl;
+  for ( auto & jets : wsPtr->bbmg.jetFreezeOut )//I think i wanna call the objects here jets, like how we have particles in the other function
+       {
+        out << iJet++ << " ";
+        out << systemPtr->t << " ";
+        out << jets.line_int << " ";
+        out << jets.rho0 << " ";
+        //out << jets.rho << " ";
+        out << jets.PID << " ";
+        out << jets.r[0] << " ";
+        out << jets.r[1] << " " << "\n";
+       }
+
+
+  out << std::flush;
+
+  out.close();
+
+  return;
+
+
+}
+
+
+
 /// @brief Outputs data of the system state to an HDF5 file.
 /// @tparam D The dimensionality of the simulation.
 /// @details This function outputs the data of the system state to an HDF5 file.
@@ -171,8 +285,8 @@ void Output<D>::print_system_state_to_txt()
 /// The data is stored in the datasets in the order of the particles.
 /// The units of the data are stored in the dataset attributes.
 /// @todo: This needs to be adapated for other dimensions than 2+1D simulations.
-template<unsigned int D>
-void Output<D>::print_system_state_to_HDF()
+template<unsigned int D, template<unsigned int> class TEOM>
+void Output<D,TEOM>::print_system_state_to_HDF()
 {
   // get width from maximum possible number of timesteps
   const int width = ceil(log10(ceil(settingsPtr->max_tau/settingsPtr->dt)));
@@ -221,8 +335,8 @@ void Output<D>::print_system_state_to_HDF()
 
 /// @brief Prints the conservation status of the system.
 /// @tparam D The dimensionality of the simulation.
-template<unsigned int D>
-void Output<D>::print_conservation_status()
+template<unsigned int D, template<unsigned int> class TEOM>
+void Output<D,TEOM>::print_conservation_status()
 {   
     stringstream ss;
     ss  << "t = "
@@ -238,8 +352,8 @@ void Output<D>::print_conservation_status()
 /// @tparam D The dimensionality of the simulation.
 /// @param[in] freeze_out Pointer to the freeze-out object.
 /// @todo We need to understand the meaning of the quantities printed here.
-template<unsigned int D>
-void Output<D>::print_freeze_out(std::shared_ptr<FreezeOut<D>> freeze_out)
+template<unsigned int D, template<unsigned int> class TEOM>
+void Output<D,TEOM>::print_freeze_out(std::shared_ptr<FreezeOut<D>> freeze_out)
 {
   string outputfilename = output_directory + "/freeze_out.dat";
   ofstream FO( outputfilename.c_str(), ios::app );
@@ -292,7 +406,7 @@ void Output<D>::print_freeze_out(std::shared_ptr<FreezeOut<D>> freeze_out)
 /// @param[in] freeze_out Pointer to the freeze-out object.
 /// @todo We need to understand the meaning of the quantities printed here.
 template<>
-void Output<2>::print_freeze_out(std::shared_ptr<FreezeOut<2>> freeze_out)
+void Output<2,EoM_default>::print_freeze_out(std::shared_ptr<FreezeOut<2>> freeze_out)
 {
   string outputfilename = output_directory + "/freeze_out.dat";
   ofstream FO( outputfilename.c_str(), ios::app );
@@ -336,3 +450,65 @@ void Output<2>::print_freeze_out(std::shared_ptr<FreezeOut<2>> freeze_out)
 
   return;
 }
+
+/// @brief Prints the freeze-out particles to a text file.
+/// @tparam D The dimensionality of the simulation.
+/// @param[in] freeze_out Pointer to the freeze-out object.
+/// @todo We need to understand the meaning of the quantities printed here.
+template<>
+void Output<2,EoM_cartesian>::print_freeze_out(std::shared_ptr<FreezeOut<2>> freeze_out)
+{
+  string outputfilename = output_directory + "/freeze_out.dat";
+  ofstream FO( outputfilename.c_str(), ios::app );
+
+  //Copy data to host
+  auto FOResults = Cabana::create_mirror_view_and_copy(Kokkos::HostSpace(),
+                                                        freeze_out->results);
+  int count=0;
+  FRZ_RESULTS_VIEW(result_, FOResults)
+  for (int i = 0; i < FOResults.size(); i++){
+    if (!result_print(i)) continue;
+    FO << result_divEener(i) << " ";
+    for(int idir = 0; idir < 2; idir++)
+      FO << result_divE(i, idir) << " ";
+    FO << result_gsub(i) << " ";
+    for(int idir = 0; idir < 2; idir++)
+      FO << result_uout(i, idir) << " ";
+    FO << result_swsub(i) << " "
+       << result_bulksub(i) << " "
+       << result_shearsub(i, 0,0) << " "
+       << result_shearsub(i, 1,1) << " "
+       << result_shearsub(i, 2,2) << " "
+       << result_shear33sub(i) << " "
+       << result_shearsub(i,1,2) << " "
+       << result_tlist(i) << " ";
+    for(int idir = 0; idir < 2; idir++)
+        FO << result_rsub(i, idir) << " ";
+    FO << result_sFO(i) << " "
+       << result_Efluc(i) << " "
+       << result_Tfluc(i) << " "
+       << result_muBfluc(i) << " "
+       << result_muSfluc(i) << " "
+       << result_muQfluc(i) << " "
+       << result_wfzfluc(i) << " "
+       << result_cs2fzfluc(i) <<
+       endl;
+    count++;
+  }
+  formatted_output::detail("Printed " + std::to_string(count) + " freeze-out particles.");
+  FO.close();
+
+  return;
+}
+
+// // Explicit instantiation of first constructor:
+// template Output<1>::Output(std::shared_ptr<Settings>, std::shared_ptr<SystemState<1>>);
+// template Output<2>::Output(std::shared_ptr<Settings>, std::shared_ptr<SystemState<2>>);
+// template Output<3>::Output(std::shared_ptr<Settings>, std::shared_ptr<SystemState<3>>);
+
+// // Explicit instantiation of the inner-templated second constructor for D=2, U=2:
+// template Output<2>::Output<2, int>(
+//     std::shared_ptr<Settings>,
+//     std::shared_ptr<SystemState<2>>,
+//     std::shared_ptr<BBMG<2>>);
+

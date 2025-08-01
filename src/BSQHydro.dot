@@ -17,7 +17,7 @@ digraph BSQHydro {
     settingsPtr [shape=ellipse,label="-settingsPtr: std::shared_ptr<Settings>"];
     systemPtr [shape=ellipse,label="-systemPtr: std::shared_ptr<System<D>>"];
     wsPtr [shape=ellipse,label="-wsPtr: std::shared_ptr<SPHWorkstation<D, TEOM>>"];
-    outPtr [shape=ellipse,label="-outPtr: std::shared_ptr<Output<D>>"];
+    outPtr [shape=ellipse,label="-outPtr: std::shared_ptr<Output<D,TEOM>>"];
     print_fo[label="outPtr->print_freeze_out(wsPtr->freezePtr);"]
 
     //Descriptive nodes

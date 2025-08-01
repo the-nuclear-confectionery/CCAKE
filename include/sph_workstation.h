@@ -14,6 +14,7 @@
 #include "evolver.h"
 #include "formatted_output.h"
 #include "freeze_out.h"
+#include "jets.h"
 #include "kernel.h"
 #include "settings.h"
 #include "stopwatch.h"
@@ -72,7 +73,7 @@ private:
 
   transport_coefficients::parameters transp_coeff_params; ///< Transport coefficients parameters
 
-
+  
   void add_buffer(double default_e);
 public:
 
@@ -81,6 +82,8 @@ public:
   void setup_freeze_out(){
     freezePtr = std::make_shared<FreezeOut<D>>(settingsPtr, systemPtr);}
   void freeze_out_particles();
+  
+  BBMG<D> bbmg; // This line is meant to include the bbmg class in calculations
 
   //============================================================================
   // Constructors/destructors
@@ -91,11 +94,22 @@ public:
   /// with the same settings and system state objects.
   /// @param settingsPtr_in A shared pointer to the settings object.
   /// @param systemPtr_in A shared pointer to the system state object.
-  SPHWorkstation( shared_ptr<Settings> settingsPtr_in,
+  SPHWorkstation (shared_ptr<Settings> settingsPtr_in,
                   shared_ptr<SystemState<D>> systemPtr_in )
-    : settingsPtr(settingsPtr_in),
-      systemPtr(systemPtr_in),
-      evolver(Evolver(settingsPtr_in, systemPtr_in)) {}
+                  : settingsPtr(settingsPtr_in),
+                    systemPtr(systemPtr_in),
+                    evolver(Evolver(settingsPtr_in, systemPtr_in)),
+                    bbmg(BBMG(settingsPtr_in, systemPtr_in)) {}
+  
+  // else
+  // {
+  // SPHWorkstation( shared_ptr<Settings> settingsPtr_in,
+  //                 shared_ptr<SystemState<D>> systemPtr_in )
+  //   : settingsPtr(settingsPtr_in),
+  //     systemPtr(systemPtr_in),
+  //     evolver(Evolver(settingsPtr_in, systemPtr_in)) {}
+  // }
+
   KOKKOS_FUNCTION
   ~SPHWorkstation(){}
 
@@ -111,6 +125,7 @@ public:
   void process_initial_conditions();
   void initialize_entropy_and_charge_densities();
   void initial_smoothing();
+  void initialize_jets_bbmg(); // Added to include the initial states of bbmg
 
   //============================================================================
   // smoothing
