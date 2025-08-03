@@ -530,10 +530,10 @@ void BSQHydro<D,TEOM>::run()
   std::ofstream outfile_neighbors;
   int idx = 20000;
   std::string n_path = out_dir + "/neighbors_" + std::to_string(idx) + ".dat";
-  outfile_neighbors.open(n_path.c_str());
-  outfile_neighbors << "idx = " << idx << endl;
-  outfile_neighbors << "t" << " " << "#neighbors" << " " << "x" << " " << "y" << " " << "eta" << endl;
   if(settingsPtr->get_neighbors){
+    outfile_neighbors.open(n_path.c_str());
+    // outfile_neighbors << "idx = " << idx << endl;
+    outfile_neighbors << "t" << " " << "#neighbors" << " " << "x" << " " << "y" << " " << "eta" << endl;
     std::vector<std::array<double, 4>> result;
     result = systemPtr->get_particle_data(idx);
     outfile_neighbors << systemPtr->t << " "
@@ -606,7 +606,9 @@ void BSQHydro<D,TEOM>::run()
   }
   // #ifdef DEBUG
   outfile.close();
-  outfile_neighbors.close();
+  if(settingsPtr->get_neighbors){
+    outfile_neighbors.close();
+  }
   // #endif
 
   //===================================
