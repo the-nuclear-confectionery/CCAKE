@@ -417,7 +417,7 @@ void BSQHydro<D,TEOM>::initialize_hydrodynamics()
   systemPtr->copy_device_to_host();
   std::ofstream thermo_file;
   thermo_file.open("initial_thermo.dat");
-  thermo_file << "eta thermo.e(GeV/fm^3) input.e(GeV/fm^3) thermo.s(fm^-3) input.s(fm^-3)" << std::endl;
+  thermo_file << "shv thermo.e(GeV/fm^3) input.e(GeV/fm^3) thermo.s(fm^-3) input.s(fm^-3)" << std::endl;
   for (auto & p : systemPtr->particles){
     //Print initial conditions
     for (int i = 0; i < D; i++) thermo_file << p.r(i) << " ";

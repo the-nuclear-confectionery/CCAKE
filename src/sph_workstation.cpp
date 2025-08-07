@@ -1150,12 +1150,25 @@ void SPHWorkstation<D, TEOM>::calculate_extensive_shv()
     {
       double shv = device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::shv, idir+1, jdir+1);
       //shv = 0.;
-      device_hydro_shear_aux_vector.access(is, ia, ccake::hydro_info::extensive_shv, idir, jdir) = shv * u0 * t0 / sigma_lab;
+      device_hydro_shear_aux_vector.access(is, ia, ccake::hydro_info::extensive_shv, idir, jdir) = 0.0;
       //std::cout << "shv = " << shv << "  extensive_shv = " << device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::extensive_shv, idir, jdir) << std::endl;
     }
   };
   Cabana::simd_parallel_for( simd_policy, calculate_shear, "calculate_extensive_shear_kernel");
   Kokkos::fence();
+
+
+  auto set_zero_shear = KOKKOS_LAMBDA( const int is, const int ia )
+    {
+      for (int idir=0; idir<4; ++idir)
+      for (int jdir=0; jdir<4; ++jdir)
+      {
+        device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::shv, idir, jdir) = 0.0;
+      }
+    };
+    Cabana::simd_parallel_for( simd_policy, set_zero_shear, "set_zero_shear_kernel");
+    Kokkos::fence();
+  
 }
 
 

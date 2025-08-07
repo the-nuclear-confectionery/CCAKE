@@ -449,7 +449,7 @@ void BBMG<D>::propagate()
     // f.v[0]    /= norm;
     // f.v[1]    /= norm;
     jet_vmag(i) = sqrt(jet_velocity(i, 0) * jet_velocity(i, 0) + jet_velocity(i, 1) * jet_velocity(i, 1));
-    cout << "This is the magnitude of the velocity around each jet: " << jet_vmag(i) << endl;
+    //cout << "This is the magnitude of the velocity around each jet: " << jet_vmag(i) << endl;
     //cout << "These are the components in x: " << jet_velocity(i, 0) << endl;
     //cout << "These are the components in y: " << jet_velocity(i, 1) << endl;
     //f.vmag     = sqrt( f.v[0]*f.v[0] + f.v[1]*f.v[1] );
