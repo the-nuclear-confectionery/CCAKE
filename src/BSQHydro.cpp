@@ -258,6 +258,10 @@ void BSQHydro<D,TEOM>::read_ccake()
           e /= hbarc_GeVfm; // 1/fm^4
         }
 
+        rhoB = 0.;
+        rhoS = 0.;
+        rhoQ = 0.;
+
         pixx /= hbarc_GeVfm; // 1/fm^4
         pixy /= hbarc_GeVfm; // 1/fm^4
         pixeta /= hbarc_GeVfm; // 1/fm^5
@@ -565,7 +569,7 @@ void BSQHydro<D,TEOM>::run()
     {
       outPtr->print_system_state();
     }
-    if (settingsPtr->particlization_enabled) outPtr->print_freeze_out(wsPtr->freezePtr);
+    if (settingsPtr->particlization_enabled) outPtr->print_freeze_out(wsPtr->freezePtr, systemPtr->Btotal0, systemPtr->Qtotal0, systemPtr->Stotal0);
 
   }
   #ifdef DEBUG

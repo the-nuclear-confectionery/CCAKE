@@ -39,7 +39,8 @@ namespace ccake
                                            double, double, double, // swsub, shear33sub, tlist
                                            double, double, double, double, // sFO, Efluc, Tfluc, muBfluc
                                            double, double, double, // muSfluc, muQfluc, cs2fzfluc
-                                           double, bool    // wfzfluc
+                                           double,    // wfzfluc
+                                           double, double, double, bool //rhoBfluc, rhoSfluc, rhoQfluc
                                            >; // 36*8 = 288 bytes per particle. 100K Particles = 28.8 MB
   namespace FRZ_enum{
     enum FRZ_members
@@ -64,7 +65,9 @@ namespace ccake
       swsub, shear33sub, tlist,
       sFO, Efluc, Tfluc, muBfluc,
       muSfluc, muQfluc, cs2fzfluc,
-      wfzfluc, print
+      wfzfluc, 
+      rhoBfluc, rhoSfluc, rhoQfluc,
+      print
     };
   }
 
@@ -120,8 +123,10 @@ namespace ccake
   auto CONCAT(prefix, muQfluc) = Cabana::slice<ResultsTypes_enum::muQfluc>(results_aosoa); \
   auto CONCAT(prefix, cs2fzfluc) = Cabana::slice<ResultsTypes_enum::cs2fzfluc>(results_aosoa); \
   auto CONCAT(prefix, wfzfluc) = Cabana::slice<ResultsTypes_enum::wfzfluc>(results_aosoa); \
-  auto CONCAT(prefix, print) = Cabana::slice<ResultsTypes_enum::print>(results_aosoa);
-
+  auto CONCAT(prefix, print) = Cabana::slice<ResultsTypes_enum::print>(results_aosoa); \
+  auto CONCAT(prefix, rhoBfluc) = Cabana::slice<ResultsTypes_enum::rhoBfluc>(results_aosoa); \
+  auto CONCAT(prefix, rhoSfluc) = Cabana::slice<ResultsTypes_enum::rhoSfluc>(results_aosoa); \
+  auto CONCAT(prefix, rhoQfluc) = Cabana::slice<ResultsTypes_enum::rhoQfluc>(results_aosoa);
 
 //TODO: This needs to be documented and split in header and
 //source code
@@ -234,6 +239,7 @@ class FreezeOut
         frz2_muB.access(is, ia)  = device_thermo.access(is, ia, ccake::thermo_info::muB);
         frz2_muS.access(is, ia)  = device_thermo.access(is, ia, ccake::thermo_info::muS);
         frz2_muQ.access(is, ia)  = device_thermo.access(is, ia, ccake::thermo_info::muQ);
+        frz2_bulk.access(is, ia) = device_hydro_scalar.access(is, ia, ccake::hydro_info::bulk);
         frz2_theta.access(is, ia) = device_hydro_scalar.access(is, ia, ccake::hydro_info::theta);
         frz2_sigma_lab.access(is, ia) = device_hydro_scalar.access(is, ia, ccake::hydro_info::sigma_lab);
         frz2_shear33.access(is, ia) = device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::shv, 3, 3);
@@ -729,6 +735,9 @@ class FreezeOut
             results_sFO.access(is,ia) = frz1_s.access(is,ia);
             results_cs2fzfluc.access(is,ia) = frz1_cs2fz.access(is,ia);
             results_wfzfluc.access(is,ia) = frz1_wfz.access(is,ia);
+            results_rhoBfluc.access(is,ia) = frz1_rhoB.access(is,ia);
+            results_rhoSfluc.access(is,ia) = frz1_rhoS.access(is,ia);
+            results_rhoQfluc.access(is,ia) = frz1_rhoQ.access(is,ia);
           } else if (swit == 2){
             // if particle had neighbors, use previous timestep otherwise go back two timesteps
             results_tlist.access(is,ia) = device_btrack.access(is,ia) != -1 ? taupp : taupp - dt;
@@ -807,6 +816,9 @@ class FreezeOut
             results_sFO.access(is,ia) = frz2_s.access(is,ia);
             results_cs2fzfluc.access(is,ia) = frz2_cs2fz.access(is,ia);
             results_wfzfluc.access(is,ia) = frz2_wfz.access(is,ia);
+            results_rhoBfluc.access(is,ia) = frz2_rhoB.access(is,ia);
+            results_rhoSfluc.access(is,ia) = frz2_rhoS.access(is,ia);
+            results_rhoQfluc.access(is,ia) = frz2_rhoQ.access(is,ia);
           }
 
           // COMPUTE NORMALS AFTER THIS POINT

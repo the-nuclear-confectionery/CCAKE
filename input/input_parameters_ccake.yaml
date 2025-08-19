@@ -30,10 +30,12 @@ hydro:
   viscous_parameters:
     shear:
       mode: "constant" # Possible values are: ["constant", "disabled"]
+      input_initial_shear: false
       constant_eta_over_s: 0.20 # Value of the constant shear viscosity
       relaxation_mode: "default" # How shear relaxation coeffiecient is computed. Possible values are: ["default"]
     bulk:
       mode: "cs2_dependent"
+      bulk_from_trace: false
       constant_zeta_over_s: 0.0
       cs2_dependent_zeta_A: 1.67552
       cs2_dependent_zeta_p: 2.0

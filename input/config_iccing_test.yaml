@@ -4,9 +4,9 @@ eos:
   preinverted_eos_path: default
   type: table
 hydro:
-  baryon_charge_enabled: true
-  electric_charge_enabled: true
-  strange_charge_enabled: true
+  baryon_charge_enabled: false
+  electric_charge_enabled: false
+  strange_charge_enabled: false
   viscous_parameters:
     diffusion:
       input_initial_diffusion: false
@@ -30,7 +30,7 @@ hydro:
       phi3_mode: disabled
     shear:
       input_initial_shear: false
-      constant_eta_over_s: 0.16
+      constant_eta_over_s: 0.10
       mode: constant
       relaxation_mode: default
       use_vorticity: false
@@ -42,7 +42,7 @@ hydro:
 initial_conditions:
   coordinate_system: hyperbolic
   dimension: 2
-  file: /u/kpala/git_repos/test/test_chain/test_diff/event_31/iccing/densities0.dat
+  file: /work/hdd/beqi/kpala/iccing_old/event100/densities0.dat
   input_as_entropy: false
   t0: 0.6
   type: ICCING

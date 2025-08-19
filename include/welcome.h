@@ -35,6 +35,7 @@ void welcome()
     cout << "= Kevin P. Pala\n";
     cout << "= Surkhab Kaur Virk\n";
     cout << "= Isabella Danhoni\n";
+    cout << "= Isaac Long\n";
     cout << "================================================================================" << endl;
 
   }

@@ -14,6 +14,9 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include <Cabana_Core.hpp>
 
@@ -42,7 +45,7 @@ public:
 
   void set_results_directory( string path_to_results_directory );
   void print_system_state();
-  void print_freeze_out(std::shared_ptr<FreezeOut<D>> freeze_out);
+  void print_freeze_out(std::shared_ptr<FreezeOut<D>> freeze_out,double B, double Q, double S);
   void print_conservation_status();
   std::string get_freeze_out_filename(){return output_directory + "/freeze_out.dat";}
 
