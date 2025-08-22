@@ -128,8 +128,8 @@ class SystemState
     void compute_eccentricities();
     // void compute_e_2_P(double slice);
     // void compute_e_2_X(double slice);
-    void compute_e_2_P(double slice, int i);
-    void compute_e_2_X(double slice, int i);
+    std::pair<double, int> compute_e_2_P(double slice, int i);
+    std::pair<double, int> compute_e_2_X(double slice, int i);
 
     int n(){ return n_particles; }
     double get_particle_T(int id) {return particles[id].T();}
@@ -163,11 +163,6 @@ class SystemState
 
       return result;
     };
-
-    // };
-
-
-
 };
 
 template<unsigned int D>

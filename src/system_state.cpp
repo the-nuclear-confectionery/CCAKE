@@ -763,7 +763,7 @@ void SystemState<D>::compute_eccentricities()
 }
 
 template<unsigned int D>
-void SystemState<D>::compute_e_2_P(double slice, int i)
+std::pair<double, int> SystemState<D>::compute_e_2_P(double slice, int i)
 {
 
   CREATE_VIEW(device_, cabana_particles);
@@ -812,11 +812,12 @@ void SystemState<D>::compute_e_2_P(double slice, int i)
 
   e_2_P_history_by_slice[i].push_back(e_2_P);
   count_P_history_by_slice[i].push_back(count_host());
+  return std::make_pair(e_2_P, count);
 }
 
 
 template<unsigned int D>
-void SystemState<D>::compute_e_2_X(double slice, int i)
+std::pair<double, int> SystemState<D>::compute_e_2_X(double slice, int i)
 {
 
   CREATE_VIEW(device_, cabana_particles);
@@ -852,6 +853,7 @@ void SystemState<D>::compute_e_2_X(double slice, int i)
   
   e_2_X_history_by_slice[i].push_back(e_2_X);
   count_X_history_by_slice[i].push_back(count_host());
+  return std::make_pair(e_2_X, count);
 }
 
 

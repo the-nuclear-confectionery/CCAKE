@@ -370,8 +370,8 @@ void BSQHydro<D,TEOM>::read_ccake()
         }
         
         #ifdef DEBUG
-        outfile << x << " " << y << " " << eta << " " << e*hbarc_GeVfm << " " << rhoB
-                << " " << rhoS << " " << rhoQ << " " << ux << " " << uy << " " << ueta << endl;
+        outfile << p.r(0) << " " << p.r(1) << " " << p.r(2) << " " << p.input.e*hbarc_GeVfm << " " << p.input.rhoB
+                << " " << p.input.rhoS << " " << p.input.rhoQ << " " << p.hydro.u(0) << " " << p.hydro.u(1) << " " << p.hydro.u(2) << endl;
         #endif
       }
     }
@@ -515,6 +515,25 @@ void BSQHydro<D,TEOM>::run()
           << "Stotal" << " " << "Qtotal" << endl;
   }
   if (settingsPtr->calculate_observables) systemPtr->compute_eccentricities();
+  // if (settingsPtr->calculate_observables) {
+  //   systemPtr->compute_eccentricities();
+  //   std::ofstream outfile;
+  //   for (int j = 0; j < systemPtr->eta_slices.size(); ++j){
+  //     std::ostringstream eta_stream;
+  //     eta_stream << std::fixed << std::setprecision(1) << systemPtr->eta_slices[j];
+  //     string ecc_path = out_dir + "/eccentricities_" + eta_stream.str() + ".dat";
+  //     outfile.open(ecc_path.c_str());
+  //     outfile << "t " << "e_2_X " << "e_2_P " << "count_X " << "count_P " << endl;
+  //     for (int i = 0; i < systemPtr->timesteps.size(); ++i)
+  //     {
+  //       outfile << systemPtr->timesteps[i] << " " \
+  //       << systemPtr->e_2_X_history_by_slice[j][i] << " " \
+  //       << systemPtr->e_2_P_history_by_slice[j][i] << " " \
+  //       << systemPtr->count_X_history_by_slice[j][i] << " " \
+  //       << systemPtr->count_P_history_by_slice[j][i] << endl;
+  //     }
+  //     outfile.close();
+  //   }
 
   //===================================
   // print initialized system and status
@@ -542,6 +561,8 @@ void BSQHydro<D,TEOM>::run()
                   << result[0][2] << " "
                   << result[0][3] << std::endl;
   }
+
+
 
   //===================================
   // evolve until simulation terminates
