@@ -64,6 +64,10 @@ void welcome()
     cout << "Lydia Spychalla" << endl;
     cout << "Jordi Salinas San Martin" << endl ;
     cout << "Willian M. Serenone"<< endl << endl ;
+    cout << "Kevin P. Pala" << endl;
+    cout << "Surkhab Kaur Virk" << endl;
+    cout << "Isabella Danhoni" << endl;
+    cout << "Isaac Long" << endl;
     cout << "-------------------------------------------------------------------------------------"
          << endl << endl;
 

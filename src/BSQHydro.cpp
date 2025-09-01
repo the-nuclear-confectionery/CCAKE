@@ -258,9 +258,9 @@ void BSQHydro<D,TEOM>::read_ccake()
           e /= hbarc_GeVfm; // 1/fm^4
         }
 
-        rhoB = 0.;
-        rhoS = 0.;
-        rhoQ = 0.;
+        //rhoB = 0.;
+        //rhoS = 0.;
+        //rhoQ = 0.;
 
         pixx /= hbarc_GeVfm; // 1/fm^4
         pixy /= hbarc_GeVfm; // 1/fm^4
