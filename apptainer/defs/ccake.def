@@ -16,6 +16,8 @@ From: images/ubuntu.sif
     git clone https://github.com/ECP-copa/Cabana.git $CABANASRC
 
     # Now we need to build and install Kokkos and Cabana
+    cd $KOKKOSSRC
+    git checkout 4.1.00
     mkdir -p $KOKKOSSRC/build
     cd $KOKKOSSRC/build
     cmake -DCMAKE_BUILD_TYPE="Release" \

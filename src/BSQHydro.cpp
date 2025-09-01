@@ -215,6 +215,10 @@ void BSQHydro<D,TEOM>::read_ccake()
     string line;
     int count_header_lines = 0;
     double x, y, eta, e, rhoB, rhoS, rhoQ, ux, uy, ueta, bulk, pixx, pixy, pixeta, piyy, piyeta, pietaeta;
+    double qB0, qS0, qQ0;
+    double qB1, qS1, qQ1;
+    double qB2, qS2, qQ2;
+    double qB3, qS3, qQ3;
     double ignore, stepX, stepY, stepEta, xmin, ymin, etamin;
     double max_e = 0.0;
     double min_e = 1e6;
@@ -237,14 +241,26 @@ void BSQHydro<D,TEOM>::read_ccake()
       }
       else
       {
-        if(settingsPtr->input_as_entropy==true){
-          //convert the input to entropy density
+
+
+        if(settingsPtr->input_initial_diffusion) 
+          iss >> x >> y >> eta >> s >> rhoB >> rhoS >> rhoQ >> ux >> uy >> ueta >> bulk >> pixx >> pixy >> pixeta >> piyy >> piyeta >> pietaeta >> qB0 >> qB1 >> qB2 >> qB3 >> qS0 >> qS1 >> qS2 >> qS3 >> qQ0 >> qQ1 >> qQ2 >> qQ3;
+        else{
           iss >> x >> y >> eta >> s >> rhoB >> rhoS >> rhoQ >> ux >> uy >> ueta >> bulk >> pixx >> pixy >> pixeta >> piyy >> piyeta >> pietaeta;
         }
+        if(settingsPtr->input_as_entropy==true){
+          //convert the input to entropy density
+          s=s;
+        }
         else{
-          iss >> x >> y >> eta >> e >> rhoB >> rhoS >> rhoQ >> ux >> uy >> ueta >> bulk >> pixx >> pixy >> pixeta >> piyy >> piyeta >> pietaeta;
+          e = s;
+          s = 0.0;
           e /= hbarc_GeVfm; // 1/fm^4
         }
+
+        //rhoB = 0.;
+        //rhoS = 0.;
+        //rhoQ = 0.;
 
         pixx /= hbarc_GeVfm; // 1/fm^4
         pixy /= hbarc_GeVfm; // 1/fm^4
@@ -310,6 +326,37 @@ void BSQHydro<D,TEOM>::read_ccake()
         p.input.rhoS = rhoS;
         p.input.rhoQ = rhoQ;
         p.hydro.bulk = bulk;
+        if(settingsPtr->input_initial_diffusion){
+          p.hydro.diffusion(0,0) = qB0;
+          p.hydro.diffusion(0,1) = qB1;
+          p.hydro.diffusion(0,2) = qB2;
+          p.hydro.diffusion(0,3) = qB3;
+          p.hydro.diffusion(1,0) = qS0;
+          p.hydro.diffusion(1,1) = qS1;
+          p.hydro.diffusion(1,2) = qS2;
+          p.hydro.diffusion(1,3) = qS3;
+          p.hydro.diffusion(2,0) = qQ0;
+          p.hydro.diffusion(2,1) = qQ1;
+          p.hydro.diffusion(2,2) = qQ2;
+          p.hydro.diffusion(2,3) = qQ3;
+        }
+        else{
+          //set diffusion to zero
+          p.hydro.diffusion(0,0) = 0.0;
+          p.hydro.diffusion(0,1) = 0.0;
+          p.hydro.diffusion(0,2) = 0.0;
+          p.hydro.diffusion(0,3) = 0.0;
+          p.hydro.diffusion(1,0) = 0.0;
+          p.hydro.diffusion(1,1) = 0.0;
+          p.hydro.diffusion(1,2) = 0.0;
+          p.hydro.diffusion(1,3) = 0.0;
+          p.hydro.diffusion(2,0) = 0.0;
+          p.hydro.diffusion(2,1) = 0.0;
+          p.hydro.diffusion(2,2) = 0.0;
+          p.hydro.diffusion(2,3) = 0.0;
+        }
+
+
         if(settingsPtr->input_as_entropy==true){
           
           //C = g_pi * pi^2 / (90) 
@@ -400,9 +447,11 @@ void BSQHydro<D,TEOM>::initialize_hydrodynamics()
 
   // if initializing from full Tmunu, absorb non-equilibrium
   // pressure correction into bulk viscous pressure Pi
-  wsPtr->set_bulk_Pi();
-  //calculate extensive shear tensor
-  wsPtr->calculate_extensive_shv();
+  //wsPtr->set_bulk_Pi();
+  ////calculate extensive shear tensor
+  ////wsPtr->calculate_extensive_shv();
+  //// calculate initial diffusion 
+  //wsPtr->set_diffusion();
 
   sw.Stop();
   formatted_output::report("hydrodynamics initialization finished in "
@@ -520,9 +569,12 @@ void BSQHydro<D,TEOM>::run()
     #ifdef DEBUG
     outfile << systemPtr->t << " " << systemPtr->Eloss << " " << systemPtr->S << endl;
     #endif
-    if (systemPtr->number_of_elapsed_timesteps%100 == 0) outPtr->print_system_state();
-    //if (settingsPtr->hdf_evolution || settingsPtr->txt_evolution) outPtr->print_system_state();
-    if (settingsPtr->particlization_enabled) outPtr->print_freeze_out(wsPtr->freezePtr);
+    //outPtr->print_system_state();
+    if (settingsPtr->hdf_evolution || settingsPtr->txt_evolution) 
+    {
+      outPtr->print_system_state();
+    }
+    if (settingsPtr->particlization_enabled) outPtr->print_freeze_out(wsPtr->freezePtr, systemPtr->Btotal0, systemPtr->Qtotal0, systemPtr->Stotal0);
 
   }
   #ifdef DEBUG

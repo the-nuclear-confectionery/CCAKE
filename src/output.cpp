@@ -224,13 +224,30 @@ void Output<D>::print_system_state_to_HDF()
 template<unsigned int D>
 void Output<D>::print_conservation_status()
 {   
+    double Bdiff = (systemPtr->Btotal - systemPtr->Btotal0)/ systemPtr->Btotal0 * 100.0;
+    double Sdiff = (systemPtr->Stotal - systemPtr->Stotal0)/ systemPtr->Stotal0 * 100.0;
+    double Qdiff = (systemPtr->Qtotal - systemPtr->Qtotal0)/ systemPtr->Qtotal0 * 100.0;
     stringstream ss;
+    //ss  << "t = "
+    //    << systemPtr->t      << ": " << scientific        << setw(10)
+    //    << systemPtr->Eloss  << " "  << systemPtr->S      << " "
+    //    << systemPtr->Btotal << " "  << systemPtr->Stotal << " "
+    //    << systemPtr->Qtotal << defaultfloat;
     ss  << "t = "
-        << systemPtr->t      << ": " << scientific        << setw(10)
+        << systemPtr->t      << ": " << std::scientific << std::setprecision(6)
         << systemPtr->Eloss  << " "  << systemPtr->S      << " "
-        << systemPtr->Btotal << " "  << systemPtr->Stotal << " "
-        << systemPtr->Qtotal << defaultfloat;
+        << Bdiff  << " "  << Sdiff << " "
+        << Qdiff  << " "  << std::defaultfloat;
     formatted_output::summarize(ss.str());
+    stringstream sss;
+    sss << "Btotal = "
+        << systemPtr->Btotal << " "
+        << "Stotal = "
+        << systemPtr->Stotal << " "
+        << "Qtotal = "
+        << systemPtr->Qtotal << " " << std::defaultfloat;
+    formatted_output::summarize(sss.str());
+
 }
 
 
@@ -239,10 +256,24 @@ void Output<D>::print_conservation_status()
 /// @param[in] freeze_out Pointer to the freeze-out object.
 /// @todo We need to understand the meaning of the quantities printed here.
 template<unsigned int D>
-void Output<D>::print_freeze_out(std::shared_ptr<FreezeOut<D>> freeze_out)
+void Output<D>::print_freeze_out(std::shared_ptr<FreezeOut<D>> freeze_out, double B, double Q, double S)
 {
   string outputfilename = output_directory + "/freeze_out.dat";
   ofstream FO( outputfilename.c_str(), ios::app );
+
+
+  //bool write_header = false;
+  //struct stat file_stat;
+  //if (stat(outputfilename.c_str(), &file_stat) != 0 || file_stat.st_size == 0) {
+  //  write_header = true;
+  //}
+//
+  ////print total B,S,Q of the system
+  //if (write_header) {
+  //  FO << "# " << B << " "
+  //             << S << " "
+  //             << Q << "\n";
+  //}
 
   //Copy data to host
   auto FOResults = Cabana::create_mirror_view_and_copy(Kokkos::HostSpace(),
@@ -276,7 +307,10 @@ void Output<D>::print_freeze_out(std::shared_ptr<FreezeOut<D>> freeze_out)
        << result_muSfluc(i) << " "
        << result_muQfluc(i) << " "
        << result_wfzfluc(i) << " "
-       << result_cs2fzfluc(i) <<
+       << result_cs2fzfluc(i) <<// " "
+       //<< result_rhoBfluc(i) << " "
+       //<< result_rhoSfluc(i) << " "
+       //<< result_rhoQfluc(i) << 
        endl;
     count++;
   }
@@ -292,7 +326,7 @@ void Output<D>::print_freeze_out(std::shared_ptr<FreezeOut<D>> freeze_out)
 /// @param[in] freeze_out Pointer to the freeze-out object.
 /// @todo We need to understand the meaning of the quantities printed here.
 template<>
-void Output<2>::print_freeze_out(std::shared_ptr<FreezeOut<2>> freeze_out)
+void Output<2>::print_freeze_out(std::shared_ptr<FreezeOut<2>> freeze_out, double B, double Q, double S)
 {
   string outputfilename = output_directory + "/freeze_out.dat";
   ofstream FO( outputfilename.c_str(), ios::app );
@@ -300,6 +334,20 @@ void Output<2>::print_freeze_out(std::shared_ptr<FreezeOut<2>> freeze_out)
   //Copy data to host
   auto FOResults = Cabana::create_mirror_view_and_copy(Kokkos::HostSpace(),
                                                         freeze_out->results);
+
+  bool write_header = false;
+  struct stat file_stat;
+  if (stat(outputfilename.c_str(), &file_stat) != 0 || file_stat.st_size == 0) {
+    write_header = true;
+  }
+
+  //print total B,S,Q of the system
+  //if (write_header) {
+  //  FO << "# " << B << " "
+  //             << S << " "
+  //             << Q << "\n";
+  //}
+
   int count=0;
   FRZ_RESULTS_VIEW(result_, FOResults)
   for (int i = 0; i < FOResults.size(); i++){
@@ -327,7 +375,10 @@ void Output<2>::print_freeze_out(std::shared_ptr<FreezeOut<2>> freeze_out)
        << result_muSfluc(i) << " "
        << result_muQfluc(i) << " "
        << result_wfzfluc(i) << " "
-       << result_cs2fzfluc(i) <<
+       << result_cs2fzfluc(i) <<// " "
+        //<< result_rhoBfluc(i) << " "
+        //<< result_rhoSfluc(i) << " "
+        //<< result_rhoQfluc(i) <<
        endl;
     count++;
   }

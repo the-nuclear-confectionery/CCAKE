@@ -8,6 +8,7 @@
 #include <sstream>
 
 #include "system_state.h"
+#include "milne.hpp"
 #include "utilities.h"
 
 using namespace constants;
@@ -76,7 +77,17 @@ void SystemState<D>::copy_host_to_device(){
       }
       #endif
     }
+    for (int i=0; i<D; ++i)
+    for (int j=0; j<3; ++j){
+        host_hydro_space_matrix(iparticle, ccake::hydro_info::M_q0_j_a, i, j) = particles[iparticle].hydro.M_q0_j_a(i, j);
+        host_hydro_space_matrix(iparticle, ccake::hydro_info::grad_alpha_a, i, j) = particles[iparticle].hydro.grad_alpha_a(i, j);
+    }
+    for (int i=0; i<3; ++i)
+    for (int j=0; j<3; ++j){
+        host_hydro_space_matrix(iparticle, ccake::hydro_info::R_q0_a_b, i, j) = particles[iparticle].hydro.R_q0_a_b(i, j);
+    }
     host_hydro_scalar(iparticle, ccake::hydro_info::t) = particles[iparticle].hydro.t;
+    host_hydro_scalar(iparticle, ccake::hydro_info::causality) = particles[iparticle].hydro.causality;
     host_hydro_scalar(iparticle, ccake::hydro_info::causality) = particles[iparticle].hydro.causality;
     host_hydro_scalar(iparticle, ccake::hydro_info::bulk) = particles[iparticle].hydro.bulk;
     host_hydro_scalar(iparticle, ccake::hydro_info::extensive_bulk) = particles[iparticle].hydro.extensive_bulk;
@@ -138,14 +149,36 @@ void SystemState<D>::copy_host_to_device(){
     }
     //charges
     for(int i=0; i<3; ++i){
+      
       host_hydro_vector(iparticle, ccake::hydro_info::F_extensive_N, i) = particles[iparticle].hydro.F_extensive_N(i);
       host_hydro_vector(iparticle, ccake::hydro_info::R_extensive_entropy, i) = particles[iparticle].hydro.R_extensive_entropy(i);
       host_hydro_vector(iparticle, ccake::hydro_info::R_extensive_bulk, i) = particles[iparticle].hydro.R_extensive_bulk(i);
+      host_hydro_vector(iparticle, ccake::hydro_info::F_q0_a, i) = particles[iparticle].hydro.F_q0_a(i);
+      host_hydro_vector(iparticle, ccake::hydro_info::div_qa, i) = particles[iparticle].hydro.div_qa(i);
+      host_hydro_vector(iparticle, ccake::hydro_info::grad_qa, i) = particles[iparticle].hydro.grad_qa(i);
       for(int j=0; j<3; ++j){
+        host_hydro_space_matrix(iparticle, ccake::hydro_info::F_extensive_diffusion_ib, i, j) = particles[iparticle].hydro.F_extensive_diffusion_ib(i, j);
         host_hydro_space_matrix(iparticle, ccake::hydro_info::R_extensive_N, i, j) = particles[iparticle].hydro.R_extensive_N(i, j);
+        host_hydro_space_matrix(iparticle, ccake::hydro_info::tau_q, i, j) = particles[iparticle].hydro.tau_q(i, j);
+        host_hydro_space_matrix(iparticle, ccake::hydro_info::kappa_q, i, j) = particles[iparticle].hydro.kappa_q(i, j);
+        host_hydro_space_matrix(iparticle, ccake::hydro_info::delta_qq, i, j) = particles[iparticle].hydro.delta_qq(i, j);
+        host_hydro_space_matrix(iparticle, ccake::hydro_info::l_qpi, i, j) = particles[iparticle].hydro.l_qpi(i, j);
+        host_hydro_space_matrix(iparticle, ccake::hydro_info::l_qPi, i, j) = particles[iparticle].hydro.l_qPi(i, j);
+        host_hydro_space_matrix(iparticle, ccake::hydro_info::tau_qpi, i, j) = particles[iparticle].hydro.tau_qpi(i, j);
+        host_hydro_space_matrix(iparticle, ccake::hydro_info::tau_qPi, i, j) = particles[iparticle].hydro.tau_qPi(i, j);
+        host_hydro_space_matrix(iparticle, ccake::hydro_info::lambda_qq, i, j) = particles[iparticle].hydro.lambda_qq(i, j);
+        host_hydro_space_matrix(iparticle, ccake::hydro_info::lambda_qpi, i, j) = particles[iparticle].hydro.lambda_qpi(i, j);
+        host_hydro_space_matrix(iparticle, ccake::hydro_info::lambda_qPi, i, j) = particles[iparticle].hydro.lambda_qPi(i, j);
+        host_hydro_space_matrix(iparticle, ccake::hydro_info::phi_4, i, j) = particles[iparticle].hydro.phi_4(i, j);
+        host_hydro_space_matrix(iparticle, ccake::hydro_info::phi_5, i, j) = particles[iparticle].hydro.phi_5(i, j);
+        host_hydro_space_matrix(iparticle, ccake::hydro_info::d_extensive_q_dt, i, j) = particles[iparticle].hydro.d_extensive_q_dt(i, j);
+        host_hydro_space_matrix(iparticle, ccake::hydro_info::extensive_diffusion, i, j) = particles[iparticle].hydro.extensive_diffusion(i, j);
       }
       for(int idir=0; idir<D; ++idir){
         host_hydro_space_matrix(iparticle, ccake::hydro_info::M_extensive_N, idir, i) = particles[iparticle].hydro.M_extensive_N(idir, i);
+      }
+      for(int idir=0; idir<4; ++idir){
+        host_hydro_diffusion(iparticle,ccake::hydro_info::diffusion, i, idir) = particles[iparticle].hydro.diffusion(i, idir);
       }
     }
 
@@ -167,6 +200,19 @@ void SystemState<D>::copy_host_to_device(){
     host_thermo(iparticle, ccake::thermo_info::dwdB) = particles[iparticle].thermo.dwdB;
     host_thermo(iparticle, ccake::thermo_info::dwdS) = particles[iparticle].thermo.dwdS;
     host_thermo(iparticle, ccake::thermo_info::dwdQ) = particles[iparticle].thermo.dwdQ;
+    host_thermo(iparticle, ccake::thermo_info::dalpha_Bds) = particles[iparticle].thermo.dalpha_Bds;
+    host_thermo(iparticle, ccake::thermo_info::dalpha_Sds) = particles[iparticle].thermo.dalpha_Sds;
+    host_thermo(iparticle, ccake::thermo_info::dalpha_Qds) = particles[iparticle].thermo.dalpha_Qds;
+    host_thermo(iparticle, ccake::thermo_info::dalpha_BdB) = particles[iparticle].thermo.dalpha_BdB;
+    host_thermo(iparticle, ccake::thermo_info::dalpha_BdS) = particles[iparticle].thermo.dalpha_BdS;
+    host_thermo(iparticle, ccake::thermo_info::dalpha_BdQ) = particles[iparticle].thermo.dalpha_BdQ;
+    host_thermo(iparticle, ccake::thermo_info::dalpha_SdB) = particles[iparticle].thermo.dalpha_SdB;
+    host_thermo(iparticle, ccake::thermo_info::dalpha_SdS) = particles[iparticle].thermo.dalpha_SdS;
+    host_thermo(iparticle, ccake::thermo_info::dalpha_SdQ) = particles[iparticle].thermo.dalpha_SdQ;
+    host_thermo(iparticle, ccake::thermo_info::dalpha_QdB) = particles[iparticle].thermo.dalpha_QdB;
+    host_thermo(iparticle, ccake::thermo_info::dalpha_QdS) = particles[iparticle].thermo.dalpha_QdS;
+    host_thermo(iparticle, ccake::thermo_info::dalpha_QdQ) = particles[iparticle].thermo.dalpha_QdQ;
+
     #ifdef DEBUG_SLOW
     //Couting to check values
     if (iparticle > 998 and iparticle < 1002) {
@@ -192,13 +238,27 @@ void SystemState<D>::copy_host_to_device(){
             host_hydro_shear_aux_vector(iparticle, ccake::hydro_info::d_extensive_shv_dt, i, j) = particles[iparticle].hydro.d_extensive_shv_dt(i, j);
             host_hydro_shear_aux_vector(iparticle, ccake::hydro_info::extensive_shv, i, j) = particles[iparticle].hydro.extensive_shv(i, j);
             for (int k = 0; k < D; ++k) {
-                int linear_index = j * D + i;
+                int linear_index = j * D + k;
                 host_hydro_shear_aux_matrix(iparticle, ccake::hydro_info::M_extensive_shear, i, linear_index) = particles[iparticle].hydro.M_extensive_shear(i, linear_index);
                 host_hydro_shear_aux_matrix(iparticle, ccake::hydro_info::M_sigma_tensor, i, linear_index) = particles[iparticle].hydro.M_sigma_tensor(i, linear_index);
             }
             for (int k = 0; k < 3; ++k) {
-                int linear_index = j * 3 + i;
+                int linear_index = j * 3 + k;
                 host_hydro_shear_aux_matrix(iparticle, ccake::hydro_info::R_extensive_shear, i, linear_index) = particles[iparticle].hydro.R_extensive_shear(i, linear_index);
+            }
+        }
+    }
+
+    //Copy hydro diffusion aux
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; j++) {
+            for (int k = 0; k < 3; ++k) {
+               int linear_index = j * 3 + k;
+                host_hydro_diffusion_aux_matrix(iparticle, ccake::hydro_info::M_extensive_diffusion_ibj, i, linear_index) = particles[iparticle].hydro.M_extensive_diffusion_ibj(i, linear_index);
+            }
+            for (int k = 0; k < 3; ++k) {
+                int linear_index = j * 3 + k;
+                host_hydro_diffusion_aux_matrix(iparticle, ccake::hydro_info::R_extensive_diffusion_ibc, i, linear_index) = particles[iparticle].hydro.R_extensive_diffusion_ibc(i, linear_index);
             }
         }
     }
@@ -274,7 +334,19 @@ void SystemState<D>::copy_device_to_host(){
       particles[id].hydro.R_0i_shear(i,j) = host_hydro_space_matrix(iparticle, ccake::hydro_info::R_0i_shear, i, j);
       particles[id].hydro.M_0i_shear(i,j) = host_hydro_space_matrix(iparticle, ccake::hydro_info::M_0i_shear, i, j);
     }
+    for (int i=0; i<D; ++i)
+    for (int j=0; j<3; ++j){
+      particles[id].hydro.M_q0_j_a(i,j) = host_hydro_space_matrix(iparticle, ccake::hydro_info::M_q0_j_a, i, j);
+      particles[id].hydro.grad_alpha_a(i,j) = host_hydro_space_matrix(iparticle, ccake::hydro_info::grad_alpha_a, i, j);
+    }
+
+    for (int i=0; i<3; ++i)
+    for (int j=0; j<3; ++j){
+      particles[id].hydro.R_q0_a_b(i,j) = host_hydro_space_matrix(iparticle, ccake::hydro_info::R_q0_a_b, i, j);
+    }
+
     particles[id].hydro.t = host_hydro_scalar(iparticle, ccake::hydro_info::t);
+    particles[id].hydro.causality = host_hydro_scalar(iparticle, ccake::hydro_info::causality);
     particles[id].hydro.causality = host_hydro_scalar(iparticle, ccake::hydro_info::causality);
     particles[id].hydro.bulk = host_hydro_scalar(iparticle, ccake::hydro_info::bulk);
     particles[id].hydro.extensive_bulk = host_hydro_scalar(iparticle, ccake::hydro_info::extensive_bulk);
@@ -333,11 +405,32 @@ void SystemState<D>::copy_device_to_host(){
       particles[id].hydro.F_extensive_N(i) = host_hydro_vector(iparticle, ccake::hydro_info::F_extensive_N,i);
       particles[id].hydro.R_extensive_entropy(i) = host_hydro_vector(iparticle, ccake::hydro_info::R_extensive_entropy,i);
       particles[id].hydro.R_extensive_bulk(i) = host_hydro_vector(iparticle, ccake::hydro_info::R_extensive_bulk,i);
+      particles[id].hydro.F_q0_a(i) = host_hydro_vector(iparticle, ccake::hydro_info::F_q0_a,i);
+      particles[id].hydro.div_qa(i) = host_hydro_vector(iparticle, ccake::hydro_info::div_qa,i);
+      particles[id].hydro.grad_qa(i) = host_hydro_vector(iparticle, ccake::hydro_info::grad_qa,i);
       for(int j=0; j<3; ++j){
+        particles[id].hydro.F_extensive_diffusion_ib(i,j) = host_hydro_space_matrix(iparticle, ccake::hydro_info::F_extensive_diffusion_ib, i, j);
         particles[id].hydro.R_extensive_N(i,j) = host_hydro_space_matrix(iparticle, ccake::hydro_info::R_extensive_N,i,j);
+        particles[id].hydro.tau_q(i,j) = host_hydro_space_matrix(iparticle, ccake::hydro_info::tau_q,i,j);
+        particles[id].hydro.kappa_q(i,j) = host_hydro_space_matrix(iparticle, ccake::hydro_info::kappa_q,i,j);
+        particles[id].hydro.delta_qq(i,j) = host_hydro_space_matrix(iparticle, ccake::hydro_info::delta_qq,i,j);
+        particles[id].hydro.l_qpi(i,j) = host_hydro_space_matrix(iparticle, ccake::hydro_info::l_qpi,i,j);
+        particles[id].hydro.l_qPi(i,j) = host_hydro_space_matrix(iparticle, ccake::hydro_info::l_qPi,i,j);
+        particles[id].hydro.tau_qpi(i,j) = host_hydro_space_matrix(iparticle, ccake::hydro_info::tau_qpi,i,j);
+        particles[id].hydro.tau_qPi(i,j) = host_hydro_space_matrix(iparticle, ccake::hydro_info::tau_qPi,i,j);
+        particles[id].hydro.lambda_qq(i,j) = host_hydro_space_matrix(iparticle, ccake::hydro_info::lambda_qq,i,j);
+        particles[id].hydro.lambda_qpi(i,j) = host_hydro_space_matrix(iparticle, ccake::hydro_info::lambda_qpi,i,j);
+        particles[id].hydro.lambda_qPi(i,j) = host_hydro_space_matrix(iparticle, ccake::hydro_info::lambda_qPi,i,j);
+        particles[id].hydro.phi_4(i,j) = host_hydro_space_matrix(iparticle, ccake::hydro_info::phi_4,i,j);
+        particles[id].hydro.phi_5(i,j) = host_hydro_space_matrix(iparticle, ccake::hydro_info::phi_5,i,j);
+        particles[id].hydro.d_extensive_q_dt(i,j) = host_hydro_space_matrix(iparticle, ccake::hydro_info::d_extensive_q_dt,i,j);
+        particles[id].hydro.extensive_diffusion(i,j) = host_hydro_space_matrix(iparticle, ccake::hydro_info::extensive_diffusion,i,j);
       }
       for(int idir=0; idir<D; idir++){
         particles[id].hydro.M_extensive_N(idir,i) = host_hydro_space_matrix(iparticle, ccake::hydro_info::M_extensive_N,idir,i);
+      }
+      for(int idir=0; idir<4; idir++){
+        particles[id].hydro.diffusion(i,idir) = host_hydro_diffusion(iparticle, ccake::hydro_info::diffusion,i,idir);
       }
     }
 
@@ -357,7 +450,18 @@ void SystemState<D>::copy_device_to_host(){
     particles[id].thermo.dwdB = host_thermo(iparticle, ccake::thermo_info::dwdB);
     particles[id].thermo.dwdS = host_thermo(iparticle, ccake::thermo_info::dwdS);
     particles[id].thermo.dwdQ = host_thermo(iparticle, ccake::thermo_info::dwdQ);
-
+    particles[id].thermo.dalpha_Bds = host_thermo(iparticle, ccake::thermo_info::dalpha_Bds);
+    particles[id].thermo.dalpha_Sds = host_thermo(iparticle, ccake::thermo_info::dalpha_Sds);
+    particles[id].thermo.dalpha_Qds = host_thermo(iparticle, ccake::thermo_info::dalpha_Qds);
+    particles[id].thermo.dalpha_BdB = host_thermo(iparticle, ccake::thermo_info::dalpha_BdB);
+    particles[id].thermo.dalpha_SdB = host_thermo(iparticle, ccake::thermo_info::dalpha_SdB);
+    particles[id].thermo.dalpha_QdB = host_thermo(iparticle, ccake::thermo_info::dalpha_QdB);
+    particles[id].thermo.dalpha_BdS = host_thermo(iparticle, ccake::thermo_info::dalpha_BdS);
+    particles[id].thermo.dalpha_SdS = host_thermo(iparticle, ccake::thermo_info::dalpha_SdS);
+    particles[id].thermo.dalpha_QdS = host_thermo(iparticle, ccake::thermo_info::dalpha_QdS);
+    particles[id].thermo.dalpha_BdQ = host_thermo(iparticle, ccake::thermo_info::dalpha_BdQ);
+    particles[id].thermo.dalpha_SdQ = host_thermo(iparticle, ccake::thermo_info::dalpha_SdQ);
+    particles[id].thermo.dalpha_QdQ = host_thermo(iparticle, ccake::thermo_info::dalpha_QdQ);
     for (int i=0; i<4; i++){
     for (int j=0; j<4; j++){
       particles[id].hydro.shv(i,j) = host_hydro_spacetime_matrix(iparticle, ccake::hydro_info::shv, i, j);
@@ -381,7 +485,19 @@ void SystemState<D>::copy_device_to_host(){
       }
     }
       
-
+    //Copy hydro diffusion aux
+    for (int i=0; i<3; i++){
+      for (int j=0; j<3; j++){
+        for (int k=0; k<3; k++){
+          int linear_index = j * 3 + k;
+          particles[id].hydro.M_extensive_diffusion_ibj(i,linear_index) = host_hydro_diffusion_aux_matrix(iparticle, ccake::hydro_info::M_extensive_diffusion_ibj, i, linear_index);
+        }
+        for (int k=0; k<3; k++){
+          int linear_index = j * 3 + k;
+          particles[id].hydro.R_extensive_diffusion_ibc(i,linear_index) = host_hydro_diffusion_aux_matrix(iparticle, ccake::hydro_info::R_extensive_diffusion_ibc, i, linear_index);
+        }
+      }
+    }
 
     particles[id].input.s = host_input(iparticle, ccake::densities_info::s);
     particles[id].input.rhoB = host_input(iparticle, ccake::densities_info::rhoB);
@@ -446,6 +562,7 @@ void SystemState<D>::reset_neighbour_list(){
   outfile.open("neighbors.dat")*/
 
   double min_pos[3], max_pos[3];
+  double h = settingsPtr->hT;
   switch (D)
   {
     case 1:
@@ -453,12 +570,21 @@ void SystemState<D>::reset_neighbour_list(){
       min_pos[1] = settingsPtr->xmin;
       min_pos[2] = settingsPtr->ymin;
       break;
-    default:
+    case 2:
       min_pos[0] = settingsPtr->xmin;
       min_pos[1] = settingsPtr->ymin;
       min_pos[2] = settingsPtr->etamin;
       break;
+    case 3:
+      min_pos[0] = settingsPtr->xmin;
+      min_pos[1] = settingsPtr->ymin;
+      min_pos[2] = settingsPtr->etamin;
+      break;
+    default:
+      std::cerr << "Error: Dimension not supported" << std::endl;
+      exit(1);
   }
+
 
   for(int idir=0; idir<3; ++idir)
     min_pos[idir] *= 2.; //Grid must be 100% extensiveger ///TODO: Allow this to be an optional input parameter
@@ -468,8 +594,8 @@ void SystemState<D>::reset_neighbour_list(){
       min_pos[idir] *= 3.;
   }
   //Cabana needs a 3D grid. We set the remaining dimensions to be a single cell
-  double neighborhood_radius = 2*settingsPtr->hT;
-  for(int idir=D; idir<3; ++idir) min_pos[idir] = -settingsPtr->hT;
+  double neighborhood_radius = 2*h;
+  for(int idir=D; idir<3; ++idir) min_pos[idir] = -h;
   for(int idir=0; idir<3; ++idir)
     max_pos[idir] = -min_pos[idir];
 
@@ -481,6 +607,7 @@ void SystemState<D>::reset_neighbour_list(){
                                           neighborhood_radius, cell_ratio, min_pos, max_pos
                            );
   Kokkos::fence();
+
 
   //Update the number of neighbours
   ///TODO: Requires UVM, which is not good for performance
@@ -540,18 +667,59 @@ void SystemState<D>::conservation_BSQ(bool first_iteration)
   Btotal = 0.0;
   Stotal = 0.0;
   Qtotal = 0.0;
+  bool using_diffusion = settingsPtr->using_diffusion;
   CREATE_VIEW(device_, cabana_particles);
   auto get_total_B = KOKKOS_LAMBDA(const int &i, double &Btotal)
   {
-    Btotal += device_extensive(i, ccake::densities_info::rhoB)*device_sph_mass(i, ccake::densities_info::rhoB);
+    double gamma = device_hydro_scalar(i, ccake::hydro_info::gamma);
+    double sigma = device_hydro_scalar(i, ccake::hydro_info::sigma);
+    double qb0 = device_hydro_diffusion(i, ccake::hydro_info::diffusion, 0, 0);
+    double rhob = device_thermo(i, ccake::thermo_info::rhoB);
+    double extensive_qb0 = qb0 * device_sph_mass(i, ccake::densities_info::rhoB)/ sigma / gamma;
+    double extensive_qb02 = 0.0;
+    milne::Vector<double, 3> fixed_size_u_cov;
+    milne::Vector<double, 3> fixed_size_u;
+    milne::Vector<double, D> u;
+    for(int idir=0; idir<D; ++idir)
+    {
+      u(idir) = device_hydro_vector(i, ccake::hydro_info::u, idir);
+      fixed_size_u(idir) = device_hydro_vector(i, ccake::hydro_info::u, idir);
+    }
+    for(int idir=D; idir<3; ++idir){
+      fixed_size_u(idir) = 0.0;
+    }
+    if (D==1) {
+      fixed_size_u(2) = u(0);
+      fixed_size_u(0) = 0.0;
+    }
+    fixed_size_u_cov = fixed_size_u;
+    fixed_size_u_cov.make_covariant(t*t);
+
+
+    for(int idir=0; idir<3; ++idir)
+    {
+      extensive_qb02 += device_hydro_space_matrix(i, ccake::hydro_info::extensive_diffusion, idir, 0) * fixed_size_u_cov(idir)/gamma;
+    }
+
+    Btotal += device_extensive(i, ccake::densities_info::rhoB)*device_sph_mass(i, ccake::densities_info::rhoB) + extensive_qb0*device_sph_mass(i, ccake::densities_info::rhoB)/gamma;
   };
   auto get_total_S = KOKKOS_LAMBDA(const int &i, double &Stotal)
   {
-    Stotal += device_extensive(i, ccake::densities_info::rhoS)*device_sph_mass(i, ccake::densities_info::rhoS);
+    double gamma = device_hydro_scalar(i, ccake::hydro_info::gamma);
+    double sigma = device_hydro_scalar(i, ccake::hydro_info::sigma);
+    double qs0 = device_hydro_diffusion(i, ccake::hydro_info::diffusion, 1, 0);
+    double extensive_qs0 =  qs0 * device_sph_mass(i, ccake::densities_info::s)/ sigma / gamma;
+    Stotal += device_extensive(i, ccake::densities_info::rhoS)*device_sph_mass(i, ccake::densities_info::rhoS)
+              + (extensive_qs0);
   };
   auto get_total_Q = KOKKOS_LAMBDA(const int &i, double &Qtotal)
   {
-    Qtotal += device_extensive(i, ccake::densities_info::rhoQ)*device_sph_mass(i, ccake::densities_info::rhoQ);
+    double gamma = device_hydro_scalar(i, ccake::hydro_info::gamma);
+    double sigma = device_hydro_scalar(i, ccake::hydro_info::sigma);
+    double qQ0 = device_hydro_diffusion(i, ccake::hydro_info::diffusion, 2, 0);
+    double extensive_qQ0 =  qQ0 * device_sph_mass(i, ccake::densities_info::s)/ sigma /gamma;
+    Qtotal +=device_extensive(i, ccake::densities_info::rhoQ)*device_sph_mass(i, ccake::densities_info::rhoQ)
+              + (extensive_qQ0);
   };
   Kokkos::parallel_reduce("loop_conservation_B",n_particles, get_total_B, Kokkos::Sum<double>(Btotal));
   Kokkos::parallel_reduce("loop_conservation_S",n_particles, get_total_S, Kokkos::Sum<double>(Stotal));
@@ -596,8 +764,12 @@ void SystemState<D>::conservation_energy(bool first_iteration, double t)
     double g2 = gamma*gamma;
 
     double C = w + bulk;
+
+    double sqrt_minusg = 1.0;
+    if (settingsPtr->coordinate_system =="hyperbolic")
+      sqrt_minusg = t;
     
-    local_E += (C * g2 - p - bulk + shv00) * sph_mass  / sigma_lab;
+    local_E += (C * g2 - p - bulk + shv00)* sph_mass * sqrt_minusg / sigma_lab;
   };
   Kokkos::parallel_reduce("loop_conservation_energy",n_particles, get_total_energy, E);
   Kokkos::fence();
@@ -612,10 +784,12 @@ void SystemState<D>::conservation_energy(bool first_iteration, double t)
   };
   Kokkos::parallel_reduce("loop_conservation_Ez",n_particles, get_total_Ez, Ez);
   Kokkos::fence();
-  Ez = 0.;
-  Etot  = E + Ez;
-
-  Eloss = (E0-Etot)/E0*100;
+  std::cout << "Ez: " << Ez << std::endl;
+  Etot  = E+Ez;
+  std::cout << "Etot: " << Etot << std::endl;
+  std::cout << "E: " << E << std::endl;
+  std::cout << "E0: " << E0 << std::endl;
+  Eloss = ((E0-Etot)/E0)*100;
 }
 
 ///////////////////////////////////////

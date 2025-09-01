@@ -41,7 +41,8 @@ class EoM_default
     static void update_velocity(std::shared_ptr<SystemState<D>> sysPtr);
     static void reset_pi_tensor(std::shared_ptr<SystemState<D>> sysPtr);
     static void evaluate_time_derivatives( std::shared_ptr<SystemState<D>> sysPtr, std::shared_ptr<Settings> settingsPtr);
-    static void calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr);
+    static void calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr,bool using_vorticity);
+    static void calculate_MRF_diffusion(std::shared_ptr<SystemState<D>> sysPtr);
     static void compute_hydro_numbers(std::shared_ptr<SystemState<D>> sysPtr);
     static void check_causality(std::shared_ptr<SystemState<D>> sysPtr);
     std::string name = "Israel-Stewart"; ///< name associated to EoM

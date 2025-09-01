@@ -185,6 +185,7 @@ void EoM_cartesian<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>
   cartesian::Vector<double,D> delta_i_eta = cartesian::delta_i_eta<D>();
   CREATE_VIEW(device_,sysPtr->cabana_particles);
   bool using_shear = settingsPtr->using_shear; 
+  bool using_diffusion = settingsPtr->using_diffusion;
   auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, sysPtr->cabana_particles.size());
   //calculate the M,R,F matrices due to shear, when using shear
   if(using_shear){

@@ -13,6 +13,7 @@
 #include "constants.h"
 #include "milne.hpp"
 #include "cartesian.hpp"
+#include "cartesian.hpp"
 
 
 namespace ccake
@@ -39,7 +40,8 @@ namespace ccake
                                            double, double, double, // swsub, shear33sub, tlist
                                            double, double, double, double, // sFO, Efluc, Tfluc, muBfluc
                                            double, double, double, // muSfluc, muQfluc, cs2fzfluc
-                                           double, bool    // wfzfluc
+                                           double,    // wfzfluc
+                                           double, double, double, bool //rhoBfluc, rhoSfluc, rhoQfluc
                                            >; // 36*8 = 288 bytes per particle. 100K Particles = 28.8 MB
   namespace FRZ_enum{
     enum FRZ_members
@@ -64,7 +66,9 @@ namespace ccake
       swsub, shear33sub, tlist,
       sFO, Efluc, Tfluc, muBfluc,
       muSfluc, muQfluc, cs2fzfluc,
-      wfzfluc, print
+      wfzfluc, 
+      rhoBfluc, rhoSfluc, rhoQfluc,
+      print
     };
   }
 
@@ -120,8 +124,10 @@ namespace ccake
   auto CONCAT(prefix, muQfluc) = Cabana::slice<ResultsTypes_enum::muQfluc>(results_aosoa); \
   auto CONCAT(prefix, cs2fzfluc) = Cabana::slice<ResultsTypes_enum::cs2fzfluc>(results_aosoa); \
   auto CONCAT(prefix, wfzfluc) = Cabana::slice<ResultsTypes_enum::wfzfluc>(results_aosoa); \
-  auto CONCAT(prefix, print) = Cabana::slice<ResultsTypes_enum::print>(results_aosoa);
-
+  auto CONCAT(prefix, print) = Cabana::slice<ResultsTypes_enum::print>(results_aosoa); \
+  auto CONCAT(prefix, rhoBfluc) = Cabana::slice<ResultsTypes_enum::rhoBfluc>(results_aosoa); \
+  auto CONCAT(prefix, rhoSfluc) = Cabana::slice<ResultsTypes_enum::rhoSfluc>(results_aosoa); \
+  auto CONCAT(prefix, rhoQfluc) = Cabana::slice<ResultsTypes_enum::rhoQfluc>(results_aosoa);
 
 //TODO: This needs to be documented and split in header and
 //source code
@@ -234,6 +240,7 @@ class FreezeOut
         frz2_muB.access(is, ia)  = device_thermo.access(is, ia, ccake::thermo_info::muB);
         frz2_muS.access(is, ia)  = device_thermo.access(is, ia, ccake::thermo_info::muS);
         frz2_muQ.access(is, ia)  = device_thermo.access(is, ia, ccake::thermo_info::muQ);
+        frz2_bulk.access(is, ia) = device_hydro_scalar.access(is, ia, ccake::hydro_info::bulk);
         frz2_theta.access(is, ia) = device_hydro_scalar.access(is, ia, ccake::hydro_info::theta);
         frz2_sigma_lab.access(is, ia) = device_hydro_scalar.access(is, ia, ccake::hydro_info::sigma_lab);
         frz2_shear33.access(is, ia) = device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::shv, 3, 3);
@@ -651,6 +658,9 @@ class FreezeOut
           Vector<double,D> gradPsub, gradEsub;
           Vector<double,D> gradPsub_contra, gradEsub_contra, divT_contra;
           Vector<double,D> uout_cov;
+          Vector<double,D> gradPsub, gradEsub;
+          Vector<double,D> gradPsub_contra, gradEsub_contra, divT_contra;
+          Vector<double,D> uout_cov;
           if ( swit == 1 )  // if particle was closer to freeze-out at last timestep
           {
             // if particle had neighbors, use previous timestep otherwise go back two timesteps
@@ -716,6 +726,55 @@ class FreezeOut
             //uout_cov.make_covariant(t2);
             //gradPsub_contra.make_contravariant(t2);
             //gradEsub_contra.make_contravariant(t2);
+            double t2 = results_tlist.access(is,ia)*results_tlist.access(is,ia);
+            // make covariant and contravariant vectors, by creating new ones depending on the eom
+            if(settingsPtr->coordinate_system == "cartesian"){
+              cartesian::Vector<double,D> c_gradPsub, c_gradEsub;
+              cartesian::Vector<double,D> c_gradPsub_contra, c_gradEsub_contra, c_divT_contra;
+              cartesian::Vector<double,D> c_uout_cov;
+              for(int idir=0;idir<D;++idir){
+                c_gradPsub(idir) = gradPsub(idir);
+                c_gradEsub(idir) = gradEsub(idir);
+                c_gradPsub_contra(idir) = gradPsub_contra(idir);
+                c_gradEsub_contra(idir) = gradEsub_contra(idir);
+                c_uout_cov(idir) = uout_cov(idir);
+              }
+              c_uout_cov.make_covariant(t2);
+              c_gradPsub_contra.make_contravariant(t2);
+              c_gradEsub_contra.make_contravariant(t2);
+              //recopy
+              for(int idir=0;idir<D;++idir){
+                uout_cov(idir) = c_uout_cov(idir);
+                gradPsub_contra(idir) = c_gradPsub_contra(idir);
+                gradEsub_contra(idir) = c_gradEsub_contra(idir);
+              }
+              
+            }
+            else{
+              milne::Vector<double,D> m_gradPsub, m_gradEsub;
+              milne::Vector<double,D> m_gradPsub_contra, m_gradEsub_contra, m_divT_contra;
+              milne::Vector<double,D> m_uout_cov;
+              for(int idir=0;idir<D;++idir){
+                m_gradPsub(idir) = gradPsub(idir);
+                m_gradEsub(idir) = gradEsub(idir);
+                m_gradPsub_contra(idir) = gradPsub_contra(idir);
+                m_gradEsub_contra(idir) = gradEsub_contra(idir);
+                m_uout_cov(idir) = uout_cov(idir);
+              }
+              m_uout_cov.make_covariant(t2);
+              m_gradPsub_contra.make_contravariant(t2);
+              m_gradEsub_contra.make_contravariant(t2);
+              //recopy
+              for(int idir=0;idir<D;++idir){
+                uout_cov(idir) = m_uout_cov(idir);
+                gradPsub_contra(idir) = m_gradPsub_contra(idir);
+                gradEsub_contra(idir) = m_gradEsub_contra(idir);
+              }
+            }
+
+            //uout_cov.make_covariant(t2);
+            //gradPsub_contra.make_contravariant(t2);
+            //gradEsub_contra.make_contravariant(t2);
             results_bulksub.access(is,ia) = frz1_bulk.access(is,ia);
             results_thetasub.access(is,ia) = frz1_theta.access(is,ia);
             shv_nabla_u = frz1_shv_nabla_u.access(is,ia);
@@ -729,6 +788,9 @@ class FreezeOut
             results_sFO.access(is,ia) = frz1_s.access(is,ia);
             results_cs2fzfluc.access(is,ia) = frz1_cs2fz.access(is,ia);
             results_wfzfluc.access(is,ia) = frz1_wfz.access(is,ia);
+            results_rhoBfluc.access(is,ia) = frz1_rhoB.access(is,ia);
+            results_rhoSfluc.access(is,ia) = frz1_rhoS.access(is,ia);
+            results_rhoQfluc.access(is,ia) = frz1_rhoQ.access(is,ia);
           } else if (swit == 2){
             // if particle had neighbors, use previous timestep otherwise go back two timesteps
             results_tlist.access(is,ia) = device_btrack.access(is,ia) != -1 ? taupp : taupp - dt;
@@ -744,7 +806,7 @@ class FreezeOut
               gradPsub_contra(idir) = frz2_gradP.access(is,ia,idir);
               gradEsub_contra(idir) = frz2_gradE.access(is,ia,idir);
             }
-            double t2 = results_tlist.access(is,ia) * results_tlist.access(is,ia);
+            double t2 = results_tlist.access(is,ia)*results_tlist.access(is,ia);
             
             // make covariant and contravariant vectors, by creating new ones depending on the eom
             if(settingsPtr->coordinate_system == "cartesian"){
@@ -807,6 +869,9 @@ class FreezeOut
             results_sFO.access(is,ia) = frz2_s.access(is,ia);
             results_cs2fzfluc.access(is,ia) = frz2_cs2fz.access(is,ia);
             results_wfzfluc.access(is,ia) = frz2_wfz.access(is,ia);
+            results_rhoBfluc.access(is,ia) = frz2_rhoB.access(is,ia);
+            results_rhoSfluc.access(is,ia) = frz2_rhoS.access(is,ia);
+            results_rhoQfluc.access(is,ia) = frz2_rhoQ.access(is,ia);
           }
 
           // COMPUTE NORMALS AFTER THIS POINT
