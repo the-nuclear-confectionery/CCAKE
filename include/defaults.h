@@ -64,6 +64,7 @@ namespace ccake
     const bool        calculate_observables        = false;
     const bool        hdf_evolution            = false;
     const bool        txt_evolution            = false;
+    const bool        jet_evolution            = false;
     const bool        check_causality         = false;
     const bool        bulk_from_trace       = false;
   }

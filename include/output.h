@@ -24,9 +24,11 @@
 #include "defaults.h"
 #include "formatted_output.h"
 #include "interface_to_HDF5.h"
+#include "jets.h" 
 #include "mathdef.h"
 #include "vector.h"
 #include "particle.h"
+#include "sph_workstation.h"
 #include "system_state.h"
 #include "vector.h"
 #include "freeze_out.h"
@@ -34,13 +36,14 @@
 namespace ccake{
 /// @brief  Class to handle output of the hydrodynamic simulation
 /// @tparam D Dimensionality of the system
-template<unsigned int D>
+template<unsigned int D, template<unsigned int> class TEOM>
 class Output
 {
 public:
 
-  Output(  std::shared_ptr<Settings> settingsPtr_in,
-           std::shared_ptr<SystemState<D>> sys_in);
+  Output(std::shared_ptr<Settings> settingsPtr_in,
+       std::shared_ptr<SystemState<D>> sys_in,
+       std::shared_ptr<SPHWorkstation<D,TEOM>> ws_in);
   ~Output();
 
   void set_results_directory( string path_to_results_directory );
@@ -60,10 +63,13 @@ private:
   // these allow I/O to access other objects in BSQHydro
   std::shared_ptr<Settings> settingsPtr = nullptr;
   std::shared_ptr<SystemState<D>> systemPtr   = nullptr;
+  std::shared_ptr<SPHWorkstation<D,TEOM>> wsPtr   = nullptr;
+  std::shared_ptr<BBMG<D>> bbmgPtr = nullptr;
 
   interface_to_HDF5 hdf5_file;
 
   void print_system_state_to_txt();
+  void print_jet_state_to_txt();
   void print_system_state_to_HDF();
 
 };}

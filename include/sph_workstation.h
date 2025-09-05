@@ -14,6 +14,7 @@
 #include "evolver.h"
 #include "formatted_output.h"
 #include "freeze_out.h"
+#include "jets.h"
 #include "kernel.h"
 #include "settings.h"
 #include "stopwatch.h"
@@ -82,6 +83,7 @@ public:
     freezePtr = std::make_shared<FreezeOut<D>>(settingsPtr, systemPtr);}
   void freeze_out_particles();
 
+  BBMG<D> bbmg; // This line is meant to include the bbmg object in calculations
   //============================================================================
   // Constructors/destructors
   SPHWorkstation() = delete; ///< Default constructor is deleted. System state and settings must be passed in.
@@ -95,7 +97,8 @@ public:
                   shared_ptr<SystemState<D>> systemPtr_in )
     : settingsPtr(settingsPtr_in),
       systemPtr(systemPtr_in),
-      evolver(Evolver(settingsPtr_in, systemPtr_in)) {}
+      evolver(Evolver(settingsPtr_in, systemPtr_in)),
+      bbmg(BBMG(settingsPtr_in, systemPtr_in)) {}
   KOKKOS_FUNCTION
   ~SPHWorkstation(){}
 
@@ -111,6 +114,7 @@ public:
   void process_initial_conditions();
   void initialize_entropy_and_charge_densities();
   void initial_smoothing();
+  void initialize_jets_bbmg();
 
   //============================================================================
   // smoothing

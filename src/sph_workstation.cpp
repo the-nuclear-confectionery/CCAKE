@@ -56,7 +56,7 @@ void SPHWorkstation<D,TEOM>::initialize()
   systemPtr->efcheck = eos.efreeze(settingsPtr->Freeze_Out_Temperature/hbarc_MeVfm); //Factor 1000 to convert to MeV from GeV
   formatted_output::detail("freeze out energy density = "
                            + to_string(systemPtr->efcheck*hbarc_GeVfm) + " GeV/fm^3");
-
+  bbmg = BBMG<D>( settingsPtr, systemPtr ); // initialize the bbmg object
 }
 
 
@@ -284,6 +284,12 @@ void SPHWorkstation<D,TEOM>::initial_smoothing()
   formatted_output::update("Finished initial smoothing "
                             + to_string(sw.printTime()) + " s.");
 
+}
+
+template<unsigned int D, template<unsigned int> class TEOM>
+void SPHWorkstation<D, TEOM>::initialize_jets_bbmg()
+{
+  bbmg.initial();
 }
 
 ///@brief Smooth all SPH fields
@@ -1183,12 +1189,16 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives()
 
   // reset nearest neighbors
   systemPtr->reset_neighbour_list();
+  cout << "Left reset neighor list: " << endl;
   // calcuate gamma and velocities
   calculate_gamma_and_velocities();
+  cout << "Left Calculate gamma and velocities" << endl;
   // smooth all particle fields - s, rhoB, rhoQ and rhoS and sigma
   smooth_all_particle_fields(t2);
+  cout << "Left smooth particle fields: " << endl;
     // Update particle thermodynamic properties
   update_all_particle_thermodynamics();
+  cout << "Left update particle thermo: " << endl;
   // reset pi tensor to be consistent
   // with all essential symmetries
   reset_pi_tensor(t2);
@@ -1226,6 +1236,8 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives()
   // check/update conserved quantities
   if (settingsPtr->print_conservation_status )
     systemPtr->conservation_energy(false,t);
+
+  cout << "Finished get time derivatives: " << endl;
   return;
 }
 
@@ -1684,10 +1696,12 @@ void SPHWorkstation<D, TEOM>::advance_timestep( double dt, int rk_order )
   //Bulk of code evaluation is done below
   evolver.execute_timestep( dt, rk_order,
                             [this]{ this->get_time_derivatives(); } );
-
+  cout << "Starting jet propagate: " << endl;
+  bbmg.propagate();
+  cout << "Finished jet propagate: " << endl;
   // Perform freeze out
   if ( settingsPtr->particlization_enabled ) freeze_out_particles();
-
+  cout << "Finished freeze out particles: " << endl;
   // set number of particles which have frozen out
   //systemPtr->number_part = systemPtr->get_frozen_out_count();
   // keep track of how many timesteps have elapsed

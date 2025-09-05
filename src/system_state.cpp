@@ -781,6 +781,7 @@ void SystemState<D>::conservation_energy(bool first_iteration, double t)
   std::cout << "E: " << E << std::endl;
   std::cout << "E0: " << E0 << std::endl;
   Eloss = ((E0-Etot)/E0)*100;
+  cout << "Finished conservation energy: " << endl;
 }
 
 ///////////////////////////////////////

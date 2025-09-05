@@ -563,6 +563,13 @@ bool cc::Input::decode_settings(const YAML::Node& node){
       settingsPtr->txt_evolution = cc::defaults::txt_evolution;
     }
     try{
+      settingsPtr->jet_evolution = node["output"]["jet_evolution"].as<bool>();
+    } catch(...){
+      formatted_output::detail("WARNING: Could not read output/jet_evolution!");
+      formatted_output::detail("This is an optional parameter. Setting to default value.");
+      settingsPtr->jet_evolution = cc::defaults::jet_evolution;
+    }
+    try{
       settingsPtr->check_causality = node["output"]["check_causality"].as<bool>();
     } catch (...){
       formatted_output::detail("WARNING: Could not read output/check_causality!");
