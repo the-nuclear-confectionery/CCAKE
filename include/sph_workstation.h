@@ -87,6 +87,11 @@ public:
     sourcePtr = std::make_shared<Source<D>>(settingsPtr, systemPtr);
   }
 
+  std::shared_ptr<Source<D>> sourcePtr; ///< Object storing the source term data
+  void setup_source_terms(){
+    sourcePtr = std::make_shared<Source<D>>(settingsPtr, systemPtr);
+  }
+
   BBMG<D> bbmg; // This line is meant to include the bbmg object in calculations
   //============================================================================
   // Constructors/destructors
@@ -120,6 +125,7 @@ public:
   void initial_smoothing();
   void initialize_jets_bbmg();
   void add_toy_jet();
+  void initialize_jets_bbmg();
 
   //============================================================================
   // smoothing
