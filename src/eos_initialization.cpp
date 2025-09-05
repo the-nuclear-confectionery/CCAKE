@@ -399,6 +399,8 @@ void EquationOfState::set_up_chosen_EOSs()
 
       init_conformal_diagonal(c, T0, muB0, muQ0, muS0);
 
+      default_eos_name = "table";
+
     }
   } else { // Unsupported EOS type - throw exception
     throw std::runtime_error("Unsupported equation of state type: " + settingsPtr->eos_type);

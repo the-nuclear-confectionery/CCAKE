@@ -116,7 +116,7 @@ void BSQHydro<2,EoM_default>::read_ICCING()
         p.input.rhoQ = rhoQ;
         p.hydro.u(0) = ux;
         p.hydro.u(1) = uy;
-        if(e > settingsPtr->e_cutoff) systemPtr->add_particle( p );
+        if(e > settingsPtr->e_cutoff/hbarc_GeVfm) systemPtr->add_particle( p );
       }
     }
     infile.close();
@@ -362,10 +362,10 @@ void BSQHydro<D,TEOM>::read_ccake()
           //C = g_pi * pi^2 / (90) 
           double C = 3.0 * pow(M_PI,2.) / (90.0);
           double e_check = (3.*C)*pow(1./(4.*C),4./3.) * pow(s,4./3.);
-          if(e_check > settingsPtr->e_cutoff) systemPtr->add_particle( p );
+          if(e_check > settingsPtr->e_cutoff/hbarc_GeVfm) systemPtr->add_particle( p );
         }
         else{
-          if(e > settingsPtr->e_cutoff) systemPtr->add_particle( p );
+          if(e > settingsPtr->e_cutoff/hbarc_GeVfm) systemPtr->add_particle( p );
         }
         
         #ifdef DEBUG

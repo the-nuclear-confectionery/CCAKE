@@ -1488,9 +1488,9 @@ double SPHWorkstation<D, TEOM>::locate_phase_diagram_point_eBSQ( Particle<D> & p
     cout << "WARNING: could not find solution for particle " << p.ID << "with (e,B,S,Q)" 
          << " = (" << e_In << "," << rhoB_In << "," << rhoS_In << "," << rhoQ_In << ")" << endl;
     cout << "Setting charges to zero and freezing out particle." << endl;
-    p.thermo.rhoB = 0.0;
-    p.thermo.rhoS = 0.0;
-    p.thermo.rhoQ = 0.0;
+    //p.thermo.rhoB = 0.0;
+    //p.thermo.rhoS = 0.0;
+    //p.thermo.rhoQ = 0.0;
     //run again the EoS to get the entropy density
     sVal = eos.s_out( e_In, 0.0, 0.0, 0.0, solution_found2,
                       p.print_this_particle );
