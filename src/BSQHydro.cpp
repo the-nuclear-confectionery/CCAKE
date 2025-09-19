@@ -116,7 +116,7 @@ void BSQHydro<2,EoM_default>::read_ICCING()
         p.input.rhoQ = rhoQ;
         p.hydro.u(0) = ux;
         p.hydro.u(1) = uy;
-        if(e > settingsPtr->e_cutoff) systemPtr->add_particle( p );
+        if(e > settingsPtr->e_cutoff/hbarc_GeVfm) systemPtr->add_particle( p );
       }
     }
     infile.close();
@@ -258,6 +258,10 @@ void BSQHydro<D,TEOM>::read_ccake()
           e /= hbarc_GeVfm; // 1/fm^4
         }
 
+        //rhoB = 0.;
+        //rhoS = 0.;
+        //rhoQ = 0.;
+
         pixx /= hbarc_GeVfm; // 1/fm^4
         pixy /= hbarc_GeVfm; // 1/fm^4
         pixeta /= hbarc_GeVfm; // 1/fm^5
@@ -358,10 +362,10 @@ void BSQHydro<D,TEOM>::read_ccake()
           //C = g_pi * pi^2 / (90) 
           double C = 3.0 * pow(M_PI,2.) / (90.0);
           double e_check = (3.*C)*pow(1./(4.*C),4./3.) * pow(s,4./3.);
-          if(e_check > settingsPtr->e_cutoff) systemPtr->add_particle( p );
+          if(e_check > settingsPtr->e_cutoff/hbarc_GeVfm) systemPtr->add_particle( p );
         }
         else{
-          if(e > settingsPtr->e_cutoff) systemPtr->add_particle( p );
+          if(e > settingsPtr->e_cutoff/hbarc_GeVfm) systemPtr->add_particle( p );
         }
         
         #ifdef DEBUG
@@ -602,7 +606,7 @@ void BSQHydro<D,TEOM>::run()
     {
       outPtr->print_system_state();
     }
-    if (settingsPtr->particlization_enabled) outPtr->print_freeze_out(wsPtr->freezePtr);
+    if (settingsPtr->particlization_enabled) outPtr->print_freeze_out(wsPtr->freezePtr, systemPtr->Btotal0, systemPtr->Qtotal0, systemPtr->Stotal0);
 
     // =================================================================
     // Printing neighbors for each timestep
