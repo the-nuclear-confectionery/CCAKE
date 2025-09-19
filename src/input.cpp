@@ -549,6 +549,13 @@ bool cc::Input::decode_settings(const YAML::Node& node){
       settingsPtr->calculate_observables = cc::defaults::calculate_observables;
     }
     try{
+      settingsPtr->get_neighbors = node["output"]["get_neighbors"].as<bool>();
+    } catch (...){
+      formatted_output::detail("WARNING: Could not read output/get_neighbors!");
+      formatted_output::detail("This is an optional parameter. Setting to default value.");
+      settingsPtr->get_neighbors = cc::defaults::get_neighbors;
+    }
+    try{
       settingsPtr->hdf_evolution = node["output"]["hdf_evolution"].as<bool>();
     } catch (...){
       formatted_output::detail("WARNING: Could not read output/hdf_evolution!");

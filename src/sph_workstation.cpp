@@ -1332,16 +1332,16 @@ void SPHWorkstation<D, TEOM>::update_all_particle_thermodynamics()
   sw.Start();
   double t = systemPtr->t;
   double t2 = t*t;
-  #ifdef DEBUG_SLOW
-  std::cout << "update_all_thermodynamics() before copying back and forth" << std::endl;
-  for (auto & p : systemPtr->particles){
-    if(p.r(0) > -0.02 && p.r(0) < 0.02){
-      std::cout << "eta=  " << p.r(0) << "   ";
-      std::cout << "  temp=  " << p.thermo.T << "  thermo.e=   " << p.thermo.e*hbarc_GeVfm << "   input.e=   " << p.input.e*hbarc_GeVfm << \
-              "   thermo.s=   " << p.thermo.s << "   input.s=   " << p.input.s << "   " << std::endl;
-    }
-  }
-  #endif
+  // #ifdef DEBUG_SLOW
+  // std::cout << "update_all_thermodynamics() before copying back and forth" << std::endl;
+  // for (auto & p : systemPtr->particles){
+  //   if(p.r(0) > -0.02 && p.r(0) < 0.02){
+  //     std::cout << "eta=  " << p.r(0) << "   ";
+  //     std::cout << "  temp=  " << p.thermo.T << "  thermo.e=   " << p.thermo.e*hbarc_GeVfm << "   input.e=   " << p.input.e*hbarc_GeVfm << \
+  //             "   thermo.s=   " << p.thermo.s << "   input.s=   " << p.input.s << "   " << std::endl;
+  //   }
+  // }
+  // #endif
   if(!settingsPtr->online_inverter_enabled){
     eos_interpolatorPtr->fill_thermodynamics(systemPtr->cabana_particles, t);
     #ifdef DEBUG_SLOW

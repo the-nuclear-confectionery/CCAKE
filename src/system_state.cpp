@@ -7,6 +7,15 @@
 #include <string>
 #include <sstream>
 
+#include <algorithm>
+#include <cstdio>
+#include <cstdlib>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <string>
+#include <sstream>
+
 #include "system_state.h"
 #include "milne.hpp"
 #include "utilities.h"
@@ -787,50 +796,115 @@ void SystemState<D>::conservation_energy(bool first_iteration, double t)
 template<unsigned int D>
 void SystemState<D>::compute_eccentricities()
 {
-  timesteps.push_back( t );
-
-  compute_e_2_X();
-  compute_e_2_P();
-}
-
-///////////////////////////////////////
-//TODO: Use Cabana for paralelism
-template<unsigned int D>
-void SystemState<D>::compute_e_2_P()
-{
-  double e_2_P_c = 0.0, e_2_P_s = 0.0, normalization = 0.0;
-
-  for ( auto & p : particles )
-  {
-    double ux        = p.hydro.u(0),
-           uy        = p.hydro.u(1);
-    double p_plus_Pi = p.p() + p.hydro.bulk;
-    double e_p_Pi    = p.e() + p_plus_Pi;
-
-    double Txx = e_p_Pi*ux*ux + p_plus_Pi + p.hydro.shv(1,1);
-    double Txy = e_p_Pi*ux*uy             + p.hydro.shv(1,2);
-    double Tyy = e_p_Pi*uy*uy + p_plus_Pi + p.hydro.shv(2,2);
-
-    e_2_P_c += Txx-Tyy;
-    e_2_P_s += 2.0*Txy;
-    normalization += Txx+Tyy;
+  timesteps.push_back(t);  
+  eta_slices = {-4.0, -3.0, -2.0, -1.0, 0.0, 1.0, 2.0, 3.0, 4.0};
+  // Initialize per-slice storage on first call
+  if (e_2_P_history_by_slice.empty()) {
+    size_t n_slices = eta_slices.size();
+    e_2_P_history_by_slice.resize(n_slices);
+    count_P_history_by_slice.resize(n_slices);
+    e_2_X_history_by_slice.resize(n_slices);
+    count_X_history_by_slice.resize(n_slices);
   }
-  e_2_P.push_back( sqrt(e_2_P_c*e_2_P_c+e_2_P_s*e_2_P_s)/abs(normalization) );
+
+  for (size_t i = 0; i < eta_slices.size(); ++i) {
+    double eta_center = eta_slices[i];
+    compute_e_2_P(eta_center, i);
+    compute_e_2_X(eta_center, i);
+  }
 }
 
-///////////////////////////////////////
 template<unsigned int D>
-//TODO: Use Cabana for paralelism
-void SystemState<D>::compute_e_2_X()
+void SystemState<D>::compute_e_2_P(double slice, int i)
 {
-  double e_2_X_c = 0.0, e_2_X_s = 0.0, normalization = 0.0;
-  for ( auto & p : particles )
-  {
-    double x       = p.r(0),
-           y       = p.r(1);
-    e_2_X_c       += p.hydro.gamma*p.e()*(x*x-y*y);
-    e_2_X_s       += 2.0*p.hydro.gamma*p.e()*x*y;
-    normalization += p.hydro.gamma*p.e()*(x*x+y*y);
-  }
-  e_2_X.push_back( sqrt(e_2_X_c*e_2_X_c+e_2_X_s*e_2_X_s)/abs(normalization) );
+
+  CREATE_VIEW(device_, cabana_particles);
+
+  Kokkos::View<double, DeviceType> c_sum("e2P_c");
+  Kokkos::View<double, DeviceType> s_sum("e2P_s");
+  Kokkos::View<double, DeviceType> denominator("e2P_den");
+  Kokkos::View<int, DeviceType> count("e2P_count");
+
+  Kokkos::parallel_for("compute_e2P", Kokkos::RangePolicy<ExecutionSpace>(0, cabana_particles.size()),
+   KOKKOS_LAMBDA(const int part) {
+    double eta = device_position(part, 2);
+    if (abs(eta - slice) <= settingsPtr->stepEta) {
+      double p     = device_thermo(part, thermo_info::p);
+      double bulk  = device_hydro_scalar(part, hydro_info::bulk);
+      double e     = device_thermo(part, thermo_info::e);
+      double p_Pi  = p + bulk;
+      double e_P_Pi = e + p_Pi;
+
+      milne::Vector<double, D> u;
+      for (int idir = 0; idir < D; ++idir)
+        u(idir) = device_hydro_vector(part, hydro_info::u, idir);
+
+      milne::Matrix<double, D+1, D+1> shv;
+      for (int idir = 0; idir < D+1; ++idir)
+        for (int jdir = 0; jdir < D+1; ++jdir)
+          shv(idir, jdir) = device_hydro_spacetime_matrix(part, hydro_info::shv, idir, jdir);
+
+      double Txx = e_P_Pi * u(0) * u(0) + p_Pi + shv(1,1);
+      double Txy = e_P_Pi * u(0) * u(1) + shv(1,2);
+      double Tyy = e_P_Pi * u(1) * u(1) + p_Pi + shv(2,2);
+
+      Kokkos::atomic_add(&c_sum(), Txx - Tyy);
+      Kokkos::atomic_add(&s_sum(), 2.0 * Txy);
+      Kokkos::atomic_add(&denominator(), Txx + Tyy);
+      Kokkos::atomic_add(&count(), 1);
+    }
+  });
+
+  auto c_host = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(), c_sum);
+  auto s_host = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(), s_sum);
+  auto d_host = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(), denominator);
+  auto count_host = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(), count);
+
+  double e_2_P = std::sqrt(c_host() * c_host() + s_host() * s_host()) / std::abs(d_host());
+
+  e_2_P_history_by_slice[i].push_back(e_2_P);
+  count_P_history_by_slice[i].push_back(count_host());
+  // return std::make_pair(e_2_P, count);
 }
+
+
+template<unsigned int D>
+void SystemState<D>::compute_e_2_X(double slice, int i)
+{
+
+  CREATE_VIEW(device_, cabana_particles);
+
+  Kokkos::View<double, DeviceType> c_sum("e2X_c");
+  Kokkos::View<double, DeviceType> s_sum("e2X_s");
+  Kokkos::View<double, DeviceType> norm_sum("e2X_norm");
+  Kokkos::View<int, DeviceType> count("e2X_count");
+
+  Kokkos::parallel_for("compute_e2X", Kokkos::RangePolicy<ExecutionSpace>(0, cabana_particles.size()),
+   KOKKOS_LAMBDA(const int p) {
+    double eta = device_position(p, 2);
+    if (abs(eta - slice) <= settingsPtr->stepEta) {
+      double x = device_position(p, 0);
+      double y = device_position(p, 1);
+      double e = device_thermo(p, thermo_info::e);
+      double gamma = device_hydro_scalar(p, hydro_info::gamma);
+      double weight = gamma * e;
+
+      Kokkos::atomic_add(&c_sum(), weight * (x * x - y * y));
+      Kokkos::atomic_add(&s_sum(), weight * (2.0 * x * y));
+      Kokkos::atomic_add(&norm_sum(), weight * (x * x + y * y));
+      Kokkos::atomic_add(&count(), 1);
+    }
+  });
+
+  auto c_host = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(), c_sum);
+  auto s_host = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(), s_sum);
+  auto norm_host = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(), norm_sum);
+  auto count_host = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(), count);
+
+  double e_2_X = std::sqrt(c_host() * c_host() + s_host() * s_host()) / std::abs(norm_host());
+  
+  e_2_X_history_by_slice[i].push_back(e_2_X);
+  count_X_history_by_slice[i].push_back(count_host());
+  // return std::make_pair(e_2_X, count);
+}
+
