@@ -554,7 +554,7 @@ void BSQHydro<D,TEOM>::run()
     }
   }
   //====================================================================================
-  // Printing neighbors for max, min and 3 in-between particles based on entropy density
+  // Printing neighbors for max and min particles based on entropy density
   // std::ofstream outfile_neighbors;
   std::vector<int> idx;
   // std::string n_path = out_dir + "/neighbors_" + std::to_string(idx) + ".dat";

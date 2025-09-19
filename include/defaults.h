@@ -62,6 +62,7 @@ namespace ccake
     const std::string relaxation_mode = "default";
     const bool        print_conservation_status = true;
     const bool        calculate_observables        = false;
+    const bool        get_neighbors             = false;
     const bool        hdf_evolution            = false;
     const bool        txt_evolution            = false;
     const bool        check_causality         = false;
