@@ -330,7 +330,7 @@ void EquationOfState::set_up_chosen_EOSs()
 
 	    double TmaxIni   = settingsPtr->Freeze_Out_Temperature/constants::hbarc_MeVfm;
 	    double Tmax      = 1.1 * TmaxIni;
-
+      //Tmax   = maxima[0];
       formatted_output::detail("Tmax = " + to_string(Tmax));
       // set overall scale using (Tmax,0,0,0)
       tbqs( Tmax, 0.0, 0.0, 0.0, p_default_EoS );
@@ -373,6 +373,7 @@ void EquationOfState::set_up_chosen_EOSs()
 
 	    double TmaxIni   = settingsPtr->Freeze_Out_Temperature/constants::hbarc_MeVfm;
 	    double Tmax      = 1.1 * TmaxIni;
+      //Tmax = maxima[0];
 
       // set overall scale using (Tmax,0,0,0)
       tbqs( Tmax, 0.0, 0.0, 0.0, p_default_EoS );
@@ -398,6 +399,8 @@ void EquationOfState::set_up_chosen_EOSs()
       double muS0 = pow( c/(pVal - pTmax), 0.25) * muSmax;
 
       init_conformal_diagonal(c, T0, muB0, muQ0, muS0);
+
+      default_eos_name = "table";
 
     }
   } else { // Unsupported EOS type - throw exception

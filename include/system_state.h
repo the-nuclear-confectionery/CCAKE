@@ -86,12 +86,19 @@ class SystemState
     ////////////////////////////////////////////////////////////////////////////
     Cabana::AoSoA<CabanaParticle, DeviceType, VECTOR_LENGTH> cabana_particles; ///< Particle storage on device
     ListType neighbour_list; ///< Neighbour list
+
+    // eccentricities
+    std::vector<double> timesteps;
+    std::vector<std::vector<double>> e_2_P_history_by_slice, e_2_X_history_by_slice;
+    std::vector<std::vector<int>> count_P_history_by_slice, count_X_history_by_slice;
+    std::vector<double> eta_slices;
+
   private:
     std::shared_ptr<Settings> settingsPtr;  ///< Pointer to Settings object
 
     // eccentricities
-    std::vector<double> timesteps;
-    std::vector<double> e_2_X, e_2_P;
+    // std::vector<double> timesteps;
+    // std::vector<double> e_2_X, e_2_P;
 
   public:
     // initialize system state, linklist, etc.
@@ -110,8 +117,10 @@ class SystemState
 
     //TODO: observables should probably be computed in a separate class
     void compute_eccentricities();
-    void compute_e_2_P();
-    void compute_e_2_X();
+    // void compute_e_2_P();
+    // void compute_e_2_X();
+    void compute_e_2_P(double slice, int i);
+    void compute_e_2_X(double slice, int i);
 
     int n(){ return n_particles; }
     double get_particle_T(int id) {return particles[id].T();}
@@ -130,6 +139,63 @@ class SystemState
                     << ", sph_mass.s: " << device_sph_mass(neighIdx, ccake::densities_info::s) << std::endl;
                 }
     };
+
+    std::vector<std::array<double, 4>> get_particle_data(int idx){
+      CREATE_VIEW(device_, cabana_particles);
+      int num_neighbors = Cabana::NeighborList<ListType>::numNeighbor(neighbour_list, idx);
+      std::vector<std::array<double, 4>> result;
+      result.reserve(1);
+      result.push_back({
+          static_cast<double>(num_neighbors),         // number of neighbors
+          device_position(idx, 0),                    // x
+          device_position(idx, 1),                    // y
+          device_position(idx, 2)                     // eta
+      });
+
+      return result;
+    };
+
+  std::vector<int> entropy_density_based_idx_search(){
+      CREATE_VIEW(device_, cabana_particles);  // gives access to device_id and device_smoothed
+
+      int num_particles = cabana_particles.size();
+
+      // Allocate host mirrors
+      Kokkos::View<double*, Kokkos::HostSpace> host_entropy("host_entropy", num_particles);
+      Kokkos::View<int*, Kokkos::HostSpace> host_id("host_id", num_particles);
+
+      // Fill host views
+      for (int i = 0; i < num_particles; ++i) {
+          host_entropy(i) = device_smoothed(i, densities_info::s);  // entropy
+          host_id(i) = device_id(i);                                // ID
+      }
+
+      // Find min and max
+      int idx_min = 0, idx_max = 0;
+      double min_entropy = host_entropy(0);
+      double max_entropy = host_entropy(0);
+
+      for (int i = 1; i < num_particles; ++i) {
+          double s = host_entropy(i);
+          if (s < min_entropy) {
+              min_entropy = s;
+              idx_min = i;
+          }
+          if (s > max_entropy) {
+              max_entropy = s;
+              idx_max = i;
+          }
+      }
+
+      // Return only the corresponding IDs
+      std::vector<int> result;
+      result.push_back(host_id(idx_min));
+      result.push_back(host_id(idx_max));
+
+      return result;
+  };
+
+
 
 };
 
