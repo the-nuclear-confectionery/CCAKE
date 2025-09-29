@@ -658,9 +658,6 @@ class FreezeOut
           Vector<double,D> gradPsub, gradEsub;
           Vector<double,D> gradPsub_contra, gradEsub_contra, divT_contra;
           Vector<double,D> uout_cov;
-          Vector<double,D> gradPsub, gradEsub;
-          Vector<double,D> gradPsub_contra, gradEsub_contra, divT_contra;
-          Vector<double,D> uout_cov;
           if ( swit == 1 )  // if particle was closer to freeze-out at last timestep
           {
             // if particle had neighbors, use previous timestep otherwise go back two timesteps
@@ -722,56 +719,6 @@ class FreezeOut
                 gradEsub_contra(idir) = m_gradEsub_contra(idir);
               }
             }
-
-            //uout_cov.make_covariant(t2);
-            //gradPsub_contra.make_contravariant(t2);
-            //gradEsub_contra.make_contravariant(t2);
-            double t2 = results_tlist.access(is,ia)*results_tlist.access(is,ia);
-            // make covariant and contravariant vectors, by creating new ones depending on the eom
-            if(settingsPtr->coordinate_system == "cartesian"){
-              cartesian::Vector<double,D> c_gradPsub, c_gradEsub;
-              cartesian::Vector<double,D> c_gradPsub_contra, c_gradEsub_contra, c_divT_contra;
-              cartesian::Vector<double,D> c_uout_cov;
-              for(int idir=0;idir<D;++idir){
-                c_gradPsub(idir) = gradPsub(idir);
-                c_gradEsub(idir) = gradEsub(idir);
-                c_gradPsub_contra(idir) = gradPsub_contra(idir);
-                c_gradEsub_contra(idir) = gradEsub_contra(idir);
-                c_uout_cov(idir) = uout_cov(idir);
-              }
-              c_uout_cov.make_covariant(t2);
-              c_gradPsub_contra.make_contravariant(t2);
-              c_gradEsub_contra.make_contravariant(t2);
-              //recopy
-              for(int idir=0;idir<D;++idir){
-                uout_cov(idir) = c_uout_cov(idir);
-                gradPsub_contra(idir) = c_gradPsub_contra(idir);
-                gradEsub_contra(idir) = c_gradEsub_contra(idir);
-              }
-              
-            }
-            else{
-              milne::Vector<double,D> m_gradPsub, m_gradEsub;
-              milne::Vector<double,D> m_gradPsub_contra, m_gradEsub_contra, m_divT_contra;
-              milne::Vector<double,D> m_uout_cov;
-              for(int idir=0;idir<D;++idir){
-                m_gradPsub(idir) = gradPsub(idir);
-                m_gradEsub(idir) = gradEsub(idir);
-                m_gradPsub_contra(idir) = gradPsub_contra(idir);
-                m_gradEsub_contra(idir) = gradEsub_contra(idir);
-                m_uout_cov(idir) = uout_cov(idir);
-              }
-              m_uout_cov.make_covariant(t2);
-              m_gradPsub_contra.make_contravariant(t2);
-              m_gradEsub_contra.make_contravariant(t2);
-              //recopy
-              for(int idir=0;idir<D;++idir){
-                uout_cov(idir) = m_uout_cov(idir);
-                gradPsub_contra(idir) = m_gradPsub_contra(idir);
-                gradEsub_contra(idir) = m_gradEsub_contra(idir);
-              }
-            }
-
             //uout_cov.make_covariant(t2);
             //gradPsub_contra.make_contravariant(t2);
             //gradEsub_contra.make_contravariant(t2);

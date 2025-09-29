@@ -913,7 +913,6 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr,
 
     //declare caches
     double ueta = 0;
-    double ueta = 0;
     milne::Vector<double,D> u, u_cov, M_shv_nabla_u ,F_0i_shear;
     milne::Vector<double,D> v, grad_u0;
     //use fixed size u (ux, uy, ueta) to avoid unnecessary specializations

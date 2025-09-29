@@ -116,7 +116,7 @@ void BSQHydro<2,EoM_default>::read_ICCING()
         p.input.rhoQ = rhoQ;
         p.hydro.u(0) = ux;
         p.hydro.u(1) = uy;
-        if(e > settingsPtr->e_cutoff) systemPtr->add_particle( p );
+        if(e > settingsPtr->e_cutoff/hbarc_GeVfm) systemPtr->add_particle( p );
       }
     }
     infile.close();
@@ -322,9 +322,9 @@ void BSQHydro<D,TEOM>::read_ccake()
         else{
           p.input.e = e;
         }
-        p.input.rhoB = rhoB;
-        p.input.rhoS = rhoS;
-        p.input.rhoQ = rhoQ;
+        (settingsPtr->baryon_charge_enabled) ? p.input.rhoB = rhoB : p.input.rhoB = 0.0;
+        (settingsPtr->strange_charge_enabled) ? p.input.rhoS = rhoS : p.input.rhoS = 0.0;
+        (settingsPtr->electric_charge_enabled) ? p.input.rhoQ = rhoQ : p.input.rhoQ = 0.0;
         p.hydro.bulk = bulk;
         if(settingsPtr->input_initial_diffusion){
           p.hydro.diffusion(0,0) = qB0;
@@ -362,10 +362,10 @@ void BSQHydro<D,TEOM>::read_ccake()
           //C = g_pi * pi^2 / (90) 
           double C = 3.0 * pow(M_PI,2.) / (90.0);
           double e_check = (3.*C)*pow(1./(4.*C),4./3.) * pow(s,4./3.);
-          if(e_check > settingsPtr->e_cutoff) systemPtr->add_particle( p );
+          if(e_check > settingsPtr->e_cutoff/hbarc_GeVfm) systemPtr->add_particle( p );
         }
         else{
-            if(e > settingsPtr->e_cutoff) systemPtr->add_particle( p );
+          if(e > settingsPtr->e_cutoff/hbarc_GeVfm) systemPtr->add_particle( p );
         }
 
         #ifdef DEBUG
@@ -506,22 +506,33 @@ void BSQHydro<D,TEOM>::run()
   std::ofstream outfile;
   outfile.open("conservation.dat");
   #endif
-  //===================================
+
+  //====================================================================================
   // initialize conserved quantities, etc.
+  // print conservation status to a file labelled "conservation.dat" in the output dir
+  string out_dir = settingsPtr->results_directory;
+  // std::ofstream outfile;
   if (settingsPtr->print_conservation_status) {
+    string cons_path = out_dir + "/conservation.dat";
+    std::ofstream outfile(cons_path.c_str(), std::ios::app);
+    // outfile.open(cons_path.c_str());
     systemPtr->conservation_entropy(true);
     systemPtr->conservation_BSQ(true);
+    outPtr->print_conservation_status();
+    outfile << "t Eloss S Btotal Stotal Qtotal" << endl;
+    outfile << systemPtr->t << " " << systemPtr->Eloss << " " << systemPtr->S << \
+      " " << systemPtr->Btotal << " " << systemPtr->Stotal << " " << systemPtr->Qtotal << endl;
   }
+
+  //====================================================================================
+  // printing eccentricities for given rapidity slices to respective files
   if (settingsPtr->calculate_observables) systemPtr->compute_eccentricities();
 
-
-  //===================================
-  // print initialized system and status
-  if (settingsPtr->print_conservation_status) outPtr->print_conservation_status();
-  #ifdef DEBUG
-  outfile << systemPtr->t << " " << systemPtr->Eloss << " " << systemPtr->S << endl;
-  #endif
-  outPtr->print_system_state();
+  // TODO:: Print to a file somehow at each time step!
+  
+  if (settingsPtr->hdf_evolution || settingsPtr->txt_evolution) {
+    outPtr->print_system_state();
+  }
 
   //===================================
   // evolve until simulation terminates
@@ -547,6 +558,29 @@ void BSQHydro<D,TEOM>::run()
       fo_file.close();
     }
   }
+  //====================================================================================
+  // Printing neighbors for max and min particles based on entropy density
+  // std::ofstream outfile_neighbors;
+  std::vector<int> idx;
+  // std::string n_path = out_dir + "/neighbors_" + std::to_string(idx) + ".dat";
+  if(settingsPtr->get_neighbors){
+    idx = systemPtr->entropy_density_based_idx_search();
+    std::vector<std::string> labels = {"min", "max"};
+    for (int i = 0; i < 2; ++i) {
+        std::string n_path = out_dir + "/neighbors_" + labels[i] + ".dat";
+
+        std::ofstream outfile_neighbors(n_path.c_str(), std::ios::app);
+        outfile_neighbors << "t #neighbors x y eta" << std::endl;
+
+        std::vector<std::array<double, 4>> result = systemPtr->get_particle_data(idx[i]);
+        outfile_neighbors << systemPtr->t << " "
+                          << result[0][0] << " "
+                          << result[0][1] << " "
+                          << result[0][2] << " "
+                          << result[0][3] << std::endl;
+    }
+  }
+
   while ( wsPtr->continue_evolution() )
   {
     //===================================
@@ -555,31 +589,75 @@ void BSQHydro<D,TEOM>::run()
     wsPtr->advance_timestep( settingsPtr->dt, settingsPtr->rk_order );
     //wsPtr->regulator();
 
-    //===================================
+    //==================================================================
     // re-compute conserved quantities, etc.
+    // print updated system and status
     if (settingsPtr->print_conservation_status){
       systemPtr->conservation_entropy();
       systemPtr->conservation_BSQ();
+      outPtr->print_conservation_status();
+      string cons_path = out_dir + "/conservation.dat";
+      std::ofstream outfile(cons_path.c_str(), std::ios::app);
+      outfile << systemPtr->t << " " << systemPtr->Eloss << " " << systemPtr->S << \
+      " " << systemPtr->Btotal << " " << systemPtr->Stotal << " " << systemPtr->Qtotal << endl;
     }
     if (settingsPtr->calculate_observables) systemPtr->compute_eccentricities();
 
-    //===================================
-    // print updated system and status
-    if (settingsPtr->print_conservation_status) outPtr->print_conservation_status();
     #ifdef DEBUG
     outfile << systemPtr->t << " " << systemPtr->Eloss << " " << systemPtr->S << endl;
     #endif
-    //outPtr->print_system_state();
+
     if (settingsPtr->hdf_evolution || settingsPtr->txt_evolution) 
     {
       outPtr->print_system_state();
     }
     if (settingsPtr->particlization_enabled) outPtr->print_freeze_out(wsPtr->freezePtr, systemPtr->Btotal0, systemPtr->Qtotal0, systemPtr->Stotal0);
 
+    // =================================================================
+    // Printing neighbors for each timestep
+    if(settingsPtr->get_neighbors){
+      std::vector<std::string> labels = {"min", "max"};
+      for (int i = 0; i < 2; ++i) {
+          std::string n_path = out_dir + "/neighbors_" + labels[i] + ".dat";
+          std::ofstream outfile_neighbors(n_path.c_str(), std::ios::app);
+          std::vector<std::array<double, 4>> result = systemPtr->get_particle_data(idx[i]);
+          outfile_neighbors << systemPtr->t << " "
+                            << result[0][0] << " "
+                            << result[0][1] << " "
+                            << result[0][2] << " "
+                            << result[0][3] << std::endl;
+      }
+    }
   }
-  #ifdef DEBUG
-  outfile.close();
-  #endif
+  // if(settingsPtr->get_neighbors){
+  //   outfile_neighbors.close();
+  // }
+  // if (settingPtr->print_conservation_status) outfile.close();
+  // #ifdef DEBUG
+  // outfile.close();
+  // #endif
+
+  //=======================================================================
+  // print observables for each timestep
+  if (settingsPtr->calculate_observables) {
+    std::ofstream outfile;
+    for (int j = 0; j < systemPtr->eta_slices.size(); ++j){
+      std::ostringstream eta_stream;
+      eta_stream << std::fixed << std::setprecision(1) << systemPtr->eta_slices[j];
+      string ecc_path = out_dir + "/eccentricities_" + eta_stream.str() + ".dat";
+      outfile.open(ecc_path.c_str());
+      outfile << "t " << "e_2_X " << "e_2_P " << "count_X " << "count_P " << endl;
+      for (int i = 0; i < systemPtr->timesteps.size(); ++i)
+      {
+        outfile << systemPtr->timesteps[i] << " " \
+        << systemPtr->e_2_X_history_by_slice[j][i] << " " \
+        << systemPtr->e_2_P_history_by_slice[j][i] << " " \
+        << systemPtr->count_X_history_by_slice[j][i] << " " \
+        << systemPtr->count_P_history_by_slice[j][i] << endl;
+      }
+      outfile.close();
+    }
+  }
 
   sw.Stop();
   formatted_output::summarize("All timesteps finished in "

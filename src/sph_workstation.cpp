@@ -1310,7 +1310,7 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives(double dt)
                             + to_string(sw2.printTime()) + " s.");
   //add source terms to the energy momentum tensor
   //add_source();
-  if (settingsPtr->source_type != "none") sourcePtr->add_source(dt);
+  if (settingsPtr->source_type != "none") sourcePtr->add_source();
     // update viscosities for all particles
   sw2 = Stopwatch();
   sw2.Start();  
@@ -1470,16 +1470,16 @@ void SPHWorkstation<D, TEOM>::update_all_particle_thermodynamics()
   sw.Start();
   double t = systemPtr->t;
   double t2 = t*t;
-  #ifdef DEBUG_SLOW
-  std::cout << "update_all_thermodynamics() before copying back and forth" << std::endl;
-  for (auto & p : systemPtr->particles){
-    if(p.r(0) > -0.02 && p.r(0) < 0.02){
-      std::cout << "eta=  " << p.r(0) << "   ";
-      std::cout << "  temp=  " << p.thermo.T << "  thermo.e=   " << p.thermo.e*hbarc_GeVfm << "   input.e=   " << p.input.e*hbarc_GeVfm << \
-              "   thermo.s=   " << p.thermo.s << "   input.s=   " << p.input.s << "   " << std::endl;
-    }
-  }
-  #endif
+  // #ifdef DEBUG_SLOW
+  // std::cout << "update_all_thermodynamics() before copying back and forth" << std::endl;
+  // for (auto & p : systemPtr->particles){
+  //   if(p.r(0) > -0.02 && p.r(0) < 0.02){
+  //     std::cout << "eta=  " << p.r(0) << "   ";
+  //     std::cout << "  temp=  " << p.thermo.T << "  thermo.e=   " << p.thermo.e*hbarc_GeVfm << "   input.e=   " << p.input.e*hbarc_GeVfm << \
+  //             "   thermo.s=   " << p.thermo.s << "   input.s=   " << p.input.s << "   " << std::endl;
+  //   }
+  // }
+  // #endif
   if(!settingsPtr->online_inverter_enabled){
     eos_interpolatorPtr->fill_thermodynamics(systemPtr->cabana_particles, t);
     #ifdef DEBUG_SLOW
@@ -1626,9 +1626,9 @@ double SPHWorkstation<D, TEOM>::locate_phase_diagram_point_eBSQ( Particle<D> & p
     cout << "WARNING: could not find solution for particle " << p.ID << "with (e,B,S,Q)" 
          << " = (" << e_In << "," << rhoB_In << "," << rhoS_In << "," << rhoQ_In << ")" << endl;
     cout << "Setting charges to zero and freezing out particle." << endl;
-    p.thermo.rhoB = 0.0;
-    p.thermo.rhoS = 0.0;
-    p.thermo.rhoQ = 0.0;
+    //p.thermo.rhoB = 0.0;
+    //p.thermo.rhoS = 0.0;
+    //p.thermo.rhoQ = 0.0;
     //run again the EoS to get the entropy density
     sVal = eos.s_out( e_In, 0.0, 0.0, 0.0, solution_found2,
                       p.print_this_particle );
