@@ -509,7 +509,7 @@ void BSQHydro<D,TEOM>::run()
   // std::ofstream outfile;
   if (settingsPtr->print_conservation_status) {
     string cons_path = out_dir + "/conservation.dat";
-    std::ofstream outfile(cons_path.c_str(), std::ios::app);
+    std::ofstream outfile(cons_path.c_str());
     // outfile.open(cons_path.c_str());
     systemPtr->conservation_entropy(true);
     systemPtr->conservation_BSQ(true);
@@ -564,7 +564,7 @@ void BSQHydro<D,TEOM>::run()
     for (int i = 0; i < 2; ++i) {
         std::string n_path = out_dir + "/neighbors_" + labels[i] + ".dat";
 
-        std::ofstream outfile_neighbors(n_path.c_str(), std::ios::app);
+        std::ofstream outfile_neighbors(n_path.c_str());
         outfile_neighbors << "t #neighbors x y eta" << std::endl;
 
         std::vector<std::array<double, 4>> result = systemPtr->get_particle_data(idx[i]);
