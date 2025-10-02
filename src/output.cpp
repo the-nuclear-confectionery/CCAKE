@@ -199,7 +199,9 @@ void Output<D,TEOM>::print_jet_state_to_txt()
         //out << jets.rho << " ";
         out << jets.PID << " ";
         out << jets.r[0] << " ";
-        out << jets.r[1] << " " << "\n";
+        out << jets.r[1] << " ";
+        out <<  "(" << jets.x << " ";
+        out << jets.y << ")" << " " << "\n";
        }
   out << std::flush;
   out.close();

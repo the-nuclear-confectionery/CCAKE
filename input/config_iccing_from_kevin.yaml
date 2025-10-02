@@ -1,6 +1,6 @@
 eos:
   online_inverter_enabled: true
-  path: /projects/illinois/eng/physics/jnorhos/ilong/test_branch/CCAKE/build/EoS/Houston/
+  path: /u/ilong/workspace/CCAKE_w_jets/CCAKE/build/EoS/Houston/
   preinverted_eos_path: default
   type: table
 hydro:
@@ -42,10 +42,10 @@ hydro:
 initial_conditions:
   coordinate_system: hyperbolic
   dimension: 2
-  file: /projects/illinois/eng/physics/jnorhos/ilong/test_branch/CCAKE/ICs/ic_ccake_0-5.dat
+  file: /u/ilong/workspace/CCAKE_w_jets/CCAKE/ICs/densities0.dat
   input_as_entropy: false
   t0: 0.6
-  type: ccake
+  type: ICCING
 output:
   calculate_observables: false
   hdf_evolution: false

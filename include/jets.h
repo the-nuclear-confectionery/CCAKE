@@ -46,6 +46,8 @@ namespace ccake
 {
   using jets = Cabana::MemberTypes<double[2], // position
                                   double[2], //velocity
+                                  double, // initial x
+                                  double, // initial y
                                   double, // rho0
                                   double,    // rho
                                   double,    // Temp
@@ -63,6 +65,8 @@ namespace ccake
     {
       position,
       velocity,
+      x,
+      y,
       rho0,
       rho,
       T,
@@ -85,6 +89,8 @@ namespace ccake
   #define jets_VIEW(prefix, jets_aosoa) \
   auto CONCAT(prefix, position) = Cabana::slice<jets_enum::position>(jets_aosoa); \
   auto CONCAT(prefix, velocity) = Cabana::slice<jets_enum::velocity>(jets_aosoa); \
+  auto CONCAT(prefix, x) = Cabana::slice<jets_enum::x>(jets_aosoa); \
+  auto CONCAT(prefix, y) = Cabana::slice<jets_enum::y>(jets_aosoa); \
   auto CONCAT(prefix, rho0) = Cabana::slice<jets_enum::rho0>(jets_aosoa); \
   auto CONCAT(prefix, rho) = Cabana::slice<jets_enum::rho>(jets_aosoa); \
   auto CONCAT(prefix, T) = Cabana::slice<jets_enum::T>(jets_aosoa); \
@@ -165,7 +171,7 @@ public:
     {
         int sph, on;
         double rho, rho0, T, v[2];
-        double r[2], phi, line_int;
+        double r[2], phi, line_int, x, y;
         int PID, Frozen;
         double gam, vmag, vang, flow;
         //double T0;
@@ -200,7 +206,7 @@ void BBMG<D>::initial()
   z                 = 1; // path length dependence
   a                 = 0; //Initial jet energy dependence
   c                 = (2+z-a)/3; //medium temperature dependence
-  num_jets          = 5000; // Number of jets per event for oversampling
+  num_jets          = 300000; // Number of jets per event for oversampling
   //phimax            = 14;
   
   //===============================================
@@ -269,6 +275,8 @@ void BBMG<D>::initial()
         field sph_particle; //field of all sph particles where we take necessary line integral info
         sph_particle.r[0] = p[random_sph_particle].r(0);
         sph_particle.r[1] = p[random_sph_particle].r(1);
+        sph_particle.x    = p[random_sph_particle].r(0);
+        sph_particle.y    = p[random_sph_particle].r(1);
         sph_particle.rho0 = rsub; //Density left in terms of femtometers
         sph_particle.T = p[random_sph_particle].T() * constants::hbarc_MeVfm;
         //sph_particle.T0 = p[random_sph_particle].T() * constants::hbarc_MeVfm;
@@ -320,6 +328,8 @@ void ccake::BBMG<D>::copy_host_to_device_BBMG(){
         host_position(ijet, i) = jetInfo_host[ijet].r[i];
           }
     host_rho0(ijet) = jetInfo_host[ijet].rho0;
+    host_x(ijet) = jetInfo_host[ijet].x;
+    host_y(ijet) = jetInfo_host[ijet].y;
     host_rho(ijet) = jetInfo_host[ijet].rho;
     host_T(ijet) = jetInfo_host[ijet].T;
     host_phi(ijet) = jetInfo_host[ijet].phi;
@@ -359,6 +369,8 @@ void BBMG<D>::copy_device_to_host_BBMG()
     {
       jetFreezeOut[ijet].r[i] = host_position(ijet, i);
     }
+    jetFreezeOut[ijet].x = host_x(ijet);
+    jetFreezeOut[ijet].y = host_y(ijet);
     jetFreezeOut[ijet].rho0 = host_rho0(ijet);
     jetFreezeOut[ijet].rho  = host_rho(ijet);
     jetFreezeOut[ijet].T = host_T(ijet);
