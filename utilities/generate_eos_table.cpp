@@ -15,6 +15,7 @@
 #include <omp.h>
 
 #include "eos.h"
+#include <yaml-cpp/yaml.h>
 #include "settings.h"
 #include "thermodynamic_info.h"
 #include "stopwatch.h"
@@ -42,6 +43,26 @@ int check_args(int argc, char** argv){
     return 0;
   }
 }
+
+
+class Input{
+  public:
+    Input() = default;
+    ~Input() = default;
+    void read_input(std::string config_path){
+        YAML::Node config = YAML::LoadFile(config_path);
+        nthreads = config["n_threads"].as<int>();
+        eos_type = config["eos_type"].as<std::string>();
+        eos_path = config["eos_path"].as<std::string>();
+        output_path = config["output_path"].as<std::string>();
+        output_file = config["output_file"].as<std::string>();
+    }
+    int nthreads = 1;
+    std::string eos_type{};
+    std::string eos_path{};
+    std::string output_path = "../output/";
+    std::string output_file = "eos_table.h5";
+};
 
 class Inverter{
   private:
@@ -384,13 +405,25 @@ class Inverter{
 
 int main(int argc, char** argv){
 
-    if (check_args(argc, argv) != 0) return 1;
+    std::string config_path = "../input/config_eos_inverter.yaml";
     //Set number of threads
-    int nthreads = atoi(argv[1]);
+    Input input;
+    input.read_input(config_path);
+    int nthreads = input.nthreads;
     omp_set_num_threads(nthreads);
 
-    Inverter inverter(argv[4], nthreads);
-    inverter.init_ccake(argv[2], argv[3]);
+    fs::path output_path = input.output_path;
+    if ( !fs::exists(output_path) ){
+      fs::create_directories(output_path);
+    }
+    fs::path output_file = output_path / input.output_file;
+    Inverter inverter(output_file, nthreads);
+
+    // remove trailing / from eos_path if it exists
+    if (input.eos_path.back() == '/'){
+        input.eos_path.pop_back(); 
+    }
+    inverter.init_ccake(input.eos_type, input.eos_path);
 
     int Nsize = 5*4*4*4;
     auto start = std::chrono::system_clock::now();
