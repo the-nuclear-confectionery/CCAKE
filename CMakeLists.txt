@@ -4,6 +4,7 @@ project(ccake VERSION 2.0 LANGUAGES CXX C)
 
 configure_file(include/config.h.in config.h)
 #include_directories(${PROJECT_BINARY_DIR} /usr/include)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 ###############################################################
 # require C++17
@@ -83,6 +84,7 @@ add_executable(validate_interpolator utilities/validate_interpolator.cpp)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE src)
 target_link_libraries(generate_eos_table PRIVATE eos)
+target_link_libraries(generate_eos_table PRIVATE ${YAML_CPP_LIBRARIES})
 target_link_libraries(validate_interpolator PRIVATE src)
 
 install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_SOURCE_DIR})
