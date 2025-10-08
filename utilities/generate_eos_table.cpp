@@ -54,8 +54,6 @@ class Input{
         nthreads = config["n_threads"].as<int>();
         eos_type = config["eos_type"].as<std::string>();
         eos_path = config["eos_path"].as<std::string>();
-        output_path = config["output_path"].as<std::string>();
-        output_file = config["output_file"].as<std::string>();
     }
     int nthreads = 1;
     std::string eos_type{};

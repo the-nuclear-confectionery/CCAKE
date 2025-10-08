@@ -1,5 +1,3 @@
 n_threads: 4
 eos_path: ../EoS/Houston/
-output_path: ./EoS_inverted/
-output_file: eos_table.h5
 eos_type: conformal

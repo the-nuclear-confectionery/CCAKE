@@ -5,7 +5,6 @@ RUN apt-get update && \
     build-essential cmake git pkg-config \
     openmpi-bin libopenmpi-dev \
     libhdf5-dev \
-    # libhdf5-openmpi-dev libhdf5-openmpi-cpp-103-1 \
     pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
@@ -84,7 +83,7 @@ FROM registry.gitlab.com/nsf-muses/common:dev AS final
 #####################
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -yq \
-        make python3 python3-pip libeigen3-dev \
+        make python3 python3-pip \
         libhdf5-103-1 libhdf5-cpp-103-1 \
         openmpi-bin libopenmpi-dev \
     && rm -rf /var/lib/apt/lists/*
