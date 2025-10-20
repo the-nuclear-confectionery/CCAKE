@@ -1,3 +1,4 @@
+
 #include <fstream>
 #include <iostream>
 #include <memory>
@@ -16,6 +17,7 @@
 #include "../include/eos_base.h"
 #include "../include/eos_conformal.h"
 #include "../include/eos_conformal_diagonal.h"
+#include "../include/eos_cd_modified.h"
 #include "../include/eos_header.h"
 #include "../include/eos_nonconformal_extension.h"
 #include "../include/eos_table.h"
@@ -322,8 +324,104 @@ void EquationOfState::set_up_chosen_EOSs()
 
     }
 
+    //==========================================================================
+    // updated diagonal conformal
+    //==========================================================================
+    if ( settingsPtr->EoS_type != "cd_modified" )
+    {
+      formatted_output::update("Setting diagonal conformal equation of state "
+                               "as final fallback");
+      formatted_output::detail("all coefficients matched to p/T^4 at grid limits");
 
+      constexpr double lower_emin_by_factor = 2.0;
 
+      // pointer to default EoS (first element added above)
+      pEoS_base p_default_EoS = chosen_EOSs.front();
+
+      // look up grid maxima (without any extensions)
+      std::vector<double> maxima = p_default_EoS->get_tbqs_maxima_no_ext();
+      double Tmax   = maxima[0];
+      double muBmax = maxima[1];
+      double muQmax = maxima[2];
+      double muSmax = maxima[3];
+
+      // set overall scale using (Tmax,0,0,0)
+      tbqs( Tmax, 0.0, 0.0, 0.0, p_default_EoS );
+      double pTmax = pVal;
+      double c  = pTmax / (Tmax*Tmax*Tmax*Tmax);
+
+      //const double hc = constants::hbarc_MeVfm;
+
+      // T-scale T0 = 1 by definition
+      double T0 = 1.0;
+
+      // set muB scale using (Tmax,muBmax,0,0)
+      tbqs( Tmax, muBmax, 0.0, 0.0, p_default_EoS );
+      cout << pTmax << "   " << pVal << "   " << c << "   " << muBmax << endl;
+      double pBmax = pVal;
+      double muB0 = lower_emin_by_factor*pow( c/(pVal - pTmax), 0.25) * muBmax;
+      // double muB0 = 2.5;
+
+      // set muQ scale using (Tmax,0,muQmax,0)
+      tbqs( Tmax, 0.0, muQmax, 0.0, p_default_EoS );
+      cout << pTmax << "   " << pVal << "   " << c << "   " << muQmax << endl;
+      double pQmax = pVal;
+      double muQ0 = lower_emin_by_factor*pow( c/(pVal - pTmax), 0.25) * muQmax;
+      // double muQ0 = 2.0;
+
+      // set muS scale using (Tmax,0,0,muSmax)
+      tbqs( Tmax, 0.0, 0.0, muSmax, p_default_EoS );
+      cout << pTmax << "   " << pVal << "   " << c << "   " << muSmax << endl;
+      double pSmax = pVal;
+      double muS0 = lower_emin_by_factor*pow( c/(pVal - pTmax), 0.25) * muSmax;
+      // double muS0 = 1.5;
+
+      // std::cout << "Check old and new mu scales: "
+      //           << pow( c/(pBmax - pTmax), 0.25) * muBmax << "  " << muB0 << "  "
+      //           << pow( c/(pSmax - pTmax), 0.25) * muSmax << "  " << muS0 << "  "
+      //           << pow( c/(pQmax - pTmax), 0.25) * muQmax << "  " << muQ0 << "\n";
+
+      // std::cout << "Check data:\n" << setprecision(12);
+      // std::cout << T0 << "  " << muB0 << "  " << muS0 << "  " << muQ0 << "  "
+      //           << Tmax << "  " << muBmax << "  " << muSmax << "  " << muQmax << "  "
+      //           << pTmax << "  " << pBmax << "  " << pSmax << "  " << pQmax << "\n\n\n";
+
+      // set minima and maxima for rootfinder (can be arbitrarily large)
+      vector<double> tbqs_minima = { 0.0,          -TBQS_INFINITY, -TBQS_INFINITY, -TBQS_INFINITY };
+      vector<double> tbqs_maxima = { TBQS_INFINITY, TBQS_INFINITY,  TBQS_INFINITY,  TBQS_INFINITY };
+
+      // calculating and setting cB, cQ, cS values
+
+      double cB = (((pBmax - pTmax) * (muB0*muB0*muB0*muB0))
+                  - (c*T0*T0*T0*T0*muBmax*muBmax*muBmax*muBmax))
+                  / (c*T0*T0*Tmax*Tmax*muB0*muB0*muBmax*muBmax);
+      double cQ = (((pQmax - pTmax) * (muQ0*muQ0*muQ0*muQ0))
+                  - (c*T0*T0*T0*T0*muQmax*muQmax*muQmax*muQmax))
+                  / (c*T0*T0*Tmax*Tmax*muQ0*muQ0*muQmax*muQmax);
+      double cS = (((pSmax - pTmax) * (muS0*muS0*muS0*muS0))
+                  - (c*T0*T0*T0*T0*muSmax*muSmax*muSmax*muSmax))
+                  / (c*T0*T0*Tmax*Tmax*muS0*muS0*muSmax*muSmax);
+
+// std::cout << setprecision(12) << c << "  "
+//           << T0 << "  " << muB0 << "  " << muQ0 << "  " << muS0 << "  "
+//           << cB << "  " << cS << "  " << cQ << "\n";
+
+      formatted_output::detail("set up with following parameters:");
+      formatted_output::detail( "c    = " + to_string(c) );
+      formatted_output::detail( "T0   = " + to_string(T0) );
+      formatted_output::detail( "muB0 = " + to_string(muB0) );
+      formatted_output::detail( "muQ0 = " + to_string(muQ0) );
+      formatted_output::detail( "muS0 = " + to_string(muS0) );
+      formatted_output::detail( "cB   = " + to_string(cB) );
+      formatted_output::detail( "cQ   = " + to_string(cQ) );
+      formatted_output::detail( "cS   = " + to_string(cS) );
+
+      // add matched conformal EoS to vector of EoSs
+      chosen_EOSs.push_back( std::make_shared<EoS_cd_modified>(
+                              c, T0, muB0, muS0, muQ0, cB, cQ, cS,
+                              tbqs_minima, tbqs_maxima, "cd_modified" ) );
+
+    }
 
 
 
@@ -461,6 +559,7 @@ cout << "THERMO DUMP: "
     << dtds << "   " << dt2 << endl;
 */
 
+/*
 cout << "================================================================================\n"
       << "================================================================================\n"
       << "================================================================================\n";
@@ -504,10 +603,54 @@ cout << "=======================================================================
     std::cout << "Check interpolant:";
     for (auto&e:v) cout << " " << e;
     std::cout << std::endl;
-    
+
     std::cout << "GOT THERMODYNAMICS" << std::endl;
   }
   std::cout << std::endl << std::endl << std::endl;
+  */
+
+  cout << "================================================================================\n"
+        << "================================================================================\n"
+        << "================================================================================\n";
+
+  //==========================================================================
+  std::cout << "Check cd_modified EoS:" << std::endl;
+  for (double T0   = 400.0; T0   <= 400.01; T0   += 1200.0)
+  for (double muB0 = 225.0; muB0 <= 225.01; muB0 += 450.0)
+  for (double muS0 = 225.0; muS0 <= 225.01; muS0 += 450.0)
+  for (double muQ0 = 225.0; muQ0 <= 225.01; muQ0 += 450.0)
+  {
+    std::vector<double> point = {T0/hc, muB0/hc, muQ0/hc, muS0/hc};
+    std::vector<double> v = get_thermodynamics( point, "cd_modified" );
+    // std::cout << "Check cd_modified: "
+    //           << T0 << "   " << muB0 << "   "
+    //           << muQ0 << "   " << muS0 << "   "
+    //           << v[0]*hc*hc*hc*hc/(T0*T0*T0*T0) << "   "
+    //           << v[1]*hc*hc*hc/(T0*T0*T0) << "   "
+    //           << v[2]*hc*hc*hc/(T0*T0*T0) << "   "
+    //           << v[3]*hc*hc*hc/(T0*T0*T0) << "   "
+    //           << v[4]*hc*hc*hc/(T0*T0*T0) << "   "
+    //           << v[5]*hc*hc*hc*hc/(T0*T0*T0*T0) << "   "
+    //           << v[6] << "   "
+    //           << v[7]*hc*hc/(T0*T0) << "   "
+    //           << v[8]*hc*hc/(T0*T0) << "   "
+    //           << v[9]*hc*hc/(T0*T0) << "   "
+    //           << v[10]*hc*hc/(T0*T0) << "   "
+    //           << v[11]*hc*hc/(T0*T0) << "   "
+    //           << v[12]*hc*hc/(T0*T0) << "   "
+    //           << v[13]*hc*hc/(T0*T0) << "   "
+    //           << v[14]*hc*hc/(T0*T0) << "   "
+    //           << v[15]*hc*hc/(T0*T0) << "   "
+    //           << v[16]*hc*hc/(T0*T0) << std::endl;
+    std::cout << "Check cd_modified: " << setprecision(12)
+              << T0 << "  " << muB0 << "  "
+              << muQ0 << "  " << muS0 << "  ";
+    for (int iEoS = 0; iEoS <= 16; ++iEoS)
+      std::cout << v[iEoS] << "  ";
+    std::cout << std::endl;
+  }
+  std::cout << std::endl << std::endl << std::endl;
+
 
 
   exit(11);
