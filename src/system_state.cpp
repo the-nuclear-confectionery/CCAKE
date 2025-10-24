@@ -784,13 +784,13 @@ void SystemState<D>::conservation_energy(bool first_iteration, double t)
   };
   Kokkos::parallel_reduce("loop_conservation_Ez",n_particles, get_total_Ez, Ez);
   Kokkos::fence();
-  std::cout << "Ez: " << Ez << std::endl;
+  // std::cout << "Ez: " << Ez << std::endl;
   Etot  = E+Ez;
-  std::cout << "Etot: " << Etot << std::endl;
-  std::cout << "E: " << E << std::endl;
-  std::cout << "E0: " << E0 << std::endl;
+  // std::cout << "Etot: " << Etot << std::endl;
+  // std::cout << "E: " << E << std::endl;
+  // std::cout << "E0: " << E0 << std::endl;
   Eloss = ((E0-Etot)/E0)*100;
-  cout << "Finished conservation energy: " << endl;
+  //cout << "Finished conservation energy: " << endl;
 }
 
 ///////////////////////////////////////

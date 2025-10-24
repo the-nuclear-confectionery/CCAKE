@@ -51,6 +51,7 @@ namespace ccake
                                   double, // rho0
                                   double,    // rho
                                   double,    // Temp
+                                  double,    // Initial Temp
                                   double,    // phi
                                   double,    // line integral
                                   double,    // gamma
@@ -70,6 +71,7 @@ namespace ccake
       rho0,
       rho,
       T,
+      T0,
       phi,
       line_int,
       gam,
@@ -94,6 +96,7 @@ namespace ccake
   auto CONCAT(prefix, rho0) = Cabana::slice<jets_enum::rho0>(jets_aosoa); \
   auto CONCAT(prefix, rho) = Cabana::slice<jets_enum::rho>(jets_aosoa); \
   auto CONCAT(prefix, T) = Cabana::slice<jets_enum::T>(jets_aosoa); \
+  auto CONCAT(prefix, T0) = Cabana::slice<jets_enum::T0>(jets_aosoa); \
   auto CONCAT(prefix, phi) = Cabana::slice<jets_enum::phi>(jets_aosoa); \
   auto CONCAT(prefix, line_int) = Cabana::slice<jets_enum::line_int>(jets_aosoa); \
   auto CONCAT(prefix, gam) = Cabana::slice<jets_enum::gam>(jets_aosoa); \
@@ -162,6 +165,7 @@ public:
     //double flow(field &f);
 
     void initial();
+    void initial_one_jet();
 
 
     // Testing to see if this being public allows deep copy to work and allows copy from device to host
@@ -174,7 +178,7 @@ public:
         double r[2], phi, line_int, x, y;
         int PID, Frozen;
         double gam, vmag, vang, flow;
-        //double T0;
+        double T0;
     };
 
     vector<field> jetInfo_host; ///\@todo: Change these vectors to the AoSoA's
@@ -300,6 +304,190 @@ void BBMG<D>::initial()
     copy_host_to_device_BBMG();
     //copy_device_to_host_BBMG();
 }
+/*
+template <unsigned int D>
+void BBMG<D>::initial_one_jet()
+{
+      srand( time( NULL ) );
+  Freezeout_Temp    = 150;// Decoherence temperature in MeV
+  Cg                = 3; // Cassimir const gluons
+  Cq                = 4./3; // Cassimir const quarks
+  // All next quantities are part of the BBMG parameters
+  q                 = 0; // Fluctuation parameter, subject to change
+  z                 = 1; // path length dependence
+  a                 = 0; //Initial jet energy dependence
+  c                 = (2+z-a)/3; //medium temperature dependence
+  num_jets          = 1; // Number of jets per event for oversampling
+  //phimax            = 14;
+  
+  //===============================================
+  vjet  = 1;
+  // area is taken from parameter h read in from input parameters file
+  //area  = PI*pow(2.*systemPtr->h,2);
+
+  gridx = settingsPtr->stepx;
+  gridy = settingsPtr->stepy;
+  //cout << "Gridx and gridy are " << gridx << "," << gridy << endl << endl;
+
+  for (int i = 0; i < phimax; i++)
+  {
+    phi[i] = i*PI/7;
+  }
+  //Setting final energy as a start point for the integration; This is starting in GeV
+  Pfg = 10;
+  Pfq = 10;
+
+  Pfg /= constants::hbarc_GeVfm; //Converting into femtometers
+  Pfq /= constants::hbarc_GeVfm;
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+  vector<Particle<D>>  p_bbmg;
+
+  jetInfo = Cabana::AoSoA<jets, DeviceType,VECTOR_LENGTH>("jetInfo", 2*num_jets);
+    //jetFreezeOut = jet_freeze("jetFreezeOut", 2*num_jets);
+    //jetFreezeOut = jet_array("jetFreezeOut", 2*num_jets);
+  //auto & p = systemPtr->particles;
+    
+  for ( int i = 0; i < systemPtr->particles.size(); ++i )
+  {
+    auto & p = systemPtr->particles[i];
+    if (p.T() * constants::hbarc_MeVfm >= Freezeout_Temp)
+    {
+      p_bbmg.push_back(p);
+    }
+  }
+
+  int back_to_back = 2; 
+  cout << "p_bbmg.size() = " << p_bbmg.size() << endl;
+
+  double rsub = p_bbmg[75000].p() / p_bbmg[75000].T();
+  //abort();
+  field sph_particle; //field of all sph particles where we take necessary line integral info
+  sph_particle.r[0] = p_bbmg[75000].r(0);
+  sph_particle.r[1] = p_bbmg[75000].r(1);
+  sph_particle.x    = p_bbmg[75000].r(0);
+  sph_particle.y    = p_bbmg[75000].r(1);
+  sph_particle.rho0 = rsub; //Density left in terms of femtometers
+  sph_particle.T = p_bbmg[75000].T() * constants::hbarc_MeVfm;
+        //sph_particle.T0 = p[random_sph_particle].T() * constants::hbarc_MeVfm;
+        //The above line is to create histograms to compare with initial temperature distribution
+        
+  double kappa = get_kappa(sph_particle.T / 1000);
+
+  sph_particle.line_int = 0.5 * kappa * exp(z * log(settingsPtr->t0)) * exp(c * log(sph_particle.rho0)) * settingsPtr->dt; // only if initial flow=0
+  cout << "Line integral: " << sph_particle.line_int << endl;
+  for (int j = 0; j < back_to_back; j++)
+  {
+      sph_particle.phi = PI/7 + j * PI;
+      sph_particle.PID = 1 + phimax * j;
+      sph_particle.Frozen = 1;
+      jetInfo_host.push_back(sph_particle);
+  }
+  
+  // for (auto& elem : jetInfo_host) {
+  //   cout << elem << ", "; 
+  // }
+    //jetFreezeOut = jetInfo_host;
+
+
+  copy_host_to_device_BBMG();
+    //copy_device_to_host_BBMG();
+}
+*/
+//////////////////////////////////////////////////////
+
+template <unsigned int D>
+void BBMG<D>::initial_one_jet()
+{
+      srand( time( NULL ) );
+  Freezeout_Temp    = 150;// Decoherence temperature in MeV
+  Cg                = 3; // Cassimir const gluons
+  Cq                = 4./3; // Cassimir const quarks
+  // All next quantities are part of the BBMG parameters
+  q                 = 0; // Fluctuation parameter, subject to change
+  z                 = 1; // path length dependence
+  a                 = 0; //Initial jet energy dependence
+  c                 = (2+z-a)/3; //medium temperature dependence
+  num_jets          = 1; // Number of jets per event for oversampling
+  //phimax            = 14;
+  
+  //===============================================
+  vjet  = 1;
+  // area is taken from parameter h read in from input parameters file
+  //area  = PI*pow(2.*systemPtr->h,2);
+
+  gridx = settingsPtr->stepx;
+  gridy = settingsPtr->stepy;
+  //cout << "Gridx and gridy are " << gridx << "," << gridy << endl << endl;
+
+  for (int i = 0; i < phimax; i++)
+  {
+    phi[i] = i*PI/7;
+  }
+  //Setting final energy as a start point for the integration; This is starting in GeV
+  Pfg = 10;
+  Pfq = 10;
+
+  Pfg /= constants::hbarc_GeVfm; //Converting into femtometers
+  Pfq /= constants::hbarc_GeVfm;
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+  jetInfo = Cabana::AoSoA<jets, DeviceType,VECTOR_LENGTH>("jetInfo", 2*num_jets);
+    //jetFreezeOut = jet_freeze("jetFreezeOut", 2*num_jets);
+    //jetFreezeOut = jet_array("jetFreezeOut", 2*num_jets);
+  //auto & p = systemPtr->particles;
+    
+  for ( int i = 0; i < systemPtr->particles.size(); ++i )
+  {
+    auto & p = systemPtr->particles[i];
+    if (p.r(0)==1.71 && p.r(1)==0.51 && p.T()*constants::hbarc_MeVfm>=150)
+      { 
+        int index = i;
+        cout << "sph particle index is " << index << endl;
+        cout << "initial sph temperature is " << p.T()*constants::hbarc_MeVfm << endl;
+        int back_to_back = 2;
+        //cout << "p_bbmg.size() = " << p_bbmg.size() << endl;
+        double rsub = p.p() / p.T();
+        //cout << "Pressure is: " << p[random_sph_particle].p() << " Temperature is: " << p[random_sph_particle].T() << " rho is: " << rsub << endl;
+        //abort();
+        //rho0tot += rsub;
+        field sph_particle; //field of all sph particles where we take necessary line integral info
+        sph_particle.r[0] = p.r(0);
+        sph_particle.x = p.r(0);
+        //cout << "Positions (x) of each particle in the grid is " << p.r(0) << "\n";
+        sph_particle.r[1] = p.r(1);
+        sph_particle.y = p.r(1);
+        sph_particle.rho0 = rsub; //Density left in terms of femtometers
+        //sph_particle.sph = i;
+        sph_particle.T = p.T() * constants::hbarc_MeVfm;
+        sph_particle.T0 = p.T() * constants::hbarc_MeVfm;
+        //The above line is to create histograms to compare with initial temperature distribution
+
+        double kappa = get_kappa(sph_particle.T / 1000);
+
+        sph_particle.line_int = 0.5 * kappa * exp(z * log(settingsPtr->t0)) * exp(c * log(sph_particle.rho0)) * settingsPtr->dt; // only if initial flow=0
+        //jetInfo.resize(14);
+
+        //for (int j = 0; j < phimax; j++) //initializes jets at each point in grid space, over 14 directions
+        //std::uniform_int_distribution<> phidist(0, phimax - 1);
+    //int phidist = rand() % phimax;
+        for (int j = 0; j < back_to_back; j++)
+        {
+            sph_particle.phi = PI/7 + j * PI;
+            sph_particle.PID = 1 + phimax * j;
+            jetInfo_host.push_back(sph_particle);
+        }
+      }
+
+    }
+  copy_host_to_device_BBMG();
+    //copy_device_to_host_BBMG();
+}
+
+
+//////////////////////////////////////////////////////
 
 
 //ccake::BBMG::flow(field &f) { return f.gam*(1-f.vmag*cos(f.phi-f.vang)); }
@@ -332,6 +520,7 @@ void ccake::BBMG<D>::copy_host_to_device_BBMG(){
     host_y(ijet) = jetInfo_host[ijet].y;
     host_rho(ijet) = jetInfo_host[ijet].rho;
     host_T(ijet) = jetInfo_host[ijet].T;
+    host_T0(ijet) = jetInfo_host[ijet].T0;
     host_phi(ijet) = jetInfo_host[ijet].phi;
     host_line_int(ijet) = jetInfo_host[ijet].line_int;
     host_gam(ijet) = jetInfo_host[ijet].gam;
@@ -361,31 +550,34 @@ void BBMG<D>::copy_device_to_host_BBMG()
   //Auxiliary AoSoA for copying particles from/to host
   auto jets_h = Cabana::create_mirror_view_and_copy(Kokkos::HostSpace(), jetInfo);
   Kokkos::fence();
-  cout << "jets_VIEW instantiation..." << endl;
+  //cout << "jets_VIEW instantiation..." << endl;
   jets_VIEW(host_, jets_h);
   for (int ijet=0; ijet < 2*num_jets; ++ijet){
     //int id = host_id(ijet);
     for (int i=0; i<2; ++i)
     {
-      jetFreezeOut[ijet].r[i] = host_position(ijet, i);
+      jetInfo_host[ijet].r[i] = host_position(ijet, i);
     }
-    jetFreezeOut[ijet].x = host_x(ijet);
-    jetFreezeOut[ijet].y = host_y(ijet);
-    jetFreezeOut[ijet].rho0 = host_rho0(ijet);
-    jetFreezeOut[ijet].rho  = host_rho(ijet);
-    jetFreezeOut[ijet].T = host_T(ijet);
-    jetFreezeOut[ijet].phi  = host_phi(ijet);
-    jetFreezeOut[ijet].line_int = host_line_int(ijet);
-    jetFreezeOut[ijet].gam  = host_gam(ijet);
-    jetFreezeOut[ijet].vmag = host_vmag(ijet);
-    jetFreezeOut[ijet].vang  = host_vang(ijet);
-    jetFreezeOut[ijet].PID = host_PID(ijet);
+    jetInfo_host[ijet].x = host_x(ijet);
+    jetInfo_host[ijet].y = host_y(ijet);
+    jetInfo_host[ijet].rho0 = host_rho0(ijet);
+    jetInfo_host[ijet].rho  = host_rho(ijet);
+    jetInfo_host[ijet].T = host_T(ijet);
+    jetInfo_host[ijet].phi  = host_phi(ijet);
+    jetInfo_host[ijet].line_int = host_line_int(ijet);
+    jetInfo_host[ijet].gam  = host_gam(ijet);
+    jetInfo_host[ijet].vmag = host_vmag(ijet);
+    jetInfo_host[ijet].vang  = host_vang(ijet);
+    jetInfo_host[ijet].PID = host_PID(ijet);
 }
 }  
 
 template <unsigned int D>
 void BBMG<D>::propagate()
 {
+  //cout << "Entering bbmg propagate: " << endl;
+  //copy_host_to_device_BBMG();
+
   double tau  = systemPtr->t;// + settingsPtr->t0;
 
   jets_VIEW(jet_, jetInfo);
@@ -400,6 +592,7 @@ void BBMG<D>::propagate()
     // propagate x,y position of jet on top of sph particles
     jet_position(i,0) += vjet * settingsPtr->dt * cos(jet_phi(i)); //Flow is not here to alter the direction of the jet
     jet_position(i,1) += vjet * settingsPtr->dt * sin(jet_phi(i));
+    cout << "Current jet position is: (" << jet_position(i, 0) << ", " << jet_position(i, 1) << ")" << endl;
     //jetPropagation.r[0] += vjet * settingsPtr->dt * cos(jetPropagation.phi); //Flow is not here to alter the direction of the jet
     //jetPropagation.r[1] += vjet * settingsPtr->dt * sin(jetPropagation.phi);
 
@@ -480,6 +673,9 @@ void BBMG<D>::propagate()
     
     jet_flow(i) = jet_gam(i)*(1-jet_vmag(i)*cos(jet_phi(i)-jet_vang(i)));
     double kappa = get_kappa(jet_T(i) / 1000); //The /1000 here is to move temps from MeV to GeV to follow Barbara's plot, same as above
+
+    cout << kappa << " " << tau << " " << z << " " << jet_rho(i) << " " << c << " " << jet_flow(i) << " " << settingsPtr->dt << endl;
+
 
     Kokkos::atomic_add( &jet_line_int(i), kappa * exp(z*log(tau)) * exp(c*log(jet_rho(i))) * settingsPtr->dt * jet_flow(i));
     //jet_line_int(i) += kappa * exp(z*log(tau)) * exp(c*log(jet_rho(i))) * settingsPtr->dt * flow;

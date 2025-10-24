@@ -179,14 +179,14 @@ void SPHWorkstation<D, TEOM>::initialize_entropy_and_charge_densities()
     double sigma = device_hydro_scalar(iparticle, hydro_info::sigma);
 
 
-    device_sph_mass(iparticle, ccake::densities_info::s )    = 1;    // constant after this
-    device_sph_mass(iparticle, ccake::densities_info::rhoB ) = 1; // constant after this
-    device_sph_mass(iparticle, ccake::densities_info::rhoS ) = 1; // constant after this
-    device_sph_mass(iparticle, ccake::densities_info::rhoQ ) = 1; // constant after this
-    device_extensive(iparticle, ccake::densities_info::s )    = s_input/sigma;
-    device_extensive(iparticle, ccake::densities_info::rhoB ) = rhoB_input/sigma;
-    device_extensive(iparticle, ccake::densities_info::rhoS ) = rhoS_input/sigma;
-    device_extensive(iparticle, ccake::densities_info::rhoQ ) = rhoQ_input/sigma;
+    device_sph_mass(iparticle, ccake::densities_info::s )    *= s_input*t0*gamma;    // constant after this
+    device_sph_mass(iparticle, ccake::densities_info::rhoB ) *= rhoB_input*t0*gamma; // constant after this
+    device_sph_mass(iparticle, ccake::densities_info::rhoS ) *= rhoS_input*t0*gamma; // constant after this
+    device_sph_mass(iparticle, ccake::densities_info::rhoQ ) *= rhoQ_input*t0*gamma; // constant after this
+    device_extensive(iparticle, ccake::densities_info::s )    = 1;
+    device_extensive(iparticle, ccake::densities_info::rhoB ) = 1;
+    device_extensive(iparticle, ccake::densities_info::rhoS ) = 1;
+    device_extensive(iparticle, ccake::densities_info::rhoQ ) = 1;
     if (s_input < 0.0)
       device_freeze(iparticle) = 4;
 
@@ -289,7 +289,8 @@ void SPHWorkstation<D,TEOM>::initial_smoothing()
 template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D, TEOM>::initialize_jets_bbmg()
 {
-  bbmg.initial();
+  //bbmg.initial();
+  bbmg.initial_one_jet();
 }
 
 ///@brief Smooth all SPH fields
@@ -927,10 +928,10 @@ void SPHWorkstation<D, TEOM>::process_initial_conditions()
 		p.extensive.rhoQ   = 1.0;
 
     // normalization of each density include transverse area element dA
-		p.sph_mass.s     = 1.0;
-		p.sph_mass.rhoB  = 1.0;
-		p.sph_mass.rhoS  = 1.0;
-		p.sph_mass.rhoQ  = 1.0;
+		p.sph_mass.s     = dA;
+		p.sph_mass.rhoB  = dA;
+		p.sph_mass.rhoS  = dA;
+		p.sph_mass.rhoQ  = dA;
 
 		//p.hydro.bulk      = 0.0;
 
@@ -1189,16 +1190,16 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives()
 
   // reset nearest neighbors
   systemPtr->reset_neighbour_list();
-  cout << "Left reset neighor list: " << endl;
+  //cout << "Left reset neighor list: " << endl;
   // calcuate gamma and velocities
   calculate_gamma_and_velocities();
-  cout << "Left Calculate gamma and velocities" << endl;
+  //cout << "Left Calculate gamma and velocities" << endl;
   // smooth all particle fields - s, rhoB, rhoQ and rhoS and sigma
   smooth_all_particle_fields(t2);
-  cout << "Left smooth particle fields: " << endl;
+  //cout << "Left smooth particle fields: " << endl;
     // Update particle thermodynamic properties
   update_all_particle_thermodynamics();
-  cout << "Left update particle thermo: " << endl;
+  //cout << "Left update particle thermo: " << endl;
   // reset pi tensor to be consistent
   // with all essential symmetries
   reset_pi_tensor(t2);
@@ -1237,7 +1238,7 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives()
   if (settingsPtr->print_conservation_status )
     systemPtr->conservation_energy(false,t);
 
-  cout << "Finished get time derivatives: " << endl;
+  //cout << "Finished get time derivatives: " << endl;
   return;
 }
 
@@ -1696,12 +1697,12 @@ void SPHWorkstation<D, TEOM>::advance_timestep( double dt, int rk_order )
   //Bulk of code evaluation is done below
   evolver.execute_timestep( dt, rk_order,
                             [this]{ this->get_time_derivatives(); } );
-  cout << "Starting jet propagate: " << endl;
+  //cout << "Starting jet propagate: " << endl;
   bbmg.propagate();
-  cout << "Finished jet propagate: " << endl;
+  //cout << "Finished jet propagate: " << endl;
   // Perform freeze out
   if ( settingsPtr->particlization_enabled ) freeze_out_particles();
-  cout << "Finished freeze out particles: " << endl;
+  //cout << "Finished freeze out particles: " << endl;
   // set number of particles which have frozen out
   //systemPtr->number_part = systemPtr->get_frozen_out_count();
   // keep track of how many timesteps have elapsed

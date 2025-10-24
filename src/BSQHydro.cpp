@@ -528,7 +528,7 @@ void BSQHydro<D,TEOM>::run()
 
   // TODO:: Print to a file somehow at each time step!
   
-  if (settingsPtr->hdf_evolution || settingsPtr->txt_evolution) {
+  if (settingsPtr->hdf_evolution || settingsPtr->txt_evolution || settingsPtr->jet_evolution) {
     outPtr->print_system_state();
   }
 

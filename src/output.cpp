@@ -71,15 +71,8 @@ void Output<D,TEOM>::print_system_state()
     print_system_state_to_HDF();
 
   if(settingsPtr->jet_evolution){
-    if (systemPtr->n_particles == systemPtr->number_part_fo)
-      {
-      cout << systemPtr->n_particles << " is number of total particles; " << systemPtr->number_part_fo << " is number of part. frozen out. " << endl << "------------------------------------------------------" << endl;
-    //cout << "printing random things from bbmg class" << bbmgPtr->jetInfo_host[1].T << endl;
-      cout << "Copy device to host for jets executing..." << endl;
-      wsPtr->bbmg.copy_device_to_host_BBMG();
-      cout << "Print function for jets executing..." << endl;
-      print_jet_state_to_txt();
-      }
+    wsPtr->bbmg.copy_device_to_host_BBMG();
+    print_jet_state_to_txt();
   }
 
   //---------------------------------
@@ -190,7 +183,7 @@ void Output<D,TEOM>::print_jet_state_to_txt()
   //cout << "(bbmgPtr->jetInfo).size() = " << (bbmgPtr->jetInfo).size() << endl;
   int iJet = 0;
   //cout << "(bbmgPtr->jetFreezeOut).size() = " << (bbmgPtr->jetFreezeOut).size() << endl;
-  for ( auto & jets : wsPtr->bbmg.jetFreezeOut )//I think i wanna call the objects here jets, like how we have particles in the other function
+  for ( auto & jets : wsPtr->bbmg.jetInfo_host )//I think i wanna call the objects here jets, like how we have particles in the other function
        {
         out << iJet++ << " ";
         out << systemPtr->t << " ";
