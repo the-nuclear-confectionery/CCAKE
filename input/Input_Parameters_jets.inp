@@ -1,5 +1,5 @@
 ICtype:                     ICCING
-ICfile:                     SLURM_SCRIPT_IC_PATH
+ICfile:                     initial_conditions/densities0.dat
 h:                          0.30
 dt:                         0.05
 t0:                         0.60

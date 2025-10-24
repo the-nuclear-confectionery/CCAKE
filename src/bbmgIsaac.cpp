@@ -117,10 +117,6 @@ void BBMG::initial()
       if (p.T() * constants::hbarc_MeVfm >= Freezeout_Temp)
       {
         p_bbmg.push_back(p);
-
-        //This is the quantity I am not sure of including
-        rho0tot += p.p()/p.T();
-        
       }
     }
 
@@ -165,6 +161,105 @@ void BBMG::initial()
         }
     }
 }
+/*
+void BBMG::initial_one_jet()
+{
+    rho0tot = 0;
+    vector<Particle>  p_bbmg;
+    for ( int i = 0; i < systemPtr->particles.size(); ++i )
+    {
+      auto & p = systemPtr->particles[i];
+      if (p.T() * constants::hbarc_MeVfm >= Freezeout_Temp)
+      {
+        p_bbmg.push_back(p);
+      }
+    }
+    int back_to_back = 2;
+    cout << "p_bbmg.size() = " << p_bbmg.size() << endl;
+    double rsub = p_bbmg[75000].p() / p_bbmg[75000].T();
+        //cout << "Pressure is: " << p[random_sph_particle].p() << " Temperature is: " << p[random_sph_particle].T() << " rho is: " << rsub << endl;
+        //abort();
+        //rho0tot += rsub;
+    field sph_particle; //field of all sph particles where we take necessary line integral info
+    sph_particle.r[0] = p_bbmg[75000].r(0);
+    sph_particle.x = p_bbmg[75000].r(0);
+        //cout << "Positions (x) of each particle in the grid is " << p.r(0) << "\n";
+    sph_particle.r[1] = p_bbmg[75000].r(1);
+    sph_particle.y = p_bbmg[75000].r(1);
+    sph_particle.rho0 = rsub; //Density left in terms of femtometers
+        //sph_particle.sph = i;
+    sph_particle.T = p_bbmg[75000].T() * constants::hbarc_MeVfm;
+    sph_particle.T0 = p_bbmg[75000].T() * constants::hbarc_MeVfm;
+        //The above line is to create histograms to compare with initial temperature distribution
+
+    double kappa = get_kappa(sph_particle.T / 1000);
+
+    sph_particle.line = 0.5 * kappa * exp(z * log(settingsPtr->t0)) * exp(c * log(sph_particle.rho0)) * settingsPtr->dt; // only if initial flow=0
+        //jetInfo.resize(14);
+
+        //for (int j = 0; j < phimax; j++) //initializes jets at each point in grid space, over 14 directions
+        //std::uniform_int_distribution<> phidist(0, phimax - 1);
+    //int phidist = rand() % phimax;
+    for (int j = 0; j < back_to_back; j++)
+    {
+        sph_particle.phi = PI/7 + j * PI;
+        sph_particle.pid = 1 + phimax * j;
+        jetInfo.push_back(sph_particle);
+    } 
+}*/
+
+///////////////////////////////////////////////////////////
+void BBMG::initial_one_jet()
+{
+    //vector<Particle>  p_bbmg;
+    for ( int i = 0; i < systemPtr->particles.size(); ++i )
+    {
+      auto & p = systemPtr->particles[i];
+      if (p.r(0)==1.71 && p.r(1)==0.51 && p.T()*constants::hbarc_MeVfm>=150)
+      { 
+        int index = i;
+        cout << "sph particle index is " << index << endl;
+        cout << "initial sph temperature is " << p.T()*constants::hbarc_MeVfm << endl;
+        int back_to_back = 2;
+        //cout << "p_bbmg.size() = " << p_bbmg.size() << endl;
+        double rsub = p.p() / p.T();
+        //cout << "Pressure is: " << p[random_sph_particle].p() << " Temperature is: " << p[random_sph_particle].T() << " rho is: " << rsub << endl;
+        //abort();
+        //rho0tot += rsub;
+        field sph_particle; //field of all sph particles where we take necessary line integral info
+        sph_particle.r[0] = p.r(0);
+        sph_particle.x = p.r(0);
+        //cout << "Positions (x) of each particle in the grid is " << p.r(0) << "\n";
+        sph_particle.r[1] = p.r(1);
+        sph_particle.y = p.r(1);
+        sph_particle.rho0 = rsub; //Density left in terms of femtometers
+        //sph_particle.sph = i;
+        sph_particle.T = p.T() * constants::hbarc_MeVfm;
+        sph_particle.T0 = p.T() * constants::hbarc_MeVfm;
+        //The above line is to create histograms to compare with initial temperature distribution
+
+        double kappa = get_kappa(sph_particle.T / 1000);
+
+        sph_particle.line = 0.5 * kappa * exp(z * log(settingsPtr->t0)) * exp(c * log(sph_particle.rho0)) * settingsPtr->dt; // only if initial flow=0
+        //jetInfo.resize(14);
+
+        //for (int j = 0; j < phimax; j++) //initializes jets at each point in grid space, over 14 directions
+        //std::uniform_int_distribution<> phidist(0, phimax - 1);
+    //int phidist = rand() % phimax;
+        for (int j = 0; j < back_to_back; j++)
+        {
+            sph_particle.phi = PI/7 + j * PI;
+            sph_particle.pid = 1 + phimax * j;
+            jetInfo.push_back(sph_particle);
+        }
+      }
+
+    }
+     
+}
+///////////////////////////////////////////////////////////
+
+
 
 
 double BBMG::flow(field &f) { return f.gam*(1-f.vmag*cos(f.phi-f.vang)); }
@@ -191,6 +286,7 @@ void BBMG::propagate()
     // propagate x,y position of jet on top of sph particles
     jetPropagation.r[0] += vjet * settingsPtr->dt * cos(jetPropagation.phi); //Flow is not here to alter the direction of the jet
     jetPropagation.r[1] += vjet * settingsPtr->dt * sin(jetPropagation.phi);
+    cout << "Current jet position is: (" << jetPropagation.r[0] << ", " << jetPropagation.r[1] << ")" << endl;
     //cout << "pid checking first: " << jetPropagation.pid << endl;
     inter( jetPropagation ); //interpolation of the area around the jet
     //Comment below is incorrect I think
@@ -202,6 +298,8 @@ void BBMG::propagate()
     //{
       jetPropagation.line += kappa * exp(z*log(tau)) * exp(c*log(jetPropagation.rho)) * settingsPtr->dt * flow(jetPropagation);
       countyes++;
+
+      cout << kappa << " " << tau << " " << z << " " << jetPropagation.rho << " " << c << " " << flow(jetPropagation) << " " << settingsPtr->dt << endl;
       //cout << "Jet directions still going: " << jetPropagation.phi << endl;
   }
         auto condition = [this](auto& jetPropagation) {

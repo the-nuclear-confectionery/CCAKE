@@ -587,8 +587,9 @@ void InputOutput::print_system_state()
   //---------------------------------
   print_freeze_out(); //grep for this command to structure jet initial state output function
 
-  if (systemPtr->n_particles == systemPtr->number_part)
-    {print_jet_freeze_to_txt();}
+  /*if (systemPtr->n_particles == systemPtr->number_part)
+    {print_jet_freeze_to_txt();}*/
+  print_jet_freeze_to_txt();
 
   //---------------------------------
   // increment timestep index
@@ -697,18 +698,33 @@ void InputOutput::print_jet_freeze_to_txt()
   cout << "(bbmgPtr->jetInfo).size() = " << (bbmgPtr->jetInfo).size() << endl;
   int iJet = 0;
   cout << "(bbmgPtr->jetFreezeOut).size() = " << (bbmgPtr->jetFreezeOut).size() << endl;
-  for ( auto & jets : bbmgPtr->jetFreezeOut )//I think i wanna call the objects here jets, like how we have particles in the other function
+  out << "Running jets: " << "\n";
+  for ( auto & jets : bbmgPtr->jetInfo )//I think i wanna call the objects here jets, like how we have particles in the other function
        {
         out << iJet++ << " ";
         out << systemPtr->t << " ";
-        out << bbmgPtr->rho0tot << " ";
-        out << jets.T0 << " "; //Changed from T to T0 for new output
         out << jets.line << " ";
         out << jets.rho0 << " ";
         out << jets.pid << " ";
         out << jets.r[0] << " ";
-        out << jets.r[1] << " " << "\n";
+        out << jets.r[1] << " ";
+        out << jets.x << " ";
+        out << jets.y << " " << "\n";
        }
+  out << "Frozen jets start here: " << "\n";
+  int iFrozen = 0;
+  for (auto & frozenjets : bbmgPtr->jetFreezeOut)
+      {
+        out << iFrozen++ << " ";
+        out << systemPtr->t << " ";
+        out << frozenjets.line << " ";
+        out << frozenjets.rho0 << " ";
+        out << frozenjets.pid << " ";
+        out << frozenjets.r[0] << " ";
+        out << frozenjets.r[1] << " ";
+        out << frozenjets.x << " ";
+        out << frozenjets.y << " " << "\n";
+      }
 
 
   out << std::flush;

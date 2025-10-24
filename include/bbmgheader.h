@@ -32,7 +32,7 @@ private:
     {
         int sph, on;
         double rho, rho0, T, v[2];
-        double r[2], phi, line;
+        double r[2], phi, line, x, y;
         int pid;
         double gam, vmag, vang;
         double T0;
@@ -84,6 +84,7 @@ public:
     double int4(double x);
 
     void initial();
+    void initial_one_jet();
 };
 
 

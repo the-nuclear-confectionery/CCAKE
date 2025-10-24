@@ -114,7 +114,8 @@ public:
   void initial_smoothing();
   void add_buffer(double default_e);
   void initialize_jets_bbmg()
-	{ bbmg.initial();
+	{ bbmg.initial_one_jet();
+    //bbmg.initial();
 	  //abort(); 
 	  }
 
@@ -226,7 +227,7 @@ public:
                               [this]{ this->get_time_derivatives(); } );
 
     // propagate jets separately
-    cout << "Starting the bbmg propagation printout" << endl;
+    //cout << "Starting the bbmg propagation printout" << endl;
     bbmg.propagate();
 
     // set number of particles which have frozen out
