@@ -828,7 +828,8 @@ void SystemState<D>::compute_e_2_P(double slice, int i)
   Kokkos::parallel_for("compute_e2P", Kokkos::RangePolicy<ExecutionSpace>(0, cabana_particles.size()),
    KOKKOS_LAMBDA(const int part) {
     double eta = device_position(part, 2);
-    if (abs(eta - slice) <= 1.0) {
+    // double T = device_thermo(part, thermo_info::T);
+    if (abs(eta - slice) <= 1.0) { // && T > settingsPtr->Freeze_Out_Temperature) {
       double p     = device_thermo(part, thermo_info::p);
       double bulk  = device_hydro_scalar(part, hydro_info::bulk);
       double e     = device_thermo(part, thermo_info::e);
@@ -882,7 +883,8 @@ void SystemState<D>::compute_e_2_X(double slice, int i)
   Kokkos::parallel_for("compute_e2X", Kokkos::RangePolicy<ExecutionSpace>(0, cabana_particles.size()),
    KOKKOS_LAMBDA(const int p) {
     double eta = device_position(p, 2);
-    if (abs(eta - slice) <= 1.0) {
+    // double T = device_thermo(p, thermo_info::T);
+    if (abs(eta - slice) <= 1.0) { // && T > settingsPtr->Freeze_Out_Temperature) {
       double x = device_position(p, 0);
       double y = device_position(p, 1);
       double e = device_thermo(p, thermo_info::e);
