@@ -368,13 +368,13 @@ void EquationOfState::set_up_chosen_EOSs()
 
       // look up grid maxima (without any extensions)
       std::vector<double> maxima = p_default_EoS->get_tbqs_maxima_no_ext();
-      //double Tmax   = maxima[0];
+      double Tmax   = maxima[0];
       double muBmax =  maxima[1];
       double muQmax =  maxima[2];
       double muSmax =  maxima[3]; 
 
 	    double TmaxIni   = settingsPtr->Freeze_Out_Temperature/constants::hbarc_MeVfm;
-	    double Tmax      = 1.1 * TmaxIni;
+	    //double Tmax      = 1.1 * TmaxIni;
       //Tmax = maxima[0];
 
       // set overall scale using (Tmax,0,0,0)

@@ -1022,10 +1022,10 @@ void SPHWorkstation<D, TEOM>::process_initial_conditions()
 		p.extensive.rhoQ   = 1.0;
 
     // normalization of each density include transverse area element dA
-		p.sph_mass.s     = 1.0;
-		p.sph_mass.rhoB  = 1.0;
-		p.sph_mass.rhoS  = 1.0;
-		p.sph_mass.rhoQ  = 1.0;
+		p.sph_mass.s     = dA;
+		p.sph_mass.rhoB  = dA;
+		p.sph_mass.rhoS  = dA;
+		p.sph_mass.rhoQ  = dA;
 
 		//p.hydro.bulk      = 0.0;
 
