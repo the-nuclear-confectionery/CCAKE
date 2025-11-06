@@ -49,6 +49,40 @@ endif()
 find_package(GSL COMPONENTS C CXX REQUIRED)
 find_package(HDF5 COMPONENTS CXX REQUIRED)
 find_package(yaml-cpp REQUIRED)
+
+# Require a modern CMake so FindCUDAToolkit defines the proper CUDA targets
+cmake_minimum_required(VERSION 3.27)
+
+# If you already have a project() call above, keep it; otherwise:
+# project(ccake LANGUAGES CXX)  # nvcc_wrapper acts as the C++ compiler
+
+# Make CMake actually discover the CUDA Toolkit first.
+# This line makes your -DCUDAToolkit_ROOT=... hint matter.
+find_package(CUDAToolkit REQUIRED)
+
+# Some cluster CMake versions don't define cudart_static_deps; shim it if needed.
+if(NOT TARGET CUDA::cudart_static_deps AND TARGET CUDA::cudart)
+  add_library(CUDA::cudart_static_deps INTERFACE IMPORTED)
+  target_link_libraries(CUDA::cudart_static_deps INTERFACE CUDA::cudart)
+endif()
+
+# Some environments don't provide CUDA::cuda_driver as a target; create it if missing.
+if(NOT TARGET CUDA::cuda_driver)
+  # CUDAToolkit_LIBRARY_DIR is set by FindCUDAToolkit
+  find_library(CUDA_DRIVER_LIBRARY
+    NAMES cuda
+    PATHS ${CUDAToolkit_LIBRARY_DIR} /usr/lib64 /usr/lib /lib64
+  )
+  if(NOT CUDA_DRIVER_LIBRARY)
+    message(FATAL_ERROR "Could not find libcuda (driver). Is the NVIDIA driver visible on this node?")
+  endif()
+  add_library(CUDA::cuda_driver SHARED IMPORTED)
+  set_target_properties(CUDA::cuda_driver PROPERTIES
+    IMPORTED_LOCATION "${CUDA_DRIVER_LIBRARY}")
+endif()
+
+# Now it is safe to load Kokkos/Cabana
+
 find_package(Kokkos REQUIRED)
 find_package(Cabana REQUIRED)
 

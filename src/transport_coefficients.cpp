@@ -85,8 +85,8 @@ parameters setup_parameters(std::shared_ptr<Settings> settingsPtr)
   }
   else
   {
-    std::cout << "WARNING: Unknown diffusion mode: " << diffusionMode << std::endl;
-    std::cout << "Defaulting to constant_over_T2." << std::endl;
+    // std::cout << "WARNING: Unknown diffusion mode: " << diffusionMode << std::endl;
+    // std::cout << "Defaulting to constant_over_T2." << std::endl;
     params.diffusion_mode = KAPPA_DEFAULT; // default to KAPPA_DEFAULT if not specified
   }
 
@@ -96,8 +96,8 @@ parameters setup_parameters(std::shared_ptr<Settings> settingsPtr)
     params.diffusion_relaxation_mode = TAU_Q_DEFAULT;
   }
   else{ 
-    std::cout << "WARNING: Unknown diffusion relaxation mode: " << diffusionRelaxMode << std::endl
-              << "Defaulting to constant_over_T." << std::endl;
+    // std::cout << "WARNING: Unknown diffusion relaxation mode: " << diffusionRelaxMode << std::endl
+              // << "Defaulting to constant_over_T." << std::endl;
     params.diffusion_relaxation_mode = TAU_Q_DEFAULT; // default to TAU_Q_DEFAULT if not specified
 
   }
@@ -116,8 +116,8 @@ parameters setup_parameters(std::shared_ptr<Settings> settingsPtr)
   }
   else
   {
-    std::cout << "WARNING: Unknown delta_pipi mode: " << delta_pipi_mode << std::endl;
-    std::cout << "Defaulting to delta_pipi_DEFAULT." << std::endl;
+    // std::cout << "WARNING: Unknown delta_pipi mode: " << delta_pipi_mode << std::endl;
+    // std::cout << "Defaulting to delta_pipi_DEFAULT." << std::endl;
     params.delta_pipi_mode = DELTA_S_PIPI_DEFAULT; // default to delta_pipi_DEFAULT if not specified
   }
   std::string tau_pipi_mode = settingsPtr->tau_pipi_mode;
@@ -131,8 +131,8 @@ parameters setup_parameters(std::shared_ptr<Settings> settingsPtr)
   }
   else
   {
-    std::cout << "WARNING: Unknown tau_pipi mode: " << tau_pipi_mode << std::endl;
-    std::cout << "Defaulting to tau_pipi_DEFAULT." << std::endl;
+    // std::cout << "WARNING: Unknown tau_pipi mode: " << tau_pipi_mode << std::endl;
+    // std::cout << "Defaulting to tau_pipi_DEFAULT." << std::endl;
     params.tau_pipi_mode = TAU_PIPI_DEFAULT; // default to tau_pipi_DEFAULT if not specified
   }
   std::string lambda_piPi_mode = settingsPtr->lambda_piPi_mode;
@@ -147,8 +147,8 @@ parameters setup_parameters(std::shared_ptr<Settings> settingsPtr)
   }
   else
   {
-    std::cout << "WARNING: Unknown lambda_piPi mode: " << lambda_piPi_mode << std::endl;
-    std::cout << "Defaulting to lambda_piPi_DEFAULT." << std::endl;
+    // std::cout << "WARNING: Unknown lambda_piPi mode: " << lambda_piPi_mode << std::endl;
+    // std::cout << "Defaulting to lambda_piPi_DEFAULT." << std::endl;
     params.lambda_piPi_mode = LAMBDA_S_PIPI_DEFAULT; // default to lambda_PiPi_DEFAULT if not specified
   }
   std::string phi6_mode = settingsPtr->phi6_mode;
@@ -162,8 +162,8 @@ parameters setup_parameters(std::shared_ptr<Settings> settingsPtr)
   }
   else
   {
-    std::cout << "WARNING: Unknown phi6 mode: " << phi6_mode << std::endl;
-    std::cout << "Defaulting to phi6_DEFAULT." << std::endl;
+    // std::cout << "WARNING: Unknown phi6 mode: " << phi6_mode << std::endl;
+    // std::cout << "Defaulting to phi6_DEFAULT." << std::endl;
     params.phi6_mode = PHI6_DEFAULT; // default to phi6_DEFAULT if not specified
   }
   std::string phi7_mode = settingsPtr->phi7_mode;
@@ -177,8 +177,8 @@ parameters setup_parameters(std::shared_ptr<Settings> settingsPtr)
   }
   else
   {
-    std::cout << "WARNING: Unknown phi7 mode: " << phi7_mode << std::endl;
-    std::cout << "Defaulting to phi7_DEFAULT." << std::endl;
+    // std::cout << "WARNING: Unknown phi7 mode: " << phi7_mode << std::endl;
+    // std::cout << "Defaulting to phi7_DEFAULT." << std::endl;
     params.phi7_mode = PHI7_DEFAULT; // default to phi7_DEFAULT if not specified
   }
 
@@ -197,8 +197,8 @@ parameters setup_parameters(std::shared_ptr<Settings> settingsPtr)
   }
   else
   {
-    std::cout << "WARNING: Unknown delta_PiPi mode: " << delta_PiPi_mode << std::endl;
-    std::cout << "Defaulting to delta_PiPi_DEFAULT." << std::endl;
+    // std::cout << "WARNING: Unknown delta_PiPi mode: " << delta_PiPi_mode << std::endl;
+    // std::cout << "Defaulting to delta_PiPi_DEFAULT." << std::endl;
     params.delta_PiPi_mode = DELTA_B_PIPI_DEFAULT; // default to delta_PiPi_DEFAULT if not specified
   }
   std::string lambda_Pipi_mode = settingsPtr->lambda_Pipi_mode;
@@ -212,8 +212,8 @@ parameters setup_parameters(std::shared_ptr<Settings> settingsPtr)
   }
   else
   {
-    std::cout << "WARNING: Unknown lambda_Pipi mode: " << lambda_Pipi_mode << std::endl;
-    std::cout << "Defaulting to lambda_Pipi_DEFAULT." << std::endl;
+    // std::cout << "WARNING: Unknown lambda_Pipi mode: " << lambda_Pipi_mode << std::endl;
+    // std::cout << "Defaulting to lambda_Pipi_DEFAULT." << std::endl;
     params.lambda_Pipi_mode = LAMBDA_B_PIPI_DEFAULT; // default to lambda_PiPi_DEFAULT if not specified
   }
   std::string phi1_mode = settingsPtr->phi1_mode;
@@ -227,8 +227,8 @@ parameters setup_parameters(std::shared_ptr<Settings> settingsPtr)
   }
   else
   {
-    std::cout << "WARNING: Unknown phi1 mode: " << phi1_mode << std::endl;
-    std::cout << "Defaulting to phi1_DEFAULT." << std::endl;
+    // std::cout << "WARNING: Unknown phi1 mode: " << phi1_mode << std::endl;
+    // std::cout << "Defaulting to phi1_DEFAULT." << std::endl;
     params.phi1_mode = PHI1_DEFAULT; // default to phi1_DEFAULT if not specified
   }
   std::string phi3_mode = settingsPtr->phi3_mode;
@@ -242,8 +242,8 @@ parameters setup_parameters(std::shared_ptr<Settings> settingsPtr)
   }
   else
   {
-    std::cout << "WARNING: Unknown phi3 mode: " << phi3_mode << std::endl;
-    std::cout << "Defaulting to phi3_DEFAULT." << std::endl;
+    // std::cout << "WARNING: Unknown phi3 mode: " << phi3_mode << std::endl;
+    // std::cout << "Defaulting to phi3_DEFAULT." << std::endl;
     params.phi3_mode = PHI3_DEFAULT; // default to phi3_DEFAULT if not specified
   }
 
@@ -368,8 +368,8 @@ double delta_PiPi(const double* thermo, parameters params)
     return 0.0; // No delta PiPi contribution
     break;
   default:
-    std::cout << "WARNING: Unknown delta_pipi mode: " << delta_PiPi_mode << std::endl;
-    std::cout << "Defaulting to delta_PiPi_DEFAULT." << std::endl;
+    // std::cout << "WARNING: Unknown delta_pipi mode: " << delta_PiPi_mode << std::endl;
+    // std::cout << "Defaulting to delta_PiPi_DEFAULT." << std::endl;
     return delta_PiPi_DEFAULT(thermo, params);
     break;
   }
@@ -388,8 +388,8 @@ double lambda_Pipi(const double* thermo, parameters params)
     return 0.0; // No lambda PiPi contribution
     break;
   default:
-    std::cout << "WARNING: Unknown lambda_Pipi mode: " << lambda_Pipi_mode << std::endl;
-    std::cout << "Defaulting to lambda_Pipi_DEFAULT." << std::endl;
+    // std::cout << "WARNING: Unknown lambda_Pipi mode: " << lambda_Pipi_mode << std::endl;
+    // std::cout << "Defaulting to lambda_Pipi_DEFAULT." << std::endl;
     return lambda_Pipi_DEFAULT(thermo, params);
     break;
   }
@@ -408,8 +408,8 @@ double phi1(const double* thermo, parameters params)
     return 0.0; // No phi1 contribution
     break;
   default:
-    std::cout << "WARNING: Unknown phi1 mode: " << phi1_mode << std::endl;
-    std::cout << "Defaulting to phi1_DEFAULT." << std::endl;
+    // std::cout << "WARNING: Unknown phi1 mode: " << phi1_mode << std::endl;
+    // std::cout << "Defaulting to phi1_DEFAULT." << std::endl;
     return phi1_DEFAULT(thermo, params);
     break;
   }
@@ -427,8 +427,8 @@ double phi3(const double* thermo, parameters params)
     return 0.0; // No phi3 contribution
     break;
   default:
-    std::cout << "WARNING: Unknown phi3 mode: " << phi3_mode << std::endl;
-    std::cout << "Defaulting to phi3_DEFAULT." << std::endl;
+    // std::cout << "WARNING: Unknown phi3 mode: " << phi3_mode << std::endl;
+    // std::cout << "Defaulting to phi3_DEFAULT." << std::endl;
     return phi3_DEFAULT(thermo, params);
     break;
   }
@@ -449,8 +449,8 @@ double delta_pipi(const double* thermo, parameters params)
     return 0.0; // No delta PiPi contribution
     break;
   default:
-    std::cout << "WARNING: Unknown delta_pipi mode: " << delta_pipi_mode << std::endl;
-    std::cout << "Defaulting to delta_pipi_DEFAULT." << std::endl;
+    // std::cout << "WARNING: Unknown delta_pipi mode: " << delta_pipi_mode << std::endl;
+    // std::cout << "Defaulting to delta_pipi_DEFAULT." << std::endl;
     return delta_pipi_DEFAULT(thermo, params);
     break;
   }
@@ -469,8 +469,8 @@ double tau_pipi(const double* thermo, parameters params)
     return 0.0; // No tau PiPi contribution
     break;
   default:
-    std::cout << "WARNING: Unknown tau_pipi mode: " << tau_pipi_mode << std::endl;
-    std::cout << "Defaulting to tau_pipi_DEFAULT." << std::endl;
+    // std::cout << "WARNING: Unknown tau_pipi mode: " << tau_pipi_mode << std::endl;
+    // std::cout << "Defaulting to tau_pipi_DEFAULT." << std::endl;
     return tau_pipi_DEFAULT(thermo, params);
     break;
   }
@@ -489,8 +489,8 @@ double lambda_piPi(const double* thermo, parameters params)
     return 0.0; // No lambda PiPi contribution
     break;
   default:
-    std::cout << "WARNING: Unknown lambda_piPi mode: " << lambda_piPi_mode << std::endl;
-    std::cout << "Defaulting to lambda_piPi_DEFAULT." << std::endl;
+    // std::cout << "WARNING: Unknown lambda_piPi mode: " << lambda_piPi_mode << std::endl;
+    // std::cout << "Defaulting to lambda_piPi_DEFAULT." << std::endl;
     return lambda_piPi_DEFAULT(thermo, params);
     break;
   }
@@ -509,8 +509,8 @@ double phi6(const double* thermo, parameters params)
     return 0.0; // No phi6 contribution
     break;
   default:
-    std::cout << "WARNING: Unknown phi6 mode: " << phi6_mode << std::endl;
-    std::cout << "Defaulting to phi6_DEFAULT." << std::endl;
+    // std::cout << "WARNING: Unknown phi6 mode: " << phi6_mode << std::endl;
+    // std::cout << "Defaulting to phi6_DEFAULT." << std::endl;
     return phi6_DEFAULT(thermo, params);
     break;
   }
@@ -529,8 +529,8 @@ double phi7(const double* thermo, parameters params)
     return 0.0; // No phi7 contribution
     break;
   default:
-    std::cout << "WARNING: Unknown phi7 mode: " << phi7_mode << std::endl;
-    std::cout << "Defaulting to phi7_DEFAULT." << std::endl;
+    // std::cout << "WARNING: Unknown phi7 mode: " << phi7_mode << std::endl;
+    // std::cout << "Defaulting to phi7_DEFAULT." << std::endl;
     return phi7_DEFAULT(thermo, params);
     break;
   }
@@ -551,7 +551,7 @@ Matrix<double, 3, 3> kappa(const double* thermo, parameters params)
     break;
   case KAPPA_DNMR:
     return Matrix<double, 3, 3>{0.0};
-    std::cout << "DNMR kappa not implemented yet" << std::endl;
+    // std::cout << "DNMR kappa not implemented yet" << std::endl;
     break;
   default:
     return default_kappa(thermo, params);
@@ -570,7 +570,7 @@ Matrix<double, 3, 3> tauq(const double* thermo, parameters params)
     break;
   case KAPPA_DNMR:
     return Matrix<double, 3, 3>{0.0};
-    std::cout << "DNMR tauq not implemented yet" << std::endl;
+    // std::cout << "DNMR tauq not implemented yet" << std::endl;
     break;
   default:
     return default_tauq(thermo, params);
