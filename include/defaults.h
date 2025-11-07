@@ -30,7 +30,7 @@ namespace parameter_settings
             setting_pair("constant_eta_over_s",    "0.20"),
             setting_pair("shearRelaxMode",         "default"),
             setting_pair("zetaMode",               "constant"),
-            setting_pair("constant_zeta_over_s",   "0"),
+            setting_pair("constant_zeta_over_s",   "0.005"),
             setting_pair("cs2_dependent_zeta_A",   "0"),
             setting_pair("cs2_dependent_zeta_p",   "0"),
             setting_pair("bulkRelaxMode",          "default"),
