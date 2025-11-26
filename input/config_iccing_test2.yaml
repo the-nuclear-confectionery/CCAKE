@@ -1,6 +1,6 @@
 eos:
   online_inverter_enabled: true
-  path: /work/nvme/beqi/term
+  path: /u/kpala/git_repos/test/test_chain/tables
   preinverted_eos_path: default
   type: table
 hydro:
@@ -10,11 +10,7 @@ hydro:
   viscous_parameters:
     diffusion:
       input_initial_diffusion: false
-      mode: disabled
-      #constant_kappa_over_T2:
-      #- [0.0481884057971014, -0.0481884057971014, 0.0]
-      #- [-0.0481884057971014, 0.1446640316205534, 0.0146708463949843]
-      #- [0.0, 0.0146708463949843, 0.0880165289256198]
+      mode:  constant_over_T2
       constant_kappa_over_T2:
       - [0., -0., 0.0]
       - [-0., 0., 0.]
@@ -26,11 +22,10 @@ hydro:
       cs2_dependent_zeta_A: 1.67552
       cs2_dependent_zeta_p: 2.0
       mode: constant
-      critical_scaling_bulk: false
       modulate_with_tanh: false
       relaxation_mode: default
-      delta_PiPi_mode: israel-stewart
-      lambda_Pipi_mode: default
+      delta_PiPi_mode: disabled
+      lambda_Pipi_mode: disabled
       phi1_mode: disabled
       phi3_mode: disabled
     shear:
@@ -38,12 +33,12 @@ hydro:
       constant_eta_over_s: 0.12
       mode: constant
       relaxation_mode: default
-      use_vorticity: false
       delta_pipi_mode: default
-      tau_pipi_mode: disabled
-      lambda_piPi_mode: disabled
-      phi6_mode: disabled
-      phi7_mode: disabled
+      use_vorticity: true
+      tau_pipi_mode: default
+      lambda_piPi_mode: default
+      phi6_mode: default
+      phi7_mode: default
 initial_conditions:
   coordinate_system: hyperbolic
   dimension: 2
