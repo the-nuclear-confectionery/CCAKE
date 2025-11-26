@@ -2,8 +2,8 @@
 initial_conditions:
   type: "ccake" # Possible values are: ["ccake", "iccing", "hdf5"]
   coordinate_system: "hyperbolic" # Possible values are: ["cartesian", "hyperbolic"]
-  file: "/u/kpala/git_repos/test/test2/AMPTGenesis/build/def/hy/ic200_xp1_etap22.dat" # Path to the initial conditions file
-  t0: .4 # tau0 = \sqrt(t^2-z^2) in fm/c. Must match the value for initial condition file.
+  file: "/u/kpala/git_repos/test/test2/AMPTGenesis/build/ch/ic_hy.dat" # Path to the initial conditions file
+  t0: 1. # tau0 = \sqrt(t^2-z^2) in fm/c. Must match the value for initial condition file.
   dimension: 3 # (1+1)D, (2+1)D or (3+1)D simulation
   input_as_entropy: false # if false, input will be interpreted as energy density
 parameters:
@@ -12,7 +12,7 @@ parameters:
   h_eta:  0.3000  # Smoothing parameter inside kernel in the longitudinal direction
   rk_order: 2 # Order of the Runge-Kutta integrator. 
   kernel_type: "cubic_spline" # Kernel type. Possible values are: ["cubic_spline"]
-  energy_cutoff: 0.1 # GeV/fm^3 - Particles with less than this energy will be deleted before starting the evolution
+  energy_cutoff: 0.15 # GeV/fm^3 - Particles with less than this energy will be deleted before starting the evolution
   buffer_particles:
     enabled: false # Set to true to include buffer particles. May help stability.
     circular: false # whether to buffer with entire grid or just circular padding.
@@ -42,7 +42,7 @@ hydro:
       relaxation_mode: constant_over_T
     bulk:
       bulk_from_trace: false
-      constant_zeta_over_s: 0.00
+      constant_zeta_over_s: 0.08
       cs2_dependent_zeta_A: 1.67552
       cs2_dependent_zeta_p: 2.0
       mode: constant
@@ -54,7 +54,7 @@ hydro:
       phi3_mode: disabled
     shear:
       input_initial_shear: false
-      constant_eta_over_s: 0.08
+      constant_eta_over_s: 0.12
       mode: constant
       relaxation_mode: default
       use_vorticity: false
@@ -63,11 +63,12 @@ hydro:
       lambda_piPi_mode: disabled
       phi6_mode: disabled
       phi7_mode: disabled
-  #source:
-  #  type: "ic"
-  #  smearing_radius: 0.65 # fm
-  #  file: "/u/kpala/git_repos/test/test2/AMPTGenesis/AMPT_evt0008/ana/parton-initial-afterPropagation.dat"
+  source:
+    type: "ic"
+    smearing_radius: 1.4 # fm
+    file: "/u/kpala/git_repos/test/test2/AMPTGenesis/event0000/ana/parton-initial-afterPropagation.dat"
 output:
   print_conservation_state: true
   hdf_evolution: false
   txt_evolution: false
+  check_causality: false

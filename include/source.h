@@ -295,6 +295,9 @@ public:
     double t = systemPtr->t;
     double dt = settingsPtr->dt;
     double t_prev = t - dt;
+    std::cout << "Adding source terms at time " << t << std::endl;
+    std::cout << "Current time: " << t << std::endl;
+    std::cout << "Previous time: " << t_prev << std::endl;
     double smearing_radius = settingsPtr->smearing_radius;
     double n_particles = systemPtr->cabana_particles.size();
     //rest source terms
@@ -336,7 +339,7 @@ public:
         double src_baryon = s_baryon_charge(is) * weight;
         double src_strangeness = s_strangeness_charge(is) * weight;
         double src_charge = s_electric_charge(is) * weight;
-        double normalization = 1.; // IC normalization factor
+        double normalization = 0.42; // IC normalization factor
         auto deposit_source = KOKKOS_LAMBDA(const int is, const int ia)
         {
           double r[D];
@@ -368,10 +371,10 @@ public:
         };
 
         Cabana::simd_parallel_for(simd_policy, deposit_source, "deposit_source");
+        Kokkos::fence();
       }
     }
 
-    Kokkos::fence();
     std::cout << "Added source terms for " << n_sources_added << " source particles out of " << n_sources << std::endl;
   }
 };
