@@ -1312,8 +1312,8 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives(double dt)
   formatted_output::update("Finished resetting pi tensor in "
                             + to_string(sw2.printTime()) + " s.");
   //add source terms to the energy momentum tensor
-  //add_source();
-  if (settingsPtr->source_type != "none") sourcePtr->add_source(dt);
+  //add_toy_jet();
+  if (settingsPtr->source_type != "none") sourcePtr->add_source();  
     // update viscosities for all particles
   sw2 = Stopwatch();
   sw2.Start();  
@@ -1846,7 +1846,7 @@ void SPHWorkstation<D, TEOM>::advance_timestep( double dt, int rk_order )
 ///@tparam D The number of spatial dimensions.
 ///@param t The current time of the simulation.
 template<unsigned int D, template<unsigned int> class TEOM>
-void SPHWorkstation<D, TEOM>::add_source()
+void SPHWorkstation<D, TEOM>::add_toy_jet()
 {
   CREATE_VIEW(device_, systemPtr->cabana_particles);
   auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
@@ -1911,7 +1911,7 @@ double opening_length2 = std::max(jet_position_2[0] * tan(jet_angle), x_threshol
 if (jet_position_1[0] * tan(jet_angle) > x_threshold)
   std::cout << "opening_length1 = " << opening_length1 << " x_threshold = " << x_threshold << std::endl;
 
-auto add_source_terms = KOKKOS_LAMBDA(const int is, const int ia) {
+auto add_toy_jet_terms = KOKKOS_LAMBDA(const int is, const int ia) {
     double r[D];
     for (int idir = 0; idir < D; ++idir)
         r[idir] = device_position.access(is, ia, idir);
@@ -1991,7 +1991,7 @@ auto add_source_terms = KOKKOS_LAMBDA(const int is, const int ia) {
 //
   };
 
-  Cabana::simd_parallel_for(simd_policy,add_source_terms, "add_source");
+  Cabana::simd_parallel_for(simd_policy,add_toy_jet_terms, "add_toy_jet");
   Kokkos::fence();
   
   //calculate total energy loss with parallel reduce
