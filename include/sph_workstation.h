@@ -21,8 +21,7 @@
 #include "transport_coefficients.h"
 #include "thermodynamic_info.h"
 #include "eos_interpolator.h"
-
-
+#include "source.h"
 
 
 namespace ccake
@@ -82,6 +81,11 @@ public:
     freezePtr = std::make_shared<FreezeOut<D>>(settingsPtr, systemPtr);}
   void freeze_out_particles();
 
+  std::shared_ptr<Source<D>> sourcePtr; ///< Object storing the source term data
+  void setup_source_terms(){
+    sourcePtr = std::make_shared<Source<D>>(settingsPtr, systemPtr);
+  }
+
   //============================================================================
   // Constructors/destructors
   SPHWorkstation() = delete; ///< Default constructor is deleted. System state and settings must be passed in.
@@ -111,6 +115,7 @@ public:
   void process_initial_conditions();
   void initialize_entropy_and_charge_densities();
   void initial_smoothing();
+  void add_source();
 
   //============================================================================
   // smoothing
@@ -123,7 +128,7 @@ public:
   //-------------------------------------------
   void update_all_particle_thermodynamics();
   void update_all_particle_viscosities();
-  void get_time_derivatives();
+  void get_time_derivatives(double dt);
 
   //============================================================================
   // routines to edit particles directly

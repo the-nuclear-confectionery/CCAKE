@@ -540,6 +540,50 @@ bool cc::Input::decode_settings(const YAML::Node& node){
       formatted_output::report("This is an optional parameter. Setting to default value.");
       settingsPtr->diffusionRelaxMode = cc::defaults::diffusionRelaxMode;
     }
+    //source subnode
+    try{
+      settingsPtr->source_type = node["hydro"]["source"]["type"].as<std::string>();
+    } catch (...) {
+      formatted_output::report("WARNING: Could not source_type!");
+      formatted_output::report("This is an optional parameter. Setting to default value.");
+      settingsPtr->source_type = cc::defaults::source_type;
+    }
+    try{
+      settingsPtr->baryon_source = node["hydro"]["source"]["enable_baryon"].as<bool>();
+    } catch (...) {
+      formatted_output::report("WARNING: Could not read source baryon!");
+      formatted_output::report("This is an optional parameter. Setting to default value.");
+      settingsPtr->baryon_source = cc::defaults::baryon_source;
+    }
+    try{
+      settingsPtr->strangeness_source = node["hydro"]["source"]["enable_strangeness"].as<bool>();
+    } catch (...) {
+      formatted_output::report("WARNING: Could not read source strangeness!");
+      formatted_output::report("This is an optional parameter. Setting to default value.");
+      settingsPtr->strangeness_source = cc::defaults::strangeness_source;
+    }
+    try{
+      settingsPtr->electric_source = node["hydro"]["source"]["enable_electric"].as<bool>();
+    } catch (...) {
+      formatted_output::report("WARNING: Could not read source electric!");
+      formatted_output::report("This is an optional parameter. Setting to default value.");
+      settingsPtr->electric_source = cc::defaults::electric_source;
+    }
+    try{
+      settingsPtr->smearing_radius = node["hydro"]["source"]["smearing_radius"].as<double>();
+    } catch (...) {
+      formatted_output::report("WARNING: Could not read source smearing_radius!");
+      formatted_output::report("This is an optional parameter. Setting to default value.");
+      settingsPtr->smearing_radius = cc::defaults::smearing_radius;
+    }
+    try{
+      settingsPtr->source_input_file = fs::path(node["hydro"]["source"]["file"].as<std::string>());
+    } catch (...) {
+      formatted_output::report("WARNING: Could not read source file!");
+      formatted_output::report("This is an optional parameter. Setting to default value.");
+      settingsPtr->source_input_file = cc::defaults::source_input_file;
+    }
+
 
     //Output node
     try{
@@ -576,6 +620,13 @@ bool cc::Input::decode_settings(const YAML::Node& node){
       formatted_output::detail("WARNING: Could not read output/txt_evolution!");
       formatted_output::detail("This is an optional parameter. Setting to default value.");
       settingsPtr->txt_evolution = cc::defaults::txt_evolution;
+    }
+    try{
+      settingsPtr->check_causality = node["output"]["check_causality"].as<bool>();
+    } catch (...){
+      formatted_output::detail("WARNING: Could not read output/check_causality!");
+      formatted_output::detail("This is an optional parameter. Setting to default value.");
+      settingsPtr->check_causality = cc::defaults::check_causality;
     }
     try{
       settingsPtr->check_causality = node["output"]["check_causality"].as<bool>();
