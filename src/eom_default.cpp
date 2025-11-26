@@ -333,12 +333,12 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
       //add contribution from shear MRFs
       double F_shv_nabla_u = device_hydro_scalar.access(is, ia, hydro_info::F_shv_nabla_u);
       F_extensive_entropy += F_shv_nabla_u/(sigma*gamma*T);
-      F_extensive_bulk += -(- lambda_Pipi*F_shv_nabla_u
+      F_extensive_bulk += -( lambda_Pipi*F_shv_nabla_u
                       - phi3*milne::contract(shv_cov,shv))/(sigma*gamma*tau_Pi);
       milne::Vector<double,D> M_shv_nabla_u;
       for(int idir=0; idir<D; ++idir){
         M_shv_nabla_u(idir) =  device_hydro_vector.access(is, ia, hydro_info::M_shv_nabla_u,idir);
-        M_extensive_bulk_aux(idir) += lambda_Pipi*M_shv_nabla_u(idir)/(sigma*gamma*tau_Pi);
+        M_extensive_bulk_aux(idir) += -lambda_Pipi*M_shv_nabla_u(idir)/(sigma*gamma*tau_Pi);
         M_extensive_entropy(idir) += M_shv_nabla_u(idir)/(sigma*gamma*T);
       }
     }
@@ -1083,6 +1083,21 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr,
       shv_grad_u += (shv_hybrid(idir+1,0) - v(idir)*shv_hybrid(0,0))*grad_u0(idir);
     }
     
+    double shv_shvcov = 0.0;
+    for(int idir=0; idir<4; ++idir){
+      for(int jdir=0; jdir<4; ++jdir){
+        shv_shvcov += shv_hybrid(idir,jdir)*shv_cov(idir,jdir);
+      }
+    }
+    //shv
+    milne::Vector<double, D> shvilambda_shv0lambda;
+    for(int idir=0; idir<D; ++idir){
+      shvilambda_shv0lambda(idir) = 0.0;
+      for(int jdir=0; jdir<4; ++jdir){
+        shvilambda_shv0lambda(idir) += shv_hybrid(idir+1,jdir)*shv_hybrid(0,jdir);
+      }
+    }
+
     //aux vectors and matrices for the four-acceleration equation
     for(int idir=0; idir<D; ++idir){
       F_i0_sigma(idir) =  -(milne::contract(grad_uj,v,milne::FirstIndex())(idir)
@@ -1118,7 +1133,7 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr,
                                    -gamma*gamma*shv_hybrid(idir+1,jdir+1) - gamma*u(idir)*shv_hybrid(0,jdir+1)
                                    +u_cov(jdir)*gamma*shv_hybrid(idir+1,0) + u_cov(jdir)*u(idir)*shv_hybrid(0,0)
                                    +4.*gamma*u(idir)*(shv_hybrid(0,jdir+1)-shv_hybrid(0,0)*u_cov(jdir)/gamma)/3.
-                                   -(shv(0,idir+1)+4.*shv(0,idir+1)/3.)*u_cov(jdir)/3.)/4.;
+                                   +(-shv(0,idir+1)+4.*shv(0,idir+1)/3.)*u_cov(jdir)/gamma)/4.;
 
         M_i0_domega(idir,jdir) = ( shv_hybrid(idir+1,jdir+1) -shv_hybrid(idir+1,0)*u_cov(jdir)/gamma
                                    -gamma*gamma*shv_hybrid(idir+1,jdir+1) - gamma*u(idir)*shv_hybrid(0,jdir+1)
@@ -1169,19 +1184,19 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr,
       F_0i_shear(idir) = (-shv(idir+1,0)
                     -tau_pi*F_i0_D(idir)
                     -delta_pipi*F_i0_dd(idir)
-                    -2.*tau_pi*F_i0_domega(idir)*use_vort 
+                    +2.*tau_pi*F_i0_domega(idir)*use_vort 
                     -tau_pipi*F_i0_dsigma(idir)
                     +(2.*eta_pi+lambda_piPi*bulk)*F_i0_sigma(idir)
                     +phi6*bulk*shv(idir+1,0)
-                    +phi7*(milne::contract(shv, shear0mu_aux, milne::SecondIndex())(idir+1)
-                    +gamma*u(idir)*milne::contract(shv_cov,shv)/3.))/(tau_pi*gamma);
+                    +phi7*(shvilambda_shv0lambda(idir)
+                    +gamma*u(idir)*shv_shvcov/3.))/(tau_pi*gamma);
       //stores the results 
       device_hydro_vector.access(is, ia, hydro_info::F_0i_shear, idir) = F_0i_shear(idir);
       for(int jdir=0; jdir<D; ++jdir){
         M_0i_shear(idir,jdir) = (-tau_pi*M_i0_D(idir,jdir)
                                 -delta_pipi*M_i0_dd(idir,jdir)
-                                -2.*M_i0_domega(idir,jdir)*use_vort
-                                +tau_pipi*M_i0_dsigma(idir,jdir)
+                                +2.*tau_pi*M_i0_domega(idir,jdir)*use_vort
+                                -tau_pipi*M_i0_dsigma(idir,jdir)
                                 +(2.*eta_pi+lambda_piPi*bulk)*M_i0_sigma(idir,jdir))/(tau_pi*gamma);
         //stores the results
         device_hydro_space_matrix.access(is, ia, hydro_info::M_0i_shear, idir, jdir) = M_0i_shear(idir,jdir);
@@ -1234,8 +1249,16 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr,
 
 
 
-
-
+    //shv(mu,lambda) dot shv_hybrid(nu,lambda)
+    milne::Matrix<double,2,3> shv_mu_lambda_shv_nu_lambda;
+    for(int idir=0; idir<2; ++idir){
+      for(int jdir=idir; jdir<3; ++jdir){
+        shv_mu_lambda_shv_nu_lambda(idir,jdir) = 0.;
+        for(int kdir=0; kdir<4; ++kdir){
+          shv_mu_lambda_shv_nu_lambda(idir,jdir) += shv(idir+1,kdir)*shv_hybrid(jdir+1,kdir);
+        }
+      }
+    }
 
     //calculate the aux MRFs that will be used in the evolution of the shear tensor
     for(int idir=0; idir<2; ++idir){
@@ -1257,13 +1280,15 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr,
                                 -fixed_size_u(2)*(shv(0,idir+1)*delta_i_eta(jdir)+shv(0,jdir+1)*delta_i_eta(idir))/t)/4.;
 
         F_dsigma(idir,jdir) = -( -grad_u_g_j_shv_i(idir,jdir) - shv_i_grad_uj(idir,jdir)
-                                 + v_shv_i_grad_u_j(idir,jdir) +4.*(fixed_size_u(idir)*fixed_size_u(jdir))*shv_grad_u/3.)/4.
+                                 + v_shv_i_grad_u_j(idir,jdir) - 4.*(fixed_size_u(idir)*fixed_size_u(jdir))*shv_grad_u/3.)/4.
                               +(-fixed_size_u(idir)*gamma*shv_hybrid(jdir+1,0)-fixed_size_u(jdir)*gamma*shv_hybrid(idir+1,0)
-                                -4.*fixed_size_u(idir)*fixed_size_u(jdir)*shv_hybrid(0,0)/3.)*geometric_factor/4.
+                                +4.*fixed_size_u(idir)*fixed_size_u(jdir)*shv_hybrid(0,0)/3.)*geometric_factor/4.
                               +(t*fixed_size_u(2)*(contra_metric_diag(idir+1)*shv_hybrid(jdir+1,0)*delta_i_eta(idir)
                                 +contra_metric_diag(jdir+1)*shv_hybrid(idir+1,0)*delta_i_eta(jdir))
                                 +gamma*(shv(3,idir+1)*delta_i_eta(jdir)+shv(3,jdir+1)*delta_i_eta(idir))/t
-                                +fixed_size_u(2)*(shv(0,idir+1)*delta_i_eta(jdir)+shv(0,jdir+1)*delta_i_eta(idir))/t)/4.
+                                +fixed_size_u(2)*(shv(0,idir+1)*delta_i_eta(jdir)+shv(0,jdir+1)*delta_i_eta(idir))/t
+                                +4.*fixed_size_u(idir)*fixed_size_u(jdir)*(shv_hybrid(3,0)*fixed_size_u(2)*t
+                                +gamma*shv_hybrid(3,3)/t +fixed_size_u(2)*shv_hybrid(0,3)/t)/3.)/4.
                                 -shv(idir+1,jdir+1)*(gamma/t +geometric_factor + gamma*divV)/3.;
                    
 
@@ -1277,14 +1302,13 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr,
           M_domega(idir,jdir,kdir) = (-fixed_size_u(idir)*shv_hybrid(jdir+1,kdir+1)*gamma
                                       -fixed_size_u(jdir)*shv_hybrid(idir+1,kdir+1)*gamma
                                       +fixed_size_u_cov(kdir)*fixed_size_u(idir)*shv_hybrid(jdir+1,0)
-                                      +fixed_size_u_cov(kdir)*fixed_size_u(jdir)*shv_hybrid(idir+1,0)
-                                      -4.*fixed_size_u(idir)*fixed_size_u(jdir)*(shv_hybrid(0,kdir+1)-shv_hybrid(0,0)*fixed_size_u_cov(kdir)/gamma)/3.)/4.;
+                                      +fixed_size_u_cov(kdir)*fixed_size_u(jdir)*shv_hybrid(idir+1,0))/4.;
 
           M_dsigma(idir,jdir,kdir) = (-fixed_size_u(idir)*shv_hybrid(jdir+1,kdir+1)*gamma
                                       -fixed_size_u(jdir)*shv_hybrid(idir+1,kdir+1)*gamma
                                       +fixed_size_u_cov(kdir)*fixed_size_u(idir)*shv_hybrid(jdir+1,0)
                                       +fixed_size_u_cov(kdir)*fixed_size_u(jdir)*shv_hybrid(idir+1,0)
-                                      -4.*fixed_size_u(idir)*fixed_size_u(jdir)*(shv_hybrid(0,kdir+1)-shv_hybrid(0,0)*fixed_size_u_cov(kdir)/gamma)/3.
+                                      +4.*fixed_size_u(idir)*fixed_size_u(jdir)*(shv_hybrid(0,kdir+1)-shv_hybrid(0,0)*fixed_size_u_cov(kdir)/gamma)/3.
                                       +4.*shv(idir+1,jdir+1)*fixed_size_u_cov(kdir)/3./gamma)/4.;
         }
         //diagonal i = k terms
@@ -1302,9 +1326,7 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr,
           F_dsigma(idir,jdir) += (fixed_size_u(2)*fixed_size_u(2)*t*(fixed_size_u(idir)*shv_hybrid(jdir+1,0)
                 +fixed_size_u(jdir)*shv_hybrid(idir+1,0))
                 +2.*gamma*fixed_size_u(2)*(fixed_size_u(idir)*shv_hybrid(jdir+1,3)
-                +fixed_size_u(jdir)*shv_hybrid(idir+1,3))/t
-                -4.*fixed_size_u(idir)*fixed_size_u(jdir)*(shv_hybrid(3,0)*fixed_size_u(2)*t
-                +gamma*shv_hybrid(3,3)/t +fixed_size_u(2)*shv_hybrid(0,3)/t)/3.)/4.;
+                +fixed_size_u(jdir)*shv_hybrid(idir+1,3))/t)/4.;
 
           F_domega(idir,jdir) += (fixed_size_u(2)*fixed_size_u(2)*t*(fixed_size_u(idir)*shv_hybrid(jdir+1,0)
                 +fixed_size_u(jdir)*shv_hybrid(idir+1,0))
@@ -1324,8 +1346,8 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr,
       for(int kdir=0; kdir<D; ++kdir){
         //j=i
         M_sigma(idir,idir,kdir) += contra_metric_diag(idir+1)*fixed_size_u_cov(kdir)/(gamma*3.);
-        M_dsigma(idir,idir,kdir) += -contra_metric_diag(idir+1)*(shv_hybrid(0,kdir+1) 
-                                    -shv_hybrid(0,0)*fixed_size_u_cov(kdir)/gamma)/3;
+        M_dsigma(idir,idir,kdir) += -contra_metric_diag(idir+1)*(shv_hybrid(0,kdir+1)
+                                    -shv_hybrid(0,0)*fixed_size_u_cov(kdir)/gamma)/3.;
       }
       
       //diagonal and metric terms for F
@@ -1334,12 +1356,12 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr,
       F_sigma(idir,idir) += -contra_metric_diag(idir+1)*(geometric_factor+gamma/t+gamma*divV)/3.;
       F_sigma(idir,2) += -fixed_size_u(idir)*ueta*ueta*t/2. 
                          -fixed_size_u(idir)*ueta*gamma/t;
-      F_dsigma(idir,idir) += 4.*contra_metric_diag(idir+1)*shv_grad_u/3.
-                  -4.*contra_metric_diag(idir+1)*shv_hybrid(0,0)*geometric_factor/3.;
-      if(D!=2){
-        F_dsigma(idir,idir) += -contra_metric_diag(idir+1)*(shv_hybrid(3,0)*fixed_size_u(2)*t
-                +gamma*shv_hybrid(3,3)/t +fixed_size_u(2)*shv_hybrid(0,3)/t)/3.;
-      }
+      F_dsigma(idir,idir) += contra_metric_diag(idir+1)*shv_grad_u/3.
+                  -contra_metric_diag(idir+1)*shv_hybrid(0,0)*geometric_factor/3.;
+
+      F_dsigma(idir,idir) += -contra_metric_diag(idir+1)*(shv_hybrid(3,0)*fixed_size_u(2)*t
+              +gamma*shv_hybrid(3,3)/t +fixed_size_u(2)*shv_hybrid(0,3)/t)/3.;
+      
 
     }
 
@@ -1348,17 +1370,17 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr,
         F_extensive_shear(idir,jdir) = (-shv(idir+1,jdir+1) 
                                 -tilde_delta*F_delta(idir,jdir)
                                 -tau_pi*F_D(idir,jdir)
-                                -2.*tau_pi*F_domega(idir,jdir)*use_vort
+                                +2.*tau_pi*F_domega(idir,jdir)*use_vort
                                 -tau_pipi*F_dsigma(idir,jdir)
                                 +(2.*eta_pi+lambda_piPi*bulk)*F_sigma(idir,jdir)
                                 +phi6*bulk*shv(idir+1,jdir+1)
-                                +phi7*(milne::contract(shv,shv_hybrid,milne::SecondIndex(),milne::SecondIndex())(idir,jdir)
-                                +fixed_size_u(idir)*fixed_size_u(jdir)*milne::contract(shv,shv_cov)/3.))/(sigma*tau_pi*gamma);
+                                +phi7*(shv_mu_lambda_shv_nu_lambda(idir,jdir)
+                                +fixed_size_u(idir)*fixed_size_u(jdir)*shv_shvcov/3.))/(sigma*tau_pi*gamma);
 
         for(int kdir=0; kdir<D; ++kdir){
           M_extensive_shear(idir,jdir,kdir) =(-tau_pi*M_D(idir,jdir,kdir)
                                         -tilde_delta*M_delta(idir,jdir,kdir)
-                                        -2.*tau_pi*M_domega(idir,jdir,kdir)*use_vort
+                                        +2.*tau_pi*M_domega(idir,jdir,kdir)*use_vort
                                         -tau_pipi*M_dsigma(idir,jdir,kdir)
                                         +(2.*eta_pi+lambda_piPi*bulk)*M_sigma(idir,jdir,kdir))/(sigma*tau_pi*gamma);
           //saves the results 
@@ -1374,7 +1396,7 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr,
           device_hydro_shear_aux_matrix.access(is, ia, hydro_info::R_extensive_shear, idir, linear_index) = R_extensive_shear(idir,jdir,icharge);
           }
       }
-      F_extensive_shear(idir,idir) += phi7*(-contra_metric_diag(idir+1)*milne::contract(shv,shv_cov))/(3.*tau_pi*gamma*sigma);
+      F_extensive_shear(idir,idir) += phi7*(-contra_metric_diag(idir+1)*shv_shvcov)/(3.*tau_pi*gamma*sigma);
       //saves the results
       for(int jdir=idir; jdir<3; ++jdir){
         device_hydro_shear_aux_vector.access(is, ia, hydro_info::F_extensive_shear, idir, jdir) = F_extensive_shear(idir,jdir);
