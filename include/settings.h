@@ -147,6 +147,7 @@ class Settings
     bool input_initial_shear    = false;
     //  - bulk quantities
     string zetaMode             = "";    ///< Choose parametrization for zeta/s
+    bool critical_scaling_bulk  = false; ///< Whether to enable critical scaling of bulk viscosity
     double constant_zeta_over_s = 0.0;
     double cs2_dependent_zeta_A = 0.0;
     double cs2_dependent_zeta_p = 0.0;
