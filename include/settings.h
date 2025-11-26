@@ -41,6 +41,7 @@ class Settings
     bool txt_evolution              = false;
     bool hdf_evolution              = false;
     bool print_conservation_status  = true;
+    bool get_neighbors              = false;
     bool calculate_observables       = false;
     bool check_causality            = false;
     fs::path results_directory        = "";
