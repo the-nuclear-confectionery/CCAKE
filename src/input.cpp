@@ -447,6 +447,14 @@ bool cc::Input::decode_settings(const YAML::Node& node){
     }
 
     try{
+      settingsPtr->critical_scaling_bulk = node["hydro"]["viscous_parameters"]["bulk"]["critical_scaling_enabled"].as<bool>();
+    } catch (...) {
+      formatted_output::report("WARNING: Could not read viscous_parameters bulk critical_scaling_enabled!");
+      formatted_output::report("This is an optional parameter. Setting to default value.");
+      settingsPtr->critical_scaling_bulk = cc::defaults::critical_scaling_bulk;
+    }
+
+    try{
       settingsPtr->bulkRelaxMode = node["hydro"]["viscous_parameters"]["bulk"]["relaxation_mode"].as<std::string>();
     } catch (...) {
       formatted_output::report("WARNING: Could not read viscous_parameters bulk relaxation_mode!");
