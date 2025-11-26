@@ -46,6 +46,7 @@ namespace ccake
     const double      constant_zeta_over_s    = 0.005;
     const double      cs2_dependent_zeta_A    = 1.67552;  // 8*pi/15
     const double      cs2_dependent_zeta_p    = 2.0;
+    const bool       critical_scaling_bulk   = false;
     const std::string bulkRelaxMode           = "default";
     const bool        modulate_zeta_with_tanh = true;
     const bool        delta_PiPi_mode       = "israel-stewart";

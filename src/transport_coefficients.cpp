@@ -63,6 +63,11 @@ parameters setup_parameters(std::shared_ptr<Settings> settingsPtr)
   else if (zetaMode == "cs2_dependent"){
     params.zeta_mode = ZETA_CS2_DEPENDENT;
   }
+  if (settingsPtr->critical_scaling_bulk) {
+    params.critical_scaling_bulk = true;
+  } else {
+    params.critical_scaling_bulk = false;
+  }
 
   std::string bulkRelaxMode = settingsPtr->bulkRelaxMode;
   if (bulkRelaxMode == "default")
@@ -313,24 +318,32 @@ KOKKOS_INLINE_FUNCTION
 double zeta(const double* thermo, parameters params)
 {
   int zeta_mode = params.zeta_mode;
+  double zeta = 0.;
   switch (zeta_mode)
   {
   case ZETA_DEFAULT:
-    return default_zeta(thermo);
+    zeta = default_zeta(thermo);
     break;
   case ZETA_CONSTANT:
-    return constZeta(thermo, params);
+    zeta = constZeta(thermo, params);
     break;
   case ZETA_DNMR:
-    return zeta_DNMR_LeadingMass(thermo);
+    zeta = zeta_DNMR_LeadingMass(thermo);
     break;
   case ZETA_CS2_DEPENDENT:
-    return cs2_dependent_zeta(thermo, params);
+    zeta = cs2_dependent_zeta(thermo, params);
     break;
   default:
-    return default_zeta(thermo);
+    zeta = default_zeta(thermo);
     break;
   }
+  //check for critical scaling
+  if (params.critical_scaling_bulk) {
+    //apply critical scaling factor
+    zeta *= critical_scaling_factor_bulk(thermo, params);
+  }
+  return zeta;
+
 }
 
 KOKKOS_INLINE_FUNCTION
@@ -923,5 +936,15 @@ Matrix<double, 3, 3> default_tauq(const double *therm, const parameters params)
   return tauq_matrix;
 };
 
+//Critical scaling functions
+KOKKOS_INLINE_FUNCTION
+double critical_scaling_factor_bulk(const double *therm,const parameters params)
+{
+  double correlation_length = 0.;
+  double correlation_length_zero = 0.;
+  return (1.+ pow((correlation_length/correlation_length_zero), 3));
+}
+
 }}
+
 #endif

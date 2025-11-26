@@ -95,6 +95,7 @@ namespace transport_coefficients{
     std::array<std::array<double, 3>, 3> constant_kappa_over_T2,
                                          tauq_matrix;
     bool modulate_zeta_with_tanh;
+    bool critical_scaling_bulk;
   };
 
   KOKKOS_INLINE_FUNCTION
@@ -125,7 +126,9 @@ namespace transport_coefficients{
   double phi6(const double *therm, parameters params);
   KOKKOS_INLINE_FUNCTION
   double phi7(const double *therm, parameters params);
-
+  //critical functions
+  KOKKOS_INLINE_FUNCTION
+  double critical_scaling_factor_bulk(const double *therm, parameters params);
 
 
   // Chris' defaults
