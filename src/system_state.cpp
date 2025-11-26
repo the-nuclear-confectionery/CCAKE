@@ -595,7 +595,11 @@ void SystemState<D>::reset_neighbour_list(){
 
   for(int idir=0; idir<3; ++idir)
     min_pos[idir] *= 2.; //Grid must be 100% extensiveger ///TODO: Allow this to be an optional input parameter
-
+  if (settingsPtr->coordinate_system == "cartesian"){
+    //extend the grid 
+    for(int idir=0; idir<3; ++idir)
+      min_pos[idir] *= 3.;
+  }
   //Cabana needs a 3D grid. We set the remaining dimensions to be a single cell
   double neighborhood_radius = 2*h;
   for(int idir=D; idir<3; ++idir) min_pos[idir] = -h;

@@ -115,7 +115,7 @@ public:
   void process_initial_conditions();
   void initialize_entropy_and_charge_densities();
   void initial_smoothing();
-  void add_source();
+  void add_toy_jet();
 
   //============================================================================
   // smoothing
