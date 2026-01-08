@@ -350,11 +350,11 @@ bool cc::Input::decode_settings(const YAML::Node& node){
       settingsPtr->shearRelaxMode = cc::defaults::shearRelaxMode;
     }
     try {
-      settingsPtr->use_vorticity = node["hydro"]["viscous_parameters"]["shear"]["use_vorticity"].as<bool>();
+      settingsPtr->using_vorticity = node["hydro"]["viscous_parameters"]["shear"]["use_vorticity"].as<bool>();
     } catch (...) {
       formatted_output::report("WARNING: Could not read viscous_parameters shear use_vorticity!");
       formatted_output::report("This is an optional parameter. Setting to default value.");
-      settingsPtr->use_vorticity = cc::defaults::use_vorticity;
+      settingsPtr->using_vorticity = cc::defaults::use_vorticity;
     } 
     try {
       settingsPtr->delta_pipi_mode = node["hydro"]["viscous_parameters"]["shear"]["delta_pipi_mode"].as<std::string>();
