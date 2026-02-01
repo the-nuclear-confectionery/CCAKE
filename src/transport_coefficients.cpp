@@ -697,7 +697,7 @@ KOKKOS_INLINE_FUNCTION
 double lambda_piPi_DEFAULT(const double *therm, const parameters params)
 {
   // Default value for lambda_piPi
-  return 6./5.;
+  return 6./5.*tau_pi(therm, params);
 }
 
 double phi6_DEFAULT(const double *therm, const parameters params)

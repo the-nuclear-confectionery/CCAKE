@@ -1087,7 +1087,7 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr,
     double shv_shvcov = 0.0;
     for(int idir=0; idir<4; ++idir){
       for(int jdir=0; jdir<4; ++jdir){
-        shv_shvcov += shv_hybrid(idir,jdir)*shv_cov(idir,jdir);
+        shv_shvcov += shv(idir,jdir)*shv_cov(idir,jdir);
       }
     }
     //shv
@@ -1095,7 +1095,8 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr,
     for(int idir=0; idir<D; ++idir){
       shvilambda_shv0lambda(idir) = 0.0;
       for(int jdir=0; jdir<4; ++jdir){
-        shvilambda_shv0lambda(idir) += shv_hybrid(idir+1,jdir)*shv_hybrid(0,jdir);
+        shvilambda_shv0lambda(idir) += (shv(0,jdir)*shv_hybrid(idir+1,jdir)+
+                                        shv(idir+1,jdir)*shv_hybrid(0,jdir))/2.;
       }
     }
 
@@ -1258,7 +1259,8 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr,
       for(int jdir=idir; jdir<3; ++jdir){
         shv_mu_lambda_shv_nu_lambda(idir,jdir) = 0.;
         for(int kdir=0; kdir<4; ++kdir){
-          shv_mu_lambda_shv_nu_lambda(idir,jdir) += shv(idir+1,kdir)*shv_hybrid(jdir+1,kdir);
+          shv_mu_lambda_shv_nu_lambda(idir,jdir) += (shv(idir+1,kdir)*shv_hybrid(jdir+1,kdir)
+                                                     +shv(jdir+1,kdir)*shv_hybrid(idir+1,kdir))/2.;
         }
       }
     }
