@@ -23,7 +23,7 @@ namespace ccake
     #define CONCAT(a, b) CONCAT_(a, b)
   #endif
 
-  using FRZ = Cabana::MemberTypes<double[4][4], double[3], double[3], double[3], double[3], // shear, r, u, gradP, gradE
+  using FRZ = Cabana::MemberTypes<double[4][4], double [3][4], double[3], double[3], double[3], double[3], // shear, diff, r, u, gradP, gradE
                                   double, double, double, // t, s, e
                                   double, double, double, // rhoB, rhoS, rhoQ
                                   double, double, double, double, // T, muB, muS, muQ
@@ -32,6 +32,7 @@ namespace ccake
                                   double, double // wfz, cs2fz
                                   >; // 41*8 = 328 bytes per particle. 100K Particles = 32.8 MB
   using ResultsTypes = Cabana::MemberTypes<double[4][4], // shearsub
+                                           double[3][4], // diff_out
                                            double[3], double[3], double[3], //divT, divE, divP
                                            double[3], double[3], //rsub, uout
                                            double, double, double, // divTtemp, divPpress, divEener
@@ -45,7 +46,7 @@ namespace ccake
   namespace FRZ_enum{
     enum FRZ_members
     {
-      shear, r, u, gradP, gradE,
+      shear, diff, r, u, gradP, gradE,
       t, s, e,
       rhoB, rhoS, rhoQ,
       T, muB, muS, muQ,
@@ -58,6 +59,7 @@ namespace ccake
     enum ResultsTypes_members
     {
       shearsub,
+      diffout,
       divT, divE, divP,
       rsub, uout,
       divTtemp, divPpress, divEener,
@@ -77,6 +79,7 @@ namespace ccake
 
   #define FRZ_VIEW(prefix,FRZ_aosoa) \
   auto CONCAT(prefix, shear) = Cabana::slice<FRZ_enum::shear>(FRZ_aosoa); \
+  auto CONCAT(prefix, diff) = Cabana::slice<FRZ_enum::diff>(FRZ_aosoa); \
   auto CONCAT(prefix, r) = Cabana::slice<FRZ_enum::r>(FRZ_aosoa); \
   auto CONCAT(prefix, u) = Cabana::slice<FRZ_enum::u>(FRZ_aosoa); \
   auto CONCAT(prefix, gradP) = Cabana::slice<FRZ_enum::gradP>(FRZ_aosoa); \
@@ -101,6 +104,7 @@ namespace ccake
 
   #define FRZ_RESULTS_VIEW(prefix,results_aosoa) \
   auto CONCAT(prefix, shearsub) = Cabana::slice<ResultsTypes_enum::shearsub>(results_aosoa); \
+  auto CONCAT(prefix, diffout) = Cabana::slice<ResultsTypes_enum::diffout>(results_aosoa); \
   auto CONCAT(prefix, divT) = Cabana::slice<ResultsTypes_enum::divT>(results_aosoa); \
   auto CONCAT(prefix, divE) = Cabana::slice<ResultsTypes_enum::divE>(results_aosoa); \
   auto CONCAT(prefix, divP) = Cabana::slice<ResultsTypes_enum::divP>(results_aosoa); \
@@ -224,6 +228,9 @@ class FreezeOut
         for (int idir=0;idir<D+1;++idir)
         for (int jdir=0;jdir<D+1;++jdir)
             frz2_shear.access(is, ia, idir, jdir) = device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::shv, idir, jdir);
+        for (int icharge=0;icharge<3;++icharge)
+        for (int jdir=0;jdir<4;++jdir)
+            frz2_diff.access(is, ia, icharge, jdir) = device_hydro_diffusion.access(is, ia, ccake::hydro_info::diffusion, icharge, jdir);
         for (int idir=0;idir<D;++idir){
           frz2_r.access(is, ia, idir) = device_position.access(is, ia, idir);
           frz2_u.access(is, ia, idir) = device_hydro_vector.access(is, ia, ccake::hydro_info::u, idir);
@@ -267,6 +274,9 @@ class FreezeOut
         for (int idir=0;idir<D+1;++idir)
         for (int jdir=0;jdir<D+1;++jdir)
             frz1_shear.access(is, ia, idir, jdir) = device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::shv, idir, jdir);
+        for (int icharge=0;icharge<3;++icharge)
+        for (int jdir=0;jdir<4;++jdir)
+            frz1_diff.access(is, ia, icharge, jdir) = device_hydro_diffusion.access(is, ia, ccake::hydro_info::diffusion, icharge, jdir);
         for (int idir=0;idir<D;++idir){
           frz1_r.access(is, ia, idir) = device_position.access(is, ia, idir);
           frz1_u.access(is, ia, idir) = device_hydro_vector.access(is, ia, ccake::hydro_info::u, idir);
@@ -373,6 +383,9 @@ class FreezeOut
           for (int idir=0;idir<D+1;++idir)
           for (int jdir=0;jdir<D+1;++jdir)
             frz_dest_shear.access(is, ia, idir, jdir) = frz_src_shear.access(is, ia, idir, jdir);
+          for (int icharge=0;icharge<3;++icharge)
+          for (int jdir=0;jdir<4;++jdir)
+            frz_dest_diff.access(is, ia, icharge, jdir) = frz_src_diff.access(is, ia, icharge, jdir);
           for (int idir=0;idir<D;++idir){
             frz_dest_r.access(is, ia, idir) = frz_src_r.access(is, ia, idir);
             frz_dest_u.access(is, ia, idir) = frz_src_u.access(is, ia, idir);
@@ -573,6 +586,9 @@ class FreezeOut
           for (int idir=0;idir<D+1;++idir)
           for (int jdir=0;jdir<D+1;++jdir)
             frz1_shear.access(is, ia, idir, jdir) = device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::shv, idir, jdir);
+          for (int icharge=0;icharge<3;++icharge)
+          for (int jdir=0;jdir<4;++jdir)
+            frz1_diff.access(is, ia, icharge, jdir) = device_hydro_diffusion.access(is, ia, ccake::hydro_info::diffusion, icharge, jdir);
           for (int idir=0;idir<D;++idir){
             frz1_r.access(is, ia, idir) = device_position.access(is, ia, idir);
             frz1_u.access(is, ia, idir) = device_hydro_vector.access(is, ia, ccake::hydro_info::u, idir);
@@ -664,6 +680,9 @@ class FreezeOut
             for (int idir=0; idir<D+1; ++idir)
             for (int jdir=0; jdir<D+1; ++jdir)
               results_shearsub.access(is,ia,idir,jdir) = frz1_shear.access(is,ia,idir,jdir);
+            for (int icharge=0; icharge<3; ++icharge)
+            for (int jdir=0; jdir<4; ++jdir)
+              results_diffout.access(is,ia,icharge,jdir) = frz1_diff.access(is,ia,icharge,jdir);
             for (int idir=0; idir<D; ++idir){
               results_rsub.access(is,ia,idir) = frz1_r.access(is,ia,idir);
               results_uout.access(is,ia,idir) = frz1_u.access(is,ia,idir);
@@ -744,6 +763,9 @@ class FreezeOut
             for (int idir=0; idir<D+1; ++idir)
             for (int jdir=0; jdir<D+1; ++jdir)
               results_shearsub.access(is,ia,idir,jdir) = frz2_shear.access(is,ia,idir,jdir);
+            for (int icharge=0; icharge<3; ++icharge)
+            for (int jdir=0; jdir<4; ++jdir)
+              results_diffout.access(is,ia,icharge,jdir) = frz2_diff.access(is,ia,icharge,jdir);
             for (int idir=0; idir<D; ++idir){
               results_rsub.access(is,ia,idir) = frz2_r.access(is,ia,idir);
               results_uout.access(is,ia,idir) = frz2_u.access(is,ia,idir);

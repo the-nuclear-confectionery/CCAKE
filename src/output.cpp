@@ -306,23 +306,23 @@ void Output<D,TEOM>::print_conservation_status()
 template<unsigned int D, template<unsigned int> class TEOM>
 void Output<D,TEOM>::print_freeze_out(std::shared_ptr<FreezeOut<D>> freeze_out, double B, double Q, double S)
 {
+  static bool first_call = true;
+  
   string outputfilename = output_directory + "/freeze_out.dat";
-  ofstream FO( outputfilename.c_str(), ios::app );
+  ofstream FO;
 
-
-  //bool write_header = false;
-  //struct stat file_stat;
-  //if (stat(outputfilename.c_str(), &file_stat) != 0 || file_stat.st_size == 0) {
-  //  write_header = true;
-  //}
-//
-  ////print total B,S,Q of the system
-  //if (write_header) {
-  //  FO << "# " << B << " "
-  //             << S << " "
-  //             << Q << "\n";
-  //}
-
+  if (first_call) {
+      // First call → wipe file
+      FO.open(outputfilename, ios::out | ios::trunc);
+      // Write header
+      FO << "# " << B << " " << S << " " << Q << "\n";
+      first_call = false;
+  } else {
+      // Subsequent calls → append
+      FO.open(outputfilename, ios::out | ios::app);
+  }
+  if (!FO)
+      throw std::runtime_error("Could not open " + outputfilename);
   //Copy data to host
   auto FOResults = Cabana::create_mirror_view_and_copy(Kokkos::HostSpace(),
                                                         freeze_out->results);
@@ -355,10 +355,22 @@ void Output<D,TEOM>::print_freeze_out(std::shared_ptr<FreezeOut<D>> freeze_out, 
        << result_muSfluc(i) << " "
        << result_muQfluc(i) << " "
        << result_wfzfluc(i) << " "
-       << result_cs2fzfluc(i) <<// " "
-       //<< result_rhoBfluc(i) << " "
-       //<< result_rhoSfluc(i) << " "
-       //<< result_rhoQfluc(i) << 
+       << result_cs2fzfluc(i) << " "
+       << result_rhoBfluc(i) << " "
+       << result_rhoSfluc(i) << " "
+       << result_rhoQfluc(i) << " "
+       << result_diffout(i,0,0) << " "
+       << result_diffout(i,0,1) << " "
+       << result_diffout(i,0,2) << " "
+       << result_diffout(i,0,3) << " "
+       << result_diffout(i,1,0) << " "
+       << result_diffout(i,1,1) << " "
+       << result_diffout(i,1,2) << " "
+       << result_diffout(i,1,3) << " "
+       << result_diffout(i,2,0) << " "
+       << result_diffout(i,2,1) << " "
+       << result_diffout(i,2,2) << " "
+       << result_diffout(i,2,3) << 
        endl;
     count++;
   }
@@ -390,11 +402,11 @@ void Output<2,EoM_default>::print_freeze_out(std::shared_ptr<FreezeOut<2>> freez
   }
 
   //print total B,S,Q of the system
-  //if (write_header) {
-  //  FO << "# " << B << " "
-  //             << S << " "
-  //             << Q << "\n";
-  //}
+  if (write_header) {
+    FO << "# " << B << " "
+               << S << " "
+               << Q << "\n";
+  }
 
   int count=0;
   FRZ_RESULTS_VIEW(result_, FOResults)
@@ -423,10 +435,22 @@ void Output<2,EoM_default>::print_freeze_out(std::shared_ptr<FreezeOut<2>> freez
        << result_muSfluc(i) << " "
        << result_muQfluc(i) << " "
        << result_wfzfluc(i) << " "
-       << result_cs2fzfluc(i) <<// " "
-        //<< result_rhoBfluc(i) << " "
-        //<< result_rhoSfluc(i) << " "
-        //<< result_rhoQfluc(i) <<
+       << result_cs2fzfluc(i) << " "
+       << result_rhoBfluc(i) << " "
+       << result_rhoSfluc(i) << " "
+       << result_rhoQfluc(i) << " "
+       << result_diffout(i,0,0) << " "
+       << result_diffout(i,0,1) << " "
+       << result_diffout(i,0,2) << " "
+       << result_diffout(i,0,3) << " "
+       << result_diffout(i,1,0) << " "
+       << result_diffout(i,1,1) << " "
+       << result_diffout(i,1,2) << " "
+       << result_diffout(i,1,3) << " "
+       << result_diffout(i,2,0) << " "
+       << result_diffout(i,2,1) << " "
+       << result_diffout(i,2,2) << " "
+       << result_diffout(i,2,3) << 
        endl;
     count++;
   }
