@@ -549,6 +549,21 @@ bool cc::Input::decode_settings(const YAML::Node& node){
       settingsPtr->source_type = cc::defaults::source_type;
     }
     try{
+      settingsPtr->source_model = node["hydro"]["source"]["model"].as<std::string>();
+    }
+    catch (...) {
+      formatted_output::report("WARNING: Could not read source model!");
+      formatted_output::report("This is an optional parameter. Setting to default value.");
+      settingsPtr->source_model = cc::defaults::source_model;
+    }
+    try{
+      settingsPtr->source_normalization = node["hydro"]["source"]["normalization"].as<double>();
+    } catch (...) {
+      formatted_output::report("WARNING: Could not read source normalization!");
+      formatted_output::report("This is an optional parameter. Setting to default value.");
+      settingsPtr->source_normalization = cc::defaults::source_normalization;
+    }
+    try{
       settingsPtr->baryon_source = node["hydro"]["source"]["enable_baryon"].as<bool>();
     } catch (...) {
       formatted_output::report("WARNING: Could not read source baryon!");

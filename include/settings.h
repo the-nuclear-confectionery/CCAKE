@@ -175,6 +175,8 @@ class Settings
     //  - source terms
 
     string source_type           = "";    ///< Choose source term type for shear
+    string source_model          = "";    ///< Choose source term model
+    double source_normalization  = 1.0;   ///< Normalization factor for source terms
     bool baryon_source         = false;  ///< Whether to include baryon source term
     bool strangeness_source    = false;  ///< Whether to include strangeness source term
     bool electric_source       = false;  ///< Whether to include electric source term
