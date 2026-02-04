@@ -20,4 +20,5 @@ local/**
 docs/*
 ccake
 EoS
+.vscode/
 build*
