@@ -717,7 +717,7 @@ public:
 
     SRC_VIEW(s_, sources);
 
-    for (std::size_t i = 0; i < n_sources-4; ++i)
+    for (std::size_t i = 0; i < n_sources; ++i)
     {
       std::size_t j = idx[i];
 
