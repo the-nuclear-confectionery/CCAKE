@@ -575,7 +575,7 @@ class FreezeOut
         //Setup next step_step
         auto condition = Cabana::slice<0>(mask);
         auto tag_all_to_swap = KOKKOS_LAMBDA(const int is, const int ia){
-          condition.access(is,ia) = device_freeze.access(is,ia) == 4;
+          condition.access(is,ia) = (device_freeze.access(is,ia) < 4);  // <-- change here
         };
         auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
         Cabana::simd_parallel_for(simd_policy, tag_all_to_swap, "tag_all_to_swap");
@@ -668,7 +668,10 @@ class FreezeOut
 
           // decide whether the particle was closer to freeze out at the previous
           // timestep or the one before that
-          int swit = ( abs( frz1_e.access(is, ia) - efcheck ) < abs( frz2_e.access(is, ia) - efcheck ) ) ? 1 : 2;
+          const double d1 = Kokkos::fabs(frz1_e.access(is, ia) - efcheck);
+          const double d2 = Kokkos::fabs(frz2_e.access(is, ia) - efcheck);
+          const int swit = (d1 < d2) ? 1 : 2;
+
 
           double sigsub = 0.0, shv_nabla_u = 0.0;
           Vector<double,D> gradPsub, gradEsub;
