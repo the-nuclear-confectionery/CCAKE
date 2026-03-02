@@ -179,14 +179,14 @@ void SPHWorkstation<D, TEOM>::initialize_entropy_and_charge_densities()
     double sigma = device_hydro_scalar(iparticle, hydro_info::sigma);
 
 
-    device_sph_mass(iparticle, ccake::densities_info::s )    *= s_input*t0*gamma;    // constant after this
-    device_sph_mass(iparticle, ccake::densities_info::rhoB ) *= rhoB_input*t0*gamma; // constant after this
-    device_sph_mass(iparticle, ccake::densities_info::rhoS ) *= rhoS_input*t0*gamma; // constant after this
-    device_sph_mass(iparticle, ccake::densities_info::rhoQ ) *= rhoQ_input*t0*gamma; // constant after this
-    device_extensive(iparticle, ccake::densities_info::s )    = 1;
-    device_extensive(iparticle, ccake::densities_info::rhoB ) = 1;
-    device_extensive(iparticle, ccake::densities_info::rhoS ) = 1;
-    device_extensive(iparticle, ccake::densities_info::rhoQ ) = 1;
+    device_sph_mass(iparticle, ccake::densities_info::s )    *= 1;    // constant after this
+    device_sph_mass(iparticle, ccake::densities_info::rhoB ) *= 1; // constant after this
+    device_sph_mass(iparticle, ccake::densities_info::rhoS ) *= 1; // constant after this
+    device_sph_mass(iparticle, ccake::densities_info::rhoQ ) *= 1; // constant after this
+    device_extensive(iparticle, ccake::densities_info::s )    = s_input/sigma;
+    device_extensive(iparticle, ccake::densities_info::rhoB ) = rhoB_input/sigma;
+    device_extensive(iparticle, ccake::densities_info::rhoS ) = rhoS_input/sigma;
+    device_extensive(iparticle, ccake::densities_info::rhoQ ) = rhoQ_input/sigma;
     if (s_input < 0.0)
       device_freeze(iparticle) = 4;
 
@@ -289,8 +289,8 @@ void SPHWorkstation<D,TEOM>::initial_smoothing()
 template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D, TEOM>::initialize_jets_bbmg()
 {
-  //bbmg.initial();
-  bbmg.initial_one_jet();
+  bbmg.initial();
+  //bbmg.initial_one_jet();
 }
 
 ///@brief Smooth all SPH fields
@@ -928,10 +928,10 @@ void SPHWorkstation<D, TEOM>::process_initial_conditions()
 		p.extensive.rhoQ   = 1.0;
 
     // normalization of each density include transverse area element dA
-		p.sph_mass.s     = dA;
-		p.sph_mass.rhoB  = dA;
-		p.sph_mass.rhoS  = dA;
-		p.sph_mass.rhoQ  = dA;
+		p.sph_mass.s     = 1.0;
+		p.sph_mass.rhoB  = 1.0;
+		p.sph_mass.rhoS  = 1.0;
+		p.sph_mass.rhoQ  = 1.0;
 
 		//p.hydro.bulk      = 0.0;
 
