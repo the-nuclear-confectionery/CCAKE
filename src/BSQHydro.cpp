@@ -116,6 +116,9 @@ void BSQHydro<2,EoM_default>::read_ICCING()
         p.input.rhoQ = rhoQ;
         p.hydro.u(0) = ux;
         p.hydro.u(1) = uy;
+        (settingsPtr->baryon_charge_enabled) ? p.input.rhoB = rhoB : p.input.rhoB = 0.0;
+        (settingsPtr->strange_charge_enabled) ? p.input.rhoS = rhoS : p.input.rhoS = 0.0;
+        (settingsPtr->electric_charge_enabled) ? p.input.rhoQ = rhoQ : p.input.rhoQ = 0.0;        
         if(e > settingsPtr->e_cutoff/hbarc_GeVfm) systemPtr->add_particle( p );
       }
     }
@@ -299,6 +302,7 @@ void BSQHydro<D,TEOM>::read_ccake()
             p.hydro.shv(2,3) = piyeta;
             p.hydro.shv(3,2) = piyeta;
             p.hydro.shv(3,3) = pietaeta;
+            break;
           case 3:
             p.r(0) = x;
             p.r(1) = y;

@@ -386,9 +386,15 @@ namespace eos_extension
     double max_ratio = 0.0;
     for (int i = 0; i < 4; i++)
     {
-      double extremum = point[i] < 0.0 ? minima[i] : maxima[i]; // should never be zero
+      double extremum = point[i] < 0.0 ? minima[i] : maxima[i];
+
+      // In reduced modes, extremum can be 0 (frozen axis). Treat as "no constraint".
+      if (std::abs(extremum) < 1e-30)
+        continue;
+
       max_ratio = std::max( max_ratio, std::abs(point[i] / extremum) );
     }
+    if (max_ratio < 1e-30) return; // nothing to project (all extrema were ~0)
     for (int i = 0; i < 4; i++) point[i] /= max_ratio;
   }
 

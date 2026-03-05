@@ -109,7 +109,15 @@ void EquationOfState::tbqs( double setT, double setmuB, double setmuQ,
 {
   // set name of current EoS
   current_eos_name = peos->name;
+  // Detect degenerate axes from the EoS coverage (min==max means "frozen")
+  auto frozen = [](double a, double b) { return std::abs(a - b) < 1e-30; };
 
+  const bool muB_frozen = frozen(peos->tbqs_minima[1], peos->tbqs_maxima[1]);
+  const bool muQ_frozen = frozen(peos->tbqs_minima[2], peos->tbqs_maxima[2]);
+  const bool muS_frozen = frozen(peos->tbqs_minima[3], peos->tbqs_maxima[3]);
+
+  T_only_mode      = (muB_frozen && muQ_frozen && muS_frozen);
+  baryon_only_mode = (!T_only_mode && muQ_frozen && muS_frozen);
   // check if proposed point is in range
   bool point_is_in_range = !point_not_in_range( setT, setmuB, setmuQ, setmuS, peos );
   if ( point_is_in_range )
@@ -124,7 +132,7 @@ void EquationOfState::tbqs( double setT, double setmuB, double setmuQ,
   }
   else
   {
-    std::cout << "Point was out of range! You need to tell me what to do!" << std::endl;
+    std::cout << "EoS: " << peos->name << " does not cover this point. You need to tell me what to do!" << std::endl;
     std::cerr << "Point was out of range! You need to tell me what to do!" << std::endl;
     exit(8);
   }
@@ -600,7 +608,7 @@ bool EquationOfState::rootfinder_update_s( double sin, double Bin,
     if (!solution_found)
     {
       // try forced seed
-      result = vector<double>({800.0/hc, sgn(Bin), sgn(Qin), sgn(Sin)});
+      result = vector<double>({580.0/hc, sgn(Bin), sgn(Qin), sgn(Sin)});
 //      result = vector<double>({std::min(2500.0/hc, (this_eos->tbqs_maxima)[0]),
 //                                sgn(Bin), sgn(Qin), sgn(Sin)});
       solution_found = find_root_with_seed( "entropy", sin, Bin, Sin, Qin,
@@ -628,7 +636,7 @@ bool EquationOfState::rootfinder_update_s( double sin, double Bin,
     // ZERO CHARGE DENSITIES
     if (zero_unsolvable_charge_densities && !solution_found)
     {
-      result = vector<double>({800.0/hc, 0.0, 0.0, 0.0});
+      result = vector<double>({580.0/hc, 0.0, 0.0, 0.0});
 //      result = vector<double>({std::min(2500.0/hc, (this_eos->tbqs_maxima)[0]),
 //                                0.0, 0.0, 0.0});
       solution_found = find_root_with_seed( "entropy", sin, 0.0, 0.0, 0.0,
@@ -734,7 +742,7 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
     eos_type = this_eos->name;
     /////////////////////////////////////////////////////////
     // try forced seed first
-    result = vector<double>({800.0/hc, sgn(Bin), sgn(Qin), sgn(Sin)});
+    result = vector<double>({580.0/hc, sgn(Bin), sgn(Qin), sgn(Sin)});
 //    result = vector<double>({std::min(2500.0/hc, (this_eos->tbqs_maxima)[0]),
 //                                sgn(Bin), sgn(Qin), sgn(Sin)});
     solution_found = find_root_with_seed( "energy", ein, Bin, Sin, Qin,
@@ -760,7 +768,7 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
     // ZERO CHARGE DENSITIES
     if (zero_unsolvable_charge_densities && !solution_found)
     {
-      result = vector<double>({800.0/hc, 0.0, 0.0, 0.0});
+      result = vector<double>({580.0/hc, 0.0, 0.0, 0.0});
 //      result = vector<double>({std::min(2500.0/hc, (this_eos->tbqs_maxima)[0]),
 //                                0.0, 0.0, 0.0});
       solution_found = find_root_with_seed( "energy", ein, 0.0, 0.0, 0.0,

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <cmath>
 
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_matrix.h>
@@ -31,6 +32,16 @@ double EquationOfState::dq_dmus()    { return calc_term_4("q","s"); }
 
 double EquationOfState::calc_term_1() {
 	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__ << std::endl;
+    // Reduced modes:
+    // - T-only: no conserved charges -> term_1 reduces to dt2
+    if (T_only_mode) return dt2;
+
+    // - baryon-only: only B contributes -> 1D Schur complement
+    if (baryon_only_mode)
+    {
+      const double den = db2 + 1e-30; // protect
+      return dt2 - (dtdb*dtdb) / den;
+    }
     gsl_vector *v = gsl_vector_alloc(3);
     gsl_matrix *m = gsl_matrix_alloc(3,3);
 
@@ -83,6 +94,19 @@ double EquationOfState::calc_term_1() {
 double EquationOfState::calc_term_2(string i_char) {
 	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__
 								 << ": i_char = " << i_char << std::endl;
+    if (T_only_mode) return 0.0;
+
+    // baryon-only: only B active, so compute with 1x1 reduction
+    if (baryon_only_mode)
+    {
+      if (i_char == "b")
+      {
+        const double den = dtdb + 1e-30;
+        return dtdb - (dt2 * db2) / den;
+      }
+      // muS/muQ derivatives don't exist in baryon-only
+      return 0.0;
+    }
     gsl_vector *a = gsl_vector_alloc(3);
     gsl_matrix *m = gsl_matrix_alloc(3,3);
     gsl_vector *b = gsl_vector_alloc(3);
@@ -165,7 +189,17 @@ double EquationOfState::calc_term_3(string i_char) {
     gsl_matrix *m = gsl_matrix_alloc(3,3);
     gsl_vector *b = gsl_vector_alloc(3);
     double toReturn = 0;
+    if (T_only_mode) return 0.0;
 
+    if (baryon_only_mode)
+    {
+      if (i_char == "b")
+      {
+        const double den = dtdb + 1e-30;
+        return dtdb - (db2 * dt2) / den;
+      }
+      return 0.0;
+    }
     if (i_char == "b") {
         gsl_vector_set(a,0,db2);
         gsl_vector_set(a,1,dbds);
@@ -240,6 +274,17 @@ double EquationOfState::calc_term_4(string j_char, string i_char) {
 	if ( VERBOSE > 10 ) std::cout << "Now in " << __PRETTY_FUNCTION__
 								 << ": j_char, i_char = "
 								<< j_char << "   " << i_char << std::endl;
+    if (T_only_mode) return 0.0;
+
+    if (baryon_only_mode)
+    {
+      if (i_char == "b" && j_char == "b")
+      {
+        const double den = dt2 + 1e-30;
+        return db2 - (dtdb*dtdb) / den;
+      }
+      return 0.0;
+    }
     gsl_vector *a = gsl_vector_alloc(3);
     gsl_matrix *m = gsl_matrix_alloc(3,3);
     gsl_vector *b = gsl_vector_alloc(3);
@@ -449,6 +494,14 @@ double EquationOfState::calc_term_4(string j_char, string i_char) {
 
 double EquationOfState::deriv_mult_aTm_1b(gsl_vector* a, gsl_matrix* m, gsl_vector* b)
 {
+  // baryon-only safety: if S/Q sector is zero, LU inversion can become singular.
+  // Add a small epsilon to diagonal entries that are too small.
+  const double EPS = 1e-3; // your requested ~0.001
+  const double m11 = gsl_matrix_get(m, 1, 1);
+  const double m22 = gsl_matrix_get(m, 2, 2);
+  if (std::abs(m11) < EPS) gsl_matrix_set(m, 1, 1, (m11 >= 0.0 ? EPS : -EPS));
+  if (std::abs(m22) < EPS) gsl_matrix_set(m, 2, 2, (m22 >= 0.0 ? EPS : -EPS));
+
   gsl_permutation *p = gsl_permutation_alloc(3);
   gsl_permutation_init(p);
   int s = -1;

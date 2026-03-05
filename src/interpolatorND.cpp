@@ -212,10 +212,15 @@ void InterpolatorND<D>::construct_interpolant()
   for ( int iDim = 0; iDim < dim; iDim++ )
   {
     const int grid_n = grid_sizes[iDim];
-    const double delta = (grid_maxs[iDim] - grid_mins[iDim]) / (grid_n-1.0);
-    grid_spacings.push_back( delta );
-    for ( int iGrid = 0; iGrid < grid_n; iGrid++ )
-      grid_points[iDim].push_back( grid_mins[iDim] + iGrid*delta );
+
+    // Degenerate axis: single point
+    const double delta = (grid_n <= 1) ? 0.0
+                      : (grid_maxs[iDim] - grid_mins[iDim]) / (grid_n - 1.0);
+
+    grid_spacings.push_back(delta);
+
+    for (int iGrid = 0; iGrid < grid_n; iGrid++)
+      grid_points[iDim].push_back(grid_mins[iDim] + iGrid*delta);
   }
 
 }
@@ -261,16 +266,19 @@ void InterpolatorND<D>::evaluate( const vector<double> & coordinates,
   // locate coordinate in grid
   vector<int> inds(dim);     // integral coordinate location for containing hypercube
   vector<double> fracs(dim); // fractional coordinate location in containing hypercube
-  for ( int ic = 0; ic < dim; ic++ )
+  for (int ic = 0; ic < dim; ic++)
   {
-    double index = 0.0;      // holds integer part of the coordinate location in grid
-    fracs[ic] = 1.0 - modf( (coordinates[ic] - grid_mins[ic])
-                            / grid_spacings[ic], &index );
-    inds[ic] = static_cast<int>( index );
-//    cout << "CHECK: " << ic << "   " << fracs[ic] << "   " << inds[ic] << "   " << index
-//        << "   " << coordinates[ic] << "   " << (coordinates[ic] - grid_mins[ic])
-//                                                / grid_spacings[ic]
-//        << "   " << 1.0 - fracs[ic] + index << endl;
+    // Degenerate axis: only index 0 exists; weight must kill the "upper" vertex.
+    if (grid_sizes[ic] <= 1 || std::abs(grid_spacings[ic]) < 1e-30)
+    {
+      inds[ic]  = 0;
+      fracs[ic] = 1.0;  // makes weight=1 for hypercube_index=0 and 0 for =1
+      continue;
+    }
+
+    double index = 0.0;
+    fracs[ic] = 1.0 - modf((coordinates[ic] - grid_mins[ic]) / grid_spacings[ic], &index);
+    inds[ic] = static_cast<int>(index);
 
     // handle special situation where queried point is at the grid maximum
     if ( inds[ic] + 1 == grid_sizes[ic] )
@@ -393,13 +401,17 @@ void InterpolatorND<D>::evaluate(
   vector<double> fracs(dim); // fractional coordinate location in containing hypercube
   for ( int ic = 0; ic < dim; ic++ )
   {
-    double index = 0.0;      // holds integer part of the coordinate location in grid
-    fracs[ic] = 1.0 - modf( (coordinates[ic] - grid_mins[ic])
-                            / grid_spacings[ic], &index );
-    inds[ic] = static_cast<int>( index );
-//    cout << "CHECK: " << ic << "   " << fracs[ic] << "   " << inds[ic] << "   " << index
-//        << "   " << coordinates[ic] << "   " << (coordinates[ic] - grid_mins[ic])
-//                                                / grid_spacings[ic] << endl;
+    // Degenerate axis: only index 0 exists; weight must kill the "upper" vertex.
+    if (grid_sizes[ic] <= 1 || std::abs(grid_spacings[ic]) < 1e-30)
+    {
+      inds[ic]  = 0;
+      fracs[ic] = 1.0;  // makes weight=1 for hypercube_index=0 and 0 for =1
+      continue;
+    }
+
+    double index = 0.0;
+    fracs[ic] = 1.0 - modf((coordinates[ic] - grid_mins[ic]) / grid_spacings[ic], &index);
+    inds[ic] = static_cast<int>(index);
 
     // handle special situation where queried point is at the grid maximum
     if ( inds[ic] + 1 == grid_sizes[ic] )

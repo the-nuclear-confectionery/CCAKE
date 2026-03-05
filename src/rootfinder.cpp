@@ -7,10 +7,14 @@
 struct rootfinder_parameters
 {
   int e_or_entr_mode;
-  double eorEntGiven;          //these are the desired e/s and BSQ
+  double eorEntGiven;          // desired e/s and BSQ
   double rhoBGiven;
   double rhoQGiven;
   double rhoSGiven;
+
+  // baryon-only: enforce muQ=muS=0 instead of matching rhoQ/rhoS
+  bool baryon_only_mode = false;
+  bool T_only_mode = false;
 
   // this function should take (T,muX) and return (e/s,rhoX)
   std::function<void(double[], double[])> f;
@@ -19,25 +23,35 @@ struct rootfinder_parameters
   rootfinder_parameters( double setEorEntGiven, double setRhoBGiven,
                          double setRhoQGiven, double setRhoSGiven,
                          int set_e_or_entr_mode,
-                         std::function<void(double[], double[])> f_in );
+                         std::function<void(double[], double[])> f_in,
+                         bool set_baryon_only_mode,
+                         bool set_T_only_mode );
 };
 
-rootfinder_parameters::rootfinder_parameters() {}
+rootfinder_parameters::rootfinder_parameters()
+: e_or_entr_mode(0),
+  eorEntGiven(0.0), rhoBGiven(0.0), rhoQGiven(0.0), rhoSGiven(0.0),
+  baryon_only_mode(false), T_only_mode(false),
+  f(nullptr)
+{}
+
 rootfinder_parameters::rootfinder_parameters(
-  double setEorEntGiven, double setRhoBGiven, double setRhoQGiven,
-  double setRhoSGiven, int set_e_or_entr_mode,
-  std::function<void(double[], double[])> f_in )
-{
-  e_or_entr_mode = set_e_or_entr_mode;
-  eorEntGiven    = setEorEntGiven;
-  rhoBGiven      = setRhoBGiven;
-  rhoQGiven      = setRhoQGiven;
-  rhoSGiven      = setRhoSGiven;
-
-  f              = f_in;
-}
-
-
+  double setEorEntGiven, double setRhoBGiven,
+  double setRhoQGiven, double setRhoSGiven,
+  int set_e_or_entr_mode,
+  std::function<void(double[], double[])> f_in,
+  bool set_baryon_only_mode,
+  bool set_T_only_mode
+)
+: e_or_entr_mode(set_e_or_entr_mode),
+  eorEntGiven(setEorEntGiven),
+  rhoBGiven(setRhoBGiven),
+  rhoQGiven(setRhoQGiven),
+  rhoSGiven(setRhoSGiven),
+  baryon_only_mode(set_baryon_only_mode),
+  T_only_mode(set_T_only_mode),
+  f(std::move(f_in))
+{}
 
 ////////////////////////////////////////////////////////////////////////////////
 int rootfinder_f(const gsl_vector *x, void *params, gsl_vector *f)
@@ -81,11 +95,39 @@ int rootfinder_f(const gsl_vector *x, void *params, gsl_vector *f)
       rhoQ    = densities_at_point[3];
     }
 
-    // set differences from zero
+    const bool baryon_only_mode =
+      ((rootfinder_parameters*)params)->baryon_only_mode;
+    const bool T_only_mode =
+      ((rootfinder_parameters*)params)->T_only_mode;
+
+    // Equation 0 is always the "energy or entropy matching"
     gsl_vector_set(f, 0, (eorEnt - eorEntGiven));
-    gsl_vector_set(f, 1, (rhoB   - rhoBGiven));
-    gsl_vector_set(f, 2, (rhoQ   - rhoQGiven));
-    gsl_vector_set(f, 3, (rhoS   - rhoSGiven));
+
+    if (T_only_mode)
+    {
+      // T-only: enforce all chemical potentials are zero
+      gsl_vector_set(f, 1, tbqsToEval[1]); // muB -> 0
+      gsl_vector_set(f, 2, tbqsToEval[2]); // muQ -> 0
+      gsl_vector_set(f, 3, tbqsToEval[3]); // muS -> 0
+    }
+    else
+    {
+      // Non T-only: equation 1 is rhoB matching
+      gsl_vector_set(f, 1, (rhoB - rhoBGiven));
+
+      if (baryon_only_mode)
+      {
+        // Baryon-only: enforce muQ=muS=0 instead of matching rhoQ/rhoS
+        gsl_vector_set(f, 2, tbqsToEval[2]); // muQ -> 0
+        gsl_vector_set(f, 3, tbqsToEval[3]); // muS -> 0
+      }
+      else
+      {
+        // Full: match rhoQ and rhoS
+        gsl_vector_set(f, 2, (rhoQ - rhoQGiven));
+        gsl_vector_set(f, 3, (rhoS - rhoSGiven));
+      }
+    }
 
 //cout << "e: " << eorEnt << "   " << eorEntGiven << "   " << eorEnt - eorEntGiven << endl;
 //cout << "B: " << rhoB << "   " << rhoBGiven << "   " << rhoB - rhoBGiven << endl;
@@ -175,7 +217,7 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
   ////////////////////
   // pass relevant parameters to rootfinder
   rootfinder_parameters p( e_or_s_Given, rhoBGiven, rhoQGiven, rhoSGiven,
-                           e_or_s_mode, function_to_evaluate );
+                           e_or_s_mode, function_to_evaluate , baryon_only_mode, T_only_mode );
 
 //  std::cout << __LINE__ << ": " << e_or_s_Given << std::endl;
 //  std::cout << __LINE__ << ": " << rhoBGiven << std::endl;
@@ -405,7 +447,26 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
     minMuB = tbqs_minima[1]; maxMuB = tbqs_maxima[1];
     minMuQ = tbqs_minima[2]; maxMuQ = tbqs_maxima[2];
     minMuS = tbqs_minima[3]; maxMuS = tbqs_maxima[3];
+    // auto-detect baryon-only if muQ and muS ranges are frozen and targets are zero
+    // auto-detect reduced modes from frozen mu-ranges + zero targets
+    const double RANGE_TOL = 1e-14;
+    const bool muB_is_frozen = std::abs(maxMuB - minMuB) < RANGE_TOL;
+    const bool muQ_is_frozen = std::abs(maxMuQ - minMuQ) < RANGE_TOL;
+    const bool muS_is_frozen = std::abs(maxMuS - minMuS) < RANGE_TOL;
 
+    const bool B_is_zero = (std::abs(Bin) < 1e-30);
+    const bool Q_is_zero = (std::abs(Qin) < 1e-30);
+    const bool S_is_zero = (std::abs(Sin) < 1e-30);
+
+    // T-only if all mu ranges frozen and all target charges are zero
+    T_only_mode = (muB_is_frozen && muQ_is_frozen && muS_is_frozen &&
+                   B_is_zero && Q_is_zero && S_is_zero);
+
+    // baryon-only if muQ/muS frozen and Q,S targets are zero (and not T-only)
+    baryon_only_mode = (!T_only_mode &&
+                        muQ_is_frozen && muS_is_frozen &&
+                        Q_is_zero && S_is_zero);
+    
     if ( VERBOSE > 6 )
       std::cout << "Using grid ranges: "
         << minT*hbarc_MeVfm   << "   " << maxT*hbarc_MeVfm << "   "
@@ -420,7 +481,17 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
 
     tbqsPosition = updated_tbqs;
 
-
+    if (T_only_mode)
+    {
+      tbqsPosition[1] = 0.0; updated_tbqs[1] = 0.0; // muB
+      tbqsPosition[2] = 0.0; updated_tbqs[2] = 0.0; // muQ
+      tbqsPosition[3] = 0.0; updated_tbqs[3] = 0.0; // muS
+    }
+    else if (baryon_only_mode)
+    {
+      tbqsPosition[2] = 0.0; updated_tbqs[2] = 0.0; // muQ
+      tbqsPosition[3] = 0.0; updated_tbqs[3] = 0.0; // muS
+    }
     // DO NOT USE ZEROS IN SEED VALUES;
     // INSTEAD, PERTURB BASED ON SIGN OF CORRESPONDING DENSITY
     auto sgn = [](double val) -> double { return (0.0 < val) - (val < 0.0); };
@@ -494,7 +565,8 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
 
     //==========================================================================
     // perturb muB
-
+    if (!T_only_mode)
+    {
     // perturb up
     number_of_attempts++;
     if (mub0 + muB10 > maxMuB)
@@ -530,10 +602,11 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
     if ( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs ) ) 
         return true;
-
+    }
     //==========================================================================
     // perturb muS
-
+    if (!baryon_only_mode && !T_only_mode)
+    {
     // perturb up
     number_of_attempts++;
     if(mus0 + muS10 > maxMuS)
@@ -569,10 +642,11 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
     if( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs ) ) 
         return true;
-
+    }
     //==========================================================================
     // perturb muQ
-
+    if (!baryon_only_mode && !T_only_mode)
+    {
     // perturb up
     number_of_attempts++;
     if (muq0 + muQ10 > maxMuQ)
@@ -608,14 +682,19 @@ bool Rootfinder::find_root( const string & e_or_s, double ein_or_sin,
     if( rootfinder4D( ein_or_sin, e_or_s_mode, Bin, Sin, Qin, TOLERANCE, STEPS,
                       function_to_evaluate, updated_tbqs ) ) 
         return true;
-
+    }
     //==========================================================================
     //check mu = 0
 
     // perturb to avoid singular jacobians(?)
-    tbqs( t0, std::min(0.5*maxMuB, 1.0)*sgn(Bin),
-              std::min(0.5*maxMuQ, 1.0)*sgn(Qin),
-              std::min(0.5*maxMuS, 1.0)*sgn(Sin) );
+    if (T_only_mode)
+      tbqs( t0, 0.0, 0.0, 0.0 );
+    else if (baryon_only_mode)
+      tbqs( t0, std::min(0.5*maxMuB, 1.0)*sgn(Bin), 0.0, 0.0 );
+    else
+      tbqs( t0, std::min(0.5*maxMuB, 1.0)*sgn(Bin),
+                std::min(0.5*maxMuQ, 1.0)*sgn(Qin),
+                std::min(0.5*maxMuS, 1.0)*sgn(Sin) );
 
     number_of_attempts++;
 

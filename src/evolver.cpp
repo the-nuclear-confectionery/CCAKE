@@ -439,6 +439,8 @@ void Evolver<D>::step_rk(double dt, double t0, std::function<void(void)> time_de
       extensive_s = 1.e-3; //Enforce positivity
     } else if (extensive_s < 0.0){ //Else, something went terribly wrong
       formatted_output::detail("Negative entropy density");
+      std::cout<< "particle ID: " << device_id.access(is, ia) << std::endl;
+      systemPtr->print_neighbors(device_id.access(is, ia));
       exit(EXIT_FAILURE);
     }
 

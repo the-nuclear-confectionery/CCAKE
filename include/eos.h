@@ -206,11 +206,14 @@ public:
     pEoS_base & get_default_eos() { return chosen_EOS_map[default_eos_name]; }
 
     bool currently_using_static_C_library() { return use_static_C_library; }
-
+    bool is_baryon_only_mode() const { return baryon_only_mode; }
+    bool is_T_only_mode() const { return T_only_mode; }
 private:
 
     ////////////////////////////////////////////////////////////////////////////
     // PRIVATE MEMBERS
+    bool baryon_only_mode = false; // only (T, muB) active
+    bool T_only_mode      = false; // only T active
 
     std::shared_ptr<Settings> settingsPtr;
 

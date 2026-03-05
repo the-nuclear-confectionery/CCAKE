@@ -294,21 +294,44 @@ void EquationOfState::set_up_chosen_EOSs()
 
       // T-scale T0 = 1 by definition
       double T0 = 1.0;
-
+      //check if the table maximuns are zero. If so, set the scales to 1. 
+      
+      
       // set muB scale using (Tmax,muBmax,0,0)
-      tbqs( Tmax, muBmax, 0.0, 0.0, p_default_EoS );
-      //cout << pTmax << "   " << pVal << "   " << c << "   " << muBmax << endl;
-      double muB0 = pow(c,0.25) * muBmax / sqrt( sqrt(pVal) - sqrt(pTmax) );
+      double muB0;
+      if (std::abs(muBmax) < 1e-30){
+        muB0 = 1.0;
+        formatted_output::detail("muBmax is zero, setting muB0 to 1.0");
+      }
+      else {
+        tbqs( Tmax, muBmax, 0.0, 0.0, p_default_EoS );
+        //cout << pTmax << "   " << pVal << "   " << c << "   " << muBmax << endl;
+        muB0 = pow(c,0.25) * muBmax / sqrt( sqrt(pVal) - sqrt(pTmax) );
+      }
 
-      // set muQ scale using (Tmax,0,muQmax,0)
-      tbqs( Tmax, 0.0, muQmax, 0.0, p_default_EoS );
-      //cout << pTmax << "   " << pVal << "   " << c << "   " << muQmax << endl;
-      double muQ0 = pow(c,0.25) * muQmax / sqrt( sqrt(pVal) - sqrt(pTmax) );
+      double muQ0;
+      if (std::abs(muQmax) < 1e-30){
+        muQ0 = 1.0;
+        formatted_output::detail("muQmax is zero, setting muQ0 to 1.0");
+      }
+      else {
+        // set muQ scale using (Tmax,0,muQmax,0)
+        tbqs( Tmax, 0.0, muQmax, 0.0, p_default_EoS );
+        //cout << pTmax << "   " << pVal << "   " << c << "   " << muQmax << endl;
+        muQ0 = pow(c,0.25) * muQmax / sqrt( sqrt(pVal) - sqrt(pTmax) );
+      }
 
-      // set muS scale using (Tmax,0,0,muSmax)
-      tbqs( Tmax, 0.0, 0.0, muSmax, p_default_EoS );
-      //cout << pTmax << "   " << pVal << "   " << c << "   " << muSmax << endl;
-      double muS0 = pow(c,0.25) * muSmax / sqrt( sqrt(pVal) - sqrt(pTmax) );
+      double muS0;
+      if (std::abs(muSmax) < 1e-30){
+        muS0 = 1.0;
+        formatted_output::detail("muSmax is zero, setting muS0 to 1.0");
+      }
+      else {
+        // set muS scale using (Tmax,0,0,muSmax)
+        tbqs( Tmax, 0.0, 0.0, muSmax, p_default_EoS );
+        //cout << pTmax << "   " << pVal << "   " << c << "   " << muSmax << endl;
+        muS0 = pow(c,0.25) * muSmax / sqrt( sqrt(pVal) - sqrt(pTmax) );
+      }
 
       // try rough scales for now (estimated by eye, not rigorously)
       double Tc = 220.0/constants::hbarc_MeVfm;
@@ -342,20 +365,41 @@ void EquationOfState::set_up_chosen_EOSs()
       // T-scale T0 = 1 by definition
       double T0 = 1.0;
 
+      double muB0;
       // set muB scale using (Tmax,muBmax,0,0)
-      tbqs( Tmax, muBmax, 0.0, 0.0, p_default_EoS );
-      //cout << pTmax << "   " << pVal << "   " << c << "   " << muBmax << endl;
-      double muB0 = pow(c,0.25) * muBmax / sqrt( sqrt(pVal) - sqrt(pTmax) );
+      if (std::abs(muBmax) < 1e-30){
+        muB0 = 1.0;
+        formatted_output::detail("muBmax is zero, setting muB0 to 1.0");
+      }
+      else {
+        tbqs( Tmax, muBmax, 0.0, 0.0, p_default_EoS );
+        //cout << pTmax << "   " << pVal << "   " << c << "   " << muBmax << endl;
+        muB0 = pow(c,0.25) * muBmax / sqrt( sqrt(pVal) - sqrt(pTmax) );
+      }
 
+      double muQ0;
       // set muQ scale using (Tmax,0,muQmax,0)
-      tbqs( Tmax, 0.0, muQmax, 0.0, p_default_EoS );
-      //cout << pTmax << "   " << pVal << "   " << c << "   " << muQmax << endl;
-      double muQ0 = pow(c,0.25) * muQmax / sqrt( sqrt(pVal) - sqrt(pTmax) );
+      if (std::abs(muQmax) < 1e-30){
+        muQ0 = 1.0;
+        formatted_output::detail("muQmax is zero, setting muQ0 to 1.0");
+      }
+      else {
+        tbqs( Tmax, 0.0, muQmax, 0.0, p_default_EoS );
+        //cout << pTmax << "   " << pVal << "   " << c << "   " << muQmax << endl;
+        muQ0 = pow(c,0.25) * muQmax / sqrt( sqrt(pVal) - sqrt(pTmax) );
+      }
 
+      double muS0;
       // set muS scale using (Tmax,0,0,muSmax)
-      tbqs( Tmax, 0.0, 0.0, muSmax, p_default_EoS );
-      //cout << pTmax << "   " << pVal << "   " << c << "   " << muSmax << endl;
-      double muS0 = pow(c,0.25) * muSmax / sqrt( sqrt(pVal) - sqrt(pTmax) );
+      if (std::abs(muSmax) < 1e-30){
+        muS0 = 1.0;
+        formatted_output::detail("muSmax is zero, setting muS0 to 1.0");
+      }
+      else {
+        tbqs( Tmax, 0.0, 0.0, muSmax, p_default_EoS );
+        //cout << pTmax << "   " << p Val << "   " << c << "   " << muSmax << endl;
+        muS0 = pow(c,0.25) * muSmax / sqrt( sqrt(pVal) - sqrt(pTmax) );
+      }
      init_conformal(c, T0, muB0, muQ0, muS0);
     }
     { // use diagonal conformal as final fallback
@@ -385,23 +429,42 @@ void EquationOfState::set_up_chosen_EOSs()
       // T-scale T0 = 1 by definition
       double T0 = 1.0;
 
-      // set muB scale using (Tmax,muBmax,0,0)
-      tbqs( Tmax, muBmax, 0.0, 0.0, p_default_EoS );
-      //cout << pTmax << "   " << pVal << "   " << c << "   " << muBmax << endl;
-      double muB0 = pow( c/(pVal - pTmax), 0.25) * muBmax;
+      double muB0;
+      if (std::abs(muBmax) < 1e-30){
+        muB0 = 1.0;
+        formatted_output::detail("muBmax is zero, setting muB0 to 1.0");
+      }
+      else {
+        // set muB scale using (Tmax,muBmax,0,0)
+        tbqs( Tmax, muBmax, 0.0, 0.0, p_default_EoS );
+        //cout << pTmax << "   " << pVal << "   " << c << "   " << muBmax << endl;
+        muB0 = pow( c/(pVal - pTmax), 0.25) * muBmax;
+      }
 
-      // set muQ scale using (Tmax,0,muQmax,0)
-      tbqs( Tmax, 0.0, muQmax, 0.0, p_default_EoS );
-      //cout << pTmax << "   " << pVal << "   " << c << "   " << muQmax << endl;
-      double muQ0 = pow( c/(pVal - pTmax), 0.25) * muQmax;
+      double muQ0;
+      if (std::abs(muQmax) < 1e-30){
+        muQ0 = 1.0;
+        formatted_output::detail("muQmax is zero, setting muQ0 to 1.0");
+      }
+      else {
+        // set muQ scale using (Tmax,0,muQmax,0)
+        tbqs( Tmax, 0.0, muQmax, 0.0, p_default_EoS );
+        //cout << pTmax << "   " << pVal << "   " << c << "   " << muQmax << endl;
+        muQ0 = pow( c/(pVal - pTmax), 0.25) * muQmax;
+      }
 
-      // set muS scale using (Tmax,0,0,muSmax)
-      tbqs( Tmax, 0.0, 0.0, muSmax, p_default_EoS );
-      //cout << pTmax << "   " << pVal << "   " << c << "   " << muSmax << endl;
-      double muS0 = pow( c/(pVal - pTmax), 0.25) * muSmax;
-
+      double muS0;
+      if (std::abs(muSmax) < 1e-30){
+        muS0 = 1.0;
+        formatted_output::detail("muSmax is zero, setting muS0 to 1.0");
+      }
+      else {
+        // set muS scale using (Tmax,0,0,muSmax)
+        tbqs( Tmax, 0.0, 0.0, muSmax, p_default_EoS );
+        //cout << pTmax << "   " << pVal << "   " << c << "   " << muSmax << endl;
+        muS0 = pow( c/(pVal - pTmax), 0.25) * muSmax;
+      }
       init_conformal_diagonal(c, T0, muB0, muQ0, muS0);
-
       default_eos_name = "table";
 
     }

@@ -96,7 +96,12 @@ void EoS_Interpolator::load_header(std::initializer_list<int> exponents){
   H5::Attribute rhoQAxis_attr = group.openAttribute("rhoQ_Axis");
 
   auto get_N = [](double min, double max, double step){
-    return (int) std::round(max/step);
+    // Degenerate axis (single point)
+    if (std::abs(step) < 1e-30) return 1;
+
+    // Regular axis: N = (max-min)/step + 1 
+    const double n = (max - min) / step + 1.0;
+    return (int) std::max(1.0, std::round(n));
   };
 
   //Compute the number of points in each direction
@@ -297,10 +302,19 @@ void EoS_Interpolator::fill_thermodynamics(Cabana::AoSoA<CabanaParticle,
 
     //Find the indices of the nearest neighbors in the table
     int idx[4];
-    idx[0] = Kokkos::min((int) Kokkos::floor((s-s_min)/ds),s_attr[ts][tB][tS][tQ].N-1);
-    idx[1] = Kokkos::min((int) Kokkos::floor((rhoB-B_min)/dB),B_attr[ts][tB][tS][tQ].N-1);
-    idx[2] = Kokkos::min((int) Kokkos::floor((rhoS-S_min)/dS),S_attr[ts][tB][tS][tQ].N-1);
-    idx[3] = Kokkos::min((int) Kokkos::floor((rhoQ-Q_min)/dQ),Q_attr[ts][tB][tS][tQ].N-1);
+
+    // If an axis is degenerate (step==0), the only valid index is 0.
+    idx[0] = (Kokkos::fabs(ds) < 1e-30) ? 0
+            : Kokkos::min((int)Kokkos::floor((s    - s_min)/ds), s_attr[ts][tB][tS][tQ].N-1);
+
+    idx[1] = (Kokkos::fabs(dB) < 1e-30) ? 0
+            : Kokkos::min((int)Kokkos::floor((rhoB - B_min)/dB), B_attr[ts][tB][tS][tQ].N-1);
+
+    idx[2] = (Kokkos::fabs(dS) < 1e-30) ? 0
+            : Kokkos::min((int)Kokkos::floor((rhoS - S_min)/dS), S_attr[ts][tB][tS][tQ].N-1);
+
+    idx[3] = (Kokkos::fabs(dQ) < 1e-30) ? 0
+            : Kokkos::min((int)Kokkos::floor((rhoQ - Q_min)/dQ), Q_attr[ts][tB][tS][tQ].N-1);
 
     double pos[4];
     pos[0] = s;
@@ -349,21 +363,77 @@ double EoS_Interpolator::interpolate4D(int idx [], double pos[],
   double dS    = S_attr[tble[0]][tble[1]][tble[2]][tble[3]].step;
   double Q_min = Q_attr[tble[0]][tble[1]][tble[2]][tble[3]].min;
   double dQ    = Q_attr[tble[0]][tble[1]][tble[2]][tble[3]].step;
+  // T-only / 1D fallback when muB, muS, muQ grids are degenerate:
+  // do a 1D linear interpolation along dimension 0 only.
+  if (dB == 0.0 && dS == 0.0 && dQ == 0.0)
+  {
+    const double x0 = (pos[0] - s_min - idx[0]*ds) / ds;
 
-  ///Creates a vector x which lies in the unit hypercube
+    // two endpoints along dim0
+    const int i0a = idx[0];
+    const int i0b = idx[0] + 1;
+
+    const int i1  = idx[1]; // fixed
+    const int i2  = idx[2]; // fixed
+    const int i3  = idx[3]; // fixed
+
+    const double f0 = eos_vars[tble[0]][tble[1]][tble[2]][tble[3]][ivar](i0a, i1, i2, i3);
+    const double f1 = eos_vars[tble[0]][tble[1]][tble[2]][tble[3]][ivar](i0b, i1, i2, i3);
+
+    return (1.0 - x0)*f0 + x0*f1;
+  }
+  // If S/Q directions are degenerate ,
+  // do a 2D bilinear interpolation in (s,rhoB) only.
+  if (dS == 0.0 && dQ == 0.0)
+  {
+    const double x0 = (pos[0] - s_min - idx[0]*ds) / ds;
+    const double x1 = (pos[1] - B_min - idx[1]*dB) / dB;
+
+    auto bit2 = [](int i, int k){return (k >> i) & 1;};
+
+    double f2 = 0.0;
+    for (int k = 0; k < 4; ++k)
+    {
+      double phi = 1.0;
+      phi *= bit2(0,k) ? x0 : (1.0 - x0);
+      phi *= bit2(1,k) ? x1 : (1.0 - x1);
+
+      const int i0 = idx[0] + bit2(0,k);
+      const int i1 = idx[1] + bit2(1,k);
+      const int i2 = idx[2]; // fixed S index
+      const int i3 = idx[3]; // fixed Q index
+
+      const double theta =
+        eos_vars[tble[0]][tble[1]][tble[2]][tble[3]][ivar](i0, i1, i2, i3);
+
+      f2 += phi * theta;
+    }
+    return f2;
+  }
+
+  ///Creates a vector x which lies in the unit hypercube (full 4D)
   double x[4];
-  x[0] = (pos[0] - s_min - idx[0]*ds)/ds;
-  x[1] = (pos[1] - B_min - idx[1]*dB)/dB;
-  x[2] = (pos[2] - S_min - idx[2]*dS)/dS;
-  x[3] = (pos[3] - Q_min - idx[3]*dQ)/dQ;
+  x[0] = (Kokkos::fabs(ds) < 1e-30) ? 0.0 : (pos[0] - s_min - idx[0]*ds)/ds;
+  x[1] = (Kokkos::fabs(dB) < 1e-30) ? 0.0 : (pos[1] - B_min - idx[1]*dB)/dB;
+  x[2] = (Kokkos::fabs(dS) < 1e-30) ? 0.0 : (pos[2] - S_min - idx[2]*dS)/dS;
+  x[3] = (Kokkos::fabs(dQ) < 1e-30) ? 0.0 : (pos[3] - Q_min - idx[3]*dQ)/dQ;
 
-  //Asserts that we are in the unit hypercube
-  // #ifdef DEBUG
-  // //for(int i = 0; i < 4; i++) assert(x[i] >= 0 && x[i] <= 1);
-  // #endif
-  auto bit = [](int i, int k){return (k >> i) & 1;};
-  double phi[16]; //A function phi for each vertex of the hypercube
-  double theta[16]; //The value to be interpolates in each point of the hypercube
+  // If an axis has N<=1, we must never step to the +1 corner in that axis.
+  const int Ns = s_attr[tble[0]][tble[1]][tble[2]][tble[3]].N;
+  const int NB = B_attr[tble[0]][tble[1]][tble[2]][tble[3]].N;
+  const int NS = S_attr[tble[0]][tble[1]][tble[2]][tble[3]].N;
+  const int NQ = Q_attr[tble[0]][tble[1]][tble[2]][tble[3]].N;
+
+  auto bit = [&](int i, int k){
+    const int b = (k >> i) & 1;
+    if (i==0 && Ns<=1) return 0;
+    if (i==1 && NB<=1) return 0;
+    if (i==2 && NS<=1) return 0;
+    if (i==3 && NQ<=1) return 0;
+    return b;
+  };
+  double phi[16];
+  double theta[16];
   for(int k = 0; k < 16; k++)
   {
     phi[k] = 1;

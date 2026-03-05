@@ -797,7 +797,7 @@ double cs2_dependent_zeta(const double *therm, const parameters params)
       abort();
     }
   }
-  if ( zeta_over_s_local > 0.1 )
+  if ( zeta_over_s_local > 0.5 )
   {
     cout << "LARGE ZETA/S: " << zeta_over_s_local << "   "
         << x_p << "   "

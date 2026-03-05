@@ -5,6 +5,7 @@
 #include <functional>
 #include <iostream>
 #include <vector>
+#include <cmath>
 
 #include <gsl/gsl_multiroots.h>
 #include <gsl/gsl_vector.h>
@@ -26,6 +27,8 @@ class Rootfinder
 public:
   Rootfinder(){}
   ~Rootfinder(){}
+  void set_baryon_only_mode(bool on) { baryon_only_mode = on; }
+  void set_T_only_mode(bool on) { T_only_mode = on; }
 
 private:
 
@@ -39,6 +42,8 @@ private:
 //  const gsl_multiroot_fsolver_type *TYPE = gsl_multiroot_fsolver_dnewton;
 
   double minT, maxT, minMuB, maxMuB, minMuS, maxMuS, minMuQ, maxMuQ;
+  bool baryon_only_mode = false;
+  bool T_only_mode = false;
 
   vector<double> tbqsPosition;
 
