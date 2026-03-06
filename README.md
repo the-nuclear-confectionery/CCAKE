@@ -1,5 +1,9 @@
 # CCAKE
 
+CCAKE v2 is a performance portable and parallellizable 3+1 D relativistic viscous hydrodynamic code with 3 conserved charges (baryon number, strangeness, and electric charge) that uses Smoothed Particle Hydrodynamics. CCAKE can make state-of-the-art predictions for heavy-ion collisions. It uses the 4D lattice QCD equation of state with T, baryon, strangeness, and electric charge that is coupled to the PDG16+ particle list. It offers multiple coordinate system and viscous hydrodynamic schemes, and an option to invert the EoS using a pre-computed table of densities for a faster simulation.
+
+If you use this code in your research, please remember to cite us: [arXiv:2511.22852](https://arxiv.org/abs/2511.22852), [arXiv:2405.09648](https://arxiv.org/abs/2405.09648).
+
 # 1. Installation
 
 For basic usage, the apptainer image can be used. It contains all the dependencies needed to run the code on CPU.
