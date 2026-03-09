@@ -122,6 +122,8 @@ class Settings
     string eos_path             = "";     ///< If "table", path to the equation of state file
     bool online_inverter_enabled = false;
     fs::path preinverted_eos_path;       ///< Path to the preinverted EOS file
+    bool normalize_by_T         = true;  ///< If true, table fields are dimensionless ratios (e.g. p/T^4);
+                                         ///  if false, fields are in MeV^n and are rescaled by (1/hbarc)^n
 
     //------------------------------------
     // hydrodynamics configuration

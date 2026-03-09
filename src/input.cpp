@@ -263,6 +263,13 @@ bool cc::Input::decode_settings(const YAML::Node& node){
         formatted_output::report("This is a mandatory parameter for table eos. Aborting execution,");
         return false;
       }
+      try {
+        settingsPtr->normalize_by_T = node["eos"]["normalize_by_T"].as<bool>();
+      } catch (...) {
+        formatted_output::report("WARNING: Could not read eos/normalize_by_T!");
+        formatted_output::report("This is an optional parameter. Setting to default value (true).");
+        settingsPtr->normalize_by_T = true;
+      }
     }
 
     //--------------------------------------------------------------------------

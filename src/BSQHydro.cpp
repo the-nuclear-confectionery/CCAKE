@@ -441,7 +441,7 @@ void BSQHydro<D,TEOM>::initialize_hydrodynamics()
   wsPtr->setup_freeze_out();
 
   //if using source terms set them up
-  if(settingsPtr->source_type != "none"){
+  if(settingsPtr->source_type != "disabled"){
     wsPtr->setup_source_terms();
   }
   

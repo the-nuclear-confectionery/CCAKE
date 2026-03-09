@@ -191,7 +191,7 @@ void test1(std::string file_path, std::string eos_type, int nthreads){
       {
 
         int ith = omp_get_thread_num();
-        eos[ith].tbqs(800./197., .0, .0, .0, "default");
+        eos[ith].tbqs(580./197., .0, .0, .0, "default");
         double s_In    = systemPtr->particles[idx].thermo.s;
         double rhoB_In = systemPtr->particles[idx].thermo.rhoB;
         double rhoS_In = systemPtr->particles[idx].thermo.rhoS;
@@ -363,7 +363,7 @@ void test2(std::string file_path, std::string eos_type, int nthreads){
     {
 
       int ith = omp_get_thread_num();
-      eos[ith].tbqs(800./197., .0, .0, .0, "default");
+      eos[ith].tbqs(580./197., .0, .0, .0, "default");
       auto p = &systemPtr->particles[idx];
       double s_In = p->thermo.s;
       double rhoB_In = p->thermo.rhoB;

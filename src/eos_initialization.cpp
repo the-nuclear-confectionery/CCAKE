@@ -270,7 +270,7 @@ void EquationOfState::set_up_chosen_EOSs()
   {
     eos_path = settingsPtr->eos_path;
     // add EoS to vector
-    chosen_EOSs.push_back( std::make_shared<EoS_table>( eos_path ) );
+    chosen_EOSs.push_back( std::make_shared<EoS_table>( eos_path, settingsPtr->normalize_by_T ) );
     // setup tanh as first fallback for table EoS
     default_eos_name = "table";
     if ( use_tanh_conformal )

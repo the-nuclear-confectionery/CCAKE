@@ -866,7 +866,7 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
 /// - The bulk pressure, which is set to 0.
 /// - Initial guesses for the temperature and chemical potentials 
 /// - Initial guesses for the temperature and chemical potentials
-/// (800, 0, 0 ,0) MeV.
+/// (580.0, 0, 0 ,0) MeV.
 /// - The freeze out status, which is set to 4 if the energy density is below
 /// @note The volume assigned to each particle is assumed to be the grid step in
 /// the initial conditions, as specified in the initial condition header.
@@ -930,7 +930,7 @@ void SPHWorkstation<D, TEOM>::process_initial_conditions()
 
 		// make educated initial guess here for this particle's (T, mu_i) coordinates
 		// (improve this in the future)
-		p.thermo.T        = 800.0/hbarc_MeVfm;	// rootfinder seems to work better going downhill than "uphill"
+		p.thermo.T        =580.0/hbarc_MeVfm;	// rootfinder seems to work better going downhill than "uphill"
 
     // use max T of default EoS method instead
     //p.thermo.T        = (eos.get_default_eos()->tbqs_maxima)[0];
@@ -1194,7 +1194,7 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives(double dt)
   reset_pi_tensor(t2);
   //add source terms to the energy momentum tensor
   //add_toy_jet();
-  if (settingsPtr->source_type != "none") sourcePtr->add_source();  
+  if (settingsPtr->source_type != "disabled") sourcePtr->add_source();  
     // update viscosities for all particles
   update_all_particle_viscosities();
     //Computes gradients to obtain dsigma_lab/dt

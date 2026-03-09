@@ -11,7 +11,7 @@
 #include "../include/eos_header.h"
 #include "../include/eos_table.h"
 
-EoS_table::EoS_table( string eos_path )
+EoS_table::EoS_table( string eos_path, bool normalize_by_T )
 {
   equation_of_state_table = std::make_shared<InterpolatorND<4>>();
   //////////////////////////////////////////////////////////////////////////////
@@ -42,22 +42,51 @@ EoS_table::EoS_table( string eos_path )
   equation_of_state_table.rescale_axis( "muS", 1.0/hbarc_MeVfm );*/
   equation_of_state_table->rescale_axes( 1.0/hbarc_MeVfm );  // do all axes at once
 
-  equation_of_state_table->rescale( "p",     "T", 4 );
-  equation_of_state_table->rescale( "e",     "T", 4 );
-  equation_of_state_table->rescale( "s",     "T", 3 );
-  equation_of_state_table->rescale( "B",     "T", 3 );
-  equation_of_state_table->rescale( "S",     "T", 3 );
-  equation_of_state_table->rescale( "Q",     "T", 3 );
-  equation_of_state_table->rescale( "chiBB", "T", 2 );
-  equation_of_state_table->rescale( "chiQQ", "T", 2 );
-  equation_of_state_table->rescale( "chiSS", "T", 2 );
-  equation_of_state_table->rescale( "chiBQ", "T", 2 );
-  equation_of_state_table->rescale( "chiBS", "T", 2 );
-  equation_of_state_table->rescale( "chiQS", "T", 2 );
-  equation_of_state_table->rescale( "chiTB", "T", 2 );
-  equation_of_state_table->rescale( "chiTQ", "T", 2 );
-  equation_of_state_table->rescale( "chiTS", "T", 2 );
-  equation_of_state_table->rescale( "chiTT", "T", 2 );
+  if ( normalize_by_T )
+  {
+    // Table stores dimensionless ratios (p/T^4, s/T^3, etc.);
+    // multiply by the appropriate power of T (already in fm^-1) to get physical units.
+    equation_of_state_table->rescale( "p",     "T", 4 );
+    equation_of_state_table->rescale( "e",     "T", 4 );
+    equation_of_state_table->rescale( "s",     "T", 3 );
+    equation_of_state_table->rescale( "B",     "T", 3 );
+    equation_of_state_table->rescale( "S",     "T", 3 );
+    equation_of_state_table->rescale( "Q",     "T", 3 );
+    equation_of_state_table->rescale( "chiBB", "T", 2 );
+    equation_of_state_table->rescale( "chiQQ", "T", 2 );
+    equation_of_state_table->rescale( "chiSS", "T", 2 );
+    equation_of_state_table->rescale( "chiBQ", "T", 2 );
+    equation_of_state_table->rescale( "chiBS", "T", 2 );
+    equation_of_state_table->rescale( "chiQS", "T", 2 );
+    equation_of_state_table->rescale( "chiTB", "T", 2 );
+    equation_of_state_table->rescale( "chiTQ", "T", 2 );
+    equation_of_state_table->rescale( "chiTS", "T", 2 );
+    equation_of_state_table->rescale( "chiTT", "T", 2 );
+  }
+  else
+  {
+    // Table stores fields in MeV^n; multiply by (1/hbarc_MeVfm)^n to convert to fm^-n.
+    const double hc1 = 1.0/hbarc_MeVfm;
+    const double hc2 = hc1*hc1;
+    const double hc3 = hc2*hc1;
+    const double hc4 = hc3*hc1;
+    equation_of_state_table->rescale_field( "p",     hc4 );
+    equation_of_state_table->rescale_field( "e",     hc4 );
+    equation_of_state_table->rescale_field( "s",     hc3 );
+    equation_of_state_table->rescale_field( "B",     hc3 );
+    equation_of_state_table->rescale_field( "S",     hc3 );
+    equation_of_state_table->rescale_field( "Q",     hc3 );
+    equation_of_state_table->rescale_field( "chiBB", hc2 );
+    equation_of_state_table->rescale_field( "chiQQ", hc2 );
+    equation_of_state_table->rescale_field( "chiSS", hc2 );
+    equation_of_state_table->rescale_field( "chiBQ", hc2 );
+    equation_of_state_table->rescale_field( "chiBS", hc2 );
+    equation_of_state_table->rescale_field( "chiQS", hc2 );
+    equation_of_state_table->rescale_field( "chiTB", hc2 );
+    equation_of_state_table->rescale_field( "chiTQ", hc2 );
+    equation_of_state_table->rescale_field( "chiTS", hc2 );
+    equation_of_state_table->rescale_field( "chiTT", hc2 );
+  }
 
   // if cs2 ever goes negative, set it to zero
   auto zero_negatives = [](double x){return std::max(x,0.0);};
@@ -79,6 +108,12 @@ EoS_table::EoS_table( string eos_path )
   // needed when using non-conformal extension to know actual table limits
   tbqs_minima_no_ext = equation_of_state_table->get_grid_minima();
   tbqs_maxima_no_ext = equation_of_state_table->get_grid_maxima();
+
+  //print the tbqs ranges
+  cout << "T range: " << tbqs_minima[0] << "   " << tbqs_maxima[0] << endl;
+  cout << "muB range: " << tbqs_minima[1] << "   " << tbqs_maxima[1] << endl;
+  cout << "muS range: " << tbqs_minima[2] << "   " << tbqs_maxima[2] << endl;
+  cout << "muQ range: " << tbqs_minima[3] << "   " << tbqs_maxima[3] << endl;
 
 
     // sets EoS type
