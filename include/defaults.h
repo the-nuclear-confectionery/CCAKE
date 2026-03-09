@@ -77,7 +77,6 @@ namespace ccake
     const bool        jet_evolution            = false;
     const bool        check_causality         = false;
     const bool        bulk_from_trace       = false;
-    const bool        check_causality         = false;
   }
 }
 

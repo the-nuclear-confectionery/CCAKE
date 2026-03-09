@@ -1,6 +1,6 @@
 eos:
   online_inverter_enabled: true
-  path: /u/ilong/workspace/CCAKE_w_jets/CCAKE/build/EoS/Houston/
+  path: /u/ilong/workspace/CCAKE_w_jets/Hydro_Test/build/EoS/Houston/
   preinverted_eos_path: default
   type: table
 hydro:
@@ -12,9 +12,9 @@ hydro:
       input_initial_diffusion: false
       mode:  constant_over_T2
       constant_kappa_over_T2:
-      - [0.0481884057971014, -0.0481884057971014, 0.0]
-      - [-0.0481884057971014, 0.1446640316205534, 0.0146708463949843]
-      - [0.0, 0.0146708463949843, 0.0880165289256198]
+      - [0.0, 0.0, 0.0]
+      - [0.0, 0.0, 0.0]
+      - [0.0, 0.0, 0.0]
       relaxation_mode: constant_over_T
     bulk:
       bulk_from_trace: false
@@ -30,7 +30,7 @@ hydro:
       phi3_mode: disabled
     shear:
       input_initial_shear: false
-      constant_eta_over_s: 0.10
+      constant_eta_over_s: 0.12
       mode: constant
       relaxation_mode: default
       use_vorticity: false
@@ -42,7 +42,7 @@ hydro:
 initial_conditions:
   coordinate_system: hyperbolic
   dimension: 2
-  file: /u/ilong/workspace/CCAKE_w_jets/CCAKE/ICs/densities0.dat
+  file: /u/ilong/workspace/CCAKE_w_jets/Hydro_Test/ICs/densities0.dat
   input_as_entropy: false
   t0: 0.6
   type: ICCING
