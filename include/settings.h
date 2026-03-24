@@ -173,6 +173,11 @@ class Settings
     bool input_initial_diffusion = false; ///< Whether to use the initial diffusion
                                           ///  coefficients from the input file
     string diffusionRelaxMode = "default"; ///< Choose parametrization for diffusion relaxation time
+    bool critical_scaling_diffusion = false; ///< Whether to enable Gaussian suppression of kappa near critical point
+    double critical_point_T   = 0.0; ///< Critical point temperature [MeV]
+    double critical_point_muB = 0.0; ///< Critical point baryon chemical potential [MeV]
+    double critical_gaussian_width_T   = 0.0; ///< Gaussian width in T direction [MeV]
+    double critical_gaussian_width_muB = 0.0; ///< Gaussian width in muB direction [MeV]
 
     //  - source terms
 

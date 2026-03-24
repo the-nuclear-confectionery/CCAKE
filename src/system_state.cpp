@@ -220,6 +220,9 @@ void SystemState<D>::copy_host_to_device(){
     host_thermo(iparticle, ccake::thermo_info::dalpha_QdB) = particles[iparticle].thermo.dalpha_QdB;
     host_thermo(iparticle, ccake::thermo_info::dalpha_QdS) = particles[iparticle].thermo.dalpha_QdS;
     host_thermo(iparticle, ccake::thermo_info::dalpha_QdQ) = particles[iparticle].thermo.dalpha_QdQ;
+    host_thermo(iparticle, ccake::thermo_info::chiBB) = particles[iparticle].thermo.chiBB;
+    host_thermo(iparticle, ccake::thermo_info::chiBB0) = particles[iparticle].thermo.chiBB0;
+    host_thermo(iparticle, ccake::thermo_info::eos_type_is_table) = particles[iparticle].thermo.eos_type_is_table;
 
     #ifdef DEBUG_SLOW
     //Couting to check values
@@ -469,6 +472,9 @@ void SystemState<D>::copy_device_to_host(){
     particles[id].thermo.dalpha_BdQ = host_thermo(iparticle, ccake::thermo_info::dalpha_BdQ);
     particles[id].thermo.dalpha_SdQ = host_thermo(iparticle, ccake::thermo_info::dalpha_SdQ);
     particles[id].thermo.dalpha_QdQ = host_thermo(iparticle, ccake::thermo_info::dalpha_QdQ);
+    particles[id].thermo.chiBB = host_thermo(iparticle, ccake::thermo_info::chiBB);
+    particles[id].thermo.chiBB0 = host_thermo(iparticle, ccake::thermo_info::chiBB0);
+    particles[id].thermo.eos_type_is_table = host_thermo(iparticle, ccake::thermo_info::eos_type_is_table);
     for (int i=0; i<4; i++){
     for (int j=0; j<4; j++){
       particles[id].hydro.shv(i,j) = host_hydro_spacetime_matrix(iparticle, ccake::hydro_info::shv, i, j);

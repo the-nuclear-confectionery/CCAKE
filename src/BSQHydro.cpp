@@ -331,18 +331,39 @@ void BSQHydro<D,TEOM>::read_ccake()
         (settingsPtr->electric_charge_enabled) ? p.input.rhoQ = rhoQ : p.input.rhoQ = 0.0;
         p.hydro.bulk = bulk;
         if(settingsPtr->input_initial_diffusion){
-          p.hydro.diffusion(0,0) = qB0;
-          p.hydro.diffusion(0,1) = qB1;
-          p.hydro.diffusion(0,2) = qB2;
-          p.hydro.diffusion(0,3) = qB3;
-          p.hydro.diffusion(1,0) = qS0;
-          p.hydro.diffusion(1,1) = qS1;
-          p.hydro.diffusion(1,2) = qS2;
-          p.hydro.diffusion(1,3) = qS3;
-          p.hydro.diffusion(2,0) = qQ0;
-          p.hydro.diffusion(2,1) = qQ1;
-          p.hydro.diffusion(2,2) = qQ2;
-          p.hydro.diffusion(2,3) = qQ3;
+          if(settingsPtr->baryon_charge_enabled){
+            p.hydro.diffusion(0,0) = qB0;
+            p.hydro.diffusion(0,1) = qB1;
+            p.hydro.diffusion(0,2) = qB2;
+            p.hydro.diffusion(0,3) = qB3;
+          } else {
+            p.hydro.diffusion(0,0) = 0.0;
+            p.hydro.diffusion(0,1) = 0.0;
+            p.hydro.diffusion(0,2) = 0.0;
+            p.hydro.diffusion(0,3) = 0.0;
+          }
+          if(settingsPtr->strange_charge_enabled){
+            p.hydro.diffusion(1,0) = qS0;
+            p.hydro.diffusion(1,1) = qS1;
+            p.hydro.diffusion(1,2) = qS2;
+            p.hydro.diffusion(1,3) = qS3;
+          } else {
+            p.hydro.diffusion(1,0) = 0.0;
+            p.hydro.diffusion(1,1) = 0.0;
+            p.hydro.diffusion(1,2) = 0.0;
+            p.hydro.diffusion(1,3) = 0.0;
+          }
+          if(settingsPtr->electric_charge_enabled){
+            p.hydro.diffusion(2,0) = qQ0;
+            p.hydro.diffusion(2,1) = qQ1;
+            p.hydro.diffusion(2,2) = qQ2;
+            p.hydro.diffusion(2,3) = qQ3;
+          } else {
+            p.hydro.diffusion(2,0) = 0.0;
+            p.hydro.diffusion(2,1) = 0.0;
+            p.hydro.diffusion(2,2) = 0.0;
+            p.hydro.diffusion(2,3) = 0.0;
+          }
         }
         else{
           //set diffusion to zero

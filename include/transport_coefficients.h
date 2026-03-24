@@ -96,6 +96,11 @@ namespace transport_coefficients{
                                          tauq_matrix;
     bool modulate_zeta_with_tanh;
     bool critical_scaling_bulk;
+    bool critical_scaling_diffusion;
+    double critical_point_T;            ///< Critical point T in natural units
+    double critical_point_muB;          ///< Critical point muB in natural units
+    double critical_gaussian_width_T;   ///< Gaussian width in T in natural units
+    double critical_gaussian_width_muB; ///< Gaussian width in muB in natural units
   };
 
   KOKKOS_INLINE_FUNCTION
@@ -129,6 +134,8 @@ namespace transport_coefficients{
   //critical functions
   KOKKOS_INLINE_FUNCTION
   double critical_scaling_factor_bulk(const double *therm, parameters params);
+  KOKKOS_INLINE_FUNCTION
+  double gaussian_suppression_diffusion(const double *therm, parameters params);
 
 
   // Chris' defaults

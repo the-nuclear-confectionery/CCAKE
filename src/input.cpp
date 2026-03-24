@@ -547,6 +547,37 @@ bool cc::Input::decode_settings(const YAML::Node& node){
       formatted_output::report("This is an optional parameter. Setting to default value.");
       settingsPtr->diffusionRelaxMode = cc::defaults::diffusionRelaxMode;
     }
+    try {
+      settingsPtr->critical_scaling_diffusion = node["hydro"]["viscous_parameters"]["diffusion"]["critical_scaling"].as<bool>();
+    } catch (...) {
+      settingsPtr->critical_scaling_diffusion = cc::defaults::critical_scaling_diffusion;
+    }
+    if ( settingsPtr->critical_scaling_diffusion ) {
+      try {
+        settingsPtr->critical_point_T = node["hydro"]["viscous_parameters"]["diffusion"]["critical_point"]["T"].as<double>();
+      } catch (...) {
+        formatted_output::report("WARNING: Could not read diffusion critical_point/T! Using default.");
+        settingsPtr->critical_point_T = cc::defaults::critical_point_T;
+      }
+      try {
+        settingsPtr->critical_point_muB = node["hydro"]["viscous_parameters"]["diffusion"]["critical_point"]["muB"].as<double>();
+      } catch (...) {
+        formatted_output::report("WARNING: Could not read diffusion critical_point/muB! Using default.");
+        settingsPtr->critical_point_muB = cc::defaults::critical_point_muB;
+      }
+      try {
+        settingsPtr->critical_gaussian_width_T = node["hydro"]["viscous_parameters"]["diffusion"]["critical_gaussian_width"]["T"].as<double>();
+      } catch (...) {
+        formatted_output::report("WARNING: Could not read diffusion critical_gaussian_width/T! Using default.");
+        settingsPtr->critical_gaussian_width_T = cc::defaults::critical_gaussian_width_T;
+      }
+      try {
+        settingsPtr->critical_gaussian_width_muB = node["hydro"]["viscous_parameters"]["diffusion"]["critical_gaussian_width"]["muB"].as<double>();
+      } catch (...) {
+        formatted_output::report("WARNING: Could not read diffusion critical_gaussian_width/muB! Using default.");
+        settingsPtr->critical_gaussian_width_muB = cc::defaults::critical_gaussian_width_muB;
+      }
+    }
     //source subnode
     try{
       settingsPtr->source_type = node["hydro"]["source"]["type"].as<std::string>();

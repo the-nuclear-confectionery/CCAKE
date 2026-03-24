@@ -261,6 +261,11 @@ parameters setup_parameters(std::shared_ptr<Settings> settingsPtr)
   params.cs2_dependent_zeta_p = settingsPtr->cs2_dependent_zeta_p;
   params.modulate_zeta_with_tanh = settingsPtr->modulate_zeta_with_tanh;
   params.constant_kappa_over_T2 = settingsPtr->constant_kappa_over_T2;
+  params.critical_scaling_diffusion  = settingsPtr->critical_scaling_diffusion;
+  params.critical_point_T            = settingsPtr->critical_point_T   / constants::hbarc_MeVfm;
+  params.critical_point_muB          = settingsPtr->critical_point_muB / constants::hbarc_MeVfm;
+  params.critical_gaussian_width_T   = settingsPtr->critical_gaussian_width_T   / constants::hbarc_MeVfm;
+  params.critical_gaussian_width_muB = settingsPtr->critical_gaussian_width_muB / constants::hbarc_MeVfm;
 
   return params;
 
@@ -907,11 +912,15 @@ Matrix<double, 3, 3> default_kappa(const double *therm, const parameters params)
         ni_nj(i, j) = sqrt(abs(rho(i) * rho(j))) / sqrt(abs(mu(i) * mu(j)));
   
 
+  double suppression = 1.0;
+  if ( params.critical_scaling_diffusion && therm[thermo_info::eos_type_is_table] > 0.5 )
+    suppression = gaussian_suppression_diffusion(therm, params);
+
   for (int i = 0; i < 3; ++i)
     for (int j = 0; j < 3; ++j)
       //kappa_matrix(i, j) = params.constant_kappa_over_T2[i][j]*ni_nj(i, j);
-      kappa_matrix(i, j) = params.constant_kappa_over_T2[i][j]*(T*T);
-      
+      kappa_matrix(i, j) = suppression * params.constant_kappa_over_T2[i][j]*(T*T);
+
   return kappa_matrix;
 }
 
@@ -940,9 +949,32 @@ Matrix<double, 3, 3> default_tauq(const double *therm, const parameters params)
 KOKKOS_INLINE_FUNCTION
 double critical_scaling_factor_bulk(const double *therm,const parameters params)
 {
-  double correlation_length = 0.;
-  double correlation_length_zero = 0.;
+  double chiBB = therm[thermo_info::chiBB];
+  double chiBB0 = therm[thermo_info::chiBB0];
+  double correlation_length = Kokkos::sqrt(chiBB);
+  double correlation_length_zero = Kokkos::sqrt(chiBB0);
+  correlation_length_zero = 1.0176198446545879;  
+  //if correlation lenght == correlation_length_zero, return 1
+  if ( Kokkos::abs(correlation_length_zero - correlation_length) < TINY )
+    return 1.0;
+
   return (1.+ pow((correlation_length/correlation_length_zero), 3));
+}
+
+/// @brief Gaussian suppression factor for diffusion near the QCD critical point.
+/// @details Returns a factor in [0, 1] that is 0 exactly at (Tc, muBc) and
+///          approaches 1 far from it:
+///          f = 1 - exp( -[(T-Tc)^2/(2*sigmaT^2) + (muB-muBc)^2/(2*sigmaB^2)] )
+///          The widths sigmaT and sigmaB control the range of suppression.
+KOKKOS_INLINE_FUNCTION
+double gaussian_suppression_diffusion(const double *therm, const parameters params)
+{
+  const double dT   = therm[thermo_info::T]   - params.critical_point_T;
+  const double dmuB = therm[thermo_info::muB] - params.critical_point_muB;
+  const double sigmaT   = params.critical_gaussian_width_T;
+  const double sigmamuB = params.critical_gaussian_width_muB;
+  const double exponent = 0.5 * ( dT*dT/(sigmaT*sigmaT) + dmuB*dmuB/(sigmamuB*sigmamuB) );
+  return 1.0 - Kokkos::exp(-exponent);
 }
 
 }}

@@ -19,6 +19,7 @@ struct thermodynamic_info
 {
   // (T,mu_i) coordinates depend on which EoS was used!
   string eos_name = "";
+  double eos_type_is_table = 0.0; ///< 1.0 if this particle uses a tabulated EoS, 0.0 otherwise
 
   double T    = 0.0, muB  = 0.0, muS  = 0.0, muQ  = 0.0;
   double e    = 0.0, s    = 0.0, rhoB = 0.0, rhoS = 0.0, rhoQ = 0.0,
@@ -27,6 +28,7 @@ struct thermodynamic_info
   double dalpha_Bds = 0.0, dalpha_BdB = 0.0, dalpha_BdS = 0.0, dalpha_BdQ = 0.0;
   double dalpha_Sds = 0.0, dalpha_SdB = 0.0, dalpha_SdS = 0.0, dalpha_SdQ = 0.0;
   double dalpha_Qds = 0.0, dalpha_QdB = 0.0, dalpha_QdS = 0.0, dalpha_QdQ = 0.0;
+  double chiBB = 0.0, chiBB0 = 0.0;
 
 };
 
@@ -60,6 +62,9 @@ namespace thermo_info{
     dalpha_QdB,
     dalpha_QdS,
     dalpha_QdQ,
+    chiBB,
+    chiBB0,
+    eos_type_is_table,
     NUM_THERMO_INFO
   };
 #define THERMO_SCALAR_INFO double[ccake::thermo_info::NUM_THERMO_INFO]

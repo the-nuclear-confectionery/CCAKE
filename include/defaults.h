@@ -54,7 +54,12 @@ namespace ccake
     const bool        phi1_mode          = "disabled";
     const bool        phi3_mode          = "disabled";
     const std::string diffusionMode           = "disabled";
-    const std::string diffusionRelaxMode     = "default";
+    const std::string diffusionRelaxMode          = "default";
+    const bool        critical_scaling_diffusion  = false;
+    const double      critical_point_T            = 150.0;  // MeV
+    const double      critical_point_muB          = 350.0;  // MeV
+    const double      critical_gaussian_width_T   = 30.0;   // MeV
+    const double      critical_gaussian_width_muB = 50.0;   // MeV
     const bool        input_initial_diffusion = false;
     const std::array<std::array<double, 3>, 3> 
                               constant_kappa_over_T2 = {0.0, 0.0, 0.0,

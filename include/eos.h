@@ -106,6 +106,8 @@ public:
     double dalpha_QdB();
     double dalpha_QdS();
     double dalpha_QdQ();
+    double chiBB() const;
+    double chiBB0() const;
 
     void eosin(std::string type);
     double A();
@@ -113,6 +115,7 @@ public:
     void set_thermo( thermodynamic_info & thermo )
     {
       thermo.eos_name = get_current_eos_name();
+      thermo.eos_type_is_table = (thermo.eos_name == "table") ? 1.0 : 0.0;
 
       thermo.T    = T();
       thermo.muB  = muB();
@@ -143,6 +146,8 @@ public:
       thermo.dalpha_QdB = dalpha_QdB();
       thermo.dalpha_QdS = dalpha_QdS();
       thermo.dalpha_QdQ = dalpha_QdQ();
+      thermo.chiBB = chiBB();
+      thermo.chiBB0 = chiBB0();
       if ( print_now )
         cout << __FUNCTION__ << ": " << thermo.eos_name << "   "
             << thermo.T << "   "
@@ -244,7 +249,7 @@ private:
     double dtdq          = 0.0; //second derivative of pressure wrt i and j
                                 //where didj =: (d^2p)/(didj) or di2 = (d^2p)/((di)^2)
 
-
+    double db20          = 0.0; //chiBB0, the baryon susceptibility at muB=0
     ////////////////////////////////////////////////////////////////////////////
     // PRIVATE ROUTINES FOR SETTING POINT IN PHASE DIAGRAM FOR GIVEN EOS
     void tbqs(double setT, double setmuB, double setmuQ, double setmuS, pEoS_base peos);

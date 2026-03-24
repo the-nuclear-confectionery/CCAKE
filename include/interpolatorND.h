@@ -20,7 +20,7 @@ class InterpolatorND
 {
   static constexpr double NaN_value = std::numeric_limits<double>::quiet_NaN();
 
-  bool using_HDF = true;
+  bool using_HDF = false;
 
   double fill_value = NaN_value;
 

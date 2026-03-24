@@ -174,6 +174,20 @@ void EquationOfState::evaluate_thermodynamics( pEoS_base peos )
   dtds    = thermodynamics[15];
   dt2     = thermodynamics[16];
 
+
+  //recompute the EoS but assuming muQ = muB = muS = 0 to get chiBB0
+  if ( muB() != 0.0 || muQ() != 0.0 || muS() != 0.0 )
+  {    double zero_mu_phase_diagram_point[4] = { tbqsPosition[0], 0.0, 0.0, 0.0 };
+       double zero_mu_thermo_array[17];
+       peos->get_full_thermo( zero_mu_phase_diagram_point, zero_mu_thermo_array );
+       db20 = zero_mu_thermo_array[7];
+  }
+  else  {
+    db20 = db2;
+  }
+
+  //if EoS is not table, set chiBB0 = chiBB
+  if ( peos->name != "table" ) db20 = db2;
 //cout << "before" << endl;
 //cout << "THERMO DUMP: " << pVal << "   " << entrVal << "   " << BVal << "   "
 //      << SVal << "   " << QVal << "   " << eVal << "   " << cs2Val << "   "
@@ -201,6 +215,8 @@ double EquationOfState::e()   const { return eVal; }
 double EquationOfState::cs2() const { return cs2Val; }
 double EquationOfState::w()   const { return eVal + pVal; }
 
+double EquationOfState::chiBB() const { return db2; }
+double EquationOfState::chiBB0() const { return db20; }
 
 double EquationOfState::dwds()
 {
@@ -673,6 +689,9 @@ bool EquationOfState::rootfinder_update_s( double sin, double Bin,
 //      else if ( restrict_mu_T_ratios && this_eos->name == "table"
 //                && sqrt(muB()*muB()+muS()*muS()+muQ()*muQ()) > 4.0*T() )
       else if ( restrict_mu_T_ratios && this_eos->name == "table"
+                && T() < 50.0/197.3269804 )   // skip mu/T check for T < 50 MeV
+        continue;
+      else if ( restrict_mu_T_ratios && this_eos->name == "table"
                 && std::max( std::max( std::abs(muB()), std::abs(muS()) ),
                         std::abs(muQ()) ) > 3.5*T() )
         continue;
@@ -803,6 +822,9 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
         continue;
 //      else if ( restrict_mu_T_ratios && this_eos->name == "table"
 //                && sqrt(muB()*muB()+muS()*muS()+muQ()*muQ()) > 4.0*T() )
+      else if ( restrict_mu_T_ratios && this_eos->name == "table"
+                && T() < 50.0/197.3269804 )   // skip mu/T check for T < 50 MeV
+        continue;
       else if ( restrict_mu_T_ratios && this_eos->name == "table"
                 && std::max( std::max( std::abs(muB()), std::abs(muS()) ),
                         std::abs(muQ()) ) > 3.5*T() )

@@ -217,6 +217,8 @@ class Particle
     double dalpha_BdQ() { return thermo.dalpha_BdQ; }
     double dalpha_QdQ() { return thermo.dalpha_QdQ; }
     double dalpha_SdQ() { return thermo.dalpha_SdQ; }
+    double chiBB() { return thermo.chiBB; }
+    double chiBB0() { return thermo.chiBB0; }
 
 
     string get_current_eos_name() { return thermo.eos_name; }
