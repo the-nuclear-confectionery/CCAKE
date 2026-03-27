@@ -1,0 +1,102 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+title: "the-nuclear-confectionery/CCAKE: CCAKE v2.0.0"
+version: v2.0.0
+date-released: 2026-03-01
+doi: 10.5281/zenodo.18895140
+url: "https://doi.org/10.5281/zenodo.18895140"
+repository-code: "https://github.com/the-nuclear-confectionery/CCAKE"
+authors:
+  - family-names: Pala
+    given-names: Kevin P.
+  - family-names: Virk
+    given-names: Surkhab Kaur
+  - family-names: Almaalol
+    given-names: Dekrayat
+  - family-names: Danhoni
+    given-names: Isabella
+  - family-names: Yao
+    given-names: Nanxi
+  - family-names: Long
+    given-names: Isaac
+  - family-names: Serenone
+    given-names: Willian
+  - family-names: Salinas San Martín
+    given-names: Jordi
+  - family-names: Yared
+    given-names: Alayna A.
+  - family-names: Plumberg
+    given-names: Christopher
+  - family-names: Gardim
+    given-names: Fernando G.
+  - family-names: Noronha-Hostler
+    given-names: Jacquelyn
+preferred-citation:
+  type: article
+  title: "NuclearConfectionery: Multi-stage Simulation Framework for Modeling Relativistic Heavy-ion Collisions"
+  authors:
+    - family-names: Pala
+      given-names: Kevin P.
+    - family-names: Virk
+      given-names: Surkhab Kaur
+    - family-names: Almaalol
+      given-names: Dekrayat
+    - family-names: Danhoni
+      given-names: Isabella
+    - family-names: Yao
+      given-names: Nanxi
+    - family-names: Long
+      given-names: Isaac
+    - family-names: Serenone
+      given-names: Willian
+    - family-names: Salinas San Martín
+      given-names: Jordi
+    - family-names: Yared
+      given-names: Alayna A.
+    - family-names: Plumberg
+      given-names: Christopher
+    - family-names: Gardim
+      given-names: Fernando G.
+    - family-names: Noronha-Hostler
+      given-names: Jacquelyn
+  year: 2025
+  url: "https://arxiv.org/abs/2511.22852"
+  identifiers:
+    - type: other
+      value: "arXiv:2511.22852"
+references:
+  - type: article
+    title: "Conservation of B, S, and Q charges in relativistic viscous hydrodynamics solved with smoothed particle hydrodynamics"
+    authors:
+      - family-names: Plumberg
+        given-names: Christopher
+      - family-names: Almaalol
+        given-names: Dekrayat
+      - family-names: Dore
+        given-names: Travis
+      - family-names: Mroczek
+        given-names: Débora
+      - family-names: Salinas San Martín
+        given-names: Jordi
+      - family-names: Serenone
+        given-names: Willian M.
+      - family-names: Spychalla
+        given-names: Lydia
+      - family-names: Carzon
+        given-names: Patrick
+      - family-names: Sievert
+        given-names: Matt
+      - family-names: Gardim
+        given-names: Fernando G.
+      - family-names: Noronha-Hostler
+        given-names: Jacquelyn
+    journal: "Physical Review C"
+    volume: 111
+    issue: 4
+    pages: "044905"
+    year: 2025
+    month: 4
+    doi: 10.1103/PhysRevC.111.044905
+    url: "https://link.aps.org/doi/10.1103/PhysRevC.111.044905"
+    publisher: "American Physical Society"
