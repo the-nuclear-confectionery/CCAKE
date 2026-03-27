@@ -2,8 +2,30 @@
 
 CCAKE v2 is a performance portable and parallellizable 3+1 D relativistic viscous hydrodynamic code with 3 conserved charges (baryon number, strangeness, and electric charge) that uses Smoothed Particle Hydrodynamics. CCAKE can make state-of-the-art predictions for heavy-ion collisions. It uses the 4D lattice QCD equation of state with T, baryon, strangeness, and electric charge that is coupled to the PDG16+ particle list. It offers multiple coordinate system and viscous hydrodynamic schemes, and an option to invert the EoS using a pre-computed table of densities for a faster simulation.
 
-If you use this code in your research, please remember to cite us: [arXiv:2511.22852](https://arxiv.org/abs/2511.22852), [arXiv:2405.09648](https://arxiv.org/abs/2405.09648).
+If you use this code in your research, please remember to cite us using the following papers and the Zenodo release, respectively: [arXiv:2511.22852](https://arxiv.org/abs/2511.22852), [arXiv:2405.09648](https://arxiv.org/abs/2405.09648).
 
+``` bash
+@software{Pala2026_CCAKE,
+  author       = {Pala, Kevin P. and
+                  Virk, Surkhab Kaur and
+                  Almaalol, Dekrayat and
+                  Danhoni, Isabella and
+                  Yao, Nanxi and
+                  Long, Isaac and
+                  Serenone, Willian and
+                  Salinas San Martín, Jordi and
+                  Yared, Alayna A. and
+                  Plumberg, Christopher and
+                  Noronha-Hostler, Jacquelyn},
+  title        = {the-nuclear-confectionery/CCAKE: CCAKE v2.0.0},
+  month        = mar,
+  year         = 2026,
+  publisher    = {Zenodo},
+  version      = {v2.0.0},
+  doi          = {10.5281/zenodo.18895140},
+  url          = {https://doi.org/10.5281/zenodo.18895140},
+}
+```
 # 1. Installation
 
 For basic usage, the apptainer image can be used. It contains all the dependencies needed to run the code on CPU.
