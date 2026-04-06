@@ -6,6 +6,9 @@
 #include "eom_cartesian.cpp"
 #include "transport_coefficients.cpp"
 #include <type_traits>
+#ifdef __linux__
+#include <malloc.h>  // for malloc_trim
+#endif
 
 #define ONLINE_INVERTER ///todo: This should be in the config file. For now, comment, uncomment it to choose eos method to be used
 using namespace constants;
@@ -81,8 +84,120 @@ void SPHWorkstation<D, TEOM>::reset_pi_tensor(double time_squared)
   TEOM<D>::reset_pi_tensor(systemPtr);
 };
 
+/// @brief Apply the diffusion current regulator of PhysRevC.98.034916 (Eqs. C6-C8).
+/// @details For each particle and each conserved charge a ∈ {B, S, Q} the
+/// ratio
+/// \f[
+///   r_q^{(a)} = \frac{1}{f_\mathrm{strength}} \sqrt{\frac{-q^{(a)}_\mu q^{(a)\mu}}{n_a^2}}
+/// \f]
+/// is evaluated. When \f$r_q > r_q^\mathrm{max}\f$ the four-current is scaled
+/// down: \f$\tilde{q}^\mu = (r_q^\mathrm{max}/r_q)\,q^\mu\f$. The regulation
+/// strength function
+/// \f[
+///   f_\mathrm{strength} = \chi_0
+///   \left[\frac{1}{e^{-(e-e_0)/\xi_0}+1}
+///         - \frac{1}{e^{e_0/\xi_0}+1}\right]
+/// \f]
+/// is small (→ 0) in dilute regions (e ≪ e_0) so that the current is
+/// suppressed there, and is O(χ_0) in dense regions.
+///
+/// Both Cartesian and Milne (hyperbolic) coordinate systems are handled: in
+/// Milne the η component picks up the factor τ² when computing the spatial norm.
+///
+/// This function is a no-op when diffusion or the regulator is disabled.
+///
+/// @tparam D The dimensionality of the simulation.
+/// @tparam TEOM The equation-of-motion class used in the simulation.
+template<unsigned int D, template<unsigned int> class TEOM>
+void SPHWorkstation<D, TEOM>::regulate_diffusion()
+{
+  if ( !settingsPtr->using_diffusion )              return;
+  if ( !settingsPtr->diffusion_regulator_enabled )  return;
+
+  const double chi0   = settingsPtr->diffusion_regulator_chi0;
+  // Convert GeV/fm³ → fm⁻⁴ using ħc [GeV·fm]
+  const double e0     = settingsPtr->diffusion_regulator_e0  / hbarc_GeVfm;
+  const double xi0    = settingsPtr->diffusion_regulator_xi0 / hbarc_GeVfm;
+  const double rq_max = settingsPtr->diffusion_regulator_rq_max;
+
+  // Normalisation offset so that f_strength(e=0) = 0
+  const double fermi_offset = 1.0 / ( Kokkos::exp( e0 / xi0 ) + 1.0 );
+
+  // Whether the last spatial component carries a metric factor of τ²
+  const bool milne = ( settingsPtr->coordinate_system == "hyperbolic" );
+  const double t2  = ( systemPtr->t ) * ( systemPtr->t );
+
+  CREATE_VIEW(device_, systemPtr->cabana_particles);
+  auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH, ExecutionSpace>(
+      0, systemPtr->cabana_particles.size() );
+
+  auto regulate_lambda = KOKKOS_LAMBDA( const int is, const int ia )
+  {
+    // ---- Eq. C7: compute regulation strength --------------------------------
+    const double e = device_thermo.access( is, ia, thermo_info::e );
+
+    // Fermi-Dirac factor: large for e >> e0, approaching zero for e << e0
+    const double ferm    = 1.0 / ( Kokkos::exp( -(e - e0) / xi0 ) + 1.0 );
+    const double f_str   = chi0 * ( ferm - fermi_offset );
+
+    // ---- charge densities (fm⁻³) -------------------------------------------
+    const double sigma = device_hydro_scalar.access( is, ia, hydro_info::sigma );
+    double rho[3];
+    rho[0] = device_thermo.access( is, ia, thermo_info::rhoB );
+    rho[1] = device_thermo.access( is, ia, thermo_info::rhoS );
+    rho[2] = device_thermo.access( is, ia, thermo_info::rhoQ );
+
+    // ---- Eqs. C6 & C8: regulate each charge --------------------------------
+    for ( int ic = 0; ic < 3; ++ic )
+    {
+      const double n_abs = Kokkos::fabs( rho[ic] );
+      // Skip if charge density is effectively zero
+      if ( n_abs < 1.0e-15 ) continue;
+
+      // Load 4-current q^μ (index 0 = time, 1..3 = spatial)
+      const double q0 = device_hydro_diffusion.access( is, ia, hydro_info::diffusion, ic, 0 );
+      const double q1 = device_hydro_diffusion.access( is, ia, hydro_info::diffusion, ic, 1 );
+      const double q2 = device_hydro_diffusion.access( is, ia, hydro_info::diffusion, ic, 2 );
+      const double q3 = device_hydro_diffusion.access( is, ia, hydro_info::diffusion, ic, 3 );
+
+      // |q|² = −q^μ q_μ  (spacelike, +−−− metric)
+      // In Milne the η (3rd spatial) component carries g_ηη = −τ²
+      const double q3_sq = milne ? t2 * q3 * q3 : q3 * q3;
+      const double q_sq  = q1*q1 + q2*q2 + q3_sq - q0*q0;
+      if ( q_sq <= 0.0 ) continue;   // already causal / zero
+
+      const double q_mag = Kokkos::sqrt( q_sq );
+
+      // Eq. C6: r_q = |q| / (|n| * f_strength)
+      // We compare |q| against the threshold rq_max * |n| * f_strength
+      // (avoids division-by-zero when f_strength → 0; in that limit every
+      //  non-zero current exceeds the threshold and is fully suppressed).
+      const double threshold = rq_max * n_abs * f_str;
+      if ( q_mag <= threshold ) continue;   // within allowed range, no action
+
+      // Eq. C8: rescale q^μ → (threshold / q_mag) * q^μ
+      const double scale = threshold / q_mag;
+      device_hydro_diffusion.access( is, ia, hydro_info::diffusion, ic, 0 ) = q0 * scale;
+      device_hydro_diffusion.access( is, ia, hydro_info::diffusion, ic, 1 ) = q1 * scale;
+      device_hydro_diffusion.access( is, ia, hydro_info::diffusion, ic, 2 ) = q2 * scale;
+      device_hydro_diffusion.access( is, ia, hydro_info::diffusion, ic, 3 ) = q3 * scale;
+
+      // Keep extensive_diffusion consistent: q^i_spatial = extensive_diffusion * sigma
+      for ( int idir = 0; idir < 3; ++idir ) {
+        const double qi = device_hydro_diffusion.access(
+            is, ia, hydro_info::diffusion, ic, idir + 1 );
+        device_hydro_space_matrix.access(
+            is, ia, hydro_info::extensive_diffusion, ic, idir ) = qi / sigma;
+      }
+    }
+  };
+
+  Cabana::simd_parallel_for( simd_policy, regulate_lambda, "regulate_diffusion" );
+  Kokkos::fence();
+}
+
 // @brief calculate gamma and velocties
-/// @details This function calculates the Lorentz contraction factor \f$ \gamma \f$ 
+/// @details This function calculates the Lorentz contraction factor \f$ \gamma \f$
 /// and the fluid velocity \f$ v \f$ from the fluid four velocity \f$ u \f$.
 /// @tparam D The dimensionality of the simulation.
 /// @tparam TEOM The equation of motion class to be used in the simulation.
@@ -1183,23 +1298,33 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives(double dt)
 
   // reset nearest neighbors
   systemPtr->reset_neighbour_list();
+
   // calcuate gamma and velocities
   calculate_gamma_and_velocities();
+
   // smooth all particle fields - s, rhoB, rhoQ and rhoS and sigma
   smooth_all_particle_fields(t2);
-    // Update particle thermodynamic properties
+
+  // Update particle thermodynamic properties
   update_all_particle_thermodynamics();
+
   // reset pi tensor to be consistent
   // with all essential symmetries
   reset_pi_tensor(t2);
+
+  // apply diffusion current regulator (PhysRevC.98.034916, Eqs. C6-C8)
+  regulate_diffusion();
+
   //add source terms to the energy momentum tensor
-  //add_toy_jet();
-  if (settingsPtr->source_type != "disabled") sourcePtr->add_source();  
-    // update viscosities for all particles
+  if (settingsPtr->source_type != "disabled") sourcePtr->add_source();
+
+  // update viscosities for all particles
   update_all_particle_viscosities();
-    //Computes gradients to obtain dsigma_lab/dt
+
+  //Computes gradients to obtain dsigma_lab/dt
   smooth_all_particle_gradients(t2);
-    //calculate time derivatives needed for equations of motion
+
+  //calculate time derivatives needed for equations of motion
   TEOM<D>::evaluate_time_derivatives( systemPtr, settingsPtr );
 
   // check for causality
@@ -1244,39 +1369,42 @@ void SPHWorkstation<D, TEOM>::update_all_particle_viscosities()
   CREATE_VIEW(device_, systemPtr->cabana_particles);
   auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
 
-  auto set_transport_coefficients = KOKKOS_CLASS_LAMBDA(const int is, const int ia ){
+  // Capture transport params as a local copy to avoid KOKKOS_CLASS_LAMBDA
+  // deep-copying the entire SPHWorkstation object into the lambda.
+  const auto tc_params = this->transp_coeff_params;
+  auto set_transport_coefficients = KOKKOS_LAMBDA(const int is, const int ia ){
     double thermo[thermo_info::NUM_THERMO_INFO];
     for (int ithermo=0; ithermo < thermo_info::NUM_THERMO_INFO; ++ithermo)
       thermo[ithermo] = device_thermo.access(is, ia, ithermo);
     device_hydro_scalar.access(is, ia, ccake::hydro_info::eta_pi)
-      = tc::eta(thermo, this->transp_coeff_params );
+      = tc::eta(thermo, tc_params );
     device_hydro_scalar.access(is, ia, ccake::hydro_info::tau_pi)
-      = tc::tau_pi(thermo,this->transp_coeff_params);
+      = tc::tau_pi(thermo, tc_params);
     device_hydro_scalar.access(is, ia, ccake::hydro_info::zeta_Pi)
-      = tc::zeta(thermo, this->transp_coeff_params);
+      = tc::zeta(thermo, tc_params);
     device_hydro_scalar.access(is, ia, ccake::hydro_info::tau_Pi)
-      = tc::tau_Pi(thermo, this->transp_coeff_params);
+      = tc::tau_Pi(thermo, tc_params);
     device_hydro_scalar.access(is, ia, ccake::hydro_info::delta_PiPi)
-      = tc::delta_PiPi(thermo, this->transp_coeff_params);
+      = tc::delta_PiPi(thermo, tc_params);
     device_hydro_scalar.access(is, ia, ccake::hydro_info::delta_pipi)
-      = tc::delta_pipi(thermo, this->transp_coeff_params);
+      = tc::delta_pipi(thermo, tc_params);
     device_hydro_scalar.access(is, ia, ccake::hydro_info::lambda_piPi)
-      = tc::lambda_piPi(thermo, this->transp_coeff_params);
+      = tc::lambda_piPi(thermo, tc_params);
     device_hydro_scalar.access(is, ia, ccake::hydro_info::lambda_Pipi)
-      = tc::lambda_Pipi(thermo, this->transp_coeff_params);
+      = tc::lambda_Pipi(thermo, tc_params);
     device_hydro_scalar.access(is, ia, ccake::hydro_info::phi1)
-      = tc::phi1(thermo, this->transp_coeff_params);
+      = tc::phi1(thermo, tc_params);
     device_hydro_scalar.access(is, ia, ccake::hydro_info::phi3)
-      = tc::phi3(thermo, this->transp_coeff_params);
+      = tc::phi3(thermo, tc_params);
     device_hydro_scalar.access(is, ia, ccake::hydro_info::phi6)
-      = tc::phi6(thermo, this->transp_coeff_params);
+      = tc::phi6(thermo, tc_params);
     device_hydro_scalar.access(is, ia, ccake::hydro_info::phi7)
-      = tc::phi7(thermo, this->transp_coeff_params);
+      = tc::phi7(thermo, tc_params);
     device_hydro_scalar.access(is, ia, ccake::hydro_info::tau_pipi)
-      = tc::tau_pipi(thermo, this->transp_coeff_params);
+      = tc::tau_pipi(thermo, tc_params);
     //diffusion coefficient
-    Matrix<double, 3, 3> kappa = tc::kappa(thermo, this->transp_coeff_params);
-    Matrix<double, 3, 3> tauq = tc::tauq(thermo, this->transp_coeff_params);
+    Matrix<double, 3, 3> kappa = tc::kappa(thermo, tc_params);
+    Matrix<double, 3, 3> tauq = tc::tauq(thermo, tc_params);
     for (int icharge=0; icharge<3; ++icharge){
       for (int jcharge=0; jcharge<3; ++jcharge){
         device_hydro_space_matrix.access(is, ia, ccake::hydro_info::kappa_q,icharge,jcharge)
@@ -1350,7 +1478,7 @@ void SPHWorkstation<D, TEOM>::update_all_particle_thermodynamics()
     #endif
   }
   else{
-  systemPtr->copy_device_to_host();
+  systemPtr->copy_thermo_device_to_host();
   for ( auto & p : systemPtr->particles ){
     double s_LRF      = p.thermo.s;
     double rhoB_LRF   = p.thermo.rhoB;
@@ -1373,9 +1501,12 @@ void SPHWorkstation<D, TEOM>::update_all_particle_thermodynamics()
       systemPtr->print_neighbors(p.ID);
       Kokkos::finalize();
       exit(404);
-    }  
+    }
   }
-  systemPtr->copy_host_to_device();
+  systemPtr->copy_thermo_host_to_device();
+#ifdef __linux__
+  malloc_trim(0);  // return freed brk pages to OS
+#endif
   }
 
 
@@ -1996,6 +2127,7 @@ void SPHWorkstation<3, EoM_cartesian>::smooth_all_particle_gradients(double time
   double hT = settingsPtr->hT;
   double t = systemPtr->t;
   bool using_shear = settingsPtr->using_shear;
+  bool using_diffusion = settingsPtr->using_diffusion;
   auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
 
   CREATE_VIEW(device_, systemPtr->cabana_particles);
@@ -2010,6 +2142,12 @@ void SPHWorkstation<3, EoM_cartesian>::smooth_all_particle_gradients(double time
       device_hydro_vector.access(is, ia, ccake::hydro_info::gradE,idir)  = 0.0;
       for (int jdir=0; jdir < 3; ++jdir)
         device_hydro_space_matrix.access(is, ia,ccake::hydro_info::gradV, idir, jdir) = 0.0;
+    }
+    for(int icharge=0; icharge<3; ++icharge){
+      device_hydro_vector.access(is, ia, ccake::hydro_info::div_qa, icharge) = 0.0;
+      device_hydro_vector.access(is, ia, ccake::hydro_info::grad_qa, icharge) = 0.0;
+      for(int jdir=0; jdir < 3; ++jdir)
+        device_hydro_space_matrix.access(is, ia, ccake::hydro_info::grad_alpha_a, jdir, icharge) = 0.0;
     }
   };
   Cabana::simd_parallel_for(simd_policy,reset_gradients, "reset_gradients");
@@ -2079,6 +2217,45 @@ void SPHWorkstation<3, EoM_cartesian>::smooth_all_particle_gradients(double time
         divshear  = sigsqrb*sigsigK*cartesian::transpose(vminib)
                   + sigsqra*sigsigK*cartesian::transpose(vminia);
     }
+    if(using_diffusion){
+      cartesian::Vector<double,3> alpha_vec_a;
+      cartesian::Vector<double,3> alpha_vec_b;
+      cartesian::Vector<double,3> diff_a0;
+      cartesian::Vector<double,3> diff_b0;
+      cartesian::Vector<double,3> div_qa, grad_qa;
+      cartesian::Matrix<double,3,3> grad_alpha_a;
+      alpha_vec_a(0) = device_thermo(particle_a, thermo_info::muB)/device_thermo(particle_a, thermo_info::T);
+      alpha_vec_a(1) = device_thermo(particle_a, thermo_info::muS)/device_thermo(particle_a, thermo_info::T);
+      alpha_vec_a(2) = device_thermo(particle_a, thermo_info::muQ)/device_thermo(particle_a, thermo_info::T);
+      alpha_vec_b(0) = device_thermo(particle_b, thermo_info::muB)/device_thermo(particle_b, thermo_info::T);
+      alpha_vec_b(1) = device_thermo(particle_b, thermo_info::muS)/device_thermo(particle_b, thermo_info::T);
+      alpha_vec_b(2) = device_thermo(particle_b, thermo_info::muQ)/device_thermo(particle_b, thermo_info::T);
+      cartesian::Matrix<double,3,3> diff_a;
+      cartesian::Matrix<double,3,3> diff_b;
+      for(int icharge=0; icharge<3; ++icharge){
+        diff_a0(icharge) = device_hydro_diffusion(particle_a, hydro_info::diffusion, icharge, 0);
+        diff_b0(icharge) = device_hydro_diffusion(particle_b, hydro_info::diffusion, icharge, 0);
+        for(int idir=0; idir<3; ++idir){
+          diff_a(icharge,idir) = device_hydro_diffusion(particle_a, hydro_info::diffusion, icharge, idir+1);
+          diff_b(icharge,idir) = device_hydro_diffusion(particle_b, hydro_info::diffusion, icharge, idir+1);
+        }
+      }
+      grad_qa = cartesian::contract(sigsigK, v_a)*( sigsqrb*diff_b0 + sigsqra*diff_a0 );
+      for(int jcharge=0; jcharge<3; ++jcharge){
+        div_qa(jcharge) = 0.0;
+        for(int idir=0; idir<3; ++idir){
+          div_qa(jcharge) += sigsqrb*sigsigK(idir)*diff_b(jcharge,idir)
+                              + sigsqra*sigsigK(idir)*diff_a(jcharge,idir);
+          grad_alpha_a(idir,jcharge) = (sph_mass_s_b/sigma_lab_a)*( alpha_vec_b(jcharge) - alpha_vec_a(jcharge) )*gradK(idir);
+        }
+      }
+      for(int icharge=0; icharge<3; ++icharge){
+        Kokkos::atomic_add(&device_hydro_vector(particle_a, hydro_info::div_qa, icharge), div_qa(icharge));
+        Kokkos::atomic_add(&device_hydro_vector(particle_a, hydro_info::grad_qa, icharge), grad_qa(icharge));
+        for(int idir=0; idir<3; ++idir)
+          Kokkos::atomic_add(&device_hydro_space_matrix(particle_a, hydro_info::grad_alpha_a, idir, icharge), grad_alpha_a(idir,icharge));
+      }
+    }
 
     //Accumulate
     for(int idir=0; idir<3; ++idir) {
@@ -2107,6 +2284,7 @@ void SPHWorkstation<2, EoM_cartesian>::smooth_all_particle_gradients(double time
   double hT = settingsPtr->hT;
   double t = systemPtr->t;
   bool using_shear = settingsPtr->using_shear;
+  bool using_diffusion = settingsPtr->using_diffusion;
   auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
 
   CREATE_VIEW(device_, systemPtr->cabana_particles);
@@ -2121,6 +2299,12 @@ void SPHWorkstation<2, EoM_cartesian>::smooth_all_particle_gradients(double time
       device_hydro_vector.access(is, ia, ccake::hydro_info::gradE,idir)  = 0.0;
       for (int jdir=0; jdir < 2; ++jdir)
         device_hydro_space_matrix.access(is, ia,ccake::hydro_info::gradV, idir, jdir) = 0.0;
+    }
+    for(int icharge=0; icharge<3; ++icharge){
+      device_hydro_vector.access(is, ia, ccake::hydro_info::div_qa, icharge) = 0.0;
+      device_hydro_vector.access(is, ia, ccake::hydro_info::grad_qa, icharge) = 0.0;
+      for(int jdir=0; jdir < 2; ++jdir)
+        device_hydro_space_matrix.access(is, ia, ccake::hydro_info::grad_alpha_a, jdir, icharge) = 0.0;
     }
   };
   Cabana::simd_parallel_for(simd_policy,reset_gradients, "reset_gradients");
@@ -2190,6 +2374,45 @@ void SPHWorkstation<2, EoM_cartesian>::smooth_all_particle_gradients(double time
         divshear  = sigsqrb*sigsigK*cartesian::transpose(vminib)
                   + sigsqra*sigsigK*cartesian::transpose(vminia);
     }
+    if(using_diffusion){
+      cartesian::Vector<double,3> alpha_vec_a;
+      cartesian::Vector<double,3> alpha_vec_b;
+      cartesian::Vector<double,3> diff_a0;
+      cartesian::Vector<double,3> diff_b0;
+      cartesian::Vector<double,3> div_qa, grad_qa;
+      cartesian::Matrix<double,2,3> grad_alpha_a;
+      alpha_vec_a(0) = device_thermo(particle_a, thermo_info::muB)/device_thermo(particle_a, thermo_info::T);
+      alpha_vec_a(1) = device_thermo(particle_a, thermo_info::muS)/device_thermo(particle_a, thermo_info::T);
+      alpha_vec_a(2) = device_thermo(particle_a, thermo_info::muQ)/device_thermo(particle_a, thermo_info::T);
+      alpha_vec_b(0) = device_thermo(particle_b, thermo_info::muB)/device_thermo(particle_b, thermo_info::T);
+      alpha_vec_b(1) = device_thermo(particle_b, thermo_info::muS)/device_thermo(particle_b, thermo_info::T);
+      alpha_vec_b(2) = device_thermo(particle_b, thermo_info::muQ)/device_thermo(particle_b, thermo_info::T);
+      cartesian::Matrix<double,3,2> diff_a;
+      cartesian::Matrix<double,3,2> diff_b;
+      for(int icharge=0; icharge<3; ++icharge){
+        diff_a0(icharge) = device_hydro_diffusion(particle_a, hydro_info::diffusion, icharge, 0);
+        diff_b0(icharge) = device_hydro_diffusion(particle_b, hydro_info::diffusion, icharge, 0);
+        for(int idir=0; idir<2; ++idir){
+          diff_a(icharge,idir) = device_hydro_diffusion(particle_a, hydro_info::diffusion, icharge, idir+1);
+          diff_b(icharge,idir) = device_hydro_diffusion(particle_b, hydro_info::diffusion, icharge, idir+1);
+        }
+      }
+      grad_qa = cartesian::contract(sigsigK, v_a)*( sigsqrb*diff_b0 + sigsqra*diff_a0 );
+      for(int jcharge=0; jcharge<3; ++jcharge){
+        div_qa(jcharge) = 0.0;
+        for(int idir=0; idir<2; ++idir){
+          div_qa(jcharge) += sigsqrb*sigsigK(idir)*diff_b(jcharge,idir)
+                              + sigsqra*sigsigK(idir)*diff_a(jcharge,idir);
+          grad_alpha_a(idir,jcharge) = (sph_mass_s_b/sigma_lab_a)*( alpha_vec_b(jcharge) - alpha_vec_a(jcharge) )*gradK(idir);
+        }
+      }
+      for(int icharge=0; icharge<3; ++icharge){
+        Kokkos::atomic_add(&device_hydro_vector(particle_a, hydro_info::div_qa, icharge), div_qa(icharge));
+        Kokkos::atomic_add(&device_hydro_vector(particle_a, hydro_info::grad_qa, icharge), grad_qa(icharge));
+        for(int idir=0; idir<2; ++idir)
+          Kokkos::atomic_add(&device_hydro_space_matrix(particle_a, hydro_info::grad_alpha_a, idir, icharge), grad_alpha_a(idir,icharge));
+      }
+    }
 
     //Accumulate
     for(int idir=0; idir<2; ++idir) {
@@ -2218,6 +2441,7 @@ void SPHWorkstation<1, EoM_cartesian>::smooth_all_particle_gradients(double time
   double hT = settingsPtr->hT;
   double t = systemPtr->t;
   bool using_shear = settingsPtr->using_shear;
+  bool using_diffusion = settingsPtr->using_diffusion;
   auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
 
   CREATE_VIEW(device_, systemPtr->cabana_particles);
@@ -2232,6 +2456,11 @@ void SPHWorkstation<1, EoM_cartesian>::smooth_all_particle_gradients(double time
       device_hydro_vector.access(is, ia, ccake::hydro_info::gradE,idir)  = 0.0;
       for (int jdir=0; jdir < 1; ++jdir)
         device_hydro_space_matrix.access(is, ia,ccake::hydro_info::gradV, idir, jdir) = 0.0;
+    }
+    for(int icharge=0; icharge<3; ++icharge){
+      device_hydro_vector.access(is, ia, ccake::hydro_info::div_qa, icharge) = 0.0;
+      device_hydro_vector.access(is, ia, ccake::hydro_info::grad_qa, icharge) = 0.0;
+      device_hydro_space_matrix.access(is, ia, ccake::hydro_info::grad_alpha_a, 0, icharge) = 0.0;
     }
   };
   Cabana::simd_parallel_for(simd_policy,reset_gradients, "reset_gradients");
@@ -2293,7 +2522,40 @@ void SPHWorkstation<1, EoM_cartesian>::smooth_all_particle_gradients(double time
         gradshear = cartesian::contract(sigsigK, v_a)*( sigsqrb*shv_0i_b + sigsqra*shv_0i_a );
         ///\todo do we need this transpose here?
         divshear  = sigsqrb*sigsigK*vminib
-                  + sigsqra*sigsigK*vminia;  
+                  + sigsqra*sigsigK*vminia;
+    }
+    if(using_diffusion){
+      cartesian::Vector<double,3> alpha_vec_a;
+      cartesian::Vector<double,3> alpha_vec_b;
+      cartesian::Vector<double,3> diff_a0;
+      cartesian::Vector<double,3> diff_b0;
+      cartesian::Vector<double,3> div_qa, grad_qa;
+      cartesian::Matrix<double,1,3> grad_alpha_a;
+      alpha_vec_a(0) = device_thermo(particle_a, thermo_info::muB)/device_thermo(particle_a, thermo_info::T);
+      alpha_vec_a(1) = device_thermo(particle_a, thermo_info::muS)/device_thermo(particle_a, thermo_info::T);
+      alpha_vec_a(2) = device_thermo(particle_a, thermo_info::muQ)/device_thermo(particle_a, thermo_info::T);
+      alpha_vec_b(0) = device_thermo(particle_b, thermo_info::muB)/device_thermo(particle_b, thermo_info::T);
+      alpha_vec_b(1) = device_thermo(particle_b, thermo_info::muS)/device_thermo(particle_b, thermo_info::T);
+      alpha_vec_b(2) = device_thermo(particle_b, thermo_info::muQ)/device_thermo(particle_b, thermo_info::T);
+      cartesian::Vector<double,3> diff_a;
+      cartesian::Vector<double,3> diff_b;
+      for(int icharge=0; icharge<3; ++icharge){
+        diff_a0(icharge) = device_hydro_diffusion(particle_a, hydro_info::diffusion, icharge, 0);
+        diff_b0(icharge) = device_hydro_diffusion(particle_b, hydro_info::diffusion, icharge, 0);
+        diff_a(icharge) = device_hydro_diffusion(particle_a, hydro_info::diffusion, icharge, 3);
+        diff_b(icharge) = device_hydro_diffusion(particle_b, hydro_info::diffusion, icharge, 3);
+      }
+      grad_qa = cartesian::contract(sigsigK, v_a)*( sigsqrb*diff_b0 + sigsqra*diff_a0 );
+      for(int jcharge=0; jcharge<3; ++jcharge){
+        div_qa(jcharge) = sigsqrb*sigsigK(0)*diff_b(jcharge)
+                          + sigsqra*sigsigK(0)*diff_a(jcharge);
+        grad_alpha_a(0,jcharge) = (sph_mass_s_b/sigma_lab_a)*( alpha_vec_b(jcharge) - alpha_vec_a(jcharge) )*gradK(0);
+      }
+      for(int icharge=0; icharge<3; ++icharge){
+        Kokkos::atomic_add(&device_hydro_vector(particle_a, hydro_info::div_qa, icharge), div_qa(icharge));
+        Kokkos::atomic_add(&device_hydro_vector(particle_a, hydro_info::grad_qa, icharge), grad_qa(icharge));
+        Kokkos::atomic_add(&device_hydro_space_matrix(particle_a, hydro_info::grad_alpha_a, 0, icharge), grad_alpha_a(0,icharge));
+      }
     }
 
     //Accumulate

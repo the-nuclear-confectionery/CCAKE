@@ -1,6 +1,7 @@
 #ifndef INTERPOLATORND_H
 #define INTERPOLATORND_H
 
+#include <array>
 #include <functional>
 #include <limits>
 #include <map>
@@ -76,26 +77,11 @@ class InterpolatorND
     vector<vector<int> > hypercube_indices;
     vector<vector<double> > grid, grid_points, fields;
 
-    inline size_t indexer( vector<int> & indices )
+    inline size_t indexer( const int* indices, int n )
     {
-//      cout << "-------" << endl;
-//      cout << grid_sizes.size() << " " << indices.size() << endl;
-//      cout << "grid_sizes:" << endl;
-//      for (auto&gs:grid_sizes) cout << " " << gs;
-//      cout << endl << "-------" << endl;
-//      for (auto&is:indices) cout << " " << is;
-//      cout << endl << "-------" << endl;
       size_t result = indices[0];
-      for ( size_t ind = 1; ind < indices.size(); ind++ )
-      {
-//        cout << ind << " " << grid_sizes.size() << " " << indices.size() << endl;
-//        cout << grid_sizes[ind] << endl;
-//        cout << indices[ind] << endl;
-//        cout << result << endl;
-//        cout << "-------" << endl;
+      for ( int ind = 1; ind < n; ind++ )
         result = result * grid_sizes[ind] + indices[ind];
-      }
-
       return result;
     }
 

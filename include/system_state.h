@@ -80,11 +80,10 @@ class SystemState
     // These are private and because data should be moved from device to host
     // before being accessed by the user. This can be implemented in public
     // methods, if necessary
-    //Cabana::LinkedCellList<DeviceType> grid; ///< Grid used to accelerate the search for neighbors //< I think this may not be necessary
-    //using SerialHost = Kokkos::Device<Kokkos::Serial, Kokkos::HostSpace>;
-    //Cabana::AoSoA<ParticleType, SerialHost, 8> particles_h("particles_h",n_particles); ///Temporary storage on host
     ////////////////////////////////////////////////////////////////////////////
+    using SerialHost = Kokkos::Device<Kokkos::Serial, Kokkos::HostSpace>;
     Cabana::AoSoA<CabanaParticle, DeviceType, VECTOR_LENGTH> cabana_particles; ///< Particle storage on device
+    Cabana::AoSoA<CabanaParticle, SerialHost,  VECTOR_LENGTH> particles_h;    ///< Persistent host-side mirror (avoids per-call heap churn)
     ListType neighbour_list; ///< Neighbour list
 
     // eccentricities
@@ -107,6 +106,8 @@ class SystemState
     void allocate_cabana_particles();
     void copy_device_to_host();
     void copy_host_to_device();
+    void copy_thermo_device_to_host();   ///< Partial copy: only input+thermo fields (for online inverter)
+    void copy_thermo_host_to_device();   ///< Partial copy: only thermo output fields (for online inverter)
     void initialize_linklist();
     void reset_neighbour_list();
 

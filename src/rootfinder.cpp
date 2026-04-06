@@ -3,6 +3,21 @@
 #include "../include/rootfinder.h"
 
 ////////////////////////////////////////////////////////////////////////////////
+// Rootfinder ctor/dtor — pre-allocate GSL objects once, reuse across all
+// find_root calls to avoid per-particle malloc/free churn.
+Rootfinder::Rootfinder() {
+  const gsl_multiroot_fsolver_type *TYPE = gsl_multiroot_fsolver_hybrids;
+  _solver = gsl_multiroot_fsolver_alloc(TYPE, 4);
+  _x = gsl_vector_alloc(4);
+  _chosen_densities = gsl_vector_alloc(4);
+}
+Rootfinder::~Rootfinder() {
+  if (_solver) gsl_multiroot_fsolver_free(_solver);
+  if (_x) gsl_vector_free(_x);
+  if (_chosen_densities) gsl_vector_free(_chosen_densities);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 //struct to pass the target (E, rhoB, rhoQ, rhoS) into the rootfinder function
 struct rootfinder_parameters
 {
@@ -58,10 +73,10 @@ int rootfinder_f(const gsl_vector *x, void *params, gsl_vector *f)
 {
 //cout << "Entered at line = " << __LINE__ << endl;
     //x contains the next (T, muB, muS) coordinate to test
-    vector<double> tbqsToEval(4);
+    double tbqsToEval[4];  // stack array — no heap allocation
     tbqsToEval[0] = gsl_vector_get(x,0);
-    tbqsToEval[1] = gsl_vector_get(x,1);	// convert x into densevector so it
-    tbqsToEval[2] = gsl_vector_get(x,2);	// can be a BSpline evaluation point
+    tbqsToEval[1] = gsl_vector_get(x,1);
+    tbqsToEval[2] = gsl_vector_get(x,2);
     tbqsToEval[3] = gsl_vector_get(x,3);
 
     double eorEntGiven, rhoBGiven, rhoQGiven, rhoSGiven, eorEnt, rhoB, rhoQ, rhoS;
@@ -69,8 +84,8 @@ int rootfinder_f(const gsl_vector *x, void *params, gsl_vector *f)
     rhoBGiven       = ((rootfinder_parameters*)params)->rhoBGiven;
     rhoQGiven       = ((rootfinder_parameters*)params)->rhoQGiven;
     rhoSGiven       = ((rootfinder_parameters*)params)->rhoSGiven;
-    std::function<void(double[], double[])>
-      get_densities = ((rootfinder_parameters*)params)->f;
+    const auto&
+      get_densities = ((rootfinder_parameters*)params)->f;  // reference, no copy
 
     // limit scope for readability
     {
@@ -202,16 +217,14 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
 //  std::cout << "Starting new rootfinder4D call\n";
 
   ////////////////////
-  // set initial guess
-  gsl_vector *x = gsl_vector_alloc(4);
+  // set initial guess (reuse pre-allocated vectors)
   for (int iTBQS = 0; iTBQS < 4; iTBQS++)
-    gsl_vector_set(x, iTBQS, tbqsPosition[iTBQS]);
+    gsl_vector_set(_x, iTBQS, tbqsPosition[iTBQS]);
 
-  gsl_vector *chosen_densities = gsl_vector_alloc(4);
-  gsl_vector_set(chosen_densities, 0, e_or_s_Given);
-  gsl_vector_set(chosen_densities, 1, rhoBGiven);
-  gsl_vector_set(chosen_densities, 2, rhoQGiven);
-  gsl_vector_set(chosen_densities, 3, rhoSGiven);
+  gsl_vector_set(_chosen_densities, 0, e_or_s_Given);
+  gsl_vector_set(_chosen_densities, 1, rhoBGiven);
+  gsl_vector_set(_chosen_densities, 2, rhoQGiven);
+  gsl_vector_set(_chosen_densities, 3, rhoSGiven);
 
 
   ////////////////////
@@ -219,24 +232,10 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
   rootfinder_parameters p( e_or_s_Given, rhoBGiven, rhoQGiven, rhoSGiven,
                            e_or_s_mode, function_to_evaluate , baryon_only_mode, T_only_mode );
 
-//  std::cout << __LINE__ << ": " << e_or_s_Given << std::endl;
-//  std::cout << __LINE__ << ": " << rhoBGiven << std::endl;
-//  std::cout << __LINE__ << ": " << rhoSGiven << std::endl;
-//  std::cout << __LINE__ << ": " << rhoQGiven << std::endl;
-//  std::cout << __LINE__ << ": " << e_or_s_mode << std::endl;
-
   ////////////////////
-  // initialize multiroot solver
-  gsl_multiroot_fsolver *solver;
+  // initialize multiroot solver (reuse pre-allocated solver)
   gsl_multiroot_function f = {&rootfinder_f, 4, &p};
-
-  //f.n      = 4;
-  //f.params = &p;
-  //f.f      = &rootfinder_f;
-
-  const gsl_multiroot_fsolver_type *TYPE = gsl_multiroot_fsolver_hybrids;
-  solver = gsl_multiroot_fsolver_alloc(TYPE, 4);
-  gsl_multiroot_fsolver_set(solver, &f, x);
+  gsl_multiroot_fsolver_set(_solver, &f, _x);
 
   int status;
   size_t iter = 0;
@@ -247,13 +246,13 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
   {
 
 //    std::cout << "iter = " << iter << "\n";
-//std::cout << gsl_vector_get(solver->x, 0) << std::endl;
-//std::cout << gsl_vector_get(solver->x, 1) << std::endl;
-//std::cout << gsl_vector_get(solver->x, 2) << std::endl;
-//std::cout << gsl_vector_get(solver->x, 3) << std::endl << std::endl;
+//std::cout << gsl_vector_get(_solver->x, 0) << std::endl;
+//std::cout << gsl_vector_get(_solver->x, 1) << std::endl;
+//std::cout << gsl_vector_get(_solver->x, 2) << std::endl;
+//std::cout << gsl_vector_get(_solver->x, 3) << std::endl << std::endl;
 
     ++iter;
-    status = gsl_multiroot_fsolver_iterate(solver);
+    status = gsl_multiroot_fsolver_iterate(_solver);
 
     if ( status )
     {
@@ -275,56 +274,56 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
     }
 
     //break if the rootfinder goes out of bounds
-    if(gsl_vector_get(solver->x, 0) < minT)
+    if(gsl_vector_get(_solver->x, 0) < minT)
     {
       if ( VERBOSE > 5 )
         std::cout << "Error: out-of-bounds (T < minT)!\n";
       status = -10;
       break;
     }
-    else if(gsl_vector_get(solver->x, 0) > maxT)
+    else if(gsl_vector_get(_solver->x, 0) > maxT)
     {
       if ( VERBOSE > 5 )
         std::cout << "Error: out-of-bounds (T > maxT)!\n";
       status = -10;
       break;
     }
-    else if (gsl_vector_get(solver->x, 1) < minMuB)
+    else if (gsl_vector_get(_solver->x, 1) < minMuB)
     {
       if ( VERBOSE > 5 )
         std::cout << "Error: out-of-bounds (MuB < minMuB)!\n";
       status = -10;
       break;
     }
-    else if (gsl_vector_get(solver->x, 1) > maxMuB)
+    else if (gsl_vector_get(_solver->x, 1) > maxMuB)
     {
       if ( VERBOSE > 5 )
         std::cout << "Error: out-of-bounds (MuB > maxMuB)!\n";
       status = -10;
       break;
     }
-    else if (gsl_vector_get(solver->x, 2) < minMuQ)
+    else if (gsl_vector_get(_solver->x, 2) < minMuQ)
     {
       if ( VERBOSE > 5 )
         std::cout << "Error: out-of-bounds (MuQ < minMuQ)!\n";
       status = -10;
       break;
     }
-    else if (gsl_vector_get(solver->x, 2) > maxMuQ)
+    else if (gsl_vector_get(_solver->x, 2) > maxMuQ)
     {
       if ( VERBOSE > 5 )
         std::cout << "Error: out-of-bounds (MuQ > maxMuQ)!\n";
       status = -10;
       break;
     }
-    else if (gsl_vector_get(solver->x, 3) < minMuS)
+    else if (gsl_vector_get(_solver->x, 3) < minMuS)
     {
       if ( VERBOSE > 5 )
         std::cout << "Error: out-of-bounds (MuS < minMuS)!\n";
       status = -10;
       break;
     }
-    else if (gsl_vector_get(solver->x, 3) > maxMuS)
+    else if (gsl_vector_get(_solver->x, 3) > maxMuS)
     {
       if ( VERBOSE > 5 )
         std::cout << "Error: out-of-bounds (MuS > maxMuS)!\n";
@@ -335,29 +334,29 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
     if ( VERBOSE > 8 )
       std::cout << "\t --> Status: " << status << "   "
            << iter << "   " << error << "\n\t             ("
-           << gsl_vector_get(solver->x, 0)*hbarc_MeVfm << ","
-           << gsl_vector_get(solver->x, 1)*hbarc_MeVfm << ","
-           << gsl_vector_get(solver->x, 2)*hbarc_MeVfm << ","
-           << gsl_vector_get(solver->x, 3)*hbarc_MeVfm << ")"
+           << gsl_vector_get(_solver->x, 0)*hbarc_MeVfm << ","
+           << gsl_vector_get(_solver->x, 1)*hbarc_MeVfm << ","
+           << gsl_vector_get(_solver->x, 2)*hbarc_MeVfm << ","
+           << gsl_vector_get(_solver->x, 3)*hbarc_MeVfm << ")"
            << "\n\t             ("
-           << gsl_vector_get(solver->dx, 0)*hbarc_MeVfm << ","
-           << gsl_vector_get(solver->dx, 1)*hbarc_MeVfm << ","
-           << gsl_vector_get(solver->dx, 2)*hbarc_MeVfm << ","
-           << gsl_vector_get(solver->dx, 3)*hbarc_MeVfm << ")"
+           << gsl_vector_get(_solver->dx, 0)*hbarc_MeVfm << ","
+           << gsl_vector_get(_solver->dx, 1)*hbarc_MeVfm << ","
+           << gsl_vector_get(_solver->dx, 2)*hbarc_MeVfm << ","
+           << gsl_vector_get(_solver->dx, 3)*hbarc_MeVfm << ")"
            << "\n\t             ("
            << e_or_s_Given*hbarc_MeVfm << ","
            << rhoBGiven << ","
            << rhoQGiven << ","
            << rhoSGiven << ")"
            << "\n\t             ("
-           << gsl_vector_get(solver->f, 0)*hbarc_MeVfm << ","
-           << gsl_vector_get(solver->f, 1) << ","
-           << gsl_vector_get(solver->f, 2) << ","
-           << gsl_vector_get(solver->f, 3) << ")" << std::endl;
+           << gsl_vector_get(_solver->f, 0)*hbarc_MeVfm << ","
+           << gsl_vector_get(_solver->f, 1) << ","
+           << gsl_vector_get(_solver->f, 2) << ","
+           << gsl_vector_get(_solver->f, 3) << ")" << std::endl;
 
 
     // test absolute error
-    status = gsl_multiroot_test_residual(solver->f, error);
+    status = gsl_multiroot_test_residual(_solver->f, error);
 
     // test relative error
     //status = gsl_multiroot_test_delta(solver->f, chosen_densities, 1e-15, 1e-15);
@@ -366,7 +365,7 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
     //status = gsl_multiroot_test_delta(solver->dx, solver->x, 0.0, error);
 
 //    // test all conditions at once
-//    if (   gsl_multiroot_test_residual(solver->f, error) == GSL_CONTINUE
+//    if (   gsl_multiroot_test_residual(_solver->f, error) == GSL_CONTINUE
 //        || gsl_multiroot_test_delta(solver->dx, solver->x, error, error) == GSL_CONTINUE
 //        || gsl_multiroot_test_delta(solver->f, chosen_densities, error, error) == GSL_CONTINUE
 //       )
@@ -400,20 +399,18 @@ bool Rootfinder::rootfinder4D(double e_or_s_Given, int e_or_s_mode,
   if ( found )
   {
     //DON'T NEED TO UPDATE TBQSPOSITION
-    /*tbqs( gsl_vector_get(solver->x, 0),
-          gsl_vector_get(solver->x, 1),
-          gsl_vector_get(solver->x, 2),
-          gsl_vector_get(solver->x, 3) );*/
+    /*tbqs( gsl_vector_get(_solver->x, 0),
+          gsl_vector_get(_solver->x, 1),
+          gsl_vector_get(_solver->x, 2),
+          gsl_vector_get(_solver->x, 3) );*/
 
     //UPDATE RESULT PASSED BACK TO EOS INSTEAD
     for (int iTBQS = 0; iTBQS < 4; iTBQS++)
-      updated_tbqs[iTBQS] = gsl_vector_get(solver->x, iTBQS);
+      updated_tbqs[iTBQS] = gsl_vector_get(_solver->x, iTBQS);
   }
 
-  // memory deallocation
-  gsl_multiroot_fsolver_free(solver);
-  gsl_vector_free(x);
-  gsl_vector_free(chosen_densities);
+  // no deallocation needed — _solver, _x, _chosen_densities are pre-allocated
+  // members freed in the destructor.
 
   return found;
 }

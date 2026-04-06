@@ -863,8 +863,8 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
     Cabana::simd_parallel_for(simd_policy, compute_Ez_derivative, "compute_Ez_derivative");
     Kokkos::fence();
 
-    // if using shear calculate shear knudsen number
-    if(using_shear){
+    // compute Knudsen/Reynolds numbers for shear and diffusion
+    if(using_shear || using_diffusion){
     compute_hydro_numbers(sysPtr);
     }
   };
@@ -1942,7 +1942,46 @@ void EoM_default<D>::compute_hydro_numbers(std::shared_ptr<SystemState<D>> sysPt
     double shv_magnitude = sqrt(abs(milne::contract(shv,shv_cov)));
     device_hydro_scalar.access(is, ia, hydro_info::inverse_reynolds_shear) = shv_magnitude/pressure;
     device_hydro_scalar.access(is, ia, hydro_info::inverse_reynolds_bulk) = abs(bulk)/pressure;
-    
+
+    // diffusion Knudsen and inverse-Reynolds numbers (one per charge: B=0, S=1, Q=2)
+    double rho[3];
+    rho[0] = device_thermo.access(is, ia, thermo_info::rhoB);
+    rho[1] = device_thermo.access(is, ia, thermo_info::rhoS);
+    rho[2] = device_thermo.access(is, ia, thermo_info::rhoQ);
+
+    for (int ic = 0; ic < 3; ++ic) {
+      // Knudsen: tau_q^(aa) * |grad(mu_a/T)|
+      // grad_alpha_a stored as (idir, icharge)
+      double grad_alpha_sq = 0.0;
+      for (int idir = 0; idir < D; ++idir) {
+        double g = device_hydro_space_matrix.access(is, ia, hydro_info::grad_alpha_a, idir, ic);
+        grad_alpha_sq += g * g;
+      }
+      double tau_q_aa = device_hydro_space_matrix.access(is, ia, hydro_info::tau_q, ic, ic);
+      double kn_val = tau_q_aa * Kokkos::sqrt(grad_alpha_sq);
+
+      // inverse Reynolds: |q^mu| / |n_a|  (Milne: eta component carries tau^2)
+      double q0 = device_hydro_diffusion.access(is, ia, hydro_info::diffusion, ic, 0);
+      double q1 = device_hydro_diffusion.access(is, ia, hydro_info::diffusion, ic, 1);
+      double q2 = device_hydro_diffusion.access(is, ia, hydro_info::diffusion, ic, 2);
+      double q3 = device_hydro_diffusion.access(is, ia, hydro_info::diffusion, ic, 3);
+      double q_sq = q1*q1 + q2*q2 + t2*q3*q3 - q0*q0;
+      double q_mag = q_sq > 0.0 ? Kokkos::sqrt(q_sq) : 0.0;
+      double n_abs = Kokkos::fabs(rho[ic]);
+      double re_val = (n_abs > 1e-15) ? q_mag / n_abs : 0.0;
+
+      if (ic == 0) {
+        device_hydro_scalar.access(is, ia, hydro_info::knudsen_diffusion_B)          = kn_val;
+        device_hydro_scalar.access(is, ia, hydro_info::inverse_reynolds_diffusion_B) = re_val;
+      } else if (ic == 1) {
+        device_hydro_scalar.access(is, ia, hydro_info::knudsen_diffusion_S)          = kn_val;
+        device_hydro_scalar.access(is, ia, hydro_info::inverse_reynolds_diffusion_S) = re_val;
+      } else {
+        device_hydro_scalar.access(is, ia, hydro_info::knudsen_diffusion_Q)          = kn_val;
+        device_hydro_scalar.access(is, ia, hydro_info::inverse_reynolds_diffusion_Q) = re_val;
+      }
+    }
+
   };
   Cabana::simd_parallel_for(simd_policy, caus, "compute_knu_and_rey");
   Kokkos::fence();
@@ -1964,6 +2003,7 @@ void EoM_default<D>::check_causality(std::shared_ptr<SystemState<D>> sysPtr)
     double t2 = t * t;
     CREATE_VIEW(device_, sysPtr->cabana_particles);
     auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH, ExecutionSpace>(0, sysPtr->cabana_particles.size());
+    auto host_simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH, Kokkos::OpenMP>(0, sysPtr->cabana_particles.size());
 
     auto get_sorted_eigenvalues_of_pi_mu_nu = [](milne::Matrix<double, 4, 4> &shv_hybrid,
                                                  double &Lambda_0,
@@ -2064,9 +2104,10 @@ void EoM_default<D>::check_causality(std::shared_ptr<SystemState<D>> sysPtr)
     };
 
 
-    auto causality_check = KOKKOS_LAMBDA(const int is, const int ia)
+    Kokkos::fence(); // ensure GPU kernels complete before host causality check
+    auto causality_check = [=](const int is, const int ia)
     {
-        double e, p, Pi, eta, zeta, tau_pi, tau_Pi, delta_PiPi, lambda_Pipi, delta_pipi, lambda_piPi, cs2, 
+        double e, p, Pi, eta, zeta, tau_pi, tau_Pi, delta_PiPi, lambda_Pipi, delta_pipi, lambda_piPi, cs2,
                tau_pipi;
         double Lambda_0, Lambda_1, Lambda_2, Lambda_3;
 
@@ -2239,7 +2280,7 @@ void EoM_default<D>::check_causality(std::shared_ptr<SystemState<D>> sysPtr)
         device_hydro_scalar.access(is, ia, hydro_info::causality) = causality_result;
   };
 
-    Cabana::simd_parallel_for(simd_policy, causality_check, "check_causality_conditions");
+    Cabana::simd_parallel_for(host_simd_policy, causality_check, "check_causality_conditions");
     Kokkos::fence();
 }
 

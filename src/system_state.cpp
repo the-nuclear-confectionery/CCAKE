@@ -19,6 +19,9 @@
 #include "system_state.h"
 #include "milne.hpp"
 #include "utilities.h"
+#ifdef __linux__
+#include <malloc.h>   // malloc_trim, mallopt
+#endif
 
 using namespace constants;
 using namespace ccake;
@@ -39,6 +42,13 @@ void SystemState<D>::initialize()  // formerly called "manualenter"
   formatted_output::report("Initializing system");
   number_of_elapsed_timesteps = 0;
   t = settingsPtr->t0;
+#ifdef __linux__
+  // Route large allocations (> 1 MB) through mmap so they are returned to the
+  // OS immediately when freed, preventing glibc heap growth from the per-
+  // timestep Cabana VerletList rebuild (~18 MB per call).
+  mallopt(M_MMAP_THRESHOLD, 1024 * 1024);   // 1 MB mmap threshold
+  mallopt(M_TRIM_THRESHOLD, 1024 * 1024);   // trim heap when 1 MB is free at top
+#endif
   return;
 }
 
@@ -47,8 +57,8 @@ void SystemState<D>::initialize()  // formerly called "manualenter"
 template<unsigned int D>
 void SystemState<D>::allocate_cabana_particles(){
     formatted_output::detail("Initializing device memory");
-    ///Allocate memory for the particles
-    cabana_particles = Cabana::AoSoA<CabanaParticle, DeviceType, VECTOR_LENGTH>("particles", n_particles);
+    cabana_particles = Cabana::AoSoA<CabanaParticle, DeviceType, VECTOR_LENGTH>("particles",   n_particles);
+    particles_h      = Cabana::AoSoA<CabanaParticle, SerialHost,  VECTOR_LENGTH>("particles_h", n_particles);
     copy_host_to_device();
 }
 
@@ -61,13 +71,10 @@ void SystemState<D>::allocate_cabana_particles(){
 template<unsigned int D>
 void SystemState<D>::copy_host_to_device(){
 
-  using SerialHost = Kokkos::Device<Kokkos::Serial, Kokkos::HostSpace>;
-  //Auxiliary AoSoA for copying particles from/to host
-  Cabana::AoSoA<ccake::CabanaParticle, SerialHost, 8> particles_h("particles_h",n_particles);
   #ifdef DEBUG
   formatted_output::detail("Copying data from host to device");
   #endif
-  //Create vies to particles
+  //Create views to particles
   CREATE_VIEW(host_, particles_h);
   //Fill host arrays
   for (int iparticle=0; iparticle < n_particles; ++iparticle){
@@ -330,8 +337,7 @@ void SystemState<D>::copy_device_to_host(){
   #ifdef DEBUG
   formatted_output::detail("Copying data from device to host");
   #endif
-  //Auxiliary AoSoA for copying particles from/to host
-  auto particles_h = Cabana::create_mirror_view_and_copy(Kokkos::HostSpace(), cabana_particles);
+  Cabana::deep_copy(particles_h, cabana_particles);
   Kokkos::fence();
   CREATE_VIEW(host_, particles_h);
   for (int iparticle=0; iparticle < n_particles; ++iparticle){
@@ -548,6 +554,79 @@ void SystemState<D>::copy_device_to_host(){
 
 }
 
+/// @brief Partial copy device→host for online inverter: only input+thermo fields.
+/// Does the full Cabana deep_copy (unavoidable) but only unpacks the fields that
+/// locate_phase_diagram_point_sBSQ actually reads: input.{s,rhoB,rhoS,rhoQ} and
+/// thermo.{s,rhoB,rhoS,rhoQ,e}.
+template<unsigned int D>
+void SystemState<D>::copy_thermo_device_to_host(){
+  Cabana::deep_copy(particles_h, cabana_particles);
+  Kokkos::fence();
+  CREATE_VIEW(host_, particles_h);
+  for (int iparticle=0; iparticle < n_particles; ++iparticle){
+    int id = host_id(iparticle);
+    // Input densities (what the inverter inverts from)
+    particles[id].input.s    = host_input(iparticle, ccake::densities_info::s);
+    particles[id].input.rhoB = host_input(iparticle, ccake::densities_info::rhoB);
+    particles[id].input.rhoS = host_input(iparticle, ccake::densities_info::rhoS);
+    particles[id].input.rhoQ = host_input(iparticle, ccake::densities_info::rhoQ);
+    // Current thermo state (used as seed for rootfinder)
+    particles[id].thermo.s    = host_thermo(iparticle, ccake::thermo_info::s);
+    particles[id].thermo.rhoB = host_thermo(iparticle, ccake::thermo_info::rhoB);
+    particles[id].thermo.rhoS = host_thermo(iparticle, ccake::thermo_info::rhoS);
+    particles[id].thermo.rhoQ = host_thermo(iparticle, ccake::thermo_info::rhoQ);
+    particles[id].thermo.e    = host_thermo(iparticle, ccake::thermo_info::e);
+    particles[id].thermo.T    = host_thermo(iparticle, ccake::thermo_info::T);
+    particles[id].thermo.muB  = host_thermo(iparticle, ccake::thermo_info::muB);
+    particles[id].thermo.muS  = host_thermo(iparticle, ccake::thermo_info::muS);
+    particles[id].thermo.muQ  = host_thermo(iparticle, ccake::thermo_info::muQ);
+  }
+}
+
+/// @brief Partial copy host→device for online inverter: only thermo output fields.
+/// Repacks only the thermo fields written by locate_phase_diagram_point_sBSQ,
+/// then does the full Cabana deep_copy back to device.
+template<unsigned int D>
+void SystemState<D>::copy_thermo_host_to_device(){
+  CREATE_VIEW(host_, particles_h);
+  for (int iparticle=0; iparticle < n_particles; ++iparticle){
+    int id = host_id(iparticle);
+    host_thermo(iparticle, ccake::thermo_info::T)    = particles[id].thermo.T;
+    host_thermo(iparticle, ccake::thermo_info::muB)  = particles[id].thermo.muB;
+    host_thermo(iparticle, ccake::thermo_info::muS)  = particles[id].thermo.muS;
+    host_thermo(iparticle, ccake::thermo_info::muQ)  = particles[id].thermo.muQ;
+    host_thermo(iparticle, ccake::thermo_info::e)    = particles[id].thermo.e;
+    host_thermo(iparticle, ccake::thermo_info::s)    = particles[id].thermo.s;
+    host_thermo(iparticle, ccake::thermo_info::rhoB) = particles[id].thermo.rhoB;
+    host_thermo(iparticle, ccake::thermo_info::rhoS) = particles[id].thermo.rhoS;
+    host_thermo(iparticle, ccake::thermo_info::rhoQ) = particles[id].thermo.rhoQ;
+    host_thermo(iparticle, ccake::thermo_info::p)    = particles[id].thermo.p;
+    host_thermo(iparticle, ccake::thermo_info::cs2)  = particles[id].thermo.cs2;
+    host_thermo(iparticle, ccake::thermo_info::w)    = particles[id].thermo.w;
+    host_thermo(iparticle, ccake::thermo_info::dwds) = particles[id].thermo.dwds;
+    host_thermo(iparticle, ccake::thermo_info::dwdB) = particles[id].thermo.dwdB;
+    host_thermo(iparticle, ccake::thermo_info::dwdS) = particles[id].thermo.dwdS;
+    host_thermo(iparticle, ccake::thermo_info::dwdQ) = particles[id].thermo.dwdQ;
+    host_thermo(iparticle, ccake::thermo_info::dalpha_Bds)  = particles[id].thermo.dalpha_Bds;
+    host_thermo(iparticle, ccake::thermo_info::dalpha_Sds)  = particles[id].thermo.dalpha_Sds;
+    host_thermo(iparticle, ccake::thermo_info::dalpha_Qds)  = particles[id].thermo.dalpha_Qds;
+    host_thermo(iparticle, ccake::thermo_info::dalpha_BdB)  = particles[id].thermo.dalpha_BdB;
+    host_thermo(iparticle, ccake::thermo_info::dalpha_SdB)  = particles[id].thermo.dalpha_SdB;
+    host_thermo(iparticle, ccake::thermo_info::dalpha_QdB)  = particles[id].thermo.dalpha_QdB;
+    host_thermo(iparticle, ccake::thermo_info::dalpha_BdS)  = particles[id].thermo.dalpha_BdS;
+    host_thermo(iparticle, ccake::thermo_info::dalpha_SdS)  = particles[id].thermo.dalpha_SdS;
+    host_thermo(iparticle, ccake::thermo_info::dalpha_QdS)  = particles[id].thermo.dalpha_QdS;
+    host_thermo(iparticle, ccake::thermo_info::dalpha_BdQ)  = particles[id].thermo.dalpha_BdQ;
+    host_thermo(iparticle, ccake::thermo_info::dalpha_SdQ)  = particles[id].thermo.dalpha_SdQ;
+    host_thermo(iparticle, ccake::thermo_info::dalpha_QdQ)  = particles[id].thermo.dalpha_QdQ;
+    host_thermo(iparticle, ccake::thermo_info::chiBB)       = particles[id].thermo.chiBB;
+    host_thermo(iparticle, ccake::thermo_info::chiBB0)      = particles[id].thermo.chiBB0;
+    host_thermo(iparticle, ccake::thermo_info::eos_type_is_table) = particles[id].thermo.eos_type_is_table;
+  }
+  Cabana::deep_copy(cabana_particles, particles_h);
+  Kokkos::fence();
+}
+
 /// @brief Reset the neighbour list
 /// @details This function should be called after the particles have been moved,
 /// since neighbour list is based on the position of the particles. Computation
@@ -620,6 +699,9 @@ void SystemState<D>::reset_neighbour_list(){
                                           neighborhood_radius, cell_ratio, min_pos, max_pos
                            );
   Kokkos::fence();
+#ifdef __linux__
+  malloc_trim(0);   // return freed Kokkos/Cabana pages to OS after neighbour list rebuild
+#endif
 
 
   //Update the number of neighbours

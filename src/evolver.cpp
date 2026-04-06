@@ -438,10 +438,15 @@ void Evolver<D>::step_rk(double dt, double t0, std::function<void(void)> time_de
     if (extensive_s < 0.0 && freeze > 3){ //If frozen, we do not want to crash because of negative entropy
       extensive_s = 1.e-3; //Enforce positivity
     } else if (extensive_s < 0.0){ //Else, something went terribly wrong
-      formatted_output::detail("Negative entropy density");
-      std::cout<< "particle ID: " << device_id.access(is, ia) << std::endl;
-      systemPtr->print_neighbors(device_id.access(is, ia));
-      exit(EXIT_FAILURE);
+      KOKKOS_IF_ON_HOST((
+        formatted_output::detail("Negative entropy density");
+        printf("particle ID: %d\n", (int)device_id.access(is, ia));
+        systemPtr->print_neighbors(device_id.access(is, ia));
+        exit(EXIT_FAILURE);
+      ))
+      KOKKOS_IF_ON_DEVICE((
+        Kokkos::abort("Negative entropy density");
+      ))
     }
 
     device_extensive.access(is, ia, densities_info::s) = extensive_s;

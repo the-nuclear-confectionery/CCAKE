@@ -272,7 +272,10 @@ void EoS_Interpolator::fill_thermodynamics(Cabana::AoSoA<CabanaParticle,
                                                         VECTOR_LENGTH> &particles,
                                                         const double t){
   CREATE_VIEW(device_,particles)
-  auto interpolate = KOKKOS_CLASS_LAMBDA(const int is, const int ia){
+  // Capture a raw pointer instead of *this to avoid deep-copying the entire
+  // EoS_Interpolator (3,840 Kokkos::Views + attribute arrays) into the lambda.
+  const auto* self = this;
+  auto interpolate = KOKKOS_LAMBDA(const int is, const int ia){
     //Compute the entropy and charge densities in the particles' rest frame
     double s = Kokkos::max(.001,device_thermo.access(is, ia, ccake::thermo_info::s));
     double rhoB = Kokkos::max(.001,Kokkos::fabs(device_thermo.access(is, ia, ccake::thermo_info::rhoB)));
@@ -291,30 +294,30 @@ void EoS_Interpolator::fill_thermodynamics(Cabana::AoSoA<CabanaParticle,
 
     int tble[4] = {ts, tB, tS, tQ};
 
-    double s_min = s_attr[ts][tB][tS][tQ].min;
-    double ds = s_attr[ts][tB][tS][tQ].step;
-    double B_min = B_attr[ts][tB][tS][tQ].min;
-    double dB = B_attr[ts][tB][tS][tQ].step;
-    double S_min = S_attr[ts][tB][tS][tQ].min;
-    double dS = S_attr[ts][tB][tS][tQ].step;
-    double Q_min = Q_attr[ts][tB][tS][tQ].min;
-    double dQ = Q_attr[ts][tB][tS][tQ].step;
+    double s_min = self->s_attr[ts][tB][tS][tQ].min;
+    double ds = self->s_attr[ts][tB][tS][tQ].step;
+    double B_min = self->B_attr[ts][tB][tS][tQ].min;
+    double dB = self->B_attr[ts][tB][tS][tQ].step;
+    double S_min = self->S_attr[ts][tB][tS][tQ].min;
+    double dS = self->S_attr[ts][tB][tS][tQ].step;
+    double Q_min = self->Q_attr[ts][tB][tS][tQ].min;
+    double dQ = self->Q_attr[ts][tB][tS][tQ].step;
 
     //Find the indices of the nearest neighbors in the table
     int idx[4];
 
     // If an axis is degenerate (step==0), the only valid index is 0.
     idx[0] = (Kokkos::fabs(ds) < 1e-30) ? 0
-            : Kokkos::min((int)Kokkos::floor((s    - s_min)/ds), s_attr[ts][tB][tS][tQ].N-1);
+            : Kokkos::min((int)Kokkos::floor((s    - s_min)/ds), self->s_attr[ts][tB][tS][tQ].N-1);
 
     idx[1] = (Kokkos::fabs(dB) < 1e-30) ? 0
-            : Kokkos::min((int)Kokkos::floor((rhoB - B_min)/dB), B_attr[ts][tB][tS][tQ].N-1);
+            : Kokkos::min((int)Kokkos::floor((rhoB - B_min)/dB), self->B_attr[ts][tB][tS][tQ].N-1);
 
     idx[2] = (Kokkos::fabs(dS) < 1e-30) ? 0
-            : Kokkos::min((int)Kokkos::floor((rhoS - S_min)/dS), S_attr[ts][tB][tS][tQ].N-1);
+            : Kokkos::min((int)Kokkos::floor((rhoS - S_min)/dS), self->S_attr[ts][tB][tS][tQ].N-1);
 
     idx[3] = (Kokkos::fabs(dQ) < 1e-30) ? 0
-            : Kokkos::min((int)Kokkos::floor((rhoQ - Q_min)/dQ), Q_attr[ts][tB][tS][tQ].N-1);
+            : Kokkos::min((int)Kokkos::floor((rhoQ - Q_min)/dQ), self->Q_attr[ts][tB][tS][tQ].N-1);
 
     double pos[4];
     pos[0] = s;
@@ -322,17 +325,17 @@ void EoS_Interpolator::fill_thermodynamics(Cabana::AoSoA<CabanaParticle,
     pos[2] = rhoS;
     pos[3] = rhoQ;
 
-    device_thermo.access(is, ia, ccake::thermo_info::T)    = interpolate4D(idx, pos, tble, ccake::eos_variables::T);
-    device_thermo.access(is, ia, ccake::thermo_info::muB)  = interpolate4D(idx, pos, tble, ccake::eos_variables::muB);
-    device_thermo.access(is, ia, ccake::thermo_info::muS)  = interpolate4D(idx, pos, tble, ccake::eos_variables::muS);
-    device_thermo.access(is, ia, ccake::thermo_info::muQ)  = interpolate4D(idx, pos, tble, ccake::eos_variables::muQ);
-    device_thermo.access(is, ia, ccake::thermo_info::e)    = interpolate4D(idx, pos, tble, ccake::eos_variables::e);
-    device_thermo.access(is, ia, ccake::thermo_info::p)    = interpolate4D(idx, pos, tble, ccake::eos_variables::p);
-    device_thermo.access(is, ia, ccake::thermo_info::cs2)  = interpolate4D(idx, pos, tble, ccake::eos_variables::cs2);
-    device_thermo.access(is, ia, ccake::thermo_info::dwds) = interpolate4D(idx, pos, tble, ccake::eos_variables::dw_ds);
-    device_thermo.access(is, ia, ccake::thermo_info::dwdB) = interpolate4D(idx, pos, tble, ccake::eos_variables::dw_dB);
-    device_thermo.access(is, ia, ccake::thermo_info::dwdS) = interpolate4D(idx, pos, tble, ccake::eos_variables::dw_dS);
-    device_thermo.access(is, ia, ccake::thermo_info::dwdQ) = interpolate4D(idx, pos, tble, ccake::eos_variables::dw_dQ);
+    device_thermo.access(is, ia, ccake::thermo_info::T)    = self->interpolate4D(idx, pos, tble, ccake::eos_variables::T);
+    device_thermo.access(is, ia, ccake::thermo_info::muB)  = self->interpolate4D(idx, pos, tble, ccake::eos_variables::muB);
+    device_thermo.access(is, ia, ccake::thermo_info::muS)  = self->interpolate4D(idx, pos, tble, ccake::eos_variables::muS);
+    device_thermo.access(is, ia, ccake::thermo_info::muQ)  = self->interpolate4D(idx, pos, tble, ccake::eos_variables::muQ);
+    device_thermo.access(is, ia, ccake::thermo_info::e)    = self->interpolate4D(idx, pos, tble, ccake::eos_variables::e);
+    device_thermo.access(is, ia, ccake::thermo_info::p)    = self->interpolate4D(idx, pos, tble, ccake::eos_variables::p);
+    device_thermo.access(is, ia, ccake::thermo_info::cs2)  = self->interpolate4D(idx, pos, tble, ccake::eos_variables::cs2);
+    device_thermo.access(is, ia, ccake::thermo_info::dwds) = self->interpolate4D(idx, pos, tble, ccake::eos_variables::dw_ds);
+    device_thermo.access(is, ia, ccake::thermo_info::dwdB) = self->interpolate4D(idx, pos, tble, ccake::eos_variables::dw_dB);
+    device_thermo.access(is, ia, ccake::thermo_info::dwdS) = self->interpolate4D(idx, pos, tble, ccake::eos_variables::dw_dS);
+    device_thermo.access(is, ia, ccake::thermo_info::dwdQ) = self->interpolate4D(idx, pos, tble, ccake::eos_variables::dw_dQ);
 
     device_thermo.access(is, ia, ccake::thermo_info::w) = device_thermo.access(is, ia, ccake::thermo_info::e)
                                                         + device_thermo.access(is, ia, ccake::thermo_info::p);

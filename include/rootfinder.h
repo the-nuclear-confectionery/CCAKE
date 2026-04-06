@@ -25,8 +25,8 @@ int rootfinder_f( const gsl_vector *x, void *params, gsl_vector *f );
 class Rootfinder
 {
 public:
-  Rootfinder(){}
-  ~Rootfinder(){}
+  Rootfinder();
+  ~Rootfinder();
   void set_baryon_only_mode(bool on) { baryon_only_mode = on; }
   void set_T_only_mode(bool on) { T_only_mode = on; }
 
@@ -44,6 +44,12 @@ private:
   double minT, maxT, minMuB, maxMuB, minMuS, maxMuS, minMuQ, maxMuQ;
   bool baryon_only_mode = false;
   bool T_only_mode = false;
+
+  // Pre-allocated GSL objects reused across all find_root calls to avoid
+  // per-particle malloc/free churn that grows the brk heap irreversibly.
+  gsl_multiroot_fsolver* _solver = nullptr;
+  gsl_vector* _x = nullptr;
+  gsl_vector* _chosen_densities = nullptr;
 
   vector<double> tbqsPosition;
 

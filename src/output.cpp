@@ -143,7 +143,13 @@ void Output<D>::print_system_state_to_txt()
         out << p.hydro.gamma << " " //36
         << p.Freeze << " " //37
         << p.get_current_eos_name() << " " //38
-        << p.hydro.causality << " " << "\n";
+        << p.hydro.causality << " "
+        << p.hydro.knudsen_diffusion_B         << " " //39
+        << p.hydro.knudsen_diffusion_S         << " " //40
+        << p.hydro.knudsen_diffusion_Q         << " " //41
+        << p.hydro.inverse_reynolds_diffusion_B << " " //42
+        << p.hydro.inverse_reynolds_diffusion_S << " " //43
+        << p.hydro.inverse_reynolds_diffusion_Q << " " << "\n"; //44
   }
 
   out << std::flush;
@@ -251,163 +257,178 @@ void Output<D>::print_conservation_status()
 }
 
 
-/// @brief Prints the freeze-out particles to a text file.
-/// @tparam D The dimensionality of the simulation.
-/// @param[in] freeze_out Pointer to the freeze-out object.
-/// @todo We need to understand the meaning of the quantities printed here.
+/// @brief Appends one conservation status line to in-memory buffer.
 template<unsigned int D>
-void Output<D>::print_freeze_out(std::shared_ptr<FreezeOut<D>> freeze_out, double B, double Q, double S)
+void Output<D>::buffer_conservation_line()
 {
-  static bool first_call = true;
-  
-  string outputfilename = output_directory + "/freeze_out.dat";
-  ofstream FO;
+  cons_buffer << systemPtr->t      << " "
+              << systemPtr->Eloss  << " "
+              << systemPtr->S      << " "
+              << systemPtr->Btotal << " "
+              << systemPtr->Stotal << " "
+              << systemPtr->Qtotal << "\n";
+}
 
-  if (first_call) {
-      // First call → wipe file
-      FO.open(outputfilename, ios::out | ios::trunc);
-      // Write header
-      FO << "# " << B << " " << S << " " << Q << "\n";
-      first_call = false;
-  } else {
-      // Subsequent calls → append
-      FO.open(outputfilename, ios::out | ios::app);
-  }
-  if (!FO)
-      throw std::runtime_error("Could not open " + outputfilename);
-  //Copy data to host
-  auto FOResults = Cabana::create_mirror_view_and_copy(Kokkos::HostSpace(),
-                                                        freeze_out->results);
-  int count=0;
-  FRZ_RESULTS_VIEW(result_, FOResults)
-  for (int i = 0; i < FOResults.size(); i++){
-    if (!result_print(i)) continue;
-    FO << result_divEener(i) << " ";
-    for(int idir = 0; idir < D; idir++)
-      FO << result_divE(i, idir) << " ";
-    FO << result_gsub(i) << " ";
-    for(int idir = 0; idir < D; idir++)
-      FO << result_uout(i, idir) << " ";
-    FO << result_swsub(i) << " "
-       << result_bulksub(i) << " "
-       << result_shearsub(i, 0,0) << " "
-       << result_shearsub(i, 1,1) << " "
-       << result_shearsub(i, 2,2) << " "
-       << result_shear33sub(i) << " "
-       << result_shearsub(i,1,2) << " "
-       << result_shearsub(i,1,3) << " "
-       << result_shearsub(i,2,3) << " "
-       << result_tlist(i) << " ";
-    for(int idir = 0; idir < D; idir++)
-        FO << result_rsub(i, idir) << " ";
-    FO << result_sFO(i) << " "
-       << result_Efluc(i) << " "
-       << result_Tfluc(i) << " "
-       << result_muBfluc(i) << " "
-       << result_muSfluc(i) << " "
-       << result_muQfluc(i) << " "
-       << result_wfzfluc(i) << " "
-       << result_cs2fzfluc(i) << " "
-       << result_rhoBfluc(i) << " "
-       << result_rhoSfluc(i) << " "
-       << result_rhoQfluc(i) << " "
-       << result_diffout(i,0,0) << " "
-       << result_diffout(i,0,1) << " "
-       << result_diffout(i,0,2) << " "
-       << result_diffout(i,0,3) << " "
-       << result_diffout(i,1,0) << " "
-       << result_diffout(i,1,1) << " "
-       << result_diffout(i,1,2) << " "
-       << result_diffout(i,1,3) << " "
-       << result_diffout(i,2,0) << " "
-       << result_diffout(i,2,1) << " "
-       << result_diffout(i,2,2) << " "
-       << result_diffout(i,2,3) << 
-       endl;
-    count++;
-  }
-  formatted_output::detail("Printed " + std::to_string(count) + " freeze-out particles.");
-  FO.close();
-
-  return;
+/// @brief Writes all buffered conservation data to disk (call once at end).
+template<unsigned int D>
+void Output<D>::flush_conservation(const std::string& path)
+{
+  std::ofstream outfile(path.c_str(), std::ios::out | std::ios::trunc);
+  if (!outfile)
+    throw std::runtime_error("Could not open " + path);
+  outfile << "t Eloss S Btotal Stotal Qtotal\n";
+  outfile << cons_buffer.str();
 }
 
 
-/// @brief Prints the freeze-out particles to a text file.
+/// @brief Buffers freeze-out particle data for end-of-run output.
+/// @details Uses the persistent host-side mirror freeze_out->results_h
+/// (avoids per-call Cabana::create_mirror_view_and_copy heap overhead).
+/// Data is accumulated in fo_buffer and written to disk by flush_freeze_out().
 /// @tparam D The dimensionality of the simulation.
 /// @param[in] freeze_out Pointer to the freeze-out object.
-/// @todo We need to understand the meaning of the quantities printed here.
+template<unsigned int D>
+void Output<D>::print_freeze_out(std::shared_ptr<FreezeOut<D>> freeze_out, double B, double Q, double S)
+{
+  // Save header once (for flush_freeze_out to use)
+  if (fo_header.empty()) {
+    std::ostringstream hdr;
+    hdr << "# " << B << " " << S << " " << Q << "\n";
+    fo_header = hdr.str();
+  }
+
+  // Update persistent host mirror from device (no new allocation)
+  Cabana::deep_copy(freeze_out->results_h, freeze_out->results);
+
+  // Accumulate frozen-out particles into fo_buffer
+  int count = 0;
+  FRZ_RESULTS_VIEW(result_, freeze_out->results_h)
+  for (int i = 0; i < (int)freeze_out->results_h.size(); i++) {
+    if (!result_print(i)) continue;
+    fo_buffer << result_divEener(i) << " ";
+    for (int idir = 0; idir < (int)D; idir++)
+      fo_buffer << result_divE(i, idir) << " ";
+    fo_buffer << result_gsub(i) << " ";
+    for (int idir = 0; idir < (int)D; idir++)
+      fo_buffer << result_uout(i, idir) << " ";
+    fo_buffer << result_swsub(i) << " "
+              << result_bulksub(i) << " "
+              << result_shearsub(i, 0,0) << " "
+              << result_shearsub(i, 1,1) << " "
+              << result_shearsub(i, 2,2) << " "
+              << result_shear33sub(i) << " "
+              << result_shearsub(i,1,2) << " "
+              << result_shearsub(i,1,3) << " "
+              << result_shearsub(i,2,3) << " "
+              << result_tlist(i) << " ";
+    for (int idir = 0; idir < (int)D; idir++)
+      fo_buffer << result_rsub(i, idir) << " ";
+    fo_buffer << result_sFO(i) << " "
+              << result_Efluc(i) << " "
+              << result_Tfluc(i) << " "
+              << result_muBfluc(i) << " "
+              << result_muSfluc(i) << " "
+              << result_muQfluc(i) << " "
+              << result_wfzfluc(i) << " "
+              << result_cs2fzfluc(i) << " "
+              << result_rhoBfluc(i) << " "
+              << result_rhoSfluc(i) << " "
+              << result_rhoQfluc(i) << " "
+              << result_diffout(i,0,0) << " "
+              << result_diffout(i,0,1) << " "
+              << result_diffout(i,0,2) << " "
+              << result_diffout(i,0,3) << " "
+              << result_diffout(i,1,0) << " "
+              << result_diffout(i,1,1) << " "
+              << result_diffout(i,1,2) << " "
+              << result_diffout(i,1,3) << " "
+              << result_diffout(i,2,0) << " "
+              << result_diffout(i,2,1) << " "
+              << result_diffout(i,2,2) << " "
+              << result_diffout(i,2,3) << "\n";
+    count++;
+  }
+  fo_particles_buffered += count;
+  formatted_output::detail("Buffered " + std::to_string(count) + " freeze-out particles.");
+  return;
+}
+
+/// @brief Writes all buffered freeze-out data to disk. Call once at end of simulation.
+template<unsigned int D>
+void Output<D>::flush_freeze_out()
+{
+  string outputfilename = output_directory + "/freeze_out.dat";
+  ofstream FO(outputfilename, ios::out | ios::trunc);
+  if (!FO)
+    throw std::runtime_error("Could not open " + outputfilename);
+  FO << fo_header;
+  FO << fo_buffer.str();
+  FO.close();
+  formatted_output::report("freeze_out.dat written (" +
+    std::to_string(fo_particles_buffered) + " particles).");
+}
+
+
+/// @brief Buffers 2D freeze-out particle data for end-of-run output.
+/// @details Uses the persistent host-side mirror; data flushed by flush_freeze_out().
 template<>
 void Output<2>::print_freeze_out(std::shared_ptr<FreezeOut<2>> freeze_out, double B, double Q, double S)
 {
-  string outputfilename = output_directory + "/freeze_out.dat";
-  ofstream FO( outputfilename.c_str(), ios::app );
-
-  //Copy data to host
-  auto FOResults = Cabana::create_mirror_view_and_copy(Kokkos::HostSpace(),
-                                                        freeze_out->results);
-
-  bool write_header = false;
-  struct stat file_stat;
-  if (stat(outputfilename.c_str(), &file_stat) != 0 || file_stat.st_size == 0) {
-    write_header = true;
+  if (fo_header.empty()) {
+    std::ostringstream hdr;
+    hdr << "# " << B << " " << S << " " << Q << "\n";
+    fo_header = hdr.str();
   }
 
-  //print total B,S,Q of the system
-  if (write_header) {
-    FO << "# " << B << " "
-               << S << " "
-               << Q << "\n";
-  }
+  // Update persistent host mirror from device (no new allocation)
+  Cabana::deep_copy(freeze_out->results_h, freeze_out->results);
 
-  int count=0;
-  FRZ_RESULTS_VIEW(result_, FOResults)
-  for (int i = 0; i < FOResults.size(); i++){
+  int count = 0;
+  FRZ_RESULTS_VIEW(result_, freeze_out->results_h)
+  for (int i = 0; i < (int)freeze_out->results_h.size(); i++) {
     if (!result_print(i)) continue;
-    FO << result_divEener(i) << " ";
-    for(int idir = 0; idir < 2; idir++)
-      FO << result_divE(i, idir) << " ";
-    FO << result_gsub(i) << " ";
-    for(int idir = 0; idir < 2; idir++)
-      FO << result_uout(i, idir) << " ";
-    FO << result_swsub(i) << " "
-       << result_bulksub(i) << " "
-       << result_shearsub(i, 0,0) << " "
-       << result_shearsub(i, 1,1) << " "
-       << result_shearsub(i, 2,2) << " "
-       << result_shear33sub(i) << " "
-       << result_shearsub(i,1,2) << " "
-       << result_tlist(i) << " ";
-    for(int idir = 0; idir < 2; idir++)
-        FO << result_rsub(i, idir) << " ";
-    FO << result_sFO(i) << " "
-       << result_Efluc(i) << " "
-       << result_Tfluc(i) << " "
-       << result_muBfluc(i) << " "
-       << result_muSfluc(i) << " "
-       << result_muQfluc(i) << " "
-       << result_wfzfluc(i) << " "
-       << result_cs2fzfluc(i) << " "
-       << result_rhoBfluc(i) << " "
-       << result_rhoSfluc(i) << " "
-       << result_rhoQfluc(i) << " "
-       << result_diffout(i,0,0) << " "
-       << result_diffout(i,0,1) << " "
-       << result_diffout(i,0,2) << " "
-       << result_diffout(i,0,3) << " "
-       << result_diffout(i,1,0) << " "
-       << result_diffout(i,1,1) << " "
-       << result_diffout(i,1,2) << " "
-       << result_diffout(i,1,3) << " "
-       << result_diffout(i,2,0) << " "
-       << result_diffout(i,2,1) << " "
-       << result_diffout(i,2,2) << " "
-       << result_diffout(i,2,3) << 
-       endl;
+    fo_buffer << result_divEener(i) << " ";
+    for (int idir = 0; idir < 2; idir++)
+      fo_buffer << result_divE(i, idir) << " ";
+    fo_buffer << result_gsub(i) << " ";
+    for (int idir = 0; idir < 2; idir++)
+      fo_buffer << result_uout(i, idir) << " ";
+    fo_buffer << result_swsub(i) << " "
+              << result_bulksub(i) << " "
+              << result_shearsub(i, 0,0) << " "
+              << result_shearsub(i, 1,1) << " "
+              << result_shearsub(i, 2,2) << " "
+              << result_shear33sub(i) << " "
+              << result_shearsub(i,1,2) << " "
+              << result_tlist(i) << " ";
+    for (int idir = 0; idir < 2; idir++)
+      fo_buffer << result_rsub(i, idir) << " ";
+    fo_buffer << result_sFO(i) << " "
+              << result_Efluc(i) << " "
+              << result_Tfluc(i) << " "
+              << result_muBfluc(i) << " "
+              << result_muSfluc(i) << " "
+              << result_muQfluc(i) << " "
+              << result_wfzfluc(i) << " "
+              << result_cs2fzfluc(i) << " "
+              << result_rhoBfluc(i) << " "
+              << result_rhoSfluc(i) << " "
+              << result_rhoQfluc(i) << " "
+              << result_diffout(i,0,0) << " "
+              << result_diffout(i,0,1) << " "
+              << result_diffout(i,0,2) << " "
+              << result_diffout(i,0,3) << " "
+              << result_diffout(i,1,0) << " "
+              << result_diffout(i,1,1) << " "
+              << result_diffout(i,1,2) << " "
+              << result_diffout(i,1,3) << " "
+              << result_diffout(i,2,0) << " "
+              << result_diffout(i,2,1) << " "
+              << result_diffout(i,2,2) << " "
+              << result_diffout(i,2,3) << "\n";
     count++;
   }
-  formatted_output::detail("Printed " + std::to_string(count) + " freeze-out particles.");
-  FO.close();
-
+  fo_particles_buffered += count;
+  formatted_output::detail("Buffered " + std::to_string(count) + " freeze-out particles.");
   return;
 }

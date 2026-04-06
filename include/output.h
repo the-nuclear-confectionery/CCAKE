@@ -46,7 +46,10 @@ public:
   void set_results_directory( string path_to_results_directory );
   void print_system_state();
   void print_freeze_out(std::shared_ptr<FreezeOut<D>> freeze_out,double B, double Q, double S);
+  void flush_freeze_out();  ///< Write buffered freeze-out lines to disk (call once at end)
   void print_conservation_status();
+  void buffer_conservation_line();      ///< Append one conservation line to in-memory buffer
+  void flush_conservation(const std::string& path); ///< Write buffered conservation data to disk (call once at end)
   std::string get_freeze_out_filename(){return output_directory + "/freeze_out.dat";}
 
 
@@ -56,6 +59,14 @@ private:
 
   string input_directory;
   string output_directory;
+
+  // buffered freeze-out output (flushed once at end of simulation)
+  std::string fo_header;
+  std::ostringstream fo_buffer;
+  int fo_particles_buffered = 0;
+
+  // buffered conservation output (flushed once at end of simulation)
+  std::ostringstream cons_buffer;
 
   // these allow I/O to access other objects in BSQHydro
   std::shared_ptr<Settings> settingsPtr = nullptr;

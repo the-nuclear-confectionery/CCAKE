@@ -254,63 +254,46 @@ void InterpolatorND<D>::evaluate( const vector<double> & coordinates,
   for (auto & c: coordinates)
     if ( isnan(c) )
     {
-      results = vector<double>(fields.front().size(), fill_value);
+      results.assign(fields.front().size(), fill_value);
       return;
     }
 
-  const int dim = D;
-
+  constexpr int dim = D;
   bool out_of_range = false;
 
-  //////////////////////////////////////////
-  // locate coordinate in grid
-  vector<int> inds(dim);     // integral coordinate location for containing hypercube
-  vector<double> fracs(dim); // fractional coordinate location in containing hypercube
+  // Stack-allocated: no heap allocation per call
+  std::array<int,    D> inds;
+  std::array<double, D> fracs;
+
   for (int ic = 0; ic < dim; ic++)
   {
-    // Degenerate axis: only index 0 exists; weight must kill the "upper" vertex.
     if (grid_sizes[ic] <= 1 || std::abs(grid_spacings[ic]) < 1e-30)
     {
       inds[ic]  = 0;
-      fracs[ic] = 1.0;  // makes weight=1 for hypercube_index=0 and 0 for =1
+      fracs[ic] = 1.0;
       continue;
     }
-
     double index = 0.0;
     fracs[ic] = 1.0 - modf((coordinates[ic] - grid_mins[ic]) / grid_spacings[ic], &index);
     inds[ic] = static_cast<int>(index);
 
-    // handle special situation where queried point is at the grid maximum
     if ( inds[ic] + 1 == grid_sizes[ic] )
     {
-      // reverse interpolation weights along this dimension
       fracs[ic] = 1.0 - fracs[ic];
       inds[ic]--;
     }
-
-    // check if this index is out of range
     if ( inds[ic] < 0 || inds[ic] >= grid_sizes[ic] )
       out_of_range = true;
   }
 
-  //////////////////////////////////////////
-  // compute linear interpolant
-  // all fields interpolated at once
   const int nFields = fields.front().size();
   if ( out_of_range )
   {
-    results = vector<double>(nFields, fill_value);
+    results.assign(nFields, fill_value);
     return;
   }
-  else
-    results = vector<double>(nFields, 0.0);
+  results.assign(nFields, 0.0);
 
-//  cout << "coords:";
-//  for (auto & c: coordinates)
-//    cout << " " << c;
-//  cout << endl;
-
-  // loop over hypercube indices
   for ( auto & hypercube_index : hypercube_indices )
   {
     double weight = 1.0;
@@ -318,52 +301,13 @@ void InterpolatorND<D>::evaluate( const vector<double> & coordinates,
       weight *= (fracs[iDim] + hypercube_index[iDim]
                   - 2.0*hypercube_index[iDim]*fracs[iDim]);
 
-    vector<int> hypercube_inds = inds;
+    std::array<int, D> hypercube_inds = inds;
     for (int iDim = 0; iDim < dim; iDim++)
       hypercube_inds[iDim] += hypercube_index[iDim];
 
-//    cout << "NEED TO FIX ISSUES BEFORE USING THIS" << endl;
-//    if (1) abort();
-
-    //cout << "inds:";
-    //for (auto&is:inds) cout << " " << is;
-    //cout << endl;
-//    cout << "hypercube_inds:";
-//    for (auto&his:hypercube_inds) cout << " " << his;
-//    cout << endl;
-//    cout << "fields.size() = " << fields.size() << endl;
-//    cout << "indexer( hypercube_inds ) = " << indexer( hypercube_inds ) << endl;
-    auto & cell = fields[ indexer( hypercube_inds ) ];
-
-    //cout << "results.size() = " << results.size() << endl;
-    //cout << "cell.size() = " << cell.size() << endl;
-//    if (cell.size() != 17)
-//    {
-//      //cout << "Test grid integrity" << endl;
-//      bool crash = false;
-//      size_t tmpsize = fields[0].size();
-//      for (auto&field:fields)
-//        if (field.size()!=tmpsize)
-//        {
-//          crash = true;
-//          cout << field.size() << "=!=" << tmpsize << endl;
-//        }
-//
-//      //if (crash) cout << "Failed!" << endl; else cout << "Succeeded!" << endl;
-//      //cout << "tmpsize = " << tmpsize << endl;
-//      //abort();
-//    }
-    // 
+    auto & cell = fields[ indexer( hypercube_inds.data(), dim ) ];
     for ( int iField = 0; iField < nFields; iField++ )
-    {
-//      if (iField==6)
-//      {
-//        for (auto&his:hypercube_inds) cout << " " << his;
-//        cout << "   " << cell[iField] << endl;
-//      }
-//      cout << "Check nodes: " << iField << "   " << weight << "   " << cell[iField] << endl;
       results[iField] += weight * cell[iField];
-    }
   }
   return;
 }
@@ -381,74 +325,52 @@ void InterpolatorND<D>::evaluate(
   for (auto & c: coordinates)
     if ( isnan(c) )
     {
-      results = vector<double>(fields_to_interpolate.size(), fill_value);
+      results.assign(fields_to_interpolate.size(), fill_value);
       return;
     }
 
-  const int dim = D;
-
-//  cout << "-----------------------------------------" << endl;
-//  for (auto&coord:coordinates) cout << " " << coord;
-//  cout << endl;
-//  cout << "-----------------------------------------" << endl;
-
-
+  constexpr int dim = D;
   bool out_of_range = false;
 
-  //////////////////////////////////////////
-  // locate coordinate in grid
-  vector<int> inds(dim);     // integral coordinate location for containing hypercube
-  vector<double> fracs(dim); // fractional coordinate location in containing hypercube
+  // Stack-allocated: no heap allocation per call
+  std::array<int,    D> inds;
+  std::array<double, D> fracs;
+
   for ( int ic = 0; ic < dim; ic++ )
   {
-    // Degenerate axis: only index 0 exists; weight must kill the "upper" vertex.
     if (grid_sizes[ic] <= 1 || std::abs(grid_spacings[ic]) < 1e-30)
     {
       inds[ic]  = 0;
-      fracs[ic] = 1.0;  // makes weight=1 for hypercube_index=0 and 0 for =1
+      fracs[ic] = 1.0;
       continue;
     }
-
     double index = 0.0;
     fracs[ic] = 1.0 - modf((coordinates[ic] - grid_mins[ic]) / grid_spacings[ic], &index);
     inds[ic] = static_cast<int>(index);
 
-    // handle special situation where queried point is at the grid maximum
     if ( inds[ic] + 1 == grid_sizes[ic] )
     {
-      // reverse interpolation weights along this dimension
       fracs[ic] = 1.0 - fracs[ic];
       inds[ic]--;
     }
-
-    // check if this index is out of range
     if ( inds[ic] < 0 || inds[ic] >= grid_sizes[ic] )
       out_of_range = true;
   }
 
-  //////////////////////////////////////////
-  // compute linear interpolant
-  // all fields interpolated at once
   const int nFields = fields_to_interpolate.size();
   if ( out_of_range )
   {
-    results = vector<double>(nFields, fill_value);
+    results.assign(nFields, fill_value);
     return;
   }
-  else
-    results = vector<double>(nFields, 0.0);
+  results.assign(nFields, 0.0);
 
-//  cout << "coords:";
-//  for (auto & c: coordinates)
-//    cout << " " << c;
-//  cout << endl;
-
-  // set field indices here (map is slow)
-  vector<int> field_indices(nFields, -1);
+  // thread_local: allocated once per thread, reused every call
+  static thread_local vector<int> field_indices;
+  field_indices.resize(nFields);
   for ( int iField = 0; iField < nFields; iField++ )
     field_indices[iField] = field_names[fields_to_interpolate[iField]];
 
-  // loop over hypercube indices
   for ( auto & hypercube_index : hypercube_indices )
   {
     double weight = 1.0;
@@ -456,31 +378,13 @@ void InterpolatorND<D>::evaluate(
       weight *= (fracs[iDim] + hypercube_index[iDim]
                   - 2.0*hypercube_index[iDim]*fracs[iDim]);
 
-    vector<int> hypercube_inds = inds;
+    std::array<int, D> hypercube_inds = inds;
     for (int iDim = 0; iDim < dim; iDim++)
       hypercube_inds[iDim] += hypercube_index[iDim];
 
-//    cout << "inds:";
-//    for (auto&is:inds) cout << " " << is;
-//    cout << endl;
-//    cout << "hypercube_inds:";
-//    for (auto&his:hypercube_inds) cout << " " << his;
-//    cout << endl;
-//    cout << "fields.size() = " << fields.size() << endl;
-//    cout << "indexer( hypercube_inds ) = " << indexer( hypercube_inds ) << endl;
-
-    auto & cell = fields[ indexer( hypercube_inds ) ];
-
-    // 
+    auto & cell = fields[ indexer( hypercube_inds.data(), dim ) ];
     for ( int iField = 0; iField < nFields; iField++ )
-    {
-//      if (iField==6)
-//      {
-//        for (auto&his:hypercube_inds) cout << " " << his;
-//        cout << "   " << cell[field_names[fields_to_interpolate[iField]]] << endl;
-//      }
       results[iField] += weight * cell[ field_indices[iField] ];
-    }
   }
   return;
 }

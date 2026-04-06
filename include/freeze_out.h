@@ -76,6 +76,8 @@ namespace ccake
 
   using freeze_array = Cabana::AoSoA<FRZ,DeviceType,VECTOR_LENGTH>;
   using freeze_results = Cabana::AoSoA<ResultsTypes,DeviceType,VECTOR_LENGTH>;
+  using SerialHost = Kokkos::Device<Kokkos::Serial, Kokkos::HostSpace>;
+  using freeze_results_h = Cabana::AoSoA<ResultsTypes,SerialHost,VECTOR_LENGTH>;
   using mask_type = Cabana::AoSoA<Cabana::MemberTypes<bool>,DeviceType,VECTOR_LENGTH>;
 
   #define FRZ_VIEW(prefix,FRZ_aosoa) \
@@ -205,12 +207,14 @@ class FreezeOut
       fback2 = freeze_array("fback2", systemPtr->cabana_particles.size());
       fback3 = freeze_array("fback3", systemPtr->cabana_particles.size());
       fback4 = freeze_array("fback4", systemPtr->cabana_particles.size());
-      results = freeze_results("results", systemPtr->cabana_particles.size());
+      results   = freeze_results  ("results",   systemPtr->cabana_particles.size());
+      results_h = freeze_results_h("results_h", systemPtr->cabana_particles.size());
       mask = mask_type("mask",        systemPtr->cabana_particles.size());
     };
 
   public:
-    freeze_results results; ///< freeze out results
+    freeze_results   results;   ///< freeze out results (device)
+    freeze_results_h results_h; ///< persistent host-side mirror (avoids per-call create_mirror_view)
     
 
     /// @brief Freeze-out procedure performed in the first time step
@@ -225,7 +229,7 @@ class FreezeOut
       //Setup slices for frz2
       FRZ_VIEW(frz2_, frz2);
       CREATE_VIEW(device_, systemPtr->cabana_particles);
-      auto setup_frz2_first_timestep = KOKKOS_CLASS_LAMBDA(const int is, const int ia){
+      auto setup_frz2_first_timestep = KOKKOS_LAMBDA(const int is, const int ia){
         for (int idir=0;idir<D+1;++idir)
         for (int jdir=0;jdir<D+1;++jdir)
             frz2_shear.access(is, ia, idir, jdir) = device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::shv, idir, jdir);
@@ -271,7 +275,7 @@ class FreezeOut
       FRZ_VIEW(frz1_, frz1);
 
       CREATE_VIEW(device_, systemPtr->cabana_particles);
-      auto setup_frz1_first_timestep = KOKKOS_CLASS_LAMBDA(const int is, const int ia){
+      auto setup_frz1_first_timestep = KOKKOS_LAMBDA(const int is, const int ia){
         for (int idir=0;idir<D+1;++idir)
         for (int jdir=0;jdir<D+1;++jdir)
             frz1_shear.access(is, ia, idir, jdir) = device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::shv, idir, jdir);
@@ -379,7 +383,7 @@ class FreezeOut
       FRZ_VIEW(frz_src_, frz_src);
       auto perform_shift = Cabana::slice<0>(mask);
 
-      auto shift = KOKKOS_CLASS_LAMBDA(const int is, const int ia){
+      auto shift = KOKKOS_LAMBDA(const int is, const int ia){
         if (perform_shift.access(is,ia)){
           for (int idir=0;idir<D+1;++idir)
           for (int jdir=0;jdir<D+1;++jdir)
@@ -583,7 +587,7 @@ class FreezeOut
         shift_snapshot(frz2, frz1);
         Kokkos::fence();
 
-        auto setup_next_step = KOKKOS_CLASS_LAMBDA(const int is, const int ia){
+        auto setup_next_step = KOKKOS_LAMBDA(const int is, const int ia){
           for (int idir=0;idir<D+1;++idir)
           for (int jdir=0;jdir<D+1;++jdir)
             frz1_shear.access(is, ia, idir, jdir) = device_hydro_spacetime_matrix.access(is, ia, ccake::hydro_info::shv, idir, jdir);
@@ -661,9 +665,14 @@ class FreezeOut
       };
 
       double dt = settingsPtr->dt;
+      // Capture member state as locals to avoid KOKKOS_CLASS_LAMBDA deep-copying
+      // the entire FreezeOut object (6 freeze_arrays + results AoSoA + mask).
+      const double taup_local = taup;
+      const double taupp_local = taupp;
+      const Settings* settings_raw = settingsPtr.get();
       // for all CURRENTLY FREEZING OUT PARTICLES
       CREATE_VIEW(device_, systemPtr->cabana_particles);
-      auto interpolate = KOKKOS_CLASS_LAMBDA(const int is, const int ia){
+      auto interpolate = KOKKOS_LAMBDA(const int is, const int ia){
         if (device_freeze.access(is,ia) == 3){ //If particles are tagged to freeze out
 
           // decide whether the particle was closer to freeze out at the previous
@@ -680,7 +689,7 @@ class FreezeOut
           if ( swit == 1 )  // if particle was closer to freeze-out at last timestep
           {
             // if particle had neighbors, use previous timestep otherwise go back two timesteps
-            results_tlist.access(is,ia) = device_btrack.access(is,ia) != -1 ? taup : taup - dt;
+            results_tlist.access(is,ia) = device_btrack.access(is,ia) != -1 ? taup_local : taup_local - dt;
             for (int idir=0; idir<D+1; ++idir)
             for (int jdir=0; jdir<D+1; ++jdir)
               results_shearsub.access(is,ia,idir,jdir) = frz1_shear.access(is,ia,idir,jdir);
@@ -698,7 +707,7 @@ class FreezeOut
             }
             double t2 = results_tlist.access(is,ia)*results_tlist.access(is,ia);
             // make covariant and contravariant vectors, by creating new ones depending on the eom
-            if(settingsPtr->coordinate_system == "cartesian"){
+            if(settings_raw->coordinate_system == "cartesian"){
               cartesian::Vector<double,D> c_gradPsub, c_gradEsub;
               cartesian::Vector<double,D> c_gradPsub_contra, c_gradEsub_contra, c_divT_contra;
               cartesian::Vector<double,D> c_uout_cov;
@@ -718,7 +727,7 @@ class FreezeOut
                 gradPsub_contra(idir) = c_gradPsub_contra(idir);
                 gradEsub_contra(idir) = c_gradEsub_contra(idir);
               }
-              
+
             }
             else{
               milne::Vector<double,D> m_gradPsub, m_gradEsub;
@@ -762,7 +771,7 @@ class FreezeOut
             results_rhoQfluc.access(is,ia) = frz1_rhoQ.access(is,ia);
           } else if (swit == 2){
             // if particle had neighbors, use previous timestep otherwise go back two timesteps
-            results_tlist.access(is,ia) = device_btrack.access(is,ia) != -1 ? taupp : taupp - dt;
+            results_tlist.access(is,ia) = device_btrack.access(is,ia) != -1 ? taupp_local : taupp_local - dt;
             for (int idir=0; idir<D+1; ++idir)
             for (int jdir=0; jdir<D+1; ++jdir)
               results_shearsub.access(is,ia,idir,jdir) = frz2_shear.access(is,ia,idir,jdir);
@@ -781,7 +790,7 @@ class FreezeOut
             double t2 = results_tlist.access(is,ia)*results_tlist.access(is,ia);
             
             // make covariant and contravariant vectors, by creating new ones depending on the eom
-            if(settingsPtr->coordinate_system == "cartesian"){
+            if(settings_raw->coordinate_system == "cartesian"){
               cartesian::Vector<double,D> c_gradPsub, c_gradEsub;
               cartesian::Vector<double,D> c_gradPsub_contra, c_gradEsub_contra, c_divT_contra;
               cartesian::Vector<double,D> c_uout_cov;
@@ -801,7 +810,7 @@ class FreezeOut
                 gradPsub_contra(idir) = c_gradPsub_contra(idir);
                 gradEsub_contra(idir) = c_gradEsub_contra(idir);
               }
-              
+
             }
             else{
               milne::Vector<double,D> m_gradPsub, m_gradEsub;
@@ -851,10 +860,10 @@ class FreezeOut
           for (int idir=0; idir<D; ++idir) norm2 += results_uout.access(is,ia,idir)*uout_cov(idir);
           results_gsub.access(is,ia) = Kokkos::sqrt( -norm2 + 1 );
           //check for cartesian coordinates
-          if(settingsPtr->coordinate_system == "cartesian"){
+          if(settings_raw->coordinate_system == "cartesian"){
             sigsub /= results_gsub.access(is,ia);
           }
-          else if(settingsPtr->coordinate_system == "hyperbolic"){
+          else if(settings_raw->coordinate_system == "hyperbolic"){
             sigsub /= results_gsub.access(is,ia)*results_tlist.access(is,ia);
           }
          

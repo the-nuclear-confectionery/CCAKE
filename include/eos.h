@@ -28,6 +28,10 @@
 
 using std::string;
 namespace ccake{
+
+/// Index for conserved charge direction (B=baryon, S=strangeness, Q=electric)
+enum class ChargeIdx : int { B = 0, S = 1, Q = 2 };
+
 class EquationOfState
 {
 
@@ -54,7 +58,8 @@ public:
     // PUBLIC METHODS
 
     //Constructors:
-    EquationOfState(){}
+    EquationOfState();
+    ~EquationOfState();
 
     // object to access appropriate EoS by name
     std::unordered_map<std::string, pEoS_base> chosen_EOS_map;
@@ -277,10 +282,20 @@ private:
     double dq_dmuq();
     double dq_dmus();
     double calc_term_1();
-    double calc_term_2(string i_char);
-    double calc_term_3(string i_char);
-    double calc_term_4(string j_char, string i_char);
+    double calc_term_2(ChargeIdx i);
+    double calc_term_3(ChargeIdx i);
+    double calc_term_4(ChargeIdx j, ChargeIdx i);
     double deriv_mult_aTm_1b(gsl_vector* a, gsl_matrix* m, gsl_vector* b);
+
+    // Pre-allocated GSL workspace for derivative computations.
+    // Eliminates ~100 alloc/free cycles per particle per timestep.
+    gsl_vector* _dv  = nullptr;  // size 3 (used as v in calc_term_1)
+    gsl_vector* _da  = nullptr;  // size 3
+    gsl_vector* _db  = nullptr;  // size 3
+    gsl_matrix* _dm  = nullptr;  // 3x3
+    gsl_permutation* _dp = nullptr;  // size 3 (for LU decomp)
+    gsl_matrix* _dminv = nullptr;  // 3x3 (for inverse)
+    gsl_vector* _dy  = nullptr;  // size 3 (for result)
 
 
     ////////////////////////////////////////////////////////////////////////////

@@ -329,12 +329,12 @@ void EoM_cartesian<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>
       //add contribution from shear MRFs
       double F_shv_nabla_u = device_hydro_scalar.access(is, ia, hydro_info::F_shv_nabla_u);
       F_extensive_entropy += F_shv_nabla_u/(sigma*gamma*T);
-      F_extensive_bulk += -(- a*lambda_Pipi*F_shv_nabla_u
+      F_extensive_bulk += -(lambda_Pipi*F_shv_nabla_u
                       - phi3*cartesian::contract(shv_cov,shv))/(sigma*gamma*tau_Pi);
       cartesian::Vector<double,D> M_shv_nabla_u;
       for(int idir=0; idir<D; ++idir){
         M_shv_nabla_u(idir) =  device_hydro_vector.access(is, ia, hydro_info::M_shv_nabla_u,idir);
-        M_extensive_bulk_aux(idir) += lambda_Pipi*M_shv_nabla_u(idir)/(sigma*gamma*tau_Pi);
+        M_extensive_bulk_aux(idir) += -lambda_Pipi*M_shv_nabla_u(idir)/(sigma*gamma*tau_Pi);
         M_extensive_entropy(idir) += M_shv_nabla_u(idir)/(sigma*gamma*T);
       }
     }
@@ -539,7 +539,7 @@ void EoM_cartesian<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>
 
       //convert the extensive MRFs to the intensive ones
       double F_bulk = sigma*F_extensive_bulk - bulk*(gamma*divV)/gamma;
-      M_bulk = sigma*M_extensive_bulk + bulk*u_cov/(gamma*gamma*tau_Pi);                         
+      M_bulk = sigma*M_extensive_bulk + bulk*u_cov/(gamma*gamma);                         
 
 
 
@@ -591,10 +591,10 @@ void EoM_cartesian<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>
               aux_MR(idir,jdir) += R_u(idir,icharge)*RI(icharge,jcharge)*M_extensive_N(jdir,jcharge);
             }
           }
-          for(int icharge=0; icharge<3; ++icharge){
-            for(int jcharge=0; jcharge<3; ++jcharge){
-              aux_FR(idir) += R_u(idir,icharge)*RI(icharge,jcharge)*F_extensive_N(jcharge);
-            }
+        }
+        for(int icharge=0; icharge<3; ++icharge){
+          for(int jcharge=0; jcharge<3; ++jcharge){
+            aux_FR(idir) += R_u(idir,icharge)*RI(icharge,jcharge)*F_extensive_N(jcharge);
           }
         }
       };
@@ -732,15 +732,7 @@ void EoM_cartesian<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>
                             +device_hydro_scalar.access(is, ia, hydro_info::F_extensive_entropy)
                             +cartesian::contract(R_extensive_entropy,dN_dt);
     //if  R_extensive_entropy * dN_dt is negaive, print
-    //if(d_dt_extensive_s < 0){
-    //  std::cout << "d_dt_extensive_s: " << d_dt_extensive_s << std::endl;
-    //  std::cout << "R_extensive_entropy: " << R_extensive_entropy(0) << " " << R_extensive_entropy(1) << " " << R_extensive_entropy(2) << std::endl;
-    //  std::cout << "dN_dt: " << dN_dt(0) << " " << dN_dt(1) << " " << dN_dt(2) << std::endl;
-    //  std::cout << "R*DN: " << cartesian::contract(R_extensive_entropy,dN_dt) << std::endl;
-    //}
 
-    //std::cout << "d_dt_extensive_s: " << d_dt_extensive_s << std::endl;
-    //std::cout << "F_extensive_entropy: " << device_hydro_scalar.access(is, ia, hydro_info::F_extensive_entropy) << std::endl;
     //std::cout << "M_extensive_entropy: " << M_extensive_entropy(0) << " " << M_extensive_entropy(1) << " " << M_extensive_entropy(2) << std::endl;
     //std::cout << "R_extensive_entropy: " << R_extensive_entropy(0) << " " << R_extensive_entropy(1) << " " << R_extensive_entropy(2) << std::endl;
     //std::cout << "cartesian::contract(R_extensive_entropy,dN_dt)" << cartesian::contract(R_extensive_entropy,dN_dt) << std::endl;
@@ -850,8 +842,8 @@ void EoM_cartesian<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>
     Cabana::simd_parallel_for(simd_policy, compute_Ez_derivative, "compute_Ez_derivative");
     Kokkos::fence();
 
-    // if using shear calculate shear knudsen number
-    if(using_shear){
+    // compute Knudsen/Reynolds numbers for shear and diffusion
+    if(using_shear || using_diffusion){
     compute_hydro_numbers(sysPtr);
     }
   };
@@ -1069,7 +1061,21 @@ void EoM_cartesian<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPt
       }
       shv_grad_u += (shv_hybrid(idir+1,0) - v(idir)*shv_hybrid(0,0))*grad_u0(idir);
     }
-    
+    double shv_shvcov = 0.0;
+    for(int idir=0; idir<4; ++idir){
+      for(int jdir=0; jdir<4; ++jdir){
+        shv_shvcov += shv(idir,jdir)*shv_cov(idir,jdir);
+      }
+    }
+    //shv
+    cartesian::Vector<double, D> shvilambda_shv0lambda;
+    for(int idir=0; idir<D; ++idir){
+      shvilambda_shv0lambda(idir) = 0.0;
+      for(int jdir=0; jdir<4; ++jdir){
+        shvilambda_shv0lambda(idir) += (shv(0,jdir)*shv_hybrid(idir+1,jdir)+
+                                        shv(idir+1,jdir)*shv_hybrid(0,jdir))/2.;
+      }
+    }
     //aux vectors and matrices for the four-acceleration equation
     for(int idir=0; idir<D; ++idir){
       F_i0_sigma(idir) =  -(cartesian::contract(grad_uj,v,cartesian::FirstIndex())(idir)
@@ -1092,12 +1098,12 @@ void EoM_cartesian<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPt
                                    -gamma*gamma*shv_hybrid(idir+1,jdir+1) - gamma*u(idir)*shv_hybrid(0,jdir+1)
                                    +u_cov(jdir)*gamma*shv_hybrid(idir+1,0) + u_cov(jdir)*u(idir)*shv_hybrid(0,0)
                                    +4.*gamma*u(idir)*(shv_hybrid(0,jdir+1)-shv_hybrid(0,0)*u_cov(jdir)/gamma)/3.
-                                   -(shv(0,idir+1)+4.*shv(0,idir+1)/3.)*u_cov(jdir)/3.)/4.;
+                                   +(-shv(0,idir+1)+4.*shv(0,idir+1)/3.)*u_cov(jdir)/gamma)/4.;
 
         M_i0_domega(idir,jdir) = ( shv_hybrid(idir+1,jdir+1) -shv_hybrid(idir+1,0)*u_cov(jdir)/gamma
                                    -gamma*gamma*shv_hybrid(idir+1,jdir+1) - gamma*u(idir)*shv_hybrid(0,jdir+1)
                                    +u_cov(jdir)*gamma*shv_hybrid(idir+1,0) + u_cov(jdir)*u(idir)*shv_hybrid(0,0)
-                                   +shv(0,idir+1)*u_cov(jdir))/4.;
+                                   +shv(0,idir+1)*u_cov(jdir)/gamma)/4.;
         M_i0_dd(idir,jdir) = -shv(idir+1,0)*u_cov(jdir)/gamma;
       }
       //diagonal terms
@@ -1127,19 +1133,19 @@ void EoM_cartesian<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPt
       F_0i_shear(idir) = (-shv(idir+1,0)
                     -tau_pi*F_i0_D(idir)
                     -delta_pipi*F_i0_dd(idir)
-                    -2.*tau_pi*F_i0_domega(idir)*use_vort 
+                    +2.*tau_pi*F_i0_domega(idir)*use_vort 
                     -tau_pipi*F_i0_dsigma(idir)
                     +(2.*eta_pi+lambda_piPi*bulk)*F_i0_sigma(idir)
                     +phi6*bulk*shv(idir+1,0)
-                    +phi7*(cartesian::contract(shv, shear0mu_aux, cartesian::SecondIndex())(idir+1)
-                    +gamma*u(idir)*cartesian::contract(shv_cov,shv)/3.))/(tau_pi*gamma);
+                    +phi7*(shvilambda_shv0lambda(idir)
+                    +gamma*u(idir)*shv_shvcov/3.))/(tau_pi*gamma);
       //stores the results 
       device_hydro_vector.access(is, ia, hydro_info::F_0i_shear, idir) = F_0i_shear(idir);
       for(int jdir=0; jdir<D; ++jdir){
         M_0i_shear(idir,jdir) = (-tau_pi*M_i0_D(idir,jdir)
                                 -delta_pipi*M_i0_dd(idir,jdir)
-                                -2.*M_i0_domega(idir,jdir)
-                                +tau_pipi*M_i0_dsigma(idir,jdir)
+                                +2.*tau_pi*M_i0_domega(idir,jdir)*use_vort
+                                -tau_pipi*M_i0_dsigma(idir,jdir)
                                 +(2.*eta_pi+lambda_piPi*bulk)*M_i0_sigma(idir,jdir))/(tau_pi*gamma);
         //stores the results
         device_hydro_space_matrix.access(is, ia, hydro_info::M_0i_shear, idir, jdir) = M_0i_shear(idir,jdir);
@@ -1194,6 +1200,17 @@ void EoM_cartesian<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPt
 
 
 
+    //shv(mu,lambda) dot shv_hybrid(nu,lambda)
+    cartesian::Matrix<double,2,3> shv_mu_lambda_shv_nu_lambda;
+    for(int idir=0; idir<2; ++idir){
+      for(int jdir=idir; jdir<3; ++jdir){
+        shv_mu_lambda_shv_nu_lambda(idir,jdir) = 0.;
+        for(int kdir=0; kdir<4; ++kdir){
+          shv_mu_lambda_shv_nu_lambda(idir,jdir) += (shv(idir+1,kdir)*shv_hybrid(jdir+1,kdir)
+                                                     +shv(jdir+1,kdir)*shv_hybrid(idir+1,kdir))/2.;
+        }
+      }
+    }
 
     //calculate the aux MRFs that will be used in the evolution of the shear tensor
     for(int idir=0; idir<2; ++idir){
@@ -1208,7 +1225,7 @@ void EoM_cartesian<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPt
                                  - v_shv_i_grad_u_j(idir,jdir))/4.;
 
         F_dsigma(idir,jdir) = -( -grad_u_g_j_shv_i(idir,jdir) - shv_i_grad_uj(idir,jdir)
-                                 + v_shv_i_grad_u_j(idir,jdir) +4.*(fixed_size_u(idir)*fixed_size_u(jdir))*shv_grad_u/3.)/4.
+                                 + v_shv_i_grad_u_j(idir,jdir) - 4.*(fixed_size_u(idir)*fixed_size_u(jdir))*shv_grad_u/3.)/4.
                                 -shv(idir+1,jdir+1)*( gamma*divV)/3.;
                    
 
@@ -1222,14 +1239,12 @@ void EoM_cartesian<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPt
           M_domega(idir,jdir,kdir) = (-fixed_size_u(idir)*shv_hybrid(jdir+1,kdir+1)*gamma
                                       -fixed_size_u(jdir)*shv_hybrid(idir+1,kdir+1)*gamma
                                       +fixed_size_u_cov(kdir)*fixed_size_u(idir)*shv_hybrid(jdir+1,0)
-                                      +fixed_size_u_cov(kdir)*fixed_size_u(jdir)*shv_hybrid(idir+1,0)
-                                      -4.*fixed_size_u(idir)*fixed_size_u(jdir)*(shv_hybrid(0,kdir+1)-shv_hybrid(0,0)*fixed_size_u_cov(kdir)/gamma)/3.)/4.;
-
+                                      +fixed_size_u_cov(kdir)*fixed_size_u(jdir)*shv_hybrid(idir+1,0))/4.;
           M_dsigma(idir,jdir,kdir) = (-fixed_size_u(idir)*shv_hybrid(jdir+1,kdir+1)*gamma
                                       -fixed_size_u(jdir)*shv_hybrid(idir+1,kdir+1)*gamma
                                       +fixed_size_u_cov(kdir)*fixed_size_u(idir)*shv_hybrid(jdir+1,0)
                                       +fixed_size_u_cov(kdir)*fixed_size_u(jdir)*shv_hybrid(idir+1,0)
-                                      -4.*fixed_size_u(idir)*fixed_size_u(jdir)*(shv_hybrid(0,kdir+1)-shv_hybrid(0,0)*fixed_size_u_cov(kdir)/gamma)/3.
+                                      +4.*fixed_size_u(idir)*fixed_size_u(jdir)*(shv_hybrid(0,kdir+1)-shv_hybrid(0,0)*fixed_size_u_cov(kdir)/gamma)/3.
                                       +4.*shv(idir+1,jdir+1)*fixed_size_u_cov(kdir)/3./gamma)/4.;
         }
         //diagonal i = k terms
@@ -1260,7 +1275,7 @@ void EoM_cartesian<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPt
       
       //diagonal and metric terms for F
       F_sigma(idir,idir) += -contra_metric_diag(idir+1)*(gamma*divV)/3.;
-      F_dsigma(idir,idir) += 4.*contra_metric_diag(idir+1)*shv_grad_u/3.;
+      F_dsigma(idir,idir) += -contra_metric_diag(idir+1)*shv_grad_u/3.;
 
     }
 
@@ -1269,17 +1284,18 @@ void EoM_cartesian<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPt
         F_extensive_shear(idir,jdir) = (-shv(idir+1,jdir+1) 
                                 -tilde_delta*F_delta(idir,jdir)
                                 -tau_pi*F_D(idir,jdir)
-                                -2.*tau_pi*F_domega(idir,jdir)*use_vort
+                                +2.*tau_pi*F_domega(idir,jdir)*use_vort
                                 -tau_pipi*F_dsigma(idir,jdir)
                                 +(2.*eta_pi+lambda_piPi*bulk)*F_sigma(idir,jdir)
                                 +phi6*bulk*shv(idir+1,jdir+1)
-                                +phi7*(cartesian::contract(shv,shv_hybrid,cartesian::SecondIndex(),cartesian::SecondIndex())(idir,jdir)
-                                +fixed_size_u(idir)*fixed_size_u(jdir)*cartesian::contract(shv,shv_cov)/3.))/(sigma*tau_pi*gamma);
+                                +phi7*(shv_mu_lambda_shv_nu_lambda(idir,jdir)
+                                +fixed_size_u(idir)*fixed_size_u(jdir)*shv_shvcov/3.))/(sigma*tau_pi*gamma);
+
 
         for(int kdir=0; kdir<D; ++kdir){
           M_extensive_shear(idir,jdir,kdir) =(-tau_pi*M_D(idir,jdir,kdir)
                                         -tilde_delta*M_delta(idir,jdir,kdir)
-                                        -2.*tau_pi*M_domega(idir,jdir,kdir)*use_vort
+                                        +2.*tau_pi*M_domega(idir,jdir,kdir)*use_vort
                                         -tau_pipi*M_dsigma(idir,jdir,kdir)
                                         +(2.*eta_pi+lambda_piPi*bulk)*M_sigma(idir,jdir,kdir))/(sigma*tau_pi*gamma);
           //saves the results 
@@ -1295,7 +1311,7 @@ void EoM_cartesian<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPt
           device_hydro_shear_aux_matrix.access(is, ia, hydro_info::R_extensive_shear, idir, linear_index) = R_extensive_shear(idir,jdir,icharge);
           }
       }
-      F_extensive_shear(idir,idir) += phi7*(-contra_metric_diag(idir+1)*cartesian::contract(shv,shv_cov))/(3.*tau_pi*gamma*sigma);
+      F_extensive_shear(idir,idir) += phi7*(-contra_metric_diag(idir+1)*shv_shvcov)/(3.*tau_pi*gamma*sigma);
       //saves the results
       for(int jdir=idir; jdir<3; ++jdir){
         device_hydro_shear_aux_vector.access(is, ia, hydro_info::F_extensive_shear, idir, jdir) = F_extensive_shear(idir,jdir);
@@ -1830,7 +1846,46 @@ void EoM_cartesian<D>::compute_hydro_numbers(std::shared_ptr<SystemState<D>> sys
     double shv_magnitude = sqrt(abs(cartesian::contract(shv,shv_cov)));
     device_hydro_scalar.access(is, ia, hydro_info::inverse_reynolds_shear) = shv_magnitude/pressure;
     device_hydro_scalar.access(is, ia, hydro_info::inverse_reynolds_bulk) = abs(bulk)/pressure;
-    
+
+    // diffusion Knudsen and inverse-Reynolds numbers (one per charge: B=0, S=1, Q=2)
+    double rho[3];
+    rho[0] = device_thermo.access(is, ia, thermo_info::rhoB);
+    rho[1] = device_thermo.access(is, ia, thermo_info::rhoS);
+    rho[2] = device_thermo.access(is, ia, thermo_info::rhoQ);
+
+    for (int ic = 0; ic < 3; ++ic) {
+      // Knudsen: tau_q^(aa) * |grad(mu_a/T)|
+      // grad_alpha_a stored as (idir, icharge)
+      double grad_alpha_sq = 0.0;
+      for (int idir = 0; idir < D; ++idir) {
+        double g = device_hydro_space_matrix.access(is, ia, hydro_info::grad_alpha_a, idir, ic);
+        grad_alpha_sq += g * g;
+      }
+      double tau_q_aa = device_hydro_space_matrix.access(is, ia, hydro_info::tau_q, ic, ic);
+      double kn_val = tau_q_aa * Kokkos::sqrt(grad_alpha_sq);
+
+      // inverse Reynolds: |q^mu| / |n_a|
+      double q0 = device_hydro_diffusion.access(is, ia, hydro_info::diffusion, ic, 0);
+      double q1 = device_hydro_diffusion.access(is, ia, hydro_info::diffusion, ic, 1);
+      double q2 = device_hydro_diffusion.access(is, ia, hydro_info::diffusion, ic, 2);
+      double q3 = device_hydro_diffusion.access(is, ia, hydro_info::diffusion, ic, 3);
+      double q_sq = q1*q1 + q2*q2 + q3*q3 - q0*q0;
+      double q_mag = q_sq > 0.0 ? Kokkos::sqrt(q_sq) : 0.0;
+      double n_abs = Kokkos::fabs(rho[ic]);
+      double re_val = (n_abs > 1e-15) ? q_mag / n_abs : 0.0;
+
+      if (ic == 0) {
+        device_hydro_scalar.access(is, ia, hydro_info::knudsen_diffusion_B)          = kn_val;
+        device_hydro_scalar.access(is, ia, hydro_info::inverse_reynolds_diffusion_B) = re_val;
+      } else if (ic == 1) {
+        device_hydro_scalar.access(is, ia, hydro_info::knudsen_diffusion_S)          = kn_val;
+        device_hydro_scalar.access(is, ia, hydro_info::inverse_reynolds_diffusion_S) = re_val;
+      } else {
+        device_hydro_scalar.access(is, ia, hydro_info::knudsen_diffusion_Q)          = kn_val;
+        device_hydro_scalar.access(is, ia, hydro_info::inverse_reynolds_diffusion_Q) = re_val;
+      }
+    }
+
   };
   Cabana::simd_parallel_for(simd_policy, caus, "compute_knu_and_rey");
   Kokkos::fence();
@@ -1852,6 +1907,7 @@ void EoM_cartesian<D>::check_causality(std::shared_ptr<SystemState<D>> sysPtr)
     double t2 = t * t;
     CREATE_VIEW(device_, sysPtr->cabana_particles);
     auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH, ExecutionSpace>(0, sysPtr->cabana_particles.size());
+    auto host_simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH, Kokkos::OpenMP>(0, sysPtr->cabana_particles.size());
 
     auto get_sorted_eigenvalues_of_pi_mu_nu = [](cartesian::Matrix<double, 4, 4> &shv_hybrid,
                                                  double &Lambda_0,
@@ -1952,9 +2008,10 @@ void EoM_cartesian<D>::check_causality(std::shared_ptr<SystemState<D>> sysPtr)
     };
 
 
-    auto causality_check = KOKKOS_LAMBDA(const int is, const int ia)
+    Kokkos::fence(); // ensure GPU kernels complete before host causality check
+    auto causality_check = [=](const int is, const int ia)
     {
-        double e, p, Pi, eta, zeta, tau_pi, tau_Pi, delta_PiPi, lambda_Pipi, delta_pipi, lambda_piPi, cs2, 
+        double e, p, Pi, eta, zeta, tau_pi, tau_Pi, delta_PiPi, lambda_Pipi, delta_pipi, lambda_piPi, cs2,
                tau_pipi;
         double Lambda_0, Lambda_1, Lambda_2, Lambda_3;
 
@@ -2127,7 +2184,7 @@ void EoM_cartesian<D>::check_causality(std::shared_ptr<SystemState<D>> sysPtr)
         device_hydro_scalar.access(is, ia, hydro_info::causality) = causality_result;
   };
 
-    Cabana::simd_parallel_for(simd_policy, causality_check, "check_causality_conditions");
+    Cabana::simd_parallel_for(host_simd_policy, causality_check, "check_causality_conditions");
     Kokkos::fence();
 }
 

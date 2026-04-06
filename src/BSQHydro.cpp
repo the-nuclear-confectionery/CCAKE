@@ -538,15 +538,10 @@ void BSQHydro<D,TEOM>::run()
   string out_dir = settingsPtr->results_directory;
   // std::ofstream outfile;
   if (settingsPtr->print_conservation_status) {
-    string cons_path = out_dir + "/conservation.dat";
-    std::ofstream outfile(cons_path.c_str());
-    // outfile.open(cons_path.c_str());
     systemPtr->conservation_entropy(true);
     systemPtr->conservation_BSQ(true);
     outPtr->print_conservation_status();
-    outfile << "t Eloss S Btotal Stotal Qtotal" << endl;
-    outfile << systemPtr->t << " " << systemPtr->Eloss << " " << systemPtr->S << \
-      " " << systemPtr->Btotal << " " << systemPtr->Stotal << " " << systemPtr->Qtotal << endl;
+    outPtr->buffer_conservation_line();   // buffer initial state
   }
 
   //====================================================================================
@@ -612,7 +607,6 @@ void BSQHydro<D,TEOM>::run()
     // workstation advances by given
     // timestep at given RK order
     wsPtr->advance_timestep( settingsPtr->dt, settingsPtr->rk_order );
-    //wsPtr->regulator();
 
     //==================================================================
     // re-compute conserved quantities, etc.
@@ -621,10 +615,7 @@ void BSQHydro<D,TEOM>::run()
       systemPtr->conservation_entropy();
       systemPtr->conservation_BSQ();
       outPtr->print_conservation_status();
-      string cons_path = out_dir + "/conservation.dat";
-      std::ofstream outfile(cons_path.c_str(), std::ios::app);
-      outfile << systemPtr->t << " " << systemPtr->Eloss << " " << systemPtr->S << \
-      " " << systemPtr->Btotal << " " << systemPtr->Stotal << " " << systemPtr->Qtotal << endl;
+      outPtr->buffer_conservation_line();
     }
     if (settingsPtr->calculate_observables) systemPtr->compute_eccentricities();
 
@@ -632,7 +623,7 @@ void BSQHydro<D,TEOM>::run()
     outfile << systemPtr->t << " " << systemPtr->Eloss << " " << systemPtr->S << endl;
     #endif
 
-    if (settingsPtr->hdf_evolution || settingsPtr->txt_evolution) 
+    if (settingsPtr->hdf_evolution || settingsPtr->txt_evolution)
     {
       outPtr->print_system_state();
     }
@@ -687,4 +678,10 @@ void BSQHydro<D,TEOM>::run()
   sw.Stop();
   formatted_output::summarize("All timesteps finished in "
                               + to_string(sw.printTime()) + " s");
+
+  // Write all buffered data to disk (once, at end)
+  if (settingsPtr->particlization_enabled)
+    outPtr->flush_freeze_out();
+  if (settingsPtr->print_conservation_status)
+    outPtr->flush_conservation(out_dir + "/conservation.dat");
 }
