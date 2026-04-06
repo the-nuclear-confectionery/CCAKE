@@ -179,6 +179,13 @@ class Settings
     double critical_gaussian_width_T   = 0.0; ///< Gaussian width in T direction [MeV]
     double critical_gaussian_width_muB = 0.0; ///< Gaussian width in muB direction [MeV]
 
+    // -- diffusion regulator (PhysRevC.98.034916, Appendix C, Eqs. C6-C8)
+    bool   diffusion_regulator_enabled  = false; ///< enable/disable the diffusion regulator
+    double diffusion_regulator_chi0     = 10.0;  ///< overall regulation strength chi_0 [dimensionless]
+    double diffusion_regulator_e0       = 0.1;   ///< critical energy density e_0  [GeV/fm^3]
+    double diffusion_regulator_xi0      = 0.01;  ///< width parameter xi_0          [GeV/fm^3]
+    double diffusion_regulator_rq_max   = 1.0;   ///< maximum allowed r_q value      [dimensionless]
+
     //  - source terms
 
     string source_type           = "";    ///< Choose source term type for shear

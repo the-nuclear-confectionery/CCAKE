@@ -23,6 +23,27 @@ using std::vector;
 using std::string;
 
 ////////////////////////////////////////////////////////////////////////////////
+// Pre-allocate GSL workspace for derivative computations
+EquationOfState::EquationOfState() {
+  _dv    = gsl_vector_alloc(3);
+  _da    = gsl_vector_alloc(3);
+  _db    = gsl_vector_alloc(3);
+  _dm    = gsl_matrix_alloc(3, 3);
+  _dp    = gsl_permutation_alloc(3);
+  _dminv = gsl_matrix_alloc(3, 3);
+  _dy    = gsl_vector_alloc(3);
+}
+EquationOfState::~EquationOfState() {
+  if (_dv)    gsl_vector_free(_dv);
+  if (_da)    gsl_vector_free(_da);
+  if (_db)    gsl_vector_free(_db);
+  if (_dm)    gsl_matrix_free(_dm);
+  if (_dp)    gsl_permutation_free(_dp);
+  if (_dminv) gsl_matrix_free(_dminv);
+  if (_dy)    gsl_vector_free(_dy);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 vector<double> EquationOfState::get_thermodynamics( vector<double> & tbqsIn,
                                                       const string & eos_name )
@@ -822,9 +843,6 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
         continue;
 //      else if ( restrict_mu_T_ratios && this_eos->name == "table"
 //                && sqrt(muB()*muB()+muS()*muS()+muQ()*muQ()) > 4.0*T() )
-      else if ( restrict_mu_T_ratios && this_eos->name == "table"
-                && T() < 50.0/197.3269804 )   // skip mu/T check for T < 50 MeV
-        continue;
       else if ( restrict_mu_T_ratios && this_eos->name == "table"
                 && std::max( std::max( std::abs(muB()), std::abs(muS()) ),
                         std::abs(muQ()) ) > 3.5*T() )

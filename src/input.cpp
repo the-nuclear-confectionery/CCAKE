@@ -578,6 +578,44 @@ bool cc::Input::decode_settings(const YAML::Node& node){
         settingsPtr->critical_gaussian_width_muB = cc::defaults::critical_gaussian_width_muB;
       }
     }
+    // -- diffusion regulator (PhysRevC.98.034916, Eqs. C6-C8)
+    try {
+      settingsPtr->diffusion_regulator_enabled =
+          node["hydro"]["viscous_parameters"]["diffusion"]["regulator"]["enabled"].as<bool>();
+    } catch (...) {
+      settingsPtr->diffusion_regulator_enabled = cc::defaults::diffusion_regulator_enabled;
+    }
+    if ( settingsPtr->diffusion_regulator_enabled ) {
+      try {
+        settingsPtr->diffusion_regulator_chi0 =
+            node["hydro"]["viscous_parameters"]["diffusion"]["regulator"]["chi0"].as<double>();
+      } catch (...) {
+        formatted_output::report("WARNING: Could not read diffusion regulator chi0. Using default.");
+        settingsPtr->diffusion_regulator_chi0 = cc::defaults::diffusion_regulator_chi0;
+      }
+      try {
+        settingsPtr->diffusion_regulator_e0 =
+            node["hydro"]["viscous_parameters"]["diffusion"]["regulator"]["e0"].as<double>();
+      } catch (...) {
+        formatted_output::report("WARNING: Could not read diffusion regulator e0. Using default.");
+        settingsPtr->diffusion_regulator_e0 = cc::defaults::diffusion_regulator_e0;
+      }
+      try {
+        settingsPtr->diffusion_regulator_xi0 =
+            node["hydro"]["viscous_parameters"]["diffusion"]["regulator"]["xi0"].as<double>();
+      } catch (...) {
+        formatted_output::report("WARNING: Could not read diffusion regulator xi0. Using default.");
+        settingsPtr->diffusion_regulator_xi0 = cc::defaults::diffusion_regulator_xi0;
+      }
+      try {
+        settingsPtr->diffusion_regulator_rq_max =
+            node["hydro"]["viscous_parameters"]["diffusion"]["regulator"]["rq_max"].as<double>();
+      } catch (...) {
+        formatted_output::report("WARNING: Could not read diffusion regulator rq_max. Using default.");
+        settingsPtr->diffusion_regulator_rq_max = cc::defaults::diffusion_regulator_rq_max;
+      }
+    }
+
     //source subnode
     try{
       settingsPtr->source_type = node["hydro"]["source"]["type"].as<std::string>();

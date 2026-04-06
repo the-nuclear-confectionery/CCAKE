@@ -81,6 +81,12 @@ namespace ccake
     const bool        txt_evolution            = false;
     const bool        check_causality         = false;
     const bool        bulk_from_trace       = false;
+    // diffusion regulator (PhysRevC.98.034916, Eqs. C6-C8)
+    const bool   diffusion_regulator_enabled  = false;
+    const double diffusion_regulator_chi0     = 10.0;   ///< overall regulation strength [dimensionless]
+    const double diffusion_regulator_e0       = 0.1;    ///< critical energy density e_0  [GeV/fm^3]
+    const double diffusion_regulator_xi0      = 0.01;   ///< width parameter xi_0          [GeV/fm^3]
+    const double diffusion_regulator_rq_max   = 1.0;    ///< maximum allowed r_q            [dimensionless]
   }
 }
 

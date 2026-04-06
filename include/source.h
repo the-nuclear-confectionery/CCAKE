@@ -242,9 +242,9 @@ public:
               device_hydro_vector.access(is, ia, ccake::hydro_info::j_ext, idir) +=normalization * src_mom[idir] * kern / dt; // right units of Momentum/time
             }
             // Optionally deposit charges
-            // if (settingsPtr->baryon_source) device_hydro_scalar.access(is, ia, ccake::hydro_info::rho_B_ext) += src_baryon * kern ;
-            // if (settingsPtr->strangeness_source) device_hydro_scalar.access(is, ia, ccake::hydro_info::rho_S_ext) += src_strangeness * kern ;
-            // if (settingsPtr->electric_source) device_hydro_scalar.access(is, ia, ccake::hydro_info::rho_Q_ext) += src_charge * kern * electric_charge;
+            if (settingsPtr->baryon_source) device_hydro_scalar.access(is, ia, ccake::hydro_info::rho_B_ext) += src_baryon * kern ;
+            if (settingsPtr->strangeness_source) device_hydro_scalar.access(is, ia, ccake::hydro_info::rho_S_ext) += src_strangeness * kern ;
+            if (settingsPtr->electric_source) device_hydro_scalar.access(is, ia, ccake::hydro_info::rho_Q_ext) += src_charge * kern ;
           }
         };
 

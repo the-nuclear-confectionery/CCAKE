@@ -130,11 +130,11 @@ EoS_table::EoS_table( string eos_path, bool normalize_by_T )
 void EoS_table::get_eBSQ_densities_from_interpolator(
         double point[], double densities[] )  // point and densities both length = 4
 {
-    vector<double> results;
-    equation_of_state_table->evaluate(
-      vector<double>(point, point + 4), results,
-      vector<string>({ "e","B","S","Q" }) );
-    std::copy(results.begin(), results.end(), densities);
+    static thread_local vector<double> tl_point(4), tl_results;
+    static const vector<string> fields({ "e","B","S","Q" });
+    std::copy(point, point + 4, tl_point.begin());
+    equation_of_state_table->evaluate( tl_point, tl_results, fields );
+    std::copy(tl_results.begin(), tl_results.end(), densities);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -143,11 +143,11 @@ void EoS_table::get_eBSQ_densities_from_interpolator(
 void EoS_table::get_sBSQ_densities_from_interpolator(
         double point[], double densities[] )  // point and densities both length = 4
 {
-    vector<double> results;
-    equation_of_state_table->evaluate(
-      vector<double>(point, point + 4), results,
-      vector<string>({ "s","B","S","Q" }) );
-    std::copy(results.begin(), results.end(), densities);
+    static thread_local vector<double> tl_point(4), tl_results;
+    static const vector<string> fields({ "s","B","S","Q" });
+    std::copy(point, point + 4, tl_point.begin());
+    equation_of_state_table->evaluate( tl_point, tl_results, fields );
+    std::copy(tl_results.begin(), tl_results.end(), densities);
 }
 
 
@@ -206,11 +206,8 @@ void EoS_table::get_eBSQ_safe( const double point_in[], double results[] )
     // evaluate the relevant grid point
     // using table itself
     {
-      // copy C arrays to C++ vectors
-      vector<double> v_point(point_projected, point_projected+4);
-      vector<double> v_results(results_full, results_full+17);
-
-      // evaluate EoS interpolator at current location (S and Q NOT SWAPPED)
+      static thread_local vector<double> v_point(4), v_results;
+      std::copy(point_projected, point_projected+4, v_point.begin());
       equation_of_state_table->evaluate( v_point, v_results );
 
       if ( v_results.size() != 17 )
@@ -218,8 +215,6 @@ void EoS_table::get_eBSQ_safe( const double point_in[], double results[] )
         cerr << "PROBLEM" << endl;
         exit(1);
       }
-
-      // copy C++ vector of results back to C array
       std::copy(v_results.begin(), v_results.end(), results_full);
     }
 
@@ -308,11 +303,8 @@ void EoS_table::get_sBSQ_safe( const double point_in[], double results[] )
     // evaluate the relevant grid point
     // using table itself
     {
-      // copy C arrays to C++ vectors
-      vector<double> v_point(point_projected, point_projected+4);
-      vector<double> v_results(results_full, results_full+17);
-
-      // evaluate EoS interpolator at current location (S and Q NOT SWAPPED)
+      static thread_local vector<double> v_point(4), v_results;
+      std::copy(point_projected, point_projected+4, v_point.begin());
       equation_of_state_table->evaluate( v_point, v_results );
 
       if ( v_results.size() != 17 )
@@ -320,8 +312,6 @@ void EoS_table::get_sBSQ_safe( const double point_in[], double results[] )
         cerr << "PROBLEM" << endl;
         exit(1);
       }
-
-      // copy C++ vector of results back to C array
       std::copy(v_results.begin(), v_results.end(), results_full);
     }
 
@@ -407,11 +397,8 @@ void EoS_table::get_full_thermo_safe( const double point_in[], double results[] 
   // evaluate the relevant grid point
   // using table itself
   {
-    // copy C arrays to C++ vectors
-    vector<double> v_point(point_projected, point_projected+4);
-    vector<double> v_results(results, results+17);
-
-    // evaluate EoS interpolator at current location (S and Q NOT SWAPPED)
+    static thread_local vector<double> v_point(4), v_results;
+    std::copy(point_projected, point_projected+4, v_point.begin());
     equation_of_state_table->evaluate( v_point, v_results );
 
     if ( v_results.size() != 17 )
@@ -419,8 +406,6 @@ void EoS_table::get_full_thermo_safe( const double point_in[], double results[] 
       cerr << "PROBLEM" << endl;
       exit(1);
     }
-
-    // copy C++ vector of results back to C array
     std::copy(v_results.begin(), v_results.end(), results);
   }
 

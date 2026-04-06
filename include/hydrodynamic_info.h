@@ -53,6 +53,13 @@ struct hydrodynamic_info
   double inverse_reynolds_shear = 0.0; ///< inverse Reynolds number
   double bulk_knudsen   = 0.0; ///< Knudsen number
   double inverse_reynolds_bulk = 0.0; ///< inverse Reynolds number
+  // per-charge diffusion diagnostic numbers (B=0, S=1, Q=2)
+  double knudsen_diffusion_B         = 0.0; ///< tau_q^BB * |grad(mu_B/T)|
+  double knudsen_diffusion_S         = 0.0; ///< tau_q^SS * |grad(mu_S/T)|
+  double knudsen_diffusion_Q         = 0.0; ///< tau_q^QQ * |grad(mu_Q/T)|
+  double inverse_reynolds_diffusion_B = 0.0; ///< |q_B^mu| / |n_B|
+  double inverse_reynolds_diffusion_S = 0.0; ///< |q_S^mu| / |n_S|
+  double inverse_reynolds_diffusion_Q = 0.0; ///< |q_Q^mu| / |n_Q|
 
   double tmunu_trace     = 0.0; ///< defined to be (pressure + bulk) 
   double rho_Q_ext       = 0.0; ///< external charge density
@@ -198,6 +205,12 @@ enum hydro_scalar_info
   bulk_knudsen,
   inverse_reynolds_shear,
   inverse_reynolds_bulk,
+  knudsen_diffusion_B,
+  knudsen_diffusion_S,
+  knudsen_diffusion_Q,
+  inverse_reynolds_diffusion_B,
+  inverse_reynolds_diffusion_S,
+  inverse_reynolds_diffusion_Q,
   NUM_HYDRO_SCALAR_INFO
 };
 #define HYDRO_SCALAR_INFO double[ccake::hydro_info::NUM_HYDRO_SCALAR_INFO]
