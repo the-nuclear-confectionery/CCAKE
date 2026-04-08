@@ -40,6 +40,7 @@ class Settings
     // I/O settings
     bool txt_evolution              = false;
     bool hdf_evolution              = false;
+    bool jet_evolution              = false;
     bool print_conservation_status  = true;
     bool get_neighbors              = false;
     bool calculate_observables       = false;
