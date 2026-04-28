@@ -60,6 +60,7 @@ void SPHWorkstation<D,TEOM>::initialize()
   formatted_output::detail("freeze out energy density = "
                            + to_string(systemPtr->efcheck*hbarc_GeVfm) + " GeV/fm^3");
 
+   bbmg = BBMG<D>( settingsPtr, systemPtr ); // initialize the bbmg object
 }
 
 
@@ -294,10 +295,10 @@ void SPHWorkstation<D, TEOM>::initialize_entropy_and_charge_densities()
     double sigma = device_hydro_scalar(iparticle, hydro_info::sigma);
 
 
-    device_sph_mass(iparticle, ccake::densities_info::s )    = 1;    // constant after this
-    device_sph_mass(iparticle, ccake::densities_info::rhoB ) = 1; // constant after this
-    device_sph_mass(iparticle, ccake::densities_info::rhoS ) = 1; // constant after this
-    device_sph_mass(iparticle, ccake::densities_info::rhoQ ) = 1; // constant after this
+    device_sph_mass(iparticle, ccake::densities_info::s )    *= 1;    // constant after this
+    device_sph_mass(iparticle, ccake::densities_info::rhoB ) *= 1; // constant after this
+    device_sph_mass(iparticle, ccake::densities_info::rhoS ) *= 1; // constant after this
+    device_sph_mass(iparticle, ccake::densities_info::rhoQ ) *= 1; // constant after this
     device_extensive(iparticle, ccake::densities_info::s )    = s_input/sigma;
     device_extensive(iparticle, ccake::densities_info::rhoB ) = rhoB_input/sigma;
     device_extensive(iparticle, ccake::densities_info::rhoS ) = rhoS_input/sigma;
@@ -399,6 +400,14 @@ void SPHWorkstation<D,TEOM>::initial_smoothing()
   formatted_output::update("Finished initial smoothing "
                             + to_string(sw.printTime()) + " s.");
 
+}
+
+template<unsigned int D, template<unsigned int> class TEOM>
+void SPHWorkstation<D, TEOM>::initialize_jets_bbmg()
+{
+  bbmg.initial();
+  //bbmg.initial_one_jet();
+  //bbmg.initial_two_jets();
 }
 
 ///@brief Smooth all SPH fields
@@ -1352,6 +1361,8 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives(double dt)
   // check/update conserved quantities
   if (settingsPtr->print_conservation_status )
     systemPtr->conservation_energy(false,t);
+
+  cout << "Finished get time derivatives: " << endl;
   return;
 }
 
@@ -1816,6 +1827,10 @@ void SPHWorkstation<D, TEOM>::advance_timestep( double dt, int rk_order )
   //Bulk of code evaluation is done below
   evolver.execute_timestep( dt, rk_order,
                             [this,dt]{ this->get_time_derivatives(dt); } );
+
+  cout << "Starting jet propagate: " << endl;
+  bbmg.propagate();
+  cout << "Finished jet propagate: " << endl;
 
   // Perform freeze out
   if ( settingsPtr->particlization_enabled ) freeze_out_particles();

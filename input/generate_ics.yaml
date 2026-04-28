@@ -1,0 +1,37 @@
+global:
+  output: /taiga/illinois/eng/physics/jnorhos/CCAKE/idanhoni/test_PbPb
+  tmp: /taiga/illinois/eng/physics/jnorhos/CCAKE/idanhoni/tmp
+  basedir: /u/idanhoni/confectionery_chain
+  nevents: 1
+  grid:
+    x_max: 12.0
+    y_max: 12.0
+    eta_max: 10.0
+    step_x: 0.06
+    step_y: 0.06
+    step_eta: 0.0
+  energy:
+    value: 5.02
+    unit: TeV
+  tau_hydro: 0.6
+  ion_A: Pb
+  ion_B: Pb
+
+input:
+
+  initial_conditions:
+    type: Trento
+    parameters:
+      ion_A:
+        species: Pb
+      ion_B:
+        species: Pb
+      #normalization: 125 # 1/fm^3
+      number-nucleons: 208
+      entropy-dict-dir: /u/idanhoni/confectionery_chain/misc/PbPb_5020_sigma0d30_3M.dat 
+      centrality-min: 0.0
+      centrality-max: 5.0
+  overlay:
+    type: ICCING
+    parameters:
+      trento_normalization: 125
