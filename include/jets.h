@@ -210,7 +210,7 @@ void BBMG<D>::initial()
   z                 = 1; // path length dependence
   a                 = 0; //Initial jet energy dependence
   c                 = (2+z-a)/3; //medium temperature dependence
-  num_jets          = 300000; // Number of jets per event for oversampling
+  num_jets          = systemPtr->n_particles; // Number of jets per event for oversampling
   //phimax            = 14;
   
   //===============================================
@@ -300,7 +300,7 @@ void BBMG<D>::initial()
     }
     jetFreezeOut = jetInfo_host;
 
-
+    cout << "Jet array size: " << jetInfo_host.size() << endl;
     copy_host_to_device_BBMG();
     //copy_device_to_host_BBMG();
 }
@@ -389,6 +389,7 @@ void BBMG<D>::initial_one_jet()
       }
 
     }
+  //cout << "Jet array size: " << jetInfo_host.size() << endl;
   copy_host_to_device_BBMG();
     //copy_device_to_host_BBMG();
 }

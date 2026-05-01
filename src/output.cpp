@@ -71,7 +71,9 @@ void Output<D,TEOM>::print_system_state()
   if (settingsPtr->hdf_evolution)
     print_system_state_to_HDF();
 
-  if(settingsPtr->jet_evolution){
+
+  cout << "Total number of particles: " << systemPtr->n_particles << ". Total number frozen out: " << systemPtr->number_part_fo << endl;
+  if(settingsPtr->jet_evolution && systemPtr->n_particles == systemPtr->number_part_fo){
     wsPtr->bbmg.copy_device_to_host_BBMG();
     print_jet_state_to_txt();
   }
