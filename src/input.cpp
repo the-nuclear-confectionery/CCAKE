@@ -675,6 +675,37 @@ bool cc::Input::decode_settings(const YAML::Node& node){
       settingsPtr->source_input_file = cc::defaults::source_input_file;
     }
 
+    //jets subnode
+    try{
+      settingsPtr->jets_type = node["hydro"]["jets"]["type"].as<std::string>();
+    } catch (...) {
+      formatted_output::report("WARNING: Could not jets_type!");
+      formatted_output::report("This is an optional parameter. Setting to default value.");
+      settingsPtr->jets_type = cc::defaults::jets_type;
+    }
+    try{
+      settingsPtr->jets_Energy_scale = node["hydro"]["jets"]["Energy_scaling"].as<std::string>();
+    }
+    catch (...) {
+      formatted_output::report("WARNING: Could not read jet Energy scale!");
+      formatted_output::report("This is an optional parameter. Setting to default value.");
+      settingsPtr->jets_Energy_scale = cc::defaults::jets_Energy_scale;
+    }
+    try{
+      settingsPtr->jets_Length_scale = node["hydro"]["jets"]["Path_Length_scaling"].as<double>();
+    } catch (...) {
+      formatted_output::report("WARNING: Could not read jet Length scale!");
+      formatted_output::report("This is an optional parameter. Setting to default value.");
+      settingsPtr->jets_Length_scale = cc::defaults::jets_Length_scale;
+    }
+    try{
+      settingsPtr->jets_Fluctuations = node["hydro"]["jets"]["Fluctuation_parameter"].as<bool>();
+    } catch (...) {
+      formatted_output::report("WARNING: Could not read jet Fluctuations!");
+      formatted_output::report("This is an optional parameter. Setting to default value.");
+      settingsPtr->jets_Fluctuations = cc::defaults::jets_Fluctuations;
+    }
+    
 
     //Output node
     try{

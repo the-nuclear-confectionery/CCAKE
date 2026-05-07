@@ -74,6 +74,10 @@ namespace ccake
     const bool        electric_source           = false;
     const double      smearing_radius        = 0.5;
     const std::string source_input_file   = "disabled";
+    const std::string jets_type              = "disabled";
+    const int         jets_Energy_scaling     = 0;
+    const int         jets_Length_scaling     = 1;
+    const int         jets_Fluctuations       = 0;
     const bool        print_conservation_status = true;
     const bool        calculate_observables        = false;
     const bool        get_neighbors             = false;

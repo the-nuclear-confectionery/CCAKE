@@ -1827,10 +1827,11 @@ void SPHWorkstation<D, TEOM>::advance_timestep( double dt, int rk_order )
   //Bulk of code evaluation is done below
   evolver.execute_timestep( dt, rk_order,
                             [this,dt]{ this->get_time_derivatives(dt); } );
-
-  cout << "Starting jet propagate: " << endl;
-  bbmg.propagate();
-  cout << "Finished jet propagate: " << endl;
+  if (settingsPtr->jets_type != "disabled") {
+    //cout << "Starting jet propagate: " << endl;
+    bbmg.propagate();
+    //cout << "Finished jet propagate: " << endl;
+  }
 
   // Perform freeze out
   if ( settingsPtr->particlization_enabled ) freeze_out_particles();

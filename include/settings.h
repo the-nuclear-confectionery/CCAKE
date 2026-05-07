@@ -197,6 +197,14 @@ class Settings
     bool electric_source       = false;  ///< Whether to include electric source term
     double smearing_radius     = 0.0;   ///< Smearing radius for source terms
     string source_input_file   = "";    ///< Path to the source term file
+
+    //  - jet terms
+
+    string jets_type            = "";    ///< Choose jet type and quantity
+    int jets_Energy_scaling     = "";    ///< Choose BBMG energy dependence
+    int jets_Length_scaling     = "";    ///< Choose BBMG length dependence
+    int jets_Fluctuations       = "";    ///< Choose BBMG fluctuations
+
     // make sure that all chosen settings make reasonable sense
     ///TODO: Check these are correct
     void check_consistency()
