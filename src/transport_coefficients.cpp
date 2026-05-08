@@ -602,7 +602,9 @@ KOKKOS_INLINE_FUNCTION
 double default_eta(const double *therm)
 {
   double eta_over_s = 0.20;
-  return therm[thermo_info::s] * eta_over_s;
+  double w = therm[thermo_info::w];
+  double T = therm[thermo_info::T];
+  return eta_over_s*(w/T);
 }
 
 //===============================
@@ -729,15 +731,16 @@ KOKKOS_INLINE_FUNCTION
 double default_zeta(const double *therm)
 {
   double zeta_over_s = 0.005;
-  return therm[thermo_info::s] * zeta_over_s;
-}
+  return zeta_over_s*(therm[thermo_info::w]/therm[thermo_info::T]);
 
 //===============================
 KOKKOS_INLINE_FUNCTION
 double constZeta(const double *therm, const parameters params)
 {
   double zeta_over_s = params.constant_zeta_over_s;
-  return therm[thermo_info::s] * zeta_over_s;
+  double w = therm[thermo_info::w];
+  double T = therm[thermo_info::T];
+  return zeta_over_s*(w/T);
 }
 
 //===============================
@@ -826,8 +829,9 @@ double cs2_dependent_zeta(const double *therm, const parameters params)
   }
   #endif
   #endif
-
-  return zeta_over_s_local*therm[thermo_info::s];
+  double w = therm[thermo_info::w];
+  double T = therm[thermo_info::T];
+  return zeta_over_s_local * w/T;
 }
 
 //==============================================================================
