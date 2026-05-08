@@ -204,6 +204,7 @@ class Settings
     int jets_Energy_scaling     = "";    ///< Choose BBMG energy dependence
     int jets_Length_scaling     = "";    ///< Choose BBMG length dependence
     int jets_Fluctuations       = "";    ///< Choose BBMG fluctuations
+    int jets_phi_bins           = "";    ///< Choose Angular distribution of jets
 
     // make sure that all chosen settings make reasonable sense
     ///TODO: Check these are correct

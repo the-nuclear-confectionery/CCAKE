@@ -78,6 +78,7 @@ namespace ccake
     const int         jets_Energy_scaling     = 0;
     const int         jets_Length_scaling     = 1;
     const int         jets_Fluctuations       = 0;
+    const int         jets_phi_bins           = 7;
     const bool        print_conservation_status = true;
     const bool        calculate_observables        = false;
     const bool        get_neighbors             = false;

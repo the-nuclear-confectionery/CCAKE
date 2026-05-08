@@ -121,17 +121,17 @@ private:
     std::shared_ptr<Settings> settingsPtr;
     std::shared_ptr<SystemState<D>> systemPtr;
 
-    int z, a, c; ///\@todo: Create an input for these parameters
+    int z, a, c, q; ///\@todo: Create an input for these parameters
     int num_jets;
     double Freezeout_Temp;
     double area;
     double vjet; // Taken to be c for jets
-    double Cg, Cq, q;
+    double Cg, Cq;
     double gridx, gridy;
     
     double Pfg, Pfq; ///\@todo: Move or eliminate based on need for energy loss equation with energy dependence
 
-
+    int phi_bins = systemPtr->jets_phi_bins;
     const static int phimax = 7;
     double phi[phimax];
     //double Rjetq[phimax], Rjetg[phimax];
@@ -206,11 +206,11 @@ void BBMG<D>::initial()
   Cg                = 3; // Cassimir const gluons
   Cq                = 4./3; // Cassimir const quarks
   // All next quantities are part of the BBMG parameters
-  q                 = 0; // Fluctuation parameter, subject to change
-  z                 = 1; // path length dependence
-  a                 = 0; //Initial jet energy dependence
+  q                 = systemPtr->jets_Fluctuations; // Fluctuation parameter, subject to change
+  z                 = systemPtr->jets_Length_scaling; // path length dependence
+  a                 = systemPtr->jets_Energy_scaling; //Initial jet energy dependence
   c                 = (2+z-a)/3; //medium temperature dependence
-  num_jets          = 300000; // Number of jets per event for oversampling
+  num_jets          = 200000; // Number of jets per event for oversampling
   //phimax            = 14;
   
   //===============================================
@@ -222,9 +222,9 @@ void BBMG<D>::initial()
   gridy = settingsPtr->stepy;
   //cout << "Gridx and gridy are " << gridx << "," << gridy << endl << endl;
 
-  for (int i = 0; i < phimax; i++)
+  for (int i = 0; i < phi_bins; i++)
   {
-    phi[i] = i*PI/7;
+    phi[i] = i*PI/phi_bins;
   }
   //Setting final energy as a start point for the integration; This is starting in GeV
   Pfg = 10;
@@ -289,11 +289,11 @@ void BBMG<D>::initial()
         double kappa = get_kappa(sph_particle.T / 1000);
 
         sph_particle.line_int = 0.5 * kappa * exp(z * log(settingsPtr->t0)) * exp(c * log(sph_particle.rho0)) * settingsPtr->dt; // only if initial flow=0
-        int phidist = rand() % phimax;
+        int phidist = rand() % phi_bins;
         for (int j = 0; j < back_to_back; j++)
         {
             sph_particle.phi = phi[phidist] + j * PI;
-            sph_particle.PID = phidist + phimax * j;
+            sph_particle.PID = phidist + phi_bins * j;
             sph_particle.Frozen = 1;
             jetInfo_host.push_back(sph_particle);
         }
@@ -330,9 +330,9 @@ void BBMG<D>::initial_one_jet()
   gridy = settingsPtr->stepy;
   //cout << "Gridx and gridy are " << gridx << "," << gridy << endl << endl;
 
-  for (int i = 0; i < phimax; i++)
+  for (int i = 0; i < phi_bins; i++)
   {
-    phi[i] = i*PI/7;
+    phi[i] = i*PI/phi_bins;
   }
   //Setting final energy as a start point for the integration; This is starting in GeV
   Pfg = 10;
@@ -383,7 +383,7 @@ void BBMG<D>::initial_one_jet()
         for (int j = 0; j < back_to_back; j++)
         {
             sph_particle.phi = PI/7 + j * PI;
-            sph_particle.PID = 1 + phimax * j;
+            sph_particle.PID = 1 + phi_bins * j;
             jetInfo_host.push_back(sph_particle);
         }
       }
