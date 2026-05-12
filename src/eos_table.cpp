@@ -88,9 +88,6 @@ EoS_table::EoS_table( string eos_path, bool normalize_by_T )
     equation_of_state_table->rescale_field( "chiTT", hc2 );
   }
 
-  // if cs2 ever goes negative, set it to zero
-  auto zero_negatives = [](double x){return std::max(x,0.0);};
-  equation_of_state_table->apply_function_to_field( "cs2", zero_negatives );
 
 
   // set grid ranges

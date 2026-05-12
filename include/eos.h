@@ -20,6 +20,7 @@
 #include "eos_base.h"
 #include "eos_conformal_diagonal.h"
 #include "eos_extension.h"
+#include "eos_gap.h"
 #include "eos_header.h"
 #include "interpolatorND.h"
 #include "rootfinder.h"
@@ -260,6 +261,12 @@ private:
     void tbqs(double setT, double setmuB, double setmuQ, double setmuS, pEoS_base peos);
     void tbqs( vector<double> & tbqsIn, pEoS_base peos )
           { tbqs( tbqsIn[0], tbqsIn[1], tbqsIn[2], tbqsIn[3], peos ); }
+
+    // Set all cached thermodynamics from a gap-file row without going through
+    // the normal EoS evaluation chain.  Sets current_eos_name = "table" so the
+    // next timestep still starts at the table EoS (no skip-list poisoning).
+    void tbqs_from_gap(double T_g, double muB_g, double muQ_g, double muS_g,
+                       const double thermo_g[N_GAP_THERMO]);
 
 
 

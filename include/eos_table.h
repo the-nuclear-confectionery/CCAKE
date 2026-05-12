@@ -7,6 +7,7 @@
 
 #include "constants.h"
 #include "eos_base.h"
+#include "eos_gap.h"
 #include "eos_header.h"
 #include "interpolatorND.h"
 
@@ -33,6 +34,8 @@ private:
 
 
 public:
+  GapTable gap_table; ///< auxiliary scattered-points table for the spinodal gap region
+
   // default constructor/destructor
   EoS_table(){}
   virtual ~EoS_table(){}

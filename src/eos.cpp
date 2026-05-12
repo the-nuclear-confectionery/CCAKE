@@ -222,6 +222,41 @@ void EquationOfState::evaluate_thermodynamics( pEoS_base peos )
 
 
 
+////////////////////////////////////////////////////////////////////////////////
+// Set cached thermodynamics directly from a gap-file row.
+// current_eos_name is set to "table" so the skip-list in the next timestep's
+// rootfinder loop still starts at the table EoS rather than conformal fallbacks.
+void EquationOfState::tbqs_from_gap(double T_g, double muB_g, double muQ_g, double muS_g,
+                                     const double thermo_g[N_GAP_THERMO])
+{
+    tbqsPosition[0] = T_g;
+    tbqsPosition[1] = muB_g;
+    tbqsPosition[2] = muQ_g;
+    tbqsPosition[3] = muS_g;
+
+    pVal    = thermo_g[0];
+    entrVal = thermo_g[1];
+    BVal    = thermo_g[2];
+    SVal    = thermo_g[3];
+    QVal    = thermo_g[4];
+    eVal    = thermo_g[5];
+    cs2Val  = thermo_g[6];
+    db2     = thermo_g[7];
+    dq2     = thermo_g[8];
+    ds2     = thermo_g[9];
+    dbdq    = thermo_g[10];
+    dbds    = thermo_g[11];
+    dsdq    = thermo_g[12];
+    dtdb    = thermo_g[13];
+    dtdq    = thermo_g[14];
+    dtds    = thermo_g[15];
+    dt2     = thermo_g[16];
+    db20    = db2;  // gap table doesn't carry the mu=0 susceptibility separately
+
+    current_eos_name = "table";
+    last_gap_hit = true;
+}
+
 double EquationOfState::T()   const { return tbqsPosition[0]; }
 double EquationOfState::muB() const { return tbqsPosition[1]; }
 double EquationOfState::muQ() const { return tbqsPosition[2]; }
@@ -596,7 +631,8 @@ bool EquationOfState::rootfinder_update_s( double sin, double Bin,
                                            double Sin, double Qin )
 {
   const double hc = constants::hbarc_MeVfm;
-  
+  last_gap_hit = false;
+
   // take sign of densities using lambda function
   auto sgn = [](double val) -> double { return (0.0 < val) - (val < 0.0); };
 
@@ -681,6 +717,41 @@ bool EquationOfState::rootfinder_update_s( double sin, double Bin,
     }
 
 
+    ////////////////////////////////////////////////
+    // Gap-region fallback: triggered ONLY when the table EoS could not
+    // converge for this (s,rhoB,...) target.  Must run *inside* the loop so
+    // it intercepts the failure before the loop falls through to the
+    // conformal EoSs (which are globally invertible and would otherwise
+    // mask the gap and make this fallback dead code).
+    if (!solution_found && this_eos->name == "table")
+    {
+      auto table_eos = std::dynamic_pointer_cast<EoS_table>(this_eos);
+      if (table_eos && (table_eos->gap_table.loaded
+                        || settingsPtr->gap_analytic_enabled))
+      {
+        double T_g = 0.0, muB_g = 0.0, muQ_g = 0.0, muS_g = 0.0;
+        double thermo_g[N_GAP_THERMO];
+        bool gap_hit = false;
+        if (settingsPtr->gap_analytic_enabled)
+          gap_hit = table_eos->gap_table.analytic_lookup(sin, Bin, Sin, Qin,
+                      T_g, muB_g, muQ_g, muS_g, thermo_g);
+        if (!gap_hit && table_eos->gap_table.loaded)
+          gap_hit = table_eos->gap_table.lookup(sin, Bin, Sin, Qin,
+                      settingsPtr->gap_lookup_mode,
+                      settingsPtr->gap_match_tolerance,
+                      T_g, muB_g, muQ_g, muS_g, thermo_g, /*use_energy=*/false);
+        if (gap_hit)
+        {
+          tbqs_from_gap(T_g, muB_g, muQ_g, muS_g, thermo_g);
+          solution_found = true;
+          if (VERBOSE > 0)
+            std::cout << " --> gap fallback (entropy): (T,muB)="
+                      << T_g << "," << muB_g << std::endl;
+          break;  // gap hit IS the table-EoS solution; do not advance to conformal
+        }
+      }
+    }
+
 
     ////////////////////////////////////////////////
     // stop iterating through available EoSs when solution found
@@ -703,16 +774,13 @@ bool EquationOfState::rootfinder_update_s( double sin, double Bin,
       //========================================================================
       // check if cs2 or the mu/T ratios are going haywire, in which case,
       // don't trust this EoS!  Move on to the next one instead...
-      if ( prohibit_unstable_cs2 && cs2() < 0.0 )
+      if ( settingsPtr->prohibit_unstable_cs2 && cs2() < 0.0 )
         continue;
-      else if ( prohibit_acausal_cs2 && cs2() > 1.0 )
+      else if ( settingsPtr->prohibit_acausal_cs2 && cs2() > 1.0 )
         continue;
 //      else if ( restrict_mu_T_ratios && this_eos->name == "table"
 //                && sqrt(muB()*muB()+muS()*muS()+muQ()*muQ()) > 4.0*T() )
-      else if ( restrict_mu_T_ratios && this_eos->name == "table"
-                && T() < 50.0/197.3269804 )   // skip mu/T check for T < 50 MeV
-        continue;
-      else if ( restrict_mu_T_ratios && this_eos->name == "table"
+      else if ( settingsPtr->restrict_mu_T_ratios && this_eos->name == "table"
                 && std::max( std::max( std::abs(muB()), std::abs(muS()) ),
                         std::abs(muQ()) ) > 3.5*T() )
         continue;
@@ -766,6 +834,7 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
                                           double Qin, bool & solution_found )
 {
   const double hc = constants::hbarc_MeVfm;
+  last_gap_hit = false;
   std::string eos_type;
   // take sign of densities using lambda function
   auto sgn = [](double val) -> double { return (0.0 < val) - (val < 0.0); };
@@ -817,6 +886,40 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
 
 
     /////////////////////////////////////////////////////////
+    // Gap-region fallback (energy path): triggered ONLY when the table EoS
+    // failed to converge.  Must run inside the loop so it intercepts the
+    // failure before falling through to the conformal EoSs.
+    if (!solution_found && this_eos->name == "table")
+    {
+      auto table_eos = std::dynamic_pointer_cast<EoS_table>(this_eos);
+      if (table_eos && (table_eos->gap_table.loaded
+                        || settingsPtr->gap_analytic_enabled))
+      {
+        double T_g = 0.0, muB_g = 0.0, muQ_g = 0.0, muS_g = 0.0;
+        double thermo_g[N_GAP_THERMO];
+        bool gap_hit = false;
+        if (settingsPtr->gap_analytic_enabled)
+          gap_hit = table_eos->gap_table.analytic_lookup(ein, Bin, Sin, Qin,
+                      T_g, muB_g, muQ_g, muS_g, thermo_g);
+        if (!gap_hit && table_eos->gap_table.loaded)
+          gap_hit = table_eos->gap_table.lookup(ein, Bin, Sin, Qin,
+                      settingsPtr->gap_lookup_mode,
+                      settingsPtr->gap_match_tolerance,
+                      T_g, muB_g, muQ_g, muS_g, thermo_g, /*use_energy=*/true);
+        if (gap_hit)
+        {
+          tbqs_from_gap(T_g, muB_g, muQ_g, muS_g, thermo_g);
+          solution_found = true;
+          if (VERBOSE > 0)
+            std::cout << " --> gap fallback (energy): (T,muB)="
+                      << T_g << "," << muB_g << std::endl;
+          break;  // gap hit IS the table-EoS solution; do not advance to conformal
+        }
+      }
+    }
+
+
+    /////////////////////////////////////////////////////////
     // stop iterating through available EoSs when solution found
     if (solution_found)
     {
@@ -837,13 +940,13 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
       //========================================================================
       // check if cs2 or the mu/T ratios are going haywire, in which case,
       // don't trust this EoS!  Move on to the next one instead...
-      if ( prohibit_unstable_cs2 && cs2() < 0.0 )
+      if ( settingsPtr->prohibit_unstable_cs2 && cs2() < 0.0 )
         continue;
-      else if ( prohibit_acausal_cs2 && cs2() > 1.0 )
+      else if ( settingsPtr->prohibit_acausal_cs2 && cs2() > 1.0 )
         continue;
 //      else if ( restrict_mu_T_ratios && this_eos->name == "table"
 //                && sqrt(muB()*muB()+muS()*muS()+muQ()*muQ()) > 4.0*T() )
-      else if ( restrict_mu_T_ratios && this_eos->name == "table"
+      else if ( settingsPtr->restrict_mu_T_ratios && this_eos->name == "table"
                 && std::max( std::max( std::abs(muB()), std::abs(muS()) ),
                         std::abs(muQ()) ) > 3.5*T() )
         continue;
