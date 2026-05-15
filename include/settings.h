@@ -40,6 +40,7 @@ class Settings
     // I/O settings
     bool txt_evolution              = false;
     bool hdf_evolution              = false;
+    bool jet_evolution              = false;
     bool print_conservation_status  = true;
     bool get_neighbors              = false;
     bool calculate_observables       = false;
@@ -206,6 +207,15 @@ class Settings
     bool electric_source       = false;  ///< Whether to include electric source term
     double smearing_radius     = 0.0;   ///< Smearing radius for source terms
     string source_input_file   = "";    ///< Path to the source term file
+
+    //  - jet terms
+
+    string jets_type            = "";    ///< Choose jet type and quantity
+    int jets_Energy_scaling     = "";    ///< Choose BBMG energy dependence
+    int jets_Length_scaling     = "";    ///< Choose BBMG length dependence
+    int jets_Fluctuations       = "";    ///< Choose BBMG fluctuations
+    int jets_phi_bins           = "";    ///< Choose Angular distribution of jets
+
     // make sure that all chosen settings make reasonable sense
     ///TODO: Check these are correct
     void check_consistency()

@@ -82,11 +82,17 @@ namespace ccake
     const bool        electric_source           = false;
     const double      smearing_radius        = 0.5;
     const std::string source_input_file   = "disabled";
+    const std::string jets_type              = "disabled";
+    const int         jets_Energy_scaling     = 0;
+    const int         jets_Length_scaling     = 1;
+    const int         jets_Fluctuations       = 0;
+    const int         jets_phi_bins           = 7;
     const bool        print_conservation_status = true;
     const bool        calculate_observables        = false;
     const bool        get_neighbors             = false;
     const bool        hdf_evolution            = false;
     const bool        txt_evolution            = false;
+    const bool        jet_evolution            = false;
     const bool        check_causality         = false;
     const bool        bulk_from_trace       = false;
     // diffusion regulator (PhysRevC.98.034916, Eqs. C6-C8)

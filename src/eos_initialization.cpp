@@ -355,7 +355,7 @@ void EquationOfState::set_up_chosen_EOSs()
 
 	    double TmaxIni   = settingsPtr->Freeze_Out_Temperature/constants::hbarc_MeVfm;
 	    double Tmax      = 1.1 * TmaxIni;
-      //Tmax   = maxima[0];
+      //double Tmax   = maxima[0];
       formatted_output::detail("Tmax = " + to_string(Tmax));
       // set overall scale using (Tmax,0,0,0)
       tbqs( Tmax, 0.0, 0.0, 0.0, p_default_EoS );

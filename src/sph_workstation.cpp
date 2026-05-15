@@ -60,6 +60,7 @@ void SPHWorkstation<D,TEOM>::initialize()
   formatted_output::detail("freeze out energy density = "
                            + to_string(systemPtr->efcheck*hbarc_GeVfm) + " GeV/fm^3");
 
+   bbmg = BBMG<D>( settingsPtr, systemPtr ); // initialize the bbmg object
 }
 
 
@@ -401,6 +402,14 @@ void SPHWorkstation<D,TEOM>::initial_smoothing()
 
 }
 
+template<unsigned int D, template<unsigned int> class TEOM>
+void SPHWorkstation<D, TEOM>::initialize_jets_bbmg()
+{
+  bbmg.initial();
+  //bbmg.initial_one_jet();
+  //bbmg.initial_two_jets();
+}
+
 ///@brief Smooth all SPH fields
 ///@details This function updates the densities \f$s\f$, \f$\rho_B\f$, 
 /// \f$\rho_Q\f$, \f$\rho_S\f$ and \f$\sigma_lab\f$ (auxiliary density) by 
@@ -663,6 +672,28 @@ void SPHWorkstation<D,TEOM>::locate_phase_diagram_point_sBSQ( Particle<D> & p,
     }
 
 
+    if (p.thermo.cs2<0)
+    {
+    cout << "input thermo: " << s_In << "   "
+          << rhoB_In << "   "
+          << rhoS_In << "   "
+          << rhoQ_In << endl
+          << "check thermo: " << systemPtr->t << "   "
+          << p.thermo.T << "   "
+          << p.thermo.muB << "   "
+          << p.thermo.muS << "   "
+          << p.thermo.muQ << "   "
+          << p.thermo.p << "   "
+          << p.thermo.s << "   "
+          << p.thermo.rhoB << "   "
+          << p.thermo.rhoS << "   "
+          << p.thermo.rhoQ << "   "
+          << p.thermo.e << "   "
+          << p.thermo.cs2 << "   "
+          << p.thermo.eos_name << endl;
+      cout << __LINE__ << ": cs2 was negative!" << endl;					
+      exit(8);
+    }
   }
   #ifdef DEBUG_SLOW
   std::cout << "End of locate_phase_diagram_point_sBSQ" << std::endl;
@@ -1307,6 +1338,7 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives(double dt)
   // check/update conserved quantities
   if (settingsPtr->print_conservation_status )
     systemPtr->conservation_energy(false,t);
+
   return;
 }
 
@@ -1726,6 +1758,11 @@ void SPHWorkstation<D, TEOM>::advance_timestep( double dt, int rk_order )
   //Bulk of code evaluation is done below
   evolver.execute_timestep( dt, rk_order,
                             [this,dt]{ this->get_time_derivatives(dt); } );
+  if (settingsPtr->jets_type != "disabled") {
+    //cout << "Starting jet propagate: " << endl;
+    bbmg.propagate();
+    //cout << "Finished jet propagate: " << endl;
+  }
 
   // Perform freeze out
   if ( settingsPtr->particlization_enabled ) freeze_out_particles();

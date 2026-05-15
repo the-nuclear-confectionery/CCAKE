@@ -29,7 +29,7 @@ BSQHydro<D,TEOM>::BSQHydro(std::shared_ptr<Settings> settingsPtr_in)
   //Initialize the workstation
   wsPtr = std::make_shared<SPHWorkstation<D,TEOM>>(settingsPtr,systemPtr); 
 
-  outPtr = std::make_shared<Output<D>>(settingsPtr,systemPtr);
+  outPtr = std::make_shared<Output<D,TEOM>>(settingsPtr,systemPtr,wsPtr);
 
   return;
 }
@@ -470,6 +470,10 @@ void BSQHydro<D,TEOM>::initialize_hydrodynamics()
   // implement initial smoothing required by SPH formalism
   wsPtr->initial_smoothing();
 
+  // initialize jets from particle temperatures and densities
+  if(settingsPtr->jets_type != "disabled"){
+    wsPtr->initialize_jets_bbmg();
+  }
   // if initializing from full Tmunu, absorb non-equilibrium
   // pressure correction into bulk viscous pressure Pi
   //wsPtr->set_bulk_Pi();
@@ -623,7 +627,7 @@ void BSQHydro<D,TEOM>::run()
     outfile << systemPtr->t << " " << systemPtr->Eloss << " " << systemPtr->S << endl;
     #endif
 
-    if (settingsPtr->hdf_evolution || settingsPtr->txt_evolution)
+    if (settingsPtr->hdf_evolution || settingsPtr->txt_evolution || settingsPtr->jet_evolution) 
     {
       outPtr->print_system_state();
     }

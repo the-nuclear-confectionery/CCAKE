@@ -712,6 +712,44 @@ bool cc::Input::decode_settings(const YAML::Node& node){
       settingsPtr->source_input_file = cc::defaults::source_input_file;
     }
 
+    //jets subnode
+    try{
+      settingsPtr->jets_type = node["hydro"]["jets"]["type"].as<std::string>();
+    } catch (...) {
+      formatted_output::report("WARNING: Could not jets_type!");
+      formatted_output::report("This is an optional parameter. Setting to default value.");
+      settingsPtr->jets_type = cc::defaults::jets_type;
+    }
+    try{
+      settingsPtr->jets_Energy_scale = node["hydro"]["jets"]["Energy_scaling"].as<int>();
+    }
+    catch (...) {
+      formatted_output::report("WARNING: Could not read jet Energy scale!");
+      formatted_output::report("This is an optional parameter. Setting to default value.");
+      settingsPtr->jets_Energy_scale = cc::defaults::jets_Energy_scale;
+    }
+    try{
+      settingsPtr->jets_Length_scale = node["hydro"]["jets"]["Path_Length_scaling"].as<int>();
+    } catch (...) {
+      formatted_output::report("WARNING: Could not read jet Length scale!");
+      formatted_output::report("This is an optional parameter. Setting to default value.");
+      settingsPtr->jets_Length_scale = cc::defaults::jets_Length_scale;
+    }
+    try{
+      settingsPtr->jets_Fluctuations = node["hydro"]["jets"]["Fluctuation_parameter"].as<int>();
+    } catch (...) {
+      formatted_output::report("WARNING: Could not read jet Fluctuations!");
+      formatted_output::report("This is an optional parameter. Setting to default value.");
+      settingsPtr->jets_Fluctuations = cc::defaults::jets_Fluctuations;
+    }
+    try{
+      settingsPtr->jets_phi_bins = node["hydro"]["jets"]["Phi_bins"].as<int>();
+    } catch (...) {
+      formatted_output::report("WARNING: Could not read jet phi bins!");
+      formatted_output::report("This is an optional parameter. Setting to default value.");
+      settingsPtr->jets_phi_bins = cc::defaults::jets_phi_bins;
+    }
+    
 
     //Output node
     try{
@@ -748,6 +786,13 @@ bool cc::Input::decode_settings(const YAML::Node& node){
       formatted_output::detail("WARNING: Could not read output/txt_evolution!");
       formatted_output::detail("This is an optional parameter. Setting to default value.");
       settingsPtr->txt_evolution = cc::defaults::txt_evolution;
+    }
+    try{
+      settingsPtr->jet_evolution = node["output"]["jet_evolution"].as<bool>();
+    } catch(...){
+      formatted_output::detail("WARNING: Could not read output/jet_evolution!");
+      formatted_output::detail("This is an optional parameter. Setting to default value.");
+      settingsPtr->jet_evolution = cc::defaults::jet_evolution;
     }
     try{
       settingsPtr->check_causality = node["output"]["check_causality"].as<bool>();
