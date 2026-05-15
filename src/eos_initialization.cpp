@@ -484,6 +484,19 @@ void EquationOfState::set_up_chosen_EOSs()
     chosen_EOS_map.insert({{ chosen_eos->name, chosen_eos }});
   }
 
+  // Load auxiliary gap table when a path is provided and the table EoS is active
+  if (!settingsPtr->gap_table_path.empty() && chosen_EOS_map.count("table"))
+  {
+    auto table_eos = std::dynamic_pointer_cast<EoS_table>(chosen_EOS_map["table"]);
+    if (table_eos)
+    {
+      formatted_output::update("Loading gap table from: "
+                                + settingsPtr->gap_table_path.string());
+      table_eos->gap_table.load(settingsPtr->gap_table_path,
+                                settingsPtr->normalize_by_T);
+    }
+  }
+
 	return;
 }
 

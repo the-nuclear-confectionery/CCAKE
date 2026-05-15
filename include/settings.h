@@ -124,7 +124,17 @@ class Settings
     bool online_inverter_enabled = false;
     fs::path preinverted_eos_path;       ///< Path to the preinverted EOS file
     bool normalize_by_T         = true;  ///< If true, table fields are dimensionless ratios (e.g. p/T^4);
+    bool restrict_mu_T_ratios   = false; ///< If true, skip EoS solutions where max(|muB|,|muS|,|muQ|) > 3.5*T
                                          ///  if false, fields are in MeV^n and are rescaled by (1/hbarc)^n
+    bool prohibit_unstable_cs2  = true;  ///< If true, reject EoS solutions with cs2 < 0 (spinodal/unstable branch).
+                                         ///  Set false when using a table that intentionally includes the unstable phase.
+    bool prohibit_acausal_cs2   = true;  ///< If true, reject EoS solutions with cs2 > 1 (acausal).
+
+    // --- gap-region fallback ---
+    fs::path    gap_table_path;              ///< optional scattered-points fallback file for the spinodal gap
+    std::string gap_lookup_mode  = "linear"; ///< "nearest" or "linear" interpolation between gap points
+    bool        gap_analytic_enabled = false;///< if true, try hard-coded analytic override before file lookup
+    double      gap_match_tolerance  = 0.05; ///< max distance in (s,rhoB,rhoS,rhoQ) space to accept a gap hit
 
     //------------------------------------
     // hydrodynamics configuration

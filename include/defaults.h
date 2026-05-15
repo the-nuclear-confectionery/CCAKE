@@ -13,6 +13,14 @@ namespace ccake
   namespace defaults
   {
     const bool        online_inverter_enabled  = false;
+    const bool        restrict_mu_T_ratios     = false;
+    const bool        prohibit_unstable_cs2    = true;
+    const bool        prohibit_acausal_cs2     = true;
+    // gap-region fallback
+    const std::string gap_table_path           = "";
+    const std::string gap_lookup_mode          = "linear";
+    const bool        gap_analytic_enabled     = false;
+    const double      gap_match_tolerance      = 0.05;
     const double      max_tau                 = 50.;
     const bool        input_as_entropy        = false;
     const double      dt                      = 0.05;

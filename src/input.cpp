@@ -271,6 +271,43 @@ bool cc::Input::decode_settings(const YAML::Node& node){
         settingsPtr->normalize_by_T = true;
       }
     }
+    try {
+      settingsPtr->restrict_mu_T_ratios = node["eos"]["restrict_mu_T_ratios"].as<bool>();
+    } catch (...) {
+      formatted_output::report("WARNING: Could not read eos/restrict_mu_T_ratios!");
+      formatted_output::report("This is an optional parameter. Setting to default value (false).");
+      settingsPtr->restrict_mu_T_ratios = cc::defaults::restrict_mu_T_ratios;
+    }
+    try {
+      settingsPtr->prohibit_unstable_cs2 = node["eos"]["prohibit_unstable_cs2"].as<bool>();
+    } catch (...) {
+      settingsPtr->prohibit_unstable_cs2 = cc::defaults::prohibit_unstable_cs2;
+    }
+    try {
+      settingsPtr->prohibit_acausal_cs2 = node["eos"]["prohibit_acausal_cs2"].as<bool>();
+    } catch (...) {
+      settingsPtr->prohibit_acausal_cs2 = cc::defaults::prohibit_acausal_cs2;
+    }
+    try {
+      settingsPtr->gap_table_path = node["eos"]["gap_table_path"].as<std::string>();
+    } catch (...) {
+      settingsPtr->gap_table_path = cc::defaults::gap_table_path;
+    }
+    try {
+      settingsPtr->gap_lookup_mode = node["eos"]["gap_lookup_mode"].as<std::string>();
+    } catch (...) {
+      settingsPtr->gap_lookup_mode = cc::defaults::gap_lookup_mode;
+    }
+    try {
+      settingsPtr->gap_analytic_enabled = node["eos"]["gap_analytic_enabled"].as<bool>();
+    } catch (...) {
+      settingsPtr->gap_analytic_enabled = cc::defaults::gap_analytic_enabled;
+    }
+    try {
+      settingsPtr->gap_match_tolerance = node["eos"]["gap_match_tolerance"].as<double>();
+    } catch (...) {
+      settingsPtr->gap_match_tolerance = cc::defaults::gap_match_tolerance;
+    }
 
     //--------------------------------------------------------------------------
     //particlization node

@@ -639,29 +639,6 @@ void SPHWorkstation<D,TEOM>::locate_phase_diagram_point_sBSQ( Particle<D> & p,
             && p.get_current_eos_name() == "table" )
           || p.get_current_eos_name() == "tanh_conformal" )
     {
-      if ( p.thermo.cs2 < 0.0 )
-      {
-        cout << "WARNING: cs2 went negative in eos_type == "
-            << p.get_current_eos_name() << " for particle " << p.ID << "\n"
-            << "input thermo: " << s_In << "   "
-            << rhoB_In << "   "
-            << rhoS_In << "   "
-            << rhoQ_In << endl
-            << "check thermo: " << systemPtr->t << "   "
-            << p.thermo.T << "   "
-            << p.thermo.muB << "   "
-            << p.thermo.muS << "   "
-            << p.thermo.muQ << "   "
-            << p.thermo.p << "   "
-            << p.thermo.s << "   "
-            << p.thermo.rhoB << "   "
-            << p.thermo.rhoS << "   "
-            << p.thermo.rhoQ << "   "
-            << p.thermo.e << "   "
-            << p.thermo.cs2 << "   "
-            << p.thermo.eos_name << endl;
-        p.thermo.cs2 = std::max( p.thermo.cs2, 0.0001 );
-      }
     }
 
     if ( p0.eos_name == p.get_current_eos_name() )
@@ -1572,53 +1549,8 @@ double SPHWorkstation<D, TEOM>::locate_phase_diagram_point_eBSQ( Particle<D> & p
             && p.get_current_eos_name() == "table" )
           || p.get_current_eos_name() == "tanh_conformal" )
     {
-      if ( p.thermo.cs2 < 0.0 )
-      {
-        cout << "WARNING: cs2 went negative in eos_type == "
-            << p.get_current_eos_name() << " for particle " << p.ID << "\n"
-            << "input thermo: " << e_In << "   "
-            << rhoB_In << "   "
-            << rhoS_In << "   "
-            << rhoQ_In << endl
-            << "check thermo: " << systemPtr->t << "   "
-            << p.thermo.T << "   "
-            << p.thermo.muB << "   "
-            << p.thermo.muS << "   "
-            << p.thermo.muQ << "   "
-            << p.thermo.p << "   "
-            << p.thermo.s << "   "
-            << p.thermo.rhoB << "   "
-            << p.thermo.rhoS << "   "
-            << p.thermo.rhoQ << "   "
-            << p.thermo.e << "   "
-            << p.thermo.cs2 << "   "
-            << p.thermo.eos_name << endl;
-        p.thermo.cs2 = std::max( p.thermo.cs2, 0.0001 );
-      }
     }
 
-    if (p.cs2()<0)
-    {
-    cout << "input thermo: " << e_In << "   "
-          << rhoB_In << "   "
-          << rhoS_In << "   "
-          << rhoQ_In << endl
-          << "check thermo: " << systemPtr->t << "   "
-          << p.thermo.T << "   "
-          << p.thermo.muB << "   "
-          << p.thermo.muS << "   "
-          << p.thermo.muQ << "   "
-          << p.thermo.p << "   "
-          << p.thermo.s << "   "
-          << p.thermo.rhoB << "   "
-          << p.thermo.rhoS << "   "
-          << p.thermo.rhoQ << "   "
-          << p.thermo.e << "   "
-          << p.thermo.cs2 << "   "
-          << p.thermo.eos_name << endl;
-      cout << __LINE__ << ": cs2 was negative!" << endl;
-      exit(8);
-    }
 
   }
   else
@@ -1627,7 +1559,7 @@ double SPHWorkstation<D, TEOM>::locate_phase_diagram_point_eBSQ( Particle<D> & p
     p.Freeze = 4;
     bool solution_found2 = false;
     systemPtr->number_part_fo++;
-    cout << "WARNING: could not find solution for particle " << p.ID << "with (e,B,S,Q)" 
+    cout << "WARNING: could not find solution for particle " << p.ID << "with (e,B,S,Q)"
          << " = (" << e_In << "," << rhoB_In << "," << rhoS_In << "," << rhoQ_In << ")" << endl;
     cout << "Setting charges to zero and freezing out particle." << endl;
     //p.thermo.rhoB = 0.0;
