@@ -1,18 +1,6 @@
 #ifndef BBMG_H
 #define BBMG_H
 
-//#include <cerrno>
-//#include <cstdio>
-//#include <cstdlib>
-//#include <cstring>
-//#include <ctime>
-//#include <fstream>
-//#include <iostream>
-//#include <sstream>
-//#include <string>
-//#include <vector>
-//#include <cmath>
-
 #include <cerrno>
 #include <cstdio>
 #include <cstdlib>
@@ -32,7 +20,6 @@
 #include "particle.h"
 #include "settings.h"
 #include "system_state.h"
-//#include "table_delaunay.h"
 #include "thermodynamic_info.h"
 #include "milne.hpp"
 
@@ -86,7 +73,6 @@ namespace ccake
   }
 
   using jet_array = Cabana::AoSoA<jets, DeviceType,VECTOR_LENGTH>;
-  //using jet_freeze = Cabana::AoSoA<jets, DeviceType,VECTOR_LENGTH>;
   
   #define jets_VIEW(prefix, jets_aosoa) \
   auto CONCAT(prefix, position) = Cabana::slice<jets_enum::position>(jets_aosoa); \
@@ -115,13 +101,11 @@ template <unsigned int D>
 
 class BBMG {
 
-//friend class ccake::Output;
-
 private:
     std::shared_ptr<Settings> settingsPtr;
     std::shared_ptr<SystemState<D>> systemPtr;
 
-    int z, a, c, q; ///\@todo: Create an input for these parameters
+    int z, a, c, q;
     int num_jets;
     double Freezeout_Temp;
     double area;
@@ -134,14 +118,6 @@ private:
     int phi_bins = systemPtr->jets_phi_bins;
     const static int phimax = 7;
     double phi[phimax];
-    //double Rjetq[phimax], Rjetg[phimax];
-    //vector<double> rr;
-    
-    //vector<double> RAAq;
-    //vector<double> RAAg; 
-
-    //jet_array jetInfo;
-    //jet_array jetFreezeOut;
     
 
     //void inter(field &f); // interpolation
@@ -167,8 +143,6 @@ public:
     void initial();
     void initial_one_jet();
 
-
-    // Testing to see if this being public allows deep copy to work and allows copy from device to host
     Cabana::AoSoA<jets, DeviceType,VECTOR_LENGTH> jetInfo;
 
     struct field  // All fetched info for jet initialization and propagation
@@ -183,8 +157,6 @@ public:
 
     vector<field> jetInfo_host; ///\@todo: Change these vectors to the AoSoA's
     vector<field> jetFreezeOut;
-
-    //jet_array jets;
 };
 } //ccake namespace end
 
@@ -215,12 +187,9 @@ void BBMG<D>::initial()
   
   //===============================================
   vjet  = 1;
-  // area is taken from parameter h read in from input parameters file
-  //area  = PI*pow(2.*systemPtr->h,2);
 
   gridx = settingsPtr->stepx;
   gridy = settingsPtr->stepy;
-  //cout << "Gridx and gridy are " << gridx << "," << gridy << endl << endl;
 
   for (int i = 0; i < phi_bins; i++)
   {
@@ -238,18 +207,7 @@ void BBMG<D>::initial()
     //vector<Particle>  p_bbmg;
 
     jetInfo = Cabana::AoSoA<jets, DeviceType,VECTOR_LENGTH>("jetInfo", 2*num_jets);
-    //jetFreezeOut = jet_freeze("jetFreezeOut", 2*num_jets);
-    //jetFreezeOut = jet_array("jetFreezeOut", 2*num_jets);
     auto & p = systemPtr->particles;
-    
-    /*for ( int i = 0; i < systemPtr->particles.size(); ++i )
-    {
-      auto & p = systemPtr->particles[i];
-      if (p.T() * constants::hbarc_MeVfm >= Freezeout_Temp)
-      {
-        p_bbmg.push_back(p);
-      }
-    }*/
 
     int back_to_back = 2;
     std::random_device rd; // For true randomness
@@ -302,7 +260,6 @@ void BBMG<D>::initial()
 
 
     copy_host_to_device_BBMG();
-    //copy_device_to_host_BBMG();
 }
 //////////////////////////////////////////////////////
 
@@ -318,17 +275,14 @@ void BBMG<D>::initial_one_jet()
   z                 = 1; // path length dependence
   a                 = 0; //Initial jet energy dependence
   c                 = (2+z-a)/3; //medium temperature dependence
-  num_jets          = 1; // Number of jets per event for oversampling
+  num_jets          = 1;
   //phimax            = 14;
   
   //===============================================
   vjet  = 1;
-  // area is taken from parameter h read in from input parameters file
-  //area  = PI*pow(2.*systemPtr->h,2);
 
   gridx = settingsPtr->stepx;
   gridy = settingsPtr->stepy;
-  //cout << "Gridx and gridy are " << gridx << "," << gridy << endl << endl;
 
   for (int i = 0; i < phi_bins; i++)
   {
@@ -355,11 +309,7 @@ void BBMG<D>::initial_one_jet()
         cout << "sph particle index is " << index << endl;
         cout << "initial sph temperature is " << p.T()*constants::hbarc_MeVfm << endl;
         int back_to_back = 2;
-        //cout << "p_bbmg.size() = " << p_bbmg.size() << endl;
         double rsub = p.p() / p.T();
-        //cout << "Pressure is: " << p[random_sph_particle].p() << " Temperature is: " << p[random_sph_particle].T() << " rho is: " << rsub << endl;
-        //abort();
-        //rho0tot += rsub;
         field sph_particle; //field of all sph particles where we take necessary line integral info
         sph_particle.r[0] = p.r(0);
         sph_particle.x = p.r(0);
@@ -375,11 +325,6 @@ void BBMG<D>::initial_one_jet()
         double kappa = get_kappa(sph_particle.T / 1000);
 
         sph_particle.line_int = 0.5 * kappa * exp(z * log(settingsPtr->t0)) * exp(c * log(sph_particle.rho0)) * settingsPtr->dt; // only if initial flow=0
-        //jetInfo.resize(14);
-
-        //for (int j = 0; j < phimax; j++) //initializes jets at each point in grid space, over 14 directions
-        //std::uniform_int_distribution<> phidist(0, phimax - 1);
-    //int phidist = rand() % phimax;
         for (int j = 0; j < back_to_back; j++)
         {
             sph_particle.phi = PI/7 + j * PI;
@@ -436,10 +381,7 @@ void ccake::BBMG<D>::copy_host_to_device_BBMG(){
     host_Frozen(ijet) = jetInfo_host[ijet].Frozen;
   }
 
-
-
   Cabana::deep_copy( jetInfo, jets_h );
-
 
   Kokkos::fence();
 
@@ -456,10 +398,9 @@ void BBMG<D>::copy_device_to_host_BBMG()
   //Auxiliary AoSoA for copying particles from/to host
   auto jets_h = Cabana::create_mirror_view_and_copy(Kokkos::HostSpace(), jetInfo);
   Kokkos::fence();
-  //cout << "jets_VIEW instantiation..." << endl;
   jets_VIEW(host_, jets_h);
   for (int ijet=0; ijet < 2*num_jets; ++ijet){
-    //int id = host_id(ijet);
+
     for (int i=0; i<2; ++i)
     {
       jetInfo_host[ijet].r[i] = host_position(ijet, i);
@@ -481,13 +422,9 @@ void BBMG<D>::copy_device_to_host_BBMG()
 template <unsigned int D>
 void BBMG<D>::propagate()
 {
-  //cout << "Entering bbmg propagate: " << endl;
-  //copy_host_to_device_BBMG();
+  double tau  = systemPtr->t;
 
-  double tau  = systemPtr->t;// + settingsPtr->t0;
-
-  jets_VIEW(jet_, jetInfo);
-  //jets_VIEW(jetFreeze_, jetFreeze);     
+  jets_VIEW(jet_, jetInfo); 
 
 
   //#pragma omp parallel for schedule(auto)
@@ -498,23 +435,15 @@ void BBMG<D>::propagate()
     // propagate x,y position of jet on top of sph particles
     jet_position(i,0) += vjet * settingsPtr->dt * cos(jet_phi(i)); //Flow is not here to alter the direction of the jet
     jet_position(i,1) += vjet * settingsPtr->dt * sin(jet_phi(i));
-    //cout << "Current jet position is: (" << jet_position(i, 0) << ", " << jet_position(i, 1) << ")" << endl;
-    //jetPropagation.r[0] += vjet * settingsPtr->dt * cos(jetPropagation.phi); //Flow is not here to alter the direction of the jet
-    //jetPropagation.r[1] += vjet * settingsPtr->dt * sin(jetPropagation.phi);
 
     //double flow;
     Kokkos::View<double*> norm("norm",1);
     Kokkos::deep_copy(norm,0.0);
-    //double norm = 0;
     double den = 0, den2 = 0;
     jet_T(i) = 0;
     jet_rho(i) = 0;
     jet_velocity(i, 0) = 0;
     jet_velocity(i, 1) = 0;
-    //f.T    = 0;
-    //f.rho  = 0;
-    //f.v[0] = 0;
-    //f.v[1] = 0;
 
     CREATE_VIEW(device_, systemPtr->cabana_particles);
     auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
@@ -526,145 +455,42 @@ void BBMG<D>::propagate()
     double rdiff = sqrt(dx*dx+dy*dy);
     if (rdiff<2*settingsPtr->hT)
     {
-      //den++;
-      //den2     += p.norm_spec.s;
       double kern = SPHkernel<D>::kernel(rdiff,settingsPtr->hT);
       Kokkos::atomic_add( &norm(0), kern);
-      //norm         += kern;
       Kokkos::atomic_add( &jet_T(i), device_thermo.access(is, ia, thermo_info::T) * constants::hbarc_MeVfm * kern);
-      //jet_T(i) += device_thermo.access(is, ia, thermo_info::T) * ccake::constants::hbarc_MeVfm * kern;
-      //f.T      += p.T()*ccake::constants::hbarc_MeVfm*kern;
-      //cout << "Interpolated temp value is " << f.T << "\n";
       Kokkos::atomic_add( &jet_rho(i), (device_thermo.access(is, ia, thermo_info::p)/device_thermo.access(is, ia, thermo_info::T)) * kern);
-      
-      //jet_rho(i) += (device_thermo.access(is, ia, ccake::thermo_info::p)/device_thermo.access(is, ia, ccake::thermo_info::T)) * kern
-      //f.rho    += (p.p()/p.T())*kern;
+    
       for (int idir = 0; idir < 2; ++idir)
         Kokkos::atomic_add(&jet_velocity(i, idir), device_hydro_vector.access(is, ia, ccake::hydro_info::v, idir) * kern);
-        //if (device_hydro_vector.access(is, ia, ccake::hydro_info::v, idir)* kern)
-        //jet_velocity(i, idir) += device_hydro_vector.access(is, ia, ccake::hydro_info::v, idir);
-      
-      //f.v[0]   += p.hydro.v(0)*kern;
-      //f.v[1]   += p.hydro.v(1)*kern;
-           }
-          };
+  
+      }
+   };
     ///////////////////////////////////////////////////////////////////
     Cabana::simd_parallel_for(simd_policy, jet_interpolation, "jet_interpolation"); 
       // Put simd_parallel above this line
     jet_T(i) /= norm(0);
-    // f.T       /= norm;
     jet_rho(i) /= norm(0);
-    // f.rho     /= norm;
     for (int idir = 0; idir < 2; ++idir)
       jet_velocity(i, idir) /= norm(0);
-    // f.v[0]    /= norm;
-    // f.v[1]    /= norm;
+
     jet_vmag(i) = sqrt(jet_velocity(i, 0) * jet_velocity(i, 0) + jet_velocity(i, 1) * jet_velocity(i, 1));
-    //cout << "This is the magnitude of the velocity around each jet: " << jet_vmag(i) << endl;
-    //cout << "These are the components in x: " << jet_velocity(i, 0) << endl;
-    //cout << "These are the components in y: " << jet_velocity(i, 1) << endl;
-    //f.vmag     = sqrt( f.v[0]*f.v[0] + f.v[1]*f.v[1] );
     if (jet_vmag(i)>1)
       {
         cout << "The magnitude of the velocity returned greater than c, something is wrong. ABORTING" << endl;
         abort();
       }
       jet_vang(i) = atan2( jet_velocity(i, 1), jet_velocity(i, 0));
-      //f.vang     = atan2( f.v[1], f.v[0] );
       jet_gam(i) = 1.0 / sqrt( 1.0 - jet_vmag(i) * jet_vmag(i));
-      //f.gam      = 1.0 / sqrt( 1.0 - f.vmag*f.vmag );
 
 
     jet_flow(i) = jet_gam(i)*(1-jet_vmag(i)*cos(jet_phi(i)-jet_vang(i)));
     double kappa = get_kappa(jet_T(i) / 1000); //The /1000 here is to move temps from MeV to GeV to follow Barbara's plot, same as above
 
-    //cout << "Temp: " << jet_T(i) << " kappa: " << kappa << " rho: " << jet_rho(i) << " flow: " << jet_flow(i) << endl;
-
     Kokkos::atomic_add( &jet_line_int(i), kappa * exp(z*log(tau)) * exp(c*log(jet_rho(i))) * settingsPtr->dt * jet_flow(i));
       
     }
-
-    
-    
-    // jet_flow(i) = jet_gam(i)*(1-jet_vmag(i)*cos(jet_phi(i)-jet_vang(i)));
-    // double kappa = get_kappa(jet_T(i) / 1000); //The /1000 here is to move temps from MeV to GeV to follow Barbara's plot, same as above
-
-    // cout << "Temp: " << jet_T(i) << " kappa: " << kappa << " rho: " << jet_rho(i) << " flow: " << jet_flow(i) << endl;
-
-    // Kokkos::atomic_add( &jet_line_int(i), kappa * exp(z*log(tau)) * exp(c*log(jet_rho(i))) * settingsPtr->dt * jet_flow(i));
-    //jet_line_int(i) += kappa * exp(z*log(tau)) * exp(c*log(jet_rho(i))) * settingsPtr->dt * flow;
-    //jetPropagation.line += kappa * exp(z*log(tau)) * exp(c*log(jetPropagation.rho)) * settingsPtr->dt * flow(jetPropagation);
-    //countyes++;
-    //cout << "Jet directions still going: " << jetPropagation.phi << endl;
-    //inter( jetPropagation ); //interpolation of the area around the jet
   }
 }
-        /*auto condition = [this](auto& jetPropagation) { ///\@todo: Get rid of the removal routine as we have two arrays that contain both frozen and non-frozen jets
-            return jetPropagation.T <= Freezeout_Temp;
-        };
-
-        auto new_end = std::remove_if(jetInfo.begin(), jetInfo.end(),
-            [this, &condition](auto& jetPropagation) {
-                if (condition(jetPropagation)) {
-                    jetFreezeOut.push_back(jetPropagation);
-                    return true; // Mark element for removal
-                }
-                return false; // Keep element
-            });
-
-
-        // Erase the removed elements from the source vector
-        jetInfo.erase(new_end, jetInfo.end());*/
-
-
-
-
-/*void BBMG::inter( field &f ) 
-{
-  double norm = 0;
-  double den = 0, den2 = 0;
-  f.T    = 0;
-  f.rho  = 0;
-  f.v[0] = 0;
-  f.v[1] = 0;
-  #pragma omp parallel for schedule(auto)
-  for ( auto & p : systemPtr->particles )
-  {
-    double dx    = p.r(0)-f.r[0];
-    double dy    = p.r(1)-f.r[1];
-
-    double rdiff = sqrt(dx*dx+dy*dy)/systemPtr->h;
-    
-
-    if (rdiff<2)
-    {
-      den++;
-      den2     += p.norm_spec.s;
-      double kern = kernel::kernel(rdiff);
-      norm         += kern;
-      f.T      += p.T()*constants::hbarc_MeVfm*kern;
-      //cout << "Interpolated temp value is " << f.T << "\n";
-      f.rho    += (p.p()/p.T())*kern;
-      f.v[0]   += p.hydro.v(0)*kern;
-      f.v[1]   += p.hydro.v(1)*kern;
-      
-    }
-  }
-  f.T       /= norm;
-  f.rho     /= norm;
-  f.v[0]    /= norm;
-  f.v[1]    /= norm;
-  f.vmag     = sqrt( f.v[0]*f.v[0] + f.v[1]*f.v[1] );
-  if (f.vmag>1)
-  {
-    cout << "The magnitude of the velocity returned greater than c, something is wrong. ABORTING" << endl;
-    abort();
-  }
-  f.vang     = atan2( f.v[1], f.v[0] );
-  f.gam      = 1.0 / sqrt( 1.0 - f.vmag*f.vmag );
-}*/
-
-
 
  //ccake namespace
 #endif
