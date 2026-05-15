@@ -1362,7 +1362,6 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives(double dt)
   if (settingsPtr->print_conservation_status )
     systemPtr->conservation_energy(false,t);
 
-  cout << "Finished get time derivatives: " << endl;
   return;
 }
 
