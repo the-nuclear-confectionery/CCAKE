@@ -295,10 +295,10 @@ void SPHWorkstation<D, TEOM>::initialize_entropy_and_charge_densities()
     double sigma = device_hydro_scalar(iparticle, hydro_info::sigma);
 
 
-    device_sph_mass(iparticle, ccake::densities_info::s )    *= 1;    // constant after this
-    device_sph_mass(iparticle, ccake::densities_info::rhoB ) *= 1; // constant after this
-    device_sph_mass(iparticle, ccake::densities_info::rhoS ) *= 1; // constant after this
-    device_sph_mass(iparticle, ccake::densities_info::rhoQ ) *= 1; // constant after this
+    device_sph_mass(iparticle, ccake::densities_info::s )    = 1;    // constant after this
+    device_sph_mass(iparticle, ccake::densities_info::rhoB ) = 1; // constant after this
+    device_sph_mass(iparticle, ccake::densities_info::rhoS ) = 1; // constant after this
+    device_sph_mass(iparticle, ccake::densities_info::rhoQ ) = 1; // constant after this
     device_extensive(iparticle, ccake::densities_info::s )    = s_input/sigma;
     device_extensive(iparticle, ccake::densities_info::rhoB ) = rhoB_input/sigma;
     device_extensive(iparticle, ccake::densities_info::rhoS ) = rhoS_input/sigma;
@@ -714,7 +714,7 @@ void SPHWorkstation<D,TEOM>::locate_phase_diagram_point_sBSQ( Particle<D> & p,
           << p.thermo.e << "   "
           << p.thermo.cs2 << "   "
           << p.thermo.eos_name << endl;
-      cout << __LINE__ << ": cs2 was negative!" << endl;
+      cout << __LINE__ << ": cs2 was negative!" << endl;					
       exit(8);
     }
   }
