@@ -307,8 +307,8 @@ void Output<D,TEOM>::print_conservation_status()
 
 
 /// @brief Appends one conservation status line to in-memory buffer.
-template<unsigned int D>
-void Output<D>::buffer_conservation_line()
+template<unsigned int D, template<unsigned int> class TEOM>
+void Output<D,TEOM>::buffer_conservation_line()
 {
   cons_buffer << systemPtr->t      << " "
               << systemPtr->Eloss  << " "
@@ -319,8 +319,8 @@ void Output<D>::buffer_conservation_line()
 }
 
 /// @brief Writes all buffered conservation data to disk (call once at end).
-template<unsigned int D>
-void Output<D>::flush_conservation(const std::string& path)
+template<unsigned int D, template<unsigned int> class TEOM>
+void Output<D,TEOM>::flush_conservation(const std::string& path)
 {
   std::ofstream outfile(path.c_str(), std::ios::out | std::ios::trunc);
   if (!outfile)

@@ -254,7 +254,6 @@ void EquationOfState::tbqs_from_gap(double T_g, double muB_g, double muQ_g, doub
     db20    = db2;  // gap table doesn't carry the mu=0 susceptibility separately
 
     current_eos_name = "table";
-    last_gap_hit = true;
 }
 
 double EquationOfState::T()   const { return tbqsPosition[0]; }
@@ -631,7 +630,6 @@ bool EquationOfState::rootfinder_update_s( double sin, double Bin,
                                            double Sin, double Qin )
 {
   const double hc = constants::hbarc_MeVfm;
-  last_gap_hit = false;
 
   // take sign of densities using lambda function
   auto sgn = [](double val) -> double { return (0.0 < val) - (val < 0.0); };
@@ -834,7 +832,6 @@ double EquationOfState::rootfinder_s_out( double ein, double Bin, double Sin,
                                           double Qin, bool & solution_found )
 {
   const double hc = constants::hbarc_MeVfm;
-  last_gap_hit = false;
   std::string eos_type;
   // take sign of densities using lambda function
   auto sgn = [](double val) -> double { return (0.0 < val) - (val < 0.0); };

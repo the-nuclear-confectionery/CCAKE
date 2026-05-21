@@ -1,6 +1,7 @@
 add_library(src OBJECT
 	BSQHydro.cpp
 	eos.cpp
+	eos_gap.cpp
 	eos_interpolator.cpp
 	eos_extension.cpp
 	eos_table.cpp
@@ -21,7 +22,7 @@ add_library(src OBJECT
 	output.cpp
 )
 
-add_library(eos OBJECT eos.cpp eos_extension.cpp eos_table.cpp rootfinder.cpp formatted_output.cpp)
+add_library(eos OBJECT eos.cpp eos_gap.cpp eos_extension.cpp eos_table.cpp rootfinder.cpp formatted_output.cpp)
 
 ###############################################################################
 # find and link GSL libraries

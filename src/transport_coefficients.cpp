@@ -732,7 +732,7 @@ double default_zeta(const double *therm)
 {
   double zeta_over_s = 0.005;
   return zeta_over_s*(therm[thermo_info::w]/therm[thermo_info::T]);
-
+}
 //===============================
 KOKKOS_INLINE_FUNCTION
 double constZeta(const double *therm, const parameters params)

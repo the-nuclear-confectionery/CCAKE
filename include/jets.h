@@ -115,7 +115,7 @@ private:
     
     double Pfg, Pfq; ///\@todo: Move or eliminate based on need for energy loss equation with energy dependence
 
-    int phi_bins = systemPtr->jets_phi_bins;
+    int phi_bins = settingsPtr->jets_phi_bins;
     const static int phimax = 7;
     double phi[phimax];
     
@@ -178,9 +178,9 @@ void BBMG<D>::initial()
   Cg                = 3; // Cassimir const gluons
   Cq                = 4./3; // Cassimir const quarks
   // All next quantities are part of the BBMG parameters
-  q                 = systemPtr->jets_Fluctuations; // Fluctuation parameter, subject to change
-  z                 = systemPtr->jets_Length_scaling; // path length dependence
-  a                 = systemPtr->jets_Energy_scaling; //Initial jet energy dependence
+  q                 = settingsPtr->jets_Fluctuations; // Fluctuation parameter, subject to change
+  z                 = settingsPtr->jets_Length_scaling; // path length dependence
+  a                 = settingsPtr->jets_Energy_scaling; //Initial jet energy dependence
   c                 = (2+z-a)/3; //medium temperature dependence
   num_jets          = 200000; // Number of jets per event for oversampling
   //phimax            = 14;

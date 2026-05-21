@@ -211,10 +211,10 @@ class Settings
     //  - jet terms
 
     string jets_type            = "";    ///< Choose jet type and quantity
-    int jets_Energy_scaling     = "";    ///< Choose BBMG energy dependence
-    int jets_Length_scaling     = "";    ///< Choose BBMG length dependence
-    int jets_Fluctuations       = "";    ///< Choose BBMG fluctuations
-    int jets_phi_bins           = "";    ///< Choose Angular distribution of jets
+    int jets_Energy_scaling     = 0;    ///< Choose BBMG energy dependence
+    int jets_Length_scaling     = 0;    ///< Choose BBMG length dependence
+    int jets_Fluctuations       = 0;    ///< Choose BBMG fluctuations
+    int jets_phi_bins           = 0;    ///< Choose Angular distribution of jets
 
     // make sure that all chosen settings make reasonable sense
     ///TODO: Check these are correct
