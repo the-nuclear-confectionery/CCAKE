@@ -116,4 +116,57 @@ void SPHkernel<D>::gradKernel(double const* rel_dist, double r, double h, double
       grad[idir] = norm_grad2*( 1.5*q - 2 )*rel_dist[idir]/h;
   return;
 }
+
+// Generic fallback: ignore hEta, use full D-dimensional distance.
+template<unsigned int D>
+KOKKOS_INLINE_FUNCTION
+double SPHkernel<D>::kernel(const double* r1, const double* r2,
+                            double hT, double hEta)
+{
+  return SPHkernel<D>::kernel(SPHkernel<D>::distance(r1, r2), hT);
+}
+
+// D=3 specialization: factorized W_2D(r_perp, hT) * W_1D(|Δη|, hEta).
+template<>
+KOKKOS_INLINE_FUNCTION
+double SPHkernel<3>::kernel(const double* r1, const double* r2,
+                            double hT, double hEta)
+{
+  double r_perp = SPHkernel<2>::distance(r1, r2);
+  double deta   = SPHkernel<1>::distance(&r1[2], &r2[2]);
+  return SPHkernel<2>::kernel(r_perp, hT) * SPHkernel<1>::kernel(deta, hEta);
+}
+
+// Generic fallback: ignore hEta, use full D-dimensional distance.
+template<unsigned int D>
+KOKKOS_INLINE_FUNCTION
+void SPHkernel<D>::gradKernel(const double* rel_sep,
+                              const double* pos_a, const double* pos_b,
+                              double hT, double hEta, double* grad)
+{
+  double r = SPHkernel<D>::distance(pos_a, pos_b);
+  SPHkernel<D>::gradKernel(rel_sep, r, hT, grad);
+}
+
+// D=3 specialization: factorized gradient.
+template<>
+KOKKOS_INLINE_FUNCTION
+void SPHkernel<3>::gradKernel(const double* rel_sep,
+                              const double* pos_a, const double* pos_b,
+                              double hT, double hEta, double* grad)
+{
+  double zero2[2] = {0.0, 0.0};
+  double rel_perp[2] = {rel_sep[0], rel_sep[1]};
+  double r_perp = SPHkernel<2>::distance(rel_perp, zero2);
+  double deta   = SPHkernel<1>::distance(&rel_sep[2], &zero2[0]);
+  double gradK_2D[2], gradK_1D;
+  SPHkernel<2>::gradKernel(rel_perp, r_perp, hT, gradK_2D);
+  SPHkernel<1>::gradKernel(&rel_sep[2], deta, hEta, &gradK_1D);
+  double W_2D = SPHkernel<2>::kernel(r_perp, hT);
+  double W_1D = SPHkernel<1>::kernel(deta, hEta);
+  grad[0] = gradK_2D[0] * W_1D;
+  grad[1] = gradK_2D[1] * W_1D;
+  grad[2] = W_2D * gradK_1D;
+}
+
 }

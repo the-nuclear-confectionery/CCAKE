@@ -192,6 +192,12 @@ bool cc::Input::decode_settings(const YAML::Node& node){
     }
 
     try {
+      settingsPtr->factorized_kernel = node["parameters"]["factorized_kernel"].as<bool>();
+    } catch (...) {
+      settingsPtr->factorized_kernel = false;
+    }
+
+    try {
       settingsPtr->e_cutoff = node["parameters"]["energy_cutoff"].as<double>();
     } catch (...) {
       formatted_output::report("WARNING: Could not read parameters energy_cutoff!");
@@ -742,14 +748,31 @@ bool cc::Input::decode_settings(const YAML::Node& node){
       formatted_output::report("This is an optional parameter. Setting to default value.");
       settingsPtr->jets_Fluctuations = cc::defaults::jets_Fluctuations;
     }
-    try{
-      settingsPtr->jets_phi_bins = node["hydro"]["jets"]["Phi_bins"].as<int>();
-    } catch (...) {
-      formatted_output::report("WARNING: Could not read jet phi bins!");
-      formatted_output::report("This is an optional parameter. Setting to default value.");
-      settingsPtr->jets_phi_bins = cc::defaults::jets_phi_bins;
-    }
-    
+    // 3D jet initialization parameters (all optional)
+    try { settingsPtr->jets_input_mode = node["hydro"]["jets"]["input_mode"].as<std::string>(); }
+    catch (...) { settingsPtr->jets_input_mode = cc::defaults::jets_input_mode; }
+    try { settingsPtr->jets_input_file = node["hydro"]["jets"]["input_file"].as<std::string>(); }
+    catch (...) { settingsPtr->jets_input_file = cc::defaults::jets_input_file; }
+    try { settingsPtr->jets_pT = node["hydro"]["jets"]["pT"].as<double>(); }
+    catch (...) { settingsPtr->jets_pT = cc::defaults::jets_pT; }
+    try { settingsPtr->jets_phi = node["hydro"]["jets"]["phi"].as<double>(); }
+    catch (...) { settingsPtr->jets_phi = cc::defaults::jets_phi; }
+    try { settingsPtr->jets_rapidity = node["hydro"]["jets"]["rapidity"].as<double>(); }
+    catch (...) { settingsPtr->jets_rapidity = cc::defaults::jets_rapidity; }
+    try { settingsPtr->jets_x0 = node["hydro"]["jets"]["x0"].as<double>(); }
+    catch (...) { settingsPtr->jets_x0 = cc::defaults::jets_x0; }
+    try { settingsPtr->jets_y0 = node["hydro"]["jets"]["y0"].as<double>(); }
+    catch (...) { settingsPtr->jets_y0 = cc::defaults::jets_y0; }
+    try { settingsPtr->jets_eta0 = node["hydro"]["jets"]["eta0"].as<double>(); }
+    catch (...) { settingsPtr->jets_eta0 = cc::defaults::jets_eta0; }
+    // Sampling subsection: hydro.jets.sampling.{njet, sample_rapidity, rapidity_max}
+    try { settingsPtr->jets_njet = node["hydro"]["jets"]["sampling"]["njet"].as<int>(); }
+    catch (...) { settingsPtr->jets_njet = cc::defaults::jets_njet; }
+    try { settingsPtr->jets_sample_rapidity = node["hydro"]["jets"]["sampling"]["sample_rapidity"].as<bool>(); }
+    catch (...) { settingsPtr->jets_sample_rapidity = cc::defaults::jets_sample_rapidity; }
+    try { settingsPtr->jets_rapidity_max = node["hydro"]["jets"]["sampling"]["rapidity_max"].as<double>(); }
+    catch (...) { settingsPtr->jets_rapidity_max = cc::defaults::jets_rapidity_max; }
+
 
     //Output node
     try{

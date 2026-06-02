@@ -87,6 +87,7 @@ public:
   std::shared_ptr<Source<D>> sourcePtr; ///< Object storing the source term data
   void setup_source_terms(){
     sourcePtr = std::make_shared<Source<D>>(settingsPtr, systemPtr);
+    sourcePtr->set_bbmg(&bbmg); // enable BBMG jet energy-loss feedback
   }
 
   //============================================================================

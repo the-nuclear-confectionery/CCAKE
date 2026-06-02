@@ -200,8 +200,14 @@ void Output<D,TEOM>::print_jet_state_to_txt()
         out << jets.PID << " ";
         out << jets.r[0] << " ";
         out << jets.r[1] << " ";
+        if constexpr (D == 3) out << jets.r[2] << " ";
         out <<  "(" << jets.x << " ";
-        out << jets.y << ")" << " " << "\n";
+        out << jets.y;
+        if constexpr (D == 3) out << " " << jets.eta;
+        out << ")" << " ";
+        out << jets.phi << " ";
+        if constexpr (D == 3) out << jets.rapidity << " ";
+        out << "\n";
        }
   out << std::flush;
   out.close();
@@ -395,7 +401,8 @@ void Output<D,TEOM>::print_freeze_out(std::shared_ptr<FreezeOut<D>> freeze_out, 
               << result_diffout(i,2,0) << " "
               << result_diffout(i,2,1) << " "
               << result_diffout(i,2,2) << " "
-              << result_diffout(i,2,3) << "\n";
+              << result_diffout(i,2,3) << " "
+              << result_eos_type(i) << "\n";
     count++;
   }
   fo_particles_buffered += count;

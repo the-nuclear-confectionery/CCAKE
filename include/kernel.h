@@ -19,11 +19,16 @@ private:
 
 public:
 
-  KOKKOS_FUNCTION static double kernel(double distance, double hT );
-  // KOKKOS_FUNCTION static double kernelEta(double distance, double hT );
+  KOKKOS_FUNCTION static double kernel(double distance, double hT);
+  KOKKOS_FUNCTION static double kernel(const double* r1, const double* r2,
+                                       double hT, double hEta);
   KOKKOS_FUNCTION static void gradKernel(double const* rel_dist, double r,
                                          double h, double* grad);
+  KOKKOS_FUNCTION static void gradKernel(const double* rel_sep,
+                                         const double* pos_a, const double* pos_b,
+                                         double hT, double hEta, double* grad);
   KOKKOS_FUNCTION static double distance(const double* r1, const double* r2);
 };
+
 }
 #endif

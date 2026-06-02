@@ -96,6 +96,7 @@ class Settings
     std::string kernel_type     = "";    ///< Which SPH kernel to use (cubic, quartic, quintic).
                                          ///  Currently only cubic is supported
                                          //TODO: Implement other kernels
+    bool factorized_kernel      = false; ///< Use W_2D(r_perp,hT)*W_1D(deta,hEta) for D=3 SPH kernel
     double e_cutoff              = 0.0;  ///< energy density below which
                                          ///particles are removed [GeV/fm^3]
 
@@ -214,7 +215,24 @@ class Settings
     int jets_Energy_scaling     = 0;    ///< Choose BBMG energy dependence
     int jets_Length_scaling     = 0;    ///< Choose BBMG length dependence
     int jets_Fluctuations       = 0;    ///< Choose BBMG fluctuations
-    int jets_phi_bins           = 0;    ///< Choose Angular distribution of jets
+    // 3D jet initialization mode:
+    //   "file"      → read N jets from jets_input_file (cols: x y eta pT phi rapidity)
+    //   "hardcoded" → single jet at (x0,y0,eta0) with (pT, phi, rapidity)
+    //   "sampled"   → sample njet jets: positions from SPH particles above Freezeout_Temp,
+    //                 phi from phi_bins or uniform, rapidity sampled per sampling block.
+    string jets_input_mode      = "hardcoded";
+    string jets_input_file      = "";
+    double jets_pT              = 0.0;   ///< Jet transverse momentum [GeV]
+    double jets_phi             = 0.0;   ///< Jet azimuthal angle [rad]
+    double jets_rapidity           = 0.0;   ///< Jet rapidity
+    double jets_x0              = 0.0;   ///< Jet initial x [fm]
+    double jets_y0              = 0.0;   ///< Jet initial y [fm]
+    double jets_eta0            = 0.0;   ///< Jet initial spacetime rapidity
+    // Sampling subsection (only used when input_mode == "sampled").
+    // phi is always sampled uniformly in [0, 2π) in this mode.
+    int    jets_njet            = 200000; ///< Number of jets per event to sample
+    bool   jets_sample_rapidity    = false;  ///< true → uniform in [-rapidity_max, rapidity_max]; false → fixed at jets_rapidity
+    double jets_rapidity_max       = 1.0;    ///< Half-width of jet rapidity sampling range
 
     // make sure that all chosen settings make reasonable sense
     ///TODO: Check these are correct

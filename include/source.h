@@ -13,6 +13,7 @@
 #include "eom_default.h"
 #include "eom_cartesian.h"
 #include "formatted_output.h"
+#include "jets.h"
 #include "kernel.h"
 #include "settings.h"
 #include "system_state.h"
@@ -87,6 +88,8 @@ private:
 
   std::shared_ptr<Settings> settingsPtr    = nullptr;     ///< Object containing settings parsed from input file
   std::shared_ptr<SystemState<D>> systemPtr= nullptr; ///< Object containing the SPH System (linked list, particles, etc.)
+
+  BBMG<D>* bbmgPtr = nullptr; ///< Non-owning ref to the BBMG jets (for BBMG source feedback)
 public:
   /// @brief Constructor for the Source class.
   Source( std::shared_ptr<Settings> settingsPtr_in,
@@ -97,6 +100,10 @@ public:
 
   ~Source(){};
 
+  /// @brief Provide the BBMG jet object whose per-step energy loss is
+  /// deposited into the fluid when source_model == "BBMG".
+  void set_bbmg(BBMG<D>* b) { bbmgPtr = b; }
+
 
   void initialize( std::shared_ptr<Settings> settingsPtr_in,
                               std::shared_ptr<SystemState<D>> systemPtr_in )
@@ -104,8 +111,8 @@ public:
     settingsPtr = settingsPtr_in;
     systemPtr = systemPtr_in;
     std::cout << "Initializing source terms" << std::endl;
-    //check for toymodel/bbmg 
-    if (settingsPtr->source_model != "toy_model" || settingsPtr->source_model != "BBMG")
+    //check for toymodel/bbmg
+    if (settingsPtr->source_model != "toy_model" && settingsPtr->source_model != "BBMG")
     {
       //read source file
       std::cout << "Reading source file" << std::endl;
@@ -224,10 +231,10 @@ public:
           for (int idir = 0; idir < D; ++idir)
             r[idir] = device_position.access(is, ia, idir);
 
-          double dist = SPHkernel<D>::distance(r, src_pos);
-          double kern = SPHkernel<D>::kernel(dist, smearing_radius);
+          // Always-factorized for D=3; falls back to SPHkernel<D> for D=1,2.
+          double kern = SPHkernel<D>::kernel(r, src_pos, smearing_radius, smearing_radius);
 
-          if (dist < 2.0 * smearing_radius) // optional cutoff
+          if (kern > 0.0)
           {
                       /// \todo Do we need a 1/tau in hyperbolic coordinates here?
             if(settingsPtr->coordinate_system == "hyperbolic")
@@ -242,9 +249,9 @@ public:
               device_hydro_vector.access(is, ia, ccake::hydro_info::j_ext, idir) +=normalization * src_mom[idir] * kern / dt; // right units of Momentum/time
             }
             // Optionally deposit charges
-            if (settingsPtr->baryon_source) device_hydro_scalar.access(is, ia, ccake::hydro_info::rho_B_ext) += src_baryon * kern ;
-            if (settingsPtr->strangeness_source) device_hydro_scalar.access(is, ia, ccake::hydro_info::rho_S_ext) += src_strangeness * kern ;
-            if (settingsPtr->electric_source) device_hydro_scalar.access(is, ia, ccake::hydro_info::rho_Q_ext) += src_charge * kern ;
+            if (settingsPtr->baryon_source) device_hydro_scalar.access(is, ia, ccake::hydro_info::rho_B_ext) += src_baryon * kern / dt;
+            if (settingsPtr->strangeness_source) device_hydro_scalar.access(is, ia, ccake::hydro_info::rho_S_ext) += src_strangeness * kern / dt;
+            if (settingsPtr->electric_source) device_hydro_scalar.access(is, ia, ccake::hydro_info::rho_Q_ext) += src_charge * kern / dt;
           }
         };
 
@@ -552,9 +559,57 @@ public:
 
   void calculate_source_bbmg(double t, double t_prev)
   {
-    // Placeholder for BBMG source calculation
-    // Implement BBMG source term logic here
-    std::cout << "BBMG source calculation not yet implemented." << std::endl;
+    // Deposit each jet's per-step energy loss (and momentum recoil along its
+    // direction) into the fluid. The jet state is already in simulation
+    // coordinates, so no transform_to_hyperbolic is applied (unlike the toy
+    // model). add_source() then SPH-deposits these via the factorized kernel,
+    // and its /dt turns the per-step ΔE into the energy rate j0_ext expects.
+    if (bbmgPtr == nullptr)
+    {
+      std::cout << "BBMG source requested but no BBMG object was set." << std::endl;
+      return;
+    }
+
+    // Refresh the host-side mirror so we can read updated jet positions/e_loss.
+    bbmgPtr->copy_device_to_host_BBMG();
+    auto& jets = bbmgPtr->jetInfo_host;
+
+    n_sources = jets.size();
+    if (n_sources == 0) return;
+    sources = source_array("sources", n_sources);
+    SRC_VIEW(s_, sources);
+
+    double tau = systemPtr->t;
+    for (std::size_t i = 0; i < jets.size(); ++i)
+    {
+      double dE = jets[i].e_loss;
+
+      // Propagation direction (same construction as BBMG::propagate).
+      // dir is a UNIT velocity in the Milne metric:
+      //   |dir|²_Milne = sech²(Δy) + tanh²(Δy) = 1,
+      // so the deposited 4-current J^μ = dE·(1, dir) is null — energy and
+      // momentum match exactly per step (massless transfer, E = |p|_Milne).
+      // (Over a curving path dir rotates, so the time-integrated deposit is
+      //  timelike; that is the correct physics, not an inconsistency.)
+      double dy   = (D == 3) ? jets[i].rapidity - jets[i].eta : 0.0;
+      double sech = 1.0 / std::cosh(dy);
+      double dir[3] = { std::cos(jets[i].phi) * sech,
+                        std::sin(jets[i].phi) * sech,
+                        (D == 3) ? std::tanh(dy) / tau : 0.0 };
+
+      for (int d = 0; d < 3; ++d)
+      {
+        s_position(i, d) = (d < (int)D) ? jets[i].r[d] : 0.0;
+        s_momentum(i, d) = dE * dir[d]; // massless: |p|_Milne = E along dir
+      }
+      s_energy(i) = dE;
+      s_mass(i) = 0.0;
+      s_baryon_charge(i) = 0.0;
+      s_strangeness_charge(i) = 0.0;
+      s_electric_charge(i) = 0.0;
+      s_time(i) = t; // deposit this step (add_source window: t_prev < t_src <= t)
+      s_PID(i) = jets[i].PID;
+    }
   }
 
   void calculate_source_toymodel(double t, double t_prev)

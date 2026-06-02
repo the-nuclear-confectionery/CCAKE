@@ -43,10 +43,19 @@ void SPHWorkstation<D,TEOM>::initialize()
   //----------------------------------------
   // set up equation of state
   eos.set_SettingsPtr( settingsPtr );
-  eos.init();
-  if(!settingsPtr->online_inverter_enabled)
+  if (settingsPtr->online_inverter_enabled)
+  {
+    // Forward EoS is needed for the per-particle inverter calls and for
+    // efreeze. In pre-inverted mode neither is used, so skip the (slow) load.
+    eos.init();
+  }
+  else
+  {
+    formatted_output::report(
+        "Pre-inverted EoS mode: skipping forward-EoS load (eos.path).");
     eos_interpolatorPtr = std::make_shared<EoS_Interpolator>(
           settingsPtr->preinverted_eos_path);
+  }
   //----------------------------------------
   // set up transport coefficients
   transp_coeff_params = tc::setup_parameters(settingsPtr);
@@ -56,7 +65,17 @@ void SPHWorkstation<D,TEOM>::initialize()
   formatted_output::report("Setting up freeze out");
   formatted_output::detail("Freeze out temperature = "
                              + to_string(settingsPtr->Freeze_Out_Temperature) + " MeV");
-  systemPtr->efcheck = eos.efreeze(settingsPtr->Freeze_Out_Temperature/hbarc_MeVfm); //Factor 1000 to convert to MeV from GeV
+  if (settingsPtr->online_inverter_enabled)
+  {
+    systemPtr->efcheck = eos.efreeze(settingsPtr->Freeze_Out_Temperature/hbarc_MeVfm);
+  }
+  else
+  {
+    // Pre-inverted: scan the flat table for the cell where T_table(s, 0) crosses
+    // the freeze-out temperature.
+    systemPtr->efcheck = eos_interpolatorPtr->efreeze_at_T(
+        settingsPtr->Freeze_Out_Temperature / hbarc_MeVfm);
+  }
   formatted_output::detail("freeze out energy density = "
                            + to_string(systemPtr->efcheck*hbarc_GeVfm) + " GeV/fm^3");
 
@@ -237,10 +256,27 @@ void SPHWorkstation<D, TEOM>::initialize_entropy_and_charge_densities()
 
   //Compute thermal properties
   systemPtr->copy_device_to_host();
+  const bool use_preinverted = !settingsPtr->online_inverter_enabled;
   if(settingsPtr->input_as_entropy==true){
     for (auto & p : systemPtr->particles){
-      locate_phase_diagram_point_sBSQ( p,
-                    p.input.s, p.input.rhoB, p.input.rhoS, p.input.rhoQ );
+      if (use_preinverted)
+      {
+        // s, rhoB known → direct table lookup.
+        bool ok = eos_interpolatorPtr->query_thermo_host(
+                      p.input.s, p.input.rhoB, p.thermo);
+        if (!ok)
+        {
+          std::cerr << "Pre-inverted query_thermo_host failed for particle "
+                    << p.ID << " at (s, rhoB) = ("
+                    << p.input.s << ", " << p.input.rhoB << ")." << std::endl;
+          std::abort();
+        }
+      }
+      else
+      {
+        locate_phase_diagram_point_sBSQ( p,
+                      p.input.s, p.input.rhoB, p.input.rhoS, p.input.rhoQ );
+      }
       p.input.e = p.thermo.e;
       p.efcheck = systemPtr->efcheck;
       if ( p.input.e > systemPtr->efcheck && p.Freeze!=4 )	p.Freeze = 0;
@@ -253,8 +289,25 @@ void SPHWorkstation<D, TEOM>::initialize_entropy_and_charge_densities()
   }
   else{
     for (auto & p : systemPtr->particles){
-      p.input.s = locate_phase_diagram_point_eBSQ( p,
-                    p.input.e, p.input.rhoB, p.input.rhoS, p.input.rhoQ );
+      if (use_preinverted)
+      {
+        // e, rhoB known; invert for s via table bisection.
+        bool ok = eos_interpolatorPtr->invert_e_to_s_host(
+                      p.input.e, p.input.rhoB, p.thermo);
+        if (!ok)
+        {
+          std::cerr << "Pre-inverted invert_e_to_s_host failed for particle "
+                    << p.ID << " at (e, rhoB) = ("
+                    << p.input.e << ", " << p.input.rhoB << ")." << std::endl;
+          std::abort();
+        }
+        p.input.s = p.thermo.s;
+      }
+      else
+      {
+        p.input.s = locate_phase_diagram_point_eBSQ( p,
+                      p.input.e, p.input.rhoB, p.input.rhoS, p.input.rhoQ );
+      }
       p.efcheck = systemPtr->efcheck;
       if ( p.input.e > systemPtr->efcheck && p.Freeze!=4 )	p.Freeze = 0;
 		  else
@@ -406,8 +459,6 @@ template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D, TEOM>::initialize_jets_bbmg()
 {
   bbmg.initial();
-  //bbmg.initial_one_jet();
-  //bbmg.initial_two_jets();
 }
 
 ///@brief Smooth all SPH fields
@@ -447,6 +498,7 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
   double hT = settingsPtr->hT;
   double hEta = settingsPtr->hEta;
   double t = systemPtr->t;
+  bool factorized = (D == 3) && settingsPtr->factorized_kernel;
 
   //creating outfile to for kernal function output
   /*ofstream outfile;
@@ -455,9 +507,9 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
 
   //Reset smoothed fields. Initializes using the contribution of the particle to the density evaluated
   //on top of itself because the loop over the neighbour particles does not include the particle itself.
-  double kern0;
-  kern0 = SPHkernel<D>::kernel(0,hT); //The value of the Kernel evaluated on top of the particle
-  
+  double zero[D] = {};
+  double kern0 = factorized ? SPHkernel<D>::kernel(zero, zero, hT, hEta) : SPHkernel<D>::kernel(0.0, hT);
+
   auto reset_fields = KOKKOS_LAMBDA(const int is, const int ia) //First index for loop over struct, second for loop over array
   {
     device_smoothed.access(is, ia, densities_info::s)     = device_sph_mass.access(is, ia, densities_info::s)*   device_extensive.access(is, ia, densities_info::s)*kern0;
@@ -470,14 +522,12 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
   Kokkos::fence();
 
   auto smooth_fields = KOKKOS_LAMBDA(const int iparticle, const int jparticle ){
-    double kern;
     double r1[D] ,r2[D]; // cache for positions of particles 1 and 2
     for (int idir = 0; idir < D; ++idir){
       r1[idir] = device_position(iparticle,idir);
       r2[idir] = device_position(jparticle,idir);
     }
-    double distance = SPHkernel<D>::distance(r1,r2);
-    kern = SPHkernel<D>::kernel(distance,hT);
+    double kern = factorized ? SPHkernel<D>::kernel(r1, r2, hT, hEta) : SPHkernel<D>::kernel(SPHkernel<D>::distance(r1, r2), hT);
 
     //outputting kernel function to the outfile "kernel_{hT}.dat"
     /*outfile << kern << distance << endl;
@@ -535,6 +585,7 @@ void SPHWorkstation<D, TEOM>::calculate_intial_sigma(double t)
   auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
   double hT = settingsPtr->hT;
   double hEta = settingsPtr->hEta;
+  bool factorized = (D == 3) && settingsPtr->factorized_kernel;
 
   //creating outfile to for kernal function output
   /*ofstream outfile;
@@ -543,7 +594,8 @@ void SPHWorkstation<D, TEOM>::calculate_intial_sigma(double t)
 
   //Reset smoothed fields. Initializes using the contribution of the particle to the density evaluated
   //on top of itself because the loop over the neighbour particles does not include the particle itself.
-  double kern0 = SPHkernel<D>::kernel(0,hT); //The value of the Kernel evaluated on top of the particle
+  double zero[D] = {};
+  double kern0 = factorized ? SPHkernel<D>::kernel(zero, zero, hT, hEta) : SPHkernel<D>::kernel(0.0, hT);
   auto reset_fields = KOKKOS_LAMBDA(const int is, const int ia) //First index for loop over struct, second for loop over array
   {
     device_hydro_scalar.access(is, ia, hydro_info::sigma_lab) = device_sph_mass.access(is, ia, densities_info::s)*kern0;
@@ -552,14 +604,12 @@ void SPHWorkstation<D, TEOM>::calculate_intial_sigma(double t)
   Kokkos::fence();
 
   auto smooth_fields = KOKKOS_LAMBDA(const int iparticle, const int jparticle ){
-    double kern;
     double r1[D] ,r2[D]; // cache for positions of particles 1 and 2
     for (int idir = 0; idir < D; ++idir){
         r1[idir] = device_position(iparticle,idir);
         r2[idir] = device_position(jparticle,idir);
     }
-    double distance = SPHkernel<D>::distance(r1,r2);
-    kern = SPHkernel<D>::kernel(distance,hT);
+    double kern = factorized ? SPHkernel<D>::kernel(r1, r2, hT, hEta) : SPHkernel<D>::kernel(SPHkernel<D>::distance(r1, r2), hT);
 
     //outputting kernel function to the outfile "kernel_{hT}.dat"
     /*outfile << kern << distance << endl;
@@ -672,28 +722,7 @@ void SPHWorkstation<D,TEOM>::locate_phase_diagram_point_sBSQ( Particle<D> & p,
     }
 
 
-    if (p.thermo.cs2<0)
-    {
-    cout << "input thermo: " << s_In << "   "
-          << rhoB_In << "   "
-          << rhoS_In << "   "
-          << rhoQ_In << endl
-          << "check thermo: " << systemPtr->t << "   "
-          << p.thermo.T << "   "
-          << p.thermo.muB << "   "
-          << p.thermo.muS << "   "
-          << p.thermo.muQ << "   "
-          << p.thermo.p << "   "
-          << p.thermo.s << "   "
-          << p.thermo.rhoB << "   "
-          << p.thermo.rhoS << "   "
-          << p.thermo.rhoQ << "   "
-          << p.thermo.e << "   "
-          << p.thermo.cs2 << "   "
-          << p.thermo.eos_name << endl;
-      cout << __LINE__ << ": cs2 was negative!" << endl;					
-      exit(8);
-    }
+
   }
   #ifdef DEBUG_SLOW
   std::cout << "End of locate_phase_diagram_point_sBSQ" << std::endl;
@@ -767,6 +796,8 @@ template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
 {
   double hT = settingsPtr->hT;
+  double hEta = settingsPtr->hEta;
+  bool factorized = (D == 3) && settingsPtr->factorized_kernel;
   double t = systemPtr->t;
   bool using_shear = settingsPtr->using_shear;
   bool using_diffusion = settingsPtr->using_diffusion;
@@ -808,9 +839,7 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
         pos_b[idir] = device_position(particle_b,idir);
         rel_sep[idir] = pos_a[idir] - pos_b[idir];
     }
-    double rel_sep_norm = SPHkernel<D>::distance(pos_a,pos_b);
-    ccake::SPHkernel<D>::gradKernel( rel_sep, rel_sep_norm, hT, gradK_aux );      
-
+    if (factorized) SPHkernel<D>::gradKernel(rel_sep, pos_a, pos_b, hT, hEta, gradK_aux); else { double r = SPHkernel<D>::distance(pos_a, pos_b); SPHkernel<D>::gradKernel(rel_sep, r, hT, gradK_aux); }
 
     double pressure_a     = device_thermo(particle_a, thermo_info::p);
     double pressure_b     = device_thermo(particle_b, thermo_info::p);
@@ -1802,11 +1831,11 @@ void SPHWorkstation<D, TEOM>::add_toy_jet()
   double jet_position_1[D];
   jet_position_1[0] = +(t-0.6);
   jet_position_1[1] = 0;
-  //jet_position_1[2] = 0.0;
+  if constexpr (D == 3) jet_position_1[2] = 0.0;
   double jet_position_2[D];
   jet_position_2[0] = -(t-0.6);
   jet_position_2[1] = 0;
-  //jet_position_2[2] = 0.0;
+  if constexpr (D == 3) jet_position_2[2] = 0.0;
   //30 degrees in radians
   double jet_angle = 45.*pi/180.;
   
@@ -1856,13 +1885,15 @@ auto add_toy_jet_terms = KOKKOS_LAMBDA(const int is, const int ia) {
     for (int idir = 0; idir < D; ++idir)
         r[idir] = device_position.access(is, ia, idir);
 
-    double dx1,dy1,dx2,dy2;
-    dx1 = abs(r[0] - jet_position_1[0]);
-    dy1 =abs(r[1] - jet_position_1[1]);
-    dx2 = abs(r[0] - jet_position_2[0]);
-    dy2 =abs(r[1] - jet_position_2[1]);
-    double d1 = sqrt(dx1*dx1 + dy1*dy1);
-    double d2 = sqrt(dx2*dx2 + dy2*dy2);
+    double d1_sq = 0.0, d2_sq = 0.0;
+    for (int idir = 0; idir < D; ++idir) {
+      double diff1 = r[idir] - jet_position_1[idir];
+      double diff2 = r[idir] - jet_position_2[idir];
+      d1_sq += diff1 * diff1;
+      d2_sq += diff2 * diff2;
+    }
+    double d1 = sqrt(d1_sq);
+    double d2 = sqrt(d2_sq);
     // 
 
     // Check if the particle is within the jet's influence
@@ -1879,7 +1910,7 @@ auto add_toy_jet_terms = KOKKOS_LAMBDA(const int is, const int ia) {
       double sigma_y = x_threshold;
       double Eloss1 = source_energy * source_entropy1/s0;
       //two 1D splines
-      double kernel1 = SPHkernel<2>::kernel(d1, sigma_x);
+      double kernel1 = SPHkernel<D>::kernel(d1, sigma_x);
       device_hydro_scalar.access(is, ia, ccake::hydro_info::j0_ext) += Eloss1 * kernel1 / t / 1.;
       device_hydro_vector.access(is, ia, ccake::hydro_info::j_ext, 0) += Eloss1 * kernel1 / t / 1.;
       //std::cout << "in cone 1" << std::endl;
@@ -1892,7 +1923,7 @@ auto add_toy_jet_terms = KOKKOS_LAMBDA(const int is, const int ia) {
         double sigma_y = x_threshold;
         double Eloss2 = source_energy * source_entropy2/s0;
         //two 1D splines
-        double kernel2 = SPHkernel<2>::kernel(d2, sigma_x);
+        double kernel2 = SPHkernel<D>::kernel(d2, sigma_x);
         //device_hydro_scalar.access(is, ia, ccake::hydro_info::j0_ext) += Eloss2 * kernel2 / t / 1.;
         //device_hydro_vector.access(is, ia, ccake::hydro_info::j_ext, 0) += -Eloss2 * kernel2 / t / 1.;
         //std::cout << "in cone 2" << std::endl;
@@ -2072,6 +2103,8 @@ template<>
 void SPHWorkstation<3, EoM_cartesian>::smooth_all_particle_gradients(double time_squared)
 {
   double hT = settingsPtr->hT;
+  double hEta = settingsPtr->hEta;
+  bool factorized = settingsPtr->factorized_kernel;
   double t = systemPtr->t;
   bool using_shear = settingsPtr->using_shear;
   bool using_diffusion = settingsPtr->using_diffusion;
@@ -2110,9 +2143,8 @@ void SPHWorkstation<3, EoM_cartesian>::smooth_all_particle_gradients(double time
       pos_b[idir] = device_position(particle_b,idir);
       rel_sep[idir] = pos_a[idir] - pos_b[idir];
     }
-    double rel_sep_norm = SPHkernel<3>::distance(pos_a,pos_b);
     double gradK_aux[3];
-    ccake::SPHkernel<3>::gradKernel( rel_sep, rel_sep_norm, hT, gradK_aux );
+    if (factorized) SPHkernel<3>::gradKernel(rel_sep, pos_a, pos_b, hT, hEta, gradK_aux); else { double r = SPHkernel<3>::distance(pos_a, pos_b); SPHkernel<3>::gradKernel(rel_sep, r, hT, gradK_aux); }
 
     double pressure_a     = device_thermo(particle_a, thermo_info::p);
     double pressure_b     = device_thermo(particle_b, thermo_info::p);
