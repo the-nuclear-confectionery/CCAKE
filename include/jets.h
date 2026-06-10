@@ -65,7 +65,7 @@ namespace ccake
       T0,
       phi,
       rapidity,
-      line_int,
+      energy_lost,
       e_loss,
       gam,
       vmag,
@@ -92,7 +92,7 @@ namespace ccake
   auto CONCAT(prefix, T0) = Cabana::slice<jets_enum::T0>(jets_aosoa); \
   auto CONCAT(prefix, phi) = Cabana::slice<jets_enum::phi>(jets_aosoa); \
   auto CONCAT(prefix, rapidity) = Cabana::slice<jets_enum::rapidity>(jets_aosoa); \
-  auto CONCAT(prefix, line_int) = Cabana::slice<jets_enum::line_int>(jets_aosoa); \
+  auto CONCAT(prefix, energy_lost) = Cabana::slice<jets_enum::energy_lost>(jets_aosoa); \
   auto CONCAT(prefix, e_loss) = Cabana::slice<jets_enum::e_loss>(jets_aosoa); \
   auto CONCAT(prefix, gam) = Cabana::slice<jets_enum::gam>(jets_aosoa); \
   auto CONCAT(prefix, vmag) = Cabana::slice<jets_enum::vmag>(jets_aosoa); \
@@ -148,7 +148,7 @@ public:
     {
         int sph, on;
         double rho, rho0, T, v[3];
-        double r[3], phi, rapidity, line_int, e_loss, x, y, eta;
+        double r[3], phi, rapidity, energy_lost, e_loss, x, y, eta;
         int PID, Frozen;
         double gam, vmag, vang, flow;
         double T0;
@@ -207,7 +207,7 @@ void BBMG<D>::initial()
       f.phi   = phij + j * PI;
       f.rapidity = (D == 3) ? rapidity_ : 0.0;
       f.rho0 = rho0; f.T = T_MeV; f.T0 = T_MeV;
-      f.line_int = line0;
+      f.energy_lost = line0;
       f.e_loss = 0.0;
       f.PID = 2 * pid_base + j;
       f.Frozen = 1;
@@ -337,7 +337,7 @@ void ccake::BBMG<D>::copy_host_to_device_BBMG(){
     host_T0(ijet) = jetInfo_host[ijet].T0;
     host_phi(ijet) = jetInfo_host[ijet].phi;
     host_rapidity(ijet) = jetInfo_host[ijet].rapidity;
-    host_line_int(ijet) = jetInfo_host[ijet].line_int;
+    host_energy_lost(ijet) = jetInfo_host[ijet].energy_lost;
     host_e_loss(ijet) = jetInfo_host[ijet].e_loss;
     host_gam(ijet) = jetInfo_host[ijet].gam;
     host_vmag(ijet) = jetInfo_host[ijet].vmag;
@@ -374,7 +374,7 @@ void BBMG<D>::copy_device_to_host_BBMG()
     jetInfo_host[ijet].T = host_T(ijet);
     jetInfo_host[ijet].phi  = host_phi(ijet);
     jetInfo_host[ijet].rapidity = host_rapidity(ijet);
-    jetInfo_host[ijet].line_int = host_line_int(ijet);
+    jetInfo_host[ijet].energy_lost = host_energy_lost(ijet);
     jetInfo_host[ijet].e_loss = host_e_loss(ijet);
     jetInfo_host[ijet].gam  = host_gam(ijet);
     jetInfo_host[ijet].vmag = host_vmag(ijet);
@@ -475,7 +475,7 @@ void BBMG<D>::propagate()
     // Per-step energy loss ΔE = κ·τ^z·ρ^c·dt·flow; accumulate in the line
     // integral and store as e_loss for the source-term back-reaction.
     double dL =  kappa * exp(z*log(tau)) * exp(c*log(jet_rho(i))) * settingsPtr->dt * jet_flow(i);
-    Kokkos::atomic_add( &jet_line_int(i), dL );
+    Kokkos::atomic_add( &jet_energy_lost(i), dL );
     jet_e_loss(i) = dL;
 
     }

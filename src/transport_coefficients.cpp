@@ -613,6 +613,7 @@ double constEta(const double *therm, const parameters params)
 {
   double w = therm[thermo_info::w];
   double T = therm[thermo_info::T];
+  if (T <= 0.0) return 0.0;
   return params.constant_eta_over_s*(w/T);
 }
 
@@ -645,7 +646,7 @@ double LinearMusParam(const double *therm, const parameters params)
   double muQ = therm[thermo_info::muQ];
   double w = therm[thermo_info::w];
   double T = therm[thermo_info::T];
-
+  if (T <= 0.0) return 0.0;
   return (etaBase + muSlope*(muB + muS + muQ))*(w/T);
 }
 

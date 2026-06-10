@@ -42,8 +42,9 @@ namespace ccake
                                            double, double, double, double, // sFO, Efluc, Tfluc, muBfluc
                                            double, double, double, // muSfluc, muQfluc, cs2fzfluc
                                            double,    // wfzfluc
-                                           double, double, double, bool //rhoBfluc, rhoSfluc, rhoQfluc
-                                           >; // 36*8 = 288 bytes per particle. 100K Particles = 28.8 MB
+                                           double, double, double, // rhoBfluc, rhoSfluc, rhoQfluc
+                                           double, bool // eos_type, print
+                                           >; // 37*8 = 296 bytes per particle. 100K Particles = 29.6 MB
   namespace FRZ_enum{
     enum FRZ_members
     {
@@ -70,6 +71,7 @@ namespace ccake
       muSfluc, muQfluc, cs2fzfluc,
       wfzfluc, 
       rhoBfluc, rhoSfluc, rhoQfluc,
+      eos_type,
       print
     };
   }
@@ -133,7 +135,8 @@ namespace ccake
   auto CONCAT(prefix, print) = Cabana::slice<ResultsTypes_enum::print>(results_aosoa); \
   auto CONCAT(prefix, rhoBfluc) = Cabana::slice<ResultsTypes_enum::rhoBfluc>(results_aosoa); \
   auto CONCAT(prefix, rhoSfluc) = Cabana::slice<ResultsTypes_enum::rhoSfluc>(results_aosoa); \
-  auto CONCAT(prefix, rhoQfluc) = Cabana::slice<ResultsTypes_enum::rhoQfluc>(results_aosoa);
+  auto CONCAT(prefix, rhoQfluc) = Cabana::slice<ResultsTypes_enum::rhoQfluc>(results_aosoa); \
+  auto CONCAT(prefix, eos_type) = Cabana::slice<ResultsTypes_enum::eos_type>(results_aosoa);
 
 //TODO: This needs to be documented and split in header and
 //source code
@@ -907,6 +910,7 @@ class FreezeOut
           results_Tfluc.access(is,ia) *= constants::hbarc_GeVfm;
 
           // Lastly, we tag the particle as frozen and to be printed
+          results_eos_type.access(is,ia) = device_thermo.access(is, ia, ccake::thermo_info::eos_type_is_table);
           device_freeze.access(is,ia) = 4;
           results_print.access(is,ia) = true;
         } //end if particle is frozen
