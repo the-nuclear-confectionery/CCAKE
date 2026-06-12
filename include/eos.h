@@ -127,6 +127,7 @@ public:
       thermo.e    = e();
       thermo.w    = w();
       thermo.cs2  = cs2();
+      thermo.eta_over_s = eta_over_sVal;
       thermo.dwds = dwds();
       thermo.dwdB = dwdB();
       thermo.dwdS = dwdS();
@@ -233,6 +234,7 @@ private:
     double ds2           = 0.0;
     double dq2           = 0.0;
     double dt2           = 0.0;
+    double eta_over_sVal = 0.0;
     double dbdq          = 0.0;
     double dbds          = 0.0;
     double dsdq          = 0.0;

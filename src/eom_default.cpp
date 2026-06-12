@@ -2062,7 +2062,13 @@ void EoM_default<D>::check_causality(std::shared_ptr<SystemState<D>> sysPtr)
       	//return ( ( success == 0 ) and ( ratio <= epsilon ) );
       	return ( success == 0 );
     };
-
+  sysPtr->copy_device_to_host();
+  int count = 0;
+  for (auto & p : sysPtr->particles) {
+      if (count >= 5) break;
+      std::cout << "eta_pi[" << count << "] = " << p.hydro.eta_pi << std::endl;
+      count++;
+  }
 
     auto causality_check = KOKKOS_LAMBDA(const int is, const int ia)
     {
@@ -2102,10 +2108,18 @@ void EoM_default<D>::check_causality(std::shared_ptr<SystemState<D>> sysPtr)
         if (!success)
         {
             std::cout << "Error: Failed to compute eigenvalues of pi_mu_nu for particle " << ia << " in system, setting causality to -100." << std::endl;
-            //print shv(mu,3) values
+            std::cout << "  thermo: e=" << e << " p=" << p << " cs2=" << cs2 << " eta_pi=" << eta << std::endl;
+            std::cout << "  eta match? eta_pi(" << eta << ") vs returned eta(" << eta << ")" << std::endl;
+            std::cout << "  matrix shv rows:" << std::endl;
             for (int idir = 0; idir < 4; ++idir)
             {
-                std::cout << "shv(" << idir << ",3) = " << shv(idir, 3) << std::endl;
+                std::cout << "    [";
+                for (int jdir = 0; jdir < 4; ++jdir)
+                {
+                    std::cout << shv(idir, jdir);
+                    if (jdir < 3) std::cout << ", ";
+                }
+                std::cout << "]" << std::endl;
             }
             causality_result = -100; // Error code
 

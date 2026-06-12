@@ -165,6 +165,7 @@ void EoS_Interpolator::load_table(std::initializer_list<int> exponents)
   H5::DataSet dw_dB_dataset = eos_file.openDataSet(table_name + "/dwdB");
   H5::DataSet dw_dS_dataset = eos_file.openDataSet(table_name + "/dwdS");
   H5::DataSet dw_dQ_dataset = eos_file.openDataSet(table_name + "/dwdQ");
+  H5::DataSet eta_over_s_dataset = eos_file.openDataSet(table_name + "/eta_over_s");
 
   //Create buffers for reading datasets
   std::vector<double> T_buffer(Ns*NB*NQ*NS);
@@ -178,6 +179,7 @@ void EoS_Interpolator::load_table(std::initializer_list<int> exponents)
   std::vector<double> dw_dB_buffer(Ns*NB*NQ*NS);
   std::vector<double> dw_dS_buffer(Ns*NB*NQ*NS);
   std::vector<double> dw_dQ_buffer(Ns*NB*NQ*NS);
+  std::vector<double> eta_over_s_buffer(Ns*NB*NQ*NS);
 
   //Read datasets
   T_dataset.read(T_buffer.data(), H5::PredType::NATIVE_DOUBLE);
@@ -191,6 +193,7 @@ void EoS_Interpolator::load_table(std::initializer_list<int> exponents)
   dw_dB_dataset.read(dw_dB_buffer.data(), H5::PredType::NATIVE_DOUBLE);
   dw_dS_dataset.read(dw_dS_buffer.data(), H5::PredType::NATIVE_DOUBLE);
   dw_dQ_dataset.read(dw_dQ_buffer.data(), H5::PredType::NATIVE_DOUBLE);
+  eta_over_s_dataset.read(eta_over_s_buffer.data(), H5::PredType::NATIVE_DOUBLE);
 
   //Allocate device memory
   eos_vars[ts][tB][tS][tQ][ccake::eos_variables::T] = Kokkos::View<double****,DeviceType>("T", Ns, NB, NS, NQ);
@@ -204,6 +207,7 @@ void EoS_Interpolator::load_table(std::initializer_list<int> exponents)
   eos_vars[ts][tB][tS][tQ][ccake::eos_variables::dw_dB] = Kokkos::View<double****,DeviceType>("dw_dB", Ns, NB, NS, NQ);
   eos_vars[ts][tB][tS][tQ][ccake::eos_variables::dw_dS] = Kokkos::View<double****,DeviceType>("dw_dS", Ns, NB, NS, NQ);
   eos_vars[ts][tB][tS][tQ][ccake::eos_variables::dw_dQ] = Kokkos::View<double****,DeviceType>("dw_dQ", Ns, NB, NS, NQ);
+  eos_vars[ts][tB][tS][tQ][ccake::eos_variables::eta_over_s] = Kokkos::View<double****,DeviceType>("eta_over_s", Ns, NB, NS, NQ);
 
   //Create kokkos host views
   auto T_host = Kokkos::create_mirror_view(eos_vars[ts][tB][tS][tQ][ccake::eos_variables::T]);
@@ -217,6 +221,7 @@ void EoS_Interpolator::load_table(std::initializer_list<int> exponents)
   auto dw_dB_host = Kokkos::create_mirror_view(eos_vars[ts][tB][tS][tQ][ccake::eos_variables::dw_dB]);
   auto dw_dS_host = Kokkos::create_mirror_view(eos_vars[ts][tB][tS][tQ][ccake::eos_variables::dw_dS]);
   auto dw_dQ_host = Kokkos::create_mirror_view(eos_vars[ts][tB][tS][tQ][ccake::eos_variables::dw_dQ]);
+  auto eta_over_s_host = Kokkos::create_mirror_view(eos_vars[ts][tB][tS][tQ][ccake::eos_variables::eta_over_s]);
 
   //Transfer buffers to the Kokkos host views
   for(int i = 0; i < Ns*NB*NQ*NS ; i++)
@@ -237,6 +242,7 @@ void EoS_Interpolator::load_table(std::initializer_list<int> exponents)
     dw_dB_host(is, iB, iS, iQ) = dw_dB_buffer[i];
     dw_dS_host(is, iB, iS, iQ) = dw_dS_buffer[i];
     dw_dQ_host(is, iB, iS, iQ) = dw_dQ_buffer[i];
+    eta_over_s_host(is, iB, iS, iQ) = eta_over_s_buffer[i];
   }
 
     //Copy to device
@@ -251,7 +257,7 @@ void EoS_Interpolator::load_table(std::initializer_list<int> exponents)
     Kokkos::deep_copy(eos_vars[ts][tB][tS][tQ][ccake::eos_variables::dw_dB], dw_dB_host);
     Kokkos::deep_copy(eos_vars[ts][tB][tS][tQ][ccake::eos_variables::dw_dQ], dw_dQ_host);
     Kokkos::deep_copy(eos_vars[ts][tB][tS][tQ][ccake::eos_variables::dw_dS], dw_dS_host);
-
+    Kokkos::deep_copy(eos_vars[ts][tB][tS][tQ][ccake::eos_variables::eta_over_s], eta_over_s_host);
 }
 
 
@@ -319,6 +325,7 @@ void EoS_Interpolator::fill_thermodynamics(Cabana::AoSoA<CabanaParticle,
     device_thermo.access(is, ia, ccake::thermo_info::dwdB) = interpolate4D(idx, pos, tble, ccake::eos_variables::dw_dB);
     device_thermo.access(is, ia, ccake::thermo_info::dwdS) = interpolate4D(idx, pos, tble, ccake::eos_variables::dw_dS);
     device_thermo.access(is, ia, ccake::thermo_info::dwdQ) = interpolate4D(idx, pos, tble, ccake::eos_variables::dw_dQ);
+    device_thermo.access(is, ia, ccake::thermo_info::eta_over_s) = interpolate4D(idx, pos, tble, ccake::eos_variables::eta_over_s);
 
     device_thermo.access(is, ia, ccake::thermo_info::w) = device_thermo.access(is, ia, ccake::thermo_info::e)
                                                         + device_thermo.access(is, ia, ccake::thermo_info::p);

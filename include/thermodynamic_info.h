@@ -23,6 +23,7 @@ struct thermodynamic_info
   double T    = 0.0, muB  = 0.0, muS  = 0.0, muQ  = 0.0;
   double e    = 0.0, s    = 0.0, rhoB = 0.0, rhoS = 0.0, rhoQ = 0.0,
          p    = 0.0, cs2  = 0.0, w    = 0.0;
+  double eta_over_s = 0.0;
   double dwds = 0.0, dwdB = 0.0, dwdS = 0.0, dwdQ = 0.0;
   double dalpha_Bds = 0.0, dalpha_BdB = 0.0, dalpha_BdS = 0.0, dalpha_BdQ = 0.0;
   double dalpha_Sds = 0.0, dalpha_SdB = 0.0, dalpha_SdS = 0.0, dalpha_SdQ = 0.0;
@@ -60,6 +61,7 @@ namespace thermo_info{
     dalpha_QdB,
     dalpha_QdS,
     dalpha_QdQ,
+    eta_over_s,
     NUM_THERMO_INFO
   };
 #define THERMO_SCALAR_INFO double[ccake::thermo_info::NUM_THERMO_INFO]

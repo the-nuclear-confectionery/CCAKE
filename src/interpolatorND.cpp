@@ -30,10 +30,10 @@ void InterpolatorND<D>::initialize( string filename, double fill_value_in )
 template <int D>
 void InterpolatorND<D>::load_data( string filename )
 {
-  if ( using_HDF )
-    load_data_from_HDF( filename );
-  else
-    load_data_from_dat( filename );
+  // if ( using_HDF )
+  //   load_data_from_HDF( filename );
+  // else
+  load_data_from_dat( filename );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

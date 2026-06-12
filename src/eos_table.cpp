@@ -17,10 +17,10 @@ EoS_table::EoS_table( string eos_path )
   //////////////////////////////////////////////////////////////////////////////
   // read in table from file
   // initialize things needed to store eos table from file
-  if ( using_HDF )
-    equation_of_state_table_filename = eos_path + "/thermo.h5";
-  else
-    equation_of_state_table_filename = eos_path + "/thermo.dat";
+  // if ( using_HDF )
+  //   equation_of_state_table_filename = eos_path + "/thermo.h5";
+  // else
+  equation_of_state_table_filename = eos_path + "/thermo.dat";
 
   cout << "Initializing EoS from input file(s): "
        << equation_of_state_table_filename << endl;
@@ -32,7 +32,10 @@ EoS_table::EoS_table( string eos_path )
   equation_of_state_table->set_field_names(
     vector<string>{ "p","s","B","S","Q","e","cs2",
                     "chiBB","chiQQ","chiSS","chiBQ","chiBS",
-                    "chiQS","chiTB","chiTQ","chiTS","chiTT" } );
+                    "chiQS","chiTB","chiTQ","chiTS",
+                    "chiTT",
+                    "eta_over_s"
+                    } );
 
   // finally, all dimensionful quantities should be convert to fm and
   // all dimensionless quantities need to be rescaled appropriately
@@ -58,6 +61,8 @@ EoS_table::EoS_table( string eos_path )
   equation_of_state_table->rescale( "chiTQ", "T", 2 );
   equation_of_state_table->rescale( "chiTS", "T", 2 );
   equation_of_state_table->rescale( "chiTT", "T", 2 );
+
+  // equation_of_state_table->rescale( "eta_over_s", "T", 0 ); not
 
   // if cs2 ever goes negative, set it to zero
   auto zero_negatives = [](double x){return std::max(x,0.0);};
@@ -131,7 +136,7 @@ void EoS_table::get_eBSQ_safe( const double point_in[], double results[] )
   //============================================================================
   // save input point in case we need to project to boundary
   // full results needed if projecting with extension
-  double point_projected[4], results_full[17];
+  double point_projected[4], results_full[18];
   for ( int i = 0; i < 4; i++ ) point_projected[i] = point_in[i];
 
 
@@ -173,12 +178,12 @@ void EoS_table::get_eBSQ_safe( const double point_in[], double results[] )
     {
       // copy C arrays to C++ vectors
       vector<double> v_point(point_projected, point_projected+4);
-      vector<double> v_results(results_full, results_full+17);
+      vector<double> v_results(results_full, results_full+18);
 
       // evaluate EoS interpolator at current location (S and Q NOT SWAPPED)
       equation_of_state_table->evaluate( v_point, v_results );
 
-      if ( v_results.size() != 17 )
+      if ( v_results.size() != 18 )
       {
         cerr << "PROBLEM" << endl;
         exit(1);
@@ -196,7 +201,7 @@ void EoS_table::get_eBSQ_safe( const double point_in[], double results[] )
     if ( VERBOSE > 8 )
     {
       cout << "Thermo:" << endl;
-      for (int i = 0; i < 17; i++)
+      for (int i = 0; i < 18; i++)
         cout << results_full[i] << endl;
     }
 
@@ -233,7 +238,7 @@ void EoS_table::get_sBSQ_safe( const double point_in[], double results[] )
   //============================================================================
   // save input point in case we need to project to boundary
   // full results needed if projecting with extension
-  double point_projected[4], results_full[17];
+  double point_projected[4], results_full[18];
   for ( int i = 0; i < 4; i++ ) point_projected[i] = point_in[i];
 
 
@@ -275,12 +280,12 @@ void EoS_table::get_sBSQ_safe( const double point_in[], double results[] )
     {
       // copy C arrays to C++ vectors
       vector<double> v_point(point_projected, point_projected+4);
-      vector<double> v_results(results_full, results_full+17);
+      vector<double> v_results(results_full, results_full+18);
 
       // evaluate EoS interpolator at current location (S and Q NOT SWAPPED)
       equation_of_state_table->evaluate( v_point, v_results );
 
-      if ( v_results.size() != 17 )
+      if ( v_results.size() != 18 )
       {
         cerr << "PROBLEM" << endl;
         exit(1);
@@ -298,7 +303,7 @@ void EoS_table::get_sBSQ_safe( const double point_in[], double results[] )
     if ( VERBOSE > 8 )
     {
       cout << "Thermo:" << endl;
-      for (int i = 0; i < 17; i++)
+      for (int i = 0; i < 18; i++)
         cout << results_full[i] << endl;
     }
 
@@ -374,12 +379,12 @@ void EoS_table::get_full_thermo_safe( const double point_in[], double results[] 
   {
     // copy C arrays to C++ vectors
     vector<double> v_point(point_projected, point_projected+4);
-    vector<double> v_results(results, results+17);
+    vector<double> v_results(results, results+18);
 
     // evaluate EoS interpolator at current location (S and Q NOT SWAPPED)
     equation_of_state_table->evaluate( v_point, v_results );
 
-    if ( v_results.size() != 17 )
+    if ( v_results.size() != 18 )
     {
       cerr << "PROBLEM" << endl;
       exit(1);
@@ -400,7 +405,7 @@ void EoS_table::get_full_thermo_safe( const double point_in[], double results[] 
   if ( VERBOSE > 8 )
   {
     cout << "Thermo:" << " ";
-    for (int i = 0; i < 17; i++)
+    for (int i = 0; i < 18; i++)
       cout << results[i] << " ";
     cout << endl;
   }

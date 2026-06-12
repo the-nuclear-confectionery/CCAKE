@@ -90,7 +90,7 @@ namespace transport_coefficients{
     int shear_mode, zeta_mode, shear_relaxation_mode, bulk_relaxation_mode, diffusion_mode, diffusion_relaxation_mode;
     int delta_pipi_mode, tau_pipi_mode, lambda_piPi_mode, phi6_mode, phi7_mode;
     int delta_PiPi_mode, lambda_Pipi_mode, phi1_mode, phi3_mode;
-    double constant_eta_over_s, constant_zeta_over_s;
+    double constant_eta_over_s, constant_zeta_over_s, eta_over_s;
     double cs2_dependent_zeta_A, cs2_dependent_zeta_p;
     std::array<std::array<double, 3>, 3> constant_kappa_over_T2,
                                          tauq_matrix;

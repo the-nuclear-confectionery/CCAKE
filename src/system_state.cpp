@@ -204,6 +204,7 @@ void SystemState<D>::copy_host_to_device(){
     host_thermo(iparticle, ccake::thermo_info::p) = particles[iparticle].thermo.p;
     host_thermo(iparticle, ccake::thermo_info::cs2) = particles[iparticle].thermo.cs2;
     host_thermo(iparticle, ccake::thermo_info::w) = particles[iparticle].thermo.w;
+    host_thermo(iparticle, ccake::thermo_info::eta_over_s) = particles[iparticle].thermo.eta_over_s;
     host_thermo(iparticle, ccake::thermo_info::dwds) = particles[iparticle].thermo.dwds;
     host_thermo(iparticle, ccake::thermo_info::dwdB) = particles[iparticle].thermo.dwdB;
     host_thermo(iparticle, ccake::thermo_info::dwdS) = particles[iparticle].thermo.dwdS;
@@ -453,6 +454,7 @@ void SystemState<D>::copy_device_to_host(){
     particles[id].thermo.p = host_thermo(iparticle, ccake::thermo_info::p);
     particles[id].thermo.cs2 = host_thermo(iparticle, ccake::thermo_info::cs2);
     particles[id].thermo.w = host_thermo(iparticle, ccake::thermo_info::w);
+    particles[id].thermo.eta_over_s = host_thermo(iparticle, ccake::thermo_info::eta_over_s);
     particles[id].thermo.dwds = host_thermo(iparticle, ccake::thermo_info::dwds);
     particles[id].thermo.dwdB = host_thermo(iparticle, ccake::thermo_info::dwdB);
     particles[id].thermo.dwdS = host_thermo(iparticle, ccake::thermo_info::dwdS);

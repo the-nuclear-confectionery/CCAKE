@@ -36,6 +36,7 @@ enum eos_variables_enum{
   T, muB, muQ, muS,
   e, p, cs2,
   dw_ds, dw_dB, dw_dQ, dw_dS,
+  eta_over_s,
   NUM_EOS_VARIABLES
   };
 }

@@ -141,10 +141,10 @@ void EquationOfState::evaluate_thermodynamics( pEoS_base peos )
   double phase_diagram_point[4] = { tbqsPosition[0], tbqsPosition[1],
                                     tbqsPosition[2], tbqsPosition[3] };
 
-  double thermo_array[17];
+  double thermo_array[18];
   peos->get_full_thermo( phase_diagram_point, thermo_array );
 
-  thermodynamics.assign(thermo_array, thermo_array + 17);
+  thermodynamics.assign(thermo_array, thermo_array + 18);
 
   //============================================================================
   // set final thermodynamic results
@@ -165,6 +165,7 @@ void EquationOfState::evaluate_thermodynamics( pEoS_base peos )
   dtdq    = thermodynamics[14];
   dtds    = thermodynamics[15];
   dt2     = thermodynamics[16];
+  eta_over_sVal = thermodynamics[17];
 
 //cout << "before" << endl;
 //cout << "THERMO DUMP: " << pVal << "   " << entrVal << "   " << BVal << "   "

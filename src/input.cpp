@@ -342,6 +342,11 @@ bool cc::Input::decode_settings(const YAML::Node& node){
       }
     }
 
+    else if (settingsPtr->etaMode == "interpolate"){
+      formatted_output::report("Using interpolate shear mode (eta/s from EOS)");
+      settingsPtr->using_shear = true;
+    }
+
     try {
       settingsPtr->shearRelaxMode = node["hydro"]["viscous_parameters"]["shear"]["relaxation_mode"].as<std::string>();
     } catch (...) {

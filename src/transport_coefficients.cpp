@@ -643,9 +643,20 @@ double LinearMusParam(const double *therm, const parameters params)
 }
 
 //===============================
-///TODO: add this in later..
 KOKKOS_INLINE_FUNCTION
-double InterpolantWrapper(const double *therm) { return 0.0; }
+double InterpolantWrapper(const double *therm)
+{
+  double eta_over_s = therm[thermo_info::eta_over_s];
+  double w = therm[thermo_info::w];
+  double T = therm[thermo_info::T];
+  double eta = eta_over_s * (w / T);
+  static int interp_print_count = 0;
+  if (interp_print_count < 5) {
+    printf("InterpolantWrapper eta_over_s = %f\n", eta_over_s);
+    interp_print_count++;
+  }
+  return eta;
+}
 
 
 //==============================================================================
