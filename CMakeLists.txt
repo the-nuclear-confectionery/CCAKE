@@ -12,6 +12,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 ###############################################################
+# Default to an optimized Release build when the user does not specify one.
+# (Must come before the Debug/optimization checks below so they see the value.)
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
+endif()
+message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+
+###############################################################
 # Setup debug build
 if(CMAKE_BUILD_TYPE MATCHES Debug)
   message(STATUS "Configuring debug build.")
@@ -29,19 +37,40 @@ if(USE_CUDA)
 endif()
 
 ###############################################################
-# include useful compiler/linker flags
-#if (CMAKE_BUILD_TYPE MATCHES Release )
-#  set(GCC_COVERAGE_COMPILE_FLAGS "${CMAKE_CXX_FLAGS} -Ofast -s -march=native -mtune=native")
-#endif()
-#set(GCC_COVERAGE_LINK_FLAGS    "-lstdc++")
-set(CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS} -fopenmp")
-set(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}")
+# Optimization flags (CPU host build)
+# CCAKE_ARCH selects the target CPU for -march/-mtune. Default "native" tunes for
+# the machine you compile ON. On Delta both login and cpu nodes are AMD Milan, so
+# "native" resolves to znver3; set -DCCAKE_ARCH=znver3 (or x86-64-v3) to build a
+# portable binary elsewhere.
+set(CCAKE_ARCH "native" CACHE STRING "CPU architecture passed to -march/-mtune")
 
-###############################################################
-# set the default build type to Release
-if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Release)
+option(CCAKE_LTO "Enable link-time optimization (slower build/link)" OFF)
+
+if(NOT USE_CUDA AND NOT CMAKE_BUILD_TYPE MATCHES Debug)
+  message(STATUS "Enabling optimized flags (-O3, arch '${CCAKE_ARCH}', unroll).")
+  # -O3 + arch tuning + loop unrolling on top of the build-type defaults (Release
+  # already adds -O3 -DNDEBUG). -ffast-math / -Ofast are DELIBERATELY avoided: the
+  # SPH root-finder, EoS inversion and causality checks depend on strict IEEE
+  # semantics (NaN/inf handling, no reassociation), which -ffast-math would break.
+  # -fno-math-errno is safe (we never read errno after libm calls) and lets the
+  # compiler inline sqrt/etc.
+  add_compile_options(-O3 -march=${CCAKE_ARCH} -mtune=${CCAKE_ARCH} -funroll-loops -fno-math-errno)
+  # LTO is opt-in: across Kokkos/Cabana templates it can greatly increase link
+  # time. Enable with -DCCAKE_LTO=ON once a plain build is confirmed working.
+  if(CCAKE_LTO)
+    include(CheckIPOSupported)
+    check_ipo_supported(RESULT _ccake_ipo_ok OUTPUT _ccake_ipo_msg)
+    if(_ccake_ipo_ok)
+      message(STATUS "LTO enabled.")
+      set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
+    else()
+      message(WARNING "CCAKE_LTO=ON but IPO unsupported: ${_ccake_ipo_msg}")
+    endif()
+  endif()
 endif()
+
+set(CMAKE_CXX_FLAGS         "${CMAKE_CXX_FLAGS} -fopenmp")
+set(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} -lstdc++")
 
 
 ###############################################################
@@ -50,6 +79,7 @@ find_package(GSL COMPONENTS C CXX REQUIRED)
 find_package(HDF5 COMPONENTS CXX REQUIRED)
 find_package(yaml-cpp REQUIRED)
 find_package(Kokkos REQUIRED)
+
 find_package(Cabana REQUIRED)
 
 ###############################################################
@@ -57,7 +87,6 @@ find_package(Cabana REQUIRED)
 include_directories(include)
 include_directories(${GSL_INCLUDE_DIRS})
 include_directories(${HDF5_INCLUDE_DIRS})
-include_directories(${YAML_CPP_INCLUDE_DIR})
 include_directories(build)
 ###############################################################
 # Hack to supress the use of -isystem flags
