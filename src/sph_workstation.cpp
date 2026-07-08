@@ -1,4 +1,5 @@
 #include "sph_workstation.h"
+#include "phase_profiler.h"
 //The cpp below needs to be included for the Kokkos lambda to be
 //properly compiled in the GPU
 #include "kernel.cpp"
@@ -1001,12 +1002,239 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
 /// @note The volume assigned to each particle is assumed to be the grid step in
 /// the initial conditions, as specified in the initial condition header.
 /// @note Freeze out 4 means the particle is frozen out. 0 means it is not.
+/// @brief Energy-momentum-conserving freeze-in matching (arXiv:1103.4605 Eq. 14).
+/// @details For each particle staged by BSQHydro::read_freezein() (which carries
+/// the raw contravariant surface densities T^{tau mu} and the lab-frame B/S/Q
+/// 4-currents j_a^mu), recover the ideal-hydro fields by matching the conserved
+/// tau-row of T^{mu nu} on the tau = tau0 surface:
+///   M0 = T^{tau tau} = (eps+P)(u^tau)^2 - P
+///   M^i = T^{tau i}  = (eps+P) u^tau u^i           (i = x, y, eta)
+/// This is the standard relativistic conservative -> primitive recovery, closed
+/// by the EoS P = P(eps, n_B, n_S, n_Q):
+///   eps = M0 - v |M| ;  P = EoS(eps, n) ;  v = |M| / (M0 + P)   (iterate)
+///   u^tau = 1/sqrt(1 - v^2) ;  u^i = u^tau v M^i/|M|
+/// with the Milne magnitude |M|^2 = (M^x)^2 + (M^y)^2 + tau0^2 (M^eta)^2 and rest
+/// charge densities n_a = u_mu j_a^mu. The non-tau rows of T^{mu nu} (the
+/// out-of-equilibrium shear/bulk residual) are discarded; the energy/momentum
+/// flux through the surface is preserved exactly. Units: T in GeV/fm^3 -> /hbarc
+/// to 1/fm^4; currents already in 1/fm^3.
+/// @tparam D The dimensionality of the simulation.
+/// @tparam TEOM The equation of motion class to be used in the simulation.
+template<unsigned int D, template<unsigned int> class TEOM>
+void SPHWorkstation<D, TEOM>::freeze_in_match()
+{
+  formatted_output::report("Freeze-in: matching raw T^{mu nu} to ideal hydro (EoS-closed)");
+
+  if (D < 2)
+  {
+    std::cerr << "Freeze-in IC requires D >= 2 (raw T^{mu nu} grids are 2D/3D)."
+              << std::endl;
+    abort();
+  }
+
+  const double tau     = settingsPtr->t0;
+  const bool   hyper   = (settingsPtr->coordinate_system == "hyperbolic");
+  const double t2      = (D == 3 && hyper) ? tau*tau : 1.0; // eta metric factor
+  const double tol     = settingsPtr->freezein_tol;
+  const int    maxit   = settingsPtr->freezein_max_iter;
+  const double v_cap   = 1.0 - 1e-12;
+  const double e_floor = settingsPtr->e_cutoff/hbarc_GeVfm; // 1/fm^4
+
+  const bool useB = settingsPtr->baryon_charge_enabled;
+  const bool useS = settingsPtr->strange_charge_enabled;
+  const bool useQ = settingsPtr->electric_charge_enabled;
+
+  // Counter hygiene: locate_phase_diagram_point_eBSQ() may flag a particle
+  // frozen-out (and bump number_part_fo) for a transient intermediate eps.
+  // The authoritative status is set later by initialize_entropy_and_charge_
+  // densities(), so snapshot and restore around the matching.
+  const int saved_fo = systemPtr->number_part_fo;
+
+  double E_in = 0.0, E_out = 0.0; // conservation diagnostic (sum of T^{tau tau})
+  // Charge-flux conservation diagnostic: sum of the surface flux j_a^tau, input
+  // (B_in) vs the matched ideal current n_a u^tau = n_a*gamma (B_out). With the
+  // flux-matched density n_a = j_a^tau/gamma below these are equal to machine
+  // precision on the kept surface; B_drop tracks charge removed by the
+  // rest-frame energy cutoff (the same cells whose energy is dropped).
+  double B_in = 0.0, B_out = 0.0, S_in = 0.0, S_out = 0.0, Q_in = 0.0, Q_out = 0.0;
+  double B_drop = 0.0, S_drop = 0.0, Q_drop = 0.0;
+  std::size_t n_dropped = 0;
+
+  // Retain only cells whose TRUE (rest-frame) energy density epsilon exceeds the
+  // cutoff. The read_freezein() pre-filter on T^{tau tau} is a safe lower bound
+  // (epsilon = M0 - v|M| <= M0 = T^{tau tau}), but a boosted cell can still fall
+  // below the cutoff once the flow is removed, so the decisive cut is applied
+  // here, after the match.
+  std::vector<Particle<D>> kept;
+  kept.reserve(systemPtr->particles.size());
+
+  for (auto & p : systemPtr->particles)
+  {
+    // Conserved surface densities -> 1/fm^4 (T) and 1/fm^3 (currents).
+    const double M0 = p.freezein_Ttau[0]/hbarc_GeVfm;
+    const double Mx = p.freezein_Ttau[1]/hbarc_GeVfm;
+    const double My = p.freezein_Ttau[2]/hbarc_GeVfm;
+    const double Mn = (D == 3) ? p.freezein_Ttau[3]/hbarc_GeVfm : 0.0;
+    const double Mmag = std::sqrt(Mx*Mx + My*My + t2*Mn*Mn);
+
+    // Only the tau-component of each current enters the flux-matched density
+    // n_a = j_a^tau/gamma (the spatial components are the flux through the
+    // non-tau faces and are not conserved charges on the tau0 surface).
+    const double jB0 = p.freezein_jB[0];
+    const double jS0 = p.freezein_jS[0];
+    const double jQ0 = p.freezein_jQ[0];
+
+    // Seed the EoS rootfinder guess (same as the standard IC path in
+    // process_initial_conditions): T high, mu = 0, and the "default" EoS name.
+    // The eos_name MUST be set before locate_phase_diagram_point_eBSQ(), else
+    // eos.tbqs() is handed an empty name and dereferences a null EoS.
+    p.thermo.T   = 580.0/hbarc_MeVfm;
+    p.thermo.muB = 0.0;
+    p.thermo.muS = 0.0;
+    p.thermo.muQ = 0.0;
+    p.thermo.eos_name = "default";
+
+    double v = (M0 > 0.0) ? std::min(Mmag/M0, v_cap) : 0.0;
+    double eps = M0, P = 0.0;
+    double nB = 0.0, nS = 0.0, nQ = 0.0;
+    double gamma = 1.0, ux = 0.0, uy = 0.0, un = 0.0;
+
+    for (int it = 0; it < maxit; ++it)
+    {
+      eps = M0 - v*Mmag;
+      if (eps < 0.0) eps = 0.0;
+
+      gamma = 1.0/std::sqrt(1.0 - v*v);
+      if (Mmag > 0.0)
+      {
+        const double s = gamma*v/Mmag; // u^i = gamma v (M^i/|M|)
+        ux = s*Mx; uy = s*My; un = (D == 3) ? s*Mn : 0.0;
+      }
+      else { ux = uy = un = 0.0; }
+
+      // Charge-flux-matched rest densities. Choose n_a so the IDEAL current
+      // n_a u^mu reproduces the conserved surface flux exactly:
+      //   n_a u^tau = j_a^tau  =>  n_a = j_a^tau / gamma
+      // This conserves the charge on the tau0 surface, Q_a = int j_a^tau dSigma,
+      // with ZERO diffusion current -- the charge analog of matching the
+      // T^{tau mu} row for energy/momentum. (The Landau scalar density
+      // u_mu j^mu would instead drop the diffusion piece nu_a^tau = j_a^tau -
+      // gamma n_a and fail to conserve Q_a.)
+      nB = useB ? (jB0 / gamma) : 0.0;
+      nS = useS ? (jS0 / gamma) : 0.0;
+      nQ = useQ ? (jQ0 / gamma) : 0.0;
+
+      // Pressure from the EoS (skip near-vacuum cells -> P = 0).
+      if (eps > e_floor)
+      {
+        locate_phase_diagram_point_eBSQ(p, eps, nB, nS, nQ);
+        P = p.p();
+      }
+      else P = 0.0;
+
+      const double denom = M0 + P;
+      const double v_new = (denom > 0.0) ? std::min(Mmag/denom, v_cap) : 0.0;
+      const bool converged = (std::abs(v_new - v) < tol);
+      v = v_new;
+      if (converged) break;
+    }
+
+    // Final fields from the converged flow speed.
+    gamma = 1.0/std::sqrt(1.0 - v*v);
+    eps = M0 - v*Mmag;
+    if (eps < 0.0) eps = 0.0;
+
+    // Apply the energy cutoff on the TRUE rest-frame energy density. The cell's
+    // charge is removed with its energy -- record it so the loss is visible.
+    if (eps <= e_floor)
+    {
+      ++n_dropped;
+      if (useB) B_drop += jB0;
+      if (useS) S_drop += jS0;
+      if (useQ) Q_drop += jQ0;
+      continue;
+    }
+
+    if (Mmag > 0.0)
+    {
+      const double s = gamma*v/Mmag;
+      ux = s*Mx; uy = s*My; un = (D == 3) ? s*Mn : 0.0;
+    }
+    else { ux = uy = un = 0.0; }
+    // Flux-matched rest densities (see loop above): n_a = j_a^tau / gamma.
+    nB = useB ? (jB0 / gamma) : 0.0;
+    nS = useS ? (jS0 / gamma) : 0.0;
+    nQ = useQ ? (jQ0 / gamma) : 0.0;
+
+    // Charge-flux conservation tally on the kept surface: input j_a^tau vs the
+    // matched ideal flux n_a*gamma (equal by construction of n_a = j_a^tau/gamma).
+    if (useB) { B_in += jB0; B_out += nB*gamma; }
+    if (useS) { S_in += jS0; S_out += nS*gamma; }
+    if (useQ) { Q_in += jQ0; Q_out += nQ*gamma; }
+
+    p.input.e    = eps;
+    p.input.rhoB = nB;
+    p.input.rhoS = nS;
+    p.input.rhoQ = nQ;
+
+    p.hydro.u(0) = ux;
+    if (D >= 2) p.hydro.u(1) = uy;
+    if (D == 3) p.hydro.u(2) = un;
+
+    // Ideal IC: no initial dissipation (residual stress discarded).
+    p.hydro.bulk      = 0.0;
+    p.hydro.shv       = 0.0;
+    p.hydro.diffusion = 0.0;
+
+    // Restore freeze flag; initialize_entropy_and_charge_densities() decides it.
+    p.Freeze = 0;
+
+    E_in  += M0;
+    E_out += (eps + P)*gamma*gamma - P; // matched ideal T^{tau tau}
+
+    kept.push_back(p);
+  }
+
+  systemPtr->particles = std::move(kept);
+  systemPtr->number_part_fo = saved_fo;
+
+  const double rel = (E_in != 0.0) ? (E_out - E_in)/E_in : 0.0;
+  formatted_output::update("Freeze-in: kept " + std::to_string(systemPtr->particles.size())
+                           + " particles after rest-frame cutoff (dropped "
+                           + std::to_string(n_dropped) + ")");
+  formatted_output::update("Freeze-in: sum T^{tau tau} in = " + std::to_string(E_in)
+                           + " 1/fm^4, matched = " + std::to_string(E_out)
+                           + " (rel. diff " + std::to_string(rel) + ")");
+
+  // Charge-flux conservation report (mirrors the energy line above). in vs
+  // matched should agree to machine precision on the kept surface; the drop
+  // column is charge removed with the sub-cutoff cells' energy.
+  auto charge_line = [](const std::string & name, double in, double out, double drop)
+  {
+    const double r = (in != 0.0) ? (out - in)/in : 0.0;
+    formatted_output::update("Freeze-in: sum j_" + name + "^tau in = " + std::to_string(in)
+                             + " 1/fm^3, matched = " + std::to_string(out)
+                             + " (rel. diff " + std::to_string(r)
+                             + "; dropped-cell = " + std::to_string(drop) + ")");
+  };
+  if (useB) charge_line("B", B_in, B_out, B_drop);
+  if (useS) charge_line("S", S_in, S_out, S_drop);
+  if (useQ) charge_line("Q", Q_in, Q_out, Q_drop);
+}
+
+/// @brief Shell function to fill out the rest of the particle information.
 /// @tparam D The dimensionality of the simulation.
 /// @tparam TEOM The equation of motion class to be used in the simulation.
 template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D, TEOM>::process_initial_conditions()
 {
   formatted_output::report("Processing initial conditions");
+
+  // Freeze-in IC: convert the raw T^{mu nu} grid staged by
+  // BSQHydro::read_freezein() into (epsilon, u^mu, rho_{B,S,Q}) before the
+  // standard processing below consumes p.hydro.u / p.input.e.
+  if (settingsPtr->IC_type == "freezein")
+    freeze_in_match();
 
   //============================================================================
   // TOTAL NUMBER OF PARTICLES FIXED AFTER THIS POINT
@@ -1312,35 +1540,47 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives(double dt)
   #endif
 
   // reset nearest neighbors
-  systemPtr->reset_neighbour_list();
+  { CCAKE_PHASE("01_neighbour_list");
+    systemPtr->reset_neighbour_list(); }
 
   // calcuate gamma and velocities
-  calculate_gamma_and_velocities();
+  { CCAKE_PHASE("02_gamma_velocity");
+    calculate_gamma_and_velocities(); }
 
   // smooth all particle fields - s, rhoB, rhoQ and rhoS and sigma
-  smooth_all_particle_fields(t2);
+  { CCAKE_PHASE("03_smooth_fields");
+    smooth_all_particle_fields(t2); }
 
   // Update particle thermodynamic properties
-  update_all_particle_thermodynamics();
+  { CCAKE_PHASE("04_thermodynamics");
+    update_all_particle_thermodynamics(); }
 
   // reset pi tensor to be consistent
   // with all essential symmetries
-  reset_pi_tensor(t2);
+  { CCAKE_PHASE("05_reset_pi_tensor");
+    reset_pi_tensor(t2); }
 
   // apply diffusion current regulator (PhysRevC.98.034916, Eqs. C6-C8)
-  regulate_diffusion();
+  { CCAKE_PHASE("06_regulate_diffusion");
+    regulate_diffusion(); }
 
   //add source terms to the energy momentum tensor
-  if (settingsPtr->source_type != "disabled") sourcePtr->add_source();
+  if (settingsPtr->source_type != "disabled") {
+    CCAKE_PHASE("07_add_source");
+    sourcePtr->deposit_sources();
+  }
 
   // update viscosities for all particles
-  update_all_particle_viscosities();
+  { CCAKE_PHASE("08_viscosities");
+    update_all_particle_viscosities(); }
 
   //Computes gradients to obtain dsigma_lab/dt
-  smooth_all_particle_gradients(t2);
+  { CCAKE_PHASE("09_smooth_gradients");
+    smooth_all_particle_gradients(t2); }
 
   //calculate time derivatives needed for equations of motion
-  TEOM<D>::evaluate_time_derivatives( systemPtr, settingsPtr );
+  { CCAKE_PHASE("10_time_derivatives");
+    TEOM<D>::evaluate_time_derivatives( systemPtr, settingsPtr ); }
 
   // check for causality
   if (settingsPtr->check_causality)
@@ -1756,7 +1996,28 @@ bool SPHWorkstation<D, TEOM>::continue_evolution()
 
   bool keep_going =  true;
   if(settingsPtr->particlization_enabled )
-    keep_going = (systemPtr->number_part_fo != systemPtr->n_particles); // all particles have frozen out. Break evolution.
+  {
+    // Authoritative recount of frozen-out particles. The incremental counter
+    // (number_part_fo) only tracks particles that pass through status 3 in
+    // FreezeOut::check_freeze_out_status. It misses particles frozen via the
+    // no-neighbor path in FreezeOut::freeze_out_evo (btrack==0 -> Freeze=4,
+    // see freeze_out.h) and the negative-entropy init path
+    // (sph_workstation.cpp init -> Freeze=4), neither of which increments the
+    // counter. With sparse/coarse ICs and very central collisions those
+    // particles strand the counter below n_particles, so evolution would only
+    // stop at max_tau. Recompute the true frozen count here each step.
+    int frozen = 0;
+    CREATE_VIEW(device_, systemPtr->cabana_particles);
+    auto count_frozen_out = KOKKOS_LAMBDA(const int i, int& acc){
+      acc += (device_freeze(i) >= 4) ? 1 : 0;
+    };
+    Kokkos::parallel_reduce("count_frozen_out",
+                            systemPtr->n_particles, count_frozen_out, frozen);
+    Kokkos::fence();
+    systemPtr->number_part_fo = frozen;
+
+    keep_going = (systemPtr->number_part_fo < systemPtr->n_particles); // all particles have frozen out. Break evolution.
+  }
 
   keep_going = keep_going && (systemPtr->t <= settingsPtr->max_tau); // time is up. Break evolution.
   return keep_going;
@@ -1792,6 +2053,10 @@ void SPHWorkstation<D, TEOM>::advance_timestep( double dt, int rk_order )
     bbmg.propagate();
     //cout << "Finished jet propagate: " << endl;
   }
+  // Advance propagating sources once per timestep (no-op unless enabled).
+  // Must be outside the RK substep loop above so the source advances/depletes
+  // exactly once per step; deposit_sources only reads the result during substeps.
+  if (settingsPtr->source_type != "disabled") sourcePtr->advance_sources();
 
   // Perform freeze out
   if ( settingsPtr->particlization_enabled ) freeze_out_particles();

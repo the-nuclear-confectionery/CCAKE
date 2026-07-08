@@ -65,7 +65,7 @@ namespace ccake
       T0,
       phi,
       rapidity,
-      energy_lost,
+      total_energy,
       e_loss,
       gam,
       vmag,
@@ -92,7 +92,7 @@ namespace ccake
   auto CONCAT(prefix, T0) = Cabana::slice<jets_enum::T0>(jets_aosoa); \
   auto CONCAT(prefix, phi) = Cabana::slice<jets_enum::phi>(jets_aosoa); \
   auto CONCAT(prefix, rapidity) = Cabana::slice<jets_enum::rapidity>(jets_aosoa); \
-  auto CONCAT(prefix, energy_lost) = Cabana::slice<jets_enum::energy_lost>(jets_aosoa); \
+  auto CONCAT(prefix, total_energy) = Cabana::slice<jets_enum::total_energy>(jets_aosoa); \
   auto CONCAT(prefix, e_loss) = Cabana::slice<jets_enum::e_loss>(jets_aosoa); \
   auto CONCAT(prefix, gam) = Cabana::slice<jets_enum::gam>(jets_aosoa); \
   auto CONCAT(prefix, vmag) = Cabana::slice<jets_enum::vmag>(jets_aosoa); \
@@ -148,7 +148,7 @@ public:
     {
         int sph, on;
         double rho, rho0, T, v[3];
-        double r[3], phi, rapidity, energy_lost, e_loss, x, y, eta;
+        double r[3], phi, rapidity, total_energy, e_loss, x, y, eta;
         int PID, Frozen;
         double gam, vmag, vang, flow;
         double T0;
@@ -195,10 +195,8 @@ void BBMG<D>::initial()
 
   // Push one jet + its back-to-back partner. Caller supplies local T and ρ.
   auto push_pair = [&](double xj, double yj, double etj,
-                       double phij, double rapidity_,
+                       double pT, double phij, double rapidity_,
                        double rho0, double T_MeV, int pid_base) {
-    double line0 = 0.5 * get_kappa(T_MeV / 1000)
-                       * std::pow(settingsPtr->t0, z) * std::pow(rho0, c) * settingsPtr->dt;
     for (int j = 0; j < 2; ++j) {
       field f{};
       f.r[0] = xj; f.r[1] = yj;
@@ -207,12 +205,32 @@ void BBMG<D>::initial()
       f.phi   = phij + j * PI;
       f.rapidity = (D == 3) ? rapidity_ : 0.0;
       f.rho0 = rho0; f.T = T_MeV; f.T0 = T_MeV;
-      f.energy_lost = line0;
-      f.e_loss = 0.0;
+      f.total_energy = pT * std::cosh(f.rapidity);
+      f.e_loss = 0.0; // no phantom initial deposit; budget drains via propagate()
       f.PID = 2 * pid_base + j;
       f.Frozen = 1;
       jetInfo_host.push_back(f);
     }
+  };
+
+  // Push a single jet with NO back-to-back partner. Used by file mode when
+  // jets_auto_partner is false, so an explicit parton/dijet list (e.g. both
+  // partons already supplied) is simulated exactly as given.
+  auto push_single = [&](double xj, double yj, double etj,
+                         double pT, double phij, double rapidity_,
+                         double rho0, double T_MeV, int pid_val) {
+    field f{};
+    f.r[0] = xj; f.r[1] = yj;
+    if (D == 3) f.r[2] = etj;
+    f.x = xj; f.y = yj; f.eta = (D == 3) ? etj : 0.0;
+    f.phi   = phij;
+    f.rapidity = (D == 3) ? rapidity_ : 0.0;
+    f.rho0 = rho0; f.T = T_MeV; f.T0 = T_MeV;
+    f.total_energy = pT * std::cosh(f.rapidity);
+    f.e_loss = 0.0;
+    f.PID = pid_val;
+    f.Frozen = 1;
+    jetInfo_host.push_back(f);
   };
 
   // Kernel-weighted SPH sum at (xj, yj, etj) — used by file and hardcoded
@@ -264,7 +282,14 @@ void BBMG<D>::initial()
       double xj, yj, etj, pTj, phij, rapidity_;
       if (!(iss >> xj >> yj >> etj >> pTj >> phij >> rapidity_)) continue;
       auto [rho0, T_MeV] = sph_average(xj, yj, etj);
-      push_pair(xj, yj, etj, phij, rapidity_, rho0, T_MeV, pid++);
+      if (settingsPtr->jets_auto_partner)
+        push_pair(xj, yj, etj,
+                  pTj, phij, rapidity_,
+                  rho0, T_MeV, pid++);
+      else
+        push_single(xj, yj, etj,
+                    pTj, phij, rapidity_,
+                    rho0, T_MeV, pid++);
     }
   }
   else if (mode == "hardcoded") {
@@ -272,13 +297,14 @@ void BBMG<D>::initial()
                                      settingsPtr->jets_y0,
                                      settingsPtr->jets_eta0);
     push_pair(settingsPtr->jets_x0, settingsPtr->jets_y0, settingsPtr->jets_eta0,
-              settingsPtr->jets_phi, settingsPtr->jets_rapidity,
+              settingsPtr->jets_pT, settingsPtr->jets_phi, settingsPtr->jets_rapidity,  
               rho0, T_MeV, 0);
   }
   else if (mode == "sampled") {
     // Sample njet jets: position from a hot SPH particle, phi uniform in [0, 2π),
     // rapidity uniform in [-rapidity_max, +rapidity_max] (or fixed if sample_rapidity=false).
     std::mt19937 gen(std::random_device{}());
+    //read pT from settings and sample jets with this pT
     std::uniform_real_distribution<double> uphi(0.0, 2.0 * PI);
     std::uniform_real_distribution<double> uy(-settingsPtr->jets_rapidity_max,
                                                settingsPtr->jets_rapidity_max);
@@ -288,8 +314,10 @@ void BBMG<D>::initial()
       do { rsp = uisph(gen); }
       while (p[rsp].T() * constants::hbarc_MeVfm < Freezeout_Temp);
       double y_s = settingsPtr->jets_sample_rapidity ? uy(gen) : settingsPtr->jets_rapidity;
+      
       push_pair(p[rsp].r(0), p[rsp].r(1),
                 (D == 3) ? p[rsp].r(2) : 0.0,
+                settingsPtr->jets_pT,
                 uphi(gen), y_s,
                 p[rsp].p() / p[rsp].T(),
                 p[rsp].T() * constants::hbarc_MeVfm, i);
@@ -337,7 +365,7 @@ void ccake::BBMG<D>::copy_host_to_device_BBMG(){
     host_T0(ijet) = jetInfo_host[ijet].T0;
     host_phi(ijet) = jetInfo_host[ijet].phi;
     host_rapidity(ijet) = jetInfo_host[ijet].rapidity;
-    host_energy_lost(ijet) = jetInfo_host[ijet].energy_lost;
+    host_total_energy(ijet) = jetInfo_host[ijet].total_energy;
     host_e_loss(ijet) = jetInfo_host[ijet].e_loss;
     host_gam(ijet) = jetInfo_host[ijet].gam;
     host_vmag(ijet) = jetInfo_host[ijet].vmag;
@@ -374,7 +402,7 @@ void BBMG<D>::copy_device_to_host_BBMG()
     jetInfo_host[ijet].T = host_T(ijet);
     jetInfo_host[ijet].phi  = host_phi(ijet);
     jetInfo_host[ijet].rapidity = host_rapidity(ijet);
-    jetInfo_host[ijet].energy_lost = host_energy_lost(ijet);
+    jetInfo_host[ijet].total_energy = host_total_energy(ijet);
     jetInfo_host[ijet].e_loss = host_e_loss(ijet);
     jetInfo_host[ijet].gam  = host_gam(ijet);
     jetInfo_host[ijet].vmag = host_vmag(ijet);
@@ -395,6 +423,13 @@ void BBMG<D>::propagate()
   for (int i=0; i < jetInfo.size(); i++)  ///\@todo: Loop over jet_array index
   {
     jet_e_loss(i) = 0.0; // reset; set below only for active jets
+    // DESIGN NOTE (energy budget exhausted): freeze this jet for the rest of the
+    // run — it stops moving AND stops depositing (treated as thermalized into the
+    // medium). Chosen over "keep moving as a passive tracer". To switch to tracer
+    // behaviour, drop this `continue`: the dL clamp below already forces e_loss=0
+    // once total_energy hits 0, so the jet would deposit nothing while still
+    // updating its position and jet_state dumps.
+    if (jet_total_energy(i) <= 0) continue;
     if (jet_T(i) > 150)
     {
     // Propagation direction for a massless jet with rapidity y in Milne.
@@ -475,7 +510,10 @@ void BBMG<D>::propagate()
     // Per-step energy loss ΔE = κ·τ^z·ρ^c·dt·flow; accumulate in the line
     // integral and store as e_loss for the source-term back-reaction.
     double dL =  kappa * exp(z*log(tau)) * exp(c*log(jet_rho(i))) * settingsPtr->dt * jet_flow(i);
-    Kokkos::atomic_add( &jet_energy_lost(i), dL );
+    // Never deposit more than the jet's remaining budget: the final partial step
+    // lands total_energy exactly at 0, so the medium receives exactly pT·cosh(y).
+    if (dL > jet_total_energy(i)) dL = jet_total_energy(i);
+    Kokkos::atomic_add( &jet_total_energy(i), -dL );
     jet_e_loss(i) = dL;
 
     }

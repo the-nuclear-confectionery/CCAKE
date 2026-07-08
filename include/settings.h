@@ -45,6 +45,9 @@ class Settings
     bool get_neighbors              = false;
     bool calculate_observables       = false;
     bool check_causality            = false;
+    int  evolution_stride           = 1;   ///< write full evolution output every Nth timestep (1 = every step)
+    bool causality_minimal          = false; ///< dump per-particle causality diagnostics (x,y,eta,e,T,causality,invRe_sh/bk,Kn_sh/bk)
+    int  causality_minimal_stride   = 20;  ///< minimal-causality dump every Nth timestep
     fs::path results_directory        = "";
 
     static constexpr int VERBOSE      = 5;
@@ -86,6 +89,15 @@ class Settings
     unsigned int dim            = 2;     ///< Dimension of the initial conditions (1, 2, or 3)
     bool input_as_entropy       = false; ///< Whether the initial conditions are
                                          /// given as entropy density (true) or energy density
+
+    //------------------------------------
+    // freeze-in initial conditions (IC_type == "freezein"): read a raw
+    // contravariant T^{mu nu} grid (AMPTGenesis raw_tmunu output) and match it
+    // to ideal hydro fields with CCAKE's EoS (energy-momentum conserving,
+    // arXiv:1103.4605 Eq. 14).
+    fs::path freezein_input_file = "";    ///< Path to the raw T^{mu nu} grid file
+    double freezein_tol          = 1e-10; ///< Convergence tol on the flow speed v
+    int    freezein_max_iter     = 100;   ///< Max iterations of the matching loop
 
     //------------------------------------
     // simulations parameters
@@ -206,8 +218,13 @@ class Settings
     bool baryon_source         = false;  ///< Whether to include baryon source term
     bool strangeness_source    = false;  ///< Whether to include strangeness source term
     bool electric_source       = false;  ///< Whether to include electric source term
-    double smearing_radius     = 0.0;   ///< Smearing radius for source terms
+    double smearing_radius     = 0.0;   ///< Transverse smearing radius for source terms [fm]
+    double smearing_radius_eta = 0.0;   ///< Longitudinal (eta) smearing radius for source terms; used by the D=3 split deposit kernel
     string source_input_file   = "";    ///< Path to the source term file
+    bool   source_propagate    = false; ///< If true, SMASH sources propagate & deplete like a jet; else instant dump at t_src
+    double source_loss_coefficient = 0.0; ///< CTE in dE = CTE * s(x)/s_0 * dt for propagating SMASH sources
+    double source_entropy_ref      = 1.0; ///< s_0 reference entropy density for propagating SMASH sources
+    int    source_deposit_steps = 1;    ///< Instant mode: spread each dump over N steps (E0/N per step) to keep v<c; 1 = all at once
 
     //  - jet terms
 
@@ -233,6 +250,9 @@ class Settings
     int    jets_njet            = 200000; ///< Number of jets per event to sample
     bool   jets_sample_rapidity    = false;  ///< true → uniform in [-rapidity_max, rapidity_max]; false → fixed at jets_rapidity
     double jets_rapidity_max       = 1.0;    ///< Half-width of jet rapidity sampling range
+    // file mode only: true → auto back-to-back partner (φ+π, same rapidity) per line;
+    //                 false → one jet per line (faithful explicit dijet/parton list).
+    bool   jets_auto_partner    = true;
 
     // make sure that all chosen settings make reasonable sense
     ///TODO: Check these are correct

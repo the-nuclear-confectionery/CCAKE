@@ -194,7 +194,7 @@ void Output<D,TEOM>::print_jet_state_to_txt()
        {
         out << iJet++ << " ";
         out << systemPtr->t << " ";
-        out << jets.energy_lost << " ";
+        out << jets.total_energy << " ";
         out << jets.rho0 << " ";
         //out << jets.rho << " ";
         out << jets.PID << " ";
@@ -333,6 +333,76 @@ void Output<D,TEOM>::flush_conservation(const std::string& path)
     throw std::runtime_error("Could not open " + path);
   outfile << "t Eloss S Btotal Stotal Qtotal\n";
   outfile << cons_buffer.str();
+}
+
+/// @brief Append one per-timestep causality summary line (cheap aggregate).
+/// Classes: +1 causal, 0 undetermined, -1 acausal, -100 error. Among acausal
+/// particles we record the mean/max of the viscous drivers (inverse Reynolds,
+/// Knudsen) and how many are already frozen out.
+template<unsigned int D, template<unsigned int> class TEOM>
+void Output<D,TEOM>::buffer_causality_line()
+{
+  long N=0,n1=0,n0=0,nm1=0,nm100=0,nfroz=0;
+  double se=0,sT=0,sirs=0,sirb=0,sks=0,skb=0,maxirs=0;
+  for ( auto & p : systemPtr->particles )
+  {
+    N++;
+    double c = p.hydro.causality;
+    if      (c >  0.5)  n1++;
+    else if (c > -0.5)  n0++;
+    else if (c < -50.0) nm100++;
+    else { // acausal (c ~ -1)
+      nm1++;
+      double e=p.e()*hbarc_GeVfm, T=p.T()*hbarc_GeVfm;
+      double irs=p.hydro.inverse_reynolds_shear, irb=p.hydro.inverse_reynolds_bulk;
+      double ks=p.hydro.shear_knudsen, kb=p.hydro.bulk_knudsen;
+      se+=e; sT+=T; sirs+=irs; sirb+=irb; sks+=ks; skb+=kb;
+      if (irs>maxirs) maxirs=irs;
+      if (p.Freeze!=0) nfroz++;
+    }
+  }
+  double inv = nm1>0 ? 1.0/nm1 : 0.0;
+  caus_buffer << systemPtr->t << " " << N << " " << n1 << " " << n0 << " " << nm1 << " " << nm100 << " "
+              << se*inv << " " << sT*inv << " " << sirs*inv << " " << maxirs << " "
+              << sirb*inv << " " << sks*inv << " " << skb*inv << " " << nfroz << "\n";
+}
+
+/// @brief Write buffered causality summary to disk (call once at end).
+template<unsigned int D, template<unsigned int> class TEOM>
+void Output<D,TEOM>::flush_causality(const std::string& path)
+{
+  std::ofstream outfile(path.c_str(), std::ios::out | std::ios::trunc);
+  if (!outfile)
+    throw std::runtime_error("Could not open " + path);
+  outfile << "t Npart n_causal n_undet n_acausal n_err meanE_ac meanT_ac "
+             "meanInvReShear_ac maxInvReShear_ac meanInvReBulk_ac meanKnShear_ac meanKnBulk_ac n_acausal_frozen\n";
+  outfile << caus_buffer.str();
+}
+
+/// @brief Minimal per-particle causality-diagnostics dump (strided snapshots).
+/// Columns: x y eta e[GeV/fm^3] T[GeV] causality invReShear invReBulk KnShear KnBulk.
+template<unsigned int D, template<unsigned int> class TEOM>
+void Output<D,TEOM>::print_causality_minimal_to_txt()
+{
+  std::string fn = output_directory + "/causality_min_" + std::to_string(n_caus_min_output) + ".dat";
+  std::ofstream out( fn.c_str() );
+  out << systemPtr->t << "\n";
+  out << "# x y eta e T causality invReShear invReBulk KnShear KnBulk\n";
+  for ( auto & p : systemPtr->particles )
+  {
+    out << std::setprecision(6) << std::scientific;
+    for (int idir=0; idir<D; idir++) out << p.r(idir) << " ";
+    for (int idir=D; idir<3; idir++) out << 0.0 << " ";
+    out << p.e()*hbarc_GeVfm << " "
+        << p.T()*hbarc_GeVfm << " "
+        << p.hydro.causality << " "
+        << p.hydro.inverse_reynolds_shear << " "
+        << p.hydro.inverse_reynolds_bulk << " "
+        << p.hydro.shear_knudsen << " "
+        << p.hydro.bulk_knudsen << "\n";
+  }
+  out.close();
+  n_caus_min_output++;
 }
 
 

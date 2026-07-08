@@ -1,4 +1,7 @@
+#include <iostream>
+
 #include "BSQHydro.h"
+#include "phase_profiler.h"
 
 using namespace ccake;
 
@@ -59,6 +62,10 @@ void BSQHydro<D,TEOM>::read_in_initial_conditions(){
   else if (initial_condition_type == "ccake")
   {
     read_ccake();
+  }
+  else if (initial_condition_type == "freezein")
+  {
+    read_freezein();
   }
 
   return;
@@ -244,9 +251,14 @@ void BSQHydro<D,TEOM>::read_ccake()
       }
       else
       {
+        // Skip blank lines and any extra comment lines in the data section.
+        // Some ICs (e.g. SMASH-derived ic_hy files) carry several '#' metadata
+        // lines after the single grid header; without this, those lines would be
+        // parsed as data, leaving uninitialized x/y/eta/e -> NaN/off-grid particles.
+        const size_t nb = line.find_first_not_of(" \t\r\n");
+        if (nb == std::string::npos || line[nb] == '#') continue;
 
-
-        if(settingsPtr->input_initial_diffusion) 
+        if(settingsPtr->input_initial_diffusion)
           iss >> x >> y >> eta >> s >> rhoB >> rhoS >> rhoQ >> ux >> uy >> ueta >> bulk >> pixx >> pixy >> pixeta >> piyy >> piyeta >> pietaeta >> qB0 >> qB1 >> qB2 >> qB3 >> qS0 >> qS1 >> qS2 >> qS3 >> qQ0 >> qQ1 >> qQ2 >> qQ3;
         else{
           iss >> x >> y >> eta >> s >> rhoB >> rhoS >> rhoQ >> ux >> uy >> ueta >> bulk >> pixx >> pixy >> pixeta >> piyy >> piyeta >> pietaeta;
@@ -413,6 +425,125 @@ void BSQHydro<D,TEOM>::read_ccake()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+/// @brief Reads a raw (un-diagonalized) contravariant T^{mu nu} grid produced by
+/// AMPTGenesis (output.raw_tmunu) and stages each above-cutoff cell as an SPH
+/// particle for the energy-momentum-conserving freeze-in matching.
+/// @details The smearing of AMPT partons into T^{mu nu} (+ lab-frame B/S/Q
+/// 4-currents) is done by AMPTGenesis; this reader only ingests the grid and
+/// stores the conserved surface densities T^{tau mu} and j_a^mu on each
+/// particle. The actual matching to (epsilon, u^mu, rho_{B,S,Q}) — using the
+/// EoS to close P = P(epsilon, n) — is performed later in
+/// SPHWorkstation::freeze_in_match(), once the EoS is initialized.
+///
+/// File format (see AMPTGenesis.cpp write_raw_tmunu):
+///   header : #0 dx dy deta 0 xmin ymin etamin
+///   comment: # raw (un-diagonalized) contravariant T^{mu nu} ...
+///   comment: # columns: x y eta Ttt Ttx Tty Ttn Txx Txy Txn Tyy Tyn Tnn
+///                       jB0..3 jS0..3 jQ0..3
+///   rows   : x y eta <10 T components> <12 current components>
+/// Indices are 0=tau, 1=x, 2=y, 3=eta; T^{mu nu} is in GeV/fm^3 and the
+/// currents in 1/fm^3.
+/// @tparam D Dimensionality of the system.
+/// @tparam TEOM Template for the Equation of Motion.
+template <unsigned int D, template <unsigned int> class TEOM>
+void BSQHydro<D,TEOM>::read_freezein()
+{
+  const string IC_file = settingsPtr->freezein_input_file.string();
+  ifstream infile(IC_file.c_str());
+  formatted_output::update("Freeze-in (raw T^{mu nu}) file: " + IC_file);
+
+  if (!infile.is_open())
+  {
+    std::cerr << "Freeze-in file " << IC_file << " could not be opened!" << std::endl;
+    Kokkos::finalize();
+    abort();
+  }
+
+  string line;
+  bool header_read = false;
+  std::size_t n_cells = 0, n_kept = 0;
+  // e_cutoff is stored in GeV/fm^3; T^{tau tau} is also in GeV/fm^3 here.
+  const double e_cutoff = settingsPtr->e_cutoff;
+
+  while (getline(infile, line))
+  {
+    // Skip blank lines.
+    if (line.find_first_not_of(" \t\r\n") == string::npos) continue;
+
+    // First '#'-line is the grid header; later '#'-lines are comments/counts.
+    if (line[line.find_first_not_of(" \t")] == '#')
+    {
+      if (!header_read)
+      {
+        settingsPtr->headers.push_back(line);
+        istringstream iss(line);
+        double ignore, stepX, stepY, stepEta, xmin, ymin, etamin;
+        iss.ignore(256, '#');
+        iss >> ignore >> stepX >> stepY >> stepEta >> ignore >> xmin >> ymin >> etamin;
+        settingsPtr->stepx   = stepX;
+        settingsPtr->stepy   = stepY;
+        settingsPtr->stepEta = stepEta;
+        settingsPtr->xmin    = xmin;
+        settingsPtr->ymin    = ymin;
+        settingsPtr->etamin  = etamin;
+        header_read = true;
+      }
+      continue;
+    }
+
+    istringstream iss(line);
+    double x, y, eta;
+    double Ttt, Ttx, Tty, Ttn, Txx, Txy, Txn, Tyy, Tyn, Tnn;
+    double jB0, jB1, jB2, jB3, jS0, jS1, jS2, jS3, jQ0, jQ1, jQ2, jQ3;
+    if (!(iss >> x >> y >> eta
+              >> Ttt >> Ttx >> Tty >> Ttn >> Txx >> Txy >> Txn >> Tyy >> Tyn >> Tnn
+              >> jB0 >> jB1 >> jB2 >> jB3
+              >> jS0 >> jS1 >> jS2 >> jS3
+              >> jQ0 >> jQ1 >> jQ2 >> jQ3))
+      continue; // not a data row (e.g. trailing comment we did not catch)
+
+    ++n_cells;
+    // Safe pre-filter only: since the rest-frame energy density satisfies
+    // epsilon <= T^{tau tau}, any cell with T^{tau tau} <= e_cutoff is
+    // guaranteed below the cutoff. The DECISIVE cut on the true epsilon is
+    // applied after the match in SPHWorkstation::freeze_in_match().
+    if (Ttt <= e_cutoff) continue; // GeV/fm^3
+    ++n_kept;
+
+    Particle<D> p;
+    switch (D)
+    {
+      case 1:
+        p.r(0) = eta;
+        break;
+      case 2:
+        p.r(0) = x;
+        p.r(1) = y;
+        break;
+      case 3:
+        p.r(0) = x;
+        p.r(1) = y;
+        p.r(2) = eta;
+    }
+
+    // Stash the conserved surface densities (Milne, 0=tau,1=x,2=y,3=eta).
+    p.freezein_Ttau[0] = Ttt;  p.freezein_Ttau[1] = Ttx;
+    p.freezein_Ttau[2] = Tty;  p.freezein_Ttau[3] = Ttn;
+    p.freezein_jB[0] = jB0; p.freezein_jB[1] = jB1; p.freezein_jB[2] = jB2; p.freezein_jB[3] = jB3;
+    p.freezein_jS[0] = jS0; p.freezein_jS[1] = jS1; p.freezein_jS[2] = jS2; p.freezein_jS[3] = jS3;
+    p.freezein_jQ[0] = jQ0; p.freezein_jQ[1] = jQ1; p.freezein_jQ[2] = jQ2; p.freezein_jQ[3] = jQ3;
+
+    systemPtr->add_particle(p);
+  }
+  infile.close();
+
+  formatted_output::update("Freeze-in: kept " + std::to_string(n_kept)
+                           + " of " + std::to_string(n_cells)
+                           + " cells above e_cutoff = "
+                           + std::to_string(e_cutoff) + " GeV/fm^3");
+}
+
+////////////////////////////////////////////////////////////////////////////////
 /// @brief Shell function to initialize the hydrodynamics.
 /// @details This function initializes the hydrodynamics by performing the 
 /// following steps
@@ -530,6 +661,7 @@ void BSQHydro<D,TEOM>::run()
   formatted_output::announce("Beginning hydrodynamic evolution");
   Stopwatch sw;
   sw.Start();
+  size_t n_steps_ran = 0;   // counts evolution timesteps (for steps/s under CCAKE_PROFILE)
 
   #ifdef DEBUG
   std::ofstream outfile;
@@ -605,12 +737,33 @@ void BSQHydro<D,TEOM>::run()
     }
   }
 
+  // optional benchmark cap: stop after CCAKE_MAX_STEPS evolution steps (0 = unlimited)
+  const char* max_steps_env = std::getenv("CCAKE_MAX_STEPS");
+  const size_t max_steps = (max_steps_env && std::atol(max_steps_env) > 0)
+                           ? static_cast<size_t>(std::atol(max_steps_env)) : 0;
+  const auto t_loop0 = std::chrono::high_resolution_clock::now();
   while ( wsPtr->continue_evolution() )
   {
     //===================================
     // workstation advances by given
     // timestep at given RK order
     wsPtr->advance_timestep( settingsPtr->dt, settingsPtr->rk_order );
+    ++n_steps_ran;
+
+    // interim per-phase report every CCAKE_PROFILE_EVERY steps (0 = off / end-only)
+    {
+      const int every = ccake::PhaseProfiler::instance().report_every();
+      if ( every > 0 && (n_steps_ran % static_cast<size_t>(every)) == 0 )
+      {
+        const double el = std::chrono::duration<double>(
+            std::chrono::high_resolution_clock::now() - t_loop0).count();
+        formatted_output::summarize("[profile] step " + to_string(n_steps_ran)
+            + "   (" + to_string(el > 0.0 ? n_steps_ran/el : 0.0) + " steps/s running)");
+        ccake::PhaseProfiler::instance().report(std::cout);
+      }
+    }
+
+    if ( max_steps > 0 && n_steps_ran >= max_steps ) break;
 
     //==================================================================
     // re-compute conserved quantities, etc.
@@ -627,7 +780,17 @@ void BSQHydro<D,TEOM>::run()
     outfile << systemPtr->t << " " << systemPtr->Eloss << " " << systemPtr->S << endl;
     #endif
 
-    if (settingsPtr->hdf_evolution || settingsPtr->txt_evolution || settingsPtr->jet_evolution) 
+    // per-step causality summary (A, cheap) + strided minimal per-particle dump (B)
+    if (settingsPtr->check_causality)
+    {
+      systemPtr->copy_device_to_host();
+      outPtr->buffer_causality_line();
+      if (settingsPtr->causality_minimal && (n_steps_ran % settingsPtr->causality_minimal_stride == 0))
+        outPtr->print_causality_minimal_to_txt();
+    }
+    // full evolution output, optionally strided via evolution_stride
+    if ( (settingsPtr->hdf_evolution || settingsPtr->txt_evolution || settingsPtr->jet_evolution)
+         && (n_steps_ran % settingsPtr->evolution_stride == 0) )
     {
       outPtr->print_system_state();
     }
@@ -683,9 +846,21 @@ void BSQHydro<D,TEOM>::run()
   formatted_output::summarize("All timesteps finished in "
                               + to_string(sw.printTime()) + " s");
 
+  // Per-phase timing summary (only when CCAKE_PROFILE is set; otherwise silent).
+  if ( ccake::PhaseProfiler::instance().enabled() )
+  {
+    const double wall = sw.printTime();
+    const double sps  = wall > 0.0 ? static_cast<double>(n_steps_ran)/wall : 0.0;
+    formatted_output::summarize("Timesteps: " + to_string(n_steps_ran)
+                                + "   (" + to_string(sps) + " steps/s)");
+    ccake::PhaseProfiler::instance().report(std::cout);
+  }
+
   // Write all buffered data to disk (once, at end)
   if (settingsPtr->particlization_enabled)
     outPtr->flush_freeze_out();
   if (settingsPtr->print_conservation_status)
     outPtr->flush_conservation(out_dir + "/conservation.dat");
+  if (settingsPtr->check_causality)
+    outPtr->flush_causality(out_dir + "/causality_summary.dat");
 }

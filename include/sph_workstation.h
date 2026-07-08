@@ -118,6 +118,7 @@ public:
   void calculate_gamma_and_velocities();
   //void regulator();
   void process_initial_conditions();
+  void freeze_in_match();
   void initialize_entropy_and_charge_densities();
   void initial_smoothing();
   void initialize_jets_bbmg();

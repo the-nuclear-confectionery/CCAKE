@@ -41,4 +41,12 @@ Particle<D>::Particle( const Particle<D>& p )
   hydro.diffusion = p.hydro.diffusion;
   thermo.T      = p.thermo.T;
   thermo.p      = p.thermo.p;
+  // Carry the freeze-in scratch densities through add_particle() (by-value).
+  for (int i = 0; i < 4; ++i)
+  {
+    freezein_Ttau[i] = p.freezein_Ttau[i];
+    freezein_jB[i]   = p.freezein_jB[i];
+    freezein_jS[i]   = p.freezein_jS[i];
+    freezein_jQ[i]   = p.freezein_jQ[i];
+  }
 }
