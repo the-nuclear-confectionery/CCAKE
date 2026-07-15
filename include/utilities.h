@@ -51,8 +51,11 @@ using MemorySpace = Kokkos::HostSpace;
 using ExecutionSpace = Kokkos::OpenMP;
 #endif
 
-using DeviceType = Kokkos::Device<ExecutionSpace, MemorySpace>;
-using HostType = Kokkos::Device<Kokkos::OpenMP, Kokkos::HostSpace>;
+// Cabana >= 0.8.0 dropped the Kokkos::Device template parameter for AoSoA/Slice in
+// favour of a Kokkos memory space. Kokkos::View also accepts a bare memory space, so
+// using the memory space here works in both the AoSoA and View contexts (CPU and GPU).
+using DeviceType = MemorySpace;
+using HostType = Kokkos::HostSpace;
 
 /// Alias for the particle list
 using ListAlgorithm = Cabana::FullNeighborTag;

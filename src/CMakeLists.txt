@@ -47,7 +47,4 @@ target_link_libraries(src PUBLIC Cabana::Core)
 
 ###############################################################################
 # find and link yaml-cpp libraries
-find_package(yaml-cpp REQUIRED)
-link_directories( ${YAML_CPP_LIBRARY_DIRS} )
-#include_directories( ${YAML_CPP_INCLUDE_DIR} )
-target_link_libraries(src PUBLIC ${YAML_CPP_LIBRARIES} )
+target_link_libraries(src PUBLIC yaml-cpp::yaml-cpp)

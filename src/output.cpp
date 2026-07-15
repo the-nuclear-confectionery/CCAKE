@@ -164,7 +164,13 @@ void Output<D,TEOM>::print_system_state_to_txt()
         << p.hydro.knudsen_diffusion_Q         << " " //41
         << p.hydro.inverse_reynolds_diffusion_B << " " //42
         << p.hydro.inverse_reynolds_diffusion_S << " " //43
-        << p.hydro.inverse_reynolds_diffusion_Q << " " << "\n"; //44
+        << p.hydro.inverse_reynolds_diffusion_Q << " " //44
+        << p.hydro.h << " " //45 per-particle smoothing length (adaptive-h)
+        << p.hydro.sigma << " " //46 SPH density (local rest frame)
+        << p.hydro.sigma_lab << " " //47 SPH number density (computational frame)
+        << p.btrack << " " //48 neighbour count
+        << p.hydro.shepard_gamma << " "; //49 Shepard partition sum (1 unless kernel_correction=shepard)
+        out << "\n";
   }
 
   out << std::flush;
@@ -194,7 +200,7 @@ void Output<D,TEOM>::print_jet_state_to_txt()
        {
         out << iJet++ << " ";
         out << systemPtr->t << " ";
-        out << jets.energy_lost << " ";
+        out << jets.total_energy << " ";
         out << jets.rho0 << " ";
         //out << jets.rho << " ";
         out << jets.PID << " ";

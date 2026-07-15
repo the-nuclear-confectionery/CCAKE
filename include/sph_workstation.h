@@ -118,6 +118,7 @@ public:
   void calculate_gamma_and_velocities();
   //void regulator();
   void process_initial_conditions();
+  void freeze_in_match();
   void initialize_entropy_and_charge_densities();
   void initial_smoothing();
   void initialize_jets_bbmg();
@@ -128,6 +129,9 @@ public:
   void calculate_intial_sigma(double time_squared);
   void smooth_all_particle_fields(double time_squared);
   void smooth_all_particle_gradients(double time_squared);
+  /// Recompute per-particle adaptive smoothing length h_i = eta_h*(nu_i/sigma_i)^(1/D).
+  /// No-op when smoothing_length_mode == "constant". @see update_smoothing_lengths
+  void update_smoothing_lengths();
 
   //============================================================================
   // functions to apply action to all particles

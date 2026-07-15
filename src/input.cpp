@@ -141,6 +141,22 @@ bool cc::Input::decode_settings(const YAML::Node& node){
       settingsPtr->input_as_entropy = cc::defaults::input_as_entropy;
     }
 
+    // Freeze-in options (optional; only used when IC_type == "freezein").
+    // If freezein.input_file is omitted, the raw T^{mu nu} grid is read from
+    // the mandatory initial_conditions.file path instead.
+    try {
+      settingsPtr->freezein_input_file =
+        fs::path(node["initial_conditions"]["freezein"]["input_file"].as<std::string>());
+    } catch (...) {
+      settingsPtr->freezein_input_file = settingsPtr->IC_file;
+    }
+    try {
+      settingsPtr->freezein_tol = node["initial_conditions"]["freezein"]["tol"].as<double>();
+    } catch (...) {}
+    try {
+      settingsPtr->freezein_max_iter = node["initial_conditions"]["freezein"]["max_iter"].as<int>();
+    } catch (...) {}
+
     //--------------------------------------------------------------------------
     //Parameters node
     try {
@@ -190,6 +206,32 @@ bool cc::Input::decode_settings(const YAML::Node& node){
       formatted_output::report("This is an optional parameter. Setting to default value.");
       settingsPtr->kernel_type = cc::defaults::kernel_type;
     }
+    // map kernel_type string -> integer code (settings::kernel_id == ccake::KernelType)
+    {
+      const std::string& kt = settingsPtr->kernel_type;
+      if      (kt == "cubic_spline")   settingsPtr->kernel_id = 0;
+      else if (kt == "quintic_spline") settingsPtr->kernel_id = 1;
+      else if (kt == "wendland_c2")    settingsPtr->kernel_id = 2;
+      else if (kt == "wendland_c4")    settingsPtr->kernel_id = 3;
+      else if (kt == "wendland_c6")    settingsPtr->kernel_id = 4;
+      else {
+        formatted_output::report("WARNING: unknown kernel_type '" + kt
+                                 + "'; falling back to cubic_spline.");
+        settingsPtr->kernel_id = 0;
+      }
+    }
+    // optional kernel consistency correction: none | shepard (0th-order Shepard density normalization)
+    try {
+      settingsPtr->kernel_correction = node["parameters"]["kernel_correction"].as<std::string>();
+    } catch (...) {
+      settingsPtr->kernel_correction = cc::defaults::kernel_correction;
+    }
+    {
+      const std::string& kc = settingsPtr->kernel_correction;
+      settingsPtr->use_shepard = (kc == "shepard");
+      if (kc != "none" && kc != "shepard")
+        formatted_output::report("WARNING: unknown kernel_correction '" + kc + "'; using none.");
+    }
 
     try {
       settingsPtr->factorized_kernel = node["parameters"]["factorized_kernel"].as<bool>();
@@ -204,6 +246,52 @@ bool cc::Input::decode_settings(const YAML::Node& node){
       formatted_output::report("This is an optional parameter. Setting to default value.");
       settingsPtr->e_cutoff = cc::defaults::e_cutoff;
     }
+
+    //--------------------------------------------------------------------------
+    // adaptive (variable) smoothing length settings (all optional)
+    try {
+      settingsPtr->smoothing_length_mode =
+          node["parameters"]["smoothing_length_mode"].as<std::string>();
+    } catch (...) {
+      settingsPtr->smoothing_length_mode = cc::defaults::smoothing_length_mode;
+    }
+    try {
+      settingsPtr->neighbor_backend =
+          node["parameters"]["neighbor_backend"].as<std::string>();
+    } catch (...) {
+      settingsPtr->neighbor_backend = cc::defaults::neighbor_backend;
+    }
+    try {
+      settingsPtr->variable_h_conservation =
+          node["parameters"]["variable_h_conservation"].as<std::string>();
+    } catch (...) {
+      settingsPtr->variable_h_conservation = cc::defaults::variable_h_conservation;
+    }
+    try {
+      settingsPtr->eta_h = node["parameters"]["eta_h"].as<double>();
+    } catch (...) {
+      settingsPtr->eta_h = cc::defaults::eta_h;
+    }
+    try {
+      settingsPtr->n_neigh_target = node["parameters"]["n_neigh_target"].as<int>();
+    } catch (...) {
+      settingsPtr->n_neigh_target = cc::defaults::n_neigh_target;
+    }
+    try {
+      settingsPtr->h_min = node["parameters"]["h_min"].as<double>();
+    } catch (...) {
+      settingsPtr->h_min = cc::defaults::h_min;
+    }
+    try {
+      settingsPtr->h_max = node["parameters"]["h_max"].as<double>();
+    } catch (...) {
+      settingsPtr->h_max = cc::defaults::h_max;
+    }
+    if ( settingsPtr->smoothing_length_mode != "constant" )
+      formatted_output::report("Adaptive smoothing length enabled (mode="
+        + settingsPtr->smoothing_length_mode + ", backend="
+        + settingsPtr->neighbor_backend + ", conservation="
+        + settingsPtr->variable_h_conservation + ")");
 
     //--------------------------------------------------------------------------
     //buffer_particles subnode
@@ -753,6 +841,8 @@ bool cc::Input::decode_settings(const YAML::Node& node){
     catch (...) { settingsPtr->jets_input_mode = cc::defaults::jets_input_mode; }
     try { settingsPtr->jets_input_file = node["hydro"]["jets"]["input_file"].as<std::string>(); }
     catch (...) { settingsPtr->jets_input_file = cc::defaults::jets_input_file; }
+    try { settingsPtr->jets_auto_partner = node["hydro"]["jets"]["auto_partner"].as<bool>(); }
+    catch (...) { settingsPtr->jets_auto_partner = cc::defaults::jets_auto_partner; }
     try { settingsPtr->jets_pT = node["hydro"]["jets"]["pT"].as<double>(); }
     catch (...) { settingsPtr->jets_pT = cc::defaults::jets_pT; }
     try { settingsPtr->jets_phi = node["hydro"]["jets"]["phi"].as<double>(); }

@@ -58,6 +58,7 @@ private:
   //Auxiliary functions to read ICs
   void read_ICCING();
   void read_ccake();
+  void read_freezein();
   void read_dynamical();
 
   std::shared_ptr<Settings> settingsPtr; ///< Settings object containing configuration parsed from input file

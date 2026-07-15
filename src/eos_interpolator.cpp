@@ -3,8 +3,10 @@
 ///@date 2023-12-15
 ///@brief Implementation of the EoS interpolator class
 #include "eos_interpolator.h"
+#include "constants.h"
 
 using namespace ccake;
+using constants::hbarc_MeVfm;
 
 /// @brief Constructor for the EoS interpolator
 /// @details This constructor reads the EoS table from the HDF5 file and loads
@@ -24,12 +26,26 @@ EoS_Interpolator::EoS_Interpolator(fs::path path_to_eos_table)
       std::cout << "Exiting..." << std::endl;
       exit(1);
     }
-    //Loop over tables, loading them into memory
-    for (int is=-3; is<2; ++is)
-    for (int iB=-3; iB<1; ++iB)
-    for (int iS=-3; iS<1; ++iS)
-    for (int iQ=-3; iQ<1; ++iQ)
-      load_table({is, iB, iS, iQ});
+
+    // Detect which on-disk format the file uses. The flat (s, nB) format
+    // stores its grid sizes in a root dataset named "dimensions"; the tiled
+    // format does not. Probe via H5Lexists at the root.
+    is_flat_ = (H5Lexists(eos_file.getId(), "dimensions", H5P_DEFAULT) > 0);
+
+    if (is_flat_)
+    {
+      formatted_output::update("Detected flat (s, nB) EoS format");
+      load_flat_table();
+    }
+    else
+    {
+      //Loop over tables, loading them into memory
+      for (int is=-3; is<2; ++is)
+      for (int iB=-3; iB<1; ++iB)
+      for (int iS=-3; iS<1; ++iS)
+      for (int iQ=-3; iQ<1; ++iQ)
+        load_table({is, iB, iS, iQ});
+    }
 
     formatted_output::update("Loaded EoS to device memory");
     eos_file.close();
@@ -260,6 +276,251 @@ void EoS_Interpolator::load_table(std::initializer_list<int> exponents)
 }
 
 
+/// @brief Load a flat (s, nB) HDF5 EoS table into slot [0][0][0][0].
+/// @details Layout: root dataset "/dimensions" = [Ns, NB]; group "/data" with
+/// per-field 2D datasets shaped (Ns, NB) — T, muB, muS, muQ, e, p, cs2, plus
+/// chi-tensors chiTT, chiTB, chiBB used to derive dwds, dwdB, and 2D coordinate
+/// arrays s and nB (we only use row 0 / column 0 to extract the 1-D axes).
+/// Units on disk are MeV-natural; this function converts to CCAKE fm-natural
+/// units (T,µ → fm⁻¹; densities → fm⁻³; e,p → fm⁻⁴; chi₂ → fm⁻²).
+///
+/// dwds, dwdB are computed analytically per cell from the chi-tensor using the
+/// baryon-only Schur complement of `EquationOfState::calc_term_*`. dwdS = dwdQ
+/// = 0. The S, Q axes are stored as degenerate (step = 0, N = 1) so that
+/// `interpolate4D`'s 2D-bilinear fallback (`dS == 0 && dQ == 0`) fires.
+void EoS_Interpolator::load_flat_table()
+{
+  using namespace H5;
+
+  // --- read /dimensions ---------------------------------------------------
+  DataSet dims_ds = eos_file.openDataSet("dimensions");
+  hsize_t dims_dim[1];
+  dims_ds.getSpace().getSimpleExtentDims(dims_dim, NULL);
+  if (dims_dim[0] != 2)
+  {
+    std::cerr << "Flat EoS: /dimensions has rank " << dims_dim[0]
+              << ", expected 2 (Ns, NB)." << std::endl;
+    abort();
+  }
+  int dims_buf[2];
+  dims_ds.read(dims_buf, PredType::NATIVE_INT);
+  const int Ns = dims_buf[0];
+  const int NB = dims_buf[1];
+  const size_t Ntot = static_cast<size_t>(Ns) * NB;
+  std::cout << "Flat EoS grid (s, nB) = (" << Ns << ", " << NB << ")" << std::endl;
+
+  // --- read required /data datasets ---------------------------------------
+  auto read2d = [&](const std::string &name, std::vector<double> &buf){
+    DataSet ds = eos_file.openDataSet(std::string("data/") + name);
+    buf.resize(Ntot);
+    ds.read(buf.data(), PredType::NATIVE_DOUBLE);
+  };
+
+  std::vector<double> s_buf, nB_buf;
+  std::vector<double> T_buf, muB_buf, muS_buf, muQ_buf;
+  std::vector<double> e_buf, p_buf, cs2_buf;
+  std::vector<double> chiTT_buf, chiTB_buf, chiBB_buf;
+
+  read2d("s",     s_buf);
+  read2d("nB",    nB_buf);
+  read2d("T",     T_buf);
+  read2d("muB",   muB_buf);
+  read2d("muS",   muS_buf);
+  read2d("muQ",   muQ_buf);
+  read2d("e",     e_buf);
+  read2d("p",     p_buf);
+  read2d("cs2",   cs2_buf);
+  read2d("chiTT", chiTT_buf);
+  read2d("chiTB", chiTB_buf);
+  read2d("chiBB", chiBB_buf);
+
+  // --- unit conversion (MeV-natural → fm-natural) -------------------------
+  const double inv_hc1 = 1.0 / hbarc_MeVfm;
+  const double inv_hc2 = inv_hc1 * inv_hc1;
+  const double inv_hc3 = inv_hc2 * inv_hc1;
+  const double inv_hc4 = inv_hc2 * inv_hc2;
+
+  for (size_t i = 0; i < Ntot; ++i)
+  {
+    T_buf[i]     *= inv_hc1;
+    muB_buf[i]   *= inv_hc1;
+    muS_buf[i]   *= inv_hc1;
+    muQ_buf[i]   *= inv_hc1;
+    e_buf[i]     *= inv_hc4;
+    p_buf[i]     *= inv_hc4;
+    chiTT_buf[i] *= inv_hc2;
+    chiTB_buf[i] *= inv_hc2;
+    chiBB_buf[i] *= inv_hc2;
+    // cs2 dimensionless; leave as is
+  }
+
+  // --- extract 1-D axes from the broadcast 2-D coord arrays ---------------
+  // Layout assumption (confirmed by inspection of the input file): axis 0 = s
+  // (slow), axis 1 = nB (fast). s_buf[is*NB + iB] is constant in iB; nB_buf is
+  // constant in is. Convert from MeV³ to fm⁻³.
+  std::vector<double> s_axis(Ns), nB_axis(NB);
+  for (int is = 0; is < Ns; ++is) s_axis[is]  = s_buf[is * NB + 0] * inv_hc3;
+  for (int iB = 0; iB < NB; ++iB) nB_axis[iB] = nB_buf[0  * NB + iB] * inv_hc3;
+
+  // --- log-uniformity check + log10 stride --------------------------------
+  auto log_step = [&](const std::vector<double> &a, const char *name){
+    const double l0 = std::log10(a.front());
+    const double l1 = std::log10(a.back());
+    const double step = (l1 - l0) / (a.size() - 1);
+    double max_dev = 0.0;
+    for (size_t i = 1; i + 1 < a.size(); ++i)
+    {
+      const double d = std::log10(a[i+1]) - std::log10(a[i]) - step;
+      if (std::abs(d) > max_dev) max_dev = std::abs(d);
+    }
+    if (max_dev > 1e-6)
+    {
+      std::cerr << "Flat EoS: axis " << name << " is not uniformly log-spaced; "
+                << "max deviation = " << max_dev << std::endl;
+      abort();
+    }
+    return std::make_pair(l0, step);
+  };
+
+  auto [log_s_min,  dlog_s ] = log_step(s_axis,  "s");
+  auto [log_nB_min, dlog_nB] = log_step(nB_axis, "nB");
+
+  // --- store axis metadata in slot [0][0][0][0] ---------------------------
+  // s, nB are log-spaced; S, Q are degenerate (single point, no spacing).
+  s_attr[0][0][0][0] = { log_s_min,  log_s_min  + dlog_s  * (Ns - 1), dlog_s,  Ns, true  };
+  B_attr[0][0][0][0] = { log_nB_min, log_nB_min + dlog_nB * (NB - 1), dlog_nB, NB, true  };
+  S_attr[0][0][0][0] = { 0.0, 0.0, 0.0, 1, false };
+  Q_attr[0][0][0][0] = { 0.0, 0.0, 0.0, 1, false };
+
+  std::cout << "Flat EoS axis ranges (physical):\n"
+            << "    s  ∈ [" << s_axis.front()  << ", " << s_axis.back()  << "] fm⁻³\n"
+            << "    nB ∈ [" << nB_axis.front() << ", " << nB_axis.back() << "] fm⁻³" << std::endl;
+
+  // Persist host-side copies for IC initialization (e→s root finding, freeze-
+  // out energy lookup) — see query_thermo_host / invert_e_to_s_host /
+  // efreeze_at_T below.
+  flat_Ns_         = Ns;
+  flat_NB_         = NB;
+  flat_log_s_min_  = log_s_min;
+  flat_dlog_s_     = dlog_s;
+  flat_log_nB_min_ = log_nB_min;
+  flat_dlog_nB_    = dlog_nB;
+  flat_s_axis_     = std::move(s_axis);
+  flat_nB_axis_    = std::move(nB_axis);
+
+  // --- allocate device Views (Ns, NB, 1, 1) -------------------------------
+  using V4 = Kokkos::View<double****, DeviceType>;
+  for (int v = 0; v < ccake::eos_variables::NUM_EOS_VARIABLES; ++v)
+    eos_vars[0][0][0][0][v] = V4(/*label*/ "flat_eos_var", Ns, NB, 1, 1);
+
+  // --- compute dwds / dwdB analytically + pack host buffers --------------
+  // Baryon-only Schur complement mirroring src/eos.cpp::dwds, dwdB and
+  // src/eos_derivatives.cpp::calc_term_* (baryon-only branches):
+  //   dentr_dt    = chiTT - chiTB²       / (chiBB + EPS)   (calc_term_1)
+  //   dentr_dmub  = chiTB - chiTT*chiBB  / (chiTB + EPS)   (calc_term_2(B))
+  //   db_dt       = chiTB - chiBB*chiTT  / (chiTB + EPS)   (calc_term_3(B))
+  //   db_dmub     = chiBB - chiTB²       / (chiTT + EPS)   (calc_term_4(B,B))
+  //   dwds = T   + s /dentr_dt   + (|nB|>TINY ? nB/dentr_dmub : 0)
+  //   dwdB = muB                 + (|nB|>TINY ? s /db_dt  + nB/db_dmub : 0)
+  // dwdS = muS = 0, dwdQ = muQ = 0 in the baryon-only sector.
+  //
+  // EPS is added only to the inner Schur-complement denominators, exactly the
+  // pattern used by src/eos_derivatives.cpp:42, 84, 169, 251. It prevents a
+  // hard divide-by-zero in pathological cells (e.g. chiTB = 0 exactly) by
+  // making the resulting term ±1/EPS, which is then ~0 after the outer
+  // (s or nB) / dentr_* divide -- the de-facto fallback is dwds ≈ T,
+  // dwdB ≈ muB in the all-degenerate corner.
+  //
+  // ALT: an explicit `if (|det| < 1e-30) { dwds = T; dwdB = muB; }` short-
+  // circuit (where det = chiTT*chiBB - chiTB²) gives the same answer in
+  // genuinely-degenerate cells but with cleaner numerics and no reliance on
+  // a tiny EPS to cancel. Kept the +EPS form to stay byte-compatible with the
+  // existing online inverter; switch if numerical issues ever appear.
+  const double EPS  = 1e-30;
+  const double TINY = 1e-25;   // matches eos_header.h::TINY
+
+  auto T_h     = Kokkos::create_mirror_view(eos_vars[0][0][0][0][ccake::eos_variables::T]);
+  auto muB_h   = Kokkos::create_mirror_view(eos_vars[0][0][0][0][ccake::eos_variables::muB]);
+  auto muS_h   = Kokkos::create_mirror_view(eos_vars[0][0][0][0][ccake::eos_variables::muS]);
+  auto muQ_h   = Kokkos::create_mirror_view(eos_vars[0][0][0][0][ccake::eos_variables::muQ]);
+  auto e_h     = Kokkos::create_mirror_view(eos_vars[0][0][0][0][ccake::eos_variables::e]);
+  auto p_h     = Kokkos::create_mirror_view(eos_vars[0][0][0][0][ccake::eos_variables::p]);
+  auto cs2_h   = Kokkos::create_mirror_view(eos_vars[0][0][0][0][ccake::eos_variables::cs2]);
+  auto dwds_h  = Kokkos::create_mirror_view(eos_vars[0][0][0][0][ccake::eos_variables::dw_ds]);
+  auto dwdB_h  = Kokkos::create_mirror_view(eos_vars[0][0][0][0][ccake::eos_variables::dw_dB]);
+  auto dwdS_h  = Kokkos::create_mirror_view(eos_vars[0][0][0][0][ccake::eos_variables::dw_dS]);
+  auto dwdQ_h  = Kokkos::create_mirror_view(eos_vars[0][0][0][0][ccake::eos_variables::dw_dQ]);
+
+  // dwds, dwdB are computed below; allocate flat buffers so they can be reused
+  // for host-side IC initialization queries.
+  std::vector<double> dwds_buf(Ntot), dwdB_buf(Ntot);
+
+  for (int is = 0; is < Ns; ++is)
+  for (int iB = 0; iB < NB; ++iB)
+  {
+    const size_t i = static_cast<size_t>(is) * NB + iB;
+    const double T_c   = T_buf[i];
+    const double muB_c = muB_buf[i];
+    const double chiTT = chiTT_buf[i];
+    const double chiTB = chiTB_buf[i];
+    const double chiBB = chiBB_buf[i];
+    const double s_c   = flat_s_axis_[is];
+    const double nB_c  = flat_nB_axis_[iB];
+
+    const double dentr_dt   = chiTT - (chiTB * chiTB) / (chiBB + EPS);
+    const double dentr_dmub = chiTB - (chiTT * chiBB) / (chiTB + EPS);
+    const double db_dt      = chiTB - (chiBB * chiTT) / (chiTB + EPS);
+    const double db_dmub    = chiBB - (chiTB * chiTB) / (chiTT + EPS);
+
+    double dwds_c = T_c + s_c / dentr_dt;
+    if (std::abs(nB_c) > TINY) dwds_c += nB_c / dentr_dmub;
+
+    double dwdB_c = muB_c;
+    if (std::abs(nB_c) > TINY) dwdB_c += s_c / db_dt + nB_c / db_dmub;
+
+    T_h  (is, iB, 0, 0) = T_c;
+    muB_h(is, iB, 0, 0) = muB_c;
+    muS_h(is, iB, 0, 0) = muS_buf[i];
+    muQ_h(is, iB, 0, 0) = muQ_buf[i];
+    e_h  (is, iB, 0, 0) = e_buf[i];
+    p_h  (is, iB, 0, 0) = p_buf[i];
+    cs2_h(is, iB, 0, 0) = cs2_buf[i];
+    dwds_h(is, iB, 0, 0) = dwds_c;
+    dwdB_h(is, iB, 0, 0) = dwdB_c;
+    dwdS_h(is, iB, 0, 0) = 0.0;
+    dwdQ_h(is, iB, 0, 0) = 0.0;
+
+    dwds_buf[i] = dwds_c;
+    dwdB_buf[i] = dwdB_c;
+  }
+
+  // Persist host-side flat buffers (used by query_thermo_host /
+  // invert_e_to_s_host / efreeze_at_T).
+  flat_T_    = std::move(T_buf);
+  flat_muB_  = std::move(muB_buf);
+  flat_muS_  = std::move(muS_buf);
+  flat_muQ_  = std::move(muQ_buf);
+  flat_e_    = std::move(e_buf);
+  flat_p_    = std::move(p_buf);
+  flat_cs2_  = std::move(cs2_buf);
+  flat_dwds_ = std::move(dwds_buf);
+  flat_dwdB_ = std::move(dwdB_buf);
+
+  // --- copy to device -----------------------------------------------------
+  Kokkos::deep_copy(eos_vars[0][0][0][0][ccake::eos_variables::T],     T_h);
+  Kokkos::deep_copy(eos_vars[0][0][0][0][ccake::eos_variables::muB],   muB_h);
+  Kokkos::deep_copy(eos_vars[0][0][0][0][ccake::eos_variables::muS],   muS_h);
+  Kokkos::deep_copy(eos_vars[0][0][0][0][ccake::eos_variables::muQ],   muQ_h);
+  Kokkos::deep_copy(eos_vars[0][0][0][0][ccake::eos_variables::e],     e_h);
+  Kokkos::deep_copy(eos_vars[0][0][0][0][ccake::eos_variables::p],     p_h);
+  Kokkos::deep_copy(eos_vars[0][0][0][0][ccake::eos_variables::cs2],   cs2_h);
+  Kokkos::deep_copy(eos_vars[0][0][0][0][ccake::eos_variables::dw_ds], dwds_h);
+  Kokkos::deep_copy(eos_vars[0][0][0][0][ccake::eos_variables::dw_dB], dwdB_h);
+  Kokkos::deep_copy(eos_vars[0][0][0][0][ccake::eos_variables::dw_dS], dwdS_h);
+  Kokkos::deep_copy(eos_vars[0][0][0][0][ccake::eos_variables::dw_dQ], dwdQ_h);
+}
+
+
 /// @brief Fill the thermodynamic properties of the particles using the
 /// interpolator
 /// @details This function fills the thermodynamic properties of the particles
@@ -275,6 +536,7 @@ void EoS_Interpolator::fill_thermodynamics(Cabana::AoSoA<CabanaParticle,
   // Capture a raw pointer instead of *this to avoid deep-copying the entire
   // EoS_Interpolator (3,840 Kokkos::Views + attribute arrays) into the lambda.
   const auto* self = this;
+  const bool flat = is_flat_;
   auto interpolate = KOKKOS_LAMBDA(const int is, const int ia){
     //Compute the entropy and charge densities in the particles' rest frame
     double s = Kokkos::max(.001,device_thermo.access(is, ia, ccake::thermo_info::s));
@@ -282,15 +544,25 @@ void EoS_Interpolator::fill_thermodynamics(Cabana::AoSoA<CabanaParticle,
     double rhoS = Kokkos::max(.001,Kokkos::fabs(device_thermo.access(is, ia, ccake::thermo_info::rhoS)));
     double rhoQ = Kokkos::max(.001,Kokkos::fabs(device_thermo.access(is, ia, ccake::thermo_info::rhoQ)));
 
-    //Needs to find which table to use by finding the exponents of the independent variables
-    auto get_exponent = [](double x){
-      int ie = (int) Kokkos::floor(Kokkos::log10(Kokkos::fabs(x)) + 3);
-      return Kokkos::max(ie, 0);
-    };
-    int ts = Kokkos::min(get_exponent(s),NTBL_s-1);
-    int tB = Kokkos::min(get_exponent(rhoB),NTBL_B-1);
-    int tS = Kokkos::min(get_exponent(rhoS),NTBL_S-1);
-    int tQ = Kokkos::min(get_exponent(rhoQ),NTBL_Q-1);
+    int ts, tB, tS, tQ;
+    if (flat)
+    {
+      // Flat (s, nB) file is loaded into the single slot [0][0][0][0]; the
+      // per-decade tile lookup is bypassed.
+      ts = tB = tS = tQ = 0;
+    }
+    else
+    {
+      //Needs to find which table to use by finding the exponents of the independent variables
+      auto get_exponent = [](double x){
+        int ie = (int) Kokkos::floor(Kokkos::log10(Kokkos::fabs(x)) + 3);
+        return Kokkos::max(ie, 0);
+      };
+      ts = Kokkos::min(get_exponent(s),NTBL_s-1);
+      tB = Kokkos::min(get_exponent(rhoB),NTBL_B-1);
+      tS = Kokkos::min(get_exponent(rhoS),NTBL_S-1);
+      tQ = Kokkos::min(get_exponent(rhoQ),NTBL_Q-1);
+    }
 
     int tble[4] = {ts, tB, tS, tQ};
 
@@ -303,27 +575,36 @@ void EoS_Interpolator::fill_thermodynamics(Cabana::AoSoA<CabanaParticle,
     double Q_min = self->Q_attr[ts][tB][tS][tQ].min;
     double dQ = self->Q_attr[ts][tB][tS][tQ].step;
 
+    // For log-spaced axes, the stored {min, step} are log10 of the physical
+    // value; transform the query coordinate accordingly before computing
+    // indices and the unit-cube position.
+    double pos[4] = {s, rhoB, rhoS, rhoQ};
+    if (self->s_attr[ts][tB][tS][tQ].log_spacing) pos[0] = Kokkos::log10(Kokkos::max(s,    1e-30));
+    if (self->B_attr[ts][tB][tS][tQ].log_spacing) pos[1] = Kokkos::log10(Kokkos::max(rhoB, 1e-30));
+    if (self->S_attr[ts][tB][tS][tQ].log_spacing) pos[2] = Kokkos::log10(Kokkos::max(rhoS, 1e-30));
+    if (self->Q_attr[ts][tB][tS][tQ].log_spacing) pos[3] = Kokkos::log10(Kokkos::max(rhoQ, 1e-30));
+
     //Find the indices of the nearest neighbors in the table
     int idx[4];
 
     // If an axis is degenerate (step==0), the only valid index is 0.
+    // Clamp on both ends so out-of-range queries don't read negative or
+    // out-of-bounds cells.
     idx[0] = (Kokkos::fabs(ds) < 1e-30) ? 0
-            : Kokkos::min((int)Kokkos::floor((s    - s_min)/ds), self->s_attr[ts][tB][tS][tQ].N-1);
+            : Kokkos::min(Kokkos::max((int)Kokkos::floor((pos[0] - s_min)/ds), 0),
+                          self->s_attr[ts][tB][tS][tQ].N-1);
 
     idx[1] = (Kokkos::fabs(dB) < 1e-30) ? 0
-            : Kokkos::min((int)Kokkos::floor((rhoB - B_min)/dB), self->B_attr[ts][tB][tS][tQ].N-1);
+            : Kokkos::min(Kokkos::max((int)Kokkos::floor((pos[1] - B_min)/dB), 0),
+                          self->B_attr[ts][tB][tS][tQ].N-1);
 
     idx[2] = (Kokkos::fabs(dS) < 1e-30) ? 0
-            : Kokkos::min((int)Kokkos::floor((rhoS - S_min)/dS), self->S_attr[ts][tB][tS][tQ].N-1);
+            : Kokkos::min(Kokkos::max((int)Kokkos::floor((pos[2] - S_min)/dS), 0),
+                          self->S_attr[ts][tB][tS][tQ].N-1);
 
     idx[3] = (Kokkos::fabs(dQ) < 1e-30) ? 0
-            : Kokkos::min((int)Kokkos::floor((rhoQ - Q_min)/dQ), self->Q_attr[ts][tB][tS][tQ].N-1);
-
-    double pos[4];
-    pos[0] = s;
-    pos[1] = rhoB;
-    pos[2] = rhoS;
-    pos[3] = rhoQ;
+            : Kokkos::min(Kokkos::max((int)Kokkos::floor((pos[3] - Q_min)/dQ), 0),
+                          self->Q_attr[ts][tB][tS][tQ].N-1);
 
     device_thermo.access(is, ia, ccake::thermo_info::T)    = self->interpolate4D(idx, pos, tble, ccake::eos_variables::T);
     device_thermo.access(is, ia, ccake::thermo_info::muB)  = self->interpolate4D(idx, pos, tble, ccake::eos_variables::muB);
@@ -455,4 +736,157 @@ double EoS_Interpolator::interpolate4D(int idx [], double pos[],
   for(int k = 0; k < 16; k++) f += phi[k]*theta[k];
 
   return f;
+}
+
+
+// ============================================================================
+// Host-side queries against the flat (s, nB) table — used during IC
+// initialization and freeze-out energy setup so the run never needs to touch
+// the forward EoS when online_inverter_enabled=false.
+// ============================================================================
+
+/// Bilinear interpolation in log(s)–log(nB) space, with output values pulled
+/// from the host-side `flat_*` buffers. Returns false if (s, rhoB) lies
+/// outside the table range.
+bool EoS_Interpolator::query_thermo_host(double s, double rhoB,
+                                         ccake::thermodynamic_info & out) const
+{
+  if (!is_flat_) return false;
+  // Match fill_thermodynamics' device-side convention: query the table with
+  // |rhoB| (the EoS is symmetric in baryon number for the user's flavor-
+  // neutral table) and clamp the lower edge so we never sit below the table's
+  // smallest nB cell.
+  const double abs_rhoB = std::max(std::abs(rhoB), flat_nB_axis_.front());
+  const double s_clamped = std::max(s, flat_s_axis_.front());
+  if (s_clamped <= 0.0) return false;
+
+  const int Ns = flat_Ns_, NB = flat_NB_;
+  const double L_s_max  = flat_log_s_min_  + flat_dlog_s_  * (Ns - 1);
+  const double L_nB_max = flat_log_nB_min_ + flat_dlog_nB_ * (NB - 1);
+  // Clamp both ends so an out-of-range query maps to the nearest boundary cell
+  // rather than failing (matches the index-side clamps in fill_thermodynamics).
+  const double L_s  = std::min(std::max(std::log10(s_clamped), flat_log_s_min_),  L_s_max);
+  const double L_nB = std::min(std::max(std::log10(abs_rhoB),  flat_log_nB_min_), L_nB_max);
+
+  const double xi_s_d = (L_s  - flat_log_s_min_)  / flat_dlog_s_;
+  const double xi_B_d = (L_nB - flat_log_nB_min_) / flat_dlog_nB_;
+  const int is = std::min(std::max((int)std::floor(xi_s_d), 0), Ns - 2);
+  const int iB = std::min(std::max((int)std::floor(xi_B_d), 0), NB - 2);
+  const double a = xi_s_d - is;
+  const double b = xi_B_d - iB;
+
+  auto bil = [&](const std::vector<double>& f) {
+    return (1.0 - a) * (1.0 - b) * f[flat_idx(is,     iB    )]
+         +        a  * (1.0 - b) * f[flat_idx(is + 1, iB    )]
+         + (1.0 - a) *        b  * f[flat_idx(is,     iB + 1)]
+         +        a  *        b  * f[flat_idx(is + 1, iB + 1)];
+  };
+
+  out.eos_name          = "table";
+  out.eos_type_is_table = 1.0;
+
+  out.T    = bil(flat_T_);
+  out.muB  = bil(flat_muB_);
+  out.muS  = bil(flat_muS_);
+  out.muQ  = bil(flat_muQ_);
+  out.e    = bil(flat_e_);
+  out.p    = bil(flat_p_);
+  out.cs2  = bil(flat_cs2_);
+  out.s    = s;
+  out.rhoB = rhoB;
+  out.rhoS = 0.0;
+  out.rhoQ = 0.0;
+  out.w    = out.e + out.p;
+  out.dwds = bil(flat_dwds_);
+  out.dwdB = bil(flat_dwdB_);
+  out.dwdS = 0.0;
+  out.dwdQ = 0.0;
+
+  // The dalpha_* and chiBB* fields are populated by EquationOfState::set_thermo
+  // via gsl matrix inversions; the baryon-only-no-diffusion configurations
+  // this flat path targets do not consume them, so leave at their default 0.
+  return true;
+}
+
+/// e → s root finding at fixed rhoB. e is monotone-increasing in s for the
+/// kind of EoS this loader serves; we bisect on the s-axis to find the
+/// bracketing cell, linearly interpolate in log(s) by the e ratio, and then
+/// route through query_thermo_host for the rest of the thermo fields.
+bool EoS_Interpolator::invert_e_to_s_host(double e_input, double rhoB,
+                                          ccake::thermodynamic_info & out) const
+{
+  if (!is_flat_) return false;
+  // Query with |rhoB|, clamped to the table's nB range (the table is symmetric
+  // under B → −B; for negative rhoB the SPH layer still keeps the signed value
+  // in p.input but the EoS lookup uses |rhoB|).
+  const int Ns = flat_Ns_, NB = flat_NB_;
+  const double L_nB_max = flat_log_nB_min_ + flat_dlog_nB_ * (NB - 1);
+  const double abs_rhoB = std::max(std::abs(rhoB), flat_nB_axis_.front());
+  const double L_nB     = std::min(std::log10(abs_rhoB), L_nB_max);
+  const double xi_B_d   = (L_nB - flat_log_nB_min_) / flat_dlog_nB_;
+  const int iB = std::min(std::max((int)std::floor(xi_B_d), 0), NB - 2);
+  const double b = xi_B_d - iB;
+
+  // e at fixed rhoB along the s-axis (linear-in-iB interp; the heavy work is
+  // done in s).
+  auto e_at = [&](int is_) {
+    return (1.0 - b) * flat_e_[flat_idx(is_, iB    )]
+         +        b  * flat_e_[flat_idx(is_, iB + 1)];
+  };
+
+  // Out-of-range: clamp to the corresponding endpoint cell.
+  if (e_input <= e_at(0))
+    return query_thermo_host(flat_s_axis_[0], rhoB, out);
+  if (e_input >= e_at(Ns - 1))
+    return query_thermo_host(flat_s_axis_[Ns - 1], rhoB, out);
+
+  // Bisect on is.
+  int lo = 0, hi = Ns - 1;
+  while (hi - lo > 1)
+  {
+    const int mid = (lo + hi) / 2;
+    if (e_at(mid) <= e_input) lo = mid; else hi = mid;
+  }
+
+  const double e_lo = e_at(lo);
+  const double e_hi = e_at(hi);
+  const double alpha = (e_hi > e_lo) ? (e_input - e_lo) / (e_hi - e_lo) : 0.0;
+  const double L_s_lo = std::log10(flat_s_axis_[lo]);
+  const double L_s_hi = std::log10(flat_s_axis_[hi]);
+  const double s_val  = std::pow(10.0, L_s_lo + alpha * (L_s_hi - L_s_lo));
+  return query_thermo_host(s_val, rhoB, out);
+}
+
+/// Freeze-out energy density at temperature T_fm (fm⁻¹). Reads the smallest-nB
+/// column of the table (rhoB ≈ 1e-7 fm⁻³ — effectively zero net baryon
+/// number), finds the cell where T_table(s, 0) crosses T_fm, and returns the
+/// linearly-interpolated e value (fm⁻⁴). T is monotone-increasing in s for
+/// QGP-like EoS, so bisection is well-defined.
+double EoS_Interpolator::efreeze_at_T(double T_fm) const
+{
+  if (!is_flat_)
+  {
+    std::cerr << "EoS_Interpolator::efreeze_at_T called on non-flat table; "
+                 "this codepath is only implemented for the flat (s, nB) "
+                 "format. Aborting." << std::endl;
+    std::abort();
+  }
+
+  const int Ns = flat_Ns_;
+  const double T_lo_edge = flat_T_[flat_idx(0,      0)];
+  const double T_hi_edge = flat_T_[flat_idx(Ns - 1, 0)];
+  if (T_fm <= T_lo_edge) return flat_e_[flat_idx(0,      0)];
+  if (T_fm >= T_hi_edge) return flat_e_[flat_idx(Ns - 1, 0)];
+
+  int lo = 0, hi = Ns - 1;
+  while (hi - lo > 1)
+  {
+    const int mid = (lo + hi) / 2;
+    if (flat_T_[flat_idx(mid, 0)] <= T_fm) lo = mid; else hi = mid;
+  }
+  const double T_l = flat_T_[flat_idx(lo, 0)];
+  const double T_h = flat_T_[flat_idx(hi, 0)];
+  const double alpha = (T_h > T_l) ? (T_fm - T_l) / (T_h - T_l) : 0.0;
+  return (1.0 - alpha) * flat_e_[flat_idx(lo, 0)]
+       +        alpha  * flat_e_[flat_idx(hi, 0)];
 }

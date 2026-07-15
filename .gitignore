@@ -22,3 +22,6 @@ ccake
 EoS
 .vscode/
 build*
+paper
+paper/*'
+paper*

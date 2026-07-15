@@ -32,6 +32,7 @@ namespace ccake
   using SRC = Cabana::MemberTypes<double[3], // position
                                   double[3], // momentum
                                   double,    // energy
+                                  double,    // total energy
                                   double,    // mass
                                   double,    // baryon charge
                                   double,    // strangeness charge
@@ -45,6 +46,7 @@ namespace ccake
       position = 0,
       momentum,
       energy,
+      total_energy,
       mass,
       baryon_charge,
       strangeness_charge,
@@ -60,6 +62,7 @@ namespace ccake
   auto CONCAT(prefix, position) = Cabana::slice<SRC_enum::position>(SRC_aosoa); \
   auto CONCAT(prefix, momentum) = Cabana::slice<SRC_enum::momentum>(SRC_aosoa); \
   auto CONCAT(prefix, energy) = Cabana::slice<SRC_enum::energy>(SRC_aosoa); \
+  auto CONCAT(prefix, total_energy) = Cabana::slice<SRC_enum::total_energy>(SRC_aosoa); \
   auto CONCAT(prefix, mass) = Cabana::slice<SRC_enum::mass>(SRC_aosoa); \
   auto CONCAT(prefix, baryon_charge) = Cabana::slice<SRC_enum::baryon_charge>(SRC_aosoa); \
   auto CONCAT(prefix, strangeness_charge) = Cabana::slice<SRC_enum::strangeness_charge>(SRC_aosoa); \
@@ -204,6 +207,11 @@ public:
     int n_sources_added = 0;
     for (std::size_t is = 0; is < n_sources; ++is)
     {
+      // Nothing to deposit this step (a BBMG jet that exhausted its budget
+      // reports e_loss=0). Guarding on s_energy conserves the final clamped
+      // chunk and is safe for every source model (no uninitialized
+      // total_energy read). The jet-side total_energy is the real budget.
+      if (s_energy(is) <= 0) continue;
       double t_src = s_time(is);
       double dt = t - t_prev; // Time step size, used to determine if source is in the current timestep window
       // Only act if source is within this timestep window
@@ -417,7 +425,7 @@ public:
       s_momentum(i, 0) = px/hbarc_GeVfm; // convert to GeV/fm (if needed, otherwise just use 1.0)
       s_momentum(i, 1) = py/hbarc_GeVfm; // convert to GeV/fm (if needed, otherwise just use 1.0)
       s_momentum(i, 2) = pz/hbarc_GeVfm; // convert to GeV/fm (if needed, otherwise just use 1.0)
-
+      s_total_energy(i) = E/hbarc_GeVfm;
       s_energy(i) = E/hbarc_GeVfm;
       s_mass(i) = mass;
       s_baryon_charge(i) = baryon_charge;
@@ -602,6 +610,7 @@ public:
         s_position(i, d) = (d < (int)D) ? jets[i].r[d] : 0.0;
         s_momentum(i, d) = dE * dir[d]; // massless: |p|_Milne = E along dir
       }
+      s_total_energy(i) = jets[i].total_energy;
       s_energy(i) = dE;
       s_mass(i) = 0.0;
       s_baryon_charge(i) = 0.0;

@@ -81,7 +81,7 @@ class SystemState
     // before being accessed by the user. This can be implemented in public
     // methods, if necessary
     ////////////////////////////////////////////////////////////////////////////
-    using SerialHost = Kokkos::Device<Kokkos::Serial, Kokkos::HostSpace>;
+    using SerialHost = Kokkos::HostSpace; // Cabana>=0.8.0: AoSoA needs a memory space
     Cabana::AoSoA<CabanaParticle, DeviceType, VECTOR_LENGTH> cabana_particles; ///< Particle storage on device
     Cabana::AoSoA<CabanaParticle, SerialHost,  VECTOR_LENGTH> particles_h;    ///< Persistent host-side mirror (avoids per-call heap churn)
     ListType neighbour_list; ///< Neighbour list
@@ -110,6 +110,7 @@ class SystemState
     void copy_thermo_host_to_device();   ///< Partial copy: only thermo output fields (for online inverter)
     void initialize_linklist();
     void reset_neighbour_list();
+    double max_smoothing_length(); ///< largest per-particle h over all particles (adaptive-h)
 
     // check conserved quantities
     void conservation_entropy(bool first_iteration=false);

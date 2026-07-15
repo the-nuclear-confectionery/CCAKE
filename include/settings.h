@@ -88,17 +88,43 @@ class Settings
                                          /// given as entropy density (true) or energy density
 
     //------------------------------------
+    // freeze-in initial conditions (IC_type == "freezein"): read a raw
+    // contravariant T^{mu nu} grid (AMPTGenesis raw_tmunu output) and match it
+    // to ideal hydro fields with CCAKE's EoS (energy-momentum conserving,
+    // arXiv:1103.4605 Eq. 14).
+    fs::path freezein_input_file = "";    ///< Path to the raw T^{mu nu} grid file
+    double freezein_tol          = 1e-10; ///< Convergence tol on the flow speed v
+    int    freezein_max_iter     = 100;   ///< Max iterations of the matching loop
+
+    //------------------------------------
     // simulations parameters
     double dt                   = 0.0;   ///< size of timestep
     double hT                   = 0.0;   ///< SPH kernel scale in transverse direction [fm]
     double hEta                 = 0.0;   ///< SPH kernel scale in longitudinal direction
     int rk_order                = 2;     /// Runge-Kutta order
-    std::string kernel_type     = "";    ///< Which SPH kernel to use (cubic, quartic, quintic).
-                                         ///  Currently only cubic is supported
+    std::string kernel_type     = "";    ///< SPH kernel name: cubic_spline | quintic_spline | wendland_c2/c4/c6.
+    int         kernel_id       = 0;     ///< numeric code for kernel_type (== ccake::KernelType), set in input.cpp
+    std::string kernel_correction = "none"; ///< none | shepard (0th-order Shepard density normalization)
+    bool        use_shepard     = false; ///< 0th-order Shepard density normalization (set from kernel_correction)
                                          //TODO: Implement other kernels
     bool factorized_kernel      = false; ///< Use W_2D(r_perp,hT)*W_1D(deta,hEta) for D=3 SPH kernel
     double e_cutoff              = 0.0;  ///< energy density below which
                                          ///particles are removed [GeV/fm^3]
+
+    //------------------------------------
+    // adaptive (variable) smoothing length
+    string smoothing_length_mode = "constant"; ///< "constant" (global hT) or
+                                         ///  "adaptive" (per-particle h_i)
+    string neighbor_backend      = "verlet";   ///< neighbour search backend:
+                                         ///  "verlet" (single 2*max(h) cutoff) |
+                                         ///  "per_particle" (each particle searches its own 2*h_i)
+    string variable_h_conservation = "symmetric"; ///< adaptive-h conservation:
+                                         ///  "symmetric" (half-averaged kernel)
+                                         ///  or "gradh" (Springel-Hernquist Omega)
+    double eta_h                 = 1.3;  ///< smoothing scale: h_i = eta_h*(nu_i/sigma_i)^(1/D)
+    int    n_neigh_target        = 20;   ///< target neighbour count (diagnostic/calibration)
+    double h_min                 = 0.0;  ///< floor on adaptive h (0 => auto from hT)
+    double h_max                 = 0.0;  ///< ceiling on adaptive h (0 => auto from hT)
 
     //------------------------------------
     // buffer particles settings
@@ -233,6 +259,9 @@ class Settings
     int    jets_njet            = 200000; ///< Number of jets per event to sample
     bool   jets_sample_rapidity    = false;  ///< true → uniform in [-rapidity_max, rapidity_max]; false → fixed at jets_rapidity
     double jets_rapidity_max       = 1.0;    ///< Half-width of jet rapidity sampling range
+    // file mode only: true → auto back-to-back partner (φ+π, same rapidity) per line;
+    //                 false → one jet per line (faithful explicit dijet/parton list).
+    bool   jets_auto_partner    = true;
 
     // make sure that all chosen settings make reasonable sense
     ///TODO: Check these are correct

@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <iostream>
 #include <cmath>
+#include <vector>
 
 #include <Kokkos_Core.hpp>
 #include <Cabana_Core.hpp>
@@ -12,6 +13,7 @@
 
 #include "utilities.h"
 #include "particle.h"
+#include "thermodynamic_info.h"
 
 
 namespace fs = std::filesystem;
@@ -70,10 +72,14 @@ private:
 
   /// @brief Struct to hold the attributes of the EoS tables
   /// @details This struct holds the minimum, maximum, step and number of points
-  /// in each dimension of the EoS tables.
+  /// in each dimension of the EoS tables. When `log_spacing` is true the stored
+  /// `min`, `max`, `step` are interpreted as log10 of the physical value, and
+  /// the interpolator transforms query coordinates with log10 before computing
+  /// indices. Used by the flat (s, nB) format which spans many decades.
   struct table_attributes{
     double min, max, step;
     int N;
+    bool log_spacing = false;
   };
 
   table_attributes s_attr[NTBL_s][NTBL_B][NTBL_S][NTBL_Q],
@@ -84,6 +90,60 @@ private:
 
   void load_table(std::initializer_list<int> exponents);
   void load_header(std::initializer_list<int> exponents);
+
+  /// @brief Load a "flat" (s, nB) pre-inverted EoS table.
+  /// @details Reads the alternative HDF5 layout (root `/dimensions` + per-field
+  /// 2D datasets under `/data/`) into slot [0][0][0][0] with degenerate S, Q
+  /// axes and log_spacing on the s, nB axes. Computes dwds/dwdB analytically
+  /// from chiTT/chiTB/chiBB using the baryon-only Schur complement that mirrors
+  /// EquationOfState::dwds/dwdB. dwdS = dwdQ = 0.
+  void load_flat_table();
+
+  /// True when the file passed to the constructor is in the flat (s, nB)
+  /// per-field-dataset format. Selects the simplified codepath in
+  /// fill_thermodynamics (skip per-decade tile lookup; apply log10 transform on
+  /// log-spaced axes).
+  bool is_flat_ = false;
+
+  // -------- Host-side mirrors of the flat table (populated only in flat mode).
+  // Used by query_thermo_host / invert_e_to_s_host / efreeze_at_T to service
+  // the IC initialization and the freeze-out energy lookup on the CPU without
+  // needing to touch the forward EoS or the device-side Kokkos Views.
+  std::vector<double> flat_T_, flat_muB_, flat_muS_, flat_muQ_;
+  std::vector<double> flat_e_, flat_p_, flat_cs2_;
+  std::vector<double> flat_dwds_, flat_dwdB_;
+  std::vector<double> flat_s_axis_, flat_nB_axis_;  // physical, fm⁻³
+  int    flat_Ns_      = 0;
+  int    flat_NB_      = 0;
+  double flat_log_s_min_  = 0.0;
+  double flat_dlog_s_     = 0.0;
+  double flat_log_nB_min_ = 0.0;
+  double flat_dlog_nB_    = 0.0;
+
+  inline size_t flat_idx(int is, int iB) const {
+    return static_cast<size_t>(is) * flat_NB_ + iB;
+  }
+
+public:
+  /// True when the loaded file is the flat (s, nB) per-field-dataset format.
+  bool is_flat() const { return is_flat_; }
+
+  /// Host-side query at (s, rhoB) in fm⁻³. Returns false if out of table range.
+  /// Strangeness/electric sectors are populated with the table's stored muS,
+  /// muQ (= 0 for the user's neutral-flavor table) and rhoS = rhoQ = 0.
+  /// Flat-mode only — calling on a tiled-format file will return false.
+  bool query_thermo_host(double s, double rhoB, thermodynamic_info & out) const;
+
+  /// Host-side e → s inversion at fixed rhoB. Bisects on the s axis (where e is
+  /// monotone increasing for QGP-like EoS), then populates `out` via
+  /// query_thermo_host at the recovered (s, rhoB). Returns false if rhoB is
+  /// below the table's nB axis. Inputs in fm-natural units.
+  bool invert_e_to_s_host(double e_input, double rhoB, thermodynamic_info & out) const;
+
+  /// Host-side freeze-out energy density at temperature T (fm⁻¹).
+  /// Scans the smallest-nB column of the table for the cell where T_table
+  /// crosses T_fm and returns the corresponding e (fm⁻⁴).
+  double efreeze_at_T(double T_fm) const;
 
   KOKKOS_FUNCTION
   double interpolate1D(double x, double x0, double x1,

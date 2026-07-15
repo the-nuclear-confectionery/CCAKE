@@ -28,7 +28,16 @@ namespace ccake
     const double      hEta                    = 0.3;
     const int         rk_order                = 2;
     const std::string kernel_type             = "cubic_spline";
+    const std::string kernel_correction       = "none"; // none | shepard | linear | shepard_linear
     const double      e_cutoff                = 0.15;
+    // adaptive (variable) smoothing length
+    const std::string smoothing_length_mode   = "constant";
+    const std::string neighbor_backend        = "verlet";
+    const std::string variable_h_conservation = "symmetric";
+    const double      eta_h                   = 1.3;
+    const int         n_neigh_target          = 20;
+    const double      h_min                   = 0.0;
+    const double      h_max                   = 0.0;
     const bool        buffer_event            = false;
     const bool        circular_buffer         = false;
     const double      padding_thickness       = 0.1;
@@ -97,6 +106,7 @@ namespace ccake
     const int         jets_njet               = 200000;
     const bool        jets_sample_rapidity       = false;
     const double      jets_rapidity_max          = 1.0;
+    const bool        jets_auto_partner          = true;
     const bool        print_conservation_status = true;
     const bool        calculate_observables        = false;
     const bool        get_neighbors             = false;

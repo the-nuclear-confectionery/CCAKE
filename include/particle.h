@@ -162,6 +162,16 @@ class Particle
     Vector<double,D> r;       ///< Particle position
 
     //==========================================================================
+    // Freeze-in scratch: raw conserved surface densities from a raw-T^{mu nu}
+    // initial condition (IC_type=="freezein"). Only populated/consumed by
+    // BSQHydro::read_freezein() and SPHWorkstation::freeze_in_match().
+    // Indices follow the Milne convention 0=tau, 1=x, 2=y, 3=eta.
+    double freezein_Ttau[4] = {0.,0.,0.,0.}; ///< T^{tau mu} [GeV/fm^3]
+    double freezein_jB[4]   = {0.,0.,0.,0.}; ///< baryon 4-current j_B^mu [1/fm^3]
+    double freezein_jS[4]   = {0.,0.,0.,0.}; ///< strangeness 4-current j_S^mu [1/fm^3]
+    double freezein_jQ[4]   = {0.,0.,0.,0.}; ///< electric 4-current j_Q^mu [1/fm^3]
+
+    //==========================================================================
     // different combinations of densities
     densities input     = {}; ///< These densities are read in initially and have physical units ~1/fm^3
     densities smoothed  = {}; ///< These are the smoothed (propagated) densities which have units ~/1/fm^2;

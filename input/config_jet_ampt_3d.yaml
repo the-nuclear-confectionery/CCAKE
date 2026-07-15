@@ -1,0 +1,118 @@
+---
+# 3D (3+1)D AMPT run with a hardcoded BBMG jet whose energy loss is
+# coupled back into the fluid as a source term.
+#   - jets.type != "disabled"  -> BBMG jets are initialized and propagated
+#   - source.model == "BBMG"    -> per-step jet energy loss is deposited via
+#                                  the SPH source machinery (j0_ext / j_ext)
+#   - factorized_kernel: true   -> 3D SPH kernel W_2D(r_perp,h_T)*W_1D(deta,h_eta)
+initial_conditions:
+  type: ccake                   # AMPT ic written in ccake format
+  coordinate_system: hyperbolic
+  file: /u/kpala/git_repos/test/test2/AMPTGenesis/7p7_hy_norm1p11_tau2p0_s0p8/evt_0000014/ic_hy.dat
+  t0: 2.0
+  dimension: 3
+  input_as_entropy: false
+parameters:
+  dt: 0.05
+  h_T: 0.3
+  h_eta: 0.3
+  rk_order: 2
+  kernel_type: cubic_spline
+  factorized_kernel: true       # use W_2D * W_1D for the 3D SPH kernel
+  energy_cutoff: 0.15
+  buffer_particles:
+    enabled: false
+    circular: false
+    padding_thickness: 0.1
+eos:
+  type: table
+  path: /projects/bbkr/kpala/eos_paper/bh_us
+  online_inverter_enabled: true
+  normalize_by_T: false
+  restrict_mu_T_ratios: false
+  prohibit_unstable_cs2: false
+  gap_table_path: /projects/bbkr/kpala/eos_paper/bh_us/gap.dat
+  gap_lookup_mode: linear
+  gap_match_tolerance: 0.05
+particlization:
+  enabled: true
+  type: fixed_T
+  T: 150
+hydro:
+  baryon_charge_enabled: true
+  strange_charge_enabled: false
+  electric_charge_enabled: false
+  viscous_parameters:
+    diffusion:
+      input_initial_diffusion: false
+      mode: constant_over_T2
+      constant_kappa_over_T2:
+      - [0.0, 0.0, 0.0]
+      - [0.0, 0.0, 0.0]
+      - [0.0, 0.0, 0.0]
+      relaxation_mode: constant_over_T
+      critical_scaling: false
+      critical_point:
+        T: 126.5
+        muB: 598.5
+      critical_gaussian_width:
+        T: 25.0
+        muB: 100.0
+    bulk:
+      bulk_from_trace: false
+      constant_zeta_over_s: 0.00
+      cs2_dependent_zeta_A: 1.67552
+      cs2_dependent_zeta_p: 2.0
+      critical_scaling_bulk: false
+      mode: constant
+      modulate_with_tanh: false
+      relaxation_mode: default
+      delta_PiPi_mode: israel-stewart
+      lambda_Pipi_mode: disabled
+      phi1_mode: disabled
+      phi3_mode: disabled
+    shear:
+      input_initial_shear: false
+      constant_eta_over_s: 0.00
+      mode: constant
+      relaxation_mode: default
+      use_vorticity: false
+      delta_pipi_mode: default
+      tau_pipi_mode: disabled
+      lambda_piPi_mode: disabled
+      phi6_mode: disabled
+      phi7_mode: disabled
+  # ---- BBMG jets ---------------------------------------------------------
+  jets:
+    type: BBMG                  # any value != "disabled" enables jets
+    Energy_scaling: 0           # 'a' in BBMG energy-loss exponent
+    Path_Length_scaling: 1      # 'z'
+    Fluctuation_parameter: 0    # 'q'
+    input_mode: hardcoded       # ["file", "hardcoded", "sampled"]
+    # --- hardcoded single jet (+ back-to-back partner) ---
+    pT: 10.0                    # GeV
+    phi: 0.0                    # rad
+    rapidity: 0.0               # jet rapidity y (3D)
+    x0: 0.0                     # fm
+    y0: 0.0                     # fm
+    eta0: 0.0                   # initial spacetime rapidity
+    # --- sampling block (only used when input_mode: sampled) ---
+    sampling:
+      njet: 200000
+      sample_rapidity: false
+      rapidity_max: 1.0
+  # ---- source coupling: deposit jet energy loss back into the fluid ------
+  source:
+    type: jet                   # any value != "disabled" enables add_source
+    model: BBMG                 # BBMG -> real-time jet source from the jets above
+    normalization: 1.0          # overall scale for the deposited 4-current
+    smearing_radius: 0.5        # fm (SPH deposition kernel scale)
+    enable_baryon: false
+    enable_strangeness: false
+    enable_electric: false
+output:
+  print_conservation_state: true
+  hdf_evolution: false
+  txt_evolution: false
+  jet_evolution: true           # dump jet_state_*.dat each output step
+  check_causality: false

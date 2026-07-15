@@ -50,14 +50,23 @@ find_package(GSL COMPONENTS C CXX REQUIRED)
 find_package(HDF5 COMPONENTS CXX REQUIRED)
 find_package(yaml-cpp REQUIRED)
 find_package(Kokkos REQUIRED)
+
 find_package(Cabana REQUIRED)
+
+# The variable-h feature needs Cabana >= 0.8.0 (per-particle radius VerletList).
+# If a newer Cabana is installed outside the conda env, its headers must be searched
+# BEFORE ${GSL/HDF5_INCLUDE_DIRS} (which point at the env include dir that may also
+# contain an older Cabana). Prepend the Cabana target's include dir to win that race.
+get_target_property(_CABANA_INC Cabana::Core INTERFACE_INCLUDE_DIRECTORIES)
+if(_CABANA_INC)
+  include_directories(BEFORE ${_CABANA_INC})
+endif()
 
 ###############################################################
 # add include directories
 include_directories(include)
 include_directories(${GSL_INCLUDE_DIRS})
 include_directories(${HDF5_INCLUDE_DIRS})
-include_directories(${YAML_CPP_INCLUDE_DIR})
 include_directories(build)
 ###############################################################
 # Hack to supress the use of -isystem flags

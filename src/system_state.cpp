@@ -115,6 +115,10 @@ void SystemState<D>::copy_host_to_device(){
     host_hydro_scalar(iparticle, ccake::hydro_info::zeta_Pi) = particles[iparticle].hydro.zeta_Pi;
     host_hydro_scalar(iparticle, ccake::hydro_info::sigma_lab) = particles[iparticle].hydro.sigma_lab;
     host_hydro_scalar(iparticle, ccake::hydro_info::sigma) = particles[iparticle].hydro.sigma;
+    host_hydro_scalar(iparticle, ccake::hydro_info::h) = particles[iparticle].hydro.h;
+    host_hydro_scalar(iparticle, ccake::hydro_info::Omega) = particles[iparticle].hydro.Omega;
+    host_hydro_scalar(iparticle, ccake::hydro_info::dsigma_dh) = particles[iparticle].hydro.dsigma_dh;
+    host_hydro_scalar(iparticle, ccake::hydro_info::shepard_gamma) = particles[iparticle].hydro.shepard_gamma;
     host_hydro_scalar(iparticle, ccake::hydro_info::gamma) = particles[iparticle].hydro.gamma;
     host_hydro_scalar(iparticle, ccake::hydro_info::theta) = particles[iparticle].hydro.theta;
     host_hydro_scalar(iparticle, ccake::hydro_info::delta_PiPi) = particles[iparticle].hydro.delta_PiPi;
@@ -375,6 +379,10 @@ void SystemState<D>::copy_device_to_host(){
     particles[id].hydro.zeta_Pi = host_hydro_scalar(iparticle, ccake::hydro_info::zeta_Pi);
     particles[id].hydro.sigma_lab = host_hydro_scalar(iparticle, ccake::hydro_info::sigma_lab);
     particles[id].hydro.sigma = host_hydro_scalar(iparticle, ccake::hydro_info::sigma);
+    particles[id].hydro.h = host_hydro_scalar(iparticle, ccake::hydro_info::h);
+    particles[id].hydro.Omega = host_hydro_scalar(iparticle, ccake::hydro_info::Omega);
+    particles[id].hydro.dsigma_dh = host_hydro_scalar(iparticle, ccake::hydro_info::dsigma_dh);
+    particles[id].hydro.shepard_gamma = host_hydro_scalar(iparticle, ccake::hydro_info::shepard_gamma);
     particles[id].hydro.gamma = host_hydro_scalar(iparticle, ccake::hydro_info::gamma);
     particles[id].hydro.theta = host_hydro_scalar(iparticle, ccake::hydro_info::theta);
     particles[id].hydro.delta_PiPi = host_hydro_scalar(iparticle, ccake::hydro_info::delta_PiPi);
@@ -646,6 +654,27 @@ void SystemState<D>::copy_thermo_host_to_device(){
 /// investigated. Ideally, I would be happier if we could just get completelly
 /// rid of UVM memory, since implicit copies could be introduced in other parts
 /// of the code without us noticing.
+/// @brief Largest per-particle smoothing length h over all particles.
+/// @details Used to size the single-cutoff Verlet grid in adaptive-h mode. This is a
+/// parallel max-reduction: conceptually `hmax = max_i h_i`, but spread across threads.
+/// Each thread keeps its own running maximum `local_max` (the by-reference accumulator);
+/// Kokkos::Max merges the per-thread maxima into `hmax`. Returns 0 if there are no
+/// particles / no positive h (caller falls back to hT).
+/// @tparam D The dimensionality of the simulation
+template<unsigned int D>
+double SystemState<D>::max_smoothing_length(){
+  CREATE_VIEW(device_, cabana_particles);
+  double hmax = 0.0;
+  Kokkos::parallel_reduce("max_smoothing_length", n_particles,
+    KOKKOS_LAMBDA(const int i, double& local_max){
+      double h_i = device_hydro_scalar(i, ccake::hydro_info::h);
+      if (h_i > local_max) local_max = h_i;
+    },
+    Kokkos::Max<double>(hmax));
+  Kokkos::fence();
+  return hmax;
+}
+
 /// @tparam D The dimensionality of the simulation
 template<unsigned int D>
 void SystemState<D>::reset_neighbour_list(){
@@ -654,7 +683,19 @@ void SystemState<D>::reset_neighbour_list(){
   outfile.open("neighbors.dat")*/
 
   double min_pos[3], max_pos[3];
+  CREATE_VIEW(device_, cabana_particles);
   double h = settingsPtr->hT;
+  // kernel support radius (units of h): 2 for cubic/Wendland, 3 for the quintic spline.
+  const KernelType kt = static_cast<KernelType>(settingsPtr->kernel_id);
+  // adaptive-h (verlet backend): the Verlet list supports a single cutoff, so we
+  // size it by the largest per-particle smoothing length. Every particle's 2*h_i
+  // kernel support is then covered; pairs beyond an individual 2*h_i simply
+  // contribute W=0 to that particle's sums. In constant mode all h_i==hT so this
+  // reduces to the original 2*hT cutoff.
+  if ( settingsPtr->smoothing_length_mode != "constant" ) {
+    double hmax = max_smoothing_length();
+    if (hmax > 0.0) h = hmax;
+  }
   switch (D)
   {
     case 1:
@@ -679,25 +720,75 @@ void SystemState<D>::reset_neighbour_list(){
 
 
   for(int idir=0; idir<3; ++idir)
-    min_pos[idir] *= 2.; //Grid must be 100% extensiveger ///TODO: Allow this to be an optional input parameter
+    min_pos[idir] *= 4.; //Grid must be 100% extensiveger ///TODO: Allow this to be an optional input parameter
   if (settingsPtr->coordinate_system == "cartesian"){
     //extend the grid 
     for(int idir=0; idir<3; ++idir)
       min_pos[idir] *= 3.;
   }
   //Cabana needs a 3D grid. We set the remaining dimensions to be a single cell
-  double neighborhood_radius = 2*h;
-  for(int idir=D; idir<3; ++idir) min_pos[idir] = -h;
+  double neighborhood_radius = SPHkernel<D>::support(kt)*h; // 2*h cubic/Wendland, 3*h quintic
+  for(int idir=D; idir<3; ++idir) min_pos[idir] = -0.5*neighborhood_radius; // 1 cell in the unused dims (==-h for cubic)
   for(int idir=0; idir<3; ++idir)
     max_pos[idir] = -min_pos[idir];
 
-  CREATE_VIEW(device_, cabana_particles);
+  // Cabana's VerletList background grid can silently drop neighbours when the
+  // particle lattice aligns with cell boundaries (very visible with adaptive h,
+  // where the cutoff varies each step and a regular IC lattice makes whole rows
+  // land on cell edges). Make the grid robust: round each extent up to an integer
+  // number of cells and pad by one cell on every side, and nudge the origin off
+  // the lattice by an irrational fraction of a cell so particles never sit exactly
+  // on a boundary. Harmless in constant mode (still a superset grid).
+  if ( settingsPtr->smoothing_length_mode != "constant" ) {
+    const double off = 0.123456789 * neighborhood_radius; // off-lattice origin shift
+    for(int idir=0; idir<3; ++idir) {
+      double span = max_pos[idir] - min_pos[idir];
+      long ncell = static_cast<long>(std::ceil(span / neighborhood_radius)) + 2; // +1 cell each side
+      double mid = 0.5*(max_pos[idir] + min_pos[idir]);
+      double half = 0.5*ncell*neighborhood_radius;
+      min_pos[idir] = mid - half - off;
+      max_pos[idir] = mid + half - off;
+    }
+  }
+
   //Enabling change the order of the particles in the AoSoA. This may be a problem.
-  //Cabana::permute( cell_list, cabana_particles ); 
+  //Cabana::permute( cell_list, cabana_particles );
   double cell_ratio = 1.; //neighbour to cell_space ratio
-  neighbour_list = ListType (  device_position, 0, device_position.size(),
-                                          neighborhood_radius, cell_ratio, min_pos, max_pos
-                           );
+  if ( settingsPtr->neighbor_backend == "per_particle" ) {
+    // Per-particle radius neighbour search (Cabana >= 0.8.0): each particle i searches
+    // its own 2*h_i instead of the global 2*max(h). The background radius (= 2*max h =
+    // neighborhood_radius) sizes the grid so the stencil covers every particle's radius;
+    // the per-particle radii then give a tight, exact neighbour set, which is much more
+    // efficient than the verlet superset for strongly-variable spacing. Returns the same
+    // ListType, so the smoothing loops are unchanged.
+    //
+    Kokkos::View<double*, MemorySpace> radii(
+        Kokkos::view_alloc(Kokkos::WithoutInitializing, "nbr_radii"), n_particles);
+    Kokkos::parallel_for("fill_nbr_radii", Kokkos::RangePolicy<>(0, n_particles),
+      KOKKOS_LAMBDA(const int i){ radii(i) = SPHkernel<D>::support(kt)*device_hydro_scalar(i, ccake::hydro_info::h); });
+    Kokkos::fence();
+    // the per-particle-radius constructor needs the grid bounds as a Kokkos::Array
+    Kokkos::Array<double,3> gmin{ min_pos[0], min_pos[1], min_pos[2] };
+    Kokkos::Array<double,3> gmax{ max_pos[0], max_pos[1], max_pos[2] };
+    if (std::getenv("VARH_DBG")) {
+      double rmin=1e30, rmax=-1e30; bool bad=false;
+      Kokkos::parallel_reduce("dbg_rmin", n_particles, KOKKOS_LAMBDA(const int i,double&m){ if(radii(i)<m)m=radii(i);}, Kokkos::Min<double>(rmin));
+      Kokkos::parallel_reduce("dbg_rmax", n_particles, KOKKOS_LAMBDA(const int i,double&m){ if(radii(i)>m)m=radii(i);}, Kokkos::Max<double>(rmax));
+      Kokkos::fence();
+      static int call=0; ++call;
+      long ncx = std::lround((max_pos[0]-min_pos[0])/neighborhood_radius);
+      std::cerr<<"[pp] call="<<call<<" n_particles="<<n_particles<<" size="<<device_position.size()
+               <<" bg="<<neighborhood_radius<<" radii=["<<rmin<<","<<rmax<<"]"
+               <<" grid_x=["<<min_pos[0]<<","<<max_pos[0]<<"] ncells_x~"<<ncx<<std::endl;
+      if (rmin<=0 || rmax>1e3 || rmax!=rmax) std::cerr<<"  !! suspicious radii\n";
+    }
+    neighbour_list = ListType ( device_position, 0, device_position.size(),
+                                neighborhood_radius /*background*/, radii,
+                                cell_ratio, gmin, gmax );
+  } else {
+    neighbour_list = ListType ( device_position, 0, device_position.size(),
+                                neighborhood_radius, cell_ratio, min_pos, max_pos );
+  }
   Kokkos::fence();
 #ifdef __linux__
   malloc_trim(0);   // return freed Kokkos/Cabana pages to OS after neighbour list rebuild
@@ -710,7 +801,7 @@ void SystemState<D>::reset_neighbour_list(){
   ///Need a way to call Cabana::NeighborList::numNeighbor directly from GPU
   ///without seg fault
   Kokkos::parallel_for("UpdateNeighbors", Kokkos::RangePolicy<>(0, n_particles), KOKKOS_LAMBDA(int i) {
-    device_btrack(i) = (device_btrack(i) == -1) ? -1 
+    device_btrack(i) = (device_btrack(i) == -1) ? -1
                       : Cabana::NeighborList<ListType>::numNeighbor(neighbour_list, i);
   });
   #ifdef DEBUG_SLOW

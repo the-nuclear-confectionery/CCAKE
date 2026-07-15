@@ -1,4 +1,5 @@
 #include "sph_workstation.h"
+#include "phase_profiler.h"
 //The cpp below needs to be included for the Kokkos lambda to be
 //properly compiled in the GPU
 #include "kernel.cpp"
@@ -332,7 +333,24 @@ void SPHWorkstation<D, TEOM>::initialize_entropy_and_charge_densities()
   // loop over all particles
   CREATE_VIEW(device_, systemPtr->cabana_particles);
   //calculate initial volumes
-  calculate_intial_sigma(t0);
+  if ( settingsPtr->smoothing_length_mode == "constant" ) {
+    calculate_intial_sigma(t0);
+  } else {
+    // adaptive h: iterate sigma_lab <-> h to self-consistency. h is seeded at hT
+    // in process_initial_conditions; each pass rebuilds the neighbour list with the
+    // current h, recomputes sigma_lab, then sets h = eta_h*(nu/sigma_lab)^(1/D).
+    const int n_h_iter = 12;
+    for (int iter = 0; iter < n_h_iter; ++iter) {
+      systemPtr->reset_neighbour_list();
+      calculate_intial_sigma(t0);
+      update_smoothing_lengths();
+    }
+    // final sigma_lab/sigma consistent with the converged h (used just below to
+    // normalize the extensive densities)
+    systemPtr->reset_neighbour_list();
+    calculate_intial_sigma(t0);
+    formatted_output::detail("adaptive-h initialized (self-consistent sigma<->h)");
+  }
 
   auto init_particles = KOKKOS_LAMBDA(const int iparticle)
   {
@@ -499,6 +517,11 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
   double hEta = settingsPtr->hEta;
   double t = systemPtr->t;
   bool factorized = (D == 3) && settingsPtr->factorized_kernel;
+  const ccake::KernelType kt = static_cast<ccake::KernelType>(settingsPtr->kernel_id);
+  // grad-h mode: also accumulate dsigma_lab/dh so we can form the Springel-Hernquist
+  // Omega = 1 + (h/(D*sigma))*dsigma/dh used to make the pressure force conservative.
+  bool gradh = (settingsPtr->smoothing_length_mode != "constant")
+            && (settingsPtr->variable_h_conservation == "gradh");
 
   //creating outfile to for kernal function output
   /*ofstream outfile;
@@ -507,16 +530,21 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
 
   //Reset smoothed fields. Initializes using the contribution of the particle to the density evaluated
   //on top of itself because the loop over the neighbour particles does not include the particle itself.
-  double zero[D] = {};
-  double kern0 = factorized ? SPHkernel<D>::kernel(zero, zero, hT, hEta) : SPHkernel<D>::kernel(0.0, hT);
-
+  //With adaptive h the self-contribution W(0,h_i) is per-particle; in constant mode h_i==hT so this
+  //is bit-identical to the previous global kern0.
   auto reset_fields = KOKKOS_LAMBDA(const int is, const int ia) //First index for loop over struct, second for loop over array
   {
+    double zero[D] = {};
+    double h_i = device_hydro_scalar.access(is, ia, hydro_info::h);
+    double kern0 = factorized ? SPHkernel<D>::kernel(zero, zero, h_i, hEta, kt) : SPHkernel<D>::kernel(0.0, h_i, kt);
     device_smoothed.access(is, ia, densities_info::s)     = device_sph_mass.access(is, ia, densities_info::s)*   device_extensive.access(is, ia, densities_info::s)*kern0;
     device_smoothed.access(is, ia, densities_info::rhoB)  = device_sph_mass.access(is, ia, densities_info::rhoB)*device_extensive.access(is, ia, densities_info::rhoB)*kern0;
     device_smoothed.access(is, ia, densities_info::rhoQ)  = device_sph_mass.access(is, ia, densities_info::rhoQ)*device_extensive.access(is, ia, densities_info::rhoQ)*kern0;
     device_smoothed.access(is, ia, densities_info::rhoS)  = device_sph_mass.access(is, ia, densities_info::rhoS)*device_extensive.access(is, ia, densities_info::rhoS)*kern0;
     device_hydro_scalar.access(is, ia, hydro_info::sigma_lab) = device_sph_mass.access(is, ia, densities_info::s)*kern0;
+    if (gradh) // self-contribution to dsigma_lab/dh: dW/dh(0,h) = -D*W(0,h)/h
+      device_hydro_scalar.access(is, ia, hydro_info::dsigma_dh) =
+          device_sph_mass.access(is, ia, densities_info::s)*SPHkernel<D>::dWdh(0.0, h_i, kt);
   };
   Cabana::simd_parallel_for( simd_policy, reset_fields, "reset_fields" );
   Kokkos::fence();
@@ -527,7 +555,9 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
       r1[idir] = device_position(iparticle,idir);
       r2[idir] = device_position(jparticle,idir);
     }
-    double kern = factorized ? SPHkernel<D>::kernel(r1, r2, hT, hEta) : SPHkernel<D>::kernel(SPHkernel<D>::distance(r1, r2), hT);
+    // gather: particle iparticle accumulates its neighbours weighted by its own h_i
+    double h_i = device_hydro_scalar(iparticle, hydro_info::h);
+    double kern = factorized ? SPHkernel<D>::kernel(r1, r2, h_i, hEta, kt) : SPHkernel<D>::kernel(SPHkernel<D>::distance(r1, r2), h_i, kt);
 
     //outputting kernel function to the outfile "kernel_{hT}.dat"
     /*outfile << kern << distance << endl;
@@ -535,6 +565,9 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
 
     //Update sigma_lab (reference density)
     Kokkos::atomic_add( &device_hydro_scalar(iparticle, ccake::hydro_info::sigma_lab), device_sph_mass(jparticle, ccake::densities_info::s)*kern);
+    if (gradh) // d(sigma_lab)/dh_i = sum_j nu_j dW/dh(r_ij, h_i)
+      Kokkos::atomic_add( &device_hydro_scalar(iparticle, ccake::hydro_info::dsigma_dh),
+          device_sph_mass(jparticle, ccake::densities_info::s)*SPHkernel<D>::dWdh(SPHkernel<D>::distance(r1, r2), h_i, kt) );
     ////Update entropy density
     Kokkos::atomic_add( &device_smoothed(iparticle, ccake::densities_info::s),
                          device_sph_mass(jparticle, ccake::densities_info::s)*device_extensive(jparticle, ccake::densities_info::s)*kern);
@@ -552,6 +585,40 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
                                  Cabana::TeamOpTag(), "smooth_fields_kernel");
 
   Kokkos::fence();
+
+  // ---- 0th-order Shepard density normalization (kernel_correction = shepard | shepard_linear) ----
+  // gamma_a = sum_b (nu_b/sigma_lab_b) W_ab  (partition of unity: ->1 for a uniform distribution, <1
+  // near boundaries). The smoothed densities are divided by gamma_a below so the density estimate is
+  // exact for constant fields. Uses the RAW sigma_lab = sum nu W (Milne tau applied later in get_LRF).
+  const bool use_shepard = settingsPtr->use_shepard;
+  if (use_shepard) {
+    auto reset_gamma = KOKKOS_LAMBDA(const int is, const int ia){
+      double zero[D] = {};
+      double h_i   = device_hydro_scalar.access(is, ia, hydro_info::h);
+      double sig_i = device_hydro_scalar.access(is, ia, hydro_info::sigma_lab);
+      double nu_i  = device_sph_mass.access(is, ia, densities_info::s);
+      double kern0 = factorized ? SPHkernel<D>::kernel(zero, zero, h_i, hEta, kt)
+                                : SPHkernel<D>::kernel(0.0, h_i, kt);
+      device_hydro_scalar.access(is, ia, hydro_info::shepard_gamma) = (nu_i/sig_i)*kern0;
+    };
+    Cabana::simd_parallel_for( simd_policy, reset_gamma, "reset_gamma" );
+    Kokkos::fence();
+    auto smooth_gamma = KOKKOS_LAMBDA(const int iparticle, const int jparticle){
+      double r1[D], r2[D];
+      for (int idir=0; idir<D; ++idir){ r1[idir]=device_position(iparticle,idir); r2[idir]=device_position(jparticle,idir); }
+      double h_i  = device_hydro_scalar(iparticle, hydro_info::h);
+      double kern = factorized ? SPHkernel<D>::kernel(r1, r2, h_i, hEta, kt)
+                               : SPHkernel<D>::kernel(SPHkernel<D>::distance(r1, r2), h_i, kt);
+      double Vj = device_sph_mass(jparticle, ccake::densities_info::s)
+                  / device_hydro_scalar(jparticle, ccake::hydro_info::sigma_lab);
+      Kokkos::atomic_add( &device_hydro_scalar(iparticle, ccake::hydro_info::shepard_gamma), Vj*kern );
+    };
+    Cabana::neighbor_parallel_for( range_policy, smooth_gamma,
+                                   systemPtr->neighbour_list, Cabana::FirstNeighborsTag(),
+                                   Cabana::TeamOpTag(), "smooth_gamma_kernel");
+    Kokkos::fence();
+  }
+
   auto update_input_thermodynamics = KOKKOS_LAMBDA(const int is, const int ia){
     double s = device_smoothed.access(is, ia, densities_info::s);
     double rhoB = device_smoothed.access(is, ia, densities_info::rhoB);
@@ -559,6 +626,11 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
     double rhoQ = device_smoothed.access(is, ia, densities_info::rhoQ);
     double gamma = device_hydro_scalar.access(is, ia, hydro_info::gamma);
     double sigma_lab = device_hydro_scalar.access(is, ia, hydro_info::sigma_lab);
+    if (use_shepard) { // divide the (lab-frame) densities by the Shepard partition sum
+      double g = device_hydro_scalar.access(is, ia, hydro_info::shepard_gamma);
+      if (g > 1e-6) { double ig = 1.0/g; s*=ig; rhoB*=ig; rhoS*=ig; rhoQ*=ig; sigma_lab*=ig; }
+      device_hydro_scalar.access(is, ia, hydro_info::sigma_lab) = sigma_lab; // corrected: used by gradients & h-update
+    }
 
     double sigma  = TEOM<D>::get_LRF(sigma_lab, gamma, t);
     s = TEOM<D>::get_LRF(s, gamma, t);
@@ -566,6 +638,13 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
     rhoS = TEOM<D>::get_LRF(rhoS, gamma, t);
     rhoQ = TEOM<D>::get_LRF(rhoQ, gamma, t);
     device_hydro_scalar.access(is, ia, hydro_info::sigma) = sigma;
+    if (gradh) { // grad-h correction factor (uses the computational-frame gather density)
+      double h_i  = device_hydro_scalar.access(is, ia, hydro_info::h);
+      double dsdh = device_hydro_scalar.access(is, ia, hydro_info::dsigma_dh);
+      double Omega = 1.0 + (h_i/(static_cast<double>(D)*sigma_lab))*dsdh;
+      if (Omega < 1e-2) Omega = 1e-2; // safety floor: keep 1/Omega finite in pathological cases
+      device_hydro_scalar.access(is, ia, hydro_info::Omega) = Omega;
+    }
     device_thermo.access(is, ia, thermo_info::s) = s;
     device_thermo.access(is, ia, thermo_info::rhoB) = rhoB;
     device_thermo.access(is, ia, thermo_info::rhoS) = rhoS;
@@ -586,6 +665,7 @@ void SPHWorkstation<D, TEOM>::calculate_intial_sigma(double t)
   double hT = settingsPtr->hT;
   double hEta = settingsPtr->hEta;
   bool factorized = (D == 3) && settingsPtr->factorized_kernel;
+  const ccake::KernelType kt = static_cast<ccake::KernelType>(settingsPtr->kernel_id);
 
   //creating outfile to for kernal function output
   /*ofstream outfile;
@@ -594,10 +674,11 @@ void SPHWorkstation<D, TEOM>::calculate_intial_sigma(double t)
 
   //Reset smoothed fields. Initializes using the contribution of the particle to the density evaluated
   //on top of itself because the loop over the neighbour particles does not include the particle itself.
-  double zero[D] = {};
-  double kern0 = factorized ? SPHkernel<D>::kernel(zero, zero, hT, hEta) : SPHkernel<D>::kernel(0.0, hT);
   auto reset_fields = KOKKOS_LAMBDA(const int is, const int ia) //First index for loop over struct, second for loop over array
   {
+    double zero[D] = {};
+    double h_i = device_hydro_scalar.access(is, ia, hydro_info::h);
+    double kern0 = factorized ? SPHkernel<D>::kernel(zero, zero, h_i, hEta, kt) : SPHkernel<D>::kernel(0.0, h_i, kt);
     device_hydro_scalar.access(is, ia, hydro_info::sigma_lab) = device_sph_mass.access(is, ia, densities_info::s)*kern0;
   };
   Cabana::simd_parallel_for( simd_policy, reset_fields, "reset_fields" );
@@ -609,7 +690,8 @@ void SPHWorkstation<D, TEOM>::calculate_intial_sigma(double t)
         r1[idir] = device_position(iparticle,idir);
         r2[idir] = device_position(jparticle,idir);
     }
-    double kern = factorized ? SPHkernel<D>::kernel(r1, r2, hT, hEta) : SPHkernel<D>::kernel(SPHkernel<D>::distance(r1, r2), hT);
+    double h_i = device_hydro_scalar(iparticle, hydro_info::h);
+    double kern = factorized ? SPHkernel<D>::kernel(r1, r2, h_i, hEta, kt) : SPHkernel<D>::kernel(SPHkernel<D>::distance(r1, r2), h_i, kt);
 
     //outputting kernel function to the outfile "kernel_{hT}.dat"
     /*outfile << kern << distance << endl;
@@ -636,6 +718,48 @@ void SPHWorkstation<D, TEOM>::calculate_intial_sigma(double t)
   Cabana::simd_parallel_for( simd_policy, update_sigma, "update_input_thermodynamics" );
   Kokkos::fence();
 
+}
+
+
+/// @brief Recompute the per-particle adaptive smoothing length.
+/// @details Sets \f$ h_i = \eta_h\,(\nu_i/\sigma^{\rm lab}_i)^{1/D} \f$, where
+/// \f$\sigma^{\rm lab}_i = \sum_j \nu_j\,W(r_{ij},h_i)\f$ is the computational-frame
+/// SPH number density (slice `sigma_lab`) and \f$\nu_i\f$ is the particle's mass
+/// normalization (slice `sph_mass`, which equals 1 after initialization). This makes
+/// the kernel support track the local particle spacing, so each particle keeps a
+/// healthy neighbour count even when the spacing varies strongly (adaptive/Poisson
+/// ICs). The result is clamped to [h_min, h_max] (auto-derived from hT if unset).
+/// A no-op when `smoothing_length_mode == "constant"` (h stays equal to hT).
+/// @note Lagged/explicit: callers pass the sigma_lab from the current step; h then
+/// feeds the next neighbour-list cutoff and the gradient kernels. @see get_time_derivatives
+/// @tparam D The dimensionality of the simulation.
+/// @tparam TEOM The equation of motion class to be used in the simulation.
+template<unsigned int D, template<unsigned int> class TEOM>
+void SPHWorkstation<D, TEOM>::update_smoothing_lengths()
+{
+  if ( settingsPtr->smoothing_length_mode == "constant" ) return;
+
+  CREATE_VIEW(device_, systemPtr->cabana_particles);
+  auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
+  const double eta_h = settingsPtr->eta_h;
+  const double hT    = settingsPtr->hT;
+  // floor/ceiling bound the h-range; 0 in settings => auto-derive from hT.
+  const double hmin = settingsPtr->h_min > 0.0 ? settingsPtr->h_min : 0.1*hT;
+  const double hmax = settingsPtr->h_max > 0.0 ? settingsPtr->h_max : 10.0*hT;
+  const double inv_D = 1.0/static_cast<double>(D);
+
+  auto update_h = KOKKOS_LAMBDA(const int is, const int ia)
+  {
+    double sigma_lab = device_hydro_scalar.access(is, ia, hydro_info::sigma_lab);
+    double nu        = device_sph_mass.access(is, ia, densities_info::s);
+    double h = hT;
+    if ( sigma_lab > 0.0 && nu > 0.0 )
+      h = eta_h * Kokkos::pow( nu/sigma_lab, inv_D );
+    h = (h < hmin) ? hmin : ( (h > hmax) ? hmax : h );  // clamp to [h_min, h_max]
+    device_hydro_scalar.access(is, ia, hydro_info::h) = h;
+  };
+  Cabana::simd_parallel_for( simd_policy, update_h, "update_smoothing_lengths" );
+  Kokkos::fence();
 }
 
 
@@ -798,9 +922,14 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
   double hT = settingsPtr->hT;
   double hEta = settingsPtr->hEta;
   bool factorized = (D == 3) && settingsPtr->factorized_kernel;
+  const ccake::KernelType kt = static_cast<ccake::KernelType>(settingsPtr->kernel_id);
   double t = systemPtr->t;
   bool using_shear = settingsPtr->using_shear;
   bool using_diffusion = settingsPtr->using_diffusion;
+  // grad-h conservation: replace the symmetric pressure force by the Springel-Hernquist/
+  // Price form, pairing each particle's pressure term with its own kernel gradient and Omega.
+  bool gradh = (settingsPtr->smoothing_length_mode != "constant")
+            && (settingsPtr->variable_h_conservation == "gradh");
   auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
 
   CREATE_VIEW(device_, systemPtr->cabana_particles);
@@ -813,9 +942,9 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
       device_hydro_vector.access(is, ia, ccake::hydro_info::gradshear, idir) = 0.0;
       device_hydro_vector.access(is, ia, ccake::hydro_info::divshear, idir) = 0.0;
       device_hydro_vector.access(is, ia, ccake::hydro_info::gradE,idir)  = 0.0;
-      for (int jdir=0; jdir < D; ++jdir)
+      for (int jdir=0; jdir < D; ++jdir) {
         device_hydro_space_matrix.access(is, ia,ccake::hydro_info::gradV, idir, jdir) = 0.0;
-       
+      }
     }
     for(int icharge=0; icharge<3; ++icharge){
       device_hydro_vector.access(is, ia, ccake::hydro_info::div_qa, icharge) = 0.0;
@@ -839,7 +968,21 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
         pos_b[idir] = device_position(particle_b,idir);
         rel_sep[idir] = pos_a[idir] - pos_b[idir];
     }
-    if (factorized) SPHkernel<D>::gradKernel(rel_sep, pos_a, pos_b, hT, hEta, gradK_aux); else { double r = SPHkernel<D>::distance(pos_a, pos_b); SPHkernel<D>::gradKernel(rel_sep, r, hT, gradK_aux); }
+    // adaptive-h: symmetric (half-averaged) kernel gradient, evaluated at both
+    // particles' smoothing lengths. In constant mode h_a==h_b==hT, so 0.5*(g+g)
+    // is bit-identical to the original single-h gradient.
+    double h_a = device_hydro_scalar(particle_a, hydro_info::h);
+    double h_b = device_hydro_scalar(particle_b, hydro_info::h);
+    double gradK_a[D], gradK_b[D]; // per-h kernel gradients (also reused for grad-h gradP)
+    if (factorized) {
+      SPHkernel<D>::gradKernel(rel_sep, pos_a, pos_b, h_a, hEta, gradK_a, kt);
+      SPHkernel<D>::gradKernel(rel_sep, pos_a, pos_b, h_b, hEta, gradK_b, kt);
+    } else {
+      double r = SPHkernel<D>::distance(pos_a, pos_b);
+      SPHkernel<D>::gradKernel(rel_sep, r, h_a, gradK_a, kt);
+      SPHkernel<D>::gradKernel(rel_sep, r, h_b, gradK_b, kt);
+    }
+    for (int idir=0; idir<D; ++idir) gradK_aux[idir] = 0.5*(gradK_a[idir] + gradK_b[idir]);
 
     double pressure_a     = device_thermo(particle_a, thermo_info::p);
     double pressure_b     = device_thermo(particle_b, thermo_info::p);
@@ -855,23 +998,44 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
     double gamma_a        = device_hydro_scalar(particle_a, hydro_info::gamma);
     double gamma_b        = device_hydro_scalar(particle_b, hydro_info::gamma);
 
-    milne::Vector<double,D> gradK, sigsigK, gradP, gradE, v_a, v_b, gradBulk, gradshear, divshear;
+    milne::Vector<double,D> gradK, gradKkin, sigsigK, gradP, gradE, v_a, v_b, gradBulk, gradshear, divshear;
     milne::Matrix<double, D, D> gradV;
     for(int idir=0; idir<D; ++idir){
-      gradK(idir) = gradK_aux[idir];
+      gradK(idir) = gradK_aux[idir];                            // symmetrized 1/2(grad W_a + grad W_b): used only in the non-gradh path
+      // kinematic gradient (gradV->theta, gradE): under gradh use the GATHER grad W(h_a) so theta = the
+      // density's own dsigma/dt (continuity); outside gradh fall back to the symmetrized kernel. Verified
+      // on the viscous grad-h glass: Eloss ~ -0.15 (matches the symmetric-kernel result, both conserving).
+      gradKkin(idir) = gradh ? gradK_a[idir] : gradK_aux[idir];
       v_a(idir) = device_hydro_vector(particle_a, hydro_info::v, idir);
       v_b(idir) = device_hydro_vector(particle_b, hydro_info::v, idir);
     };
 
     sigsigK = sph_mass_s_b * sigma_lab_a * gradK;
-    gradP = (sigsqrb*pressure_b + sigsqra*pressure_a ) * sigsigK;
-    gradE = (sph_mass_s_b/sigma_lab_a)*( energy_b-energy_a )*gradK;
+    // grad-h force gradients (Price 2012): each particle's pressure/stress term keeps its OWN
+    // h-kernel grad W(h) and is divided by that particle's Omega -> the per-term split sigsigKa/sigsigKb.
+    // Outside gradh, Omega==1 and we keep the symmetrized kernel (sigsigKa==sigsigKb==sigsigK), so the
+    // symmetric forms are recovered bit-identically. Applied UNIFORMLY to all force gradients below
+    // (gradP, gradBulk, gradshear, divshear) so the full ideal+viscous force is grad-h consistent.
+    double Omega_a = device_hydro_scalar(particle_a, hydro_info::Omega);
+    double Omega_b = device_hydro_scalar(particle_b, hydro_info::Omega);
+    milne::Vector<double,D> sigsigKa, sigsigKb;
+    for(int idir=0; idir<D; ++idir){
+      if (gradh){ sigsigKa(idir) = (sph_mass_s_b*sigma_lab_a/Omega_a)*gradK_a[idir];
+                  sigsigKb(idir) = (sph_mass_s_b*sigma_lab_a/Omega_b)*gradK_b[idir]; }
+      else      { sigsigKa(idir) = sigsigK(idir); sigsigKb(idir) = sigsigK(idir); }
+    }
+    gradP = sigsqra*pressure_a*sigsigKa + sigsqrb*pressure_b*sigsigKb;
+    // kinematic gathers: difference form / (sigma_a*Omega_a), gather kernel grad W(h_a) under gradh.
+    gradE = (sph_mass_s_b/(sigma_lab_a*Omega_a))*( energy_b-energy_a )*gradKkin;
     //gradE = (sigsqrb*energy_b + sigsqra*energy_a ) * sigsigK;
-    gradBulk = (bulk_b/sigma_lab_b/sigma_lab_b + bulk_a/sigma_lab_a/sigma_lab_a)*sigsigK;
+    gradBulk = (sigsqra*bulk_a)*sigsigKa + (sigsqrb*bulk_b)*sigsigKb;
     //gradV    = (sph_mass_s_b/sigma_lab_a)*( v_b -  v_a )*gradK;
     for(int idir=0; idir<D; ++idir)
     for(int jdir=0; jdir<D; ++jdir)
-      gradV(idir,jdir) = (sph_mass_s_b/sigma_lab_a)*( v_b(jdir) -  v_a(jdir) )*gradK(idir);
+      // grad-h: the SPH velocity gradient carries 1/Omega_a, so BOTH its trace (divV = expansion
+      // theta) and the shear part (grad_uj) are grad-h consistent. Omega==1 outside gradh mode,
+      // so this is bit-identical for constant-h and symmetric runs.
+      gradV(idir,jdir) = (sph_mass_s_b/(sigma_lab_a*Omega_a))*( v_b(jdir) -  v_a(jdir) )*gradKkin(idir);
 
 
     if (using_shear){
@@ -888,9 +1052,10 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
         milne::Matrix<double,D,D> vminia, vminib;
         milne::mini(vminia, shv_a);
         milne::mini(vminib, shv_b);
-        gradshear = milne::contract(sigsigK, v_a)*( sigsqrb*shv_0i_b + sigsqra*shv_0i_a );
-        divshear  = sigsqrb*sigsigK*milne::transpose(vminib)
-                  + sigsqra*sigsigK*milne::transpose(vminia);
+        gradshear = milne::contract(sigsigKa, v_a)*sigsqra*shv_0i_a
+                  + milne::contract(sigsigKb, v_a)*sigsqrb*shv_0i_b;
+        divshear  = sigsqra*sigsigKa*milne::transpose(vminia)
+                  + sigsqrb*sigsigKb*milne::transpose(vminib);
       }
       else{
         double shv_0i_a  = device_hydro_spacetime_matrix(particle_a, hydro_info::shv, 0, 3);
@@ -898,10 +1063,11 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
         milne::Matrix<double,D,D> vminia, vminib;
         vminia(0,0) = device_hydro_spacetime_matrix(particle_a, hydro_info::shv, 3, 3);
         vminib(0,0) = device_hydro_spacetime_matrix(particle_b, hydro_info::shv, 3, 3);
-        gradshear = milne::contract(sigsigK, v_a)*( sigsqrb*shv_0i_b + sigsqra*shv_0i_a );
+        gradshear = milne::contract(sigsigKa, v_a)*sigsqra*shv_0i_a
+                  + milne::contract(sigsigKb, v_a)*sigsqrb*shv_0i_b;
         ///\todo do we need this transpose here?
-        divshear  = sigsqrb*sigsigK*vminib
-                  + sigsqra*sigsigK*vminia;        
+        divshear  = sigsqra*sigsigKa*vminia
+                  + sigsqrb*sigsigKb*vminib;
       }
 
     }
@@ -929,13 +1095,13 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
             diff_b(icharge,idir) = device_hydro_diffusion(particle_b, hydro_info::diffusion, icharge,idir+1);
           }
         }
-        grad_qa = milne::contract(sigsigK, v_a)*( sigsqrb*diff_b0 + sigsqra*diff_a0 );
-        for(int jcharge=0; jcharge<3; ++jcharge){  
+        grad_qa = milne::contract(sigsigKa, v_a)*sigsqra*diff_a0 + milne::contract(sigsigKb, v_a)*sigsqrb*diff_b0;
+        for(int jcharge=0; jcharge<3; ++jcharge){
           div_qa(jcharge) = 0.0;
           for(int idir=0; idir<D; ++idir){
-            div_qa(jcharge) += sigsqrb*sigsigK(idir)*diff_b(jcharge,idir)
-                                + sigsqra*sigsigK(idir)*diff_a(jcharge,idir);
-            grad_alpha_a(idir,jcharge) = (sph_mass_s_b/sigma_lab_a)*( alpha_vec_b(jcharge) -  alpha_vec_a(jcharge) )*gradK(idir);
+            div_qa(jcharge) += sigsqra*sigsigKa(idir)*diff_a(jcharge,idir)
+                                + sigsqrb*sigsigKb(idir)*diff_b(jcharge,idir);
+            grad_alpha_a(idir,jcharge) = (sph_mass_s_b/(sigma_lab_a*Omega_a))*( alpha_vec_b(jcharge) -  alpha_vec_a(jcharge) )*gradKkin(idir);
           }
         }
       }
@@ -948,11 +1114,11 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
           diff_a(icharge) = device_hydro_diffusion(particle_a, hydro_info::diffusion,icharge,3);
           diff_b(icharge) = device_hydro_diffusion(particle_b, hydro_info::diffusion,icharge,3);
         }
-        grad_qa = milne::contract(sigsigK, v_a)*( sigsqrb*diff_b0 + sigsqra*diff_a0 );
-        for(int jcharge=0; jcharge<3; ++jcharge){  
-          div_qa(jcharge) += sigsqrb*sigsigK(0)*diff_b(jcharge)
-                              + sigsqra*sigsigK(0)*diff_a(jcharge);
-          grad_alpha_a(0,jcharge) = (sph_mass_s_b/sigma_lab_a)*( alpha_vec_b(jcharge) -  alpha_vec_a(jcharge) )*gradK(0);
+        grad_qa = milne::contract(sigsigKa, v_a)*sigsqra*diff_a0 + milne::contract(sigsigKb, v_a)*sigsqrb*diff_b0;
+        for(int jcharge=0; jcharge<3; ++jcharge){
+          div_qa(jcharge) += sigsqra*sigsigKa(0)*diff_a(jcharge)
+                              + sigsqrb*sigsigKb(0)*diff_b(jcharge);
+          grad_alpha_a(0,jcharge) = (sph_mass_s_b/(sigma_lab_a*Omega_a))*( alpha_vec_b(jcharge) -  alpha_vec_a(jcharge) )*gradKkin(0);
         }
       }
       //Accumulate diffusion quantities
@@ -981,6 +1147,7 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
                                  systemPtr->neighbour_list, Cabana::FirstNeighborsTag(),
                                  Cabana::TeamOpTag(), "smooth_gradients_kernel");
   Kokkos::fence();
+
   return;
 }
 
@@ -1001,12 +1168,192 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
 /// @note The volume assigned to each particle is assumed to be the grid step in
 /// the initial conditions, as specified in the initial condition header.
 /// @note Freeze out 4 means the particle is frozen out. 0 means it is not.
+/// @brief Energy-momentum-conserving freeze-in matching (arXiv:1103.4605 Eq. 14).
+/// @details For each particle staged by BSQHydro::read_freezein() (which carries
+/// the raw contravariant surface densities T^{tau mu} and the lab-frame B/S/Q
+/// 4-currents j_a^mu), recover the ideal-hydro fields by matching the conserved
+/// tau-row of T^{mu nu} on the tau = tau0 surface:
+///   M0 = T^{tau tau} = (eps+P)(u^tau)^2 - P
+///   M^i = T^{tau i}  = (eps+P) u^tau u^i           (i = x, y, eta)
+/// This is the standard relativistic conservative -> primitive recovery, closed
+/// by the EoS P = P(eps, n_B, n_S, n_Q):
+///   eps = M0 - v |M| ;  P = EoS(eps, n) ;  v = |M| / (M0 + P)   (iterate)
+///   u^tau = 1/sqrt(1 - v^2) ;  u^i = u^tau v M^i/|M|
+/// with the Milne magnitude |M|^2 = (M^x)^2 + (M^y)^2 + tau0^2 (M^eta)^2 and rest
+/// charge densities n_a = u_mu j_a^mu. The non-tau rows of T^{mu nu} (the
+/// out-of-equilibrium shear/bulk residual) are discarded; the energy/momentum
+/// flux through the surface is preserved exactly. Units: T in GeV/fm^3 -> /hbarc
+/// to 1/fm^4; currents already in 1/fm^3.
+/// @tparam D The dimensionality of the simulation.
+/// @tparam TEOM The equation of motion class to be used in the simulation.
+template<unsigned int D, template<unsigned int> class TEOM>
+void SPHWorkstation<D, TEOM>::freeze_in_match()
+{
+  formatted_output::report("Freeze-in: matching raw T^{mu nu} to ideal hydro (EoS-closed)");
+
+  if (D < 2)
+  {
+    std::cerr << "Freeze-in IC requires D >= 2 (raw T^{mu nu} grids are 2D/3D)."
+              << std::endl;
+    abort();
+  }
+
+  const double tau     = settingsPtr->t0;
+  const bool   hyper   = (settingsPtr->coordinate_system == "hyperbolic");
+  const double t2      = (D == 3 && hyper) ? tau*tau : 1.0; // eta metric factor
+  const double tol     = settingsPtr->freezein_tol;
+  const int    maxit   = settingsPtr->freezein_max_iter;
+  const double v_cap   = 1.0 - 1e-12;
+  const double e_floor = settingsPtr->e_cutoff/hbarc_GeVfm; // 1/fm^4
+
+  const bool useB = settingsPtr->baryon_charge_enabled;
+  const bool useS = settingsPtr->strange_charge_enabled;
+  const bool useQ = settingsPtr->electric_charge_enabled;
+
+  // Counter hygiene: locate_phase_diagram_point_eBSQ() may flag a particle
+  // frozen-out (and bump number_part_fo) for a transient intermediate eps.
+  // The authoritative status is set later by initialize_entropy_and_charge_
+  // densities(), so snapshot and restore around the matching.
+  const int saved_fo = systemPtr->number_part_fo;
+
+  double E_in = 0.0, E_out = 0.0; // conservation diagnostic (sum of T^{tau tau})
+  std::size_t n_dropped = 0;
+
+  // Retain only cells whose TRUE (rest-frame) energy density epsilon exceeds the
+  // cutoff. The read_freezein() pre-filter on T^{tau tau} is a safe lower bound
+  // (epsilon = M0 - v|M| <= M0 = T^{tau tau}), but a boosted cell can still fall
+  // below the cutoff once the flow is removed, so the decisive cut is applied
+  // here, after the match.
+  std::vector<Particle<D>> kept;
+  kept.reserve(systemPtr->particles.size());
+
+  for (auto & p : systemPtr->particles)
+  {
+    // Conserved surface densities -> 1/fm^4 (T) and 1/fm^3 (currents).
+    const double M0 = p.freezein_Ttau[0]/hbarc_GeVfm;
+    const double Mx = p.freezein_Ttau[1]/hbarc_GeVfm;
+    const double My = p.freezein_Ttau[2]/hbarc_GeVfm;
+    const double Mn = (D == 3) ? p.freezein_Ttau[3]/hbarc_GeVfm : 0.0;
+    const double Mmag = std::sqrt(Mx*Mx + My*My + t2*Mn*Mn);
+
+    const double jB0=p.freezein_jB[0], jBx=p.freezein_jB[1], jBy=p.freezein_jB[2], jBn=(D==3)?p.freezein_jB[3]:0.0;
+    const double jS0=p.freezein_jS[0], jSx=p.freezein_jS[1], jSy=p.freezein_jS[2], jSn=(D==3)?p.freezein_jS[3]:0.0;
+    const double jQ0=p.freezein_jQ[0], jQx=p.freezein_jQ[1], jQy=p.freezein_jQ[2], jQn=(D==3)?p.freezein_jQ[3]:0.0;
+
+    // Seed the EoS rootfinder guess (same as the standard IC path in
+    // process_initial_conditions): T high, mu = 0, and the "default" EoS name.
+    // The eos_name MUST be set before locate_phase_diagram_point_eBSQ(), else
+    // eos.tbqs() is handed an empty name and dereferences a null EoS.
+    p.thermo.T   = 580.0/hbarc_MeVfm;
+    p.thermo.muB = 0.0;
+    p.thermo.muS = 0.0;
+    p.thermo.muQ = 0.0;
+    p.thermo.eos_name = "default";
+
+    double v = (M0 > 0.0) ? std::min(Mmag/M0, v_cap) : 0.0;
+    double eps = M0, P = 0.0;
+    double nB = 0.0, nS = 0.0, nQ = 0.0;
+    double gamma = 1.0, ux = 0.0, uy = 0.0, un = 0.0;
+
+    for (int it = 0; it < maxit; ++it)
+    {
+      eps = M0 - v*Mmag;
+      if (eps < 0.0) eps = 0.0;
+
+      gamma = 1.0/std::sqrt(1.0 - v*v);
+      if (Mmag > 0.0)
+      {
+        const double s = gamma*v/Mmag; // u^i = gamma v (M^i/|M|)
+        ux = s*Mx; uy = s*My; un = (D == 3) ? s*Mn : 0.0;
+      }
+      else { ux = uy = un = 0.0; }
+
+      // Rest-frame charge densities n_a = u_mu j_a^mu (Milne metric).
+      nB = useB ? (gamma*jB0 - (ux*jBx + uy*jBy + t2*un*jBn)) : 0.0;
+      nS = useS ? (gamma*jS0 - (ux*jSx + uy*jSy + t2*un*jSn)) : 0.0;
+      nQ = useQ ? (gamma*jQ0 - (ux*jQx + uy*jQy + t2*un*jQn)) : 0.0;
+
+      // Pressure from the EoS (skip near-vacuum cells -> P = 0).
+      if (eps > e_floor)
+      {
+        locate_phase_diagram_point_eBSQ(p, eps, nB, nS, nQ);
+        P = p.p();
+      }
+      else P = 0.0;
+
+      const double denom = M0 + P;
+      const double v_new = (denom > 0.0) ? std::min(Mmag/denom, v_cap) : 0.0;
+      const bool converged = (std::abs(v_new - v) < tol);
+      v = v_new;
+      if (converged) break;
+    }
+
+    // Final fields from the converged flow speed.
+    gamma = 1.0/std::sqrt(1.0 - v*v);
+    eps = M0 - v*Mmag;
+    if (eps < 0.0) eps = 0.0;
+
+    // Apply the energy cutoff on the TRUE rest-frame energy density.
+    if (eps <= e_floor) { ++n_dropped; continue; }
+
+    if (Mmag > 0.0)
+    {
+      const double s = gamma*v/Mmag;
+      ux = s*Mx; uy = s*My; un = (D == 3) ? s*Mn : 0.0;
+    }
+    else { ux = uy = un = 0.0; }
+    nB = useB ? (gamma*jB0 - (ux*jBx + uy*jBy + t2*un*jBn)) : 0.0;
+    nS = useS ? (gamma*jS0 - (ux*jSx + uy*jSy + t2*un*jSn)) : 0.0;
+    nQ = useQ ? (gamma*jQ0 - (ux*jQx + uy*jQy + t2*un*jQn)) : 0.0;
+
+    p.input.e    = eps;
+    p.input.rhoB = nB;
+    p.input.rhoS = nS;
+    p.input.rhoQ = nQ;
+
+    p.hydro.u(0) = ux;
+    if (D >= 2) p.hydro.u(1) = uy;
+    if (D == 3) p.hydro.u(2) = un;
+
+    // Ideal IC: no initial dissipation (residual stress discarded).
+    p.hydro.bulk      = 0.0;
+    p.hydro.shv       = 0.0;
+    p.hydro.diffusion = 0.0;
+
+    // Restore freeze flag; initialize_entropy_and_charge_densities() decides it.
+    p.Freeze = 0;
+
+    E_in  += M0;
+    E_out += (eps + P)*gamma*gamma - P; // matched ideal T^{tau tau}
+
+    kept.push_back(p);
+  }
+
+  systemPtr->particles = std::move(kept);
+  systemPtr->number_part_fo = saved_fo;
+
+  const double rel = (E_in != 0.0) ? (E_out - E_in)/E_in : 0.0;
+  formatted_output::update("Freeze-in: kept " + std::to_string(systemPtr->particles.size())
+                           + " particles after rest-frame cutoff (dropped "
+                           + std::to_string(n_dropped) + ")");
+  formatted_output::update("Freeze-in: sum T^{tau tau} in = " + std::to_string(E_in)
+                           + " 1/fm^4, matched = " + std::to_string(E_out)
+                           + " (rel. diff " + std::to_string(rel) + ")");
+}
+
+/// @brief Shell function to fill out the rest of the particle information.
 /// @tparam D The dimensionality of the simulation.
 /// @tparam TEOM The equation of motion class to be used in the simulation.
 template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D, TEOM>::process_initial_conditions()
 {
   formatted_output::report("Processing initial conditions");
+
+  // Freeze-in IC: convert the raw T^{mu nu} grid staged by
+  // BSQHydro::read_freezein() into (epsilon, u^mu, rho_{B,S,Q}) before the
+  // standard processing below consumes p.hydro.u / p.input.e.
+  if (settingsPtr->IC_type == "freezein")
+    freeze_in_match();
 
   //============================================================================
   // TOTAL NUMBER OF PARTICLES FIXED AFTER THIS POINT
@@ -1041,6 +1388,12 @@ void SPHWorkstation<D, TEOM>::process_initial_conditions()
     double u[D];
     for (int i=0; i<D;++i) u[i] = p.hydro.u(i);
     p.hydro.gamma     = TEOM<D>::gamma_calc(u,t2) ;
+
+    // initial smoothing length: start every particle at the global hT. In
+    // constant mode this never changes; in adaptive mode it is the seed for the
+    // self-consistent sigma<->h iteration in initialize_entropy_and_charge_densities.
+    p.hydro.h         = settingsPtr->hT;
+    p.hydro.Omega     = 1.0;
 
 
 
@@ -1312,35 +1665,53 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives(double dt)
   #endif
 
   // reset nearest neighbors
-  systemPtr->reset_neighbour_list();
+  { CCAKE_PHASE("01_neighbour_list");
+    systemPtr->reset_neighbour_list(); }
 
   // calcuate gamma and velocities
-  calculate_gamma_and_velocities();
+  { CCAKE_PHASE("02_gamma_velocity");
+    calculate_gamma_and_velocities(); }
 
   // smooth all particle fields - s, rhoB, rhoQ and rhoS and sigma
-  smooth_all_particle_fields(t2);
+  { CCAKE_PHASE("03_smooth_fields");
+    smooth_all_particle_fields(t2); }
+
+  // adaptive smoothing length: recompute h_i from the freshly smoothed sigma_lab.
+  // No-op in constant mode. h then feeds this step's gradients and the next
+  // step's neighbour-list cutoff (lagged/explicit update).
+  { CCAKE_PHASE("03b_update_h");
+    update_smoothing_lengths(); }
 
   // Update particle thermodynamic properties
-  update_all_particle_thermodynamics();
+  { CCAKE_PHASE("04_thermodynamics");
+    update_all_particle_thermodynamics(); }
 
   // reset pi tensor to be consistent
   // with all essential symmetries
-  reset_pi_tensor(t2);
+  { CCAKE_PHASE("05_reset_pi_tensor");
+    reset_pi_tensor(t2); }
 
   // apply diffusion current regulator (PhysRevC.98.034916, Eqs. C6-C8)
-  regulate_diffusion();
+  { CCAKE_PHASE("06_regulate_diffusion");
+    regulate_diffusion(); }
 
   //add source terms to the energy momentum tensor
-  if (settingsPtr->source_type != "disabled") sourcePtr->add_source();
+  if (settingsPtr->source_type != "disabled") {
+    CCAKE_PHASE("07_add_source");
+    sourcePtr->add_source();
+  }
 
   // update viscosities for all particles
-  update_all_particle_viscosities();
+  { CCAKE_PHASE("08_viscosities");
+    update_all_particle_viscosities(); }
 
   //Computes gradients to obtain dsigma_lab/dt
-  smooth_all_particle_gradients(t2);
+  { CCAKE_PHASE("09_smooth_gradients");
+    smooth_all_particle_gradients(t2); }
 
   //calculate time derivatives needed for equations of motion
-  TEOM<D>::evaluate_time_derivatives( systemPtr, settingsPtr );
+  { CCAKE_PHASE("10_time_derivatives");
+    TEOM<D>::evaluate_time_derivatives( systemPtr, settingsPtr ); }
 
   // check for causality
   if (settingsPtr->check_causality)
@@ -1756,7 +2127,28 @@ bool SPHWorkstation<D, TEOM>::continue_evolution()
 
   bool keep_going =  true;
   if(settingsPtr->particlization_enabled )
-    keep_going = (systemPtr->number_part_fo != systemPtr->n_particles); // all particles have frozen out. Break evolution.
+  {
+    // Authoritative recount of frozen-out particles. The incremental counter
+    // (number_part_fo) only tracks particles that pass through status 3 in
+    // FreezeOut::check_freeze_out_status. It misses particles frozen via the
+    // no-neighbor path in FreezeOut::freeze_out_evo (btrack==0 -> Freeze=4,
+    // see freeze_out.h) and the negative-entropy init path
+    // (sph_workstation.cpp init -> Freeze=4), neither of which increments the
+    // counter. With sparse/coarse ICs and very central collisions those
+    // particles strand the counter below n_particles, so evolution would only
+    // stop at max_tau. Recompute the true frozen count here each step.
+    int frozen = 0;
+    CREATE_VIEW(device_, systemPtr->cabana_particles);
+    auto count_frozen_out = KOKKOS_LAMBDA(const int i, int& acc){
+      acc += (device_freeze(i) >= 4) ? 1 : 0;
+    };
+    Kokkos::parallel_reduce("count_frozen_out",
+                            systemPtr->n_particles, count_frozen_out, frozen);
+    Kokkos::fence();
+    systemPtr->number_part_fo = frozen;
+
+    keep_going = (systemPtr->number_part_fo < systemPtr->n_particles); // all particles have frozen out. Break evolution.
+  }
 
   keep_going = keep_going && (systemPtr->t <= settingsPtr->max_tau); // time is up. Break evolution.
   return keep_going;
@@ -2105,6 +2497,8 @@ void SPHWorkstation<3, EoM_cartesian>::smooth_all_particle_gradients(double time
   double hT = settingsPtr->hT;
   double hEta = settingsPtr->hEta;
   bool factorized = settingsPtr->factorized_kernel;
+  const ccake::KernelType kt = static_cast<ccake::KernelType>(settingsPtr->kernel_id);
+  bool gradh = (settingsPtr->smoothing_length_mode != "constant") && (settingsPtr->variable_h_conservation == "gradh");
   double t = systemPtr->t;
   bool using_shear = settingsPtr->using_shear;
   bool using_diffusion = settingsPtr->using_diffusion;
@@ -2144,7 +2538,19 @@ void SPHWorkstation<3, EoM_cartesian>::smooth_all_particle_gradients(double time
       rel_sep[idir] = pos_a[idir] - pos_b[idir];
     }
     double gradK_aux[3];
-    if (factorized) SPHkernel<3>::gradKernel(rel_sep, pos_a, pos_b, hT, hEta, gradK_aux); else { double r = SPHkernel<3>::distance(pos_a, pos_b); SPHkernel<3>::gradKernel(rel_sep, r, hT, gradK_aux); }
+    // adaptive-h: symmetric half-averaged kernel gradient (bit-identical to single-h when h_a==h_b==hT)
+    double h_a = device_hydro_scalar(particle_a, hydro_info::h);
+    double h_b = device_hydro_scalar(particle_b, hydro_info::h);
+    double gradK_a[3], gradK_b[3];
+    if (factorized) {
+      SPHkernel<3>::gradKernel(rel_sep, pos_a, pos_b, h_a, hEta, gradK_a, kt);
+      SPHkernel<3>::gradKernel(rel_sep, pos_a, pos_b, h_b, hEta, gradK_b, kt);
+    } else {
+      double r = SPHkernel<3>::distance(pos_a, pos_b);
+      SPHkernel<3>::gradKernel(rel_sep, r, h_a, gradK_a, kt);
+      SPHkernel<3>::gradKernel(rel_sep, r, h_b, gradK_b, kt);
+    }
+    for (int idir=0; idir<3; ++idir) gradK_aux[idir] = 0.5*(gradK_a[idir] + gradK_b[idir]);
 
     double pressure_a     = device_thermo(particle_a, thermo_info::p);
     double pressure_b     = device_thermo(particle_b, thermo_info::p);
@@ -2160,23 +2566,34 @@ void SPHWorkstation<3, EoM_cartesian>::smooth_all_particle_gradients(double time
     double gamma_a        = device_hydro_scalar(particle_a, hydro_info::gamma);
     double gamma_b        = device_hydro_scalar(particle_b, hydro_info::gamma);
 
-    cartesian::Vector<double,3> gradK, sigsigK, gradP, gradE, v_a, v_b, gradBulk, gradshear, divshear;
+    cartesian::Vector<double,3> gradK, gradKkin, sigsigK, gradP, gradE, v_a, v_b, gradBulk, gradshear, divshear;
     cartesian::Matrix<double, 3, 3> gradV;
     for(int idir=0; idir<3; ++idir){
-      gradK(idir) = gradK_aux[idir];
+      gradK(idir) = gradK_aux[idir];                            // symmetrized 1/2(grad W_a+grad W_b): non-gradh path only
+      gradKkin(idir) = gradh ? gradK_a[idir] : gradK_aux[idir]; // kinematic gather: grad W(h_a) under gradh, symmetrized otherwise
       v_a(idir) = device_hydro_vector(particle_a, hydro_info::v, idir);
       v_b(idir) = device_hydro_vector(particle_b, hydro_info::v, idir);
     };
 
     sigsigK = sph_mass_s_b * sigma_lab_a * gradK;
-    gradP = (sigsqrb*pressure_b + sigsqra*pressure_a ) * sigsigK;
-    gradE = (sph_mass_s_b/sigma_lab_a)*( energy_b-energy_a )*gradK;
+    // grad-h force gradients: per-term Omega split (sigsigKa/sigsigKb); outside gradh == sigsigK (symmetric).
+    double Omega_a = device_hydro_scalar(particle_a, hydro_info::Omega);
+    double Omega_b = device_hydro_scalar(particle_b, hydro_info::Omega);
+    cartesian::Vector<double,3> sigsigKa, sigsigKb;
+    for(int idir=0; idir<3; ++idir){
+      if (gradh){ sigsigKa(idir) = (sph_mass_s_b*sigma_lab_a/Omega_a)*gradK_a[idir];
+                  sigsigKb(idir) = (sph_mass_s_b*sigma_lab_a/Omega_b)*gradK_b[idir]; }
+      else      { sigsigKa(idir) = sigsigK(idir); sigsigKb(idir) = sigsigK(idir); }
+    }
+    gradP = sigsqra*pressure_a*sigsigKa + sigsqrb*pressure_b*sigsigKb;
+    gradE = (sph_mass_s_b/(sigma_lab_a*Omega_a))*( energy_b-energy_a )*gradKkin;
     //gradE = (sigsqrb*energy_b + sigsqra*energy_a ) * sigsigK;
-    gradBulk = (bulk_b/sigma_lab_b/sigma_lab_b + bulk_a/sigma_lab_a/sigma_lab_a)*sigsigK;
+    gradBulk = (sigsqra*bulk_a)*sigsigKa + (sigsqrb*bulk_b)*sigsigKb;
     //gradV    = (sph_mass_s_b/sigma_lab_a)*( v_b -  v_a )*gradK;
     for(int idir=0; idir<3; ++idir)
     for(int jdir=0; jdir<3; ++jdir)
-      gradV(idir,jdir) = (sph_mass_s_b/sigma_lab_a)*( v_b(jdir) -  v_a(jdir) )*gradK(idir);
+      // grad-h velocity gradient carries 1/Omega_a; kinematic gather grad W(h_a) under gradh (gradKkin).
+      gradV(idir,jdir) = (sph_mass_s_b/(sigma_lab_a*Omega_a))*( v_b(jdir) -  v_a(jdir) )*gradKkin(idir);
 
 
     if (using_shear){
@@ -2192,9 +2609,9 @@ void SPHWorkstation<3, EoM_cartesian>::smooth_all_particle_gradients(double time
         cartesian::Matrix<double,3,3> vminia, vminib;
         cartesian::mini(vminia, shv_a);
         cartesian::mini(vminib, shv_b);
-        gradshear = cartesian::contract(sigsigK, v_a)*( sigsqrb*shv_0i_b + sigsqra*shv_0i_a );
-        divshear  = sigsqrb*sigsigK*cartesian::transpose(vminib)
-                  + sigsqra*sigsigK*cartesian::transpose(vminia);
+        gradshear = cartesian::contract(sigsigKa, v_a)*sigsqra*shv_0i_a + cartesian::contract(sigsigKb, v_a)*sigsqrb*shv_0i_b;
+        divshear  = sigsqra*sigsigKa*cartesian::transpose(vminia)
+                  + sigsqrb*sigsigKb*cartesian::transpose(vminib);
     }
     if(using_diffusion){
       cartesian::Vector<double,3> alpha_vec_a;
@@ -2219,13 +2636,13 @@ void SPHWorkstation<3, EoM_cartesian>::smooth_all_particle_gradients(double time
           diff_b(icharge,idir) = device_hydro_diffusion(particle_b, hydro_info::diffusion, icharge, idir+1);
         }
       }
-      grad_qa = cartesian::contract(sigsigK, v_a)*( sigsqrb*diff_b0 + sigsqra*diff_a0 );
+      grad_qa = cartesian::contract(sigsigKa, v_a)*sigsqra*diff_a0 + cartesian::contract(sigsigKb, v_a)*sigsqrb*diff_b0;
       for(int jcharge=0; jcharge<3; ++jcharge){
         div_qa(jcharge) = 0.0;
         for(int idir=0; idir<3; ++idir){
-          div_qa(jcharge) += sigsqrb*sigsigK(idir)*diff_b(jcharge,idir)
-                              + sigsqra*sigsigK(idir)*diff_a(jcharge,idir);
-          grad_alpha_a(idir,jcharge) = (sph_mass_s_b/sigma_lab_a)*( alpha_vec_b(jcharge) - alpha_vec_a(jcharge) )*gradK(idir);
+          div_qa(jcharge) += sigsqra*sigsigKa(idir)*diff_a(jcharge,idir)
+                              + sigsqrb*sigsigKb(idir)*diff_b(jcharge,idir);
+          grad_alpha_a(idir,jcharge) = (sph_mass_s_b/(sigma_lab_a*Omega_a))*( alpha_vec_b(jcharge) - alpha_vec_a(jcharge) )*gradKkin(idir);
         }
       }
       for(int icharge=0; icharge<3; ++icharge){
@@ -2261,9 +2678,11 @@ template<>
 void SPHWorkstation<2, EoM_cartesian>::smooth_all_particle_gradients(double time_squared)
 {
   double hT = settingsPtr->hT;
+  const ccake::KernelType kt = static_cast<ccake::KernelType>(settingsPtr->kernel_id);
   double t = systemPtr->t;
   bool using_shear = settingsPtr->using_shear;
   bool using_diffusion = settingsPtr->using_diffusion;
+  bool gradh = (settingsPtr->smoothing_length_mode != "constant") && (settingsPtr->variable_h_conservation == "gradh");
   auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
 
   CREATE_VIEW(device_, systemPtr->cabana_particles);
@@ -2301,7 +2720,13 @@ void SPHWorkstation<2, EoM_cartesian>::smooth_all_particle_gradients(double time
     }
     double rel_sep_norm = SPHkernel<2>::distance(pos_a,pos_b);
     double gradK_aux[2];
-    ccake::SPHkernel<2>::gradKernel( rel_sep, rel_sep_norm, hT, gradK_aux );
+    // adaptive-h: symmetric half-averaged kernel gradient (bit-identical to single-h when h_a==h_b==hT)
+    double h_a = device_hydro_scalar(particle_a, hydro_info::h);
+    double h_b = device_hydro_scalar(particle_b, hydro_info::h);
+    double gradK_a[2], gradK_b[2];
+    ccake::SPHkernel<2>::gradKernel( rel_sep, rel_sep_norm, h_a, gradK_a, kt );
+    ccake::SPHkernel<2>::gradKernel( rel_sep, rel_sep_norm, h_b, gradK_b, kt );
+    for (int idir=0; idir<2; ++idir) gradK_aux[idir] = 0.5*(gradK_a[idir] + gradK_b[idir]);
 
     double pressure_a     = device_thermo(particle_a, thermo_info::p);
     double pressure_b     = device_thermo(particle_b, thermo_info::p);
@@ -2317,23 +2742,34 @@ void SPHWorkstation<2, EoM_cartesian>::smooth_all_particle_gradients(double time
     double gamma_a        = device_hydro_scalar(particle_a, hydro_info::gamma);
     double gamma_b        = device_hydro_scalar(particle_b, hydro_info::gamma);
 
-    cartesian::Vector<double,2> gradK, sigsigK, gradP, gradE, v_a, v_b, gradBulk, gradshear, divshear;
+    cartesian::Vector<double,2> gradK, gradKkin, sigsigK, gradP, gradE, v_a, v_b, gradBulk, gradshear, divshear;
     cartesian::Matrix<double, 2, 2> gradV;
     for(int idir=0; idir<2; ++idir){
-      gradK(idir) = gradK_aux[idir];
+      gradK(idir) = gradK_aux[idir];                            // symmetrized 1/2(grad W_a+grad W_b): non-gradh path only
+      gradKkin(idir) = gradh ? gradK_a[idir] : gradK_aux[idir]; // kinematic gather: grad W(h_a) under gradh, symmetrized otherwise
       v_a(idir) = device_hydro_vector(particle_a, hydro_info::v, idir);
       v_b(idir) = device_hydro_vector(particle_b, hydro_info::v, idir);
     };
 
     sigsigK = sph_mass_s_b * sigma_lab_a * gradK;
-    gradP = (sigsqrb*pressure_b + sigsqra*pressure_a ) * sigsigK;
-    gradE = (sph_mass_s_b/sigma_lab_a)*( energy_b-energy_a )*gradK;
+    // grad-h force gradients: per-term Omega split (sigsigKa/sigsigKb); outside gradh == sigsigK (symmetric).
+    double Omega_a = device_hydro_scalar(particle_a, hydro_info::Omega);
+    double Omega_b = device_hydro_scalar(particle_b, hydro_info::Omega);
+    cartesian::Vector<double,2> sigsigKa, sigsigKb;
+    for(int idir=0; idir<2; ++idir){
+      if (gradh){ sigsigKa(idir) = (sph_mass_s_b*sigma_lab_a/Omega_a)*gradK_a[idir];
+                  sigsigKb(idir) = (sph_mass_s_b*sigma_lab_a/Omega_b)*gradK_b[idir]; }
+      else      { sigsigKa(idir) = sigsigK(idir); sigsigKb(idir) = sigsigK(idir); }
+    }
+    gradP = sigsqra*pressure_a*sigsigKa + sigsqrb*pressure_b*sigsigKb;
+    gradE = (sph_mass_s_b/(sigma_lab_a*Omega_a))*( energy_b-energy_a )*gradKkin;
     //gradE = (sigsqrb*energy_b + sigsqra*energy_a ) * sigsigK;
-    gradBulk = (bulk_b/sigma_lab_b/sigma_lab_b + bulk_a/sigma_lab_a/sigma_lab_a)*sigsigK;
+    gradBulk = (sigsqra*bulk_a)*sigsigKa + (sigsqrb*bulk_b)*sigsigKb;
     //gradV    = (sph_mass_s_b/sigma_lab_a)*( v_b -  v_a )*gradK;
     for(int idir=0; idir<2; ++idir)
     for(int jdir=0; jdir<2; ++jdir)
-      gradV(idir,jdir) = (sph_mass_s_b/sigma_lab_a)*( v_b(jdir) -  v_a(jdir) )*gradK(idir);
+      // grad-h velocity gradient carries 1/Omega_a; kinematic gather grad W(h_a) under gradh (gradKkin).
+      gradV(idir,jdir) = (sph_mass_s_b/(sigma_lab_a*Omega_a))*( v_b(jdir) -  v_a(jdir) )*gradKkin(idir);
 
 
     if (using_shear){
@@ -2349,9 +2785,9 @@ void SPHWorkstation<2, EoM_cartesian>::smooth_all_particle_gradients(double time
         cartesian::Matrix<double,2,2> vminia, vminib;
         cartesian::mini(vminia, shv_a);
         cartesian::mini(vminib, shv_b);
-        gradshear = cartesian::contract(sigsigK, v_a)*( sigsqrb*shv_0i_b + sigsqra*shv_0i_a );
-        divshear  = sigsqrb*sigsigK*cartesian::transpose(vminib)
-                  + sigsqra*sigsigK*cartesian::transpose(vminia);
+        gradshear = cartesian::contract(sigsigKa, v_a)*sigsqra*shv_0i_a + cartesian::contract(sigsigKb, v_a)*sigsqrb*shv_0i_b;
+        divshear  = sigsqra*sigsigKa*cartesian::transpose(vminia)
+                  + sigsqrb*sigsigKb*cartesian::transpose(vminib);
     }
     if(using_diffusion){
       cartesian::Vector<double,3> alpha_vec_a;
@@ -2376,13 +2812,13 @@ void SPHWorkstation<2, EoM_cartesian>::smooth_all_particle_gradients(double time
           diff_b(icharge,idir) = device_hydro_diffusion(particle_b, hydro_info::diffusion, icharge, idir+1);
         }
       }
-      grad_qa = cartesian::contract(sigsigK, v_a)*( sigsqrb*diff_b0 + sigsqra*diff_a0 );
+      grad_qa = cartesian::contract(sigsigKa, v_a)*sigsqra*diff_a0 + cartesian::contract(sigsigKb, v_a)*sigsqrb*diff_b0;
       for(int jcharge=0; jcharge<3; ++jcharge){
         div_qa(jcharge) = 0.0;
         for(int idir=0; idir<2; ++idir){
-          div_qa(jcharge) += sigsqrb*sigsigK(idir)*diff_b(jcharge,idir)
-                              + sigsqra*sigsigK(idir)*diff_a(jcharge,idir);
-          grad_alpha_a(idir,jcharge) = (sph_mass_s_b/sigma_lab_a)*( alpha_vec_b(jcharge) - alpha_vec_a(jcharge) )*gradK(idir);
+          div_qa(jcharge) += sigsqra*sigsigKa(idir)*diff_a(jcharge,idir)
+                              + sigsqrb*sigsigKb(idir)*diff_b(jcharge,idir);
+          grad_alpha_a(idir,jcharge) = (sph_mass_s_b/(sigma_lab_a*Omega_a))*( alpha_vec_b(jcharge) - alpha_vec_a(jcharge) )*gradKkin(idir);
         }
       }
       for(int icharge=0; icharge<3; ++icharge){
@@ -2418,9 +2854,11 @@ template<>
 void SPHWorkstation<1, EoM_cartesian>::smooth_all_particle_gradients(double time_squared)
 {
   double hT = settingsPtr->hT;
+  const ccake::KernelType kt = static_cast<ccake::KernelType>(settingsPtr->kernel_id);
   double t = systemPtr->t;
   bool using_shear = settingsPtr->using_shear;
   bool using_diffusion = settingsPtr->using_diffusion;
+  bool gradh = (settingsPtr->smoothing_length_mode != "constant") && (settingsPtr->variable_h_conservation == "gradh");
   auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
 
   CREATE_VIEW(device_, systemPtr->cabana_particles);
@@ -2457,7 +2895,13 @@ void SPHWorkstation<1, EoM_cartesian>::smooth_all_particle_gradients(double time
     }
     double rel_sep_norm = SPHkernel<1>::distance(pos_a,pos_b);
     double gradK_aux[1];
-    ccake::SPHkernel<1>::gradKernel( rel_sep, rel_sep_norm, hT, gradK_aux );
+    // adaptive-h: symmetric half-averaged kernel gradient (bit-identical to single-h when h_a==h_b==hT)
+    double h_a = device_hydro_scalar(particle_a, hydro_info::h);
+    double h_b = device_hydro_scalar(particle_b, hydro_info::h);
+    double gradK_a[1], gradK_b[1];
+    ccake::SPHkernel<1>::gradKernel( rel_sep, rel_sep_norm, h_a, gradK_a, kt );
+    ccake::SPHkernel<1>::gradKernel( rel_sep, rel_sep_norm, h_b, gradK_b, kt );
+    gradK_aux[0] = 0.5*(gradK_a[0] + gradK_b[0]);
 
     double pressure_a     = device_thermo(particle_a, thermo_info::p);
     double pressure_b     = device_thermo(particle_b, thermo_info::p);
@@ -2473,23 +2917,34 @@ void SPHWorkstation<1, EoM_cartesian>::smooth_all_particle_gradients(double time
     double gamma_a        = device_hydro_scalar(particle_a, hydro_info::gamma);
     double gamma_b        = device_hydro_scalar(particle_b, hydro_info::gamma);
 
-    cartesian::Vector<double,1> gradK, sigsigK, gradP, gradE, v_a, v_b, gradBulk, gradshear, divshear;
+    cartesian::Vector<double,1> gradK, gradKkin, sigsigK, gradP, gradE, v_a, v_b, gradBulk, gradshear, divshear;
     cartesian::Matrix<double, 1, 1> gradV;
     for(int idir=0; idir<1; ++idir){
-      gradK(idir) = gradK_aux[idir];
+      gradK(idir) = gradK_aux[idir];                            // symmetrized 1/2(grad W_a+grad W_b): non-gradh path only
+      gradKkin(idir) = gradh ? gradK_a[idir] : gradK_aux[idir]; // kinematic gather: grad W(h_a) under gradh, symmetrized otherwise
       v_a(idir) = device_hydro_vector(particle_a, hydro_info::v, idir);
       v_b(idir) = device_hydro_vector(particle_b, hydro_info::v, idir);
     };
 
     sigsigK = sph_mass_s_b * sigma_lab_a * gradK;
-    gradP = (sigsqrb*pressure_b + sigsqra*pressure_a ) * sigsigK;
-    gradE = (sph_mass_s_b/sigma_lab_a)*( energy_b-energy_a )*gradK;
+    // grad-h force gradients: per-term Omega split (sigsigKa/sigsigKb); outside gradh == sigsigK (symmetric).
+    double Omega_a = device_hydro_scalar(particle_a, hydro_info::Omega);
+    double Omega_b = device_hydro_scalar(particle_b, hydro_info::Omega);
+    cartesian::Vector<double,1> sigsigKa, sigsigKb;
+    for(int idir=0; idir<1; ++idir){
+      if (gradh){ sigsigKa(idir) = (sph_mass_s_b*sigma_lab_a/Omega_a)*gradK_a[idir];
+                  sigsigKb(idir) = (sph_mass_s_b*sigma_lab_a/Omega_b)*gradK_b[idir]; }
+      else      { sigsigKa(idir) = sigsigK(idir); sigsigKb(idir) = sigsigK(idir); }
+    }
+    gradP = sigsqra*pressure_a*sigsigKa + sigsqrb*pressure_b*sigsigKb;
+    gradE = (sph_mass_s_b/(sigma_lab_a*Omega_a))*( energy_b-energy_a )*gradKkin;
     //gradE = (sigsqrb*energy_b + sigsqra*energy_a ) * sigsigK;
-    gradBulk = (bulk_b/sigma_lab_b/sigma_lab_b + bulk_a/sigma_lab_a/sigma_lab_a)*sigsigK;
+    gradBulk = (sigsqra*bulk_a)*sigsigKa + (sigsqrb*bulk_b)*sigsigKb;
     //gradV    = (sph_mass_s_b/sigma_lab_a)*( v_b -  v_a )*gradK;
     for(int idir=0; idir<1; ++idir)
     for(int jdir=0; jdir<1; ++jdir)
-      gradV(idir,jdir) = (sph_mass_s_b/sigma_lab_a)*( v_b(jdir) -  v_a(jdir) )*gradK(idir);
+      // grad-h velocity gradient carries 1/Omega_a; kinematic gather grad W(h_a) under gradh (gradKkin).
+      gradV(idir,jdir) = (sph_mass_s_b/(sigma_lab_a*Omega_a))*( v_b(jdir) -  v_a(jdir) )*gradKkin(idir);
 
 
     if (using_shear){
@@ -2498,10 +2953,10 @@ void SPHWorkstation<1, EoM_cartesian>::smooth_all_particle_gradients(double time
         cartesian::Matrix<double,1,1> vminia, vminib;
         vminia(0,0) = device_hydro_spacetime_matrix(particle_a, hydro_info::shv, 3, 3);
         vminib(0,0) = device_hydro_spacetime_matrix(particle_b, hydro_info::shv, 3, 3);
-        gradshear = cartesian::contract(sigsigK, v_a)*( sigsqrb*shv_0i_b + sigsqra*shv_0i_a );
+        gradshear = cartesian::contract(sigsigKa, v_a)*sigsqra*shv_0i_a + cartesian::contract(sigsigKb, v_a)*sigsqrb*shv_0i_b;
         ///\todo do we need this transpose here?
-        divshear  = sigsqrb*sigsigK*vminib
-                  + sigsqra*sigsigK*vminia;
+        divshear  = sigsqra*sigsigKa*vminia
+                  + sigsqrb*sigsigKb*vminib;
     }
     if(using_diffusion){
       cartesian::Vector<double,3> alpha_vec_a;
@@ -2524,11 +2979,11 @@ void SPHWorkstation<1, EoM_cartesian>::smooth_all_particle_gradients(double time
         diff_a(icharge) = device_hydro_diffusion(particle_a, hydro_info::diffusion, icharge, 3);
         diff_b(icharge) = device_hydro_diffusion(particle_b, hydro_info::diffusion, icharge, 3);
       }
-      grad_qa = cartesian::contract(sigsigK, v_a)*( sigsqrb*diff_b0 + sigsqra*diff_a0 );
+      grad_qa = cartesian::contract(sigsigKa, v_a)*sigsqra*diff_a0 + cartesian::contract(sigsigKb, v_a)*sigsqrb*diff_b0;
       for(int jcharge=0; jcharge<3; ++jcharge){
-        div_qa(jcharge) = sigsqrb*sigsigK(0)*diff_b(jcharge)
-                          + sigsqra*sigsigK(0)*diff_a(jcharge);
-        grad_alpha_a(0,jcharge) = (sph_mass_s_b/sigma_lab_a)*( alpha_vec_b(jcharge) - alpha_vec_a(jcharge) )*gradK(0);
+        div_qa(jcharge) = sigsqra*sigsigKa(0)*diff_a(jcharge)
+                          + sigsqrb*sigsigKb(0)*diff_b(jcharge);
+        grad_alpha_a(0,jcharge) = (sph_mass_s_b/(sigma_lab_a*Omega_a))*( alpha_vec_b(jcharge) - alpha_vec_a(jcharge) )*gradKkin(0);
       }
       for(int icharge=0; icharge<3; ++icharge){
         Kokkos::atomic_add(&device_hydro_vector(particle_a, hydro_info::div_qa, icharge), div_qa(icharge));

@@ -78,7 +78,7 @@ namespace ccake
 
   using freeze_array = Cabana::AoSoA<FRZ,DeviceType,VECTOR_LENGTH>;
   using freeze_results = Cabana::AoSoA<ResultsTypes,DeviceType,VECTOR_LENGTH>;
-  using SerialHost = Kokkos::Device<Kokkos::Serial, Kokkos::HostSpace>;
+  using SerialHost = Kokkos::HostSpace; // Cabana>=0.8.0: AoSoA needs a memory space
   using freeze_results_h = Cabana::AoSoA<ResultsTypes,SerialHost,VECTOR_LENGTH>;
   using mask_type = Cabana::AoSoA<Cabana::MemberTypes<bool>,DeviceType,VECTOR_LENGTH>;
 
