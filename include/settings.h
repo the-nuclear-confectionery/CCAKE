@@ -45,6 +45,9 @@ class Settings
     bool get_neighbors              = false;
     bool calculate_observables       = false;
     bool check_causality            = false;
+    int  evolution_stride           = 1;   ///< write full evolution output every Nth timestep (1 = every step)
+    bool causality_minimal          = false; ///< dump per-particle causality diagnostics (x,y,eta,e,T,causality,invRe_sh/bk,Kn_sh/bk)
+    int  causality_minimal_stride   = 20;  ///< minimal-causality dump every Nth timestep
     fs::path results_directory        = "";
 
     static constexpr int VERBOSE      = 5;
@@ -95,6 +98,9 @@ class Settings
     fs::path freezein_input_file = "";    ///< Path to the raw T^{mu nu} grid file
     double freezein_tol          = 1e-10; ///< Convergence tol on the flow speed v
     int    freezein_max_iter     = 100;   ///< Max iterations of the matching loop
+    bool   freezein_baryon_landau = false; ///< If true, n_a = j_a^mu u_mu (Landau scalar
+                                           ///< rest density) instead of the flux-matched
+                                           ///< j_a^tau/gamma. Keeps freeze-in energy/flow.
 
     //------------------------------------
     // simulations parameters
@@ -212,6 +218,7 @@ class Settings
                                                           {0.0, 0.0, 0.0}}};
     bool input_initial_diffusion = false; ///< Whether to use the initial diffusion
                                           ///  coefficients from the input file
+    double C_B = 0.0;   ///< coefficient for coth-form baryon diffusion kappa_B (Eq. 16)
     string diffusionRelaxMode = "default"; ///< Choose parametrization for diffusion relaxation time
     bool critical_scaling_diffusion = false; ///< Whether to enable Gaussian suppression of kappa near critical point
     double critical_point_T   = 0.0; ///< Critical point temperature [MeV]
@@ -234,8 +241,13 @@ class Settings
     bool baryon_source         = false;  ///< Whether to include baryon source term
     bool strangeness_source    = false;  ///< Whether to include strangeness source term
     bool electric_source       = false;  ///< Whether to include electric source term
-    double smearing_radius     = 0.0;   ///< Smearing radius for source terms
+    double smearing_radius     = 0.0;   ///< Transverse smearing radius for source terms [fm]
+    double smearing_radius_eta = 0.0;   ///< Longitudinal (eta) smearing radius for source terms; used by the D=3 split deposit kernel
     string source_input_file   = "";    ///< Path to the source term file
+    bool   source_propagate    = false; ///< If true, SMASH sources propagate & deplete like a jet; else instant dump at t_src
+    double source_loss_coefficient = 0.0; ///< CTE in dE = CTE * s(x)/s_0 * dt for propagating SMASH sources
+    double source_entropy_ref      = 1.0; ///< s_0 reference entropy density for propagating SMASH sources
+    int    source_deposit_steps = 1;    ///< Instant mode: spread each dump over N steps (E0/N per step) to keep v<c; 1 = all at once
 
     //  - jet terms
 

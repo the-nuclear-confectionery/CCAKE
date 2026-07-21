@@ -657,6 +657,19 @@ bool cc::Input::decode_settings(const YAML::Node& node){
     else{
       settingsPtr->using_diffusion = true;
     }
+    // coth-form baryon diffusion kappa_B (Eq. 16) is only defined for a
+    // baryon-only charge configuration; reject any other charge setup.
+    if ( settingsPtr->diffusionMode == "kappaB_coth" &&
+         !( settingsPtr->baryon_charge_enabled
+            && !settingsPtr->strange_charge_enabled
+            && !settingsPtr->electric_charge_enabled ) )
+    {
+      formatted_output::report("ERROR: diffusion mode 'kappaB_coth' requires a "
+        "baryon-only charge configuration (baryon_charge_enabled: true, "
+        "strange_charge_enabled: false, electric_charge_enabled: false).");
+      Kokkos::finalize();
+      exit(EXIT_FAILURE);
+    }
     try {
       auto mat = node["hydro"]["viscous_parameters"]["diffusion"]["constant_kappa_over_T2"];
       for (size_t i = 0; i < 3; ++i) {
@@ -668,6 +681,13 @@ bool cc::Input::decode_settings(const YAML::Node& node){
       formatted_output::report("WARNING: Could not read hydro/viscous_parameters/constant_kappa_over_T2!");
       formatted_output::report("This is an optional parameter. Setting to identity matrix.");
       settingsPtr->constant_kappa_over_T2 = cc::defaults::constant_kappa_over_T2;
+    }
+    try{
+      settingsPtr->C_B = node["hydro"]["viscous_parameters"]["diffusion"]["C_B"].as<double>();
+    } catch (...) {
+      formatted_output::report("WARNING: Could not read hydro/viscous_parameters/diffusion/C_B!");
+      formatted_output::report("This is an optional parameter. Setting to default value.");
+      settingsPtr->C_B = cc::defaults::C_B;
     }
     try{
       settingsPtr->input_initial_diffusion = node["hydro"]["viscous_parameters"]["diffusion"]["input_initial_diffusion"].as<bool>();
@@ -804,11 +824,46 @@ bool cc::Input::decode_settings(const YAML::Node& node){
       settingsPtr->smearing_radius = cc::defaults::smearing_radius;
     }
     try{
+      settingsPtr->smearing_radius_eta = node["hydro"]["source"]["smearing_radius_eta"].as<double>();
+    } catch (...) {
+      formatted_output::report("WARNING: Could not read source smearing_radius_eta!");
+      formatted_output::report("This is an optional parameter. Setting to default value.");
+      settingsPtr->smearing_radius_eta = cc::defaults::smearing_radius_eta;
+    }
+    try{
       settingsPtr->source_input_file = fs::path(node["hydro"]["source"]["file"].as<std::string>());
     } catch (...) {
       formatted_output::report("WARNING: Could not read source file!");
       formatted_output::report("This is an optional parameter. Setting to default value.");
       settingsPtr->source_input_file = cc::defaults::source_input_file;
+    }
+    try{
+      settingsPtr->source_propagate = node["hydro"]["source"]["propagate"].as<bool>();
+    } catch (...) {
+      formatted_output::report("WARNING: Could not read source propagate!");
+      formatted_output::report("This is an optional parameter. Setting to default value.");
+      settingsPtr->source_propagate = cc::defaults::source_propagate;
+    }
+    try{
+      settingsPtr->source_loss_coefficient = node["hydro"]["source"]["loss_coefficient"].as<double>();
+    } catch (...) {
+      formatted_output::report("WARNING: Could not read source loss_coefficient!");
+      formatted_output::report("This is an optional parameter. Setting to default value.");
+      settingsPtr->source_loss_coefficient = cc::defaults::source_loss_coefficient;
+    }
+    try{
+      settingsPtr->source_entropy_ref = node["hydro"]["source"]["entropy_ref"].as<double>();
+    } catch (...) {
+      formatted_output::report("WARNING: Could not read source entropy_ref!");
+      formatted_output::report("This is an optional parameter. Setting to default value.");
+      settingsPtr->source_entropy_ref = cc::defaults::source_entropy_ref;
+    }
+    try{
+      settingsPtr->source_deposit_steps = node["hydro"]["source"]["deposit_steps"].as<int>();
+    } catch (...) {
+      formatted_output::report("WARNING: Could not read source deposit_steps!");
+      formatted_output::report("This is an optional parameter. Setting to default value.");
+      settingsPtr->source_deposit_steps = cc::defaults::source_deposit_steps;
     }
 
     //jets subnode
@@ -920,12 +975,22 @@ bool cc::Input::decode_settings(const YAML::Node& node){
       settingsPtr->check_causality = cc::defaults::check_causality;
     }
     try{
-      settingsPtr->check_causality = node["output"]["check_causality"].as<bool>();
+      settingsPtr->evolution_stride = node["output"]["evolution_stride"].as<int>();
     } catch (...){
-      formatted_output::detail("WARNING: Could not read output/check_causality!");
-      formatted_output::detail("This is an optional parameter. Setting to default value.");
-      settingsPtr->check_causality = cc::defaults::check_causality;
+      settingsPtr->evolution_stride = cc::defaults::evolution_stride;
     }
+    if (settingsPtr->evolution_stride < 1) settingsPtr->evolution_stride = 1;
+    try{
+      settingsPtr->causality_minimal = node["output"]["causality_minimal"].as<bool>();
+    } catch (...){
+      settingsPtr->causality_minimal = cc::defaults::causality_minimal;
+    }
+    try{
+      settingsPtr->causality_minimal_stride = node["output"]["causality_minimal_stride"].as<int>();
+    } catch (...){
+      settingsPtr->causality_minimal_stride = cc::defaults::causality_minimal_stride;
+    }
+    if (settingsPtr->causality_minimal_stride < 1) settingsPtr->causality_minimal_stride = 1;
     return true;
 }
 

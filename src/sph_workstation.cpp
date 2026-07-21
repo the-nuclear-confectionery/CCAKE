@@ -1245,6 +1245,13 @@ void SPHWorkstation<D, TEOM>::freeze_in_match()
   const int saved_fo = systemPtr->number_part_fo;
 
   double E_in = 0.0, E_out = 0.0; // conservation diagnostic (sum of T^{tau tau})
+  // Charge-flux conservation diagnostic: sum of the surface flux j_a^tau, input
+  // (B_in) vs the matched ideal current n_a u^tau = n_a*gamma (B_out). With the
+  // flux-matched density n_a = j_a^tau/gamma below these are equal to machine
+  // precision on the kept surface; B_drop tracks charge removed by the
+  // rest-frame energy cutoff (the same cells whose energy is dropped).
+  double B_in = 0.0, B_out = 0.0, S_in = 0.0, S_out = 0.0, Q_in = 0.0, Q_out = 0.0;
+  double B_drop = 0.0, S_drop = 0.0, Q_drop = 0.0;
   std::size_t n_dropped = 0;
 
   // Retain only cells whose TRUE (rest-frame) energy density epsilon exceeds the
@@ -1264,9 +1271,12 @@ void SPHWorkstation<D, TEOM>::freeze_in_match()
     const double Mn = (D == 3) ? p.freezein_Ttau[3]/hbarc_GeVfm : 0.0;
     const double Mmag = std::sqrt(Mx*Mx + My*My + t2*Mn*Mn);
 
-    const double jB0=p.freezein_jB[0], jBx=p.freezein_jB[1], jBy=p.freezein_jB[2], jBn=(D==3)?p.freezein_jB[3]:0.0;
-    const double jS0=p.freezein_jS[0], jSx=p.freezein_jS[1], jSy=p.freezein_jS[2], jSn=(D==3)?p.freezein_jS[3]:0.0;
-    const double jQ0=p.freezein_jQ[0], jQx=p.freezein_jQ[1], jQy=p.freezein_jQ[2], jQn=(D==3)?p.freezein_jQ[3]:0.0;
+    // Only the tau-component of each current enters the flux-matched density
+    // n_a = j_a^tau/gamma (the spatial components are the flux through the
+    // non-tau faces and are not conserved charges on the tau0 surface).
+    const double jB0 = p.freezein_jB[0];
+    const double jS0 = p.freezein_jS[0];
+    const double jQ0 = p.freezein_jQ[0];
 
     // Seed the EoS rootfinder guess (same as the standard IC path in
     // process_initial_conditions): T high, mu = 0, and the "default" EoS name.
@@ -1296,10 +1306,17 @@ void SPHWorkstation<D, TEOM>::freeze_in_match()
       }
       else { ux = uy = un = 0.0; }
 
-      // Rest-frame charge densities n_a = u_mu j_a^mu (Milne metric).
-      nB = useB ? (gamma*jB0 - (ux*jBx + uy*jBy + t2*un*jBn)) : 0.0;
-      nS = useS ? (gamma*jS0 - (ux*jSx + uy*jSy + t2*un*jSn)) : 0.0;
-      nQ = useQ ? (gamma*jQ0 - (ux*jQx + uy*jQy + t2*un*jQn)) : 0.0;
+      // Charge-flux-matched rest densities. Choose n_a so the IDEAL current
+      // n_a u^mu reproduces the conserved surface flux exactly:
+      //   n_a u^tau = j_a^tau  =>  n_a = j_a^tau / gamma
+      // This conserves the charge on the tau0 surface, Q_a = int j_a^tau dSigma,
+      // with ZERO diffusion current -- the charge analog of matching the
+      // T^{tau mu} row for energy/momentum. (The Landau scalar density
+      // u_mu j^mu would instead drop the diffusion piece nu_a^tau = j_a^tau -
+      // gamma n_a and fail to conserve Q_a.)
+      nB = useB ? (jB0 / gamma) : 0.0;
+      nS = useS ? (jS0 / gamma) : 0.0;
+      nQ = useQ ? (jQ0 / gamma) : 0.0;
 
       // Pressure from the EoS (skip near-vacuum cells -> P = 0).
       if (eps > e_floor)
@@ -1321,8 +1338,16 @@ void SPHWorkstation<D, TEOM>::freeze_in_match()
     eps = M0 - v*Mmag;
     if (eps < 0.0) eps = 0.0;
 
-    // Apply the energy cutoff on the TRUE rest-frame energy density.
-    if (eps <= e_floor) { ++n_dropped; continue; }
+    // Apply the energy cutoff on the TRUE rest-frame energy density. The cell's
+    // charge is removed with its energy -- record it so the loss is visible.
+    if (eps <= e_floor)
+    {
+      ++n_dropped;
+      if (useB) B_drop += jB0;
+      if (useS) S_drop += jS0;
+      if (useQ) Q_drop += jQ0;
+      continue;
+    }
 
     if (Mmag > 0.0)
     {
@@ -1330,9 +1355,16 @@ void SPHWorkstation<D, TEOM>::freeze_in_match()
       ux = s*Mx; uy = s*My; un = (D == 3) ? s*Mn : 0.0;
     }
     else { ux = uy = un = 0.0; }
-    nB = useB ? (gamma*jB0 - (ux*jBx + uy*jBy + t2*un*jBn)) : 0.0;
-    nS = useS ? (gamma*jS0 - (ux*jSx + uy*jSy + t2*un*jSn)) : 0.0;
-    nQ = useQ ? (gamma*jQ0 - (ux*jQx + uy*jQy + t2*un*jQn)) : 0.0;
+    // Flux-matched rest densities (see loop above): n_a = j_a^tau / gamma.
+    nB = useB ? (jB0 / gamma) : 0.0;
+    nS = useS ? (jS0 / gamma) : 0.0;
+    nQ = useQ ? (jQ0 / gamma) : 0.0;
+
+    // Charge-flux conservation tally on the kept surface: input j_a^tau vs the
+    // matched ideal flux n_a*gamma (equal by construction of n_a = j_a^tau/gamma).
+    if (useB) { B_in += jB0; B_out += nB*gamma; }
+    if (useS) { S_in += jS0; S_out += nS*gamma; }
+    if (useQ) { Q_in += jQ0; Q_out += nQ*gamma; }
 
     p.input.e    = eps;
     p.input.rhoB = nB;
@@ -1367,6 +1399,21 @@ void SPHWorkstation<D, TEOM>::freeze_in_match()
   formatted_output::update("Freeze-in: sum T^{tau tau} in = " + std::to_string(E_in)
                            + " 1/fm^4, matched = " + std::to_string(E_out)
                            + " (rel. diff " + std::to_string(rel) + ")");
+
+  // Charge-flux conservation report (mirrors the energy line above). in vs
+  // matched should agree to machine precision on the kept surface; the drop
+  // column is charge removed with the sub-cutoff cells' energy.
+  auto charge_line = [](const std::string & name, double in, double out, double drop)
+  {
+    const double r = (in != 0.0) ? (out - in)/in : 0.0;
+    formatted_output::update("Freeze-in: sum j_" + name + "^tau in = " + std::to_string(in)
+                             + " 1/fm^3, matched = " + std::to_string(out)
+                             + " (rel. diff " + std::to_string(r)
+                             + "; dropped-cell = " + std::to_string(drop) + ")");
+  };
+  if (useB) charge_line("B", B_in, B_out, B_drop);
+  if (useS) charge_line("S", S_in, S_out, S_drop);
+  if (useQ) charge_line("Q", Q_in, Q_out, Q_drop);
 }
 
 /// @brief Shell function to fill out the rest of the particle information.
@@ -1727,7 +1774,7 @@ void SPHWorkstation<D, TEOM>::get_time_derivatives(double dt)
   //add source terms to the energy momentum tensor
   if (settingsPtr->source_type != "disabled") {
     CCAKE_PHASE("07_add_source");
-    sourcePtr->add_source();
+    sourcePtr->deposit_sources();
   }
 
   // update viscosities for all particles
@@ -2213,6 +2260,10 @@ void SPHWorkstation<D, TEOM>::advance_timestep( double dt, int rk_order )
     bbmg.propagate();
     //cout << "Finished jet propagate: " << endl;
   }
+  // Advance propagating sources once per timestep (no-op unless enabled).
+  // Must be outside the RK substep loop above so the source advances/depletes
+  // exactly once per step; deposit_sources only reads the result during substeps.
+  if (settingsPtr->source_type != "disabled") sourcePtr->advance_sources();
 
   // Perform freeze out
   if ( settingsPtr->particlization_enabled ) freeze_out_particles();

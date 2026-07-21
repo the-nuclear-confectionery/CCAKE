@@ -475,7 +475,6 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
       double F_extensive_bulk = device_hydro_scalar.access(is, ia, hydro_info::F_extensive_bulk);
       double F_extensive_entropy = device_hydro_scalar.access(is, ia, hydro_info::F_extensive_entropy);
       double tau_Pi = device_hydro_scalar.access(is, ia, hydro_info::tau_Pi);
-      double j0_ext = device_hydro_scalar.access(is, ia, hydro_info::j_ext);
 
       //declare caches
       double divV = 0;

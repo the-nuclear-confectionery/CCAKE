@@ -13,6 +13,7 @@ add_library(src OBJECT
 	rootfinder.cpp
 	eom_default.cpp
 	eom_cartesian.cpp
+	source.cpp
 	sph_workstation.cpp
 	system_state.cpp
 	transport_coefficients.cpp

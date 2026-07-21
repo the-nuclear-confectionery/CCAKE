@@ -53,12 +53,16 @@ public:
   void print_conservation_status();
   void buffer_conservation_line();      ///< Append one conservation line to in-memory buffer
   void flush_conservation(const std::string& path); ///< Write buffered conservation data to disk (call once at end)
+  void buffer_causality_line();         ///< Append one per-timestep causality summary line (cheap; needs check_causality)
+  void flush_causality(const std::string& path);    ///< Write buffered causality summary to disk (call once at end)
+  void print_causality_minimal_to_txt();            ///< per-particle causality-diagnostics dump (strided snapshots)
   std::string get_freeze_out_filename(){return output_directory + "/freeze_out.dat";}
 
 
 private:
 
   int n_timesteps_output = 0;
+  int n_caus_min_output = 0;   ///< snapshot counter for minimal-causality dumps
 
   string input_directory;
   string output_directory;
@@ -70,6 +74,9 @@ private:
 
   // buffered conservation output (flushed once at end of simulation)
   std::ostringstream cons_buffer;
+
+  // buffered per-timestep causality summary (flushed once at end; needs check_causality)
+  std::ostringstream caus_buffer;
 
   // these allow I/O to access other objects in BSQHydro
   std::shared_ptr<Settings> settingsPtr = nullptr;

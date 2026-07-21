@@ -39,10 +39,12 @@ namespace transport_coefficients{
   };
   enum {
     KAPPA_DEFAULT,
-    KAPPA_DNMR
+    KAPPA_DNMR,
+    KAPPA_B_COTH    ///< baryon-only coth-form kappa_B (Eq. 16), needs B-only charges
   };
   enum {
-    TAU_Q_DEFAULT,
+    TAU_Q_DEFAULT,      ///< tau_q = 0.2/T (constant_over_T)
+    TAU_Q_CB_OVER_T,    ///< tau_q = C_B/T (couples relaxation to C_B; kappaB_coth legacy)
     TAU_Q_DNMR
   };
   enum {
@@ -92,6 +94,7 @@ namespace transport_coefficients{
     int delta_PiPi_mode, lambda_Pipi_mode, phi1_mode, phi3_mode;
     double constant_eta_over_s, constant_zeta_over_s;
     double cs2_dependent_zeta_A, cs2_dependent_zeta_p;
+    double C_B;   ///< coefficient for coth-form baryon diffusion kappa_B (Eq. 16)
     std::array<std::array<double, 3>, 3> constant_kappa_over_T2,
                                          tauq_matrix;
     bool modulate_zeta_with_tanh;
@@ -174,9 +177,17 @@ namespace transport_coefficients{
 
   // diffusion
   KOKKOS_INLINE_FUNCTION
+  Matrix<double, 3, 3> kappa(const double* thermo, parameters params);
+  KOKKOS_INLINE_FUNCTION
+  Matrix<double, 3, 3> tauq(const double* thermo, parameters params);
+  KOKKOS_INLINE_FUNCTION
   Matrix<double, 3, 3> default_kappa(const double *therm, const parameters params);
   KOKKOS_INLINE_FUNCTION
   Matrix<double, 3, 3> default_tauq(const double *therm, const parameters params);
+  KOKKOS_INLINE_FUNCTION
+  Matrix<double, 3, 3> kappaB_coth(const double *therm, const parameters params);
+  KOKKOS_INLINE_FUNCTION
+  Matrix<double, 3, 3> tauqB_only(const double *therm, const parameters params);
 
   // other parmaterizations (not organized yet)
   KOKKOS_INLINE_FUNCTION

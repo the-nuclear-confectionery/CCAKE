@@ -73,6 +73,7 @@ namespace ccake
     const bool        phi3_mode          = "disabled";
     const std::string diffusionMode           = "disabled";
     const std::string diffusionRelaxMode          = "default";
+    const double      C_B                         = 0.0;
     const bool        critical_scaling_diffusion  = false;
     const double      critical_point_T            = 150.0;  // MeV
     const double      critical_point_muB          = 350.0;  // MeV
@@ -91,7 +92,12 @@ namespace ccake
     const bool        strangeness_source      = false;
     const bool        electric_source           = false;
     const double      smearing_radius        = 0.5;
+    const double      smearing_radius_eta    = 0.5;
     const std::string source_input_file   = "disabled";
+    const bool        source_propagate         = false;
+    const double      source_loss_coefficient = 0.0;
+    const double      source_entropy_ref       = 1.0;
+    const int         source_deposit_steps     = 1;
     const std::string jets_type              = "disabled";
     const int         jets_Energy_scaling     = 0;
     const int         jets_Length_scaling     = 1;
@@ -115,6 +121,9 @@ namespace ccake
     const bool        txt_evolution            = false;
     const bool        jet_evolution            = false;
     const bool        check_causality         = false;
+    const int         evolution_stride        = 1;
+    const bool        causality_minimal       = false;
+    const int         causality_minimal_stride = 20;
     const bool        bulk_from_trace       = false;
     // diffusion regulator (PhysRevC.98.034916, Eqs. C6-C8)
     const bool   diffusion_regulator_enabled  = false;

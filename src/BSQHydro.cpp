@@ -251,9 +251,14 @@ void BSQHydro<D,TEOM>::read_ccake()
       }
       else
       {
+        // Skip blank lines and any extra comment lines in the data section.
+        // Some ICs (e.g. SMASH-derived ic_hy files) carry several '#' metadata
+        // lines after the single grid header; without this, those lines would be
+        // parsed as data, leaving uninitialized x/y/eta/e -> NaN/off-grid particles.
+        const size_t nb = line.find_first_not_of(" \t\r\n");
+        if (nb == std::string::npos || line[nb] == '#') continue;
 
-
-        if(settingsPtr->input_initial_diffusion) 
+        if(settingsPtr->input_initial_diffusion)
           iss >> x >> y >> eta >> s >> rhoB >> rhoS >> rhoQ >> ux >> uy >> ueta >> bulk >> pixx >> pixy >> pixeta >> piyy >> piyeta >> pietaeta >> qB0 >> qB1 >> qB2 >> qB3 >> qS0 >> qS1 >> qS2 >> qS3 >> qQ0 >> qQ1 >> qQ2 >> qQ3;
         else{
           iss >> x >> y >> eta >> s >> rhoB >> rhoS >> rhoQ >> ux >> uy >> ueta >> bulk >> pixx >> pixy >> pixeta >> piyy >> piyeta >> pietaeta;
@@ -775,7 +780,17 @@ void BSQHydro<D,TEOM>::run()
     outfile << systemPtr->t << " " << systemPtr->Eloss << " " << systemPtr->S << endl;
     #endif
 
-    if (settingsPtr->hdf_evolution || settingsPtr->txt_evolution || settingsPtr->jet_evolution) 
+    // per-step causality summary (A, cheap) + strided minimal per-particle dump (B)
+    if (settingsPtr->check_causality)
+    {
+      systemPtr->copy_device_to_host();
+      outPtr->buffer_causality_line();
+      if (settingsPtr->causality_minimal && (n_steps_ran % settingsPtr->causality_minimal_stride == 0))
+        outPtr->print_causality_minimal_to_txt();
+    }
+    // full evolution output, optionally strided via evolution_stride
+    if ( (settingsPtr->hdf_evolution || settingsPtr->txt_evolution || settingsPtr->jet_evolution)
+         && (n_steps_ran % settingsPtr->evolution_stride == 0) )
     {
       outPtr->print_system_state();
     }
@@ -846,4 +861,6 @@ void BSQHydro<D,TEOM>::run()
     outPtr->flush_freeze_out();
   if (settingsPtr->print_conservation_status)
     outPtr->flush_conservation(out_dir + "/conservation.dat");
+  if (settingsPtr->check_causality)
+    outPtr->flush_causality(out_dir + "/causality_summary.dat");
 }
