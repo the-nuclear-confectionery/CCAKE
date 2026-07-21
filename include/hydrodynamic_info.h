@@ -48,9 +48,10 @@ struct hydrodynamic_info
   double eta_pi          = 0.0; ///< shear coefficient
   double sigma_lab       = 0.0; ///< specific volume in computational frame
   double sigma           = 0.0; ///< specific volume
-  double h               = 0.0; ///< per-particle smoothing length (adaptive-h)
+  double h               = 0.0; ///< per-particle (transverse) smoothing length (adaptive-h)
+  double h_eta           = 0.0; ///< per-particle longitudinal smoothing length (adaptive-h; falls back to global hEta when eta_h_eta==0)
   double Omega           = 1.0; ///< grad-h correction factor (1 in constant/symmetric)
-  double dsigma_dh       = 0.0; ///< d(sigma_lab)/dh, used to build Omega
+  double dsigma_dh       = 0.0; ///< d(sigma_lab)/dlambda, used to build Omega (lambda = (nu/sigma_lab)^(1/D))
   double shepard_gamma   = 1.0; ///< 0th-order Shepard normalization sum_b V_b W_ab (1 when kernel_correction=none)
   double shv_nabla_u     = 0.0; ///< pi_mu_nu nabla^mu u^nu = pi^mu_nu sigma^mu_nu
   double shear_knudsen   = 0.0; ///< Knudsen number
@@ -186,6 +187,7 @@ enum hydro_scalar_info
   sigma_lab,
   sigma,
   h,
+  h_eta,
   Omega,
   dsigma_dh,
   shepard_gamma,

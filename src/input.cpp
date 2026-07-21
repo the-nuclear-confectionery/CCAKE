@@ -273,6 +273,11 @@ bool cc::Input::decode_settings(const YAML::Node& node){
       settingsPtr->eta_h = cc::defaults::eta_h;
     }
     try {
+      settingsPtr->eta_h_eta = node["parameters"]["eta_h_eta"].as<double>();
+    } catch (...) {
+      settingsPtr->eta_h_eta = cc::defaults::eta_h_eta;
+    }
+    try {
       settingsPtr->n_neigh_target = node["parameters"]["n_neigh_target"].as<int>();
     } catch (...) {
       settingsPtr->n_neigh_target = cc::defaults::n_neigh_target;

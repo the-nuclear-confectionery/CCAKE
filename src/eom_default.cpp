@@ -893,6 +893,13 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr,
   }
   //auxiliary metric variables
   milne::Vector<double,D> delta_i_eta = milne::delta_i_eta<D>();
+  // eta indicator for the FIXED 2x3 tensor layout used below (slot 2 == eta always).
+  // The (idir,jdir) loops run jdir up to 2, so indexing the D-component delta_i_eta
+  // with jdir is an out-of-bounds read for D<3 (UB: reads stack garbage; a NaN/Inf
+  // bit pattern there poisons F_domega/F_dsigma via 0*Inf=NaN -> F_extensive_shear
+  // -> shv -> GSL eigensolver abort). Same pattern as full_delta_i_eta in
+  // calculate_MRF_diffusion; bit-identical to delta_i_eta for D=3.
+  milne::Vector<double,3> full_delta_i_eta = milne::delta_i_eta<3>();
   milne::Vector<double,4> contra_metric_diag = milne::get_contra_metric_diagonal<3>(t);
 
   CREATE_VIEW(device_,sysPtr->cabana_particles);
@@ -1279,31 +1286,31 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr,
                                  - v_shv_i_grad_u_j(idir,jdir))/4.
                               +(-fixed_size_u(idir)*gamma*shv_hybrid(jdir+1,0)-fixed_size_u(jdir)*gamma*shv_hybrid(idir+1,0)
                                )*geometric_factor/4.
-                              +(t*fixed_size_u(2)*(contra_metric_diag(idir+1)*shv_hybrid(jdir+1,0)*delta_i_eta(idir)
-                                +contra_metric_diag(jdir+1)*shv_hybrid(idir+1,0)*delta_i_eta(jdir))
-                                +gamma*(contra_metric_diag(idir+1)*shv_hybrid(jdir+1,3)*delta_i_eta(idir)
-                                +contra_metric_diag(jdir+1)*shv_hybrid(idir+1,3)*delta_i_eta(jdir))/t
+                              +(t*fixed_size_u(2)*(contra_metric_diag(idir+1)*shv_hybrid(jdir+1,0)*full_delta_i_eta(idir)
+                                +contra_metric_diag(jdir+1)*shv_hybrid(idir+1,0)*full_delta_i_eta(jdir))
+                                +gamma*(contra_metric_diag(idir+1)*shv_hybrid(jdir+1,3)*full_delta_i_eta(idir)
+                                +contra_metric_diag(jdir+1)*shv_hybrid(idir+1,3)*full_delta_i_eta(jdir))/t
                                 +fixed_size_u(2)*fixed_size_u(2)*t*(fixed_size_u(idir)*shv_hybrid(jdir+1,0)
                                 +fixed_size_u(jdir)*shv_hybrid(idir+1,0))
                                 +2.*gamma*fixed_size_u(2)*(fixed_size_u(idir)*shv_hybrid(jdir+1,3)
                                 +fixed_size_u(jdir)*shv_hybrid(idir+1,3))/t
-                                -gamma*(shv(3,idir+1)*delta_i_eta(jdir)+shv(3,jdir+1)*delta_i_eta(idir))/t
-                                -fixed_size_u(2)*(shv(0,idir+1)*delta_i_eta(jdir)+shv(0,jdir+1)*delta_i_eta(idir))/t)/4.;
+                                -gamma*(shv(3,idir+1)*full_delta_i_eta(jdir)+shv(3,jdir+1)*full_delta_i_eta(idir))/t
+                                -fixed_size_u(2)*(shv(0,idir+1)*full_delta_i_eta(jdir)+shv(0,jdir+1)*full_delta_i_eta(idir))/t)/4.;
 
         F_dsigma(idir,jdir) = -( -grad_u_g_j_shv_i(idir,jdir) - shv_i_grad_uj(idir,jdir)
                                  + v_shv_i_grad_u_j(idir,jdir) - 4.*(fixed_size_u(idir)*fixed_size_u(jdir))*shv_grad_u/3.)/4.
                               +(-fixed_size_u(idir)*gamma*shv_hybrid(jdir+1,0)-fixed_size_u(jdir)*gamma*shv_hybrid(idir+1,0)
                                 +4.*fixed_size_u(idir)*fixed_size_u(jdir)*shv_hybrid(0,0)/3.)*geometric_factor/4.
-                              +(t*fixed_size_u(2)*(contra_metric_diag(idir+1)*shv_hybrid(jdir+1,0)*delta_i_eta(idir)
-                                +contra_metric_diag(jdir+1)*shv_hybrid(idir+1,0)*delta_i_eta(jdir))
-                                +gamma*(contra_metric_diag(idir+1)*shv_hybrid(jdir+1,3)*delta_i_eta(idir)
-                                +contra_metric_diag(jdir+1)*shv_hybrid(idir+1,3)*delta_i_eta(jdir))/t
+                              +(t*fixed_size_u(2)*(contra_metric_diag(idir+1)*shv_hybrid(jdir+1,0)*full_delta_i_eta(idir)
+                                +contra_metric_diag(jdir+1)*shv_hybrid(idir+1,0)*full_delta_i_eta(jdir))
+                                +gamma*(contra_metric_diag(idir+1)*shv_hybrid(jdir+1,3)*full_delta_i_eta(idir)
+                                +contra_metric_diag(jdir+1)*shv_hybrid(idir+1,3)*full_delta_i_eta(jdir))/t
                                 +fixed_size_u(2)*fixed_size_u(2)*t*(fixed_size_u(idir)*shv_hybrid(jdir+1,0)
                                 +fixed_size_u(jdir)*shv_hybrid(idir+1,0))
                                 +2.*gamma*fixed_size_u(2)*(fixed_size_u(idir)*shv_hybrid(jdir+1,3)
                                 +fixed_size_u(jdir)*shv_hybrid(idir+1,3))/t
-                                +gamma*(shv(3,idir+1)*delta_i_eta(jdir)+shv(3,jdir+1)*delta_i_eta(idir))/t
-                                +fixed_size_u(2)*(shv(0,idir+1)*delta_i_eta(jdir)+shv(0,jdir+1)*delta_i_eta(idir))/t
+                                +gamma*(shv(3,idir+1)*full_delta_i_eta(jdir)+shv(3,jdir+1)*full_delta_i_eta(idir))/t
+                                +fixed_size_u(2)*(shv(0,idir+1)*full_delta_i_eta(jdir)+shv(0,jdir+1)*full_delta_i_eta(idir))/t
                                 +4.*fixed_size_u(idir)*fixed_size_u(jdir)*(shv_hybrid(3,0)*fixed_size_u(2)*t
                                 +gamma*shv_hybrid(3,3)/t +fixed_size_u(2)*shv_hybrid(0,3)/t)/3.)/4.
                                 -shv(idir+1,jdir+1)*(gamma/t +geometric_factor + gamma*divV)/3.;
@@ -2109,7 +2116,10 @@ void EoM_default<D>::check_causality(std::shared_ptr<SystemState<D>> sysPtr)
     {
         double e, p, Pi, eta, zeta, tau_pi, tau_Pi, delta_PiPi, lambda_Pipi, delta_pipi, lambda_piPi, cs2,
                tau_pipi;
-        double Lambda_0, Lambda_1, Lambda_2, Lambda_3;
+        // initialize: get_sorted_eigenvalues_of_pi_mu_nu returns early (complex
+        // eigenvalues / solver failure) WITHOUT assigning these; they are then read
+        // in the causality conditions below (-Wmaybe-uninitialized).
+        double Lambda_0 = 0.0, Lambda_1 = 0.0, Lambda_2 = 0.0, Lambda_3 = 0.0;
 
         e  = device_thermo.access(is, ia, thermo_info::e);
         p  = device_thermo.access(is, ia, thermo_info::p);

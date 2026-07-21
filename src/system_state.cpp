@@ -116,6 +116,7 @@ void SystemState<D>::copy_host_to_device(){
     host_hydro_scalar(iparticle, ccake::hydro_info::sigma_lab) = particles[iparticle].hydro.sigma_lab;
     host_hydro_scalar(iparticle, ccake::hydro_info::sigma) = particles[iparticle].hydro.sigma;
     host_hydro_scalar(iparticle, ccake::hydro_info::h) = particles[iparticle].hydro.h;
+    host_hydro_scalar(iparticle, ccake::hydro_info::h_eta) = particles[iparticle].hydro.h_eta;
     host_hydro_scalar(iparticle, ccake::hydro_info::Omega) = particles[iparticle].hydro.Omega;
     host_hydro_scalar(iparticle, ccake::hydro_info::dsigma_dh) = particles[iparticle].hydro.dsigma_dh;
     host_hydro_scalar(iparticle, ccake::hydro_info::shepard_gamma) = particles[iparticle].hydro.shepard_gamma;
@@ -380,6 +381,7 @@ void SystemState<D>::copy_device_to_host(){
     particles[id].hydro.sigma_lab = host_hydro_scalar(iparticle, ccake::hydro_info::sigma_lab);
     particles[id].hydro.sigma = host_hydro_scalar(iparticle, ccake::hydro_info::sigma);
     particles[id].hydro.h = host_hydro_scalar(iparticle, ccake::hydro_info::h);
+    particles[id].hydro.h_eta = host_hydro_scalar(iparticle, ccake::hydro_info::h_eta);
     particles[id].hydro.Omega = host_hydro_scalar(iparticle, ccake::hydro_info::Omega);
     particles[id].hydro.dsigma_dh = host_hydro_scalar(iparticle, ccake::hydro_info::dsigma_dh);
     particles[id].hydro.shepard_gamma = host_hydro_scalar(iparticle, ccake::hydro_info::shepard_gamma);
@@ -665,9 +667,16 @@ template<unsigned int D>
 double SystemState<D>::max_smoothing_length(){
   CREATE_VIEW(device_, cabana_particles);
   double hmax = 0.0;
+  // factorized D=3 has two per-particle lengths (h transverse, h_eta longitudinal); the
+  // single-cutoff Verlet grid must cover the larger of the two.
+  const bool factorized = (D == 3) && settingsPtr->factorized_kernel;
   Kokkos::parallel_reduce("max_smoothing_length", n_particles,
     KOKKOS_LAMBDA(const int i, double& local_max){
       double h_i = device_hydro_scalar(i, ccake::hydro_info::h);
+      if (factorized) {
+        double he = device_hydro_scalar(i, ccake::hydro_info::h_eta);
+        if (he > h_i) h_i = he;
+      }
       if (h_i > local_max) local_max = h_i;
     },
     Kokkos::Max<double>(hmax));
@@ -764,8 +773,16 @@ void SystemState<D>::reset_neighbour_list(){
     //
     Kokkos::View<double*, MemorySpace> radii(
         Kokkos::view_alloc(Kokkos::WithoutInitializing, "nbr_radii"), n_particles);
+    const bool factorized_nbr = (D == 3) && settingsPtr->factorized_kernel;
     Kokkos::parallel_for("fill_nbr_radii", Kokkos::RangePolicy<>(0, n_particles),
-      KOKKOS_LAMBDA(const int i){ radii(i) = SPHkernel<D>::support(kt)*device_hydro_scalar(i, ccake::hydro_info::h); });
+      KOKKOS_LAMBDA(const int i){
+        double hi = device_hydro_scalar(i, ccake::hydro_info::h);
+        if (factorized_nbr) { // search radius must also cover the longitudinal support 2*h_eta
+          double he = device_hydro_scalar(i, ccake::hydro_info::h_eta);
+          if (he > hi) hi = he;
+        }
+        radii(i) = SPHkernel<D>::support(kt)*hi;
+      });
     Kokkos::fence();
     // the per-particle-radius constructor needs the grid bounds as a Kokkos::Array
     Kokkos::Array<double,3> gmin{ min_pos[0], min_pos[1], min_pos[2] };

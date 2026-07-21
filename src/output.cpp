@@ -169,7 +169,8 @@ void Output<D,TEOM>::print_system_state_to_txt()
         << p.hydro.sigma << " " //46 SPH density (local rest frame)
         << p.hydro.sigma_lab << " " //47 SPH number density (computational frame)
         << p.btrack << " " //48 neighbour count
-        << p.hydro.shepard_gamma << " "; //49 Shepard partition sum (1 unless kernel_correction=shepard)
+        << p.hydro.shepard_gamma << " " //49 Shepard partition sum (1 unless kernel_correction=shepard)
+        << p.hydro.h_eta << " "; //50 per-particle longitudinal smoothing length (adaptive-h; == hEta unless eta_h_eta>0)
         out << "\n";
   }
 

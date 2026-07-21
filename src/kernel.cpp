@@ -296,4 +296,33 @@ void SPHkernel<3>::gradKernel(const double* rel_sep,
   grad[2] = W_2D * gradK_1D;
 }
 
+// h-weighted smoothing-length derivative. Generic fallback (D=1,2 or non-factorized
+// callers): the isotropic hT*dW/dhT, so single-length grad-h is unchanged.
+template<unsigned int D>
+KOKKOS_INLINE_FUNCTION
+double SPHkernel<D>::dWdh(const double* r1, const double* r2,
+                         double hT, double hEta, KernelType kt)
+{
+  return hT * SPHkernel<D>::dWdh(SPHkernel<D>::distance(r1, r2), hT, kt);
+}
+
+// D=3 specialization: hT*dW/dhT + hEta*dW/dhEta for W = W_2D(r_perp,hT)*W_1D(|deta|,hEta),
+// i.e. lambda*(dW/dlambda) when hT=eta_h*lambda, hEta=eta_h_eta*lambda. Uses the product
+// rule across the two factors:
+//   dW/dhT   = dW2Ddh(r_perp,hT) * W_1D(deta,hEta)
+//   dW/dhEta = W_2D(r_perp,hT)   * dW1Ddh(deta,hEta)
+template<>
+KOKKOS_INLINE_FUNCTION
+double SPHkernel<3>::dWdh(const double* r1, const double* r2,
+                         double hT, double hEta, KernelType kt)
+{
+  double r_perp = SPHkernel<2>::distance(r1, r2);
+  double deta   = SPHkernel<1>::distance(&r1[2], &r2[2]);
+  double W2  = SPHkernel<2>::kernel(r_perp, hT, kt);
+  double W1  = SPHkernel<1>::kernel(deta, hEta, kt);
+  double dW2 = SPHkernel<2>::dWdh(r_perp, hT, kt);
+  double dW1 = SPHkernel<1>::dWdh(deta, hEta, kt);
+  return hT*dW2*W1 + hEta*W2*dW1;
+}
+
 }

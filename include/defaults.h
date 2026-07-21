@@ -35,6 +35,7 @@ namespace ccake
     const std::string neighbor_backend        = "verlet";
     const std::string variable_h_conservation = "symmetric";
     const double      eta_h                   = 1.3;
+    const double      eta_h_eta               = 0.0;
     const int         n_neigh_target          = 20;
     const double      h_min                   = 0.0;
     const double      h_max                   = 0.0;

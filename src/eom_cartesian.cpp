@@ -2013,7 +2013,7 @@ void EoM_cartesian<D>::check_causality(std::shared_ptr<SystemState<D>> sysPtr)
     {
         double e, p, Pi, eta, zeta, tau_pi, tau_Pi, delta_PiPi, lambda_Pipi, delta_pipi, lambda_piPi, cs2,
                tau_pipi;
-        double Lambda_0, Lambda_1, Lambda_2, Lambda_3;
+        double Lambda_0 = 0.0, Lambda_1 = 0.0, Lambda_2 = 0.0, Lambda_3 = 0.0; // see eom_default: assigned only on eigensolver success
 
         e  = device_thermo.access(is, ia, thermo_info::e);
         p  = device_thermo.access(is, ia, thermo_info::p);

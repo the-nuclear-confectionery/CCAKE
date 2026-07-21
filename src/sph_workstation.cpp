@@ -514,7 +514,7 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
   CREATE_VIEW(device_, systemPtr->cabana_particles);
   auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
   double hT = settingsPtr->hT;
-  double hEta = settingsPtr->hEta;
+  // (longitudinal smoothing is now per-particle: read hydro_info::h_eta inside the lambdas)
   double t = systemPtr->t;
   bool factorized = (D == 3) && settingsPtr->factorized_kernel;
   const ccake::KernelType kt = static_cast<ccake::KernelType>(settingsPtr->kernel_id);
@@ -536,15 +536,18 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
   {
     double zero[D] = {};
     double h_i = device_hydro_scalar.access(is, ia, hydro_info::h);
-    double kern0 = factorized ? SPHkernel<D>::kernel(zero, zero, h_i, hEta, kt) : SPHkernel<D>::kernel(0.0, h_i, kt);
+    double h_eta_i = device_hydro_scalar.access(is, ia, hydro_info::h_eta);
+    double kern0 = factorized ? SPHkernel<D>::kernel(zero, zero, h_i, h_eta_i, kt) : SPHkernel<D>::kernel(0.0, h_i, kt);
     device_smoothed.access(is, ia, densities_info::s)     = device_sph_mass.access(is, ia, densities_info::s)*   device_extensive.access(is, ia, densities_info::s)*kern0;
     device_smoothed.access(is, ia, densities_info::rhoB)  = device_sph_mass.access(is, ia, densities_info::rhoB)*device_extensive.access(is, ia, densities_info::rhoB)*kern0;
     device_smoothed.access(is, ia, densities_info::rhoQ)  = device_sph_mass.access(is, ia, densities_info::rhoQ)*device_extensive.access(is, ia, densities_info::rhoQ)*kern0;
     device_smoothed.access(is, ia, densities_info::rhoS)  = device_sph_mass.access(is, ia, densities_info::rhoS)*device_extensive.access(is, ia, densities_info::rhoS)*kern0;
     device_hydro_scalar.access(is, ia, hydro_info::sigma_lab) = device_sph_mass.access(is, ia, densities_info::s)*kern0;
-    if (gradh) // self-contribution to dsigma_lab/dh: dW/dh(0,h) = -D*W(0,h)/h
+    if (gradh) // self-contribution to the grad-h smoothing-length derivative (r=0)
       device_hydro_scalar.access(is, ia, hydro_info::dsigma_dh) =
-          device_sph_mass.access(is, ia, densities_info::s)*SPHkernel<D>::dWdh(0.0, h_i, kt);
+          device_sph_mass.access(is, ia, densities_info::s)*
+          ( factorized ? SPHkernel<D>::dWdh(zero, zero, h_i, h_eta_i, kt)
+                       : SPHkernel<D>::dWdh(0.0, h_i, kt) );
   };
   Cabana::simd_parallel_for( simd_policy, reset_fields, "reset_fields" );
   Kokkos::fence();
@@ -557,7 +560,8 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
     }
     // gather: particle iparticle accumulates its neighbours weighted by its own h_i
     double h_i = device_hydro_scalar(iparticle, hydro_info::h);
-    double kern = factorized ? SPHkernel<D>::kernel(r1, r2, h_i, hEta, kt) : SPHkernel<D>::kernel(SPHkernel<D>::distance(r1, r2), h_i, kt);
+    double h_eta_i = device_hydro_scalar(iparticle, hydro_info::h_eta);
+    double kern = factorized ? SPHkernel<D>::kernel(r1, r2, h_i, h_eta_i, kt) : SPHkernel<D>::kernel(SPHkernel<D>::distance(r1, r2), h_i, kt);
 
     //outputting kernel function to the outfile "kernel_{hT}.dat"
     /*outfile << kern << distance << endl;
@@ -565,9 +569,11 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
 
     //Update sigma_lab (reference density)
     Kokkos::atomic_add( &device_hydro_scalar(iparticle, ccake::hydro_info::sigma_lab), device_sph_mass(jparticle, ccake::densities_info::s)*kern);
-    if (gradh) // d(sigma_lab)/dh_i = sum_j nu_j dW/dh(r_ij, h_i)
+    if (gradh) // grad-h smoothing-length derivative (factorized => hT dW/dhT + hEta dW/dhEta)
       Kokkos::atomic_add( &device_hydro_scalar(iparticle, ccake::hydro_info::dsigma_dh),
-          device_sph_mass(jparticle, ccake::densities_info::s)*SPHkernel<D>::dWdh(SPHkernel<D>::distance(r1, r2), h_i, kt) );
+          device_sph_mass(jparticle, ccake::densities_info::s)*
+          ( factorized ? SPHkernel<D>::dWdh(r1, r2, h_i, h_eta_i, kt)
+                       : SPHkernel<D>::dWdh(SPHkernel<D>::distance(r1, r2), h_i, kt) ) );
     ////Update entropy density
     Kokkos::atomic_add( &device_smoothed(iparticle, ccake::densities_info::s),
                          device_sph_mass(jparticle, ccake::densities_info::s)*device_extensive(jparticle, ccake::densities_info::s)*kern);
@@ -595,9 +601,10 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
     auto reset_gamma = KOKKOS_LAMBDA(const int is, const int ia){
       double zero[D] = {};
       double h_i   = device_hydro_scalar.access(is, ia, hydro_info::h);
+      double h_eta_i = device_hydro_scalar.access(is, ia, hydro_info::h_eta);
       double sig_i = device_hydro_scalar.access(is, ia, hydro_info::sigma_lab);
       double nu_i  = device_sph_mass.access(is, ia, densities_info::s);
-      double kern0 = factorized ? SPHkernel<D>::kernel(zero, zero, h_i, hEta, kt)
+      double kern0 = factorized ? SPHkernel<D>::kernel(zero, zero, h_i, h_eta_i, kt)
                                 : SPHkernel<D>::kernel(0.0, h_i, kt);
       device_hydro_scalar.access(is, ia, hydro_info::shepard_gamma) = (nu_i/sig_i)*kern0;
     };
@@ -607,7 +614,8 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
       double r1[D], r2[D];
       for (int idir=0; idir<D; ++idir){ r1[idir]=device_position(iparticle,idir); r2[idir]=device_position(jparticle,idir); }
       double h_i  = device_hydro_scalar(iparticle, hydro_info::h);
-      double kern = factorized ? SPHkernel<D>::kernel(r1, r2, h_i, hEta, kt)
+      double h_eta_i = device_hydro_scalar(iparticle, hydro_info::h_eta);
+      double kern = factorized ? SPHkernel<D>::kernel(r1, r2, h_i, h_eta_i, kt)
                                : SPHkernel<D>::kernel(SPHkernel<D>::distance(r1, r2), h_i, kt);
       double Vj = device_sph_mass(jparticle, ccake::densities_info::s)
                   / device_hydro_scalar(jparticle, ccake::hydro_info::sigma_lab);
@@ -641,7 +649,10 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
     if (gradh) { // grad-h correction factor (uses the computational-frame gather density)
       double h_i  = device_hydro_scalar.access(is, ia, hydro_info::h);
       double dsdh = device_hydro_scalar.access(is, ia, hydro_info::dsigma_dh);
-      double Omega = 1.0 + (h_i/(static_cast<double>(D)*sigma_lab))*dsdh;
+      // factorized two-length: dsdh already carries the h-weights (= lambda*dsigma/dlambda),
+      // so Omega = 1 + dsdh/(D*sigma_lab). Single-length keeps the h_i weight here (unchanged).
+      double Omega = factorized ? (1.0 + dsdh/(static_cast<double>(D)*sigma_lab))
+                                : (1.0 + (h_i/(static_cast<double>(D)*sigma_lab))*dsdh);
       if (Omega < 1e-2) Omega = 1e-2; // safety floor: keep 1/Omega finite in pathological cases
       device_hydro_scalar.access(is, ia, hydro_info::Omega) = Omega;
     }
@@ -663,7 +674,7 @@ void SPHWorkstation<D, TEOM>::calculate_intial_sigma(double t)
   CREATE_VIEW(device_, systemPtr->cabana_particles);
   auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
   double hT = settingsPtr->hT;
-  double hEta = settingsPtr->hEta;
+  // (longitudinal smoothing is now per-particle: read hydro_info::h_eta inside the lambdas)
   bool factorized = (D == 3) && settingsPtr->factorized_kernel;
   const ccake::KernelType kt = static_cast<ccake::KernelType>(settingsPtr->kernel_id);
 
@@ -678,7 +689,8 @@ void SPHWorkstation<D, TEOM>::calculate_intial_sigma(double t)
   {
     double zero[D] = {};
     double h_i = device_hydro_scalar.access(is, ia, hydro_info::h);
-    double kern0 = factorized ? SPHkernel<D>::kernel(zero, zero, h_i, hEta, kt) : SPHkernel<D>::kernel(0.0, h_i, kt);
+    double h_eta_i = device_hydro_scalar.access(is, ia, hydro_info::h_eta);
+    double kern0 = factorized ? SPHkernel<D>::kernel(zero, zero, h_i, h_eta_i, kt) : SPHkernel<D>::kernel(0.0, h_i, kt);
     device_hydro_scalar.access(is, ia, hydro_info::sigma_lab) = device_sph_mass.access(is, ia, densities_info::s)*kern0;
   };
   Cabana::simd_parallel_for( simd_policy, reset_fields, "reset_fields" );
@@ -691,7 +703,8 @@ void SPHWorkstation<D, TEOM>::calculate_intial_sigma(double t)
         r2[idir] = device_position(jparticle,idir);
     }
     double h_i = device_hydro_scalar(iparticle, hydro_info::h);
-    double kern = factorized ? SPHkernel<D>::kernel(r1, r2, h_i, hEta, kt) : SPHkernel<D>::kernel(SPHkernel<D>::distance(r1, r2), h_i, kt);
+    double h_eta_i = device_hydro_scalar(iparticle, hydro_info::h_eta);
+    double kern = factorized ? SPHkernel<D>::kernel(r1, r2, h_i, h_eta_i, kt) : SPHkernel<D>::kernel(SPHkernel<D>::distance(r1, r2), h_i, kt);
 
     //outputting kernel function to the outfile "kernel_{hT}.dat"
     /*outfile << kern << distance << endl;
@@ -741,8 +754,10 @@ void SPHWorkstation<D, TEOM>::update_smoothing_lengths()
 
   CREATE_VIEW(device_, systemPtr->cabana_particles);
   auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH,ExecutionSpace>(0, systemPtr->cabana_particles.size());
-  const double eta_h = settingsPtr->eta_h;
-  const double hT    = settingsPtr->hT;
+  const double eta_h     = settingsPtr->eta_h;
+  const double eta_h_eta = settingsPtr->eta_h_eta; // 0 => longitudinal h stays at the fixed global hEta
+  const double hT        = settingsPtr->hT;
+  const double hEta      = settingsPtr->hEta;
   // floor/ceiling bound the h-range; 0 in settings => auto-derive from hT.
   const double hmin = settingsPtr->h_min > 0.0 ? settingsPtr->h_min : 0.1*hT;
   const double hmax = settingsPtr->h_max > 0.0 ? settingsPtr->h_max : 10.0*hT;
@@ -752,11 +767,22 @@ void SPHWorkstation<D, TEOM>::update_smoothing_lengths()
   {
     double sigma_lab = device_hydro_scalar.access(is, ia, hydro_info::sigma_lab);
     double nu        = device_sph_mass.access(is, ia, densities_info::s);
-    double h = hT;
-    if ( sigma_lab > 0.0 && nu > 0.0 )
-      h = eta_h * Kokkos::pow( nu/sigma_lab, inv_D );
+    // lambda = (nu/sigma_lab)^(1/D) is the local mean inter-particle spacing; both the
+    // transverse and longitudinal smoothing lengths scale off it (with coefficients eta_h,
+    // eta_h_eta), so grad-h Omega stays a single-scale derivative in lambda.
+    const bool ok = ( sigma_lab > 0.0 && nu > 0.0 );
+    const double lambda = ok ? Kokkos::pow( nu/sigma_lab, inv_D ) : 0.0;
+    double h = ok ? eta_h * lambda : hT;
     h = (h < hmin) ? hmin : ( (h > hmax) ? hmax : h );  // clamp to [h_min, h_max]
     device_hydro_scalar.access(is, ia, hydro_info::h) = h;
+    // longitudinal length: per-particle when eta_h_eta>0, else the fixed global hEta
+    // (eta_h_eta==0 reproduces the pre-change behaviour bit-for-bit).
+    double h_eta = hEta;
+    if ( eta_h_eta > 0.0 ) {
+      h_eta = ok ? eta_h_eta * lambda : hEta;
+      h_eta = (h_eta < hmin) ? hmin : ( (h_eta > hmax) ? hmax : h_eta );
+    }
+    device_hydro_scalar.access(is, ia, hydro_info::h_eta) = h_eta;
   };
   Cabana::simd_parallel_for( simd_policy, update_h, "update_smoothing_lengths" );
   Kokkos::fence();
@@ -920,7 +946,7 @@ template<unsigned int D, template<unsigned int> class TEOM>
 void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
 {
   double hT = settingsPtr->hT;
-  double hEta = settingsPtr->hEta;
+  // (longitudinal smoothing is now per-particle: read hydro_info::h_eta inside the lambdas)
   bool factorized = (D == 3) && settingsPtr->factorized_kernel;
   const ccake::KernelType kt = static_cast<ccake::KernelType>(settingsPtr->kernel_id);
   double t = systemPtr->t;
@@ -973,10 +999,12 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
     // is bit-identical to the original single-h gradient.
     double h_a = device_hydro_scalar(particle_a, hydro_info::h);
     double h_b = device_hydro_scalar(particle_b, hydro_info::h);
+    double h_eta_a = device_hydro_scalar(particle_a, hydro_info::h_eta);
+    double h_eta_b = device_hydro_scalar(particle_b, hydro_info::h_eta);
     double gradK_a[D], gradK_b[D]; // per-h kernel gradients (also reused for grad-h gradP)
     if (factorized) {
-      SPHkernel<D>::gradKernel(rel_sep, pos_a, pos_b, h_a, hEta, gradK_a, kt);
-      SPHkernel<D>::gradKernel(rel_sep, pos_a, pos_b, h_b, hEta, gradK_b, kt);
+      SPHkernel<D>::gradKernel(rel_sep, pos_a, pos_b, h_a, h_eta_a, gradK_a, kt);
+      SPHkernel<D>::gradKernel(rel_sep, pos_a, pos_b, h_b, h_eta_b, gradK_b, kt);
     } else {
       double r = SPHkernel<D>::distance(pos_a, pos_b);
       SPHkernel<D>::gradKernel(rel_sep, r, h_a, gradK_a, kt);
@@ -1389,10 +1417,11 @@ void SPHWorkstation<D, TEOM>::process_initial_conditions()
     for (int i=0; i<D;++i) u[i] = p.hydro.u(i);
     p.hydro.gamma     = TEOM<D>::gamma_calc(u,t2) ;
 
-    // initial smoothing length: start every particle at the global hT. In
+    // initial smoothing length: start every particle at the global hT/hEta. In
     // constant mode this never changes; in adaptive mode it is the seed for the
     // self-consistent sigma<->h iteration in initialize_entropy_and_charge_densities.
     p.hydro.h         = settingsPtr->hT;
+    p.hydro.h_eta     = settingsPtr->hEta;   // longitudinal seed (per-particle adaptive when eta_h_eta>0)
     p.hydro.Omega     = 1.0;
 
 
@@ -2495,7 +2524,7 @@ template<>
 void SPHWorkstation<3, EoM_cartesian>::smooth_all_particle_gradients(double time_squared)
 {
   double hT = settingsPtr->hT;
-  double hEta = settingsPtr->hEta;
+  // (longitudinal smoothing is now per-particle: read hydro_info::h_eta inside the lambdas)
   bool factorized = settingsPtr->factorized_kernel;
   const ccake::KernelType kt = static_cast<ccake::KernelType>(settingsPtr->kernel_id);
   bool gradh = (settingsPtr->smoothing_length_mode != "constant") && (settingsPtr->variable_h_conservation == "gradh");
@@ -2541,10 +2570,12 @@ void SPHWorkstation<3, EoM_cartesian>::smooth_all_particle_gradients(double time
     // adaptive-h: symmetric half-averaged kernel gradient (bit-identical to single-h when h_a==h_b==hT)
     double h_a = device_hydro_scalar(particle_a, hydro_info::h);
     double h_b = device_hydro_scalar(particle_b, hydro_info::h);
+    double h_eta_a = device_hydro_scalar(particle_a, hydro_info::h_eta);
+    double h_eta_b = device_hydro_scalar(particle_b, hydro_info::h_eta);
     double gradK_a[3], gradK_b[3];
     if (factorized) {
-      SPHkernel<3>::gradKernel(rel_sep, pos_a, pos_b, h_a, hEta, gradK_a, kt);
-      SPHkernel<3>::gradKernel(rel_sep, pos_a, pos_b, h_b, hEta, gradK_b, kt);
+      SPHkernel<3>::gradKernel(rel_sep, pos_a, pos_b, h_a, h_eta_a, gradK_a, kt);
+      SPHkernel<3>::gradKernel(rel_sep, pos_a, pos_b, h_b, h_eta_b, gradK_b, kt);
     } else {
       double r = SPHkernel<3>::distance(pos_a, pos_b);
       SPHkernel<3>::gradKernel(rel_sep, r, h_a, gradK_a, kt);

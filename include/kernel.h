@@ -54,6 +54,14 @@ public:
   /// Needed for the grad-h (Springel-Hernquist/Price) Omega correction in adaptive-h.
   KOKKOS_FUNCTION static double dWdh(double distance, double h,
                                      KernelType kt = KernelType::CUBIC);
+  /// @brief h-weighted smoothing-length derivative for the factorized D=3 kernel:
+  /// returns hT*(dW/dhT) + hEta*(dW/dhEta) = lambda*(dW/dlambda) when both lengths
+  /// scale off the same lambda (hT=eta_h*lambda, hEta=eta_h_eta*lambda). This is the
+  /// quantity summed for the two-length grad-h Omega. For D!=3 it falls back to the
+  /// isotropic hT*dWdh(|r1-r2|,hT) so single-length callers are unaffected.
+  KOKKOS_FUNCTION static double dWdh(const double* r1, const double* r2,
+                                     double hT, double hEta,
+                                     KernelType kt = KernelType::CUBIC);
   KOKKOS_FUNCTION static void gradKernel(double const* rel_dist, double r,
                                          double h, double* grad,
                                          KernelType kt = KernelType::CUBIC);

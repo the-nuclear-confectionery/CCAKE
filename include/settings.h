@@ -121,7 +121,9 @@ class Settings
     string variable_h_conservation = "symmetric"; ///< adaptive-h conservation:
                                          ///  "symmetric" (half-averaged kernel)
                                          ///  or "gradh" (Springel-Hernquist Omega)
-    double eta_h                 = 1.3;  ///< smoothing scale: h_i = eta_h*(nu_i/sigma_i)^(1/D)
+    double eta_h                 = 1.3;  ///< transverse smoothing scale: h_i = eta_h*(nu_i/sigma_i)^(1/D)
+    double eta_h_eta             = 0.0;  ///< longitudinal smoothing scale: h_eta_i = eta_h_eta*(nu_i/sigma_i)^(1/D);
+                                         ///  0 => keep the fixed global hEta (backward-compatible)
     int    n_neigh_target        = 20;   ///< target neighbour count (diagnostic/calibration)
     double h_min                 = 0.0;  ///< floor on adaptive h (0 => auto from hT)
     double h_max                 = 0.0;  ///< ceiling on adaptive h (0 => auto from hT)
