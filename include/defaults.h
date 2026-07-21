@@ -63,6 +63,7 @@ namespace ccake
     const bool        phi3_mode          = "disabled";
     const std::string diffusionMode           = "disabled";
     const std::string diffusionRelaxMode          = "default";
+    const double      C_B                         = 0.0;
     const bool        critical_scaling_diffusion  = false;
     const double      critical_point_T            = 150.0;  // MeV
     const double      critical_point_muB          = 350.0;  // MeV

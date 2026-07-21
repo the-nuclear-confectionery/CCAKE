@@ -88,6 +88,10 @@ parameters setup_parameters(std::shared_ptr<Settings> settingsPtr)
   {
     params.diffusion_mode = KAPPA_DNMR;
   }
+  else if (diffusionMode == "kappaB_coth")
+  {
+    params.diffusion_mode = KAPPA_B_COTH;
+  }
   else
   {
     std::cout << "WARNING: Unknown diffusion mode: " << diffusionMode << std::endl;
@@ -98,11 +102,15 @@ parameters setup_parameters(std::shared_ptr<Settings> settingsPtr)
   std::string diffusionRelaxMode = settingsPtr->diffusionRelaxMode;
   if (diffusionRelaxMode == "constant_over_T")
   {
-    params.diffusion_relaxation_mode = TAU_Q_DEFAULT;
+    params.diffusion_relaxation_mode = TAU_Q_DEFAULT;      // tau_q = 0.2/T
   }
-  else{ 
+  else if (diffusionRelaxMode == "cb_over_T")
+  {
+    params.diffusion_relaxation_mode = TAU_Q_CB_OVER_T;    // tau_q = C_B/T
+  }
+  else{
     std::cout << "WARNING: Unknown diffusion relaxation mode: " << diffusionRelaxMode << std::endl
-              << "Defaulting to constant_over_T." << std::endl;
+              << "Defaulting to constant_over_T (tau_q = 0.2/T)." << std::endl;
     params.diffusion_relaxation_mode = TAU_Q_DEFAULT; // default to TAU_Q_DEFAULT if not specified
 
   }
@@ -260,6 +268,7 @@ parameters setup_parameters(std::shared_ptr<Settings> settingsPtr)
   params.cs2_dependent_zeta_A = settingsPtr->cs2_dependent_zeta_A;
   params.cs2_dependent_zeta_p = settingsPtr->cs2_dependent_zeta_p;
   params.modulate_zeta_with_tanh = settingsPtr->modulate_zeta_with_tanh;
+  params.C_B = settingsPtr->C_B;
   params.constant_kappa_over_T2 = settingsPtr->constant_kappa_over_T2;
   params.critical_scaling_diffusion  = settingsPtr->critical_scaling_diffusion;
   params.critical_point_T            = settingsPtr->critical_point_T   / constants::hbarc_MeVfm;
@@ -571,6 +580,9 @@ Matrix<double, 3, 3> kappa(const double* thermo, parameters params)
     return Matrix<double, 3, 3>{0.0};
     std::cout << "DNMR kappa not implemented yet" << std::endl;
     break;
+  case KAPPA_B_COTH:
+    return kappaB_coth(thermo, params);
+    break;
   default:
     return default_kappa(thermo, params);
     break;
@@ -589,6 +601,15 @@ Matrix<double, 3, 3> tauq(const double* thermo, parameters params)
   case KAPPA_DNMR:
     return Matrix<double, 3, 3>{0.0};
     std::cout << "DNMR tauq not implemented yet" << std::endl;
+    break;
+  case KAPPA_B_COTH:
+    // relaxation time honors the relaxation_mode: tau_q = C_B/T (cb_over_T, legacy)
+    // or the C_B-independent tau_q = 0.2/T (constant_over_T). Decoupling tau_q from C_B
+    // lets C_B vary only the kappa_B magnitude.
+    if (params.diffusion_relaxation_mode == TAU_Q_CB_OVER_T)
+      return tauqB_only(thermo, params);   // tau_q = C_B/T
+    else
+      return default_tauq(thermo, params); // tau_q = 0.2/T
     break;
   default:
     return default_tauq(thermo, params);
@@ -946,7 +967,59 @@ Matrix<double, 3, 3> default_tauq(const double *therm, const parameters params)
   for (int i = 0; i < 3; ++i){
     tauq_matrix(i, i) += 0.2/T;
   }
-      
+
+  return tauq_matrix;
+};
+
+//===============================
+// Baryon-only diffusion coefficient kappa_B (Eq. 16):
+//   kappa_B = (C_B / T) * n_B * [ (1/3) coth(mu_B/T) - n_B T / (e + P) ]
+// Only the baryon-baryon (0,0) entry is populated; the strange/electric rows and
+// columns are left at zero. Valid only for a B-only charge configuration, which is
+// enforced on the host in Settings::check_consistency().
+KOKKOS_INLINE_FUNCTION
+Matrix<double, 3, 3> kappaB_coth(const double *therm, const parameters params)
+{
+  Matrix<double, 3, 3> kappa_matrix{0.0};
+  const double T   = therm[thermo_info::T];
+  const double muB = therm[thermo_info::muB];
+  const double nB  = therm[thermo_info::rhoB];
+  const double w   = therm[thermo_info::w];   // enthalpy density = e + P
+
+  // coth(muB/T) diverges as muB/T -> 0. In near-vacuum / near-zero-baryon cells
+  // muB/T underflows and nB*coth(muB/T) becomes 0*inf = NaN (or a spurious spike),
+  // which destabilises the charge evolution. Baryon diffusion is negligible there,
+  // so require the coth argument to be bounded away from zero.
+  constexpr double muB_over_T_floor = 1.0e-2;
+  const double x = ( T > TINY ) ? muB / T : 0.0;
+
+  if ( T > TINY && Kokkos::abs(w) > TINY && Kokkos::abs(x) > muB_over_T_floor )
+  {
+    const double kB = (params.C_B / T) * nB
+                    * ( (1.0/3.0) / Kokkos::tanh(x) - nB * T / w );
+    // a diffusion coefficient must be finite and non-negative (a negative value is
+    // anti-diffusive and unconditionally unstable); clamp anything else to zero.
+    if ( Kokkos::isfinite(kB) && kB > 0.0 )
+      kappa_matrix(0, 0) = kB;
+  }
+
+  return kappa_matrix;
+}
+
+// Baryon-only diffusion relaxation time, tau_q = C_B / T.
+// The baryon-baryon (0,0) entry is the physical one; the EoM inverts the full
+// tau_q matrix (milne::inverse), so the strange/electric diagonals must also be
+// non-zero or tau_q is singular. With S/Q charges disabled their diffusion current
+// is zero, so their relaxation time is unused physically - we set them to the same
+// C_B/T purely to keep tau_q invertible.
+KOKKOS_INLINE_FUNCTION
+Matrix<double, 3, 3> tauqB_only(const double *therm, const parameters params)
+{
+  Matrix<double, 3, 3> tauq_matrix{0.0};
+  const double T = therm[thermo_info::T];
+  if ( T > TINY )
+    for (int i = 0; i < 3; ++i)
+      tauq_matrix(i, i) = params.C_B/T;
   return tauq_matrix;
 };
 

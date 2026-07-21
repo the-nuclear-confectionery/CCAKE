@@ -580,6 +580,19 @@ bool cc::Input::decode_settings(const YAML::Node& node){
     else{
       settingsPtr->using_diffusion = true;
     }
+    // coth-form baryon diffusion kappa_B (Eq. 16) is only defined for a
+    // baryon-only charge configuration; reject any other charge setup.
+    if ( settingsPtr->diffusionMode == "kappaB_coth" &&
+         !( settingsPtr->baryon_charge_enabled
+            && !settingsPtr->strange_charge_enabled
+            && !settingsPtr->electric_charge_enabled ) )
+    {
+      formatted_output::report("ERROR: diffusion mode 'kappaB_coth' requires a "
+        "baryon-only charge configuration (baryon_charge_enabled: true, "
+        "strange_charge_enabled: false, electric_charge_enabled: false).");
+      Kokkos::finalize();
+      exit(EXIT_FAILURE);
+    }
     try {
       auto mat = node["hydro"]["viscous_parameters"]["diffusion"]["constant_kappa_over_T2"];
       for (size_t i = 0; i < 3; ++i) {
@@ -591,6 +604,13 @@ bool cc::Input::decode_settings(const YAML::Node& node){
       formatted_output::report("WARNING: Could not read hydro/viscous_parameters/constant_kappa_over_T2!");
       formatted_output::report("This is an optional parameter. Setting to identity matrix.");
       settingsPtr->constant_kappa_over_T2 = cc::defaults::constant_kappa_over_T2;
+    }
+    try{
+      settingsPtr->C_B = node["hydro"]["viscous_parameters"]["diffusion"]["C_B"].as<double>();
+    } catch (...) {
+      formatted_output::report("WARNING: Could not read hydro/viscous_parameters/diffusion/C_B!");
+      formatted_output::report("This is an optional parameter. Setting to default value.");
+      settingsPtr->C_B = cc::defaults::C_B;
     }
     try{
       settingsPtr->input_initial_diffusion = node["hydro"]["viscous_parameters"]["diffusion"]["input_initial_diffusion"].as<bool>();

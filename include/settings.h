@@ -98,6 +98,9 @@ class Settings
     fs::path freezein_input_file = "";    ///< Path to the raw T^{mu nu} grid file
     double freezein_tol          = 1e-10; ///< Convergence tol on the flow speed v
     int    freezein_max_iter     = 100;   ///< Max iterations of the matching loop
+    bool   freezein_baryon_landau = false; ///< If true, n_a = j_a^mu u_mu (Landau scalar
+                                           ///< rest density) instead of the flux-matched
+                                           ///< j_a^tau/gamma. Keeps freeze-in energy/flow.
 
     //------------------------------------
     // simulations parameters
@@ -196,6 +199,7 @@ class Settings
                                                           {0.0, 0.0, 0.0}}};
     bool input_initial_diffusion = false; ///< Whether to use the initial diffusion
                                           ///  coefficients from the input file
+    double C_B = 0.0;   ///< coefficient for coth-form baryon diffusion kappa_B (Eq. 16)
     string diffusionRelaxMode = "default"; ///< Choose parametrization for diffusion relaxation time
     bool critical_scaling_diffusion = false; ///< Whether to enable Gaussian suppression of kappa near critical point
     double critical_point_T   = 0.0; ///< Critical point temperature [MeV]
