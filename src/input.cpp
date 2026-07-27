@@ -408,6 +408,35 @@ bool cc::Input::decode_settings(const YAML::Node& node){
       }
     }
 
+    else if (settingsPtr->etaMode == "piecewise_muB"){
+      settingsPtr->using_shear = true;
+      try{
+        settingsPtr->shear_eta_0 = node["hydro"]["viscous_parameters"]["shear"]["eta_0"].as<double>();
+      } catch (...) {
+        formatted_output::report("WARNING: Could not read viscous_parameters shear eta_0!");
+        formatted_output::report("This is an optional parameter. Setting to default value.");
+        settingsPtr->shear_eta_0 = cc::defaults::shear_eta_0;
+      }
+      try{
+        settingsPtr->shear_eta_2 = node["hydro"]["viscous_parameters"]["shear"]["eta_2"].as<double>();
+      } catch (...) {
+        formatted_output::report("WARNING: Could not read viscous_parameters shear eta_2!");
+        formatted_output::report("This is an optional parameter. Setting to default value.");
+        settingsPtr->shear_eta_2 = cc::defaults::shear_eta_2;
+      }
+      try{
+        settingsPtr->shear_eta_4 = node["hydro"]["viscous_parameters"]["shear"]["eta_4"].as<double>();
+      } catch (...) {
+        formatted_output::report("WARNING: Could not read viscous_parameters shear eta_4!");
+        formatted_output::report("This is an optional parameter. Setting to default value.");
+        settingsPtr->shear_eta_4 = cc::defaults::shear_eta_4;
+      }
+      formatted_output::report("Shear mode piecewise_muB: eta/s nodes (muB = 0, 0.2, 0.4 GeV) = "
+        + std::to_string(settingsPtr->shear_eta_0) + ", "
+        + std::to_string(settingsPtr->shear_eta_2) + ", "
+        + std::to_string(settingsPtr->shear_eta_4));
+    }
+
     try {
       settingsPtr->shearRelaxMode = node["hydro"]["viscous_parameters"]["shear"]["relaxation_mode"].as<std::string>();
     } catch (...) {
@@ -501,6 +530,14 @@ bool cc::Input::decode_settings(const YAML::Node& node){
         formatted_output::report("WARNING: Could not read viscous_parameters bulk cs2_dependent_zeta_A!");
         formatted_output::report("This is an optional parameter. Setting to default value.");
         settingsPtr->cs2_dependent_zeta_A = cc::defaults::cs2_dependent_zeta_A;
+      }
+
+      try {
+        settingsPtr->bulk_tau_pi_coeff = node["hydro"]["viscous_parameters"]["bulk"]["bulk_tau_pi_coeff"].as<double>();
+      } catch (...) {
+        formatted_output::report("WARNING: Could not read viscous_parameters bulk bulk_tau_pi_coeff!");
+        formatted_output::report("This is an optional parameter. Setting to default value.");
+        settingsPtr->bulk_tau_pi_coeff = cc::defaults::bulk_tau_pi_coeff;
       }
 
       try {

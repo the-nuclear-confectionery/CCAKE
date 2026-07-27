@@ -25,6 +25,10 @@ parameters setup_parameters(std::shared_ptr<Settings> settingsPtr)
   {
     params.shear_mode = SHEAR_LINEAR_MUS;
   }
+  else if ( etaMode == "piecewise_muB" )
+  {
+    params.shear_mode = SHEAR_PIECEWISE_MUB;
+  }
   else if ( etaMode == "interpolate" )
   {
     params.shear_mode = SHEAR_INTERPOLATOR;
@@ -264,9 +268,13 @@ parameters setup_parameters(std::shared_ptr<Settings> settingsPtr)
 
 
   params.constant_eta_over_s = settingsPtr->constant_eta_over_s;
+  params.shear_eta_0 = settingsPtr->shear_eta_0;
+  params.shear_eta_2 = settingsPtr->shear_eta_2;
+  params.shear_eta_4 = settingsPtr->shear_eta_4;
   params.constant_zeta_over_s = settingsPtr->constant_zeta_over_s;
   params.cs2_dependent_zeta_A = settingsPtr->cs2_dependent_zeta_A;
   params.cs2_dependent_zeta_p = settingsPtr->cs2_dependent_zeta_p;
+  params.bulk_tau_pi_coeff = settingsPtr->bulk_tau_pi_coeff;
   params.modulate_zeta_with_tanh = settingsPtr->modulate_zeta_with_tanh;
   params.C_B = settingsPtr->C_B;
   params.constant_kappa_over_T2 = settingsPtr->constant_kappa_over_T2;
@@ -297,6 +305,9 @@ double eta(const double* thermo, parameters params)
     break;
   case SHEAR_LINEAR_MUS:
     return LinearMusParam(thermo, params);
+    break;
+  case SHEAR_PIECEWISE_MUB:
+    return PiecewiseMuBParam(thermo, params);
     break;
   case SHEAR_INTERPOLATOR:
     return InterpolantWrapper(thermo);
@@ -672,6 +683,31 @@ double LinearMusParam(const double *therm, const parameters params)
 }
 
 //===============================
+/// BES-Bayesian piecewise-linear eta/s(muB) with configurable nodes
+/// shear_eta_0/2/4 at muB = 0, 0.2, 0.4 GeV (Phys. Rev. C 110, 054905 form):
+///   eta/s = eta_0 + (eta_2 - eta_0)*muB/0.2        for 0 <= muB <= 0.2 GeV
+///         = eta_2 + (eta_4 - eta_2)*(muB-0.2)/0.2  for 0.2 < muB < 0.4 GeV
+///         = eta_4                                  for muB >= 0.4 GeV
+KOKKOS_INLINE_FUNCTION
+double PiecewiseMuBParam(const double *therm, const parameters params)
+{
+  double w = therm[thermo_info::w];
+  double T = therm[thermo_info::T];
+  if (T <= 0.0) return 0.0;
+  double muB_GeV = Kokkos::fabs(therm[thermo_info::muB])*hbarc_GeVfm;
+  double eta_over_s;
+  if (muB_GeV <= 0.2)
+    eta_over_s = params.shear_eta_0
+                 + (params.shear_eta_2 - params.shear_eta_0)*muB_GeV/0.2;
+  else if (muB_GeV < 0.4)
+    eta_over_s = params.shear_eta_2
+                 + (params.shear_eta_4 - params.shear_eta_2)*(muB_GeV - 0.2)/0.2;
+  else
+    eta_over_s = params.shear_eta_4;
+  return eta_over_s*(w/T);
+}
+
+//===============================
 ///TODO: add this in later..
 KOKKOS_INLINE_FUNCTION
 double InterpolantWrapper(const double *therm) { return 0.0; }
@@ -869,7 +905,10 @@ double default_tau_Pi(const double *therm, const parameters params)
   if ( pow((1.0/3.0-causal_cs2), p) < 1e-10 )
     return 1e10;
   else
-    return Kokkos::max( 5.0*zeta(therm,params)/( pow((1.0/3.0-causal_cs2), p)*therm[thermo_info::w] ), 0.1 );
+    // tau_Pi prefactor is a config knob (bulk_tau_pi_coeff, default 5). The original hardcoded 5
+    // gave tau_Pi = 5A/T (relaxation coupled to viscosity magnitude -> effective bulk saturated as
+    // A grew). Now tau_Pi = bulk_tau_pi_coeff * A / T, so passing coeff (e.g. 5/A) decouples it from A.
+    return Kokkos::max( params.bulk_tau_pi_coeff*zeta(therm,params)/( pow((1.0/3.0-causal_cs2), p)*therm[thermo_info::w] ), 0.1 );
 }
 
 //===============================
@@ -995,8 +1034,14 @@ Matrix<double, 3, 3> kappaB_coth(const double *therm, const parameters params)
 
   if ( T > TINY && Kokkos::abs(w) > TINY && Kokkos::abs(x) > muB_over_T_floor )
   {
-    const double kB = (params.C_B / T) * nB
+    double kB = (params.C_B / T) * nB
                     * ( (1.0/3.0) / Kokkos::tanh(x) - nB * T / w );
+    // Critical scaling: suppress baryon diffusion near the QCD critical point,
+    // mirroring default_kappa (Gaussian factor -> 0 at (Tc,muBc), -> 1 far away).
+    // Only meaningful for a tabulated (CP) EoS. Enables Phase-5 (CP EoS + coth
+    // diffusion + critical scaling); inert when critical_scaling_diffusion is false.
+    if ( params.critical_scaling_diffusion && therm[thermo_info::eos_type_is_table] > 0.5 )
+      kB *= gaussian_suppression_diffusion(therm, params);
     // a diffusion coefficient must be finite and non-negative (a negative value is
     // anti-diffusive and unconditionally unstable); clamp anything else to zero.
     if ( Kokkos::isfinite(kB) && kB > 0.0 )
@@ -1029,6 +1074,11 @@ double critical_scaling_factor_bulk(const double *therm,const parameters params)
 {
   double chiBB = therm[thermo_info::chiBB];
   double chiBB0 = therm[thermo_info::chiBB0];
+  // chiBB can be negative in the unstable / first-order (gap) region of the CP EoS,
+  // where sqrt(chiBB) is NaN and poisons zeta -> whole evolution NaN at t0 (observed in
+  // the Phase-4 CP-EoS + critical_scaling_bulk probe). The gap loader already drops
+  // chiBB<0 rows; guard here too. !(x>0) also catches NaN. No enhancement in that region.
+  if ( !(chiBB > 0.0) || !(chiBB0 > 0.0) ) return 1.0;
   double correlation_length = Kokkos::sqrt(chiBB);
   double correlation_length_zero = Kokkos::sqrt(chiBB0);
   correlation_length_zero = 1.0176198446545879;  
