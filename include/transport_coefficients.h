@@ -214,6 +214,10 @@ namespace transport_coefficients{
   double zeta_DNMR_LeadingMass(const double *therm);
   KOKKOS_INLINE_FUNCTION
   double cs2_dependent_zeta(const double *therm, const parameters params);
+  /// @brief The low-T tanh modulation of cs2_dependent_zeta, WITHOUT the
+  /// (1/3-cs2)^p factor. Needed by default_tau_Pi, where that factor cancels.
+  KOKKOS_INLINE_FUNCTION
+  double cs2_dependent_zeta_tanh_factor(const double *therm, const parameters params);
 
   KOKKOS_INLINE_FUNCTION
   double tau_Pi_DNMR_LeadingMass(const double *therm);

@@ -892,6 +892,24 @@ double cs2_dependent_zeta(const double *therm, const parameters params)
   return zeta_over_s_local * w/T;
 }
 
+//===============================
+// The tanh modulation above, isolated. cs2_dependent_zeta factorizes as
+//   zeta = [A * tanh_factor] * (1/3-cs2)^p * w/T,
+// and default_tau_Pi divides by (1/3-cs2)^p * w, so only this piece survives.
+// Kept separate (rather than refactoring cs2_dependent_zeta to call it) so the
+// zeta path stays bit-identical.
+KOKKOS_INLINE_FUNCTION
+double cs2_dependent_zeta_tanh_factor(const double *therm, const parameters params)
+{
+  if ( !params.modulate_zeta_with_tanh ) return 1.0;
+  const double p = params.cs2_dependent_zeta_p;
+  const double T_transition = 150.0/constants::hbarc_MeVfm,
+               T_scale      = 10.0/constants::hbarc_MeVfm;
+  const double th_x = tanh( ( therm[thermo_info::T] - T_transition ) / T_scale );
+  const double x_p  = pow(therm[thermo_info::T]/T_transition, p);
+  return 0.5*(1.0 + x_p) + 0.5*(1.0 - x_p)*th_x;
+}
+
 //==============================================================================
 //==============================================================================
 // Possible function choices for bulk relaxation
@@ -902,6 +920,27 @@ double default_tau_Pi(const double *therm, const parameters params)
 {
   double p = params.cs2_dependent_zeta_p;
   const double causal_cs2 = therm[thermo_info::cs2] > 1 ? 1 : therm[thermo_info::cs2];
+
+  if ( params.zeta_mode == ZETA_CS2_DEPENDENT )
+  {
+    // zeta itself carries the SAME (1/3-cs2)^p factor (and the same w) that the
+    // generic expression below divides by:
+    //   zeta   = A * tanh_factor * (1/3-cs2)^p * w/T   [* critical scaling]
+    //   tau_Pi = coeff * zeta / ((1/3-cs2)^p * w) = coeff * A * tanh_factor / T
+    // Both cancel identically, so tau_Pi stays finite in the conformal limit
+    // cs2 -> 1/3. Evaluating the generic form there is a 0/0 that the old guard
+    // turned into the 1e10 sentinel, which froze the bulk pressure on every
+    // near-conformal particle (4-6% of them on a 7.7 GeV event).
+    double tau = params.bulk_tau_pi_coeff * params.cs2_dependent_zeta_A
+                 * cs2_dependent_zeta_tanh_factor(therm, params)
+                 / therm[thermo_info::T];
+    if ( params.critical_scaling_bulk )
+      tau *= critical_scaling_factor_bulk(therm, params);
+    return Kokkos::max( tau, 0.1 );
+  }
+
+  // Every other zeta mode (constant / DNMR / default / interpolate) has no
+  // (1/3-cs2)^p in zeta, so here the division -- and the guard -- are genuine.
   if ( pow((1.0/3.0-causal_cs2), p) < 1e-10 )
     return 1e10;
   else
