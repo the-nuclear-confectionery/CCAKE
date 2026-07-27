@@ -19,6 +19,7 @@ namespace transport_coefficients{
     SHEAR_CONST,
     SHEAR_JAKI,
     SHEAR_LINEAR_MUS,
+    SHEAR_PIECEWISE_MUB,   ///< BES-Bayesian piecewise-linear eta/s(muB), nodes at muB = 0, 0.2, 0.4 GeV
     SHEAR_INTERPOLATOR
   };
   enum {
@@ -93,7 +94,8 @@ namespace transport_coefficients{
     int delta_pipi_mode, tau_pipi_mode, lambda_piPi_mode, phi6_mode, phi7_mode;
     int delta_PiPi_mode, lambda_Pipi_mode, phi1_mode, phi3_mode;
     double constant_eta_over_s, constant_zeta_over_s;
-    double cs2_dependent_zeta_A, cs2_dependent_zeta_p;
+    double shear_eta_0, shear_eta_2, shear_eta_4; ///< eta/s at muB = 0, 0.2, 0.4 GeV (piecewise_muB shear mode)
+    double cs2_dependent_zeta_A, cs2_dependent_zeta_p, bulk_tau_pi_coeff;
     double C_B;   ///< coefficient for coth-form baryon diffusion kappa_B (Eq. 16)
     std::array<std::array<double, 3>, 3> constant_kappa_over_T2,
                                          tauq_matrix;
@@ -196,6 +198,8 @@ namespace transport_coefficients{
   double JakiParam(const double *therm);
   KOKKOS_INLINE_FUNCTION
   double LinearMusParam(const double *therm, const parameters params);
+  KOKKOS_INLINE_FUNCTION
+  double PiecewiseMuBParam(const double *therm, const parameters params);
   KOKKOS_INLINE_FUNCTION
   double InterpolantWrapper(const double *therm);
 

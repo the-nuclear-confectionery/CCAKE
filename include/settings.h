@@ -165,6 +165,9 @@ class Settings
     //  - shear quantities
     string etaMode              = "";    ///< Choose parametrization for eta/s
     double constant_eta_over_s  = 0.0;
+    double shear_eta_0          = 0.08;  ///< eta/s at muB = 0   GeV (piecewise_muB mode)
+    double shear_eta_2          = 0.08;  ///< eta/s at muB = 0.2 GeV (piecewise_muB mode)
+    double shear_eta_4          = 0.08;  ///< eta/s at muB = 0.4 GeV (piecewise_muB mode)
     string shearRelaxMode       = "";    ///< Choose parametrization for relaxation time of shear mode
     bool use_vorticity          = false; ///< Whether to use vorticity in the shear
                                           ///  relaxation time calculation
@@ -181,6 +184,7 @@ class Settings
     double constant_zeta_over_s = 0.0;
     double cs2_dependent_zeta_A = 0.0;
     double cs2_dependent_zeta_p = 0.0;
+    double bulk_tau_pi_coeff    = 5.0; ///< prefactor in default bulk relaxation time tau_Pi = coeff*zeta/((1/3-cs2)^p*w)
     bool bulk_from_trace        = false; ///< Whether to use the trace of Tmunu to
                                           ///  calculate the bulk viscosity
     string bulkRelaxMode        = "";   ///< Choose parametrization for relaxation time of bulk mode

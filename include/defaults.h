@@ -42,6 +42,9 @@ namespace ccake
     const bool        electric_charge_enabled = true;
     const std::string etaMode                 = "constant";
     const double      constant_eta_over_s     = 0.08;
+    const double      shear_eta_0             = 0.08;  // eta/s at muB = 0   GeV (piecewise_muB)
+    const double      shear_eta_2             = 0.08;  // eta/s at muB = 0.2 GeV (piecewise_muB)
+    const double      shear_eta_4             = 0.08;  // eta/s at muB = 0.4 GeV (piecewise_muB)
     const std::string shearRelaxMode          = "default";
     const bool        input_initial_shear = false;
     const bool        use_vorticity        = false;
@@ -54,6 +57,7 @@ namespace ccake
     const double      constant_zeta_over_s    = 0.005;
     const double      cs2_dependent_zeta_A    = 1.67552;  // 8*pi/15
     const double      cs2_dependent_zeta_p    = 2.0;
+    const double      bulk_tau_pi_coeff       = 5.0;   // prefactor in default tau_Pi
     const bool       critical_scaling_bulk   = false;
     const std::string bulkRelaxMode           = "default";
     const bool        modulate_zeta_with_tanh = true;
@@ -150,6 +154,7 @@ namespace parameter_settings
             setting_pair("constant_zeta_over_s",   "0.005"),
             setting_pair("cs2_dependent_zeta_A",   "1.67552"),  // 8*pi/15
             setting_pair("cs2_dependent_zeta_p",   "2.0"),
+            setting_pair("bulk_tau_pi_coeff",      "5.0"),
             setting_pair("bulkRelaxMode",          "default"),
             setting_pair("diffusionMode",          "disabled"),
             setting_pair("freezeoutT",             "150.000000"),
