@@ -1654,7 +1654,28 @@ bool SPHWorkstation<D, TEOM>::continue_evolution()
 
   bool keep_going =  true;
   if(settingsPtr->particlization_enabled )
-    keep_going = (systemPtr->number_part_fo != systemPtr->n_particles); // all particles have frozen out. Break evolution.
+  {
+    // Authoritative recount of frozen-out particles. The incremental counter
+    // (number_part_fo) only tracks particles that pass through status 3 in
+    // FreezeOut::check_freeze_out_status. It misses particles frozen via the
+    // no-neighbor path in FreezeOut::freeze_out_evo (btrack==0 -> Freeze=4,
+    // see freeze_out.h) and the negative-entropy init path
+    // (sph_workstation.cpp init -> Freeze=4), neither of which increments the
+    // counter. With sparse/coarse ICs and very central collisions those
+    // particles strand the counter below n_particles, so evolution would only
+    // stop at max_tau. Recompute the true frozen count here each step.
+    int frozen = 0;
+    CREATE_VIEW(device_, systemPtr->cabana_particles);
+    auto count_frozen_out = KOKKOS_LAMBDA(const int i, int& acc){
+      acc += (device_freeze(i) >= 4) ? 1 : 0;
+    };
+    Kokkos::parallel_reduce("count_frozen_out",
+                            systemPtr->n_particles, count_frozen_out, frozen);
+    Kokkos::fence();
+    systemPtr->number_part_fo = frozen;
+
+    keep_going = (systemPtr->number_part_fo < systemPtr->n_particles); // all particles have frozen out. Break evolution.
+  }
 
   keep_going = keep_going && (systemPtr->t <= settingsPtr->max_tau); // time is up. Break evolution.
   return keep_going;

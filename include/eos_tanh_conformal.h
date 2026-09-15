@@ -241,6 +241,7 @@ public:
     results[15] = t_factor*P2TS(Tsol, muBsol, muQsol, muSsol) + tp_factor*SOut_c;
     results[16] = t_factor*P2T2(Tsol, muBsol, muQsol, muSsol)
                    + 2.0*tp_factor*sOut_c + tpp_factor*POut_c;
+    results[17] = 0.08;
 
     ////////////////////////////////////////////////////////////////////////////
 
