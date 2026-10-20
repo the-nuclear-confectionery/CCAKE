@@ -1,4 +1,5 @@
 #include "eom_default.h"
+#include "eom_causality.hpp"
 // #include <fstream>
 // #include <iostream>
 
@@ -262,7 +263,7 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
     //declare caches
     milne::Vector<double,D> v, u, grad_u0, u_cov, j_ext;
     milne::Vector<double,D> M_extensive_bulk_aux, M_shv_nabla_u, M_extensive_entropy;
-    milne::Vector<double,3> R_extensive_entropy, R_extensive_bulk, F_extensive_N;
+    milne::Vector<double,3> R_extensive_entropy, R_extensive_bulk;
     milne::Matrix<double,D,D> gradV, grad_uj;
 
     milne::Matrix<double,4,4> shv, shv_hybrid, shv_cov;
@@ -329,23 +330,21 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
                     +milne::contract(u_cov,j_ext))/(sigma*gamma*T);
 
 
-    if(using_shear){ 
+    if(using_shear){
       //add contribution from shear MRFs
-      double F_shv_nabla_u = device_hydro_scalar.access(is, ia, hydro_info::F_shv_nabla_u);
+      F_shv_nabla_u = device_hydro_scalar.access(is, ia, hydro_info::F_shv_nabla_u);
       F_extensive_entropy += F_shv_nabla_u/(sigma*gamma*T);
-      F_extensive_bulk += -( lambda_Pipi*F_shv_nabla_u
+      F_extensive_bulk += -( -lambda_Pipi*F_shv_nabla_u
                       - phi3*milne::contract(shv_cov,shv))/(sigma*gamma*tau_Pi);
-      milne::Vector<double,D> M_shv_nabla_u;
       for(int idir=0; idir<D; ++idir){
         M_shv_nabla_u(idir) =  device_hydro_vector.access(is, ia, hydro_info::M_shv_nabla_u,idir);
-        M_extensive_bulk_aux(idir) += -lambda_Pipi*M_shv_nabla_u(idir)/(sigma*gamma*tau_Pi);
+        M_extensive_bulk_aux(idir) += +lambda_Pipi*M_shv_nabla_u(idir)/(sigma*gamma*tau_Pi);
         M_extensive_entropy(idir) += M_shv_nabla_u(idir)/(sigma*gamma*T);
       }
     }
 
     //stores the results
     device_hydro_scalar.access(is, ia, hydro_info::F_extensive_bulk) = F_extensive_bulk;
-    device_hydro_scalar.access(is, ia, hydro_info::F_shv_nabla_u) = F_shv_nabla_u;
     device_hydro_scalar.access(is, ia, hydro_info::F_extensive_entropy) = F_extensive_entropy;
     for(int idir=0; idir<D; ++idir){
       device_hydro_vector.access(is, ia, hydro_info::M_extensive_bulk, idir) = M_extensive_bulk_aux(idir);
@@ -353,7 +352,6 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
     }
     for(int icharge=0; icharge<3; ++icharge){
       device_hydro_vector.access(is, ia, hydro_info::R_extensive_entropy, icharge) = R_extensive_entropy(icharge);
-      device_hydro_vector.access(is, ia, hydro_info::F_extensive_N, icharge) = F_extensive_N(icharge);
       device_hydro_vector.access(is, ia, hydro_info::R_extensive_bulk,icharge) = R_extensive_bulk(icharge);
     }
 
@@ -428,7 +426,7 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
     }
     for(int icharge=0; icharge<3; ++icharge){
       for(int jcharge=0; jcharge<3; ++jcharge){
-        R_extensive_N(icharge,jcharge) += -device_hydro_space_matrix.access(is, ia, hydro_info::R_q0_a_b, icharge, jcharge);
+        R_extensive_N(icharge,jcharge) += device_hydro_space_matrix.access(is, ia, hydro_info::R_q0_a_b, icharge, jcharge);
       }
       F_extensive_N(icharge) += -device_hydro_vector.access(is, ia, hydro_info::F_q0_a, icharge)
                                  + grad_qa(icharge) -div_qa(icharge)- q(icharge,0)/t;
@@ -526,7 +524,10 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
       u_cov.make_covariant(t2);
 
       //declare auxiliary variables
-      double geometric_factor = delta_i_eta(D-1)*u(D-1)*u(D-1)*t/gamma;   
+      double geometric_factor = delta_i_eta(D-1)*u(D-1)*u(D-1)*t/gamma;
+      // 0-based spatial slot for loop index idir: for D==1 the sole direction is eta (slot 2)
+      int space_slot[D];
+      for(int idir=0; idir<D; ++idir) space_slot[idir] = (D==1) ? 2 : idir;
       rhoVec = {rhob, rhos, rhoq};
       dwdrhoVec = {dwdrhoB, dwdrhoS, dwdrhoQ};
 
@@ -550,7 +551,7 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
       milne::Matrix <double,D,D> M_u;
       for(int idir=0; idir<D; ++idir){
         for(int jdir=0; jdir<D; ++jdir){
-          M_u(idir,jdir) = u(idir)*gamma*(M_extensive_bulk(jdir) + M_w(jdir))
+          M_u(idir,jdir) = u(idir)*gamma*(M_bulk(jdir) + M_w(jdir))
                           -u(idir)*u_cov(jdir)*(w+bulk)/gamma;
         }
         M_u(idir,idir) += gamma*(w+bulk);
@@ -571,7 +572,7 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
       if ( using_shear )
       { //std::cout << "Hi shear" << std::endl;
         for(int idir=0; idir<D; ++idir){
-          F_u(idir) +=  -shv(idir+1,0)/t - 2.*delta_i_eta(idir)*shv(0,3)/t 
+          F_u(idir) +=  -shv(space_slot[idir]+1,0)/t - 2.*delta_i_eta(idir)*shv(0,3)/t
                         -divshear(idir) + gradshear(idir) -F_0i_shear(idir);
           for(int icharge=0; icharge<3; ++icharge){
             R_u(idir,icharge) += -R_0i_shear(idir,icharge)*sigma;
@@ -799,7 +800,7 @@ void EoM_default<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>> 
             int linear_index_R = jdir * 3 + icharge;  
             R_dn_aux += device_hydro_shear_aux_matrix.access(is, ia, hydro_info::R_extensive_shear, idir, linear_index_R)*dN_dt(icharge);
           }
-          d_extensive_shv_dt(idir,jdir) = M_du_aux 
+          d_extensive_shv_dt(idir,jdir) = M_du_aux + R_dn_aux
                                   + device_hydro_shear_aux_vector.access(is, ia, hydro_info::F_extensive_shear, idir, jdir);
           device_hydro_shear_aux_vector.access(is, ia, hydro_info::d_extensive_shv_dt, idir,jdir) = d_extensive_shv_dt(idir,jdir);
           sigma_tensor(idir,jdir) = Msigma_du_aux 
@@ -937,6 +938,12 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr,
       fixed_size_u(2) = u(0);
       fixed_size_u(0) = 0.0;
     }
+    ueta = fixed_size_u(2);
+    const double ueta_g = delta_i_eta(D-1)*u(D-1);   // u^eta; identically 0 for D==2
+    milne::Vector<double,3> delta3 = milne::delta_i_eta<3>();
+    // 0-based spatial slot for loop index idir: for D==1 the sole direction is eta (slot 2)
+    int space_slot[D];
+    for(int idir=0; idir<D; ++idir) space_slot[idir] = (D==1) ? 2 : idir;
 
     for(int idir=0; idir<4; ++idir)
     for(int jdir=0; jdir<4; ++jdir)
@@ -1033,7 +1040,10 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr,
       contra_grad_uj_3d(0,0) = 0.0;
     }
 
-
+    milne::Vector<double,3> v_3d, grad_u0_3d;
+    for(int idir=0; idir<3; ++idir){ v_3d(idir)=0.0; grad_u0_3d(idir)=0.0; }
+    for(int idir=0; idir<D; ++idir){ v_3d(idir)=v(idir); grad_u0_3d(idir)=grad_u0(idir); }
+    if(D==1){ v_3d(2)=v(0); v_3d(0)=0.0; grad_u0_3d(2)=grad_u0(0); grad_u0_3d(0)=0.0; }
 
     milne::Vector<double,4> shear0mu_aux;
     for(int idir=0; idir<4; ++idir){
@@ -1074,15 +1084,7 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr,
       }
     }
 
-    
-    double shv_grad_u = 0.0;
-    for(int idir=0; idir<D; ++idir){
-      for(int jdir=0; jdir<D; ++jdir){
-        shv_grad_u += (shv_hybrid(idir+1,jdir+1) - v(idir)*shv_hybrid(0,jdir+1))*grad_uj(idir,jdir);
-      }
-      shv_grad_u += (shv_hybrid(idir+1,0) - v(idir)*shv_hybrid(0,0))*grad_u0(idir);
-    }
-    
+
     double shv_shvcov = 0.0;
     for(int idir=0; idir<4; ++idir){
       for(int jdir=0; jdir<4; ++jdir){
@@ -1099,89 +1101,77 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr,
       }
     }
 
+    //calculate M and F for shv_nabla_u = \pi^{ij} \nabla_i u_j
+    double F_shv_nabla_u = 0.0;
+    for (int idir = 0; idir < D; ++idir) {
+      M_shv_nabla_u(idir) = shv_hybrid(0,space_slot[idir]+1) - shv_hybrid(0,0)*u_cov(idir)/gamma;
+      device_hydro_vector.access(is, ia, hydro_info::M_shv_nabla_u, idir) = M_shv_nabla_u(idir);
+      for (int jdir = 0; jdir < D; ++jdir) {
+          F_shv_nabla_u += (shv_hybrid(space_slot[idir] + 1, space_slot[jdir] + 1)
+                           - v(idir) * shv_hybrid(0, space_slot[jdir] + 1)) * grad_uj(idir, jdir);
+      }
+      F_shv_nabla_u += (shv_hybrid(space_slot[idir] + 1, 0) - v(idir) * shv_hybrid(0, 0)) * grad_u0(idir);
+    }
+    F_shv_nabla_u += +shv_hybrid(3,3)*gamma/t + shv_hybrid(0,0)*geometric_factor
+            +(t*shv_hybrid(3,0)+shv_hybrid(0,3)/t)*u(D-1)*delta_i_eta(D-1);
+    device_hydro_scalar.access(is, ia, hydro_info::F_shv_nabla_u) = F_shv_nabla_u;
+
     //aux vectors and matrices for the four-acceleration equation
     for(int idir=0; idir<D; ++idir){
-      F_i0_sigma(idir) =  -(milne::contract(grad_uj,v,milne::FirstIndex())(idir)
+      F_i0_sigma(idir) = -(milne::contract(grad_uj,v,milne::FirstIndex())(idir)
                           -grad_u0_contra(idir))/2.
-                          +u(idir)*gamma*(geometric_factor + gamma/t + gamma*divV)/3.
-                          -gamma*geometric_factor*u(idir)/2.;
-      F_i0_D(idir) = gamma*(u(idir)*shv_hybrid(0,0)+gamma*shv_hybrid(idir+1,0))*geometric_factor
-                     +t*u(D-1)*shv(3,idir+1)*delta_i_eta(idir);
-      F_i0_dsigma(idir) = -(v_gradu_shv(idir)-grad_u_g_shv_i(idir)
-                            -4.*gamma*u(idir)*shv_grad_u/3. - shv_grad_u_i(idir) + v_shv_grad_u(idir))/4.
-                          +(shv_hybrid(idir+1,0)-gamma*gamma*shv_hybrid(idir+1,0)-gamma*u(idir)*shv_hybrid(0,0)
-                            +shv(0,idir+1)+4.*u(idir)*gamma*shv_hybrid(0,0)/3.)*geometric_factor/4.
-                          +( gamma*contra_metric_diag(idir+1)*shv_hybrid(0,3)*delta_i_eta(idir)/t
-                            +gamma*shv(3,0)*delta_i_eta(idir)/t
-                            +4.*gamma*u(idir)*(gamma*shv_hybrid(3,3)/t)/3.)/4.
-                            -shv(0,idir+1)*(gamma/t+ geometric_factor + gamma*divV)/3.;
+                         +u(idir)*gamma*(geometric_factor + gamma/t + gamma*divV)/3.
+                         -gamma*geometric_factor*u(idir)            // = -u^i tau (u^eta)^2
+                         -delta_i_eta(idir)*gamma*gamma*ueta_g/t;   // = -gamma^2 u^eta/tau (i = eta only)
+      F_i0_D(idir) = 2.*gamma*(u(idir)*shv_hybrid(0,0) + gamma*shv_hybrid(space_slot[idir]+1,0))*geometric_factor
+                    +2.*gamma*ueta_g*(u(idir)*shv_hybrid(0,3) + gamma*shv_hybrid(space_slot[idir]+1,3))/t
+                    +t*ueta_g*shv(3,space_slot[idir]+1)
+                    +delta_i_eta(idir)*(ueta_g*shv(0,0) + gamma*shv(3,0))/t;
+      F_i0_dsigma(idir) = -( v_gradu_shv(idir) - grad_u_g_shv_i(idir)
+                            - shv_grad_u_i(idir) + v_shv_grad_u(idir) )/4.
+                          +( shv_hybrid(space_slot[idir]+1,0) - gamma*gamma*shv_hybrid(space_slot[idir]+1,0)
+                            - gamma*u(idir)*shv_hybrid(0,0) + shv(0,space_slot[idir]+1) )*geometric_factor/4.
+                          +( (1.-2.*gamma*gamma)*ueta_g*shv_hybrid(space_slot[idir]+1,3)/t
+                             +2.*gamma*shv(0,3)*delta_i_eta(idir)/t
+                             -t*ueta_g*ueta_g*(u(idir)*shv(0,0) + gamma*shv_hybrid(space_slot[idir]+1,0))
+                             +2.*t*gamma*ueta_g*u(idir)*shv(0,3)
+                             +t*ueta_g*shv(3,space_slot[idir]+1) )/4.
+                          +gamma*u(idir)*F_shv_nabla_u/3.
+                          -shv(0,space_slot[idir]+1)*(gamma*divV + gamma/t + geometric_factor)/3.;
 
-      F_i0_domega(idir) = -(v_gradu_shv(idir)-grad_u_g_shv_i(idir)
-                           + shv_grad_u_i(idir) - v_shv_grad_u(idir))/4.
-                          +(shv_hybrid(idir+1,0)-gamma*gamma*shv_hybrid(idir+1,0)-gamma*u(idir)*shv_hybrid(0,0)
-                            -shv(0,idir+1))*geometric_factor/4.
-                          +(gamma*contra_metric_diag(idir+1)*shv_hybrid(0,3)*delta_i_eta(idir)/t
-                            -gamma*shv(3,0)*delta_i_eta(idir)/t )/4.;
-                            
-      F_i0_dd(idir) = shv(idir+1,0)*(geometric_factor+gamma/t+gamma*divV);
+      F_i0_domega(idir) = -( v_gradu_shv(idir) - grad_u_g_shv_i(idir)
+                            + shv_grad_u_i(idir) - v_shv_grad_u(idir) )/4.
+                          +( shv_hybrid(space_slot[idir]+1,0) - gamma*gamma*shv_hybrid(space_slot[idir]+1,0)
+                            - gamma*u(idir)*shv_hybrid(0,0) - shv(0,space_slot[idir]+1) )*geometric_factor/4.
+                          +( -2.*ueta_g*shv(0,0)*delta_i_eta(idir)/t
+                             +(1.-2.*gamma*gamma)*ueta_g*shv_hybrid(space_slot[idir]+1,3)/t
+                             -t*ueta_g*ueta_g*(u(idir)*shv(0,0) + gamma*shv_hybrid(space_slot[idir]+1,0))
+                             +2.*t*gamma*ueta_g*u(idir)*shv(0,3)
+                             -t*ueta_g*shv(3,space_slot[idir]+1) )/4.;
+
+      F_i0_dd(idir) = shv(space_slot[idir]+1,0)*(geometric_factor+gamma/t+gamma*divV);
       for(int jdir=0; jdir<D; ++jdir){
         M_i0_sigma(idir,jdir) = u(idir)*u_cov(jdir)/(2.*3.);
-        M_i0_D(idir,jdir) = gamma*u(idir)*(shv_hybrid(0,jdir+1)-shv_hybrid(0,0)*u_cov(jdir)/gamma)
-                            +gamma*gamma*(shv_hybrid(idir+1,jdir+1)-shv_hybrid(idir+1,0)*u_cov(jdir)/gamma);
-        M_i0_dsigma(idir,jdir) = ( shv_hybrid(idir+1,jdir+1) -shv_hybrid(idir+1,0)*u_cov(jdir)/gamma
-                                   -gamma*gamma*shv_hybrid(idir+1,jdir+1) - gamma*u(idir)*shv_hybrid(0,jdir+1)
-                                   +u_cov(jdir)*gamma*shv_hybrid(idir+1,0) + u_cov(jdir)*u(idir)*shv_hybrid(0,0)
-                                   +4.*gamma*u(idir)*(shv_hybrid(0,jdir+1)-shv_hybrid(0,0)*u_cov(jdir)/gamma)/3.
-                                   +(-shv(0,idir+1)+4.*shv(0,idir+1)/3.)*u_cov(jdir)/gamma)/4.;
+        M_i0_D(idir,jdir) = gamma*u(idir)*(shv_hybrid(0,space_slot[jdir]+1)-shv_hybrid(0,0)*u_cov(jdir)/gamma)
+                            +gamma*gamma*(shv_hybrid(space_slot[idir]+1,space_slot[jdir]+1)-shv_hybrid(space_slot[idir]+1,0)*u_cov(jdir)/gamma);
+        M_i0_dsigma(idir,jdir) = ( shv_hybrid(space_slot[idir]+1,space_slot[jdir]+1) -shv_hybrid(space_slot[idir]+1,0)*u_cov(jdir)/gamma
+                                   -gamma*gamma*shv_hybrid(space_slot[idir]+1,space_slot[jdir]+1) - gamma*u(idir)*shv_hybrid(0,space_slot[jdir]+1)
+                                   +u_cov(jdir)*gamma*shv_hybrid(space_slot[idir]+1,0) + u_cov(jdir)*u(idir)*shv_hybrid(0,0)
+                                   +4.*gamma*u(idir)*(shv_hybrid(0,space_slot[jdir]+1)-shv_hybrid(0,0)*u_cov(jdir)/gamma)/3.
+                                   +(-shv(0,space_slot[idir]+1)+4.*shv(0,space_slot[idir]+1)/3.)*u_cov(jdir)/gamma)/4.;
 
-        M_i0_domega(idir,jdir) = ( shv_hybrid(idir+1,jdir+1) -shv_hybrid(idir+1,0)*u_cov(jdir)/gamma
-                                   -gamma*gamma*shv_hybrid(idir+1,jdir+1) - gamma*u(idir)*shv_hybrid(0,jdir+1)
-                                   +u_cov(jdir)*gamma*shv_hybrid(idir+1,0) + u_cov(jdir)*u(idir)*shv_hybrid(0,0)
-                                   +shv(0,idir+1)*u_cov(jdir)/gamma)/4.;
-        M_i0_dd(idir,jdir) = -shv(idir+1,0)*u_cov(jdir)/gamma;
+        M_i0_domega(idir,jdir) = ( shv_hybrid(space_slot[idir]+1,space_slot[jdir]+1) -shv_hybrid(space_slot[idir]+1,0)*u_cov(jdir)/gamma
+                                   -gamma*gamma*shv_hybrid(space_slot[idir]+1,space_slot[jdir]+1) - gamma*u(idir)*shv_hybrid(0,space_slot[jdir]+1)
+                                   +u_cov(jdir)*gamma*shv_hybrid(space_slot[idir]+1,0) + u_cov(jdir)*u(idir)*shv_hybrid(0,0)
+                                   +shv(0,space_slot[idir]+1)*u_cov(jdir)/gamma)/4.;
+        M_i0_dd(idir,jdir) = -shv(space_slot[idir]+1,0)*u_cov(jdir)/gamma;
       }
       //diagonal terms
       M_i0_sigma(idir,idir) += (1.-gamma*gamma)/2.;
       M_i0_domega(idir,idir) += -shv(0,0)/4.;
       M_i0_dsigma(idir,idir) += +shv(0,0)/4.;
-      //metric only terms
-      F_i0_sigma(idir) += delta_i_eta(idir)*(-(-u(D-1)*t-u(D-1)/t
-                          +gamma*u(D-1)*u(D-1)*t
-                          +2.*gamma*gamma*u(D-1)/t)/2.);
-      F_i0_D(idir) += delta_i_eta(idir)*(u(D-1)*shv(0,0)/t
-                      + gamma*shv(3,0)/t);
-
-
-      if(D!=2){
-        F_i0_dsigma(idir) += ( t*u(D-1)*delta_i_eta(idir)*contra_metric_diag(idir+1)*shv_hybrid(0,0)
-                               +u(D-1)*shv_hybrid(idir+1,3)*gamma/t/4.  + shv_hybrid(idir+1,3)*t*u(D-1)
-                               +shv(0,0)*delta_i_eta(idir)*u(D-1)/t
-                               +t*u(D-1)*u(D-1)*(gamma*shv_hybrid(idir+1,0) + u(idir)*shv_hybrid(0,0))
-                               +2.*gamma*u(D-1)*(gamma*shv_hybrid(idir+1,3)+u(idir)*shv(0,3))/t)/4.
-                               + gamma*u(idir)*(shv_hybrid(3,0)*u(D-1)*t+ u(D-1)*shv_hybrid(0,3)/t)/3.;    
-
-        F_i0_domega(idir) +=   (t*u(D-1)*delta_i_eta(idir)*contra_metric_diag(idir+1)*shv_hybrid(0,0)
-                               +u(D-1)*shv_hybrid(idir+1,3)*gamma/t - shv_hybrid(3,idir+1)*t*u(D-1)
-                               -shv(0,0)*delta_i_eta(idir)*u(D-1)/t
-                               +t*u(D-1)*u(D-1)*(gamma*shv_hybrid(idir+1,0) + u(idir)*shv_hybrid(0,0))
-                               +2.*gamma*u(D-1)*(gamma*shv_hybrid(idir+1,3)+u(idir)*shv(0,3))/t)/4.;        
-      }
     }
-  
-    //calculate M and F for shv_nabla_u = \pi^{ij} \nabla_i u_j
-    double F_shv_nabla_u = 0.0;
-    for (int idir = 0; idir < D; ++idir) {
-      M_shv_nabla_u(idir) = shv_hybrid(0,idir+1) - shv_hybrid(0,0)*u_cov(idir)/gamma;
-      device_hydro_vector.access(is, ia, hydro_info::M_shv_nabla_u, idir) = M_shv_nabla_u(idir);
-      for (int jdir = 0; jdir < D; ++jdir) {
-          F_shv_nabla_u += (shv_hybrid(idir + 1, jdir + 1) 
-                           - v(idir) * shv_hybrid(0, jdir + 1)) * grad_uj(idir, jdir);
-      }
-      F_shv_nabla_u += (shv_hybrid(idir + 1, 0) - v(idir) * shv_hybrid(0, 0)) * grad_u0(idir);
-    }
-    F_shv_nabla_u += +shv_hybrid(3,3)*gamma/t + shv_hybrid(0,0)*geometric_factor
-            +(t*shv_hybrid(3,0)+shv_hybrid(0,3)/t)*u(D-1)*delta_i_eta(D-1);
-    device_hydro_scalar.access(is, ia, hydro_info::F_shv_nabla_u) = F_shv_nabla_u;
+
     //calculate the MRFs that will be used in the four-acceleration equation
     for(int idir=0; idir<D; ++idir){
       F_0i_shear(idir) = (-shv(idir+1,0)
@@ -1217,13 +1207,15 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr,
 
     milne::Matrix<double, 2,3> grad_u_g_j_shv_i;
     for(int idir=0; idir<2; ++idir){
-      
+
       for(int jdir=idir; jdir<3; ++jdir){
         grad_u_g_j_shv_i(idir,jdir) = 0.0;
-        for(int kdir=0; kdir<D; ++kdir){
+        for(int kdir=0; kdir<3; ++kdir){
           grad_u_g_j_shv_i(idir,jdir) += contra_grad_uj_3d(idir,kdir)*shv_hybrid(jdir+1,kdir+1)
                                          +contra_grad_uj_3d(jdir,kdir)*shv_hybrid(idir+1,kdir+1);
         }
+        grad_u_g_j_shv_i(idir,jdir) += contra_metric_diag(idir+1)*grad_u0_3d(idir)*shv_hybrid(jdir+1,0)
+                                      +contra_metric_diag(jdir+1)*grad_u0_3d(jdir)*shv_hybrid(idir+1,0);
       }
     }
 
@@ -1231,7 +1223,7 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr,
     for(int idir=0; idir<2; ++idir){
       for(int jdir=idir; jdir<3; ++jdir){
         shv_i_grad_uj(idir,jdir) = 0.0;
-        for(int kdir=0; kdir<D; ++kdir){
+        for(int kdir=0; kdir<3; ++kdir){
           shv_i_grad_uj(idir,jdir) += shv(kdir+1,idir+1)*grad_uj_3d(kdir,jdir)
                                       +shv(kdir+1,jdir+1)*grad_uj_3d(kdir,idir);
         }
@@ -1243,9 +1235,9 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr,
     for(int idir=0; idir<2 ; ++idir){
       for(int jdir=idir; jdir<3; ++jdir){
         v_shv_i_grad_u_j(idir,jdir) = 0.0;
-        for(int kdir=0; kdir<D; ++kdir){
-          v_shv_i_grad_u_j(idir,jdir) += v(kdir)*shv(0,idir+1)*grad_uj_3d(kdir,jdir)
-                                        +v(kdir)*shv(0,jdir+1)*grad_uj_3d(kdir,idir);
+        for(int kdir=0; kdir<3; ++kdir){
+          v_shv_i_grad_u_j(idir,jdir) += v_3d(kdir)*shv(0,idir+1)*grad_uj_3d(kdir,jdir)
+                                        +v_3d(kdir)*shv(0,jdir+1)*grad_uj_3d(kdir,idir);
         }
       }
     }
@@ -1267,46 +1259,37 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr,
     //calculate the aux MRFs that will be used in the evolution of the shear tensor
     for(int idir=0; idir<2; ++idir){
       for(int jdir=idir; jdir<3; ++jdir){
-        F_D(idir,jdir) = gamma*geometric_factor*(fixed_size_u(idir)*shv_hybrid(jdir+1,0)
-                  +fixed_size_u(jdir)*shv_hybrid(idir+1,0));
-                
-        F_sigma(idir,jdir) = contra_grad_uj_3d(idir,jdir)/2. + contra_grad_uj_3d(jdir,idir)/2.
-                  +fixed_size_u(idir)*fixed_size_u(jdir)*(geometric_factor+gamma/t+gamma*divV)/3.;         
-        F_delta(idir,jdir) = shv(idir+1,jdir+1)*(geometric_factor+gamma/t+gamma*divV);
-        
-        F_domega(idir,jdir) = -( -grad_u_g_j_shv_i(idir,jdir) + shv_i_grad_uj(idir,jdir)
-                                 - v_shv_i_grad_u_j(idir,jdir))/4.
-                              +(-fixed_size_u(idir)*gamma*shv_hybrid(jdir+1,0)-fixed_size_u(jdir)*gamma*shv_hybrid(idir+1,0)
-                               )*geometric_factor/4.
-                              +(t*fixed_size_u(2)*(contra_metric_diag(idir+1)*shv_hybrid(jdir+1,0)*delta_i_eta(idir)
-                                +contra_metric_diag(jdir+1)*shv_hybrid(idir+1,0)*delta_i_eta(jdir))
-                                +gamma*(contra_metric_diag(idir+1)*shv_hybrid(jdir+1,3)*delta_i_eta(idir)
-                                +contra_metric_diag(jdir+1)*shv_hybrid(idir+1,3)*delta_i_eta(jdir))/t
-                                +fixed_size_u(2)*fixed_size_u(2)*t*(fixed_size_u(idir)*shv_hybrid(jdir+1,0)
-                                +fixed_size_u(jdir)*shv_hybrid(idir+1,0))
-                                +2.*gamma*fixed_size_u(2)*(fixed_size_u(idir)*shv_hybrid(jdir+1,3)
-                                +fixed_size_u(jdir)*shv_hybrid(idir+1,3))/t
-                                -gamma*(shv(3,idir+1)*delta_i_eta(jdir)+shv(3,jdir+1)*delta_i_eta(idir))/t
-                                -fixed_size_u(2)*(shv(0,idir+1)*delta_i_eta(jdir)+shv(0,jdir+1)*delta_i_eta(idir))/t)/4.;
+        F_D(idir,jdir) = 2.*gamma*geometric_factor*(fixed_size_u(idir)*shv_hybrid(jdir+1,0)
+                 +fixed_size_u(jdir)*shv_hybrid(idir+1,0))
+                 +2.*gamma*ueta*(fixed_size_u(idir)*shv_hybrid(jdir+1,3)
+                 +fixed_size_u(jdir)*shv_hybrid(idir+1,3))/t;
 
-        F_dsigma(idir,jdir) = -( -grad_u_g_j_shv_i(idir,jdir) - shv_i_grad_uj(idir,jdir)
-                                 + v_shv_i_grad_u_j(idir,jdir) - 4.*(fixed_size_u(idir)*fixed_size_u(jdir))*shv_grad_u/3.)/4.
-                              +(-fixed_size_u(idir)*gamma*shv_hybrid(jdir+1,0)-fixed_size_u(jdir)*gamma*shv_hybrid(idir+1,0)
-                                +4.*fixed_size_u(idir)*fixed_size_u(jdir)*shv_hybrid(0,0)/3.)*geometric_factor/4.
-                              +(t*fixed_size_u(2)*(contra_metric_diag(idir+1)*shv_hybrid(jdir+1,0)*delta_i_eta(idir)
-                                +contra_metric_diag(jdir+1)*shv_hybrid(idir+1,0)*delta_i_eta(jdir))
-                                +gamma*(contra_metric_diag(idir+1)*shv_hybrid(jdir+1,3)*delta_i_eta(idir)
-                                +contra_metric_diag(jdir+1)*shv_hybrid(idir+1,3)*delta_i_eta(jdir))/t
-                                +fixed_size_u(2)*fixed_size_u(2)*t*(fixed_size_u(idir)*shv_hybrid(jdir+1,0)
-                                +fixed_size_u(jdir)*shv_hybrid(idir+1,0))
-                                +2.*gamma*fixed_size_u(2)*(fixed_size_u(idir)*shv_hybrid(jdir+1,3)
-                                +fixed_size_u(jdir)*shv_hybrid(idir+1,3))/t
-                                +gamma*(shv(3,idir+1)*delta_i_eta(jdir)+shv(3,jdir+1)*delta_i_eta(idir))/t
-                                +fixed_size_u(2)*(shv(0,idir+1)*delta_i_eta(jdir)+shv(0,jdir+1)*delta_i_eta(idir))/t
-                                +4.*fixed_size_u(idir)*fixed_size_u(jdir)*(shv_hybrid(3,0)*fixed_size_u(2)*t
-                                +gamma*shv_hybrid(3,3)/t +fixed_size_u(2)*shv_hybrid(0,3)/t)/3.)/4.
-                                -shv(idir+1,jdir+1)*(gamma/t +geometric_factor + gamma*divV)/3.;
-                   
+        F_sigma(idir,jdir) = contra_grad_uj_3d(idir,jdir)/2. + contra_grad_uj_3d(jdir,idir)/2.
+                  +fixed_size_u(idir)*fixed_size_u(jdir)*(geometric_factor+gamma/t+gamma*divV)/3.;
+        F_delta(idir,jdir) = shv(idir+1,jdir+1)*(geometric_factor+gamma/t+gamma*divV);
+
+        F_domega(idir,jdir) = ( grad_u_g_j_shv_i(idir,jdir) - shv_i_grad_uj(idir,jdir)
+                               + v_shv_i_grad_u_j(idir,jdir) )/4.
+                              -gamma*geometric_factor*(fixed_size_u(idir)*shv_hybrid(jdir+1,0)
+                               +fixed_size_u(jdir)*shv_hybrid(idir+1,0))/4.
+                              +( -2.*ueta*(delta3(idir)*shv(0,jdir+1) + delta3(jdir)*shv(0,idir+1))/t
+                                 -t*ueta*ueta*(fixed_size_u(idir)*shv(0,jdir+1)
+                                              +fixed_size_u(jdir)*shv(0,idir+1))
+                                 +2.*t*gamma*ueta*(fixed_size_u(idir)*shv(jdir+1,3)
+                                                  +fixed_size_u(jdir)*shv(idir+1,3)) )/4.;
+
+        F_dsigma(idir,jdir) = ( grad_u_g_j_shv_i(idir,jdir) + shv_i_grad_uj(idir,jdir)
+                               - v_shv_i_grad_u_j(idir,jdir) )/4.
+                              -gamma*geometric_factor*(fixed_size_u(idir)*shv_hybrid(jdir+1,0)
+                               +fixed_size_u(jdir)*shv_hybrid(idir+1,0))/4.
+                              +( 2.*gamma*(delta3(idir)*shv(3,jdir+1) + delta3(jdir)*shv(3,idir+1))/t
+                                 -t*ueta*ueta*(fixed_size_u(idir)*shv(0,jdir+1)
+                                              +fixed_size_u(jdir)*shv(0,idir+1))
+                                 +2.*t*gamma*ueta*(fixed_size_u(idir)*shv(jdir+1,3)
+                                                  +fixed_size_u(jdir)*shv(idir+1,3)) )/4.
+                              +fixed_size_u(idir)*fixed_size_u(jdir)*F_shv_nabla_u/3.
+                              -shv(idir+1,jdir+1)*(gamma*divV + gamma/t + geometric_factor)/3.;
+
 
         for(int kdir=0; kdir<D; ++kdir){
           M_D(idir,jdir,kdir) = gamma*(fixed_size_u(idir)*shv_hybrid(jdir+1,kdir+1)
@@ -1331,7 +1314,6 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr,
         M_dsigma(idir,jdir,idir) += shv(0,jdir+1)/4.;
         M_domega(idir,jdir,idir) += -shv(0,jdir+1)/4.;
         //the if avoids the case when i>k (for D=1)
-        ueta = fixed_size_u(2);
         if (D==1){
           M_sigma(0,jdir,0) += -gamma*fixed_size_u(jdir)/2.;
         }
@@ -1358,13 +1340,9 @@ void EoM_default<D>::calculate_MRF_shear(std::shared_ptr<SystemState<D>> sysPtr,
       F_D(idir,2) += gamma*shv(3,idir+1)/t 
                      +ueta*shv(0,idir+1)/t; 
       F_sigma(idir,idir) += -contra_metric_diag(idir+1)*(geometric_factor+gamma/t+gamma*divV)/3.;
-      F_sigma(idir,2) += -fixed_size_u(idir)*ueta*ueta*t/2. 
-                         -fixed_size_u(idir)*ueta*gamma/t;
-      F_dsigma(idir,idir) += -contra_metric_diag(idir+1)*shv_grad_u/3.
-                             -contra_metric_diag(idir+1)*shv_hybrid(0,0)*geometric_factor/3.
-                             -contra_metric_diag(idir+1)*(shv_hybrid(3,0)*fixed_size_u(2)*t
-                             +gamma*shv_hybrid(3,3)/t +fixed_size_u(2)*shv_hybrid(0,3)/t)/3.;
-      
+      F_sigma(idir,2) += -fixed_size_u(idir)*ueta*gamma/t;
+      F_dsigma(idir,idir) += -contra_metric_diag(idir+1)*F_shv_nabla_u/3.;
+
 
     }
 
@@ -1571,11 +1549,22 @@ void EoM_default<D>::calculate_MRF_diffusion(std::shared_ptr<SystemState<D>> sys
     u_cov = u;
     u_cov.make_covariant(t2);
     double geometric_factor = delta_i_eta(D-1)*u(D-1)*u(D-1)*t/gamma;
+    // 0-based spatial slot for loop index idir: for D==1 the sole direction is eta (slot 2)
+    int space_slot[D];
+    for(int idir=0; idir<D; ++idir) space_slot[idir] = (D==1) ? 2 : idir;
     
     //fixed size u cov
     milne::Vector<double,3> fixed_size_u_cov = fixed_size_u;
     fixed_size_u_cov.make_covariant(t2);
 
+    //shift the indices if D=1 (3-indexed u caches only; M_S and grad_alpha_a
+    //stay in the D convention for the D-indexed 0-block)
+    if (D==1) {
+      fixed_size_u(2) = u(0);
+      fixed_size_u(0) = 0.0;
+      fixed_size_u_cov(2) = u_cov(0);
+      fixed_size_u_cov(0) = 0.0;
+    }
 
     //invert the relaxation time matrix
     milne::Matrix<double,3,3> inv_tau_q = milne::inverse(tau_q);
@@ -1656,7 +1645,7 @@ void EoM_default<D>::calculate_MRF_diffusion(std::shared_ptr<SystemState<D>> sys
 
 
       for(int idir=0; idir<D; ++idir){
-        M_0_D_bj(icharge,idir) = gamma*gamma*(q_cov(icharge,idir+1)
+        M_0_D_bj(icharge,idir) = gamma*gamma*(q_cov(icharge,space_slot[idir]+1)
                                  -q_cov(icharge,0)*u_cov(idir)/gamma);
         M_0_alpha_bj(icharge,idir) = (1.-gamma*gamma)*sigma*dalpha_i_ds(icharge)
                                       *M_S(idir);
@@ -1719,32 +1708,34 @@ void EoM_default<D>::calculate_MRF_diffusion(std::shared_ptr<SystemState<D>> sys
       }
     }
 
-    //shift the indices if D=1
-    if (D==1) {
-      fixed_size_u(2) = u(0);
-      fixed_size_u(0) = 0.0;
-      fixed_size_u_cov(2) = u_cov(0);
-      fixed_size_u_cov(0) = 0.0;
-      double M_aux = M_S(0);
-      M_S(2) = M_aux;
-      M_S(0) = 0.0;
+    //3-indexed shifted copies of M_S and grad_alpha_a for the i-block
+    milne::Vector<double,3> M_S_3d;
+    milne::Matrix<double,3,3> grad_alpha_3d;
+    for(int idir=0; idir<3; ++idir){
+      M_S_3d(idir) = 0.0;
+      for(int icharge=0; icharge<3; ++icharge) grad_alpha_3d(idir,icharge) = 0.0;
+    }
+    for(int idir=0; idir<D; ++idir){
+      M_S_3d(idir) = M_S(idir);
+      for(int icharge=0; icharge<3; ++icharge) grad_alpha_3d(idir,icharge) = grad_alpha_a(idir,icharge);
+    }
+    if(D==1){
+      M_S_3d(2) = M_S(0); M_S_3d(0) = 0.0;
       for(int icharge=0; icharge<3; ++icharge){
-        double grad_alpha_aux = grad_alpha_a(0,icharge);
-        grad_alpha_a(2,icharge) = grad_alpha_aux;
-        grad_alpha_a(0,icharge) = 0.0;
+        grad_alpha_3d(2,icharge) = grad_alpha_a(0,icharge);
+        grad_alpha_3d(0,icharge) = 0.0;
       }
     }
-
 
     for(int idir=0; idir<3; ++idir){
       for(int icharge=0; icharge<3; ++icharge){
 
         F_D_ib(idir,icharge) = fixed_size_u(idir)*gamma*q(icharge,0)*geometric_factor
-                          +2.*fixed_size_u(idir)*q_cov(icharge,3)*fixed_size_u(2)*gamma/t;
+                          +2.*fixed_size_u(idir)*q_cov(icharge,3)*fixed_size_u(2)*gamma/t
                           +t*fixed_size_u(idir)*q_cov(icharge,0)*fixed_size_u(2)*fixed_size_u(2)
                           +full_delta_i_eta(idir)*(fixed_size_u(2)*q(icharge,0)+gamma*q(icharge,3))/t;
         F_alpha_ib(idir,icharge) = -fixed_size_u(idir)*gamma*sigma*dalpha_i_ds(icharge)*F_S
-                                   +contra_metric_diag(idir+1)*grad_alpha_a(idir,icharge);
+                                   +contra_metric_diag(idir+1)*grad_alpha_3d(idir,icharge);
         
         A_alpha_ib(idir,icharge) = fixed_size_u(idir)*dalpha_i_ds(icharge)*extensive_entropy;
 
@@ -1752,7 +1743,7 @@ void EoM_default<D>::calculate_MRF_diffusion(std::shared_ptr<SystemState<D>> sys
           M_D_ibj(idir,icharge,jdir) = fixed_size_u(idir)*gamma*(q_cov(icharge,jdir+1) 
                                                -q_cov(icharge,0)*fixed_size_u_cov(jdir)/gamma);
           M_alpha_ibj(idir,icharge,jdir) = -fixed_size_u(idir)*gamma*sigma*dalpha_i_ds(icharge)
-                                            *M_S(jdir);
+                                            *M_S_3d(jdir);
         }
         for(int jcharge=0; jcharge<3; ++jcharge){
           R_alpha_ibc(idir,icharge,jcharge) = -fixed_size_u(idir)*gamma*sigma*(
@@ -1893,7 +1884,7 @@ void EoM_default<D>::compute_hydro_numbers(std::shared_ptr<SystemState<D>> sysPt
     milne::Matrix<double, 4, 4> sigma_tensor;
     for(int idir=0; idir<2; ++idir){
       for(int jdir=idir; jdir<3; ++jdir){
-        sigma_tensor(idir,jdir) = device_hydro_spacetime_matrix.access(is, ia, hydro_info::sigma_tensor, idir+1,jdir+1);
+        sigma_tensor(idir+1,jdir+1) = device_hydro_spacetime_matrix.access(is, ia, hydro_info::sigma_tensor, idir+1,jdir+1);
       }
     }
     //calculate the other components of the matrix
@@ -1990,297 +1981,57 @@ void EoM_default<D>::compute_hydro_numbers(std::shared_ptr<SystemState<D>> sysPt
 
 
    
-/// @brief Checks causality conditions in the hydrodynamic evolution.
-/// @details Computes the eigenvalues of the shear tensor \(\pi^{\mu\nu}\) and verifies 
-/// necessary and sufficient conditions for causality using the most general formulation.
-/// Stores the results in device_hydro_scalar.
+/// @brief Classifies each particle's causality with the BDNR conditions.
+/// @details hydro_info::causality : BDNR, arXiv:2005.11632. Necessary set plus
+/// sufficient set, hence a 3-way verdict (causal / undetermined / acausal). The
+/// shear-stress eigenvalues Lambda_1..3 come in closed form from
+/// causality::shear_eigenvalues.
 /// @param sysPtr A shared pointer to the system state.
 template <unsigned int D>
 void EoM_default<D>::check_causality(std::shared_ptr<SystemState<D>> sysPtr)
 {
-    double t = (sysPtr->t);
-    double t2 = t * t;
-    CREATE_VIEW(device_, sysPtr->cabana_particles);
-    auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH, ExecutionSpace>(0, sysPtr->cabana_particles.size());
-    auto host_simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH, Kokkos::OpenMP>(0, sysPtr->cabana_particles.size());
+  const double t  = sysPtr->t;
+  const double t2 = t*t;
 
-    auto get_sorted_eigenvalues_of_pi_mu_nu = [](milne::Matrix<double, 4, 4> &shv_hybrid,
-                                                 double &Lambda_0,
-                                                 double &Lambda_1, double &Lambda_2, double &Lambda_3,
-                                                double &eps, const double &t2) -> bool
-    {
-        double m[16];
-        m[0]  =  shv_hybrid(0, 0); m[1]  =  shv_hybrid(0, 1); m[2]  =  shv_hybrid(0, 2); m[3]  =  shv_hybrid(0, 3);
-        m[4]  =  shv_hybrid(1, 0); m[5]  =  shv_hybrid(1, 1); m[6]  =  shv_hybrid(1, 2); m[7]  =  shv_hybrid(1, 3);
-        m[8]  =  shv_hybrid(2, 0); m[9]  =  shv_hybrid(2, 1); m[10] =  shv_hybrid(2, 2); m[11] =  shv_hybrid(2, 3);
-        m[12] =  shv_hybrid(3, 0); m[13] =  shv_hybrid(3, 1); m[14] =  shv_hybrid(3, 2); m[15] =  shv_hybrid(3, 3);
-        //m[0]  =  -shv_hybrid(0, 0); m[1]  =  -shv_hybrid(0, 1); m[2]  =  -shv_hybrid(0, 2); m[3]  =  -shv_hybrid(0, 3);
-        //m[4]  =  shv_hybrid(0, 1); m[5]  =  shv_hybrid(1, 1); m[6]  =  shv_hybrid(1, 2); m[7]  =  shv_hybrid(1, 3);
-        //m[8]  =  shv_hybrid(0, 2); m[9]  =  shv_hybrid(1, 2); m[10] =  shv_hybrid(2, 2); m[11] =  t2*shv_hybrid(2, 3);
-        //m[12] =  t2*shv_hybrid(0, 3); m[13] =  t2*shv_hybrid(1,3); m[14] =  t2*shv_hybrid(2,3); m[15] =  t2*shv_hybrid(3, 3);
-      	gsl_vector_complex *eval = gsl_vector_complex_alloc(4);
-      	gsl_matrix_complex *evec = gsl_matrix_complex_alloc(4, 4);
-      
-      	gsl_matrix_view mat = gsl_matrix_view_array(m, 4, 4);
-      	gsl_eigen_nonsymmv_workspace *w = gsl_eigen_nonsymmv_alloc(4);
-      	int success = gsl_eigen_nonsymmv (&mat.matrix, eval, evec, w);
-      	gsl_eigen_nonsymmv_free(w);
-      
-      	// sort by magnitude first
-      	gsl_eigen_nonsymmv_sort(eval, evec, GSL_EIGEN_SORT_ABS_ASC);
-      
-      	// check eigensystem
-      	/*if (true)
-      	for (int i = 0; i < 4; i++)
-            {
-              gsl_complex eval_i
-                 = gsl_vector_complex_get (eval, i);
-              gsl_vector_complex_view evec_i
-                 = gsl_matrix_complex_column (evec, i);
-      
-              printf ("eigenvalue = %g + %gi\n",
-                      GSL_REAL(eval_i), GSL_IMAG(eval_i));
-              printf ("eigenvector = \n");
-              for (int j = 0; j < 4; ++j)
-                {
-                  gsl_complex z =
-                    gsl_vector_complex_get(&evec_i.vector, j);
-                  printf("%g + %gi\n", GSL_REAL(z), GSL_IMAG(z));
-                }
-            }*/
-         
-         
-         
-      	for ( int elem = 0; elem < 4; elem++ )
-      		if ( abs(GSL_IMAG(gsl_vector_complex_get(eval, elem)))
-      				> 0.01*abs(GSL_REAL(gsl_vector_complex_get(eval, elem))) )
-      		{
-      			return false;
-      		}
-      
-      	Lambda_0 = GSL_REAL(gsl_vector_complex_get(eval, 0));
-      	double ratio = abs(Lambda_0 / (abs(GSL_REAL(gsl_vector_complex_get(eval, 3)))+eps));
-      
-      	/*cout << "Check #1 here: "
-      		<< GSL_REAL(gsl_vector_complex_get(eval, 0)) << "   "
-      		<< GSL_REAL(gsl_vector_complex_get(eval, 1)) << "   "
-      		<< GSL_REAL(gsl_vector_complex_get(eval, 2)) << "   "
-      		<< GSL_REAL(gsl_vector_complex_get(eval, 3)) << endl;*/
-      
-      	// sort by value next
-      	gsl_eigen_nonsymmv_sort(eval, evec, GSL_EIGEN_SORT_VAL_ASC);
-      
-      	/*cout << "Check #2 here: "
-      		<< GSL_REAL(gsl_vector_complex_get(eval, 0)) << "   "
-      		<< GSL_REAL(gsl_vector_complex_get(eval, 1)) << "   "
-      		<< GSL_REAL(gsl_vector_complex_get(eval, 2)) << "   "
-      		<< GSL_REAL(gsl_vector_complex_get(eval, 3)) << endl;*/
-      
-      	double tmp0 = GSL_REAL(gsl_vector_complex_get(eval, 0));
-      	double tmp1 = GSL_REAL(gsl_vector_complex_get(eval, 1));
-      	double tmp2 = GSL_REAL(gsl_vector_complex_get(eval, 2));
-      	double tmp3 = GSL_REAL(gsl_vector_complex_get(eval, 3));
-      
-      
-      	// sort eval by values
-      	//Lambda_0 = 0.0;
-      	Lambda_1 = tmp0;
-      	Lambda_2 = ( abs(tmp1) > abs(tmp2) ) ? tmp1 : tmp2;
-      	Lambda_3 = tmp3;
-      
-      	if ( ratio > 0.01 )
-      	{
-      		success++;
-      	}
-      	//else
-      	//	cerr << "Found zero eigenvalue with ratio = " << ratio << endl;
-      
-      	gsl_vector_complex_free(eval);
-      	gsl_matrix_complex_free(evec);
-      
-      	//return ( ( success == 0 ) and ( ratio <= epsilon ) );
-      	return ( success == 0 );
-    };
+  CREATE_VIEW(device_, sysPtr->cabana_particles);
+  auto host_simd_policy
+      = Cabana::SimdPolicy<VECTOR_LENGTH, Kokkos::OpenMP>(0, sysPtr->cabana_particles.size());
 
+  Kokkos::fence(); // ensure device kernels have completed before the host-side check
 
-    Kokkos::fence(); // ensure GPU kernels complete before host causality check
-    auto causality_check = [=](const int is, const int ia)
-    {
-        double e, p, Pi, eta, zeta, tau_pi, tau_Pi, delta_PiPi, lambda_Pipi, delta_pipi, lambda_piPi, cs2,
-               tau_pipi;
-        double Lambda_0, Lambda_1, Lambda_2, Lambda_3;
+  auto causality_check = [=](const int is, const int ia)
+  {
+    causality::Inputs in;
 
-        e  = device_thermo.access(is, ia, thermo_info::e);
-        p  = device_thermo.access(is, ia, thermo_info::p);
-        Pi = device_hydro_scalar.access(is, ia, hydro_info::bulk);
-        eta = device_hydro_scalar.access(is, ia, hydro_info::eta_pi);
-        zeta = device_hydro_scalar.access(is, ia, hydro_info::zeta_Pi);
-        tau_pi = device_hydro_scalar.access(is, ia, hydro_info::tau_pi);
-        tau_pipi = device_hydro_scalar.access(is, ia, hydro_info::tau_pipi);
-        tau_Pi = device_hydro_scalar.access(is, ia, hydro_info::tau_Pi);
-        delta_PiPi = device_hydro_scalar.access(is, ia, hydro_info::delta_PiPi);
-        lambda_Pipi = device_hydro_scalar.access(is, ia, hydro_info::lambda_Pipi);
-        delta_pipi = device_hydro_scalar.access(is, ia, hydro_info::delta_pipi);
-        lambda_piPi = device_hydro_scalar.access(is, ia, hydro_info::lambda_piPi);
-        cs2 = device_thermo.access(is, ia, ccake::thermo_info::cs2);
+    in.e   = device_thermo.access(is, ia, thermo_info::e);
+    in.p   = device_thermo.access(is, ia, thermo_info::p);
+    in.cs2 = device_thermo.access(is, ia, thermo_info::cs2);
+    in.Pi  = device_hydro_scalar.access(is, ia, hydro_info::bulk);
 
-        milne::Matrix<double, 4, 4> shv;
-        for (int idir = 0; idir < 4; ++idir)
-        {
-            for (int jdir = 0; jdir < 4; ++jdir)
-            {
-                shv(idir, jdir) = device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir, jdir);
-            }
-        }
-        milne::Matrix<double, 4, 4> shv_hybrid = shv;
-        shv_hybrid.make_covariant(0, t2);
-        //shv_mu^nu 
+    in.eta         = device_hydro_scalar.access(is, ia, hydro_info::eta_pi);
+    in.zeta        = device_hydro_scalar.access(is, ia, hydro_info::zeta_Pi);
+    in.tau_pi      = device_hydro_scalar.access(is, ia, hydro_info::tau_pi);
+    in.tau_Pi      = device_hydro_scalar.access(is, ia, hydro_info::tau_Pi);
+    in.tau_pipi    = device_hydro_scalar.access(is, ia, hydro_info::tau_pipi);
+    in.delta_PiPi  = device_hydro_scalar.access(is, ia, hydro_info::delta_PiPi);
+    in.lambda_Pipi = device_hydro_scalar.access(is, ia, hydro_info::lambda_Pipi);
+    in.delta_pipi  = device_hydro_scalar.access(is, ia, hydro_info::delta_pipi);
+    in.lambda_piPi = device_hydro_scalar.access(is, ia, hydro_info::lambda_piPi);
 
-        int causality_result;
+    milne::Matrix<double,4,4> shv;
+    for ( int idir = 0; idir < 4; ++idir )
+      for ( int jdir = 0; jdir < 4; ++jdir )
+        shv(idir, jdir)
+            = device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir, jdir);
 
-        bool success = get_sorted_eigenvalues_of_pi_mu_nu(shv, Lambda_0 ,Lambda_1, Lambda_2, Lambda_3, e, t2);
-        if (!success)
-        {
-            std::cout << "Error: Failed to compute eigenvalues of pi_mu_nu for particle " << ia << " in system, setting causality to -100." << std::endl;
-            //print shv(mu,3) values
-            for (int idir = 0; idir < 4; ++idir)
-            {
-                std::cout << "shv(" << idir << ",3) = " << shv(idir, 3) << std::endl;
-            }
-            causality_result = -100; // Error code
+    causality::shear_eigenvalues(shv, t2, in.Lam);
 
-        }
-
-        std::array<double, 3> Lambda = {Lambda_1, Lambda_2, Lambda_3};
-
-        //basic conditions
-				bool necessary_conditions
-						= (tau_Pi>=0) && (tau_pi>=0) && (eta>=0) && (zeta>=0)
-							&& (tau_pipi>=0) && (delta_PiPi>=0) && (lambda_Pipi>=0)
-							&& (delta_pipi>=0) && (lambda_piPi>=0) && (cs2>=0)
-							&& (e>=0) && (p>=0) && (e+p+Pi>0);
-
-        // Evaluate conditions that do not require loops
-        bool condition4a = (2. * eta + lambda_piPi * Pi) - (tau_pi * fabs(Lambda_1) / 2.) >= 0;
-
-        bool condition4b = (e + p + Pi - (1.0 / (2. * tau_pi)) * (2. * eta + lambda_piPi * Pi) -
-                           (tau_pipi / (4. * tau_pi)) * Lambda_3) >= 0;
-
-        // Check conditions that require a single index "d"
-        for (int d = 1; d <= 3; ++d) {
-            double Lambda_d = Lambda[d - 1];  // Get Lambda_d
-            bool condition4e = (1.0 / (2. * tau_pi)) * (2. * eta + lambda_piPi * Pi) +
-                              (tau_pipi / (2. * tau_pi)) * Lambda_d +
-                              (1.0 / (6. * tau_pi)) * (2. * eta + lambda_piPi * Pi +
-                                                       (6 * delta_pipi - tau_pipi) * Lambda_d) +
-                              (zeta + delta_PiPi * Pi + lambda_Pipi * Lambda_d) / tau_Pi +
-                              (e + p + Pi + Lambda_d) * cs2 >= 0;
-
-            bool condition4f = (e + p + Pi + Lambda_d - (1.0 / (2. * tau_pi)) * (2. * eta + lambda_piPi * Pi) -
-                               (tau_pipi / (2. * tau_pi)) * Lambda_d -
-                               (1.0 / (6. * tau_pi)) * (2. * eta + lambda_piPi * Pi +
-                                                        (6 * delta_pipi - tau_pipi) * Lambda_d) -
-                               (zeta + delta_PiPi * Pi + lambda_Pipi * Lambda_d) / tau_Pi -
-                               (e + p + Pi + Lambda_d) * cs2) >= 0;
-
-            necessary_conditions &= (condition4e && condition4e);
-        }
-
-        // Check conditions that require two indices "a, d" with a ≠ d
-        for (int a = 1; a <= 3; ++a) {
-            for (int d = 1; d <= 3; ++d) {
-                if (a == d) continue; // Skip cases where a == d
-
-                double Lambda_a = Lambda[a - 1];  // Get Lambda_a
-                double Lambda_d = Lambda[d - 1];  // Get Lambda_d
-
-                bool condition4c = (1.0 / (2. * tau_pi)) * (2. * eta + lambda_piPi * Pi) +
-                                  (tau_pipi / (4. * tau_pi)) * (Lambda_a + Lambda_d) >= 0;
-
-                bool condition4d = (e + p + Pi + Lambda_a - (1.0 / (2. * tau_pi)) * (2. * eta + lambda_piPi * Pi) -
-                                   (tau_pipi / (4. * tau_pi)) * (Lambda_d + Lambda_a)) >= 0;
-
-                necessary_conditions &= (condition4c && condition4d);
-            }
-        }
-
-        // Combine the results
-        necessary_conditions &= (condition4a && condition4b);
-        if (!necessary_conditions)
-        {
-          causality_result = -1; //not causal
-            
-        }
-        else{
-            // Condition 5a
-            bool condition5a =
-            (e + p + Pi - fabs(Lambda_1)) - (1.0 / (2. * tau_pi)) * (2. * eta + lambda_piPi * Pi) - 
-            (tau_pipi / (2. * tau_pi)) * Lambda_3 >= 0;
-            
-            bool condition5b =
-            (2. * eta + lambda_piPi * Pi) - tau_pipi * fabs(Lambda_1) > 0;
-            bool condition5c =
-            tau_pipi <= 6. * delta_pipi;
-            bool condition5d =
-            (lambda_Pipi / tau_Pi + cs2 - (tau_pipi / (12. * tau_pi))) >= 0;
-            // Condition 5e
-            bool condition5e =
-            (1.0 / (3. * tau_pi)) * (4. * eta + 2. * lambda_piPi * Pi + (3. * delta_pipi + tau_pipi) * Lambda_3) +
-            (zeta + delta_PiPi * Pi + lambda_Pipi * Lambda_3) / tau_Pi + 
-            fabs(Lambda_1) + Lambda_3 * cs2 + 
-            ( (12. * delta_pipi - tau_pipi) / (12. * tau_pi) ) * 
-            ( (lambda_Pipi / tau_Pi + cs2 - tau_pipi / (12. * tau_pi)) * pow(Lambda_3 + fabs(Lambda_1), 2.) ) / 
-            ( (e + p + Pi - fabs(Lambda_1)) - (1.0 / (2. * tau_pi)) * (2. * eta + lambda_piPi * Pi) - (tau_pipi / (2. * tau_pi)) * Lambda_3 ) 
-            <= (e + p + Pi) * (1. - cs2); 
-
-            // Condition 5f
-            bool condition5f =
-            (1.0 / (6. * tau_pi)) * (2. * eta + lambda_piPi * Pi + (tau_pipi - 6. * delta_pipi) * fabs(Lambda_1)) + 
-            (zeta + delta_PiPi * Pi - lambda_Pipi * fabs(Lambda_1)) / tau_Pi + 
-            (e + p + Pi - fabs(Lambda_1)) * cs2 >= 0;
-
-            // Condition 5g
-            bool condition5g =
-            1. >= ( (12. * delta_pipi - tau_pipi) / (12. * tau_pi) ) * 
-            ( (lambda_Pipi / tau_Pi + cs2 - tau_pipi / (12. * tau_pi)) * pow(Lambda_3 + fabs(Lambda_1), 2.) ) /
-            pow( (1.0 / (2. * tau_pi)) * (2 * eta + lambda_piPi * Pi) - (tau_pipi / (2. * tau_pi)) * fabs(Lambda_1), 2. );
-            
-
-            bool condition5h =
-            (1.0 / (3. * tau_pi)) * (4. * eta + 2. * lambda_piPi * Pi - (3 * delta_pipi + tau_pipi) * fabs(Lambda_1)) + 
-            (zeta + delta_PiPi * Pi - lambda_Pipi * fabs(Lambda_1)) / tau_Pi + 
-            (e + p + Pi - fabs(Lambda_1)) * cs2 >= 
-            ( (e + p + Pi + Lambda_2) * (e + p + Pi + Lambda_3) ) / 
-            ( 3. * (e + p + Pi - fabs(Lambda_1)) ) * 
-            ( 1. + 2. * ( (1.0 / (2. * tau_pi)) * (2. * eta + lambda_piPi * Pi) + (tau_pipi / (2. * tau_pi)) * Lambda_3 ) /
-            ( e + p + Pi - fabs(Lambda_1) ) );
-
-            //condition5h = true; // Temporarily set to true for testing
-
-            bool sufficient_conditions = 
-                (condition5a && condition5b && condition5c && condition5d && condition5e && condition5f && condition5g && condition5h);
-            causality_result = sufficient_conditions ? 1 : 0; // 1: Causal, 0: Not determined
-            //std::cout << "Causality result for particle " << ia << ": " << causality_result << std::endl;
-            //write which conditions failed
-            //if (!sufficient_conditions)
-            //{
-            //  std::cout << "Failed conditions: " << std::endl;
-            //  if (!condition5a) std::cout << "Condition 5a failed." << std::endl;
-            //  if (!condition5b) std::cout << "Condition 5b failed." << std::endl;
-            //  if (!condition5c) std::cout << "Condition 5c failed." << std::endl;
-            //  if (!condition5d) std::cout << "Condition 5d failed." << std::endl;
-            //  if (!condition5e) std::cout << "Condition 5e failed." << std::endl;
-            //  if (!condition5f) std::cout << "Condition 5f failed." << std::endl;
-            //  if (!condition5g) std::cout << "Condition 5g failed." << std::endl;
-            //  if (!condition5h) std::cout << "Condition 5h failed." << std::endl;
-            //}
-
-        }
-        device_hydro_scalar.access(is, ia, hydro_info::causality) = causality_result;
+    device_hydro_scalar.access(is, ia, hydro_info::causality)
+        = causality::verdict_bdnr(in);
   };
 
-    Cabana::simd_parallel_for(host_simd_policy, causality_check, "check_causality_conditions");
-    Kokkos::fence();
+  Cabana::simd_parallel_for(host_simd_policy, causality_check, "check_causality_conditions");
+  Kokkos::fence();
 }
 
 

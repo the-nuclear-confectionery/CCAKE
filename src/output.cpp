@@ -158,13 +158,13 @@ void Output<D,TEOM>::print_system_state_to_txt()
         out << p.hydro.gamma << " " //36
         << p.Freeze << " " //37
         << p.get_current_eos_name() << " " //38
-        << p.hydro.causality << " "
-        << p.hydro.knudsen_diffusion_B         << " " //39
-        << p.hydro.knudsen_diffusion_S         << " " //40
-        << p.hydro.knudsen_diffusion_Q         << " " //41
-        << p.hydro.inverse_reynolds_diffusion_B << " " //42
-        << p.hydro.inverse_reynolds_diffusion_S << " " //43
-        << p.hydro.inverse_reynolds_diffusion_Q << " " << "\n"; //44
+        << p.hydro.causality << " " //39
+        << p.hydro.knudsen_diffusion_B         << " " //40
+        << p.hydro.knudsen_diffusion_S         << " " //41
+        << p.hydro.knudsen_diffusion_Q         << " " //42
+        << p.hydro.inverse_reynolds_diffusion_B << " " //43
+        << p.hydro.inverse_reynolds_diffusion_S << " " //44
+        << p.hydro.inverse_reynolds_diffusion_Q << "\n"; //45
   }
 
   out << std::flush;

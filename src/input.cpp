@@ -349,6 +349,14 @@ bool cc::Input::decode_settings(const YAML::Node& node){
         formatted_output::report("This is an optional parameter. Setting to default value.");
         settingsPtr->Freeze_Out_Temperature = cc::defaults::Freeze_Out_Temperature;
       }
+      // Freeze-out is always at e <= e(T_fo, mu = 0); the "temperature" (isotherm) criterion was removed.
+      if (node["particlization"]["criterion"]
+          && node["particlization"]["criterion"].as<std::string>() != "energy")
+      {
+        std::cerr << "ERROR: particlization.criterion was removed; freeze-out is always at constant "
+                     "energy density. Delete the key from the config." << std::endl;
+        abort();
+      }
     }
 
     //--------------------------------------------------------------------------
@@ -1074,6 +1082,15 @@ bool cc::Input::decode_settings(const YAML::Node& node){
       settingsPtr->causality_minimal_stride = cc::defaults::causality_minimal_stride;
     }
     if (settingsPtr->causality_minimal_stride < 1) settingsPtr->causality_minimal_stride = 1;
+    // The Theorem-1 causality check (arXiv:2607.05639) was removed; BDNR is the only check.
+    for (const char* removed_key : {"causality_theorem1", "causality_theorem1_angles", "causality_zero_baryon"})
+      if (node["output"][removed_key])
+      {
+        std::cerr << "ERROR: output." << removed_key
+                  << " was removed (BDNR is the only causality check); delete the key from the config."
+                  << std::endl;
+        abort();
+      }
     return true;
 }
 

@@ -1,4 +1,5 @@
 #include "eom_cartesian.h"
+#include "eom_causality.hpp"
 // #include <fstream>
 // #include <iostream>
 
@@ -329,12 +330,15 @@ void EoM_cartesian<D>::evaluate_time_derivatives( std::shared_ptr<SystemState<D>
       //add contribution from shear MRFs
       double F_shv_nabla_u = device_hydro_scalar.access(is, ia, hydro_info::F_shv_nabla_u);
       F_extensive_entropy += F_shv_nabla_u/(sigma*gamma*T);
-      F_extensive_bulk += -(lambda_Pipi*F_shv_nabla_u
+      // lambda_Pipi sign brought into line with the Milne EoM (eom_default.cpp), where it was corrected by
+      // commit dbedcb71 "Fixed DNMR terms"; the Cartesian copy still carried the pre-fix sign, and lambda_Pipi
+      // is ON by default (const bool default in defaults.h), so it was active in every Cartesian run.
+      F_extensive_bulk += -( -lambda_Pipi*F_shv_nabla_u
                       - phi3*cartesian::contract(shv_cov,shv))/(sigma*gamma*tau_Pi);
       cartesian::Vector<double,D> M_shv_nabla_u;
       for(int idir=0; idir<D; ++idir){
         M_shv_nabla_u(idir) =  device_hydro_vector.access(is, ia, hydro_info::M_shv_nabla_u,idir);
-        M_extensive_bulk_aux(idir) += -lambda_Pipi*M_shv_nabla_u(idir)/(sigma*gamma*tau_Pi);
+        M_extensive_bulk_aux(idir) += +lambda_Pipi*M_shv_nabla_u(idir)/(sigma*gamma*tau_Pi);
         M_extensive_entropy(idir) += M_shv_nabla_u(idir)/(sigma*gamma*T);
       }
     }
@@ -1894,297 +1898,57 @@ void EoM_cartesian<D>::compute_hydro_numbers(std::shared_ptr<SystemState<D>> sys
 
 
    
-/// @brief Checks causality conditions in the hydrodynamic evolution.
-/// @details Computes the eigenvalues of the shear tensor \(\pi^{\mu\nu}\) and verifies 
-/// necessary and sufficient conditions for causality using the most general formulation.
-/// Stores the results in device_hydro_scalar.
+/// @brief Classifies each particle's causality with the BDNR conditions.
+/// @details hydro_info::causality : BDNR, arXiv:2005.11632. Necessary set plus
+/// sufficient set, hence a 3-way verdict (causal / undetermined / acausal). The
+/// shear-stress eigenvalues Lambda_1..3 come in closed form from
+/// causality::shear_eigenvalues.
 /// @param sysPtr A shared pointer to the system state.
 template <unsigned int D>
 void EoM_cartesian<D>::check_causality(std::shared_ptr<SystemState<D>> sysPtr)
 {
-    double t = (sysPtr->t);
-    double t2 = t * t;
-    CREATE_VIEW(device_, sysPtr->cabana_particles);
-    auto simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH, ExecutionSpace>(0, sysPtr->cabana_particles.size());
-    auto host_simd_policy = Cabana::SimdPolicy<VECTOR_LENGTH, Kokkos::OpenMP>(0, sysPtr->cabana_particles.size());
+  const double t  = sysPtr->t;
+  const double t2 = t*t;
 
-    auto get_sorted_eigenvalues_of_pi_mu_nu = [](cartesian::Matrix<double, 4, 4> &shv_hybrid,
-                                                 double &Lambda_0,
-                                                 double &Lambda_1, double &Lambda_2, double &Lambda_3,
-                                                double &eps, const double &t2) -> bool
-    {
-        double m[16];
-        m[0]  =  shv_hybrid(0, 0); m[1]  =  shv_hybrid(0, 1); m[2]  =  shv_hybrid(0, 2); m[3]  =  shv_hybrid(0, 3);
-        m[4]  =  shv_hybrid(1, 0); m[5]  =  shv_hybrid(1, 1); m[6]  =  shv_hybrid(1, 2); m[7]  =  shv_hybrid(1, 3);
-        m[8]  =  shv_hybrid(2, 0); m[9]  =  shv_hybrid(2, 1); m[10] =  shv_hybrid(2, 2); m[11] =  shv_hybrid(2, 3);
-        m[12] =  shv_hybrid(3, 0); m[13] =  shv_hybrid(3, 1); m[14] =  shv_hybrid(3, 2); m[15] =  shv_hybrid(3, 3);
-        //m[0]  =  -shv_hybrid(0, 0); m[1]  =  -shv_hybrid(0, 1); m[2]  =  -shv_hybrid(0, 2); m[3]  =  -shv_hybrid(0, 3);
-        //m[4]  =  shv_hybrid(0, 1); m[5]  =  shv_hybrid(1, 1); m[6]  =  shv_hybrid(1, 2); m[7]  =  shv_hybrid(1, 3);
-        //m[8]  =  shv_hybrid(0, 2); m[9]  =  shv_hybrid(1, 2); m[10] =  shv_hybrid(2, 2); m[11] =  t2*shv_hybrid(2, 3);
-        //m[12] =  t2*shv_hybrid(0, 3); m[13] =  t2*shv_hybrid(1,3); m[14] =  t2*shv_hybrid(2,3); m[15] =  t2*shv_hybrid(3, 3);
-      	gsl_vector_complex *eval = gsl_vector_complex_alloc(4);
-      	gsl_matrix_complex *evec = gsl_matrix_complex_alloc(4, 4);
-      
-      	gsl_matrix_view mat = gsl_matrix_view_array(m, 4, 4);
-      	gsl_eigen_nonsymmv_workspace *w = gsl_eigen_nonsymmv_alloc(4);
-      	int success = gsl_eigen_nonsymmv (&mat.matrix, eval, evec, w);
-      	gsl_eigen_nonsymmv_free(w);
-      
-      	// sort by magnitude first
-      	gsl_eigen_nonsymmv_sort(eval, evec, GSL_EIGEN_SORT_ABS_ASC);
-      
-      	// check eigensystem
-      	/*if (true)
-      	for (int i = 0; i < 4; i++)
-            {
-              gsl_complex eval_i
-                 = gsl_vector_complex_get (eval, i);
-              gsl_vector_complex_view evec_i
-                 = gsl_matrix_complex_column (evec, i);
-      
-              printf ("eigenvalue = %g + %gi\n",
-                      GSL_REAL(eval_i), GSL_IMAG(eval_i));
-              printf ("eigenvector = \n");
-              for (int j = 0; j < 4; ++j)
-                {
-                  gsl_complex z =
-                    gsl_vector_complex_get(&evec_i.vector, j);
-                  printf("%g + %gi\n", GSL_REAL(z), GSL_IMAG(z));
-                }
-            }*/
-         
-         
-         
-      	for ( int elem = 0; elem < 4; elem++ )
-      		if ( abs(GSL_IMAG(gsl_vector_complex_get(eval, elem)))
-      				> 0.01*abs(GSL_REAL(gsl_vector_complex_get(eval, elem))) )
-      		{
-      			return false;
-      		}
-      
-      	Lambda_0 = GSL_REAL(gsl_vector_complex_get(eval, 0));
-      	double ratio = abs(Lambda_0 / (abs(GSL_REAL(gsl_vector_complex_get(eval, 3)))+eps));
-      
-      	/*cout << "Check #1 here: "
-      		<< GSL_REAL(gsl_vector_complex_get(eval, 0)) << "   "
-      		<< GSL_REAL(gsl_vector_complex_get(eval, 1)) << "   "
-      		<< GSL_REAL(gsl_vector_complex_get(eval, 2)) << "   "
-      		<< GSL_REAL(gsl_vector_complex_get(eval, 3)) << endl;*/
-      
-      	// sort by value next
-      	gsl_eigen_nonsymmv_sort(eval, evec, GSL_EIGEN_SORT_VAL_ASC);
-      
-      	/*cout << "Check #2 here: "
-      		<< GSL_REAL(gsl_vector_complex_get(eval, 0)) << "   "
-      		<< GSL_REAL(gsl_vector_complex_get(eval, 1)) << "   "
-      		<< GSL_REAL(gsl_vector_complex_get(eval, 2)) << "   "
-      		<< GSL_REAL(gsl_vector_complex_get(eval, 3)) << endl;*/
-      
-      	double tmp0 = GSL_REAL(gsl_vector_complex_get(eval, 0));
-      	double tmp1 = GSL_REAL(gsl_vector_complex_get(eval, 1));
-      	double tmp2 = GSL_REAL(gsl_vector_complex_get(eval, 2));
-      	double tmp3 = GSL_REAL(gsl_vector_complex_get(eval, 3));
-      
-      
-      	// sort eval by values
-      	//Lambda_0 = 0.0;
-      	Lambda_1 = tmp0;
-      	Lambda_2 = ( abs(tmp1) > abs(tmp2) ) ? tmp1 : tmp2;
-      	Lambda_3 = tmp3;
-      
-      	if ( ratio > 0.01 )
-      	{
-      		success++;
-      	}
-      	//else
-      	//	cerr << "Found zero eigenvalue with ratio = " << ratio << endl;
-      
-      	gsl_vector_complex_free(eval);
-      	gsl_matrix_complex_free(evec);
-      
-      	//return ( ( success == 0 ) and ( ratio <= epsilon ) );
-      	return ( success == 0 );
-    };
+  CREATE_VIEW(device_, sysPtr->cabana_particles);
+  auto host_simd_policy
+      = Cabana::SimdPolicy<VECTOR_LENGTH, Kokkos::OpenMP>(0, sysPtr->cabana_particles.size());
 
+  Kokkos::fence(); // ensure device kernels have completed before the host-side check
 
-    Kokkos::fence(); // ensure GPU kernels complete before host causality check
-    auto causality_check = [=](const int is, const int ia)
-    {
-        double e, p, Pi, eta, zeta, tau_pi, tau_Pi, delta_PiPi, lambda_Pipi, delta_pipi, lambda_piPi, cs2,
-               tau_pipi;
-        double Lambda_0, Lambda_1, Lambda_2, Lambda_3;
+  auto causality_check = [=](const int is, const int ia)
+  {
+    causality::Inputs in;
 
-        e  = device_thermo.access(is, ia, thermo_info::e);
-        p  = device_thermo.access(is, ia, thermo_info::p);
-        Pi = device_hydro_scalar.access(is, ia, hydro_info::bulk);
-        eta = device_hydro_scalar.access(is, ia, hydro_info::eta_pi);
-        zeta = device_hydro_scalar.access(is, ia, hydro_info::zeta_Pi);
-        tau_pi = device_hydro_scalar.access(is, ia, hydro_info::tau_pi);
-        tau_pipi = device_hydro_scalar.access(is, ia, hydro_info::tau_pipi);
-        tau_Pi = device_hydro_scalar.access(is, ia, hydro_info::tau_Pi);
-        delta_PiPi = device_hydro_scalar.access(is, ia, hydro_info::delta_PiPi);
-        lambda_Pipi = device_hydro_scalar.access(is, ia, hydro_info::lambda_Pipi);
-        delta_pipi = device_hydro_scalar.access(is, ia, hydro_info::delta_pipi);
-        lambda_piPi = device_hydro_scalar.access(is, ia, hydro_info::lambda_piPi);
-        cs2 = device_thermo.access(is, ia, ccake::thermo_info::cs2);
+    in.e   = device_thermo.access(is, ia, thermo_info::e);
+    in.p   = device_thermo.access(is, ia, thermo_info::p);
+    in.cs2 = device_thermo.access(is, ia, thermo_info::cs2);
+    in.Pi  = device_hydro_scalar.access(is, ia, hydro_info::bulk);
 
-        cartesian::Matrix<double, 4, 4> shv;
-        for (int idir = 0; idir < 4; ++idir)
-        {
-            for (int jdir = 0; jdir < 4; ++jdir)
-            {
-                shv(idir, jdir) = device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir, jdir);
-            }
-        }
-        cartesian::Matrix<double, 4, 4> shv_hybrid = shv;
-        shv_hybrid.make_covariant(0, t2);
-        //shv_mu^nu 
+    in.eta         = device_hydro_scalar.access(is, ia, hydro_info::eta_pi);
+    in.zeta        = device_hydro_scalar.access(is, ia, hydro_info::zeta_Pi);
+    in.tau_pi      = device_hydro_scalar.access(is, ia, hydro_info::tau_pi);
+    in.tau_Pi      = device_hydro_scalar.access(is, ia, hydro_info::tau_Pi);
+    in.tau_pipi    = device_hydro_scalar.access(is, ia, hydro_info::tau_pipi);
+    in.delta_PiPi  = device_hydro_scalar.access(is, ia, hydro_info::delta_PiPi);
+    in.lambda_Pipi = device_hydro_scalar.access(is, ia, hydro_info::lambda_Pipi);
+    in.delta_pipi  = device_hydro_scalar.access(is, ia, hydro_info::delta_pipi);
+    in.lambda_piPi = device_hydro_scalar.access(is, ia, hydro_info::lambda_piPi);
 
-        int causality_result;
+    cartesian::Matrix<double,4,4> shv;
+    for ( int idir = 0; idir < 4; ++idir )
+      for ( int jdir = 0; jdir < 4; ++jdir )
+        shv(idir, jdir)
+            = device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir, jdir);
 
-        bool success = get_sorted_eigenvalues_of_pi_mu_nu(shv, Lambda_0 ,Lambda_1, Lambda_2, Lambda_3, e, t2);
-        if (!success)
-        {
-            std::cout << "Error: Failed to compute eigenvalues of pi_mu_nu for particle " << ia << " in system, setting causality to -100." << std::endl;
-            //print shv(mu,3) values
-            for (int idir = 0; idir < 4; ++idir)
-            {
-                std::cout << "shv(" << idir << ",3) = " << shv(idir, 3) << std::endl;
-            }
-            causality_result = -100; // Error code
+    causality::shear_eigenvalues(shv, t2, in.Lam);
 
-        }
-
-        std::array<double, 3> Lambda = {Lambda_1, Lambda_2, Lambda_3};
-
-        //basic conditions
-				bool necessary_conditions
-						= (tau_Pi>=0) && (tau_pi>=0) && (eta>=0) && (zeta>=0)
-							&& (tau_pipi>=0) && (delta_PiPi>=0) && (lambda_Pipi>=0)
-							&& (delta_pipi>=0) && (lambda_piPi>=0) && (cs2>=0)
-							&& (e>=0) && (p>=0) && (e+p+Pi>0);
-
-        // Evaluate conditions that do not require loops
-        bool condition4a = (2. * eta + lambda_piPi * Pi) - (tau_pi * fabs(Lambda_1) / 2.) >= 0;
-
-        bool condition4b = (e + p + Pi - (1.0 / (2. * tau_pi)) * (2. * eta + lambda_piPi * Pi) -
-                           (tau_pipi / (4. * tau_pi)) * Lambda_3) >= 0;
-
-        // Check conditions that require a single index "d"
-        for (int d = 1; d <= 3; ++d) {
-            double Lambda_d = Lambda[d - 1];  // Get Lambda_d
-            bool condition4e = (1.0 / (2. * tau_pi)) * (2. * eta + lambda_piPi * Pi) +
-                              (tau_pipi / (2. * tau_pi)) * Lambda_d +
-                              (1.0 / (6. * tau_pi)) * (2. * eta + lambda_piPi * Pi +
-                                                       (6 * delta_pipi - tau_pipi) * Lambda_d) +
-                              (zeta + delta_PiPi * Pi + lambda_Pipi * Lambda_d) / tau_Pi +
-                              (e + p + Pi + Lambda_d) * cs2 >= 0;
-
-            bool condition4f = (e + p + Pi + Lambda_d - (1.0 / (2. * tau_pi)) * (2. * eta + lambda_piPi * Pi) -
-                               (tau_pipi / (2. * tau_pi)) * Lambda_d -
-                               (1.0 / (6. * tau_pi)) * (2. * eta + lambda_piPi * Pi +
-                                                        (6 * delta_pipi - tau_pipi) * Lambda_d) -
-                               (zeta + delta_PiPi * Pi + lambda_Pipi * Lambda_d) / tau_Pi -
-                               (e + p + Pi + Lambda_d) * cs2) >= 0;
-
-            necessary_conditions &= (condition4e && condition4e);
-        }
-
-        // Check conditions that require two indices "a, d" with a ≠ d
-        for (int a = 1; a <= 3; ++a) {
-            for (int d = 1; d <= 3; ++d) {
-                if (a == d) continue; // Skip cases where a == d
-
-                double Lambda_a = Lambda[a - 1];  // Get Lambda_a
-                double Lambda_d = Lambda[d - 1];  // Get Lambda_d
-
-                bool condition4c = (1.0 / (2. * tau_pi)) * (2. * eta + lambda_piPi * Pi) +
-                                  (tau_pipi / (4. * tau_pi)) * (Lambda_a + Lambda_d) >= 0;
-
-                bool condition4d = (e + p + Pi + Lambda_a - (1.0 / (2. * tau_pi)) * (2. * eta + lambda_piPi * Pi) -
-                                   (tau_pipi / (4. * tau_pi)) * (Lambda_d + Lambda_a)) >= 0;
-
-                necessary_conditions &= (condition4c && condition4d);
-            }
-        }
-
-        // Combine the results
-        necessary_conditions &= (condition4a && condition4b);
-        if (!necessary_conditions)
-        {
-          causality_result = -1; //not causal
-            
-        }
-        else{
-            // Condition 5a
-            bool condition5a =
-            (e + p + Pi - fabs(Lambda_1)) - (1.0 / (2. * tau_pi)) * (2. * eta + lambda_piPi * Pi) - 
-            (tau_pipi / (2. * tau_pi)) * Lambda_3 >= 0;
-            
-            bool condition5b =
-            (2. * eta + lambda_piPi * Pi) - tau_pipi * fabs(Lambda_1) > 0;
-            bool condition5c =
-            tau_pipi <= 6. * delta_pipi;
-            bool condition5d =
-            (lambda_Pipi / tau_Pi + cs2 - (tau_pipi / (12. * tau_pi))) >= 0;
-            // Condition 5e
-            bool condition5e =
-            (1.0 / (3. * tau_pi)) * (4. * eta + 2. * lambda_piPi * Pi + (3. * delta_pipi + tau_pipi) * Lambda_3) +
-            (zeta + delta_PiPi * Pi + lambda_Pipi * Lambda_3) / tau_Pi + 
-            fabs(Lambda_1) + Lambda_3 * cs2 + 
-            ( (12. * delta_pipi - tau_pipi) / (12. * tau_pi) ) * 
-            ( (lambda_Pipi / tau_Pi + cs2 - tau_pipi / (12. * tau_pi)) * pow(Lambda_3 + fabs(Lambda_1), 2.) ) / 
-            ( (e + p + Pi - fabs(Lambda_1)) - (1.0 / (2. * tau_pi)) * (2. * eta + lambda_piPi * Pi) - (tau_pipi / (2. * tau_pi)) * Lambda_3 ) 
-            <= (e + p + Pi) * (1. - cs2); 
-
-            // Condition 5f
-            bool condition5f =
-            (1.0 / (6. * tau_pi)) * (2. * eta + lambda_piPi * Pi + (tau_pipi - 6. * delta_pipi) * fabs(Lambda_1)) + 
-            (zeta + delta_PiPi * Pi - lambda_Pipi * fabs(Lambda_1)) / tau_Pi + 
-            (e + p + Pi - fabs(Lambda_1)) * cs2 >= 0;
-
-            // Condition 5g
-            bool condition5g =
-            1. >= ( (12. * delta_pipi - tau_pipi) / (12. * tau_pi) ) * 
-            ( (lambda_Pipi / tau_Pi + cs2 - tau_pipi / (12. * tau_pi)) * pow(Lambda_3 + fabs(Lambda_1), 2.) ) /
-            pow( (1.0 / (2. * tau_pi)) * (2 * eta + lambda_piPi * Pi) - (tau_pipi / (2. * tau_pi)) * fabs(Lambda_1), 2. );
-            
-
-            bool condition5h =
-            (1.0 / (3. * tau_pi)) * (4. * eta + 2. * lambda_piPi * Pi - (3 * delta_pipi + tau_pipi) * fabs(Lambda_1)) + 
-            (zeta + delta_PiPi * Pi - lambda_Pipi * fabs(Lambda_1)) / tau_Pi + 
-            (e + p + Pi - fabs(Lambda_1)) * cs2 >= 
-            ( (e + p + Pi + Lambda_2) * (e + p + Pi + Lambda_3) ) / 
-            ( 3. * (e + p + Pi - fabs(Lambda_1)) ) * 
-            ( 1. + 2. * ( (1.0 / (2. * tau_pi)) * (2. * eta + lambda_piPi * Pi) + (tau_pipi / (2. * tau_pi)) * Lambda_3 ) /
-            ( e + p + Pi - fabs(Lambda_1) ) );
-
-            //condition5h = true; // Temporarily set to true for testing
-
-            bool sufficient_conditions = 
-                (condition5a && condition5b && condition5c && condition5d && condition5e && condition5f && condition5g && condition5h);
-            causality_result = sufficient_conditions ? 1 : 0; // 1: Causal, 0: Not determined
-            //std::cout << "Causality result for particle " << ia << ": " << causality_result << std::endl;
-            //write which conditions failed
-            //if (!sufficient_conditions)
-            //{
-            //  std::cout << "Failed conditions: " << std::endl;
-            //  if (!condition5a) std::cout << "Condition 5a failed." << std::endl;
-            //  if (!condition5b) std::cout << "Condition 5b failed." << std::endl;
-            //  if (!condition5c) std::cout << "Condition 5c failed." << std::endl;
-            //  if (!condition5d) std::cout << "Condition 5d failed." << std::endl;
-            //  if (!condition5e) std::cout << "Condition 5e failed." << std::endl;
-            //  if (!condition5f) std::cout << "Condition 5f failed." << std::endl;
-            //  if (!condition5g) std::cout << "Condition 5g failed." << std::endl;
-            //  if (!condition5h) std::cout << "Condition 5h failed." << std::endl;
-            //}
-
-        }
-        device_hydro_scalar.access(is, ia, hydro_info::causality) = causality_result;
+    device_hydro_scalar.access(is, ia, hydro_info::causality)
+        = causality::verdict_bdnr(in);
   };
 
-    Cabana::simd_parallel_for(host_simd_policy, causality_check, "check_causality_conditions");
-    Kokkos::fence();
+  Cabana::simd_parallel_for(host_simd_policy, causality_check, "check_causality_conditions");
+  Kokkos::fence();
 }
 
 
