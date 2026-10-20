@@ -241,7 +241,7 @@ class Settings
     int jets_Length_scaling     = 0;    ///< Choose BBMG length dependence
     int jets_Fluctuations       = 0;    ///< Choose BBMG fluctuations
     // 3D jet initialization mode:
-    //   "file"      → read N jets from jets_input_file (cols: x y eta pT phi rapidity)
+    //   "file"      → read N jets from jets_input_file (cols: x y eta pT phi rapidity [pdg])
     //   "hardcoded" → single jet at (x0,y0,eta0) with (pT, phi, rapidity)
     //   "sampled"   → sample njet jets: positions from SPH particles above Freezeout_Temp,
     //                 phi from phi_bins or uniform, rapidity sampled per sampling block.
