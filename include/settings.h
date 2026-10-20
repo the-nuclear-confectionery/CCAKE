@@ -181,6 +181,14 @@ class Settings
     //  - bulk quantities
     string zetaMode             = "";    ///< Choose parametrization for zeta/s
     bool critical_scaling_bulk  = false; ///< Whether to enable critical scaling of bulk viscosity
+    /// Use the EoS table's chiBB_nc field (a smooth non-critical baseline fitted to the same
+    /// table) as the LOCAL xi_0 in the bulk critical scaling, instead of the global constant.
+    /// Requires a 22-column table; ignored otherwise.  With this on the factor is normalised so
+    /// that it is 1 away from the transition.
+    bool critical_scaling_local_xi0 = false;
+    /// Hard cap on the bulk critical enhancement factor. <= 0 disables the cap.  Needed because
+    /// the raw factor reaches ~233 at the critical point and ~1259 at the plane maximum.
+    double critical_scaling_max = 10.0;
     double constant_zeta_over_s = 0.0;
     double cs2_dependent_zeta_A = 0.0;
     double cs2_dependent_zeta_p = 0.0;
@@ -204,12 +212,29 @@ class Settings
     bool input_initial_diffusion = false; ///< Whether to use the initial diffusion
                                           ///  coefficients from the input file
     double C_B = 0.0;   ///< coefficient for coth-form baryon diffusion kappa_B (Eq. 16)
+    ///< path to the tabulated holographic baryon DC conductivity sigma_B(T,muB)
+    string holographic_sigmaB_table_path = "";
+    ///< dimensionless overall multiplier on the tabulated kappa_B = T*sigma_B
+    double holographic_diffusion_scale = 1.0;
+    ///< propagation speed squared of the diffusion front (nernst_einstein tau_q);
+    ///< <= 0 means "use the local cs2"
+    double diffusion_wave_speed_sq = 0.0;
+    double b_q = 20.0;  ///< coefficient for tau_q = b_q * kappa_BB/n_B (kappa_over_n)
+    bool tau_q_causality_floor = true; ///< enforce tau_q >= D_B (Kapusta-Young)
+    ///< clamps on the nernst_einstein tau_q, in units of 1/T
+    double tau_q_min_over_T = 0.1;
+    double tau_q_max_over_T = 10.0;
     string diffusionRelaxMode = "default"; ///< Choose parametrization for diffusion relaxation time
     bool critical_scaling_diffusion = false; ///< Whether to enable Gaussian suppression of kappa near critical point
     double critical_point_T   = 0.0; ///< Critical point temperature [MeV]
     double critical_point_muB = 0.0; ///< Critical point baryon chemical potential [MeV]
     double critical_gaussian_width_T   = 0.0; ///< Gaussian width in T direction [MeV]
     double critical_gaussian_width_muB = 0.0; ///< Gaussian width in muB direction [MeV]
+    /// Diffusion critical-scaling form. "gaussian_suppression" (legacy): kappa_B x [1 - Gaussian] centred on
+    /// critical_point. "xi_power": the bulk scaling's form g(p) = min{[1 + (xi/xi_0)^p]/2, critical_scaling_max}
+    string critical_scaling_diffusion_mode = "gaussian_suppression";
+    double critical_scaling_kappa_power = 1.0;  ///< kappa_n ~ xi (model H: kappa_n ~ lambda_T ~ xi)
+    double critical_scaling_tauq_power  = 2.0;  ///< tau_n ~ xi^2 (diffusive-shear slow mode with shear present)
 
     // -- diffusion regulator (PhysRevC.98.034916, Appendix C, Eqs. C6-C8)
     bool   diffusion_regulator_enabled  = false; ///< enable/disable the diffusion regulator

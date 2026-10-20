@@ -1,6 +1,14 @@
 #ifndef TRANSPORT_COEFFICIENTS_CPP
 #define TRANSPORT_COEFFICIENTS_CPP
 #include "transport_coefficients.h"
+#include <algorithm>
+#include <cstdlib>
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <vector>
+
+#include "formatted_output.h"
 
 namespace ccake{
 namespace transport_coefficients{
@@ -67,6 +75,8 @@ parameters setup_parameters(std::shared_ptr<Settings> settingsPtr)
   else if (zetaMode == "cs2_dependent"){
     params.zeta_mode = ZETA_CS2_DEPENDENT;
   }
+  params.critical_scaling_local_xi0 = settingsPtr->critical_scaling_local_xi0;
+  params.critical_scaling_max       = settingsPtr->critical_scaling_max;
   if (settingsPtr->critical_scaling_bulk) {
     params.critical_scaling_bulk = true;
   } else {
@@ -96,6 +106,14 @@ parameters setup_parameters(std::shared_ptr<Settings> settingsPtr)
   {
     params.diffusion_mode = KAPPA_B_COTH;
   }
+  else if (diffusionMode == "constant_nB_over_T")
+  {
+    params.diffusion_mode = KAPPA_CONST_NB_OVER_T;
+  }
+  else if (diffusionMode == "holographic_table")
+  {
+    params.diffusion_mode = KAPPA_B_HOLO_TABLE;
+  }
   else
   {
     std::cout << "WARNING: Unknown diffusion mode: " << diffusionMode << std::endl;
@@ -111,6 +129,14 @@ parameters setup_parameters(std::shared_ptr<Settings> settingsPtr)
   else if (diffusionRelaxMode == "cb_over_T")
   {
     params.diffusion_relaxation_mode = TAU_Q_CB_OVER_T;    // tau_q = C_B/T
+  }
+  else if (diffusionRelaxMode == "kappa_over_n")
+  {
+    params.diffusion_relaxation_mode = TAU_Q_KAPPA_OVER_N;
+  }
+  else if (diffusionRelaxMode == "cattaneo" || diffusionRelaxMode == "nernst_einstein")
+  {
+    params.diffusion_relaxation_mode = TAU_Q_CATTANEO;
   }
   else{
     std::cout << "WARNING: Unknown diffusion relaxation mode: " << diffusionRelaxMode << std::endl
@@ -277,12 +303,21 @@ parameters setup_parameters(std::shared_ptr<Settings> settingsPtr)
   params.bulk_tau_pi_coeff = settingsPtr->bulk_tau_pi_coeff;
   params.modulate_zeta_with_tanh = settingsPtr->modulate_zeta_with_tanh;
   params.C_B = settingsPtr->C_B;
+  params.holo_diffusion_scale = settingsPtr->holographic_diffusion_scale;
+  params.diffusion_wave_speed_sq = settingsPtr->diffusion_wave_speed_sq;
+  params.b_q                     = settingsPtr->b_q;
+  params.tau_q_causality_floor   = settingsPtr->tau_q_causality_floor;
+  params.tau_q_min_over_T        = settingsPtr->tau_q_min_over_T;
+  params.tau_q_max_over_T        = settingsPtr->tau_q_max_over_T;
   params.constant_kappa_over_T2 = settingsPtr->constant_kappa_over_T2;
   params.critical_scaling_diffusion  = settingsPtr->critical_scaling_diffusion;
   params.critical_point_T            = settingsPtr->critical_point_T   / constants::hbarc_MeVfm;
   params.critical_point_muB          = settingsPtr->critical_point_muB / constants::hbarc_MeVfm;
   params.critical_gaussian_width_T   = settingsPtr->critical_gaussian_width_T   / constants::hbarc_MeVfm;
   params.critical_gaussian_width_muB = settingsPtr->critical_gaussian_width_muB / constants::hbarc_MeVfm;
+  params.critical_scaling_diffusion_mode = ( settingsPtr->critical_scaling_diffusion_mode == "xi_power" ) ? 1 : 0;
+  params.critical_scaling_kappa_power    = settingsPtr->critical_scaling_kappa_power;
+  params.critical_scaling_tauq_power     = settingsPtr->critical_scaling_tauq_power;
 
   return params;
 
@@ -381,7 +416,7 @@ double tau_Pi(const double* thermo, parameters params)
     return default_tau_Pi(thermo,params);
     break;
   case TAU_PI_BULK_DNMR:
-    return tau_Pi_DNMR_LeadingMass(thermo);
+    return tau_Pi_DNMR15(thermo, params);   // tau_Pi = zeta / [15 (1/3-cs2)^2 w]
     break;
   default:
     return default_tau_Pi(thermo,params);
@@ -594,6 +629,12 @@ Matrix<double, 3, 3> kappa(const double* thermo, parameters params)
   case KAPPA_B_COTH:
     return kappaB_coth(thermo, params);
     break;
+  case KAPPA_CONST_NB_OVER_T:
+    return const_nB_over_T_kappa(thermo, params);
+    break;
+  case KAPPA_B_HOLO_TABLE:
+    return kappaB_holo_table(thermo, params);
+    break;
   default:
     return default_kappa(thermo, params);
     break;
@@ -601,8 +642,30 @@ Matrix<double, 3, 3> kappa(const double* thermo, parameters params)
 }
 
 KOKKOS_INLINE_FUNCTION
+Matrix<double, 3, 3> tauq_base(const double* thermo, parameters params);
+
+/// tau_q of the configured relaxation mode, times the critical-slowing-down factor
+/// (xi/xi_0)^p_tauq in xi_power mode (exactly 1 otherwise, so every other configuration is unchanged).
+KOKKOS_INLINE_FUNCTION
 Matrix<double, 3, 3> tauq(const double* thermo, parameters params)
 {
+  Matrix<double, 3, 3> tauq_matrix = tauq_base(thermo, params);
+  const double slowing = critical_factor_tauq(thermo, params);
+  if ( slowing != 1.0 )
+    for (int i = 0; i < 3; ++i)
+      for (int j = 0; j < 3; ++j) tauq_matrix(i, j) *= slowing;
+  return tauq_matrix;
+}
+
+KOKKOS_INLINE_FUNCTION
+Matrix<double, 3, 3> tauq_base(const double* thermo, parameters params)
+{
+
+  if ( params.diffusion_relaxation_mode == TAU_Q_CATTANEO )
+    return tauq_cattaneo(thermo, params);
+  if ( params.diffusion_relaxation_mode == TAU_Q_KAPPA_OVER_N )
+    return tauq_kappa_over_n(thermo, params);
+
   int diffusion_mode = params.diffusion_mode;
   switch (diffusion_mode)
   {
@@ -613,10 +676,17 @@ Matrix<double, 3, 3> tauq(const double* thermo, parameters params)
     return Matrix<double, 3, 3>{0.0};
     std::cout << "DNMR tauq not implemented yet" << std::endl;
     break;
+  case KAPPA_CONST_NB_OVER_T:
+    return default_tauq(thermo, params);  // tau_q = 0.2/T
+    break;
+  case KAPPA_B_HOLO_TABLE:
+    if (params.diffusion_relaxation_mode == TAU_Q_CB_OVER_T)
+      return tauqB_only(thermo, params);   // tau_q = C_B/T
+    else
+      return default_tauq(thermo, params); // tau_q = 0.2/T
+    break;
   case KAPPA_B_COTH:
-    // relaxation time honors the relaxation_mode: tau_q = C_B/T (cb_over_T, legacy)
-    // or the C_B-independent tau_q = 0.2/T (constant_over_T). Decoupling tau_q from C_B
-    // lets C_B vary only the kappa_B magnitude.
+    // tau_q = C_B/T (cb_over_T) or 0.2/T (constant_over_T, independent of C_B)
     if (params.diffusion_relaxation_mode == TAU_Q_CB_OVER_T)
       return tauqB_only(thermo, params);   // tau_q = C_B/T
     else
@@ -653,9 +723,7 @@ double constEta(const double *therm, const parameters params)
 KOKKOS_INLINE_FUNCTION
 double JakiParam(const double *therm)
 {
-  //picked the easiest one with functional dependence
-  //parameters hardcoded for now. just to see how it works
-  ///TODO: Create interface for changing parameters
+  // parameters hardcoded for now (TODO: make them settings)
 
   double T     = therm[thermo_info::T];
   double s     = therm[thermo_info::s];
@@ -683,11 +751,8 @@ double LinearMusParam(const double *therm, const parameters params)
 }
 
 //===============================
-/// BES-Bayesian piecewise-linear eta/s(muB) with configurable nodes
-/// shear_eta_0/2/4 at muB = 0, 0.2, 0.4 GeV (Phys. Rev. C 110, 054905 form):
-///   eta/s = eta_0 + (eta_2 - eta_0)*muB/0.2        for 0 <= muB <= 0.2 GeV
-///         = eta_2 + (eta_4 - eta_2)*(muB-0.2)/0.2  for 0.2 < muB < 0.4 GeV
-///         = eta_4                                  for muB >= 0.4 GeV
+/// Piecewise-linear eta/s(muB) (BES Bayesian, PRC 110, 054905): nodes shear_eta_0/2/4
+/// at muB = 0, 0.2, 0.4 GeV, constant beyond 0.4 GeV.
 KOKKOS_INLINE_FUNCTION
 double PiecewiseMuBParam(const double *therm, const parameters params)
 {
@@ -706,6 +771,7 @@ double PiecewiseMuBParam(const double *therm, const parameters params)
     eta_over_s = params.shear_eta_4;
   return eta_over_s*(w/T);
 }
+
 
 //===============================
 ///TODO: add this in later..
@@ -816,10 +882,7 @@ double cs2_dependent_zeta(const double *therm, const parameters params)
   const double A = params.cs2_dependent_zeta_A;
   const double p = params.cs2_dependent_zeta_p;
 
-  //----------------------------------------------
-  //!!!!!  Bulk is too large in low-T regime
-  //!!!!!  ==>> add modulating tanh-factor with
-  //!!!!!       power-law dependence to suppress
+  // optional tanh factor (with a power law) that suppresses the bulk at low T
   double factor = 1.0, th_x = 0.0, x_p = 0.0;
   if ( params.modulate_zeta_with_tanh )
   {
@@ -897,23 +960,58 @@ double cs2_dependent_zeta(const double *therm, const parameters params)
 // Possible function choices for bulk relaxation
 
 //===============================
+// The tanh factor of cs2_dependent_zeta alone: all of zeta that survives in default_tau_Pi.
+KOKKOS_INLINE_FUNCTION
+double cs2_dependent_zeta_tanh_factor(const double *therm, const parameters params)
+{
+  if ( !params.modulate_zeta_with_tanh ) return 1.0;
+  const double p = params.cs2_dependent_zeta_p;
+  const double T_transition = 150.0/constants::hbarc_MeVfm,
+               T_scale      = 10.0/constants::hbarc_MeVfm;
+  const double th_x = tanh( ( therm[thermo_info::T] - T_transition ) / T_scale );
+  const double x_p  = pow(therm[thermo_info::T]/T_transition, p);
+  return 0.5*(1.0 + x_p) + 0.5*(1.0 - x_p)*th_x;
+}
+
+//===============================
 KOKKOS_INLINE_FUNCTION
 double default_tau_Pi(const double *therm, const parameters params)
 {
   double p = params.cs2_dependent_zeta_p;
   const double causal_cs2 = therm[thermo_info::cs2] > 1 ? 1 : therm[thermo_info::cs2];
+
+  if ( params.zeta_mode == ZETA_CS2_DEPENDENT )
+  {
+    // zeta = A f (1/3-cs2)^p w/T cancels: tau_Pi = coeff zeta/((1/3-cs2)^p w) = coeff A f/T
+    double tau = params.bulk_tau_pi_coeff * params.cs2_dependent_zeta_A
+                 * cs2_dependent_zeta_tanh_factor(therm, params)
+                 / therm[thermo_info::T];
+    if ( params.critical_scaling_bulk )
+      tau *= critical_scaling_factor_bulk(therm, params);
+    return Kokkos::max( tau, 0.1 );
+  }
+
+  // Every other zeta mode (constant / DNMR / default / interpolate) has no
+  // (1/3-cs2)^p in zeta, so here the division -- and the guard -- are genuine.
   if ( pow((1.0/3.0-causal_cs2), p) < 1e-10 )
     return 1e10;
   else
-    // tau_Pi prefactor is a config knob (bulk_tau_pi_coeff, default 5). The original hardcoded 5
-    // gave tau_Pi = 5A/T (relaxation coupled to viscosity magnitude -> effective bulk saturated as
-    // A grew). Now tau_Pi = bulk_tau_pi_coeff * A / T, so passing coeff (e.g. 5/A) decouples it from A.
+    // tau_Pi = bulk_tau_pi_coeff zeta / ((1/3-cs2)^p w)
     return Kokkos::max( params.bulk_tau_pi_coeff*zeta(therm,params)/( pow((1.0/3.0-causal_cs2), p)*therm[thermo_info::w] ), 0.1 );
 }
 
 //===============================
+// DNMR (14-moment) bulk relaxation time: tau_Pi = zeta / [15 (1/3 - cs2)^2 (e + P)]
 KOKKOS_INLINE_FUNCTION
-double tau_Pi_DNMR_LeadingMass(const double *therm) { return 0.0; }
+double tau_Pi_DNMR15(const double *therm, const parameters params)
+{
+  const double causal_cs2 = therm[thermo_info::cs2] > 1 ? 1 : therm[thermo_info::cs2];
+  const double gap = Kokkos::max( 1.0/3.0 - causal_cs2, 1e-3 );
+  const double w   = therm[thermo_info::w];
+  if ( !(w > 0.0) ) return 0.1;
+  const double tau = zeta(therm, params) / ( 15.0 * gap * gap * w );
+  return Kokkos::max( tau, 0.1 );
+}
 
 KOKKOS_INLINE_FUNCTION
 double delta_PiPi_DEFAULT(const double *therm, const parameters params)
@@ -977,9 +1075,7 @@ Matrix<double, 3, 3> default_kappa(const double *therm, const parameters params)
         ni_nj(i, j) = sqrt(abs(rho(i) * rho(j))) / sqrt(abs(mu(i) * mu(j)));
   
 
-  double suppression = 1.0;
-  if ( params.critical_scaling_diffusion && therm[thermo_info::eos_type_is_table] > 0.5 )
-    suppression = gaussian_suppression_diffusion(therm, params);
+  const double suppression = critical_factor_kappa(therm, params);
 
   for (int i = 0; i < 3; ++i)
     for (int j = 0; j < 3; ++j)
@@ -990,7 +1086,43 @@ Matrix<double, 3, 3> default_kappa(const double *therm, const parameters params)
 }
 
 
-//from PhysRevD.101.076007 
+//===============================
+// kappa_ij = const_ij sqrt(|rho_i rho_j|)/T (constant_kappa_over_T2 matrix): vanishes where
+// the density does and has no coth(muB/T) edge amplification. tau_q = 0.2/T.
+KOKKOS_INLINE_FUNCTION
+Matrix<double, 3, 3> const_nB_over_T_kappa(const double *therm, const parameters params)
+{
+  Matrix<double, 3, 3> kappa_matrix{0.0};
+  const double T = therm[thermo_info::T];
+  if ( T <= TINY ) return kappa_matrix;
+  Vector<double, 3> rho = { therm[thermo_info::rhoB],
+                            therm[thermo_info::rhoS],
+                            therm[thermo_info::rhoQ] };
+  const double suppression = critical_factor_kappa(therm, params);
+  for (int i = 0; i < 3; ++i)
+    for (int j = 0; j < 3; ++j)
+      kappa_matrix(i, j) = suppression * params.constant_kappa_over_T2[i][j]
+                           * Kokkos::sqrt(Kokkos::abs(rho(i) * rho(j))) / T;
+  return kappa_matrix;
+}
+
+//===============================
+/// @brief Raises a prescribed tau_q (0.2/T or C_B/T) to the causality bound
+/// tau_q >= D_B = kappa_BB/(T chi_BB) (Kapusta & Young, PRC 90, 044902, below Eq. 27).
+KOKKOS_INLINE_FUNCTION
+double tau_q_with_causality_floor(double tau_q, const double *therm,
+                                  const parameters params)
+{
+  if ( !params.tau_q_causality_floor ) return tau_q;
+  const double T      = therm[thermo_info::T];
+  const double chi_BB = therm[thermo_info::chiBB];
+  if ( !(T > TINY) || !(chi_BB > TINY) ) return tau_q;
+  const double diffusion_constant = kappa(therm, params)(0, 0)/(T*chi_BB);
+  if ( !Kokkos::isfinite(diffusion_constant) ) return tau_q;
+  return Kokkos::fmax( tau_q, diffusion_constant );
+};
+
+//from PhysRevD.101.076007
 KOKKOS_INLINE_FUNCTION
 Matrix<double, 3, 3> default_tauq(const double *therm, const parameters params)
 {
@@ -1003,19 +1135,17 @@ Matrix<double, 3, 3> default_tauq(const double *therm, const parameters params)
   }
 
   //add diagonal terms
+  const double tau_q = tau_q_with_causality_floor(0.2/T, therm, params);
   for (int i = 0; i < 3; ++i){
-    tauq_matrix(i, i) += 0.2/T;
+    tauq_matrix(i, i) += tau_q;
   }
 
   return tauq_matrix;
 };
 
 //===============================
-// Baryon-only diffusion coefficient kappa_B (Eq. 16):
-//   kappa_B = (C_B / T) * n_B * [ (1/3) coth(mu_B/T) - n_B T / (e + P) ]
-// Only the baryon-baryon (0,0) entry is populated; the strange/electric rows and
-// columns are left at zero. Valid only for a B-only charge configuration, which is
-// enforced on the host in Settings::check_consistency().
+// Baryon-only kappa_B (Eq. 16): kappa_B = (C_B/T) n_B [ (1/3) coth(mu_B/T) - n_B T/(e+P) ]
+// (only the (B,B) entry; needs a B-only charge configuration).
 KOKKOS_INLINE_FUNCTION
 Matrix<double, 3, 3> kappaB_coth(const double *therm, const parameters params)
 {
@@ -1025,46 +1155,173 @@ Matrix<double, 3, 3> kappaB_coth(const double *therm, const parameters params)
   const double nB  = therm[thermo_info::rhoB];
   const double w   = therm[thermo_info::w];   // enthalpy density = e + P
 
-  // coth(muB/T) diverges as muB/T -> 0. In near-vacuum / near-zero-baryon cells
-  // muB/T underflows and nB*coth(muB/T) becomes 0*inf = NaN (or a spurious spike),
-  // which destabilises the charge evolution. Baryon diffusion is negligible there,
-  // so require the coth argument to be bounded away from zero.
+  // coth(muB/T) diverges as muB/T -> 0 (0*inf in near-empty cells): keep the argument off 0
   constexpr double muB_over_T_floor = 1.0e-2;
   const double x = ( T > TINY ) ? muB / T : 0.0;
 
   if ( T > TINY && Kokkos::abs(w) > TINY && Kokkos::abs(x) > muB_over_T_floor )
   {
-    double kB = (params.C_B / T) * nB
-                    * ( (1.0/3.0) / Kokkos::tanh(x) - nB * T / w );
-    // Critical scaling: suppress baryon diffusion near the QCD critical point,
-    // mirroring default_kappa (Gaussian factor -> 0 at (Tc,muBc), -> 1 far away).
-    // Only meaningful for a tabulated (CP) EoS. Enables Phase-5 (CP EoS + coth
-    // diffusion + critical scaling); inert when critical_scaling_diffusion is false.
-    if ( params.critical_scaling_diffusion && therm[thermo_info::eos_type_is_table] > 0.5 )
-      kB *= gaussian_suppression_diffusion(therm, params);
-    // a diffusion coefficient must be finite and non-negative (a negative value is
-    // anti-diffusive and unconditionally unstable); clamp anything else to zero.
-    if ( Kokkos::isfinite(kB) && kB > 0.0 )
+    // |muB| and |nB|, so the coth term cannot flip sign at the table edge
+    const double abs_x  = Kokkos::abs(x);
+    const double abs_nB = Kokkos::abs(nB);
+    // bracket > 0 at low density, < 0 in the dense core (diffusion suppressed there)
+    const double bracket = (1.0/3.0)/Kokkos::tanh(abs_x) - abs_nB * T / w;
+    // kappa_B = 0 once the density term wins (the core suppression)
+    const double bracket_plus = Kokkos::fmax(bracket, 0.0);
+    double kB = (params.C_B / T) * abs_nB * bracket_plus;
+    // critical scaling (inert unless critical_scaling_diffusion is on)
+    kB *= critical_factor_kappa(therm, params);
+    // bracket_plus >= 0 already guarantees kB >= 0, so no hard clamp is needed -
+    // just reject non-finite values.
+    if ( Kokkos::isfinite(kB) )
       kappa_matrix(0, 0) = kB;
   }
 
   return kappa_matrix;
 }
 
-// Baryon-only diffusion relaxation time, tau_q = C_B / T.
-// The baryon-baryon (0,0) entry is the physical one; the EoM inverts the full
-// tau_q matrix (milne::inverse), so the strange/electric diagonals must also be
-// non-zero or tau_q is singular. With S/Q charges disabled their diffusion current
-// is zero, so their relaxation time is unused physically - we set them to the same
-// C_B/T purely to keep tau_q invertible.
+//===============================
+// kappa_B = T sigma_B(T, mu_B) from the tabulated holographic EMD baryon conductivity
+// (Rougemont, Noronha & Noronha-Hostler, arXiv:1507.06972), bilinear lookup. Outside the
+// table (trustworthy for 130 <= T <= 300 MeV, mu_B <= 400 MeV) the edge value is used.
+// Only the (B,B) entry; needs a B-only charge configuration.
+KOKKOS_INLINE_FUNCTION
+Matrix<double, 3, 3> kappaB_holo_table(const double *therm, const parameters params)
+{
+  Matrix<double, 3, 3> kappa_matrix{0.0};
+
+  const int num_temperatures = params.holo_sigmaB_num_temperatures;
+  const int num_potentials   = params.holo_sigmaB_num_potentials;
+  if ( num_temperatures < 2 || num_potentials < 2 ) return kappa_matrix;
+
+  const double T   = therm[thermo_info::T];
+  const double muB = therm[thermo_info::muB];
+  if ( !(T > TINY) ) return kappa_matrix;
+
+  // fractional grid coordinates; the table is symmetric under muB -> -muB, so the
+  // magnitude is what is looked up (matching kappaB_coth's symmetrized treatment).
+  double temperature_coordinate = ( T - params.holo_sigmaB_temperature_min )
+                                / params.holo_sigmaB_temperature_step;
+  double potential_coordinate   = ( Kokkos::abs(muB) - params.holo_sigmaB_potential_min )
+                                / params.holo_sigmaB_potential_step;
+
+  temperature_coordinate = Kokkos::fmin( Kokkos::fmax(temperature_coordinate, 0.0),
+                                         (double)(num_temperatures - 1) );
+  potential_coordinate   = Kokkos::fmin( Kokkos::fmax(potential_coordinate, 0.0),
+                                         (double)(num_potentials - 1) );
+
+  const int iT  = Kokkos::min( (int)temperature_coordinate, num_temperatures - 2 );
+  const int imu = Kokkos::min( (int)potential_coordinate,   num_potentials   - 2 );
+  const double wT  = temperature_coordinate - (double)iT;
+  const double wmu = potential_coordinate   - (double)imu;
+
+  const double sigma_B =
+      (1.0 - wT)*(1.0 - wmu)*params.holo_sigmaB(iT,     imu    )
+    + (1.0 - wT)*       wmu *params.holo_sigmaB(iT,     imu + 1)
+    +        wT *(1.0 - wmu)*params.holo_sigmaB(iT + 1, imu    )
+    +        wT *       wmu *params.holo_sigmaB(iT + 1, imu + 1);
+
+  // sigma_B is stored in natural units (fm^-1), so kappa_B comes out in fm^-2,
+  // the same units as every other kappa mode.
+  double kB = params.holo_diffusion_scale * T * sigma_B;
+
+  // critical scaling: an extra factor on top of the EMD result (its CP lies outside the table)
+  kB *= critical_factor_kappa(therm, params);
+
+  if ( Kokkos::isfinite(kB) && kB > 0.0 )
+    kappa_matrix(0, 0) = kB;
+
+  return kappa_matrix;
+}
+
+//===============================
+// Cattaneo baryon relaxation time (Kapusta & Young, PRC 90, 044902): tau_q = D_B / v_0^2 with
+// D_B = kappa_BB/(T chi_BB) (= sigma_B/chi_BB for the holographic kappa_B) and v_0^2 the local
+// cs2, or diffusion_wave_speed_sq if > 0. Clamped into [tau_q_min_over_T, tau_q_max_over_T]/T
+// (cs2 -> 0 at a critical point, chi_BB -> 0 in the corona), then raised to the causality
+// bound tau_q >= D_B. All three diagonals are filled so tau_q stays invertible.
+KOKKOS_INLINE_FUNCTION
+Matrix<double, 3, 3> tauq_cattaneo(const double *therm, const parameters params)
+{
+  Matrix<double, 3, 3> tauq_matrix{0.0};
+  const double T = therm[thermo_info::T];
+  if ( !(T > TINY) ) return tauq_matrix;
+
+  const double tau_q_min = params.tau_q_min_over_T/T;
+  const double tau_q_max = params.tau_q_max_over_T/T;
+
+  // v_0^2: the configured value, or the local speed of sound squared. Anything
+  // outside (0,1] would be acausal or nonsensical.
+  double wave_speed_sq = params.diffusion_wave_speed_sq;
+  if ( wave_speed_sq <= 0.0 ) wave_speed_sq = therm[thermo_info::cs2];
+
+  const double chi_BB = therm[thermo_info::chiBB];
+  double diffusion_constant = 0.0;
+  double tau_q = tau_q_max;
+  if ( wave_speed_sq > 0.0 && wave_speed_sq <= 1.0 && chi_BB > TINY )
+  {
+    // D_B = kappa_BB/(T chi_BB)  [Kapusta & Young Eq. (4): sigma = D dn/dmu]
+    diffusion_constant = kappa(therm, params)(0, 0)/(T*chi_BB);
+    tau_q = diffusion_constant/wave_speed_sq;   // tau = D/v_0^2
+  }
+  if ( !Kokkos::isfinite(tau_q) ) tau_q = tau_q_max;
+  tau_q = Kokkos::fmin( Kokkos::fmax(tau_q, tau_q_min), tau_q_max );
+  // Causality (Kapusta & Young, below their Eq. (27)): tau_q must exceed D_B, or
+  // the large-k group velocity outruns light. This wins over the clamps above.
+  if ( params.tau_q_causality_floor && Kokkos::isfinite(diffusion_constant) )
+    tau_q = Kokkos::fmax( tau_q, diffusion_constant );
+
+  for (int i = 0; i < 3; ++i) tauq_matrix(i, i) = tau_q;
+  return tauq_matrix;
+}
+
+// tau_q = b_q kappa_BB / |n_B| (a time in fm)
+KOKKOS_INLINE_FUNCTION
+Matrix<double, 3, 3> tauq_kappa_over_n(const double *therm, const parameters params)
+{
+  Matrix<double, 3, 3> tauq_matrix{0.0};
+  const double T = therm[thermo_info::T];
+  if ( !(T > TINY) ) return tauq_matrix;
+
+  const double tau_q_min = params.tau_q_min_over_T/T;
+  const double tau_q_max = params.tau_q_max_over_T/T;
+
+  const double kappa_BB = kappa(therm, params)(0, 0);
+  const double n_B      = Kokkos::abs( therm[thermo_info::rhoB] );
+
+  double tau_q = tau_q_max;
+  if ( n_B > TINY && kappa_BB > 0.0 )
+    tau_q = params.b_q*kappa_BB/n_B;
+  if ( !Kokkos::isfinite(tau_q) ) tau_q = tau_q_max;
+  tau_q = Kokkos::fmin( Kokkos::fmax(tau_q, tau_q_min), tau_q_max );
+
+  // causality tau_q >= D_B, after the clamps (off with causality_floor: false)
+  const double chi_BB = therm[thermo_info::chiBB];
+  if ( params.tau_q_causality_floor && chi_BB > TINY )
+  {
+    const double diffusion_constant = kappa_BB/(T*chi_BB);
+    if ( Kokkos::isfinite(diffusion_constant) )
+      tau_q = Kokkos::fmax( tau_q, diffusion_constant );
+  }
+
+  for (int i = 0; i < 3; ++i) tauq_matrix(i, i) = tau_q;
+  return tauq_matrix;
+}
+
+// tau_q = C_B / T on all three diagonals (only (B,B) is used; the rest keeps tau_q invertible).
 KOKKOS_INLINE_FUNCTION
 Matrix<double, 3, 3> tauqB_only(const double *therm, const parameters params)
 {
   Matrix<double, 3, 3> tauq_matrix{0.0};
   const double T = therm[thermo_info::T];
   if ( T > TINY )
+  {
+    // C_B/T is a prescribed time, unconnected to kappa_B, so it can sit below the
+    // Kapusta-Young bound - and does, with the holographic kappa_B. Impose it here.
+    const double tau_q = tau_q_with_causality_floor(params.C_B/T, therm, params);
     for (int i = 0; i < 3; ++i)
-      tauq_matrix(i, i) = params.C_B/T;
+      tauq_matrix(i, i) = tau_q;
+  }
   return tauq_matrix;
 };
 
@@ -1074,26 +1331,34 @@ double critical_scaling_factor_bulk(const double *therm,const parameters params)
 {
   double chiBB = therm[thermo_info::chiBB];
   double chiBB0 = therm[thermo_info::chiBB0];
-  // chiBB can be negative in the unstable / first-order (gap) region of the CP EoS,
-  // where sqrt(chiBB) is NaN and poisons zeta -> whole evolution NaN at t0 (observed in
-  // the Phase-4 CP-EoS + critical_scaling_bulk probe). The gap loader already drops
-  // chiBB<0 rows; guard here too. !(x>0) also catches NaN. No enhancement in that region.
+  // chiBB < 0 in the unstable / gap region of a CP EoS (sqrt would be NaN): no enhancement
   if ( !(chiBB > 0.0) || !(chiBB0 > 0.0) ) return 1.0;
-  double correlation_length = Kokkos::sqrt(chiBB);
+  double correlation_length      = Kokkos::sqrt(chiBB);
   double correlation_length_zero = Kokkos::sqrt(chiBB0);
-  correlation_length_zero = 1.0176198446545879;  
-  //if correlation lenght == correlation_length_zero, return 1
+
+  // xi_0: the table's local non-critical baseline chiBB_nc when present (ratio 1 off the
+  // ridge), else the muB = 0 susceptibility with the global constant below.
+  if ( !params.critical_scaling_local_xi0 )
+    correlation_length_zero = 1.0176198446545879;
+
   if ( Kokkos::abs(correlation_length_zero - correlation_length) < TINY )
     return 1.0;
 
-  return (1.+ pow((correlation_length/correlation_length_zero), 3));
+  double raw = 1.0 + pow((correlation_length/correlation_length_zero), 3);
+
+  // local baseline: raw -> 2 off the ridge, so halve it to leave the bulk unchanged there
+  if ( params.critical_scaling_local_xi0 ) raw *= 0.5;
+
+  // The ridge is razor-thin: the raw factor reaches ~233 at the critical point and ~1259 at the
+  // plane maximum, and it multiplies both zeta and tau_Pi.  Uncapped that is not survivable.
+  if ( params.critical_scaling_max > 0.0 && raw > params.critical_scaling_max )
+    raw = params.critical_scaling_max;
+
+  return raw;
 }
 
-/// @brief Gaussian suppression factor for diffusion near the QCD critical point.
-/// @details Returns a factor in [0, 1] that is 0 exactly at (Tc, muBc) and
-///          approaches 1 far from it:
-///          f = 1 - exp( -[(T-Tc)^2/(2*sigmaT^2) + (muB-muBc)^2/(2*sigmaB^2)] )
-///          The widths sigmaT and sigmaB control the range of suppression.
+/// @brief Factor in [0, 1] suppressing diffusion near the critical point:
+/// f = 1 - exp(-[(T-Tc)^2/(2 sigmaT^2) + (muB-muBc)^2/(2 sigmaB^2)]).
 KOKKOS_INLINE_FUNCTION
 double gaussian_suppression_diffusion(const double *therm, const parameters params)
 {
@@ -1103,6 +1368,171 @@ double gaussian_suppression_diffusion(const double *therm, const parameters para
   const double sigmamuB = params.critical_gaussian_width_muB;
   const double exponent = 0.5 * ( dT*dT/(sigmaT*sigmaT) + dmuB*dmuB/(sigmamuB*sigmamuB) );
   return 1.0 - Kokkos::exp(-exponent);
+}
+
+/// @brief g(p) = min{[1 + (xi/xi_0)^p]/2, critical_scaling_max}, xi/xi_0 = sqrt(chi_BB/chi_BB,nc)
+KOKKOS_INLINE_FUNCTION
+double critical_xi_power_factor(const double *therm, const parameters params, const double power)
+{
+  const double chiBB  = therm[thermo_info::chiBB];
+  const double chiBB0 = therm[thermo_info::chiBB0];
+  if ( !(chiBB > 0.0) || !(chiBB0 > 0.0) ) return 1.0;
+  double factor = 0.5*( 1.0 + pow( Kokkos::sqrt(chiBB/chiBB0), power ) );
+  if ( !Kokkos::isfinite(factor) ) return 1.0;
+  if ( params.critical_scaling_max > 0.0 && factor > params.critical_scaling_max )
+    factor = params.critical_scaling_max;
+  return factor;
+}
+
+/// @brief Critical factor on kappa_B: legacy Gaussian suppression, or the model-H
+///        conductivity enhancement g(p_kappa) (xi_power, p = 1: kappa_n ~ xi). 1 when off.
+KOKKOS_INLINE_FUNCTION
+double critical_factor_kappa(const double *therm, const parameters params)
+{
+  if ( !params.critical_scaling_diffusion || !(therm[thermo_info::eos_type_is_table] > 0.5) )
+    return 1.0;
+  if ( params.critical_scaling_diffusion_mode == 1 )
+    return critical_xi_power_factor(therm, params, params.critical_scaling_kappa_power);
+  return gaussian_suppression_diffusion(therm, params);
+}
+
+/// @brief Critical slowing down tau_q = tau_q,nc g(p_tauq) (xi_power mode only; else 1).
+KOKKOS_INLINE_FUNCTION
+double critical_factor_tauq(const double *therm, const parameters params)
+{
+  if ( !params.critical_scaling_diffusion || params.critical_scaling_diffusion_mode != 1
+    || !(therm[thermo_info::eos_type_is_table] > 0.5) )
+    return 1.0;
+  // the kappa-derived forms already carry g(p_kappa) (cattaneo also the (xi/xi_0)^2 of chi_BB):
+  // take them back to tau_q,nc before applying g(p_tauq)
+  double factor = critical_xi_power_factor(therm, params, params.critical_scaling_tauq_power);
+  if ( params.diffusion_relaxation_mode == TAU_Q_CATTANEO
+    || params.diffusion_relaxation_mode == TAU_Q_KAPPA_OVER_N )
+  {
+    const double g_kappa = critical_xi_power_factor(therm, params, params.critical_scaling_kappa_power);
+    if ( g_kappa > 0.0 ) factor /= g_kappa;
+    if ( params.diffusion_relaxation_mode == TAU_Q_CATTANEO )
+    {
+      const double chiBB  = therm[thermo_info::chiBB];
+      const double chiBB0 = therm[thermo_info::chiBB0];
+      if ( chiBB > 0.0 && chiBB0 > 0.0 && Kokkos::isfinite(chiBB/chiBB0) ) factor *= chiBB/chiBB0;
+    }
+  }
+  return factor;
+}
+
+//==============================================================================
+// Host-only loader for the holographic sigma_B table (arXiv:1507.06972 
+// input/tables/holographic_sigmaB_EMD.dat): rows of T, mu_B, sigma_B [MeV] on a uniform
+// grid; other lines are skipped. Converted to fm^-1 here.
+inline void load_holographic_sigmaB_table(parameters & params,
+                                          std::shared_ptr<Settings> settingsPtr)
+{
+  if ( params.diffusion_mode != KAPPA_B_HOLO_TABLE ) return;
+
+  const std::string path = settingsPtr->holographic_sigmaB_table_path;
+  std::ifstream table_file(path);
+  if ( !table_file.is_open() )
+  {
+    std::cerr << "ERROR: could not open holographic sigma_B table '" << path
+              << "'." << std::endl;
+    Kokkos::finalize();
+    exit(EXIT_FAILURE);
+  }
+
+  std::vector<double> temperatures, potentials, conductivities;
+  std::string line;
+  while ( std::getline(table_file, line) )
+  {
+    std::istringstream row(line);
+    double T_MeV, muB_MeV, sigmaB_MeV;
+    std::string leftover;
+    if ( !(row >> T_MeV >> muB_MeV >> sigmaB_MeV) ) continue;  // header / blank
+    if ( row >> leftover ) continue;                           // not a 3-column row
+    temperatures.push_back(T_MeV);
+    potentials.push_back(muB_MeV);
+    conductivities.push_back(sigmaB_MeV);
+  }
+  table_file.close();
+
+  if ( temperatures.empty() )
+  {
+    std::cerr << "ERROR: holographic sigma_B table '" << path
+              << "' contains no 'T muB sigma_B' rows." << std::endl;
+    Kokkos::finalize();
+    exit(EXIT_FAILURE);
+  }
+
+  // Recover the two axes as the sorted unique values of each column.
+  auto unique_sorted = [](std::vector<double> values)
+  {
+    std::sort(values.begin(), values.end());
+    values.erase(std::unique(values.begin(), values.end()), values.end());
+    return values;
+  };
+  const std::vector<double> temperature_axis = unique_sorted(temperatures);
+  const std::vector<double> potential_axis   = unique_sorted(potentials);
+
+  const int num_temperatures = (int)temperature_axis.size();
+  const int num_potentials   = (int)potential_axis.size();
+  if ( num_temperatures < 2 || num_potentials < 2
+       || (size_t)num_temperatures*(size_t)num_potentials != temperatures.size() )
+  {
+    std::cerr << "ERROR: holographic sigma_B table '" << path << "' is not a complete "
+              << "rectangular grid (" << num_temperatures << " x " << num_potentials
+              << " axes vs " << temperatures.size() << " rows)." << std::endl;
+    Kokkos::finalize();
+    exit(EXIT_FAILURE);
+  }
+
+  // The device lookup assumes uniform spacing on both axes; verify it here rather
+  // than silently interpolating a table it cannot address.
+  auto uniform_step = [&](const std::vector<double> & axis, const char * name)
+  {
+    const double step = (axis.back() - axis.front())/(double)(axis.size() - 1);
+    for ( size_t i = 1; i < axis.size(); ++i )
+      if ( std::abs( (axis[i] - axis[i-1]) - step ) > 1.0e-6*std::abs(step) )
+      {
+        std::cerr << "ERROR: holographic sigma_B table '" << path << "' has a "
+                  << "non-uniform " << name << " axis at index " << i << "."
+                  << std::endl;
+        Kokkos::finalize();
+        exit(EXIT_FAILURE);
+      }
+    return step;
+  };
+  const double temperature_step_MeV = uniform_step(temperature_axis, "temperature");
+  const double potential_step_MeV   = uniform_step(potential_axis,   "chemical potential");
+
+  // Fill the device view, converting MeV -> fm^-1 on every axis and on sigma_B.
+  Kokkos::View<double**, MemorySpace> sigmaB_view("holographic_sigmaB",
+                                                  num_temperatures, num_potentials);
+  auto host_sigmaB = Kokkos::create_mirror_view(sigmaB_view);
+  for ( size_t row = 0; row < temperatures.size(); ++row )
+  {
+    const int iT  = (int)std::lround( (temperatures[row] - temperature_axis.front())
+                                      / temperature_step_MeV );
+    const int imu = (int)std::lround( (potentials[row] - potential_axis.front())
+                                      / potential_step_MeV );
+    host_sigmaB(iT, imu) = conductivities[row]/hbarc_MeVfm;
+  }
+  Kokkos::deep_copy(sigmaB_view, host_sigmaB);
+
+  params.holo_sigmaB                   = sigmaB_view;
+  params.holo_sigmaB_num_temperatures  = num_temperatures;
+  params.holo_sigmaB_num_potentials    = num_potentials;
+  params.holo_sigmaB_temperature_min   = temperature_axis.front()/hbarc_MeVfm;
+  params.holo_sigmaB_temperature_step  = temperature_step_MeV/hbarc_MeVfm;
+  params.holo_sigmaB_potential_min     = potential_axis.front()/hbarc_MeVfm;
+  params.holo_sigmaB_potential_step    = potential_step_MeV/hbarc_MeVfm;
+
+  formatted_output::report("Loaded holographic sigma_B table '" + path + "': "
+    + std::to_string(num_temperatures) + " x " + std::to_string(num_potentials)
+    + " grid, T = " + std::to_string(temperature_axis.front()) + " - "
+    + std::to_string(temperature_axis.back()) + " MeV, muB = "
+    + std::to_string(potential_axis.front()) + " - "
+    + std::to_string(potential_axis.back()) + " MeV; kappa_B = "
+    + std::to_string(params.holo_diffusion_scale) + " * T * sigma_B");
 }
 
 }}

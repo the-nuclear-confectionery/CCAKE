@@ -60,6 +60,9 @@ void SPHWorkstation<D,TEOM>::initialize()
   //----------------------------------------
   // set up transport coefficients
   transp_coeff_params = tc::setup_parameters(settingsPtr);
+  // File I/O cannot live inside setup_parameters (which is device-decorated), so
+  // the tabulated holographic sigma_B is loaded here; a no-op for other modes.
+  tc::load_holographic_sigmaB_table(transp_coeff_params, settingsPtr);
 
   //----------------------------------------
   // set up freeze out  at constant energy density

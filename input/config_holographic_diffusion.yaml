@@ -1,0 +1,112 @@
+---
+# Baryon diffusion from holography.
+#
+# kappa_B is read from a table of the baryon DC conductivity sigma_B(T, mu_B)
+# computed in the Einstein-Maxwell-Dilaton holographic model of
+#   R. Rougemont, J. Noronha, J. Noronha-Hostler, PRL 115, 202301 (2015)
+#   [arXiv:1507.06972]; EMD background: arXiv:1507.06556.
+# That paper's own hydrodynamic convention is J = -kappa_B grad(mu_B/T) with
+#   kappa_B = T * sigma_B,
+# which is exactly what CCAKE evolves, so the table is used as published; only
+# the factor of T and the MeV -> fm^-1 conversion are applied (in the loader).
+#
+# Table coverage: T = 100-450 MeV, mu_B = 0-400 MeV on a 5 MeV grid. The authors
+# quote quantitative validity only for 130 <= T <= 300 MeV and mu_B <= 400 MeV.
+# Outside the tabulated box the lookup CLAMPS to the nearest edge value.
+#
+# Diffusion is baryon-only in this mode (only the (B,B) entry of kappa_q is
+# filled), so a baryon-only charge configuration is required and enforced at
+# start-up. C_B is unused here except by relaxation_mode: cb_over_T.
+initial_conditions:
+  type: ccake                    # SMASH IC converted to ccake format (tau0=0.5)
+  coordinate_system: hyperbolic
+  file: /u/kpala/git_repos/test/test2/AMPTGenesis/7p7_hy_norm1p11_tau2p0_s0p8/evt_0000014/ic_hy.dat
+  t0: 2.0
+  dimension: 3
+  input_as_entropy: false
+parameters:
+  dt: 0.05
+  h_T: 0.3
+  h_eta: 0.3
+  rk_order: 2
+  kernel_type: cubic_spline
+  energy_cutoff: 0.15
+  buffer_particles:
+    enabled: false
+    circular: false
+    padding_thickness: 0.1
+eos:
+  type: table
+  path: /projects/bbkr/kpala/eos_paper/bh_us          # holographic EoS, muB_c ~ 600
+  online_inverter_enabled: true
+  normalize_by_T: false
+  restrict_mu_T_ratios: false
+  prohibit_unstable_cs2: false
+  gap_table_path: /projects/bbkr/kpala/eos_paper/bh_us/gap.dat   # gap EoS
+  gap_lookup_mode: linear
+  gap_match_tolerance: 0.05
+particlization:
+  enabled: true
+  type: fixed_T
+  T: 150
+hydro:
+  baryon_charge_enabled: true
+  strange_charge_enabled: false
+  electric_charge_enabled: false
+  viscous_parameters:
+    diffusion:
+      input_initial_diffusion: false
+      mode: holographic_table
+      # tabulated sigma_B(T, muB); ships with the repo
+      sigmaB_table_path: input/tables/holographic_sigmaB_EMD.dat
+      # dimensionless overall multiplier on kappa_B; 1.0 = the holographic result
+      holographic_scale: 1.0
+      C_B: 0.5                     # only used by relaxation_mode: cb_over_T
+      constant_kappa_over_T2:
+      - [0.0, 0.0, 0.0]
+      - [0.0, 0.0, 0.0]
+      - [0.0, 0.0, 0.0]
+      # tau_q = D_B/v_0^2 with D_B = kappa_BB/(T chi_BB) -- the Cattaneo relation of
+      # Kapusta & Young, PRC 90, 044902 (2014), which is the hydro reference
+      # arXiv:1507.06972 cites for its kappa_B = T sigma_B. Alternatives:
+      # constant_over_T (tau_q = 0.2/T) or cb_over_T (tau_q = C_B/T).
+      relaxation_mode: cattaneo
+      wave_speed_sq: 0.0            # v_0^2; <= 0 uses the LOCAL cs2 (set 0.3333 to pin it)
+      tau_q_min_over_T: 0.1         # numerical clamps on tau_q, in units of 1/T
+      tau_q_max_over_T: 10.0
+      critical_scaling: false
+      critical_point:
+        T: 126.5
+        muB: 598.5
+      critical_gaussian_width:
+        T: 25.0
+        muB: 100.0
+    bulk:
+      bulk_from_trace:  false
+      constant_zeta_over_s: 0.08
+      cs2_dependent_zeta_A: 1.67552
+      cs2_dependent_zeta_p: 2.0
+      critical_scaling_bulk: false
+      mode: cs2_dependent
+      modulate_with_tanh: false
+      relaxation_mode: default
+      delta_PiPi_mode: israel-stewart
+      lambda_Pipi_mode: disabled
+      phi1_mode: disabled
+      phi3_mode: disabled
+    shear:
+      input_initial_shear: false
+      constant_eta_over_s: 0.08
+      mode: constant
+      relaxation_mode: default
+      use_vorticity: false
+      delta_pipi_mode: default
+      tau_pipi_mode: disabled
+      lambda_piPi_mode: disabled
+      phi6_mode: disabled
+      phi7_mode: disabled
+  jets:
+    type: disabled
+  # ---- SMASH source: propagating source term ----------------------------
+  source:
+    type: disabled               # no source (pure-hydro baseline)
