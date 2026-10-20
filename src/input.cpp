@@ -155,6 +155,9 @@ bool cc::Input::decode_settings(const YAML::Node& node){
     } catch (...) {}
     try {
       settingsPtr->freezein_max_iter = node["initial_conditions"]["freezein"]["max_iter"].as<int>();
+    if ( node["initial_conditions"]["freezein"]["baryon_landau"] )
+      settingsPtr->freezein_baryon_landau =
+        node["initial_conditions"]["freezein"]["baryon_landau"].as<bool>();
     } catch (...) {}
 
     //--------------------------------------------------------------------------

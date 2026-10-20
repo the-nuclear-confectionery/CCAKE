@@ -22,3 +22,15 @@ ccake
 EoS
 .vscode/
 build*
+paper
+paper/*'
+paper*
+input/OO*
+
+# Local job scripts, scratch outputs, analysis, and freeze-in configs
+/*.sh
+*.png
+analysis/
+input/freezein_*/
+# ship the tabulated holographic baryon DC conductivity (arXiv:1507.06972)
+!input/tables/*.dat

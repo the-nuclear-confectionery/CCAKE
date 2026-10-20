@@ -1,9 +1,9 @@
 ---
 initial_conditions:
   type: "ccake" # Possible values are: ["ccake", "iccing", "hdf5"]
-  coordinate_system: "hyperbolic" # Possible values are: ["cartesian", "hyperbolic"]
-  file: "/u/kpala/git_repos/test/test2/AMPTGenesis/build/ch/ic_hy.dat" # Path to the initial conditions file
-  t0: 1. # tau0 = \sqrt(t^2-z^2) in fm/c. Must match the value for initial condition file.
+  coordinate_system: "cartesian" # Possible values are: ["cartesian", "hyperbolic"]
+  file: "/u/kpala/git_repos/test/test2/AMPTGenesis/7p7_cart_norm1p6_tau1p06_s0p8/evt_0000014/ic_hy.dat" # Path to the initial conditions file
+  t0: 1.0 # tau0 = \sqrt(t^2-z^2) in fm/c. Must match the value for initial condition file.
   dimension: 3 # (1+1)D, (2+1)D or (3+1)D simulation
   input_as_entropy: false # if false, input will be interpreted as energy density
 parameters:
@@ -20,41 +20,57 @@ parameters:
                           # of padding to add beyond the point with maximum distance from origin
 eos:
   type: "table" # Possible values are: ["table", "tanh_conformal", "conformal", "conformal_diagonal"]
-  path: "/u/kpala/git_repos/test/test2/CCAKE/EoS/Houston" # If type is "table", the path to the equation of state table.
-  preinverted_eos_path: "/u/kpala/git_repos/test/test2/CCAKE/build/inverted_eos.h5"
+  path: /projects/bbkr/kpala/eos_paper/bh_new  # If type is "table", the path to the equation of state table.
+  #preinverted_eos_path: "/u/kpala/git_repos/test/test2/CCAKE/build/inverted_eos.h5"
   online_inverter_enabled: true
+  normalize_by_T: false
+  restrict_mu_T_ratios: false
 particlization:
   enabled: true # set to true to output particlization hypersurface
   type: "fixed_T" # Possible values are: ["fixed_T"]
   T: 150 # Temperature of the particlization hypersurface (in MeV) # T = 153.334025 MeV corresponds to eps = 1.0 GeV/fm^3 for the conformal EoS
 hydro:
   baryon_charge_enabled: true # Set to false to disable baryon charge evolution
-  strange_charge_enabled: true # Set to false to disable strange charge evolution
-  electric_charge_enabled: true # Set to false to disable electric charge evolution
+  strange_charge_enabled: false # Set to false to disable strange charge evolution
+  electric_charge_enabled: false # Set to false to disable electric charge evolution
   viscous_parameters:
     diffusion:
-      input_initial_diffusion: false
+      input_initial_diffusion: true
       mode:  constant_over_T2
       constant_kappa_over_T2:
       - [0.0, -0.0, 0.0]
       - [-0.0, 0.0, 0.0]
       - [0.0, 0.0, 0.0]
       relaxation_mode: constant_over_T
+      critical_scaling: true
+      critical_point:
+        T: 126.5    # MeV
+        muB: 598.5  # MeV
+      critical_gaussian_width:
+        T: 25.0     # MeV
+        muB: 100.0   # MeV
+      regulator:                   # PhysRevC.98.034916, Eqs. C6-C8
+        enabled: false             # set to true to activate
+        chi0:   10.0               # overall regulation strength [dimensionless]
+        e0:     0.1                # critical energy density [GeV/fm^3]
+        xi0:    0.01               # transition width [GeV/fm^3]
+        rq_max: 1.0                # maximum allowed r_q [dimensionless]
     bulk:
-      bulk_from_trace: false
-      constant_zeta_over_s: 0.08
+      bulk_from_trace: true
+      constant_zeta_over_s: 0.08 # Only used if mode is set to "constant"
       cs2_dependent_zeta_A: 1.67552
       cs2_dependent_zeta_p: 2.0
-      mode: constant
+      critical_scaling_bulk: false
+      mode: cs2_dependent
       modulate_with_tanh: false
       relaxation_mode: default
       delta_PiPi_mode: israel-stewart
-      lambda_Pipi_mode: default
+      lambda_Pipi_mode: disabled
       phi1_mode: disabled
       phi3_mode: disabled
     shear:
-      input_initial_shear: false
-      constant_eta_over_s: 0.12
+      input_initial_shear: true
+      constant_eta_over_s: 0.08
       mode: constant
       relaxation_mode: default
       use_vorticity: false
@@ -65,10 +81,15 @@ hydro:
       phi7_mode: disabled
   source:
     type: "ic"
-    smearing_radius: 1.4 # fm
-    file: "/u/kpala/git_repos/test/test2/AMPTGenesis/event0000/ana/parton-initial-afterPropagation.dat"
+    model : "AMPT"
+    smearing_radius: 1. # fm
+    normalization : 1.6
+    enable_baryon : true
+    enable_strangeness: false
+    enable_electric : false
+    file: "/projects/beqi/kpala/ampt_ics/7p7/full_10k/evt_0000014/parton-initial-afterPropagation.dat"
 output:
   print_conservation_state: true
   hdf_evolution: false
-  txt_evolution: false
-  check_causality: false
+  txt_evolution: true
+  check_causality: true

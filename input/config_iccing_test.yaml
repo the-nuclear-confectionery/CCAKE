@@ -1,8 +1,11 @@
 eos:
   online_inverter_enabled: true
-  path: /work/nvme/beqi/term
+  path:  /u/kpala/git_repos/paper/test_chain/tables
   preinverted_eos_path: default
   type: table
+  normalize_by_T: true
+  restrict_mu_T_ratios: true
+  prohibit_unstable_cs2: true
 hydro:
   baryon_charge_enabled: true
   electric_charge_enabled: true
@@ -10,27 +13,27 @@ hydro:
   viscous_parameters:
     diffusion:
       input_initial_diffusion: false
-      mode: disabled
-      #constant_kappa_over_T2:
-      #- [0.0481884057971014, -0.0481884057971014, 0.0]
-      #- [-0.0481884057971014, 0.1446640316205534, 0.0146708463949843]
-      #- [0.0, 0.0146708463949843, 0.0880165289256198]
+      mode: constant_over_T2
       constant_kappa_over_T2:
-      - [0., -0., 0.0]
-      - [-0., 0., 0.]
-      - [0.0, 0., 0.0]
+      - [0.0481884057971014, -0.0481884057971014, 0.0]
+      - [-0.0481884057971014, 0.1446640316205534, 0.0146708463949843]
+      - [0.0, 0.0146708463949843, 0.0880165289256198]
+      constant_kappa_over_T2:
+      #- [0., -0., 0.0]
+      #- [-0., 0., 0.]
+      #- [0.0, 0., 0.0]
       relaxation_mode: constant_over_T
     bulk:
       bulk_from_trace: false
-      constant_zeta_over_s: 0.00
+      constant_zeta_over_s: 0.12
       cs2_dependent_zeta_A: 1.67552
       cs2_dependent_zeta_p: 2.0
-      mode: constant
+      mode: cs2_dependent
       critical_scaling_bulk: false
       modulate_with_tanh: false
       relaxation_mode: default
       delta_PiPi_mode: israel-stewart
-      lambda_Pipi_mode: default
+      lambda_Pipi_mode: disabled
       phi1_mode: disabled
       phi3_mode: disabled
     shear:
@@ -44,10 +47,16 @@ hydro:
       lambda_piPi_mode: disabled
       phi6_mode: disabled
       phi7_mode: disabled
+  #source:
+  #  type: "jet"
+  #  model: "JEWEL"
+  #  normalization: 1.0
+  #  smearing_radius: 1.4 # fm
+  #  file: "/u/kpala/git_repos/CCAKE/build/jwl/jwl.dat"
 initial_conditions:
   coordinate_system: hyperbolic
   dimension: 2
-  file: /u/kpala/densities100.dat
+  file:  /projects/bbkr/kpala/ic_pb/event_0/iccing/densities0.dat
   input_as_entropy: false
   t0: 0.6
   type: ICCING
@@ -55,8 +64,8 @@ output:
   calculate_observables: false
   hdf_evolution: false
   print_conservation_state: true
-  txt_evolution: true
-  check_causality: true
+  txt_evolution: false
+  check_causality: false
 parameters:
   buffer_particles:
     circular: false

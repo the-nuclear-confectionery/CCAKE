@@ -23,6 +23,7 @@ eos:
   path: "/u/kpala/git_repos/test/test2/CCAKE/EoS/Houston" # If type is "table", the path to the equation of state table.
   preinverted_eos_path: "/u/kpala/git_repos/test/test2/CCAKE/build/inverted_eos.h5"
   online_inverter_enabled: true
+  restrict_mu_T_ratios: false
 particlization:
   enabled: true # set to true to output particlization hypersurface
   type: "fixed_T" # Possible values are: ["fixed_T"]
