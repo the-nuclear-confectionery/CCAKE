@@ -1981,57 +1981,11 @@ void EoM_default<D>::compute_hydro_numbers(std::shared_ptr<SystemState<D>> sysPt
 
 
    
-/// @brief Classifies each particle's causality with the BDNR conditions.
-/// @details hydro_info::causality : BDNR, arXiv:2005.11632. Necessary set plus
-/// sufficient set, hence a 3-way verdict (causal / undetermined / acausal). The
-/// shear-stress eigenvalues Lambda_1..3 come in closed form from
-/// causality::shear_eigenvalues.
-/// @param sysPtr A shared pointer to the system state.
+/// @brief Causality of each particle (arXiv:2005.11632), see eom_causality.hpp.
 template <unsigned int D>
 void EoM_default<D>::check_causality(std::shared_ptr<SystemState<D>> sysPtr)
 {
-  const double t  = sysPtr->t;
-  const double t2 = t*t;
-
-  CREATE_VIEW(device_, sysPtr->cabana_particles);
-  auto host_simd_policy
-      = Cabana::SimdPolicy<VECTOR_LENGTH, Kokkos::OpenMP>(0, sysPtr->cabana_particles.size());
-
-  Kokkos::fence(); // ensure device kernels have completed before the host-side check
-
-  auto causality_check = [=](const int is, const int ia)
-  {
-    causality::Inputs in;
-
-    in.e   = device_thermo.access(is, ia, thermo_info::e);
-    in.p   = device_thermo.access(is, ia, thermo_info::p);
-    in.cs2 = device_thermo.access(is, ia, thermo_info::cs2);
-    in.Pi  = device_hydro_scalar.access(is, ia, hydro_info::bulk);
-
-    in.eta         = device_hydro_scalar.access(is, ia, hydro_info::eta_pi);
-    in.zeta        = device_hydro_scalar.access(is, ia, hydro_info::zeta_Pi);
-    in.tau_pi      = device_hydro_scalar.access(is, ia, hydro_info::tau_pi);
-    in.tau_Pi      = device_hydro_scalar.access(is, ia, hydro_info::tau_Pi);
-    in.tau_pipi    = device_hydro_scalar.access(is, ia, hydro_info::tau_pipi);
-    in.delta_PiPi  = device_hydro_scalar.access(is, ia, hydro_info::delta_PiPi);
-    in.lambda_Pipi = device_hydro_scalar.access(is, ia, hydro_info::lambda_Pipi);
-    in.delta_pipi  = device_hydro_scalar.access(is, ia, hydro_info::delta_pipi);
-    in.lambda_piPi = device_hydro_scalar.access(is, ia, hydro_info::lambda_piPi);
-
-    milne::Matrix<double,4,4> shv;
-    for ( int idir = 0; idir < 4; ++idir )
-      for ( int jdir = 0; jdir < 4; ++jdir )
-        shv(idir, jdir)
-            = device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir, jdir);
-
-    causality::shear_eigenvalues(shv, t2, in.Lam);
-
-    device_hydro_scalar.access(is, ia, hydro_info::causality)
-        = causality::verdict_bdnr(in);
-  };
-
-  Cabana::simd_parallel_for(host_simd_policy, causality_check, "check_causality_conditions");
-  Kokkos::fence();
+  causality::classify_particles<milne::Matrix<double,4,4>>(sysPtr);
 }
 
 

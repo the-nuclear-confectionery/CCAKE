@@ -490,6 +490,10 @@ class FreezeOut
             device_freeze.access(is,ia)=0;
           }
           break;
+        case 5:                                   // frozen at birth (only exists with source_reheat_frozen_at_birth):
+          if ( e > efcheck )                      // a source deposit lifted it back above e_fo, so it is fluid
+            device_freeze.access(is,ia) = 0;         // again and will write a surface element when it cools
+          break;
         default:
           //Any other case, particle is already frozen out
           //Do nothing

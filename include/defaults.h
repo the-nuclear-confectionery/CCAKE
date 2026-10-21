@@ -101,8 +101,12 @@ namespace ccake
     const std::string source_input_file   = "disabled";
     const bool        source_propagate         = false;
     const double      source_loss_coefficient = 0.0;
-    const double      source_entropy_ref       = 1.0;
     const int         source_deposit_steps     = 1;
+    const bool        source_kernel_renormalize = false;
+    const double      source_min_coverage      = 0.1;
+    const double      source_max_renormalization_factor = 2.0;
+    const bool        source_deposit_at_rapidity = false;
+    const bool        source_reheat_frozen_at_birth = false;
     const std::string jets_type              = "disabled";
     const int         jets_Energy_scaling     = 0;
     const int         jets_Length_scaling     = 1;

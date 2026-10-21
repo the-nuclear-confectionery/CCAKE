@@ -2,12 +2,17 @@
 #define EOM_CAUSALITY_HPP
 
 /// @file eom_causality.hpp
-/// @brief BDNR nonlinear causality check (arXiv:2005.11632), shared by the Milne and
+/// @brief Nonlinear causality check (Bemfica et al., arXiv:2005.11632), shared by the Milne and
 /// Cartesian EoM: necessary plus sufficient conditions, hence causal / undetermined /
 /// acausal. CCAKE is mostly-minus and stores pi^{mu nu} contravariant; the paper is
 /// mostly-plus, so Lambda_paper = -Lambda_CCAKE (handled in shear_eigenvalues).
 
+#include <memory>
+
 #include <Kokkos_Core.hpp>
+
+#include "particle.h"
+#include "system_state.h"
 
 namespace ccake {
 namespace causality {
@@ -97,10 +102,10 @@ void shear_eigenvalues(const MatrixT& shv, double t2, double Lam[3])
 }
 
 //==============================================================================
-/// @brief BDNR necessary (4a-4f) and sufficient (5a-5h) conditions, at zero density
+/// @brief Necessary (4a-4f) and sufficient (5a-5h) conditions of arXiv:2005.11632, at zero density
 /// (cs2 stands in for P_eps). @return CAUSAL / UNDETERMINED / ACAUSAL.
 KOKKOS_INLINE_FUNCTION
-int verdict_bdnr(const Inputs& in)
+int classify(const Inputs& in)
 {
   const double Lambda_1 = in.Lam[0], Lambda_2 = in.Lam[1], Lambda_3 = in.Lam[2];
   const double e = in.e, p = in.p, Pi = in.Pi, cs2 = in.cs2;
@@ -193,6 +198,55 @@ int verdict_bdnr(const Inputs& in)
                   / rest);
 
   return (condition5e && condition5f && condition5g && condition5h) ? CAUSAL : UNDETERMINED;
+}
+
+//==============================================================================
+/// @brief Classify every SPH particle and store the verdict in hydro_info::causality.
+/// MatrixT is milne::Matrix<double,4,4> or cartesian::Matrix<double,4,4>.
+template <class MatrixT, unsigned int D>
+void classify_particles(std::shared_ptr<SystemState<D>> sysPtr)
+{
+  const double t  = sysPtr->t;
+  const double t2 = t*t;
+
+  CREATE_VIEW(device_, sysPtr->cabana_particles);
+  auto host_simd_policy
+      = Cabana::SimdPolicy<VECTOR_LENGTH, Kokkos::OpenMP>(0, sysPtr->cabana_particles.size());
+
+  Kokkos::fence(); // ensure device kernels have completed before the host-side check
+
+  auto causality_check = [=](const int is, const int ia)
+  {
+    Inputs in;
+
+    in.e   = device_thermo.access(is, ia, thermo_info::e);
+    in.p   = device_thermo.access(is, ia, thermo_info::p);
+    in.cs2 = device_thermo.access(is, ia, thermo_info::cs2);
+    in.Pi  = device_hydro_scalar.access(is, ia, hydro_info::bulk);
+
+    in.eta         = device_hydro_scalar.access(is, ia, hydro_info::eta_pi);
+    in.zeta        = device_hydro_scalar.access(is, ia, hydro_info::zeta_Pi);
+    in.tau_pi      = device_hydro_scalar.access(is, ia, hydro_info::tau_pi);
+    in.tau_Pi      = device_hydro_scalar.access(is, ia, hydro_info::tau_Pi);
+    in.tau_pipi    = device_hydro_scalar.access(is, ia, hydro_info::tau_pipi);
+    in.delta_PiPi  = device_hydro_scalar.access(is, ia, hydro_info::delta_PiPi);
+    in.lambda_Pipi = device_hydro_scalar.access(is, ia, hydro_info::lambda_Pipi);
+    in.delta_pipi  = device_hydro_scalar.access(is, ia, hydro_info::delta_pipi);
+    in.lambda_piPi = device_hydro_scalar.access(is, ia, hydro_info::lambda_piPi);
+
+    MatrixT shv;
+    for ( int idir = 0; idir < 4; ++idir )
+      for ( int jdir = 0; jdir < 4; ++jdir )
+        shv(idir, jdir)
+            = device_hydro_spacetime_matrix.access(is, ia, hydro_info::shv, idir, jdir);
+
+    shear_eigenvalues(shv, t2, in.Lam);
+
+    device_hydro_scalar.access(is, ia, hydro_info::causality) = classify(in);
+  };
+
+  Cabana::simd_parallel_for(host_simd_policy, causality_check, "check_causality_conditions");
+  Kokkos::fence();
 }
 
 } // namespace causality

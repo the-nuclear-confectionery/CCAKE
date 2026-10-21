@@ -6,7 +6,7 @@
 #include "eom_causality.hpp"
 
 /// @file causality_test.cpp
-/// @brief Regression tests for the shear-eigenvalue extraction behind the BDNR
+/// @brief Regression tests for the shear-eigenvalue extraction behind the nonlinear
 /// causality check (eom_causality.hpp).
 
 using namespace ccake::causality;

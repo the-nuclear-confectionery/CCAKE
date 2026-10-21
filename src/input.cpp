@@ -889,6 +889,8 @@ bool cc::Input::decode_settings(const YAML::Node& node){
       formatted_output::report("This is an optional parameter. Setting to default value.");
       settingsPtr->source_normalization = cc::defaults::source_normalization;
     }
+    if ( node["hydro"]["source"]["test_particles"] )
+      settingsPtr->source_test_particles = node["hydro"]["source"]["test_particles"].as<double>();
     try{
       settingsPtr->baryon_source = node["hydro"]["source"]["enable_baryon"].as<bool>();
     } catch (...) {
@@ -945,19 +947,55 @@ bool cc::Input::decode_settings(const YAML::Node& node){
       formatted_output::report("This is an optional parameter. Setting to default value.");
       settingsPtr->source_loss_coefficient = cc::defaults::source_loss_coefficient;
     }
-    try{
-      settingsPtr->source_entropy_ref = node["hydro"]["source"]["entropy_ref"].as<double>();
-    } catch (...) {
-      formatted_output::report("WARNING: Could not read source entropy_ref!");
-      formatted_output::report("This is an optional parameter. Setting to default value.");
-      settingsPtr->source_entropy_ref = cc::defaults::source_entropy_ref;
-    }
+    // Removed source options: refuse them so an old config cannot silently run without them.
+    for (const char* removed_key : {"propagate_budget", "fluidization_threshold",
+                                    "fluidization_criterion", "fluidization_delay"})
+      if (node["hydro"]["source"][removed_key])
+      {
+        std::cerr << "ERROR: hydro.source." << removed_key
+                  << " was removed; delete the key from the config." << std::endl;
+        abort();
+      }
     try{
       settingsPtr->source_deposit_steps = node["hydro"]["source"]["deposit_steps"].as<int>();
     } catch (...) {
       formatted_output::report("WARNING: Could not read source deposit_steps!");
       formatted_output::report("This is an optional parameter. Setting to default value.");
       settingsPtr->source_deposit_steps = cc::defaults::source_deposit_steps;
+    }
+    try{
+      settingsPtr->source_kernel_renormalize = node["hydro"]["source"]["kernel_renormalize"].as<bool>();
+    } catch (...) {
+      settingsPtr->source_kernel_renormalize = cc::defaults::source_kernel_renormalize;
+    }
+    try{
+      settingsPtr->source_min_coverage = node["hydro"]["source"]["min_coverage"].as<double>();
+    } catch (...) {
+      settingsPtr->source_min_coverage = cc::defaults::source_min_coverage;
+    }
+    // Renamed from max_boost (read as a Lorentz boost). Refuse the old key so an
+    // old config cannot silently fall back to the default.
+    if ( node["hydro"]["source"]["max_boost"] )
+    {
+      std::cerr << "ERROR: hydro.source.max_boost was renamed to "
+                   "hydro.source.max_renormalization_factor; update the config." << std::endl;
+      abort();
+    }
+    try{
+      settingsPtr->source_max_renormalization_factor =
+          node["hydro"]["source"]["max_renormalization_factor"].as<double>();
+    } catch (...) {
+      settingsPtr->source_max_renormalization_factor = cc::defaults::source_max_renormalization_factor;
+    }
+    try{
+      settingsPtr->source_deposit_at_rapidity = node["hydro"]["source"]["deposit_at_rapidity"].as<bool>();
+    } catch (...) {
+      settingsPtr->source_deposit_at_rapidity = cc::defaults::source_deposit_at_rapidity;
+    }
+    try{
+      settingsPtr->source_reheat_frozen_at_birth = node["hydro"]["source"]["reheat_frozen_at_birth"].as<bool>();
+    } catch (...) {
+      settingsPtr->source_reheat_frozen_at_birth = cc::defaults::source_reheat_frozen_at_birth;
     }
 
     //jets subnode
@@ -1085,12 +1123,12 @@ bool cc::Input::decode_settings(const YAML::Node& node){
       settingsPtr->causality_minimal_stride = cc::defaults::causality_minimal_stride;
     }
     if (settingsPtr->causality_minimal_stride < 1) settingsPtr->causality_minimal_stride = 1;
-    // The Theorem-1 causality check (arXiv:2607.05639) was removed; BDNR is the only check.
+    // The Theorem-1 causality check (arXiv:2607.05639) was removed.
     for (const char* removed_key : {"causality_theorem1", "causality_theorem1_angles", "causality_zero_baryon"})
       if (node["output"][removed_key])
       {
         std::cerr << "ERROR: output." << removed_key
-                  << " was removed (BDNR is the only causality check); delete the key from the config."
+                  << " was removed; delete the key from the config."
                   << std::endl;
         abort();
       }

@@ -248,16 +248,21 @@ class Settings
     string source_type           = "";    ///< Choose source term type for shear
     string source_model          = "";    ///< Choose source term model
     double source_normalization  = 1.0;   ///< Normalization factor for source terms
+    double source_test_particles = 1.0;   ///< divide source energy+charge deposits by this (SMASH N_test)
     bool baryon_source         = false;  ///< Whether to include baryon source term
     bool strangeness_source    = false;  ///< Whether to include strangeness source term
     bool electric_source       = false;  ///< Whether to include electric source term
     double smearing_radius     = 0.0;   ///< Transverse smearing radius for source terms [fm]
     double smearing_radius_eta = 0.0;   ///< Longitudinal (eta) smearing radius for source terms; used by the D=3 split deposit kernel
     string source_input_file   = "";    ///< Path to the source term file
-    bool   source_propagate    = false; ///< If true, SMASH sources propagate & deplete like a jet; else instant dump at t_src
-    double source_loss_coefficient = 0.0; ///< CTE in dE = CTE * s(x)/s_0 * dt for propagating SMASH sources
-    double source_entropy_ref      = 1.0; ///< s_0 reference entropy density for propagating SMASH sources
+    bool   source_propagate    = false; ///< If true, IC sources stream and lose energy at a constant rate; else instant dump at formation
+    double source_loss_coefficient = 0.0; ///< propagate mode: constant loss rate, dE = loss_coefficient*dt [fm^-2]
     int    source_deposit_steps = 1;    ///< Instant mode: spread each dump over N steps (E0/N per step) to keep v<c; 1 = all at once
+    bool   source_kernel_renormalize = false; ///< Shepard-renormalize each deposit by the discrete kernel sum (exact capture where fluid exists); OFF = legacy behavior
+    double source_min_coverage = 0.1;   ///< kernel_renormalize only: defer a source's deposit while its kernel coverage sum is below this (fluid hasn't reached it yet)
+    bool   source_reheat_frozen_at_birth = false; ///< particles below e_fo at tau0 are marked Freeze=5 (frozen at birth, no surface element yet) and return to Freeze=0 if a source deposit lifts them above e_fo; OFF = legacy (Freeze=4, permanent)
+    bool   source_deposit_at_rapidity = false; ///< Deposit each source at eta_s = its momentum rapidity instead of its space-time rapidity, keeping the formation proper time (dynamical-initialisation prescription, e.g. 3D-Glauber+MUSIC places string sources at the string rapidity). At low energy the partons are made near z=0 while carrying |y| up to 2, and free-streaming cannot bridge that within the fireball lifetime
+    double source_max_renormalization_factor = 2.0; ///< kernel_renormalize only: cap on the Shepard factor 1/coverage; below coverage=1/max_renormalization_factor only the safe fraction of the chunk lands and the budget carries forward
 
     //  - jet terms
 
