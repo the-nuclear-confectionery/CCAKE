@@ -2,8 +2,10 @@
 
 #include <algorithm>
 #include <functional>
+#include <fstream>
 #include <iostream>
 #include <iterator>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -29,10 +31,37 @@ EoS_table::EoS_table( string eos_path, bool normalize_by_T )
   // set names of EoS quantities to interpolate, in order
   equation_of_state_table->set_grid_names(
     vector<string>{ "T","muB","muQ","muS" } );
-  equation_of_state_table->set_field_names(
-    vector<string>{ "p","s","B","S","Q","e","cs2",
-                    "chiBB","chiQQ","chiSS","chiBQ","chiBS",
-                    "chiQS","chiTB","chiTQ","chiTS","chiTT" } );
+  // Auto-detect the optional 18th field chiBB_nc: the non-critical chi_BB baseline, a smooth
+  // fit to chi_BB of THIS table with the critical ridge masked out.  When present it is used as
+  // xi_0 in critical_scaling_factor_bulk instead of the global constant, so the enhancement is
+  // measured against the local non-critical value.  Tables written before this (21 columns) are
+  // read exactly as before.
+  {
+    // The file opens with a 4-column grid header, so probing only the first non-comment line
+    // reports 4 and silently selects the 21-column layout.  Take the widest of the first few
+    // lines instead, which is a data row in every table we ship.
+    std::ifstream probe( equation_of_state_table_filename );
+    std::string line;
+    int ncol = 0, examined = 0;
+    while ( examined < 6 && std::getline( probe, line ) )
+    {
+      if ( line.empty() || line[0] == '#' ) continue;
+      ++examined;
+      std::istringstream iss( line );
+      int n = 0; double dummy;
+      while ( iss >> dummy ) ++n;
+      if ( n > ncol ) ncol = n;
+    }
+    has_chiBB_nc = ( ncol >= 22 );
+    cout << "EoS table has " << ncol << " columns; chiBB_nc "
+         << ( has_chiBB_nc ? "PRESENT (local xi_0)" : "absent (global xi_0)" ) << endl;
+  }
+
+  vector<string> field_names{ "p","s","B","S","Q","e","cs2",
+                              "chiBB","chiQQ","chiSS","chiBQ","chiBS",
+                              "chiQS","chiTB","chiTQ","chiTS","chiTT" };
+  if ( has_chiBB_nc ) field_names.push_back( "chiBB_nc" );
+  equation_of_state_table->set_field_names( field_names );
 
   // finally, all dimensionful quantities should be convert to fm and
   // all dimensionless quantities need to be rescaled appropriately
@@ -53,6 +82,7 @@ EoS_table::EoS_table( string eos_path, bool normalize_by_T )
     equation_of_state_table->rescale( "S",     "T", 3 );
     equation_of_state_table->rescale( "Q",     "T", 3 );
     equation_of_state_table->rescale( "chiBB", "T", 2 );
+    if ( has_chiBB_nc ) equation_of_state_table->rescale( "chiBB_nc", "T", 2 );
     equation_of_state_table->rescale( "chiQQ", "T", 2 );
     equation_of_state_table->rescale( "chiSS", "T", 2 );
     equation_of_state_table->rescale( "chiBQ", "T", 2 );
@@ -77,6 +107,7 @@ EoS_table::EoS_table( string eos_path, bool normalize_by_T )
     equation_of_state_table->rescale_field( "S",     hc3 );
     equation_of_state_table->rescale_field( "Q",     hc3 );
     equation_of_state_table->rescale_field( "chiBB", hc2 );
+    if ( has_chiBB_nc ) equation_of_state_table->rescale_field( "chiBB_nc", hc2 );
     equation_of_state_table->rescale_field( "chiQQ", hc2 );
     equation_of_state_table->rescale_field( "chiSS", hc2 );
     equation_of_state_table->rescale_field( "chiBQ", hc2 );
@@ -163,7 +194,7 @@ void EoS_table::get_eBSQ_safe( const double point_in[], double results[] )
   //============================================================================
   // save input point in case we need to project to boundary
   // full results needed if projecting with extension
-  double point_projected[4], results_full[17];
+  double point_projected[4], results_full[18];
   for ( int i = 0; i < 4; i++ ) point_projected[i] = point_in[i];
 
 
@@ -207,9 +238,12 @@ void EoS_table::get_eBSQ_safe( const double point_in[], double results[] )
       std::copy(point_projected, point_projected+4, v_point.begin());
       equation_of_state_table->evaluate( v_point, v_results );
 
-      if ( v_results.size() != 17 )
+      // 18 when the table carries the optional chiBB_nc baseline, 17 otherwise
+      const size_t n_expected = has_chiBB_nc ? 18 : 17;
+      if ( v_results.size() != n_expected )
       {
-        cerr << "PROBLEM" << endl;
+        cerr << "PROBLEM: EoS table returned " << v_results.size()
+             << " fields, expected " << n_expected << endl;
         exit(1);
       }
       std::copy(v_results.begin(), v_results.end(), results_full);
@@ -260,7 +294,7 @@ void EoS_table::get_sBSQ_safe( const double point_in[], double results[] )
   //============================================================================
   // save input point in case we need to project to boundary
   // full results needed if projecting with extension
-  double point_projected[4], results_full[17];
+  double point_projected[4], results_full[18];
   for ( int i = 0; i < 4; i++ ) point_projected[i] = point_in[i];
 
 
@@ -304,9 +338,12 @@ void EoS_table::get_sBSQ_safe( const double point_in[], double results[] )
       std::copy(point_projected, point_projected+4, v_point.begin());
       equation_of_state_table->evaluate( v_point, v_results );
 
-      if ( v_results.size() != 17 )
+      // 18 when the table carries the optional chiBB_nc baseline, 17 otherwise
+      const size_t n_expected = has_chiBB_nc ? 18 : 17;
+      if ( v_results.size() != n_expected )
       {
-        cerr << "PROBLEM" << endl;
+        cerr << "PROBLEM: EoS table returned " << v_results.size()
+             << " fields, expected " << n_expected << endl;
         exit(1);
       }
       std::copy(v_results.begin(), v_results.end(), results_full);
@@ -398,9 +435,12 @@ void EoS_table::get_full_thermo_safe( const double point_in[], double results[] 
     std::copy(point_projected, point_projected+4, v_point.begin());
     equation_of_state_table->evaluate( v_point, v_results );
 
-    if ( v_results.size() != 17 )
+    // 18 when the table carries the optional chiBB_nc baseline, 17 otherwise
+    const size_t n_expected = has_chiBB_nc ? 18 : 17;
+    if ( v_results.size() != n_expected )
     {
-      cerr << "PROBLEM" << endl;
+      cerr << "PROBLEM: EoS table returned " << v_results.size()
+           << " fields, expected " << n_expected << endl;
       exit(1);
     }
     std::copy(v_results.begin(), v_results.end(), results);
@@ -412,6 +452,12 @@ void EoS_table::get_full_thermo_safe( const double point_in[], double results[] 
   if ( use_nonconformal_extension and point_not_in_range )
     eos_extension::get_nonconformal_extension( point_in, point_projected,
                                                results );
+  // get_nonconformal_extension rewrites fields 0..16 but leaves field 17 holding chiBB_nc at
+  // the BOUNDARY point, which no longer pairs with the extension's own chiBB.  Set the local
+  // baseline equal to chiBB there so the ratio is exactly 1: no critical enhancement outside
+  // the table, which is where the critical point is not.
+  if ( has_chiBB_nc and use_nonconformal_extension and point_not_in_range )
+    results[17] = results[7];
 
   // option to print results
   if ( VERBOSE > 8 )

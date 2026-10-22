@@ -155,6 +155,9 @@ bool cc::Input::decode_settings(const YAML::Node& node){
     } catch (...) {}
     try {
       settingsPtr->freezein_max_iter = node["initial_conditions"]["freezein"]["max_iter"].as<int>();
+    if ( node["initial_conditions"]["freezein"]["baryon_landau"] )
+      settingsPtr->freezein_baryon_landau =
+        node["initial_conditions"]["freezein"]["baryon_landau"].as<bool>();
     } catch (...) {}
 
     //--------------------------------------------------------------------------
@@ -426,6 +429,14 @@ bool cc::Input::decode_settings(const YAML::Node& node){
         formatted_output::report("This is an optional parameter. Setting to default value.");
         settingsPtr->Freeze_Out_Temperature = cc::defaults::Freeze_Out_Temperature;
       }
+      // Freeze-out is always at e <= e(T_fo, mu = 0); the "temperature" (isotherm) criterion was removed.
+      if (node["particlization"]["criterion"]
+          && node["particlization"]["criterion"].as<std::string>() != "energy")
+      {
+        std::cerr << "ERROR: particlization.criterion was removed; freeze-out is always at constant "
+                     "energy density. Delete the key from the config." << std::endl;
+        abort();
+      }
     }
 
     //--------------------------------------------------------------------------
@@ -485,6 +496,11 @@ bool cc::Input::decode_settings(const YAML::Node& node){
       }
     }
 
+    else if (settingsPtr->etaMode == "holographic"){
+      std::cerr << "ERROR: shear mode 'holographic' was removed." << std::endl;
+      abort();
+    }
+
     else if (settingsPtr->etaMode == "piecewise_muB"){
       settingsPtr->using_shear = true;
       try{
@@ -520,6 +536,11 @@ bool cc::Input::decode_settings(const YAML::Node& node){
       formatted_output::report("WARNING: Could not read viscous_parameters shear relaxation_mode!");
       formatted_output::report("This is an optional parameter. Setting to default value.");
       settingsPtr->shearRelaxMode = cc::defaults::shearRelaxMode;
+    }
+    if (settingsPtr->shearRelaxMode == "holographic")
+    {
+      std::cerr << "ERROR: shear relaxation_mode 'holographic' was removed; use 'default'." << std::endl;
+      abort();
     }
     try {
       settingsPtr->using_vorticity = node["hydro"]["viscous_parameters"]["shear"]["use_vorticity"].as<bool>();
@@ -590,6 +611,11 @@ bool cc::Input::decode_settings(const YAML::Node& node){
       formatted_output::report("This is an optional parameter. Setting to default value.");
       settingsPtr->zetaMode = cc::defaults::zetaMode;
     }
+    if (settingsPtr->zetaMode == "gaussian_muB")
+    {
+      std::cerr << "ERROR: bulk mode 'gaussian_muB' was removed." << std::endl;
+      abort();
+    }
 
     if (settingsPtr->zetaMode == "constant"){
       try{
@@ -628,6 +654,12 @@ bool cc::Input::decode_settings(const YAML::Node& node){
 
     try{
       settingsPtr->critical_scaling_bulk = node["hydro"]["viscous_parameters"]["bulk"]["critical_scaling_enabled"].as<bool>();
+      if ( node["hydro"]["viscous_parameters"]["bulk"]["critical_scaling_local_xi0"] )
+        settingsPtr->critical_scaling_local_xi0 =
+          node["hydro"]["viscous_parameters"]["bulk"]["critical_scaling_local_xi0"].as<bool>();
+      if ( node["hydro"]["viscous_parameters"]["bulk"]["critical_scaling_max"] )
+        settingsPtr->critical_scaling_max =
+          node["hydro"]["viscous_parameters"]["bulk"]["critical_scaling_max"].as<double>();
     } catch (...) {
       formatted_output::report("WARNING: Could not read viscous_parameters bulk critical_scaling_enabled!");
       formatted_output::report("This is an optional parameter. Setting to default value.");
@@ -694,15 +726,17 @@ bool cc::Input::decode_settings(const YAML::Node& node){
     else{
       settingsPtr->using_diffusion = true;
     }
-    // coth-form baryon diffusion kappa_B (Eq. 16) is only defined for a
-    // baryon-only charge configuration; reject any other charge setup.
-    if ( settingsPtr->diffusionMode == "kappaB_coth" &&
+    // coth-form baryon diffusion kappa_B (Eq. 16) and the tabulated holographic
+    // kappa_B = T*sigma_B(T,muB) are both baryon-only: they populate the (B,B)
+    // entry alone, so reject any other charge setup.
+    if ( ( settingsPtr->diffusionMode == "kappaB_coth"
+           || settingsPtr->diffusionMode == "holographic_table" ) &&
          !( settingsPtr->baryon_charge_enabled
             && !settingsPtr->strange_charge_enabled
             && !settingsPtr->electric_charge_enabled ) )
     {
-      formatted_output::report("ERROR: diffusion mode 'kappaB_coth' requires a "
-        "baryon-only charge configuration (baryon_charge_enabled: true, "
+      formatted_output::report("ERROR: diffusion mode '" + settingsPtr->diffusionMode
+        + "' requires a baryon-only charge configuration (baryon_charge_enabled: true, "
         "strange_charge_enabled: false, electric_charge_enabled: false).");
       Kokkos::finalize();
       exit(EXIT_FAILURE);
@@ -725,6 +759,78 @@ bool cc::Input::decode_settings(const YAML::Node& node){
       formatted_output::report("WARNING: Could not read hydro/viscous_parameters/diffusion/C_B!");
       formatted_output::report("This is an optional parameter. Setting to default value.");
       settingsPtr->C_B = cc::defaults::C_B;
+    }
+
+    try{
+      settingsPtr->b_q = node["hydro"]["viscous_parameters"]["diffusion"]["b_q"].as<double>();
+    } catch (...) {
+      settingsPtr->b_q = cc::defaults::b_q;
+    }
+
+    try{
+      settingsPtr->tau_q_causality_floor =
+        node["hydro"]["viscous_parameters"]["diffusion"]["causality_floor"].as<bool>();
+    } catch (...) {
+      settingsPtr->tau_q_causality_floor = cc::defaults::tau_q_causality_floor;
+    }
+    // The kappa_B edge tapers and the smoothed coth bracket were removed.
+    for (const char* removed_key : {"taper_muB_start", "taper_muB_end", "taper_T_min", "bracket_eps"})
+      if (node["hydro"]["viscous_parameters"]["diffusion"][removed_key])
+      {
+        std::cerr << "ERROR: hydro.viscous_parameters.diffusion." << removed_key
+                  << " was removed; delete the key from the config." << std::endl;
+        abort();
+      }
+    try{
+      settingsPtr->holographic_sigmaB_table_path
+        = node["hydro"]["viscous_parameters"]["diffusion"]["sigmaB_table_path"].as<std::string>();
+    } catch (...) {
+      settingsPtr->holographic_sigmaB_table_path
+        = cc::defaults::holographic_sigmaB_table_path;
+    }
+    try{
+      settingsPtr->holographic_diffusion_scale
+        = node["hydro"]["viscous_parameters"]["diffusion"]["holographic_scale"].as<double>();
+    } catch (...) {
+      settingsPtr->holographic_diffusion_scale
+        = cc::defaults::holographic_diffusion_scale;
+    }
+    try{
+      settingsPtr->diffusion_wave_speed_sq
+        = node["hydro"]["viscous_parameters"]["diffusion"]["wave_speed_sq"].as<double>();
+    } catch (...) {
+      settingsPtr->diffusion_wave_speed_sq = cc::defaults::diffusion_wave_speed_sq;
+    }
+    try{
+      settingsPtr->tau_q_min_over_T
+        = node["hydro"]["viscous_parameters"]["diffusion"]["tau_q_min_over_T"].as<double>();
+    } catch (...) {
+      settingsPtr->tau_q_min_over_T = cc::defaults::tau_q_min_over_T;
+    }
+    try{
+      settingsPtr->tau_q_max_over_T
+        = node["hydro"]["viscous_parameters"]["diffusion"]["tau_q_max_over_T"].as<double>();
+    } catch (...) {
+      settingsPtr->tau_q_max_over_T = cc::defaults::tau_q_max_over_T;
+    }
+    if ( settingsPtr->diffusionRelaxMode == "cattaneo"
+         || settingsPtr->diffusionRelaxMode == "nernst_einstein" )
+      formatted_output::report("diffusion relaxation: tau_q = D_B/v0^2, v0^2 = "
+        + ( settingsPtr->diffusion_wave_speed_sq > 0.0
+            ? std::to_string(settingsPtr->diffusion_wave_speed_sq)
+            : std::string("local cs2") )
+        + ", clamped to [" + std::to_string(settingsPtr->tau_q_min_over_T) + ", "
+        + std::to_string(settingsPtr->tau_q_max_over_T) + "]/T");
+    // The tabulated holographic kappa_B is useless without its table; fail loudly
+    // at start-up rather than silently evolving with zero baryon diffusion.
+    if ( settingsPtr->diffusionMode == "holographic_table"
+         && settingsPtr->holographic_sigmaB_table_path.empty() )
+    {
+      formatted_output::report("ERROR: diffusion mode 'holographic_table' requires "
+        "hydro/viscous_parameters/diffusion/sigmaB_table_path pointing at a tabulated "
+        "holographic baryon DC conductivity sigma_B(T, muB).");
+      Kokkos::finalize();
+      exit(EXIT_FAILURE);
     }
     try{
       settingsPtr->input_initial_diffusion = node["hydro"]["viscous_parameters"]["diffusion"]["input_initial_diffusion"].as<bool>();
@@ -770,6 +876,34 @@ bool cc::Input::decode_settings(const YAML::Node& node){
         formatted_output::report("WARNING: Could not read diffusion critical_gaussian_width/muB! Using default.");
         settingsPtr->critical_gaussian_width_muB = cc::defaults::critical_gaussian_width_muB;
       }
+      auto dnode = node["hydro"]["viscous_parameters"]["diffusion"];
+      settingsPtr->critical_scaling_diffusion_mode = dnode["critical_scaling_mode"]
+        ? dnode["critical_scaling_mode"].as<string>() : cc::defaults::critical_scaling_diffusion_mode;
+      settingsPtr->critical_scaling_kappa_power = dnode["critical_scaling_kappa_power"]
+        ? dnode["critical_scaling_kappa_power"].as<double>() : cc::defaults::critical_scaling_kappa_power;
+      settingsPtr->critical_scaling_tauq_power = dnode["critical_scaling_tauq_power"]
+        ? dnode["critical_scaling_tauq_power"].as<double>() : cc::defaults::critical_scaling_tauq_power;
+      if ( settingsPtr->critical_scaling_diffusion_mode != "gaussian_suppression"
+        && settingsPtr->critical_scaling_diffusion_mode != "xi_power" )
+      {
+        std::cerr << "ERROR: diffusion critical_scaling_mode '" << settingsPtr->critical_scaling_diffusion_mode
+                  << "' is not 'gaussian_suppression' or 'xi_power'." << std::endl;
+        abort();
+      }
+      // xi_power measures xi against the LOCAL non-critical baseline; with the global xi_0 the
+      // factor tracks temperature instead of the critical ridge, so refuse that combination.
+      if ( settingsPtr->critical_scaling_diffusion_mode == "xi_power"
+        && !settingsPtr->critical_scaling_local_xi0 )
+      {
+        std::cerr << "ERROR: diffusion critical_scaling_mode 'xi_power' requires "
+                     "bulk critical_scaling_local_xi0: true (and an EoS table with chiBB_nc)." << std::endl;
+        abort();
+      }
+      formatted_output::detail("diffusion critical scaling: " + settingsPtr->critical_scaling_diffusion_mode
+        + ( settingsPtr->critical_scaling_diffusion_mode == "xi_power"
+            ? " (kappa_B ~ xi^" + std::to_string(settingsPtr->critical_scaling_kappa_power)
+              + ", tau_q ~ xi^" + std::to_string(settingsPtr->critical_scaling_tauq_power)
+              + ", factors [1 + (xi/xi_0)^p]/2 capped at " + std::to_string(settingsPtr->critical_scaling_max) + ")" : "" ));
     }
     // -- diffusion regulator (PhysRevC.98.034916, Eqs. C6-C8)
     try {
@@ -832,6 +966,8 @@ bool cc::Input::decode_settings(const YAML::Node& node){
       formatted_output::report("This is an optional parameter. Setting to default value.");
       settingsPtr->source_normalization = cc::defaults::source_normalization;
     }
+    if ( node["hydro"]["source"]["test_particles"] )
+      settingsPtr->source_test_particles = node["hydro"]["source"]["test_particles"].as<double>();
     try{
       settingsPtr->baryon_source = node["hydro"]["source"]["enable_baryon"].as<bool>();
     } catch (...) {
@@ -888,19 +1024,55 @@ bool cc::Input::decode_settings(const YAML::Node& node){
       formatted_output::report("This is an optional parameter. Setting to default value.");
       settingsPtr->source_loss_coefficient = cc::defaults::source_loss_coefficient;
     }
-    try{
-      settingsPtr->source_entropy_ref = node["hydro"]["source"]["entropy_ref"].as<double>();
-    } catch (...) {
-      formatted_output::report("WARNING: Could not read source entropy_ref!");
-      formatted_output::report("This is an optional parameter. Setting to default value.");
-      settingsPtr->source_entropy_ref = cc::defaults::source_entropy_ref;
-    }
+    // Removed source options: refuse them so an old config cannot silently run without them.
+    for (const char* removed_key : {"propagate_budget", "fluidization_threshold",
+                                    "fluidization_criterion", "fluidization_delay"})
+      if (node["hydro"]["source"][removed_key])
+      {
+        std::cerr << "ERROR: hydro.source." << removed_key
+                  << " was removed; delete the key from the config." << std::endl;
+        abort();
+      }
     try{
       settingsPtr->source_deposit_steps = node["hydro"]["source"]["deposit_steps"].as<int>();
     } catch (...) {
       formatted_output::report("WARNING: Could not read source deposit_steps!");
       formatted_output::report("This is an optional parameter. Setting to default value.");
       settingsPtr->source_deposit_steps = cc::defaults::source_deposit_steps;
+    }
+    try{
+      settingsPtr->source_kernel_renormalize = node["hydro"]["source"]["kernel_renormalize"].as<bool>();
+    } catch (...) {
+      settingsPtr->source_kernel_renormalize = cc::defaults::source_kernel_renormalize;
+    }
+    try{
+      settingsPtr->source_min_coverage = node["hydro"]["source"]["min_coverage"].as<double>();
+    } catch (...) {
+      settingsPtr->source_min_coverage = cc::defaults::source_min_coverage;
+    }
+    // Renamed from max_boost (read as a Lorentz boost). Refuse the old key so an
+    // old config cannot silently fall back to the default.
+    if ( node["hydro"]["source"]["max_boost"] )
+    {
+      std::cerr << "ERROR: hydro.source.max_boost was renamed to "
+                   "hydro.source.max_renormalization_factor; update the config." << std::endl;
+      abort();
+    }
+    try{
+      settingsPtr->source_max_renormalization_factor =
+          node["hydro"]["source"]["max_renormalization_factor"].as<double>();
+    } catch (...) {
+      settingsPtr->source_max_renormalization_factor = cc::defaults::source_max_renormalization_factor;
+    }
+    try{
+      settingsPtr->source_deposit_at_rapidity = node["hydro"]["source"]["deposit_at_rapidity"].as<bool>();
+    } catch (...) {
+      settingsPtr->source_deposit_at_rapidity = cc::defaults::source_deposit_at_rapidity;
+    }
+    try{
+      settingsPtr->source_reheat_frozen_at_birth = node["hydro"]["source"]["reheat_frozen_at_birth"].as<bool>();
+    } catch (...) {
+      settingsPtr->source_reheat_frozen_at_birth = cc::defaults::source_reheat_frozen_at_birth;
     }
 
     //jets subnode
@@ -1028,6 +1200,15 @@ bool cc::Input::decode_settings(const YAML::Node& node){
       settingsPtr->causality_minimal_stride = cc::defaults::causality_minimal_stride;
     }
     if (settingsPtr->causality_minimal_stride < 1) settingsPtr->causality_minimal_stride = 1;
+    // The Theorem-1 causality check (arXiv:2607.05639) was removed.
+    for (const char* removed_key : {"causality_theorem1", "causality_theorem1_angles", "causality_zero_baryon"})
+      if (node["output"][removed_key])
+      {
+        std::cerr << "ERROR: output." << removed_key
+                  << " was removed; delete the key from the config."
+                  << std::endl;
+        abort();
+      }
     return true;
 }
 

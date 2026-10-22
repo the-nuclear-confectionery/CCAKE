@@ -60,6 +60,9 @@ void SPHWorkstation<D,TEOM>::initialize()
   //----------------------------------------
   // set up transport coefficients
   transp_coeff_params = tc::setup_parameters(settingsPtr);
+  // File I/O cannot live inside setup_parameters (which is device-decorated), so
+  // the tabulated holographic sigma_B is loaded here; a no-op for other modes.
+  tc::load_holographic_sigmaB_table(transp_coeff_params, settingsPtr);
 
   //----------------------------------------
   // set up freeze out  at constant energy density
@@ -280,10 +283,15 @@ void SPHWorkstation<D, TEOM>::initialize_entropy_and_charge_densities()
       }
       p.input.e = p.thermo.e;
       p.efcheck = systemPtr->efcheck;
-      if ( p.input.e > systemPtr->efcheck && p.Freeze!=4 )	p.Freeze = 0;
+      // frozen at birth: below e_fo
+      const bool above_freeze_out = (p.input.e > systemPtr->efcheck);
+      if ( above_freeze_out && p.Freeze!=4 )	p.Freeze = 0;
 		  else
 		    {
-		    	p.Freeze = 4;
+		    	// Freeze = 5: frozen AT BIRTH (below e_fo at tau0, no surface element written). With
+		    	// source_reheat_frozen_at_birth a later source deposit may lift it back above e_fo
+		    	// (FreezeOut::check_freeze_out_status); every freeze test uses >= 4, so 5 acts as 4.
+		    	p.Freeze = settingsPtr->source_reheat_frozen_at_birth ? 5 : 4;
 		    	systemPtr->number_part_fo++;
 		    }
     }
@@ -310,10 +318,15 @@ void SPHWorkstation<D, TEOM>::initialize_entropy_and_charge_densities()
                       p.input.e, p.input.rhoB, p.input.rhoS, p.input.rhoQ );
       }
       p.efcheck = systemPtr->efcheck;
-      if ( p.input.e > systemPtr->efcheck && p.Freeze!=4 )	p.Freeze = 0;
+      // frozen at birth: below e_fo
+      const bool above_freeze_out = (p.input.e > systemPtr->efcheck);
+      if ( above_freeze_out && p.Freeze!=4 )	p.Freeze = 0;
 		  else
 		    {
-		    	p.Freeze = 4;
+		    	// Freeze = 5: frozen AT BIRTH (below e_fo at tau0, no surface element written). With
+		    	// source_reheat_frozen_at_birth a later source deposit may lift it back above e_fo
+		    	// (FreezeOut::check_freeze_out_status); every freeze test uses >= 4, so 5 acts as 4.
+		    	p.Freeze = settingsPtr->source_reheat_frozen_at_birth ? 5 : 4;
 		    	systemPtr->number_part_fo++;
 		    }
     }
@@ -2260,7 +2273,7 @@ void SPHWorkstation<D, TEOM>::advance_timestep( double dt, int rk_order )
     bbmg.propagate();
     //cout << "Finished jet propagate: " << endl;
   }
-  // Advance propagating sources once per timestep (no-op unless enabled).
+  // Advance the IC sources once per timestep (no-op unless enabled).
   // Must be outside the RK substep loop above so the source advances/depletes
   // exactly once per step; deposit_sources only reads the result during substeps.
   if (settingsPtr->source_type != "disabled") sourcePtr->advance_sources();

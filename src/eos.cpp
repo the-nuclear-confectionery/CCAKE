@@ -170,10 +170,12 @@ void EquationOfState::evaluate_thermodynamics( pEoS_base peos )
   double phase_diagram_point[4] = { tbqsPosition[0], tbqsPosition[1],
                                     tbqsPosition[2], tbqsPosition[3] };
 
-  double thermo_array[17];
+  double thermo_array[18] = {0.0};
   peos->get_full_thermo( phase_diagram_point, thermo_array );
 
-  thermodynamics.assign(thermo_array, thermo_array + 17);
+  // 18 rather than 17: element 17 is the optional chiBB_nc baseline (zero when the table
+  // does not provide it, or when the point is served by the analytic extension).
+  thermodynamics.assign(thermo_array, thermo_array + 18);
 
   //============================================================================
   // set final thermodynamic results
@@ -196,10 +198,21 @@ void EquationOfState::evaluate_thermodynamics( pEoS_base peos )
   dt2     = thermodynamics[16];
 
 
-  //recompute the EoS but assuming muQ = muB = muS = 0 to get chiBB0
-  if ( muB() != 0.0 || muQ() != 0.0 || muS() != 0.0 )
+  // chiBB0 is the reference susceptibility that critical_scaling_factor_bulk divides by.
+  //
+  // Preferred: the LOCAL non-critical baseline, field 18 of the table (chiBB_nc) -- a smooth fit
+  // to chi_BB of this same table with the critical ridge masked out.  Then chiBB/chiBB0 is 1
+  // away from the transition and rises only on it.
+  //
+  // Fallback when the table does not carry that field (21-column tables, or a non-table EoS):
+  // recompute at muB = muQ = muS = 0, the previous behaviour.  Points served by the analytic
+  // extension are handled inside EoS_table, which sets the baseline equal to chiBB there so the
+  // enhancement is switched off outside the table.
+  db20 = thermodynamics[17];
+  if ( db20 > 0.0 ) { /* local baseline available; nothing more to do */ }
+  else if ( muB() != 0.0 || muQ() != 0.0 || muS() != 0.0 )
   {    double zero_mu_phase_diagram_point[4] = { tbqsPosition[0], 0.0, 0.0, 0.0 };
-       double zero_mu_thermo_array[17];
+       double zero_mu_thermo_array[18] = {0.0};
        peos->get_full_thermo( zero_mu_phase_diagram_point, zero_mu_thermo_array );
        db20 = zero_mu_thermo_array[7];
   }

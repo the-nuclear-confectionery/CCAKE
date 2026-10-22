@@ -54,6 +54,7 @@ public:
   void buffer_conservation_line();      ///< Append one conservation line to in-memory buffer
   void flush_conservation(const std::string& path); ///< Write buffered conservation data to disk (call once at end)
   void buffer_causality_line();         ///< Append one per-timestep causality summary line (cheap; needs check_causality)
+  void print_jet_final_to_txt(const std::string& path); ///< One row per BBMG parton at the end of the run (input to fragment_jets)
   void flush_causality(const std::string& path);    ///< Write buffered causality summary to disk (call once at end)
   void print_causality_minimal_to_txt();            ///< per-particle causality-diagnostics dump (strided snapshots)
   std::string get_freeze_out_filename(){return output_directory + "/freeze_out.dat";}

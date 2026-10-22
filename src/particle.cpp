@@ -37,6 +37,8 @@ Particle<D>::Particle( const Particle<D>& p )
   input.rhoQ    = p.input.rhoQ;
   hydro.u       = p.hydro.u;
   hydro.shv     = p.hydro.shv;
+
+  hydro.bulk    = p.hydro.bulk;
   input.s       = p.input.s;
   hydro.diffusion = p.hydro.diffusion;
   thermo.T      = p.thermo.T;

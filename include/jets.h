@@ -48,8 +48,11 @@ namespace ccake
                                   double,    // vmag
                                   double,    // vang
                                   double,    // flow
+                                  double,    // E0: initial energy pT*cosh(y) [GeV]
+                                  double,    // tau_stop: proper time the parton stopped (exited/absorbed); -1 while active
                                   int,       // PID
-                                  int>;      // Frozen out
+                                  int,       // Frozen out
+                                  int>;      // flavor: PDG id from the input file (0 = unknown)
 
     namespace jets_enum{
     enum jets_members
@@ -71,8 +74,11 @@ namespace ccake
       vmag,
       vang,
       flow,
+      E0,
+      tau_stop,
       PID,
       Frozen,
+      flavor,
       //NUM_JET_INFO
     };
   //#define JETS_MEMBERS double[ccake::jets_enum::NUM_JET_INFO]
@@ -99,7 +105,10 @@ namespace ccake
   auto CONCAT(prefix, vang) = Cabana::slice<jets_enum::vang>(jets_aosoa); \
   auto CONCAT(prefix, flow) = Cabana::slice<jets_enum::flow>(jets_aosoa); \
   auto CONCAT(prefix, PID) = Cabana::slice<jets_enum::PID>(jets_aosoa); \
-  auto CONCAT(prefix, Frozen) = Cabana::slice<jets_enum::Frozen>(jets_aosoa);
+  auto CONCAT(prefix, Frozen) = Cabana::slice<jets_enum::Frozen>(jets_aosoa); \
+  auto CONCAT(prefix, E0) = Cabana::slice<jets_enum::E0>(jets_aosoa); \
+  auto CONCAT(prefix, tau_stop) = Cabana::slice<jets_enum::tau_stop>(jets_aosoa); \
+  auto CONCAT(prefix, flavor) = Cabana::slice<jets_enum::flavor>(jets_aosoa);
 
 
 template <unsigned int D>
@@ -111,7 +120,6 @@ private:
 
     int z, a, c, q;
     int num_jets;
-    double Freezeout_Temp;
     double area;
     double vjet; // Taken to be c for jets
     double Cg, Cq;
@@ -128,6 +136,9 @@ private:
 
 
 public:
+
+    /// A jet stops (exits the medium) once the local temperature drops to this.
+    static constexpr double decoherence_temperature_MeV = 150.0;
 
     BBMG(){}
     BBMG( std::shared_ptr<Settings> settingsPtr_in, std::shared_ptr<SystemState<D>> systemPtr_in )
@@ -152,6 +163,9 @@ public:
         int PID, Frozen;
         double gam, vmag, vang, flow;
         double T0;
+        int flavor;        ///< PDG id of the parton (0 if the input did not provide one)
+        double E0;         ///< initial energy pT*cosh(y) [GeV]
+        double tau_stop;   ///< proper time the parton stopped propagating; -1 while active
     };
 
     vector<field> jetInfo_host; ///\@todo: Change these vectors to the AoSoA's
@@ -174,7 +188,6 @@ template <unsigned int D>
 void BBMG<D>::initial()
 {
       srand( time( NULL ) );
-  Freezeout_Temp    = 150;// Decoherence temperature in MeV
   Cg                = 3; // Cassimir const gluons
   Cq                = 4./3; // Cassimir const quarks
   // All next quantities are part of the BBMG parameters
@@ -196,7 +209,8 @@ void BBMG<D>::initial()
   // Push one jet + its back-to-back partner. Caller supplies local T and ρ.
   auto push_pair = [&](double xj, double yj, double etj,
                        double pT, double phij, double rapidity_,
-                       double rho0, double T_MeV, int pid_base) {
+                       double rho0, double T_MeV, int pid_base,
+                       int flavor_in = 0) {
     for (int j = 0; j < 2; ++j) {
       field f{};
       f.r[0] = xj; f.r[1] = yj;
@@ -208,6 +222,9 @@ void BBMG<D>::initial()
       f.total_energy = pT * std::cosh(f.rapidity);
       f.e_loss = 0.0; // no phantom initial deposit; budget drains via propagate()
       f.PID = 2 * pid_base + j;
+      f.flavor = flavor_in;
+      f.E0 = f.total_energy;
+      f.tau_stop = -1.0;
       f.Frozen = 1;
       jetInfo_host.push_back(f);
     }
@@ -218,7 +235,8 @@ void BBMG<D>::initial()
   // partons already supplied) is simulated exactly as given.
   auto push_single = [&](double xj, double yj, double etj,
                          double pT, double phij, double rapidity_,
-                         double rho0, double T_MeV, int pid_val) {
+                         double rho0, double T_MeV, int pid_val,
+                         int flavor_in = 0) {
     field f{};
     f.r[0] = xj; f.r[1] = yj;
     if (D == 3) f.r[2] = etj;
@@ -229,6 +247,9 @@ void BBMG<D>::initial()
     f.total_energy = pT * std::cosh(f.rapidity);
     f.e_loss = 0.0;
     f.PID = pid_val;
+    f.flavor = flavor_in;
+    f.E0 = f.total_energy;
+    f.tau_stop = -1.0;
     f.Frozen = 1;
     jetInfo_host.push_back(f);
   };
@@ -281,15 +302,18 @@ void BBMG<D>::initial()
       std::istringstream iss(line);
       double xj, yj, etj, pTj, phij, rapidity_;
       if (!(iss >> xj >> yj >> etj >> pTj >> phij >> rapidity_)) continue;
+      // Optional 7th column: PDG id of the parton
+      int flavor_in = 0;
+      if (!(iss >> flavor_in)) flavor_in = 0;
       auto [rho0, T_MeV] = sph_average(xj, yj, etj);
       if (settingsPtr->jets_auto_partner)
         push_pair(xj, yj, etj,
                   pTj, phij, rapidity_,
-                  rho0, T_MeV, pid++);
+                  rho0, T_MeV, pid++, flavor_in);
       else
         push_single(xj, yj, etj,
                     pTj, phij, rapidity_,
-                    rho0, T_MeV, pid++);
+                    rho0, T_MeV, pid++, flavor_in);
     }
   }
   else if (mode == "hardcoded") {
@@ -312,7 +336,7 @@ void BBMG<D>::initial()
     for (int i = 0; i < settingsPtr->jets_njet; ++i) {
       int rsp;
       do { rsp = uisph(gen); }
-      while (p[rsp].T() * constants::hbarc_MeVfm < Freezeout_Temp);
+      while (p[rsp].T() * constants::hbarc_MeVfm < decoherence_temperature_MeV);
       double y_s = settingsPtr->jets_sample_rapidity ? uy(gen) : settingsPtr->jets_rapidity;
       
       push_pair(p[rsp].r(0), p[rsp].r(1),
@@ -372,6 +396,10 @@ void ccake::BBMG<D>::copy_host_to_device_BBMG(){
     host_vang(ijet) = jetInfo_host[ijet].vang;
     host_PID(ijet) = jetInfo_host[ijet].PID;
     host_Frozen(ijet) = jetInfo_host[ijet].Frozen;
+    host_flow(ijet) = jetInfo_host[ijet].flow;
+    host_E0(ijet) = jetInfo_host[ijet].E0;
+    host_tau_stop(ijet) = jetInfo_host[ijet].tau_stop;
+    host_flavor(ijet) = jetInfo_host[ijet].flavor;
   }
 
   Cabana::deep_copy( jetInfo, jets_h );
@@ -408,6 +436,12 @@ void BBMG<D>::copy_device_to_host_BBMG()
     jetInfo_host[ijet].vmag = host_vmag(ijet);
     jetInfo_host[ijet].vang  = host_vang(ijet);
     jetInfo_host[ijet].PID = host_PID(ijet);
+    jetInfo_host[ijet].T0 = host_T0(ijet);
+    jetInfo_host[ijet].flow = host_flow(ijet);
+    jetInfo_host[ijet].Frozen = host_Frozen(ijet);
+    jetInfo_host[ijet].E0 = host_E0(ijet);
+    jetInfo_host[ijet].tau_stop = host_tau_stop(ijet);
+    jetInfo_host[ijet].flavor = host_flavor(ijet);
   }
 }
 
@@ -429,8 +463,14 @@ void BBMG<D>::propagate()
     // behaviour, drop this `continue`: the dL clamp below already forces e_loss=0
     // once total_energy hits 0, so the jet would deposit nothing while still
     // updating its position and jet_state dumps.
-    if (jet_total_energy(i) <= 0) continue;
-    if (jet_T(i) > 150)
+    if (jet_total_energy(i) <= 0)
+    {
+      if (jet_tau_stop(i) < 0.0) jet_tau_stop(i) = tau; // absorbed
+      continue;
+    }
+    // Already outside the medium.
+    if (!(jet_T(i) > decoherence_temperature_MeV) && jet_tau_stop(i) < 0.0) jet_tau_stop(i) = tau;
+    if (jet_T(i) > decoherence_temperature_MeV)
     {
     // Propagation direction for a massless jet with rapidity y in Milne.
     // With Δy ≡ y − η_s:  dx/dτ = cos(φ)/cosh(Δy), dy/dτ = sin(φ)/cosh(Δy),
@@ -515,6 +555,10 @@ void BBMG<D>::propagate()
     if (dL > jet_total_energy(i)) dL = jet_total_energy(i);
     Kokkos::atomic_add( &jet_total_energy(i), -dL );
     jet_e_loss(i) = dL;
+    // Stopped by this step: fully absorbed, or it just crossed the decoherence
+    // temperature (its position is now frozen at the point reached at this tau).
+    if (jet_tau_stop(i) < 0.0 && (jet_total_energy(i) <= 0.0 || !(jet_T(i) > decoherence_temperature_MeV)))
+      jet_tau_stop(i) = tau;
 
     }
   }

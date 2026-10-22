@@ -43,6 +43,10 @@ public:
   // constructor from files containing tables
   EoS_table( string eos_path, bool normalize_by_T = true );
 
+  /// true when the table carries the optional 18th field chiBB_nc (the non-critical
+  /// chi_BB baseline used as a LOCAL xi_0 by the critical bulk scaling).
+  bool has_chiBB_nc = false;
+
   void get_eBSQ( double point[], double results[] );
   void get_sBSQ( double point[], double results[] );
   void get_full_thermo( double point[], double results[] );

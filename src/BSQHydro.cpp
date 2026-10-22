@@ -863,4 +863,10 @@ void BSQHydro<D,TEOM>::run()
     outPtr->flush_conservation(out_dir + "/conservation.dat");
   if (settingsPtr->check_causality)
     outPtr->flush_causality(out_dir + "/causality_summary.dat");
+  // Final state of the BBMG partons, input for the fragmentation post-processor
+  if (settingsPtr->jets_type != "disabled")
+  {
+    wsPtr->bbmg.copy_device_to_host_BBMG();
+    outPtr->print_jet_final_to_txt(out_dir + "/jet_final.dat");
+  }
 }

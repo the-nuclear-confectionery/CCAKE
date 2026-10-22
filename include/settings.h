@@ -200,6 +200,14 @@ class Settings
     //  - bulk quantities
     string zetaMode             = "";    ///< Choose parametrization for zeta/s
     bool critical_scaling_bulk  = false; ///< Whether to enable critical scaling of bulk viscosity
+    /// Use the EoS table's chiBB_nc field (a smooth non-critical baseline fitted to the same
+    /// table) as the LOCAL xi_0 in the bulk critical scaling, instead of the global constant.
+    /// Requires a 22-column table; ignored otherwise.  With this on the factor is normalised so
+    /// that it is 1 away from the transition.
+    bool critical_scaling_local_xi0 = false;
+    /// Hard cap on the bulk critical enhancement factor. <= 0 disables the cap.  Needed because
+    /// the raw factor reaches ~233 at the critical point and ~1259 at the plane maximum.
+    double critical_scaling_max = 10.0;
     double constant_zeta_over_s = 0.0;
     double cs2_dependent_zeta_A = 0.0;
     double cs2_dependent_zeta_p = 0.0;
@@ -223,12 +231,29 @@ class Settings
     bool input_initial_diffusion = false; ///< Whether to use the initial diffusion
                                           ///  coefficients from the input file
     double C_B = 0.0;   ///< coefficient for coth-form baryon diffusion kappa_B (Eq. 16)
+    ///< path to the tabulated holographic baryon DC conductivity sigma_B(T,muB)
+    string holographic_sigmaB_table_path = "";
+    ///< dimensionless overall multiplier on the tabulated kappa_B = T*sigma_B
+    double holographic_diffusion_scale = 1.0;
+    ///< propagation speed squared of the diffusion front (nernst_einstein tau_q);
+    ///< <= 0 means "use the local cs2"
+    double diffusion_wave_speed_sq = 0.0;
+    double b_q = 20.0;  ///< coefficient for tau_q = b_q * kappa_BB/n_B (kappa_over_n)
+    bool tau_q_causality_floor = true; ///< enforce tau_q >= D_B (Kapusta-Young)
+    ///< clamps on the nernst_einstein tau_q, in units of 1/T
+    double tau_q_min_over_T = 0.1;
+    double tau_q_max_over_T = 10.0;
     string diffusionRelaxMode = "default"; ///< Choose parametrization for diffusion relaxation time
     bool critical_scaling_diffusion = false; ///< Whether to enable Gaussian suppression of kappa near critical point
     double critical_point_T   = 0.0; ///< Critical point temperature [MeV]
     double critical_point_muB = 0.0; ///< Critical point baryon chemical potential [MeV]
     double critical_gaussian_width_T   = 0.0; ///< Gaussian width in T direction [MeV]
     double critical_gaussian_width_muB = 0.0; ///< Gaussian width in muB direction [MeV]
+    /// Diffusion critical-scaling form. "gaussian_suppression" (legacy): kappa_B x [1 - Gaussian] centred on
+    /// critical_point. "xi_power": the bulk scaling's form g(p) = min{[1 + (xi/xi_0)^p]/2, critical_scaling_max}
+    string critical_scaling_diffusion_mode = "gaussian_suppression";
+    double critical_scaling_kappa_power = 1.0;  ///< kappa_n ~ xi (model H: kappa_n ~ lambda_T ~ xi)
+    double critical_scaling_tauq_power  = 2.0;  ///< tau_n ~ xi^2 (diffusive-shear slow mode with shear present)
 
     // -- diffusion regulator (PhysRevC.98.034916, Appendix C, Eqs. C6-C8)
     bool   diffusion_regulator_enabled  = false; ///< enable/disable the diffusion regulator
@@ -242,16 +267,21 @@ class Settings
     string source_type           = "";    ///< Choose source term type for shear
     string source_model          = "";    ///< Choose source term model
     double source_normalization  = 1.0;   ///< Normalization factor for source terms
+    double source_test_particles = 1.0;   ///< divide source energy+charge deposits by this (SMASH N_test)
     bool baryon_source         = false;  ///< Whether to include baryon source term
     bool strangeness_source    = false;  ///< Whether to include strangeness source term
     bool electric_source       = false;  ///< Whether to include electric source term
     double smearing_radius     = 0.0;   ///< Transverse smearing radius for source terms [fm]
     double smearing_radius_eta = 0.0;   ///< Longitudinal (eta) smearing radius for source terms; used by the D=3 split deposit kernel
     string source_input_file   = "";    ///< Path to the source term file
-    bool   source_propagate    = false; ///< If true, SMASH sources propagate & deplete like a jet; else instant dump at t_src
-    double source_loss_coefficient = 0.0; ///< CTE in dE = CTE * s(x)/s_0 * dt for propagating SMASH sources
-    double source_entropy_ref      = 1.0; ///< s_0 reference entropy density for propagating SMASH sources
+    bool   source_propagate    = false; ///< If true, IC sources stream and lose energy at a constant rate; else instant dump at formation
+    double source_loss_coefficient = 0.0; ///< propagate mode: constant loss rate, dE = loss_coefficient*dt [fm^-2]
     int    source_deposit_steps = 1;    ///< Instant mode: spread each dump over N steps (E0/N per step) to keep v<c; 1 = all at once
+    bool   source_kernel_renormalize = false; ///< Shepard-renormalize each deposit by the discrete kernel sum (exact capture where fluid exists); OFF = legacy behavior
+    double source_min_coverage = 0.1;   ///< kernel_renormalize only: defer a source's deposit while its kernel coverage sum is below this (fluid hasn't reached it yet)
+    bool   source_reheat_frozen_at_birth = false; ///< particles below e_fo at tau0 are marked Freeze=5 (frozen at birth, no surface element yet) and return to Freeze=0 if a source deposit lifts them above e_fo; OFF = legacy (Freeze=4, permanent)
+    bool   source_deposit_at_rapidity = false; ///< Deposit each source at eta_s = its momentum rapidity instead of its space-time rapidity, keeping the formation proper time (dynamical-initialisation prescription, e.g. 3D-Glauber+MUSIC places string sources at the string rapidity). At low energy the partons are made near z=0 while carrying |y| up to 2, and free-streaming cannot bridge that within the fireball lifetime
+    double source_max_renormalization_factor = 2.0; ///< kernel_renormalize only: cap on the Shepard factor 1/coverage; below coverage=1/max_renormalization_factor only the safe fraction of the chunk lands and the budget carries forward
 
     //  - jet terms
 
@@ -260,7 +290,7 @@ class Settings
     int jets_Length_scaling     = 0;    ///< Choose BBMG length dependence
     int jets_Fluctuations       = 0;    ///< Choose BBMG fluctuations
     // 3D jet initialization mode:
-    //   "file"      → read N jets from jets_input_file (cols: x y eta pT phi rapidity)
+    //   "file"      → read N jets from jets_input_file (cols: x y eta pT phi rapidity [pdg])
     //   "hardcoded" → single jet at (x0,y0,eta0) with (pT, phi, rapidity)
     //   "sampled"   → sample njet jets: positions from SPH particles above Freezeout_Temp,
     //                 phi from phi_bins or uniform, rapidity sampled per sampling block.

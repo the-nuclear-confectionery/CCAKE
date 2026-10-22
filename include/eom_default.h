@@ -11,8 +11,6 @@
 #include "milne.hpp"
 #include "system_state.h"
 
-#include <gsl/gsl_complex.h>
-#include <gsl/gsl_eigen.h>
 
 #include <Cabana_Core.hpp>
 

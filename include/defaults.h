@@ -78,11 +78,22 @@ namespace ccake
     const std::string diffusionMode           = "disabled";
     const std::string diffusionRelaxMode          = "default";
     const double      C_B                         = 0.0;
+    // holographic_table diffusion: tabulated EMD baryon DC conductivity sigma_B(T,muB)
+    const std::string holographic_sigmaB_table_path = "";  // empty = required from YAML
+    const double      holographic_diffusion_scale   = 1.0; // dimensionless multiplier on kappa_B
+    const double      diffusion_wave_speed_sq       = 0.0;
+    const double      b_q                           = 20.0; // tau_q = b_q*kappa_BB/n_B
+    const bool        tau_q_causality_floor         = true; // tau_q >= D_B
+    const double      tau_q_min_over_T              = 0.1;  // clamp, in units of 1/T
+    const double      tau_q_max_over_T              = 10.0; // clamp, in units of 1/T
     const bool        critical_scaling_diffusion  = false;
     const double      critical_point_T            = 150.0;  // MeV
     const double      critical_point_muB          = 350.0;  // MeV
     const double      critical_gaussian_width_T   = 30.0;   // MeV
     const double      critical_gaussian_width_muB = 50.0;   // MeV
+    const std::string critical_scaling_diffusion_mode = "gaussian_suppression";
+    const double      critical_scaling_kappa_power    = 1.0;
+    const double      critical_scaling_tauq_power     = 2.0;
     const bool        input_initial_diffusion = false;
     const std::array<std::array<double, 3>, 3> 
                               constant_kappa_over_T2 = {0.0, 0.0, 0.0,
@@ -100,8 +111,12 @@ namespace ccake
     const std::string source_input_file   = "disabled";
     const bool        source_propagate         = false;
     const double      source_loss_coefficient = 0.0;
-    const double      source_entropy_ref       = 1.0;
     const int         source_deposit_steps     = 1;
+    const bool        source_kernel_renormalize = false;
+    const double      source_min_coverage      = 0.1;
+    const double      source_max_renormalization_factor = 2.0;
+    const bool        source_deposit_at_rapidity = false;
+    const bool        source_reheat_frozen_at_birth = false;
     const std::string jets_type              = "disabled";
     const int         jets_Energy_scaling     = 0;
     const int         jets_Length_scaling     = 1;
