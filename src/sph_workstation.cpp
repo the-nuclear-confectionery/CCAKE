@@ -599,9 +599,24 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
   };
 
   auto range_policy = Kokkos::RangePolicy<ExecutionSpace>(0, systemPtr->cabana_particles.size());
+  // SerialOpTag, NOT TeamOpTag -- this is a reproducibility requirement, not a style choice.
+  // TeamOpTag splits particle i's neighbour loop across the team via TeamThreadRange under a
+  // dynamically-scheduled TeamPolicy, so the atomic_adds above land in a thread-scheduling
+  // dependent order. Floating-point addition is not associative, so every run summed sigma_lab
+  // (and the gradients below) slightly differently: measured on 19.6 GeV evt_0001 at 25k, four
+  // 16-thread reps of one config diverged from tau=5.788 onward and one of the four blew up
+  // before writing its surface, while two 1-thread reps were bit-identical.
+  // SerialOpTag keeps the parallelism over particles (RangePolicy) and walks each particle's
+  // neighbours serially in fixed list order, which is deterministic: one thread owns particle i's
+  // accumulator, so the sum order is fixed. NOTE this is only half the fix: with per-particle
+  // radii the patched Cabana fill scatters cross-neighbours into other particles' rows, so the
+  // row ORDER is itself scheduling-dependent; SystemState::reset_neighbour_list sorts each CSR
+  // row after every build to canonicalize it (see the comment there for the measurements).
+  // The atomics are kept because they cost nothing once uncontended and guard against a future
+  // scatter-to-j kernel.
   Cabana::neighbor_parallel_for( range_policy, smooth_fields,
                                  systemPtr->neighbour_list, Cabana::FirstNeighborsTag(),
-                                 Cabana::TeamOpTag(), "smooth_fields_kernel");
+                                 Cabana::SerialOpTag(), "smooth_fields_kernel");
 
   Kokkos::fence();
 
@@ -636,7 +651,7 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
     };
     Cabana::neighbor_parallel_for( range_policy, smooth_gamma,
                                    systemPtr->neighbour_list, Cabana::FirstNeighborsTag(),
-                                   Cabana::TeamOpTag(), "smooth_gamma_kernel");
+                                   Cabana::SerialOpTag(), "smooth_gamma_kernel");
     Kokkos::fence();
   }
 
@@ -676,6 +691,137 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_fields(double time_squared)
   };
   Cabana::simd_parallel_for( simd_policy, update_input_thermodynamics, "update_input_thermodynamics" );
   Kokkos::fence();
+
+  // VARH_DBG diagnostic: report the spread of the grad-h Omega and how many particles
+  // are pinned at the 1e-2 safety floor (1/Omega then amplifies every gradient by 100).
+  if ( gradh && std::getenv("VARH_DBG") )
+  {
+    double omin = 1e30, omax = -1e30;
+    long nfloor = 0, nlow = 0;
+    const int np = systemPtr->cabana_particles.size();
+    CREATE_VIEW(dbg_, systemPtr->cabana_particles);
+    Kokkos::parallel_reduce("dbg_omega_min", np,
+      KOKKOS_LAMBDA(const int i, double& m){ double o = dbg_hydro_scalar(i, hydro_info::Omega); if (o<m) m=o; },
+      Kokkos::Min<double>(omin));
+    Kokkos::parallel_reduce("dbg_omega_max", np,
+      KOKKOS_LAMBDA(const int i, double& m){ double o = dbg_hydro_scalar(i, hydro_info::Omega); if (o>m) m=o; },
+      Kokkos::Max<double>(omax));
+    Kokkos::parallel_reduce("dbg_omega_floor", np,
+      KOKKOS_LAMBDA(const int i, long& c){ if (dbg_hydro_scalar(i, hydro_info::Omega) <= 1.0000001e-2) ++c; }, nfloor);
+    Kokkos::parallel_reduce("dbg_omega_low", np,
+      KOKKOS_LAMBDA(const int i, long& c){ if (dbg_hydro_scalar(i, hydro_info::Omega) < 0.5) ++c; }, nlow);
+    Kokkos::fence();
+    std::cerr << "[omega] t=" << systemPtr->t << " min=" << omin << " max=" << omax
+              << " n(<0.5)=" << nlow << " n(at floor)=" << nfloor << " / " << np << std::endl;
+  }
+
+  // VARH_DBG diagnostic: track the extensive-entropy runaway. Prints the argmax particle of
+  // extensive.s each step with the fields needed to classify it (position, h, sigma_lab,
+  // neighbour count, Omega). The known failure mode is a dilute edge particle whose density
+  // estimate collapses; watching the argmax through time shows when it detaches and what its
+  // neighbourhood looked like when it did. Host-side reads of the slices are fine (CPU build).
+  if ( std::getenv("VARH_DBG") )
+  {
+    const int np = systemPtr->cabana_particles.size();
+    CREATE_VIEW(dbg_, systemPtr->cabana_particles);
+    Kokkos::MaxLoc<double,int>::value_type res;
+    Kokkos::parallel_reduce("dbg_runaway_argmax", np,
+      KOKKOS_LAMBDA(const int i, Kokkos::MaxLoc<double,int>::value_type& mv){
+        double s = dbg_extensive(i, densities_info::s);
+        if (s > mv.val) { mv.val = s; mv.loc = i; }
+      }, Kokkos::MaxLoc<double,int>(res));
+    Kokkos::fence();
+    const int ir = res.loc;
+    if (ir >= 0) {
+      std::cerr << "[runaway] t=" << systemPtr->t << " id=" << ir
+                << " s_ext=" << res.val << " r=(";
+      for (unsigned int idir = 0; idir < D; ++idir)
+        std::cerr << dbg_position(ir, idir) << (idir+1<D ? "," : ")");
+      std::cerr << " h=" << dbg_hydro_scalar(ir, hydro_info::h)
+                << " h_eta=" << dbg_hydro_scalar(ir, hydro_info::h_eta)
+                << " sigma_lab=" << dbg_hydro_scalar(ir, hydro_info::sigma_lab)
+                << " nbr=" << dbg_btrack(ir)
+                << " Omega=" << (gradh ? dbg_hydro_scalar(ir, hydro_info::Omega) : 1.0)
+                // thermo state is from the PREVIOUS thermodynamics update (phase 04 runs
+                // after this smoothing), so it lags the smoothed fields by one substep.
+                << " Frz=" << dbg_freeze(ir)
+                << " T=" << dbg_thermo(ir, thermo_info::T)*hbarc_MeVfm << "MeV"
+                << " e=" << dbg_thermo(ir, thermo_info::e)*hbarc_GeVfm << "GeV/fm3"
+                << " s_int=" << dbg_thermo(ir, thermo_info::s)
+                << " dsdt=" << dbg_d_dt_extensive(ir, densities_info::s)
+                << std::endl;
+    }
+  }
+
+  // VARH_WATCH diagnostic: per-step trace of specific particle indices (comma-separated
+  // in the env var, e.g. VARH_WATCH=12695,15722). Same lag caveat as [runaway]: thermo
+  // is from the previous phase-04 update. Used to establish the birth state (Frz at the
+  // first print) and history of the particles in a runaway's infection chain.
+  if ( const char* watch_env = std::getenv("VARH_WATCH") )
+  {
+    static std::vector<int> watch_ids;
+    static bool watch_parsed = false;
+    if (!watch_parsed) {
+      watch_parsed = true;
+      const char* p = watch_env; char* endp;
+      while (*p) {
+        long v = std::strtol(p, &endp, 10);
+        if (endp == p) break;
+        watch_ids.push_back(static_cast<int>(v));
+        p = (*endp == ',') ? endp + 1 : endp;
+      }
+    }
+    const int np = systemPtr->cabana_particles.size();
+    CREATE_VIEW(wch_, systemPtr->cabana_particles);
+    for (int iw : watch_ids) {
+      if (iw < 0 || iw >= np) continue;
+      std::cerr << "[watch] t=" << systemPtr->t << " id=" << iw
+                << " Frz=" << wch_freeze(iw)
+                << " s_ext=" << wch_extensive(iw, densities_info::s)
+                << " e=" << wch_thermo(iw, thermo_info::e)*hbarc_GeVfm
+                << " T=" << wch_thermo(iw, thermo_info::T)*hbarc_MeVfm
+                // viscous-source inputs (lagged one substep like the thermo): the expansion
+                // rate and the pi:grad-u contraction are what set the entropy production.
+                << " theta=" << wch_hydro_scalar(iw, hydro_info::theta)
+                << " shv_nabla_u=" << wch_hydro_scalar(iw, hydro_info::shv_nabla_u)
+                << " ext_bulk=" << wch_hydro_scalar(iw, hydro_info::extensive_bulk)
+                << " r=(";
+      for (unsigned int idir = 0; idir < D; ++idir)
+        std::cerr << wch_position(iw, idir) << (idir+1<D ? "," : ")");
+      std::cerr << std::endl;
+    }
+  }
+
+  // VARH_HASH diagnostic: exact bitwise fingerprint of the freshly smoothed fields. Paired with
+  // the neighbour-list hash in SystemState::reset_neighbour_list, this brackets the SPH gather:
+  // if the neighbour hash agrees across two runs but this one does not, the divergence is being
+  // introduced by the summation itself; if the neighbour hash already differs, it is upstream.
+  // Doubles are hashed by their exact bit pattern, so this catches last-bit differences that
+  // printed output rounds away. Combine is unsigned add (order-independent), as above.
+  if ( std::getenv("VARH_HASH") )
+  {
+    unsigned long long sig_hash = 0, s_hash = 0;
+    const int np = systemPtr->cabana_particles.size();
+    CREATE_VIEW(hsh_, systemPtr->cabana_particles);
+    auto bits = KOKKOS_LAMBDA(double d) -> unsigned long long {
+      union { double d; unsigned long long u; } c; c.d = d; return c.u;
+    };
+    Kokkos::parallel_reduce("varh_sigma_hash", np,
+      KOKKOS_LAMBDA(const int i, unsigned long long& acc){
+        unsigned long long h = bits(hsh_hydro_scalar(i, hydro_info::sigma_lab)) ^ (unsigned long long)(i+1);
+        h *= 1099511628211ULL; h ^= (h >> 29);
+        acc += h;
+      }, Kokkos::Sum<unsigned long long>(sig_hash));
+    Kokkos::parallel_reduce("varh_s_hash", np,
+      KOKKOS_LAMBDA(const int i, unsigned long long& acc){
+        unsigned long long h = bits(hsh_smoothed(i, densities_info::s)) ^ (unsigned long long)(i+1);
+        h *= 1099511628211ULL; h ^= (h >> 29);
+        acc += h;
+      }, Kokkos::Sum<unsigned long long>(s_hash));
+    Kokkos::fence();
+    std::cerr << "[hash] t=" << systemPtr->t << " sigma_lab=" << sig_hash
+              << " smoothed_s=" << s_hash << std::endl;
+  }
 
 }
 
@@ -730,7 +876,7 @@ void SPHWorkstation<D, TEOM>::calculate_intial_sigma(double t)
   auto range_policy = Kokkos::RangePolicy<ExecutionSpace>(0, systemPtr->cabana_particles.size());
   Cabana::neighbor_parallel_for( range_policy, smooth_fields,
                                  systemPtr->neighbour_list, Cabana::FirstNeighborsTag(),
-                                 Cabana::TeamOpTag(), "smooth_fields_kernel");
+                                 Cabana::SerialOpTag(), "smooth_fields_kernel");
 
   Kokkos::fence();
   auto update_sigma = KOKKOS_LAMBDA(const int is, const int ia){
@@ -1186,7 +1332,7 @@ void SPHWorkstation<D, TEOM>::smooth_all_particle_gradients(double time_squared)
   auto range_policy = Kokkos::RangePolicy<ExecutionSpace>(0, systemPtr->cabana_particles.size());
   Cabana::neighbor_parallel_for(range_policy, smooth_gradients,
                                  systemPtr->neighbour_list, Cabana::FirstNeighborsTag(),
-                                 Cabana::TeamOpTag(), "smooth_gradients_kernel");
+                                 Cabana::SerialOpTag(), "smooth_gradients_kernel");
   Kokkos::fence();
 
   return;
@@ -2762,7 +2908,7 @@ void SPHWorkstation<3, EoM_cartesian>::smooth_all_particle_gradients(double time
   auto range_policy = Kokkos::RangePolicy<ExecutionSpace>(0, systemPtr->cabana_particles.size());
   Cabana::neighbor_parallel_for(range_policy, smooth_gradients,
                                  systemPtr->neighbour_list, Cabana::FirstNeighborsTag(),
-                                 Cabana::TeamOpTag(), "smooth_gradients_kernel");
+                                 Cabana::SerialOpTag(), "smooth_gradients_kernel");
   Kokkos::fence();
   return;
 }
@@ -2938,7 +3084,7 @@ void SPHWorkstation<2, EoM_cartesian>::smooth_all_particle_gradients(double time
   auto range_policy = Kokkos::RangePolicy<ExecutionSpace>(0, systemPtr->cabana_particles.size());
   Cabana::neighbor_parallel_for(range_policy, smooth_gradients,
                                  systemPtr->neighbour_list, Cabana::FirstNeighborsTag(),
-                                 Cabana::TeamOpTag(), "smooth_gradients_kernel");
+                                 Cabana::SerialOpTag(), "smooth_gradients_kernel");
   Kokkos::fence();
   return;
 }
@@ -3101,7 +3247,7 @@ void SPHWorkstation<1, EoM_cartesian>::smooth_all_particle_gradients(double time
   auto range_policy = Kokkos::RangePolicy<ExecutionSpace>(0, systemPtr->cabana_particles.size());
   Cabana::neighbor_parallel_for(range_policy, smooth_gradients,
                                  systemPtr->neighbour_list, Cabana::FirstNeighborsTag(),
-                                 Cabana::TeamOpTag(), "smooth_gradients_kernel");
+                                 Cabana::SerialOpTag(), "smooth_gradients_kernel");
   Kokkos::fence();
   return;
 }

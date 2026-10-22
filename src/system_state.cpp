@@ -807,6 +807,37 @@ void SystemState<D>::reset_neighbour_list(){
                                 neighborhood_radius, cell_ratio, min_pos, max_pos );
   }
   Kokkos::fence();
+
+  // Canonicalize the neighbour-row ORDER (adaptive modes only; determinism requirement).
+  // With per-particle radii the patched Cabana fill adds cross-neighbours: particle i's
+  // pass calls addNeighbor(j,i) when j lies inside r_i but i lies outside r_j, so row j
+  // interleaves j's own serial appends with cross-adds arriving from other threads, each
+  // slot assigned by atomic_fetch_add. The row's ORDER is therefore thread-scheduling
+  // dependent (its membership is not). Downstream the smoothing kernels walk rows serially
+  // and FP addition is not associative, so an unsorted row makes every SPH sum
+  // run-to-run nondeterministic at >1 thread. Measured: two 16-thread reps produced
+  // different neighbour-list fingerprints on the very first build and diverged to the
+  // point that 1 rep in 4 blew up before freeze-out; 1-thread reps were bit-identical.
+  // Sorting each CSR row ascending makes the list canonical whatever the fill order.
+  // Skipped in constant mode to preserve bit-identity with the legacy code path (fixed
+  // radius => no cross-adds => stock fill order, which is already deterministic).
+  if ( settingsPtr->smoothing_length_mode != "constant" ) {
+    auto nbr_counts  = neighbour_list._data.counts;
+    auto nbr_offsets = neighbour_list._data.offsets;
+    auto nbr_ids     = neighbour_list._data.neighbors;
+    Kokkos::parallel_for("sort_neighbor_rows", Kokkos::RangePolicy<>(0, n_particles),
+      KOKKOS_LAMBDA(const int i){
+        const int beg = nbr_offsets(i);
+        const int nn  = nbr_counts(i);
+        for (int a = 1; a < nn; ++a) {          // insertion sort: rows are short (~50)
+          const int v = nbr_ids(beg+a);
+          int b = a - 1;
+          while (b >= 0 && nbr_ids(beg+b) > v) { nbr_ids(beg+b+1) = nbr_ids(beg+b); --b; }
+          nbr_ids(beg+b+1) = v;
+        }
+      });
+    Kokkos::fence();
+  }
 #ifdef __linux__
   malloc_trim(0);   // return freed Kokkos/Cabana pages to OS after neighbour list rebuild
 #endif
@@ -821,6 +852,33 @@ void SystemState<D>::reset_neighbour_list(){
     device_btrack(i) = (device_btrack(i) == -1) ? -1
                       : Cabana::NeighborList<ListType>::numNeighbor(neighbour_list, i);
   });
+
+  // VARH_HASH diagnostic: order-sensitive fingerprint of the neighbour list.
+  // Used to answer "is the neighbour list itself reproducible across runs?" -- run twice at the
+  // same thread count and diff the printed streams. The per-particle term mixes in both the slot
+  // index n and the neighbour id, so a permuted row changes the hash; the outer combine is
+  // unsigned addition, which is associative and commutative mod 2^64, so the *reduction* order
+  // cannot itself perturb the result. Any difference is therefore real.
+  if ( std::getenv("VARH_HASH") )
+  {
+    unsigned long long nbr_hash = 0;
+    auto nlist = neighbour_list;
+    Kokkos::parallel_reduce("varh_nbr_hash", Kokkos::RangePolicy<>(0, n_particles),
+      KOKKOS_LAMBDA(const int i, unsigned long long& acc){
+        const int nn = Cabana::NeighborList<ListType>::numNeighbor(nlist, i);
+        unsigned long long h = 1469598103934665603ULL ^ (unsigned long long)(i+1);
+        for (int n = 0; n < nn; ++n) {
+          unsigned long long v =
+            (unsigned long long)(Cabana::NeighborList<ListType>::getNeighbor(nlist, i, n) + 1)
+            * 1099511628211ULL + (unsigned long long)(n + 1);
+          h ^= v; h *= 1099511628211ULL; h ^= (h >> 29);
+        }
+        acc += h;
+      }, Kokkos::Sum<unsigned long long>(nbr_hash));
+    Kokkos::fence();
+    std::cerr << "[hash] t=" << t << " nbr=" << nbr_hash << std::endl;
+  }
+
   #ifdef DEBUG_SLOW
   print_neighbors(0);
   #endif
