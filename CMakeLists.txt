@@ -1,5 +1,5 @@
 ###############################################################
-cmake_minimum_required(VERSION 3.4)
+cmake_minimum_required(VERSION 3.10)
 project(ccake VERSION 1.0 LANGUAGES CXX C)
 
 configure_file(include/config.h.in config.h)

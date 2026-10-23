@@ -207,7 +207,7 @@ def animate(i):
 
     plt.xlim([xmin, xmax])
     plt.ylim([ymin, ymax])
-    plt.text(0.075, 0.925, r'$\tau = %(t)5.2f$ fm$/c$'%{'t': tau}, \
+    plt.text(0.075, 0.925, r'$\tau = %(t)5.2f$ fm$/c$'%{'t': tau.item()}, \
             {'color': fontColor, 'fontsize': 24}, transform=ax.transAxes,
             horizontalalignment='left', verticalalignment='top')
     ax.set_xlabel(r'$x$ (fm)', fontsize=24)
