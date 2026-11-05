@@ -821,23 +821,8 @@ void SystemState<D>::reset_neighbour_list(){
   // Sorting each CSR row ascending makes the list canonical whatever the fill order.
   // Skipped in constant mode to preserve bit-identity with the legacy code path (fixed
   // radius => no cross-adds => stock fill order, which is already deterministic).
-  if ( settingsPtr->smoothing_length_mode != "constant" ) {
-    auto nbr_counts  = neighbour_list._data.counts;
-    auto nbr_offsets = neighbour_list._data.offsets;
-    auto nbr_ids     = neighbour_list._data.neighbors;
-    Kokkos::parallel_for("sort_neighbor_rows", Kokkos::RangePolicy<>(0, n_particles),
-      KOKKOS_LAMBDA(const int i){
-        const int beg = nbr_offsets(i);
-        const int nn  = nbr_counts(i);
-        for (int a = 1; a < nn; ++a) {          // insertion sort: rows are short (~50)
-          const int v = nbr_ids(beg+a);
-          int b = a - 1;
-          while (b >= 0 && nbr_ids(beg+b) > v) { nbr_ids(beg+b+1) = nbr_ids(beg+b); --b; }
-          nbr_ids(beg+b+1) = v;
-        }
-      });
-    Kokkos::fence();
-  }
+  if ( settingsPtr->smoothing_length_mode != "constant" )
+    sort_neighbor_rows(neighbour_list, n_particles);
 #ifdef __linux__
   malloc_trim(0);   // return freed Kokkos/Cabana pages to OS after neighbour list rebuild
 #endif

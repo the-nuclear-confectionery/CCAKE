@@ -64,6 +64,35 @@ using ListLayout = Cabana::VerletLayoutCSR; ///< CSR packs neighbors contiguousl
                                             ///< blowing up to ~N*max_neigh*4B when neighbor counts vary.
 using ListType = Cabana::VerletList<MemorySpace, ListAlgorithm, ListLayout, Cabana::TeamOpTag>;
 
+/// @brief Sorts rows 0..number_of_rows-1 of a CSR neighbour list into ascending index order.
+/// @details With per-particle radii the (patched) Cabana fill adds cross-neighbours into
+/// other particles' rows from racing threads, so a row's ORDER depends on thread
+/// scheduling while its membership does not. Every SPH or WVT sum over a row is a
+/// floating-point sum, and FP addition is not associative, so an unsorted row makes the
+/// result change from run to run. Sorting makes the order canonical. Rows are short
+/// (~50-200 entries), so an in-place insertion sort is used.
+inline void sort_neighbor_rows(ListType& list, const int number_of_rows)
+{
+  auto neighbor_counts  = list._data.counts;
+  auto neighbor_offsets = list._data.offsets;
+  auto neighbor_ids     = list._data.neighbors;
+  Kokkos::parallel_for("sort_neighbor_rows", Kokkos::RangePolicy<ExecutionSpace>(0, number_of_rows),
+    KOKKOS_LAMBDA(const int i){
+      const int row_begin = neighbor_offsets(i);
+      const int row_length = neighbor_counts(i);
+      for (int a = 1; a < row_length; ++a) {
+        const int value = neighbor_ids(row_begin + a);
+        int b = a - 1;
+        while (b >= 0 && neighbor_ids(row_begin + b) > value) {
+          neighbor_ids(row_begin + b + 1) = neighbor_ids(row_begin + b);
+          --b;
+        }
+        neighbor_ids(row_begin + b + 1) = value;
+      }
+    });
+  Kokkos::fence();
+}
+
 namespace Utilities
 {
     static unsigned long get_free_memory();

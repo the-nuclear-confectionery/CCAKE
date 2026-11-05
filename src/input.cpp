@@ -160,6 +160,47 @@ bool cc::Input::decode_settings(const YAML::Node& node){
         node["initial_conditions"]["freezein"]["baryon_landau"].as<bool>();
     } catch (...) {}
 
+    // WVT glass (optional): build an adaptive WVT glass from the gridded IC in CCAKE
+    // (see include/wvt_glass.h). Unknown keys abort, so a typo cannot silently fall
+    // back to a default.
+    if ( node["initial_conditions"]["wvt"] )
+    {
+      const YAML::Node wvt_node = node["initial_conditions"]["wvt"];
+      const std::vector<std::string> known_keys = {
+        "enabled", "number_of_particles", "iterations", "tolerance", "eta_smooth",
+        "eta_stretch", "seed", "mu0", "softening_fraction",
+        "max_move", "output_file"};
+      for (const auto& entry : wvt_node)
+      {
+        const std::string key = entry.first.as<std::string>();
+        if (std::find(known_keys.begin(), known_keys.end(), key) == known_keys.end())
+        {
+          formatted_output::detail("ERROR: unknown key initial_conditions.wvt." + key);
+          return false;
+        }
+      }
+      ccake::wvt::GlassSettings& glass = settingsPtr->wvt_glass;
+      try {
+        if (wvt_node["enabled"])             settingsPtr->wvt_enabled  = wvt_node["enabled"].as<bool>();
+        if (wvt_node["number_of_particles"]) glass.number_of_particles = wvt_node["number_of_particles"].as<int>();
+        if (wvt_node["iterations"])          glass.iterations          = wvt_node["iterations"].as<int>();
+        if (wvt_node["tolerance"])           glass.tolerance           = wvt_node["tolerance"].as<double>();
+        if (wvt_node["eta_smooth"])          glass.eta_smooth          = wvt_node["eta_smooth"].as<double>();
+        glass.eta_stretch = wvt_node["eta_stretch"] ? wvt_node["eta_stretch"].as<double>() : -1.0;
+        if (wvt_node["seed"])                glass.seed                = wvt_node["seed"].as<unsigned>();
+        if (wvt_node["mu0"])                 glass.mu0                 = wvt_node["mu0"].as<double>();
+        if (wvt_node["softening_fraction"])  glass.softening_fraction  = wvt_node["softening_fraction"].as<double>();
+        if (wvt_node["max_move"])            glass.max_move            = wvt_node["max_move"].as<double>();
+        if (wvt_node["output_file"])         settingsPtr->wvt_output_file = wvt_node["output_file"].as<std::string>();
+      } catch (...) {
+        formatted_output::detail("ERROR: could not read initial_conditions.wvt (check the value types)");
+        return false;
+      }
+      if (settingsPtr->wvt_enabled)
+        formatted_output::report("WVT glass enabled: " + std::to_string(glass.number_of_particles)
+                                 + " particles, " + std::to_string(glass.iterations) + " iterations");
+    }
+
     //--------------------------------------------------------------------------
     //Parameters node
     try {

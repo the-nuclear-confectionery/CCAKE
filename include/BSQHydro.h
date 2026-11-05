@@ -59,7 +59,10 @@ private:
   void read_ICCING();
   void read_ccake();
   void read_freezein();
+  void read_wvt_glass();
   void read_dynamical();
+  void add_ccake_particle(const double* row);
+  bool add_freezein_particle(const double* row);
 
   std::shared_ptr<Settings> settingsPtr; ///< Settings object containing configuration parsed from input file
   std::shared_ptr<SystemState<D>> systemPtr; ///< SystemState object containing the SPH System (linked list, particles, etc.)

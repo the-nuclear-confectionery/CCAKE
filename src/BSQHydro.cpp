@@ -2,6 +2,7 @@
 
 #include "BSQHydro.h"
 #include "phase_profiler.h"
+#include "wvt_glass.h"
 
 using namespace ccake;
 
@@ -55,7 +56,11 @@ void BSQHydro<D,TEOM>::read_in_initial_conditions(){
   formatted_output::update("Initial conditions type: " + settingsPtr->IC_type);
 
   //----------------------------------------------------------------------------
-  if (initial_condition_type == "ICCING")
+  if (settingsPtr->wvt_enabled)
+  {
+    read_wvt_glass();
+  }
+  else if (initial_condition_type == "ICCING")
   {
     read_ICCING();
   }
@@ -69,6 +74,78 @@ void BSQHydro<D,TEOM>::read_in_initial_conditions(){
   }
 
   return;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// @brief Builds an adaptive WVT glass from the gridded IC file and stages its rows
+/// as particles through the normal "ccake" / "freezein" row conversion.
+/// @details Replaces the former standalone wvt_ic_generator stage (see
+/// include/wvt_glass.h). The glass is made before the cutoff, over the whole source;
+/// energy_cutoff is applied afterwards by add_ccake_particle / add_freezein_particle,
+/// as for a grid IC. The 3D stretch is eta_h / eta_h_eta with the factorized kernel
+/// and 1 otherwise (unless wvt.eta_stretch is set), the anisotropy the kernel needs.
+/// The grid header is set to the one the generator wrote for the glass (mean
+/// spacing and glass minima); the neighbour grid bounds are built from it.
+template <unsigned int D, template <unsigned int> class TEOM>
+void BSQHydro<D,TEOM>::read_wvt_glass()
+{
+  const string& type = settingsPtr->IC_type;
+  if (type != "ccake" && type != "freezein")
+  {
+    std::cerr << "ERROR: initial_conditions.wvt needs type ccake or freezein, not "
+              << type << std::endl;
+    Kokkos::finalize();
+    abort();
+  }
+
+  wvt::GlassSettings glass_settings = settingsPtr->wvt_glass;
+  if (glass_settings.eta_stretch <= 0.0)
+    glass_settings.eta_stretch = (D == 3 && settingsPtr->factorized_kernel && settingsPtr->eta_h_eta > 0.0)
+                               ? settingsPtr->eta_h / settingsPtr->eta_h_eta : 1.0;
+  if (settingsPtr->smoothing_length_mode == "constant")
+    formatted_output::report("WARNING: a WVT glass is density-adaptive, but "
+                             "smoothing_length_mode is constant");
+
+  const string source_file = (type == "freezein") ? settingsPtr->freezein_input_file.string()
+                                                  : settingsPtr->IC_file.string();
+  wvt::Glass glass = wvt::make_glass(source_file, glass_settings);
+  if (glass.dimension != static_cast<int>(D))
+  {
+    std::cerr << "ERROR: the WVT source is " << glass.dimension << "D but the run is "
+              << D << "D" << std::endl;
+    Kokkos::finalize();
+    abort();
+  }
+  const int needed_columns = (type == "freezein") ? 25
+                           : (settingsPtr->input_initial_diffusion ? 29 : 17);
+  if (glass.number_of_columns < needed_columns)
+  {
+    std::cerr << "ERROR: the WVT source has " << glass.number_of_columns
+              << " columns, the " << type << " reader needs " << needed_columns << std::endl;
+    Kokkos::finalize();
+    abort();
+  }
+  if (!settingsPtr->wvt_output_file.empty())
+    wvt::write_glass(settingsPtr->wvt_output_file, glass);
+
+  settingsPtr->stepx   = glass.step_x;
+  settingsPtr->stepy   = glass.step_y;
+  settingsPtr->stepEta = glass.step_eta;
+  settingsPtr->xmin    = glass.x_min;
+  settingsPtr->ymin    = glass.y_min;
+  settingsPtr->etamin  = glass.eta_min;
+
+  std::size_t n_kept = 0;
+  for (int i = 0; i < glass.number_of_rows(); ++i)
+  {
+    if (type == "freezein") { if (add_freezein_particle(glass.row(i))) ++n_kept; }
+    else                    { add_ccake_particle(glass.row(i)); }
+  }
+  if (type == "freezein")
+    formatted_output::update("Freeze-in: kept " + std::to_string(n_kept) + " of "
+                             + std::to_string(glass.number_of_rows())
+                             + " glass particles above e_cutoff = "
+                             + std::to_string(settingsPtr->e_cutoff) + " GeV/fm^3");
 }
 
 /// @brief Reads in the initial conditions for hydrodynamics from an ICCING file.
@@ -224,15 +301,11 @@ void BSQHydro<D,TEOM>::read_ccake()
   {
     string line;
     int count_header_lines = 0;
-    double x, y, eta, e, rhoB, rhoS, rhoQ, ux, uy, ueta, bulk, pixx, pixy, pixeta, piyy, piyeta, pietaeta;
-    double qB0, qS0, qQ0;
-    double qB1, qS1, qQ1;
-    double qB2, qS2, qQ2;
-    double qB3, qS3, qQ3;
+    // One data row (layout in add_ccake_particle). Declared outside the loop, like
+    // the named locals it replaces, so a short row keeps the previous row's values.
+    double row[29] = {0.0};
+    const int number_of_columns = settingsPtr->input_initial_diffusion ? 29 : 17;
     double ignore, stepX, stepY, stepEta, xmin, ymin, etamin;
-    double max_e = 0.0;
-    double min_e = 1e6;
-    double s=0.0; //for input as entropy
     while (getline (infile, line))
     {
       istringstream iss(line);
@@ -258,156 +331,11 @@ void BSQHydro<D,TEOM>::read_ccake()
         const size_t nb = line.find_first_not_of(" \t\r\n");
         if (nb == std::string::npos || line[nb] == '#') continue;
 
-        if(settingsPtr->input_initial_diffusion)
-          iss >> x >> y >> eta >> s >> rhoB >> rhoS >> rhoQ >> ux >> uy >> ueta >> bulk >> pixx >> pixy >> pixeta >> piyy >> piyeta >> pietaeta >> qB0 >> qB1 >> qB2 >> qB3 >> qS0 >> qS1 >> qS2 >> qS3 >> qQ0 >> qQ1 >> qQ2 >> qQ3;
-        else{
-          iss >> x >> y >> eta >> s >> rhoB >> rhoS >> rhoQ >> ux >> uy >> ueta >> bulk >> pixx >> pixy >> pixeta >> piyy >> piyeta >> pietaeta;
-        }
-        if(settingsPtr->input_as_entropy==true){
-          //convert the input to entropy density
-          s=s;
-        }
-        else{
-          e = s;
-          s = 0.0;
-          e /= hbarc_GeVfm; // 1/fm^4
-        }
-
-        //rhoB = 0.;
-        //rhoS = 0.;
-        //rhoQ = 0.;
-
-        pixx /= hbarc_GeVfm; // 1/fm^4
-        pixy /= hbarc_GeVfm; // 1/fm^4
-        pixeta /= hbarc_GeVfm; // 1/fm^5
-        piyy /= hbarc_GeVfm; // 1/fm^4
-        piyeta /= hbarc_GeVfm; // 1/fm^5
-        pietaeta /= hbarc_GeVfm; // 1/fm^6
-        bulk /= hbarc_GeVfm; // 1/fm^4
-        Particle<D> p;
-        switch (D)
-        {
-          case 1:
-            p.r(0) = eta;
-            p.hydro.u(0) = ueta;
-            p.hydro.shv(1,1) = pixx;
-            p.hydro.shv(1,2) = pixy;
-            p.hydro.shv(1,3) = pixeta;
-            p.hydro.shv(2,1) = pixy;
-            p.hydro.shv(3,1) = pixeta;
-            p.hydro.shv(2,2) = piyy;
-            p.hydro.shv(2,3) = piyeta;
-            p.hydro.shv(3,2) = piyeta;
-            p.hydro.shv(3,3) = pietaeta;
-            break;
-          case 2:
-            p.r(0) = x;
-            p.r(1) = y;
-            p.hydro.u(0) = ux;
-            p.hydro.u(1) = uy;
-            p.hydro.shv(1,1) = pixx;
-            p.hydro.shv(1,2) = pixy;
-            p.hydro.shv(1,3) = pixeta;
-            p.hydro.shv(2,1) = pixy;
-            p.hydro.shv(3,1) = pixeta;
-            p.hydro.shv(2,2) = piyy;
-            p.hydro.shv(2,3) = piyeta;
-            p.hydro.shv(3,2) = piyeta;
-            p.hydro.shv(3,3) = pietaeta;
-            break;
-          case 3:
-            p.r(0) = x;
-            p.r(1) = y;
-            p.r(2) = eta;
-            p.hydro.u(0) = ux;
-            p.hydro.u(1) = uy;
-            p.hydro.u(2) = ueta;
-            p.hydro.shv(1,1) = pixx;
-            p.hydro.shv(1,2) = pixy;
-            p.hydro.shv(1,3) = pixeta;
-            p.hydro.shv(2,1) = pixy;
-            p.hydro.shv(3,1) = pixeta;
-            p.hydro.shv(2,2) = piyy;
-            p.hydro.shv(2,3) = piyeta;
-            p.hydro.shv(3,2) = piyeta;
-            p.hydro.shv(3,3) = pietaeta;
-        }
-        if(settingsPtr->input_as_entropy==true){
-          p.input.s = s;
-        }
-        else{
-          p.input.e = e;
-        }
-        (settingsPtr->baryon_charge_enabled) ? p.input.rhoB = rhoB : p.input.rhoB = 0.0;
-        (settingsPtr->strange_charge_enabled) ? p.input.rhoS = rhoS : p.input.rhoS = 0.0;
-        (settingsPtr->electric_charge_enabled) ? p.input.rhoQ = rhoQ : p.input.rhoQ = 0.0;
-        p.hydro.bulk = bulk;
-        if(settingsPtr->input_initial_diffusion){
-          if(settingsPtr->baryon_charge_enabled){
-            p.hydro.diffusion(0,0) = qB0;
-            p.hydro.diffusion(0,1) = qB1;
-            p.hydro.diffusion(0,2) = qB2;
-            p.hydro.diffusion(0,3) = qB3;
-          } else {
-            p.hydro.diffusion(0,0) = 0.0;
-            p.hydro.diffusion(0,1) = 0.0;
-            p.hydro.diffusion(0,2) = 0.0;
-            p.hydro.diffusion(0,3) = 0.0;
-          }
-          if(settingsPtr->strange_charge_enabled){
-            p.hydro.diffusion(1,0) = qS0;
-            p.hydro.diffusion(1,1) = qS1;
-            p.hydro.diffusion(1,2) = qS2;
-            p.hydro.diffusion(1,3) = qS3;
-          } else {
-            p.hydro.diffusion(1,0) = 0.0;
-            p.hydro.diffusion(1,1) = 0.0;
-            p.hydro.diffusion(1,2) = 0.0;
-            p.hydro.diffusion(1,3) = 0.0;
-          }
-          if(settingsPtr->electric_charge_enabled){
-            p.hydro.diffusion(2,0) = qQ0;
-            p.hydro.diffusion(2,1) = qQ1;
-            p.hydro.diffusion(2,2) = qQ2;
-            p.hydro.diffusion(2,3) = qQ3;
-          } else {
-            p.hydro.diffusion(2,0) = 0.0;
-            p.hydro.diffusion(2,1) = 0.0;
-            p.hydro.diffusion(2,2) = 0.0;
-            p.hydro.diffusion(2,3) = 0.0;
-          }
-        }
-        else{
-          //set diffusion to zero
-          p.hydro.diffusion(0,0) = 0.0;
-          p.hydro.diffusion(0,1) = 0.0;
-          p.hydro.diffusion(0,2) = 0.0;
-          p.hydro.diffusion(0,3) = 0.0;
-          p.hydro.diffusion(1,0) = 0.0;
-          p.hydro.diffusion(1,1) = 0.0;
-          p.hydro.diffusion(1,2) = 0.0;
-          p.hydro.diffusion(1,3) = 0.0;
-          p.hydro.diffusion(2,0) = 0.0;
-          p.hydro.diffusion(2,1) = 0.0;
-          p.hydro.diffusion(2,2) = 0.0;
-          p.hydro.diffusion(2,3) = 0.0;
-        }
-
-
-        if(settingsPtr->input_as_entropy==true){
-          
-          //C = g_pi * pi^2 / (90) 
-          double C = 3.0 * pow(M_PI,2.) / (90.0);
-          double e_check = (3.*C)*pow(1./(4.*C),4./3.) * pow(s,4./3.);
-          if(e_check > settingsPtr->e_cutoff/hbarc_GeVfm) systemPtr->add_particle( p );
-        }
-        else{
-          if(e > settingsPtr->e_cutoff/hbarc_GeVfm) systemPtr->add_particle( p );
-        }
+        for (int c = 0; c < number_of_columns; ++c) iss >> row[c];
+        add_ccake_particle(row);
 
         #ifdef DEBUG
-        outfile << x << " " << y << " " << eta << " " << e*hbarc_GeVfm << " " << rhoB
-                << " " << rhoS << " " << rhoQ << " " << ux << " " << uy << " " << ueta << endl;
+        for (int c = 0; c < 10; ++c) outfile << row[c] << (c < 9 ? " " : "\n");
         #endif
       }
     }
@@ -421,6 +349,159 @@ void BSQHydro<D,TEOM>::read_ccake()
     std::cerr << "File " << IC_file << " could not be opened!" << std::endl;
     Kokkos::finalize();
     abort();
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// @brief Converts one row of a "ccake" IC and adds it as a particle if it is
+/// above the energy cutoff.
+/// @details Row layout: x y eta e(or s) rhoB rhoS rhoQ ux uy ueta bulk pixx pixy
+/// pixeta piyy piyeta pietaeta, then qB0..3 qS0..3 qQ0..3 when
+/// input_initial_diffusion is set. Energies and stresses are in GeV/fm^3.
+/// Used for rows read from the file and for rows of a WVT glass.
+template<unsigned int D, template<unsigned int> typename TEOM>
+void BSQHydro<D,TEOM>::add_ccake_particle(const double* row)
+{
+  const double x = row[0], y = row[1], eta = row[2];
+  double e = 0.0, s = 0.0;
+  if(settingsPtr->input_as_entropy==true){
+    s = row[3];
+  }
+  else{
+    e = row[3] / hbarc_GeVfm; // 1/fm^4
+  }
+  const double rhoB = row[4], rhoS = row[5], rhoQ = row[6];
+  const double ux = row[7], uy = row[8], ueta = row[9];
+  const double bulk     = row[10] / hbarc_GeVfm; // 1/fm^4
+  const double pixx     = row[11] / hbarc_GeVfm; // 1/fm^4
+  const double pixy     = row[12] / hbarc_GeVfm; // 1/fm^4
+  const double pixeta   = row[13] / hbarc_GeVfm; // 1/fm^5
+  const double piyy     = row[14] / hbarc_GeVfm; // 1/fm^4
+  const double piyeta   = row[15] / hbarc_GeVfm; // 1/fm^5
+  const double pietaeta = row[16] / hbarc_GeVfm; // 1/fm^6
+  const double qB0 = row[17], qB1 = row[18], qB2 = row[19], qB3 = row[20];
+  const double qS0 = row[21], qS1 = row[22], qS2 = row[23], qS3 = row[24];
+  const double qQ0 = row[25], qQ1 = row[26], qQ2 = row[27], qQ3 = row[28];
+
+  Particle<D> p;
+  switch (D)
+  {
+    case 1:
+      p.r(0) = eta;
+      p.hydro.u(0) = ueta;
+      p.hydro.shv(1,1) = pixx;
+      p.hydro.shv(1,2) = pixy;
+      p.hydro.shv(1,3) = pixeta;
+      p.hydro.shv(2,1) = pixy;
+      p.hydro.shv(3,1) = pixeta;
+      p.hydro.shv(2,2) = piyy;
+      p.hydro.shv(2,3) = piyeta;
+      p.hydro.shv(3,2) = piyeta;
+      p.hydro.shv(3,3) = pietaeta;
+      break;
+    case 2:
+      p.r(0) = x;
+      p.r(1) = y;
+      p.hydro.u(0) = ux;
+      p.hydro.u(1) = uy;
+      p.hydro.shv(1,1) = pixx;
+      p.hydro.shv(1,2) = pixy;
+      p.hydro.shv(1,3) = pixeta;
+      p.hydro.shv(2,1) = pixy;
+      p.hydro.shv(3,1) = pixeta;
+      p.hydro.shv(2,2) = piyy;
+      p.hydro.shv(2,3) = piyeta;
+      p.hydro.shv(3,2) = piyeta;
+      p.hydro.shv(3,3) = pietaeta;
+      break;
+    case 3:
+      p.r(0) = x;
+      p.r(1) = y;
+      p.r(2) = eta;
+      p.hydro.u(0) = ux;
+      p.hydro.u(1) = uy;
+      p.hydro.u(2) = ueta;
+      p.hydro.shv(1,1) = pixx;
+      p.hydro.shv(1,2) = pixy;
+      p.hydro.shv(1,3) = pixeta;
+      p.hydro.shv(2,1) = pixy;
+      p.hydro.shv(3,1) = pixeta;
+      p.hydro.shv(2,2) = piyy;
+      p.hydro.shv(2,3) = piyeta;
+      p.hydro.shv(3,2) = piyeta;
+      p.hydro.shv(3,3) = pietaeta;
+  }
+  if(settingsPtr->input_as_entropy==true){
+    p.input.s = s;
+  }
+  else{
+    p.input.e = e;
+  }
+  (settingsPtr->baryon_charge_enabled) ? p.input.rhoB = rhoB : p.input.rhoB = 0.0;
+  (settingsPtr->strange_charge_enabled) ? p.input.rhoS = rhoS : p.input.rhoS = 0.0;
+  (settingsPtr->electric_charge_enabled) ? p.input.rhoQ = rhoQ : p.input.rhoQ = 0.0;
+  p.hydro.bulk = bulk;
+  if(settingsPtr->input_initial_diffusion){
+    if(settingsPtr->baryon_charge_enabled){
+      p.hydro.diffusion(0,0) = qB0;
+      p.hydro.diffusion(0,1) = qB1;
+      p.hydro.diffusion(0,2) = qB2;
+      p.hydro.diffusion(0,3) = qB3;
+    } else {
+      p.hydro.diffusion(0,0) = 0.0;
+      p.hydro.diffusion(0,1) = 0.0;
+      p.hydro.diffusion(0,2) = 0.0;
+      p.hydro.diffusion(0,3) = 0.0;
+    }
+    if(settingsPtr->strange_charge_enabled){
+      p.hydro.diffusion(1,0) = qS0;
+      p.hydro.diffusion(1,1) = qS1;
+      p.hydro.diffusion(1,2) = qS2;
+      p.hydro.diffusion(1,3) = qS3;
+    } else {
+      p.hydro.diffusion(1,0) = 0.0;
+      p.hydro.diffusion(1,1) = 0.0;
+      p.hydro.diffusion(1,2) = 0.0;
+      p.hydro.diffusion(1,3) = 0.0;
+    }
+    if(settingsPtr->electric_charge_enabled){
+      p.hydro.diffusion(2,0) = qQ0;
+      p.hydro.diffusion(2,1) = qQ1;
+      p.hydro.diffusion(2,2) = qQ2;
+      p.hydro.diffusion(2,3) = qQ3;
+    } else {
+      p.hydro.diffusion(2,0) = 0.0;
+      p.hydro.diffusion(2,1) = 0.0;
+      p.hydro.diffusion(2,2) = 0.0;
+      p.hydro.diffusion(2,3) = 0.0;
+    }
+  }
+  else{
+    //set diffusion to zero
+    p.hydro.diffusion(0,0) = 0.0;
+    p.hydro.diffusion(0,1) = 0.0;
+    p.hydro.diffusion(0,2) = 0.0;
+    p.hydro.diffusion(0,3) = 0.0;
+    p.hydro.diffusion(1,0) = 0.0;
+    p.hydro.diffusion(1,1) = 0.0;
+    p.hydro.diffusion(1,2) = 0.0;
+    p.hydro.diffusion(1,3) = 0.0;
+    p.hydro.diffusion(2,0) = 0.0;
+    p.hydro.diffusion(2,1) = 0.0;
+    p.hydro.diffusion(2,2) = 0.0;
+    p.hydro.diffusion(2,3) = 0.0;
+  }
+
+
+  if(settingsPtr->input_as_entropy==true){
+    
+    //C = g_pi * pi^2 / (90) 
+    double C = 3.0 * pow(M_PI,2.) / (90.0);
+    double e_check = (3.*C)*pow(1./(4.*C),4./3.) * pow(s,4./3.);
+    if(e_check > settingsPtr->e_cutoff/hbarc_GeVfm) systemPtr->add_particle( p );
+  }
+  else{
+    if(e > settingsPtr->e_cutoff/hbarc_GeVfm) systemPtr->add_particle( p );
   }
 }
 
@@ -492,48 +573,13 @@ void BSQHydro<D,TEOM>::read_freezein()
     }
 
     istringstream iss(line);
-    double x, y, eta;
-    double Ttt, Ttx, Tty, Ttn, Txx, Txy, Txn, Tyy, Tyn, Tnn;
-    double jB0, jB1, jB2, jB3, jS0, jS1, jS2, jS3, jQ0, jQ1, jQ2, jQ3;
-    if (!(iss >> x >> y >> eta
-              >> Ttt >> Ttx >> Tty >> Ttn >> Txx >> Txy >> Txn >> Tyy >> Tyn >> Tnn
-              >> jB0 >> jB1 >> jB2 >> jB3
-              >> jS0 >> jS1 >> jS2 >> jS3
-              >> jQ0 >> jQ1 >> jQ2 >> jQ3))
-      continue; // not a data row (e.g. trailing comment we did not catch)
+    double row[25];
+    bool complete_row = true;
+    for (int c = 0; c < 25 && complete_row; ++c) complete_row = static_cast<bool>(iss >> row[c]);
+    if (!complete_row) continue; // not a data row (e.g. trailing comment we did not catch)
 
     ++n_cells;
-    // Safe pre-filter only: since the rest-frame energy density satisfies
-    // epsilon <= T^{tau tau}, any cell with T^{tau tau} <= e_cutoff is
-    // guaranteed below the cutoff. The DECISIVE cut on the true epsilon is
-    // applied after the match in SPHWorkstation::freeze_in_match().
-    if (Ttt <= e_cutoff) continue; // GeV/fm^3
-    ++n_kept;
-
-    Particle<D> p;
-    switch (D)
-    {
-      case 1:
-        p.r(0) = eta;
-        break;
-      case 2:
-        p.r(0) = x;
-        p.r(1) = y;
-        break;
-      case 3:
-        p.r(0) = x;
-        p.r(1) = y;
-        p.r(2) = eta;
-    }
-
-    // Stash the conserved surface densities (Milne, 0=tau,1=x,2=y,3=eta).
-    p.freezein_Ttau[0] = Ttt;  p.freezein_Ttau[1] = Ttx;
-    p.freezein_Ttau[2] = Tty;  p.freezein_Ttau[3] = Ttn;
-    p.freezein_jB[0] = jB0; p.freezein_jB[1] = jB1; p.freezein_jB[2] = jB2; p.freezein_jB[3] = jB3;
-    p.freezein_jS[0] = jS0; p.freezein_jS[1] = jS1; p.freezein_jS[2] = jS2; p.freezein_jS[3] = jS3;
-    p.freezein_jQ[0] = jQ0; p.freezein_jQ[1] = jQ1; p.freezein_jQ[2] = jQ2; p.freezein_jQ[3] = jQ3;
-
-    systemPtr->add_particle(p);
+    if (add_freezein_particle(row)) ++n_kept;
   }
   infile.close();
 
@@ -541,6 +587,51 @@ void BSQHydro<D,TEOM>::read_freezein()
                            + " of " + std::to_string(n_cells)
                            + " cells above e_cutoff = "
                            + std::to_string(e_cutoff) + " GeV/fm^3");
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// @brief Stages one freeze-in row as a particle unless it is safely below the cutoff.
+/// @details Row layout: x y eta Ttt Ttx Tty Ttn Txx Txy Txn Tyy Tyn Tnn jB0..3 jS0..3
+/// jQ0..3 (T in GeV/fm^3, currents in 1/fm^3). Since the rest-frame energy density
+/// satisfies epsilon <= T^{tau tau}, any row with T^{tau tau} <= e_cutoff is below the
+/// cutoff; the decisive cut on epsilon follows in SPHWorkstation::freeze_in_match().
+/// Used for rows read from the file and for rows of a WVT glass.
+/// @return true if the particle was added.
+template <unsigned int D, template <unsigned int> class TEOM>
+bool BSQHydro<D,TEOM>::add_freezein_particle(const double* row)
+{
+  const double x = row[0], y = row[1], eta = row[2];
+  const double Ttt = row[3], Ttx = row[4], Tty = row[5], Ttn = row[6];
+  const double jB0 = row[13], jB1 = row[14], jB2 = row[15], jB3 = row[16];
+  const double jS0 = row[17], jS1 = row[18], jS2 = row[19], jS3 = row[20];
+  const double jQ0 = row[21], jQ1 = row[22], jQ2 = row[23], jQ3 = row[24];
+  if (Ttt <= settingsPtr->e_cutoff) return false; // GeV/fm^3
+
+  Particle<D> p;
+  switch (D)
+  {
+    case 1:
+      p.r(0) = eta;
+      break;
+    case 2:
+      p.r(0) = x;
+      p.r(1) = y;
+      break;
+    case 3:
+      p.r(0) = x;
+      p.r(1) = y;
+      p.r(2) = eta;
+  }
+
+  // Stash the conserved surface densities (Milne, 0=tau,1=x,2=y,3=eta).
+  p.freezein_Ttau[0] = Ttt;  p.freezein_Ttau[1] = Ttx;
+  p.freezein_Ttau[2] = Tty;  p.freezein_Ttau[3] = Ttn;
+  p.freezein_jB[0] = jB0; p.freezein_jB[1] = jB1; p.freezein_jB[2] = jB2; p.freezein_jB[3] = jB3;
+  p.freezein_jS[0] = jS0; p.freezein_jS[1] = jS1; p.freezein_jS[2] = jS2; p.freezein_jS[3] = jS3;
+  p.freezein_jQ[0] = jQ0; p.freezein_jQ[1] = jQ1; p.freezein_jQ[2] = jQ2; p.freezein_jQ[3] = jQ3;
+
+  systemPtr->add_particle(p);
+  return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

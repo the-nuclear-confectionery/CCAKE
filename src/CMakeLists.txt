@@ -21,7 +21,12 @@ add_library(src OBJECT
 	utilities.cpp
 	input.cpp
 	output.cpp
+	wvt_glass.cpp
 )
+
+# The WVT glass must match the standalone generator bit for bit: keep FMA contraction
+# off there (-march=native would otherwise fuse dx*dx + dy*dy, see wvt_glass.cpp).
+set_source_files_properties(wvt_glass.cpp PROPERTIES COMPILE_OPTIONS "-ffp-contract=off")
 
 add_library(eos OBJECT eos.cpp eos_gap.cpp eos_extension.cpp eos_table.cpp rootfinder.cpp formatted_output.cpp)
 

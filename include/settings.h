@@ -8,6 +8,7 @@
 
 #include "constants.h"
 #include "formatted_output.h"
+#include "wvt_glass.h"
 
 using std::string;
 namespace fs = std::filesystem;
@@ -101,6 +102,12 @@ class Settings
     bool   freezein_baryon_landau = false; ///< If true, n_a = j_a^mu u_mu (Landau scalar
                                            ///< rest density) instead of the flux-matched
                                            ///< j_a^tau/gamma. Keeps freeze-in energy/flow.
+
+    // WVT glass (initial_conditions.wvt): resample the gridded "ccake"/"freezein" IC
+    // onto an adaptive WVT glass before it is read (include/wvt_glass.h).
+    bool   wvt_enabled = false;          ///< build the glass in CCAKE
+    ccake::wvt::GlassSettings wvt_glass; ///< eta_stretch <= 0: eta_h/eta_h_eta (factorized) or 1
+    string wvt_output_file = "";         ///< optional: write the glass as a CCAKE IC file
 
     //------------------------------------
     // simulations parameters
