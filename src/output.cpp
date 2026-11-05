@@ -71,7 +71,7 @@ void Output<D,TEOM>::print_system_state()
   if (settingsPtr->hdf_evolution)
     print_system_state_to_HDF();
 
-  if(settingsPtr->jet_evolution){
+  if(settingsPtr->jet_evolution && systemPtr->n_particles == systemPtr->number_part_fo){
     wsPtr->bbmg.copy_device_to_host_BBMG();
     print_jet_state_to_txt();
   }
@@ -183,7 +183,7 @@ void Output<D,TEOM>::print_system_state_to_txt()
 template<unsigned int D, template<unsigned int> class TEOM>
 void Output<D,TEOM>::print_jet_state_to_txt()
 {
-  string jet_output_filename = output_directory + "/jet_state_" + std::to_string(n_timesteps_output) + ".dat";
+  string jet_output_filename = output_directory + "/jet_state.dat";
   ofstream out( jet_output_filename.c_str() );
   // out << systemPtr->t << "\n";
 

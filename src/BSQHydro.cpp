@@ -472,7 +472,9 @@ void BSQHydro<D,TEOM>::initialize_hydrodynamics()
 
   // initialize jets from particle temperatures and densities
   if(settingsPtr->jets_type != "disabled"){
+    cout << "Initializing jets" << endl;
     wsPtr->initialize_jets_bbmg();
+    cout << "Finished initializing jets" << endl;
   }
   // if initializing from full Tmunu, absorb non-equilibrium
   // pressure correction into bulk viscous pressure Pi

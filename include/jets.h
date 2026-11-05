@@ -115,9 +115,11 @@ private:
     
     double Pfg, Pfq; ///\@todo: Move or eliminate based on need for energy loss equation with energy dependence
 
-    int phi_bins = settingsPtr->jets_phi_bins;
-    const static int phimax = 7;
-    double phi[phimax];
+    // int phi_bins = settingsPtr->jets_phi_bins;
+    // const static int phimax = 7;
+    // double phi[phi_bins];
+    int phi_bins = 0;  // initialized later in initial()
+    std::vector<double> phi_angles;
     
 
     //void inter(field &f); // interpolation
@@ -182,7 +184,9 @@ void BBMG<D>::initial()
   z                 = settingsPtr->jets_Length_scaling; // path length dependence
   a                 = settingsPtr->jets_Energy_scaling; //Initial jet energy dependence
   c                 = (2+z-a)/3; //medium temperature dependence
-  num_jets          = 200000; // Number of jets per event for oversampling
+  num_jets          = 300000; // Number of jets per event for oversampling
+  phi_bins = settingsPtr->jets_phi_bins;
+  phi_angles.resize(phi_bins);
   //phimax            = 14;
   
   //===============================================
@@ -193,7 +197,7 @@ void BBMG<D>::initial()
 
   for (int i = 0; i < phi_bins; i++)
   {
-    phi[i] = i*PI/phi_bins;
+    phi_angles[i] = i*PI/phi_bins;
   }
   //Setting final energy as a start point for the integration; This is starting in GeV
   Pfg = 10;
@@ -214,6 +218,7 @@ void BBMG<D>::initial()
     std::mt19937 gen(rd()); // Mersenne Twister generator
     std::uniform_int_distribution<> dis(0, p.size() - 1); // Distribute over the valid range
     int random_sph_particle;
+
     for (int i = 0; i < num_jets; ++i)
     {
         // While loop to check temperature of chosen sph particle with if statement
@@ -231,7 +236,6 @@ void BBMG<D>::initial()
           }
         
         
-        
         //Density from pressure over temperature
         double rsub = p[random_sph_particle].p() / p[random_sph_particle].T();
         field sph_particle; //field of all sph particles where we take necessary line integral info
@@ -243,14 +247,12 @@ void BBMG<D>::initial()
         sph_particle.T = p[random_sph_particle].T() * constants::hbarc_MeVfm;
         //sph_particle.T0 = p[random_sph_particle].T() * constants::hbarc_MeVfm;
         //The above line is to create histograms to compare with initial temperature distribution
-        
         double kappa = get_kappa(sph_particle.T / 1000);
-
         sph_particle.line_int = 0.5 * kappa * exp(z * log(settingsPtr->t0)) * exp(c * log(sph_particle.rho0)) * settingsPtr->dt; // only if initial flow=0
         int phidist = rand() % phi_bins;
         for (int j = 0; j < back_to_back; j++)
         {
-            sph_particle.phi = phi[phidist] + j * PI;
+            sph_particle.phi = phi_angles[phidist] + j * PI;
             sph_particle.PID = phidist + phi_bins * j;
             sph_particle.Frozen = 1;
             jetInfo_host.push_back(sph_particle);
@@ -286,7 +288,7 @@ void BBMG<D>::initial_one_jet()
 
   for (int i = 0; i < phi_bins; i++)
   {
-    phi[i] = i*PI/phi_bins;
+    phi_angles[i] = i*PI/phi_bins;
   }
   //Setting final energy as a start point for the integration; This is starting in GeV
   Pfg = 10;
